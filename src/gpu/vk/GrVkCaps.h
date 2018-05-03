@@ -131,7 +131,6 @@ public:
     bool canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                         const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
 
-
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc, GrSurfaceOrigin*,
                             bool* rectsMustMatch, bool* disallowSubrect) const override;
 

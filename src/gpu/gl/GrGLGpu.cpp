@@ -3293,70 +3293,27 @@ static inline bool can_blit_framebuffer_for_copy_surface(
                                                 const GrSurface* src, GrSurfaceOrigin srcOrigin,
                                                 const SkIRect& srcRect,
                                                 const SkIPoint& dstPoint,
-                                                const GrGLGpu* gpu) {
-    auto blitFramebufferFlags = gpu->glCaps().blitFramebufferSupportFlags();
-    if (!gpu->glCaps().canConfigBeFBOColorAttachment(dst->config()) ||
-        !gpu->glCaps().canConfigBeFBOColorAttachment(src->config())) {
-        return false;
+                                                const GrGLCaps& caps) {
+    int dstSampleCnt = 0;
+    int srcSampleCnt = 0;
+    if (const GrRenderTarget* rt = dst->asRenderTarget()) {
+        dstSampleCnt = rt->numColorSamples();
     }
-    // Blits are not allowed between int color buffers and float/fixed color buffers. GrGpu should
-    // have filtered such cases out.
+    if (const GrRenderTarget* rt = src->asRenderTarget()) {
+        srcSampleCnt = rt->numColorSamples();
+    }
+    SkASSERT((dstSampleCnt > 0) == SkToBool(dst->asRenderTarget()));
+    SkASSERT((srcSampleCnt > 0) == SkToBool(src->asRenderTarget()));
+
     const GrGLTexture* dstTex = static_cast<const GrGLTexture*>(dst->asTexture());
     const GrGLTexture* srcTex = static_cast<const GrGLTexture*>(src->asTexture());
-    const GrRenderTarget* dstRT = dst->asRenderTarget();
-    const GrRenderTarget* srcRT = src->asRenderTarget();
-    if (dstTex && dstTex->target() != GR_GL_TEXTURE_2D) {
-        return false;
-    }
-    if (srcTex && srcTex->target() != GR_GL_TEXTURE_2D) {
-        return false;
-    }
-    if (GrGLCaps::kNoSupport_BlitFramebufferFlag & blitFramebufferFlags) {
-        return false;
-    }
-    if (GrGLCaps::kNoScalingOrMirroring_BlitFramebufferFlag & blitFramebufferFlags) {
-        // We would mirror to compensate for origin changes. Note that copySurface is
-        // specified such that the src and dst rects are the same.
-        if (dstOrigin != srcOrigin) {
-            return false;
-        }
-    }
-    if (GrGLCaps::kResolveMustBeFull_BlitFrambufferFlag & blitFramebufferFlags) {
-        if (srcRT && srcRT->numColorSamples() > 1) {
-            if (dstRT && 1 == dstRT->numColorSamples()) {
-                return false;
-            }
-            if (SkRect::Make(srcRect) != srcRT->getBoundsRect()) {
-                return false;
-            }
-        }
-    }
-    if (GrGLCaps::kNoMSAADst_BlitFramebufferFlag & blitFramebufferFlags) {
-        if (dstRT && dstRT->numColorSamples() > 1) {
-            return false;
-        }
-    }
-    if (GrGLCaps::kNoFormatConversion_BlitFramebufferFlag & blitFramebufferFlags) {
-        if (dst->config() != src->config()) {
-            return false;
-        }
-    } else if (GrGLCaps::kNoFormatConversionForMSAASrc_BlitFramebufferFlag & blitFramebufferFlags) {
-        const GrRenderTarget* srcRT = src->asRenderTarget();
-        if (srcRT && srcRT->numColorSamples() > 1 && dst->config() != src->config()) {
-            return false;
-        }
-    }
-    if (GrGLCaps::kRectsMustMatchForMSAASrc_BlitFramebufferFlag & blitFramebufferFlags) {
-        if (srcRT && srcRT->numColorSamples() > 1) {
-            if (dstPoint.fX != srcRect.fLeft || dstPoint.fY != srcRect.fTop) {
-                return false;
-            }
-            if (dstOrigin != srcOrigin) {
-                return false;
-            }
-        }
-    }
-    return true;
+
+    bool dstIsGLTexture2D = dstTex ? GR_GL_TEXTURE_2D == dstTex->target() : false;
+    bool srcIsGLTexture2D = srcTex ? GR_GL_TEXTURE_2D == srcTex->target() : false;
+
+    return caps.canCopyAsBlit(dst->config(), dstSampleCnt, SkToBool(dstTex), dstIsGLTexture2D,
+                              dstOrigin, src->config(), srcSampleCnt, SkToBool(srcTex),
+                              srcIsGLTexture2D, srcOrigin, src->getBoundsRect(), srcRect, dstPoint);
 }
 
 static bool rt_has_msaa_render_buffer(const GrGLRenderTarget* rt, const GrGLCaps& glCaps) {
@@ -3369,45 +3326,23 @@ static bool rt_has_msaa_render_buffer(const GrGLRenderTarget* rt, const GrGLCaps
 
 static inline bool can_copy_texsubimage(const GrSurface* dst, GrSurfaceOrigin dstOrigin,
                                         const GrSurface* src, GrSurfaceOrigin srcOrigin,
-                                        const GrGLGpu* gpu) {
-    // Table 3.9 of the ES2 spec indicates the supported formats with CopyTexSubImage
-    // and BGRA isn't in the spec. There doesn't appear to be any extension that adds it. Perhaps
-    // many drivers would allow it to work, but ANGLE does not.
-    if (kGLES_GrGLStandard == gpu->glStandard() && gpu->glCaps().bgraIsInternalFormat() &&
-        (kBGRA_8888_GrPixelConfig == dst->config() || kBGRA_8888_GrPixelConfig == src->config())) {
-        return false;
-    }
+                                        const GrGLCaps& caps) {
+
     const GrGLRenderTarget* dstRT = static_cast<const GrGLRenderTarget*>(dst->asRenderTarget());
-    // If dst is multisampled (and uses an extension where there is a separate MSAA renderbuffer)
-    // then we don't want to copy to the texture but to the MSAA buffer.
-    if (dstRT && rt_has_msaa_render_buffer(dstRT, gpu->glCaps())) {
-        return false;
-    }
     const GrGLRenderTarget* srcRT = static_cast<const GrGLRenderTarget*>(src->asRenderTarget());
-    // If the src is multisampled (and uses an extension where there is a separate MSAA
-    // renderbuffer) then it is an invalid operation to call CopyTexSubImage
-    if (srcRT && rt_has_msaa_render_buffer(srcRT, gpu->glCaps())) {
-        return false;
-    }
-
     const GrGLTexture* dstTex = static_cast<const GrGLTexture*>(dst->asTexture());
-    // CopyTex(Sub)Image writes to a texture and we have no way of dynamically wrapping a RT in a
-    // texture.
-    if (!dstTex) {
-        return false;
-    }
-
     const GrGLTexture* srcTex = static_cast<const GrGLTexture*>(src->asTexture());
 
-    // Check that we could wrap the source in an FBO, that the dst is TEXTURE_2D, that no mirroring
-    // is required.
-    if (gpu->glCaps().canConfigBeFBOColorAttachment(src->config()) &&
-        (!srcTex || srcTex->target() == GR_GL_TEXTURE_2D) && dstTex->target() == GR_GL_TEXTURE_2D &&
-        dstOrigin == srcOrigin) {
-        return true;
-    } else {
-        return false;
-    }
+    bool dstHasMSAARenderBuffer = dstRT ? rt_has_msaa_render_buffer(dstRT, caps) : false;
+    bool srcHasMSAARenderBuffer = srcRT ? rt_has_msaa_render_buffer(srcRT, caps) : false;
+
+    bool dstIsGLTexture2D = dstTex ? GR_GL_TEXTURE_2D == dstTex->target() : false;
+    bool srcIsGLTexture2D = srcTex ? GR_GL_TEXTURE_2D == srcTex->target() : false;
+
+    return caps.canCopyTexSubImage(dst->config(), dstHasMSAARenderBuffer, SkToBool(dstTex),
+                                   dstIsGLTexture2D, dstOrigin, src->config(),
+                                   srcHasMSAARenderBuffer, SkToBool(srcTex), srcIsGLTexture2D,
+                                   srcOrigin);
 }
 
 // If a temporary FBO was created, its non-zero ID is returned. The viewport that the copy rect is
@@ -3472,24 +3407,24 @@ bool GrGLGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     // Don't prefer copying as a draw if the dst doesn't already have a FBO object.
     // This implicitly handles this->glCaps().useDrawInsteadOfAllRenderTargetWrites().
     bool preferCopy = SkToBool(dst->asRenderTarget());
-    if (preferCopy && src->asTexture()) {
+    if (preferCopy && this->glCaps().canCopyAsDraw(dst->config(), SkToBool(src->asTexture()))) {
         if (this->copySurfaceAsDraw(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint)) {
             return true;
         }
     }
 
-    if (can_copy_texsubimage(dst, dstOrigin, src, srcOrigin, this)) {
+    if (can_copy_texsubimage(dst, dstOrigin, src, srcOrigin, this->glCaps())) {
         this->copySurfaceAsCopyTexSubImage(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint);
         return true;
     }
 
     if (can_blit_framebuffer_for_copy_surface(dst, dstOrigin, src, srcOrigin,
-                                              srcRect, dstPoint, this)) {
+                                              srcRect, dstPoint, this->glCaps())) {
         return this->copySurfaceAsBlitFramebuffer(dst, dstOrigin, src, srcOrigin,
                                                   srcRect, dstPoint);
     }
 
-    if (!preferCopy && src->asTexture()) {
+    if (!preferCopy && this->glCaps().canCopyAsDraw(dst->config(), SkToBool(src->asTexture()))) {
         if (this->copySurfaceAsDraw(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint)) {
             return true;
         }
@@ -4012,6 +3947,10 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     GrGLTexture* srcTex = static_cast<GrGLTexture*>(src->asTexture());
     int progIdx = TextureToCopyProgramIdx(srcTex);
 
+    if (!this->glCaps().canConfigBeFBOColorAttachment(dst->config())) {
+        return false;
+    }
+
     if (!fCopyPrograms[progIdx].fProgram) {
         if (!this->createCopyProgram(srcTex)) {
             SkDebugf("Failed to create copy program.\n");
@@ -4097,7 +4036,7 @@ void GrGLGpu::copySurfaceAsCopyTexSubImage(GrSurface* dst, GrSurfaceOrigin dstOr
                                            GrSurface* src, GrSurfaceOrigin srcOrigin,
                                            const SkIRect& srcRect,
                                            const SkIPoint& dstPoint) {
-    SkASSERT(can_copy_texsubimage(dst, dstOrigin, src, srcOrigin, this));
+    SkASSERT(can_copy_texsubimage(dst, dstOrigin, src, srcOrigin, this->glCaps()));
     GrGLIRect srcVP;
     this->bindSurfaceFBOForPixelOps(src, GR_GL_FRAMEBUFFER, &srcVP, kSrc_TempFBOTarget);
     GrGLTexture* dstTex = static_cast<GrGLTexture *>(dst->asTexture());
@@ -4130,7 +4069,7 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurfaceOrigin dstOr
                                            const SkIRect& srcRect,
                                            const SkIPoint& dstPoint) {
     SkASSERT(can_blit_framebuffer_for_copy_surface(dst, dstOrigin, src, srcOrigin,
-                                                   srcRect, dstPoint, this));
+                                                   srcRect, dstPoint, this->glCaps()));
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                         srcRect.width(), srcRect.height());
     if (dst == src) {

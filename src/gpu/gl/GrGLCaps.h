@@ -407,6 +407,24 @@ public:
                                                          : pendingInstanceCount;
     }
 
+    bool canCopyTexSubImage(GrPixelConfig dstConfig, bool dstHasMSAARenderBuffer,
+                            bool dstIsTextureable, bool dstIsGLTexture2D,
+                            GrSurfaceOrigin dstOrigin,
+                            GrPixelConfig srcConfig, bool srcHasMSAARenderBuffer,
+                            bool srcIsTextureable, bool srcIsGLTexture2D,
+                            GrSurfaceOrigin srcOrigin) const;
+    bool canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCnt,
+                       bool dstIsTextureable, bool dstIsGLTexture2D,
+                       GrSurfaceOrigin dstOrigin,
+                       GrPixelConfig srcConfig, int srcSampleCnt,
+                       bool srcIsTextureable, bool srcIsGLTexture2D,
+                       GrSurfaceOrigin srcOrigin, const SkRect& srcBounds,
+                       const SkIRect& srcRect, const SkIPoint& dstPoint) const;
+    bool canCopyAsDraw(GrPixelConfig dstConfig, bool srcIsTextureable) const;
+
+    bool canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
+                        const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
+
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc, GrSurfaceOrigin*,
                             bool* rectsMustMatch, bool* disallowSubrect) const override;
 
