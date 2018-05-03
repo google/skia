@@ -599,8 +599,6 @@ def base_defines(os_conditions):
       "SK_JUMPER_DISABLE_8BIT",
       # JPEG is in codec_limited
       "SK_HAS_JPEG_LIBRARY",
-      # Legacy back-end gpu object access
-      "SK_SUPPORT_LEGACY_BACKEND_OBJECTS",
   ] + skia_select(
       os_conditions,
       [
