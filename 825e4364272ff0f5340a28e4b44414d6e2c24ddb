@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d0555eaa_b949b747",
+        "filename": "src/core/SkScan.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-03T17:54:31Z",
+      "side": 1,
+      "message": "This seems to be a fancy constant - can we remove it?",
+      "range": {
+        "startLine": 16,
+        "startChar": 18,
+        "endLine": 16,
+        "endChar": 31
+      },
+      "revId": "825e4364272ff0f5340a28e4b44414d6e2c24ddb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
