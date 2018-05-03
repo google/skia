@@ -1322,13 +1322,6 @@ drawImage(textureImage, "backEndTexture");
 
 # ------------------------------------------------------------------------------
 
-#Method GrBackendObject getTextureHandle(bool flushPendingGrContextIO,
-                                     GrSurfaceOrigin* origin = nullptr) const
-#Deprecated
-#Method ##
-
-# ------------------------------------------------------------------------------
-
 #Method GrBackendTexture getBackendTexture(bool flushPendingGrContextIO,
                                            GrSurfaceOrigin* origin = nullptr) const
 #In Property

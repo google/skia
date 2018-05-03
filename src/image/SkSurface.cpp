@@ -218,16 +218,6 @@ void SkSurface::writePixels(const SkBitmap& src, int x, int y) {
     }
 }
 
-#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
-GrBackendObject SkSurface::getTextureHandle(BackendHandleAccess access) {
-    return asSB(this)->onGetTextureHandle(access);
-}
-
-bool SkSurface::getRenderTargetHandle(GrBackendObject* obj, BackendHandleAccess access) {
-    return asSB(this)->onGetRenderTargetHandle(obj, access);
-}
-#endif
-
 GrBackendTexture SkSurface::getBackendTexture(BackendHandleAccess access) {
     return asSB(this)->onGetBackendTexture(access);
 }
