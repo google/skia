@@ -35,11 +35,6 @@ PUBLIC_API_OWNERS = (
     'hcm@google.com',
 )
 
-AUTO_COMMIT_BOTS = (
-    'update-docs@skia.org',
-    'update-skps@skia.org'
-)
-
 AUTHORS_FILE_NAME = 'AUTHORS'
 
 DOCS_PREVIEW_URL = 'https://skia.org/?cl='
@@ -505,11 +500,12 @@ def PostUploadHook(cl, change, output_api):
 
   issue = cl.issue
   if issue:
-    # Skip PostUploadHooks for all auto-commit bots. New patchsets (caused
-    # due to PostUploadHooks) invalidates the CQ+2 vote from the
-    # "--use-commit-queue" flag to "git cl upload".
-    if cl.GetIssueOwner() in AUTO_COMMIT_BOTS:
-      return results
+    # Skip PostUploadHooks for all auto-commit service account bots. New
+    # patchsets (caused due to PostUploadHooks) invalidates the CQ+2 vote from
+    # the "--use-commit-queue" flag to "git cl upload".
+    for suffix in SERVICE_ACCOUNT_SUFFIX:
+      if cl.GetIssueOwner().endswith(suffix):
+        return results
 
     original_description_lines, footers = cl.GetDescriptionFooters()
     new_description_lines = list(original_description_lines)
