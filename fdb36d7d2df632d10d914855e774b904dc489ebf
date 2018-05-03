@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9d1cef82_24efad46",
+        "filename": "infra/bots/recipe_modules/core/api.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-03T14:15:22Z",
+      "side": 1,
+      "message": "This entire function makes me want to cry.",
+      "revId": "fdb36d7d2df632d10d914855e774b904dc489ebf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
