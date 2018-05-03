@@ -826,6 +826,8 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
                                         bool enableTypefaceFiltering) {
     SkASSERT(deviceMatrix == nullptr || !deviceMatrix->hasPerspective());
 
+    sk_bzero(rec, sizeof(SkScalerContextRec));
+
     SkTypeface* typeface = SkPaintPriv::GetTypefaceOrDefault(paint);
 
     rec->fFontID = typeface->uniqueID();

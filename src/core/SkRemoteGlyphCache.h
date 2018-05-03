@@ -117,7 +117,8 @@ public:
     // Methods used internally in skia ------------------------------------------
     class SkGlyphCacheState {
     public:
-        SkGlyphCacheState(std::unique_ptr<SkDescriptor> desc,
+        SkGlyphCacheState(std::unique_ptr<SkDescriptor> deviceDescriptor,
+                          std::unique_ptr<SkDescriptor> keyDescriptor,
                           SkDiscardableHandleId discardableHandleId);
         ~SkGlyphCacheState();
 
@@ -125,6 +126,13 @@ public:
         void writePendingGlyphs(Serializer* serializer);
         bool has_pending_glyphs() const { return !fPendingGlyphs.empty(); }
         SkDiscardableHandleId discardable_handle_id() const { return fDiscardableHandleId; }
+        const SkDescriptor& getDeviceDescriptor() {
+            return *fDeviceDescriptor;
+        }
+
+        const SkDescriptor& getKeyDescriptor() {
+            return *fKeyDescriptor;
+        }
 
     private:
         // The set of glyphs cached on the remote client.
@@ -134,11 +142,19 @@ public:
         // remote client.
         std::vector<SkPackedGlyphID> fPendingGlyphs;
 
-        std::unique_ptr<SkDescriptor> fDesc;
+        // The device descriptor is used to create the scaler context. The glyphs to have the
+        // correct device rendering. The key descriptor is used for communication. The GPU side will
+        // create descriptors with out the device filtering, thus matching the key descriptor.
+        std::unique_ptr<SkDescriptor> fDeviceDescriptor;
+        std::unique_ptr<SkDescriptor> fKeyDescriptor;
         const SkDiscardableHandleId fDiscardableHandleId = -1;
+
+        // The context built using fDeviceDescriptor
         std::unique_ptr<SkScalerContext> fContext;
     };
-    SkGlyphCacheState* getOrCreateCache(SkTypeface*, std::unique_ptr<SkDescriptor>);
+
+    SkGlyphCacheState* getOrCreateCache(
+            SkTypeface*, std::unique_ptr<SkDescriptor>, std::unique_ptr<SkDescriptor>);
 
 private:
     SkDescriptorMap<std::unique_ptr<SkGlyphCacheState>> fRemoteGlyphStateMap;

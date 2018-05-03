@@ -349,26 +349,41 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
             SK_ABORT("Bad matrix.");
     }
 
-    SkScalerContextRec rec;
+    SkScalerContextRec deviceSpecificRec;
+    SkScalerContextRec keyRec;
     SkScalerContextEffects effects;
 
-    // TODO(crbug.com/831354): The typeface proxy on the client does not replicate the
-    // filtering done by the typeface on the server.
-    const bool enableTypefaceFiltering = false;
     SkScalerContext::MakeRecAndEffects(runPaint, &fSurfaceProps, &runMatrix,
-                                       SkScalerContextFlags::kFakeGammaAndBoostContrast, &rec,
-                                       &effects, enableTypefaceFiltering);
+                                       SkScalerContextFlags::kFakeGammaAndBoostContrast,
+                                       &deviceSpecificRec,
+                                       &effects, true);
 
-    TRACE_EVENT1("skia", "RecForDesc", "rec", TRACE_STR_COPY(rec.dump().c_str()));
-    auto desc = SkScalerContext::DescriptorGivenRecAndEffects(rec, effects);
-    auto* glyphCacheState = static_cast<SkStrikeServer*>(fStrikeServer)
-                                    ->getOrCreateCache(runPaint.getTypeface(), std::move(desc));
+    SkScalerContext::MakeRecAndEffects(runPaint, &fSurfaceProps, &runMatrix,
+                                       SkScalerContextFlags::kFakeGammaAndBoostContrast,
+                                       &keyRec,
+                                       &effects, false);
+
+
+    TRACE_EVENT1("skia", "RecForDesc", "rec", TRACE_STR_COPY(keyRec.dump().c_str()));
+
+    // TODO: possible perf improvement - move descriptor calculation into getOrCreateCache.
+    auto deviceDescriptor =
+            SkScalerContext::DescriptorGivenRecAndEffects(deviceSpecificRec, effects);
+    auto keyDescriptor =
+            SkScalerContext::DescriptorGivenRecAndEffects(keyRec, effects);
+    auto* glyphCacheState =
+            static_cast<SkStrikeServer*>(fStrikeServer)
+                    ->getOrCreateCache(
+                            runPaint.getTypeface(),
+                            std::move(deviceDescriptor),
+                            std::move(keyDescriptor));
     SkASSERT(glyphCacheState);
 
-    bool isSubpixel = SkToBool(rec.fFlags & SkScalerContext::kSubpixelPositioning_Flag);
+    bool isSubpixel =
+            SkToBool(deviceSpecificRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag);
     SkAxisAlignment axisAlignment = SkAxisAlignment::kNone_SkAxisAlignment;
     if (it.positioning() == SkTextBlob::kHorizontal_Positioning) {
-        axisAlignment = rec.computeAxisAlignmentForHText();
+        axisAlignment = deviceSpecificRec.computeAxisAlignmentForHText();
     }
     auto pos = it.pos();
     const uint16_t* glyphs = it.glyphs();
@@ -450,19 +465,23 @@ void SkStrikeServer::writeStrikeData(std::vector<uint8_t>* memory) {
 }
 
 SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
-        SkTypeface* tf, std::unique_ptr<SkDescriptor> desc) {
-    SkASSERT(desc);
+        SkTypeface* tf,
+        std::unique_ptr<SkDescriptor> deviceDesc,
+        std::unique_ptr<SkDescriptor> keyDesc) {
+    SkASSERT(deviceDesc);
+    SkASSERT(keyDesc);
 
     // Already locked.
-    if (fLockedDescs.find(desc.get()) != fLockedDescs.end()) {
-        auto it = fRemoteGlyphStateMap.find(desc.get());
+    if (fLockedDescs.find(keyDesc.get()) != fLockedDescs.end()) {
+        auto it = fRemoteGlyphStateMap.find(keyDesc.get());
         SkASSERT(it != fRemoteGlyphStateMap.end());
         return it->second.get();
     }
 
     // Try to lock.
-    auto it = fRemoteGlyphStateMap.find(desc.get());
+    auto it = fRemoteGlyphStateMap.find(keyDesc.get());
     if (it != fRemoteGlyphStateMap.end()) {
+        SkASSERT(it->second->getDeviceDescriptor() == *deviceDesc);
         bool locked = fDiscardableHandleManager->lockHandle(it->second->discardable_handle_id());
         if (locked) {
             fLockedDescs.insert(it->first);
@@ -474,27 +493,35 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
         fRemoteGlyphStateMap.erase(it);
     }
 
-    const SkFontID typeface_id = tf->uniqueID();
-    if (!fCachedTypefaces.contains(typeface_id)) {
-        fCachedTypefaces.add(typeface_id);
-        fTypefacesToSend.emplace_back(typeface_id, tf->countGlyphs(), tf->fontStyle(),
+    const SkFontID typefaceId = tf->uniqueID();
+    if (!fCachedTypefaces.contains(typefaceId)) {
+        fCachedTypefaces.add(typefaceId);
+        fTypefacesToSend.emplace_back(typefaceId, tf->countGlyphs(), tf->fontStyle(),
                                       tf->isFixedPitch());
     }
 
-    auto* desc_ptr = desc.get();
-    auto new_handle = fDiscardableHandleManager->createHandle();
-    auto cache_state = skstd::make_unique<SkGlyphCacheState>(std::move(desc), new_handle);
-    auto* cache_state_ptr = cache_state.get();
+    auto* keyDescPtr = keyDesc.get();
+    auto newHandle = fDiscardableHandleManager->createHandle();
+    auto cacheState = skstd::make_unique<SkGlyphCacheState>(
+            std::move(deviceDesc),
+            std::move(keyDesc),
+            newHandle);
+    auto* cacheStatePtr = cacheState.get();
 
-    fLockedDescs.insert(desc_ptr);
-    fRemoteGlyphStateMap[desc_ptr] = std::move(cache_state);
-    return cache_state_ptr;
+    fLockedDescs.insert(keyDescPtr);
+    fRemoteGlyphStateMap[keyDescPtr] = std::move(cacheState);
+    return cacheStatePtr;
 }
 
-SkStrikeServer::SkGlyphCacheState::SkGlyphCacheState(std::unique_ptr<SkDescriptor> desc,
-                                                     uint32_t discardable_handle_id)
-        : fDesc(std::move(desc)), fDiscardableHandleId(discardable_handle_id) {
-    SkASSERT(fDesc);
+SkStrikeServer::SkGlyphCacheState::SkGlyphCacheState(
+        std::unique_ptr<SkDescriptor> deviceDescriptor,
+        std::unique_ptr<SkDescriptor> keyDescriptor,
+        uint32_t discardable_handle_id)
+        : fDeviceDescriptor(std::move(deviceDescriptor))
+        , fKeyDescriptor(std::move(keyDescriptor))
+        , fDiscardableHandleId(discardable_handle_id) {
+    SkASSERT(fDeviceDescriptor);
+    SkASSERT(fKeyDescriptor);
 }
 
 SkStrikeServer::SkGlyphCacheState::~SkGlyphCacheState() = default;
@@ -509,14 +536,14 @@ void SkStrikeServer::SkGlyphCacheState::addGlyph(SkTypeface* typeface,
     // this glyph.
     fCachedGlyphs.add(glyph);
     fPendingGlyphs.push_back(glyph);
-    if (!fContext) fContext = typeface->createScalerContext(effects, fDesc.get(), false);
+    if (!fContext) fContext = typeface->createScalerContext(effects, fDeviceDescriptor.get(), false);
 }
 
 void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serializer) {
     // Write the desc.
     serializer->emplace<StrikeSpec>(fContext->getTypeface()->uniqueID(), fPendingGlyphs.size(),
                                     fDiscardableHandleId);
-    serializer->writeDescriptor(*fDesc.get());
+    serializer->writeDescriptor(*fKeyDescriptor.get());
 
     // Write FontMetrics.
     SkPaint::FontMetrics fontMetrics;
@@ -656,7 +683,6 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
 sk_sp<SkTypeface> SkStrikeClient::deserializeTypeface(const void* buf, size_t len) {
     WireTypeface wire;
     if (len != sizeof(wire)) return nullptr;
-
     memcpy(&wire, buf, sizeof(wire));
     return addTypeface(wire);
 }
