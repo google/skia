@@ -65,6 +65,11 @@ public:
 // Always write this guy last (with no length field afterwards)
 #define SK_PICT_EOF_TAG     SkSetFourByteTag('e', 'o', 'f', ' ')
 
+template <typename T> T* read_index_base_1_or_null(SkReadBuffer* reader, int count, T* array[]) {
+    int index = reader->readInt();
+    return reader->validate(index > 0 && index <= count) ? array[index - 1] : nullptr;
+}
+
 class SkPictureData {
 public:
     SkPictureData(const SkPictureRecord& record, const SkPictInfo&);
@@ -91,46 +96,46 @@ protected:
 
 public:
     const SkImage* getBitmapAsImage(SkReadBuffer* reader) const {
+        // images are written base-0, unlike paths, pictures, drawables, etc.
         const int index = reader->readInt();
         return reader->validateIndex(index, fBitmapImageCount) ? fBitmapImageRefs[index] : nullptr;
     }
 
     const SkImage* getImage(SkReadBuffer* reader) const {
+        // images are written base-0, unlike paths, pictures, drawables, etc.
         const int index = reader->readInt();
         return reader->validateIndex(index, fImageCount) ? fImageRefs[index] : nullptr;
     }
 
     const SkPath& getPath(SkReadBuffer* reader) const {
-        const int index = reader->readInt() - 1;
-        return reader->validateIndex(index, fPaths.count()) ? fPaths[index] : fEmptyPath;
+        int index = reader->readInt();
+        return reader->validate(index > 0 && index <= fPaths.count()) ?
+                fPaths[index - 1] : fEmptyPath;
     }
 
     const SkPicture* getPicture(SkReadBuffer* reader) const {
-        const int index = reader->readInt() - 1;
-        return reader->validateIndex(index, fPictureCount) ? fPictureRefs[index] : nullptr;
+        return read_index_base_1_or_null(reader, fPictureCount, fPictureRefs);
     }
 
     SkDrawable* getDrawable(SkReadBuffer* reader) const {
-        int index = reader->readInt() - 1;
-        return reader->validateIndex(index, fDrawableCount) ? fDrawableRefs[index] : nullptr;
+        return read_index_base_1_or_null(reader, fDrawableCount, fDrawableRefs);
     }
 
     const SkPaint* getPaint(SkReadBuffer* reader) const {
-        const int index = reader->readInt() - 1;
-        if (index == -1) {  // recorder wrote a zero for no paint (likely drawimage)
-            return nullptr;
+        int index = reader->readInt();
+        if (index == 0) {
+            return nullptr; // recorder wrote a zero for no paint (likely drawimage)
         }
-        return reader->validateIndex(index, fPaints.count()) ? &fPaints[index] : nullptr;
+        return reader->validate(index > 0 && index <= fPaints.count()) ?
+                &fPaints[index - 1] : nullptr;
     }
 
     const SkTextBlob* getTextBlob(SkReadBuffer* reader) const {
-        const int index = reader->readInt() - 1;
-        return reader->validateIndex(index, fTextBlobCount) ? fTextBlobRefs[index] : nullptr;
+        return read_index_base_1_or_null(reader, fTextBlobCount, fTextBlobRefs);
     }
 
     const SkVertices* getVertices(SkReadBuffer* reader) const {
-        const int index = reader->readInt() - 1;
-        return reader->validateIndex(index, fVerticesCount) ? fVerticesRefs[index] : nullptr;
+        return read_index_base_1_or_null(reader, fVerticesCount, fVerticesRefs);
     }
 
 private:
