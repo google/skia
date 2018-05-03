@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6898abb2_89368fc4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-03T18:07:39Z",
+      "side": 1,
+      "message": "I had no idea we could tag buganizer IDs. Cool.",
+      "parentUuid": "50725b37_3bb177a9",
+      "revId": "c16a865d56a158a74f3f8d3cb36d5c134fabbede",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c51f5103_78023625",
         "filename": "src/core/SkLatticeIter.cpp",
         "patchSetId": 3
@@ -39,6 +57,30 @@
       "revId": "c16a865d56a158a74f3f8d3cb36d5c134fabbede",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a4c7eae_abdbc73d",
+        "filename": "src/core/SkLatticeIter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-03T18:07:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c51f5103_78023625",
+      "range": {
+        "startLine": 96,
+        "startChar": 21,
+        "endLine": 96,
+        "endChar": 28
+      },
+      "revId": "c16a865d56a158a74f3f8d3cb36d5c134fabbede",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "ee060015_84b46b01",
+        "filename": "src/core/SkLatticeIter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-03T18:07:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "227a6550_561d229c",
+      "range": {
+        "startLine": 97,
+        "startChar": 8,
+        "endLine": 97,
+        "endChar": 13
+      },
+      "revId": "c16a865d56a158a74f3f8d3cb36d5c134fabbede",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "98a77368_5cfa4d6c",
         "filename": "src/core/SkLatticeIter.h",
         "patchSetId": 3
@@ -76,6 +142,30 @@
       "writtenOn": "2018-05-03T17:37:53Z",
       "side": 1,
       "message": "We need to keep this version around because of callers in Android. I was thinking perhaps we should deprecate it for simplicity, but SkiaCanvasProxy.cpp passes the SkRect directly to its onDrawImageRect, so maybe that\u0027s worthwhile? (SkiaCanvasProxy subclasses SkCanvas, so it also has an SkIRect version through it.)",
+      "range": {
+        "startLine": 40,
+        "startChar": 4,
+        "endLine": 42,
+        "endChar": 44
+      },
+      "revId": "c16a865d56a158a74f3f8d3cb36d5c134fabbede",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a20418db_8ce97984",
+        "filename": "src/core/SkLatticeIter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-03T18:07:39Z",
+      "side": 1,
+      "message": "I hadn\u0027t realized that Android used this as it\u0027s in src/core. Every current internal caller (N \u003d\u003d 8) would convert the SkIRect to SkRect. When I fix the GPU bleed I\u0027ll delete one and move one to the int version. So it seemed like a useful helper just for internal reasons.",
+      "parentUuid": "98a77368_5cfa4d6c",
       "range": {
         "startLine": 40,
         "startChar": 4,
