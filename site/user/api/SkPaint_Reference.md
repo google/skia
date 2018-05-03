@@ -179,7 +179,6 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_glyphsToUnichars">glyphsToUnichars</a> | converts <a href="undocumented#Glyph">Glyphs</a> into text |
 | <a href="#SkPaint_isAntiAlias">isAntiAlias</a> | returns true if Anti-alias is set |
 | <a href="#SkPaint_isAutohinted">isAutohinted</a> | returns true if <a href="undocumented#Glyph">Glyphs</a> are always hinted |
-| <a href="#SkPaint_isDevKernText">isDevKernText</a> | returns true if <a href="#Full_Hinting_Spacing">Full Hinting Spacing</a> is set |
 | <a href="#SkPaint_isDither">isDither</a> | returns true if <a href="#Dither">Dither</a> is set |
 | <a href="#SkPaint_isEmbeddedBitmapText">isEmbeddedBitmapText</a> | returns true if <a href="#Font_Embedded_Bitmaps">Font Embedded Bitmaps</a> is set |
 | <a href="#SkPaint_isFakeBoldText">isFakeBoldText</a> | returns true if <a href="#Fake_Bold">Fake Bold</a> is set |
@@ -205,7 +204,6 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_setBlendMode">setBlendMode</a> | sets <a href="undocumented#Blend_Mode">Blend Mode</a>, how colors combine with destination |
 | <a href="#SkPaint_setColor">setColor</a> | sets <a href="SkColor_Reference#Alpha">Color Alpha</a> and <a href="SkColor_Reference#RGB">Color RGB</a>, one drawing color |
 | <a href="#SkPaint_setColorFilter">setColorFilter</a> | sets <a href="undocumented#Color_Filter">Color Filter</a>, alters color |
-| <a href="#SkPaint_setDevKernText">setDevKernText</a> | sets or clears <a href="#Full_Hinting_Spacing">Full Hinting Spacing</a> |
 | <a href="#SkPaint_setDither">setDither</a> | sets or clears <a href="#Dither">Dither</a> |
 | <a href="#SkPaint_setDrawLooper">setDrawLooper</a> | sets <a href="undocumented#Draw_Looper">Draw Looper</a>, multiple layers |
 | <a href="#SkPaint_setEmbeddedBitmapText">setEmbeddedBitmapText</a> | sets or clears <a href="#Font_Embedded_Bitmaps">Font Embedded Bitmaps</a> |
@@ -774,7 +772,7 @@ multiple settings at once.
 
 <table>
   <tr>
-    <td><a name="SkPaint_kAntiAlias_Flag"> <code><strong>SkPaint::kAntiAlias_Flag </strong></code> </a></td><td>0x0001 </td><td>mask for setting Anti-alias</td>
+    <td><a name="SkPaint_kAntiAlias_Flag"> <code><strong>SkPaint::kAntiAlias_Flag </strong></code> </a></td><td>0x0001</td><td>mask for setting Anti-alias</td>
   </tr>
   <tr>
     <td><a name="SkPaint_kDither_Flag"> <code><strong>SkPaint::kDither_Flag </strong></code> </a></td><td>0x0004</td><td>mask for setting <a href="#Dither">Dither</a></td>
@@ -789,7 +787,7 @@ multiple settings at once.
     <td><a name="SkPaint_kSubpixelText_Flag"> <code><strong>SkPaint::kSubpixelText_Flag </strong></code> </a></td><td>0x0080</td><td>mask for setting <a href="#Subpixel_Text">Subpixel Text</a></td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kDevKernText_Flag"> <code><strong>SkPaint::kDevKernText_Flag </strong></code> </a></td><td>0x0100</td><td>mask for setting <a href="#Full_Hinting_Spacing">Full Hinting Spacing</a></td>
+    <td><a name="SkPaint_kDevKernText_Flag"> <code><strong>SkPaint::kDevKernText_Flag </strong></code> </a></td><td>0x0100</td><td></td>
   </tr>
   <tr>
     <td><a name="SkPaint_kLCDRenderText_Flag"> <code><strong>SkPaint::kLCDRenderText_Flag </strong></code> </a></td><td>0x0200</td><td>mask for setting <a href="#LCD_Text">LCD Text</a></td>
@@ -1027,6 +1025,7 @@ bool isDither() const
 </pre>
 
 If true, color error may be distributed to smooth color transition.
+
 Equivalent to <a href="#SkPaint_getFlags">getFlags</a> masked with <a href="#SkPaint_kDither_Flag">kDither Flag</a>.
 
 ### Return Value
@@ -1688,50 +1687,14 @@ a specific pair of characters is adjusted using data in the font Kerning tables.
 bool isDevKernText() const
 </pre>
 
-Returns if character spacing may be adjusted by the hinting difference.
-
-Equivalent to <a href="#SkPaint_getFlags">getFlags</a> masked with <a href="#SkPaint_kDevKernText_Flag">kDevKernText Flag</a>.
-
-### Return Value
-
-<a href="#SkPaint_kDevKernText_Flag">kDevKernText Flag</a> state
-
-### Example
-
-<div><fiddle-embed name="4f69a84b2505b12809c30b0cc09c5157"></fiddle-embed></div>
-
 ---
 
 <a name="SkPaint_setDevKernText"></a>
 ## setDevKernText
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void setDevKernText(bool devKernText)
+void setDevKernText(bool)
 </pre>
-
-Requests, but does not require, to use hinting to adjust glyph spacing.
-
-Sets <a href="#SkPaint_kDevKernText_Flag">kDevKernText Flag</a> if <a href="#SkPaint_setDevKernText_devKernText">devKernText</a> is true.
-Clears <a href="#SkPaint_kDevKernText_Flag">kDevKernText Flag</a> if <a href="#SkPaint_setDevKernText_devKernText">devKernText</a> is false.
-
-### Parameters
-
-<table>  <tr>    <td><a name="SkPaint_setDevKernText_devKernText"> <code><strong>devKernText </strong></code> </a></td> <td>
-setting for <a href="#SkPaint_setDevKernText_devKernText">devKernText</a></td>
-  </tr>
-</table>
-
-### Example
-
-<div><fiddle-embed name="2b718a059072908bf68942503f264797">
-
-#### Example Output
-
-~~~~
-paint1 == paint2
-~~~~
-
-</fiddle-embed></div>
 
 ---
 
@@ -1758,7 +1721,7 @@ and when <a href="#Paint">Paint</a> has a <a href="undocumented#Shader">Shader</
 
 ### Example
 
-<div><fiddle-embed name="ee77f83f7291e07ae0d89f1380c7d67c"></fiddle-embed></div>
+<div><fiddle-embed name="69369cff2f5b145a6f616092513266a0"></fiddle-embed></div>
 
 <a name="SkPaint_getFilterQuality"></a>
 ## getFilterQuality
@@ -2199,7 +2162,7 @@ The default width for the paint is zero.
 
 ### Example
 
-<div><fiddle-embed name="01e3e08a3022a351628ff54e84887756" gpu="true"><div>The pixels hit to represent thin lines vary with the angle of the
+<div><fiddle-embed name="5112c7209a19e035c61cef33a624a652" gpu="true"><div>The pixels hit to represent thin lines vary with the angle of the
 line and the platform implementation.
 </div></fiddle-embed></div>
 
@@ -2772,7 +2735,7 @@ If <a href="undocumented#Shader">Shader</a> generates only <a href="SkColor_Refe
 
 ### Example
 
-<div><fiddle-embed name="9673be7720ba3adcdae42ddc1565b588"></fiddle-embed></div>
+<div><fiddle-embed name="fe80fd80b98a20823db7fb9a077243c7"></fiddle-embed></div>
 
 <a name="SkPaint_getShader"></a>
 ## getShader
@@ -2984,7 +2947,7 @@ mode used to combine source color with destination color
 
 ### Example
 
-<div><fiddle-embed name="4ec1864b8203d52c0810e8605092f45c">
+<div><fiddle-embed name="a1e059c8f6740fa2044cc64152b39dda">
 
 #### Example Output
 
@@ -3307,7 +3270,7 @@ Increases <a href="undocumented#Typeface">Typeface</a> <a href="undocumented#Ref
 
 ### Example
 
-<div><fiddle-embed name="4bf8ed109c4b46d8a05c8b7763c1982c">
+<div><fiddle-embed name="8b5aa7e555a0dc31be69db7cadf471a1">
 
 #### Example Output
 
@@ -3917,7 +3880,7 @@ one of: <a href="#SkPaint_kUTF8_TextEncoding">kUTF8 TextEncoding</a>, <a href="#
 
 ### Example
 
-<div><fiddle-embed name="70ad28bbf7668b38474d7f225e3540bc">
+<div><fiddle-embed name="c6cc2780a9828b3af8c4621c12b29a1b">
 
 #### Example Output
 
@@ -4470,7 +4433,7 @@ true if all <a href="#SkPaint_containsText_text">text</a> corresponds to a non-z
 
 ### Example
 
-<div><fiddle-embed name="9202369019552f09cd4bec7f3046fee4"><div><a href="#SkPaint_containsText">containsText</a> succeeds for degree symbol, but cannot find a glyph index
+<div><fiddle-embed name="71b417d6651cbcecae1a05067c94ab3e"><div><a href="#SkPaint_containsText">containsText</a> succeeds for degree symbol, but cannot find a glyph index
 corresponding to the Unicode surrogate code point.
 </div>
 
@@ -4485,7 +4448,7 @@ corresponding to the Unicode surrogate code point.
 
 ### Example
 
-<div><fiddle-embed name="904227febfd1c2e264955da0ef66da73"><div><a href="#SkPaint_containsText">containsText</a> returns true that glyph index is greater than zero, not
+<div><fiddle-embed name="083557b6f653d6fc00a34e01f87b74ff"><div><a href="#SkPaint_containsText">containsText</a> returns true that glyph index is greater than zero, not
 that it corresponds to an entry in <a href="undocumented#Typeface">Typeface</a>.
 </div>
 
@@ -4800,7 +4763,9 @@ the string.
 Uses <a href="#Text_Encoding">Text Encoding</a> to decode <a href="#SkPaint_getTextIntercepts_text">text</a>, <a href="undocumented#Typeface">Typeface</a> to get the glyph paths,
 and <a href="#Text_Size">Text Size</a>, <a href="#Fake_Bold">Fake Bold</a>, and <a href="undocumented#Path_Effect">Path Effect</a> to scale and modify the glyph paths.
 Uses <a href="#SkPaint_getTextIntercepts_x">x</a>, <a href="#SkPaint_getTextIntercepts_y">y</a>, and <a href="#Text_Align">Text Align</a> to position <a href="#SkPaint_getTextIntercepts_intervals">intervals</a>.
+
 Pass nullptr for <a href="#SkPaint_getTextIntercepts_intervals">intervals</a> to determine the size of the interval array.
+
 <a href="#SkPaint_getTextIntercepts_intervals">intervals</a> are cached to improve performance for multiple calls.
 
 ### Parameters
@@ -4846,7 +4811,9 @@ the string.
 Uses <a href="#Text_Encoding">Text Encoding</a> to decode <a href="#SkPaint_getPosTextIntercepts_text">text</a>, <a href="undocumented#Typeface">Typeface</a> to get the glyph paths,
 and <a href="#Text_Size">Text Size</a>, <a href="#Fake_Bold">Fake Bold</a>, and <a href="undocumented#Path_Effect">Path Effect</a> to scale and modify the glyph paths.
 Uses <a href="#SkPaint_getPosTextIntercepts_pos">pos</a> array and <a href="#Text_Align">Text Align</a> to position <a href="#SkPaint_getPosTextIntercepts_intervals">intervals</a>.
+
 Pass nullptr for <a href="#SkPaint_getPosTextIntercepts_intervals">intervals</a> to determine the size of the interval array.
+
 <a href="#SkPaint_getPosTextIntercepts_intervals">intervals</a> are cached to improve performance for multiple calls.
 
 ### Parameters
@@ -4890,7 +4857,9 @@ the string.
 Uses <a href="#Text_Encoding">Text Encoding</a> to decode <a href="#SkPaint_getPosTextHIntercepts_text">text</a>, <a href="undocumented#Typeface">Typeface</a> to get the glyph paths,
 and <a href="#Text_Size">Text Size</a>, <a href="#Fake_Bold">Fake Bold</a>, and <a href="undocumented#Path_Effect">Path Effect</a> to scale and modify the glyph paths.
 Uses <a href="#SkPaint_getPosTextHIntercepts_xpos">xpos</a> array, <a href="#SkPaint_getPosTextHIntercepts_constY">constY</a>, and <a href="#Text_Align">Text Align</a> to position <a href="#SkPaint_getPosTextHIntercepts_intervals">intervals</a>.
+
 Pass nullptr for <a href="#SkPaint_getPosTextHIntercepts_intervals">intervals</a> to determine the size of the interval array.
+
 <a href="#SkPaint_getPosTextHIntercepts_intervals">intervals</a> are cached to improve performance for multiple calls.
 
 ### Parameters
@@ -4935,9 +4904,11 @@ the string.
 Uses <a href="undocumented#Typeface">Typeface</a> to get the glyph paths,
 and <a href="#Text_Size">Text Size</a>, <a href="#Fake_Bold">Fake Bold</a>, and <a href="undocumented#Path_Effect">Path Effect</a> to scale and modify the glyph paths.
 Uses run array and <a href="#Text_Align">Text Align</a> to position <a href="#SkPaint_getTextBlobIntercepts_intervals">intervals</a>.
+
 <a href="#Text_Encoding">Text Encoding</a> must be set to <a href="#SkPaint_kGlyphID_TextEncoding">SkPaint::kGlyphID TextEncoding</a>.
 
 Pass nullptr for <a href="#SkPaint_getTextBlobIntercepts_intervals">intervals</a> to determine the size of the interval array.
+
 <a href="#SkPaint_getTextBlobIntercepts_intervals">intervals</a> are cached to improve performance for multiple calls.
 
 ### Parameters
@@ -4957,7 +4928,7 @@ number of intersections; may be zero
 
 ### Example
 
-<div><fiddle-embed name="71959a66b2290d70003887c0de339266"></fiddle-embed></div>
+<div><fiddle-embed name="f2229dd5c8e76f9e12fafe59b61353c8"></fiddle-embed></div>
 
 ---
 
@@ -4980,7 +4951,7 @@ true if <a href="#Paint">Paint</a> prevents all drawing
 
 ### Example
 
-<div><fiddle-embed name="fc5a771b915ac341f56554f01d282831">
+<div><fiddle-embed name="2973b05bfbb6b4c29332c8ac4fcf3995">
 
 #### Example Output
 
