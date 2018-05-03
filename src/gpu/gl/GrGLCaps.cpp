@@ -2661,6 +2661,15 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         shaderCaps->fExternalTextureExtensionString = "GL_OES_EGL_image_external";
         shaderCaps->fSecondExternalTextureExtensionString = "GL_OES_EGL_image_external_essl3";
     }
+
+#ifdef SK_BUILD_FOR_IOS
+    // iOS drivers appear to implement TexSubImage by creating a staging buffer, and copying
+    // UNPACK_ROW_LENGTH * height bytes. That's unsafe in several scenarios, and the simplest fix
+    // is to just blacklist the feature.
+    // https://github.com/flutter/flutter/issues/16718
+    // https://bugreport.apple.com/web/?problemID=39948888
+    fUnpackRowLengthSupport = false;
+#endif
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
