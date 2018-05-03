@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "26306ace_31ff6a29",
+        "filename": "tests/ImageFilterCacheTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-03T11:23:32Z",
+      "side": 1,
+      "message": "Outside of this test, there\u0027s only one call to set that passes non-null for the fourth argument. I changed this test to pass an SkImageFilter* to simplify the code and make the test more realistic.",
+      "revId": "ea58d662dae8565396f6dcc35c9866fcb63b9f68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
