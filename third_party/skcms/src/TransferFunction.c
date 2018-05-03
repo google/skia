@@ -238,6 +238,14 @@ static bool fit_nonlinear(const skcms_Curve* curve, int start, int N, skcms_Tran
 
     for (int j = 0; j < 3/*TODO: tune*/; j++) {
         // These extra constraints a >= 0 and ad+b >= 0 are not modeled in the optimization.
+        // We don't really know how to fix up a if it goes negative.
+        if (P[1] < 0) {
+            return false;
+        }
+        // If ad+b goes negative, we feel just barely not uneasy enough to tweak b so ad+b is zero.
+        if (P[1] * tf->d + P[2] < 0) {
+            P[2] = -P[1] * tf->d;
+        }
         assert (P[1] >= 0 &&
                 P[1] * tf->d + P[2] >= 0);
 
@@ -247,15 +255,14 @@ static bool fit_nonlinear(const skcms_Curve* curve, int start, int N, skcms_Tran
                                      start*x_scale, 1, N-start)) {
             return false;
         }
+    }
 
-        // We don't really know how to fix up a if it goes negative.
-        if (P[1] < 0) {
-            return false;
-        }
-        // If ad+b goes negative, we feel just barely not uneasy enough to tweak b so ad+b is zero.
-        if (P[1] * tf->d + P[2] < 0) {
-            P[2] = -P[1] * tf->d;
-        }
+    // We need to apply our fixups one last time
+    if (P[1] < 0) {
+        return false;
+    }
+    if (P[1] * tf->d + P[2] < 0) {
+        P[2] = -P[1] * tf->d;
     }
 
     tf->g = P[0];
