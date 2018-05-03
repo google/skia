@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "10ac30cf_59f3d8ee",
+        "filename": "src/core/SkPictureData.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-03T17:41:54Z",
+      "side": 1,
+      "message": "Wouldn\u0027t read_index_base_1_or_null() handle this correctly?",
+      "range": {
+        "startLine": 126,
+        "startChar": 0,
+        "endLine": 128,
+        "endChar": 9
+      },
+      "revId": "69c7e33f3315f7bfc590428595508572a5103fc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
