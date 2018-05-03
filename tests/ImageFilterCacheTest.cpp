@@ -8,6 +8,8 @@
 #include "Test.h"
 
 #include "SkBitmap.h"
+#include "SkColorFilter.h"
+#include "SkColorFilterImageFilter.h"
 #include "SkImage.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
@@ -25,6 +27,12 @@ static SkBitmap create_bm() {
     return bm;
 }
 
+static sk_sp<SkImageFilter> make_filter() {
+    sk_sp<SkColorFilter> filter(SkColorFilter::MakeModeFilter(SK_ColorBLUE,
+                                                              SkBlendMode::kSrcIn));
+    return SkColorFilterImageFilter::Make(std::move(filter), nullptr, nullptr);
+}
+
 // Ensure the cache can return a cached image
 static void test_find_existing(skiatest::Reporter* reporter,
                                const sk_sp<SkSpecialImage>& image,
@@ -37,7 +45,8 @@ static void test_find_existing(skiatest::Reporter* reporter,
     SkImageFilterCacheKey key2(0, SkMatrix::I(), clip, subset->uniqueID(), subset->subset());
 
     SkIPoint offset = SkIPoint::Make(3, 4);
-    cache->set(key1, image.get(), offset, nullptr);
+    auto filter = make_filter();
+    cache->set(key1, image.get(), offset, filter.get());
 
     SkIPoint foundOffset;
 
@@ -66,7 +75,8 @@ static void test_dont_find_if_diff_key(skiatest::Reporter* reporter,
     SkImageFilterCacheKey key4(0, SkMatrix::I(), clip1, subset->uniqueID(), subset->subset());
 
     SkIPoint offset = SkIPoint::Make(3, 4);
-    cache->set(key0, image.get(), offset, nullptr);
+    auto filter = make_filter();
+    cache->set(key0, image.get(), offset, filter.get());
 
     SkIPoint foundOffset;
     REPORTER_ASSERT(reporter, !cache->get(key1, &foundOffset));
@@ -86,14 +96,16 @@ static void test_internal_purge(skiatest::Reporter* reporter, const sk_sp<SkSpec
     SkImageFilterCacheKey key2(1, SkMatrix::I(), clip, image->uniqueID(), image->subset());
 
     SkIPoint offset = SkIPoint::Make(3, 4);
-    cache->set(key1, image.get(), offset, nullptr);
+    auto filter1 = make_filter();
+    cache->set(key1, image.get(), offset, filter1.get());
 
     SkIPoint foundOffset;
 
     REPORTER_ASSERT(reporter, cache->get(key1, &foundOffset));
 
     // This should knock the first one out of the cache
-    cache->set(key2, image.get(), offset, nullptr);
+    auto filter2 = make_filter();
+    cache->set(key2, image.get(), offset, filter2.get());
 
     REPORTER_ASSERT(reporter, cache->get(key2, &foundOffset));
     REPORTER_ASSERT(reporter, !cache->get(key1, &foundOffset));
@@ -111,8 +123,10 @@ static void test_explicit_purging(skiatest::Reporter* reporter,
     SkImageFilterCacheKey key2(1, SkMatrix::I(), clip, subset->uniqueID(), image->subset());
 
     SkIPoint offset = SkIPoint::Make(3, 4);
-    cache->set(key1, image.get(), offset, nullptr);
-    cache->set(key2, image.get(), offset, nullptr);
+    auto filter1 = make_filter();
+    auto filter2 = make_filter();
+    cache->set(key1, image.get(), offset, filter1.get());
+    cache->set(key2, image.get(), offset, filter2.get());
     SkDEBUGCODE(REPORTER_ASSERT(reporter, 2 == cache->count());)
 
     SkIPoint foundOffset;
@@ -120,7 +134,7 @@ static void test_explicit_purging(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, cache->get(key1, &foundOffset));
     REPORTER_ASSERT(reporter, cache->get(key2, &foundOffset));
 
-    cache->purgeByKeys(&key1, 1);
+    cache->purgeByImageFilter(filter1.get());
     SkDEBUGCODE(REPORTER_ASSERT(reporter, 1 == cache->count());)
 
     REPORTER_ASSERT(reporter, !cache->get(key1, &foundOffset));

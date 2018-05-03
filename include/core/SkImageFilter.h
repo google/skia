@@ -437,8 +437,7 @@ private:
     bool fUsesSrcInput;
     CropRect fCropRect;
     uint32_t fUniqueID; // Globally unique
-    mutable SkTArray<SkImageFilterCacheKey> fCacheKeys;
-    mutable SkMutex fMutex;
+
     typedef SkFlattenable INHERITED;
 };
 
