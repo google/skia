@@ -17,24 +17,6 @@ from recipe_engine import config_types
 
 class SkiaApi(recipe_api.RecipeApi):
 
-  def setup(self, bot_update=True):
-    """Prepare the bot to run."""
-    # Setup dependencies.
-    self.m.vars.setup()
-
-    # Check out the Skia code.
-    if bot_update:
-      self.checkout_bot_update()
-    else:
-      self.checkout_git()
-
-    if not self.m.path.exists(self.m.vars.tmp_dir):
-      self.m.run.run_once(self.m.file.ensure_directory,
-                          'makedirs tmp_dir',
-                          self.m.vars.tmp_dir)
-
-    self.m.flavor.setup()
-
   def patch_ref(self, issue, patchset):
     """Build a ref for the given issue and patchset."""
     return 'refs/changes/%s/%s/%s' % (issue[-2:], issue, patchset)
@@ -54,11 +36,6 @@ class SkiaApi(recipe_api.RecipeApi):
     """Run the steps to obtain a checkout using bot_update."""
     cfg_kwargs = {}
     is_parent_revision = 'ParentRevision' in self.m.vars.extra_tokens
-    if not self.m.vars.persistent_checkout:
-      assert not is_parent_revision
-      # We should've obtained the Skia checkout through isolates, so we don't
-      # need to perform the checkout ourselves.
-      return
 
     # Use a persistent gclient cache for Swarming.
     cfg_kwargs['CACHE_DIR'] = self.m.vars.gclient_cache
