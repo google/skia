@@ -500,6 +500,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                                            (int32_t) layout.stride(type),
                                            fDecorationBuffer);
                 } else {
+                    ASSERT(false); // we shouldn't have any runtime-sized arrays right now
                     this->writeInstruction(SpvOpTypeRuntimeArray, result,
                                            this->getType(type.componentType(), layout),
                                            fConstantBuffer);
@@ -1588,13 +1589,19 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                                                                           OutputStream& out) {
     switch (expr.fKind) {
         case Expression::kVariableReference_Kind: {
+            SpvId type;
             const Variable& var = ((VariableReference&) expr).fVariable;
+            if (var.fModifiers.fLayout.fBuiltin == SK_IN_BUILTIN) {
+                type = this->getType(Type("sk_in", Type::kArray_Kind, var.fType.componentType(),
+                                          fSkInCount));
+            } else {
+                type = this->getType(expr.fType);
+            }
             auto entry = fVariableMap.find(&var);
             ASSERT(entry != fVariableMap.end());
-            return std::unique_ptr<SPIRVCodeGenerator::LValue>(new PointerLValue(
-                                                                        *this,
-                                                                        entry->second,
-                                                                        this->getType(expr.fType)));
+            return std::unique_ptr<SPIRVCodeGenerator::LValue>(new PointerLValue(*this,
+                                                                                 entry->second,
+                                                                                 type));
         }
         case Expression::kIndex_Kind: // fall through
         case Expression::kFieldAccess_Kind: {
@@ -2505,7 +2512,24 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
         fields.emplace_back(Modifiers(), StringFragment(SKSL_RTHEIGHT_NAME), fContext.fFloat_Type.get());
         type = new Type(type->fOffset, type->name(), fields);
     }
-    SpvId typeId = this->getType(*type, memoryLayout);
+    SpvId typeId;
+    if (intf.fVariable.fModifiers.fLayout.fBuiltin == SK_IN_BUILTIN) {
+        for (const auto& e : fProgram) {
+            if (e.fKind == ProgramElement::kModifiers_Kind) {
+                const Modifiers& m = ((ModifiersDeclaration&) e).fModifiers;
+                if (m.fFlags & Modifiers::kIn_Flag) {
+                    if (m.fLayout.fInvocations != -1) {
+                        fSkInCount = m.fLayout.fInvocations;
+                        break;
+                    }
+                }
+            }
+        }
+        typeId = this->getType(Type("sk_in", Type::kArray_Kind, intf.fVariable.fType.componentType(),
+                                  fSkInCount), memoryLayout);
+    } else {
+        typeId = this->getType(*type, memoryLayout);
+    }
     if (intf.fVariable.fModifiers.fFlags & Modifiers::kBuffer_Flag) {
         this->writeInstruction(SpvOpDecorate, typeId, SpvDecorationBufferBlock, fDecorationBuffer);
     } else {
@@ -2583,7 +2607,14 @@ void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclaratio
         }
         SpvId id = this->nextId();
         fVariableMap[var] = id;
-        SpvId type = this->getPointerType(var->fType, storageClass);
+        SpvId type;
+        if (var->fModifiers.fLayout.fBuiltin == SK_IN_BUILTIN) {
+            type = this->getPointerType(Type("sk_in", Type::kArray_Kind,
+                                             var->fType.componentType(), fSkInCount),
+                                        storageClass);
+        } else {
+            type = this->getPointerType(var->fType, storageClass);
+        }
         this->writeInstruction(SpvOpVariable, type, id, storageClass, fConstantBuffer);
         this->writeInstruction(SpvOpName, id, var->fName, fNameBuffer);
         this->writePrecisionModifier(var->fModifiers, id);
@@ -2870,6 +2901,7 @@ void SPIRVCodeGenerator::writeGeometryShaderExecutionMode(SpvId entryPoint, Outp
             if (m.fFlags & Modifiers::kIn_Flag) {
                 if (m.fLayout.fInvocations != -1) {
                     invocations = m.fLayout.fInvocations;
+                    fSkInCount = invocations;
                 }
                 SpvId input;
                 switch (m.fLayout.fPrimitive) {
@@ -3000,9 +3032,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
         const Variable* var = entry.first;
         if (var->fStorage == Variable::kGlobal_Storage &&
             ((var->fModifiers.fFlags & Modifiers::kIn_Flag) ||
-             (var->fModifiers.fFlags & Modifiers::kOut_Flag)) &&
-             var->fModifiers.fLayout.fBuiltin != SK_IN_BUILTIN &&
-             var->fModifiers.fLayout.fBuiltin != SK_OUT_BUILTIN) {
+             (var->fModifiers.fFlags & Modifiers::kOut_Flag))) {
             interfaceVars.insert(entry.second);
         }
     }

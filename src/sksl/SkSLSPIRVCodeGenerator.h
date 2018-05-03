@@ -340,6 +340,7 @@ private:
     SpvId fRTHeightFieldIndex = (SpvId) -1;
     // holds variables synthesized during output, for lifetime purposes
     SymbolTable fSynthetics;
+    int fSkInCount = 1;
 
     friend class PointerLValue;
     friend class SwizzleLValue;
