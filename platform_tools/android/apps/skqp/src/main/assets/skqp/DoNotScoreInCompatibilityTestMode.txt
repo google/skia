@@ -19,6 +19,7 @@ blurcircles2
 blurimagevmask
 blurs
 bmp_filter_quality_repeat
+bug530095
 circles
 circular_arcs_stroke_and_fill_butt
 circular_arcs_stroke_butt
@@ -119,6 +120,7 @@ imagefiltersscaled
 imagefiltersstroked
 imagefilterstransformed
 imagemagnifier
+largeglyphblur
 linear_gradient
 longpathdash
 lumafilter
