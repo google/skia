@@ -182,7 +182,6 @@ DEF_TEST(SkRemoteGlyphCache_StrikeDeletionServer, reporter) {
     server.writeStrikeData(&fontData);
     discardableManager->unlockAndDeleteAll();
     cache_diff_canvas.drawTextBlob(serverBlob.get(), 0, 0, paint);
-    printf("HandleCount: %d\n ", discardableManager->handleCount());
     REPORTER_ASSERT(reporter, discardableManager->handleCount() == 2u);
 }
 
