@@ -90,11 +90,6 @@ protected:
     bool parseBuffer(SkReadBuffer& buffer);
 
 public:
-    const SkImage* getBitmapAsImage(SkReadBuffer* reader) const {
-        const int index = reader->readInt();
-        return reader->validateIndex(index, fBitmapImageCount) ? fBitmapImageRefs[index] : nullptr;
-    }
-
     const SkImage* getImage(SkReadBuffer* reader) const {
         const int index = reader->readInt();
         return reader->validateIndex(index, fImageCount) ? fImageRefs[index] : nullptr;

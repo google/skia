@@ -270,53 +270,6 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
 
             canvas->drawAtlas(atlas, xform, tex, colors, count, mode, cull, paint);
         } break;
-        case DRAW_BITMAP: {
-            const SkPaint* paint = fPictureData->getPaint(reader);
-            const SkImage* image = fPictureData->getBitmapAsImage(reader);
-            SkPoint loc;
-            reader->readPoint(&loc);
-            BREAK_ON_READ_ERROR(reader);
-
-            canvas->drawImage(image, loc.fX, loc.fY, paint);
-        } break;
-        case DRAW_BITMAP_RECT: {
-            const SkPaint* paint = fPictureData->getPaint(reader);
-            const SkImage* image = fPictureData->getBitmapAsImage(reader);
-            SkRect storage;
-            const SkRect* src = get_rect_ptr(reader, &storage);   // may be null
-            SkRect dst;
-            reader->readRect(&dst);     // required
-            SkCanvas::SrcRectConstraint constraint = (SkCanvas::SrcRectConstraint)reader->readInt();
-            BREAK_ON_READ_ERROR(reader);
-
-            if (src) {
-                canvas->drawImageRect(image, *src, dst, paint, constraint);
-            } else {
-                canvas->drawImageRect(image, dst, paint, constraint);
-            }
-        } break;
-        case DRAW_BITMAP_MATRIX: {
-            const SkPaint* paint = fPictureData->getPaint(reader);
-            const SkImage* image = fPictureData->getBitmapAsImage(reader);
-            SkMatrix matrix;
-            reader->readMatrix(&matrix);
-            BREAK_ON_READ_ERROR(reader);
-
-            SkAutoCanvasRestore acr(canvas, true);
-            canvas->concat(matrix);
-            canvas->drawImage(image, 0, 0, paint);
-        } break;
-        case DRAW_BITMAP_NINE: {
-            const SkPaint* paint = fPictureData->getPaint(reader);
-            const SkImage* image = fPictureData->getBitmapAsImage(reader);
-            SkIRect src;
-            reader->readIRect(&src);
-            SkRect dst;
-            reader->readRect(&dst);
-            BREAK_ON_READ_ERROR(reader);
-
-            canvas->drawImageNine(image, src, dst, paint);
-        } break;
         case DRAW_CLEAR: {
             auto c = reader->readInt();
             BREAK_ON_READ_ERROR(reader);
@@ -589,13 +542,6 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             BREAK_ON_READ_ERROR(reader);
 
             canvas->private_draw_shadow_rec(path, rec);
-        } break;
-        case DRAW_SPRITE: {
-            /* const SkPaint* paint = */ fPictureData->getPaint(reader);
-            /* const SkImage* image = */ fPictureData->getBitmapAsImage(reader);
-            /* int left = */ reader->readInt();
-            /* int top = */ reader->readInt();
-            // drawSprite removed dec-2015
         } break;
         case DRAW_TEXT: {
             const SkPaint* paint = fPictureData->getPaint(reader);
