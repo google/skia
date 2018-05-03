@@ -94,6 +94,30 @@
       "revId": "3a14afcac17f8c9afe7bef4020736ad8f2216b84",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "08b73726_cab9bae5",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-03T15:29:39Z",
+      "side": 1,
+      "message": "I think makeContext in particular tries to catch infinite matrices: https://cs.chromium.org/chromium/src/third_party/skia/src/shaders/gradients/Sk4fGradientBase.cpp?rcl\u003d0caef298c2ff935b622673e09cd542151dc2ecc0\u0026l\u003d303\n\nBut IIRC we take that path for the fast/linear case.\n\nMaybe we\u0027re missing similar checks for appendStages \u0026 asFragmentProcessor?",
+      "parentUuid": "d49c16b4_cb980a89",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 5
+      },
+      "revId": "3a14afcac17f8c9afe7bef4020736ad8f2216b84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
