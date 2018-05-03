@@ -25,10 +25,11 @@ struct SkMask {
         k3D_Format, //!< 3 8bit per pixl planes: alpha, mul, add
         kARGB32_Format,         //!< SkPMColor
         kLCD16_Format,          //!< 565 alpha for r/g/b
+        kSDF_Format,            //!< 8bits representing signed distance field
     };
 
     enum {
-        kCountMaskFormats = kLCD16_Format + 1
+        kCountMaskFormats = kSDF_Format + 1
     };
 
     uint8_t*    fImage;
@@ -68,7 +69,7 @@ struct SkMask {
         x,y are in the same coordiate space as fBounds.
     */
     uint8_t* getAddr8(int x, int y) const {
-        SkASSERT(kA8_Format == fFormat);
+        SkASSERT(kA8_Format == fFormat || kSDF_Format == fFormat);
         SkASSERT(fBounds.contains(x, y));
         SkASSERT(fImage != nullptr);
         return fImage + x - fBounds.fLeft + (y - fBounds.fTop) * fRowBytes;
@@ -126,6 +127,11 @@ struct SkMask {
         kJustRenderImage_CreateMode,        //!< render into preallocate mask
         kComputeBoundsAndRenderImage_CreateMode  //!< compute bounds, alloc image and render into it
     };
+
+    /**
+     *  Returns initial destination mask data padded by radiusX and radiusY
+     */
+    static SkMask PrepareDestination(int radiusX, int radiusY, const SkMask& src);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
