@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "f17cb6e9_95d4a5ee",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-03T14:49:50Z",
+      "side": 1,
+      "message": "Seems like another way to do this that keeps things entirely encapsulated in the SkImageFilterCache is to maintain a map of SkImageFilter* -\u003e SkTArray\u003cSkIamageFilterCacheKey\u003e there.  The per-SkImageFilter array would go away, as would any need to worry about friendship, locks, mutability, etc.\n\nIf that can\u0027t work, can we at least pass \u0026fCacheKeys by argument to the methods that manipulate it?  That might make it more clear how it\u0027s only managed by those methods (I think this comment is a very valuable one), and I think would remove the need to make SkImageFilterCache a friend of SkImageFilter.  Essentially, have internalFilterCacheKeys() be called for the SkImageFilterCache instead of by it?",
+      "revId": "ea58d662dae8565396f6dcc35c9866fcb63b9f68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "26306ace_31ff6a29",
         "filename": "tests/ImageFilterCacheTest.cpp",
         "patchSetId": 1
