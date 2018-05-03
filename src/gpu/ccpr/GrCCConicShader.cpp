@@ -22,6 +22,17 @@ void GrCCConicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts, 
                                  "2*w * float2(+y0, -x0), 0, "
                                  "2*w * float2(-y2, +x2), 0);", fKLMMatrix.c_str());
 
+    // Reinit L&M to WAR rendering bug.
+#if 0
+    s->codeAppendf("%s[1][0] = 2*w * +y0;", fKLMMatrix.c_str());
+    s->codeAppendf("%s[1][1] = 2*w * -x0;", fKLMMatrix.c_str());
+    s->codeAppendf("%s[1][2] = 0;", fKLMMatrix.c_str());
+
+    s->codeAppendf("%s[2][0] = 2*w * -y2;", fKLMMatrix.c_str());
+    s->codeAppendf("%s[2][1] = 2*w * +x2;", fKLMMatrix.c_str());
+    s->codeAppendf("%s[2][2] = 0;", fKLMMatrix.c_str());
+#endif
+
     s->declareGlobal(fControlPoint);
     s->codeAppendf("%s = %s[1];", fControlPoint.c_str(), pts);
 
