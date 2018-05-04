@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1301466c_0f88768f",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1408,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-04T17:51:11Z",
+      "side": 1,
+      "message": "I put this code in because it was in the old nine-patch code and I wanted to minimize change since this will be back ported. However, I think there are several problems:\n\n1) Applying the mask filter separately to each cell does not seem correct. Though, SkBaseDevice does this too. So this is a battle for another day.\n\n2) I don\u0027t know why we were taking this path for MSAA. Maybe it just needs to be updated to convey GrAAType::kMSAA when the paint has AA and the paint has AA but we didn\u0027t care to do that when the code was first written?\n\n3) We should either make LatticeOp implement AA at the lattice bounding rect or just decide this draw doesn\u0027t respect AA (as it doesn\u0027t matter for most use cases where the image itself has a fuzzy/transparent edge around its content).",
+      "range": {
+        "startLine": 1399,
+        "startChar": 0,
+        "endLine": 1408,
+        "endChar": 5
+      },
+      "revId": "495f913d022afbf5bb1059eb0426685fb29006db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
