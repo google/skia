@@ -46,6 +46,30 @@
       "revId": "01dee007e3130efe19c70ff1f24bbfbe7cb3f2d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55c4fa0b_54b7a900",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-04T16:31:34Z",
+      "side": 1,
+      "message": "I meant the same key descriptor generating different device desc. May be that\u0027s not possible. If so, could we have an assert in getOrCreateCache that if a cache instance exists then the passed in deviceDesc \u003d\u003d fDeviceDescriptor.",
+      "parentUuid": "d5f7bb71_5aabc97a",
+      "range": {
+        "startLine": 139,
+        "startChar": 41,
+        "endLine": 139,
+        "endChar": 55
+      },
+      "revId": "01dee007e3130efe19c70ff1f24bbfbe7cb3f2d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

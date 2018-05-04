@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6b36c27f_6a9e92b2",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-04T16:31:34Z",
+      "side": 1,
+      "message": "I remember this showing up on profiling earlier(https://pprof.corp.google.com/user-profile?id\u003d0d762ea6cb852a82a2dceffe74cebeda\u0026focus\u003dSk\u0026tab\u003dflame\u0026path\u003d1goaamg1goaamg). We don\u0027t need the device desc each time right, only when a new instance of SkGlyphCacheState is created. Could we may be pass in a callback to only generate it when required?",
+      "range": {
+        "startLine": 361,
+        "startChar": 21,
+        "endLine": 361,
+        "endChar": 38
+      },
+      "revId": "cf6da97c84021e78590a41e7e124cd407d7fbe63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
