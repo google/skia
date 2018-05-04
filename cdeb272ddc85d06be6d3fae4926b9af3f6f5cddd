@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f06dea8e_068c7f9b",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1416,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-04T16:24:28Z",
+      "side": 1,
+      "message": "Right, I guess we can leave it unconditional on 1625.  Done.",
+      "parentUuid": "f7e06fde_3a406765",
+      "revId": "cdeb272ddc85d06be6d3fae4926b9af3f6f5cddd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fbb7a6ef_ec807a2a",
         "filename": "gn/gn_to_bp.py",
         "patchSetId": 1
@@ -39,6 +57,30 @@
       "revId": "cdeb272ddc85d06be6d3fae4926b9af3f6f5cddd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dec89896_e8aee02c",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-04T16:24:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fbb7a6ef_ec807a2a",
+      "range": {
+        "startLine": 217,
+        "startChar": 26,
+        "endLine": 217,
+        "endChar": 31
+      },
+      "revId": "cdeb272ddc85d06be6d3fae4926b9af3f6f5cddd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
