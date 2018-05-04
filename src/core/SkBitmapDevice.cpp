@@ -567,25 +567,6 @@ void SkBitmapDevice::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPa
     BDDraw(this).drawSprite(bitmap, x, y, paint);
 }
 
-class SkBitmapDeviceFilteredSurfaceProps {
-public:
-    SkBitmapDeviceFilteredSurfaceProps(const SkBitmap& bitmap, const SkPaint& paint,
-                                       const SkSurfaceProps& surfaceProps) {
-        if (kN32_SkColorType != bitmap.colorType() || !paint.isSrcOver()) {
-            SkSurfaceProps* newPaint = fLazy.init(surfaceProps.flags(), kUnknown_SkPixelGeometry);
-            fSurfaceProps = newPaint;
-        } else {
-            fSurfaceProps = &surfaceProps;
-        }
-    }
-
-    const SkSurfaceProps& operator()() const { return *fSurfaceProps; }
-
-private:
-    const SkSurfaceProps* fSurfaceProps;
-    SkTLazy<SkSurfaceProps> fLazy;
-};
-
 void SkBitmapDevice::drawText(const void* text, size_t len,
                               SkScalar x, SkScalar y, const SkPaint& paint) {
     SkBitmapDeviceFilteredSurfaceProps props(fBitmap, paint, fSurfaceProps);
