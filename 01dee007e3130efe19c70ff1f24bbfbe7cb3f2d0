@@ -70,6 +70,30 @@
       "revId": "01dee007e3130efe19c70ff1f24bbfbe7cb3f2d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "096317a0_7baaf340",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-04T17:06:11Z",
+      "side": 1,
+      "message": "The set of device descriptors is strictly smaller than the set of key descriptors. Some key descriptors can generate the same device descriptors, but not the other way around.",
+      "parentUuid": "55c4fa0b_54b7a900",
+      "range": {
+        "startLine": 139,
+        "startChar": 41,
+        "endLine": 139,
+        "endChar": 55
+      },
+      "revId": "01dee007e3130efe19c70ff1f24bbfbe7cb3f2d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

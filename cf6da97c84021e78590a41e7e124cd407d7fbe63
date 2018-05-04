@@ -22,6 +22,30 @@
       "revId": "cf6da97c84021e78590a41e7e124cd407d7fbe63",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00618d1d_5b9e5a53",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-04T17:06:11Z",
+      "side": 1,
+      "message": "This seem like early optimization. Instrumented calls tend to distort where the real time is being spent. Let\u0027s see the problem show up on perf first. The right answer would be to push the paint, props, matrix, and flags down to getOrCreateCache.",
+      "parentUuid": "6b36c27f_6a9e92b2",
+      "range": {
+        "startLine": 361,
+        "startChar": 21,
+        "endLine": 361,
+        "endChar": 38
+      },
+      "revId": "cf6da97c84021e78590a41e7e124cd407d7fbe63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
