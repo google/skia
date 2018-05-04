@@ -51,64 +51,6 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
   def user_ip(self):
     return self.user_ip_host.split(':')[0]
 
-  def compile(self, unused_target):
-    configuration = self.m.vars.builder_cfg.get('configuration')
-    os            = self.m.vars.builder_cfg.get('os')
-    target_arch   = self.m.vars.builder_cfg.get('target_arch')
-
-    # TODO(kjlubick): can this toolchain be replaced/shared with chromebook?
-    toolchain_dir = self.m.vars.slave_dir.join('cast_toolchain', 'armv7a')
-    gles_dir = self.m.vars.slave_dir.join('chromebook_arm_gles')
-
-    extra_cflags = [
-      '-I%s' % gles_dir.join('include'),
-      '-DMESA_EGL_NO_X11_HEADERS',
-      "-DSK_NO_COMMAND_BUFFER",
-      # Avoid unused warning with yyunput
-      '-Wno-error=unused-function',
-      # Makes the binary small enough to fit on the small disk.
-      '-g0',
-      ('-DDUMMY_cast_toolchain_version=%s' %
-       self.m.run.asset_version('cast_toolchain')),
-    ]
-
-    extra_ldflags = [
-      # Chromecast does not package libstdc++
-      '-static-libstdc++', '-static-libgcc',
-      '-L%s' % toolchain_dir.join('lib'),
-    ]
-
-    quote = lambda x: '"%s"' % x
-    args = {
-      'cc': quote(toolchain_dir.join('bin','armv7a-cros-linux-gnueabi-gcc')),
-      'cxx': quote(toolchain_dir.join('bin','armv7a-cros-linux-gnueabi-g++')),
-      'ar': quote(toolchain_dir.join('bin','armv7a-cros-linux-gnueabi-ar')),
-      'target_cpu': quote(target_arch),
-      'skia_use_fontconfig': 'false',
-      'skia_enable_gpu': 'true',
-      # The toolchain won't allow system libraries to be used
-      # when cross-compiling
-      'skia_use_system_freetype2': 'false',
-      # Makes the binary smaller
-      'skia_use_icu': 'false',
-      'skia_use_egl': 'true',
-    }
-
-    if configuration != 'Debug':
-      args['is_debug'] = 'false'
-    args['extra_cflags'] = repr(extra_cflags).replace("'", '"')
-    args['extra_ldflags'] = repr(extra_ldflags).replace("'", '"')
-
-    gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.iteritems()))
-
-    gn    = 'gn.exe'    if 'Win' in os else 'gn'
-    ninja = 'ninja.exe' if 'Win' in os else 'ninja'
-    gn = self.m.vars.skia_dir.join('bin', gn)
-
-    self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
-    self._run('gn gen', gn, 'gen', self.out_dir, '--args=' + gn_args)
-    self._run('ninja', ninja, '-k', '0', '-C', self.out_dir, 'nanobench', 'dm')
-
   def install(self):
     super(GNChromecastFlavorUtils, self).install()
     self._adb('mkdir ' + self.m.vars.android_bin_dir,
