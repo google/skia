@@ -16,6 +16,24 @@
       "revId": "2c4753fe3a235ae425bbfea76f7c37a7d5a2302f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23b6f82d_3cfbda86",
+        "filename": "infra/bots/recipes/calmbench.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-04T17:46:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "33a25677_5a517e80",
+      "revId": "2c4753fe3a235ae425bbfea76f7c37a7d5a2302f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
