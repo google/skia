@@ -214,9 +214,9 @@ void SkThreadedBMPDevice::drawText(const void* text, size_t len, SkScalar x, SkS
         const SkPaint& paint) {
     char* clonedText = this->cloneArray((const char*)text, len);
     SkRect drawBounds = SkRectPriv::MakeLargest(); // TODO tighter drawBounds
+    SkBitmapDeviceFilteredSurfaceProps props(fBitmap, paint, this->surfaceProps());
     fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
-        TileDraw(ds, tileBounds).drawText(clonedText, len, x, y, paint,
-                                          &this->surfaceProps());
+        TileDraw(ds, tileBounds).drawText(clonedText, len, x, y, paint, &props());
     });
 }
 
@@ -225,9 +225,10 @@ void SkThreadedBMPDevice::drawPosText(const void* text, size_t len, const SkScal
     char* clonedText = this->cloneArray((const char*)text, len);
     SkScalar* clonedXpos = this->cloneArray(xpos, paint.countText(text, len) * scalarsPerPos);
     SkRect drawBounds = SkRectPriv::MakeLargest(); // TODO tighter drawBounds
+    SkBitmapDeviceFilteredSurfaceProps props(fBitmap, paint, this->surfaceProps());
     fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
         TileDraw(ds, tileBounds).drawPosText(clonedText, len, clonedXpos, scalarsPerPos, offset,
-                                             paint, &surfaceProps());
+                                             paint, &props());
     });
 }
 
