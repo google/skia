@@ -70,6 +70,30 @@
       "revId": "cf6da97c84021e78590a41e7e124cd407d7fbe63",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de892b25_ee365e26",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-04T20:15:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2851f6ec_0c8f6720",
+      "range": {
+        "startLine": 361,
+        "startChar": 21,
+        "endLine": 361,
+        "endChar": 38
+      },
+      "revId": "cf6da97c84021e78590a41e7e124cd407d7fbe63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
