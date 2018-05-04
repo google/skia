@@ -5,16 +5,27 @@
 
 DEPS = [
   'core',
+  'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/properties',
+  'run',
+  'vars',
 ]
 
 
 def RunSteps(api):
+  api.vars.setup()
   bot_update = True
   if 'NoDEPS' in api.properties['buildername']:
     bot_update = False
-  api.core.setup(bot_update=bot_update)
+  if bot_update:
+    api.core.checkout_bot_update()
+  else:
+    api.core.checkout_git()
+  if not api.path.exists(api.vars.tmp_dir):
+    api.run.run_once(api.file.ensure_directory,
+                     'makedirs tmp_dir',
+                     api.vars.tmp_dir)
 
 
 def GenTests(api):

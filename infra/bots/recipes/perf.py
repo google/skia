@@ -324,7 +324,13 @@ def perf_steps(api):
 
 
 def RunSteps(api):
-  api.core.setup()
+  api.vars.setup()
+  if not api.path.exists(api.vars.tmp_dir):
+    api.run.run_once(api.file.ensure_directory,
+                     'makedirs tmp_dir',
+                     api.vars.tmp_dir)
+  api.flavor.setup()
+
   env = {}
   if 'iOS' in api.vars.builder_name:
     env['IOS_BUNDLE_ID'] = 'com.google.nanobench'
@@ -527,4 +533,13 @@ def GenTests(api):
     api.step_data('Scale CPU 4 to 0.600000', retcode=1)+
     api.step_data('Scale CPU 4 to 0.600000 (attempt 2)', retcode=1)+
     api.step_data('Scale CPU 4 to 0.600000 (attempt 3)', retcode=1)
+  )
+
+  yield (
+      api.test('tmp_not_exist') +
+      api.properties(buildername=builder,
+                     repository='https://skia.googlesource.com/other_repo.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]')
   )
