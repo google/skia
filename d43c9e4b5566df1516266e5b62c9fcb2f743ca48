@@ -69,6 +69,24 @@
       "revId": "d43c9e4b5566df1516266e5b62c9fcb2f743ca48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f817b37d_9bcf7987",
+        "filename": "infra/bots/recipes/skqp_test.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-04T17:31:40Z",
+      "side": 1,
+      "message": "FWIW, I don\u0027t see it used on the skqp branch either.",
+      "parentUuid": "13ab5d10_fe70d6d4",
+      "revId": "d43c9e4b5566df1516266e5b62c9fcb2f743ca48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "33a25677_5a517e80",
+        "filename": "infra/bots/recipes/calmbench.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-04T17:31:40Z",
+      "side": 1,
+      "message": "nit: remove if",
+      "revId": "2c4753fe3a235ae425bbfea76f7c37a7d5a2302f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
