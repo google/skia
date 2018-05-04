@@ -12,7 +12,6 @@
 #include "ImageSlide.h"
 #include "Resources.h"
 #include "SampleSlide.h"
-#include "SkottieSlide.h"
 #include "SKPSlide.h"
 #include "SlideDir.h"
 #include "SvgSlide.h"
@@ -46,6 +45,10 @@
 
 #include <stdlib.h>
 #include <map>
+
+#if defined(SK_ENABLE_SKOTTIE)
+    #include "SkottieSlide.h"
+#endif
 
 using namespace sk_app;
 
@@ -585,10 +588,12 @@ void Viewer::initSlides() {
             [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
                 return sk_make_sp<ImageSlide>(name, path);}
         },
+#if defined(SK_ENABLE_SKOTTIE)
         { ".json", "skottie-dir", FLAGS_jsons,
             [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
                 return sk_make_sp<SkottieSlide>(name, path);}
         },
+#endif
         { ".svg", "svg-dir", FLAGS_svgs,
             [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
                 return sk_make_sp<SvgSlide>(name, path);}

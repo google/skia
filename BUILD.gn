@@ -39,6 +39,7 @@ declare_args() {
   skia_enable_fontmgr_empty = false
   skia_enable_gpu = true
   skia_enable_pdf = true
+  skia_enable_skottie = true
   skia_enable_spirv_validation = is_skia_dev_build && is_debug
   skia_enable_tools = is_skia_dev_build
   skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
@@ -1444,20 +1445,24 @@ if (skia_enable_tools) {
   }
 
   test_lib("experimental_skottie") {
-    public_include_dirs = [ "experimental/skottie" ]
+    public_include_dirs = []
     include_dirs = [ "tools" ]
-    sources = [
-      "experimental/skottie/Skottie.cpp",
-      "experimental/skottie/SkottieAdapter.cpp",
-      "experimental/skottie/SkottieAnimator.cpp",
-      "experimental/skottie/SkottieParser.cpp",
-      "experimental/skottie/SkottieValue.cpp",
-    ]
-    deps = [
-      ":experimental_sksg",
-      ":skia",
-      "//third_party/jsoncpp",
-    ]
+    if (skia_enable_skottie) {
+      public_include_dirs += [ "experimental/skottie" ]
+      public_defines = [ "SK_ENABLE_SKOTTIE" ]
+      sources = [
+        "experimental/skottie/Skottie.cpp",
+        "experimental/skottie/SkottieAdapter.cpp",
+        "experimental/skottie/SkottieAnimator.cpp",
+        "experimental/skottie/SkottieParser.cpp",
+        "experimental/skottie/SkottieValue.cpp",
+      ]
+      deps = [
+        ":experimental_sksg",
+        ":skia",
+        "//third_party/jsoncpp",
+      ]
+    }
   }
 
   test_lib("experimental_svg_model") {
@@ -2076,7 +2081,6 @@ if (skia_enable_tools) {
         "tools/viewer/ImageSlide.cpp",
         "tools/viewer/SKPSlide.cpp",
         "tools/viewer/SampleSlide.cpp",
-        "tools/viewer/SkottieSlide.cpp",
         "tools/viewer/SlideDir.cpp",
         "tools/viewer/StatsLayer.cpp",
         "tools/viewer/SvgSlide.cpp",
@@ -2086,7 +2090,6 @@ if (skia_enable_tools) {
 
       include_dirs = []
       deps = [
-        ":experimental_skottie",
         ":experimental_sksg",
         ":experimental_svg_model",
         ":flags",
@@ -2100,6 +2103,11 @@ if (skia_enable_tools) {
         "//third_party/imgui",
         "//third_party/jsoncpp",
       ]
+
+      if (skia_enable_skottie) {
+        sources += [ "tools/viewer/SkottieSlide.cpp" ]
+        deps += [ ":experimental_skottie" ]
+      }
     }
   }
 

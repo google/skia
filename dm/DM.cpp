@@ -790,7 +790,7 @@ static bool gather_srcs() {
 
     gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
     gather_file_srcs<MSKPSrc>(FLAGS_mskps, "mskp");
-#if !defined(SK_BUILD_FOR_GOOGLE3)
+#if defined(SK_ENABLE_SKOTTIE)
     gather_file_srcs<SkottieSrc>(FLAGS_jsons, "json");
 #endif
 #if defined(SK_XML)

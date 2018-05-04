@@ -252,7 +252,7 @@ private:
 };
 
 
-#if !defined(SK_BUILD_FOR_GOOGLE3)
+#if defined(SK_ENABLE_SKOTTIE)
 class SkottieSrc final : public Src {
 public:
     explicit SkottieSrc(Path path);
