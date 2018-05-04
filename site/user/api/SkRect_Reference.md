@@ -30,10 +30,10 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 | name | description |
 | --- | --- |
 | <a href="#As_Points">As Points</a> | conversion to and from <a href="SkPoint_Reference#Point">Points</a> |
-| <a href="#From_Integers">From Integers</a> | set <a href="undocumented#Scalar">Scalar</a> values from integer input |
+| <a href="#From_Integers">From Integers</a> | sets <a href="undocumented#Scalar">Scalar</a> values from integer input |
 | <a href="#Inset_Outset_Offset">Inset Outset Offset</a> | moves sides |
-| <a href="#Intersection">Intersection</a> | set to shared bounds |
-| <a href="#Join">Join</a> | set to union of bounds |
+| <a href="#Intersection">Intersection</a> | sets to shared bounds |
+| <a href="#Join">Join</a> | sets to union of bounds |
 | <a href="#Property">Property</a> | member values, center, validity |
 | <a href="#Rounding">Rounding</a> | adjust to integer bounds |
 | <a href="#Set">Set</a> | replaces all values |
@@ -69,12 +69,12 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 | <a href="#SkRect_isetWH">isetWH</a> | sets to int input (0, 0, width, height) |
 | <a href="#SkRect_join">join</a> | sets to union of bounds |
 | <a href="#SkRect_joinNonEmptyArg">joinNonEmptyArg</a> | sets to union of bounds, asserting that argument is not empty |
-| <a href="#SkRect_joinPossiblyEmptyRect">joinPossiblyEmptyRect</a> | sets to union of bounds. Skips empty check for both |
+| <a href="#SkRect_joinPossiblyEmptyRect">joinPossiblyEmptyRect</a> | sets to union of bounds; skips empty check for both |
 | <a href="#SkRect_left">left</a> | returns smaller bounds in x, if sorted |
 | <a href="#SkRect_makeInset">makeInset</a> | constructs from sides moved symmetrically about the center |
 | <a href="#SkRect_makeOffset">makeOffset</a> | constructs from translated sides |
 | <a href="#SkRect_makeOutset">makeOutset</a> | constructs from sides moved symmetrically about the center |
-| <a href="#SkRect_makeSorted">makeSorted</a> | constructs, ordering sides from smaller to larger |
+| <a href="#SkRect_makeSorted">makeSorted</a> | constructs <a href="#Rect">Rect</a>, ordering sides from smaller to larger |
 | <a href="#SkRect_offset">offset</a> | translates sides without changing width and height |
 | <a href="#SkRect_offsetTo">offsetTo</a> | translates to (x, y) without changing width and height |
 | <a href="#SkRect_outset">outset</a> | moves the sides symmetrically about the center |
@@ -139,7 +139,7 @@ vertical values when sorted. When equal to or less than <a href="#SkRect_fTop">f
 | <a href="#SkRect_makeInset">makeInset</a> | constructs from sides moved symmetrically about the center |
 | <a href="#SkRect_makeOffset">makeOffset</a> | constructs from translated sides |
 | <a href="#SkRect_makeOutset">makeOutset</a> | constructs from sides moved symmetrically about the center |
-| <a href="#SkRect_makeSorted">makeSorted</a> | constructs, ordering sides from smaller to larger |
+| <a href="#SkRect_makeSorted">makeSorted</a> | constructs <a href="#Rect">Rect</a>, ordering sides from smaller to larger |
 
 <a name="SkRect_MakeEmpty"></a>
 ## MakeEmpty
@@ -193,10 +193,11 @@ represent 32-bit integers exactly. Use <a href="SkIRect_Reference#SkIRect">SkIRe
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_MakeWH_w"> <code><strong>w </strong></code> </a></td> <td>
-<a href="undocumented#SkScalar">SkScalar</a> width of constructed <a href="#Rect">Rect</a></td>
-  </tr>  <tr>    <td><a name="SkRect_MakeWH_h"> <code><strong>h </strong></code> </a></td> <td>
-<a href="undocumented#SkScalar">SkScalar</a> height of constructed <a href="#Rect">Rect</a></td>
+<table>  <tr>    <td><a name="SkRect_MakeWH_w"> <code><strong>w </strong></code> </a></td>
+    <td><a href="undocumented#SkScalar">SkScalar</a> width of constructed <a href="#Rect">Rect</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_MakeWH_h"> <code><strong>h </strong></code> </a></td>
+    <td><a href="undocumented#SkScalar">SkScalar</a> height of constructed <a href="#Rect">Rect</a></td>
   </tr>
 </table>
 
@@ -237,10 +238,11 @@ Use <a href="SkIRect_Reference#SkIRect">SkIRect</a> for an exact integer rectang
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_MakeIWH_w"> <code><strong>w </strong></code> </a></td> <td>
-integer width of constructed <a href="#Rect">Rect</a></td>
-  </tr>  <tr>    <td><a name="SkRect_MakeIWH_h"> <code><strong>h </strong></code> </a></td> <td>
-integer height of constructed <a href="#Rect">Rect</a></td>
+<table>  <tr>    <td><a name="SkRect_MakeIWH_w"> <code><strong>w </strong></code> </a></td>
+    <td>integer width of constructed <a href="#Rect">Rect</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_MakeIWH_h"> <code><strong>h </strong></code> </a></td>
+    <td>integer height of constructed <a href="#Rect">Rect</a></td>
   </tr>
 </table>
 
@@ -279,8 +281,8 @@ validate input; <a href="#SkRect_MakeSize_size">size</a>.<a href="#SkRect_width"
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_MakeSize_size"> <code><strong>size </strong></code> </a></td> <td>
-<a href="undocumented#SkScalar">SkScalar</a> values for <a href="#Rect">Rect</a> width and height</td>
+<table>  <tr>    <td><a name="SkRect_MakeSize_size"> <code><strong>size </strong></code> </a></td>
+    <td><a href="undocumented#SkScalar">SkScalar</a> values for <a href="#Rect">Rect</a> width and height</td>
   </tr>
 </table>
 
@@ -319,14 +321,17 @@ result in <a href="#SkRect_fLeft">fLeft</a> greater than <a href="#SkRect_fRight
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_MakeLTRB_l"> <code><strong>l </strong></code> </a></td> <td>
-<a href="undocumented#SkScalar">SkScalar</a> stored in <a href="#SkRect_fLeft">fLeft</a></td>
-  </tr>  <tr>    <td><a name="SkRect_MakeLTRB_t"> <code><strong>t </strong></code> </a></td> <td>
-<a href="undocumented#SkScalar">SkScalar</a> stored in <a href="#SkRect_fTop">fTop</a></td>
-  </tr>  <tr>    <td><a name="SkRect_MakeLTRB_r"> <code><strong>r </strong></code> </a></td> <td>
-<a href="undocumented#SkScalar">SkScalar</a> stored in <a href="#SkRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkRect_MakeLTRB_b"> <code><strong>b </strong></code> </a></td> <td>
-<a href="undocumented#SkScalar">SkScalar</a> stored in <a href="#SkRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkRect_MakeLTRB_l"> <code><strong>l </strong></code> </a></td>
+    <td><a href="undocumented#SkScalar">SkScalar</a> stored in <a href="#SkRect_fLeft">fLeft</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_MakeLTRB_t"> <code><strong>t </strong></code> </a></td>
+    <td><a href="undocumented#SkScalar">SkScalar</a> stored in <a href="#SkRect_fTop">fTop</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_MakeLTRB_r"> <code><strong>r </strong></code> </a></td>
+    <td><a href="undocumented#SkScalar">SkScalar</a> stored in <a href="#SkRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_MakeLTRB_b"> <code><strong>b </strong></code> </a></td>
+    <td><a href="undocumented#SkScalar">SkScalar</a> stored in <a href="#SkRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -367,14 +372,17 @@ Does not validate input;
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_MakeXYWH_x"> <code><strong>x </strong></code> </a></td> <td>
-stored in <a href="#SkRect_fLeft">fLeft</a></td>
-  </tr>  <tr>    <td><a name="SkRect_MakeXYWH_y"> <code><strong>y </strong></code> </a></td> <td>
-stored in <a href="#SkRect_fTop">fTop</a></td>
-  </tr>  <tr>    <td><a name="SkRect_MakeXYWH_w"> <code><strong>w </strong></code> </a></td> <td>
-added to x and stored in <a href="#SkRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkRect_MakeXYWH_h"> <code><strong>h </strong></code> </a></td> <td>
-added to y and stored in <a href="#SkRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkRect_MakeXYWH_x"> <code><strong>x </strong></code> </a></td>
+    <td>stored in <a href="#SkRect_fLeft">fLeft</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_MakeXYWH_y"> <code><strong>y </strong></code> </a></td>
+    <td>stored in <a href="#SkRect_fTop">fTop</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_MakeXYWH_w"> <code><strong>w </strong></code> </a></td>
+    <td>added to x and stored in <a href="#SkRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_MakeXYWH_h"> <code><strong>h </strong></code> </a></td>
+    <td>added to y and stored in <a href="#SkRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -422,8 +430,8 @@ Does not validate input; <a href="#SkRect_Make_size">size</a>.<a href="#SkRect_w
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_Make_size"> <code><strong>size </strong></code> </a></td> <td>
-integer values for <a href="#Rect">Rect</a> width and height</td>
+<table>  <tr>    <td><a name="SkRect_Make_size"> <code><strong>size </strong></code> </a></td>
+    <td>integer values for <a href="#Rect">Rect</a> width and height</td>
   </tr>
 </table>
 
@@ -461,8 +469,8 @@ than <a href="#SkRect_fBottom">fBottom</a>.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_Make_2_irect"> <code><strong>irect </strong></code> </a></td> <td>
-integer unsorted bounds</td>
+<table>  <tr>    <td><a name="SkRect_Make_2_irect"> <code><strong>irect </strong></code> </a></td>
+    <td>integer unsorted bounds</td>
   </tr>
 </table>
 
@@ -964,10 +972,11 @@ contain zeroes width different signs.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_equal_operator_a"> <code><strong>a </strong></code> </a></td> <td>
-<a href="#Rect">Rect</a> to compare</td>
-  </tr>  <tr>    <td><a name="SkRect_equal_operator_b"> <code><strong>b </strong></code> </a></td> <td>
-<a href="#Rect">Rect</a> to compare</td>
+<table>  <tr>    <td><a name="SkRect_equal_operator_a"> <code><strong>a </strong></code> </a></td>
+    <td><a href="#Rect">Rect</a> to compare</td>
+  </tr>
+  <tr>    <td><a name="SkRect_equal_operator_b"> <code><strong>b </strong></code> </a></td>
+    <td><a href="#Rect">Rect</a> to compare</td>
   </tr>
 </table>
 
@@ -1011,10 +1020,11 @@ contain zeroes width different signs.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_notequal_operator_a"> <code><strong>a </strong></code> </a></td> <td>
-<a href="#Rect">Rect</a> to compare</td>
-  </tr>  <tr>    <td><a name="SkRect_notequal_operator_b"> <code><strong>b </strong></code> </a></td> <td>
-<a href="#Rect">Rect</a> to compare</td>
+<table>  <tr>    <td><a name="SkRect_notequal_operator_a"> <code><strong>a </strong></code> </a></td>
+    <td><a href="#Rect">Rect</a> to compare</td>
+  </tr>
+  <tr>    <td><a name="SkRect_notequal_operator_b"> <code><strong>b </strong></code> </a></td>
+    <td><a href="#Rect">Rect</a> to compare</td>
   </tr>
 </table>
 
@@ -1058,10 +1068,12 @@ void toQuad(SkPoint quad[4]) const
 Returns four points in <a href="#SkRect_toQuad_quad">quad</a> that enclose <a href="#Rect">Rect</a> ordered as: top-left, top-right,
 bottom-right, bottom-left.
 
+Consider adding param to control whether <a href="#SkRect_toQuad_quad">quad</a> is clockwise or counterclockwise.
+
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_toQuad_quad"> <code><strong>quad </strong></code> </a></td> <td>
-storage for corners of <a href="#Rect">Rect</a></td>
+<table>  <tr>    <td><a name="SkRect_toQuad_quad"> <code><strong>quad </strong></code> </a></td>
+    <td>storage for corners of <a href="#Rect">Rect</a></td>
   </tr>
 </table>
 
@@ -1099,10 +1111,11 @@ Result is either empty or sorted: <a href="#SkRect_fLeft">fLeft</a> is less than
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_setBounds_pts"> <code><strong>pts </strong></code> </a></td> <td>
-<a href="SkPoint_Reference#Point">Point</a> array</td>
-  </tr>  <tr>    <td><a name="SkRect_setBounds_count"> <code><strong>count </strong></code> </a></td> <td>
-entries in array</td>
+<table>  <tr>    <td><a name="SkRect_setBounds_pts"> <code><strong>pts </strong></code> </a></td>
+    <td><a href="SkPoint_Reference#Point">Point</a> array</td>
+  </tr>
+  <tr>    <td><a name="SkRect_setBounds_count"> <code><strong>count </strong></code> </a></td>
+    <td>entries in array</td>
   </tr>
 </table>
 
@@ -1144,10 +1157,11 @@ Result is either empty or sorted: <a href="#SkRect_fLeft">fLeft</a> is less than
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_setBoundsCheck_pts"> <code><strong>pts </strong></code> </a></td> <td>
-<a href="SkPoint_Reference#Point">Point</a> array</td>
-  </tr>  <tr>    <td><a name="SkRect_setBoundsCheck_count"> <code><strong>count </strong></code> </a></td> <td>
-entries in array</td>
+<table>  <tr>    <td><a name="SkRect_setBoundsCheck_pts"> <code><strong>pts </strong></code> </a></td>
+    <td><a href="SkPoint_Reference#Point">Point</a> array</td>
+  </tr>
+  <tr>    <td><a name="SkRect_setBoundsCheck_count"> <code><strong>count </strong></code> </a></td>
+    <td>entries in array</td>
   </tr>
 </table>
 
@@ -1232,8 +1246,8 @@ Very large values in <a href="#SkRect_set_src">src</a> may lose precision.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_set_src"> <code><strong>src </strong></code> </a></td> <td>
-integer <a href="#Rect">Rect</a></td>
+<table>  <tr>    <td><a name="SkRect_set_src"> <code><strong>src </strong></code> </a></td>
+    <td>integer <a href="#Rect">Rect</a></td>
   </tr>
 </table>
 
@@ -1268,14 +1282,17 @@ top and bottom are not sorted; top is not necessarily less than bottom.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_set_2_left"> <code><strong>left </strong></code> </a></td> <td>
-stored in <a href="#SkRect_fLeft">fLeft</a></td>
-  </tr>  <tr>    <td><a name="SkRect_set_2_top"> <code><strong>top </strong></code> </a></td> <td>
-stored in <a href="#SkRect_fTop">fTop</a></td>
-  </tr>  <tr>    <td><a name="SkRect_set_2_right"> <code><strong>right </strong></code> </a></td> <td>
-stored in <a href="#SkRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkRect_set_2_bottom"> <code><strong>bottom </strong></code> </a></td> <td>
-stored in <a href="#SkRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkRect_set_2_left"> <code><strong>left </strong></code> </a></td>
+    <td>stored in <a href="#SkRect_fLeft">fLeft</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_set_2_top"> <code><strong>top </strong></code> </a></td>
+    <td>stored in <a href="#SkRect_fTop">fTop</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_set_2_right"> <code><strong>right </strong></code> </a></td>
+    <td>stored in <a href="#SkRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_set_2_bottom"> <code><strong>bottom </strong></code> </a></td>
+    <td>stored in <a href="#SkRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -1311,14 +1328,17 @@ top and bottom are not sorted; top is not necessarily less than bottom.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_setLTRB_left"> <code><strong>left </strong></code> </a></td> <td>
-stored in <a href="#SkRect_fLeft">fLeft</a></td>
-  </tr>  <tr>    <td><a name="SkRect_setLTRB_top"> <code><strong>top </strong></code> </a></td> <td>
-stored in <a href="#SkRect_fTop">fTop</a></td>
-  </tr>  <tr>    <td><a name="SkRect_setLTRB_right"> <code><strong>right </strong></code> </a></td> <td>
-stored in <a href="#SkRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkRect_setLTRB_bottom"> <code><strong>bottom </strong></code> </a></td> <td>
-stored in <a href="#SkRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkRect_setLTRB_left"> <code><strong>left </strong></code> </a></td>
+    <td>stored in <a href="#SkRect_fLeft">fLeft</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_setLTRB_top"> <code><strong>top </strong></code> </a></td>
+    <td>stored in <a href="#SkRect_fTop">fTop</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_setLTRB_right"> <code><strong>right </strong></code> </a></td>
+    <td>stored in <a href="#SkRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_setLTRB_bottom"> <code><strong>bottom </strong></code> </a></td>
+    <td>stored in <a href="#SkRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -1355,10 +1375,11 @@ Result is either empty or sorted: <a href="#SkRect_fLeft">fLeft</a> is less than
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_set_3_pts"> <code><strong>pts </strong></code> </a></td> <td>
-<a href="SkPoint_Reference#Point">Point</a> array</td>
-  </tr>  <tr>    <td><a name="SkRect_set_3_count"> <code><strong>count </strong></code> </a></td> <td>
-entries in array</td>
+<table>  <tr>    <td><a name="SkRect_set_3_pts"> <code><strong>pts </strong></code> </a></td>
+    <td><a href="SkPoint_Reference#Point">Point</a> array</td>
+  </tr>
+  <tr>    <td><a name="SkRect_set_3_count"> <code><strong>count </strong></code> </a></td>
+    <td>entries in array</td>
   </tr>
 </table>
 
@@ -1395,10 +1416,11 @@ sorted and may be empty. Does not check to see if values are finite.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_set_4_p0"> <code><strong>p0 </strong></code> </a></td> <td>
-corner to include</td>
-  </tr>  <tr>    <td><a name="SkRect_set_4_p1"> <code><strong>p1 </strong></code> </a></td> <td>
-corner to include</td>
+<table>  <tr>    <td><a name="SkRect_set_4_p0"> <code><strong>p0 </strong></code> </a></td>
+    <td>corner to include</td>
+  </tr>
+  <tr>    <td><a name="SkRect_set_4_p1"> <code><strong>p1 </strong></code> </a></td>
+    <td>corner to include</td>
   </tr>
 </table>
 
@@ -1427,14 +1449,17 @@ width or height may be negative.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_setXYWH_x"> <code><strong>x </strong></code> </a></td> <td>
-stored in <a href="#SkRect_fLeft">fLeft</a></td>
-  </tr>  <tr>    <td><a name="SkRect_setXYWH_y"> <code><strong>y </strong></code> </a></td> <td>
-stored in <a href="#SkRect_fTop">fTop</a></td>
-  </tr>  <tr>    <td><a name="SkRect_setXYWH_width"> <code><strong>width </strong></code> </a></td> <td>
-added to x and stored in <a href="#SkRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkRect_setXYWH_height"> <code><strong>height </strong></code> </a></td> <td>
-added to y and stored in <a href="#SkRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkRect_setXYWH_x"> <code><strong>x </strong></code> </a></td>
+    <td>stored in <a href="#SkRect_fLeft">fLeft</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_setXYWH_y"> <code><strong>y </strong></code> </a></td>
+    <td>stored in <a href="#SkRect_fTop">fTop</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_setXYWH_width"> <code><strong>width </strong></code> </a></td>
+    <td>added to x and stored in <a href="#SkRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_setXYWH_height"> <code><strong>height </strong></code> </a></td>
+    <td>added to y and stored in <a href="#SkRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -1469,10 +1494,11 @@ width or height may be negative.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_setWH_width"> <code><strong>width </strong></code> </a></td> <td>
-stored in <a href="#SkRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkRect_setWH_height"> <code><strong>height </strong></code> </a></td> <td>
-stored in <a href="#SkRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkRect_setWH_width"> <code><strong>width </strong></code> </a></td>
+    <td>stored in <a href="#SkRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_setWH_height"> <code><strong>height </strong></code> </a></td>
+    <td>stored in <a href="#SkRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -1516,14 +1542,17 @@ top and bottom are not sorted; top is not necessarily less than bottom.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_iset_left"> <code><strong>left </strong></code> </a></td> <td>
-promoted to <a href="undocumented#SkScalar">SkScalar</a> and stored in <a href="#SkRect_fLeft">fLeft</a></td>
-  </tr>  <tr>    <td><a name="SkRect_iset_top"> <code><strong>top </strong></code> </a></td> <td>
-promoted to <a href="undocumented#SkScalar">SkScalar</a> and stored in <a href="#SkRect_fTop">fTop</a></td>
-  </tr>  <tr>    <td><a name="SkRect_iset_right"> <code><strong>right </strong></code> </a></td> <td>
-promoted to <a href="undocumented#SkScalar">SkScalar</a> and stored in <a href="#SkRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkRect_iset_bottom"> <code><strong>bottom </strong></code> </a></td> <td>
-promoted to <a href="undocumented#SkScalar">SkScalar</a> and stored in <a href="#SkRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkRect_iset_left"> <code><strong>left </strong></code> </a></td>
+    <td>promoted to <a href="undocumented#SkScalar">SkScalar</a> and stored in <a href="#SkRect_fLeft">fLeft</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_iset_top"> <code><strong>top </strong></code> </a></td>
+    <td>promoted to <a href="undocumented#SkScalar">SkScalar</a> and stored in <a href="#SkRect_fTop">fTop</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_iset_right"> <code><strong>right </strong></code> </a></td>
+    <td>promoted to <a href="undocumented#SkScalar">SkScalar</a> and stored in <a href="#SkRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_iset_bottom"> <code><strong>bottom </strong></code> </a></td>
+    <td>promoted to <a href="undocumented#SkScalar">SkScalar</a> and stored in <a href="#SkRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -1559,10 +1588,11 @@ integer to <a href="undocumented#SkScalar">SkScalar</a>, large values may lose p
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_isetWH_width"> <code><strong>width </strong></code> </a></td> <td>
-promoted to <a href="undocumented#SkScalar">SkScalar</a> and stored in <a href="#SkRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkRect_isetWH_height"> <code><strong>height </strong></code> </a></td> <td>
-promoted to <a href="undocumented#SkScalar">SkScalar</a> and stored in <a href="#SkRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkRect_isetWH_width"> <code><strong>width </strong></code> </a></td>
+    <td>promoted to <a href="undocumented#SkScalar">SkScalar</a> and stored in <a href="#SkRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_isetWH_height"> <code><strong>height </strong></code> </a></td>
+    <td>promoted to <a href="undocumented#SkScalar">SkScalar</a> and stored in <a href="#SkRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -1611,10 +1641,11 @@ If <a href="#SkRect_makeOffset_dy">dy</a> is positive, <a href="#Rect">Rect</a> 
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_makeOffset_dx"> <code><strong>dx </strong></code> </a></td> <td>
-added to <a href="#SkRect_fLeft">fLeft</a> and <a href="#SkRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkRect_makeOffset_dy"> <code><strong>dy </strong></code> </a></td> <td>
-added to <a href="#SkRect_fTop">fTop</a> and <a href="#SkRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkRect_makeOffset_dx"> <code><strong>dx </strong></code> </a></td>
+    <td>added to <a href="#SkRect_fLeft">fLeft</a> and <a href="#SkRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_makeOffset_dy"> <code><strong>dy </strong></code> </a></td>
+    <td>added to <a href="#SkRect_fTop">fTop</a> and <a href="#SkRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -1657,10 +1688,11 @@ If <a href="#SkRect_makeInset_dy">dy</a> is positive, <a href="#Rect">Rect</a> r
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_makeInset_dx"> <code><strong>dx </strong></code> </a></td> <td>
-added to <a href="#SkRect_fLeft">fLeft</a> and subtracted from <a href="#SkRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkRect_makeInset_dy"> <code><strong>dy </strong></code> </a></td> <td>
-added to <a href="#SkRect_fTop">fTop</a> and subtracted from <a href="#SkRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkRect_makeInset_dx"> <code><strong>dx </strong></code> </a></td>
+    <td>added to <a href="#SkRect_fLeft">fLeft</a> and subtracted from <a href="#SkRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_makeInset_dy"> <code><strong>dy </strong></code> </a></td>
+    <td>added to <a href="#SkRect_fTop">fTop</a> and subtracted from <a href="#SkRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -1703,10 +1735,11 @@ If <a href="#SkRect_makeOutset_dy">dy</a> is positive, <a href="#Rect">Rect</a> 
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_makeOutset_dx"> <code><strong>dx </strong></code> </a></td> <td>
-subtracted to <a href="#SkRect_fLeft">fLeft</a> and added from <a href="#SkRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkRect_makeOutset_dy"> <code><strong>dy </strong></code> </a></td> <td>
-subtracted to <a href="#SkRect_fTop">fTop</a> and added from <a href="#SkRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkRect_makeOutset_dx"> <code><strong>dx </strong></code> </a></td>
+    <td>subtracted to <a href="#SkRect_fLeft">fLeft</a> and added from <a href="#SkRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_makeOutset_dy"> <code><strong>dy </strong></code> </a></td>
+    <td>subtracted to <a href="#SkRect_fTop">fTop</a> and added from <a href="#SkRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -1749,10 +1782,11 @@ If <a href="#SkRect_offset_dy">dy</a> is positive, moves <a href="#Rect">Rect</a
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_offset_dx"> <code><strong>dx </strong></code> </a></td> <td>
-offset added to <a href="#SkRect_fLeft">fLeft</a> and <a href="#SkRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkRect_offset_dy"> <code><strong>dy </strong></code> </a></td> <td>
-offset added to <a href="#SkRect_fTop">fTop</a> and <a href="#SkRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkRect_offset_dx"> <code><strong>dx </strong></code> </a></td>
+    <td>offset added to <a href="#SkRect_fLeft">fLeft</a> and <a href="#SkRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_offset_dy"> <code><strong>dy </strong></code> </a></td>
+    <td>offset added to <a href="#SkRect_fTop">fTop</a> and <a href="#SkRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -1790,8 +1824,8 @@ If <a href="#SkRect_offset_2_delta">delta</a>.fY is positive, moves <a href="#Re
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_offset_2_delta"> <code><strong>delta </strong></code> </a></td> <td>
-added to <a href="#Rect">Rect</a></td>
+<table>  <tr>    <td><a name="SkRect_offset_2_delta"> <code><strong>delta </strong></code> </a></td>
+    <td>added to <a href="#Rect">Rect</a></td>
   </tr>
 </table>
 
@@ -1825,10 +1859,11 @@ are unchanged.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_offsetTo_newX"> <code><strong>newX </strong></code> </a></td> <td>
-stored in <a href="#SkRect_fLeft">fLeft</a>, preserving <a href="#SkRect_width">width</a></td>
-  </tr>  <tr>    <td><a name="SkRect_offsetTo_newY"> <code><strong>newY </strong></code> </a></td> <td>
-stored in <a href="#SkRect_fTop">fTop</a>, preserving <a href="#SkRect_height">height</a></td>
+<table>  <tr>    <td><a name="SkRect_offsetTo_newX"> <code><strong>newX </strong></code> </a></td>
+    <td>stored in <a href="#SkRect_fLeft">fLeft</a>, preserving <a href="#SkRect_width">width</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_offsetTo_newY"> <code><strong>newY </strong></code> </a></td>
+    <td>stored in <a href="#SkRect_fTop">fTop</a>, preserving <a href="#SkRect_height">height</a></td>
   </tr>
 </table>
 
@@ -1866,10 +1901,11 @@ If <a href="#SkRect_inset_dy">dy</a> is negative, makes <a href="#Rect">Rect</a>
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_inset_dx"> <code><strong>dx </strong></code> </a></td> <td>
-added to <a href="#SkRect_fLeft">fLeft</a> and subtracted from <a href="#SkRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkRect_inset_dy"> <code><strong>dy </strong></code> </a></td> <td>
-added to <a href="#SkRect_fTop">fTop</a> and subtracted from <a href="#SkRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkRect_inset_dx"> <code><strong>dx </strong></code> </a></td>
+    <td>added to <a href="#SkRect_fLeft">fLeft</a> and subtracted from <a href="#SkRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_inset_dy"> <code><strong>dy </strong></code> </a></td>
+    <td>added to <a href="#SkRect_fTop">fTop</a> and subtracted from <a href="#SkRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -1907,10 +1943,11 @@ If <a href="#SkRect_outset_dy">dy</a> is negative, makes <a href="#Rect">Rect</a
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_outset_dx"> <code><strong>dx </strong></code> </a></td> <td>
-subtracted to <a href="#SkRect_fLeft">fLeft</a> and added from <a href="#SkRect_fRight">fRight</a></td>
-  </tr>  <tr>    <td><a name="SkRect_outset_dy"> <code><strong>dy </strong></code> </a></td> <td>
-subtracted to <a href="#SkRect_fTop">fTop</a> and added from <a href="#SkRect_fBottom">fBottom</a></td>
+<table>  <tr>    <td><a name="SkRect_outset_dx"> <code><strong>dx </strong></code> </a></td>
+    <td>subtracted to <a href="#SkRect_fLeft">fLeft</a> and added from <a href="#SkRect_fRight">fRight</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_outset_dy"> <code><strong>dy </strong></code> </a></td>
+    <td>subtracted to <a href="#SkRect_fTop">fTop</a> and added from <a href="#SkRect_fBottom">fBottom</a></td>
   </tr>
 </table>
 
@@ -1967,10 +2004,11 @@ Returns false if <a href="#SkRect">SkRect</a> is empty.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_contains_x"> <code><strong>x </strong></code> </a></td> <td>
-test <a href="SkPoint_Reference#SkPoint">SkPoint</a> x-coordinate</td>
-  </tr>  <tr>    <td><a name="SkRect_contains_y"> <code><strong>y </strong></code> </a></td> <td>
-test <a href="SkPoint_Reference#SkPoint">SkPoint</a> y-coordinate</td>
+<table>  <tr>    <td><a name="SkRect_contains_x"> <code><strong>x </strong></code> </a></td>
+    <td>test <a href="SkPoint_Reference#SkPoint">SkPoint</a> x-coordinate</td>
+  </tr>
+  <tr>    <td><a name="SkRect_contains_y"> <code><strong>y </strong></code> </a></td>
+    <td>test <a href="SkPoint_Reference#SkPoint">SkPoint</a> y-coordinate</td>
   </tr>
 </table>
 
@@ -2011,8 +2049,8 @@ Returns false if <a href="#Rect">Rect</a> is empty or <a href="#SkRect_contains_
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_contains_2_r"> <code><strong>r </strong></code> </a></td> <td>
-<a href="#Rect">Rect</a> contained</td>
+<table>  <tr>    <td><a name="SkRect_contains_2_r"> <code><strong>r </strong></code> </a></td>
+    <td><a href="#Rect">Rect</a> contained</td>
   </tr>
 </table>
 
@@ -2053,8 +2091,8 @@ Returns false if <a href="#Rect">Rect</a> is empty or <a href="#SkRect_contains_
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_contains_3_r"> <code><strong>r </strong></code> </a></td> <td>
-<a href="SkIRect_Reference#IRect">IRect</a> contained</td>
+<table>  <tr>    <td><a name="SkRect_contains_3_r"> <code><strong>r </strong></code> </a></td>
+    <td><a href="SkIRect_Reference#IRect">IRect</a> contained</td>
   </tr>
 </table>
 
@@ -2096,8 +2134,8 @@ Returns false if either <a href="#SkRect_intersect_r">r</a> or <a href="#Rect">R
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_intersect_r"> <code><strong>r </strong></code> </a></td> <td>
-limit of result</td>
+<table>  <tr>    <td><a name="SkRect_intersect_r"> <code><strong>r </strong></code> </a></td>
+    <td>limit of result</td>
   </tr>
 </table>
 
@@ -2107,7 +2145,7 @@ true if <a href="#SkRect_intersect_r">r</a> and <a href="#Rect">Rect</a> have ar
 
 ### Example
 
-<div><fiddle-embed name="70e5b3979fc8a31eda070cfed91bc271"><div>Two <a href="undocumented#SkDebugf">SkDebugf</a> calls are required. If the calls are combined, their arguments
+<div><fiddle-embed name="5d0b12e0ef6f1c181dddded4274230ca"><div>Two <a href="undocumented#SkDebugf">SkDebugf</a> calls are required. If the calls are combined, their arguments
 may not be evaluated in left to right order: the printed intersection may
 be before or after the call to intersect.
 </div>
@@ -2142,14 +2180,17 @@ Returns false if either construction or <a href="#Rect">Rect</a> is empty, leavi
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_intersect_2_left"> <code><strong>left </strong></code> </a></td> <td>
-x minimum of constructed <a href="#Rect">Rect</a></td>
-  </tr>  <tr>    <td><a name="SkRect_intersect_2_top"> <code><strong>top </strong></code> </a></td> <td>
-y minimum of constructed <a href="#Rect">Rect</a></td>
-  </tr>  <tr>    <td><a name="SkRect_intersect_2_right"> <code><strong>right </strong></code> </a></td> <td>
-x maximum of constructed <a href="#Rect">Rect</a></td>
-  </tr>  <tr>    <td><a name="SkRect_intersect_2_bottom"> <code><strong>bottom </strong></code> </a></td> <td>
-y maximum of constructed <a href="#Rect">Rect</a></td>
+<table>  <tr>    <td><a name="SkRect_intersect_2_left"> <code><strong>left </strong></code> </a></td>
+    <td>x minimum of constructed <a href="#Rect">Rect</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_intersect_2_top"> <code><strong>top </strong></code> </a></td>
+    <td>y minimum of constructed <a href="#Rect">Rect</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_intersect_2_right"> <code><strong>right </strong></code> </a></td>
+    <td>x maximum of constructed <a href="#Rect">Rect</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_intersect_2_bottom"> <code><strong>bottom </strong></code> </a></td>
+    <td>y maximum of constructed <a href="#Rect">Rect</a></td>
   </tr>
 </table>
 
@@ -2159,7 +2200,7 @@ true if construction and <a href="#Rect">Rect</a> have area in common
 
 ### Example
 
-<div><fiddle-embed name="9f06dad5e6c712f7a2c149d075e816d2"><div>Two <a href="undocumented#SkDebugf">SkDebugf</a> calls are required. If the calls are combined, their arguments
+<div><fiddle-embed name="5002f65a72def2787086a33131933e70"><div>Two <a href="undocumented#SkDebugf">SkDebugf</a> calls are required. If the calls are combined, their arguments
 may not be evaluated in left to right order: the printed intersection may
 be before or after the call to intersect.
 </div>
@@ -2191,10 +2232,11 @@ Returns false if either <a href="#SkRect_intersect_3_a">a</a> or <a href="#SkRec
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_intersect_3_a"> <code><strong>a </strong></code> </a></td> <td>
-<a href="#Rect">Rect</a> to intersect</td>
-  </tr>  <tr>    <td><a name="SkRect_intersect_3_b"> <code><strong>b </strong></code> </a></td> <td>
-<a href="#Rect">Rect</a> to intersect</td>
+<table>  <tr>    <td><a name="SkRect_intersect_3_a"> <code><strong>a </strong></code> </a></td>
+    <td><a href="#Rect">Rect</a> to intersect</td>
+  </tr>
+  <tr>    <td><a name="SkRect_intersect_3_b"> <code><strong>b </strong></code> </a></td>
+    <td><a href="#Rect">Rect</a> to intersect</td>
   </tr>
 </table>
 
@@ -2235,14 +2277,17 @@ Returns false if either construction or <a href="#Rect">Rect</a> is empty, or do
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_intersects_left"> <code><strong>left </strong></code> </a></td> <td>
-x minimum of constructed <a href="#Rect">Rect</a></td>
-  </tr>  <tr>    <td><a name="SkRect_intersects_top"> <code><strong>top </strong></code> </a></td> <td>
-y minimum of constructed <a href="#Rect">Rect</a></td>
-  </tr>  <tr>    <td><a name="SkRect_intersects_right"> <code><strong>right </strong></code> </a></td> <td>
-x maximum of constructed <a href="#Rect">Rect</a></td>
-  </tr>  <tr>    <td><a name="SkRect_intersects_bottom"> <code><strong>bottom </strong></code> </a></td> <td>
-y maximum of constructed <a href="#Rect">Rect</a></td>
+<table>  <tr>    <td><a name="SkRect_intersects_left"> <code><strong>left </strong></code> </a></td>
+    <td>x minimum of constructed <a href="#Rect">Rect</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_intersects_top"> <code><strong>top </strong></code> </a></td>
+    <td>y minimum of constructed <a href="#Rect">Rect</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_intersects_right"> <code><strong>right </strong></code> </a></td>
+    <td>x maximum of constructed <a href="#Rect">Rect</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_intersects_bottom"> <code><strong>bottom </strong></code> </a></td>
+    <td>y maximum of constructed <a href="#Rect">Rect</a></td>
   </tr>
 </table>
 
@@ -2279,8 +2324,8 @@ Returns false if either <a href="#SkRect_intersects_2_r">r</a> or <a href="#Rect
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_intersects_2_r"> <code><strong>r </strong></code> </a></td> <td>
-<a href="#Rect">Rect</a> to intersect</td>
+<table>  <tr>    <td><a name="SkRect_intersects_2_r"> <code><strong>r </strong></code> </a></td>
+    <td><a href="#Rect">Rect</a> to intersect</td>
   </tr>
 </table>
 
@@ -2318,10 +2363,11 @@ Returns false if either <a href="#SkRect_Intersects_a">a</a> or <a href="#SkRect
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_Intersects_a"> <code><strong>a </strong></code> </a></td> <td>
-<a href="#Rect">Rect</a> to intersect</td>
-  </tr>  <tr>    <td><a name="SkRect_Intersects_b"> <code><strong>b </strong></code> </a></td> <td>
-<a href="#Rect">Rect</a> to intersect</td>
+<table>  <tr>    <td><a name="SkRect_Intersects_a"> <code><strong>a </strong></code> </a></td>
+    <td><a href="#Rect">Rect</a> to intersect</td>
+  </tr>
+  <tr>    <td><a name="SkRect_Intersects_b"> <code><strong>b </strong></code> </a></td>
+    <td><a href="#Rect">Rect</a> to intersect</td>
   </tr>
 </table>
 
@@ -2354,7 +2400,7 @@ intersection
 | <a href="#SkRect_join">join</a> | sets to union of bounds |
 |  | <a href="#SkRect_join">join(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)</a> |
 | <a href="#SkRect_joinNonEmptyArg">joinNonEmptyArg</a> | sets to union of bounds, asserting that argument is not empty |
-| <a href="#SkRect_joinPossiblyEmptyRect">joinPossiblyEmptyRect</a> | sets to union of bounds. Skips empty check for both |
+| <a href="#SkRect_joinPossiblyEmptyRect">joinPossiblyEmptyRect</a> | sets to union of bounds; skips empty check for both |
 
 <a name="SkRect_join"></a>
 ## join
@@ -2373,14 +2419,17 @@ Has no effect if construction is empty. Otherwise, if <a href="#Rect">Rect</a> i
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_join_left"> <code><strong>left </strong></code> </a></td> <td>
-x minimum of constructed <a href="#Rect">Rect</a></td>
-  </tr>  <tr>    <td><a name="SkRect_join_top"> <code><strong>top </strong></code> </a></td> <td>
-y minimum of constructed <a href="#Rect">Rect</a></td>
-  </tr>  <tr>    <td><a name="SkRect_join_right"> <code><strong>right </strong></code> </a></td> <td>
-x maximum of constructed <a href="#Rect">Rect</a></td>
-  </tr>  <tr>    <td><a name="SkRect_join_bottom"> <code><strong>bottom </strong></code> </a></td> <td>
-y maximum of constructed <a href="#Rect">Rect</a></td>
+<table>  <tr>    <td><a name="SkRect_join_left"> <code><strong>left </strong></code> </a></td>
+    <td>x minimum of constructed <a href="#Rect">Rect</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_join_top"> <code><strong>top </strong></code> </a></td>
+    <td>y minimum of constructed <a href="#Rect">Rect</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_join_right"> <code><strong>right </strong></code> </a></td>
+    <td>x maximum of constructed <a href="#Rect">Rect</a></td>
+  </tr>
+  <tr>    <td><a name="SkRect_join_bottom"> <code><strong>bottom </strong></code> </a></td>
+    <td>y maximum of constructed <a href="#Rect">Rect</a></td>
   </tr>
 </table>
 
@@ -2415,8 +2464,8 @@ Has no effect if <a href="#SkRect_join_2_r">r</a> is empty. Otherwise, if <a hre
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_join_2_r"> <code><strong>r </strong></code> </a></td> <td>
-expansion <a href="#Rect">Rect</a></td>
+<table>  <tr>    <td><a name="SkRect_join_2_r"> <code><strong>r </strong></code> </a></td>
+    <td>expansion <a href="#Rect">Rect</a></td>
   </tr>
 </table>
 
@@ -2454,8 +2503,8 @@ May produce incorrect results if <a href="#SkRect_joinNonEmptyArg_r">r</a> is em
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_joinNonEmptyArg_r"> <code><strong>r </strong></code> </a></td> <td>
-expansion <a href="#Rect">Rect</a></td>
+<table>  <tr>    <td><a name="SkRect_joinNonEmptyArg_r"> <code><strong>r </strong></code> </a></td>
+    <td>expansion <a href="#Rect">Rect</a></td>
   </tr>
 </table>
 
@@ -2492,8 +2541,8 @@ May produce incorrect results if <a href="#Rect">Rect</a> or <a href="#SkRect_jo
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_joinPossiblyEmptyRect_r"> <code><strong>r </strong></code> </a></td> <td>
-expansion <a href="#Rect">Rect</a></td>
+<table>  <tr>    <td><a name="SkRect_joinPossiblyEmptyRect_r"> <code><strong>r </strong></code> </a></td>
+    <td>expansion <a href="#Rect">Rect</a></td>
   </tr>
 </table>
 
@@ -2541,8 +2590,8 @@ members, using(<a href="undocumented#SkScalarRoundToInt">SkScalarRoundToInt(fLef
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_round_dst"> <code><strong>dst </strong></code> </a></td> <td>
-storage for <a href="SkIRect_Reference#IRect">IRect</a></td>
+<table>  <tr>    <td><a name="SkRect_round_dst"> <code><strong>dst </strong></code> </a></td>
+    <td>storage for <a href="SkIRect_Reference#IRect">IRect</a></td>
   </tr>
 </table>
 
@@ -2578,8 +2627,8 @@ rounding up <a href="#SkRect_fRight">fRight</a> and <a href="#SkRect_fBottom">fB
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_roundOut_dst"> <code><strong>dst </strong></code> </a></td> <td>
-storage for <a href="SkIRect_Reference#IRect">IRect</a></td>
+<table>  <tr>    <td><a name="SkRect_roundOut_dst"> <code><strong>dst </strong></code> </a></td>
+    <td>storage for <a href="SkIRect_Reference#IRect">IRect</a></td>
   </tr>
 </table>
 
@@ -2614,8 +2663,8 @@ rounding up <a href="#SkRect_fRight">fRight</a> and <a href="#SkRect_fBottom">fB
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_roundOut_2_dst"> <code><strong>dst </strong></code> </a></td> <td>
-storage for <a href="#Rect">Rect</a></td>
+<table>  <tr>    <td><a name="SkRect_roundOut_2_dst"> <code><strong>dst </strong></code> </a></td>
+    <td>storage for <a href="#Rect">Rect</a></td>
   </tr>
 </table>
 
@@ -2651,8 +2700,8 @@ discarding the fractional portion of <a href="#SkRect_fRight">fRight</a> and <a 
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_roundIn_dst"> <code><strong>dst </strong></code> </a></td> <td>
-storage for <a href="SkIRect_Reference#IRect">IRect</a></td>
+<table>  <tr>    <td><a name="SkRect_roundIn_dst"> <code><strong>dst </strong></code> </a></td>
+    <td>storage for <a href="SkIRect_Reference#IRect">IRect</a></td>
   </tr>
 </table>
 
@@ -2854,8 +2903,8 @@ generate exact binary representations of floating point numbers.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_dump_asHex"> <code><strong>asHex </strong></code> </a></td> <td>
-true if <a href="undocumented#SkScalar">SkScalar</a> values are written as hexadecimal</td>
+<table>  <tr>    <td><a name="SkRect_dump_asHex"> <code><strong>asHex </strong></code> </a></td>
+    <td>true if <a href="undocumented#SkScalar">SkScalar</a> values are written as hexadecimal</td>
   </tr>
 </table>
 

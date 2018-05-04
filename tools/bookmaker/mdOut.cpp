@@ -16,6 +16,63 @@
     }                               \
     fprintf(fOut, __VA_ARGS__)
 
+const char* kConstTableStyle =
+"<style>"                                                                                      "\n"
+    ".td_const td, th { border: 2px solid #dddddd; text-align: left; padding: 8px; }"          "\n"
+    ".tr_const tr:nth-child(even) { background-color: #f0f0f0; }"                              "\n"
+    ".td2_const td:first-child + td { text-align: center; }"                                   "\n"
+"</style>"                                                                                     "\n";
+
+const char* kConstTableDeclaration =
+        "<table style='border-collapse: collapse; width: 62.5em'>";
+
+#define kConstTDBase      "border: 2px solid #dddddd; padding: 8px; "
+
+string kTD_Left    = "    <td style='text-align: left; "   kConstTDBase "'>";
+string kTD_Center  = "    <td style='text-align: center; " kConstTDBase "'>";
+#define kTH_Left         "<th style='text-align: left; "   kConstTDBase "'>"
+#define kTH_Center       "<th style='text-align: center; " kConstTDBase "'>"
+string kTR_Dark    =   "  <tr style='background-color: #f0f0f0; '>";
+
+const char* kAllConstOutTableHeader = "  <tr>" kTH_Left   "Const</th>"
+                                               kTH_Center "Value</th>"
+                                               kTH_Left   "Description</th>" "</tr>";
+const char* kSubConstOutTableHeader = "  <tr>" kTH_Left   "Const</th>"
+                                               kTH_Center "Value</th>"
+                                               kTH_Left   "Details</th>"
+                                               kTH_Left   "Description</th>" "</tr>";
+
+string const_out_table_data_code(const Definition* def) {
+    return kTD_Left + "<a href='" + def->fFiddle + "'> <code>" + def->fName + "</code> </a></td>";
+}
+
+string const_out_table_data_const(const Definition* def, const char** textStartPtr) {
+    TextParser parser(def);
+    SkAssertResult(parser.skipToEndBracket('\n'));
+    string constant = string(def->fContentStart, (int) (parser.fChar - def->fContentStart));
+    if (textStartPtr) {
+        *textStartPtr = parser.fChar;
+    }
+    return kTD_Center + constant + "</td>";
+}
+
+string const_out_table_data_description_start() {
+    return kTD_Left;
+}
+
+string const_out_table_data_description(const Definition* def) {
+    return kTD_Left + string(def->fContentStart, (int) (def->fContentEnd - def->fContentStart))
+            + "</td>";
+}
+
+string const_out_table_data_details(string details) {
+    return kTD_Left + details + "</td>";
+}
+
+#undef kConstTDBase
+#undef kTH_Left
+#undef kTH_Center
+
 static void add_ref(string leadingSpaces, string ref, string* result) {
     *result += leadingSpaces + ref;
 }
@@ -41,6 +98,16 @@ static bool all_lower(string ref) {
 		}
 	}
 	return true;
+}
+
+// from https://stackoverflow.com/questions/3418231/replace-part-of-a-string-with-another-string
+void replace_all(string& str, const string& from, const string& to) {
+    SkASSERT(!from.empty());
+    size_t start_pos = 0;
+    while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+    }
 }
 
 // FIXME: preserve inter-line spaces and don't add new ones
@@ -381,6 +448,9 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
                 SkDebugf("could not open output file %s\n", fullName.c_str());
                 return false;
             }
+            if (false) {    // try inlining the style
+                FPRINTF("%s", kConstTableStyle);
+            }
             size_t underscorePos = header.find('_');
             if (string::npos != underscorePos) {
                 header.replace(underscorePos, 1, " ");
@@ -455,6 +525,9 @@ void MdOut::childrenOut(const Definition* def, const char* start) {
     }
     BmhParser::Resolvable resolvable = this->resolvable(def);
     for (auto& child : def->fChildren) {
+        if (MarkType::kPhraseParam == child->fMarkType) {
+            continue;
+        }
         end = child->fStart;
         if (BmhParser::Resolvable::kNo != resolvable) {
             this->resolveOut(start, end, resolvable);
@@ -469,6 +542,46 @@ void MdOut::childrenOut(const Definition* def, const char* start) {
     if (MarkType::kEnumClass == def->fMarkType) {
         fEnumClass = nullptr;
     }
+}
+
+// output header for subtopic for all consts: name, value, short descriptions (#Line)
+// output link to in context #Const with moderate description
+void MdOut::constOut(const Definition* def) {
+    this->writePending();
+    SkASSERT(TableState::kNone == fTableState);
+    this->mdHeaderOut(3);
+    FPRINTF("Constants");
+    this->lfAlways(2);
+    FPRINTF("%s", kConstTableDeclaration);  // <table> with style info
+    this->lfAlways(1);
+    FPRINTF("%s", kAllConstOutTableHeader);
+    this->lfAlways(1);
+    bool odd = true;
+    for (auto child : def->fChildren) {
+        if (MarkType::kConst != child->fMarkType) {
+            continue;
+        }
+        FPRINTF(odd ? kTR_Dark.c_str() : "  <tr>");
+        this->lfAlways(1);
+        FPRINTF(const_out_table_data_code(def).c_str());
+        this->lfAlways(1);
+        FPRINTF(const_out_table_data_const(def, nullptr).c_str());
+        this->lfAlways(1);
+        // write line short description
+        auto oneLiner = std::find_if(child->fChildren.begin(), child->fChildren.end(),
+                [](const Definition* test){ return MarkType::kLine == test->fMarkType; } );
+        if (child->fChildren.end() == oneLiner) {
+            child->reportError<void>("const missing #Line");
+            continue;
+        }
+        FPRINTF(const_out_table_data_description(*oneLiner).c_str());
+        this->lfAlways(1);
+        FPRINTF("  </tr>");
+        this->lfAlways(1);
+        odd = !odd;
+    }
+    FPRINTF("</table>");
+    this->lfAlways(1);
 }
 
 const Definition* MdOut::csParent() const {
@@ -787,7 +900,8 @@ void MdOut::markTypeOut(Definition* def) {
     string printable = def->printableName();
     const char* textStart = def->fContentStart;
     if (MarkType::kParam != def->fMarkType && MarkType::kConst != def->fMarkType &&
-            (!def->fParent || MarkType::kConst != def->fParent->fMarkType) &&
+            (!def->fParent || (MarkType::kConst != def->fParent->fMarkType &&
+            (!def->fParent->fParent || MarkType::kConst != def->fParent->fParent->fMarkType))) &&
             TableState::kNone != fTableState &&
             (MarkType::kPhraseRef != def->fMarkType || !def->fParent ||
             MarkType::kParam != def->fParent->fMarkType)) {
@@ -838,30 +952,52 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kComment:
             break;
         case MarkType::kConst: {
+        // output consts for one parent with moderate descriptions
+        // optional link to subtopic with longer descriptions, examples
             if (TableState::kNone == fTableState) {
                 this->mdHeaderOut(3);
-                FPRINTF("Constants\n"
-                        "\n"
-                        "<table>");
+                FPRINTF("Constants");
+                this->lfAlways(2);
+                FPRINTF("%s", kConstTableDeclaration);
                 fTableState = TableState::kRow;
-                this->lf(1);
+                fOddRow = true;
+                this->lfAlways(1);
+                FPRINTF("%s", kSubConstOutTableHeader);
+                this->lfAlways(1);
             }
             if (TableState::kRow == fTableState) {
                 this->writePending();
-                FPRINTF("  <tr>");
-                this->lf(1);
+                FPRINTF(fOddRow ? kTR_Dark.c_str() : "  <tr>");
+                fOddRow = !fOddRow;
+                this->lfAlways(1);
                 fTableState = TableState::kColumn;
             }
             this->writePending();
-            FPRINTF("    <td><a name=\"%s\"> <code><strong>%s </strong></code> </a></td>",
-                    def->fFiddle.c_str(), def->fName.c_str());
-            const char* lineEnd = strchr(textStart, '\n');
-            SkASSERT(lineEnd < def->fTerminator);
-            SkASSERT(lineEnd > textStart);
-            SkASSERT((int) (lineEnd - textStart) == lineEnd - textStart);
-            FPRINTF("<td>%.*s</td>", (int) (lineEnd - textStart), textStart);
-            FPRINTF("<td>");
-            textStart = lineEnd;
+            FPRINTF(const_out_table_data_code(def).c_str());
+            this->lfAlways(1);
+            FPRINTF(const_out_table_data_const(def, &textStart).c_str());
+            this->lfAlways(1);
+            string details;
+            auto subtopic = std::find_if(def->fChildren.begin(), def->fChildren.end(),
+                    [](const Definition* test){ return MarkType::kDetails == test->fMarkType; } );
+            if (def->fChildren.end() != subtopic) {
+                string subtopicName = string((*subtopic)->fContentStart,
+                        (int) ((*subtopic)->fContentEnd - (*subtopic)->fContentStart));
+                const Definition* parentSubtopic = def->subtopicParent();
+                SkASSERT(parentSubtopic);
+                string fullName = parentSubtopic->fFiddle + '_' + subtopicName;
+                if (fBmhParser.fTopicMap.end() == fBmhParser.fTopicMap.find(fullName)) {
+                    (*subtopic)->reportError<void>("missing #Details subtopic");
+                }
+                subtopicName = parentSubtopic->fName + '_' + subtopicName;
+                string noUnderscores = subtopicName;
+                replace_all(noUnderscores, "_", "&nbsp;");
+                details = "<a href=\"#" + subtopicName + "\">" + noUnderscores + "</a>&nbsp;";
+            }
+            FPRINTF(const_out_table_data_details(details).c_str());
+            this->lfAlways(1);
+            FPRINTF(const_out_table_data_description_start().c_str()); // start of Description
+            this->lfAlways(1);
         } break;
         case MarkType::kDefine:
             break;
@@ -874,7 +1010,7 @@ void MdOut::markTypeOut(Definition* def) {
             this->writePending();
             FPRINTF("<div>");
             break;
-        case MarkType::kDoxygen:
+        case MarkType::kDetails:
             break;
         case MarkType::kDuration:
             break;
@@ -924,8 +1060,6 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kExperimental:
             break;
         case MarkType::kExternal:
-            break;
-        case MarkType::kFile:
             break;
         case MarkType::kFormula:
             break;
@@ -1007,6 +1141,8 @@ void MdOut::markTypeOut(Definition* def) {
             } break;
         case MarkType::kNoExample:
             break;
+        case MarkType::kNoJustify:
+            break;
         case MarkType::kOutdent:
             break;
         case MarkType::kParam: {
@@ -1039,10 +1175,70 @@ void MdOut::markTypeOut(Definition* def) {
                 return;
             }
             string refNameStr = def->fParent->fFiddle + "_" + paramNameStr;
-            fprintf(fOut,
-                    "    <td><a name=\"%s\"> <code><strong>%s </strong></code> </a></td> <td>",
+            FPRINTF("    <td><a name=\"%s\"> <code><strong>%s </strong></code> </a></td>",
                     refNameStr.c_str(), paramNameStr.c_str());
+            this->lfAlways(1);
+            FPRINTF("    <td>");
         } break;
+        case MarkType::kPhraseDef:
+            // skip text and children
+            return;
+        case MarkType::kPhraseParam:
+            SkDebugf("");
+            break;
+        case MarkType::kPhraseRef:
+            if (fPhraseParams.end() != fPhraseParams.find(def->fName)) {
+                if (fColumn > 0) {
+                    this->writeSpace();
+                }
+                this->writeString(fPhraseParams[def->fName]);
+                if (isspace(def->fContentStart[0])) {
+                    this->writeSpace();
+                }
+            } else if (fBmhParser.fPhraseMap.end() == fBmhParser.fPhraseMap.find(def->fName)) {
+                def->reportError<void>("missing phrase definition");
+                fAddRefFailed = true;
+            } else {
+                if (fColumn) {
+                    SkASSERT(' ' >= def->fStart[0]);
+                    this->writeSpace();
+                }
+                Definition* phraseRef = fBmhParser.fPhraseMap.find(def->fName)->second;
+                // def->fChildren are parameters to substitute phraseRef->fChildren,
+                // phraseRef->fChildren has both param defines and references
+                // def->fChildren must have the same number of entries as phaseRef->fChildren
+                // which are kPhraseParam, and substitute one for one
+                // Then, each kPhraseRef in phaseRef looks up the key and value
+                fPhraseParams.clear();
+                auto refKidsIter = phraseRef->fChildren.begin();
+                for (auto child : def->fChildren) {
+                    if (MarkType::kPhraseParam != child->fMarkType) {
+                        // more work to do to support other types
+                        this->reportError("phrase ref child must be param");
+                    }
+                    do {
+                        if (refKidsIter == phraseRef->fChildren.end()) {
+                            this->reportError("phrase def missing param");
+                            break;
+                        }
+                        if (MarkType::kPhraseRef == (*refKidsIter)->fMarkType) {
+                            continue;
+                        }
+                        if (MarkType::kPhraseParam != (*refKidsIter)->fMarkType) {
+                            this->reportError("unexpected type in phrase def children");
+                            break;
+                        }
+                        fPhraseParams[(*refKidsIter)->fName] = child->fName;
+                        break;
+                    } while (true);
+                }
+                this->childrenOut(phraseRef, phraseRef->fContentStart);
+                fPhraseParams.clear();
+                if (' ' >= def->fContentStart[0] && !fPendingLF) {
+                    this->writeSpace();
+                }
+            }
+            break;
         case MarkType::kPlatform:
             break;
         case MarkType::kPopulate: {
@@ -1106,6 +1302,11 @@ void MdOut::markTypeOut(Definition* def) {
             this->mdHeaderOut(2);
             FPRINTF("<a name=\"%s\"></a> %s", def->fName.c_str(), printable.c_str());
             this->lf(2);
+            // if a subtopic child is const, generate short table of const name, value, line desc
+            if (std::any_of(def->fChildren.begin(), def->fChildren.end(),
+                    [](Definition* child){return MarkType::kConst == child->fMarkType;})) {
+                this->constOut(def);
+            }
             break;
         case MarkType::kTable:
             this->lf(2);
@@ -1113,8 +1314,6 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kTemplate:
             break;
         case MarkType::kText:
-            break;
-        case MarkType::kTime:
             break;
         case MarkType::kToDo:
             break;
@@ -1124,9 +1323,6 @@ void MdOut::markTypeOut(Definition* def) {
                     printable.c_str());
             this->lf(1);
             break;
-        case MarkType::kTrack:
-            // don't output children
-            return;
         case MarkType::kTypedef:
             break;
         case MarkType::kUnion:
@@ -1134,24 +1330,6 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kVolatile:
             break;
         case MarkType::kWidth:
-            break;
-        case MarkType::kPhraseDef:
-            // skip text and children
-            return;
-        case MarkType::kPhraseRef:
-            if (fBmhParser.fPhraseMap.end() == fBmhParser.fPhraseMap.find(def->fName)) {
-                def->reportError<void>("missing phrase definition");
-                fAddRefFailed = true;
-            } else {
-                if (fColumn && ' ' >= def->fStart[0]) {
-                    this->writeSpace();
-                }
-                Definition* phraseRef = fBmhParser.fPhraseMap.find(def->fName)->second;
-                this->childrenOut(phraseRef, phraseRef->fContentStart);
-                if (' ' >= def->fContentStart[0]) {
-                    this->writeSpace();
-                }
-            }
             break;
         default:
             SkDebugf("fatal error: MarkType::k%s unhandled in %s()\n",
@@ -1180,7 +1358,7 @@ void MdOut::markTypeOut(Definition* def) {
             if (fInList) {
                 this->writePending();
                 FPRINTF("</td>");
-                this->lf(1);
+                this->lfAlways(1);
             } else {
                 FPRINTF(" ");
             }
@@ -1239,13 +1417,15 @@ void MdOut::markTypeOut(Definition* def) {
             this->lf(2);
             break;
         case MarkType::kConst:
+            SkDebugf("");
         case MarkType::kParam:
             SkASSERT(TableState::kColumn == fTableState);
             fTableState = TableState::kRow;
             this->writePending();
-            FPRINTF("</td>\n");
+            FPRINTF("</td>");
+            this->lfAlways(1);
             FPRINTF("  </tr>");
-            this->lf(1);
+            this->lfAlways(1);
             break;
         case MarkType::kReturn:
         case MarkType::kSeeAlso:
