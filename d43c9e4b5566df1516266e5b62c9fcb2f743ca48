@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86cbc5dc_ec89e18b",
+        "filename": "infra/bots/recipe_modules/core/examples/full.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-04T16:35:32Z",
+      "side": 1,
+      "message": "nit: I\u0027d prefer to not add any new instances of \"api.run.run_once(api.file.ensure_directory,\" because I\u0027m pretty sure it doesn\u0027t do what you expect. If run_once has seen the first arg before, it does nothing. The other args are not taken into account for the \"once\" part.\n\nAlso, ensure_directory does nothing if the directory already exists, so it\u0027s harmless to call multiple times. This would mean you don\u0027t have to add the tmp_not_exist tests.\n\nMany instances in this CL.",
+      "revId": "d43c9e4b5566df1516266e5b62c9fcb2f743ca48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e64d4b6f_723e45e0",
+        "filename": "infra/bots/recipes/skqp_test.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-04T16:35:32Z",
+      "side": 1,
+      "message": "Is this recipe used?",
+      "revId": "d43c9e4b5566df1516266e5b62c9fcb2f743ca48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
