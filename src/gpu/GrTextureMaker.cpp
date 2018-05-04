@@ -13,10 +13,10 @@
 #include "GrGpu.h"
 #include "GrProxyProvider.h"
 
-sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerState& params,
-                                                               SkColorSpace* dstColorSpace,
-                                                               sk_sp<SkColorSpace>* texColorSpace,
-                                                               SkScalar scaleAdjust[2]) {
+sk_sp<GrTextureProxy> GrTextureMaker::onRefTextureProxyForParams(const GrSamplerState& params,
+                                                                 SkColorSpace* dstColorSpace,
+                                                                 sk_sp<SkColorSpace>* texColorSpace,
+                                                                 SkScalar scaleAdjust[2]) {
     if (this->width() > fContext->caps()->maxTextureSize() ||
         this->height() > fContext->caps()->maxTextureSize()) {
         return nullptr;
