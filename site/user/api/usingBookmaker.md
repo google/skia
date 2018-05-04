@@ -1,3 +1,8 @@
+<style>
+.td_const td, th { border: 2px solid #dddddd; text-align: left; padding: 8px; }
+.tr_const tr:nth-child(even) { background-color: #f0f0f0; }
+.td2_const td:first-child + td { text-align: center; }
+</style>
 usingBookmaker
 ===
 
@@ -37,10 +42,14 @@ To regenerate the documentation, follow the <a href="#Installing">Installing</a>
 If the <a href="https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-Nightly-Bookmaker">Housekeeper-Nightly-Bookmaker</a> bot is red, one of several things may have gone wrong:
 
 <table>  <tr>
-    <td>A change to include broke documentation examples.</td>  </tr>  <tr>
-    <td>Something changed the examples that output text.</td>  </tr>  <tr>
-    <td>Some interface was added, deleted, edited.</td>  </tr>  <tr>
-    <td>Documentation is malformed.</td>  </tr>
+    <td>A change to include broke documentation examples.</td>
+  </tr>  <tr>
+    <td>Something changed the examples that output text.</td>
+  </tr>  <tr>
+    <td>Some interface was added, deleted, edited.</td>
+  </tr>  <tr>
+    <td>Documentation is malformed.</td>
+  </tr>
 </table>
 
 The bot output describes what changed, and includes the file and line
