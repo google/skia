@@ -149,7 +149,7 @@ static bool fit_poly_tf(const skcms_Curve* curve, skcms_PolyTF* tf) {
 
         float rt = skcms_TransferFunction_eval(&inv, eval_poly_tf(x, A,B,C,D))
                  * (N-1) + 0.5f;
-        if (!isfinitef_(rt) || rt > INT_MAX || rt < -INT_MAX) {
+        if (!isfinitef_(rt) || rt >= N || rt < 0) {
             return false;
         }
 
