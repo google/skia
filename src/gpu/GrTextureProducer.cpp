@@ -208,3 +208,19 @@ std::unique_ptr<GrFragmentProcessor> GrTextureProducer::CreateFragmentProcessorF
         }
     }
 }
+
+sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxyForParams(
+        const GrSamplerState& sampler,
+        SkColorSpace* dstColorSpace,
+        sk_sp<SkColorSpace>* proxyColorSpace,
+        SkScalar scaleAdjust[2]) {
+    SkASSERT(!scaleAdjust || (scaleAdjust[0] == 1 && scaleAdjust[1] == 1));
+    SkDEBUGCODE(bool expectNoScale = (sampler.filter() != GrSamplerState::Filter::kMipMap &&
+                                      !sampler.isRepeated()));
+    SkASSERT(scaleAdjust || expectNoScale);
+    auto result =
+            this->onRefTextureProxyForParams(sampler, dstColorSpace, proxyColorSpace, scaleAdjust);
+    SkASSERT(!result || !expectNoScale ||
+             (result->width() == this->width() && result->height() == this->height()));
+    return result;
+}
