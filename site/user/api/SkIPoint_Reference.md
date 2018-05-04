@@ -16,7 +16,7 @@ SkIPoint Reference
 | <a href="#Related_Function">Related Function</a> | similar methods grouped together |
 
 # <a name="SkIPoint"></a> Struct SkIPoint
-<a href="#SkIPoint">SkIPoint</a> holds two 32 bit integer coordinates.
+<a href="#SkIPoint">SkIPoint</a> holds two 32-bit integer coordinates.
 
 ## <a name="Related_Function"></a> Related Function
 
@@ -68,10 +68,11 @@ Sets <a href="#SkIPoint_fX">fX</a> to x, <a href="#SkIPoint_fY">fY</a> to y.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIPoint_Make_x"> <code><strong>x </strong></code> </a></td> <td>
-integer x-axis value of constructed <a href="#IPoint">IPoint</a></td>
-  </tr>  <tr>    <td><a name="SkIPoint_Make_y"> <code><strong>y </strong></code> </a></td> <td>
-integer y-axis value of constructed <a href="#IPoint">IPoint</a></td>
+<table>  <tr>    <td><a name="SkIPoint_Make_x"> <code><strong>x </strong></code> </a></td>
+    <td>integer x-axis value of constructed <a href="#IPoint">IPoint</a></td>
+  </tr>
+  <tr>    <td><a name="SkIPoint_Make_y"> <code><strong>y </strong></code> </a></td>
+    <td>integer y-axis value of constructed <a href="#IPoint">IPoint</a></td>
   </tr>
 </table>
 
@@ -215,10 +216,11 @@ Sets <a href="#SkIPoint_fX">fX</a> to x and <a href="#SkIPoint_fY">fY</a> to y.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIPoint_set_x"> <code><strong>x </strong></code> </a></td> <td>
-new value for <a href="#SkIPoint_fX">fX</a></td>
-  </tr>  <tr>    <td><a name="SkIPoint_set_y"> <code><strong>y </strong></code> </a></td> <td>
-new value for <a href="#SkIPoint_fY">fY</a></td>
+<table>  <tr>    <td><a name="SkIPoint_set_x"> <code><strong>x </strong></code> </a></td>
+    <td>new value for <a href="#SkIPoint_fX">fX</a></td>
+  </tr>
+  <tr>    <td><a name="SkIPoint_set_y"> <code><strong>y </strong></code> </a></td>
+    <td>new value for <a href="#SkIPoint_fY">fY</a></td>
   </tr>
 </table>
 
@@ -299,8 +301,8 @@ Offsets <a href="#IPoint">IPoint</a> by <a href="#IVector">IVector</a> <a href="
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIPoint_addto_operator_v"> <code><strong>v </strong></code> </a></td> <td>
-<a href="#IVector">IVector</a> to add</td>
+<table>  <tr>    <td><a name="SkIPoint_addto_operator_v"> <code><strong>v </strong></code> </a></td>
+    <td><a href="#IVector">IVector</a> to add</td>
   </tr>
 </table>
 
@@ -327,8 +329,8 @@ Subtracts <a href="#IVector">IVector</a> <a href="#SkIPoint_subtractfrom_operato
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIPoint_subtractfrom_operator_v"> <code><strong>v </strong></code> </a></td> <td>
-<a href="#IVector">IVector</a> to subtract</td>
+<table>  <tr>    <td><a name="SkIPoint_subtractfrom_operator_v"> <code><strong>v </strong></code> </a></td>
+    <td><a href="#IVector">IVector</a> to subtract</td>
   </tr>
 </table>
 
@@ -353,10 +355,11 @@ Returns true if <a href="#IPoint">IPoint</a> is equivalent to <a href="#IPoint">
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIPoint_equals_x"> <code><strong>x </strong></code> </a></td> <td>
-value compared with <a href="#SkIPoint_fX">fX</a></td>
-  </tr>  <tr>    <td><a name="SkIPoint_equals_y"> <code><strong>y </strong></code> </a></td> <td>
-value compared with <a href="#SkIPoint_fY">fY</a></td>
+<table>  <tr>    <td><a name="SkIPoint_equals_x"> <code><strong>x </strong></code> </a></td>
+    <td>value compared with <a href="#SkIPoint_fX">fX</a></td>
+  </tr>
+  <tr>    <td><a name="SkIPoint_equals_y"> <code><strong>y </strong></code> </a></td>
+    <td>value compared with <a href="#SkIPoint_fY">fY</a></td>
   </tr>
 </table>
 
@@ -396,10 +399,11 @@ Returns true if <a href="#SkIPoint_equal_operator_a">a</a> is equivalent to <a h
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIPoint_equal_operator_a"> <code><strong>a </strong></code> </a></td> <td>
-<a href="#IPoint">IPoint</a> to compare</td>
-  </tr>  <tr>    <td><a name="SkIPoint_equal_operator_b"> <code><strong>b </strong></code> </a></td> <td>
-<a href="#IPoint">IPoint</a> to compare</td>
+<table>  <tr>    <td><a name="SkIPoint_equal_operator_a"> <code><strong>a </strong></code> </a></td>
+    <td><a href="#IPoint">IPoint</a> to compare</td>
+  </tr>
+  <tr>    <td><a name="SkIPoint_equal_operator_b"> <code><strong>b </strong></code> </a></td>
+    <td><a href="#IPoint">IPoint</a> to compare</td>
   </tr>
 </table>
 
@@ -439,10 +443,11 @@ Returns true if <a href="#SkIPoint_notequal_operator_a">a</a> is not equivalent 
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIPoint_notequal_operator_a"> <code><strong>a </strong></code> </a></td> <td>
-<a href="#IPoint">IPoint</a> to compare</td>
-  </tr>  <tr>    <td><a name="SkIPoint_notequal_operator_b"> <code><strong>b </strong></code> </a></td> <td>
-<a href="#IPoint">IPoint</a> to compare</td>
+<table>  <tr>    <td><a name="SkIPoint_notequal_operator_a"> <code><strong>a </strong></code> </a></td>
+    <td><a href="#IPoint">IPoint</a> to compare</td>
+  </tr>
+  <tr>    <td><a name="SkIPoint_notequal_operator_b"> <code><strong>b </strong></code> </a></td>
+    <td><a href="#IPoint">IPoint</a> to compare</td>
   </tr>
 </table>
 
@@ -485,10 +490,11 @@ Can also be used to subtract <a href="#IVector">IVector</a> from <a href="#IVect
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIPoint_subtract_operator_a"> <code><strong>a </strong></code> </a></td> <td>
-<a href="#IPoint">IPoint</a> or <a href="#IVector">IVector</a> to subtract from</td>
-  </tr>  <tr>    <td><a name="SkIPoint_subtract_operator_b"> <code><strong>b </strong></code> </a></td> <td>
-<a href="#IVector">IVector</a> to subtract</td>
+<table>  <tr>    <td><a name="SkIPoint_subtract_operator_a"> <code><strong>a </strong></code> </a></td>
+    <td><a href="#IPoint">IPoint</a> or <a href="#IVector">IVector</a> to subtract from</td>
+  </tr>
+  <tr>    <td><a name="SkIPoint_subtract_operator_b"> <code><strong>b </strong></code> </a></td>
+    <td><a href="#IVector">IVector</a> to subtract</td>
   </tr>
 </table>
 
@@ -522,10 +528,11 @@ Can also be used to add <a href="#IVector">IVector</a> to <a href="#IVector">IVe
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIPoint_add_operator_a"> <code><strong>a </strong></code> </a></td> <td>
-<a href="#IPoint">IPoint</a> or <a href="#IVector">IVector</a> to add to</td>
-  </tr>  <tr>    <td><a name="SkIPoint_add_operator_b"> <code><strong>b </strong></code> </a></td> <td>
-<a href="#IPoint">IPoint</a> or <a href="#IVector">IVector</a> to add</td>
+<table>  <tr>    <td><a name="SkIPoint_add_operator_a"> <code><strong>a </strong></code> </a></td>
+    <td><a href="#IPoint">IPoint</a> or <a href="#IVector">IVector</a> to add to</td>
+  </tr>
+  <tr>    <td><a name="SkIPoint_add_operator_b"> <code><strong>b </strong></code> </a></td>
+    <td><a href="#IPoint">IPoint</a> or <a href="#IVector">IVector</a> to add</td>
   </tr>
 </table>
 
