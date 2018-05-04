@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fbb7a6ef_ec807a2a",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-05-04T16:08:35Z",
+      "side": 1,
+      "message": "Since this is on by default you\u0027ll need to disable it for the gn_to_bp generator for SkQP as well.",
+      "range": {
+        "startLine": 217,
+        "startChar": 26,
+        "endLine": 217,
+        "endChar": 31
+      },
+      "revId": "cdeb272ddc85d06be6d3fae4926b9af3f6f5cddd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
