@@ -297,7 +297,6 @@ private:
         fInitialViewMatrix = viewMatrix;
         if (!viewMatrix.invert(&fInitialViewMatrixInverse)) {
             fInitialViewMatrixInverse = SkMatrix::I();
-            SkDebugf("Could not invert viewmatrix\n");
         }
         fInitialX = x;
         fInitialY = y;
