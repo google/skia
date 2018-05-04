@@ -15,7 +15,6 @@ from . import gn_chromebook_flavor
 from . import gn_chromecast_flavor
 from . import gn_flavor
 from . import ios_flavor
-from . import pdfium_flavor
 from . import valgrind_flavor
 
 
@@ -43,9 +42,6 @@ def is_ios(vars_api):
   return ('iOS' in vars_api.extra_tokens or
           'iOS' == vars_api.builder_cfg.get('os', ''))
 
-def is_pdfium(vars_api):
-  return 'PDFium' in vars_api.extra_tokens
-
 def is_test_skqp(vars_api):
   return ('SKQP' in vars_api.extra_tokens and
           vars_api.builder_name.startswith('Test'))
@@ -67,8 +63,6 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
       return gn_android_flavor.GNAndroidFlavorUtils(self)
     elif is_ios(vars_api):
       return ios_flavor.iOSFlavorUtils(self)
-    elif is_pdfium(vars_api):
-      return pdfium_flavor.PDFiumFlavorUtils(self)
     elif is_valgrind(vars_api):
       return valgrind_flavor.ValgrindFlavorUtils(self)
     else:

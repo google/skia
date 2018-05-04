@@ -71,8 +71,6 @@ class SkiaApi(recipe_api.RecipeApi):
     # Initial cleanup.
     gclient_cfg = self.m.gclient.make_config(**cfg_kwargs)
     main_repo = self.m.properties['repository']
-    if self.m.vars.need_pdfium_checkout:
-      main_repo = 'https://pdfium.googlesource.com/pdfium.git'
     if self.m.vars.need_flutter_checkout:
       main_repo = 'https://github.com/flutter/engine.git'
     main_name = self.m.path.basename(main_repo)
@@ -96,20 +94,6 @@ class SkiaApi(recipe_api.RecipeApi):
       patch_root = patch_repo.split('/')[-1]
       if patch_root.endswith('.git'):
         patch_root = patch_root[:-4]
-
-    if self.m.vars.need_pdfium_checkout:
-      # Skia is a DEP of PDFium; the 'revision' property is a Skia revision, and
-      # any patch should be applied to Skia, not PDFium.
-      main.revision = 'origin/master'
-      main.managed = True
-      m[main_name] = 'got_%s_revision' % main_name
-
-      skia_dep_path = 'pdfium/third_party/skia'
-      gclient_cfg.patch_projects['skia'] = (skia_dep_path, 'HEAD')
-      gclient_cfg.revisions[skia_dep_path] = self.m.properties['revision']
-      m[skia_dep_path] = 'got_revision'
-      patch_repo = 'https://skia.googlesource.com/skia.git'
-      patch_root = skia_dep_path
 
     if self.m.vars.need_flutter_checkout:
       # Skia is a DEP of Flutter; the 'revision' property is a Skia revision,

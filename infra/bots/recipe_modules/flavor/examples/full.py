@@ -76,8 +76,6 @@ TEST_BUILDERS = [
   'Build-Debian9-GCC-x86_64-Release-ANGLE',
   'Build-Debian9-GCC-x86_64-Release-Flutter_Android',
   'Build-Debian9-GCC-x86_64-Release-NoGPU',
-  'Build-Debian9-GCC-x86_64-Release-PDFium',
-  'Build-Debian9-GCC-x86_64-Release-PDFium_SkiaPaths',
   'Build-Debian9-GCC-x86_64-Release-Shared',
   'Build-Mac-Clang-arm64-Debug-Android_Vulkan',
   'Build-Mac-Clang-arm64-Debug-iOS',
