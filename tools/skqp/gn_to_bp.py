@@ -137,6 +137,7 @@ gn_args = {
   # enable/disable skia subsystems
   'skia_enable_fontmgr_empty': 'true',
   'skia_enable_pdf':           'false',
+  'skia_enable_skottie':       'false',
   'skia_use_expat':            'false',
   'skia_use_dng_sdk':          'false',
   'skia_use_icu':              'false',
