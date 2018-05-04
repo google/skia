@@ -1,55 +1,6 @@
 [
   {
     "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/skia/bin/fetch-gn"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
-    },
-    "infra_step": true,
-    "name": "fetch-gn"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/skia/bin/gn",
-      "gen",
-      "[START_DIR]/build/out/Release",
-      "--args=cc=\"clang\" cxx=\"clang++\" is_debug=false"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
-    },
-    "name": "gn gen"
-  },
-  {
-    "cmd": [
-      "ninja",
-      "-k",
-      "0",
-      "-C",
-      "[START_DIR]/build/out/Release"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
-    },
-    "name": "ninja"
-  },
-  {
-    "cmd": [
       "[START_DIR]/skia/platform_tools/ios/bin/ios_push_file",
       "file.txt",
       "file.txt"

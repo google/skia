@@ -91,9 +91,6 @@ class DefaultFlavorUtils(object):
     if not self.m.path.exists(win_toolchain_asset_path):
       self._win_toolchain_dir = self.m.vars.slave_dir
 
-  def copy_extra_build_products(self, swarming_out_dir):
-    pass
-
   @property
   def out_dir(self):
     """Flavor-specific out directory."""

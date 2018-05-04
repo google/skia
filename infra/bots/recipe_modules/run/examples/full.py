@@ -1,4 +1,4 @@
-# Copyright 2017 The Chromium Authors. All rights reserved.
+#_ Copyright 2017 The Chromium Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -40,9 +40,6 @@ def RunSteps(api):
   # Merge PATHs.
   with api.context(env={'PATH': 'mydir:%(PATH)s'}):
     api.run(api.step, 'env', cmd=['env'])
-
-  # Copy build products.
-  api.run.copy_build_products('src', 'dst')
 
   def between_attempts_fn(attempt):
     api.run(api.step, 'between_attempts #%d' % attempt,
