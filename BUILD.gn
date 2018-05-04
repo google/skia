@@ -1454,13 +1454,13 @@ if (skia_enable_tools) {
         "experimental/skottie/Skottie.cpp",
         "experimental/skottie/SkottieAdapter.cpp",
         "experimental/skottie/SkottieAnimator.cpp",
-        "experimental/skottie/SkottieParser.cpp",
+        "experimental/skottie/SkottieJson.cpp",
         "experimental/skottie/SkottieValue.cpp",
       ]
       deps = [
         ":experimental_sksg",
         ":skia",
-        "//third_party/jsoncpp",
+        "//third_party/rapidjson",
       ]
     }
   }
