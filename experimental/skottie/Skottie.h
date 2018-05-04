@@ -11,8 +11,6 @@
 #include "SkRefCnt.h"
 #include "SkSize.h"
 #include "SkString.h"
-#include "SkTArray.h"
-#include "SkTHash.h"
 #include "SkTypes.h"
 
 #include <memory>
@@ -21,11 +19,11 @@ class SkCanvas;
 struct SkRect;
 class SkStream;
 
-namespace Json { class Value; }
-
 namespace sksg { class Scene;  }
 
 namespace skottie {
+
+namespace json { class ValueRef; }
 
 class ResourceProvider : public SkNoncopyable {
 public:
@@ -63,9 +61,8 @@ public:
     void setShowInval(bool show);
 
 private:
-    Animation(const ResourceProvider&,
-              SkString ver, const SkSize& size, SkScalar fps,
-              const Json::Value&, Stats*);
+    Animation(const ResourceProvider&, SkString ver, const SkSize& size, SkScalar fps,
+              const json::ValueRef&, Stats*);
 
     SkString                     fVersion;
     SkSize                       fSize;
