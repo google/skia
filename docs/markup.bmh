@@ -1,7 +1,7 @@
 #Topic Bookmaker_Markup
 
 # redefine markup character so examples below will not be parsed
-###$  
+###$
 
 Text, except for the single markup character, requires no annotation.
 
@@ -71,7 +71,7 @@ description
 
   method description
   the _method_reference must be unique within the class
-#Method type name(params..) 
+#Method type name(params..)
 description
 #Param name  description ##
 #Return return ##
@@ -83,6 +83,6 @@ description
 #ToDo  description ##
 
 $ restore markup character
-$$$#   
+$$$#
 
 ##

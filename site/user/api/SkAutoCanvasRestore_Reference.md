@@ -5,30 +5,47 @@ SkAutoCanvasRestore Reference
 
 ## <a name="Overview"></a> Overview
 
-## <a name="Overview_Subtopic"></a> Overview Subtopic
+<table style='border-collapse: collapse; width: 62.5em'>
+  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Constructors</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href="#SkAutoCanvasRestore">SkAutoCanvasRestore</a></td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Functions</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>static functions and member methods</td>
+  </tr>
+</table>
 
-| name | description |
-| --- | --- |
-| <a href="#Constructor">Constructor</a> | functions that construct <a href="#SkAutoCanvasRestore">SkAutoCanvasRestore</a> |
-| <a href="#Member_Function">Member Function</a> | static functions and member methods |
 
 # <a name="SkAutoCanvasRestore"></a> Class SkAutoCanvasRestore
 Stack helper class calls <a href="SkCanvas_Reference#SkCanvas_restoreToCount">SkCanvas::restoreToCount</a> when <a href="#SkAutoCanvasRestore">SkAutoCanvasRestore</a>
 goes out of scope. Use this to guarantee that the canvas is restored to a known
 state.
 
-## <a name="Constructor"></a> Constructor
+<table style='border-collapse: collapse; width: 62.5em'>
+  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href="#SkAutoCanvasRestore_SkCanvas_star">SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>preserves <a href="SkCanvas_Reference#Canvas">Canvas</a> save count</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href="#SkAutoCanvasRestore_destructor">~SkAutoCanvasRestore()</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>restores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved state</td>
+  </tr>
+</table>
 
-| name | description |
-| --- | --- |
-| <a href="#SkAutoCanvasRestore_SkCanvas_star">SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)</a> | preserves <a href="SkCanvas_Reference#Canvas">Canvas</a> save count |
-| <a href="#SkAutoCanvasRestore_destructor">~SkAutoCanvasRestore()</a> | restores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved state |
+<table style='border-collapse: collapse; width: 62.5em'>
+  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href="#SkAutoCanvasRestore_restore">restore</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>restores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved state</td>
+  </tr>
+</table>
 
-## <a name="Member_Function"></a> Member Function
-
-| name | description |
-| --- | --- |
-| <a href="#SkAutoCanvasRestore_restore">restore</a> | restores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved state |
 
 <a name="SkAutoCanvasRestore_SkCanvas_star"></a>
 ## SkAutoCanvasRestore
@@ -41,10 +58,11 @@ Preserves <a href="SkCanvas_Reference#Canvas">Canvas</a> save count. Optionally 
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkAutoCanvasRestore_SkCanvas_star_canvas"> <code><strong>canvas </strong></code> </a></td> <td>
-<a href="SkCanvas_Reference#Canvas">Canvas</a> to guard</td>
-  </tr>  <tr>    <td><a name="SkAutoCanvasRestore_SkCanvas_star_doSave"> <code><strong>doSave </strong></code> </a></td> <td>
-call <a href="SkCanvas_Reference#SkCanvas_save">SkCanvas::save()</a></td>
+<table>  <tr>    <td><a name="SkAutoCanvasRestore_SkCanvas_star_canvas"> <code><strong>canvas </strong></code> </a></td>
+    <td><a href="SkCanvas_Reference#Canvas">Canvas</a> to guard</td>
+  </tr>
+  <tr>    <td><a name="SkAutoCanvasRestore_SkCanvas_star_doSave"> <code><strong>doSave </strong></code> </a></td>
+    <td>call <a href="SkCanvas_Reference#SkCanvas_save">SkCanvas::save()</a></td>
   </tr>
 </table>
 
