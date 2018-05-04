@@ -22,6 +22,30 @@
       "revId": "01dee007e3130efe19c70ff1f24bbfbe7cb3f2d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5f7bb71_5aabc97a",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-04T14:39:58Z",
+      "side": 1,
+      "message": "The key is unique, and uniquely owns its scaler context. The device descriptor is only used for creating the scaler context, so I don\u0027t think this can happen.",
+      "parentUuid": "106c07e6_704c8777",
+      "range": {
+        "startLine": 139,
+        "startChar": 41,
+        "endLine": 139,
+        "endChar": 55
+      },
+      "revId": "01dee007e3130efe19c70ff1f24bbfbe7cb3f2d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
