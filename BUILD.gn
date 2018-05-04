@@ -1843,7 +1843,6 @@ if (skia_enable_tools) {
       "fuzz/oss_fuzz/FuzzPathDeserialize.cpp",
       "fuzz/oss_fuzz/FuzzRegionDeserialize.cpp",
       "fuzz/oss_fuzz/FuzzRegionSetPath.cpp",
-      "fuzz/oss_fuzz/FuzzSkottieJSON.cpp",
       "fuzz/oss_fuzz/FuzzTextBlobDeserialize.cpp",
       "tools/UrlDataManager.cpp",
       "tools/debugger/SkDebugCanvas.cpp",
@@ -1859,6 +1858,10 @@ if (skia_enable_tools) {
       "//third_party/jsoncpp",
       "//third_party/libpng",
     ]
+
+    if (skia_enable_skottie) {
+      sources += [ "fuzz/oss_fuzz/FuzzSkottieJSON.cpp" ]
+    }
   }
 
   test_app("pathops_unittest") {
