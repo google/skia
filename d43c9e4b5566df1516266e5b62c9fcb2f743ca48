@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "07dbd0f6_e0735f87",
+        "filename": "infra/bots/recipe_modules/core/examples/full.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-04T17:17:24Z",
+      "side": 1,
+      "message": "These technically aren\u0027t new, since they\u0027re just copies of what used to be run in core.setup().  But I\u0027m removing run_once as well as the if-statement.  This results in a lot of expectations diffs.  I uploaded a patch set without them and then another with them so that you can diff between patch sets more easily.",
+      "parentUuid": "86cbc5dc_ec89e18b",
+      "revId": "d43c9e4b5566df1516266e5b62c9fcb2f743ca48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e64d4b6f_723e45e0",
         "filename": "infra/bots/recipes/skqp_test.py",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2018-05-04T16:35:32Z",
       "side": 1,
       "message": "Is this recipe used?",
+      "revId": "d43c9e4b5566df1516266e5b62c9fcb2f743ca48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "13ab5d10_fe70d6d4",
+        "filename": "infra/bots/recipes/skqp_test.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-04T17:17:24Z",
+      "side": 1,
+      "message": "No. IIRC it was briefly enabled on master but then removed when it started running on the skqp branch.  I think it\u0027s left here to avoid merge conflicts?",
+      "parentUuid": "e64d4b6f_723e45e0",
       "revId": "d43c9e4b5566df1516266e5b62c9fcb2f743ca48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
