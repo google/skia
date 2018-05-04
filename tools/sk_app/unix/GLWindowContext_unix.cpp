@@ -58,6 +58,8 @@ using CreateContextAttribsFn = GLXContext(Display*, GLXFBConfig, GLXContext, Boo
 sk_sp<const GrGLInterface> GLWindowContext_xlib::onInitializeContext() {
     SkASSERT(fDisplay);
     SkASSERT(!fGLContext);
+    sk_sp<const GrGLInterface> interface;
+    bool current = false;
     // We attempt to use glXCreateContextAttribsARB as RenderDoc requires that the context be
     // created with this rather than glXCreateContext.
     CreateContextAttribsFn* createContextAttribs = (CreateContextAttribsFn*)glXGetProcAddressARB(
@@ -76,6 +78,20 @@ sk_sp<const GrGLInterface> GLWindowContext_xlib::onInitializeContext() {
                         0
                 };
                 fGLContext = createContextAttribs(fDisplay, *fFBConfig, nullptr, True, attribs);
+                if (fGLContext && profile == GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB &&
+                    glXMakeCurrent(fDisplay, fWindow, fGLContext)) {
+                    current = true;
+                    // Look to see if RenderDoc is attached. If so, re-create the context with a
+                    // core profile.
+                    interface = GrGLMakeNativeInterface();
+                    if (interface && interface->fExtensions.has("GL_EXT_debug_tool")) {
+                        interface.reset();
+                        glXMakeCurrent(fDisplay, None, nullptr);
+                        glXDestroyContext(fDisplay, fGLContext);
+                        current = false;
+                        fGLContext = nullptr;
+                    }
+                }
                 if (fGLContext) {
                     break;
                 }
@@ -89,7 +105,7 @@ sk_sp<const GrGLInterface> GLWindowContext_xlib::onInitializeContext() {
         return nullptr;
     }
 
-    if (!glXMakeCurrent(fDisplay, fWindow, fGLContext)) {
+    if (!current && !glXMakeCurrent(fDisplay, fWindow, fGLContext)) {
         return nullptr;
     }
     glClearStencil(0);
@@ -108,7 +124,7 @@ sk_sp<const GrGLInterface> GLWindowContext_xlib::onInitializeContext() {
                  &border_width, &depth);
     glViewport(0, 0, fWidth, fHeight);
 
-    return GrGLMakeNativeInterface();
+    return interface ? interface : GrGLMakeNativeInterface();
 }
 
 GLWindowContext_xlib::~GLWindowContext_xlib() {
