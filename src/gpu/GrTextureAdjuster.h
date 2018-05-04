@@ -20,11 +20,6 @@
  */
 class GrTextureAdjuster : public GrTextureProducer {
 public:
-    /** Makes the subset of the texture safe to use with the given texture parameters. If the copy's
-        size does not match subset's dimensions then the contents are scaled to fit the copy.*/
-    sk_sp<GrTextureProxy> refTextureProxySafeForParams(const GrSamplerState&,
-                                                       SkScalar scaleAdjust[2]);
-
     std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
             const SkMatrix& textureMatrix,
             const SkRect& constraintRect,
@@ -48,13 +43,18 @@ protected:
     sk_sp<GrTextureProxy> originalProxyRef() const { return fOriginal; }
 
 private:
+    sk_sp<GrTextureProxy> onRefTextureProxyForParams(const GrSamplerState&,
+                                                     SkColorSpace* dstColorSpace,
+                                                     sk_sp<SkColorSpace>* proxyColorSpace,
+                                                     SkScalar scaleAdjust[2]) override;
+
+    sk_sp<GrTextureProxy> refTextureProxyCopy(const CopyParams& copyParams, bool willBeMipped);
+
     GrContext*            fContext;
     sk_sp<GrTextureProxy> fOriginal;
     SkAlphaType           fAlphaType;
     SkColorSpace*         fColorSpace;
     uint32_t              fUniqueID;
-
-    sk_sp<GrTextureProxy> refTextureProxyCopy(const CopyParams &copyParams, bool willBeMipped);
 
     typedef GrTextureProducer INHERITED;
 };

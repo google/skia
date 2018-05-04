@@ -309,11 +309,12 @@ public:
      * Draw the image as a set of rects, specified by |iter|.
      */
     void drawImageLattice(const GrClip&,
-                          GrPaint&& paint,
+                          GrPaint&&,
                           const SkMatrix& viewMatrix,
-                          int imageWidth,
-                          int imageHeight,
-                          std::unique_ptr<SkLatticeIter> iter,
+                          sk_sp<GrTextureProxy>,
+                          sk_sp<GrColorSpaceXform>,
+                          GrSamplerState::Filter,
+                          std::unique_ptr<SkLatticeIter>,
                           const SkRect& dst);
 
     /**
