@@ -1467,7 +1467,7 @@ void Viewer::drawImGui() {
                     paramsChanged = true;
                 }
                 float deg = fRotation;
-                if (ImGui::SliderFloat("Rotate", &deg, -30, 360, "%.0f deg")) {
+                if (ImGui::SliderFloat("Rotate", &deg, -30, 360, "%.3f deg")) {
                     fRotation = deg;
                     this->preTouchMatrixChanged();
                     paramsChanged = true;
