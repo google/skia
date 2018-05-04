@@ -49,6 +49,9 @@ const (
 
 	DEFAULT_PROJECT = "skia"
 
+	MACHINE_TYPE_SMALL = "n1-highmem-2"
+	MACHINE_TYPE_LARGE = "n1-highcpu-64"
+
 	// Swarming output dirs.
 	OUTPUT_NONE     = "output_ignored" // This will result in outputs not being isolated.
 	OUTPUT_BUILD    = "build"
@@ -298,13 +301,13 @@ func internalHardwareLabel(parts map[string]string) *int {
 
 // linuxGceDimensions are the Swarming dimensions for Linux GCE
 // instances.
-func linuxGceDimensions() []string {
+func linuxGceDimensions(machineType string) []string {
 	return []string{
 		// Specify CPU to avoid running builds on bots with a more unique CPU.
 		"cpu:x86-64-Haswell_GCE",
 		"gpu:none",
 		// Currently all Linux GCE tasks run on 16-CPU machines.
-		"machine_type:n1-standard-16",
+		fmt.Sprintf("machine_type:%s", machineType),
 		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
 		fmt.Sprintf("pool:%s", CONFIG.Pool),
 	}
@@ -474,12 +477,19 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			d["cpu"] = cpu
 			if parts["model"] == "GCE" && d["os"] == DEFAULT_OS_DEBIAN {
 				d["os"] = DEFAULT_OS_LINUX_GCE
-				// Currently all Linux GCE tasks run on 16-CPU machines.
-				d["machine_type"] = "n1-standard-16"
 			}
-			if parts["model"] == "GCE" && d["os"] == DEFAULT_OS_WIN {
-				// Use normal-size machines for Test and Perf tasks on Win GCE.
-				d["machine_type"] = "n1-standard-16"
+			if parts["model"] == "GCE" && d["cpu"] == "x86-64-Haswell_GCE" {
+				// nanobench runs single-threaded, so use a small machine.
+				// dm is multi-threaded for CPU, so use a large machine.
+				machineType, ok := map[string]string{
+					"Calmbench": MACHINE_TYPE_SMALL,
+					"Perf":      MACHINE_TYPE_SMALL,
+					"Test":      MACHINE_TYPE_LARGE,
+				}[parts["role"]]
+				if !ok {
+					glog.Fatalf("Entry %q not found in GCE machine type mapping.", parts["role"])
+				}
+				d["machine_type"] = machineType
 			}
 		} else {
 			if strings.Contains(parts["os"], "Win") {
@@ -558,12 +568,13 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 	} else {
 		d["gpu"] = "none"
 		if d["os"] == DEFAULT_OS_DEBIAN {
-			return linuxGceDimensions()
+			// Use many-core machines for Build tasks.
+			return linuxGceDimensions(MACHINE_TYPE_LARGE)
 		} else if d["os"] == DEFAULT_OS_WIN {
 			// Windows CPU bots.
 			d["cpu"] = "x86-64-Haswell_GCE"
-			// Use many-core machines for Build tasks on Win GCE.
-			d["machine_type"] = "n1-highcpu-64"
+			// Use many-core machines for Build tasks.
+			d["machine_type"] = MACHINE_TYPE_LARGE
 		} else if d["os"] == DEFAULT_OS_MAC {
 			// Mac CPU bots.
 			d["cpu"] = "x86-64-E5-2697_v2"
@@ -600,7 +611,7 @@ func bundleRecipes(b *specs.TasksCfgBuilder) string {
 		Command: []string{
 			"/bin/bash", "skia/infra/bots/bundle_recipes.sh", specs.PLACEHOLDER_ISOLATED_OUTDIR,
 		},
-		Dimensions: linuxGceDimensions(),
+		Dimensions: linuxGceDimensions(MACHINE_TYPE_SMALL),
 		EnvPrefixes: map[string][]string{
 			"PATH": []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
 		},
@@ -662,7 +673,7 @@ func isolateCIPDAsset(b *specs.TasksCfgBuilder, name string) string {
 			b.MustGetCipdPackageFromAsset(asset.cipdPkg),
 		},
 		Command:    []string{"/bin/cp", "-rL", asset.path, "${ISOLATED_OUTDIR}"},
-		Dimensions: linuxGceDimensions(),
+		Dimensions: linuxGceDimensions(MACHINE_TYPE_SMALL),
 		Isolate:    relpath("empty.isolate"),
 		Priority:   0.7,
 	})
@@ -794,7 +805,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		!strings.Contains(parts["os"], "Win") &&
 		!strings.Contains(parts["os"], "Mac") {
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
-		task := kitchenTask(uploadName, "upload_skiaserve", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_BINARY, linuxGceDimensions(), nil, OUTPUT_NONE)
+		task := kitchenTask(uploadName, "upload_skiaserve", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_BINARY, linuxGceDimensions(MACHINE_TYPE_SMALL), nil, OUTPUT_NONE)
 		task.Dependencies = append(task.Dependencies, name)
 		b.MustAddTask(uploadName, task)
 		return uploadName
@@ -807,7 +818,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 // task in the generated chain of tasks, which the Job should add as a
 // dependency.
 func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
-	task := kitchenTask(name, "recreate_skps", "swarm_recipe.isolate", SERVICE_ACCOUNT_RECREATE_SKPS, linuxGceDimensions(), nil, OUTPUT_NONE)
+	task := kitchenTask(name, "recreate_skps", "swarm_recipe.isolate", SERVICE_ACCOUNT_RECREATE_SKPS, linuxGceDimensions(MACHINE_TYPE_LARGE), nil, OUTPUT_NONE)
 	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
 	timeout(task, 4*time.Hour)
@@ -834,7 +845,7 @@ func ctSKPs(b *specs.TasksCfgBuilder, name string) string {
 // checkGeneratedFiles verifies that no generated SKSL files have been edited
 // by hand.
 func checkGeneratedFiles(b *specs.TasksCfgBuilder, name string) string {
-	task := kitchenTask(name, "check_generated_files", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(), nil, OUTPUT_NONE)
+	task := kitchenTask(name, "check_generated_files", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(MACHINE_TYPE_LARGE), nil, OUTPUT_NONE)
 	task.Caches = append(task.Caches, CACHES_WORKDIR...)
 	b.MustAddTask(name, task)
 	return name
@@ -843,7 +854,7 @@ func checkGeneratedFiles(b *specs.TasksCfgBuilder, name string) string {
 // housekeeper generates a Housekeeper task. Returns the name of the last task
 // in the generated chain of tasks, which the Job should add as a dependency.
 func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
-	task := kitchenTask(name, "housekeeper", "swarm_recipe.isolate", SERVICE_ACCOUNT_HOUSEKEEPER, linuxGceDimensions(), nil, OUTPUT_NONE)
+	task := kitchenTask(name, "housekeeper", "swarm_recipe.isolate", SERVICE_ACCOUNT_HOUSEKEEPER, linuxGceDimensions(MACHINE_TYPE_SMALL), nil, OUTPUT_NONE)
 	usesGit(task, name)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
 	task.Dependencies = append(task.Dependencies, compileTaskName)
@@ -854,7 +865,7 @@ func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string 
 // bookmaker generates a Bookmaker task. Returns the name of the last task
 // in the generated chain of tasks, which the Job should add as a dependency.
 func bookmaker(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
-	task := kitchenTask(name, "bookmaker", "swarm_recipe.isolate", SERVICE_ACCOUNT_BOOKMAKER, linuxGceDimensions(), nil, OUTPUT_NONE)
+	task := kitchenTask(name, "bookmaker", "swarm_recipe.isolate", SERVICE_ACCOUNT_BOOKMAKER, linuxGceDimensions(MACHINE_TYPE_SMALL), nil, OUTPUT_NONE)
 	task.Caches = append(task.Caches, CACHES_WORKDIR...)
 	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
@@ -868,7 +879,7 @@ func bookmaker(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
 // the name of the last task in the generated chain of tasks, which the Job
 // should add as a dependency.
 func androidFrameworkCompile(b *specs.TasksCfgBuilder, name string) string {
-	task := kitchenTask(name, "android_compile", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(), nil, OUTPUT_NONE)
+	task := kitchenTask(name, "android_compile", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(MACHINE_TYPE_SMALL), nil, OUTPUT_NONE)
 	task.MaxAttempts = 1
 	timeout(task, time.Hour)
 	b.MustAddTask(name, task)
@@ -878,7 +889,7 @@ func androidFrameworkCompile(b *specs.TasksCfgBuilder, name string) string {
 // infra generates an infra_tests task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func infra(b *specs.TasksCfgBuilder, name string) string {
-	task := kitchenTask(name, "infra", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(), nil, OUTPUT_NONE)
+	task := kitchenTask(name, "infra", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(MACHINE_TYPE_SMALL), nil, OUTPUT_NONE)
 	usesGit(task, name)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
 	b.MustAddTask(name, task)
@@ -909,7 +920,7 @@ func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string, c
 		extraProps := map[string]string{
 			"gs_bucket": CONFIG.GsBucketCalm,
 		}
-		uploadTask := kitchenTask(name, "upload_calmbench_results", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_CALMBENCH, linuxGceDimensions(), extraProps, OUTPUT_NONE)
+		uploadTask := kitchenTask(name, "upload_calmbench_results", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_CALMBENCH, linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
 		uploadTask.CipdPackages = append(uploadTask.CipdPackages, CIPD_PKGS_GSUTIL...)
 		uploadTask.Dependencies = append(uploadTask.Dependencies, name)
 		b.MustAddTask(uploadName, uploadTask)
@@ -980,7 +991,7 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		extraProps := map[string]string{
 			"gs_bucket": CONFIG.GsBucketGm,
 		}
-		uploadTask := kitchenTask(name, "upload_dm_results", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_GM, linuxGceDimensions(), extraProps, OUTPUT_NONE)
+		uploadTask := kitchenTask(name, "upload_dm_results", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_GM, linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
 		uploadTask.CipdPackages = append(uploadTask.CipdPackages, CIPD_PKGS_GSUTIL...)
 		uploadTask.Dependencies = append(uploadTask.Dependencies, name)
 		b.MustAddTask(uploadName, uploadTask)
@@ -1024,7 +1035,7 @@ func coverage(b *specs.TasksCfgBuilder, name string, parts map[string]string, co
 	extraProps := map[string]string{
 		"gs_bucket": CONFIG.GsBucketCoverage,
 	}
-	uploadTask := kitchenTask(uploadName, "upload_coverage_results", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_COVERAGE, linuxGceDimensions(), extraProps, OUTPUT_NONE)
+	uploadTask := kitchenTask(uploadName, "upload_coverage_results", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_COVERAGE, linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
 	usesGit(uploadTask, uploadName)
 	uploadTask.CipdPackages = append(uploadTask.CipdPackages, CIPD_PKGS_GSUTIL...)
 	// We need clang_linux to get access to the llvm-profdata and llvm-cov binaries
@@ -1083,7 +1094,7 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		extraProps := map[string]string{
 			"gs_bucket": CONFIG.GsBucketNano,
 		}
-		uploadTask := kitchenTask(name, "upload_nano_results", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_NANO, linuxGceDimensions(), extraProps, OUTPUT_NONE)
+		uploadTask := kitchenTask(name, "upload_nano_results", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_NANO, linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
 		uploadTask.CipdPackages = append(uploadTask.CipdPackages, CIPD_PKGS_GSUTIL...)
 		uploadTask.Dependencies = append(uploadTask.Dependencies, name)
 		b.MustAddTask(uploadName, uploadTask)
@@ -1102,7 +1113,8 @@ func presubmit(b *specs.TasksCfgBuilder, name string) string {
 		"reason":           "CQ",
 		"repo_name":        "skia",
 	}
-	task := kitchenTask(name, "run_presubmit", "empty.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(), extraProps, OUTPUT_NONE)
+	// Use MACHINE_TYPE_LARGE because it seems to save ~1m and we want presubmit to be fast.
+	task := kitchenTask(name, "run_presubmit", "empty.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(MACHINE_TYPE_LARGE), extraProps, OUTPUT_NONE)
 
 	replaceArg := func(key, value string) {
 		found := false
