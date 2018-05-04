@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ddb92aef_d05ce922",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-04T18:23:58Z",
+      "side": 1,
+      "message": "I feel a little weird about the name of this method. This only gets names for type1 fonts, but it\u0027s possible to stick glyph names into OpenType fonts as well. Maybe we can remove this condition and have PDF only call this when the advanced typeface metrics says the font type is SkAdvancedTypefaceMetrics::kType1_Font (since that\u0027s when it actually wants this info)?",
+      "range": {
+        "startLine": 622,
+        "startChar": 16,
+        "endLine": 622,
+        "endChar": 62
+      },
+      "revId": "f9cf1dc8408fda35bc6b416aeceb9b3e273fba7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "362a1896_21bc40e2",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-04T18:23:58Z",
+      "side": 1,
+      "message": "want \u0026\u0026 FT_HAS_GLYPH_NAMES(face) ?",
+      "range": {
+        "startLine": 622,
+        "startChar": 8,
+        "endLine": 622,
+        "endChar": 12
+      },
+      "revId": "f9cf1dc8408fda35bc6b416aeceb9b3e273fba7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7756310d_a2bf9626",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-04T18:23:58Z",
+      "side": 1,
+      "message": "Not sure what FT_IS_SCALABLE is doing here... I suppose it was there before...",
+      "range": {
+        "startLine": 622,
+        "startChar": 71,
+        "endLine": 622,
+        "endChar": 91
+      },
+      "revId": "f9cf1dc8408fda35bc6b416aeceb9b3e273fba7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
