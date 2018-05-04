@@ -18,7 +18,6 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPicture.h"
-#include "Skottie.h"
 #include "SkPipe.h"
 #include "SkReadBuffer.h"
 #include "SkStream.h"
@@ -27,6 +26,10 @@
 
 #if SK_SUPPORT_GPU
 #include "SkSLCompiler.h"
+#endif
+
+#if defined(SK_ENABLE_SKOTTIE)
+#include "Skottie.h"
 #endif
 
 #include <iostream>
@@ -76,7 +79,6 @@ static void fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
 static void fuzz_path_deserialize(sk_sp<SkData>);
 static void fuzz_region_deserialize(sk_sp<SkData>);
 static void fuzz_region_set_path(sk_sp<SkData>);
-static void fuzz_skottie_json(sk_sp<SkData>);
 static void fuzz_skp(sk_sp<SkData>);
 static void fuzz_skpipe(sk_sp<SkData>);
 static void fuzz_textblob_deserialize(sk_sp<SkData>);
@@ -85,6 +87,10 @@ static void print_api_names();
 
 #if SK_SUPPORT_GPU
 static void fuzz_sksl2glsl(sk_sp<SkData>);
+#endif
+
+#if defined(SK_ENABLE_SKOTTIE)
+static void fuzz_skottie_json(sk_sp<SkData>);
 #endif
 
 int main(int argc, char** argv) {
@@ -181,10 +187,12 @@ static int fuzz_file(SkString path, SkString type) {
         fuzz_skpipe(bytes);
         return 0;
     }
+#if defined(SK_ENABLE_SKOTTIE)
     if (type.equals("skottie_json")) {
         fuzz_skottie_json(bytes);
         return 0;
     }
+#endif
     if (type.equals("skp")) {
         fuzz_skp(bytes);
         return 0;
@@ -264,12 +272,14 @@ static SkString try_auto_detect(SkString path, SkString* name) {
     return SkString("");
 }
 
+#if defined(SK_ENABLE_SKOTTIE)
 void FuzzSkottieJSON(sk_sp<SkData> bytes);
 
 static void fuzz_skottie_json(sk_sp<SkData> bytes){
     FuzzSkottieJSON(bytes);
     SkDebugf("[terminated] Done animating!\n");
 }
+#endif
 
 // This adds up the first 1024 bytes and returns it as an 8 bit integer.  This allows afl-fuzz to
 // deterministically excercise different paths, or *options* (such as different scaling sizes or
