@@ -322,7 +322,6 @@ private:
                 matrix = &ctm;
             } else if (fHelper.usesLocalCoords()) {
                 if (!ctm.invert(&invert)) {
-                    SkDebugf("Could not invert viewmatrix\n");
                     return;
                 }
                 matrix = &invert;
@@ -336,7 +335,6 @@ private:
             SkMatrix invert;
             if (fHelper.usesLocalCoords()) {
                 if (!ctm.invert(&invert)) {
-                    SkDebugf("Could not invert viewmatrix\n");
                     return;
                 }
             }

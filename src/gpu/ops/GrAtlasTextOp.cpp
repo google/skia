@@ -220,7 +220,6 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     // TODO actually only invert if we don't have RGBA
     SkMatrix localMatrix;
     if (this->usesLocalCoords() && !fGeoData[0].fViewMatrix.invert(&localMatrix)) {
-        SkDebugf("Cannot invert viewmatrix\n");
         return;
     }
 

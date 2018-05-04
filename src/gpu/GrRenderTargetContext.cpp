@@ -389,14 +389,12 @@ void GrRenderTargetContext::drawPaint(const GrClip& clip,
     // produce a correct result for some perspective matrices.
     if (!isPerspective) {
         if (!SkMatrixPriv::InverseMapRect(viewMatrix, &r, r)) {
-            SkDebugf("Could not invert matrix\n");
             return;
         }
         this->drawRect(clip, std::move(paint), GrAA::kNo, viewMatrix, r);
     } else {
         SkMatrix localMatrix;
         if (!viewMatrix.invert(&localMatrix)) {
-            SkDebugf("Could not invert matrix\n");
             return;
         }
 

@@ -848,7 +848,6 @@ private:
 
         SkMatrix invert;
         if (fHelper.usesLocalCoords() && !fPaths.back().fViewMatrix.invert(&invert)) {
-            SkDebugf("Could not invert viewmatrix\n");
             return;
         }
 
