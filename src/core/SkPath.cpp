@@ -1309,14 +1309,9 @@ void SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
     // arcs from the same oval.
     auto addPt = [&forceMoveTo, this](const SkPoint& pt) {
         SkPoint lastPt;
-#ifdef SK_DISABLE_ARC_TO_LINE_TO_CHECK
-        static constexpr bool kSkipLineToCheck = true;
-#else
-        static constexpr bool kSkipLineToCheck = false;
-#endif
         if (forceMoveTo) {
             this->moveTo(pt);
-        } else if (kSkipLineToCheck || !this->getLastPt(&lastPt) ||
+        } else if (!this->getLastPt(&lastPt) ||
                    !SkScalarNearlyEqual(lastPt.fX, pt.fX) ||
                    !SkScalarNearlyEqual(lastPt.fY, pt.fY)) {
             this->lineTo(pt);

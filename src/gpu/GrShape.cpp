@@ -373,14 +373,6 @@ void GrShape::addGenIDChangeListener(SkPathRef::GenIDChangeListener* listener) c
 
 GrShape GrShape::MakeArc(const SkRect& oval, SkScalar startAngleDegrees, SkScalar sweepAngleDegrees,
                          bool useCenter, const GrStyle& style) {
-#ifdef SK_DISABLE_ARC_TO_LINE_TO_CHECK
-    // When this flag is set the segment mask of the path won't match GrShape's segment mask for
-    // paths. Represent this shape as a path.
-    SkPath path;
-    SkPathPriv::CreateDrawArcPath(&path, oval, startAngleDegrees, sweepAngleDegrees, useCenter,
-                                  style.isSimpleFill());
-    return GrShape(path, style);
-#else
     GrShape result;
     result.changeType(Type::kArc);
     result.fArcData.fOval = oval;
@@ -391,7 +383,6 @@ GrShape GrShape::MakeArc(const SkRect& oval, SkScalar startAngleDegrees, SkScala
     result.fStyle = style;
     result.attemptToSimplifyArc();
     return result;
-#endif
 }
 
 GrShape::GrShape(const GrShape& that) : fStyle(that.fStyle) {
