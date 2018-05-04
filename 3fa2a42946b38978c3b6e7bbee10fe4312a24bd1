@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7165eea1_8f9bfcbd",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-04T15:15:44Z",
+      "side": 1,
+      "message": "It would look ugly but should this be wrapped in the guard as well so we don\u0027t forget it when removing the guard later?",
+      "range": {
+        "startLine": 168,
+        "startChar": 53,
+        "endLine": 168,
+        "endChar": 82
+      },
+      "revId": "3fa2a42946b38978c3b6e7bbee10fe4312a24bd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
