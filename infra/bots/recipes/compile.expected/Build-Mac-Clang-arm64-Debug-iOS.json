@@ -97,6 +97,21 @@
     "cmd": [
       "python",
       "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/tmp"
+    ],
+    "infra_step": true,
+    "name": "makedirs tmp_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
       "[START_DIR]/cache/work/skia/bin/fetch-gn"
     ],
     "cwd": "[START_DIR]/cache/work/skia",

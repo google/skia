@@ -7,6 +7,7 @@
 
 DEPS = [
   'recipe_engine/context',
+  'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
@@ -21,7 +22,10 @@ DEPS = [
 
 def RunSteps(api):
   # Checkout, compile, etc.
-  api.core.setup()
+  api.vars.setup()
+  api.core.checkout_bot_update()
+  api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
+  api.flavor.setup()
 
   cwd = api.path['checkout']
 

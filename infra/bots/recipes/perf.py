@@ -324,7 +324,10 @@ def perf_steps(api):
 
 
 def RunSteps(api):
-  api.core.setup()
+  api.vars.setup()
+  api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
+  api.flavor.setup()
+
   env = {}
   if 'iOS' in api.vars.builder_name:
     env['IOS_BUNDLE_ID'] = 'com.google.nanobench'

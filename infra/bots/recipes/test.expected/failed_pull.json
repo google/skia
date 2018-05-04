@@ -1,6 +1,21 @@
 [
   {
     "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/tmp"
+    ],
+    "infra_step": true,
+    "name": "makedirs tmp_dir"
+  },
+  {
+    "cmd": [
       "/usr/bin/adb.1.0.35",
       "shell",
       "mkdir",
@@ -571,21 +586,6 @@
     },
     "infra_step": true,
     "name": "mkdir /sdcard/revenge_of_the_skiabot/dm_out"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[START_DIR]/tmp"
-    ],
-    "infra_step": true,
-    "name": "makedirs tmp_dir"
   },
   {
     "cmd": [

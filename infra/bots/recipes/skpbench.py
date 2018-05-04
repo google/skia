@@ -112,7 +112,10 @@ def skpbench_steps(api):
 
 
 def RunSteps(api):
-  api.core.setup()
+  api.vars.setup()
+  api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
+  api.flavor.setup()
+
   try:
     api.flavor.install(skps=True)
     skpbench_steps(api)
