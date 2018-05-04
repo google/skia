@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "634a7980_eda30d2d",
+        "filename": "infra/bots/assets/gcloud_linux/create_and_upload.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-04T22:09:21Z",
+      "side": 1,
+      "message": "nit: I\u0027m pretty sure \"with utils.tmp_dir()\" will take care of this.",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 48
+      },
+      "revId": "f7c0e952f307500695d4e9cc7cc6cb340342d549",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
