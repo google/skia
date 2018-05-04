@@ -212,13 +212,14 @@ cc_test {
 
 # We'll run GN to get the main source lists and include directories for Skia.
 gn_args = {
-  'is_official_build':  'true',
-  'skia_enable_tools':  'true',
-  'skia_use_libheif':   'true',
-  'skia_use_vulkan':    'true',
-  'target_cpu':         '"none"',
-  'target_os':          '"android"',
-  'skia_vulkan_header': '"Skia_Vulkan_Android.h"',
+  'is_official_build':   'true',
+  'skia_enable_tools':   'true',
+  'skia_enable_skottie': 'false', # requires rapidjson third-party
+  'skia_use_libheif':    'true',
+  'skia_use_vulkan':     'true',
+  'target_cpu':          '"none"',
+  'target_os':           '"android"',
+  'skia_vulkan_header':  '"Skia_Vulkan_Android.h"',
 }
 
 js = gn_to_bp_utils.GenerateJSONFromGN(gn_args)
