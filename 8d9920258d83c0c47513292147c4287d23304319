@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b3ce70fc_76df0d98",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 7831
+      },
+      "writtenOn": "2018-05-04T17:41:54Z",
+      "side": 1,
+      "message": "I think its still good to have an assert here, that the deviceDesc matches fDeviceDescriptor in the cache state.",
+      "range": {
+        "startLine": 481,
+        "startChar": 4,
+        "endLine": 481,
+        "endChar": 43
+      },
+      "revId": "8d9920258d83c0c47513292147c4287d23304319",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "060e962d_240611a1",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 7831
+      },
+      "writtenOn": "2018-05-04T17:41:54Z",
+      "side": 1,
+      "message": "newHandle",
+      "range": {
+        "startLine": 501,
+        "startChar": 15,
+        "endLine": 501,
+        "endChar": 16
+      },
+      "revId": "8d9920258d83c0c47513292147c4287d23304319",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

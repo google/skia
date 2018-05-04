@@ -94,6 +94,30 @@
       "revId": "01dee007e3130efe19c70ff1f24bbfbe7cb3f2d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58412edf_3855001c",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 7831
+      },
+      "writtenOn": "2018-05-04T17:41:54Z",
+      "side": 1,
+      "message": "Thanks for the explanation.",
+      "parentUuid": "096317a0_7baaf340",
+      "range": {
+        "startLine": 139,
+        "startChar": 41,
+        "endLine": 139,
+        "endChar": 55
+      },
+      "revId": "01dee007e3130efe19c70ff1f24bbfbe7cb3f2d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
