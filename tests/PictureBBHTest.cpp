@@ -105,3 +105,33 @@ DEF_TEST(RTreeMakeLargest, r) {
     bbh->insert(rects, SK_ARRAY_COUNT(rects));
     REPORTER_ASSERT(r, bbh->getRootBound() == SkRect::MakeWH(15,15));
 }
+
+DEF_TEST(PictureNegativeSpace, r) {
+    SkRTreeFactory factory;
+    SkPictureRecorder recorder;
+
+    SkRect cull = {-200,-200,+200,+200};
+
+    {
+        auto canvas = recorder.beginRecording(cull, &factory);
+            canvas->save();
+            canvas->clipRect(cull);
+            canvas->drawRect({-20,-20,-10,-10}, SkPaint{});
+            canvas->drawRect({-20,-20,-10,-10}, SkPaint{});
+            canvas->restore();
+        auto pic = recorder.finishRecordingAsPicture();
+        REPORTER_ASSERT(r, pic->approximateOpCount() == 5);
+        REPORTER_ASSERT(r, pic->cullRect() == (SkRect{-20,-20,-10,-10}));
+    }
+
+    // TODO: we should also get the same results without the explicit save/restore
+    if (0) {
+        auto canvas = recorder.beginRecording(cull, &factory);
+            canvas->clipRect(cull);
+            canvas->drawRect({-20,-20,-10,-10}, SkPaint{});
+            canvas->drawRect({-20,-20,-10,-10}, SkPaint{});
+        auto pic = recorder.finishRecordingAsPicture();
+        REPORTER_ASSERT(r, pic->approximateOpCount() == 3);
+        REPORTER_ASSERT(r, pic->cullRect() == (SkRect{-20,-20,-10,-10}));
+    }
+}
