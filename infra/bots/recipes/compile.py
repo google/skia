@@ -7,6 +7,7 @@
 
 
 DEPS = [
+  'build',
   'core',
   'recipe_engine/context',
   'recipe_engine/file',
@@ -16,7 +17,6 @@ DEPS = [
   'recipe_engine/properties',
   'recipe_engine/python',
   'recipe_engine/step',
-  'flavor',
   'run',
   'vars',
 ]
@@ -36,18 +36,16 @@ def RunSteps(api):
   else:
     api.core.checkout_bot_update()
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-  api.flavor.setup()
 
   build_targets = build_targets_from_builder_dict(api.vars.builder_cfg)
 
   try:
     for target in build_targets:
-      api.flavor.compile(target)
-    api.run.copy_build_products(
-        api.flavor.out_dir,
+      api.build(target)
+    api.build.copy_build_products(
+        api.build.out_dir,
         api.vars.swarming_out_dir.join(
             'out', api.vars.configuration))
-    api.flavor.copy_extra_build_products(api.vars.swarming_out_dir)
   finally:
     if 'Win' in api.vars.builder_cfg.get('os', ''):
       api.python.inline(
@@ -62,7 +60,6 @@ for p in psutil.process_iter():
 ''',
           infra_step=True)
 
-  api.flavor.cleanup_steps()
   api.run.check_failure()
 
 

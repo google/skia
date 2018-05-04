@@ -7,9 +7,9 @@ import math
 
 
 DEPS = [
+  'build',
   'core',
   'ct',
-  'flavor',
   'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/json',
@@ -84,17 +84,16 @@ def RunSteps(api):
   api.vars.setup()
   api.core.checkout_bot_update()
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-  api.flavor.setup()
 
-  api.flavor.compile(build_target)
+  api.build(build_target)
 
   # Required paths.
   infrabots_dir = api.vars.skia_dir.join('infra', 'bots')
   isolate_dir = infrabots_dir.join('ct')
   isolate_path = isolate_dir.join(CT_SKPS_ISOLATE)
 
-  api.run.copy_build_products(
-      api.flavor.out_dir,
+  api.build.copy_build_products(
+      api.build.out_dir,
       isolate_dir)
   api.skia_swarming.setup(
       infrabots_dir.join('tools', 'luci-go'),
