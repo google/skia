@@ -71,11 +71,6 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     with self.m.context(cwd=self.m.vars.skia_dir):
       return self.m.run(self.m.step, title, cmd=list(cmd), **kwargs)
 
-  def _py(self, title, script, infra_step=True):
-    with self.m.context(cwd=self.m.vars.skia_dir):
-      return self.m.run(self.m.python, title, script=script,
-                        infra_step=infra_step)
-
   def _adb(self, title, *cmd, **kwargs):
     # The only non-infra adb steps (dm / nanobench) happen to not use _adb().
     if 'infra_step' not in kwargs:
@@ -343,93 +338,6 @@ if actual_freq != str(freq):
         infra_step=True,
         timeout=30)
 
-  def compile(self, unused_target):
-    compiler      = self.m.vars.builder_cfg.get('compiler')
-    configuration = self.m.vars.builder_cfg.get('configuration')
-    extra_tokens  = self.m.vars.extra_tokens
-    os            = self.m.vars.builder_cfg.get('os')
-    target_arch   = self.m.vars.builder_cfg.get('target_arch')
-
-    assert compiler == 'Clang'  # At this rate we might not ever support GCC.
-
-    extra_cflags = []
-    if configuration == 'Debug':
-      extra_cflags.append('-O1')
-
-    ndk_asset = 'android_ndk_linux'
-    ndk_path = ndk_asset
-    if 'Mac' in os:
-      ndk_asset = 'android_ndk_darwin'
-      ndk_path = ndk_asset
-    elif 'Win' in os:
-      ndk_asset = 'android_ndk_windows'
-      ndk_path = 'n'
-
-    quote = lambda x: '"%s"' % x
-    args = {
-        'ndk': quote(self.m.vars.slave_dir.join(ndk_path)),
-        'target_cpu': quote(target_arch),
-    }
-    extra_cflags.append('-DDUMMY_ndk_version=%s' %
-                        self.m.run.asset_version(ndk_asset))
-
-    if configuration != 'Debug':
-      args['is_debug'] = 'false'
-    if 'Vulkan' in extra_tokens:
-      args['ndk_api'] = 24
-      args['skia_enable_vulkan_debug_layers'] = 'false'
-    if 'ASAN' in extra_tokens:
-      args['sanitize'] = '"ASAN"'
-      if target_arch == 'arm' and 'ndk_api' not in args:
-        args['ndk_api'] = 21
-
-    # If an Android API level is specified, use that.
-    for t in extra_tokens:
-      m = re.search(r'API(\d+)', t)
-      if m and len(m.groups()) == 1:
-        args['ndk_api'] = m.groups()[0]
-        break
-
-    if extra_cflags:
-      args['extra_cflags'] = repr(extra_cflags).replace("'", '"')
-
-    gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.iteritems()))
-    gn      = 'gn.exe'    if 'Win' in os else 'gn'
-    ninja   = 'ninja.exe' if 'Win' in os else 'ninja'
-    gn      = self.m.vars.skia_dir.join('bin', gn)
-
-    self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
-
-    # If this is the SkQP build, set up the environment and run the script
-    # to build the universal APK. This should only run the skqp branches.
-    if 'SKQP' in extra_tokens:
-      self.m.infra.update_go_deps()
-
-      output_binary = self.out_dir.join('run_testlab')
-      build_target = self.m.vars.skia_dir.join('infra', 'cts', 'run_testlab.go')
-      build_cmd = ['go', 'build', '-o', output_binary, build_target]
-      with self.m.context(env=self.m.infra.go_env):
-        self.m.run(self.m.step, 'build firebase runner', cmd=build_cmd)
-
-      # Build the APK.
-      ndk_asset = 'android_ndk_linux'
-      sdk_asset = 'android_sdk_linux'
-      android_ndk = self.m.vars.slave_dir.join(ndk_asset)
-      android_home = self.m.vars.slave_dir.join(sdk_asset, 'android-sdk')
-      env = {
-        'ANDROID_NDK': android_ndk,
-        'ANDROID_HOME': android_home,
-        'APK_OUTPUT_DIR': self.out_dir,
-      }
-
-      mk_universal = self.m.vars.skia_dir.join('tools', 'skqp',
-                                               'make_universal_apk')
-      with self.m.context(env=env):
-        self._run('make_universal', mk_universal)
-    else:
-      self._run('gn gen', gn, 'gen', self.out_dir, '--args=' + gn_args)
-      self._run('ninja', ninja, '-k', '0', '-C', self.out_dir)
-
   def install(self):
     self._adb('mkdir ' + self.device_dirs.resource_dir,
               'shell', 'mkdir', '-p', self.device_dirs.resource_dir)
@@ -606,8 +514,3 @@ wait_for_device()
   def create_clean_device_dir(self, path):
     self._adb('rm %s' % path, 'shell', 'rm', '-rf', path)
     self._adb('mkdir %s' % path, 'shell', 'mkdir', '-p', path)
-
-  def copy_extra_build_products(self, swarming_out_dir):
-    if 'SKQP' in self.m.vars.extra_tokens:
-      wlist =self.m.vars.skia_dir.join('infra','cts', 'whitelist_devices.json')
-      self.m.file.copy('copy whitelist', wlist, swarming_out_dir)
