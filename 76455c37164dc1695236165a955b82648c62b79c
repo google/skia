@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ef2c59a_bc399544",
+        "filename": "include/core/SkTypeface.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-04T19:26:15Z",
+      "side": 1,
+      "message": "SkGlyphID, it\u0027s the same type, just somewhat more descriptive.",
+      "range": {
+        "startLine": 158,
+        "startChar": 71,
+        "endLine": 158,
+        "endChar": 79
+      },
+      "revId": "76455c37164dc1695236165a955b82648c62b79c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "203b6d03_4650f26d",
+        "filename": "include/core/SkTypeface.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-04T19:26:15Z",
+      "side": 1,
+      "message": "SkGlyphID",
+      "range": {
+        "startLine": 163,
+        "startChar": 4,
+        "endLine": 163,
+        "endChar": 12
+      },
+      "revId": "76455c37164dc1695236165a955b82648c62b79c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "780fa26f_71fedb83",
+        "filename": "include/core/SkTypeface.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-04T19:26:15Z",
+      "side": 1,
+      "message": "SkUnichar",
+      "range": {
+        "startLine": 163,
+        "startChar": 30,
+        "endLine": 163,
+        "endChar": 38
+      },
+      "revId": "76455c37164dc1695236165a955b82648c62b79c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cef246b_a546c4b6",
+        "filename": "src/core/SkTypeface.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-04T19:26:15Z",
+      "side": 1,
+      "message": "SkUnichar",
+      "range": {
+        "startLine": 36,
+        "startChar": 15,
+        "endLine": 36,
+        "endChar": 23
+      },
+      "revId": "76455c37164dc1695236165a955b82648c62b79c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad2a05db_93d710e8",
+        "filename": "src/core/SkTypeface.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-04T19:26:15Z",
+      "side": 1,
+      "message": "SkGlyphID",
+      "range": {
+        "startLine": 36,
+        "startChar": 25,
+        "endLine": 36,
+        "endChar": 33
+      },
+      "revId": "76455c37164dc1695236165a955b82648c62b79c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa570818_d9e5ccbe",
+        "filename": "src/core/SkTypeface.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-04T19:26:15Z",
+      "side": 1,
+      "message": "It seems awkward that this is public but doesn\u0027t use (even opportunistically) the cache.",
+      "range": {
+        "startLine": 289,
+        "startChar": 21,
+        "endLine": 289,
+        "endChar": 37
+      },
+      "revId": "76455c37164dc1695236165a955b82648c62b79c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed2e4b59_e1def1f3",
+        "filename": "src/core/SkTypeface.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-04T19:26:15Z",
+      "side": 1,
+      "message": "why not directly call onCharsToGlyphs here?",
+      "range": {
+        "startLine": 462,
+        "startChar": 35,
+        "endLine": 462,
+        "endChar": 51
+      },
+      "revId": "76455c37164dc1695236165a955b82648c62b79c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
