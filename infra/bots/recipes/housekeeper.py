@@ -10,7 +10,9 @@ import calendar
 
 
 DEPS = [
+  'core',
   'depot_tools/bot_update',
+  'flavor',
   'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/path',
@@ -18,7 +20,6 @@ DEPS = [
   'recipe_engine/python',
   'recipe_engine/step',
   'recipe_engine/time',
-  'core',
   'run',
   'vars',
 ]
@@ -26,7 +27,10 @@ DEPS = [
 
 def RunSteps(api):
   # Checkout, compile, etc.
-  api.core.setup()
+  api.vars.setup()
+  api.core.checkout_bot_update()
+  api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
+  api.flavor.setup()
 
   cwd = api.path['checkout']
 

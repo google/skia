@@ -1,6 +1,21 @@
 [
   {
     "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/tmp"
+    ],
+    "infra_step": true,
+    "name": "makedirs tmp_dir"
+  },
+  {
+    "cmd": [
       "ios.py"
     ],
     "env": {
@@ -537,25 +552,6 @@
     },
     "infra_step": true,
     "name": "mkdir dm"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[START_DIR]/tmp"
-    ],
-    "env": {
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
-    },
-    "infra_step": true,
-    "name": "makedirs tmp_dir"
   },
   {
     "cmd": [
