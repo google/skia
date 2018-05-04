@@ -9,6 +9,7 @@
 DEPS = [
   'core',
   'recipe_engine/context',
+  'recipe_engine/file',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/platform',
@@ -27,10 +28,18 @@ def build_targets_from_builder_dict(builder_dict):
 
 
 def RunSteps(api):
-  bot_update=True
+  api.vars.setup()
+
+  # Check out code.
   if 'NoDEPS' in api.properties['buildername']:
-    bot_update = False
-  api.core.setup(bot_update=bot_update)
+    api.core.checkout_git()
+  else:
+    api.core.checkout_bot_update()
+  if not api.path.exists(api.vars.tmp_dir):
+    api.run.run_once(api.file.ensure_directory,
+                     'makedirs tmp_dir',
+                     api.vars.tmp_dir)
+  api.flavor.setup()
 
   build_targets = build_targets_from_builder_dict(api.vars.builder_cfg)
 
@@ -171,4 +180,13 @@ def GenTests(api):
       api.path.exists(
           api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
       )
+  )
+
+  yield (
+      api.test('tmp_not_exist') +
+      api.properties(buildername=buildername,
+                     repository='https://skia.googlesource.com/other_repo.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]')
   )
