@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "f7e06fde_3a406765",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1416,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-05-04T16:12:27Z",
+      "side": 1,
+      "message": "do we need this if() here AND on line 1625?",
+      "revId": "cdeb272ddc85d06be6d3fae4926b9af3f6f5cddd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fbb7a6ef_ec807a2a",
         "filename": "gn/gn_to_bp.py",
         "patchSetId": 1
