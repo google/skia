@@ -11,6 +11,7 @@
 
 import argparse
 import common
+import shutil
 import os
 import subprocess
 import sys
@@ -24,18 +25,22 @@ def main():
 
   with utils.tmp_dir():
     cwd = os.getcwd()
+    workdir = os.path.join(cwd, "workdir")
     create_script = os.path.join(common.FILE_DIR, 'create.py')
     upload_script = os.path.join(common.FILE_DIR, 'upload.py')
 
     try:
-      subprocess.check_call(['python', create_script, '-t', cwd])
-      cmd = ['python', upload_script, '-t', cwd]
+      os.mkdir(workdir)
+      subprocess.check_call(['python', create_script, '-t', workdir])
+      cmd = ['python', upload_script, '-t', workdir]
       if args.gsutil:
         cmd.extend(['--gsutil', args.gsutil])
       subprocess.check_call(cmd)
     except subprocess.CalledProcessError:
       # Trap exceptions to avoid printing two stacktraces.
       sys.exit(1)
+    finally:
+      shutil.rmtree(workdir, ignore_errors=True)
 
 if __name__ == '__main__':
   main()
