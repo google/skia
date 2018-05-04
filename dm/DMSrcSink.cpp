@@ -60,7 +60,7 @@
     #include <XpsObjectModel.h>
 #endif
 
-#if !defined(SK_BUILD_FOR_GOOGLE3)
+#if defined(SK_ENABLE_SKOTTIE)
     #include "Skottie.h"
 #endif
 
@@ -1201,7 +1201,7 @@ Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-#if !defined(SK_BUILD_FOR_GOOGLE3)
+#if defined(SK_ENABLE_SKOTTIE)
 SkottieSrc::SkottieSrc(Path path)
     : fName(SkOSPath::Basename(path.c_str())) {
 
