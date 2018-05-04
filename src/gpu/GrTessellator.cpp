@@ -94,9 +94,7 @@
 namespace {
 
 const int kArenaChunkSize = 16 * 1024;
-#ifndef GR_TESSELLATOR_LEGACY_INVERSION_HANDLING
 const float kCosMiterAngle = 0.97f; // Corresponds to an angle of ~14 degrees.
-#endif
 
 struct Vertex;
 struct Edge;
@@ -480,7 +478,6 @@ struct EdgeList {
     }
 };
 
-#ifndef GR_TESSELLATOR_LEGACY_INVERSION_HANDLING
 struct Event {
     Event(Edge* edge, const SkPoint& point, uint8_t alpha)
       : fEdge(edge), fPoint(point), fAlpha(alpha), fPrev(nullptr), fNext(nullptr) {
@@ -511,7 +508,6 @@ void create_event(Edge* e, EventList* events, SkArenaAlloc& alloc) {
         events->insert(e->fEvent);
     }
 }
-#endif
 
 /***************************************************************************************/
 
@@ -1135,19 +1131,6 @@ void merge_vertices(Vertex* src, Vertex* dst, VertexList* mesh, Comparator& c,
     mesh->remove(src);
 }
 
-#ifdef GR_TESSELLATOR_LEGACY_INVERSION_HANDLING
-uint8_t max_edge_alpha(Edge* a, Edge* b) {
-    if (a->fType == Edge::Type::kInner || b->fType == Edge::Type::kInner) {
-        return 255;
-    } else if (a->fType == Edge::Type::kOuter && b->fType == Edge::Type::kOuter) {
-        return 0;
-    } else {
-        return SkTMax(SkTMax(a->fTop->fAlpha, a->fBottom->fAlpha),
-                      SkTMax(b->fTop->fAlpha, b->fBottom->fAlpha));
-    }
-}
-#endif
-
 bool out_of_range_and_collinear(const SkPoint& p, Edge* edge, Comparator& c) {
     if (c.sweep_lt(p, edge->fTop->fPoint) &&
         !Line(p, edge->fBottom->fPoint).dist(edge->fTop->fPoint)) {
@@ -1223,7 +1206,6 @@ bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vert
             v = other->fBottom;
         } else {
             v = create_sorted_vertex(p, alpha, mesh, top, c, alloc);
-#ifndef GR_TESSELLATOR_LEGACY_INVERSION_HANDLING
             if (edge->fTop->fPartner) {
                 Line line1 = edge->fLine;
                 Line line2 = other->fLine;
@@ -1237,7 +1219,6 @@ bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vert
                     v->fPartner = alloc.make<Vertex>(p, 255 - v->fAlpha);
                 }
             }
-#endif
         }
         rewind(activeEdges, current, top ? top : v, c);
         split_edge(edge, v, activeEdges, current, c, alloc);
@@ -1445,14 +1426,6 @@ bool simplify(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
             }
             found = found || restartChecks;
         } while (restartChecks);
-#ifdef GR_TESSELLATOR_LEGACY_INVERSION_HANDLING
-        if (v->fAlpha == 0) {
-            if ((leftEnclosingEdge && leftEnclosingEdge->fWinding < 0) &&
-                (rightEnclosingEdge && rightEnclosingEdge->fWinding > 0)) {
-                v->fAlpha = max_edge_alpha(leftEnclosingEdge, rightEnclosingEdge);
-            }
-        }
-#endif
         for (Edge* e = v->fFirstEdgeAbove; e; e = e->fNextEdgeAbove) {
             remove_edge(e, &activeEdges);
         }
@@ -1465,50 +1438,6 @@ bool simplify(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
     SkASSERT(!activeEdges.fHead && !activeEdges.fTail);
     return found;
 }
-
-#ifdef GR_TESSELLATOR_LEGACY_INVERSION_HANDLING
-// This is a stripped-down version of simplify() (the Bentley-Ottmann algorithm) that
-// early-returns true on the first found intersection, false if none.
-bool is_complex(const VertexList& vertices) {
-    LOG("testing polygon complexity\n");
-    EdgeList activeEdges;
-    for (Vertex* v = vertices.fHead; v != nullptr; v = v->fNext) {
-        if (!v->fFirstEdgeAbove && !v->fFirstEdgeBelow) {
-            continue;
-        }
-        Edge* leftEnclosingEdge;
-        Edge* rightEnclosingEdge;
-        find_enclosing_edges(v, &activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
-        SkPoint dummy;
-        if (v->fFirstEdgeBelow) {
-            for (Edge* edge = v->fFirstEdgeBelow; edge; edge = edge->fNextEdgeBelow) {
-                if (edge && leftEnclosingEdge && edge->intersect(*leftEnclosingEdge, &dummy)) {
-                    activeEdges.removeAll();
-                    return true;
-                }
-                if (edge && rightEnclosingEdge && edge->intersect(*rightEnclosingEdge, &dummy)) {
-                    activeEdges.removeAll();
-                    return true;
-                }
-            }
-        } else if (leftEnclosingEdge && rightEnclosingEdge &&
-                   leftEnclosingEdge->intersect(*rightEnclosingEdge, &dummy)) {
-            activeEdges.removeAll();
-            return true;
-        }
-        for (Edge* e = v->fFirstEdgeAbove; e; e = e->fNextEdgeAbove) {
-            remove_edge(e, &activeEdges);
-        }
-        Edge* leftEdge = leftEnclosingEdge;
-        for (Edge* e = v->fFirstEdgeBelow; e; e = e->fNextEdgeBelow) {
-            insert_edge(e, leftEdge, &activeEdges);
-            leftEdge = e;
-        }
-    }
-    activeEdges.removeAll();
-    return false;
-}
-#endif
 
 // Stage 5: Tessellate the simplified mesh into monotone polygons.
 
@@ -1655,16 +1584,10 @@ void remove_non_boundary_edges(const VertexList& mesh, SkPath::FillType fillType
 
 // Note: this is the normal to the edge, but not necessarily unit length.
 void get_edge_normal(const Edge* e, SkVector* normal) {
-#ifdef GR_TESSELLATOR_LEGACY_INVERSION_HANDLING
-    normal->set(SkDoubleToScalar(e->fLine.fA) * e->fWinding,
-                SkDoubleToScalar(e->fLine.fB) * e->fWinding);
-#else
     normal->set(SkDoubleToScalar(e->fLine.fA),
                 SkDoubleToScalar(e->fLine.fB));
-#endif
 }
 
-#ifndef GR_TESSELLATOR_LEGACY_INVERSION_HANDLING
 void reconnect(Edge* edge, Vertex* src, Vertex* dst, Comparator& c) {
     disconnect(edge);
     if (src == edge->fTop) {
@@ -1688,7 +1611,6 @@ void reconnect(Edge* edge, Vertex* src, Vertex* dst, Comparator& c) {
     insert_edge_above(edge, edge->fBottom, c);
     merge_collinear_edges(edge, nullptr, nullptr, c);
 }
-#endif
 
 // Stage 5c: detect and remove "pointy" vertices whose edge normals point in opposite directions
 // and whose adjacent vertices are less than a quarter pixel from an edge. These are guaranteed to
@@ -1704,19 +1626,13 @@ void simplify_boundary(EdgeList* boundary, Comparator& c, SkArenaAlloc& alloc) {
         double dist = e->dist(prev->fPoint);
         SkVector normal;
         get_edge_normal(e, &normal);
-#ifdef GR_TESSELLATOR_LEGACY_INVERSION_HANDLING
-        double denom = 0.0625f * e->fLine.magSq();
-#else
         double denom = 0.0625f;
-#endif
         if (prevNormal.dot(normal) < 0.0 && (dist * dist) <= denom) {
             Edge* join = new_edge(prev, next, Edge::Type::kInner, c, alloc);
-#ifndef GR_TESSELLATOR_LEGACY_INVERSION_HANDLING
             if (prev->fPoint != next->fPoint) {
                 join->fLine.normalize();
                 join->fLine = join->fLine * join->fWinding;
             }
-#endif
             insert_edge(join, e, boundary);
             remove_edge(prevEdge, boundary);
             remove_edge(e, boundary);
@@ -1736,21 +1652,6 @@ void simplify_boundary(EdgeList* boundary, Comparator& c, SkArenaAlloc& alloc) {
     }
 }
 
-#ifdef GR_TESSELLATOR_LEGACY_INVERSION_HANDLING
-void fix_inversions(Vertex* prev, Vertex* next, Edge* prevBisector, Edge* nextBisector,
-                    Edge* prevEdge, Comparator& c) {
-    if (!prev || !next) {
-        return;
-    }
-    int winding = c.sweep_lt(prev->fPoint, next->fPoint) ? 1 : -1;
-    SkPoint p;
-    uint8_t alpha;
-    if (winding != prevEdge->fWinding && prevBisector->intersect(*nextBisector, &p, &alpha)) {
-        prev->fPoint = next->fPoint = p;
-        prev->fAlpha = next->fAlpha = alpha;
-    }
-}
-#else
 void reconnect_all_overlap_edges(Vertex* src, Vertex* dst, Edge* current, Comparator& c) {
     if (src->fPartner) {
         src->fPartner->fPartner = dst;
@@ -1857,80 +1758,11 @@ bool inversion(Vertex* prev, Vertex* next, Edge* origEdge, Comparator& c) {
     int winding = c.sweep_lt(prev->fPoint, next->fPoint) ? 1 : -1;
     return winding != origEdge->fWinding;
 }
-#endif
 
 // Stage 5d: Displace edges by half a pixel inward and outward along their normals. Intersect to
 // find new vertices, and set zero alpha on the exterior and one alpha on the interior. Build a
 // new antialiased mesh from those vertices.
 
-#ifdef GR_TESSELLATOR_LEGACY_INVERSION_HANDLING
-void stroke_boundary(EdgeList* boundary, VertexList* innerMesh, VertexList* outerMesh,
-                     Comparator& c, SkArenaAlloc& alloc) {
-    // A boundary with fewer than 3 edges is degenerate.
-    if (!boundary->fHead || !boundary->fHead->fRight || !boundary->fHead->fRight->fRight) {
-        return;
-    }
-    Edge* prevEdge = boundary->fTail;
-    float radius = 0.5f;
-    double offset = radius * sqrt(prevEdge->fLine.magSq()) * prevEdge->fWinding;
-    Line prevInner(prevEdge->fLine);
-    prevInner.fC -= offset;
-    Line prevOuter(prevEdge->fLine);
-    prevOuter.fC += offset;
-    VertexList innerVertices;
-    VertexList outerVertices;
-    Edge* prevBisector = nullptr;
-    for (Edge* e = boundary->fHead; e != nullptr; e = e->fRight) {
-        double offset = radius * sqrt(e->fLine.magSq()) * e->fWinding;
-        Line inner(e->fLine);
-        inner.fC -= offset;
-        Line outer(e->fLine);
-        outer.fC += offset;
-        SkPoint innerPoint, outerPoint;
-        if (prevInner.intersect(inner, &innerPoint) &&
-            prevOuter.intersect(outer, &outerPoint)) {
-            Vertex* innerVertex = alloc.make<Vertex>(innerPoint, 255);
-            Vertex* outerVertex = alloc.make<Vertex>(outerPoint, 0);
-            Edge* bisector = new_edge(outerVertex, innerVertex, Edge::Type::kConnector, c, alloc);
-            fix_inversions(innerVertices.fTail, innerVertex, prevBisector, bisector, prevEdge, c);
-            fix_inversions(outerVertices.fTail, outerVertex, prevBisector, bisector, prevEdge, c);
-            innerVertex->fPartner = outerVertex;
-            outerVertex->fPartner = innerVertex;
-            innerVertices.append(innerVertex);
-            outerVertices.append(outerVertex);
-            prevBisector = bisector;
-        }
-        prevInner = inner;
-        prevOuter = outer;
-        prevEdge = e;
-    }
-
-    Vertex* innerVertex = innerVertices.fHead;
-    Vertex* outerVertex = outerVertices.fHead;
-    if (!innerVertex || !outerVertex) {
-        return;
-    }
-    Edge* bisector = new_edge(outerVertices.fHead, innerVertices.fHead, Edge::Type::kConnector, c,
-                              alloc);
-    fix_inversions(innerVertices.fTail, innerVertices.fHead, prevBisector, bisector, prevEdge, c);
-    fix_inversions(outerVertices.fTail, outerVertices.fHead, prevBisector, bisector, prevEdge, c);
-    Vertex* prevInnerVertex = innerVertices.fTail;
-    Vertex* prevOuterVertex = outerVertices.fTail;
-    while (innerVertex && outerVertex) {
-        // Connect vertices into a quad mesh. Outer edges get default (1) winding.
-        // Inner edges get -2 winding. This ensures that the interior is always filled
-        // (-1 winding number for normal cases, 3 for thin features where the interior inverts).
-        connect(prevOuterVertex, outerVertex, Edge::Type::kOuter, c, alloc);
-        connect(prevInnerVertex, innerVertex, Edge::Type::kInner, c, alloc, -2);
-        prevInnerVertex = innerVertex;
-        prevOuterVertex = outerVertex;
-        innerVertex = innerVertex->fNext;
-        outerVertex = outerVertex->fNext;
-    }
-    innerMesh->append(innerVertices);
-    outerMesh->append(outerVertices);
-}
-#else
 void stroke_boundary(EdgeList* boundary, VertexList* innerMesh, VertexList* outerMesh,
                      Comparator& c, SkArenaAlloc& alloc) {
     LOG("\nstroking boundary\n");
@@ -2088,7 +1920,6 @@ void stroke_boundary(EdgeList* boundary, VertexList* innerMesh, VertexList* oute
     innerMesh->append(innerVertices);
     outerMesh->append(outerVertices);
 }
-#endif
 
 void extract_boundary(EdgeList* boundary, Edge* e, SkPath::FillType fillType, SkArenaAlloc& alloc) {
     LOG("\nextracting boundary\n");
@@ -2096,10 +1927,8 @@ void extract_boundary(EdgeList* boundary, Edge* e, SkPath::FillType fillType, Sk
     while (e) {
         e->fWinding = down ? 1 : -1;
         Edge* next;
-#ifndef GR_TESSELLATOR_LEGACY_INVERSION_HANDLING
         e->fLine.normalize();
         e->fLine = e->fLine * e->fWinding;
-#endif
         boundary->append(e);
         if (down) {
             // Find outgoing edge, in clockwise order.
@@ -2193,9 +2022,6 @@ Poly* contours_to_polys(VertexList* contours, int contourCnt, SkPath::FillType f
         extract_boundaries(mesh, &innerMesh, outerMesh, fillType, c, alloc);
         sort_mesh(&innerMesh, c, alloc);
         sort_mesh(outerMesh, c, alloc);
-#ifdef GR_TESSELLATOR_LEGACY_INVERSION_HANDLING
-        if (is_complex(innerMesh) || is_complex(*outerMesh)) {
-#else
         merge_coincident_vertices(&innerMesh, c, alloc);
         bool was_complex = merge_coincident_vertices(outerMesh, c, alloc);
         was_complex = simplify(&innerMesh, c, alloc) || was_complex;
@@ -2207,7 +2033,6 @@ Poly* contours_to_polys(VertexList* contours, int contourCnt, SkPath::FillType f
         was_complex = collapse_overlap_regions(&innerMesh, c, alloc) || was_complex;
         was_complex = collapse_overlap_regions(outerMesh, c, alloc) || was_complex;
         if (was_complex) {
-#endif
             LOG("found complex mesh; taking slow path\n");
             VertexList aaMesh;
             LOG("\ninner mesh after:\n");
@@ -2224,9 +2049,6 @@ Poly* contours_to_polys(VertexList* contours, int contourCnt, SkPath::FillType f
             return tessellate(aaMesh, alloc);
         } else {
             LOG("no complex polygons; taking fast path\n");
-#ifdef GR_TESSELLATOR_LEGACY_INVERSION_HANDLING
-            merge_coincident_vertices(&innerMesh, c, alloc);
-#endif
             return tessellate(innerMesh, alloc);
         }
     } else {
