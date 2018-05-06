@@ -143,6 +143,10 @@ static inline SkBitmap* AsBitmap(sk_bitmap_t* cbitmap) {
     return reinterpret_cast<SkBitmap*>(cbitmap);
 }
 
+static inline SkBitmap& AsBitmap(sk_bitmap_t& cbitmap) {
+    return reinterpret_cast<SkBitmap&>(cbitmap);
+}
+
 static inline const SkPixmap* AsPixmap(const sk_pixmap_t* cpixmap) {
     return reinterpret_cast<const SkPixmap*>(cpixmap);
 }

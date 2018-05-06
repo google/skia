@@ -366,3 +366,8 @@ void sk_bitmap_notify_pixels_changed(sk_bitmap_t* cbitmap)
 {
     AsBitmap(cbitmap)->notifyPixelsChanged();
 }
+
+void sk_bitmap_swap(sk_bitmap_t* cbitmap, sk_bitmap_t* cother)
+{
+    AsBitmap(cbitmap)->swap(AsBitmap(*cother));
+}
