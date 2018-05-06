@@ -179,20 +179,4 @@ private:
     typedef SkBaseDevice INHERITED;
 };
 
-class SkBitmapDeviceFilteredSurfaceProps {
-public:
-    SkBitmapDeviceFilteredSurfaceProps(const SkBitmap& bitmap, const SkPaint& paint,
-                                       const SkSurfaceProps& surfaceProps)
-        : fSurfaceProps((kN32_SkColorType != bitmap.colorType() || !paint.isSrcOver())
-                        ? fLazy.init(surfaceProps.flags(), kUnknown_SkPixelGeometry)
-                        : &surfaceProps)
-    { }
-
-    const SkSurfaceProps& operator()() const { return *fSurfaceProps; }
-
-private:
-    SkTLazy<SkSurfaceProps> fLazy;
-    SkSurfaceProps const * const fSurfaceProps;
-};
-
 #endif // SkBitmapDevice_DEFINED
