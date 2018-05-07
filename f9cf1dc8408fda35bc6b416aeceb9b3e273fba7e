@@ -140,6 +140,30 @@
       "revId": "f9cf1dc8408fda35bc6b416aeceb9b3e273fba7e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9bc7b992_4e165d9d",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-07T19:01:26Z",
+      "side": 1,
+      "message": "That was a fine reason when this test was part of getAdvancedMetrics which was a semi private thing only for PDF. Now that this is quite public the test needs to be generic. If we\u0027re not making this call generic then we should hide this method.",
+      "parentUuid": "04a14967_5efe6f66",
+      "range": {
+        "startLine": 622,
+        "startChar": 16,
+        "endLine": 622,
+        "endChar": 62
+      },
+      "revId": "f9cf1dc8408fda35bc6b416aeceb9b3e273fba7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "53c7330e_c366bd4f",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-07T19:01:26Z",
+      "side": 1,
+      "message": "I\u0027m still unsure why this test is here. If PDF only wants this information in the case where the font is Type1, then it should look at the type it got back from getAdvancedMetrics and conditionally call this method.",
+      "range": {
+        "startLine": 622,
+        "startChar": 16,
+        "endLine": 622,
+        "endChar": 77
+      },
+      "revId": "cf3b5fd8d3569c37b12fc43acc0598ba4fc1a044",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
