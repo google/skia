@@ -6,8 +6,6 @@
 // DO NOT EDIT!
 
 #define GPU_DRIVER_BUG_WORKAROUNDS(GPU_OP)\
-  GPU_OP(AVOID_STENCIL_BUFFERS,       \
-         avoid_stencil_buffers)       \
-  GPU_OP(CLEAR_TO_ZERO_OR_ONE_BROKEN, \
-         clear_to_zero_or_one_broken) \
+  GPU_OP(MAX_TEXTURE_SIZE_LIMIT_4096, \
+         max_texture_size_limit_4096) \
 // The End

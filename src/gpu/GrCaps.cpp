@@ -96,6 +96,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fPreferVRAMUseOverFlushes = true;
 
     fDriverBugWorkarounds = options.fDriverBugWorkarounds;
+    applyDriverBugWorkaroundsToCaps();
 }
 
 void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
@@ -127,6 +128,7 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     fAvoidStencilBuffers = options.fAvoidStencilBuffers;
 
     fDriverBugWorkarounds.applyOverrides(options.fDriverBugWorkarounds);
+    applyDriverBugWorkaroundsToCaps();
 }
 
 static SkString map_flags_to_string(uint32_t flags) {
@@ -263,4 +265,10 @@ bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrMipMapped mipped) 
     }
 
     return true;
+}
+
+
+void GrCaps::applyDriverBugWorkaroundsToCaps() {
+    if (fDriverBugWorkarounds.max_texture_size_limit_4096)
+        fMaxTextureSize = SkTMin(fMaxTextureSize, 4096);
 }
