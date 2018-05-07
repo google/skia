@@ -34,6 +34,24 @@
       "revId": "117d708fa0f1978ef31a8915596c82bcfacbaf0f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b475afae_7842d9eb",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-07T15:22:38Z",
+      "side": 1,
+      "message": "Yeah, that sgtm.  That or a Debug version.",
+      "parentUuid": "71cac611_a7114624",
+      "revId": "117d708fa0f1978ef31a8915596c82bcfacbaf0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
