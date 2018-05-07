@@ -242,6 +242,7 @@ static int gather_lines_and_quads(const SkPath& path,
                                   const SkMatrix& m,
                                   const SkIRect& devClipBounds,
                                   SkScalar capLength,
+                                  bool convertConicsToQuads,
                                   GrAAHairLinePathRenderer::PtArray* lines,
                                   GrAAHairLinePathRenderer::PtArray* quads,
                                   GrAAHairLinePathRenderer::PtArray* conics,
@@ -267,44 +268,80 @@ static int gather_lines_and_quads(const SkPath& path,
         SkPoint devPts[4];
         SkPath::Verb verb = iter.next(pathPts, false);
         switch (verb) {
-            case SkPath::kConic_Verb: {
-                SkConic dst[4];
-                // We chop the conics to create tighter clipping to hide error
-                // that appears near max curvature of very thin conics. Thin
-                // hyperbolas with high weight still show error.
-                int conicCnt = chop_conic(pathPts, dst, iter.conicWeight());
-                for (int i = 0; i < conicCnt; ++i) {
-                    SkPoint* chopPnts = dst[i].fPts;
-                    m.mapPoints(devPts, chopPnts, 3);
-                    bounds.setBounds(devPts, 3);
-                    bounds.outset(SK_Scalar1, SK_Scalar1);
-                    bounds.roundOut(&ibounds);
-                    if (SkIRect::Intersects(devClipBounds, ibounds)) {
-                        if (is_degen_quad_or_conic(devPts)) {
-                            SkPoint* pts = lines->push_back_n(4);
-                            pts[0] = devPts[0];
-                            pts[1] = devPts[1];
-                            pts[2] = devPts[1];
-                            pts[3] = devPts[2];
-                            if (verbsInContour == 0 && i == 0 &&
+            case SkPath::kConic_Verb:
+                if (convertConicsToQuads) {
+                    SkScalar weight = iter.conicWeight();
+                    SkAutoConicToQuads converter;
+                    const SkPoint* quadPts = converter.computeQuads(pathPts, weight, 0.5f);
+                    for (int i = 0; i < converter.countQuads(); ++i) {
+                        m.mapPoints(devPts, quadPts + 2 * i, 3);
+                        bounds.setBounds(devPts, 3);
+                        bounds.outset(SK_Scalar1, SK_Scalar1);
+                        bounds.roundOut(&ibounds);
+                        if (SkIRect::Intersects(devClipBounds, ibounds)) {
+                            int subdiv = num_quad_subdivs(devPts);
+                            SkASSERT(subdiv >= -1);
+                            if (-1 == subdiv) {
+                                SkPoint* pts = lines->push_back_n(4);
+                                pts[0] = devPts[0];
+                                pts[1] = devPts[1];
+                                pts[2] = devPts[1];
+                                pts[3] = devPts[2];
+                                if (verbsInContour == 0 && i == 0 &&
                                     pts[0] == pts[1] && pts[2] == pts[3]) {
-                                seenZeroLengthVerb = true;
-                                zeroVerbPt = pts[0];
+                                    seenZeroLengthVerb = true;
+                                    zeroVerbPt = pts[0];
+                                }
+                            } else {
+                                // when in perspective keep quads in src space
+                                const SkPoint* qPts = persp ? quadPts + 2 * i : devPts;
+                                SkPoint* pts = quads->push_back_n(3);
+                                pts[0] = qPts[0];
+                                pts[1] = qPts[1];
+                                pts[2] = qPts[2];
+                                quadSubdivCnts->push_back() = subdiv;
+                                totalQuadCount += 1 << subdiv;
                             }
-                        } else {
-                            // when in perspective keep conics in src space
-                            SkPoint* cPts = persp ? chopPnts : devPts;
-                            SkPoint* pts = conics->push_back_n(3);
-                            pts[0] = cPts[0];
-                            pts[1] = cPts[1];
-                            pts[2] = cPts[2];
-                            conicWeights->push_back() = dst[i].fW;
                         }
                     }
+                } else {
+                    SkConic dst[4];
+                    // We chop the conics to create tighter clipping to hide error
+                    // that appears near max curvature of very thin conics. Thin
+                    // hyperbolas with high weight still show error.
+                    int conicCnt = chop_conic(pathPts, dst, iter.conicWeight());
+                    for (int i = 0; i < conicCnt; ++i) {
+                        SkPoint* chopPnts = dst[i].fPts;
+                        m.mapPoints(devPts, chopPnts, 3);
+                        bounds.setBounds(devPts, 3);
+                        bounds.outset(SK_Scalar1, SK_Scalar1);
+                        bounds.roundOut(&ibounds);
+                        if (SkIRect::Intersects(devClipBounds, ibounds)) {
+                            if (is_degen_quad_or_conic(devPts)) {
+                                SkPoint* pts = lines->push_back_n(4);
+                                pts[0] = devPts[0];
+                                pts[1] = devPts[1];
+                                pts[2] = devPts[1];
+                                pts[3] = devPts[2];
+                                if (verbsInContour == 0 && i == 0 && pts[0] == pts[1] &&
+                                    pts[2] == pts[3]) {
+                                    seenZeroLengthVerb = true;
+                                    zeroVerbPt = pts[0];
+                                }
+                            } else {
+                                // when in perspective keep conics in src space
+                                SkPoint* cPts = persp ? chopPnts : devPts;
+                                SkPoint* pts = conics->push_back_n(3);
+                                pts[0] = cPts[0];
+                                pts[1] = cPts[1];
+                                pts[2] = cPts[2];
+                                conicWeights->push_back() = dst[i].fW;
+                            }
+                        }
+                    }
+                    verbsInContour++;
                 }
-                verbsInContour++;
                 break;
-            }
             case SkPath::kMove_Verb:
                 // New contour (and last one was unclosed). If it was just a zero length drawing
                 // operation, and we're supposed to draw caps, then add a tiny line.
@@ -924,11 +961,12 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
     int quadCount = 0;
 
     int instanceCount = fPaths.count();
+    bool convertConicsToQuads = !target->caps().shaderCaps()->floatIs32Bits();
     for (int i = 0; i < instanceCount; i++) {
         const PathData& args = fPaths[i];
         quadCount += gather_lines_and_quads(args.fPath, args.fViewMatrix, args.fDevClipBounds,
-                                            args.fCapLength, &lines, &quads, &conics, &qSubdivs,
-                                            &cWeights);
+                                            args.fCapLength, convertConicsToQuads, &lines, &quads,
+                                            &conics, &qSubdivs, &cWeights);
     }
 
     int lineCount = lines.count() / 2;
