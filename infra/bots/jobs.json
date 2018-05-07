@@ -402,6 +402,7 @@
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SafeStack",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SwiftShader",
+  "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-T8888",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-Shard_12-Coverage",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-ASAN",
