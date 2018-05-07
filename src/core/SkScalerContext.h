@@ -54,7 +54,11 @@ enum SkAxisAlignment {
 /*
  *  To allow this to be forward-declared, it must be its own typename, rather
  *  than a nested struct inside SkScalerContext (where it started).
+ *
+ *  SkScalerContextRec must be dense, and all bytes must be set to a know quantity because this
+ *  structure is used to calculate a checksum.
  */
+SK_BEGIN_REQUIRE_DENSE
 struct SkScalerContextRec {
     uint32_t    fFontID;
     SkScalar    fTextSize, fPreScaleX, fPreSkewX;
@@ -212,6 +216,7 @@ private:
         fLumBits = c;
     }
 };
+SK_END_REQUIRE_DENSE
 
 //The following typedef hides from the rest of the implementation the number of
 //most significant bits to consider when creating mask gamma tables. Two bits
