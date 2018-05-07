@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab750d20_ee2e3fd0",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 825,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-07T19:49:35Z",
+      "side": 1,
+      "message": "You can compute this without PosCount: glyphCount * sizeof(SkScalar) * ScalarsPerGlyph(pos).",
+      "revId": "6486f2c4d8502d14db78f4d6a772d49e125c8ba0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2667386_d5ae33da",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-07T19:49:35Z",
+      "side": 1,
+      "message": "reader.available()",
+      "revId": "6486f2c4d8502d14db78f4d6a772d49e125c8ba0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73b2c830_03131197",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 827,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-07T19:49:35Z",
+      "side": 1,
+      "message": "Prolly a good idea to use safe here also.\n\nAlso, while we\u0027re at it, I would fold the textSize check above into this too, and also check clusterSize.",
+      "range": {
+        "startLine": 827,
+        "startChar": 12,
+        "endLine": 827,
+        "endChar": 31
+      },
+      "revId": "6486f2c4d8502d14db78f4d6a772d49e125c8ba0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c2e945c_698dca0a",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 852,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-07T19:49:35Z",
+      "side": 1,
+      "message": "glyphSize",
+      "range": {
+        "startLine": 852,
+        "startChar": 47,
+        "endLine": 852,
+        "endChar": 76
+      },
+      "revId": "6486f2c4d8502d14db78f4d6a772d49e125c8ba0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac86c8de_ae0b873f",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 854,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-07T19:49:35Z",
+      "side": 1,
+      "message": "posSize",
+      "range": {
+        "startLine": 854,
+        "startChar": 34,
+        "endLine": 854,
+        "endChar": 86
+      },
+      "revId": "6486f2c4d8502d14db78f4d6a772d49e125c8ba0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
