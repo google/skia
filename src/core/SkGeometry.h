@@ -91,6 +91,25 @@ int SkChopQuadAtMaxCurvature(const SkPoint src[3], SkPoint dst[5]);
 */
 SK_API void SkConvertQuadToCubic(const SkPoint src[3], SkPoint dst[4]);
 
+// Maximum value returned by SkChopQuadToRect (number of quads, not number of points).
+#define kMax_Quads_In_Clip_Rect     3
+
+/**
+ *  Returns the number of resulting quads that fit inside the clip_rect. This is designed to be
+ *  useful when stroking the quad, and you want to eliminate sections that would not appear inside
+ *  a clip rect.
+ *
+ *  If the original quad (src) fits entirely inside the rect, this still returns 1 and copies
+ *  those 3 points into dst.
+ *
+ *  Worst case, this will return kMax_Quads_In_Clip_Rect number of quads. Therefore dst[] must
+ *  be at least 3*kMax_Quads_In_Clip_Rect big to hold that answer.
+ *
+ *  Can return 0 if no part of the src quad is inside the clip (we it encounters a numerical
+ *  problem like a non-finite value).
+ */
+int SkChopQuadToRect(const GPoint src[3], const SkRect& clip, SkPoint dst[]);
+
 ///////////////////////////////////////////////////////////////////////////////
 
 /** Set pt to the point on the src cubic specified by t. t must be
@@ -328,6 +347,12 @@ struct SkQuadCoeff {
         Sk2s P2 = from_point(src[2]);
         fB = times_2(P1 - fC);
         fA = P2 - times_2(P1) + fC;
+    }
+
+    bool isFinite() const {
+        return SkScalarsAreFinite(fA[0], fA[1]) &
+               SkScalarsAreFinite(fB[0], fB[1]) &
+               SkScalarsAreFinite(fC[0], fC[1]);
     }
 
     Sk2s eval(SkScalar t) {
