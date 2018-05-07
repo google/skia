@@ -170,7 +170,7 @@ size_t ValueRef::size() const {
 }
 
 ValueRef ValueRef::operator[](size_t i) const {
-    return this->isArray() ? ValueRef(fValue->operator[](i)) : ValueRef();
+    return i < this->size() ? ValueRef(fValue->operator[](i)) : ValueRef();
 }
 
 ValueRef ValueRef::operator[](const char* key) const {
