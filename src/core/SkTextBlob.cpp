@@ -793,6 +793,7 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromBuffer(SkReadBuffer& reader) {
     reader.readRect(&bounds);
 
     SkTextBlobBuilder blobBuilder;
+    SkSafeMath safe;
     for (;;) {
         int glyphCount = reader.read32();
         if (glyphCount == 0) {
@@ -807,7 +808,7 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromBuffer(SkReadBuffer& reader) {
             return nullptr;
         }
         int textSize = pe.extended ? reader.read32() : 0;
-        if (textSize < 0 || static_cast<size_t>(textSize) > reader.size()) {
+        if (textSize < 0) {
             return nullptr;
         }
 
@@ -816,7 +817,16 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromBuffer(SkReadBuffer& reader) {
         SkPaint font;
         reader.readPaint(&font);
 
-        if (!reader.isValid()) {
+        // Compute the expected size of the buffer and ensure we have enough to deserialize
+        // a run before allocating it.
+        const size_t glyphSize = safe.mul(glyphCount, sizeof(uint16_t)),
+                     posSize =
+                             safe.mul(glyphCount, safe.mul(sizeof(SkScalar), ScalarsPerGlyph(pos))),
+                     clusterSize = pe.extended ? safe.mul(glyphCount, sizeof(uint32_t)) : 0;
+        const size_t totalSize =
+                safe.add(safe.add(glyphSize, posSize), safe.add(clusterSize, textSize));
+
+        if (!reader.isValid() || !safe || totalSize > reader.available()) {
             return nullptr;
         }
 
@@ -843,14 +853,13 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromBuffer(SkReadBuffer& reader) {
             return nullptr;
         }
 
-        if (!reader.readByteArray(buf->glyphs, glyphCount * sizeof(uint16_t)) ||
-            !reader.readByteArray(buf->pos,
-                                  glyphCount * sizeof(SkScalar) * ScalarsPerGlyph(pos))) {
-                return nullptr;
+        if (!reader.readByteArray(buf->glyphs, glyphSize) ||
+            !reader.readByteArray(buf->pos, posSize)) {
+            return nullptr;
             }
 
         if (pe.extended) {
-            if (!reader.readByteArray(buf->clusters, glyphCount * sizeof(uint32_t))  ||
+            if (!reader.readByteArray(buf->clusters, clusterSize) ||
                 !reader.readByteArray(buf->utf8text, textSize)) {
                 return nullptr;
             }

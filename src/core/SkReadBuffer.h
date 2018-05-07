@@ -96,11 +96,12 @@ public:
         fVersion = version;
     }
 
-    size_t size() { return fReader.size(); }
-    size_t offset() { return fReader.offset(); }
+    size_t size() const { return fReader.size(); }
+    size_t offset() const { return fReader.offset(); }
     bool eof() { return fReader.eof(); }
     const void* skip(size_t size);
     const void* skip(size_t count, size_t size);    // does safe multiply
+    size_t available() const { return fReader.available(); }
 
     template <typename T> const T* skipT() {
         return static_cast<const T*>(this->skip(sizeof(T)));
