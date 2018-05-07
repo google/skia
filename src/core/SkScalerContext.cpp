@@ -986,8 +986,6 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
         // seems like we could support kLCD as well at this point...
     }
     if (effects->fMaskFilter) {
-        // force antialiasing with maskfilters
-        rec->fMaskFormat = SkMask::kA8_Format;
         // Pre-blend is not currently applied to filtered text.
         // The primary filter is blur, for which contrast makes no sense,
         // and for which the destination guess error is more visible.
