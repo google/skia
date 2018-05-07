@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "567348b7_b0e43a47",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-07T17:46:21Z",
+      "side": 1,
+      "message": "Let\u0027s add a comment why in the code?",
+      "revId": "786e59ac155670e85bbcdb5ae593ed17e2397694",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
