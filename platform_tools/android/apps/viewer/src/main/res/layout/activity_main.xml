@@ -23,19 +23,6 @@
                 android:layout_centerHorizontal="true" />
         </LinearLayout>
 
-        <TextView
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:padding="10dp"
-            android:background="@android:color/holo_blue_dark"
-            android:textColor="@android:color/white"
-            android:text="  100.000ms"
-            android:id="@+id/fpsFloatText"
-            android:visibility="invisible"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true" />
-
     </RelativeLayout>
 
     <!-- The navigation drawer -->
