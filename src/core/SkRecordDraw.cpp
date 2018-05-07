@@ -167,6 +167,7 @@ public:
         , fCullRect(cullRect)
         , fBounds(bounds) {
         fCTM = SkMatrix::I();
+        fClipBoundsStack.push(fCullRect);
 
         // We push an extra save block to track the bounds of any top-level control operations.
         fSaveStack.push({ 0, Bounds::MakeEmpty(), nullptr, fCTM });
@@ -190,6 +191,7 @@ public:
 
     template <typename T> void operator()(const T& op) {
         this->updateCTM(op);
+        this->updateClipBounds(op);
         this->trackBounds(op);
     }
 
@@ -207,21 +209,21 @@ public:
 
         // Adjust the rect for its own paint.
         if (!AdjustForPaint(paint, &rect)) {
-            // The paint could do anything to our bounds.  The only safe answer is the cull.
-            return fCullRect;
+            // The paint could do anything to our bounds.  The only safe answer is the clip bounds.
+            return fClipBoundsStack.top();
         }
 
         // Adjust rect for all the paints from the SaveLayers we're inside.
         if (!this->adjustForSaveLayerPaints(&rect)) {
             // Same deal as above.
-            return fCullRect;
+            return fClipBoundsStack.top();
         }
 
         // Map the rect back to identity space.
         fCTM.mapRect(&rect);
 
-        // Nothing can draw outside the cull rect.
-        if (!rect.intersect(fCullRect)) {
+        // Nothing can draw outside the clip bounds.
+        if (!rect.intersect(fClipBoundsStack.top())) {
             return Bounds::MakeEmpty();
         }
 
@@ -242,6 +244,24 @@ private:
     void updateCTM(const SetMatrix& op) { fCTM = op.matrix; }
     void updateCTM(const Concat& op)    { fCTM.preConcat(op.matrix); }
     void updateCTM(const Translate& op) { fCTM.preTranslate(op.dx, op.dy); }
+
+    // Most ops don't change the clip bounds stack.
+    template <typename T> void updateClipBounds(const T&) {}
+
+    // Generally, saves push a new bounds rect onto the stack, and restores pop back.
+    void updateClipBounds(const Save&)         { fClipBoundsStack.push(fClipBoundsStack.top()); }
+    void updateClipBounds(const SaveLayer&)    { fClipBoundsStack.push(fClipBoundsStack.top()); }
+    void updateClipBounds(const Restore&)      { fClipBoundsStack.pop(); }
+    // TODO: use the SaveLayer bounds to further narrow the layer's ops' bounds?
+
+    // The clipFoo() calls update the current clip bounds, the top of the bounds stack.
+    void pushNewClipBounds(SkRect localBounds) {
+        fClipBoundsStack.top() = this->adjustAndMap(localBounds, nullptr);
+    }
+    void updateClipBounds(const ClipRect&  op) { this->pushNewClipBounds(op.rect            ); }
+    void updateClipBounds(const ClipRRect& op) { this->pushNewClipBounds(op.rrect.rect()    ); }
+    void updateClipBounds(const ClipPath&  op) { this->pushNewClipBounds(op.path.getBounds()); }
+    // TODO: updateClipBounds(ClipRegion)?
 
     // The bounds of these ops must be calculated when we hit the Restore
     // from the bounds of the ops in the same Save block.
@@ -269,9 +289,9 @@ private:
         SaveBounds sb;
         sb.controlOps = 0;
         // If the paint affects transparent black,
-        // the bound shouldn't be smaller than the cull.
-        sb.bounds =
-            PaintMayAffectTransparentBlack(paint) ? fCullRect : Bounds::MakeEmpty();
+        // the bound shouldn't be smaller than the current clip bounds.
+        sb.bounds = PaintMayAffectTransparentBlack(paint) ? fClipBoundsStack.top()
+                                                          : Bounds::MakeEmpty();
         sb.paint = paint;
         sb.ctm = this->fCTM;
 
@@ -347,12 +367,12 @@ private:
         }
     }
 
-    Bounds bounds(const Flush&) const { return fCullRect; }
+    Bounds bounds(const Flush&) const { return fClipBoundsStack.top(); }
 
     // FIXME: this method could use better bounds
-    Bounds bounds(const DrawText&) const { return fCullRect; }
+    Bounds bounds(const DrawText&) const { return fClipBoundsStack.top(); }
 
-    Bounds bounds(const DrawPaint&) const { return fCullRect; }
+    Bounds bounds(const DrawPaint&) const { return fClipBoundsStack.top(); }
     Bounds bounds(const NoOp&)  const { return Bounds::MakeEmpty(); }    // NoOps don't draw.
 
     Bounds bounds(const DrawRect& op) const { return this->adjustAndMap(op.rect, &op.paint); }
@@ -385,7 +405,7 @@ private:
         return this->adjustAndMap(op.dst, op.paint);
     }
     Bounds bounds(const DrawPath& op) const {
-        return op.path.isInverseFillType() ? fCullRect
+        return op.path.isInverseFillType() ? fClipBoundsStack.top()
                                            : this->adjustAndMap(op.path.getBounds(), &op.paint);
     }
     Bounds bounds(const DrawPoints& op) const {
@@ -413,7 +433,7 @@ private:
             // for the paint (by the caller)?
             return this->adjustAndMap(*op.cull, op.paint);
         } else {
-            return fCullRect;
+            return fClipBoundsStack.top();
         }
     }
 
@@ -475,7 +495,7 @@ private:
         if (op.cull) {
             return this->adjustAndMap(*op.cull, nullptr);
         } else {
-            return fCullRect;
+            return fClipBoundsStack.top();
         }
     }
 
@@ -561,6 +581,9 @@ private:
     // Used to track the bounds of Save/Restore blocks and the control ops inside them.
     SkTDArray<SaveBounds> fSaveStack;
     SkTDArray<int>   fControlIndices;
+
+    // Device-space full float precision bounds of the clip, maintained as a stack.
+    SkTDArray<Bounds> fClipBoundsStack;
 };
 
 }  // namespace SkRecords
