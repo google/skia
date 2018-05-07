@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "11c789c4_7b366d6d",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-07T15:13:20Z",
+      "side": 1,
+      "message": "It\u0027s probably fine to flip all this around and just name one Linux GCE bot to run it?\n\nI don\u0027t think this is an important enough thing yet that it necessarily has to be on the CQ at all, so we could make a new bot just for t8888 if that helps the CQ.",
+      "revId": "117d708fa0f1978ef31a8915596c82bcfacbaf0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
