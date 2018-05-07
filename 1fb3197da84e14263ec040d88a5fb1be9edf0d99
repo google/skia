@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "756bc45f_0b1f56e0",
+        "filename": "infra/bots/recipes/test.expected/Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-T8888.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-07T16:51:18Z",
+      "side": 1,
+      "message": "These are kind of redundant too.",
+      "range": {
+        "startLine": 263,
+        "startChar": 6,
+        "endLine": 265,
+        "endChar": 17
+      },
+      "revId": "1fb3197da84e14263ec040d88a5fb1be9edf0d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3462727_755217e7",
+        "filename": "infra/bots/recipes/test.expected/Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-T8888.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-07T16:51:18Z",
+      "side": 1,
+      "message": "I think our main interest is \"gm\" here.  The rest will just be burned time.",
+      "range": {
+        "startLine": 267,
+        "startChar": 5,
+        "endLine": 270,
+        "endChar": 19
+      },
+      "revId": "1fb3197da84e14263ec040d88a5fb1be9edf0d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
