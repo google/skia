@@ -159,3 +159,8 @@ sk_sp<SkColorSpace> SkColorSpace::Make(const skcms_ICCProfile* profile) {
 
     return SkColorSpace::MakeRGB(skia_tf, toXYZD50);
 }
+
+bool skcms_can_parse(const void* buf, size_t len) {
+    skcms_ICCProfile p;
+    return skcms_Parse(buf, len, &p);
+}
