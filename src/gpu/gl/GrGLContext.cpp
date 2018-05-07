@@ -49,6 +49,9 @@ std::unique_ptr<GrGLContext> GrGLContext::Make(sk_sp<const GrGLInterface> interf
      * ?????/2015 - This bug is still present in Lollipop pre-mr1
      * 06/18/2015 - This bug does not affect the nexus 6 (which has an Adreno 4xx).
      */
+    if (kGLES_GrGLStandard == interface.get()->fStandard) {
+        args.fGLSLGeneration = k110_GrGLSLGeneration;
+    }
     if (kAdreno3xx_GrGLRenderer == args.fRenderer) {
         args.fGLSLGeneration = k110_GrGLSLGeneration;
     }
