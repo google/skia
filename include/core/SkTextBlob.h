@@ -15,6 +15,7 @@
 #include "SkRefCnt.h"
 
 class SkReadBuffer;
+class SkSafeMath;
 class SkWriteBuffer;
 
 struct SkSerialProcs;
