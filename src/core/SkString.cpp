@@ -274,11 +274,7 @@ SkString::SkString(const char text[], size_t len) {
     fRec = Rec::Make(text, len);
 }
 
-SkString::SkString(const SkString& src) {
-    src.validate();
-
-    fRec = src.fRec;
-}
+SkString::SkString(const SkString& src) : fRec(src.fRec) { src.validate(); }
 
 SkString::SkString(SkString&& src) {
     src.validate();
@@ -307,11 +303,7 @@ bool SkString::equals(const char text[], size_t len) const {
 
 SkString& SkString::operator=(const SkString& src) {
     this->validate();
-
-    if (fRec != src.fRec) {
-        SkString    tmp(src);
-        this->swap(tmp);
-    }
+    fRec = src.fRec;  // sk_sp<Rec>::operator=(const sk_sp<Ref>&) checks for self-assignment.
     return *this;
 }
 
@@ -326,11 +318,7 @@ SkString& SkString::operator=(SkString&& src) {
 
 SkString& SkString::operator=(const char text[]) {
     this->validate();
-
-    SkString tmp(text);
-    this->swap(tmp);
-
-    return *this;
+    return *this = SkString(text);
 }
 
 void SkString::reset() {
