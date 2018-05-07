@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba2b5265_5bd5cbb5",
+        "filename": "include/core/SkTextBlob.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-07T20:17:30Z",
+      "side": 1,
+      "message": "nit: unneeded leftover",
+      "revId": "820180eaf0f987ec5e4670c9dce0379b89e867a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f992751_714e0d4c",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 811,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-07T20:17:30Z",
+      "side": 1,
+      "message": "nit: no longer needed",
+      "range": {
+        "startLine": 811,
+        "startChar": 28,
+        "endLine": 811,
+        "endChar": 73
+      },
+      "revId": "820180eaf0f987ec5e4670c9dce0379b89e867a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd22f9e6_61c2b9d3",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-07T20:17:30Z",
+      "side": 1,
+      "message": "nit: textSize is already predicated on pe.extended",
+      "range": {
+        "startLine": 826,
+        "startChar": 36,
+        "endLine": 826,
+        "endChar": 62
+      },
+      "revId": "820180eaf0f987ec5e4670c9dce0379b89e867a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
