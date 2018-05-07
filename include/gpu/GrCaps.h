@@ -10,6 +10,7 @@
 
 #include "../private/GrTypesPriv.h"
 #include "GrBlend.h"
+#include "GrDriverBugWorkarounds.h"
 #include "GrShaderCaps.h"
 #include "SkImageInfo.h"
 #include "SkRefCnt.h"
@@ -339,6 +340,8 @@ private:
 
     bool fSuppressPrints : 1;
     bool fWireframeMode  : 1;
+
+    GrDriverBugWorkarounds fDriverBugWorkarounds;
 
     typedef SkRefCnt INHERITED;
 };

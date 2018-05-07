@@ -1608,9 +1608,11 @@ Error GPUThreadTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* wStre
     // Also, force us to only use the software path renderer, so we really stress-test the threaded
     // version of that code.
     GrContextOptions contextOptions = this->baseContextOptions();
+#if SK_SUPPORT_GPU
     contextOptions.fGpuPathRenderers = GpuPathRenderers::kNone;
-
     contextOptions.fExecutor = fExecutor.get();
+#endif
+
     Error err = this->onDraw(src, dst, wStream, log, contextOptions);
     if (!err.isEmpty() || !dst) {
         return err;
@@ -1619,7 +1621,9 @@ Error GPUThreadTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* wStre
     SkBitmap reference;
     SkString refLog;
     SkDynamicMemoryWStream refStream;
+#if SK_SUPPORT_GPU
     contextOptions.fExecutor = nullptr;
+#endif
     Error refErr = this->onDraw(src, &reference, &refStream, &refLog, contextOptions);
     if (!refErr.isEmpty()) {
         return refErr;
