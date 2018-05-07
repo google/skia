@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e0eb253_dc374c92",
+        "filename": "src/gpu/ops/GrAAHairLinePathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-07T20:48:26Z",
+      "side": 1,
+      "message": "Can we share this code with the Quad case?",
+      "range": {
+        "startLine": 277,
+        "startChar": 13,
+        "endLine": 306,
+        "endChar": 21
+      },
+      "revId": "13797bcea91a543d125295af4271b7196c6e5eb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
