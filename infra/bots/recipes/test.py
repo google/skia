@@ -105,10 +105,12 @@ def dm_flags(api, bot):
       configs.extend(['lite-8888'])              # Experimental display list.
       configs.extend(['gbr-8888'])
 
-    if 'T8888' in bot or 'SAN' in bot:
-      configs.extend(['t8888'])
-
     configs.extend(mode + '-8888' for mode in ['serialize', 'tiles_rt', 'pic'])
+
+    if 'T8888' in bot:
+      configs = ['t8888']
+    elif 'SAN' in bot:
+      configs.extend(['t8888'])
 
     # This bot only differs from vanilla CPU bots in 8888 config.
     if 'SK_FORCE_RASTER_PIPELINE_BLITTER' in bot:
@@ -293,6 +295,11 @@ def dm_flags(api, bot):
     args.remove('tests')
 
   if 'NativeFonts' in bot:  # images won't exercise native font integration :)
+    args.remove('image')
+    args.remove('colorImage')
+
+  if 'T8888' in bot:
+    args.remove('tests')
     args.remove('image')
     args.remove('colorImage')
 
