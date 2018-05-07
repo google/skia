@@ -28,6 +28,7 @@ public:
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inShadowParams() const { return fInShadowParams; }
+    const Attribute* inShadowParams2() const { return fInShadowParams2; }
     GrColor color() const { return fColor; }
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {}
@@ -41,6 +42,7 @@ private:
     const Attribute* fInPosition;
     const Attribute* fInColor;
     const Attribute* fInShadowParams;
+    const Attribute* fInShadowParams2;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
