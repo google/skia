@@ -887,15 +887,16 @@ bool GrContextPriv::writeSurfacePixels2(GrSurfaceContext* dst, int left, int top
 
     // For canvas2D putImageData performance we have a special code path for unpremul RGBA_8888 srcs
     // that are premultiplied on the GPU. This is kept as narrow as possible for now.
-    bool canvas2DFastPath = premul &&
-                            !dst->colorSpaceInfo().isGammaCorrect() &&
-                            GrColorType::kRGBA_8888 == srcColorType &&
-                            SkToBool(dst->asRenderTargetContext()) &&
-                            (dstProxy->config() == kRGBA_8888_GrPixelConfig ||
-                             dstProxy->config() == kBGRA_8888_GrPixelConfig) &&
-                            !(pixelOpsFlags & kDontFlush_PixelOpsFlag) &&
-                            fContext->caps()->isConfigTexturable(kRGBA_8888_GrPixelConfig) &&
-                            fContext->validPMUPMConversionExists();
+    bool canvas2DFastPath =
+            premul &&
+            !dst->colorSpaceInfo().isGammaCorrect() &&
+            (srcColorType == GrColorType::kRGBA_8888 || srcColorType == GrColorType::kBGRA_8888) &&
+            SkToBool(dst->asRenderTargetContext()) &&
+            (dstProxy->config() == kRGBA_8888_GrPixelConfig ||
+             dstProxy->config() == kBGRA_8888_GrPixelConfig) &&
+            !(pixelOpsFlags & kDontFlush_PixelOpsFlag) &&
+            fContext->caps()->isConfigTexturable(kRGBA_8888_GrPixelConfig) &&
+            fContext->validPMUPMConversionExists();
 
     if (!fContext->caps()->surfaceSupportsWritePixels(dstSurface) || canvas2DFastPath) {
         // We don't expect callers that are skipping flushes to require an intermediate draw.
@@ -920,15 +921,23 @@ bool GrContextPriv::writeSurfacePixels2(GrSurfaceContext* dst, int left, int top
             return false;
         }
         uint32_t flags = canvas2DFastPath ? 0 : pixelOpsFlags;
-        if (!this->writeSurfacePixels2(tempCtx.get(), 0, 0, width, height, srcColorType,
+        auto colorType = canvas2DFastPath ? GrColorType::kRGBA_8888 : srcColorType;
+        if (!this->writeSurfacePixels2(tempCtx.get(), 0, 0, width, height, colorType,
                                        srcColorSpace, buffer, rowBytes, flags)) {
             return false;
         }
         if (canvas2DFastPath) {
             GrPaint paint;
             paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-            paint.addColorFragmentProcessor(fContext->createUPMToPMEffect(
-                    GrSimpleTextureEffect::Make(std::move(tempProxy), SkMatrix::I()), true));
+            auto fp = fContext->createUPMToPMEffect(
+                    GrSimpleTextureEffect::Make(std::move(tempProxy), SkMatrix::I()), true);
+            if (srcColorType == GrColorType::kBGRA_8888) {
+                fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), GrSwizzle::BGRA());
+            }
+            if (!fp) {
+                return false;
+            }
+            paint.addColorFragmentProcessor(std::move(fp));
             dst->asRenderTargetContext()->fillRectToRect(
                     GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
                     SkRect::MakeXYWH(left, top, width, height), SkRect::MakeWH(width, height));
@@ -1051,14 +1060,15 @@ bool GrContextPriv::readSurfacePixels2(GrSurfaceContext* src, int left, int top,
     // getImageData in "legacy" mode are round-trippable we use the GPU to do the complementary
     // unpremul step to writeSurfacePixels2's premul step (which is determined empirically in
     // fContext->vaildaPMUPMConversionExists()).
-    bool canvas2DFastPath = unpremul &&
-                            !src->colorSpaceInfo().isGammaCorrect() &&
-                            GrColorType::kRGBA_8888 == dstColorType &&
-                            SkToBool(srcProxy->asTextureProxy()) &&
-                            (srcProxy->config() == kRGBA_8888_GrPixelConfig ||
-                             srcProxy->config() == kBGRA_8888_GrPixelConfig) &&
-                            fContext->caps()->isConfigRenderable(kRGBA_8888_GrPixelConfig) &&
-                            fContext->validPMUPMConversionExists();
+    bool canvas2DFastPath =
+            unpremul &&
+            !src->colorSpaceInfo().isGammaCorrect() &&
+            (GrColorType::kRGBA_8888 == dstColorType || GrColorType::kBGRA_8888 == dstColorType) &&
+            SkToBool(srcProxy->asTextureProxy()) &&
+            (srcProxy->config() == kRGBA_8888_GrPixelConfig ||
+             srcProxy->config() == kBGRA_8888_GrPixelConfig) &&
+            fContext->caps()->isConfigRenderable(kRGBA_8888_GrPixelConfig) &&
+            fContext->validPMUPMConversionExists();
 
     if (!fContext->caps()->surfaceSupportsReadPixels(srcSurface) || canvas2DFastPath) {
         GrSurfaceDesc desc;
@@ -1088,10 +1098,18 @@ bool GrContextPriv::readSurfacePixels2(GrSurfaceContext* src, int left, int top,
         if (canvas2DFastPath) {
             GrPaint paint;
             paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-            paint.addColorFragmentProcessor(fContext->createPMToUPMEffect(
+            auto fp = fContext->createPMToUPMEffect(
                     GrSimpleTextureEffect::Make(sk_ref_sp(srcProxy->asTextureProxy()),
                                                 SkMatrix::I()),
-                    true));
+                    true);
+            if (dstColorType == GrColorType::kBGRA_8888) {
+                fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), GrSwizzle::BGRA());
+                dstColorType = GrColorType::kRGBA_8888;
+            }
+            if (!fp) {
+                return false;
+            }
+            paint.addColorFragmentProcessor(std::move(fp));
             tempCtx->asRenderTargetContext()->fillRectToRect(
                     GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
                     SkRect::MakeWH(width, height), SkRect::MakeXYWH(left, top, width, height));
