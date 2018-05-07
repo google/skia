@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "16b90862_e92fa982",
+        "filename": "src/gpu/ops/GrLatticeOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-07T20:31:46Z",
+      "side": 1,
+      "message": "Will fProxy always be valid here, I assume so? But if not whose responsible for checking, this object or the VisitProxyFunc?",
+      "range": {
+        "startLine": 160,
+        "startChar": 8,
+        "endLine": 160,
+        "endChar": 27
+      },
+      "revId": "9ac94956ea0ded60a2694c920e0479cf2e99c214",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
