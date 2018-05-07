@@ -46,6 +46,64 @@
       "revId": "eb9ce6e028bfc0d0531b412d9c433c7199c45e51",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c035323_e137fbb2",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 804,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-07T19:42:51Z",
+      "side": 1,
+      "message": "Yeah, I would prefer we validate against the stream size instead of introducing arbitrary limits.\n\nComputing the accurate size is somewhat finicky thought, something along these lines (taking everything into account):",
+      "parentUuid": "b68d1639_421f3cb9",
+      "range": {
+        "startLine": 804,
+        "startChar": 8,
+        "endLine": 804,
+        "endChar": 50
+      },
+      "revId": "eb9ce6e028bfc0d0531b412d9c433c7199c45e51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e389da6c_381ce386",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 823,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-07T19:42:51Z",
+      "side": 1,
+      "message": "SkSafeMath safe;\n    const auto glyphsSize \u003d safe.mul(glyphCount, sizeof(uint16_t)),\n                  posSize \u003d safe.mul(safe.mul(glyphCount, sizeof(SkScalar)), ScalarsPerGlyph(pos)),\n              clusterSize \u003d pe.extended ? safe.mul(glyphCount * sizeof(uint32_t)) : 0,\n                totalSize \u003d safe.add(glyphsSize, safe.add(posSize, safe.add(clusterSize, textSize)));\n\n\n    SkDEBUGCODE(const auto expectedOffset \u003d reader.offset() + totalSize);\n    if (!reader.isValid() || !safe || totalSize \u003e reader.available()) {\n        return nullptr;\n    }",
+      "revId": "eb9ce6e028bfc0d0531b412d9c433c7199c45e51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b567197_aadac739",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 864,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-07T19:42:51Z",
+      "side": 1,
+      "message": "SkASSERT(expectedOffset \u003d\u003d reader.offset());",
+      "revId": "eb9ce6e028bfc0d0531b412d9c433c7199c45e51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
