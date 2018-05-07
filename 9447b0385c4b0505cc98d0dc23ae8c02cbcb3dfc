@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bed5477a_63954ee9",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 924,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-07T17:27:55Z",
+      "side": 1,
+      "message": "// In the fast path we always write the srcData to the temp context as RGBA. We will then swizzle it to BGRA in the write to the dest (if necessary).\n\n?\n\nAlso, maybe rename \u0027colorType\u0027 to \u0027intermediateColorType\u0027 or \u0027tmpColorType\u0027 ?",
+      "revId": "9447b0385c4b0505cc98d0dc23ae8c02cbcb3dfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
