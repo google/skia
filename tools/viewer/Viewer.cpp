@@ -1144,9 +1144,6 @@ void Viewer::onPaint(SkCanvas* canvas) {
     fCommands.drawHelp(canvas);
 
     this->drawImGui();
-
-    // Update the FPS
-    this->updateUIState();
 }
 
 SkPoint Viewer::mapEvent(float x, float y) {
@@ -1811,24 +1808,12 @@ void Viewer::updateUIState() {
         softkeyState[kOptions].append(Json::Value(softkey.c_str()));
     }
 
-    // FPS state
-    Json::Value fpsState(Json::objectValue);
-    fpsState[kName] = kFpsStateName;
-    double animTime = fStatsLayer.getLastTime(fAnimateTimer);
-    double paintTime = fStatsLayer.getLastTime(fPaintTimer);
-    double flushTime = fStatsLayer.getLastTime(fFlushTimer);
-    fpsState[kValue] = SkStringPrintf("%8.3lf ms\n\nA %8.3lf\nP %8.3lf\nF%8.3lf",
-                                      animTime + paintTime + flushTime,
-                                      animTime, paintTime, flushTime).c_str();
-    fpsState[kOptions] = Json::Value(Json::arrayValue);
-
     Json::Value state(Json::arrayValue);
     state.append(slideState);
     state.append(backendState);
     state.append(msaaState);
     state.append(prState);
     state.append(softkeyState);
-    state.append(fpsState);
 
     fWindow->setUIState(state.toStyledString().c_str());
 }
