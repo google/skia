@@ -105,7 +105,8 @@ def dm_flags(api, bot):
       configs.extend(['lite-8888'])              # Experimental display list.
       configs.extend(['gbr-8888'])
 
-      if '64' in bot:
+      if ('64' in bot and
+          bot != 'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All'):
         configs.extend(['t8888'])
 
     configs.extend(mode + '-8888' for mode in ['serialize', 'tiles_rt', 'pic'])
