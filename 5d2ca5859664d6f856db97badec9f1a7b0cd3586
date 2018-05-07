@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5eb81af5_cb39e87d",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-07T15:35:22Z",
+      "side": 1,
+      "message": "Now that i\u0027m looking, might as well keep it running on ASAN and MSAN bots too... it could certainly do strange things that\u0027d affect both.",
+      "range": {
+        "startLine": 108,
+        "startChar": 26,
+        "endLine": 108,
+        "endChar": 30
+      },
+      "revId": "5d2ca5859664d6f856db97badec9f1a7b0cd3586",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
