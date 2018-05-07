@@ -68,6 +68,78 @@
       "revId": "f9cf1dc8408fda35bc6b416aeceb9b3e273fba7e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04a14967_5efe6f66",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-05-07T18:56:35Z",
+      "side": 1,
+      "message": "That\u0027s the only time SkPDF ever calls this.",
+      "parentUuid": "ddb92aef_d05ce922",
+      "range": {
+        "startLine": 622,
+        "startChar": 16,
+        "endLine": 622,
+        "endChar": 62
+      },
+      "revId": "f9cf1dc8408fda35bc6b416aeceb9b3e273fba7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ef01cd69_ffa2fd9e",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-05-07T18:56:35Z",
+      "side": 1,
+      "message": "removed.",
+      "parentUuid": "7756310d_a2bf9626",
+      "range": {
+        "startLine": 622,
+        "startChar": 71,
+        "endLine": 622,
+        "endChar": 91
+      },
+      "revId": "f9cf1dc8408fda35bc6b416aeceb9b3e273fba7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "898dcd41_c408435d",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-05-07T18:56:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "362a1896_21bc40e2",
+      "range": {
+        "startLine": 622,
+        "startChar": 8,
+        "endLine": 622,
+        "endChar": 12
+      },
+      "revId": "f9cf1dc8408fda35bc6b416aeceb9b3e273fba7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
