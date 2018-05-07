@@ -146,6 +146,18 @@ typedef struct skcms_ICCTag {
 SKCMS_API void skcms_GetTagByIndex    (const skcms_ICCProfile*, uint32_t idx, skcms_ICCTag*);
 SKCMS_API bool skcms_GetTagBySignature(const skcms_ICCProfile*, uint32_t sig, skcms_ICCTag*);
 
+// These are common ICC signature values
+enum {
+    // data_color_space
+    skcms_Signature_CMYK = 0x434D594B,
+    skcms_Signature_Gray = 0x47524159,
+    skcms_Signature_RGB  = 0x52474220,
+
+    // pcs
+    skcms_Signature_Lab  = 0x4C616220,
+    skcms_Signature_XYZ  = 0x58595A20,
+};
+
 typedef enum skcms_PixelFormat {
     skcms_PixelFormat_RGB_565,
     skcms_PixelFormat_BGR_565,

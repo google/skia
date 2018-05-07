@@ -15,10 +15,33 @@
 #include <stdlib.h>
 #include <string.h>
 
-// A macro so that it can be used in the initialization of skcms_sRGB_profile.
-// Think, static uint32_t make_signature(uint8_t, uint8_t, uint8_t, uint8_t).
-#define make_signature(a,b,c,d) \
-    ( (uint32_t)((a) << 24) | (uint32_t)((b) << 16) | (uint32_t)((c) << 8) | (uint32_t)((d) << 0) )
+// Additional ICC signature values that are only used internally
+enum {
+    // File signature
+    skcms_Signature_acsp = 0x61637370,
+
+    // Tag signatures
+    skcms_Signature_rTRC = 0x72545243,
+    skcms_Signature_gTRC = 0x67545243,
+    skcms_Signature_bTRC = 0x62545243,
+    skcms_Signature_kTRC = 0x6B545243,
+
+    skcms_Signature_rXYZ = 0x7258595A,
+    skcms_Signature_gXYZ = 0x6758595A,
+    skcms_Signature_bXYZ = 0x6258595A,
+
+    skcms_Signature_A2B0 = 0x41324230,
+    skcms_Signature_A2B1 = 0x41324231,
+    skcms_Signature_mAB  = 0x6D414220,
+
+    // Type signatures
+    skcms_Signature_curv = 0x63757276,
+    skcms_Signature_mft1 = 0x6D667431,
+    skcms_Signature_mft2 = 0x6D667432,
+    skcms_Signature_para = 0x70617261,
+    // XYZ is also a PCS signature, so it's defined in skcms.h
+    // skcms_Signature_XYZ = 0x58595A20,
+};
 
 static uint16_t read_big_u16(const uint8_t* ptr) {
     uint16_t be;
@@ -95,7 +118,7 @@ typedef struct {
 } XYZ_Layout;
 
 static bool read_tag_xyz(const skcms_ICCTag* tag, float* x, float* y, float* z) {
-    if (tag->type != make_signature('X','Y','Z',' ') || tag->size < SAFE_SIZEOF(XYZ_Layout)) {
+    if (tag->type != skcms_Signature_XYZ || tag->size < SAFE_SIZEOF(XYZ_Layout)) {
         return false;
     }
 
@@ -248,9 +271,9 @@ static bool read_curve(const uint8_t* buf, uint32_t size,
     }
 
     uint32_t type = read_big_u32(buf);
-    if (type == make_signature('p', 'a', 'r', 'a')) {
+    if (type == skcms_Signature_para) {
         return read_curve_para(buf, size, curve, curve_size);
-    } else if (type == make_signature('c', 'u', 'r', 'v')) {
+    } else if (type == skcms_Signature_curv) {
         return read_curve_curv(buf, size, curve, curve_size);
     }
 
@@ -580,11 +603,11 @@ static bool read_tag_mab(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xy
 
 static bool read_a2b(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xyz) {
     bool ok = false;
-    if (tag->type == make_signature('m', 'f', 't', '1')) {
+    if (tag->type == skcms_Signature_mft1) {
         ok = read_tag_mft1(tag, a2b);
-    } else if (tag->type == make_signature('m', 'f', 't', '2')) {
+    } else if (tag->type == skcms_Signature_mft2) {
         ok = read_tag_mft2(tag, a2b);
-    } else if (tag->type == make_signature('m', 'A', 'B', ' ')) {
+    } else if (tag->type == skcms_Signature_mAB) {
         ok = read_tag_mab(tag, a2b, pcs_is_xyz);
     }
     if (!ok) {
@@ -684,7 +707,7 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
     // Validate signature, size (smaller than buffer, large enough to hold tag table),
     // and major version
     uint64_t tag_table_size = profile->tag_count * SAFE_SIZEOF(tag_Layout);
-    if (signature != make_signature('a', 'c', 's', 'p') ||
+    if (signature != skcms_Signature_acsp ||
         profile->size > len ||
         profile->size < SAFE_SIZEOF(header_Layout) + tag_table_size ||
         (version >> 24) > 4) {
@@ -709,17 +732,16 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
         }
     }
 
-    if (profile->pcs != make_signature('X', 'Y', 'Z', ' ') &&
-        profile->pcs != make_signature('L', 'a', 'b', ' ')) {
+    if (profile->pcs != skcms_Signature_XYZ && profile->pcs != skcms_Signature_Lab) {
         return false;
     }
 
-    bool pcs_is_xyz = profile->pcs == make_signature('X', 'Y', 'Z', ' ');
+    bool pcs_is_xyz = profile->pcs == skcms_Signature_XYZ;
 
     // Pre-parse commonly used tags.
     skcms_ICCTag kTRC;
-    if (profile->data_color_space == make_signature('G', 'R', 'A', 'Y') &&
-        skcms_GetTagBySignature(profile, make_signature('k', 'T', 'R', 'C'), &kTRC)) {
+    if (profile->data_color_space == skcms_Signature_Gray &&
+        skcms_GetTagBySignature(profile, skcms_Signature_kTRC, &kTRC)) {
         if (!read_curve(kTRC.buf, kTRC.size, &profile->trc[0], NULL)) {
             // Malformed tag
             return false;
@@ -736,9 +758,9 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
         }
     } else {
         skcms_ICCTag rTRC, gTRC, bTRC;
-        if (skcms_GetTagBySignature(profile, make_signature('r', 'T', 'R', 'C'), &rTRC) &&
-            skcms_GetTagBySignature(profile, make_signature('g', 'T', 'R', 'C'), &gTRC) &&
-            skcms_GetTagBySignature(profile, make_signature('b', 'T', 'R', 'C'), &bTRC)) {
+        if (skcms_GetTagBySignature(profile, skcms_Signature_rTRC, &rTRC) &&
+            skcms_GetTagBySignature(profile, skcms_Signature_gTRC, &gTRC) &&
+            skcms_GetTagBySignature(profile, skcms_Signature_bTRC, &bTRC)) {
             if (!read_curve(rTRC.buf, rTRC.size, &profile->trc[0], NULL) ||
                 !read_curve(gTRC.buf, gTRC.size, &profile->trc[1], NULL) ||
                 !read_curve(bTRC.buf, bTRC.size, &profile->trc[2], NULL)) {
@@ -749,9 +771,9 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
         }
 
         skcms_ICCTag rXYZ, gXYZ, bXYZ;
-        if (skcms_GetTagBySignature(profile, make_signature('r', 'X', 'Y', 'Z'), &rXYZ) &&
-            skcms_GetTagBySignature(profile, make_signature('g', 'X', 'Y', 'Z'), &gXYZ) &&
-            skcms_GetTagBySignature(profile, make_signature('b', 'X', 'Y', 'Z'), &bXYZ)) {
+        if (skcms_GetTagBySignature(profile, skcms_Signature_rXYZ, &rXYZ) &&
+            skcms_GetTagBySignature(profile, skcms_Signature_gXYZ, &gXYZ) &&
+            skcms_GetTagBySignature(profile, skcms_Signature_bXYZ, &bXYZ)) {
             if (!read_to_XYZD50(&rXYZ, &gXYZ, &bXYZ, &profile->toXYZD50)) {
                 // Malformed XYZ tags
                 return false;
@@ -766,7 +788,7 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
     // TODO: prefer A2B1 (relative colormetric) over A2B0 (perceptual)?
     // This breaks with the ICC spec, but we think it's a good idea, given that TRC curves
     // and all our known users are thinking exclusively in terms of relative colormetric.
-    const uint32_t sigs[] = { make_signature('A','2','B','0'), make_signature('A','2','B','1') };
+    const uint32_t sigs[] = { skcms_Signature_A2B0, skcms_Signature_A2B1 };
     for (int i = 0; i < ARRAY_COUNT(sigs); i++) {
         if (skcms_GetTagBySignature(profile, sigs[i], &a2b_tag)) {
             if (!read_a2b(&a2b_tag, &profile->A2B, pcs_is_xyz)) {
@@ -791,8 +813,8 @@ const skcms_ICCProfile* skcms_sRGB_profile() {
 
         // We choose to represent sRGB with its canonical transfer function,
         // and with its canonical XYZD50 gamut matrix.
-        .data_color_space = make_signature('R', 'G', 'B', ' '),
-        .pcs              = make_signature('X', 'Y', 'Z', ' '),
+        .data_color_space = skcms_Signature_RGB,
+        .pcs              = skcms_Signature_XYZ,
         .has_trc      = true,
         .has_toXYZD50 = true,
         .has_A2B      = false,
@@ -825,8 +847,8 @@ const skcms_ICCProfile* skcms_XYZD50_profile() {
         .size             = 0,
         .tag_count        = 0,
 
-        .data_color_space = make_signature('R', 'G', 'B', ' '),
-        .pcs              = make_signature('X', 'Y', 'Z', ' '),
+        .data_color_space = skcms_Signature_RGB,
+        .pcs              = skcms_Signature_XYZ,
         .has_trc          = true,
         .has_toXYZD50     = true,
         .has_A2B          = false,
@@ -884,7 +906,7 @@ bool skcms_ApproximatelyEqualProfiles(const skcms_ICCProfile* A, const skcms_ICC
     // Interpret as RGB_888 if data color space is RGB or GRAY, RGBA_8888 if CMYK.
     skcms_PixelFormat fmt = skcms_PixelFormat_RGB_888;
     size_t npixels = 84;
-    if (A->data_color_space == make_signature('C', 'M', 'Y', 'K')) {
+    if (A->data_color_space == skcms_Signature_CMYK) {
         fmt = skcms_PixelFormat_RGBA_8888;
         npixels = 63;
     }
