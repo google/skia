@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d505b02_e1883238",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-07T16:42:33Z",
+      "side": 1,
+      "message": "This might be worth mimicking for the \u0027T8888\u0027 bot?\n\nif \u0027T8888\u0027 in bot:\n   configs \u003d [\u0027t8888\u0027]\nelif \u0027SAN\u0027 in bot:\n   configs.append(\u0027t8888\u0027)\n\n?",
+      "revId": "240f6c2c37b6326e18271c6b1efbc5f10f33e756",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
