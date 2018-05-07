@@ -16,6 +16,24 @@
       "revId": "117d708fa0f1978ef31a8915596c82bcfacbaf0f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71cac611_a7114624",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-05-07T15:19:15Z",
+      "side": 1,
+      "message": "So, Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-All-T8888 is the only thing that runs the threaded backend for now?",
+      "parentUuid": "11c789c4_7b366d6d",
+      "revId": "117d708fa0f1978ef31a8915596c82bcfacbaf0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
