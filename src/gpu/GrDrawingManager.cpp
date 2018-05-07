@@ -466,17 +466,22 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
 
     GrPathRenderer* pr = fPathRendererChain->getPathRenderer(args, drawType, stencilSupport);
     if (!pr && allowSW) {
-        if (!fSoftwarePathRenderer) {
-            fSoftwarePathRenderer =
-                    new GrSoftwarePathRenderer(fContext->contextPriv().proxyProvider(),
-                                               fOptionsForPathRendererChain.fAllowPathMaskCaching);
-        }
-        if (GrPathRenderer::CanDrawPath::kNo != fSoftwarePathRenderer->canDrawPath(args)) {
-            pr = fSoftwarePathRenderer;
+        auto swPR = this->getSoftwarePathRenderer();
+        if (GrPathRenderer::CanDrawPath::kNo != swPR->canDrawPath(args)) {
+            pr = swPR;
         }
     }
 
     return pr;
+}
+
+GrPathRenderer* GrDrawingManager::getSoftwarePathRenderer() {
+    if (!fSoftwarePathRenderer) {
+        fSoftwarePathRenderer =
+                new GrSoftwarePathRenderer(fContext->contextPriv().proxyProvider(),
+                                           fOptionsForPathRendererChain.fAllowPathMaskCaching);
+    }
+    return fSoftwarePathRenderer;
 }
 
 GrCoverageCountingPathRenderer* GrDrawingManager::getCoverageCountingPathRenderer() {
