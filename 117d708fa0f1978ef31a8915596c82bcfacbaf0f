@@ -88,6 +88,24 @@
       "revId": "117d708fa0f1978ef31a8915596c82bcfacbaf0f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f34adaf3_61b480b4",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-05-07T15:29:45Z",
+      "side": 1,
+      "message": "Done - kept it for TSAN too since that seemed like a good place to also test it.",
+      "parentUuid": "3303dca6_244201c3",
+      "revId": "117d708fa0f1978ef31a8915596c82bcfacbaf0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
