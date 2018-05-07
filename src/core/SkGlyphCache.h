@@ -217,4 +217,17 @@ private:
     size_t                  fMemoryUsed;
 };
 
+// This will be deleted soon, and keeps android building.
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+#include "SkStrikeCache.h"
+class SkAutoGlyphCacheNoGamma : public SkExclusiveStrikePtr {
+public:
+    SkAutoGlyphCacheNoGamma(const SkPaint& paint,
+                            const SkSurfaceProps* surfaceProps,
+                            const SkMatrix* matrix)
+        : SkExclusiveStrikePtr(nullptr) {}
+};
+#define SkAutoGlyphCacheNoGamma(...) SK_REQUIRE_LOCAL_VAR(SkAutoGlyphCacheNoGamma)
+#endif
+
 #endif  // SkGlyphCache_DEFINED
