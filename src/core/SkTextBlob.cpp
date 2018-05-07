@@ -255,12 +255,6 @@ private:
         return res;
     }
 
-    static size_t PosCount(uint32_t glyphCount,
-                           SkTextBlob::GlyphPositioning positioning,
-                           SkSafeMath* safe) {
-        return safe->mul(glyphCount, ScalarsPerGlyph(positioning));
-    }
-
     uint32_t* textSizePtr() const {
         // textSize follows the position buffer.
         SkASSERT(isExtended());
@@ -344,6 +338,12 @@ unsigned SkTextBlob::ScalarsPerGlyph(GlyphPositioning pos) {
     // GlyphPositioning values are directly mapped to scalars-per-glyph.
     SkASSERT(pos <= 2);
     return pos;
+}
+
+size_t SkTextBlob::PosCount(uint32_t glyphCount,
+                            SkTextBlob::GlyphPositioning positioning,
+                            SkSafeMath* safe) {
+    return safe->mul(glyphCount, ScalarsPerGlyph(positioning));
 }
 
 SkTextBlobRunIterator::SkTextBlobRunIterator(const SkTextBlob* blob)
@@ -793,6 +793,7 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromBuffer(SkReadBuffer& reader) {
     reader.readRect(&bounds);
 
     SkTextBlobBuilder blobBuilder;
+    SkSafeMath safe;
     for (;;) {
         int glyphCount = reader.read32();
         if (glyphCount == 0) {
@@ -819,6 +820,11 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromBuffer(SkReadBuffer& reader) {
         if (!reader.isValid()) {
             return nullptr;
         }
+
+        auto glyphSize = safe.mul(glyphCount, sizeof(uint16_t));
+        auto posSize = safe.mul(PosCount(glyphCount, pos, &safe), sizeof(SkScalar));
+        size_t bytesLeft = reader.size() - reader.offset();
+        if (glyphSize + posSize > bytesLeft) return nullptr;
 
         const SkTextBlobBuilder::RunBuffer* buf = nullptr;
         switch (pos) {

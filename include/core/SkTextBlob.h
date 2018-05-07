@@ -15,6 +15,7 @@
 #include "SkRefCnt.h"
 
 class SkReadBuffer;
+class SkSafeMath;
 class SkWriteBuffer;
 
 struct SkSerialProcs;
@@ -103,6 +104,9 @@ private:
     void* operator new(size_t, void* p) { return p; }
 
     static unsigned ScalarsPerGlyph(GlyphPositioning pos);
+    static size_t PosCount(uint32_t glyphCount,
+                           SkTextBlob::GlyphPositioning positioning,
+                           SkSafeMath* safe);
 
     // Call when this blob is part of the key to a cache entry. This allows the cache
     // to know automatically those entries can be purged when this SkTextBlob is deleted.
