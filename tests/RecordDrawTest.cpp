@@ -130,8 +130,6 @@ static bool sloppy_rect_eq(SkRect a, SkRect b) {
     return outset.contains(b) && !inset.contains(b);
 }
 
-// TODO This would be nice, but we can't get it right today.
-#if 0
 DEF_TEST(RecordDraw_BasicBounds, r) {
     SkRecord record;
     SkRecorder recorder(&record, W, H);
@@ -148,7 +146,6 @@ DEF_TEST(RecordDraw_BasicBounds, r) {
         REPORTER_ASSERT(r, sloppy_rect_eq(SkRect::MakeWH(400, 480), bounds[i]));
     }
 }
-#endif
 
 // A regression test for crbug.com/409110.
 DEF_TEST(RecordDraw_TextBounds, r) {
