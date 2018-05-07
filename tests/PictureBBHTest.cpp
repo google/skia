@@ -124,8 +124,7 @@ DEF_TEST(PictureNegativeSpace, r) {
         REPORTER_ASSERT(r, pic->cullRect() == (SkRect{-20,-20,-10,-10}));
     }
 
-    // TODO: we should also get the same results without the explicit save/restore
-    if (0) {
+    {
         auto canvas = recorder.beginRecording(cull, &factory);
             canvas->clipRect(cull);
             canvas->drawRect({-20,-20,-10,-10}, SkPaint{});
