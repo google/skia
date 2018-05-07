@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7c729d2_833bb026",
+        "filename": "src/core/SkBitmapDevice.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-07T15:01:05Z",
+      "side": 0,
+      "message": "It seems the actual issue is that this guy has a broken copy constructor. The default one will do the wrong thing and leave the fSurfaceProps pointer potentially pointing to the original object\u0027s fLazy.",
+      "range": {
+        "startLine": 182,
+        "startChar": 6,
+        "endLine": 182,
+        "endChar": 40
+      },
+      "revId": "fb799af68b0b691fe53adc0459f96434c32d3a9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
