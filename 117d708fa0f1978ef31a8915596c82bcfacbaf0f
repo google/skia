@@ -52,6 +52,24 @@
       "revId": "117d708fa0f1978ef31a8915596c82bcfacbaf0f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d23297d5_8976c5ec",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-07T15:24:22Z",
+      "side": 1,
+      "message": "That\u0027s what Kevin wanted to do, but I suggested this. From what I can tell, adding t8888 did not cause bot times to increase, but https://skia-review.googlesource.com/c/skia/+/125283 did.\n\nIf the problem is that we weren\u0027t really testing t8888 until https://skia-review.googlesource.com/c/skia/+/125283, then I think it makes sense to split out that config into different bots since it\u0027s ~70% of the running time and it would be useful to get results for 8888, srgb, etc. faster (as well as speed up the CQ).\n\nBut it seems to me that https://skia-review.googlesource.com/c/skia/+/125283 changed things in such a way that we are just taking twice as long to run the same tests. If that\u0027s true, I\u0027m hopeful that there is a way to revise that change so that t8888 doesn\u0027t take so much time.",
+      "parentUuid": "11c789c4_7b366d6d",
+      "revId": "117d708fa0f1978ef31a8915596c82bcfacbaf0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
