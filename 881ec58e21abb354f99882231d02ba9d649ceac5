@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd1294ea_6319feae",
+        "filename": "src/core/SkBitmapDevice.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-07T15:27:24Z",
+      "side": 1,
+      "message": "100 chars",
+      "range": {
+        "startLine": 192,
+        "startChar": 100,
+        "endLine": 192,
+        "endChar": 102
+      },
+      "revId": "881ec58e21abb354f99882231d02ba9d649ceac5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
