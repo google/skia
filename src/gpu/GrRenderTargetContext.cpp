@@ -1662,9 +1662,11 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
                 return;
             }
             canDrawArgs.fShape = &tempShape;
+            // This time, allow SW renderer
+            pr = this->drawingManager()->getPathRenderer(canDrawArgs, true, kType);
+        } else {
+            pr = this->drawingManager()->getSoftwarePathRenderer();
         }
-        // This time, allow SW renderer
-        pr = this->drawingManager()->getPathRenderer(canDrawArgs, true, kType);
     }
 
     if (!pr) {
