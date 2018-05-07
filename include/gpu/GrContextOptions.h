@@ -12,11 +12,13 @@
 #include "SkTypes.h"
 #include "GrTypes.h"
 #include "../private/GrTypesPriv.h"
+#include "GrDriverBugWorkarounds.h"
 
 #include <vector>
 
 class SkExecutor;
 
+#if SK_SUPPORT_GPU
 struct GrContextOptions {
     enum class Enable {
         /** Forces an option to be disabled. */
@@ -232,6 +234,13 @@ struct GrContextOptions {
      */
     Enable fDistanceFieldGlyphVerticesAlwaysHaveW = Enable::kDefault;
 #endif
+
+    GrDriverBugWorkarounds fDriverBugWorkarounds;
 };
+#else
+struct GrContextOptions {
+    struct PersistentCache {};
+};
+#endif
 
 #endif
