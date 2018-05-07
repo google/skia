@@ -793,12 +793,17 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromBuffer(SkReadBuffer& reader) {
     reader.readRect(&bounds);
 
     SkTextBlobBuilder blobBuilder;
+    int totalGlyphCount = 0;
     for (;;) {
         int glyphCount = reader.read32();
         if (glyphCount == 0) {
             // End-of-runs marker.
             break;
         }
+
+        static const int kMaxGlyphCount = 1000000;
+        totalGlyphCount += glyphCount;
+        if (totalGlyphCount > kMaxGlyphCount) return nullptr;
 
         PositioningAndExtended pe;
         pe.intValue = reader.read32();
