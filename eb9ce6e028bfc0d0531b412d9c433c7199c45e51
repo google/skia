@@ -22,6 +22,30 @@
       "revId": "eb9ce6e028bfc0d0531b412d9c433c7199c45e51",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b68d1639_421f3cb9",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 804,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-07T19:04:47Z",
+      "side": 1,
+      "message": "This sounds better to me but I\u0027ve added some reviewers who are more familiar with SkTextBlob.",
+      "parentUuid": "92671fcb_a5ba9576",
+      "range": {
+        "startLine": 804,
+        "startChar": 8,
+        "endLine": 804,
+        "endChar": 50
+      },
+      "revId": "eb9ce6e028bfc0d0531b412d9c433c7199c45e51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
