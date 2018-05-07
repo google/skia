@@ -22,6 +22,30 @@
       "revId": "cf3b5fd8d3569c37b12fc43acc0598ba4fc1a044",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9503f3a9_b14797eb",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-05-07T19:12:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "53c7330e_c366bd4f",
+      "range": {
+        "startLine": 622,
+        "startChar": 16,
+        "endLine": 622,
+        "endChar": 77
+      },
+      "revId": "cf3b5fd8d3569c37b12fc43acc0598ba4fc1a044",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
