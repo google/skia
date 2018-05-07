@@ -15,6 +15,12 @@
 #include "SkICCPriv.h"
 #include "SkTemplates.h"
 
+#if defined(SK_USE_SKCMS)
+    bool skcms_can_parse(const void*, size_t);
+#else
+    static bool skcms_can_parse(const void*, size_t) { return true; }
+#endif
+
 #define return_if_false(pred, msg)                                   \
     do {                                                             \
         if (!(pred)) {                                               \
@@ -1480,6 +1486,11 @@ static sk_sp<SkColorSpace> make_a2b(SkColorSpace::Type iccType,
 sk_sp<SkColorSpace> SkColorSpace::MakeICC(const void* input, size_t len) {
     if (!input || len < kICCHeaderSize) {
         return_null("Data is null or not large enough to contain an ICC profile");
+    }
+
+    // Make sure we're at least as strict as skcms_Parse().
+    if (!skcms_can_parse(input, len)) {
+        return nullptr;
     }
 
     // Create our own copy of the input.
