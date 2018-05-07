@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8426cc0_ae114f85",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 591,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-07T21:39:12Z",
+      "side": 1,
+      "message": "Is it left up to the caller to 0 this out? Not all glyphs will be in the cmap. It seems this used to zero out, and the other ones do, so maybe that got lost?",
+      "range": {
+        "startLine": 591,
+        "startChar": 58,
+        "endLine": 591,
+        "endChar": 66
+      },
+      "revId": "01bb03d4a5418263dd7f145d23e9502163916ce4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47d0692b_bc9fc183",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-07T21:39:12Z",
+      "side": 1,
+      "message": "Not sure what all of this is for. I know it was there before, but is it really needed?",
+      "range": {
+        "startLine": 596,
+        "startChar": 0,
+        "endLine": 599,
+        "endChar": 5
+      },
+      "revId": "01bb03d4a5418263dd7f145d23e9502163916ce4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4fef9cec_1c68db27",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1680,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-07T21:39:12Z",
+      "side": 1,
+      "message": "ws",
+      "range": {
+        "startLine": 1680,
+        "startChar": 70,
+        "endLine": 1680,
+        "endChar": 71
+      },
+      "revId": "01bb03d4a5418263dd7f145d23e9502163916ce4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8746936b_848c5391",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1717,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-07T21:39:12Z",
+      "side": 1,
+      "message": "Not used?",
+      "range": {
+        "startLine": 1717,
+        "startChar": 4,
+        "endLine": 1717,
+        "endChar": 59
+      },
+      "revId": "01bb03d4a5418263dd7f145d23e9502163916ce4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12e76639_e5935dee",
+        "filename": "tools/fonts/SkTestTypeface.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-07T21:39:12Z",
+      "side": 1,
+      "message": "SkTo\u003cSkUnichar\u003e",
+      "range": {
+        "startLine": 125,
+        "startChar": 30,
+        "endLine": 125,
+        "endChar": 37
+      },
+      "revId": "01bb03d4a5418263dd7f145d23e9502163916ce4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
