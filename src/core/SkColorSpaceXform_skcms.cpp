@@ -69,6 +69,13 @@ bool SkColorSpaceXform_skcms::apply(ColorFormat dstFormat, void* dst,
 }
 
 static bool cs_to_profile(const SkColorSpace* cs, skcms_ICCProfile* profile) {
+#ifndef SK_DONT_USE_SKCMS_SRGB
+    if (cs->isSRGB()) {
+        *profile = *skcms_sRGB_profile();
+        return true;
+    }
+#endif
+
     if (cs->profileData()) {
         return skcms_Parse(cs->profileData()->data(), cs->profileData()->size(), profile);
     }
