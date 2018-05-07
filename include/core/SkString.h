@@ -260,9 +260,9 @@ private:
     sk_sp<Rec> fRec;
 
 #ifdef SK_DEBUG
-    void validate() const;
+    const SkString& validate() const;
 #else
-    void validate() const {}
+    const SkString& validate() const { return *this; }
 #endif
 
     static const Rec gEmptyRec;
