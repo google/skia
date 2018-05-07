@@ -130,6 +130,7 @@ public:
                                           sk_sp<GrColorSpaceXform> colorSpaceXForm,
                                           GrSamplerState::Filter filter,
                                           std::unique_ptr<SkLatticeIter> iter, const SkRect& dst) {
+        SkASSERT(proxy);
         return Helper::FactoryHelper<NonAALatticeOp>(std::move(paint), viewMatrix, std::move(proxy),
                                                      std::move(colorSpaceXForm), filter,
                                                      std::move(iter), dst);
@@ -157,6 +158,7 @@ public:
     const char* name() const override { return "NonAALatticeOp"; }
 
     void visitProxies(const VisitProxyFunc& func) const override {
+        func(fProxy.get());
         fHelper.visitProxies(func);
     }
 
