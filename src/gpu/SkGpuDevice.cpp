@@ -1421,6 +1421,9 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
     sk_sp<SkColorSpace> proxyColorSpace;
     auto proxy =
             producer->refTextureProxyForParams(filter, dstColorSpace, &proxyColorSpace, nullptr);
+    if (!proxy) {
+        return;
+    }
     auto csxf = GrColorSpaceXform::Make(proxyColorSpace.get(), proxy->config(), dstColorSpace);
 
     fRenderTargetContext->drawImageLattice(this->clip(), std::move(grPaint), this->ctm(),
