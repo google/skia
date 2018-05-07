@@ -104,7 +104,7 @@ shared_library("libGLESv2") {
           ".",
           "$angle_root/src")
   if (!is_win) {
-    sources -= [ "$angle_root/src/libGLESv2/libGLESv2.def" ]
+    sources -= [ "$angle_root/src/libGLESv2/libGLESv2_autogen.def" ]
   }
 
   if (is_linux) {
