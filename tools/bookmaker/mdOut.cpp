@@ -16,6 +16,68 @@
     }                               \
     fprintf(fOut, __VA_ARGS__)
 
+const char* kConstTableStyle =
+"<style>"                                                                                      "\n"
+    ".td_const td, th { border: 2px solid #dddddd; text-align: left; padding: 8px; }"          "\n"
+    ".tr_const tr:nth-child(even) { background-color: #f0f0f0; }"                              "\n"
+    ".td2_const td:first-child + td { text-align: center; }"                                   "\n"
+"</style>"                                                                                     "\n";
+
+const char* kTableDeclaration = "<table style='border-collapse: collapse; width: 62.5em'>";
+
+#define kTD_Base         "border: 2px solid #dddddd; padding: 8px; "
+
+string kTD_Left    = "    <td style='text-align: left; "   kTD_Base "'>";
+string kTD_Center  = "    <td style='text-align: center; " kTD_Base "'>";
+#define kTH_Left         "<th style='text-align: left; "   kTD_Base "'>"
+#define kTH_Center       "<th style='text-align: center; " kTD_Base "'>"
+string kTR_Dark    =   "  <tr style='background-color: #f0f0f0; '>";
+
+const char* kAllConstTableHeader = "  <tr>" kTH_Left   "Const</th>"                             "\n"
+                                            kTH_Center "Value</th>"                             "\n"
+                                            kTH_Left   "Description</th>" "</tr>";
+const char* kSubConstTableHeader = "  <tr>" kTH_Left   "Const</th>"                             "\n"
+                                            kTH_Center "Value</th>"                             "\n"
+                                            kTH_Left   "Details</th>"                           "\n"
+                                            kTH_Left   "Description</th>" "</tr>";
+const char* kTopicsTableHeader   = "  <tr>" kTH_Left   "Topic</th>"                             "\n"
+                                            kTH_Left   "Description</th>" "</tr>";;
+
+string const_table_data_code_ref(const Definition* def) {
+    return kTD_Left + "<a href='" + def->fFiddle + "'> <code>" + def->fName + "</code> </a></td>";
+}
+
+string const_table_data_code_def(const Definition* def) {
+    return kTD_Left + "<a name='" + def->fFiddle + "'> <code>" + def->fName + "</code> </a></td>";
+}
+
+string const_table_data_const(const Definition* def, const char** textStartPtr) {
+    TextParser parser(def);
+    SkAssertResult(parser.skipToEndBracket('\n'));
+    string constant = string(def->fContentStart, (int) (parser.fChar - def->fContentStart));
+    if (textStartPtr) {
+        *textStartPtr = parser.fChar;
+    }
+    return kTD_Center + constant + "</td>";
+}
+
+string const_out_table_data_description_start() {
+    return kTD_Left;
+}
+
+string const_out_table_data_description(const Definition* def) {
+    return kTD_Left + string(def->fContentStart, (int) (def->fContentEnd - def->fContentStart))
+            + "</td>";
+}
+
+string const_out_table_data_details(string details) {
+    return kTD_Left + details + "</td>";
+}
+
+#undef kConstTDBase
+#undef kTH_Left
+#undef kTH_Center
+
 static void add_ref(string leadingSpaces, string ref, string* result) {
     *result += leadingSpaces + ref;
 }
@@ -41,6 +103,16 @@ static bool all_lower(string ref) {
 		}
 	}
 	return true;
+}
+
+// from https://stackoverflow.com/questions/3418231/replace-part-of-a-string-with-another-string
+void replace_all(string& str, const string& from, const string& to) {
+    SkASSERT(!from.empty());
+    size_t start_pos = 0;
+    while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+    }
 }
 
 // FIXME: preserve inter-line spaces and don't add new ones
@@ -381,6 +453,9 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
                 SkDebugf("could not open output file %s\n", fullName.c_str());
                 return false;
             }
+            if (false) {    // try inlining the style
+                FPRINTF("%s", kConstTableStyle);
+            }
             size_t underscorePos = header.find('_');
             if (string::npos != underscorePos) {
                 header.replace(underscorePos, 1, " ");
@@ -391,18 +466,32 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
             FPRINTF("===");
         }
         fPopulators.clear();
-        fPopulators[kClassesAndStructs].fDescription = "embedded struct and class members";
-        fPopulators[kConstants].fDescription = "enum and enum class, const values";
-        fPopulators[kConstructors].fDescription = "functions that construct";
-        fPopulators[kDefines].fDescription = "preprocessor definitions of functions, values";
-        fPopulators[kMemberFunctions].fDescription = "static functions and member methods";
-        fPopulators[kMembers].fDescription = "member values";
-        fPopulators[kOperators].fDescription = "operator overloading methods";
-        fPopulators[kRelatedFunctions].fDescription = "similar methods grouped together";
-        fPopulators[kSubtopics].fDescription = "";
-        fPopulators[kTypedefs].fDescription = "types defined by other types";
+        fPopulators[kClassesAndStructs].fName = "Class and Struct Declarations";
+        fPopulators[kClassesAndStructs].fOneLiner = "embedded struct and class members";
+        fPopulators[kConstants].fName = "Constants";
+        fPopulators[kConstants].fOneLiner = "enum and enum class, and their const values";
+        fPopulators[kConstants].fDetails =
+                "Constants defined by <code>enum</code>, <code>enum class</code>,"
+                " <code>#define</code>, <code>const</code>, and <code>constexpr</code>.";
+        fPopulators[kConstructors].fName = "Constructors";
+        fPopulators[kConstructors].fOneLiner = "functions that construct";
+        fPopulators[kDefines].fName = "Defines";
+        fPopulators[kDefines].fOneLiner = "preprocessor definitions of functions, values";
+        fPopulators[kMemberFunctions].fName = "Functions";
+        fPopulators[kMemberFunctions].fOneLiner = "static functions and member methods";
+        fPopulators[kMembers].fName = "Members";
+        fPopulators[kMembers].fOneLiner = "member values";
+        fPopulators[kOperators].fName = "Operators";
+        fPopulators[kOperators].fOneLiner = "operator overloading methods";
+        fPopulators[kRelatedFunctions].fName = "Related Functions";
+        fPopulators[kRelatedFunctions].fOneLiner = "similar methods grouped together";
+        fPopulators[kSubtopics].fName = "";
+        fPopulators[kSubtopics].fOneLiner = "";
+        fPopulators[kTypedefs].fName = "Typedef Declarations";
+        fPopulators[kTypedefs].fOneLiner = "types defined by other types";
         this->populateTables(fRoot);
-        this->markTypeOut(topicDef);
+        const Definition* prior = nullptr;
+        this->markTypeOut(topicDef, &prior);
     }
     if (fOut) {
         this->writePending();
@@ -454,12 +543,16 @@ void MdOut::childrenOut(const Definition* def, const char* start) {
         fEnumClass = def;
     }
     BmhParser::Resolvable resolvable = this->resolvable(def);
+    const Definition* prior = nullptr;
     for (auto& child : def->fChildren) {
+        if (MarkType::kPhraseParam == child->fMarkType) {
+            continue;
+        }
         end = child->fStart;
         if (BmhParser::Resolvable::kNo != resolvable) {
             this->resolveOut(start, end, resolvable);
         }
-        this->markTypeOut(child);
+        this->markTypeOut(child, &prior);
         start = child->fTerminator;
     }
     if (BmhParser::Resolvable::kNo != resolvable) {
@@ -469,6 +562,46 @@ void MdOut::childrenOut(const Definition* def, const char* start) {
     if (MarkType::kEnumClass == def->fMarkType) {
         fEnumClass = nullptr;
     }
+}
+
+// output header for subtopic for all consts: name, value, short descriptions (#Line)
+// output link to in context #Const with moderate description
+void MdOut::constOut(const Definition* def) {
+    this->writePending();
+    SkASSERT(TableState::kNone == fTableState);
+    this->mdHeaderOut(3);
+    FPRINTF("Constants");
+    this->lfAlways(2);
+    FPRINTF("%s", kTableDeclaration);  // <table> with style info
+    this->lfAlways(1);
+    FPRINTF("%s", kAllConstTableHeader);
+    this->lfAlways(1);
+    bool odd = true;
+    for (auto child : def->fChildren) {
+        if (MarkType::kConst != child->fMarkType) {
+            continue;
+        }
+        FPRINTF(odd ? kTR_Dark.c_str() : "  <tr>");
+        this->lfAlways(1);
+        FPRINTF(const_table_data_code_ref(def).c_str());
+        this->lfAlways(1);
+        FPRINTF(const_table_data_const(def, nullptr).c_str());
+        this->lfAlways(1);
+        // write line short description
+        auto oneLiner = std::find_if(child->fChildren.begin(), child->fChildren.end(),
+                [](const Definition* test){ return MarkType::kLine == test->fMarkType; } );
+        if (child->fChildren.end() == oneLiner) {
+            child->reportError<void>("const missing #Line");
+            continue;
+        }
+        FPRINTF(const_out_table_data_description(*oneLiner).c_str());
+        this->lfAlways(1);
+        FPRINTF("  </tr>");
+        this->lfAlways(1);
+        odd = !odd;
+    }
+    FPRINTF("</table>");
+    this->lfAlways(1);
 }
 
 const Definition* MdOut::csParent() const {
@@ -513,6 +646,18 @@ const Definition* MdOut::findParamType() {
         }
     } while (true);
     return nullptr;
+}
+
+bool MdOut::HasDetails(const Definition* def) {
+    for (auto child : def->fChildren) {
+        if (MarkType::kDetails == child->fMarkType) {
+            return true;
+        }
+        if (MdOut::HasDetails(child)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 const Definition* MdOut::isDefined(const TextParser& parser, string ref,
@@ -708,14 +853,17 @@ string MdOut::linkRef(string leadingSpaces, const Definition* def,
     if (MarkType::kAlias == def->fMarkType) {
         def = def->fParent;
         SkASSERT(def);
-        SkASSERT(MarkType::kSubtopic == def->fMarkType ||MarkType::kTopic == def->fMarkType);
+        SkASSERT(MarkType::kSubtopic == def->fMarkType
+            || MarkType::kTopic == def->fMarkType
+            || MarkType::kConst == def->fMarkType);
     }
     if (MarkType::kSubtopic == def->fMarkType) {
         const Definition* topic = def->topicParent();
         SkASSERT(topic);
         classPart = topic->fName;
         refName = def->fName;
-    } else if (MarkType::kTopic == def->fMarkType) {
+    } else if (MarkType::kTopic == def->fMarkType
+            || MarkType::kConst == def->fMarkType) {
         refName = def->fName;
     } else {
         if ('k' == (*str)[0] && string::npos != str->find("_Sk")) {
@@ -783,14 +931,18 @@ string MdOut::linkRef(string leadingSpaces, const Definition* def,
 	return result;
 }
 
-void MdOut::markTypeOut(Definition* def) {
+void MdOut::markTypeOut(Definition* def, const Definition** prior) {
     string printable = def->printableName();
     const char* textStart = def->fContentStart;
-    if (MarkType::kParam != def->fMarkType && MarkType::kConst != def->fMarkType &&
-            (!def->fParent || MarkType::kConst != def->fParent->fMarkType) &&
-            TableState::kNone != fTableState &&
-            (MarkType::kPhraseRef != def->fMarkType || !def->fParent ||
-            MarkType::kParam != def->fParent->fMarkType)) {
+    bool lookForOneLiner;
+    if (4797 <= def->fLineCount) {
+        SkDebugf("");
+    }
+    // #Param and #Const don't have markers to say when the last is seen, so detect that by looking
+    // for a change in type.
+    if ((MarkType::kParam != def->fMarkType && *prior && MarkType::kParam == (*prior)->fMarkType)
+                || (MarkType::kConst != def->fMarkType
+                && *prior && MarkType::kConst == (*prior)->fMarkType)) {
         this->writePending();
         FPRINTF("</table>");
         this->lf(2);
@@ -838,30 +990,61 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kComment:
             break;
         case MarkType::kConst: {
+            lookForOneLiner = false;
+            fWroteSomething = false;
+        // output consts for one parent with moderate descriptions
+        // optional link to subtopic with longer descriptions, examples
             if (TableState::kNone == fTableState) {
+                SkASSERT(!*prior || MarkType::kConst != (*prior)->fMarkType);
                 this->mdHeaderOut(3);
-                FPRINTF("Constants\n"
-                        "\n"
-                        "<table>");
+                FPRINTF("Constants");
+                this->lfAlways(2);
+                FPRINTF("%s", kTableDeclaration);
                 fTableState = TableState::kRow;
-                this->lf(1);
+                fOddRow = true;
+                this->lfAlways(1);
+                // look ahead to see if the details column has data or not
+                fHasDetails = MdOut::HasDetails(def->fParent);
+                FPRINTF("%s", fHasDetails ? kSubConstTableHeader : kTopicsTableHeader);
+                this->lfAlways(1);
             }
             if (TableState::kRow == fTableState) {
                 this->writePending();
-                FPRINTF("  <tr>");
-                this->lf(1);
+                FPRINTF(fOddRow ? kTR_Dark.c_str() : "  <tr>");
+                fOddRow = !fOddRow;
+                this->lfAlways(1);
                 fTableState = TableState::kColumn;
             }
             this->writePending();
-            FPRINTF("    <td><a name=\"%s\"> <code><strong>%s </strong></code> </a></td>",
-                    def->fFiddle.c_str(), def->fName.c_str());
-            const char* lineEnd = strchr(textStart, '\n');
-            SkASSERT(lineEnd < def->fTerminator);
-            SkASSERT(lineEnd > textStart);
-            SkASSERT((int) (lineEnd - textStart) == lineEnd - textStart);
-            FPRINTF("<td>%.*s</td>", (int) (lineEnd - textStart), textStart);
-            FPRINTF("<td>");
-            textStart = lineEnd;
+            FPRINTF(const_table_data_code_def(def).c_str());
+            this->lfAlways(1);
+            FPRINTF(const_table_data_const(def, &textStart).c_str());
+            this->lfAlways(1);
+            if (fHasDetails) {
+                string details;
+                auto subtopic = std::find_if(def->fChildren.begin(), def->fChildren.end(),
+                        [](const Definition* test){ 
+                        return MarkType::kDetails == test->fMarkType; } );
+                if (def->fChildren.end() != subtopic) {
+                    string subtopicName = string((*subtopic)->fContentStart,
+                            (int) ((*subtopic)->fContentEnd - (*subtopic)->fContentStart));
+                    const Definition* parentSubtopic = def->subtopicParent();
+                    SkASSERT(parentSubtopic);
+                    string fullName = parentSubtopic->fFiddle + '_' + subtopicName;
+                    if (fBmhParser.fTopicMap.end() == fBmhParser.fTopicMap.find(fullName)) {
+                        (*subtopic)->reportError<void>("missing #Details subtopic");
+                    }
+                    subtopicName = parentSubtopic->fName + '_' + subtopicName;
+                    string noUnderscores = subtopicName;
+                    replace_all(noUnderscores, "_", "&nbsp;");
+                    details = "<a href=\"#" + subtopicName + "\">" + noUnderscores + "</a>&nbsp;";
+                }
+                FPRINTF(const_out_table_data_details(details).c_str());
+                this->lfAlways(1);
+            }
+            lookForOneLiner = true;  // if description is empty, use oneLiner data
+            FPRINTF(const_out_table_data_description_start().c_str()); // start of Description
+            this->lfAlways(1);
         } break;
         case MarkType::kDefine:
             break;
@@ -874,7 +1057,7 @@ void MdOut::markTypeOut(Definition* def) {
             this->writePending();
             FPRINTF("<div>");
             break;
-        case MarkType::kDoxygen:
+        case MarkType::kDetails:
             break;
         case MarkType::kDuration:
             break;
@@ -924,8 +1107,6 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kExperimental:
             break;
         case MarkType::kExternal:
-            break;
-        case MarkType::kFile:
             break;
         case MarkType::kFormula:
             break;
@@ -1007,10 +1188,13 @@ void MdOut::markTypeOut(Definition* def) {
             } break;
         case MarkType::kNoExample:
             break;
+        case MarkType::kNoJustify:
+            break;
         case MarkType::kOutdent:
             break;
         case MarkType::kParam: {
             if (TableState::kNone == fTableState) {
+                SkASSERT(!*prior || MarkType::kParam != (*prior)->fMarkType);
                 this->mdHeaderOut(3);
                 fprintf(fOut,
                         "Parameters\n"
@@ -1036,13 +1220,75 @@ void MdOut::markTypeOut(Definition* def) {
             paramParser.skipToSpace();
             string paramNameStr(paramName, (int) (paramParser.fChar - paramName));
             if (!this->checkParamReturnBody(def)) {
+                *prior = def;
                 return;
             }
             string refNameStr = def->fParent->fFiddle + "_" + paramNameStr;
-            fprintf(fOut,
-                    "    <td><a name=\"%s\"> <code><strong>%s </strong></code> </a></td> <td>",
+            FPRINTF("    <td><a name=\"%s\"> <code><strong>%s </strong></code> </a></td>",
                     refNameStr.c_str(), paramNameStr.c_str());
+            this->lfAlways(1);
+            FPRINTF("    <td>");
         } break;
+        case MarkType::kPhraseDef:
+            // skip text and children
+            *prior = def;
+            return;
+        case MarkType::kPhraseParam:
+            SkDebugf("");
+            break;
+        case MarkType::kPhraseRef:
+            if (fPhraseParams.end() != fPhraseParams.find(def->fName)) {
+                if (fColumn > 0) {
+                    this->writeSpace();
+                }
+                this->writeString(fPhraseParams[def->fName]);
+                if (isspace(def->fContentStart[0])) {
+                    this->writeSpace();
+                }
+            } else if (fBmhParser.fPhraseMap.end() == fBmhParser.fPhraseMap.find(def->fName)) {
+                def->reportError<void>("missing phrase definition");
+                fAddRefFailed = true;
+            } else {
+                if (fColumn) {
+                    SkASSERT(' ' >= def->fStart[0]);
+                    this->writeSpace();
+                }
+                Definition* phraseRef = fBmhParser.fPhraseMap.find(def->fName)->second;
+                // def->fChildren are parameters to substitute phraseRef->fChildren,
+                // phraseRef->fChildren has both param defines and references
+                // def->fChildren must have the same number of entries as phaseRef->fChildren
+                // which are kPhraseParam, and substitute one for one
+                // Then, each kPhraseRef in phaseRef looks up the key and value
+                fPhraseParams.clear();
+                auto refKidsIter = phraseRef->fChildren.begin();
+                for (auto child : def->fChildren) {
+                    if (MarkType::kPhraseParam != child->fMarkType) {
+                        // more work to do to support other types
+                        this->reportError("phrase ref child must be param");
+                    }
+                    do {
+                        if (refKidsIter == phraseRef->fChildren.end()) {
+                            this->reportError("phrase def missing param");
+                            break;
+                        }
+                        if (MarkType::kPhraseRef == (*refKidsIter)->fMarkType) {
+                            continue;
+                        }
+                        if (MarkType::kPhraseParam != (*refKidsIter)->fMarkType) {
+                            this->reportError("unexpected type in phrase def children");
+                            break;
+                        }
+                        fPhraseParams[(*refKidsIter)->fName] = child->fName;
+                        break;
+                    } while (true);
+                }
+                this->childrenOut(phraseRef, phraseRef->fContentStart);
+                fPhraseParams.clear();
+                if (' ' >= def->fContentStart[0] && !fPendingLF) {
+                    this->writeSpace();
+                }
+            }
+            break;
         case MarkType::kPlatform:
             break;
         case MarkType::kPopulate: {
@@ -1060,6 +1306,7 @@ void MdOut::markTypeOut(Definition* def) {
             this->mdHeaderOut(3);
             FPRINTF("Return Value");
             if (!this->checkParamReturnBody(def)) {
+                *prior = def;
                 return;
             }
             this->lf(2);
@@ -1103,9 +1350,17 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kSubstitute:
             break;
         case MarkType::kSubtopic:
-            this->mdHeaderOut(2);
-            FPRINTF("<a name=\"%s\"></a> %s", def->fName.c_str(), printable.c_str());
-            this->lf(2);
+            if (!std::any_of(def->fChildren.begin(), def->fChildren.end(),
+                    [](Definition* child){return MarkType::kPopulate == child->fMarkType;})) {
+                this->mdHeaderOut(2);
+                FPRINTF("<a name=\"%s\"></a> %s", def->fName.c_str(), printable.c_str());
+                this->lf(2);
+            }
+            // if a subtopic child is const, generate short table of const name, value, line desc
+            if (std::any_of(def->fChildren.begin(), def->fChildren.end(),
+                    [](Definition* child){return MarkType::kConst == child->fMarkType;})) {
+                this->constOut(def);
+            }
             break;
         case MarkType::kTable:
             this->lf(2);
@@ -1113,8 +1368,6 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kTemplate:
             break;
         case MarkType::kText:
-            break;
-        case MarkType::kTime:
             break;
         case MarkType::kToDo:
             break;
@@ -1124,9 +1377,6 @@ void MdOut::markTypeOut(Definition* def) {
                     printable.c_str());
             this->lf(1);
             break;
-        case MarkType::kTrack:
-            // don't output children
-            return;
         case MarkType::kTypedef:
             break;
         case MarkType::kUnion:
@@ -1134,24 +1384,6 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kVolatile:
             break;
         case MarkType::kWidth:
-            break;
-        case MarkType::kPhraseDef:
-            // skip text and children
-            return;
-        case MarkType::kPhraseRef:
-            if (fBmhParser.fPhraseMap.end() == fBmhParser.fPhraseMap.find(def->fName)) {
-                def->reportError<void>("missing phrase definition");
-                fAddRefFailed = true;
-            } else {
-                if (fColumn && ' ' >= def->fStart[0]) {
-                    this->writeSpace();
-                }
-                Definition* phraseRef = fBmhParser.fPhraseMap.find(def->fName)->second;
-                this->childrenOut(phraseRef, phraseRef->fContentStart);
-                if (' ' >= def->fContentStart[0]) {
-                    this->writeSpace();
-                }
-            }
             break;
         default:
             SkDebugf("fatal error: MarkType::k%s unhandled in %s()\n",
@@ -1180,7 +1412,7 @@ void MdOut::markTypeOut(Definition* def) {
             if (fInList) {
                 this->writePending();
                 FPRINTF("</td>");
-                this->lf(1);
+                this->lfAlways(1);
             } else {
                 FPRINTF(" ");
             }
@@ -1192,7 +1424,10 @@ void MdOut::markTypeOut(Definition* def) {
             break;
         case MarkType::kEnum:
         case MarkType::kEnumClass:
-            this->lfAlways(2);
+            this->writePending();
+            FPRINTF("</table>");
+            this->lf(2);
+            fTableState = TableState::kNone;
             break;
         case MarkType::kExample:
             this->writePending();
@@ -1218,6 +1453,7 @@ void MdOut::markTypeOut(Definition* def) {
             this->writePending();
             FPRINTF("</table>");
             this->lf(2);
+            fTableState = TableState::kNone;
             break;
         case MarkType::kLegend: {
             SkASSERT(def->fChildren.size() == 1);
@@ -1239,13 +1475,25 @@ void MdOut::markTypeOut(Definition* def) {
             this->lf(2);
             break;
         case MarkType::kConst:
+            if (lookForOneLiner && !fWroteSomething) {
+                auto oneLiner = std::find_if(def->fChildren.begin(), def->fChildren.end(),
+                        [](const Definition* test){ return MarkType::kLine == test->fMarkType; } );
+                if (def->fChildren.end() != oneLiner) {
+                    TextParser parser(*oneLiner);
+                    parser.skipWhiteSpace();
+                    parser.trimEnd();
+                    FPRINTF("%.*s", (int) (parser.fEnd - parser.fChar), parser.fChar);
+                }
+                lookForOneLiner = false;
+            }
         case MarkType::kParam:
             SkASSERT(TableState::kColumn == fTableState);
             fTableState = TableState::kRow;
             this->writePending();
-            FPRINTF("</td>\n");
+            FPRINTF("</td>");
+            this->lfAlways(1);
             FPRINTF("  </tr>");
-            this->lf(1);
+            this->lfAlways(1);
             break;
         case MarkType::kReturn:
         case MarkType::kSeeAlso:
@@ -1272,6 +1520,7 @@ void MdOut::markTypeOut(Definition* def) {
         default:
             break;
     }
+    *prior = def;
 }
 
 void MdOut::mdHeaderOutLF(int depth, int lf) {
@@ -1307,6 +1556,10 @@ void MdOut::populateTables(const Definition* def) {
             fClassStack.push_back(child);
             this->populateTables(child);
             fClassStack.pop_back();
+            continue;
+        }
+        if (MarkType::kConst == child->fMarkType) {
+            this->populator(kConstants).fMembers.push_back(child);
             continue;
         }
         if (MarkType::kEnum == child->fMarkType || MarkType::kEnumClass == child->fMarkType) {
@@ -1416,6 +1669,7 @@ void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable
                 }
                 string str(contentStart, lineLength);
                 this->writeString(str.c_str());
+                fWroteSomething = !!lineLength;
             }
             if (paragraph.eof()) {
                 break;
@@ -1431,46 +1685,76 @@ void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable
     }
 }
 
-void MdOut::rowOut(const char* name, string description) {
+void MdOut::rowOut(const char* name, string description, bool literalName) {
+    FPRINTF("%s", fOddRow ? kTR_Dark.c_str() : "  <tr>");
     this->lfAlways(1);
-    FPRINTF("| ");
-    this->resolveOut(name, name + strlen(name), BmhParser::Resolvable::kYes);
-    FPRINTF(" | ");
+    FPRINTF("%s", kTD_Left.c_str());
+    if (literalName) {
+        if (strlen(name)) {
+            this->writeString(name);
+        }
+    } else {
+        this->resolveOut(name, name + strlen(name), BmhParser::Resolvable::kYes);
+    }
+    FPRINTF("</td>");
+    this->lfAlways(1);
+    FPRINTF("%s", kTD_Left.c_str());
     this->resolveOut(&description.front(), &description.back() + 1, BmhParser::Resolvable::kYes);
-    FPRINTF(" |");
-    this->lf(1);
+    FPRINTF("</td>");
+    this->lfAlways(1);
+    FPRINTF("  </tr>");
+    this->lfAlways(1);
+    fOddRow = !fOddRow;
 }
 
 void MdOut::subtopicsOut() {
     const Definition* csParent = this->csParent();
+    const Definition* topicParent = fRoot ? fRoot->topicParent() : nullptr;
     SkASSERT(csParent);
-    this->rowOut("name", "description");
-    this->rowOut("---", "---");
+    this->lfAlways(1);
+    FPRINTF("%s", kTableDeclaration);
+    this->lfAlways(1);
+    FPRINTF("%s", kTopicsTableHeader);
+    this->lfAlways(1);
+    fOddRow = true;
     for (auto item : { kClassesAndStructs, kConstants, kConstructors, kDefines,
             kMemberFunctions, kMembers, kOperators, kRelatedFunctions, kTypedefs } ) {
         for (auto entry : this->populator(item).fMembers) {
-            if (entry->csParent() == csParent) {
-                string description = fPopulators.find(item)->second.fDescription;
+            if (entry->csParent() == csParent || entry->topicParent() == topicParent) {
+                auto popItem = fPopulators.find(item);
+                string description = popItem->second.fOneLiner;
                 if (kConstructors == item) {
                     description += " " + csParent->fName;
                 }
-                this->rowOut(item, description);
+                string link = "<a href='" + string(item)  + "'>" + popItem->second.fName + "</a>";
+                this->rowOut(link.c_str(), description, true);
                 break;
             }
         }
     }
+    FPRINTF("</table>");
+    this->lfAlways(1);
 }
 
 void MdOut::subtopicOut(const TableContents& tableContents) {
     const auto& data = tableContents.fMembers;
     const Definition* csParent = this->csParent();
+    const Definition* topicParent = fRoot ? fRoot->topicParent() : nullptr;
     SkASSERT(csParent);
     fRoot = csParent->asRoot();
-    this->rowOut("name", "description");
-    this->rowOut("---", "---");
+    this->lfAlways(1);
+    if (tableContents.fDetails.length()) {
+        this->writeString(tableContents.fDetails);
+        this->lfAlways(1);
+    }
+    FPRINTF("%s", kTableDeclaration);
+    this->lfAlways(1);
+    FPRINTF("%s", kTopicsTableHeader);
+    this->lfAlways(1);
+    fOddRow = true;
     std::map<string, const Definition*> items;
     for (auto entry : data) {
-        if (entry->csParent() != csParent) {
+        if (entry->csParent() != csParent && entry->topicParent() != topicParent) {
             continue;
         }
         size_t start = entry->fName.find_last_of("::");
@@ -1494,8 +1778,16 @@ void MdOut::subtopicOut(const TableContents& tableContents) {
             parser.reportError("missing #Line");
             continue;
         }
-        this->rowOut(entry.first.c_str(), string(oneLiner->fContentStart,
-            oneLiner->fContentEnd - oneLiner->fContentStart));
+        string name = entry.first;
+        TextParser dummy(entry.second); // for reporting errors, which we won't do
+        if (!this->isDefined(dummy, name, BmhParser::Resolvable::kOut)) {
+            name = entry.second->fName;
+            size_t doubleColon = name.find("::");
+            SkASSERT(string::npos != doubleColon);
+            name = name.substr(doubleColon + 2);
+        }
+        this->rowOut(name.c_str(), string(oneLiner->fContentStart,
+                oneLiner->fContentEnd - oneLiner->fContentStart), false);
         if (tableContents.fShowClones && entry.second->fCloned) {
             int cloneNo = 2;
             string builder = entry.second->fName;
@@ -1504,15 +1796,18 @@ void MdOut::subtopicOut(const TableContents& tableContents) {
             }
             builder += '_';
             this->rowOut("",
-                    preformat(entry.second->formatFunction(Definition::Format::kOmitReturn)));
+                    preformat(entry.second->formatFunction(Definition::Format::kOmitReturn)), true);
             do {
                 string match = builder + to_string(cloneNo);
                 auto child = csParent->findClone(match);
                 if (!child) {
                     break;
                 }
-                this->rowOut("", preformat(child->formatFunction(Definition::Format::kOmitReturn)));
+                this->rowOut("",
+                        preformat(child->formatFunction(Definition::Format::kOmitReturn)), true);
             } while (++cloneNo);
         }
     }
+    FPRINTF("</table>");
+    this->lfAlways(1);
 }

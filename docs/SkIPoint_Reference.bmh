@@ -10,7 +10,7 @@
 
 #Struct SkIPoint
 
-SkIPoint holds two 32 bit integer coordinates.
+SkIPoint holds two 32-bit integer coordinates.
 
 #Subtopic Related_Function
 #Populate
