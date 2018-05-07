@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97163921_843bfd7e",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-07T21:18:18Z",
+      "side": 1,
+      "message": "SkSafeMath::Add ?",
+      "range": {
+        "startLine": 226,
+        "startChar": 21,
+        "endLine": 226,
+        "endChar": 47
+      },
+      "revId": "e3d4c698ca67de99bc5a3dc127a0b758386ad163",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15ab9d73_6612e82f",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-07T21:18:18Z",
+      "side": 1,
+      "message": "SkSafeMath::Add ?",
+      "range": {
+        "startLine": 231,
+        "startChar": 4,
+        "endLine": 233,
+        "endChar": 34
+      },
+      "revId": "e3d4c698ca67de99bc5a3dc127a0b758386ad163",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
