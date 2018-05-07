@@ -378,6 +378,8 @@
   "Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Debug-All-Android_Vulkan",
   "Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Release-All-Android",
   "Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Release-All-Android_Vulkan",
+  "Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Debug-All-Android_DDL1_Vulkan",
+  "Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Debug-All-Android_DDL3_Vulkan",
   "Test-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Debug-All",
   "Test-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All",
   "Test-ChromeOS-Clang-AcerChromebook13_CB5_311-GPU-TegraK1-arm-Debug-All",
