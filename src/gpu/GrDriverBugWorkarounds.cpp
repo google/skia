@@ -29,4 +29,13 @@ GrDriverBugWorkarounds::GrDriverBugWorkarounds(
     }
 }
 
+void GrDriverBugWorkarounds::applyOverrides(
+        const GrDriverBugWorkarounds& workarounds) {
+#define GPU_OP(type, name) \
+    name |= workarounds.name;
+
+    GPU_DRIVER_BUG_WORKAROUNDS(GPU_OP)
+#undef GPU_OP
+}
+
 GrDriverBugWorkarounds::~GrDriverBugWorkarounds() = default;
