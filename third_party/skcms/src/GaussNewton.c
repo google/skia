@@ -8,6 +8,7 @@
 #include "../skcms.h"
 #include "GaussNewton.h"
 #include "LinearAlgebra.h"
+#include "PortableMath.h"
 #include "TransferFunction.h"
 #include <assert.h>
 #include <string.h>
@@ -90,7 +91,7 @@ bool skcms_gauss_newton_step(float (*rg)(float x, const void*, const float P[3],
     P[0] += dP.vals[0];
     P[1] += dP.vals[1];
     P[2] += dP.vals[2];
-    return true;
+    return isfinitef_(P[0]) && isfinitef_(P[1]) && isfinitef_(P[2]);
 }
 
 float skcms_eval_curve(float x, const skcms_Curve* curve) {
