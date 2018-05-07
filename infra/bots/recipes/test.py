@@ -105,7 +105,9 @@ def dm_flags(api, bot):
       configs.extend(['lite-8888'])              # Experimental display list.
       configs.extend(['gbr-8888'])
 
-    if 'T8888' in bot or 'SAN' in bot:
+    if 'T8888' in bot:
+      configs = ['t8888']
+    elif 'SAN' in bot:
       configs.extend(['t8888'])
 
     configs.extend(mode + '-8888' for mode in ['serialize', 'tiles_rt', 'pic'])
