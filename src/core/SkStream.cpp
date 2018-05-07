@@ -209,27 +209,34 @@ bool SkFILEStream::isAtEnd() const {
 }
 
 bool SkFILEStream::rewind() {
-    // TODO: fOriginalOffset instead of 0.
-    fOffset = 0;
+    fOffset = fOriginalOffset;
     return true;
 }
 
 SkStreamAsset* SkFILEStream::onDuplicate() const {
-    // TODO: fOriginalOffset instead of 0.
-    return new SkFILEStream(fFILE, fSize, 0, fOriginalOffset);
+    return new SkFILEStream(fFILE, fSize, fOriginalOffset, fOriginalOffset);
 }
 
 size_t SkFILEStream::getPosition() const {
-    return fOffset;
+    SkASSERT(fOffset >= fOriginalOffset);
+    return fOffset - fOriginalOffset;
 }
 
 bool SkFILEStream::seek(size_t position) {
-    fOffset = position > fSize ? fSize : position;
+    fOffset = SkTMin(position + fOriginalOffset, fSize);
     return true;
 }
 
 bool SkFILEStream::move(long offset) {
-    return this->seek(fOffset + offset);
+    const long requestedPosition = fOffset + offset;
+    if (requestedPosition < 0 || (size_t) requestedPosition <= fOriginalOffset) {
+        fOffset = fOriginalOffset;
+    } else if ((size_t) requestedPosition >= fSize) {
+        fOffset = fSize;
+    } else {
+        fOffset = (size_t) requestedPosition;
+    }
+    return true;
 }
 
 SkStreamAsset* SkFILEStream::onFork() const {
@@ -237,7 +244,7 @@ SkStreamAsset* SkFILEStream::onFork() const {
 }
 
 size_t SkFILEStream::getLength() const {
-    return fSize;
+    return fSize - fOriginalOffset;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
