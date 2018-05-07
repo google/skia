@@ -167,6 +167,9 @@ public:
         , fCullRect(cullRect)
         , fBounds(bounds) {
         fCTM = SkMatrix::I();
+
+        // We push an extra save block to track the bounds of any top-level control operations.
+        fSaveStack.push({ 0, Bounds::MakeEmpty(), nullptr, fCTM });
     }
 
     void cleanUp() {
