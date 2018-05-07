@@ -70,6 +70,24 @@
       "revId": "117d708fa0f1978ef31a8915596c82bcfacbaf0f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3303dca6_244201c3",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-07T15:27:04Z",
+      "side": 1,
+      "message": "Yeah the t8888 config was broken before 125283.",
+      "parentUuid": "d23297d5_8976c5ec",
+      "revId": "117d708fa0f1978ef31a8915596c82bcfacbaf0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
