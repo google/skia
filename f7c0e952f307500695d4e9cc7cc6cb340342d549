@@ -22,6 +22,30 @@
       "revId": "f7c0e952f307500695d4e9cc7cc6cb340342d549",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "747a455b_1ce86870",
+        "filename": "infra/bots/assets/gcloud_linux/create_and_upload.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-05-07T14:25:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "634a7980_eda30d2d",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 48
+      },
+      "revId": "f7c0e952f307500695d4e9cc7cc6cb340342d549",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
