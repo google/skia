@@ -105,10 +105,13 @@ def dm_flags(api, bot):
       configs.extend(['lite-8888'])              # Experimental display list.
       configs.extend(['gbr-8888'])
 
-    if 'T8888' in bot or 'SAN' in bot:
-      configs.extend(['t8888'])
+      if 'SAN' in bot:
+        configs.extend(['t8888'])
 
     configs.extend(mode + '-8888' for mode in ['serialize', 'tiles_rt', 'pic'])
+
+    if 'T8888' in bot:
+      configs = ['t8888']
 
     # This bot only differs from vanilla CPU bots in 8888 config.
     if 'SK_FORCE_RASTER_PIPELINE_BLITTER' in bot:
@@ -293,6 +296,11 @@ def dm_flags(api, bot):
     args.remove('tests')
 
   if 'NativeFonts' in bot:  # images won't exercise native font integration :)
+    args.remove('image')
+    args.remove('colorImage')
+
+  if 'T8888' in bot:
+    args.remove('tests')
     args.remove('image')
     args.remove('colorImage')
 
@@ -954,6 +962,7 @@ TEST_BUILDERS = [
   'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android',
   'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android_CCPR',
   'Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-All-Android',
+  'Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Release-All-Android_ASAN',
   'Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_ASAN',
   'Test-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android_ASAN',
   ('Test-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All'
