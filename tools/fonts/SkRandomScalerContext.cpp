@@ -168,7 +168,7 @@ void SkRandomTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {
     fProxy->getGlyphToUnicodeMap(glyphToUnicode);
 }
 
-std::unique_ptr<SkAdvancedTypefaceMetrics> SkRandomTypeface::onGetAdvancedMetrics() const {
+SkAdvancedTypefaceMetrics SkRandomTypeface::onGetAdvancedMetrics() const {
     return fProxy->getAdvancedMetrics();
 }
 

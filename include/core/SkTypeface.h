@@ -312,7 +312,7 @@ protected:
     friend class SkScalerContext;  // onFilterRec
 
     //  Subclasses *must* override this method to work with the PDF backend.
-    virtual std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const;
+    virtual SkAdvancedTypefaceMetrics onGetAdvancedMetrics() const;
     // For type1 postscript fonts only, set the glyph names for each glyph.
     // destination array is non-null, and points to an array of size this->countGlyphs().
     // Backends that do not suport type1 fonts should not override.
@@ -359,7 +359,7 @@ protected:
 
 private:
     /** Retrieve detailed typeface metrics.  Used by the PDF backend.  */
-    std::unique_ptr<SkAdvancedTypefaceMetrics> getAdvancedMetrics() const;
+    SkAdvancedTypefaceMetrics getAdvancedMetrics() const;
     friend class SkRandomTypeface; // getAdvancedMetrics
     friend class SkPDFFont;        // getAdvancedMetrics
 

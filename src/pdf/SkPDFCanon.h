@@ -40,7 +40,7 @@ public:
 
     SkTHashMap<SkBitmapKey, sk_sp<SkPDFObject>> fPDFBitmapMap;
 
-    SkTHashMap<uint32_t, std::unique_ptr<SkAdvancedTypefaceMetrics>> fTypefaceMetrics;
+    SkTHashMap<uint32_t, SkAdvancedTypefaceMetrics> fTypefaceMetrics;
     SkTHashMap<uint32_t, std::vector<SkString>> fType1GlyphNames;
     SkTHashMap<uint32_t, std::vector<SkUnichar>> fToUnicodeMap;
     SkTHashMap<uint32_t, sk_sp<SkPDFDict>> fFontDescriptors;

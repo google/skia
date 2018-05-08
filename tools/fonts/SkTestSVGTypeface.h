@@ -78,7 +78,7 @@ protected:
                                            const SkDescriptor* desc) const override;
     void onFilterRec(SkScalerContextRec* rec) const override;
     void getGlyphToUnicodeMap(SkUnichar*) const override;
-    std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
+    SkAdvancedTypefaceMetrics onGetAdvancedMetrics() const override;
 
     SkStreamAsset* onOpenStream(int* ttcIndex) const override {
         return nullptr;

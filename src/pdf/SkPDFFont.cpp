@@ -142,26 +142,20 @@ const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(SkTypeface* typeface,
                                                        SkPDFCanon* canon) {
     SkASSERT(typeface);
     SkFontID id = typeface->uniqueID();
-    if (std::unique_ptr<SkAdvancedTypefaceMetrics>* ptr = canon->fTypefaceMetrics.find(id)) {
-        return ptr->get();  // canon retains ownership.
+    if (SkAdvancedTypefaceMetrics* ptr = canon->fTypefaceMetrics.find(id)) {
+        return ptr;  // canon retains ownership.
     }
     int count = typeface->countGlyphs();
     if (count <= 0 || count > 1 + SK_MaxU16) {
-        // Cache nullptr to skip this check.  Use SkSafeUnref().
-        canon->fTypefaceMetrics.set(id, nullptr);
-        return nullptr;
+        return canon->fTypefaceMetrics.set(id, SkAdvancedTypefaceMetrics());
     }
-    std::unique_ptr<SkAdvancedTypefaceMetrics> metrics = typeface->getAdvancedMetrics();
-    if (!metrics) {
-        metrics = skstd::make_unique<SkAdvancedTypefaceMetrics>();
-    }
-
-    if (0 == metrics->fStemV || 0 == metrics->fCapHeight) {
+    SkAdvancedTypefaceMetrics metrics = typeface->getAdvancedMetrics();
+    if (0 == metrics.fStemV || 0 == metrics.fCapHeight) {
         SkPaint tmpPaint;
         tmpPaint.setHinting(SkPaint::kNo_Hinting);
         tmpPaint.setTypeface(sk_ref_sp(typeface));
         tmpPaint.setTextSize(1000);  // glyph coordinate system
-        if (0 == metrics->fStemV) {
+        if (0 == metrics.fStemV) {
             // Figure out a good guess for StemV - Min width of i, I, !, 1.
             // This probably isn't very good with an italic font.
             int16_t stemV = SHRT_MAX;
@@ -170,9 +164,9 @@ const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(SkTypeface* typeface,
                 tmpPaint.measureText(&c, 1, &bounds);
                 stemV = SkTMin(stemV, SkToS16(SkScalarRoundToInt(bounds.width())));
             }
-            metrics->fStemV = stemV;
+            metrics.fStemV = stemV;
         }
-        if (0 == metrics->fCapHeight) {
+        if (0 == metrics.fCapHeight) {
             // Figure out a good guess for CapHeight: average the height of M and X.
             SkScalar capHeight = 0;
             for (char c : {'M', 'X'}) {
@@ -180,10 +174,10 @@ const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(SkTypeface* typeface,
                 tmpPaint.measureText(&c, 1, &bounds);
                 capHeight += bounds.height();
             }
-            metrics->fCapHeight = SkToS16(SkScalarRoundToInt(capHeight / 2));
+            metrics.fCapHeight = SkToS16(SkScalarRoundToInt(capHeight / 2));
         }
     }
-    return canon->fTypefaceMetrics.set(id, std::move(metrics))->get();
+    return canon->fTypefaceMetrics.set(id, metrics);
 }
 
 const std::vector<SkUnichar>& SkPDFFont::GetUnicodeMap(const SkTypeface* typeface,
@@ -217,10 +211,7 @@ sk_sp<SkPDFFont> SkPDFFont::GetFontResource(SkPDFCanon* canon,
                                             SkGlyphID glyphID) {
     SkASSERT(canon);
     SkASSERT(face);  // All SkPDFDevice::internalDrawText ensures this.
-    const SkAdvancedTypefaceMetrics* fontMetrics = SkPDFFont::GetMetrics(face, canon);
-    SkASSERT(fontMetrics);  // SkPDFDevice::internalDrawText ensures the typeface is good.
-                            // GetMetrics only returns null to signify a bad typeface.
-    const SkAdvancedTypefaceMetrics& metrics = *fontMetrics;
+    const SkAdvancedTypefaceMetrics& metrics = *SkPDFFont::GetMetrics(face, canon);
     SkAdvancedTypefaceMetrics::FontType type = SkPDFFont::FontType(metrics);
     bool multibyte = SkPDFFont::IsMultiByte(type);
     SkGlyphID subsetCode = multibyte ? 0 : first_nonzero_glyph_for_single_byte_encoding(glyphID);

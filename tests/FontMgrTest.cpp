@@ -133,8 +133,9 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
             return nullptr;
         }
         void onFilterRec(SkScalerContextRec*) const override { }
-        std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override {
-            return nullptr;
+        void getGlyphToUnicodeMap(SkUnichar*) const override { }
+        SkAdvancedTypefaceMetrics onGetAdvancedMetrics() const override {
+            return SkAdvancedTypefaceMetrics();
         }
         void onGetFontDescriptor(SkFontDescriptor*, bool*) const override { }
         virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
