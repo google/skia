@@ -70,6 +70,30 @@
       "revId": "9a9c25b36ce50f266ae9ec6ec9b06d9465cd3924",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2957eb4_70533a68",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-08T19:26:09Z",
+      "side": 0,
+      "message": "But the rec and desc which is made using the matrix is the same. The difference between here and SkFindAndPlaceGlyph is that here we update the alignment conditionally on it.positioning() \u003d Horizontal but in SkFindAndPlaceGlyph, it does it unconditionally.",
+      "parentUuid": "00e407c3_5b884684",
+      "range": {
+        "startLine": 369,
+        "startChar": 4,
+        "endLine": 372,
+        "endChar": 5
+      },
+      "revId": "9a9c25b36ce50f266ae9ec6ec9b06d9465cd3924",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
