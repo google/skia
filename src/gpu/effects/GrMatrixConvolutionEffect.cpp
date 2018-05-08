@@ -220,9 +220,11 @@ static void fill_in_2D_gaussian_kernel(float* kernel, int width, int height,
 
     if (SkScalarNearlyZero(twoSigmaSqrdX, SK_ScalarNearlyZero) ||
         SkScalarNearlyZero(twoSigmaSqrdY, SK_ScalarNearlyZero)) {
+        SkASSERT(3 == width && 3 == height);
         for (int i = 0; i < width * height; ++i) {
             kernel[i] = 0.0f;
         }
+        kernel[4] = 1.0f;
         return;
     }
 
