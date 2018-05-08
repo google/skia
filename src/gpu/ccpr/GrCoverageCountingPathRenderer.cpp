@@ -511,15 +511,9 @@ void CCPR::DrawPathsOp::onExecute(GrOpFlushState* flushState) {
 
         GrCCPathProcessor pathProc(flushState->resourceProvider(),
                                    sk_ref_sp(batch.fAtlas->textureProxy()), this->getFillType());
-
-        GrMesh mesh(GrCCPathProcessor::MeshPrimitiveType(flushState->caps()));
-        mesh.setIndexedInstanced(fCCPR->fPerFlushIndexBuffer.get(),
-                                 GrCCPathProcessor::NumIndicesPerInstance(flushState->caps()),
-                                 fCCPR->fPerFlushInstanceBuffer.get(),
-                                 batch.fEndInstanceIdx - baseInstance, baseInstance);
-        mesh.setVertexData(fCCPR->fPerFlushVertexBuffer.get());
-
-        flushState->rtCommandBuffer()->draw(pipeline, pathProc, &mesh, nullptr, 1, this->bounds());
+        pathProc.drawPaths(flushState, pipeline, fCCPR->fPerFlushIndexBuffer.get(),
+                           fCCPR->fPerFlushVertexBuffer.get(), fCCPR->fPerFlushInstanceBuffer.get(),
+                           baseInstance, batch.fEndInstanceIdx, this->bounds());
     }
 
     SkASSERT(baseInstance == fBaseInstance + fInstanceCount - fNumSkippedInstances);

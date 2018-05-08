@@ -7,6 +7,7 @@
 
 #include "GrCCPathProcessor.h"
 
+#include "GrGpuCommandBuffer.h"
 #include "GrOnFlushResourceProvider.h"
 #include "GrTexture.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -74,11 +75,6 @@ sk_sp<const GrBuffer> GrCCPathProcessor::FindIndexBuffer(GrOnFlushResourceProvid
     }
 }
 
-int GrCCPathProcessor::NumIndicesPerInstance(const GrCaps& caps) {
-    return caps.usePrimitiveRestart() ? SK_ARRAY_COUNT(kOctoIndicesAsStrips)
-                                      : SK_ARRAY_COUNT(kOctoIndicesAsTris);
-}
-
 GrCCPathProcessor::GrCCPathProcessor(GrResourceProvider* resourceProvider,
                                      sk_sp<GrTextureProxy> atlas, SkPath::FillType fillType)
         : INHERITED(kGrCCPathProcessor_ClassID)
@@ -142,6 +138,25 @@ private:
 
 GrGLSLPrimitiveProcessor* GrCCPathProcessor::createGLSLInstance(const GrShaderCaps&) const {
     return new GLSLPathProcessor();
+}
+
+void GrCCPathProcessor::drawPaths(GrOpFlushState* flushState, const GrPipeline& pipeline,
+                                  const GrBuffer* indexBuffer, const GrBuffer* vertexBuffer,
+                                  GrBuffer* instanceBuffer, int baseInstance, int endInstance,
+                                  const SkRect& bounds) const {
+    const GrCaps& caps = flushState->caps();
+    GrPrimitiveType primitiveType = caps.usePrimitiveRestart()
+                                            ? GrPrimitiveType::kTriangleStrip
+                                            : GrPrimitiveType::kTriangles;
+    int numIndicesPerInstance = caps.usePrimitiveRestart()
+                                        ? SK_ARRAY_COUNT(kOctoIndicesAsStrips)
+                                        : SK_ARRAY_COUNT(kOctoIndicesAsTris);
+    GrMesh mesh(primitiveType);
+    mesh.setIndexedInstanced(indexBuffer, numIndicesPerInstance, instanceBuffer,
+                             endInstance - baseInstance, baseInstance);
+    mesh.setVertexData(vertexBuffer);
+
+    flushState->rtCommandBuffer()->draw(pipeline, *this, &mesh, nullptr, 1, bounds);
 }
 
 void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
