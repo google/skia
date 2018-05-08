@@ -171,6 +171,13 @@ struct GrContextOptions {
     Enable fSortRenderTargets = Enable::kDefault;
 
     /**
+     * Some ES3 contexts report the ES2 external image extension, but not the ES3 version.
+     * If support for external images is critical, enabling this option will cause Ganesh to limit
+     * shaders to the ES2 shading language in that situation.
+     */
+    bool fPreferExternalImagesOverES3 = false;
+
+    /**
      * Disables correctness workarounds that are enabled for particular GPUs, OSes, or drivers.
      * This does not affect code path choices that are made for perfomance reasons nor does it
      * override other GrContextOption settings.
