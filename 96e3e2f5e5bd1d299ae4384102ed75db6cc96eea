@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "32b028c7_7edda382",
+        "filename": "src/gpu/GrTextureAdjuster.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-08T15:51:09Z",
+      "side": 1,
+      "message": "I\u0027m happy to remove these #if\u0027s, but I wanted to make sure someone who understood these files better than I could review the conflicts.\n\nThis one may be pointless anyway, since no one runs Android with SkASSERTs turned on.",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 84,
+        "endChar": 5
+      },
+      "revId": "96e3e2f5e5bd1d299ae4384102ed75db6cc96eea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbd2e8f9_0525349a",
+        "filename": "src/gpu/GrTextureMaker.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-08T15:51:09Z",
+      "side": 1,
+      "message": "Another conflict. Maybe this quick reject would be useful for Android? But we don\u0027t have any P bugs for it.",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 6
+      },
+      "revId": "96e3e2f5e5bd1d299ae4384102ed75db6cc96eea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3b40f2d_0e4b046c",
+        "filename": "src/gpu/ops/GrLatticeOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-08T15:51:09Z",
+      "side": 1,
+      "message": "Last conflict. This code wasn\u0027t here (create the proxy) in master, but it looks like I just need to move the origin to the desc.",
+      "range": {
+        "startLine": 375,
+        "startChar": 0,
+        "endLine": 381,
+        "endChar": 6
+      },
+      "revId": "96e3e2f5e5bd1d299ae4384102ed75db6cc96eea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
