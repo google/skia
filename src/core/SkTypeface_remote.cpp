@@ -13,7 +13,7 @@
 SkScalerContextProxy::SkScalerContextProxy(sk_sp<SkTypeface> tf,
                                            const SkScalerContextEffects& effects,
                                            const SkDescriptor* desc,
-                                           SkStrikeClient* rsc)
+                                           SkGPUStikeCachePopulator* rsc)
         : SkScalerContext{std::move(tf), effects, desc}, fClient{rsc} {}
 
 unsigned SkScalerContextProxy::generateGlyphCount()  {
