@@ -47,10 +47,10 @@ SkTestFont::~SkTestFont() {
     delete[] fPaths;
 }
 
-int SkTestFont::codeToIndex(SkUnichar charCode) const {
-    for (unsigned index = 0; index < fCharCodesCount; ++index) {
-        if (fCharCodes[index] == (unsigned) charCode) {
-            return (int) index;
+SkGlyphID SkTestFont::glyphForUnichar(SkUnichar charCode) const {
+    for (size_t index = 0; index < fCharCodesCount; ++index) {
+        if (fCharCodes[index] == charCode) {
+            return SkTo<SkGlyphID>(index);
         }
     }
     return 0;
@@ -140,12 +140,12 @@ void SkTestTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) 
 }
 
 int SkTestTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
-                                    uint16_t glyphs[], int glyphCount) const {
+                                    SkGlyphID glyphs[], int glyphCount) const {
     auto utf8  = (const      char*)chars;
     auto utf16 = (const  uint16_t*)chars;
     auto utf32 = (const SkUnichar*)chars;
 
-    for (int i = 0; i < glyphCount; i++) {
+    for (int i = 0; i < glyphCount; ++i) {
         SkUnichar ch;
         switch (encoding) {
             case kUTF8_Encoding:  ch =  SkUTF8_NextUnichar(&utf8 ); break;
@@ -153,7 +153,7 @@ int SkTestTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
             case kUTF32_Encoding: ch =                    *utf32++; break;
         }
         if (glyphs) {
-            glyphs[i] = fTestFont->codeToIndex(ch);
+            glyphs[i] = fTestFont->glyphForUnichar(ch);
         }
     }
     return glyphCount;
