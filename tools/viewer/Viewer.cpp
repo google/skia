@@ -75,6 +75,8 @@ DEFINE_string(bisect, "", "Path to a .skp or .svg file to bisect.");
 
 DECLARE_int32(threads)
 
+DEFINE_string2(file, f, "", "Open a single file for viewing.");
+
 const char* kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
     "OpenGL",
 #if SK_ANGLE && defined(SK_BUILD_FOR_WIN)
@@ -531,48 +533,6 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 void Viewer::initSlides() {
     fAllSlideNames = Json::Value(Json::arrayValue);
 
-    // Bisect slide.
-    if (!FLAGS_bisect.isEmpty()) {
-        sk_sp<BisectSlide> bisect = BisectSlide::Create(FLAGS_bisect[0]);
-        if (bisect && !SkCommandLineFlags::ShouldSkip(FLAGS_match, bisect->getName().c_str())) {
-            if (FLAGS_bisect.count() >= 2) {
-                for (const char* ch = FLAGS_bisect[1]; *ch; ++ch) {
-                    bisect->onChar(*ch);
-                }
-            }
-            fSlides.push_back(std::move(bisect));
-        }
-    }
-
-    // GMs
-    int firstGM = fSlides.count();
-    const skiagm::GMRegistry* gms(skiagm::GMRegistry::Head());
-    while (gms) {
-        std::unique_ptr<skiagm::GM> gm(gms->factory()(nullptr));
-
-        if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, gm->getName())) {
-            sk_sp<Slide> slide(new GMSlide(gm.release()));
-            fSlides.push_back(std::move(slide));
-        }
-
-        gms = gms->next();
-    }
-    // reverse gms
-    int numGMs = fSlides.count() - firstGM;
-    for (int i = 0; i < numGMs/2; ++i) {
-        std::swap(fSlides[firstGM + i], fSlides[fSlides.count() - i - 1]);
-    }
-
-    // samples
-    const SkViewRegister* reg = SkViewRegister::Head();
-    while (reg) {
-        sk_sp<Slide> slide(new SampleSlide(reg->factory()));
-        if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, slide->getName().c_str())) {
-            fSlides.push_back(slide);
-        }
-        reg = reg->next();
-    }
-
     using SlideFactory = sk_sp<Slide>(*)(const SkString& name, const SkString& path);
     static const struct {
         const char*                            fExtension;
@@ -614,6 +574,68 @@ void Viewer::initSlides() {
             fSlides.push_back(std::move(slide));
         }
     };
+
+    if (!FLAGS_file.isEmpty()) {
+        // single file mode
+        const SkString file(FLAGS_file[0]);
+
+        if (sk_exists(file.c_str(), kRead_SkFILE_Flag)) {
+            for (const auto& sinfo : gExternalSlidesInfo) {
+                if (file.endsWith(sinfo.fExtension)) {
+                    addSlide(SkOSPath::Basename(file.c_str()), file, sinfo.fFactory);
+                    return;
+                }
+            }
+
+            fprintf(stderr, "Unsupported file type \"%s\"\n", file.c_str());
+        } else {
+            fprintf(stderr, "Cannot read \"%s\"\n", file.c_str());
+        }
+
+        return;
+    }
+
+    // Bisect slide.
+    if (!FLAGS_bisect.isEmpty()) {
+        sk_sp<BisectSlide> bisect = BisectSlide::Create(FLAGS_bisect[0]);
+        if (bisect && !SkCommandLineFlags::ShouldSkip(FLAGS_match, bisect->getName().c_str())) {
+            if (FLAGS_bisect.count() >= 2) {
+                for (const char* ch = FLAGS_bisect[1]; *ch; ++ch) {
+                    bisect->onChar(*ch);
+                }
+            }
+            fSlides.push_back(std::move(bisect));
+        }
+    }
+
+    // GMs
+    int firstGM = fSlides.count();
+    const skiagm::GMRegistry* gms(skiagm::GMRegistry::Head());
+    while (gms) {
+        std::unique_ptr<skiagm::GM> gm(gms->factory()(nullptr));
+
+        if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, gm->getName())) {
+            sk_sp<Slide> slide(new GMSlide(gm.release()));
+            fSlides.push_back(std::move(slide));
+        }
+
+        gms = gms->next();
+    }
+    // reverse gms
+    int numGMs = fSlides.count() - firstGM;
+    for (int i = 0; i < numGMs/2; ++i) {
+        std::swap(fSlides[firstGM + i], fSlides[fSlides.count() - i - 1]);
+    }
+
+    // samples
+    const SkViewRegister* reg = SkViewRegister::Head();
+    while (reg) {
+        sk_sp<Slide> slide(new SampleSlide(reg->factory()));
+        if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, slide->getName().c_str())) {
+            fSlides.push_back(slide);
+        }
+        reg = reg->next();
+    }
 
     for (const auto& info : gExternalSlidesInfo) {
         for (const auto& flag : info.fFlags) {
