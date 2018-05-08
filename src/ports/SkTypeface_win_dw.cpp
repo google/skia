@@ -309,18 +309,16 @@ void DWriteFontTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {
     }
 }
 
-std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetrics() const {
+SkAdvancedTypefaceMetrics DWriteFontTypeface::onGetAdvancedMetrics() const {
 
-    std::unique_ptr<SkAdvancedTypefaceMetrics> info(nullptr);
+    SkAdvancedTypefaceMetrics info;
 
     DWRITE_FONT_METRICS dwfm;
     fDWriteFontFace->GetMetrics(&dwfm);
 
-    info.reset(new SkAdvancedTypefaceMetrics);
-
-    info->fAscent = SkToS16(dwfm.ascent);
-    info->fDescent = SkToS16(dwfm.descent);
-    info->fCapHeight = SkToS16(dwfm.capHeight);
+    info.fAscent = SkToS16(dwfm.ascent);
+    info.fDescent = SkToS16(dwfm.descent);
+    info.fCapHeight = SkToS16(dwfm.capHeight);
 
     {
         SkTScopedComPtr<IDWriteLocalizedStrings> postScriptNames;
@@ -330,7 +328,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
                         &postScriptNames,
                         &exists)) ||
             !exists ||
-            FAILED(sk_get_locale_string(postScriptNames.get(), nullptr, &info->fPostScriptName)))
+            FAILED(sk_get_locale_string(postScriptNames.get(), nullptr, &info.fPostScriptName)))
         {
             SkDEBUGF(("Unable to get postscript name for typeface %p\n", this));
         }
@@ -339,12 +337,12 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
     // SkAdvancedTypefaceMetrics::fFontName must actually be a family name.
     SkTScopedComPtr<IDWriteLocalizedStrings> familyNames;
     if (FAILED(fDWriteFontFamily->GetFamilyNames(&familyNames)) ||
-        FAILED(sk_get_locale_string(familyNames.get(), nullptr, &info->fFontName)))
+        FAILED(sk_get_locale_string(familyNames.get(), nullptr, &info.fFontName)))
     {
         SkDEBUGF(("Unable to get family name for typeface 0x%p\n", this));
     }
-    if (info->fPostScriptName.isEmpty()) {
-        info->fPostScriptName = info->fFontName;
+    if (info.fPostScriptName.isEmpty()) {
+        info.fPostScriptName = info.fFontName;
     }
 
     DWRITE_FONT_FACE_TYPE fontType = fDWriteFontFace->GetType();
@@ -356,7 +354,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
 
     // Simulated fonts aren't really TrueType fonts.
     if (fDWriteFontFace->GetSimulations() == DWRITE_FONT_SIMULATIONS_NONE) {
-        info->fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
+        info.fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
     }
 
     AutoTDWriteTable<SkOTTableHead> headTable(fDWriteFontFace.get());
@@ -373,7 +371,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
     // but no means to indicate that such a typeface is a variation.
     AutoTDWriteTable<SkOTTableFontVariations> fvarTable(fDWriteFontFace.get());
     if (fvarTable.fExists) {
-        info->fFlags |= SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag;
+        info.fFlags |= SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag;
     }
 
     //There exist CJK fonts which set the IsFixedPitch and Monospace bits,
@@ -382,11 +380,11 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
                       (1 == SkEndian_SwapBE16(hheaTable->numberOfHMetrics)));
     //Monospace
     if (fixedWidth) {
-        info->fStyle |= SkAdvancedTypefaceMetrics::kFixedPitch_Style;
+        info.fStyle |= SkAdvancedTypefaceMetrics::kFixedPitch_Style;
     }
     //Italic
     if (os2Table->version.v0.fsSelection.field.Italic) {
-        info->fStyle |= SkAdvancedTypefaceMetrics::kItalic_Style;
+        info.fStyle |= SkAdvancedTypefaceMetrics::kItalic_Style;
     }
     //Serif
     using SerifStyle = SkPanose::Data::TextAndDisplay::SerifStyle;
@@ -402,19 +400,19 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
             SerifStyle::Exaggerated == serifStyle ||
             SerifStyle::Triangle == serifStyle)
         {
-            info->fStyle |= SkAdvancedTypefaceMetrics::kSerif_Style;
+            info.fStyle |= SkAdvancedTypefaceMetrics::kSerif_Style;
         }
     //Script
     } else if (SkPanose::FamilyType::Script == os2Table->version.v0.panose.bFamilyType) {
-        info->fStyle |= SkAdvancedTypefaceMetrics::kScript_Style;
+        info.fStyle |= SkAdvancedTypefaceMetrics::kScript_Style;
     }
 
-    info->fItalicAngle = SkEndian_SwapBE32(postTable->italicAngle) >> 16;
+    info.fItalicAngle = SkEndian_SwapBE32(postTable->italicAngle) >> 16;
 
-    info->fBBox = SkIRect::MakeLTRB((int32_t)SkEndian_SwapBE16((uint16_t)headTable->xMin),
-                                    (int32_t)SkEndian_SwapBE16((uint16_t)headTable->yMax),
-                                    (int32_t)SkEndian_SwapBE16((uint16_t)headTable->xMax),
-                                    (int32_t)SkEndian_SwapBE16((uint16_t)headTable->yMin));
+    info.fBBox = SkIRect::MakeLTRB((int32_t)SkEndian_SwapBE16((uint16_t)headTable->xMin),
+                                   (int32_t)SkEndian_SwapBE16((uint16_t)headTable->yMax),
+                                   (int32_t)SkEndian_SwapBE16((uint16_t)headTable->xMax),
+                                   (int32_t)SkEndian_SwapBE16((uint16_t)headTable->yMin));
     return info;
 }
 #endif//defined(SK_BUILD_FOR_WIN)

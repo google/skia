@@ -523,67 +523,67 @@ static SkAdvancedTypefaceMetrics::FontType get_font_type(FT_Face face) {
     return SkAdvancedTypefaceMetrics::kOther_Font;
 }
 
-std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_FreeType::onGetAdvancedMetrics() const {
+SkAdvancedTypefaceMetrics SkTypeface_FreeType::onGetAdvancedMetrics() const {
+    SkAdvancedTypefaceMetrics info;
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
     if (!face) {
-        return nullptr;
+        return info;
     }
 
-    std::unique_ptr<SkAdvancedTypefaceMetrics> info(new SkAdvancedTypefaceMetrics);
-    info->fPostScriptName.set(FT_Get_Postscript_Name(face));
-    info->fFontName = info->fPostScriptName;
+    info.fPostScriptName.set(FT_Get_Postscript_Name(face));
+    info.fFontName = info.fPostScriptName;
 
     if (FT_HAS_MULTIPLE_MASTERS(face)) {
-        info->fFlags |= SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag;
+        info.fFlags |= SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag;
     }
     if (!canEmbed(face)) {
-        info->fFlags |= SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag;
+        info.fFlags |= SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag;
     }
     if (!canSubset(face)) {
-        info->fFlags |= SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag;
+        info.fFlags |= SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag;
     }
 
-    info->fType = get_font_type(face);
-    info->fStyle = (SkAdvancedTypefaceMetrics::StyleFlags)0;
+    info.fType = get_font_type(face);
+    info.fStyle = (SkAdvancedTypefaceMetrics::StyleFlags)0;
     if (FT_IS_FIXED_WIDTH(face)) {
-        info->fStyle |= SkAdvancedTypefaceMetrics::kFixedPitch_Style;
+        info.fStyle |= SkAdvancedTypefaceMetrics::kFixedPitch_Style;
     }
     if (face->style_flags & FT_STYLE_FLAG_ITALIC) {
-        info->fStyle |= SkAdvancedTypefaceMetrics::kItalic_Style;
+        info.fStyle |= SkAdvancedTypefaceMetrics::kItalic_Style;
     }
 
     PS_FontInfoRec psFontInfo;
     TT_Postscript* postTable;
     if (FT_Get_PS_Font_Info(face, &psFontInfo) == 0) {
-        info->fItalicAngle = psFontInfo.italic_angle;
+        info.fItalicAngle = psFontInfo.italic_angle;
     } else if ((postTable = (TT_Postscript*)FT_Get_Sfnt_Table(face, ft_sfnt_post)) != nullptr) {
-        info->fItalicAngle = SkFixedFloorToInt(postTable->italicAngle);
+        info.fItalicAngle = SkFixedFloorToInt(postTable->italicAngle);
     } else {
-        info->fItalicAngle = 0;
+        info.fItalicAngle = 0;
     }
 
-    info->fAscent = face->ascender;
-    info->fDescent = face->descender;
+    info.fAscent = face->ascender;
+    info.fDescent = face->descender;
 
     TT_PCLT* pcltTable;
     TT_OS2* os2Table;
     if ((pcltTable = (TT_PCLT*)FT_Get_Sfnt_Table(face, ft_sfnt_pclt)) != nullptr) {
-        info->fCapHeight = pcltTable->CapHeight;
+        info.fCapHeight = pcltTable->CapHeight;
         uint8_t serif_style = pcltTable->SerifStyle & 0x3F;
         if (2 <= serif_style && serif_style <= 6) {
-            info->fStyle |= SkAdvancedTypefaceMetrics::kSerif_Style;
+            info.fStyle |= SkAdvancedTypefaceMetrics::kSerif_Style;
         } else if (9 <= serif_style && serif_style <= 12) {
-            info->fStyle |= SkAdvancedTypefaceMetrics::kScript_Style;
+            info.fStyle |= SkAdvancedTypefaceMetrics::kScript_Style;
         }
     } else if (((os2Table = (TT_OS2*)FT_Get_Sfnt_Table(face, ft_sfnt_os2)) != nullptr) &&
                // sCapHeight is available only when version 2 or later.
                os2Table->version != 0xFFFF &&
                os2Table->version >= 2)
     {
-        info->fCapHeight = os2Table->sCapHeight;
+        info.fCapHeight = os2Table->sCapHeight;
     }
-    info->fBBox = SkIRect::MakeLTRB(face->bbox.xMin, face->bbox.yMax,
+    info.fBBox = SkIRect::MakeLTRB(face->bbox.xMin, face->bbox.yMax,
                                     face->bbox.xMax, face->bbox.yMin);
     return info;
 }

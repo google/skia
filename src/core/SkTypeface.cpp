@@ -50,8 +50,8 @@ protected:
         return nullptr;
     }
     void onFilterRec(SkScalerContextRec*) const override { }
-    std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override {
-        return nullptr;
+    SkAdvancedTypefaceMetrics onGetAdvancedMetrics() const override {
+        return SkAdvancedTypefaceMetrics();
     }
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override { }
     virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
@@ -295,21 +295,21 @@ void SkTypeface::getGlyphToUnicodeMap(SkUnichar* dst) const {
     sk_bzero(dst, sizeof(SkUnichar) * this->countGlyphs());
 }
 
-std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface::getAdvancedMetrics() const {
-    std::unique_ptr<SkAdvancedTypefaceMetrics> result = this->onGetAdvancedMetrics();
-    if (result && result->fPostScriptName.isEmpty()) {
-        result->fPostScriptName = result->fFontName;
+SkAdvancedTypefaceMetrics SkTypeface::getAdvancedMetrics() const {
+    SkAdvancedTypefaceMetrics result = this->onGetAdvancedMetrics();
+    if (result.fPostScriptName.isEmpty()) {
+        result.fPostScriptName = result.fFontName;
     }
-    if (result && result->fType == SkAdvancedTypefaceMetrics::kTrueType_Font) {
+    if (result.fType == SkAdvancedTypefaceMetrics::kTrueType_Font) {
         SkOTTableOS2::Version::V2::Type::Field fsType;
         constexpr SkFontTableTag os2Tag = SkTEndian_SwapBE32(SkOTTableOS2::TAG);
         constexpr size_t fsTypeOffset = offsetof(SkOTTableOS2::Version::V2, fsType);
         if (this->getTableData(os2Tag, fsTypeOffset, sizeof(fsType), &fsType) == sizeof(fsType)) {
             if (fsType.Bitmap || (fsType.Restricted && !(fsType.PreviewPrint || fsType.Editable))) {
-                result->fFlags |= SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag;
+                result.fFlags |= SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag;
             }
             if (fsType.NoSubsetting) {
-                result->fFlags |= SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag;
+                result.fFlags |= SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag;
             }
         }
     }
@@ -368,7 +368,7 @@ bool SkTypeface::onComputeBounds(SkRect* bounds) const {
     return true;
 }
 
-std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface::onGetAdvancedMetrics() const {
+SkAdvancedTypefaceMetrics SkTypeface::onGetAdvancedMetrics() const {
     SkDEBUGFAIL("Typefaces that need to work with PDF backend must override this.");
-    return nullptr;
+    return SkAdvancedTypefaceMetrics();
 }
