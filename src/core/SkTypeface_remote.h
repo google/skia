@@ -115,9 +115,9 @@ protected:
         SK_ABORT("Should never be called.");
     }
 
-    std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override {
+    SkAdvancedTypefaceMetrics onGetAdvancedMetrics() const override {
         SK_ABORT("Should never be called.");
-        return nullptr;
+        return SkAdvancedTypefaceMetrics();
     }
     int onCharsToGlyphs(const void* chars, Encoding,
                         uint16_t glyphs[], int glyphCount) const override {
