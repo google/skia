@@ -1,58 +1,120 @@
 SkColor4f Reference
 ===
 
-# <a name="Color4f"></a> Color4f
+# <a name='Color4f'>Color4f</a>
 
-# <a name="SkColor4f"></a> Struct SkColor4f
-The float values are 0...1 unpremultiplied
+# <a name='SkColor4f'>Struct SkColor4f</a>
+The float values are 0...1 <a href='undocumented#Unpremultiply'>Unpremultiplied</a>
 
-## <a name="Overview"></a> Overview
+## <a name='Overview'>Overview</a>
 
-## <a name="Overview_Subtopic"></a> Overview Subtopic
+<table style='border-collapse: collapse; width: 62.5em'>
+  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member'>Members</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>member values</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operator'>Operators</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>operator overloading methods</td>
+  </tr>
+</table>
 
-| name | description |
-| --- | --- |
-| <a href="#Member_Function">Member Function</a> | static functions and member methods |
-| Member | member values |
-| <a href="#Operator">Operator</a> | operator overloading methods |
 
-## <a name="Operator"></a> Operator
+SkColor4f operators inline class member functions with arithmetic equivalents.
+<table style='border-collapse: collapse; width: 62.5em'>
+  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkColor4f_notequal1_operator'>operator!=(const SkColor4f& other) const</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkColor4f_equal1_operator'>operator==(const SkColor4f& other) const</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+</table>
 
-| name | description |
-| --- | --- |
-| <a href="#SkColor4f_notequal1_operator">operator!=(const SkColor4f& other) const</a> | incomplete |
-| <a href="#SkColor4f_equal1_operator">operator==(const SkColor4f& other) const</a> | incomplete |
 
-## <a name="Member_Function"></a> Member Function
+SkColor4f member functions read and modify the structure properties.
+<table style='border-collapse: collapse; width: 62.5em'>
+  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkColor4f_FromColor'>FromColor</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkColor4f_Pin'>Pin</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkColor4f_pin'>pin</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkColor4f_premul'>premul</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkColor4f_toSkColor'>toSkColor</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkColor4f_vec'>vec</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+</table>
 
-| name | description |
-| --- | --- |
-| <a href="#SkColor4f_FromColor">FromColor</a> | incomplete |
-| <a href="#SkColor4f_Pin">Pin</a> | incomplete |
-| <a href="#SkColor4f_pin">pin</a> | incomplete |
-| <a href="#SkColor4f_premul">premul</a> | incomplete |
-| <a href="#SkColor4f_toSkColor">toSkColor</a> | incomplete |
-| <a href="#SkColor4f_vec">vec</a> | incomplete |
 
-<a name="SkColor4f_fR"> <code><strong>float  fR</strong></code> </a>
+### Members
 
-<a name="SkColor4f_fG"> <code><strong>float  fG</strong></code> </a>
+<table style='border-collapse: collapse; width: 62.5em'>
+  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Type</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Name</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>float</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#fR'><code>fR</code></a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>float</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#fG'><code>fG</code></a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>float</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#fB'><code>fB</code></a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>float</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#fA'><code>fA</code></a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+incomplete</td>
+  </tr>
 
-<a name="SkColor4f_fB"> <code><strong>float  fB</strong></code> </a>
 
-<a name="SkColor4f_fA"> <code><strong>float  fA</strong></code> </a>
-
-<a name="SkColor4f_equal1_operator"></a>
+<a name='SkColor4f_equal1_operator'></a>
 ## operator==
 
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool operator==(const SkColor4f& other) _const
 </pre>
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkColor4f_equal1_operator_other"> <code><strong>other </strong></code> </a></td> <td>
-incomplete</td>
+<table>  <tr>    <td><a name='SkColor4f_equal1_operator_other'><code><strong>other</strong></code></a></td>
+    <td>incomplete</td>
   </tr>
 </table>
 
@@ -70,17 +132,17 @@ incomplete
 
 ---
 
-<a name="SkColor4f_notequal1_operator"></a>
+<a name='SkColor4f_notequal1_operator'></a>
 ## operator!=
 
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool operator!=(const SkColor4f& other) _const
 </pre>
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkColor4f_notequal1_operator_other"> <code><strong>other </strong></code> </a></td> <td>
-incomplete</td>
+<table>  <tr>    <td><a name='SkColor4f_notequal1_operator_other'><code><strong>other</strong></code></a></td>
+    <td>incomplete</td>
   </tr>
 </table>
 
@@ -98,10 +160,10 @@ incomplete
 
 ---
 
-<a name="SkColor4f_vec"></a>
+<a name='SkColor4f_vec'></a>
 ## vec
 
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const float* vec() const
 </pre>
 
@@ -119,9 +181,9 @@ incomplete
 
 ---
 
-<a name="SkColor4f_vec_2"></a>
+<a name='SkColor4f_vec_2'></a>
 
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 float* vec()
 </pre>
 
@@ -139,23 +201,26 @@ incomplete
 
 ---
 
-<a name="SkColor4f_Pin"></a>
+<a name='SkColor4f_Pin'></a>
 ## Pin
 
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static SkColor4f Pin(float r, float g, float b, float a)
 </pre>
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkColor4f_Pin_r"> <code><strong>r </strong></code> </a></td> <td>
-incomplete</td>
-  </tr>  <tr>    <td><a name="SkColor4f_Pin_g"> <code><strong>g </strong></code> </a></td> <td>
-incomplete</td>
-  </tr>  <tr>    <td><a name="SkColor4f_Pin_b"> <code><strong>b </strong></code> </a></td> <td>
-incomplete</td>
-  </tr>  <tr>    <td><a name="SkColor4f_Pin_a"> <code><strong>a </strong></code> </a></td> <td>
-incomplete</td>
+<table>  <tr>    <td><a name='SkColor4f_Pin_r'><code><strong>r</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name='SkColor4f_Pin_g'><code><strong>g</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name='SkColor4f_Pin_b'><code><strong>b</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name='SkColor4f_Pin_a'><code><strong>a</strong></code></a></td>
+    <td>incomplete</td>
   </tr>
 </table>
 
@@ -173,19 +238,19 @@ incomplete
 
 ---
 
-<a name="SkColor4f_FromColor"></a>
+<a name='SkColor4f_FromColor'></a>
 ## FromColor
 
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static SkColor4f FromColor(SkColor)
 </pre>
 
-Convert to <a href="#SkColor4f">SkColor4f</a>, assuming <a href="SkColor_Reference#SkColor">SkColor</a> is sRGB
+Convert to <a href='#SkColor4f'>SkColor4f</a>, assuming <a href='SkColor_Reference#SkColor'>SkColor</a> is sRGB
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkColor4f_FromColor_SkColor"> <code><strong>SkColor </strong></code> </a></td> <td>
-incomplete</td>
+<table>  <tr>    <td><a name='SkColor4f_FromColor_SkColor'><code><strong>SkColor</strong></code></a></td>
+    <td>incomplete</td>
   </tr>
 </table>
 
@@ -203,10 +268,10 @@ incomplete
 
 ---
 
-<a name="SkColor4f_toSkColor"></a>
+<a name='SkColor4f_toSkColor'></a>
 ## toSkColor
 
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 SkColor toSkColor() const
 </pre>
 
@@ -224,10 +289,10 @@ incomplete
 
 ---
 
-<a name="SkColor4f_pin"></a>
+<a name='SkColor4f_pin'></a>
 ## pin
 
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 SkColor4f pin() const
 </pre>
 
@@ -245,10 +310,10 @@ incomplete
 
 ---
 
-<a name="SkColor4f_premul"></a>
+<a name='SkColor4f_premul'></a>
 ## premul
 
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 SkPM4f premul() const
 </pre>
 
