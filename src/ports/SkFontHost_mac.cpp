@@ -720,7 +720,7 @@ protected:
     void onFilterRec(SkScalerContextRec*) const override;
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
     void getGlyphToUnicodeMap(SkUnichar*) const override;
-    std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
+    SkAdvancedTypefaceMetrics onGetAdvancedMetrics() const override;
     int onCharsToGlyphs(const void* chars, Encoding,
                         uint16_t glyphs[], int glyphCount) const override;
     int onCountGlyphs() const override;
@@ -1687,20 +1687,20 @@ void SkTypeface_Mac::getGlyphToUnicodeMap(SkUnichar* dstArray) const {
     populate_glyph_to_unicode(ctFont.get(), glyphCount, dstArray);
 }
 
-std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics() const {
+SkAdvancedTypefaceMetrics SkTypeface_Mac::onGetAdvancedMetrics() const {
 
     AUTO_CG_LOCK();
 
     UniqueCFRef<CTFontRef> ctFont =
             ctfont_create_exact_copy(fFontRef.get(), CTFontGetUnitsPerEm(fFontRef.get()), nullptr);
 
-    std::unique_ptr<SkAdvancedTypefaceMetrics> info(new SkAdvancedTypefaceMetrics);
+    SkAdvancedTypefaceMetrics info;
 
     {
         UniqueCFRef<CFStringRef> fontName(CTFontCopyPostScriptName(ctFont.get()));
         if (fontName.get()) {
-            CFStringToSkString(fontName.get(), &info->fPostScriptName);
-            info->fFontName = info->fPostScriptName;
+            CFStringToSkString(fontName.get(), &info.fPostScriptName);
+            info.fFontName = info.fPostScriptName;
         }
     }
 
@@ -1712,7 +1712,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics(
     if (cgFont) {
         UniqueCFRef<CFArrayRef> cgAxes(CGFontCopyVariationAxes(cgFont.get()));
         if (cgAxes && CFArrayGetCount(cgAxes.get()) > 0) {
-            info->fFlags |= SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag;
+            info.fFlags |= SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag;
         }
     }
 
@@ -1721,7 +1721,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics(
                                              offsetof(SkOTTableOS2_V4, fsType),
                                              sizeof(fsType),
                                              &fsType)) {
-        SkOTUtils::SetAdvancedTypefaceFlags(fsType, info.get());
+        SkOTUtils::SetAdvancedTypefaceFlags(fsType, &info);
     }
 
     // If it's not a truetype font, mark it as 'other'. Assume that TrueType
@@ -1732,24 +1732,24 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics(
         return info;
     }
 
-    info->fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
+    info.fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
     CTFontSymbolicTraits symbolicTraits = CTFontGetSymbolicTraits(ctFont.get());
     if (symbolicTraits & kCTFontMonoSpaceTrait) {
-        info->fStyle |= SkAdvancedTypefaceMetrics::kFixedPitch_Style;
+        info.fStyle |= SkAdvancedTypefaceMetrics::kFixedPitch_Style;
     }
     if (symbolicTraits & kCTFontItalicTrait) {
-        info->fStyle |= SkAdvancedTypefaceMetrics::kItalic_Style;
+        info.fStyle |= SkAdvancedTypefaceMetrics::kItalic_Style;
     }
     CTFontStylisticClass stylisticClass = symbolicTraits & kCTFontClassMaskTrait;
     if (stylisticClass >= kCTFontOldStyleSerifsClass && stylisticClass <= kCTFontSlabSerifsClass) {
-        info->fStyle |= SkAdvancedTypefaceMetrics::kSerif_Style;
+        info.fStyle |= SkAdvancedTypefaceMetrics::kSerif_Style;
     } else if (stylisticClass & kCTFontScriptsClass) {
-        info->fStyle |= SkAdvancedTypefaceMetrics::kScript_Style;
+        info.fStyle |= SkAdvancedTypefaceMetrics::kScript_Style;
     }
-    info->fItalicAngle = (int16_t) CTFontGetSlantAngle(ctFont.get());
-    info->fAscent = (int16_t) CTFontGetAscent(ctFont.get());
-    info->fDescent = (int16_t) CTFontGetDescent(ctFont.get());
-    info->fCapHeight = (int16_t) CTFontGetCapHeight(ctFont.get());
+    info.fItalicAngle = (int16_t) CTFontGetSlantAngle(ctFont.get());
+    info.fAscent = (int16_t) CTFontGetAscent(ctFont.get());
+    info.fDescent = (int16_t) CTFontGetDescent(ctFont.get());
+    info.fCapHeight = (int16_t) CTFontGetCapHeight(ctFont.get());
     CGRect bbox = CTFontGetBoundingBox(ctFont.get());
 
     SkRect r;
@@ -1758,12 +1758,12 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics(
            CGToScalar(CGRectGetMaxX_inline(bbox)),   // Right
            CGToScalar(CGRectGetMinY_inline(bbox)));  // Bottom
 
-    r.roundOut(&(info->fBBox));
+    r.roundOut(&(info.fBBox));
 
     // Figure out a good guess for StemV - Min width of i, I, !, 1.
     // This probably isn't very good with an italic font.
     int16_t min_width = SHRT_MAX;
-    info->fStemV = 0;
+    info.fStemV = 0;
     static const UniChar stem_chars[] = {'i', 'I', '!', '1'};
     const size_t count = sizeof(stem_chars) / sizeof(stem_chars[0]);
     CGGlyph glyphs[count];
@@ -1775,7 +1775,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics(
             int16_t width = (int16_t) boundingRects[i].size.width;
             if (width > 0 && width < min_width) {
                 min_width = width;
-                info->fStemV = min_width;
+                info.fStemV = min_width;
             }
         }
     }
