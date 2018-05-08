@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "ba042f0d_bd88bd55",
+        "filename": "include/core/SkTypeface.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-08T20:31:58Z",
+      "side": 1,
+      "message": "This needs SkSharedMutex.h to compile. I don\u0027t want to bring that into private. So, I\u0027m moving CodePointCache back to the implementation with a pointer.",
+      "parentUuid": "cb0e7de7_fe6b679f",
+      "range": {
+        "startLine": 382,
+        "startChar": 4,
+        "endLine": 382,
+        "endChar": 19
+      },
+      "revId": "82ebf7a9a6e5595a95a83ede7a45691e9468c181",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ff6be051_052446eb",
         "filename": "src/core/SkTypeface.cpp",
         "patchSetId": 15
