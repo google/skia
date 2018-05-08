@@ -241,16 +241,9 @@ private:
                                  const SkMatrix& srcToDstMatrix,
                                  const SkPaint&);
 
-    bool drawFilledDRRect(const SkMatrix& viewMatrix, const SkRRect& outer,
-                          const SkRRect& inner, const SkPaint& paint);
+    void drawProducerLattice(GrTextureProducer*, std::unique_ptr<SkLatticeIter>, const SkRect& dst,
+                             const SkPaint&);
 
-    void drawProducerNine(GrTextureProducer*, const SkIRect& center,
-                          const SkRect& dst, const SkPaint&);
-
-    void drawProducerLattice(GrTextureProducer*, const SkCanvas::Lattice& lattice,
-                             const SkRect& dst, const SkPaint&);
-
-    bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);
     void drawStrokedLine(const SkPoint pts[2], const SkPaint&);
 
     void wireframeVertices(SkVertices::VertexMode, int vertexCount, const SkPoint verts[],
