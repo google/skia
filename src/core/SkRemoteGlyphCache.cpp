@@ -209,7 +209,7 @@ public:
 SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
                                                      const SkMatrix& deviceMatrix,
                                                      const SkSurfaceProps& props,
-                                                     SkStrikeServer* strikeSever)
+                                                     SkRendererStrikeCacheGenerator* strikeSever)
         : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(SkIRect::MakeWH(width, height), props)}
         , fDeviceMatrix{deviceMatrix}
         , fSurfaceProps{props}
@@ -425,22 +425,24 @@ struct WireTypeface {
     bool            isFixed;
 };
 
-// SkStrikeServer -----------------------------------------
+// SkRendererStrikeCacheGenerator -----------------------------------------
 
-SkStrikeServer::SkStrikeServer(DiscardableHandleManager* discardableHandleManager)
-        : fDiscardableHandleManager(discardableHandleManager) {
+SkRendererStrikeCacheGenerator::SkRendererStrikeCacheGenerator(
+    DiscardableHandleManager* discardableHandleManager)
+    : fDiscardableHandleManager(discardableHandleManager)
+{
     SkASSERT(fDiscardableHandleManager);
 }
 
-SkStrikeServer::~SkStrikeServer() = default;
+SkRendererStrikeCacheGenerator::~SkRendererStrikeCacheGenerator() = default;
 
-sk_sp<SkData> SkStrikeServer::serializeTypeface(SkTypeface* tf) {
+sk_sp<SkData> SkRendererStrikeCacheGenerator::serializeTypeface(SkTypeface* tf) {
     WireTypeface wire(SkTypeface::UniqueID(tf), tf->countGlyphs(), tf->fontStyle(),
                       tf->isFixedPitch());
     return SkData::MakeWithCopy(&wire, sizeof(wire));
 }
 
-void SkStrikeServer::writeStrikeData(std::vector<uint8_t>* memory) {
+void SkRendererStrikeCacheGenerator::writeStrikeData(std::vector<uint8_t>* memory) {
     if (fLockedDescs.empty() && fTypefacesToSend.empty()) return;
 
     Serializer serializer(memory);
@@ -524,9 +526,9 @@ SkStrikeServer::SkGlyphCacheState::SkGlyphCacheState(
     SkASSERT(fKeyDescriptor);
 }
 
-SkStrikeServer::SkGlyphCacheState::~SkGlyphCacheState() = default;
+SkRendererStrikeCacheGenerator::SkGlyphCacheState::~SkGlyphCacheState() = default;
 
-void SkStrikeServer::SkGlyphCacheState::addGlyph(SkTypeface* typeface,
+void SkRendererStrikeCacheGenerator::SkGlyphCacheState::addGlyph(SkTypeface* typeface,
                                                  const SkScalerContextEffects& effects,
                                                  SkPackedGlyphID glyph) {
     // Already cached.
@@ -539,7 +541,7 @@ void SkStrikeServer::SkGlyphCacheState::addGlyph(SkTypeface* typeface,
     if (!fContext) fContext = typeface->createScalerContext(effects, fDeviceDescriptor.get(), false);
 }
 
-void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serializer) {
+void SkRendererStrikeCacheGenerator::SkGlyphCacheState::writePendingGlyphs(Serializer* serializer) {
     // Write the desc.
     serializer->emplace<StrikeSpec>(fContext->getTypeface()->uniqueID(), fPendingGlyphs.size(),
                                     fDiscardableHandleId);
@@ -573,9 +575,9 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
     fContext.reset();
 }
 
-// SkStrikeClient -----------------------------------------
+// SkGPUStikeCachePopulator -----------------------------------------
 
-class SkStrikeClient::DiscardableStrikePinner : public SkStrikePinner {
+class SkGPUStikeCachePopulator::DiscardableStrikePinner : public SkStrikePinner {
 public:
     DiscardableStrikePinner(SkDiscardableHandleId discardableHandleId,
                             sk_sp<DiscardableHandleManager> manager)
@@ -589,10 +591,11 @@ private:
     sk_sp<DiscardableHandleManager> fManager;
 };
 
-SkStrikeClient::SkStrikeClient(sk_sp<DiscardableHandleManager> discardableManager)
-        : fDiscardableHandleManager(std::move(discardableManager)) {}
+SkGPUStikeCachePopulator::SkGPUStikeCachePopulator(
+    sk_sp<DiscardableHandleManager> discardableManager)
+    : fDiscardableHandleManager(std::move(discardableManager)) {}
 
-SkStrikeClient::~SkStrikeClient() = default;
+SkGPUStikeCachePopulator::~SkGPUStikeCachePopulator() = default;
 
 #define READ_FAILURE                      \
     {                                     \
@@ -600,7 +603,7 @@ SkStrikeClient::~SkStrikeClient() = default;
         return false;                     \
     }
 
-bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySize) {
+bool SkGPUStikeCachePopulator::readStrikeData(const volatile void* memory, size_t memorySize) {
     SkASSERT(memorySize != 0u);
     Deserializer deserializer(static_cast<const volatile char*>(memory), memorySize);
 
@@ -612,7 +615,7 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
         if (!deserializer.read<WireTypeface>(&wire)) READ_FAILURE
 
         // TODO(khushalsagar): The typeface no longer needs a reference to the
-        // SkStrikeClient, since all needed glyphs must have been pushed before
+        // SkGPUStikeCachePopulator, since all needed glyphs must have been pushed before
         // raster.
         addTypeface(wire);
     }
@@ -680,14 +683,14 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
     return true;
 }
 
-sk_sp<SkTypeface> SkStrikeClient::deserializeTypeface(const void* buf, size_t len) {
+sk_sp<SkTypeface> SkGPUStikeCachePopulator::deserializeTypeface(const void* buf, size_t len) {
     WireTypeface wire;
     if (len != sizeof(wire)) return nullptr;
     memcpy(&wire, buf, sizeof(wire));
     return addTypeface(wire);
 }
 
-sk_sp<SkTypeface> SkStrikeClient::addTypeface(const WireTypeface& wire) {
+sk_sp<SkTypeface> SkGPUStikeCachePopulator::addTypeface(const WireTypeface& wire) {
     auto* typeface = fRemoteFontIdToTypeface.find(wire.typefaceID);
     if (typeface) return *typeface;
 
@@ -697,7 +700,7 @@ sk_sp<SkTypeface> SkStrikeClient::addTypeface(const WireTypeface& wire) {
     return std::move(newTypeface);
 }
 
-void SkStrikeClient::generateFontMetrics(const SkTypefaceProxy& typefaceProxy,
+void SkGPUStikeCachePopulator::generateFontMetrics(const SkTypefaceProxy& typefaceProxy,
                                          const SkScalerContextRec& rec,
                                          SkPaint::FontMetrics* metrics) {
     TRACE_EVENT1("skia", "generateFontMetrics", "rec", TRACE_STR_COPY(rec.dump().c_str()));
@@ -706,7 +709,7 @@ void SkStrikeClient::generateFontMetrics(const SkTypefaceProxy& typefaceProxy,
     SkDEBUGFAIL("GlyphCacheMiss");
 }
 
-void SkStrikeClient::generateMetricsAndImage(const SkTypefaceProxy& typefaceProxy,
+void SkGPUStikeCachePopulator::generateMetricsAndImage(const SkTypefaceProxy& typefaceProxy,
                                              const SkScalerContextRec& rec,
                                              SkArenaAlloc* alloc,
                                              SkGlyph* glyph) {
@@ -716,7 +719,7 @@ void SkStrikeClient::generateMetricsAndImage(const SkTypefaceProxy& typefaceProx
     SkDEBUGFAIL("GlyphCacheMiss");
 }
 
-void SkStrikeClient::generatePath(const SkTypefaceProxy& typefaceProxy,
+void SkGPUStikeCachePopulator::generatePath(const SkTypefaceProxy& typefaceProxy,
                                   const SkScalerContextRec& rec,
                                   SkGlyphID glyphID,
                                   SkPath* path) {
