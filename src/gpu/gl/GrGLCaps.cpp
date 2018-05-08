@@ -130,14 +130,16 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     fImagingSupport = kGL_GrGLStandard == standard &&
                       ctxInfo.hasExtension("GL_ARB_imaging");
 
-    if (((kGL_GrGLStandard == standard && version >= GR_GL_VER(4,3)) ||
-         (kGLES_GrGLStandard == standard && version >= GR_GL_VER(3,0)) ||
-         ctxInfo.hasExtension("GL_ARB_invalidate_subdata"))) {
-        fDiscardRenderTargetSupport = true;
-        fInvalidateFBType = kInvalidate_InvalidateFBType;
-    } else if (ctxInfo.hasExtension("GL_EXT_discard_framebuffer")) {
-        fDiscardRenderTargetSupport = true;
-        fInvalidateFBType = kDiscard_InvalidateFBType;
+    if (!fDriverBugWorkarounds.disable_discard_framebuffer) {
+        if (((kGL_GrGLStandard == standard && version >= GR_GL_VER(4,3)) ||
+             (kGLES_GrGLStandard == standard && version >= GR_GL_VER(3,0)) ||
+             ctxInfo.hasExtension("GL_ARB_invalidate_subdata"))) {
+            fDiscardRenderTargetSupport = true;
+            fInvalidateFBType = kInvalidate_InvalidateFBType;
+        } else if (ctxInfo.hasExtension("GL_EXT_discard_framebuffer")) {
+            fDiscardRenderTargetSupport = true;
+            fInvalidateFBType = kDiscard_InvalidateFBType;
+        }
     }
 
     // For future reference on Desktop GL, GL_PRIMITIVE_RESTART_FIXED_INDEX appears in 4.3, and
@@ -489,6 +491,11 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
 
     GR_GL_GetIntegerv(gli, GR_GL_MAX_TEXTURE_SIZE, &fMaxTextureSize);
+
+    if (fDriverBugWorkarounds.max_texture_size_limit_4096) {
+        fMaxTextureSize = SkTMin(fMaxTextureSize, 4096);
+    }
+
     GR_GL_GetIntegerv(gli, GR_GL_MAX_RENDERBUFFER_SIZE, &fMaxRenderTargetSize);
     // Our render targets are always created with textures as the color
     // attachment, hence this min:
@@ -2619,6 +2626,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (kNVIDIA_GrGLDriver == ctxInfo.driver() &&
         ctxInfo.driverVersion() < GR_GL_DRIVER_VER(337, 00, 0) &&
         kAdvanced_BlendEquationSupport == fBlendEquationSupport) {
+        fBlendEquationSupport = kBasic_BlendEquationSupport;
+        shaderCaps->fAdvBlendEqInteraction = GrShaderCaps::kNotSupported_AdvBlendEqInteraction;
+    }
+
+    if (fDriverBugWorkarounds.disable_blend_equation_advanced) {
         fBlendEquationSupport = kBasic_BlendEquationSupport;
         shaderCaps->fAdvBlendEqInteraction = GrShaderCaps::kNotSupported_AdvBlendEqInteraction;
     }
