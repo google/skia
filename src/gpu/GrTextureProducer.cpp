@@ -207,3 +207,25 @@ std::unique_ptr<GrFragmentProcessor> GrTextureProducer::CreateFragmentProcessorF
         }
     }
 }
+
+sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxyForParams(
+        const GrSamplerState& sampler,
+        SkColorSpace* dstColorSpace,
+        sk_sp<SkColorSpace>* proxyColorSpace,
+        SkScalar scaleAdjust[2]) {
+    // Check that the caller pre-initialized scaleAdjust
+    SkASSERT(!scaleAdjust || (scaleAdjust[0] == 1 && scaleAdjust[1] == 1));
+    // Check that if the caller passed nullptr for scaleAdjust that we're in the case where there
+    // can be no scaling.
+    SkDEBUGCODE(bool expectNoScale = (sampler.filter() != GrSamplerState::Filter::kMipMap &&
+                                      !sampler.isRepeated()));
+    SkASSERT(scaleAdjust || expectNoScale);
+    auto result =
+            this->onRefTextureProxyForParams(sampler, dstColorSpace, proxyColorSpace, scaleAdjust);
+
+    // Check that the "no scaling expected" case always returns a proxy of the same size as the
+    // producer.
+    SkASSERT(!result || !expectNoScale ||
+             (result->width() == this->width() && result->height() == this->height()));
+    return result;
+}

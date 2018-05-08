@@ -123,13 +123,9 @@ sk_sp<GrTextureProxy> SkImage_Gpu::asTextureProxyRef(GrContext* context,
         return nullptr;
     }
 
-    if (texColorSpace) {
-        *texColorSpace = this->fColorSpace;
-    }
-
     GrTextureAdjuster adjuster(fContext, fProxy, this->alphaType(), this->uniqueID(),
                                this->fColorSpace.get());
-    return adjuster.refTextureProxySafeForParams(params, scaleAdjust);
+    return adjuster.refTextureProxyForParams(params, dstColorSpace, texColorSpace, scaleAdjust);
 }
 
 static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes) {
