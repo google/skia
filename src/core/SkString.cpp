@@ -13,7 +13,7 @@
 #include "SkUtils.h"
 
 // number of bytes (on the stack) to receive the printf result
-static const size_t kBufferSize = 1024;
+static const size_t kBufferSize = 4024;
 
 static const char* apply_format_string(const char* format, va_list args, char* stackBuffer,
                                        size_t stackBufferSize, int* length, SkString* heapBuffer) {

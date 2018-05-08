@@ -148,6 +148,9 @@ void IRGenerator::start(const Program::Settings* settings,
     fCapsMap.clear();
     if (settings->fCaps) {
         fill_caps(*settings->fCaps, &fCapsMap);
+    } else {
+        fCapsMap.insert(std::make_pair(String("integerSupport"),
+                                       Program::Settings::Value(true)));
     }
     this->pushSymbolTable();
     fInvocations = -1;
@@ -682,6 +685,27 @@ void IRGenerator::convertFunction(const ASTFunction& f) {
         parameters.push_back(var);
     }
 
+    if (f.fName == "main") {
+        if (fKind == Program::kPipelineStage_Kind) {
+            bool valid = parameters.size() == 3 &&
+                         parameters[0]->fType == *fContext.fInt_Type &&
+                         parameters[0]->fModifiers.fFlags == 0 &&
+                         parameters[1]->fType == *fContext.fInt_Type &&
+                         parameters[1]->fModifiers.fFlags == 0 &&
+                         parameters[2]->fType == *fContext.fHalf4_Type &&
+                         parameters[2]->fModifiers.fFlags == (Modifiers::kIn_Flag |
+                                                              Modifiers::kOut_Flag);
+            if (!valid) {
+                fErrors.error(f.fOffset, "pipeline stage 'main' must be declared main(int, "
+                                         "int, inout half4)");
+                return;
+            }
+//            parameters.clear();
+        } else if (parameters.size()) {
+            fErrors.error(f.fOffset, "shader 'main' must have zero parameters");
+        }
+    }
+
     // find existing declaration
     const FunctionDeclaration* decl = nullptr;
     auto entry = (*fSymbolTable)[f.fName];
@@ -752,6 +776,13 @@ void IRGenerator::convertFunction(const ASTFunction& f) {
         decl->fDefined = true;
         std::shared_ptr<SymbolTable> old = fSymbolTable;
         AutoSymbolTable table(this);
+        if (f.fName == "main") {
+            if (fKind == Program::kPipelineStage_Kind) {
+                parameters[0]->fModifiers.fLayout.fBuiltin = SK_MAIN_X_BUILTIN;
+                parameters[1]->fModifiers.fLayout.fBuiltin = SK_MAIN_Y_BUILTIN;
+                parameters[2]->fModifiers.fLayout.fBuiltin = SK_OUTCOLOR_BUILTIN;
+            }
+        }
         for (size_t i = 0; i < parameters.size(); i++) {
             fSymbolTable->addWithoutOwnership(parameters[i]->fName, decl->fParameters[i]);
         }

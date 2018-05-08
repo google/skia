@@ -13,6 +13,7 @@
 #include "SkSLHCodeGenerator.h"
 #include "SkSLIRGenerator.h"
 #include "SkSLMetalCodeGenerator.h"
+#include "SkSLPipelineStageCodeGenerator.h"
 #include "SkSLSPIRVCodeGenerator.h"
 #include "ir/SkSLEnum.h"
 #include "ir/SkSLExpression.h"
@@ -55,8 +56,8 @@ static const char* SKSL_FP_INCLUDE =
 #include "sksl_fp.inc"
 ;
 
-static const char* SKSL_CPU_INCLUDE =
-#include "sksl_cpu.inc"
+static const char* SKSL_PIPELINE_STAGE_INCLUDE =
+#include "sksl_pipeline.inc"
 ;
 
 namespace SkSL {
@@ -1233,11 +1234,11 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
                                          &elements);
             fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
             break;
-        case Program::kCPU_Kind:
+        case Program::kPipelineStage_Kind:
             inherited = nullptr;
             fIRGenerator->start(&settings, nullptr);
-            fIRGenerator->convertProgram(kind, SKSL_CPU_INCLUDE, strlen(SKSL_CPU_INCLUDE),
-                                         *fTypes, &elements);
+            fIRGenerator->convertProgram(kind, SKSL_PIPELINE_STAGE_INCLUDE,
+                                         strlen(SKSL_PIPELINE_STAGE_INCLUDE), *fTypes, &elements);
             fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
             break;
     }
@@ -1352,6 +1353,20 @@ bool Compiler::toH(const Program& program, String name, OutputStream& out) {
     bool result = cg.generateCode();
     fSource = nullptr;
     this->writeErrorCount();
+    return result;
+}
+
+bool Compiler::toPipelineStage(const Program& program, String* out,
+                               std::vector<FormatArg>* outFormatArgs) {
+    fSource = program.fSource.get();
+    StringStream buffer;
+    PipelineStageCodeGenerator cg(fContext.get(), &program, this, &buffer, outFormatArgs);
+    bool result = cg.generateCode();
+    fSource = nullptr;
+    this->writeErrorCount();
+    if (result) {
+        *out = buffer.str();
+    }
     return result;
 }
 

@@ -19,6 +19,7 @@ class GrGLSLDitherEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLSLDitherEffect() {}
     void emitCode(EmitArgs& args) override {
+        printf("####################### FP Dither\n");
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrDitherEffect& _outer = args.fFp.cast<GrDitherEffect>();
         (void)_outer;
