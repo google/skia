@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ea7e172b_a0f701e2",
+        "filename": "include/core/SkRefCnt.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-08T17:45:36Z",
+      "side": 1,
+      "message": "I don\u0027t think we need this one. This doesn\u0027t avoid any atomic ops when this \u003d\u003d that.",
+      "range": {
+        "startLine": 311,
+        "startChar": 8,
+        "endLine": 311,
+        "endChar": 28
+      },
+      "revId": "faa75dd9b6df4b9d1ba28df34346aa35a2cfd1ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
