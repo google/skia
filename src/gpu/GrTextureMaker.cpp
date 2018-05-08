@@ -13,10 +13,17 @@
 #include "GrGpu.h"
 #include "GrProxyProvider.h"
 
-sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerState& params,
-                                                               SkColorSpace* dstColorSpace,
-                                                               sk_sp<SkColorSpace>* texColorSpace,
-                                                               SkScalar scaleAdjust[2]) {
+sk_sp<GrTextureProxy> GrTextureMaker::onRefTextureProxyForParams(const GrSamplerState& params,
+                                                                 SkColorSpace* dstColorSpace,
+                                                                 sk_sp<SkColorSpace>* texColorSpace,
+                                                                 SkScalar scaleAdjust[2]) {
+#if 0
+    // This was added in https://skia-review.googlesource.com/121104
+    if (this->width() > fContext->caps()->maxTextureSize() ||
+        this->height() > fContext->caps()->maxTextureSize()) {
+        return nullptr;
+    }
+#endif
     CopyParams copyParams;
     bool willBeMipped = params.filter() == GrSamplerState::Filter::kMipMap;
 

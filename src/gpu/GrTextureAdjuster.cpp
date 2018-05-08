@@ -65,8 +65,11 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
     return copy;
 }
 
-sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxySafeForParams(const GrSamplerState& params,
-                                                                      SkScalar scaleAdjust[2]) {
+sk_sp<GrTextureProxy> GrTextureAdjuster::onRefTextureProxyForParams(
+        const GrSamplerState& params,
+        SkColorSpace* dstColorSpace,
+        sk_sp<SkColorSpace>* texColorSpace,
+        SkScalar scaleAdjust[2]) {
     sk_sp<GrTextureProxy> proxy = this->originalProxyRef();
     CopyParams copyParams;
 
@@ -75,8 +78,27 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxySafeForParams(const GrSa
         return nullptr;
     }
 
+    if (texColorSpace) {
+        *texColorSpace = sk_ref_sp(fColorSpace);
+    }
+#if 0
+    // Added by https://skia-review.googlesource.com/121104
+    SkASSERT(this->width() <= fContext->caps()->maxTextureSize() &&
+             this->height() <= fContext->caps()->maxTextureSize());
+#endif
+#if 1
+    // This changed in https://skia-review.googlesource.com/114985
     GrGpu* gpu = fContext->contextPriv().getGpu();
+    if (!gpu) {
+        return proxy;
+    }
+
     if (!gpu->isACopyNeededForTextureParams(proxy.get(), params, &copyParams, scaleAdjust)) {
+#else
+    if (!GrGpu::IsACopyNeededForTextureParams(fContext->caps(),
+                                              proxy.get(), proxy->width(), proxy->height(),
+                                              params, &copyParams, scaleAdjust)) {
+#endif
         return proxy;
     }
 
@@ -100,7 +122,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
     }
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
     sk_sp<GrTextureProxy> proxy(
-            this->refTextureProxySafeForParams(samplerState, scaleAdjust));
+            this->refTextureProxyForParams(samplerState, nullptr, nullptr, scaleAdjust));
     if (!proxy) {
         return nullptr;
     }
