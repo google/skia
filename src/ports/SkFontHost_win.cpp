@@ -26,6 +26,7 @@
 #include "SkOTUtils.h"
 #include "SkPath.h"
 #include "SkSFNTHeader.h"
+#include "SkScopeExit.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTemplates.h"
@@ -262,7 +263,7 @@ protected:
                                            const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
     void getGlyphToUnicodeMap(SkUnichar*) const override;
-    std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
+    SkAdvancedTypefaceMetrics onGetAdvancedMetrics() const override;
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
     int onCharsToGlyphs(const void* chars, Encoding encoding,
                         uint16_t glyphs[], int glyphCount) const override;
@@ -1723,14 +1724,18 @@ void LogFontTypeface::getGlyphToUnicodeMap(SkUnichar* dstArray) const {
     DeleteDC(hdc);
 }
 
-std::unique_ptr<SkAdvancedTypefaceMetrics> LogFontTypeface::onGetAdvancedMetrics() const {
+SkAdvancedTypefaceMetrics LogFontTypeface::onGetAdvancedMetrics() const {
     LOGFONT lf = fLogFont;
-    std::unique_ptr<SkAdvancedTypefaceMetrics> info(nullptr);
+    SkAdvancedTypefaceMetrics info;
 
     HDC hdc = CreateCompatibleDC(nullptr);
+    SK_AT_SCOPE_EXIT(DeleteDC(hdc));
     HFONT font = CreateFontIndirect(&lf);
+    SK_AT_SCOPE_EXIT(DeleteObject(font));
     HFONT savefont = (HFONT)SelectObject(hdc, font);
+    SK_AT_SCOPE_EXIT(SelectObject(hdc, savefont));
     HFONT designFont = nullptr;
+    SK_AT_SCOPE_EXIT(DeleteObject(designFont));
 
     const char stem_chars[] = {'i', 'I', '!', '1'};
     int16_t min_width;
@@ -1745,18 +1750,18 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> LogFontTypeface::onGetAdvancedMetrics
         otmRet = GetOutlineTextMetrics(hdc, sizeof(otm), &otm);
     }
     if (!otmRet || !GetTextFace(hdc, LF_FACESIZE, lf.lfFaceName)) {
-        goto Error;
+        return info;
     }
     lf.lfHeight = -SkToS32(otm.otmEMSquare);
     designFont = CreateFontIndirect(&lf);
     SelectObject(hdc, designFont);
     if (!GetOutlineTextMetrics(hdc, sizeof(otm), &otm)) {
-        goto Error;
+        return info;
     }
     glyphCount = calculateGlyphCount(hdc, fLogFont);
 
     info.reset(new SkAdvancedTypefaceMetrics);
-    tchar_to_skstring(lf.lfFaceName, &info->fFontName);
+    tchar_to_skstring(lf.lfFaceName, &info.fFontName);
 
     SkOTTableOS2_V4::Type fsType;
     if (sizeof(fsType) == this->getTableData(SkTEndian_SwapBE32(SkOTTableOS2::TAG),
@@ -1769,65 +1774,57 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> LogFontTypeface::onGetAdvancedMetrics
         // If bit 1 is clear, the font can be embedded.
         // If bit 2 is set, the embedding is read-only.
         if (otm.otmfsType & 0x1) {
-            info->fFlags |= SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag;
+            info.fFlags |= SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag;
         }
     }
 
     if (glyphCount > 0 &&
         (otm.otmTextMetrics.tmPitchAndFamily & TMPF_TRUETYPE)) {
-        info->fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
+        info.fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
     } else {
-        goto ReturnInfo;
+        return info;
     }
 
     // If this bit is clear the font is a fixed pitch font.
     if (!(otm.otmTextMetrics.tmPitchAndFamily & TMPF_FIXED_PITCH)) {
-        info->fStyle |= SkAdvancedTypefaceMetrics::kFixedPitch_Style;
+        info.fStyle |= SkAdvancedTypefaceMetrics::kFixedPitch_Style;
     }
     if (otm.otmTextMetrics.tmItalic) {
-        info->fStyle |= SkAdvancedTypefaceMetrics::kItalic_Style;
+        info.fStyle |= SkAdvancedTypefaceMetrics::kItalic_Style;
     }
     if (otm.otmTextMetrics.tmPitchAndFamily & FF_ROMAN) {
-        info->fStyle |= SkAdvancedTypefaceMetrics::kSerif_Style;
+        info.fStyle |= SkAdvancedTypefaceMetrics::kSerif_Style;
     } else if (otm.otmTextMetrics.tmPitchAndFamily & FF_SCRIPT) {
-            info->fStyle |= SkAdvancedTypefaceMetrics::kScript_Style;
+            info.fStyle |= SkAdvancedTypefaceMetrics::kScript_Style;
     }
 
     // The main italic angle of the font, in tenths of a degree counterclockwise
     // from vertical.
-    info->fItalicAngle = otm.otmItalicAngle / 10;
-    info->fAscent = SkToS16(otm.otmTextMetrics.tmAscent);
-    info->fDescent = SkToS16(-otm.otmTextMetrics.tmDescent);
+    info.fItalicAngle = otm.otmItalicAngle / 10;
+    info.fAscent = SkToS16(otm.otmTextMetrics.tmAscent);
+    info.fDescent = SkToS16(-otm.otmTextMetrics.tmDescent);
     // TODO(ctguil): Use alternate cap height calculation.
     // MSDN says otmsCapEmHeight is not support but it is returning a value on
     // my Win7 box.
-    info->fCapHeight = otm.otmsCapEmHeight;
-    info->fBBox =
+    info.fCapHeight = otm.otmsCapEmHeight;
+    info.fBBox =
         SkIRect::MakeLTRB(otm.otmrcFontBox.left, otm.otmrcFontBox.top,
                           otm.otmrcFontBox.right, otm.otmrcFontBox.bottom);
 
     // Figure out a good guess for StemV - Min width of i, I, !, 1.
     // This probably isn't very good with an italic font.
     min_width = SHRT_MAX;
-    info->fStemV = 0;
+    info.fStemV = 0;
     for (size_t i = 0; i < SK_ARRAY_COUNT(stem_chars); i++) {
         ABC abcWidths;
         if (GetCharABCWidths(hdc, stem_chars[i], stem_chars[i], &abcWidths)) {
             int16_t width = abcWidths.abcB;
             if (width > 0 && width < min_width) {
                 min_width = width;
-                info->fStemV = min_width;
+                info.fStemV = min_width;
             }
         }
     }
-
-Error:
-ReturnInfo:
-    SelectObject(hdc, savefont);
-    DeleteObject(designFont);
-    DeleteObject(font);
-    DeleteDC(hdc);
-
     return info;
 }
 
