@@ -130,14 +130,16 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     fImagingSupport = kGL_GrGLStandard == standard &&
                       ctxInfo.hasExtension("GL_ARB_imaging");
 
-    if (((kGL_GrGLStandard == standard && version >= GR_GL_VER(4,3)) ||
-         (kGLES_GrGLStandard == standard && version >= GR_GL_VER(3,0)) ||
-         ctxInfo.hasExtension("GL_ARB_invalidate_subdata"))) {
-        fDiscardRenderTargetSupport = true;
-        fInvalidateFBType = kInvalidate_InvalidateFBType;
-    } else if (ctxInfo.hasExtension("GL_EXT_discard_framebuffer")) {
-        fDiscardRenderTargetSupport = true;
-        fInvalidateFBType = kDiscard_InvalidateFBType;
+    if (!fDriverBugWorkarounds.disable_discard_framebuffer) {
+        if (((kGL_GrGLStandard == standard && version >= GR_GL_VER(4,3)) ||
+             (kGLES_GrGLStandard == standard && version >= GR_GL_VER(3,0)) ||
+             ctxInfo.hasExtension("GL_ARB_invalidate_subdata"))) {
+            fDiscardRenderTargetSupport = true;
+            fInvalidateFBType = kInvalidate_InvalidateFBType;
+        } else if (ctxInfo.hasExtension("GL_EXT_discard_framebuffer")) {
+            fDiscardRenderTargetSupport = true;
+            fInvalidateFBType = kDiscard_InvalidateFBType;
+        }
     }
 
     // For future reference on Desktop GL, GL_PRIMITIVE_RESTART_FIXED_INDEX appears in 4.3, and
