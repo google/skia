@@ -16,7 +16,7 @@
 #include "SkScalerContext.h"
 #include "SkTypeface.h"
 
-class SkStrikeClient;
+class SkGPUStikeCachePopulator;
 class SkTypefaceProxy;
 
 class SkScalerContextProxy : public SkScalerContext {
@@ -24,7 +24,7 @@ public:
     SkScalerContextProxy(sk_sp<SkTypeface> tf,
                          const SkScalerContextEffects& effects,
                          const SkDescriptor* desc,
-                         SkStrikeClient* rsc);
+                         SkGPUStikeCachePopulator* rsc);
 
 protected:
     unsigned generateGlyphCount() override;
@@ -45,7 +45,7 @@ private:
     SkTypefaceProxy* typefaceProxy();
 
     SkArenaAlloc          fAlloc{kMinAllocAmount};
-    SkStrikeClient* const fClient;
+    SkGPUStikeCachePopulator* const fClient;
     typedef SkScalerContext INHERITED;
 };
 
@@ -55,7 +55,7 @@ public:
                     int glyphCount,
                     const SkFontStyle& style,
                     bool isFixed,
-                    SkStrikeClient* rsc)
+                    SkGPUStikeCachePopulator* rsc)
             : INHERITED{style, false}, fFontId{fontId}, fGlyphCount{glyphCount}, fRsc{rsc} {}
     SkFontID remoteTypefaceID() const {return fFontId;}
     int glyphCount() const {return fGlyphCount;}
@@ -135,7 +135,7 @@ private:
     const int             fGlyphCount;
 
     // TODO: Does this need a ref to the strike client? If yes, make it a weak ref.
-    SkStrikeClient* const fRsc;
+    SkGPUStikeCachePopulator* const fRsc;
 
     typedef SkTypeface INHERITED;
 };

@@ -14,8 +14,8 @@
 #include "SkTypeface_remote.h"
 #include "Test.h"
 
-class DiscardableManager : public SkStrikeServer::DiscardableHandleManager,
-                           public SkStrikeClient::DiscardableHandleManager {
+class DiscardableManager : public SkRendererStrikeCacheGenerator::DiscardableHandleManager,
+                           public SkGPUStikeCachePopulator::DiscardableHandleManager {
 public:
     DiscardableManager() = default;
     ~DiscardableManager() override = default;
@@ -83,8 +83,8 @@ SkBitmap RasterBlob(sk_sp<SkTextBlob> blob, int width, int height) {
 
 DEF_TEST(SkRemoteGlyphCache_TypefaceSerialization, reporter) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager);
+    SkRendererStrikeCacheGenerator server(discardableManager.get());
+    SkGPUStikeCachePopulator client(discardableManager);
 
     auto server_tf = SkTypeface::MakeDefault();
     auto tf_data = server.serializeTypeface(server_tf.get());
@@ -97,8 +97,8 @@ DEF_TEST(SkRemoteGlyphCache_TypefaceSerialization, reporter) {
 
 DEF_TEST(SkRemoteGlyphCache_StrikeSerialization, reporter) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager);
+    SkRendererStrikeCacheGenerator server(discardableManager.get());
+    SkGPUStikeCachePopulator client(discardableManager);
 
     // Server.
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
@@ -131,8 +131,8 @@ DEF_TEST(SkRemoteGlyphCache_StrikeSerialization, reporter) {
 
 DEF_TEST(SkRemoteGlyphCache_StrikeLockingServer, reporter) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager);
+    SkRendererStrikeCacheGenerator server(discardableManager.get());
+    SkGPUStikeCachePopulator client(discardableManager);
 
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
     server.serializeTypeface(serverTf.get());
@@ -162,8 +162,8 @@ DEF_TEST(SkRemoteGlyphCache_StrikeLockingServer, reporter) {
 
 DEF_TEST(SkRemoteGlyphCache_StrikeDeletionServer, reporter) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager);
+    SkRendererStrikeCacheGenerator server(discardableManager.get());
+    SkGPUStikeCachePopulator client(discardableManager);
 
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
     server.serializeTypeface(serverTf.get());
@@ -187,8 +187,8 @@ DEF_TEST(SkRemoteGlyphCache_StrikeDeletionServer, reporter) {
 
 DEF_TEST(SkRemoteGlyphCache_StrikePinningClient, reporter) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager);
+    SkRendererStrikeCacheGenerator server(discardableManager.get());
+    SkGPUStikeCachePopulator client(discardableManager);
 
     // Server.
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
@@ -214,8 +214,8 @@ DEF_TEST(SkRemoteGlyphCache_StrikePinningClient, reporter) {
     SkGraphics::PurgeFontCache();
     REPORTER_ASSERT(reporter, !clientTf->unique());
 
-    // Once the strike is unpinned and purged, SkStrikeClient should be the only owner of the
-    // clientTf.
+    // Once the strike is unpinned and purged, SkGPUStikeCachePopulator should be the only owner
+    // of the clientTf.
     discardableManager->unlockAndDeleteAll();
     SkGraphics::PurgeFontCache();
     REPORTER_ASSERT(reporter, clientTf->unique());

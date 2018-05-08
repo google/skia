@@ -33,7 +33,7 @@ class SkTextBlobRunIterator;
 class SkTypefaceProxy;
 struct WireTypeface;
 
-class SkStrikeServer;
+class SkRendererStrikeCacheGenerator;
 
 struct SkDescriptorMapOperators {
     size_t operator()(const SkDescriptor* key) const;
@@ -47,12 +47,13 @@ using SkDescriptorMap = std::unordered_map<const SkDescriptor*, T, SkDescriptorM
 using SkDescriptorSet =
         std::unordered_set<const SkDescriptor*, SkDescriptorMapOperators, SkDescriptorMapOperators>;
 
-// A SkTextBlobCacheDiffCanvas is used to populate the SkStrikeServer with ops
-// which will be serialized and renderered using the SkStrikeClient.
+// A SkTextBlobCacheDiffCanvas is used to populate the SkRendererStrikeCacheGenerator with ops
+// which will be serialized and renderered using the SkGPUStikeCachePopulator.
 class SK_API SkTextBlobCacheDiffCanvas : public SkNoDrawCanvas {
 public:
-    SkTextBlobCacheDiffCanvas(int width, int height, const SkMatrix& deviceMatrix,
-                              const SkSurfaceProps& props, SkStrikeServer* strikeserver);
+    SkTextBlobCacheDiffCanvas(
+        int width, int height, const SkMatrix& deviceMatrix,
+        const SkSurfaceProps& props, SkRendererStrikeCacheGenerator* strikeserver);
     ~SkTextBlobCacheDiffCanvas() override;
 
 protected:
@@ -72,13 +73,13 @@ private:
 
     const SkMatrix fDeviceMatrix;
     const SkSurfaceProps fSurfaceProps;
-    SkStrikeServer* const fStrikeServer;
+    SkRendererStrikeCacheGenerator* const fStrikeServer;
 };
 
 using SkDiscardableHandleId = uint32_t;
 
 // This class is not thread-safe.
-class SK_API SkStrikeServer {
+class SK_API SkRendererStrikeCacheGenerator {
 public:
     // An interface used by the server to create handles for pinning SkGlyphCache
     // entries on the remote client.
@@ -92,7 +93,7 @@ public:
 
         // Returns true if the handle could be successfully locked. The server can
         // assume it will remain locked until the next set of serialized entries is
-        // pulled from the SkStrikeServer.
+        // pulled from the SkRendererStrikeCacheGenerator.
         // If returns false, the cache entry mapped to the handle has been deleted
         // on the client. Any subsequent attempts to lock the same handle are not
         // allowed.
@@ -103,8 +104,8 @@ public:
         // have been purged on the remote side.
     };
 
-    SkStrikeServer(DiscardableHandleManager* discardableHandleManager);
-    ~SkStrikeServer();
+    SkRendererStrikeCacheGenerator(DiscardableHandleManager* discardableHandleManager);
+    ~SkRendererStrikeCacheGenerator();
 
     // Serializes the typeface to be remoted using this server.
     sk_sp<SkData> serializeTypeface(SkTypeface*);
@@ -150,7 +151,9 @@ private:
     std::vector<WireTypeface> fTypefacesToSend;
 };
 
-class SK_API SkStrikeClient {
+using SkStrikeServer = SkRendererStrikeCacheGenerator;
+
+class SK_API SkGPUStikeCachePopulator {
 public:
     // An interface to delete handles that may be pinned by the remote server.
     class DiscardableHandleManager : public SkRefCnt {
@@ -162,14 +165,14 @@ public:
         virtual bool deleteHandle(SkDiscardableHandleId) = 0;
     };
 
-    SkStrikeClient(sk_sp<DiscardableHandleManager>);
-    ~SkStrikeClient();
+    SkGPUStikeCachePopulator(sk_sp<DiscardableHandleManager>);
+    ~SkGPUStikeCachePopulator();
 
-    // Deserializes the typeface previously serialized using the SkStrikeServer. Returns null if the
-    // data is invalid.
+    // Deserializes the typeface previously serialized using the SkRendererStrikeCacheGenerator.
+    // Returns null if the data is invalid.
     sk_sp<SkTypeface> deserializeTypeface(const void* data, size_t length);
 
-    // Deserializes the strike data from a SkStrikeServer. All messages generated
+    // Deserializes the strike data from a SkRendererStrikeCacheGenerator. All messages generated
     // from a server when serializing the ops must be deserialized before the op
     // is rasterized.
     // Returns false if the data is invalid.
@@ -196,5 +199,7 @@ private:
     SkTHashMap<SkFontID, sk_sp<SkTypeface>> fRemoteFontIdToTypeface;
     sk_sp<DiscardableHandleManager> fDiscardableHandleManager;
 };
+
+using SkStrikeClient = SkGPUStikeCachePopulator;
 
 #endif  // SkRemoteGlyphCache_DEFINED
