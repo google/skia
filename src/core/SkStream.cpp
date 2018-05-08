@@ -10,9 +10,13 @@
 #include "SkData.h"
 #include "SkFixed.h"
 #include "SkMakeUnique.h"
+#include "SkSafeMath.h"
 #include "SkString.h"
 #include "SkOSFile.h"
 #include "SkTypes.h"
+#include "SkTFitsIn.h"
+
+#include <limits>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -209,27 +213,41 @@ bool SkFILEStream::isAtEnd() const {
 }
 
 bool SkFILEStream::rewind() {
-    // TODO: fOriginalOffset instead of 0.
-    fOffset = 0;
+    fOffset = fOriginalOffset;
     return true;
 }
 
 SkStreamAsset* SkFILEStream::onDuplicate() const {
-    // TODO: fOriginalOffset instead of 0.
-    return new SkFILEStream(fFILE, fSize, 0, fOriginalOffset);
+    return new SkFILEStream(fFILE, fSize, fOriginalOffset, fOriginalOffset);
 }
 
 size_t SkFILEStream::getPosition() const {
-    return fOffset;
+    SkASSERT(fOffset >= fOriginalOffset);
+    return fOffset - fOriginalOffset;
 }
 
 bool SkFILEStream::seek(size_t position) {
-    fOffset = position > fSize ? fSize : position;
+    fOffset = SkTMin(SkSafeMath::Add(position, fOriginalOffset), fSize);
     return true;
 }
 
 bool SkFILEStream::move(long offset) {
-    return this->seek(fOffset + offset);
+    if (offset < 0) {
+        if (offset == std::numeric_limits<long>::min()
+                || !SkTFitsIn<size_t>(-offset)
+                || (size_t) (-offset) >= this->getPosition()) {
+            fOffset = fOriginalOffset;
+        } else {
+            fOffset += offset;
+        }
+    } else if (!SkTFitsIn<size_t>(offset)) {
+        fOffset = fSize;
+    } else {
+        fOffset = SkTMin(SkSafeMath::Add(fOffset, (size_t) offset), fSize);
+    }
+
+    SkASSERT(fOffset >= fOriginalOffset && fOffset <= fSize);
+    return true;
 }
 
 SkStreamAsset* SkFILEStream::onFork() const {
@@ -237,7 +255,7 @@ SkStreamAsset* SkFILEStream::onFork() const {
 }
 
 size_t SkFILEStream::getLength() const {
-    return fSize;
+    return fSize - fOriginalOffset;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

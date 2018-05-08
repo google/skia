@@ -289,8 +289,10 @@ public:
      */
     explicit SkFILEStream(const char path[] = nullptr);
 
-    /** Initialize the stream with an existing C file stream.
-     *  The C file stream will be closed in the destructor.
+    /** Initialize the stream with an existing C FILE stream.
+     *  The current position of the C FILE stream will be considered the
+     *  beginning of the SkFILEStream.
+     *  The C FILE stream will be closed in the destructor.
      */
     explicit SkFILEStream(FILE* file);
 
