@@ -34,7 +34,7 @@ struct SkScalerContextRec;
 struct SkTestFontData {
     const SkScalar* fPoints;
     const unsigned char* fVerbs;
-    const unsigned* fCharCodes;
+    const SkUnichar* fCharCodes;
     const size_t fCharCodesCount;
     const SkFixed* fWidths;
     const SkPaint::FontMetrics& fMetrics;
@@ -46,10 +46,10 @@ class SkTestFont : public SkRefCnt {
 public:
     SkTestFont(const SkTestFontData& );
     virtual ~SkTestFont();
-    int codeToIndex(SkUnichar charCode) const;
+    SkGlyphID glyphForUnichar(SkUnichar charCode) const;
     void init(const SkScalar* pts, const unsigned char* verbs);
 private:
-    const unsigned* fCharCodes;
+    const SkUnichar* fCharCodes;
     const size_t fCharCodesCount;
     const SkFixed* fWidths;
     const SkPaint::FontMetrics& fMetrics;
