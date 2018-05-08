@@ -34,7 +34,8 @@ public:
         }
         return SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode, this->vertexCount(),
                                     fPositions.begin(), nullptr, fColors.begin(),
-                                    this->indexCount(), fIndices.begin());
+                                    this->indexCount(), fIndices.begin(),
+                                    SkVertices::kDont_PremulColorMode);
     }
 
 protected:
@@ -740,6 +741,9 @@ private:
     void mapPoints(SkScalar scale, const SkVector& xlate, SkPoint* pts, int count);
     bool addInnerPoint(const SkPoint& pathPoint);
     void addEdge(const SkVector& nextPoint, const SkVector& nextNormal);
+    void tessellateQuad(uint16_t prevPenumbraIndex, uint16_t currUmbraIndex,
+                        const SkPoint& newPenumbraPoint);
+    void adjustFalloff(int currArcPivot, bool includeStartIndices);
 
     SkScalar offset(SkScalar z) {
         float zRatio = SkTPin(z / (fLightZ - z), 0.0f, 0.95f);
@@ -757,6 +761,8 @@ private:
 
     SkTDArray<SkPoint>  fPathPolygon;
     SkTDArray<SkPoint>  fUmbraPolygon;
+    SkTDArray<int>      fArcIndices;
+    SkTDArray<int>      fStartArcIndices;
     int                 fCurrClipPoint;
     int                 fCurrUmbraPoint;
     bool                fPrevUmbraOutside;
@@ -789,8 +795,8 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
     // Set radius and colors
     SkPoint center = SkPoint::Make(path.getBounds().centerX(), path.getBounds().centerY());
     SkScalar occluderHeight = this->heightFunc(center.fX, center.fY) + fZOffset;
-    fUmbraColor = SkColorSetARGB(255, 0, 0, 0);
-    fPenumbraColor = SkColorSetARGB(0, 0, 0, 0);
+    fUmbraColor = SkColorSetARGB(255, 255, 255, 255);
+    fPenumbraColor = SkColorSetARGB(0, 255, 255, 255);
 
     // Compute the blur radius, scale and translation for the spot shadow.
     SkScalar radius;
@@ -1124,7 +1130,13 @@ bool SkSpotShadowTessellator::computeConvexShadow(SkScalar radius) {
     SkVector normal;
     if (compute_normal(fPrevPoint, fFirstPoint, fDirection, &normal)) {
         normal *= fRadius;
+        int lastVertIndex = fPositions.count() - 1;
         this->addArc(normal, true);
+        if (!fArcIndices.isEmpty()) {
+            for (int i = lastVertIndex+1; i < fPositions.count(); ++i) {
+                *fArcIndices.push() = i;
+            }
+        }
 
         // add to center fan
         if (fTransparent) {
@@ -1145,12 +1157,8 @@ bool SkSpotShadowTessellator::computeConvexShadow(SkScalar radius) {
         }
 
         // add final edge
-        *fPositions.push() = fFirstPoint + normal;
-        *fColors.push() = fPenumbraColor;
-
-        this->appendQuad(fPrevUmbraIndex, fPositions.count() - 2,
-                         fFirstVertexIndex, fPositions.count() - 1);
-
+        SkPoint finalPoint = fFirstPoint + normal;
+        this->tessellateQuad(fPositions.count() - 1, fFirstVertexIndex, finalPoint);
         fPrevOutset = normal;
     }
 
@@ -1158,7 +1166,14 @@ bool SkSpotShadowTessellator::computeConvexShadow(SkScalar radius) {
     if (fPositions.count() >= 3) {
         fPrevUmbraIndex = fFirstVertexIndex;
         fPrevPoint = fFirstPoint;
+        int lastVertIndex = fPositions.count() - 1;
         if (this->addArc(fFirstOutset, false)) {
+            if (!fArcIndices.isEmpty()) {
+                for (int i = lastVertIndex + 1; i < fPositions.count(); ++i) {
+                    *fArcIndices.push() = i;
+                }
+            }
+
             if (fFirstUmbraOutside) {
                 this->appendTriangle(fFirstVertexIndex, fPositions.count() - 1,
                                      fFirstVertexIndex + 2);
@@ -1175,6 +1190,7 @@ bool SkSpotShadowTessellator::computeConvexShadow(SkScalar radius) {
             }
         }
     }
+    this->adjustFalloff(fFirstVertexIndex, true);
 
     return true;
 }
@@ -1449,7 +1465,13 @@ bool SkSpotShadowTessellator::handlePolyPoint(const SkPoint& p) {
     SkVector normal;
     if (compute_normal(fPrevPoint, p, fDirection, &normal)) {
         normal *= fRadius;
+        int lastVertIndex = fPositions.count() - 1;
         this->addArc(normal, true);
+        if (!fArcIndices.isEmpty()) {
+            for (int i = lastVertIndex + 1; i < fPositions.count(); ++i) {
+                *fArcIndices.push() = i;
+            }
+        }
         this->addEdge(p, normal);
         fInitPoints[1] = fInitPoints[2];
         fInitPoints[2] = p;
@@ -1516,18 +1538,124 @@ void SkSpotShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVector& 
         }
     }
 
-    // add next penumbra point and quad
+    // add next penumbra point and quad or triangle
     SkPoint newPoint = nextPoint + nextNormal;
-    *fPositions.push() = newPoint;
-    *fColors.push() = fPenumbraColor;
-
-    if (!duplicate) {
-        this->appendTriangle(fPrevUmbraIndex, prevPenumbraIndex, currUmbraIndex);
-    }
-    this->appendTriangle(prevPenumbraIndex, fPositions.count() - 1, currUmbraIndex);
+    this->tessellateQuad(prevPenumbraIndex, currUmbraIndex, newPoint);
 
     fPrevUmbraIndex = currUmbraIndex;
     fPrevOutset = nextNormal;
+}
+
+// adds new penumbra point, breaking quad into a rectangle and two triangles
+// TODO: make this work for concave paths
+void SkSpotShadowTessellator::tessellateQuad(uint16_t prevPenumbraIndex, uint16_t currUmbraIndex,
+                                             const SkPoint& newPenumbraPoint) {
+    SkVector outset0 = fPositions[prevPenumbraIndex] - fPositions[fPrevUmbraIndex];
+    SkVector outset1 = newPenumbraPoint - fPositions[currUmbraIndex];
+    outset0.normalize();
+    outset1.normalize();
+    if (outset0.dot(outset1) < 0.9f) {
+        SkVector innerTransverse = fPositions[currUmbraIndex] - fPositions[fPrevUmbraIndex];
+        SkVector outerTransverse = newPenumbraPoint - fPositions[prevPenumbraIndex];
+        SkScalar outerLength = SkVector::Normalize(&outerTransverse);
+        outerTransverse *= ((outerLength - innerTransverse.length())*SK_ScalarHalf);
+
+        *fPositions.push() = fPositions[prevPenumbraIndex] + outerTransverse;
+        *fColors.push() = fPenumbraColor;
+        this->appendTriangle(prevPenumbraIndex, fPositions.count() - 1, fPrevUmbraIndex);
+        prevPenumbraIndex = fPositions.count() - 1;
+        // this completes an arc, so we adjust falloff in the arc if necessary
+        // TODO: fix for concave paths
+        *fArcIndices.push() = prevPenumbraIndex;
+        this->adjustFalloff(fPrevUmbraIndex, false);
+
+        // add center quad if necessary
+        if (currUmbraIndex != fPrevUmbraIndex) {
+            *fPositions.push() = newPenumbraPoint - outerTransverse;
+            *fColors.push() = fPenumbraColor;
+            this->appendQuad(fPrevUmbraIndex, prevPenumbraIndex, currUmbraIndex,
+                             fPositions.count() - 1);
+            prevPenumbraIndex = fPositions.count() - 1;
+        }
+
+        // restart arc and add final triangle
+        *fArcIndices.push() = prevPenumbraIndex;
+        *fPositions.push() = newPenumbraPoint;
+        *fColors.push() = fPenumbraColor;
+        this->appendTriangle(prevPenumbraIndex, fPositions.count() - 1, currUmbraIndex);
+        *fArcIndices.push() = fPositions.count() - 1;
+    } else {
+        *fPositions.push() = newPenumbraPoint;
+        *fColors.push() = fPenumbraColor;
+        if (currUmbraIndex != fPrevUmbraIndex) {
+            this->appendQuad(fPrevUmbraIndex, prevPenumbraIndex, currUmbraIndex,
+                             fPositions.count() - 1);
+        } else {
+            this->appendTriangle(fPrevUmbraIndex, prevPenumbraIndex, fPositions.count() - 1);
+        }
+        if (!fArcIndices.isEmpty()) {
+            *fArcIndices.push() = fPositions.count() - 1;
+        }
+    }
+}
+
+
+void SkSpotShadowTessellator::adjustFalloff(int currArcPivot, bool includeStartArc) {
+    if (fArcIndices.count() <= 4) {
+        fArcIndices.rewind();
+        return;
+    }
+    int currArcStartPoint = fArcIndices[0];
+    int currArcSecondPoint = fArcIndices[1];
+    int currArcPenultimatePoint = fArcIndices[fArcIndices.count() - 2];
+    int currArcFinalPoint = fArcIndices[fArcIndices.count() - 1];
+
+    // Find distance to intersection between boundary lines ("umbraInset")
+    SkVector v0 = fPositions[currArcSecondPoint] - fPositions[currArcStartPoint];
+    SkScalar v0Length = v0.length();
+    // Note: fPositions.count()-2 is the new umbra point so we have to skip it
+    SkVector v1 = fPositions[currArcPenultimatePoint] - fPositions[currArcFinalPoint];
+
+    SkVector d = fPositions[currArcFinalPoint] - fPositions[currArcStartPoint];
+    SkScalar perpDot = v0.cross(v1);
+    // if boundary lines are parallel, something went very wrong, give up
+    if (SkScalarNearlyZero(perpDot)) {
+        return;
+    }
+    SkScalar s = d.cross(v1) / perpDot;
+    SkPoint corner = fPositions[currArcStartPoint] + v0 * s;
+    SkScalar umbraInset = v0Length*s;
+    SkScalar outerRadius = umbraInset - v0Length;
+    SkScalar midFalloff = outerRadius / umbraInset;
+
+    // To get corner falloff adjustment, need dot product of fanned arc angle
+    v0 = fPositions[currArcSecondPoint] - fPositions[currArcPivot];
+    v1 = fPositions[currArcPenultimatePoint] - fPositions[currArcPivot];
+    v0.normalize();
+    v1.normalize();
+    SkScalar cornerFalloff = SK_Scalar1 - v0.dot(v1);
+
+    // Now adjust color values
+    int alpha = SkColorGetA(fPenumbraColor);
+    int midFactor = SkScalarTruncToInt(255.9f*midFalloff);
+    fColors[currArcSecondPoint] = SkColorSetARGB(alpha, midFactor, midFactor, midFactor);
+    fColors[currArcPenultimatePoint] = SkColorSetARGB(alpha, midFactor, midFactor, midFactor);
+
+    v0 = fPositions[currArcSecondPoint] - corner;
+    v1 = fPositions[currArcPenultimatePoint] - corner;
+    SkScalar invDenom = SkScalarInvert(SkTAbs(v0.cross(v1)));
+    SkScalar deltaFalloff = midFalloff - cornerFalloff;
+
+    for (int i = 1; i < fArcIndices.count()-1; ++i) {
+        int index = fArcIndices[i];
+        SkVector w = fPositions[index] - corner;
+        SkScalar s = SkTAbs(v1.cross(w))*invDenom;
+        SkScalar t = SkTAbs(v0.cross(w))*invDenom;
+        int factor = SkScalarTruncToInt(255.9f*(cornerFalloff + (s + t)*deltaFalloff));
+        fColors[index] = SkColorSetARGB(alpha, factor, factor, factor);
+    }
+
+    fArcIndices.rewind();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
