@@ -14,6 +14,8 @@
 #include <array>
 
 class GrOnFlushResourceProvider;
+class GrOpFlushState;
+class GrPipeline;
 
 /**
  * This class draws AA paths using the coverage count masks produced by GrCCCoverageProcessor.
@@ -21,8 +23,9 @@ class GrOnFlushResourceProvider;
  * Paths are drawn as bloated octagons, and coverage is derived from the coverage count mask and
  * fill rule.
  *
- * The caller must set up an instance buffer as detailed below, then draw indexed-instanced
- * meshes using the buffers and parameters provided by this class.
+ * To draw paths, the caller must set up an instance buffer as detailed below, then call drawPaths()
+ * providing its own instance buffer alongside the buffers found by calling FindIndexBuffer/
+ * FindVertexBuffer.
  */
 class GrCCPathProcessor : public GrGeometryProcessor {
 public:
@@ -50,13 +53,8 @@ public:
 
     GR_STATIC_ASSERT(4 * 16 == sizeof(Instance));
 
-    static GrPrimitiveType MeshPrimitiveType(const GrCaps& caps) {
-        return caps.usePrimitiveRestart() ? GrPrimitiveType::kTriangleStrip
-                                          : GrPrimitiveType::kTriangles;
-    }
     static sk_sp<const GrBuffer> FindVertexBuffer(GrOnFlushResourceProvider*);
     static sk_sp<const GrBuffer> FindIndexBuffer(GrOnFlushResourceProvider*);
-    static int NumIndicesPerInstance(const GrCaps&);
 
     GrCCPathProcessor(GrResourceProvider*, sk_sp<GrTextureProxy> atlas, SkPath::FillType);
 
@@ -78,6 +76,10 @@ public:
 
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
+
+    void drawPaths(GrOpFlushState*, const GrPipeline&, const GrBuffer* indexBuffer,
+                   const GrBuffer* vertexBuffer, GrBuffer* instanceBuffer, int baseInstance,
+                   int endInstance, const SkRect& bounds) const;
 
 private:
     const SkPath::FillType fFillType;
