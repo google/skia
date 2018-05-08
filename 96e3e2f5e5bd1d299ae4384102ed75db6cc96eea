@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9f79e589_532d9815",
+        "filename": "src/gpu/GrTextureAdjuster.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-08T15:56:49Z",
+      "side": 1,
+      "message": "Yeah, I think either way is fine.",
+      "parentUuid": "32b028c7_7edda382",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 84,
+        "endChar": 5
+      },
+      "revId": "96e3e2f5e5bd1d299ae4384102ed75db6cc96eea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dbd2e8f9_0525349a",
         "filename": "src/gpu/GrTextureMaker.cpp",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "cc526e52_4d8b348c",
+        "filename": "src/gpu/GrTextureMaker.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-08T15:56:49Z",
+      "side": 1,
+      "message": "I think the check is a bit orthogonal to these changes but it wouldn\u0027t hurt to have the check either.",
+      "parentUuid": "dbd2e8f9_0525349a",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 6
+      },
+      "revId": "96e3e2f5e5bd1d299ae4384102ed75db6cc96eea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d3b40f2d_0e4b046c",
         "filename": "src/gpu/ops/GrLatticeOp.cpp",
         "patchSetId": 3
@@ -59,6 +107,30 @@
       "writtenOn": "2018-05-08T15:51:09Z",
       "side": 1,
       "message": "Last conflict. This code wasn\u0027t here (create the proxy) in master, but it looks like I just need to move the origin to the desc.",
+      "range": {
+        "startLine": 375,
+        "startChar": 0,
+        "endLine": 381,
+        "endChar": 6
+      },
+      "revId": "96e3e2f5e5bd1d299ae4384102ed75db6cc96eea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "315e763a_0f342b5e",
+        "filename": "src/gpu/ops/GrLatticeOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-08T15:56:49Z",
+      "side": 1,
+      "message": "This is correct.",
+      "parentUuid": "d3b40f2d_0e4b046c",
       "range": {
         "startLine": 375,
         "startChar": 0,
