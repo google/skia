@@ -22,6 +22,30 @@
       "revId": "889a3d456b46321a857db5403354cac97a455b2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f64c23c_8108282d",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-08T14:39:36Z",
+      "side": 1,
+      "message": "I didn\u0027t add these, they\u0027re just moved down from above so they wouldn\u0027t be so far from where they are used. They\u0027re used extensively in the couple of functions which follow.",
+      "parentUuid": "0b56c136_d9972395",
+      "range": {
+        "startLine": 340,
+        "startChar": 26,
+        "endLine": 340,
+        "endChar": 31
+      },
+      "revId": "889a3d456b46321a857db5403354cac97a455b2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
