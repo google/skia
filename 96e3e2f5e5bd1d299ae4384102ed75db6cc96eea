@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "42493db9_dc365019",
+        "filename": "src/gpu/GrTextureAdjuster.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-08T16:51:05Z",
+      "side": 1,
+      "message": "Removed for simplicity.",
+      "parentUuid": "9f79e589_532d9815",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 84,
+        "endChar": 5
+      },
+      "revId": "96e3e2f5e5bd1d299ae4384102ed75db6cc96eea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dbd2e8f9_0525349a",
         "filename": "src/gpu/GrTextureMaker.cpp",
         "patchSetId": 3
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "I think the check is a bit orthogonal to these changes but it wouldn\u0027t hurt to have the check either.",
       "parentUuid": "dbd2e8f9_0525349a",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 6
+      },
+      "revId": "96e3e2f5e5bd1d299ae4384102ed75db6cc96eea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6d1c63b_91853a3f",
+        "filename": "src/gpu/GrTextureMaker.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-08T16:51:05Z",
+      "side": 1,
+      "message": "I\u0027d rather err on the side of not checking surprises into P.",
+      "parentUuid": "cc526e52_4d8b348c",
       "range": {
         "startLine": 20,
         "startChar": 0,
@@ -140,6 +188,30 @@
       "revId": "96e3e2f5e5bd1d299ae4384102ed75db6cc96eea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aaa5e579_749c57a3",
+        "filename": "src/gpu/ops/GrLatticeOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-08T16:51:05Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "315e763a_0f342b5e",
+      "range": {
+        "startLine": 375,
+        "startChar": 0,
+        "endLine": 381,
+        "endChar": 6
+      },
+      "revId": "96e3e2f5e5bd1d299ae4384102ed75db6cc96eea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
