@@ -501,8 +501,8 @@ public:
         this->INHERITED::onFilterRec(rec);
     }
 
-    std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override {
-        std::unique_ptr<SkAdvancedTypefaceMetrics> info =
+    SkAdvancedTypefaceMetrics onGetAdvancedMetrics() const override {
+        SkAdvancedTypefaceMetrics info =
             this->INHERITED::onGetAdvancedMetrics();
 
         // Simulated fonts shouldn't be considered to be of the type of their data.

@@ -126,9 +126,9 @@ void SkTestTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {
     }
 }
 
-std::unique_ptr<SkAdvancedTypefaceMetrics> SkTestTypeface::onGetAdvancedMetrics() const { // pdf only
-    std::unique_ptr<SkAdvancedTypefaceMetrics> info(new SkAdvancedTypefaceMetrics);
-    info->fFontName.set(fTestFont->fName);
+SkAdvancedTypefaceMetrics SkTestTypeface::onGetAdvancedMetrics() const { // pdf only
+    SkAdvancedTypefaceMetrics info;
+    info.fFontName.set(fTestFont->fName);
     return info;
 }
 
