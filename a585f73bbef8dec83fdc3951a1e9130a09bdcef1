@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f032b3cc_c0d04f79",
+        "filename": "src/core/SkScalerContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 990,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-08T15:41:23Z",
+      "side": 0,
+      "message": "That\u0027s cool.",
+      "range": {
+        "startLine": 990,
+        "startChar": 13,
+        "endLine": 990,
+        "endChar": 24
+      },
+      "revId": "a585f73bbef8dec83fdc3951a1e9130a09bdcef1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
