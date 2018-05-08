@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b56c136_d9972395",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-05-08T14:23:34Z",
+      "side": 1,
+      "message": "Where is this used?",
+      "range": {
+        "startLine": 340,
+        "startChar": 26,
+        "endLine": 340,
+        "endChar": 31
+      },
+      "revId": "889a3d456b46321a857db5403354cac97a455b2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
