@@ -1,2 +1,3 @@
 avoid_stencil_buffers
+disable_blend_equation_advanced
 clear_to_zero_or_one_broken
