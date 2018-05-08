@@ -16,6 +16,9 @@
 #include "SkStreamPriv.h"
 #include "Test.h"
 
+#include <functional>
+#include <limits>
+
 #ifndef SK_BUILD_FOR_WIN
 #include <unistd.h>
 #include <fcntl.h>
@@ -467,6 +470,167 @@ DEF_TEST(StreamEmptyStreamMemoryBase, r) {
     SkDynamicMemoryWStream tmp;
     std::unique_ptr<SkStreamAsset> asset(tmp.detachAsStream());
     REPORTER_ASSERT(r, nullptr == asset->getMemoryBase());
+}
+
+DEF_TEST(FILEStreamWithOffset, r) {
+    if (GetResourcePath().isEmpty()) {
+        return;
+    }
+
+    SkString filename = GetResourcePath("images/baby_tux.png");
+    SkFILEStream stream1(filename.c_str());
+    if (!stream1.isValid()) {
+        ERRORF(r, "Could not create SkFILEStream from %s", filename.c_str());
+        return;
+    }
+    REPORTER_ASSERT(r, stream1.hasLength());
+    REPORTER_ASSERT(r, stream1.hasPosition());
+
+    // Seek halfway through the file. The second SkFILEStream will be created
+    // with the same filename and offset and therefore will treat that offset as
+    // the beginning.
+    const size_t size = stream1.getLength();
+    const size_t middle = size / 2;
+    if (!stream1.seek(middle)) {
+        ERRORF(r, "Could not seek SkFILEStream to %lu out of %lu", middle, size);
+        return;
+    }
+    REPORTER_ASSERT(r, stream1.getPosition() == middle);
+
+    FILE* file = sk_fopen(filename.c_str(), kRead_SkFILE_Flag);
+    if (!file) {
+        ERRORF(r, "Could not open %s as a FILE", filename.c_str());
+        return;
+    }
+
+    if (fseek(file, (long) middle, SEEK_SET) != 0) {
+        ERRORF(r, "Could not fseek FILE to %lu out of %lu", middle, size);
+        return;
+    }
+    SkFILEStream stream2(file);
+
+    const size_t remaining = size - middle;
+    SkAutoTMalloc<uint8_t> expected(remaining);
+    REPORTER_ASSERT(r, stream1.read(expected.get(), remaining) == remaining);
+
+    auto test_full_read = [&r, &expected, remaining](SkStream* stream) {
+        SkAutoTMalloc<uint8_t> actual(remaining);
+        REPORTER_ASSERT(r, stream->read(actual.get(), remaining) == remaining);
+        REPORTER_ASSERT(r, !memcmp(expected.get(), actual.get(), remaining));
+
+        REPORTER_ASSERT(r, stream->getPosition() == stream->getLength());
+        REPORTER_ASSERT(r, stream->isAtEnd());
+    };
+
+    auto test_rewind = [&r, &expected, remaining](SkStream* stream) {
+        // Rewind goes back to original offset.
+        REPORTER_ASSERT(r, stream->rewind());
+        REPORTER_ASSERT(r, stream->getPosition() == 0);
+        SkAutoTMalloc<uint8_t> actual(remaining);
+        REPORTER_ASSERT(r, stream->read(actual.get(), remaining) == remaining);
+        REPORTER_ASSERT(r, !memcmp(expected.get(), actual.get(), remaining));
+    };
+
+    auto test_move = [&r, &expected, size, remaining](SkStream* stream) {
+        // Cannot move to before the original offset.
+        REPORTER_ASSERT(r, stream->move(- (long) size));
+        REPORTER_ASSERT(r, stream->getPosition() == 0);
+
+        REPORTER_ASSERT(r, stream->move(std::numeric_limits<long>::min()));
+        REPORTER_ASSERT(r, stream->getPosition() == 0);
+
+        SkAutoTMalloc<uint8_t> actual(remaining);
+        REPORTER_ASSERT(r, stream->read(actual.get(), remaining) == remaining);
+        REPORTER_ASSERT(r, !memcmp(expected.get(), actual.get(), remaining));
+
+        REPORTER_ASSERT(r, stream->isAtEnd());
+        REPORTER_ASSERT(r, stream->getPosition() == remaining);
+
+        // Cannot move beyond the end.
+        REPORTER_ASSERT(r, stream->move(1));
+        REPORTER_ASSERT(r, stream->isAtEnd());
+        REPORTER_ASSERT(r, stream->getPosition() == remaining);
+    };
+
+    auto test_seek = [&r, &expected, middle, remaining](SkStream* stream) {
+        // Seek to an arbitrary position.
+        const size_t arbitrary = middle / 2;
+        REPORTER_ASSERT(r, stream->seek(arbitrary));
+        REPORTER_ASSERT(r, stream->getPosition() == arbitrary);
+        const size_t miniRemaining = remaining - arbitrary;
+        SkAutoTMalloc<uint8_t> actual(miniRemaining);
+        REPORTER_ASSERT(r, stream->read(actual.get(), miniRemaining) == miniRemaining);
+        REPORTER_ASSERT(r, !memcmp(expected.get() + arbitrary, actual.get(), miniRemaining));
+    };
+
+    auto test_seek_beginning = [&r, &expected, remaining](SkStream* stream) {
+        // Seek to the beginning.
+        REPORTER_ASSERT(r, stream->seek(0));
+        REPORTER_ASSERT(r, stream->getPosition() == 0);
+        SkAutoTMalloc<uint8_t> actual(remaining);
+        REPORTER_ASSERT(r, stream->read(actual.get(), remaining) == remaining);
+        REPORTER_ASSERT(r, !memcmp(expected.get(), actual.get(), remaining));
+    };
+
+    auto test_seek_end = [&r, remaining](SkStream* stream) {
+        // Cannot seek past the end.
+        REPORTER_ASSERT(r, stream->isAtEnd());
+
+        REPORTER_ASSERT(r, stream->seek(remaining + 1));
+        REPORTER_ASSERT(r, stream->isAtEnd());
+        REPORTER_ASSERT(r, stream->getPosition() == remaining);
+
+        const size_t middle = remaining / 2;
+        REPORTER_ASSERT(r, stream->seek(middle));
+        REPORTER_ASSERT(r, !stream->isAtEnd());
+        REPORTER_ASSERT(r, stream->getPosition() == middle);
+
+        REPORTER_ASSERT(r, stream->seek(remaining * 2));
+        REPORTER_ASSERT(r, stream->isAtEnd());
+        REPORTER_ASSERT(r, stream->getPosition() == remaining);
+
+        REPORTER_ASSERT(r, stream->seek(std::numeric_limits<long>::max()));
+        REPORTER_ASSERT(r, stream->isAtEnd());
+        REPORTER_ASSERT(r, stream->getPosition() == remaining);
+    };
+
+
+    std::function<void (SkStream* stream, bool recurse)> test_all;
+    test_all = [&](SkStream* stream, bool recurse) {
+        REPORTER_ASSERT(r, stream->getLength() == remaining);
+        REPORTER_ASSERT(r, stream->getPosition() == 0);
+
+        test_full_read(stream);
+        test_rewind(stream);
+        test_move(stream);
+        test_seek(stream);
+        test_seek_beginning(stream);
+        test_seek_end(stream);
+
+        if (recurse) {
+            // Duplicate shares the original offset.
+            auto duplicate = stream->duplicate();
+            if (!duplicate) {
+                ERRORF(r, "Failed to duplicate the stream!");
+            } else {
+                test_all(duplicate.get(), false);
+            }
+
+            // Fork shares the original offset, too.
+            auto fork = stream->fork();
+            if (!fork) {
+                ERRORF(r, "Failed to fork the stream!");
+            } else {
+                REPORTER_ASSERT(r, fork->isAtEnd());
+                REPORTER_ASSERT(r, fork->getLength() == remaining);
+                REPORTER_ASSERT(r, fork->rewind());
+
+                test_all(fork.get(), false);
+            }
+        }
+    };
+
+    test_all(&stream2, true);
 }
 
 #include "SkBuffer.h"
