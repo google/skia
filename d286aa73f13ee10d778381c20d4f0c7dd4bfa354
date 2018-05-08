@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e50acd36_be37f39f",
+        "filename": "include/core/SkTypeface.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-08T14:35:43Z",
+      "side": 0,
+      "message": "I actually quite like the declaration being next to the friends which need it.",
+      "range": {
+        "startLine": 353,
+        "startChar": 3,
+        "endLine": 355,
+        "endChar": 56
+      },
+      "revId": "d286aa73f13ee10d778381c20d4f0c7dd4bfa354",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2bc4cc8d_e442c2af",
+        "filename": "include/core/SkTypeface.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-08T14:35:43Z",
+      "side": 0,
+      "message": "I actually quite like the declaration being next to the friends which need it.",
+      "range": {
+        "startLine": 367,
+        "startChar": 0,
+        "endLine": 368,
+        "endChar": 56
+      },
+      "revId": "d286aa73f13ee10d778381c20d4f0c7dd4bfa354",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

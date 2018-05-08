@@ -1,0 +1,280 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "003ab6ed_fa2d9d15",
+        "filename": "include/core/SkTypeface.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-08T14:35:43Z",
+      "side": 1,
+      "message": "Is the only reason this is unique_ptr is so CodePointCache isn\u0027t declared here? Why not just declare it in this private section and dispense with the extra \u0027new\u0027?",
+      "range": {
+        "startLine": 382,
+        "startChar": 4,
+        "endLine": 382,
+        "endChar": 19
+      },
+      "revId": "82ebf7a9a6e5595a95a83ede7a45691e9468c181",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff6be051_052446eb",
+        "filename": "src/core/SkTypeface.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-08T14:35:43Z",
+      "side": 1,
+      "message": "I\u0027m not understanding how we can land this without this method using the cache. Without doing so I\u0027m not sure how it is expected to compare performance, especially on various platforms since it is known that DirectWrite and CoreText already have some cache of this information. For all we know they\u0027ve already greedily created full hash cmaps (in the case of DirectWrite this is actually fairly probable for all installed local fonts).",
+      "range": {
+        "startLine": 272,
+        "startChar": 16,
+        "endLine": 272,
+        "endChar": 29
+      },
+      "revId": "82ebf7a9a6e5595a95a83ede7a45691e9468c181",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f770369_a5fd1d4c",
+        "filename": "src/core/SkTypeface.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-08T14:35:43Z",
+      "side": 1,
+      "message": "SkGlyphID",
+      "range": {
+        "startLine": 405,
+        "startChar": 67,
+        "endLine": 405,
+        "endChar": 75
+      },
+      "revId": "82ebf7a9a6e5595a95a83ede7a45691e9468c181",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4c79557_e6921648",
+        "filename": "src/core/SkTypeface.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-08T14:35:43Z",
+      "side": 1,
+      "message": "Is there a better comment about why to limit this to 4GB? If you\u0027re taking \u0027bytes\u0027 as size_t this limitation should be documented and a justification given. It seems the technical reason is to make \u0027Missing\u0027 half the size on 64 bit machines.",
+      "range": {
+        "startLine": 407,
+        "startChar": 4,
+        "endLine": 407,
+        "endChar": 15
+      },
+      "revId": "82ebf7a9a6e5595a95a83ede7a45691e9468c181",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ea3bf0b_ac39a531",
+        "filename": "src/core/SkTypeface.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-08T14:35:43Z",
+      "side": 1,
+      "message": "SkUnichar",
+      "range": {
+        "startLine": 415,
+        "startChar": 8,
+        "endLine": 415,
+        "endChar": 16
+      },
+      "revId": "82ebf7a9a6e5595a95a83ede7a45691e9468c181",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5c14c5d_f5cd3bf4",
+        "filename": "src/core/SkTypeface.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-08T14:35:43Z",
+      "side": 1,
+      "message": "SkUnichar",
+      "range": {
+        "startLine": 429,
+        "startChar": 59,
+        "endLine": 429,
+        "endChar": 67
+      },
+      "revId": "82ebf7a9a6e5595a95a83ede7a45691e9468c181",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea2acc51_90d64884",
+        "filename": "src/core/SkTypeface.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-08T14:35:43Z",
+      "side": 1,
+      "message": "-1",
+      "range": {
+        "startLine": 454,
+        "startChar": 33,
+        "endLine": 454,
+        "endChar": 69
+      },
+      "revId": "82ebf7a9a6e5595a95a83ede7a45691e9468c181",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9cd98ce6_b4ed966a",
+        "filename": "src/core/SkTypeface.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-08T14:35:43Z",
+      "side": 1,
+      "message": "SkUnichar",
+      "range": {
+        "startLine": 454,
+        "startChar": 8,
+        "endLine": 454,
+        "endChar": 16
+      },
+      "revId": "82ebf7a9a6e5595a95a83ede7a45691e9468c181",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2df3f11_52fee343",
+        "filename": "src/core/SkTypeface.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-08T14:35:43Z",
+      "side": 1,
+      "message": "SkGlyphID",
+      "range": {
+        "startLine": 455,
+        "startChar": 8,
+        "endLine": 455,
+        "endChar": 16
+      },
+      "revId": "82ebf7a9a6e5595a95a83ede7a45691e9468c181",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8ebe9ac_8e30d4f5",
+        "filename": "src/core/SkUtils.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-08T14:35:43Z",
+      "side": 1,
+      "message": "SkUnichar",
+      "range": {
+        "startLine": 433,
+        "startChar": 49,
+        "endLine": 433,
+        "endChar": 57
+      },
+      "revId": "82ebf7a9a6e5595a95a83ede7a45691e9468c181",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "775eda2f_be7dbb7d",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-08T14:35:43Z",
+      "side": 1,
+      "message": "SkGlyphID",
+      "range": {
+        "startLine": 39,
+        "startChar": 20,
+        "endLine": 39,
+        "endChar": 28
+      },
+      "revId": "82ebf7a9a6e5595a95a83ede7a45691e9468c181",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "689efd6b_a005427f",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-08T14:35:43Z",
+      "side": 1,
+      "message": "SkUnichar",
+      "range": {
+        "startLine": 124,
+        "startChar": 49,
+        "endLine": 124,
+        "endChar": 57
+      },
+      "revId": "82ebf7a9a6e5595a95a83ede7a45691e9468c181",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
