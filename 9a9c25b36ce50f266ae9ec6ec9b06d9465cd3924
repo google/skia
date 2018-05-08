@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2bad73b7_bf88cf43",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-08T05:05:46Z",
+      "side": 0,
+      "message": "Either we\u0027re getting it wrong here or at https://cs.chromium.org/chromium/src/third_party/skia/src/core/SkFindAndPlaceGlyph.h?type\u003dcs\u0026q\u003dSkFindAndPlaceGlyph::ProcessPosText\u0026l\u003d455. I\u0027m not sure which one, but this was the cause of most cache misses.",
+      "range": {
+        "startLine": 369,
+        "startChar": 4,
+        "endLine": 372,
+        "endChar": 5
+      },
+      "revId": "9a9c25b36ce50f266ae9ec6ec9b06d9465cd3924",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
