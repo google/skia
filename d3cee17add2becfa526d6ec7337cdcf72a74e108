@@ -16,6 +16,24 @@
       "revId": "d3cee17add2becfa526d6ec7337cdcf72a74e108",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8de97faa_f7b7683a",
+        "filename": "src/gpu/ops/GrLatticeOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-08T12:15:09Z",
+      "side": 1,
+      "message": "Of course it could in the same way that a helper\u0027s processor set could have the same proxy twice (e.g. composing an image shader with itself or two color table filters that share an atlas). But it is not usually in the helper\u0027s set.",
+      "parentUuid": "034843fb_2378cf1d",
+      "revId": "d3cee17add2becfa526d6ec7337cdcf72a74e108",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
