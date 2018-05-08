@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "86d9f962_92de9f89",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-08T13:37:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97163921_843bfd7e",
+      "range": {
+        "startLine": 226,
+        "startChar": 21,
+        "endLine": 226,
+        "endChar": 47
+      },
+      "revId": "e3d4c698ca67de99bc5a3dc127a0b758386ad163",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "15ab9d73_6612e82f",
         "filename": "src/core/SkStream.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-05-07T21:18:18Z",
       "side": 1,
       "message": "SkSafeMath::Add ?",
+      "range": {
+        "startLine": 231,
+        "startChar": 4,
+        "endLine": 233,
+        "endChar": 34
+      },
+      "revId": "e3d4c698ca67de99bc5a3dc127a0b758386ad163",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3205ba39_701e53b6",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-08T13:37:42Z",
+      "side": 1,
+      "message": "I cannot do that directly, since offset may be negative, and SkSafeMath takes size_t parameters. But maybe I should handle negative offsets first, then use SkSafeMath? Done.",
+      "parentUuid": "15ab9d73_6612e82f",
       "range": {
         "startLine": 231,
         "startChar": 4,

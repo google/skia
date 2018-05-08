@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4bff6d04_77d00e07",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-08T13:37:42Z",
+      "side": 1,
+      "message": "It surprised me that we return true even if the client passes a position out of range (here and in move()), but I have not changed that behavior.",
+      "range": {
+        "startLine": 231,
+        "startChar": 4,
+        "endLine": 231,
+        "endChar": 15
+      },
+      "revId": "519e0abab46ae50a9874cac80cc9d7b4b4232902",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
