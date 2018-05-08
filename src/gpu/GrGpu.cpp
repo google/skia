@@ -54,6 +54,7 @@ bool GrGpu::isACopyNeededForTextureParams(int width, int height,
         SkASSERT(scaleAdjust);
         copyParams->fWidth = GrNextPow2(width);
         copyParams->fHeight = GrNextPow2(height);
+        SkASSERT(scaleAdjust);
         scaleAdjust[0] = ((SkScalar) copyParams->fWidth) / width;
         scaleAdjust[1] = ((SkScalar) copyParams->fHeight) / height;
         switch (textureParams.filter()) {
