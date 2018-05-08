@@ -366,10 +366,7 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
     SkASSERT(glyphCacheState);
 
     bool isSubpixel = SkToBool(rec.fFlags & SkScalerContext::kSubpixelPositioning_Flag);
-    SkAxisAlignment axisAlignment = SkAxisAlignment::kNone_SkAxisAlignment;
-    if (it.positioning() == SkTextBlob::kHorizontal_Positioning) {
-        axisAlignment = rec.computeAxisAlignmentForHText();
-    }
+    SkAxisAlignment axisAlignment = rec.computeAxisAlignmentForHText();
     auto pos = it.pos();
     const uint16_t* glyphs = it.glyphs();
     for (uint32_t index = 0; index < it.glyphCount(); index++) {
