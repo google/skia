@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e1f51115_572b27d7",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-05-09T15:21:52Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "66a6f31a_b1ed2660",
+      "range": {
+        "startLine": 309,
+        "startChar": 4,
+        "endLine": 309,
+        "endChar": 21
+      },
+      "revId": "a8daee88d274e29f9d27f640843b33795f6df31e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bf5f5960_5dc14635",
         "filename": "src/core/SkString.cpp",
         "patchSetId": 1
@@ -72,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "080ab5f5_c1a79795",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-05-09T15:21:52Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "5b8f3b75_305907ef",
+      "range": {
+        "startLine": 312,
+        "startChar": 8,
+        "endLine": 313,
+        "endChar": 24
+      },
+      "revId": "a8daee88d274e29f9d27f640843b33795f6df31e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e3d5fbbe_26fc7c5a",
         "filename": "src/core/SkString.cpp",
         "patchSetId": 1
@@ -83,6 +131,30 @@
       "writtenOn": "2018-05-09T15:00:37Z",
       "side": 0,
       "message": "Can this also be\n\nfRec \u003d std::move(src.fRec)",
+      "range": {
+        "startLine": 321,
+        "startChar": 0,
+        "endLine": 323,
+        "endChar": 5
+      },
+      "revId": "a8daee88d274e29f9d27f640843b33795f6df31e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0231413d_096135f1",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-05-09T15:21:52Z",
+      "side": 0,
+      "message": "nope.  must set src.fRec \u003d global empty string.",
+      "parentUuid": "e3d5fbbe_26fc7c5a",
       "range": {
         "startLine": 321,
         "startChar": 0,
