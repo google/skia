@@ -291,6 +291,10 @@ void SkTypeface::getFamilyName(SkString* name) const {
     this->onGetFamilyName(name);
 }
 
+void SkTypeface::getGlyphToUnicodeMap(SkUnichar* dst) const {
+    sk_bzero(dst, sizeof(SkUnichar) * this->countGlyphs());
+}
+
 std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface::getAdvancedMetrics() const {
     std::unique_ptr<SkAdvancedTypefaceMetrics> result = this->onGetAdvancedMetrics();
     if (result && result->fPostScriptName.isEmpty()) {
