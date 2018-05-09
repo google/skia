@@ -26,12 +26,12 @@ namespace skottie {
 namespace json {
 
 template <>
-bool json::ValueRef::to<SkScalar>(SkScalar* v) const {
+bool ValueRef::to<SkScalar>(SkScalar* v) const {
     if (!fValue) return false;
 
     // Some versions wrap values as single-element arrays.
     if (fValue->IsArray() && fValue->Size() == 1) {
-        return json::ValueRef(fValue->operator[](0)).to(v);
+        return ValueRef(fValue->operator[](0)).to(v);
     }
 
     if (!fValue->IsNumber())
@@ -43,7 +43,7 @@ bool json::ValueRef::to<SkScalar>(SkScalar* v) const {
 }
 
 template <>
-bool json::ValueRef::to<bool>(bool* v) const {
+bool ValueRef::to<bool>(bool* v) const {
     if (!fValue) return false;
 
     switch(fValue->GetType()) {
@@ -62,7 +62,7 @@ bool json::ValueRef::to<bool>(bool* v) const {
 }
 
 template <>
-bool json::ValueRef::to<int>(int* v) const {
+bool ValueRef::to<int>(int* v) const {
     if (!fValue || !fValue->IsInt())
         return false;
 
@@ -72,7 +72,7 @@ bool json::ValueRef::to<int>(int* v) const {
 }
 
 template <>
-bool json::ValueRef::to<SkString>(SkString* v) const {
+bool ValueRef::to<SkString>(SkString* v) const {
     if (!fValue || !fValue->IsString())
         return false;
 
@@ -82,20 +82,20 @@ bool json::ValueRef::to<SkString>(SkString* v) const {
 }
 
 template <>
-bool json::ValueRef::to<SkPoint>(SkPoint* v) const {
+bool ValueRef::to<SkPoint>(SkPoint* v) const {
     if (!fValue || !fValue->IsObject())
         return false;
 
-    const auto jvx = ValueRef(fValue->operator[]("x")),
-               jvy = ValueRef(fValue->operator[]("y"));
+    const auto jvx = ValueRef(this->operator[]("x")),
+               jvy = ValueRef(this->operator[]("y"));
 
-            // Some BM versions seem to store x/y as single-element arrays.
-    return json::ValueRef(jvx.isArray() ? jvx.operator[](size_t(0)) : jvx).to(&v->fX)
-        && json::ValueRef(jvy.isArray() ? jvy.operator[](size_t(0)) : jvy).to(&v->fY);
+    // Some BM versions seem to store x/y as single-element arrays.
+    return ValueRef(jvx.isArray() ? jvx.operator[](size_t(0)) : jvx).to(&v->fX)
+        && ValueRef(jvy.isArray() ? jvy.operator[](size_t(0)) : jvy).to(&v->fY);
 }
 
 template <>
-bool json::ValueRef::to<std::vector<float>>(std::vector<float>* v) const {
+bool ValueRef::to<std::vector<float>>(std::vector<float>* v) const {
     if (!fValue || !fValue->IsArray())
         return false;
 
@@ -111,16 +111,16 @@ bool json::ValueRef::to<std::vector<float>>(std::vector<float>* v) const {
 
 namespace {
 
-bool ParsePointVec(const rapidjson::Value& jv, std::vector<SkPoint>* pts) {
-    if (!jv.IsArray())
+bool ParsePointVec(const ValueRef& jv, std::vector<SkPoint>* pts) {
+    if (!jv.isArray())
         return false;
 
     pts->clear();
-    pts->reserve(jv.Size());
+    pts->reserve(jv.size());
 
     std::vector<float> vec;
-    for (size_t i = 0; i < jv.Size(); ++i) {
-        if (!ValueRef(jv[i]).to(&vec) || vec.size() != 2)
+    for (size_t i = 0; i < jv.size(); ++i) {
+        if (!jv[i].to(&vec) || vec.size() != 2)
             return false;
         pts->push_back(SkPoint::Make(vec[0], vec[1]));
     }
@@ -131,7 +131,7 @@ bool ParsePointVec(const rapidjson::Value& jv, std::vector<SkPoint>* pts) {
 } // namespace
 
 template <>
-bool json::ValueRef::to<ShapeValue>(ShapeValue* v) const {
+bool ValueRef::to<ShapeValue>(ShapeValue* v) const {
     SkASSERT(v->fVertices.empty());
 
     if (!fValue)
@@ -139,7 +139,7 @@ bool json::ValueRef::to<ShapeValue>(ShapeValue* v) const {
 
     // Some versions wrap values as single-element arrays.
     if (fValue->IsArray() && fValue->Size() == 1) {
-        return json::ValueRef(fValue->operator[](0)).to(v);
+        return ValueRef(fValue->operator[](0)).to(v);
     }
 
     std::vector<SkPoint> inPts,  // Cubic Bezier "in" control points, relative to vertices.
@@ -147,9 +147,9 @@ bool json::ValueRef::to<ShapeValue>(ShapeValue* v) const {
                          verts;  // Cubic Bezier vertices.
 
     if (!fValue->IsObject() ||
-        !ParsePointVec(fValue->operator[]("i"), &inPts) ||
-        !ParsePointVec(fValue->operator[]("o"), &outPts) ||
-        !ParsePointVec(fValue->operator[]("v"), &verts) ||
+        !ParsePointVec(this->operator[]("i"), &inPts) ||
+        !ParsePointVec(this->operator[]("o"), &outPts) ||
+        !ParsePointVec(this->operator[]("v"), &verts) ||
         inPts.size() != outPts.size() ||
         inPts.size() != verts.size()) {
 
@@ -160,7 +160,7 @@ bool json::ValueRef::to<ShapeValue>(ShapeValue* v) const {
     for (size_t i = 0; i < inPts.size(); ++i) {
         v->fVertices.push_back(BezierVertex({inPts[i], outPts[i], verts[i]}));
     }
-    v->fClosed = json::ValueRef(fValue->operator[]("c")).toDefault<bool>(false);
+    v->fClosed = this->operator[]("c").toDefault<bool>(false);
 
     return true;
 }
@@ -182,28 +182,14 @@ ValueRef ValueRef::operator[](const char* key) const {
 }
 
 const rapidjson::Value* ValueRef::begin() const {
-    if (this->isArray()) {
-        return fValue->Begin();
-    }
-    if (this->isObject()) {
-        return &fValue->MemberBegin()->value;
-    }
-
-    return nullptr;
+    return this->isArray() ? fValue->Begin() : nullptr;
 }
 
 const rapidjson::Value* ValueRef::end() const {
-    if (this->isArray()) {
-        return fValue->End();
-    }
-    if (this->isObject()) {
-        return &fValue->MemberEnd()->value;
-    }
-
-    return nullptr;
+    return this->isArray() ? fValue->End() : nullptr;
 }
 
-SkString json::ValueRef::toString() const {
+SkString ValueRef::toString() const {
 #ifdef SK_DEBUG
     rapidjson::StringBuffer buf;
     if (fValue) {

@@ -63,7 +63,7 @@ struct AttachContext {
 
 bool LogFail(const json::ValueRef& json, const char* msg) {
     const auto dump = json.toString();
-    LOG("!! %s: %s", msg, dump.c_str());
+    LOG("!! %s: %s\n", msg, dump.c_str());
     return false;
 }
 
@@ -126,9 +126,8 @@ sk_sp<sksg::RenderNode> AttachOpacity(const json::ValueRef& jtransform, AttachCo
 
     // This is more peeky than other attachers, because we want to avoid redundant opacity
     // nodes for the extremely common case of static opaciy == 100.
-    const auto& opacity = jtransform["o"];
-    if (opacity.isObject() &&
-        !opacity["a"].toDefault(true) &&
+    const auto opacity = jtransform["o"];
+    if (!opacity["a"].toDefault(true) &&
         opacity["k"].toDefault<int>(-1) == 100) {
         // Ignoring static full opacity.
         return childNode;
@@ -276,7 +275,7 @@ sk_sp<sksg::Color> AttachColor(const json::ValueRef& obj, AttachContext* ctx) {
 sk_sp<sksg::Gradient> AttachGradient(const json::ValueRef& obj, AttachContext* ctx) {
     SkASSERT(obj.isObject());
 
-    const auto& stops = obj["g"];
+    const auto stops = obj["g"];
     if (!stops.isObject())
         return nullptr;
 
@@ -528,11 +527,8 @@ const ShapeInfo* FindShapeInfo(const json::ValueRef& shape) {
         { "tr", ShapeType::kTransform     , 0 }, // transform -> Inline handler
     };
 
-    if (!shape.isObject())
-        return nullptr;
-
-    const auto type = shape["ty"].toDefault(SkString());
-    if (type.isEmpty())
+    SkString type;
+    if (!shape["ty"].to(&type) || type.isEmpty())
         return nullptr;
 
     const auto* info = bsearch(type.c_str(),
@@ -594,7 +590,7 @@ sk_sp<sksg::RenderNode> AttachShape(const json::ValueRef& jshape, AttachShapeCon
         const auto s = jshape[jshape.size() - 1 - i];
         const auto* info = FindShapeInfo(s);
         if (!info) {
-            LogFail(s.isObject() ? s["ty"] : s, "Unknown shape");
+            LogFail(s["ty"], "Unknown shape");
             continue;
         }
 
