@@ -124,21 +124,17 @@ sk_sp<sksg::RenderNode> AttachOpacity(const json::ValueRef& jtransform, AttachCo
     if (!jtransform.isObject() || !childNode)
         return childNode;
 
-    // This is more peeky than other attachers, because we want to avoid redundant opacity
-    // nodes for the extremely common case of static opaciy == 100.
-    const auto opacity = jtransform["o"];
-    if (!opacity["a"].toDefault(true) &&
-        opacity["k"].toDefault<int>(-1) == 100) {
-        // Ignoring static full opacity.
-        return childNode;
-    }
-
+    static constexpr ScalarValue kNoopOpacity = 100;
     auto opacityNode = sksg::OpacityEffect::Make(childNode);
-    BindProperty<ScalarValue>(opacity, &ctx->fAnimators,
+
+    if (!BindProperty<ScalarValue>(jtransform["o"], &ctx->fAnimators,
         [opacityNode](const ScalarValue& o) {
             // BM opacity is [0..100]
             opacityNode->setOpacity(o * 0.01f);
-        });
+        }, &kNoopOpacity)) {
+        // We can ignore static full opacity.
+        return childNode;
+    }
 
     return std::move(opacityNode);
 }
