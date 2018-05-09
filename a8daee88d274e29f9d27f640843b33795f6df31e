@@ -164,6 +164,30 @@
       "revId": "a8daee88d274e29f9d27f640843b33795f6df31e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15df89f5_6e865ec0",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-09T17:49:50Z",
+      "side": 0,
+      "message": "Eck... I see that the move constructor does\n\nfRec \u003d std::move(src.fRec);\nsrc.fRec.reset(const_cast\u003cRec*\u003e(\u0026gEmptyRec));\n\nthe current code turns into three moves, and this is two. Not sure it makes a big difference.",
+      "parentUuid": "0231413d_096135f1",
+      "range": {
+        "startLine": 321,
+        "startChar": 0,
+        "endLine": 323,
+        "endChar": 5
+      },
+      "revId": "a8daee88d274e29f9d27f640843b33795f6df31e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
