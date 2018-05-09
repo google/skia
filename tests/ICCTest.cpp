@@ -36,7 +36,7 @@
             skcms_ICCProfile parsed;
             REPORTER_ASSERT(r, skcms_Parse(profile->data(), profile->size(), &parsed));
 
-            sk_sp<SkColorSpace> got = SkColorSpace::Make(&parsed);
+            sk_sp<SkColorSpace> got = SkColorSpace::Make(parsed);
             REPORTER_ASSERT(r, got);
             REPORTER_ASSERT(r, SkColorSpace::Equals(got.get(), test.want.get()));
 
@@ -64,7 +64,7 @@
             skcms_ICCProfile parsed;
             REPORTER_ASSERT(r, skcms_Parse(profile->data(), profile->size(), &parsed));
 
-            auto got  = SkColorSpace::Make(&parsed);
+            auto got  = SkColorSpace::Make(parsed);
             auto want = SkColorSpace::MakeRGB(g2Dot2_TransferFn, SkColorSpace::kAdobeRGB_Gamut);
             REPORTER_ASSERT(r, SkColorSpace::Equals(got.get(), want.get()));
         }

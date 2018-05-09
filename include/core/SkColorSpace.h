@@ -130,7 +130,13 @@ public:
     /**
      *  Create an SkColorSpace from a parsed (skcms) ICC profile.
      */
-    static sk_sp<SkColorSpace> Make(const skcms_ICCProfile*);
+    static sk_sp<SkColorSpace> Make(const skcms_ICCProfile&);
+
+    // TODO: cleanup in Chromium
+    static inline sk_sp<SkColorSpace> Make(const skcms_ICCProfile* p) {
+        SkASSERT(p);
+        return SkColorSpace::Make(*p);
+    }
 
     /**
      *  Types of colorspaces.
