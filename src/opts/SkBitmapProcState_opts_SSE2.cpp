@@ -361,10 +361,19 @@ void ClampX_ClampY_filter_scale_SSE2(const SkBitmapProcState& s, uint32_t xy[],
             } // while count >= 4
         } // if count >= 4
 
+        if (count > 0) {
+            for (;;) {
+                *xy++ = ClampX_ClampY_pack_filter(fx, maxX, one);
+                if (--count == 0) break;
+                fx += dx;
+            }
+        }
+#if 0
         while (count-- > 0) {
             *xy++ = ClampX_ClampY_pack_filter(fx, maxX, one);
             fx += dx;
         }
+#endif
     }
 }
 
