@@ -232,7 +232,6 @@ public:
         kFakeBoldText_Flag       = 0x20,   //!< mask for setting fake bold
         kLinearText_Flag         = 0x40,   //!< mask for setting linear text
         kSubpixelText_Flag       = 0x80,   //!< mask for setting subpixel text
-        kDevKernText_Flag        = 0x100,  //!< mask for setting full hinting spacing
         kLCDRenderText_Flag      = 0x200,  //!< mask for setting LCD text
         kEmbeddedBitmapText_Flag = 0x400,  //!< mask for setting font embedded bitmaps
         kAutoHinting_Flag        = 0x800,  //!< mask for setting auto-hinting

@@ -531,7 +531,6 @@ Set SkPaintDefaults_Hinting at compile time to change the default setting.
         kFakeBoldText_Flag    = 0x20,
         kLinearText_Flag      = 0x40,
         kSubpixelText_Flag    = 0x80,
-        kDevKernText_Flag     = 0x100,
         kLCDRenderText_Flag   = 0x200,
         kEmbeddedBitmapText_Flag = 0x400,
         kAutoHinting_Flag     = 0x800,
@@ -563,9 +562,6 @@ multiple settings at once.
     ##
     #Const kSubpixelText_Flag       0x0080
         mask for setting Subpixel_Text
-    ##
-    #Const kDevKernText_Flag        0x0100
-    #Deprecated
     ##
     #Const kLCDRenderText_Flag      0x0200
         mask for setting LCD_Text
