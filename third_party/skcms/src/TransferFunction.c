@@ -307,11 +307,6 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
             tf.a = tf.c;
             tf.b = tf.f;
             tf.c = tf.d = tf.e = tf.f = 0;
-
-            // We set tf directly, so calculate tf_inv to keep in sync.
-            if (!skcms_TransferFunction_invert(&tf, &tf_inv)) {
-                continue;
-            }
         } else if (L == N - 1) {
             // Degenerate case with only two points in the nonlinear segment. Solve directly.
             tf.g = 1;
@@ -320,11 +315,6 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
             tf.b = skcms_eval_curve((N-2)*x_scale, curve)
                  - tf.a * (N-2)*x_scale;
             tf.e = 0;
-
-            // We solved tf directly, so calculate tf_inv to keep in sync.
-            if (!skcms_TransferFunction_invert(&tf, &tf_inv)) {
-                continue;
-            }
         } else {
             // Start by guessing a gamma-only curve through the midpoint.
             int mid = (L + N) / 2;
@@ -353,7 +343,11 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
         // (The most likely use case for this approximation is to be inverted and
         // used as the transfer function for a destination color space.)
         //
-        // We test using tf_inv, but all paths above have kept tf and tf_inv in sync.
+        // We've kept tf and tf_inv in sync above, but we can't guarantee that tf is
+        // invertible, so re-verify that here (and use the new inverse for testing).
+        if (!skcms_TransferFunction_invert(&tf, &tf_inv)) {
+            continue;
+        }
 
         float err = 0;
         for (int i = 0; i < N; i++) {
