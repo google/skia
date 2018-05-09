@@ -67,6 +67,9 @@ public:
     void    drawPosText(const char text[], size_t byteLength,
                         const SkScalar pos[], int scalarsPerPosition,
                         const SkPoint& offset, const SkPaint&, const SkSurfaceProps*) const;
+    void    drawTextCommon(int count, const SkGlyphID[], const SkPoint[], const SkPoint& offset,
+                           const SkPaint&, const SkSurfaceProps*) const;
+
     void    drawVertices(SkVertices::VertexMode mode, int count,
                          const SkPoint vertices[], const SkPoint textures[],
                          const SkColor colors[], SkBlendMode bmode,

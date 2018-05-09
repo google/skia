@@ -47,6 +47,69 @@ static SkPaint make_paint_with_image(
     return paint;
 }
 
+class SkGlyphDraw {
+    struct GlyphIndex {
+        GlyphIndex() : glyph(glyph), index(index) {}
+        GlyphIndex(SkGlyphID glyph_, uint16_t index_) : glyph(glyph_), index(index_) {}
+        SkGlyphID glyph;
+        uint16_t index;
+        constexpr bool operator < (const GlyphIndex& rhs) const { return glyph < rhs.glyph; }
+    };
+
+    struct DrawableGlyph {
+        explicit DrawableGlyph(SkGlyphID glyphID_) : glyphID{glyphID_} {}
+        SkGlyphID glyphID;
+        bool missing {false};
+        SkPoint advances;
+        SkMask mask;
+    };
+
+    struct DenseIndex {
+        DenseIndex() : index(index) {}
+        DenseIndex(uint16_t index_) : index(index_) {}
+        operator uint16_t () const { return index; }
+        uint16_t index;
+    };
+
+public:
+    SkGlyphDraw(int count, const SkGlyphID* glyphs) {
+        fGlyphIndex.resize(count);
+        for (int i = 0; i < count; i++) {
+            fGlyphIndex[i] = GlyphIndex{glyphs[i], i};
+        }
+
+        std::sort(fGlyphIndex.begin(), fGlyphIndex.end());
+
+        uint16_t last = 0;
+        uint16_t denseIndex = 0;
+        for (auto& gi : fGlyphIndex) {
+            if (last != gi.glyph) {
+                fUnique.emplace_back(gi.glyph);
+                last = gi.glyph;
+                denseIndex = fUnique.size() - 1;
+            }
+            fDenseIndex[gi.index] = denseIndex;
+        }
+    }
+
+    void populateAdvances(const SkDescriptor& desc) {
+
+    }
+
+    void populateMask(const SkDescriptor& desc) {
+
+    }
+
+    void populatePaths(const SkDescriptor& desc) {
+
+    }
+
+private:
+    std::vector<GlyphIndex> fGlyphIndex;
+    std::vector<DenseIndex> fDenseIndex;
+    std::vector<DrawableGlyph> fUnique;
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkDraw::SkDraw() {
