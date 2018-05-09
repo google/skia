@@ -717,7 +717,7 @@ void SkStrikeClient::generatePath(const SkTypefaceProxy& typefaceProxy,
                                   const SkScalerContextRec& rec,
                                   SkGlyphID glyphID,
                                   SkPath* path) {
-    TRACE_EVENT1("skia", "generateMetricsAndImage", "rec", TRACE_STR_COPY(rec.dump().c_str()));
+    TRACE_EVENT1("skia", "generatePath", "rec", TRACE_STR_COPY(rec.dump().c_str()));
     SkDebugf("generatePath: %s\n", rec.dump().c_str());
     SkStrikeCache::Dump();
     SkDEBUGFAIL("GlyphCacheMiss");
