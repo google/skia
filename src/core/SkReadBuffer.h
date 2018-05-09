@@ -168,15 +168,7 @@ public:
     bool readPointArray(SkPoint* points, size_t size);
     bool readScalarArray(SkScalar* values, size_t size);
 
-    sk_sp<SkData> readByteArrayAsData() {
-        size_t len = this->getArrayCount();
-        void* buffer = sk_malloc_throw(len);
-        if (!this->readByteArray(buffer, len)) {
-            sk_free(buffer);
-            return SkData::MakeEmpty();
-        }
-        return SkData::MakeFromMalloc(buffer, len);
-    }
+    sk_sp<SkData> readByteArrayAsData();
 
     // helpers to get info about arrays and binary data
     uint32_t getArrayCount();

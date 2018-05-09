@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkAutoMalloc.h"
 #include "SkBitmap.h"
 #include "SkDeduper.h"
 #include "SkImage.h"
@@ -258,6 +259,20 @@ bool SkReadBuffer::readPointArray(SkPoint* points, size_t size) {
 
 bool SkReadBuffer::readScalarArray(SkScalar* values, size_t size) {
     return this->readArray(values, size, sizeof(SkScalar));
+}
+
+sk_sp<SkData> SkReadBuffer::readByteArrayAsData() {
+    size_t len = this->getArrayCount();
+    if (!this->validate(fReader.isAvailable(len))) {
+        return SkData::MakeEmpty();
+    }
+
+    SkAutoMalloc buffer(len);
+    if (!this->readByteArray(buffer.get(), len)) {
+        return SkData::MakeEmpty();
+    }
+
+    return SkData::MakeFromMalloc(buffer.release(), len);
 }
 
 uint32_t SkReadBuffer::getArrayCount() {
