@@ -54,11 +54,11 @@ public:
         , fAnimTranslate(0)
         , fAnimAngle(0)
         , fAnimAlpha(1)
-        , fShowAmbient(true)
+        , fShowAmbient(false)
         , fShowSpot(true)
-        , fUseAlt(false)
-        , fShowObject(true)
-        , fIgnoreShadowAlpha(false)
+        , fUseAlt(true)
+        , fShowObject(false)
+        , fIgnoreShadowAlpha(true)
         , fDoAlphaAnimation(false) {}
 
 protected:
