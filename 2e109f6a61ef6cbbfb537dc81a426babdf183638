@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4be3a615_7919857f",
+        "filename": "src/core/SkICC.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-05-09T17:34:36Z",
+      "side": 1,
+      "message": "or: md5.write(toXYZD50, 9 * sizeof(float))",
+      "range": {
+        "startLine": 280,
+        "startChar": 0,
+        "endLine": 284,
+        "endChar": 0
+      },
+      "revId": "2e109f6a61ef6cbbfb537dc81a426babdf183638",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0889bcee_56cbbd48",
+        "filename": "tests/ICCTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-05-09T17:34:36Z",
+      "side": 1,
+      "message": "Use skcms_Parse, and SkColorSpace::Make(skcms_ICCProfile) here?",
+      "revId": "2e109f6a61ef6cbbfb537dc81a426babdf183638",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
