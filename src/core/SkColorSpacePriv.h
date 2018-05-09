@@ -81,12 +81,6 @@ static inline bool transfer_fn_almost_equal(float a, float b) {
     return SkTAbs(a - b) < 0.001f;
 }
 
-static inline bool is_zero_to_one(float v) {
-    // Because we allow a value just barely larger than 1, the client can use an
-    // entirely linear transfer function.
-    return (0.0f <= v) && (v <= nextafterf(1.0f, 2.0f));
-}
-
 static inline bool is_valid_transfer_fn(const SkColorSpaceTransferFn& coeffs) {
     if (SkScalarIsNaN(coeffs.fA) || SkScalarIsNaN(coeffs.fB) ||
         SkScalarIsNaN(coeffs.fC) || SkScalarIsNaN(coeffs.fD) ||
@@ -96,7 +90,7 @@ static inline bool is_valid_transfer_fn(const SkColorSpaceTransferFn& coeffs) {
         return false;
     }
 
-    if (!is_zero_to_one(coeffs.fD)) {
+    if (coeffs.fD < 0.0f) {
         return false;
     }
 
