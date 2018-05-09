@@ -131,7 +131,17 @@ SkIRect SkMatrixImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatr
     matrix.postConcat(ctm);
     SkRect floatBounds;
     matrix.mapRect(&floatBounds, SkRect::Make(src));
-    return floatBounds.roundOut();
+    SkIRect result = floatBounds.roundOut();
+
+#ifndef SK_IGNORE_MATRIX_IMAGE_FILTER_FIX
+    if (kReverse_MapDirection == direction && kNone_SkFilterQuality != fFilterQuality) {
+        // When filtering we might need some pixels in the source that might be otherwise
+        // clipped off.
+        result.outset(1, 1);
+    }
+#endif
+
+    return result;
 }
 
 void SkMatrixImageFilter::toString(SkString* str) const {
