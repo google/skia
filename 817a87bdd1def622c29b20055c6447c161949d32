@@ -16,6 +16,24 @@
       "revId": "817a87bdd1def622c29b20055c6447c161949d32",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d74dee17_a95799d2",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2018-05-09T19:05:40Z",
+      "side": 1,
+      "message": "Done.  I copied over the comment from GrGLCaps too.",
+      "parentUuid": "7784b571_d18296f9",
+      "revId": "817a87bdd1def622c29b20055c6447c161949d32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
