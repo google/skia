@@ -67,6 +67,17 @@ bool skcms_Matrix3x3_invert(const skcms_Matrix3x3* src, skcms_Matrix3x3* dst) {
     return true;
 }
 
+skcms_Matrix3x3 skcms_Matrix3x3_concat(const skcms_Matrix3x3* A, const skcms_Matrix3x3* B) {
+    skcms_Matrix3x3 m = { { { 0,0,0 },{ 0,0,0 },{ 0,0,0 } } };
+    for (int r = 0; r < 3; r++)
+        for (int c = 0; c < 3; c++) {
+            m.vals[r][c] = A->vals[r][0] * B->vals[0][c]
+                         + A->vals[r][1] * B->vals[1][c]
+                         + A->vals[r][2] * B->vals[2][c];
+        }
+    return m;
+}
+
 skcms_Vector3 skcms_MV_mul(const skcms_Matrix3x3* m, const skcms_Vector3* v) {
     skcms_Vector3 dst = {{0,0,0}};
     for (int row = 0; row < 3; ++row) {
