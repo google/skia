@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "48815e4b_b30d0bd4",
+        "filename": "src/gpu/ops/GrAAHairLinePathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 922,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-09T17:22:02Z",
+      "side": 1,
+      "message": "looks like leftover debugging?",
+      "range": {
+        "startLine": 922,
+        "startChar": 32,
+        "endLine": 922,
+        "endChar": 41
+      },
+      "revId": "66a0eca80a423cee3e2b7da5d855da7a4e0ef6f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
