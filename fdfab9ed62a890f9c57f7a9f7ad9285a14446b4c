@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9554f520_b791c3ce",
+        "filename": "src/ports/SkFontConfigInterface_direct.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 8160
+      },
+      "writtenOn": "2018-05-09T22:11:14Z",
+      "side": 1,
+      "message": "Ok cool, I was wondering that myself, but didn\u0027t know how to check, so thanks for checking :)",
+      "parentUuid": "3eb13e82_35af4118",
+      "range": {
+        "startLine": 543,
+        "startChar": 35,
+        "endLine": 543,
+        "endChar": 53
+      },
+      "revId": "fdfab9ed62a890f9c57f7a9f7ad9285a14446b4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "011d0401_2070c34c",
         "filename": "src/ports/SkFontConfigInterface_direct.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-05-09T21:17:01Z",
       "side": 1,
       "message": "This entire system seems quite bizarre, and I\u0027m not sure why this is a thing in FontConfig that any user of FontConfig should ever be aware of. Are all users of FontConfig supposed to be updated to prepend this value to all filenames? That\u0027s quite a breaking change. Indeed, most of the point of a \u0027sysroot\u0027 is that apps don\u0027t need to know they\u0027re in one.\n\nLooking at https://bugs.freedesktop.org/show_bug.cgi?id\u003d59456 where this was introduced, the whole \u0027sysroot\u0027 thing is designed around running fc-cache with a sysroot parameter so that libfontconfig instances running inside an actual sysroot at that path would work. This code is \u0027undoing\u0027 that work (as far as I can tell), so why do it?",
+      "range": {
+        "startLine": 676,
+        "startChar": 35,
+        "endLine": 676,
+        "endChar": 53
+      },
+      "revId": "fdfab9ed62a890f9c57f7a9f7ad9285a14446b4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1db2f637_a36c8bef",
+        "filename": "src/ports/SkFontConfigInterface_direct.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 676,
+      "author": {
+        "id": 8160
+      },
+      "writtenOn": "2018-05-09T22:11:14Z",
+      "side": 1,
+      "message": "\u003e This entire system seems quite bizarre, and I\u0027m not sure why this is a thing in FontConfig that any user of FontConfig should ever be aware of. Are all users of FontConfig supposed to be updated to prepend this value to all filenames?\n\nIt\u0027s not a very commonly used feature so it doesn\u0027t surprise me that there are some quirks like this.  For the most part, using the sysroot is transparent.  This is really the only case I\u0027ve found where we need to translate from the sysroot path to a real path because we are actually open()\u0027ing the file.  Even fontconfig made this mistake internally:\nhttps://cgit.freedesktop.org/fontconfig/commit/?id\u003d7ad010e80bdf8e41303e322882ece908f5e04c74\n\nMy font sysroot that I\u0027m setting up looks like this:\n$ ls -R out/Release/fontconfig_sysroot/\nout/Release/fontconfig_sysroot/:\ncache  etc  fonts\n\nout/Release/fontconfig_sysroot/cache:\na7872e309036a186b4b37ecf17ac9e95-le64.cache-7  STAMP\n\nout/Release/fontconfig_sysroot/etc:\nfonts\n\nout/Release/fontconfig_sysroot/etc/fonts:\nfonts.conf\n\nout/Release/fontconfig_sysroot/fonts:\nAHEM____.TTF            DejaVuSans-Bold.ttf     Lohit-Gurmukhi.ttf\nArimo-BoldItalic.ttf    DejaVuSans.ttf          Lohit-Tamil.ttf\nArimo-Bold.ttf          Garuda.ttf              MuktiNarrow.ttf\nArimo-Italic.ttf        Gelasio-BoldItalic.ttf  NotoSansCJKjp-Regular.otf\nArimo-Regular.ttf       Gelasio-Bold.ttf        NotoSansKhmer-Regular.ttf\nCousine-BoldItalic.ttf  Gelasio-Italic.ttf      Tinos-BoldItalic.ttf\nCousine-Bold.ttf        Gelasio-Regular.ttf     Tinos-Bold.ttf\nCousine-Italic.ttf      LICENSE                 Tinos-Italic.ttf\nCousine-Regular.ttf     Lohit-Devanagari.ttf    Tinos-Regular.ttf\n\nThe fonts returned for FC_FILE are relative to the sysroot, as they should be, so the string returned for FC_FILE looks like eg. \"/fonts/DejaVuSans.ttf\".\n\n\u003e That\u0027s quite a breaking change. Indeed, most of the point of a \u0027sysroot\u0027 is that apps don\u0027t need to know they\u0027re in one.\n\u003e \n\u003e Looking at https://bugs.freedesktop.org/show_bug.cgi?id\u003d59456 where this was introduced, the whole \u0027sysroot\u0027 thing is designed around running fc-cache with a sysroot parameter so that libfontconfig instances running inside an actual sysroot at that path would work. This code is \u0027undoing\u0027 that work (as far as I can tell), so why do it?",
+      "parentUuid": "011d0401_2070c34c",
       "range": {
         "startLine": 676,
         "startChar": 35,
