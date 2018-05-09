@@ -50,7 +50,6 @@ protected:
         return nullptr;
     }
     void onFilterRec(SkScalerContextRec*) const override { }
-    void getGlyphToUnicodeMap(SkUnichar*) const override { }
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override {
         return nullptr;
     }

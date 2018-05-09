@@ -119,16 +119,17 @@ void SkTestTypeface::onFilterRec(SkScalerContextRec* rec) const {
     rec->setHinting(SkPaint::kNo_Hinting);
 }
 
-void SkTestTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {
-    unsigned glyphCount = fTestFont->fCharCodesCount;
-    for (unsigned gid = 0; gid < glyphCount; ++gid) {
-        glyphToUnicode[gid] = SkTo<SkUnichar>(fTestFont->fCharCodes[gid]);
-    }
-}
-
 std::unique_ptr<SkAdvancedTypefaceMetrics> SkTestTypeface::onGetAdvancedMetrics() const { // pdf only
     std::unique_ptr<SkAdvancedTypefaceMetrics> info(new SkAdvancedTypefaceMetrics);
     info->fFontName.set(fTestFont->fName);
+    int glyphCount = this->onCountGlyphs();
+
+    SkTDArray<SkUnichar>& toUnicode = info->fGlyphToUnicode;
+    toUnicode.setCount(glyphCount);
+    SkASSERT(glyphCount == SkToInt(fTestFont->fCharCodesCount));
+    for (int gid = 0; gid < glyphCount; ++gid) {
+        toUnicode[gid] = SkToS32(fTestFont->fCharCodes[gid]);
+    }
     return info;
 }
 

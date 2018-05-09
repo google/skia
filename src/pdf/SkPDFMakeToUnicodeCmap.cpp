@@ -147,12 +147,15 @@ static void append_bfrange_section(const SkTDArray<BFRange>& bfrange,
 // For the worst case (having 65536 continuous unicode and we use every other
 // one of them), the possible savings by aggressive optimization is 416KB
 // pre-compressed and does not provide enough motivation for implementation.
-void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
+void SkPDFAppendCmapSections(const SkTDArray<SkUnichar>& glyphToUnicode,
                              const SkBitSet* subset,
                              SkDynamicMemoryWStream* cmap,
                              bool multiByteGlyphs,
                              SkGlyphID firstGlyphID,
                              SkGlyphID lastGlyphID) {
+    if (glyphToUnicode.isEmpty()) {
+        return;
+    }
     int glyphOffset = 0;
     if (!multiByteGlyphs) {
         glyphOffset = firstGlyphID - 1;
@@ -163,7 +166,8 @@ void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
 
     BFRange currentRangeEntry = {0, 0, 0};
     bool rangeEmpty = true;
-    const int limit = (int)lastGlyphID + 1 - glyphOffset;
+    const int limit =
+            SkMin32(lastGlyphID + 1, glyphToUnicode.count()) - glyphOffset;
 
     for (int i = firstGlyphID - glyphOffset; i < limit + 1; ++i) {
         bool inSubset = i < limit &&
@@ -206,7 +210,7 @@ void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
 }
 
 sk_sp<SkPDFStream> SkPDFMakeToUnicodeCmap(
-        const SkUnichar* glyphToUnicode,
+        const SkTDArray<SkUnichar>& glyphToUnicode,
         const SkBitSet* subset,
         bool multiByteGlyphs,
         SkGlyphID firstGlyphID,

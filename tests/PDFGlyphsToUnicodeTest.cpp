@@ -74,12 +74,9 @@ DEF_TEST(SkPDF_ToUnicode, reporter) {
     glyphsInSubset.push(0x101);
     glyphToUnicode.push(0x1013);
 
-    SkGlyphID lastGlyphID = SkToU16(glyphToUnicode.count() - 1);
-
     SkDynamicMemoryWStream buffer;
     subset.setAll(glyphsInSubset.begin(), glyphsInSubset.count());
-    SkPDFAppendCmapSections(&glyphToUnicode[0], &subset, &buffer, true, 0,
-                            SkTMin<SkGlyphID>(0xFFFF,  lastGlyphID));
+    SkPDFAppendCmapSections(glyphToUnicode, &subset, &buffer, true, 0, 0xFFFF);
 
     char expectedResult[] =
 "4 beginbfchar\n\
@@ -101,8 +98,7 @@ endbfrange\n";
     // Remove characters and ranges.
     buffer.reset();
 
-    SkPDFAppendCmapSections(&glyphToUnicode[0], &subset, &buffer, true, 8,
-                            SkTMin<SkGlyphID>(0x00FF, lastGlyphID));
+    SkPDFAppendCmapSections(glyphToUnicode, &subset, &buffer, true, 8, 0x00FF);
 
     char expectedResultChop1[] =
 "2 beginbfchar\n\
@@ -120,8 +116,7 @@ endbfrange\n";
     // Remove characters from range to downdrade it to one char.
     buffer.reset();
 
-    SkPDFAppendCmapSections(&glyphToUnicode[0], &subset, &buffer, true, 0x00D,
-                            SkTMin<SkGlyphID>(0x00FE, lastGlyphID));
+    SkPDFAppendCmapSections(glyphToUnicode, &subset, &buffer, true, 0x00D, 0x00FE);
 
     char expectedResultChop2[] =
 "2 beginbfchar\n\
@@ -134,8 +129,7 @@ endbfchar\n";
 
     buffer.reset();
 
-    SkPDFAppendCmapSections(&glyphToUnicode[0], nullptr, &buffer, false, 0xFC,
-                            SkTMin<SkGlyphID>(0x110, lastGlyphID));
+    SkPDFAppendCmapSections(glyphToUnicode, nullptr, &buffer, false, 0xFC, 0x110);
 
     char expectedResultSingleBytes[] =
 "2 beginbfchar\n\
@@ -161,7 +155,6 @@ endbfrange\n";
     for (SkUnichar i = 0; i < 100; ++i) {
       glyphToUnicode.push(i + 29);
     }
-    lastGlyphID = SkToU16(glyphToUnicode.count() - 1);
 
     glyphsInSubset.push(0x2C);
     glyphsInSubset.push(0x44);
@@ -172,8 +165,7 @@ endbfrange\n";
 
     SkDynamicMemoryWStream buffer2;
     subset2.setAll(glyphsInSubset.begin(), glyphsInSubset.count());
-    SkPDFAppendCmapSections(&glyphToUnicode[0], &subset2, &buffer2, true, 0,
-                            SkTMin<SkGlyphID>(0xFFFF, lastGlyphID));
+    SkPDFAppendCmapSections(glyphToUnicode, &subset2, &buffer2, true, 0, 0xffff);
 
     char expectedResult2[] =
 "4 beginbfchar\n\

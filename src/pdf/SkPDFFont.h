@@ -95,9 +95,6 @@ public:
     static const SkAdvancedTypefaceMetrics* GetMetrics(SkTypeface* typeface,
                                                        SkPDFCanon* canon);
 
-    static const std::vector<SkUnichar>& GetUnicodeMap(const SkTypeface* typeface,
-                                                       SkPDFCanon* canon);
-
     /** Subset the font based on current usage.
      *  Must be called before emitObject().
      */
