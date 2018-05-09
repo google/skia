@@ -22,7 +22,8 @@ public:
 
         // The input r0, r1 are the radii when we map centers to {(0, 0), (1, 0)}.
         // We'll post concat matrix with our transformation matrix that maps focal point to (0, 0).
-        void set(SkScalar r0, SkScalar r1, SkMatrix& matrix);
+        // Returns true if the set succeeded
+        bool set(SkScalar r0, SkScalar r1, SkMatrix* matrix);
 
         // Whether the focal point (0, 0) is on the end circle with center (1, 0) and radius r1. If
         // this is true, it's as if an aircraft is flying at Mach 1 and all circles (soundwaves)

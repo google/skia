@@ -14,13 +14,13 @@
 
 // Please see https://skia.org/dev/design/conical for how our shader works.
 
-void SkTwoPointConicalGradient::FocalData::set(SkScalar r0, SkScalar r1, SkMatrix& matrix) {
+bool SkTwoPointConicalGradient::FocalData::set(SkScalar r0, SkScalar r1, SkMatrix* matrix) {
     fIsSwapped = false;
-    fFocalX = r0 / (r0 - r1);
+    fFocalX = sk_ieee_float_divide(r0, (r0 - r1));
     if (SkScalarNearlyZero(fFocalX - 1)) {
         // swap r0, r1
-        matrix.postTranslate(-1, 0);
-        matrix.postScale(-1, 1);
+        matrix->postTranslate(-1, 0);
+        matrix->postScale(-1, 1);
         std::swap(r0, r1);
         fFocalX = 0; // because r0 is now 0
         fIsSwapped = true;
@@ -31,22 +31,20 @@ void SkTwoPointConicalGradient::FocalData::set(SkScalar r0, SkScalar r1, SkMatri
     const SkPoint to[2]     = { {0, 0}, {1, 0} };
     SkMatrix focalMatrix;
     if (!focalMatrix.setPolyToPoly(from, to, 2)) {
-        SkDEBUGFAILF("Mapping focal point failed unexpectedly for focalX = %f.\n", fFocalX);
-        // We won't be able to draw the gradient; at least make sure that we initialize the
-        // memory to prevent security issues.
-        focalMatrix = SkMatrix::MakeScale(1, 1);
+        return false;
     }
-    matrix.postConcat(focalMatrix);
+    matrix->postConcat(focalMatrix);
     fR1 = r1 / SkScalarAbs(1 - fFocalX); // focalMatrix has a scale of 1/(1-f)
 
     // The following transformations are just to accelerate the shader computation by saving
     // some arithmatic operations.
     if (this->isFocalOnCircle()) {
-        matrix.postScale(0.5, 0.5);
+        matrix->postScale(0.5, 0.5);
     } else {
-        matrix.postScale(fR1 / (fR1 * fR1 - 1), 1 / sqrt(SkScalarAbs(fR1 * fR1 - 1)));
+        matrix->postScale(fR1 / (fR1 * fR1 - 1), 1 / sqrt(SkScalarAbs(fR1 * fR1 - 1)));
     }
-    matrix.postScale(SkScalarAbs(1 - fFocalX), SkScalarAbs(1 - fFocalX)); // scale |1 - f|
+    matrix->postScale(SkScalarAbs(1 - fFocalX), SkScalarAbs(1 - fFocalX)); // scale |1 - f|
+    return true;
 }
 
 sk_sp<SkShader> SkTwoPointConicalGradient::Create(const SkPoint& c0, SkScalar r0,
@@ -77,7 +75,9 @@ sk_sp<SkShader> SkTwoPointConicalGradient::Create(const SkPoint& c0, SkScalar r0
     FocalData focalData;
     if (gradientType == Type::kFocal) {
         const auto dCenter = (c0 - c1).length();
-        focalData.set(r0 / dCenter, r1 / dCenter, gradientMatrix); // this may change gradientMatrix
+        if (!focalData.set(r0 / dCenter, r1 / dCenter, &gradientMatrix)) {
+            return nullptr;
+        }
     }
     return sk_sp<SkShader>(new SkTwoPointConicalGradient(c0, r0, c1, r1, desc,
                                                          gradientType, gradientMatrix, focalData));
