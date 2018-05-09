@@ -315,8 +315,9 @@ sk_sp<SkVertices> SkPatchUtils::MakeVertices(const SkPoint cubics[12], const SkC
 
         // 200 comes from the 100 * 2 which is the max value of vertices because of the limit of
         // 60000 indices ( sqrt(60000 / 6) that comes from data->fIndexCount = lodX * lodY * 6)
-        lodX = static_cast<int>(weightX * 200);
-        lodY = static_cast<int>(weightY * 200);
+        // Need a min of 1 since we later divide by lod
+        lodX = std::max(1, sk_float_floor2int_no_saturate(weightX * 200));
+        lodY = std::max(1, sk_float_floor2int_no_saturate(weightY * 200));
         vertexCount = (lodX + 1) * (lodY + 1);
     }
     const int indexCount = lodX * lodY * 6;
