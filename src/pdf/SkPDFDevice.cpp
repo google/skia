@@ -797,9 +797,6 @@ void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,
                                      : SkStrokeRec::kHairline_InitStyle;
     path.transform(ctm, &path);
 
-    // TODO(halcanary): respect fDocument->rasterDpi().
-    //        SkScalar rasterScale = (float)rasterDpi / SkPDFUtils::kDpiForRasterScaleOne;
-    // Would it be easier to just change the device size (and pre-scale the canvas)?
     SkIRect bounds = clipStack.bounds(this->bounds()).roundOut();
     SkMask sourceMask;
     if (!SkDraw::DrawToMask(path, &bounds, paint->getMaskFilter(), &SkMatrix::I(),
@@ -2157,7 +2154,6 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
 
     // Rasterize the bitmap using perspective in a new bitmap.
     if (transform.hasPerspective()) {
-        SkASSERT(fDocument->rasterDpi() > 0);
         // Transform the bitmap in the new space, without taking into
         // account the initial transform.
         SkPath perspectiveOutline;
@@ -2173,9 +2169,6 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         // account the initial transform.
         SkMatrix total = transform;
         total.postConcat(fInitialTransform);
-        SkScalar dpiScale = SkIntToScalar(fDocument->rasterDpi()) /
-                            SkIntToScalar(SkPDFUtils::kDpiForRasterScaleOne);
-        total.postScale(dpiScale, dpiScale);
 
         SkPath physicalPerspectiveOutline;
         physicalPerspectiveOutline.addRect(imageBounds);
