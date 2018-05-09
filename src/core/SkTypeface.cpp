@@ -50,6 +50,7 @@ protected:
         return nullptr;
     }
     void onFilterRec(SkScalerContextRec*) const override { }
+    void getGlyphToUnicodeMap(SkUnichar*) const override { }
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override {
         return nullptr;
     }
@@ -289,6 +290,10 @@ SkTypeface::LocalizedStrings* SkTypeface::createFamilyNameIterator() const {
 void SkTypeface::getFamilyName(SkString* name) const {
     SkASSERT(name);
     this->onGetFamilyName(name);
+}
+
+void SkTypeface::getGlyphToUnicodeMap(SkUnichar* dst) const override {
+    sk_bzero(dst, sizeof(SkUnichar) * this->countGlyphs());
 }
 
 std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface::getAdvancedMetrics() const {
