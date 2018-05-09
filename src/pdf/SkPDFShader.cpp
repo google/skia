@@ -283,8 +283,8 @@ static sk_sp<SkPDFObject> make_fallback_shader(SkPDFDocument* doc,
     }
     // Clamp the bitmap size to about 1M pixels
     static const SkScalar kMaxBitmapArea = 1024 * 1024;
-    SkScalar rasterScale = SkIntToScalar(doc->rasterDpi()) / SkPDFUtils::kDpiForRasterScaleOne;
-    SkScalar bitmapArea = rasterScale * surfaceBBox.width() * rasterScale * surfaceBBox.height();
+    SkScalar bitmapArea = surfaceBBox.width() * surfaceBBox.height();
+    SkScalar rasterScale = 1.0f;
     if (bitmapArea > kMaxBitmapArea) {
         rasterScale *= SkScalarSqrt(kMaxBitmapArea / bitmapArea);
     }
