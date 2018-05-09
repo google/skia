@@ -288,30 +288,41 @@ void DWriteFontTypeface::onFilterRec(SkScalerContextRec* rec) const {
 ///////////////////////////////////////////////////////////////////////////////
 //PDF Support
 
-void DWriteFontTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {
-    unsigned glyphCount = fDWriteFontFace->GetGlyphCount();
-    sk_bzero(glyphToUnicode, sizeof(SkUnichar) * glyphCount);
-    IDWriteFontFace* fontFace = fDWriteFontFace.get();
+// Construct Glyph to Unicode table.
+// Unicode code points that require conjugate pairs in utf16 are not
+// supported.
+// TODO(bungeman): This never does what anyone wants.
+// What is really wanted is the text to glyphs mapping
+static void populate_glyph_to_unicode(IDWriteFontFace* fontFace,
+                                      const unsigned glyphCount,
+                                      SkTDArray<SkUnichar>* glyphToUnicode) {
+    //Do this like free type instead
+    SkAutoTMalloc<SkUnichar> glyphToUni(
+            (SkUnichar*)sk_calloc_throw(sizeof(SkUnichar) * glyphCount));
     int maxGlyph = -1;
     unsigned remainingGlyphCount = glyphCount;
     for (UINT32 c = 0; c < 0x10FFFF && remainingGlyphCount != 0; ++c) {
         UINT16 glyph = 0;
-        HRVM(fontFace->GetGlyphIndices(&c, 1, &glyph), "Failed to get glyph index.");
+        HRVM(fontFace->GetGlyphIndices(&c, 1, &glyph),
+             "Failed to get glyph index.");
         // Intermittent DW bug on Windows 10. See crbug.com/470146.
         if (glyph >= glyphCount) {
-            return;
+          return;
         }
-        if (0 < glyph && glyphToUnicode[glyph] == 0) {
+        if (0 < glyph && glyphToUni[glyph] == 0) {
             maxGlyph = SkTMax(static_cast<int>(glyph), maxGlyph);
-            glyphToUnicode[glyph] = c;  // Always use lowest-index unichar.
+            glyphToUni[glyph] = c;  // Always use lowest-index unichar.
             --remainingGlyphCount;
         }
     }
+    SkTDArray<SkUnichar>(glyphToUni, maxGlyph + 1).swap(*glyphToUnicode);
 }
 
 std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetrics() const {
 
     std::unique_ptr<SkAdvancedTypefaceMetrics> info(nullptr);
+
+    const unsigned glyphCount = fDWriteFontFace->GetGlyphCount();
 
     DWRITE_FONT_METRICS dwfm;
     fDWriteFontFace->GetMetrics(&dwfm);
@@ -346,6 +357,9 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
     if (info->fPostScriptName.isEmpty()) {
         info->fPostScriptName = info->fFontName;
     }
+
+
+    populate_glyph_to_unicode(fDWriteFontFace.get(), glyphCount, &(info->fGlyphToUnicode));
 
     DWRITE_FONT_FACE_TYPE fontType = fDWriteFontFace->GetType();
     if (fontType != DWRITE_FONT_FACE_TYPE_TRUETYPE &&

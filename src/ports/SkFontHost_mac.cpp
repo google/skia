@@ -719,7 +719,6 @@ protected:
                                            const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
-    void getGlyphToUnicodeMap(SkUnichar*) const override;
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
     int onCharsToGlyphs(const void* chars, Encoding,
                         uint16_t glyphs[], int glyphCount) const override;
@@ -1606,7 +1605,9 @@ static sk_sp<SkTypeface> create_from_dataProvider(UniqueCFRef<CGDataProviderRef>
 // Iterate through the font in this case. The existing caller caches the result,
 // so the performance impact isn't too bad.
 static void populate_glyph_to_unicode_slow(CTFontRef ctFont, CFIndex glyphCount,
-                                           SkUnichar* out) {
+                                           SkTDArray<SkUnichar>* glyphToUnicode) {
+    glyphToUnicode->setCount(SkToInt(glyphCount));
+    SkUnichar* out = glyphToUnicode->begin();
     sk_bzero(out, glyphCount * sizeof(SkUnichar));
     UniChar unichar = 0;
     while (glyphCount > 0) {
@@ -1627,8 +1628,7 @@ static void populate_glyph_to_unicode_slow(CTFontRef ctFont, CFIndex glyphCount,
 // Unicode code points that require conjugate pairs in utf16 are not
 // supported.
 static void populate_glyph_to_unicode(CTFontRef ctFont, CFIndex glyphCount,
-                                      SkUnichar* glyphToUnicode) {
-    sk_bzero(glyphToUnicode, sizeof(SkUnichar) * glyphCount);
+                                      SkTDArray<SkUnichar>* glyphToUnicode) {
     UniqueCFRef<CFCharacterSetRef> charSet(CTFontCopyCharacterSet(ctFont));
     if (!charSet) {
         populate_glyph_to_unicode_slow(ctFont, glyphCount, glyphToUnicode);
@@ -1651,7 +1651,9 @@ static void populate_glyph_to_unicode(CTFontRef ctFont, CFIndex glyphCount,
         length = 8192;
     }
     const UInt8* bits = CFDataGetBytePtr(bitmap.get());
-    sk_bzero(glyphToUnicode, glyphCount * sizeof(SkUnichar));
+    glyphToUnicode->setCount(SkToInt(glyphCount));
+    SkUnichar* out = glyphToUnicode->begin();
+    sk_bzero(out, glyphCount * sizeof(SkUnichar));
     for (int i = 0; i < length; i++) {
         int mask = bits[i];
         if (!mask) {
@@ -1661,7 +1663,7 @@ static void populate_glyph_to_unicode(CTFontRef ctFont, CFIndex glyphCount,
             CGGlyph glyph;
             UniChar unichar = static_cast<UniChar>((i << 3) + j);
             if (mask & (1 << j) && CTFontGetGlyphsForCharacters(ctFont, &unichar, &glyph, 1)) {
-                glyphToUnicode[glyph] = unichar;
+                out[glyph] = unichar;
             }
         }
     }
@@ -1677,14 +1679,6 @@ static void CFStringToSkString(CFStringRef src, SkString* dst) {
     CFStringGetCString(src, dst->writable_str(), length, kCFStringEncodingUTF8);
     // Resize to the actual UTF-8 length used, stripping the null character.
     dst->resize(strlen(dst->c_str()));
-}
-
-void SkTypeface_Mac::getGlyphToUnicodeMap(SkUnichar* dstArray) const {
-    AUTO_CG_LOCK();
-    UniqueCFRef<CTFontRef> ctFont =
-            ctfont_create_exact_copy(fFontRef.get(), CTFontGetUnitsPerEm(fFontRef.get()), nullptr);
-    CFIndex glyphCount = CTFontGetGlyphCount(ctFont.get());
-    populate_glyph_to_unicode(ctFont.get(), glyphCount, dstArray);
 }
 
 std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics() const {
@@ -1715,6 +1709,10 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics(
             info->fFlags |= SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag;
         }
     }
+
+    CFIndex glyphCount = CTFontGetGlyphCount(ctFont.get());
+
+    populate_glyph_to_unicode(ctFont.get(), glyphCount, &info->fGlyphToUnicode);
 
     SkOTTableOS2_V4::Type fsType;
     if (sizeof(fsType) == this->getTableData(SkTEndian_SwapBE32(SkOTTableOS2::TAG),

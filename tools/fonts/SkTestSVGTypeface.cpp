@@ -100,17 +100,15 @@ void SkTestSVGTypeface::onFilterRec(SkScalerContextRec* rec) const {
     rec->setHinting(SkPaint::kNo_Hinting);
 }
 
-void SkTestSVGTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {
-    SkDEBUGCODE(unsigned glyphCount = this->countGlyphs());
-    fCMap.foreach([=](const SkUnichar& c, const SkGlyphID& g) {
-        SkASSERT(g < glyphCount);
-        glyphToUnicode[g] = c;
-    });
-}
-
 std::unique_ptr<SkAdvancedTypefaceMetrics> SkTestSVGTypeface::onGetAdvancedMetrics() const {
     std::unique_ptr<SkAdvancedTypefaceMetrics> info(new SkAdvancedTypefaceMetrics);
-    info->fFontName = fName;
+    info->fFontName.set(fName);
+
+    SkTDArray<SkUnichar>& toUnicode = info->fGlyphToUnicode;
+    toUnicode.setCount(fGlyphCount);
+    fCMap.foreach([&toUnicode](const SkUnichar& c, const SkGlyphID& g) {
+        toUnicode[g] = c;
+    });
     return info;
 }
 

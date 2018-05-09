@@ -511,6 +511,23 @@ static bool canSubset(FT_Face face) {
     return (fsType & FT_FSTYPE_NO_SUBSETTING) == 0;
 }
 
+static void populate_glyph_to_unicode(FT_Face& face, SkTDArray<SkUnichar>* glyphToUnicode) {
+    FT_Long numGlyphs = face->num_glyphs;
+    glyphToUnicode->setCount(SkToInt(numGlyphs));
+    sk_bzero(glyphToUnicode->begin(), sizeof((*glyphToUnicode)[0]) * numGlyphs);
+
+    FT_UInt glyphIndex;
+    SkUnichar charCode = FT_Get_First_Char(face, &glyphIndex);
+    while (glyphIndex) {
+        SkASSERT(glyphIndex < SkToUInt(numGlyphs));
+        // Use the first character that maps to this glyphID. https://crbug.com/359065
+        if (0 == (*glyphToUnicode)[glyphIndex]) {
+            (*glyphToUnicode)[glyphIndex] = charCode;
+        }
+        charCode = FT_Get_Next_Char(face, charCode, &glyphIndex);
+    }
+}
+
 static SkAdvancedTypefaceMetrics::FontType get_font_type(FT_Face face) {
     const char* fontType = FT_Get_X11_Font_Format(face);
     static struct { const char* s; SkAdvancedTypefaceMetrics::FontType t; } values[] = {
@@ -585,26 +602,17 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_FreeType::onGetAdvancedMet
     }
     info->fBBox = SkIRect::MakeLTRB(face->bbox.xMin, face->bbox.yMax,
                                     face->bbox.xMax, face->bbox.yMin);
-    return info;
-}
 
-void SkTypeface_FreeType::getGlyphToUnicodeMap(SkUnichar* dstArray) const {
-    SkASSERT(dstArray);
-    AutoFTAccess fta(this);
-    FT_Face face = fta.face();
-    FT_Long numGlyphs = face->num_glyphs;
-    sk_bzero(dstArray, sizeof(SkUnichar) * numGlyphs);
+    bool perGlyphInfo = FT_IS_SCALABLE(face);
 
-    FT_UInt glyphIndex;
-    SkUnichar charCode = FT_Get_First_Char(face, &glyphIndex);
-    while (glyphIndex) {
-        SkASSERT(glyphIndex < SkToUInt(numGlyphs));
-        // Use the first character that maps to this glyphID. https://crbug.com/359065
-        if (0 == dstArray[glyphIndex]) {
-            dstArray[glyphIndex] = charCode;
-        }
-        charCode = FT_Get_Next_Char(face, charCode, &glyphIndex);
+    if (perGlyphInfo &&
+        info->fType != SkAdvancedTypefaceMetrics::kType1_Font &&
+        face->num_charmaps)
+    {
+        populate_glyph_to_unicode(face, &(info->fGlyphToUnicode));
     }
+
+    return info;
 }
 
 void SkTypeface_FreeType::getPostScriptGlyphNames(SkString* dstArray) const {
