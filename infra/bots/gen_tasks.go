@@ -489,6 +489,10 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				if !ok {
 					glog.Fatalf("Entry %q not found in GCE machine type mapping.", parts["role"])
 				}
+				// Coverage gets slower with more cores.
+				if strings.Contains(parts["extra_config"], "Coverage") {
+					machineType = MACHINE_TYPE_SMALL
+				}
 				d["machine_type"] = machineType
 			}
 		} else {
