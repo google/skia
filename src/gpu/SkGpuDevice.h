@@ -87,8 +87,6 @@ public:
                         const SkPaint& paint, SkCanvas::SrcRectConstraint) override;
     void drawSprite(const SkBitmap& bitmap, int x, int y,
                     const SkPaint& paint) override;
-    void drawText(const void* text, size_t len, SkScalar x, SkScalar y,
-                  const SkPaint&) override;
     void drawPosText(const void* text, size_t len, const SkScalar pos[],
                      int scalarsPerPos, const SkPoint& offset, const SkPaint&) override;
     void drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y,
