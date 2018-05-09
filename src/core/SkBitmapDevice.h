@@ -21,6 +21,7 @@
 #include "SkSize.h"
 #include "SkSurfaceProps.h"
 
+class SkGlyphRunInfo;
 class SkImageFilterCache;
 class SkMatrix;
 class SkPaint;
@@ -115,6 +116,7 @@ protected:
                   const SkPaint&) override;
     void drawPosText(const void* text, size_t len, const SkScalar pos[],
                      int scalarsPerPos, const SkPoint& offset, const SkPaint& paint) override;
+    void drawPosText2(const SkPoint pos[], const SkPaint& paint, SkGlyphRunInfo*) override;
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) override;
 

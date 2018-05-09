@@ -570,6 +570,9 @@ void SkBitmapDevice::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPa
 void SkBitmapDevice::drawText(const void* text, size_t len,
                               SkScalar x, SkScalar y, const SkPaint& paint) {
     SkBitmapDeviceFilteredSurfaceProps props(fBitmap, paint, fSurfaceProps);
+
+
+
     LOOP_TILER( drawText((const char*)text, len, x, y, paint, &props()), nullptr)
 }
 
@@ -578,6 +581,13 @@ void SkBitmapDevice::drawPosText(const void* text, size_t len, const SkScalar xp
     SkBitmapDeviceFilteredSurfaceProps props(fBitmap, paint, fSurfaceProps);
     LOOP_TILER( drawPosText((const char*)text, len, xpos, scalarsPerPos, offset, paint, &props()),
                 nullptr)
+}
+
+void SkBitmapDevice::drawPosText2(
+        const SkPoint pos[], const SkPaint& paint, SkGlyphRunInfo* glyphRunInfo) {
+    SkBitmapDeviceFilteredSurfaceProps props(fBitmap, paint, fSurfaceProps);
+    LOOP_TILER( drawPosText2(pos, paint, &props(), glyphRunInfo), nullptr)
+
 }
 
 void SkBitmapDevice::drawVertices(const SkVertices* vertices, SkBlendMode bmode,

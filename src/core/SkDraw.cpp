@@ -17,6 +17,7 @@
 #include "SkDraw.h"
 #include "SkDrawProcs.h"
 #include "SkFindAndPlaceGlyph.h"
+#include "SkGlyphRunInfo.h"
 #include "SkMaskFilterBase.h"
 #include "SkMatrix.h"
 #include "SkMatrixUtils.h"
@@ -1051,7 +1052,9 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
     }
 }
 
-void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
+void SkDraw::
+
+drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
                       const SkMatrix* prePathMatrix, bool pathIsMutable,
                       bool drawCoverage, SkBlitter* customBlitter,
                       SkInitOnceData* iData) const {
@@ -1642,6 +1645,12 @@ void SkDraw::drawPosText(const char text[], size_t byteLength, const SkScalar po
     SkFindAndPlaceGlyph::ProcessPosText(
         paint.getTextEncoding(), text, byteLength,
         offset, *fMatrix, pos, scalarsPerPosition, cache.get(), drawOneGlyph);
+}
+
+void SkDraw::drawPosText2(
+    const SkPoint pos[], const SkPaint& paint, const SkSurfaceProps* props,
+    SkGlyphRunInfo* info) const {
+
 }
 
 #if defined _WIN32
