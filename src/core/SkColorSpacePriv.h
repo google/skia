@@ -96,7 +96,7 @@ static inline bool is_valid_transfer_fn(const SkColorSpaceTransferFn& coeffs) {
         return false;
     }
 
-    if (!is_zero_to_one(coeffs.fD)) {
+    if (coeffs.fD < 0.0f) {
         return false;
     }
 
