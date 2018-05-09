@@ -10,6 +10,7 @@
 #include "SkArenaAlloc.h"
 #include "SkDescriptor.h"
 #include "SkGlyph.h"
+#include "SkGlyphRun.h"
 #include "SkPaint.h"
 #include "SkTHash.h"
 #include "SkScalerContext.h"
@@ -66,6 +67,8 @@ public:
     */
     const SkGlyph& getUnicharMetrics(SkUnichar, SkFixed x, SkFixed y);
     const SkGlyph& getGlyphIDMetrics(uint16_t, SkFixed x, SkFixed y);
+
+    void getAdvances(SkSpan<SkGlyphID>, SkPoint[]);
 
     /** Return the glyphID for the specified Unichar. If the char has already been seen, use the
         existing cache entry. If not, ask the scalercontext to compute it for us.
