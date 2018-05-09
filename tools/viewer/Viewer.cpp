@@ -713,27 +713,27 @@ void Viewer::updateTitle() {
     }
 
     SkPaintTitleUpdater paintTitle(&title);
-    if (fPaintOverrides.fFlags & SkPaint::kAntiAlias_Flag) {
-        if (fPaint.isAntiAlias()) {
-            paintTitle.append("Antialias");
-        } else {
-            paintTitle.append("Alias");
+    auto paintFlag = [this, &paintTitle](SkPaint::Flags flag, bool (SkPaint::* isFlag)() const,
+                                         const char* on, const char* off)
+    {
+        if (fPaintOverrides.fFlags & flag) {
+            paintTitle.append((fPaint.*isFlag)() ? on : off);
         }
-    }
-    if (fPaintOverrides.fFlags & SkPaint::kLCDRenderText_Flag) {
-        if (fPaint.isLCDRenderText()) {
-            paintTitle.append("LCD");
-        } else {
-            paintTitle.append("lcd");
-        }
-    }
-    if (fPaintOverrides.fFlags & SkPaint::kSubpixelText_Flag) {
-        if (fPaint.isSubpixelText()) {
-            paintTitle.append("Subpixel Glyphs");
-        } else {
-            paintTitle.append("Pixel Glyphs");
-        }
-    }
+    };
+
+    paintFlag(SkPaint::kAntiAlias_Flag, &SkPaint::isAntiAlias, "Antialias", "Alias");
+    paintFlag(SkPaint::kDither_Flag, &SkPaint::isDither, "DITHER", "No Dither");
+    paintFlag(SkPaint::kFakeBoldText_Flag, &SkPaint::isFakeBoldText, "Fake Bold", "No Fake Bold");
+    paintFlag(SkPaint::kLinearText_Flag, &SkPaint::isLinearText, "Linear Text", "Non-Linear Text");
+    paintFlag(SkPaint::kSubpixelText_Flag, &SkPaint::isSubpixelText, "Subpixel Text", "Pixel Text");
+    paintFlag(SkPaint::kLCDRenderText_Flag, &SkPaint::isLCDRenderText, "LCD", "lcd");
+    paintFlag(SkPaint::kEmbeddedBitmapText_Flag, &SkPaint::isEmbeddedBitmapText,
+              "Bitmap Text", "No Bitmap Text");
+    paintFlag(SkPaint::kAutoHinting_Flag, &SkPaint::isAutohinted,
+              "Force Autohint", "No Force Autohint");
+    paintFlag(SkPaint::kVerticalText_Flag, &SkPaint::isVerticalText,
+              "Vertical Text", "No Vertical Text");
+
     if (fPaintOverrides.fHinting) {
         switch (fPaint.getHinting()) {
             case SkPaint::kNo_Hinting:
@@ -1021,15 +1021,35 @@ public:
         if (fPaintOverrides->fHinting) {
             paint->writable()->setHinting(fPaint->getHinting());
         }
+
         if (fPaintOverrides->fFlags & SkPaint::kAntiAlias_Flag) {
             paint->writable()->setAntiAlias(fPaint->isAntiAlias());
         }
-        if (fPaintOverrides->fFlags & SkPaint::kLCDRenderText_Flag) {
-            paint->writable()->setLCDRenderText(fPaint->isLCDRenderText());
+        if (fPaintOverrides->fFlags & SkPaint::kDither_Flag) {
+            paint->writable()->setDither(fPaint->isDither());
+        }
+        if (fPaintOverrides->fFlags & SkPaint::kFakeBoldText_Flag) {
+            paint->writable()->setFakeBoldText(fPaint->isFakeBoldText());
+        }
+        if (fPaintOverrides->fFlags & SkPaint::kLinearText_Flag) {
+            paint->writable()->setLinearText(fPaint->isLinearText());
         }
         if (fPaintOverrides->fFlags & SkPaint::kSubpixelText_Flag) {
             paint->writable()->setSubpixelText(fPaint->isSubpixelText());
         }
+        if (fPaintOverrides->fFlags & SkPaint::kLCDRenderText_Flag) {
+            paint->writable()->setLCDRenderText(fPaint->isLCDRenderText());
+        }
+        if (fPaintOverrides->fFlags & SkPaint::kEmbeddedBitmapText_Flag) {
+            paint->writable()->setEmbeddedBitmapText(fPaint->isEmbeddedBitmapText());
+        }
+        if (fPaintOverrides->fFlags & SkPaint::kAutoHinting_Flag) {
+            paint->writable()->setAutohinted(fPaint->isAutohinted());
+        }
+        if (fPaintOverrides->fFlags & SkPaint::kVerticalText_Flag) {
+            paint->writable()->setVerticalText(fPaint->isVerticalText());
+        }
+
         return true;
     }
     SkPaint* fPaint;
@@ -1568,37 +1588,65 @@ void Viewer::drawImGui() {
                     paramsChanged = true;
                 }
 
-                int subpixelAAIdx = 0;
-                if (fPaintOverrides.fFlags & SkPaint::kLCDRenderText_Flag) {
-                    subpixelAAIdx = fPaint.isLCDRenderText() ? 2 : 1;
-                }
-                if (ImGui::Combo("Subpixel Anti-Alias", &subpixelAAIdx,
-                                 "Default\0lcd\0LCD\0\0"))
+                auto paintFlag = [this, &paramsChanged](const char* label, const char* items,
+                                                        SkPaint::Flags flag,
+                                                        bool (SkPaint::* isFlag)() const,
+                                                        void (SkPaint::* setFlag)(bool) )
                 {
-                    if (subpixelAAIdx == 0) {
-                        fPaintOverrides.fFlags &= ~SkPaint::kLCDRenderText_Flag;
-                    } else {
-                        fPaintOverrides.fFlags |= SkPaint::kLCDRenderText_Flag;
-                        fPaint.setLCDRenderText(subpixelAAIdx == 2);
+                    int itemIndex = 0;
+                    if (fPaintOverrides.fFlags & flag) {
+                        itemIndex = (fPaint.*isFlag)() ? 2 : 1;
                     }
-                    paramsChanged = true;
-                }
+                    if (ImGui::Combo(label, &itemIndex, items)) {
+                        if (itemIndex == 0) {
+                            fPaintOverrides.fFlags &= ~flag;
+                        } else {
+                            fPaintOverrides.fFlags |= flag;
+                            (fPaint.*setFlag)(itemIndex == 2);
+                        }
+                        paramsChanged = true;
+                    }
+                };
 
-                int subpixelPositionIdx = 0;
-                if (fPaintOverrides.fFlags & SkPaint::kSubpixelText_Flag) {
-                    subpixelPositionIdx = fPaint.isSubpixelText() ? 2 : 1;
-                }
-                if (ImGui::Combo("Subpixel Position Glyphs", &subpixelPositionIdx,
-                                 "Default\0Pixel Glyphs\0Subpixel Glyphs\0\0"))
-                {
-                    if (subpixelPositionIdx == 0) {
-                        fPaintOverrides.fFlags &= ~SkPaint::kSubpixelText_Flag;
-                    } else {
-                        fPaintOverrides.fFlags |= SkPaint::kSubpixelText_Flag;
-                        fPaint.setSubpixelText(subpixelPositionIdx == 2);
-                    }
-                    paramsChanged = true;
-                }
+                paintFlag("Dither",
+                          "Default\0No Dither\0Dither\0\0",
+                          SkPaint::kDither_Flag,
+                          &SkPaint::isDither, &SkPaint::setDither);
+
+                paintFlag("Fake Bold Glyphs",
+                          "Default\0No Fake Bold\0Fake Bold\0\0",
+                          SkPaint::kFakeBoldText_Flag,
+                          &SkPaint::isFakeBoldText, &SkPaint::setFakeBoldText);
+
+                paintFlag("Linear Text",
+                          "Default\0No Linear Text\0Linear Text\0\0",
+                          SkPaint::kLinearText_Flag,
+                          &SkPaint::isLinearText, &SkPaint::setLinearText);
+
+                paintFlag("Subpixel Position Glyphs",
+                          "Default\0Pixel Text\0Subpixel Text\0\0",
+                          SkPaint::kSubpixelText_Flag,
+                          &SkPaint::isSubpixelText, &SkPaint::setSubpixelText);
+
+                paintFlag("Subpixel Anti-Alias",
+                          "Default\0lcd\0LCD\0\0",
+                          SkPaint::kLCDRenderText_Flag,
+                          &SkPaint::isLCDRenderText, &SkPaint::setLCDRenderText);
+
+                paintFlag("Embedded Bitmap Text",
+                          "Default\0No Embedded Bitmaps\0Embedded Bitmaps\0\0",
+                          SkPaint::kEmbeddedBitmapText_Flag,
+                          &SkPaint::isEmbeddedBitmapText, &SkPaint::setEmbeddedBitmapText);
+
+                paintFlag("Force Auto-Hinting",
+                          "Default\0No Force Auto-Hinting\0Force Auto-Hinting\0\0",
+                          SkPaint::kAutoHinting_Flag,
+                          &SkPaint::isAutohinted, &SkPaint::setAutohinted);
+
+                paintFlag("Vertical Text",
+                          "Default\0No Vertical Text\0Vertical Text\0\0",
+                          SkPaint::kVerticalText_Flag,
+                          &SkPaint::isVerticalText, &SkPaint::setVerticalText);
             }
 
             if (fShowSlidePicker) {
