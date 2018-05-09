@@ -9,12 +9,14 @@
 #include "SkColorFilter.h"
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
+#include "SkGlyphRunInfo.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
 #include "SkImagePriv.h"
 #include "SkImage_Base.h"
 #include "SkLatticeIter.h"
 #include "SkLocalMatrixShader.h"
+#include "SkMakeUnique.h"
 #include "SkMatrixPriv.h"
 #include "SkPatchUtils.h"
 #include "SkPathMeasure.h"
@@ -241,6 +243,22 @@ void SkBaseDevice::drawImageLattice(const SkImage* image,
             this->drawImageRect(image, &srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
         }
     }
+}
+
+void SkBaseDevice::drawPosText2(const SkPoint pos[], const SkPaint& paint, SkGlyphRunInfo* info) {
+    SkPaint glyphPaint(paint);
+    glyphPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    auto glyphs = skstd::make_unique_default<SkGlyphID[]>(info->size());
+
+    auto makeGlyphs = [&glyphs](int i, SkGlyphID glyphID) {
+        glyphs[i] = glyphID;
+    };
+
+    info->forEachGlyphId(makeGlyphs);
+
+    auto scalarPos = reinterpret_cast<const SkScalar*>(pos);
+
+    this->drawPosText(glyphs.get(), info->size() * 2, scalarPos, 2, SkPoint::Make(0, 0), glyphPaint);
 }
 
 void SkBaseDevice::drawBitmapLattice(const SkBitmap& bitmap,
