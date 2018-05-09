@@ -26,6 +26,7 @@ class SkDraw;
 class SkDrawable;
 class SkDrawFilter;
 struct SkDrawShadowRec;
+class SkGlyphRunInfo;
 class SkImage;
 class SkImageFilter;
 class SkMetaData;
@@ -2505,6 +2506,7 @@ protected:
                             SkScalar y, const SkPaint& paint);
     virtual void onDrawPosText(const void* text, size_t byteLength,
                                const SkPoint pos[], const SkPaint& paint);
+    virtual void onDrawPosText2(const SkPoint pos[], const SkPaint& paint, SkGlyphRunInfo* info);
     virtual void onDrawPosTextH(const void* text, size_t byteLength,
                                 const SkScalar xpos[], SkScalar constY,
                                 const SkPaint& paint);
