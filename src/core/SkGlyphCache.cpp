@@ -130,6 +130,13 @@ const SkGlyph& SkGlyphCache::getGlyphIDMetrics(uint16_t glyphID, SkFixed x, SkFi
     return *this->lookupByPackedGlyphID(packedGlyphID, kFull_MetricsType);
 }
 
+void SkGlyphCache::getAdvances(SkSpan<SkGlyphID> glyphIDs, SkPoint advances[]) {
+    for (size_t i = 0; i < glyphIDs.size(); i++) {
+        auto glyph = this->getGlyphIDAdvance(glyphIDs[i]);
+        advances[i] =SkPoint::Make(glyph.fAdvanceX, glyph.fAdvanceY);
+    }
+}
+
 SkGlyph* SkGlyphCache::lookupByChar(SkUnichar charCode, MetricsType type, SkFixed x, SkFixed y) {
     SkPackedUnicharID id(charCode, x, y);
     CharGlyphRec* rec = this->getCharGlyphRec(id);
@@ -186,7 +193,7 @@ const void* SkGlyphCache::findImage(const SkGlyph& glyph) {
                 // TODO: the scaler may have changed the maskformat during
                 // getImage (e.g. from AA or LCD to BW) which means we may have
                 // overallocated the buffer. Check if the new computedImageSize
-                // is smaller, and if so, strink the alloc size in fImageAlloc.
+                // is smaller, and if so, strink the alloc runSize in fImageAlloc.
                 fMemoryUsed += size;
             }
         }
