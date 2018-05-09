@@ -6,6 +6,7 @@
  */
 
 #include "../skcms.h"
+#include "LinearAlgebra.h"
 #include "Macros.h"
 #include "PortableMath.h"
 #include "RandomBytes.h"
@@ -931,5 +932,76 @@ bool skcms_ApproximatelyEqualProfiles(const skcms_ICCProfile* A, const skcms_ICC
             return false;
         }
     }
+    return true;
+}
+
+static bool is_zero_to_one(float x) {
+    return 0 <= x && x <= 1;
+}
+
+bool skcms_PrimariesToXYZD50(float rx, float ry,
+                             float gx, float gy,
+                             float bx, float by,
+                             float wx, float wy,
+                             skcms_Matrix3x3* toXYZD50) {
+    if (!is_zero_to_one(rx) || !is_zero_to_one(ry) ||
+        !is_zero_to_one(gx) || !is_zero_to_one(gy) ||
+        !is_zero_to_one(bx) || !is_zero_to_one(by) ||
+        !is_zero_to_one(wx) || !is_zero_to_one(wy) ||
+        !toXYZD50) {
+        return false;
+    }
+
+    // First, we need to convert xy values (primaries) to XYZ.
+    skcms_Matrix3x3 primaries = {{
+        { rx, gx, bx },
+        { ry, gy, by },
+        { 1 - rx - ry, 1 - gx - gy, 1 - bx - by },
+    }};
+    skcms_Matrix3x3 primaries_inv;
+    if (!skcms_Matrix3x3_invert(&primaries, &primaries_inv)) {
+        return false;
+    }
+
+    // Assumes that Y is 1.0f.
+    skcms_Vector3 wXYZ = { { wx / wy, 1, (1 - wx - wy) / wy } };
+    skcms_Vector3 XYZ = skcms_MV_mul(&primaries_inv, &wXYZ);
+
+    skcms_Matrix3x3 toXYZ = {{
+        { XYZ.vals[0],           0,           0 },
+        {           0, XYZ.vals[1],           0 },
+        {           0,           0, XYZ.vals[2] },
+    }};
+    toXYZ = skcms_Matrix3x3_concat(&primaries, &toXYZ);
+
+    // Now convert toXYZ matrix to toXYZD50.
+    skcms_Vector3 wXYZD50 = { { 0.96422f, 1.0f, 0.82521f } };
+
+    // Calculate the chromatic adaptation matrix.  We will use the Bradford method, thus
+    // the matrices below.  The Bradford method is used by Adobe and is widely considered
+    // to be the best.
+    skcms_Matrix3x3 xyz_to_lms = {{
+        {  0.8951f,  0.2664f, -0.1614f },
+        { -0.7502f,  1.7135f,  0.0367f },
+        {  0.0389f, -0.0685f,  1.0296f },
+    }};
+    skcms_Matrix3x3 lms_to_xyz = {{
+        {  0.9869929f, -0.1470543f, 0.1599627f },
+        {  0.4323053f,  0.5183603f, 0.0492912f },
+        { -0.0085287f,  0.0400428f, 0.9684867f },
+    }};
+
+    skcms_Vector3 srcCone = skcms_MV_mul(&xyz_to_lms, &wXYZ);
+    skcms_Vector3 dstCone = skcms_MV_mul(&xyz_to_lms, &wXYZD50);
+
+    skcms_Matrix3x3 DXtoD50 = {{
+        { dstCone.vals[0] / srcCone.vals[0], 0, 0 },
+        { 0, dstCone.vals[1] / srcCone.vals[1], 0 },
+        { 0, 0, dstCone.vals[2] / srcCone.vals[2] },
+    }};
+    DXtoD50 = skcms_Matrix3x3_concat(&DXtoD50, &xyz_to_lms);
+    DXtoD50 = skcms_Matrix3x3_concat(&lms_to_xyz, &DXtoD50);
+
+    *toXYZD50 = skcms_Matrix3x3_concat(&DXtoD50, &toXYZ);
     return true;
 }

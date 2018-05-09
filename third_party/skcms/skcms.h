@@ -232,6 +232,12 @@ SKCMS_API bool skcms_MakeUsableAsDestination(skcms_ICCProfile* profile);
 // profile unchanged and return false.
 SKCMS_API bool skcms_MakeUsableAsDestinationWithSingleCurve(skcms_ICCProfile* profile);
 
+SKCMS_API bool skcms_PrimariesToXYZD50(float rx, float ry,
+                                       float gx, float gy,
+                                       float bx, float by,
+                                       float wx, float wy,
+                                       skcms_Matrix3x3* toXYZD50);
+
 #ifdef __cplusplus
 }
 #endif

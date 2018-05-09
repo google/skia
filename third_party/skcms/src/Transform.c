@@ -365,17 +365,6 @@ static size_t bytes_per_pixel(skcms_PixelFormat fmt) {
     return 0;
 }
 
-static skcms_Matrix3x3 concat_3x3(const skcms_Matrix3x3* A, const skcms_Matrix3x3* B) {
-    skcms_Matrix3x3 m = {{ {0,0,0}, {0,0,0}, {0,0,0} }};
-    for (int r = 0; r < 3; r++)
-    for (int c = 0; c < 3; c++) {
-        m.vals[r][c] = A->vals[r][0] * B->vals[0][c]
-                     + A->vals[r][1] * B->vals[1][c]
-                     + A->vals[r][2] * B->vals[2][c];
-    }
-    return m;
-}
-
 static bool prep_for_destination(const skcms_ICCProfile* profile,
                                  skcms_Matrix3x3* fromXYZD50,
                                  skcms_TransferFunction* invR,
@@ -562,7 +551,7 @@ bool skcms_Transform(const void*             src,
         if (0 != memcmp(&dstProfile->toXYZD50, to_xyz, sizeof(skcms_Matrix3x3))) {
             // Concat the entire gamut transform into from_xyz,
             // now slightly misnamed but it's a handy spot to stash the result.
-            from_xyz = concat_3x3(&from_xyz, to_xyz);
+            from_xyz = skcms_Matrix3x3_concat(&from_xyz, to_xyz);
             *ops++  = Op_matrix_3x3;
             *args++ = &from_xyz;
         }
