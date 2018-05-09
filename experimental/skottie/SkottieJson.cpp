@@ -206,8 +206,10 @@ const rapidjson::Value* ValueRef::end() const {
 SkString json::ValueRef::toString() const {
 #ifdef SK_DEBUG
     rapidjson::StringBuffer buf;
-    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buf);
-    fValue->Accept(writer);
+    if (fValue) {
+        rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buf);
+        fValue->Accept(writer);
+    }
 
     return SkString(buf.GetString());
 #else
