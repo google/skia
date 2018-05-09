@@ -164,8 +164,7 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrContext* context,
                                                       SkIRect* contentRect,
                                                       GrTextureDomain::Mode mode,
                                                       const SkImageInfo& dstII,
-                                                      SkBackingFit fit,
-                                                      int radiusY /* temporarary*/) {
+                                                      SkBackingFit fit) {
     SkASSERT(srcRect.width() <= dstII.width() && srcRect.height() <= dstII.height());
 
     GrPixelConfig config = get_blur_config(proxy.get(), dstII.colorSpace());
@@ -185,13 +184,7 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrContext* context,
     int bounds[2] = { 0, 0 };
     SkIRect dstRect = SkIRect::MakeWH(srcRect.width(), srcRect.height());
     if (GrTextureDomain::kIgnore_Mode == mode) {
-#ifdef SK_IGNORE_BLUR_IMAGE_FILTER_FIX
-        if (Direction::kX == direction) {
-            *contentRect = dstRect;
-        }
-#else
         *contentRect = dstRect;
-#endif
         convolve_gaussian_1d(dstRenderTargetContext.get(), clip, dstRect, srcOffset,
                              std::move(proxy), direction, radius, sigma,
                              GrTextureDomain::kIgnore_Mode, bounds);
@@ -213,18 +206,10 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrContext* context,
         dstRect.fTop = midRect.top();
         dstRect.fBottom = midRect.bottom();
 
-#ifdef SK_IGNORE_BLUR_IMAGE_FILTER_FIX
-        *contentRect = SkIRect::MakeWH(srcRect.width(), srcRect.height());
-        if (GrTextureDomain::kClamp_Mode == mode) {
-            // We need to adjust bounds because we only fill part of the srcRect in x-pass.
-            contentRect->inset(0, radiusY);
-        }
-#else
         contentRect->fLeft = dstRect.fLeft;
         contentRect->fTop = midRect.fTop;
         contentRect->fRight = dstRect.fRight;
         contentRect->fBottom = midRect.fBottom;
-#endif
     } else {
         bounds[0] = contentRect->top();
         bounds[1] = contentRect->bottom();
@@ -237,12 +222,10 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrContext* context,
         dstRect.fLeft = midRect.left();
         dstRect.fRight = midRect.right();
 
-#ifndef SK_IGNORE_BLUR_IMAGE_FILTER_FIX
         contentRect->fLeft = midRect.fLeft;
         contentRect->fTop = dstRect.fTop;
         contentRect->fRight = midRect.fRight;
         contentRect->fBottom = dstRect.fBottom;
-#endif
     }
     if (!topRect.isEmpty()) {
         dstRenderTargetContext->clear(&topRect, 0, GrRenderTargetContext::CanClearFullscreen::kNo);
