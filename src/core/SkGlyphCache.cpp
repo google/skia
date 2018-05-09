@@ -130,6 +130,19 @@ const SkGlyph& SkGlyphCache::getGlyphIDMetrics(uint16_t glyphID, SkFixed x, SkFi
     return *this->lookupByPackedGlyphID(packedGlyphID, kFull_MetricsType);
 }
 
+void SkGlyphCache::getAdvances(const SkGlyphRunInfo& glyphRunInfo, SkPoint* advances) {
+
+    int i = 0;
+
+    auto getAdvance = [this, &i, &advances] (SkGlyphID glyphId) {
+        auto glyph = this->getGlyphIDAdvance(0);
+        advances[i] =SkPoint::Make(glyph.fAdvanceX, glyph.fAdvanceY);
+        i++;
+    };
+
+    glyphRunInfo.forEachUniqueGlyphId(getAdvance);
+}
+
 SkGlyph* SkGlyphCache::lookupByChar(SkUnichar charCode, MetricsType type, SkFixed x, SkFixed y) {
     SkPackedUnicharID id(charCode, x, y);
     CharGlyphRec* rec = this->getCharGlyphRec(id);

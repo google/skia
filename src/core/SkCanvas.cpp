@@ -15,6 +15,8 @@
 #include "SkDrawable.h"
 #include "SkDrawFilter.h"
 #include "SkDrawLooper.h"
+#include "SkGlyphCache.h"
+#include "SkGlyphRunInfo.h"
 #include "SkImage.h"
 #include "SkImage_Base.h"
 #include "SkImageFilter.h"
@@ -34,6 +36,7 @@
 #include "SkRasterHandleAllocator.h"
 #include "SkRRect.h"
 #include "SkSpecialImage.h"
+#include "SkStrikeCache.h"
 #include "SkString.h"
 #include "SkSurface_Base.h"
 #include "SkTextBlob.h"
@@ -1075,7 +1078,8 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         const bool preserveLCDText = kOpaque_SkAlphaType == info.alphaType() ||
                                      (saveLayerFlags & kPreserveLCDText_SaveLayerFlag);
         const SkBaseDevice::TileUsage usage = SkBaseDevice::kNever_TileUsage;
-        const bool trackCoverage = SkToBool(saveLayerFlags & kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag);
+        const bool trackCoverage =
+                SkToBool(saveLayerFlags & kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag);
         const SkBaseDevice::CreateInfo createInfo = SkBaseDevice::CreateInfo(info, usage, geo,
                                                                              preserveLCDText,
                                                                              trackCoverage,
@@ -2461,6 +2465,17 @@ void SkCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint 
     LOOPER_END
 }
 
+void SkCanvas::onDrawPosText2(const SkPoint pos[], const SkPaint& paint, SkGlyphRunInfo* info) {
+    LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, nullptr)
+
+        while (iter.next()) {
+            iter.fDevice->drawPosText2(pos, looper.paint(), info);
+        }
+
+    LOOPER_END
+
+}
+
 void SkCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
                               SkScalar constY, const SkPaint& paint) {
 
@@ -2540,15 +2555,49 @@ void SkCanvas::drawText(const void* text, size_t byteLength, SkScalar x, SkScala
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (byteLength) {
         sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
-        this->onDrawText(text, byteLength, x, y, paint);
+        SkGlyphRunInfo glyphRunInfo = SkGlyphRunInfo::Make(paint, text, byteLength);
+        auto size = glyphRunInfo.size();
+        auto uniqueSize = glyphRunInfo.uniqueSize();
+
+        auto advances = skstd::make_unique_default<SkPoint[]>(uniqueSize);
+
+        {
+            auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(paint);
+            cache->getAdvances(glyphRunInfo, advances.get());
+        }
+
+        auto positions = skstd::make_unique_default<SkPoint[]>(size);
+
+        SkPoint pos = SkPoint::Make(0, 0);
+
+        auto positionAll = [&pos, &positions, &advances](int i, uint16_t uid) {
+            positions[i] = pos;
+            pos += advances[uid];
+        };
+
+        glyphRunInfo.forEachGlyphId(positionAll);
+
+        if (paint.getTextAlign() != SkPaint::kLeft_Align) {
+            if (paint.getTextAlign() == SkPaint::kCenter_Align) {
+                pos.scale(SK_ScalarHalf);
+            }
+            for (int i = 0; i < size; i++) {
+                positions[i] -= pos;
+            }
+        }
+
+        this->onDrawPosText2(positions.get(), paint, &glyphRunInfo);
     }
 }
+
 void SkCanvas::drawPosText(const void* text, size_t byteLength, const SkPoint pos[],
                            const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (byteLength) {
         sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
-        this->onDrawPosText(text, byteLength, pos, paint);
+        SkGlyphRunInfo glyphRunInfo = SkGlyphRunInfo::Make(paint, text, byteLength);
+
+        this->onDrawPosText2(pos, paint, &glyphRunInfo);
     }
 }
 void SkCanvas::drawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
@@ -2556,7 +2605,17 @@ void SkCanvas::drawPosTextH(const void* text, size_t byteLength, const SkScalar 
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (byteLength) {
         sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
-        this->onDrawPosTextH(text, byteLength, xpos, constY, paint);
+        SkGlyphRunInfo glyphRunInfo = SkGlyphRunInfo::Make(paint, text, byteLength);
+
+        auto size = glyphRunInfo.size();
+
+        auto pos = skstd::make_unique_default<SkPoint[]>(size);
+
+        for (int i = 0; i < size; i++) {
+            pos[i] = SkPoint::Make(xpos[i], constY);
+        }
+
+        this->onDrawPosText2(pos.get(), paint, &glyphRunInfo);
     }
 }
 void SkCanvas::drawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
