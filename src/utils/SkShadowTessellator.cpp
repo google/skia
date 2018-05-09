@@ -740,6 +740,7 @@ private:
     void mapPoints(SkScalar scale, const SkVector& xlate, SkPoint* pts, int count);
     bool addInnerPoint(const SkPoint& pathPoint);
     void addEdge(const SkVector& nextPoint, const SkVector& nextNormal);
+    void addToClip(const SkVector& nextPoint);
 
     SkScalar offset(SkScalar z) {
         float zRatio = SkTPin(z / (fLightZ - z), 0.0f, 0.95f);
@@ -762,6 +763,7 @@ private:
     bool                fPrevUmbraOutside;
     bool                fFirstUmbraOutside;
     bool                fValidUmbra;
+    bool                fIsConvex;
 
     typedef SkBaseShadowTessellator INHERITED;
 };
@@ -777,7 +779,8 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
     , fCurrClipPoint(0)
     , fPrevUmbraOutside(false)
     , fFirstUmbraOutside(false)
-    , fValidUmbra(true) {
+    , fValidUmbra(true)
+    , fIsConvex(true) {
 
     // make sure we're not below the canvas plane
     if (this->setZOffset(path.getBounds(), ctm.hasPerspective())) {
@@ -835,8 +838,11 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
         return;
     }
 
+    // compute vectors for clip tests
+    this->computeClipVectorsAndTestCentroid();
+
     // check to see if umbra collapses
-    if (path.isConvex()) {
+    if (fIsConvex) {
         SkScalar minDistSq = SkPointPriv::DistanceToLineSegmentBetweenSqd(fCentroid,
                                                                           fPathPolygon[0],
                                                                           fPathPolygon[1]);
@@ -867,9 +873,6 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
         }
     }
 
-    // compute vectors for clip tests
-    this->computeClipVectorsAndTestCentroid();
-
     if (ctm.hasPerspective()) {
         for (int i = 0; i < fPositions.count(); ++i) {
             SkScalar pathZ = fTransformedHeightFunc(fPositions[i]);
@@ -878,14 +881,16 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
         }
     }
 
-    if (path.isConvex()) {
+    if (fIsConvex) {
         if (!this->computeConvexShadow(radius)) {
             return;
         }
     } else {
-        if (!this->computeConcaveShadow(radius)) {
-            return;
-        }
+        // For now
+        return;
+        //if (!this->computeConcaveShadow(radius)) {
+        //    return;
+        //}
     }
 
     if (ctm.hasPerspective()) {
@@ -919,6 +924,20 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
     fSucceeded = true;
 }
 
+static bool duplicate_pt(const SkPoint& p0, const SkPoint& p1) {
+    static constexpr SkScalar kClose = (SK_Scalar1 / 16);
+    static constexpr SkScalar kCloseSqd = kClose * kClose;
+
+    SkScalar distSq = SkPointPriv::DistanceToSqd(p0, p1);
+    return distSq < kCloseSqd;
+}
+
+void SkSpotShadowTessellator::addToClip(const SkPoint& point) {
+    if (fClipPolygon.isEmpty() || !duplicate_pt(point, fClipPolygon[fClipPolygon.count()-1])) {
+        *fClipPolygon.push() = point;
+    }
+}
+
 void SkSpotShadowTessellator::computeClipAndPathPolygons(const SkPath& path, const SkMatrix& ctm,
                                                          const SkMatrix& shadowTransform) {
 
@@ -949,7 +968,7 @@ void SkSpotShadowTessellator::computeClipAndPathPolygons(const SkPath& path, con
         switch (verb) {
             case SkPath::kLine_Verb:
                 ctm.mapPoints(&pts[1], 1);
-                *fClipPolygon.push() = pts[1];
+                this->addToClip(pts[1]);
                 this->INHERITED::handleLine(shadowTransform, &pts[1]);
                 break;
             case SkPath::kQuad_Verb:
@@ -957,8 +976,8 @@ void SkSpotShadowTessellator::computeClipAndPathPolygons(const SkPath& path, con
                 // point at t = 1/2
                 curvePoint.fX = 0.25f*pts[0].fX + 0.5f*pts[1].fX + 0.25f*pts[2].fX;
                 curvePoint.fY = 0.25f*pts[0].fY + 0.5f*pts[1].fY + 0.25f*pts[2].fY;
-                *fClipPolygon.push() = curvePoint;
-                *fClipPolygon.push() = pts[2];
+                this->addToClip(curvePoint);
+                this->addToClip(pts[2]);
                 this->handleQuad(shadowTransform, pts);
                 break;
             case SkPath::kConic_Verb:
@@ -968,8 +987,8 @@ void SkSpotShadowTessellator::computeClipAndPathPolygons(const SkPath& path, con
                 curvePoint.fX = 0.25f*pts[0].fX + w*0.5f*pts[1].fX + 0.25f*pts[2].fX;
                 curvePoint.fY = 0.25f*pts[0].fY + w*0.5f*pts[1].fY + 0.25f*pts[2].fY;
                 curvePoint *= SkScalarInvert(0.5f + 0.5f*w);
-                *fClipPolygon.push() = curvePoint;
-                *fClipPolygon.push() = pts[2];
+                this->addToClip(curvePoint);
+                this->addToClip(pts[2]);
                 this->handleConic(shadowTransform, pts, w);
                 break;
             case SkPath::kCubic_Verb:
@@ -977,12 +996,12 @@ void SkSpotShadowTessellator::computeClipAndPathPolygons(const SkPath& path, con
                 // point at t = 5/16
                 curvePoint.fX = kA*pts[0].fX + kB*pts[1].fX + kC*pts[2].fX + kD*pts[3].fX;
                 curvePoint.fY = kA*pts[0].fY + kB*pts[1].fY + kC*pts[2].fY + kD*pts[3].fY;
-                *fClipPolygon.push() = curvePoint;
+                this->addToClip(curvePoint);
                 // point at t = 11/16
                 curvePoint.fX = kD*pts[0].fX + kC*pts[1].fX + kB*pts[2].fX + kA*pts[3].fX;
                 curvePoint.fY = kD*pts[0].fY + kC*pts[1].fY + kB*pts[2].fY + kA*pts[3].fY;
-                *fClipPolygon.push() = curvePoint;
-                *fClipPolygon.push() = pts[3];
+                this->addToClip(curvePoint);
+                this->addToClip(pts[3]);
                 this->handleCubic(shadowTransform, pts);
                 break;
             case SkPath::kMove_Verb:
@@ -1013,17 +1032,23 @@ void SkSpotShadowTessellator::computeClipVectorsAndTestCentroid() {
 
     // init clip vectors
     SkVector v0 = fClipPolygon[1] - fClipPolygon[0];
+    SkVector v1 = fClipPolygon[2] - fClipPolygon[0];
+    SkScalar winding = v0.cross(v1);
     *fClipVectors.push() = v0;
 
     // init centroid check
     bool hiddenCentroid = true;
-    SkVector v1 = fCentroid - fClipPolygon[0];
+    v1 = fCentroid - fClipPolygon[0];
     SkScalar initCross = v0.cross(v1);
 
     for (int p = 1; p < fClipPolygon.count(); ++p) {
         // add to clip vectors
         v0 = fClipPolygon[(p + 1) % fClipPolygon.count()] - fClipPolygon[p];
         *fClipVectors.push() = v0;
+        v1 = fClipPolygon[(p + 2) % fClipPolygon.count()] - fClipPolygon[p];
+        if (winding*v0.cross(v1) < 0) {
+            fIsConvex = false;
+        }
         // Determine if transformed centroid is inside clipPolygon.
         v1 = fCentroid - fClipPolygon[p];
         if (initCross*v0.cross(v1) <= 0) {
@@ -1343,14 +1368,6 @@ void SkSpotShadowTessellator::mapPoints(SkScalar scale, const SkVector& xlate,
     }
 }
 
-static bool duplicate_pt(const SkPoint& p0, const SkPoint& p1) {
-    static constexpr SkScalar kClose = (SK_Scalar1 / 16);
-    static constexpr SkScalar kCloseSqd = kClose*kClose;
-
-    SkScalar distSq = SkPointPriv::DistanceToSqd(p0, p1);
-    return distSq < kCloseSqd;
-}
-
 static SkScalar perp_dot(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2) {
     SkVector v0 = p1 - p0;
     SkVector v1 = p2 - p0;
@@ -1544,7 +1561,7 @@ sk_sp<SkVertices> SkShadowTessellator::MakeAmbient(const SkPath& path, const SkM
 sk_sp<SkVertices> SkShadowTessellator::MakeSpot(const SkPath& path, const SkMatrix& ctm,
                                                 const SkPoint3& zPlane, const SkPoint3& lightPos,
                                                 SkScalar lightRadius,  bool transparent) {
-    if (!path.isFinite() || !path.isConvex() || !ctm.isFinite() || !zPlane.isFinite() ||
+    if (!path.isFinite() || !ctm.isFinite() || !zPlane.isFinite() ||
         !lightPos.isFinite() || !SkScalarIsFinite(lightRadius) || !(lightRadius > 0)) {
         return nullptr;
     }
