@@ -10,9 +10,11 @@
 
 #include "GrMesh.h"
 #include "GrNonAtomicRef.h"
-#include "GrTessellator.h"
+#include "SkPath.h"
+#include "SkPathPriv.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
+#include "GrTessellator.h"
 #include "ccpr/GrCCCoverageProcessor.h"
 #include "ccpr/GrCCGeometry.h"
 #include "ops/GrDrawOp.h"
@@ -32,7 +34,16 @@ public:
     enum class ScissorMode : int { kNonScissored = 0, kScissored = 1 };
     static constexpr int kNumScissorModes = 2;
 
-    GrCCPathParser(int maxTotalPaths, int maxPathPoints, int numSkPoints, int numSkVerbs);
+    struct PathStats {
+        int fMaxPointsPerPath = 0;
+        int fNumTotalSkPoints = 0;
+        int fNumTotalSkVerbs = 0;
+        int fNumTotalConicWeights = 0;
+
+        void statPath(const SkPath&);
+    };
+
+    GrCCPathParser(int numPaths, const PathStats&);
 
     ~GrCCPathParser() {
         // Enforce the contract that the client always calls saveParsedPath or discardParsedPath.
@@ -150,5 +161,12 @@ private:
     mutable SkSTArray<32, GrMesh> fMeshesScratchBuffer;
     mutable SkSTArray<32, GrPipeline::DynamicState> fDynamicStatesScratchBuffer;
 };
+
+inline void GrCCPathParser::PathStats::statPath(const SkPath& path) {
+    fMaxPointsPerPath = SkTMax(fMaxPointsPerPath, path.countPoints());
+    fNumTotalSkPoints += path.countPoints();
+    fNumTotalSkVerbs += path.countVerbs();
+    fNumTotalConicWeights += SkPathPriv::ConicWeightCnt(path);
+}
 
 #endif

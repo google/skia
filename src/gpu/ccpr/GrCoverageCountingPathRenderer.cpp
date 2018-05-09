@@ -254,6 +254,7 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
     using PathInstance = GrCCPathProcessor::Instance;
 
     SkASSERT(!fFlushing);
+    SkASSERT(fFlushingRTPathIters.empty());
     SkASSERT(!fPerFlushIndexBuffer);
     SkASSERT(!fPerFlushVertexBuffer);
     SkASSERT(!fPerFlushInstanceBuffer);
@@ -267,40 +268,38 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
 
     fPerFlushResourcesAreValid = false;
 
-    // Count the paths that are being flushed.
-    int maxTotalPaths = 0, maxPathPoints = 0, numSkPoints = 0, numSkVerbs = 0;
-    SkDEBUGCODE(int numClipPaths = 0);
+    // Count up the paths about to be flushed so we can preallocate buffers.
+    int numPathDraws = 0;
+    int numClipPaths = 0;
+    GrCCPathParser::PathStats flushingPathStats;
+    fFlushingRTPathIters.reserve(numOpListIDs);
     for (int i = 0; i < numOpListIDs; ++i) {
-        auto it = fRTPendingPathsMap.find(opListIDs[i]);
-        if (fRTPendingPathsMap.end() == it) {
+        auto iter = fRTPendingPathsMap.find(opListIDs[i]);
+        if (fRTPendingPathsMap.end() == iter) {
             continue;
         }
-        const RTPendingPaths& rtPendingPaths = it->second;
+        const RTPendingPaths& rtPendingPaths = iter->second;
 
         SkTInternalLList<DrawPathsOp>::Iter drawOpsIter;
         drawOpsIter.init(rtPendingPaths.fDrawOps,
                          SkTInternalLList<DrawPathsOp>::Iter::kHead_IterStart);
         while (DrawPathsOp* op = drawOpsIter.get()) {
             for (const DrawPathsOp::SingleDraw* draw = op->head(); draw; draw = draw->fNext) {
-                ++maxTotalPaths;
-                maxPathPoints = SkTMax(draw->fPath.countPoints(), maxPathPoints);
-                numSkPoints += draw->fPath.countPoints();
-                numSkVerbs += draw->fPath.countVerbs();
+                ++numPathDraws;
+                flushingPathStats.statPath(draw->fPath);
             }
             drawOpsIter.next();
         }
 
-        maxTotalPaths += rtPendingPaths.fClipPaths.size();
-        SkDEBUGCODE(numClipPaths += rtPendingPaths.fClipPaths.size());
+        numClipPaths += rtPendingPaths.fClipPaths.size();
         for (const auto& clipsIter : rtPendingPaths.fClipPaths) {
-            const SkPath& path = clipsIter.second.deviceSpacePath();
-            maxPathPoints = SkTMax(path.countPoints(), maxPathPoints);
-            numSkPoints += path.countPoints();
-            numSkVerbs += path.countVerbs();
+            flushingPathStats.statPath(clipsIter.second.deviceSpacePath());
         }
+
+        fFlushingRTPathIters.push_back(std::move(iter));
     }
 
-    if (!maxTotalPaths) {
+    if (0 == numPathDraws + numClipPaths) {
         return;  // Nothing to draw.
     }
 
@@ -318,7 +317,7 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
     }
 
     fPerFlushInstanceBuffer =
-            onFlushRP->makeBuffer(kVertex_GrBufferType, maxTotalPaths * sizeof(PathInstance));
+            onFlushRP->makeBuffer(kVertex_GrBufferType, numPathDraws * sizeof(PathInstance));
     if (!fPerFlushInstanceBuffer) {
         SkDebugf("WARNING: failed to allocate path instance buffer. No paths will be drawn.\n");
         return;
@@ -328,35 +327,31 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
     SkASSERT(pathInstanceData);
     int pathInstanceIdx = 0;
 
-    fPerFlushPathParser = sk_make_sp<GrCCPathParser>(maxTotalPaths, maxPathPoints, numSkPoints,
-                                                     numSkVerbs);
-    SkDEBUGCODE(int skippedTotalPaths = 0);
+    fPerFlushPathParser = sk_make_sp<GrCCPathParser>(numPathDraws + numClipPaths,
+                                                     flushingPathStats);
+    SkDEBUGCODE(int numSkippedPaths = 0);
 
     // Allocate atlas(es) and fill out GPU instance buffers.
-    for (int i = 0; i < numOpListIDs; ++i) {
-        auto it = fRTPendingPathsMap.find(opListIDs[i]);
-        if (fRTPendingPathsMap.end() == it) {
-            continue;
-        }
-        RTPendingPaths& rtPendingPaths = it->second;
+    for (const auto& iter : fFlushingRTPathIters) {
+        RTPendingPaths* rtPendingPaths = &iter->second;
 
         SkTInternalLList<DrawPathsOp>::Iter drawOpsIter;
-        drawOpsIter.init(rtPendingPaths.fDrawOps,
+        drawOpsIter.init(rtPendingPaths->fDrawOps,
                          SkTInternalLList<DrawPathsOp>::Iter::kHead_IterStart);
         while (DrawPathsOp* op = drawOpsIter.get()) {
             pathInstanceIdx = op->setupResources(onFlushRP, pathInstanceData, pathInstanceIdx);
             drawOpsIter.next();
-            SkDEBUGCODE(skippedTotalPaths += op->numSkippedInstances_debugOnly());
+            SkDEBUGCODE(numSkippedPaths += op->numSkippedInstances_debugOnly());
         }
 
-        for (auto& clipsIter : rtPendingPaths.fClipPaths) {
+        for (auto& clipsIter : rtPendingPaths->fClipPaths) {
             clipsIter.second.placePathInAtlas(this, onFlushRP, fPerFlushPathParser.get());
         }
     }
 
     fPerFlushInstanceBuffer->unmap();
 
-    SkASSERT(pathInstanceIdx == maxTotalPaths - skippedTotalPaths - numClipPaths);
+    SkASSERT(pathInstanceIdx == numPathDraws - numSkippedPaths);
 
     if (!fPerFlushAtlases.empty()) {
         auto coverageCountBatchID = fPerFlushPathParser->closeCurrentBatch();
@@ -528,8 +523,9 @@ void GrCoverageCountingPathRenderer::postFlush(GrDeferredUploadToken, const uint
     fPerFlushVertexBuffer.reset();
     fPerFlushIndexBuffer.reset();
     // We wait to erase these until after flush, once Ops and FPs are done accessing their data.
-    for (int i = 0; i < numOpListIDs; ++i) {
-        fRTPendingPathsMap.erase(opListIDs[i]);
+    for (const auto& iter : fFlushingRTPathIters) {
+        fRTPendingPathsMap.erase(iter);
     }
+    fFlushingRTPathIters.reset();
     SkDEBUGCODE(fFlushing = false);
 }
