@@ -22,6 +22,30 @@
       "revId": "13797bcea91a543d125295af4271b7196c6e5eb6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93b6dccb_b0273b07",
+        "filename": "src/gpu/ops/GrAAHairLinePathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-09T17:16:58Z",
+      "side": 1,
+      "message": "The updated patch consolidates the three places where we add quads and check for whether they are lines.",
+      "parentUuid": "4e0eb253_dc374c92",
+      "range": {
+        "startLine": 277,
+        "startChar": 13,
+        "endLine": 306,
+        "endChar": 21
+      },
+      "revId": "13797bcea91a543d125295af4271b7196c6e5eb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
