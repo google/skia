@@ -361,9 +361,30 @@ void ClampX_ClampY_filter_scale_SSE2(const SkBitmapProcState& s, uint32_t xy[],
             } // while count >= 4
         } // if count >= 4
 
+    /*
         while (count-- > 0) {
             *xy++ = ClampX_ClampY_pack_filter(fx, maxX, one);
             fx += dx;
+        }
+        We'd like to write this as above, but that form allows fx to get 1-iteration too big/small
+        when count is 0, and this can trigger a UBSAN error, even though we won't in fact use that
+        last (undefined) value for fx.
+
+        Here is an alternative that should always be efficient, but seems much harder to read:
+
+        if (count > 0) {
+            for (;;) {
+                *xy++ = ClampX_ClampY_pack_filter(fx, maxX, one);
+                if (--count == 0) break;
+                fx += dx;
+            }
+        }
+
+        For now, we'll try this variant: more compact than the if/for version, and we hope the
+        compiler will get rid of the integer multiply.
+     */
+        for (int i = 0; i < count; ++i) {
+            *xy++ = ClampX_ClampY_pack_filter(fx + i*dx, maxX, one);
         }
     }
 }
