@@ -74,9 +74,6 @@ protected:
             return;
 
         for (const json::ValueRef jframe : jframes) {
-            if (!jframe.isObject())
-                continue;
-
             float t0;
             if (!jframe["t"].to(&t0))
                 continue;
