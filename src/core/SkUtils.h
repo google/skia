@@ -50,6 +50,8 @@ int SkUTF16_CountUnichars(const void* utf16, size_t byteLength);
 int SkUTF32_CountUnichars(const void* utf32, size_t byteLength);
 int SkUTFN_CountUnichars(SkTypeface::Encoding encoding, const void* utfN, size_t byteLength);
 
+int SkUTFN_CountUnichars(SkTypeface::Encoding encoding, const void* utfN, size_t byteLength);
+int SkUTFN_CountUnichars(SkTypeface::Encoding encoding, const void* utfN, size_t byteLength);
 /** This function is safe: invalid UTF8 sequences will return -1
  *  When -1 is returned, ptr is unchanged.
  *  Precondition: *ptr < end;

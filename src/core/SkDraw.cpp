@@ -1048,7 +1048,9 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
     }
 }
 
-void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
+void SkDraw::
+
+drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
                       const SkMatrix* prePathMatrix, bool pathIsMutable,
                       bool drawCoverage, SkBlitter* customBlitter,
                       SkInitOnceData* iData) const {
@@ -1643,6 +1645,14 @@ void SkDraw::drawPosText(const char text[], size_t byteLength, const SkScalar po
     SkFindAndPlaceGlyph::ProcessPosText(
         paint.getTextEncoding(), text, byteLength,
         offset, *fMatrix, pos, scalarsPerPosition, textAlignment, cache.get(), drawOneGlyph);
+}
+
+void SkDraw::drawPosText2(
+    const SkPoint pos[], const SkPaint& paint, const SkSurfaceProps* props,
+    SkGlyphRunInfo* info) const {
+
+    info.preparePositions(pos, paint, *fmatrix);
+
 }
 
 #if defined _WIN32
