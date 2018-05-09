@@ -489,6 +489,10 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				if !ok {
 					glog.Fatalf("Entry %q not found in GCE machine type mapping.", parts["role"])
 				}
+				// Coverage gets slower with more cores.
+				if strings.Contains(parts["extra_config"], "Coverage") {
+					machineType = MACHINE_TYPE_SMALL
+				}
 				d["machine_type"] = machineType
 			}
 		} else {
@@ -1035,7 +1039,8 @@ func coverage(b *specs.TasksCfgBuilder, name string, parts map[string]string, co
 	extraProps := map[string]string{
 		"gs_bucket": CONFIG.GsBucketCoverage,
 	}
-	uploadTask := kitchenTask(uploadName, "upload_coverage_results", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_COVERAGE, linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
+	// Use MACHINE_TYPE_LARGE because this does a bunch of computation before upload.
+	uploadTask := kitchenTask(uploadName, "upload_coverage_results", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_COVERAGE, linuxGceDimensions(MACHINE_TYPE_LARGE), extraProps, OUTPUT_NONE)
 	usesGit(uploadTask, uploadName)
 	uploadTask.CipdPackages = append(uploadTask.CipdPackages, CIPD_PKGS_GSUTIL...)
 	// We need clang_linux to get access to the llvm-profdata and llvm-cov binaries
