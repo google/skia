@@ -2656,6 +2656,12 @@ void GrGLGpu::sendInstancedMeshToGpu(const GrPrimitiveProcessor& primProc, GrPri
                                      int vertexCount, int baseVertex,
                                      const GrBuffer* instanceBuffer, int instanceCount,
                                      int baseInstance) {
+    const int kMaxInstancedDrawPrimitiveCount = 0x4000000;
+    if (this->glCaps().workarounds().disallow_large_instanced_draw && instanceCount > kMaxInstancedDrawPrimitiveCount) {
+        fStats.incNumFailedDraws();
+        return;
+    }
+
     if (fRequiresFlushBeforeNextInstancedDraw) {
         SkASSERT(this->glCaps().requiresFlushBetweenNonAndInstancedDraws());
         GL_CALL(Flush());
