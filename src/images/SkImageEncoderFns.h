@@ -15,7 +15,7 @@
 #include "SkBitmap.h"
 #include "SkColor.h"
 #include "SkColorData.h"
-#include "SkICC.h"
+#include "SkICCPriv.h"
 #include "SkOpts.h"
 #include "SkPreConfig.h"
 #include "SkRasterPipeline.h"
@@ -423,13 +423,26 @@ static inline sk_sp<SkData> icc_from_color_space(const SkImageInfo& info) {
     }
 
     SkColorSpaceTransferFn fn;
-    SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
-    if (cs->isNumericalTransferFn(&fn) && cs->toXYZD50(&toXYZD50)) {
-        return SkICC::WriteToICC(fn, toXYZD50);
+    SkMatrix44 m44(SkMatrix44::kUninitialized_Constructor);
+    if (!cs->isNumericalTransferFn(&fn) ||
+        !cs->toXYZD50(&m44)
+           || m44.get(0,3) != 0
+           || m44.get(1,3) != 0
+           || m44.get(2,3) != 0
+           || m44.get(3,3) != 1
+           || m44.get(3,2) != 0
+           || m44.get(3,1) != 0
+           || m44.get(3,0) != 0) {
+        return nullptr;
     }
 
-    // TODO: Should we support writing ICC profiles for additional color spaces?
-    return nullptr;
+    float toXYZD50[9];
+    for (int r = 0; r < 3; r++)
+    for (int c = 0; c < 3; c++) {
+        toXYZD50[3*r+c] = m44.get(r,c);
+    }
+
+    return SkWriteICCProfile(fn, toXYZD50);
 }
 
 #endif  // SkImageEncoderFns_DEFINED
