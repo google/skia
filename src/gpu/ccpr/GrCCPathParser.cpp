@@ -21,13 +21,13 @@
 using TriPointInstance = GrCCCoverageProcessor::TriPointInstance;
 using QuadPointInstance = GrCCCoverageProcessor::QuadPointInstance;
 
-GrCCPathParser::GrCCPathParser(int maxTotalPaths, int maxPathPoints, int numSkPoints,
-                               int numSkVerbs)
-        : fLocalDevPtsBuffer(maxPathPoints + 1)  // Overallocate by one point to accomodate for
-                                                 // overflow with Sk4f. (See parsePath.)
-        , fGeometry(numSkPoints, numSkVerbs)
-        , fPathsInfo(maxTotalPaths)
-        , fScissorSubBatches(maxTotalPaths)
+GrCCPathParser::GrCCPathParser(int numPaths, const PathStats& pathStats)
+          // Overallocate by one point to accomodate for overflow with Sk4f. (See parsePath.)
+        : fLocalDevPtsBuffer(pathStats.fMaxPointsPerPath + 1)
+        , fGeometry(pathStats.fNumTotalSkPoints, pathStats.fNumTotalSkVerbs,
+                    pathStats.fNumTotalConicWeights)
+        , fPathsInfo(numPaths)
+        , fScissorSubBatches(numPaths)
         , fTotalPrimitiveCounts{PrimitiveTallies(), PrimitiveTallies()} {
     // Batches decide what to draw by looking where the previous one ended. Define initial batches
     // that "end" at the beginning of the data. These will not be drawn, but will only be be read by

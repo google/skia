@@ -49,9 +49,10 @@ public:
         bool operator==(const PrimitiveTallies&);
     };
 
-    GrCCGeometry(int numSkPoints = 0, int numSkVerbs = 0)
+    GrCCGeometry(int numSkPoints = 0, int numSkVerbs = 0, int numConicWeights = 0)
             : fPoints(numSkPoints * 3) // Reserve for a 3x expansion in points and verbs.
-            , fVerbs(numSkVerbs * 3) {}
+            , fVerbs(numSkVerbs * 3)
+            , fConicWeights(numConicWeights * 3/2) {}
 
     const SkTArray<SkPoint, true>& points() const { SkASSERT(!fBuildingContour); return fPoints; }
     const SkTArray<Verb, true>& verbs() const { SkASSERT(!fBuildingContour); return fVerbs; }
@@ -124,8 +125,8 @@ private:
     SkDEBUGCODE(bool fBuildingContour = false);
 
     SkSTArray<128, SkPoint, true> fPoints;
-    SkSTArray<32, float, true> fConicWeights;
     SkSTArray<128, Verb, true> fVerbs;
+    SkSTArray<32, float, true> fConicWeights;
 };
 
 inline void GrCCGeometry::PrimitiveTallies::operator+=(const PrimitiveTallies& b) {

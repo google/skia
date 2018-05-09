@@ -220,6 +220,7 @@ private:
 
     // A map from render target ID to the individual render target's pending paths.
     std::map<uint32_t, RTPendingPaths> fRTPendingPathsMap;
+    SkSTArray<4, std::map<uint32_t, RTPendingPaths>::iterator> fFlushingRTPathIters;
     SkDEBUGCODE(int fPendingDrawOpsCount = 0);
 
     sk_sp<const GrBuffer> fPerFlushIndexBuffer;
