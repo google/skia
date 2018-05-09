@@ -22,6 +22,23 @@
       "revId": "ee3861a222e1b20a7fead7fe998dae2b9a081e08",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af21342a_7dbd06d2",
+        "filename": "src/gpu/effects/GrRectBlurEffect.fp",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-09T18:56:55Z",
+      "side": 1,
+      "message": "Maybe a comment about what this fixed or the visual artifact that was appearing ?",
+      "revId": "ee3861a222e1b20a7fead7fe998dae2b9a081e08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
