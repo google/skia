@@ -17,6 +17,7 @@
 class SkBitmap;
 class SkDrawFilter;
 struct SkDrawShadowRec;
+class SkGlyphRun;
 class SkImageFilterCache;
 struct SkIRect;
 class SkMatrix;
@@ -227,6 +228,7 @@ protected:
     virtual void drawPosText(const void* text, size_t len,
                              const SkScalar pos[], int scalarsPerPos,
                              const SkPoint& offset, const SkPaint& paint) = 0;
+    virtual void drawPosText2(const SkPaint& paint, SkGlyphRun* info);
     virtual void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) = 0;
     virtual void drawShadow(const SkPath&, const SkDrawShadowRec&);
 

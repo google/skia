@@ -21,6 +21,7 @@
 #include "SkSize.h"
 #include "SkSurfaceProps.h"
 
+class SkGlyphRun;
 class SkImageFilterCache;
 class SkMatrix;
 class SkPaint;

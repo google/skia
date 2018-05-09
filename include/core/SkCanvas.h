@@ -26,6 +26,7 @@ class SkDraw;
 class SkDrawable;
 class SkDrawFilter;
 struct SkDrawShadowRec;
+class SkGlyphRun;
 class SkImage;
 class SkImageFilter;
 class SkMetaData;
