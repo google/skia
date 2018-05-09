@@ -540,7 +540,9 @@ bool SkFontConfigInterfaceDirect::isValidPattern(FcPattern* pattern) {
     if (!c_filename) {
         return false;
     }
-    return this->isAccessible(c_filename);
+    SkString filename((const char*)FcConfigGetSysRoot(nullptr));
+    filename += c_filename;
+    return this->isAccessible(filename.c_str());
 }
 
 // Find matching font from |font_set| for the given font family.
@@ -671,6 +673,8 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
         FcFontSetDestroy(font_set);
         return false;
     }
+    SkString filename((const char*)FcConfigGetSysRoot(nullptr));
+    filename += c_filename;
 
     int face_index = get_int(match, FC_INDEX, 0);
 
@@ -678,7 +682,7 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
 
     if (outIdentity) {
         outIdentity->fTTCIndex = face_index;
-        outIdentity->fString.set(c_filename);
+        outIdentity->fString.set(filename.c_str());
     }
     if (outFamilyName) {
         outFamilyName->set(post_config_family);
