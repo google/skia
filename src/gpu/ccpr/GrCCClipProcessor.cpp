@@ -10,11 +10,12 @@
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
 #include "SkMakeUnique.h"
+#include "ccpr/GrCCClipPath.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
-GrCCClipProcessor::GrCCClipProcessor(const ClipPath* clipPath, MustCheckBounds mustCheckBounds,
-                                         SkPath::FillType overrideFillType)
+GrCCClipProcessor::GrCCClipProcessor(const GrCCClipPath* clipPath, MustCheckBounds mustCheckBounds,
+                                     SkPath::FillType overrideFillType)
         : INHERITED(kGrCCClipProcessor_ClassID, kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fClipPath(clipPath)
         , fMustCheckBounds((bool)mustCheckBounds)
@@ -26,7 +27,7 @@ GrCCClipProcessor::GrCCClipProcessor(const ClipPath* clipPath, MustCheckBounds m
 
 std::unique_ptr<GrFragmentProcessor> GrCCClipProcessor::clone() const {
     return skstd::make_unique<GrCCClipProcessor>(fClipPath, MustCheckBounds(fMustCheckBounds),
-                                                   fOverrideFillType);
+                                                 fOverrideFillType);
 }
 
 void GrCCClipProcessor::onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
