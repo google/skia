@@ -164,6 +164,10 @@ void SkRandomTypeface::onFilterRec(SkScalerContextRec* rec) const {
     rec->fMaskFormat = SkMask::kARGB32_Format;
 }
 
+void SkRandomTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {
+    fProxy->getGlyphToUnicodeMap(glyphToUnicode);
+}
+
 std::unique_ptr<SkAdvancedTypefaceMetrics> SkRandomTypeface::onGetAdvancedMetrics() const {
     return fProxy->getAdvancedMetrics();
 }
