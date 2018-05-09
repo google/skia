@@ -9,12 +9,14 @@
 #include "SkColorFilter.h"
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
+#include "SkGlyphRun.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
 #include "SkImagePriv.h"
 #include "SkImage_Base.h"
 #include "SkLatticeIter.h"
 #include "SkLocalMatrixShader.h"
+#include "SkMakeUnique.h"
 #include "SkMatrixPriv.h"
 #include "SkPatchUtils.h"
 #include "SkPathMeasure.h"
@@ -157,9 +159,16 @@ void SkBaseDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
         }
 
         switch (it.positioning()) {
-        case SkTextBlob::kDefault_Positioning:
-            this->drawText(it.glyphs(), textLen, x + offset.x(), y + offset.y(), runPaint);
-            break;
+        case SkTextBlob::kDefault_Positioning: {
+            auto origin = SkPoint::Make(x + offset.x(), y + offset.y());
+            auto glyphRun =
+                    SkGlyphRun::MakeFromDrawText(runPaint,
+                                                 (const char*) it.glyphs(), textLen, origin);
+            this->drawPosText(
+                    it.glyphs(), textLen, glyphRun.getPositions(), 2,
+                    SkPoint::Make(0, 0), runPaint);
+        }
+        break;
         case SkTextBlob::kHorizontal_Positioning:
             this->drawPosText(it.glyphs(), textLen, it.pos(), 1,
                               SkPoint::Make(x, y + offset.y()), runPaint);
@@ -241,6 +250,17 @@ void SkBaseDevice::drawImageLattice(const SkImage* image,
             this->drawImageRect(image, &srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
         }
     }
+}
+
+void SkBaseDevice::drawGlyphRun(const SkPaint& paint, SkGlyphRun* info) {
+    SkPaint glyphPaint(paint);
+    glyphPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+
+    auto glyphs = info->copyGlyphIDs();
+
+    this->drawPosText(
+            glyphs.get(), info->runSize() * 2,
+            info->getPositions(), 2, SkPoint::Make(0, 0), glyphPaint);
 }
 
 void SkBaseDevice::drawBitmapLattice(const SkBitmap& bitmap,
@@ -496,6 +516,8 @@ void SkBaseDevice::drawTextRSXform(const void* text, size_t len,
 
     SkPaint localPaint(paint);
     SkShader* shader = paint.getShader();
+    SkScalar pos[2] = {0.0f, 0.0f};
+    SkPoint origin = SkPoint::Make(0, 0);
 
     SkMatrix localM, currM;
     const void* stopText = (const char*)text + len;
@@ -517,7 +539,7 @@ void SkBaseDevice::drawTextRSXform(const void* text, size_t len,
         }
 
         int subLen = proc((const char*)text);
-        this->drawText(text, subLen, 0, 0, localPaint);
+        this->drawPosText(text, subLen, pos, 2, origin, localPaint);
         text = (const char*)text + subLen;
     }
 }
