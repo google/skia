@@ -15,6 +15,7 @@
 #include "SkDrawable.h"
 #include "SkDrawFilter.h"
 #include "SkDrawLooper.h"
+#include "SkGlyphRunInfo.h"
 #include "SkImage.h"
 #include "SkImage_Base.h"
 #include "SkImageFilter.h"
@@ -2438,6 +2439,17 @@ void SkCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint 
     LOOPER_END
 }
 
+void SkCanvas::onDrawPosText2(const SkPoint pos[], const SkPaint& paint, SkGlyphRunInfo* info) {
+    LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, nullptr)
+
+        while (iter.next()) {
+            iter.fDevice->drawPosText2(pos, looper.paint(), info);
+        }
+
+    LOOPER_END
+
+}
+
 void SkCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
                               SkScalar constY, const SkPaint& paint) {
 
@@ -2520,10 +2532,13 @@ void SkCanvas::drawText(const void* text, size_t byteLength, SkScalar x, SkScala
         this->onDrawText(text, byteLength, x, y, paint);
     }
 }
+
 void SkCanvas::drawPosText(const void* text, size_t byteLength, const SkPoint pos[],
                            const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (byteLength) {
+        SkGlyphRunInfo glyphRunInfo = SkGlyphRunInfo::Make(paint, text, byteLength);
+
         sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
         this->onDrawPosText(text, byteLength, pos, paint);
     }
