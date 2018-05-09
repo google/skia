@@ -84,17 +84,7 @@ uniform half profileSize;
 
 @make {
      static std::unique_ptr<GrFragmentProcessor> Make(GrProxyProvider* proxyProvider,
-                                                      const GrShaderCaps& caps,
                                                       const SkRect& rect, float sigma) {
-         if (!caps.floatIs32Bits()) {
-             // We promote the rect uniform from half to float when it has large values for
-             // precision. If we don't have full float then fail.
-             if (abs(rect.fLeft) > 16000 || abs(rect.fTop) > 16000 ||
-                 abs(rect.fRight) > 16000 || abs(rect.fBottom) > 16000 ||
-                 abs(rect.width()) > 16000 || abs(rect.height()) > 16000) {
-                 return nullptr;
-             }
-         }
          int doubleProfileSize = SkScalarCeilToInt(12*sigma);
 
          if (doubleProfileSize >= rect.width() || doubleProfileSize >= rect.height()) {
@@ -152,6 +142,5 @@ void main() {
     float sigma = data->fRandom->nextRangeF(3,8);
     float width = data->fRandom->nextRangeF(200,300);
     float height = data->fRandom->nextRangeF(200,300);
-    return GrRectBlurEffect::Make(data->proxyProvider(), *data->caps()->shaderCaps(),
-                                  SkRect::MakeWH(width, height), sigma);
+    return GrRectBlurEffect::Make(data->proxyProvider(), SkRect::MakeWH(width, height), sigma);
 }
