@@ -178,21 +178,17 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
         }
         const GrCCRTPendingPaths& rtPendingPaths = iter->second;
 
-        SkTInternalLList<GrCCDrawPathsOp>::Iter drawOpsIter;
-        drawOpsIter.init(rtPendingPaths.fDrawOps,
-                         SkTInternalLList<GrCCDrawPathsOp>::Iter::kHead_IterStart);
-        while (GrCCDrawPathsOp* op = drawOpsIter.get()) {
+        for (const GrCCDrawPathsOp* op : rtPendingPaths.fDrawOps) {
             for (const GrCCDrawPathsOp::SingleDraw* draw = op->head(); draw; draw = draw->fNext) {
-                ++numPathDraws;
                 flushingPathStats.statPath(draw->fPath);
+                ++numPathDraws;
             }
-            drawOpsIter.next();
         }
 
-        numClipPaths += rtPendingPaths.fClipPaths.size();
         for (const auto& clipsIter : rtPendingPaths.fClipPaths) {
             flushingPathStats.statPath(clipsIter.second.deviceSpacePath());
         }
+        numClipPaths += rtPendingPaths.fClipPaths.size();
 
         fFlushingRTPathIters.push_back(std::move(iter));
     }
@@ -209,23 +205,15 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
 
     // Layout atlas(es) and parse paths.
     SkDEBUGCODE(int numSkippedPaths = 0);
-    for (int i = 0; i < numOpListIDs; ++i) {
-        auto it = fRTPendingPathsMap.find(opListIDs[i]);
-        if (fRTPendingPathsMap.end() == it) {
-            continue;
-        }
-        GrCCRTPendingPaths& rtPendingPaths = it->second;
+    for (const auto& iter : fFlushingRTPathIters) {
+        GrCCRTPendingPaths* rtPendingPaths = &iter->second;
 
-        SkTInternalLList<GrCCDrawPathsOp>::Iter drawOpsIter;
-        drawOpsIter.init(rtPendingPaths.fDrawOps,
-                         SkTInternalLList<GrCCDrawPathsOp>::Iter::kHead_IterStart);
-        while (GrCCDrawPathsOp* op = drawOpsIter.get()) {
+        for (GrCCDrawPathsOp* op : rtPendingPaths->fDrawOps) {
             op->setupResources(resources.get(), onFlushRP);
-            drawOpsIter.next();
             SkDEBUGCODE(numSkippedPaths += op->numSkippedInstances_debugOnly());
         }
 
-        for (auto& clipsIter : rtPendingPaths.fClipPaths) {
+        for (auto& clipsIter : rtPendingPaths->fClipPaths) {
             clipsIter.second.placePathInAtlas(resources.get(), onFlushRP);
         }
     }

@@ -250,9 +250,24 @@ public:
             return fCurr;
         }
 
+        /**
+         * C++11 range-for interface.
+         */
+        bool operator!=(const Iter& that) { return fCurr != that.fCurr; }
+        T* operator*() { return this->get(); }
+        void operator++() { this->next(); }
+
     private:
         T* fCurr;
     };
+
+    Iter begin() const {
+        Iter iter;
+        iter.init(*this, Iter::kHead_IterStart);
+        return iter;
+    }
+
+    Iter end() const { return Iter(); }
 
 #ifdef SK_DEBUG
     void validate() const {
