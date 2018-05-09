@@ -45,6 +45,53 @@
       "revId": "a8daee88d274e29f9d27f640843b33795f6df31e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b8f3b75_305907ef",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-09T15:00:37Z",
+      "side": 0,
+      "message": "Now that sk_sp\u0027s operator\u003d checks for self assignment I\u0027m good with replacing the block with \n\nfRec \u003d that.fRec",
+      "parentUuid": "bf5f5960_5dc14635",
+      "range": {
+        "startLine": 312,
+        "startChar": 8,
+        "endLine": 313,
+        "endChar": 24
+      },
+      "revId": "a8daee88d274e29f9d27f640843b33795f6df31e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3d5fbbe_26fc7c5a",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-09T15:00:37Z",
+      "side": 0,
+      "message": "Can this also be\n\nfRec \u003d std::move(src.fRec)",
+      "range": {
+        "startLine": 321,
+        "startChar": 0,
+        "endLine": 323,
+        "endChar": 5
+      },
+      "revId": "a8daee88d274e29f9d27f640843b33795f6df31e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
