@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e0006afc_29f1fb0c",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-05-09T19:03:07Z",
+      "side": 1,
+      "message": "Drive-by question - don\u0027t we have a way to let the compiler tell us if we are ignoring a value.  If so, should we set that here so we can avoid potential uninitialized memory errors in set?",
+      "range": {
+        "startLine": 26,
+        "startChar": 8,
+        "endLine": 26,
+        "endChar": 12
+      },
+      "revId": "a2f14de3aedc7f6b413e7075cff1c94b0533c820",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
