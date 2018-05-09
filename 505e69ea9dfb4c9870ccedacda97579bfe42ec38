@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f6c5da9d_9242c7ee",
+        "filename": "src/opts/SkBitmapProcState_opts_SSE2.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-05-09T17:21:21Z",
+      "side": 1,
+      "message": "I like the code as written best, tbh.\n\nMaybe rewrite it like this and let the compiler do the forward differencing?  Should work as long as dx and fx are ints underneath.\n\n  for (int i \u003d 0; i \u003c count; i++) {\n    *xy++ \u003d ClampX_ClampY_pack_filter(fx + i*dx, maxX, one);\n  }",
+      "range": {
+        "startLine": 372,
+        "startChar": 0,
+        "endLine": 375,
+        "endChar": 9
+      },
+      "revId": "505e69ea9dfb4c9870ccedacda97579bfe42ec38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
