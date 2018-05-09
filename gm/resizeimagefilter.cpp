@@ -61,57 +61,39 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
 
-        SkRect srcRect = SkRect::MakeWH(96, 96);
+        const SkRect srcRect = SkRect::MakeWH(96, 96);
+        const SkSize deviceSize = SkSize::Make(16, 16);
 
-        SkSize deviceSize = SkSize::Make(16, 16);
-        this->draw(canvas,
-                   srcRect,
-                   deviceSize,
-                   kNone_SkFilterQuality,
-                   nullptr);
+        this->draw(canvas, srcRect, deviceSize, kNone_SkFilterQuality, nullptr);
 
         canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
-        this->draw(canvas,
-                   srcRect,
-                   deviceSize,
-                   kLow_SkFilterQuality,
-                   nullptr);
+        this->draw(canvas, srcRect, deviceSize, kLow_SkFilterQuality, nullptr);
 
         canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
-        this->draw(canvas,
-                   srcRect,
-                   deviceSize,
-                   kMedium_SkFilterQuality,
-                   nullptr);
+        this->draw(canvas, srcRect, deviceSize, kMedium_SkFilterQuality, nullptr);
 
         canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
-        this->draw(canvas,
-                   srcRect,
-                   deviceSize,
-                   kHigh_SkFilterQuality,
-                   nullptr);
+        this->draw(canvas, srcRect, deviceSize, kHigh_SkFilterQuality, nullptr);
 
-        sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(16, 16));
-        SkCanvas* surfaceCanvas = surface->getCanvas();
-        surfaceCanvas->clear(0x000000);
         {
-            SkPaint paint;
-            paint.setColor(0xFF00FF00);
-            SkRect ovalRect = SkRect::MakeWH(16, 16);
-            ovalRect.inset(SkIntToScalar(2)/3, SkIntToScalar(2)/3);
-            surfaceCanvas->drawOval(ovalRect, paint);
+            sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(16, 16));
+            SkCanvas* surfaceCanvas = surface->getCanvas();
+            surfaceCanvas->clear(0x000000);
+            {
+                SkPaint paint;
+                paint.setColor(0xFF00FF00);
+                SkRect ovalRect = SkRect::MakeWH(16, 16);
+                ovalRect.inset(SkIntToScalar(2)/3, SkIntToScalar(2)/3);
+                surfaceCanvas->drawOval(ovalRect, paint);
+            }
+            sk_sp<SkImage> image(surface->makeImageSnapshot());
+            SkRect inRect = SkRect::MakeXYWH(-4, -4, 20, 20);
+            SkRect outRect = SkRect::MakeXYWH(-24, -24, 120, 120);
+            sk_sp<SkImageFilter> source(
+                SkImageSource::Make(std::move(image), inRect, outRect, kHigh_SkFilterQuality));
+            canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
+            this->draw(canvas, srcRect, deviceSize, kHigh_SkFilterQuality, std::move(source));
         }
-        sk_sp<SkImage> image(surface->makeImageSnapshot());
-        SkRect inRect = SkRect::MakeXYWH(-4, -4, 20, 20);
-        SkRect outRect = SkRect::MakeXYWH(-24, -24, 120, 120);
-        sk_sp<SkImageFilter> source(
-            SkImageSource::Make(std::move(image), inRect, outRect, kHigh_SkFilterQuality));
-        canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
-        this->draw(canvas,
-                   srcRect,
-                   deviceSize,
-                   kHigh_SkFilterQuality,
-                   std::move(source));
     }
 
 private:
