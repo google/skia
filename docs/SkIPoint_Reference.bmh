@@ -3,14 +3,12 @@
 #Alias IPoint_Reference
 
 #Subtopic Overview
-    #Subtopic Subtopic
-    #Populate
-    ##
+#Populate
 ##
 
 #Struct SkIPoint
 
-SkIPoint holds two 32 bit integer coordinates.
+SkIPoint holds two 32-bit integer coordinates.
 
 #Subtopic Related_Function
 #Populate
