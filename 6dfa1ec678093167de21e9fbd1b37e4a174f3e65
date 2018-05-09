@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1bb21dc6_24e27e9e",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2337,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-09T18:52:45Z",
+      "side": 1,
+      "message": "Should we combine with this logic here?",
+      "revId": "6dfa1ec678093167de21e9fbd1b37e4a174f3e65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
