@@ -1084,7 +1084,7 @@ bool RootDefinition::dumpUnVisited() {
     return success;
 }
 
-const Definition* RootDefinition::find(string ref, AllowParens allowParens) const {
+Definition* RootDefinition::find(string ref, AllowParens allowParens) {
     const auto leafIter = fLeaves.find(ref);
     if (leafIter != fLeaves.end()) {
         return &leafIter->second;
@@ -1098,12 +1098,12 @@ const Definition* RootDefinition::find(string ref, AllowParens allowParens) cons
     }
     const auto branchIter = fBranches.find(ref);
     if (branchIter != fBranches.end()) {
-        const RootDefinition* rootDef = branchIter->second;
+        RootDefinition* rootDef = branchIter->second;
         return rootDef;
     }
-    const Definition* result = nullptr;
+    Definition* result = nullptr;
     for (const auto& branch : fBranches) {
-        const RootDefinition* rootDef = branch.second;
+        RootDefinition* rootDef = branch.second;
         result = rootDef->find(ref, allowParens);
         if (result) {
             break;
