@@ -54,7 +54,10 @@ protected:
         canvas->translate(0, fYOffset);
 
         canvas->drawDrawable(fImage.get());
-        canvas->drawDrawable(fDrawable.get(), fImage->getBounds().width(), 0);
+        canvas->translate(fImage->getBounds().width(), 0);
+
+        sk_sp<SkPicture> pic(fImage->newPictureSnapshot());
+        canvas->drawPicture(pic);
     }
 
     bool onAnimate(const SkAnimTimer& animTimer) override {
@@ -73,9 +76,10 @@ protected:
                     fRunning = false;
                 }
             }
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     void onOnceBeforeDraw() override {
