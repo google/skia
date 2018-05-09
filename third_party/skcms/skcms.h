@@ -16,6 +16,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -237,6 +238,28 @@ SKCMS_API bool skcms_PrimariesToXYZD50(float rx, float ry,
                                        float bx, float by,
                                        float wx, float wy,
                                        skcms_Matrix3x3* toXYZD50);
+
+// Utilities for programmatically constructing profiles
+static inline void skcms_Init(skcms_ICCProfile* p) {
+    memset(p, 0, sizeof(*p));
+    p->data_color_space = skcms_Signature_RGB;
+    p->pcs = skcms_Signature_XYZ;
+}
+
+static inline void skcms_SetTransferFunction(skcms_ICCProfile* p,
+                                             const skcms_TransferFunction* tf) {
+    p->has_trc = true;
+    for (int i = 0; i < 3; ++i) {
+        p->trc[i].table_entries = 0;
+        p->trc[i].parametric = *tf;
+        p->has_poly_tf[i] = false;
+    }
+}
+
+static inline void skcms_SetXYZD50(skcms_ICCProfile* p, const skcms_Matrix3x3* m) {
+    p->has_toXYZD50 = true;
+    p->toXYZD50 = *m;
+}
 
 #ifdef __cplusplus
 }
