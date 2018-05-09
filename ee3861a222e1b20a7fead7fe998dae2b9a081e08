@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d9d39f49_f17f8f8f",
+        "filename": "src/gpu/effects/GrRectBlurEffect.fp",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-09T18:23:27Z",
+      "side": 1,
+      "message": "I\u0027ve copied this logic to the Make() function.",
+      "range": {
+        "startLine": 32,
+        "startChar": 33,
+        "endLine": 34,
+        "endChar": 94
+      },
+      "revId": "ee3861a222e1b20a7fead7fe998dae2b9a081e08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
