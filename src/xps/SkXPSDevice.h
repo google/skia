@@ -97,8 +97,6 @@ protected:
                         const SkRect* srcOrNull, const SkRect& dst,
                         const SkPaint& paint,
                         SkCanvas::SrcRectConstraint) override;
-    void drawText(const void* text, size_t len,
-                  SkScalar x, SkScalar y, const SkPaint& paint) override;
     void drawPosText(const void* text, size_t len,
                      const SkScalar pos[], int scalarsPerPos,
                      const SkPoint& offset, const SkPaint& paint) override;
