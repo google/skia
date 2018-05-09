@@ -74,6 +74,10 @@ def dm_flags(api, bot):
   if 'Test-iOS' in bot:
     args.extend(['--threads', '0'])
 
+  # Coverage does not seem to like threads.
+  if 'Coverage' in api.vars.extra_tokens:
+    args.extend(['--threads', '0'])
+
   # Android's kernel will occasionally attempt to kill our process, using
   # SIGINT, in an effort to free up resources. If requested, that signal
   # is ignored and dm will keep attempting to proceed until we actually

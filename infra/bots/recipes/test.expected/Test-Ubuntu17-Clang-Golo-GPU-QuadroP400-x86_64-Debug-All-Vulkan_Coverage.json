@@ -176,6 +176,8 @@
       "--dont_write",
       "pdf",
       "--randomProcessorTest",
+      "--threads",
+      "0",
       "--nocpu",
       "--config",
       "vk",

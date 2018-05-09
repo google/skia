@@ -489,6 +489,9 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				if !ok {
 					glog.Fatalf("Entry %q not found in GCE machine type mapping.", parts["role"])
 				}
+				if strings.Contains(parts["extra_config"], "Coverage") {
+					machineType = MACHINE_TYPE_SMALL
+				}
 				d["machine_type"] = machineType
 			}
 		} else {
