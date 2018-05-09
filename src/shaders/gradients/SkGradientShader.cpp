@@ -17,6 +17,7 @@
 #include "SkMallocPixelRef.h"
 #include "SkRadialGradient.h"
 #include "SkReadBuffer.h"
+#include "SkSafeMath.h"
 #include "SkSweepGradient.h"
 #include "SkTwoPointConicalGradient.h"
 #include "SkWriteBuffer.h"
@@ -79,16 +80,17 @@ bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
     fGradFlags = (flags >> kGradFlagsShift_GSF) & kGradFlagsMask_GSF;
 
     fCount = buffer.getArrayCount();
-    if (fCount > kStorageCount) {
-        size_t allocSize = (sizeof(SkColor4f) + sizeof(SkScalar)) * fCount;
-        fDynamicStorage.reset(allocSize);
-        fColors = (SkColor4f*)fDynamicStorage.get();
-        fPos = (SkScalar*)(fColors + fCount);
-    } else {
-        fColors = fColorStorage;
-        fPos = fPosStorage;
+
+    SkSafeMath safe;
+    const auto expectedSize =
+        safe.mul(fCount, sizeof(SkColor4f) + (flags & kHasPosition_GSF) ? sizeof(SkScalar) : 0);
+    if (!buffer.validate(safe && expectedSize <= buffer.available())) {
+        return false;
     }
-    if (!buffer.readColor4fArray(mutableColors(), fCount)) {
+
+    fColorStorage.resize_back(fCount);
+    fColors = fColorStorage.begin();
+    if (!buffer.readColor4fArray(fColorStorage.begin(), fCount)) {
         return false;
     }
     if (SkToBool(flags & kHasColorSpace_GSF)) {
@@ -98,7 +100,9 @@ bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
         fColorSpace = nullptr;
     }
     if (SkToBool(flags & kHasPosition_GSF)) {
-        if (!buffer.readScalarArray(mutablePos(), fCount)) {
+        fPosStorage.resize_back(fCount);
+        fPos = fPosStorage.begin();
+        if (!buffer.readScalarArray(fPosStorage.begin(), fCount)) {
             return false;
         }
     } else {
