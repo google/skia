@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3eb13e82_35af4118",
+        "filename": "src/ports/SkFontConfigInterface_direct.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-09T21:17:01Z",
+      "side": 1,
+      "message": "Looks like this was introduced in FontConfig 2.10.92. It looks like all the supported platforms have this, so that\u0027s good (I\u0027ll need to go around an make note of that elsewhere).",
+      "range": {
+        "startLine": 543,
+        "startChar": 35,
+        "endLine": 543,
+        "endChar": 53
+      },
+      "revId": "fdfab9ed62a890f9c57f7a9f7ad9285a14446b4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "011d0401_2070c34c",
+        "filename": "src/ports/SkFontConfigInterface_direct.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 676,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-09T21:17:01Z",
+      "side": 1,
+      "message": "This entire system seems quite bizarre, and I\u0027m not sure why this is a thing in FontConfig that any user of FontConfig should ever be aware of. Are all users of FontConfig supposed to be updated to prepend this value to all filenames? That\u0027s quite a breaking change. Indeed, most of the point of a \u0027sysroot\u0027 is that apps don\u0027t need to know they\u0027re in one.\n\nLooking at https://bugs.freedesktop.org/show_bug.cgi?id\u003d59456 where this was introduced, the whole \u0027sysroot\u0027 thing is designed around running fc-cache with a sysroot parameter so that libfontconfig instances running inside an actual sysroot at that path would work. This code is \u0027undoing\u0027 that work (as far as I can tell), so why do it?",
+      "range": {
+        "startLine": 676,
+        "startChar": 35,
+        "endLine": 676,
+        "endChar": 53
+      },
+      "revId": "fdfab9ed62a890f9c57f7a9f7ad9285a14446b4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
