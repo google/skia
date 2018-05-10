@@ -2624,11 +2624,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         shaderCaps->fAdvBlendEqInteraction = GrShaderCaps::kNotSupported_AdvBlendEqInteraction;
     }
 
-    if (fDriverBugWorkarounds.disable_blend_equation_advanced) {
-        fBlendEquationSupport = kBasic_BlendEquationSupport;
-        shaderCaps->fAdvBlendEqInteraction = GrShaderCaps::kNotSupported_AdvBlendEqInteraction;
-    }
-
     if (this->advancedBlendEquationSupport()) {
         if (kNVIDIA_GrGLDriver == ctxInfo.driver() &&
             ctxInfo.driverVersion() < GR_GL_DRIVER_VER(355, 00, 0)) {
