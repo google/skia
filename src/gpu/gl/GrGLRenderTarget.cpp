@@ -143,6 +143,8 @@ bool GrGLRenderTarget::completeStencilAttachment() {
                                                           GR_GL_RENDERBUFFER, 0));
         }
 
+        gpu->didBindFramebuffer();
+
 #ifdef SK_DEBUG
         if (kChromium_GrGLDriver != gpu->glContext().driver()) {
             // This check can cause problems in Chromium if the context has been asynchronously
