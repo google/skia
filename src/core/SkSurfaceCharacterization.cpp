@@ -8,12 +8,14 @@
 #include "SkSurfaceCharacterization.h"
 
 #if SK_SUPPORT_GPU
+#include "GrContextThreadSafeProxyPriv.h"
+
 bool SkSurfaceCharacterization::operator==(const SkSurfaceCharacterization& other) const {
     if (!this->isValid() || !other.isValid()) {
         return false;
     }
 
-    if (fContextInfo->fContextUniqueID != other.fContextInfo->fContextUniqueID) {
+    if (fContextInfo != other.fContextInfo) {
         return false;
     }
 
@@ -27,6 +29,23 @@ bool SkSurfaceCharacterization::operator==(const SkSurfaceCharacterization& othe
            fIsMipMapped == other.fIsMipMapped &&
            fUsesGLFBO0 == other.fUsesGLFBO0 &&
            fSurfaceProps == other.fSurfaceProps;
+}
+
+SkSurfaceCharacterization SkSurfaceCharacterization::createResized(int width, int height) const {
+    const GrCaps* caps = fContextInfo->priv().caps();
+    if (!caps) {
+        return SkSurfaceCharacterization();
+    }
+
+    if (width <= 0 || height <= 0 || width > caps->maxRenderTargetSize() ||
+        height > caps->maxRenderTargetSize()) {
+        return SkSurfaceCharacterization();
+    }
+
+    return SkSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes,
+                                     fImageInfo.makeWH(width, height), fOrigin, fConfig, fFSAAType,
+                                     fStencilCnt, fIsTextureable, fIsMipMapped, fUsesGLFBO0,
+                                     fSurfaceProps);
 }
 
 #endif

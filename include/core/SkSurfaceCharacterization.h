@@ -54,24 +54,7 @@ public:
         return !(*this == other);
     }
 
-    SkSurfaceCharacterization createResized(int width, int height) const {
-        const GrCaps* caps = fContextInfo->caps();
-        if (!caps) {
-            return SkSurfaceCharacterization();
-        }
-
-        if (width <= 0 || height <= 0 ||
-            width > caps->maxRenderTargetSize() || height > caps->maxRenderTargetSize()) {
-            return SkSurfaceCharacterization();
-        }
-
-        return SkSurfaceCharacterization(fContextInfo,
-                                         fCacheMaxResourceBytes,
-                                         fImageInfo.makeWH(width, height),
-                                         fOrigin, fConfig, fFSAAType, fStencilCnt,
-                                         fIsTextureable, fIsMipMapped, fUsesGLFBO0,
-                                         fSurfaceProps);
-    }
+    SkSurfaceCharacterization createResized(int width, int height) const;
 
     GrContextThreadSafeProxy* contextInfo() const { return fContextInfo.get(); }
     sk_sp<GrContextThreadSafeProxy> refContextInfo() const { return fContextInfo; }

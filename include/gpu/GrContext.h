@@ -21,6 +21,7 @@ class GrBackendFormat;
 class GrBackendSemaphore;
 class GrContextPriv;
 class GrContextThreadSafeProxy;
+class GrContextThreadSafeProxyPriv;
 class GrDrawingManager;
 struct GrDrawOpAtlasConfig;
 class GrFragmentProcessor;
@@ -398,8 +399,17 @@ public:
                                   const SkSurfaceProps& surfaceProps,
                                   bool isMipMapped, bool willUseGLFBO0 = false);
 
-    const GrCaps* caps() const { return fCaps.get(); }
-    sk_sp<const GrCaps> refCaps() const { return fCaps; }
+    bool operator==(const GrContextThreadSafeProxy& that) const {
+        // Each GrContext should only ever have a single thread-safe proxy.
+        SkASSERT((this == &that) == (fContextUniqueID == that.fContextUniqueID));
+        return this == &that;
+    }
+
+    bool operator!=(const GrContextThreadSafeProxy& that) const { return !(*this == that); }
+
+    // Provides access to functions that aren't part of the public API.
+    GrContextThreadSafeProxyPriv priv();
+    const GrContextThreadSafeProxyPriv priv() const;
 
 private:
     // DDL TODO: need to add unit tests for backend & maybe options
@@ -419,9 +429,7 @@ private:
     const GrContextOptions fOptions;
 
     friend class GrDirectContext; // To construct this object
-    friend class GrContextPriv;   // for access to 'fOptions' in MakeDDL
-    friend class GrDDLContext;    // to implement the GrDDLContext ctor (access to all members)
-    friend class SkSurfaceCharacterization; // for access to 'fContextUniqueID' for operator==
+    friend class GrContextThreadSafeProxyPriv;
 
     typedef SkRefCnt INHERITED;
 };

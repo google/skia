@@ -6,8 +6,8 @@
  */
 
 #include "GrContext.h"
-
 #include "GrContextPriv.h"
+#include "GrContextThreadSafeProxyPriv.h"
 
 /**
  * The DDL Context is the one in effect during DDL Recording. It isn't backed by a GrGPU and
@@ -16,8 +16,8 @@
 class SK_API GrDDLContext : public GrContext {
 public:
     GrDDLContext(sk_sp<GrContextThreadSafeProxy> proxy)
-            : INHERITED(proxy->fBackend, proxy->fContextUniqueID) {
-        fCaps = proxy->fCaps;
+            : INHERITED(proxy->priv().backend(), proxy->priv().contextUniqueID()) {
+        fCaps = proxy->priv().refCaps();
         fThreadSafeProxy = std::move(proxy);
     }
 
@@ -66,7 +66,7 @@ sk_sp<GrContext> GrContextPriv::MakeDDL(const sk_sp<GrContextThreadSafeProxy>& p
 
     // Note: we aren't creating a Gpu here. This causes the resource provider & cache to
     // also not be created
-    if (!context->init(proxy->fOptions)) {
+    if (!context->init(proxy->priv().contextOptions())) {
         return nullptr;
     }
     return context;
