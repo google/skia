@@ -54,7 +54,7 @@ PolyStarAdapter::PolyStarAdapter(sk_sp<sksg::Path> wrapped_node, Type t)
 
 void PolyStarAdapter::apply() {
     const auto count = SkScalarTruncToInt(fPointCount);
-    const auto arc   = SK_ScalarPI * 2 / count;
+    const auto arc   = sk_ieee_float_divide(SK_ScalarPI * 2, count);
 
     const auto pt_on_circle = [](const SkPoint& c, SkScalar r, SkScalar a) {
         return SkPoint::Make(c.x() + r * std::cos(a),
