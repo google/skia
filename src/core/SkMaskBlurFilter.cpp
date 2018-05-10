@@ -11,6 +11,7 @@
 #include "SkMalloc.h"
 #include "SkMaskBlurFilter.h"
 #include "SkNx.h"
+#include "SkTemplates.h"
 
 #include <cmath>
 #include <climits>
@@ -959,63 +960,6 @@ static SkIPoint small_blur(double sigmaX, double sigmaY, const SkMask& src, SkMa
     return {radiusX, radiusY};
 }
 
-struct AlphaIterA1 {
-    AlphaIterA1(const uint8_t* ptr, int offset) : fPtr(ptr), fOffset(7 - offset) {}
-    AlphaIterA1(const AlphaIterA1& that) : fPtr(that.fPtr), fOffset(that.fOffset) {}
-    AlphaIterA1& operator++() {
-        if (0 < fOffset ) {
-            --fOffset;
-        } else {
-            ++fPtr;
-            fOffset = 7;
-        }
-        return *this;
-    }
-    AlphaIterA1& operator--() {
-        if (fOffset < 7) {
-            ++fOffset;
-        } else {
-            --fPtr;
-            fOffset = 0;
-        }
-        return *this;
-    }
-    uint8_t operator*() { return ((*fPtr) >> fOffset) & 1 ? 0xFF : 0; }
-    bool operator<(const AlphaIterA1& that) {
-        return fPtr < that.fPtr || (fPtr == that.fPtr && fOffset > that.fOffset);
-    }
-    const uint8_t* fPtr;
-    int fOffset;
-};
-
-using AlphaIterA8 = uint8_t*;
-
-struct AlphaIterARGB {
-    AlphaIterARGB(const uint32_t* ptr) : fPtr(ptr) {}
-    AlphaIterARGB(const AlphaIterARGB& that) : fPtr(that.fPtr) {}
-    AlphaIterARGB& operator++() { ++fPtr; return *this; }
-    AlphaIterARGB& operator--() { --fPtr; return *this; }
-    uint8_t operator*() { return SkGetPackedA32(*fPtr); }
-    bool operator<(const AlphaIterARGB& that) { return fPtr < that.fPtr; }
-    const uint32_t* fPtr;
-};
-
-struct AlphaIterLCD {
-    AlphaIterLCD(const uint16_t* ptr) : fPtr(ptr) {}
-    AlphaIterLCD(const AlphaIterLCD& that) : fPtr(that.fPtr) {}
-    AlphaIterLCD& operator++() { ++fPtr; return *this; }
-    AlphaIterLCD& operator--() { --fPtr; return *this; }
-    uint8_t operator*() {
-        unsigned packed = *fPtr;
-        unsigned r = SkPacked16ToR32(packed);
-        unsigned g = SkPacked16ToG32(packed);
-        unsigned b = SkPacked16ToB32(packed);
-        return (r + g + b) / 3;
-    }
-    bool operator<(const AlphaIterLCD& that) { return fPtr < that.fPtr; }
-    const uint16_t* fPtr;
-};
-
 } // namespace
 
 // TODO: assuming sigmaW = sigmaH. Allow different sigmas. Right now the
@@ -1062,31 +1006,45 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
 
     // Blur horizontally, and transpose.
     const PlanGauss::Scan& scanW = planW.makeBlurScan(srcW, buffer);
-    for (int y = 0; y < srcH; y++) {
-        uint8_t* srcStart = &src.fImage[y * src.fRowBytes];
-        auto tmpStart = &tmp[y];
-        switch (src.fFormat) {
-            case SkMask::kBW_Format:
-                scanW.blur(AlphaIterA1(srcStart, 0), AlphaIterA1(srcStart + (srcW / 8), srcW % 8),
-                           tmpStart, tmpW, tmpStart + tmpW * tmpH);
-                break;
-            case SkMask::kA8_Format:
-                scanW.blur(AlphaIterA8(srcStart), AlphaIterA8(srcStart + srcW),
-                           tmpStart, tmpW, tmpStart + tmpW * tmpH);
-                break;
-            case SkMask::kARGB32_Format: {
-                const uint32_t* argbStart = reinterpret_cast<const uint32_t*>(srcStart);
-                scanW.blur(AlphaIterARGB(argbStart), AlphaIterARGB(argbStart + srcW),
-                           tmpStart, tmpW, tmpStart + tmpW * tmpH);
-                } break;
-            case SkMask::kLCD16_Format: {
-                const uint16_t* lcdStart = reinterpret_cast<const uint16_t*>(srcStart);
-                scanW.blur(AlphaIterLCD(lcdStart), AlphaIterLCD(lcdStart + srcW),
-                           tmpStart, tmpW, tmpStart + tmpW * tmpH);
-                } break;
-            default:
-                SK_ABORT("Unhandled format.");
-        }
+    switch (src.fFormat) {
+        case SkMask::kBW_Format: {
+            const uint8_t* bwStart = src.fImage;
+            auto start = SkMask::AlphaIter<SkMask::kBW_Format>(bwStart, 0);
+            auto end = SkMask::AlphaIter<SkMask::kBW_Format>(bwStart + (srcW / 8), srcW % 8);
+            for (int y = 0; y < srcH; ++y, start >>= src.fRowBytes, end >>= src.fRowBytes) {
+                auto tmpStart = &tmp[y];
+                scanW.blur(start, end, tmpStart, tmpW, tmpStart + tmpW * tmpH);
+            }
+        } break;
+        case SkMask::kA8_Format: {
+            const uint8_t* a8Start = src.fImage;
+            auto start = SkMask::AlphaIter<SkMask::kA8_Format>(a8Start);
+            auto end = SkMask::AlphaIter<SkMask::kA8_Format>(a8Start + srcW);
+            for (int y = 0; y < srcH; ++y, start >>= src.fRowBytes, end >>= src.fRowBytes) {
+                auto tmpStart = &tmp[y];
+                scanW.blur(start, end, tmpStart, tmpW, tmpStart + tmpW * tmpH);
+            }
+        } break;
+        case SkMask::kARGB32_Format: {
+            const uint32_t* argbStart = reinterpret_cast<const uint32_t*>(src.fImage);
+            auto start = SkMask::AlphaIter<SkMask::kARGB32_Format>(argbStart);
+            auto end = SkMask::AlphaIter<SkMask::kARGB32_Format>(argbStart + srcW);
+            for (int y = 0; y < srcH; ++y, start >>= src.fRowBytes, end >>= src.fRowBytes) {
+                auto tmpStart = &tmp[y];
+                scanW.blur(start, end, tmpStart, tmpW, tmpStart + tmpW * tmpH);
+            }
+        } break;
+        case SkMask::kLCD16_Format: {
+            const uint16_t* lcdStart = reinterpret_cast<const uint16_t*>(src.fImage);
+            auto start = SkMask::AlphaIter<SkMask::kLCD16_Format>(lcdStart);
+            auto end = SkMask::AlphaIter<SkMask::kLCD16_Format>(lcdStart + srcW);
+            for (int y = 0; y < srcH; ++y, start >>= src.fRowBytes, end >>= src.fRowBytes) {
+                auto tmpStart = &tmp[y];
+                scanW.blur(start, end, tmpStart, tmpW, tmpStart + tmpW * tmpH);
+            }
+        } break;
+        default:
+            SK_ABORT("Unhandled format.");
     }
 
     // Blur vertically (scan in memory order because of the transposition),

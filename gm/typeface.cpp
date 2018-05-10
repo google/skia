@@ -8,8 +8,10 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 #include "Resources.h"
+#include "SkBlurTypes.h"
 #include "SkCanvas.h"
 #include "SkFontStyle.h"
+#include "SkMaskFilter.h"
 #include "SkString.h"
 #include "SkSurfaceProps.h"
 #include "SkTypeface.h"
@@ -150,58 +152,60 @@ DEF_GM( return new TypefaceStylesGM(true); )
 
 static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
                                        char character = 'A') {
-        struct AliasType {
-            bool antiAlias;
-            bool subpixelAntitalias;
-            bool inLayer;
-        } constexpr aliasTypes[] {
+    struct AliasType {
+        bool antiAlias;
+        bool subpixelAntitalias;
+        bool inLayer;
+    } constexpr aliasTypes[] {
 #ifndef SK_BUILD_FOR_IOS
-            // This gm crashes on iOS when drawing an embedded bitmap when requesting aliased rendering.
-            // The crash looks like
-            //   libTrueTypeScaler.dylib`<redacted> + 80
-            //   stop reason = EXC_BAD_ACCESS (code=EXC_ARM_DA_ALIGN, address=...)
-            //   ->  0x330b19d0 <+80>: strd   r2, r3, [r5, #36]
-            //       0x330b19d4 <+84>: movs   r3, #0x0
-            //       0x330b19d6 <+86>: add    r2, sp, #0x28
-            //       0x330b19d8 <+88>: ldr    r0, [r4, #0x4]
-            // Disable testing embedded bitmaps on iOS for now.
-            // See https://bug.skia.org/5530 .
-            { false, false, false },  // aliased
+        // This gm crashes on iOS when drawing an embedded bitmap when requesting aliased rendering.
+        // The crash looks like
+        //   libTrueTypeScaler.dylib`<redacted> + 80
+        //   stop reason = EXC_BAD_ACCESS (code=EXC_ARM_DA_ALIGN, address=...)
+        //   ->  0x330b19d0 <+80>: strd   r2, r3, [r5, #36]
+        //       0x330b19d4 <+84>: movs   r3, #0x0
+        //       0x330b19d6 <+86>: add    r2, sp, #0x28
+        //       0x330b19d8 <+88>: ldr    r0, [r4, #0x4]
+        // Disable testing embedded bitmaps on iOS for now.
+        // See https://bug.skia.org/5530 .
+        { false, false, false },  // aliased
 #endif
-            { true,  false, false },  // anti-aliased
-            { true,  true , false },  // subpixel anti-aliased
-            { true,  false, true  },  // anti-aliased in layer (flat pixel geometry)
-            { true,  true , true  },  // subpixel anti-aliased in layer (flat pixel geometry)
-        };
+        { true,  false, false },  // anti-aliased
+        { true,  true , false },  // subpixel anti-aliased
+        { true,  false, true  },  // anti-aliased in layer (flat pixel geometry)
+        { true,  true , true  },  // subpixel anti-aliased in layer (flat pixel geometry)
+    };
 
-        // The hintgasp.ttf is designed for the following sizes to be different.
-        // GASP_DOGRAY                                      0x0002   0<=ppem<=10
-        // GASP_SYMMETRIC_SMOOTHING                         0x0008   0<=ppem<=10
-        // GASP_GRIDFIT                                     0x0001  11<=ppem<=12
-        // GASP_SYMMETRIC_GRIDFIT                           0x0004  11<=ppem<=12
-        // GASP_DOGRAY|GASP_GRIDFIT                         0x0003  13<=ppem<=14
-        // GASP_SYMMETRIC_SMOOTHING|GASP_SYMMETRIC_GRIDFIT  0x000C  13<=ppem<=14
-        // (neither)                                        0x0000  15<=ppem
-        // Odd sizes have embedded bitmaps.
-        constexpr SkScalar textSizes[] = { 9, 10, 11, 12, 13, 14, 15, 16 };
+    // The hintgasp.ttf is designed for the following sizes to be different.
+    // GASP_DOGRAY                                      0x0002   0<=ppem<=10
+    // GASP_SYMMETRIC_SMOOTHING                         0x0008   0<=ppem<=10
+    // GASP_GRIDFIT                                     0x0001  11<=ppem<=12
+    // GASP_SYMMETRIC_GRIDFIT                           0x0004  11<=ppem<=12
+    // GASP_DOGRAY|GASP_GRIDFIT                         0x0003  13<=ppem<=14
+    // GASP_SYMMETRIC_SMOOTHING|GASP_SYMMETRIC_GRIDFIT  0x000C  13<=ppem<=14
+    // (neither)                                        0x0000  15<=ppem
+    // Odd sizes have embedded bitmaps.
+    constexpr SkScalar textSizes[] = { 9, 10, 11, 12, 13, 14, 15, 16 };
 
-        constexpr SkPaint::Hinting hintingTypes[] = { SkPaint::kNo_Hinting,
-                                                      SkPaint::kSlight_Hinting,
-                                                      SkPaint::kNormal_Hinting,
-                                                      SkPaint::kFull_Hinting };
+    constexpr SkPaint::Hinting hintingTypes[] = { SkPaint::kNo_Hinting,
+                                                    SkPaint::kSlight_Hinting,
+                                                    SkPaint::kNormal_Hinting,
+                                                    SkPaint::kFull_Hinting };
 
-        struct SubpixelType {
-            bool requested;
-            SkVector offset;
-        } constexpr subpixelTypes[] = {
-            { false, { 0.00, 0.00 } },
-            { true , { 0.00, 0.00 } },
-            { true , { 0.25, 0.00 } },
-            { true , { 0.25, 0.25 } },
-        };
+    struct SubpixelType {
+        bool requested;
+        SkVector offset;
+    } constexpr subpixelTypes[] = {
+        { false, { 0.00, 0.00 } },
+        { true , { 0.00, 0.00 } },
+        { true , { 0.25, 0.00 } },
+        { true , { 0.25, 0.25 } },
+    };
 
-        constexpr bool rotateABitTypes[] = { false, true };
+    constexpr bool rotateABitTypes[] = { false, true };
 
+    SkScalar y = 0;  // The baseline of the previous output
+    {
         SkPaint paint;
         paint.setTypeface(face);
         paint.setEmbeddedBitmapText(true);
@@ -209,7 +213,6 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
         SkScalar x = 0;
         SkScalar xMax = x;
         SkScalar xBase = 0;
-        SkScalar y = 0;  // The baseline of the previous output
         for (const SubpixelType subpixel : subpixelTypes) {
             y = 0;
             paint.setSubpixelText(subpixel.requested);
@@ -237,9 +240,8 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
                                 canvas->rotate(2, x + subpixel.offset.x(),
                                                   y + subpixel.offset.y());
                             }
-                            canvas->drawText(&character, 1,
-                                             x + subpixel.offset.x(),
-                                             y + subpixel.offset.y(), paint);
+                            canvas->drawText(&character, 1, x + subpixel.offset.x(),
+                                                            y + subpixel.offset.y(), paint);
 
                             SkScalar dx = SkScalarCeilToScalar(
                                     paint.measureText(&character, 1)) + 5;
@@ -252,9 +254,105 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
             }
             xBase = xMax;
         }
+    }
+
+    constexpr struct StyleTests {
+        SkPaint::Style style;
+        SkScalar strokeWidth;
+    } styleTypes[] = {
+        { SkPaint::kFill_Style, 0.0f},
+        { SkPaint::kStroke_Style, 0.0f},
+        { SkPaint::kStroke_Style, 0.5f},
+        { SkPaint::kStrokeAndFill_Style, 1.0f},
+    };
+
+    constexpr bool fakeBoldTypes[] = { false, true };
+
+    {
+        SkPaint paint;
+        paint.setTypeface(face);
+        paint.setTextSize(16);
+
+        SkScalar x = 0;
+        for (const bool& fakeBold : fakeBoldTypes) {
+            SkScalar dy = SkScalarCeilToScalar(paint.getFontMetrics(nullptr));
+            y += dy;
+            x = 5;
+
+            paint.setFakeBoldText(fakeBold);
+            for (const AliasType& alias : aliasTypes) {
+                paint.setAntiAlias(alias.antiAlias);
+                paint.setLCDRenderText(alias.subpixelAntitalias);
+                SkAutoCanvasRestore acr(canvas, false);
+                if (alias.inLayer) {
+                    canvas->saveLayer(nullptr, &paint);
+                }
+                for (const StyleTests& style : styleTypes) {
+                    paint.setStyle(style.style);
+                    paint.setStrokeWidth(style.strokeWidth);
+                    canvas->drawText(&character, 1, x, y, paint);
+
+                    SkScalar dx = SkScalarCeilToScalar(paint.measureText(&character, 1)) + 5;
+                    x += dx;
+                }
+            }
+            y += 10;
+        }
+    }
+
+    constexpr struct MaskTests {
+        SkBlurStyle style;
+        SkScalar sigma;
+    } maskTypes[] = {
+        { SkBlurStyle::kNormal_SkBlurStyle, 0.0f},
+        { SkBlurStyle::kSolid_SkBlurStyle, 0.0f},
+        { SkBlurStyle::kOuter_SkBlurStyle, 0.0f},
+        { SkBlurStyle::kInner_SkBlurStyle, 0.0f},
+
+        { SkBlurStyle::kNormal_SkBlurStyle, 0.5f},
+        { SkBlurStyle::kSolid_SkBlurStyle, 0.5f},
+        { SkBlurStyle::kOuter_SkBlurStyle, 0.5f},
+        { SkBlurStyle::kInner_SkBlurStyle, 0.5f},
+
+        { SkBlurStyle::kNormal_SkBlurStyle, 2.0f},
+        { SkBlurStyle::kSolid_SkBlurStyle, 2.0f},
+        { SkBlurStyle::kOuter_SkBlurStyle, 2.0f},
+        { SkBlurStyle::kInner_SkBlurStyle, 2.0f},
+    };
+
+    {
+        SkPaint paint;
+        paint.setTypeface(face);
+        paint.setTextSize(16);
+
+        SkScalar x = 0;
+        {
+            for (const AliasType& alias : aliasTypes) {
+                SkScalar dy = SkScalarCeilToScalar(paint.getFontMetrics(nullptr));
+                y += dy;
+                x = 5;
+
+                paint.setAntiAlias(alias.antiAlias);
+                paint.setLCDRenderText(alias.subpixelAntitalias);
+                SkAutoCanvasRestore acr(canvas, false);
+                if (alias.inLayer) {
+                    canvas->saveLayer(nullptr, &paint);
+                }
+                for (const MaskTests& mask : maskTypes) {
+                    paint.setMaskFilter(SkMaskFilter::MakeBlur(mask.style, mask.sigma));
+                    canvas->drawText(&character, 1, x, y, paint);
+
+                    SkScalar dx = SkScalarCeilToScalar(paint.measureText(&character, 1)) + 5;
+                    x += dx;
+                }
+                paint.setMaskFilter(nullptr);
+            }
+            y += 10;
+        }
+    }
 }
 
-DEF_SIMPLE_GM_BG_NAME(typefacerendering, canvas, 640, 680, SK_ColorWHITE,
+DEF_SIMPLE_GM_BG_NAME(typefacerendering, canvas, 640, 840, SK_ColorWHITE,
                       SkStringPrintf("typefacerendering%s",
                                      sk_tool_utils::platform_font_manager())) {
     if (sk_sp<SkTypeface> face = MakeResourceAsTypeface("fonts/hintgasp.ttf")) {
@@ -265,7 +363,7 @@ DEF_SIMPLE_GM_BG_NAME(typefacerendering, canvas, 640, 680, SK_ColorWHITE,
 // Type1 fonts don't currently work in Skia on Windows.
 #ifndef SK_BUILD_FOR_WIN
 
-DEF_SIMPLE_GM_BG_NAME(typefacerendering_pfa, canvas, 640, 680, SK_ColorWHITE,
+DEF_SIMPLE_GM_BG_NAME(typefacerendering_pfa, canvas, 640, 840, SK_ColorWHITE,
                       SkStringPrintf("typefacerendering_pfa%s",
                                      sk_tool_utils::platform_font_manager())) {
     if (sk_sp<SkTypeface> face = MakeResourceAsTypeface("fonts/Roboto2-Regular.pfa")) {
@@ -274,7 +372,7 @@ DEF_SIMPLE_GM_BG_NAME(typefacerendering_pfa, canvas, 640, 680, SK_ColorWHITE,
     }
 }
 
-DEF_SIMPLE_GM_BG_NAME(typefacerendering_pfb, canvas, 640, 680, SK_ColorWHITE,
+DEF_SIMPLE_GM_BG_NAME(typefacerendering_pfb, canvas, 640, 840, SK_ColorWHITE,
                       SkStringPrintf("typefacerendering_pfb%s",
                                      sk_tool_utils::platform_font_manager())) {
     if (sk_sp<SkTypeface> face = MakeResourceAsTypeface("fonts/Roboto2-Regular.pfb")) {
