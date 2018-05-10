@@ -22,6 +22,30 @@
       "revId": "97f051e8b7dd62c9ae82f04bc64a806970046de9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b29130d8_2bcdbc1a",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-10T13:55:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f9c78cb_a4c0c435",
+      "range": {
+        "startLine": 97,
+        "startChar": 7,
+        "endLine": 97,
+        "endChar": 10
+      },
+      "revId": "97f051e8b7dd62c9ae82f04bc64a806970046de9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
