@@ -2475,6 +2475,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fMaxInstancesPerDrawArraysWithoutCrashing = 0x7fff;
     }
 
+    if (this->glCaps().workarounds().disallow_large_instanced_draw) {
+        fMaxInstancesPerDrawArraysWithoutCrashing = 0x4000000;
+    }
+
+
     // Texture uploads sometimes seem to be ignored to textures bound to FBOS on Tegra3.
     if (kTegra_PreK1_GrGLRenderer == ctxInfo.renderer()) {
         fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO = true;
