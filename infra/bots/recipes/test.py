@@ -535,7 +535,6 @@ def dm_flags(api, bot):
     blacklist(['_', 'gm', '_', 'encode-platform'])
 
   if 'AndroidOne-GPU' in bot:  # skia:4697, skia:4704, skia:4694, skia:4705
-    blacklist(['_',            'gm', '_', 'bigblurs'])
     blacklist(['_',            'gm', '_', 'bleed'])
     blacklist(['_',            'gm', '_', 'bleed_alpha_bmp'])
     blacklist(['_',            'gm', '_', 'bleed_alpha_bmp_shader'])
