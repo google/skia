@@ -1421,3 +1421,67 @@ int SkConic::BuildUnitArc(const SkVector& uStart, const SkVector& uStop, SkRotat
     }
     return conicCount;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "SkEdgeClipper.h"
+
+int SkQuadClipToRect(const SkPoint src[3], const SkRect& clip, SkQuadPts dst[]) {
+    SkRect  bounds;
+    bounds.set(src, 3);
+    if (clip.contains(bounds)) {
+        memcpy(dst[0].fPts, src, sizeof(SkQuadPts));
+        return 1;
+    }
+
+    SkEdgeClipper clipper(true);
+
+    int counter = 0;
+    if (clipper.clipQuad(src, clip)) {
+        SkQuadPts tmp;
+        SkPath::Verb verb;
+        while ((verb = clipper.next(tmp.fPts)) != SkPath::kDone_Verb) {
+            switch (verb) {
+                case SkPath::kQuad_Verb:
+                    dst[counter++] = tmp;
+                    SkASSERT(counter <= kMax_Quads_In_ClipToRect);
+                    break;
+                case SkPath::kLine_Verb:    // we ignore these
+                    break;
+                default:
+                    SkASSERT(!"unexpected verb");
+            }
+        }
+    }
+    return counter;
+}
+
+int SkCubicClipToRect(const SkPoint src[4], const SkRect& clip, SkCubicPts dst[]) {
+    SkRect  bounds;
+    bounds.set(src, 4);
+    if (clip.contains(bounds)) {
+        memcpy(dst[0].fPts, src, sizeof(SkCubicPts));
+        return 1;
+    }
+
+    SkEdgeClipper clipper(true);
+
+    int counter = 0;
+    if (clipper.clipCubic(src, clip)) {
+        SkCubicPts tmp;
+        SkPath::Verb verb;
+        while ((verb = clipper.next(tmp.fPts)) != SkPath::kDone_Verb) {
+            switch (verb) {
+                case SkPath::kCubic_Verb:
+                    dst[counter++] = tmp;
+                    SkASSERT(counter <= kMax_Cubics_In_ClipToRect);
+                    break;
+                case SkPath::kLine_Verb:    // we ignore these
+                    break;
+                default:
+                    SkASSERT(!"unexpected verb");
+            }
+        }
+    }
+    return counter;
+}

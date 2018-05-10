@@ -231,6 +231,9 @@ static void hair_quad(const SkPoint pts[3], const SkRegion* clip,
     SkASSERT(level <= kMaxQuadSubdivideLevel);
 
     SkQuadCoeff coeff(pts);
+    if (!coeff.isFinite()) {
+        return;
+    }
 
     const int lines = 1 << level;
     Sk2s t(0);
@@ -296,7 +299,20 @@ static inline void hairquad(const SkPoint pts[3], const SkRegion* clip, const Sk
         }
     }
 
-    hair_quad(pts, clip, blitter, level, lineproc);
+    SkQuadPts quads[kMax_Quads_In_ClipToRect];
+    int quadCount = 1;
+    if (clip) {
+        int n = SkQuadClipToRect(pts, SkRect::Make(clip->getBounds()).makeOutset(1, 1), quads);
+        if (n == 0) {
+            return;
+        }
+        quadCount = n;
+        pts = quads[0].fPts;
+    }
+    for (int i = 0; i < quadCount; ++i) {
+        hair_quad(pts, clip, blitter, level, lineproc);
+        pts += 3;
+    }
 }
 
 static inline Sk2s abs(const Sk2s& value) {
