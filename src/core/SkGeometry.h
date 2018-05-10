@@ -215,7 +215,37 @@ static inline const char* SkCubicTypeName(SkCubicType type) {
 SkCubicType SkClassifyCubic(const SkPoint p[4], double t[2] = nullptr, double s[2] = nullptr,
                             double d[4] = nullptr);
 
-///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#define kMax_Quads_In_ClipToRect    3
+#define kMax_Cubics_In_ClipToRect   3
+
+struct SkQuadPts {
+    SkPoint fPts[3];
+};
+
+struct SkCubicPts {
+    SkPoint fPts[4];
+};
+
+/**
+ *  Returns the number of resulting curves that fit inside the clip_rect. This is designed to be
+ *  useful when stroking the curve, and you want to eliminate sections that would not appear inside
+ *  a clip rect.
+ *
+ *  If the original curve (src) fits entirely inside the rect, this still returns 1 and copies
+ *  those 3 points into dst.
+ *
+ *  Worst case, this will return kMax_???_In_ClipToRect number of curves. Therefore dst[] must
+ *  be at least (3 or 4) * kMax_??? big to hold that answer.
+ *
+ *  Return 0 if no part of the src curve is inside the clip (or we it encounters a numerical
+ *  problem like a non-finite value).
+ */
+int SkQuadClipToRect( const SkPoint src[3], const SkRect& clip, SkQuadPts dst[]);
+int SkCubicClipToRect(const SkPoint src[4], const SkRect& clip, SkCubicPts dst[]);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 enum SkRotationDirection {
     kCW_SkRotationDirection,
@@ -328,6 +358,12 @@ struct SkQuadCoeff {
         Sk2s P2 = from_point(src[2]);
         fB = times_2(P1 - fC);
         fA = P2 - times_2(P1) + fC;
+    }
+
+    bool isFinite() const {
+        return SkScalarsAreFinite(fA[0], fA[1]) &
+               SkScalarsAreFinite(fB[0], fB[1]) &
+               SkScalarsAreFinite(fC[0], fC[1]);
     }
 
     Sk2s eval(SkScalar t) {
