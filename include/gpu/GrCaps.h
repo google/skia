@@ -328,8 +328,6 @@ protected:
     int fMaxWindowRectangles;
     int fMaxClipAnalyticFPs;
 
-    GrDriverBugWorkarounds fDriverBugWorkarounds;
-
 private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {}
     virtual void onDumpJSON(SkJSONWriter*) const {}
@@ -342,6 +340,8 @@ private:
 
     bool fSuppressPrints : 1;
     bool fWireframeMode  : 1;
+
+    GrDriverBugWorkarounds fDriverBugWorkarounds;
 
     typedef SkRefCnt INHERITED;
 };
