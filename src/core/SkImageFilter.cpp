@@ -108,10 +108,6 @@ static int32_t next_image_filter_unique_id() {
     return id;
 }
 
-void SkImageFilter::Common::allocInputs(int count) {
-    fInputs.reset(count);
-}
-
 bool SkImageFilter::Common::unflatten(SkReadBuffer& buffer, int expectedCount) {
     const int count = buffer.readInt();
     if (!buffer.validate(count >= 0)) {
@@ -121,11 +117,9 @@ bool SkImageFilter::Common::unflatten(SkReadBuffer& buffer, int expectedCount) {
         return false;
     }
 
-    this->allocInputs(count);
+    SkASSERT(fInputs.empty());
     for (int i = 0; i < count; i++) {
-        if (buffer.readBool()) {
-            fInputs[i] = sk_sp<SkImageFilter>(buffer.readImageFilter());
-        }
+        fInputs.push_back(buffer.readBool() ? buffer.readImageFilter() : nullptr);
         if (!buffer.isValid()) {
             return false;
         }

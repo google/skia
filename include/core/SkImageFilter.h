@@ -264,16 +264,14 @@ protected:
 
         const CropRect& cropRect() const { return fCropRect; }
         int             inputCount() const { return fInputs.count(); }
-        sk_sp<SkImageFilter>* inputs() const { return fInputs.get(); }
+        sk_sp<SkImageFilter>* inputs() { return fInputs.begin(); }
 
-        sk_sp<SkImageFilter>  getInput(int index) const { return fInputs[index]; }
+        sk_sp<SkImageFilter> getInput(int index) { return fInputs[index]; }
 
     private:
         CropRect fCropRect;
         // most filters accept at most 2 input-filters
-        SkAutoSTArray<2, sk_sp<SkImageFilter>> fInputs;
-
-        void allocInputs(int count);
+        SkSTArray<2, sk_sp<SkImageFilter>, true> fInputs;
     };
 
     SkImageFilter(sk_sp<SkImageFilter> const* inputs, int inputCount, const CropRect* cropRect);
