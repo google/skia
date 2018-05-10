@@ -78,8 +78,6 @@ skia_core_sources = [
   "$_src/core/SkColorSpace.cpp",
   "$_src/core/SkColorSpace_A2B.cpp",
   "$_src/core/SkColorSpace_A2B.h",
-  "$_src/core/SkColorSpace_New.cpp",
-  "$_src/core/SkColorSpace_New.h",
   "$_src/core/SkColorSpace_XYZ.cpp",
   "$_src/core/SkColorSpace_XYZ.h",
   "$_src/core/SkColorSpace_ICC.cpp",
