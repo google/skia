@@ -751,7 +751,6 @@ paint1 == paint2
         <a href="#SkPaint_kFakeBoldText_Flag">kFakeBoldText Flag</a>    = 0x20,
         <a href="#SkPaint_kLinearText_Flag">kLinearText Flag</a>      = 0x40,
         <a href="#SkPaint_kSubpixelText_Flag">kSubpixelText Flag</a>    = 0x80,
-        <a href="#SkPaint_kDevKernText_Flag">kDevKernText Flag</a>     = 0x100,
         <a href="#SkPaint_kLCDRenderText_Flag">kLCDRenderText Flag</a>   = 0x200,
         <a href="#SkPaint_kEmbeddedBitmapText_Flag">kEmbeddedBitmapText Flag</a> = 0x400,
         <a href="#SkPaint_kAutoHinting_Flag">kAutoHinting Flag</a>     = 0x800,
@@ -785,9 +784,6 @@ multiple settings at once.
   </tr>
   <tr>
     <td><a name="SkPaint_kSubpixelText_Flag"> <code><strong>SkPaint::kSubpixelText_Flag </strong></code> </a></td><td>0x0080</td><td>mask for setting <a href="#Subpixel_Text">Subpixel Text</a></td>
-  </tr>
-  <tr>
-    <td><a name="SkPaint_kDevKernText_Flag"> <code><strong>SkPaint::kDevKernText_Flag </strong></code> </a></td><td>0x0100</td><td></td>
   </tr>
   <tr>
     <td><a name="SkPaint_kLCDRenderText_Flag"> <code><strong>SkPaint::kLCDRenderText_Flag </strong></code> </a></td><td>0x0200</td><td>mask for setting <a href="#LCD_Text">LCD Text</a></td>
