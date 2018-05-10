@@ -92,7 +92,7 @@ def dm_flags(api, bot):
 
     # These are the canonical configs that we would ideally run on all bots. We
     # may opt out or substitute some below for specific bots
-    configs.extend(['8888', 'srgb', 'pdf'])
+    configs.extend(['8888', 'pdf'])
 
     # Runs out of memory on Android bots. Everyone else seems fine.
     if 'Android' in bot:
@@ -104,6 +104,9 @@ def dm_flags(api, bot):
       configs.extend(['f16'])
       configs.extend(['lite-8888'])              # Experimental display list.
       configs.extend(['gbr-8888'])
+      configs.extend(['srgb'])
+      configs.extend(['srgbnl'])
+      configs.extend(['esrgb'])
 
       if 'SAN' in bot:
         configs.extend(['t8888'])
@@ -115,7 +118,7 @@ def dm_flags(api, bot):
 
     # This bot only differs from vanilla CPU bots in 8888 config.
     if 'SK_FORCE_RASTER_PIPELINE_BLITTER' in bot:
-      configs = ['8888', 'srgb']
+      configs = ['8888']
 
     if 'FSAA' in bot or 'FAAA' in bot or 'FDAA' in bot:
       # Scan converters shouldn't really be sensitive to different color
