@@ -60,9 +60,3 @@ float powf_(float x, float y) {
 
     return (x == 0) || (x == 1) ? x : r * exp2f_(log2f_(x) * y);
 }
-
-bool isfinitef_(float x) {
-    uint32_t bits;
-    small_memcpy(&bits, &x, sizeof(bits));
-    return (bits & 0x7f800000) != 0x7f800000;
-}

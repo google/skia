@@ -27,4 +27,4 @@ float log2f_(float);
 float exp2f_(float);
 float powf_(float, float);
 
-bool isfinitef_(float);
+static inline bool isfinitef_(float x) { return 0 == x*0; }
