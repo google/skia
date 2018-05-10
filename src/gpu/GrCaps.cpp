@@ -94,8 +94,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fAvoidStencilBuffers = false;
 
     fPreferVRAMUseOverFlushes = true;
-
-    fDriverBugWorkarounds = options.fDriverBugWorkarounds;
 }
 
 void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
@@ -125,8 +123,6 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
         fMaxWindowRectangles = GrWindowRectangles::kMaxWindows;
     }
     fAvoidStencilBuffers = options.fAvoidStencilBuffers;
-
-    fDriverBugWorkarounds.applyOverrides(options.fDriverBugWorkarounds);
 }
 
 static SkString map_flags_to_string(uint32_t flags) {
