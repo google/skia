@@ -427,6 +427,8 @@ static inline sk_sp<SkData> icc_from_color_space(const SkImageInfo& info) {
     if (cs->isNumericalTransferFn(&fn) && cs->toXYZD50(&toXYZD50)) {
         return SkICC::WriteToICC(fn, toXYZD50);
     }
+
+    // TODO: Should we support writing ICC profiles for additional color spaces?
     return nullptr;
 }
 

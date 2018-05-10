@@ -51,4 +51,11 @@ enum ParaCurveType {
     kGABCDEF_ParaCurveType     = 4,
 };
 
+/*
+ * Given fn and toXYZD50, generate a decription tag that either includes a hash
+ * of the function and gamut or is a special name.
+ * Exposed for unit testing and tools.
+ */
+SkString SkICCGetColorProfileTag(const SkColorSpaceTransferFn& fn,
+                                 const SkMatrix44& toXYZD50);
 #endif  // SkICCPriv_DEFINED
