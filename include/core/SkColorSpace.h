@@ -139,6 +139,11 @@ public:
     }
 
     /**
+     *  Convert this color space to an skcms ICC profile struct.
+     */
+    void toProfile(skcms_ICCProfile*) const;
+
+    /**
      *  Types of colorspaces.
      */
     enum Type {
@@ -252,12 +257,6 @@ public:
      *  If both are non-null, we do a deeper compare.
      */
     static bool Equals(const SkColorSpace* src, const SkColorSpace* dst);
-
-    /**
-     *  If this color space was constructed from an ICC profile, return that profile data.
-     *  Otherise, return nullptr.
-     */
-    const SkData* profileData() const { return this->onProfileData(); }
 
 private:
     virtual const SkMatrix44* onToXYZD50() const = 0;
