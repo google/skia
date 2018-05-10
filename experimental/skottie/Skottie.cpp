@@ -770,7 +770,7 @@ sk_sp<sksg::RenderNode> AttachCompLayer(const json::ValueRef& jlayer, AttachCont
              stretch_time = jlayer["sr"].toDefault(1.0f);
 
     *time_bias = -start_time;
-    *time_scale = 1 / stretch_time;
+    *time_scale = sk_ieee_float_divide(1, stretch_time);
     if (SkScalarIsNaN(*time_scale)) {
         *time_scale = 1;
     }
