@@ -12,6 +12,7 @@
 #define GrRectBlurEffect_DEFINED
 #include "SkTypes.h"
 
+#include <cstdlib>
 #include "GrProxyProvider.h"
 #include "SkBlurMask.h"
 #include "GrFragmentProcessor.h"
@@ -63,7 +64,17 @@ public:
     float sigma() const { return fSigma; }
 
     static std::unique_ptr<GrFragmentProcessor> Make(GrProxyProvider* proxyProvider,
-                                                     const SkRect& rect, float sigma) {
+                                                     const GrShaderCaps& caps, const SkRect& rect,
+                                                     float sigma) {
+        if (!caps.floatIs32Bits()) {
+            // We promote the rect uniform from half to float when it has large values for
+            // precision. If we don't have full float then fail.
+            if (std::fabs(rect.fLeft) > 16000.f || std::fabs(rect.fTop) > 16000.f ||
+                std::fabs(rect.fRight) > 16000.f || std::fabs(rect.fBottom) > 16000.f ||
+                std::fabs(rect.width()) > 16000.f || std::fabs(rect.height()) > 16000.f) {
+                return nullptr;
+            }
+        }
         int doubleProfileSize = SkScalarCeilToInt(12 * sigma);
 
         if (doubleProfileSize >= rect.width() || doubleProfileSize >= rect.height()) {
