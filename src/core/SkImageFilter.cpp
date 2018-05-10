@@ -229,7 +229,7 @@ sk_sp<SkSpecialImage> SkImageFilter::filterImage(SkSpecialImage* src, const Cont
 }
 
 SkIRect SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                 MapDirection direction) const {
+                                    MapDirection direction) const {
     if (kReverse_MapDirection == direction) {
         SkIRect bounds = this->onFilterNodeBounds(src, ctm, direction);
         return this->onFilterBounds(bounds, ctm, direction);
@@ -333,8 +333,8 @@ bool SkImageFilter::canHandleComplexCTM() const {
 
 bool SkImageFilter::applyCropRect(const Context& ctx, const SkIRect& srcBounds,
                                   SkIRect* dstBounds) const {
-    SkIRect temp = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection);
-    fCropRect.applyTo(temp, ctx.ctm(), this->affectsTransparentBlack(), dstBounds);
+    SkIRect tmpDst = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection);
+    fCropRect.applyTo(tmpDst, ctx.ctm(), this->affectsTransparentBlack(), dstBounds);
     // Intersect against the clip bounds, in case the crop rect has
     // grown the bounds beyond the original clip. This can happen for
     // example in tiling, where the clip is much smaller than the filtered
@@ -416,24 +416,22 @@ static sk_sp<SkSpecialImage> pad_image(SkSpecialImage* src,
 sk_sp<SkSpecialImage> SkImageFilter::applyCropRect(const Context& ctx,
                                                    SkSpecialImage* src,
                                                    SkIPoint* srcOffset,
-                                                   SkIRect* bounds) const {
+                                                   SkIRect* dstBounds) const {
     const SkIRect srcBounds = SkIRect::MakeXYWH(srcOffset->x(), srcOffset->y(),
                                                 src->width(), src->height());
 
-    SkIRect dstBounds = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection);
-    fCropRect.applyTo(dstBounds, ctx.ctm(), this->affectsTransparentBlack(), bounds);
-    if (!bounds->intersect(ctx.clipBounds())) {
+    if (!this->applyCropRect(ctx, srcBounds, dstBounds)) {
         return nullptr;
     }
 
-    if (srcBounds.contains(*bounds)) {
+    if (srcBounds.contains(*dstBounds)) {
         return sk_sp<SkSpecialImage>(SkRef(src));
     } else {
         sk_sp<SkSpecialImage> img(pad_image(src, ctx.outputProperties(),
-                                            bounds->width(), bounds->height(),
-                                            srcOffset->x() - bounds->x(),
-                                            srcOffset->y() - bounds->y()));
-        *srcOffset = SkIPoint::Make(bounds->x(), bounds->y());
+                                            dstBounds->width(), dstBounds->height(),
+                                            srcOffset->x() - dstBounds->x(),
+                                            srcOffset->y() - dstBounds->y()));
+        *srcOffset = SkIPoint::Make(dstBounds->x(), dstBounds->y());
         return img;
     }
 }
@@ -501,4 +499,30 @@ sk_sp<SkSpecialImage> SkImageFilter::filterInput(int index,
 
 void SkImageFilter::PurgeCache() {
     SkImageFilterCache::Get()->purge();
+}
+
+// In repeat mode, when we are going to sample off one edge of the inputBounds we require the
+// opposite side be preserved.
+bool SkImageFilter::IntersectWithRepeat(SkIRect* mungedSrcBounds,
+                                        const SkIRect& unMungedSrcBounds) {
+    SkIRect tmp = *mungedSrcBounds;
+    if (mungedSrcBounds->fLeft < unMungedSrcBounds.fLeft) {
+        tmp.fLeft = unMungedSrcBounds.fLeft;
+        tmp.fRight = unMungedSrcBounds.fRight;
+    }
+    if (mungedSrcBounds->fRight > unMungedSrcBounds.fRight) {
+        tmp.fRight = unMungedSrcBounds.fRight;
+        tmp.fLeft = unMungedSrcBounds.fLeft;
+    }
+    if (mungedSrcBounds->fTop < unMungedSrcBounds.fTop) {
+        tmp.fTop = unMungedSrcBounds.fTop;
+        tmp.fBottom = unMungedSrcBounds.fBottom;
+    }
+    if (mungedSrcBounds->fBottom > unMungedSrcBounds.fBottom) {
+        tmp.fBottom = unMungedSrcBounds.fBottom;
+        tmp.fTop = unMungedSrcBounds.fTop;
+    }
+
+    *mungedSrcBounds = tmp;
+    return true;
 }

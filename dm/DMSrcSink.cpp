@@ -2374,10 +2374,16 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
                         }
                     }
 
+#if 1
                     // Second, run the cpu pre-processing in threads
                     SkTaskGroup().batch(tileData.count(), [&](int i) {
                         tileData[i].preprocess(compressedPictureData.get(), helper);
                     });
+#else
+                    for (int i = 0; i < tileData.count(); ++i) {
+                        tileData[i].preprocess(compressedPictureData.get(), helper);
+                    }
+#endif
 
                     // This drops the helper's refs on all the promise images
                     helper.reset();
