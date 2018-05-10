@@ -271,7 +271,7 @@ bool SkSurface_Gpu::onDraw(const SkDeferredDisplayList* ddl) {
 bool SkSurface_Gpu::Valid(const SkImageInfo& info) {
     switch (info.colorType()) {
         case kRGBA_F16_SkColorType:
-            return (!info.colorSpace()) || info.colorSpace()->gammaIsLinear();
+            return true;
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
             return !info.colorSpace() || info.colorSpace()->gammaCloseToSRGB();
@@ -283,7 +283,7 @@ bool SkSurface_Gpu::Valid(const SkImageInfo& info) {
 bool SkSurface_Gpu::Valid(const GrCaps* caps, GrPixelConfig config, SkColorSpace* colorSpace) {
     switch (config) {
         case kRGBA_half_GrPixelConfig:
-            return (!colorSpace) || colorSpace->gammaIsLinear();
+            return true;
         case kSRGBA_8888_GrPixelConfig:
         case kSBGRA_8888_GrPixelConfig:
             return caps->srgbSupport() && colorSpace && colorSpace->gammaCloseToSRGB();
