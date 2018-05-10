@@ -781,7 +781,8 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
         SkScalar pad = 3.0f * xformedSigma;
         rect.outset(pad, pad);
 
-        fp = GrRectBlurEffect::Make(proxyProvider, rect, xformedSigma);
+        fp = GrRectBlurEffect::Make(proxyProvider, *context->caps()->shaderCaps(), rect,
+                                    xformedSigma);
     } else if (path.isOval(&rect) && SkScalarNearlyEqual(rect.width(), rect.height())) {
         fp = GrCircleBlurFragmentProcessor::Make(proxyProvider, rect, xformedSigma);
 
@@ -834,7 +835,8 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
             SkScalar pad = 3.0f * xformedSigma;
             const SkRect dstCoverageRect = devRRect.rect().makeOutset(pad, pad);
 
-            fp = GrRectBlurEffect::Make(proxyProvider, dstCoverageRect, xformedSigma);
+            fp = GrRectBlurEffect::Make(proxyProvider, *context->caps()->shaderCaps(),
+                                        dstCoverageRect, xformedSigma);
         } else {
             fp = GrCircleBlurFragmentProcessor::Make(proxyProvider,
                                                      devRRect.rect(), xformedSigma);
