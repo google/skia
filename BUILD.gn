@@ -839,7 +839,7 @@ if (skia_enable_gpu && skia_generate_workarounds) {
 
     # see comments in skia_compile_processors about out dir path shenanigans.
     output_file =
-        rebase_path("include/gpu/GrDriverBugWorkaroundsAutogen.h", root_out_dir)
+        rebase_path("src/gpu/GrDriverBugWorkaroundsAutogen.h", root_out_dir)
 
     outputs = [
       "$root_out_dir/$output_file",
