@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8ef617e_5f9a79ed",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-05-10T09:59:48Z",
+      "side": 1,
+      "message": "Use name numBytes just to be extra clear?",
+      "range": {
+        "startLine": 266,
+        "startChar": 11,
+        "endLine": 266,
+        "endChar": 14
+      },
+      "revId": "4a3b5eb3a1dd05a4b224f94cedc4fee2c465a11d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21841ec0_b935b75e",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-05-10T09:59:48Z",
+      "side": 1,
+      "message": "I know in other places, we do nullptr after the buffer has been validated false.  Can we do the same here?  If not, can you add a comment explaining the discrepancy?",
+      "range": {
+        "startLine": 268,
+        "startChar": 15,
+        "endLine": 268,
+        "endChar": 34
+      },
+      "revId": "4a3b5eb3a1dd05a4b224f94cedc4fee2c465a11d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
