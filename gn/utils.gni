@@ -26,6 +26,8 @@ skia_utils_sources = [
   "$_src/utils/SkBase64.cpp",
   "$_src/utils/SkBase64.h",
   "$_src/utils/SkBitSet.h",
+  "$_src/utils/SkBuildID.cpp",
+  "$_src/utils/SkBuildID.h",
   "$_src/utils/SkFrontBufferedStream.cpp",
   "$_src/utils/SkCamera.cpp",
   "$_src/utils/SkCanvasStack.h",
