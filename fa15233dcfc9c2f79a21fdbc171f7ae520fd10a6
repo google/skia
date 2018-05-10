@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9226f957_3886cf4c",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1356,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-10T14:02:03Z",
+      "side": 1,
+      "message": "nit:\n\nthis-\u003eonBindFramebuffer();",
+      "range": {
+        "startLine": 1356,
+        "startChar": 4,
+        "endLine": 1356,
+        "endChar": 23
+      },
+      "revId": "fa15233dcfc9c2f79a21fdbc171f7ae520fd10a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf2d505c_e6714e4c",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2479,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-10T14:02:03Z",
+      "side": 1,
+      "message": "nit:\n\nthis-\u003eonBindFramebuffer();",
+      "revId": "fa15233dcfc9c2f79a21fdbc171f7ae520fd10a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebf496e6_bc6b1cf2",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3406,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-10T14:02:03Z",
+      "side": 1,
+      "message": "We typically use the name \"onFoo\" for a pattern like this:\n\nclass Base {\npublic:\n   void void foo() {\n      doCommonStuff();\n      this-\u003eonFoo();\n   }\nprivate:\n   virtual void onFoo() \u003d 0;\n};\n\nI think something like \"didBindFramebuffer\" might be more in keeping with other code?",
+      "range": {
+        "startLine": 3406,
+        "startChar": 14,
+        "endLine": 3406,
+        "endChar": 31
+      },
+      "revId": "fa15233dcfc9c2f79a21fdbc171f7ae520fd10a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
