@@ -106,7 +106,7 @@ bool SkPngEncoderMgr::setHeader(const SkImageInfo& srcInfo, const SkPngEncoder::
     int bitDepth = 8;
     switch (srcInfo.colorType()) {
         case kRGBA_F16_SkColorType:
-            SkASSERT(srcInfo.colorSpace() && srcInfo.colorSpace()->gammaIsLinear());
+            SkASSERT(srcInfo.colorSpace());
             sigBit.red = 16;
             sigBit.green = 16;
             sigBit.blue = 16;

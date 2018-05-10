@@ -29,7 +29,7 @@ static inline bool valid_color_type(const SkImageInfo& dstInfo) {
         case kRGB_565_SkColorType:
             return true;
         case kRGBA_F16_SkColorType:
-            return dstInfo.colorSpace() && dstInfo.colorSpace()->gammaIsLinear();
+            return dstInfo.colorSpace();
         default:
             return false;
     }

@@ -119,3 +119,13 @@ void SkColorSpace_XYZ::toDstGammaTables(const uint8_t* tables[3], sk_sp<SkData>*
     tables[1] = fToDstGammaTables[1];
     tables[2] = fToDstGammaTables[2];
 }
+
+sk_sp<SkColorSpace> SkColorSpace_XYZ::makeNonlinearBlending() const {
+    if (this->nonlinearBlending()) {
+        return sk_ref_sp(const_cast<SkColorSpace_XYZ*>(this));
+    }
+
+    auto cs = sk_make_sp<SkColorSpace_XYZ>(fGammaNamed, fGammas, fToXYZD50, fProfileData);
+    cs->fNonlinearBlending = true;
+    return cs;
+}

@@ -23,10 +23,6 @@ SkPictureImageGenerator::Make(const SkISize& size, sk_sp<SkPicture> picture, con
         return nullptr;
     }
 
-    if (SkImage::BitDepth::kF16 == bitDepth && (!colorSpace || !colorSpace->gammaIsLinear())) {
-        return nullptr;
-    }
-
     if (colorSpace && (!colorSpace->gammaCloseToSRGB() && !colorSpace->gammaIsLinear())) {
         return nullptr;
     }
