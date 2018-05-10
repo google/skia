@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d222206_dfcbf541",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 6
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-05-10T15:12:59Z",
+      "side": 1,
+      "message": "Funny how machine_type_small is n1-highmem-2\nand machine_type_large is n1-highcpu-64\nOne day they should probably be renamed to something that makes it obvious what they are.",
+      "range": {
+        "startLine": 494,
+        "startChar": 19,
+        "endLine": 494,
+        "endChar": 37
+      },
+      "revId": "78abd581f196d1fac660bd00b2013bbc642159a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
