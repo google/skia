@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd5c99e7_db571181",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2671,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-05-10T14:42:39Z",
+      "side": 1,
+      "message": "I believe we have that same workaround implemented right here, correct? Does your crash get fixed if you set this cap?",
+      "range": {
+        "startLine": 2671,
+        "startChar": 38,
+        "endLine": 2671,
+        "endChar": 78
+      },
+      "revId": "7405d8b9f22b8fc2a0f0f486d1d45e7b88b38414",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
