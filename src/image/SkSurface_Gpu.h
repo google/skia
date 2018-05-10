@@ -23,6 +23,11 @@ public:
     // This is an internal-only factory
     static sk_sp<SkSurface> MakeWrappedRenderTarget(GrContext*, sk_sp<GrRenderTargetContext>);
 
+#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
+    GrBackendObject onGetTextureHandle(BackendHandleAccess) override;
+    bool onGetRenderTargetHandle(GrBackendObject*, BackendHandleAccess) override;
+#endif
+
     GrBackendTexture onGetBackendTexture(BackendHandleAccess) override;
     GrBackendRenderTarget onGetBackendRenderTarget(BackendHandleAccess) override;
 

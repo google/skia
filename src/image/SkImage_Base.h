@@ -55,6 +55,12 @@ public:
     virtual sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const {
         return nullptr;
     }
+#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
+    virtual GrBackendObject onGetTextureHandle(bool flushPendingGrContextIO,
+                                               GrSurfaceOrigin* origin) const {
+        return 0;
+    }
+#endif
 
     virtual GrTexture* onGetTexture() const { return nullptr; }
 #endif

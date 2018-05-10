@@ -29,6 +29,9 @@ public:
 
     ~GrVkTexture() override;
 
+#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
+    GrBackendObject getTextureHandle() const override;
+#endif
     GrBackendTexture getBackendTexture() const override;
 
     void textureParamsModified() override {}

@@ -112,4 +112,8 @@ struct GrVkImageInfo {
     }
 };
 
+#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
+GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrVkImageInfo*));
+#endif
+
 #endif
