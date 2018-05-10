@@ -253,7 +253,6 @@
       "--nogpu",
       "--config",
       "8888",
-      "srgb",
       "pdf",
       "serialize-8888",
       "tiles_rt-8888",

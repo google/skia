@@ -115,11 +115,6 @@ static inline bool SkImageInfoIsValidCommon(const SkImageInfo& info) {
         return false;
     }
 
-    if (kRGBA_F16_SkColorType == info.colorType() &&
-       (info.colorSpace() && (!info.colorSpace()->gammaIsLinear()))) {
-        return false;
-    }
-
     return true;
 }
 

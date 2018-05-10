@@ -68,9 +68,6 @@ bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
             }
             break;
         case kRGBA_F16_SkColorType:
-            if (info.colorSpace() && (!info.colorSpace()->gammaIsLinear())) {
-                return false;
-            }
             break;
         default:
             return false;
