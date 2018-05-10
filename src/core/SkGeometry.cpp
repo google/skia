@@ -1421,3 +1421,53 @@ int SkConic::BuildUnitArc(const SkVector& uStart, const SkVector& uStop, SkRotat
     }
     return conicCount;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "SkEdgeClipper.h"
+
+int SkQuadClipToRect(const SkPoint src[3], const SkRect& clip, SkQuadPts dst[]) {
+    SkEdgeClipper clipper(true);
+
+    int counter = 0;
+    if (clipper.clipQuad(src, clip)) {
+        SkPoint tmp[3];
+        SkPath::Verb verb;
+        while ((verb = clipper.next(tmp)) != SkPath::kDone_Verb) {
+            switch (verb) {
+                case SkPath::kQuad_Verb:
+                    memcpy(dst[counter].fPts, tmp, 3 * sizeof(SkPoint));
+                    counter += 1;
+                    break;
+                case SkPath::kLine_Verb:    // we ignore these
+                    break;
+                default:
+                    SkASSERT(!"unexpected verb");
+            }
+        }
+    }
+    return counter;
+}
+
+int SkCubicClipToRect(const SkPoint src[4], const SkRect& clip, SkCubicPts dst[]) {
+    SkEdgeClipper clipper(true);
+
+    int counter = 0;
+    if (clipper.clipCubic(src, clip)) {
+        SkPoint tmp[4];
+        SkPath::Verb verb;
+        while ((verb = clipper.next(tmp)) != SkPath::kDone_Verb) {
+            switch (verb) {
+                case SkPath::kCubic_Verb:
+                    memcpy(dst[counter].fPts, tmp, 4 * sizeof(SkPoint));
+                    counter += 1;
+                    break;
+                case SkPath::kLine_Verb:    // we ignore these
+                    break;
+                default:
+                    SkASSERT(!"unexpected verb");
+            }
+        }
+    }
+    return counter;
+}
