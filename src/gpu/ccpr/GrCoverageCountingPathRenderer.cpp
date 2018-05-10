@@ -113,7 +113,8 @@ bool GrCoverageCountingPathRenderer::onDrawPath(const DrawPathArgs& args) {
         path.transform(*args.fViewMatrix, &croppedPath);
         crop_path(croppedPath, clipIBounds, &croppedPath);
         auto op = skstd::make_unique<GrCCDrawPathsOp>(this, std::move(args.fPaint), clipIBounds,
-                                                      SkMatrix::I(), croppedPath, path.getBounds());
+                                                      SkMatrix::I(), croppedPath,
+                                                      croppedPath.getBounds());
         rtc->addDrawOp(*args.fClip, std::move(op));
         return true;
     }
