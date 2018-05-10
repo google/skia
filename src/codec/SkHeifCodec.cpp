@@ -192,10 +192,6 @@ bool SkHeifCodec::setOutputColorFormat(const SkImageInfo& dstInfo) {
 
         case kRGBA_F16_SkColorType:
             SkASSERT(this->colorXform());
-
-            if (!dstInfo.colorSpace()->gammaIsLinear()) {
-                return false;
-            }
             return fHeifDecoder->setOutputColor(kHeifColorFormat_RGBA_8888);
 
         default:
