@@ -886,34 +886,14 @@ sk_sp<sksg::RenderNode> AttachTextLayer(const json::ValueRef& layer, AttachConte
 
 struct AttachLayerContext {
     AttachLayerContext(const json::ValueRef& jlayers, AttachContext* ctx)
-        : fLayerList(jlayers), fCtx(ctx) {}
+        : fLayerList(jlayers), fCtx(ctx) {
+        SkASSERT(fLayerList.isArray());
+    }
 
-    const json::ValueRef                   fLayerList;
+    const json::ValueRef                 fLayerList;
     AttachContext*                       fCtx;
     SkTHashMap<int, sk_sp<sksg::Matrix>> fLayerMatrixMap;
     sk_sp<sksg::RenderNode>              fCurrentMatte;
-
-    sk_sp<sksg::Matrix> AttachParentLayerMatrix(const json::ValueRef& jlayer) {
-        SkASSERT(jlayer.isObject());
-        SkASSERT(fLayerList.isArray());
-
-        const auto parent_index = jlayer["parent"].toDefault<int>(-1);
-        if (parent_index < 0)
-            return nullptr;
-
-        if (auto* m = fLayerMatrixMap.find(parent_index))
-            return *m;
-
-        sk_sp<sksg::Matrix> matrix;
-        for (const json::ValueRef l : fLayerList) {
-            if (l["ind"].toDefault<int>(-1) == parent_index) {
-                matrix = this->AttachLayerMatrix(l);
-                break;
-            }
-        }
-
-        return nullptr;
-    }
 
     sk_sp<sksg::Matrix> AttachLayerMatrix(const json::ValueRef& jlayer) {
         SkASSERT(jlayer.isObject());
@@ -925,15 +905,38 @@ struct AttachLayerContext {
         if (auto* m = fLayerMatrixMap.find(layer_index))
             return *m;
 
+        return this->AttachLayerMatrixImpl(jlayer, layer_index);
+    }
+
+private:
+    sk_sp<sksg::Matrix> AttachParentLayerMatrix(const json::ValueRef& jlayer, int layer_index) {
+        SkASSERT(jlayer.isObject());
+
+        const auto parent_index = jlayer["parent"].toDefault<int>(-1);
+        if (parent_index < 0 || parent_index == layer_index)
+            return nullptr;
+
+        if (auto* m = fLayerMatrixMap.find(parent_index))
+            return *m;
+
+        for (const json::ValueRef l : fLayerList) {
+            if (l["ind"].toDefault<int>(-1) == parent_index) {
+                return this->AttachLayerMatrixImpl(l, parent_index);
+            }
+        }
+
+        return nullptr;
+    }
+
+    sk_sp<sksg::Matrix> AttachLayerMatrixImpl(const json::ValueRef& jlayer, int layer_index) {
+        SkASSERT(!fLayerMatrixMap.find(layer_index));
+
         // Add a stub entry to break recursion cycles.
         fLayerMatrixMap.set(layer_index, nullptr);
 
-        auto parent_matrix = this->AttachParentLayerMatrix(jlayer);
+        auto parent_matrix = this->AttachParentLayerMatrix(jlayer, layer_index);
 
-        return *fLayerMatrixMap.set(layer_index,
-                                    AttachMatrix(jlayer["ks"],
-                                                 fCtx,
-                                                 this->AttachParentLayerMatrix(jlayer)));
+        return *fLayerMatrixMap.set(layer_index, AttachMatrix(jlayer["ks"], fCtx, parent_matrix));
     }
 };
 
