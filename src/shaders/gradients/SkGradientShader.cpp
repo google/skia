@@ -17,6 +17,7 @@
 #include "SkMallocPixelRef.h"
 #include "SkRadialGradient.h"
 #include "SkReadBuffer.h"
+#include "SkSafeMath.h"
 #include "SkSweepGradient.h"
 #include "SkTwoPointConicalGradient.h"
 #include "SkWriteBuffer.h"
@@ -71,6 +72,19 @@ void SkGradientShaderBase::Descriptor::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
+template <int N, typename T, bool MEM_MOVE>
+static bool validate_array(SkReadBuffer& buffer, size_t count, SkSTArray<N, T, MEM_MOVE>* array) {
+    SkSafeMath safe;
+    const auto expectedSize = safe.mul(sizeof(T), count);
+
+    if (!buffer.validate(safe && expectedSize <= buffer.available())) {
+        return false;
+    }
+
+    array->resize_back(count);
+    return true;
+}
+
 bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
     // New gradient format. Includes floating point color, color space, densely packed flags
     uint32_t flags = buffer.readUInt();
@@ -79,18 +93,13 @@ bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
     fGradFlags = (flags >> kGradFlagsShift_GSF) & kGradFlagsMask_GSF;
 
     fCount = buffer.getArrayCount();
-    if (fCount > kStorageCount) {
-        size_t allocSize = (sizeof(SkColor4f) + sizeof(SkScalar)) * fCount;
-        fDynamicStorage.reset(allocSize);
-        fColors = (SkColor4f*)fDynamicStorage.get();
-        fPos = (SkScalar*)(fColors + fCount);
-    } else {
-        fColors = fColorStorage;
-        fPos = fPosStorage;
-    }
-    if (!buffer.readColor4fArray(mutableColors(), fCount)) {
+
+    if (!(validate_array(buffer, fCount, &fColorStorage) &&
+          buffer.readColor4fArray(fColorStorage.begin(), fCount))) {
         return false;
     }
+    fColors = fColorStorage.begin();
+
     if (SkToBool(flags & kHasColorSpace_GSF)) {
         sk_sp<SkData> data = buffer.readByteArrayAsData();
         fColorSpace = SkColorSpace::Deserialize(data->data(), data->size());
@@ -98,9 +107,11 @@ bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
         fColorSpace = nullptr;
     }
     if (SkToBool(flags & kHasPosition_GSF)) {
-        if (!buffer.readScalarArray(mutablePos(), fCount)) {
+        if (!(validate_array(buffer, fCount, &fPosStorage) &&
+              buffer.readScalarArray(fPosStorage.begin(), fCount))) {
             return false;
         }
+        fPos = fPosStorage.begin();
     } else {
         fPos = nullptr;
     }
