@@ -500,6 +500,10 @@ bool SkColorSpace::Equals(const SkColorSpace* src, const SkColorSpace* dst) {
         return false;
     }
 
+    if (src->nonlinearBlending() != dst->nonlinearBlending()) {
+        return false;
+    }
+
     const SkData* srcData = src->onProfileData();
     const SkData* dstData = dst->onProfileData();
     if (srcData || dstData) {

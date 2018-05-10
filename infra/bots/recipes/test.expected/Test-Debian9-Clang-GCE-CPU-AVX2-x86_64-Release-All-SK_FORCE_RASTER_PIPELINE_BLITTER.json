@@ -260,7 +260,6 @@
       "--nogpu",
       "--config",
       "8888",
-      "srgb",
       "--src",
       "gm",
       "image",

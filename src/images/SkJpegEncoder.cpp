@@ -118,7 +118,7 @@ bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo, const SkJpegEncoder
             numComponents = 1;
             break;
         case kRGBA_F16_SkColorType:
-            if (!srcInfo.colorSpace() || !srcInfo.colorSpace()->gammaIsLinear() ||
+            if (!srcInfo.colorSpace() ||
                     SkTransferFunctionBehavior::kRespect != options.fBlendBehavior) {
                 return false;
             }
