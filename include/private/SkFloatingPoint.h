@@ -12,6 +12,7 @@
 #include "SkTypes.h"
 #include "SkSafe_math.h"
 #include <float.h>
+#include <math.h>
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
     #include <xmmintrin.h>
