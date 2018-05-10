@@ -46,6 +46,30 @@
       "revId": "7405d8b9f22b8fc2a0f0f486d1d45e7b88b38414",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45e5ba24_6b9bf2d7",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2671,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-05-10T17:01:47Z",
+      "side": 1,
+      "message": "Great! Thanks for integrating all these workarounds.",
+      "parentUuid": "1f0e5674_db5cf7b6",
+      "range": {
+        "startLine": 2671,
+        "startChar": 38,
+        "endLine": 2671,
+        "endChar": 78
+      },
+      "revId": "7405d8b9f22b8fc2a0f0f486d1d45e7b88b38414",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

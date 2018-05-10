@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a00be0e4_b9c6c8d5",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2478,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-05-10T17:01:47Z",
+      "side": 1,
+      "message": "Maybe make this an else-if so we don\u0027t overwrite the 7fff value for PowerVR.",
+      "range": {
+        "startLine": 2478,
+        "startChar": 8,
+        "endLine": 2478,
+        "endChar": 59
+      },
+      "revId": "493139bde12acabc7c4df7b3049780d75df645a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
