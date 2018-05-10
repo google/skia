@@ -8,6 +8,7 @@
 #ifndef SkTArray_DEFINED
 #define SkTArray_DEFINED
 
+#include "../private/SkSafe32.h"
 #include "../private/SkTLogic.h"
 #include "../private/SkTemplates.h"
 #include "SkTypes.h"
@@ -516,7 +517,8 @@ private:
         SkASSERT(fAllocCount >= 0);
         SkASSERT(-delta <= fCount);
 
-        int newCount = fCount + delta;
+        // Move into 64bit math temporarily, to avoid local overflows
+        int64_t newCount = fCount + delta;
 
         // We allow fAllocCount to be in the range [newCount, 3*newCount]. We also never shrink
         // when we're currently using preallocated memory, would allocate less than
@@ -527,8 +529,9 @@ private:
             return;
         }
 
+
         // Whether we're growing or shrinking, we leave at least 50% extra space for future growth.
-        int newAllocCount = newCount + ((newCount + 1) >> 1);
+        int64_t newAllocCount = newCount + ((newCount + 1) >> 1);
         // Align the new allocation count to kMinHeapAllocCount.
         static_assert(SkIsPow2(kMinHeapAllocCount), "min alloc count not power of two.");
         newAllocCount = (newAllocCount + (kMinHeapAllocCount - 1)) & ~(kMinHeapAllocCount - 1);
@@ -536,7 +539,9 @@ private:
         if (newAllocCount == fAllocCount) {
             return;
         }
-        fAllocCount = newAllocCount;
+
+        fAllocCount = Sk64_pin_to_s32(newAllocCount);
+        SkASSERT(fAllocCount >= newCount);
         void* newMemArray = sk_malloc_throw(fAllocCount, sizeof(T));
         this->move(newMemArray);
         if (fOwnMemory) {
