@@ -52,7 +52,12 @@ namespace skottie {
 
 namespace {
 
-using AssetMap = SkTHashMap<SkString, json::ValueRef>;
+struct AssetInfo {
+    json::ValueRef fAsset;
+    mutable bool   fIsAttaching; // Used for cycle detection
+};
+
+using AssetMap = SkTHashMap<SkString, AssetInfo>;
 
 struct AttachContext {
     const ResourceProvider& fResources;
@@ -756,15 +761,40 @@ sk_sp<sksg::RenderNode> AttachNestedAnimation(const char* path, AttachContext* c
     return sk_make_sp<SkottieSGAdapter>(std::move(animation));
 }
 
+sk_sp<sksg::RenderNode> AttachAssetRef(const json::ValueRef& jlayer, AttachContext* ctx,
+    sk_sp<sksg::RenderNode>(*attach_proc)(const json::ValueRef& comp, AttachContext* ctx)) {
+
+    const auto refId = jlayer["refId"].toDefault(SkString());
+    if (refId.isEmpty()) {
+        LOG("!! Layer missing refId\n");
+        return nullptr;
+    }
+
+    if (refId.startsWith("$")) {
+        return AttachNestedAnimation(refId.c_str() + 1, ctx);
+    }
+
+    const auto* asset_info = ctx->fAssets.find(refId);
+    if (!asset_info) {
+        LOG("!! Asset not found: '%s'\n", refId.c_str());
+        return nullptr;
+    }
+
+    if (asset_info->fIsAttaching) {
+        LOG("!! Asset cycle detected for: '%s'\n", refId.c_str());
+        return nullptr;
+    }
+
+    asset_info->fIsAttaching = true;
+    auto asset = attach_proc(asset_info->fAsset, ctx);
+    asset_info->fIsAttaching = false;
+
+    return asset;
+}
+
 sk_sp<sksg::RenderNode> AttachCompLayer(const json::ValueRef& jlayer, AttachContext* ctx,
                                         float* time_bias, float* time_scale) {
     SkASSERT(jlayer.isObject());
-
-    SkString refId;
-    if (!jlayer["refId"].to(&refId) || refId.isEmpty()) {
-        LOG("!! Comp layer missing refId\n");
-        return nullptr;
-    }
 
     const auto start_time = jlayer["st"].toDefault(0.0f),
              stretch_time = jlayer["sr"].toDefault(1.0f);
@@ -775,18 +805,7 @@ sk_sp<sksg::RenderNode> AttachCompLayer(const json::ValueRef& jlayer, AttachCont
         *time_scale = 1;
     }
 
-    if (refId.startsWith("$")) {
-        return AttachNestedAnimation(refId.c_str() + 1, ctx);
-    }
-
-    const auto* comp = ctx->fAssets.find(refId);
-    if (!comp) {
-        LOG("!! Pre-comp not found: '%s'\n", refId.c_str());
-        return nullptr;
-    }
-
-    // TODO: cycle detection
-    return AttachComposition(*comp, ctx);
+    return AttachAssetRef(jlayer, ctx, AttachComposition);
 }
 
 sk_sp<sksg::RenderNode> AttachSolidLayer(const json::ValueRef& jlayer, AttachContext*,
@@ -831,23 +850,11 @@ sk_sp<sksg::RenderNode> AttachImageAsset(const json::ValueRef& jimage, AttachCon
         SkImage::MakeFromEncoded(SkData::MakeFromStream(resStream.get(), resStream->getLength())));
 }
 
-sk_sp<sksg::RenderNode> AttachImageLayer(const json::ValueRef& layer, AttachContext* ctx,
+sk_sp<sksg::RenderNode> AttachImageLayer(const json::ValueRef& jlayer, AttachContext* ctx,
                                          float*, float*) {
-    SkASSERT(layer.isObject());
+    SkASSERT(jlayer.isObject());
 
-    SkString refId;
-    if (!layer["refId"].to(&refId) || refId.isEmpty()) {
-        LOG("!! Image layer missing refId\n");
-        return nullptr;
-    }
-
-    const auto* jimage = ctx->fAssets.find(refId);
-    if (!jimage) {
-        LOG("!! Image asset not found: '%s'\n", refId.c_str());
-        return nullptr;
-    }
-
-    return AttachImageAsset(*jimage, ctx);
+    return AttachAssetRef(jlayer, ctx, AttachImageAsset);
 }
 
 sk_sp<sksg::RenderNode> AttachNullLayer(const json::ValueRef& layer, AttachContext*, float*, float*) {
@@ -1268,7 +1275,7 @@ Animation::Animation(const ResourceProvider& resources,
     AssetMap assets;
     for (const json::ValueRef asset : json["assets"]) {
         if (asset.isObject()) {
-            assets.set(asset["id"].toDefault(SkString()), asset);
+            assets.set(asset["id"].toDefault(SkString()), { asset, false });
         }
     }
 
