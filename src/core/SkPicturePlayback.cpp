@@ -233,6 +233,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             reader->readString(&key);
             sk_sp<SkData> data = reader->readByteArrayAsData();
             BREAK_ON_READ_ERROR(reader);
+            SkASSERT(data);
 
             canvas->drawAnnotation(rect, key.c_str(), data.get());
         } break;
