@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b8faee0_d5270fe7",
+        "filename": "src/core/SkColorSpaceXform_skcms.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-05-10T18:17:27Z",
+      "side": 1,
+      "message": "if (auto blob \u003d this-\u003eonProfileData()) {\n   SkAssertResult(skcms_Parse(blob-\u003edata(), blob-\u003esize(), profile));\n} else {\n   ...\n}\n\n?",
+      "revId": "ea0590e6b2f2c7d795ebe364d978194c7f5b9094",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
