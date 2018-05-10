@@ -102,7 +102,7 @@ bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
 
     if (SkToBool(flags & kHasColorSpace_GSF)) {
         sk_sp<SkData> data = buffer.readByteArrayAsData();
-        fColorSpace = SkColorSpace::Deserialize(data->data(), data->size());
+        fColorSpace = data ? SkColorSpace::Deserialize(data->data(), data->size()) : nullptr;
     } else {
         fColorSpace = nullptr;
     }

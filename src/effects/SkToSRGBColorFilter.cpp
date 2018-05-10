@@ -64,10 +64,7 @@ SkToSRGBColorFilter::SkToSRGBColorFilter(sk_sp<SkColorSpace> srcColorSpace)
 
 sk_sp<SkFlattenable> SkToSRGBColorFilter::CreateProc(SkReadBuffer& buffer) {
     auto data = buffer.readByteArrayAsData();
-    if (data) {
-        return Make(SkColorSpace::Deserialize(data->data(), data->size()));
-    }
-    return nullptr;
+    return data ? Make(SkColorSpace::Deserialize(data->data(), data->size())) : nullptr;
 }
 
 void SkToSRGBColorFilter::flatten(SkWriteBuffer& buffer) const {
