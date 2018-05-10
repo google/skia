@@ -14,6 +14,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wused-but-marked-unused"
 #endif
+#define _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING YES
 
 #include "gtest/gtest.h"
 

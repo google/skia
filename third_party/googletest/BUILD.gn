@@ -5,7 +5,6 @@
 
 import("../third_party.gni")
 
-if (!is_win) {
   third_party("googletest") {
     public_include_dirs = [ "../externals/googletest/googletest/include" ]
     include_dirs = [ "../externals/googletest/googletest" ]
@@ -13,4 +12,3 @@ if (!is_win) {
       "../externals/googletest/googletest/src/gtest-all.cc",
     ]
   }
-}

@@ -1911,7 +1911,7 @@ if (skia_enable_tools) {
     ]
   }
 
-  if (!is_win && skia_enable_gpu) {
+  if (skia_enable_gpu) {
     test_lib("skqp_lib") {
       public_include_dirs = [ "tools/skqp" ]
       defines =
