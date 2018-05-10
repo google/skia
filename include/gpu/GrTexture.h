@@ -25,6 +25,14 @@ public:
     GrTexture* asTexture() override { return this; }
     const GrTexture* asTexture() const override { return this; }
 
+#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
+    /**
+     *  Return the native ID or handle to the texture, depending on the
+     *  platform. e.g. on OpenGL, return the texture ID.
+     */
+    virtual GrBackendObject getTextureHandle() const = 0;
+#endif
+
     virtual GrBackendTexture getBackendTexture() const = 0;
 
     /**

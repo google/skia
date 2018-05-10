@@ -99,6 +99,14 @@ public:
     };
     virtual ResolveType getResolveType() const = 0;
 
+#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
+    /**
+     *  Return the native ID or handle to the rendertarget, depending on the
+     *  platform. e.g. on OpenGL, return the FBO ID.
+     */
+    virtual GrBackendObject getRenderTargetHandle() const = 0;
+#endif
+
     virtual GrBackendRenderTarget getBackendRenderTarget() const = 0;
 
     // Checked when this object is asked to attach a stencil buffer.

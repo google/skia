@@ -128,4 +128,9 @@ struct GrGLFramebufferInfo {
     }
 };
 
+#ifdef SK_SUPPORT_LEGACY_BACKEND_OBJECTS
+GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrGLTextureInfo*));
+GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrGLFramebufferInfo*));
+#endif
+
 #endif
