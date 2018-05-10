@@ -22,6 +22,30 @@
       "revId": "dc58fa0e34ffc60ce7557d82e4f66cf7795576b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb0e636c_f5579b93",
+        "filename": "include/core/SkScalar.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-05-10T18:00:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "95b790c9_1abd9957",
+      "range": {
+        "startLine": 71,
+        "startChar": 36,
+        "endLine": 71,
+        "endChar": 45
+      },
+      "revId": "dc58fa0e34ffc60ce7557d82e4f66cf7795576b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
