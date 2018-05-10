@@ -1421,3 +1421,35 @@ int SkConic::BuildUnitArc(const SkVector& uStart, const SkVector& uStop, SkRotat
     }
     return conicCount;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "SkEdgeClipper.h"
+
+template <typename CURVE, SkPath::Verb VERB> int iter(SkEdgeClipper& clipper, CURVE dst[]) {
+    CURVE tmp;
+    SkPath::Verb verb;
+    int counter = 0;
+    while ((verb = clipper.next(tmp.fPts)) != SkPath::kDone_Verb) {
+        switch (verb) {
+            case VERB:
+                dst[counter++] = tmp;
+                break;
+            case SkPath::kLine_Verb:    // we ignore these
+                break;
+            default:
+                SkASSERT(!"unexpected verb");
+        }
+    }
+    return counter;
+}
+
+int SkQuadClipToRect(const SkPoint src[3], const SkRect& clip, SkQuadPts dst[]) {
+    SkEdgeClipper clipper(true);
+    return clipper.clipQuad(src, clip) ? iter<SkQuadPts, SkPath::kQuad_Verb>(clipper, dst) : 0;
+}
+
+int SkCubicClipToRect(const SkPoint src[4], const SkRect& clip, SkCubicPts dst[]) {
+    SkEdgeClipper clipper(true);
+    return clipper.clipCubic(src, clip) ? iter<SkCubicPts, SkPath::kCubic_Verb>(clipper, dst) : 0;
+}
