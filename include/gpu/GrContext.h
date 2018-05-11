@@ -15,6 +15,9 @@
 #include "../private/GrSingleOwner.h"
 #include "GrContextOptions.h"
 
+// We shouldn't need this but currently Android is relying on this being include transitively.
+#include "SkUnPreMultiply.h"
+
 class GrAtlasManager;
 class GrBackendFormat;
 class GrBackendSemaphore;
