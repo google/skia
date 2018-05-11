@@ -22,6 +22,29 @@
       "revId": "30c6833b61ff6642a9bfb89c694b80cb8f9d02c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ce20b78_a36286eb",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1648,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-11T15:08:18Z",
+      "side": 1,
+      "message": "I also noticed we call copyMediaBox here - do we need to worry about raster scale in this case?",
+      "range": {
+        "startLine": 1648,
+        "startChar": 46,
+        "endLine": 1648,
+        "endChar": 66
+      },
+      "revId": "30c6833b61ff6642a9bfb89c694b80cb8f9d02c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
