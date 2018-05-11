@@ -281,6 +281,16 @@ protected:
         this->drawShadowedPath(canvas, tmpPath, zPlaneParams, paint, .1f,
                                lightPos, kLightWidth, .5f);
 
+        // path ops bug
+        SkPath tmpClipPathBug;
+        tmpClipPathBug.addCircle(88.0344925f, 0, 60);
+        Op(fSquareRRectPath, tmpClipPathBug, kIntersect_SkPathOp, &tmpPath);
+
+        canvas->translate(250, 0);
+        zPlaneParams.fZ = SkTMax(1.0f, 32 + fZDelta);
+        this->drawShadowedPath(canvas, tmpPath, zPlaneParams, paint, .1f,
+                               lightPos, kLightWidth, .5f);
+
         // perspective paths
         SkPoint pivot = SkPoint::Make(fWideRectPath.getBounds().width()/2,
                                       fWideRectPath.getBounds().height()/2);
@@ -318,7 +328,7 @@ protected:
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {
-        fAnimTranslate = timer.pingPong(30, 0, 200, -200);
+        fAnimTranslate = timer.pingPong(30, 0, 125, -125);
         fAnimAngle = timer.pingPong(15, 0, 0, 20);
         if (fDoAlphaAnimation) {
             fAnimAlpha = timer.pingPong(5, 0, 1, 0);
