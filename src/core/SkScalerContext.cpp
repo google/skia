@@ -983,10 +983,6 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
     }
 
     new (effects) SkScalerContextEffects{paint};
-    if (effects->fPathEffect) {
-        rec->fMaskFormat = SkMask::kA8_Format;  // force antialiasing when we do the scan conversion
-        // seems like we could support kLCD as well at this point...
-    }
     if (effects->fMaskFilter) {
         // Pre-blend is not currently applied to filtered text.
         // The primary filter is blur, for which contrast makes no sense,
