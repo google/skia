@@ -34,3 +34,12 @@ bool GMSlide::animate(const SkAnimTimer& timer) {
 bool GMSlide::onChar(SkUnichar c) {
     return fGM->handleKey(c);
 }
+
+bool GMSlide::onGetControls(SkMetaData* controls) {
+    return fGM->getControls(controls);
+}
+
+void GMSlide::onSetControls(const SkMetaData& controls) {
+    fGM->setControls(controls);
+}
+

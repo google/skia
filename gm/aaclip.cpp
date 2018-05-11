@@ -11,7 +11,6 @@
 #include "SkPath.h"
 #include "SkMakeUnique.h"
 
-
 #include "SkCubicMap.h"
 
 static void test_cubic(SkCanvas* canvas) {
@@ -367,3 +366,62 @@ private:
     typedef skiagm::GM INHERITED;
 };
 DEF_GM(return new ClipCubicGM;)
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "SkDFMaskFilter.h"
+
+class DFMaskFilterGM : public skiagm::GM {
+    float fWindow = 1;  // 0...8
+    float fOffset = 0;  // -4...4
+
+public:
+    DFMaskFilterGM() {}
+
+protected:
+    SkString onShortName() override {
+        return SkString("dfmaskfilter");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(500, 240);
+    }
+
+    bool onGetControls(SkMetaData* controls) override {
+        float* val = controls->setScalars("window", 3);
+        val[0] = fWindow; val[1] = 0; val[2] = 8;
+        val = controls->setScalars("offset", 3);
+        val[0] = fOffset; val[1] = -4; val[2] = 4;
+        return true;
+    }
+
+    void onSetControls(const SkMetaData& controls) override {
+        int count;
+        const float* val = controls.findScalars("window", &count);
+        SkASSERT(val);
+        SkASSERT(count == 3);
+        fWindow = val[0];
+        val = controls.findScalars("offset", &count);
+        SkASSERT(val);
+        SkASSERT(count == 3);
+        fOffset = val[0];
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setColor(SK_ColorRED);
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(10);
+        paint.setStyle(SkPaint::kStroke_Style);
+        const SkRect r = { 20, 20, 200, 200 };
+
+        canvas->drawOval(r, paint);
+        canvas->translate(r.width() + paint.getStrokeWidth() * 2, 0);
+        paint.setMaskFilter(SkDFMaskFilter::Make(fWindow, fOffset));
+        canvas->drawOval(r, paint);
+    }
+
+private:
+    typedef skiagm::GM INHERITED;
+};
+DEF_GM(return new DFMaskFilterGM;)
