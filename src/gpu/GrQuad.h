@@ -28,6 +28,10 @@ public:
         this->set(rect);
     }
 
+    GrQuad(const SkRect& rect, const SkMatrix& matrix) {
+        this->setFromMappedRect(rect, matrix);
+    }
+
     void set(const SkRect& rect) {
         SkPointPriv::SetRectTriStrip(fPoints, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom,
                 sizeof(SkPoint));
@@ -38,6 +42,7 @@ public:
     }
 
     void setFromMappedRect(const SkRect& rect, const SkMatrix& matrix) {
+        SkASSERT(!matrix.hasPerspective());
         SkMatrixPriv::SetMappedRectTriStrip(matrix, rect, fPoints);
     }
 
@@ -62,6 +67,37 @@ public:
 private:
     static const int kNumPoints = 4;
     SkPoint fPoints[kNumPoints];
+};
+
+class GrPerspQuad {
+public:
+    GrPerspQuad() = default;
+
+    GrPerspQuad(const SkRect& rect, const SkMatrix& matrix) {
+        fPoints[0].set(rect.fLeft, rect.fTop, 1.f);
+        fPoints[1].set(rect.fLeft, rect.fBottom, 1.f);
+        fPoints[2].set(rect.fRight, rect.fTop, 1.f);
+        fPoints[3].set(rect.fRight, rect.fBottom, 1.f);
+        matrix.mapHomogeneousPoints(fPoints, fPoints, kNumPoints);
+    }
+
+    const GrPerspQuad& operator=(const GrPerspQuad& that) {
+        memcpy(fPoints, that.fPoints, sizeof(SkPoint3) * kNumPoints);
+        return *this;
+    }
+
+    SkPoint3* points() { return fPoints; }
+
+    const SkPoint3* points() const { return fPoints; }
+
+    const SkPoint3& point(int i) const {
+        SkASSERT(i < kNumPoints);
+        return fPoints[i];
+    }
+
+private:
+    static const int kNumPoints = 4;
+    SkPoint3 fPoints[kNumPoints];
 };
 
 #endif
