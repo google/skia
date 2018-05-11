@@ -44,6 +44,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
+#if 0
         {
             sk_sp<SkImageFilter> bitmapSource(SkImageSource::Make(fImage));
             sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(SK_ColorRED,
@@ -108,6 +109,7 @@ protected:
             DrawClippedImage(canvas, fImage.get(), paint);
             canvas->translate(SkIntToScalar(100), 0);
         }
+#endif
         {
             // Dilate -> matrix convolution.
             // This tests that a filter using asFragmentProcessor (matrix
@@ -139,6 +141,7 @@ protected:
             DrawClippedImage(canvas, fImage.get(), paint);
             canvas->translate(SkIntToScalar(100), 0);
         }
+#if 0
         {
             // Test that crop offsets are absolute, not relative to the parent's crop rect.
             sk_sp<SkColorFilter> cf1(SkColorFilter::MakeModeFilter(SK_ColorBLUE,
@@ -162,6 +165,7 @@ protected:
             canvas->drawRect(SkRect::MakeXYWH(0, 0, 100, 100), paint);
             canvas->translate(SkIntToScalar(100), 0);
         }
+#endif
     }
 
 private:

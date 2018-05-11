@@ -223,7 +223,7 @@ sk_sp<SkSpecialImage> SkImageFilter::filterImage(SkSpecialImage* src, const Cont
 }
 
 SkIRect SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                 MapDirection direction) const {
+                                    MapDirection direction) const {
     if (kReverse_MapDirection == direction) {
         SkIRect bounds = this->onFilterNodeBounds(src, ctm, direction);
         return this->onFilterBounds(bounds, ctm, direction);
@@ -327,8 +327,8 @@ bool SkImageFilter::canHandleComplexCTM() const {
 
 bool SkImageFilter::applyCropRect(const Context& ctx, const SkIRect& srcBounds,
                                   SkIRect* dstBounds) const {
-    SkIRect temp = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection);
-    fCropRect.applyTo(temp, ctx.ctm(), this->affectsTransparentBlack(), dstBounds);
+    SkIRect tmpDst = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection);
+    fCropRect.applyTo(tmpDst, ctx.ctm(), this->affectsTransparentBlack(), dstBounds);
     // Intersect against the clip bounds, in case the crop rect has
     // grown the bounds beyond the original clip. This can happen for
     // example in tiling, where the clip is much smaller than the filtered
@@ -407,16 +407,14 @@ static sk_sp<SkSpecialImage> pad_image(SkSpecialImage* src,
     return surf->makeImageSnapshot();
 }
 
-sk_sp<SkSpecialImage> SkImageFilter::applyCropRect(const Context& ctx,
-                                                   SkSpecialImage* src,
-                                                   SkIPoint* srcOffset,
-                                                   SkIRect* bounds) const {
+sk_sp<SkSpecialImage> SkImageFilter::applyCropRectAndPad(const Context& ctx,
+                                                         SkSpecialImage* src,
+                                                         SkIPoint* srcOffset,
+                                                         SkIRect* bounds) const {
     const SkIRect srcBounds = SkIRect::MakeXYWH(srcOffset->x(), srcOffset->y(),
                                                 src->width(), src->height());
 
-    SkIRect dstBounds = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection);
-    fCropRect.applyTo(dstBounds, ctx.ctm(), this->affectsTransparentBlack(), bounds);
-    if (!bounds->intersect(ctx.clipBounds())) {
+    if (!this->applyCropRect(ctx, srcBounds, bounds)) {
         return nullptr;
     }
 
@@ -495,4 +493,33 @@ sk_sp<SkSpecialImage> SkImageFilter::filterInput(int index,
 
 void SkImageFilter::PurgeCache() {
     SkImageFilterCache::Get()->purge();
+}
+
+// In repeat mode, when we are going to sample off one edge of the srcBounds we require the
+// opposite side be preserved.
+SkIRect SkImageFilter::DetermineRepeatedSrcBound(const SkIRect& mungedSrcBounds,
+                                                 const SkIRect& filterRect,
+                                                 const SkIRect& originalSrcBounds) {
+    SkIRect tmp = SkIRect::MakeLTRB(mungedSrcBounds.fLeft + filterRect.fLeft,
+                                    mungedSrcBounds.fTop + filterRect.fTop,
+                                    mungedSrcBounds.fRight + filterRect.fRight,
+                                    mungedSrcBounds.fBottom + filterRect.fBottom);
+    if (tmp.fLeft < originalSrcBounds.fLeft) {
+        tmp.fLeft = originalSrcBounds.fLeft;
+        tmp.fRight = originalSrcBounds.fRight;
+    }
+    if (tmp.fRight > originalSrcBounds.fRight) {
+        tmp.fRight = originalSrcBounds.fRight;
+        tmp.fLeft = originalSrcBounds.fLeft;
+    }
+    if (tmp.fTop < originalSrcBounds.fTop) {
+        tmp.fTop = originalSrcBounds.fTop;
+        tmp.fBottom = originalSrcBounds.fBottom;
+    }
+    if (tmp.fBottom > originalSrcBounds.fBottom) {
+        tmp.fBottom = originalSrcBounds.fBottom;
+        tmp.fTop = originalSrcBounds.fTop;
+    }
+
+    return tmp;
 }
