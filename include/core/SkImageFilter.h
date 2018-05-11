@@ -332,7 +332,7 @@ protected:
      * Performs a forwards or reverse mapping of the given rect to accommodate
      * this filter's margin requirements. kForward_MapDirection is used to
      * determine the destination pixels which would be touched by filtering
-     * the given given source rect (e.g., given source bitmap bounds,
+     * the given source rect (e.g., given source bitmap bounds,
      * determine the optimal bounds of the filtered offscreen bitmap).
      * kReverse_MapDirection is used to determine which pixels of the
      * input(s) would be required to fill the given destination rect
@@ -416,6 +416,12 @@ protected:
     sk_sp<SkImageFilter> refMe() const {
         return sk_ref_sp(const_cast<SkImageFilter*>(this));
     }
+
+    // Determine which portion of 'srcBounds' remains after intersecting w/ 'dstBounds' taking
+    // into account repeating (e.g., if we will sample beyond the left edge of the src, the
+    // right side must be preserved for the repeat sampling to work).
+    static bool IntersectWithRepeat(SkIRect* mungedSrcBounds,
+                                    const SkIRect& unMungedSrcBounds);
 
 private:
     // For makeColorSpace().

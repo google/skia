@@ -92,8 +92,13 @@ protected:
                                                                   cropRect));
         canvas->save();
         canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
-        canvas->clipRect(SkRect::MakeWH(SkIntToScalar(fBitmap.width()),
-                                        SkIntToScalar(fBitmap.height())));
+#if 0
+        SkRect clip = SkRect::MakeWH(fBitmap.width()-2, fBitmap.height()-2);
+        clip.offset(kernelOffset.fX, kernelOffset.fY);
+#else
+        SkRect clip = SkRect::MakeWH(fBitmap.width(), fBitmap.height());
+#endif
+        canvas->clipRect(clip);
         canvas->drawBitmap(fBitmap, 0, 0, &paint);
         canvas->restore();
     }
@@ -114,6 +119,7 @@ protected:
             this->draw(canvas, x, 210, kernelOffset, MCIF::kRepeat_TileMode, true, &rect);
             kernelOffset.fY++;
         }
+#if 1
         kernelOffset.fY = 1;
         SkImageFilter::CropRect smallRect(SkRect::MakeXYWH(10, 5, 60, 60));
         this->draw(canvas, 310, 10, kernelOffset, MCIF::kClamp_TileMode, true, &smallRect);
@@ -123,6 +129,7 @@ protected:
         this->draw(canvas, 410, 10, kernelOffset, MCIF::kClamp_TileMode, false, &rect);
         this->draw(canvas, 410, 110, kernelOffset, MCIF::kClampToBlack_TileMode, false, &rect);
         this->draw(canvas, 410, 210, kernelOffset, MCIF::kRepeat_TileMode, false, &rect);
+#endif
     }
 
 private:
