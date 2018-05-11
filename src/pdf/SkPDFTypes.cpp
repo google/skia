@@ -252,8 +252,7 @@ void SkPDFAtom::addResources(SkPDFObjNumMap* map) const {
 #endif  // 0
 
 ////////////////////////////////////////////////////////////////////////////////
-
-SkPDFArray::SkPDFArray() { SkDEBUGCODE(fDumped = false;) }
+SkPDFArray::SkPDFArray(int r) : fValues(r) { SkDEBUGCODE(fDumped = false;) }
 
 SkPDFArray::~SkPDFArray() { this->drop(); }
 

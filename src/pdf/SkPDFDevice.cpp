@@ -508,8 +508,8 @@ void SkPDFDevice::setFlip() {
     // natively has the origin at the bottom left. This matrix
     // corrects for that.  But that only needs to be done once, we
     // don't do it when layering.
-    SkScalar rasterScale = SkPDFUtils::kDpiForRasterScaleOne / fDocument->rasterDpi();
-    fInitialTransform.setConcat(SkMatrix::MakeScale(rasterScale, -rasterScale),
+    SkScalar scale = fDocument->inverseRasterScale();
+    fInitialTransform.setConcat(SkMatrix::MakeScale(scale, -scale),
                                 SkMatrix::MakeTrans(0, -fPageSize.fHeight));
 }
 
@@ -1508,16 +1508,6 @@ sk_sp<SkPDFDict> SkPDFDevice::makeResourceDict() const {
             &fonts);
 }
 
-sk_sp<SkPDFArray> SkPDFDevice::copyMediaBox() const {
-    auto mediaBox = sk_make_sp<SkPDFArray>();
-    mediaBox->reserve(4);
-    mediaBox->appendInt(0);
-    mediaBox->appendInt(0);
-    mediaBox->appendInt(fPageSize.width());
-    mediaBox->appendInt(fPageSize.height());
-    return mediaBox;
-}
-
 std::unique_ptr<SkStreamAsset> SkPDFDevice::content() const {
     SkDynamicMemoryWStream buffer;
     if (fInitialTransform.getType() != SkMatrix::kIdentity_Mask) {
@@ -1645,7 +1635,7 @@ sk_sp<SkPDFObject> SkPDFDevice::makeFormXObjectFromDevice(bool alpha) {
     }
     const char* colorSpace = alpha ? "DeviceGray" : nullptr;
     sk_sp<SkPDFObject> xobject =
-        SkPDFMakeFormXObject(this->content(), this->copyMediaBox(),
+        SkPDFMakeFormXObject(this->content(), SkPDFUtils::RectToArray(this->imageInfo().bounds()),
                              this->makeResourceDict(), inverseTransform, colorSpace);
     // We always draw the form xobjects that we create back into the device, so
     // we simply preserve the font usage instead of pulling it out and merging

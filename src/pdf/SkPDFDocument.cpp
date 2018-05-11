@@ -207,7 +207,7 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height) {
             fObjectSerializer.serializeObjects(this->getStream());
         }
     }
-    SkScalar rasterScale = this->rasterDpi() / SkPDFUtils::kDpiForRasterScaleOne;
+    SkScalar rasterScale = this->rasterScale();
     SkISize pageSize = {SkScalarRoundToInt(width  * rasterScale),
                         SkScalarRoundToInt(height * rasterScale)};
 
@@ -226,11 +226,11 @@ void SkPDFDocument::onEndPage() {
     auto page = sk_make_sp<SkPDFDict>("Page");
     page->insertObject("Resources", fPageDevice->makeResourceDict());
 
-    SkScalar rasterScale =  SkPDFUtils::kDpiForRasterScaleOne / this->rasterDpi();
+    SkScalar inverseScale = this->inverseRasterScale();
 
     SkISize pageSize = fPageDevice->imageInfo().dimensions();
     page->insertObject("MediaBox", SkPDFUtils::RectToArray(
-                {0, 0, pageSize.width() * rasterScale, pageSize.height() * rasterScale}));
+            SkRect{0, 0, pageSize.width() * inverseScale, pageSize.height() * inverseScale}));
 
     auto annotations = sk_make_sp<SkPDFArray>();
     fPageDevice->appendAnnotations(annotations.get());

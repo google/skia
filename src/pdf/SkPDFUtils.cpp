@@ -18,13 +18,19 @@
 
 #include <cmath>
 
-sk_sp<SkPDFArray> SkPDFUtils::RectToArray(const SkRect& rect) {
-    auto result = sk_make_sp<SkPDFArray>();
-    result->reserve(4);
-    result->appendScalar(rect.fLeft);
-    result->appendScalar(rect.fTop);
-    result->appendScalar(rect.fRight);
-    result->appendScalar(rect.fBottom);
+sk_sp<SkPDFArray> SkPDFUtils::RectToArray(const SkRect& r) {
+    auto result = sk_make_sp<SkPDFArray>(4);
+    for (SkScalar v : {r.left(), r.top(), r.right(), r.bottom()}) {
+        result->appendScalar(v);
+    }
+    return result;
+}
+
+sk_sp<SkPDFArray> SkPDFUtils::RectToArray(const SkIRect& r) {
+    auto result = sk_make_sp<SkPDFArray>(4);
+    for (int v : {r.left(), r.top(), r.right(), r.bottom()}) {
+        result->appendInt(v);
+    }
     return result;
 }
 
@@ -34,10 +40,9 @@ sk_sp<SkPDFArray> SkPDFUtils::MatrixToArray(const SkMatrix& matrix) {
         SkMatrix::SetAffineIdentity(values);
     }
 
-    auto result = sk_make_sp<SkPDFArray>();
-    result->reserve(6);
-    for (size_t i = 0; i < SK_ARRAY_COUNT(values); i++) {
-        result->appendScalar(values[i]);
+    auto result = sk_make_sp<SkPDFArray>(SK_ARRAY_COUNT(values));
+    for (SkScalar v : values) {
+        result->appendScalar(v);
     }
     return result;
 }

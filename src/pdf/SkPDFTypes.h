@@ -201,7 +201,7 @@ class SkPDFArray final : public SkPDFObject {
 public:
     /** Create a PDF array. Maximum length is 8191.
      */
-    SkPDFArray();
+    SkPDFArray(int reserveCount = 0);
     ~SkPDFArray() override;
 
     // The SkPDFObject interface.
