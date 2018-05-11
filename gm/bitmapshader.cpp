@@ -5,12 +5,13 @@
  * found in the LICENSE file.
  */
 #include "gm.h"
-#include "sk_tool_utils.h"
 
+#include "GrContext.h"
+#include "GrContextPriv.h"
 #include "SkBitmap.h"
 #include "SkPaint.h"
 #include "SkShader.h"
-#include "GrContext.h"
+#include "sk_tool_utils.h"
 
 namespace skiagm {
 
@@ -117,7 +118,7 @@ DEF_SIMPLE_GM(hugebitmapshader, canvas, 100, 100) {
     int bitmapW = 1;
     int bitmapH = 60000;
     if (auto* ctx = canvas->getGrContext()) {
-        bitmapH = ctx->caps()->maxTextureSize() + 1;
+        bitmapH = ctx->contextPriv().caps()->maxTextureSize() + 1;
     }
     bitmap.setInfo(SkImageInfo::MakeA8(bitmapW, bitmapH), bitmapW);
     uint8_t* pixels = new uint8_t[bitmapH];

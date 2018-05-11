@@ -8,6 +8,7 @@
 #ifndef GrContextPriv_DEFINED
 #define GrContextPriv_DEFINED
 
+#include "GrCaps.h"
 #include "GrContext.h"
 #include "GrSurfaceContext.h"
 #include "text/GrAtlasManager.h"
@@ -29,6 +30,9 @@ public:
      * Create a GrContext without a resource cache
      */
     static sk_sp<GrContext> MakeDDL(const sk_sp<GrContextThreadSafeProxy>&);
+
+    const GrCaps* caps() const { return fContext->fCaps.get(); }
+    sk_sp<const GrCaps> refCaps() const { return fContext->fCaps; }
 
     GrDrawingManager* drawingManager() { return fContext->fDrawingManager.get(); }
 

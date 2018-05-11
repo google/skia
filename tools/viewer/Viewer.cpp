@@ -6,22 +6,21 @@
 */
 
 #include "Viewer.h"
-
+#include <stdlib.h>
+#include <map>
 #include "BisectSlide.h"
 #include "GMSlide.h"
+#include "GrContext.h"
+#include "GrContextPriv.h"
 #include "ImageSlide.h"
 #include "Resources.h"
-#include "SampleSlide.h"
 #include "SKPSlide.h"
-#include "SlideDir.h"
-#include "SvgSlide.h"
-
-#include "GrContext.h"
+#include "SampleSlide.h"
 #include "SkCanvas.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformCanvas.h"
-#include "SkCommonFlags.h"
 #include "SkCommandLineFlags.h"
+#include "SkCommonFlags.h"
 #include "SkCommonFlagsGpu.h"
 #include "SkEventTracingPriv.h"
 #include "SkFontMgrPriv.h"
@@ -38,13 +37,10 @@
 #include "SkTaskGroup.h"
 #include "SkTestFontMgr.h"
 #include "SkThreadedBMPDevice.h"
-
-#include "imgui.h"
-
+#include "SlideDir.h"
+#include "SvgSlide.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
-
-#include <stdlib.h>
-#include <map>
+#include "imgui.h"
 
 #if defined(SK_ENABLE_SKOTTIE)
     #include "SkottieSlide.h"
@@ -1479,7 +1475,7 @@ void Viewer::drawImGui() {
                     } else if (fWindow->sampleCount() > 1) {
                         prButton(GpuPathRenderers::kDefault);
                         prButton(GpuPathRenderers::kAll);
-                        if (ctx->caps()->shaderCaps()->pathRenderingSupport()) {
+                        if (ctx->contextPriv().caps()->shaderCaps()->pathRenderingSupport()) {
                             prButton(GpuPathRenderers::kStencilAndCover);
                         }
                         prButton(GpuPathRenderers::kTessellating);
@@ -1487,7 +1483,8 @@ void Viewer::drawImGui() {
                     } else {
                         prButton(GpuPathRenderers::kDefault);
                         prButton(GpuPathRenderers::kAll);
-                        if (GrCoverageCountingPathRenderer::IsSupported(*ctx->caps())) {
+                        if (GrCoverageCountingPathRenderer::IsSupported(
+                                    *ctx->contextPriv().caps())) {
                             prButton(GpuPathRenderers::kCoverageCounting);
                         }
                         prButton(GpuPathRenderers::kSmall);
@@ -1852,7 +1849,7 @@ void Viewer::updateUIState() {
     } else if (fWindow->sampleCount() > 1) {
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kDefault]);
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kAll]);
-        if (ctx->caps()->shaderCaps()->pathRenderingSupport()) {
+        if (ctx->contextPriv().caps()->shaderCaps()->pathRenderingSupport()) {
             prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kStencilAndCover]);
         }
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kTessellating]);
@@ -1860,7 +1857,7 @@ void Viewer::updateUIState() {
     } else {
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kDefault]);
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kAll]);
-        if (GrCoverageCountingPathRenderer::IsSupported(*ctx->caps())) {
+        if (GrCoverageCountingPathRenderer::IsSupported(*ctx->contextPriv().caps())) {
             prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kCoverageCounting]);
         }
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kSmall]);
