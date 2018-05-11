@@ -205,6 +205,7 @@ bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src, SkScalar sigma, SkBlurS
         case kInner_SkBlurStyle: {
             // now we allocate the "real" dst, mirror the size of src
             SkMask blur = *dst;
+            SkAutoMaskFreeImage autoFreeBlurMask(blur.fImage);
             dst->fBounds = src.fBounds;
             dst->fRowBytes = dst->fBounds.width();
             size_t dstSize = dst->computeImageSize();
@@ -247,7 +248,6 @@ bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src, SkScalar sigma, SkBlurS
                 default:
                     SK_ABORT("Unhandled format.");
             };
-            SkMask::FreeImage(blur.fImage);
         } break;
     }
 
@@ -547,7 +547,7 @@ bool SkBlurMask::BlurGroundTruth(SkScalar sigma, SkMask* dst, const SkMask& src,
 
         const uint8_t*  srcPixels = src.fImage;
         uint8_t*        dstPixels = SkMask::AllocImage(dstSize);
-        SkAutoTCallVProc<uint8_t, SkMask_FreeImage> autoCall(dstPixels);
+        SkAutoMaskFreeImage autoFreeDstPixels(dstPixels);
 
         // do the actual blur.  First, make a padded copy of the source.
         // use double pad so we never have to check if we're outside anything
@@ -637,7 +637,7 @@ bool SkBlurMask::BlurGroundTruth(SkScalar sigma, SkMask* dst, const SkMask& src,
                 SkMask::FreeImage(dstPixels);
             } break;
         };
-        (void)autoCall.release();
+        autoFreeDstPixels.release();
     }
 
     if (style == kInner_SkBlurStyle) {
