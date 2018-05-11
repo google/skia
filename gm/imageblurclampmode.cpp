@@ -59,38 +59,60 @@ protected:
 
     bool runAsBench() const override { return true; }
 
-    void onDraw(SkCanvas* canvas) override {
-        sk_sp<SkImage> image(make_image(canvas));
+    void foo(SkCanvas* canvas, sk_sp<SkImage> image) {
         sk_sp<SkImageFilter> filter;
 
         canvas->translate(0, 30);
         // Test different kernel size, including the one to launch 2d Gaussian
         // blur.
         for (auto sigma: { 0.6f, 3.0f, 8.0f, 20.0f }) {
-            canvas->save();
+            if (sigma == 3.0f || sigma == 8.0f)
+            {
+                canvas->save();
 
-            // x-only blur
-            filter =  SkBlurImageFilter::Make(sigma, 0.0f, nullptr, nullptr,
-                                              SkBlurImageFilter::kClamp_TileMode);
-            draw_image(canvas, image, std::move(filter));
-            canvas->translate(image->width() + 20, 0);
+                // x-only blur
+                filter =  SkBlurImageFilter::Make(sigma, 0.0f, nullptr, nullptr,
+                                                  SkBlurImageFilter::kClamp_TileMode);
+                //draw_image(canvas, image, std::move(filter));
+                canvas->translate(image->width() + 20, 0);
 
-            // y-only blur
-            filter = SkBlurImageFilter::Make(0.0f, sigma, nullptr, nullptr,
-                                             SkBlurImageFilter::kClamp_TileMode);
-            draw_image(canvas, image, std::move(filter));
-            canvas->translate(image->width() + 20, 0);
+                // y-only blur
+                filter = SkBlurImageFilter::Make(0.0f, sigma, nullptr, nullptr,
+                                                 SkBlurImageFilter::kClamp_TileMode);
+                //draw_image(canvas, image, std::move(filter));
+                canvas->translate(image->width() + 20, 0);
 
-            // both directions
-            filter = SkBlurImageFilter::Make(sigma, sigma, nullptr, nullptr,
-                                             SkBlurImageFilter::kClamp_TileMode);
-            draw_image(canvas, image, std::move(filter));
-            canvas->translate(image->width() + 20, 0);
+                // both directions
+                filter = SkBlurImageFilter::Make(sigma, sigma, nullptr, nullptr,
+                                                 SkBlurImageFilter::kClamp_TileMode);
+                draw_image(canvas, image, std::move(filter));
+                canvas->translate(image->width() + 20, 0);
 
-            canvas->restore();
+                canvas->restore();
+            }
 
             canvas->translate(0, image->height() + 20);
         }
+    
+    }
+
+
+    void onDraw(SkCanvas* canvas) override {
+        sk_sp<SkImage> image(make_image(canvas));
+
+//        canvas->clipRect(SkRect::MakeLTRB(283, 0, 566, 306));
+
+//        canvas->saveLayer(SkRect::MakeLTRB(283, 0, 566, 306), nullptr);
+
+        canvas->saveLayer(SkRect::MakeLTRB(566, 306, 850, 612), nullptr);
+        this->foo(canvas, image);
+        canvas->restore();
+
+        canvas->saveLayer(SkRect::MakeLTRB(566, 612, 850, 920), nullptr);
+        this->foo(canvas, image);
+        canvas->restore();
+
+//        canvas->restore();
     }
 
 private:

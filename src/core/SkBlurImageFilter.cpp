@@ -563,6 +563,37 @@ static sk_sp<SkSpecialImage> cpu_blur(
                                           dst, &source->props());
 }
 
+static void print_ipoint(const SkIPoint& p, const char*name) {
+    SkDebugf("%s: [ %d, %d ]\n", name, p.fX, p.fY);
+}
+
+static void print_irect(const SkIRect& r, const char* name) {
+    SkDebugf("%s: [ %d, %d, %d, %d ]\n", name, r.fLeft, r.fTop, r.fRight, r.fBottom);
+}
+
+// In repeat mode when we are going to sample off one edge of the inputBounds we require the
+// opposite side be preserved.
+static SkIRect intersect_with_repeat(const SkIRect& inputBounds, const SkIRect& dstBounds) {
+    SkIRect tmp = dstBounds;
+    if (dstBounds.fLeft < inputBounds.fLeft) {
+        tmp.fRight = inputBounds.fRight;
+    }
+    if (dstBounds.fRight > inputBounds.fRight) {
+        tmp.fLeft = inputBounds.fLeft;
+    }
+    if (dstBounds.fTop < inputBounds.fTop) {
+        tmp.fBottom = inputBounds.fBottom;
+    }
+    if (dstBounds.fBottom > inputBounds.fBottom) {
+        tmp.fTop = inputBounds.fTop;
+    }
+    if (!tmp.intersect(inputBounds)) {
+        return SkIRect::MakeEmpty();
+    }
+
+    return tmp;
+}
+
 sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* source,
                                                            const Context& ctx,
                                                            SkIPoint* offset) const {
@@ -576,14 +607,29 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
     SkIRect inputBounds = SkIRect::MakeXYWH(inputOffset.fX, inputOffset.fY,
                                             input->width(), input->height());
 
+
+    print_irect(inputBounds, "initial inputBounds");
+
     // Calculate the destination bounds.
     SkIRect dstBounds;
     if (!this->applyCropRect(this->mapContext(ctx), inputBounds, &dstBounds)) {
         return nullptr;
     }
-    if (!inputBounds.intersect(dstBounds)) {
-        return nullptr;
+
+    print_irect(dstBounds, "dstBounds");
+
+    if (SkBlurImageFilter::TileMode::kRepeat_TileMode == fTileMode) {
+        inputBounds = intersect_with_repeat(inputBounds, dstBounds);
+        if (inputBounds.isEmpty()) {
+            return nullptr;
+        }
+    } else {
+        if (!inputBounds.intersect(dstBounds)) {
+            return nullptr;
+        }
     }
+
+    print_irect(inputBounds, "intersected inputBounds");
 
     // Save the offset in preparation to make all rectangles relative to the inputOffset.
     SkIPoint resultOffset = SkIPoint::Make(dstBounds.fLeft, dstBounds.fTop);
