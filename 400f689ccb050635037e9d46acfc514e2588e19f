@@ -16,6 +16,24 @@
       "revId": "400f689ccb050635037e9d46acfc514e2588e19f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ecb5961_14dca3e1",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 954,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-05-11T15:33:41Z",
+      "side": 1,
+      "message": "That is an interesting thought.\n\nThe raster code does perform clipping to brings values in-range, but its version fails for exactly the floats this CL is guarding : those that are right near max-float. We could call pathops for the extreme paths, though I have two follow-on thoughts:\n\n1. what is the quality of the resulting values, if some of their \"end-points\" are out in the range where the matissa can\u0027t have much precision?\n2. do we have clients that, on their own, do not want to pay for the code-size of pathops?\n\nRegarding #2 -- I just did a hack, where I included only a tiny subset of pathops/, enough to make us like but returning false for Op(). This saved 440K, which seems pretty significant. (that is a large percentage of Skia itself).\n\nIf we are convinced that there is some value in handling floats that are that huge (i.e. the drawing is still meaningful, see #1), then perhaps we could offer clients to either use pathops for those cases (bringing in 440K) or failing, and let them decide.",
+      "parentUuid": "f7f9dc58_49665c0e",
+      "revId": "400f689ccb050635037e9d46acfc514e2588e19f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
