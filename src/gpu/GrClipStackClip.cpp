@@ -117,14 +117,14 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
 
         GrShape shape(path, GrStyle::SimpleFill());
         GrPathRenderer::CanDrawPathArgs canDrawArgs;
-        canDrawArgs.fCaps = context->caps();
+        canDrawArgs.fCaps = context->contextPriv().caps();
         canDrawArgs.fClipConservativeBounds = &scissorRect;
         canDrawArgs.fViewMatrix = &viewMatrix;
         canDrawArgs.fShape = &shape;
         canDrawArgs.fAAType = GrChooseAAType(GrAA(element->isAA()),
                                              renderTargetContext->fsaaType(),
                                              GrAllowMixedSamples::kYes,
-                                             *context->caps());
+                                             *context->contextPriv().caps());
         canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
 
         // the 'false' parameter disallows use of the SW path renderer
@@ -151,8 +151,9 @@ bool GrClipStackClip::UseSWOnlyPath(GrContext* context,
     // of whether it would invoke the GrSoftwarePathRenderer.
 
     // If we're avoiding stencils, always use SW:
-    if (context->caps()->avoidStencilBuffers())
+    if (context->contextPriv().caps()->avoidStencilBuffers()) {
         return true;
+    }
 
     // Set the matrix so that rendered clip elements are transformed to mask space from clip
     // space.
@@ -191,9 +192,9 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     }
 
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-    const auto* caps = context->caps()->shaderCaps();
+    const auto* caps = context->contextPriv().caps()->shaderCaps();
     int maxWindowRectangles = renderTargetContext->priv().maxWindowRectangles();
-    int maxAnalyticFPs = context->caps()->maxClipAnalyticFPs();
+    int maxAnalyticFPs = context->contextPriv().caps()->maxClipAnalyticFPs();
     if (GrFSAAType::kNone != renderTargetContext->fsaaType()) {
         // With mixed samples (non-msaa color buffer), any coverage info is lost from color once it
         // hits the color buffer anyway, so we may as well use coverage AA if nothing else in the
@@ -201,7 +202,8 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         if (renderTargetContext->numColorSamples() > 1 || useHWAA || hasUserStencilSettings) {
             maxAnalyticFPs = 0;
         }
-        SkASSERT(!context->caps()->avoidStencilBuffers()); // We disable MSAA when avoiding stencil.
+        // We disable MSAA when avoiding stencil.
+        SkASSERT(!context->contextPriv().caps()->avoidStencilBuffers());
     }
     auto* ccpr = context->contextPriv().drawingManager()->getCoverageCountingPathRenderer();
 
@@ -253,7 +255,7 @@ bool GrClipStackClip::applyClipMask(GrContext* context, GrRenderTargetContext* r
 
     // If the stencil buffer is multisampled we can use it to do everything.
     if ((GrFSAAType::kNone == renderTargetContext->fsaaType() && reducedClip.maskRequiresAA()) ||
-        context->caps()->avoidStencilBuffers()) {
+        context->contextPriv().caps()->avoidStencilBuffers()) {
         sk_sp<GrTextureProxy> result;
         if (UseSWOnlyPath(context, hasUserStencilSettings, renderTargetContext, reducedClip)) {
             // The clip geometry is complex enough that it will be more efficient to create it
@@ -272,7 +274,7 @@ bool GrClipStackClip::applyClipMask(GrContext* context, GrRenderTargetContext* r
 
         // If alpha or software clip mask creation fails, fall through to the stencil code paths,
         // unless stencils are disallowed.
-        if (context->caps()->avoidStencilBuffers()) {
+        if (context->contextPriv().caps()->avoidStencilBuffers()) {
             SkDebugf("WARNING: Clip mask requires stencil, but stencil unavailable. "
                      "Clip will be ignored.\n");
             return false;

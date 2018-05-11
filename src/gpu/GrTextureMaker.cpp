@@ -17,15 +17,15 @@ sk_sp<GrTextureProxy> GrTextureMaker::onRefTextureProxyForParams(const GrSampler
                                                                  SkColorSpace* dstColorSpace,
                                                                  sk_sp<SkColorSpace>* texColorSpace,
                                                                  SkScalar scaleAdjust[2]) {
-    if (this->width() > fContext->caps()->maxTextureSize() ||
-        this->height() > fContext->caps()->maxTextureSize()) {
+    if (this->width() > fContext->contextPriv().caps()->maxTextureSize() ||
+        this->height() > fContext->contextPriv().caps()->maxTextureSize()) {
         return nullptr;
     }
 
     CopyParams copyParams;
     bool willBeMipped = params.filter() == GrSamplerState::Filter::kMipMap;
 
-    if (!fContext->caps()->mipMapSupport()) {
+    if (!fContext->contextPriv().caps()->mipMapSupport()) {
         willBeMipped = false;
     }
 
@@ -36,15 +36,15 @@ sk_sp<GrTextureProxy> GrTextureMaker::onRefTextureProxyForParams(const GrSampler
     sk_sp<GrTextureProxy> original(this->refOriginalTextureProxy(willBeMipped, dstColorSpace,
                                                                  AllowedTexGenType::kCheap));
     if (original) {
-        if (!GrGpu::IsACopyNeededForTextureParams(fContext->caps(), original.get(),
-                                                  original->width(), original->height(),
-                                                  params, &copyParams, scaleAdjust)) {
+        if (!GrGpu::IsACopyNeededForTextureParams(fContext->contextPriv().caps(), original.get(),
+                                                  original->width(), original->height(), params,
+                                                  &copyParams, scaleAdjust)) {
             return original;
         }
     } else {
-        if (!GrGpu::IsACopyNeededForTextureParams(fContext->caps(), nullptr,
-                                                  this->width(), this->height(),
-                                                  params, &copyParams, scaleAdjust)) {
+        if (!GrGpu::IsACopyNeededForTextureParams(fContext->contextPriv().caps(), nullptr,
+                                                  this->width(), this->height(), params,
+                                                  &copyParams, scaleAdjust)) {
             return this->refOriginalTextureProxy(willBeMipped, dstColorSpace,
                                                  AllowedTexGenType::kAny);
         }

@@ -30,6 +30,8 @@ public:
      */
     static sk_sp<GrContext> MakeDDL(const sk_sp<GrContextThreadSafeProxy>&);
 
+    const GrCaps* caps() const { return fContext->fCaps.get(); }
+
     GrDrawingManager* drawingManager() { return fContext->fDrawingManager.get(); }
 
     sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
