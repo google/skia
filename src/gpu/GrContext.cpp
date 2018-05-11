@@ -173,6 +173,8 @@ GrContextThreadSafeProxy::GrContextThreadSafeProxy(sk_sp<const GrCaps> caps, uin
         , fBackend(backend)
         , fOptions(options) {}
 
+GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
+
 sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
     return fThreadSafeProxy;
 }

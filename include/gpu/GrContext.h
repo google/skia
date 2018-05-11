@@ -357,6 +357,8 @@ private:
  */
 class SK_API GrContextThreadSafeProxy : public SkRefCnt {
 public:
+    ~GrContextThreadSafeProxy();
+
     bool matches(GrContext* context) const { return context->uniqueID() == fContextUniqueID; }
 
     /**
