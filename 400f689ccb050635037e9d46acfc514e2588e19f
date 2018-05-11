@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7f9dc58_49665c0e",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 954,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-05-11T15:00:23Z",
+      "side": 1,
+      "message": "Do/can the PathOps use double? Would it be feasible to try and crop the path by the canvas bounds instead of just rejecting it?\n\ne.g. https://cs.chromium.org/chromium/src/third_party/skia/src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp?l\u003d110",
+      "revId": "400f689ccb050635037e9d46acfc514e2588e19f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
