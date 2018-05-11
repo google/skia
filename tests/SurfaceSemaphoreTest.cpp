@@ -111,7 +111,7 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
                             const sk_gpu_test::ContextInfo& childInfo2,
                             bool flushContext) {
     GrContext* mainCtx = mainInfo.grContext();
-    if (!mainCtx->caps()->fenceSyncSupport()) {
+    if (!mainCtx->contextPriv().caps()->fenceSyncSupport()) {
         return;
     }
 
@@ -213,7 +213,7 @@ DEF_GPUTEST(SurfaceSemaphores, reporter, options) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo) {
     GrContext* ctx = ctxInfo.grContext();
-    if (!ctx->caps()->fenceSyncSupport()) {
+    if (!ctx->contextPriv().caps()->fenceSyncSupport()) {
         return;
     }
 

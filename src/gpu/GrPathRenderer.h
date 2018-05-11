@@ -9,18 +9,17 @@
 #define GrPathRenderer_DEFINED
 
 #include "GrCaps.h"
-#include "GrRenderTargetContext.h"
+#include "GrContextPriv.h"
 #include "GrPaint.h"
+#include "GrRenderTargetContext.h"
 #include "GrShape.h"
 #include "GrUserStencilSettings.h"
-
 #include "SkDrawProcs.h"
 #include "SkTArray.h"
 
 class SkPath;
 class GrFixedClip;
 class GrHardClip;
-struct GrPoint;
 
 /**
  *  Base class for drawing paths into a GrOpList.
@@ -138,7 +137,7 @@ public:
         SkDEBUGCODE(args.validate();)
 #ifdef SK_DEBUG
         CanDrawPathArgs canArgs;
-        canArgs.fCaps = args.fContext->caps();
+        canArgs.fCaps = args.fContext->contextPriv().caps();
         canArgs.fClipConservativeBounds = args.fClipConservativeBounds;
         canArgs.fViewMatrix = args.fViewMatrix;
         canArgs.fShape = args.fShape;

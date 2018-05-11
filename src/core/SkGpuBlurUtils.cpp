@@ -455,7 +455,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
 
     int scaleFactorX, radiusX;
     int scaleFactorY, radiusY;
-    int maxTextureSize = context->caps()->maxTextureSize();
+    int maxTextureSize = context->contextPriv().caps()->maxTextureSize();
     sigmaX = adjust_sigma(sigmaX, maxTextureSize, &scaleFactorX, &radiusX);
     sigmaY = adjust_sigma(sigmaY, maxTextureSize, &scaleFactorY, &radiusY);
     SkASSERT(sigmaX || sigmaY);

@@ -1063,7 +1063,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
 
     GrGpu* gpu = ctx->contextPriv().getGpu();
     GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
-    const GrCaps& caps = *ctx->caps();
+    const GrCaps& caps = *ctx->contextPriv().caps();
     if (caps.shaderCaps()->dualSourceBlendingSupport()) {
         SK_ABORT("Null context failed to honor request for no ARB_blend_func_extended.");
         return;

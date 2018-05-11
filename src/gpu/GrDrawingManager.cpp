@@ -6,7 +6,6 @@
  */
 
 #include "GrDrawingManager.h"
-
 #include "GrBackendSemaphore.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
@@ -23,11 +22,9 @@
 #include "GrTextureOpList.h"
 #include "GrTextureProxy.h"
 #include "GrTextureProxyPriv.h"
-
 #include "SkDeferredDisplayList.h"
 #include "SkSurface_Gpu.h"
 #include "SkTTopoSort.h"
-
 #include "GrTracing.h"
 #include "text/GrAtlasTextContext.h"
 
@@ -65,7 +62,7 @@ GrDrawingManager::GrDrawingManager(GrContext* context,
 void GrDrawingManager::cleanup() {
     for (int i = 0; i < fOpLists.count(); ++i) {
         // no opList should receive a new command after this
-        fOpLists[i]->makeClosed(*fContext->caps());
+        fOpLists[i]->makeClosed(*fContext->contextPriv().caps());
 
         // We shouldn't need to do this, but it turns out some clients still hold onto opLists
         // after a cleanup.
@@ -130,7 +127,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         // needs to flush mid-draw. In that case, the SkGpuDevice's GrOpLists won't be closed
         // but need to be flushed anyway. Closing such GrOpLists here will mean new
         // GrOpLists will be created to replace them if the SkGpuDevice(s) write to them again.
-        fOpLists[i]->makeClosed(*fContext->caps());
+        fOpLists[i]->makeClosed(*fContext->contextPriv().caps());
     }
 
 #ifdef SK_DEBUG
@@ -186,7 +183,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
                     SkASSERT(GrSurfaceProxy::LazyState::kNot == p->lazyInstantiationState());
                 });
 #endif
-                onFlushOpList->makeClosed(*fContext->caps());
+                onFlushOpList->makeClosed(*fContext->contextPriv().caps());
                 onFlushOpList->prepare(&flushState);
                 fOnFlushCBOpLists.push_back(std::move(onFlushOpList));
             }
@@ -380,7 +377,7 @@ void GrDrawingManager::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlush
 void GrDrawingManager::moveOpListsToDDL(SkDeferredDisplayList* ddl) {
     for (int i = 0; i < fOpLists.count(); ++i) {
         // no opList should receive a new command after this
-        fOpLists[i]->makeClosed(*fContext->caps());
+        fOpLists[i]->makeClosed(*fContext->contextPriv().caps());
     }
 
     ddl->fOpLists = std::move(fOpLists);
@@ -402,7 +399,7 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* r
     // so ops that (in the single opList world) would've just glommed onto the end of the single
     // opList but referred to a far earlier RT need to appear in their own opList.
     if (!fOpLists.empty()) {
-        fOpLists.back()->makeClosed(*fContext->caps());
+        fOpLists.back()->makeClosed(*fContext->contextPriv().caps());
     }
 
     auto resourceProvider = fContext->contextPriv().resourceProvider();
@@ -427,7 +424,7 @@ sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(GrTextureProxy* textur
     // so ops that (in the single opList world) would've just glommed onto the end of the single
     // opList but referred to a far earlier RT need to appear in their own opList.
     if (!fOpLists.empty()) {
-        fOpLists.back()->makeClosed(*fContext->caps());
+        fOpLists.back()->makeClosed(*fContext->contextPriv().caps());
     }
 
     sk_sp<GrTextureOpList> opList(new GrTextureOpList(fContext->contextPriv().resourceProvider(),
@@ -502,7 +499,7 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
 
     // SkSurface catches bad color space usage at creation. This check handles anything that slips
     // by, including internal usage.
-    if (!SkSurface_Gpu::Valid(fContext->caps(), sProxy->config(), colorSpace.get())) {
+    if (!SkSurface_Gpu::Valid(fContext->contextPriv().caps(), sProxy->config(), colorSpace.get())) {
         SkDEBUGFAIL("Invalid config and colorspace combination");
         return nullptr;
     }
@@ -525,7 +522,7 @@ sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProx
 
     // SkSurface catches bad color space usage at creation. This check handles anything that slips
     // by, including internal usage.
-    if (!SkSurface_Gpu::Valid(fContext->caps(), sProxy->config(), colorSpace.get())) {
+    if (!SkSurface_Gpu::Valid(fContext->contextPriv().caps(), sProxy->config(), colorSpace.get())) {
         SkDEBUGFAIL("Invalid config and colorspace combination");
         return nullptr;
     }

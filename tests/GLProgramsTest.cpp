@@ -300,8 +300,8 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
     static const int NUM_TESTS = 1024;
     for (int t = 0; t < NUM_TESTS; t++) {
         // setup random render target(can fail)
-        sk_sp<GrRenderTargetContext> renderTargetContext(random_render_target_context(
-            context, &random, context->caps()));
+        sk_sp<GrRenderTargetContext> renderTargetContext(
+                random_render_target_context(context, &random, context->contextPriv().caps()));
         if (!renderTargetContext) {
             SkDebugf("Could not allocate renderTargetContext");
             return false;

@@ -172,7 +172,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                                                              SkBackingFit::kApprox, 1, 1,
                                                              kRGBA_8888_GrPixelConfig, nullptr));
             {
-                bool texelBufferSupport = context->caps()->shaderCaps()->texelBufferSupport();
+                bool texelBufferSupport =
+                        context->contextPriv().caps()->shaderCaps()->texelBufferSupport();
                 sk_sp<GrTextureProxy> proxy1 = proxyProvider->createProxy(
                         desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kExact, SkBudgeted::kYes);
                 sk_sp<GrTextureProxy> proxy2 = proxyProvider->createProxy(

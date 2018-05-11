@@ -163,6 +163,16 @@ GrContext::~GrContext() {
     delete fGlyphCache;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
+GrContextThreadSafeProxy::GrContextThreadSafeProxy(sk_sp<const GrCaps> caps, uint32_t uniqueID,
+                                                   GrBackend backend,
+                                                   const GrContextOptions& options)
+        : fCaps(std::move(caps))
+        , fContextUniqueID(uniqueID)
+        , fBackend(backend)
+        , fOptions(options) {}
+
 sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
     return fThreadSafeProxy;
 }
@@ -314,18 +324,18 @@ size_t GrContext::getResourceCachePurgeableBytes() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-int GrContext::maxTextureSize() const { return this->caps()->maxTextureSize(); }
+int GrContext::maxTextureSize() const { return fCaps->maxTextureSize(); }
 
-int GrContext::maxRenderTargetSize() const { return this->caps()->maxRenderTargetSize(); }
+int GrContext::maxRenderTargetSize() const { return fCaps->maxRenderTargetSize(); }
 
 bool GrContext::colorTypeSupportedAsImage(SkColorType colorType) const {
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(colorType, nullptr, *this->caps());
-    return this->caps()->isConfigTexturable(config);
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(colorType, nullptr, *fCaps);
+    return fCaps->isConfigTexturable(config);
 }
 
 int GrContext::maxSurfaceSampleCountForColorType(SkColorType colorType) const {
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(colorType, nullptr, *this->caps());
-    return this->caps()->maxRenderTargetSampleCount(config);
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(colorType, nullptr, *fCaps);
+    return fCaps->maxRenderTargetSampleCount(config);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -574,7 +584,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
     GrGpu::WritePixelTempDrawInfo tempDrawInfo;
     GrSRGBConversion srgbConversion = determine_write_pixels_srgb_conversion(
             srcColorType, srcColorSpace, GrPixelConfigIsSRGBEncoded(dstProxy->config()),
-            dst->colorSpaceInfo().colorSpace(), *fContext->caps());
+            dst->colorSpaceInfo().colorSpace(), *fContext->contextPriv().caps());
     if (!fContext->fGpu->getWritePixelsInfo(dstSurface, dstProxy->origin(), width, height,
                                             srcColorType, srgbConversion, &drawPreference,
                                             &tempDrawInfo)) {
@@ -743,7 +753,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
     GrGpu::ReadPixelTempDrawInfo tempDrawInfo;
     GrSRGBConversion srgbConversion = determine_read_pixels_srgb_conversion(
             GrPixelConfigIsSRGBEncoded(srcProxy->config()), src->colorSpaceInfo().colorSpace(),
-            dstColorType, dstColorSpace, *fContext->caps());
+            dstColorType, dstColorSpace, *fContext->contextPriv().caps());
 
     if (!fContext->fGpu->getReadPixelsInfo(srcSurface, srcProxy->origin(), width, height, rowBytes,
                                            dstColorType, srgbConversion, &drawPreference,
@@ -895,10 +905,11 @@ bool GrContextPriv::writeSurfacePixels2(GrSurfaceContext* dst, int left, int top
             (dstProxy->config() == kRGBA_8888_GrPixelConfig ||
              dstProxy->config() == kBGRA_8888_GrPixelConfig) &&
             !(pixelOpsFlags & kDontFlush_PixelOpsFlag) &&
-            fContext->caps()->isConfigTexturable(kRGBA_8888_GrPixelConfig) &&
+            fContext->contextPriv().caps()->isConfigTexturable(kRGBA_8888_GrPixelConfig) &&
             fContext->validPMUPMConversionExists();
 
-    if (!fContext->caps()->surfaceSupportsWritePixels(dstSurface) || canvas2DFastPath) {
+    if (!fContext->contextPriv().caps()->surfaceSupportsWritePixels(dstSurface) ||
+        canvas2DFastPath) {
         // We don't expect callers that are skipping flushes to require an intermediate draw.
         SkASSERT(!(pixelOpsFlags & kDontFlush_PixelOpsFlag));
         if (pixelOpsFlags & kDontFlush_PixelOpsFlag) {
@@ -957,8 +968,8 @@ bool GrContextPriv::writeSurfacePixels2(GrSurfaceContext* dst, int left, int top
         return false;
     }
 
-    GrColorType allowedColorType =
-            fContext->caps()->supportedWritePixelsColorType(dstProxy->config(), srcColorType);
+    GrColorType allowedColorType = fContext->contextPriv().caps()->supportedWritePixelsColorType(
+            dstProxy->config(), srcColorType);
     convert = convert || (srcColorType != allowedColorType);
 
     if (!dst->colorSpaceInfo().colorSpace()) {
@@ -1071,10 +1082,11 @@ bool GrContextPriv::readSurfacePixels2(GrSurfaceContext* src, int left, int top,
             SkToBool(srcProxy->asTextureProxy()) &&
             (srcProxy->config() == kRGBA_8888_GrPixelConfig ||
              srcProxy->config() == kBGRA_8888_GrPixelConfig) &&
-            fContext->caps()->isConfigRenderable(kRGBA_8888_GrPixelConfig) &&
+            fContext->contextPriv().caps()->isConfigRenderable(kRGBA_8888_GrPixelConfig) &&
             fContext->validPMUPMConversionExists();
 
-    if (!fContext->caps()->surfaceSupportsReadPixels(srcSurface) || canvas2DFastPath) {
+    if (!fContext->contextPriv().caps()->surfaceSupportsReadPixels(srcSurface) ||
+        canvas2DFastPath) {
         GrSurfaceDesc desc;
         desc.fFlags = canvas2DFastPath ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
         desc.fConfig = canvas2DFastPath ? kRGBA_8888_GrPixelConfig : srcProxy->config();
@@ -1132,8 +1144,8 @@ bool GrContextPriv::readSurfacePixels2(GrSurfaceContext* src, int left, int top,
         top = srcSurface->height() - top - height;
     }
 
-    GrColorType allowedColorType =
-            fContext->caps()->supportedReadPixelsColorType(srcProxy->config(), dstColorType);
+    GrColorType allowedColorType = fContext->contextPriv().caps()->supportedReadPixelsColorType(
+            srcProxy->config(), dstColorType);
     convert = convert || (dstColorType != allowedColorType);
 
     if (!src->colorSpaceInfo().colorSpace()) {
@@ -1392,7 +1404,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContextWithF
                                                                  const SkSurfaceProps* surfaceProps,
                                                                  SkBudgeted budgeted) {
     SkASSERT(sampleCnt > 0);
-    if (0 == fContext->caps()->getRenderTargetSampleCount(sampleCnt, config)) {
+    if (0 == fContext->contextPriv().caps()->getRenderTargetSampleCount(sampleCnt, config)) {
         config = GrPixelConfigFallback(config);
     }
 

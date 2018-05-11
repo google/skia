@@ -108,7 +108,7 @@ static void check_texture(skiatest::Reporter* reporter,
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
     GrProxyProvider* proxyProvider = ctxInfo.grContext()->contextPriv().proxyProvider();
     GrResourceProvider* resourceProvider = ctxInfo.grContext()->contextPriv().resourceProvider();
-    const GrCaps& caps = *ctxInfo.grContext()->caps();
+    const GrCaps& caps = *ctxInfo.grContext()->contextPriv().caps();
 
     int attempt = 0; // useful for debugging
 
@@ -198,7 +198,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
     GrProxyProvider* proxyProvider = ctxInfo.grContext()->contextPriv().proxyProvider();
     GrResourceProvider* resourceProvider = ctxInfo.grContext()->contextPriv().resourceProvider();
     GrGpu* gpu = ctxInfo.grContext()->contextPriv().getGpu();
-    const GrCaps& caps = *ctxInfo.grContext()->caps();
+    const GrCaps& caps = *ctxInfo.grContext()->contextPriv().caps();
 
     static const int kWidthHeight = 100;
 

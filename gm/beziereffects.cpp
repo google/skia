@@ -136,7 +136,7 @@ protected:
             return;
         }
 
-        if (!context->caps()->shaderCaps()->floatIs32Bits()) {
+        if (!context->contextPriv().caps()->shaderCaps()->floatIs32Bits()) {
             SkPaint paint;
             sk_tool_utils::set_portable_typeface(&paint);
             paint.setAntiAlias(true);
@@ -224,9 +224,9 @@ protected:
 
 
                     bool flipKL = (c == loopIndex && cnt != 3);
-                    sk_sp<GrGeometryProcessor> gp = GrCubicEffect::Make(color, SkMatrix::I(), klm,
-                                                                        flipKL, edgeType,
-                                                                        *context->caps());
+                    sk_sp<GrGeometryProcessor> gp =
+                            GrCubicEffect::Make(color, SkMatrix::I(), klm, flipKL, edgeType,
+                                                *context->contextPriv().caps());
                     if (!gp) {
                         break;
                     }
@@ -358,8 +358,8 @@ protected:
             for(int edgeType = 0; edgeType < kGrClipEdgeTypeCnt; ++edgeType) {
                 sk_sp<GrGeometryProcessor> gp;
                 GrClipEdgeType et = (GrClipEdgeType)edgeType;
-                gp = GrConicEffect::Make(color, SkMatrix::I(), et,
-                                         *context->caps(), SkMatrix::I(), false);
+                gp = GrConicEffect::Make(color, SkMatrix::I(), et, *context->contextPriv().caps(),
+                                         SkMatrix::I(), false);
                 if (!gp) {
                     continue;
                 }
@@ -566,8 +566,8 @@ protected:
             for(int edgeType = 0; edgeType < kGrClipEdgeTypeCnt; ++edgeType) {
                 sk_sp<GrGeometryProcessor> gp;
                 GrClipEdgeType et = (GrClipEdgeType)edgeType;
-                gp = GrQuadEffect::Make(color, SkMatrix::I(), et,
-                                        *context->caps(), SkMatrix::I(), false);
+                gp = GrQuadEffect::Make(color, SkMatrix::I(), et, *context->contextPriv().caps(),
+                                        SkMatrix::I(), false);
                 if (!gp) {
                     continue;
                 }

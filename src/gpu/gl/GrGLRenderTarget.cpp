@@ -6,8 +6,8 @@
  */
 
 #include "GrGLRenderTarget.h"
-
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGLGpu.h"
 #include "GrGLUtil.h"
 #include "GrGpuResourcePriv.h"
@@ -187,7 +187,7 @@ GrGLGpu* GrGLRenderTarget::getGLGpu() const {
 }
 
 bool GrGLRenderTarget::canAttemptStencilAttachment() const {
-    if (this->getGpu()->getContext()->caps()->avoidStencilBuffers()) {
+    if (this->getGpu()->getContext()->contextPriv().caps()->avoidStencilBuffers()) {
         return false;
     }
 

@@ -12,7 +12,9 @@
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
+#include "GrCaps.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "SkGr.h"
 #endif
 
@@ -81,7 +83,7 @@ DEF_TEST(SpecialSurface_Raster2, reporter) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu1, reporter, ctxInfo) {
     for (auto config : { kRGBA_8888_GrPixelConfig, kRGBA_1010102_GrPixelConfig }) {
-        if (!ctxInfo.grContext()->caps()->isConfigRenderable(config)) {
+        if (!ctxInfo.grContext()->contextPriv().caps()->isConfigRenderable(config)) {
             continue;
         }
         sk_sp<SkSpecialSurface> surf(SkSpecialSurface::MakeRenderTarget(ctxInfo.grContext(),

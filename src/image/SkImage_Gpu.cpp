@@ -374,7 +374,7 @@ bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex, GrPix
         return false;
     }
 
-    return ctx->caps()->validateBackendTexture(tex, ct, config);
+    return ctx->contextPriv().caps()->validateBackendTexture(tex, ct, config);
 }
 
 sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
@@ -694,7 +694,8 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
         return nullptr;
     }
     GrPixelConfig config = kUnknown_GrPixelConfig;
-    if (!context->caps()->getConfigFromBackendFormat(backendFormat, colorType, &config)) {
+    if (!context->contextPriv().caps()->getConfigFromBackendFormat(backendFormat, colorType,
+                                                                   &config)) {
         return nullptr;
     }
 
@@ -748,12 +749,13 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
     }
 
     // Some backends or drivers don't support (safely) moving resources between contexts
-    if (!context || !context->caps()->crossContextTextureSupport()) {
+    if (!context || !context->contextPriv().caps()->crossContextTextureSupport()) {
         return codecImage;
     }
 
-    if (limitToMaxTextureSize && (codecImage->width() > context->caps()->maxTextureSize() ||
-                                  codecImage->height() > context->caps()->maxTextureSize())) {
+    auto maxTextureSize = context->contextPriv().caps()->maxTextureSize();
+    if (limitToMaxTextureSize &&
+        (codecImage->width() > maxTextureSize || codecImage->height() > maxTextureSize)) {
         SkAutoPixmapStorage pmap;
         SkImageInfo info = as_IB(codecImage)->onImageInfo();
         if (!dstColorSpace) {
@@ -801,7 +803,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context,
                                                    SkColorSpace* dstColorSpace,
                                                    bool limitToMaxTextureSize) {
     // Some backends or drivers don't support (safely) moving resources between contexts
-    if (!context || !context->caps()->crossContextTextureSupport()) {
+    if (!context || !context->contextPriv().caps()->crossContextTextureSupport()) {
         return SkImage::MakeRasterCopy(originalPixmap);
     }
 
@@ -814,7 +816,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context,
 
     const SkPixmap* pixmap = &originalPixmap;
     SkAutoPixmapStorage resized;
-    int maxTextureSize = context->caps()->maxTextureSize();
+    int maxTextureSize = context->contextPriv().caps()->maxTextureSize();
     int maxDim = SkTMax(originalPixmap.width(), originalPixmap.height());
     if (limitToMaxTextureSize && maxDim > maxTextureSize) {
         float scale = static_cast<float>(maxTextureSize) / maxDim;

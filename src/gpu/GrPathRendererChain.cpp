@@ -7,15 +7,12 @@
 
 
 #include "GrPathRendererChain.h"
-
 #include "GrCaps.h"
 #include "GrShaderCaps.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
-
 #include "ccpr/GrCoverageCountingPathRenderer.h"
-
 #include "ops/GrAAConvexPathRenderer.h"
 #include "ops/GrAAHairLinePathRenderer.h"
 #include "ops/GrAALinearizingConvexPathRenderer.h"
@@ -26,7 +23,7 @@
 #include "ops/GrTessellatingPathRenderer.h"
 
 GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& options) {
-    const GrCaps& caps = *context->caps();
+    const GrCaps& caps = *context->contextPriv().caps();
     if (options.fGpuPathRenderers & GpuPathRenderers::kDashLine) {
         fChain.push_back(sk_make_sp<GrDashLinePathRenderer>());
     }
@@ -43,8 +40,8 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
 
     if (options.fGpuPathRenderers & GpuPathRenderers::kCoverageCounting) {
         bool drawCachablePaths = !options.fAllowPathMaskCaching;
-        if (auto ccpr = GrCoverageCountingPathRenderer::CreateIfSupported(*context->caps(),
-                                                                          drawCachablePaths)) {
+        if (auto ccpr =
+                    GrCoverageCountingPathRenderer::CreateIfSupported(caps, drawCachablePaths)) {
             fCoverageCountingPathRenderer = ccpr.get();
             context->contextPriv().addOnFlushCallbackObject(fCoverageCountingPathRenderer);
             fChain.push_back(std::move(ccpr));

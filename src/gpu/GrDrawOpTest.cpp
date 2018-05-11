@@ -8,6 +8,7 @@
 #include "GrDrawOpTest.h"
 #include "GrCaps.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrUserStencilSettings.h"
 #include "SkRandom.h"
 #include "SkTypes.h"
@@ -15,7 +16,7 @@
 #if GR_TEST_UTILS
 
 const GrUserStencilSettings* GrGetRandomStencil(SkRandom* random, GrContext* context) {
-    if (context->caps()->avoidStencilBuffers()) {
+    if (context->contextPriv().caps()->avoidStencilBuffers()) {
         return &GrUserStencilSettings::kUnused;
     }
     static constexpr GrUserStencilSettings kReads(

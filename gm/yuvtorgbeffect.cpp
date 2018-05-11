@@ -90,7 +90,8 @@ protected:
             GrSurfaceDesc desc;
             desc.fWidth = fBmp[i].width();
             desc.fHeight = fBmp[i].height();
-            desc.fConfig = SkImageInfo2GrPixelConfig(fBmp[i].info(), *context->caps());
+            desc.fConfig =
+                    SkImageInfo2GrPixelConfig(fBmp[i].info(), *context->contextPriv().caps());
             SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
 
             proxy[i] = proxyProvider->createTextureProxy(desc, SkBudgeted::kYes,
@@ -216,7 +217,8 @@ protected:
             GrSurfaceDesc desc;
             desc.fWidth = fBmp[index].width();
             desc.fHeight = fBmp[index].height();
-            desc.fConfig = SkImageInfo2GrPixelConfig(fBmp[index].info(), *context->caps());
+            desc.fConfig =
+                    SkImageInfo2GrPixelConfig(fBmp[index].info(), *context->contextPriv().caps());
             SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
 
             proxy[i] = proxyProvider->createTextureProxy(

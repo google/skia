@@ -139,7 +139,10 @@ public:
 
     /** This is the maximum tile size to use by GPU devices for rendering sw-backed images/bitmaps.
         It is usually the max texture size, unless we're overriding it for testing. */
-    int maxTileSize() const { SkASSERT(fMaxTileSize <= fMaxTextureSize); return fMaxTileSize; }
+    int maxTileSize() const {
+        SkASSERT(fMaxTileSize <= fMaxTextureSize);
+        return fMaxTileSize;
+    }
 
     int maxRasterSamples() const { return fMaxRasterSamples; }
 

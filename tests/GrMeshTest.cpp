@@ -10,23 +10,24 @@
 
 #if SK_SUPPORT_GPU
 
+#include <array>
+#include <vector>
+#include "GrCaps.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGeometryProcessor.h"
 #include "GrGpuCommandBuffer.h"
 #include "GrOpFlushState.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
-#include "GrResourceProvider.h"
 #include "GrResourceKey.h"
+#include "GrResourceProvider.h"
 #include "SkBitmap.h"
 #include "SkMakeUnique.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLVarying.h"
-#include <array>
-#include <vector>
-
+#include "glsl/GrGLSLVertexGeoBuilder.h"
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
 
@@ -197,7 +198,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
     });
 
     for (bool indexed : {false, true}) {
-        if (!context->caps()->instanceAttribSupport()) {
+        if (!context->contextPriv().caps()->instanceAttribSupport()) {
             break;
         }
 
@@ -226,7 +227,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                 }
                 switch (y % 3) {
                     case 0:
-                        if (context->caps()->shaderCaps()->vertexIDSupport()) {
+                        if (context->contextPriv().caps()->shaderCaps()->vertexIDSupport()) {
                             if (y % 2) {
                                 // We don't need this call because it's the initial state of GrMesh.
                                 mesh.setVertexData(nullptr);

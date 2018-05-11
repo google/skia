@@ -8,6 +8,7 @@
 #include "SkSurfaceCharacterization.h"
 
 #if SK_SUPPORT_GPU
+#include "GrCaps.h"
 #include "GrContextThreadSafeProxyPriv.h"
 
 bool SkSurfaceCharacterization::operator==(const SkSurfaceCharacterization& other) const {

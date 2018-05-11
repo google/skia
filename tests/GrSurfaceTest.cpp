@@ -74,7 +74,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     GrResourceProvider* resourceProvider = context->contextPriv().resourceProvider();
-    const GrCaps* caps = context->caps();
+    const GrCaps* caps = context->contextPriv().caps();
 
     GrPixelConfig configs[] = {
         kUnknown_GrPixelConfig,
@@ -157,12 +157,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
         if (GrPixelConfigIsSRGB(desc.fConfig)) {
             colorSpace = SkColorSpace::MakeSRGB();
         }
-        if (!context_info.grContext()->caps()->isConfigTexturable(desc.fConfig)) {
+        if (!context->contextPriv().caps()->isConfigTexturable(desc.fConfig)) {
             continue;
         }
         desc.fFlags = kPerformInitialClear_GrSurfaceFlag;
         for (bool rt : {false, true}) {
-            if (rt && !context->caps()->isConfigRenderable(desc.fConfig)) {
+            if (rt && !context->contextPriv().caps()->isConfigRenderable(desc.fConfig)) {
                 continue;
             }
             desc.fFlags |= rt ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;

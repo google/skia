@@ -110,7 +110,7 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pix
 sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext* ctx, GrTextureProxy* baseProxy) {
     SkASSERT(baseProxy);
 
-    if (!ctx->caps()->isConfigCopyable(baseProxy->config())) {
+    if (!ctx->contextPriv().caps()->isConfigCopyable(baseProxy->config())) {
         return nullptr;
     }
 

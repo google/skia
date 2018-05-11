@@ -340,7 +340,7 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
     if (!clip.hasWindowRectangles()) {
         isFull = !clip.scissorEnabled() ||
                  (CanClearFullscreen::kYes == canClearFullscreen &&
-                  fContext->caps()->preferFullscreenClears()) ||
+                  this->caps()->preferFullscreenClears()) ||
                  clip.scissorRect().contains(SkIRect::MakeWH(this->width(), this->height()));
     }
 
@@ -589,7 +589,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
 
 int GrRenderTargetContextPriv::maxWindowRectangles() const {
     return fRenderTargetContext->fRenderTargetProxy->maxWindowRectangles(
-                                                    *fRenderTargetContext->fContext->caps());
+            *fRenderTargetContext->caps());
 }
 
 void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
@@ -917,7 +917,7 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
 
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     if (GrAAType::kCoverage == aaType) {
-        const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
+        const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
         std::unique_ptr<GrDrawOp> op = GrOvalOpFactory::MakeRRectOp(std::move(paint),
                                                                     viewMatrix,
                                                                     rrect,
@@ -1306,7 +1306,7 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
 
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     if (GrAAType::kCoverage == aaType) {
-        const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
+        const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
         if (auto op = GrOvalOpFactory::MakeOvalOp(std::move(paint), viewMatrix, oval, style,
                                                   shaderCaps)) {
             this->addDrawOp(clip, std::move(op));
@@ -1337,7 +1337,7 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
 
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     if (GrAAType::kCoverage == aaType) {
-        const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
+        const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
         std::unique_ptr<GrDrawOp> op = GrOvalOpFactory::MakeArcOp(std::move(paint),
                                                                   viewMatrix,
                                                                   oval,
@@ -1563,7 +1563,7 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
 
     GrShape shape(path, GrStyle::SimpleFill());
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
-    canDrawArgs.fCaps = fRenderTargetContext->drawingManager()->getContext()->caps();
+    canDrawArgs.fCaps = fRenderTargetContext->caps();
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &shape;
     canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;
@@ -1627,7 +1627,7 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
                                                     : GrAllowMixedSamples::kYes;
     GrAAType aaType = this->chooseAAType(aa, allowMixedSamples);
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
-    canDrawArgs.fCaps = this->drawingManager()->getContext()->caps();
+    canDrawArgs.fCaps = this->caps();
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &originalShape;
     canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;

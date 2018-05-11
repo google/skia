@@ -5,25 +5,25 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrShaderCaps_DEFINED
 #define GrShaderCaps_DEFINED
 
-#include "../private/GrSwizzle.h"
 #include "../private/GrGLSL.h"
+#include "../private/GrSwizzle.h"
 
 namespace SkSL {
-    class ShaderCapsFactory;
+class ShaderCapsFactory;
 }
+
 struct GrContextOptions;
 class SkJSONWriter;
 
 class GrShaderCaps : public SkRefCnt {
 public:
     /**
-    * Indicates how GLSL must interact with advanced blend equations. The KHR extension requires
-    * special layout qualifiers in the fragment shader.
-    */
+     * Indicates how GLSL must interact with advanced blend equations. The KHR extension requires
+     * special layout qualifiers in the fragment shader.
+     */
     enum AdvBlendEqInteraction {
         kNotSupported_AdvBlendEqInteraction,     //<! No _blend_equation_advanced extension
         kAutomatic_AdvBlendEqInteraction,        //<! No interaction required
@@ -93,9 +93,7 @@ public:
         return fAdvBlendEqInteraction == kSpecificEnables_AdvBlendEqInteraction;
     }
 
-    bool mustDeclareFragmentShaderOutput() const {
-        return fGLSLGeneration > k110_GrGLSLGeneration;
-    }
+    bool mustDeclareFragmentShaderOutput() const { return fGLSLGeneration > k110_GrGLSLGeneration; }
 
     bool usesPrecisionModifiers() const { return fUsesPrecisionModifiers; }
 
@@ -172,9 +170,7 @@ public:
     // required in order to use a secondary output in the shader. This returns a nullptr if no such
     // extension is required. However, the return value of this function does not say whether dual
     // source blending is supported.
-    const char* secondaryOutputExtensionString() const {
-        return fSecondaryOutputExtensionString;
-    }
+    const char* secondaryOutputExtensionString() const { return fSecondaryOutputExtensionString; }
 
     // This returns the name of an extension that must be enabled in the shader to support external
     // textures. In some cases, two extensions must be enabled - the second extension is returned
@@ -243,42 +239,42 @@ private:
 
     GrGLSLGeneration fGLSLGeneration;
 
-    bool fShaderDerivativeSupport   : 1;
-    bool fGeometryShaderSupport     : 1;
-    bool fGSInvocationsSupport      : 1;
-    bool fPathRenderingSupport      : 1;
-    bool fDstReadInShaderSupport    : 1;
-    bool fDualSourceBlendingSupport : 1;
-    bool fIntegerSupport            : 1;
-    bool fTexelBufferSupport        : 1;
-    bool fImageLoadStoreSupport     : 1;
-    bool fDropsTileOnZeroDivide : 1;
-    bool fFBFetchSupport : 1;
-    bool fFBFetchNeedsCustomOutput : 1;
-    bool fUsesPrecisionModifiers : 1;
-    bool fFlatInterpolationSupport : 1;
-    bool fPreferFlatInterpolation : 1;
+    bool fShaderDerivativeSupport           : 1;
+    bool fGeometryShaderSupport             : 1;
+    bool fGSInvocationsSupport              : 1;
+    bool fPathRenderingSupport              : 1;
+    bool fDstReadInShaderSupport            : 1;
+    bool fDualSourceBlendingSupport         : 1;
+    bool fIntegerSupport                    : 1;
+    bool fTexelBufferSupport                : 1;
+    bool fImageLoadStoreSupport             : 1;
+    bool fDropsTileOnZeroDivide             : 1;
+    bool fFBFetchSupport                    : 1;
+    bool fFBFetchNeedsCustomOutput          : 1;
+    bool fUsesPrecisionModifiers            : 1;
+    bool fFlatInterpolationSupport          : 1;
+    bool fPreferFlatInterpolation           : 1;
     bool fNoPerspectiveInterpolationSupport : 1;
-    bool fExternalTextureSupport : 1;
-    bool fTexelFetchSupport : 1;
-    bool fVertexIDSupport : 1;
-    bool fFPManipulationSupport : 1;
-    bool fFloatIs32Bits : 1;
-    bool fHalfIs32Bits : 1;
+    bool fExternalTextureSupport            : 1;
+    bool fTexelFetchSupport                 : 1;
+    bool fVertexIDSupport                   : 1;
+    bool fFPManipulationSupport             : 1;
+    bool fFloatIs32Bits                     : 1;
+    bool fHalfIs32Bits                      : 1;
 
     // Used for specific driver bug work arounds
-    bool fCanUseAnyFunctionInShader : 1;
-    bool fCanUseMinAndAbsTogether : 1;
-    bool fCanUseFractForNegativeValues : 1;
-    bool fMustForceNegatedAtanParamToFloat : 1;
-    bool fAtan2ImplementedAsAtanYOverX : 1;
-    bool fMustDoOpBetweenFloorAndAbs : 1;
-    bool fRequiresLocalOutputColorForFBFetch : 1;
-    bool fMustObfuscateUniformColor : 1;
+    bool fCanUseAnyFunctionInShader                   : 1;
+    bool fCanUseMinAndAbsTogether                     : 1;
+    bool fCanUseFractForNegativeValues                : 1;
+    bool fMustForceNegatedAtanParamToFloat            : 1;
+    bool fAtan2ImplementedAsAtanYOverX                : 1;
+    bool fMustDoOpBetweenFloorAndAbs                  : 1;
+    bool fRequiresLocalOutputColorForFBFetch          : 1;
+    bool fMustObfuscateUniformColor                   : 1;
     bool fMustGuardDivisionEvenAfterExplicitZeroCheck : 1;
-    bool fCanUseFragCoord : 1;
-    bool fInterpolantsAreInaccurate : 1;
-    bool fIncompleteShortIntPrecision : 1;
+    bool fCanUseFragCoord                             : 1;
+    bool fInterpolantsAreInaccurate                   : 1;
+    bool fIncompleteShortIntPrecision                 : 1;
 
     const char* fVersionDeclString;
 

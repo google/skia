@@ -138,7 +138,7 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
     // Otherwise, we do our shader math to go from YUV -> sRGB, manually convert sRGB -> Linear,
     // then let the HW convert Linear -> sRGB.
     if (GrPixelConfigIsSRGB(desc.fConfig)) {
-        if (ctx->caps()->srgbWriteControl()) {
+        if (ctx->contextPriv().caps()->srgbWriteControl()) {
             paint.setDisableOutputConversionToSRGB(true);
         } else {
             paint.addColorFragmentProcessor(GrSRGBEffect::Make(GrSRGBEffect::Mode::kSRGBToLinear,

@@ -102,11 +102,11 @@ bool SkDeferredDisplayListRecorder::init() {
     // DDL is being replayed into.
 
     GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone;
-    if (fContext->caps()->usesMixedSamples() && desc.fSampleCnt > 1 && !usesGLFBO0) {
+    if (fContext->contextPriv().caps()->usesMixedSamples() && desc.fSampleCnt > 1 && !usesGLFBO0) {
         // In GL, FBO 0 never supports mixed samples
         surfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
     }
-    if (fContext->caps()->maxWindowRectangles() > 0 && !usesGLFBO0) {
+    if (fContext->contextPriv().caps()->maxWindowRectangles() > 0 && !usesGLFBO0) {
         // In GL, FBO 0 never supports window rectangles
         surfaceFlags |= GrInternalSurfaceFlags::kWindowRectsSupport;
     }

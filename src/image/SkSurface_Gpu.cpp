@@ -6,22 +6,21 @@
  */
 
 #include "SkSurface_Gpu.h"
-
 #include "GrBackendSurface.h"
+#include "GrCaps.h"
 #include "GrContextPriv.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrRenderTargetProxyPriv.h"
 #include "GrTexture.h"
-
 #include "SkCanvas.h"
 #include "SkDeferredDisplayList.h"
 #include "SkGpuDevice.h"
+#include "SkImagePriv.h"
 #include "SkImage_Base.h"
 #include "SkImage_Gpu.h"
-#include "SkImagePriv.h"
-#include "SkSurface_Base.h"
 #include "SkSurfaceCharacterization.h"
+#include "SkSurface_Base.h"
 
 #if SK_SUPPORT_GPU
 
@@ -334,7 +333,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* context,
         return nullptr;
     }
 
-    if (!SkSurface_Gpu::Valid(context->caps(), c.config(), c.colorSpace())) {
+    if (!SkSurface_Gpu::Valid(context->contextPriv().caps(), c.config(), c.colorSpace())) {
         return nullptr;
     }
 
@@ -389,7 +388,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted
     sampleCount = SkTMax(1, sampleCount);
     GrMipMapped mipMapped = shouldCreateWithMips ? GrMipMapped::kYes : GrMipMapped::kNo;
 
-    if (!ctx->caps()->mipMapSupport()) {
+    if (!ctx->contextPriv().caps()->mipMapSupport()) {
         mipMapped = GrMipMapped::kNo;
     }
 
@@ -433,17 +432,17 @@ bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex, GrPix
         return false;
     }
 
-    if (!ctx->caps()->validateBackendTexture(tex, ct, config)) {
+    if (!ctx->contextPriv().caps()->validateBackendTexture(tex, ct, config)) {
         return false;
     }
 
     // We don't require that the client gave us an exact valid sample cnt. However, it must be
     // less than the max supported sample count and 1 if MSAA is unsupported for the color type.
-    if (!ctx->caps()->getRenderTargetSampleCount(sampleCnt, *config)) {
+    if (!ctx->contextPriv().caps()->getRenderTargetSampleCount(sampleCnt, *config)) {
         return false;
     }
 
-    if (texturable && !ctx->caps()->isConfigTexturable(*config)) {
+    if (texturable && !ctx->contextPriv().caps()->isConfigTexturable(*config)) {
         return false;
     }
     return true;
@@ -467,7 +466,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
     if (!context) {
         return nullptr;
     }
-    if (!SkSurface_Gpu::Valid(context->caps(), texCopy.config(), colorSpace.get())) {
+    if (!SkSurface_Gpu::Valid(context->contextPriv().caps(), texCopy.config(), colorSpace.get())) {
         return nullptr;
     }
     sampleCnt = SkTMax(1, sampleCnt);
@@ -501,15 +500,15 @@ bool validate_backend_render_target(GrContext* ctx, const GrBackendRenderTarget&
         return false;
     }
 
-    if (!ctx->caps()->validateBackendRenderTarget(rt, ct, config)) {
+    if (!ctx->contextPriv().caps()->validateBackendRenderTarget(rt, ct, config)) {
         return false;
     }
 
     if (rt.sampleCnt() > 1) {
-        if (ctx->caps()->maxRenderTargetSampleCount(*config) <= 1) {
+        if (ctx->contextPriv().caps()->maxRenderTargetSampleCount(*config) <= 1) {
             return false;
         }
-    } else if (!ctx->caps()->isConfigRenderable(*config)) {
+    } else if (!ctx->contextPriv().caps()->isConfigRenderable(*config)) {
         return false;
     }
 
@@ -530,7 +529,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
     if (!validate_backend_render_target(context, rtCopy, &rtCopy.fConfig, colorType, colorSpace)) {
         return nullptr;
     }
-    if (!SkSurface_Gpu::Valid(context->caps(), rtCopy.config(), colorSpace.get())) {
+    if (!SkSurface_Gpu::Valid(context->contextPriv().caps(), rtCopy.config(), colorSpace.get())) {
         return nullptr;
     }
 
@@ -565,7 +564,8 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
     if (!context) {
         return nullptr;
     }
-    if (!tex.isValid() || !SkSurface_Gpu::Valid(context->caps(), tex.config(), colorSpace.get())) {
+    if (!tex.isValid() ||
+        !SkSurface_Gpu::Valid(context->contextPriv().caps(), tex.config(), colorSpace.get())) {
         return nullptr;
     }
     sampleCnt = SkTMax(1, sampleCnt);

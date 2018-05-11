@@ -6,6 +6,7 @@
  */
 
 #include "GrContext.h"
+#include "GrCaps.h"
 #include "GrContextPriv.h"
 #include "GrContextThreadSafeProxyPriv.h"
 

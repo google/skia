@@ -850,7 +850,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
         // If we don't have proper support for this feature, the factory will fallback to returning
         // codec-backed images. Those will "work", but some of our checks will fail because we
         // expect the cross-context images not to work on multiple contexts at once.
-        if (!ctx->caps()->crossContextTextureSupport()) {
+        if (!ctx->contextPriv().caps()->crossContextTextureSupport()) {
             continue;
         }
 
@@ -1026,7 +1026,7 @@ DEF_GPUTEST(SkImage_CrossContextGrayAlphaConfigs, reporter, options) {
             GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
             ContextInfo ctxInfo = testFactory.getContextInfo(ctxType);
             GrContext* ctx = ctxInfo.grContext();
-            if (!ctx || !ctx->caps()->crossContextTextureSupport()) {
+            if (!ctx || !ctx->contextPriv().caps()->crossContextTextureSupport()) {
                 continue;
             }
 
@@ -1055,7 +1055,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(makeBackendTexture, reporter, ctxInfo) {
     testContext->makeCurrent();
     REPORTER_ASSERT(reporter, proxy);
     auto createLarge = [context] {
-        return create_image_large(context->caps()->maxTextureSize());
+        return create_image_large(context->contextPriv().caps()->maxTextureSize());
     };
     struct {
         std::function<sk_sp<SkImage> ()>                      fImageFactory;

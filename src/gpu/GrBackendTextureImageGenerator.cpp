@@ -44,8 +44,8 @@ GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin o
     context->contextPriv().getResourceCache()->insertCrossContextGpuResource(texture.get());
 
     GrBackendTexture backendTexture = texture->getBackendTexture();
-    if (!context->caps()->validateBackendTexture(backendTexture, colorType,
-                                                 &backendTexture.fConfig)) {
+    if (!context->contextPriv().caps()->validateBackendTexture(backendTexture, colorType,
+                                                               &backendTexture.fConfig)) {
         return nullptr;
     }
 
