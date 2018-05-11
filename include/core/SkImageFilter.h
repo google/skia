@@ -332,7 +332,7 @@ protected:
      * Performs a forwards or reverse mapping of the given rect to accommodate
      * this filter's margin requirements. kForward_MapDirection is used to
      * determine the destination pixels which would be touched by filtering
-     * the given given source rect (e.g., given source bitmap bounds,
+     * the given source rect (e.g., given source bitmap bounds,
      * determine the optimal bounds of the filtered offscreen bitmap).
      * kReverse_MapDirection is used to determine which pixels of the
      * input(s) would be required to fill the given destination rect
@@ -385,8 +385,8 @@ protected:
      *  which are not capable of processing a smaller source bitmap into a
      *  larger destination.
      */
-    sk_sp<SkSpecialImage> applyCropRect(const Context&, SkSpecialImage* src, SkIPoint* srcOffset,
-                                        SkIRect* bounds) const;
+    sk_sp<SkSpecialImage> applyCropRectAndPad(const Context&, SkSpecialImage* src,
+                                              SkIPoint* srcOffset, SkIRect* bounds) const;
 
     /**
      *  Creates a modified Context for use when recursing up the image filter DAG.
@@ -416,6 +416,14 @@ protected:
     sk_sp<SkImageFilter> refMe() const {
         return sk_ref_sp(const_cast<SkImageFilter*>(this));
     }
+
+    // If 'mungedSrcBounds' will sample outside the border of 'originalSrcBounds' (i.e., the sample
+    // will wrap around to the other side) we must preserve the far side of the src along that
+    // axis (e.g., if we will sample beyond the left edge of the src, the right side must be
+    // preserved for the repeat sampling to work).
+    static SkIRect DetermineRepeatedSrcBound(const SkIRect& mungedSrcBounds,
+                                             const SkIRect& filterRect,
+                                             const SkIRect& originalSrcBounds);
 
 private:
     // For makeColorSpace().
