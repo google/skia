@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c4093d9c_98ddcdcd",
+        "filename": "src/core/SkBlurMF.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-11T14:07:53Z",
+      "side": 1,
+      "message": "I always thought we sorted these by just alphabetical and treated lower and upper case letters the same?",
+      "range": {
+        "startLine": 32,
+        "startChar": 2,
+        "endLine": 33,
+        "endChar": 37
+      },
+      "revId": "824deecbcc3239e2722d77df711fd9379d2cd60b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6cfbe66_e7f8072c",
+        "filename": "tests/WindowRectanglesTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-11T14:07:53Z",
+      "side": 1,
+      "message": "Was there really some path from GrWindowRectangles.h-\u003e...-\u003eGrContext.h-\u003eGrCaps.h-\u003e...-\u003eSkRandom.h before?",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 21
+      },
+      "revId": "824deecbcc3239e2722d77df711fd9379d2cd60b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
