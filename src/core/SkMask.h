@@ -14,6 +14,8 @@
 #include "SkRect.h"
 #include "SkTemplates.h"
 
+#include <memory>
+
 /** \class SkMask
     SkMask is used to describe alpha bitmaps, either 1bit, 8bit, or
     the 3-channel 3D format. These are passed to SkMaskFilter objects.
@@ -229,30 +231,12 @@ template <> struct SkMask::AlphaIter<SkMask::kLCD16_Format> {
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
- *  \class SkAutoMaskImage
+ *  \using SkAutoMaskImage
  *
  *  Stack class used to manage the fImage buffer in a SkMask.
  *  When this object loses scope, the buffer is freed with SkMask::FreeImage().
  */
-class SkAutoMaskFreeImage {
-public:
-    SkAutoMaskFreeImage(uint8_t* maskImage) {
-        fImage = maskImage;
-    }
-
-    ~SkAutoMaskFreeImage() {
-        SkMask::FreeImage(fImage);
-    }
-
-    uint8_t* release() {
-        uint8_t* tmp = fImage;
-        fImage = nullptr;
-        return tmp;
-    }
-
-private:
-    uint8_t* fImage;
-};
+using SkAutoMaskFreeImage = std::unique_ptr<uint8_t,SkFunctionWrapper<void,void,SkMask::FreeImage>>;
 #define SkAutoMaskFreeImage(...) SK_REQUIRE_LOCAL_VAR(SkAutoMaskFreeImage)
 
 #endif
