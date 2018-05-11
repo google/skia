@@ -1252,7 +1252,7 @@ SpvId SPIRVCodeGenerator::writeMatrixConstructor(const Constructor& c, OutputStr
                     currentColumn.push_back(arguments[i]);
                 } else {
                     SpvId componentType = this->getType(c.fArguments[i]->fType.componentType());
-                    for (int j = 0; j < c.fArguments[j]->fType.columns(); ++j) {
+                    for (int j = 0; j < c.fArguments[i]->fType.columns(); ++j) {
                         SpvId swizzle = this->nextId();
                         this->writeInstruction(SpvOpCompositeExtract, componentType, swizzle,
                                                arguments[i], j, out);
