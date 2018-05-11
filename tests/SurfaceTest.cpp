@@ -148,7 +148,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
         if (surf) {
             auto* rtc = ((SkSurface_Gpu*)(surf.get()))->getDevice()->accessRenderTargetContext();
             int storedCnt = rtc->numStencilSamples();
-            int allowedCnt = ctxInfo.grContext()->caps()->getSampleCount(
+            int allowedCnt = ctxInfo.grContext()->contextPriv().caps()->getSampleCount(
                     storedCnt, rtc->asSurfaceProxy()->config());
             REPORTER_ASSERT(reporter, storedCnt == allowedCnt,
                             "Should store an allowed sample count (%d vs %d)", allowedCnt,
@@ -164,7 +164,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
         if (surf) {
             auto* rtc = ((SkSurface_Gpu*)(surf.get()))->getDevice()->accessRenderTargetContext();
             int storedCnt = rtc->numStencilSamples();
-            int allowedCnt = ctxInfo.grContext()->caps()->getSampleCount(
+            int allowedCnt = ctxInfo.grContext()->contextPriv().caps()->getSampleCount(
                     storedCnt, rtc->asSurfaceProxy()->config());
             REPORTER_ASSERT(reporter, storedCnt == allowedCnt,
                             "Should store an allowed sample count (%d vs %d)", allowedCnt,
@@ -993,10 +993,11 @@ DEF_TEST(SurfaceCreationWithColorSpace, reporter) {
 
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCreationWithColorSpace_Gpu, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.grContext();
 
-    bool f16Support = context->caps()->isConfigRenderable(kRGBA_half_GrPixelConfig);
-    bool supports1010102 = context->caps()->isConfigRenderable(kRGBA_1010102_GrPixelConfig);
+    bool f16Support = context->contextPriv().caps()->isConfigRenderable(kRGBA_half_GrPixelConfig);
+    bool supports1010102 =
+            context->contextPriv().caps()->isConfigRenderable(kRGBA_1010102_GrPixelConfig);
     auto surfaceMaker = [context](const SkImageInfo& info) {
         return SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
     };
@@ -1009,7 +1010,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCreationWithColorSpace_Gpu, reporter, 
         GrGpu* gpu = context->contextPriv().getGpu();
 
         static const int kSize = 10;
-        GrPixelConfig config = SkImageInfo2GrPixelConfig(info, *context->caps());
+        GrPixelConfig config = SkImageInfo2GrPixelConfig(info, *context->contextPriv().caps());
         SkASSERT(kUnknown_GrPixelConfig != config);
 
         GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(

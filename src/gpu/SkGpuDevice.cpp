@@ -157,7 +157,7 @@ sk_sp<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
         return nullptr;
     }
 
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(origInfo, *context->caps());
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(origInfo, *context->contextPriv().caps());
     if (kUnknown_GrPixelConfig == config) {
         return nullptr;
     }
@@ -769,7 +769,7 @@ bool SkGpuDevice::shouldTileImage(const SkImage* image, const SkRect* srcRectPtr
     }
     samplerState.setFilterMode(textureFilterMode);
 
-    int maxTileSize = fContext->caps()->maxTileSize() - 2 * tileFilterPad;
+    int maxTileSize = this->caps()->maxTileSize() - 2 * tileFilterPad;
 
     // these are output, which we safely ignore, as we just want to know the predicate
     int outTileSize;
@@ -789,7 +789,7 @@ void SkGpuDevice::drawBitmap(const SkBitmap& bitmap,
     SkMatrix viewMatrix;
     viewMatrix.setConcat(this->ctm(), m);
 
-    int maxTileSize = fContext->caps()->maxTileSize();
+    int maxTileSize = this->caps()->maxTileSize();
 
     // The tile code path doesn't currently support AA, so if the paint asked for aa and we could
     // draw untiled, then we bypass checking for tiling purely for optimization reasons.
@@ -821,7 +821,7 @@ void SkGpuDevice::drawBitmap(const SkBitmap& bitmap,
         }
         samplerState.setFilterMode(textureFilterMode);
 
-        int maxTileSizeForFilter = fContext->caps()->maxTileSize() - 2 * tileFilterPad;
+        int maxTileSizeForFilter = this->caps()->maxTileSize() - 2 * tileFilterPad;
         if (this->shouldTileImageID(bitmap.getGenerationID(), bitmap.getSubset(), viewMatrix,
                                     SkMatrix::I(), samplerState, &srcRect, maxTileSizeForFilter,
                                     &tileSize, &clippedSrcRect)) {
@@ -968,11 +968,11 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
                                  bool bicubic,
                                  bool needsTextureDomain) {
     // We should have already handled bitmaps larger than the max texture size.
-    SkASSERT(bitmap.width() <= fContext->caps()->maxTextureSize() &&
-             bitmap.height() <= fContext->caps()->maxTextureSize());
+    SkASSERT(bitmap.width() <= this->caps()->maxTextureSize() &&
+             bitmap.height() <= this->caps()->maxTextureSize());
     // We should be respecting the max tile size by the time we get here.
-    SkASSERT(bitmap.width() <= fContext->caps()->maxTileSize() &&
-             bitmap.height() <= fContext->caps()->maxTileSize());
+    SkASSERT(bitmap.width() <= this->caps()->maxTileSize() &&
+             bitmap.height() <= this->caps()->maxTileSize());
     SkASSERT(!samplerState.isRepeated());
 
     SkScalar scales[2] = {1.f, 1.f};
@@ -1148,7 +1148,7 @@ void SkGpuDevice::drawBitmapRect(const SkBitmap& bitmap,
         }
     }
 
-    int maxTileSize = fContext->caps()->maxTileSize();
+    int maxTileSize = this->caps()->maxTileSize();
 
     // The tile code path doesn't currently support AA, so if the paint asked for aa and we could
     // draw untiled, then we bypass checking for tiling purely for optimization reasons.
@@ -1179,7 +1179,7 @@ void SkGpuDevice::drawBitmapRect(const SkBitmap& bitmap,
         }
         sampleState.setFilterMode(textureFilterMode);
 
-        int maxTileSizeForFilter = fContext->caps()->maxTileSize() - 2 * tileFilterPad;
+        int maxTileSizeForFilter = this->caps()->maxTileSize() - 2 * tileFilterPad;
         if (this->shouldTileImageID(bitmap.getGenerationID(), bitmap.getSubset(), this->ctm(),
                                     srcToDstMatrix, sampleState, src, maxTileSizeForFilter,
                                     &tileSize, &clippedSrcRect)) {

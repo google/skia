@@ -43,7 +43,9 @@
 #include "sk_tool_utils.h"
 
 #if SK_SUPPORT_GPU
+#include "GrCaps.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #endif
 
 static const int kBitmapSize = 4;
@@ -1671,7 +1673,7 @@ static void test_large_blur_input(skiatest::Reporter* reporter, SkCanvas* canvas
 #if SK_SUPPORT_GPU
     // If we're GPU-backed make the bitmap too large to be converted into a texture.
     if (GrContext* ctx = canvas->getGrContext()) {
-        largeW = ctx->caps()->maxTextureSize() + 1;
+        largeW = ctx->contextPriv().caps()->maxTextureSize() + 1;
     }
 #endif
 

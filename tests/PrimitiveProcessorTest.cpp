@@ -12,6 +12,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGeometryProcessor.h"
 #include "GrGpu.h"
 #include "GrOpFlushState.h"
@@ -123,7 +124,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
         ERRORF(reporter, "Could not create render target context.");
         return;
     }
-    int attribCnt = context->caps()->maxVertexAttributes();
+    int attribCnt = context->contextPriv().caps()->maxVertexAttributes();
     if (!attribCnt) {
         ERRORF(reporter, "No attributes allowed?!");
         return;

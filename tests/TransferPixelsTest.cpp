@@ -64,7 +64,7 @@ bool does_full_buffer_contain_correct_values(GrColor* srcBuffer,
 
 void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrColorType colorType,
                          GrSurfaceOrigin origin, bool renderTarget) {
-    if (GrCaps::kNone_MapFlags == context->caps()->mapBufferFlags()) {
+    if (GrCaps::kNone_MapFlags == context->contextPriv().caps()->mapBufferFlags()) {
         return;
     }
 
@@ -111,8 +111,8 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrCol
             continue;
         }
 
-        if (!context->caps()->isConfigTexturable(desc.fConfig) ||
-            (renderTarget && !context->caps()->isConfigRenderable(desc.fConfig))) {
+        if (!context->contextPriv().caps()->isConfigTexturable(desc.fConfig) ||
+            (renderTarget && !context->contextPriv().caps()->isConfigRenderable(desc.fConfig))) {
             continue;
         }
 

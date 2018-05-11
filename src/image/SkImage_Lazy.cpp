@@ -724,7 +724,7 @@ sk_sp<SkColorSpace> SkImage_Lazy::getColorSpace(GrContext* ctx, SkColorSpace* ds
         // may want to know what space the image data is in, so return it.
         return fInfo.refColorSpace();
     } else {
-        CachedFormat format = this->chooseCacheFormat(dstColorSpace, ctx->caps());
+        CachedFormat format = this->chooseCacheFormat(dstColorSpace, ctx->contextPriv().caps());
         SkImageInfo cacheInfo = this->buildCacheInfo(format);
         return cacheInfo.refColorSpace();
     }
@@ -759,7 +759,7 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
 
     // Determine which cached format we're going to use (which may involve decoding to a different
     // info than the generator provides).
-    CachedFormat format = this->chooseCacheFormat(dstColorSpace, ctx->caps());
+    CachedFormat format = this->chooseCacheFormat(dstColorSpace, ctx->contextPriv().caps());
 
     // Fold the cache format into our texture key
     GrUniqueKey key;
@@ -808,7 +808,7 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
     // 3. Ask the generator to return YUV planes, which the GPU can convert. If we will be mipping
     //    the texture we fall through here and have the CPU generate the mip maps for us.
     if (!proxy && !willBeMipped && !ctx->contextPriv().disableGpuYUVConversion()) {
-        const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(cacheInfo, *ctx->caps());
+        const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(cacheInfo, *ctx->contextPriv().caps());
         ScopedGenerator generator(fSharedGenerator);
         Generator_GrYUVProvider provider(generator);
 

@@ -1268,11 +1268,12 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
     } else {
         SkGradientShaderBase::GradientBitmapType bitmapType =
             SkGradientShaderBase::GradientBitmapType::kLegacy;
+        auto caps = args.fContext->contextPriv().caps();
         if (args.fDstColorSpace) {
             // Try to use F16 if we can
-            if (args.fContext->caps()->isConfigTexturable(kRGBA_half_GrPixelConfig)) {
+            if (caps->isConfigTexturable(kRGBA_half_GrPixelConfig)) {
                 bitmapType = SkGradientShaderBase::GradientBitmapType::kHalfFloat;
-            } else if (args.fContext->caps()->isConfigTexturable(kSRGBA_8888_GrPixelConfig)) {
+            } else if (caps->isConfigTexturable(kSRGBA_8888_GrPixelConfig)) {
                 bitmapType = SkGradientShaderBase::GradientBitmapType::kSRGB;
             } else {
                 // This can happen, but only if someone explicitly creates an unsupported
@@ -1290,7 +1291,7 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
         desc.fWidth  = bitmap.width();
         desc.fHeight = 32;
         desc.fRowHeight = bitmap.height(); // always 1 here
-        desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info(), *args.fContext->caps());
+        desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info(), *caps);
         fAtlas = atlasManager->refAtlas(desc);
         SkASSERT(fAtlas);
 
