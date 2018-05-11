@@ -6,7 +6,6 @@
  */
 
 #include "GrTextureAdjuster.h"
-
 #include "GrColorSpaceXform.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
@@ -81,12 +80,12 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::onRefTextureProxyForParams(
     if (texColorSpace) {
         *texColorSpace = sk_ref_sp(fColorSpace);
     }
-    SkASSERT(this->width() <= fContext->caps()->maxTextureSize() &&
-             this->height() <= fContext->caps()->maxTextureSize());
+    SkASSERT(this->width() <= fContext->contextPriv().caps()->maxTextureSize() &&
+             this->height() <= fContext->contextPriv().caps()->maxTextureSize());
 
-    if (!GrGpu::IsACopyNeededForTextureParams(fContext->caps(),
-                                              proxy.get(), proxy->width(), proxy->height(),
-                                              params, &copyParams, scaleAdjust)) {
+    if (!GrGpu::IsACopyNeededForTextureParams(fContext->contextPriv().caps(), proxy.get(),
+                                              proxy->width(), proxy->height(), params, &copyParams,
+                                              scaleAdjust)) {
         return proxy;
     }
 

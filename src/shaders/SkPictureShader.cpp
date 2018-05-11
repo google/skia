@@ -24,6 +24,7 @@
 #include "GrCaps.h"
 #include "GrColorSpaceInfo.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrFragmentProcessor.h"
 #endif
 
@@ -358,7 +359,7 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
         const GrFPArgs& args) const {
     int maxTextureSize = 0;
     if (args.fContext) {
-        maxTextureSize = args.fContext->caps()->maxTextureSize();
+        maxTextureSize = args.fContext->contextPriv().caps()->maxTextureSize();
     }
 
     auto lm = this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix);

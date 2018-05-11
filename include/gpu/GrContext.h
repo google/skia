@@ -8,7 +8,6 @@
 #ifndef GrContext_DEFINED
 #define GrContext_DEFINED
 
-#include "GrCaps.h"
 #include "SkMatrix.h"
 #include "SkPathEffect.h"
 #include "SkTypes.h"
@@ -19,6 +18,7 @@
 class GrAtlasManager;
 class GrBackendFormat;
 class GrBackendSemaphore;
+class GrCaps;
 class GrContextPriv;
 class GrContextThreadSafeProxy;
 class GrContextThreadSafeProxyPriv;
@@ -203,9 +203,6 @@ public:
      *                               enforcing the budget requirements.
      */
     void purgeUnlockedResources(bool scratchResourcesOnly);
-
-    /** Access the context capabilities */
-    const GrCaps* caps() const { return fCaps.get(); }
 
     /**
      * Gets the maximum supported texture size.
@@ -416,12 +413,7 @@ private:
     GrContextThreadSafeProxy(sk_sp<const GrCaps> caps,
                              uint32_t uniqueID,
                              GrBackend backend,
-                             const GrContextOptions& options)
-        : fCaps(std::move(caps))
-        , fContextUniqueID(uniqueID)
-        , fBackend(backend)
-        , fOptions(options) {
-    }
+                             const GrContextOptions& options);
 
     sk_sp<const GrCaps>    fCaps;
     const uint32_t         fContextUniqueID;
