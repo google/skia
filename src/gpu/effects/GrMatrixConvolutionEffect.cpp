@@ -144,8 +144,8 @@ void GrGLMatrixConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdma
     fDomain.setData(pdman, conv.domain(), proxy);
 }
 
-GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(sk_sp<GrTextureProxy> proxy,
-                                                     const SkIRect& bounds,
+GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(sk_sp<GrTextureProxy> srcProxy,
+                                                     const SkIRect& srcBounds,
                                                      const SkISize& kernelSize,
                                                      const SkScalar* kernel,
                                                      SkScalar gain,
@@ -156,9 +156,11 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(sk_sp<GrTextureProxy> proxy
         // To advertise either the modulation or opaqueness optimizations we'd have to examine the
         // parameters.
         : INHERITED(kGrMatrixConvolutionEffect_ClassID, kNone_OptimizationFlags)
-        , fCoordTransform(proxy.get())
-        , fDomain(proxy.get(), GrTextureDomain::MakeTexelDomainForMode(bounds, tileMode), tileMode)
-        , fTextureSampler(std::move(proxy))
+        , fCoordTransform(srcProxy.get())
+        , fDomain(srcProxy.get(),
+                  GrTextureDomain::MakeTexelDomainForMode(srcBounds, tileMode),
+                  tileMode)
+        , fTextureSampler(std::move(srcProxy))
         , fKernelSize(kernelSize)
         , fGain(SkScalarToFloat(gain))
         , fBias(SkScalarToFloat(bias) / 255.0f)
@@ -255,8 +257,8 @@ static void fill_in_2D_gaussian_kernel(float* kernel, int width, int height,
 
 // Static function to create a 2D convolution
 std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian(
-        sk_sp<GrTextureProxy> proxy,
-        const SkIRect& bounds,
+        sk_sp<GrTextureProxy> srcProxy,
+        const SkIRect& srcBounds,
         const SkISize& kernelSize,
         SkScalar gain,
         SkScalar bias,
@@ -270,8 +272,8 @@ std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian(
     fill_in_2D_gaussian_kernel(kernel, kernelSize.width(), kernelSize.height(), sigmaX, sigmaY);
 
     return std::unique_ptr<GrFragmentProcessor>(
-            new GrMatrixConvolutionEffect(std::move(proxy), bounds, kernelSize, kernel, gain, bias,
-                                          kernelOffset, tileMode, convolveAlpha));
+            new GrMatrixConvolutionEffect(std::move(srcProxy), srcBounds, kernelSize, kernel,
+                                          gain, bias, kernelOffset, tileMode, convolveAlpha));
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMatrixConvolutionEffect);

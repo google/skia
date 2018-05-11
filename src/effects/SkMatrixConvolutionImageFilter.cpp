@@ -295,8 +295,8 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
         return nullptr;
     }
 
-    SkIRect bounds;
-    input = this->applyCropRect(this->mapContext(ctx), input.get(), &inputOffset, &bounds);
+    SkIRect dstBounds;
+    input = this->applyCropRectAndPad(this->mapContext(ctx), input.get(), &inputOffset, &dstBounds);
     if (!input) {
         return nullptr;
     }
@@ -316,12 +316,12 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
         sk_sp<GrTextureProxy> inputProxy(input->asTextureProxyRef(context));
         SkASSERT(inputProxy);
 
-        offset->fX = bounds.left();
-        offset->fY = bounds.top();
-        bounds.offset(-inputOffset);
+        offset->fX = dstBounds.left();
+        offset->fY = dstBounds.top();
+        dstBounds.offset(-inputOffset);
 
         auto fp = GrMatrixConvolutionEffect::Make(std::move(inputProxy),
-                                                  bounds,
+                                                  dstBounds,
                                                   fKernelSize,
                                                   fKernel,
                                                   fGain,
@@ -333,7 +333,7 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
             return nullptr;
         }
 
-        return DrawWithFP(context, std::move(fp), bounds, ctx.outputProperties());
+        return DrawWithFP(context, std::move(fp), dstBounds, ctx.outputProperties());
     }
 #endif
 
@@ -355,7 +355,7 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
         return nullptr;
     }
 
-    const SkImageInfo info = SkImageInfo::MakeN32(bounds.width(), bounds.height(),
+    const SkImageInfo info = SkImageInfo::MakeN32(dstBounds.width(), dstBounds.height(),
                                                   inputBM.alphaType());
 
     SkBitmap dst;
@@ -363,26 +363,27 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
         return nullptr;
     }
 
-    offset->fX = bounds.fLeft;
-    offset->fY = bounds.fTop;
-    bounds.offset(-inputOffset);
-    SkIRect interior = SkIRect::MakeXYWH(bounds.left() + fKernelOffset.fX,
-                                         bounds.top() + fKernelOffset.fY,
-                                         bounds.width() - fKernelSize.fWidth + 1,
-                                         bounds.height() - fKernelSize.fHeight + 1);
-    SkIRect top = SkIRect::MakeLTRB(bounds.left(), bounds.top(), bounds.right(), interior.top());
-    SkIRect bottom = SkIRect::MakeLTRB(bounds.left(), interior.bottom(),
-                                       bounds.right(), bounds.bottom());
-    SkIRect left = SkIRect::MakeLTRB(bounds.left(), interior.top(),
+    offset->fX = dstBounds.fLeft;
+    offset->fY = dstBounds.fTop;
+    dstBounds.offset(-inputOffset);
+    SkIRect interior = SkIRect::MakeXYWH(dstBounds.left() + fKernelOffset.fX,
+                                         dstBounds.top() + fKernelOffset.fY,
+                                         dstBounds.width() - fKernelSize.fWidth + 1,
+                                         dstBounds.height() - fKernelSize.fHeight + 1);
+    SkIRect top = SkIRect::MakeLTRB(dstBounds.left(), dstBounds.top(),
+                                    dstBounds.right(), interior.top());
+    SkIRect bottom = SkIRect::MakeLTRB(dstBounds.left(), interior.bottom(),
+                                       dstBounds.right(), dstBounds.bottom());
+    SkIRect left = SkIRect::MakeLTRB(dstBounds.left(), interior.top(),
                                      interior.left(), interior.bottom());
     SkIRect right = SkIRect::MakeLTRB(interior.right(), interior.top(),
-                                      bounds.right(), interior.bottom());
-    this->filterBorderPixels(inputBM, &dst, top, bounds);
-    this->filterBorderPixels(inputBM, &dst, left, bounds);
-    this->filterInteriorPixels(inputBM, &dst, interior, bounds);
-    this->filterBorderPixels(inputBM, &dst, right, bounds);
-    this->filterBorderPixels(inputBM, &dst, bottom, bounds);
-    return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(bounds.width(), bounds.height()),
+                                      dstBounds.right(), interior.bottom());
+    this->filterBorderPixels(inputBM, &dst, top, dstBounds);
+    this->filterBorderPixels(inputBM, &dst, left, dstBounds);
+    this->filterInteriorPixels(inputBM, &dst, interior, dstBounds);
+    this->filterBorderPixels(inputBM, &dst, right, dstBounds);
+    this->filterBorderPixels(inputBM, &dst, bottom, dstBounds);
+    return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(dstBounds.width(), dstBounds.height()),
                                           dst);
 }
 
