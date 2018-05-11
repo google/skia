@@ -1,0 +1,170 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7bbf09bf_0f34a993",
+        "filename": "infra/bots/recipe_modules/build/android.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-11T22:12:29Z",
+      "side": 1,
+      "message": "Should this be api.vars.skia_dir like in default.py and chromecast.py?",
+      "range": {
+        "startLine": 64,
+        "startChar": 25,
+        "endLine": 64,
+        "endChar": 64
+      },
+      "revId": "e67d0e5828895ad57b5705db251008ae65bb195f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e797d29_1a5e739c",
+        "filename": "infra/bots/recipe_modules/build/api.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-11T22:12:29Z",
+      "side": 1,
+      "message": "nit: Target is universally ignored. Can we just get rid of it?",
+      "range": {
+        "startLine": 39,
+        "startChar": 21,
+        "endLine": 39,
+        "endChar": 27
+      },
+      "revId": "e67d0e5828895ad57b5705db251008ae65bb195f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ff77dbf_ef01af0d",
+        "filename": "infra/bots/recipe_modules/build/api.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-11T22:12:29Z",
+      "side": 1,
+      "message": "nit: If you move out_dir to vars, remove this arg. (Or fix/rationalize all dirs in a followup CL.)",
+      "range": {
+        "startLine": 41,
+        "startChar": 36,
+        "endLine": 41,
+        "endChar": 48
+      },
+      "revId": "e67d0e5828895ad57b5705db251008ae65bb195f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ff7fc69_4e57ddf2",
+        "filename": "infra/bots/recipe_modules/build/api.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-11T22:12:29Z",
+      "side": 1,
+      "message": "nit: It seems odd to pass in this dir, since it currently doesn\u0027t make sense for this to be anything but out_dir.",
+      "range": {
+        "startLine": 43,
+        "startChar": 32,
+        "endLine": 43,
+        "endChar": 35
+      },
+      "revId": "e67d0e5828895ad57b5705db251008ae65bb195f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17992e2d_ec2d84de",
+        "filename": "infra/bots/recipe_modules/build/examples/full.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-11T22:12:29Z",
+      "side": 1,
+      "message": "nit: sort",
+      "revId": "e67d0e5828895ad57b5705db251008ae65bb195f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1bcc729_aa0e8427",
+        "filename": "infra/bots/recipe_modules/build/examples/full.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-11T22:12:29Z",
+      "side": 1,
+      "message": "nit: maybe add Build-Win-MSVC-x86_64-Debug since we don\u0027t have MSVC represented.",
+      "revId": "e67d0e5828895ad57b5705db251008ae65bb195f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5763d2a0_e182c896",
+        "filename": "infra/bots/recipe_modules/flavor/default_flavor.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-11T22:12:29Z",
+      "side": 1,
+      "message": "nit: Remove this. Callers should use build.out_dir instead. (Or move to vars and have both build and flavor return the value from vars.)",
+      "range": {
+        "startLine": 94,
+        "startChar": 0,
+        "endLine": 97,
+        "endChar": 63
+      },
+      "revId": "e67d0e5828895ad57b5705db251008ae65bb195f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "187ad4a7_6e19dd30",
+        "filename": "infra/bots/recipe_modules/run/examples/full.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-11T22:12:29Z",
+      "side": 1,
+      "message": "typo",
+      "revId": "e67d0e5828895ad57b5705db251008ae65bb195f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

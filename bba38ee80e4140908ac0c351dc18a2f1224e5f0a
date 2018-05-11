@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e439869_104ed719",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-11T22:12:29Z",
+      "side": 0,
+      "message": "Is this no longer needed or unintentionally removed? (Or rather omitted from \ninfra/bots/recipe_modules/build/android.py)",
+      "range": {
+        "startLine": 610,
+        "startChar": 0,
+        "endLine": 613,
+        "endChar": 65
+      },
+      "revId": "bba38ee80e4140908ac0c351dc18a2f1224e5f0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
