@@ -14,16 +14,6 @@
 
 class SkPDFDevice;
 
-/*  @param rasterDpi the DPI at which features without native PDF
- *         support will be rasterized (e.g. draw image with
- *         perspective, draw text with perspective, ...).  A
- *         larger DPI would create a PDF that reflects the
- *         original intent with better fidelity, but it can make
- *         for larger PDF files too, which would use more memory
- *         while rendering, and it would be slower to be processed
- *         or sent online or to printer.  A good choice is
- *         SK_ScalarDefaultRasterDPI(72.0f).
- */
 sk_sp<SkDocument> SkPDFMakeDocument(SkWStream* stream,
                                     const SkDocument::PDFMetadata&);
 
@@ -72,7 +62,7 @@ public:
      */
     void serialize(const sk_sp<SkPDFObject>&);
     SkPDFCanon* canon() { return &fCanon; }
-    SkScalar rasterDpi() const { return fMetadata.fRasterDPI; }
+    SkScalar rasterScale() const { return fRasterScale; }
     void registerFont(SkPDFFont* f) { fFonts.add(f); }
     const PDFMetadata& metadata() const { return fMetadata; }
 
@@ -87,6 +77,7 @@ private:
     sk_sp<SkPDFObject> fID;
     sk_sp<SkPDFObject> fXMP;
     SkDocument::PDFMetadata fMetadata;
+    SkScalar fRasterScale;
 
     void reset();
 };

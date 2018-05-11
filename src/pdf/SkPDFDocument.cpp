@@ -171,12 +171,13 @@ static sk_sp<SkPDFDict> generate_page_tree(SkTArray<sk_sp<SkPDFDict>>* pages) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+static constexpr float kDpiForRasterScaleOne = 72.0f;
 
 SkPDFDocument::SkPDFDocument(SkWStream* stream,
                              const SkDocument::PDFMetadata& metadata)
     : SkDocument(stream)
-    , fMetadata(metadata) {
-}
+    , fMetadata(metadata)
+    , fRasterScale(metadata.fRasterDPI / kDpiForRasterScaleOne) {}
 
 SkPDFDocument::~SkPDFDocument() {
     // subclasses of SkDocument must call close() in their destructors.
@@ -207,14 +208,12 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height) {
             fObjectSerializer.serializeObjects(this->getStream());
         }
     }
-    SkScalar rasterScale = this->rasterDpi() / SkPDFUtils::kDpiForRasterScaleOne;
-    SkISize pageSize = {SkScalarRoundToInt(width  * rasterScale),
-                        SkScalarRoundToInt(height * rasterScale)};
-
+    SkISize pageSize = {SkScalarRoundToInt(width  * this->rasterScale()),
+                        SkScalarRoundToInt(height * this->rasterScale())};
     fPageDevice = sk_make_sp<SkPDFDevice>(pageSize, this);
     fPageDevice->setFlip();  // Only the top-level device needs to be flipped.
     fCanvas.reset(new SkCanvas(fPageDevice));
-    fCanvas->scale(rasterScale, rasterScale);
+    fCanvas->scale(this->rasterScale(), this->rasterScale());
     return fCanvas.get();
 }
 
@@ -226,11 +225,10 @@ void SkPDFDocument::onEndPage() {
     auto page = sk_make_sp<SkPDFDict>("Page");
     page->insertObject("Resources", fPageDevice->makeResourceDict());
 
-    SkScalar rasterScale =  SkPDFUtils::kDpiForRasterScaleOne / this->rasterDpi();
-
+    SkScalar inverseScale = 1 / this->rasterScale();
     SkISize pageSize = fPageDevice->imageInfo().dimensions();
     page->insertObject("MediaBox", SkPDFUtils::RectToArray(
-                {0, 0, pageSize.width() * rasterScale, pageSize.height() * rasterScale}));
+            SkRect{0, 0, pageSize.width() * inverseScale, pageSize.height() * inverseScale}));
 
     auto annotations = sk_make_sp<SkPDFArray>();
     fPageDevice->appendAnnotations(annotations.get());
