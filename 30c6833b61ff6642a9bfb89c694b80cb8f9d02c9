@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a42fde51_39212178",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-11T15:03:48Z",
+      "side": 1,
+      "message": "Playing around with your patch, I think the only think wrong is this also needs to be downscaled.  This works for me:\n\n    fInitialTransform.setConcat(SkMatrix::MakeScale(rasterScale, -rasterScale),\n                                SkMatrix::MakeTrans(0, -fPageSize.fHeight));",
+      "range": {
+        "startLine": 511,
+        "startChar": 52,
+        "endLine": 511,
+        "endChar": 69
+      },
+      "revId": "30c6833b61ff6642a9bfb89c694b80cb8f9d02c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
