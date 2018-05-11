@@ -34,6 +34,24 @@
       "revId": "400f689ccb050635037e9d46acfc514e2588e19f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8cb63fab_36cc10b3",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 954,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-05-11T15:52:25Z",
+      "side": 1,
+      "message": "I agree with #1. If the float value is about to saturate, it\u0027s hard to imagine the path would being meaningful inside the bounds of the canvas. I\u0027m fine with just rejecting it.\n\n(That\u0027s not the case for the code I linked to above, where \"k^3 - l*m\" goes bad long before the floats get close to overflowing.)",
+      "parentUuid": "3ecb5961_14dca3e1",
+      "revId": "400f689ccb050635037e9d46acfc514e2588e19f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
