@@ -951,6 +951,12 @@ SkScalar SkDraw::ComputeResScaleForStroking(const SkMatrix& matrix) {
 
 void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawCoverage,
                          SkBlitter* customBlitter, bool doFill, SkInitOnceData* iData) const {
+    if (SkPathPriv::TooBigForMath(devPath)) {
+        if (iData) {
+            iData->setEmptyDrawFn();
+        }
+        return;
+    }
     SkBlitter* blitter = nullptr;
     SkAutoBlitterChoose blitterStorage;
     if (nullptr == customBlitter) {
