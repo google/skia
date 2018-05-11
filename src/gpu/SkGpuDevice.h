@@ -8,16 +8,17 @@
 #ifndef SkGpuDevice_DEFINED
 #define SkGpuDevice_DEFINED
 
-#include "SkGr.h"
+#include "GrClipStackClip.h"
+#include "GrContext.h"
+#include "GrContextPriv.h"
+#include "GrRenderTargetContext.h"
+#include "GrTypes.h"
 #include "SkBitmap.h"
 #include "SkClipStackDevice.h"
+#include "SkGr.h"
 #include "SkPicture.h"
 #include "SkRegion.h"
 #include "SkSurface.h"
-#include "GrClipStackClip.h"
-#include "GrRenderTargetContext.h"
-#include "GrContext.h"
-#include "GrTypes.h"
 
 class GrAccelData;
 class GrTextureMaker;
@@ -156,6 +157,8 @@ private:
     bool forceConservativeRasterClip() const override { return true; }
 
     GrClipStackClip clip() const { return GrClipStackClip(&this->cs()); }
+
+    const GrCaps* caps() const { return fContext->contextPriv().caps(); }
 
     /**
      * Helper functions called by drawBitmapCommon. By the time these are called the SkDraw's

@@ -6,6 +6,7 @@
  */
 
 #include "GrDrawVerticesOp.h"
+#include "GrCaps.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrOpFlushState.h"
 #include "SkGr.h"
@@ -374,7 +375,7 @@ GR_DRAW_OP_TEST_DEFINE(GrDrawVerticesOp) {
     do {
        type = GrPrimitiveType(random->nextULessThan(kNumGrPrimitiveTypes));
     } while (GrPrimTypeRequiresGeometryShaderSupport(type) &&
-             !context->caps()->shaderCaps()->geometryShaderSupport());
+             !context->contextPriv().caps()->shaderCaps()->geometryShaderSupport());
 
     uint32_t primitiveCount = random->nextRangeU(1, 100);
 

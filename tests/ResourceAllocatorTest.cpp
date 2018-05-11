@@ -157,8 +157,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
                      std::move(p1), std::move(p2), test.fExpectation);
     }
 
-    int k2 = ctxInfo.grContext()->caps()->getRenderTargetSampleCount(2, kRGBA);
-    int k4 = ctxInfo.grContext()->caps()->getRenderTargetSampleCount(4, kRGBA);
+    int k2 = ctxInfo.grContext()->contextPriv().caps()->getRenderTargetSampleCount(2, kRGBA);
+    int k4 = ctxInfo.grContext()->contextPriv().caps()->getRenderTargetSampleCount(4, kRGBA);
 
     //--------------------------------------------------------------------------------------------
     TestCase gNonOverlappingTests[] = {
