@@ -850,7 +850,7 @@ DEF_TEST(ImageFilterBlurThenShadowBounds, reporter) {
 
     SkIRect bounds = SkIRect::MakeXYWH(0, 0, 100, 100);
     SkIRect expectedBounds = SkIRect::MakeXYWH(-133, -133, 236, 236);
-    bounds = filter2->filterBounds(bounds, SkMatrix::I());
+    bounds = filter2->filterBounds(bounds, SkMatrix::I(), SkImageFilter::kReverse_MapDirection);
 
     REPORTER_ASSERT(reporter, bounds == expectedBounds);
 }
@@ -861,7 +861,7 @@ DEF_TEST(ImageFilterShadowThenBlurBounds, reporter) {
 
     SkIRect bounds = SkIRect::MakeXYWH(0, 0, 100, 100);
     SkIRect expectedBounds = SkIRect::MakeXYWH(-133, -133, 236, 236);
-    bounds = filter2->filterBounds(bounds, SkMatrix::I());
+    bounds = filter2->filterBounds(bounds, SkMatrix::I(), SkImageFilter::kReverse_MapDirection);
 
     REPORTER_ASSERT(reporter, bounds == expectedBounds);
 }
@@ -872,7 +872,7 @@ DEF_TEST(ImageFilterDilateThenBlurBounds, reporter) {
 
     SkIRect bounds = SkIRect::MakeXYWH(0, 0, 100, 100);
     SkIRect expectedBounds = SkIRect::MakeXYWH(-132, -132, 234, 234);
-    bounds = filter2->filterBounds(bounds, SkMatrix::I());
+    bounds = filter2->filterBounds(bounds, SkMatrix::I(), SkImageFilter::kReverse_MapDirection);
 
     REPORTER_ASSERT(reporter, bounds == expectedBounds);
 }

@@ -543,7 +543,7 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(SkSpecialImage* sou
     }
 
     SkIRect bounds;
-    input = this->applyCropRect(this->mapContext(ctx), input.get(), &inputOffset, &bounds);
+    input = this->applyCropRectAndPad(this->mapContext(ctx), input.get(), &inputOffset, &bounds);
     if (!input) {
         return nullptr;
     }

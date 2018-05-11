@@ -156,8 +156,7 @@ public:
      * implementation recursively unions all input bounds, or returns the
      * source rect if no inputs.
      */
-    SkIRect filterBounds(const SkIRect& src, const SkMatrix& ctm,
-                         MapDirection = kReverse_MapDirection) const;
+    SkIRect filterBounds(const SkIRect& src, const SkMatrix& ctm, MapDirection) const;
 
 #if SK_SUPPORT_GPU
     static sk_sp<SkSpecialImage> DrawWithFP(GrContext* context,
@@ -332,7 +331,7 @@ protected:
      * Performs a forwards or reverse mapping of the given rect to accommodate
      * this filter's margin requirements. kForward_MapDirection is used to
      * determine the destination pixels which would be touched by filtering
-     * the given given source rect (e.g., given source bitmap bounds,
+     * the given source rect (e.g., given source bitmap bounds,
      * determine the optimal bounds of the filtered offscreen bitmap).
      * kReverse_MapDirection is used to determine which pixels of the
      * input(s) would be required to fill the given destination rect
@@ -385,8 +384,8 @@ protected:
      *  which are not capable of processing a smaller source bitmap into a
      *  larger destination.
      */
-    sk_sp<SkSpecialImage> applyCropRect(const Context&, SkSpecialImage* src, SkIPoint* srcOffset,
-                                        SkIRect* bounds) const;
+    sk_sp<SkSpecialImage> applyCropRectAndPad(const Context&, SkSpecialImage* src,
+                                              SkIPoint* srcOffset, SkIRect* bounds) const;
 
     /**
      *  Creates a modified Context for use when recursing up the image filter DAG.

@@ -223,7 +223,7 @@ sk_sp<SkSpecialImage> SkImageFilter::filterImage(SkSpecialImage* src, const Cont
 }
 
 SkIRect SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                 MapDirection direction) const {
+                                    MapDirection direction) const {
     if (kReverse_MapDirection == direction) {
         SkIRect bounds = this->onFilterNodeBounds(src, ctm, direction);
         return this->onFilterBounds(bounds, ctm, direction);
@@ -327,8 +327,8 @@ bool SkImageFilter::canHandleComplexCTM() const {
 
 bool SkImageFilter::applyCropRect(const Context& ctx, const SkIRect& srcBounds,
                                   SkIRect* dstBounds) const {
-    SkIRect temp = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection);
-    fCropRect.applyTo(temp, ctx.ctm(), this->affectsTransparentBlack(), dstBounds);
+    SkIRect tmpDst = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection);
+    fCropRect.applyTo(tmpDst, ctx.ctm(), this->affectsTransparentBlack(), dstBounds);
     // Intersect against the clip bounds, in case the crop rect has
     // grown the bounds beyond the original clip. This can happen for
     // example in tiling, where the clip is much smaller than the filtered
@@ -407,16 +407,14 @@ static sk_sp<SkSpecialImage> pad_image(SkSpecialImage* src,
     return surf->makeImageSnapshot();
 }
 
-sk_sp<SkSpecialImage> SkImageFilter::applyCropRect(const Context& ctx,
-                                                   SkSpecialImage* src,
-                                                   SkIPoint* srcOffset,
-                                                   SkIRect* bounds) const {
+sk_sp<SkSpecialImage> SkImageFilter::applyCropRectAndPad(const Context& ctx,
+                                                         SkSpecialImage* src,
+                                                         SkIPoint* srcOffset,
+                                                         SkIRect* bounds) const {
     const SkIRect srcBounds = SkIRect::MakeXYWH(srcOffset->x(), srcOffset->y(),
                                                 src->width(), src->height());
 
-    SkIRect dstBounds = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection);
-    fCropRect.applyTo(dstBounds, ctx.ctm(), this->affectsTransparentBlack(), bounds);
-    if (!bounds->intersect(ctx.clipBounds())) {
+    if (!this->applyCropRect(ctx, srcBounds, bounds)) {
         return nullptr;
     }
 

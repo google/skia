@@ -259,7 +259,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
     }
 
     SkIRect displBounds;
-    displ = this->applyCropRect(ctx, displ.get(), &displOffset, &displBounds);
+    displ = this->applyCropRectAndPad(ctx, displ.get(), &displOffset, &displBounds);
     if (!displ) {
         return nullptr;
     }

@@ -38,7 +38,8 @@ sk_sp<SkSpecialImage> SkComposeImageFilter::onFilterImage(SkSpecialImage* source
     // filter, so that the inner filter produces the pixels that the outer
     // filter requires as input. This matters if the outer filter moves pixels.
     SkIRect innerClipBounds;
-    innerClipBounds = this->getInput(0)->filterBounds(ctx.clipBounds(), ctx.ctm());
+    innerClipBounds = this->getInput(0)->filterBounds(ctx.clipBounds(), ctx.ctm(),
+                                                      kReverse_MapDirection);
     Context innerContext(ctx.ctm(), innerClipBounds, ctx.cache(), ctx.outputProperties());
     SkIPoint innerOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> inner(this->filterInput(1, source, innerContext, &innerOffset));
