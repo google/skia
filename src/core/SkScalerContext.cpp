@@ -982,15 +982,6 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
         rec->setContrast(0);
     }
 
-    new (effects) SkScalerContextEffects{paint};
-    if (effects->fMaskFilter) {
-        // Pre-blend is not currently applied to filtered text.
-        // The primary filter is blur, for which contrast makes no sense,
-        // and for which the destination guess error is more visible.
-        // Also, all existing users of blur have calibrated for linear.
-        rec->ignorePreBlend();
-    }
-
     // If we're asking for A8, we force the colorlum to be gray, since that
     // limits the number of unique entries, and the scaler will only look at
     // the lum of one of them.
@@ -1017,6 +1008,15 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
             // No need to differentiate gamma or apply contrast if we're BW
             rec->ignorePreBlend();
             break;
+    }
+
+    new (effects) SkScalerContextEffects{paint};
+    if (effects->fMaskFilter) {
+        // Pre-blend is not currently applied to filtered text.
+        // The primary filter is blur, for which contrast makes no sense,
+        // and for which the destination guess error is more visible.
+        // Also, all existing users of blur have calibrated for linear.
+        rec->ignorePreBlend();
     }
 }
 
