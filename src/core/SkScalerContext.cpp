@@ -63,6 +63,84 @@ SkScalerContext::SkScalerContext(sk_sp<SkTypeface> typeface, const SkScalerConte
 
 SkScalerContext::~SkScalerContext() {}
 
+/**
+ * In order to call cachedDeviceLuminance, cachedPaintLuminance, or
+ * cachedMaskGamma the caller must hold the gMaskGammaCacheMutex and continue
+ * to hold it until the returned pointer is refed or forgotten.
+ */
+SK_DECLARE_STATIC_MUTEX(gMaskGammaCacheMutex);
+
+static SkMaskGamma* gLinearMaskGamma = nullptr;
+static SkMaskGamma* gMaskGamma = nullptr;
+static SkScalar gContrast = SK_ScalarMin;
+static SkScalar gPaintGamma = SK_ScalarMin;
+static SkScalar gDeviceGamma = SK_ScalarMin;
+
+/**
+ * The caller must hold the gMaskGammaCacheMutex and continue to hold it until
+ * the returned SkMaskGamma pointer is refed or forgotten.
+ */
+static const SkMaskGamma& cached_mask_gamma(SkScalar contrast, SkScalar paintGamma,
+                                            SkScalar deviceGamma) {
+    gMaskGammaCacheMutex.assertHeld();
+    if (0 == contrast && SK_Scalar1 == paintGamma && SK_Scalar1 == deviceGamma) {
+        if (nullptr == gLinearMaskGamma) {
+            gLinearMaskGamma = new SkMaskGamma;
+        }
+        return *gLinearMaskGamma;
+    }
+    if (gContrast != contrast || gPaintGamma != paintGamma || gDeviceGamma != deviceGamma) {
+        SkSafeUnref(gMaskGamma);
+        gMaskGamma = new SkMaskGamma(contrast, paintGamma, deviceGamma);
+        gContrast = contrast;
+        gPaintGamma = paintGamma;
+        gDeviceGamma = deviceGamma;
+    }
+    return *gMaskGamma;
+}
+
+/**
+ * Expands fDeviceGamma, fPaintGamma, fContrast, and fLumBits into a mask pre-blend.
+ */
+SkMaskGamma::PreBlend SkScalerContext::GetMaskPreBlend(const SkScalerContextRec& rec) {
+    SkAutoMutexAcquire ama(gMaskGammaCacheMutex);
+    const SkMaskGamma& maskGamma = cached_mask_gamma(rec.getContrast(),
+                                                     rec.getPaintGamma(),
+                                                     rec.getDeviceGamma());
+    return maskGamma.preBlend(rec.getLuminanceColor());
+}
+
+size_t SkScalerContext::GetGammaLUTSize(SkScalar contrast, SkScalar paintGamma,
+                                        SkScalar deviceGamma, int* width, int* height) {
+    SkAutoMutexAcquire ama(gMaskGammaCacheMutex);
+    const SkMaskGamma& maskGamma = cached_mask_gamma(contrast,
+                                                     paintGamma,
+                                                     deviceGamma);
+
+    maskGamma.getGammaTableDimensions(width, height);
+    size_t size = (*width)*(*height)*sizeof(uint8_t);
+
+    return size;
+}
+
+bool SkScalerContext::GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma,
+                                      uint8_t* data) {
+    SkAutoMutexAcquire ama(gMaskGammaCacheMutex);
+    const SkMaskGamma& maskGamma = cached_mask_gamma(contrast,
+                                                     paintGamma,
+                                                     deviceGamma);
+    const uint8_t* gammaTables = maskGamma.getGammaTables();
+    if (!gammaTables) {
+        return false;
+    }
+
+    int width, height;
+    maskGamma.getGammaTableDimensions(&width, &height);
+    size_t size = width*height * sizeof(uint8_t);
+    memcpy(data, gammaTables, size);
+    return true;
+}
+
 void SkScalerContext::getAdvance(SkGlyph* glyph) {
     // mark us as just having a valid advance
     glyph->fMaskFormat = MASK_FORMAT_JUST_ADVANCE;
@@ -988,20 +1066,22 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
         // The primary filter is blur, for which contrast makes no sense,
         // and for which the destination guess error is more visible.
         // Also, all existing users of blur have calibrated for linear.
+        // TODO: this means fPreBlendForFilter is never used?
         rec->ignorePreBlend();
     }
 
+    bool luminanceColorWillBeUsed = rec->getDeviceGamma() != SK_Scalar1 ||
+                                    rec->getPaintGamma()  != SK_Scalar1;
     // If we're asking for A8, we force the colorlum to be gray, since that
     // limits the number of unique entries, and the scaler will only look at
     // the lum of one of them.
     switch (rec->fMaskFormat) {
-        case SkMask::kLCD16_Format: {
+        case SkMask::kLCD16_Format: if (luminanceColorWillBeUsed) {
             // filter down the luminance color to a finite number of bits
             SkColor color = rec->getLuminanceColor();
             rec->setLuminanceColor(SkMaskGamma::CanonicalColor(color));
-            break;
-        }
-        case SkMask::kA8_Format: {
+        } break;
+        case SkMask::kA8_Format: if (luminanceColorWillBeUsed) {
             // filter down the luminance to a single component, since A8 can't
             // use per-component information
             SkColor color = rec->getLuminanceColor();
@@ -1011,8 +1091,7 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
             // reduce to our finite number of bits
             color = SkColorSetRGB(lum, lum, lum);
             rec->setLuminanceColor(SkMaskGamma::CanonicalColor(color));
-            break;
-        }
+        } break;
         case SkMask::kBW_Format:
             // No need to differentiate gamma or apply contrast if we're BW
             rec->ignorePreBlend();
