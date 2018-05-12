@@ -1355,6 +1355,7 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& ori
 
 bool SkDraw::ShouldDrawTextAsPaths(const SkPaint& paint, const SkMatrix& ctm, SkScalar sizeLimit) {
     // hairline glyphs are fast enough so we don't need to cache them
+#if 0
     if (SkPaint::kStroke_Style == paint.getStyle() && 0 == paint.getStrokeWidth()) {
         return true;
     }
@@ -1367,6 +1368,8 @@ bool SkDraw::ShouldDrawTextAsPaths(const SkPaint& paint, const SkMatrix& ctm, Sk
     SkMatrix textM;
     SkPaintPriv::MakeTextMatrix(&textM, paint);
     return SkPaint::TooBigToUseCache(ctm, textM, sizeLimit);
+#endif
+    return false;
 }
 
 void SkDraw::drawText_asPaths(const char text[], size_t byteLength, SkScalar x, SkScalar y,

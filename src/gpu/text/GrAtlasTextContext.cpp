@@ -571,6 +571,7 @@ void GrAtlasTextContext::BmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
 bool GrAtlasTextContext::canDrawAsDistanceFields(const SkPaint& skPaint, const SkMatrix& viewMatrix,
                                                  const SkSurfaceProps& props,
                                                  const GrShaderCaps& caps) const {
+
     if (!viewMatrix.hasPerspective()) {
         SkScalar maxScale = viewMatrix.getMaxScale();
         SkScalar scaledTextSize = maxScale * skPaint.getTextSize();
@@ -601,7 +602,7 @@ bool GrAtlasTextContext::canDrawAsDistanceFields(const SkPaint& skPaint, const S
         return false;
     }
 
-    return true;
+    return false;
 }
 
 void GrAtlasTextContext::initDistanceFieldPaint(GrAtlasTextBlob* blob,
