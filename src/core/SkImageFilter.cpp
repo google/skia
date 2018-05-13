@@ -425,8 +425,8 @@ sk_sp<SkSpecialImage> SkImageFilter::applyCropRect(const Context& ctx,
     } else {
         sk_sp<SkSpecialImage> img(pad_image(src, ctx.outputProperties(),
                                             bounds->width(), bounds->height(),
-                                            srcOffset->x() - bounds->x(),
-                                            srcOffset->y() - bounds->y()));
+                                            Sk32_sat_sub(srcOffset->x(), bounds->x()),
+                                            Sk32_sat_sub(srcOffset->y(), bounds->y())));
         *srcOffset = SkIPoint::Make(bounds->x(), bounds->y());
         return img;
     }

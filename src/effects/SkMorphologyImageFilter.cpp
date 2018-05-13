@@ -457,7 +457,7 @@ static void apply_morphology_pass(GrRenderTargetContext* renderTargetContext,
         middleSrcRect.inset(0, radius);
         middleDstRect.inset(0, radius);
     }
-    if (middleSrcRect.fLeft - middleSrcRect.fRight >= 0) {
+    if (middleSrcRect.width() <= 0) {
         // radius covers srcRect; use bounds over entire draw
         apply_morphology_rect(renderTargetContext, clip, std::move(textureProxy),
                               srcRect, dstRect, radius, morphType, bounds, direction);
