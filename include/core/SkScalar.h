@@ -68,22 +68,10 @@ static inline bool SkScalarIsNaN(SkScalar x) { return x != x; }
 
 /** Returns true if x is not NaN and not infinite
  */
-static inline bool SkScalarIsFinite(SkScalar x) {
-    // We rely on the following behavior of infinities and nans
-    // 0 * finite --> 0
-    // 0 * infinity --> NaN
-    // 0 * NaN --> NaN
-    SkScalar prod = x * 0;
-    // At this point, prod will either be NaN or 0
-    return !SkScalarIsNaN(prod);
-}
+static inline bool SkScalarIsFinite(SkScalar x) { return sk_float_isfinite(x); }
 
 static inline bool SkScalarsAreFinite(SkScalar a, SkScalar b) {
-    SkScalar prod = 0;
-    prod *= a;
-    prod *= b;
-    // At this point, prod will either be NaN or 0
-    return !SkScalarIsNaN(prod);
+    return sk_float_isfinite(a) && sk_float_isfinite(b);
 }
 
 static inline bool SkScalarsAreFinite(const SkScalar array[], int count) {
@@ -92,7 +80,7 @@ static inline bool SkScalarsAreFinite(const SkScalar array[], int count) {
         prod *= array[i];
     }
     // At this point, prod will either be NaN or 0
-    return !SkScalarIsNaN(prod);
+    return prod == 0;   // if prod is NaN, this check will return false
 }
 
 /**
