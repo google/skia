@@ -49,7 +49,13 @@ const (
 
 	DEFAULT_PROJECT = "skia"
 
+	// Small is a 2-core machine.
+	// TODO(dogben): Would n1-standard-1 or n1-standard-2 be sufficient?
 	MACHINE_TYPE_SMALL = "n1-highmem-2"
+	// Medium is a 16-core machine
+	MACHINE_TYPE_MEDIUM = "n1-standard-16"
+	// Large is a 64-core machine. (We use "highcpu" because we don't need more than 57GB memory for
+	// any of our tasks.)
 	MACHINE_TYPE_LARGE = "n1-highcpu-64"
 
 	// Swarming output dirs.
@@ -479,21 +485,12 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				d["os"] = DEFAULT_OS_LINUX_GCE
 			}
 			if parts["model"] == "GCE" && d["cpu"] == "x86-64-Haswell_GCE" {
-				// nanobench runs single-threaded, so use a small machine.
-				// dm is multi-threaded for CPU, so use a large machine.
-				machineType, ok := map[string]string{
-					"Calmbench": MACHINE_TYPE_SMALL,
-					"Perf":      MACHINE_TYPE_SMALL,
-					"Test":      MACHINE_TYPE_LARGE,
-				}[parts["role"]]
-				if !ok {
-					glog.Fatalf("Entry %q not found in GCE machine type mapping.", parts["role"])
-				}
 				// Coverage gets slower with more cores.
 				if strings.Contains(parts["extra_config"], "Coverage") {
-					machineType = MACHINE_TYPE_SMALL
+					d["machine_type"] = MACHINE_TYPE_SMALL
+				} else {
+					d["machine_type"] = MACHINE_TYPE_MEDIUM
 				}
-				d["machine_type"] = machineType
 			}
 		} else {
 			if strings.Contains(parts["os"], "Win") {
@@ -1118,7 +1115,8 @@ func presubmit(b *specs.TasksCfgBuilder, name string) string {
 		"reason":           "CQ",
 		"repo_name":        "skia",
 	}
-	// Use MACHINE_TYPE_LARGE because it seems to save ~1m and we want presubmit to be fast.
+	// Use MACHINE_TYPE_LARGE because it seems to save time versus MEDIUM and we want presubmit to be
+	// fast.
 	task := kitchenTask(name, "run_presubmit", "empty.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(MACHINE_TYPE_LARGE), extraProps, OUTPUT_NONE)
 
 	replaceArg := func(key, value string) {
