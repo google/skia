@@ -169,8 +169,10 @@ config("default") {
     libs += [
       "c++_static",
       "c++abi",
-      "android_support",
     ]
+    if (ndk_api < 21) {
+      libs += [ "android_support" ]
+    }
   }
 
   if (is_ios) {
