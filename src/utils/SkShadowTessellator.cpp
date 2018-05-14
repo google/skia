@@ -773,7 +773,7 @@ private:
     bool handlePolyPoint(const SkPoint& p);
 
     void mapPoints(SkScalar scale, const SkVector& xlate, SkPoint* pts, int count);
-    bool addInnerPoint(const SkPoint& pathPoint);
+    bool addInnerPoint(const SkPoint& pathPoint, int* currUmbraIndex);
     void addEdge(const SkVector& nextPoint, const SkVector& nextNormal);
     void addToClip(const SkVector& nextPoint);
 
@@ -1452,8 +1452,7 @@ bool SkSpotShadowTessellator::handlePolyPoint(const SkPoint& p) {
         fPrevPoint = fFirstPoint;
         fPrevUmbraIndex = -1;
 
-        this->addInnerPoint(fFirstPoint);
-        fPrevUmbraIndex = fFirstVertexIndex;
+        this->addInnerPoint(fFirstPoint, &fPrevUmbraIndex);
 
         if (!fTransparent) {
             SkPoint clipPoint;
@@ -1494,7 +1493,7 @@ bool SkSpotShadowTessellator::handlePolyPoint(const SkPoint& p) {
     return true;
 }
 
-bool SkSpotShadowTessellator::addInnerPoint(const SkPoint& pathPoint) {
+bool SkSpotShadowTessellator::addInnerPoint(const SkPoint& pathPoint, int* currUmbraIndex) {
     SkPoint umbraPoint;
     if (!fValidUmbra) {
         SkVector v = fCentroid - pathPoint;
@@ -1509,21 +1508,28 @@ bool SkSpotShadowTessellator::addInnerPoint(const SkPoint& pathPoint) {
     // merge "close" points
     if (fPrevUmbraIndex == -1 ||
         !duplicate_pt(umbraPoint, fPositions[fPrevUmbraIndex])) {
-        *fPositions.push() = umbraPoint;
-        *fColors.push() = fUmbraColor;
-
+        // if we've wrapped around, don't add a new point
+        if (fPrevUmbraIndex >= 0 && duplicate_pt(umbraPoint, fPositions[fFirstVertexIndex])) {
+            *currUmbraIndex = fFirstVertexIndex;
+        } else {
+            *currUmbraIndex = fPositions.count();
+            *fPositions.push() = umbraPoint;
+            *fColors.push() = fUmbraColor;
+        }
         return false;
     } else {
+        *currUmbraIndex = fPrevUmbraIndex;
         return true;
     }
 }
 
 void SkSpotShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVector& nextNormal) {
     // add next umbra point
-    bool duplicate = this->addInnerPoint(nextPoint);
-    int prevPenumbraIndex = duplicate ? fPositions.count()-1 : fPositions.count()-2;
-    int currUmbraIndex = duplicate ? fPrevUmbraIndex : fPositions.count()-1;
-
+    int currUmbraIndex;
+    bool duplicate = this->addInnerPoint(nextPoint, &currUmbraIndex);
+    int prevPenumbraIndex = duplicate || (currUmbraIndex == fFirstVertexIndex)
+                          ? fPositions.count()-1
+                          : fPositions.count()-2;
     if (!duplicate) {
         // add to center fan if transparent or centroid showing
         if (fTransparent) {
