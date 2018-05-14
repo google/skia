@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4fb41ef2_368af1f5",
+        "filename": "src/core/SkUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-14T19:36:42Z",
+      "side": 1,
+      "message": "This routine returns -1 error. Updated to reflect such.",
+      "parentUuid": "1fb90de4_3f6546c0",
+      "range": {
+        "startLine": 398,
+        "startChar": 0,
+        "endLine": 400,
+        "endChar": 5
+      },
+      "revId": "603c9a79db080a8c3b69cf21e9dd21d92f0eeb4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6ea3607d_79d2cce5",
         "filename": "src/core/SkUtils.h",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2018-05-14T19:19:30Z",
       "side": 1,
       "message": "This seems awkward. We have an encoding enum on paint (which includes glyph), an encoding enum on typeface (which doesn\u0027t include glyph), and SkTextEncoding (in SkFont.h). Currently we\u0027re actually only using the paint one to call this.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 23
+      },
+      "revId": "603c9a79db080a8c3b69cf21e9dd21d92f0eeb4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd01bdf1_03001eb9",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-14T19:36:42Z",
+      "side": 1,
+      "message": "If you are passing glyphids to a utf counting routine, then you are doing it wrong. The paint encoding should only be used once at the API boarder to indicate extra processing done by the typeface to generate glyphs.",
+      "parentUuid": "6ea3607d_79d2cce5",
       "range": {
         "startLine": 14,
         "startChar": 0,
