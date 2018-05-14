@@ -1181,6 +1181,8 @@ bool GrContextPriv::readSurfacePixels2(GrSurfaceContext* src, int left, int top,
         finalPixmap.reset(finalII, buffer, rowBytes);
         buffer = tempPixmap.writable_addr();
         rowBytes = tempPixmap.rowBytes();
+        // Chrome msan bots require this.
+        sk_bzero(buffer, tempPixmap.computeByteSize());
     }
 
     if (srcSurface->surfacePriv().hasPendingWrite()) {
