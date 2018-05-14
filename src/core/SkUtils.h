@@ -11,6 +11,7 @@
 #include "SkTypes.h"
 #include "SkMath.h"
 #include "SkOpts.h"
+#include "SkTypeface.h"
 
 /** Similar to memset(), but it assigns a 16, 32, or 64-bit value into the buffer.
     @param buffer   The memory to have value copied into it
@@ -47,6 +48,7 @@ int         SkUTF8_CountUnichars(const char utf8[]);
 int SkUTF8_CountUnichars(const void* utf8, size_t byteLength);
 int SkUTF16_CountUnichars(const void* utf16, size_t byteLength);
 int SkUTF32_CountUnichars(const void* utf32, size_t byteLength);
+int SkUTFN_CountUnichars(SkTypeface::Encoding encoding, const void* utfN, size_t byteLength);
 
 /** This function is safe: invalid UTF8 sequences will return -1
  *  When -1 is returned, ptr is unchanged.
