@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c25ddf02_ec30bcc2",
+        "filename": "src/core/SkUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-14T20:53:50Z",
+      "side": 1,
+      "message": "I think this is usually called is_aligned . I just remembered I already had one in SkMD5.cpp too.",
+      "range": {
+        "startLine": 414,
+        "startChar": 12,
+        "endLine": 414,
+        "endChar": 26
+      },
+      "revId": "b62160112bf27dd02b2f5163a551560fff82dd32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "025ccda1_8d236f9c",
+        "filename": "src/core/SkUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-14T20:53:50Z",
+      "side": 1,
+      "message": "Is this going to be generally needed? Will the caller already know this value? Is it worth it to have this here so \u0027eachUnichar\u0027 doesn\u0027t need to keep track of the count if the user really wants it?",
+      "range": {
+        "startLine": 428,
+        "startChar": 4,
+        "endLine": 428,
+        "endChar": 27
+      },
+      "revId": "b62160112bf27dd02b2f5163a551560fff82dd32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbb56cc6_4bfa2c5e",
+        "filename": "src/core/SkUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-14T20:53:50Z",
+      "side": 1,
+      "message": "Do we want to fail in this case or do we just clear the low bit (the low two bits for the 32 bit case).",
+      "range": {
+        "startLine": 442,
+        "startChar": 52,
+        "endLine": 442,
+        "endChar": 83
+      },
+      "revId": "b62160112bf27dd02b2f5163a551560fff82dd32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41b83a93_50706272",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-14T20:53:50Z",
+      "side": 1,
+      "message": "There aren\u0027t any callers yet, so it\u0027s hard to see how this looks. But would this read easier if named something like SkForEachUnichar?",
+      "range": {
+        "startLine": 109,
+        "startChar": 7,
+        "endLine": 109,
+        "endChar": 22
+      },
+      "revId": "b62160112bf27dd02b2f5163a551560fff82dd32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
