@@ -12,9 +12,7 @@ destinations on the GPU. Image and Surface may be specified by Image_Info,
 but Image and Surface may not contain Image_Info.
 
 #Subtopic Overview
-    #Subtopic Subtopic
-    #Populate
-    ##
+#Populate
 ##
 
 #Subtopic Constant
@@ -51,7 +49,7 @@ be opaque, or Color_Alpha, describing multiple levels of transparency.
 In simple blending, Color_Alpha weights the draw color and the destination
 color to create a new color. If alpha describes a weight from zero to one:
 
-#Formula
+#Code
     new color = draw color * alpha + destination color * (1 - alpha)
 ##
 
@@ -62,21 +60,32 @@ value is the original Color_RGB multiplied by Color_Alpha. Premultiplied color
 components improve performance.
 
 #Const kUnknown_SkAlphaType 0
-Alpha_Type is uninitialized.
+#Line # uninitialized ##
+    Alpha_Type is uninitialized.
 ##
 #Const kOpaque_SkAlphaType 1
-Pixels are opaque. The Color_Type must have no explicit alpha
-component, or all alpha components must be set to their maximum value.
+#Line # pixel is opaque ##
+#Details Opaque
+    Pixels are opaque. The Color_Type must have no explicit alpha
+    component, or all alpha components must be set to their maximum value.
 ##
 #Const kPremul_SkAlphaType 2
-Pixels have alpha premultiplied into color components.
-Surface pixels must be premultiplied.
+#Line # pixel components are Premultiplied by Alpha ##
+#Details Premul
+    Pixels have Alpha Premultiplied into color components.
+    Surface pixels must be Premultiplied.
 ##
 #Const kUnpremul_SkAlphaType 3
-Pixel color component values are independent of alpha value.
-Images generated from encoded data like PNG do not premultiply pixel color
-components. kUnpremul_SkAlphaType is supported for Image pixels, but not for
-Surface pixels.
+#Line # pixel components are independent of Alpha ##
+#Details Unpremul
+    Pixel color component values are independent of alpha value.
+    Images generated from encoded data like PNG do not Premultiply pixel color
+    components. kUnpremul_SkAlphaType is supported for Image pixels, but not for
+    Surface pixels.
+##
+#Const kLastEnum_SkAlphaType 3
+#Line # last valid value ##
+    Used by tests to iterate through all valid values.
 ##
 
 #NoExample
@@ -87,18 +96,18 @@ Surface pixels.
 #Enum SkAlphaType ##
 
 #Subtopic Opaque
-
-Use Opaque as a hint to optimize drawing when alpha component
+#Line # hints all pixels are opaque ##
+Use kOpaque_SkAlphaType as a hint to optimize drawing when Alpha component
 of all pixel is set to its maximum value of 1.0; all alpha component bits are set.
-If Image_Info is set to Opaque but all alpha values are not 1.0, results are
-undefined.
+If Image_Info is set to kOpaque_SkAlphaType but all alpha values are not 1.0,
+results are undefined.
 
 #Example
 #Height 64
 #Description
 SkPreMultiplyARGB parameter a is set to 255, its maximum value, and is interpreted
 as Color_Alpha of 1.0. kOpaque_SkAlphaType may be set to improve performance.
-If SkPreMultiplyARGB parameter a is set to a value smaller than 255, 
+If SkPreMultiplyARGB parameter a is set to a value smaller than 255,
 kPremul_SkAlphaType must be used instead to avoid undefined results.
 The four displayed values are the original component values, though not necessarily
 in the same order.
@@ -121,12 +130,12 @@ in the same order.
 #Subtopic Opaque ##
 
 #Subtopic Premul
+#Line # stores components scaled by Alpha ##
+Use kPremul_SkAlphaType when stored color components are the original color
+multiplied by the alpha component. The alpha component range of 0.0 to 1.0 is
+achieved by dividing the integer bit value by the maximum bit value.
 
-Use Premul when stored color components are the original color multiplied by the
-alpha component. The alpha component range of 0.0 to 1.0 is achieved by dividing
-the integer bit value by the maximum bit value.
-
-#Formula
+#Code
 stored color = original color * alpha / max alpha
 ##
 
@@ -137,7 +146,7 @@ or the results are undefined.
 #Description
 SkPreMultiplyARGB parameter a is set to 150, less than its maximum value, and is
 interpreted as Color_Alpha of about 0.6. kPremul_SkAlphaType must be set, since
-SkPreMultiplyARGB parameter a is set to a value smaller than 255, 
+SkPreMultiplyARGB parameter a is set to a value smaller than 255,
 to avoid undefined results.
 The four displayed values reflect that the alpha component has been multiplied
 by the original color.
@@ -161,16 +170,17 @@ by the original color.
 #Subtopic Premul ##
 
 #Subtopic Unpremul
-
-Use Unpremul if stored color components are not divided by the alpha component.
-Some drawing destinations may not support Unpremul.
+#Line # stores components without Alpha scaling ##
+Use kUnpremul_SkAlphaType if stored color components are not divided by the
+alpha component. Some drawing destinations may not support
+kUnpremul_SkAlphaType.
 
 #Bug 7079
 #Example
 #Height 64
 #Description
 SkColorSetARGB parameter a is set to 150, less than its maximum value, and is
-interpreted as Color_Alpha of about 0.6. color is not premultiplied;
+interpreted as Color_Alpha of about 0.6. color is not Premultiplied;
 color components may have values greater than color alpha.
 The four displayed values are the original component values, though not necessarily
 in the same order.
@@ -224,11 +234,6 @@ kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
 kGray_8_SkColorType, kRGBA_F16_SkColorType
 ##
 
-#Subtopic Native
-#Alias Native_Color_Type
-#Substitute native SkColorType
-##
-
 #Enum SkColorType
 #Line # encoding for pixel color ##
 
@@ -260,7 +265,7 @@ $$$#
 #Code ##
 
 Describes how pixel bits encode color. A pixel may be an alpha mask, a
-gray level, Color_RGB, or Color_ARGB. 
+gray level, Color_RGB, or Color_ARGB.
 
 kN32_SkColorType selects the native 32-bit Color_ARGB format. On Little_Endian
 processors, pixels containing 8-bit Color_ARGB components pack into 32-bit
@@ -268,43 +273,93 @@ kBGRA_8888_SkColorType. On Big_Endian processors, pixels pack into 32-bit
 kRGBA_8888_SkColorType.
 
 #Const kUnknown_SkColorType 0
-    Color_Type is uninitialized; encoding format and size is unknown.
-##
-#Const kAlpha_8_SkColorType 1
-    Encodes Color_Alpha as Alpha_8 pixel in an 8-bit byte.
-##
-#Const kRGB_565_SkColorType 2
-    Encodes Color_RGB as BGR_565 pixel in a 16-bit word.
-##
-#Const kARGB_4444_SkColorType 3
-    Encodes Color_ARGB as ABGR_4444 pixel in a 16-bit word.
-##
-#Const kRGBA_8888_SkColorType 4
-    Encodes Color_ARGB as RGBA_8888 pixel in a 32-bit word.
-##
-#Const kRGB_888x_SkColorType 5
-    Encodes Color_RGB as RGB_888x pixel in a 32-bit word.
-##
-#Const kBGRA_8888_SkColorType 6
-    Encodes Color_ARGB as BGRA_8888 pixel in a 32-bit word.
-##
-#Const kRGBA_1010102_SkColorType 7
-    Encodes Color_ARGB as RGBA_1010102 pixel in a 32-bit word.
-##
-#Const kRGB_101010x_SkColorType 8
-    Encodes Color_RGB as RGB_101010x pixel in a 32-bit word.
-##
-#Const kGray_8_SkColorType 9
-    Encodes Color_Gray as Gray_8 in an 8-bit byte.
-##
-#Const kRGBA_F16_SkColorType 10
-    Encodes Color_ARGB as RGBA_F16 in a 64-bit word.
+#Line # uninitialized ##
+    Color_Type is set to kUnknown_SkColorType by default. If set,
+    encoding format and size is unknown.
 ##
 
-#ToDo  can be 4 or 6; how to document? ##
-#Const kN32_SkColorType 4
-    Encodes Color_ARGB as either RGBA_8888 or BGRA_8888, whichever
-    is native to the platform.
+#Const kAlpha_8_SkColorType 1
+#Line # pixel with Alpha in 8-bit byte ##
+#Details Alpha_8
+    Stores 8-bit byte pixel encoding that represents transparency. Value of zero
+    is completely transparent; a value of 255 is completely opaque.
+##
+
+#Const kRGB_565_SkColorType 2
+#Line # pixel with 5 bits red, 6 bits green, 5 bits blue, in 16-bit word ##
+#Details RGB_565
+    Stores 16-bit word pixel encoding that contains five bits of blue,
+    six bits of green, and five bits of red.
+##
+
+#Const kARGB_4444_SkColorType 3
+#Line # pixel with 4 bits for alpha, red, green, blue; in 16-bit word ##
+#Details ARGB_4444
+    Stores 16-bit word pixel encoding that contains four bits of alpha,
+    four bits of blue, four bits of green, and four bits of red.
+##
+
+#Const kRGBA_8888_SkColorType 4
+#Line # pixel with 8 bits for red, green, blue, alpha; in 32-bit word ##
+#Details RGBA_8888
+    Stores 32-bit word pixel encoding that contains eight bits of red,
+    eight bits of green, eight bits of blue, and eight bits of alpha.
+##
+
+#Const kRGB_888x_SkColorType 5
+#Line # pixel with 8 bits each for red, green, blue; in 32-bit word ##
+#Details RGB_888
+    Stores 32-bit word pixel encoding that contains eight bits of red,
+    eight bits of green, eight bits of blue, and eight unused bits.
+##
+
+#Const kBGRA_8888_SkColorType 6
+#Line # pixel with 8 bits for blue, green, red, alpha; in 32-bit word ##
+#Details BGRA_8888
+    Stores 32-bit word pixel encoding that contains eight bits of blue,
+    eight bits of green, eight bits of red, and eight bits of alpha.
+##
+
+#Const kRGBA_1010102_SkColorType 7
+#Line # 10 bits for red, green, blue; 2 bits for alpha; in 32-bit word ##
+#Details RGBA_1010102
+    Stores 32-bit word pixel encoding that contains ten bits of red,
+    ten bits of green, ten bits of blue, and two bits of alpha.
+##
+
+#Const kRGB_101010x_SkColorType 8
+#Line # pixel with 10 bits each for red, green, blue; in 32-bit word ##
+#Details RGB_101010
+    Stores 32-bit word pixel encoding that contains ten bits of red,
+    ten bits of green, ten bits of blue, and two unused bits.
+##
+
+#Const kGray_8_SkColorType 9
+#Line # pixel with Color_Gray level in 8-bit byte ##
+#Details Gray_8
+    Stores 8-bit byte pixel encoding that equivalent to equal values for red,
+    blue, and green, representing colors from black to white.
+##
+
+#Const kRGBA_F16_SkColorType 10
+#Line # pixel with half floats for red, green, blue, alpha; in 64-bit word ##
+#Details RGBA_F16
+    Stores 64-bit word pixel encoding that contains 16 bits of blue,
+    16 bits of green, 16 bits of red, and 16 bits of alpha.
+##
+
+#Const kLastEnum_SkColorType 10
+#NoJustify
+#Line # last valid value ##
+    Used by tests to iterate through all valid values.
+##
+
+#Const kN32_SkColorType 4 or 6
+#Alias Native_Color_Type
+#NoJustify
+#Line # native Color_ARGB 32-bit encoding ##
+    Encodes Color_ARGB as either kRGBA_8888_SkColorType or
+    kBGRA_8888_SkColorType, whichever is native to the platform.
 ##
 
 #NoExample
@@ -315,448 +370,478 @@ kRGBA_8888_SkColorType.
 #Enum SkColorType ##
 
 #Subtopic Alpha_8
+#Line # encodes transparency only ##
+    Alpha pixels encode transparency without color information. Value of zero is
+    completely transparent; a value of 255 is completely opaque. Bitmap
+    pixels do not visibly draw, because its pixels have no color information.
+    When SkColorType is set to kAlpha_8_SkColorType, the paired SkAlphaType is
+    ignored.
 
-Alpha_8 is an 8-bit byte pixel encoding that represents transparency. A value of zero is
-completely transparent; a value of 255 is completely opaque. Bitmap with Alpha_8
-pixels does not visibly draw, because its pixels have no color information.
-The paired SkAlphaType is ignored.
-
-#Example
-#Description
-Alpha_8 pixels can modify another draw. orangePaint fills the bounds of bitmap,
-with its transparency set to alpha8 pixel value.
-##
-#Height 64
-    canvas->scale(16, 16);
-    SkBitmap bitmap;
-    SkImageInfo imageInfo = SkImageInfo::Make(2, 2, kAlpha_8_SkColorType, kOpaque_SkAlphaType);
-    bitmap.allocPixels(imageInfo);
-    SkCanvas offscreen(bitmap);
-    offscreen.clear(SK_ColorGREEN);
-    SkPaint orangePaint;
-    orangePaint.setARGB(0xFF, 0xFF, 0xA5, 0x00);
-    canvas->drawBitmap(bitmap, 0, 0, &orangePaint);
-    uint8_t alpha8[] = { 0xFF, 0xBB, 0x77, 0x33 };
-    SkPixmap alphaPixmap(imageInfo, &alpha8, imageInfo.minRowBytes());
-    if (bitmap.writePixels(alphaPixmap, 0, 0)) {
-        canvas->drawBitmap(bitmap, 2, 2, &orangePaint);
-    }
-##
-##
-
-#Subtopic BGR_565
-
-BGR_565 is a 16-bit word pixel encoding that contains five bits of blue,
-six bits of green, and five bits of red. BGR_565 is fully opaque as if its
-Color_Alpha was set to one, and should always be paired with kOpaque_SkAlphaType.
-
-#Illustration
-
-#Example
-#Height 96
-    canvas->scale(16, 16);
-    SkBitmap bitmap;
-    SkImageInfo imageInfo = SkImageInfo::Make(2, 2, kRGB_565_SkColorType, kOpaque_SkAlphaType);
-    bitmap.allocPixels(imageInfo);
-    SkCanvas offscreen(bitmap);
-    offscreen.clear(SK_ColorGREEN);
-    canvas->drawBitmap(bitmap, 0, 0);
-    auto pack565 = [](unsigned r, unsigned g, unsigned b) -> uint16_t {
-        return (b << 0) | (g << 5) | (r << 11);
-    };
-    uint16_t red565[] =  { pack565(0x1F, 0x00, 0x00), pack565(0x17, 0x00, 0x00), 
-                           pack565(0x0F, 0x00, 0x00), pack565(0x07, 0x00, 0x00) };
-    uint16_t blue565[] = { pack565(0x00, 0x00, 0x1F), pack565(0x00, 0x00, 0x17),
-                           pack565(0x00, 0x00, 0x0F), pack565(0x00, 0x00, 0x07) };
-    SkPixmap redPixmap(imageInfo, &red565, imageInfo.minRowBytes());
-    if (bitmap.writePixels(redPixmap, 0, 0)) {
-        canvas->drawBitmap(bitmap, 2, 2);
-    }
-    SkPixmap bluePixmap(imageInfo, &blue565, imageInfo.minRowBytes());
-    if (bitmap.writePixels(bluePixmap, 0, 0)) {
-        canvas->drawBitmap(bitmap, 4, 4);
-    }
-##
+    #Example
+        #Description
+        Alpha pixels can modify another draw. orangePaint fills the bounds of bitmap,
+        with its transparency set to alpha8 pixel value.
+        ##
+        #Height 64
+        canvas->scale(16, 16);
+        SkBitmap bitmap;
+        SkImageInfo imageInfo = SkImageInfo::Make(2, 2, kAlpha_8_SkColorType, kOpaque_SkAlphaType);
+        bitmap.allocPixels(imageInfo);
+        SkCanvas offscreen(bitmap);
+        offscreen.clear(SK_ColorGREEN);
+        SkPaint orangePaint;
+        orangePaint.setARGB(0xFF, 0xFF, 0xA5, 0x00);
+        canvas->drawBitmap(bitmap, 0, 0, &orangePaint);
+        uint8_t alpha8[] = { 0xFF, 0xBB, 0x77, 0x33 };
+        SkPixmap alphaPixmap(imageInfo, &alpha8, imageInfo.minRowBytes());
+        if (bitmap.writePixels(alphaPixmap, 0, 0)) {
+            canvas->drawBitmap(bitmap, 2, 2, &orangePaint);
+        }
+    ##
+    #SeeAlso incomplete
 ##
 
-#Subtopic ABGR_4444
+#Subtopic RGB_565
+#Line # encodes Color_RGB in 16 bits ##
+    kRGB_565_SkColorType encodes Color_RGB to fit in a 16-bit word. Red and Blue
+    components use five bits describing 32 levels. Green components, more sensitive
+    to the eye, use six bits describing 64 levels. kRGB_565_SkColorType has no
+    bits for Alpha.
+    
+    Pixels are fully opaque as if its Color_Alpha was set to one, and should
+    always be paired with kOpaque_SkAlphaType.
 
-ABGR_4444 is a 16-bit word pixel encoding that contains four bits of alpha,
-four bits of blue, four bits of green, and four bits of red. 
+    #Illustration
 
-#Illustration
-
-If paired with kPremul_SkAlphaType: blue, green, and red components are
-premultiplied by the alpha value. If blue, green, or red is greater than alpha,
-the drawn result is undefined.
-
-If paired with kUnpremul_SkAlphaType: alpha, blue, green, and red components
-may have any value. There may be a performance penalty with unpremultipled
-pixels.
-
-If paired with kOpaque_SkAlphaType: all alpha component values are at the maximum;
-blue, green, and red components are fully opaque. If any alpha component is
-less than 15, the drawn result is undefined.
-
-#Bug 7648
-
-#Example
-#Height 96
-    canvas->scale(16, 16);
-    SkBitmap bitmap;
-    SkImageInfo imageInfo = SkImageInfo::Make(2, 2, kARGB_4444_SkColorType, kPremul_SkAlphaType);
-    bitmap.allocPixels(imageInfo);
-    SkCanvas offscreen(bitmap);
-    offscreen.clear(SK_ColorGREEN);
-    canvas->drawBitmap(bitmap, 0, 0);
-    auto pack4444 = [](unsigned a, unsigned r, unsigned g, unsigned b) -> uint16_t {
-        return (a << 0) | (b << 4) | (g << 8) | (r << 12);
-    };
-    uint16_t red4444[] =  { pack4444(0xF, 0xF, 0x0, 0x0), pack4444(0xF, 0xb, 0x0, 0x0), 
-                            pack4444(0xF, 0x7, 0x0, 0x0), pack4444(0xF, 0x3, 0x0, 0x0) };
-    uint16_t blue4444[] = { pack4444(0xF, 0x0, 0x0, 0xF), pack4444(0xF, 0x0, 0x0, 0xb),
-                            pack4444(0xF, 0x0, 0x0, 0x7), pack4444(0xF, 0x0, 0x0, 0x3) };
-    SkPixmap redPixmap(imageInfo, &red4444, imageInfo.minRowBytes());
-    if (bitmap.writePixels(redPixmap, 0, 0)) {
-        canvas->drawBitmap(bitmap, 2, 2);
-    }
-    SkPixmap bluePixmap(imageInfo, &blue4444, imageInfo.minRowBytes());
-    if (bitmap.writePixels(bluePixmap, 0, 0)) {
-        canvas->drawBitmap(bitmap, 4, 4);
-    }
+    #Example
+    #Height 96
+        canvas->scale(16, 16);
+        SkBitmap bitmap;
+        SkImageInfo imageInfo = SkImageInfo::Make(2, 2, kRGB_565_SkColorType, kOpaque_SkAlphaType);
+        bitmap.allocPixels(imageInfo);
+        SkCanvas offscreen(bitmap);
+        offscreen.clear(SK_ColorGREEN);
+        canvas->drawBitmap(bitmap, 0, 0);
+        auto pack565 = [](unsigned r, unsigned g, unsigned b) -> uint16_t {
+            return (b << 0) | (g << 5) | (r << 11);
+        };
+        uint16_t red565[] =  { pack565(0x1F, 0x00, 0x00), pack565(0x17, 0x00, 0x00),
+                               pack565(0x0F, 0x00, 0x00), pack565(0x07, 0x00, 0x00) };
+        uint16_t blue565[] = { pack565(0x00, 0x00, 0x1F), pack565(0x00, 0x00, 0x17),
+                               pack565(0x00, 0x00, 0x0F), pack565(0x00, 0x00, 0x07) };
+        SkPixmap redPixmap(imageInfo, &red565, imageInfo.minRowBytes());
+        if (bitmap.writePixels(redPixmap, 0, 0)) {
+            canvas->drawBitmap(bitmap, 2, 2);
+        }
+        SkPixmap bluePixmap(imageInfo, &blue565, imageInfo.minRowBytes());
+        if (bitmap.writePixels(bluePixmap, 0, 0)) {
+            canvas->drawBitmap(bitmap, 4, 4);
+        }
+    ##
+    #SeeAlso incomplete
 ##
+
+#Subtopic ARGB_4444
+#Line # encodes Color_ARGB in 16 bits ##
+    kARGB_4444_SkColorType encodes Color_ARGB to fit in 16-bit word. Each
+    component: alpha, blue, green, and red; use four bits, describing 16 levels.
+    Note that kARGB_4444_SkColorType is misnamed; the acronym does not
+    describe the actual component order.
+
+    #Illustration
+
+    If paired with kPremul_SkAlphaType: blue, green, and red components are
+    Premultiplied by the alpha value. If blue, green, or red is greater than alpha,
+    the drawn result is undefined.
+
+    If paired with kUnpremul_SkAlphaType: alpha, blue, green, and red components
+    may have any value. There may be a performance penalty with Unpremultipled
+    pixels.
+
+    If paired with kOpaque_SkAlphaType: all alpha component values are at the maximum;
+    blue, green, and red components are fully opaque. If any alpha component is
+    less than 15, the drawn result is undefined.
+
+    #Bug 7648
+
+    #Example
+    #Height 96
+        canvas->scale(16, 16);
+        SkBitmap bitmap;
+        SkImageInfo imageInfo = SkImageInfo::Make(2, 2, kARGB_4444_SkColorType, kPremul_SkAlphaType);
+        bitmap.allocPixels(imageInfo);
+        SkCanvas offscreen(bitmap);
+        offscreen.clear(SK_ColorGREEN);
+        canvas->drawBitmap(bitmap, 0, 0);
+        auto pack4444 = [](unsigned a, unsigned r, unsigned g, unsigned b) -> uint16_t {
+            return (a << 0) | (b << 4) | (g << 8) | (r << 12);
+        };
+        uint16_t red4444[] =  { pack4444(0xF, 0xF, 0x0, 0x0), pack4444(0xF, 0xb, 0x0, 0x0),
+                                pack4444(0xF, 0x7, 0x0, 0x0), pack4444(0xF, 0x3, 0x0, 0x0) };
+        uint16_t blue4444[] = { pack4444(0xF, 0x0, 0x0, 0xF), pack4444(0xF, 0x0, 0x0, 0xb),
+                                pack4444(0xF, 0x0, 0x0, 0x7), pack4444(0xF, 0x0, 0x0, 0x3) };
+        SkPixmap redPixmap(imageInfo, &red4444, imageInfo.minRowBytes());
+        if (bitmap.writePixels(redPixmap, 0, 0)) {
+            canvas->drawBitmap(bitmap, 2, 2);
+        }
+        SkPixmap bluePixmap(imageInfo, &blue4444, imageInfo.minRowBytes());
+        if (bitmap.writePixels(bluePixmap, 0, 0)) {
+            canvas->drawBitmap(bitmap, 4, 4);
+        }
+    ##
+    #SeeAlso incomplete
 ##
 
 #Subtopic RGBA_8888
+#Line # encodes Color_ARGB Big_Endian in 32 bits ##
+    kRGBA_8888_SkColorType encodes Color_ARGB into a 32-bit word. Each component:
+    red, green, blue, alpha; use eight bits, describing 256 levels.
 
-RGBA_8888 is a 32-bit word pixel encoding that contains eight bits of red,
-eight bits of green, eight bits of blue, and eight bits of alpha. 
+    #Illustration
 
-#Illustration
+    If paired with kPremul_SkAlphaType: red, green, and blue components are
+    Premultiplied by the alpha value. If red, green, or blue is greater than alpha,
+    the drawn result is undefined.
 
-If paired with kPremul_SkAlphaType: red, green, and blue components are
-premultiplied by the alpha value. If red, green, or blue is greater than alpha,
-the drawn result is undefined.
+    If paired with kUnpremul_SkAlphaType: alpha, red, green, and blue components
+    may have any value. There may be a performance penalty with Unpremultipled
+    pixels.
 
-If paired with kUnpremul_SkAlphaType: alpha, red, green, and blue components
-may have any value. There may be a performance penalty with unpremultipled
-pixels.
+    If paired with kOpaque_SkAlphaType: all alpha component values are at the maximum;
+    red, green, and blue components are fully opaque. If any alpha component is
+    less than 255, the drawn result is undefined.
 
-If paired with kOpaque_SkAlphaType: all alpha component values are at the maximum; 
-red, green, and blue components are fully opaque. If any alpha component is
-less than 255, the drawn result is undefined.
+    On Big_Endian platforms, kRGBA_8888_SkColorType is the native Color_Type, and
+    will have the best performance. Use kN32_SkColorType to choose the best
+    Color_Type for the platform at compile time.
 
-On Big_Endian platforms, RGBA_8888 is the native Color_Type, and will have
-the best performance. Use kN32_SkColorType to choose the best Color_Type for
-the platform at compile time.
-
-#Example
-#Height 96
-    canvas->scale(16, 16);
-    SkBitmap bitmap;
-    SkImageInfo imageInfo = SkImageInfo::Make(2, 2, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    bitmap.allocPixels(imageInfo);
-    SkCanvas offscreen(bitmap);
-    offscreen.clear(SK_ColorGREEN);
-    canvas->drawBitmap(bitmap, 0, 0);
-    auto pack8888 = [](unsigned a, unsigned r, unsigned g, unsigned b) -> uint32_t {
-        return (r << 0) | (g << 8) | (b << 16) | (a << 24);
-    };
-    uint32_t red8888[] = { pack8888(0xFF, 0xFF, 0x0, 0x0), pack8888(0xFF, 0xbb, 0x0, 0x0), 
-                           pack8888(0xFF, 0x77, 0x0, 0x0), pack8888(0xFF, 0x33, 0x0, 0x0) };
-    uint32_t blue8888[] = { pack8888(0xFF, 0x0, 0x0, 0x0FF), pack8888(0xFF, 0x0, 0x0, 0x0bb),
-                            pack8888(0xFF, 0x0, 0x0, 0x077), pack8888(0xFF, 0x0, 0x0, 0x033) };
-    SkPixmap redPixmap(imageInfo, &red8888, imageInfo.minRowBytes());
-    if (bitmap.writePixels(redPixmap, 0, 0)) {
-        canvas->drawBitmap(bitmap, 2, 2);
-    }
-    SkPixmap bluePixmap(imageInfo, &blue8888, imageInfo.minRowBytes());
-    if (bitmap.writePixels(bluePixmap, 0, 0)) {
-        canvas->drawBitmap(bitmap, 4, 4);
-    }
+    #Example
+    #Height 96
+        canvas->scale(16, 16);
+        SkBitmap bitmap;
+        SkImageInfo imageInfo = SkImageInfo::Make(2, 2, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+        bitmap.allocPixels(imageInfo);
+        SkCanvas offscreen(bitmap);
+        offscreen.clear(SK_ColorGREEN);
+        canvas->drawBitmap(bitmap, 0, 0);
+        auto pack8888 = [](unsigned a, unsigned r, unsigned g, unsigned b) -> uint32_t {
+            return (r << 0) | (g << 8) | (b << 16) | (a << 24);
+        };
+        uint32_t red8888[] = { pack8888(0xFF, 0xFF, 0x0, 0x0), pack8888(0xFF, 0xbb, 0x0, 0x0),
+                               pack8888(0xFF, 0x77, 0x0, 0x0), pack8888(0xFF, 0x33, 0x0, 0x0) };
+        uint32_t blue8888[] = { pack8888(0xFF, 0x0, 0x0, 0x0FF), pack8888(0xFF, 0x0, 0x0, 0x0bb),
+                                pack8888(0xFF, 0x0, 0x0, 0x077), pack8888(0xFF, 0x0, 0x0, 0x033) };
+        SkPixmap redPixmap(imageInfo, &red8888, imageInfo.minRowBytes());
+        if (bitmap.writePixels(redPixmap, 0, 0)) {
+            canvas->drawBitmap(bitmap, 2, 2);
+        }
+        SkPixmap bluePixmap(imageInfo, &blue8888, imageInfo.minRowBytes());
+        if (bitmap.writePixels(bluePixmap, 0, 0)) {
+            canvas->drawBitmap(bitmap, 4, 4);
+        }
+    ##
+    #SeeAlso incomplete
 ##
-##
 
-#Subtopic RGB_888x
+#Subtopic RGB_888
+#Line # encodes Color_RGB in 32 bits ##
+    kRGB_888x_SkColorType encodes Color_RGB into a 32-bit word. Each component:
+    red, green, blue; use eight bits, describing 256 levels. Eight bits are
+    unused. Pixels described by kRGB_888x_SkColorType are fully opaque as if 
+    their Color_Alpha was set to one, and should always be paired with
+    kOpaque_SkAlphaType.
 
-RGB_888x is a 32-bit word pixel encoding that contains eight bits of red,
-eight bits of green, eight bits of blue, and eight unused bits. RGB_888x is fully
-opaque as if its Color_Alpha was set to one, and should always be paired with
-kOpaque_SkAlphaType.
+    #Illustration
 
-#Illustration
-
-#Example
-#Bug 7645
-#Height 96
-#Platform cpu
-    canvas->scale(16, 16);
-    SkBitmap bitmap;
-    SkImageInfo imageInfo = SkImageInfo::Make(2, 2, kRGB_888x_SkColorType, kOpaque_SkAlphaType);
-    bitmap.allocPixels(imageInfo);
-    SkCanvas offscreen(bitmap);
-    offscreen.clear(SK_ColorGREEN);
-    canvas->drawBitmap(bitmap, 0, 0);
-    auto pack888 = [](unsigned r, unsigned g, unsigned b) -> uint32_t {
-        return (r << 0) | (g << 8) | (b << 16);
-    };
-    uint32_t red888[] =  { pack888(0xFF, 0x00, 0x00), pack888(0xbb, 0x00, 0x00), 
-        pack888(0x77, 0x00, 0x00), pack888(0x33, 0x00, 0x00) };
-    uint32_t blue888[] = { pack888(0x00, 0x00, 0xFF), pack888(0x00, 0x00, 0xbb),
-        pack888(0x00, 0x00, 0x77), pack888(0x00, 0x00, 0x33) };
-    if (bitmap.installPixels(imageInfo, (void*) red888, imageInfo.minRowBytes())) {
-        canvas->drawBitmap(bitmap, 2, 2);
-    }
-    if (bitmap.installPixels(imageInfo, (void*) blue888, imageInfo.minRowBytes())) {
-        canvas->drawBitmap(bitmap, 4, 4);
-    }
-##
+    #Example
+    #Bug 7645
+    #Height 96
+    #Platform cpu
+        canvas->scale(16, 16);
+        SkBitmap bitmap;
+        SkImageInfo imageInfo = SkImageInfo::Make(2, 2, kRGB_888x_SkColorType, kOpaque_SkAlphaType);
+        bitmap.allocPixels(imageInfo);
+        SkCanvas offscreen(bitmap);
+        offscreen.clear(SK_ColorGREEN);
+        canvas->drawBitmap(bitmap, 0, 0);
+        auto pack888 = [](unsigned r, unsigned g, unsigned b) -> uint32_t {
+            return (r << 0) | (g << 8) | (b << 16);
+        };
+        uint32_t red888[] =  { pack888(0xFF, 0x00, 0x00), pack888(0xbb, 0x00, 0x00),
+            pack888(0x77, 0x00, 0x00), pack888(0x33, 0x00, 0x00) };
+        uint32_t blue888[] = { pack888(0x00, 0x00, 0xFF), pack888(0x00, 0x00, 0xbb),
+            pack888(0x00, 0x00, 0x77), pack888(0x00, 0x00, 0x33) };
+        if (bitmap.installPixels(imageInfo, (void*) red888, imageInfo.minRowBytes())) {
+            canvas->drawBitmap(bitmap, 2, 2);
+        }
+        if (bitmap.installPixels(imageInfo, (void*) blue888, imageInfo.minRowBytes())) {
+            canvas->drawBitmap(bitmap, 4, 4);
+        }
+    ##
 ##
 
 #Subtopic BGRA_8888
+#Line # encodes Color_ARGB Little_Endian in 32 bits ##
+    kBGRA_8888_SkColorType encodes Color_ARGB into a 32-bit word. Each component:
+    blue, green, red, and alpha; use eight bits, describing 256 levels.
 
-BGRA_8888 is a 32-bit word pixel encoding that contains eight bits of blue,
-eight bits of green, eight bits of red, and eight bits of alpha. 
+    #Illustration
 
-#Illustration
+    If paired with kPremul_SkAlphaType: blue, green, and red components are
+    Premultiplied by the alpha value. If blue, green, or red is greater than alpha,
+    the drawn result is undefined.
 
-If paired with kPremul_SkAlphaType: blue, green, and red components are
-premultiplied by the alpha value. If blue, green, or red is greater than alpha,
-the drawn result is undefined.
+    If paired with kUnpremul_SkAlphaType: blue, green, red, and alpha components
+    may have any value. There may be a performance penalty with Unpremultiplied
+    pixels.
 
-If paired with kUnpremul_SkAlphaType: blue, green, red, and alpha components
-may have any value. There may be a performance penalty with unpremultipled
-pixels.
+    If paired with kOpaque_SkAlphaType: all alpha component values are at the maximum;
+    blue, green, and red components are fully opaque. If any alpha component is
+    less than 255, the drawn result is undefined.
 
-If paired with kOpaque_SkAlphaType: all alpha component values are at the maximum; 
-blue, green, and red components are fully opaque. If any alpha component is
-less than 255, the drawn result is undefined.
+    On Little_Endian platforms, kBGRA_8888_SkColorType is the native Color_Type,
+    and will have the best performance. Use kN32_SkColorType to choose the best
+    Color_Type for the platform at compile time.
 
-On Little_Endian platforms, BGRA_8888 is the native Color_Type, and will have
-the best performance. Use kN32_SkColorType to choose the best Color_Type for
-the platform at compile time.
-
-#Example
-#Height 96
-    canvas->scale(16, 16);
-    SkBitmap bitmap;
-    SkImageInfo imageInfo = SkImageInfo::Make(2, 2, kBGRA_8888_SkColorType, kPremul_SkAlphaType);
-    bitmap.allocPixels(imageInfo);
-    SkCanvas offscreen(bitmap);
-    offscreen.clear(SK_ColorGREEN);
-    canvas->drawBitmap(bitmap, 0, 0);
-    auto pack8888 = [](unsigned a, unsigned r, unsigned g, unsigned b) -> uint32_t {
-        return (b << 0) | (g << 8) | (r << 16) | (a << 24);
-    };
-    uint32_t red8888[] = { pack8888(0xFF, 0xFF, 0x0, 0x0), pack8888(0xFF, 0xbb, 0x0, 0x0), 
-                           pack8888(0xFF, 0x99, 0x0, 0x0), pack8888(0xFF, 0x55, 0x0, 0x0) };
-    uint32_t blue8888[] = { pack8888(0xFF, 0x0, 0x0, 0x0FF), pack8888(0xFF, 0x0, 0x0, 0x0bb),
-                            pack8888(0xFF, 0x0, 0x0, 0x099), pack8888(0xFF, 0x0, 0x0, 0x055) };
-    SkPixmap redPixmap(imageInfo, &red8888, imageInfo.minRowBytes());
-    if (bitmap.writePixels(redPixmap, 0, 0)) {
-        canvas->drawBitmap(bitmap, 2, 2);
-    }
-    SkPixmap bluePixmap(imageInfo, &blue8888, imageInfo.minRowBytes());
-    if (bitmap.writePixels(bluePixmap, 0, 0)) {
-        canvas->drawBitmap(bitmap, 4, 4);
-    }
-##
+    #Example
+    #Height 96
+        canvas->scale(16, 16);
+        SkBitmap bitmap;
+        SkImageInfo imageInfo = SkImageInfo::Make(2, 2, kBGRA_8888_SkColorType, kPremul_SkAlphaType);
+        bitmap.allocPixels(imageInfo);
+        SkCanvas offscreen(bitmap);
+        offscreen.clear(SK_ColorGREEN);
+        canvas->drawBitmap(bitmap, 0, 0);
+        auto pack8888 = [](unsigned a, unsigned r, unsigned g, unsigned b) -> uint32_t {
+            return (b << 0) | (g << 8) | (r << 16) | (a << 24);
+        };
+        uint32_t red8888[] = { pack8888(0xFF, 0xFF, 0x0, 0x0), pack8888(0xFF, 0xbb, 0x0, 0x0),
+                               pack8888(0xFF, 0x99, 0x0, 0x0), pack8888(0xFF, 0x55, 0x0, 0x0) };
+        uint32_t blue8888[] = { pack8888(0xFF, 0x0, 0x0, 0x0FF), pack8888(0xFF, 0x0, 0x0, 0x0bb),
+                                pack8888(0xFF, 0x0, 0x0, 0x099), pack8888(0xFF, 0x0, 0x0, 0x055) };
+        SkPixmap redPixmap(imageInfo, &red8888, imageInfo.minRowBytes());
+        if (bitmap.writePixels(redPixmap, 0, 0)) {
+            canvas->drawBitmap(bitmap, 2, 2);
+        }
+        SkPixmap bluePixmap(imageInfo, &blue8888, imageInfo.minRowBytes());
+        if (bitmap.writePixels(bluePixmap, 0, 0)) {
+            canvas->drawBitmap(bitmap, 4, 4);
+        }
+    ##
+    #SeeAlso RGBA_8888
 ##
 
 #Subtopic RGBA_1010102
+#Line # encodes Color_ARGB ten bits per color component ##
+    kRGBA_1010102_SkColorType encodes Color_ARGB into a 32-bit word. Each
+    Color component: red, green, and blue; use ten bits, describing 1024 levels.
+    Two bits contain alpha, describing four levels. Possible alpha
+    values are zero: fully transparent; one: 33% opaque; two: 67% opaque;
+    three: fully opaque.
 
-RGBA_1010102 is a 32-bit word pixel encoding that contains ten bits of red,
-ten bits of green, ten bits of blue, and two bits of alpha. Possible alpha
-values are zero: fully transparent; one: 33% opaque; two: 67% opaque;
-three: fully opaque. 
+    At present, Color in Paint does not provide enough precision to
+    draw all colors possible to a kRGBA_1010102_SkColorType Surface.
 
-#Illustration
+    #Illustration
 
-If paired with kPremul_SkAlphaType: red, green, and blue components are
-premultiplied by the alpha value. If red, green, or blue is greater than the
-alpha replicated to ten bits, the drawn result is undefined.
+    If paired with kPremul_SkAlphaType: red, green, and blue components are
+    Premultiplied by the alpha value. If red, green, or blue is greater than the
+    alpha replicated to ten bits, the drawn result is undefined.
 
-If paired with kUnpremul_SkAlphaType: alpha, red, green, and blue components
-may have any value. There may be a performance penalty with unpremultipled
-pixels.
+    If paired with kUnpremul_SkAlphaType: alpha, red, green, and blue components
+    may have any value. There may be a performance penalty with Unpremultiplied
+    pixels.
 
-If paired with kOpaque_SkAlphaType: all alpha component values are at the maximum; 
-red, green, and blue components are fully opaque. If any alpha component is
-less than 3, the drawn result is undefined.
+    If paired with kOpaque_SkAlphaType: all alpha component values are at the maximum;
+    red, green, and blue components are fully opaque. If any alpha component is
+    less than three, the drawn result is undefined.
 
-#Example
-#Bug 7645
-#Height 96
-#Platform cpu
-    canvas->scale(16, 16);
-    SkBitmap bitmap;
-    SkImageInfo imageInfo = SkImageInfo::Make(2, 2, kRGBA_1010102_SkColorType, kOpaque_SkAlphaType);
-    bitmap.allocPixels(imageInfo);
-    SkCanvas offscreen(bitmap);
-    offscreen.clear(SK_ColorGREEN);
-    canvas->drawBitmap(bitmap, 0, 0);
-    auto pack1010102 = [](unsigned r, unsigned g, unsigned b, unsigned a) -> uint32_t {
-        return (r << 0) | (g << 10) | (b << 20) | (a << 30);
-    };
-    uint32_t redBits[] =  { pack1010102(0x3FF, 0x000, 0x000, 0x3), 
-                            pack1010102(0x2ff, 0x000, 0x000, 0x3), 
-                            pack1010102(0x1ff, 0x000, 0x000, 0x3), 
-                            pack1010102(0x0ff, 0x000, 0x000, 0x3) };
-    uint32_t blueBits[] = { pack1010102(0x000, 0x000, 0x3FF, 0x3), 
-                            pack1010102(0x000, 0x000, 0x2ff, 0x3),
-                            pack1010102(0x000, 0x000, 0x1ff, 0x3), 
-                            pack1010102(0x000, 0x000, 0x0ff, 0x3) };
-    if (bitmap.installPixels(imageInfo, (void*) redBits, imageInfo.minRowBytes())) {
-        canvas->drawBitmap(bitmap, 2, 2);
-    }
-    SkPixmap bluePixmap(imageInfo, &blueBits, imageInfo.minRowBytes());
-    if (bitmap.installPixels(imageInfo, (void*) blueBits, imageInfo.minRowBytes())) {
-        canvas->drawBitmap(bitmap, 4, 4);
-    }
+    #Example
+    #Bug 7645
+    #Height 96
+    #Platform cpu
+        canvas->scale(16, 16);
+        SkBitmap bitmap;
+        SkImageInfo imageInfo = SkImageInfo::Make(2, 2, kRGBA_1010102_SkColorType, kOpaque_SkAlphaType);
+        bitmap.allocPixels(imageInfo);
+        SkCanvas offscreen(bitmap);
+        offscreen.clear(SK_ColorGREEN);
+        canvas->drawBitmap(bitmap, 0, 0);
+        auto pack1010102 = [](unsigned r, unsigned g, unsigned b, unsigned a) -> uint32_t {
+            return (r << 0) | (g << 10) | (b << 20) | (a << 30);
+        };
+        uint32_t redBits[] =  { pack1010102(0x3FF, 0x000, 0x000, 0x3),
+                                pack1010102(0x2ff, 0x000, 0x000, 0x3),
+                                pack1010102(0x1ff, 0x000, 0x000, 0x3),
+                                pack1010102(0x0ff, 0x000, 0x000, 0x3) };
+        uint32_t blueBits[] = { pack1010102(0x000, 0x000, 0x3FF, 0x3),
+                                pack1010102(0x000, 0x000, 0x2ff, 0x3),
+                                pack1010102(0x000, 0x000, 0x1ff, 0x3),
+                                pack1010102(0x000, 0x000, 0x0ff, 0x3) };
+        if (bitmap.installPixels(imageInfo, (void*) redBits, imageInfo.minRowBytes())) {
+            canvas->drawBitmap(bitmap, 2, 2);
+        }
+        SkPixmap bluePixmap(imageInfo, &blueBits, imageInfo.minRowBytes());
+        if (bitmap.installPixels(imageInfo, (void*) blueBits, imageInfo.minRowBytes())) {
+            canvas->drawBitmap(bitmap, 4, 4);
+        }
+    ##
+    #SeeAlso incomplete
 ##
-##
 
-#Subtopic RGB_101010x
+#Subtopic RGB_101010
+#Line # encodes Color_RGB ten bits per color component ##
+    kRGB_101010x_SkColorType encodes Color_RGB into a 32-bit word. Each
+    Color component: red, green, and blue; use ten bits, describing 1024 levels.
+    Two bits are unused. Pixels described by kRGB_101010x_SkColorType are fully
+    opaque as if its Color_Alpha was set to one, and should always be paired
+    with kOpaque_SkAlphaType.
 
-RGB_101010x is a 32-bit word pixel encoding that contains ten bits of red,
-ten bits of green, ten bits of blue, and two unused bits.  RGB_101010x is fully
-opaque as if its Color_Alpha was set to one, and should always be paired with
-kOpaque_SkAlphaType.
+    At present, Color in Paint does not provide enough precision to
+    draw all colors possible to a kRGB_101010x_SkColorType Surface.
 
-#Illustration
+    #Illustration
 
-#Example
-#Bug 7645
-#Height 96
-#Platform cpu
-    canvas->scale(16, 16);
-    SkBitmap bitmap;
-    SkImageInfo imageInfo = SkImageInfo::Make(2, 2, kRGB_101010x_SkColorType, kOpaque_SkAlphaType);
-    bitmap.allocPixels(imageInfo);
-    SkCanvas offscreen(bitmap);
-    offscreen.clear(SK_ColorGREEN);
-    canvas->drawBitmap(bitmap, 0, 0);
-    auto pack101010x = [](unsigned r, unsigned g, unsigned b) -> uint32_t {
-        return (r << 0) | (g << 10) | (b << 20);
-    };
-    uint32_t redBits[] =  { pack101010x(0x3FF, 0x000, 0x000), pack101010x(0x2ff, 0x000, 0x000), 
-    pack101010x(0x1ff, 0x000, 0x000), pack101010x(0x0ff, 0x000, 0x000) };
-    uint32_t blueBits[] = { pack101010x(0x000, 0x000, 0x3FF), pack101010x(0x000, 0x000, 0x2ff),
-    pack101010x(0x000, 0x000, 0x1ff), pack101010x(0x000, 0x000, 0x0ff) };
-    if (bitmap.installPixels(imageInfo, (void*) redBits, imageInfo.minRowBytes())) {
-        canvas->drawBitmap(bitmap, 2, 2);
-    }
-    SkPixmap bluePixmap(imageInfo, &blueBits, imageInfo.minRowBytes());
-    if (bitmap.installPixels(imageInfo, (void*) blueBits, imageInfo.minRowBytes())) {
-        canvas->drawBitmap(bitmap, 4, 4);
-    }
-##
+    #Example
+    #Bug 7645
+    #Height 96
+    #Platform cpu
+        canvas->scale(16, 16);
+        SkBitmap bitmap;
+        SkImageInfo imageInfo = SkImageInfo::Make(2, 2, kRGB_101010x_SkColorType, kOpaque_SkAlphaType);
+        bitmap.allocPixels(imageInfo);
+        SkCanvas offscreen(bitmap);
+        offscreen.clear(SK_ColorGREEN);
+        canvas->drawBitmap(bitmap, 0, 0);
+        auto pack101010x = [](unsigned r, unsigned g, unsigned b) -> uint32_t {
+            return (r << 0) | (g << 10) | (b << 20);
+        };
+        uint32_t redBits[] =  { pack101010x(0x3FF, 0x000, 0x000), pack101010x(0x2ff, 0x000, 0x000),
+        pack101010x(0x1ff, 0x000, 0x000), pack101010x(0x0ff, 0x000, 0x000) };
+        uint32_t blueBits[] = { pack101010x(0x000, 0x000, 0x3FF), pack101010x(0x000, 0x000, 0x2ff),
+        pack101010x(0x000, 0x000, 0x1ff), pack101010x(0x000, 0x000, 0x0ff) };
+        if (bitmap.installPixels(imageInfo, (void*) redBits, imageInfo.minRowBytes())) {
+            canvas->drawBitmap(bitmap, 2, 2);
+        }
+        SkPixmap bluePixmap(imageInfo, &blueBits, imageInfo.minRowBytes());
+        if (bitmap.installPixels(imageInfo, (void*) blueBits, imageInfo.minRowBytes())) {
+            canvas->drawBitmap(bitmap, 4, 4);
+        }
+    ##
+    #SeeAlso incomplete
 ##
 
 #Subtopic Gray_8
+#Line # encodes level of Color_Gray in 8 bits ##
+    kGray_8_SkColorType encodes Color_Gray level in eight bits that is equivalent
+    to equal values for red, blue, and green, representing colors from black to
+    white.  Pixels described by kGray_8_SkColorType are fully
+    opaque as if its Color_Alpha was set to one, and should always be paired with
+    kOpaque_SkAlphaType.
 
-Gray_8 is an 8-bit byte pixel encoding that represents equal values for red,
-blue, and green, reprsenting colors from black to white.  Gray_8 is fully
-opaque as if its Color_Alpha was set to one, and should always be paired with
-kOpaque_SkAlphaType.
-
-#Example
-#Height 64
-    canvas->scale(16, 16);
-    SkBitmap bitmap;
-    SkImageInfo imageInfo = SkImageInfo::Make(2, 2, kGray_8_SkColorType, kOpaque_SkAlphaType);
-    bitmap.allocPixels(imageInfo);
-    SkCanvas offscreen(bitmap);
-    offscreen.clear(SK_ColorGREEN);
-    canvas->drawBitmap(bitmap, 0, 0);
-    uint8_t gray8[] = { 0xFF, 0xBB, 0x77, 0x33 };
-    SkPixmap grayPixmap(imageInfo, &gray8, imageInfo.minRowBytes());
-    if (bitmap.writePixels(grayPixmap, 0, 0)) {
-        canvas->drawBitmap(bitmap, 2, 2);
-    }
-##
+    #Example
+    #Height 64
+        canvas->scale(16, 16);
+        SkBitmap bitmap;
+        SkImageInfo imageInfo = SkImageInfo::Make(2, 2, kGray_8_SkColorType, kOpaque_SkAlphaType);
+        bitmap.allocPixels(imageInfo);
+        SkCanvas offscreen(bitmap);
+        offscreen.clear(SK_ColorGREEN);
+        canvas->drawBitmap(bitmap, 0, 0);
+        uint8_t gray8[] = { 0xFF, 0xBB, 0x77, 0x33 };
+        SkPixmap grayPixmap(imageInfo, &gray8, imageInfo.minRowBytes());
+        if (bitmap.writePixels(grayPixmap, 0, 0)) {
+            canvas->drawBitmap(bitmap, 2, 2);
+        }
+    ##
+    #SeeAlso incomplete
 ##
 
 #Subtopic RGBA_F16
+#Line # encodes Color_ARGB as half floats ##
+    kRGBA_F16_SkColorType encodes Color_ARGB into a 64-bit word. Each component:
+    blue, green, red, and alpha; use 16 bits, describing a floating point value.
+    from -65500	to 65000 with 3.31 decimal digits of precision.
 
-RGBA_F16 is a 64-bit word pixel encoding that contains sixteen bits of blue,
-sixteen bits of green, sixteen bits of red, and sixteen bits of alpha.
+    At present, Color in Paint does not provide enough precision or range to
+    draw all colors possible to a kRGBA_F16_SkColorType Surface.
 
-Each component encodes a floating point value using
-#A Half floats # https://www.khronos.org/opengl/wiki/Small_Float_Formats ##
-. Meaningful colors are represented by the range 0.0 to 1.0, although smaller
-and larger values may be useful when used in combination with Transfer_Mode.
+    Each component encodes a floating point value using
+    #A Half floats # https://www.khronos.org/opengl/wiki/Small_Float_Formats ##
+    . Meaningful colors are represented by the range 0.0 to 1.0, although smaller
+    and larger values may be useful when used in combination with Transfer_Mode.
 
-#Illustration
+    #Illustration
 
-If paired with kPremul_SkAlphaType: blue, green, and red components are
-premultiplied by the alpha value. If blue, green, or red is greater than alpha,
-the drawn result is undefined.
+    If paired with kPremul_SkAlphaType: blue, green, and red components are
+    Premultiplied by the alpha value. If blue, green, or red is greater than alpha,
+    the drawn result is undefined.
 
-If paired with kUnpremul_SkAlphaType: blue, green, red, and alpha components
-may have any value. There may be a performance penalty with unpremultipled
-pixels.
+    If paired with kUnpremul_SkAlphaType: blue, green, red, and alpha components
+    may have any value. There may be a performance penalty with Unpremultiplied
+    pixels.
 
-If paired with kOpaque_SkAlphaType: all alpha component values are at the maximum;
-blue, green, and red components are fully opaque. If any alpha component is
-less than 255, the drawn result is undefined.
+    If paired with kOpaque_SkAlphaType: all alpha component values are at the maximum;
+    blue, green, and red components are fully opaque. If any alpha component is
+    less than 255, the drawn result is undefined.
 
-#ToDo
-FloatToHalf should be replaced with SkFloatToHalf if/when that's made public
-##
+    #ToDo
+    FloatToHalf should be replaced with SkFloatToHalf if/when that's made public
+    ##
 
-#Example
-#Height 96
-#Function
-union FloatUIntUnion {
-    uint32_t fUInt;
-    float    fFloat;
-};
-
-uint16_t FloatToHalf(float f) {
-    static const FloatUIntUnion magic = { 15 << 23 };
-    static const uint32_t round_mask = ~0xfffu;
-    FloatUIntUnion floatUnion;
-    floatUnion.fFloat = f;
-    uint32_t sign = floatUnion.fUInt & 0x80000000u;
-    floatUnion.fUInt ^= sign;
-    floatUnion.fUInt &= round_mask;
-    floatUnion.fFloat *= magic.fFloat;
-    floatUnion.fUInt -= round_mask;
-    return (floatUnion.fUInt >> 13) | (sign >> 16);
-}
-##
-
-void draw(SkCanvas* canvas) {    
-    canvas->scale(16, 16);
-    SkBitmap bitmap;
-    SkImageInfo imageInfo = SkImageInfo::Make(2, 2, kRGBA_F16_SkColorType, kPremul_SkAlphaType);
-    bitmap.allocPixels(imageInfo);
-    SkCanvas offscreen(bitmap);
-    offscreen.clear(SK_ColorGREEN);
-    canvas->drawBitmap(bitmap, 0, 0);
-    auto H = [](float c) -> uint16_t {
-        return FloatToHalf(c);
+    #Example
+    #Height 96
+    #Function
+    union FloatUIntUnion {
+        uint32_t fUInt;
+        float    fFloat;
     };
-                             //     R        G        B        A
-    uint16_t red_f16[][4] =  { { H(1.0f), H(0.0f), H(0.0f), H(1.0f) },
-                               { H(.75f), H(0.0f), H(0.0f), H(1.0f) }, 
-                               { H(.50f), H(0.0f), H(0.0f), H(1.0f) },
-                               { H(.25f), H(0.0f), H(0.0f), H(1.0f) } };
-    uint16_t blue_f16[][4] = { { H(0.0f), H(0.0f), H(1.0f), H(1.0f) },
-                               { H(0.0f), H(0.0f), H(.75f), H(1.0f) }, 
-                               { H(0.0f), H(0.0f), H(.50f), H(1.0f) },
-                               { H(0.0f), H(0.0f), H(.25f), H(1.0f) } };
-    SkPixmap redPixmap(imageInfo, red_f16, imageInfo.minRowBytes());
-    if (bitmap.writePixels(redPixmap, 0, 0)) {
-        canvas->drawBitmap(bitmap, 2, 2);
+
+    uint16_t FloatToHalf(float f) {
+        static const FloatUIntUnion magic = { 15 << 23 };
+        static const uint32_t round_mask = ~0xfffu;
+        FloatUIntUnion floatUnion;
+        floatUnion.fFloat = f;
+        uint32_t sign = floatUnion.fUInt & 0x80000000u;
+        floatUnion.fUInt ^= sign;
+        floatUnion.fUInt &= round_mask;
+        floatUnion.fFloat *= magic.fFloat;
+        floatUnion.fUInt -= round_mask;
+        return (floatUnion.fUInt >> 13) | (sign >> 16);
     }
-    SkPixmap bluePixmap(imageInfo, blue_f16, imageInfo.minRowBytes());
-    if (bitmap.writePixels(bluePixmap, 0, 0)) {
-        canvas->drawBitmap(bitmap, 4, 4);
+    ##
+
+    void draw(SkCanvas* canvas) {
+        canvas->scale(16, 16);
+        SkBitmap bitmap;
+        SkImageInfo imageInfo = SkImageInfo::Make(2, 2, kRGBA_F16_SkColorType, kPremul_SkAlphaType);
+        bitmap.allocPixels(imageInfo);
+        SkCanvas offscreen(bitmap);
+        offscreen.clear(SK_ColorGREEN);
+        canvas->drawBitmap(bitmap, 0, 0);
+        auto H = [](float c) -> uint16_t {
+            return FloatToHalf(c);
+        };
+                                 //     R        G        B        A
+        uint16_t red_f16[][4] =  { { H(1.0f), H(0.0f), H(0.0f), H(1.0f) },
+                                   { H(.75f), H(0.0f), H(0.0f), H(1.0f) },
+                                   { H(.50f), H(0.0f), H(0.0f), H(1.0f) },
+                                   { H(.25f), H(0.0f), H(0.0f), H(1.0f) } };
+        uint16_t blue_f16[][4] = { { H(0.0f), H(0.0f), H(1.0f), H(1.0f) },
+                                   { H(0.0f), H(0.0f), H(.75f), H(1.0f) },
+                                   { H(0.0f), H(0.0f), H(.50f), H(1.0f) },
+                                   { H(0.0f), H(0.0f), H(.25f), H(1.0f) } };
+        SkPixmap redPixmap(imageInfo, red_f16, imageInfo.minRowBytes());
+        if (bitmap.writePixels(redPixmap, 0, 0)) {
+            canvas->drawBitmap(bitmap, 2, 2);
+        }
+        SkPixmap bluePixmap(imageInfo, blue_f16, imageInfo.minRowBytes());
+        if (bitmap.writePixels(bluePixmap, 0, 0)) {
+            canvas->drawBitmap(bitmap, 4, 4);
+        }
     }
-}
-##
+    ##
+    #SeeAlso incomplete
 ##
 
 #Subtopic Color_Type ##
@@ -847,7 +932,7 @@ kUnknown_SkColorType, and Color_Type is not always opaque. If false is returned,
 canonical is ignored.
 
 For kUnknown_SkColorType: set canonical to kUnknown_SkAlphaType and return true.
-For kAlpha_8_SkColorType: set canonical to kPremul_SkAlphaType or 
+For kAlpha_8_SkColorType: set canonical to kPremul_SkAlphaType or
 kOpaque_SkAlphaType and return true if alphaType is not kUnknown_SkAlphaType.
 For kRGB_565_SkColorType, kRGB_888x_SkColorType, kRGB_101010x_SkColorType, and
 kGray_8_SkColorType: set canonical to kOpaque_SkAlphaType and return true.
@@ -893,6 +978,7 @@ and return true if alphaType is not kUnknown_SkAlphaType.
 
 # ------------------------------------------------------------------------------
 #Subtopic YUV_ColorSpace
+#Line # color range of YUV pixels ##
 #Alias YUV_ColorSpace
 #Enum SkYUVColorSpace
 #Line # color range of YUV pixels ##
@@ -913,24 +999,31 @@ YUV and RGB.
 
 JPEG YUV values encode the full range of 0 to 255 for all three components.
 Video YUV values range from 16 to 235 for all three components. Details of
-encoding and conversion to RGB are described in 
+encoding and conversion to RGB are described in
 #A YCbCr color space # https://en.wikipedia.org/wiki/YCbCr ##
 .
 
 #Const kJPEG_SkYUVColorSpace 0
-Describes standard JPEG color space; 
+#Line # describes full range ##
+Describes standard JPEG color space;
 #A CCIR 601 # https://en.wikipedia.org/wiki/Rec._601 ##
 with full range of 0 to 255 for components.
 ##
 #Const kRec601_SkYUVColorSpace 1
-Describes standard used by SDTV;
+#Line # describes SDTV range ##
+Describes standard used by standard definition television;
 #A CCIR 601 # https://en.wikipedia.org/wiki/Rec._601 ##
 with studio range of 16 to 235 range for components.
 ##
 #Const kRec709_SkYUVColorSpace 2
-Describes standard used by HDTV;
-#A Rec. 709 # http://en.wikipedia.org/wiki/Rec._709 ##
+#Line # describes HDTV range ##
+Describes standard used by high definition television;
+#A Rec. 709 # https://en.wikipedia.org/wiki/Rec._709 ##
 with studio range of 16 to 235 range for components.
+##
+#Const kLastEnum_SkYUVColorSpace 2
+#Line # last valid value ##
+    Used by tests to iterate through all valid values.
 ##
 
 #NoExample
@@ -945,7 +1038,7 @@ with studio range of 16 to 235 range for components.
 
 #Struct SkImageInfo
 
-Describes pixel dimensions and encoding. Bitmap, Image, PixMap, and Surface 
+Describes pixel dimensions and encoding. Bitmap, Image, PixMap, and Surface
 can be created from Image_Info. Image_Info can be retrieved from Bitmap and
 Pixmap, but not from Image and Surface. For example, Image and Surface
 implementations may defer pixel depth, so may not completely specify Image_Info.
@@ -1104,8 +1197,8 @@ combination is supported.
 #Set sRGB
 #Height 128
 #Description
-Top gradient is drawn to offscreen without Color_Space. It is darker than middle
-gradient, drawn to offscreen with sRGB Color_Space. Bottom gradient shares bits
+Top gradient is drawn to offScreen without Color_Space. It is darker than middle
+gradient, drawn to offScreen with sRGB Color_Space. Bottom gradient shares bits
 with middle, but does not specify the Color_Space in noColorSpaceBitmap. A source
 without Color_Space is treated as sRGB; the bottom gradient is identical to the
 middle gradient.
@@ -1120,8 +1213,8 @@ middle gradient.
                     SK_ARRAY_COUNT(gradColors), SkShader::kClamp_TileMode));
     SkBitmap bitmap;
     bitmap.allocPixels(SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType));
-    SkCanvas offscreen(bitmap);
-    offscreen.drawRect(SkRect::MakeWH(width, height), gradPaint);
+    SkCanvas offScreen(bitmap);
+    offScreen.drawRect(SkRect::MakeWH(width, height), gradPaint);
     canvas->drawBitmap(bitmap, 0, 0);
     bitmap.allocPixels(SkImageInfo::MakeS32(width, height, kPremul_SkAlphaType));
     SkCanvas sRGBOffscreen(bitmap);
@@ -1208,7 +1301,7 @@ combination is supported.
     canvas->drawBitmap(bitmap, 0, 0);
 ##
 
-#SeeAlso MakeN32 MakeS32 MakeA8 Make 
+#SeeAlso MakeN32 MakeS32 MakeA8 Make
 
 #Method ##
 
@@ -1396,7 +1489,7 @@ color type: kAlpha_8_SkColorType
 
 #Method SkAlphaType alphaType() const
 #In Property
-#Line # Returns Alpha_Type ##
+#Line # returns Alpha_Type ##
 Returns Alpha_Type, one of: #list_of_alpha_types#.
 
 #Return Alpha_Type ##
@@ -1429,7 +1522,7 @@ Color_Space is unchanged. The returned Color_Space is immutable.
 SkColorSpace::MakeSRGBLinear creates Color_Space with linear gamma
 and an sRGB gamut. This Color_Space gamma is not close to sRGB gamma.
 ##
-    SkImageInfo info = SkImageInfo::MakeN32(16, 32, kPremul_SkAlphaType, 
+    SkImageInfo info = SkImageInfo::MakeN32(16, 32, kPremul_SkAlphaType,
             SkColorSpace::MakeSRGBLinear());
     SkColorSpace* colorSpace = info.colorSpace();
     SkDebugf("gammaCloseToSRGB: %s  gammaIsLinear: %s  isSRGB: %s\n",
@@ -1450,7 +1543,7 @@ gammaCloseToSRGB: false  gammaIsLinear: true  isSRGB: false
 #Method sk_sp<SkColorSpace> refColorSpace() const
 #In Property
 #Line # returns Color_Space ##
-Returns smart pointer to Color_Space, the range of colors. The smart pointer 
+Returns smart pointer to Color_Space, the range of colors. The smart pointer
 tracks the number of objects sharing this Color_Space reference so the memory
 is released when the owners destruct.
 
@@ -1459,7 +1552,7 @@ The returned Color_Space is immutable.
 #Return Color_Space wrapped in a smart pointer ##
 
 #Example
-    SkImageInfo info1 = SkImageInfo::MakeN32(16, 32, kPremul_SkAlphaType, 
+    SkImageInfo info1 = SkImageInfo::MakeN32(16, 32, kPremul_SkAlphaType,
             SkColorSpace::MakeSRGBLinear());
     SkImageInfo info2 = SkImageInfo::MakeN32(16, 32, kPremul_SkAlphaType,
             info1.refColorSpace());
@@ -1513,7 +1606,7 @@ width: 2 height: 2 empty: false
 
 Returns true if Alpha_Type is set to hint that all pixels are opaque; their
 Color_Alpha value is implicitly or explicitly 1.0. If true, and all pixels are
-not opaque, Skia may draw incorrectly. 
+not opaque, Skia may draw incorrectly.
 
 Does not check if Color_Type allows Alpha, or if any pixel value has
 transparency.
@@ -1604,11 +1697,11 @@ Returns IRect { 0, 0, width(), height() }.
 
 #Method bool gammaCloseToSRGB() const
 #In Property
-#Line # Returns if Color_Space gamma is approximately the same as sRGB ##
+#Line # returns if Color_Space gamma is approximately the same as sRGB ##
 
 Returns true if associated Color_Space is not nullptr, and Color_Space gamma
-is approximately the same as sRGB. 
-This includes the 
+is approximately the same as sRGB.
+This includes the
 ###$
 $A sRGB transfer function $ https://en.wikipedia.org/wiki/SRGB#The_sRGB_transfer_function_(%22gamma%22) $$
 $$$#
@@ -1668,7 +1761,7 @@ with dimensions set to width and height.
     SkImageInfo canvasImageInfo = canvas->imageInfo();
     SkRect canvasBounds = SkRect::Make(canvasImageInfo.bounds());
     canvas->drawBitmapRect(source, source.bounds(), canvasBounds, nullptr);
-    SkImageInfo insetImageInfo = 
+    SkImageInfo insetImageInfo =
               canvasImageInfo.makeWH(canvasBounds.width() / 2, canvasBounds.height() / 2);
     SkBitmap inset;
     inset.allocPixels(insetImageInfo);
@@ -1677,7 +1770,7 @@ with dimensions set to width and height.
     canvas->drawBitmap(inset, canvasBounds.width() / 4, canvasBounds.height() / 4);
 ##
 
-#SeeAlso Make makeAlphaType makeColorSpace makeColorType 
+#SeeAlso Make makeAlphaType makeColorSpace makeColorType
 
 #Method ##
 
@@ -1687,7 +1780,7 @@ with dimensions set to width and height.
 #In Constructor
 #Line # creates Image_Info with changed Alpha_Type ##
 Creates Image_Info with same Color_Type, Color_Space, width, and height,
-with Alpha_Type set to newAlphaType. 
+with Alpha_Type set to newAlphaType.
 
 Created Image_Info contains newAlphaType even if it is incompatible with
 Color_Type, in which case Alpha_Type in Image_Info is ignored.
@@ -1704,11 +1797,11 @@ Color_Type, in which case Alpha_Type in Image_Info is ignored.
     SkColor pixels[height][width];
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
-            int red = SkScalarRoundToInt(255 * SkScalarAbs(SkScalarSin((x * 4 + y) * 0.03f))); 
-            int blue = SkScalarRoundToInt(255 * SkScalarAbs(SkScalarCos((x * 3 + y) * 0.04f))); 
+            int red = SkScalarRoundToInt(255 * SkScalarAbs(SkScalarSin((x * 4 + y) * 0.03f)));
+            int blue = SkScalarRoundToInt(255 * SkScalarAbs(SkScalarCos((x * 3 + y) * 0.04f)));
             int green = SkScalarRoundToInt(255 * SkScalarAbs(SkScalarSin((x * 2 + y) * 0.05f)));
             int alpha = SkScalarRoundToInt(255 * SkScalarAbs(SkScalarCos((x * 1 + y) * 0.006f)));
-            pixels[y][x] = 
+            pixels[y][x] =
                 SkColorSetARGB(alpha, red * alpha / 255, green * alpha / 255, blue * alpha / 255);
         }
     }
@@ -1745,11 +1838,11 @@ with Color_Type set to newColorType.
     SkColor pixels[height][width];
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
-            int red = SkScalarRoundToInt(255 * SkScalarAbs(SkScalarSin((x * 4 + y) * 0.03f))); 
-            int blue = SkScalarRoundToInt(255 * SkScalarAbs(SkScalarCos((x * 3 + y) * 0.04f))); 
+            int red = SkScalarRoundToInt(255 * SkScalarAbs(SkScalarSin((x * 4 + y) * 0.03f)));
+            int blue = SkScalarRoundToInt(255 * SkScalarAbs(SkScalarCos((x * 3 + y) * 0.04f)));
             int green = SkScalarRoundToInt(255 * SkScalarAbs(SkScalarSin((x * 2 + y) * 0.05f)));
             int alpha = SkScalarRoundToInt(255 * SkScalarAbs(SkScalarCos((x * 1 + y) * 0.006f)));
-            pixels[y][x] = 
+            pixels[y][x] =
                 SkColorSetARGB(alpha, red * alpha / 255, green * alpha / 255, blue * alpha / 255);
         }
     }
@@ -1905,20 +1998,20 @@ color: kRGBA_F16_SkColorType      shiftPerPixel: 3
 #Line # returns width() times bytesPerPixel in 64 bits ##
 
 Returns minimum bytes per row, computed from pixel width() and Color_Type, which
-specifies bytesPerPixel(). Bitmap maximum value for row bytes must be representable
-as a positive value in a 32-bit signed integer.
+specifies bytesPerPixel(). Bitmap maximum value for row bytes must fit
+in 31 bits.
 
 #Return width() times bytesPerPixel as unsigned 64-bit integer ##
 
 #Example
     for (int shift = 24; shift < 32; ++shift) {
         int width = 1 << shift;
-        SkImageInfo imageInfo = 
+        SkImageInfo imageInfo =
                 SkImageInfo::Make(width, 1, kRGBA_F16_SkColorType, kPremul_SkAlphaType);
         uint64_t minRowBytes = imageInfo.minRowBytes64();
         bool widthTooLarge = (uint64_t) (int32_t) minRowBytes != minRowBytes;
         SkDebugf("RGBA_F16 width %d (0x%08x) %s\n",
-                width, width, widthTooLarge ? "too large" : "OK");        
+                width, width, widthTooLarge ? "too large" : "OK");
     }
 #StdOut
 RGBA_F16 width 16777216 (0x01000000) OK
@@ -1943,20 +2036,20 @@ RGBA_F16 width -2147483648 (0x80000000) too large
 #Line # returns width() times bytesPerPixel in 32 bits ##
 
 Returns minimum bytes per row, computed from pixel width() and Color_Type, which
-specifies bytesPerPixel(). Bitmap maximum value for row bytes must be representable
-as a positive value in a 32-bit signed integer.
+specifies bytesPerPixel(). Bitmap maximum value for row bytes must fit
+in 31 bits.
 
 #Return width() times bytesPerPixel as signed 32-bit integer ##
 
 #Example
     for (int shift = 24; shift < 32; ++shift) {
         int width = 1 << shift;
-        SkImageInfo imageInfo = 
+        SkImageInfo imageInfo =
                 SkImageInfo::Make(width, 1, kRGBA_F16_SkColorType, kPremul_SkAlphaType);
         size_t minRowBytes = imageInfo.minRowBytes();
         bool widthTooLarge = !minRowBytes;
         SkDebugf("RGBA_F16 width %d (0x%08x) %s\n",
-                width, width, widthTooLarge ? "too large" : "OK");        
+                width, width, widthTooLarge ? "too large" : "OK");
     }
 #StdOut
 RGBA_F16 width 16777216 (0x01000000) OK
@@ -2094,7 +2187,7 @@ info1 == info2
 
 #Method size_t computeByteSize(size_t rowBytes) const
 #In Utility
-#Line # memory required by pixel buffer with given row bytes ##
+#Line # returns memory required by pixel buffer with given row bytes ##
 Returns storage required by pixel array, given Image_Info dimensions, Color_Type,
 and rowBytes. rowBytes is assumed to be at least as large as minRowBytes().
 
@@ -2128,8 +2221,8 @@ Returns SK_MaxSizeT if answer exceeds the range of size_t.
 
 #Method size_t computeMinByteSize() const
 #In Utility
-#Line # least memory required by pixel buffer ##
-Returns storage required by pixel array, given Image_Info dimensions, and 
+#Line # returns least memory required by pixel buffer ##
+Returns storage required by pixel array, given Image_Info dimensions, and
 Color_Type. Uses minRowBytes() to compute bytes for pixel row.
 
 Returns zero if height is zero.
@@ -2251,7 +2344,7 @@ SkImageInfo() == reset copy
 #Method void validate() const
 #In Utility
 #Line # asserts if Image_Info is invalid (debug only) ##
-Asserts if internal values are illegal or inconsistent. Only available if 
+Asserts if internal values are illegal or inconsistent. Only available if
 SK_DEBUG is defined at compile time.
 
 #NoExample
