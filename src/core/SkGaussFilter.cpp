@@ -138,7 +138,7 @@ static int calculate_gauss_factors(double sigma, double* gauss) {
 }
 
 SkGaussFilter::SkGaussFilter(double sigma, Type type) {
-    SkASSERT(0 <= sigma && sigma < 2);
+    SkASSERT(0.01 <= sigma && sigma < 2);
 
     if (type == Type::Bessel) {
         fN = calculate_bessel_factors(sigma, fBasis);
