@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0fe7e628_bd8ebb21",
+        "filename": "src/core/SkGaussFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-05-14T15:34:19Z",
+      "side": 1,
+      "message": "This seems a bit magical to me.  Do we want something like an almost zero float?  If not, perhaps add a short comment saying why 0.01.",
+      "range": {
+        "startLine": 141,
+        "startChar": 13,
+        "endLine": 141,
+        "endChar": 17
+      },
+      "revId": "3f1858e2b3c4d12fbdd39089b9874de013954516",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
