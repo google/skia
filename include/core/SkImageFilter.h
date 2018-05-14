@@ -416,6 +416,15 @@ protected:
         return sk_ref_sp(const_cast<SkImageFilter*>(this));
     }
 
+    // If 'srcBounds' will sample outside the border of 'originalSrcBounds' (i.e., the sample
+    // will wrap around to the other side) we must preserve the far side of the src along that
+    // axis (e.g., if we will sample beyond the left edge of the src, the right side must be
+    // preserved for the repeat sampling to work).
+    // 'filterRect' is the margin the image filter will require outside of 'srcBounds'.
+    static SkIRect DetermineRepeatedSrcBound(const SkIRect& srcBounds,
+                                             const SkIRect& filterRect,
+                                             const SkIRect& originalSrcBounds);
+
 private:
     // For makeColorSpace().
     friend class SkColorSpaceXformer;
