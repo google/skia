@@ -50,6 +50,11 @@ def RunSteps(api):
     gn_env = {'CPPFLAGS': '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1',
               'GYP_GENERATORS': 'ninja'}
     with api.context(env=gn_env):
+      import time
+      print 'sleeping for 1 hour'
+      print [gn, 'gen', out_dir]
+      print src_dir
+      time.sleep(60*60)
       api.run(api.step, 'GN', cmd=[gn, 'gen', out_dir])
 
     # Build Chrome.
