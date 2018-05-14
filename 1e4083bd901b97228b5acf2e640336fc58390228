@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ddb7414_c5c20a30",
+        "filename": "src/core/SkUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-14T19:55:43Z",
+      "side": 1,
+      "message": "I suppose this is assuming that this has already been checked for alignment and is pointing to valid data?",
+      "range": {
+        "startLine": 401,
+        "startChar": 7,
+        "endLine": 401,
+        "endChar": 21
+      },
+      "revId": "1e4083bd901b97228b5acf2e640336fc58390228",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c3dd171_68bdb7e5",
+        "filename": "src/core/SkUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-14T19:55:43Z",
+      "side": 1,
+      "message": "And the this is a multiple of sizeof(uint8_t or uint16_t or uint32_t) as needed?",
+      "range": {
+        "startLine": 402,
+        "startChar": 22,
+        "endLine": 402,
+        "endChar": 33
+      },
+      "revId": "1e4083bd901b97228b5acf2e640336fc58390228",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b01980dc_efb86be9",
+        "filename": "src/core/SkUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-14T19:55:43Z",
+      "side": 1,
+      "message": "I dislike all this casting, so I prefer\n\nSkTAddOffset\u003cconst uint16_t*\u003e(text, size)",
+      "range": {
+        "startLine": 420,
+        "startChar": 23,
+        "endLine": 420,
+        "endChar": 54
+      },
+      "revId": "1e4083bd901b97228b5acf2e640336fc58390228",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "296de1f5_10b4cb5f",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-14T19:55:43Z",
+      "side": 1,
+      "message": "Seems this declaration could use some names for the parameters?",
+      "range": {
+        "startLine": 108,
+        "startChar": 21,
+        "endLine": 109,
+        "endChar": 62
+      },
+      "revId": "1e4083bd901b97228b5acf2e640336fc58390228",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
