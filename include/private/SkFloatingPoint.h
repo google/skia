@@ -12,7 +12,6 @@
 #include "SkTypes.h"
 #include "SkSafe_math.h"
 #include <float.h>
-#include <math.h>
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
     #include <xmmintrin.h>
@@ -65,17 +64,17 @@ static inline float sk_float_pow(float base, float exp) {
     #define sk_float_log2(x)        log2f(x)
 #endif
 
-static inline bool sk_float_isfinite(float x) {
-    return SkFloatBits_IsFinite(SkFloat2Bits(x));
-}
-
-static inline bool sk_float_isinf(float x) {
-    return SkFloatBits_IsInf(SkFloat2Bits(x));
-}
-
-static inline bool sk_float_isnan(float x) {
-    return !(x == x);
-}
+#ifdef SK_BUILD_FOR_WIN
+    #define sk_float_isfinite(x)    _finite(x)
+    #define sk_float_isnan(x)       _isnan(x)
+    static inline int sk_float_isinf(float x) {
+        return x && (x + x == x);
+    }
+#else
+    #define sk_float_isfinite(x)    isfinite(x)
+    #define sk_float_isnan(x)       isnan(x)
+    #define sk_float_isinf(x)       isinf(x)
+#endif
 
 #define sk_double_isnan(a)          sk_float_isnan(a)
 
