@@ -127,5 +127,5 @@ sk_sp<SkColorSpace> SkColorSpace_XYZ::makeNonlinearBlending() const {
 
     auto cs = sk_make_sp<SkColorSpace_XYZ>(fGammaNamed, fGammas, fToXYZD50, fProfileData);
     cs->fNonlinearBlending = true;
-    return cs;
+    return std::move(cs);
 }
