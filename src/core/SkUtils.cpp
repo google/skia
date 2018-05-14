@@ -410,6 +410,60 @@ int SkUTFN_CountUnichars(
     return -1;
 }
 
+template<typename T>
+static bool checkAlignment(const void* ptr) {
+    uintptr_t bits = reinterpret_cast<uintptr_t>(ptr);
+    return (bits & (alignof(T) - 1)) == 0;
+}
+
+template<typename T>
+static bool checkSize(size_t size) {
+    return size % sizeof(T) == 0;
+}
+
+size_t SkParseUnicode(const void* utfn,
+                      size_t byteLength,
+                      SkTypeface::Encoding encoding,
+                      std::function<void(size_t, SkUnichar)> eachUnichar) {
+    size_t unicodeSize = 0;
+    switch(encoding) {
+        case SkTypeface::kUTF8_Encoding:{
+            auto cursor = static_cast<const char*>(utfn);
+            auto end = SkTAddOffset<const char>(utfn, byteLength);
+            while (cursor < end) {
+                SkUnichar c = SkUTF8_NextUnicharWithError(&cursor, end);
+                if (c < 0) { return 0; }
+                eachUnichar(unicodeSize, c);
+                unicodeSize += 1;
+            }
+            break;
+        }
+        case SkTypeface::kUTF16_Encoding: {
+            if (!checkAlignment<uint16_t>(utfn) || !checkSize<uint16_t>(byteLength)) { return 0; }
+            auto cursor = static_cast<const uint16_t*>(utfn);
+            auto end = SkTAddOffset<const uint16_t>(utfn, byteLength);
+            while (cursor < end) {
+                // TODO: add the error version when written.
+                eachUnichar(unicodeSize, SkUTF16_NextUnichar(&cursor));
+                unicodeSize += 1;
+            }
+            break;
+        }
+        case SkTypeface::kUTF32_Encoding: {
+            if (!checkAlignment<uint32_t>(utfn) || !checkSize<uint32_t>(byteLength)) { return 0; }
+            auto cursor = static_cast<const uint32_t*>(utfn);
+            auto end = SkTAddOffset<const uint32_t>(utfn, byteLength);
+            while (cursor < end) {
+                eachUnichar(unicodeSize, (SkUnichar)*cursor);
+                cursor += 1;
+                unicodeSize += 1;
+            }
+            break;
+        }
+    }
+    return unicodeSize;
+}
+
 const char SkHexadecimalDigits::gUpper[16] =
     { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 const char SkHexadecimalDigits::gLower[16] =

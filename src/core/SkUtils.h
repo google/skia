@@ -106,6 +106,9 @@ inline bool SkUnichar_IsVariationSelector(SkUnichar uni) {
     return true;
 }
 
+size_t SkParseUnicode(const void* utfn, size_t byteLength, SkTypeface::Encoding encoding,
+                      std::function<void(size_t, SkUnichar)> eachUnichar);
+
 namespace SkHexadecimalDigits {
     extern const char gUpper[16];  // 0-9A-F
     extern const char gLower[16];  // 0-9a-f
