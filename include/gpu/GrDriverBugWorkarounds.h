@@ -19,6 +19,8 @@
 #include "GrDriverBugWorkaroundsAutogen.h"
 #endif
 
+#include "SkTypes.h"
+
 #include <stdint.h>
 #include <vector>
 
@@ -29,10 +31,15 @@ enum GrDriverBugWorkaroundType {
   NUMBER_OF_GPU_DRIVER_BUG_WORKAROUND_TYPES
 };
 
-class GrDriverBugWorkarounds {
+class SK_API GrDriverBugWorkarounds {
  public:
   GrDriverBugWorkarounds();
   explicit GrDriverBugWorkarounds(const std::vector<int32_t>& workarounds);
+
+  GrDriverBugWorkarounds& operator=(const GrDriverBugWorkarounds&) = default;
+
+  // Turn on any workarounds listed in |workarounds| (but don't turn any off).
+  void applyOverrides(const GrDriverBugWorkarounds& workarounds);
 
   ~GrDriverBugWorkarounds();
 
