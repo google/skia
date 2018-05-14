@@ -2786,7 +2786,11 @@ int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig confi
 
     for (int i = 0; i < count; ++i) {
         if (fConfigTable[config].fColorSampleCounts[i] >= requestedCount) {
-            return fConfigTable[config].fColorSampleCounts[i];
+            int count = fConfigTable[config].fColorSampleCounts[i];
+            if (fDriverBugWorkarounds.max_msaa_sample_count_4) {
+                count = SkTMin(count, 4);
+            }
+            return count;
         }
     }
     return 0;
