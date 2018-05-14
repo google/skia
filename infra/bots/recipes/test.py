@@ -104,9 +104,12 @@ def dm_flags(api, bot):
       configs.extend(['f16'])
       configs.extend(['lite-8888'])              # Experimental display list.
       configs.extend(['gbr-8888'])
-      configs.extend(['srgb'])
-      configs.extend(['srgbnl'])
-      configs.extend(['esrgb'])
+      if 'x86_64' in bot:
+        # These slow down the MSVC 32-bit bots quite a bit and at this point
+        # we're not that interested in the results on 32-bit.
+        configs.extend(['srgb'])
+        configs.extend(['srgbnl'])
+        configs.extend(['esrgb'])
 
       if 'SAN' in bot:
         configs.extend(['t8888'])
