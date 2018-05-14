@@ -804,6 +804,27 @@ bool Definition::hasMatch(string name) const {
     return false;
 }
 
+string Definition::incompleteMessage() const {
+    if (!IncompleteAllowed(fMarkType)) {
+        auto iter = std::find_if(fChildren.begin(), fChildren.end(),
+                [](const Definition* test) { return IncompleteAllowed(test->fMarkType); });
+        SkASSERT(fChildren.end() != iter);
+        return (*iter)->incompleteMessage();
+    }
+    string message = MarkType::kExperimental == fMarkType ?
+            "Experimental." : "Deprecated.";
+    if (Definition::Details::kDoNotUse_Experiement == fDetails) {
+        message = "Do not use.";
+    } else if (Definition::Details::kNotReady_Experiment == fDetails) {
+        message = "Not ready for general use.";
+    } else if (Definition::Details::kSoonToBe_Deprecated == fDetails) {
+        message = "Soon to be deprecated.";
+    } else if (Definition::Details::kTestingOnly_Experiment == fDetails) {
+        message = "For testing only.";
+    }
+    return message;
+}
+
 bool Definition::isStructOrClass() const {
     if (MarkType::kStruct != fMarkType && MarkType::kClass != fMarkType) {
         return false;
@@ -1084,7 +1105,7 @@ bool RootDefinition::dumpUnVisited() {
     return success;
 }
 
-const Definition* RootDefinition::find(string ref, AllowParens allowParens) const {
+Definition* RootDefinition::find(string ref, AllowParens allowParens) {
     const auto leafIter = fLeaves.find(ref);
     if (leafIter != fLeaves.end()) {
         return &leafIter->second;
@@ -1098,12 +1119,12 @@ const Definition* RootDefinition::find(string ref, AllowParens allowParens) cons
     }
     const auto branchIter = fBranches.find(ref);
     if (branchIter != fBranches.end()) {
-        const RootDefinition* rootDef = branchIter->second;
+        RootDefinition* rootDef = branchIter->second;
         return rootDef;
     }
-    const Definition* result = nullptr;
+    Definition* result = nullptr;
     for (const auto& branch : fBranches) {
-        const RootDefinition* rootDef = branch.second;
+        RootDefinition* rootDef = branch.second;
         result = rootDef->find(ref, allowParens);
         if (result) {
             break;

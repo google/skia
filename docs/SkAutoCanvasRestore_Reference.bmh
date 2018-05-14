@@ -1,9 +1,7 @@
 #Topic Automatic_Canvas_Restore
 
 #Subtopic Overview
-    #Subtopic Subtopic
-    #Populate
-    ##
+#Populate
 ##
 
 #Class SkAutoCanvasRestore
