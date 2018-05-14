@@ -344,7 +344,8 @@ if actual_freq != str(freq):
     if 'ASAN' in self.m.vars.extra_tokens:
       asan_setup = self.m.vars.slave_dir.join(
             'android_ndk_linux', 'toolchains', 'llvm', 'prebuilt',
-            'linux-x86_64', 'bin', 'asan_device_setup')
+            'linux-x86_64', 'lib64', 'clang', '6.0.2', 'bin',
+            'asan_device_setup')
       self.m.run(self.m.python.inline, 'Setting up device to run ASAN',
         program="""
 import os
