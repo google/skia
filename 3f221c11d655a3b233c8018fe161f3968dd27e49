@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "de3c9595_1a551ef8",
+        "filename": "src/core/SkTypeface.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-14T18:27:56Z",
+      "side": 1,
+      "message": "fMU.releaseShared();\nfTypeface-\u003eonCharsToGlyphs(\u0026c, kUTF32_Encoding, \u0026glyph, 1);\nSkAutoMutexAcquire l(fMu);\nfMap.set(m.codepoint, glyph);\nfMu.acquireShared();\n\nand then the one below is the same thing (but without the acquire).",
+      "range": {
+        "startLine": 434,
+        "startChar": 16,
+        "endLine": 434,
+        "endChar": 65
+      },
+      "revId": "3f221c11d655a3b233c8018fe161f3968dd27e49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "af3c6ad0_92bc45ff",
         "filename": "src/core/SkTypeface.cpp",
         "patchSetId": 17
