@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "83c02fb6_96ad04b6",
+        "filename": "infra/bots/recipe_modules/build/android.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-14T16:51:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7bbf09bf_0f34a993",
+      "range": {
+        "startLine": 64,
+        "startChar": 25,
+        "endLine": 64,
+        "endChar": 64
+      },
+      "revId": "e67d0e5828895ad57b5705db251008ae65bb195f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3e797d29_1a5e739c",
         "filename": "infra/bots/recipe_modules/build/api.py",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "e67d0e5828895ad57b5705db251008ae65bb195f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a5a0aa7_38eb1f74",
+        "filename": "infra/bots/recipe_modules/build/api.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-14T16:51:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3e797d29_1a5e739c",
+      "range": {
+        "startLine": 39,
+        "startChar": 21,
+        "endLine": 39,
+        "endChar": 27
+      },
+      "revId": "e67d0e5828895ad57b5705db251008ae65bb195f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -94,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "28081850_e95d49d3",
+        "filename": "infra/bots/recipe_modules/build/api.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-14T16:51:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8ff7fc69_4e57ddf2",
+      "range": {
+        "startLine": 43,
+        "startChar": 32,
+        "endLine": 43,
+        "endChar": 35
+      },
+      "revId": "e67d0e5828895ad57b5705db251008ae65bb195f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "17992e2d_ec2d84de",
         "filename": "infra/bots/recipe_modules/build/examples/full.py",
         "patchSetId": 4
@@ -111,6 +183,24 @@
     },
     {
       "key": {
+        "uuid": "563941f2_b84960a1",
+        "filename": "infra/bots/recipe_modules/build/examples/full.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-14T16:51:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "17992e2d_ec2d84de",
+      "revId": "e67d0e5828895ad57b5705db251008ae65bb195f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a1bcc729_aa0e8427",
         "filename": "infra/bots/recipe_modules/build/examples/full.py",
         "patchSetId": 4
@@ -125,6 +215,24 @@
       "revId": "e67d0e5828895ad57b5705db251008ae65bb195f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f08fe70_e73240b6",
+        "filename": "infra/bots/recipe_modules/build/examples/full.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-14T16:51:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a1bcc729_aa0e8427",
+      "revId": "e67d0e5828895ad57b5705db251008ae65bb195f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -151,6 +259,30 @@
     },
     {
       "key": {
+        "uuid": "70c3de15_0b7f2d94",
+        "filename": "infra/bots/recipe_modules/flavor/default_flavor.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-14T16:51:00Z",
+      "side": 1,
+      "message": "Done. The only caller was the valgrind flavor.  I\u0027m hesitant to move to vars module, since there are some conditional dirs (eg. skia_dir) that I really want to get rid of.",
+      "parentUuid": "5763d2a0_e182c896",
+      "range": {
+        "startLine": 94,
+        "startChar": 0,
+        "endLine": 97,
+        "endChar": 63
+      },
+      "revId": "e67d0e5828895ad57b5705db251008ae65bb195f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "187ad4a7_6e19dd30",
         "filename": "infra/bots/recipe_modules/run/examples/full.py",
         "patchSetId": 4
@@ -165,6 +297,24 @@
       "revId": "e67d0e5828895ad57b5705db251008ae65bb195f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51ec7eef_1322b077",
+        "filename": "infra/bots/recipe_modules/run/examples/full.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-14T16:51:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "187ad4a7_6e19dd30",
+      "revId": "e67d0e5828895ad57b5705db251008ae65bb195f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
