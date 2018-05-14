@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ae931ec_3c11f683",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-14T14:26:29Z",
+      "side": 1,
+      "message": "Please change the filterRect to an SkIVector for offset and SkISize for filter size. You are adding two rectangles together which doesn\u0027t make sense.",
+      "range": {
+        "startLine": 501,
+        "startChar": 0,
+        "endLine": 501,
+        "endChar": 75
+      },
+      "revId": "de3aa26ad3087bf22269bdd607a2247bf91161e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03aa5006_96aaab46",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-14T14:26:29Z",
+      "side": 1,
+      "message": "It seems like this could be simplified to\nif (tmp.fLeft \u003c osb.fLeft || tmp.fRight \u003e osb.fRight) {\n   tmp.fLeft \u003d osb.fLeft\n   tmp.fRgiht \u003d osb.fRight\n} \n\nand below?",
+      "range": {
+        "startLine": 507,
+        "startChar": 8,
+        "endLine": 507,
+        "endChar": 43
+      },
+      "revId": "de3aa26ad3087bf22269bdd607a2247bf91161e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
