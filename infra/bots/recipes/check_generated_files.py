@@ -6,6 +6,7 @@
 # Recipe for the Skia PerCommit Housekeeper.
 
 DEPS = [
+  'build',
   'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/path',
@@ -54,7 +55,7 @@ for r, d, files in os.walk('%s'):
 """ % cwd)
 
     # Regenerate the SKSL files.
-    api.flavor.compile('compile_processors')
+    api.build()
 
     # Get a second diff. If this doesn't match the first, then there have been
     # modifications to the generated files.

@@ -3,55 +3,6 @@
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/skia/bin/fetch-gn"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
-    },
-    "infra_step": true,
-    "name": "fetch-gn"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/skia/bin/gn",
-      "gen",
-      "[START_DIR]/build/out/Release",
-      "--args=cc=\"gcc\" cxx=\"g++\" is_debug=false"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
-    },
-    "name": "gn gen"
-  },
-  {
-    "cmd": [
-      "ninja",
-      "-k",
-      "0",
-      "-C",
-      "[START_DIR]/build/out/Release"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
-    },
-    "name": "ninja"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",

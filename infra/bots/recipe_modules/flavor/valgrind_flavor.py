@@ -23,7 +23,7 @@ class ValgrindFlavorUtils(gn_flavor.GNFlavorUtils):
     new_cmd = [self._valgrind, '--gen-suppressions=all', '--leak-check=full',
                '--track-origins=yes', '--error-exitcode=1', '--num-callers=40',
                '--suppressions=%s' % self._suppressions_file]
-    path_to_app = self.out_dir.join(cmd[0])
+    path_to_app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
     new_cmd.append(path_to_app)
     new_cmd.extend(cmd[1:])
     with self.m.env({'VALGRIND_LIB': self._lib_dir}):

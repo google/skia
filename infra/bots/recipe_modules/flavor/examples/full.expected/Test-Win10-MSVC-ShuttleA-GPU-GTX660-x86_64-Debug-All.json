@@ -3,55 +3,6 @@
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/skia/bin/fetch-gn"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Debug_x64",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
-    },
-    "infra_step": true,
-    "name": "fetch-gn"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/skia/bin/gn.exe",
-      "gen",
-      "[START_DIR]/build/out/Debug_x64",
-      "--args=win_sdk=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/a9e1098bba66d2acccc377d5ee81265910f29272/win_sdk\" win_vc=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/a9e1098bba66d2acccc377d5ee81265910f29272/VC\""
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Debug_x64",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
-    },
-    "name": "gn gen"
-  },
-  {
-    "cmd": [
-      "ninja.exe",
-      "-k",
-      "0",
-      "-C",
-      "[START_DIR]/build/out/Debug_x64"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Debug_x64",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
-    },
-    "name": "ninja"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
