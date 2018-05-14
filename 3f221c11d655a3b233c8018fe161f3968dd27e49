@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "af3c6ad0_92bc45ff",
+        "filename": "src/core/SkTypeface.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-14T18:09:19Z",
+      "side": 1,
+      "message": "If we\u0027re taking the exclusive lock on this fine grained level, why not just upgrade the shared lock to exclusive in the \u0027convert\u0027 and add it then. Then we don\u0027t need Missing?",
+      "range": {
+        "startLine": 461,
+        "startChar": 16,
+        "endLine": 461,
+        "endChar": 42
+      },
+      "revId": "3f221c11d655a3b233c8018fe161f3968dd27e49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
