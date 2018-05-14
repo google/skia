@@ -398,3 +398,43 @@ int SkUTF32_CountUnichars(const void* text, size_t byteLength) {
     return SkToInt(byteLength >> 2);
 }
 
+size_t SkParseUnicode(const void* text,
+                      size_t size,
+                      SkTypeface::Encoding encoding,
+                      std::function<void(size_t, SkUnichar)> f) {
+    size_t unicodeSize = 0;
+    switch(encoding) {
+        case SkTypeface::kUTF8_Encoding:{
+            auto cursor = (const char*)text;
+            auto end = (const char*)((const char*)text + size);
+            while (cursor < end) {
+                SkUnichar c = SkUTF8_NextUnicharWithError(&cursor, end);
+                if (c < 0) { return 0; }
+                f(unicodeSize, c);
+                unicodeSize += 1;
+            }
+            break;
+        }
+        case SkTypeface::kUTF16_Encoding: {
+            auto cursor = (const uint16_t*)text;
+            auto end = (const uint16_t*)((const char*)text + size);
+            while (cursor < end) {
+                // TODO: add the error version when written.
+                f(unicodeSize, SkUTF16_NextUnichar(&cursor));
+                unicodeSize += 1;
+            }
+            break;
+        }
+        case SkTypeface::kUTF32_Encoding: {
+            auto cursor = (const uint32_t*)text;
+            auto end = (const uint32_t*)((const char*)text + size);
+            while (cursor < end) {
+                f(unicodeSize, (SkUnichar)*cursor);
+                cursor += 1;
+                unicodeSize += 1;
+            }
+            break;
+        }
+    }
+    return unicodeSize;
+}
