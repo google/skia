@@ -16,6 +16,24 @@
       "revId": "3d945e840c1955b5756fdeb696599c2818ed95fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "edcfcf67_84069200",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1185,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-14T20:20:34Z",
+      "side": 1,
+      "message": "If we had such a macro, I think so. Ultimately it\u0027d be nice if the test implementation of GL did this but it\u0027d have to track all the pixelstorei state to know how much to clear.",
+      "parentUuid": "3b3bd054_afc2bd04",
+      "revId": "3d945e840c1955b5756fdeb696599c2818ed95fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
