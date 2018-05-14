@@ -94,10 +94,6 @@ def dm_flags(api, bot):
     # may opt out or substitute some below for specific bots
     configs.extend(['8888', 'pdf'])
 
-    # Runs out of memory on Android bots. Everyone else seems fine.
-    if 'Android' in bot:
-      configs.remove('pdf')
-
     if '-GCE-' in bot:
       configs.extend(['g8'])
       configs.extend(['565'])
