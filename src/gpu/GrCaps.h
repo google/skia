@@ -10,6 +10,7 @@
 
 #include "../private/GrTypesPriv.h"
 #include "GrBlend.h"
+#include "GrDriverBugWorkarounds.h"
 #include "GrShaderCaps.h"
 #include "SkImageInfo.h"
 #include "SkRefCnt.h"
@@ -329,6 +330,8 @@ protected:
     int fMaxRasterSamples;
     int fMaxWindowRectangles;
     int fMaxClipAnalyticFPs;
+
+    GrDriverBugWorkarounds fDriverBugWorkarounds;
 
 private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {}
