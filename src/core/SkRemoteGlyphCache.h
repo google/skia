@@ -118,8 +118,10 @@ public:
     class SkGlyphCacheState {
     public:
         SkGlyphCacheState(std::unique_ptr<SkDescriptor> deviceDescriptor,
-                          std::unique_ptr<SkDescriptor> keyDescriptor,
-                          SkDiscardableHandleId discardableHandleId);
+                          std::unique_ptr<SkDescriptor>
+                                  keyDescriptor,
+                          SkDiscardableHandleId discardableHandleId,
+                          bool pathOnly);
         ~SkGlyphCacheState();
 
         void addGlyph(SkTypeface*, const SkScalerContextEffects&, SkPackedGlyphID);
@@ -148,13 +150,14 @@ public:
         std::unique_ptr<SkDescriptor> fDeviceDescriptor;
         std::unique_ptr<SkDescriptor> fKeyDescriptor;
         const SkDiscardableHandleId fDiscardableHandleId = -1;
+        const bool fPathOnly = false;
 
         // The context built using fDeviceDescriptor
         std::unique_ptr<SkScalerContext> fContext;
     };
 
-    SkGlyphCacheState* getOrCreateCache(
-            SkTypeface*, std::unique_ptr<SkDescriptor>, std::unique_ptr<SkDescriptor>);
+    SkGlyphCacheState* getOrCreateCache(SkTypeface*, std::unique_ptr<SkDescriptor>,
+                                        std::unique_ptr<SkDescriptor>, bool pathOnly);
 
 private:
     SkDescriptorMap<std::unique_ptr<SkGlyphCacheState>> fRemoteGlyphStateMap;
