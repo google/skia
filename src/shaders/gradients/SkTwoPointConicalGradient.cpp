@@ -56,6 +56,9 @@ sk_sp<SkShader> SkTwoPointConicalGradient::Create(const SkPoint& c0, SkScalar r0
     Type     gradientType;
 
     if (SkScalarNearlyZero((c0 - c1).length())) {
+        if (SkScalarNearlyZero(SkTMax(r0, r1))) {
+            return nullptr; // Degenerate case; avoid dividing by zero.
+        }
         // Concentric case: we can pretend we're radial (with a tiny twist).
         const SkScalar scale = 1.0f / SkTMax(r0, r1);
         gradientMatrix = SkMatrix::MakeTrans(-c1.x(), -c1.y());
