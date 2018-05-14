@@ -53,7 +53,8 @@ PolyStarAdapter::PolyStarAdapter(sk_sp<sksg::Path> wrapped_node, Type t)
     , fType(t) {}
 
 void PolyStarAdapter::apply() {
-    const auto count = SkScalarTruncToInt(fPointCount);
+    static constexpr int kMaxPointCount = 100000;
+    const auto count = SkToUInt(SkTPin(SkScalarRoundToInt(fPointCount), 0, kMaxPointCount));
     const auto arc   = sk_ieee_float_divide(SK_ScalarPI * 2, count);
 
     const auto pt_on_circle = [](const SkPoint& c, SkScalar r, SkScalar a) {
@@ -67,8 +68,9 @@ void PolyStarAdapter::apply() {
 
     auto angle = SkDegreesToRadians(fRotation);
     poly.moveTo(pt_on_circle(fPosition, fOuterRadius, angle));
+    poly.incReserve(fType == Type::kStar ? count * 2 : count);
 
-    for (int i = 0; i < count; ++i) {
+    for (unsigned i = 0; i < count; ++i) {
         if (fType == Type::kStar) {
             poly.lineTo(pt_on_circle(fPosition, fInnerRadius, angle + arc * 0.5f));
         }
