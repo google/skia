@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1fb90de4_3f6546c0",
+        "filename": "src/core/SkUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-14T19:19:30Z",
+      "side": 1,
+      "message": "Seems like a strange thing to check. Is this just to try to keep the return type in int? Why not just return size_t? If we\u0027re going to stick with using the wrong type then why check?",
+      "range": {
+        "startLine": 398,
+        "startChar": 0,
+        "endLine": 400,
+        "endChar": 5
+      },
+      "revId": "603c9a79db080a8c3b69cf21e9dd21d92f0eeb4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ea3607d_79d2cce5",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-14T19:19:30Z",
+      "side": 1,
+      "message": "This seems awkward. We have an encoding enum on paint (which includes glyph), an encoding enum on typeface (which doesn\u0027t include glyph), and SkTextEncoding (in SkFont.h). Currently we\u0027re actually only using the paint one to call this.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 23
+      },
+      "revId": "603c9a79db080a8c3b69cf21e9dd21d92f0eeb4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
