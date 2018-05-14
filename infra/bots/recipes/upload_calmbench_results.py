@@ -11,14 +11,12 @@ import calendar
 
 DEPS = [
   'core',
-  'flavor',
   'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/step',
   'recipe_engine/time',
-  'run',
   'vars',
 ]
 
@@ -36,9 +34,7 @@ def FindFile(api, suffix):
 
 
 def RunSteps(api):
-  api.vars.setup()
-  api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-  api.flavor.setup()
+  api.core.setup()
 
   builder_name = api.properties['buildername']
 

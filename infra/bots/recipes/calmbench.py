@@ -21,10 +21,7 @@ DEPS = [
 ]
 
 def RunSteps(api):
-  api.vars.setup()
-  api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-  api.flavor.setup()
-
+  api.core.setup()
   api.flavor.install(skps=True, svgs=True)
   api.file.ensure_directory('makedirs perf', api.vars.swarming_out_dir)
 

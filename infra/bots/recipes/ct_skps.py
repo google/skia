@@ -81,11 +81,7 @@ def RunSteps(api):
   api.vars.override_checkout_root = make_path(api, '/', 'b', 'work')
   api.vars.override_gclient_cache = make_path(api, '/', 'b', 'cache')
 
-  api.vars.setup()
-  api.core.checkout_bot_update()
-  api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-  api.flavor.setup()
-
+  api.core.setup()
   api.flavor.compile(build_target)
 
   # Required paths.

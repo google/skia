@@ -9,7 +9,6 @@
 DEPS = [
   'core',
   'recipe_engine/context',
-  'recipe_engine/file',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/platform',
@@ -28,15 +27,10 @@ def build_targets_from_builder_dict(builder_dict):
 
 
 def RunSteps(api):
-  api.vars.setup()
-
-  # Check out code.
+  bot_update=True
   if 'NoDEPS' in api.properties['buildername']:
-    api.core.checkout_git()
-  else:
-    api.core.checkout_bot_update()
-  api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-  api.flavor.setup()
+    bot_update = False
+  api.core.setup(bot_update=bot_update)
 
   build_targets = build_targets_from_builder_dict(api.vars.builder_cfg)
 

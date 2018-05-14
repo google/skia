@@ -824,6 +824,11 @@ def test_steps(api):
     # Obtain the list of already-generated hashes.
     hash_filename = 'uninteresting_hashes.txt'
 
+    # Ensure that the tmp_dir exists.
+    api.run.run_once(api.file.ensure_directory,
+                     'makedirs tmp_dir',
+                     api.vars.tmp_dir)
+
     host_hashes_file = api.vars.tmp_dir.join(hash_filename)
     hashes_file = api.flavor.device_path_join(
         api.flavor.device_dirs.tmp_dir, hash_filename)
@@ -938,10 +943,7 @@ def test_steps(api):
 
 
 def RunSteps(api):
-  api.vars.setup()
-  api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-  api.flavor.setup()
-
+  api.core.setup()
   env = {}
   if 'iOS' in api.vars.builder_name:
     env['IOS_BUNDLE_ID'] = 'com.google.dm'

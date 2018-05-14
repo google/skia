@@ -9,7 +9,6 @@
 DEPS = [
   'core',
   'depot_tools/gclient',
-  'flavor',
   'infra',
   'recipe_engine/context',
   'recipe_engine/file',
@@ -35,10 +34,7 @@ TEST_BUILDERS = {
 
 def RunSteps(api):
   # Check out Chrome.
-  api.vars.setup()
-  api.core.checkout_bot_update()
-  api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-  api.flavor.setup()
+  api.core.setup()
 
   src_dir = api.vars.checkout_root.join('src')
   out_dir = src_dir.join('out', 'Release')
