@@ -132,6 +132,7 @@
         {
             SkAutoMutexAcquire l(&fMu);
 
+            SkASSERT(!fCurrentShared->find(threadID));
             if (!fWaitingExclusive->tryAdd(threadID)) {
                 SkDEBUGFAILF("Thread %lx already has an exclusive lock\n", threadID);
             }
