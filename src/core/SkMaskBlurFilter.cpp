@@ -882,8 +882,9 @@ template <typename Loader> SK_ATTRIBUTE(noinline) static void direct_blur_y(
 }
 
 static SkIPoint small_blur(double sigmaX, double sigmaY, const SkMask& src, SkMask* dst) {
-    SkASSERT(0 <= sigmaX && sigmaX < 2);
-    SkASSERT(0 <= sigmaY && sigmaY < 2);
+    SkASSERT(sigmaX == sigmaY); // TODO
+    SkASSERT(0.01 <= sigmaX && sigmaX < 2);
+    SkASSERT(0.01 <= sigmaY && sigmaY < 2);
 
     SkGaussFilter filterX{sigmaX, SkGaussFilter::Type::Bessel},
                   filterY{sigmaY, SkGaussFilter::Type::Bessel};

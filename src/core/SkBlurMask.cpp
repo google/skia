@@ -110,9 +110,17 @@ bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src, SkScalar sigma, SkBlurS
         return false;
     }
 
-
     SkMaskBlurFilter blurFilter{sigma, sigma};
-    if (blurFilter.hasNoBlur() && style != kOuter_SkBlurStyle) {
+    if (blurFilter.hasNoBlur()) {
+        // If there is no effective blur most styles will just produce the original mask.
+        // However, kOuter_SkBlurStyle will produce an empty mask.
+        if (style == kOuter_SkBlurStyle) {
+            dst->fImage = nullptr;
+            dst->fBounds = SkIRect::MakeEmpty();
+            dst->fRowBytes = dst->fBounds.width();
+            dst->fFormat = SkMask::kA8_Format;
+            return true;
+        }
         return false;
     }
     const SkIPoint border = blurFilter.blur(src, dst);
