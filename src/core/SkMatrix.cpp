@@ -53,10 +53,6 @@ static void normalize_perspective(SkScalar mat[9]) {
 //
 #define SK_LEGACY_MATRIX_MATH_ORDER
 
-static inline float SkDoubleToFloat(double x) {
-    return static_cast<float>(x);
-}
-
 /*      [scale-x    skew-x      trans-x]   [X]   [X']
         [skew-y     scale-y     trans-y] * [Y] = [Y']
         [persp-0    persp-1     persp-2]   [1]   [1 ]
@@ -621,7 +617,7 @@ bool SkMatrix::setRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit al
 ///////////////////////////////////////////////////////////////////////////////
 
 static inline float muladdmul(float a, float b, float c, float d) {
-    return SkDoubleToFloat((double)a * b + (double)c * d);
+    return sk_double_to_float((double)a * b + (double)c * d);
 }
 
 static inline float rowcol3(const float row[], const float col[]) {

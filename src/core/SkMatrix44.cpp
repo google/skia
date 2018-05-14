@@ -579,11 +579,11 @@ bool SkMatrix44::invert(SkMatrix44* storage) const {
         // Calculate the determinant
         double det = b00 * b11 - b01 * b10 + b03 * b08;
 
-        double invdet = 1.0 / det;
+        double invdet = sk_ieee_double_divide(1.0, det);
         // If det is zero, we want to return false. However, we also want to return false
         // if 1/det overflows to infinity (i.e. det is denormalized). Both of these are
         // handled by checking that 1/det is finite.
-        if (!sk_float_isfinite(invdet)) {
+        if (!sk_float_isfinite(sk_double_to_float(invdet))) {
             return false;
         }
 
@@ -640,11 +640,11 @@ bool SkMatrix44::invert(SkMatrix44* storage) const {
     // Calculate the determinant
     double det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
-    double invdet = 1.0 / det;
+    double invdet = sk_ieee_double_divide(1.0, det);
     // If det is zero, we want to return false. However, we also want to return false
     // if 1/det overflows to infinity (i.e. det is denormalized). Both of these are
     // handled by checking that 1/det is finite.
-    if (!sk_float_isfinite(invdet)) {
+    if (!sk_float_isfinite(sk_double_to_float(invdet))) {
         return false;
     }
 
