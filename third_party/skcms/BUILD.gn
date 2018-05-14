@@ -39,4 +39,8 @@ source_set("skcms") {
     "src/Transform.h",
     "src/Transform_inl.h",
   ]
+
+  if (defined(build_with_chromium) && build_with_chromium) {
+    configs += [ "//skia:chromium_specific_config_for_skcms" ]
+  }
 }
