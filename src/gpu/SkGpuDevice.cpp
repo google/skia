@@ -832,8 +832,8 @@ void SkGpuDevice::drawBitmap(const SkBitmap& bitmap,
         }
     }
     GrBitmapTextureMaker maker(fContext.get(), bitmap);
-    this->drawTextureProducer(&maker, nullptr, nullptr, SkCanvas::kStrict_SrcRectConstraint,
-                              viewMatrix, paint);
+    this->drawTextureMaker(&maker, bitmap.width(), bitmap.height(), nullptr, nullptr,
+                           SkCanvas::kStrict_SrcRectConstraint, viewMatrix, paint);
 }
 
 // This method outsets 'iRect' by 'outset' all around and then clamps its extents to
@@ -1189,7 +1189,8 @@ void SkGpuDevice::drawBitmapRect(const SkBitmap& bitmap,
         }
     }
     GrBitmapTextureMaker maker(fContext.get(), bitmap);
-    this->drawTextureProducer(&maker, src, dst, constraint, this->ctm(), paint);
+    this->drawTextureMaker(&maker, bitmap.width(), bitmap.height(), src, dst, constraint,
+                           this->ctm(), paint);
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
