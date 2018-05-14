@@ -494,3 +494,32 @@ sk_sp<SkSpecialImage> SkImageFilter::filterInput(int index,
 void SkImageFilter::PurgeCache() {
     SkImageFilterCache::Get()->purge();
 }
+
+// In repeat mode, when we are going to sample off one edge of the srcBounds we require the
+// opposite side be preserved.
+SkIRect SkImageFilter::DetermineRepeatedSrcBound(const SkIRect& mungedSrcBounds,
+                                                 const SkIRect& filterRect,
+                                                 const SkIRect& originalSrcBounds) {
+    SkIRect tmp = SkIRect::MakeLTRB(mungedSrcBounds.fLeft + filterRect.fLeft,
+                                    mungedSrcBounds.fTop + filterRect.fTop,
+                                    mungedSrcBounds.fRight + filterRect.fRight,
+                                    mungedSrcBounds.fBottom + filterRect.fBottom);
+    if (tmp.fLeft < originalSrcBounds.fLeft) {
+        tmp.fLeft = originalSrcBounds.fLeft;
+        tmp.fRight = originalSrcBounds.fRight;
+    }
+    if (tmp.fRight > originalSrcBounds.fRight) {
+        tmp.fRight = originalSrcBounds.fRight;
+        tmp.fLeft = originalSrcBounds.fLeft;
+    }
+    if (tmp.fTop < originalSrcBounds.fTop) {
+        tmp.fTop = originalSrcBounds.fTop;
+        tmp.fBottom = originalSrcBounds.fBottom;
+    }
+    if (tmp.fBottom > originalSrcBounds.fBottom) {
+        tmp.fBottom = originalSrcBounds.fBottom;
+        tmp.fTop = originalSrcBounds.fTop;
+    }
+
+    return tmp;
+}

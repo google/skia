@@ -301,6 +301,21 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
         return nullptr;
     }
 
+    SkIRect srcBounds = this->onFilterNodeBounds(dstBounds, ctx.ctm(), kReverse_MapDirection);
+
+    if (SkMatrixConvolutionImageFilter::TileMode::kRepeat_TileMode == fTileMode) {
+        const SkIRect originalSrcBounds = SkIRect::MakeXYWH(inputOffset.fX, inputOffset.fY,
+                                                            input->width(), input->height());
+        const SkIRect filterRect = SkIRect::MakeXYWH(-fKernelOffset.fX, -fKernelOffset.fY,
+                                                     fKernelSize.width(), fKernelSize.height());
+
+        srcBounds = DetermineRepeatedSrcBound(srcBounds, filterRect, originalSrcBounds);
+    } else {
+        if (!srcBounds.intersect(dstBounds)) {
+            return nullptr;
+        }
+    }
+
 #if SK_SUPPORT_GPU
     // Note: if the kernel is too big, the GPU path falls back to SW
     if (source->isTextureBacked() &&
@@ -319,9 +334,10 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
         offset->fX = dstBounds.left();
         offset->fY = dstBounds.top();
         dstBounds.offset(-inputOffset);
+        srcBounds.offset(-inputOffset);
 
         auto fp = GrMatrixConvolutionEffect::Make(std::move(inputProxy),
-                                                  dstBounds,
+                                                  srcBounds,
                                                   fKernelSize,
                                                   fKernel,
                                                   fGain,
@@ -402,6 +418,11 @@ const {
 
 SkIRect SkMatrixConvolutionImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
                                                            MapDirection direction) const {
+
+    if (kReverse_MapDirection == direction && kRepeat_TileMode == fTileMode) {
+        return src;
+    }
+
     SkIRect dst = src;
     int w = fKernelSize.width() - 1, h = fKernelSize.height() - 1;
     dst.fRight = Sk32_sat_add(dst.fRight, w);
