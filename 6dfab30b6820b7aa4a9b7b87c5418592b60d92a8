@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f241168c_93994ccd",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-05-14T21:24:50Z",
+      "side": 1,
+      "message": "Just curious why we need this now?",
+      "revId": "6dfab30b6820b7aa4a9b7b87c5418592b60d92a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
