@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6a9a9fcd_48d1a75a",
+        "filename": "src/core/SkPoint.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-05-14T20:58:49Z",
+      "side": 1,
+      "message": "unified. (prev cl)",
+      "parentUuid": "ee902a24_258f704e",
+      "revId": "da26aea826af2e33b3263443563e726de23008e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0d95627e_47fde435",
         "filename": "src/core/SkPoint.cpp",
         "patchSetId": 2
@@ -39,6 +57,30 @@
       "revId": "da26aea826af2e33b3263443563e726de23008e5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e0718b3_fc0cd90f",
+        "filename": "src/core/SkPoint.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-05-14T20:58:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d95627e_47fde435",
+      "range": {
+        "startLine": 155,
+        "startChar": 5,
+        "endLine": 155,
+        "endChar": 31
+      },
+      "revId": "da26aea826af2e33b3263443563e726de23008e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
