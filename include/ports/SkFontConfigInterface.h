@@ -29,13 +29,12 @@ public:
      *  unref(). The default SkFontConfigInterface is the result of calling
      *  GetSingletonDirectInterface.
      */
-    static SkFontConfigInterface* RefGlobal();
+    static sk_sp<SkFontConfigInterface> RefGlobal();
 
     /**
-     *  Replace the current global instance with the specified one, safely
-     *  ref'ing the new instance, and unref'ing the previous. Returns its
-     *  parameter (the new global instance).
+     *  Replace the current global instance with the specified one.
      */
+    static void SetGlobal(sk_sp<SkFontConfigInterface> fc);
     static SkFontConfigInterface* SetGlobal(SkFontConfigInterface*);
 
     /**
