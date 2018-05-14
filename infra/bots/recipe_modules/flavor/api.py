@@ -9,7 +9,6 @@
 from recipe_engine import recipe_api
 
 from . import default_flavor
-from . import flutter_flavor
 from . import gn_android_flavor
 from . import gn_chromebook_flavor
 from . import gn_chromecast_flavor
@@ -35,9 +34,6 @@ def is_chromebook(vars_api):
   return ('Chromebook' in vars_api.extra_tokens or
           'ChromeOS' in vars_api.builder_cfg.get('os', ''))
 
-def is_flutter(vars_api):
-  return 'Flutter' in vars_api.extra_tokens
-
 def is_ios(vars_api):
   return ('iOS' in vars_api.extra_tokens or
           'iOS' == vars_api.builder_cfg.get('os', ''))
@@ -53,8 +49,6 @@ def is_valgrind(vars_api):
 class SkiaFlavorApi(recipe_api.RecipeApi):
   def get_flavor(self, vars_api):
     """Return a flavor utils object specific to the given builder."""
-    if is_flutter(vars_api):
-      return flutter_flavor.FlutterFlavorUtils(self)
     if is_chromecast(vars_api):
       return gn_chromecast_flavor.GNChromecastFlavorUtils(self)
     if is_chromebook(vars_api):
@@ -73,16 +67,6 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
 
   def step(self, name, cmd, **kwargs):
     return self._f.step(name, cmd, **kwargs)
-
-  def compile(self, target):
-    return self._f.compile(target)
-
-  def copy_extra_build_products(self, swarming_out_dir):
-    return self._f.copy_extra_build_products(swarming_out_dir)
-
-  @property
-  def out_dir(self):
-    return self._f.out_dir
 
   def device_path_join(self, *args):
     return self._f.device_path_join(*args)

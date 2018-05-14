@@ -41,9 +41,6 @@ def RunSteps(api):
   with api.context(env={'PATH': 'mydir:%(PATH)s'}):
     api.run(api.step, 'env', cmd=['env'])
 
-  # Copy build products.
-  api.run.copy_build_products('src', 'dst')
-
   def between_attempts_fn(attempt):
     api.run(api.step, 'between_attempts #%d' % attempt,
             cmd=['echo', 'between_attempt'])

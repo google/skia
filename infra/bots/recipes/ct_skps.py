@@ -7,9 +7,9 @@ import math
 
 
 DEPS = [
+  'build',
   'core',
   'ct',
-  'flavor',
   'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/json',
@@ -68,13 +68,10 @@ def RunSteps(api):
   # Figure out which tool to use.
   if 'DM' in buildername:
     skia_tool = 'dm'
-    build_target = 'dm'
   elif 'BENCH' in buildername:
     skia_tool = 'nanobench'
-    build_target = 'nanobench'
   elif 'IMG_DECODE' in buildername:
     skia_tool = 'get_images_from_skps'
-    build_target = 'tools'
   else:
     raise Exception('Do not recognise the buildername %s.' % buildername)
 
@@ -84,18 +81,15 @@ def RunSteps(api):
   api.vars.setup()
   api.core.checkout_bot_update()
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-  api.flavor.setup()
 
-  api.flavor.compile(build_target)
+  api.build()
 
   # Required paths.
   infrabots_dir = api.vars.skia_dir.join('infra', 'bots')
   isolate_dir = infrabots_dir.join('ct')
   isolate_path = isolate_dir.join(CT_SKPS_ISOLATE)
 
-  api.run.copy_build_products(
-      api.flavor.out_dir,
-      isolate_dir)
+  api.build.copy_build_products(isolate_dir)
   api.skia_swarming.setup(
       infrabots_dir.join('tools', 'luci-go'),
       swarming_rev='')
