@@ -22,6 +22,30 @@
       "revId": "3f221c11d655a3b233c8018fe161f3968dd27e49",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "570829df_74bda802",
+        "filename": "src/core/SkTypeface.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-14T18:13:55Z",
+      "side": 1,
+      "message": "I see that the implementation doesn\u0027t let one do that, but also doesn\u0027t assert when it happens.",
+      "parentUuid": "af3c6ad0_92bc45ff",
+      "range": {
+        "startLine": 461,
+        "startChar": 16,
+        "endLine": 461,
+        "endChar": 42
+      },
+      "revId": "3f221c11d655a3b233c8018fe161f3968dd27e49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
