@@ -155,6 +155,14 @@ void SkStrikeCache::PurgeAll() {
     get_globals().purgeAll();
 }
 
+void SkStrikeCache::Validate() {
+#ifdef SK_DEBUG
+    auto visitor = [](const SkGlyphCache& cache) { cache.forceValidate(); };
+
+    get_globals().forEachStrike(visitor);
+#endif
+}
+
 void SkStrikeCache::Dump() {
     SkDebugf("GlyphCache [     used    budget ]\n");
     SkDebugf("    bytes  [ %8zu  %8zu ]\n",

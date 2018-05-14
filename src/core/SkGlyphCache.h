@@ -44,11 +44,6 @@ public:
     /**  Return a glyph that has no information if it is not already filled out. */
     SkGlyph* getRawGlyphByID(SkPackedGlyphID);
 
-    /** Return the Strike's SkArenaAlloc. */
-    SkArenaAlloc* getAlloc() {
-        return &fAlloc;
-    }
-
     /** Returns a glyph with valid fAdvance and fDevKern fields. The remaining fields may be
         valid, but that is not guaranteed. If you require those, call getUnicharMetrics or
         getGlyphIDMetrics instead.
@@ -93,6 +88,11 @@ public:
     */
     const void* findImage(const SkGlyph&);
 
+    /** Initializes the image associated with the glyph with |data|. Returns false if an image
+     * already exists.
+     */
+    bool initializeImage(const SkGlyph&, const volatile void* data, size_t size);
+
     /** If the advance axis intersects the glyph's path, append the positions scaled and offset
         to the array (if non-null), and set the count to the updated array length.
     */
@@ -103,6 +103,11 @@ public:
         that.
     */
     const SkPath* findPath(const SkGlyph&);
+
+    /** Initializes the path associated with the glyph with |data|. Returns false if a path
+     * already exits or data is invalid.
+     */
+    bool initializePath(const SkGlyph&, const volatile void* data, size_t size);
 
     /** Return the vertical metrics for this strike.
     */
@@ -126,6 +131,7 @@ public:
     SkScalerContext* getScalerContext() const { return fScalerContext.get(); }
 
 #ifdef SK_DEBUG
+    void forceValidate() const;
     void validate() const;
 #else
     void validate() const {}
@@ -196,6 +202,7 @@ private:
                          SkGlyph::Intercept* intercept);
     static const SkGlyph::Intercept* MatchBounds(const SkGlyph* glyph,
                                                  const SkScalar bounds[2]);
+    static size_t ComputePathSize(const SkPath& path);
 
     const SkAutoDescriptor fDesc;
     const std::unique_ptr<SkScalerContext> fScalerContext;

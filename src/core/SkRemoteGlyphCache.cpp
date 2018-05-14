@@ -13,11 +13,16 @@
 #include <tuple>
 
 #include "SkDevice.h"
+#include "SkDraw.h"
 #include "SkFindAndPlaceGlyph.h"
 #include "SkStrikeCache.h"
 #include "SkTextBlobRunIterator.h"
 #include "SkTraceEvent.h"
 #include "SkTypeface_remote.h"
+
+#if SK_SUPPORT_GPU
+#include "GrDrawOpAtlas.h"
+#endif
 
 static SkDescriptor* auto_descriptor_from_desc(const SkDescriptor* source_desc,
                                                SkFontID font_id,
@@ -308,16 +313,14 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
             SK_ABORT("unhandled positioning mode");
     }
 
+    // If the matrix has pespective, we fall back to using paths.
     SkMatrix blobMatrix{fDeviceMatrix};
     blobMatrix.preConcat(this->getTotalMatrix());
-    if (blobMatrix.hasPerspective()) {
-        TRACE_EVENT0("skia", "hasPerspective");
-        FAIL_AND_RETURN
-    }
     blobMatrix.preTranslate(position.x(), position.y());
 
     SkMatrix runMatrix{blobMatrix};
     runMatrix.preTranslate(it.offset().x(), it.offset().y());
+    const bool pathOnly = SkDraw::ShouldDrawTextAsPaths(runPaint, runMatrix);
 
     using MapFn = SkPoint(*)(const SkMatrix& m, SkPoint pt);
     MapFn mapFn;
@@ -371,12 +374,11 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
             SkScalerContext::DescriptorGivenRecAndEffects(deviceSpecificRec, effects);
     auto keyDescriptor =
             SkScalerContext::DescriptorGivenRecAndEffects(keyRec, effects);
-    auto* glyphCacheState =
-            static_cast<SkStrikeServer*>(fStrikeServer)
-                    ->getOrCreateCache(
-                            runPaint.getTypeface(),
-                            std::move(deviceDescriptor),
-                            std::move(keyDescriptor));
+    auto* glyphCacheState = static_cast<SkStrikeServer*>(fStrikeServer)
+                                    ->getOrCreateCache(runPaint.getTypeface(),
+                                                       std::move(deviceDescriptor),
+                                                       std::move(keyDescriptor),
+                                                       pathOnly);
     SkASSERT(glyphCacheState);
 
     bool isSubpixel =
@@ -399,13 +401,16 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
 
 struct StrikeSpec {
     StrikeSpec() {}
-    StrikeSpec(SkFontID typefaceID_, size_t glyphCount_, SkDiscardableHandleId discardableHandleId_)
+    StrikeSpec(SkFontID typefaceID_, size_t glyphCount_, SkDiscardableHandleId discardableHandleId_,
+               bool pathOnly_)
             : typefaceID{typefaceID_}
             , glyphCount{glyphCount_}
-            , discardableHandleId(discardableHandleId_) {}
+            , discardableHandleId(discardableHandleId_)
+            , pathOnly(pathOnly_) {}
     SkFontID typefaceID = 0u;
     size_t glyphCount = 0u;
     SkDiscardableHandleId discardableHandleId = 0u;
+    bool pathOnly = false;
     /* desc */
     /* n X (glyphs ids) */
 };
@@ -461,10 +466,12 @@ void SkStrikeServer::writeStrikeData(std::vector<uint8_t>* memory) {
     fLockedDescs.clear();
 }
 
-SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
-        SkTypeface* tf,
-        std::unique_ptr<SkDescriptor> deviceDesc,
-        std::unique_ptr<SkDescriptor> keyDesc) {
+SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(SkTypeface* tf,
+                                                                    std::unique_ptr<SkDescriptor>
+                                                                            deviceDesc,
+                                                                    std::unique_ptr<SkDescriptor>
+                                                                            keyDesc,
+                                                                    bool pathOnly) {
     SkASSERT(deviceDesc);
     SkASSERT(keyDesc);
 
@@ -500,9 +507,7 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
     auto* keyDescPtr = keyDesc.get();
     auto newHandle = fDiscardableHandleManager->createHandle();
     auto cacheState = skstd::make_unique<SkGlyphCacheState>(
-            std::move(deviceDesc),
-            std::move(keyDesc),
-            newHandle);
+            std::move(deviceDesc), std::move(keyDesc), newHandle, pathOnly);
     auto* cacheStatePtr = cacheState.get();
 
     fLockedDescs.insert(keyDescPtr);
@@ -510,13 +515,15 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
     return cacheStatePtr;
 }
 
-SkStrikeServer::SkGlyphCacheState::SkGlyphCacheState(
-        std::unique_ptr<SkDescriptor> deviceDescriptor,
-        std::unique_ptr<SkDescriptor> keyDescriptor,
-        uint32_t discardable_handle_id)
+SkStrikeServer::SkGlyphCacheState::SkGlyphCacheState(std::unique_ptr<SkDescriptor> deviceDescriptor,
+                                                     std::unique_ptr<SkDescriptor>
+                                                             keyDescriptor,
+                                                     uint32_t discardable_handle_id,
+                                                     bool pathOnly)
         : fDeviceDescriptor(std::move(deviceDescriptor))
         , fKeyDescriptor(std::move(keyDescriptor))
-        , fDiscardableHandleId(discardable_handle_id) {
+        , fDiscardableHandleId(discardable_handle_id)
+        , fPathOnly(pathOnly) {
     SkASSERT(fDeviceDescriptor);
     SkASSERT(fKeyDescriptor);
 }
@@ -539,7 +546,7 @@ void SkStrikeServer::SkGlyphCacheState::addGlyph(SkTypeface* typeface,
 void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serializer) {
     // Write the desc.
     serializer->emplace<StrikeSpec>(fContext->getTypeface()->uniqueID(), fPendingGlyphs.size(),
-                                    fDiscardableHandleId);
+                                    fDiscardableHandleId, fPathOnly);
     serializer->writeDescriptor(*fKeyDescriptor.get());
 
     // Write FontMetrics.
@@ -552,16 +559,33 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
         auto glyph = serializer->emplace<SkGlyph>();
         glyph->initWithGlyphID(glyphID);
         fContext->getMetrics(glyph);
-        auto imageSize = glyph->computeImageSize();
         glyph->fPathData = nullptr;
         glyph->fImage = nullptr;
 
-        if (imageSize > 0) {
-            // Since the allocateArray can move glyph, make one that stays in one place.
-            SkGlyph stationaryGlyph = *glyph;
-            stationaryGlyph.fImage = serializer->allocateArray<uint8_t>(imageSize);
-            fContext->getImage(stationaryGlyph);
+        bool tooLargeForAtlas = false;
+#if SK_SUPPORT_GPU
+        tooLargeForAtlas = GrDrawOpAtlas::GlyphTooLargeForAtlas(glyph->fWidth, glyph->fHeight);
+#endif
+        if (fPathOnly || tooLargeForAtlas) {
+            SkPath path;
+            if (!fContext->getPath(glyphID, &path)) {
+                serializer->write<size_t>(0u);
+                continue;
+            }
+
+            size_t pathSize = path.writeToMemory(nullptr);
+            serializer->write<size_t>(pathSize);
+            path.writeToMemory(serializer->allocateArray<uint8_t>(pathSize));
+            continue;
         }
+
+        auto imageSize = glyph->computeImageSize();
+        if (imageSize == 0u) continue;
+
+        // Since the allocateArray can move glyph, make one that stays in one place.
+        SkGlyph stationaryGlyph = *glyph;
+        stationaryGlyph.fImage = serializer->allocateArray<uint8_t>(imageSize);
+        fContext->getImage(stationaryGlyph);
     }
 
     // Note that we reset the context after serializing pending glyphs since we
@@ -663,14 +687,29 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
             SkGlyph* allocatedGlyph = strike->getRawGlyphByID(glyph.getPackedID());
             *allocatedGlyph = glyph;
 
-            ArraySlice<uint8_t> image;
-            auto imageSize = glyph.computeImageSize();
-            if (imageSize != 0) {
-                image = deserializer.readArray<uint8_t>(imageSize);
-                if (!image.data()) READ_FAILURE
-                allocatedGlyph->allocImage(strike->getAlloc());
-                memcpy(allocatedGlyph->fImage, image.data(), image.size());
+            bool tooLargeForAtlas = false;
+#if SK_SUPPORT_GPU
+            tooLargeForAtlas = GrDrawOpAtlas::GlyphTooLargeForAtlas(glyph.fWidth, glyph.fHeight);
+#endif
+            if (spec.pathOnly || tooLargeForAtlas) {
+                size_t pathSize = 0u;
+                if (!deserializer.read<size_t>(&pathSize)) READ_FAILURE
+                if (pathSize == 0u) continue;
+
+                ArraySlice<uint8_t> path = deserializer.readArray<uint8_t>(pathSize);
+                if (!path.data() ||
+                    !strike->initializePath(*allocatedGlyph, path.data(), path.size()))
+                    READ_FAILURE
+                continue;
             }
+
+            auto imageSize = glyph.computeImageSize();
+            if (imageSize == 0u) continue;
+
+            ArraySlice<uint8_t> image = deserializer.readArray<uint8_t>(imageSize);
+            if (!image.data() ||
+                !strike->initializeImage(*allocatedGlyph, image.data(), image.size()))
+                READ_FAILURE
         }
     }
 
