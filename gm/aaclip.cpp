@@ -11,7 +11,6 @@
 #include "SkPath.h"
 #include "SkMakeUnique.h"
 
-
 #include "SkCubicMap.h"
 
 static void test_cubic(SkCanvas* canvas) {
@@ -367,3 +366,73 @@ private:
     typedef skiagm::GM INHERITED;
 };
 DEF_GM(return new ClipCubicGM;)
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "SkDFMaskFilter.h"
+
+const char* names[] = { "baseX", "baseY", "octaves", "Z" };
+
+static void set_slider(SkMetaData* md, const char name[], float val, float min, float max) {
+    float* v = md->setScalars(name, 3);
+    v[0] = val;
+    v[1] = min;
+    v[2] = max;
+}
+
+static float get_slider_value(const SkMetaData& md, const char name[]) {
+    int count;
+    const float* val = md.findScalars(name, &count);
+    SkASSERT(val);
+    SkASSERT(count == 3);
+    return val[0];
+}
+
+class DFMaskFilterGM : public skiagm::GM {
+    SkDFMaskFilter::Rec fRec = { 0, 0, 1, 1 };
+
+public:
+    DFMaskFilterGM() {}
+
+protected:
+    SkString onShortName() override {
+        return SkString("dfmaskfilter");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(500, 240);
+    }
+
+    bool onGetControls(SkMetaData* controls) override {
+        set_slider(controls, names[0], fRec.fBaseX, 0, 1);
+        set_slider(controls, names[1], fRec.fBaseY, 0, 1);
+        set_slider(controls, names[2], fRec.fOctaves, 1, 4);
+        set_slider(controls, names[3], fRec.fZ, 0, 1);
+        return true;
+    }
+
+    void onSetControls(const SkMetaData& controls) override {
+        fRec.fBaseX = get_slider_value(controls, names[0]);
+        fRec.fBaseY = get_slider_value(controls, names[1]);
+        fRec.fOctaves = (int)get_slider_value(controls, names[2]);
+        fRec.fZ = get_slider_value(controls, names[3]);
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setColor(SK_ColorRED);
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(10);
+        paint.setStyle(SkPaint::kStroke_Style);
+        const SkRect r = { 20, 20, 200, 200 };
+
+        canvas->drawOval(r, paint);
+        canvas->translate(r.width() + paint.getStrokeWidth() * 2, 0);
+        paint.setMaskFilter(SkDFMaskFilter::Make(fRec));
+        canvas->drawOval(r, paint);
+    }
+
+private:
+    typedef skiagm::GM INHERITED;
+};
+DEF_GM(return new DFMaskFilterGM;)

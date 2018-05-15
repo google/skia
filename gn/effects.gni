@@ -20,6 +20,7 @@ skia_effects_sources = [
   "$_src/effects/SkComposeImageFilter.cpp",
   "$_src/effects/SkCornerPathEffect.cpp",
   "$_src/effects/SkDashPathEffect.cpp",
+  "$_src/effects/SkDFMaskFilter.cpp",
   "$_src/effects/SkDiscretePathEffect.cpp",
   "$_src/effects/SkDisplacementMapEffect.cpp",
   "$_src/effects/SkDropShadowImageFilter.cpp",
