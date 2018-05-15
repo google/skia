@@ -188,6 +188,18 @@ const void* SkGlyphCache::findImage(const SkGlyph& glyph) {
     return glyph.fImage;
 }
 
+void SkGlyphCache::initializeImage(const SkGlyph& glyph, const volatile void* data, size_t size) {
+    if (glyph.fWidth > 0 && glyph.fWidth < kMaxGlyphWidth) {
+        size_t allocSize = const_cast<SkGlyph&>(glyph).allocImage(&fAlloc);
+        // check that alloc() actually succeeded
+        if (glyph.fImage) {
+            SkAssertResult(size == allocSize);
+            memcpy(glyph.fImage, const_cast<const void*>(data), size);
+            fMemoryUsed += size;
+        }
+    }
+}
+
 const SkPath* SkGlyphCache::findPath(const SkGlyph& glyph) {
     if (glyph.fWidth) {
         if (glyph.fPathData == nullptr) {
@@ -197,7 +209,7 @@ const SkPath* SkGlyphCache::findPath(const SkGlyph& glyph) {
             SkPath* path = new SkPath;
             if (fScalerContext->getPath(glyph.getPackedID(), path)) {
                 pathData->fPath = path;
-                fMemoryUsed += sizeof(SkPath) + path->countPoints() * sizeof(SkPoint);
+                fMemoryUsed += ComputePathSize(*path);
             } else {
                 pathData->fPath = nullptr;
                 delete path;
@@ -305,6 +317,10 @@ const SkGlyph::Intercept* SkGlyphCache::MatchBounds(const SkGlyph* glyph,
     return nullptr;
 }
 
+size_t SkGlyphCache::ComputePathSize(const SkPath& path) {
+    return sizeof(SkPath) + path.countPoints() * sizeof(SkPoint);
+}
+
 void SkGlyphCache::findIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
         bool yAxis, SkGlyph* glyph, SkScalar* array, int* count) {
     const SkGlyph::Intercept* match = MatchBounds(glyph, bounds);
@@ -392,17 +408,23 @@ void SkGlyphCache::dump() const {
 }
 
 #ifdef SK_DEBUG
+void SkGlyphCache::forceValidate() const {
+    size_t memoryUsed = sizeof(*this);
+    fGlyphMap.foreach ([&memoryUsed](const SkGlyph& glyph) {
+        memoryUsed += sizeof(SkGlyph);
+        if (glyph.fImage) {
+            memoryUsed += glyph.computeImageSize();
+        }
+        if (glyph.fPathData && glyph.fPathData->fPath) {
+            memoryUsed += ComputePathSize(*glyph.fPathData->fPath);
+        }
+    });
+    SkASSERT(fMemoryUsed == memoryUsed);
+}
 
 void SkGlyphCache::validate() const {
 #ifdef SK_DEBUG_GLYPH_CACHE
-    int count = fGlyphArray.count();
-    for (int i = 0; i < count; i++) {
-        const SkGlyph* glyph = &fGlyphArray[i];
-        SkASSERT(glyph);
-        if (glyph->fImage) {
-            SkASSERT(fGlyphAlloc.contains(glyph->fImage));
-        }
-    }
+    forceValidate();
 #endif
 }
 
