@@ -16768,11 +16768,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
-        "pool:Skia"
+        "pool:SkiaCT",
+        "os:Debian-9.4"
       ],
       "env_prefixes": {
         "PATH": [
@@ -17657,11 +17654,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
-        "pool:Skia"
+        "pool:SkiaCT",
+        "os:Debian-9.4"
       ],
       "env_prefixes": {
         "PATH": [
