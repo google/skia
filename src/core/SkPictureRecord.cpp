@@ -34,14 +34,6 @@ SkPictureRecord::SkPictureRecord(const SkISize& dimensions, uint32_t flags)
     , fInitialSaveCount(kNoInitialSave) {
 }
 
-SkPictureRecord::~SkPictureRecord() {
-    fImageRefs.unrefAll();
-    fPictureRefs.unrefAll();
-    fDrawableRefs.unrefAll();
-    fTextBlobRefs.unrefAll();
-    fVerticesRefs.unrefAll();
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkPictureRecord::onFlush() {
@@ -804,15 +796,28 @@ void SkPictureRecord::onDrawAnnotation(const SkRect& rect, const char key[], SkD
 
 ///////////////////////////////////////////////////////////////////////////////
 
-template <typename T> int find_or_append_uniqueID(SkTDArray<const T*>& array, const T* obj) {
+// De-duping helper.
+
+template <typename T>
+static bool equals(T* a, T* b) { return a->uniqueID() == b->uniqueID(); }
+
+template <>
+bool equals(SkDrawable* a, SkDrawable* b) {
+    // SkDrawable's generationID is not a stable unique identifier.
+    return a == b;
+}
+
+template <typename T>
+static int find_or_append(SkTArray<sk_sp<T>>& array, T* obj) {
     for (int i = 0; i < array.count(); i++) {
-        if (array[i]->uniqueID() == obj->uniqueID()) {
+        if (equals(array[i].get(), obj)) {
             return i;
         }
     }
-    int i = array.count();
-    *array.append() = SkRef(obj);
-    return i;
+
+    array.push_back(sk_ref_sp(obj));
+
+    return array.count() - 1;
 }
 
 sk_sp<SkSurface> SkPictureRecord::onNewSurface(const SkImageInfo& info, const SkSurfaceProps&) {
@@ -821,7 +826,7 @@ sk_sp<SkSurface> SkPictureRecord::onNewSurface(const SkImageInfo& info, const Sk
 
 void SkPictureRecord::addImage(const SkImage* image) {
     // convention for images is 0-based index
-    this->addInt(find_or_append_uniqueID(fImageRefs, image));
+    this->addInt(find_or_append(fImages, image));
 }
 
 void SkPictureRecord::addMatrix(const SkMatrix& matrix) {
@@ -856,18 +861,12 @@ void SkPictureRecord::addPatch(const SkPoint cubics[12]) {
 
 void SkPictureRecord::addPicture(const SkPicture* picture) {
     // follow the convention of recording a 1-based index
-    this->addInt(find_or_append_uniqueID(fPictureRefs, picture) + 1);
+    this->addInt(find_or_append(fPictures, picture) + 1);
 }
 
 void SkPictureRecord::addDrawable(SkDrawable* drawable) {
-    int index = fDrawableRefs.find(drawable);
-    if (index < 0) {    // not found
-        index = fDrawableRefs.count();
-        *fDrawableRefs.append() = drawable;
-        drawable->ref();
-    }
     // follow the convention of recording a 1-based index
-    this->addInt(index + 1);
+    this->addInt(find_or_append(fDrawables, drawable) + 1);
 }
 
 void SkPictureRecord::addPoint(const SkPoint& point) {
@@ -918,12 +917,12 @@ void SkPictureRecord::addText(const void* text, size_t byteLength) {
 
 void SkPictureRecord::addTextBlob(const SkTextBlob* blob) {
     // follow the convention of recording a 1-based index
-    this->addInt(find_or_append_uniqueID(fTextBlobRefs, blob) + 1);
+    this->addInt(find_or_append(fTextBlobs, blob) + 1);
 }
 
 void SkPictureRecord::addVertices(const SkVertices* vertices) {
     // follow the convention of recording a 1-based index
-    this->addInt(find_or_append_uniqueID(fVerticesRefs, vertices) + 1);
+    this->addInt(find_or_append(fVertices, vertices) + 1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
