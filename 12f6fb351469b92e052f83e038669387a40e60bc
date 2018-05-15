@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd209d5c_f70de926",
+        "filename": "src/core/SkPictureData.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-15T15:25:58Z",
+      "side": 1,
+      "message": "As commented offline, this will not work: we don\u0027t read T directly, but defer to factories; the amount of data needed is unknown and could be \u003c sizeof(T).",
+      "range": {
+        "startLine": 474,
+        "startChar": 30,
+        "endLine": 474,
+        "endChar": 58
+      },
+      "revId": "12f6fb351469b92e052f83e038669387a40e60bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
