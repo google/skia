@@ -46,6 +46,30 @@
       "revId": "f3f3de2b06fcc85bc2f3c1cd7b31959c1fed9d63",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42de1429_36b7fdf5",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-15T20:05:46Z",
+      "side": 1,
+      "message": "It\u0027s not hooked into presubmit but we do have a .clang-format file. It sometimes does some strange things to sk_sp\u003c\u003e parameters, so when I run it I always review what it did.",
+      "parentUuid": "30d0394c_1d89af9b",
+      "range": {
+        "startLine": 113,
+        "startChar": 4,
+        "endLine": 113,
+        "endChar": 6
+      },
+      "revId": "f3f3de2b06fcc85bc2f3c1cd7b31959c1fed9d63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
