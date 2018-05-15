@@ -27,9 +27,9 @@ public:
     /**
      *  This will construct Perlin noise of the given type (Fractal Noise or Turbulence).
      *
-     *  Both base frequencies (X and Y) have a usual range of (0..1).
+     *  Both base frequencies (X and Y) have a usual range of (0..1) and must be non-negative.
      *
-     *  The number of octaves provided should be fairly small, although no limit is enforced.
+     *  The number of octaves provided should be fairly small, with a limit of 255 enforced.
      *  Each octave doubles the frequency, so 10 octaves would produce noise from
      *  baseFrequency * 1, * 2, * 4, ..., * 512, which quickly yields insignificantly small
      *  periods and resembles regular unstructured noise rather than Perlin noise.
