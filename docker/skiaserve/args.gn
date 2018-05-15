@@ -1,0 +1,13 @@
+cc = clang
+cxx = clang++
+skia_use_egl = true
+is_debug = false
+extra_cflags = [
+  "-I/tmp/swiftshader/include",
+  "-DGR_EGL_TRY_GLES3_THEN_GLES2",
+]
+extra_ldflags = [
+  "-L/usr/local/lib",
+  "-Wl,-rpath",
+  "-Wl,/usr/local/lib"
+]
