@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1f736469_8ff6c161",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-15T17:12:45Z",
+      "side": 1,
+      "message": "Ummm, I need to revisit this assumption. Its probably invalid to assume that a desc is only ever going to be used with paths or images.",
+      "range": {
+        "startLine": 571,
+        "startChar": 10,
+        "endLine": 571,
+        "endChar": 19
+      },
+      "revId": "2cedc18429183e45296d7efab96c72a2091fee01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
