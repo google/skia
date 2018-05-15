@@ -54,7 +54,7 @@ class SkiaApi(recipe_api.RecipeApi):
       chromium.name = 'src'
       chromium.managed = False
       chromium.url = 'https://chromium.googlesource.com/chromium/src.git'
-      chromium.revision = 'origin/lkcr'
+      chromium.revision = 'origin/master'
 
     main_repo = self.m.properties['repository']
     if self.m.vars.need_flutter_checkout:
