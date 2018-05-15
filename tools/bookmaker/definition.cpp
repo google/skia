@@ -677,7 +677,7 @@ string Definition::formatFunction(Format format) const {
     lastStart = saveStart;
     lastEnd = methodParser.fChar;
     indent = SkTMin(indent, (size_t) (limit - maxLine));
-    // write string wtih trimmmed indent
+    // write string with trimmmed indent
     string methodStr;
     int written = 0;
     do {
@@ -802,6 +802,32 @@ bool Definition::hasMatch(string name) const {
         }
     }
     return false;
+}
+
+string Definition::incompleteMessage(DetailsType detailsType) const {
+    if (!IncompleteAllowed(fMarkType)) {
+        auto iter = std::find_if(fChildren.begin(), fChildren.end(),
+                [](const Definition* test) { return IncompleteAllowed(test->fMarkType); });
+        SkASSERT(fChildren.end() != iter);
+        return (*iter)->incompleteMessage(detailsType);
+    }
+    string message = MarkType::kExperimental == fMarkType ?
+            "Experimental." : "Deprecated.";
+    if (Definition::Details::kDoNotUse_Experiement == fDetails) {
+        message += " Do not use.";
+    } else if (Definition::Details::kNotReady_Experiment == fDetails) {
+        message += " Not ready for general use.";
+    } else if (Definition::Details::kSoonToBe_Deprecated == fDetails) {
+        message += " Soon to be deprecated.";
+    } else if (Definition::Details::kTestingOnly_Experiment == fDetails) {
+        message += " For testing only.";
+    }
+    if (DetailsType::kPhrase == detailsType) {
+        message = message.substr(0, message.length() - 1);  // remove trailing period
+        std::replace(message.begin(), message.end(), '.', ':');
+        std::transform(message.begin(), message.end(), message.begin(), ::tolower);
+    }
+    return message;
 }
 
 bool Definition::isStructOrClass() const {
@@ -1084,7 +1110,7 @@ bool RootDefinition::dumpUnVisited() {
     return success;
 }
 
-const Definition* RootDefinition::find(string ref, AllowParens allowParens) const {
+Definition* RootDefinition::find(string ref, AllowParens allowParens) {
     const auto leafIter = fLeaves.find(ref);
     if (leafIter != fLeaves.end()) {
         return &leafIter->second;
@@ -1098,12 +1124,12 @@ const Definition* RootDefinition::find(string ref, AllowParens allowParens) cons
     }
     const auto branchIter = fBranches.find(ref);
     if (branchIter != fBranches.end()) {
-        const RootDefinition* rootDef = branchIter->second;
+        RootDefinition* rootDef = branchIter->second;
         return rootDef;
     }
-    const Definition* result = nullptr;
+    Definition* result = nullptr;
     for (const auto& branch : fBranches) {
-        const RootDefinition* rootDef = branch.second;
+        RootDefinition* rootDef = branch.second;
         result = rootDef->find(ref, allowParens);
         if (result) {
             break;
