@@ -192,7 +192,7 @@ contains a copy of the pixels.
 ## MakeRasterData
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-static sk_sp&lt;SkImage&gt; MakeRasterData(const Info& info, sk_sp&lt;SkData&gt; pixels, size_t rowBytes)
+static sk_sp&lt;SkImage&gt; MakeRasterData(const SkImageInfo& info, sk_sp&lt;SkData&gt; pixels, size_t rowBytes)
 </pre>
 
 Creates <a href="#Image">Image</a> from <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, sharing <a href="#SkImage_MakeRasterData_pixels">pixels</a>.

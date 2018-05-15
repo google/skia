@@ -51,7 +51,6 @@ class GrTexture;
 */
 class SK_API SkImage : public SkRefCnt {
 public:
-    typedef SkImageInfo Info;
     typedef void* ReleaseContext;
 
     /** Creates SkImage from SkPixmap and copy of pixels. Since pixels are copied, SkPixmap
@@ -83,7 +82,8 @@ public:
         @param rowBytes  size of pixel row or larger
         @return          SkImage sharing pixels, or nullptr
     */
-    static sk_sp<SkImage> MakeRasterData(const Info& info, sk_sp<SkData> pixels, size_t rowBytes);
+    static sk_sp<SkImage> MakeRasterData(const SkImageInfo& info, sk_sp<SkData> pixels,
+                                         size_t rowBytes);
 
     typedef void (*RasterReleaseProc)(const void* pixels, ReleaseContext);
 

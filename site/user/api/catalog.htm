@@ -428,8 +428,8 @@
         "stdout": "clip=10,30\\nsize=20,30\\n"
     },
         "SkCanvas_getDeviceClipBounds": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkCanvas device(256, 256);\n    canvas = &device;\n    SkIRect bounds = canvas->getDeviceClipBounds();\n    SkDebugf(\"left:%d  top:%d  right:%d  bottom:%d\\n\",\n            bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);\n    SkPoint clipPoints[]  = {{30, 130}, {120, 130}, {120, 230} }; \n    SkPath clipPath;\n    clipPath.addPoly(clipPoints, SK_ARRAY_COUNT(clipPoints), true);\n    canvas->save();\n    canvas->clipPath(clipPath);\n    bounds = canvas->getDeviceClipBounds();\n    SkDebugf(\"left:%d  top:%d  right:%d  bottom:%d\\n\",\n            bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);\n    canvas->restore();\n    canvas->scale(1.f/2, 1.f/2);\n    canvas->clipPath(clipPath);\n    bounds = canvas->getDeviceClipBounds();\n    SkDebugf(\"left:%d  top:%d  right:%d  bottom:%d\\n\",\n            bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);\n}\n",
-    "hash": "5f4c910afa4a5a61702e5119eab2cac9",
+    "code": "void draw(SkCanvas* canvas) {\n    SkCanvas device(256, 256);\n    canvas = &device;\n    SkIRect bounds = canvas->getDeviceClipBounds();\n    SkDebugf(\"left:%d  top:%d  right:%d  bottom:%d\\n\",\n            bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);\n    SkPoint clipPoints[]  = {{30, 130}, {120, 130}, {120, 230} };\n    SkPath clipPath;\n    clipPath.addPoly(clipPoints, SK_ARRAY_COUNT(clipPoints), true);\n    canvas->save();\n    canvas->clipPath(clipPath);\n    bounds = canvas->getDeviceClipBounds();\n    SkDebugf(\"left:%d  top:%d  right:%d  bottom:%d\\n\",\n            bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);\n    canvas->restore();\n    canvas->scale(1.f/2, 1.f/2);\n    canvas->clipPath(clipPath);\n    bounds = canvas->getDeviceClipBounds();\n    SkDebugf(\"left:%d  top:%d  right:%d  bottom:%d\\n\",\n            bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);\n}\n",
+    "hash": "556832ac5711af662a98c21c547185e9",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::getDeviceClipBounds",
         "stdout": "left:0  top:0  right:256  bottom:256\\nleft:30  top:130  right:120  bottom:230\\nleft:15  top:65  right:60  bottom:115\\n"
@@ -442,8 +442,8 @@
         "stdout": "device bounds empty = false\\ndevice bounds empty = true\\n"
     },
         "SkCanvas_getLocalClipBounds": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkCanvas local(256, 256);\n    canvas = &local;\n    SkRect bounds = canvas->getLocalClipBounds();\n    SkDebugf(\"left:%g  top:%g  right:%g  bottom:%g\\n\",\n            bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);\n    SkPoint clipPoints[]  = {{30, 130}, {120, 130}, {120, 230} }; \n    SkPath clipPath;\n    clipPath.addPoly(clipPoints, SK_ARRAY_COUNT(clipPoints), true);\n    canvas->clipPath(clipPath);\n    bounds = canvas->getLocalClipBounds();\n    SkDebugf(\"left:%g  top:%g  right:%g  bottom:%g\\n\",\n            bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);\n    canvas->scale(2, 2);\n    bounds = canvas->getLocalClipBounds();\n    SkDebugf(\"left:%g  top:%g  right:%g  bottom:%g\\n\",\n            bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);\n}",
-    "hash": "0b36ff64daf88c046b4ae6ed4ee64db9",
+    "code": "void draw(SkCanvas* canvas) {\n    SkCanvas local(256, 256);\n    canvas = &local;\n    SkRect bounds = canvas->getLocalClipBounds();\n    SkDebugf(\"left:%g  top:%g  right:%g  bottom:%g\\n\",\n            bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);\n    SkPoint clipPoints[]  = {{30, 130}, {120, 130}, {120, 230} };\n    SkPath clipPath;\n    clipPath.addPoly(clipPoints, SK_ARRAY_COUNT(clipPoints), true);\n    canvas->clipPath(clipPath);\n    bounds = canvas->getLocalClipBounds();\n    SkDebugf(\"left:%g  top:%g  right:%g  bottom:%g\\n\",\n            bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);\n    canvas->scale(2, 2);\n    bounds = canvas->getLocalClipBounds();\n    SkDebugf(\"left:%g  top:%g  right:%g  bottom:%g\\n\",\n            bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);\n}",
+    "hash": "7f60cb030d3f9b2473adbe3e34b19d91",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::getLocalClipBounds",
         "stdout": "left:-1  top:-1  right:257  bottom:257\\nleft:29  top:129  right:121  bottom:231\\nleft:14.5  top:64.5  right:60.5  bottom:115.5\\n"
@@ -526,15 +526,15 @@
         "stdout": "width=256 height=256\\n"
     },
         "SkCanvas_quickReject": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkRect testRect = {30, 30, 120, 129 }; \n    SkRect clipRect = {30, 130, 120, 230 }; \n    canvas->save();\n    canvas->clipRect(clipRect);\n    SkDebugf(\"quickReject %s\\n\", canvas->quickReject(testRect) ? \"true\" : \"false\");\n    canvas->restore();\n    canvas->rotate(10);\n    canvas->clipRect(clipRect);\n    SkDebugf(\"quickReject %s\\n\", canvas->quickReject(testRect) ? \"true\" : \"false\");\n}\n",
-    "hash": "c15e39862d5f07b0fed44c71e86f7cc9",
+    "code": "void draw(SkCanvas* canvas) {\n    SkRect testRect = {30, 30, 120, 129 };\n    SkRect clipRect = {30, 130, 120, 230 };\n    canvas->save();\n    canvas->clipRect(clipRect);\n    SkDebugf(\"quickReject %s\\n\", canvas->quickReject(testRect) ? \"true\" : \"false\");\n    canvas->restore();\n    canvas->rotate(10);\n    canvas->clipRect(clipRect);\n    SkDebugf(\"quickReject %s\\n\", canvas->quickReject(testRect) ? \"true\" : \"false\");\n}\n",
+    "hash": "cfe4016241074477809dd45435be9cf4",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::quickReject",
         "stdout": "quickReject true\\nquickReject false\\n"
     },
         "SkCanvas_quickReject_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPoint testPoints[] = {{30,  30}, {120,  30}, {120, 129} }; \n    SkPoint clipPoints[] = {{30, 130}, {120, 130}, {120, 230} }; \n    SkPath testPath, clipPath;\n    testPath.addPoly(testPoints, SK_ARRAY_COUNT(testPoints), true);\n    clipPath.addPoly(clipPoints, SK_ARRAY_COUNT(clipPoints), true);\n    canvas->save();\n    canvas->clipPath(clipPath);\n    SkDebugf(\"quickReject %s\\n\", canvas->quickReject(testPath) ? \"true\" : \"false\");\n    canvas->restore();\n    canvas->rotate(10);\n    canvas->clipPath(clipPath);\n    SkDebugf(\"quickReject %s\\n\", canvas->quickReject(testPath) ? \"true\" : \"false\");\n}\n",
-    "hash": "64723a541c40073157abf2ca67907e15",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPoint testPoints[] = {{30,  30}, {120,  30}, {120, 129} };\n    SkPoint clipPoints[] = {{30, 130}, {120, 130}, {120, 230} };\n    SkPath testPath, clipPath;\n    testPath.addPoly(testPoints, SK_ARRAY_COUNT(testPoints), true);\n    clipPath.addPoly(clipPoints, SK_ARRAY_COUNT(clipPoints), true);\n    canvas->save();\n    canvas->clipPath(clipPath);\n    SkDebugf(\"quickReject %s\\n\", canvas->quickReject(testPath) ? \"true\" : \"false\");\n    canvas->restore();\n    canvas->rotate(10);\n    canvas->clipPath(clipPath);\n    SkDebugf(\"quickReject %s\\n\", canvas->quickReject(testPath) ? \"true\" : \"false\");\n}\n",
+    "hash": "56dcd14f943aea6f7d7aafe0de7e6c25",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::quickReject_2",
         "stdout": "quickReject true\\nquickReject false\\n"
@@ -1401,15 +1401,15 @@
         "stdout": "mStr  [  0.7071  -0.7071   0.0000][  0.7071   0.7071   0.0000][  0.0000   0.0000   1.0000]\\nneStr [  0.7071  -0.7071   0.0000][  0.7071   0.7071   0.0000][  0.0000   0.0000   1.0000]\\nmatrix != nearlyEqual\\n"
     },
         "SkPaint_containsText": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    const uint16_t goodChar = 0x00B0;  // degree symbol\n    const uint16_t badChar = 0xD800;   // Unicode surrogate\n    paint.setTextEncoding(SkPaint::kUTF16_TextEncoding);\n    SkDebugf(\"0x%04x %c= has char\\n\", goodChar, \n            paint.containsText(&goodChar, 2) ? '=' : '!');\n    SkDebugf(\"0x%04x %c= has char\\n\", badChar,\n            paint.containsText(&badChar, 2) ? '=' : '!');\n}",
-    "hash": "9202369019552f09cd4bec7f3046fee4",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    const uint16_t goodChar = 0x00B0;  // degree symbol\n    const uint16_t badChar = 0xD800;   // Unicode surrogate\n    paint.setTextEncoding(SkPaint::kUTF16_TextEncoding);\n    SkDebugf(\"0x%04x %c= has char\\n\", goodChar,\n            paint.containsText(&goodChar, 2) ? '=' : '!');\n    SkDebugf(\"0x%04x %c= has char\\n\", badChar,\n            paint.containsText(&badChar, 2) ? '=' : '!');\n}",
+    "hash": "71b417d6651cbcecae1a05067c94ab3e",
     "file": "SkPaint_Reference",
     "name": "SkPaint::containsText",
         "stdout": "0x00b0 == has char\\n0xd800 != has char\\n"
     },
         "SkPaint_containsText_a": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    const uint16_t goodGlyph = 511;\n    const uint16_t zeroGlyph = 0;\n    const uint16_t badGlyph = 65535; // larger than glyph count in font\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    SkDebugf(\"0x%04x %c= has glyph\\n\", goodGlyph, \n            paint.containsText(&goodGlyph, 2) ? '=' : '!');\n    SkDebugf(\"0x%04x %c= has glyph\\n\", zeroGlyph,\n            paint.containsText(&zeroGlyph, 2) ? '=' : '!');\n    SkDebugf(\"0x%04x %c= has glyph\\n\", badGlyph,\n            paint.containsText(&badGlyph, 2) ? '=' : '!');\n}",
-    "hash": "904227febfd1c2e264955da0ef66da73",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    const uint16_t goodGlyph = 511;\n    const uint16_t zeroGlyph = 0;\n    const uint16_t badGlyph = 65535; // larger than glyph count in font\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    SkDebugf(\"0x%04x %c= has glyph\\n\", goodGlyph,\n            paint.containsText(&goodGlyph, 2) ? '=' : '!');\n    SkDebugf(\"0x%04x %c= has glyph\\n\", zeroGlyph,\n            paint.containsText(&zeroGlyph, 2) ? '=' : '!');\n    SkDebugf(\"0x%04x %c= has glyph\\n\", badGlyph,\n            paint.containsText(&badGlyph, 2) ? '=' : '!');\n}",
+    "hash": "083557b6f653d6fc00a34e01f87b74ff",
     "file": "SkPaint_Reference",
     "name": "SkPaint::containsText_2",
         "stdout": "0x01ff == has glyph\\n0x0000 != has glyph\\n0xffff == has glyph\\n"
@@ -1450,8 +1450,8 @@
         "stdout": "255 == paint.getAlpha()\\n"
     },
         "SkPaint_getBlendMode": {
-    "code": "void draw(SkCanvas* canvas) {\n   SkPaint paint;\n   SkDebugf(\"kSrcOver %c= getBlendMode\\n\", \n            SkBlendMode::kSrcOver == paint.getBlendMode() ? '=' : '!');\n   paint.setBlendMode(SkBlendMode::kSrc);\n   SkDebugf(\"kSrcOver %c= getBlendMode\\n\", \n            SkBlendMode::kSrcOver == paint.getBlendMode() ? '=' : '!');\n}\n",
-    "hash": "4ec1864b8203d52c0810e8605092f45c",
+    "code": "void draw(SkCanvas* canvas) {\n   SkPaint paint;\n   SkDebugf(\"kSrcOver %c= getBlendMode\\n\",\n            SkBlendMode::kSrcOver == paint.getBlendMode() ? '=' : '!');\n   paint.setBlendMode(SkBlendMode::kSrc);\n   SkDebugf(\"kSrcOver %c= getBlendMode\\n\",\n            SkBlendMode::kSrcOver == paint.getBlendMode() ? '=' : '!');\n}\n",
+    "hash": "a1e059c8f6740fa2044cc64152b39dda",
     "file": "SkPaint_Reference",
     "name": "SkPaint::getBlendMode",
         "stdout": "kSrcOver == getBlendMode\\nkSrcOver != getBlendMode\\n"
@@ -1590,8 +1590,8 @@
         "stdout": "kLeft_Align == default\\n"
     },
         "SkPaint_getTextEncoding": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkDebugf(\"kUTF8_TextEncoding %c= text encoding\\n\", \n            SkPaint::kUTF8_TextEncoding == paint.getTextEncoding() ? '=' : '!');\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    SkDebugf(\"kGlyphID_TextEncoding %c= text encoding\\n\", \n            SkPaint::kGlyphID_TextEncoding == paint.getTextEncoding() ? '=' : '!');\n}",
-    "hash": "70ad28bbf7668b38474d7f225e3540bc",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkDebugf(\"kUTF8_TextEncoding %c= text encoding\\n\",\n            SkPaint::kUTF8_TextEncoding == paint.getTextEncoding() ? '=' : '!');\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    SkDebugf(\"kGlyphID_TextEncoding %c= text encoding\\n\",\n            SkPaint::kGlyphID_TextEncoding == paint.getTextEncoding() ? '=' : '!');\n}",
+    "hash": "c6cc2780a9828b3af8c4621c12b29a1b",
     "file": "SkPaint_Reference",
     "name": "SkPaint::getTextEncoding",
         "stdout": "kUTF8_TextEncoding == text encoding\\nkGlyphID_TextEncoding == text encoding\\n"
@@ -1637,13 +1637,6 @@
     "file": "SkPaint_Reference",
     "name": "SkPaint::isAutohinted",
         "stdout": "paint.isAutohinted() == !!(paint.getFlags() \\u0026 SkPaint::kAutoHinting_Flag)\\npaint.isAutohinted() == !!(paint.getFlags() \\u0026 SkPaint::kAutoHinting_Flag)\\n"
-    },
-        "SkPaint_isDevKernText": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkDebugf(\"paint.isDevKernText() %c= !!(paint.getFlags() & SkPaint::kDevKernText_Flag)\\n\",\n        paint.isDevKernText() == !!(paint.getFlags() & SkPaint::kDevKernText_Flag) ? '=' : '!');\n    paint.setDevKernText(true);\n    SkDebugf(\"paint.isDevKernText() %c= !!(paint.getFlags() & SkPaint::kDevKernText_Flag)\\n\",\n        paint.isDevKernText() == !!(paint.getFlags() & SkPaint::kDevKernText_Flag) ? '=' : '!');\n}",
-    "hash": "4f69a84b2505b12809c30b0cc09c5157",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::isDevKernText",
-        "stdout": "paint.isDevKernText() == !!(paint.getFlags() \\u0026 SkPaint::kDevKernText_Flag)\\npaint.isDevKernText() == !!(paint.getFlags() \\u0026 SkPaint::kDevKernText_Flag)\\n"
     },
         "SkPaint_isDither": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkDebugf(\"paint.isDither() %c= !!(paint.getFlags() & SkPaint::kDither_Flag)\\n\",\n            paint.isDither() == !!(paint.getFlags() & SkPaint::kDither_Flag) ? '=' : '!');\n    paint.setDither(true);\n    SkDebugf(\"paint.isDither() %c= !!(paint.getFlags() & SkPaint::kDither_Flag)\\n\",\n            paint.isDither() == !!(paint.getFlags() & SkPaint::kDither_Flag) ? '=' : '!');\n}",
@@ -1723,8 +1716,8 @@
         "stdout": "paint1 == paint2\\npaint1 == paint2\\n"
     },
         "SkPaint_nothingToDraw": {
-    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* prefix, const SkPaint& p) -> void {\n        SkDebugf(\"%s nothing to draw: %s\\n\", prefix, \n                 p.nothingToDraw() ? \"true\" : \"false\");\n    };\n    SkPaint paint;\n    debugster(\"initial\", paint);\n    paint.setBlendMode(SkBlendMode::kDst);\n    debugster(\"blend dst\", paint);\n    paint.setBlendMode(SkBlendMode::kSrcOver);\n    debugster(\"blend src over\", paint);\n    paint.setAlpha(0);\n    debugster(\"alpha 0\", paint);\n}\n",
-    "hash": "fc5a771b915ac341f56554f01d282831",
+    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* prefix, const SkPaint& p) -> void {\n        SkDebugf(\"%s nothing to draw: %s\\n\", prefix,\n                 p.nothingToDraw() ? \"true\" : \"false\");\n    };\n    SkPaint paint;\n    debugster(\"initial\", paint);\n    paint.setBlendMode(SkBlendMode::kDst);\n    debugster(\"blend dst\", paint);\n    paint.setBlendMode(SkBlendMode::kSrcOver);\n    debugster(\"blend src over\", paint);\n    paint.setAlpha(0);\n    debugster(\"alpha 0\", paint);\n}\n",
+    "hash": "2973b05bfbb6b4c29332c8ac4fcf3995",
     "file": "SkPaint_Reference",
     "name": "SkPaint::nothingToDraw",
         "stdout": "initial nothing to draw: false\\nblend dst nothing to draw: true\\nblend src over nothing to draw: false\\nalpha 0 nothing to draw: true\\n"
@@ -1772,8 +1765,8 @@
         "stdout": "shader unique: true\\nshader unique: false\\n"
     },
         "SkPaint_refTypeface": {
-    "code": "void draw(SkCanvas* canvas) {\n   SkPaint paint1, paint2;\n   paint1.setTypeface(SkTypeface::MakeFromName(\"monospace\", \n            SkFontStyle(SkFontStyle::kNormal_Weight, SkFontStyle::kNormal_Width,\n            SkFontStyle::kItalic_Slant)));\n   SkDebugf(\"typeface1 %c= typeface2\\n\",\n            paint1.getTypeface() == paint2.getTypeface() ? '=' : '!');\n   paint2.setTypeface(paint1.refTypeface());\n   SkDebugf(\"typeface1 %c= typeface2\\n\",\n            paint1.getTypeface() == paint2.getTypeface() ? '=' : '!');\n}\n",
-    "hash": "4bf8ed109c4b46d8a05c8b7763c1982c",
+    "code": "void draw(SkCanvas* canvas) {\n   SkPaint paint1, paint2;\n   paint1.setTypeface(SkTypeface::MakeFromName(\"monospace\",\n            SkFontStyle(SkFontStyle::kNormal_Weight, SkFontStyle::kNormal_Width,\n            SkFontStyle::kItalic_Slant)));\n   SkDebugf(\"typeface1 %c= typeface2\\n\",\n            paint1.getTypeface() == paint2.getTypeface() ? '=' : '!');\n   paint2.setTypeface(paint1.refTypeface());\n   SkDebugf(\"typeface1 %c= typeface2\\n\",\n            paint1.getTypeface() == paint2.getTypeface() ? '=' : '!');\n}\n",
+    "hash": "8b5aa7e555a0dc31be69db7cadf471a1",
     "file": "SkPaint_Reference",
     "name": "SkPaint::refTypeface",
         "stdout": "typeface1 != typeface2\\ntypeface1 == typeface2\\n"
@@ -1819,13 +1812,6 @@
     "file": "SkPaint_Reference",
     "name": "SkPaint::setColor",
         "stdout": "green1 == green2\\n"
-    },
-        "SkPaint_setDevKernText": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint1, paint2;\n    paint1.setDevKernText(true);\n    paint2.setFlags(paint2.getFlags() | SkPaint::kDevKernText_Flag);\n    SkDebugf(\"paint1 %c= paint2\\n\", paint1 == paint2 ? '=' : '!');\n}",
-    "hash": "2b718a059072908bf68942503f264797",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::setDevKernText",
-        "stdout": "paint1 == paint2\\n"
     },
         "SkPaint_setDither": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint1, paint2;\n    paint1.setDither(true);\n    paint2.setFlags(paint2.getFlags() | SkPaint::kDither_Flag);\n    SkDebugf(\"paint1 %c= paint2\\n\", paint1 == paint2 ? '=' : '!');\n}",
@@ -3244,18 +3230,18 @@
     }
 
     var pngs = {"Canvas_Clip": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint redPaint, scalePaint;\n    redPaint.setAntiAlias(true);\n    redPaint.setColor(SK_ColorRED);\n    canvas->save();\n    for (bool antialias : { false, true } ) {\n        canvas->save();\n        canvas->clipRect(SkRect::MakeWH(19.5f, 11.5f), antialias);\n        canvas->drawCircle(17, 11, 8, redPaint);\n        canvas->restore();\n        canvas->translate(16, 0);\n    }\n    canvas->restore();\n    SkMatrix matrix;\n    matrix.setScale(6, 6);\n    scalePaint.setImageFilter(\n            SkImageFilter::MakeMatrixFilter(matrix, kNone_SkFilterQuality, nullptr));\n    SkCanvas::SaveLayerRec saveLayerRec(\n            nullptr, &scalePaint, SkCanvas::kInitWithPrevious_SaveLayerFlag); \n    canvas->saveLayer(saveLayerRec);\n    canvas->restore();\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint redPaint, scalePaint;\n    redPaint.setAntiAlias(true);\n    redPaint.setColor(SK_ColorRED);\n    canvas->save();\n    for (bool antialias : { false, true } ) {\n        canvas->save();\n        canvas->clipRect(SkRect::MakeWH(19.5f, 11.5f), antialias);\n        canvas->drawCircle(17, 11, 8, redPaint);\n        canvas->restore();\n        canvas->translate(16, 0);\n    }\n    canvas->restore();\n    SkMatrix matrix;\n    matrix.setScale(6, 6);\n    scalePaint.setImageFilter(\n            SkImageFilter::MakeMatrixFilter(matrix, kNone_SkFilterQuality, nullptr));\n    SkCanvas::SaveLayerRec saveLayerRec(\n            nullptr, &scalePaint, SkCanvas::kInitWithPrevious_SaveLayerFlag);\n    canvas->saveLayer(saveLayerRec);\n    canvas->restore();\n}",
     "width": 256,
     "height": 90,
-    "hash": "d2e60e5171f26ff9ddefae48387f889b",
+    "hash": "862cc026601a41a58df49c0b9f0d7777",
     "file": "SkCanvas_Reference",
     "name": "Clip"
 },
     "Canvas_State_Stack": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    canvas->save();                             // records stack depth to restore  \n    canvas->clipRect(SkRect::MakeWH(100, 100)); // constrains drawing to clip\n    canvas->clear(SK_ColorRED);                 // draws to limit of clip\n    canvas->save();                             // records stack depth to restore \n    canvas->clipRect(SkRect::MakeWH(50, 150));  // Rect below 100 is ignored\n    canvas->clear(SK_ColorBLUE);                // draws to smaller clip\n    canvas->restore();                          // enlarges clip\n    canvas->drawLine(20, 20, 150, 150, paint);  // line below 100 is not drawn\n    canvas->restore();                          // enlarges clip\n    canvas->drawLine(150, 20, 50, 120, paint);  // line below 100 is drawn\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    canvas->save();                             // records stack depth to restore\n    canvas->clipRect(SkRect::MakeWH(100, 100)); // constrains drawing to clip\n    canvas->clear(SK_ColorRED);                 // draws to limit of clip\n    canvas->save();                             // records stack depth to restore\n    canvas->clipRect(SkRect::MakeWH(50, 150));  // Rect below 100 is ignored\n    canvas->clear(SK_ColorBLUE);                // draws to smaller clip\n    canvas->restore();                          // enlarges clip\n    canvas->drawLine(20, 20, 150, 150, paint);  // line below 100 is not drawn\n    canvas->restore();                          // enlarges clip\n    canvas->drawLine(150, 20, 50, 120, paint);  // line below 100 is drawn\n}\n",
     "width": 256,
     "height": 160,
-    "hash": "a4548baa133302e933b4d3442c06f5b3",
+    "hash": "bb1dbfdca3aedf716beb6f07e2aab065",
     "file": "SkCanvas_Reference",
     "name": "State_Stack"
 },
@@ -3516,10 +3502,10 @@
     "name": "Fake_Bold"
 },
     "Paint_Filter_Quality_Methods": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    canvas->scale(.2f, .2f);\n    for (SkFilterQuality q : { kNone_SkFilterQuality, kLow_SkFilterQuality, \n                               kMedium_SkFilterQuality, kHigh_SkFilterQuality } ) {\n        paint.setFilterQuality(q);\n        canvas->drawImage(image.get(), 0, 0, &paint);\n        canvas->translate(550, 0);\n        if (kLow_SkFilterQuality == q) canvas->translate(-1100, 550);\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    canvas->scale(.2f, .2f);\n    for (SkFilterQuality q : { kNone_SkFilterQuality, kLow_SkFilterQuality,\n                               kMedium_SkFilterQuality, kHigh_SkFilterQuality } ) {\n        paint.setFilterQuality(q);\n        canvas->drawImage(image.get(), 0, 0, &paint);\n        canvas->translate(550, 0);\n        if (kLow_SkFilterQuality == q) canvas->translate(-1100, 550);\n    }\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "ee77f83f7291e07ae0d89f1380c7d67c",
+    "hash": "69369cff2f5b145a6f616092513266a0",
     "file": "SkPaint_Reference",
     "name": "Filter_Quality_Methods"
 },
@@ -3572,10 +3558,10 @@
     "name": "Shader_Methods"
 },
     "Paint_Shader_Methods_a": {
-    "code": "void draw(SkCanvas* canvas) {\n   SkPaint paint;\n   SkBitmap bitmap;\n   bitmap.setInfo(SkImageInfo::MakeA8(5, 1), 5);  // bitmap only contains alpha\n   uint8_t pixels[5] = { 0x22, 0x55, 0x88, 0xBB, 0xFF };\n   bitmap.setPixels(pixels);\n   paint.setShader(SkShader::MakeBitmapShader(bitmap, \n            SkShader::kMirror_TileMode, SkShader::kMirror_TileMode));\n   for (SkColor c : { SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN } ) {\n       paint.setColor(c);  // all components in color affect shader\n       canvas->drawCircle(50, 50, 50, paint);\n       canvas->translate(70, 70);\n   }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n   SkPaint paint;\n   SkBitmap bitmap;\n   bitmap.setInfo(SkImageInfo::MakeA8(5, 1), 5);  // bitmap only contains alpha\n   uint8_t pixels[5] = { 0x22, 0x55, 0x88, 0xBB, 0xFF };\n   bitmap.setPixels(pixels);\n   paint.setShader(SkShader::MakeBitmapShader(bitmap,\n            SkShader::kMirror_TileMode, SkShader::kMirror_TileMode));\n   for (SkColor c : { SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN } ) {\n       paint.setColor(c);  // all components in color affect shader\n       canvas->drawCircle(50, 50, 50, paint);\n       canvas->translate(70, 70);\n   }\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "9673be7720ba3adcdae42ddc1565b588",
+    "hash": "fe80fd80b98a20823db7fb9a077243c7",
     "file": "SkPaint_Reference",
     "name": "Shader_Methods_2"
 },
@@ -3596,10 +3582,10 @@
     "name": "Stroke_Join"
 },
     "Paint_Stroke_Width": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    for (bool antialias : { false, true }) { \n        paint.setAntiAlias(antialias);\n        for (int width = 0; width <= 4; ++width) {\n            SkScalar offset = antialias * 100 + width * 20;\n            paint.setStrokeWidth(width * 0.25f);\n            canvas->drawLine(10 + offset,  10, 20 + offset,  60, paint);\n            canvas->drawLine(10 + offset, 110, 60 + offset, 160, paint);\n        }\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    for (bool antialias : { false, true }) {\n        paint.setAntiAlias(antialias);\n        for (int width = 0; width <= 4; ++width) {\n            SkScalar offset = antialias * 100 + width * 20;\n            paint.setStrokeWidth(width * 0.25f);\n            canvas->drawLine(10 + offset,  10, 20 + offset,  60, paint);\n            canvas->drawLine(10 + offset, 110, 60 + offset, 160, paint);\n        }\n    }\n}\n",
     "width": 256,
     "height": 170,
-    "hash": "01e3e08a3022a351628ff54e84887756",
+    "hash": "5112c7209a19e035c61cef33a624a652",
     "file": "SkPaint_Reference",
     "name": "Stroke_Width"
 },
@@ -4156,18 +4142,18 @@
     "name": "SkCanvas::PointMode"
 },
     "SkCanvas_SaveLayerFlagsSet": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint redPaint, bluePaint, scalePaint;\n    redPaint.setColor(SK_ColorRED);\n    canvas->drawCircle(21, 21, 8, redPaint);\n    bluePaint.setColor(SK_ColorBLUE);\n    canvas->drawCircle(31, 21, 8, bluePaint);\n    SkMatrix matrix;\n    matrix.setScale(4, 4);\n    scalePaint.setAlpha(0x40);\n    scalePaint.setImageFilter(\n            SkImageFilter::MakeMatrixFilter(matrix, kNone_SkFilterQuality, nullptr));\n    SkCanvas::SaveLayerRec saveLayerRec(nullptr, &scalePaint,\n            SkCanvas::kInitWithPrevious_SaveLayerFlag); \n    canvas->saveLayer(saveLayerRec);\n    canvas->restore();\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint redPaint, bluePaint, scalePaint;\n    redPaint.setColor(SK_ColorRED);\n    canvas->drawCircle(21, 21, 8, redPaint);\n    bluePaint.setColor(SK_ColorBLUE);\n    canvas->drawCircle(31, 21, 8, bluePaint);\n    SkMatrix matrix;\n    matrix.setScale(4, 4);\n    scalePaint.setAlpha(0x40);\n    scalePaint.setImageFilter(\n            SkImageFilter::MakeMatrixFilter(matrix, kNone_SkFilterQuality, nullptr));\n    SkCanvas::SaveLayerRec saveLayerRec(nullptr, &scalePaint,\n            SkCanvas::kInitWithPrevious_SaveLayerFlag);\n    canvas->saveLayer(saveLayerRec);\n    canvas->restore();\n}\n",
     "width": 256,
     "height": 160,
-    "hash": "d314c688925d2c549d4762f5cc6e6a1a",
+    "hash": "05db6a937225e8e31ae3481173d25dae",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::SaveLayerFlagsSet"
 },
     "SkCanvas_SaveLayerRec": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint redPaint, bluePaint;\n    redPaint.setAntiAlias(true);\n    redPaint.setColor(SK_ColorRED);\n    canvas->drawCircle(21, 21, 8, redPaint);\n    bluePaint.setColor(SK_ColorBLUE);\n    canvas->drawCircle(31, 21, 8, bluePaint);\n    SkMatrix matrix;\n    matrix.setScale(4, 4);\n    auto scaler = SkImageFilter::MakeMatrixFilter(matrix, kNone_SkFilterQuality, nullptr);\n    SkCanvas::SaveLayerRec saveLayerRec(nullptr, nullptr, scaler.get(), 0); \n    canvas->saveLayer(saveLayerRec);\n    canvas->drawCircle(125, 85, 8, redPaint);\n    canvas->restore();\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint redPaint, bluePaint;\n    redPaint.setAntiAlias(true);\n    redPaint.setColor(SK_ColorRED);\n    canvas->drawCircle(21, 21, 8, redPaint);\n    bluePaint.setColor(SK_ColorBLUE);\n    canvas->drawCircle(31, 21, 8, bluePaint);\n    SkMatrix matrix;\n    matrix.setScale(4, 4);\n    auto scaler = SkImageFilter::MakeMatrixFilter(matrix, kNone_SkFilterQuality, nullptr);\n    SkCanvas::SaveLayerRec saveLayerRec(nullptr, nullptr, scaler.get(), 0);\n    canvas->saveLayer(saveLayerRec);\n    canvas->drawCircle(125, 85, 8, redPaint);\n    canvas->restore();\n}\n",
     "width": 256,
     "height": 160,
-    "hash": "7b18146582fc2440656b839a173ed500",
+    "hash": "ee8c0b120234e27364f8c9a786cf8f89",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::SaveLayerRec"
 },
@@ -4196,10 +4182,10 @@
     "name": "SkCanvas::accessTopLayerPixels_2"
 },
     "SkCanvas_clear": {
-    "code": "void draw(SkCanvas* canvas) {\n    canvas->save();\n    canvas->clipRect(SkRect::MakeWH(256, 128));\n    canvas->clear(SkColorSetARGB(0x80, 0xFF, 0x00, 0x00)); \n    canvas->restore();\n    canvas->save();\n    canvas->clipRect(SkRect::MakeWH(150, 192));\n    canvas->clear(SkColorSetARGB(0x80, 0x00, 0xFF, 0x00));\n    canvas->restore();\n    canvas->clipRect(SkRect::MakeWH(75, 256));\n    canvas->clear(SkColorSetARGB(0x80, 0x00, 0x00, 0xFF));\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    canvas->save();\n    canvas->clipRect(SkRect::MakeWH(256, 128));\n    canvas->clear(SkColorSetARGB(0x80, 0xFF, 0x00, 0x00));\n    canvas->restore();\n    canvas->save();\n    canvas->clipRect(SkRect::MakeWH(150, 192));\n    canvas->clear(SkColorSetARGB(0x80, 0x00, 0xFF, 0x00));\n    canvas->restore();\n    canvas->clipRect(SkRect::MakeWH(75, 256));\n    canvas->clear(SkColorSetARGB(0x80, 0x00, 0x00, 0xFF));\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "d97750e04989d42dc879406127b22c0b",
+    "hash": "8c4499e322f10153dcd9b0b9806233b9",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::clear()"
 },
@@ -4364,50 +4350,50 @@
     "name": "SkCanvas::drawAtlas_4"
 },
     "SkCanvas_drawBitmap": {
-    "code": "void draw(SkCanvas* canvas) {\n    uint8_t pixels[][8] = { { 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00},\n                            { 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00},\n                            { 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00},\n                            { 0xFF, 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0xFF, 0xFF},\n                            { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},\n                            { 0x00, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0x00, 0x00},\n                            { 0x00, 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0xFF, 0x00},\n                            { 0xFF, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0x00, 0xFF} };\n    SkBitmap bitmap;\n    bitmap.installPixels(SkImageInfo::MakeA8(8, 8), \n            (void*) pixels, sizeof(pixels[0]));\n    SkPaint paint;\n    canvas->scale(4, 4);\n    for (auto color : { SK_ColorRED, SK_ColorBLUE, 0xFF007F00} ) {\n        paint.setColor(color);\n        canvas->drawBitmap(bitmap, 0, 0, &paint);\n        canvas->translate(12, 0);\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    uint8_t pixels[][8] = { { 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00},\n                            { 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00},\n                            { 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00},\n                            { 0xFF, 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0xFF, 0xFF},\n                            { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},\n                            { 0x00, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0x00, 0x00},\n                            { 0x00, 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0xFF, 0x00},\n                            { 0xFF, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0x00, 0xFF} };\n    SkBitmap bitmap;\n    bitmap.installPixels(SkImageInfo::MakeA8(8, 8),\n            (void*) pixels, sizeof(pixels[0]));\n    SkPaint paint;\n    canvas->scale(4, 4);\n    for (auto color : { SK_ColorRED, SK_ColorBLUE, 0xFF007F00} ) {\n        paint.setColor(color);\n        canvas->drawBitmap(bitmap, 0, 0, &paint);\n        canvas->translate(12, 0);\n    }\n}\n",
     "width": 256,
     "height": 64,
-    "hash": "70d7fbf7de82264dd66a526d98d31def",
+    "hash": "4a521be1f850058541e136a808c65e78",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawBitmap"
 },
     "SkCanvas_drawBitmapLattice": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkIRect center = { 20, 10, 50, 40 };\n    SkBitmap bitmap;\n    bitmap.allocPixels(SkImageInfo::MakeN32Premul(60, 60));\n    SkCanvas bitCanvas(bitmap);\n    SkPaint paint;\n    SkColor gray = 0xFF000000;\n    int left = 0;\n    for (auto right: { center.fLeft, center.fRight, bitmap.width() } ) {\n        int top = 0;\n        for (auto bottom: { center.fTop, center.fBottom, bitmap.height() } ) {\n            paint.setColor(gray);\n            bitCanvas.drawIRect(SkIRect::MakeLTRB(left, top, right, bottom), paint);\n            gray += 0x001f1f1f;\n            top = bottom;\n        }\n        left = right; \n    }\n    const int xDivs[] = { center.fLeft, center.fRight };\n    const int yDivs[] = { center.fTop, center.fBottom };\n    SkCanvas::Lattice::RectType fillTypes[3][3];\n    memset(fillTypes, 0, sizeof(fillTypes));\n    fillTypes[1][1] = SkCanvas::Lattice::kTransparent;\n    SkColor dummy[9];  // temporary pending bug fix\n    SkCanvas::Lattice lattice = { xDivs, yDivs, fillTypes[0], SK_ARRAY_COUNT(xDivs),\n         SK_ARRAY_COUNT(yDivs), nullptr, dummy };\n    for (auto dest: { 20, 30, 40, 60, 90 } ) {\n        canvas->drawBitmapLattice(bitmap, lattice, SkRect::MakeWH(dest, 110 - dest), nullptr);\n        canvas->translate(dest + 4, 0);\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkIRect center = { 20, 10, 50, 40 };\n    SkBitmap bitmap;\n    bitmap.allocPixels(SkImageInfo::MakeN32Premul(60, 60));\n    SkCanvas bitCanvas(bitmap);\n    SkPaint paint;\n    SkColor gray = 0xFF000000;\n    int left = 0;\n    for (auto right: { center.fLeft, center.fRight, bitmap.width() } ) {\n        int top = 0;\n        for (auto bottom: { center.fTop, center.fBottom, bitmap.height() } ) {\n            paint.setColor(gray);\n            bitCanvas.drawIRect(SkIRect::MakeLTRB(left, top, right, bottom), paint);\n            gray += 0x001f1f1f;\n            top = bottom;\n        }\n        left = right;\n    }\n    const int xDivs[] = { center.fLeft, center.fRight };\n    const int yDivs[] = { center.fTop, center.fBottom };\n    SkCanvas::Lattice::RectType fillTypes[3][3];\n    memset(fillTypes, 0, sizeof(fillTypes));\n    fillTypes[1][1] = SkCanvas::Lattice::kTransparent;\n    SkColor dummy[9];  // temporary pending bug fix\n    SkCanvas::Lattice lattice = { xDivs, yDivs, fillTypes[0], SK_ARRAY_COUNT(xDivs),\n         SK_ARRAY_COUNT(yDivs), nullptr, dummy };\n    for (auto dest: { 20, 30, 40, 60, 90 } ) {\n        canvas->drawBitmapLattice(bitmap, lattice, SkRect::MakeWH(dest, 110 - dest), nullptr);\n        canvas->translate(dest + 4, 0);\n    }\n}\n",
     "width": 256,
     "height": 128,
-    "hash": "7a02b16a4cc8158d88858a76907c9d89",
+    "hash": "c5bfa944e17ba4a4400dc799f032069c",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawBitmapLattice"
 },
     "SkCanvas_drawBitmapNine": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkIRect center = { 20, 10, 50, 40 };\n    SkBitmap bitmap;\n    bitmap.allocPixels(SkImageInfo::MakeN32Premul(60, 60));\n    SkCanvas bitCanvas(bitmap);\n    SkPaint paint;\n    SkColor gray = 0xFF000000;\n    int left = 0;\n    for (auto right: { center.fLeft, center.fRight, bitmap.width() } ) {\n        int top = 0;\n        for (auto bottom: { center.fTop, center.fBottom, bitmap.height() } ) {\n            paint.setColor(gray);\n            bitCanvas.drawIRect(SkIRect::MakeLTRB(left, top, right, bottom), paint);\n            gray += 0x001f1f1f;\n            top = bottom;\n        }\n        left = right; \n    }\n    for (auto dest: { 20, 30, 40, 60, 90 } ) {\n        canvas->drawBitmapNine(bitmap, center, SkRect::MakeWH(dest, 110 - dest), nullptr);\n        canvas->translate(dest + 4, 0);\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkIRect center = { 20, 10, 50, 40 };\n    SkBitmap bitmap;\n    bitmap.allocPixels(SkImageInfo::MakeN32Premul(60, 60));\n    SkCanvas bitCanvas(bitmap);\n    SkPaint paint;\n    SkColor gray = 0xFF000000;\n    int left = 0;\n    for (auto right: { center.fLeft, center.fRight, bitmap.width() } ) {\n        int top = 0;\n        for (auto bottom: { center.fTop, center.fBottom, bitmap.height() } ) {\n            paint.setColor(gray);\n            bitCanvas.drawIRect(SkIRect::MakeLTRB(left, top, right, bottom), paint);\n            gray += 0x001f1f1f;\n            top = bottom;\n        }\n        left = right;\n    }\n    for (auto dest: { 20, 30, 40, 60, 90 } ) {\n        canvas->drawBitmapNine(bitmap, center, SkRect::MakeWH(dest, 110 - dest), nullptr);\n        canvas->translate(dest + 4, 0);\n    }\n}\n",
     "width": 256,
     "height": 128,
-    "hash": "a4a30aa10e566a85fe6f6cad2ff9935b",
+    "hash": "e99e7be0d8f67dfacbecf85df585433d",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawBitmapNine"
 },
     "SkCanvas_drawBitmapRect": {
-    "code": "void draw(SkCanvas* canvas) {\n    uint8_t pixels[][8] = { { 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00},\n                            { 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00},\n                            { 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00},\n                            { 0xFF, 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0xFF, 0xFF},\n                            { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},\n                            { 0x00, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0x00, 0x00},\n                            { 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00},\n                            { 0x00, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0x00, 0x00} };\n    SkBitmap bitmap;\n    bitmap.installPixels(SkImageInfo::MakeA8(8, 8), \n            (void*) pixels, sizeof(pixels[0]));\n    SkPaint paint;\n    paint.setMaskFilter(SkMaskFilter::MakeBlur(kSolid_SkBlurStyle, 6));\n    for (auto color : { SK_ColorRED, SK_ColorBLUE, 0xFF007F00} ) {\n        paint.setColor(color);\n        canvas->drawBitmapRect(bitmap, SkRect::MakeWH(8, 8), SkRect::MakeWH(32, 32), &paint);\n        canvas->translate(48, 0);\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    uint8_t pixels[][8] = { { 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00},\n                            { 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00},\n                            { 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00},\n                            { 0xFF, 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0xFF, 0xFF},\n                            { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},\n                            { 0x00, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0x00, 0x00},\n                            { 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00},\n                            { 0x00, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0x00, 0x00} };\n    SkBitmap bitmap;\n    bitmap.installPixels(SkImageInfo::MakeA8(8, 8),\n            (void*) pixels, sizeof(pixels[0]));\n    SkPaint paint;\n    paint.setMaskFilter(SkMaskFilter::MakeBlur(kSolid_SkBlurStyle, 6));\n    for (auto color : { SK_ColorRED, SK_ColorBLUE, 0xFF007F00} ) {\n        paint.setColor(color);\n        canvas->drawBitmapRect(bitmap, SkRect::MakeWH(8, 8), SkRect::MakeWH(32, 32), &paint);\n        canvas->translate(48, 0);\n    }\n}\n",
     "width": 256,
     "height": 64,
-    "hash": "4be3c8406a350bc3429a69e5c1daa8cd",
+    "hash": "7d04932f2a259cc70d6e45cd25a6feb6",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawBitmapRect"
 },
     "SkCanvas_drawBitmapRect_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    uint8_t pixels[][8] = { { 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00},\n                            { 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00},\n                            { 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0xFF},\n                            { 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0xFF},\n                            { 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00, 0xFF},\n                            { 0xFF, 0x00, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0xFF},\n                            { 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00},\n                            { 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00} };\n    SkBitmap bitmap;\n    bitmap.installPixels(SkImageInfo::MakeA8(8, 8), \n            (void*) pixels, sizeof(pixels[0]));\n    SkPaint paint;\n    paint.setFilterQuality(kHigh_SkFilterQuality);\n    for (auto color : { SK_ColorRED, SK_ColorBLUE, 0xFF007F00, 0xFF7f007f} ) {\n        paint.setColor(color);\n        canvas->drawBitmapRect(bitmap, SkIRect::MakeWH(8, 8), SkRect::MakeWH(32, 32), &paint);\n        canvas->translate(48.25f, 0);\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    uint8_t pixels[][8] = { { 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00},\n                            { 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00},\n                            { 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0xFF},\n                            { 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0xFF},\n                            { 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00, 0xFF},\n                            { 0xFF, 0x00, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0xFF},\n                            { 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00},\n                            { 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00} };\n    SkBitmap bitmap;\n    bitmap.installPixels(SkImageInfo::MakeA8(8, 8),\n            (void*) pixels, sizeof(pixels[0]));\n    SkPaint paint;\n    paint.setFilterQuality(kHigh_SkFilterQuality);\n    for (auto color : { SK_ColorRED, SK_ColorBLUE, 0xFF007F00, 0xFF7f007f} ) {\n        paint.setColor(color);\n        canvas->drawBitmapRect(bitmap, SkIRect::MakeWH(8, 8), SkRect::MakeWH(32, 32), &paint);\n        canvas->translate(48.25f, 0);\n    }\n}\n",
     "width": 256,
     "height": 64,
-    "hash": "69b028ef1f95c355672fbdcbf47550f2",
+    "hash": "0a3c6d2459566e58cee7d4910655ee21",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawBitmapRect_2"
 },
     "SkCanvas_drawBitmapRect_3": {
-    "code": "void draw(SkCanvas* canvas) {\n    uint32_t pixels[][2] = { { 0x00000000, 0x55550000},\n                             { 0xAAAA0000, 0xFFFF0000} };\n    SkBitmap bitmap;\n    bitmap.installPixels(SkImageInfo::MakeN32Premul(2, 2), \n            (void*) pixels, sizeof(pixels[0]));\n    SkPaint paint;\n    canvas->scale(4, 4);\n    for (auto color : { SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN } ) {\n        paint.setColorFilter(SkColorFilter::MakeModeFilter(color, SkBlendMode::kPlus));\n        canvas->drawBitmapRect(bitmap, SkRect::MakeWH(8, 8), &paint);\n        canvas->translate(8, 0);\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    uint32_t pixels[][2] = { { 0x00000000, 0x55550000},\n                             { 0xAAAA0000, 0xFFFF0000} };\n    SkBitmap bitmap;\n    bitmap.installPixels(SkImageInfo::MakeN32Premul(2, 2),\n            (void*) pixels, sizeof(pixels[0]));\n    SkPaint paint;\n    canvas->scale(4, 4);\n    for (auto color : { SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN } ) {\n        paint.setColorFilter(SkColorFilter::MakeModeFilter(color, SkBlendMode::kPlus));\n        canvas->drawBitmapRect(bitmap, SkRect::MakeWH(8, 8), &paint);\n        canvas->translate(8, 0);\n    }\n}\n",
     "width": 256,
     "height": 64,
-    "hash": "76b74b826e43b4a595d18115564e88c7",
+    "hash": "bdbeac3c97f60a63987b1cc8e1f1e91e",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawBitmapRect_3"
 },
@@ -4484,42 +4470,42 @@
     "name": "SkCanvas::drawImage"
 },
     "SkCanvas_drawImageLattice": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkIRect center = { 20, 10, 50, 40 };\n    SkBitmap bitmap;\n    bitmap.allocPixels(SkImageInfo::MakeN32Premul(60, 60));\n    SkCanvas bitCanvas(bitmap);\n    SkPaint paint;\n    SkColor gray = 0xFF000000;\n    int left = 0;\n    for (auto right: { center.fLeft, center.fRight, bitmap.width() } ) {\n        int top = 0;\n        for (auto bottom: { center.fTop, center.fBottom, bitmap.height() } ) {\n            paint.setColor(gray);\n            bitCanvas.drawIRect(SkIRect::MakeLTRB(left, top, right, bottom), paint);\n            gray += 0x001f1f1f;\n            top = bottom;\n        }\n        left = right; \n    }\n    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);\n    SkImage* imagePtr = image.get();\n    for (auto dest: { 20, 30, 40, 60, 90 } ) {\n        canvas->drawImageNine(imagePtr, center, SkRect::MakeWH(dest, dest), nullptr);\n        canvas->translate(dest + 4, 0);\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkIRect center = { 20, 10, 50, 40 };\n    SkBitmap bitmap;\n    bitmap.allocPixels(SkImageInfo::MakeN32Premul(60, 60));\n    SkCanvas bitCanvas(bitmap);\n    SkPaint paint;\n    SkColor gray = 0xFF000000;\n    int left = 0;\n    for (auto right: { center.fLeft, center.fRight, bitmap.width() } ) {\n        int top = 0;\n        for (auto bottom: { center.fTop, center.fBottom, bitmap.height() } ) {\n            paint.setColor(gray);\n            bitCanvas.drawIRect(SkIRect::MakeLTRB(left, top, right, bottom), paint);\n            gray += 0x001f1f1f;\n            top = bottom;\n        }\n        left = right;\n    }\n    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);\n    SkImage* imagePtr = image.get();\n    for (auto dest: { 20, 30, 40, 60, 90 } ) {\n        canvas->drawImageNine(imagePtr, center, SkRect::MakeWH(dest, dest), nullptr);\n        canvas->translate(dest + 4, 0);\n    }\n}\n",
     "width": 256,
     "height": 128,
-    "hash": "47f78f3f70ccd9e6c40ee3203a5c71dd",
+    "hash": "4f153cf1d0dbe1a95acf5badeec14dae",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawImageLattice"
 },
     "SkCanvas_drawImageNine": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkIRect center = { 20, 10, 50, 40 };\n    SkBitmap bitmap;\n    bitmap.allocPixels(SkImageInfo::MakeN32Premul(60, 60));\n    SkCanvas bitCanvas(bitmap);\n    SkPaint paint;\n    SkColor gray = 0xFF000000;\n    int left = 0;\n    for (auto right: { center.fLeft, center.fRight, bitmap.width() } ) {\n        int top = 0;\n        for (auto bottom: { center.fTop, center.fBottom, bitmap.height() } ) {\n            paint.setColor(gray);\n            bitCanvas.drawIRect(SkIRect::MakeLTRB(left, top, right, bottom), paint);\n            gray += 0x001f1f1f;\n            top = bottom;\n        }\n        left = right; \n    }\n    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);\n    SkImage* imagePtr = image.get();\n    for (auto dest: { 20, 30, 40, 60, 90 } ) {\n        canvas->drawImageNine(imagePtr, center, SkRect::MakeWH(dest, dest), nullptr);\n        canvas->translate(dest + 4, 0);\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkIRect center = { 20, 10, 50, 40 };\n    SkBitmap bitmap;\n    bitmap.allocPixels(SkImageInfo::MakeN32Premul(60, 60));\n    SkCanvas bitCanvas(bitmap);\n    SkPaint paint;\n    SkColor gray = 0xFF000000;\n    int left = 0;\n    for (auto right: { center.fLeft, center.fRight, bitmap.width() } ) {\n        int top = 0;\n        for (auto bottom: { center.fTop, center.fBottom, bitmap.height() } ) {\n            paint.setColor(gray);\n            bitCanvas.drawIRect(SkIRect::MakeLTRB(left, top, right, bottom), paint);\n            gray += 0x001f1f1f;\n            top = bottom;\n        }\n        left = right;\n    }\n    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);\n    SkImage* imagePtr = image.get();\n    for (auto dest: { 20, 30, 40, 60, 90 } ) {\n        canvas->drawImageNine(imagePtr, center, SkRect::MakeWH(dest, dest), nullptr);\n        canvas->translate(dest + 4, 0);\n    }\n}\n",
     "width": 256,
     "height": 128,
-    "hash": "47f78f3f70ccd9e6c40ee3203a5c71dd",
+    "hash": "4f153cf1d0dbe1a95acf5badeec14dae",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawImageNine"
 },
     "SkCanvas_drawImageNine_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkIRect center = { 20, 10, 50, 40 };\n    SkBitmap bitmap;\n    bitmap.allocPixels(SkImageInfo::MakeN32Premul(60, 60));\n    SkCanvas bitCanvas(bitmap);\n    SkPaint paint;\n    SkColor gray = 0xFF000000;\n    int left = 0;\n    for (auto right: { center.fLeft, center.fRight, bitmap.width() } ) {\n        int top = 0;\n        for (auto bottom: { center.fTop, center.fBottom, bitmap.height() } ) {\n            paint.setColor(gray);\n            bitCanvas.drawIRect(SkIRect::MakeLTRB(left, top, right, bottom), paint);\n            gray += 0x001f1f1f;\n            top = bottom;\n        }\n        left = right; \n    }\n    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);\n    for (auto dest: { 20, 30, 40, 60, 90 } ) {\n        canvas->drawImageNine(image, center, SkRect::MakeWH(dest, 110 - dest), nullptr);\n        canvas->translate(dest + 4, 0);\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkIRect center = { 20, 10, 50, 40 };\n    SkBitmap bitmap;\n    bitmap.allocPixels(SkImageInfo::MakeN32Premul(60, 60));\n    SkCanvas bitCanvas(bitmap);\n    SkPaint paint;\n    SkColor gray = 0xFF000000;\n    int left = 0;\n    for (auto right: { center.fLeft, center.fRight, bitmap.width() } ) {\n        int top = 0;\n        for (auto bottom: { center.fTop, center.fBottom, bitmap.height() } ) {\n            paint.setColor(gray);\n            bitCanvas.drawIRect(SkIRect::MakeLTRB(left, top, right, bottom), paint);\n            gray += 0x001f1f1f;\n            top = bottom;\n        }\n        left = right;\n    }\n    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);\n    for (auto dest: { 20, 30, 40, 60, 90 } ) {\n        canvas->drawImageNine(image, center, SkRect::MakeWH(dest, 110 - dest), nullptr);\n        canvas->translate(dest + 4, 0);\n    }\n}\n",
     "width": 256,
     "height": 128,
-    "hash": "e941e553970569d1ffb03a42f7fcd6d9",
+    "hash": "d597d9af8d17fd93e634dd12017058e2",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawImageNine_2"
 },
     "SkCanvas_drawImageRect": {
-    "code": "void draw(SkCanvas* canvas) {\n    uint32_t pixels[][4] = { \n            { 0xFFFF0000, 0xFFFF0000, 0xFFFF0000, 0xFFFF0000 },\n            { 0xFFFF0000, 0xFF000000, 0xFFFFFFFF, 0xFFFF0000 },\n            { 0xFFFF0000, 0xFFFFFFFF, 0xFF000000, 0xFFFF0000 },\n            { 0xFFFF0000, 0xFFFF0000, 0xFFFF0000, 0xFFFF0000 } };\n    SkBitmap redBorder;\n    redBorder.installPixels(SkImageInfo::MakeN32Premul(4, 4), \n            (void*) pixels, sizeof(pixels[0]));\n    sk_sp<SkImage> image = SkImage::MakeFromBitmap(redBorder);\n    SkPaint lowPaint;\n    for (auto constraint : {\n            SkCanvas::kFast_SrcRectConstraint,\n            SkCanvas::kStrict_SrcRectConstraint,\n            SkCanvas::kFast_SrcRectConstraint } ) {\n        canvas->drawImageRect(image.get(), SkRect::MakeLTRB(1, 1, 3, 3),\n                SkRect::MakeLTRB(16, 16, 48, 48), &lowPaint, constraint);\n        lowPaint.setFilterQuality(kLow_SkFilterQuality);\n        canvas->translate(80, 0);\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    uint32_t pixels[][4] = {\n            { 0xFFFF0000, 0xFFFF0000, 0xFFFF0000, 0xFFFF0000 },\n            { 0xFFFF0000, 0xFF000000, 0xFFFFFFFF, 0xFFFF0000 },\n            { 0xFFFF0000, 0xFFFFFFFF, 0xFF000000, 0xFFFF0000 },\n            { 0xFFFF0000, 0xFFFF0000, 0xFFFF0000, 0xFFFF0000 } };\n    SkBitmap redBorder;\n    redBorder.installPixels(SkImageInfo::MakeN32Premul(4, 4),\n            (void*) pixels, sizeof(pixels[0]));\n    sk_sp<SkImage> image = SkImage::MakeFromBitmap(redBorder);\n    SkPaint lowPaint;\n    for (auto constraint : {\n            SkCanvas::kFast_SrcRectConstraint,\n            SkCanvas::kStrict_SrcRectConstraint,\n            SkCanvas::kFast_SrcRectConstraint } ) {\n        canvas->drawImageRect(image.get(), SkRect::MakeLTRB(1, 1, 3, 3),\n                SkRect::MakeLTRB(16, 16, 48, 48), &lowPaint, constraint);\n        lowPaint.setFilterQuality(kLow_SkFilterQuality);\n        canvas->translate(80, 0);\n    }\n}\n",
     "width": 256,
     "height": 64,
-    "hash": "2b01c707ef8b5ce3023b7a1d55fce059",
+    "hash": "bfd18e9cac896cdf94c9f154ccf94be8",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawImageRect"
 },
     "SkCanvas_drawImageRect_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    // sk_sp<SkImage> image;\n    for (auto i : { 1, 2, 4, 8 } ) {\n        canvas->drawImageRect(image.get(), SkIRect::MakeLTRB(0, 0, 100, 100), \n                SkRect::MakeXYWH(i * 20, i * 20, i * 20, i * 20), nullptr);\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    // sk_sp<SkImage> image;\n    for (auto i : { 1, 2, 4, 8 } ) {\n        canvas->drawImageRect(image.get(), SkIRect::MakeLTRB(0, 0, 100, 100),\n                SkRect::MakeXYWH(i * 20, i * 20, i * 20, i * 20), nullptr);\n    }\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "b63b8f9f587b8d918973dc065ce4a593",
+    "hash": "7f92cd5c9b9f4b1ac3cd933b08037bfe",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawImageRect_2"
 },
@@ -4532,26 +4518,26 @@
     "name": "SkCanvas::drawImageRect_3"
 },
     "SkCanvas_drawImageRect_4": {
-    "code": "void draw(SkCanvas* canvas) {\n    uint32_t pixels[][2] = { { SK_ColorBLACK, SK_ColorWHITE },\n                             { SK_ColorWHITE, SK_ColorBLACK } };\n    SkBitmap bitmap;\n    bitmap.installPixels(SkImageInfo::MakeN32Premul(2, 2), \n            (void*) pixels, sizeof(pixels[0]));\n    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);\n    SkPaint paint;\n    canvas->scale(4, 4);\n    for (auto alpha : { 50, 100, 150, 255 } ) {\n        paint.setAlpha(alpha);\n        canvas->drawImageRect(image, SkRect::MakeWH(2, 2), SkRect::MakeWH(8, 8), &paint);\n        canvas->translate(8, 0);\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    uint32_t pixels[][2] = { { SK_ColorBLACK, SK_ColorWHITE },\n                             { SK_ColorWHITE, SK_ColorBLACK } };\n    SkBitmap bitmap;\n    bitmap.installPixels(SkImageInfo::MakeN32Premul(2, 2),\n            (void*) pixels, sizeof(pixels[0]));\n    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);\n    SkPaint paint;\n    canvas->scale(4, 4);\n    for (auto alpha : { 50, 100, 150, 255 } ) {\n        paint.setAlpha(alpha);\n        canvas->drawImageRect(image, SkRect::MakeWH(2, 2), SkRect::MakeWH(8, 8), &paint);\n        canvas->translate(8, 0);\n    }\n}\n",
     "width": 256,
     "height": 64,
-    "hash": "589999454db90c573f7facfb007253a7",
+    "hash": "d4b35a9d24c32c042bd1f529b8de3c0d",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawImageRect_4"
 },
     "SkCanvas_drawImageRect_5": {
-    "code": "void draw(SkCanvas* canvas) {\n    uint32_t pixels[][2] = { { 0x00000000, 0x55555555},\n                             { 0xAAAAAAAA, 0xFFFFFFFF} };\n    SkBitmap bitmap;\n    bitmap.installPixels(SkImageInfo::MakeN32Premul(2, 2), \n            (void*) pixels, sizeof(pixels[0]));\n    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);\n    SkPaint paint;\n    canvas->scale(4, 4);\n    for (auto color : { SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN } ) {\n        paint.setColorFilter(SkColorFilter::MakeModeFilter(color, SkBlendMode::kPlus));\n        canvas->drawImageRect(image, SkIRect::MakeWH(2, 2), SkRect::MakeWH(8, 8), &paint);\n        canvas->translate(8, 0);\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    uint32_t pixels[][2] = { { 0x00000000, 0x55555555},\n                             { 0xAAAAAAAA, 0xFFFFFFFF} };\n    SkBitmap bitmap;\n    bitmap.installPixels(SkImageInfo::MakeN32Premul(2, 2),\n            (void*) pixels, sizeof(pixels[0]));\n    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);\n    SkPaint paint;\n    canvas->scale(4, 4);\n    for (auto color : { SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN } ) {\n        paint.setColorFilter(SkColorFilter::MakeModeFilter(color, SkBlendMode::kPlus));\n        canvas->drawImageRect(image, SkIRect::MakeWH(2, 2), SkRect::MakeWH(8, 8), &paint);\n        canvas->translate(8, 0);\n    }\n}\n",
     "width": 256,
     "height": 64,
-    "hash": "249fadde5d0d0fc515e9f53f188af48b",
+    "hash": "d307e7e1237f39fb54d80723e5449857",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawImageRect_5"
 },
     "SkCanvas_drawImageRect_6": {
-    "code": "void draw(SkCanvas* canvas) {\n    uint32_t pixels[][2] = { { 0x00000000, 0x55550000},\n                             { 0xAAAA0000, 0xFFFF0000} };\n    SkBitmap bitmap;\n    bitmap.installPixels(SkImageInfo::MakeN32Premul(2, 2), \n            (void*) pixels, sizeof(pixels[0]));\n    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);\n    SkPaint paint;\n    canvas->scale(4, 4);\n    for (auto color : { SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN } ) {\n        paint.setColorFilter(SkColorFilter::MakeModeFilter(color, SkBlendMode::kPlus));\n        canvas->drawImageRect(image, SkRect::MakeWH(8, 8), &paint);\n        canvas->translate(8, 0);\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    uint32_t pixels[][2] = { { 0x00000000, 0x55550000},\n                             { 0xAAAA0000, 0xFFFF0000} };\n    SkBitmap bitmap;\n    bitmap.installPixels(SkImageInfo::MakeN32Premul(2, 2),\n            (void*) pixels, sizeof(pixels[0]));\n    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);\n    SkPaint paint;\n    canvas->scale(4, 4);\n    for (auto color : { SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN } ) {\n        paint.setColorFilter(SkColorFilter::MakeModeFilter(color, SkBlendMode::kPlus));\n        canvas->drawImageRect(image, SkRect::MakeWH(8, 8), &paint);\n        canvas->translate(8, 0);\n    }\n}\n",
     "width": 256,
     "height": 64,
-    "hash": "37a85bd2247487c7af584e42c1cabe4a",
+    "hash": "3a47ef94cb70144455f80333d8653e6c",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawImageRect_6"
 },
@@ -4620,42 +4606,42 @@
     "name": "SkCanvas::drawPatch_2_2"
 },
     "SkCanvas_drawPath": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPath path;\n    path.moveTo(20, 20);\n    path.quadTo(60, 20, 60, 60);\n    path.close();\n    path.moveTo(60, 20);\n    path.quadTo(60, 60, 20, 60);\n    SkPaint paint;\n    paint.setStrokeWidth(10);\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    for (auto join: { SkPaint::kBevel_Join, SkPaint::kRound_Join, SkPaint::kMiter_Join } ) {\n        paint.setStrokeJoin(join);\n        for (auto cap: { SkPaint::kButt_Cap, SkPaint::kSquare_Cap, SkPaint::kRound_Cap  } ) {\n            paint.setStrokeCap(cap);\n            canvas->drawPath(path, paint);\n            canvas->translate(80, 0);\n        }\n        canvas->translate(-240, 60);\n    }\n    paint.setStyle(SkPaint::kFill_Style);\n    for (auto fill : { SkPath::kWinding_FillType, \n                       SkPath::kEvenOdd_FillType, \n                       SkPath::kInverseWinding_FillType } ) {\n        path.setFillType(fill);\n        canvas->save();\n        canvas->clipRect({0, 10, 80, 70});\n        canvas->drawPath(path, paint);\n        canvas->restore();\n        canvas->translate(80, 0);\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPath path;\n    path.moveTo(20, 20);\n    path.quadTo(60, 20, 60, 60);\n    path.close();\n    path.moveTo(60, 20);\n    path.quadTo(60, 60, 20, 60);\n    SkPaint paint;\n    paint.setStrokeWidth(10);\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    for (auto join: { SkPaint::kBevel_Join, SkPaint::kRound_Join, SkPaint::kMiter_Join } ) {\n        paint.setStrokeJoin(join);\n        for (auto cap: { SkPaint::kButt_Cap, SkPaint::kSquare_Cap, SkPaint::kRound_Cap  } ) {\n            paint.setStrokeCap(cap);\n            canvas->drawPath(path, paint);\n            canvas->translate(80, 0);\n        }\n        canvas->translate(-240, 60);\n    }\n    paint.setStyle(SkPaint::kFill_Style);\n    for (auto fill : { SkPath::kWinding_FillType,\n                       SkPath::kEvenOdd_FillType,\n                       SkPath::kInverseWinding_FillType } ) {\n        path.setFillType(fill);\n        canvas->save();\n        canvas->clipRect({0, 10, 80, 70});\n        canvas->drawPath(path, paint);\n        canvas->restore();\n        canvas->translate(80, 0);\n    }\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "d489555a878cb2ab08eea5faf516f54e",
+    "hash": "fe2294131f422b8d6752f6a880f98ad9",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawPath"
 },
     "SkCanvas_drawPicture": {
-    "code": "void draw(SkCanvas* canvas) {  \n    SkPictureRecorder recorder;\n    SkCanvas* recordingCanvas = recorder.beginRecording(50, 50);\n    for (auto color : { SK_ColorRED, SK_ColorBLUE, 0xff007f00 } ) {\n        SkPaint paint;\n        paint.setColor(color);\n        recordingCanvas->drawRect({10, 10, 30, 40}, paint);\n        recordingCanvas->translate(10, 10);\n        recordingCanvas->scale(1.2f, 1.4f);\n    }\n    sk_sp<SkPicture> playback = recorder.finishRecordingAsPicture();\n    canvas->drawPicture(playback);\n    canvas->scale(2, 2);\n    canvas->translate(50, 0);\n    canvas->drawPicture(playback);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPictureRecorder recorder;\n    SkCanvas* recordingCanvas = recorder.beginRecording(50, 50);\n    for (auto color : { SK_ColorRED, SK_ColorBLUE, 0xff007f00 } ) {\n        SkPaint paint;\n        paint.setColor(color);\n        recordingCanvas->drawRect({10, 10, 30, 40}, paint);\n        recordingCanvas->translate(10, 10);\n        recordingCanvas->scale(1.2f, 1.4f);\n    }\n    sk_sp<SkPicture> playback = recorder.finishRecordingAsPicture();\n    canvas->drawPicture(playback);\n    canvas->scale(2, 2);\n    canvas->translate(50, 0);\n    canvas->drawPicture(playback);\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "a7373b01354dda73dafe8718f4fd0cfc",
+    "hash": "83918a23fcffd47f59a1ef662c85a24c",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawPicture"
 },
     "SkCanvas_drawPicture_2": {
-    "code": "void draw(SkCanvas* canvas) {  \n    SkPictureRecorder recorder;\n    SkCanvas* recordingCanvas = recorder.beginRecording(50, 50);\n    for (auto color : { SK_ColorRED, SK_ColorBLUE, 0xff007f00 } ) {\n        SkPaint paint;\n        paint.setColor(color);\n        recordingCanvas->drawRect({10, 10, 30, 40}, paint);\n        recordingCanvas->translate(10, 10);\n        recordingCanvas->scale(1.2f, 1.4f);\n    }\n    sk_sp<SkPicture> playback = recorder.finishRecordingAsPicture();\n    canvas->drawPicture(playback);\n    canvas->scale(2, 2);\n    canvas->translate(50, 0);\n    canvas->drawPicture(playback);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPictureRecorder recorder;\n    SkCanvas* recordingCanvas = recorder.beginRecording(50, 50);\n    for (auto color : { SK_ColorRED, SK_ColorBLUE, 0xff007f00 } ) {\n        SkPaint paint;\n        paint.setColor(color);\n        recordingCanvas->drawRect({10, 10, 30, 40}, paint);\n        recordingCanvas->translate(10, 10);\n        recordingCanvas->scale(1.2f, 1.4f);\n    }\n    sk_sp<SkPicture> playback = recorder.finishRecordingAsPicture();\n    canvas->drawPicture(playback);\n    canvas->scale(2, 2);\n    canvas->translate(50, 0);\n    canvas->drawPicture(playback);\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "a7373b01354dda73dafe8718f4fd0cfc",
+    "hash": "83918a23fcffd47f59a1ef662c85a24c",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawPicture_2"
 },
     "SkCanvas_drawPicture_3": {
-    "code": "void draw(SkCanvas* canvas) {  \n    SkPaint paint;\n    SkPictureRecorder recorder;\n    SkCanvas* recordingCanvas = recorder.beginRecording(50, 50);\n    for (auto color : { SK_ColorRED, SK_ColorBLUE, 0xff007f00 } ) {\n        paint.setColor(color);\n        recordingCanvas->drawRect({10, 10, 30, 40}, paint);\n        recordingCanvas->translate(10, 10);\n        recordingCanvas->scale(1.2f, 1.4f);\n    }\n    sk_sp<SkPicture> playback = recorder.finishRecordingAsPicture();\n    const SkPicture* playbackPtr = playback.get();\n    SkMatrix matrix;\n    matrix.reset();\n    for (auto alpha : { 70, 140, 210 } ) {\n    paint.setAlpha(alpha);\n    canvas->drawPicture(playbackPtr, &matrix, &paint);\n    matrix.preTranslate(70, 70);\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkPictureRecorder recorder;\n    SkCanvas* recordingCanvas = recorder.beginRecording(50, 50);\n    for (auto color : { SK_ColorRED, SK_ColorBLUE, 0xff007f00 } ) {\n        paint.setColor(color);\n        recordingCanvas->drawRect({10, 10, 30, 40}, paint);\n        recordingCanvas->translate(10, 10);\n        recordingCanvas->scale(1.2f, 1.4f);\n    }\n    sk_sp<SkPicture> playback = recorder.finishRecordingAsPicture();\n    const SkPicture* playbackPtr = playback.get();\n    SkMatrix matrix;\n    matrix.reset();\n    for (auto alpha : { 70, 140, 210 } ) {\n    paint.setAlpha(alpha);\n    canvas->drawPicture(playbackPtr, &matrix, &paint);\n    matrix.preTranslate(70, 70);\n    }\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "4ec028d8ffa0a6ae1a99ff8d094b02bc",
+    "hash": "759e4e5bac680838added8f70884dcdc",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawPicture_3"
 },
     "SkCanvas_drawPicture_4": {
-    "code": "void draw(SkCanvas* canvas) {  \n    SkPaint paint;\n    SkPictureRecorder recorder;\n    SkCanvas* recordingCanvas = recorder.beginRecording(50, 50);\n    for (auto color : { SK_ColorRED, SK_ColorBLUE, 0xff007f00 } ) {\n        paint.setColor(color);\n        recordingCanvas->drawRect({10, 10, 30, 40}, paint);\n        recordingCanvas->translate(10, 10);\n        recordingCanvas->scale(1.2f, 1.4f);\n    }\n    sk_sp<SkPicture> playback = recorder.finishRecordingAsPicture();\n    SkMatrix matrix;\n    matrix.reset();\n    for (auto alpha : { 70, 140, 210 } ) {\n    paint.setAlpha(alpha);\n    canvas->drawPicture(playback, &matrix, &paint);\n    matrix.preTranslate(70, 70);\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkPictureRecorder recorder;\n    SkCanvas* recordingCanvas = recorder.beginRecording(50, 50);\n    for (auto color : { SK_ColorRED, SK_ColorBLUE, 0xff007f00 } ) {\n        paint.setColor(color);\n        recordingCanvas->drawRect({10, 10, 30, 40}, paint);\n        recordingCanvas->translate(10, 10);\n        recordingCanvas->scale(1.2f, 1.4f);\n    }\n    sk_sp<SkPicture> playback = recorder.finishRecordingAsPicture();\n    SkMatrix matrix;\n    matrix.reset();\n    for (auto alpha : { 70, 140, 210 } ) {\n    paint.setAlpha(alpha);\n    canvas->drawPicture(playback, &matrix, &paint);\n    matrix.preTranslate(70, 70);\n    }\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "7295eb14091e98565cec0353661a6a7d",
+    "hash": "c4ff59439dd2fc871925d4eeb0c84ca1",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawPicture_4"
 },
@@ -4676,10 +4662,10 @@
     "name": "SkCanvas::drawPoint_2"
 },
     "SkCanvas_drawPoints": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(10);\n    paint.setColor(0x80349a45);\n    const SkPoint points[] = {{32, 16}, {48, 48}, {16, 32}};\n    const SkPaint::Join join[] = { SkPaint::kRound_Join, \n                                   SkPaint::kMiter_Join,\n                                   SkPaint::kBevel_Join };\n    int joinIndex = 0;\n    SkPath path;\n    path.addPoly(points, 3, false);\n    for (const auto cap : { SkPaint::kRound_Cap, SkPaint::kSquare_Cap, SkPaint::kButt_Cap } ) {\n        paint.setStrokeCap(cap);\n        paint.setStrokeJoin(join[joinIndex++]);\n        for (const auto mode : { SkCanvas::kPoints_PointMode,\n                                 SkCanvas::kLines_PointMode,\n                                 SkCanvas::kPolygon_PointMode } ) {\n            canvas->drawPoints(mode, 3, points, paint);\n            canvas->translate(64, 0);\n        }\n        canvas->drawPath(path, paint);\n        canvas->translate(-192, 64);\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(10);\n    paint.setColor(0x80349a45);\n    const SkPoint points[] = {{32, 16}, {48, 48}, {16, 32}};\n    const SkPaint::Join join[] = { SkPaint::kRound_Join,\n                                   SkPaint::kMiter_Join,\n                                   SkPaint::kBevel_Join };\n    int joinIndex = 0;\n    SkPath path;\n    path.addPoly(points, 3, false);\n    for (const auto cap : { SkPaint::kRound_Cap, SkPaint::kSquare_Cap, SkPaint::kButt_Cap } ) {\n        paint.setStrokeCap(cap);\n        paint.setStrokeJoin(join[joinIndex++]);\n        for (const auto mode : { SkCanvas::kPoints_PointMode,\n                                 SkCanvas::kLines_PointMode,\n                                 SkCanvas::kPolygon_PointMode } ) {\n            canvas->drawPoints(mode, 3, points, paint);\n            canvas->translate(64, 0);\n        }\n        canvas->drawPath(path, paint);\n        canvas->translate(-192, 64);\n    }\n}\n",
     "width": 256,
     "height": 200,
-    "hash": "f1dfbb0d5a17c8beab19af29f2aaba8c",
+    "hash": "635d54b4716e226e93dfbc21ad40e77d",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawPoints"
 },
@@ -4700,10 +4686,10 @@
     "name": "SkCanvas::drawPosTextH"
 },
     "SkCanvas_drawRRect": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkRect outer = {30, 40, 210, 220};\n    SkRect radii = {30, 50, 70, 90 };\n    SkRRect rRect;\n    rRect.setNinePatch(outer, radii.fLeft, radii.fTop, radii.fRight, radii.fBottom);\n    canvas->drawRRect(rRect, paint);\n    paint.setColor(SK_ColorWHITE);\n    canvas->drawLine(outer.fLeft + radii.fLeft, outer.fTop,\n                     outer.fLeft + radii.fLeft, outer.fBottom, paint);\n    canvas->drawLine(outer.fRight - radii.fRight, outer.fTop, \n                     outer.fRight - radii.fRight, outer.fBottom, paint);\n    canvas->drawLine(outer.fLeft,  outer.fTop + radii.fTop, \n                     outer.fRight, outer.fTop + radii.fTop, paint);\n    canvas->drawLine(outer.fLeft,  outer.fBottom - radii.fBottom, \n                     outer.fRight, outer.fBottom - radii.fBottom, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkRect outer = {30, 40, 210, 220};\n    SkRect radii = {30, 50, 70, 90 };\n    SkRRect rRect;\n    rRect.setNinePatch(outer, radii.fLeft, radii.fTop, radii.fRight, radii.fBottom);\n    canvas->drawRRect(rRect, paint);\n    paint.setColor(SK_ColorWHITE);\n    canvas->drawLine(outer.fLeft + radii.fLeft, outer.fTop,\n                     outer.fLeft + radii.fLeft, outer.fBottom, paint);\n    canvas->drawLine(outer.fRight - radii.fRight, outer.fTop,\n                     outer.fRight - radii.fRight, outer.fBottom, paint);\n    canvas->drawLine(outer.fLeft,  outer.fTop + radii.fTop,\n                     outer.fRight, outer.fTop + radii.fTop, paint);\n    canvas->drawLine(outer.fLeft,  outer.fBottom - radii.fBottom,\n                     outer.fRight, outer.fBottom - radii.fBottom, paint);\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "369cdbfb2a200d5bb8ae40f7cc1025c3",
+    "hash": "90fed1bb11efb43aada94113338c63d8",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawRRect"
 },
@@ -4748,50 +4734,50 @@
     "name": "SkCanvas::drawString_2"
 },
     "SkCanvas_drawText": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    float textSizes[] = { 12, 18, 24, 36 };\n    for (auto size: textSizes ) {\n        paint.setTextSize(size);\n        canvas->drawText(\"Aa\", 2, 10, 20, paint);\n        canvas->translate(0, size * 2);\n    }\n    paint.reset();\n    paint.setAntiAlias(true);\n    float yPos = 20;\n    for (auto size: textSizes ) {\n        float scale = size / 12.f;\n        canvas->resetMatrix();\n        canvas->translate(100, 0);\n        canvas->scale(scale, scale);\n        canvas->drawText(\"Aa\", 2, 10 / scale, yPos / scale, paint);\n        yPos += size * 2; \n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    float textSizes[] = { 12, 18, 24, 36 };\n    for (auto size: textSizes ) {\n        paint.setTextSize(size);\n        canvas->drawText(\"Aa\", 2, 10, 20, paint);\n        canvas->translate(0, size * 2);\n    }\n    paint.reset();\n    paint.setAntiAlias(true);\n    float yPos = 20;\n    for (auto size: textSizes ) {\n        float scale = size / 12.f;\n        canvas->resetMatrix();\n        canvas->translate(100, 0);\n        canvas->scale(scale, scale);\n        canvas->drawText(\"Aa\", 2, 10 / scale, yPos / scale, paint);\n        yPos += size * 2;\n    }\n}\n",
     "width": 256,
     "height": 200,
-    "hash": "a3365bd3044b13e8e0318ee8aefbdf91",
+    "hash": "55f5e59350622c5e2834d1c85789f732",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawText"
 },
     "SkCanvas_drawTextBlob": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    const char bunny[] = \"/(^x^)\\\\\";\n    const int len = sizeof(bunny) - 1;\n    uint16_t glyphs[len];\n    SkPaint paint;\n    paint.textToGlyphs(bunny, len, glyphs);\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    int runs[] = { 3, 1, 3 };\n    SkPoint textPos = { 20, 100 };\n    int glyphIndex = 0;\n    for (auto runLen : runs) {\n        paint.setTextSize(1 == runLen ? 20 : 50);\n        const SkTextBlobBuilder::RunBuffer& run = \n                textBlobBuilder.allocRun(paint, runLen, textPos.fX, textPos.fY);\n        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n        textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n        glyphIndex += runLen;\n    }\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    paint.reset();\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    const char bunny[] = \"/(^x^)\\\\\";\n    const int len = sizeof(bunny) - 1;\n    uint16_t glyphs[len];\n    SkPaint paint;\n    paint.textToGlyphs(bunny, len, glyphs);\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    int runs[] = { 3, 1, 3 };\n    SkPoint textPos = { 20, 100 };\n    int glyphIndex = 0;\n    for (auto runLen : runs) {\n        paint.setTextSize(1 == runLen ? 20 : 50);\n        const SkTextBlobBuilder::RunBuffer& run =\n                textBlobBuilder.allocRun(paint, runLen, textPos.fX, textPos.fY);\n        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n        textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n        glyphIndex += runLen;\n    }\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    paint.reset();\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n}\n",
     "width": 256,
     "height": 120,
-    "hash": "2254beaa675e3b329dccddca4eeea735",
+    "hash": "5f823814ec9df1f912a2ea943bedfca1",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawTextBlob"
 },
     "SkCanvas_drawTextBlob_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    SkPaint paint;\n    paint.setTextSize(50);\n    paint.setColor(SK_ColorRED);\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    const SkTextBlobBuilder::RunBuffer& run = \n            textBlobBuilder.allocRun(paint, 1, 20, 100);\n    run.glyphs[0] = 20;\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    paint.setTextSize(10);\n    paint.setColor(SK_ColorBLUE);\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    SkPaint paint;\n    paint.setTextSize(50);\n    paint.setColor(SK_ColorRED);\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    const SkTextBlobBuilder::RunBuffer& run =\n            textBlobBuilder.allocRun(paint, 1, 20, 100);\n    run.glyphs[0] = 20;\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    paint.setTextSize(10);\n    paint.setColor(SK_ColorBLUE);\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n}\n",
     "width": 256,
     "height": 120,
-    "hash": "d88b17d85fa68c56b3c1ad02b69068bf",
+    "hash": "af4c69fbbd165c8b0eb0c9bd49ccbd8d",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawTextBlob_2"
 },
     "SkCanvas_drawTextOnPath": {
-    "code": "void draw(SkCanvas* canvas) { \n    const char roller[] = \"rollercoaster\";\n    const size_t len = sizeof(roller) - 1;\n    SkPath path;\n    path.cubicTo(40, -80, 120, 80, 160, -40);\n    SkPaint paint;\n    paint.setTextSize(32);\n    paint.setStyle(SkPaint::kStroke_Style);\n    SkMatrix matrix;\n    matrix.setIdentity();\n    for (int i = 0; i < 3; ++i) {\n        canvas->translate(25, 60);\n        canvas->drawPath(path, paint);\n        canvas->drawTextOnPath(roller, len, path, &matrix, paint);\n        matrix.preTranslate(0, 10);\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    const char roller[] = \"rollercoaster\";\n    const size_t len = sizeof(roller) - 1;\n    SkPath path;\n    path.cubicTo(40, -80, 120, 80, 160, -40);\n    SkPaint paint;\n    paint.setTextSize(32);\n    paint.setStyle(SkPaint::kStroke_Style);\n    SkMatrix matrix;\n    matrix.setIdentity();\n    for (int i = 0; i < 3; ++i) {\n        canvas->translate(25, 60);\n        canvas->drawPath(path, paint);\n        canvas->drawTextOnPath(roller, len, path, &matrix, paint);\n        matrix.preTranslate(0, 10);\n    }\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "0f60797fbdce3d3c71c46b800e6bd6f8",
+    "hash": "236e680b27960ca22641586dba0599c9",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawTextOnPath"
 },
     "SkCanvas_drawTextOnPathHV": {
-    "code": "void draw(SkCanvas* canvas) { \n    const char aero[] = \"correo a\" \"\\xC3\" \"\\xA9\" \"reo\";\n    const size_t len = sizeof(aero) - 1;\n    SkPath path;\n    path.addOval({43-26, 43-26, 43+26, 43+26}, SkPath::kCW_Direction, 3);\n    SkPaint paint;\n    paint.setTextSize(24);\n    for (auto offset : { 0, 10, 20 } ) {\n        canvas->drawTextOnPathHV(aero, len, path, 0, -offset, paint);\n        canvas->translate(70 + offset, 70 + offset);\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    const char aero[] = \"correo a\" \"\\xC3\" \"\\xA9\" \"reo\";\n    const size_t len = sizeof(aero) - 1;\n    SkPath path;\n    path.addOval({43-26, 43-26, 43+26, 43+26}, SkPath::kCW_Direction, 3);\n    SkPaint paint;\n    paint.setTextSize(24);\n    for (auto offset : { 0, 10, 20 } ) {\n        canvas->drawTextOnPathHV(aero, len, path, 0, -offset, paint);\n        canvas->translate(70 + offset, 70 + offset);\n    }\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "25cc5452156d7f06e85f514913d46b5c",
+    "hash": "b2f22d1d5041e55d6913aab52f73a7d3",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawTextOnPathHV"
 },
     "SkCanvas_drawTextRSXform": {
-    "code": "void draw(SkCanvas* canvas) {  \n    const int iterations = 26;\n    SkRSXform transforms[iterations];\n    char alphabet[iterations];\n    SkScalar angle = 0;\n    SkScalar scale = 1;\n    for (size_t i = 0; i < SK_ARRAY_COUNT(transforms); ++i) {\n        const SkScalar s = SkScalarSin(angle) * scale;\n        const SkScalar c = SkScalarCos(angle) * scale;\n        transforms[i] = SkRSXform::Make(-c, -s, -s * 16, c * 16);\n        angle += .45;\n        scale += .2;\n        alphabet[i] = 'A' + i;\n    }\n    SkPaint paint;\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    canvas->translate(110, 138);\n    canvas->drawTextRSXform(alphabet, sizeof(alphabet), transforms, nullptr, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    const int iterations = 26;\n    SkRSXform transforms[iterations];\n    char alphabet[iterations];\n    SkScalar angle = 0;\n    SkScalar scale = 1;\n    for (size_t i = 0; i < SK_ARRAY_COUNT(transforms); ++i) {\n        const SkScalar s = SkScalarSin(angle) * scale;\n        const SkScalar c = SkScalarCos(angle) * scale;\n        transforms[i] = SkRSXform::Make(-c, -s, -s * 16, c * 16);\n        angle += .45;\n        scale += .2;\n        alphabet[i] = 'A' + i;\n    }\n    SkPaint paint;\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    canvas->translate(110, 138);\n    canvas->drawTextRSXform(alphabet, sizeof(alphabet), transforms, nullptr, paint);\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "55c84c39890c7516f7c835c46b1b8fc9",
+    "hash": "3ce367af833428b08e75d8a22fe67808",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawTextRSXform"
 },
@@ -4820,10 +4806,10 @@
     "name": "SkCanvas::getGrContext"
 },
     "SkCanvas_readPixels": {
-    "code": "void draw(SkCanvas* canvas) {\n    canvas->clear(SK_ColorBLUE);\n    SkPaint paint;\n    canvas->drawCircle(32, 32, 28, paint);\n    SkImageInfo info = SkImageInfo::Make(64, 64, kBGRA_8888_SkColorType, kPremul_SkAlphaType);\n    sk_sp<SkData> data(SkData::MakeUninitialized(info.minRowBytes() * info.height()));\n    sk_bzero(data->writable_data(), info.minRowBytes() * info.height());\n    for (int x : { 32, -32 } ) {\n        for (int y : { 32, -32 } ) {\n            canvas->readPixels(info, data->writable_data(), info.minRowBytes(), x, y);\n        } \n    }\n    sk_sp<SkImage> image = SkImage::MakeRasterData(info, data, info.minRowBytes());\n    canvas->drawImage(image, 0, 0);\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    canvas->clear(SK_ColorBLUE);\n    SkPaint paint;\n    canvas->drawCircle(32, 32, 28, paint);\n    SkImageInfo info = SkImageInfo::Make(64, 64, kBGRA_8888_SkColorType, kPremul_SkAlphaType);\n    sk_sp<SkData> data(SkData::MakeUninitialized(info.minRowBytes() * info.height()));\n    sk_bzero(data->writable_data(), info.minRowBytes() * info.height());\n    for (int x : { 32, -32 } ) {\n        for (int y : { 32, -32 } ) {\n            canvas->readPixels(info, data->writable_data(), info.minRowBytes(), x, y);\n        }\n    }\n    sk_sp<SkImage> image = SkImage::MakeRasterData(info, data, info.minRowBytes());\n    canvas->drawImage(image, 0, 0);\n}",
     "width": 64,
     "height": 64,
-    "hash": "2964297993747769b0760874c19e0168",
+    "hash": "102d014d7f753db2a9b9ee08893aaf11",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::readPixels"
 },
@@ -4836,10 +4822,10 @@
     "name": "SkCanvas::resetMatrix"
 },
     "SkCanvas_rotate": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->translate(128, 128);\n    canvas->drawCircle(0, 0, 60, paint);\n    canvas->save();\n    canvas->rotate(10 * 360 / 60);   // 10 minutes of 60 scaled to 360 degrees\n    canvas->drawLine(0, 0, 0, -50, paint); \n    canvas->restore();\n    canvas->rotate((5 + 10.f/60) * 360 / 12); // 5 and 10/60 hours of 12 scaled to 360 degrees\n    canvas->drawLine(0, 0, 0, -30, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->translate(128, 128);\n    canvas->drawCircle(0, 0, 60, paint);\n    canvas->save();\n    canvas->rotate(10 * 360 / 60);   // 10 minutes of 60 scaled to 360 degrees\n    canvas->drawLine(0, 0, 0, -50, paint);\n    canvas->restore();\n    canvas->rotate((5 + 10.f/60) * 360 / 12); // 5 and 10/60 hours of 12 scaled to 360 degrees\n    canvas->drawLine(0, 0, 0, -30, paint);\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "caafb205771b714948e00dcd58ccaf1f",
+    "hash": "963789ac8498d4e505748ab3b15cdaa5",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::rotate()"
 },
@@ -6260,10 +6246,10 @@
     "name": "SkPaint::getPosTextPath"
 },
     "SkPaint_getTextBlobIntercepts": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    paint.setTextSize(120);\n    SkPoint textPos = { 20, 110 };\n    int len = 3;\n    SkTextBlobBuilder textBlobBuilder;\n    const SkTextBlobBuilder::RunBuffer& run = \n            textBlobBuilder.allocRun(paint, len, textPos.fX, textPos.fY);\n    run.glyphs[0] = 10;\n    run.glyphs[1] = 20;\n    run.glyphs[2] = 30;       \n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    canvas->drawTextBlob(blob.get(), textPos.fX, textPos.fY, paint);\n    SkScalar bounds[] = { 116, 134 };\n    int count = paint.getTextBlobIntercepts(blob.get(), bounds, nullptr);\n    std::vector<SkScalar> intervals;\n    intervals.resize(count);\n    (void) paint.getTextBlobIntercepts(blob.get(), bounds, &intervals.front());\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n    paint.setColor(0xFFFF7777);\n    SkScalar x = textPos.fX;\n    for (int i = 0; i < count; i+= 2) {\n        canvas->drawRect({x, bounds[0], intervals[i], bounds[1]}, paint);\n        x = intervals[i + 1];\n    }\n    canvas->drawRect({intervals[count - 1], bounds[0], 180, bounds[1]}, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    paint.setTextSize(120);\n    SkPoint textPos = { 20, 110 };\n    int len = 3;\n    SkTextBlobBuilder textBlobBuilder;\n    const SkTextBlobBuilder::RunBuffer& run =\n            textBlobBuilder.allocRun(paint, len, textPos.fX, textPos.fY);\n    run.glyphs[0] = 10;\n    run.glyphs[1] = 20;\n    run.glyphs[2] = 30;\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    canvas->drawTextBlob(blob.get(), textPos.fX, textPos.fY, paint);\n    SkScalar bounds[] = { 116, 134 };\n    int count = paint.getTextBlobIntercepts(blob.get(), bounds, nullptr);\n    std::vector<SkScalar> intervals;\n    intervals.resize(count);\n    (void) paint.getTextBlobIntercepts(blob.get(), bounds, &intervals.front());\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n    paint.setColor(0xFFFF7777);\n    SkScalar x = textPos.fX;\n    for (int i = 0; i < count; i+= 2) {\n        canvas->drawRect({x, bounds[0], intervals[i], bounds[1]}, paint);\n        x = intervals[i + 1];\n    }\n    canvas->drawRect({intervals[count - 1], bounds[0], 180, bounds[1]}, paint);\n}\n",
     "width": 256,
     "height": 143,
-    "hash": "71959a66b2290d70003887c0de339266",
+    "hash": "f2229dd5c8e76f9e12fafe59b61353c8",
     "file": "SkPaint_Reference",
     "name": "SkPaint::getTextBlobIntercepts"
 },
