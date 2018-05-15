@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b78ca4f1_2b04eff6",
+        "filename": "src/core/SkPictureData.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-15T18:42:51Z",
+      "side": 1,
+      "message": "2048 * 8 on 64bit, so not a lot.  But removing in favor of growing on the fly.",
+      "parentUuid": "14e5f378_b017ee9b",
+      "range": {
+        "startLine": 379,
+        "startChar": 43,
+        "endLine": 379,
+        "endChar": 47
+      },
+      "revId": "9c431089c2e57d3eb3f9347e6f06d90b4aa65745",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "136938ba_36c47109",
         "filename": "src/core/SkPictureData.cpp",
         "patchSetId": 6
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "c4c7f817_2f02e022",
+        "filename": "src/core/SkPictureData.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-15T18:42:51Z",
+      "side": 1,
+      "message": "That would be my first preference also, but wasn\u0027t sure if we have any perf concerns during deserialization.\n\nUpdated to no longer pre-allocate.",
+      "parentUuid": "136938ba_36c47109",
+      "range": {
+        "startLine": 377,
+        "startChar": 3,
+        "endLine": 380,
+        "endChar": 61
+      },
+      "revId": "9c431089c2e57d3eb3f9347e6f06d90b4aa65745",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "66a88b4a_7fbbd25a",
         "filename": "src/core/SkPictureRecord.cpp",
         "patchSetId": 6
@@ -68,6 +116,30 @@
       "revId": "9c431089c2e57d3eb3f9347e6f06d90b4aa65745",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "260278f9_4b831096",
+        "filename": "src/core/SkPictureRecord.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 804,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-15T18:42:51Z",
+      "side": 1,
+      "message": "Yeah, now that you made me read the docs, I realize this is likely not what we want :)\n\nIt may happen to work for deserialization, but seems way too fragile.  Switched back to using the object address for SkDrawable.",
+      "parentUuid": "66a88b4a_7fbbd25a",
+      "range": {
+        "startLine": 804,
+        "startChar": 12,
+        "endLine": 804,
+        "endChar": 34
+      },
+      "revId": "9c431089c2e57d3eb3f9347e6f06d90b4aa65745",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
