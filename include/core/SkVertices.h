@@ -27,6 +27,13 @@ public:
         kLast_VertexMode = kTriangleFan_VertexMode,
     };
 
+    enum PremulColorMode {
+        kDo_PremulColorMode,
+        kDont_PremulColorMode,
+
+        kDefault_PremulColorMode = kDo_PremulColorMode,
+    };
+
     /**
      *  Create a vertices by copying the specified arrays. texs and colors may be nullptr,
      *  and indices is ignored if indexCount == 0.
@@ -36,20 +43,23 @@ public:
                                       const SkPoint texs[],
                                       const SkColor colors[],
                                       int indexCount,
-                                      const uint16_t indices[]);
+                                      const uint16_t indices[],
+                                      PremulColorMode premulMode = kDefault_PremulColorMode);
 
     static sk_sp<SkVertices> MakeCopy(VertexMode mode, int vertexCount,
                                       const SkPoint positions[],
                                       const SkPoint texs[],
-                                      const SkColor colors[]) {
-        return MakeCopy(mode, vertexCount, positions, texs, colors, 0, nullptr);
+                                      const SkColor colors[],
+                                      PremulColorMode premulMode = kDefault_PremulColorMode) {
+        return MakeCopy(mode, vertexCount, positions, texs, colors, 0, nullptr, premulMode);
     }
 
     struct Sizes;
 
     enum BuilderFlags {
-        kHasTexCoords_BuilderFlag   = 1 << 0,
-        kHasColors_BuilderFlag      = 1 << 1,
+        kHasTexCoords_BuilderFlag      = 1 << 0,
+        kHasColors_BuilderFlag         = 1 << 1,
+        kDontPremulColors_BuilderFlag  = 1 << 2,  // will not premul colors on GPU
     };
     class Builder {
     public:
@@ -69,9 +79,11 @@ public:
         sk_sp<SkVertices> detach();
 
     private:
-        Builder(VertexMode mode, int vertexCount, int indexCount, const Sizes&);
+        Builder(VertexMode mode, int vertexCount, int indexCount, const Sizes&,
+                PremulColorMode premulColorMode);
 
-        void init(VertexMode mode, int vertexCount, int indexCount, const Sizes&);
+        void init(VertexMode mode, int vertexCount, int indexCount, const Sizes&,
+                  PremulColorMode premulColorMode);
 
         // holds a partially complete object. only completed in detach()
         sk_sp<SkVertices> fVertices;
@@ -94,6 +106,7 @@ public:
     const SkPoint* positions() const { return fPositions; }
     const SkPoint* texCoords() const { return fTexs; }
     const SkColor* colors() const { return fColors; }
+    bool dontPremulColors() const { return kDont_PremulColorMode == fPremulColorMode; }
 
     int indexCount() const { return fIndexCnt; }
     const uint16_t* indices() const { return fIndices; }
@@ -138,6 +151,7 @@ private:
     int     fIndexCnt;
 
     VertexMode fMode;
+    PremulColorMode fPremulColorMode;
     // below here is where the actual array data is stored.
 };
 
