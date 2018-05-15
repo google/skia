@@ -1,6 +1,7 @@
 disable_blend_equation_advanced
 disable_discard_framebuffer
 disallow_large_instanced_draw
+gl_clear_broken
 max_msaa_sample_count_4
 max_texture_size_limit_4096
 restore_scissor_on_fbo_change

@@ -2450,6 +2450,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO = true;
     }
 
+    if (fDriverBugWorkarounds.gl_clear_broken) {
+        fUseDrawToClearColor = true;
+        fUseDrawToClearStencilClip = true;
+    }
+
     // This was reproduced on the following configurations:
     // - A Galaxy J5 (Adreno 306) running Android 6 with driver 140.0
     // - A Nexus 7 2013 (Adreno 320) running Android 5 with driver 104.0
