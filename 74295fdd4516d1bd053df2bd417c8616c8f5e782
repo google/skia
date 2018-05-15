@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b8873cf3_3c273ac5",
+        "filename": "docker/skiaserve/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-15T19:01:24Z",
+      "side": 1,
+      "message": "Might be able to do this with `echo` to keep it all in one file?",
+      "revId": "74295fdd4516d1bd053df2bd417c8616c8f5e782",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f10001da_67941587",
+        "filename": "docker/skiaserve/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-15T19:01:24Z",
+      "side": 1,
+      "message": "I think we can trim some of these.  Might be worth trying?  Starting here?",
+      "revId": "74295fdd4516d1bd053df2bd417c8616c8f5e782",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d504673_0b405efb",
+        "filename": "docker/skiaserve/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-15T19:01:24Z",
+      "side": 1,
+      "message": "trim?",
+      "revId": "74295fdd4516d1bd053df2bd417c8616c8f5e782",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e48b90f7_a94d31b7",
+        "filename": "docker/skiaserve/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-15T19:01:24Z",
+      "side": 1,
+      "message": "I think we can trim this if we set skia_use_system_freetype2 \u003d false.  I think it\u0027s true by default?",
+      "revId": "74295fdd4516d1bd053df2bd417c8616c8f5e782",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da84dfef_d83747ab",
+        "filename": "docker/skiaserve/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-15T19:01:24Z",
+      "side": 1,
+      "message": "trim?  I think we\u0027re fully in-house for GIF now",
+      "revId": "74295fdd4516d1bd053df2bd417c8616c8f5e782",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c30d856_a383d7f8",
+        "filename": "docker/skiaserve/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-15T19:01:24Z",
+      "side": 1,
+      "message": "trim?  I think we build this from source?",
+      "revId": "74295fdd4516d1bd053df2bd417c8616c8f5e782",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "018e8cd8_62b3fa94",
+        "filename": "docker/skiaserve/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-15T19:01:24Z",
+      "side": 1,
+      "message": "trim?",
+      "revId": "74295fdd4516d1bd053df2bd417c8616c8f5e782",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ff9dff6_5bef8f77",
+        "filename": "docker/skiaserve/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-15T19:01:24Z",
+      "side": 1,
+      "message": "trim?",
+      "revId": "74295fdd4516d1bd053df2bd417c8616c8f5e782",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7b41240_a55ae874",
+        "filename": "docker/skiaserve/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-15T19:01:24Z",
+      "side": 1,
+      "message": "trim?",
+      "revId": "74295fdd4516d1bd053df2bd417c8616c8f5e782",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48dc7f09_d8a4f898",
+        "filename": "docker/skiaserve/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-15T19:01:24Z",
+      "side": 1,
+      "message": "trim?",
+      "revId": "74295fdd4516d1bd053df2bd417c8616c8f5e782",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
