@@ -22,13 +22,6 @@ sk_sp<SkFontConfigInterface> SkFontConfigInterface::RefGlobal() {
     return sk_ref_sp(SkFontConfigInterface::GetSingletonDirectInterface());
 }
 
-SkFontConfigInterface* SkFontConfigInterface::SetGlobal(SkFontConfigInterface* fc) {
-    SkAutoMutexAcquire ac(gFontConfigInterfaceMutex);
-
-    gFontConfigInterface = sk_ref_sp(fc);
-    return fc;
-}
-
 void SkFontConfigInterface::SetGlobal(sk_sp<SkFontConfigInterface> fc) {
     SkAutoMutexAcquire ac(gFontConfigInterfaceMutex);
 
