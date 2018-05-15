@@ -42,6 +42,9 @@
 #include "Test.h"
 #include "sk_tool_utils.h"
 
+
+#if 0
+
 #if SK_SUPPORT_GPU
 #include "GrCaps.h"
 #include "GrContext.h"
@@ -151,6 +154,7 @@ public:
         SkPoint3 location = SkPoint3::Make(0, 0, SK_Scalar1);
         const SkScalar five = SkIntToScalar(5);
 
+#if 0
         {
             sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(SK_ColorRED,
                                                                   SkBlendMode::kSrcIn));
@@ -184,6 +188,7 @@ public:
         this->addFilter("specular lighting",
                   SkLightingImageFilter::MakePointLitSpecular(location, SK_ColorGREEN, 0, 0, 0,
                                                               input, cropRect));
+#endif
         {
             SkScalar kernel[9] = {
                 SkIntToScalar(1), SkIntToScalar(1), SkIntToScalar(1),
@@ -199,7 +204,7 @@ public:
                       SkMatrixConvolutionImageFilter::kRepeat_TileMode, false,
                       input, cropRect));
         }
-
+#if 0
         this->addFilter("merge", SkMergeImageFilter::Make(input, input, cropRect));
 
         {
@@ -269,6 +274,7 @@ public:
         }
         this->addFilter("xfermode", SkXfermodeImageFilter::Make(SkBlendMode::kSrc, input, input,
                                                                 cropRect));
+#endif
     }
     int count() const { return fFilters.count(); }
     SkImageFilter* getFilter(int index) const { return fFilters[index].fFilter.get(); }
@@ -730,7 +736,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterFailAffectsTransparentBlack_Gpu, r
 }
 #endif
 
-DEF_TEST(ImageFilterDrawTiled, reporter) {
+
+void write_to_png(const char* prefix, const SkBitmap& bm) {
+    static int sID = 0;
+    char filename[256];
+    _snprintf(filename, 256, "c:\\src\\bugs\\%s-%d.png", prefix, sID++);
+    filename[255] = '\0';
+
+    SkFILEWStream file(filename);
+    SkAssertResult(file.isValid());
+
+    SkAssertResult(SkEncodeImage(&file, bm, SkEncodedImageFormat::kPNG, 100));
+}
+
+DEF_TEST(ImageFilterDrawTiled1, reporter) {
     // Check that all filters when drawn tiled (with subsequent clip rects) exactly
     // match the same filters drawn with a single full-canvas bitmap draw.
     // Tests pass by not asserting.
@@ -745,7 +764,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
     SkCanvas untiledCanvas(untiledResult);
     int tileSize = 8;
 
-    for (int scale = 1; scale <= 2; ++scale) {
+    for (int scale = 2; scale <= 2; ++scale) {
         for (int i = 0; i < filters.count(); ++i) {
             tiledCanvas.clear(0);
             untiledCanvas.clear(0);
@@ -771,6 +790,9 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
             }
             untiledCanvas.flush();
             tiledCanvas.flush();
+
+            write_to_png("untiled", untiledResult);
+            write_to_png("tiled", tiledResult);
             if (!sk_tool_utils::equal_pixels(untiledResult, tiledResult, 1)) {
                 REPORTER_ASSERT(reporter, false, filters.getName(i));
                 break;
@@ -2034,7 +2056,7 @@ DEF_TEST(ImageSourceBounds, reporter) {
     SkMatrix scale(SkMatrix::MakeScale(2));
     SkIRect scaledBounds = SkIRect::MakeWH(128, 128);
     REPORTER_ASSERT(reporter,
-                    scaledBounds == source1->filterBounds(input, scale,
+                    scaledBounds == source1->8filterBounds(input, scale,
                                                           SkImageFilter::kForward_MapDirection));
     REPORTER_ASSERT(
             reporter,
@@ -2059,3 +2081,5 @@ DEF_TEST(ImageSourceBounds, reporter) {
             reporter,
             input == source2->filterBounds(input, scale, SkImageFilter::kReverse_MapDirection));
 }
+
+#endif
