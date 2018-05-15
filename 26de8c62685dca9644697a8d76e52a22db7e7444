@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "e7f93608_b06fa9d8",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-15T17:17:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "923b0aa9_9769c3d0",
+      "range": {
+        "startLine": 193,
+        "startChar": 38,
+        "endLine": 193,
+        "endChar": 45
+      },
+      "revId": "26de8c62685dca9644697a8d76e52a22db7e7444",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e94b13e4_1b3edbad",
         "filename": "src/core/SkGlyphCache.cpp",
         "patchSetId": 2
@@ -143,6 +167,30 @@
     },
     {
       "key": {
+        "uuid": "daebe960_a2ebaefb",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-15T17:17:44Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "ecfb8559_ff830278",
+      "range": {
+        "startLine": 320,
+        "startChar": 21,
+        "endLine": 320,
+        "endChar": 36
+      },
+      "revId": "26de8c62685dca9644697a8d76e52a22db7e7444",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dd650504_a2fe5d5d",
         "filename": "src/core/SkGlyphCache.h",
         "patchSetId": 2
@@ -211,6 +259,30 @@
       "revId": "26de8c62685dca9644697a8d76e52a22db7e7444",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5a9d580_e2b8da57",
+        "filename": "src/core/SkGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-15T17:17:44Z",
+      "side": 1,
+      "message": "Sorry, you\u0027re right. I missed that const_cast after copying that code.",
+      "parentUuid": "0f89e385_f537ec89",
+      "range": {
+        "startLine": 93,
+        "startChar": 31,
+        "endLine": 93,
+        "endChar": 38
+      },
+      "revId": "26de8c62685dca9644697a8d76e52a22db7e7444",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
