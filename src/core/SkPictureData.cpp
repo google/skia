@@ -12,6 +12,7 @@
 #include "SkPictureData.h"
 #include "SkPictureRecord.h"
 #include "SkReadBuffer.h"
+#include "SkSafeMath.h"
 #include "SkTextBlob.h"
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
@@ -466,6 +467,15 @@ bool new_array_from_buffer(SkReadBuffer& buffer, uint32_t inCount,
         return true;
     }
     if (!buffer.validate(SkTFitsIn<int>(inCount))) {
+        return false;
+    }
+
+    SkSafeMath safe;
+    const auto expectedSize = safe.mul(sizeof(T), inCount);
+    // Preflight check to make sure there's enough stuff in the buffer before
+    // we allocate the memory. This helps the fuzzer avoid OOM when it creates
+    // bad/corrupt input.
+    if (!buffer.validate(safe && expectedSize <= buffer.available())) {
         return false;
     }
 
