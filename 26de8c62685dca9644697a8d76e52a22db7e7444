@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0f3a9fc9_50c6baea",
+        "filename": "src/core/SkColorSpace_XYZ.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-15T02:53:56Z",
+      "side": 1,
+      "message": "This is not making any logical change, I ended up adding it to silence a warning. Sure, I can move it to separate cl but I don\u0027t see any harm in having it in this one either.",
+      "parentUuid": "24572631_e32b20b2",
+      "range": {
+        "startLine": 130,
+        "startChar": 11,
+        "endLine": 130,
+        "endChar": 14
+      },
+      "revId": "26de8c62685dca9644697a8d76e52a22db7e7444",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e94b13e4_1b3edbad",
         "filename": "src/core/SkGlyphCache.cpp",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "31272b53_5cdd43c5",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-15T02:53:56Z",
+      "side": 1,
+      "message": "I pulled this to a common method to avoid duplicating it at 2 places: SkGlyphCache::forceValidate and SkGlyphCache::findPath.",
+      "parentUuid": "e94b13e4_1b3edbad",
+      "range": {
+        "startLine": 320,
+        "startChar": 21,
+        "endLine": 320,
+        "endChar": 36
+      },
+      "revId": "26de8c62685dca9644697a8d76e52a22db7e7444",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dd650504_a2fe5d5d",
         "filename": "src/core/SkGlyphCache.h",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2018-05-15T02:43:56Z",
       "side": 1,
       "message": "just SkGlyph*",
+      "range": {
+        "startLine": 93,
+        "startChar": 31,
+        "endLine": 93,
+        "endChar": 38
+      },
+      "revId": "26de8c62685dca9644697a8d76e52a22db7e7444",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2bce7e4_8bb386e6",
+        "filename": "src/core/SkGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-15T02:53:56Z",
+      "side": 1,
+      "message": "This should never be null, so a const\u0026 is better to enforce it. Also keeps it consistent with findImage above.",
+      "parentUuid": "dd650504_a2fe5d5d",
       "range": {
         "startLine": 93,
         "startChar": 31,
