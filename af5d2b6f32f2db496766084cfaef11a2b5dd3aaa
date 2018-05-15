@@ -22,6 +22,30 @@
       "revId": "af5d2b6f32f2db496766084cfaef11a2b5dd3aaa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "deb5ea55_f48b9ffb",
+        "filename": "src/core/SkPictureRecord.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 805,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-15T19:41:51Z",
+      "side": 1,
+      "message": "oddly, it is.  template specializations like this pick up the static/extern nature of their base template, the equals() above it.",
+      "parentUuid": "5dce23f1_5c035eca",
+      "range": {
+        "startLine": 805,
+        "startChar": 0,
+        "endLine": 805,
+        "endChar": 4
+      },
+      "revId": "af5d2b6f32f2db496766084cfaef11a2b5dd3aaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
