@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "136938ba_36c47109",
+        "filename": "src/core/SkPictureData.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-05-15T18:26:55Z",
+      "side": 1,
+      "message": "Is it important that we do this at all?  Why not just push_back() each one?",
+      "range": {
+        "startLine": 377,
+        "startChar": 3,
+        "endLine": 380,
+        "endChar": 61
+      },
+      "revId": "9c431089c2e57d3eb3f9347e6f06d90b4aa65745",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66a88b4a_7fbbd25a",
+        "filename": "src/core/SkPictureRecord.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 804,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-05-15T18:26:55Z",
+      "side": 1,
+      "message": "Hmm.  This is weird.  As documented this identifies the content of the drawable as it evolves over time.  But as implemented, I think this happens to be a process-unique ID.  I have no idea why we have that single centralized next_generation_id()::gCanvasDrawableGenerationID... bizarre.\n\nI think I\u0027d want to see some names or comments updated if we\u0027re going to start taking advantage of that process uniqueness.",
+      "range": {
+        "startLine": 804,
+        "startChar": 12,
+        "endLine": 804,
+        "endChar": 34
+      },
+      "revId": "9c431089c2e57d3eb3f9347e6f06d90b4aa65745",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
