@@ -172,6 +172,7 @@ public:
 
 protected:
     int onCountFamilies() const override {
+        SK_ABORT("Not implemented.");
         return 0;
     }
 
@@ -185,20 +186,31 @@ protected:
     }
 
     SkFontStyleSet* onMatchFamily(const char familyName[]) const override {
+        SK_ABORT("Not implemented.");
         return new SkFontStyleSet_FCI();
     }
 
-    SkTypeface* onMatchFamilyStyle(const char familyName[],
-                                   const SkFontStyle&) const override { return nullptr; }
+    SkTypeface* onMatchFamilyStyle(const char familyName[], const SkFontStyle&) const override {
+        SK_ABORT("Not implemented.");
+        return nullptr;
+    }
+
     SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
                                             const char* bcp47[], int bcp47Count,
                                             SkUnichar character) const override {
+        SK_ABORT("Not implemented.");
         return nullptr;
     }
-    SkTypeface* onMatchFaceStyle(const SkTypeface*,
-                                 const SkFontStyle&) const override { return nullptr; }
 
-    sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int ttcIndex) const override { return nullptr; }
+    SkTypeface* onMatchFaceStyle(const SkTypeface*, const SkFontStyle&) const override {
+        SK_ABORT("Not implemented.");
+        return nullptr;
+    }
+
+    sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int ttcIndex) const override {
+        SK_ABORT("Not implemented.");
+        return nullptr;
+    }
 
     sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> stream,
                                             int ttcIndex) const override {
