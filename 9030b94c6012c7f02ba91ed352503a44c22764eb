@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c3aecb9d_d7c10700",
+        "filename": "platform_tools/android/bin/android_perf",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-15T14:02:03Z",
+      "side": 0,
+      "message": "Derek, scripts in android/bin do use SKIA_OUT, but AFAICT the bots don\u0027t run any of these scripts.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 11
+      },
+      "revId": "9030b94c6012c7f02ba91ed352503a44c22764eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "334c7c8d_6097f305",
+        "filename": "platform_tools/ios/bin/ios_setup.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-15T14:02:03Z",
+      "side": 0,
+      "message": "Stephan, these don\u0027t seem to be used anywhere.  Can you confirm?",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 2
+      },
+      "revId": "9030b94c6012c7f02ba91ed352503a44c22764eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
