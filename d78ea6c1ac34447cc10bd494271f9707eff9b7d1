@@ -22,6 +22,30 @@
       "revId": "d78ea6c1ac34447cc10bd494271f9707eff9b7d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0719dd3a_a98a69f8",
+        "filename": "infra/bots/recipe_modules/core/examples/full.expected/Housekeeper-Weekly-RecreateSKPs.json",
+        "patchSetId": 10
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-05-15T19:01:43Z",
+      "side": 1,
+      "message": "Done and it is green.",
+      "parentUuid": "5b3d413b_f462d13e",
+      "range": {
+        "startLine": 80,
+        "startChar": 39,
+        "endLine": 80,
+        "endChar": 55
+      },
+      "revId": "d78ea6c1ac34447cc10bd494271f9707eff9b7d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
