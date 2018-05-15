@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a1e6d64e_6f419c77",
+        "filename": "src/core/SkSharedMutex.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-15T14:35:05Z",
+      "side": 1,
+      "message": "Add thread info in output.",
+      "range": {
+        "startLine": 135,
+        "startChar": 22,
+        "endLine": 135,
+        "endChar": 36
+      },
+      "revId": "8869d83fef92237b2c9465e032dbcb526ca54ffe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
