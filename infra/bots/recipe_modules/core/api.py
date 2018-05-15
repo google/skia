@@ -131,7 +131,7 @@ class SkiaApi(recipe_api.RecipeApi):
     self.m.vars.got_revision = (
         update_step.presentation.properties['got_revision'])
 
-    if self.m.vars.need_chromium_checkout:
+    if self.m.vars.need_chromium_checkout or self.m.vars.need_flutter_checkout:
       with self.m.context(cwd=self.m.vars.checkout_root,
                           env=self.m.vars.gclient_env):
         self.m.gclient.runhooks()

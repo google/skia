@@ -114,6 +114,20 @@
     "cmd": [
       "python",
       "-u",
+      "RECIPE_PACKAGE_REPO[depot_tools]/gclient.py",
+      "runhooks"
+    ],
+    "cwd": "[START_DIR]/cache/work/flutter",
+    "env": {
+      "DEPOT_TOOLS_UPDATE": "0",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+    },
+    "name": "gclient runhooks"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
@@ -124,19 +138,6 @@
     ],
     "infra_step": true,
     "name": "makedirs tmp_dir"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_PACKAGE_REPO[depot_tools]/gclient.py",
-      "runhooks"
-    ],
-    "cwd": "[START_DIR]/cache/work/flutter/src",
-    "env": {
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
-    },
-    "name": "gclient runhooks"
   },
   {
     "cmd": [
