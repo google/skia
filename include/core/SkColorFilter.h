@@ -135,7 +135,7 @@ public:
 #endif
 
     bool affectsTransparentBlack() const {
-        return this->filterColor(0) != 0;
+        return this->filterColor(SK_ColorBLACK) != SK_ColorBLACK;
     }
 
     virtual void toString(SkString* str) const = 0;

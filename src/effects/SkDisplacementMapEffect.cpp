@@ -388,7 +388,7 @@ SkRect SkDisplacementMapEffect::computeFastBounds(const SkRect& src) const {
 }
 
 SkIRect SkDisplacementMapEffect::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                                    MapDirection) const {
+                                                    const SkIRect* inputRect, MapDirection) const {
     SkVector scale = SkVector::Make(fScale, fScale);
     ctm.mapVectors(&scale, 1);
     return src.makeOutset(SkScalarCeilToInt(SkScalarAbs(scale.fX) * SK_ScalarHalf),
@@ -396,10 +396,10 @@ SkIRect SkDisplacementMapEffect::onFilterNodeBounds(const SkIRect& src, const Sk
 }
 
 SkIRect SkDisplacementMapEffect::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                                MapDirection direction) const {
+                                                const SkIRect* inputRect, MapDirection dir) const {
     // Recurse only into color input.
     if (this->getColorInput()) {
-        return this->getColorInput()->filterBounds(src, ctm, direction);
+        return this->getColorInput()->filterBounds(src, ctm, inputRect, dir);
     }
     return src;
 }
