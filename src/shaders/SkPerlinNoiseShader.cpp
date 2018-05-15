@@ -270,7 +270,8 @@ public:
                 SkScalar highFrequencx =
                     SkScalarCeilToScalar(tileWidth * fBaseFrequency.fX) / tileWidth;
                 // BaseFrequency should be non-negative according to the standard.
-                if (fBaseFrequency.fX / lowFrequencx < highFrequencx / fBaseFrequency.fX) {
+                // lowFrequencx can be 0 if fBaseFrequency.fX is very small.
+                if (sk_ieee_float_divide(fBaseFrequency.fX, lowFrequencx) < highFrequencx / fBaseFrequency.fX) {
                     fBaseFrequency.fX = lowFrequencx;
                 } else {
                     fBaseFrequency.fX = highFrequencx;
@@ -281,7 +282,8 @@ public:
                     SkScalarFloorToScalar(tileHeight * fBaseFrequency.fY) / tileHeight;
                 SkScalar highFrequency =
                     SkScalarCeilToScalar(tileHeight * fBaseFrequency.fY) / tileHeight;
-                if (fBaseFrequency.fY / lowFrequency < highFrequency / fBaseFrequency.fY) {
+                // lowFrequency can be 0 if fBaseFrequency.fY is very small.
+                if (sk_ieee_float_divide(fBaseFrequency.fY, lowFrequency) < highFrequency / fBaseFrequency.fY) {
                     fBaseFrequency.fY = lowFrequency;
                 } else {
                     fBaseFrequency.fY = highFrequency;
@@ -419,6 +421,8 @@ SkPerlinNoiseShaderImpl::SkPerlinNoiseShaderImpl(SkPerlinNoiseShaderImpl::Type t
   , fStitchTiles(!fTileSize.isEmpty())
 {
     SkASSERT(numOctaves >= 0 && numOctaves <= kMaxOctaves);
+    SkASSERT(fBaseFrequencyX >= 0);
+    SkASSERT(fBaseFrequencyY >= 0);
 }
 
 sk_sp<SkFlattenable> SkPerlinNoiseShaderImpl::CreateProc(SkReadBuffer& buffer) {
@@ -426,6 +430,9 @@ sk_sp<SkFlattenable> SkPerlinNoiseShaderImpl::CreateProc(SkReadBuffer& buffer) {
 
     SkScalar freqX = buffer.readScalar();
     SkScalar freqY = buffer.readScalar();
+    if (!buffer.validate(freqX >= 0 && freqY >= 0)) {
+        return nullptr;
+    }
 
     int octaves = buffer.read32LE<int>(kMaxOctaves);
 
