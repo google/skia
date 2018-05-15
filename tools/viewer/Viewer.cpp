@@ -1646,6 +1646,31 @@ void Viewer::drawImGui() {
                           &SkPaint::isVerticalText, &SkPaint::setVerticalText);
             }
 
+            {
+                SkMetaData controls;
+                if (fSlides[fCurrentSlide]->onGetControls(&controls)) {
+                    if (ImGui::CollapsingHeader("Current Slide")) {
+                        SkMetaData::Iter iter(controls);
+                        const char* name;
+                        SkMetaData::Type type;
+                        int count;
+                        bool found = false;
+                        while ((name = iter.next(&type, &count)) != nullptr && found == false) {
+                            if (type == SkMetaData::kScalar_Type) {
+                                float val[3];
+                                SkASSERT(count == 3);
+                                controls.findScalars(name, &count, val);
+                                if (ImGui::SliderFloat(name, &val[0], val[1], val[2])) {
+                                    controls.setScalars(name, 3, val);
+                                    fSlides[fCurrentSlide]->onSetControls(controls);
+                                    found = paramsChanged = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             if (fShowSlidePicker) {
                 ImGui::SetNextTreeNodeOpen(true);
             }
