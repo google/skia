@@ -6,7 +6,6 @@
  */
 
 #include "SkFontConfigInterface.h"
-#include "SkFontMgr.h"
 #include "SkMutex.h"
 #include "SkRefCnt.h"
 
@@ -20,13 +19,6 @@ sk_sp<SkFontConfigInterface> SkFontConfigInterface::RefGlobal() {
         return gFontConfigInterface;
     }
     return sk_ref_sp(SkFontConfigInterface::GetSingletonDirectInterface());
-}
-
-SkFontConfigInterface* SkFontConfigInterface::SetGlobal(SkFontConfigInterface* fc) {
-    SkAutoMutexAcquire ac(gFontConfigInterfaceMutex);
-
-    gFontConfigInterface = sk_ref_sp(fc);
-    return fc;
 }
 
 void SkFontConfigInterface::SetGlobal(sk_sp<SkFontConfigInterface> fc) {
