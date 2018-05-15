@@ -92,9 +92,11 @@ protected:
                                                                   cropRect));
         canvas->save();
         canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
-        canvas->clipRect(SkRect::MakeWH(SkIntToScalar(fBitmap.width()),
-                                        SkIntToScalar(fBitmap.height())));
-        canvas->drawBitmap(fBitmap, 0, 0, &paint);
+        canvas->clipRect(SkRect::MakeIWH(fBitmap.width(), fBitmap.height()));
+        const SkRect layerBounds = SkRect::MakeIWH(fBitmap.width(), fBitmap.height());
+        canvas->saveLayer(layerBounds, &paint);
+            canvas->drawBitmap(fBitmap, 0, 0, nullptr);
+        canvas->restore();
         canvas->restore();
     }
 
