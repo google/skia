@@ -668,8 +668,7 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
             if (imageSize != 0) {
                 image = deserializer.readArray<uint8_t>(imageSize);
                 if (!image.data()) READ_FAILURE
-                allocatedGlyph->allocImage(strike->getAlloc());
-                memcpy(allocatedGlyph->fImage, image.data(), image.size());
+                strike->initializeImage(image.data(), image.size(), allocatedGlyph);
             }
         }
     }
