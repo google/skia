@@ -49,6 +49,29 @@
     },
     {
       "key": {
+        "uuid": "923b0aa9_9769c3d0",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-15T15:18:44Z",
+      "side": 1,
+      "message": "Why? You are mutating glyph. Please pass the pointer, and make it the last parameter.",
+      "range": {
+        "startLine": 193,
+        "startChar": 38,
+        "endLine": 193,
+        "endChar": 45
+      },
+      "revId": "26de8c62685dca9644697a8d76e52a22db7e7444",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e94b13e4_1b3edbad",
         "filename": "src/core/SkGlyphCache.cpp",
         "patchSetId": 2
@@ -96,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "ecfb8559_ff830278",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-15T15:18:44Z",
+      "side": 1,
+      "message": "Sorry. Didn\u0027t see it in validate.",
+      "parentUuid": "31272b53_5cdd43c5",
+      "range": {
+        "startLine": 320,
+        "startChar": 21,
+        "endLine": 320,
+        "endChar": 36
+      },
+      "revId": "26de8c62685dca9644697a8d76e52a22db7e7444",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dd650504_a2fe5d5d",
         "filename": "src/core/SkGlyphCache.h",
         "patchSetId": 2
@@ -131,6 +178,30 @@
       "side": 1,
       "message": "This should never be null, so a const\u0026 is better to enforce it. Also keeps it consistent with findImage above.",
       "parentUuid": "dd650504_a2fe5d5d",
+      "range": {
+        "startLine": 93,
+        "startChar": 31,
+        "endLine": 93,
+        "endChar": 38
+      },
+      "revId": "26de8c62685dca9644697a8d76e52a22db7e7444",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f89e385_f537ec89",
+        "filename": "src/core/SkGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-15T15:18:44Z",
+      "side": 1,
+      "message": "findImage is a terrible terrible api. The fact that you have a const_cast in your code is terrifying. const is a statement about mutability. It generally means that this is thread safe. findImage breaks that contract for historic reasons, and has screwed things up in the past.",
+      "parentUuid": "c2bce7e4_8bb386e6",
       "range": {
         "startLine": 93,
         "startChar": 31,
