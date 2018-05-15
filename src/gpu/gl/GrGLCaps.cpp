@@ -109,6 +109,10 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             ctxInfo.hasExtension("GL_ANGLE_pack_reverse_row_order");
     }
 
+    if (fDriverBugWorkarounds.pack_parameters_workaround_with_pack_buffer) {
+      fPackRowLengthSupport = false;
+    }
+
     fTextureUsageSupport = (kGLES_GrGLStandard == standard) &&
                             ctxInfo.hasExtension("GL_ANGLE_texture_usage");
 

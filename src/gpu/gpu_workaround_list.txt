@@ -4,4 +4,5 @@ disallow_large_instanced_draw
 gl_clear_broken
 max_msaa_sample_count_4
 max_texture_size_limit_4096
+pack_parameters_workaround_with_pack_buffer
 restore_scissor_on_fbo_change
