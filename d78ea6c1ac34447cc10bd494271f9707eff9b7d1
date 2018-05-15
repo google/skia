@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b3d413b_f462d13e",
+        "filename": "infra/bots/recipe_modules/core/examples/full.expected/Housekeeper-Weekly-RecreateSKPs.json",
+        "patchSetId": 10
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-15T18:14:02Z",
+      "side": 1,
+      "message": "This concerns me a little.  Can we run a CommandBuffer tryjob to make sure that everything works as expected?",
+      "range": {
+        "startLine": 80,
+        "startChar": 39,
+        "endLine": 80,
+        "endChar": 55
+      },
+      "revId": "d78ea6c1ac34447cc10bd494271f9707eff9b7d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
