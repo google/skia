@@ -194,7 +194,9 @@ const void* SkGlyphCache::findImage(const SkGlyph& glyph) {
     return glyph.fImage;
 }
 
-void SkGlyphCache::initializeImage(const volatile void* data, size_t size, SkGlyph* glyph) {
+bool SkGlyphCache::initializeImage(const volatile void* data, size_t size, SkGlyph* glyph) {
+    if (glyph->fImage) return false;
+
     if (glyph->fWidth > 0 && glyph->fWidth < kMaxGlyphWidth) {
         size_t allocSize = glyph->allocImage(&fAlloc);
         // check that alloc() actually succeeded
@@ -204,6 +206,8 @@ void SkGlyphCache::initializeImage(const volatile void* data, size_t size, SkGly
             fMemoryUsed += size;
         }
     }
+
+    return true;
 }
 
 const SkPath* SkGlyphCache::findPath(const SkGlyph& glyph) {
@@ -223,6 +227,24 @@ const SkPath* SkGlyphCache::findPath(const SkGlyph& glyph) {
         }
     }
     return glyph.fPathData ? glyph.fPathData->fPath : nullptr;
+}
+
+bool SkGlyphCache::initializePath(SkGlyph* glyph, const volatile void* data, size_t size) {
+    if (glyph->fPathData) return false;
+
+    if (glyph->fWidth) {
+        SkGlyph::PathData* pathData = fAlloc.make<SkGlyph::PathData>();
+        glyph->fPathData = pathData;
+        pathData->fIntercept = nullptr;
+        SkPath* path = new SkPath;
+        if (!path->readFromMemory(const_cast<const void*>(data), size)) {
+            delete path;
+            return false;
+        }
+        pathData->fPath = path;
+        fMemoryUsed += ComputePathSize(*path);
+    }
+    return true;
 }
 
 #include "../pathops/SkPathOpsCubic.h"
@@ -321,6 +343,10 @@ const SkGlyph::Intercept* SkGlyphCache::MatchBounds(const SkGlyph* glyph,
         intercept = intercept->fNext;
     }
     return nullptr;
+}
+
+size_t SkGlyphCache::ComputePathSize(const SkPath& path) {
+    return sizeof(SkPath) + path.countPoints() * sizeof(SkPoint);
 }
 
 void SkGlyphCache::findIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,

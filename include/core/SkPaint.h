@@ -1690,6 +1690,7 @@ private:
     friend class SkPDFDevice;
     friend class SkScalerContext;  // for computeLuminanceColor()
     friend class SkTextBaseIter;
+    friend class SkTextBlobCacheDiffCanvas;
 };
 
 #endif
