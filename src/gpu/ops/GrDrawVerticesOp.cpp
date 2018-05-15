@@ -39,11 +39,12 @@ GrDrawVerticesOp::GrDrawVerticesOp(const Helper::MakeArgs& helperArgs, GrColor c
 
     fVertexCount = vertices->vertexCount();
     fIndexCount = vertices->indexCount();
-    fColorArrayType = vertices->hasColors() ? ColorArrayType::kSkColor
-                                            : ColorArrayType::kPremulGrColor;
+    fColorArrayType = vertices->hasColors() &&
+                      !vertices->dontPremulColors() ? ColorArrayType::kSkColor
+                                                    : ColorArrayType::kPremulGrColor;
     // GrColor is linearized (and gamut converted) during paint conversion, but SkColors need to be
     // handled in the shader
-    fLinearizeColors = gammaCorrect && vertices->hasColors();
+    fLinearizeColors = gammaCorrect && vertices->hasColors() && !vertices->dontPremulColors();
 
     Mesh& mesh = fMeshes.push_back();
     mesh.fColor = color;
