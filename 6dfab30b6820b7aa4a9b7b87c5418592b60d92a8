@@ -16,6 +16,24 @@
       "revId": "6dfab30b6820b7aa4a9b7b87c5418592b60d92a8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56fbe271_aa091098",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2018-05-15T18:38:58Z",
+      "side": 1,
+      "message": "Sure, I\u0027ll remove this in this patch and move it down the patch chain.",
+      "parentUuid": "f241168c_93994ccd",
+      "revId": "6dfab30b6820b7aa4a9b7b87c5418592b60d92a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
