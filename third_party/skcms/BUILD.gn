@@ -3,6 +3,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import("skcms.gni")
+
 config("skcms_public") {
   include_dirs = [ "." ]
 }
@@ -18,25 +20,9 @@ source_set("skcms") {
     ]
   }
 
-  defines = []
+  defines = [ "SKCMS_LEGACY_POWF" ]
   public = [
     "skcms.h",
   ]
-  sources = [
-    "src/GaussNewton.c",
-    "src/GaussNewton.h",
-    "src/ICCProfile.c",
-    "src/LinearAlgebra.c",
-    "src/LinearAlgebra.h",
-    "src/Macros.h",
-    "src/PolyTF.c",
-    "src/PortableMath.c",
-    "src/PortableMath.h",
-    "src/RandomBytes.h",
-    "src/TransferFunction.c",
-    "src/TransferFunction.h",
-    "src/Transform.c",
-    "src/Transform.h",
-    "src/Transform_inl.h",
-  ]
+  sources = skcms_sources
 }

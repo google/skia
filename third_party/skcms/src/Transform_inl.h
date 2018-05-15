@@ -221,16 +221,18 @@ SI ATTR F NS(approx_exp2_)(F x) {
 #define approx_exp2 NS(approx_exp2_)
 
 SI ATTR F NS(approx_pow_)(F x, float y) {
-    // Handling all the integral powers first increases our precision a little.
+#if defined(SKCMS_LEGACY_POWF)
     F r = F1;
     while (y >= 1.0f) {
         r *= x;
         y -= 1.0f;
     }
-
-    // TODO: The rest of this could perhaps be specialized further knowing 0 <= y < 1.
-    assert (0 <= y && y < 1);
-    return (F)if_then_else((x == F0) | (x == F1), x, r * approx_exp2(approx_log2(x) * y));
+    return (F)if_then_else((x == F0) | (x == F1), x
+                                                , r * approx_exp2(approx_log2(x) * y));
+#else
+    return (F)if_then_else((x == F0) | (x == F1), x
+                                                , approx_exp2(approx_log2(x) * y));
+#endif
 }
 #define approx_pow NS(approx_pow_)
 
