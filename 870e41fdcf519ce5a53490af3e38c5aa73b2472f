@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "772fff16_fce5123c",
+        "filename": "src/core/SkPictureRecord.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 802,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-05-15T18:45:30Z",
+      "side": 1,
+      "message": "probably a good idea to make all these helpers static, now that I\u0027m looking.",
+      "revId": "870e41fdcf519ce5a53490af3e38c5aa73b2472f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
