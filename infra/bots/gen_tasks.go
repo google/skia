@@ -819,7 +819,11 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 // task in the generated chain of tasks, which the Job should add as a
 // dependency.
 func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
-	task := kitchenTask(name, "recreate_skps", "swarm_recipe.isolate", SERVICE_ACCOUNT_RECREATE_SKPS, linuxGceDimensions(MACHINE_TYPE_LARGE), nil, OUTPUT_NONE)
+	dims := []string{
+		"pool:SkiaCT",
+		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
+	}
+	task := kitchenTask(name, "recreate_skps", "swarm_recipe.isolate", SERVICE_ACCOUNT_RECREATE_SKPS, dims, nil, OUTPUT_NONE)
 	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
 	timeout(task, 4*time.Hour)
