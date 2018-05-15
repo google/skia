@@ -109,6 +109,15 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             ctxInfo.hasExtension("GL_ANGLE_pack_reverse_row_order");
     }
 
+    if (fDriverBugWorkarounds.pack_parameters_workaround_with_pack_buffer) {
+        // In some cases drivers handle copying the last row incorrectly
+        // when using GL_PACK_ROW_LENGTH.  Chromium handles this by iterating
+        // through every row and conditionally clobbering that value, but
+        // Skia already has a scratch buffer workaround when pack row length
+        // is not supported, so just use that.
+        fPackRowLengthSupport = false;
+    }
+
     fTextureUsageSupport = (kGLES_GrGLStandard == standard) &&
                             ctxInfo.hasExtension("GL_ANGLE_texture_usage");
 
