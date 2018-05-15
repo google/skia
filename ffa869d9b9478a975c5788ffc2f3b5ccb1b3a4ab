@@ -45,6 +45,30 @@
       "revId": "ffa869d9b9478a975c5788ffc2f3b5ccb1b3a4ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5232d6d1_2c5d3930",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-15T18:59:13Z",
+      "side": 1,
+      "message": "I just go with whatever git cl format comes up with...",
+      "parentUuid": "6ee107cf_195f4a59",
+      "range": {
+        "startLine": 123,
+        "startChar": 34,
+        "endLine": 123,
+        "endChar": 47
+      },
+      "revId": "ffa869d9b9478a975c5788ffc2f3b5ccb1b3a4ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
