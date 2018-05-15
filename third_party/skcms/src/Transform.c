@@ -442,6 +442,8 @@ bool skcms_Transform(const void*             src,
         // Photoshop creates CMYK images as inverse CMYK.
         // These happen to be the only ones we've _ever_ seen.
         *ops++ = Op_invert;
+        // With CMYK, ignore the alpha type, to avoid changing K or conflating CMY with K.
+        srcAlpha = skcms_AlphaFormat_Unpremul;
     }
 
     if (srcAlpha == skcms_AlphaFormat_Opaque) {
