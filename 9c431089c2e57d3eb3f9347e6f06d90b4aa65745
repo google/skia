@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "14e5f378_b017ee9b",
+        "filename": "src/core/SkPictureData.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-05-15T18:27:36Z",
+      "side": 1,
+      "message": "What\u0027s the most in bytes this will be?  A few meg?  If so, this is fine by me. If it\u0027s bigger, maybe we can lower this threshold.",
+      "range": {
+        "startLine": 379,
+        "startChar": 43,
+        "endLine": 379,
+        "endChar": 47
+      },
+      "revId": "9c431089c2e57d3eb3f9347e6f06d90b4aa65745",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "136938ba_36c47109",
         "filename": "src/core/SkPictureData.cpp",
         "patchSetId": 6
