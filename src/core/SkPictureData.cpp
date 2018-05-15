@@ -9,6 +9,7 @@
 
 #include "SkAutoMalloc.h"
 #include "SkImageGenerator.h"
+#include "SkMakeUnique.h"
 #include "SkPictureData.h"
 #include "SkPictureRecord.h"
 #include "SkReadBuffer.h"
@@ -25,9 +26,7 @@ template <typename T> int SafeCount(const T* obj) {
 }
 
 SkPictureData::SkPictureData(const SkPictInfo& info)
-    : fInfo(info) {
-    this->init();
-}
+    : fInfo(info) {}
 
 void SkPictureData::initForPlayback() const {
     // ensure that the paths bounds are pre-computed
@@ -38,9 +37,12 @@ void SkPictureData::initForPlayback() const {
 
 SkPictureData::SkPictureData(const SkPictureRecord& record,
                              const SkPictInfo& info)
-    : fInfo(info) {
-
-    this->init();
+    : fPictures(record.getPictures())
+    , fDrawables(record.getDrawables())
+    , fTextBlobs(record.getTextBlobs())
+    , fVertices(record.getVertices())
+    , fImages(record.getImages())
+    , fInfo(info) {
 
     fOpData = record.opData();
 
@@ -54,102 +56,6 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
     });
 
     this->initForPlayback();
-
-    const SkTDArray<const SkPicture* >& pictures = record.getPictureRefs();
-    fPictureCount = pictures.count();
-    if (fPictureCount > 0) {
-        fPictureRefs = new const SkPicture* [fPictureCount];
-        for (int i = 0; i < fPictureCount; i++) {
-            fPictureRefs[i] = pictures[i];
-            fPictureRefs[i]->ref();
-        }
-    }
-
-    const SkTDArray<SkDrawable* >& drawables = record.getDrawableRefs();
-    fDrawableCount = drawables.count();
-    if (fDrawableCount > 0) {
-        fDrawableRefs = new SkDrawable* [fDrawableCount];
-        for (int i = 0; i < fDrawableCount; i++) {
-            fDrawableRefs[i] = drawables[i];
-            fDrawableRefs[i]->ref();
-        }
-    }
-
-    // templatize to consolidate with similar picture logic?
-    const SkTDArray<const SkTextBlob*>& blobs = record.getTextBlobRefs();
-    fTextBlobCount = blobs.count();
-    if (fTextBlobCount > 0) {
-        fTextBlobRefs = new const SkTextBlob* [fTextBlobCount];
-        for (int i = 0; i < fTextBlobCount; ++i) {
-            fTextBlobRefs[i] = SkRef(blobs[i]);
-        }
-    }
-
-    const SkTDArray<const SkVertices*>& verts = record.getVerticesRefs();
-    fVerticesCount = verts.count();
-    if (fVerticesCount > 0) {
-        fVerticesRefs = new const SkVertices* [fVerticesCount];
-        for (int i = 0; i < fVerticesCount; ++i) {
-            fVerticesRefs[i] = SkRef(verts[i]);
-        }
-    }
-
-    const SkTDArray<const SkImage*>& imgs = record.getImageRefs();
-    fImageCount = imgs.count();
-    if (fImageCount > 0) {
-        fImageRefs = new const SkImage* [fImageCount];
-        for (int i = 0; i < fImageCount; ++i) {
-            fImageRefs[i] = SkRef(imgs[i]);
-        }
-    }
-}
-
-void SkPictureData::init() {
-    fPictureRefs = nullptr;
-    fPictureCount = 0;
-    fDrawableRefs = nullptr;
-    fDrawableCount = 0;
-    fTextBlobRefs = nullptr;
-    fTextBlobCount = 0;
-    fVerticesRefs = nullptr;
-    fVerticesCount = 0;
-    fImageRefs = nullptr;
-    fImageCount = 0;
-    fBitmapImageCount = 0;
-    fBitmapImageRefs = nullptr;
-    fFactoryPlayback = nullptr;
-}
-
-SkPictureData::~SkPictureData() {
-    for (int i = 0; i < fPictureCount; i++) {
-        fPictureRefs[i]->unref();
-    }
-    delete[] fPictureRefs;
-
-    for (int i = 0; i < fDrawableCount; i++) {
-        fDrawableRefs[i]->unref();
-    }
-    if (fDrawableCount > 0) {
-        SkASSERT(fDrawableRefs);
-        delete[] fDrawableRefs;
-    }
-
-    for (int i = 0; i < fTextBlobCount; i++) {
-        fTextBlobRefs[i]->unref();
-    }
-    delete[] fTextBlobRefs;
-
-    for (int i = 0; i < fVerticesCount; i++) {
-        fVerticesRefs[i]->unref();
-    }
-    delete[] fVerticesRefs;
-
-    for (int i = 0; i < fImageCount; i++) {
-        fImageRefs[i]->unref();
-    }
-    delete[] fImageRefs;
-
-    delete fFactoryPlayback;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -244,24 +150,24 @@ void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer) const {
         }
     }
 
-    if (fTextBlobCount > 0) {
-        write_tag_size(buffer, SK_PICT_TEXTBLOB_BUFFER_TAG, fTextBlobCount);
-        for (i = 0; i  < fTextBlobCount; ++i) {
-            fTextBlobRefs[i]->flatten(buffer);
+    if (!fTextBlobs.empty()) {
+        write_tag_size(buffer, SK_PICT_TEXTBLOB_BUFFER_TAG, fTextBlobs.count());
+        for (const auto& blob : fTextBlobs) {
+            blob->flatten(buffer);
         }
     }
 
-    if (fVerticesCount > 0) {
-        write_tag_size(buffer, SK_PICT_VERTICES_BUFFER_TAG, fVerticesCount);
-        for (i = 0; i  < fVerticesCount; ++i) {
-            buffer.writeDataAsByteArray(fVerticesRefs[i]->encode().get());
+    if (!fVertices.empty()) {
+        write_tag_size(buffer, SK_PICT_VERTICES_BUFFER_TAG, fVertices.count());
+        for (const auto& vert : fVertices) {
+            buffer.writeDataAsByteArray(vert->encode().get());
         }
     }
 
-    if (fImageCount > 0) {
-        write_tag_size(buffer, SK_PICT_IMAGE_BUFFER_TAG, fImageCount);
-        for (i = 0; i  < fImageCount; ++i) {
-            buffer.writeImage(fImageRefs[i]);
+    if (!fImages.empty()) {
+        write_tag_size(buffer, SK_PICT_IMAGE_BUFFER_TAG, fImages.count());
+        for (const auto& img : fImages) {
+            buffer.writeImage(img.get());
         }
     }
 }
@@ -293,8 +199,8 @@ void SkPictureData::serialize(SkWStream* stream, const SkSerialProcs& procs,
         bool write(const void*, size_t size) override { fBytesWritten += size; return true; }
         size_t bytesWritten() const override { return fBytesWritten; }
     } devnull;
-    for (int i = 0; i < fPictureCount; i++) {
-        fPictureRefs[i]->serialize(&devnull, nullptr, typefaceSet);
+    for (const auto& pic : fPictures) {
+        pic->serialize(&devnull, nullptr, typefaceSet);
     }
 
     // We need to write factories before we write the buffer.
@@ -309,10 +215,10 @@ void SkPictureData::serialize(SkWStream* stream, const SkSerialProcs& procs,
     buffer.writeToStream(stream);
 
     // Write sub-pictures by calling serialize again.
-    if (fPictureCount > 0) {
-        write_tag_size(stream, SK_PICT_PICTURE_TAG, fPictureCount);
-        for (int i = 0; i < fPictureCount; i++) {
-            fPictureRefs[i]->serialize(stream, &procs, typefaceSet);
+    if (!fPictures.empty()) {
+        write_tag_size(stream, SK_PICT_PICTURE_TAG, fPictures.count());
+        for (const auto& pic : fPictures) {
+            pic->serialize(stream, &procs, typefaceSet);
         }
     }
 
@@ -323,17 +229,17 @@ void SkPictureData::flatten(SkWriteBuffer& buffer) const {
     write_tag_size(buffer, SK_PICT_READER_TAG, fOpData->size());
     buffer.writeByteArray(fOpData->bytes(), fOpData->size());
 
-    if (fPictureCount > 0) {
-        write_tag_size(buffer, SK_PICT_PICTURE_TAG, fPictureCount);
-        for (int i = 0; i < fPictureCount; i++) {
-            fPictureRefs[i]->flatten(buffer);
+    if (!fPictures.empty()) {
+        write_tag_size(buffer, SK_PICT_PICTURE_TAG, fPictures.count());
+        for (const auto& pic : fPictures) {
+            pic->flatten(buffer);
         }
     }
 
-    if (fDrawableCount > 0) {
-        write_tag_size(buffer, SK_PICT_DRAWABLE_TAG, fDrawableCount);
-        for (int i = 0; i < fDrawableCount; i++) {
-            buffer.writeFlattenable(fDrawableRefs[i]);
+    if (!fDrawables.empty()) {
+        write_tag_size(buffer, SK_PICT_DRAWABLE_TAG, fDrawables.count());
+        for (const auto& draw : fDrawables) {
+            buffer.writeFlattenable(draw.get());
         }
     }
 
@@ -371,7 +277,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
         case SK_PICT_FACTORY_TAG: {
             SkASSERT(!haveBuffer);
             size = stream->readU32();
-            fFactoryPlayback = new SkFactoryPlayback(size);
+            fFactoryPlayback = skstd::make_unique<SkFactoryPlayback>(size);
             for (size_t i = 0; i < size; i++) {
                 SkString str;
                 const size_t len = stream->readPackedUInt();
@@ -397,14 +303,15 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             }
         } break;
         case SK_PICT_PICTURE_TAG: {
-            fPictureCount = 0;
-            fPictureRefs = new const SkPicture* [size];
+            SkASSERT(fPictures.empty());
+            fPictures.reserve(SkToInt(size));
+
             for (uint32_t i = 0; i < size; i++) {
-                fPictureRefs[i] = SkPicture::MakeFromStream(stream, &procs, topLevelTFPlayback).release();
-                if (!fPictureRefs[i]) {
+                auto pic = SkPicture::MakeFromStream(stream, &procs, topLevelTFPlayback);
+                if (!pic) {
                     return false;
                 }
-                fPictureCount++;
+                fPictures.push_back(std::move(pic));
             }
         } break;
         case SK_PICT_BUFFER_SIZE_TAG: {
@@ -456,41 +363,28 @@ static sk_sp<SkDrawable> create_drawable_from_buffer(SkReadBuffer& buffer) {
     return sk_sp<SkDrawable>((SkDrawable*)buffer.readFlattenable(SkFlattenable::kSkDrawable_Type));
 }
 
-template <typename T>
+// We need two types 'cause SkDrawable is const-variant.
+template <typename T, typename U>
 bool new_array_from_buffer(SkReadBuffer& buffer, uint32_t inCount,
-                           const T*** array, int* outCount, sk_sp<T> (*factory)(SkReadBuffer&)) {
-    if (!buffer.validate((0 == *outCount) && (nullptr == *array))) {
+                           SkTArray<sk_sp<T>>& array, sk_sp<U> (*factory)(SkReadBuffer&)) {
+    if (!buffer.validate(array.empty() && SkTFitsIn<int>(inCount))) {
         return false;
     }
     if (0 == inCount) {
         return true;
     }
-    if (!buffer.validate(SkTFitsIn<int>(inCount))) {
-        return false;
+
+    for (uint32_t i = 0; i < inCount; ++i) {
+        auto obj = factory(buffer);
+
+        if (!buffer.validate(obj)) {
+            array.reset();
+            return false;
+        }
+
+        array.push_back(std::move(obj));
     }
 
-    *outCount = inCount;
-    *array = new const T* [*outCount];
-    bool success = true;
-    int i = 0;
-    for (; i < *outCount; i++) {
-        (*array)[i] = factory(buffer).release();
-        if (nullptr == (*array)[i]) {
-            success = false;
-            break;
-        }
-    }
-    if (!success) {
-        // Delete all of the blobs that were already created (up to but excluding i):
-        for (int j = 0; j < i; j++) {
-            (*array)[j]->unref();
-        }
-        // Delete the array
-        delete[] * array;
-        *array = nullptr;
-        *outCount = 0;
-        return buffer.validate(false);
-    }
     return true;
 }
 
@@ -520,16 +414,13 @@ void SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
                 }
             } break;
         case SK_PICT_TEXTBLOB_BUFFER_TAG:
-            new_array_from_buffer(buffer, size, &fTextBlobRefs, &fTextBlobCount,
-                                  SkTextBlob::MakeFromBuffer);
+            new_array_from_buffer(buffer, size, fTextBlobs, SkTextBlob::MakeFromBuffer);
             break;
         case SK_PICT_VERTICES_BUFFER_TAG:
-            new_array_from_buffer(buffer, size, &fVerticesRefs, &fVerticesCount,
-                                  create_vertices_from_buffer);
+            new_array_from_buffer(buffer, size, fVertices, create_vertices_from_buffer);
             break;
         case SK_PICT_IMAGE_BUFFER_TAG:
-            new_array_from_buffer(buffer, size, &fImageRefs, &fImageCount,
-                                  create_image_from_buffer);
+            new_array_from_buffer(buffer, size, fImages, create_image_from_buffer);
             break;
         case SK_PICT_READER_TAG: {
             auto data(SkData::MakeUninitialized(size));
@@ -541,12 +432,10 @@ void SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
             fOpData = std::move(data);
         } break;
         case SK_PICT_PICTURE_TAG:
-            new_array_from_buffer(buffer, size, &fPictureRefs, &fPictureCount,
-                                  SkPicture::MakeFromBuffer);
+            new_array_from_buffer(buffer, size, fPictures, SkPicture::MakeFromBuffer);
             break;
         case SK_PICT_DRAWABLE_TAG:
-            new_array_from_buffer(buffer, size, (const SkDrawable***)&fDrawableRefs,
-                                  &fDrawableCount, create_drawable_from_buffer);
+            new_array_from_buffer(buffer, size, fDrawables, create_drawable_from_buffer);
             break;
         default:
             buffer.validate(false); // The tag was invalid.
