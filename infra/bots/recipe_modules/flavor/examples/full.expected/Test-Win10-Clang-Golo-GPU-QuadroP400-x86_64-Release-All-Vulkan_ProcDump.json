@@ -167,10 +167,8 @@
       "--some-flag"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "dm"
   },

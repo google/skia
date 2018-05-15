@@ -4,10 +4,8 @@
       "false"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Release-Vulkan"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "fail",
     "~followup_annotations": [
@@ -20,10 +18,8 @@
       "false"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Release-Vulkan"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "fail again",
     "~followup_annotations": [
@@ -37,10 +33,8 @@
       "do the thing"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Release-Vulkan"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "do a thing"
   },
@@ -50,10 +44,8 @@
       "0"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Release-Vulkan"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "run 0"
   },
@@ -117,10 +109,8 @@
       "env"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "mydir:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Release-Vulkan"
+      "PATH": "mydir:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "env"
   },
@@ -129,10 +119,8 @@
       "false"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Release-Vulkan"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "retry fail",
     "~followup_annotations": [
@@ -146,10 +134,8 @@
       "between_attempt"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Release-Vulkan"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "between_attempts #1"
   },
@@ -158,10 +144,8 @@
       "false"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Release-Vulkan"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "retry fail (attempt 2)",
     "~followup_annotations": [
@@ -175,10 +159,8 @@
       "between_attempt"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Release-Vulkan"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "between_attempts #2"
   },
@@ -187,10 +169,8 @@
       "false"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Release-Vulkan"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "retry fail (attempt 3)",
     "~followup_annotations": [
@@ -204,10 +184,8 @@
       "between_attempt"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Release-Vulkan"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "between_attempts #3"
   },
@@ -216,10 +194,8 @@
       "false"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Release-Vulkan"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "retry fail (attempt 4)",
     "~followup_annotations": [
@@ -233,10 +209,8 @@
       "between_attempt"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Release-Vulkan"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "between_attempts #4"
   },
@@ -245,10 +219,8 @@
       "false"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Release-Vulkan"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "retry fail (attempt 5)",
     "~followup_annotations": [
@@ -261,10 +233,8 @@
       "false"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Release-Vulkan"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "retry success",
     "~followup_annotations": [
@@ -278,10 +248,8 @@
       "between_attempt"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Release-Vulkan"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "between_attempts #1 (2)"
   },
@@ -290,10 +258,8 @@
       "false"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Release-Vulkan"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "retry success (attempt 2)",
     "~followup_annotations": [
@@ -307,10 +273,8 @@
       "between_attempt"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Release-Vulkan"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "between_attempts #2 (2)"
   },
@@ -319,10 +283,8 @@
       "false"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Release-Vulkan"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "retry success (attempt 3)"
   },
