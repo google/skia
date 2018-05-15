@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24572631_e32b20b2",
+        "filename": "src/core/SkColorSpace_XYZ.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-15T02:43:56Z",
+      "side": 1,
+      "message": "Can you move this to a separate cl. This seems totally unrelated.",
+      "range": {
+        "startLine": 130,
+        "startChar": 11,
+        "endLine": 130,
+        "endChar": 14
+      },
+      "revId": "26de8c62685dca9644697a8d76e52a22db7e7444",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e94b13e4_1b3edbad",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-15T02:43:56Z",
+      "side": 1,
+      "message": "Can you put this back inline. The equations is just as descriptive as the name.",
+      "range": {
+        "startLine": 320,
+        "startChar": 21,
+        "endLine": 320,
+        "endChar": 36
+      },
+      "revId": "26de8c62685dca9644697a8d76e52a22db7e7444",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd650504_a2fe5d5d",
+        "filename": "src/core/SkGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-15T02:43:56Z",
+      "side": 1,
+      "message": "just SkGlyph*",
+      "range": {
+        "startLine": 93,
+        "startChar": 31,
+        "endLine": 93,
+        "endChar": 38
+      },
+      "revId": "26de8c62685dca9644697a8d76e52a22db7e7444",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
