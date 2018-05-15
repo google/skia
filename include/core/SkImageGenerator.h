@@ -41,9 +41,15 @@ public:
      *  If non-NULL is returned, the caller is responsible for calling
      *  unref() on the data when it is finished.
      */
+#if SK_IGNORE_SKIMAGE_ONREFENCODED_CHANGE
     SkData* refEncodedData() {
         return this->onRefEncodedData();
     }
+#else
+    sk_sp<SkData> refEncodedData() {
+        return this->onRefEncodedData();
+    }
+#endif
 
     /**
      *  Return the ImageInfo associated with this generator.
@@ -174,7 +180,11 @@ protected:
 
     SkImageGenerator(const SkImageInfo& info, uint32_t uniqueId = kNeedNewImageUniqueID);
 
+#if SK_IGNORE_SKIMAGE_ONREFENCODED_CHANGE
     virtual SkData* onRefEncodedData() { return nullptr; }
+#else
+    virtual sk_sp<SkData> onRefEncodedData() { return nullptr; }
+#endif
     virtual bool onGetPixels(const SkImageInfo&, void*, size_t, const Options&) { return false; }
     virtual bool onIsValid(GrContext*) const { return true; }
     virtual bool onQueryYUV8(SkYUVSizeInfo*, SkYUVColorSpace*) const { return false; }

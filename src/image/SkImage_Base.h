@@ -76,7 +76,11 @@ public:
 
     virtual sk_sp<SkImage> onMakeSubset(const SkIRect&) const = 0;
 
+#if SK_IGNORE_SKIMAGE_ONREFENCODED_CHANGE
     virtual SkData* onRefEncoded() const { return nullptr; }
+#else
+    virtual sk_sp<SkData> onRefEncoded() const { return nullptr; }
+#endif
 
     virtual bool onAsLegacyBitmap(SkBitmap*) const;
 

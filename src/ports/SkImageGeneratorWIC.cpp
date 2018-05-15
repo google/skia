@@ -132,9 +132,15 @@ SkImageGeneratorWIC::SkImageGeneratorWIC(const SkImageInfo& info,
     , fData(SkRef(data))
 {}
 
+#if SK_IGNORE_SKIMAGE_ONREFENCODED_CHANGE
 SkData* SkImageGeneratorWIC::onRefEncodedData() {
     return SkRef(fData.get());
 }
+#else
+sk_sp<SkData> SkImageGeneratorWIC::onRefEncodedData() {
+    return fData;
+}
+#endif
 
 bool SkImageGeneratorWIC::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
         const Options&) {
