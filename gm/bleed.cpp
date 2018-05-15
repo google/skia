@@ -213,6 +213,7 @@ protected:
     void drawPixels(SkCanvas* canvas, const TestPixels& pixels, const SkRect& src,
                     const SkRect& dst, const SkPaint* paint,
                     SkCanvas::SrcRectConstraint constraint) {
+        if (paint->isAntiAlias())
         if (TestPixels::kBitmap == pixels.fType) {
             canvas->drawBitmapRect(pixels.fBitmap, src, dst, paint, constraint);
         } else {

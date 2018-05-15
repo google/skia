@@ -95,7 +95,7 @@ static bool can_use_draw_texture_affine(const SkPaint& paint, GrAA aa, const SkM
                                         SkCanvas::SrcRectConstraint constraint) {
     return (!paint.getColorFilter() && !paint.getShader() && !paint.getMaskFilter() &&
             !paint.getImageFilter() && paint.getFilterQuality() < kMedium_SkFilterQuality &&
-            paint.getBlendMode() == SkBlendMode::kSrcOver && !ctm.hasPerspective() &&
+            paint.getBlendMode() == SkBlendMode::kSrcOver /*&& !ctm.hasPerspective() */&&
             SkCanvas::kFast_SrcRectConstraint == constraint);
 }
 
@@ -130,6 +130,7 @@ static void draw_texture_affine(const SkPaint& paint, const SkMatrix& ctm, const
     GrColor color = GrPixelConfigIsAlphaOnly(proxy->config())
                             ? SkColorToPremulGrColor(paint.getColor())
                             : SkColorAlphaToGrColor(paint.getColor());
+    SkDebugf("affine!\n");
     rtc->drawTextureAffine(clip, std::move(proxy), filter, color, srcRect, dstRect, aa, ctm,
                            std::move(csxf));
 }

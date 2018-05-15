@@ -773,7 +773,7 @@ void GrRenderTargetContext::drawTextureAffine(const GrClip& clip, sk_sp<GrTextur
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTextureAffine", fContext);
-    SkASSERT(!viewMatrix.hasPerspective());
+    //SkASSERT(!viewMatrix.hasPerspective());
     if (filter != GrSamplerState::Filter::kNearest && !must_filter(srcRect, dstRect, viewMatrix)) {
         filter = GrSamplerState::Filter::kNearest;
     }
