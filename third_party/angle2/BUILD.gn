@@ -103,10 +103,9 @@ shared_library("libGLESv2") {
               gles_gypi.libglesv2_sources + gles_gypi.libangle_gl_sources,
           ".",
           "$angle_root/src")
-  if (!is_win) {
-    sources -= [ "$angle_root/src/libGLESv2/libGLESv2_autogen.def" ]
+  if (is_win) {
+    sources += [ "$angle_root/src/libGLESv2/libGLESv2_autogen.def" ]
   }
-
   if (is_linux) {
     libs += [
       "X11",
@@ -150,7 +149,7 @@ shared_library("libEGL") {
     ":libGLESv2",
   ]
   sources = rebase_path(gles_gypi.libegl_sources, ".", "$angle_root/src")
-  if (!is_win) {
-    sources -= [ "$angle_root/src/libEGL/libEGL.def" ]
+  if (is_win) {
+    sources += [ "$angle_root/src/libEGL/libEGL.def" ]
   }
 }
