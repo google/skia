@@ -10,9 +10,6 @@ def compile_fn(api, _):
   out_dir = configuration
 
   with api.context(cwd=flutter_dir):
-    # Runhook to generate the gn binary in buildtools.
-    api.gclient.runhooks()
-
     # Setup GN args.
     gn_args = [
         '--runtime-mode=%s' % configuration,
