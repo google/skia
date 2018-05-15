@@ -54,11 +54,11 @@ public:
         , fAnimTranslate(0)
         , fAnimAngle(0)
         , fAnimAlpha(1)
-        , fShowAmbient(true)
+        , fShowAmbient(false)
         , fShowSpot(true)
-        , fUseAlt(false)
-        , fShowObject(true)
-        , fIgnoreShadowAlpha(false)
+        , fUseAlt(true)
+        , fShowObject(false)
+        , fIgnoreShadowAlpha(true)
         , fDoAlphaAnimation(false) {}
 
 protected:
@@ -193,13 +193,13 @@ protected:
 
         if (fShowObject) {
             canvas->drawPath(path, paint);
-        } else {
-            SkPaint strokePaint;
+        //} else {
+        //    SkPaint strokePaint;
 
-            strokePaint.setColor(paint.getColor());
-            strokePaint.setStyle(SkPaint::kStroke_Style);
+        //    strokePaint.setColor(paint.getColor());
+        //    strokePaint.setStyle(SkPaint::kStroke_Style);
 
-            canvas->drawPath(path, strokePaint);
+        //    canvas->drawPath(path, strokePaint);
         }
     }
 
@@ -283,11 +283,11 @@ protected:
 
         // path ops bug
         SkPath tmpClipPathBug;
-        tmpClipPathBug.addCircle(88.0344925f, 0, 60);
+        tmpClipPathBug.addCircle(16.5f, 0, 60);
         Op(fSquareRRectPath, tmpClipPathBug, kIntersect_SkPathOp, &tmpPath);
 
         canvas->translate(250, 0);
-        zPlaneParams.fZ = SkTMax(1.0f, 32 + fZDelta);
+        zPlaneParams.fZ = SkTMax(1.0f, 32 + fZDelta - 9);
         this->drawShadowedPath(canvas, tmpPath, zPlaneParams, paint, .1f,
                                lightPos, kLightWidth, .5f);
 

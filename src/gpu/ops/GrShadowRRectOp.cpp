@@ -114,10 +114,10 @@ static const uint16_t gRRectIndices[] = {
     18, 19, 20, 18, 20, 21, 18, 21, 22, 18, 22, 23,
 
     // edges
-    0, 5, 11, 0, 11, 6,
-    6, 7, 19, 6, 19, 18,
-    18, 23, 17, 18, 17, 12,
-    12, 13, 1, 12, 1, 0,
+    0, 5, 6, 6, 5, 11,
+    6, 7, 18, 18, 7, 19,
+    18, 23, 12, 12, 23, 17,
+    12, 13, 0, 0, 13, 1,
 
     // fill quad
     // we place this at the end so that we can skip these indices when rendering as stroked
@@ -277,7 +277,8 @@ private:
         GrColor fColor;
         SkPoint fOffset;
         SkScalar fDistanceCorrection;
-        SkScalar fClampValue;
+        uint16_t fClampValue;
+        uint16_t fFalloffParam;
     };
 
     void fillInCircleVerts(const Geometry& args, bool isStroked, CircleVertex** verts) const {
@@ -287,7 +288,7 @@ private:
         SkScalar innerRadius = args.fInnerRadius;
         SkScalar blurRadius = args.fBlurRadius;
         SkScalar distanceCorrection = outerRadius / blurRadius;
-        SkScalar clampValue = args.fClampValue;
+        uint16_t clampValue = args.fClampValue * 65535.99f;
 
         const SkRect& bounds = args.fDevBounds;
 
@@ -303,6 +304,7 @@ private:
         (*verts)->fOffset = SkPoint::Make(-octOffset, -1);
         (*verts)->fDistanceCorrection = distanceCorrection;
         (*verts)->fClampValue = clampValue;
+        (*verts)->fFalloffParam = 65535;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(octOffset * halfWidth, -halfWidth);
@@ -310,6 +312,7 @@ private:
         (*verts)->fOffset = SkPoint::Make(octOffset, -1);
         (*verts)->fDistanceCorrection = distanceCorrection;
         (*verts)->fClampValue = clampValue;
+        (*verts)->fFalloffParam = 65535;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(halfWidth, -octOffset * halfWidth);
@@ -317,6 +320,7 @@ private:
         (*verts)->fOffset = SkPoint::Make(1, -octOffset);
         (*verts)->fDistanceCorrection = distanceCorrection;
         (*verts)->fClampValue = clampValue;
+        (*verts)->fFalloffParam = 65535;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(halfWidth, octOffset * halfWidth);
@@ -324,6 +328,7 @@ private:
         (*verts)->fOffset = SkPoint::Make(1, octOffset);
         (*verts)->fDistanceCorrection = distanceCorrection;
         (*verts)->fClampValue = clampValue;
+        (*verts)->fFalloffParam = 65535;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(octOffset * halfWidth, halfWidth);
@@ -331,6 +336,7 @@ private:
         (*verts)->fOffset = SkPoint::Make(octOffset, 1);
         (*verts)->fDistanceCorrection = distanceCorrection;
         (*verts)->fClampValue = clampValue;
+        (*verts)->fFalloffParam = 65535;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(-octOffset * halfWidth, halfWidth);
@@ -338,6 +344,7 @@ private:
         (*verts)->fOffset = SkPoint::Make(-octOffset, 1);
         (*verts)->fDistanceCorrection = distanceCorrection;
         (*verts)->fClampValue = clampValue;
+        (*verts)->fFalloffParam = 65535;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(-halfWidth, octOffset * halfWidth);
@@ -345,6 +352,7 @@ private:
         (*verts)->fOffset = SkPoint::Make(-1, octOffset);
         (*verts)->fDistanceCorrection = distanceCorrection;
         (*verts)->fClampValue = clampValue;
+        (*verts)->fFalloffParam = 65535;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(-halfWidth, -octOffset * halfWidth);
@@ -352,6 +360,7 @@ private:
         (*verts)->fOffset = SkPoint::Make(-1, -octOffset);
         (*verts)->fDistanceCorrection = distanceCorrection;
         (*verts)->fClampValue = clampValue;
+        (*verts)->fFalloffParam = 65535;
         (*verts)++;
 
         if (isStroked) {
@@ -367,6 +376,7 @@ private:
             (*verts)->fOffset = SkPoint::Make(-s * innerRadius, -c * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fFalloffParam = 65535;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(s * r, -c * r);
@@ -374,6 +384,7 @@ private:
             (*verts)->fOffset = SkPoint::Make(s * innerRadius, -c * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fFalloffParam = 65535;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(c * r, -s * r);
@@ -381,6 +392,7 @@ private:
             (*verts)->fOffset = SkPoint::Make(c * innerRadius, -s * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fFalloffParam = 65535;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(c * r, s * r);
@@ -388,6 +400,7 @@ private:
             (*verts)->fOffset = SkPoint::Make(c * innerRadius, s * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fFalloffParam = 65535;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(s * r, c * r);
@@ -395,6 +408,7 @@ private:
             (*verts)->fOffset = SkPoint::Make(s * innerRadius, c * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fFalloffParam = 65535;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(-s * r, c * r);
@@ -402,6 +416,7 @@ private:
             (*verts)->fOffset = SkPoint::Make(-s * innerRadius, c * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fFalloffParam = 65535;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(-c * r, s * r);
@@ -409,6 +424,7 @@ private:
             (*verts)->fOffset = SkPoint::Make(-c * innerRadius, s * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fFalloffParam = 65535;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(-c * r, -s * r);
@@ -416,6 +432,7 @@ private:
             (*verts)->fOffset = SkPoint::Make(-c * innerRadius, -s * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fFalloffParam = 65535;
             (*verts)++;
         } else {
             // filled
@@ -424,6 +441,7 @@ private:
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fFalloffParam = 65535;
             (*verts)++;
         }
     }
@@ -441,17 +459,17 @@ private:
         }
 
         SkScalar xInner[4] = { bounds.fLeft + umbraInset, bounds.fRight - umbraInset,
-            bounds.fLeft + umbraInset, bounds.fRight - umbraInset };
+                               bounds.fLeft + umbraInset, bounds.fRight - umbraInset };
         SkScalar xMid[4] = { bounds.fLeft + outerRadius, bounds.fRight - outerRadius,
-            bounds.fLeft + outerRadius, bounds.fRight - outerRadius };
+                             bounds.fLeft + outerRadius, bounds.fRight - outerRadius };
         SkScalar xOuter[4] = { bounds.fLeft, bounds.fRight,
-            bounds.fLeft, bounds.fRight };
+                               bounds.fLeft, bounds.fRight };
         SkScalar yInner[4] = { bounds.fTop + umbraInset, bounds.fTop + umbraInset,
-            bounds.fBottom - umbraInset, bounds.fBottom - umbraInset };
+                               bounds.fBottom - umbraInset, bounds.fBottom - umbraInset };
         SkScalar yMid[4] = { bounds.fTop + outerRadius, bounds.fTop + outerRadius,
-            bounds.fBottom - outerRadius, bounds.fBottom - outerRadius };
+                             bounds.fBottom - outerRadius, bounds.fBottom - outerRadius };
         SkScalar yOuter[4] = { bounds.fTop, bounds.fTop,
-            bounds.fBottom, bounds.fBottom };
+                               bounds.fBottom, bounds.fBottom };
 
         SkScalar blurRadius = args.fBlurRadius;
 
@@ -474,7 +492,10 @@ private:
         SkScalar diagVal = umbraInset / (SK_ScalarSqrt2*(outerRadius - umbraInset) - outerRadius);
         SkVector diagVec = SkVector::Make(diagVal, diagVal);
         SkScalar distanceCorrection = umbraInset / blurRadius;
-        SkScalar clampValue = args.fClampValue;
+        uint16_t clampValue = args.fClampValue * 65535.99f;
+
+        uint16_t midFalloff = SkScalarTruncToInt(65535.99f * (outerRadius / umbraInset));
+        uint16_t cornerFalloff = midFalloff * midFalloff;
 
         // build corner by corner
         for (int i = 0; i < 4; ++i) {
@@ -484,6 +505,7 @@ private:
             (*verts)->fOffset = SkVector::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fFalloffParam = 65535;
             (*verts)++;
 
             // outer points
@@ -492,6 +514,7 @@ private:
             (*verts)->fOffset = SkVector::Make(0, -1);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fFalloffParam = 65535;
             (*verts)++;
 
             (*verts)->fPos = SkPoint::Make(xOuter[i], yMid[i]);
@@ -499,6 +522,7 @@ private:
             (*verts)->fOffset = outerVec;
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fFalloffParam = midFalloff;
             (*verts)++;
 
             (*verts)->fPos = SkPoint::Make(xOuter[i], yOuter[i]);
@@ -506,6 +530,7 @@ private:
             (*verts)->fOffset = diagVec;
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fFalloffParam = cornerFalloff;
             (*verts)++;
 
             (*verts)->fPos = SkPoint::Make(xMid[i], yOuter[i]);
@@ -513,6 +538,7 @@ private:
             (*verts)->fOffset = outerVec;
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fFalloffParam = midFalloff;
             (*verts)++;
 
             (*verts)->fPos = SkPoint::Make(xInner[i], yOuter[i]);
@@ -520,6 +546,7 @@ private:
             (*verts)->fOffset = SkVector::Make(0, -1);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fFalloffParam = 65535;
             (*verts)++;
         }
 
@@ -538,6 +565,7 @@ private:
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fFalloffParam = 65535;
             (*verts)++;
 
             // TR
@@ -546,6 +574,7 @@ private:
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fFalloffParam = 65535;
             (*verts)++;
 
             // BL
@@ -554,6 +583,7 @@ private:
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fFalloffParam = 65535;
             (*verts)++;
 
             // BR
@@ -562,6 +592,7 @@ private:
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fFalloffParam = 65535;
             (*verts)++;
         }
 
