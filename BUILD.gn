@@ -781,18 +781,6 @@ config("third_party_skcms_public") {
 }
 source_set("third_party_skcms") {
   public_configs = [ ":third_party_skcms_public" ]
-
-  cflags = []
-  if (!is_win || is_clang) {
-    cflags += [
-      "-w",
-      "-std=c11",
-    ]
-  }
-
-  public = [
-    "third_party/skcms/skcms.h",
-  ]
   sources = rebase_path(skcms_sources, ".", "third_party/skcms")
 }
 
