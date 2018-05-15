@@ -2473,6 +2473,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // given 1 << 15 or more instances.
     if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
         fMaxInstancesPerDrawArraysWithoutCrashing = 0x7fff;
+    } else if (fDriverBugWorkarounds.disallow_large_instanced_draw) {
+        fMaxInstancesPerDrawArraysWithoutCrashing = 0x4000000;
     }
 
     // Texture uploads sometimes seem to be ignored to textures bound to FBOS on Tegra3.
