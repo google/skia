@@ -472,6 +472,23 @@ static SkPath create_path_31() {
     return path;
 }
 
+// Reduction from skbug.com/7911 that causes an infinite loop in simplify().
+static SkPath create_path_32() {
+    SkPath path;
+    path.moveTo(                   0,                    0);
+    path.lineTo(4.0935452007233803374e-34, 4.0936039754409214518e-34);
+    path.lineTo(6.0194751451106161905e-34, 4.0935452007233803374e-34);
+    path.lineTo(3.9430819238181275364e-34, 4.0935452007233803374e-34);
+    path.lineTo(4.0935452007233803374e-34, 4.0935452007233803374e-34);
+    path.lineTo(2.3509887016445750159e-38, 4.0935415273035340178e-34);
+    path.lineTo(2.4985017094258913192e-38, 4.0936549441412891369e-34);
+    path.lineTo(4.0935452007233803374e-34, 4.0935452007233803374e-34);
+    path.lineTo(7.3756503890658151638e-40, 5.7777898331617075592e-34);
+    path.lineTo(4.0935452007233803374e-34, 4.0935452007233803374e-34);
+    path.lineTo(4.0935452007233803374e-34, 4.0935452007233803374e-34);
+    return path;
+}
+
 static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
 
     SkPoint pts[2] = { {0, 0}, {1, 1} };
@@ -563,5 +580,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_29());
     test_path(ctx, rtc.get(), create_path_30());
     test_path(ctx, rtc.get(), create_path_31(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, rtc.get(), create_path_32());
 }
 #endif

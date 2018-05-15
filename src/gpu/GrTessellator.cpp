@@ -1079,10 +1079,12 @@ void split_edge(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, 
     Vertex* top;
     Vertex* bottom;
     if (c.sweep_lt(v->fPoint, edge->fTop->fPoint)) {
+        // v is above edge->top; new edge will be v -> edge->top, edge will be v -> edge->bottom.
         top = v;
         bottom = edge->fTop;
         set_top(edge, v, activeEdges, current, c);
     } else if (c.sweep_lt(edge->fBottom->fPoint, v->fPoint)) {
+        // v is below edge->bottom; new edge will be edge->bottom -> v, edge will be edge->top -> v.
         top = edge->fBottom;
         bottom = v;
         set_bottom(edge, v, activeEdges, current, c);
@@ -1142,6 +1144,15 @@ bool out_of_range_and_collinear(const SkPoint& p, Edge* edge, Comparator& c) {
     return false;
 }
 
+// If an edge's top and bottom points differ only by a single machine epsilon in the primary
+// sort criterion, it may not be possible to split correctly, since there is no point which is
+// below the top and above the bottom. This function detects that case.
+bool nearly_flat(Edge* edge, Comparator& c) {
+    SkPoint diff = edge->fBottom->fPoint - edge->fTop->fPoint;
+    float primaryDiff = c.fDirection == Comparator::Direction::kHorizontal ? diff.fX : diff.fY;
+    return fabs(primaryDiff) < std::numeric_limits<float>::epsilon();
+}
+
 Vertex* create_sorted_vertex(const SkPoint& p, uint8_t alpha, VertexList* mesh,
                              Vertex* reference, Comparator& c, SkArenaAlloc& alloc) {
     Vertex* prevV = reference;
@@ -1196,13 +1207,20 @@ bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vert
         while (top && c.sweep_lt(p, top->fPoint)) {
             top = top->fPrev;
         }
-        if (p == edge->fTop->fPoint) {
+        // Merge out-of-range intersections with the top or bottom vertex, *unless* the
+        // edge is nearly flat (differs by a single machine epsilon), where out-of-range
+        // intersections will be handled in split_edge().
+        if (p == edge->fTop->fPoint ||
+            (c.sweep_lt(p, edge->fTop->fPoint) && !nearly_flat(edge, c))) {
             v = edge->fTop;
-        } else if (p == edge->fBottom->fPoint) {
+        } else if (p == edge->fBottom->fPoint ||
+                   (c.sweep_lt(edge->fBottom->fPoint, p) && !nearly_flat(edge, c))) {
             v = edge->fBottom;
-        } else if (p == other->fTop->fPoint) {
+        } else if (p == other->fTop->fPoint ||
+                   (c.sweep_lt(p, other->fTop->fPoint) && !nearly_flat(other, c))) {
             v = other->fTop;
-        } else if (p == other->fBottom->fPoint) {
+        } else if (p == other->fBottom->fPoint ||
+                   (c.sweep_lt(other->fBottom->fPoint, p) && !nearly_flat(other, c))) {
             v = other->fBottom;
         } else {
             v = create_sorted_vertex(p, alpha, mesh, top, c, alloc);
