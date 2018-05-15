@@ -879,13 +879,12 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlag
 
     const SkMatrix& ctm = fMCRec->fMatrix;  // this->getTotalMatrix()
 
-    if (imageFilter) {
-        clipBounds = imageFilter->filterBounds(clipBounds, ctm,
-                                               SkImageFilter::kReverse_MapDirection);
-        if (bounds && !imageFilter->canComputeFastBounds()) {
-            bounds = nullptr;
-        }
+    if (imageFilter && bounds && !imageFilter->canComputeFastBounds()) {
+        // If the image filter DAG affects transparent black then we will need to render
+        // out to the clip bounds
+        bounds = nullptr;
     }
+
     SkIRect ir;
     if (bounds) {
         SkRect r;
@@ -893,6 +892,11 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlag
         r.roundOut(&ir);
     } else {    // no user bounds, so just use the clip
         ir = clipBounds;
+    }
+
+    if (imageFilter) {
+        clipBounds = imageFilter->filterBounds(clipBounds, ctm, &ir,
+                                               SkImageFilter::kReverse_MapDirection);
     }
 
     // early exit if the layer's bounds are clipped out
