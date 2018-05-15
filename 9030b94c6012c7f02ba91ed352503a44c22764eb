@@ -45,6 +45,30 @@
       "revId": "9030b94c6012c7f02ba91ed352503a44c22764eb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7bfe7a38_d43e7845",
+        "filename": "platform_tools/ios/bin/ios_setup.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-05-15T14:10:28Z",
+      "side": 0,
+      "message": "That\u0027s correct. Just to make sure please run one iOS trybot (any will do)",
+      "parentUuid": "334c7c8d_6097f305",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 2
+      },
+      "revId": "9030b94c6012c7f02ba91ed352503a44c22764eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
