@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ee62a44d_4be812c3",
+        "filename": "src/shaders/SkPerlinNoiseShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-05-15T17:08:37Z",
+      "side": 1,
+      "message": "should we (defensively) also call the helper for the 2nd divide?\n\nalso, see below",
+      "range": {
+        "startLine": 274,
+        "startChar": 20,
+        "endLine": 274,
+        "endChar": 40
+      },
+      "revId": "8c1b57d4c34364f16b39409fff40e05b921ea88e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a64977e_e5441239",
+        "filename": "src/shaders/SkPerlinNoiseShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-05-15T17:08:37Z",
+      "side": 1,
+      "message": "nit:\n\nif (!buffer.validate(freqX \u003e\u003d 0 \u0026\u0026 freqY \u003e\u003d 0)) {\n    return nullptr;\n}",
+      "range": {
+        "startLine": 433,
+        "startChar": 17,
+        "endLine": 433,
+        "endChar": 18
+      },
+      "revId": "8c1b57d4c34364f16b39409fff40e05b921ea88e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
