@@ -128,13 +128,14 @@ sk_sp<SkImageFilter> SkTileImageFilter::onMakeColorSpace(SkColorSpaceXformer* xf
 }
 
 SkIRect SkTileImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                              MapDirection direction) const {
+                                              const SkIRect* inputRect, MapDirection direction) const {
     SkRect rect = kReverse_MapDirection == direction ? fSrcRect : fDstRect;
     ctm.mapRect(&rect);
     return rect.roundOut();
 }
 
-SkIRect SkTileImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix&, MapDirection) const {
+SkIRect SkTileImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
+                                          const SkIRect* inputRect, MapDirection) const {
     // Don't recurse into inputs.
     return src;
 }

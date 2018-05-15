@@ -295,10 +295,27 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
         return nullptr;
     }
 
+    const SkIRect originalSrcBounds = SkIRect::MakeXYWH(inputOffset.fX, inputOffset.fY,
+                                                        input->width(), input->height());
+
     SkIRect dstBounds;
-    input = this->applyCropRectAndPad(this->mapContext(ctx), input.get(), &inputOffset, &dstBounds);
+    input = this->applyCropRectAndPad(this->mapContext(ctx, originalSrcBounds), input.get(), &inputOffset, &dstBounds);
     if (!input) {
         return nullptr;
+    }
+
+    SkIRect srcBounds = this->onFilterNodeBounds(dstBounds, ctx.ctm(),
+                                                 &originalSrcBounds, kReverse_MapDirection);
+
+    if (kRepeat_TileMode == fTileMode) {
+        const SkIRect filterRect = SkIRect::MakeXYWH(-fKernelOffset.fX, -fKernelOffset.fY,
+                                                     fKernelSize.width(), fKernelSize.height());
+
+        srcBounds = DetermineRepeatedSrcBound(srcBounds, filterRect, originalSrcBounds);
+    } else {
+        if (!srcBounds.intersect(dstBounds)) {
+            return nullptr;
+        }
     }
 
 #if SK_SUPPORT_GPU
@@ -319,9 +336,10 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
         offset->fX = dstBounds.left();
         offset->fY = dstBounds.top();
         dstBounds.offset(-inputOffset);
+        srcBounds.offset(-inputOffset);
 
         auto fp = GrMatrixConvolutionEffect::Make(std::move(inputProxy),
-                                                  dstBounds,
+                                                  srcBounds,
                                                   fKernelSize,
                                                   fKernel,
                                                   fGain,
@@ -401,12 +419,20 @@ const {
 }
 
 SkIRect SkMatrixConvolutionImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                                           MapDirection direction) const {
+                                                           const SkIRect* inputRect,
+                                                           MapDirection dir) const {
+
+    if (kReverse_MapDirection == dir && kRepeat_TileMode == fTileMode) {
+        // In repeat mode, we don't need to expand the src when mapping from
+        // device-space to src-space
+        return src;
+    }
+
     SkIRect dst = src;
     int w = fKernelSize.width() - 1, h = fKernelSize.height() - 1;
     dst.fRight = Sk32_sat_add(dst.fRight, w);
     dst.fBottom = Sk32_sat_add(dst.fBottom, h);
-    if (kReverse_MapDirection == direction) {
+    if (kReverse_MapDirection == dir) {
         dst.offset(-fKernelOffset);
     } else {
         dst.offset(fKernelOffset - SkIPoint::Make(w, h));

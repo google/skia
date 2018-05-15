@@ -42,7 +42,8 @@ protected:
                                         SkIPoint* offset) const override;
     sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
 
-    SkIRect onFilterBounds(const SkIRect&, const SkMatrix&, MapDirection) const override;
+    SkIRect onFilterBounds(const SkIRect&, const SkMatrix& ctm,
+                           const SkIRect* inputRect, MapDirection) const override;
 
 #if SK_SUPPORT_GPU
     sk_sp<SkSpecialImage> filterImageGPU(SkSpecialImage* source,
@@ -179,17 +180,20 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::onFilterImage(SkSpecialImage* 
 
 SkIRect SkXfermodeImageFilter_Base::onFilterBounds(const SkIRect& src,
                                                    const SkMatrix& ctm,
+                                                   const SkIRect* inputRect,
                                                    MapDirection direction) const {
     if (kReverse_MapDirection == direction) {
-        return SkImageFilter::onFilterBounds(src, ctm, direction);
+        SkASSERT(inputRect);
+        return SkImageFilter::onFilterBounds(src, ctm, inputRect, direction);
     }
 
+    SkASSERT(!inputRect);
     SkASSERT(2 == this->countInputs());
     auto getBackground = [&]() {
-        return this->getInput(0) ? this->getInput(0)->filterBounds(src, ctm, direction) : src;
+        return this->getInput(0) ? this->getInput(0)->filterBounds(src, ctm, inputRect, direction) : src;
     };
     auto getForeground = [&]() {
-        return this->getInput(1) ? this->getInput(1)->filterBounds(src, ctm, direction) : src;
+        return this->getInput(1) ? this->getInput(1)->filterBounds(src, ctm, inputRect, direction) : src;
     };
     switch (fMode) {
         case SkBlendMode::kClear:

@@ -92,7 +92,7 @@ SkRect SkMorphologyImageFilter::computeFastBounds(const SkRect& src) const {
 }
 
 SkIRect SkMorphologyImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                                    MapDirection) const {
+                                                    const SkIRect* inputRect, MapDirection) const {
     SkVector radius = SkVector::Make(SkIntToScalar(this->radius().width()),
                                      SkIntToScalar(this->radius().height()));
     ctm.mapVectors(&radius, 1);
@@ -542,8 +542,11 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(SkSpecialImage* sou
         return nullptr;
     }
 
+    const SkIRect originalSrcBounds = SkIRect::MakeXYWH(inputOffset.fX, inputOffset.fY,
+                                                        input->width(), input->height());
+
     SkIRect bounds;
-    input = this->applyCropRectAndPad(this->mapContext(ctx), input.get(), &inputOffset, &bounds);
+    input = this->applyCropRectAndPad(this->mapContext(ctx, originalSrcBounds), input.get(), &inputOffset, &bounds);
     if (!input) {
         return nullptr;
     }

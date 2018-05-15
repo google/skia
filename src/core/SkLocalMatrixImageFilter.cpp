@@ -53,8 +53,8 @@ sk_sp<SkSpecialImage> SkLocalMatrixImageFilter::onFilterImage(SkSpecialImage* so
 }
 
 SkIRect SkLocalMatrixImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& matrix,
-                                                 MapDirection direction) const {
-    return this->getInput(0)->filterBounds(src, SkMatrix::Concat(matrix, fLocalM), direction);
+                                                 const SkIRect* inputRect, MapDirection dir) const {
+    return this->getInput(0)->filterBounds(src, SkMatrix::Concat(matrix, fLocalM), inputRect, dir);
 }
 
 sk_sp<SkImageFilter> SkLocalMatrixImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer)

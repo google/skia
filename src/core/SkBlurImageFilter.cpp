@@ -49,7 +49,7 @@ protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
                                         SkIPoint* offset) const override;
     sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
-    SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix&, MapDirection) const override;
+    SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm, const SkIRect* inputRect, MapDirection) const override;
 
 private:
     typedef SkImageFilter INHERITED;
@@ -578,7 +578,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
 
     // Calculate the destination bounds.
     SkIRect dstBounds;
-    if (!this->applyCropRect(this->mapContext(ctx), inputBounds, &dstBounds)) {
+    if (!this->applyCropRect(this->mapContext(ctx, inputBounds), inputBounds, &dstBounds)) {
         return nullptr;
     }
     if (!inputBounds.intersect(dstBounds)) {
@@ -692,7 +692,7 @@ SkRect SkBlurImageFilterImpl::computeFastBounds(const SkRect& src) const {
 }
 
 SkIRect SkBlurImageFilterImpl::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                              MapDirection) const {
+                                                  const SkIRect* inputRect, MapDirection) const {
     SkVector sigma = map_sigma(fSigma, ctm);
     return src.makeOutset(SkScalarCeilToInt(sigma.x() * 3), SkScalarCeilToInt(sigma.y() * 3));
 }
