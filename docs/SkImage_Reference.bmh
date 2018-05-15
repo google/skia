@@ -63,10 +63,6 @@ drawing.
 #Populate
 ##
 
-#Typedef SkImageInfo Info
-
-##
-
 # ------------------------------------------------------------------------------
 
 #Method static sk_sp<SkImage> MakeRasterCopy(const SkPixmap& pixmap)
@@ -115,7 +111,7 @@ contains a copy of the pixels.
 
 # ------------------------------------------------------------------------------
 
-#Method static sk_sp<SkImage> MakeRasterData(const Info& info, sk_sp<SkData> pixels, size_t rowBytes)
+#Method static sk_sp<SkImage> MakeRasterData(const SkImageInfo& info, sk_sp<SkData> pixels, size_t rowBytes)
 #In Constructor
 #Line # creates Image from Image_Info and shared pixels ##
 Creates Image from Image_Info, sharing pixels.
