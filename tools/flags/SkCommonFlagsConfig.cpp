@@ -86,6 +86,7 @@ static const struct {
     { "mock",                  "gpu", "api=mock" }
 #ifdef SK_VULKAN
     ,{ "vk",                   "gpu", "api=vulkan" }
+    ,{ "vknostencils",         "gpu", "api=vulkan,stencils=false" }
     ,{ "vk1010102",            "gpu", "api=vulkan,color=1010102" }
     ,{ "vksrgb",               "gpu", "api=vulkan,color=srgb" }
     ,{ "vkwide",               "gpu", "api=vulkan,color=f16_wide" }
