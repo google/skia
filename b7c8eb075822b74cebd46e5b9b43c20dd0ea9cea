@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "863cb154_7cd79617",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-15T19:08:20Z",
+      "side": 1,
+      "message": "glyph at end of params.",
+      "range": {
+        "startLine": 191,
+        "startChar": 35,
+        "endLine": 191,
+        "endChar": 49
+      },
+      "revId": "b7c8eb075822b74cebd46e5b9b43c20dd0ea9cea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ea43f2f_c0426baf",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-15T19:08:20Z",
+      "side": 1,
+      "message": "Make static to file: change to compute_path_size()",
+      "range": {
+        "startLine": 320,
+        "startChar": 21,
+        "endLine": 320,
+        "endChar": 36
+      },
+      "revId": "b7c8eb075822b74cebd46e5b9b43c20dd0ea9cea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82f9f901_a3664ee0",
+        "filename": "src/core/SkGlyphCache.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-15T19:08:20Z",
+      "side": 1,
+      "message": "Remove from interface and make local to .cpp.",
+      "range": {
+        "startLine": 199,
+        "startChar": 18,
+        "endLine": 199,
+        "endChar": 33
+      },
+      "revId": "b7c8eb075822b74cebd46e5b9b43c20dd0ea9cea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
