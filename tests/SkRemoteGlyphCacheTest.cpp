@@ -220,3 +220,29 @@ DEF_TEST(SkRemoteGlyphCache_StrikePinningClient, reporter) {
     SkGraphics::PurgeFontCache();
     REPORTER_ASSERT(reporter, clientTf->unique());
 }
+
+DEF_TEST(SkRemoteGlyphCache_ClientMemoryAccounting, reporter) {
+    sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
+    SkStrikeServer server(discardableManager.get());
+    SkStrikeClient client(discardableManager);
+
+    // Server.
+    auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    auto serverTfData = server.serializeTypeface(serverTf.get());
+
+    int glyphCount = 10;
+    auto serverBlob = buildTextBlob(serverTf, glyphCount);
+
+    const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+    SkTextBlobCacheDiffCanvas cache_diff_canvas(10, 10, SkMatrix::I(), props, &server);
+    SkPaint paint;
+    cache_diff_canvas.drawTextBlob(serverBlob.get(), 0, 0, paint);
+
+    std::vector<uint8_t> serverStrikeData;
+    server.writeStrikeData(&serverStrikeData);
+
+    // Client.
+    REPORTER_ASSERT(reporter,
+                    client.readStrikeData(serverStrikeData.data(), serverStrikeData.size()));
+    SkStrikeCache::Validate();
+}

@@ -44,11 +44,6 @@ public:
     /**  Return a glyph that has no information if it is not already filled out. */
     SkGlyph* getRawGlyphByID(SkPackedGlyphID);
 
-    /** Return the Strike's SkArenaAlloc. */
-    SkArenaAlloc* getAlloc() {
-        return &fAlloc;
-    }
-
     /** Returns a glyph with valid fAdvance and fDevKern fields. The remaining fields may be
         valid, but that is not guaranteed. If you require those, call getUnicharMetrics or
         getGlyphIDMetrics instead.
@@ -93,6 +88,10 @@ public:
     */
     const void* findImage(const SkGlyph&);
 
+    /** Initializes the image associated with the glyph with |data|.
+     */
+    void initializeImage(const volatile void* data, size_t size, SkGlyph*);
+
     /** If the advance axis intersects the glyph's path, append the positions scaled and offset
         to the array (if non-null), and set the count to the updated array length.
     */
@@ -126,6 +125,7 @@ public:
     SkScalerContext* getScalerContext() const { return fScalerContext.get(); }
 
 #ifdef SK_DEBUG
+    void forceValidate() const;
     void validate() const;
 #else
     void validate() const {}
