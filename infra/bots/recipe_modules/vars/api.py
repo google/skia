@@ -128,9 +128,6 @@ class SkiaVarsApi(recipe_api.RecipeApi):
       else:
         self.extra_tokens = self.builder_cfg['extra_config'].split('_')
 
-    self.default_env.update({'SKIA_OUT': self.skia_out,
-                             'BUILDTYPE': self.configuration})
-
     self.patch_storage = self.m.properties.get('patch_storage', 'gerrit')
     self.issue = None
     self.patchset = None

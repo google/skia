@@ -36,12 +36,10 @@
     ],
     "cwd": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/swiftshader_out",
     "env": {
-      "BUILDTYPE": "Release",
       "CC": "[START_DIR]/clang_linux/bin/clang",
       "CHROME_HEADLESS": "1",
       "CXX": "[START_DIR]/clang_linux/bin/clang++",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]:[START_DIR]/cmake_linux/bin",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]:[START_DIR]/cmake_linux/bin"
     },
     "name": "swiftshader cmake"
   },
@@ -55,12 +53,10 @@
     ],
     "cwd": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/swiftshader_out",
     "env": {
-      "BUILDTYPE": "Release",
       "CC": "[START_DIR]/clang_linux/bin/clang",
       "CHROME_HEADLESS": "1",
       "CXX": "[START_DIR]/clang_linux/bin/clang++",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]:[START_DIR]/cmake_linux/bin",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]:[START_DIR]/cmake_linux/bin"
     },
     "name": "swiftshader ninja"
   },
@@ -72,10 +68,8 @@
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
-      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "fetch-gn"
@@ -89,10 +83,8 @@
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
-      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "gn gen"
   },
@@ -106,10 +98,8 @@
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
-      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "ninja"
   },
