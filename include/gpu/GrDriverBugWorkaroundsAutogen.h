@@ -12,6 +12,8 @@
          disable_discard_framebuffer)     \
   GPU_OP(DISALLOW_LARGE_INSTANCED_DRAW,   \
          disallow_large_instanced_draw)   \
+  GPU_OP(MAX_MSAA_SAMPLE_COUNT_4,         \
+         max_msaa_sample_count_4)         \
   GPU_OP(MAX_TEXTURE_SIZE_LIMIT_4096,     \
          max_texture_size_limit_4096)     \
 // The End
