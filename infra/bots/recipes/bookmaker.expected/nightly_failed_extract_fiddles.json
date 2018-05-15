@@ -99,12 +99,10 @@
       "version"
     ],
     "env": {
-      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "GOPATH": "[START_DIR]/gopath",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "go version"
   },
@@ -114,12 +112,10 @@
       "version"
     ],
     "env": {
-      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "GOPATH": "[START_DIR]/gopath",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "env go version"
   },
@@ -132,12 +128,10 @@
       "go.skia.org/infra/fiddle/go/fiddlecli"
     ],
     "env": {
-      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "GOPATH": "[START_DIR]/gopath",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "go get fiddlecli"
   },
@@ -151,12 +145,10 @@
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
-      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "GOPATH": "[START_DIR]/gopath",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "Extract all fiddles out of md files",
     "~followup_annotations": [

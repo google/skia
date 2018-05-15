@@ -21,10 +21,8 @@
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
-      "BUILDTYPE": "devrel",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "fetch-gn"
@@ -36,12 +34,10 @@
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
-      "BUILDTYPE": "devrel",
       "CHROME_HEADLESS": "1",
       "GOPATH": "[START_DIR]/gopath",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "go version"
   },
@@ -52,12 +48,10 @@
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
-      "BUILDTYPE": "devrel",
       "CHROME_HEADLESS": "1",
       "GOPATH": "[START_DIR]/gopath",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "env go version"
   },
@@ -71,12 +65,10 @@
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
-      "BUILDTYPE": "devrel",
       "CHROME_HEADLESS": "1",
       "GOPATH": "[START_DIR]/gopath",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "update go pkgs"
   },
@@ -90,12 +82,10 @@
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
-      "BUILDTYPE": "devrel",
       "CHROME_HEADLESS": "1",
       "GOPATH": "[START_DIR]/gopath",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "build firebase runner"
   },
@@ -108,10 +98,8 @@
       "ANDROID_HOME": "[START_DIR]/android_sdk_linux/android-sdk",
       "ANDROID_NDK": "[START_DIR]/android_ndk_linux",
       "APK_OUTPUT_DIR": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP/devrel",
-      "BUILDTYPE": "devrel",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "make_universal"
   },

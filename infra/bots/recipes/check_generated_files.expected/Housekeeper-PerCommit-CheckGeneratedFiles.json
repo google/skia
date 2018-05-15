@@ -116,10 +116,8 @@
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
-      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "git diff #1",
     "stdout": "/path/to/tmp/"
@@ -132,10 +130,8 @@
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
-      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "touch fp files",
     "~followup_annotations": [
@@ -159,10 +155,8 @@
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
-      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "fetch-gn"
@@ -175,10 +169,8 @@
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
-      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "fetch-clang-format"
@@ -192,10 +184,8 @@
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
-      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "[START_DIR]/cache/work/skia/bin:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "PATH": "[START_DIR]/cache/work/skia/bin:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "gn gen"
   },
@@ -209,10 +199,8 @@
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
-      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "[START_DIR]/cache/work/skia/bin:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "PATH": "[START_DIR]/cache/work/skia/bin:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "ninja"
   },
@@ -224,10 +212,8 @@
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
-      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "git diff #2",
     "stdout": "/path/to/tmp/"
@@ -240,10 +226,8 @@
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
-      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/build/out"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "compare diffs",
     "~followup_annotations": [
