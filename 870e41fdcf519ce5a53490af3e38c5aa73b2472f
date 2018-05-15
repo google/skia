@@ -16,6 +16,24 @@
       "revId": "870e41fdcf519ce5a53490af3e38c5aa73b2472f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25fd54e5_35a52ce8",
+        "filename": "src/core/SkPictureRecord.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 802,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-15T18:57:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "772fff16_fce5123c",
+      "revId": "870e41fdcf519ce5a53490af3e38c5aa73b2472f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
