@@ -22,6 +22,30 @@
       "revId": "f3f3de2b06fcc85bc2f3c1cd7b31959c1fed9d63",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30d0394c_1d89af9b",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2018-05-15T20:03:21Z",
+      "side": 1,
+      "message": "Whoops, thanks.  I wish Skia had some formatting presubmit hooks.",
+      "parentUuid": "7d76776e_1dbd98a9",
+      "range": {
+        "startLine": 113,
+        "startChar": 4,
+        "endLine": 113,
+        "endChar": 6
+      },
+      "revId": "f3f3de2b06fcc85bc2f3c1cd7b31959c1fed9d63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
