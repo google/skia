@@ -132,12 +132,6 @@ public:
      */
     static sk_sp<SkColorSpace> Make(const skcms_ICCProfile&);
 
-    // TODO: cleanup in Chromium
-    static inline sk_sp<SkColorSpace> Make(const skcms_ICCProfile* p) {
-        SkASSERT(p);
-        return SkColorSpace::Make(*p);
-    }
-
     /**
      *  Convert this color space to an skcms ICC profile struct.
      */
