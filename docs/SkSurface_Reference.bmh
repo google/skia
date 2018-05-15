@@ -1,12 +1,6 @@
 #Topic Surface
 #Alias Surface_Reference
 
-#Subtopic Overview
-    #Subtopic Subtopic
-    #Populate
-    ##
-##
-
 #Class SkSurface
 
 SkSurface is responsible for managing the pixels that a canvas draws into. The pixels can be
@@ -16,9 +10,17 @@ surface->getCanvas() to use that canvas (but don't delete it, it is owned by the
 SkSurface always has non-zero dimensions. If there is a request for a new surface, and either
 of the requested dimensions are zero, then nullptr will be returned.
 
+#Subtopic Overview
+#Populate
+##
+
+#Subtopic Constant
+#Populate
+##
+
 #Subtopic Related_Function
 #Populate
-#Subtopic ##
+##
 
 #Subtopic Member_Function
 #Populate
@@ -542,7 +544,7 @@ selects whether allocation for pixels is tracked by context. imageInfo
 describes the pixel format in Color_Type, and transparency in
 Alpha_Type, and color matching in Color_Space.
 
-sampleCount requests the number of samples per pixel. 
+sampleCount requests the number of samples per pixel.
 Pass zero to disable Multi_Sample_Anti_Aliasing.  The request is rounded
 up to the next supported count, or rounded down if it is larger than the
 maximum supported count.
@@ -607,7 +609,7 @@ selects whether allocation for pixels is tracked by context. imageInfo
 describes the pixel format in Color_Type, and transparency in
 Alpha_Type, and color matching in Color_Space.
 
-sampleCount requests the number of samples per pixel. 
+sampleCount requests the number of samples per pixel.
 Pass zero to disable Multi_Sample_Anti_Aliasing.  The request is rounded
 up to the next supported count, or rounded down if it is larger than the
 maximum supported count.
@@ -858,7 +860,7 @@ surface generationID: 3
 # ------------------------------------------------------------------------------
 
 #Enum ContentChangeMode
-
+#Line # parameter options for notifyContentWillChange ##
 #Code
     enum ContentChangeMode {
         kDiscard_ContentChangeMode,
@@ -869,10 +871,12 @@ surface generationID: 3
 ContentChangeMode members are parameters to notifyContentWillChange.
 
 #Const kDiscard_ContentChangeMode
+#Line # discards surface on change ##
 Pass to notifyContentWillChange to discard surface contents when
 the surface is cleared or overwritten.
 ##
 #Const kRetain_ContentChangeMode
+#Line # preserves surface on change ##
 Pass to notifyContentWillChange when to preserve surface contents.
 If a snapshot has been generated, this copies the Surface contents.
 ##
@@ -900,7 +904,7 @@ Subsequent calls to generationID return a different value.
 mode is normally passed as kRetain_ContentChangeMode.
 
 #Private
-CAN WE DEPRECATE THIS?
+Can we deprecate this?
 ##
 
 #Param mode  one of: kDiscard_ContentChangeMode, kRetain_ContentChangeMode ##
@@ -924,7 +928,7 @@ CAN WE DEPRECATE THIS?
 # ------------------------------------------------------------------------------
 
 #Enum BackendHandleAccess
-
+#Line # options to read and write back-end object ##
 #Code
     enum BackendHandleAccess {
         kFlushRead_BackendHandleAccess,
@@ -941,23 +945,26 @@ CAN WE DEPRECATE THIS?
 ##
 
 #Const kFlushRead_BackendHandleAccess 0
+#Line # back-end object is readable ##
 Caller may read from the back-end object.
 ##
 #Const kFlushWrite_BackendHandleAccess 1
+#Line # back-end object is writable ##
 Caller may write to the back-end object.
 ##
 #Const kDiscardWrite_BackendHandleAccess 2
+#Line # back-end object must be overwritten ##
 Caller must overwrite the entire back-end object.
 ##
 
 #Const kFlushRead_TextureHandleAccess 0
-#Deprecated 
+#Deprecated
 ##
 #Const kFlushWrite_TextureHandleAccess 1
-#Deprecated 
+#Deprecated
 ##
 #Const kDiscardWrite_TextureHandleAccess 2
-#Deprecated 
+#Deprecated
 ##
 
 #NoExample
@@ -975,7 +982,7 @@ Caller must overwrite the entire back-end object.
     int y = 20;
     SkString str;
     paint.setTextSize(16);
-    for (auto access : { SkSurface::kFlushRead_BackendHandleAccess, 
+    for (auto access : { SkSurface::kFlushRead_BackendHandleAccess,
                          SkSurface::kFlushWrite_BackendHandleAccess,
                          SkSurface::kDiscardWrite_BackendHandleAccess } ) {
         sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
@@ -1012,7 +1019,7 @@ Caller must overwrite the entire back-end object.
 #Method GrBackendTexture getBackendTexture(BackendHandleAccess backendHandleAccess)
 #In Property
 #Line # returns the GPU reference to texture ##
-Retrieves the backend texture. If Surface has no backend texture, an invalid
+Retrieves the back-end texture. If Surface has no back-end texture, an invalid
 object is returned. Call GrBackendTexture::isValid to determine if the result
 is valid.
 
@@ -1037,7 +1044,7 @@ The returned GrBackendTexture should be discarded if the Surface is drawn to or 
 #In Property
 #Line # returns the GPU reference to render target ##
 
-Retrieves the backend render target. If Surface has no backend render target, an invalid
+Retrieves the back-end render target. If Surface has no back-end render target, an invalid
 object is returned. Call GrBackendRenderTarget::isValid to determine if the result
 is valid.
 
@@ -1094,7 +1101,7 @@ does not share the same pixels.
 
 Returns nullptr if imageInfo width or height are zero, or if imageInfo
 is incompatible with Surface.
- 
+
 #Param imageInfo  width, height, Color_Type, Alpha_Type, Color_Space,
                   of Surface; width and height must be greater than zero
 ##
@@ -1170,7 +1177,7 @@ Blend_Mode, and Draw_Looper.
 #Param x  horizontal offset in Canvas ##
 #Param y  vertical offset in Canvas ##
 #Param paint  Paint containing Blend_Mode, Color_Filter, Image_Filter,
-              and so on; or nullptr 
+              and so on; or nullptr
 ##
 
 #Example
@@ -1342,7 +1349,7 @@ Does not copy, and returns false if:
     for (int x : { 32, -32 } ) {
         for (int y : { 32, -32 } ) {
             surf->readPixels(info, data->writable_data(), info.minRowBytes(), x, y);
-        } 
+        }
     }
     sk_sp<SkImage> image = SkImage::MakeRasterData(info, data, info.minRowBytes());
     canvas->drawImage(image, 0, 0);
@@ -1401,7 +1408,7 @@ Does not copy, and returns false if:
     for (int x : { 32, -32 } ) {
         for (int y : { 32, -32 } ) {
             surf->readPixels(bitmap, x, y);
-        } 
+        }
     }
     canvas->drawBitmap(bitmap, 0, 0);
 ##
@@ -1418,7 +1425,7 @@ Does not copy, and returns false if:
 Copies Rect of pixels from the src Pixmap to the Surface.
 
 Source Rect corners are (0, 0) and (src.width(), src.height()).
-Destination Rect corners are (dstX, dstY) and 
+Destination Rect corners are (dstX, dstY) and
 #Formula
 (dstX + Surface width(), dstY + Surface height())
 ##
@@ -1501,7 +1508,7 @@ surf.props(): kRGB_H_SkPixelGeometry
 
 #Method void flush()
 #In Utility
-#Line # resolve pending I/O ##
+#Line # resolves pending I/O ##
 Issues pending Surface commands to the GPU-backed API and resolves any Surface MSAA.
 
 Skia flushes as needed, so it is not necessary to call this if Skia manages
@@ -1520,7 +1527,7 @@ GPU calls.
 #Method GrSemaphoresSubmitted flushAndSignalSemaphores(int numSemaphores,
                                                    GrBackendSemaphore signalSemaphores[])
 #In Utility
-#Line # resolve pending I/O, and signal ##
+#Line # resolves pending I/O, and signal ##
 
 Issues pending Surface commands to the GPU-backed API and resolves any Surface MSAA.
 After issuing all commands, signalSemaphores of count numSemaphores semaphores
@@ -1541,7 +1548,7 @@ with which they were created.
 
 If GrSemaphoresSubmitted::kNo is returned, the GPU back-end did not create or
 add any semaphores to signal on the GPU; the caller should not instruct the GPU
-to wait on any of the semaphores. 
+to wait on any of the semaphores.
 
 Pending surface commands are flushed regardless of the return result.
 
@@ -1561,7 +1568,7 @@ Pending surface commands are flushed regardless of the return result.
 
 #Method bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores)
 #In Utility
-#Line # rause commands until signaled ##
+#Line # pauses commands until signaled ##
 Inserts a list of GPU semaphores that the current GPU-backed API must wait on before
 executing any more commands on the GPU for this surface. Skia will take ownership of the
 underlying semaphores and delete them once they have been signaled and waited on.
@@ -1646,7 +1653,7 @@ Return true if Surface supports characterization. Raster_Surface returns false.
          canvas->drawString("characterization unsupported", 20, 40, paint);
          return;
     }
-    // start of threadable work 
+    // start of threadable work
     SkDeferredDisplayListRecorder recorder(characterization);
     SkCanvas* subCanvas = recorder.getCanvas();
     subCanvas->clear(SK_ColorGREEN);
@@ -1686,7 +1693,7 @@ Raster_Surface returns false.
          canvas->drawString("characterization unsupported", 20, 40, paint);
          return;
     }
-    // start of threadable work 
+    // start of threadable work
     SkDeferredDisplayListRecorder recorder(characterization);
     SkCanvas* subCanvas = recorder.getCanvas();
     subCanvas->clear(SK_ColorGREEN);

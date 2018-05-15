@@ -154,6 +154,7 @@ bool ParserCommon::writeBlockTrim(int size, const char* data) {
         debug_out(size, data);
     }
     fprintf(fOut, "%.*s", size, data);
+    fWroteSomething = true;
     int added = 0;
     fLastChar = data[size - 1];
     while (size > 0 && '\n' != data[--size]) {

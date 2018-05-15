@@ -15,7 +15,7 @@ How to use the Bookmaker utility.
 
 #Subtopic Broken_Build
 
-If the 
+If the
 #A Housekeeper-PerCommit-Bookmaker # https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-PerCommit-Bookmaker ##
  bot is red, the bot has detected that the files in docs and include/core differ.
 
@@ -290,7 +290,7 @@ any of the above commands with -a docs/status.json in place of
 #Subtopic Bugs
 
 Bookmaker bugs are tracked
-#A here # bug.skia.org/6898 ##
+#A here # https://bug.skia.org/6898 ##
 .
 
 ##
