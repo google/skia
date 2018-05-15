@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5dce23f1_5c035eca",
+        "filename": "src/core/SkPictureRecord.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 805,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-05-15T19:36:01Z",
+      "side": 1,
+      "message": "should this also be static?",
+      "range": {
+        "startLine": 805,
+        "startChar": 0,
+        "endLine": 805,
+        "endChar": 4
+      },
+      "revId": "af5d2b6f32f2db496766084cfaef11a2b5dd3aaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
