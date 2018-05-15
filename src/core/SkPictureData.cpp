@@ -408,6 +408,11 @@ void SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
                 if (!buffer.validate(count >= 0)) {
                     return;
                 }
+#if defined(IS_FUZZING)
+                if (count > 20) {
+                    return;
+                }
+#endif
                 fPaths.reset(count);
                 for (int i = 0; i < count; i++) {
                     buffer.readPath(&fPaths[i]);

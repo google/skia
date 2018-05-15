@@ -270,6 +270,11 @@ bool SkBaseShadowTessellator::addArc(const SkVector& nextNormal, bool finishArc)
     SkScalar rotSin, rotCos;
     int numSteps;
     compute_radial_steps(fPrevOutset, nextNormal, fRadius, &rotSin, &rotCos, &numSteps);
+#if defined(IS_FUZZING)
+        if (numSteps > 50 || numSteps < 0) {
+            return false;
+        }
+#endif
     SkVector prevNormal = fPrevOutset;
     for (int i = 0; i < numSteps-1; ++i) {
         SkVector currNormal;

@@ -279,7 +279,12 @@ sk_sp<SkData> SkReadBuffer::readByteArrayAsData() {
 uint32_t SkReadBuffer::getArrayCount() {
     const size_t inc = sizeof(uint32_t);
     fError = fError || !IsPtrAlign4(fReader.peek()) || !fReader.isAvailable(inc);
+#if defined(IS_FUZZING)
+    uint32_t retVal = fError ? 0 : *(uint32_t*)fReader.peek();
+    return retVal < 1000 ? retVal: 1000;
+#else
     return fError ? 0 : *(uint32_t*)fReader.peek();
+#endif
 }
 
 sk_sp<SkImage> SkReadBuffer::readImage() {
