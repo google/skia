@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "23e1163b_f0b47a18",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-15T20:45:13Z",
+      "side": 1,
+      "message": "Yes, dft is coming up after this.",
+      "parentUuid": "f3d6b7d3_b96867d9",
+      "range": {
+        "startLine": 313,
+        "startChar": 25,
+        "endLine": 313,
+        "endChar": 35
+      },
+      "revId": "26991171646868d8987c6fbcd91c5f73d2200244",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5fc8b49e_7ab769d1",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 8
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "4778d194_e76e78a4",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 601,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-15T20:45:13Z",
+      "side": 1,
+      "message": "That\u0027s the code in FallbackTextHelper right? Yeah, we need to add that here as well. I left a comment about it in processGlyphRun.",
+      "parentUuid": "5fc8b49e_7ab769d1",
+      "range": {
+        "startLine": 600,
+        "startChar": 15,
+        "endLine": 601,
+        "endChar": 29
+      },
+      "revId": "26991171646868d8987c6fbcd91c5f73d2200244",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "07eb0a16_025d67de",
         "filename": "src/core/SkRemoteGlyphCache.h",
         "patchSetId": 8
@@ -68,6 +116,30 @@
       "revId": "26991171646868d8987c6fbcd91c5f73d2200244",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9880e176_cce7bc73",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-15T20:45:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "07eb0a16_025d67de",
+      "range": {
+        "startLine": 123,
+        "startChar": 29,
+        "endLine": 123,
+        "endChar": 34
+      },
+      "revId": "26991171646868d8987c6fbcd91c5f73d2200244",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
