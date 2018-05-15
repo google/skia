@@ -92,7 +92,7 @@ public:
             const SkDescriptor&, const SkScalerContextEffects&, const SkTypeface&);
 
     static void PurgeAll();
-
+    static void Validate();
     static void Dump();
 
     // Dump memory usage statistics of all the attaches caches in the process using the
