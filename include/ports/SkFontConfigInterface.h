@@ -35,7 +35,6 @@ public:
      *  Replace the current global instance with the specified one.
      */
     static void SetGlobal(sk_sp<SkFontConfigInterface> fc);
-    static SkFontConfigInterface* SetGlobal(SkFontConfigInterface*);
 
     /**
      *  This should be treated as private to the impl of SkFontConfigInterface.
