@@ -179,6 +179,8 @@ public:
 
     void insertEventMarker(const char*);
 
+    void didBindFramebuffer();
+
 private:
     GrGLGpu(std::unique_ptr<GrGLContext>, GrContext*);
 

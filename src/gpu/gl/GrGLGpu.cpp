@@ -1353,6 +1353,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
         fGLContext->caps()->markConfigAsValidColorAttachment(desc.fConfig);
     }
 
+    this->didBindFramebuffer();
     return true;
 
 FAILED:
@@ -2475,6 +2476,7 @@ void GrGLGpu::flushRenderTargetNoColorWrites(GrGLRenderTarget* target, bool disa
     if (fHWBoundRenderTargetUniqueID != rtID) {
         fStats.incRenderTargetBinds();
         GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, target->renderFBOID()));
+        this->didBindFramebuffer();
 #ifdef SK_DEBUG
         // don't do this check in Chromium -- this is causing
         // lots of repeated command buffer flushes when the compositor is
@@ -3379,6 +3381,7 @@ void GrGLGpu::bindSurfaceFBOForPixelOps(GrSurface* surface, GrGLenum fboTarget, 
         GR_GL_CALL(this->glInterface(), BindFramebuffer(fboTarget, rt->renderFBOID()));
         *viewport = rt->getViewport();
     }
+    this->didBindFramebuffer();
 }
 
 void GrGLGpu::unbindTextureFBOForPixelOps(GrGLenum fboTarget, GrSurface* surface) {
@@ -3392,6 +3395,19 @@ void GrGLGpu::unbindTextureFBOForPixelOps(GrGLenum fboTarget, GrSurface* surface
                                                              0,
                                                              0));
     }
+}
+
+void GrGLGpu::didBindFramebuffer() {
+    if (!this->caps()->workarounds().restore_scissor_on_fbo_change) {
+        return;
+    }
+
+    // The driver forgets the correct scissor when modifying the FBO binding.
+    fHWScissorSettings.fRect.pushToGLScissor(this->glInterface());
+
+    // crbug.com/222018 - Also on QualComm, the flush here avoids flicker,
+    // it's unclear how this bug works.
+    GL_CALL(Flush());
 }
 
 bool GrGLGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
