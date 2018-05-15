@@ -97,9 +97,15 @@ SkImageGeneratorCG::SkImageGeneratorCG(const SkImageInfo& info, const void* imag
     , fOrigin(origin)
 {}
 
+#if SK_IGNORE_SKIMAGE_ONREFENCODED_CHANGE
 SkData* SkImageGeneratorCG::onRefEncodedData() {
     return SkRef(fData.get());
 }
+#else
+sk_sp<SkData> SkImageGeneratorCG::onRefEncodedData() {
+    return fData;
+}
+#endif
 
 bool SkImageGeneratorCG::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
         const Options&) {
