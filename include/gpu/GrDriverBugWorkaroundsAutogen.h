@@ -16,4 +16,6 @@
          max_msaa_sample_count_4)         \
   GPU_OP(MAX_TEXTURE_SIZE_LIMIT_4096,     \
          max_texture_size_limit_4096)     \
+  GPU_OP(RESTORE_SCISSOR_ON_FBO_CHANGE,   \
+         restore_scissor_on_fbo_change)   \
 // The End
