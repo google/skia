@@ -98,7 +98,7 @@ def dm_flags(api, bot):
     if 'Android' in bot:
       configs.remove('pdf')
 
-    if '-GCE-' in bot:
+    if '-GCE-' in bot and 'x86_64' in bot:
       configs.extend(['g8'])
       configs.extend(['565'])
       configs.extend(['f16'])
