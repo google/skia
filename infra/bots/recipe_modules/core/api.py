@@ -47,6 +47,15 @@ class SkiaApi(recipe_api.RecipeApi):
 
     # Initial cleanup.
     gclient_cfg = self.m.gclient.make_config(**cfg_kwargs)
+
+
+    if self.m.vars.need_chromium_checkout:
+      chromium = gclient_cfg.solutions.add()
+      chromium.name = 'src'
+      chromium.managed = False
+      chromium.url = 'https://chromium.googlesource.com/chromium/src.git'
+      chromium.revision = 'origin/lkcr'
+
     main_repo = self.m.properties['repository']
     if self.m.vars.need_flutter_checkout:
       main_repo = 'https://github.com/flutter/engine.git'
@@ -95,12 +104,12 @@ class SkiaApi(recipe_api.RecipeApi):
       self.m.file.remove('remove %s' % entries_file,
                          entries_file)
 
-    if self.m.vars.need_chromium_checkout:
-      chromium = gclient_cfg.solutions.add()
-      chromium.name = 'src'
-      chromium.managed = False
-      chromium.url = 'https://chromium.googlesource.com/chromium/src.git'
-      chromium.revision = 'origin/lkcr'
+    # if self.m.vars.need_chromium_checkout:
+    #   chromium = gclient_cfg.solutions.add()
+    #   chromium.name = 'src'
+    #   chromium.managed = False
+    #   chromium.url = 'https://chromium.googlesource.com/chromium/src.git'
+    #   chromium.revision = 'origin/master'
 
     # Run bot_update.
     if patch_repo != self.m.properties['repository']:
