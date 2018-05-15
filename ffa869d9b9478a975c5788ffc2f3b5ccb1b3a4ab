@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cae4dc37_ed9f09fb",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-15T02:49:57Z",
+      "side": 1,
+      "message": "Back to original formatting.",
+      "range": {
+        "startLine": 514,
+        "startChar": 68,
+        "endLine": 514,
+        "endChar": 78
+      },
+      "revId": "ffa869d9b9478a975c5788ffc2f3b5ccb1b3a4ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ee107cf_195f4a59",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-15T02:49:57Z",
+      "side": 1,
+      "message": "formatting?",
+      "range": {
+        "startLine": 123,
+        "startChar": 34,
+        "endLine": 123,
+        "endChar": 47
+      },
+      "revId": "ffa869d9b9478a975c5788ffc2f3b5ccb1b3a4ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
