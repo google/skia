@@ -24,10 +24,8 @@ RUN apt-get update && apt-get install -y \
   curl \
   build-essential \
   libfontconfig-dev \
-  libfreetype6-dev \
   libgl1-mesa-dev \
   libglu1-mesa-dev \
-  lsb-release \
   && cd /tmp \
   && git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git' \
   && export PATH="${PWD}/depot_tools:${PATH}" \
@@ -41,13 +39,13 @@ RUN apt-get update && apt-get install -y \
   && gn gen out/Static \
   && ninja -C out/Static
 
-FROM launcher.gcr.io/google/debian9
+FROM debian:testing-slim
 ADD https://storage.googleapis.com/swiftshader-binaries/OpenGL_ES/Latest/Linux/libGLESv2.so /usr/local/lib/libGLESv2.so
 ADD https://storage.googleapis.com/swiftshader-binaries/OpenGL_ES/Latest/Linux/libEGL.so /usr/local/lib/libEGL.so
-RUN apt-get update && apt-get install -y \
-  libfontconfig \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y  \
+  libfontconfig1 \
   libglu1-mesa \
   xvfb \
   && rm -rf /var/lib/apt/lists/*
 COPY --from=build /tmp/skia/skia/out/Static/skiaserve /bin/skiaserve
-ENTRYPOINT DISPLAY=:99 /usr/bin/xvfb-run --server-args "-screen 0 1280x1024x24" /bin/skiaserve --address 0.0.0.0
+ENTRYPOINT DISPLAY=:99 /usr/bin/xvfb-run --server-args "-screen 0 1280x1024x24" /bin/skiaserve --address 0.0.0.0 --port 8000
