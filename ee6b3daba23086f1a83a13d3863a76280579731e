@@ -46,6 +46,30 @@
       "revId": "ee6b3daba23086f1a83a13d3863a76280579731e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7b529b7_843cf8e8",
+        "filename": "infra/bots/recipe_modules/build/default.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-16T14:34:17Z",
+      "side": 1,
+      "message": "You can give it a shot -- if it works, then the conflicts don\u0027t really matter.",
+      "parentUuid": "ade227fd_e0b59806",
+      "range": {
+        "startLine": 277,
+        "startChar": 0,
+        "endLine": 280,
+        "endChar": 65
+      },
+      "revId": "ee6b3daba23086f1a83a13d3863a76280579731e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
