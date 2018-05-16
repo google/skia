@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "d85b1617_7d30ad60",
+        "filename": "third_party/vulkan/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-16T18:36:58Z",
+      "side": 1,
+      "message": "This seems like a big hammer, is it really needed? If it is needed can we comment here why we think we need it?",
+      "range": {
+        "startLine": 52,
+        "startChar": 2,
+        "endLine": 52,
+        "endChar": 23
+      },
+      "revId": "2a7becf77e8ba5fcf30d2abddf87bdc557470ff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "16cb48bf_aba43b44",
         "filename": "third_party/vulkan/vulkan_config.gni",
         "patchSetId": 3
