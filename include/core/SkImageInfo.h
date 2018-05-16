@@ -218,6 +218,18 @@ enum SkYUVColorSpace {
     kLastEnum_SkYUVColorSpace = kRec709_SkYUVColorSpace,
 };
 
+/** \struct SkImageInfo::SkYUVAIndex
+    Describes from which texture and which channel to read the YUVA planes.
+*/
+struct SK_API SkYUVAIndex {
+    /** The index is a number between -1..4 which definies which texture to read from, where -1
+     * means the texture doesn't exist. */
+    int index;
+    /** The channel describes from which channel to read the infro from. Currently we only deal with
+     * YUV and NV12 and channel info is ignored. */
+    int channel;
+};
+
 /** \struct SkImageInfo
     Describes pixel dimensions and encoding. SkBitmap, SkImage, PixMap, and SkSurface
     can be created from SkImageInfo. SkImageInfo can be retrieved from SkBitmap and
