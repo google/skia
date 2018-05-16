@@ -395,9 +395,9 @@ void SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
                 return;
             }
             const int count = SkToInt(size);
-            fPaints.reset(count);
+
             for (int i = 0; i < count; ++i) {
-                if (!buffer.readPaint(&fPaints[i])) {
+                if (!buffer.readPaint(&fPaints.push_back())) {
                     return;
                 }
             }
@@ -408,9 +408,11 @@ void SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
                 if (!buffer.validate(count >= 0)) {
                     return;
                 }
-                fPaths.reset(count);
                 for (int i = 0; i < count; i++) {
-                    buffer.readPath(&fPaths[i]);
+                    buffer.readPath(&fPaths.push_back());
+                    if (!buffer.isValid()) {
+                        return;
+                    }
                 }
             } break;
         case SK_PICT_TEXTBLOB_BUFFER_TAG:
@@ -423,6 +425,11 @@ void SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
             new_array_from_buffer(buffer, size, fImages, create_image_from_buffer);
             break;
         case SK_PICT_READER_TAG: {
+            // Preflight check that we can initialize all data from the buffer
+            // before allocating it.
+            if (!buffer.validate(size <= buffer.available())) {
+                return;
+            }
             auto data(SkData::MakeUninitialized(size));
             if (!buffer.readByteArray(data->writable_data(), size) ||
                 !buffer.validate(nullptr == fOpData)) {
