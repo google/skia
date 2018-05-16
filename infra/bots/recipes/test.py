@@ -872,7 +872,7 @@ def test_steps(api):
 
   # Run DM.
   properties = [
-    'gitHash',              api.vars.got_revision,
+    'gitHash',              api.properties['revision'],
     'builder',              api.vars.builder_name,
     'buildbucket_build_id', api.properties.get('buildbucket_build_id', ''),
   ]

@@ -48,7 +48,7 @@ def RunSteps(api):
   csv_src = FindFile(api, "csv")
 
   ts = int(calendar.timegm(now.utctimetuple()))
-  basename = "bench_modified_master_%s_%d" % (api.vars.got_revision, ts)
+  basename = "bench_modified_master_%s_%d" % (api.properties['revision'], ts)
 
   gs_path = '/'.join((
       'calmbench-v1', str(now.year).zfill(4),

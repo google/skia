@@ -27,12 +27,14 @@ def RunSteps(api):
 
   # Check out code.
   if 'NoDEPS' in api.properties['buildername']:
+    api.core.set_checkout_root(api.path['start_dir'])
     api.core.checkout_git()
   else:
     api.core.checkout_bot_update()
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
 
   try:
+    api.build.set_checkout_root(api.core.checkout_root)
     api.build()
     api.build.copy_build_products(
         api.vars.swarming_out_dir.join(

@@ -242,7 +242,7 @@ def perf_steps(api):
   # Run nanobench.
   properties = [
     '--properties',
-    'gitHash',      api.vars.got_revision,
+    'gitHash', api.properties['revision'],
   ]
   if api.vars.is_trybot:
     properties.extend([
@@ -297,7 +297,7 @@ def perf_steps(api):
     ts = int(calendar.timegm(now.utctimetuple()))
     json_path = api.flavor.device_path_join(
         api.flavor.device_dirs.perf_data_dir,
-        'nanobench_%s_%d.json' % (api.vars.got_revision, ts))
+        'nanobench_%s_%d.json' % (api.properties['revision'], ts))
     args.extend(['--outResultsFile', json_path])
     args.extend(properties)
 

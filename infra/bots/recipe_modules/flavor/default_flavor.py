@@ -85,11 +85,6 @@ class DefaultFlavorUtils(object):
     # syntax as regular recipe modules to run steps, eg: self.m.step(...)
     self.m = module.m
     self._chrome_path = None
-    self._win_toolchain_dir = self.m.vars.slave_dir.join(WIN_TOOLCHAIN_DIR)
-    win_toolchain_asset_path = self.m.vars.infrabots_dir.join(
-        'assets', 'win_toolchain', 'VERSION')
-    if not self.m.path.exists(win_toolchain_asset_path):
-      self._win_toolchain_dir = self.m.vars.slave_dir
 
   def device_path_join(self, *args):
     """Like os.path.join(), but for paths on a connected device."""
@@ -140,7 +135,7 @@ class DefaultFlavorUtils(object):
     self.device_dirs = DeviceDirs(
         dm_dir=self.m.vars.dm_dir,
         perf_data_dir=self.m.vars.perf_data_dir,
-        resource_dir=self.m.vars.resource_dir,
+        resource_dir=self.m.path['start_dir'].join('skia', 'resources'),
         images_dir=self.m.vars.images_dir,
         skp_dir=self.m.vars.local_skp_dir,
         svg_dir=self.m.vars.local_svg_dir,

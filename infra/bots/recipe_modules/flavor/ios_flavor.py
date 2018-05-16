@@ -51,7 +51,8 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
                     map(str, cmd[1:]))
 
   def _run_ios_script(self, script, first, *rest):
-    full = self.m.vars.skia_dir.join('platform_tools/ios/bin/ios_' + script)
+    full = self.m.path['start_dir'].join(
+        'skia', 'platform_tools', 'ios', 'bin', 'ios_' + script)
     self.m.run(self.m.step,
                name = '%s %s' % (script, first),
                cmd = [full, first] + list(rest),
@@ -74,7 +75,8 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
     self._run_ios_script('mkdir', path)
 
   def read_file_on_device(self, path, **kwargs):
-    full = self.m.vars.skia_dir.join('platform_tools/ios/bin/ios_cat_file')
+    full = self.m.path['start_dir'].join(
+        'skia', 'platform_tools', 'ios', 'bin', 'ios_cat_file')
     rv = self.m.run(self.m.step,
                     name = 'cat_file %s' % path,
                     cmd = [full, path],

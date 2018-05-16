@@ -3,8 +3,8 @@
 # found in the LICENSE file.
 
 
-def compile_fn(api, _):
-  flutter_dir = api.vars.checkout_root.join('src')
+def compile_fn(api, _1, _2):
+  flutter_dir = api.core.checkout_root.join('src')
   configuration = api.vars.builder_cfg.get('configuration').lower()
   extra_tokens = api.vars.extra_tokens
   out_dir = configuration
@@ -34,5 +34,5 @@ def compile_fn(api, _):
         cmd=['ninja', '-C', 'out/' + out_dir, '-j100'])
 
 
-def copy_extra_build_products(api, src, dst):
+def copy_extra_build_products(api, skia_dir, src, dst):
   pass

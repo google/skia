@@ -15,9 +15,6 @@ CONFIG_RELEASE = 'Release'
 
 class SkiaVarsApi(recipe_api.RecipeApi):
 
-  override_checkout_root = None
-  override_gclient_cache = None
-
   def setup(self):
     """Prepare the variables."""
     # Setup
@@ -30,62 +27,17 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.test_dir = self.slave_dir.join('test')
     self.perf_dir = self.slave_dir.join('perf')
 
-    self.checkout_root = self.slave_dir
     self.default_env = self.m.context.env
     self.default_env['CHROME_HEADLESS'] = '1'
     self.default_env['PATH'] = self.m.path.pathsep.join([
         self.default_env.get('PATH', '%(PATH)s'),
         str(self.m.bot_update._module.PACKAGE_REPO_ROOT),
     ])
-    self.gclient_env = {'DEPOT_TOOLS_UPDATE': '0'}
     self.is_compile_bot = self.builder_name.startswith('Build-')
 
-    self.persistent_checkout = False
-    # Compile bots keep a persistent checkout.
-    if self.is_compile_bot and 'NoDEPS' not in self.builder_name:
-      self.persistent_checkout = True
-    if 'Housekeeper' in self.builder_name:
-      self.persistent_checkout = True
-    if '-CT_' in self.builder_name:
-      self.persistent_checkout = True
-    # We need the source code for the Coverage's Upload step to be in the
-    # same absolute location as when we compiled it so we can map the
-    # coverage data to actual line numbers. We ensure this by making sure
-    # we have a checkout on the Coverage's Upload step and that the Upload
-    # step runs on the same bots that Compile.
-    if 'Coverage' in self.builder_name and 'Upload' in self.builder_name:
-      self.persistent_checkout = True
-
     self.cache_dir = self.slave_dir.join('cache')
-    if self.persistent_checkout:
-      self.checkout_root = self.cache_dir.join('work')
-      self.gclient_cache = self.cache_dir.join('git')
-    if self.override_checkout_root:
-      self.checkout_root = self.override_checkout_root
-      self.gclient_cache = self.override_gclient_cache
-      # got_revision is filled in after checkout steps.
-      self.got_revision = None
-    else:
-      # If there's no persistent checkout, then we have to assume we got the
-      # correct revision of the files from isolate.
-      self.got_revision = self.m.properties['revision']
 
-    # Some bots also require a checkout of Flutter; in this case we use the
-    # checkout of Skia obtained through DEPS in src/third_party/skia.
-    self.need_flutter_checkout = 'Flutter' in self.builder_name
-
-    self.skia_dir = self.checkout_root.join('skia')
-    if self.need_flutter_checkout:
-      self.checkout_root = self.checkout_root.join('flutter')
-      self.skia_dir = self.checkout_root.join('src', 'third_party', 'skia')
-
-    if not self.persistent_checkout:
-      self.m.path['checkout'] = self.skia_dir
-
-    self.infrabots_dir = self.skia_dir.join('infra', 'bots')
-    self.resource_dir = self.skia_dir.join('resources')
     self.images_dir = self.slave_dir.join('skimage')
-    self.skia_out = self.skia_dir.join('out', self.builder_name)
     self.swarming_out_dir = self.slave_dir.join(
         self.m.properties['swarm_out_dir'])
     if 'ParentRevision' in self.builder_name:
@@ -95,19 +47,9 @@ class SkiaVarsApi(recipe_api.RecipeApi):
       self.swarming_out_dir = self.swarming_out_dir.join('ParentRevision')
     self.local_skp_dir = self.slave_dir.join('skp')
     self.local_svg_dir = self.slave_dir.join('svg')
-    if not self.is_compile_bot:
-      self.skia_out = self.build_dir.join('out')
-    self.tmp_dir = self.m.path['start_dir'].join('tmp')
 
-    # Some bots also require a checkout of chromium.
-    self.need_chromium_checkout = False
-    if 'CommandBuffer' in self.builder_name:
-      self.need_chromium_checkout = True
-      self.gclient_env['GYP_CHROMIUM_NO_ACTION'] = '0'
-    if 'RecreateSKPs' in self.builder_name:
-      self.need_chromium_checkout = True
-      self.gclient_env['CPPFLAGS'] = (
-          '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1')
+    self.skia_out = self.build_dir.join('out')
+    self.tmp_dir = self.m.path['start_dir'].join('tmp')
 
     self.builder_cfg = self.m.builder_name_schema.DictForBuilderName(
         self.builder_name)

@@ -28,7 +28,7 @@ ADB_BINARY = 'adb.1.0.35'
 
 
 def _run(api, title, *cmd, **kwargs):
-  with api.context(cwd=api.vars.skia_dir):
+  with api.context(cwd=api.path['start_dir'].join('skia')):
     return api.run(api.step, title, cmd=list(cmd), **kwargs)
 
 
@@ -78,7 +78,7 @@ def skpbench_steps(api):
   skiaperf_args = [
     table,
     '--properties',
-    'gitHash',      api.vars.got_revision,
+    'gitHash', api.properties['revision'],
   ]
   if api.vars.is_trybot:
     skiaperf_args.extend([
@@ -94,7 +94,7 @@ def skpbench_steps(api):
   ts = int(calendar.timegm(now.utctimetuple()))
   json_path = api.path.join(
       api.vars.perf_data_dir,
-      'skpbench_%s_%d.json' % (api.vars.got_revision, ts))
+      'skpbench_%s_%d.json' % (api.properties['revision'], ts))
 
   skiaperf_args.extend([
     '--outfile', json_path

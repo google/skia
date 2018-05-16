@@ -68,7 +68,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     }
 
   def _run(self, title, *cmd, **kwargs):
-    with self.m.context(cwd=self.m.vars.skia_dir):
+    with self.m.context(cwd=self.m.path['start_dir'].join('skia')):
       return self.m.run(self.m.step, title, cmd=list(cmd), **kwargs)
 
   def _adb(self, title, *cmd, **kwargs):
@@ -96,7 +96,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
                  timeout=180, abort_on_failure=False,
                  fail_build_on_failure=False)
 
-    with self.m.context(cwd=self.m.vars.skia_dir):
+    with self.m.context(cwd=self.m.path['start_dir'].join('skia')):
       return self.m.run.with_retry(self.m.step, title, attempts,
                                    cmd=[self.ADB_BINARY]+list(cmd),
                                    between_attempts_fn=wait_for_device,

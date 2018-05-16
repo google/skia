@@ -12,8 +12,8 @@ import gn_flavor
 class ValgrindFlavorUtils(gn_flavor.GNFlavorUtils):
   def __init__(self, m):
     super(ValgrindFlavorUtils, self).__init__(m)
-    self._suppressions_file = self.m.vars.skia_dir.join(
-        'tools', 'valgrind.supp')
+    self._suppressions_file = self.m.path['start_dir'].join(
+        'skia', 'tools', 'valgrind.supp')
     self._valgrind_cipd_dir = self.m.vars.slave_dir.join('valgrind')
     self._valgrind_fake_dir = self._valgrind_cipd_dir
     self._valgrind = self._valgrind_fake_dir.join('bin', 'valgrind')

@@ -104,7 +104,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       # Convert path objects or placeholders into strings such that they can
       # be passed to symbolize_stack_trace.py
       args = [slave_dir] + [str(x) for x in cmd]
-      with self.m.context(cwd=self.m.vars.skia_dir, env=env):
+      with self.m.context(cwd=self.m.path['start_dir'].join('skia'), env=env):
         self._py('symbolized %s' % name,
                  self.module.resource('symbolize_stack_trace.py'),
                  args=args,

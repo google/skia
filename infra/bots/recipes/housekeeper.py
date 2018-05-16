@@ -28,7 +28,7 @@ DEPS = [
 def RunSteps(api):
   # Checkout, compile, etc.
   api.vars.setup()
-  api.core.checkout_bot_update()
+  got_revision = api.core.checkout_bot_update()
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
   api.flavor.setup()
 
@@ -46,7 +46,7 @@ def RunSteps(api):
 
     now = api.time.utcnow()
     ts = int(calendar.timegm(now.utctimetuple()))
-    filename = 'nanobench_%s_%d.json' % (api.vars.got_revision, ts)
+    filename = 'nanobench_%s_%d.json' % (got_revision, ts)
     dest_dir = api.vars.perf_data_dir
     dest_file = dest_dir + '/' + filename
     api.file.ensure_directory('makedirs perf_dir', dest_dir)

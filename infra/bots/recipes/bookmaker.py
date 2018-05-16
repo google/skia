@@ -43,7 +43,8 @@ def RunSteps(api):
   api.infra.go_version()
   go_get_fiddlecli(api)
 
-  with api.context(cwd=api.vars.skia_dir, env=api.infra.go_env):
+  skia_dir = api.core.checkout_root.join('skia')
+  with api.context(cwd=skia_dir, env=api.infra.go_env):
     bookmaker_binary = api.path.join(api.vars.skia_out, api.vars.configuration,
                                      'bookmaker')
     buildername = api.vars.builder_name
@@ -125,10 +126,10 @@ def RunSteps(api):
       # Step 4: Update docs in site/user/api/ with the output of fiddlecli.
       #         If there are any new changes then upload and commit the changes.
       cmd = ['python',
-             api.vars.skia_dir.join('infra', 'bots', 'upload_md.py'),
+             skia_dir.join('infra', 'bots', 'upload_md.py'),
             '--bookmaker_binary', bookmaker_binary,
              '--fiddlecli_output', fiddlecli_output]
-      with api.context(cwd=api.vars.skia_dir, env=api.infra.go_env):
+      with api.context(cwd=skia_dir, env=api.infra.go_env):
         api.run(api.step, 'Generate and Upload Markdown files', cmd=cmd)
 
 

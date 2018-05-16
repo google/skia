@@ -30,8 +30,6 @@ TEST_BUILDERS = [
   'Build-Debian9-Clang-x86_64-Release-Override',
   'Build-Debian9-Clang-x86_64-Release-ParentRevision',
   'Build-Debian9-Clang-x86_64-Release-SKNX_NO_SIMD',
-  'Build-Debian9-GCC-x86_64-Release-Flutter_Android',
-  'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
   'Build-Win-Clang-x86_64-Release-Vulkan',
   'Housekeeper-Weekly-RecreateSKPs',
   'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug-All',
