@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4c5299ea_317afa40",
+        "filename": "src/core/SkPictureData.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-16T16:39:34Z",
+      "side": 1,
+      "message": "Just to avoid hard-coding any of these assumptions, I would prefer we drop the preallocation and just push one paint at a time:\n\n  for (int i \u003d 0; i \u003c count; ++i) {\n      if (!buffer.readPaint(\u0026fPaints.push_back())) {\n          return;\n      }\n  }\n\nWDYT?",
+      "range": {
+        "startLine": 399,
+        "startChar": 54,
+        "endLine": 399,
+        "endChar": 62
+      },
+      "revId": "481b644d24090f0bfa5f8ea20699d9673dd849fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6920c5a7_39f6f6d7",
+        "filename": "src/core/SkPictureData.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-16T16:39:34Z",
+      "side": 1,
+      "message": "Ditto.",
+      "range": {
+        "startLine": 420,
+        "startChar": 57,
+        "endLine": 420,
+        "endChar": 64
+      },
+      "revId": "481b644d24090f0bfa5f8ea20699d9673dd849fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
