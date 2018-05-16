@@ -95,14 +95,13 @@ enum class MarkType {
     kDefinedBy,
     kDeprecated,
     kDescription,
-    kDoxygen,
+    kDetails,  // used by #Const to specify #Subtopic details with examples and so on
     kDuration,
     kEnum,
     kEnumClass,
     kExample,
     kExperimental,
     kExternal,
-    kFile,
     kFormula,
     kFunction,
     kHeight,
@@ -118,15 +117,16 @@ enum class MarkType {
     kMember,
     kMethod,
     kNoExample,
+    kNoJustify, // don't contribute this #Line to tabular comment measure, even if it fits
     kOutdent,
     kParam,
     kPhraseDef,
+    kPhraseParam,
     kPhraseRef,
     kPlatform,
     kPopulate,
     kPrivate,
     kReturn,
-    kRoot,
     kRow,
     kSeeAlso,
     kSet,
@@ -137,15 +137,17 @@ enum class MarkType {
     kTable,
     kTemplate,
     kText,
-    kTime,
     kToDo,
     kTopic,
-    kTrack,
     kTypedef,
     kUnion,
     kVolatile,
     kWidth,
 };
+
+static inline bool IncompleteAllowed(MarkType markType) {
+    return MarkType::kDeprecated == markType || MarkType::kExperimental == markType;
+}
 
 enum {
     Last_MarkType = (int) MarkType::kWidth,
@@ -299,21 +301,23 @@ public:
         return *loc;
     }
 
+    // either /n/n or /n# will stop parsing a typedef
     const char* doubleLF() const {
-        int count = 0;
-        const char* ptr = fChar;
+        const char* ptr = fChar - 1;
         const char* doubleStart = nullptr;
-        while (ptr < fEnd) {
-            if ('\n' == ptr[0]) {
-                if (++count == 1) {
+        while (++ptr < fEnd) {
+            if (!doubleStart) {
+                if ('\n' == ptr[0]) {
                     doubleStart = ptr;
-                } else {
-                    return doubleStart;
                 }
-            } else if (' ' < ptr[0]) {
-                count = 0;
+                continue;
             }
-            ++ptr;
+            if ('\n' == ptr[0] || '#' == ptr[0]) {
+                return doubleStart;
+            }
+            if (' ' < ptr[0]) {
+                doubleStart = nullptr;
+            }
         }
         return nullptr;
     }
@@ -474,6 +478,12 @@ public:
             return this->skipWhiteSpace();
         }
         return true;
+    }
+
+    void skipLower() {
+        while (fChar < fEnd && (islower(fChar[0]) || '_' == fChar[0])) {
+            fChar++;
+        }
     }
 
     void skipToNonAlphaNum() {
@@ -796,6 +806,19 @@ public:
         kOmitReturn,
     };
 
+    enum class Details {
+        kNone,
+        kSoonToBe_Deprecated,
+        kTestingOnly_Experiment,
+        kDoNotUse_Experiement,
+        kNotReady_Experiment,
+    };
+
+    enum class DetailsType {
+        kPhrase,
+        kSentence,
+    };
+
     Definition() {}
 
     Definition(const char* start, const char* end, int line, Definition* parent, char mc)
@@ -845,7 +868,6 @@ public:
     virtual ~Definition() {}
 
     virtual RootDefinition* asRoot() { SkASSERT(0); return nullptr; }
-    virtual const RootDefinition* asRoot() const { SkASSERT(0); return nullptr; }
     bool boilerplateIfDef();
 
     bool boilerplateEndIf() {
@@ -857,7 +879,7 @@ public:
     bool crossCheck(const Definition& includeToken) const;
     bool crossCheckInside(const char* start, const char* end, const Definition& includeToken) const;
 
-    const Definition* csParent() const {
+    Definition* csParent() {
         Definition* test = fParent;
         while (test) {
             if (MarkType::kStruct == test->fMarkType || MarkType::kClass == test->fMarkType) {
@@ -875,12 +897,14 @@ public:
     const Definition* hasChild(MarkType markType) const;
     bool hasMatch(string name) const;
     const Definition* hasParam(string ref) const;
+    string incompleteMessage(DetailsType ) const;
     bool isClone() const { return fClone; }
 
-    Definition* iRootParent() {
-        Definition* test = fParent;
+    const Definition* iRootParent() const {
+        const Definition* test = fParent;
         while (test) {
-            if (Type::kKeyWord == test->fType && KeyWord::kClass == test->fKeyWord) {
+            if (Type::kKeyWord == test->fType
+                    && (KeyWord::kClass == test->fKeyWord || KeyWord::kStruct == test->fKeyWord)) {
                 return test;
             }
             test = test->fParent;
@@ -923,6 +947,17 @@ public:
         fParentIndex = fParent ? (int) fParent->fTokens.size() : -1;
     }
 
+    const Definition* subtopicParent() const {
+        Definition* test = fParent;
+        while (test) {
+            if (MarkType::kTopic == test->fMarkType || MarkType::kSubtopic == test->fMarkType) {
+                return test;
+            }
+            test = test->fParent;
+        }
+        return nullptr;
+    }
+
     const Definition* topicParent() const {
         Definition* test = fParent;
         while (test) {
@@ -962,11 +997,27 @@ public:
     bool fDeprecated = false;
     bool fOperatorConst = false;
     bool fPrivate = false;
-    bool fShort = false;
-    bool fToBeDeprecated = false;
+    Details fDetails = Details::kNone;
     bool fMemberStart = false;
     bool fAnonymous = false;
     mutable bool fVisited = false;
+};
+
+class SubtopicKeys {
+public:
+    static constexpr const char* kClasses = "Class";
+    static constexpr const char* kConstants = "Constant";
+    static constexpr const char* kConstructors = "Constructor";
+    static constexpr const char* kDefines = "Define";
+    static constexpr const char* kMemberFunctions = "Member_Function";
+    static constexpr const char* kMembers = "Member";
+    static constexpr const char* kOperators = "Operator";
+    static constexpr const char* kOverview = "Overview";
+    static constexpr const char* kRelatedFunctions = "Related_Function";
+    static constexpr const char* kStructs = "Struct";
+    static constexpr const char* kTypedefs = "Typedef";
+
+    static const char* kGeneratedSubtopics[];
 };
 
 class RootDefinition : public Definition {
@@ -974,6 +1025,15 @@ public:
     enum class AllowParens {
         kNo,
         kYes,
+    };
+
+    struct SubtopicContents {
+        SubtopicContents()
+            : fShowClones(false) {
+        }
+
+        vector<Definition*> fMembers;
+        bool fShowClones;
     };
 
     RootDefinition() {
@@ -994,17 +1054,22 @@ public:
     }
 
     RootDefinition* asRoot() override { return this; }
-    const RootDefinition* asRoot() const override { return this; }
     void clearVisited();
     bool dumpUnVisited();
-    const Definition* find(string ref, AllowParens ) const;
+    Definition* find(string ref, AllowParens );
     bool isRoot() const override { return true; }
+
+    SubtopicContents& populator(const char* key) {
+        return fPopulators[key];
+    }
+
     RootDefinition* rootParent() override { return fRootParent; }
     const RootDefinition* rootParent() const override { return fRootParent; }
     void setRootParent(RootDefinition* rootParent) { fRootParent = rootParent; }
 
     unordered_map<string, RootDefinition*> fBranches;
     unordered_map<string, Definition> fLeaves;
+    unordered_map<string, SubtopicContents> fPopulators;
 private:
     RootDefinition* fRootParent = nullptr;
 };
@@ -1044,6 +1109,7 @@ public:
     ParserCommon() : TextParser()
         , fParent(nullptr)
         , fDebugOut(false)
+        , fValidate(false)
     {
     }
 
@@ -1196,7 +1262,10 @@ public:
     int fPendingSpace; // one or two spaces should preceed the next string or block
     char fLastChar;    // last written
     bool fDebugOut;    // set true to write to std out
+    bool fValidate;    // set true to check anchor defs and refs
     bool fOutdentNext; // set at end of embedded struct to prevent premature outdent
+    bool fWroteSomething; // used to detect empty content; an alternative source is preferable
+
 private:
     typedef TextParser INHERITED;
 };
@@ -1238,6 +1307,7 @@ public:
         kFormula, // resolve methods as they are used, not as they are prototyped
         kLiteral, // output untouched
 		kClone,   // resolved, output, with references to clones as well
+        kSimple,  // resolve simple words (used to resolve method declarations)
     };
 
     enum class ExampleOptions {
@@ -1283,14 +1353,13 @@ public:
         , { nullptr,       MarkType::kDefinedBy }
         , { nullptr,       MarkType::kDeprecated }
         , { nullptr,       MarkType::kDescription }
-        , { nullptr,       MarkType::kDoxygen }
+        , { nullptr,       MarkType::kDetails }
         , { nullptr,       MarkType::kDuration }
         , { &fEnumMap,     MarkType::kEnum }
         , { &fClassMap,    MarkType::kEnumClass }
         , { nullptr,       MarkType::kExample }
         , { nullptr,       MarkType::kExperimental }
         , { nullptr,       MarkType::kExternal }
-        , { nullptr,       MarkType::kFile }
         , { nullptr,       MarkType::kFormula }
         , { nullptr,       MarkType::kFunction }
         , { nullptr,       MarkType::kHeight }
@@ -1306,15 +1375,16 @@ public:
         , { nullptr,       MarkType::kMember }
         , { &fMethodMap,   MarkType::kMethod }
         , { nullptr,       MarkType::kNoExample }
+        , { nullptr,       MarkType::kNoJustify }
         , { nullptr,       MarkType::kOutdent }
         , { nullptr,       MarkType::kParam }
         , { nullptr,       MarkType::kPhraseDef }
+        , { nullptr,       MarkType::kPhraseParam }
         , { nullptr,       MarkType::kPhraseRef }
         , { nullptr,       MarkType::kPlatform }
         , { nullptr,       MarkType::kPopulate }
         , { nullptr,       MarkType::kPrivate }
         , { nullptr,       MarkType::kReturn }
-        , { nullptr,       MarkType::kRoot }
         , { nullptr,       MarkType::kRow }
         , { nullptr,       MarkType::kSeeAlso }
         , { nullptr,       MarkType::kSet }
@@ -1325,10 +1395,8 @@ public:
         , { nullptr,       MarkType::kTable }
         , { nullptr,       MarkType::kTemplate }
         , { nullptr,       MarkType::kText }
-        , { nullptr,       MarkType::kTime }
         , { nullptr,       MarkType::kToDo }
         , { nullptr,       MarkType::kTopic }
-        , { nullptr,       MarkType::kTrack }
         , { &fTypedefMap,  MarkType::kTypedef }
         , { nullptr,       MarkType::kUnion }
         , { nullptr,       MarkType::kVolatile }
@@ -1484,14 +1552,13 @@ public:
         , { nullptr,        MarkType::kDefinedBy }
         , { nullptr,        MarkType::kDeprecated }
         , { nullptr,        MarkType::kDescription }
-        , { nullptr,        MarkType::kDoxygen }
+        , { nullptr,        MarkType::kDetails }
         , { nullptr,        MarkType::kDuration }
         , { &fIEnumMap,     MarkType::kEnum }
         , { &fIEnumMap,     MarkType::kEnumClass }
         , { nullptr,        MarkType::kExample }
         , { nullptr,        MarkType::kExperimental }
         , { nullptr,        MarkType::kExternal }
-        , { nullptr,        MarkType::kFile }
         , { nullptr,        MarkType::kFormula }
         , { nullptr,        MarkType::kFunction }
         , { nullptr,        MarkType::kHeight }
@@ -1507,15 +1574,16 @@ public:
         , { nullptr,        MarkType::kMember }
         , { nullptr,        MarkType::kMethod }
         , { nullptr,        MarkType::kNoExample }
+        , { nullptr,        MarkType::kNoJustify }
         , { nullptr,        MarkType::kOutdent }
         , { nullptr,        MarkType::kParam }
         , { nullptr,        MarkType::kPhraseDef }
+        , { nullptr,        MarkType::kPhraseParam }
         , { nullptr,        MarkType::kPhraseRef }
         , { nullptr,        MarkType::kPlatform }
         , { nullptr,        MarkType::kPopulate }
         , { nullptr,        MarkType::kPrivate }
         , { nullptr,        MarkType::kReturn }
-        , { nullptr,        MarkType::kRoot }
         , { nullptr,        MarkType::kRow }
         , { nullptr,        MarkType::kSeeAlso }
         , { nullptr,        MarkType::kSet }
@@ -1526,10 +1594,8 @@ public:
         , { nullptr,        MarkType::kTable }
         , { &fITemplateMap, MarkType::kTemplate }
         , { nullptr,        MarkType::kText }
-        , { nullptr,        MarkType::kTime }
         , { nullptr,        MarkType::kToDo }
         , { nullptr,        MarkType::kTopic }
-        , { nullptr,        MarkType::kTrack }
         , { &fITypedefMap,  MarkType::kTypedef }
         , { &fIUnionMap,    MarkType::kUnion }
         , { nullptr,        MarkType::kVolatile }
@@ -1905,6 +1971,13 @@ public:
         kOut,
     };
 
+    enum class ItemState {
+        kNone,
+        kName,
+        kValue,
+        kComment,
+    };
+
     struct IterState {
         IterState (list<Definition>::iterator tIter, list<Definition>::iterator tIterEnd)
             : fDefIter(tIter)
@@ -1937,6 +2010,23 @@ public:
         bool fWord;
     };
 
+    struct Item {
+        string fName;
+        string fValue;
+    };
+
+    struct LastItem {
+        const char* fStart;
+        const char* fEnd;
+    };
+
+    struct ItemLength {
+        int fCurName;
+        int fCurValue;
+        int fLongestName;
+        int fLongestValue;
+    };
+
     IncludeWriter() : IncludeParser() {
         this->reset();
     }
@@ -1954,11 +2044,19 @@ public:
         return 0 == size;
     }
 
+    bool checkChildCommentLength(const Definition* parent, MarkType childType) const;
+    void checkEnumLengths(const Definition& child, string enumName, ItemLength* length) const;
 	void constOut(const Definition* memberStart, const Definition& child,
-		const Definition* bmhConst);
+		    const Definition* bmhConst);
     void descriptionOut(const Definition* def, SkipFirstLine , Phrase );
-    void enumHeaderOut(const RootDefinition* root, const Definition& child);
-    void enumMembersOut(const RootDefinition* root, Definition& child);
+    void enumHeaderOut(RootDefinition* root, const Definition& child);
+    string enumMemberComment(const Definition* currentEnumItem, const Definition& child) const;
+    const Definition* enumMemberForComment(const Definition* currentEnumItem) const;
+    ItemState enumMemberName(const Definition& child,
+            const Definition* token, Item* , LastItem* , const Definition** enumItem);
+    void enumMemberOut(const Definition* currentEnumItem, const Definition& child,
+            const Item& , Preprocessor& );
+    void enumMembersOut(Definition& child);
     bool enumPreprocessor(Definition* token, MemberPass pass,
         vector<IterState>& iterStack, IterState** iterState, Preprocessor* );
     void enumSizeItems(const Definition& child);
@@ -1970,7 +2068,8 @@ public:
     int lookupReference(const PunctuationState punctuation, const Word word,
             const int start, const int run, int lastWrite, const char last,
             const char* data);
-    void methodOut(const Definition* method, const Definition& child);
+    const Definition* matchMemberName(string matchName, const Definition& child) const;
+    void methodOut(Definition* method, const Definition& child);
     bool populate(Definition* def, ParentPair* parentPair, RootDefinition* root);
     bool populate(BmhParser& bmhParser);
 
@@ -1993,7 +2092,6 @@ public:
     Definition* structMemberOut(const Definition* memberStart, const Definition& child);
     void structOut(const Definition* root, const Definition& child,
             const char* commentStart, const char* commentEnd);
-    void structSetMembersShort(const vector<Definition*>& bmhChildren);
     void structSizeMembers(const Definition& child);
 private:
     BmhParser* fBmhParser;
@@ -2002,7 +2100,7 @@ private:
     const Definition* fBmhMethod;
     const Definition* fEnumDef;
     const Definition* fMethodDef;
-    const Definition* fBmhStructDef;
+    Definition* fBmhStructDef;
     const char* fContinuation;  // used to construct paren-qualified method name
     int fAnonymousEnumCount;
     int fEnumItemValueTab;
@@ -2120,13 +2218,14 @@ public:
 
 private:
     const BmhParser& fBmhParser;
-    const Definition* fClassesAndStructs;
+    const Definition* fClasses;
     const Definition* fConstants;
     const Definition* fConstructors;
     const Definition* fMemberFunctions;
     const Definition* fMembers;
     const Definition* fOperators;
     const Definition* fRelatedFunctions;
+    const Definition* fStructs;
     bool hackFiles();
 
     typedef ParserCommon INHERITED;
@@ -2134,25 +2233,21 @@ private:
 
 class MdOut : public ParserCommon {
 public:
-    MdOut(const BmhParser& bmh) : ParserCommon()
+    struct SubtopicDescriptions {
+        string fName;
+        string fOneLiner;
+        string fDetails;
+    };
+
+    MdOut(BmhParser& bmh) : ParserCommon()
         , fBmhParser(bmh) {
         this->reset();
+        this->addPopulators();
     }
 
     bool buildReferences(const IncludeParser& , const char* docDir, const char* mdOutDirOrFile);
     bool buildStatus(const char* docDir, const char* mdOutDir);
-
-    static constexpr const char* kClassesAndStructs = "Class_or_Struct";
-    static constexpr const char* kConstants = "Constant";
-    static constexpr const char* kConstructors = "Constructor";
-    static constexpr const char* kDefines = "Define";
-    static constexpr const char* kMemberFunctions = "Member_Function";
-    static constexpr const char* kMembers = "Member";
-    static constexpr const char* kOperators = "Operator";
-    static constexpr const char* kOverview = "Overview";
-    static constexpr const char* kRelatedFunctions = "Related_Function";
-    static constexpr const char* kSubtopics = "Overview_Subtopic";
-    static constexpr const char* kTypedefs = "Typedef";
+    void checkAnchors();
 
 private:
     enum class TableState {
@@ -2161,34 +2256,39 @@ private:
         kColumn,
     };
 
-    struct TableContents {
-        TableContents()
-            : fShowClones(false) {
-        }
-
-        string fDescription;
-        vector<const Definition*> fMembers;
-        bool fShowClones;
+    struct AnchorDef {
+        string fDef;
+        MarkType fMarkType;
     };
 
+    void addPopulators();
     string addReferences(const char* start, const char* end, BmhParser::Resolvable );
+    string anchorDef(string def, string name);
+    string anchorLocalRef(string ref, string name);
+    string anchorRef(string def, string name);
+
     bool buildRefFromFile(const char* fileName, const char* outDir);
     bool checkParamReturnBody(const Definition* def);
-    void childrenOut(const Definition* def, const char* contentStart);
-    const Definition* csParent() const;
+    Definition* checkParentsForMatch(Definition* test, string ref) const;
+    void childrenOut(Definition* def, const char* contentStart);
+    Definition* csParent();
     const Definition* findParamType();
+    string getMemberTypeName(const Definition* def, string* memberType);
+    static bool HasDetails(const Definition* def);
+    void htmlOut(string );
     const Definition* isDefined(const TextParser& , string ref, BmhParser::Resolvable );
+    const Definition* isDefinedByParent(RootDefinition* root, string ref);
     string linkName(const Definition* ) const;
-    string linkRef(string leadingSpaces, const Definition*, string ref,
-			BmhParser::Resolvable ) const;
-    void markTypeOut(Definition* );
+    string linkRef(string leadingSpaces, const Definition*, string ref, BmhParser::Resolvable );
+    void markTypeOut(Definition* , const Definition** prior);
     void mdHeaderOut(int depth) { mdHeaderOutLF(depth, 2); }
     void mdHeaderOutLF(int depth, int lf);
-    void overviewOut();
     bool parseFromFile(const char* path) override { return true; }
-    void populateTables(const Definition* def);
+    void populateOne(Definition* def,
+            unordered_map<string, RootDefinition::SubtopicContents>& populator);
+    void populateTables(const Definition* def, RootDefinition* );
 
-    TableContents& populator(const char* key) {
+    SubtopicDescriptions& populator(string key) {
         auto entry = fPopulators.find(key);
         // FIXME: this should have been detected earlier
         SkASSERT(fPopulators.end() != entry);
@@ -2200,6 +2300,7 @@ private:
         fEnumClass = nullptr;
         fMethod = nullptr;
         fRoot = nullptr;
+        fSubtopic = nullptr;
         fLastParam = nullptr;
         fTableState = TableState::kNone;
         fAddRefFailed = false;
@@ -2208,6 +2309,7 @@ private:
         fInList = false;
         fResolveAndIndent = false;
         fLiteralAndIndent = false;
+        fLastDef = nullptr;
     }
 
     BmhParser::Resolvable resolvable(const Definition* definition) const {
@@ -2227,19 +2329,32 @@ private:
     }
 
     void resolveOut(const char* start, const char* end, BmhParser::Resolvable );
-    void rowOut(const char * name, string description);
-    void subtopicOut(const TableContents& tableContents);
-    void subtopicsOut();
+    void rowOut(const char * name, string description, bool literalName);
 
-    unordered_map<string, TableContents> fPopulators;
+    void subtopicOut(string name);
+    void subtopicsOut(Definition* def);
+    void summaryOut(const Definition* def, MarkType , string name);
+    string tableDataCodeDef(const Definition* def);
+    string tableDataCodeDef(string def, string name);
+    string tableDataCodeLocalRef(string name);
+    string tableDataCodeLocalRef(string ref, string name);
+    string tableDataCodeRef(const Definition* ref);
+    string tableDataCodeRef(string ref, string name);
+
     vector<const Definition*> fClassStack;
+    unordered_map<string, vector<AnchorDef> > fAllAnchorDefs;
+    unordered_map<string, vector<string> > fAllAnchorRefs;
 
-    const BmhParser& fBmhParser;
+    BmhParser& fBmhParser;
     const Definition* fEnumClass;
+     const Definition* fLastDef;
     Definition* fMethod;
-    const RootDefinition* fRoot;
+    RootDefinition* fRoot;  // used in generating populated tables; always struct or class
+    RootDefinition* fSubtopic; // used in resolving symbols
     const Definition* fLastParam;
     TableState fTableState;
+    unordered_map<string, SubtopicDescriptions> fPopulators;
+    unordered_map<string, string> fPhraseParams;
     bool fAddRefFailed;
     bool fHasFiddle;
     bool fInDescription;   // FIXME: for now, ignore unfound camelCase in description since it may
@@ -2247,6 +2362,8 @@ private:
     bool fInList;
     bool fLiteralAndIndent;
     bool fResolveAndIndent;
+    bool fOddRow;
+    bool fHasDetails;
     typedef ParserCommon INHERITED;
 };
 
@@ -2272,7 +2389,7 @@ public:
         }
     }
 
-    void skipToMethodEnd() {
+    void skipToMethodEnd(BmhParser::Resolvable resolvable) {
         if (this->eof()) {
             return;
         }
@@ -2284,7 +2401,8 @@ public:
                     return;
                 }
             }
-            if (this->startsWith(fClassName.c_str()) || this->startsWith("operator")) {
+            if (BmhParser::Resolvable::kSimple != resolvable
+                    && (this->startsWith(fClassName.c_str()) || this->startsWith("operator"))) {
                 const char* ptr = this->anyOf("\n (");
                 if (ptr && '(' ==  *ptr) {
                     this->skipToEndBracket(')');

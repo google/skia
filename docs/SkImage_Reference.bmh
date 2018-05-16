@@ -1,12 +1,6 @@
 #Topic Image
 #Alias Image_Reference
 
-#Subtopic Overview
-    #Subtopic Subtopic
-    #Populate
-    ##
-##
-
 #Class SkImage
 
 Image describes a two dimensional array of pixels to draw. The pixels may be
@@ -47,11 +41,11 @@ Image is drawn. Lazy_Image caches result if possible to speed up repeated
 drawing.
 ##
 
-#Subtopic Related_Function
+#Subtopic Overview
 #Populate
 ##
 
-#Subtopic Class_or_Struct
+#Subtopic Related_Function
 #Populate
 ##
 
@@ -133,7 +127,7 @@ pixels is not nullptr, and contains enough data for Image.
 #Image 3
     size_t rowBytes = image->width() * SkColorTypeBytesPerPixel(kRGBA_8888_SkColorType);
     sk_sp<SkData> data = SkData::MakeUninitialized(rowBytes * image->height());
-    SkImageInfo dstInfo = SkImageInfo::MakeN32(image->width(), image->height(), 
+    SkImageInfo dstInfo = SkImageInfo::MakeN32(image->width(), image->height(),
                                                kPremul_SkAlphaType);
     image->readPixels(dstInfo, data->writable_data(), rowBytes, 0, 0, SkImage::kAllow_CachingHint);
     sk_sp<SkImage> raw = SkImage::MakeRasterData(dstInfo.makeColorType(kRGBA_8888_SkColorType),
@@ -149,7 +143,7 @@ pixels is not nullptr, and contains enough data for Image.
 # ------------------------------------------------------------------------------
 
 #Typedef void* ReleaseContext
-
+#Line # parameter type for MakeFromRaster ##
 Caller data passed to RasterReleaseProc; may be nullptr.
 
 #SeeAlso MakeFromRaster RasterReleaseProc
@@ -157,9 +151,9 @@ Caller data passed to RasterReleaseProc; may be nullptr.
 ##
 
 #Typedef void (*RasterReleaseProc)(const void* pixels, ReleaseContext)
-
+#Line #  parameter type for MakeFromRaster ##
 Function called when Image no longer shares pixels. ReleaseContext is
-provided by caller when Image is created, and may be nullptr.   
+provided by caller when Image is created, and may be nullptr.
 
 #SeeAlso ReleaseContext MakeFromRaster
 
@@ -224,7 +218,7 @@ after reset: 1
 #Method static sk_sp<SkImage> MakeFromBitmap(const SkBitmap& bitmap)
 #In Constructor
 #Line # creates Image from Bitmap, sharing or copying pixels ##
-Creates Image from bitmap, sharing or copying bitmap pixels. If the bitmap 
+Creates Image from bitmap, sharing or copying bitmap pixels. If the bitmap
 is marked immutable, and its pixel memory is shareable, it may be shared
 instead of copied.
 
@@ -315,7 +309,7 @@ The generator returning Picture cannot be shared; std::move transfers ownership 
 #Method static sk_sp<SkImage> MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* subset = nullptr)
 #In Constructor
 #Line # creates Image from encoded data ##
-Creates Image from encoded data. 
+Creates Image from encoded data.
 subset allows selecting a portion of the full image. Pass nullptr to select the entire image;
 otherwise, subset must be contained by image bounds.
 
@@ -345,7 +339,9 @@ for (int quality : { 100, 50, 10, 1} ) {
 # ------------------------------------------------------------------------------
 
 #Typedef void (*TextureReleaseProc)(ReleaseContext releaseContext)
-
+#Line # parameter type for MakeFromTexture ##
+User function called when supplied texture may be deleted.
+#SeeAlso MakeFromTexture
 ##
 
 #Method static sk_sp<SkImage> MakeFromTexture(GrContext* context,
@@ -466,10 +462,10 @@ for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {
 #In Constructor
 #Line # creates Image from encoded data, and uploads to GPU ##
 
-Creates Image from encoded data. Image is uploaded to GPU back-end using context. 
+Creates Image from encoded data. Image is uploaded to GPU back-end using context.
 
 Created Image is available to other GPU contexts, and is available across thread
-boundaries. All contexts must be in the same GPU_Share_Group, or otherwise 
+boundaries. All contexts must be in the same GPU_Share_Group, or otherwise
 share resources.
 
 When Image is no longer referenced, context releases texture memory
@@ -515,10 +511,10 @@ canvas->drawImage(image, 0, 0);
 #In Constructor
 #Line # creates Image from Pixmap, and uploads to GPU ##
 
-Creates Image from pixmap. Image is uploaded to GPU back-end using context. 
+Creates Image from pixmap. Image is uploaded to GPU back-end using context.
 
 Created Image is available to other GPU contexts, and is available across thread
-boundaries. All contexts must be in the same GPU_Share_Group, or otherwise 
+boundaries. All contexts must be in the same GPU_Share_Group, or otherwise
 share resources.
 
 When Image is no longer referenced, context releases texture memory
@@ -527,7 +523,7 @@ asynchronously.
 Texture created from pixmap is uploaded to match Surface created with
 dstColorSpace. Color_Space of Image is determined by pixmap.colorSpace().
 
-Image is returned referring to GPU back-end if context is not nullptr, 
+Image is returned referring to GPU back-end if context is not nullptr,
 format of data is recognized and supported, and if context supports moving
 resources between contexts. Otherwise, pixmap pixel data is copied and Image
 as returned in raster format if possible; nullptr may be returned.
@@ -596,7 +592,7 @@ Recognized formats vary by GPU back-end.
    for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {
        for (auto alpha : { kOpaque_SkAlphaType, kPremul_SkAlphaType, kUnpremul_SkAlphaType } ) {
            sk_sp<SkImage> image = SkImage::MakeFromAdoptedTexture(canvas->getGrContext(),
-                                                                  backEndTexture, origin, 
+                                                                  backEndTexture, origin,
                                                                   kRGBA_8888_SkColorType, alpha);
            canvas->drawImage(image, x, y);
            x += 160;
@@ -690,7 +686,7 @@ should this be moved to chrome only?
 #Bug 7424
 
 #EnumClass BitDepth
-
+#Line # options for MakeFromPicture ##
 #Code
     enum class BitDepth {
         kU8,
@@ -699,10 +695,12 @@ should this be moved to chrome only?
 ##
 
 #Const kU8 0
+#Line # uses 8-bit unsigned int per Color component ##
 Use 8 bits per Color_ARGB component using unsigned integer format.
 ##
 #Const kF16 1
-Use 16 bits per Color_ARGB component using half-precision floating point format.  
+#Line # uses 16-bit float per Color component ##
+Use 16 bits per Color_ARGB component using half-precision floating point format.
 ##
 
 #NoExample
@@ -725,13 +723,13 @@ Creates Image from picture. Returned Image width and height are set by dimension
 Image draws picture with matrix and paint, set to bitDepth and colorSpace.
 
 If matrix is nullptr, draws with identity Matrix. If paint is nullptr, draws
-with default Paint. colorSpace may be nullptr. 
+with default Paint. colorSpace may be nullptr.
 
 #Param picture  stream of drawing commands ##
 #Param dimensions  width and height ##
 #Param matrix  Matrix to rotate, scale, translate, and so on; may be nullptr ##
 #Param paint  Paint to apply transparency, filtering, and so on; may be nullptr ##
-#Param bitDepth  8 bit integer or 16 bit float: per component ##
+#Param bitDepth  8-bit integer or 16-bit float: per component ##
 #Param colorSpace  range of colors; may be nullptr ##
 
 #Return created Image, or nullptr ##
@@ -891,7 +889,7 @@ Returns IRect { 0, 0, width(), height() }.
     }
 ##
 
-#SeeAlso dimensions() 
+#SeeAlso dimensions()
 
 #Method ##
 
@@ -899,7 +897,7 @@ Returns IRect { 0, 0, width(), height() }.
 
 #Method uint32_t uniqueID() const
 #In Property
-#Line # identifier for Image ##
+#Line # returns identifier for Image ##
 Returns value unique to image. Image contents cannot change after Image is
 created. Any operation to create a new Image will receive generate a new
 unique number.
@@ -1222,7 +1220,7 @@ false and leave pixmap unchanged.
 # ------------------------------------------------------------------------------
 
 #Method GrTexture* getTexture() const
-#Deprecated 
+#Deprecated
 #Method ##
 
 # ------------------------------------------------------------------------------
@@ -1330,7 +1328,7 @@ drawImage(textureImage, "backEndTexture");
 #In Property
 #Line # returns GPU reference to Image as texture ##
 
-Retrieves the backend texture. If Image has no backend texture, an invalid
+Retrieves the back-end texture. If Image has no back-end texture, an invalid
 object is returned. Call GrBackendTexture::isValid to determine if the result
 is valid.
 
@@ -1372,7 +1370,7 @@ If origin in not nullptr, copies location of content drawn into Image.
 # ------------------------------------------------------------------------------
 
 #Enum CachingHint
-
+#Line # options for readPixels and scalePixels ##
 #Code
     enum CachingHint {
         kAllow_CachingHint,
@@ -1382,7 +1380,7 @@ If origin in not nullptr, copies location of content drawn into Image.
 
 CachingHint selects whether Skia may internally cache Bitmaps generated by
 decoding Image, or by copying Image from GPU to CPU. The default behavior
-allows caching Bitmaps. 
+allows caching Bitmaps.
 
 Choose kDisallow_CachingHint if Image pixels are to be used only once, or
 if Image pixels reside in a cache outside of Skia, or to reduce memory pressure.
@@ -1392,10 +1390,10 @@ Image pixels may not be cached if memory requirements are too large or
 pixels are not accessible.
 
 #Const kAllow_CachingHint 0
-Allows Skia to internally cache decoded and copied pixels.
+#Line # allows internally caching decoded and copied pixels ##
 ##
 #Const kDisallow_CachingHint 1
-Disallows Skia from internally caching decoded and copied pixels.
+#Line # disallows internally caching decoded and copied pixels ##
 ##
 
 #NoExample
@@ -1413,7 +1411,7 @@ Disallows Skia from internally caching decoded and copied pixels.
 #Line # copies and converts pixels ##
 
 Copies Rect of pixels from Image to dstPixels. Copy starts at offset (srcX, srcY),
-and does not exceed Image (width(), height()). 
+and does not exceed Image (width(), height()).
 
 dstInfo specifies width, height, Color_Type, Alpha_Type, and Color_Space of
 destination. dstRowBytes specifics the gap from one destination row to the next.
@@ -1432,8 +1430,8 @@ match. If Image Color_Space is nullptr, dstInfo.colorSpace must match. Returns
 false if pixel conversion is not possible.
 
 srcX and srcY may be negative to copy only top or left of source. Returns
-false if width() or height() is zero or negative. 
-Returns false if 
+false if width() or height() is zero or negative.
+Returns false if
 #Formula
 abs(srcX) >= Image width()
 ##
@@ -1487,7 +1485,7 @@ If cachingHint is kDisallow_CachingHint, pixels are not added to the local cache
                     CachingHint cachingHint = kAllow_CachingHint) const
 
 Copies a Rect of pixels from Image to dst. Copy starts at (srcX, srcY), and
-does not exceed Image (width(), height()). 
+does not exceed Image (width(), height()).
 
 dst specifies width, height, Color_Type, Alpha_Type, Color_Space, pixel storage,
 and row bytes of destination. dst.rowBytes specifics the gap from one destination
@@ -1504,10 +1502,10 @@ If Image Color_Type is kGray_8_SkColorType, dst.colorSpace must match.
 If Image Alpha_Type is kOpaque_SkAlphaType, dst.alphaType must
 match. If Image Color_Space is nullptr, dst.colorSpace must match. Returns
 false if pixel conversion is not possible.
- 
+
 srcX and srcY may be negative to copy only top or left of source. Returns
-false if width() or height() is zero or negative. 
-Returns false if 
+false if width() or height() is zero or negative.
+Returns false if
 #Formula
 abs(srcX) >= Image width()
 ##
@@ -1619,7 +1617,7 @@ If cachingHint is kDisallow_CachingHint, pixels are not added to the local cache
 #Method sk_sp<SkData> encodeToData(SkEncodedImageFormat encodedImageFormat, int quality) const
 #In Utility
 #Line # returns encoded Image as SkData ##
-Encodes Image pixels, returning result as SkData. 
+Encodes Image pixels, returning result as SkData.
 
 Returns nullptr if encoding fails, or if encodedImageFormat is not supported.
 
@@ -1667,7 +1665,7 @@ Encodes Image pixels, returning result as SkData. Returns existing encoded data
 if present; otherwise, Image is encoded with SkEncodedImageFormat::kPNG. Skia
 must be built with SK_HAS_PNG_LIBRARY to encode Image.
 
-Returns nullptr if existing encoded data is missing or invalid, and 
+Returns nullptr if existing encoded data is missing or invalid, and
 encoding fails.
 
 #Return encoded Image, or nullptr ##
@@ -1995,7 +1993,9 @@ By translating canvas by returned offset, Image appears stationary.
 # ------------------------------------------------------------------------------
 
 #Typedef std::function<void(GrBackendTexture)> BackendTextureReleaseProc
-
+#Line # parameter type for MakeBackendTextureFromSkImage ##
+Defines a function take one parameter of type
+GrBackendTexture with no return value.
 ##
 
 # ------------------------------------------------------------------------------
@@ -2024,10 +2024,10 @@ If Image is not texture backed, returns texture with Image contents.
 
 #Param context  GPU_Context ##
 #Param image  Image used for texture ##
-#Param backendTexture  storage for backend texture ##
+#Param backendTexture  storage for back-end texture ##
 #Param backendTextureReleaseProc  storage for clean up function ##
 
-#Return true if backend texture was created ##
+#Return true if back-end texture was created ##
 
 #Example
 #Platform gpu
@@ -2045,7 +2045,7 @@ static sk_sp<SkImage> create_gpu_image(GrContext* grContext) {
 }
 ##
 
-void draw(SkCanvas* canvas) {    
+void draw(SkCanvas* canvas) {
     GrContext* grContext = canvas->getGrContext();
     if (!grContext) {
         return;
@@ -2079,7 +2079,7 @@ void draw(SkCanvas* canvas) {
 ##
 
 #Const kRO_LegacyBitmapMode 0
-Returned bitmap is read-only and immutable.
+#Line # returned bitmap is read-only and immutable ##
 ##
 
 #Enum ##

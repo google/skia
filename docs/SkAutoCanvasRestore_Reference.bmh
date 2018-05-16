@@ -1,16 +1,14 @@
 #Topic Automatic_Canvas_Restore
 
-#Subtopic Overview
-    #Subtopic Subtopic
-    #Populate
-    ##
-##
-
 #Class SkAutoCanvasRestore
 
 Stack helper class calls SkCanvas::restoreToCount when SkAutoCanvasRestore
 goes out of scope. Use this to guarantee that the canvas is restored to a known
 state.
+
+#Subtopic Overview
+#Populate
+##
 
 #Subtopic Constructor
 #Populate

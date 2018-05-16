@@ -1,12 +1,6 @@
 #Topic Canvas
 #Alias Canvas_Reference
 
-#Subtopic Overview
-    #Subtopic Subtopic
-    #Populate
-    ##
-##
-
 #Class SkCanvas
 
 Canvas provides an interface for drawing, and how the drawing is clipped and transformed.
@@ -30,6 +24,10 @@ destination.
 Canvas can be constructed to draw to Bitmap without first creating Raster_Surface.
 This approach may be deprecated in the future.
 
+#Subtopic Overview
+#Populate
+##
+
 #Subtopic Related_Function
 #Populate
 ##
@@ -38,7 +36,11 @@ This approach may be deprecated in the future.
 #Populate
 ##
 
-#Subtopic Class_or_Struct
+#Subtopic Struct
+#Populate
+##
+
+#Subtopic Typedef
 #Populate
 ##
 
@@ -181,7 +183,7 @@ void draw(SkCanvas* ) {
             height,
             pixels[0],  // top-left of the bitmap
             sizeof(pixels[0]));  // byte width of the each row
-    // write a premultiplied value for white into all pixels in the bitmap
+    // write a Premultiplied value for white into all pixels in the bitmap
     canvas->clear(SK_ColorWHITE);
     SkPMColor pmWhite = pixels[0][0];  // the Premultiplied format may vary
     SkPaint paint;  // by default, draws black
@@ -262,9 +264,9 @@ void draw(SkCanvas* canvas) {
 
 #Method SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr)
 
-#Line # no Surface, set dimensions, Surface_Properties ##
+#Line # creates with no Surface, set dimensions, Surface_Properties ##
 Creates Canvas of the specified dimensions without a Surface.
-Used by Subclasses with custom implementations for draw methods.
+Used by Subclasses with custom implementations for draw member functions.
 
 If props equals nullptr, Surface_Properties are created with
 Surface_Properties_Legacy_Font_Host settings, which choose the pixel striping
@@ -365,7 +367,7 @@ The actual output depends on the installed fonts.
 ##
 
 #EnumClass ColorBehavior
-#Line # Android framework only ##
+#Line # exists for Android framework only ##
 #Private
 Android framework only.
 ##
@@ -376,16 +378,16 @@ Android framework only.
     };
 ##
 #Const kLegacy 0
+#Line # placeholder ##
     Is a placeholder to allow specialized constructor; has no meaning.
 ##
 ##
 
 #Method SkCanvas(const SkBitmap& bitmap, ColorBehavior behavior)
 
-#Line # Android framework only ##
-#Private
+#Line # exists for Android framework only ##
+
 Android framework only.
-##
 
 #Param bitmap    specifies a bitmap for the canvas to draw into ##
 #Param behavior  specializes this constructor; value is unused ##
@@ -1673,11 +1675,6 @@ Call restoreToCount with returned value to restore this and subsequent saves.
 
 ##
 
-#ToDo
-add new markup to associate typedef SaveLayerFlags with Enum so that, for
-documentation purposes, this enum is named rather than anonymous
-##
-
 #Enum SaveLayerFlagsSet
 #Line # sets SaveLayerRec options ##
 #Code
@@ -1691,20 +1688,29 @@ documentation purposes, this enum is named rather than anonymous
     typedef uint32_t SaveLayerFlags;
 ##
 
+
+#Typedef uint32_t SaveLayerFlags
+#Line # options for SaveLayerRec ##
+
 SaveLayerFlags provides options that may be used in any combination in SaveLayerRec,
-defining how Layer allocated by saveLayer operates.
+defining how Layer allocated by saveLayer operates. It may be set to zero,
+kPreserveLCDText_SaveLayerFlag, kInitWithPrevious_SaveLayerFlag, or both flags.
+
+##
 
 #Const kPreserveLCDText_SaveLayerFlag 2
+#Line # creates Layer for LCD text ##
   Creates Layer for LCD text. Flag is ignored if Layer Paint contains
   Image_Filter or Color_Filter.
 ##
 
 #Const kInitWithPrevious_SaveLayerFlag 4
+#Line # initializes with previous contents ##
   Initializes Layer with the contents of the previous Layer.
 ##
 
 #Const kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag 8
-  Experimental -- don't use
+#Experimental  do not use
 ##
 
 #Const kDontClipToLayer_Legacy_SaveLayerFlag 0x80000000
@@ -1739,12 +1745,14 @@ void draw(SkCanvas* canvas) {
 
 #Enum ##
 
-#Typedef uint32_t SaveLayerFlags
-
-##
+#Subtopic SaveLayerRec
+#Line # contains the state used to create the Layer ##
 
 #Struct SaveLayerRec
 #Line # contains the state used to create the Layer ##
+
+SaveLayerRec contains the state used to create the Layer.
+
 #Code
     struct SaveLayerRec {
         SaveLayerRec*(...
@@ -1756,38 +1764,50 @@ void draw(SkCanvas* canvas) {
     };
 ##
 
-SaveLayerRec contains the state used to create the Layer.
+#Subtopic Overview
+#Populate
+##
+
+#Subtopic Member
+#Populate
+##
 
 #Member const SkRect*           fBounds
+#Line # hints at Layer size limit ##
     fBounds is used as a hint to limit the size of Layer; may be nullptr.
     fBounds suggests but does not define Layer size. To clip drawing to
     a specific rectangle, use clipRect.
 ##
 
 #Member const SkPaint*          fPaint
+#Line # modifies overlay ##
     fPaint modifies how Layer overlays the prior Layer; may be nullptr.
     Color_Alpha, Blend_Mode, Color_Filter, Draw_Looper, Image_Filter, and
     Mask_Filter affect Layer draw.
 ##
 
 #Member const SkImageFilter*    fBackdrop
+#Line # applies Image_Filter to prior Layer ##
     fBackdrop applies Image_Filter to the prior Layer when copying to the Layer;
     may be nullptr. Use kInitWithPrevious_SaveLayerFlag to copy the
     prior Layer without an Image_Filter.
 ##
 
 #Member const SkImage*          fClipMask
+#Line # clips Layer with Mask_Alpha ##
   restore() clips Layer by the Color_Alpha channel of fClipMask when
   Layer is copied to Device. fClipMask may be nullptr.    .
 ##
 
 #Member const SkMatrix*         fClipMatrix
+#Line # transforms Mask_Alpha used to clip ##
   fClipMatrix transforms fClipMask before it clips Layer. If
   fClipMask describes a translucent gradient, it may be scaled and rotated
   without introducing artifacts. fClipMatrix may be nullptr.
 ##
 
 #Member SaveLayerFlags          fSaveLayerFlags
+#Line # preserves LCD Text, creates with prior Layer contents ##
     fSaveLayerFlags are used to create Layer without transparency,
     create Layer for LCD text, and to create Layer with the
     contents of the previous Layer.
@@ -1817,8 +1837,12 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#Method SaveLayerRec()
+#Subtopic Constructor
+#Populate
+##
 
+#Method SaveLayerRec()
+#Line # constructs SaveLayerRec ##
 Sets fBounds, fPaint, and fBackdrop to nullptr. Clears fSaveLayerFlags.
 
 #Return  empty SaveLayerRec ##
@@ -1902,9 +1926,7 @@ Sets fBounds, fPaint, fBackdrop, and fSaveLayerFlags.
                      const SkImage* clipMask, const SkMatrix* clipMatrix,
                      SaveLayerFlags saveLayerFlags)
 
-#Experimental
-Not ready for general use.
-##
+#Experimental  not ready
 
 Sets fBounds, fPaint, fBackdrop, fClipMask, fClipMatrix, and fSaveLayerFlags.
 clipMatrix uses Color_Alpha channel of image, transformed by clipMatrix, to clip
@@ -1932,6 +1954,8 @@ Implementation is not complete; has no effect if Device is GPU-backed.
 ##
 
 #Struct ##
+
+#Subtopic ##
 
 #Method int saveLayer(const SaveLayerRec& layerRec)
 
@@ -2469,7 +2493,7 @@ void draw(SkCanvas* canvas) {
 #Method void androidFramework_setDeviceClipRestriction(const SkIRect& rect)
 
 #In Clip
-#Line # for use by Android framework ##
+#Line # exists for use by Android framework ##
 Sets the maximum clip rectangle, which can be set by clipRect, clipRRect and
 clipPath and intersect the current clip with the specified rect.
 The maximum clip affects only future clipping operations; it is not retroactive.
@@ -2700,10 +2724,7 @@ void draw(SkCanvas* canvas) {
 #Method void setAllowSimplifyClip(bool allow)
 
 #In Clip
-#Line # experimental ##
-#Experimental
-Only used for testing.
-##
+#Experimental  testing
 
 Set to simplify clip stack using PathOps.
 
@@ -3116,15 +3137,15 @@ Selects if an array of points are drawn as discrete points, as lines, or as
 an open polygon.
 
 #Const kPoints_PointMode 0
-    Draw each point separately.
+#Line # draw each point separately ##
 ##
 
 #Const kLines_PointMode 1
-    Draw each pair of points as a line segment.
+#Line # draw each pair of points as a line segment ##
 ##
 
 #Const kPolygon_PointMode 2
-    Draw the array of points as a open polygon.
+#Line # draw the array of points as a open polygon ##
 ##
 
 #Example
@@ -3931,12 +3952,14 @@ it cannot read outside the bounds, when sampling near the edge of source Rect.
 SrcRectConstraint specifies whether an Image_Filter is allowed to read pixels
 outside source Rect.
 
-#Const kStrict_SrcRectConstraint
+#Const kStrict_SrcRectConstraint 0
+#Line # sample only inside bounds; slower ##
     Requires Image_Filter to respect source Rect,
     sampling only inside of its bounds, possibly with a performance penalty.
 ##
 
-#Const kFast_SrcRectConstraint
+#Const kFast_SrcRectConstraint 1
+#Line # sample outside bounds; faster ##
     Permits Image_Filter to sample outside of source Rect
     by half the width of Image_Filter, permitting it to run faster but with
     error at the image edges.
@@ -4313,9 +4336,7 @@ are larger than dst; center and four sides are scaled to fit remaining space, if
 
 Additionally transform draw using Clip, Matrix, and optional Paint paint.
 
-If Paint paint is supplied, apply Color_Filter, Color_Alpha, Image_Filter,
-Blend_Mode, and Draw_Looper. If image is kAlpha_8_SkColorType, apply Shader.
-If paint contains Mask_Filter, generate mask from image bounds.
+#paint_as_used_by_draw_lattice_or_draw_nine(image)#
 
 If generated mask extends beyond image bounds, replicate image edge colors, just
 as Shader made from SkImage::makeShader with SkShader::kClamp_TileMode set
@@ -4663,6 +4684,14 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
+#PhraseDef paint_as_used_by_draw_lattice_or_draw_nine(bitmap_or_image)
+If Paint paint is supplied, apply Color_Filter, Color_Alpha, Image_Filter,
+Blend_Mode, and Draw_Looper. If #bitmap_or_image# is kAlpha_8_SkColorType, apply Shader.
+If paint contains Mask_Filter, generate mask from #bitmap_or_image# bounds. If paint
+Filter_Quality set to kNone_SkFilterQuality, disable pixel filtering. For all
+other values of paint Filter_Quality, use kLow_SkFilterQuality to filter pixels.
+##
+
 #Method void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
                         const SkPaint* paint = nullptr)
 #In Draw_Image
@@ -4677,9 +4706,7 @@ space, if any.
 
 Additionally transform draw using Clip, Matrix, and optional Paint paint.
 
-If Paint paint is supplied, apply Color_Filter, Color_Alpha, Image_Filter,
-Blend_Mode, and Draw_Looper. If bitmap is kAlpha_8_SkColorType, apply Shader.
-If paint contains Mask_Filter, generate mask from bitmap bounds.
+#paint_as_used_by_draw_lattice_or_draw_nine(bitmap)#
 
 If generated mask extends beyond bitmap bounds, replicate bitmap edge colors,
 just as Shader made from SkShader::MakeBitmapShader with
@@ -4733,8 +4760,20 @@ void draw(SkCanvas* canvas) {
 ##
 
 # ------------------------------------------------------------------------------
+#Subtopic Lattice
+#Line # divides Bitmap or Image into a rectangular grid ##
+
 #Struct Lattice
 #Line # divides Bitmap or Image into a rectangular grid ##
+
+Lattice divides Bitmap or Image into a rectangular grid.
+Grid entries on even columns and even rows are fixed; these entries are
+always drawn at their original size if the destination is large enough.
+If the destination side is too small to hold the fixed entries, all fixed
+entries are proportionately scaled down to fit.
+The grid entries not on even columns and rows are scaled to fit the
+remaining space, if any.
+
 #Code
     struct Lattice {
         enum RectType ...
@@ -4749,15 +4788,16 @@ void draw(SkCanvas* canvas) {
     };
 ##
 
-    Lattice divides Bitmap or Image into a rectangular grid.
-    Grid entries on even columns and even rows are fixed; these entries are
-    always drawn at their original size if the destination is large enough.
-    If the destination side is too small to hold the fixed entries, all fixed
-    entries are proportionately scaled down to fit.
-    The grid entries not on even columns and rows are scaled to fit the
-    remaining space, if any.
+#Subtopic Overview
+#Populate
+##
+
+#Subtopic Constant
+#Populate
+##
 
     #Enum RectType
+    #Line # optional setting per rectangular grid entry ##
         #Code
             enum RectType : uint8_t {
                 kDefault = 0,
@@ -4770,19 +4810,24 @@ void draw(SkCanvas* canvas) {
         or to fill the grid entry with a color.
 
         #Const kDefault 0
-            Draws Bitmap into lattice rectangle.
+        #Line # draws Bitmap into lattice rectangle ##
         ##
 
         #Const kTransparent 1
-            Skips lattice rectangle by making it transparent.
+        #Line # skips lattice rectangle by making it transparent ##
         ##
 
         #Const kFixedColor 2
-            Draws one of fColors into lattice rectangle.
+        #Line # draws one of fColors into lattice rectangle ##
         ##
     ##
 
+#Subtopic Member
+#Populate
+##
+
     #Member const int*   fXDivs
+    #Line # x-coordinates dividing bitmap ##
         Array of x-coordinates that divide the bitmap vertically.
         Array entries must be unique, increasing, greater than or equal to
         fBounds left edge, and less than fBounds right edge.
@@ -4791,6 +4836,7 @@ void draw(SkCanvas* canvas) {
     ##
 
     #Member const int*   fYDivs
+    #Line # y-coordinates dividing bitmap ##
         Array of y-coordinates that divide the bitmap horizontally.
         Array entries must be unique, increasing, greater than or equal to
         fBounds top edge, and less than fBounds bottom edge.
@@ -4799,6 +4845,7 @@ void draw(SkCanvas* canvas) {
     ##
 
     #Member const RectType* fRectTypes
+    #Line # array of fill types ##
         Optional array of fill types, one per rectangular grid entry:
         array length must be
     #Formula
@@ -4813,21 +4860,25 @@ void draw(SkCanvas* canvas) {
     ##
 
     #Member int   fXCount
+    #Line # number of x-coordinates ##
         Number of entries in fXDivs array; one less than the number of
         horizontal divisions.
     ##
 
     #Member int   fYCount
+    #Line # number of y-coordinates ##
         Number of entries in fYDivs array; one less than the number of vertical
         divisions.
     ##
 
     #Member const SkIRect*   fBounds
+    #Line # source bounds to draw from ##
        Optional subset IRect source to draw from.
        If nullptr, source bounds is dimensions of Bitmap or Image.
     ##
 
     #Member const SkColor*   fColors
+    #Line # array of colors ##
        Optional array of colors, one per rectangular grid entry.
        Array length must be
        #Formula
@@ -4857,9 +4908,7 @@ dimension. All other grid elements scale to fill the available space, if any.
 
 Additionally transform draw using Clip, Matrix, and optional Paint paint.
 
-If Paint paint is supplied, apply Color_Filter, Color_Alpha, Image_Filter,
-Blend_Mode, and Draw_Looper. If bitmap is kAlpha_8_SkColorType, apply Shader.
-If paint contains Mask_Filter, generate mask from bitmap bounds.
+#paint_as_used_by_draw_lattice_or_draw_nine(bitmap)#
 
 If generated mask extends beyond bitmap bounds, replicate bitmap edge colors,
 just as Shader made from SkShader::MakeBitmapShader with
@@ -4938,9 +4987,7 @@ dimension. All other grid elements scale to fill the available space, if any.
 
 Additionally transform draw using Clip, Matrix, and optional Paint paint.
 
-If Paint paint is supplied, apply Color_Filter, Color_Alpha, Image_Filter,
-Blend_Mode, and Draw_Looper. If bitmap is kAlpha_8_SkColorType, apply Shader.
-If paint contains Mask_Filter, generate mask from bitmap bounds.
+#paint_as_used_by_draw_lattice_or_draw_nine(image)#
 
 If generated mask extends beyond bitmap bounds, replicate bitmap edge colors,
 just as Shader made from SkShader::MakeBitmapShader with
@@ -4992,6 +5039,8 @@ void draw(SkCanvas* canvas) {
 #SeeAlso drawBitmapLattice drawImage drawImageNine Lattice
 
 ##
+
+#Subtopic Lattice ##
 
 #Subtopic Draw_Image ##
 
@@ -5063,9 +5112,8 @@ void draw(SkCanvas* canvas) {
 #In Draw_Text
 #In Draw
 #Line # draws null terminated string at (x, y) using font advance ##
-Draw null terminated string, with origin at (x, y), using Clip, Matrix, and
-Paint paint. Note that this per-glyph xform does not affect the shader (if present)
-on the paint, just the glyph's geometry.
+Draws null terminated string, with origin at (x, y), using Clip, Matrix, and
+Paint paint.
 
 string meaning depends on Paint_Text_Encoding; by default, strings are encoded
 as UTF-8. Other values of Paint_Text_Encoding are unlikely to produce the desired
@@ -5281,20 +5329,22 @@ filled 12 point black Glyphs.
 
 Draw text on Path path, using Clip, Matrix, and Paint paint.
 
-Origin of text is at beginning of path offset by matrix, if provided, before it
-is mapped to path. If the path section corresponding the glyph advance is
-curved, the glyph is drawn curved to match; control points in the glyph are
-mapped to projected points parallel to the path. If the text advance is larger
-than the path length, the excess text is clipped.
+Origin of text is at beginning of path offset by matrix, if not nullptr.
+matrix also transforms text before text is mapped to path. If the path section
+corresponding the glyph advance is curved, the glyph is drawn curved to match;
+control points in the glyph are mapped to projected points parallel to the path.
+If the text advance is larger than the path length, the excess text is clipped.
 
 text meaning depends on Paint_Text_Encoding; by default, text is encoded as
 UTF-8. Origin meaning depends on Paint_Text_Align and Paint_Vertical_Text; by
 default text positions the first glyph left side bearing at origin x and its
-baseline at origin y. Text size is affected by Matrix and Paint_Text_Size.
+baseline at origin y. Text size is affected by matrix parameter, Canvas_Matrix,
+and Paint_Text_Size.
 
 All elements of paint: Path_Effect, Mask_Filter, Shader,
 Color_Filter, Image_Filter, and Draw_Looper; apply to text. By default, draws
-filled 12 point black Glyphs.
+filled 12 point black Glyphs. Canvas Matrix does effect paint Shader, but
+matrix parameter does not.
 
 #Param  text         character code points or Glyphs drawn ##
 #Param  byteLength   byte length of text array ##

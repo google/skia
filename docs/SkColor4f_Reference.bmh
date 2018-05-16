@@ -3,12 +3,10 @@
 
 #Struct SkColor4f
 
-The float values are 0...1 unpremultiplied
+The float values are 0...1 Unpremultiplied
 
 #Subtopic Overview
-    #Subtopic Subtopic
-        #Populate
-    ##
+#Populate
 ##
 
 #Subtopic Operator
@@ -20,15 +18,19 @@ The float values are 0...1 unpremultiplied
 ##
 
 #Member float  fR
+#Line # incomplete ##
 ##
 
 #Member float  fG
+#Line # incomplete ##
 ##
 
 #Member float  fB
+#Line # incomplete ##
 ##
 
 #Member float  fA
+#Line # incomplete ##
 ##
 
 # ------------------------------------------------------------------------------
@@ -175,19 +177,13 @@ Convert to SkColor4f, assuming SkColor is sRGB
 # ------------------------------------------------------------------------------
 
 #Method SkPM4f premul() const
-#In incomplete
-#Line # incomplete ##
-
-#Return incomplete ##
-
-#Example
-// incomplete
-##
-
-#SeeAlso incomplete
-
+#Deprecated
 #Method ##
 
 #Struct SkColor4f ##
+
+#Struct SkPM4f
+#Deprecated
+##
 
 #Topic Color4f ##

@@ -7,6 +7,57 @@
 
 #include "bookmaker.h"
 
+bool IncludeWriter::checkChildCommentLength(const Definition* parent, MarkType childType) const {
+    bool oneMember = false;
+    for (auto& item : parent->fChildren) {
+        if (childType != item->fMarkType) {
+            continue;
+        }
+        oneMember = true;
+        int lineLen = 0;
+        for (auto& itemChild : item->fChildren) {
+            if (MarkType::kExperimental == itemChild->fMarkType) {
+                lineLen = sizeof("experimental") - 1;
+                break;
+            }
+            if (MarkType::kDeprecated == itemChild->fMarkType) {
+                lineLen = sizeof("deprecated") - 1;
+                // todo: look for 'soon'
+                break;
+            }
+            if (MarkType::kLine == itemChild->fMarkType) {
+                lineLen = itemChild->length();
+                break;
+            }
+        }
+        if (!lineLen) {
+            item->reportError<void>("missing #Line");
+        }
+        if (fEnumItemCommentTab + lineLen >= 100) {
+// if too long, remove spaces until it fits, or wrap
+//            item->reportError<void>("#Line comment too long");
+        }
+    }
+    return oneMember;
+}
+
+void IncludeWriter::checkEnumLengths(const Definition& child, string enumName, ItemLength* length) const {
+    const Definition* enumItem = this->matchMemberName(enumName, child);
+    if (std::any_of(enumItem->fChildren.begin(), enumItem->fChildren.end(),
+            [](Definition* child){return MarkType::kNoJustify == child->fMarkType;})) {
+        return;
+    }
+    string comment = this->enumMemberComment(enumItem, child);
+    int lineLimit = 100 - fIndent - 7; // 7: , space //!< space
+    if (length->fCurValue) {
+        lineLimit -= 3; // space = space
+    }
+    if (length->fCurName + length->fCurValue + (int) comment.length() < lineLimit) {
+        length->fLongestName = SkTMax(length->fLongestName, length->fCurName);
+        length->fLongestValue = SkTMax(length->fLongestValue, length->fCurValue);
+    }
+}
+
 void IncludeWriter::constOut(const Definition* memberStart, const Definition& child,
     const Definition* bmhConst) {
     const char* bodyEnd = fDeferComment ? fDeferComment->fContentStart - 1 :
@@ -33,7 +84,8 @@ void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
     bool breakOut = false;
     SkDEBUGCODE(bool wroteCode = false);
     if (def->fDeprecated) {
-        this->writeString(def->fToBeDeprecated ? "To be deprecated soon." : "Deprecated.");
+        string message = def->incompleteMessage(Definition::DetailsType::kSentence);
+        this->writeString(message);
         this->lfcr();
     }
     for (auto prop : def->fChildren) {
@@ -92,9 +144,10 @@ void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                     }
                 }
                 commentStart = prop->fContentStart;
-                if (def->fToBeDeprecated) {
-                    commentStart += 4; // skip over "soon" // FIXME: this is awkward
-                } else if (MarkType::kBug == prop->fMarkType) {
+                if (' ' < commentStart[0]) {
+                    commentStart = strchr(commentStart, '\n');
+                }
+                if (MarkType::kBug == prop->fMarkType) {
                     commentStart = prop->fContentEnd;
                 }
                 commentLen = (int) (prop->fContentEnd - commentStart);
@@ -115,6 +168,9 @@ void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                 this->writeString("EXPERIMENTAL:");
                 this->writeSpace();
                 commentStart = prop->fContentStart;
+                if (' ' < commentStart[0]) {
+                    commentStart = strchr(commentStart, '\n');
+                }
                 commentLen = (int) (prop->fContentEnd - commentStart);
                 if (commentLen > 0) {
                     if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart, Phrase::kNo)) {
@@ -202,7 +258,41 @@ void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                     return this->reportError<void>("missing phrase definition");
                 }
                 Definition* phraseDef = iter->second;
-                this->rewriteBlock(phraseDef->length(), phraseDef->fContentStart, Phrase::kYes);
+                // TODO: given TextParser(commentStart, prop->fStart + up to #) return if
+                // it ends with two of more linefeeds, ignoring other whitespace
+                Phrase defIsPhrase = '\n' == prop->fStart[0] && '\n' == prop->fStart[-1] ?
+                        Phrase::kNo : Phrase::kYes;
+                if (Phrase::kNo == defIsPhrase) {
+                    this->lf(2);
+                }
+                const char* start = phraseDef->fContentStart;
+                int length = phraseDef->length();
+                auto propParams = prop->fChildren.begin();
+                // can this share code or logic with mdout somehow?
+                for (auto child : phraseDef->fChildren) {
+                    if (MarkType::kPhraseParam == child->fMarkType) {
+                        continue;
+                    }
+                    int localLength = child->fStart - start;
+                    this->rewriteBlock(localLength, start, defIsPhrase);
+                    start += localLength;
+                    length -= localLength;
+                    SkASSERT(propParams != prop->fChildren.end());
+                    if (fColumn > 0) {
+                        this->writeSpace();
+                    }
+                    this->writeString((*propParams)->fName);
+                    localLength = child->fContentEnd - child->fStart;
+                    start += localLength;
+                    length -= localLength;
+                    if (isspace(start[0])) {
+                        this->writeSpace();
+                    }
+                    defIsPhrase = Phrase::kYes;
+                }
+                if (length > 0) {
+                    this->rewriteBlock(length, start, defIsPhrase);
+                }
                 commentStart = prop->fContentStart;
                 commentLen = (int) (def->fContentEnd - commentStart);
                 } break;
@@ -220,8 +310,7 @@ void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
     }
 }
 
-void IncludeWriter::enumHeaderOut(const RootDefinition* root,
-        const Definition& child) {
+void IncludeWriter::enumHeaderOut(RootDefinition* root, const Definition& child) {
     const Definition* enumDef = nullptr;
     const char* bodyEnd = fDeferComment ? fDeferComment->fContentStart - 1 :
             child.fContentStart;
@@ -281,8 +370,7 @@ void IncludeWriter::enumHeaderOut(const RootDefinition* root,
     bool lastAnchor = false;
     SkDEBUGCODE(bool foundConst = false);
     for (auto test : enumDef->fChildren) {
-        if (MarkType::kCode == test->fMarkType) {
-            SkASSERT(!codeBlock);  // FIXME: check enum for correct order earlier
+        if (MarkType::kCode == test->fMarkType && !codeBlock) {
             codeBlock = test;
             commentStart = codeBlock->fTerminator;
             continue;
@@ -316,17 +404,23 @@ void IncludeWriter::enumHeaderOut(const RootDefinition* root,
             lastAnchor = false;
         }
         this->rewriteBlock((int) (commentEnd - commentStart), commentStart, Phrase::kNo);
-        if (MarkType::kAnchor == test->fMarkType) {
+        if (MarkType::kAnchor == test->fMarkType || MarkType::kCode == test->fMarkType) {
             bool newLine = commentEnd - commentStart > 1 &&
                 '\n' == commentEnd[-1] && '\n' == commentEnd[-2];
             commentStart = test->fContentStart;
-            commentEnd = test->fChildren[0]->fStart;
+            commentEnd = MarkType::kAnchor == test->fMarkType ? test->fChildren[0]->fStart :
+                    test->fContentEnd;
             if (newLine) {
                 this->lf(2);
             } else {
                 this->writeSpace();
             }
-            this->rewriteBlock((int) (commentEnd - commentStart), commentStart, Phrase::kNo);
+            if (MarkType::kAnchor == test->fMarkType) {
+                this->rewriteBlock((int) (commentEnd - commentStart), commentStart, Phrase::kNo);
+            } else {
+                this->writeBlock((int) (commentEnd - commentStart), commentStart);
+                this->lf(2);
+            }
             lastAnchor = true;   // this->writeSpace();
         }
         commentStart = test->fTerminator;
@@ -358,176 +452,189 @@ void IncludeWriter::enumHeaderOut(const RootDefinition* root,
     fEnumDef = enumDef;
 }
 
-void IncludeWriter::enumMembersOut(const RootDefinition* root, Definition& child) {
-    // iterate through include tokens and find how much remains for 1 line comments
-    // put ones that fit on same line, ones that are too big on preceding line?
-    const Definition* currentEnumItem = nullptr;
-    const char* commentStart = nullptr;
-    const char* lastEnd = nullptr;
-    int commentLen = 0;
-    enum class State {
-        kNoItem,
-        kItemName,
-        kItemValue,
-        kItemComment,
-    };
-    State state = State::kNoItem;
+const Definition* IncludeWriter::enumMemberForComment(const Definition* currentEnumItem) const {
+    for (auto constItem : currentEnumItem->fChildren) {
+        if (MarkType::kLine == constItem->fMarkType
+                || MarkType::kExperimental == constItem->fMarkType
+                || MarkType::kDeprecated == constItem->fMarkType) {
+            return constItem;
+        }
+    }
+    SkASSERT(0);
+    return nullptr;
+}
+
+string IncludeWriter::enumMemberComment(const Definition* currentEnumItem,
+        const Definition& child) const {
+    // #Const should always be followed by #Line, so description follows that
+    string shortComment;
+    for (auto constItem : currentEnumItem->fChildren) {
+        if (MarkType::kLine == constItem->fMarkType) {
+            shortComment = string(constItem->fContentStart, constItem->length());
+            break;
+        }
+        if (IncompleteAllowed(constItem->fMarkType)) {
+            shortComment = constItem->incompleteMessage(Definition::DetailsType::kPhrase);
+        }
+    }
+    if (!shortComment.length()) {
+        currentEnumItem->reportError<void>("missing #Line or #Deprecated or #Experimental");
+    }
+    return shortComment;
+}
+
+IncludeWriter::ItemState IncludeWriter::enumMemberName(
+        const Definition& child, const Definition* token, Item* item, LastItem* last,
+        const Definition** currentEnumItem) {
+    TextParser parser(fFileName, last->fStart, last->fEnd, fLineCount);
+    parser.skipWhiteSpace();
+    item->fName = string(parser.fChar, (int) (last->fEnd - parser.fChar));
+    *currentEnumItem = this->matchMemberName(item->fName, child);
+    if (token) {
+        fStart = token->fContentEnd;
+        TextParser enumLine(token->fFileName, last->fEnd, token->fContentStart, token->fLineCount);
+        const char* end = enumLine.anyOf(",}=");
+        SkASSERT(end);
+        if ('=' == *end) {  // write enum value
+            last->fEnd = token->fContentEnd;
+            item->fValue = string(token->fContentStart, (int) (last->fEnd - token->fContentStart));
+            return ItemState::kValue;
+        }
+    }
+    return ItemState::kComment;
+}
+
+void IncludeWriter::enumMemberOut(const Definition* currentEnumItem, const Definition& child,
+        const Item& item, Preprocessor& preprocessor) {
+    SkASSERT(currentEnumItem);
+    string shortComment = this->enumMemberComment(currentEnumItem, child);
+    int enumItemValueTab =
+            SkTMax((int) item.fName.length() + fIndent + 1, fEnumItemValueTab); // 1: ,
+    int valueLength = item.fValue.length();
+    int assignLength = valueLength ? valueLength + 3 : 0; // 3: space = space
+    int enumItemCommentTab = SkTMax(enumItemValueTab + assignLength, fEnumItemCommentTab);
+    int trimNeeded = enumItemCommentTab + shortComment.length() - (100 - (sizeof("//!< ") - 1));
+    bool crAfterName = false;
+    if (trimNeeded > 0) {
+        if (item.fValue.length()) {
+            int valueSpare = SkTMin(trimNeeded,                  // 3 below: space = space
+                    (int) (enumItemCommentTab - enumItemValueTab - item.fValue.length() - 3));
+            SkASSERT(valueSpare >= 0);
+            trimNeeded -= valueSpare;
+            enumItemCommentTab -= valueSpare;
+        }
+        if (trimNeeded > 0) {
+            int nameSpare = SkTMin(trimNeeded, (int) (enumItemValueTab - item.fName.length()
+                    - fIndent - 1));  // 1: ,
+            SkASSERT(nameSpare >= 0);
+            trimNeeded -= nameSpare;
+            enumItemValueTab -= nameSpare;
+            enumItemCommentTab -= nameSpare;
+        }
+        if (trimNeeded > 0) {
+            crAfterName = true;
+            if (!valueLength) {
+                this->enumMemberForComment(currentEnumItem)->reportError<void>("comment too long");
+            } else if (valueLength + fIndent + 8 + shortComment.length() > // 8: addtional indent
+                    100 - (sizeof(", //!< ") - 1)) { // -1: zero-terminated string
+                this->enumMemberForComment(currentEnumItem)->reportError<void>("comment 2 long");
+            }                                    // 2: = space
+            enumItemValueTab = fEnumItemValueTab +  2                 // 2: , space
+                    - SkTMax(0, fEnumItemValueTab + 2 + valueLength +    2 - fEnumItemCommentTab);
+            enumItemCommentTab = SkTMax(enumItemValueTab + valueLength + 2, fEnumItemCommentTab);
+        }
+    }
+    this->lfcr();
+    this->writeString(item.fName);
+    int saveIndent = fIndent;
+    if (item.fValue.length()) {
+        if (!crAfterName) {
+            this->indentToColumn(enumItemValueTab);
+        } else {
+            this->writeSpace();
+        }
+        this->writeString("=");
+        if (crAfterName) {
+            this->lfcr();
+            fIndent = enumItemValueTab;
+        } else {
+            this->writeSpace();
+        }
+        this->writeString(item.fValue);
+    }
+    this->writeString(",");
+    this->indentToColumn(enumItemCommentTab);
+    this->writeString("//!<");
+    this->writeSpace();
+    this->rewriteBlock(shortComment.length(), shortComment.c_str(), Phrase::kYes);
+    this->lfcr();
+    fIndent = saveIndent;
+    if (preprocessor.fStart) {
+        SkASSERT(preprocessor.fEnd);
+        int saveIndent = fIndent;
+        fIndent = SkTMax(0, fIndent - 8);
+        this->lf(2);
+        this->writeBlock(
+                (int) (preprocessor.fEnd - preprocessor.fStart), preprocessor.fStart);
+        this->lfcr();
+        fIndent = saveIndent;
+        preprocessor.reset();
+    }
+}
+
+// iterate through include tokens and find how much remains for 1 line comments
+// put ones that fit on same line, ones that are too big wrap
+void IncludeWriter::enumMembersOut(Definition& child) {
+    ItemState state = ItemState::kNone;
+    const Definition* currentEnumItem;
+    LastItem last = { nullptr, nullptr };
+    auto brace = child.fChildren[0];
+    if (KeyWord::kClass == brace->fKeyWord) {
+        brace = brace->fChildren[0];
+    }
+    SkASSERT(Bracket::kBrace == brace->fBracket);
     vector<IterState> iterStack;
-    iterStack.emplace_back(child.fTokens.begin(), child.fTokens.end());
+    iterStack.emplace_back(brace->fTokens.begin(), brace->fTokens.end());
     IterState* iterState = &iterStack[0];
     Preprocessor preprocessor;
-    for (int onePast = 0; onePast < 2; onePast += iterState->fDefIter == iterState->fDefEnd) {
-        Definition* token = onePast ? nullptr : &*iterState->fDefIter++;
-        if (this->enumPreprocessor(token, MemberPass::kOut, iterStack, &iterState,
+    Item item;
+    while (iterState->fDefIter != iterState->fDefEnd) {
+        auto& token = *iterState->fDefIter++;
+        if (this->enumPreprocessor(&token, MemberPass::kOut, iterStack, &iterState,
                 &preprocessor)) {
             continue;
         }
-        if (token && State::kItemName == state) {
-            TextParser enumLine(token->fFileName, lastEnd,
-                    token->fContentStart, token->fLineCount);
-            const char* end = enumLine.anyOf(",}=");
-            SkASSERT(end);
-            state = '=' == *end ? State::kItemValue : State::kItemComment;
-            if (State::kItemValue == state) {  // write enum value
-                this->indentToColumn(fEnumItemValueTab);
-                this->writeString("=");
-                this->writeSpace();
-                lastEnd = token->fContentEnd;
-                this->writeBlock((int) (lastEnd - token->fContentStart),
-                        token->fContentStart); // write const value if any
-                continue;
-            }
+        if (ItemState::kName == state) {
+            state = this->enumMemberName(child, &token, &item, &last, &currentEnumItem);
         }
-        if (token && State::kItemValue == state) {
-            TextParser valueEnd(token->fFileName, lastEnd,
-                    token->fContentStart, token->fLineCount);
+        if (ItemState::kValue == state) {
+            TextParser valueEnd(token.fFileName, last.fEnd, token.fContentStart, token.fLineCount);
             const char* end = valueEnd.anyOf(",}");
             if (!end) {  // write expression continuation
-                if (' ' == lastEnd[0]) {
-                    this->writeSpace();
-                }
-                this->writeBlock((int) (token->fContentEnd - lastEnd), lastEnd);
+                item.fValue += string(last.fEnd, (int) (token.fContentEnd - last.fEnd));
                 continue;
             }
         }
-        if (State::kNoItem != state) {
-            this->writeString(",");
-            SkASSERT(currentEnumItem);
-            if (currentEnumItem->fShort) {
-                this->indentToColumn(fEnumItemCommentTab);
-                if (commentLen || currentEnumItem->fDeprecated) {
-                    this->writeString("//!<");
-                    this->writeSpace();
-                    if (currentEnumItem->fDeprecated) {
-                        this->writeString(child.fToBeDeprecated ? "to be deprecated soon"
-                                : "deprecated");
-                    } else {
-                        this->rewriteBlock(commentLen, commentStart, Phrase::kNo);
-                    }
-                }
-            }
-            if (onePast) {
-                fIndent -= 4;
-            }
-            this->lfcr();
-            if (preprocessor.fStart) {
-                SkASSERT(preprocessor.fEnd);
-                int saveIndent = fIndent;
-                fIndent = SkTMax(0, fIndent - 8);
-                this->lf(2);
-                this->writeBlock(
-                        (int) (preprocessor.fEnd - preprocessor.fStart), preprocessor.fStart);
-                this->lfcr();
-                fIndent = saveIndent;
-                preprocessor.reset();
-            }
-            if (token && State::kItemValue == state) {
-                fStart = token->fContentStart;
-            }
-            state = State::kNoItem;
+        if (ItemState::kNone != state) {
+            this->enumMemberOut(currentEnumItem, child, item, preprocessor);
+            fStart = token.fContentStart;
+            state = ItemState::kNone;
+            last.fStart = nullptr;
         }
-        SkASSERT(State::kNoItem == state);
-        if (onePast) {
-            break;
+        SkASSERT(ItemState::kNone == state);
+        if (!last.fStart) {
+            last.fStart = fStart;
         }
-        SkASSERT(token);
-        string itemName;
-        if (!fEnumDef->isRoot()) {
-            itemName = root->fName + "::";
-            if (KeyWord::kClass == child.fParent->fKeyWord) {
-                itemName += child.fParent->fName + "::";
-            }
-        }
-        itemName += string(token->fContentStart, (int) (token->fContentEnd - token->fContentStart));
-        for (auto& enumItem : fEnumDef->fChildren) {
-            if (MarkType::kConst != enumItem->fMarkType) {
-                continue;
-            }
-            if (itemName != enumItem->fName) {
-                continue;
-            }
-            currentEnumItem = enumItem;
-            break;
-        }
-        SkASSERT(currentEnumItem);
-        // if description fits, it goes after item
-        commentStart = currentEnumItem->fContentStart;
-        const char* commentEnd;
-        if (currentEnumItem->fChildren.size() > 0) {
-            commentEnd = currentEnumItem->fChildren[0]->fStart;
-        } else {
-            commentEnd = currentEnumItem->fContentEnd;
-        }
-        TextParser enumComment(fFileName, commentStart, commentEnd, currentEnumItem->fLineCount);
-        bool isDeprecated = false;
-        if (enumComment.skipToLineStart()) {  // skip const value
-            commentStart = enumComment.fChar;
-            commentLen = (int) (commentEnd - commentStart);
-        } else {
-            const Definition* childDef = currentEnumItem->fChildren[0];
-            isDeprecated = MarkType::kDeprecated == childDef->fMarkType;
-            if (MarkType::kPrivate == childDef->fMarkType || isDeprecated) {
-                commentStart = childDef->fContentStart;
-                if (currentEnumItem->fToBeDeprecated) {
-                    SkASSERT(isDeprecated);
-                    commentStart += 4; // skip over "soon" // FIXME: this is awkward
-                }
-                commentLen = (int) (childDef->fContentEnd - commentStart);
-            }
-        }
-        // FIXME: may assert here if there's no const value
-        // should have detected and errored on that earlier when enum fContentStart was set
-        SkASSERT((commentLen > 0 && commentLen < 1000) || isDeprecated);
-        if (!currentEnumItem->fShort) {
-            this->writeCommentHeader();
-            fIndent += 4;
-            bool wroteLineFeed = false;
-            if (isDeprecated) {
-                this->writeString(currentEnumItem->fToBeDeprecated
-                        ? "To be deprecated soon." : "Deprecated.");
-            }
-            TextParserSave save(this);
-            this->setForErrorReporting(currentEnumItem, commentStart);
-            wroteLineFeed  = Wrote::kLF ==
-                this->rewriteBlock(commentLen, commentStart, Phrase::kNo);
-            save.restore();
-            fIndent -= 4;
-            if (wroteLineFeed || fColumn > 100 - 3 /* space * / */ ) {
-                this->lfcr();
-            } else {
-                this->writeSpace();
-            }
-            this->writeCommentTrailer();
-        }
-        lastEnd = token->fContentEnd;
-        this->lfcr();
-        if (',' == fStart[0]) {
-            ++fStart;
-        }
-        this->writeBlock((int) (lastEnd - fStart), fStart);  // enum item name
-        fStart = token->fContentEnd;
-        state = State::kItemName;
+        last.fEnd = token.fContentEnd;
+        state = ItemState::kName;
     }
+    if (ItemState::kName == state) {
+        state = this->enumMemberName(child, nullptr, &item, &last, &currentEnumItem);
+    }
+    if (ItemState::kValue == state || ItemState::kComment == state) {
+        this->enumMemberOut(currentEnumItem, child, item, preprocessor);
+    }
+    fIndent -= 4;
 }
 
 bool IncludeWriter::enumPreprocessor(Definition* token, MemberPass pass,
@@ -590,18 +697,9 @@ bool IncludeWriter::enumPreprocessor(Definition* token, MemberPass pass,
 }
 
 void IncludeWriter::enumSizeItems(const Definition& child) {
-    enum class State {
-        kNoItem,
-        kItemName,
-        kItemValue,
-        kItemComment,
-    };
-    State state = State::kNoItem;
-    int longestName = 0;
-    int longestValue = 0;
-    int valueLen = 0;
+    ItemState state = ItemState::kNone;
+    ItemLength lengths = { 0, 0, 0, 0 };
     const char* lastEnd = nullptr;
-//    SkASSERT(child.fChildren.size() == 1 || child.fChildren.size() == 2);
     auto brace = child.fChildren[0];
     if (KeyWord::kClass == brace->fKeyWord) {
         brace = brace->fChildren[0];
@@ -611,70 +709,85 @@ void IncludeWriter::enumSizeItems(const Definition& child) {
     iterStack.emplace_back(brace->fTokens.begin(), brace->fTokens.end());
     IterState* iterState = &iterStack[0];
     Preprocessor preprocessor;
+    string enumName;
     while (iterState->fDefIter != iterState->fDefEnd) {
         auto& token = *iterState->fDefIter++;
         if (this->enumPreprocessor(&token, MemberPass::kCount, iterStack, &iterState,
                 &preprocessor)) {
             continue;
         }
-        if (State::kItemName == state) {
-            TextParser enumLine(token.fFileName, lastEnd,
-                    token.fContentStart, token.fLineCount);
+        if (ItemState::kName == state) {
+            TextParser enumLine(token.fFileName, lastEnd, token.fContentStart, token.fLineCount);
             const char* end = enumLine.anyOf(",}=");
             SkASSERT(end);
-            state = '=' == *end ? State::kItemValue : State::kItemComment;
-            if (State::kItemValue == state) {
-                valueLen = (int) (token.fContentEnd - token.fContentStart);
+            state = '=' == *end ? ItemState::kValue : ItemState::kComment;
+            if (ItemState::kValue == state) {
                 lastEnd = token.fContentEnd;
+                lengths.fCurValue = (int) (lastEnd - token.fContentStart);
                 continue;
             }
         }
-        if (State::kItemValue == state) {
-            TextParser valueEnd(token.fFileName, lastEnd,
-                    token.fContentStart, token.fLineCount);
+        if (ItemState::kValue == state) {
+            TextParser valueEnd(token.fFileName, lastEnd, token.fContentStart, token.fLineCount);
             const char* end = valueEnd.anyOf(",}");
             if (!end) {  // write expression continuation
-                valueLen += (int) (token.fContentEnd - lastEnd);
+                lengths.fCurValue += (int) (token.fContentEnd - lastEnd);
                 continue;
             }
         }
-        if (State::kNoItem != state) {
-            longestValue = SkTMax(longestValue, valueLen);
-            state = State::kNoItem;
+        if (ItemState::kNone != state) {
+            this->checkEnumLengths(child, enumName, &lengths);
+            lengths.fCurValue = 0;
+            state = ItemState::kNone;
         }
-        SkASSERT(State::kNoItem == state);
+        SkASSERT(ItemState::kNone == state);
         lastEnd = token.fContentEnd;
-        longestName = SkTMax(longestName, (int) (lastEnd - token.fContentStart));
-        state = State::kItemName;
+        lengths.fCurName = (int) (lastEnd - token.fContentStart);
+        enumName = string(token.fContentStart, lengths.fCurName);
+        state = ItemState::kName;
     }
-    if (State::kItemValue == state) {
-        longestValue = SkTMax(longestValue, valueLen);
+    if (ItemState::kNone != state) {
+        this->checkEnumLengths(child, enumName, &lengths);
     }
-    fEnumItemValueTab = longestName + fIndent + 1 /* space before = */ ;
-    if (longestValue) {
-        longestValue += 3; /* = space , */
+    fEnumItemValueTab = lengths.fLongestName + fIndent + 1 /* 1: , */ ;
+    if (lengths.fLongestValue) {
+        lengths.fLongestValue += 3; // 3: space = space
     }
-    fEnumItemCommentTab = fEnumItemValueTab + longestValue + 1 /* space before //!< */ ;
+    fEnumItemCommentTab = fEnumItemValueTab + lengths.fLongestValue + 1 ; // 1: space before //!<
     // iterate through bmh children and see which comments fit on include lines
-    for (auto& enumItem : fEnumDef->fChildren) {
-        if (MarkType::kConst != enumItem->fMarkType) {
-            continue;
-        }
-        TextParser enumLine(enumItem);
-        enumLine.trimEnd();
-        enumLine.skipToLineStart(); // skip const value
-        const char* commentStart = enumLine.fChar;
-        enumLine.skipLine();
-        ptrdiff_t lineLen = enumLine.fChar - commentStart + 5 /* //!< space */ ;
-        if (!enumLine.eof()) {
-            enumLine.skipWhiteSpace();
-        }
-        enumItem->fShort = enumLine.eof() && fEnumItemCommentTab + lineLen < 100;
+    if (!this->checkChildCommentLength(fEnumDef, MarkType::kConst)) {
+        fEnumDef->reportError<void>("expected at least one #Const in #Enum");
     }
 }
 
+const Definition* IncludeWriter::matchMemberName(string matchName, const Definition& child) const {
+    const Definition* parent = &child;
+    if (KeyWord::kEnum == child.fKeyWord && child.fChildren.size() > 0
+            && KeyWord::kClass == child.fChildren[0]->fKeyWord) {
+        matchName = child.fChildren[0]->fName + "::" + matchName;
+    }
+    do {
+        if (KeyWord::kStruct == parent->fKeyWord || KeyWord::kClass == parent->fKeyWord) {
+            matchName = parent->fName + "::" + matchName;
+        }
+    } while ((parent = parent->fParent));
+    const Definition* enumItem = nullptr;
+    for (auto testItem : fEnumDef->fChildren) {
+        if (MarkType::kConst != testItem->fMarkType) {
+            continue;
+        }
+        if (matchName != testItem->fName) {
+            continue;
+        }
+        enumItem = testItem;
+        break;
+    }
+    SkASSERT(enumItem);
+    return enumItem;
+}
+
 // walk children and output complete method doxygen description
-void IncludeWriter::methodOut(const Definition* method, const Definition& child) {
+void IncludeWriter::methodOut(Definition* method, const Definition& child) {
     if (fPendingMethod) {
         fIndent -= 4;
         fPendingMethod = false;
@@ -683,7 +796,7 @@ void IncludeWriter::methodOut(const Definition* method, const Definition& child)
     fMethodDef = &child;
     fContinuation = nullptr;
     fDeferComment = nullptr;
-    const Definition* csParent = method->csParent();
+    Definition* csParent = method->csParent();
     if (csParent && (0 == fIndent || fIndentNext)) {
         fIndent += 4;
         fIndentNext = false;
@@ -745,7 +858,7 @@ void IncludeWriter::structOut(const Definition* root, const Definition& child,
     fIndent += 4;
     this->lfcr();
     if (child.fDeprecated) {
-        this->writeString(child.fToBeDeprecated ? "to be deprecated soon" : "deprecated");
+        this->writeString(child.incompleteMessage(Definition::DetailsType::kSentence));
     } else {
         this->rewriteBlock((int)(commentEnd - commentStart), commentStart, Phrase::kNo);
     }
@@ -805,6 +918,7 @@ Definition* IncludeWriter::structMemberOut(const Definition* memberStart, const 
     if (!commentBlock) {
         return memberStart->reportError<Definition*>("member missing comment block");
     }
+#if 0
     if (!commentBlock->fShort) {
         const char* commentStart = commentBlock->fContentStart;
         ptrdiff_t commentLen = commentBlock->fContentEnd - commentStart;
@@ -831,6 +945,7 @@ Definition* IncludeWriter::structMemberOut(const Definition* memberStart, const 
         }
         this->writeCommentTrailer();
     }
+#endif
     this->lfcr();
     this->writeBlock((int) (child.fStart - memberStart->fContentStart),
             memberStart->fContentStart);
@@ -852,7 +967,7 @@ Definition* IncludeWriter::structMemberOut(const Definition* memberStart, const 
                 valueStart->fContentStart);
     }
     this->writeString(";");
-    if (commentBlock->fShort) {
+    /* if (commentBlock->fShort) */ {
         this->indentToColumn(fStructCommentTab);
         this->writeString("//!<");
         this->writeSpace();
@@ -861,29 +976,6 @@ Definition* IncludeWriter::structMemberOut(const Definition* memberStart, const 
     }
     this->lf(2);
     return valueEnd;
-}
-
-// iterate through bmh children and see which comments fit on include lines
-void IncludeWriter::structSetMembersShort(const vector<Definition*>& bmhChildren) {
-    for (auto memberDef : bmhChildren) {
-        if (MarkType::kMember != memberDef->fMarkType) {
-            continue;
-        }
-        string extract = fBmhParser->extractText(memberDef, BmhParser::TrimExtract::kYes);
-        bool multiline = string::npos != extract.find('\n');
-        if (multiline) {
-            memberDef->fShort = false;
-        } else {
-            ptrdiff_t lineLen = extract.length() + 5 /* //!< space */ ;
-            memberDef->fShort = fStructCommentTab + lineLen < 100;
-        }
-    }
-    for (auto memberDef : bmhChildren) {
-        if (MarkType::kSubtopic != memberDef->fMarkType && MarkType::kTopic != memberDef->fMarkType) {
-            continue;
-        }
-        this->structSetMembersShort(memberDef->fChildren);
-    }
 }
 
 void IncludeWriter::structSizeMembers(const Definition& child) {
@@ -996,8 +1088,9 @@ void IncludeWriter::structSizeMembers(const Definition& child) {
         fStructCommentTab += longestValue + 3 /* space = space */ ;
         fStructValueTab -= 1 /* ; */ ;
     }
-    // iterate through bmh children and see which comments fit on include lines
-    this->structSetMembersShort(fBmhStructDef->fChildren);
+    // iterate through struct to ensure that members' comments fit on line
+    // struct or class may not have any members
+    (void) this->checkChildCommentLength(fBmhStructDef, MarkType::kMember);
 }
 
 static bool find_start(const Definition* startDef, const char* start) {
@@ -1026,8 +1119,8 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
     // skip include comment
     // if there is a series of same named methods, write one set of comments, then write all methods
     string methodName;
-    const Definition* method = nullptr;
-    const Definition* clonedMethod = nullptr;
+    Definition* method = nullptr;
+    Definition* clonedMethod = nullptr;
     const Definition* memberStart = nullptr;
     const Definition* memberEnd = nullptr;
     fContinuation = nullptr;
@@ -1285,8 +1378,8 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                     if (fInStruct) {
                         // try child; root+child; root->parent+child; etc.
                         int trial = 0;
-                        const RootDefinition* search = root;
-                        const Definition* parent = search->fParent;
+                        RootDefinition* search = root;
+                        Definition* parent = search->fParent;
                         do {
                             string name;
                             if (0 == trial) {
@@ -1301,7 +1394,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                             }
                             fBmhStructDef = search->find(name, RootDefinition::AllowParens::kNo);
                         } while (!fBmhStructDef && ++trial);
-                        root = const_cast<RootDefinition*>(fBmhStructDef->asRoot());
+                        root = fBmhStructDef->asRoot();
                         SkASSERT(root);
                         fIndent += 4;
                         this->structSizeMembers(child);
@@ -1472,7 +1565,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                     (KeyWord::kClass == child.fParent->fKeyWord && child.fParent->fParent &&
                     KeyWord::kEnum == child.fParent->fParent->fKeyWord)) {
                 SkASSERT(Bracket::kBrace == child.fBracket);
-                this->enumMembersOut(root, child);
+                this->enumMembersOut(*child.fParent);
                 this->writeString("};");
                 this->lf(2);
                 startDef = child.fParent;
@@ -2095,6 +2188,7 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data, Phr
             case 'z':
             case '0': case '1': case '2': case '3': case '4':
             case '5': case '6': case '7': case '8': case '9':
+            case '%':  // to do : ensure that preceding is a number
             case '-':
                 switch (word) {
                     case Word::kStart:

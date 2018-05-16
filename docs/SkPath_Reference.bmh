@@ -2,19 +2,13 @@
 #Alias Path_Reference
 #Alias Paths
 
-#Subtopic Overview
-    #Subtopic Subtopic
-    #Populate
-    ##
-##
-
-Path contains Lines and Curves which can be stroked or filled. Contour is 
-composed of a series of connected Lines and Curves. Path may contain zero, 
+Path contains Lines and Curves which can be stroked or filled. Contour is
+composed of a series of connected Lines and Curves. Path may contain zero,
 one, or more Contours.
 Each Line and Curve are described by Verb, Points, and optional Conic_Weight.
 
 Each pair of connected Lines and Curves share common Point; for instance, Path
-containing two connected Lines are described the Verb sequence: 
+containing two connected Lines are described the Verb sequence:
 SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb; and a Point sequence
 with three entries, sharing
 the middle entry as the end of the first Line and the start of the second Line.
@@ -90,9 +84,9 @@ are required to satisfy Verb_Array. First Verb in Path is always
 SkPath::kMove_Verb; each SkPath::kMove_Verb that follows starts a new Contour.
 
 #Example
-#Description 
+#Description
 Each SkPath::moveTo starts a new Contour, and content after SkPath::close()
-also starts a new Contour. Since SkPath::conicTo is not preceded by 
+also starts a new Contour. Since SkPath::conicTo is not preceded by
 SkPath::moveTo, the first Point of the third Contour starts at the last Point
 of the second Contour.
 ##
@@ -114,10 +108,10 @@ of the second Contour.
 ##
 
 If final Verb in Contour is SkPath::kClose_Verb, Line connects Last_Point in
-Contour with first Point. A closed Contour, stroked, draws 
+Contour with first Point. A closed Contour, stroked, draws
 Paint_Stroke_Join at Last_Point and first Point. Without SkPath::kClose_Verb
 as final Verb, Last_Point and first Point are not connected; Contour
-remains open. An open Contour, stroked, draws Paint_Stroke_Cap at 
+remains open. An open Contour, stroked, draws Paint_Stroke_Cap at
 Last_Point and first Point.
 
 #Example
@@ -169,7 +163,7 @@ makes them visible.
 #Subtopic Zero_Length ##
 
 #Subtopic Contour ##
- 
+
 # ------------------------------------------------------------------------------
 
 #Class SkPath
@@ -189,7 +183,11 @@ outside the geometry. Path also describes the winding rule used to fill
 overlapping contours.
 
 Internally, Path lazily computes metrics likes bounds and convexity. Call
-SkPath::updateBoundsCache to make Path thread safe. 
+SkPath::updateBoundsCache to make Path thread safe.
+
+#Subtopic Overview
+#Populate
+##
 
 #Subtopic Related_Function
 #Populate
@@ -199,7 +197,7 @@ SkPath::updateBoundsCache to make Path thread safe.
 #Populate
 ##
 
-#Subtopic Class_or_Struct
+#Subtopic Class
 #Populate
 ##
 
@@ -223,13 +221,13 @@ SkPath::updateBoundsCache to make Path thread safe.
 
 #Code
     enum Verb {
-        kMove_Verb, 
-        kLine_Verb, 
-        kQuad_Verb, 
-        kConic_Verb, 
-        kCubic_Verb, 
-        kClose_Verb, 
-        kDone_Verb, 
+        kMove_Verb,
+        kLine_Verb,
+        kQuad_Verb,
+        kConic_Verb,
+        kCubic_Verb,
+        kClose_Verb,
+        kDone_Verb,
     };
 ##
 
@@ -237,34 +235,49 @@ Verb instructs Path how to interpret one or more Point and optional Conic_Weight
 manage Contour, and terminate Path.
 
 #Const kMove_Verb 0
-    Starts new Contour at next Point.
+#Line # starts new Contour at next Point ##
+    Consecutive kMove_Verb are preserved but all but the last kMove_Verb is
+    ignored. kMove_Verb after other Verbs implicitly closes the previous Contour
+    if SkPaint::kFill_Style is set when drawn; otherwise, stroke is drawn open.
+    kMove_Verb as the last Verb is preserved but ignored.
 ##
 #Const kLine_Verb 1
-    Adds Line from Last_Point to next Point.
-    Line is a straight segment from Point to Point.
+#Line # adds Line from Last_Point to next Point ##
+    Line is a straight segment from Point to Point. Consecutive kLine_Verb
+    extend Contour. kLine_Verb at same position as prior kMove_Verb is
+    preserved, and draws Point if SkPaint::kStroke_Style is set, and
+    SkPaint::Cap is SkPaint::kSquare_Cap or SkPaint::kRound_Cap. kLine_Verb
+    at same position as prior line or curve Verb is preserved but is ignored.
 ##
 #Const kQuad_Verb 2
-    Adds Quad from Last_Point, using control Point, and end Point. 
+#Line # adds Quad from Last_Point ##
+    Adds Quad from Last_Point, using control Point, and end Point.
     Quad is a parabolic section within tangents from Last_Point to control Point,
     and control Point to end Point.
 ##
 #Const kConic_Verb 3
+#Line # adds Conic from Last_Point ##
     Adds Conic from Last_Point, using control Point, end Point, and Conic_Weight.
-    Conic is a elliptical, parabolic, or hyperbolic section within tangents 
+    Conic is a elliptical, parabolic, or hyperbolic section within tangents
     from Last_Point to control Point, and control Point to end Point, constrained
     by Conic_Weight. Conic_Weight less than one is elliptical; equal to one is
     parabolic (and identical to Quad); greater than one hyperbolic.
 ##
 #Const kCubic_Verb 4
-    Adds Cubic from Last_Point, using two control Points, and end Point. 
+#Line # adds Cubic from Last_Point ##
+    Adds Cubic from Last_Point, using two control Points, and end Point.
     Cubic is a third-order Bezier_Curve section within tangents from Last_Point
     to first control Point, and from second control Point to end Point.
 ##
 #Const kClose_Verb 5
-    Closes Contour, connecting Last_Point to kMove_Verb Point.
+#Line # closes Contour ##
+    Closes Contour, connecting Last_Point to kMove_Verb Point. Consecutive
+    kClose_Verb are preserved but only first has an effect. kClose_Verb after
+    kMove_Verb has no effect.
 ##
 #Const kDone_Verb 6
-    Terminates Path. Not in Verb_Array, but returned by Path iterator.
+#Line # terminates Path ##
+    Not in Verb_Array, but returned by Path iterator.
 ##
 
 Each Verb has zero or more Points stored in Path.
@@ -303,7 +316,7 @@ void draw(SkCanvas* canvas) {
 }
 #StdOut
 verb count: 7
-verbs: kMove_Verb kLine_Verb kQuad_Verb kClose_Verb kMove_Verb kCubic_Verb kConic_Verb 
+verbs: kMove_Verb kLine_Verb kQuad_Verb kClose_Verb kMove_Verb kCubic_Verb kConic_Verb
 ##
 ##
 
@@ -312,7 +325,7 @@ verbs: kMove_Verb kLine_Verb kQuad_Verb kClose_Verb kMove_Verb kCubic_Verb kConi
 
 # ------------------------------------------------------------------------------
 #Subtopic Direction
-#Line # Path contour orientation ##
+#Line # contour orientation, clockwise or counterclockwise ##
 #Alias Directions
 
 #Enum Direction
@@ -320,8 +333,8 @@ verbs: kMove_Verb kLine_Verb kQuad_Verb kClose_Verb kMove_Verb kCubic_Verb kConi
 
 #Code
     enum Direction {
-        kCW_Direction, 
-        kCCW_Direction, 
+        kCW_Direction,
+        kCCW_Direction,
     };
 ##
 
@@ -333,15 +346,15 @@ Direction also determines how Contour is measured. For instance, dashing
 measures along Path to determine where to start and stop stroke; Direction
 will change dashed results as it steps clockwise or counterclockwise.
 
-Closed Contours like Rect, Round_Rect, Circle, and Oval added with 
+Closed Contours like Rect, Round_Rect, Circle, and Oval added with
 kCW_Direction travel clockwise; the same added with kCCW_Direction
 travel counterclockwise.
 
 #Const kCW_Direction 0
-    Contour travels in a clockwise direction
+#Line # contour travels clockwise ##
 ##
 #Const kCCW_Direction 1
-    Contour travels in a counterclockwise direction
+#Line # contour travels counterclockwise ##
 ##
 
 
@@ -374,7 +387,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso arcTo rArcTo isRect isNestedFillRects addRect addOval 
+#SeeAlso arcTo rArcTo isRect isNestedFillRects addRect addOval
 
 #Enum Direction ##
 #Subtopic Direction ##
@@ -549,7 +562,7 @@ reset one == two
 
 # ------------------------------------------------------------------------------
 
-#Method bool operator!=(const SkPath& a, const SkPath& b) 
+#Method bool operator!=(const SkPath& a, const SkPath& b)
 
 #Line # compares paths for inequality ##
 Compares a and b; returns true if Fill_Type, Verb_Array, Point_Array, and Weights
@@ -604,7 +617,7 @@ If Paths contain one or more Conics, the Weights must match.
 
 conicTo may add different Verbs depending on Conic_Weight, so it is not
 trivial to interpolate a pair of Paths containing Conics with different
-Conic_Weight values. 
+Conic_Weight values.
 
 #Param compare  Path to compare ##
 
@@ -646,17 +659,17 @@ average of this Point_Array and ending Point_Array, using the formula:
 ##
 .
 
-weight is most useful when between zero (ending Point_Array) and 
-one (this Point_Array); will work with values outside of this 
+weight is most useful when between zero (ending Point_Array) and
+one (this Point_Array); will work with values outside of this
 range.
 
 interpolate() returns false and leaves out unchanged if Point_Array is not
-the same size as ending Point_Array. Call isInterpolatable to check Path 
+the same size as ending Point_Array. Call isInterpolatable to check Path
 compatibility prior to calling interpolate().
 
 #Param ending  Point_Array averaged with this Point_Array ##
-#Param weight  contribution of this Point_Array, and 
-               one minus contribution of ending Point_Array 
+#Param weight  contribution of this Point_Array, and
+               one minus contribution of ending Point_Array
 ##
 #Param out     Path replaced by interpolated averages ##
 
@@ -690,31 +703,31 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
-#Method bool unique() const 
+#Method bool unique() const
 #Deprecated soon
 Only valid for Android framework.
 ##
 
 # ------------------------------------------------------------------------------
 #Subtopic Fill_Type
-#Line # Path fill rule, normal and inverted ##
+#Line # fill rule, normal and inverted ##
 
 #Enum FillType
 #Line # sets winding rule and inverse fill ##
 
 #Code
     enum FillType {
-        kWinding_FillType, 
-        kEvenOdd_FillType, 
-        kInverseWinding_FillType, 
-        kInverseEvenOdd_FillType, 
+        kWinding_FillType,
+        kEvenOdd_FillType,
+        kInverseWinding_FillType,
+        kInverseEvenOdd_FillType,
     };
 ##
 
-Fill_Type selects the rule used to fill Path. Path set to kWinding_FillType 
+Fill_Type selects the rule used to fill Path. Path set to kWinding_FillType
 fills if the sum of Contour edges is not zero, where clockwise edges add one, and
 counterclockwise edges subtract one. Path set to kEvenOdd_FillType fills if the
-number of Contour edges is odd. Each Fill_Type has an inverse variant that 
+number of Contour edges is odd. Each Fill_Type has an inverse variant that
 reverses the rule:
 kInverseWinding_FillType fills where the sum of Contour edges is zero;
 kInverseEvenOdd_FillType fills where the number of Contour edges is even.
@@ -738,7 +751,7 @@ void draw(SkCanvas* canvas) {
    SkRect clipRect = {0, 0, 51, 100};
    canvas->drawPath(path, strokePaint);
    SkPaint fillPaint;
-   for (auto fillType : { SkPath::kWinding_FillType, SkPath::kEvenOdd_FillType, 
+   for (auto fillType : { SkPath::kWinding_FillType, SkPath::kEvenOdd_FillType,
                       SkPath::kInverseWinding_FillType, SkPath::kInverseEvenOdd_FillType } ) {
         canvas->translate(51, 0);
         canvas->save();
@@ -751,16 +764,16 @@ void draw(SkCanvas* canvas) {
 ##
 
 #Const kWinding_FillType 0
-Specifies fill as area is enclosed by a non-zero sum of Contour Directions.
+#Line # is enclosed by a non-zero sum of Contour Directions ##
 ##
 #Const kEvenOdd_FillType 1
-Specifies fill as area enclosed by an odd number of Contours.
+#Line # is enclosed by an odd number of Contours ##
 ##
 #Const kInverseWinding_FillType 2
-Specifies fill as area is enclosed by a zero sum of Contour Directions.
+#Line # is enclosed by a zero sum of Contour Directions ##
 ##
 #Const kInverseEvenOdd_FillType 3
-Specifies fill as area enclosed by an even number of Contours.
+#Line # is enclosed by an even number of Contours ##
 ##
 
 #Example
@@ -784,7 +797,7 @@ void draw(SkCanvas* canvas) {
    canvas->scale(.5f, .5f);
    canvas->drawString("inverse", 384, 150, textPaint);
    SkPaint fillPaint;
-   for (auto fillType : { SkPath::kWinding_FillType, SkPath::kEvenOdd_FillType, 
+   for (auto fillType : { SkPath::kWinding_FillType, SkPath::kEvenOdd_FillType,
                       SkPath::kInverseWinding_FillType, SkPath::kInverseEvenOdd_FillType } ) {
         canvas->save();
         canvas->clipRect(clipRect);
@@ -803,22 +816,22 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
-#Method FillType getFillType() const 
+#Method FillType getFillType() const
 
 #In Fill_Type
 #Line # returns Fill_Type: winding, even-odd, inverse ##
 Returns FillType, the rule used to fill Path. FillType of a new Path is
 kWinding_FillType.
 
-#Return  one of: kWinding_FillType, kEvenOdd_FillType,  kInverseWinding_FillType, 
-kInverseEvenOdd_FillType 
+#Return  one of: kWinding_FillType, kEvenOdd_FillType,  kInverseWinding_FillType,
+kInverseEvenOdd_FillType
 ##
 
 #Example
     SkPath path;
     SkDebugf("default path fill type is %s\n",
             path.getFillType() == SkPath::kWinding_FillType ? "kWinding_FillType" :
-            path.getFillType() == SkPath::kEvenOdd_FillType ? "kEvenOdd_FillType" : 
+            path.getFillType() == SkPath::kEvenOdd_FillType ? "kEvenOdd_FillType" :
             path.getFillType() == SkPath::kInverseWinding_FillType ? "kInverseWinding_FillType" :
                                                                      "kInverseEvenOdd_FillType");
 #StdOut
@@ -832,15 +845,15 @@ default path fill type is kWinding_FillType
 
 # ------------------------------------------------------------------------------
 
-#Method void setFillType(FillType ft) 
+#Method void setFillType(FillType ft)
 
 #In Fill_Type
 #Line # sets Fill_Type: winding, even-odd, inverse ##
 Sets FillType, the rule used to fill Path. While there is no check
 that ft is legal, values outside of FillType are not supported.
 
-#Param ft  one of: kWinding_FillType, kEvenOdd_FillType,  kInverseWinding_FillType, 
-kInverseEvenOdd_FillType 
+#Param ft  one of: kWinding_FillType, kEvenOdd_FillType,  kInverseWinding_FillType,
+kInverseEvenOdd_FillType
 ##
 
 #Example
@@ -861,7 +874,7 @@ If empty Path is set to inverse FillType, it fills all pixels.
 
 # ------------------------------------------------------------------------------
 
-#Method bool isInverseFillType() const 
+#Method bool isInverseFillType() const
 
 #In Fill_Type
 #Line # returns if Fill_Type fills outside geometry ##
@@ -885,16 +898,16 @@ default path fill type is inverse: false
 
 # ------------------------------------------------------------------------------
 
-#Method void toggleInverseFillType() 
+#Method void toggleInverseFillType()
 
 #In Fill_Type
 #Line # toggles Fill_Type between inside and outside geometry ##
 Replace FillType with its inverse. The inverse of FillType describes the area
 unmodified by the original FillType.
 
-#Table 
+#Table
 #Legend
-# FillType                 # toggled FillType         ## 
+# FillType                 # toggled FillType         ##
 ##
 # kWinding_FillType        # kInverseWinding_FillType ##
 # kEvenOdd_FillType        # kInverseEvenOdd_FillType ##
@@ -934,37 +947,37 @@ canvas->drawPath(path, paint);
 
 #Code
     enum Convexity : uint8_t {
-        kUnknown_Convexity, 
+        kUnknown_Convexity,
         kConvex_Convexity,
-        kConcave_Convexity, 
+        kConcave_Convexity,
     };
 ##
 
-Path is convex if it contains one Contour and Contour loops no more than 
-360 degrees, and Contour angles all have same Direction. Convex Path 
+Path is convex if it contains one Contour and Contour loops no more than
+360 degrees, and Contour angles all have same Direction. Convex Path
 may have better performance and require fewer resources on GPU_Surface.
 
 Path is concave when either at least one Direction change is clockwise and
 another is counterclockwise, or the sum of the changes in Direction is not 360
 degrees.
 
-Initially Path Convexity is kUnknown_Convexity. Path Convexity is computed 
+Initially Path Convexity is kUnknown_Convexity. Path Convexity is computed
 if needed by destination Surface.
 
 #Const kUnknown_Convexity 0
-    Indicates Convexity has not been determined.
+#Line # indicates Convexity has not been determined ##
 ##
 #Const kConvex_Convexity 1
-    Path has one Contour made of a simple geometry without indentations.
+#Line # one Contour made of a simple geometry without indentations ##
 ##
 #Const kConcave_Convexity 2
-    Path has more than one Contour, or a geometry with indentations.
+#Line # more than one Contour, or a geometry with indentations ##
 ##
 
 #Example
 void draw(SkCanvas* canvas) {
     SkPaint paint;
-    SkPoint quad[] = {{70, 70}, {20, 20}, {120, 20}, {120, 120}}; 
+    SkPoint quad[] = {{70, 70}, {20, 20}, {120, 20}, {120, 120}};
     const char* labels[] = { "unknown", "convex", "concave" };
     for (SkScalar x : { 40, 100 } ) {
         SkPath path;
@@ -981,11 +994,11 @@ void draw(SkCanvas* canvas) {
 
 #Enum Convexity ##
 
-#Method Convexity getConvexity() const 
+#Method Convexity getConvexity() const
 
 #In Convexity
 #Line # returns geometry convexity, computing if necessary ##
-Computes Convexity if required, and returns stored value. 
+Computes Convexity if required, and returns stored value.
 Convexity is computed if stored value is kUnknown_Convexity,
 or if Path has been altered since Convexity was computed or set.
 
@@ -994,7 +1007,7 @@ or if Path has been altered since Convexity was computed or set.
 #Example
 void draw(SkCanvas* canvas) {
     auto debugster = [](const char* prefix, const SkPath& path) -> void {
-        SkDebugf("%s path convexity is %s\n", prefix, 
+        SkDebugf("%s path convexity is %s\n", prefix,
                 SkPath::kUnknown_Convexity == path.getConvexity() ? "unknown" :
                 SkPath::kConvex_Convexity == path.getConvexity() ? "convex" : "concave"); };
     SkPath path;
@@ -1014,11 +1027,11 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
-#Method Convexity getConvexityOrUnknown() const 
+#Method Convexity getConvexityOrUnknown() const
 
 #In Convexity
 #Line # returns geometry convexity if known ##
-Returns last computed Convexity, or kUnknown_Convexity if 
+Returns last computed Convexity, or kUnknown_Convexity if
 Path has been altered since Convexity was computed or set.
 
 #Return  stored Convexity ##
@@ -1030,7 +1043,7 @@ that alters the path.
 ##
 void draw(SkCanvas* canvas) {
     auto debugster = [](const char* prefix, const SkPath& path) -> void {
-        SkDebugf("%s path convexity is %s\n", prefix, 
+        SkDebugf("%s path convexity is %s\n", prefix,
             SkPath::kUnknown_Convexity == path.getConvexityOrUnknown() ? "unknown" :
             SkPath::kConvex_Convexity == path.getConvexityOrUnknown() ? "convex" : "concave"); };
     SkPath path;
@@ -1072,10 +1085,10 @@ altered.
 #Example
 void draw(SkCanvas* canvas) {
     auto debugster = [](const char* prefix, const SkPath& path) -> void {
-        SkDebugf("%s path convexity is %s\n", prefix, 
+        SkDebugf("%s path convexity is %s\n", prefix,
                 SkPath::kUnknown_Convexity == path.getConvexity() ? "unknown" :
                 SkPath::kConvex_Convexity == path.getConvexity() ? "convex" : "concave"); };
-        SkPoint quad[] = {{70, 70}, {20, 20}, {120, 20}, {120, 120}}; 
+        SkPoint quad[] = {{70, 70}, {20, 20}, {120, 20}, {120, 120}};
         SkPath path;
         path.addPoly(quad, SK_ARRAY_COUNT(quad), true);
         debugster("initial", path);
@@ -1092,7 +1105,7 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
-#Method bool isConvex() const 
+#Method bool isConvex() const
 
 #In Convexity
 #Line # returns if geometry is convex ##
@@ -1104,12 +1117,12 @@ the path has not been altered, Convexity is not recomputed.
 
 #Example
 #Description
-Concave shape is erroneously considered convex after a forced call to 
+Concave shape is erroneously considered convex after a forced call to
 setConvexity.
 ##
 void draw(SkCanvas* canvas) {
     SkPaint paint;
-    SkPoint quad[] = {{70, 70}, {20, 20}, {120, 20}, {120, 120}}; 
+    SkPoint quad[] = {{70, 70}, {20, 20}, {120, 20}, {120, 120}};
     for (SkScalar x : { 40, 100 } ) {
         SkPath path;
         quad[0].fX = x;
@@ -1198,7 +1211,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso Round_Rect addRoundRect addRRect 
+#SeeAlso Round_Rect addRoundRect addRRect
 
 ##
 
@@ -1234,7 +1247,7 @@ Removes Verb_Array, Point_Array, and Weights, and sets FillType to kWinding_Fill
 Internal storage associated with Path is retained.
 
 Use rewind() instead of reset() if Path storage will be reused and performance
-is critical. 
+is critical.
 
 #Example
 #Description
@@ -1255,11 +1268,11 @@ a newly initialized path.
 
 # ------------------------------------------------------------------------------
 
-#Method bool isEmpty() const 
+#Method bool isEmpty() const
 #In Property
 #Line # returns if verb count is zero ##
 Empty Path may have FillType but has no SkPoint, Verb, or Conic_Weight.
-SkPath() constructs empty Path; reset() and (rewind) make Path empty. 
+SkPath() constructs empty Path; reset() and (rewind) make Path empty.
 
 #Return  true if the path contains no Verb array  ##
 
@@ -1298,7 +1311,7 @@ after reset path is empty
 #In Property
 #Line # returns if final Contour forms a loop ##
 Contour is closed if Path Verb array was last modified by close(). When stroked,
-closed Contour draws Paint_Stroke_Join instead of Paint_Stroke_Cap at first and last Point. 
+closed Contour draws Paint_Stroke_Join instead of Paint_Stroke_Cap at first and last Point.
 
 #Return  true if the last Contour ends with a kClose_Verb ##
 
@@ -1335,7 +1348,7 @@ after close last contour is closed
 
 # ------------------------------------------------------------------------------
 
-#Method bool isFinite() const 
+#Method bool isFinite() const
 #In Property
 #Line # returns if all Point values are finite ##
 Returns true for finite Point array values between negative SK_ScalarMax and
@@ -1370,12 +1383,12 @@ after scale path is not finite
 
 # ------------------------------------------------------------------------------
 
-#Method bool isVolatile() const 
+#Method bool isVolatile() const
 #In Property
 #In Volatile
 #Line # returns if Device should not cache ##
 Returns true if the path is volatile; it will not be altered or discarded
-by the caller after it is drawn. Paths by default have volatile set false, allowing 
+by the caller after it is drawn. Paths by default have volatile set false, allowing
 Surface to attach a cache of data which speeds repeated drawing. If true, Surface
 may not speed repeated drawing.
 
@@ -1399,11 +1412,11 @@ volatile by default is false
 #Line # caching attribute ##
 ##
 
-#Method void setIsVolatile(bool isVolatile) 
+#Method void setIsVolatile(bool isVolatile)
 #In Volatile
 #Line # sets if Device should not cache ##
 Specify whether Path is volatile; whether it will be altered or discarded
-by the caller after it is drawn. Paths by default have volatile set false, allowing 
+by the caller after it is drawn. Paths by default have volatile set false, allowing
 Device to attach a cache of data which speeds repeated drawing.
 
 Mark temporary paths, discarded or modified after use, as volatile
@@ -1440,12 +1453,12 @@ GPU_Surface Path draws are affected by volatile for some shadows and concave geo
 
 # ------------------------------------------------------------------------------
 
-#Method static bool IsLineDegenerate(const SkPoint& p1, const SkPoint& p2, bool exact) 
+#Method static bool IsLineDegenerate(const SkPoint& p1, const SkPoint& p2, bool exact)
 #In Property
 #Line # returns if Line is very small ##
 Test if Line between Point pair is degenerate.
 Line with no length or that moves a very short distance is degenerate; it is
-treated as a point. 
+treated as a point.
 
 exact changes the equality test. If true, returns true only if p1 equals p2.
 If false, returns true if p1 equals or nearly equals p2.
@@ -1481,25 +1494,25 @@ line from (100,100) to (100.0001,100.0001) is not degenerate, exactly
 #StdOut ##
 ##
 
-#SeeAlso IsQuadDegenerate IsCubicDegenerate 
+#SeeAlso IsQuadDegenerate IsCubicDegenerate
 ##
 
 # ------------------------------------------------------------------------------
 
 #Method static bool IsQuadDegenerate(const SkPoint& p1, const SkPoint& p2,
-                                 const SkPoint& p3, bool exact) 
+                                 const SkPoint& p3, bool exact)
 #In Property
 #Line # returns if Quad is very small ##
 
 Test if Quad is degenerate.
 Quad with no length or that moves a very short distance is degenerate; it is
-treated as a point. 
+treated as a point.
 
 #Param p1  Quad start point ##
 #Param p2  Quad control point ##
 #Param p3  Quad end point ##
-#Param exact  if true, returns true only if p1, p2, and p3 are equal; 
-              if false, returns true if p1, p2, and p3 are equal or nearly equal 
+#Param exact  if true, returns true only if p1, p2, and p3 are equal;
+              if false, returns true if p1, p2, and p3 are equal or nearly equal
 ##
 
 #Return  true if Quad is degenerate; its length is effectively zero ##
@@ -1512,7 +1525,7 @@ the fractional portion of the number can not be represented by the float and is 
 ##
 void draw(SkCanvas* canvas) {
     auto debugster = [](const SkPath& path, bool exact) -> void {
-        SkDebugf("quad (%1.8g,%1.8g), (%1.8g,%1.8g), (%1.8g,%1.8g) is %s" "degenerate, %s\n", 
+        SkDebugf("quad (%1.8g,%1.8g), (%1.8g,%1.8g), (%1.8g,%1.8g) is %s" "degenerate, %s\n",
             path.getPoint(0).fX, path.getPoint(0).fY, path.getPoint(1).fX,
             path.getPoint(1).fY, path.getPoint(2).fX, path.getPoint(2).fY,
             SkPath::IsQuadDegenerate(path.getPoint(0), path.getPoint(1), path.getPoint(2), exact) ?
@@ -1535,25 +1548,25 @@ quad (1100,1100), (1100,1100), (1100,1100) is degenerate, exactly
 #StdOut ##
 ##
 
-#SeeAlso IsLineDegenerate IsCubicDegenerate 
+#SeeAlso IsLineDegenerate IsCubicDegenerate
 ##
 
 # ------------------------------------------------------------------------------
 
 #Method static bool IsCubicDegenerate(const SkPoint& p1, const SkPoint& p2,
-                                  const SkPoint& p3, const SkPoint& p4, bool exact) 
+                                  const SkPoint& p3, const SkPoint& p4, bool exact)
 #In Property
 #Line # returns if Cubic is very small ##
 
 Test if Cubic is degenerate.
 Cubic with no length or that moves a very short distance is degenerate; it is
-treated as a point. 
+treated as a point.
 
 #Param p1  Cubic start point ##
 #Param p2  Cubic control point 1 ##
 #Param p3  Cubic control point 2 ##
 #Param p4  Cubic end point ##
-#Param exact  if true, returns true only if p1, p2, p3, and p4 are equal; 
+#Param exact  if true, returns true only if p1, p2, p3, and p4 are equal;
               if false, returns true if p1, p2, p3, and p4 are equal or nearly equal
 ##
 
@@ -1592,8 +1605,8 @@ void draw(SkCanvas* canvas) {
 #In Property
 #Line # returns if describes Line ##
 Returns true if Path contains only one Line;
-Path_Verb array has two entries: kMove_Verb, kLine_Verb. 
-If Path contains one Line and line is not nullptr, line is set to 
+Path_Verb array has two entries: kMove_Verb, kLine_Verb.
+If Path contains one Line and line is not nullptr, line is set to
 Line start point and Line end point.
 Returns false if Path is not one Line; line is unaltered.
 
@@ -1653,7 +1666,7 @@ getPoint, with Iter, or with RawIter.
 #Line # returns Point_Array ##
 Returns number of points in Path. Up to max points are copied.
 points may be nullptr; then, max must be zero.
-If max is greater than number of points, excess points storage is unaltered. 
+If max is greater than number of points, excess points storage is unaltered.
 
 #Param points  storage for Path Point array. May be nullptr ##
 #Param max  maximum to copy; must be greater than or equal to zero ##
@@ -1695,7 +1708,7 @@ just right point count: 3  (0,0) (20,20) (-10,-10)
 #In Point_Array
 #Line # returns Point_Array length ##
 Returns the number of points in Path.
-Point count is initially zero. 
+Point count is initially zero.
 
 #Return  Path Point array length ##
 
@@ -1732,7 +1745,7 @@ second move point count: 3
 #Line # returns entry from Point_Array ##
 Returns Point at index in Point_Array. Valid range for index is
 0 to countPoints - 1.
-Returns (0, 0) if index is out of range. 
+Returns (0, 0) if index is out of range.
 
 #Param index  Point array element selector ##
 
@@ -1745,7 +1758,7 @@ void draw(SkCanvas* canvas) {
     path.offset(-10, -10);
     for (int i= 0; i < path.countPoints(); ++i) {
          SkDebugf("point %d: (%1.8g,%1.8g)\n", i, path.getPoint(i).fX, path.getPoint(i).fY);
-    }  
+    }
 }
 #StdOut
 point 0: (-10,-10)
@@ -1769,14 +1782,14 @@ the quantity of kMove_Verb equals the Contour count.
 Verb_Array does not include or count kDone_Verb; it is a convenience
 returned when iterating through Verb_Array.
 
-Verb_Array may be read directly from Path with getVerbs, or inspected with Iter, 
+Verb_Array may be read directly from Path with getVerbs, or inspected with Iter,
 or with RawIter.
 
 #Method int countVerbs() const
 
 #In Verb_Array
 #Line # returns Verb_Array length ##
-Returns the number of Verbs: kMove_Verb, kLine_Verb, kQuad_Verb, kConic_Verb, 
+Returns the number of Verbs: kMove_Verb, kLine_Verb, kQuad_Verb, kConic_Verb,
 kCubic_Verb, and kClose_Verb; added to Path.
 
 #Return  length of Verb_Array ##
@@ -1829,10 +1842,10 @@ void draw(SkCanvas* canvas) {
     debugster("just right",  path, verbs, path.countVerbs());
 }
 #StdOut
-no verbs verb count: 3  
-zero max verb count: 3  
-too small verb count: 3  move line 
-just right verb count: 3  move line line 
+no verbs verb count: 3
+zero max verb count: 3
+too small verb count: 3  move line
+just right verb count: 3  move line line
 ##
 ##
 
@@ -1876,10 +1889,10 @@ path2 bounds = 10, 20, 30, 40
 
 # ------------------------------------------------------------------------------
 
-#Method const SkRect& getBounds() const 
+#Method const SkRect& getBounds() const
 #In Property
 #Line # returns maximum and minimum of Point_Array ##
-Returns minimum and maximum x and y values of Point_Array. 
+Returns minimum and maximum x and y values of Point_Array.
 Returns (0, 0, 0, 0) if Path contains no points. Returned bounds width and height may
 be larger or smaller than area affected when Path is drawn.
 
@@ -1895,7 +1908,7 @@ Bounds of rotated Circle includes control Points outside of filled area.
 ##
     auto debugster = [](const char* prefix, const SkPath& path) -> void {
             const SkRect& bounds = path.getBounds();
-            SkDebugf("%s bounds = %g, %g, %g, %g\n", prefix, 
+            SkDebugf("%s bounds = %g, %g, %g, %g\n", prefix,
                      bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);
     };
     SkPath path;
@@ -1923,7 +1936,7 @@ rotated circle bounds = 14.6447, 9.64466, 85.3553, 80.3553
 #Line # rarely called management functions ##
 ##
 
-#Method void updateBoundsCache() const 
+#Method void updateBoundsCache() const
 #In Utility
 #Line # refreshes result of getBounds ##
 Update internal bounds so that subsequent calls to getBounds are instantaneous.
@@ -1931,7 +1944,7 @@ Unaltered copies of Path may also access cached bounds through getBounds.
 
 For now, identical to calling getBounds and ignoring the returned value.
 
-Call to prepare Path subsequently drawn from multiple threads, 
+Call to prepare Path subsequently drawn from multiple threads,
 to avoid a race condition where each draw separately computes the bounds.
 
 #Example
@@ -1968,8 +1981,8 @@ cached avg: 0.182784 ms
 #In Property
 #Line # returns extent of geometry ##
 Returns minimum and maximum x and y values of the lines and curves in Path.
-Returns (0, 0, 0, 0) if Path contains no points. 
-Returned bounds width and height may be larger or smaller than area affected 
+Returns (0, 0, 0, 0) if Path contains no points.
+Returned bounds width and height may be larger or smaller than area affected
 when Path is drawn.
 
 Includes Points associated with kMove_Verb that define empty
@@ -1985,7 +1998,7 @@ and unlike getBounds, does not cache the result.
 #Example
     auto debugster = [](const char* prefix, const SkPath& path) -> void {
             const SkRect& bounds = path.computeTightBounds();
-            SkDebugf("%s bounds = %g, %g, %g, %g\n", prefix, 
+            SkDebugf("%s bounds = %g, %g, %g, %g\n", prefix,
                      bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);
     };
     SkPath path;
@@ -2012,7 +2025,7 @@ rotated circle bounds = 25, 20, 75, 70
 #Method bool conservativelyContainsRect(const SkRect& rect) const
 #In Property
 #Line # returns true if Rect may be inside ##
-Returns true if rect is contained by Path. 
+Returns true if rect is contained by Path.
 May return false when rect is contained by Path.
 
 For now, only returns true if Path has one Contour and is convex.
@@ -2129,7 +2142,7 @@ Adds beginning of Contour at Point (x, y).
 
 ##
 
-#Method void moveTo(const SkPoint& p) 
+#Method void moveTo(const SkPoint& p)
 
 Adds beginning of Contour at Point p.
 
@@ -2139,7 +2152,7 @@ Adds beginning of Contour at Point p.
     #Width 128
     #Height 128
 void draw(SkCanvas* canvas) {
-    SkPoint data[][3] = {{{30,40},{60,60},{90,30}}, {{30,120},{60,100},{90,120}}, 
+    SkPoint data[][3] = {{{30,40},{60,60},{90,30}}, {{30,120},{60,100},{90,120}},
                          {{60,100},{60,40},{70,30}}, {{60,40},{50,20},{70,30}}};
     SkPath path;
     for (unsigned i = 0; i < SK_ARRAY_COUNT(data); ++i) {
@@ -2162,7 +2175,7 @@ void draw(SkCanvas* canvas) {
 #Line # starts Contour relative to Last_Point ##
 Adds beginning of Contour relative to Last_Point.
 If Path is empty, starts Contour at (dx, dy).
-Otherwise, start Contour at Last_Point offset by (dx, dy). 
+Otherwise, start Contour at Last_Point offset by (dx, dy).
 Function name stands for "relative move to".
 
 #Param dx  offset from Last_Point x to Contour start x ##
@@ -2198,7 +2211,7 @@ kClose_Verb, Last_Point is set to (0, 0) before adding Line.
 
 lineTo appends kMove_Verb to Verb_Array and (0, 0) to Point_Array, if needed.
 lineTo then appends kLine_Verb to Verb_Array and (x, y) to Point_Array.
- 
+
 #Param x  end of added Line in x ##
 #Param y  end of added Line in y ##
 
@@ -2233,7 +2246,7 @@ $$$#
 
 # ------------------------------------------------------------------------------
 
-#Method void lineTo(const SkPoint& p) 
+#Method void lineTo(const SkPoint& p)
 
 Adds Line from Last_Point to Point p. If Path is empty, or last Verb is
 kClose_Verb, Last_Point is set to (0, 0) before adding Line.
@@ -2291,7 +2304,7 @@ void draw(SkCanvas* canvas) {
         x += i * ((i & 2) - 1);
         y += i * (((i + 1) & 2) - 1);
         path.rLineTo(x, y);
-        
+
     }
     canvas->drawPath(path, paint);
 }
@@ -2307,7 +2320,7 @@ void draw(SkCanvas* canvas) {
 #Alias Quads
 #Alias Quadratic_Bezier
 #Alias Quadratic_Beziers
-#Line # Bezier_Curve described by second-order polynomial ##
+#Line # curve described by second-order polynomial ##
 
 Quad describes a quadratic Bezier, a second-order curve identical to a section
 of a parabola. Quad begins at a start Point, curves towards a control Point,
@@ -2364,7 +2377,7 @@ void draw(SkCanvas* canvas) {
 
 #In Quad
 #Line # appends Quad ##
-    Adds Quad from Last_Point towards (x1, y1), to (x2, y2). 
+    Adds Quad from Last_Point towards (x1, y1), to (x2, y2).
     If Path is empty, or last Verb is kClose_Verb, Last_Point is set to (0, 0)
     before adding Quad.
 
@@ -2399,10 +2412,10 @@ void draw(SkCanvas* canvas) {
 
 ##
 
-#Method void quadTo(const SkPoint& p1, const SkPoint& p2) 
+#Method void quadTo(const SkPoint& p1, const SkPoint& p2)
 #In Build
 #In Quad
-    Adds Quad from Last_Point towards Point p1, to Point p2. 
+    Adds Quad from Last_Point towards Point p1, to Point p2.
     If Path is empty, or last Verb is kClose_Verb, Last_Point is set to (0, 0)
     before adding Quad.
 
@@ -2481,7 +2494,7 @@ void draw(SkCanvas* canvas) {
 #Alias Conics
 
 Conic describes a conical section: a piece of an ellipse, or a piece of a
-parabola, or a piece of a hyperbola. Conic begins at a start Point, 
+parabola, or a piece of a hyperbola. Conic begins at a start Point,
 curves towards a control Point, and then curves to an end Point. The influence
 of the control Point is determined by Conic_Weight.
 
@@ -2494,14 +2507,17 @@ may be inspected with Iter, or with RawIter.
 #Line # strength of Conic control Point ##
 
 Weight determines both the strength of the control Point and the type of Conic.
-If Weight is exactly one, then Conic is identical to Quad; it is always a
-parabolic segment. 
-
-
+Weight varies from zero to infinity. At zero, Weight causes the control Point to
+have no effect; Conic is identical to a line segment from start Point to end
+point. If Weight is less than one, Conic follows an elliptical arc.
+If Weight is exactly one, then Conic is identical to Quad; Conic follows a
+parabolic arc. If Weight is greater than one, Conic follows a hyperbolic
+arc. If Weight is infinity, Conic is indentical to two line segments, connecting
+start Point to control Point, and control Point to end Point.
 
 #Example
 #Description
-When Conic_Weight is one, Quad is added to path; the two are identical. 
+When Conic_Weight is one, Quad is added to path; the two are identical.
 ##
 void draw(SkCanvas* canvas) {
     const char* verbNames[] = { "move", "line", "quad", "conic", "cubic", "close", "done" };
@@ -2524,17 +2540,17 @@ void draw(SkCanvas* canvas) {
     } while (SkPath::kDone_Verb != verb);
 }
 #StdOut
-move {0, 0}, 
-quad {0, 0}, {20, 30}, {50, 60}, 
-done 
+move {0, 0},
+quad {0, 0}, {20, 30}, {50, 60},
+done
 ##
 ##
 
 If weight is less than one, Conic is an elliptical segment.
 
-#Example 
+#Example
 #Description
-A 90 degree circular arc has the weight 
+A 90 degree circular arc has the weight
 #Formula
 1 / sqrt(2)
 ##
@@ -2561,9 +2577,9 @@ void draw(SkCanvas* canvas) {
     } while (SkPath::kDone_Verb != verb);
 }
 #StdOut
-move {0, 0}, 
+move {0, 0},
 conic {0, 0}, {20, 0}, {20, 20}, weight = 0.707107
-done 
+done
 ##
 ##
 
@@ -2593,10 +2609,10 @@ void draw(SkCanvas* canvas) {
     } while (SkPath::kDone_Verb != verb);
 }
 #StdOut
-move {0, 0}, 
-line {0, 0}, {20, 0}, 
-line {20, 0}, {20, 20}, 
-done 
+move {0, 0},
+line {0, 0}, {20, 0},
+line {20, 0}, {20, 20},
+done
 ##
 ##
 
@@ -2608,7 +2624,7 @@ done
 #In Build
 #Line # appends Conic ##
 
-    Adds Conic from Last_Point towards (x1, y1), to (x2, y2), weighted by w. 
+    Adds Conic from Last_Point towards (x1, y1), to (x2, y2), weighted by w.
     If Path is empty, or last Verb is kClose_Verb, Last_Point is set to (0, 0)
     before adding Conic.
 
@@ -2632,7 +2648,7 @@ done
     #Example
     #Height 160
     #Description
-    As weight increases, curve is pulled towards control point. 
+    As weight increases, curve is pulled towards control point.
     The bottom two curves are elliptical; the next is parabolic; the
     top curve is hyperbolic.
     ##
@@ -2661,10 +2677,10 @@ void draw(SkCanvas* canvas) {
 
 ##
 
-#Method void conicTo(const SkPoint& p1, const SkPoint& p2, SkScalar w) 
+#Method void conicTo(const SkPoint& p1, const SkPoint& p2, SkScalar w)
 #In Build
 #In Conic
-    Adds Conic from Last_Point towards Point p1, to Point p2, weighted by w. 
+    Adds Conic from Last_Point towards Point p1, to Point p2, weighted by w.
     If Path is empty, or last Verb is kClose_Verb, Last_Point is set to (0, 0)
     before adding Conic.
 
@@ -2729,8 +2745,8 @@ void draw(SkCanvas* canvas) {
     is kClose_Verb, Last_Point is set to (0, 0) before adding Conic.
 
     Appends kMove_Verb to Verb_Array and (0, 0) to Point_Array,
-    if needed. 
-    
+    if needed.
+
     If w is finite and not one, next appends kConic_Verb to Verb_Array,
     and w is recorded as Conic_Weight; otherwise, if w is one, appends
     kQuad_Verb to Verb_Array; or if w is not finite, appends kLine_Verb
@@ -2776,9 +2792,9 @@ void draw(SkCanvas* canvas) {
 #Alias Cubics
 #Alias Cubic_Bezier
 #Alias Cubic_Beziers
-#Line # Bezier_Curve described by third-order polynomial ##
+#Line # curve described by third-order polynomial ##
 
-Cubic describes a Bezier_Curve segment described by a third-order polynomial. 
+Cubic describes a Bezier_Curve segment described by a third-order polynomial.
 Cubic begins at a start Point, curving towards the first control Point;
 and curves from the end Point towards the second control Point.
 
@@ -2854,7 +2870,7 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
-#Method void cubicTo(const SkPoint& p1, const SkPoint& p2, const SkPoint& p3) 
+#Method void cubicTo(const SkPoint& p1, const SkPoint& p2, const SkPoint& p3)
 
 #In Build
 #In Cubic
@@ -2948,7 +2964,7 @@ Conic describes an Arc of some Oval or Circle.
 
 arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool forceMoveTo)
 describes Arc as a piece of Oval, beginning at start angle, sweeping clockwise or counterclockwise,
-which may continue Contour or start a new one. This construction is similar to PostScript and 
+which may continue Contour or start a new one. This construction is similar to PostScript and
 HTML_Canvas arcs. Variation addArc always starts new Contour. Canvas::drawArc draws without
 requiring Path.
 
@@ -2958,14 +2974,14 @@ where (x0, y0) is the last Point added to Path. This construction is similar to 
 HTML_Canvas arcs.
 
 arcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc, Direction sweep,
-      SkScalar x, SkScalar y) 
+      SkScalar x, SkScalar y)
 describes Arc as part of Oval with radii (rx, ry), beginning at
 last Point added to Path and ending at (x, y). More than one Arc satisfies this criteria,
 so additional values choose a single solution. This construction is similar to SVG arcs.
 
 conicTo describes Arc of less than 180 degrees as a pair of tangent lines and Conic_Weight.
 conicTo can represent any Arc with a sweep less than 180 degrees at any rotation. All arcTo
-constructions are converted to Conic data when added to Path. 
+constructions are converted to Conic data when added to Path.
 
 #ToDo  allow example to hide source and not be exposed as fiddle since markdown / html can't
        do the kind of table shown in the illustration.
@@ -3179,7 +3195,7 @@ void draw(SkCanvas* canvas) {
 Append Arc to Path, after appending Line if needed. Arc is implemented by Conic
 weighted to describe part of Circle. Arc is contained by tangent from
 last Path point (x0, y0) to (x1, y1), and tangent from (x1, y1) to (x2, y2). Arc
-is part of Circle sized to radius, positioned so it touches both tangent lines. 
+is part of Circle sized to radius, positioned so it touches both tangent lines.
 
 #ToDo  allow example to hide source and not be exposed as fiddle ##
 
@@ -3316,19 +3332,19 @@ conic (79.2893,20),(200,20),(114.645,105.355) weight 0.382683
 ##
 ##
 
-#SeeAlso conicTo 
+#SeeAlso conicTo
 
 ##
 
 # ------------------------------------------------------------------------------
 
-#Method void arcTo(const SkPoint p1, const SkPoint p2, SkScalar radius) 
+#Method void arcTo(const SkPoint p1, const SkPoint p2, SkScalar radius)
 #In Build
 #In Arc
 Append Arc to Path, after appending Line if needed. Arc is implemented by Conic
 weighted to describe part of Circle. Arc is contained by tangent from
 last Path point to p1, and tangent from p1 to p2. Arc
-is part of Circle sized to radius, positioned so it touches both tangent lines. 
+is part of Circle sized to radius, positioned so it touches both tangent lines.
 
 If last Path Point does not start Arc, arcTo appends connecting Line to Path.
 The length of Vector from p1 to p2 does not affect Arc.
@@ -3378,7 +3394,7 @@ line (156,20),(200,20)
 ##
 ##
 
-#SeeAlso conicTo 
+#SeeAlso conicTo
 
 ##
 
@@ -3389,8 +3405,8 @@ line (156,20),(200,20)
 
 #Code
     enum ArcSize {
-        kSmall_ArcSize, 
-        kLarge_ArcSize, 
+        kSmall_ArcSize,
+        kLarge_ArcSize,
     };
 ##
 
@@ -3398,10 +3414,10 @@ Four Oval parts with radii (rx, ry) start at last Path Point and ends at (x, y).
 ArcSize and Direction select one of the four Oval parts.
 
 #Const kSmall_ArcSize 0
-smaller of Arc pair
+#Line # smaller of Arc pair ##
 ##
 #Const kLarge_ArcSize 1
-larger of Arc pair
+#Line # larger of Arc pair ##
 ##
 
 #Example
@@ -3492,7 +3508,7 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 
 #Method void arcTo(const SkPoint r, SkScalar xAxisRotate, ArcSize largeArc, Direction sweep,
-               const SkPoint xy) 
+               const SkPoint xy)
 #In Build
 #In Arc
 
@@ -3542,7 +3558,7 @@ void draw(SkCanvas* canvas) {
 #In Arc
 #Line # appends Arc relative to Last_Point ##
 
-Append Arc to Path, relative to last Path Point. Arc is implemented by one or 
+Append Arc to Path, relative to last Path Point. Arc is implemented by one or
 more Conic, weighted to describe part of Oval with radii (rx, ry) rotated by
 xAxisRotate degrees. Arc curves from last Path Point (x0, y0) to end Point:
 
@@ -3599,7 +3615,7 @@ void draw(SkCanvas* canvas) {
 Append kClose_Verb to Path. A closed Contour connects the first and last Point
 with Line, forming a continuous loop. Open and closed Contour draw the same
 with SkPaint::kFill_Style. With SkPaint::kStroke_Style, open Contour draws
-Paint_Stroke_Cap at Contour start and end; closed Contour draws 
+Paint_Stroke_Cap at Contour start and end; closed Contour draws
 Paint_Stroke_Join at Contour start and end.
 
 close() has no effect if Path is empty or last Path Verb is kClose_Verb.
@@ -3625,13 +3641,13 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso 
+#SeeAlso
 
 ##
 
 # ------------------------------------------------------------------------------
 
-#Method static bool IsInverseFillType(FillType fill) 
+#Method static bool IsInverseFillType(FillType fill)
 #In Property
 #Line # returns if Fill_Type represents outside geometry ##
 Returns true if fill is inverted and Path with fill represents area outside
@@ -3689,7 +3705,7 @@ IsInverseFillType(kInverseEvenOdd_FillType) == true
 
 # ------------------------------------------------------------------------------
 
-#Method static FillType ConvertToNonInverseFillType(FillType fill) 
+#Method static FillType ConvertToNonInverseFillType(FillType fill)
 #In Utility
 #Line # returns Fill_Type representing inside geometry ##
 Returns equivalent Fill_Type representing Path fill inside its bounds.
@@ -3732,7 +3748,7 @@ void draw(SkCanvas* canvas) {
         if (fills[i].fill != (SkPath::FillType) i) {
             SkDebugf("fills array order does not match FillType enum order");
             break;
-        } 
+        }
         SkDebugf("ConvertToNonInverseFillType(%s) == %s\n", fills[i].name,
                 fills[(int) SkPath::ConvertToNonInverseFillType(fills[i].fill)].name);
     }
@@ -3757,11 +3773,11 @@ ConvertToNonInverseFillType(kInverseEvenOdd_FillType) == kEvenOdd_FillType
 #Line # approximates Conic with Quad array ##
 
 Approximates Conic with Quad array. Conic is constructed from start Point p0,
-control Point p1, end Point p2, and weight w. 
+control Point p1, end Point p2, and weight w.
 Quad array is stored in pts; this storage is supplied by caller.
 Maximum Quad count is 2 to the pow2.
-Every third point in array shares last Point of previous Quad and first Point of 
-next Quad. Maximum pts storage size is given by: 
+Every third point in array shares last Point of previous Quad and first Point of
+next Quad. Maximum pts storage size is given by:
 #Formula
 (1 + 2 * (1 << pow2)) * sizeof(SkPoint)
 ##
@@ -3769,7 +3785,7 @@ next Quad. Maximum pts storage size is given by:
 
 Returns Quad count used the approximation, which may be smaller
 than the number requested.
- 
+
 Conic_Weight determines the amount of influence Conic control point has on the curve.
 w less than one represents an elliptical section. w greater than one represents
 a hyperbolic section. w equal to one represents a parabolic section.
@@ -3849,7 +3865,7 @@ void draw(SkCanvas* canvas) {
         SkRect rect;
         SkPath::Direction direction;
         bool isClosed;
-        path.isRect(&rect, &isClosed, &direction) ? 
+        path.isRect(&rect, &isClosed, &direction) ?
                 SkDebugf("%s is rect (%g, %g, %g, %g); is %s" "closed; direction %s\n", prefix,
                          rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, isClosed ? "" : "not ",
                          SkPath::kCW_Direction == direction ? "CW" : "CCW") :
@@ -4158,7 +4174,7 @@ void draw(SkCanvas* canvas) {
 #Line # adds one Contour containing Circle ##
 
 Add Circle centered at (x, y) of size radius to Path, appending kMove_Verb,
-four kConic_Verb, and kClose_Verb. Circle begins at: 
+four kConic_Verb, and kClose_Verb. Circle begins at:
 #Formula
 (x + radius, y)
 ##
@@ -4200,8 +4216,8 @@ bounded by oval, from startAngle through sweepAngle. Both startAngle and
 sweepAngle are measured in degrees, where zero degrees is aligned with the
 positive x-axis, and positive sweeps extends Arc clockwise.
 
-If sweepAngle <= -360, or sweepAngle >= 360; and startAngle modulo 90 is nearly 
-zero, append Oval instead of Arc. Otherwise, sweepAngle values are treated 
+If sweepAngle <= -360, or sweepAngle >= 360; and startAngle modulo 90 is nearly
+zero, append Oval instead of Arc. Otherwise, sweepAngle values are treated
 modulo 360, and Arc may or may not draw depending on numeric rounding.
 
 #Param oval        bounds of ellipse containing Arc ##
@@ -4211,7 +4227,7 @@ modulo 360, and Arc may or may not draw depending on numeric rounding.
 #Example
 #Description
 The middle row of the left and right columns draw differently from the entries
-above and below because sweepAngle is outside of the range of +/-360, 
+above and below because sweepAngle is outside of the range of +/-360,
 and startAngle modulo 90 is not zero.
 ##
 void draw(SkCanvas* canvas) {
@@ -4308,11 +4324,11 @@ array.
 # 7           # y-radius of bottom-left corner  ##
 #Table ##
 
-If dir is kCW_Direction, Round_Rect starts at top-left of the lower-left corner 
-and winds clockwise. If dir is kCCW_Direction, Round_Rect starts at the 
+If dir is kCW_Direction, Round_Rect starts at top-left of the lower-left corner
+and winds clockwise. If dir is kCCW_Direction, Round_Rect starts at the
 bottom-left of the upper-left corner and winds counterclockwise.
 
-If both radii on any side of rect exceed its length, all radii are scaled 
+If both radii on any side of rect exceed its length, all radii are scaled
 uniformly until the corners fit. If either radius of a corner is less than or
 equal to zero, both are treated as zero.
 
@@ -4424,7 +4440,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso addRoundRect SkCanvas::drawRRect 
+#SeeAlso addRoundRect SkCanvas::drawRRect
 
 ##
 
@@ -4440,7 +4456,7 @@ pts[count - 1] and pts[0].
 
 If count is zero, append kMove_Verb to path.
 Has no effect if count is less than one.
-  
+
 #Param pts    array of Line sharing end and start Point ##
 #Param count  length of Point array ##
 #Param close  true to add Line connecting Contour end and start ##
@@ -4476,8 +4492,8 @@ void draw(SkCanvas* canvas) {
 
 #Code
     enum AddPathMode {
-        kAppend_AddPathMode, 
-        kExtend_AddPathMode, 
+        kAppend_AddPathMode,
+        kExtend_AddPathMode,
     };
 ##
 
@@ -4485,11 +4501,13 @@ AddPathMode chooses how addPath appends. Adding one Path to another can extend
 the last Contour or start a new Contour.
 
 #Const kAppend_AddPathMode
+#Line # appended to destination unaltered ##
     Path Verbs, Points, and Conic_Weights are appended to destination unaltered.
     Since Path Verb_Array begins with kMove_Verb if src is not empty, this
     starts a new Contour.
 ##
 #Const kExtend_AddPathMode
+#Line # add line if prior Contour is not closed ##
     If destination is closed or empty, start a new Contour. If destination
     is not empty, add Line from Last_Point to added Path first Point. Skip added
     Path initial kMove_Verb, then append remining Verbs, Points, and Conic_Weights.
@@ -4534,11 +4552,11 @@ The top right composition is made up of one contour; the other three have two.
 #In Build
 #Line # adds contents of Path ##
 
-Append src to Path, offset by (dx, dy). 
+Append src to Path, offset by (dx, dy).
 
 If mode is kAppend_AddPathMode, src Verb_Array, Point_Array, and Conic_Weights are
 added unaltered. If mode is kExtend_AddPathMode, add Line before appending
-Verbs, Points, and Conic_Weights. 
+Verbs, Points, and Conic_Weights.
 
 #Param src  Path Verbs, Points, and Conic_Weights to add ##
 #Param dx   offset added to src Point_Array x coordinates ##
@@ -4567,13 +4585,13 @@ Verbs, Points, and Conic_Weights.
 
 # ------------------------------------------------------------------------------
 
-#Method void addPath(const SkPath& src, AddPathMode mode = kAppend_AddPathMode) 
+#Method void addPath(const SkPath& src, AddPathMode mode = kAppend_AddPathMode)
 
 Append src to Path.
 
 If mode is kAppend_AddPathMode, src Verb_Array, Point_Array, and Conic_Weights are
 added unaltered. If mode is kExtend_AddPathMode, add Line before appending
-Verbs, Points, and Conic_Weights. 
+Verbs, Points, and Conic_Weights.
 
 #Param src  Path Verbs, Points, and Conic_Weights to add ##
 #Param mode kAppend_AddPathMode or kExtend_AddPathMode ##
@@ -4604,7 +4622,7 @@ Verbs, Points, and Conic_Weights.
 
 If mode is kAppend_AddPathMode, src Verb_Array, Point_Array, and Conic_Weights are
 added unaltered. If mode is kExtend_AddPathMode, add Line before appending
-Verbs, Points, and Conic_Weights. 
+Verbs, Points, and Conic_Weights.
 
 #Param src     Path Verbs, Points, and Conic_Weights to add ##
 #Param matrix  transform applied to src ##
@@ -4634,7 +4652,7 @@ Verbs, Points, and Conic_Weights.
 #Method void reverseAddPath(const SkPath& src)
 #In Build
 #Line # adds contents of Path back to front ##
-Append src to Path, from back to front. 
+Append src to Path, from back to front.
 Reversed src always appends a new Contour to Path.
 
 #Param src     Path Verbs, Points, and Conic_Weights to add ##
@@ -4705,7 +4723,7 @@ If dst is nullptr, Path is replaced by offset data.
 #Line # modify all points ##
 ##
 
-#Method void offset(SkScalar dx, SkScalar dy) 
+#Method void offset(SkScalar dx, SkScalar dy)
 #In Transform
 Offset Point_Array by (dx, dy). Path is replaced by offset data.
 
@@ -4738,7 +4756,7 @@ Offset Point_Array by (dx, dy). Path is replaced by offset data.
 Transform Verb_Array, Point_Array, and weight by matrix.
 transform may change Verbs and increase their number.
 Transformed Path replaces dst; if dst is nullptr, original data
-is replaced. 
+is replaced.
 
 #Param matrix  Matrix to apply to Path ##
 #Param dst     overwritten, transformed copy of Path; may be nullptr ##
@@ -4766,7 +4784,7 @@ is replaced.
 
 # ------------------------------------------------------------------------------
 
-#Method void transform(const SkMatrix& matrix) 
+#Method void transform(const SkMatrix& matrix)
 
 Transform Verb_Array, Point_Array, and weight by matrix.
 transform may change Verbs and increase their number.
@@ -4806,7 +4824,7 @@ Last_Point can be read and written directly with getLastPt and setLastPt.
 #In Property
 #In Last_Point
 #Line # returns Last_Point ##
-    Returns Last_Point on Path in lastPt. Returns false if Point_Array is empty, 
+    Returns Last_Point on Path in lastPt. Returns false if Point_Array is empty,
     storing (0, 0) if lastPt is not nullptr.
 
     #Param lastPt  storage for final Point in Point_Array; may be nullptr ##
@@ -4825,7 +4843,7 @@ Last_Point can be read and written directly with getLastPt and setLastPt.
         SkDebugf("last point: %g, %g\n", last.fX, last.fY);
     #StdOut
     last point: 35.2786, 52.9772
-    ##    
+    ##
     ##
 
     #SeeAlso setLastPt
@@ -4856,7 +4874,7 @@ Last_Point can be read and written directly with getLastPt and setLastPt.
 
 ##
 
-#Method void setLastPt(const SkPoint& p) 
+#Method void setLastPt(const SkPoint& p)
 
     Set the last point on the path. If Point_Array is empty, append kMove_Verb to
     Verb_Array and append p to Point_Array.
@@ -4904,15 +4922,19 @@ instance, if Path only contains Lines, only the kLine_SegmentMask bit is set.
 
 #Bug 6785
 #Const kLine_SegmentMask 1
+#Line # contains one or more Lines ##
 Set if Verb_Array contains kLine_Verb.
 ##
 #Const kQuad_SegmentMask 2
+#Line # contains one or more Quads ##
 Set if Verb_Array contains kQuad_Verb. Note that conicTo may add a Quad.
 ##
 #Const kConic_SegmentMask 4
+#Line # contains one or more Conics ##
 Set if Verb_Array contains kConic_Verb.
 ##
 #Const kCubic_SegmentMask 8
+#Line # contains one or more Cubics ##
 Set if Verb_Array contains kCubic_Verb.
 ##
 
@@ -4922,9 +4944,9 @@ When conicTo has a weight of one, Quad is added to Path.
 ##
     SkPath path;
     path.conicTo(10, 10, 20, 30, 1);
-    SkDebugf("Path kConic_SegmentMask is %s\n", path.getSegmentMasks() & 
+    SkDebugf("Path kConic_SegmentMask is %s\n", path.getSegmentMasks() &
           SkPath::kConic_SegmentMask ? "set" : "clear");
-    SkDebugf("Path kQuad_SegmentMask is %s\n", path.getSegmentMasks() & 
+    SkDebugf("Path kQuad_SegmentMask is %s\n", path.getSegmentMasks() &
           SkPath::kQuad_SegmentMask ? "set" : "clear");
 #StdOut
 Path kConic_SegmentMask is clear
@@ -4938,7 +4960,7 @@ Path kQuad_SegmentMask is set
 
 # ------------------------------------------------------------------------------
 
-#Method uint32_t getSegmentMasks() const 
+#Method uint32_t getSegmentMasks() const
 #In Utility
 #In Property
 #Line # returns types in Verb_Array ##
@@ -4960,7 +4982,7 @@ for (auto mask : { SkPath::kLine_SegmentMask, SkPath::kQuad_SegmentMask,
         SkPath::kConic_SegmentMask, SkPath::kCubic_SegmentMask } ) {
     if (mask & path.getSegmentMasks()) {
        SkDebugf("mask %s set\n", masks[index]);
-    }       
+    }
     ++index;
 }
 #StdOut
@@ -4978,7 +5000,7 @@ mask quad set
 #In Property
 #Line # returns if Point is in fill area ##
 Returns true if the point (x, y) is contained by Path, taking into
-account FillType. 
+account FillType.
 
 #Table
 #Legend
@@ -4988,7 +5010,7 @@ account FillType.
 # kEvenOdd_FillType        # an odd number of Contours.            ##
 # kInverseWinding_FillType # a zero sum of Contour Directions.     ##
 # kInverseEvenOdd_FillType # and even number of Contours.          ##
-## 
+##
 
 #Param x  x-coordinate of containment test ##
 #Param y  y-coordinate of containment test ##
@@ -5107,8 +5129,8 @@ directly compiled as C++ code. Floating point values are written
 in hexadecimal to preserve their exact bit pattern. The output reconstructs the
 original Path.
 
-Use instead of dump() when submitting 
-#A bug reports against Skia # http://bug.skia.org ##
+Use instead of dump() when submitting
+#A bug reports against Skia # https://bug.skia.org ##
 .
 
 #Example
@@ -5202,9 +5224,9 @@ path is equal to copy
 
 #Method size_t readFromMemory(const void* buffer, size_t length)
 #In Utility
-#Line # Initializes from buffer ##
+#Line # initializes from buffer ##
 Initializes Path from buffer of size length. Returns zero if the buffer is
-data is inconsistent, or the length is too small. 
+data is inconsistent, or the length is too small.
 
 Reads Fill_Type, Verb_Array, Point_Array, Conic_Weight, and
 additionally reads computed information like Convexity and bounds.
@@ -5256,7 +5278,7 @@ Empty Paths have a Generation_ID of one.
 
 #In Generation_ID
 #Line # returns unique ID ##
-Returns a non-zero, globally unique value. A different value is returned 
+Returns a non-zero, globally unique value. A different value is returned
 if Verb_Array, Point_Array, or Conic_Weight changes.
 
 Setting Fill_Type does not change Generation_ID.
@@ -5315,7 +5337,7 @@ empty genID = 1
 # ------------------------------------------------------------------------------
 
 #Class Iter
-#Line # Path data iterator ##
+#Line # data iterator ##
 
 Iterates through Verb_Array, and associated Point_Array and Conic_Weight.
 Provides options to treat open Contours as closed, and to ignore
@@ -5346,7 +5368,7 @@ void draw(SkCanvas* canvas) {
     paint.setTextSize(256);
     SkPath asterisk, path;
     paint.getTextPath("*", 1, 50, 192, &asterisk);
-    SkPath::Iter iter(asterisk, true); 
+    SkPath::Iter iter(asterisk, true);
     SkPoint start[4], pts[4];
     iter.next(start);  // skip moveTo
     iter.next(start);  // first quadTo
@@ -5362,7 +5384,7 @@ void draw(SkCanvas* canvas) {
 #SeeAlso RawIter
 
 #Method Iter()
-
+#Line # constructs Path iterator ##
 Initializes Iter with an empty Path. next() on Iter returns kDone_Verb.
 Call setPath to initialize Iter at a later time.
 
@@ -5429,16 +5451,16 @@ void draw(SkCanvas* canvas) {
 }
 #StdOut
 open:
-kMove_Verb {0, 0}, 
-kQuad_Verb {0, 0}, {10, 20}, {30, 40}, 
-kDone_Verb 
+kMove_Verb {0, 0},
+kQuad_Verb {0, 0}, {10, 20}, {30, 40},
+kDone_Verb
 
 closed:
-kMove_Verb {0, 0}, 
-kQuad_Verb {0, 0}, {10, 20}, {30, 40}, 
-kLine_Verb {30, 40}, {0, 0}, 
-kClose_Verb {0, 0}, 
-kDone_Verb 
+kMove_Verb {0, 0},
+kQuad_Verb {0, 0}, {10, 20}, {30, 40},
+kLine_Verb {30, 40}, {0, 0},
+kClose_Verb {0, 0},
+kDone_Verb
 ##
 ##
 
@@ -5488,16 +5510,16 @@ void draw(SkCanvas* canvas) {
 }
 #StdOut
 quad open:
-kMove_Verb {0, 0}, 
-kQuad_Verb {0, 0}, {10, 20}, {30, 40}, 
-kDone_Verb 
+kMove_Verb {0, 0},
+kQuad_Verb {0, 0}, {10, 20}, {30, 40},
+kDone_Verb
 
 conic closed:
-kMove_Verb {0, 0}, 
+kMove_Verb {0, 0},
 kConic_Verb {0, 0}, {1, 2}, {3, 4}, weight = 0.5
-kLine_Verb {3, 4}, {0, 0}, 
-kClose_Verb {0, 0}, 
-kDone_Verb 
+kLine_Verb {3, 4}, {0, 0},
+kClose_Verb {0, 0},
+kDone_Verb
 ##
 ##
 
@@ -5505,7 +5527,7 @@ kDone_Verb
 
 ##
 
-#Method Verb next(SkPoint pts[4], bool doConsumeDegenerates = true, bool exact = false) 
+#Method Verb next(SkPoint pts[4], bool doConsumeDegenerates = true, bool exact = false)
 
 Returns next Verb in Verb_Array, and advances Iter.
 When Verb_Array is exhausted, returns kDone_Verb.
@@ -5525,7 +5547,7 @@ Conics with zero lengths.
     #Return next Verb from Verb_Array  ##
 
 #Example
-#Description 
+#Description
 skip degenerate skips the first in a kMove_Verb pair, the kMove_Verb
 followed by the kClose_Verb, the zero length Line and the very small Line.
 
@@ -5569,32 +5591,32 @@ void draw(SkCanvas* canvas) {
 }
 #StdOut
 skip degenerate:
-kMove_Verb {20, 20}, 
-kQuad_Verb {20, 20}, {10, 20}, {30, 40}, 
-kDone_Verb 
+kMove_Verb {20, 20},
+kQuad_Verb {20, 20}, {10, 20}, {30, 40},
+kDone_Verb
 
 skip degenerate if exact:
-kMove_Verb {20, 20}, 
-kQuad_Verb {20, 20}, {10, 20}, {30, 40}, 
-kMove_Verb {30, 30}, 
-kLine_Verb {30, 30}, {30.00001, 30}, 
-kDone_Verb 
+kMove_Verb {20, 20},
+kQuad_Verb {20, 20}, {10, 20}, {30, 40},
+kMove_Verb {30, 30},
+kLine_Verb {30, 30}, {30.00001, 30},
+kDone_Verb
 
 skip none:
-kMove_Verb {10, 10}, 
-kMove_Verb {20, 20}, 
-kQuad_Verb {20, 20}, {10, 20}, {30, 40}, 
-kMove_Verb {1, 1}, 
-kClose_Verb {1, 1}, 
-kMove_Verb {30, 30}, 
-kLine_Verb {30, 30}, {30, 30}, 
-kMove_Verb {30, 30}, 
-kLine_Verb {30, 30}, {30.00001, 30}, 
-kDone_Verb 
+kMove_Verb {10, 10},
+kMove_Verb {20, 20},
+kQuad_Verb {20, 20}, {10, 20}, {30, 40},
+kMove_Verb {1, 1},
+kClose_Verb {1, 1},
+kMove_Verb {30, 30},
+kLine_Verb {30, 30}, {30, 30},
+kMove_Verb {30, 30},
+kLine_Verb {30, 30}, {30.00001, 30},
+kDone_Verb
 ##
 ##
 
-#SeeAlso Verb IsLineDegenerate IsCubicDegenerate IsQuadDegenerate 
+#SeeAlso Verb IsLineDegenerate IsCubicDegenerate IsQuadDegenerate
 
 ##
 
@@ -5611,7 +5633,7 @@ kDone_Verb
     void draw(SkCanvas* canvas) {
        SkPath path;
        path.conicTo(1, 2, 3, 4, .5f);
-       SkPath::Iter iter(path, false); 
+       SkPath::Iter iter(path, false);
        SkPoint p[4];
        SkDebugf("first verb is " "%s" "move\n", SkPath::kMove_Verb == iter.next(p) ? "" : "not ");
        SkDebugf("next verb is " "%s" "conic\n", SkPath::kConic_Verb == iter.next(p) ? "" : "not ");
@@ -5632,7 +5654,7 @@ conic weight: 0.5
 ##
 
 #Method bool isCloseLine() const
-
+#Line # returns if Line was generated by kClose_Verb ##
     Returns true if last kLine_Verb returned by next() was generated
     by kClose_Verb. When true, the end point returned by next() is
     also the start point of Contour.
@@ -5648,7 +5670,7 @@ void draw(SkCanvas* canvas) {
    path.moveTo(6, 7);
    path.conicTo(1, 2, 3, 4, .5f);
    path.close();
-   SkPath::Iter iter(path, false); 
+   SkPath::Iter iter(path, false);
    SkPoint p[4];
    SkDebugf("1st verb is " "%s" "move\n", SkPath::kMove_Verb == iter.next(p) ? "" : "not ");
    SkDebugf("moveTo point: {%g,%g}\n", p[0].fX, p[0].fY);
@@ -5673,7 +5695,7 @@ line generated by close
 ##
 
 #Method bool isClosedContour() const
-
+#Line # returns if Contour has kClose_Verb ##
 Returns true if subsequent calls to next() return kClose_Verb before returning
 kMove_Verb. if true, Contour Iter is processing may end with kClose_Verb, or
 Iter may have been initialized with force close set to true.
@@ -5685,7 +5707,7 @@ void draw(SkCanvas* canvas) {
    for (bool forceClose : { false, true } ) {
        SkPath path;
        path.conicTo(1, 2, 3, 4, .5f);
-       SkPath::Iter iter(path, forceClose); 
+       SkPath::Iter iter(path, forceClose);
        SkDebugf("without close(), forceClose is %s: isClosedContour returns %s\n",
            forceClose ? "true " : "false", iter.isClosedContour() ? "true" : "false");
        path.close();
@@ -5709,10 +5731,10 @@ with close(),    forceClose is true : isClosedContour returns true
 #Class Iter ##
 
 #Class RawIter
-#Line # Path raw data iterator ##
+#Line # raw data iterator ##
 
 Iterates through Verb_Array, and associated Point_Array and Conic_Weight.
-Verb_Array, Point_Array, and Conic_Weight are returned unaltered. 
+Verb_Array, Point_Array, and Conic_Weight are returned unaltered.
 
 #Code
     class RawIter {
@@ -5727,6 +5749,7 @@ Verb_Array, Point_Array, and Conic_Weight are returned unaltered.
 ##
 
     #Method RawIter()
+    #Line # constructs empty Path iterator ##
 
         Initializes RawIter with an empty Path. next() on RawIter returns kDone_Verb.
         Call setPath to initialize SkPath::Iter at a later time.
@@ -5738,6 +5761,7 @@ Verb_Array, Point_Array, and Conic_Weight are returned unaltered.
     ##
 
     #Method RawIter(const SkPath& path)
+    #Line # constructs with Path to iterate over ##
 
 
         Sets RawIter to return elements of Verb_Array, Point_Array, and Conic_Weight in path.
@@ -5751,6 +5775,7 @@ Verb_Array, Point_Array, and Conic_Weight are returned unaltered.
     ##
 
     #Method void setPath(const SkPath& path)
+    #Line # sets Path to iterate over ##
 
         Sets SkPath::Iter to return elements of Verb_Array, Point_Array, and Conic_Weight in path.
 
@@ -5761,7 +5786,7 @@ Verb_Array, Point_Array, and Conic_Weight are returned unaltered.
    ##
 
     #Method Verb next(SkPoint pts[4])
-
+    #Line # returns next Verb and associated Points ##
         Returns next Verb in Verb_Array, and advances RawIter.
         When Verb_Array is exhausted, returns kDone_Verb.
         Zero to four Points are stored in pts, depending on the returned Verb.
@@ -5797,14 +5822,14 @@ Verb_Array, Point_Array, and Conic_Weight are returned unaltered.
             } while (SkPath::kDone_Verb != verb);
         }
     #StdOut
-        kMove_Verb {50, 60}, 
-        kQuad_Verb {50, 60}, {10, 20}, {30, 40}, 
-        kClose_Verb {50, 60}, 
-        kMove_Verb {50, 60}, 
-        kLine_Verb {50, 60}, {30, 30}, 
+        kMove_Verb {50, 60},
+        kQuad_Verb {50, 60}, {10, 20}, {30, 40},
+        kClose_Verb {50, 60},
+        kMove_Verb {50, 60},
+        kLine_Verb {50, 60}, {30, 30},
         kConic_Verb {30, 30}, {1, 2}, {3, 4}, weight = 0.5
-        kCubic_Verb {3, 4}, {-1, -2}, {-3, -4}, {-5, -6}, 
-        kDone_Verb 
+        kCubic_Verb {3, 4}, {-1, -2}, {-3, -4}, {-5, -6},
+        kDone_Verb
     ##
     ##
 
@@ -5813,7 +5838,7 @@ Verb_Array, Point_Array, and Conic_Weight are returned unaltered.
     ##
 
     #Method Verb peek() const
-
+    #Line # returns next Verb ##
         Returns next Verb, but does not advance RawIter.
 
         #Return next Verb from Verb_Array  ##
@@ -5845,16 +5870,17 @@ Verb_Array, Point_Array, and Conic_Weight are returned unaltered.
         ##
 
         #Bug 6832
-        StdOut isn't really volatile, it just produces the wrong result.
+        StdOut is not really volatile, it just produces the wrong result.
         A simple fix changes the output of hairlines and needs to be
         investigated to see if the change is correct or not.
-        https://skia-review.googlesource.com/c/21340/
+        see change 21340 (abandoned for now)
 
         #SeeAlso next()
 
     ##
 
     #Method SkScalar conicWeight() const
+    #Line # returns Conic_Weight ##
 
         Returns Conic_Weight if next() returned kConic_Verb.
 
@@ -5867,7 +5893,7 @@ Verb_Array, Point_Array, and Conic_Weight are returned unaltered.
     void draw(SkCanvas* canvas) {
        SkPath path;
        path.conicTo(1, 2, 3, 4, .5f);
-       SkPath::RawIter iter(path); 
+       SkPath::RawIter iter(path);
        SkPoint p[4];
        SkDebugf("first verb is " "%s" "move\n", SkPath::kMove_Verb == iter.next(p) ? "" : "not ");
        SkDebugf("next verb is " "%s" "conic\n", SkPath::kConic_Verb == iter.next(p) ? "" : "not ");

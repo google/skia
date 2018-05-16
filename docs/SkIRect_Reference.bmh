@@ -2,19 +2,17 @@
 #Alias IRects
 #Alias IRect_Reference
 
-#Subtopic Overview
-    #Subtopic Subtopic
-    #Populate
-    ##
-##
-
 #Struct SkIRect
 
-SkIRect holds four 32 bit integer coordinates describing the upper and
-lower bounds of a rectangle. SkIRect may be created from outer bounds or 
+SkIRect holds four 32-bit integer coordinates describing the upper and
+lower bounds of a rectangle. SkIRect may be created from outer bounds or
 from position, width, and height. SkIRect describes an area; if its right
 is less than or equal to its left, or if its bottom is less than or equal to
-its top, it is considered empty. 
+its top, it is considered empty.
+
+#Subtopic Overview
+#Populate
+##
 
 #Subtopic Related_Function
 #Populate
@@ -126,7 +124,7 @@ all equal
 
 #In Constructor
 #Line # constructs from ISize returning (0, 0, width, height) ##
-Returns constructed IRect set to (0, 0, size.width(), size.height()). 
+Returns constructed IRect set to (0, 0, size.width(), size.height()).
 Does not validate input; size.width() or size.height() may be negative.
 
 #Param size  values for IRect width and height ##
@@ -145,7 +143,7 @@ floor width: 25  height: 35
 ##
 ##
 
-#SeeAlso MakeWH MakeXYWH SkRect::Make SkRect::MakeIWH 
+#SeeAlso MakeWH MakeXYWH SkRect::Make SkRect::MakeIWH
 
 ##
 
@@ -590,7 +588,7 @@ sorted: {20, 40, 20, 50} is empty
 
 #In Operator
 #Line # returns true if members are equal ##
-Returns true if all members in a: fLeft, fTop, fRight, and fBottom; are 
+Returns true if all members in a: fLeft, fTop, fRight, and fBottom; are
 identical to corresponding members in b.
 
 #Param a  IRect to compare ##
@@ -617,7 +615,7 @@ test == sorted
 
 #In Operator
 #Line # returns true if members are unequal ##
-Returns true if any member in a: fLeft, fTop, fRight, and fBottom; is not 
+Returns true if any member in a: fLeft, fTop, fRight, and fBottom; is not
 identical to the corresponding member in b.
 
 #Param a  IRect to compare ##
@@ -787,7 +785,7 @@ Returns IRect offset by (dx, dy).
 If dx is negative, IRect returned is moved to the left.
 If dx is positive, IRect returned is moved to the right.
 If dy is negative, IRect returned is moved upward.
-If dy is positive, IRect returned is moved downward. 
+If dy is positive, IRect returned is moved downward.
 
 #Param dx  offset added to fLeft and fRight ##
 #Param dy  offset added to fTop and fBottom ##
@@ -822,7 +820,7 @@ Returns IRect, inset by (dx, dy).
 If dx is negative, IRect returned is wider.
 If dx is positive, IRect returned is narrower.
 If dy is negative, IRect returned is taller.
-If dy is positive, IRect returned is shorter. 
+If dy is positive, IRect returned is shorter.
 
 #Param dx  offset added to fLeft and subtracted from fRight ##
 #Param dy  offset added to fTop and subtracted from fBottom ##
@@ -857,7 +855,7 @@ Returns IRect, outset by (dx, dy).
 If dx is negative, IRect returned is narrower.
 If dx is positive, IRect returned is wider.
 If dy is negative, IRect returned is shorter.
-If dy is positive, IRect returned is taller. 
+If dy is positive, IRect returned is taller.
 
 #Param dx  offset subtracted to fLeft and added from fRight ##
 #Param dy  offset subtracted to fTop and added from fBottom ##
@@ -892,7 +890,7 @@ Offsets IRect by adding dx to fLeft, fRight; and by adding dy to fTop, fBottom.
 If dx is negative, moves IRect returned to the left.
 If dx is positive, moves IRect returned to the right.
 If dy is negative, moves IRect returned upward.
-If dy is positive, moves IRect returned downward. 
+If dy is positive, moves IRect returned downward.
 
 #Param dx  offset added to fLeft and fRight ##
 #Param dy  offset added to fTop and fBottom ##
@@ -921,7 +919,7 @@ fTop, fBottom.
 If delta.fX is negative, moves IRect returned to the left.
 If delta.fX is positive, moves IRect returned to the right.
 If delta.fY is negative, moves IRect returned upward.
-If delta.fY is positive, moves IRect returned downward. 
+If delta.fY is positive, moves IRect returned downward.
 
 #Param delta  offset added to IRect ##
 
@@ -1024,9 +1022,9 @@ rect: 5, 1, 55, 86
 #Subtopic Inset_Outset_Offset ##
 
 #Subtopic Intersection
-#Line # set to shared bounds ##
+#Line # sets to shared bounds ##
 
-IRects intersect when they enclose a common area. To intersect, each of the pair 
+IRects intersect when they enclose a common area. To intersect, each of the pair
 must describe area; fLeft is less than fRight, and fTop is less than fBottom;
 empty() returns false. The intersection of IRect pair can be described by:
 
@@ -1295,11 +1293,11 @@ be before or after the call to intersect.
     SkIRect leftRect =  { 10, 40, 50, 80 };
     SkIRect rightRect = { 30, 60, 70, 90 };
     SkDebugf("%s intersection: ", leftRect.intersect(rightRect) ? "" : "no ");
-    SkDebugf("%d, %d, %d, %d\n", leftRect.left(), leftRect.top(), 
+    SkDebugf("%d, %d, %d, %d\n", leftRect.left(), leftRect.top(),
                                  leftRect.right(), leftRect.bottom());
 #StdOut
  intersection: 30, 60, 50, 80
-##                                 
+##
 ##
 
 #SeeAlso Intersects intersectNoEmptyCheck join SkRect::intersect
@@ -1328,7 +1326,7 @@ Returns false if either a or b is empty, leaving IRect unchanged.
              result.left(), result.top(), result.right(), result.bottom());
 #StdOut
  intersection: 30, 60, 50, 80
-##                                 
+##
 ##
 
 #SeeAlso Intersects intersectNoEmptyCheck join SkRect::intersect
@@ -1359,7 +1357,7 @@ Asserts if either a or b is empty, and if SK_DEBUG is defined.
     }
 #StdOut
  intersection: 30, 60, 50, 80
-##                                 
+##
 ##
 
 #SeeAlso Intersects intersect join SkRect::intersect
@@ -1394,11 +1392,11 @@ be before or after the call to intersect.
 ##
     SkIRect leftRect =  { 10, 40, 50, 80 };
     SkDebugf("%s intersection: ", leftRect.intersect(30, 60, 70, 90) ? "" : "no ");
-    SkDebugf("%d, %d, %d, %d\n", leftRect.left(), leftRect.top(), 
+    SkDebugf("%d, %d, %d, %d\n", leftRect.left(), leftRect.top(),
                                  leftRect.right(), leftRect.bottom());
 #StdOut
  intersection: 30, 60, 50, 80
-##                                 
+##
 ##
 
 #SeeAlso intersectNoEmptyCheck Intersects join SkRect::intersect
@@ -1423,7 +1421,7 @@ Returns false if either a or b is empty, or do not intersect.
     SkDebugf("%s intersection", SkIRect::Intersects({10, 40, 50, 80}, {30, 60, 70, 90}) ? "" : "no ");
 #StdOut
  intersection
-##                                 
+##
 ##
 
 #SeeAlso IntersectsNoEmptyCheck intersect SkRect::intersect
@@ -1449,7 +1447,7 @@ Asserts if either a or b is empty, and if SK_DEBUG is defined.
             {10, 40, 50, 80}, {30, 60, 70, 90}) ? "" : "no ");
 #StdOut
  intersection
-##                                 
+##
 ##
 
 #SeeAlso Intersects intersect SkRect::intersect
@@ -1461,7 +1459,7 @@ Asserts if either a or b is empty, and if SK_DEBUG is defined.
 # ------------------------------------------------------------------------------
 
 #Subtopic Join
-#Line # set to union of bounds ##
+#Line # sets to union of bounds ##
 #Populate
 ##
 
@@ -1488,7 +1486,7 @@ IRect to construction.
     SkDebugf("join: %d, %d, %d, %d\n", rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
 #StdOut
  join: 10, 20, 55, 65
-##                                 
+##
 ##
 
 #SeeAlso set SkRect::join
@@ -1512,7 +1510,7 @@ Has no effect if r is empty. Otherwise, if IRect is empty, sets IRect to r.
     SkDebugf("join: %d, %d, %d, %d\n", rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
 #StdOut
  join: 10, 20, 55, 65
-##                                 
+##
 ##
 
 #SeeAlso set SkRect::join
@@ -1555,7 +1553,7 @@ sorted: 20, 10, 30, 50
 
 #In Sorting
 #In Constructor
-#Line # constructs, ordering sides from smaller to larger ##
+#Line # constructs IRect, ordering sides from smaller to larger ##
 Returns IRect with fLeft and fRight swapped if fLeft is greater than fRight; and
 with fTop and fBottom swapped if fTop is greater than fBottom. Result may be empty;
 and width() and height() will be zero or positive.

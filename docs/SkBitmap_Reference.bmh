@@ -2,12 +2,6 @@
 #Alias Bitmaps
 #Alias Bitmap_Reference
 
-#Subtopic Overview
-    #Subtopic Subtopic
-    #Populate
-    ##
-##
-
 #Class SkBitmap
 
 Bitmap describes a two-dimensional raster pixel array. Bitmap is built on
@@ -17,8 +11,8 @@ Bitmap points to Pixel_Ref, which describes the physical array of pixels.
 Image_Info bounds may be located anywhere fully inside Pixel_Ref bounds.
 
 Bitmap can be drawn using Canvas. Bitmap can be a drawing destination for Canvas
-draw methods. Bitmap flexibility as a pixel container limits some optimizations
-available to the target platform.
+draw member functionss. Bitmap flexibility as a pixel container limits some
+optimizations available to the target platform.
 
 If pixel array is primarily read-only, use Image for better performance.
 If pixel array is primarily written to, use Surface for better performance.
@@ -39,6 +33,10 @@ number of bytes in a pixel. Row_Bytes may be larger than the row requires. This
 is useful to position one or more Bitmaps within a shared pixel array.
 ##
 
+#Subtopic Overview
+    #Populate
+##
+
 #Subtopic Related_Function
 #Populate
 ##
@@ -47,7 +45,7 @@ is useful to position one or more Bitmaps within a shared pixel array.
 #Populate
 ##
 
-#Subtopic Class_or_Struct
+#Subtopic Class
 #Populate
 ##
 
@@ -116,7 +114,7 @@ allocPixels.
 # ------------------------------------------------------------------------------
 
 #Method bool allocPixelRef(SkBitmap* bitmap) override
-
+#Line # allocates pixel memory ##
 Allocates the pixel memory for the bitmap, given its dimensions and
 Color_Type. Returns true on success, where success means either setPixels
 or setPixelRef was called.
@@ -153,7 +151,7 @@ pixel address = 0x560ddd0ac670
 #Method SkBitmap()
 
 #Line # constructs with default values ##
-Creates an empty Bitmap without pixels, with kUnknown_SkColorType, 
+Creates an empty Bitmap without pixels, with kUnknown_SkColorType,
 kUnknown_SkAlphaType, and with a width and height of zero. Pixel_Ref origin is
 set to (0, 0). Bitmap is not volatile.
 
@@ -204,7 +202,7 @@ void draw(SkCanvas* canvas) {
     if (original.tryAllocPixels(
             SkImageInfo::Make(25, 35, kRGBA_8888_SkColorType, kOpaque_SkAlphaType))) {
         SkDebugf("original has pixels before copy: %s\n", original.getPixels() ? "true" : "false");
-        SkBitmap copy(original);  
+        SkBitmap copy(original);
         SkDebugf("original has pixels after copy: %s\n", original.getPixels() ? "true" : "false");
         SkDebugf("copy has pixels: %s\n", copy.getPixels() ? "true" : "false");
     }
@@ -238,7 +236,7 @@ void draw(SkCanvas* canvas) {
     if (original.tryAllocPixels(
             SkImageInfo::Make(25, 35, kRGBA_8888_SkColorType, kOpaque_SkAlphaType))) {
         SkDebugf("original has pixels before move: %s\n", original.getPixels() ? "true" : "false");
-        SkBitmap copy(std::move(original));  
+        SkBitmap copy(std::move(original));
         SkDebugf("original has pixels after move: %s\n", original.getPixels() ? "true" : "false");
         SkDebugf("copy has pixels: %s\n", copy.getPixels() ? "true" : "false");
     }
@@ -286,7 +284,7 @@ void draw(SkCanvas* canvas) {
     if (original.tryAllocPixels(
             SkImageInfo::Make(25, 35, kRGBA_8888_SkColorType, kOpaque_SkAlphaType))) {
         SkDebugf("original has pixels before copy: %s\n", original.getPixels() ? "true" : "false");
-        SkBitmap copy = original;  
+        SkBitmap copy = original;
         SkDebugf("original has pixels after copy: %s\n", original.getPixels() ? "true" : "false");
         SkDebugf("copy has pixels: %s\n", copy.getPixels() ? "true" : "false");
     }
@@ -320,7 +318,7 @@ void draw(SkCanvas* canvas) {
     if (original.tryAllocPixels(
             SkImageInfo::Make(25, 35, kRGBA_8888_SkColorType, kOpaque_SkAlphaType))) {
         SkDebugf("original has pixels before move: %s\n", original.getPixels() ? "true" : "false");
-        SkBitmap copy = std::move(original);  
+        SkBitmap copy = std::move(original);
         SkDebugf("original has pixels after move: %s\n", original.getPixels() ? "true" : "false");
         SkDebugf("copy has pixels: %s\n", copy.getPixels() ? "true" : "false");
     }
@@ -471,7 +469,7 @@ Returns pixel count in each row. Should be equal or less than:
 #Formula
 rowBytes() / info().bytesPerPixel()
 ##
-. 
+.
 
 Maybe be less than pixelRef().width(). Will not exceed pixelRef().width() less
 pixelRefOrigin().fX.
@@ -581,7 +579,7 @@ SkColorSpace::MakeSRGBLinear creates Color_Space with linear gamma
 and an sRGB gamut. This Color_Space gamma is not close to sRGB gamma.
 ##
     SkBitmap bitmap;
-    bitmap.setInfo(SkImageInfo::MakeN32(16, 32, kPremul_SkAlphaType, 
+    bitmap.setInfo(SkImageInfo::MakeN32(16, 32, kPremul_SkAlphaType,
             SkColorSpace::MakeSRGBLinear()));
     SkColorSpace* colorSpace = bitmap.colorSpace();
     SkDebugf("gammaCloseToSRGB: %s  gammaIsLinear: %s  isSRGB: %s\n",
@@ -612,7 +610,7 @@ The returned Color_Space is immutable.
 
 #Example
     SkBitmap bitmap1, bitmap2;
-    bitmap1.setInfo(SkImageInfo::MakeN32(16, 32, kPremul_SkAlphaType, 
+    bitmap1.setInfo(SkImageInfo::MakeN32(16, 32, kPremul_SkAlphaType,
             SkColorSpace::MakeSRGBLinear()));
     bitmap2.setInfo(SkImageInfo::MakeN32(16, 32, kPremul_SkAlphaType,
             bitmap1.refColorSpace()));
@@ -770,7 +768,7 @@ width: 2 height: 2 empty: false
 ##
 ##
 
-#SeeAlso height() width() drawsNothing 
+#SeeAlso height() width() drawsNothing
 
 ##
 
@@ -842,7 +840,7 @@ empty:false isNull:false drawsNothing:false
 #In Property
 #Line # returns interval between rows in bytes ##
 Returns row bytes, the interval from one pixel row to the next. Row bytes
-is at least as large as 
+is at least as large as
 #Formula
 width() * info().bytesPerPixel()
 ##
@@ -892,7 +890,7 @@ If Alpha_Type is kUnknown_SkAlphaType, alphaType is ignored.
 If Color_Type is kAlpha_8_SkColorType, returns true unless
 alphaType is kUnknown_SkAlphaType and Alpha_Type is not kUnknown_SkAlphaType.
 If Alpha_Type is kUnknown_SkAlphaType, alphaType is ignored. If alphaType is
-kUnpremul_SkAlphaType, it is treated as kPremul_SkAlphaType. 
+kUnpremul_SkAlphaType, it is treated as kPremul_SkAlphaType.
 
 This changes Alpha_Type in Pixel_Ref; all bitmaps sharing Pixel_Ref
 are affected.
@@ -906,7 +904,7 @@ are affected.
 void draw(SkCanvas* canvas) {
     const char* colors[] = { "Unknown", "Alpha_8", "RGB_565", "ARGB_4444", "RGBA_8888", "RGB_888x",
                              "BGRA_8888", "RGBA_1010102", "RGB_101010x", "Gray_8", "RGBA_F16" };
-    const char* alphas[] = {"Unknown ", "Opaque  ", "Premul  ", "Unpremul"}; 
+    const char* alphas[] = {"Unknown ", "Opaque  ", "Premul  ", "Unpremul"};
     SkBitmap bitmap;
     SkAlphaType alphaTypes[] = { #list_of_alpha_types#
                                };
@@ -1013,12 +1011,12 @@ Most immutable Bitmap checks trigger an assert only on debug builds.
 #Return  true if pixels are immutable ##
 
 #Example
-    SkBitmap original; 
+    SkBitmap original;
     SkImageInfo info = SkImageInfo::Make(25, 35, kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
     if (original.tryAllocPixels(info)) {
         original.setImmutable();
         SkBitmap copy;
-        original.extractSubset(&copy, {5, 10, 15, 20});  
+        original.extractSubset(&copy, {5, 10, 15, 20});
         SkDebugf("original is " "%s" "immutable\n", original.isImmutable() ? "" : "not ");
         SkDebugf("copy is " "%s" "immutable\n", copy.isImmutable() ? "" : "not ");
     }
@@ -1038,11 +1036,11 @@ copy is immutable
 #In Set
 #Line # marks that pixels will not change ##
 Sets internal flag to mark Bitmap as immutable. Once set, pixels can not change.
-Any other bitmap sharing the same Pixel_Ref are also marked as immutable. 
+Any other bitmap sharing the same Pixel_Ref are also marked as immutable.
 Once Pixel_Ref is marked immutable, the setting cannot be cleared.
 
 Writing to immutable Bitmap pixels triggers an assert on debug builds.
- 
+
 #Example
 #Description
 Triggers assert if SK_DEBUG is true, runs fine otherwise.
@@ -1070,7 +1068,7 @@ Triggers assert if SK_DEBUG is true, runs fine otherwise.
 
 Returns true if Alpha_Type is set to hint that all pixels are opaque; their
 Color_Alpha value is implicitly or explicitly 1.0. If true, and all pixels are
-not opaque, Skia may draw incorrectly. 
+not opaque, Skia may draw incorrectly.
 
 Does not check if Color_Type allows Alpha, or if any pixel value has
 transparency.
@@ -1118,12 +1116,12 @@ Volatile state is not shared by other bitmaps sharing the same Pixel_Ref.
 #Return  true if marked volatile ##
 
 #Example
-    SkBitmap original; 
+    SkBitmap original;
     SkImageInfo info = SkImageInfo::Make(25, 35, kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
     if (original.tryAllocPixels(info)) {
         original.setIsVolatile(true);
         SkBitmap copy;
-        original.extractSubset(&copy, {5, 10, 15, 20});  
+        original.extractSubset(&copy, {5, 10, 15, 20});
         SkDebugf("original is " "%s" "volatile\n", original.isVolatile() ? "" : "not ");
         SkDebugf("copy is " "%s" "volatile\n", copy.isImmutable() ? "" : "not ");
     }
@@ -1153,7 +1151,7 @@ consumption on Device.
 
 #Example
 #Height 20
-    SkBitmap bitmap; 
+    SkBitmap bitmap;
     bitmap.setInfo(SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kOpaque_SkAlphaType));
     bitmap.allocPixels();
     bitmap.eraseColor(SK_ColorRED);
@@ -1178,14 +1176,14 @@ consumption on Device.
 Resets to its initial state; all fields are set to zero, as if Bitmap had
 been initialized by SkBitmap().
 
-Sets width, height, row bytes to zero; pixel address to nullptr; SkColorType to 
+Sets width, height, row bytes to zero; pixel address to nullptr; SkColorType to
 kUnknown_SkColorType; and SkAlphaType to kUnknown_SkAlphaType.
 
 If Pixel_Ref is allocated, its reference count is decreased by one, releasing
 its memory if Bitmap is the sole owner.
 
 #Example
-    SkBitmap bitmap; 
+    SkBitmap bitmap;
     bitmap.setInfo(SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kOpaque_SkAlphaType));
     bitmap.allocPixels();
     SkDebugf("width:%d height:%d isNull:%s\n", bitmap.width(), bitmap.height(),
@@ -1220,7 +1218,7 @@ For Color_Type kARGB_4444_SkColorType: returns true if all pixel Alpha values ar
 For kRGBA_F16_SkColorType: returns true if all pixel Alpha values are 1.0 or
 greater.
 
-Returns false for kUnknown_SkColorType. 
+Returns false for kUnknown_SkColorType.
 
 #Param bm  Bitmap to check ##
 
@@ -1271,7 +1269,7 @@ Returns Rect { 0, 0, width(), height() }.
     canvas->drawBitmap(source, 40, 40);
 ##
 
-#SeeAlso bounds() 
+#SeeAlso bounds()
 
 ##
 
@@ -1294,7 +1292,7 @@ Returns IRect { 0, 0, width(), height() }.
     canvas->drawBitmap(bitmap, 10, 10);
 ##
 
-#SeeAlso bounds() 
+#SeeAlso bounds()
 
 ##
 
@@ -1319,7 +1317,7 @@ Returns IRect { 0, 0, width(), height() }.
     }
 ##
 
-#SeeAlso getBounds 
+#SeeAlso getBounds
 
 ##
 
@@ -1385,7 +1383,7 @@ Sets width, height, Alpha_Type, Color_Type, Color_Space, and optional
 rowBytes. Frees pixels, and returns true if successful.
 
 imageInfo.alphaType may be altered to a value permitted by imageInfo.colorSpace.
-If imageInfo.colorType is kUnknown_SkColorType, imageInfo.alphaType is 
+If imageInfo.colorType is kUnknown_SkColorType, imageInfo.alphaType is
 set to kUnknown_SkAlphaType.
 If imageInfo.colorType is kAlpha_8_SkColorType and imageInfo.alphaType is
 kUnpremul_SkAlphaType, imageInfo.alphaType is replaced by kPremul_SkAlphaType.
@@ -1444,7 +1442,8 @@ canvas->drawBitmap(bitmap, 0, 0);
 AllocFlags provides the option to zero pixel memory when allocated.
 
 #Const kZeroPixels_AllocFlag 1
-    Instructs tryAllocPixelsFlags and allocPixelsFlags to zero pixel memory.  
+#Line # zero pixel memory ##
+    Instructs tryAllocPixelsFlags and allocPixelsFlags to zero pixel memory.
 ##
 
 #NoExample
@@ -1464,7 +1463,7 @@ AllocFlags provides the option to zero pixel memory when allocated.
 #In Allocate
 #Line # allocates pixels from Image_Info with options if possible ##
 Sets Image_Info to info following the rules in setInfo and allocates pixel
-memory. If flags is kZeroPixels_AllocFlag, memory is zeroed. 
+memory. If flags is kZeroPixels_AllocFlag, memory is zeroed.
 
 Returns false and calls reset() if Image_Info could not be set, or memory could
 not be allocated, or memory could not optionally be zeroed.
@@ -1485,7 +1484,7 @@ subsequently calling eraseColor with SK_ColorTRANSPARENT.
 
 #Example
     SkBitmap bitmap;
-    if (!bitmap.tryAllocPixelsFlags(SkImageInfo::MakeN32(10000, 10000, kOpaque_SkAlphaType), 
+    if (!bitmap.tryAllocPixelsFlags(SkImageInfo::MakeN32(10000, 10000, kOpaque_SkAlphaType),
                                     SkBitmap::kZeroPixels_AllocFlag)) {
         SkDebugf("bitmap allocation failed!\n");
     } else {
@@ -1506,7 +1505,7 @@ bitmap allocation succeeded!
 #In Allocate
 #Line # allocates pixels from Image_Info with options, or aborts ##
 Sets Image_Info to info following the rules in setInfo and allocates pixel
-memory. If flags is kZeroPixels_AllocFlag, memory is zeroed. 
+memory. If flags is kZeroPixels_AllocFlag, memory is zeroed.
 
 Aborts execution if Image_Info could not be set, or memory could
 not be allocated, or memory could not optionally
@@ -1533,7 +1532,7 @@ lets the first draw show through.
 ##
 ###^
 SkBitmap bitmap;
-bitmap.allocPixelsFlags(SkImageInfo::MakeN32(44, 16, kPremul_SkAlphaType), 
+bitmap.allocPixelsFlags(SkImageInfo::MakeN32(44, 16, kPremul_SkAlphaType),
                         SkBitmap::kZeroPixels_AllocFlag);
 SkCanvas offscreen(bitmap);
 SkPaint paint;
@@ -1639,7 +1638,7 @@ for (int y : { 0, 64, 128, 192 } ) {
 #Method bool SK_WARN_UNUSED_RESULT tryAllocPixels(const SkImageInfo& info)
 
 Sets Image_Info to info following the rules in setInfo and allocates pixel
-memory. 
+memory.
 
 Returns false and calls reset() if Image_Info could not be set, or memory could
 not be allocated.
@@ -1675,7 +1674,7 @@ if (bitmap.tryAllocPixels(SkImageInfo::Make(64, 64, kGray_8_SkColorType, kOpaque
 #Method void allocPixels(const SkImageInfo& info)
 
 Sets Image_Info to info following the rules in setInfo and allocates pixel
-memory. 
+memory.
 
 Aborts execution if Image_Info could not be set, or memory could
 not be allocated. Abort steps may be provided by
@@ -1709,7 +1708,7 @@ for (int y : { 0, 64, 128, 192 } ) {
 #Method bool SK_WARN_UNUSED_RESULT tryAllocN32Pixels(int width, int height, bool isOpaque = false)
 #In Allocate
 #Line # allocates compatible Color_ARGB pixels if possible ##
-Sets Image_Info to width, height, and Native_Color_Type; and allocates 
+Sets Image_Info to width, height, and Native_Color_Type; and allocates
 pixel memory. If isOpaque is true, sets Image_Info to kOpaque_SkAlphaType;
 otherwise, sets to kPremul_SkAlphaType.
 
@@ -1751,7 +1750,7 @@ the platform. Bitmap drawn to output device skips converting its pixel format.
 #Method void allocN32Pixels(int width, int height, bool isOpaque = false)
 #In Allocate
 #Line # allocates compatible Color_ARGB pixels, or aborts ##
-Sets Image_Info to width, height, and the Native_Color_Type; and allocates 
+Sets Image_Info to width, height, and the Native_Color_Type; and allocates
 pixel memory. If isOpaque is true, sets Image_Info to kPremul_SkAlphaType;
 otherwise, sets to kOpaque_SkAlphaType.
 
@@ -1796,7 +1795,7 @@ the platform. Bitmap drawn to output device skips converting its pixel format.
 #Line # creates Pixel_Ref, with optional release function ##
 
 Sets Image_Info to info following the rules in setInfo, and creates Pixel_Ref
-containing pixels and rowBytes. releaseProc, if not nullptr, is called 
+containing pixels and rowBytes. releaseProc, if not nullptr, is called
 immediately on failure or when pixels are no longer referenced. context may be
 nullptr.
 
@@ -1825,7 +1824,7 @@ releaseProc is called immediately because rowBytes is too small for Pixel_Ref.
 #Function
 static void releaseProc(void* addr, void* ) {
     SkDebugf("releaseProc called\n");
-    delete[] (uint32_t*) addr; 
+    delete[] (uint32_t*) addr;
 }
 
 ##
@@ -1994,10 +1993,10 @@ Returns false if info().colorType is kUnknown_SkColorType, or allocation fails.
 
 #Example
 #Height 50
-#Description 
+#Description
 Bitmap hosts and draws gray values in set1. tryAllocPixels replaces Pixel_Ref
 and erases it to black, but does not alter set1. setPixels replaces black
-Pixel_Ref with set1. 
+Pixel_Ref with set1.
 ##
     uint8_t set1[5] = { 0xCA, 0xDA, 0xCA, 0xC9, 0xA3 };
     SkBitmap bitmap;
@@ -2029,10 +2028,10 @@ time by defining SK_ABORT.
 
 #Example
 #Height 50
-#Description 
+#Description
 Bitmap hosts and draws gray values in set1. allocPixels replaces Pixel_Ref
 and erases it to black, but does not alter set1. setPixels replaces black
-Pixel_Ref with set2. 
+Pixel_Ref with set2.
 ##
     uint8_t set1[5] = { 0xCA, 0xDA, 0xCA, 0xC9, 0xA3 };
     uint8_t set2[5] = { 0xAC, 0xA8, 0x89, 0x47, 0x87 };
@@ -2071,7 +2070,7 @@ Returns false if Allocator::allocPixelRef return false.
 #Description
 HeapAllocator limits the maximum size of Bitmap to two gigabytes. Using
 a custom allocator, this limitation may be relaxed. This example can be
-modified to allocate an eight gigabyte Bitmap on a 64 bit platform with
+modified to allocate an eight gigabyte Bitmap on a 64-bit platform with
 sufficient memory.
 ##
 #Function
@@ -2261,10 +2260,10 @@ Color_Type and Alpha_Type in Image_Info.
 #Height 140
 #Image 5
 #Description
-Treating 32 bit data as 8 bit data is unlikely to produce useful results.
+Treating 32-bit data as 8-bit data is unlikely to produce useful results.
 ##
     SkBitmap bitmap;
-    bitmap.setInfo(SkImageInfo::Make(source.width() - 5, source.height() - 5, 
+    bitmap.setInfo(SkImageInfo::Make(source.width() - 5, source.height() - 5,
                    kGray_8_SkColorType, kOpaque_SkAlphaType), source.rowBytes());
     bitmap.setPixelRef(sk_ref_sp(source.pixelRef()), 5, 5);
     canvas->drawBitmap(bitmap, 10, 10);
@@ -2300,7 +2299,7 @@ Returns true if Bitmap is can be drawn.
 #Method uint32_t getGenerationID() const
 #In Utility
 #Line # returns unique ID ##
-Returns a unique value corresponding to the pixels in Pixel_Ref. 
+Returns a unique value corresponding to the pixels in Pixel_Ref.
 Returns a different value after notifyPixelsChanged has been called.
 Returns zero if Pixel_Ref is nullptr.
 
@@ -2320,7 +2319,7 @@ Determines if pixels have changed since last examined.
 empty id 0
 alloc id 4
 erase id 6
-##    
+##
 ##
 
 #SeeAlso notifyPixelsChanged Pixel_Ref
@@ -2332,12 +2331,12 @@ erase id 6
 #Method void notifyPixelsChanged() const
 #In Pixels
 #Line # marks pixels as changed, altering the unique ID ##
-Marks that pixels in Pixel_Ref have changed. Subsequent calls to 
+Marks that pixels in Pixel_Ref have changed. Subsequent calls to
 getGenerationID() return a different value.
 
 #Example
 #Height 20
-    SkBitmap bitmap; 
+    SkBitmap bitmap;
     bitmap.setInfo(SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kOpaque_SkAlphaType));
     bitmap.allocPixels();
     bitmap.eraseColor(SK_ColorRED);
@@ -2357,7 +2356,7 @@ getGenerationID() return a different value.
 # ------------------------------------------------------------------------------
 #Subtopic Draw
 #Populate
-#Line # set pixels to Color ##
+#Line # sets pixels to Color ##
 ##
 
 #Method void eraseColor(SkColor c) const
@@ -2372,7 +2371,7 @@ then Color_RGB is ignored.
 
 #Example
 #Height 20
-    SkBitmap bitmap; 
+    SkBitmap bitmap;
     bitmap.allocPixels(SkImageInfo::MakeN32(1, 1, kOpaque_SkAlphaType));
     bitmap.eraseColor(SK_ColorRED);
     canvas->scale(16, 16);
@@ -2401,7 +2400,7 @@ then r, g, and b are ignored.
 
 #Example
 #Height 80
-    SkBitmap bitmap; 
+    SkBitmap bitmap;
     bitmap.allocPixels(SkImageInfo::MakeN32(1, 1, kPremul_SkAlphaType));
     bitmap.eraseARGB(0x7f, 0xff, 0x7f, 0x3f);
     canvas->scale(50, 50);
@@ -2416,7 +2415,7 @@ then r, g, and b are ignored.
 # ------------------------------------------------------------------------------
 
 #Method void eraseRGB(U8CPU r, U8CPU g, U8CPU b) const
-#Deprecated 
+#Deprecated
 ##
 
 # ------------------------------------------------------------------------------
@@ -2436,7 +2435,7 @@ then Color_RGB is ignored.
 
 #Example
 #Height 70
-    SkBitmap bitmap; 
+    SkBitmap bitmap;
     bitmap.allocPixels(SkImageInfo::MakeN32(2, 2, kPremul_SkAlphaType));
     bitmap.erase(0x7fff7f3f, SkIRect::MakeWH(1, 1));
     bitmap.erase(0x7f7f3fff, SkIRect::MakeXYWH(0, 1, 1, 1));
@@ -2455,7 +2454,7 @@ then Color_RGB is ignored.
 # ------------------------------------------------------------------------------
 
 #Method void eraseArea(const SkIRect& area, SkColor c) const
-#Deprecated 
+#Deprecated
 ##
 
 # ------------------------------------------------------------------------------
@@ -2473,7 +2472,7 @@ SK_RELEASE is defined. Fails if Color_Type is kUnknown_SkColorType or
 pixel address is nullptr.
 
 Color_Space in Image_Info is ignored. Some Color precision may be lost in the
-conversion to Unpremultiplied Color; original pixel data may have additional 
+conversion to Unpremultiplied Color; original pixel data may have additional
 precision.
 
 #Param x  column index, zero or greater, and less than width() ##
@@ -2488,7 +2487,7 @@ precision.
         0x00000000, 0x2a0e002a, 0x55380055, 0x7f7f007f,
         0x2a000e2a, 0x551c1c55, 0x7f542a7f, 0xaaaa38aa,
         0x55003855, 0x7f2a547f, 0xaa7171aa, 0xd4d48dd4,
-        0x7f007f7f, 0xaa38aaaa, 0xd48dd4d4, 0xffffffff, 
+        0x7f007f7f, 0xaa38aaaa, 0xd48dd4d4, 0xffffffff,
     };
     SkDebugf("Premultiplied:\n");
     for (int y = 0; y < h; ++y) {
@@ -2509,15 +2508,15 @@ precision.
     }
 #StdOut
 Premultiplied:
-(0, 0) 0x00000000 0x2a0e002a 0x55380055 0x7f7f007f 
-(0, 1) 0x2a000e2a 0x551c1c55 0x7f542a7f 0xaaaa38aa 
-(0, 2) 0x55003855 0x7f2a547f 0xaa7171aa 0xd4d48dd4 
-(0, 3) 0x7f007f7f 0xaa38aaaa 0xd48dd4d4 0xffffffff 
+(0, 0) 0x00000000 0x2a0e002a 0x55380055 0x7f7f007f
+(0, 1) 0x2a000e2a 0x551c1c55 0x7f542a7f 0xaaaa38aa
+(0, 2) 0x55003855 0x7f2a547f 0xaa7171aa 0xd4d48dd4
+(0, 3) 0x7f007f7f 0xaa38aaaa 0xd48dd4d4 0xffffffff
 Unpremultiplied:
-(0, 0) 0x00000000 0x2a5500ff 0x55a800ff 0x7fff00ff 
-(0, 1) 0x2a0055ff 0x555454ff 0x7fa954ff 0xaaff54ff 
-(0, 2) 0x5500a8ff 0x7f54a9ff 0xaaaaaaff 0xd4ffaaff 
-(0, 3) 0x7f00ffff 0xaa54ffff 0xd4aaffff 0xffffffff 
+(0, 0) 0x00000000 0x2a5500ff 0x55a800ff 0x7fff00ff
+(0, 1) 0x2a0055ff 0x555454ff 0x7fa954ff 0xaaff54ff
+(0, 2) 0x5500a8ff 0x7f54a9ff 0xaaaaaaff 0xd4ffaaff
+(0, 3) 0x7f00ffff 0xaa54ffff 0xd4aaffff 0xffffffff
 ##
 ##
 
@@ -2536,7 +2535,7 @@ Input is not validated: out of bounds values of x or y, or kUnknown_SkColorType,
 trigger an assert() if built with SK_DEBUG defined. Returns nullptr if
 Color_Type is kUnknown_SkColorType, or Pixel_Ref is nullptr.
 
-Performs a lookup of pixel size; for better performance, call 
+Performs a lookup of pixel size; for better performance, call
 one of: getAddr8, getAddr16, or getAddr32.
 
 #Param x  column index, zero or greater, and less than width() ##
@@ -2564,7 +2563,7 @@ addr interval == rowBytes
 #Method inline uint32_t* getAddr32(int x, int y) const
 #In Property
 #Line # returns readable pixel address as 32-bit pointer ##
-Returns address at (x, y). 
+Returns address at (x, y).
 
 Input is not validated. Triggers an assert() if built with SK_DEBUG defined and:
 #List
@@ -2599,7 +2598,7 @@ addr interval == rowBytes
 #Method inline uint16_t* getAddr16(int x, int y) const
 #In Property
 #Line # returns readable pixel address as 16-bit pointer ##
-Returns address at (x, y). 
+Returns address at (x, y).
 
 Input is not validated. Triggers an assert() if built with SK_DEBUG defined and:
 #List
@@ -2617,7 +2616,7 @@ Input is not validated. Triggers an assert() if built with SK_DEBUG defined and:
 #Example
 #Image 3
     SkBitmap bitmap16;
-    SkImageInfo dstInfo = SkImageInfo::Make(source.width(), source.height(), kARGB_4444_SkColorType, 
+    SkImageInfo dstInfo = SkImageInfo::Make(source.width(), source.height(), kARGB_4444_SkColorType,
                      kPremul_SkAlphaType);
     bitmap16.allocPixels(dstInfo);
     if (source.readPixels(dstInfo, bitmap16.getPixels(), bitmap16.rowBytes(), 0, 0)) {
@@ -2640,7 +2639,7 @@ addr interval == rowBytes
 #Method inline uint8_t* getAddr8(int x, int y) const
 #In Property
 #Line # returns readable pixel address as 8-bit pointer ##
-Returns address at (x, y). 
+Returns address at (x, y).
 
 Input is not validated. Triggers an assert() if built with SK_DEBUG defined and:
 #List
@@ -2693,7 +2692,7 @@ Return false if:
 # dst is nullptr ##
 # Pixel_Ref is nullptr ##
 # subset does not intersect bounds() ##
-## 
+##
 
 
 #Param dst  Bitmap set to subset ##
@@ -2715,11 +2714,11 @@ Return false if:
              SkDebugf("subset: %4d, %4d, %4d, %4d  ", b.fLeft, b.fTop, b.fRight, b.fBottom);
              SkDebugf("success; %s", success ? "true" : "false");
              if (success) {
-                 subset.getBounds(&s);  
+                 subset.getBounds(&s);
                  SkDebugf("  subset: %d, %d, %d, %d", s.fLeft, s.fTop, s.fRight, s.fBottom);
              }
              SkDebugf("\n");
-         } 
+         }
     }
 #StdOut
 bounds: 0, 0, 512, 512
@@ -2750,9 +2749,9 @@ subset: 1000,  100, 1000,  200  success; false
 #Line # copies and converts pixels ##
 
 Copies Rect of pixels from Bitmap pixels to dstPixels. Copy starts at (srcX, srcY),
-and does not exceed Bitmap (width(), height()). 
+and does not exceed Bitmap (width(), height()).
 
-dstInfo specifies width, height, Color_Type, Alpha_Type, and 
+dstInfo specifies width, height, Color_Type, Alpha_Type, and
 Color_Space of destination. dstRowBytes specifics the gap from one destination
 row to the next. Returns true if pixels are copied. Returns false if:
 #List
@@ -2767,10 +2766,10 @@ If Bitmap colorType is kGray_8_SkColorType, dstInfo.colorSpace must match.
 If Bitmap alphaType is kOpaque_SkAlphaType, dstInfo.alphaType must
 match. If Bitmap colorSpace is nullptr, dstInfo.colorSpace must match. Returns
 false if pixel conversion is not possible.
- 
+
 srcX and srcY may be negative to copy only top or left of source. Returns
-false if width() or height() is zero or negative. 
-Returns false if 
+false if width() or height() is zero or negative.
+Returns false if
 #Formula
 abs(srcX) >= Bitmap width()
 ##
@@ -2791,7 +2790,7 @@ pixels are treated as if they are linear, regardless of how they are encoded.
 #Param srcX  column index whose absolute value is less than width() ##
 #Param srcY  row index whose absolute value is less than height() ##
 #Param behavior  one of: SkTransferFunctionBehavior::kRespect,
-                         SkTransferFunctionBehavior::kIgnore 
+                         SkTransferFunctionBehavior::kIgnore
 ##
 
 #Return  true if pixels are copied to dstPixels ##
@@ -2835,7 +2834,7 @@ void draw(SkCanvas* canvas) {
                     int srcX, int srcY) const
 
 Copies a Rect of pixels from Bitmap to dstPixels. Copy starts at (srcX, srcY),
-and does not exceed Bitmap (width(), height()). 
+and does not exceed Bitmap (width(), height()).
 
 dstInfo specifies width, height, Color_Type, Alpha_Type, and Color_Space of
 destination. dstRowBytes specifics the gap from one destination row to the next.
@@ -2852,10 +2851,10 @@ If Bitmap colorType is kGray_8_SkColorType, dstInfo.colorSpace must match.
 If Bitmap alphaType is kOpaque_SkAlphaType, dstInfo.alphaType must
 match. If Bitmap colorSpace is nullptr, dstInfo.colorSpace must match. Returns
 false if pixel conversion is not possible.
- 
+
 srcX and srcY may be negative to copy only top or left of source. Returns
 false if width() or height() is zero or negative.
-Returns false if 
+Returns false if
 #Formula
 abs(srcX) >= Bitmap width()
 ##
@@ -2910,7 +2909,7 @@ creates visible banding.
 #Method bool readPixels(const SkPixmap& dst, int srcX, int srcY) const
 
 Copies a Rect of pixels from Bitmap to dst. Copy starts at (srcX, srcY), and
-does not exceed Bitmap (width(), height()). 
+does not exceed Bitmap (width(), height()).
 
 dst specifies width, height, Color_Type, Alpha_Type, Color_Space, pixel storage,
 and row bytes of destination. dst.rowBytes specifics the gap from one destination
@@ -2927,10 +2926,10 @@ If Bitmap colorType is kGray_8_SkColorType, dst Color_Space must match.
 If Bitmap alphaType is kOpaque_SkAlphaType, dst Alpha_Type must
 match. If Bitmap colorSpace is nullptr, dst Color_Space must match. Returns
 false if pixel conversion is not possible.
- 
+
 srcX and srcY may be negative to copy only top or left of source. Returns
-false if width() or height() is zero or negative. 
-Returns false if 
+false if width() or height() is zero or negative.
+Returns false if
 #Formula
 abs(srcX) >= Bitmap width()
 ##
@@ -2974,7 +2973,7 @@ abs(srcY) >= Bitmap height()
 #Method bool readPixels(const SkPixmap& dst) const
 
 Copies a Rect of pixels from Bitmap to dst. Copy starts at (0, 0), and
-does not exceed Bitmap (width(), height()). 
+does not exceed Bitmap (width(), height()).
 
 dst specifies width, height, Color_Type, Alpha_Type, Color_Space, pixel storage,
 and row bytes of destination. dst.rowBytes specifics the gap from one destination
@@ -2991,7 +2990,7 @@ If Bitmap colorType is kGray_8_SkColorType, dst Color_Space must match.
 If Bitmap alphaType is kOpaque_SkAlphaType, dst Alpha_Type must
 match. If Bitmap colorSpace is nullptr, dst Color_Space must match. Returns
 false if pixel conversion is not possible.
- 
+
 #Param dst  destination Pixmap: Image_Info, pixels, row bytes ##
 
 #Return  true if pixels are copied to dst ##
@@ -3002,7 +3001,7 @@ false if pixel conversion is not possible.
     std::vector<int32_t> srcPixels;
     srcPixels.resize(source.height() * source.width() * 8);
     for (int i = 0;  i < 2; ++i) {
-    SkPixmap pixmap(SkImageInfo::Make(source.width() * 2, source.height(), 
+    SkPixmap pixmap(SkImageInfo::Make(source.width() * 2, source.height(),
                     i ? kRGBA_8888_SkColorType : kBGRA_8888_SkColorType, kPremul_SkAlphaType),
                     &srcPixels.front() + i * source.width(), source.rowBytes() * 2);
         source.readPixels(pixmap);
@@ -3024,7 +3023,7 @@ false if pixel conversion is not possible.
 #In Pixels
 #Line # copies and converts pixels ##
 Copies a Rect of pixels from src. Copy starts at (dstX, dstY), and does not exceed
-(src.width(), src.height()). 
+(src.width(), src.height()).
 
 src specifies width, height, Color_Type, Alpha_Type, Color_Space, pixel storage,
 and row bytes of source. src.rowBytes specifics the gap from one source
@@ -3041,10 +3040,10 @@ If Bitmap colorType is kGray_8_SkColorType, src Color_Space must match.
 If Bitmap alphaType is kOpaque_SkAlphaType, src Alpha_Type must
 match. If Bitmap colorSpace is nullptr, src Color_Space must match. Returns
 false if pixel conversion is not possible.
- 
+
 dstX and dstY may be negative to copy only top or left of source. Returns
 false if width() or height() is zero or negative.
-Returns false if 
+Returns false if
 #Formula
 abs(dstX) >= Bitmap width()
 ##
@@ -3082,7 +3081,7 @@ abs(dstY) >= Bitmap height()
     }
 ##
 
-#SeeAlso readPixels 
+#SeeAlso readPixels
 
 ##
 
@@ -3091,7 +3090,7 @@ abs(dstY) >= Bitmap height()
 #Method bool writePixels(const SkPixmap& src)
 
 Copies a Rect of pixels from src. Copy starts at (0, 0), and does not exceed
-(src.width(), src.height()). 
+(src.width(), src.height()).
 
 src specifies width, height, Color_Type, Alpha_Type, Color_Space, pixel storage,
 and row bytes of source. src.rowBytes specifics the gap from one source
@@ -3134,7 +3133,7 @@ false if pixel conversion is not possible.
 #Method bool writePixels(const SkPixmap& src, int x, int y, SkTransferFunctionBehavior behavior)
 
 Copies a Rect of pixels from src. Copy starts at (0, 0), and does not exceed
-(src.width(), src.height()). 
+(src.width(), src.height()).
 
 src specifies width, height, Color_Type, Alpha_Type, Color_Space, pixel storage,
 and row bytes of source. src.rowBytes specifics the gap from one source
@@ -3162,7 +3161,7 @@ pixels are treated as if they are linear, regardless of how they are encoded.
 #Param x  column index whose absolute value is less than width() ##
 #Param y  row index whose absolute value is less than height() ##
 #Param behavior  one of: SkTransferFunctionBehavior::kRespect,
-                         SkTransferFunctionBehavior::kIgnore 
+                         SkTransferFunctionBehavior::kIgnore
 ##
 
 #Return  true if src pixels are copied to Bitmap ##
@@ -3278,7 +3277,7 @@ Uses HeapAllocator to reserve memory for dst Pixel_Ref.
 Sets dst to Alpha described by pixels. Returns false if dst cannot be written to
 or dst pixels cannot be allocated.
 
-If paint is not nullptr and contains Mask_Filter, SkMaskFilter 
+If paint is not nullptr and contains Mask_Filter, SkMaskFilter
 generates Mask_Alpha from Bitmap. Uses HeapAllocator to reserve memory for dst
 Pixel_Ref. Sets offset to top-left position for dst for alignment with Bitmap;
 (0, 0) unless SkMaskFilter generates mask.
@@ -3327,15 +3326,15 @@ Pixel_Ref. Sets offset to top-left position for dst for alignment with Bitmap;
 Sets dst to Alpha described by pixels. Returns false if dst cannot be written to
 or dst pixels cannot be allocated.
 
-If paint is not nullptr and contains Mask_Filter, SkMaskFilter 
+If paint is not nullptr and contains Mask_Filter, SkMaskFilter
 generates Mask_Alpha from Bitmap. allocator may reference a custom allocation
-class or be set to nullptr to use HeapAllocator. Sets offset to top-left  
+class or be set to nullptr to use HeapAllocator. Sets offset to top-left
 position for dst for alignment with Bitmap; (0, 0) unless SkMaskFilter generates
 mask.
 
 #Param dst  holds Pixel_Ref to fill with alpha layer ##
 #Param paint  holds optional Mask_Filter; may be nullptr ##
-#Param allocator   method to reserve memory for Pixel_Ref; may be nullptr ##
+#Param allocator   function to reserve memory for Pixel_Ref; may be nullptr ##
 #Param offset  top-left position for dst; may be nullptr ##
 
 #Return  true if Alpha layer was constructed in dst Pixel_Ref ##
@@ -3414,7 +3413,7 @@ x---x-
     #StdOut ##
 ##
 
-#SeeAlso pixmap() installPixels readPixels writePixels 
+#SeeAlso pixmap() installPixels readPixels writePixels
 
 ##
 
@@ -3427,7 +3426,7 @@ x---x-
 #Method void validate() const;
 #In Utility
 #Line # asserts if Bitmap is invalid (debug only) ##
-Asserts if internal values are illegal or inconsistent. Only available if 
+Asserts if internal values are illegal or inconsistent. Only available if
 SK_DEBUG is defined at compile time.
 
 #NoExample

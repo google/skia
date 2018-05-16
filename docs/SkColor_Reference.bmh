@@ -2,12 +2,18 @@
 #Alias Color_Reference
 
 #Subtopic Overview
-    #Subtopic Subtopic
-        #Populate
-    ##
+#Populate
 ##
 
 #Subtopic Define
+#Populate
+##
+
+Color constants can be helpful to write code, documenting the meaning of values
+the represent transparency and color values. The use of Color constants is not
+required.
+
+#Subtopic Constant
 #Populate
 ##
 
@@ -19,9 +25,6 @@
 #Populate
 ##
 
-    #Subtopic Alpha
-        #Alias Alpha
-    #Subtopic ##
 
     #Subtopic RGB
     #Substitute RGB
@@ -54,21 +57,41 @@
 
 # ------------------------------------------------------------------------------
 
-#Typedef uint8_t SkAlpha
+#Subtopic Alpha
 
-Types and macros for colors
+Alpha represents the transparency of Color. Color with Alpha of zero is fully
+transparent. Color with Alpha of 255 is fully opaque. Some, but not all pixel
+formats contain Alpha. Pixels with Alpha may store it as unsigned integers or
+floating point values. Unsigned integer Alpha ranges from zero, fully
+transparent, to all bits set, fully opaque. Floating point Alpha ranges from
+zero, fully transparent, to one, fully opaque.
+
+#Alias Alpha
+
+#Typedef uint8_t SkAlpha
+#Line # defines Alpha as eight bits ##
+
 8-bit type for an alpha value. 0xFF is 100% opaque, 0x00 is 100% transparent.
 
 #Typedef ##
 
+#Subtopic ##
+
 # ------------------------------------------------------------------------------
 
 #Typedef uint32_t SkColor
+#Line # defines Color as 32 bits ##
 
-32 bit ARGB color value, not premultiplied. The color components are always in
+32-bit ARGB Color value, Unpremultiplied. Color components are always in
 a known order. This is different from SkPMColor, which has its bytes in a configuration
 dependent order, to match the format of kBGRA_8888_SkColorType bitmaps. SkColor
 is the type used to specify colors in SkPaint and in gradients.
+
+Color that is Premultiplied has the same component values as Color
+that is Unpremultiplied if Alpha is 255, fully opaque, although may have the
+component values in a different order.
+
+#SeeAlso SkPMColor
 
 #Typedef ##
 
@@ -76,22 +99,28 @@ is the type used to specify colors in SkPaint and in gradients.
 
 #Method static constexpr inline SkColor SkColorSetARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
 #In Function
-#Line # incomplete ##
+#Line # returns Color_Alpha and Color_RGB combined ##
 
-Return a SkColor value from 8 bit component values
+Returns Color value from 8-bit component values. Asserts if SK_DEBUG is defined
+if a, r, g, or b exceed 255. Since Color is Unpremultiplied, a may be smaller
+than the largest of r, g, and b.
 
-#Param a  incomplete ##
-#Param r  incomplete ##
-#Param g  incomplete ##
-#Param b  incomplete ##
+#Param a    amount of Alpha, from fully transparent (0) to fully opaque (255) ##
+#Param r    amount of RGB_Red, from no red (0) to full red (255) ##
+#Param g    amount of RGB_Green, from no green (0) to full green (255) ##
+#Param b    amount of RGB_Blue, from no blue (0) to full blue (255) ##
 
-#Return incomplete ##
+#Return color and alpha, Unpremultiplied ##
 
 #Example
-// incomplete
+    canvas->drawColor(SK_ColorRED);
+    canvas->clipRect(SkRect::MakeWH(150, 150));
+    canvas->drawColor(SkColorSetARGB(0x80, 0x00, 0xFF, 0x00));
+    canvas->clipRect(SkRect::MakeWH(75, 75));
+    canvas->drawColor(SkColorSetARGB(0x80, 0x00, 0x00, 0xFF));
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkColorSetRGB SkPaint::setARGB SkPaint::setColor
 
 #Method ##
 
@@ -105,12 +134,7 @@ Return a SkColor value from 8 bit component values
 $$$#
 ##
 
-Legacy aliases.
-
-#NoExample
-##
-
-#SeeAlso incomplete
+#Deprecated soon
 
 #Define ##
 
@@ -124,17 +148,14 @@ Legacy aliases.
 $$$#
 ##
 
-#NoExample
-##
-
-#SeeAlso incomplete
+#Deprecated soon
 
 #Define ##
 
 # ------------------------------------------------------------------------------
 
 #Define SkColorSetRGB
-#Line # incomplete ##
+#Line # returns opaque Color ##
 
 #Code
 ###$
@@ -142,15 +163,21 @@ $$$#
 $$$#
 ##
 
-Return a SkColor value from 8 bit component values, with an implied value
-of 0xFF for alpha (fully opaque)
+Returns Color value from 8-bit component values, with Alpha set
+fully opaque to 255.
 
-#Param r incomplete ##
-#Param g incomplete ##
-#Param b incomplete ##
+#Param r    amount of RGB_Red, from no red (0) to full red (255) ##
+#Param g    amount of RGB_Green, from no green (0) to full green (255) ##
+#Param b    amount of RGB_Blue, from no blue (0) to full blue (255) ##
+
+#Return     color with opaque alpha ##
 
 #Example
-// incomplete
+    canvas->drawColor(SK_ColorRED);
+    canvas->clipRect(SkRect::MakeWH(150, 150));
+    canvas->drawColor(SkColorSetRGB(0x00, 0xFF, 0x00));
+    canvas->clipRect(SkRect::MakeWH(75, 75));
+    canvas->drawColor(SkColorSetRGB(0x00, 0x00, 0xFF));
 ##
 
 #SeeAlso incomplete
@@ -160,7 +187,7 @@ of 0xFF for alpha (fully opaque)
 # ------------------------------------------------------------------------------
 
 #Define SkColorGetA
-#Line # incomplete ##
+#Line # returns Alpha component ##
 
 #Code
 ###$
@@ -168,9 +195,9 @@ of 0xFF for alpha (fully opaque)
 $$$#
 ##
 
-return the alpha byte from a SkColor value
+Returns Alpha byte from Color value.
 
-#Param color incomplete ##
+#Param color SkColor, a 32-bit unsigned int, in 0xAARRGGBB format ##
 
 #Example
 // incomplete
@@ -191,9 +218,10 @@ return the alpha byte from a SkColor value
 $$$#
 ##
 
-return the red byte from a SkColor value
+Returns red component of Color, from zero to 255.
 
-#Param color incomplete ##
+#Param color SkColor, a 32-bit unsigned int, in 0xAARRGGBB format ##
+#Return red byte ##
 
 #Example
 // incomplete
@@ -214,9 +242,10 @@ return the red byte from a SkColor value
 $$$#
 ##
 
-return the green byte from a SkColor value
+Returns green component of Color, from zero to 255.
 
-#Param color incomplete ##
+#Param color SkColor, a 32-bit unsigned int, in 0xAARRGGBB format ##
+#Return green byte ##
 
 #Example
 // incomplete
@@ -237,9 +266,10 @@ return the green byte from a SkColor value
 $$$#
 ##
 
-return the blue byte from a SkColor value
+Returns blue component of Color, from zero to 255.
 
-#Param color incomplete ##
+#Param color SkColor, a 32-bit unsigned int, in 0xAARRGGBB format ##
+#Return blue byte ##
 
 #Example
 // incomplete
@@ -255,7 +285,9 @@ return the blue byte from a SkColor value
 #In Function
 #Line # incomplete ##
 
-#Param c  incomplete ##
+Returns Color with red, blue, and green set from c; and alpha set from a.
+
+#Param c  Unpremultiplied Color_ARGB ##
 #Param a  incomplete ##
 
 #Return incomplete ##
@@ -270,284 +302,307 @@ return the blue byte from a SkColor value
 
 # ------------------------------------------------------------------------------
 
-#Define SK_AlphaTRANSPARENT
+#Subtopic Alpha_Constants
+#In Constant
+#Line # constants for Alpha ##
 
 #Code
-###$
-    #define SK_AlphaTRANSPARENT static_cast<SkAlpha>(0x00)
-$$$#
+    constexpr SkAlpha SK_AlphaTRANSPARENT = 0x00;
+    constexpr SkAlpha SK_AlphaOPAQUE      = 0xFF;
 ##
 
-common colors
-transparent SkAlpha value
+Alpha constants are conveniences to represent fully transparent and fully
+opaque colors and masks. Their use is not required.
+
+#Const SK_AlphaTRANSPARENT 0x00
+#Line # fully transparent SkAlpha ##
+#Details Transparent
+Represents fully transparent SkAlpha value. SkAlpha ranges from zero,
+fully transparent; to 255, fully opaque.
+##
+#Const SK_AlphaOPAQUE 0xFF
+#Line # fully opaque SkAlpha ##
+#Details Opaque
+Represents fully opaque SkAlpha value. SkAlpha ranges from zero,
+fully transparent; to 255, fully opaque.
+##
+
+#Subtopic Transparent
 
 #Example
-// incomplete
+#Image 1
+#Height 128
+#Description
+Color the parts of the bitmap red if they mostly contain transparent pixels.
+##
+    std::vector<int32_t> srcPixels;
+    srcPixels.resize(source.height() * source.rowBytes());
+    SkPixmap pixmap(SkImageInfo::MakeN32Premul(source.width(), source.height()),
+                    &srcPixels.front(), source.rowBytes());
+    source.readPixels(pixmap, 0, 0);
+    for (int y = 0; y < 16; ++y) {
+        for (int x = 0; x < 16; ++x) {
+            int32_t* blockStart = &srcPixels.front() + y * source.width() * 16 + x * 16;
+            size_t transparentCount = 0;
+            for (int fillY = 0; fillY < source.height() / 16; ++fillY) {
+                for (int fillX = 0; fillX < source.width() / 16; ++fillX) {
+                    const SkColor color = SkUnPreMultiply::PMColorToColor(blockStart[fillX]);
+                    transparentCount += SkColorGetA(color) == SK_AlphaTRANSPARENT;
+                }
+                blockStart += source.width();
+            }
+            if (transparentCount > 200) {
+                blockStart = &srcPixels.front() + y * source.width() * 16 + x * 16;
+                for (int fillY = 0; fillY < source.height() / 16; ++fillY) {
+                    for (int fillX = 0; fillX < source.width() / 16; ++fillX) {
+                        blockStart[fillX] = SK_ColorRED;
+                    }
+                    blockStart += source.width();
+                }
+            }
+        }
+    }
+    SkBitmap bitmap;
+    bitmap.installPixels(pixmap);
+    canvas->drawBitmap(bitmap, 0, 0);
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkAlpha SK_ColorTRANSPARENT SK_AlphaOPAQUE
 
-#Define ##
+#Subtopic Transparent ##
 
 # ------------------------------------------------------------------------------
 
-#Define SK_AlphaOPAQUE
-
-#Code
-###$
-    #define SK_AlphaOPAQUE      static_cast<SkAlpha>(0xFF)
-$$$#
-##
-
-opaque SkAlpha value
+#Subtopic Opaque
 
 #Example
-// incomplete
+#Image 1
+#Height 128
+    std::vector<int32_t> srcPixels;
+    srcPixels.resize(source.height() * source.rowBytes());
+    SkPixmap pixmap(SkImageInfo::MakeN32Premul(source.width(), source.height()),
+                    &srcPixels.front(), source.rowBytes());
+    source.readPixels(pixmap, 0, 0);
+    for (int y = 0; y < source.height(); ++y) {
+        for (int x = 0; x < source.width(); ++x) {
+            SkPMColor pixel = srcPixels[y * source.width() + x];
+            const SkColor color = SkUnPreMultiply::PMColorToColor(pixel);
+            if (SkColorGetA(color) == SK_AlphaOPAQUE) {
+                srcPixels[y * source.width() + x] = SK_ColorGREEN;
+            }
+        }
+    }
+    SkBitmap bitmap;
+    bitmap.installPixels(pixmap);
+    canvas->drawBitmap(bitmap, 0, 0);
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkAlpha SK_AlphaTRANSPARENT
 
-#Define ##
+#Subtopic Opaque ##
+#Subtopic Alpha_Constants ##
+
+#Subtopic Color_Constants
+#In Constant
+#Line # constants for Color ##
+
+# ------------------------------------------------------------------------------
+#Code
+    constexpr SkColor SK_ColorTRANSPARENT = SkColorSetARGB(0x00, 0x00, 0x00, 0x00);
+    constexpr SkColor SK_ColorBLACK       = SkColorSetARGB(0xFF, 0x00, 0x00, 0x00);
+    constexpr SkColor SK_ColorDKGRAY      = SkColorSetARGB(0xFF, 0x44, 0x44, 0x44);
+    constexpr SkColor SK_ColorGRAY        = SkColorSetARGB(0xFF, 0x88, 0x88, 0x88);
+    constexpr SkColor SK_ColorLTGRAY      = SkColorSetARGB(0xFF, 0xCC, 0xCC, 0xCC);
+    constexpr SkColor SK_ColorWHITE       = SkColorSetARGB(0xFF, 0xFF, 0xFF, 0xFF);
+    constexpr SkColor SK_ColorRED         = SkColorSetARGB(0xFF, 0xFF, 0x00, 0x00);
+    constexpr SkColor SK_ColorGREEN       = SkColorSetARGB(0xFF, 0x00, 0xFF, 0x00);
+    constexpr SkColor SK_ColorBLUE        = SkColorSetARGB(0xFF, 0x00, 0x00, 0xFF);
+    constexpr SkColor SK_ColorYELLOW      = SkColorSetARGB(0xFF, 0xFF, 0xFF, 0x00);
+    constexpr SkColor SK_ColorCYAN        = SkColorSetARGB(0xFF, 0x00, 0xFF, 0xFF);
+    constexpr SkColor SK_ColorMAGENTA     = SkColorSetARGB(0xFF, 0xFF, 0x00, 0xFF);
+##
+
+Color names are provided as conveniences, but are not otherwise special.
+The values chosen for names may not be the same as values used by
+SVG, HTML, CSS, or colors named by a platform.
+
+#Example
+###$
+$Function
+#define SKIA_COLOR_PAIR(name) "SK_Color" #name, SK_Color##name
+$$
+void draw(SkCanvas* canvas) {
+    struct ColorCompare {
+        const char* fSVGName;
+        SkColor fSVGColor;
+        const char* fSkiaName;
+        SkColor fSkiaColor;
+    } colorCompare[] = {  // see https://www.w3.org/TR/SVG/types.html#ColorKeywords
+        {"black",     SkColorSetRGB(  0,   0,   0),    SKIA_COLOR_PAIR(BLACK) },
+        {"darkgray",  SkColorSetRGB(169, 169, 169),    SKIA_COLOR_PAIR(DKGRAY) },
+        {"gray",      SkColorSetRGB(128, 128, 128),    SKIA_COLOR_PAIR(GRAY) },
+        {"lightgray", SkColorSetRGB(211, 211, 211),    SKIA_COLOR_PAIR(LTGRAY) },
+        {"white",     SkColorSetRGB(255, 255, 255),    SKIA_COLOR_PAIR(WHITE) },
+        {"red",       SkColorSetRGB(255,   0,   0),    SKIA_COLOR_PAIR(RED) },
+        {"green",     SkColorSetRGB(  0, 128,   0),    SKIA_COLOR_PAIR(GREEN) },
+        {"blue",      SkColorSetRGB(  0,   0, 255),    SKIA_COLOR_PAIR(BLUE) },
+        {"yellow",    SkColorSetRGB(255, 255,   0),    SKIA_COLOR_PAIR(YELLOW) },
+        {"aqua",      SkColorSetRGB(  0, 255, 255),    SKIA_COLOR_PAIR(CYAN) },
+        {"fuchsia",   SkColorSetRGB(255,   0, 255),    SKIA_COLOR_PAIR(MAGENTA) },
+    };
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setTextSize(14);
+    for (auto compare : colorCompare) {
+        paint.setStyle(SkPaint::kFill_Style);
+        paint.setColor(compare.fSVGColor);
+        canvas->drawRect({5, 5, 15, 15}, paint);
+        paint.setColor(SK_ColorBLACK);
+        canvas->drawString(compare.fSVGName, 20, 16, paint);
+        paint.setColor(compare.fSkiaColor);
+        canvas->drawRect({105, 5, 115, 15}, paint);
+        paint.setColor(SK_ColorBLACK);
+        canvas->drawString(compare.fSkiaName, 120, 16, paint);
+        paint.setStyle(SkPaint::kStroke_Style);
+        canvas->drawRect({5, 5, 15, 15}, paint);
+        canvas->drawRect({105, 5, 115, 15}, paint);
+        canvas->translate(0, 20);
+    }
+}
+$$$#
+##
 
 # ------------------------------------------------------------------------------
 
-#Define SK_ColorTRANSPARENT
-
-#Code
-###$
-    #define SK_ColorTRANSPARENT static_cast<SkColor>(0x00000000)
-$$$#
+#Const SK_ColorTRANSPARENT 0x00000000
+#Line # transparent Color ##
+#Details Transparent
+    Represents fully transparent SkColor. May be used to initialize a destination
+    containing a mask or a non-rectangular image.
 ##
-
-transparent SkColor value
-
-#Example
-// incomplete
+#Const SK_ColorBLACK 0xFF000000
+#Line # black Color ##
+#Details Black
+    Represents fully opaque black.
 ##
-
-#SeeAlso incomplete
-
-#Define ##
+#Const SK_ColorDKGRAY 0xFF444444
+#Line # dark gray Color ##
+    Represents fully opaque dark gray.
+    Note that SVG_darkgray is equivalent to 0xFFA9A9A9.
+##
+#Const SK_ColorGRAY 0xFF888888
+#Line # gray Color ##
+    Represents fully opaque gray.
+    Note that HTML_Gray is equivalent to 0xFF808080.
+##
+#Const SK_ColorLTGRAY 0xFFCCCCCC
+#Line # light gray Color ##
+    Represents fully opaque light gray. HTML_Silver is equivalent to 0xFFC0C0C0.
+    Note that SVG_lightgray is equivalent to 0xFFD3D3D3.
+##
+#Const SK_ColorWHITE 0xFFFFFFFF
+#Line # white Color ##
+    Represents fully opaque white.
+##
+#Const SK_ColorRED 0xFFFF0000
+#Line # red Color ##
+    Represents fully opaque red.
+##
+#Const SK_ColorGREEN 0xFF00FF00
+#Line # green Color ##
+    Represents fully opaque green. HTML_Lime is equivalent.
+    Note that HTML_Green is equivalent to 0xFF008000.
+##
+#Const SK_ColorBLUE 0xFF0000FF
+#Line # blue Color ##
+    Represents fully opaque blue.
+##
+#Const SK_ColorYELLOW 0xFFFFFF00
+#Line # yellow Color ##
+    Represents fully opaque yellow.
+##
+#Const SK_ColorCYAN 0xFF00FFFF
+#Line # cyan Color ##
+    Represents fully opaque cyan. HTML_Aqua is equivalent.
+##
+#Const SK_ColorMAGENTA 0xFFFF00FF
+#Line # magenta Color ##
+    Represents fully opaque magenta. HTML_Fuchsia is equivalent.
+##
 
 # ------------------------------------------------------------------------------
 
-#Define SK_ColorBLACK
-
-#Code
-###$
-    #define SK_ColorBLACK       static_cast<SkColor>(0xFF000000)
-$$$#
-##
-
-black SkColor value
+#Subtopic Transparent
 
 #Example
-// incomplete
+    std::vector<uint32_t> srcPixels;
+    constexpr int width = 256;
+    constexpr int height = 256;
+    srcPixels.resize(width * height);
+    SkImageInfo imageInfo = SkImageInfo::MakeN32Premul(width, height);
+    SkPixmap pixmap(imageInfo, &srcPixels.front(), imageInfo.minRowBytes());
+    pixmap.erase(SK_ColorTRANSPARENT);
+    pixmap.erase(SK_ColorRED, { 24, 24, 192, 192 } );
+    pixmap.erase(SK_ColorTRANSPARENT, { 48, 48, 168, 168 } );
+    SkBitmap bitmap;
+    bitmap.installPixels(pixmap);
+    canvas->drawBitmap(bitmap, 0, 0);
+    canvas->drawBitmap(bitmap, 48, 48);
 ##
 
-#SeeAlso incomplete
+#SeeAlso SK_AlphaTRANSPARENT SkCanvas::clear
 
-#Define ##
+##
 
 # ------------------------------------------------------------------------------
 
-#Define SK_ColorDKGRAY
-
-#Code
-###$
-    #define SK_ColorDKGRAY      static_cast<SkColor>(0xFF444444)
-$$$#
-##
-
-dark gray SkColor value
+#Subtopic Black
 
 #Example
-// incomplete
+    std::vector<uint32_t> srcPixels;
+    constexpr int width = 256;
+    constexpr int height = 256;
+    srcPixels.resize(width * height);
+    SkImageInfo imageInfo = SkImageInfo::MakeN32Premul(width, height);
+    SkPixmap pixmap(imageInfo, &srcPixels.front(), imageInfo.minRowBytes());
+    pixmap.erase(SK_ColorTRANSPARENT);
+    pixmap.erase(SK_ColorRED, { 24, 24, 192, 192 } );
+    pixmap.erase(SK_ColorBLACK, { 48, 48, 168, 168 } );
+    SkBitmap bitmap;
+    bitmap.installPixels(pixmap);
+    canvas->drawBitmap(bitmap, 0, 0);
+    canvas->drawBitmap(bitmap, 48, 48);
 ##
 
-#SeeAlso incomplete
+#SeeAlso SK_ColorTRANSPARENT
 
-#Define ##
+##
 
 # ------------------------------------------------------------------------------
 
-#Define SK_ColorGRAY
-
-#Code
-###$
-    #define SK_ColorGRAY        static_cast<SkColor>(0xFF888888)
-$$$#
-##
-
-gray SkColor value
+#Subtopic White
 
 #Example
-// incomplete
+    std::vector<uint32_t> srcPixels;
+    constexpr int width = 256;
+    constexpr int height = 256;
+    srcPixels.resize(width * height);
+    SkImageInfo imageInfo = SkImageInfo::MakeN32Premul(width, height);
+    SkPixmap pixmap(imageInfo, &srcPixels.front(), imageInfo.minRowBytes());
+    pixmap.erase(SK_ColorTRANSPARENT);
+    pixmap.erase(SK_ColorRED, { 24, 24, 192, 192 } );
+    pixmap.erase(SK_ColorWHITE, { 48, 48, 168, 168 } );
+    SkBitmap bitmap;
+    bitmap.installPixels(pixmap);
+    canvas->drawBitmap(bitmap, 0, 0);
+    canvas->drawBitmap(bitmap, 48, 48);
 ##
 
-#SeeAlso incomplete
+#SeeAlso SK_ColorTRANSPARENT
 
-#Define ##
-
-# ------------------------------------------------------------------------------
-
-#Define SK_ColorLTGRAY
-
-#Code
-###$
-    #define SK_ColorLTGRAY      static_cast<SkColor>(0xFFCCCCCC)
-$$$#
 ##
 
-light gray SkColor value
-
-#Example
-// incomplete
-##
-
-#SeeAlso incomplete
-
-#Define ##
-
-# ------------------------------------------------------------------------------
-
-#Define SK_ColorWHITE
-
-#Code
-###$
-    #define SK_ColorWHITE       static_cast<SkColor>(0xFFFFFFFF)
-$$$#
-##
-
-white SkColor value
-
-#Example
-// incomplete
-##
-
-#SeeAlso incomplete
-
-#Define ##
-
-# ------------------------------------------------------------------------------
-
-#Define SK_ColorRED
-
-#Code
-###$
-    #define SK_ColorRED         static_cast<SkColor>(0xFFFF0000)
-$$$#
-##
-
-red SkColor value
-
-#Example
-// incomplete
-##
-
-#SeeAlso incomplete
-
-#Define ##
-
-# ------------------------------------------------------------------------------
-
-#Define SK_ColorGREEN
-
-#Code
-###$
-    #define SK_ColorGREEN       static_cast<SkColor>(0xFF00FF00)
-$$$#
-##
-
-green SkColor value
-
-#Example
-// incomplete
-##
-
-#SeeAlso incomplete
-
-#Define ##
-
-# ------------------------------------------------------------------------------
-
-#Define SK_ColorBLUE
-
-#Code
-###$
-    #define SK_ColorBLUE        static_cast<SkColor>(0xFF0000FF)
-$$$#
-##
-
-blue SkColor value
-
-#Example
-// incomplete
-##
-
-#SeeAlso incomplete
-
-#Define ##
-
-# ------------------------------------------------------------------------------
-
-#Define SK_ColorYELLOW
-
-#Code
-###$
-    #define SK_ColorYELLOW      static_cast<SkColor>(0xFFFFFF00)
-$$$#
-##
-
-yellow SkColor value
-
-#Example
-// incomplete
-##
-
-#SeeAlso incomplete
-
-#Define ##
-
-# ------------------------------------------------------------------------------
-
-#Define SK_ColorCYAN
-
-#Code
-###$
-    #define SK_ColorCYAN        static_cast<SkColor>(0xFF00FFFF)
-$$$#
-##
-
-cyan SkColor value
-
-#Example
-// incomplete
-##
-
-#SeeAlso incomplete
-
-#Define ##
-
-# ------------------------------------------------------------------------------
-
-#Define SK_ColorMAGENTA
-
-#Code
-###$
-    #define SK_ColorMAGENTA     static_cast<SkColor>(0xFFFF00FF)
-$$$#
-##
-
-magenta SkColor value
-
-#Example
-// incomplete
-##
-
-#SeeAlso incomplete
-
-#Define ##
+#Subtopic Color_Constants ##
 
 # ------------------------------------------------------------------------------
 
@@ -568,18 +623,15 @@ modulo 360, where zero degrees is red.
 #In Function
 #Line # incomplete ##
 
-Convert RGB components to HSV.
-hsv[0] is Hue [0 .. 360)
-hsv[1] is Saturation [0...1]
-hsv[2] is Value [0...1]
+Converts RGB components to HSV.
+hsv[0] contains Hue, a value from zero to less than 360.
+hsv[1] contains Saturation, a value from zero to one.
+hsv[2] contains Value, a value from zero to one.
 
-#Param red  red component value [0..255]
-##
-#Param green  green component value [0..255]
-##
-#Param blue  blue component value [0..255]
-##
-#Param hsv  3 element array which holds the resulting HSV components.
+#Param red  red component value from zero to 255 ##
+#Param green  green component value from zero to 255 ##
+#Param blue  blue component value from zero to 255 ##
+#Param hsv  three element array which holds the resulting HSV components
 ##
 
 #Return incomplete ##
@@ -596,16 +648,16 @@ hsv[2] is Value [0...1]
 
 #Method static inline void SkColorToHSV(SkColor color, SkScalar hsv[3])
 #In Function
-#Line # incomplete ##
+#Line # converts RGB to HSV ##
 
-Convert the argb color to its HSV components.
-hsv[0] represents Hue, and is assigned a value from zero to less than 360.
-hsv[1] is Saturation [0...1]
-hsv[2] is Value [0...1]
+Converts ARGB to its HSV components. Alpha in ARGB is ignored.
+hsv[0] contains Hue, and is assigned a value from zero to less than 360.
+hsv[1] contains Saturation, a value from zero to one.
+hsv[2] contains Value, a value from zero to one.
 
-#Param color  the argb color to convert. Note: the alpha component is ignored.
+#Param color  ARGB color to convert
 ##
-#Param hsv  3 element array which holds the resulting HSV components.
+#Param hsv  three element array which holds the resulting HSV components
 ##
 
 #Return incomplete ##
@@ -622,21 +674,21 @@ hsv[2] is Value [0...1]
 
 #Method SK_API SkColor SkHSVToColor(U8CPU alpha, const SkScalar hsv[3])
 #In Function
-#Line # incomplete ##
+#Line # converts HSV with Alpha to RGB ##
 
-Convert HSV components to an ARGB color. The alpha component is passed through unchanged.
+Converts HSV components to an ARGB color. The alpha component is passed through unchanged.
 hsv[0] represents Hue, an angle from zero to less than 360.
 hsv[1] represents Saturation, and varies from zero to one.
 hsv[2] represents Value, and varies from zero to one.
 
 If hsv values are out of range, they are pinned.
 
-#Param alpha  the alpha component of the returned argb color.
+#Param alpha  Alpha component of the returned ARGB color
 ##
-#Param hsv  3 element array which holds the input HSV components.
+#Param hsv  three element array which holds the input HSV components
 ##
 
-#Return  the resulting argb color
+#Return  ARGB equivalent to HSV
 ##
 
 #Example
@@ -663,7 +715,7 @@ If hsv values are out of range, they are pinned.
 #Param hsv  3 element array which holds the input HSV components.
 ##
 
-#Return  the resulting argb color
+#Return  the resulting ARGB color
 ##
 
 #Example
@@ -678,11 +730,14 @@ If hsv values are out of range, they are pinned.
 
 # ------------------------------------------------------------------------------
 
-#Typedef uint32_t SkPMColor
+#Subtopic PMColor
 
-32 bit ARGB color value, premultiplied. The byte order for this value is
+#Typedef uint32_t SkPMColor
+#Line # defines Premultiplied Color as 32 bits ##
+
+32-bit ARGB color value, Premultiplied. The byte order for this value is
 configuration dependent, matching the format of kBGRA_8888_SkColorType bitmaps.
-This is different from SkColor, which is nonpremultiplied, and is always in the
+This is different from SkColor, which is Unpremultiplied, and is always in the
 same byte order.
 
 #Typedef ##
@@ -691,9 +746,9 @@ same byte order.
 
 #Method SK_API SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
 #In Function
-#Line # incomplete ##
+#Line # converts Unpremultiplied ARGB to Premultiplied PMColor ##
 
-Return a SkPMColor value from unpremultiplied 8 bit component values
+Return a SkPMColor value from Unpremultiplied 8-bit component values
 
 #Param a  incomplete ##
 #Param r  incomplete ##
@@ -714,11 +769,10 @@ Return a SkPMColor value from unpremultiplied 8 bit component values
 
 #Method SK_API SkPMColor SkPreMultiplyColor(SkColor c)
 #In Function
-#Line # incomplete ##
+#Line # converts Unpremultiplied Color to Premultiplied PMColor ##
 
-Return a SkPMColor value from a SkColor value. This is done by multiplying the color
-components by the color's alpha, and by arranging the bytes in a configuration
-dependent order, to match the format of kBGRA_8888_SkColorType bitmaps.
+Returns PMColor closest to Color c. Multiplies c RGB components by the c Alpha,
+and arranges the bytes to match the format of kN32_SkColorType.
 
 #Param c  incomplete ##
 
@@ -731,5 +785,7 @@ dependent order, to match the format of kBGRA_8888_SkColorType bitmaps.
 #SeeAlso incomplete
 
 #Method ##
+
+#Subtopic PMColor ##
 
 #Topic Color ##

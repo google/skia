@@ -1,18 +1,18 @@
 usingBookmaker
 ===
 
-# <a name="Bookmaker"></a> Bookmaker
-How to use the <a href="#Bookmaker">Bookmaker</a> utility.
+# <a name='Bookmaker'>Bookmaker</a>
+How to use the <a href='#Bookmaker'>Bookmaker</a> utility.
 
-## <a name="Broken_Build"></a> Broken Build
+## <a name='Broken_Build'>Broken Build</a>
 
-If the <a href="https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-PerCommit-Bookmaker">Housekeeper-PerCommit-Bookmaker</a> bot is red, the bot has detected that the files in docs and include/core differ.
+If the <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-PerCommit-Bookmaker'>Housekeeper-PerCommit-Bookmaker</a></a> bot is red, the bot has detected that the files in docs and include/core differ.
 
 The bot output describes what changed.
 
 To fix this, edit the docs file corresponding to the changed include file.
 
-For instance, if the change was made to <a href="SkIRect_Reference#SkIRect">SkIRect</a>, edit docs/SkIRect_Reference.bmh.
+For instance, if the change was made to <a href='SkIRect_Reference#SkIRect'>SkIRect</a>, edit docs/SkIRect_Reference.bmh.
 Checking in the edited docs/SkIRect_Reference.bmh will fix the bot.
 
 If the interface is deprecated, but still present in the interface, mark-up the
@@ -32,28 +32,32 @@ Use
 
 if the change is soon to be deprecated.
 
-To regenerate the documentation, follow the <a href="#Installing">Installing</a> and <a href="#Regenerate">Regenerate</a> steps below.
+To regenerate the documentation, follow the <a href='#Installing'>Installing</a> and <a href='#Regenerate'>Regenerate</a> steps below.
 
-If the <a href="https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-Nightly-Bookmaker">Housekeeper-Nightly-Bookmaker</a> bot is red, one of several things may have gone wrong:
+If the <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-Nightly-Bookmaker'>Housekeeper-Nightly-Bookmaker</a></a> bot is red, one of several things may have gone wrong:
 
 <table>  <tr>
-    <td>A change to include broke documentation examples.</td>  </tr>  <tr>
-    <td>Something changed the examples that output text.</td>  </tr>  <tr>
-    <td>Some interface was added, deleted, edited.</td>  </tr>  <tr>
-    <td>Documentation is malformed.</td>  </tr>
+    <td>A change to include broke documentation examples.</td>
+  </tr>  <tr>
+    <td>Something changed the examples that output text.</td>
+  </tr>  <tr>
+    <td>Some interface was added, deleted, edited.</td>
+  </tr>  <tr>
+    <td>Documentation is malformed.</td>
+  </tr>
 </table>
 
 The bot output describes what changed, and includes the file and line
 where the error occurred.
 
-To regenerate the documentation, follow the <a href="#Installing">Installing</a> and <a href="#Regenerate">Regenerate</a> steps below.
+To regenerate the documentation, follow the <a href='#Installing'>Installing</a> and <a href='#Regenerate'>Regenerate</a> steps below.
 
-## <a name="Editing_Comments"></a> Editing Comments
+## <a name='Editing_Comments'>Editing Comments</a>
 
 Edit docs instead of include/core files to update comments if possible.
 
-The <a href="#Bookmaker">Bookmaker</a> bots do not complain if the docs file does not match the
-corresponding include comments. Running <a href="#Bookmaker">Bookmaker</a> include generation will
+The <a href='#Bookmaker'>Bookmaker</a> bots do not complain if the docs file does not match the
+corresponding include comments. Running <a href='#Bookmaker'>Bookmaker</a> include generation will
 report when docs and includes comments do not match.
 
 For instance, if include/core/SkSurface.h comments do not match
@@ -66,16 +70,16 @@ $ ./out/dir/bookmaker -b docs -i include/core/SkSurface.h -p
 generates
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-wrote updated <a href="SkSurface_Reference#SkSurface">SkSurface</a>.h
+wrote updated <a href='SkSurface_Reference#SkSurface'>SkSurface</a>.h
 </pre>
 
 The updated SkSurface.h is written to the root to avoid subsequent runs of
-<a href="#Bookmaker">Bookmaker</a> from recompiling. if SkSurface.h was not changed, it is not written,
-and <a href="#Bookmaker">Bookmaker</a> will not generate any output.
+<a href='#Bookmaker'>Bookmaker</a> from recompiling. if SkSurface.h was not changed, it is not written,
+and <a href='#Bookmaker'>Bookmaker</a> will not generate any output.
 
-## <a name="Broken_Example"></a> Broken Example
+## <a name='Broken_Example'>Broken Example</a>
 
-An example may cause <a href="#Bookmaker">Bookmaker</a> or a bot running <a href="#Bookmaker">Bookmaker</a> to fail if it can't
+An example may cause <a href='#Bookmaker'>Bookmaker</a> or a bot running <a href='#Bookmaker'>Bookmaker</a> to fail if it can't
 be compiled by fiddle. If the example cannot be fixed, it can be commented out
 by changing
 
@@ -93,9 +97,9 @@ to
 The disabled example can contain additional markup,
 which will be ignored.
 
-## <a name="Installing"></a> Installing
+## <a name='Installing'>Installing</a>
 
-Install <a href="https://golang.org/doc/install">Go</a> if needed.
+Install <a href='https://golang.org/doc/install'>Go</a></a> if needed.
 Get the fiddle command line interface tool.
 By default this will appear in your home directory.
 
@@ -103,13 +107,13 @@ By default this will appear in your home directory.
 $ go get go.skia.org/infra/fiddle/go/fiddlecli
 </pre>
 
-Build <a href="#Bookmaker">Bookmaker</a>.
+Build <a href='#Bookmaker'>Bookmaker</a>.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 $ ninja -C out/dir bookmaker
 </pre>
 
-## <a name="Regenerate"></a> Regenerate
+## <a name='Regenerate'>Regenerate</a>
 
 Complete rebuilding of all bookmaker output looks like:
 
@@ -121,9 +125,9 @@ $ ./out/skia/bookmaker -a docs/status.json -x
 $ ./out/skia/bookmaker -a docs/status.json -p
 </pre>
 
-## <a name="New_Documentation"></a> New Documentation
+## <a name='New_Documentation'>New Documentation</a>
 
-Generate an starter <a href="#Bookmaker">Bookmaker</a> file from an existing include.
+Generate an starter <a href='#Bookmaker'>Bookmaker</a> file from an existing include.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 $ ./out/dir/bookmaker -i include/core/SkXXX.h -t docs
@@ -132,7 +136,7 @@ $ ./out/dir/bookmaker -i include/core/SkXXX.h -t docs
 If a method or function has an unnamed parameter, bookmaker generates an error:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-C:/puregit/include/core/<a href="SkPixmap_Reference#SkPixmap">SkPixmap</a>.h(208): error: #Method missing param name
+C:/puregit/include/core/<a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>.h(208): error: #Method missing param name
 bool erase(const SkColor4f&, const SkIRect* subset = nullptr) const
            ^
 </pre>
@@ -156,7 +160,7 @@ docs/SkXXX_Reference.bmh
 
 .
 
-## <a name="Style"></a> Style
+## <a name='Style'>Style</a>
 
 Documentation consists of cross references, descriptions, and examples.
 All structs, classes, enums, their members and methods, functions, and so on,
@@ -203,12 +207,12 @@ After editing is complete, searching for "" should fail,
 assuming "" is not the perfect word to use in a description or
 example!
 
-## <a name="Adding_Documentation"></a> Adding Documentation
+## <a name='Adding_Documentation'>Adding Documentation</a>
 
 Generate fiddle.json from all examples, including the ones you just wrote.
 Error checking is syntatic: starting keywords are closed, keywords have the
 correct parents.
-If you run <a href="#Bookmaker">Bookmaker</a> inside Visual_Studio, you can click on errors and it
+If you run <a href='#Bookmaker'>Bookmaker</a> inside Visual_Studio, you can click on errors and it
 will take you to the source line in question.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
@@ -255,7 +259,7 @@ If the new file has been added to status.json, you can run
 any of the above commands with -a docs/status.json in place of
 -b docs or -i includes.
 
-## <a name="Bugs"></a> Bugs
+## <a name='Bugs'>Bugs</a>
 
-<a href="#Bookmaker">Bookmaker</a> bugs are tracked <a href="bug.skia.org/6898">here</a> .
+<a href='#Bookmaker'>Bookmaker</a> bugs are tracked <a href='https://bug.skia.org/6898'>here</a></a> .
 
