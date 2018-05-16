@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "33de6e10_f7598682",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-16T19:47:09Z",
+      "side": 1,
+      "message": "is -1 only valid for the alpha plane?",
+      "range": {
+        "startLine": 225,
+        "startChar": 38,
+        "endLine": 225,
+        "endChar": 40
+      },
+      "revId": "7f5cf20de1d95b7f295593c87e8e16fc05cc3317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7cfcd2d7_5ecfc74c",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-16T19:47:09Z",
+      "side": 1,
+      "message": "Wondering what the meaning of this will be when we incorporate textures that have luminance?",
+      "range": {
+        "startLine": 230,
+        "startChar": 4,
+        "endLine": 230,
+        "endChar": 16
+      },
+      "revId": "7f5cf20de1d95b7f295593c87e8e16fc05cc3317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5fad77e_fdc7d204",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-16T19:47:09Z",
+      "side": 1,
+      "message": "clang-format is weird with sk_sp.",
+      "range": {
+        "startLine": 417,
+        "startChar": 57,
+        "endLine": 418,
+        "endChar": 82
+      },
+      "revId": "7f5cf20de1d95b7f295593c87e8e16fc05cc3317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
