@@ -787,6 +787,9 @@ void SkDraw::drawRect(const SkRect& prePaintRect, const SkPaint& paint,
             bbox.outset(SkScalarHalf(ssize.x()), SkScalarHalf(ssize.y()));
         }
     }
+    if (SkPathPriv::TooBigForMath(bbox)) {
+        return;
+    }
 
     if (!SkRectPriv::FitsInFixed(bbox) && rtype != kHair_RectType) {
         draw_rect_as_path(*this, prePaintRect, paint, matrix);
