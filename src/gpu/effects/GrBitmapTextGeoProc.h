@@ -24,11 +24,11 @@ public:
 
     static sk_sp<GrGeometryProcessor> Make(GrColor color,
                                            const sk_sp<GrTextureProxy>* proxies,
-                                           int numProxies,
+                                           int numActiveProxies,
                                            const GrSamplerState& p, GrMaskFormat format,
                                            const SkMatrix& localMatrix, bool usesLocalCoords) {
         return sk_sp<GrGeometryProcessor>(
-            new GrBitmapTextGeoProc(color, proxies, numProxies, p, format,
+            new GrBitmapTextGeoProc(color, proxies, numActiveProxies, p, format,
                                     localMatrix, usesLocalCoords));
     }
 
@@ -45,7 +45,7 @@ public:
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
-    void addNewProxies(const sk_sp<GrTextureProxy>* proxies, int numProxies, const GrSamplerState&);
+    void addNewProxies(const sk_sp<GrTextureProxy>*, int numActiveProxies, const GrSamplerState&);
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 

@@ -130,9 +130,9 @@ sk_sp<SkImage> GrContextPriv::getFontAtlasImage_ForTesting(GrMaskFormat format, 
         return nullptr;
     }
 
-    unsigned int numProxies;
-    const sk_sp<GrTextureProxy>* proxies = atlasManager->getProxies(format, &numProxies);
-    if (index >= numProxies || !proxies[index]) {
+    unsigned int numActiveProxies;
+    const sk_sp<GrTextureProxy>* proxies = atlasManager->getProxies(format, &numActiveProxies);
+    if (index >= numActiveProxies || !proxies || !proxies[index]) {
         return nullptr;
     }
 
