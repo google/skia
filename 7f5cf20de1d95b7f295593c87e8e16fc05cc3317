@@ -166,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "29ea2624_6f720cff",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-16T19:59:34Z",
+      "side": 1,
+      "message": "Ahhh that\u0027s nice to know. Well feel free to ignore all those comments then.",
+      "parentUuid": "31d5bc64_1d3365b4",
+      "range": {
+        "startLine": 429,
+        "startChar": 12,
+        "endLine": 429,
+        "endChar": 44
+      },
+      "revId": "7f5cf20de1d95b7f295593c87e8e16fc05cc3317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4b8966e5_9de76675",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 4
