@@ -119,6 +119,12 @@ bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src, SkScalar sigma, SkBlurS
             dst->fBounds = SkIRect::MakeEmpty();
             dst->fRowBytes = dst->fBounds.width();
             dst->fFormat = SkMask::kA8_Format;
+            if (margin != nullptr) {
+                // This filter will disregard the src.fImage completely.
+                // The margin is actually {-(src.fBounds.width() / 2), -(src.fBounds.height() / 2)}
+                // but it is not clear if callers will fall over with negative margins.
+                *margin = SkIPoint{0,0};
+            }
             return true;
         }
         return false;
