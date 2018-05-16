@@ -1046,7 +1046,7 @@ void SkSpotShadowTessellator::computeClipAndPathPolygons(const SkPath& path, con
         fCentroid.fX += (currPoint.fX + nextPoint.fX) * quadArea;
         fCentroid.fY += (currPoint.fY + nextPoint.fY) * quadArea;
         fArea += quadArea;
-        fCentroid *= SK_Scalar1 / (3 * fArea);
+        fCentroid *= sk_ieee_float_divide(1, 3 * fArea);
     }
 
     fCurrClipPoint = fClipPolygon.count() - 1;
@@ -1576,7 +1576,7 @@ void SkSpotShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVector& 
 
 sk_sp<SkVertices> SkShadowTessellator::MakeAmbient(const SkPath& path, const SkMatrix& ctm,
                                                    const SkPoint3& zPlane, bool transparent) {
-    if (!path.isFinite() || !ctm.isFinite() || !zPlane.isFinite()) {
+    if (!ctm.mapRect(path.getBounds()).isFinite() || !zPlane.isFinite()) {
         return nullptr;
     }
     SkAmbientShadowTessellator ambientTess(path, ctm, zPlane, transparent);
@@ -1586,7 +1586,7 @@ sk_sp<SkVertices> SkShadowTessellator::MakeAmbient(const SkPath& path, const SkM
 sk_sp<SkVertices> SkShadowTessellator::MakeSpot(const SkPath& path, const SkMatrix& ctm,
                                                 const SkPoint3& zPlane, const SkPoint3& lightPos,
                                                 SkScalar lightRadius,  bool transparent) {
-    if (!path.isFinite() || !ctm.isFinite() || !zPlane.isFinite() ||
+    if (!ctm.mapRect(path.getBounds()).isFinite() || !zPlane.isFinite() ||
         !lightPos.isFinite() || !SkScalarIsFinite(lightRadius) || !(lightRadius > 0)) {
         return nullptr;
     }

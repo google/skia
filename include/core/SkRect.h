@@ -1077,6 +1077,8 @@ struct SK_API SkRect {
     */
     bool setBoundsCheck(const SkPoint pts[], int count);
 
+    void setBoundsNoCheck(const SkPoint pts[], int count);
+
     /** Sets bounds to the smallest SkRect enclosing SkPoint p0 and p1. The result is
         sorted and may be empty. Does not check to see if values are finite.
 
