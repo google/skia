@@ -102,7 +102,8 @@ def nanobench_flags(api, bot):
     if 'CommandBuffer' in bot:
       configs = ['commandbuffer']
     if 'Vulkan' in bot:
-      configs = ['vk']
+      # skbug.com/7961
+      configs = ['vk' if not 'MVK_Vulkan' in bot else 'vknostencils']
 
     if 'ANGLE' in bot:
       # Test only ANGLE configs.
