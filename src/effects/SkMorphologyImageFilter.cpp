@@ -92,7 +92,7 @@ SkRect SkMorphologyImageFilter::computeFastBounds(const SkRect& src) const {
 }
 
 SkIRect SkMorphologyImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                                    MapDirection) const {
+                                                    const SkIRect* inputRect, MapDirection) const {
     SkVector radius = SkVector::Make(SkIntToScalar(this->radius().width()),
                                      SkIntToScalar(this->radius().height()));
     ctm.mapVectors(&radius, 1);
