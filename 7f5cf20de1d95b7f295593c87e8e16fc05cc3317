@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "ec380b65_e71df1c1",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-16T19:59:33Z",
+      "side": 1,
+      "message": "That\u0027s what I was wondering. We almost have something usable in SkColorTypeComponentFlag but that\u0027s meant to be used as a bitfield.",
+      "parentUuid": "ef5bf51e_98a61e76",
+      "range": {
+        "startLine": 230,
+        "startChar": 4,
+        "endLine": 230,
+        "endChar": 16
+      },
+      "revId": "7f5cf20de1d95b7f295593c87e8e16fc05cc3317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a5fad77e_fdc7d204",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 4
