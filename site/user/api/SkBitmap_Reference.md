@@ -219,7 +219,7 @@ SkBitmap member functions read and modify the structure properties.
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_allocN32Pixels'>allocN32Pixels</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates compatible <a href='SkColor_Reference#ARGB'>Color ARGB</a> pixels, or aborts</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates compatible ARGB pixels, or aborts</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_allocPixels'>allocPixels</a></td>
@@ -439,7 +439,7 @@ SkBitmap member functions read and modify the structure properties.
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_tryAllocN32Pixels'>tryAllocN32Pixels</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates compatible <a href='SkColor_Reference#ARGB'>Color ARGB</a> pixels if possible</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates compatible ARGB pixels if possible</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_tryAllocPixels'>tryAllocPixels</a></td>
@@ -2132,7 +2132,7 @@ Instructs <a href='#SkBitmap_tryAllocPixelsFlags'>tryAllocPixelsFlags</a> and <a
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_allocN32Pixels'>allocN32Pixels</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates compatible <a href='SkColor_Reference#ARGB'>Color ARGB</a> pixels, or aborts</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates compatible ARGB pixels, or aborts</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_allocPixels'>allocPixels</a></td>
@@ -2176,7 +2176,7 @@ Instructs <a href='#SkBitmap_tryAllocPixelsFlags'>tryAllocPixelsFlags</a> and <a
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_tryAllocN32Pixels'>tryAllocN32Pixels</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates compatible <a href='SkColor_Reference#ARGB'>Color ARGB</a> pixels if possible</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates compatible ARGB pixels if possible</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_tryAllocPixels'>tryAllocPixels</a></td>
@@ -3170,8 +3170,8 @@ void <a href='#SkBitmap_eraseColor'>eraseColor</a>(<a href='SkColor_Reference#Sk
 
 Replaces pixel values with <a href='#SkBitmap_eraseColor_c'>c</a>. All pixels contained by <a href='#SkBitmap_bounds'>bounds</a> are affected.
 If the <a href='#SkBitmap_colorType'>colorType</a> is <a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a> or k565_SkColorType, then <a href='SkColor_Reference#Alpha'>Color Alpha</a>
-is ignored; <a href='SkColor_Reference#RGB'>Color RGB</a> is treated as opaque. If <a href='#SkBitmap_colorType'>colorType</a> is <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>,
-then <a href='SkColor_Reference#RGB'>Color RGB</a> is ignored.
+is ignored; RGB is treated as opaque. If <a href='#SkBitmap_colorType'>colorType</a> is <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>,
+then RGB is ignored.
 
 ### Parameters
 
@@ -3209,13 +3209,13 @@ then <a href='#SkBitmap_eraseARGB_r'>r</a>, <a href='#SkBitmap_eraseARGB_g'>g</a
     <td>amount of <a href='SkColor_Reference#Alpha'>Color Alpha</a>, from fully transparent (0) to fully opaque (255)</td>
   </tr>
   <tr>    <td><a name='SkBitmap_eraseARGB_r'><code><strong>r</strong></code></a></td>
-    <td>amount of <a href='SkColor_Reference#RGB_Red'>Color RGB Red</a>, from no red (0) to full red (255)</td>
+    <td>amount of red, from no red (0) to full red (255)</td>
   </tr>
   <tr>    <td><a name='SkBitmap_eraseARGB_g'><code><strong>g</strong></code></a></td>
-    <td>amount of <a href='SkColor_Reference#RGB_Green'>Color RGB Green</a>, from no green (0) to full green (255)</td>
+    <td>amount of green, from no green (0) to full green (255)</td>
   </tr>
   <tr>    <td><a name='SkBitmap_eraseARGB_b'><code><strong>b</strong></code></a></td>
-    <td>amount of <a href='SkColor_Reference#RGB_Blue'>Color RGB Blue</a>, from no blue (0) to full blue (255)</td>
+    <td>amount of blue, from no blue (0) to full blue (255)</td>
   </tr>
 </table>
 
@@ -3251,8 +3251,8 @@ Replaces pixel values inside <a href='#SkBitmap_erase_area'>area</a> with <a hre
 call has no effect.
 
 If the <a href='#SkBitmap_colorType'>colorType</a> is <a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a> or k565_SkColorType, then <a href='SkColor_Reference#Alpha'>Color Alpha</a>
-is ignored; <a href='SkColor_Reference#RGB'>Color RGB</a> is treated as opaque. If <a href='#SkBitmap_colorType'>colorType</a> is <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>,
-then <a href='SkColor_Reference#RGB'>Color RGB</a> is ignored.
+is ignored; RGB is treated as opaque. If <a href='#SkBitmap_colorType'>colorType</a> is <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>,
+then RGB is ignored.
 
 ### Parameters
 

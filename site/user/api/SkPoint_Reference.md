@@ -1738,7 +1738,7 @@ product of input magnitudes and cosine of the angle between them
 
 ## <a name='Vector'>Vector</a>
 
-# <a name='SkVector'>Typedef SkVector</a>
+## <a name='SkVector'>Typedef SkVector</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     typedef <a href='#SkPoint'>SkPoint</a> <a href='#SkVector'>SkVector</a>;
