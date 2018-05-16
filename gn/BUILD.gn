@@ -385,6 +385,7 @@ config("warnings") {
 
     # We are unlikely to want to fix these.
     cflags += [
+      "-Wno-bad-function-cast",
       "-Wno-covered-switch-default",
       "-Wno-deprecated",
       "-Wno-missing-noreturn",
