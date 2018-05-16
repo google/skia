@@ -16,7 +16,7 @@
 bool skcms_gauss_newton_step(float (*rg)(float x, const void*, const float P[3], float dfdP[3]),
                              const void* ctx,
                              float P[3],
-                             float x0, float x1, int N) {
+                             float x0, float dx, int N) {
     // We'll sample x from the range [x0,x1] (both inclusive) N times with even spacing.
     //
     // We want to do P' = P + (Jf^T Jf)^-1 Jf^T r(P),
@@ -56,7 +56,6 @@ bool skcms_gauss_newton_step(float (*rg)(float x, const void*, const float P[3],
     // 1,2) evaluate lhs and evaluate rhs
     //   We want to evaluate Jf only once, but both lhs and rhs involve Jf^T,
     //   so we'll have to update lhs and rhs at the same time.
-    float dx = (x1-x0)/(N-1);
     for (int i = 0; i < N; i++) {
         float x = x0 + i*dx;
 

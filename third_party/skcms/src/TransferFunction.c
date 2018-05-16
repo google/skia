@@ -198,7 +198,7 @@ int skcms_fit_linear(const skcms_Curve* curve, int N, float tol, float* c, float
     // Some points' error intervals may intersect the running interval but not lie fully
     // within it.  So we keep track of the last point we saw that is a valid end point candidate,
     // and once the search is done, back up to build the line through *that* point.
-    const float x_scale = 1.0f / (N - 1);
+    const float dx = 1.0f / (N - 1);
 
     int lin_points = 1;
     *f = skcms_eval_curve(curve, 0);
@@ -206,7 +206,7 @@ int skcms_fit_linear(const skcms_Curve* curve, int N, float tol, float* c, float
     float slope_min = -INFINITY_;
     float slope_max = +INFINITY_;
     for (int i = 1; i < N; ++i) {
-        float x = i * x_scale;
+        float x = i * dx;
         float y = skcms_eval_curve(curve, x);
 
         float slope_max_i = (y + tol - *f) / x,
@@ -226,16 +226,16 @@ int skcms_fit_linear(const skcms_Curve* curve, int N, float tol, float* c, float
     }
 
     // Set D to the last point that met our tolerance.
-    *d = (lin_points - 1) * x_scale;
+    *d = (lin_points - 1) * dx;
     return lin_points;
 }
 
-// Fit the points in [start,N) to the non-linear piece of tf, or return false if we can't.
-static bool fit_nonlinear(const skcms_Curve* curve, int start, int N, skcms_TransferFunction* tf) {
+// Fit the points in [L,N) to the non-linear piece of tf, or return false if we can't.
+static bool fit_nonlinear(const skcms_Curve* curve, int L, int N, skcms_TransferFunction* tf) {
     float P[3] = { tf->g, tf->a, tf->b };
 
-    // No matter where we start, x_scale should always represent N even steps from 0 to 1.
-    const float x_scale = 1.0f / (N-1);
+    // No matter where we start, dx should always represent N even steps from 0 to 1.
+    const float dx = 1.0f / (N-1);
 
     for (int j = 0; j < 3/*TODO: tune*/; j++) {
         // These extra constraints a >= 0 and ad+b >= 0 are not modeled in the optimization.
@@ -253,7 +253,7 @@ static bool fit_nonlinear(const skcms_Curve* curve, int start, int N, skcms_Tran
         rg_nonlinear_arg arg = { curve, tf};
         if (!skcms_gauss_newton_step(rg_nonlinear, &arg,
                                      P,
-                                     start*x_scale, 1, N-start)) {
+                                     L*dx, dx, N-L)) {
             return false;
         }
     }
@@ -292,7 +292,7 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
     }
 
     int N = (int)curve->table_entries;
-    const float x_scale = 1.0f / (N - 1);
+    const float dx = 1.0f / (N - 1);
 
     *max_error = INFINITY_;
     const float kTolerances[] = { 1.5f / 65535.0f, 1.0f / 512.0f };
@@ -311,11 +311,11 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
         } else if (L == N - 1) {
             // Degenerate case with only two points in the nonlinear segment. Solve directly.
             tf.g = 1;
-            tf.a = (skcms_eval_curve(curve, (N-1)*x_scale) -
-                    skcms_eval_curve(curve, (N-2)*x_scale))
-                 / x_scale;
-            tf.b = skcms_eval_curve(curve, (N-2)*x_scale)
-                 - tf.a * (N-2)*x_scale;
+            tf.a = (skcms_eval_curve(curve, (N-1)*dx) -
+                    skcms_eval_curve(curve, (N-2)*dx))
+                 / dx;
+            tf.b = skcms_eval_curve(curve, (N-2)*dx)
+                 - tf.a * (N-2)*dx;
             tf.e = 0;
         } else {
             // Start by guessing a gamma-only curve through the midpoint.
@@ -353,7 +353,7 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
 
         float err = 0;
         for (int i = 0; i < N; i++) {
-            float x = i * x_scale,
+            float x = i * dx,
                   y = skcms_eval_curve(curve, x);
             err = fmaxf_(err, fabsf_(x - skcms_TransferFunction_eval(&tf_inv, y)));
         }
