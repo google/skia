@@ -25,36 +25,6 @@ required.
 #Populate
 ##
 
-
-    #Subtopic RGB
-    #Substitute RGB
-        #Subtopic Red
-            #Alias Red
-        #Subtopic ##
-        #Subtopic Blue
-            #Alias Blue
-        #Subtopic ##
-        #Subtopic Green
-            #Alias Green
-        #Subtopic ##
-    #Subtopic ##
-
-    #Subtopic ARGB
-    #Substitute ARGB
-    #Subtopic ##
-
-    #Subtopic RBG
-    #Substitute RBG
-    #Subtopic ##
-
-    #Subtopic RGB-565
-    #Substitute RGB-565
-    #Alias Color_RGB-565 # quit changing - to _ !
-    #Subtopic ##
-
-    #Subtopic Gray
-    ##
-
 # ------------------------------------------------------------------------------
 
 #Subtopic Alpha
@@ -71,6 +41,10 @@ zero, fully transparent, to one, fully opaque.
 #Typedef uint8_t SkAlpha
 #Line # defines Alpha as eight bits ##
 
+#Code
+typedef uint8_t SkAlpha;
+##
+
 8-bit type for an alpha value. 0xFF is 100% opaque, 0x00 is 100% transparent.
 
 #Typedef ##
@@ -81,6 +55,10 @@ zero, fully transparent, to one, fully opaque.
 
 #Typedef uint32_t SkColor
 #Line # defines Color as 32 bits ##
+
+#Code
+typedef uint32_t SkColor;
+##
 
 32-bit ARGB Color value, Unpremultiplied. Color components are always in
 a known order. This is different from SkPMColor, which has its bytes in a configuration
@@ -99,16 +77,16 @@ component values in a different order.
 
 #Method static constexpr inline SkColor SkColorSetARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
 #In Function
-#Line # returns Color_Alpha and Color_RGB combined ##
+#Line # returns Color_Alpha and RGB combined ##
 
 Returns Color value from 8-bit component values. Asserts if SK_DEBUG is defined
 if a, r, g, or b exceed 255. Since Color is Unpremultiplied, a may be smaller
 than the largest of r, g, and b.
 
 #Param a    amount of Alpha, from fully transparent (0) to fully opaque (255) ##
-#Param r    amount of RGB_Red, from no red (0) to full red (255) ##
-#Param g    amount of RGB_Green, from no green (0) to full green (255) ##
-#Param b    amount of RGB_Blue, from no blue (0) to full blue (255) ##
+#Param r    amount of red, from no red (0) to full red (255) ##
+#Param g    amount of green, from no green (0) to full green (255) ##
+#Param b    amount of blue, from no blue (0) to full blue (255) ##
 
 #Return color and alpha, Unpremultiplied ##
 
@@ -166,9 +144,9 @@ $$$#
 Returns Color value from 8-bit component values, with Alpha set
 fully opaque to 255.
 
-#Param r    amount of RGB_Red, from no red (0) to full red (255) ##
-#Param g    amount of RGB_Green, from no green (0) to full green (255) ##
-#Param b    amount of RGB_Blue, from no blue (0) to full blue (255) ##
+#Param r    amount of red, from no red (0) to full red (255) ##
+#Param g    amount of green, from no green (0) to full green (255) ##
+#Param b    amount of blue, from no blue (0) to full blue (255) ##
 
 #Return     color with opaque alpha ##
 
@@ -287,7 +265,7 @@ Returns blue component of Color, from zero to 255.
 
 Returns Color with red, blue, and green set from c; and alpha set from a.
 
-#Param c  Unpremultiplied Color_ARGB ##
+#Param c  Unpremultiplied ARGB ##
 #Param a  incomplete ##
 
 #Return incomplete ##
@@ -734,6 +712,10 @@ If hsv values are out of range, they are pinned.
 
 #Typedef uint32_t SkPMColor
 #Line # defines Premultiplied Color as 32 bits ##
+
+#Code
+typedef uint32_t SkPMColor;
+##
 
 32-bit ARGB color value, Premultiplied. The byte order for this value is
 configuration dependent, matching the format of kBGRA_8888_SkColorType bitmaps.
