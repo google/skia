@@ -137,6 +137,8 @@ def compile_fn(api, out_dir):
     args['is_debug'] = 'false'
   if 'ANGLE' in extra_tokens:
     args['skia_use_angle'] = 'true'
+  if 'MVK' in extra_tokens:
+    args['skia_moltenvk_path'] = "'%s'" % api.vars.slave_dir.join('moltenvk')
   if 'SwiftShader' in extra_tokens:
     swiftshader_root = api.vars.skia_dir.join('third_party', 'externals',
                                               'swiftshader')
