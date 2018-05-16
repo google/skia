@@ -29499,7 +29499,8 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Debian9-Clang-x86_64-Release"
       ],
       "dimensions": [
         "pool:SkiaCT",
@@ -29519,7 +29520,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "io_timeout_ns": 86400000000000,
-      "isolate": "skia_repo.isolate",
+      "isolate": "swarm_recipe.isolate",
       "max_attempts": 1,
       "priority": 0.8,
       "service_account": "skia-external-ct-skps@skia-swarming-bots.iam.gserviceaccount.com"
@@ -29623,7 +29624,8 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Debian9-Clang-x86_64-Release"
       ],
       "dimensions": [
         "pool:SkiaCT",
@@ -29643,7 +29645,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "io_timeout_ns": 86400000000000,
-      "isolate": "skia_repo.isolate",
+      "isolate": "swarm_recipe.isolate",
       "max_attempts": 1,
       "priority": 0.8,
       "service_account": "skia-external-ct-skps@skia-swarming-bots.iam.gserviceaccount.com"
@@ -55036,7 +55038,8 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Debian9-Clang-x86_64-Debug"
       ],
       "dimensions": [
         "pool:SkiaCT",
@@ -55056,7 +55059,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "io_timeout_ns": 86400000000000,
-      "isolate": "skia_repo.isolate",
+      "isolate": "swarm_recipe.isolate",
       "max_attempts": 1,
       "priority": 0.8,
       "service_account": "skia-external-ct-skps@skia-swarming-bots.iam.gserviceaccount.com"
@@ -55160,7 +55163,8 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Debian9-Clang-x86_64-Debug"
       ],
       "dimensions": [
         "pool:SkiaCT",
@@ -55180,7 +55184,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "io_timeout_ns": 86400000000000,
-      "isolate": "skia_repo.isolate",
+      "isolate": "swarm_recipe.isolate",
       "max_attempts": 1,
       "priority": 0.8,
       "service_account": "skia-external-ct-skps@skia-swarming-bots.iam.gserviceaccount.com"
@@ -55284,7 +55288,8 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Debian9-Clang-x86_64-Debug"
       ],
       "dimensions": [
         "pool:SkiaCT",
@@ -55304,7 +55309,7 @@
         "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       },
       "io_timeout_ns": 86400000000000,
-      "isolate": "skia_repo.isolate",
+      "isolate": "swarm_recipe.isolate",
       "max_attempts": 1,
       "priority": 0.8,
       "service_account": "skia-external-ct-skps@skia-swarming-bots.iam.gserviceaccount.com"
