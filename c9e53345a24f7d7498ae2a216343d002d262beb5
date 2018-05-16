@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c6270e9f_39658244",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 8171
+      },
+      "writtenOn": "2018-05-16T19:13:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "11c4a464_8333ecb3",
+      "revId": "c9e53345a24f7d7498ae2a216343d002d262beb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dced4bf1_9cd48843",
         "filename": "include/core/SkImageInfo.h",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "c9e53345a24f7d7498ae2a216343d002d262beb5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "988f73a5_71ce1946",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 8171
+      },
+      "writtenOn": "2018-05-16T19:13:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dced4bf1_9cd48843",
+      "revId": "c9e53345a24f7d7498ae2a216343d002d262beb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "7a1b4f3a_e756e648",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 8171
+      },
+      "writtenOn": "2018-05-16T19:13:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ee7ebc1_4411a518",
+      "revId": "c9e53345a24f7d7498ae2a216343d002d262beb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba34629b_1345f23e",
         "filename": "include/core/SkImageInfo.h",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2018-05-16T17:44:42Z",
       "side": 1,
       "message": "fChannel\n\nThis might need to be an enum\n\ninfro -\u003e info",
+      "revId": "c9e53345a24f7d7498ae2a216343d002d262beb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7deef0cb_469c7d59",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 8171
+      },
+      "writtenOn": "2018-05-16T19:13:38Z",
+      "side": 1,
+      "message": "per offline discussion the swizzle uses a int: https://cs.chromium.org/chromium/src/third_party/skia/include/private/GrSwizzle.h?type\u003dcs\u0026q\u003dgrswizzle+file:third_party/skia+rgb\u0026sq\u003dpackage:chromium\u0026g\u003d0\u0026l\u003d29\n\nso keep as int and error check in code.",
+      "parentUuid": "ba34629b_1345f23e",
       "revId": "c9e53345a24f7d7498ae2a216343d002d262beb5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "5182cdff_b6942610",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 8171
+      },
+      "writtenOn": "2018-05-16T19:13:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "560be3d6_3def2a6d",
+      "revId": "c9e53345a24f7d7498ae2a216343d002d262beb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aca66158_7a01c1a8",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 1
@@ -101,6 +191,24 @@
       "revId": "c9e53345a24f7d7498ae2a216343d002d262beb5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c56715f0_38568079",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 8171
+      },
+      "writtenOn": "2018-05-16T19:13:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aca66158_7a01c1a8",
+      "revId": "c9e53345a24f7d7498ae2a216343d002d262beb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -135,6 +243,24 @@
       "revId": "c9e53345a24f7d7498ae2a216343d002d262beb5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88f7ec7d_816c805e",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 8171
+      },
+      "writtenOn": "2018-05-16T19:13:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6608eed5_60eb904e",
+      "revId": "c9e53345a24f7d7498ae2a216343d002d262beb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
