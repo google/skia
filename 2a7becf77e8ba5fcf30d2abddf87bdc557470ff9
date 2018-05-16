@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "01f4be87_b459f1d1",
+        "filename": "third_party/vulkan/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-16T19:03:31Z",
+      "side": 1,
+      "message": "Are you suggesting in gpu target I list the vulkan when as a public_deps? If so I do that.",
+      "parentUuid": "d4960646_ccfc6923",
+      "range": {
+        "startLine": 52,
+        "startChar": 2,
+        "endLine": 52,
+        "endChar": 23
+      },
+      "revId": "2a7becf77e8ba5fcf30d2abddf87bdc557470ff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "16cb48bf_aba43b44",
         "filename": "third_party/vulkan/vulkan_config.gni",
         "patchSetId": 3
