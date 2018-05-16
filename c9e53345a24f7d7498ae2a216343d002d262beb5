@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "11c4a464_8333ecb3",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-16T17:44:42Z",
+      "side": 1,
+      "message": "\"texture\" -\u003e \"image source\" ?\n\"the YUVA planes\" -\u003e \"each individual YUVA plane\" ?",
+      "revId": "c9e53345a24f7d7498ae2a216343d002d262beb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dced4bf1_9cd48843",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-16T17:44:42Z",
+      "side": 1,
+      "message": "Probably should swap \"image source\" for \"texture\" every where in the comments.\ndefinies -\u003e defines",
+      "revId": "c9e53345a24f7d7498ae2a216343d002d262beb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ee7ebc1_4411a518",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-16T17:44:42Z",
+      "side": 1,
+      "message": "fIndex",
+      "revId": "c9e53345a24f7d7498ae2a216343d002d262beb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba34629b_1345f23e",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-16T17:44:42Z",
+      "side": 1,
+      "message": "fChannel\n\nThis might need to be an enum\n\ninfro -\u003e info",
+      "revId": "c9e53345a24f7d7498ae2a216343d002d262beb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "560be3d6_3def2a6d",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-16T17:44:42Z",
+      "side": 1,
+      "message": "move up to prior line ?",
+      "revId": "c9e53345a24f7d7498ae2a216343d002d262beb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aca66158_7a01c1a8",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-16T17:44:42Z",
+      "side": 1,
+      "message": "\"is referred to valid backend texture\" -\u003e \"refer to valid backend textures\"",
+      "revId": "c9e53345a24f7d7498ae2a216343d002d262beb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
