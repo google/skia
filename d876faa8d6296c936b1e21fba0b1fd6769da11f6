@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f436ccd7_5ef9b43a",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-16T21:14:53Z",
+      "side": 1,
+      "message": "Why the static assert?",
+      "range": {
+        "startLine": 124,
+        "startChar": 0,
+        "endLine": 125,
+        "endChar": 0
+      },
+      "revId": "d876faa8d6296c936b1e21fba0b1fd6769da11f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4ce862b_819d47af",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-16T21:14:53Z",
+      "side": 1,
+      "message": "Why the static assert?",
+      "range": {
+        "startLine": 169,
+        "startChar": 0,
+        "endLine": 170,
+        "endChar": 0
+      },
+      "revId": "d876faa8d6296c936b1e21fba0b1fd6769da11f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa09fa54_c28894bc",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-16T21:14:53Z",
+      "side": 1,
+      "message": "asImage?",
+      "range": {
+        "startLine": 380,
+        "startChar": 15,
+        "endLine": 380,
+        "endChar": 23
+      },
+      "revId": "d876faa8d6296c936b1e21fba0b1fd6769da11f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee290de2_2bebde39",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-16T21:14:53Z",
+      "side": 1,
+      "message": "asPath",
+      "range": {
+        "startLine": 416,
+        "startChar": 15,
+        "endLine": 416,
+        "endChar": 23
+      },
+      "revId": "d876faa8d6296c936b1e21fba0b1fd6769da11f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8bd25cd2_910797fa",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 561,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-16T21:14:53Z",
+      "side": 1,
+      "message": "Just have two routines. addGlyphWithImage, addGlyphWithPath.",
+      "range": {
+        "startLine": 561,
+        "startChar": 40,
+        "endLine": 561,
+        "endChar": 48
+      },
+      "revId": "d876faa8d6296c936b1e21fba0b1fd6769da11f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db968975_afc1a634",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 575,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-16T21:14:53Z",
+      "side": 1,
+      "message": "line overflow",
+      "range": {
+        "startLine": 575,
+        "startChar": 40,
+        "endLine": 575,
+        "endChar": 59
+      },
+      "revId": "d876faa8d6296c936b1e21fba0b1fd6769da11f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
