@@ -6,6 +6,7 @@
  */
 
 #include "../skcms.h"
+#include "Curve.h"
 #include "GaussNewton.h"
 #include "Macros.h"
 #include "PortableMath.h"
@@ -42,7 +43,8 @@
 // and not Ax^3 + Bx^2 + (1-A-B) to ensure that f(1.0f) == 1.0f.
 
 
-static float eval_poly_tf(float x, float A, float B, float C, float D) {
+static float eval_poly_tf(float A, float B, float C, float D,
+                          float x) {
     return x < D ? C*x
                  : A*(x*x*x-1) + B*(x*x-1) + 1;
 }
@@ -63,8 +65,8 @@ static float rg_poly_tf(float x, const void* ctx, const float P[3], float dfdP[3
 
     dfdP[0] = (x*x*x - 1) - (x*x-1)*(D*D*D-1)/(D*D-1);
 
-    return skcms_eval_curve(x, arg->curve)
-         -     eval_poly_tf(x, A,B,C,D);
+    return skcms_eval_curve(arg->curve, x)
+         -     eval_poly_tf(A,B,C,D,    x);
 }
 
 static bool fit_poly_tf(const skcms_Curve* curve, skcms_PolyTF* tf) {
@@ -147,7 +149,7 @@ static bool fit_poly_tf(const skcms_Curve* curve, skcms_PolyTF* tf) {
     for (int i = 0; i < N; i++) {
         float x = i * (1.0f/(N-1));
 
-        float rt = skcms_TransferFunction_eval(&inv, eval_poly_tf(x, A,B,C,D))
+        float rt = skcms_TransferFunction_eval(&inv, eval_poly_tf(A,B,C,D, x))
                  * (N-1) + 0.5f;
         if (!isfinitef_(rt) || rt >= N || rt < 0) {
             return false;

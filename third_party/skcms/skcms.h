@@ -61,6 +61,12 @@ typedef union skcms_Curve {
     };
 } skcms_Curve;
 
+// Practical equality test for two skcms_Curves.
+// The implementation is subject to change, but it will always try to answer
+// "can I substitute A for B?" and "can I skip transforming from A to B?".
+SKCMS_API bool skcms_ApproximatelyEqualCurves(const skcms_Curve* A,
+                                              const skcms_Curve* B);
+
 typedef struct skcms_A2B {
     // Optional: N 1D curves, followed by an N-dimensional CLUT.
     // If input_channels == 0, these curves and CLUT are skipped,

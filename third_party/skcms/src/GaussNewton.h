@@ -23,6 +23,3 @@ bool skcms_gauss_newton_step(float (*rg)(float x, const void*, const float P[3],
                              const void* ctx,
                              float P[3],
                              float x0, float x1, int N);
-
-// Evaluate an skcms_Curve at x.
-float skcms_eval_curve(float x, const skcms_Curve*);
