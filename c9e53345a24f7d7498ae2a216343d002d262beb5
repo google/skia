@@ -101,6 +101,40 @@
       "revId": "c9e53345a24f7d7498ae2a216343d002d262beb5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "262e28c8_7a8f3155",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-16T17:54:08Z",
+      "side": 1,
+      "message": "We only want a single GrTextureProxy for each unique GrBackendTexture.",
+      "revId": "c9e53345a24f7d7498ae2a216343d002d262beb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6608eed5_60eb904e",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-16T17:54:08Z",
+      "side": 1,
+      "message": "\"process\" -\u003e \"processor\"\n\nI think the \u0027sizes\u0027 parameter may be unnecessary. It looks like it is used to determine w/ point vs. linear sampling is used but it should be able to determine that just from the sizes of the proxies.",
+      "revId": "c9e53345a24f7d7498ae2a216343d002d262beb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
