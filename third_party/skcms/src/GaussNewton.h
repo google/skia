@@ -14,7 +14,7 @@
 //   rg:       residual function r(x,P) to minimize, and gradient at x in dfdP
 //   ctx:      arbitrary context argument passed to rg
 //   P:        in-out, both your initial guess for parameters of r(), and our updated values
-//   x0,x1,N:  N x-values to test in [x0,x1] (both inclusive) with even spacing
+//   x0,dx,N:  N x-values to test with even dx spacing, [x0, x0+dx, x0+2dx, ...]
 //
 // If you have fewer than 3 parameters, set the unused P to zero, don't touch their dfdP.
 //
@@ -22,4 +22,4 @@
 bool skcms_gauss_newton_step(float (*rg)(float x, const void*, const float P[3], float dfdP[3]),
                              const void* ctx,
                              float P[3],
-                             float x0, float x1, int N);
+                             float x0, float dx, int N);

@@ -76,6 +76,7 @@ static bool fit_poly_tf(const skcms_Curve* curve, skcms_PolyTF* tf) {
 
     const int N = curve->table_entries == 0 ? 256
                                             : (int)curve->table_entries;
+    const float dx = 1.0f / (N-1);
 
     // We'll test the quality of our fit by roundtripping through a skcms_TransferFunction,
     // either the inverse of the curve itself if it is parametric, or of its approximation if not.
@@ -117,7 +118,8 @@ static bool fit_poly_tf(const skcms_Curve* curve, skcms_PolyTF* tf) {
 
     // Number of points already fit in the linear section.
     // If the curve isn't parametric and we approximated instead, this should be exact.
-    const int L = (int)(tf->D * (N-1)) + 1;
+    // const int L = (int)( tf->D/dx + 0.5f ) + 1
+    const int L = (int)(tf->D * (N-1) + 0.5f) + 1;
 
     if (L == N-1) {
         // All points but one fit the linear section.
@@ -136,7 +138,7 @@ static bool fit_poly_tf(const skcms_Curve* curve, skcms_PolyTF* tf) {
         rg_poly_tf_arg arg = { curve, tf };
         if (!skcms_gauss_newton_step(rg_poly_tf, &arg,
                                      P,
-                                     tf->D, 1, N-L)) {
+                                     L*dx, dx, N-L)) {
             return false;
         }
     }
