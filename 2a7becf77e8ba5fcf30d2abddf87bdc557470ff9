@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e56f2b43_f5c0bc41",
+        "filename": "third_party/vulkan/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-16T18:55:01Z",
+      "side": 1,
+      "message": "So using public_configs here does not work. From my reading of the documentation public_configs will just allow the target directly depending on this to get access. In this case that would be the \"gpu\" target. However, our tools have a dependency on \"gpu\" and also need to access Vulkan stuff. So I think think then is the correct way to handle that, but feel free to correct me if I\u0027m wrong.",
+      "parentUuid": "d85b1617_7d30ad60",
+      "range": {
+        "startLine": 52,
+        "startChar": 2,
+        "endLine": 52,
+        "endChar": 23
+      },
+      "revId": "2a7becf77e8ba5fcf30d2abddf87bdc557470ff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "16cb48bf_aba43b44",
         "filename": "third_party/vulkan/vulkan_config.gni",
         "patchSetId": 3
