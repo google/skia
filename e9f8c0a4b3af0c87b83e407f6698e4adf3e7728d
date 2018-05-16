@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2fa590dc_be48778b",
+        "filename": "third_party/vulkan/vulkan_config.gni",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-16T13:55:35Z",
+      "side": 1,
+      "message": "Is there an correct way to share is_skia_dev_build with our normal BUILD.gn? Should I move it into a declare args struct in our BUILD.gn instead of just sitting on the top level?",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 60
+      },
+      "revId": "e9f8c0a4b3af0c87b83e407f6698e4adf3e7728d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
