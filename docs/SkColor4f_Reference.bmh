@@ -18,19 +18,19 @@ The float values are 0...1 Unpremultiplied
 ##
 
 #Member float  fR
-#Line # incomplete ##
+#Line # red component of Color4f ##
 ##
 
 #Member float  fG
-#Line # incomplete ##
+#Line # green component of Color4f ##
 ##
 
 #Member float  fB
-#Line # incomplete ##
+#Line # blue component of Color4f ##
 ##
 
 #Member float  fA
-#Line # incomplete ##
+#Line # Alpha component of Color4f ##
 ##
 
 # ------------------------------------------------------------------------------
