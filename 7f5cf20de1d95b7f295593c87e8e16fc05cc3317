@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "d084bc1a_07cbfd25",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-16T20:52:58Z",
+      "side": 1,
+      "message": "Ok, might be worth a comment or maybe just a comment on the new API when it\u0027s added.",
+      "parentUuid": "71523709_ed3f9af1",
+      "range": {
+        "startLine": 225,
+        "startChar": 38,
+        "endLine": 225,
+        "endChar": 40
+      },
+      "revId": "7f5cf20de1d95b7f295593c87e8e16fc05cc3317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7cfcd2d7_5ecfc74c",
         "filename": "include/core/SkImageInfo.h",
         "patchSetId": 4
@@ -132,6 +156,30 @@
       "side": 1,
       "message": "Robert mentioned GrSwizzle, would we want to match there? https://cs.chromium.org/chromium/src/third_party/skia/include/private/GrSwizzle.h?type\u003dcs\u0026q\u003dgrswizzle+file:third_party/skia+rgb\u0026sq\u003dpackage:chromium\u0026g\u003d0\u0026l\u003d29",
       "parentUuid": "ec380b65_e71df1c1",
+      "range": {
+        "startLine": 230,
+        "startChar": 4,
+        "endLine": 230,
+        "endChar": 16
+      },
+      "revId": "7f5cf20de1d95b7f295593c87e8e16fc05cc3317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97ea3f49_05330a6d",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-16T20:52:58Z",
+      "side": 1,
+      "message": "I think a enum of some kind makes sense.\n\nThe thing I\u0027m a little stuck on is if the texture is luminance do we want the client to explicitly say luminance or should they use any of R, G, B? At first I was thinking luminance but in a shader you access that value using .r, .g, or .b. On the other hand, we already have the idea of \"gray\" as a SkColorType where gray pretty much means luminance. Maybe we stick with a RGBA enum and can revist when we get around to supporting luminance textures?\n\nI\u0027d add a new enum rather than exposing something from one of the private types. When this stabilizes maybe we redefine those private types around the new public enum.\n\nApologies for bike shedding.",
+      "parentUuid": "a5d98470_9938c5fe",
       "range": {
         "startLine": 230,
         "startChar": 4,
