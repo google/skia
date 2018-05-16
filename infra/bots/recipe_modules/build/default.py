@@ -140,7 +140,7 @@ def compile_fn(api, out_dir):
   if 'SwiftShader' in extra_tokens:
     swiftshader_root = api.vars.skia_dir.join('third_party', 'externals',
                                               'swiftshader')
-    swiftshader_out = api.vars.skia_out.join('swiftshader_out')
+    swiftshader_out = out_dir.join('swiftshader_out')
     compile_swiftshader(api, swiftshader_root, cc, cxx, swiftshader_out)
     args['skia_use_egl'] = 'true'
     extra_cflags.extend([
@@ -276,5 +276,5 @@ def compile_fn(api, out_dir):
 def copy_extra_build_products(api, src, dst):
   if 'SwiftShader' in api.vars.extra_tokens:
     util.copy_whitelisted_build_products(api,
-        api.vars.skia_out.join('swiftshader_out'),
+        src.join('swiftshader_out'),
         api.vars.swarming_out_dir.join('out', 'swiftshader_out'))
