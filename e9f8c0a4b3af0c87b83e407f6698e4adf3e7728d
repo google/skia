@@ -22,6 +22,30 @@
       "revId": "e9f8c0a4b3af0c87b83e407f6698e4adf3e7728d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2674ebf6_d2f13851",
+        "filename": "third_party/vulkan/vulkan_config.gni",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-16T13:58:52Z",
+      "side": 1,
+      "message": "If you move it to BUILDCONFIG.gn, it\u0027ll be visible everywhere.",
+      "parentUuid": "2fa590dc_be48778b",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 60
+      },
+      "revId": "e9f8c0a4b3af0c87b83e407f6698e4adf3e7728d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
