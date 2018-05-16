@@ -68,6 +68,98 @@
       "revId": "7f5cf20de1d95b7f295593c87e8e16fc05cc3317",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "860c30a0_c826b161",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-16T19:47:17Z",
+      "side": 1,
+      "message": "nit: Skia does yoda speak for \u003d\u003d, so e.g. 3 \u003d\u003d i",
+      "range": {
+        "startLine": 429,
+        "startChar": 12,
+        "endLine": 429,
+        "endChar": 44
+      },
+      "revId": "7f5cf20de1d95b7f295593c87e8e16fc05cc3317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b8966e5_9de76675",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-16T19:47:17Z",
+      "side": 1,
+      "message": "yoda",
+      "range": {
+        "startLine": 433,
+        "startChar": 12,
+        "endLine": 433,
+        "endChar": 58
+      },
+      "revId": "7f5cf20de1d95b7f295593c87e8e16fc05cc3317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d7bd6fa_7ef28a36",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-16T19:47:17Z",
+      "side": 1,
+      "message": "yoda",
+      "range": {
+        "startLine": 456,
+        "startChar": 12,
+        "endLine": 456,
+        "endChar": 30
+      },
+      "revId": "7f5cf20de1d95b7f295593c87e8e16fc05cc3317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "168b39bc_03fffa6e",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-16T19:47:17Z",
+      "side": 1,
+      "message": "nit 4 space per tab",
+      "range": {
+        "startLine": 457,
+        "startChar": 9,
+        "endLine": 458,
+        "endChar": 16
+      },
+      "revId": "7f5cf20de1d95b7f295593c87e8e16fc05cc3317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
