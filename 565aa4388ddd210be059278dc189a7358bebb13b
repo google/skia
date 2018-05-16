@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "53d71eda_daf00569",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-16T19:31:56Z",
+      "side": 1,
+      "message": "planes -\u003e plane",
+      "revId": "565aa4388ddd210be059278dc189a7358bebb13b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "031e0560_c196d150",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-16T19:31:56Z",
+      "side": 1,
+      "message": "p -\u003e P",
+      "revId": "565aa4388ddd210be059278dc189a7358bebb13b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f458b99_ed8f9d3f",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-16T19:31:56Z",
+      "side": 1,
+      "message": "add brackets \u0026 new lines, so:\n\nif (textureIndex \u003d\u003d -1) {\n   SkASSERT(3 \u003d\u003d i);\n   continue;\n}",
+      "revId": "565aa4388ddd210be059278dc189a7358bebb13b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "282fd809_39bd3f7e",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-16T19:31:56Z",
+      "side": 1,
+      "message": "Can do \"!tempTextureProxies[textureIndex]\"",
+      "revId": "565aa4388ddd210be059278dc189a7358bebb13b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4465c04e_3925f393",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-16T19:31:56Z",
+      "side": 1,
+      "message": "// TODO: move this into GrYUVtoRGBEffect since this can just as well be done in there.\n\n?",
+      "revId": "565aa4388ddd210be059278dc189a7358bebb13b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
