@@ -41,7 +41,8 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrProxyProvider* proxyProvide
     std::unique_ptr<GrDrawOpAtlas> atlas(new GrDrawOpAtlas(proxyProvider, config, width, height,
                                                            numPlotsX, numPlotsY,
                                                            allowMultitexturing));
-    if (!atlas->getProxies()[0]) {
+    const sk_sp<GrTextureProxy>* proxies = atlas->getProxies();
+    if (!proxies[0]) {
         return nullptr;
     }
 
