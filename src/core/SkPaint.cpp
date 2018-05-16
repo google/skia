@@ -1257,7 +1257,6 @@ void SkPaintPriv::Flatten(const SkPaint& paint, SkWriteBuffer& buffer) {
 
 bool SkPaintPriv::Unflatten(SkPaint* paint, SkReadBuffer& buffer) {
     SkSafeRange safe;
-
     paint->setTextSize(buffer.readScalar());
     paint->setTextScaleX(buffer.readScalar());
     paint->setTextSkewX(buffer.readScalar());
@@ -1296,7 +1295,6 @@ bool SkPaintPriv::Unflatten(SkPaint* paint, SkReadBuffer& buffer) {
         paint->setLooper(nullptr);
         paint->setImageFilter(nullptr);
     }
-
     if (!buffer.validate(safe)) {
         paint->reset();
         return false;
