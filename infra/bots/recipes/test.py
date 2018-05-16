@@ -231,7 +231,8 @@ def dm_flags(api, bot):
 
     # Vulkan bot *only* runs the vk config.
     if 'Vulkan' in bot:
-      configs = ['vk']
+      # https://bugs.chromium.org/p/skia/issues/detail?id=7961
+      configs = ['vk' if not 'MVK' in bot else 'vknostencils']
 
     # Test 1010102 on our Linux/NVIDIA bots
     if 'QuadroP400' in bot and api.vars.is_linux:
@@ -721,6 +722,16 @@ def dm_flags(api, bot):
     blacklist(['vk', 'gm', '_', 'varied_text_clipped_lcd'])
     blacklist(['vk', 'gm', '_', 'varied_text_ignorable_clip_lcd'])
 
+  if 'MVK_Vulkan' in bot:
+    # https://bugs.chromium.org/p/skia/issues/detail?id=7959
+    blacklist(['vk', 'gm', '_', 'vertices_scaled_shader'])
+    blacklist(['vk', 'gm', '_', 'vertices'])
+    match.append('~^RGB565TextureTest$')
+    match.append('~^WritePixelsNonTextureMSAA_Gpu$')
+    match.append('~^InitialTextureClear$')
+    match.append('~^RGBA4444TextureTest$')
+    match.append('~^ProcessorCloneTest$')
+
   if (('RadeonR9M470X' in bot or 'RadeonHD7770' in bot) and 'ANGLE' in bot):
     # skia:7096
     match.append('~PinnedImageTest')
@@ -1006,6 +1017,8 @@ TEST_BUILDERS = [
   'Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All',
   'Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer',
   'Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-NativeFonts',
+  ('Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-'
+   'MVK_Vulkan'),
   'Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_Coverage',
   ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
