@@ -93,23 +93,3 @@ bool skcms_gauss_newton_step(float (*rg)(float x, const void*, const float P[3],
     P[2] += dP.vals[2];
     return isfinitef_(P[0]) && isfinitef_(P[1]) && isfinitef_(P[2]);
 }
-
-float skcms_eval_curve(float x, const skcms_Curve* curve) {
-    if (curve->table_entries == 0) {
-        return skcms_TransferFunction_eval(&curve->parametric, x);
-    }
-
-    // TODO: today we should always hit an entry exactly, but if that changes, lerp?
-    // (We add half to account for slight int -> float -> int round tripping issues.)
-    int ix = (int)( x*(curve->table_entries - 1) + 0.5f );
-
-    if (curve->table_8) {
-        return curve->table_8[ix] * (1/255.0f);
-    } else {
-        uint16_t be;
-        memcpy(&be, curve->table_16 + 2*ix, 2);
-
-        uint16_t le = ((be << 8) | (be >> 8)) & 0xffff;
-        return le * (1/65535.0f);
-    }
-}

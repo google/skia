@@ -4,6 +4,8 @@
 # found in the LICENSE file.
 
 skcms_sources = [
+  "src/Curve.c",
+  "src/Curve.h",
   "src/GaussNewton.c",
   "src/GaussNewton.h",
   "src/ICCProfile.c",
