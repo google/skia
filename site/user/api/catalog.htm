@@ -3477,13 +3477,13 @@
     "file": "SkMatrix_Reference",
     "name": "MemberIndex"
 },
-    "Paint_Anti_alias": {
+    "Paint_Anti_Alias": {
     "code": "void draw(SkCanvas* canvas) {\n    SkBitmap bitmap;\n    bitmap.allocN32Pixels(50, 50);\n    SkCanvas offscreen(bitmap);\n    SkPaint paint;\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(10);\n    for (bool antialias : { false, true }) {\n        paint.setColor(antialias ? SK_ColorRED : SK_ColorBLUE);\n        paint.setAntiAlias(antialias);\n        bitmap.eraseColor(0);\n        offscreen.drawLine(5, 5, 15, 30, paint);\n        canvas->drawLine(5, 5, 15, 30, paint);\n        canvas->save();\n        canvas->scale(10, 10);\n        canvas->drawBitmap(bitmap, antialias ? 12 : 0, 0);\n        canvas->restore();\n        canvas->translate(15, 0);\n    }\n}\n",
     "width": 512,
     "height": 256,
     "hash": "a6575a49467ce8d28bb01cc7638fa04d",
     "file": "SkPaint_Reference",
-    "name": "Anti-alias"
+    "name": "Anti_Alias"
 },
     "Paint_Blend_Mode_Methods": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint normal, blender;\n    normal.setColor(0xFF58a889);\n    blender.setColor(0xFF8958a8);\n    canvas->clear(0);\n    for (SkBlendMode m : { SkBlendMode::kSrcOver, SkBlendMode::kSrcIn, SkBlendMode::kSrcOut } ) {\n        normal.setBlendMode(SkBlendMode::kSrcOver);\n        canvas->drawOval(SkRect::MakeXYWH(30, 30, 30, 80), normal);\n        blender.setBlendMode(m);\n        canvas->drawOval(SkRect::MakeXYWH(10, 50, 80, 30), blender);\n        canvas->translate(70, 70);\n    }\n}\n",

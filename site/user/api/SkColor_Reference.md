@@ -137,7 +137,7 @@ SkColor related constants are defined by <code>enum</code>, <code>enum class</co
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkColorSetARGB'>SkColorSetARGB</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#Alpha'>Color Alpha</a> and <a href='#RGB'>Color RGB</a> combined</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#Alpha'>Color Alpha</a> and RGB combined</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkColorToHSV'>SkColorToHSV</a></td>
@@ -153,7 +153,7 @@ SkColor related constants are defined by <code>enum</code>, <code>enum class</co
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPreMultiplyARGB'>SkPreMultiplyARGB</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>converts <a href='undocumented#Unpremultiply'>Unpremultiplied</a> <a href='#ARGB'>ARGB</a> to <a href='undocumented#Premultiply'>Premultiplied</a> <a href='#PMColor'>PMColor</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>converts <a href='undocumented#Unpremultiply'>Unpremultiplied</a> ARGB to <a href='undocumented#Premultiply'>Premultiplied</a> <a href='#PMColor'>PMColor</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPreMultiplyColor'>SkPreMultiplyColor</a></td>
@@ -188,22 +188,6 @@ SkColor  <code>typedef</code> define a data type.
 </table>
 
 
-## <a name='RGB'>RGB</a>
-
-## <a name='RGB_Red'>RGB Red</a>
-
-## <a name='RGB_Blue'>RGB Blue</a>
-
-## <a name='RGB_Green'>RGB Green</a>
-
-## <a name='ARGB'>ARGB</a>
-
-## <a name='RBG'>RBG</a>
-
-## <a name='RGB-565'>RGB-565</a>
-
-## <a name='Gray'>Gray</a>
-
 ## <a name='Alpha'>Alpha</a>
 
 <a href='#Alpha'>Alpha</a> represents the transparency of <a href='#Color'>Color</a>. <a href='#Color'>Color</a> with <a href='#Alpha'>Alpha</a> of zero is fully
@@ -214,10 +198,20 @@ transparent, to all bits set, fully opaque. Floating point <a href='#Alpha'>Alph
 zero, fully transparent, to one, fully opaque.
 
 # <a name='SkAlpha'>Typedef SkAlpha</a>
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+typedef uint8_t <a href='#SkAlpha'>SkAlpha</a>;
+</pre>
+
 8-bit type for an alpha value. 0xFF is 100% opaque, 0x00 is 100% transparent.
 
 # <a name='SkColor'>Typedef SkColor</a>
-32-bit <a href='#ARGB'>ARGB</a> <a href='#Color'>Color</a> value, <a href='undocumented#Unpremultiply'>Unpremultiplied</a>. <a href='#Color'>Color</a> components are always in
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+typedef uint32_t <a href='#SkColor'>SkColor</a>;
+</pre>
+
+32-bit ARGB <a href='#Color'>Color</a> value, <a href='undocumented#Unpremultiply'>Unpremultiplied</a>. <a href='#Color'>Color</a> components are always in
 a known order. This is different from <a href='#SkPMColor'>SkPMColor</a>, which has its bytes in a configuration
 dependent order, to match the format of <a href='SkImageInfo_Reference#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a> bitmaps. <a href='#SkColor'>SkColor</a>
 is the type used to specify colors in <a href='SkPaint_Reference#SkPaint'>SkPaint</a> and in gradients.
@@ -247,13 +241,13 @@ than the largest of <a href='#SkColorSetARGB_r'>r</a>, <a href='#SkColorSetARGB_
     <td>amount of <a href='#Alpha'>Alpha</a>, from fully transparent (0) to fully opaque (255)</td>
   </tr>
   <tr>    <td><a name='SkColorSetARGB_r'><code><strong>r</strong></code></a></td>
-    <td>amount of <a href='#RGB_Red'>RGB Red</a>, from no red (0) to full red (255)</td>
+    <td>amount of red, from no red (0) to full red (255)</td>
   </tr>
   <tr>    <td><a name='SkColorSetARGB_g'><code><strong>g</strong></code></a></td>
-    <td>amount of <a href='#RGB_Green'>RGB Green</a>, from no green (0) to full green (255)</td>
+    <td>amount of green, from no green (0) to full green (255)</td>
   </tr>
   <tr>    <td><a name='SkColorSetARGB_b'><code><strong>b</strong></code></a></td>
-    <td>amount of <a href='#RGB_Blue'>RGB Blue</a>, from no blue (0) to full blue (255)</td>
+    <td>amount of blue, from no blue (0) to full blue (255)</td>
   </tr>
 </table>
 
@@ -271,6 +265,8 @@ color and alpha, <a href='undocumented#Unpremultiply'>Unpremultiplied</a>
 
 ---
 
+## <a name='SkColorSetARGBInline'>Define SkColorSetARGBInline</a>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     #define <a href='#SkColorSetARGBInline'>SkColorSetARGBInline</a> <a href='#SkColorSetARGB'>SkColorSetARGB</a>
 </pre>
@@ -279,6 +275,8 @@ Deprecated.
 
 soon
 
+## <a name='SkColorSetARGBMacro'>Define SkColorSetARGBMacro</a>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     #define <a href='#SkColorSetARGBMacro'>SkColorSetARGBMacro</a>  <a href='#SkColorSetARGB'>SkColorSetARGB</a>
 </pre>
@@ -286,6 +284,8 @@ soon
 Deprecated.
 
 soon
+
+## <a name='SkColorSetRGB'>Define SkColorSetRGB</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     #define <a href='#SkColorSetRGB'>SkColorSetRGB(r, g, b)</a>  <a href='#SkColorSetARGB'>SkColorSetARGB(0xFF, r, g, b)</a>
@@ -297,13 +297,13 @@ fully opaque to 255.
 ### Parameters
 
 <table>  <tr>    <td><a name='SkColorSetRGB_r'><code><strong>r</strong></code></a></td>
-    <td>amount of <a href='#RGB_Red'>RGB Red</a>, from no red (0) to full red (255)</td>
+    <td>amount of red, from no red (0) to full red (255)</td>
   </tr>
   <tr>    <td><a name='SkColorSetRGB_g'><code><strong>g</strong></code></a></td>
-    <td>amount of <a href='#RGB_Green'>RGB Green</a>, from no green (0) to full green (255)</td>
+    <td>amount of green, from no green (0) to full green (255)</td>
   </tr>
   <tr>    <td><a name='SkColorSetRGB_b'><code><strong>b</strong></code></a></td>
-    <td>amount of <a href='#RGB_Blue'>RGB Blue</a>, from no blue (0) to full blue (255)</td>
+    <td>amount of blue, from no blue (0) to full blue (255)</td>
   </tr>
 </table>
 
@@ -318,6 +318,8 @@ color with opaque alpha
 ### See Also
 
 incomplete
+
+## <a name='SkColorGetA'>Define SkColorGetA</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     #define <a href='#SkColorGetA'>SkColorGetA(color)</a>      (((color) >> 24) & 0xFF)
@@ -339,6 +341,8 @@ Returns <a href='#Alpha'>Alpha</a> byte from <a href='#Color'>Color</a> value.
 ### See Also
 
 incomplete
+
+## <a name='SkColorGetR'>Define SkColorGetR</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     #define <a href='#SkColorGetR'>SkColorGetR(color)</a>      (((color) >> 16) & 0xFF)
@@ -365,6 +369,8 @@ red byte
 
 incomplete
 
+## <a name='SkColorGetG'>Define SkColorGetG</a>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     #define <a href='#SkColorGetG'>SkColorGetG(color)</a>      (((color) >>  8) & 0xFF)
 </pre>
@@ -389,6 +395,8 @@ green byte
 ### See Also
 
 incomplete
+
+## <a name='SkColorGetB'>Define SkColorGetB</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     #define <a href='#SkColorGetB'>SkColorGetB(color)</a>      (((color) >>  0) & 0xFF)
@@ -427,7 +435,7 @@ Returns <a href='#Color'>Color</a> with red, blue, and green set from <a href='#
 ### Parameters
 
 <table>  <tr>    <td><a name='SkColorSetA_c'><code><strong>c</strong></code></a></td>
-    <td><a href='undocumented#Unpremultiply'>Unpremultiplied</a> <a href='#ARGB'>Color ARGB</a></td>
+    <td><a href='undocumented#Unpremultiply'>Unpremultiplied</a> ARGB</td>
   </tr>
   <tr>    <td><a name='SkColorSetA_a'><code><strong>a</strong></code></a></td>
     <td>incomplete</td>
@@ -459,13 +467,13 @@ incomplete
 <th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Alpha_Constants'><code>Alpha_Constants</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_AlphaTRANSPARENT'><code>SK_AlphaTRANSPARENT</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x00</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>fully transparent SkAlpha</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Alpha_Constants'><code>Alpha_Constants</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_AlphaOPAQUE'><code>SK_AlphaOPAQUE</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>fully opaque SkAlpha</td>
   </tr>
 </table>
@@ -538,63 +546,63 @@ fully transparent; to 255, fully opaque.
 <th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Color_Constants'><code>Color_Constants</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorTRANSPARENT'><code>SK_ColorTRANSPARENT</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x00000000</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>transparent Color</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Color_Constants'><code>Color_Constants</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorBLACK'><code>SK_ColorBLACK</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF000000</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>black Color</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Color_Constants'><code>Color_Constants</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorDKGRAY'><code>SK_ColorDKGRAY</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF444444</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>dark gray Color</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Color_Constants'><code>Color_Constants</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorGRAY'><code>SK_ColorGRAY</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF888888</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>gray Color</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Color_Constants'><code>Color_Constants</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorLTGRAY'><code>SK_ColorLTGRAY</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFFCCCCCC</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>light gray Color</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Color_Constants'><code>Color_Constants</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorWHITE'><code>SK_ColorWHITE</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFFFFFFFF</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>white Color</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Color_Constants'><code>Color_Constants</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorRED'><code>SK_ColorRED</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFFFF0000</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>red Color</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Color_Constants'><code>Color_Constants</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorGREEN'><code>SK_ColorGREEN</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF00FF00</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>green Color</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Color_Constants'><code>Color_Constants</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorBLUE'><code>SK_ColorBLUE</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF0000FF</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>blue Color</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Color_Constants'><code>Color_Constants</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorYELLOW'><code>SK_ColorYELLOW</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFFFFFF00</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>yellow Color</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Color_Constants'><code>Color_Constants</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorCYAN'><code>SK_ColorCYAN</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF00FFFF</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>cyan Color</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Color_Constants'><code>Color_Constants</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorMAGENTA'><code>SK_ColorMAGENTA</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFFFF00FF</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>magenta Color</td>
   </tr>
 </table>
@@ -823,7 +831,7 @@ incomplete
 static inline void <a href='#SkColorToHSV'>SkColorToHSV</a>(<a href='#SkColor'>SkColor</a> color, <a href='undocumented#SkScalar'>SkScalar</a> hsv[3])
 </pre>
 
-Converts <a href='#ARGB'>ARGB</a> to its <a href='#HSV'>HSV</a> components. <a href='#Alpha'>Alpha</a> in <a href='#ARGB'>ARGB</a> is ignored.
+Converts ARGB to its <a href='#HSV'>HSV</a> components. <a href='#Alpha'>Alpha</a> in ARGB is ignored.
 <a href='#SkColorToHSV_hsv'>hsv</a>[0] contains <a href='#HSV_Hue'>Hue</a>, and is assigned a value from zero to less than 360.
 <a href='#SkColorToHSV_hsv'>hsv</a>[1] contains <a href='#HSV_Saturation'>Saturation</a>, a value from zero to one.
 <a href='#SkColorToHSV_hsv'>hsv</a>[2] contains <a href='#HSV_Value'>Value</a>, a value from zero to one.
@@ -831,7 +839,7 @@ Converts <a href='#ARGB'>ARGB</a> to its <a href='#HSV'>HSV</a> components. <a h
 ### Parameters
 
 <table>  <tr>    <td><a name='SkColorToHSV_color'><code><strong>color</strong></code></a></td>
-    <td><a href='#ARGB'>ARGB</a> <a href='#SkColorToHSV_color'>color</a> to convert</td>
+    <td>ARGB <a href='#SkColorToHSV_color'>color</a> to convert</td>
   </tr>
   <tr>    <td><a name='SkColorToHSV_hsv'><code><strong>hsv</strong></code></a></td>
     <td>three element array which holds the resulting <a href='#HSV'>HSV</a> components</td>
@@ -859,7 +867,7 @@ incomplete
 SK_API <a href='#SkColor'>SkColor</a> <a href='#SkHSVToColor'>SkHSVToColor</a>(<a href='undocumented#U8CPU'>U8CPU</a> alpha, const <a href='undocumented#SkScalar'>SkScalar</a> hsv[3])
 </pre>
 
-Converts <a href='#HSV'>HSV</a> components to an <a href='#ARGB'>ARGB</a> color. The <a href='#SkHSVToColor_alpha'>alpha</a> component is passed through unchanged.
+Converts <a href='#HSV'>HSV</a> components to an ARGB color. The <a href='#SkHSVToColor_alpha'>alpha</a> component is passed through unchanged.
 <a href='#SkHSVToColor_hsv'>hsv</a>[0] represents <a href='#HSV_Hue'>Hue</a>, an angle from zero to less than 360.
 <a href='#SkHSVToColor_hsv'>hsv</a>[1] represents <a href='#HSV_Saturation'>Saturation</a>, and varies from zero to one.
 <a href='#SkHSVToColor_hsv'>hsv</a>[2] represents <a href='#HSV_Value'>Value</a>, and varies from zero to one.
@@ -869,7 +877,7 @@ If <a href='#SkHSVToColor_hsv'>hsv</a> values are out of range, they are pinned.
 ### Parameters
 
 <table>  <tr>    <td><a name='SkHSVToColor_alpha'><code><strong>alpha</strong></code></a></td>
-    <td><a href='#Alpha'>Alpha</a> component of the returned <a href='#ARGB'>ARGB</a> color</td>
+    <td><a href='#Alpha'>Alpha</a> component of the returned ARGB color</td>
   </tr>
   <tr>    <td><a name='SkHSVToColor_hsv'><code><strong>hsv</strong></code></a></td>
     <td>three element array which holds the input <a href='#HSV'>HSV</a> components</td>
@@ -878,7 +886,7 @@ If <a href='#SkHSVToColor_hsv'>hsv</a> values are out of range, they are pinned.
 
 ### Return Value
 
-<a href='#ARGB'>ARGB</a> equivalent to <a href='#HSV'>HSV</a>
+ARGB equivalent to <a href='#HSV'>HSV</a>
 
 ### Example
 
@@ -896,7 +904,7 @@ incomplete
 static inline <a href='#SkColor'>SkColor</a> <a href='#SkHSVToColor'>SkHSVToColor</a>(const <a href='undocumented#SkScalar'>SkScalar</a> hsv[3])
 </pre>
 
-Convert <a href='#HSV'>HSV</a> components to an <a href='#ARGB'>ARGB</a> color. The alpha component set to 0xFF.
+Convert <a href='#HSV'>HSV</a> components to an ARGB color. The alpha component set to 0xFF.
 <a href='#SkHSVToColor_2_hsv'>hsv</a>[0] represents <a href='#HSV_Hue'>Hue</a>, an angle from zero to less than 360.
 <a href='#SkHSVToColor_2_hsv'>hsv</a>[1] represents <a href='#HSV_Saturation'>Saturation</a>, and varies from zero to one.
 <a href='#SkHSVToColor_2_hsv'>hsv</a>[2] represents <a href='#HSV_Value'>Value</a>, and varies from zero to one.
@@ -913,7 +921,7 @@ If <a href='#SkHSVToColor_2_hsv'>hsv</a> values are out of range, they are pinne
 
 ### Return Value
 
-the resulting <a href='#ARGB'>ARGB</a> color
+the resulting ARGB color
 
 ### Example
 
@@ -928,7 +936,12 @@ incomplete
 ## <a name='PMColor'>PMColor</a>
 
 # <a name='SkPMColor'>Typedef SkPMColor</a>
-32-bit <a href='#ARGB'>ARGB</a> color value, <a href='undocumented#Premultiply'>Premultiplied</a>. The byte order for this value is
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+typedef uint32_t <a href='#SkPMColor'>SkPMColor</a>;
+</pre>
+
+32-bit ARGB color value, <a href='undocumented#Premultiply'>Premultiplied</a>. The byte order for this value is
 configuration dependent, matching the format of <a href='SkImageInfo_Reference#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a> bitmaps.
 This is different from <a href='#SkColor'>SkColor</a>, which is <a href='undocumented#Unpremultiply'>Unpremultiplied</a>, and is always in the
 same byte order.
