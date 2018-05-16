@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8ff3d559_e0ca2172",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-05-16T18:37:22Z",
+      "side": 1,
+      "message": "Seemed dumb to pass in atlasManager here just to call the same function again.",
+      "range": {
+        "startLine": 446,
+        "startChar": 59,
+        "endLine": 447,
+        "endChar": 88
+      },
+      "revId": "696446a85663a5c93bd8ef6a9ae0ccaad972dead",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
