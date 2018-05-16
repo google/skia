@@ -22,6 +22,30 @@
       "revId": "859ce2f2adc0f654561bc5e068087d3499182700",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c846067_bcb9ff48",
+        "filename": ".clang-format",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 8171
+      },
+      "writtenOn": "2018-05-16T21:35:10Z",
+      "side": 1,
+      "message": "I tried adding new parameters on SkImage (bin-packed) and SkImage_Gpu (not bin-packed), it just turns everything it touches into one-per-line. :( \n\nAnd double checked this is definitely the option that turns the sk_sp into two lines.",
+      "parentUuid": "5ead172d_491e6bbf",
+      "range": {
+        "startLine": 30,
+        "startChar": 19,
+        "endLine": 30,
+        "endChar": 24
+      },
+      "revId": "859ce2f2adc0f654561bc5e068087d3499182700",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
