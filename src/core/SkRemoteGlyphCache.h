@@ -147,7 +147,7 @@ public:
         // create descriptors with out the device filtering, thus matching the key descriptor.
         std::unique_ptr<SkDescriptor> fDeviceDescriptor;
         std::unique_ptr<SkDescriptor> fKeyDescriptor;
-        const SkDiscardableHandleId fDiscardableHandleId = -1;
+        const SkDiscardableHandleId fDiscardableHandleId = static_cast<SkDiscardableHandleId>(-1);
 
         // The context built using fDeviceDescriptor
         std::unique_ptr<SkScalerContext> fContext;
