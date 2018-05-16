@@ -514,7 +514,7 @@ void GrAtlasTextContext::DrawBmpPosTextAsPaths(GrAtlasTextBlob* blob, int runInd
             tmsProc(pos, &tmsLoc);
             SkPoint loc;
             alignProc(tmsLoc, glyph, &loc);
-            if (SkMask::kARGB32_Format == glyph.fMaskFormat) {
+            if (false) {
                 fallbackTextHelper.appendText(glyph, text - lastText, lastText, loc);
             } else {
                 const SkPath* path = cache->findPath(glyph);
@@ -601,7 +601,7 @@ bool GrAtlasTextContext::canDrawAsDistanceFields(const SkPaint& skPaint, const S
         return false;
     }
 
-    return true;
+    return false;
 }
 
 void GrAtlasTextContext::initDistanceFieldPaint(GrAtlasTextBlob* blob,
