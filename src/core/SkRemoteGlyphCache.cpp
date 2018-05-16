@@ -700,6 +700,8 @@ void SkStrikeClient::generateFontMetrics(const SkTypefaceProxy& typefaceProxy,
     SkDebugf("generateFontMetrics: %s\n", rec.dump().c_str());
     SkStrikeCache::Dump();
     SkDEBUGFAIL("GlyphCacheMiss");
+
+    sk_bzero(metrics, sizeof(*metrics));
 }
 
 void SkStrikeClient::generateMetricsAndImage(const SkTypefaceProxy& typefaceProxy,
@@ -710,6 +712,8 @@ void SkStrikeClient::generateMetricsAndImage(const SkTypefaceProxy& typefaceProx
     SkDebugf("generateMetricsAndImage: %s\n", rec.dump().c_str());
     SkStrikeCache::Dump();
     SkDEBUGFAIL("GlyphCacheMiss");
+
+    glyph->zeroMetrics();
 }
 
 void SkStrikeClient::generatePath(const SkTypefaceProxy& typefaceProxy,
