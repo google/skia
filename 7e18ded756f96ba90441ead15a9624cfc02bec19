@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eec60ac7_72dcea0c",
+        "filename": "src/core/SkFontDescriptor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-16T16:43:20Z",
+      "side": 1,
+      "message": "read_string reads a length, and reports true if the length was zero. Shouldn\u0027t we write a zero here for an empty string to match?",
+      "range": {
+        "startLine": 41,
+        "startChar": 4,
+        "endLine": 42,
+        "endChar": 0
+      },
+      "revId": "7e18ded756f96ba90441ead15a9624cfc02bec19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a41c8bdd_d8e77105",
+        "filename": "src/core/SkFontDescriptor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-16T16:43:20Z",
+      "side": 1,
+      "message": "Don\u0027t we also need to check for kInvalid? Or does it not matter since the next call will fail?",
+      "range": {
+        "startLine": 68,
+        "startChar": 21,
+        "endLine": 68,
+        "endChar": 56
+      },
+      "revId": "7e18ded756f96ba90441ead15a9624cfc02bec19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2bc32802_a40913e8",
+        "filename": "src/core/SkFontDescriptor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-16T16:43:20Z",
+      "side": 1,
+      "message": "Does changing this from a PackedUInt to a 32 invalidate old pictures?",
+      "range": {
+        "startLine": 123,
+        "startChar": 24,
+        "endLine": 123,
+        "endChar": 31
+      },
+      "revId": "7e18ded756f96ba90441ead15a9624cfc02bec19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "846015c1_0ecabf59",
+        "filename": "src/core/SkPicture.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-16T16:43:20Z",
+      "side": 1,
+      "message": "nit: line these up?",
+      "range": {
+        "startLine": 91,
+        "startChar": 51,
+        "endLine": 91,
+        "endChar": 68
+      },
+      "revId": "7e18ded756f96ba90441ead15a9624cfc02bec19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
