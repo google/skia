@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "11dd2192_a791481e",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-16T21:28:14Z",
+      "side": 1,
+      "message": "Since we are serializing paths now and SkWriter requires 4 byte alignment (https://cs.chromium.org/chromium/src/third_party/skia/src/core/SkWriter32.h?l\u003d51).",
+      "parentUuid": "f436ccd7_5ef9b43a",
+      "range": {
+        "startLine": 124,
+        "startChar": 0,
+        "endLine": 125,
+        "endChar": 0
+      },
+      "revId": "d876faa8d6296c936b1e21fba0b1fd6769da11f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e4ce862b_819d47af",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 11
@@ -36,6 +60,30 @@
       "writtenOn": "2018-05-16T21:14:53Z",
       "side": 1,
       "message": "Why the static assert?",
+      "range": {
+        "startLine": 169,
+        "startChar": 0,
+        "endLine": 170,
+        "endChar": 0
+      },
+      "revId": "d876faa8d6296c936b1e21fba0b1fd6769da11f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "629ebf1f_90838535",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-16T21:28:14Z",
+      "side": 1,
+      "message": "Same as Serializer.",
+      "parentUuid": "e4ce862b_819d47af",
       "range": {
         "startLine": 169,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "b2e40fc6_075c6296",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-16T21:28:14Z",
+      "side": 1,
+      "message": "Switched to asPath.",
+      "parentUuid": "fa09fa54_c28894bc",
+      "range": {
+        "startLine": 380,
+        "startChar": 15,
+        "endLine": 380,
+        "endChar": 23
+      },
+      "revId": "d876faa8d6296c936b1e21fba0b1fd6769da11f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ee290de2_2bebde39",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 11
@@ -91,6 +163,30 @@
       "revId": "d876faa8d6296c936b1e21fba0b1fd6769da11f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47f8d2b5_a7ef2e2d",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-16T21:28:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ee290de2_2bebde39",
+      "range": {
+        "startLine": 416,
+        "startChar": 15,
+        "endLine": 416,
+        "endChar": 23
+      },
+      "revId": "d876faa8d6296c936b1e21fba0b1fd6769da11f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "5eae1c02_da452eb1",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 561,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-16T21:28:14Z",
+      "side": 1,
+      "message": "I prefer just passing a bool, other than which set/vector to update the rest of the function is common.",
+      "parentUuid": "8bd25cd2_910797fa",
+      "range": {
+        "startLine": 561,
+        "startChar": 40,
+        "endLine": 561,
+        "endChar": 48
+      },
+      "revId": "d876faa8d6296c936b1e21fba0b1fd6769da11f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "db968975_afc1a634",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 11
@@ -137,6 +257,30 @@
       "revId": "d876faa8d6296c936b1e21fba0b1fd6769da11f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07cbcfd4_77571b50",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 575,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-16T21:28:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db968975_afc1a634",
+      "range": {
+        "startLine": 575,
+        "startChar": 40,
+        "endLine": 575,
+        "endChar": 59
+      },
+      "revId": "d876faa8d6296c936b1e21fba0b1fd6769da11f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
