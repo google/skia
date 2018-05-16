@@ -39,7 +39,7 @@ void SkScalerContextProxy::generateImage(const SkGlyph& glyph) {
 
 bool SkScalerContextProxy::generatePath(SkGlyphID glyphID, SkPath* path) {
     fClient->generatePath(*this->typefaceProxy(), this->getRec(), glyphID, path);
-    return true;
+    return false;
 }
 
 void SkScalerContextProxy::generateFontMetrics(SkPaint::FontMetrics* metrics) {
