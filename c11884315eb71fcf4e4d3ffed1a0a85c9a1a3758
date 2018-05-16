@@ -22,6 +22,30 @@
       "revId": "c11884315eb71fcf4e4d3ffed1a0a85c9a1a3758",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "953154c0_03ad204b",
+        "filename": "infra/bots/recipes/compile.expected/Build-Debian9-GCC-x86_64-Release-Flutter_Android.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-16T12:11:39Z",
+      "side": 1,
+      "message": "It doesn\u0027t matter, as long as the .gclient file can be found, either in the current directory or somewhere above it.  In this case, it\u0027s in [START_DIR]/cache/work/flutter/.gclient.",
+      "parentUuid": "7ef0a141_06341065",
+      "range": {
+        "startLine": 120,
+        "startChar": 12,
+        "endLine": 120,
+        "endChar": 42
+      },
+      "revId": "c11884315eb71fcf4e4d3ffed1a0a85c9a1a3758",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
