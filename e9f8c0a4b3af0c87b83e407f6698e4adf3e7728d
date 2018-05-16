@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "7992c8e5_fb8eda5a",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-16T14:01:40Z",
+      "side": 1,
+      "message": "This will work here in Skia builds, but you\u0027d better make sure you understand how it works in other GN environments.  They use this main top-level BUILD.gn, but not at the root like it is here... it\u0027s under third_party/skia or something.  So //third_party/vulkan doesn\u0027t mean ./third_party/vulkan, it means something more like ../vulkan in those environments.\n\nIf you always want to use this file, I think you can just make it relative, dropping the //.  If you want to use Fuchsia\u0027s //third_party/vulkan:vulkan, this is good as-is.",
+      "revId": "e9f8c0a4b3af0c87b83e407f6698e4adf3e7728d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2fa590dc_be48778b",
         "filename": "third_party/vulkan/vulkan_config.gni",
         "patchSetId": 1
