@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ead172d_491e6bbf",
+        "filename": ".clang-format",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-16T21:11:31Z",
+      "side": 1,
+      "message": "Do you know how changing this interacts with ExperimentalAutoDetectBinPacking (line 57 on left)? We\u0027re using that to try to cope with the fact that we\u0027re not at all consistent on one-per-line vs bin-pack.",
+      "range": {
+        "startLine": 30,
+        "startChar": 19,
+        "endLine": 30,
+        "endChar": 24
+      },
+      "revId": "859ce2f2adc0f654561bc5e068087d3499182700",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
