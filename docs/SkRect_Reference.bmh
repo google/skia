@@ -905,13 +905,13 @@ added: nan, 8 count: 4 rect: 0, 0, 0, 0 success: false
 #In Set
 #Line # sets to upper and lower limits of Point array ##
 Sets to bounds of Point pts array with count entries. If any Point in pts
-contains Infinity or NaN, all Rect dimensions are set to NaN.
+contains infinity or NaN, all Rect dimensions are set to NaN.
 
 #Param pts  Point array ##
 #Param count  entries in array ##
 
 #Example
-   SkPoint points[] = {{3, 4}, {1, 2}, {SkScalar_Inf, 6}, {SK_ScalarNaN, 8}};
+   SkPoint points[] = {{3, 4}, {1, 2}, {SK_ScalarInfinity, 6}, {SK_ScalarNaN, 8}};
    for (int count = 0; count <= (int) SK_ARRAY_COUNT(points); ++count) {
        SkRect rect;
        rect.setBoundsNoCheck(points, count);

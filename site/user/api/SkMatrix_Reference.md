@@ -4991,11 +4991,11 @@ mapped bounds
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="3b7b1f884437ab450f986234e4aec27f"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkMatrix_mapRectToQuad'>mapRectToQuad</a> <a href='#SkMatrix_mapRectScaleTranslate'>mapRectScaleTranslate</a>
 
 ---
 
