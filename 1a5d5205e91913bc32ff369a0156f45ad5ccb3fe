@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ddc27820_12fb1713",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 11
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-17T15:09:32Z",
+      "side": 1,
+      "message": "nit: (from chat) IMO you should spell out \"MoltenVK\" because googling MVK gets me \"methyl vinyl ketone\" and nothing about MoltenVK.",
+      "range": {
+        "startLine": 81,
+        "startChar": 32,
+        "endLine": 81,
+        "endChar": 35
+      },
+      "revId": "1a5d5205e91913bc32ff369a0156f45ad5ccb3fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f034f24_737fc959",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 11
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-17T15:09:32Z",
+      "side": 1,
+      "message": "Any reason not to add Release?",
+      "revId": "1a5d5205e91913bc32ff369a0156f45ad5ccb3fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
