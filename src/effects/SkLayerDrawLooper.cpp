@@ -260,7 +260,6 @@ void SkLayerDrawLooper::flatten(SkWriteBuffer& buffer) const {
 
 sk_sp<SkFlattenable> SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer) {
     int count = buffer.readInt();
-
     Builder builder;
     for (int i = 0; i < count; i++) {
         LayerInfo info;
@@ -272,6 +271,9 @@ sk_sp<SkFlattenable> SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer) {
         buffer.readPoint(&info.fOffset);
         info.fPostTranslate = buffer.readBool();
         buffer.readPaint(builder.addLayerOnTop(info));
+        if (!buffer.isValid()) {
+            return nullptr;
+        }
     }
     return builder.detach();
 }
@@ -370,7 +372,6 @@ void SkLayerDrawLooper::Builder::addLayer(SkScalar dx, SkScalar dy) {
 
 SkPaint* SkLayerDrawLooper::Builder::addLayerOnTop(const LayerInfo& info) {
     fCount += 1;
-
     Rec* rec = new Rec;
     rec->fNext = nullptr;
     rec->fInfo = info;
