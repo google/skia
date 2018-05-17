@@ -34,9 +34,6 @@
     M(tf_g)           \
     M(tf_b)           \
     M(tf_a)           \
-    M(poly_tf_r)      \
-    M(poly_tf_g)      \
-    M(poly_tf_b)      \
     M(table_8_r)      \
     M(table_8_g)      \
     M(table_8_b)      \

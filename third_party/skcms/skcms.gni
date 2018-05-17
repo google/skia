@@ -12,7 +12,6 @@ skcms_sources = [
   "src/LinearAlgebra.c",
   "src/LinearAlgebra.h",
   "src/Macros.h",
-  "src/PolyTF.c",
   "src/PortableMath.c",
   "src/PortableMath.h",
   "src/RandomBytes.h",

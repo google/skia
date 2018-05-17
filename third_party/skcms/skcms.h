@@ -43,11 +43,6 @@ typedef struct skcms_TransferFunction {
     float g, a,b,c,d,e,f;
 } skcms_TransferFunction;
 
-// A transfer function that's cheaper to evaluate than skcms_TransferFunction.
-typedef struct skcms_PolyTF {
-    float A,B,C,D;
-} skcms_PolyTF;
-
 // Unified representation of 'curv' or 'para' tag data, or a 1D table from 'mft1' or 'mft2'
 typedef union skcms_Curve {
     struct {
@@ -113,10 +108,6 @@ typedef struct skcms_ICCProfile {
     // and has_A2B to true.
     bool                   has_A2B;
     skcms_A2B              A2B;
-
-    // If the profile has_trc, we may be able to approximate those curves with skcms_PolyTF.
-    bool     has_poly_tf[3];
-    skcms_PolyTF poly_tf[3];
 } skcms_ICCProfile;
 
 // The sRGB color profile is so commonly used that we offer a canonical skcms_ICCProfile for it.
@@ -135,9 +126,8 @@ SKCMS_API bool skcms_ApproximatelyEqualProfiles(const skcms_ICCProfile* A,
 // will be used.
 SKCMS_API bool skcms_Parse(const void*, size_t, skcms_ICCProfile*);
 
-// skcms_Parse() creates a profile that directs skcms_Transform() to favor accuracy.
-// If you want to trade a little accuracy for a big speedup, call skcms_OptimizeForSpeed().
-SKCMS_API void skcms_OptimizeForSpeed(skcms_ICCProfile*);
+// No-op, to be removed.
+static inline void skcms_OptimizeForSpeed(skcms_ICCProfile* p) { (void)p; }
 
 SKCMS_API bool skcms_ApproximateCurve(const skcms_Curve* curve,
                                       skcms_TransferFunction* approx,
@@ -258,7 +248,6 @@ static inline void skcms_SetTransferFunction(skcms_ICCProfile* p,
     for (int i = 0; i < 3; ++i) {
         p->trc[i].table_entries = 0;
         p->trc[i].parametric = *tf;
-        p->has_poly_tf[i] = false;
     }
 }
 
