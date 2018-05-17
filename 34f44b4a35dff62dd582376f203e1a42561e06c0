@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85a135a6_421e6dac",
+        "filename": "tests/TypefaceTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-17T19:05:15Z",
+      "side": 1,
+      "message": "I think we generally don\u0027t want to make tests fail because resources aren\u0027t there. I\u0027ve been doing something like the following at the start:\n\n    if (GetResourcePath().isEmpty()) {\n        return; // no resources\n    }\n\nThen you can still have your error if your particular file isn\u0027t there.",
+      "range": {
+        "startLine": 115,
+        "startChar": 8,
+        "endLine": 115,
+        "endChar": 22
+      },
+      "revId": "34f44b4a35dff62dd582376f203e1a42561e06c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c25c3a25_52914f04",
+        "filename": "tests/TypefaceTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-17T19:05:15Z",
+      "side": 1,
+      "message": "Can we change this to vary by platform? Otherwise this test doesn\u0027t help if makeFromStream fails everywhere.",
+      "range": {
+        "startLine": 131,
+        "startChar": 8,
+        "endLine": 131,
+        "endChar": 50
+      },
+      "revId": "34f44b4a35dff62dd582376f203e1a42561e06c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52c7cf70_ce50db85",
+        "filename": "tests/TypefaceTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-17T19:05:15Z",
+      "side": 1,
+      "message": "Is this another SkFontMgr-dependent issue?",
+      "range": {
+        "startLine": 136,
+        "startChar": 4,
+        "endLine": 138,
+        "endChar": 5
+      },
+      "revId": "34f44b4a35dff62dd582376f203e1a42561e06c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
