@@ -321,11 +321,6 @@ typedef struct {
     const void* arg;
 } OpAndArg;
 
-static OpAndArg select_poly_tf_op(const skcms_PolyTF* tf, int channel) {
-    static const Op ops[] = { Op_poly_tf_r, Op_poly_tf_g, Op_poly_tf_b };
-    return (OpAndArg){ops[channel], tf};
-}
-
 static OpAndArg select_curve_op(const skcms_Curve* curve, int channel) {
     static const struct { Op parametric, table_8, table_16; } ops[] = {
         { Op_tf_r, Op_table_8_r, Op_table_16_r },
@@ -518,9 +513,6 @@ bool skcms_Transform(const void*             src,
             for (int i = 0; i < 3; i++) {
                 OpAndArg oa = select_curve_op(&srcProfile->trc[i], i);
                 if (oa.op != Op_noop) {
-                    if (srcProfile->has_poly_tf[i]) {
-                        oa = select_poly_tf_op(&srcProfile->poly_tf[i], i);
-                    }
                     *ops++  = oa.op;
                     *args++ = oa.arg;
                 }
