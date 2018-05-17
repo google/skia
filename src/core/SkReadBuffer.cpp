@@ -317,7 +317,7 @@ sk_sp<SkImage> SkReadBuffer::readImage() {
     // Preflight check to make sure there's enough stuff in the buffer before
     // we allocate the memory. This helps the fuzzer avoid OOM when it creates
     // bad/corrupt input.
-    if (!this->validate(((size_t)size) <= this->available())) {
+    if (!this->validateCanReadN<uint8_t>(size)) {
         return nullptr;
     }
 
