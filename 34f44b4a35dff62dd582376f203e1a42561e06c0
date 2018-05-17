@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "db3deb7c_d8a75ebe",
+        "filename": "tests/TypefaceTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-17T21:36:50Z",
+      "side": 1,
+      "message": "Managed to avoid this by testing SkFontDescriptor directly.",
+      "parentUuid": "d9e61e6e_9a4f9845",
+      "range": {
+        "startLine": 115,
+        "startChar": 8,
+        "endLine": 115,
+        "endChar": 22
+      },
+      "revId": "34f44b4a35dff62dd582376f203e1a42561e06c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c25c3a25_52914f04",
         "filename": "tests/TypefaceTest.cpp",
         "patchSetId": 5
@@ -144,6 +168,30 @@
     },
     {
       "key": {
+        "uuid": "545bb1c6_d7dba563",
+        "filename": "tests/TypefaceTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-17T21:36:50Z",
+      "side": 1,
+      "message": "Managed to avoid this by testing SkFontDescriptor directly.",
+      "parentUuid": "f940fa0b_5a4309a0",
+      "range": {
+        "startLine": 131,
+        "startChar": 8,
+        "endLine": 131,
+        "endChar": 50
+      },
+      "revId": "34f44b4a35dff62dd582376f203e1a42561e06c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "52c7cf70_ce50db85",
         "filename": "tests/TypefaceTest.cpp",
         "patchSetId": 5
@@ -188,6 +236,30 @@
       "revId": "34f44b4a35dff62dd582376f203e1a42561e06c0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a16bef54_8a4e0602",
+        "filename": "tests/TypefaceTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-17T21:36:50Z",
+      "side": 1,
+      "message": "Managed to avoid this by testing SkFontDescriptor directly.",
+      "parentUuid": "4665cdfe_e20dc4bb",
+      "range": {
+        "startLine": 136,
+        "startChar": 4,
+        "endLine": 138,
+        "endChar": 5
+      },
+      "revId": "34f44b4a35dff62dd582376f203e1a42561e06c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
