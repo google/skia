@@ -60,6 +60,11 @@ static size_t format_rowbytes(int width, SkMask::Format format) {
                                         : width * format_alignment(format);
 }
 
+size_t SkGlyph::formatAlignment() const {
+    auto format = static_cast<SkMask::Format>(fMaskFormat);
+    return format_alignment(format);
+}
+
 size_t SkGlyph::allocImage(SkArenaAlloc* alloc) {
     auto size = this->computeImageSize();
     auto format = static_cast<SkMask::Format>(fMaskFormat);

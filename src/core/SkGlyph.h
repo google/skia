@@ -155,6 +155,7 @@ public:
 
     void initWithGlyphID(SkPackedGlyphID glyph_id);
 
+    size_t formatAlignment() const;
     size_t allocImage(SkArenaAlloc* alloc);
 
     size_t rowBytes() const;
