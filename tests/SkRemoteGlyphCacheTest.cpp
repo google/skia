@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkDraw.h"
 #include "SkGraphics.h"
 #include "SkMutex.h"
 #include "SkRemoteGlyphCache.h"
@@ -71,9 +72,15 @@ sk_sp<SkTextBlob> buildTextBlob(sk_sp<SkTypeface> tf, int glyphCount) {
     return builder.make();
 }
 
-SkBitmap RasterBlob(sk_sp<SkTextBlob> blob, int width, int height) {
+#define COMPARE_BLOBS(expected, actual, reporter)                                        \
+    for (int i = 0; i < expected.width(); ++i) {                                         \
+        for (int j = 0; j < expected.height(); ++j) {                                    \
+            REPORTER_ASSERT(reporter, expected.getColor(i, j) == actual.getColor(i, j)); \
+        }                                                                                \
+    }
+
+SkBitmap RasterBlob(sk_sp<SkTextBlob> blob, int width, int height, const SkPaint& paint) {
     auto surface = SkSurface::MakeRasterN32Premul(width, height);
-    SkPaint paint;
     surface->getCanvas()->drawTextBlob(blob.get(), 0u, 0u, paint);
     SkBitmap bitmap;
     bitmap.allocN32Pixels(width, height);
@@ -99,6 +106,7 @@ DEF_TEST(SkRemoteGlyphCache_StrikeSerialization, reporter) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
     SkStrikeServer server(discardableManager.get());
     SkStrikeClient client(discardableManager);
+    const SkPaint paint;
 
     // Server.
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
@@ -108,7 +116,6 @@ DEF_TEST(SkRemoteGlyphCache_StrikeSerialization, reporter) {
     auto serverBlob = buildTextBlob(serverTf, glyphCount);
     const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
     SkTextBlobCacheDiffCanvas cache_diff_canvas(10, 10, SkMatrix::I(), props, &server);
-    SkPaint paint;
     cache_diff_canvas.drawTextBlob(serverBlob.get(), 0, 0, paint);
 
     std::vector<uint8_t> serverStrikeData;
@@ -120,13 +127,9 @@ DEF_TEST(SkRemoteGlyphCache_StrikeSerialization, reporter) {
                     client.readStrikeData(serverStrikeData.data(), serverStrikeData.size()));
     auto clientBlob = buildTextBlob(clientTf, glyphCount);
 
-    SkBitmap expected = RasterBlob(serverBlob, 10, 10);
-    SkBitmap actual = RasterBlob(clientBlob, 10, 10);
-    for (int i = 0; i < expected.width(); ++i) {
-        for (int j = 0; j < expected.height(); ++j) {
-            REPORTER_ASSERT(reporter, expected.getColor(i, j) == actual.getColor(i, j));
-        }
-    }
+    SkBitmap expected = RasterBlob(serverBlob, 10, 10, paint);
+    SkBitmap actual = RasterBlob(clientBlob, 10, 10, paint);
+    COMPARE_BLOBS(expected, actual, reporter);
 }
 
 DEF_TEST(SkRemoteGlyphCache_StrikeLockingServer, reporter) {
@@ -244,5 +247,39 @@ DEF_TEST(SkRemoteGlyphCache_ClientMemoryAccounting, reporter) {
     // Client.
     REPORTER_ASSERT(reporter,
                     client.readStrikeData(serverStrikeData.data(), serverStrikeData.size()));
+    SkStrikeCache::Validate();
+}
+
+DEF_TEST(SkRemoteGlyphCache_DrawTextAsPath, reporter) {
+    sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
+    SkStrikeServer server(discardableManager.get());
+    SkStrikeClient client(discardableManager);
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(0);
+    REPORTER_ASSERT(reporter, SkDraw::ShouldDrawTextAsPaths(paint, SkMatrix::I()));
+
+    // Server.
+    auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    auto serverTfData = server.serializeTypeface(serverTf.get());
+
+    int glyphCount = 10;
+    auto serverBlob = buildTextBlob(serverTf, glyphCount);
+    const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+    SkTextBlobCacheDiffCanvas cache_diff_canvas(10, 10, SkMatrix::I(), props, &server);
+    cache_diff_canvas.drawTextBlob(serverBlob.get(), 0, 0, paint);
+
+    std::vector<uint8_t> serverStrikeData;
+    server.writeStrikeData(&serverStrikeData);
+
+    // Client.
+    auto clientTf = client.deserializeTypeface(serverTfData->data(), serverTfData->size());
+    REPORTER_ASSERT(reporter,
+                    client.readStrikeData(serverStrikeData.data(), serverStrikeData.size()));
+    auto clientBlob = buildTextBlob(clientTf, glyphCount);
+
+    SkBitmap expected = RasterBlob(serverBlob, 10, 10, paint);
+    SkBitmap actual = RasterBlob(clientBlob, 10, 10, paint);
+    COMPARE_BLOBS(expected, actual, reporter);
     SkStrikeCache::Validate();
 }
