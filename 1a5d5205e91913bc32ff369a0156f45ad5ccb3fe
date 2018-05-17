@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "106ec2bd_9050d7b7",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 11
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-05-17T16:07:07Z",
+      "side": 1,
+      "message": "Good idea!",
+      "parentUuid": "ddc27820_12fb1713",
+      "range": {
+        "startLine": 81,
+        "startChar": 32,
+        "endLine": 81,
+        "endChar": 35
+      },
+      "revId": "1a5d5205e91913bc32ff369a0156f45ad5ccb3fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5f034f24_737fc959",
         "filename": "infra/bots/jobs.json",
         "patchSetId": 11
@@ -39,6 +63,24 @@
       "revId": "1a5d5205e91913bc32ff369a0156f45ad5ccb3fe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "171dc421_49bf7801",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 11
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-05-17T16:07:07Z",
+      "side": 1,
+      "message": "Done. I just left it out to preserve resources.",
+      "parentUuid": "5f034f24_737fc959",
+      "revId": "1a5d5205e91913bc32ff369a0156f45ad5ccb3fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
