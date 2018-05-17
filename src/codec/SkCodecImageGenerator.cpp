@@ -35,15 +35,9 @@ SkCodecImageGenerator::SkCodecImageGenerator(std::unique_ptr<SkCodec> codec, sk_
     , fData(std::move(data))
 {}
 
-#if SK_IGNORE_SKIMAGE_ONREFENCODED_CHANGE
-SkData* SkCodecImageGenerator::onRefEncodedData() {
-    return SkRef(fData.get());
-}
-#else
 sk_sp<SkData> SkCodecImageGenerator::onRefEncodedData() {
     return fData;
 }
-#endif
 
 bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& requestInfo, void* requestPixels,
                                         size_t requestRowBytes, const Options& opts) {

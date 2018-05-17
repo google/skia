@@ -21,11 +21,7 @@ public:
     static std::unique_ptr<SkImageGenerator> MakeFromEncodedCodec(sk_sp<SkData>);
 
 protected:
-#if SK_IGNORE_SKIMAGE_ONREFENCODED_CHANGE
-    SkData* onRefEncodedData() override;
-#else
     sk_sp<SkData> onRefEncodedData() override;
-#endif
 
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options& opts)
                      override;
