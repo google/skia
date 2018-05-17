@@ -1,0 +1,147 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89d89e5c_20d9e5d2",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-05-17T14:24:34Z",
+      "side": 1,
+      "message": "Nit: need a space between right paren and left brace",
+      "range": {
+        "startLine": 201,
+        "startChar": 93,
+        "endLine": 201,
+        "endChar": 94
+      },
+      "revId": "3a69c8bf1ae84385f57f70421cf3f9ab66435354",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "defd54dc_a133019c",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-05-17T14:24:34Z",
+      "side": 1,
+      "message": "Nit: need a space between switch and paren",
+      "range": {
+        "startLine": 202,
+        "startChar": 10,
+        "endLine": 202,
+        "endChar": 11
+      },
+      "revId": "3a69c8bf1ae84385f57f70421cf3f9ab66435354",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea81c200_8056de95",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-05-17T14:24:34Z",
+      "side": 1,
+      "message": "Nit: extra space",
+      "range": {
+        "startLine": 206,
+        "startChar": 28,
+        "endLine": 206,
+        "endChar": 29
+      },
+      "revId": "3a69c8bf1ae84385f57f70421cf3f9ab66435354",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "804ab31e_2a4e14e7",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-05-17T14:24:34Z",
+      "side": 1,
+      "message": "Not every platform we build on is good about making sure switches on enums are exhaustive (or alternatively, realizing that no other possibility exists and taking that into account during dataflow analysis), so I prefer to have a default: ASSERT(false); even when the switch is in fact exhaustive.",
+      "revId": "3a69c8bf1ae84385f57f70421cf3f9ab66435354",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97a05941_66d10e30",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-05-17T14:24:34Z",
+      "side": 1,
+      "message": "\"mainTextureFunction\" isn\u0027t terribly explanatory. The reason you\u0027re tracking this is that you need to know whether to set up a color sampler later - a name like \"needColorSampler\" would be a lot more helpful to someone trying to understand this logic.",
+      "revId": "3a69c8bf1ae84385f57f70421cf3f9ab66435354",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43056ef5_ad9c28fc",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-05-17T14:24:34Z",
+      "side": 1,
+      "message": "A FIXME should be descriptive enough that someone who isn\u0027t elbow-deep in the code could come along and at least have some idea what the problem that needs fixing is - can you expand this a bit?",
+      "revId": "3a69c8bf1ae84385f57f70421cf3f9ab66435354",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65f39bc8_48584036",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 616,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-05-17T14:24:34Z",
+      "side": 1,
+      "message": "Nit: space before paren",
+      "range": {
+        "startLine": 616,
+        "startChar": 10,
+        "endLine": 616,
+        "endChar": 11
+      },
+      "revId": "3a69c8bf1ae84385f57f70421cf3f9ab66435354",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
