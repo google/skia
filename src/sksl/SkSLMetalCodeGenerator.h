@@ -77,7 +77,9 @@ public:
                       OutputStream* out)
     : INHERITED(program, errors, out)
     , fLineEnding("\n")
-    , fContext(*context) {}
+    , fContext(*context) {
+        this->setupIntrinsics();
+    }
 
     bool generateCode() override;
 
@@ -87,6 +89,16 @@ protected:
     static constexpr Requirements kInputs_Requirement   = 1 << 0;
     static constexpr Requirements kOutputs_Requirement  = 1 << 1;
     static constexpr Requirements kUniforms_Requirement = 1 << 2;
+
+    enum IntrinsicKind {
+        kSpecial_IntrinsicKind
+    };
+
+    enum SpecialIntrinsic {
+        kTexture_SpecialIntrinsic,
+    };
+
+    void setupIntrinsics();
 
     void write(const char* s);
 
@@ -142,6 +154,8 @@ protected:
 
     void writeFunctionCall(const FunctionCall& c);
 
+    void writeSpecialIntrinsic(const FunctionCall& c, SpecialIntrinsic kind);
+
     void writeConstructor(const Constructor& c);
 
     void writeFieldAccess(const FieldAccess& f);
@@ -194,6 +208,8 @@ protected:
 
     Requirements requirements(const Statement& e);
 
+    typedef std::tuple<IntrinsicKind, int32_t, int32_t, int32_t, int32_t> Intrinsic;
+    std::unordered_map<String, Intrinsic> fIntrinsicMap;
     const char* fLineEnding;
     const Context& fContext;
     StringStream fHeader;
