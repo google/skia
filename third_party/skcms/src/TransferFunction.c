@@ -351,12 +351,7 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
             continue;
         }
 
-        float err = 0;
-        for (int i = 0; i < N; i++) {
-            float x = i * dx,
-                  y = skcms_eval_curve(curve, x);
-            err = fmaxf_(err, fabsf_(x - skcms_TransferFunction_eval(&tf_inv, y)));
-        }
+        float err = skcms_MaxRoundtripError(curve, &tf_inv);
         if (*max_error > err) {
             *max_error = err;
             *approx    = tf;
