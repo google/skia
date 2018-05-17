@@ -48,6 +48,54 @@
     },
     {
       "key": {
+        "uuid": "69a5df0a_39b605ce",
+        "filename": "infra/bots/recipe_modules/build/api.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-17T20:00:19Z",
+      "side": 1,
+      "message": "Removed as suggested in B.",
+      "parentUuid": "76592bbb_acfe2333",
+      "range": {
+        "startLine": 39,
+        "startChar": 21,
+        "endLine": 39,
+        "endChar": 30
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6cfb788f_c43d62b2",
+        "filename": "infra/bots/recipe_modules/build/api.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-17T20:00:19Z",
+      "side": 1,
+      "message": "While this is true, doing so would result in expectations diffs for some recipes, which I was trying to avoid.  I have a CL waiting in the wings which will normalize all of the build dirs, and I can make these changes as part of that.",
+      "parentUuid": "28cf889f_4e404c3c",
+      "range": {
+        "startLine": 39,
+        "startChar": 32,
+        "endLine": 39,
+        "endChar": 39
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "997ae39c_0ca1041f",
         "filename": "infra/bots/recipe_modules/build/api.py",
         "patchSetId": 5
@@ -68,6 +116,30 @@
       "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de87e7dd_fe953c32",
+        "filename": "infra/bots/recipe_modules/build/api.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-17T20:00:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "997ae39c_0ca1041f",
+      "range": {
+        "startLine": 43,
+        "startChar": 32,
+        "endLine": 43,
+        "endChar": 41
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -182,6 +254,24 @@
     },
     {
       "key": {
+        "uuid": "3f99c389_478c4097",
+        "filename": "infra/bots/recipe_modules/build/examples/full.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-17T20:00:19Z",
+      "side": 1,
+      "message": "Yep, the aforementioned CL which normalizes the out dirs will remove this.",
+      "parentUuid": "5fb39197_a3b81b2e",
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0a7fc558_149ca65f",
         "filename": "infra/bots/recipe_modules/core/api.py",
         "patchSetId": 5
@@ -193,6 +283,30 @@
       "writtenOn": "2018-05-17T19:04:44Z",
       "side": 1,
       "message": "nit: ensure_directory does this",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 45
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "331b2ba7_175fe33a",
+        "filename": "infra/bots/recipe_modules/core/api.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-17T20:00:19Z",
+      "side": 1,
+      "message": "Ack, don\u0027t want to change expectations.",
+      "parentUuid": "0a7fc558_149ca65f",
       "range": {
         "startLine": 54,
         "startChar": 0,
@@ -228,6 +342,30 @@
     },
     {
       "key": {
+        "uuid": "df497b28_97447410",
+        "filename": "infra/bots/recipe_modules/core/api.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-17T20:00:19Z",
+      "side": 1,
+      "message": "Ack, don\u0027t want to change expectations.",
+      "parentUuid": "7571e11b_c48c7a74",
+      "range": {
+        "startLine": 55,
+        "startChar": 45,
+        "endLine": 55,
+        "endChar": 58
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "01bcfd56_76089554",
         "filename": "infra/bots/recipe_modules/core/api.py",
         "patchSetId": 5
@@ -239,6 +377,30 @@
       "writtenOn": "2018-05-17T19:04:44Z",
       "side": 1,
       "message": "nit: This might be more refactoring than what you want to do in this CL, but...\n\nIt seems like this logic should be in the recipe rather than in this module. I.e. pass in need_chromium_checkout, need_flutter_checkout, gclient_extra_env.\n\nIf you do the same for \"\u0027Android\u0027 in self.m.vars.extra_tokens\" and \"\u0027ParentRevision\u0027 in self.m.vars.extra_tokens\", this module will be independent of buildername.",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 0
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e295f32_71c7ca1b",
+        "filename": "infra/bots/recipe_modules/core/api.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-17T20:00:19Z",
+      "side": 1,
+      "message": "Subsequent CL, as I\u0027ll have to change some expectations.",
+      "parentUuid": "01bcfd56_76089554",
       "range": {
         "startLine": 60,
         "startChar": 0,
@@ -274,6 +436,30 @@
     },
     {
       "key": {
+        "uuid": "49b9269d_47c838c4",
+        "filename": "infra/bots/recipe_modules/flavor/api.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-17T20:00:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b8ffe43_34944420",
+      "range": {
+        "startLine": 142,
+        "startChar": 4,
+        "endLine": 142,
+        "endChar": 52
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a154cf30_d0af57d6",
         "filename": "infra/bots/recipe_modules/flavor/default_flavor.py",
         "patchSetId": 5
@@ -285,6 +471,24 @@
       "writtenOn": "2018-05-17T19:04:44Z",
       "side": 1,
       "message": "Now that we have separate swarming_out_dirs for build, test, perf, it would be nice to simplify some of these paths. E.g.:\nbin_dir\u003dself.m.vars.build_dir,\ndm_dir\u003dself.m.vars.swarming_out_dir,\nperf_data_dir\u003dself.m.vars.swarming_out_dir,\n\nObviously we need to make such a change very carefully to ensure Build tasks match up with Test/Perf tasks which match up with Upload tasks.",
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ffa5274e_256faae5",
+        "filename": "infra/bots/recipe_modules/flavor/default_flavor.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-17T20:00:19Z",
+      "side": 1,
+      "message": "Agreed. Subsequent changes can do that.",
+      "parentUuid": "a154cf30_d0af57d6",
       "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -338,6 +542,30 @@
     },
     {
       "key": {
+        "uuid": "3c0b93e3_9fe4826c",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.expected/Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SwiftShader.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-17T20:00:19Z",
+      "side": 1,
+      "message": "Thanks. Fixed.",
+      "parentUuid": "cb3ebc83_5ffb3d5b",
+      "range": {
+        "startLine": 155,
+        "startChar": 26,
+        "endLine": 155,
+        "endChar": 69
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0c5df6d7_70abc23a",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 5
@@ -358,6 +586,30 @@
       "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24f0c09e_d3375101",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-17T20:00:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c5df6d7_70abc23a",
+      "range": {
+        "startLine": 22,
+        "startChar": 21,
+        "endLine": 22,
+        "endChar": 29
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -384,6 +636,30 @@
     },
     {
       "key": {
+        "uuid": "85acce39_5ee8e8ee",
+        "filename": "infra/bots/recipes/ct_skps.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-17T20:00:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df1fbdd0_a6b038dc",
+      "range": {
+        "startLine": 156,
+        "startChar": 38,
+        "endLine": 156,
+        "endChar": 53
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "01f56581_8ff58d7f",
         "filename": "infra/bots/recipes/test.py",
         "patchSetId": 5
@@ -407,6 +683,30 @@
     },
     {
       "key": {
+        "uuid": "14d80885_437dca50",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 837,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-17T20:00:19Z",
+      "side": 1,
+      "message": "Maybe so, but I want to keep the behavior the same for this CL when possible.  Many of the flavors perform creation of directories, which may need rethinking.",
+      "parentUuid": "01f56581_8ff58d7f",
+      "range": {
+        "startLine": 837,
+        "startChar": 37,
+        "endLine": 837,
+        "endChar": 71
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a737b643_2d54dba5",
         "filename": "infra/bots/recipes/upload_calmbench_results.py",
         "patchSetId": 5
@@ -418,6 +718,30 @@
       "writtenOn": "2018-05-17T19:04:44Z",
       "side": 1,
       "message": "Should this be api.flavor.host_dirs.perf_data_dir?",
+      "range": {
+        "startLine": 30,
+        "startChar": 8,
+        "endLine": 30,
+        "endChar": 42
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70c2619b_6d62f682",
+        "filename": "infra/bots/recipes/upload_calmbench_results.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-17T20:00:19Z",
+      "side": 1,
+      "message": "See other comment.  Probably so.",
+      "parentUuid": "a737b643_2d54dba5",
       "range": {
         "startLine": 30,
         "startChar": 8,

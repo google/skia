@@ -16,6 +16,24 @@
       "revId": "3c042263758ba6f016e1a44edd43eb3508efbb46",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19b5dd98_4ed8b90f",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-17T20:00:19Z",
+      "side": 0,
+      "message": "No, ct_skps does not use flavors.",
+      "parentUuid": "573f82d9_91873fac",
+      "revId": "3c042263758ba6f016e1a44edd43eb3508efbb46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
