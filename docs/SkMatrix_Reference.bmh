@@ -3712,6 +3712,22 @@ Returned value is the same as calling rectStaysRect.
 
 # ------------------------------------------------------------------------------
 
+#Method SkRect mapRect(const SkRect& src) const
+
+Returns bounds of src corners mapped by Matrix.
+
+#Param src  rectangle to map ##
+#Return mapped bounds ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+#Method ##
+
+# ------------------------------------------------------------------------------
+
 #Method void mapRectToQuad(SkPoint dst[4], const SkRect& rect) const
 #In Transform
 #Line # maps Rect to Point array ##

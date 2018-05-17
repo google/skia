@@ -1452,6 +1452,15 @@ public:
         return this->mapRect(rect, *rect);
     }
 
+    /**
+     *  Map the rectangle though the matrix, and return the bounds of the transformed points.
+     */
+    SkRect mapRect(const SkRect& src) const {
+        SkRect dst;
+        (void)this->mapRect(&dst, src);
+        return dst;
+    }
+
     /** Maps four corners of rect to dst. SkPoint are mapped by multiplying each
         rect corner by SkMatrix. rect corner is processed in this order:
         (rect.fLeft, rect.fTop), (rect.fRight, rect.fTop), (rect.fRight, rect.fBottom),

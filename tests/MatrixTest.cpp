@@ -987,14 +987,30 @@ DEF_TEST(Matrix_maprects, r) {
                                       rand.nextSScalar1() * scale,
                                       rand.nextSScalar1() * scale,
                                       rand.nextSScalar1() * scale);
-        SkRect dst[3];
+        SkRect dst[4];
 
         mat.mapPoints((SkPoint*)&dst[0].fLeft, (SkPoint*)&src.fLeft, 2);
         dst[0].sort();
         mat.mapRect(&dst[1], src);
         mat.mapRectScaleTranslate(&dst[2], src);
+        dst[3] = mat.mapRect(src);
 
         REPORTER_ASSERT(r, dst[0] == dst[1]);
         REPORTER_ASSERT(r, dst[0] == dst[2]);
+        REPORTER_ASSERT(r, dst[0] == dst[3]);
+    }
+
+    // We should report nonfinite-ness after a mapping
+    {
+        // We have special-cases in mapRect for different matrix types
+        SkMatrix m0 = SkMatrix::MakeScale(1e20f, 1e20f);
+        SkMatrix m1; m1.setRotate(30); m1.postScale(1e20f, 1e20f);
+
+        for (const auto& m : { m0, m1 }) {
+            SkRect rect = { 0, 0, 1e20f, 1e20f };
+            REPORTER_ASSERT(r, rect.isFinite());
+            rect = m.mapRect(rect);
+            REPORTER_ASSERT(r, !rect.isFinite());
+        }
     }
 }

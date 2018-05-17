@@ -95,6 +95,47 @@ bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
     return isFinite;
 }
 
+void SkRect::setBoundsNoCheck(const SkPoint pts[], int count) {
+    SkASSERT((pts && count > 0) || count == 0);
+
+    if (count <= 0) {
+        sk_bzero(this, sizeof(SkRect));
+    } else {
+        Sk4s min, max, accum;
+
+        if (count & 1) {
+            min = Sk4s(pts[0].fX, pts[0].fY, pts[0].fX, pts[0].fY);
+            pts += 1;
+            count -= 1;
+        } else {
+            min = Sk4s::Load(pts);
+            pts += 2;
+            count -= 2;
+        }
+        accum = max = min;
+        accum = accum * Sk4s(0);
+
+        count >>= 1;
+        for (int i = 0; i < count; ++i) {
+            Sk4s xy = Sk4s::Load(pts);
+            accum = accum * xy;
+            min = Sk4s::Min(min, xy);
+            max = Sk4s::Max(max, xy);
+            pts += 2;
+        }
+
+        float minArray[4], maxArray[4];
+        min.store(minArray);
+        max.store(maxArray);
+        this->set(SkTMin(minArray[0], minArray[2]), SkTMin(minArray[1], minArray[3]),
+                  SkTMax(maxArray[0], maxArray[2]), SkTMax(maxArray[1], maxArray[3]));
+
+        if (!is_finite(accum)) {
+            this->set(SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN);
+        }
+    }
+}
+
 #define CHECK_INTERSECT(al, at, ar, ab, bl, bt, br, bb) \
     SkScalar L = SkMaxScalar(al, bl);                   \
     SkScalar R = SkMinScalar(ar, br);                   \

@@ -901,6 +901,24 @@ added: nan, 8 count: 4 rect: 0, 0, 0, 0 success: false
 
 # ------------------------------------------------------------------------------
 
+#Method void setBoundsNoCheck(const SkPoint pts[], int count)
+#In Set
+#Line # sets to upper and lower limits of Point array ##
+Sets to bounds of Point array with count entries. If any point contains a non-finite value
+then the rect will also be non-finite.
+
+#Param pts  Point array ##
+#Param count  entries in array ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso setBoundsCheck
+#Method ##
+
+# ------------------------------------------------------------------------------
+
 #Method void setEmpty()
 
 #In Set
