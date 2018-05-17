@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1b10183c_129c1dbe",
+        "filename": "src/core/SkFontDescriptor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-17T15:38:12Z",
+      "side": 1,
+      "message": "This is just preserving the existing behavior. If the string.isEmpty() the don\u0027t write anything at all, not even the id (so Deserialize will never see any of this and just leave the respective string empty). Note that all of these \u0027write\u0027s and \u0027read\u0027s are asymmetric in that the \u0027write\u0027s write out the id, but the \u0027read\u0027s don\u0027t read in the id since the id must already be read in order to decide which \u0027read\u0027 to call. The \u0027read\u0027 is written defensively, I suppose it doesn\u0027t really need to be.",
+      "parentUuid": "eec60ac7_72dcea0c",
+      "range": {
+        "startLine": 41,
+        "startChar": 4,
+        "endLine": 42,
+        "endChar": 0
+      },
+      "revId": "7e18ded756f96ba90441ead15a9624cfc02bec19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a41c8bdd_d8e77105",
         "filename": "src/core/SkFontDescriptor.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "7e18ded756f96ba90441ead15a9624cfc02bec19",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ca629db_671047d8",
+        "filename": "src/core/SkFontDescriptor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-17T15:38:12Z",
+      "side": 1,
+      "message": "We already do. When read_id returns kInvalid the following switch will fall into the default case and assert in debug and return false in release.",
+      "parentUuid": "a41c8bdd_d8e77105",
+      "range": {
+        "startLine": 68,
+        "startChar": 21,
+        "endLine": 68,
+        "endChar": 56
+      },
+      "revId": "7e18ded756f96ba90441ead15a9624cfc02bec19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "9726005b_bef280ad",
+        "filename": "src/core/SkFontDescriptor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-17T15:38:12Z",
+      "side": 1,
+      "message": "Hmmm... I don\u0027t think this write32 invalidates old pictures, but the change above to readS32 for this data does. I\u0027ll have to do the picture version dance here because this is actually a bug fix. The axes are allowed to be negative, and writePackedUInt / readPackedUInt will mess that up.\n\nI will also note that writePackedUInt takes a size_t, but won\u0027t write more than 32 bits and readPackedUInt claims to read a size_t but can only read up to uint32_t. But this is a different existing issue which I hope this change makes easier to fix.",
+      "parentUuid": "2bc32802_a40913e8",
+      "range": {
+        "startLine": 123,
+        "startChar": 24,
+        "endLine": 123,
+        "endChar": 31
+      },
+      "revId": "7e18ded756f96ba90441ead15a9624cfc02bec19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "846015c1_0ecabf59",
         "filename": "src/core/SkPicture.cpp",
         "patchSetId": 3
@@ -91,6 +163,30 @@
       "revId": "7e18ded756f96ba90441ead15a9624cfc02bec19",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "449f1944_6ecc9006",
+        "filename": "src/core/SkPicture.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-17T15:38:12Z",
+      "side": 1,
+      "message": "Ah, the curse of monospace, expecting things to line up.",
+      "parentUuid": "846015c1_0ecabf59",
+      "range": {
+        "startLine": 91,
+        "startChar": 51,
+        "endLine": 91,
+        "endChar": 68
+      },
+      "revId": "7e18ded756f96ba90441ead15a9624cfc02bec19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
