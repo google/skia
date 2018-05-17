@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "023956da_81af0af3",
+        "filename": "infra/bots/recipe_modules/build/examples/full.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-17T16:11:56Z",
+      "side": 1,
+      "message": "nit: single quotes",
+      "revId": "2a7bbdba56e80887b01a63350c801412f9cf333c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
