@@ -102,7 +102,8 @@ def nanobench_flags(api, bot):
     if 'CommandBuffer' in bot:
       configs = ['commandbuffer']
     if 'Vulkan' in bot:
-      configs = ['vk']
+      # skbug.com/7961
+      configs = ['vk' if not 'MoltenVK' in bot else 'vknostencils']
 
     if 'ANGLE' in bot:
       # Test only ANGLE configs.
@@ -180,6 +181,10 @@ def nanobench_flags(api, bot):
       'Win' in bot):
     # skia:7677
     match.append('~path_text_clipped_uncached')
+  if 'MoltenVK' in bot:
+    # skbug.com/7962
+    match.append('~^path_text_clipped_uncached$')
+    match.append('~^path_text_uncached$')
   if ('Intel' in bot and api.vars.is_linux and not 'Vulkan' in bot):
     # TODO(dogben): Track down what's causing bots to die.
     verbose = True
@@ -366,6 +371,8 @@ TEST_BUILDERS = [
   'Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All',
   ('Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-'
     'CommandBuffer'),
+  ('Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-'
+   'MoltenVK_Vulkan'),
   ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
     'Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
