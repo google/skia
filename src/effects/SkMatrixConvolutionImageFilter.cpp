@@ -169,6 +169,7 @@ public:
 template<class PixelFetcher, bool convolveAlpha>
 void SkMatrixConvolutionImageFilter::filterPixels(const SkBitmap& src,
                                                   SkBitmap* result,
+                                                  SkIVector& offset,
                                                   const SkIRect& r,
                                                   const SkIRect& bounds) const {
     SkIRect rect(r);
@@ -176,7 +177,7 @@ void SkMatrixConvolutionImageFilter::filterPixels(const SkBitmap& src,
         return;
     }
     for (int y = rect.fTop; y < rect.fBottom; ++y) {
-        SkPMColor* dptr = result->getAddr32(rect.fLeft - bounds.fLeft, y - bounds.fTop);
+        SkPMColor* dptr = result->getAddr32(rect.fLeft - offset.fX, y - offset.fY);
         for (int x = rect.fLeft; x < rect.fRight; ++x) {
             SkScalar sumA = 0, sumR = 0, sumG = 0, sumB = 0;
             for (int cy = 0; cy < fKernelSize.fHeight; cy++) {
@@ -213,35 +214,38 @@ void SkMatrixConvolutionImageFilter::filterPixels(const SkBitmap& src,
 template<class PixelFetcher>
 void SkMatrixConvolutionImageFilter::filterPixels(const SkBitmap& src,
                                                   SkBitmap* result,
+                                                  SkIVector& offset,
                                                   const SkIRect& rect,
                                                   const SkIRect& bounds) const {
     if (fConvolveAlpha) {
-        filterPixels<PixelFetcher, true>(src, result, rect, bounds);
+        filterPixels<PixelFetcher, true>(src, result, offset, rect, bounds);
     } else {
-        filterPixels<PixelFetcher, false>(src, result, rect, bounds);
+        filterPixels<PixelFetcher, false>(src, result, offset, rect, bounds);
     }
 }
 
 void SkMatrixConvolutionImageFilter::filterInteriorPixels(const SkBitmap& src,
                                                           SkBitmap* result,
+                                                          SkIVector& offset,
                                                           const SkIRect& rect,
                                                           const SkIRect& bounds) const {
-    filterPixels<UncheckedPixelFetcher>(src, result, rect, bounds);
+    filterPixels<UncheckedPixelFetcher>(src, result, offset, rect, bounds);
 }
 
 void SkMatrixConvolutionImageFilter::filterBorderPixels(const SkBitmap& src,
                                                         SkBitmap* result,
+                                                        SkIVector& offset,
                                                         const SkIRect& rect,
-                                                        const SkIRect& bounds) const {
+                                                        const SkIRect& srcBounds) const {
     switch (fTileMode) {
         case kClamp_TileMode:
-            filterPixels<ClampPixelFetcher>(src, result, rect, bounds);
+            filterPixels<ClampPixelFetcher>(src, result, offset, rect, srcBounds);
             break;
         case kRepeat_TileMode:
-            filterPixels<RepeatPixelFetcher>(src, result, rect, bounds);
+            filterPixels<RepeatPixelFetcher>(src, result, offset, rect, srcBounds);
             break;
         case kClampToBlack_TileMode:
-            filterPixels<ClampToBlackPixelFetcher>(src, result, rect, bounds);
+            filterPixels<ClampToBlackPixelFetcher>(src, result, offset, rect, srcBounds);
             break;
     }
 }
@@ -301,6 +305,21 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
         return nullptr;
     }
 
+    const SkIRect originalSrcBounds = SkIRect::MakeXYWH(inputOffset.fX, inputOffset.fY,
+                                                        input->width(), input->height());
+
+    SkIRect srcBounds = this->onFilterNodeBounds(dstBounds, ctx.ctm(), kReverse_MapDirection,
+                                                 &originalSrcBounds);
+
+    if (kRepeat_TileMode == fTileMode) {
+        srcBounds = DetermineRepeatedSrcBound(srcBounds, fKernelOffset,
+                                              fKernelSize, originalSrcBounds);
+    } else {
+        if (!srcBounds.intersect(dstBounds)) {
+            return nullptr;
+        }
+    }
+
 #if SK_SUPPORT_GPU
     // Note: if the kernel is too big, the GPU path falls back to SW
     if (source->isTextureBacked() &&
@@ -319,9 +338,10 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
         offset->fX = dstBounds.left();
         offset->fY = dstBounds.top();
         dstBounds.offset(-inputOffset);
+        srcBounds.offset(-inputOffset);
 
         auto fp = GrMatrixConvolutionEffect::Make(std::move(inputProxy),
-                                                  dstBounds,
+                                                  srcBounds,
                                                   fKernelSize,
                                                   fKernel,
                                                   fGain,
@@ -366,6 +386,8 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
     offset->fX = dstBounds.fLeft;
     offset->fY = dstBounds.fTop;
     dstBounds.offset(-inputOffset);
+    srcBounds.offset(-inputOffset);
+
     SkIRect interior = SkIRect::MakeXYWH(dstBounds.left() + fKernelOffset.fX,
                                          dstBounds.top() + fKernelOffset.fY,
                                          dstBounds.width() - fKernelSize.fWidth + 1,
@@ -378,11 +400,15 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
                                      interior.left(), interior.bottom());
     SkIRect right = SkIRect::MakeLTRB(interior.right(), interior.top(),
                                       dstBounds.right(), interior.bottom());
-    this->filterBorderPixels(inputBM, &dst, top, dstBounds);
-    this->filterBorderPixels(inputBM, &dst, left, dstBounds);
-    this->filterInteriorPixels(inputBM, &dst, interior, dstBounds);
-    this->filterBorderPixels(inputBM, &dst, right, dstBounds);
-    this->filterBorderPixels(inputBM, &dst, bottom, dstBounds);
+
+    SkIVector dstContentOffset = { offset->fX - inputOffset.fX, offset->fY - inputOffset.fY };
+
+    this->filterBorderPixels(inputBM, &dst, dstContentOffset, top, srcBounds);
+    this->filterBorderPixels(inputBM, &dst, dstContentOffset, left, srcBounds);
+    this->filterInteriorPixels(inputBM, &dst, dstContentOffset, interior, srcBounds);
+    this->filterBorderPixels(inputBM, &dst, dstContentOffset, right, srcBounds);
+    this->filterBorderPixels(inputBM, &dst, dstContentOffset, bottom, srcBounds);
+
     return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(dstBounds.width(), dstBounds.height()),
                                           dst);
 }
@@ -401,12 +427,18 @@ const {
 }
 
 SkIRect SkMatrixConvolutionImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                                           MapDirection direction) const {
+                                                           MapDirection dir,
+                                                           const SkIRect* inputRect) const {
+    if (kReverse_MapDirection == dir && kRepeat_TileMode == fTileMode && inputRect) {
+        SkASSERT(inputRect);
+        return DetermineRepeatedSrcBound(src, fKernelOffset, fKernelSize, *inputRect);
+    }
+
     SkIRect dst = src;
     int w = fKernelSize.width() - 1, h = fKernelSize.height() - 1;
     dst.fRight = Sk32_sat_add(dst.fRight, w);
     dst.fBottom = Sk32_sat_add(dst.fBottom, h);
-    if (kReverse_MapDirection == direction) {
+    if (kReverse_MapDirection == dir) {
         dst.offset(-fKernelOffset);
     } else {
         dst.offset(fKernelOffset - SkIPoint::Make(w, h));
@@ -415,9 +447,14 @@ SkIRect SkMatrixConvolutionImageFilter::onFilterNodeBounds(const SkIRect& src, c
 }
 
 bool SkMatrixConvolutionImageFilter::affectsTransparentBlack() const {
-    // Because the kernel is applied in device-space, we have no idea what
+    // It seems that the only rational way for repeat sample mode to work is if the caller
+    // explicitly restricts the input in which case the input range is explicitly known and
+    // specified.
+    // TODO: is seems that this should be true for clamp mode too.
+
+    // For the other modes, because the kernel is applied in device-space, we have no idea what
     // pixels it will affect in object-space.
-    return true;
+    return kRepeat_TileMode != fTileMode;
 }
 
 void SkMatrixConvolutionImageFilter::toString(SkString* str) const {
