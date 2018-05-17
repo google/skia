@@ -1053,10 +1053,12 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
         typeface->onFilterRec(rec);
     }
 
-    if (!SkToBool(scalerContextFlags & SkScalerContextFlags::kFakeGamma)) {
+    if (!SkToBool(static_cast<uint32_t>(scalerContextFlags) &
+                  static_cast<uint32_t>(SkScalerContextFlags::kFakeGamma))) {
         rec->ignoreGamma();
     }
-    if (!SkToBool(scalerContextFlags & SkScalerContextFlags::kBoostContrast)) {
+    if (!SkToBool(static_cast<uint32_t>(scalerContextFlags) &
+                  static_cast<uint32_t>(SkScalerContextFlags::kBoostContrast))) {
         rec->setContrast(0);
     }
 
