@@ -16,6 +16,24 @@
       "revId": "d2152c4cde9faa06d41f7aa9ced838e82918e7ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45883c52_a9b387aa",
+        "filename": "src/ports/SkFontConfigInterface.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-17T17:33:22Z",
+      "side": 1,
+      "message": "globals like this are implicitly zero-intialized, but setting it to nullptr won\u0027t hurt.",
+      "parentUuid": "737fd2aa_9587407f",
+      "revId": "d2152c4cde9faa06d41f7aa9ced838e82918e7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
