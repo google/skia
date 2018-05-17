@@ -4398,46 +4398,50 @@ ScaleX: 2 SkewY: 5 SkewX: 3 ScaleY: 6 TransX: 4 TransY: 7
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_mapRect_2'>mapRect(SkRect* rect)</a> const</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_mapRect_3'>mapRect(const SkRect& src)</a> const</td>
+  </tr>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_mapRectScaleTranslate'>mapRectScaleTranslate</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns bounds of mapped <a href='SkRect_Reference#Rect'>Rect</a></td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_mapRectToQuad'>mapRectToQuad</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>maps <a href='SkRect_Reference#Rect'>Rect</a> to <a href='SkPoint_Reference#Point'>Point</a> array</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_mapVector'>mapVector</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>maps <a href='SkPoint_Reference#Vector'>Vector</a></td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_mapVector'>mapVector(SkScalar dx, SkScalar dy, SkVector* result)</a> const</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_mapVector_2'>mapVector(SkScalar dx, SkScalar dy)</a> const</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_mapVectors'>mapVectors</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>maps <a href='SkPoint_Reference#Vector'>Vector</a> array</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_mapVectors'>mapVectors(SkVector dst[], const SkVector src[], int count)</a> const</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_mapVectors_2'>mapVectors(SkVector vecs[], int count)</a> const</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_mapXY'>mapXY</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>maps <a href='SkPoint_Reference#Point'>Point</a></td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_mapXY'>mapXY(SkScalar x, SkScalar y, SkPoint* result)</a> const</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_mapXY_2'>mapXY(SkScalar x, SkScalar y)</a> const</td>
   </tr>
@@ -4966,6 +4970,35 @@ true if result is equivalent to mapped src
 
 ---
 
+<a name='SkMatrix_mapRect_3'></a>
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+<a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkMatrix_mapRect'>mapRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& src) const
+</pre>
+
+Returns bounds of <a href='#SkMatrix_mapRect_3_src'>src</a> corners mapped by <a href='#Matrix'>Matrix</a>.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkMatrix_mapRect_3_src'><code><strong>src</strong></code></a></td>
+    <td>rectangle to map</td>
+  </tr>
+</table>
+
+### Return Value
+
+mapped bounds
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
 <a name='SkMatrix_mapRectToQuad'></a>
 ## mapRectToQuad
 
@@ -5015,7 +5048,7 @@ Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
 
 ### See Also
 
-<a href='#SkMatrix_mapRect'>mapRect</a><sup><a href='#SkMatrix_mapRect_2'>[2]</a></sup> <a href='#SkMatrix_mapRectScaleTranslate'>mapRectScaleTranslate</a>
+<a href='#SkMatrix_mapRect'>mapRect</a><sup><a href='#SkMatrix_mapRect_2'>[2]</a></sup><sup><a href='#SkMatrix_mapRect_3'>[3]</a></sup> <a href='#SkMatrix_mapRectScaleTranslate'>mapRectScaleTranslate</a>
 
 ---
 
@@ -5046,7 +5079,7 @@ otherwise, results are undefined.
 
 ### See Also
 
-<a href='#SkMatrix_mapRect'>mapRect</a><sup><a href='#SkMatrix_mapRect_2'>[2]</a></sup> <a href='#SkMatrix_mapRectToQuad'>mapRectToQuad</a> <a href='#SkMatrix_isScaleTranslate'>isScaleTranslate</a> <a href='#SkMatrix_rectStaysRect'>rectStaysRect</a>
+<a href='#SkMatrix_mapRect'>mapRect</a><sup><a href='#SkMatrix_mapRect_2'>[2]</a></sup><sup><a href='#SkMatrix_mapRect_3'>[3]</a></sup> <a href='#SkMatrix_mapRectToQuad'>mapRectToQuad</a> <a href='#SkMatrix_isScaleTranslate'>isScaleTranslate</a> <a href='#SkMatrix_rectStaysRect'>rectStaysRect</a>
 
 ---
 

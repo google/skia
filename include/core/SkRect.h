@@ -1077,6 +1077,12 @@ struct SK_API SkRect {
     */
     bool setBoundsCheck(const SkPoint pts[], int count);
 
+    /**
+     *  Like setBoundsCheck() but this does not check for finite/nonfinite values. If any of the
+     *  points are nonfinite, then the bounds will also be nonfinite.
+     */
+    void setBoundsNoCheck(const SkPoint pts[], int count);
+
     /** Sets bounds to the smallest SkRect enclosing SkPoint p0 and p1. The result is
         sorted and may be empty. Does not check to see if values are finite.
 

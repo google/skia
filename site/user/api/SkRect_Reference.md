@@ -263,42 +263,46 @@ SkRect member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to upper and lower limits of <a href='SkPoint_Reference#Point'>Point</a> array</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setBoundsNoCheck'>setBoundsNoCheck</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to upper and lower limits of <a href='SkPoint_Reference#Point'>Point</a> array</td>
+  </tr>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setEmpty'>setEmpty</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to (0, 0, 0, 0)</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setLTRB'>setLTRB</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to <a href='undocumented#SkScalar'>SkScalar</a> input (left, top, right, bottom)</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setWH'>setWH</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to <a href='undocumented#SkScalar'>SkScalar</a> input (0, 0, width, height)</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setXYWH'>setXYWH</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to <a href='undocumented#SkScalar'>SkScalar</a> input (x, y, width, height)</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_sort'>sort</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>orders sides from smaller to larger</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_toQuad'>toQuad</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns four corners as <a href='SkPoint_Reference#Point'>Point</a></td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_top'>top</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns smaller bounds in y, if sorted</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_width'>width</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns span in x</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_x'>x</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns bounds left</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_y'>y</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns bounds top</td>
   </tr>
@@ -1604,23 +1608,57 @@ added: nan, 8 count: 4 rect: 0, 0, 0, 0 success: false
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_set'>set(const SkIRect& src)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setBoundsNoCheck'>setBoundsNoCheck</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to upper and lower limits of <a href='SkPoint_Reference#Point'>Point</a> array</td>
+  </tr>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setEmpty'>setEmpty</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to (0, 0, 0, 0)</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setLTRB'>setLTRB</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to <a href='undocumented#SkScalar'>SkScalar</a> input (left, top, right, bottom)</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setWH'>setWH</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to <a href='undocumented#SkScalar'>SkScalar</a> input (0, 0, width, height)</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setXYWH'>setXYWH</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to <a href='undocumented#SkScalar'>SkScalar</a> input (x, y, width, height)</td>
   </tr>
 </table>
 
+
+<a name='SkRect_setBoundsNoCheck'></a>
+## setBoundsNoCheck
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkRect_setBoundsNoCheck'>setBoundsNoCheck</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts[], int count)
+</pre>
+
+Sets to bounds of <a href='SkPoint_Reference#Point'>Point</a> array with <a href='#SkRect_setBoundsNoCheck_count'>count</a> entries. If any point contains a non-finite value
+then the rect will also be non-finite.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRect_setBoundsNoCheck_pts'><code><strong>pts</strong></code></a></td>
+    <td><a href='SkPoint_Reference#Point'>Point</a> array</td>
+  </tr>
+  <tr>    <td><a name='SkRect_setBoundsNoCheck_count'><code><strong>count</strong></code></a></td>
+    <td>entries in array</td>
+  </tr>
+</table>
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+<a href='#SkRect_setBoundsCheck'>setBoundsCheck</a>
+
+---
 
 <a name='SkRect_setEmpty'></a>
 ## setEmpty
