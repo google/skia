@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "1a125aa6_db56a030",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-17T02:28:16Z",
+      "side": 1,
+      "message": "This is not true in general. If you want 4 byte alignment, then T should require that alignment. You can use std::aligned_storage to make any size and alignment combo you want, but you have to read the same type to have the alignments work out.",
+      "parentUuid": "11dd2192_a791481e",
+      "range": {
+        "startLine": 124,
+        "startChar": 0,
+        "endLine": 125,
+        "endChar": 0
+      },
+      "revId": "d876faa8d6296c936b1e21fba0b1fd6769da11f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e4ce862b_819d47af",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 11
