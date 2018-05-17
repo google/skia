@@ -5725,6 +5725,14 @@
     "file": "SkMatrix_Reference",
     "name": "SkMatrix::mapRect_2"
 },
+    "SkMatrix_mapRect_3": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMatrix_Reference",
+    "name": "SkMatrix::mapRect_3"
+},
     "SkMatrix_mapVector": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setColor(SK_ColorGREEN);\n    paint.setAntiAlias(true);\n    paint.setTextSize(48);\n    SkMatrix matrix;\n    matrix.setRotate(90);\n    SkVector offset = { 7, 7 };\n    for (int i = 0; i < 4; ++i) {\n        paint.setImageFilter(SkDropShadowImageFilter::Make(offset.fX, offset.fY, 3, 3,\n              SK_ColorBLUE, SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr));\n        matrix.mapVector(offset.fX, offset.fY, &offset);\n        canvas->translate(0, 60);\n        canvas->drawString(\"Text\", 50, 0, paint);\n    }\n}",
     "width": 256,
@@ -7164,6 +7172,14 @@
     "hash": "882e8e0103048009a25cfc20400492f7",
     "file": "SkColor_Reference",
     "name": "SkRGBToHSV"
+},
+    "SkRect_setBoundsNoCheck": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRect_Reference",
+    "name": "SkRect::setBoundsNoCheck"
 },
     "SkSurface_MakeFromBackendTexture": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n         canvas->drawString(\"GPU only!\", 20, 40, paint);\n         return;\n    }\n    sk_sp<SkSurface> gpuSurface = SkSurface::MakeFromBackendTexture(context,\n            backEndTexture, kTopLeft_GrSurfaceOrigin, 0,\n            kRGBA_8888_SkColorType, nullptr, nullptr);\n    auto surfaceCanvas = gpuSurface->getCanvas();\n    surfaceCanvas->drawString(\"GPU rocks!\", 20, 40, paint);\n    sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());\n    canvas->drawImage(image, 0, 0);\n}",
