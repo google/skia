@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "d9e61e6e_9a4f9845",
+        "filename": "tests/TypefaceTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-17T19:26:36Z",
+      "side": 1,
+      "message": "For the bots, yes, I agree. I thought we had a bug or a conversation in Skia about causing problems for people locally because they didn\u0027t pass --resourcePath, but I cannot find it. This is better than crashing, certainly, and now I think we set up a sensible default, so maybe this doesn\u0027t matter anymore?",
+      "parentUuid": "28e9e3fb_1b7afefe",
+      "range": {
+        "startLine": 115,
+        "startChar": 8,
+        "endLine": 115,
+        "endChar": 22
+      },
+      "revId": "34f44b4a35dff62dd582376f203e1a42561e06c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c25c3a25_52914f04",
         "filename": "tests/TypefaceTest.cpp",
         "patchSetId": 5
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "No, this isn\u0027t by platform, this is by default SkFontMgr, which may change based on flags to dm. If makeFromStream starts failing everywhere we will know about it because gms will start drawing nothing.",
       "parentUuid": "c25c3a25_52914f04",
+      "range": {
+        "startLine": 131,
+        "startChar": 8,
+        "endLine": 131,
+        "endChar": 50
+      },
+      "revId": "34f44b4a35dff62dd582376f203e1a42561e06c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f940fa0b_5a4309a0",
+        "filename": "tests/TypefaceTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-17T19:26:36Z",
+      "side": 1,
+      "message": "But it seems possible that just this file might fail? Then the test doesn\u0027t test anything.",
+      "parentUuid": "5fcc9d91_26712840",
       "range": {
         "startLine": 131,
         "startChar": 8,
