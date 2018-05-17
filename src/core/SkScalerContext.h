@@ -26,7 +26,7 @@ class SkPathEffect;
 class SkScalerContext;
 class SkScalerContext_DW;
 
-enum SkScalerContextFlags : uint32_t {
+enum class SkScalerContextFlags : uint32_t {
     kNone                      = 0,
     kFakeGamma                 = 1 << 0,
     kBoostContrast             = 1 << 1,

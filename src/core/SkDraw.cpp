@@ -1532,7 +1532,7 @@ private:
 SkScalerContextFlags SkDraw::scalerContextFlags() const {
     SkScalerContextFlags flags = SkScalerContextFlags::kBoostContrast;
     if (!fDst.colorSpace()) {
-        flags = kFakeGammaAndBoostContrast;
+        flags = SkScalerContextFlags::kFakeGammaAndBoostContrast;
     }
     return flags;
 }
