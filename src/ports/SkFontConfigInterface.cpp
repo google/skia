@@ -11,13 +11,13 @@
 #include "SkRefCnt.h"
 
 SK_DECLARE_STATIC_MUTEX(gFontConfigInterfaceMutex);
-static sk_sp<SkFontConfigInterface> gFontConfigInterface(nullptr);
+static SkFontConfigInterface* gFontConfigInterface;
 
 sk_sp<SkFontConfigInterface> SkFontConfigInterface::RefGlobal() {
     SkAutoMutexAcquire ac(gFontConfigInterfaceMutex);
 
     if (gFontConfigInterface) {
-        return gFontConfigInterface;
+        return sk_ref_sp(gFontConfigInterface);
     }
     return sk_ref_sp(SkFontConfigInterface::GetSingletonDirectInterface());
 }
@@ -25,5 +25,6 @@ sk_sp<SkFontConfigInterface> SkFontConfigInterface::RefGlobal() {
 void SkFontConfigInterface::SetGlobal(sk_sp<SkFontConfigInterface> fc) {
     SkAutoMutexAcquire ac(gFontConfigInterfaceMutex);
 
-    gFontConfigInterface = std::move(fc);
+    SkSafeUnref(gFontConfigInterface);
+    gFontConfigInterface = fc.release();
 }
