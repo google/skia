@@ -52,6 +52,7 @@ TEST_BUILDERS = [
   'Build-Mac-Clang-arm64-Debug-iOS',
   'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
   'Build-Mac-Clang-x86_64-Debug-Metal',
+  'Build-Mac-Clang-x86_64-Release-MoltenVK_Vulkan',
   'Build-Win-Clang-arm64-Release-Android',
   'Build-Win-Clang-x86-Debug-Exceptions',
   'Build-Win-Clang-x86_64-Debug-GDI',

@@ -54,6 +54,7 @@ def compile_fn(api, out_dir):
     't', 'depot_tools', 'win_toolchain', 'vs_files',
     'a9e1098bba66d2acccc377d5ee81265910f29272'))
   win_vulkan_sdk = str(api.vars.slave_dir.join('win_vulkan_sdk'))
+  moltenvk = str(api.vars.slave_dir.join('moltenvk'))
 
   cc, cxx = None, None
   extra_cflags = []
@@ -200,6 +201,8 @@ def compile_fn(api, out_dir):
       args['skia_vulkan_sdk'] = '"%s"' % linux_vulkan_sdk
     if 'Win' in os:
       args['skia_vulkan_sdk'] = '"%s"' % win_vulkan_sdk
+    if 'MoltenVK' in extra_tokens:
+      args['skia_moltenvk_path'] = '"%s"' % moltenvk
   if 'Metal' in extra_tokens:
     args['skia_use_metal'] = 'true'
   if 'iOS' in extra_tokens:
