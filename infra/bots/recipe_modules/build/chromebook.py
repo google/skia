@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 
 
-def compile_fn(api, out_dir):
+def compile_fn(api, build_dir, out_dir):
   configuration = api.vars.builder_cfg.get('configuration')
   os            = api.vars.builder_cfg.get('os')
   target_arch   = api.vars.builder_cfg.get('target_arch')
@@ -74,7 +74,7 @@ def compile_fn(api, out_dir):
     'skia_use_egl': 'true',
   }
   extra_cflags.append('-DDUMMY_clang_linux_version=%s' %
-                      api.run.asset_version('clang_linux'))
+                      api.run.asset_version('clang_linux', build_dir))
 
   if configuration != 'Debug':
     args['is_debug'] = 'false'
@@ -86,16 +86,16 @@ def compile_fn(api, out_dir):
 
   gn    = 'gn.exe'    if 'Win' in os else 'gn'
   ninja = 'ninja.exe' if 'Win' in os else 'ninja'
-  gn = api.vars.skia_dir.join('bin', gn)
+  gn = build_dir.join('bin', gn)
 
-  with api.context(cwd=api.vars.skia_dir, env=env):
+  with api.context(cwd=build_dir, env=env):
     api.run(api.python, 'fetch-gn',
-            script=api.vars.skia_dir.join('bin', 'fetch-gn'),
+            script=build_dir.join('bin', 'fetch-gn'),
             infra_step=True)
     api.run(api.step, 'gn gen', cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
     api.run(api.step, 'ninja',
             cmd=[ninja, '-k', '0', '-C', out_dir, 'nanobench', 'dm'])
 
 
-def copy_extra_build_products(api, src, dst):
+def copy_extra_build_products(api, build_dir, src, dst):
   pass

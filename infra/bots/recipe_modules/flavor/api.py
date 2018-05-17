@@ -64,6 +64,8 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
 
   def setup(self):
     self._f = self.get_flavor(self.m.vars)
+    self.device_dirs = self._f.device_dirs
+    self.host_dirs = self._f.host_dirs
 
   def step(self, name, cmd, **kwargs):
     return self._f.step(name, cmd, **kwargs)
@@ -97,12 +99,11 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
 
   def install(self, skps=False, images=False, svgs=False, resources=False):
     self._f.install()
-    self.device_dirs = self._f.device_dirs
 
     # TODO(borenet): Only copy files which have changed.
     if resources:
       self.copy_directory_contents_to_device(
-          self.m.vars.resource_dir,
+          self.m.path['start_dir'].join('skia', 'resources'),
           self.device_dirs.resource_dir)
 
     if skps:
@@ -138,7 +139,8 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
 
   def _copy_images(self):
     """Download and copy test images if needed."""
-    version = self.m.run.asset_version('skimage')
+    skia_dir = self.m.path['start_dir'].join('skia')
+    version = self.m.run.asset_version('skimage', skia_dir)
     self.m.run.writefile(
         self.m.path.join(self.m.vars.tmp_dir, VERSION_FILE_SK_IMAGE),
         version)
@@ -146,13 +148,14 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
         version,
         VERSION_FILE_SK_IMAGE,
         self.m.vars.tmp_dir,
-        self.m.vars.images_dir,
+        self.host_dirs.images_dir,
         self.device_dirs.images_dir)
     return version
 
   def _copy_skps(self):
     """Download and copy the SKPs if needed."""
-    version = self.m.run.asset_version('skp')
+    skia_dir = self.m.path['start_dir'].join('skia')
+    version = self.m.run.asset_version('skp', skia_dir)
     self.m.run.writefile(
         self.m.path.join(self.m.vars.tmp_dir, VERSION_FILE_SKP),
         version)
@@ -160,13 +163,14 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
         version,
         VERSION_FILE_SKP,
         self.m.vars.tmp_dir,
-        self.m.vars.local_skp_dir,
+        self.host_dirs.skp_dir,
         self.device_dirs.skp_dir)
     return version
 
   def _copy_svgs(self):
     """Download and copy the SVGs if needed."""
-    version = self.m.run.asset_version('svg')
+    skia_dir = self.m.path['start_dir'].join('skia')
+    version = self.m.run.asset_version('svg', skia_dir)
     self.m.run.writefile(
         self.m.path.join(self.m.vars.tmp_dir, VERSION_FILE_SVG),
         version)
@@ -174,6 +178,6 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
         version,
         VERSION_FILE_SVG,
         self.m.vars.tmp_dir,
-        self.m.vars.local_svg_dir,
+        self.host_dirs.svg_dir,
         self.device_dirs.svg_dir)
     return version

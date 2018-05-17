@@ -10,6 +10,17 @@ import gn_flavor
 import os
 
 class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
+  def __init__(self, m):
+    super(iOSFlavorUtils, self).__init__(m)
+    self.device_dirs = default_flavor.DeviceDirs(
+        bin_dir='[unused]',
+        dm_dir='dm',
+        perf_data_dir='perf',
+        resource_dir='resources',
+        images_dir='images',
+        skp_dir='skps',
+        svg_dir='svgs',
+        tmp_dir='tmp')
 
   def install(self):
     # Set up the device
@@ -17,8 +28,7 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
 
     # Install the app.
     for app_name in ['dm', 'nanobench']:
-      app_package = self.m.vars.skia_out.join(self.m.vars.configuration,
-                                              '%s.app' % app_name)
+      app_package = self.m.vars.skia_out.join('%s.app' % app_name)
 
       def uninstall_app(attempt):
         # If app ID changes, upgrade will fail, so try uninstalling.
@@ -35,15 +45,6 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
                             between_attempts_fn=uninstall_app,
                             infra_step=True)
 
-    self.device_dirs = default_flavor.DeviceDirs(
-        dm_dir='dm',
-        perf_data_dir='perf',
-        resource_dir='resources',
-        images_dir='images',
-        skp_dir='skps',
-        svg_dir='svgs',
-        tmp_dir='tmp')
-
   def step(self, name, cmd, env=None, **kwargs):
     bundle_id = 'com.google.%s' % cmd[0]
     self.m.run(self.m.step, name,
@@ -51,7 +52,8 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
                     map(str, cmd[1:]))
 
   def _run_ios_script(self, script, first, *rest):
-    full = self.m.vars.skia_dir.join('platform_tools/ios/bin/ios_' + script)
+    full = self.m.path['start_dir'].join(
+        'skia', 'platform_tools', 'ios', 'bin', 'ios_' + script)
     self.m.run(self.m.step,
                name = '%s %s' % (script, first),
                cmd = [full, first] + list(rest),
@@ -74,7 +76,8 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
     self._run_ios_script('mkdir', path)
 
   def read_file_on_device(self, path, **kwargs):
-    full = self.m.vars.skia_dir.join('platform_tools/ios/bin/ios_cat_file')
+    full = self.m.path['start_dir'].join(
+        'skia', 'platform_tools', 'ios', 'bin', 'ios_cat_file')
     rv = self.m.run(self.m.step,
                     name = 'cat_file %s' % path,
                     cmd = [full, path],
