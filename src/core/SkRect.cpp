@@ -39,100 +39,49 @@ void SkRect::toQuad(SkPoint quad[4]) const {
 
 #include "SkNx.h"
 
-static inline bool is_finite(const Sk4s& value) {
-    auto finite = value * Sk4s(0) == Sk4s(0);
-    return finite.allTrue();
-}
-
 bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
     SkASSERT((pts && count > 0) || count == 0);
 
-    bool isFinite = true;
-
     if (count <= 0) {
-        sk_bzero(this, sizeof(SkRect));
-    } else {
-        Sk4s min, max, accum;
-
-        if (count & 1) {
-            min = Sk4s(pts[0].fX, pts[0].fY, pts[0].fX, pts[0].fY);
-            pts += 1;
-            count -= 1;
-        } else {
-            min = Sk4s::Load(pts);
-            pts += 2;
-            count -= 2;
-        }
-        accum = max = min;
-        accum = accum * Sk4s(0);
-
-        count >>= 1;
-        for (int i = 0; i < count; ++i) {
-            Sk4s xy = Sk4s::Load(pts);
-            accum = accum * xy;
-            min = Sk4s::Min(min, xy);
-            max = Sk4s::Max(max, xy);
-            pts += 2;
-        }
-
-        /**
-         *  With some trickery, we may be able to use Min/Max to also propogate non-finites,
-         *  in which case we could eliminate accum entirely, and just check min and max for
-         *  "is_finite".
-         */
-        if (is_finite(accum)) {
-            float minArray[4], maxArray[4];
-            min.store(minArray);
-            max.store(maxArray);
-            this->set(SkTMin(minArray[0], minArray[2]), SkTMin(minArray[1], minArray[3]),
-                      SkTMax(maxArray[0], maxArray[2]), SkTMax(maxArray[1], maxArray[3]));
-        } else {
-            // we hit a non-finite value, so zero everything and return false
-            this->setEmpty();
-            isFinite = false;
-        }
+        this->setEmpty();
+        return true;
     }
-    return isFinite;
+
+    Sk4s min, max;
+    if (count & 1) {
+        min = max = Sk4s(pts->fX, pts->fY,
+                         pts->fX, pts->fY);
+        pts   += 1;
+        count -= 1;
+    } else {
+        min = max = Sk4s::Load(pts);
+        pts   += 2;
+        count -= 2;
+    }
+
+    Sk4s accum = min * 0;
+    while (count) {
+        Sk4s xy = Sk4s::Load(pts);
+        accum = accum * xy;
+        min = Sk4s::Min(min, xy);
+        max = Sk4s::Max(max, xy);
+        pts   += 2;
+        count -= 2;
+    }
+
+    bool all_finite = (accum * 0 == 0).allTrue();
+    if (all_finite) {
+        this->set(SkTMin(min[0], min[2]), SkTMin(min[1], min[3]),
+                  SkTMax(max[0], max[2]), SkTMax(max[1], max[3]));
+    } else {
+        this->setEmpty();
+    }
+    return all_finite;
 }
 
 void SkRect::setBoundsNoCheck(const SkPoint pts[], int count) {
-    SkASSERT((pts && count > 0) || count == 0);
-
-    if (count <= 0) {
-        sk_bzero(this, sizeof(SkRect));
-    } else {
-        Sk4s min, max, accum;
-
-        if (count & 1) {
-            min = Sk4s(pts[0].fX, pts[0].fY, pts[0].fX, pts[0].fY);
-            pts += 1;
-            count -= 1;
-        } else {
-            min = Sk4s::Load(pts);
-            pts += 2;
-            count -= 2;
-        }
-        accum = max = min;
-        accum = accum * Sk4s(0);
-
-        count >>= 1;
-        for (int i = 0; i < count; ++i) {
-            Sk4s xy = Sk4s::Load(pts);
-            accum = accum * xy;
-            min = Sk4s::Min(min, xy);
-            max = Sk4s::Max(max, xy);
-            pts += 2;
-        }
-
-        float minArray[4], maxArray[4];
-        min.store(minArray);
-        max.store(maxArray);
-        this->set(SkTMin(minArray[0], minArray[2]), SkTMin(minArray[1], minArray[3]),
-                  SkTMax(maxArray[0], maxArray[2]), SkTMax(maxArray[1], maxArray[3]));
-
-        if (!is_finite(accum)) {
-            this->set(SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN);
-        }
+    if (!this->setBoundsCheck(pts, count)) {
+        this->set(SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN);
     }
 }
 
