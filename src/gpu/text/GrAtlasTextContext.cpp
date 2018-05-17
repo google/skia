@@ -849,7 +849,16 @@ void GrAtlasTextContext::DfAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
 
 void GrAtlasTextContext::FallbackTextHelper::appendText(const SkGlyph& glyph, int count,
                                                         const char* text, SkPoint glyphPos) {
-    SkScalar maxDim = SkTMax(glyph.fWidth, glyph.fHeight)*fTextRatio;
+    SkScalar maxDim;
+    if (fViewMatrix.isScaleTranslate()) {
+        maxDim = SkTMax(glyph.fWidth, glyph.fHeight)*fTextRatio;
+    } else {
+        SkRect glyphRect;
+        glyphRect.setXYWH(glyph.fLeft, glyph.fTop, glyph.fWidth, glyph.fHeight);
+        fViewMatrix.mapRect(&glyphRect);
+        maxDim = SkTMax(glyphRect.width(), glyphRect.height());
+        maxDim *= fTextRatio/fMaxScale;
+    }
     if (!fUseScaledFallback) {
         SkScalar scaledGlyphSize = maxDim * fMaxScale;
         if (!fViewMatrix.hasPerspective() && scaledGlyphSize > fMaxTextSize) {
@@ -862,7 +871,7 @@ void GrAtlasTextContext::FallbackTextHelper::appendText(const SkGlyph& glyph, in
     if (fUseScaledFallback) {
         // If there's a glyph in the font that's particularly large, it's possible
         // that fScaledFallbackTextSize may end up minimizing too much. We'd rather skip
-        // that glyph than make the others pixelated, so we set a minimum size of half the
+        // that glyph than make the others blurry, so we set a minimum size of half the
         // maximum text size to avoid this case.
         SkScalar glyphTextSize = SkTMax(SkScalarFloorToScalar(fMaxTextSize*fTextSize / maxDim),
                                         0.5f*fMaxTextSize);
