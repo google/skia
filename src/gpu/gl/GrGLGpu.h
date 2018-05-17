@@ -179,7 +179,8 @@ public:
 
     void insertEventMarker(const char*);
 
-    void didBindFramebuffer();
+    void bindFramebuffer(GrGLenum fboTarget, GrGLuint fboid);
+    void deleteFramebuffer(GrGLuint fboid);
 
 private:
     GrGLGpu(std::unique_ptr<GrGLContext>, GrContext*);
@@ -574,6 +575,8 @@ private:
     GrGpuResource::UniqueID                 fHWBoundRenderTargetUniqueID;
     TriState                                fHWSRGBFramebuffer;
     SkTArray<GrGpuResource::UniqueID, true> fHWBoundTextureUniqueIDs;
+
+    GrGLuint fBoundDrawFramebuffer = 0;
 
     struct BufferTexture {
         BufferTexture() : fTextureID(0), fKnownBound(false),

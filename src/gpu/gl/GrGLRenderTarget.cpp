@@ -128,8 +128,7 @@ bool GrGLRenderTarget::completeStencilAttachment() {
         GrGLuint rb = glStencil->renderbufferID();
 
         gpu->invalidateBoundRenderTarget();
-        gpu->stats()->incRenderTargetBinds();
-        GR_GL_CALL(interface, BindFramebuffer(GR_GL_FRAMEBUFFER, this->renderFBOID()));
+        gpu->bindFramebuffer(GR_GL_FRAMEBUFFER, this->renderFBOID());
         GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                       GR_GL_STENCIL_ATTACHMENT,
                                                       GR_GL_RENDERBUFFER, rb));
@@ -143,7 +142,6 @@ bool GrGLRenderTarget::completeStencilAttachment() {
                                                           GR_GL_RENDERBUFFER, 0));
         }
 
-        gpu->didBindFramebuffer();
 
 #ifdef SK_DEBUG
         if (kChromium_GrGLDriver != gpu->glContext().driver()) {
@@ -160,11 +158,12 @@ bool GrGLRenderTarget::completeStencilAttachment() {
 
 void GrGLRenderTarget::onRelease() {
     if (GrBackendObjectOwnership::kBorrowed != fRTFBOOwnership) {
+        GrGLGpu* gpu = this->getGLGpu();
         if (fTexFBOID) {
-            GL_CALL(DeleteFramebuffers(1, &fTexFBOID));
+            gpu->deleteFramebuffer(fTexFBOID);
         }
         if (fRTFBOID && fRTFBOID != fTexFBOID) {
-            GL_CALL(DeleteFramebuffers(1, &fRTFBOID));
+            gpu->deleteFramebuffer(fRTFBOID);
         }
         if (fMSColorRenderbufferID) {
             GL_CALL(DeleteRenderbuffers(1, &fMSColorRenderbufferID));
