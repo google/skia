@@ -669,7 +669,8 @@ struct Poly {
 /***************************************************************************************/
 
 bool coincident(const SkPoint& a, const SkPoint& b) {
-    return a == b;
+    return fabs(a.fX - b.fX) < std::numeric_limits<float>::epsilon()
+        && fabs(a.fY - b.fY) < std::numeric_limits<float>::epsilon();
 }
 
 Poly* new_poly(Poly** head, Vertex* v, int winding, SkArenaAlloc& alloc) {
@@ -1079,10 +1080,12 @@ void split_edge(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, 
     Vertex* top;
     Vertex* bottom;
     if (c.sweep_lt(v->fPoint, edge->fTop->fPoint)) {
+        // v is above edge->top; new edge will be v -> edge->top, edge will be v -> edge->bottom.
         top = v;
         bottom = edge->fTop;
         set_top(edge, v, activeEdges, current, c);
     } else if (c.sweep_lt(edge->fBottom->fPoint, v->fPoint)) {
+        // v is below edge->bottom; new edge will be edge->bottom -> v, edge will be edge->top -> v.
         top = edge->fBottom;
         bottom = v;
         set_bottom(edge, v, activeEdges, current, c);
@@ -1196,13 +1199,13 @@ bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vert
         while (top && c.sweep_lt(p, top->fPoint)) {
             top = top->fPrev;
         }
-        if (p == edge->fTop->fPoint) {
+        if (coincident(p, edge->fTop->fPoint)) {
             v = edge->fTop;
-        } else if (p == edge->fBottom->fPoint) {
+        } else if (coincident(p, edge->fBottom->fPoint)) {
             v = edge->fBottom;
-        } else if (p == other->fTop->fPoint) {
+        } else if (coincident(p, other->fTop->fPoint)) {
             v = other->fTop;
-        } else if (p == other->fBottom->fPoint) {
+        } else if (coincident(p, other->fBottom->fPoint)) {
             v = other->fBottom;
         } else {
             v = create_sorted_vertex(p, alpha, mesh, top, c, alloc);

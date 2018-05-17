@@ -472,6 +472,49 @@ static SkPath create_path_31() {
     return path;
 }
 
+// Reduction from fuzzer that causes infinite loop in simplify().
+static SkPath create_path_32() {
+    SkPath path;
+    path.moveTo(                   0,                    0);
+    path.lineTo(                  68,                    0);
+    path.lineTo(                  79, 9.9999999747524270788e-07);
+    path.moveTo(9.9999999747524270788e-07,                   50);
+    path.lineTo(                 -17,               -10000);
+    path.lineTo(9.9999999747524270788e-07, 9.9999999747524270788e-07);
+    return path;
+}
+
+// Reduction from skbug.com/7911 that causes an infinite loop in simplify().
+static SkPath create_path_33() {
+    SkPath path;
+    path.moveTo(                   0,                    0);
+    path.lineTo(4.0935452007233803374e-34, 4.0936039754409214518e-34);
+    path.lineTo(6.0194751451106161905e-34, 4.0935452007233803374e-34);
+    path.lineTo(3.9430819238181275364e-34, 4.0935452007233803374e-34);
+    path.lineTo(4.0935452007233803374e-34, 4.0935452007233803374e-34);
+    path.lineTo(2.3509887016445750159e-38, 4.0935415273035340178e-34);
+    path.lineTo(2.4985017094258913192e-38, 4.0936549441412891369e-34);
+    path.lineTo(4.0935452007233803374e-34, 4.0935452007233803374e-34);
+    path.lineTo(7.3756503890658151638e-40, 5.7777898331617075592e-34);
+    path.lineTo(4.0935452007233803374e-34, 4.0935452007233803374e-34);
+    path.lineTo(4.0935452007233803374e-34, 4.0935452007233803374e-34);
+    return path;
+}
+
+// Reduction from bug615686 that causes an infinite loop in simplify(),
+static SkPath create_path_34() {
+    SkPath path;
+    path.moveTo(7.0710682868957519531, -7.0710682868957519531);
+    path.lineTo(89.99999237060546875,                  150);
+    path.lineTo(                  90, 149.9999847412109375);
+    path.lineTo(                  90,                  150);
+    path.lineTo(89.99999237060546875,  149.996856689453125);
+    path.lineTo(    175.039306640625,   41.084381103515625);
+    path.lineTo(                  90,                  150);
+    path.lineTo(      82.94091796875, 126.37781524658203125);
+    return path;
+}
+
 static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
 
     SkPoint pts[2] = { {0, 0}, {1, 1} };
@@ -563,5 +606,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_29());
     test_path(ctx, rtc.get(), create_path_30());
     test_path(ctx, rtc.get(), create_path_31(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, rtc.get(), create_path_32());
+    test_path(ctx, rtc.get(), create_path_33());
+    test_path(ctx, rtc.get(), create_path_34());
 }
 #endif
