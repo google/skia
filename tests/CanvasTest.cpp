@@ -846,7 +846,8 @@ protected:
         return nullptr;
     }
     sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override { return nullptr; }
-    SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&, MapDirection) const override {
+    SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&,
+                               const SkIRect*, MapDirection) const override {
         return SkIRect::MakeEmpty();
     }
 
