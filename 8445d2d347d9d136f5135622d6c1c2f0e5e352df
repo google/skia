@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9b74bc9_aecea024",
+        "filename": "src/core/SkColorTable.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-17T15:23:03Z",
+      "side": 1,
+      "message": "this one is the success condition, right?  no `!`?",
+      "revId": "8445d2d347d9d136f5135622d6c1c2f0e5e352df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bbf1d6c5_756176e9",
+        "filename": "src/core/SkReadBuffer.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-17T15:23:03Z",
+      "side": 1,
+      "message": "probably best as int or size_t?  uint32_t seems oddly specific in size.",
+      "range": {
+        "startLine": 229,
+        "startChar": 26,
+        "endLine": 229,
+        "endChar": 34
+      },
+      "revId": "8445d2d347d9d136f5135622d6c1c2f0e5e352df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed300058_7c2af17e",
+        "filename": "src/core/SkReadBuffer.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-17T15:23:03Z",
+      "side": 1,
+      "message": "we tend to write this-\u003evalidate() for this kind of self call",
+      "range": {
+        "startLine": 230,
+        "startChar": 15,
+        "endLine": 230,
+        "endChar": 23
+      },
+      "revId": "8445d2d347d9d136f5135622d6c1c2f0e5e352df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
