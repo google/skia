@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "c555f462_eb1773cd",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-17T17:44:43Z",
+      "side": 1,
+      "message": "You\u0027re right, in fact I was over allocating by requesting a uint32_t array of num_of_bytes. We use this only get a buffer for serializing raw data, so I simplified it just do that. And made sure we use the correct alignment for both images and paths.",
+      "parentUuid": "1a125aa6_db56a030",
+      "range": {
+        "startLine": 124,
+        "startChar": 0,
+        "endLine": 125,
+        "endChar": 0
+      },
+      "revId": "d876faa8d6296c936b1e21fba0b1fd6769da11f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e4ce862b_819d47af",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 11
