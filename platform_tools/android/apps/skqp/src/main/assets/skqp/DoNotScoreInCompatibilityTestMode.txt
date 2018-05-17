@@ -7,6 +7,7 @@ animated-image-blurs
 anisotropic_hq
 arcs_as_paths
 bezier_quad_effects
+bigblurs
 bitmapfilters
 bleed
 bleed_alpha_bmp
@@ -19,7 +20,9 @@ blurcircles2
 blurimagevmask
 blurs
 bmp_filter_quality_repeat
+bug530095
 circles
+circular_arcs_hairline
 circular_arcs_stroke_and_fill_butt
 circular_arcs_stroke_butt
 circular_arcs_stroke_round
@@ -97,6 +100,7 @@ gradients_2pt_conical_outside_nodither
 gradients_2pt_conical_outside_repeat
 gradients_degenerate_2pt
 gradients_local_perspective
+gradients_local_perspective_nodither
 gradients_many
 gradients_no_texture
 gradients_no_texture_nodither
@@ -119,9 +123,12 @@ imagefiltersscaled
 imagefiltersstroked
 imagefilterstransformed
 imagemagnifier
+largecircle
+largeglyphblur
 linear_gradient
 longpathdash
 lumafilter
+manyarcs
 manycircles
 mipmap
 mipmap_srgb
@@ -139,6 +146,7 @@ persp_shaders_aa
 persp_shaders_bw
 pictureshader
 polygons
+radial_gradient_precision
 rects
 repeated_bitmap_jpg
 rrect
@@ -151,6 +159,7 @@ shadertext2
 shadertext3
 shadow_utils_occl
 simple-offsetimagefilter
+skbug_257
 smallpaths
 spritebitmap
 srcmode
