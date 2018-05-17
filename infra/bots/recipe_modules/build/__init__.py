@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 
 DEPS = [
+  'core', # TODO(borenet): Remove this.
   'depot_tools/gclient',
   'env',
   'infra',

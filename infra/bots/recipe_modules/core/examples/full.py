@@ -15,13 +15,18 @@ DEPS = [
 
 def RunSteps(api):
   api.vars.setup()
+
   bot_update = True
   if 'NoDEPS' in api.properties['buildername']:
     bot_update = False
+
   if bot_update:
-    api.core.checkout_bot_update()
+    checkout_root = api.core.default_checkout_root
+    if 'Flutter' in api.vars.builder_name:
+      checkout_root = checkout_root.join('flutter')
+    api.core.checkout_bot_update(checkout_root=checkout_root)
   else:
-    api.core.checkout_git()
+    api.core.checkout_git(checkout_root=api.path['start_dir'])
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
 
 
@@ -138,4 +143,24 @@ def GenTests(api):
       api.path.exists(
           api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
       )
+  )
+
+  buildername = 'Build-Mac-Clang-x86_64-Debug-CommandBuffer'
+  yield (
+      api.test(buildername) +
+      api.properties(buildername=buildername,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]')
+  )
+
+  buildername = 'Build-Debian9-GCC-x86_64-Release-Flutter_Android'
+  yield (
+      api.test(buildername) +
+      api.properties(buildername=buildername,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]')
   )
