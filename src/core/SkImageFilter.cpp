@@ -223,13 +223,14 @@ sk_sp<SkSpecialImage> SkImageFilter::filterImage(SkSpecialImage* src, const Cont
 }
 
 SkIRect SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                    MapDirection direction) const {
+                                    MapDirection direction, const SkIRect* inputRect) const {
     if (kReverse_MapDirection == direction) {
-        SkIRect bounds = this->onFilterNodeBounds(src, ctm, direction);
-        return this->onFilterBounds(bounds, ctm, direction);
+        SkIRect bounds = this->onFilterNodeBounds(src, ctm, direction, inputRect);
+        return this->onFilterBounds(bounds, ctm, direction, &bounds);
     } else {
-        SkIRect bounds = this->onFilterBounds(src, ctm, direction);
-        bounds = this->onFilterNodeBounds(bounds, ctm, direction);
+        SkASSERT(!inputRect);
+        SkIRect bounds = this->onFilterBounds(src, ctm, direction, nullptr);
+        bounds = this->onFilterNodeBounds(bounds, ctm, direction, nullptr);
         SkIRect dst;
         this->getCropRect().applyTo(bounds, ctm, this->affectsTransparentBlack(), &dst);
         return dst;
@@ -327,7 +328,7 @@ bool SkImageFilter::canHandleComplexCTM() const {
 
 bool SkImageFilter::applyCropRect(const Context& ctx, const SkIRect& srcBounds,
                                   SkIRect* dstBounds) const {
-    SkIRect tmpDst = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection);
+    SkIRect tmpDst = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection, nullptr);
     fCropRect.applyTo(tmpDst, ctx.ctm(), this->affectsTransparentBlack(), dstBounds);
     // Intersect against the clip bounds, in case the crop rect has
     // grown the bounds beyond the original clip. This can happen for
@@ -431,7 +432,7 @@ sk_sp<SkSpecialImage> SkImageFilter::applyCropRectAndPad(const Context& ctx,
 }
 
 SkIRect SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                      MapDirection direction) const {
+                                      MapDirection dir, const SkIRect* inputRect) const {
     if (this->countInputs() < 1) {
         return src;
     }
@@ -439,7 +440,7 @@ SkIRect SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
     SkIRect totalBounds;
     for (int i = 0; i < this->countInputs(); ++i) {
         SkImageFilter* filter = this->getInput(i);
-        SkIRect rect = filter ? filter->filterBounds(src, ctm, direction) : src;
+        SkIRect rect = filter ? filter->filterBounds(src, ctm, dir, inputRect) : src;
         if (0 == i) {
             totalBounds = rect;
         } else {
@@ -450,14 +451,16 @@ SkIRect SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
     return totalBounds;
 }
 
-SkIRect SkImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix&, MapDirection) const {
+SkIRect SkImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix&,
+                                          MapDirection, const SkIRect*) const {
     return src;
 }
 
 
 SkImageFilter::Context SkImageFilter::mapContext(const Context& ctx) const {
     SkIRect clipBounds = this->onFilterNodeBounds(ctx.clipBounds(), ctx.ctm(),
-                                                  MapDirection::kReverse_MapDirection);
+                                                  MapDirection::kReverse_MapDirection,
+                                                  &ctx.clipBounds());
     return Context(ctx.ctm(), clipBounds, ctx.cache(), ctx.outputProperties());
 }
 
@@ -493,4 +496,27 @@ sk_sp<SkSpecialImage> SkImageFilter::filterInput(int index,
 
 void SkImageFilter::PurgeCache() {
     SkImageFilterCache::Get()->purge();
+}
+
+// In repeat mode, when we are going to sample off one edge of the srcBounds we require the
+// opposite side be preserved.
+SkIRect SkImageFilter::DetermineRepeatedSrcBound(const SkIRect& srcBounds,
+                                                 const SkIVector& filterOffset,
+                                                 const SkISize& filterSize,
+                                                 const SkIRect& originalSrcBounds) {
+    SkIRect tmp = srcBounds;
+    tmp.fRight = Sk32_sat_add(tmp.fRight, filterSize.fWidth);
+    tmp.fBottom = Sk32_sat_add(tmp.fBottom, filterSize.fHeight);
+    tmp.offset(-filterOffset.fX, -filterOffset.fY);
+
+    if (tmp.fLeft < originalSrcBounds.fLeft || tmp.fRight > originalSrcBounds.fRight) {
+        tmp.fLeft = originalSrcBounds.fLeft;
+        tmp.fRight = originalSrcBounds.fRight;
+    }
+    if (tmp.fTop < originalSrcBounds.fTop || tmp.fBottom > originalSrcBounds.fBottom) {
+        tmp.fTop = originalSrcBounds.fTop;
+        tmp.fBottom = originalSrcBounds.fBottom;
+    }
+
+    return tmp;
 }

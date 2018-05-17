@@ -155,8 +155,13 @@ public:
      * be exact, but should never be smaller than the real answer. The default
      * implementation recursively unions all input bounds, or returns the
      * source rect if no inputs.
+     *
+     * In kReverse mode, 'inputRect' is the device-space bounds of the input pixels. In kForward
+     * mode it should always be null. If 'inputRect' is null in kReverse mode the resulting
+     * answer may be incorrect.
      */
-    SkIRect filterBounds(const SkIRect& src, const SkMatrix& ctm, MapDirection) const;
+    SkIRect filterBounds(const SkIRect& src, const SkMatrix& ctm,
+                         MapDirection, const SkIRect* inputRect = nullptr) const;
 
 #if SK_SUPPORT_GPU
     static sk_sp<SkSpecialImage> DrawWithFP(GrContext* context,
@@ -320,12 +325,16 @@ protected:
      * and returns the union of those results. If a derived class has special
      * recursion requirements (e.g., it has an input which does not participate
      * in bounds computation), it can be overridden here.
+     * In kReverse mode, 'inputRect' is the device-space bounds of the input pixels. In kForward
+     * mode it should always be null. If 'inputRect' is null in kReverse mode the resulting
+     * answer may be incorrect.
      *
      * Note that this function is *not* responsible for mapping the rect for
      * this node's filter bounds requirements (i.e., calling
      * onFilterNodeBounds()); that is handled by filterBounds().
      */
-    virtual SkIRect onFilterBounds(const SkIRect&, const SkMatrix&, MapDirection) const;
+    virtual SkIRect onFilterBounds(const SkIRect&, const SkMatrix& ctm,
+                                   MapDirection, const SkIRect* inputRect) const;
 
     /**
      * Performs a forwards or reverse mapping of the given rect to accommodate
@@ -339,8 +348,12 @@ protected:
      * inverse of the other. For example, blurring expands the given rect
      * in both forward and reverse directions. Unlike
      * onFilterBounds(), this function is non-recursive.
+     * In kReverse mode, 'inputRect' will be the device space bounds of the input pixels. In
+     * kForward mode, 'inputRect' should always be null. If 'inputRect' is null in kReverse mode
+     * the resulting answer may be incorrect.
      */
-    virtual SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&, MapDirection) const;
+    virtual SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
+                                       MapDirection, const SkIRect* inputRect) const;
 
     // Helper function which invokes filter processing on the input at the
     // specified "index". If the input is null, it returns "src" and leaves
@@ -415,6 +428,15 @@ protected:
     sk_sp<SkImageFilter> refMe() const {
         return sk_ref_sp(const_cast<SkImageFilter*>(this));
     }
+
+    // If 'srcBounds' will sample outside the border of 'originalSrcBounds' (i.e., the sample
+    // will wrap around to the other side) we must preserve the far side of the src along that
+    // axis (e.g., if we will sample beyond the left edge of the src, the right side must be
+    // preserved for the repeat sampling to work).
+    static SkIRect DetermineRepeatedSrcBound(const SkIRect& srcBounds,
+                                             const SkIVector& filterOffset,
+                                             const SkISize& filterSize,
+                                             const SkIRect& originalSrcBounds);
 
 private:
     // For makeColorSpace().
