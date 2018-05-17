@@ -18,50 +18,70 @@
  */
 class GrQuad {
 public:
-    GrQuad() {}
+    GrQuad() = default;
 
-    GrQuad(const GrQuad& that) {
-        *this = that;
+    GrQuad(const GrQuad& that) = default;
+
+    explicit GrQuad(const SkRect& rect)
+            : fX{rect.fLeft, rect.fLeft, rect.fRight, rect.fRight}
+            , fY{rect.fTop, rect.fBottom, rect.fTop, rect.fBottom} {}
+
+    explicit GrQuad(const SkPoint pts[4])
+            : fX{pts[0].fX, pts[1].fX, pts[2].fX, pts[3].fX}
+            , fY{pts[0].fY, pts[1].fY, pts[2].fY, pts[3].fY} {}
+
+    GrQuad& operator=(const GrQuad& that) = default;
+
+    void setFromMappedRect(const SkRect& rect, const SkMatrix& mx) {
+        SkMatrix::TypeMask tm = mx.getType();
+        if (tm <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask)) {
+            auto r = Sk4f::Load(&rect);
+            const Sk4f t(mx.getTranslateX(), mx.getTranslateY(), mx.getTranslateX(),
+                         mx.getTranslateY());
+            if (tm <= SkMatrix::kTranslate_Mask) {
+                r += t;
+            } else {
+                const Sk4f s(mx.getScaleX(), mx.getScaleY(), mx.getScaleX(), mx.getScaleY());
+                r = r * s + t;
+            }
+            SkNx_shuffle<0, 0, 2, 2>(r).store(fX);
+            SkNx_shuffle<1, 3, 1, 3>(r).store(fY);
+        } else if (!(tm & SkMatrix::kPerspective_Mask)) {
+            Sk4f rx(rect.fLeft, rect.fLeft, rect.fRight, rect.fRight);
+            Sk4f ry(rect.fTop, rect.fBottom, rect.fTop, rect.fBottom);
+            Sk4f sx(mx.getScaleX());
+            Sk4f kx(mx.getSkewX());
+            Sk4f tx(mx.getTranslateX());
+            Sk4f ky(mx.getSkewY());
+            Sk4f sy(mx.getScaleY());
+            Sk4f ty(mx.getTranslateY());
+            (sx * rx + kx * ry + tx).store(fX);
+            (ky * rx + sy * ry + ty).store(fY);
+        } else {
+            SkPoint pts[4];
+            SkPointPriv::SetRectTriStrip(pts, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom,
+                                         sizeof(SkPoint));
+            mx.mapPoints(pts, pts, 4);
+            *this = GrQuad(pts);
+        }
     }
 
-    explicit GrQuad(const SkRect& rect) {
-        this->set(rect);
+    SkPoint point(int i) const { return {fX[i], fY[i]}; }
+
+    SkRect bounds() const {
+        auto x = this->x4f(), y = this->y4f();
+        return {x.min(), y.min(), x.max(), y.max()};
     }
 
-    void set(const SkRect& rect) {
-        SkPointPriv::SetRectTriStrip(fPoints, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom,
-                sizeof(SkPoint));
-    }
+    float x(int i) const { return fX[i]; }
+    float y(int i) const { return fY[i]; }
 
-    void map(const SkMatrix& matrix) {
-        matrix.mapPoints(fPoints, kNumPoints);
-    }
-
-    void setFromMappedRect(const SkRect& rect, const SkMatrix& matrix) {
-        SkMatrixPriv::SetMappedRectTriStrip(matrix, rect, fPoints);
-    }
-
-    const GrQuad& operator=(const GrQuad& that) {
-        memcpy(fPoints, that.fPoints, sizeof(SkPoint) * kNumPoints);
-        return *this;
-    }
-
-    SkPoint* points() {
-        return fPoints;
-    }
-
-    const SkPoint* points() const {
-        return fPoints;
-    }
-
-    const SkPoint& point(int i) const {
-        SkASSERT(i < kNumPoints);
-        return fPoints[i];
-    }
+    Sk4f x4f() const { return Sk4f::Load(fX); }
+    Sk4f y4f() const { return Sk4f::Load(fY); }
 
 private:
-    static const int kNumPoints = 4;
-    SkPoint fPoints[kNumPoints];
+    float fX[4];
+    float fY[4];
 };
 
 #endif
