@@ -217,6 +217,7 @@ void SkPaint::setDither(bool doDither) {
 }
 
 void SkPaint::setSubpixelText(bool doSubpixel) {
+    doSubpixel = false;
     this->setFlags(set_clear_mask(fBitfields.fFlags, doSubpixel, kSubpixelText_Flag));
 }
 

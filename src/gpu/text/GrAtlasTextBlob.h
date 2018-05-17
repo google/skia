@@ -76,7 +76,7 @@ public:
         SkPaint::Style fStyle;
         SkPixelGeometry fPixelGeometry;
         bool fHasBlur;
-        uint32_t fScalerContextFlags;
+        SkScalerContextFlags fScalerContextFlags;
 
         bool operator==(const Key& other) const {
             return 0 == memcmp(this, &other, sizeof(Key));

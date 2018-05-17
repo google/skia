@@ -147,8 +147,8 @@ SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(
 }
 
 SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(const SkPaint& paint) {
-    return FindOrCreateStrikeExclusive(
-            paint, nullptr, kFakeGammaAndBoostContrast, nullptr);
+    return FindOrCreateStrikeExclusive(paint, nullptr,
+                                       SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
 }
 
 void SkStrikeCache::PurgeAll() {
