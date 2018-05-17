@@ -257,13 +257,13 @@ GrGLGpu::~GrGLGpu() {
     }
 
     if (fTempSrcFBOID) {
-        GL_CALL(DeleteFramebuffers(1, &fTempSrcFBOID));
+        this->deleteFramebuffer(fTempSrcFBOID);
     }
     if (fTempDstFBOID) {
-        GL_CALL(DeleteFramebuffers(1, &fTempDstFBOID));
+        this->deleteFramebuffer(fTempDstFBOID);
     }
     if (fStencilClearFBOID) {
-        GL_CALL(DeleteFramebuffers(1, &fStencilClearFBOID));
+        this->deleteFramebuffer(fStencilClearFBOID);
     }
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(fCopyPrograms); ++i) {
@@ -296,13 +296,13 @@ void GrGLGpu::disconnect(DisconnectType type) {
             GL_CALL(UseProgram(0));
         }
         if (fTempSrcFBOID) {
-            GL_CALL(DeleteFramebuffers(1, &fTempSrcFBOID));
+            this->deleteFramebuffer(fTempSrcFBOID);
         }
         if (fTempDstFBOID) {
-            GL_CALL(DeleteFramebuffers(1, &fTempDstFBOID));
+            this->deleteFramebuffer(fTempDstFBOID);
         }
         if (fStencilClearFBOID) {
-            GL_CALL(DeleteFramebuffers(1, &fStencilClearFBOID));
+            this->deleteFramebuffer(fStencilClearFBOID);
         }
         for (size_t i = 0; i < SK_ARRAY_COUNT(fCopyPrograms); ++i) {
             if (fCopyPrograms[i].fProgram) {
@@ -1317,8 +1317,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
                                        desc.fWidth, desc.fHeight)) {
             goto FAILED;
         }
-        fStats.incRenderTargetBinds();
-        GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, idDesc->fRTFBOID));
+        this->bindFramebuffer(GR_GL_FRAMEBUFFER, idDesc->fRTFBOID);
         GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                         GR_GL_COLOR_ATTACHMENT0,
                                         GR_GL_RENDERBUFFER,
@@ -1331,8 +1330,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
             fGLContext->caps()->markConfigAsValidColorAttachment(desc.fConfig);
         }
     }
-    fStats.incRenderTargetBinds();
-    GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, idDesc->fTexFBOID));
+    this->bindFramebuffer(GR_GL_FRAMEBUFFER, idDesc->fTexFBOID);
 
     if (this->glCaps().usesImplicitMSAAResolve() && desc.fSampleCnt > 1) {
         GL_CALL(FramebufferTexture2DMultisample(GR_GL_FRAMEBUFFER,
@@ -1353,7 +1351,6 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
         fGLContext->caps()->markConfigAsValidColorAttachment(desc.fConfig);
     }
 
-    this->didBindFramebuffer();
     return true;
 
 FAILED:
@@ -1361,10 +1358,10 @@ FAILED:
         GL_CALL(DeleteRenderbuffers(1, &idDesc->fMSColorRenderbufferID));
     }
     if (idDesc->fRTFBOID != idDesc->fTexFBOID) {
-        GL_CALL(DeleteFramebuffers(1, &idDesc->fRTFBOID));
+        this->deleteFramebuffer(idDesc->fRTFBOID);
     }
     if (idDesc->fTexFBOID) {
-        GL_CALL(DeleteFramebuffers(1, &idDesc->fTexFBOID));
+        this->deleteFramebuffer(idDesc->fTexFBOID);
     }
     return false;
 }
@@ -1567,7 +1564,7 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
         // Create Framebuffer
         GrGLuint fb = 0;
         GL_CALL(GenFramebuffers(1, &fb));
-        GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, fb));
+        this->bindFramebuffer(GR_GL_FRAMEBUFFER, fb);
         fHWBoundRenderTargetUniqueID.makeInvalid();
         GL_CALL(FramebufferTexture2D(GR_GL_FRAMEBUFFER,
                                      GR_GL_COLOR_ATTACHMENT0,
@@ -1619,8 +1616,8 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
             GL_CALL(DeleteRenderbuffers(1, &sbRBID));
         }
         GL_CALL(DeleteTextures(1, &colorID));
-        GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, 0));
-        GL_CALL(DeleteFramebuffers(1, &fb));
+        this->bindFramebuffer(GR_GL_FRAMEBUFFER, 0);
+        this->deleteFramebuffer(fb);
         fGLContext->caps()->setStencilFormatIndexForConfig(config, firstWorkingStencilFormatIndex);
     }
     return this->glCaps().getStencilFormatIndexForConfig(config);
@@ -2348,8 +2345,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left,
             case GrGLRenderTarget::kCanResolve_ResolveType:
                 this->onResolveRenderTarget(renderTarget);
                 // we don't track the state of the READ FBO ID.
-                fStats.incRenderTargetBinds();
-                GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER, renderTarget->textureFBOID()));
+                this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, renderTarget->textureFBOID());
                 break;
             default:
                 SK_ABORT("Unknown resolve type");
@@ -2474,9 +2470,7 @@ void GrGLGpu::flushRenderTargetNoColorWrites(GrGLRenderTarget* target, bool disa
     SkASSERT(target);
     GrGpuResource::UniqueID rtID = target->uniqueID();
     if (fHWBoundRenderTargetUniqueID != rtID) {
-        fStats.incRenderTargetBinds();
-        GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, target->renderFBOID()));
-        this->didBindFramebuffer();
+        this->bindFramebuffer(GR_GL_FRAMEBUFFER, target->renderFBOID());
 #ifdef SK_DEBUG
         // don't do this check in Chromium -- this is causing
         // lots of repeated command buffer flushes when the compositor is
@@ -2701,10 +2695,9 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {
         if (this->glCaps().usesMSAARenderBuffers()) {
             SkASSERT(rt->textureFBOID() != rt->renderFBOID());
             SkASSERT(rt->textureFBOID() != 0 && rt->renderFBOID() != 0);
-            fStats.incRenderTargetBinds();
-            fStats.incRenderTargetBinds();
-            GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER, rt->renderFBOID()));
-            GL_CALL(BindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->textureFBOID()));
+            this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, rt->renderFBOID());
+            this->bindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->textureFBOID());
+
             // make sure we go through flushRenderTarget() since we've modified
             // the bound DRAW FBO ID.
             fHWBoundRenderTargetUniqueID.makeInvalid();
@@ -3364,8 +3357,7 @@ void GrGLGpu::bindSurfaceFBOForPixelOps(GrSurface* surface, GrGLenum fboTarget, 
             GR_GL_CALL(this->glInterface(), GenFramebuffers(1, tempFBOID));
         }
 
-        fStats.incRenderTargetBinds();
-        GR_GL_CALL(this->glInterface(), BindFramebuffer(fboTarget, *tempFBOID));
+        this->bindFramebuffer(fboTarget, *tempFBOID);
         GR_GL_CALL(this->glInterface(), FramebufferTexture2D(fboTarget,
                                                              GR_GL_COLOR_ATTACHMENT0,
                                                              target,
@@ -3377,11 +3369,9 @@ void GrGLGpu::bindSurfaceFBOForPixelOps(GrSurface* surface, GrGLenum fboTarget, 
         viewport->fWidth = surface->width();
         viewport->fHeight = surface->height();
     } else {
-        fStats.incRenderTargetBinds();
-        GR_GL_CALL(this->glInterface(), BindFramebuffer(fboTarget, rt->renderFBOID()));
+        this->bindFramebuffer(fboTarget, rt->renderFBOID());
         *viewport = rt->getViewport();
     }
-    this->didBindFramebuffer();
 }
 
 void GrGLGpu::unbindTextureFBOForPixelOps(GrGLenum fboTarget, GrSurface* surface) {
@@ -3397,7 +3387,13 @@ void GrGLGpu::unbindTextureFBOForPixelOps(GrGLenum fboTarget, GrSurface* surface
     }
 }
 
-void GrGLGpu::didBindFramebuffer() {
+void GrGLGpu::bindFramebuffer(GrGLenum target, GrGLuint fboid) {
+    fStats.incRenderTargetBinds();
+    GL_CALL(BindFramebuffer(target, fboid));
+    if (target == GR_GL_FRAMEBUFFER || target == GR_GL_DRAW_FRAMEBUFFER) {
+        fBoundDrawFramebuffer = fboid;
+    }
+
     if (!this->caps()->workarounds().restore_scissor_on_fbo_change) {
         return;
     }
@@ -3408,6 +3404,24 @@ void GrGLGpu::didBindFramebuffer() {
     // crbug.com/222018 - Also on QualComm, the flush here avoids flicker,
     // it's unclear how this bug works.
     GL_CALL(Flush());
+}
+
+void GrGLGpu::deleteFramebuffer(GrGLuint fboid) {
+    if (fboid == fBoundDrawFramebuffer &&
+        this->caps()->workarounds().unbind_attachments_on_bound_render_fbo_delete) {
+        // This workaround only applies to deleting currently bound framebuffers
+        // on Adreno 420.  Because this is a somewhat rare case, instead of
+        // tracking all the attachments of every framebuffer instead just always
+        // unbind all attachments.
+        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0,
+                                        GR_GL_RENDERBUFFER, 0));
+        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_STENCIL_ATTACHMENT,
+                                        GR_GL_RENDERBUFFER, 0));
+        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_DEPTH_ATTACHMENT,
+                                        GR_GL_RENDERBUFFER, 0));
+    }
+
+    GL_CALL(DeleteFramebuffers(1, &fboid));
 }
 
 bool GrGLGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
@@ -4195,7 +4209,7 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, GrSurfaceOrigin textureOrigin
     if (0 == fTempDstFBOID) {
         GL_CALL(GenFramebuffers(1, &fTempDstFBOID));
     }
-    GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, fTempDstFBOID));
+    this->bindFramebuffer(GR_GL_FRAMEBUFFER, fTempDstFBOID);
     fHWBoundRenderTargetUniqueID.makeInvalid();
 
     // Bind the texture, to get things configured for filtering.
@@ -4442,7 +4456,7 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
 
     this->invalidateBoundRenderTarget();
 
-    GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, info.fFBOID));
+    this->bindFramebuffer(GR_GL_FRAMEBUFFER, info.fFBOID);
     GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, rbIDs[0]));
     GL_ALLOC_CALL(this->glInterface(),
                   RenderbufferStorage(GR_GL_RENDERBUFFER, colorBufferFormat, w, h));
@@ -4462,14 +4476,14 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
     // We don't want to have to recover the renderbuffer IDs later to delete them. OpenGL has this
     // rule that if a renderbuffer is deleted and a FBO other than the current FBO has the RB
     // attached then deletion is delayed. So we unbind the FBO here and delete the renderbuffers.
-    GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, 0));
+    this->bindFramebuffer(GR_GL_FRAMEBUFFER, 0);
     GL_CALL(DeleteRenderbuffers(2, rbIDs));
 
-    GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, info.fFBOID));
+    this->bindFramebuffer(GR_GL_FRAMEBUFFER, info.fFBOID);
     GrGLenum status;
     GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
     if (GR_GL_FRAMEBUFFER_COMPLETE != status) {
-        GL_CALL(DeleteFramebuffers(1, &info.fFBOID));
+        this->deleteFramebuffer(info.fFBOID);
         return {};
     }
     auto stencilBits = SkToInt(this->glCaps().stencilFormats()[sFormatIdx].fStencilBits);
@@ -4481,7 +4495,7 @@ void GrGLGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& 
     GrGLFramebufferInfo info;
     if (backendRT.getGLFramebufferInfo(&info)) {
         if (info.fFBOID) {
-            GL_CALL(DeleteFramebuffers(1, &info.fFBOID));
+            this->deleteFramebuffer(info.fFBOID);
         }
     }
 }
