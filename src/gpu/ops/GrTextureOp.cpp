@@ -20,6 +20,7 @@
 #include "GrTextureProxy.h"
 #include "SkGr.h"
 #include "SkMathPriv.h"
+#include "SkMatrixPriv.h"
 #include "SkPoint.h"
 #include "SkPoint3.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
@@ -311,8 +312,8 @@ public:
         // as the intersection points of the outset edges.
 
         // GrQuad is in tristip order but we want the points to be in a fan order, so swap 2 and 3.
-        Sk4f xs(quad.point(0).fX, quad.point(1).fX, quad.point(3).fX, quad.point(2).fX);
-        Sk4f ys(quad.point(0).fY, quad.point(1).fY, quad.point(3).fY, quad.point(2).fY);
+        Sk4f xs = SkNx_shuffle<0, 1, 3, 2>(quad.x4f());
+        Sk4f ys = SkNx_shuffle<0, 1, 3, 2>(quad.y4f());
         Sk4f xsrot = SkNx_shuffle<1, 2, 3, 0>(xs);
         Sk4f ysrot = SkNx_shuffle<1, 2, 3, 0>(ys);
         Sk4f normXs = ysrot - ys;
@@ -365,9 +366,9 @@ public:
 
 private:
     static void AssignTexCoords(Vertex* vertices, const GrQuad& quad, const SkRect& tex) {
-        SkMatrix q = SkMatrix::MakeAll(quad.point(0).fX, quad.point(1).fX, quad.point(2).fX,
-                                       quad.point(0).fY, quad.point(1).fY, quad.point(2).fY,
-                                                    1.f,              1.f,              1.f);
+        SkMatrix q = SkMatrix::MakeAll(quad.x(0), quad.x(1), quad.x(2),
+                                       quad.y(0), quad.y(1), quad.y(2),
+                                             1.f,       1.f,       1.f);
         SkMatrix qinv;
         if (!q.invert(&qinv)) {
             return;
@@ -474,10 +475,10 @@ public:
                     "%d: Color: 0x%08x, ProxyIdx: %d, TexRect [L: %.2f, T: %.2f, R: %.2f, B: %.2f] "
                     "Quad [(%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f)]\n",
                     i, draw.fColor, draw.fTextureIdx, draw.fSrcRect.fLeft, draw.fSrcRect.fTop,
-                    draw.fSrcRect.fRight, draw.fSrcRect.fBottom, draw.fQuad.points()[0].fX,
-                    draw.fQuad.points()[0].fY, draw.fQuad.points()[1].fX, draw.fQuad.points()[1].fY,
-                    draw.fQuad.points()[2].fX, draw.fQuad.points()[2].fY, draw.fQuad.points()[3].fX,
-                    draw.fQuad.points()[3].fY);
+                    draw.fSrcRect.fRight, draw.fSrcRect.fBottom, draw.fQuad.point(0).fX,
+                    draw.fQuad.point(0).fY, draw.fQuad.point(1).fX, draw.fQuad.point(1).fY,
+                    draw.fQuad.point(2).fX, draw.fQuad.point(2).fY, draw.fQuad.point(3).fX,
+                    draw.fQuad.point(3).fY);
         }
         str += INHERITED::dumpInfo();
         return str;
@@ -529,9 +530,8 @@ __attribute__((no_sanitize("float-cast-overflow")))
         draw.fSrcRect = srcRect;
         draw.fTextureIdx = 0;
         draw.fColor = color;
-        draw.fQuad.setFromMappedRect(dstRect, viewMatrix);
-        SkRect bounds;
-        bounds.setBounds(draw.fQuad.points(), 4);
+        draw.fQuad = GrQuad(dstRect, viewMatrix);
+        SkRect bounds = draw.fQuad.bounds();
         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
 
         fMaxApproxDstPixelArea = RectSizeAsSizeT(bounds);
