@@ -146,6 +146,7 @@ skia_gpu_sources = [
   "$_src/gpu/GrProcessorUnitTest.h",
   "$_src/gpu/GrProxyProvider.cpp",
   "$_src/gpu/GrProxyProvider.h",
+  "$_src/gpu/GrQuad.cpp",
   "$_src/gpu/GrQuad.h",
   "$_src/gpu/GrRect.h",
   "$_src/gpu/GrRectanizer.h",
