@@ -904,14 +904,25 @@ added: nan, 8 count: 4 rect: 0, 0, 0, 0 success: false
 #Method void setBoundsNoCheck(const SkPoint pts[], int count)
 #In Set
 #Line # sets to upper and lower limits of Point array ##
-Sets to bounds of Point array with count entries. If any point contains a non-finite value
-then the rect will also be non-finite.
+Sets to bounds of Point pts array with count entries. If any Point in pts
+contains Infinity or NaN, all Rect dimensions are set to NaN.
 
 #Param pts  Point array ##
 #Param count  entries in array ##
 
 #Example
-// incomplete
+   SkPoint points[] = {{3, 4}, {1, 2}, {SkScalar_Inf, 6}, {SK_ScalarNaN, 8}};
+   for (int count = 0; count <= (int) SK_ARRAY_COUNT(points); ++count) {
+       SkRect rect;
+       rect.setBoundsNoCheck(points, count);
+       if (count > 0) {
+           SkDebugf("added: %3g, %g ", points[count - 1].fX,  points[count - 1].fY);
+       } else {
+           SkDebugf("%14s", " ");
+       }
+       SkDebugf("count: %d rect: %g, %g, %g, %g\n", count,
+               rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
+   }
 ##
 
 #SeeAlso setBoundsCheck
