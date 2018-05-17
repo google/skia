@@ -158,7 +158,6 @@ public:
     size_t allocImage(SkArenaAlloc* alloc);
 
     size_t rowBytes() const;
-    size_t rowBytesUsingFormat(SkMask::Format format) const;
 
     bool isJustAdvance() const {
         return MASK_FORMAT_JUST_ADVANCE == fMaskFormat;

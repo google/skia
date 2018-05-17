@@ -72,10 +72,6 @@ size_t SkGlyph::rowBytes() const {
     return format_rowbytes(fWidth, (SkMask::Format)fMaskFormat);
 }
 
-size_t SkGlyph::rowBytesUsingFormat(SkMask::Format format) const {
-    return format_rowbytes(fWidth, format);
-}
-
 size_t SkGlyph::computeImageSize() const {
     size_t size = this->rowBytes() * fHeight;
 
