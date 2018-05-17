@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f15a21c_6f39c051",
+        "filename": "src/effects/SkDashPathEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-17T15:03:29Z",
+      "side": 1,
+      "message": "\u003c\u003d, right?",
+      "range": {
+        "startLine": 372,
+        "startChar": 31,
+        "endLine": 372,
+        "endChar": 32
+      },
+      "revId": "7f94efb9032bf10aea1edd3876f5bec444833d0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
