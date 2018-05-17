@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "38e11d31_fa80cac8",
+        "filename": "src/effects/SkDFMaskFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-17T18:34:43Z",
+      "side": 1,
+      "message": "It appears this assumes the src.fFormat is SkMask::kA8_Format without checking that is the case.",
+      "range": {
+        "startLine": 113,
+        "startChar": 24,
+        "endLine": 113,
+        "endChar": 34
+      },
+      "revId": "012b7dd62aecb5fb48ceee8d2c27fb30e4508d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
