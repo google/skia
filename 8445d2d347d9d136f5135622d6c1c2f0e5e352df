@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "d46eabdc_225d7804",
+        "filename": "src/core/SkColorTable.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-05-17T15:26:44Z",
+      "side": 1,
+      "message": "Good catch.  Too many flipped booleans.",
+      "parentUuid": "f9b74bc9_aecea024",
+      "revId": "8445d2d347d9d136f5135622d6c1c2f0e5e352df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bbf1d6c5_756176e9",
         "filename": "src/core/SkReadBuffer.h",
         "patchSetId": 6
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "570ade60_5a313e38",
+        "filename": "src/core/SkReadBuffer.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-05-17T15:26:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bbf1d6c5_756176e9",
+      "range": {
+        "startLine": 229,
+        "startChar": 26,
+        "endLine": 229,
+        "endChar": 34
+      },
+      "revId": "8445d2d347d9d136f5135622d6c1c2f0e5e352df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ed300058_7c2af17e",
         "filename": "src/core/SkReadBuffer.h",
         "patchSetId": 6
@@ -62,6 +104,30 @@
       "revId": "8445d2d347d9d136f5135622d6c1c2f0e5e352df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da67442c_26cbca35",
+        "filename": "src/core/SkReadBuffer.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-05-17T15:26:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ed300058_7c2af17e",
+      "range": {
+        "startLine": 230,
+        "startChar": 15,
+        "endLine": 230,
+        "endChar": 23
+      },
+      "revId": "8445d2d347d9d136f5135622d6c1c2f0e5e352df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
