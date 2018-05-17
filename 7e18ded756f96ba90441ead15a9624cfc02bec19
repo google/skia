@@ -167,6 +167,30 @@
     },
     {
       "key": {
+        "uuid": "b09dccb2_8cdb7905",
+        "filename": "src/core/SkFontDescriptor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-17T18:16:43Z",
+      "side": 1,
+      "message": "There isn\u0027t an issue opened for any of this. I just noticed as I was writing this change that negative values don\u0027t round trip. I also just noticed that all the \u0027size_t\u0027 stuff around \u0027PackedUInt\u0027 is all incorrect (and I am working on a change around that right now as well).",
+      "parentUuid": "3e83d82a_9c0ffee6",
+      "range": {
+        "startLine": 123,
+        "startChar": 24,
+        "endLine": 123,
+        "endChar": 31
+      },
+      "revId": "7e18ded756f96ba90441ead15a9624cfc02bec19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "846015c1_0ecabf59",
         "filename": "src/core/SkPicture.cpp",
         "patchSetId": 3

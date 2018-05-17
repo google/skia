@@ -22,6 +22,30 @@
       "revId": "ec7b9a1f2ba4f899b50b68e17977ef3cf70ebddb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9235f71e_9365af91",
+        "filename": "include/core/SkPicture.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-17T18:16:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3032c20f_6a9f28cd",
+      "range": {
+        "startLine": 177,
+        "startChar": 53,
+        "endLine": 177,
+        "endChar": 69
+      },
+      "revId": "ec7b9a1f2ba4f899b50b68e17977ef3cf70ebddb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
