@@ -27,7 +27,7 @@ def RunSteps(api):
   repo_name = api.properties['repository'].split('/')[-1]
   if repo_name.endswith('.git'):
     repo_name = repo_name[:-len('.git')]
-  with api.context(cwd=api.vars.checkout_root.join(repo_name),
+  with api.context(cwd=api.core.checkout_root.join(repo_name),
                    env=api.infra.go_env):
     api.step('infra_tests', cmd=['make', '-C', 'infra/bots', 'test'])
 
