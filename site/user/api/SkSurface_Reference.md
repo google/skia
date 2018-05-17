@@ -1849,7 +1849,7 @@ converting to <a href='#Surface'>Surface</a> colorType() and <a href='#Surface'>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="760793bcf0ef193fa61ea03e6e8fc825"></fiddle-embed></div>
 
 ### See Also
 
@@ -1887,7 +1887,7 @@ converting to <a href='#Surface'>Surface</a> colorType() and <a href='#Surface'>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="d77790dd3bc9f678fa4f582347fb8fba"></fiddle-embed></div>
 
 ### See Also
 

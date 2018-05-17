@@ -69,7 +69,7 @@ SkImageInfo related constants are defined by <code>enum</code>, <code>enum class
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#kGray_8_SkColorType'>kGray_8_SkColorType</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>pixel with <a href='SkColor_Reference#Gray'>Color Gray</a> level in 8-bit byte</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>pixel with grayscale level in 8-bit byte</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#kJPEG_SkYUVColorSpace'>kJPEG_SkYUVColorSpace</a></td>
@@ -89,7 +89,7 @@ SkImageInfo related constants are defined by <code>enum</code>, <code>enum class
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#kN32_SkColorType'>kN32_SkColorType</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>native <a href='SkColor_Reference#ARGB'>Color ARGB</a> 32-bit encoding</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>native ARGB 32-bit encoding</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a></td>
@@ -172,8 +172,8 @@ color to create a new color. If alpha describes a weight from zero to one:
 
 In practice alpha is encoded in two or more bits, where 1.0 equals all bits set.
 
-<a href='SkColor_Reference#RGB'>Color RGB</a> may have <a href='SkColor_Reference#Alpha'>Color Alpha</a> included in each component value; the stored
-value is the original <a href='SkColor_Reference#RGB'>Color RGB</a> multiplied by <a href='SkColor_Reference#Alpha'>Color Alpha</a>. <a href='undocumented#Premultiply'>Premultiplied</a> color
+RGB may have <a href='SkColor_Reference#Alpha'>Color Alpha</a> included in each component value; the stored
+value is the original RGB multiplied by <a href='SkColor_Reference#Alpha'>Color Alpha</a>. <a href='undocumented#Premultiply'>Premultiplied</a> color
 components improve performance.
 
 ### Constants
@@ -346,10 +346,10 @@ true if <a href='#SkAlphaTypeIsOpaque_at'>at</a> equals <a href='#kOpaque_SkAlph
 </pre>
 
 Describes how pixel bits encode color. A pixel may be an alpha mask, a
-gray level, <a href='SkColor_Reference#RGB'>Color RGB</a>, or <a href='SkColor_Reference#ARGB'>Color ARGB</a>.
+grayscale, RGB, or ARGB.
 
-<a href='#kN32_SkColorType'>kN32_SkColorType</a> selects the native 32-bit <a href='SkColor_Reference#ARGB'>Color ARGB</a> format. On Little_Endian
-processors, pixels containing 8-bit <a href='SkColor_Reference#ARGB'>Color ARGB</a> components pack into 32-bit
+<a href='#kN32_SkColorType'>kN32_SkColorType</a> selects the native 32-bit ARGB format. On Little_Endian
+processors, pixels containing 8-bit ARGB components pack into 32-bit
 <a href='#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a>. On Big_Endian processors, pixels pack into 32-bit
 <a href='#kRGBA_8888_SkColorType'>kRGBA_8888_SkColorType</a>.
 
@@ -472,7 +472,7 @@ Used by tests to iterate through all valid values.
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>4 or 6</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Encodes <a href='SkColor_Reference#ARGB'>Color ARGB</a> as either <a href='#kRGBA_8888_SkColorType'>kRGBA_8888_SkColorType</a> or
+Encodes ARGB as either <a href='#kRGBA_8888_SkColorType'>kRGBA_8888_SkColorType</a> or
 <a href='#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a>, whichever is native to the platform.
 </td>
   </tr>
@@ -498,12 +498,12 @@ with its transparency set to alpha8 pixel value.
 
 ### See Also
 
-incomplete
+<a href='SkColor_Reference#Alpha'>Alpha</a> <a href='#Color_Type_Gray_8'>Gray 8</a>
 
 ## <a name='Color_Type_RGB_565'>Color Type RGB 565</a>
 
-<a href='#kRGB_565_SkColorType'>kRGB_565_SkColorType</a> encodes <a href='SkColor_Reference#RGB'>Color RGB</a> to fit in a 16-bit word. <a href='SkColor_Reference#RGB_Red'>Red</a> and <a href='SkColor_Reference#RGB_Blue'>Blue</a>
-components use five bits describing 32 levels. <a href='SkColor_Reference#RGB_Green'>Green</a> components, more sensitive
+<a href='#kRGB_565_SkColorType'>kRGB_565_SkColorType</a> encodes RGB to fit in a 16-bit word. Red and blue
+components use five bits describing 32 levels. Green components, more sensitive
 to the eye, use six bits describing 64 levels. <a href='#kRGB_565_SkColorType'>kRGB_565_SkColorType</a> has no
 bits for <a href='SkColor_Reference#Alpha'>Alpha</a>.
 Pixels are fully opaque as if its <a href='SkColor_Reference#Alpha'>Color Alpha</a> was set to one, and should
@@ -517,11 +517,11 @@ always be paired with <a href='#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>.
 
 ### See Also
 
-incomplete
+<a href='#Color_Type_ARGB_4444'>ARGB 4444</a> <a href='#Color_Type_RGBA_8888'>RGBA 8888</a>
 
 ## <a name='Color_Type_ARGB_4444'>Color Type ARGB 4444</a>
 
-<a href='#kARGB_4444_SkColorType'>kARGB_4444_SkColorType</a> encodes <a href='SkColor_Reference#ARGB'>Color ARGB</a> to fit in 16-bit word. Each
+<a href='#kARGB_4444_SkColorType'>kARGB_4444_SkColorType</a> encodes ARGB to fit in 16-bit word. Each
 component: alpha, blue, green, and red; use four bits, describing 16 levels.
 Note that <a href='#kARGB_4444_SkColorType'>kARGB_4444_SkColorType</a> is misnamed; the acronym does not
 describe the actual component order.
@@ -546,11 +546,11 @@ less than 15, the drawn result is undefined.
 
 ### See Also
 
-incomplete
+<a href='#Color_Type_RGBA_8888'>RGBA 8888</a>
 
 ## <a name='Color_Type_RGBA_8888'>Color Type RGBA 8888</a>
 
-<a href='#kRGBA_8888_SkColorType'>kRGBA_8888_SkColorType</a> encodes <a href='SkColor_Reference#ARGB'>Color ARGB</a> into a 32-bit word. Each component:
+<a href='#kRGBA_8888_SkColorType'>kRGBA_8888_SkColorType</a> encodes ARGB into a 32-bit word. Each component:
 red, green, blue, alpha; use eight bits, describing 256 levels.
 
 ![Color_Type_RGBA_8888](https://fiddle.skia.org/i/4ccd35f27fe73dce8cce8c75e18df23c_raster.png "")
@@ -577,11 +577,11 @@ will have the best performance. Use <a href='#kN32_SkColorType'>kN32_SkColorType
 
 ### See Also
 
-incomplete
+<a href='#Color_Type_RGB_888'>RGB 888</a> <a href='#Color_Type_BGRA_8888'>BGRA 8888</a>
 
 ## <a name='Color_Type_RGB_888'>Color Type RGB 888</a>
 
-<a href='#kRGB_888x_SkColorType'>kRGB_888x_SkColorType</a> encodes <a href='SkColor_Reference#RGB'>Color RGB</a> into a 32-bit word. Each component:
+<a href='#kRGB_888x_SkColorType'>kRGB_888x_SkColorType</a> encodes RGB into a 32-bit word. Each component:
 red, green, blue; use eight bits, describing 256 levels. Eight bits are
 unused. Pixels described by <a href='#kRGB_888x_SkColorType'>kRGB_888x_SkColorType</a> are fully opaque as if
 their <a href='SkColor_Reference#Alpha'>Color Alpha</a> was set to one, and should always be paired with
@@ -593,9 +593,13 @@ their <a href='SkColor_Reference#Alpha'>Color Alpha</a> was set to one, and shou
 
 <div><fiddle-embed name="4260d6cc15db2c60c07f6fdc8d9ae425"></fiddle-embed></div>
 
+### See Also
+
+<a href='#Color_Type_RGBA_8888'>RGBA 8888</a> <a href='#Color_Type_BGRA_8888'>BGRA 8888</a>
+
 ## <a name='Color_Type_BGRA_8888'>Color Type BGRA 8888</a>
 
-<a href='#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a> encodes <a href='SkColor_Reference#ARGB'>Color ARGB</a> into a 32-bit word. Each component:
+<a href='#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a> encodes ARGB into a 32-bit word. Each component:
 blue, green, red, and alpha; use eight bits, describing 256 levels.
 
 ![Color_Type_BGRA_8888](https://fiddle.skia.org/i/babd0e12db21a88c74d4e88aa40268ab_raster.png "")
@@ -626,7 +630,7 @@ and will have the best performance. Use <a href='#kN32_SkColorType'>kN32_SkColor
 
 ## <a name='Color_Type_RGBA_1010102'>Color Type RGBA 1010102</a>
 
-<a href='#kRGBA_1010102_SkColorType'>kRGBA_1010102_SkColorType</a> encodes <a href='SkColor_Reference#ARGB'>Color ARGB</a> into a 32-bit word. Each
+<a href='#kRGBA_1010102_SkColorType'>kRGBA_1010102_SkColorType</a> encodes ARGB into a 32-bit word. Each
 <a href='SkColor_Reference#Color'>Color</a> component: red, green, and blue; use ten bits, describing 1024 levels.
 Two bits contain alpha, describing four levels. Possible alpha
 values are zero: fully transparent; one: 33% opaque; two: 67% opaque;
@@ -655,11 +659,11 @@ less than three, the drawn result is undefined.
 
 ### See Also
 
-incomplete
+<a href='#Color_Type_RGB_101010'>RGB 101010</a> <a href='#Color_Type_RGBA_8888'>RGBA 8888</a>
 
 ## <a name='Color_Type_RGB_101010'>Color Type RGB 101010</a>
 
-<a href='#kRGB_101010x_SkColorType'>kRGB_101010x_SkColorType</a> encodes <a href='SkColor_Reference#RGB'>Color RGB</a> into a 32-bit word. Each
+<a href='#kRGB_101010x_SkColorType'>kRGB_101010x_SkColorType</a> encodes RGB into a 32-bit word. Each
 <a href='SkColor_Reference#Color'>Color</a> component: red, green, and blue; use ten bits, describing 1024 levels.
 Two bits are unused. Pixels described by <a href='#kRGB_101010x_SkColorType'>kRGB_101010x_SkColorType</a> are fully
 opaque as if its <a href='SkColor_Reference#Alpha'>Color Alpha</a> was set to one, and should always be paired
@@ -676,11 +680,11 @@ draw all colors possible to a <a href='#kRGB_101010x_SkColorType'>kRGB_101010x_S
 
 ### See Also
 
-incomplete
+<a href='#Color_Type_RGBA_1010102'>RGBA 1010102</a>
 
 ## <a name='Color_Type_Gray_8'>Color Type Gray 8</a>
 
-<a href='#kGray_8_SkColorType'>kGray_8_SkColorType</a> encodes <a href='SkColor_Reference#Gray'>Color Gray</a> level in eight bits that is equivalent
+<a href='#kGray_8_SkColorType'>kGray_8_SkColorType</a> encodes grayscale level in eight bits that is equivalent
 to equal values for red, blue, and green, representing colors from black to
 white.  Pixels described by <a href='#kGray_8_SkColorType'>kGray_8_SkColorType</a> are fully
 opaque as if its <a href='SkColor_Reference#Alpha'>Color Alpha</a> was set to one, and should always be paired with
@@ -692,11 +696,11 @@ opaque as if its <a href='SkColor_Reference#Alpha'>Color Alpha</a> was set to on
 
 ### See Also
 
-incomplete
+<a href='#Color_Type_Alpha_8'>Alpha 8</a>
 
 ## <a name='Color_Type_RGBA_F16'>Color Type RGBA F16</a>
 
-<a href='#kRGBA_F16_SkColorType'>kRGBA_F16_SkColorType</a> encodes <a href='SkColor_Reference#ARGB'>Color ARGB</a> into a 64-bit word. Each component:
+<a href='#kRGBA_F16_SkColorType'>kRGBA_F16_SkColorType</a> encodes ARGB into a 64-bit word. Each component:
 blue, green, red, and alpha; use 16 bits, describing a floating point value.
 from -65500	to 65000 with 3.31 decimal digits of precision.
 
@@ -727,7 +731,7 @@ less than 255, the drawn result is undefined.
 
 ### See Also
 
-incomplete
+<a href='SkColor4f_Reference#SkColor4f'>SkColor4f</a>
 
 <a name='SkColorTypeBytesPerPixel'></a>
 ## SkColorTypeBytesPerPixel
@@ -1130,7 +1134,7 @@ SkImageInfo global, <code>struct</code>, and <code>class</code> related member f
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_ARGB_4444'>Color Type ARGB 4444</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes <a href='SkColor_Reference#ARGB'>Color ARGB</a> in 16 bits</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes ARGB in 16 bits</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_Alpha_8'>Color Type Alpha 8</a></td>
@@ -1138,35 +1142,35 @@ SkImageInfo global, <code>struct</code>, and <code>class</code> related member f
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_BGRA_8888'>Color Type BGRA 8888</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes <a href='SkColor_Reference#ARGB'>Color ARGB</a> Little_Endian in 32 bits</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes ARGB Little_Endian in 32 bits</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_Gray_8'>Color Type Gray 8</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes level of <a href='SkColor_Reference#Gray'>Color Gray</a> in 8 bits</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes level of grayscale in 8 bits</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_RGBA_1010102'>Color Type RGBA 1010102</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes <a href='SkColor_Reference#ARGB'>Color ARGB</a> ten bits per color component</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes ARGB ten bits per color component</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_RGBA_8888'>Color Type RGBA 8888</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes <a href='SkColor_Reference#ARGB'>Color ARGB</a> Big_Endian in 32 bits</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes ARGB Big_Endian in 32 bits</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_RGBA_F16'>Color Type RGBA F16</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes <a href='SkColor_Reference#ARGB'>Color ARGB</a> as half floats</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes ARGB as half floats</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_RGB_101010'>Color Type RGB 101010</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes <a href='SkColor_Reference#RGB'>Color RGB</a> ten bits per color component</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes RGB ten bits per color component</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_RGB_565'>Color Type RGB 565</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes <a href='SkColor_Reference#RGB'>Color RGB</a> in 16 bits</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes RGB in 16 bits</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_RGB_888'>Color Type RGB 888</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes <a href='SkColor_Reference#RGB'>Color RGB</a> in 32 bits</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes RGB in 32 bits</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Property'>Property</a></td>
@@ -2429,7 +2433,7 @@ bool operator!=(const SkImageInfo& other) _const
 </pre>
 
 Compares <a href='#Image_Info'>Image Info</a> with <a href='#SkImageInfo_notequal1_operator_other'>other</a>, and returns true if width, height, <a href='#Color_Type'>Color Type</a>,
-<a href='#Alpha_Type'>Alpha Type</a>, and <a href='undocumented#Color_Space'>Color Space</a> are equivalent.
+<a href='#Alpha_Type'>Alpha Type</a>, and <a href='undocumented#Color_Space'>Color Space</a> are not equivalent.
 
 ### Parameters
 

@@ -338,9 +338,6 @@ bool Definition::boilerplateIfDef() {
 // fixme: this will need to be more complicated to handle all of Skia
 // for now, just handle paint -- maybe fiddle will loosen naming restrictions
 void Definition::setCanonicalFiddle() {
-    if (string::npos != fName.find("SkCanvas::SaveLayerRec")) {
-        SkDebugf("");
-    }
     fMethodType = Definition::MethodType::kNone;
     size_t doubleColons = fName.find("::", 0);
     SkASSERT(string::npos != doubleColons);
