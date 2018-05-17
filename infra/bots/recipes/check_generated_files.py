@@ -55,6 +55,7 @@ for r, d, files in os.walk('%s'):
 """ % cwd)
 
     # Regenerate the SKSL files.
+    api.build.set_out_dir(api.vars.build_dir.join('out', 'Release'))
     api.build()
 
     # Get a second diff. If this doesn't match the first, then there have been

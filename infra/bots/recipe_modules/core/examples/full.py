@@ -18,11 +18,16 @@ def RunSteps(api):
   bot_update = True
   if 'NoDEPS' in api.properties['buildername']:
     bot_update = False
+    api.core.set_checkout_root(api.path['start_dir'])
   if bot_update:
     api.core.checkout_bot_update()
   else:
     api.core.checkout_git()
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
+
+  # For the sake of coverage.
+  api.core.set_checkout_root(None)
+  api.core.set_gclient_cache(None)
 
 
 def GenTests(api):
@@ -138,4 +143,24 @@ def GenTests(api):
       api.path.exists(
           api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
       )
+  )
+
+  buildername = 'Build-Mac-Clang-x86_64-Debug-CommandBuffer'
+  yield (
+      api.test(buildername) +
+      api.properties(buildername=buildername,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]')
+  )
+
+  buildername = 'Build-Debian9-GCC-x86_64-Release-Flutter_Android'
+  yield (
+      api.test(buildername) +
+      api.properties(buildername=buildername,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]')
   )

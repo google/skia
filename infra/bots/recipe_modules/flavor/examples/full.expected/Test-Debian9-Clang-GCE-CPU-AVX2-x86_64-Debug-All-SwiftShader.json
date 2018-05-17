@@ -152,7 +152,7 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "LD_LIBRARY_PATH": "[START_DIR]/build/out/swiftshader_out",
+      "LD_LIBRARY_PATH": "[START_DIR]/build/out/Debug/swiftshader_out",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "symbolized dm"

@@ -27,16 +27,22 @@ def RunSteps(api):
 
   # Check out code.
   if 'NoDEPS' in api.properties['buildername']:
+    api.core.set_checkout_root(api.path['start_dir'])
     api.core.checkout_git()
   else:
     api.core.checkout_bot_update()
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
 
+  api.build.set_checkout_root(api.core.checkout_root)
+
+  dst = api.vars.swarming_out_dir.join('out', api.vars.configuration)
+  if 'ParentRevision' in api.vars.builder_name:
+    dst = api.vars.swarming_out_dir.join(
+        'ParentRevision', 'out', api.vars.configuration)
+
   try:
     api.build()
-    api.build.copy_build_products(
-        api.vars.swarming_out_dir.join(
-            'out', api.vars.configuration))
+    api.build.copy_build_products(dst)
   finally:
     if 'Win' in api.vars.builder_cfg.get('os', ''):
       api.python.inline(
@@ -57,8 +63,8 @@ for p in psutil.process_iter():
 TEST_BUILDERS = [
   'Build-Debian9-Clang-arm-Release-Chromebook_GLES',
   'Build-Debian9-Clang-arm64-Release-Android',
-  'Build-Debian9-Clang-arm64-Release-Android_Vulkan',
   'Build-Debian9-Clang-arm64-Release-Android_ASAN',
+  'Build-Debian9-Clang-arm64-Release-Android_Vulkan',
   'Build-Debian9-Clang-x86_64-Debug',
   'Build-Debian9-Clang-x86_64-Debug-ASAN',
   'Build-Debian9-Clang-x86_64-Debug-Coverage',
@@ -68,6 +74,7 @@ TEST_BUILDERS = [
   'Build-Debian9-Clang-x86_64-Release-Fast',
   'Build-Debian9-Clang-x86_64-Release-Mini',
   'Build-Debian9-Clang-x86_64-Release-NoDEPS',
+  'Build-Debian9-Clang-x86_64-Release-ParentRevision',
   'Build-Debian9-Clang-x86_64-Release-Vulkan',
   'Build-Debian9-Clang-x86_64-Release-Vulkan_Coverage',
   'Build-Debian9-EMCC-wasm-Release',
@@ -88,7 +95,6 @@ TEST_BUILDERS = [
   'Build-Win-Clang-x86_64-Debug-ANGLE',
   'Build-Win-Clang-x86_64-Release-Vulkan',
 ]
-
 
 def GenTests(api):
   for builder in TEST_BUILDERS:
