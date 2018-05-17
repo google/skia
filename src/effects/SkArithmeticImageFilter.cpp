@@ -44,7 +44,8 @@ protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
                                         SkIPoint* offset) const override;
 
-    SkIRect onFilterBounds(const SkIRect&, const SkMatrix&, MapDirection) const override;
+    SkIRect onFilterBounds(const SkIRect&, const SkMatrix& ctm,
+                           MapDirection, const SkIRect* inputRect) const override;
 
 #if SK_SUPPORT_GPU
     sk_sp<SkSpecialImage> filterImageGPU(SkSpecialImage* source,
@@ -214,17 +215,18 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::onFilterImage(SkSpecialImage* s
 
 SkIRect ArithmeticImageFilterImpl::onFilterBounds(const SkIRect& src,
                                                   const SkMatrix& ctm,
-                                                  MapDirection direction) const {
-    if (kReverse_MapDirection == direction) {
-        return SkImageFilter::onFilterBounds(src, ctm, direction);
+                                                  MapDirection dir,
+                                                  const SkIRect* inputRect) const {
+    if (kReverse_MapDirection == dir) {
+        return SkImageFilter::onFilterBounds(src, ctm, dir, inputRect);
     }
 
     SkASSERT(2 == this->countInputs());
 
     // result(i1,i2) = k1*i1*i2 + k2*i1 + k3*i2 + k4
     // Note that background (getInput(0)) is i2, and foreground (getInput(1)) is i1.
-    auto i2 = this->getInput(0) ? this->getInput(0)->filterBounds(src, ctm, direction) : src;
-    auto i1 = this->getInput(1) ? this->getInput(1)->filterBounds(src, ctm, direction) : src;
+    auto i2 = this->getInput(0) ? this->getInput(0)->filterBounds(src, ctm, dir, nullptr) : src;
+    auto i1 = this->getInput(1) ? this->getInput(1)->filterBounds(src, ctm, dir, nullptr) : src;
 
     // Arithmetic with non-zero k4 may influence the complete filter primitive
     // region. [k4 > 0 => result(0,0) = k4 => result(i1,i2) >= k4]

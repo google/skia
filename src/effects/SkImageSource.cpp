@@ -147,9 +147,9 @@ SkRect SkImageSource::computeFastBounds(const SkRect& src) const {
 }
 
 SkIRect SkImageSource::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                          MapDirection direction) const {
+                                          MapDirection direction, const SkIRect* inputRect) const {
     if (kReverse_MapDirection == direction) {
-        return SkImageFilter::onFilterNodeBounds(src, ctm, direction);
+        return SkImageFilter::onFilterNodeBounds(src, ctm, direction, inputRect);
     }
 
     SkRect dstRect = fDstRect;

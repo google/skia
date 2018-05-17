@@ -31,7 +31,8 @@ protected:
                                         SkIPoint* offset) const override;
     sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
 
-    SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&, MapDirection) const override;
+    SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
+                               MapDirection, const SkIRect* inputRect) const override;
 
 private:
     explicit SkImageSource(sk_sp<SkImage>);

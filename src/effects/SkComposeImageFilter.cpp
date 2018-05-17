@@ -39,7 +39,7 @@ sk_sp<SkSpecialImage> SkComposeImageFilter::onFilterImage(SkSpecialImage* source
     // filter requires as input. This matters if the outer filter moves pixels.
     SkIRect innerClipBounds;
     innerClipBounds = this->getInput(0)->filterBounds(ctx.clipBounds(), ctx.ctm(),
-                                                      kReverse_MapDirection);
+                                                      kReverse_MapDirection, &ctx.clipBounds());
     Context innerContext(ctx.ctm(), innerClipBounds, ctx.cache(), ctx.outputProperties());
     SkIPoint innerOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> inner(this->filterInput(1, source, innerContext, &innerOffset));
@@ -75,11 +75,12 @@ sk_sp<SkImageFilter> SkComposeImageFilter::onMakeColorSpace(SkColorSpaceXformer*
 }
 
 SkIRect SkComposeImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                             MapDirection direction) const {
+                                             MapDirection dir, const SkIRect* inputRect) const {
     SkImageFilter* outer = this->getInput(0);
     SkImageFilter* inner = this->getInput(1);
 
-    return outer->filterBounds(inner->filterBounds(src, ctm, direction), ctm, direction);
+    const SkIRect innerRect = inner->filterBounds(src, ctm, dir, inputRect);
+    return outer->filterBounds(innerRect, ctm, dir, &innerRect);
 }
 
 sk_sp<SkFlattenable> SkComposeImageFilter::CreateProc(SkReadBuffer& buffer) {

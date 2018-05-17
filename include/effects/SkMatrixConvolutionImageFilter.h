@@ -85,7 +85,8 @@ protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
                                         SkIPoint* offset) const override;
     sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
-    SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&, MapDirection) const override;
+    SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
+                               MapDirection, const SkIRect* inputRect) const override;
     bool affectsTransparentBlack() const override;
 
 private:
@@ -100,19 +101,23 @@ private:
     template <class PixelFetcher, bool convolveAlpha>
     void filterPixels(const SkBitmap& src,
                       SkBitmap* result,
+                      SkIVector& offset,
                       const SkIRect& rect,
                       const SkIRect& bounds) const;
     template <class PixelFetcher>
     void filterPixels(const SkBitmap& src,
                       SkBitmap* result,
+                      SkIVector& offset,
                       const SkIRect& rect,
                       const SkIRect& bounds) const;
     void filterInteriorPixels(const SkBitmap& src,
                               SkBitmap* result,
+                              SkIVector& offset,
                               const SkIRect& rect,
                               const SkIRect& bounds) const;
     void filterBorderPixels(const SkBitmap& src,
                             SkBitmap* result,
+                            SkIVector& offset,
                             const SkIRect& rect,
                             const SkIRect& bounds) const;
 

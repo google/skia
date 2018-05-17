@@ -140,9 +140,9 @@ SkRect SkDropShadowImageFilter::computeFastBounds(const SkRect& src) const {
 }
 
 SkIRect SkDropShadowImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                                    MapDirection direction) const {
+                                                    MapDirection dir, const SkIRect* inputRect) const {
     SkVector offsetVec = SkVector::Make(fDx, fDy);
-    if (kReverse_MapDirection == direction) {
+    if (kReverse_MapDirection == dir) {
         offsetVec.negate();
     }
     ctm.mapVectors(&offsetVec, 1);

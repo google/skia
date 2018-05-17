@@ -92,9 +92,14 @@ protected:
                                                                   cropRect));
         canvas->save();
         canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
-        canvas->clipRect(SkRect::MakeWH(SkIntToScalar(fBitmap.width()),
-                                        SkIntToScalar(fBitmap.height())));
-        canvas->drawBitmap(fBitmap, 0, 0, &paint);
+        const SkRect layerBounds = SkRect::MakeIWH(fBitmap.width(), fBitmap.height());
+        canvas->clipRect(layerBounds);
+        // This GM is, in part, intended to display the wrapping behavior of the
+        // matrix image filter. The only (rational) way to achieve that for repeat mode
+        // is to create a tight layer.
+        canvas->saveLayer(layerBounds, &paint);
+            canvas->drawBitmap(fBitmap, 0, 0, nullptr);
+        canvas->restore();
         canvas->restore();
     }
 
