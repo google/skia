@@ -3,7 +3,7 @@
  DirectWrite TrueType Windows Linux Android iOS __ANDROID_API__ AHardwareBuffer
  FreeType FreeType-based Harfbuzz
  Descenders Kerning Unhinted
- LCD RGB sRGB YUV SDTV HDTV
+ LCD RGB sRGB ARGB BGR YUV SDTV HDTV
  YUV_Component_Y YUV_Component_U YUV_Component_V
  Unicode Unicode5 UTF-8 UTF-16 UTF-32 ASCII Unichar
  API

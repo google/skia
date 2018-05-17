@@ -504,7 +504,7 @@ void <a href='#SkPixelRef_setImmutable'>setImmutable</a>()
 
 # <a name='SkRasterHandleAllocator'>Class SkRasterHandleAllocator</a>
 
-# <a name='SkRasterHandleAllocator_Handle'>Typedef SkRasterHandleAllocator::Handle</a>
+## <a name='SkRasterHandleAllocator_Handle'>Typedef SkRasterHandleAllocator::Handle</a>
 
 # <a name='SkRasterHandleAllocator_Rec'>Struct SkRasterHandleAllocator::Rec</a>
 
@@ -579,7 +579,7 @@ void <a href='#SkRRect_dumpHex'>dumpHex</a>() const
 
 # <a name='Scalar'>Scalar</a>
 
-# <a name='SkScalar'>Typedef SkScalar</a>
+## <a name='SkScalar'>Typedef SkScalar</a>
 
 # <a name='Shader'>Shader</a>
 

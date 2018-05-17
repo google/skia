@@ -1707,7 +1707,7 @@ for (int y : { 0, 64, 128, 192 } ) {
 
 #Method bool SK_WARN_UNUSED_RESULT tryAllocN32Pixels(int width, int height, bool isOpaque = false)
 #In Allocate
-#Line # allocates compatible Color_ARGB pixels if possible ##
+#Line # allocates compatible ARGB pixels if possible ##
 Sets Image_Info to width, height, and Native_Color_Type; and allocates
 pixel memory. If isOpaque is true, sets Image_Info to kOpaque_SkAlphaType;
 otherwise, sets to kPremul_SkAlphaType.
@@ -1749,7 +1749,7 @@ the platform. Bitmap drawn to output device skips converting its pixel format.
 
 #Method void allocN32Pixels(int width, int height, bool isOpaque = false)
 #In Allocate
-#Line # allocates compatible Color_ARGB pixels, or aborts ##
+#Line # allocates compatible ARGB pixels, or aborts ##
 Sets Image_Info to width, height, and the Native_Color_Type; and allocates
 pixel memory. If isOpaque is true, sets Image_Info to kPremul_SkAlphaType;
 otherwise, sets to kOpaque_SkAlphaType.
@@ -2364,8 +2364,8 @@ getGenerationID() return a different value.
 #Line # writes Color to pixels ##
 Replaces pixel values with c. All pixels contained by bounds() are affected.
 If the colorType is kGray_8_SkColorType or k565_SkColorType, then Color_Alpha
-is ignored; Color_RGB is treated as opaque. If colorType is kAlpha_8_SkColorType,
-then Color_RGB is ignored.
+is ignored; RGB is treated as opaque. If colorType is kAlpha_8_SkColorType,
+then RGB is ignored.
 
 #Param c  Unpremultiplied Color ##
 
@@ -2394,9 +2394,9 @@ is ignored; r, g, and b are treated as opaque. If colorType is kAlpha_8_SkColorT
 then r, g, and b are ignored.
 
 #Param a    amount of Color_Alpha, from fully transparent (0) to fully opaque (255) ##
-#Param r    amount of Color_RGB_Red, from no red (0) to full red (255) ##
-#Param g    amount of Color_RGB_Green, from no green (0) to full green (255) ##
-#Param b    amount of Color_RGB_Blue, from no blue (0) to full blue (255) ##
+#Param r    amount of red, from no red (0) to full red (255) ##
+#Param g    amount of green, from no green (0) to full green (255) ##
+#Param b    amount of blue, from no blue (0) to full blue (255) ##
 
 #Example
 #Height 80
@@ -2427,8 +2427,8 @@ Replaces pixel values inside area with c. If area does not intersect bounds(),
 call has no effect.
 
 If the colorType is kGray_8_SkColorType or k565_SkColorType, then Color_Alpha
-is ignored; Color_RGB is treated as opaque. If colorType is kAlpha_8_SkColorType,
-then Color_RGB is ignored.
+is ignored; RGB is treated as opaque. If colorType is kAlpha_8_SkColorType,
+then RGB is ignored.
 
 #Param c  Unpremultiplied Color ##
 #Param area  rectangle to fill ##

@@ -55,8 +55,8 @@ color to create a new color. If alpha describes a weight from zero to one:
 
 In practice alpha is encoded in two or more bits, where 1.0 equals all bits set.
 
-Color_RGB may have Color_Alpha included in each component value; the stored
-value is the original Color_RGB multiplied by Color_Alpha. Premultiplied color
+RGB may have Color_Alpha included in each component value; the stored
+value is the original RGB multiplied by Color_Alpha. Premultiplied color
 components improve performance.
 
 #Const kUnknown_SkAlphaType 0
@@ -265,10 +265,10 @@ $$$#
 #Code ##
 
 Describes how pixel bits encode color. A pixel may be an alpha mask, a
-gray level, Color_RGB, or Color_ARGB.
+grayscale, RGB, or ARGB.
 
-kN32_SkColorType selects the native 32-bit Color_ARGB format. On Little_Endian
-processors, pixels containing 8-bit Color_ARGB components pack into 32-bit
+kN32_SkColorType selects the native 32-bit ARGB format. On Little_Endian
+processors, pixels containing 8-bit ARGB components pack into 32-bit
 kBGRA_8888_SkColorType. On Big_Endian processors, pixels pack into 32-bit
 kRGBA_8888_SkColorType.
 
@@ -335,7 +335,7 @@ kRGBA_8888_SkColorType.
 ##
 
 #Const kGray_8_SkColorType 9
-#Line # pixel with Color_Gray level in 8-bit byte ##
+#Line # pixel with grayscale level in 8-bit byte ##
 #Details Gray_8
     Stores 8-bit byte pixel encoding that equivalent to equal values for red,
     blue, and green, representing colors from black to white.
@@ -357,8 +357,8 @@ kRGBA_8888_SkColorType.
 #Const kN32_SkColorType 4 or 6
 #Alias Native_Color_Type
 #NoJustify
-#Line # native Color_ARGB 32-bit encoding ##
-    Encodes Color_ARGB as either kRGBA_8888_SkColorType or
+#Line # native ARGB 32-bit encoding ##
+    Encodes ARGB as either kRGBA_8888_SkColorType or
     kBGRA_8888_SkColorType, whichever is native to the platform.
 ##
 
@@ -398,12 +398,12 @@ kRGBA_8888_SkColorType.
             canvas->drawBitmap(bitmap, 2, 2, &orangePaint);
         }
     ##
-    #SeeAlso incomplete
+    #SeeAlso Alpha Gray_8
 ##
 
 #Subtopic RGB_565
-#Line # encodes Color_RGB in 16 bits ##
-    kRGB_565_SkColorType encodes Color_RGB to fit in a 16-bit word. Red and Blue
+#Line # encodes RGB in 16 bits ##
+    kRGB_565_SkColorType encodes RGB to fit in a 16-bit word. Red and blue
     components use five bits describing 32 levels. Green components, more sensitive
     to the eye, use six bits describing 64 levels. kRGB_565_SkColorType has no
     bits for Alpha.
@@ -438,12 +438,12 @@ kRGBA_8888_SkColorType.
             canvas->drawBitmap(bitmap, 4, 4);
         }
     ##
-    #SeeAlso incomplete
+    #SeeAlso ARGB_4444 RGBA_8888
 ##
 
 #Subtopic ARGB_4444
-#Line # encodes Color_ARGB in 16 bits ##
-    kARGB_4444_SkColorType encodes Color_ARGB to fit in 16-bit word. Each
+#Line # encodes ARGB in 16 bits ##
+    kARGB_4444_SkColorType encodes ARGB to fit in 16-bit word. Each
     component: alpha, blue, green, and red; use four bits, describing 16 levels.
     Note that kARGB_4444_SkColorType is misnamed; the acronym does not
     describe the actual component order.
@@ -489,12 +489,12 @@ kRGBA_8888_SkColorType.
             canvas->drawBitmap(bitmap, 4, 4);
         }
     ##
-    #SeeAlso incomplete
+    #SeeAlso RGBA_8888
 ##
 
 #Subtopic RGBA_8888
-#Line # encodes Color_ARGB Big_Endian in 32 bits ##
-    kRGBA_8888_SkColorType encodes Color_ARGB into a 32-bit word. Each component:
+#Line # encodes ARGB Big_Endian in 32 bits ##
+    kRGBA_8888_SkColorType encodes ARGB into a 32-bit word. Each component:
     red, green, blue, alpha; use eight bits, describing 256 levels.
 
     #Illustration
@@ -540,12 +540,12 @@ kRGBA_8888_SkColorType.
             canvas->drawBitmap(bitmap, 4, 4);
         }
     ##
-    #SeeAlso incomplete
+    #SeeAlso RGB_888 BGRA_8888
 ##
 
 #Subtopic RGB_888
-#Line # encodes Color_RGB in 32 bits ##
-    kRGB_888x_SkColorType encodes Color_RGB into a 32-bit word. Each component:
+#Line # encodes RGB in 32 bits ##
+    kRGB_888x_SkColorType encodes RGB into a 32-bit word. Each component:
     red, green, blue; use eight bits, describing 256 levels. Eight bits are
     unused. Pixels described by kRGB_888x_SkColorType are fully opaque as if 
     their Color_Alpha was set to one, and should always be paired with
@@ -578,11 +578,12 @@ kRGBA_8888_SkColorType.
             canvas->drawBitmap(bitmap, 4, 4);
         }
     ##
+    #SeeAlso RGBA_8888 BGRA_8888
 ##
 
 #Subtopic BGRA_8888
-#Line # encodes Color_ARGB Little_Endian in 32 bits ##
-    kBGRA_8888_SkColorType encodes Color_ARGB into a 32-bit word. Each component:
+#Line # encodes ARGB Little_Endian in 32 bits ##
+    kBGRA_8888_SkColorType encodes ARGB into a 32-bit word. Each component:
     blue, green, red, and alpha; use eight bits, describing 256 levels.
 
     #Illustration
@@ -632,8 +633,8 @@ kRGBA_8888_SkColorType.
 ##
 
 #Subtopic RGBA_1010102
-#Line # encodes Color_ARGB ten bits per color component ##
-    kRGBA_1010102_SkColorType encodes Color_ARGB into a 32-bit word. Each
+#Line # encodes ARGB ten bits per color component ##
+    kRGBA_1010102_SkColorType encodes ARGB into a 32-bit word. Each
     Color component: red, green, and blue; use ten bits, describing 1024 levels.
     Two bits contain alpha, describing four levels. Possible alpha
     values are zero: fully transparent; one: 33% opaque; two: 67% opaque;
@@ -686,12 +687,12 @@ kRGBA_8888_SkColorType.
             canvas->drawBitmap(bitmap, 4, 4);
         }
     ##
-    #SeeAlso incomplete
+    #SeeAlso RGB_101010 RGBA_8888
 ##
 
 #Subtopic RGB_101010
-#Line # encodes Color_RGB ten bits per color component ##
-    kRGB_101010x_SkColorType encodes Color_RGB into a 32-bit word. Each
+#Line # encodes RGB ten bits per color component ##
+    kRGB_101010x_SkColorType encodes RGB into a 32-bit word. Each
     Color component: red, green, and blue; use ten bits, describing 1024 levels.
     Two bits are unused. Pixels described by kRGB_101010x_SkColorType are fully
     opaque as if its Color_Alpha was set to one, and should always be paired
@@ -728,12 +729,12 @@ kRGBA_8888_SkColorType.
             canvas->drawBitmap(bitmap, 4, 4);
         }
     ##
-    #SeeAlso incomplete
+    #SeeAlso RGBA_1010102
 ##
 
 #Subtopic Gray_8
-#Line # encodes level of Color_Gray in 8 bits ##
-    kGray_8_SkColorType encodes Color_Gray level in eight bits that is equivalent
+#Line # encodes level of grayscale in 8 bits ##
+    kGray_8_SkColorType encodes grayscale level in eight bits that is equivalent
     to equal values for red, blue, and green, representing colors from black to
     white.  Pixels described by kGray_8_SkColorType are fully
     opaque as if its Color_Alpha was set to one, and should always be paired with
@@ -754,12 +755,12 @@ kRGBA_8888_SkColorType.
             canvas->drawBitmap(bitmap, 2, 2);
         }
     ##
-    #SeeAlso incomplete
+    #SeeAlso Alpha_8
 ##
 
 #Subtopic RGBA_F16
-#Line # encodes Color_ARGB as half floats ##
-    kRGBA_F16_SkColorType encodes Color_ARGB into a 64-bit word. Each component:
+#Line # encodes ARGB as half floats ##
+    kRGBA_F16_SkColorType encodes ARGB into a 64-bit word. Each component:
     blue, green, red, and alpha; use 16 bits, describing a floating point value.
     from -65500	to 65000 with 3.31 decimal digits of precision.
 
@@ -841,7 +842,7 @@ kRGBA_8888_SkColorType.
         }
     }
     ##
-    #SeeAlso incomplete
+    #SeeAlso SkColor4f
 ##
 
 #Subtopic Color_Type ##
@@ -2155,7 +2156,7 @@ info1 == info2
 #Line # compares Image_Info for inequality ##
 
 Compares Image_Info with other, and returns true if width, height, Color_Type,
-Alpha_Type, and Color_Space are equivalent.
+Alpha_Type, and Color_Space are not equivalent.
 
 #Param other  Image_Info to compare ##
 

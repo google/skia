@@ -25,36 +25,6 @@ required.
 #Populate
 ##
 
-
-    #Subtopic RGB
-    #Substitute RGB
-        #Subtopic Red
-            #Alias Red
-        #Subtopic ##
-        #Subtopic Blue
-            #Alias Blue
-        #Subtopic ##
-        #Subtopic Green
-            #Alias Green
-        #Subtopic ##
-    #Subtopic ##
-
-    #Subtopic ARGB
-    #Substitute ARGB
-    #Subtopic ##
-
-    #Subtopic RBG
-    #Substitute RBG
-    #Subtopic ##
-
-    #Subtopic RGB-565
-    #Substitute RGB-565
-    #Alias Color_RGB-565 # quit changing - to _ !
-    #Subtopic ##
-
-    #Subtopic Gray
-    ##
-
 # ------------------------------------------------------------------------------
 
 #Subtopic Alpha
@@ -71,6 +41,10 @@ zero, fully transparent, to one, fully opaque.
 #Typedef uint8_t SkAlpha
 #Line # defines Alpha as eight bits ##
 
+#Code
+typedef uint8_t SkAlpha;
+##
+
 8-bit type for an alpha value. 0xFF is 100% opaque, 0x00 is 100% transparent.
 
 #Typedef ##
@@ -81,6 +55,10 @@ zero, fully transparent, to one, fully opaque.
 
 #Typedef uint32_t SkColor
 #Line # defines Color as 32 bits ##
+
+#Code
+typedef uint32_t SkColor;
+##
 
 32-bit ARGB Color value, Unpremultiplied. Color components are always in
 a known order. This is different from SkPMColor, which has its bytes in a configuration
@@ -99,16 +77,16 @@ component values in a different order.
 
 #Method static constexpr inline SkColor SkColorSetARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
 #In Function
-#Line # returns Color_Alpha and Color_RGB combined ##
+#Line # returns Color_Alpha and RGB combined ##
 
 Returns Color value from 8-bit component values. Asserts if SK_DEBUG is defined
 if a, r, g, or b exceed 255. Since Color is Unpremultiplied, a may be smaller
 than the largest of r, g, and b.
 
 #Param a    amount of Alpha, from fully transparent (0) to fully opaque (255) ##
-#Param r    amount of RGB_Red, from no red (0) to full red (255) ##
-#Param g    amount of RGB_Green, from no green (0) to full green (255) ##
-#Param b    amount of RGB_Blue, from no blue (0) to full blue (255) ##
+#Param r    amount of red, from no red (0) to full red (255) ##
+#Param g    amount of green, from no green (0) to full green (255) ##
+#Param b    amount of blue, from no blue (0) to full blue (255) ##
 
 #Return color and alpha, Unpremultiplied ##
 
@@ -120,37 +98,9 @@ than the largest of r, g, and b.
     canvas->drawColor(SkColorSetARGB(0x80, 0x00, 0x00, 0xFF));
 ##
 
-#SeeAlso SkColorSetRGB SkPaint::setARGB SkPaint::setColor
+#SeeAlso SkColorSetRGB SkPaint::setARGB SkPaint::setColor SkColorSetA
 
 #Method ##
-
-# ------------------------------------------------------------------------------
-
-#Define SkColorSetARGBInline
-
-#Code
-###$
-    #define SkColorSetARGBInline SkColorSetARGB
-$$$#
-##
-
-#Deprecated soon
-
-#Define ##
-
-# ------------------------------------------------------------------------------
-
-#Define SkColorSetARGBMacro
-
-#Code
-###$
-    #define SkColorSetARGBMacro  SkColorSetARGB
-$$$#
-##
-
-#Deprecated soon
-
-#Define ##
 
 # ------------------------------------------------------------------------------
 
@@ -166,9 +116,9 @@ $$$#
 Returns Color value from 8-bit component values, with Alpha set
 fully opaque to 255.
 
-#Param r    amount of RGB_Red, from no red (0) to full red (255) ##
-#Param g    amount of RGB_Green, from no green (0) to full green (255) ##
-#Param b    amount of RGB_Blue, from no blue (0) to full blue (255) ##
+#Param r    amount of red, from no red (0) to full red (255) ##
+#Param g    amount of green, from no green (0) to full green (255) ##
+#Param b    amount of blue, from no blue (0) to full blue (255) ##
 
 #Return     color with opaque alpha ##
 
@@ -180,7 +130,7 @@ fully opaque to 255.
     canvas->drawColor(SkColorSetRGB(0x00, 0x00, 0xFF));
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkColorSetARGB 
 
 #Define ##
 
@@ -200,17 +150,26 @@ Returns Alpha byte from Color value.
 #Param color SkColor, a 32-bit unsigned int, in 0xAARRGGBB format ##
 
 #Example
-// incomplete
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setColor(SK_ColorRED);
+    for (int alpha = 255; alpha >= 0; alpha -= 17) {
+        paint.setAlpha(alpha);
+        canvas->drawRect({5, 5, 100, 20}, paint);
+        SkAlpha alphaInPaint = SkColorGetA(paint.getColor());
+        canvas->drawString(std::to_string(alphaInPaint).c_str(), 110, 18, paint);
+        canvas->translate(0, 15);
+    }
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkPaint::getAlpha
 
 #Define ##
 
 # ------------------------------------------------------------------------------
 
 #Define SkColorGetR
-#Line # incomplete ##
+#Line # returns red component ##
 
 #Code
 ###$
@@ -224,17 +183,24 @@ Returns red component of Color, from zero to 255.
 #Return red byte ##
 
 #Example
-// incomplete
+#Image 3
+   canvas->drawBitmap(source, 0, 0);
+   SkPaint bgPaint;
+   bgPaint.setColor(0xafffffff);
+   canvas->drawRect({20, 50, 80, 70}, bgPaint);
+   uint8_t red = SkColorGetR(source.getColor(226, 128));
+   canvas->drawString(std::to_string(red).c_str(), 40, 65, SkPaint());
+   canvas->drawLine(80, 70, 226, 128, SkPaint());
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkColorGetG SkColorGetB
 
 #Define ##
 
 # ------------------------------------------------------------------------------
 
 #Define SkColorGetG
-#Line # incomplete ##
+#Line # returns green component ##
 
 #Code
 ###$
@@ -248,17 +214,24 @@ Returns green component of Color, from zero to 255.
 #Return green byte ##
 
 #Example
-// incomplete
+#Image 3
+   canvas->drawBitmap(source, 0, 0);
+   SkPaint bgPaint;
+   bgPaint.setColor(0xafffffff);
+   canvas->drawRect({20, 50, 80, 70}, bgPaint);
+   uint8_t green = SkColorGetG(source.getColor(57, 192));
+   canvas->drawString(std::to_string(green).c_str(), 40, 65, SkPaint());
+   canvas->drawLine(80, 70, 57, 192, SkPaint());
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkColorGetR SkColorGetB
 
 #Define ##
 
 # ------------------------------------------------------------------------------
 
 #Define SkColorGetB
-#Line # incomplete ##
+#Line # returns blue component ##
 
 #Code
 ###$
@@ -272,10 +245,17 @@ Returns blue component of Color, from zero to 255.
 #Return blue byte ##
 
 #Example
-// incomplete
+#Image 3
+   canvas->drawBitmap(source, 0, 0);
+   SkPaint bgPaint;
+   bgPaint.setColor(0xafffffff);
+   canvas->drawRect({20, 50, 80, 70}, bgPaint);
+   uint8_t blue = SkColorGetB(source.getColor(168, 170));
+   canvas->drawString(std::to_string(blue).c_str(), 40, 65, SkPaint());
+   canvas->drawLine(80, 70, 168, 170, SkPaint());
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkColorGetR SkColorGetG
 
 #Define ##
 
@@ -283,20 +263,30 @@ Returns blue component of Color, from zero to 255.
 
 #Method static constexpr inline SkColor SkColorSetA(SkColor c, U8CPU a)
 #In Function
-#Line # incomplete ##
+#Line # returns Color with transparency ##
 
-Returns Color with red, blue, and green set from c; and alpha set from a.
+Returns Unpremultiplied Color with red, blue, and green set from c; and alpha set
+from a. Alpha component of c is ignored and is replaced by a in result.
 
-#Param c  Unpremultiplied Color_ARGB ##
-#Param a  incomplete ##
+#Param c  packed RGB, eight bits per component ##
+#Param a  Alpha: transparent at zero, fully opaque at 255 ##
 
-#Return incomplete ##
+#Return Color with transparency ##
 
 #Example
-// incomplete
+#Image 3
+   canvas->drawBitmap(source, 0, 0);
+   for (int y = 0; y < 256; y += 16) {
+      for (int x = 0; x < 256; x += 16) {
+        SkColor color = source.getColor(x + 8, y + 8);
+        SkPaint paint;
+        paint.setColor(SkColorSetA(color, x + y));
+        canvas->drawRect(SkRect::MakeXYWH(x, y, 16, 16), paint);
+     }
+   }
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkColorSetARGB
 
 #Method ##
 
@@ -535,6 +525,7 @@ $$$#
 #Subtopic Transparent
 
 #Example
+#Image 3
     std::vector<uint32_t> srcPixels;
     constexpr int width = 256;
     constexpr int height = 256;
@@ -619,11 +610,11 @@ modulo 360, where zero degrees is red.
 #Subtopic Value
 ##
 
-#Method SK_API void SkRGBToHSV(U8CPU red, U8CPU green, U8CPU blue, SkScalar hsv[3])
+#Method void SkRGBToHSV(U8CPU red, U8CPU green, U8CPU blue, SkScalar hsv[3])
 #In Function
-#Line # incomplete ##
+#Line # converts RGB to HSV ##
 
-Converts RGB components to HSV.
+Converts RGB to its HSV components.
 hsv[0] contains Hue, a value from zero to less than 360.
 hsv[1] contains Saturation, a value from zero to one.
 hsv[2] contains Value, a value from zero to one.
@@ -634,19 +625,28 @@ hsv[2] contains Value, a value from zero to one.
 #Param hsv  three element array which holds the resulting HSV components
 ##
 
-#Return incomplete ##
-
 #Example
-// incomplete
+#Image 3
+   canvas->drawBitmap(source, 0, 0);
+   SkPaint bgPaint;
+   bgPaint.setColor(0xafffffff);
+   canvas->drawRect({20, 30, 110, 90}, bgPaint);
+   SkScalar hsv[3];
+   SkColor c = source.getColor(226, 128);
+   SkRGBToHSV(SkColorGetR(c), SkColorGetG(c), SkColorGetB(c), hsv);
+   canvas->drawString(("h: " + std::to_string(hsv[0]).substr(0, 6)).c_str(), 27, 45, SkPaint());
+   canvas->drawString(("s: " + std::to_string(hsv[1]).substr(0, 6)).c_str(), 27, 65, SkPaint());
+   canvas->drawString(("v: " + std::to_string(hsv[2]).substr(0, 6)).c_str(), 27, 85, SkPaint());
+   canvas->drawLine(110, 90, 226, 128, SkPaint());
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkColorToHSV SkHSVToColor
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
-#Method static inline void SkColorToHSV(SkColor color, SkScalar hsv[3])
+#Method void SkColorToHSV(SkColor color, SkScalar hsv[3])
 #In Function
 #Line # converts RGB to HSV ##
 
@@ -660,28 +660,37 @@ hsv[2] contains Value, a value from zero to one.
 #Param hsv  three element array which holds the resulting HSV components
 ##
 
-#Return incomplete ##
-
 #Example
-// incomplete
+#Image 3
+   canvas->drawBitmap(source, 0, 0);
+   for (int y = 0; y < 256; ++y) {
+      for (int x = 0; x < 256; ++x) {
+        SkScalar hsv[3];
+        SkColorToHSV(source.getColor(x, y), hsv);
+        SkTSwap(hsv[1], hsv[2]);
+        SkPaint paint;
+        paint.setColor(SkHSVToColor(hsv));
+        canvas->drawRect(SkRect::MakeXYWH(x, y, 1, 1), paint);
+     }
+   }
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkRGBToHSV SkHSVToColor
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
-#Method SK_API SkColor SkHSVToColor(U8CPU alpha, const SkScalar hsv[3])
+#Method SkColor SkHSVToColor(U8CPU alpha, const SkScalar hsv[3])
 #In Function
 #Line # converts HSV with Alpha to RGB ##
 
-Converts HSV components to an ARGB color. The alpha component is passed through unchanged.
+Converts HSV components to an ARGB color. Alpha is passed through unchanged.
 hsv[0] represents Hue, an angle from zero to less than 360.
 hsv[1] represents Saturation, and varies from zero to one.
 hsv[2] represents Value, and varies from zero to one.
 
-If hsv values are out of range, they are pinned.
+Out of range hsv values are pinned.
 
 #Param alpha  Alpha component of the returned ARGB color
 ##
@@ -692,37 +701,61 @@ If hsv values are out of range, they are pinned.
 ##
 
 #Example
-// incomplete
+#Image 3
+   canvas->drawBitmap(source, 0, 0);
+   for (int y = 0; y < 256; ++y) {
+      for (int x = 0; x < 256; ++x) {
+        SkColor color = source.getColor(x, y);
+        SkScalar hsv[3];
+        SkColorToHSV(color, hsv);
+        hsv[0] = hsv[0] + 90 >= 360 ? hsv[0] - 270 : hsv[0] + 90;
+        SkPaint paint;
+        paint.setColor(SkHSVToColor(x + y, hsv));
+        canvas->drawRect(SkRect::MakeXYWH(x, y, 1, 1), paint);
+     }
+   }
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkColorToHSV SkRGBToHSV
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
-#Method static inline SkColor SkHSVToColor(const SkScalar hsv[3])
+#Method SkColor SkHSVToColor(const SkScalar hsv[3])
 #In Function
-#Line # incomplete ##
+#Line # converts HSV to RGB ##
 
-Convert HSV components to an ARGB color. The alpha component set to 0xFF.
+Convert HSV components to an ARGB color. Alpha is set to 0xFF.
 hsv[0] represents Hue, an angle from zero to less than 360.
 hsv[1] represents Saturation, and varies from zero to one.
 hsv[2] represents Value, and varies from zero to one.
 
-If hsv values are out of range, they are pinned.
+Out of range hsv values are pinned.
 
-#Param hsv  3 element array which holds the input HSV components.
+#Param hsv  three element array which holds the input HSV components
 ##
 
-#Return  the resulting ARGB color
+#Return  RGB equivalent to HSV
 ##
 
 #Example
-// incomplete
+#Image 3
+   canvas->drawBitmap(source, 0, 0);
+   for (int y = 0; y < 256; ++y) {
+      for (int x = 0; x < 256; ++x) {
+        SkColor color = source.getColor(x, y);
+        SkScalar hsv[3];
+        SkColorToHSV(color, hsv);
+        hsv[0] = hsv[0] + 90 >= 360 ? hsv[0] - 270 : hsv[0] + 90;
+        SkPaint paint;
+        paint.setColor(SkHSVToColor(hsv));
+        canvas->drawRect(SkRect::MakeXYWH(x, y, 1, 1), paint);
+     }
+   }
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkColorToHSV SkRGBToHSV
 
 #Method ##
 
@@ -735,6 +768,10 @@ If hsv values are out of range, they are pinned.
 #Typedef uint32_t SkPMColor
 #Line # defines Premultiplied Color as 32 bits ##
 
+#Code
+typedef uint32_t SkPMColor;
+##
+
 32-bit ARGB color value, Premultiplied. The byte order for this value is
 configuration dependent, matching the format of kBGRA_8888_SkColorType bitmaps.
 This is different from SkColor, which is Unpremultiplied, and is always in the
@@ -744,45 +781,70 @@ same byte order.
 
 # ------------------------------------------------------------------------------
 
-#Method SK_API SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
+#Method SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
 #In Function
 #Line # converts Unpremultiplied ARGB to Premultiplied PMColor ##
 
-Return a SkPMColor value from Unpremultiplied 8-bit component values
+Returns a SkPMColor value from Unpremultiplied 8-bit component values.
 
-#Param a  incomplete ##
-#Param r  incomplete ##
-#Param g  incomplete ##
-#Param b  incomplete ##
+#Param a    amount of Alpha, from fully transparent (0) to fully opaque (255) ##
+#Param r    amount of red, from no red (0) to full red (255) ##
+#Param g    amount of green, from no green (0) to full green (255) ##
+#Param b    amount of blue, from no blue (0) to full blue (255) ##
 
-#Return incomplete ##
+#Return Premultiplied Color ##
 
 #Example
-// incomplete
+#Height 128
+#Width 300
+    SkPMColor premultiplied = SkPreMultiplyARGB(160, 128, 160, 192);
+    canvas->drawString("Unpremultiplied:", 20, 20, SkPaint());
+    canvas->drawString("alpha=160 red=128 green=160 blue=192", 20, 40, SkPaint());
+    canvas->drawString("Premultiplied:", 20, 80, SkPaint());
+    std::string str = "alpha=" + std::to_string(SkColorGetA(premultiplied));
+    str += " red=" + std::to_string(SkColorGetR(premultiplied));
+    str += " green=" + std::to_string(SkColorGetG(premultiplied));
+    str += " blue=" + std::to_string(SkColorGetB(premultiplied));
+    canvas->drawString(str.c_str(), 20, 100, SkPaint());
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkPreMultiplyColor
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
-#Method SK_API SkPMColor SkPreMultiplyColor(SkColor c)
+#Method SkPMColor SkPreMultiplyColor(SkColor c)
 #In Function
 #Line # converts Unpremultiplied Color to Premultiplied PMColor ##
 
 Returns PMColor closest to Color c. Multiplies c RGB components by the c Alpha,
 and arranges the bytes to match the format of kN32_SkColorType.
 
-#Param c  incomplete ##
+#Param c  Unpremultiplied ARGB Color  ##
 
-#Return incomplete ##
+#Return Premultiplied Color ##
 
 #Example
-// incomplete
+#Height 128
+#Width 300
+    SkColor unpremultiplied = SkColorSetARGB(160, 128, 160, 192);
+    SkPMColor premultiplied = SkPreMultiplyColor(unpremultiplied);
+    canvas->drawString("Unpremultiplied:", 20, 20, SkPaint());
+    std::string str = "alpha=" + std::to_string(SkColorGetA(unpremultiplied));
+    str += " red=" + std::to_string(SkColorGetR(unpremultiplied));
+    str += " green=" + std::to_string(SkColorGetG(unpremultiplied));
+    str += " blue=" + std::to_string(SkColorGetB(unpremultiplied));
+    canvas->drawString(str.c_str(), 20, 40, SkPaint());
+    canvas->drawString("Premultiplied:", 20, 80, SkPaint());
+    str = "alpha=" + std::to_string(SkColorGetA(premultiplied));
+    str += " red=" + std::to_string(SkColorGetR(premultiplied));
+    str += " green=" + std::to_string(SkColorGetG(premultiplied));
+    str += " blue=" + std::to_string(SkColorGetB(premultiplied));
+    canvas->drawString(str.c_str(), 20, 100, SkPaint());
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkPreMultiplyARGB
 
 #Method ##
 

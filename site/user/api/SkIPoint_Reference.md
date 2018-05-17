@@ -717,7 +717,7 @@ Can also be used to add <a href='#IVector'>IVector</a> to <a href='#IVector'>IVe
 
 ## <a name='IVector'>IVector</a>
 
-# <a name='SkIVector'>Typedef SkIVector</a>
+## <a name='SkIVector'>Typedef SkIVector</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     typedef <a href='#SkIPoint'>SkIPoint</a> <a href='#SkIVector'>SkIVector</a>;

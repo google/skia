@@ -1543,7 +1543,7 @@ The copied quarter circles overdraw the original circle.
 
 <div><fiddle-embed name="481e990e923a0ed34654f4361b94f096"><div><a href='#Canvas'>Canvas</a> returned by <a href='undocumented#Raster_Surface'>Raster Surface</a> has <a href='undocumented#Premultiply'>Premultiplied</a> pixel values.
 <a href='#SkCanvas_clear'>clear</a> takes <a href='undocumented#Unpremultiply'>Unpremultiplied</a> input with <a href='SkColor_Reference#Alpha'>Color Alpha</a> equal 0x80
-and <a href='SkColor_Reference#RGB'>Color RGB</a> equal 0x55, 0xAA, 0xFF. <a href='SkColor_Reference#RGB'>Color RGB</a> is multiplied by <a href='SkColor_Reference#Alpha'>Color Alpha</a>
+and RGB equal 0x55, 0xAA, 0xFF. RGB is multiplied by <a href='SkColor_Reference#Alpha'>Color Alpha</a>
 to generate <a href='undocumented#Premultiply'>Premultiplied</a> value 0x802B5580. <a href='#SkCanvas_readPixels'>readPixels</a> converts pixel back
 to <a href='undocumented#Unpremultiply'>Unpremultiplied</a> value 0x8056A9FF, introducing error.
 </div>
@@ -1625,7 +1625,7 @@ true if pixels were copied
 ### Example
 
 <div><fiddle-embed name="85f199032943b6483722c34a91c4e20f"><div><a href='#SkCanvas_clear'>clear</a> takes <a href='undocumented#Unpremultiply'>Unpremultiplied</a> input with <a href='SkColor_Reference#Alpha'>Color Alpha</a> equal 0x80
-and <a href='SkColor_Reference#RGB'>Color RGB</a> equal 0x55, 0xAA, 0xFF. <a href='SkColor_Reference#RGB'>Color RGB</a> is multiplied by <a href='SkColor_Reference#Alpha'>Color Alpha</a>
+and RGB equal 0x55, 0xAA, 0xFF. RGB is multiplied by <a href='SkColor_Reference#Alpha'>Color Alpha</a>
 to generate <a href='undocumented#Premultiply'>Premultiplied</a> value 0x802B5580.
 </div>
 
@@ -1705,7 +1705,7 @@ true if pixels were copied
 ### Example
 
 <div><fiddle-embed name="af6dec8ef974aa67bf102f29915bcd6a"><div><a href='#SkCanvas_clear'>clear</a> takes <a href='undocumented#Unpremultiply'>Unpremultiplied</a> input with <a href='SkColor_Reference#Alpha'>Color Alpha</a> equal 0x80
-and <a href='SkColor_Reference#RGB'>Color RGB</a> equal 0x55, 0xAA, 0xFF. <a href='SkColor_Reference#RGB'>Color RGB</a> is multiplied by <a href='SkColor_Reference#Alpha'>Color Alpha</a>
+and RGB equal 0x55, 0xAA, 0xFF. RGB is multiplied by <a href='SkColor_Reference#Alpha'>Color Alpha</a>
 to generate <a href='undocumented#Premultiply'>Premultiplied</a> value 0x802B5580.
 </div>
 
@@ -2275,7 +2275,7 @@ depth of saved stack
     typedef uint32_t <a href='#SkCanvas_SaveLayerFlags'>SaveLayerFlags</a>;
 </pre>
 
-# <a name='SkCanvas_SaveLayerFlags'>Typedef SkCanvas::SaveLayerFlags</a>
+## <a name='SkCanvas_SaveLayerFlags'>Typedef SkCanvas::SaveLayerFlags</a>
 <a href='#SkCanvas_SaveLayerFlags'>SaveLayerFlags</a> provides options that may be used in any combination in <a href='#SkCanvas_SaveLayerRec'>SaveLayerRec</a>,
 defining how <a href='#Layer'>Layer</a> allocated by <a href='#SkCanvas_saveLayer'>saveLayer</a> operates. It may be set to zero,
 <a href='#SkCanvas_kPreserveLCDText_SaveLayerFlag'>kPreserveLCDText SaveLayerFlag</a>, <a href='#SkCanvas_kInitWithPrevious_SaveLayerFlag'>kInitWithPrevious SaveLayerFlag</a>, or both flags.
@@ -2433,7 +2433,7 @@ contents of the previous <a href='#Layer'>Layer</a>.
 
 ### Example
 
-<div><fiddle-embed name="ee8c0b120234e27364f8c9a786cf8f89"><div><a href='#Canvas'>Canvas</a> <a href='#Layer'>Layer</a> captures a red Anti-aliased circle and a blue <a href='undocumented#Alias'>Aliased</a> circle scaled
+<div><fiddle-embed name="ee8c0b120234e27364f8c9a786cf8f89"><div><a href='#Canvas'>Canvas</a> <a href='#Layer'>Layer</a> captures a red <a href='SkPaint_Reference#Anti_Alias'>Anti Aliased</a> circle and a blue <a href='undocumented#Alias'>Aliased</a> circle scaled
 up by four. After drawing another red circle without scaling on top, the <a href='#Layer'>Layer</a> is
 transferred to the main canvas.
 </div></fiddle-embed></div>
@@ -2846,9 +2846,9 @@ the result with <a href='#Matrix'>Matrix</a>.
 
 <div><fiddle-embed name="2e2acc21d7774df7e0940a30ad2ca99e"><div>Black text mimics an oblique text style by using a negative skew in x that
 shifts the geometry to the right as the y values decrease.
-<a href='SkColor_Reference#RGB_Red'>Red</a> text uses a positive skew in y to shift the geometry down as the x values
+Red text uses a positive skew in y to shift the geometry down as the x values
 increase.
-<a href='SkColor_Reference#RGB_Blue'>Blue</a> text combines x and y skew to rotate and scale.
+Blue text combines x and y skew to rotate and scale.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -2979,14 +2979,14 @@ prior <a href='#Clip'>Clip</a> to form the replacement <a href='#Clip'>Clip</a>.
 to subtract <a href='SkPath_Reference#Path'>Path</a> from <a href='#Clip'>Clip</a>; use <a href='undocumented#SkClipOp_kIntersect'>SkClipOp::kIntersect</a> to intersect <a href='SkPath_Reference#Path'>Path</a>
 with <a href='#Clip'>Clip</a>.
 
-A clipping <a href='SkPath_Reference#Path'>Path</a> may be Anti-aliased; if <a href='SkPath_Reference#Path'>Path</a>, after transformation, is
-composed of horizontal and vertical lines, clearing Anti-alias allows whole pixels
+A clipping <a href='SkPath_Reference#Path'>Path</a> may be <a href='SkPaint_Reference#Anti_Alias'>Anti Aliased</a>; if <a href='SkPath_Reference#Path'>Path</a>, after transformation, is
+composed of horizontal and vertical lines, clearing <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a> allows whole pixels
 to either be inside or outside the clip. The fastest drawing has a <a href='undocumented#Alias'>Aliased</a>,
 rectangular clip.
 
-If clipping <a href='SkPath_Reference#Path'>Path</a> has Anti-alias set, clip may partially clip a pixel, requiring
+If clipping <a href='SkPath_Reference#Path'>Path</a> has <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a> set, clip may partially clip a pixel, requiring
 that drawing blend partially with the destination along the edge. A rotated
-rectangular Anti-aliased clip looks smoother but draws slower.
+rectangular <a href='SkPaint_Reference#Anti_Alias'>Anti Aliased</a> clip looks smoother but draws slower.
 
 <a href='#Clip'>Clip</a> can combine with <a href='SkRect_Reference#Rect'>Rect</a> and <a href='undocumented#Round_Rect'>Round Rect</a> primitives; like
 <a href='SkPath_Reference#Path'>Path</a>, these are transformed by <a href='#Matrix'>Matrix</a> before they are combined with <a href='#Clip'>Clip</a>.
@@ -2996,10 +2996,10 @@ and is unaffected by <a href='#Matrix'>Matrix</a>.
 
 ### Example
 
-<div><fiddle-embed name="862cc026601a41a58df49c0b9f0d7777"><div><a href='#Draw'>Draw</a> a red circle with an <a href='undocumented#Alias'>Aliased</a> clip and an Anti-aliased clip.
+<div><fiddle-embed name="862cc026601a41a58df49c0b9f0d7777"><div><a href='#Draw'>Draw</a> a red circle with an <a href='undocumented#Alias'>Aliased</a> clip and an <a href='SkPaint_Reference#Anti_Alias'>Anti Aliased</a> clip.
 Use an image filter to zoom into the pixels drawn.
 The edge of the <a href='undocumented#Alias'>Aliased</a> clip fully draws pixels in the red circle.
-The edge of the Anti-aliased clip partially draws pixels in the red circle.
+The edge of the <a href='SkPaint_Reference#Anti_Alias'>Anti Aliased</a> clip partially draws pixels in the red circle.
 </div></fiddle-embed></div>
 
 <a name='SkCanvas_clipRect'></a>
@@ -3010,7 +3010,7 @@ void <a href='#SkCanvas_clipRect'>clipRect</a>(const <a href='SkRect_Reference#S
 </pre>
 
 Replace <a href='#Clip'>Clip</a> with the intersection or difference of <a href='#Clip'>Clip</a> and <a href='#SkCanvas_clipRect_rect'>rect</a>,
-with an <a href='undocumented#Alias'>Aliased</a> or Anti-aliased clip edge. <a href='#SkCanvas_clipRect_rect'>rect</a> is transformed by <a href='#Matrix'>Matrix</a>
+with an <a href='undocumented#Alias'>Aliased</a> or <a href='SkPaint_Reference#Anti_Alias'>Anti Aliased</a> clip edge. <a href='#SkCanvas_clipRect_rect'>rect</a> is transformed by <a href='#Matrix'>Matrix</a>
 before it is combined with <a href='#Clip'>Clip</a>.
 
 ### Parameters
@@ -3022,7 +3022,7 @@ before it is combined with <a href='#Clip'>Clip</a>.
     <td><a href='undocumented#Clip_Op'>Clip Op</a> to apply to <a href='#Clip'>Clip</a></td>
   </tr>
   <tr>    <td><a name='SkCanvas_clipRect_doAntiAlias'><code><strong>doAntiAlias</strong></code></a></td>
-    <td>true if <a href='#Clip'>Clip</a> is to be Anti-aliased</td>
+    <td>true if <a href='#Clip'>Clip</a> is to be <a href='SkPaint_Reference#Anti_Alias'>Anti Aliased</a></td>
   </tr>
 </table>
 
@@ -3083,14 +3083,14 @@ before it is combined with <a href='#Clip'>Clip</a>.
     <td><a href='SkRect_Reference#Rect'>Rect</a> to combine with <a href='#Clip'>Clip</a></td>
   </tr>
   <tr>    <td><a name='SkCanvas_clipRect_3_doAntiAlias'><code><strong>doAntiAlias</strong></code></a></td>
-    <td>true if <a href='#Clip'>Clip</a> is to be Anti-aliased</td>
+    <td>true if <a href='#Clip'>Clip</a> is to be <a href='SkPaint_Reference#Anti_Alias'>Anti Aliased</a></td>
   </tr>
 </table>
 
 ### Example
 
 <div><fiddle-embed name="1d4e0632c97e42692775d834fe10aa99"><div>A circle drawn in pieces looks uniform when drawn <a href='undocumented#Alias'>Aliased</a>.
-The same circle pieces blend with pixels more than once when Anti-aliased,
+The same circle pieces blend with pixels more than once when <a href='SkPaint_Reference#Anti_Alias'>Anti Aliased</a>,
 visible as a thin pair of lines through the right circle.
 </div></fiddle-embed></div>
 
@@ -3133,7 +3133,7 @@ void <a href='#SkCanvas_clipRRect'>clipRRect</a>(const <a href='undocumented#SkR
 </pre>
 
 Replace <a href='#Clip'>Clip</a> with the intersection or difference of <a href='#Clip'>Clip</a> and <a href='#SkCanvas_clipRRect_rrect'>rrect</a>,
-with an <a href='undocumented#Alias'>Aliased</a> or Anti-aliased clip edge.
+with an <a href='undocumented#Alias'>Aliased</a> or <a href='SkPaint_Reference#Anti_Alias'>Anti Aliased</a> clip edge.
 <a href='#SkCanvas_clipRRect_rrect'>rrect</a> is transformed by <a href='#Matrix'>Matrix</a>
 before it is combined with <a href='#Clip'>Clip</a>.
 
@@ -3146,7 +3146,7 @@ before it is combined with <a href='#Clip'>Clip</a>.
     <td><a href='undocumented#Clip_Op'>Clip Op</a> to apply to <a href='#Clip'>Clip</a></td>
   </tr>
   <tr>    <td><a name='SkCanvas_clipRRect_doAntiAlias'><code><strong>doAntiAlias</strong></code></a></td>
-    <td>true if <a href='#Clip'>Clip</a> is to be Anti-aliased</td>
+    <td>true if <a href='#Clip'>Clip</a> is to be <a href='SkPaint_Reference#Anti_Alias'>Anti Aliased</a></td>
   </tr>
 </table>
 
@@ -3197,7 +3197,7 @@ void <a href='#SkCanvas_clipRRect'>clipRRect</a>(const <a href='undocumented#SkR
 </pre>
 
 Replace <a href='#Clip'>Clip</a> with the intersection of <a href='#Clip'>Clip</a> and <a href='#SkCanvas_clipRRect_3_rrect'>rrect</a>,
-with an <a href='undocumented#Alias'>Aliased</a> or Anti-aliased clip edge.
+with an <a href='undocumented#Alias'>Aliased</a> or <a href='SkPaint_Reference#Anti_Alias'>Anti Aliased</a> clip edge.
 <a href='#SkCanvas_clipRRect_3_rrect'>rrect</a> is transformed by <a href='#Matrix'>Matrix</a> before it is combined with <a href='#Clip'>Clip</a>.
 
 ### Parameters
@@ -3206,7 +3206,7 @@ with an <a href='undocumented#Alias'>Aliased</a> or Anti-aliased clip edge.
     <td><a href='undocumented#Round_Rect'>Round Rect</a> to combine with <a href='#Clip'>Clip</a></td>
   </tr>
   <tr>    <td><a name='SkCanvas_clipRRect_3_doAntiAlias'><code><strong>doAntiAlias</strong></code></a></td>
-    <td>true if <a href='#Clip'>Clip</a> is to be Anti-aliased</td>
+    <td>true if <a href='#Clip'>Clip</a> is to be <a href='SkPaint_Reference#Anti_Alias'>Anti Aliased</a></td>
   </tr>
 </table>
 
@@ -3228,7 +3228,7 @@ void <a href='#SkCanvas_clipPath'>clipPath</a>(const <a href='SkPath_Reference#S
 </pre>
 
 Replace <a href='#Clip'>Clip</a> with the intersection or difference of <a href='#Clip'>Clip</a> and <a href='#SkCanvas_clipPath_path'>path</a>,
-with an <a href='undocumented#Alias'>Aliased</a> or Anti-aliased clip edge. <a href='SkPath_Reference#Fill_Type'>Path Fill Type</a> determines if <a href='#SkCanvas_clipPath_path'>path</a>
+with an <a href='undocumented#Alias'>Aliased</a> or <a href='SkPaint_Reference#Anti_Alias'>Anti Aliased</a> clip edge. <a href='SkPath_Reference#Fill_Type'>Path Fill Type</a> determines if <a href='#SkCanvas_clipPath_path'>path</a>
 describes the area inside or outside its contours; and if <a href='SkPath_Reference#Contour'>Path Contour</a> overlaps
 itself or another <a href='SkPath_Reference#Contour'>Path Contour</a>, whether the overlaps form part of the area.
 <a href='#SkCanvas_clipPath_path'>path</a> is transformed by <a href='#Matrix'>Matrix</a> before it is combined with <a href='#Clip'>Clip</a>.
@@ -3242,7 +3242,7 @@ itself or another <a href='SkPath_Reference#Contour'>Path Contour</a>, whether t
     <td><a href='undocumented#Clip_Op'>Clip Op</a> to apply to <a href='#Clip'>Clip</a></td>
   </tr>
   <tr>    <td><a name='SkCanvas_clipPath_doAntiAlias'><code><strong>doAntiAlias</strong></code></a></td>
-    <td>true if <a href='#Clip'>Clip</a> is to be Anti-aliased</td>
+    <td>true if <a href='#Clip'>Clip</a> is to be <a href='SkPaint_Reference#Anti_Alias'>Anti Aliased</a></td>
   </tr>
 </table>
 
@@ -3317,7 +3317,7 @@ itself or another <a href='SkPath_Reference#Contour'>Path Contour</a>, whether t
     <td><a href='SkPath_Reference#Path'>Path</a> to combine with <a href='#Clip'>Clip</a></td>
   </tr>
   <tr>    <td><a name='SkCanvas_clipPath_3_doAntiAlias'><code><strong>doAntiAlias</strong></code></a></td>
-    <td>true if <a href='#Clip'>Clip</a> is to be Anti-aliased</td>
+    <td>true if <a href='#Clip'>Clip</a> is to be <a href='SkPaint_Reference#Anti_Alias'>Anti Aliased</a></td>
   </tr>
 </table>
 
@@ -3475,7 +3475,7 @@ Return bounds of <a href='#Clip'>Clip</a>, transformed by inverse of <a href='#M
 return <a href='SkRect_Reference#SkRect_MakeEmpty'>SkRect::MakeEmpty</a>, where all <a href='SkRect_Reference#Rect'>Rect</a> sides equal zero.
 
 <a href='SkRect_Reference#Rect'>Rect</a> returned is outset by one to account for partial pixel coverage if <a href='#Clip'>Clip</a>
-is Anti-aliased.
+is <a href='SkPaint_Reference#Anti_Alias'>Anti Aliased</a>.
 
 ### Return Value
 
@@ -3514,7 +3514,7 @@ Return <a href='#SkCanvas_getLocalClipBounds_2_bounds'>bounds</a> of <a href='#C
 return false, and set <a href='#SkCanvas_getLocalClipBounds_2_bounds'>bounds</a> to <a href='SkRect_Reference#SkRect_MakeEmpty'>SkRect::MakeEmpty</a>, where all <a href='SkRect_Reference#Rect'>Rect</a> sides equal zero.
 
 <a href='#SkCanvas_getLocalClipBounds_2_bounds'>bounds</a> is outset by one to account for partial pixel coverage if <a href='#Clip'>Clip</a>
-is Anti-aliased.
+is <a href='SkPaint_Reference#Anti_Alias'>Anti Aliased</a>.
 
 ### Parameters
 
@@ -3819,12 +3819,12 @@ void <a href='#SkCanvas_drawColor'>drawColor</a>(<a href='SkColor_Reference#SkCo
 </pre>
 
 Fill <a href='#Clip'>Clip</a> with <a href='SkColor_Reference#Color'>Color</a> <a href='#SkCanvas_drawColor_color'>color</a>.
-<a href='#SkCanvas_drawColor_mode'>mode</a> determines how <a href='SkColor_Reference#ARGB'>Color ARGB</a> is combined with destination.
+<a href='#SkCanvas_drawColor_mode'>mode</a> determines how ARGB is combined with destination.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkCanvas_drawColor_color'><code><strong>color</strong></code></a></td>
-    <td><a href='undocumented#Unpremultiply'>Unpremultiplied</a> <a href='SkColor_Reference#ARGB'>Color ARGB</a></td>
+    <td><a href='undocumented#Unpremultiply'>Unpremultiplied</a> ARGB</td>
   </tr>
   <tr>    <td><a name='SkCanvas_drawColor_mode'><code><strong>mode</strong></code></a></td>
     <td><a href='undocumented#SkBlendMode'>SkBlendMode</a> used to combine source <a href='#SkCanvas_drawColor_color'>color</a> and destination</td>
@@ -3854,7 +3854,7 @@ This has the effect of replacing all pixels contained by <a href='#Clip'>Clip</a
 ### Parameters
 
 <table>  <tr>    <td><a name='SkCanvas_clear_color'><code><strong>color</strong></code></a></td>
-    <td><a href='undocumented#Unpremultiply'>Unpremultiplied</a> <a href='SkColor_Reference#ARGB'>Color ARGB</a></td>
+    <td><a href='undocumented#Unpremultiply'>Unpremultiplied</a> ARGB</td>
   </tr>
 </table>
 
@@ -5906,7 +5906,7 @@ ending with a char value of zero</td>
 
 ### Example
 
-<div><fiddle-embed name="65cc4b15cd1a8d067eb1dbfd7e2c17dd"></fiddle-embed></div>
+<div><fiddle-embed name="85442cf8d0bce6b5a777853bc36a4dc4"></fiddle-embed></div>
 
 ### See Also
 
@@ -6242,7 +6242,7 @@ void <a href='#SkCanvas_drawTextBlob'>drawTextBlob</a>(const <a href='undocument
 
 <a href='#SkCanvas_drawTextBlob_blob'>blob</a> contains <a href='undocumented#Glyph'>Glyphs</a>, their positions, and <a href='#SkCanvas_drawTextBlob_paint'>paint</a> attributes specific to text:
 <a href='undocumented#Typeface'>Typeface</a>, <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>, <a href='SkPaint_Reference#Text_Scale_X'>Paint Text Scale X</a>, <a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>,
-<a href='SkPaint_Reference#Text_Align'>Paint Text Align</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, Anti-alias, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
+<a href='SkPaint_Reference#Text_Align'>Paint Text Align</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
 <a href='SkPaint_Reference#Font_Embedded_Bitmaps'>Font Embedded Bitmaps</a>, <a href='SkPaint_Reference#Full_Hinting_Spacing'>Full Hinting Spacing</a>, <a href='SkPaint_Reference#LCD_Text'>LCD Text</a>, <a href='SkPaint_Reference#Linear_Text'>Linear Text</a>,
 <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>, and <a href='SkPaint_Reference#Vertical_Text'>Paint Vertical Text</a>.
 
@@ -6287,7 +6287,7 @@ void <a href='#SkCanvas_drawTextBlob'>drawTextBlob</a>(const <a href='undocument
 
 <a href='#SkCanvas_drawTextBlob_2_blob'>blob</a> contains <a href='undocumented#Glyph'>Glyphs</a>, their positions, and <a href='#SkCanvas_drawTextBlob_2_paint'>paint</a> attributes specific to text:
 <a href='undocumented#Typeface'>Typeface</a>, <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>, <a href='SkPaint_Reference#Text_Scale_X'>Paint Text Scale X</a>, <a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>,
-<a href='SkPaint_Reference#Text_Align'>Paint Text Align</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, Anti-alias, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
+<a href='SkPaint_Reference#Text_Align'>Paint Text Align</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
 <a href='SkPaint_Reference#Font_Embedded_Bitmaps'>Font Embedded Bitmaps</a>, <a href='SkPaint_Reference#Full_Hinting_Spacing'>Full Hinting Spacing</a>, <a href='SkPaint_Reference#LCD_Text'>LCD Text</a>, <a href='SkPaint_Reference#Linear_Text'>Linear Text</a>,
 <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>, and <a href='SkPaint_Reference#Vertical_Text'>Paint Vertical Text</a>.
 
@@ -6644,7 +6644,7 @@ void <a href='#SkCanvas_drawAtlas'>drawAtlas</a>(const <a href='SkImage_Referenc
 </pre>
 
 <a href='#Draw'>Draw</a> a set of sprites from <a href='#SkCanvas_drawAtlas_atlas'>atlas</a>, using <a href='#Clip'>Clip</a>, <a href='#Matrix'>Matrix</a>, and optional <a href='SkPaint_Reference#Paint'>Paint</a> <a href='#SkCanvas_drawAtlas_paint'>paint</a>.
-<a href='#SkCanvas_drawAtlas_paint'>paint</a> uses Anti-alias, <a href='SkColor_Reference#Alpha'>Color Alpha</a>, <a href='undocumented#Color_Filter'>Color Filter</a>, <a href='undocumented#Image_Filter'>Image Filter</a>, and <a href='undocumented#Blend_Mode'>Blend Mode</a>
+<a href='#SkCanvas_drawAtlas_paint'>paint</a> uses <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkColor_Reference#Alpha'>Color Alpha</a>, <a href='undocumented#Color_Filter'>Color Filter</a>, <a href='undocumented#Image_Filter'>Image Filter</a>, and <a href='undocumented#Blend_Mode'>Blend Mode</a>
 to draw, if present. For each entry in the array, <a href='SkRect_Reference#Rect'>Rect</a> <a href='#SkCanvas_drawAtlas_tex'>tex</a> locates sprite in
 <a href='#SkCanvas_drawAtlas_atlas'>atlas</a>, and <a href='undocumented#RSXform'>RSXform</a> <a href='#SkCanvas_drawAtlas_xform'>xform</a> transforms it into destination space.
 
@@ -6700,7 +6700,7 @@ void <a href='#SkCanvas_drawAtlas'>drawAtlas</a>(const <a href='undocumented#sk_
 </pre>
 
 <a href='#Draw'>Draw</a> a set of sprites from <a href='#SkCanvas_drawAtlas_2_atlas'>atlas</a>, using <a href='#Clip'>Clip</a>, <a href='#Matrix'>Matrix</a>, and optional <a href='SkPaint_Reference#Paint'>Paint</a> <a href='#SkCanvas_drawAtlas_2_paint'>paint</a>.
-<a href='#SkCanvas_drawAtlas_2_paint'>paint</a> uses Anti-alias, <a href='SkColor_Reference#Alpha'>Color Alpha</a>, <a href='undocumented#Color_Filter'>Color Filter</a>, <a href='undocumented#Image_Filter'>Image Filter</a>, and <a href='undocumented#Blend_Mode'>Blend Mode</a>
+<a href='#SkCanvas_drawAtlas_2_paint'>paint</a> uses <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkColor_Reference#Alpha'>Color Alpha</a>, <a href='undocumented#Color_Filter'>Color Filter</a>, <a href='undocumented#Image_Filter'>Image Filter</a>, and <a href='undocumented#Blend_Mode'>Blend Mode</a>
 to draw, if present. For each entry in the array, <a href='SkRect_Reference#Rect'>Rect</a> <a href='#SkCanvas_drawAtlas_2_tex'>tex</a> locates sprite in
 <a href='#SkCanvas_drawAtlas_2_atlas'>atlas</a>, and <a href='undocumented#RSXform'>RSXform</a> <a href='#SkCanvas_drawAtlas_2_xform'>xform</a> transforms it into destination space.
 
@@ -6755,7 +6755,7 @@ void <a href='#SkCanvas_drawAtlas'>drawAtlas</a>(const <a href='SkImage_Referenc
 </pre>
 
 <a href='#Draw'>Draw</a> a set of sprites from <a href='#SkCanvas_drawAtlas_3_atlas'>atlas</a>, using <a href='#Clip'>Clip</a>, <a href='#Matrix'>Matrix</a>, and optional <a href='SkPaint_Reference#Paint'>Paint</a> <a href='#SkCanvas_drawAtlas_3_paint'>paint</a>.
-<a href='#SkCanvas_drawAtlas_3_paint'>paint</a> uses Anti-alias, <a href='SkColor_Reference#Alpha'>Color Alpha</a>, <a href='undocumented#Color_Filter'>Color Filter</a>, <a href='undocumented#Image_Filter'>Image Filter</a>, and <a href='undocumented#Blend_Mode'>Blend Mode</a>
+<a href='#SkCanvas_drawAtlas_3_paint'>paint</a> uses <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkColor_Reference#Alpha'>Color Alpha</a>, <a href='undocumented#Color_Filter'>Color Filter</a>, <a href='undocumented#Image_Filter'>Image Filter</a>, and <a href='undocumented#Blend_Mode'>Blend Mode</a>
 to draw, if present. For each entry in the array, <a href='SkRect_Reference#Rect'>Rect</a> <a href='#SkCanvas_drawAtlas_3_tex'>tex</a> locates sprite in
 <a href='#SkCanvas_drawAtlas_3_atlas'>atlas</a>, and <a href='undocumented#RSXform'>RSXform</a> <a href='#SkCanvas_drawAtlas_3_xform'>xform</a> transforms it into destination space.
 
@@ -6803,7 +6803,7 @@ void <a href='#SkCanvas_drawAtlas'>drawAtlas</a>(const <a href='undocumented#sk_
 </pre>
 
 <a href='#Draw'>Draw</a> a set of sprites from <a href='#SkCanvas_drawAtlas_4_atlas'>atlas</a>, using <a href='#Clip'>Clip</a>, <a href='#Matrix'>Matrix</a>, and optional <a href='SkPaint_Reference#Paint'>Paint</a> <a href='#SkCanvas_drawAtlas_4_paint'>paint</a>.
-<a href='#SkCanvas_drawAtlas_4_paint'>paint</a> uses Anti-alias, <a href='SkColor_Reference#Alpha'>Color Alpha</a>, <a href='undocumented#Color_Filter'>Color Filter</a>, <a href='undocumented#Image_Filter'>Image Filter</a>, and <a href='undocumented#Blend_Mode'>Blend Mode</a>
+<a href='#SkCanvas_drawAtlas_4_paint'>paint</a> uses <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkColor_Reference#Alpha'>Color Alpha</a>, <a href='undocumented#Color_Filter'>Color Filter</a>, <a href='undocumented#Image_Filter'>Image Filter</a>, and <a href='undocumented#Blend_Mode'>Blend Mode</a>
 to draw, if present. For each entry in the array, <a href='SkRect_Reference#Rect'>Rect</a> <a href='#SkCanvas_drawAtlas_4_tex'>tex</a> locates sprite in
 <a href='#SkCanvas_drawAtlas_4_atlas'>atlas</a>, and <a href='undocumented#RSXform'>RSXform</a> <a href='#SkCanvas_drawAtlas_4_xform'>xform</a> transforms it into destination space.
 

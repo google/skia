@@ -144,6 +144,11 @@ pixels is not nullptr, and contains enough data for Image.
 
 #Typedef void* ReleaseContext
 #Line # parameter type for MakeFromRaster ##
+
+#Code
+typedef void* ReleaseContext;
+##
+
 Caller data passed to RasterReleaseProc; may be nullptr.
 
 #SeeAlso MakeFromRaster RasterReleaseProc
@@ -152,6 +157,11 @@ Caller data passed to RasterReleaseProc; may be nullptr.
 
 #Typedef void (*RasterReleaseProc)(const void* pixels, ReleaseContext)
 #Line #  parameter type for MakeFromRaster ##
+
+#Code
+typedef void (*RasterReleaseProc)(const void* pixels, ReleaseContext);
+##
+
 Function called when Image no longer shares pixels. ReleaseContext is
 provided by caller when Image is created, and may be nullptr.
 
@@ -340,6 +350,11 @@ for (int quality : { 100, 50, 10, 1} ) {
 
 #Typedef void (*TextureReleaseProc)(ReleaseContext releaseContext)
 #Line # parameter type for MakeFromTexture ##
+
+#Code
+typedef void (*TextureReleaseProc)(ReleaseContext releaseContext);
+##
+
 User function called when supplied texture may be deleted.
 #SeeAlso MakeFromTexture
 ##
@@ -696,11 +711,11 @@ should this be moved to chrome only?
 
 #Const kU8 0
 #Line # uses 8-bit unsigned int per Color component ##
-Use 8 bits per Color_ARGB component using unsigned integer format.
+Use 8 bits per ARGB component using unsigned integer format.
 ##
 #Const kF16 1
 #Line # uses 16-bit float per Color component ##
-Use 16 bits per Color_ARGB component using half-precision floating point format.
+Use 16 bits per ARGB component using half-precision floating point format.
 ##
 
 #NoExample
@@ -940,8 +955,7 @@ or was parsed from encoded data.
   const char* alphaTypeStr[] = { "Unknown", "Opaque", "Premul", "Unpremul" };
   SkAlphaType alphaType = image->alphaType();
   canvas->drawImage(image, 16, 0);
-  SkPaint paint;
-  canvas->drawString(alphaTypeStr[(int) alphaType], 20, image->height() + 20, paint);
+  canvas->drawString(alphaTypeStr[(int) alphaType], 20, image->height() + 20, SkPaint());
 ##
 
 #SeeAlso SkImageInfo::alphaType
@@ -959,7 +973,13 @@ Returns Color_Type if known; otherwise, returns kUnknown_SkColorType.
 #Return Color_Type of Image ##
 
 #Example
-// incomplete
+#Image 4
+#Height 96
+    const char* colors[] = { "Unknown", "Alpha_8", "RGB_565", "ARGB_4444", "RGBA_8888", "RGB_888x",
+                             "BGRA_8888", "RGBA_1010102", "RGB_101010x", "Gray_8", "RGBA_F16" };
+    SkColorType colorType = image->colorType();
+    canvas->drawImage(image, 16, 0);
+    canvas->drawString(colors[(int) colorType], 20, image->height() + 20, SkPaint());
 ##
 
 #SeeAlso SkImageInfo::colorType
@@ -1994,6 +2014,11 @@ By translating canvas by returned offset, Image appears stationary.
 
 #Typedef std::function<void(GrBackendTexture)> BackendTextureReleaseProc
 #Line # parameter type for MakeBackendTextureFromSkImage ##
+
+#Code
+typedef std::function<void(GrBackendTexture)> BackendTextureReleaseProc;
+##
+
 Defines a function take one parameter of type
 GrBackendTexture with no return value.
 ##

@@ -574,6 +574,48 @@
     "name": "SkCanvas::restoreToCount",
         "stdout": "depth = 1\\ndepth = 3\\ndepth = 1\\n"
     },
+        "SkColor4f_FromColor": {
+    "code": "void draw(SkCanvas* canvas) {\n    uint8_t red = 77, green = 101, blue = 153, alpha = 43;\n    SkColor argb = SkColorSetARGB(alpha, red, green, blue);\n    SkColor4f color4f = SkColor4f::FromColor(argb);\n    SkDebugf(\"red=%g green=%g blue=%g alpha=%g\\n\", color4f.fR, color4f.fG, color4f.fB, color4f.fA);\n    SkColor fromColor4f = color4f.toSkColor();\n    SkDebugf(\"red=%d green=%d blue=%d alpha=%d\\n\", SkColorGetR(fromColor4f),\n             SkColorGetG(fromColor4f), SkColorGetB(fromColor4f), SkColorGetA(fromColor4f));\n}",
+    "hash": "33b029064e8d1928e42a587c953d0e4e",
+    "file": "SkColor4f_Reference",
+    "name": "SkColor4f::FromColor",
+        "stdout": "red=0.0742136 green=0.130136 blue=0.318547 alpha=0.168627\\nred=77 green=101 blue=153 alpha=43\\n"
+    },
+        "SkColor4f_equal1_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkColor4f colorRed = { 1, 0, 0, 1 };\n    SkColor4f colorNamedRed = SkColor4f::FromColor(SK_ColorRED);\n    SkDebugf(\"colorRed %c= colorNamedRed\", colorRed == colorNamedRed ? '=' : '!');\n}",
+    "hash": "e5b34bcb7f80f2ed890cdacaa059db0d",
+    "file": "SkColor4f_Reference",
+    "name": "SkColor4f::operator==(const SkColor4f& other)_const",
+        "stdout": "colorRed == colorNamedRed"
+    },
+        "SkColor4f_notequal1_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkColor4f colorGray = { .5, .5, .5, 1 };\n    SkColor4f colorNamedGray = SkColor4f::FromColor(SK_ColorGRAY);\n    SkDebugf(\"colorGray %c= colorNamedGray \", colorGray != colorNamedGray ? '!' : '=');\n}",
+    "hash": "82f1a9b4c2b27aa547061786d1f33dab",
+    "file": "SkColor4f_Reference",
+    "name": "SkColor4f::operator!=(const SkColor4f& other)_const",
+        "stdout": "colorGray != colorNamedGray"
+    },
+        "SkColor4f_toSkColor": {
+    "code": "void draw(SkCanvas* canvas) {\n    float red = 0.07, green = 0.13, blue = 0.32, alpha = 0.17;\n    SkColor4f color4f = { red, green, blue, alpha };\n    SkColor argb = color4f.toSkColor();\n    SkDebugf(\"red=%d green=%d blue=%d alpha=%d\\n\", SkColorGetR(argb),\n             SkColorGetG(argb), SkColorGetB(argb), SkColorGetA(argb));\n    SkColor4f fromSkColor = SkColor4f::FromColor(argb);\n    SkDebugf(\"red=%g green=%g blue=%g alpha=%g\\n\", fromSkColor.fR, fromSkColor.fG,\n                                                   fromSkColor.fB, fromSkColor.fA);\n}",
+    "hash": "edc5fd18d961f7607d2bcbf7f7d427e5",
+    "file": "SkColor4f_Reference",
+    "name": "SkColor4f::toSkColor",
+        "stdout": "red=75 green=101 blue=153 alpha=43\\nred=0.0703601 green=0.130136 blue=0.318547 alpha=0.168627\\n"
+    },
+        "SkColor4f_vec": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkColor4f color = SkColor4f::FromColor(0x884488CC);\n    SkDebugf(\"red=%g green=%g blue=%g alpha=%g\\n\", color.fR, color.fG, color.fB, color.fA);\n    const float* array = color.vec();\n    SkDebugf(\"[0]=%g [1]=%g [2]=%g [3]=%g\\n\", array[0], array[1], array[2], array[3]);\n}",
+    "hash": "229057023515224358a36acf15508cf6",
+    "file": "SkColor4f_Reference",
+    "name": "SkColor4f::vec()",
+        "stdout": "red=0.0578054 green=0.246201 blue=0.603827 alpha=0.533333\\n[0]=0.0578054 [1]=0.246201 [2]=0.603827 [3]=0.533333\\n"
+    },
+        "SkColor4f_vec_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkColor4f color = SkColor4f::FromColor(0x884488CC);\n    SkDebugf(\"red=%g green=%g blue=%g alpha=%g\\n\", color.fR, color.fG, color.fB, color.fA);\n    float* array = color.vec();\n    array[3] = 1;\n    SkDebugf(\"[0]=%g [1]=%g [2]=%g [3]=%g\\n\", array[0], array[1], array[2], array[3]);\n}",
+    "hash": "7420bf0a7cae5c6577c4c4a4613e7e7e",
+    "file": "SkColor4f_Reference",
+    "name": "SkColor4f::vec_2",
+        "stdout": "red=0.0578054 green=0.246201 blue=0.603827 alpha=0.533333\\n[0]=0.0578054 [1]=0.246201 [2]=0.603827 [3]=1\\n"
+    },
         "SkIPoint_Make": {
     "code": "void draw(SkCanvas* canvas) {\n    SkIPoint pt1 = {45, 66};\n    SkIPoint pt2 = SkIPoint::Make(45, 66);\n    SkDebugf(\"pt1 %c= pt2\\n\", pt1 == pt2 ? '=' : '!');\n}",
     "hash": "e5cf5159525bd3140f288a95fe641fae",
@@ -3289,7 +3331,7 @@
     "code": "void draw(SkCanvas* canvas) {\n    std::vector<uint32_t> srcPixels;\n    constexpr int width = 256;\n    constexpr int height = 256;\n    srcPixels.resize(width * height);\n    SkImageInfo imageInfo = SkImageInfo::MakeN32Premul(width, height);\n    SkPixmap pixmap(imageInfo, &srcPixels.front(), imageInfo.minRowBytes());\n    pixmap.erase(SK_ColorTRANSPARENT);\n    pixmap.erase(SK_ColorRED, { 24, 24, 192, 192 } );\n    pixmap.erase(SK_ColorTRANSPARENT, { 48, 48, 168, 168 } );\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n    canvas->drawBitmap(bitmap, 48, 48);\n}",
     "width": 256,
     "height": 256,
-    "hash": "cfda8cd3b435bb28e2f4b9c7f15603a6",
+    "hash": "9ca1e2a5b9b4c92ecf4409d0813867d6",
     "file": "SkColor_Reference",
     "name": "Color_Constants_Transparent"
 },
@@ -3477,13 +3519,13 @@
     "file": "SkMatrix_Reference",
     "name": "MemberIndex"
 },
-    "Paint_Anti_alias": {
+    "Paint_Anti_Alias": {
     "code": "void draw(SkCanvas* canvas) {\n    SkBitmap bitmap;\n    bitmap.allocN32Pixels(50, 50);\n    SkCanvas offscreen(bitmap);\n    SkPaint paint;\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(10);\n    for (bool antialias : { false, true }) {\n        paint.setColor(antialias ? SK_ColorRED : SK_ColorBLUE);\n        paint.setAntiAlias(antialias);\n        bitmap.eraseColor(0);\n        offscreen.drawLine(5, 5, 15, 30, paint);\n        canvas->drawLine(5, 5, 15, 30, paint);\n        canvas->save();\n        canvas->scale(10, 10);\n        canvas->drawBitmap(bitmap, antialias ? 12 : 0, 0);\n        canvas->restore();\n        canvas->translate(15, 0);\n    }\n}\n",
     "width": 512,
     "height": 256,
     "hash": "a6575a49467ce8d28bb01cc7638fa04d",
     "file": "SkPaint_Reference",
-    "name": "Anti-alias"
+    "name": "Anti_Alias"
 },
     "Paint_Blend_Mode_Methods": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint normal, blender;\n    normal.setColor(0xFF58a889);\n    blender.setColor(0xFF8958a8);\n    canvas->clear(0);\n    for (SkBlendMode m : { SkBlendMode::kSrcOver, SkBlendMode::kSrcIn, SkBlendMode::kSrcOut } ) {\n        normal.setBlendMode(SkBlendMode::kSrcOver);\n        canvas->drawOval(SkRect::MakeXYWH(30, 30, 30, 80), normal);\n        blender.setBlendMode(m);\n        canvas->drawOval(SkRect::MakeXYWH(10, 50, 80, 30), blender);\n        canvas->translate(70, 70);\n    }\n}\n",
@@ -4656,8 +4698,8 @@
     "SkCanvas_drawString": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    canvas->drawString(\"a small hello\", 20, 20, paint);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "65cc4b15cd1a8d067eb1dbfd7e2c17dd",
+    "height": 48,
+    "hash": "85442cf8d0bce6b5a777853bc36a4dc4",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawString"
 },
@@ -4869,107 +4911,59 @@
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::writePixels_2"
 },
-    "SkColor4f_FromColor": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkColor4f_Reference",
-    "name": "SkColor4f::FromColor"
-},
     "SkColor4f_Pin": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    uint32_t storage[8];\n    SkImageInfo info = SkImageInfo::MakeN32Premul(8, 1);\n    SkPixmap pixmap(info, storage, info.minRowBytes());\n    pixmap.erase(SK_ColorWHITE);\n    SkIRect bounds = {0, 0, 1, 1};\n    SkColor4f colors[] = { SkColor4f::Pin(1.5, 0.45f,  0.0,  1), \n                           SkColor4f::Pin(1,   0.45f, -0.25, 1),\n                           {1.5, 0.45f,  0.0,  1},\n                           {1,   0.45f, -0.25, 1},\n                         };\n    for (auto color4f : colors) {\n        pixmap.erase(color4f, &bounds);\n        bounds.offset(2, 0);\n    }\n    SkBitmap bitmap;\n    canvas->scale(20, 20);\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 40,
+    "hash": "c989cf16c7f8849874eb008cd701af76",
     "file": "SkColor4f_Reference",
     "name": "SkColor4f::Pin"
 },
-    "SkColor4f_equal1_operator": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkColor4f_Reference",
-    "name": "SkColor4f::operator==(const SkColor4f& other)_const"
-},
-    "SkColor4f_notequal1_operator": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkColor4f_Reference",
-    "name": "SkColor4f::operator!=(const SkColor4f& other)_const"
-},
     "SkColor4f_pin": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    uint32_t storage[8];\n    SkImageInfo info = SkImageInfo::MakeN32Premul(8, 1);\n    SkPixmap pixmap(info, storage, info.minRowBytes());\n    pixmap.erase(SK_ColorWHITE);\n    SkIRect bounds = {0, 0, 1, 1};\n    SkColor4f colors[] = { {1.5, 0.45f,  0.0,  1},\n                           {1,   0.45f, -0.25, 1},\n                         };\n    for (auto color4f : colors) {\n        pixmap.erase(color4f, &bounds);\n        bounds.offset(2, 0);\n        pixmap.erase(color4f.pin(), &bounds);\n        bounds.offset(2, 0);\n    }\n    SkBitmap bitmap;\n    canvas->scale(20, 20);\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 40,
+    "hash": "9e349862c5189a44d2acef5da24f2e79",
     "file": "SkColor4f_Reference",
     "name": "SkColor4f::pin()"
 },
-    "SkColor4f_toSkColor": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkColor4f_Reference",
-    "name": "SkColor4f::toSkColor"
-},
-    "SkColor4f_vec": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkColor4f_Reference",
-    "name": "SkColor4f::vec()"
-},
-    "SkColor4f_vec_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkColor4f_Reference",
-    "name": "SkColor4f::vec_2"
-},
     "SkColorGetA": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setColor(SK_ColorRED);\n    for (int alpha = 255; alpha >= 0; alpha -= 17) {\n        paint.setAlpha(alpha);\n        canvas->drawRect({5, 5, 100, 20}, paint);\n        SkAlpha alphaInPaint = SkColorGetA(paint.getColor());\n        canvas->drawString(std::to_string(alphaInPaint).c_str(), 110, 18, paint);\n        canvas->translate(0, 15);\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "896ce0316b489608a95af5439ca2aab1",
     "file": "SkColor_Reference",
     "name": "SkColorGetA"
 },
     "SkColorGetB": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    canvas->drawBitmap(source, 0, 0);\n    SkPaint bgPaint;\n    bgPaint.setColor(0xafffffff);\n    canvas->drawRect({20, 50, 80, 70}, bgPaint);\n    uint8_t blue = SkColorGetB(source.getColor(168, 170));\n    canvas->drawString(std::to_string(blue).c_str(), 40, 65, SkPaint());\n    canvas->drawLine(80, 70, 168, 170, SkPaint());\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "9ee27675284faea375611dc88123a2c5",
     "file": "SkColor_Reference",
     "name": "SkColorGetB"
 },
     "SkColorGetG": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    canvas->drawBitmap(source, 0, 0);\n    SkPaint bgPaint;\n    bgPaint.setColor(0xafffffff);\n    canvas->drawRect({20, 50, 80, 70}, bgPaint);\n    uint8_t green = SkColorGetG(source.getColor(57, 192));\n    canvas->drawString(std::to_string(green).c_str(), 40, 65, SkPaint());\n    canvas->drawLine(80, 70, 57, 192, SkPaint());\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "535d38b2c019299d915170f7b03d5fea",
     "file": "SkColor_Reference",
     "name": "SkColorGetG"
 },
     "SkColorGetR": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    canvas->drawBitmap(source, 0, 0);\n    SkPaint bgPaint;\n    bgPaint.setColor(0xafffffff);\n    canvas->drawRect({20, 50, 80, 70}, bgPaint);\n    uint8_t red = SkColorGetR(source.getColor(226, 128));\n    canvas->drawString(std::to_string(red).c_str(), 40, 65, SkPaint());\n    canvas->drawLine(80, 70, 226, 128, SkPaint());\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "d6da38577f189eaa6d9df75f6c3ed252",
     "file": "SkColor_Reference",
     "name": "SkColorGetR"
 },
     "SkColorSetA": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    canvas->drawBitmap(source, 0, 0);\n    for (int y = 0; y < 256; y += 16) {\n       for (int x = 0; x < 256; x += 16) {\n         SkColor color = source.getColor(x + 8, y + 8);\n         SkPaint paint;\n         paint.setColor(SkColorSetA(color, x + y));\n         canvas->drawRect(SkRect::MakeXYWH(x, y, 16, 16), paint);\n      }\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "18f6f376f771f5ffa56d5e5b2ebd20fb",
     "file": "SkColor_Reference",
     "name": "SkColorSetA"
 },
@@ -4990,10 +4984,10 @@
     "name": "SkColorSetRGB"
 },
     "SkColorToHSV": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    canvas->drawBitmap(source, 0, 0);\n    for (int y = 0; y < 256; ++y) {\n       for (int x = 0; x < 256; ++x) {\n         SkScalar hsv[3];\n         SkColorToHSV(source.getColor(x, y), hsv);\n         SkTSwap(hsv[1], hsv[2]);\n         SkPaint paint;\n         paint.setColor(SkHSVToColor(hsv));\n         canvas->drawRect(SkRect::MakeXYWH(x, y, 1, 1), paint);\n      }\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "7d7e427e2b181c651abad5732bc46cf7",
     "file": "SkColor_Reference",
     "name": "SkColorToHSV"
 },
@@ -5022,18 +5016,18 @@
     "name": "SkColorTypeValidateAlphaType"
 },
     "SkHSVToColor": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    canvas->drawBitmap(source, 0, 0);\n    for (int y = 0; y < 256; ++y) {\n       for (int x = 0; x < 256; ++x) {\n         SkColor color = source.getColor(x, y);\n         SkScalar hsv[3];\n         SkColorToHSV(color, hsv);\n         hsv[0] = hsv[0] + 90 >= 360 ? hsv[0] - 270 : hsv[0] + 90;\n         SkPaint paint;\n         paint.setColor(SkHSVToColor(x + y, hsv));\n         canvas->drawRect(SkRect::MakeXYWH(x, y, 1, 1), paint);\n      }\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "311a59931ac340b90f202cd6ac399a0a",
     "file": "SkColor_Reference",
     "name": "SkHSVToColor"
 },
     "SkHSVToColor_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    canvas->drawBitmap(source, 0, 0);\n    for (int y = 0; y < 256; ++y) {\n       for (int x = 0; x < 256; ++x) {\n         SkColor color = source.getColor(x, y);\n         SkScalar hsv[3];\n         SkColorToHSV(color, hsv);\n         hsv[0] = hsv[0] + 90 >= 360 ? hsv[0] - 270 : hsv[0] + 90;\n         SkPaint paint;\n         paint.setColor(SkHSVToColor(hsv));\n         canvas->drawRect(SkRect::MakeXYWH(x, y, 1, 1), paint);\n      }\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "d355a17547908cdbc2c38720974b5d11",
     "file": "SkColor_Reference",
     "name": "SkHSVToColor_2"
 },
@@ -5326,10 +5320,10 @@
     "name": "SkImage::MakeRasterData"
 },
     "SkImage_alphaType": {
-    "code": "void draw(SkCanvas* canvas) {\n    const char* alphaTypeStr[] = { \"Unknown\", \"Opaque\", \"Premul\", \"Unpremul\" };\n    SkAlphaType alphaType = image->alphaType();\n    canvas->drawImage(image, 16, 0);\n    SkPaint paint;\n    canvas->drawString(alphaTypeStr[(int) alphaType], 20, image->height() + 20, paint);\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    const char* alphaTypeStr[] = { \"Unknown\", \"Opaque\", \"Premul\", \"Unpremul\" };\n    SkAlphaType alphaType = image->alphaType();\n    canvas->drawImage(image, 16, 0);\n    canvas->drawString(alphaTypeStr[(int) alphaType], 20, image->height() + 20, SkPaint());\n}",
     "width": 256,
     "height": 96,
-    "hash": "dac1403132a42459d6881585efbfe74b",
+    "hash": "1b9f1f05026ceb14ccb6926a13cdaa83",
     "file": "SkImage_Reference",
     "name": "SkImage::alphaType"
 },
@@ -5358,10 +5352,10 @@
     "name": "SkImage::colorSpace"
 },
     "SkImage_colorType": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    const char* colors[] = { \"Unknown\", \"Alpha_8\", \"RGB_565\", \"ARGB_4444\", \"RGBA_8888\", \"RGB_888x\",\n                             \"BGRA_8888\", \"RGBA_1010102\", \"RGB_101010x\", \"Gray_8\", \"RGBA_F16\" };\n    SkColorType colorType = image->colorType();\n    canvas->drawImage(image, 16, 0);\n    canvas->drawString(colors[(int) colorType], 20, image->height() + 20, SkPaint());\n}",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 96,
+    "hash": "50396fad4a128f58e400ca00fe09711f",
     "file": "SkImage_Reference",
     "name": "SkImage::colorType"
 },
@@ -7150,26 +7144,26 @@
     "name": "SkPoint::operator-=(const SkVector& v)"
 },
     "SkPreMultiplyARGB": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPMColor premultiplied = SkPreMultiplyARGB(160, 128, 160, 192);\n    canvas->drawString(\"Unpremultiplied:\", 20, 20, SkPaint());\n    canvas->drawString(\"alpha=160 red=128 green=160 blue=192\", 20, 40, SkPaint());\n    canvas->drawString(\"Premultiplied:\", 20, 80, SkPaint());\n    std::string str = \"alpha=\" + std::to_string(SkColorGetA(premultiplied));\n    str += \" red=\" + std::to_string(SkColorGetR(premultiplied));\n    str += \" green=\" + std::to_string(SkColorGetG(premultiplied));\n    str += \" blue=\" + std::to_string(SkColorGetB(premultiplied));\n    canvas->drawString(str.c_str(), 20, 100, SkPaint());\n}",
+    "width": 300,
+    "height": 128,
+    "hash": "756345484fd48ca0ea7b6cec350f73b8",
     "file": "SkColor_Reference",
     "name": "SkPreMultiplyARGB"
 },
     "SkPreMultiplyColor": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "code": "void draw(SkCanvas* canvas) {\n    SkColor unpremultiplied = SkColorSetARGB(160, 128, 160, 192);\n    SkPMColor premultiplied = SkPreMultiplyColor(unpremultiplied);\n    canvas->drawString(\"Unpremultiplied:\", 20, 20, SkPaint());\n    std::string str = \"alpha=\" + std::to_string(SkColorGetA(unpremultiplied));\n    str += \" red=\" + std::to_string(SkColorGetR(unpremultiplied));\n    str += \" green=\" + std::to_string(SkColorGetG(unpremultiplied));\n    str += \" blue=\" + std::to_string(SkColorGetB(unpremultiplied));\n    canvas->drawString(str.c_str(), 20, 40, SkPaint());\n    canvas->drawString(\"Premultiplied:\", 20, 80, SkPaint());\n    str = \"alpha=\" + std::to_string(SkColorGetA(premultiplied));\n    str += \" red=\" + std::to_string(SkColorGetR(premultiplied));\n    str += \" green=\" + std::to_string(SkColorGetG(premultiplied));\n    str += \" blue=\" + std::to_string(SkColorGetB(premultiplied));\n    canvas->drawString(str.c_str(), 20, 100, SkPaint());\n}",
+    "width": 300,
+    "height": 128,
+    "hash": "0bcc0f86a2aefc899f3500503dce6968",
     "file": "SkColor_Reference",
     "name": "SkPreMultiplyColor"
 },
     "SkRGBToHSV": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    canvas->drawBitmap(source, 0, 0);\n    SkPaint bgPaint;\n    bgPaint.setColor(0xafffffff);\n    canvas->drawRect({20, 30, 110, 90}, bgPaint);\n    SkScalar hsv[3];\n    SkColor c = source.getColor(226, 128);\n    SkRGBToHSV(SkColorGetR(c), SkColorGetG(c), SkColorGetB(c), hsv);\n    canvas->drawString((\"h: \" + std::to_string(hsv[0]).substr(0, 6)).c_str(), 27, 45, SkPaint());\n    canvas->drawString((\"s: \" + std::to_string(hsv[1]).substr(0, 6)).c_str(), 27, 65, SkPaint());\n    canvas->drawString((\"v: \" + std::to_string(hsv[2]).substr(0, 6)).c_str(), 27, 85, SkPaint());\n    canvas->drawLine(110, 90, 226, 128, SkPaint());\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "4fb2da4a3d9b14ca4ac24eefb0f5126a",
     "file": "SkColor_Reference",
     "name": "SkRGBToHSV"
 },
@@ -7302,18 +7296,18 @@
     "name": "SkSurface::readPixels_3"
 },
     "SkSurface_writePixels": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    sk_sp<SkSurface> surf(SkSurface::MakeRasterN32Premul(64, 64));\n    auto surfCanvas = surf->getCanvas();\n    surfCanvas->clear(SK_ColorRED);\n    SkPaint paint;\n    paint.setTextSize(40);\n    surfCanvas->drawString(\"&\", 16, 40, paint);\n    SkPixmap pixmap;\n    if (surf->peekPixels(&pixmap)) {\n        surf->writePixels(pixmap, 25, 25);\n        sk_sp<SkImage> image(surf->makeImageSnapshot());\n        canvas->drawImage(image, 0, 0);\n    }\n}",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 96,
+    "hash": "760793bcf0ef193fa61ea03e6e8fc825",
     "file": "SkSurface_Reference",
     "name": "SkSurface::writePixels"
 },
     "SkSurface_writePixels_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    sk_sp<SkSurface> surf(SkSurface::MakeRasterN32Premul(64, 64));\n    auto surfCanvas = surf->getCanvas();\n    surfCanvas->clear(SK_ColorGREEN);\n    surf->writePixels(source, 25, 25);\n    sk_sp<SkImage> image(surf->makeImageSnapshot());\n    canvas->drawImage(image, 0, 0);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 96,
+    "hash": "d77790dd3bc9f678fa4f582347fb8fba",
     "file": "SkSurface_Reference",
     "name": "SkSurface::writePixels_2"
 }

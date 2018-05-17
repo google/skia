@@ -980,7 +980,7 @@ Does not copy, and returns false if:
 #Description
     Canvas returned by Raster_Surface has Premultiplied pixel values.
     clear() takes Unpremultiplied input with Color_Alpha equal 0x80
-    and Color_RGB equal 0x55, 0xAA, 0xFF. Color_RGB is multiplied by Color_Alpha
+    and RGB equal 0x55, 0xAA, 0xFF. RGB is multiplied by Color_Alpha
     to generate Premultiplied value 0x802B5580. readPixels converts pixel back
     to Unpremultiplied value 0x8056A9FF, introducing error.
 ##
@@ -1047,7 +1047,7 @@ Does not copy, and returns false if:
 #Example
     #Description
         clear() takes Unpremultiplied input with Color_Alpha equal 0x80
-        and Color_RGB equal 0x55, 0xAA, 0xFF. Color_RGB is multiplied by Color_Alpha
+        and RGB equal 0x55, 0xAA, 0xFF. RGB is multiplied by Color_Alpha
         to generate Premultiplied value 0x802B5580.
     ##
     void draw(SkCanvas* canvas) {
@@ -1110,7 +1110,7 @@ Does not copy, and returns false if:
 #Example
     #Description
         clear() takes Unpremultiplied input with Color_Alpha equal 0x80
-        and Color_RGB equal 0x55, 0xAA, 0xFF. Color_RGB is multiplied by Color_Alpha
+        and RGB equal 0x55, 0xAA, 0xFF. RGB is multiplied by Color_Alpha
         to generate Premultiplied value 0x802B5580.
     ##
 void draw(SkCanvas* canvas) {
@@ -1816,7 +1816,7 @@ SaveLayerRec contains the state used to create the Layer.
 #Example
 #Height 160
 #Description
-Canvas Layer captures a red Anti-aliased circle and a blue Aliased circle scaled
+Canvas Layer captures a red Anti_Aliased circle and a blue Aliased circle scaled
 up by four. After drawing another red circle without scaling on top, the Layer is
 transferred to the main canvas.
 ##
@@ -2342,14 +2342,14 @@ prior Clip to form the replacement Clip. Use SkClipOp::kDifference
 to subtract Path from Clip; use SkClipOp::kIntersect to intersect Path
 with Clip.
 
-A clipping Path may be Anti-aliased; if Path, after transformation, is
-composed of horizontal and vertical lines, clearing Anti-alias allows whole pixels
+A clipping Path may be Anti_Aliased; if Path, after transformation, is
+composed of horizontal and vertical lines, clearing Anti_Alias allows whole pixels
 to either be inside or outside the clip. The fastest drawing has a Aliased,
 rectangular clip.
 
-If clipping Path has Anti-alias set, clip may partially clip a pixel, requiring
+If clipping Path has Anti_Alias set, clip may partially clip a pixel, requiring
 that drawing blend partially with the destination along the edge. A rotated
-rectangular Anti-aliased clip looks smoother but draws slower.
+rectangular Anti_Aliased clip looks smoother but draws slower.
 
 Clip can combine with Rect and Round_Rect primitives; like
 Path, these are transformed by Matrix before they are combined with Clip.
@@ -2360,10 +2360,10 @@ and is unaffected by Matrix.
 #Example
 #Height 90
     #Description
-        Draw a red circle with an Aliased clip and an Anti-aliased clip.
+        Draw a red circle with an Aliased clip and an Anti_Aliased clip.
         Use an image filter to zoom into the pixels drawn.
         The edge of the Aliased clip fully draws pixels in the red circle.
-        The edge of the Anti-aliased clip partially draws pixels in the red circle.
+        The edge of the Anti_Aliased clip partially draws pixels in the red circle.
     ##
     SkPaint redPaint, scalePaint;
     redPaint.setAntiAlias(true);
@@ -2392,12 +2392,12 @@ and is unaffected by Matrix.
 #In Clip
 #Line # combines Clip with Rect ##
 Replace Clip with the intersection or difference of Clip and rect,
-with an Aliased or Anti-aliased clip edge. rect is transformed by Matrix
+with an Aliased or Anti_Aliased clip edge. rect is transformed by Matrix
 before it is combined with Clip.
 
 #Param  rect  Rect to combine with Clip ##
 #Param  op    Clip_Op to apply to Clip ##
-#Param  doAntiAlias  true if Clip is to be Anti-aliased ##
+#Param  doAntiAlias  true if Clip is to be Anti_Aliased ##
 
 #Example
 #Height 128
@@ -2457,13 +2457,13 @@ rect is transformed by Matrix
 before it is combined with Clip.
 
 #Param  rect   Rect to combine with Clip ##
-#Param  doAntiAlias  true if Clip is to be Anti-aliased ##
+#Param  doAntiAlias  true if Clip is to be Anti_Aliased ##
 
 #Example
 #Height 133
     #Description
         A circle drawn in pieces looks uniform when drawn Aliased.
-        The same circle pieces blend with pixels more than once when Anti-aliased,
+        The same circle pieces blend with pixels more than once when Anti_Aliased,
         visible as a thin pair of lines through the right circle.
     ##
 void draw(SkCanvas* canvas) {
@@ -2515,13 +2515,13 @@ This is private API to be used only by Android framework.
 #In Clip
 #Line # combines Clip with Round_Rect ##
 Replace Clip with the intersection or difference of Clip and rrect,
-with an Aliased or Anti-aliased clip edge.
+with an Aliased or Anti_Aliased clip edge.
 rrect is transformed by Matrix
 before it is combined with Clip.
 
 #Param  rrect  Round_Rect to combine with Clip ##
 #Param  op  Clip_Op to apply to Clip ##
-#Param  doAntiAlias  true if Clip is to be Anti-aliased ##
+#Param  doAntiAlias  true if Clip is to be Anti_Aliased ##
 
 #Example
 #Height 128
@@ -2570,11 +2570,11 @@ void draw(SkCanvas* canvas) {
 
 #In Clip
 Replace Clip with the intersection of Clip and rrect,
-with an Aliased or Anti-aliased clip edge.
+with an Aliased or Anti_Aliased clip edge.
 rrect is transformed by Matrix before it is combined with Clip.
 
 #Param  rrect  Round_Rect to combine with Clip ##
-#Param  doAntiAlias  true if Clip is to be Anti-aliased ##
+#Param  doAntiAlias  true if Clip is to be Anti_Aliased ##
 
 #Example
 #Height 128
@@ -2596,14 +2596,14 @@ void draw(SkCanvas* canvas) {
 #In Clip
 #Line # combines Clip with Path ##
 Replace Clip with the intersection or difference of Clip and path,
-with an Aliased or Anti-aliased clip edge. Path_Fill_Type determines if path
+with an Aliased or Anti_Aliased clip edge. Path_Fill_Type determines if path
 describes the area inside or outside its contours; and if Path_Contour overlaps
 itself or another Path_Contour, whether the overlaps form part of the area.
 path is transformed by Matrix before it is combined with Clip.
 
 #Param  path  Path to combine with Clip ##
 #Param  op  Clip_Op to apply to Clip ##
-#Param  doAntiAlias  true if Clip is to be Anti-aliased ##
+#Param  doAntiAlias  true if Clip is to be Anti_Aliased ##
 
 #Example
 #Description
@@ -2687,7 +2687,7 @@ itself or another Path_Contour, whether the overlaps form part of the area.
 path is transformed by Matrix before it is combined with Clip.
 
 #Param  path  Path to combine with Clip ##
-#Param  doAntiAlias  true if Clip is to be Anti-aliased ##
+#Param  doAntiAlias  true if Clip is to be Anti_Aliased ##
 
 #Example
 #Height 212
@@ -2849,7 +2849,7 @@ Return bounds of Clip, transformed by inverse of Matrix. If Clip is empty,
 return SkRect::MakeEmpty, where all Rect sides equal zero.
 
 Rect returned is outset by one to account for partial pixel coverage if Clip
-is Anti-aliased.
+is Anti_Aliased.
 
 #Return  bounds of Clip in local coordinates ##
 
@@ -2895,7 +2895,7 @@ Return bounds of Clip, transformed by inverse of Matrix. If Clip is empty,
 return false, and set bounds to SkRect::MakeEmpty, where all Rect sides equal zero.
 
 bounds is outset by one to account for partial pixel coverage if Clip
-is Anti-aliased.
+is Anti_Aliased.
 
 #Param bounds  Rect of Clip in local coordinates ##
 
@@ -3022,9 +3022,9 @@ Unlike getLocalClipBounds, bounds is not outset.
 #In Draw
 #Line # fills Clip with Color and Blend_Mode ##
 Fill Clip with Color color.
-mode determines how Color_ARGB is combined with destination.
+mode determines how ARGB is combined with destination.
 
-#Param color    Unpremultiplied Color_ARGB ##
+#Param color    Unpremultiplied ARGB ##
 #Param mode  SkBlendMode used to combine source color and destination ##
 
 #Example
@@ -3047,7 +3047,7 @@ mode determines how Color_ARGB is combined with destination.
 Fill Clip with Color color using SkBlendMode::kSrc.
 This has the effect of replacing all pixels contained by Clip with color.
 
-#Param color    Unpremultiplied Color_ARGB ##
+#Param color    Unpremultiplied ARGB ##
 
 #Example
 void draw(SkCanvas* canvas) {
@@ -5135,6 +5135,7 @@ filled 12 point black Glyphs.
 #Param  paint    text size, blend, color, and so on, used to draw ##
 
 #Example
+#Height 48
    SkPaint paint;
    canvas->drawString("a small hello", 20, 20, paint);
 ##
@@ -5441,7 +5442,7 @@ Draw Text_Blob blob at (x, y), using Clip, Matrix, and Paint paint.
 
 blob contains Glyphs, their positions, and paint attributes specific to text:
 Typeface, Paint_Text_Size, Paint_Text_Scale_X, Paint_Text_Skew_X,
-Paint_Text_Align, Paint_Hinting, Anti-alias, Paint_Fake_Bold,
+Paint_Text_Align, Paint_Hinting, Anti_Alias, Paint_Fake_Bold,
 Font_Embedded_Bitmaps, Full_Hinting_Spacing, LCD_Text, Linear_Text,
 Subpixel_Text, and Paint_Vertical_Text.
 
@@ -5494,7 +5495,7 @@ Draw Text_Blob blob at (x, y), using Clip, Matrix, and Paint paint.
 
 blob contains Glyphs, their positions, and paint attributes specific to text:
 Typeface, Paint_Text_Size, Paint_Text_Scale_X, Paint_Text_Skew_X,
-Paint_Text_Align, Paint_Hinting, Anti-alias, Paint_Fake_Bold,
+Paint_Text_Align, Paint_Hinting, Anti_Alias, Paint_Fake_Bold,
 Font_Embedded_Bitmaps, Full_Hinting_Spacing, LCD_Text, Linear_Text,
 Subpixel_Text, and Paint_Vertical_Text.
 
@@ -5898,7 +5899,7 @@ void draw(SkCanvas* canvas) {
 #Line # draws sprites using Clip, Matrix, and Paint ##
 
 Draw a set of sprites from atlas, using Clip, Matrix, and optional Paint paint.
-paint uses Anti-alias, Color_Alpha, Color_Filter, Image_Filter, and Blend_Mode
+paint uses Anti_Alias, Color_Alpha, Color_Filter, Image_Filter, and Blend_Mode
 to draw, if present. For each entry in the array, Rect tex locates sprite in
 atlas, and RSXform xform transforms it into destination space.
 
@@ -5939,7 +5940,7 @@ void draw(SkCanvas* canvas) {
                    const SkPaint* paint)
 
 Draw a set of sprites from atlas, using Clip, Matrix, and optional Paint paint.
-paint uses Anti-alias, Color_Alpha, Color_Filter, Image_Filter, and Blend_Mode
+paint uses Anti_Alias, Color_Alpha, Color_Filter, Image_Filter, and Blend_Mode
 to draw, if present. For each entry in the array, Rect tex locates sprite in
 atlas, and RSXform xform transforms it into destination space.
 
@@ -5982,7 +5983,7 @@ void draw(SkCanvas* canvas) {
                    const SkRect* cullRect, const SkPaint* paint)
 
 Draw a set of sprites from atlas, using Clip, Matrix, and optional Paint paint.
-paint uses Anti-alias, Color_Alpha, Color_Filter, Image_Filter, and Blend_Mode
+paint uses Anti_Alias, Color_Alpha, Color_Filter, Image_Filter, and Blend_Mode
 to draw, if present. For each entry in the array, Rect tex locates sprite in
 atlas, and RSXform xform transforms it into destination space.
 
@@ -6018,7 +6019,7 @@ void draw(SkCanvas* canvas) {
                    int count, const SkRect* cullRect, const SkPaint* paint)
 
 Draw a set of sprites from atlas, using Clip, Matrix, and optional Paint paint.
-paint uses Anti-alias, Color_Alpha, Color_Filter, Image_Filter, and Blend_Mode
+paint uses Anti_Alias, Color_Alpha, Color_Filter, Image_Filter, and Blend_Mode
 to draw, if present. For each entry in the array, Rect tex locates sprite in
 atlas, and RSXform xform transforms it into destination space.
 

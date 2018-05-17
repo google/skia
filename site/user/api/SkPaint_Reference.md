@@ -23,7 +23,7 @@ algorithms that alter the drawing geometry, color, and transparency. For instanc
 The objects contained by <a href='#Paint'>Paint</a> are opaque, and cannot be edited outside of the <a href='#Paint'>Paint</a>
 to affect it. The implementation is free to defer computations associated with the
 <a href='#Paint'>Paint</a>, or ignore them altogether. For instance, some GPU implementations draw all
-<a href='SkPath_Reference#Path'>Path</a> geometries with Anti-aliasing, regardless of how <a href='#SkPaint_kAntiAlias_Flag'>SkPaint::kAntiAlias Flag</a>
+<a href='SkPath_Reference#Path'>Path</a> geometries with <a href='#Anti_Alias'>Anti Aliasing</a>, regardless of how <a href='#SkPaint_kAntiAlias_Flag'>SkPaint::kAntiAlias Flag</a>
 is set in <a href='#Paint'>Paint</a>.
 
 <a href='#Paint'>Paint</a> describes a single color, a single font, a single image quality, and so on.
@@ -74,7 +74,7 @@ SkPaint global, <code>struct</code>, and <code>class</code> related member funct
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>get and set <a href='SkColor_Reference#Alpha'>Alpha</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Anti-alias</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Anti_Alias'>Anti Alias</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>approximating coverage with transparency</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
@@ -151,7 +151,7 @@ SkPaint global, <code>struct</code>, and <code>class</code> related member funct
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#LCD_Text'>LCD Text</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>text relying on the order of <a href='SkColor_Reference#RGB'>Color RGB</a> stripes</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>text relying on the order of RGB stripes</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Linear_Text'>Linear Text</a></td>
@@ -301,7 +301,7 @@ SkPaint related constants are defined by <code>enum</code>, <code>enum class</co
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_kAntiAlias_Flag'>kAntiAlias Flag</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>mask for setting Anti-alias</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>mask for setting <a href='#Anti_Alias'>Anti Alias</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_kAutoHinting_Flag'>kAutoHinting Flag</a></td>
@@ -557,7 +557,7 @@ SkPaint member functions read and modify the structure properties.
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getColor'>getColor</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='SkColor_Reference#Alpha'>Color Alpha</a> and <a href='SkColor_Reference#RGB'>Color RGB</a>, one drawing color</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='SkColor_Reference#Alpha'>Color Alpha</a> and RGB, one drawing color</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getColorFilter'>getColorFilter</a></td>
@@ -693,7 +693,7 @@ SkPaint member functions read and modify the structure properties.
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_isAntiAlias'>isAntiAlias</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if Anti-alias is set</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='#Anti_Alias'>Anti Alias</a> is set</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_isAutohinted'>isAutohinted</a></td>
@@ -781,7 +781,7 @@ SkPaint member functions read and modify the structure properties.
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_setAntiAlias'>setAntiAlias</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets or clears Anti-alias</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets or clears <a href='#Anti_Alias'>Anti Alias</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_setAutohinted'>setAutohinted</a></td>
@@ -793,7 +793,7 @@ SkPaint member functions read and modify the structure properties.
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_setColor'>setColor</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='SkColor_Reference#Alpha'>Color Alpha</a> and <a href='SkColor_Reference#RGB'>Color RGB</a>, one drawing color</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='SkColor_Reference#Alpha'>Color Alpha</a> and RGB, one drawing color</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_setColorFilter'>setColorFilter</a></td>
@@ -927,7 +927,7 @@ Constructs <a href='#Paint'>Paint</a> with default values.
 
 | attribute | default value |
 | --- | ---  |
-| Anti-alias | false |
+| <a href='#Anti_Alias'>Anti Alias</a> | false |
 | <a href='undocumented#Blend_Mode'>Blend Mode</a> | <a href='undocumented#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a> |
 | <a href='SkColor_Reference#Color'>Color</a> | <a href='SkColor_Reference#SK_ColorBLACK'>SK ColorBLACK</a> |
 | <a href='SkColor_Reference#Alpha'>Color Alpha</a> | 255 |
@@ -1478,7 +1478,7 @@ multiple settings at once.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kAntiAlias_Flag'><code>SkPaint::kAntiAlias_Flag</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x0001</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-mask for setting Anti-alias</td>
+mask for setting Anti_Alias</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kDither_Flag'><code>SkPaint::kDither_Flag</code></a></td>
@@ -1634,9 +1634,9 @@ paint.isDither()
 
 ---
 
-## <a name='Anti-alias'>Anti-alias</a>
+## <a name='Anti_Alias'>Anti Alias</a>
 
-Anti-alias drawing approximates partial pixel coverage with transparency.
+<a href='#Anti_Alias'>Anti Alias</a> drawing approximates partial pixel coverage with transparency.
 If <a href='#SkPaint_kAntiAlias_Flag'>kAntiAlias Flag</a> is clear, pixel centers contained by the shape edge are drawn opaque.
 If <a href='#SkPaint_kAntiAlias_Flag'>kAntiAlias Flag</a> is set, pixels are drawn with <a href='SkColor_Reference#Alpha'>Color Alpha</a> equal to their coverage.
 
@@ -1646,14 +1646,14 @@ passing through the pixel center may, but is not required to, draw the pixel.
 <a href='undocumented#Raster_Engine'>Raster Engine</a> draws <a href='undocumented#Alias'>Aliased</a> pixels whose centers are on or to the right of the start of an
 active <a href='SkPath_Reference#Path'>Path</a> edge, and whose center is to the left of the end of the active <a href='SkPath_Reference#Path'>Path</a> edge.
 
-A platform may only support Anti-aliased drawing. Some GPU-backed platforms use
-<a href='undocumented#Supersampling'>Supersampling</a> to Anti-alias all drawing, and have no mechanism to selectively
+A platform may only support <a href='#Anti_Alias'>Anti Aliased</a> drawing. Some GPU-backed platforms use
+<a href='undocumented#Supersampling'>Supersampling</a> to <a href='#Anti_Alias'>Anti Alias</a> all drawing, and have no mechanism to selectively
 <a href='undocumented#Alias'>Alias</a>.
 
-The amount of coverage computed for Anti-aliased pixels also varies across platforms.
+The amount of coverage computed for <a href='#Anti_Alias'>Anti Aliased</a> pixels also varies across platforms.
 
-Anti-alias is disabled by default.
-Anti-alias can be enabled by default by setting <a href='undocumented#SkPaintDefaults_Flags'>SkPaintDefaults Flags</a> to <a href='#SkPaint_kAntiAlias_Flag'>kAntiAlias Flag</a>
+<a href='#Anti_Alias'>Anti Alias</a> is disabled by default.
+<a href='#Anti_Alias'>Anti Alias</a> can be enabled by default by setting <a href='undocumented#SkPaintDefaults_Flags'>SkPaintDefaults Flags</a> to <a href='#SkPaint_kAntiAlias_Flag'>kAntiAlias Flag</a>
 at compile time.
 
 ### Example
@@ -1829,17 +1829,17 @@ paint1 == paint2
 
 ### See Also
 
-Gradient <a href='SkColor_Reference#RGB'>Color RGB</a>-565
+Gradient <a href='SkImageInfo_Reference#kRGB_565_SkColorType'>kRGB_565_SkColorType</a>
 
 ## <a name='Device_Text'>Device Text</a>
 
 <a href='#LCD_Text'>LCD Text</a> and <a href='#Subpixel_Text'>Subpixel Text</a> increase the precision of glyph position.
 
-When set, <a href='#SkPaint_Flags'>Flags</a> <a href='#SkPaint_kLCDRenderText_Flag'>kLCDRenderText Flag</a> takes advantage of the organization of <a href='SkColor_Reference#RGB'>Color RGB</a> stripes that
+When set, <a href='#SkPaint_Flags'>Flags</a> <a href='#SkPaint_kLCDRenderText_Flag'>kLCDRenderText Flag</a> takes advantage of the organization of RGB stripes that
 create a color, and relies
 on the small size of the stripe and visual perception to make the color fringing imperceptible.
 <a href='#LCD_Text'>LCD Text</a> can be enabled on devices that orient stripes horizontally or vertically, and that order
-the color components as <a href='SkColor_Reference#RGB'>Color RGB</a> or <a href='SkColor_Reference#RBG'>Color RBG</a>.
+the color components as RGB or BGR.
 
 <a href='#SkPaint_Flags'>Flags</a> <a href='#SkPaint_kSubpixelText_Flag'>kSubpixelText Flag</a> uses the pixel transparency to represent a fractional offset.
 As the opaqueness
@@ -1989,11 +1989,11 @@ paint1 == paint2
 
 ## <a name='LCD_Text'>LCD Text</a>
 
-When set, <a href='#SkPaint_Flags'>Flags</a> <a href='#SkPaint_kLCDRenderText_Flag'>kLCDRenderText Flag</a> takes advantage of the organization of <a href='SkColor_Reference#RGB'>Color RGB</a> stripes that
+When set, <a href='#SkPaint_Flags'>Flags</a> <a href='#SkPaint_kLCDRenderText_Flag'>kLCDRenderText Flag</a> takes advantage of the organization of RGB stripes that
 create a color, and relies
 on the small size of the stripe and visual perception to make the color fringing imperceptible.
 <a href='#LCD_Text'>LCD Text</a> can be enabled on devices that orient stripes horizontally or vertically, and that order
-the color components as <a href='SkColor_Reference#RGB'>Color RGB</a> or <a href='SkColor_Reference#RBG'>Color RBG</a>.
+the color components as RGB or BGR.
 
 <a name='SkPaint_isLCDRenderText'></a>
 ## isLCDRenderText
@@ -2544,22 +2544,22 @@ kHigh_SkFilterQuality == paint.getFilterQuality()
 
 | name | description |
 | --- | ---  |
-| <a href='#SkPaint_getColor'>getColor</a> | returns <a href='SkColor_Reference#Alpha'>Color Alpha</a> and <a href='SkColor_Reference#RGB'>Color RGB</a>, one drawing color |
-| <a href='#SkPaint_setColor'>setColor</a> | sets <a href='SkColor_Reference#Alpha'>Color Alpha</a> and <a href='SkColor_Reference#RGB'>Color RGB</a>, one drawing color |
+| <a href='#SkPaint_getColor'>getColor</a> | returns <a href='SkColor_Reference#Alpha'>Color Alpha</a> and RGB, one drawing color |
+| <a href='#SkPaint_setColor'>setColor</a> | sets <a href='SkColor_Reference#Alpha'>Color Alpha</a> and RGB, one drawing color |
 
-<a href='SkColor_Reference#Color'>Color</a> specifies the <a href='SkColor_Reference#RGB_Red'>Color RGB Red</a>, <a href='SkColor_Reference#RGB_Blue'>Color RGB Blue</a>, <a href='SkColor_Reference#RGB_Green'>Color RGB Green</a>, and <a href='SkColor_Reference#Alpha'>Color Alpha</a>
+<a href='SkColor_Reference#Color'>Color</a> specifies the red, blue, green, and <a href='SkColor_Reference#Alpha'>Color Alpha</a>
 values used to draw a filled or stroked shape in a 32-bit value. Each component
 occupies 8-bits, ranging from zero: no contribution; to 255: full intensity.
 All values in any combination are valid.
 
 <a href='SkColor_Reference#Color'>Color</a> is not <a href='undocumented#Premultiply'>Premultiplied</a>; <a href='SkColor_Reference#Alpha'>Color Alpha</a> sets the transparency independent of
-<a href='SkColor_Reference#RGB'>Color RGB</a>: <a href='SkColor_Reference#RGB_Red'>Color RGB Red</a>, <a href='SkColor_Reference#RGB_Blue'>Color RGB Blue</a>, and <a href='SkColor_Reference#RGB_Green'>Color RGB Green</a>.
+RGB: red, blue, and green.
 
-The bit positions of <a href='SkColor_Reference#Alpha'>Color Alpha</a> and <a href='SkColor_Reference#RGB'>Color RGB</a> are independent of the bit
+The bit positions of <a href='SkColor_Reference#Alpha'>Color Alpha</a> and RGB are independent of the bit
 positions on the output device, which may have more or fewer bits, and may have
 a different arrangement.
 
-| bit positions | <a href='SkColor_Reference#Alpha'>Color Alpha</a> | <a href='SkColor_Reference#RGB_Red'>Color RGB Red</a> | <a href='SkColor_Reference#RGB_Blue'>Color RGB Blue</a> | <a href='SkColor_Reference#RGB_Green'>Color RGB Green</a> |
+| bit positions | <a href='SkColor_Reference#Alpha'>Color Alpha</a> | red | blue | green |
 | --- | --- | --- | --- | ---  |
 |  | 31 - 24 | 23 - 16 | 15 - 8 | 7 - 0 |
 
@@ -2574,13 +2574,13 @@ a different arrangement.
 <a href='SkColor_Reference#SkColor'>SkColor</a> <a href='#SkPaint_getColor'>getColor</a>() const
 </pre>
 
-Retrieves <a href='SkColor_Reference#Alpha'>Alpha</a> and <a href='SkColor_Reference#RGB'>Color RGB</a>, <a href='undocumented#Unpremultiply'>Unpremultiplied</a>, packed into 32 bits.
+Retrieves <a href='SkColor_Reference#Alpha'>Alpha</a> and RGB, <a href='undocumented#Unpremultiply'>Unpremultiplied</a>, packed into 32 bits.
 Use helpers <a href='SkColor_Reference#SkColorGetA'>SkColorGetA</a>, <a href='SkColor_Reference#SkColorGetR'>SkColorGetR</a>, <a href='SkColor_Reference#SkColorGetG'>SkColorGetG</a>, and <a href='SkColor_Reference#SkColorGetB'>SkColorGetB</a> to extract
 a color component.
 
 ### Return Value
 
-<a href='undocumented#Unpremultiply'>Unpremultiplied</a> <a href='SkColor_Reference#ARGB'>Color ARGB</a>
+<a href='undocumented#Unpremultiply'>Unpremultiplied</a> ARGB
 
 ### Example
 
@@ -2607,13 +2607,13 @@ Yellow is 100% red, 100% green, and 0% blue.
 void <a href='#SkPaint_setColor'>setColor</a>(<a href='SkColor_Reference#SkColor'>SkColor</a> color)
 </pre>
 
-Sets <a href='SkColor_Reference#Alpha'>Alpha</a> and <a href='SkColor_Reference#RGB'>Color RGB</a> used when stroking and filling. The <a href='#SkPaint_setColor_color'>color</a> is a 32-bit value,
-<a href='undocumented#Unpremultiply'>Unpremultiplied</a>, packing 8-bit components for <a href='SkColor_Reference#Alpha'>Alpha</a>, <a href='SkColor_Reference#RGB_Red'>Red</a>, <a href='SkColor_Reference#RGB_Blue'>Blue</a>, and <a href='SkColor_Reference#RGB_Green'>Green</a>.
+Sets <a href='SkColor_Reference#Alpha'>Alpha</a> and RGB used when stroking and filling. The <a href='#SkPaint_setColor_color'>color</a> is a 32-bit value,
+<a href='undocumented#Unpremultiply'>Unpremultiplied</a>, packing 8-bit components for <a href='SkColor_Reference#Alpha'>Alpha</a>, red, blue, and green.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPaint_setColor_color'><code><strong>color</strong></code></a></td>
-    <td><a href='undocumented#Unpremultiply'>Unpremultiplied</a> <a href='SkColor_Reference#ARGB'>Color ARGB</a></td>
+    <td><a href='undocumented#Unpremultiply'>Unpremultiplied</a> ARGB</td>
   </tr>
 </table>
 
@@ -2637,7 +2637,7 @@ green1 == green2
 
 ## <a name='Alpha_Methods'>Alpha Methods</a>
 
-<a href='SkColor_Reference#Alpha'>Color Alpha</a> sets the transparency independent of <a href='SkColor_Reference#RGB'>Color RGB</a>: <a href='SkColor_Reference#RGB_Red'>Color RGB Red</a>, <a href='SkColor_Reference#RGB_Blue'>Color RGB Blue</a>, and <a href='SkColor_Reference#RGB_Green'>Color RGB Green</a>.
+<a href='SkColor_Reference#Alpha'>Color Alpha</a> sets the transparency independent of RGB: red, blue, and green.
 
 <a name='SkPaint_getAlpha'></a>
 ## getAlpha
@@ -2673,7 +2673,7 @@ Retrieves <a href='SkColor_Reference#Alpha'>Alpha</a> from the <a href='SkColor_
 void <a href='#SkPaint_setAlpha'>setAlpha</a>(<a href='undocumented#U8CPU'>U8CPU</a> a)
 </pre>
 
-Replaces <a href='SkColor_Reference#Alpha'>Alpha</a>, leaving <a href='SkColor_Reference#RGB'>Color RGB</a>
+Replaces <a href='SkColor_Reference#Alpha'>Alpha</a>, leaving RGB
 unchanged. An out of range value triggers an assert in the debug
 build. <a href='#SkPaint_setAlpha_a'>a</a> is <a href='#SkPaint_setAlpha_a'>a</a> value from zero to 255.
 <a href='#SkPaint_setAlpha_a'>a</a> set to zero makes <a href='SkColor_Reference#Color'>Color</a> fully transparent; <a href='#SkPaint_setAlpha_a'>a</a> set to 255 makes <a href='SkColor_Reference#Color'>Color</a>
@@ -2708,7 +2708,7 @@ void <a href='#SkPaint_setARGB'>setARGB</a>(<a href='undocumented#U8CPU'>U8CPU</
 </pre>
 
 Sets <a href='SkColor_Reference#Color'>Color</a> used when drawing solid fills. The color components range from 0 to 255.
-The color is <a href='undocumented#Unpremultiply'>Unpremultiplied</a>; <a href='SkColor_Reference#Alpha'>Alpha</a> sets the transparency independent of <a href='SkColor_Reference#RGB'>Color RGB</a>.
+The color is <a href='undocumented#Unpremultiply'>Unpremultiplied</a>; <a href='SkColor_Reference#Alpha'>Alpha</a> sets the transparency independent of RGB.
 
 ### Parameters
 
@@ -2716,13 +2716,13 @@ The color is <a href='undocumented#Unpremultiply'>Unpremultiplied</a>; <a href='
     <td>amount of <a href='SkColor_Reference#Alpha'>Color Alpha</a>, from fully transparent (0) to fully opaque (255)</td>
   </tr>
   <tr>    <td><a name='SkPaint_setARGB_r'><code><strong>r</strong></code></a></td>
-    <td>amount of <a href='SkColor_Reference#RGB_Red'>Color RGB Red</a>, from no red (0) to full red (255)</td>
+    <td>amount of red, from no red (0) to full red (255)</td>
   </tr>
   <tr>    <td><a name='SkPaint_setARGB_g'><code><strong>g</strong></code></a></td>
-    <td>amount of <a href='SkColor_Reference#RGB_Green'>Color RGB Green</a>, from no green (0) to full green (255)</td>
+    <td>amount of green, from no green (0) to full green (255)</td>
   </tr>
   <tr>    <td><a name='SkPaint_setARGB_b'><code><strong>b</strong></code></a></td>
-    <td>amount of <a href='SkColor_Reference#RGB_Blue'>Color RGB Blue</a>, from no blue (0) to full blue (255)</td>
+    <td>amount of blue, from no blue (0) to full blue (255)</td>
   </tr>
 </table>
 

@@ -22,7 +22,7 @@ Paint does not directly implement dashing or blur, but contains the objects that
 The objects contained by Paint are opaque, and cannot be edited outside of the Paint
 to affect it. The implementation is free to defer computations associated with the
 Paint, or ignore them altogether. For instance, some GPU implementations draw all
-Path geometries with Anti-aliasing, regardless of how SkPaint::kAntiAlias_Flag
+Path geometries with Anti_Aliasing, regardless of how SkPaint::kAntiAlias_Flag
 is set in Paint.
 
 Paint describes a single color, a single font, a single image quality, and so on.
@@ -71,7 +71,7 @@ Constructs Paint with default values.
 #Legend
 # attribute              # default value            ##
 #Legend ##
-# Anti-alias             # false                    ##
+# Anti_Alias             # false                    ##
 # Blend_Mode             # SkBlendMode::kSrcOver    ##
 # Color                  # SK_ColorBLACK            ##
 # Color_Alpha            # 255                      ##
@@ -546,7 +546,7 @@ All flags can be read and written explicitly; Flags allows manipulating
 multiple settings at once.
 
     #Const kAntiAlias_Flag          0x0001
-    #Line # mask for setting Anti-alias ##
+    #Line # mask for setting Anti_Alias ##
     ##
     #Const kDither_Flag             0x0004
     #Line # mask for setting Dither ##
@@ -648,14 +648,17 @@ All Flags members may be cleared, or one or more may be set.
 
 #Subtopic Flags ##
 # ------------------------------------------------------------------------------
-#Subtopic Anti-alias
-#Alias Anti-alias  # permit hyphen in topic name, should probably not substitute hyphen with _
-#Alias Anti-aliased
-#Alias Anti-aliasing
+#Subtopic Anti_Alias
+#Alias Anti_Alias
+#Substitute Anti-alias
+#Alias Anti_Aliased
+#Substitute Anti-aliased
+#Alias Anti_Aliasing
+#Substitute Anti-aliasing
 #In Related_Function
 #Line # approximating coverage with transparency ##
 
-Anti-alias drawing approximates partial pixel coverage with transparency.
+Anti_Alias drawing approximates partial pixel coverage with transparency.
 If kAntiAlias_Flag is clear, pixel centers contained by the shape edge are drawn opaque.
 If kAntiAlias_Flag is set, pixels are drawn with Color_Alpha equal to their coverage.
 
@@ -667,14 +670,14 @@ active Path edge, and whose center is to the left of the end of the active Path 
 
 #ToDo  add illustration of raster pixels ##
 
-A platform may only support Anti-aliased drawing. Some GPU-backed platforms use
-Supersampling to Anti-alias all drawing, and have no mechanism to selectively
+A platform may only support Anti_Aliased drawing. Some GPU-backed platforms use
+Supersampling to Anti_Alias all drawing, and have no mechanism to selectively
 Alias.
 
-The amount of coverage computed for Anti-aliased pixels also varies across platforms.
+The amount of coverage computed for Anti_Aliased pixels also varies across platforms.
 
-Anti-alias is disabled by default.
-Anti-alias can be enabled by default by setting SkPaintDefaults_Flags to kAntiAlias_Flag
+Anti_Alias is disabled by default.
+Anti_Alias can be enabled by default by setting SkPaintDefaults_Flags to kAntiAlias_Flag
 at compile time.
 
 #Example
@@ -710,7 +713,7 @@ at compile time.
 
 #Method bool isAntiAlias() const
 #In Anti_alias
-#Line # returns true if Anti-alias is set ##
+#Line # returns true if Anti_Alias is set ##
 
     If true, pixels on the active edges of Path may be drawn with partial transparency.
 
@@ -736,7 +739,7 @@ at compile time.
 #Method void setAntiAlias(bool aa)
 
 #In Anti_alias
-#Line # sets or clears Anti-alias ##
+#Line # sets or clears Anti_Alias ##
     Requests, but does not require, that Path edge pixels draw opaque or with
     partial transparency.
 
@@ -758,7 +761,7 @@ at compile time.
 
 ##
 
-#Subtopic Anti-alias ##
+#Subtopic Anti_Alias ##
 # ------------------------------------------------------------------------------
 #Subtopic Dither
 #Line # distributing color error ##
@@ -892,7 +895,7 @@ void draw(SkCanvas* canvas) {
 
 ##
 
-#SeeAlso Gradient Color_RGB-565
+#SeeAlso Gradient kRGB_565_SkColorType
 
 #Subtopic Dither ##
 # ------------------------------------------------------------------------------
@@ -901,11 +904,11 @@ void draw(SkCanvas* canvas) {
 
 LCD_Text and Subpixel_Text increase the precision of glyph position.
 
-When set, Flags kLCDRenderText_Flag takes advantage of the organization of Color_RGB stripes that
+When set, Flags kLCDRenderText_Flag takes advantage of the organization of RGB stripes that
 create a color, and relies
 on the small size of the stripe and visual perception to make the color fringing imperceptible.
 LCD_Text can be enabled on devices that orient stripes horizontally or vertically, and that order
-the color components as Color_RGB or Color_RBG.
+the color components as RGB or BGR.
 
 Flags kSubpixelText_Flag uses the pixel transparency to represent a fractional offset.
 As the opaqueness
@@ -1083,14 +1086,14 @@ SkDebugf("paint.isSubpixelText() %c= !!(paint.getFlags() & SkPaint::kSubpixelTex
 
 #Subtopic LCD_Text
 #Substitute LCD text
-#Line # text relying on the order of Color_RGB stripes ##
+#Line # text relying on the order of RGB stripes ##
 #Alias LCD_Text # makes this a top level name, since it is under subtopic Device_Text
 
-When set, Flags kLCDRenderText_Flag takes advantage of the organization of Color_RGB stripes that
+When set, Flags kLCDRenderText_Flag takes advantage of the organization of RGB stripes that
 create a color, and relies
 on the small size of the stripe and visual perception to make the color fringing imperceptible.
 LCD_Text can be enabled on devices that orient stripes horizontally or vertically, and that order
-the color components as Color_RGB or Color_RBG.
+the color components as RGB or BGR.
 
 #Method bool isLCDRenderText() const
 
@@ -1628,25 +1631,25 @@ Does not check to see if quality is valid.
 #Legend
 # name                  # description                                          ##
 #Legend ##
-# getColor              # returns Color_Alpha and Color_RGB, one drawing color ##
-# setColor              # sets Color_Alpha and Color_RGB, one drawing color    ##
+# getColor              # returns Color_Alpha and RGB, one drawing color ##
+# setColor              # sets Color_Alpha and RGB, one drawing color    ##
 #Table ##
 
-Color specifies the Color_RGB_Red, Color_RGB_Blue, Color_RGB_Green, and Color_Alpha
+Color specifies the red, blue, green, and Color_Alpha
 values used to draw a filled or stroked shape in a 32-bit value. Each component
 occupies 8-bits, ranging from zero: no contribution; to 255: full intensity.
 All values in any combination are valid.
 
 Color is not Premultiplied; Color_Alpha sets the transparency independent of
-Color_RGB: Color_RGB_Red, Color_RGB_Blue, and Color_RGB_Green.
+RGB: red, blue, and green.
 
-The bit positions of Color_Alpha and Color_RGB are independent of the bit
+The bit positions of Color_Alpha and RGB are independent of the bit
 positions on the output device, which may have more or fewer bits, and may have
 a different arrangement.
 
 #Table
 #Legend
-# bit positions # Color_Alpha # Color_RGB_Red # Color_RGB_Blue # Color_RGB_Green ##
+# bit positions # Color_Alpha # red # blue # green ##
 #Legend ##
 #               # 31 - 24     # 23 - 16       # 15 - 8         # 7 - 0           ##
 #Table ##
@@ -1668,12 +1671,12 @@ a different arrangement.
 #Method SkColor getColor() const
 
 #In Color_Methods
-#Line # returns Color_Alpha and Color_RGB, one drawing color ##
-    Retrieves Alpha and Color_RGB, Unpremultiplied, packed into 32 bits.
+#Line # returns Color_Alpha and RGB, one drawing color ##
+    Retrieves Alpha and RGB, Unpremultiplied, packed into 32 bits.
     Use helpers SkColorGetA, SkColorGetR, SkColorGetG, and SkColorGetB to extract
     a color component.
 
-    #Return  Unpremultiplied Color_ARGB ##
+    #Return  Unpremultiplied ARGB ##
 
     #Example
         SkPaint paint;
@@ -1694,11 +1697,11 @@ a different arrangement.
 #Method void setColor(SkColor color)
 
 #In Color_Methods
-#Line # sets Color_Alpha and Color_RGB, one drawing color ##
-    Sets Alpha and Color_RGB used when stroking and filling. The color is a 32-bit value,
-    Unpremultiplied, packing 8-bit components for Alpha, Red, Blue, and Green.
+#Line # sets Color_Alpha and RGB, one drawing color ##
+    Sets Alpha and RGB used when stroking and filling. The color is a 32-bit value,
+    Unpremultiplied, packing 8-bit components for Alpha, red, blue, and green.
 
-    #Param color    Unpremultiplied Color_ARGB ##
+    #Param color    Unpremultiplied ARGB ##
 
     #Example
         SkPaint green1, green2;
@@ -1723,7 +1726,7 @@ a different arrangement.
 #Subtopic Alpha_Methods
 #Line # get and set Alpha ##
 
-Color_Alpha sets the transparency independent of Color_RGB: Color_RGB_Red, Color_RGB_Blue, and Color_RGB_Green.
+Color_Alpha sets the transparency independent of RGB: red, blue, and green.
 
 #Method uint8_t getAlpha() const
 
@@ -1748,7 +1751,7 @@ Color_Alpha sets the transparency independent of Color_RGB: Color_RGB_Red, Color
 
 #In Alpha_Methods
 #Line # sets Color_Alpha, color opacity ##
-    Replaces Alpha, leaving Color_RGB
+    Replaces Alpha, leaving RGB
     unchanged. An out of range value triggers an assert in the debug
     build. a is a value from zero to 255.
     a set to zero makes Color fully transparent; a set to 255 makes Color
@@ -1776,12 +1779,12 @@ Color_Alpha sets the transparency independent of Color_RGB: Color_RGB_Red, Color
 #In Color_Methods
 #Line # sets color by component ##
     Sets Color used when drawing solid fills. The color components range from 0 to 255.
-    The color is Unpremultiplied; Alpha sets the transparency independent of Color_RGB.
+    The color is Unpremultiplied; Alpha sets the transparency independent of RGB.
 
     #Param a    amount of Color_Alpha, from fully transparent (0) to fully opaque (255) ##
-    #Param r    amount of Color_RGB_Red, from no red (0) to full red (255) ##
-    #Param g    amount of Color_RGB_Green, from no green (0) to full green (255) ##
-    #Param b    amount of Color_RGB_Blue, from no blue (0) to full blue (255) ##
+    #Param r    amount of red, from no red (0) to full red (255) ##
+    #Param g    amount of green, from no green (0) to full green (255) ##
+    #Param b    amount of blue, from no blue (0) to full blue (255) ##
 
     #Example
         SkPaint transRed1, transRed2;
@@ -1837,7 +1840,7 @@ Stroke_Width of zero has a special meaning and switches drawing to use Hairline.
 Hairline draws the thinnest continuous frame. If kAntiAlias_Flag is clear, adjacent pixels
 flow horizontally, vertically,or diagonally.
 
-#ToDo  what is the description of Anti-aliased hairlines? ##
+#ToDo  what is the description of Anti_Aliased hairlines? ##
 
 Path drawing with Hairline may hit the same pixel more than once. For instance, Path containing
 two lines in one Path_Contour will draw the corner point once, but may both lines may draw the adjacent

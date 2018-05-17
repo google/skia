@@ -334,9 +334,6 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             continue;
         }
         ref = string(start, t.fChar - start);
-        if (fMethod && "SkSurface::MakeRenderTarget" == fMethod->fName && "is" == ref) {
-            SkDebugf("");
-        }
         if (const Definition* def = this->isDefined(t, ref, resolvable)) {
             if (MarkType::kExternal == def->fMarkType) {
                 (void) this->anchorRef("undocumented#" + ref, "");   // for anchor validate
@@ -800,9 +797,9 @@ void MdOut::summaryOut(const Definition* def, MarkType markType, string name) {
         FPRINTF("%s", odd ? kTR_Dark.c_str() : "  <tr>");
         this->lfAlways(1);
         if (MarkType::kConst == markType) {
-            FPRINTF("%s", tableDataCodeRef(def).c_str());
+            FPRINTF("%s", tableDataCodeRef(child).c_str());
             this->lfAlways(1);
-            FPRINTF("%s", table_data_const(def, nullptr).c_str());
+            FPRINTF("%s", table_data_const(child, nullptr).c_str());
         } else {
             string memberType;
             string memberName = this->getMemberTypeName(child, &memberType);
@@ -1214,9 +1211,6 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
     bool lookForOneLiner = false;
     // #Param and #Const don't have markers to say when the last is seen, so detect that by looking
     // for a change in type.
-    if (MarkType::kStruct == def->fMarkType) {
-        SkDebugf("");
-    }
     if (writeTableEnd(MarkType::kParam, def, prior) || writeTableEnd(MarkType::kConst, def, prior)
                 || writeTableEnd(MarkType::kMember, def, prior)) {
         this->writePending();
@@ -1372,6 +1366,9 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             this->lfAlways(1);
         } break;
         case MarkType::kDefine:
+            this->mdHeaderOut(2);
+            this->htmlOut(anchorDef(def->fFiddle, "Define " + def->fName));
+            this->lf(2);
             break;
         case MarkType::kDefinedBy:
             break;
@@ -1436,7 +1433,6 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             this->lf(2);
             break;
         case MarkType::kExternal:
-            SkDebugf("");
             break;
         case MarkType::kFormula:
             break;
@@ -1708,7 +1704,7 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             this->lf(1);
             } break;
         case MarkType::kTypedef:
-            this->mdHeaderOut(1);
+            this->mdHeaderOut(2);
             this->htmlOut(anchorDef(def->fFiddle, "Typedef " + def->fName));
             this->lf(1);
             break;
@@ -1724,12 +1720,7 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             SkASSERT(0); // handle everything
             break;
     }
- //   TableState saveState = fTableState;
-    if (def->fLineCount >= 533 && string::npos != def->fFileName.find("SkSurface")) {
-        SkDebugf("");
-    }
     this->childrenOut(def, textStart);
- //   fTableState = saveState;
     switch (def->fMarkType) {  // post child work, at least for tables
         case MarkType::kAnchor:
             if (fColumn > 0) {
@@ -1968,8 +1959,6 @@ void MdOut::populateTables(const Definition* def, RootDefinition* root) {
                 }
                 if (!builtInTopic) {
                     root->populator(SubtopicKeys::kRelatedFunctions).fMembers.push_back(child);
-                } else {
-                    SkDebugf("");
                 }
             }
             this->populateTables(child, root);

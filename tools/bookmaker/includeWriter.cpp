@@ -1826,6 +1826,7 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
                     ;
                 } else if (!first) {
                     this->fChar = start;
+                    this->fLine = start;
                     this->reportError("reference unfound");
                     return "";
                 }

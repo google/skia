@@ -1438,7 +1438,20 @@ converting to Surface colorType() and Surface alphaType() if required.
 #Param dstY x position relative to Surface to begin copy; may be negative ##
 
 #Example
-    // incomplete
+#Image 4
+#Height 96
+    sk_sp<SkSurface> surf(SkSurface::MakeRasterN32Premul(64, 64));
+    auto surfCanvas = surf->getCanvas();
+    surfCanvas->clear(SK_ColorRED);
+    SkPaint paint;
+    paint.setTextSize(40);
+    surfCanvas->drawString("&", 16, 40, paint);
+    SkPixmap pixmap;
+    if (surf->peekPixels(&pixmap)) {
+        surf->writePixels(pixmap, 25, 25);
+        sk_sp<SkImage> image(surf->makeImageSnapshot());
+        canvas->drawImage(image, 0, 0);
+    }
 ##
 
 #SeeAlso readPixels peekPixels
@@ -1465,7 +1478,14 @@ converting to Surface colorType() and Surface alphaType() if required.
 #Param dstY x position relative to Surface to begin copy; may be negative ##
 
 #Example
-    // incomplete
+#Image 4
+#Height 96
+    sk_sp<SkSurface> surf(SkSurface::MakeRasterN32Premul(64, 64));
+    auto surfCanvas = surf->getCanvas();
+    surfCanvas->clear(SK_ColorGREEN);
+    surf->writePixels(source, 25, 25);
+    sk_sp<SkImage> image(surf->makeImageSnapshot());
+    canvas->drawImage(image, 0, 0);
 ##
 
 #SeeAlso readPixels peekPixels

@@ -1420,48 +1420,48 @@ Skews are not similar and do not preserve right angles.
 <th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Matrix_MemberIndex'><code>MemberIndex</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kMScaleX'><code>SkMatrix::kMScaleX</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>horizontal scale factor</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Matrix_MemberIndex'><code>MemberIndex</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kMSkewX'><code>SkMatrix::kMSkewX</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>horizontal skew factor</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Matrix_MemberIndex'><code>MemberIndex</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kMTransX'><code>SkMatrix::kMTransX</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>horizontal translation</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Matrix_MemberIndex'><code>MemberIndex</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kMSkewY'><code>SkMatrix::kMSkewY</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>3</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>vertical skew factor</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Matrix_MemberIndex'><code>MemberIndex</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kMScaleY'><code>SkMatrix::kMScaleY</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>4</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>vertical scale factor</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Matrix_MemberIndex'><code>MemberIndex</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kMTransY'><code>SkMatrix::kMTransY</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>5</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>vertical translation</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Matrix_MemberIndex'><code>MemberIndex</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kMPersp0'><code>SkMatrix::kMPersp0</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>6</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>input x perspective factor</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Matrix_MemberIndex'><code>MemberIndex</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kMPersp1'><code>SkMatrix::kMPersp1</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>7</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>input y perspective factor</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Matrix_MemberIndex'><code>MemberIndex</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kMPersp2'><code>SkMatrix::kMPersp2</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>8</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>perspective bias</td>
   </tr>
 </table>
@@ -1563,33 +1563,33 @@ perspective bias</td>
 <th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Matrix_AffineIndex'><code>AffineIndex</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kAScaleX'><code>SkMatrix::kAScaleX</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>horizontal scale factor</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Matrix_AffineIndex'><code>AffineIndex</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kASkewY'><code>SkMatrix::kASkewY</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>vertical skew factor</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Matrix_AffineIndex'><code>AffineIndex</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kASkewX'><code>SkMatrix::kASkewX</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>horizontal skew factor</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Matrix_AffineIndex'><code>AffineIndex</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kAScaleY'><code>SkMatrix::kAScaleY</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>3</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>vertical scale factor</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Matrix_AffineIndex'><code>AffineIndex</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kATransX'><code>SkMatrix::kATransX</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>4</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>horizontal translation</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Matrix_AffineIndex'><code>AffineIndex</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#In Constant</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kATransY'><code>SkMatrix::kATransY</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>5</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>vertical translation</td>
   </tr>
 </table>

@@ -551,14 +551,24 @@ each dimension fits in 29 bits;
 
 ---
 
-# <a name='SkImage_ReleaseContext'>Typedef SkImage::ReleaseContext</a>
+## <a name='SkImage_ReleaseContext'>Typedef SkImage::ReleaseContext</a>
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+typedef void* <a href='#SkImage_ReleaseContext'>ReleaseContext</a>;
+</pre>
+
 Caller data passed to <a href='#SkImage_RasterReleaseProc'>RasterReleaseProc</a>; may be nullptr.
 
 ### See Also
 
 <a href='#SkImage_MakeFromRaster'>MakeFromRaster</a> <a href='#SkImage_RasterReleaseProc'>RasterReleaseProc</a>
 
-# <a name='SkImage_RasterReleaseProc'>Typedef SkImage::RasterReleaseProc</a>
+## <a name='SkImage_RasterReleaseProc'>Typedef SkImage::RasterReleaseProc</a>
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+typedef void (*<a href='#SkImage_RasterReleaseProc'>RasterReleaseProc</a>)(const void* pixels, <a href='#SkImage_ReleaseContext'>ReleaseContext</a>);
+</pre>
+
 Function called when <a href='#Image'>Image</a> no longer shares pixels. <a href='#SkImage_ReleaseContext'>ReleaseContext</a> is
 provided by caller when <a href='#Image'>Image</a> is created, and may be nullptr.
 
@@ -750,7 +760,12 @@ created <a href='#Image'>Image</a>, or nullptr
 
 ---
 
-# <a name='SkImage_TextureReleaseProc'>Typedef SkImage::TextureReleaseProc</a>
+## <a name='SkImage_TextureReleaseProc'>Typedef SkImage::TextureReleaseProc</a>
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+typedef void (*<a href='#SkImage_TextureReleaseProc'>TextureReleaseProc</a>)(<a href='#SkImage_ReleaseContext'>ReleaseContext</a> releaseContext);
+</pre>
+
 User function called when supplied texture may be deleted.
 
 ### See Also
@@ -1163,14 +1178,14 @@ created <a href='#Image'>Image</a>, or nullptr
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkImage_BitDepth_kU8'><code>SkImage::BitDepth::kU8</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Use 8 bits per <a href='SkColor_Reference#ARGB'>Color ARGB</a> component using unsigned integer format.
+Use 8 bits per ARGB component using unsigned integer format.
 </td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkImage_BitDepth_kF16'><code>SkImage::BitDepth::kF16</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Use 16 bits per <a href='SkColor_Reference#ARGB'>Color ARGB</a> component using half-precision floating point format.
+Use 16 bits per ARGB component using half-precision floating point format.
 </td>
   </tr>
 </table>
@@ -1481,7 +1496,7 @@ or was parsed from encoded data.
 
 ### Example
 
-<div><fiddle-embed name="dac1403132a42459d6881585efbfe74b"></fiddle-embed></div>
+<div><fiddle-embed name="1b9f1f05026ceb14ccb6926a13cdaa83"></fiddle-embed></div>
 
 ### See Also
 
@@ -1504,7 +1519,7 @@ Returns <a href='SkImageInfo_Reference#Color_Type'>Color Type</a> if known; othe
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="50396fad4a128f58e400ca00fe09711f"></fiddle-embed></div>
 
 ### See Also
 
@@ -2499,8 +2514,14 @@ By translating canvas by returned <a href='#SkImage_makeWithFilter_offset'>offse
 
 ---
 
-# <a name='SkImage_BackendTextureReleaseProc'>Typedef SkImage::BackendTextureReleaseProc</a>
-<a href='#SkImage_BackendTextureReleaseProc'>BackendTextureReleaseProc</a>Defines a function take one parameter of type
+## <a name='SkImage_BackendTextureReleaseProc'>Typedef SkImage::BackendTextureReleaseProc</a>
+<a href='#SkImage_BackendTextureReleaseProc'>BackendTextureReleaseProc</a>
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+typedef std::function<void(GrBackendTexture)> <a href='#SkImage_BackendTextureReleaseProc'>BackendTextureReleaseProc</a>;
+</pre>
+
+Defines a function take one parameter of type
 <a href='undocumented#GrBackendTexture'>GrBackendTexture</a> with no return value.
 
 <a name='SkImage_MakeBackendTextureFromSkImage'></a>
