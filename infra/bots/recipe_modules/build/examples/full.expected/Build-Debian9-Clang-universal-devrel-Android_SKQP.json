@@ -142,20 +142,6 @@
     ]
   },
   {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[START_DIR]/cache/work/skia/infra/cts/whitelist_devices.json",
-      "[START_DIR]/[SWARM_OUT_DIR]/out/devrel"
-    ],
-    "infra_step": true,
-    "name": "copy whitelist"
-  },
-  {
     "name": "$result",
     "recipe_result": null,
     "status_code": 0

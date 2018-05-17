@@ -17,6 +17,7 @@ WIN_TOOLCHAIN_DIR = 't'
 
 class DeviceDirs(object):
   def __init__(self,
+               bin_dir,
                dm_dir,
                perf_data_dir,
                resource_dir,
@@ -24,6 +25,7 @@ class DeviceDirs(object):
                skp_dir,
                svg_dir,
                tmp_dir):
+    self._bin_dir = bin_dir
     self._dm_dir = dm_dir
     self._perf_data_dir = perf_data_dir
     self._resource_dir = resource_dir
@@ -31,6 +33,10 @@ class DeviceDirs(object):
     self._skp_dir = skp_dir
     self._svg_dir = svg_dir
     self._tmp_dir = tmp_dir
+
+  @property
+  def bin_dir(self):
+    return self._bin_dir
 
   @property
   def dm_dir(self):
@@ -85,11 +91,18 @@ class DefaultFlavorUtils(object):
     # syntax as regular recipe modules to run steps, eg: self.m.step(...)
     self.m = module.m
     self._chrome_path = None
-    self._win_toolchain_dir = self.m.vars.slave_dir.join(WIN_TOOLCHAIN_DIR)
-    win_toolchain_asset_path = self.m.vars.infrabots_dir.join(
-        'assets', 'win_toolchain', 'VERSION')
-    if not self.m.path.exists(win_toolchain_asset_path):
-      self._win_toolchain_dir = self.m.vars.slave_dir
+    self.device_dirs = DeviceDirs(
+        bin_dir=self.m.vars.build_dir.join('out', self.m.vars.configuration),
+        dm_dir=self.m.path.join(self.m.vars.swarming_out_dir, 'dm'),
+        perf_data_dir=self.m.path.join(
+            self.m.vars.swarming_out_dir,
+            'perfdata', self.m.vars.builder_name, 'data'),
+        resource_dir=self.m.path['start_dir'].join('skia', 'resources'),
+        images_dir=self.m.path['start_dir'].join('skimage'),
+        skp_dir=self.m.path['start_dir'].join('skp'),
+        svg_dir=self.m.path['start_dir'].join('svg'),
+        tmp_dir=self.m.vars.tmp_dir)
+    self.host_dirs = self.device_dirs
 
   def device_path_join(self, *args):
     """Like os.path.join(), but for paths on a connected device."""
@@ -137,14 +150,7 @@ class DefaultFlavorUtils(object):
 
   def install(self):
     """Run device-specific installation steps."""
-    self.device_dirs = DeviceDirs(
-        dm_dir=self.m.vars.dm_dir,
-        perf_data_dir=self.m.vars.perf_data_dir,
-        resource_dir=self.m.vars.resource_dir,
-        images_dir=self.m.vars.images_dir,
-        skp_dir=self.m.vars.local_skp_dir,
-        svg_dir=self.m.vars.local_svg_dir,
-        tmp_dir=self.m.vars.tmp_dir)
+    pass
 
   def cleanup_steps(self):
     """Run any device-specific cleanup steps."""

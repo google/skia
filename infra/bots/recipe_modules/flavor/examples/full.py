@@ -43,11 +43,12 @@ def RunSteps(api):
       if 'Test' in api.properties['buildername']:
         api.flavor.step('dm', ['dm', '--some-flag'])
         api.flavor.copy_directory_contents_to_host(
-            api.flavor.device_dirs.dm_dir, api.vars.dm_dir)
+            api.flavor.device_dirs.dm_dir, api.flavor.host_dirs.dm_dir)
       elif 'Perf' in api.properties['buildername']:
         api.flavor.step('nanobench', ['nanobench', '--some-flag'])
         api.flavor.copy_directory_contents_to_host(
-            api.flavor.device_dirs.perf_data_dir, api.vars.perf_data_dir)
+            api.flavor.device_dirs.perf_data_dir,
+            api.flavor.host_dirs.perf_data_dir)
     finally:
       api.flavor.cleanup_steps()
   api.run.check_failure()
@@ -62,7 +63,6 @@ TEST_BUILDERS = [
   'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release-All',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-ASAN',
-  'Perf-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Release-All-CT_BENCH_1k_SKPs',
   'Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All-Android',
   'Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android',
   'Test-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android',

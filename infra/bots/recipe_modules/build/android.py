@@ -6,7 +6,8 @@
 import re
 
 
-def compile_fn(api, out_dir):
+def compile_fn(api, checkout_root, out_dir):
+  skia_dir      = checkout_root.join('skia')
   compiler      = api.vars.builder_cfg.get('compiler')
   configuration = api.vars.builder_cfg.get('configuration')
   extra_tokens  = api.vars.extra_tokens
@@ -34,7 +35,7 @@ def compile_fn(api, out_dir):
       'target_cpu': quote(target_arch),
   }
   extra_cflags.append('-DDUMMY_ndk_version=%s' %
-                      api.run.asset_version(ndk_asset))
+                      api.run.asset_version(ndk_asset, skia_dir))
 
   if configuration != 'Debug':
     args['is_debug'] = 'false'
@@ -59,11 +60,11 @@ def compile_fn(api, out_dir):
   gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.iteritems()))
   gn      = 'gn.exe'    if 'Win' in os else 'gn'
   ninja   = 'ninja.exe' if 'Win' in os else 'ninja'
-  gn      = api.vars.skia_dir.join('bin', gn)
+  gn      = skia_dir.join('bin', gn)
 
-  with api.context(cwd=api.vars.skia_dir):
+  with api.context(cwd=skia_dir):
     api.run(api.python, 'fetch-gn',
-            script=api.vars.skia_dir.join('bin', 'fetch-gn'),
+            script=skia_dir.join('bin', 'fetch-gn'),
             infra_step=True)
 
     # If this is the SkQP build, set up the environment and run the script
@@ -72,7 +73,7 @@ def compile_fn(api, out_dir):
       api.infra.update_go_deps()
 
       output_binary = out_dir.join('run_testlab')
-      build_target = api.vars.skia_dir.join('infra', 'cts', 'run_testlab.go')
+      build_target = skia_dir.join('infra', 'cts', 'run_testlab.go')
       build_cmd = ['go', 'build', '-o', output_binary, build_target]
       with api.context(env=api.infra.go_env):
         api.run(api.step, 'build firebase runner', cmd=build_cmd)
@@ -88,8 +89,7 @@ def compile_fn(api, out_dir):
         'APK_OUTPUT_DIR': out_dir,
       }
 
-      mk_universal = api.vars.skia_dir.join('tools', 'skqp',
-                                            'make_universal_apk')
+      mk_universal = skia_dir.join('tools', 'skqp', 'make_universal_apk')
       with api.context(env=env):
         api.run(api.step, 'make_universal', cmd=[mk_universal])
     else:
@@ -99,6 +99,4 @@ def compile_fn(api, out_dir):
 
 
 def copy_extra_build_products(api, src, dst):
-  if 'SKQP' in api.vars.extra_tokens:
-    wlist = api.vars.skia_dir.join('infra','cts', 'whitelist_devices.json')
-    api.file.copy('copy whitelist', wlist, dst)
+  pass

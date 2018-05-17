@@ -75,21 +75,22 @@ def RunSteps(api):
   else:
     raise Exception('Do not recognise the buildername %s.' % buildername)
 
-  api.vars.override_checkout_root = make_path(api, '/', 'b', 'work')
-  api.vars.override_gclient_cache = make_path(api, '/', 'b', 'cache')
-
   api.vars.setup()
-  api.core.checkout_bot_update()
+  checkout_root = make_path(api, '/', 'b', 'work')
+  gclient_cache = make_path(api, '/', 'b', 'cache')
+  got_revision = api.core.checkout_bot_update(checkout_root=checkout_root,
+                                              gclient_cache=gclient_cache)
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
 
-  api.build()
+  out_dir = api.vars.build_dir.join('out', api.vars.configuration)
+  api.build(checkout_root=checkout_root, out_dir=out_dir)
 
   # Required paths.
-  infrabots_dir = api.vars.skia_dir.join('infra', 'bots')
+  infrabots_dir = checkout_root.join('skia', 'infra', 'bots')
   isolate_dir = infrabots_dir.join('ct')
   isolate_path = isolate_dir.join(CT_SKPS_ISOLATE)
 
-  api.build.copy_build_products(isolate_dir)
+  api.build.copy_build_products(out_dir=out_dir, dst=isolate_dir)
   api.skia_swarming.setup(
       infrabots_dir.join('tools', 'luci-go'),
       swarming_rev='')
@@ -131,8 +132,8 @@ def RunSteps(api):
   # referenced also needs to change. As of 8/8/17 the other places are:
   # * infra/bots/ct/ct_skps.isolate
   # * infra/bots/ct/run_ct_skps.py
-  skps_dir = api.vars.checkout_root.join('skps', skps_chromium_build,
-                                         ct_page_type, str(ct_num_slaves))
+  skps_dir = checkout_root.join('skps', skps_chromium_build,
+                                ct_page_type, str(ct_num_slaves))
   version_file = skps_dir.join(SKPS_VERSION_FILE)
   if api.path.exists(version_file):  # pragma: nocover
     version_file_contents = api.file.read_text(
@@ -150,7 +151,7 @@ def RunSteps(api):
           'makedirs %s' % api.path.basename(skps_dir), skps_dir)
 
   # If a blacklist file exists then specify SKPs to be blacklisted.
-  blacklists_dir = api.vars.skia_dir.join('infra', 'bots', 'ct', 'blacklists')
+  blacklists_dir = infrabots_dir.join('ct', 'blacklists')
   blacklist_file = blacklists_dir.join(
       '%s_%s_%s.json' % (skia_tool, ct_page_type, skps_chromium_build))
   blacklist_skps = []
@@ -173,7 +174,7 @@ def RunSteps(api):
     extra_variables = {
         'SLAVE_NUM': str(slave_num),
         'TOOL_NAME': skia_tool,
-        'GIT_HASH': api.vars.got_revision,
+        'GIT_HASH': got_revision,
         'CONFIGURATION': api.vars.configuration,
         'BUILDER': buildername,
         'CHROMIUM_BUILD': skps_chromium_build,
