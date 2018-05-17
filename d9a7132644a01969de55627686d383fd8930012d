@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5bca8c51_781f4cd1",
+        "filename": "src/effects/SkMatrixConvolutionImageFilter.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-17T15:00:56Z",
+      "side": 1,
+      "message": "nit: SkIVector?",
+      "range": {
+        "startLine": 172,
+        "startChar": 50,
+        "endLine": 172,
+        "endChar": 58
+      },
+      "revId": "d9a7132644a01969de55627686d383fd8930012d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a6bfc77_b7b7a984",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-17T15:00:56Z",
+      "side": 1,
+      "message": "indent 8 from Sk... above?",
+      "range": {
+        "startLine": 196,
+        "startChar": 22,
+        "endLine": 198,
+        "endChar": 59
+      },
+      "revId": "d9a7132644a01969de55627686d383fd8930012d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
