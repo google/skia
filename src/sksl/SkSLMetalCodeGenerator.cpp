@@ -17,6 +17,14 @@
 
 namespace SkSL {
 
+void MetalCodeGenerator::setupIntrinsics(){
+#define SPECIAL(x) std::make_tuple(kSpecial_IntrinsicKind, k ## x ## _SpecialIntrinsic, \
+                                k ## x ## _SpecialIntrinsic, k ## x ## _SpecialIntrinsic, \
+                                k ## x ## _SpecialIntrinsic)
+
+    fIntrinsicMap[String("texture")]     = SPECIAL(Texture);
+}
+
 void MetalCodeGenerator::write(const char* s) {
     if (!s[0]) {
         return;
@@ -132,7 +140,31 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
     }
 }
 
+void MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
+    auto intrinsic = fIntrinsicMap.find(c.fFunction.fName);
+    ASSERT(intrinsic != fIntrinsicMap.end());
+    int32_t intrinsicId = 0;
+    if (c.fArguments.size() > 0) {
+        if (std::get<0>(intrinsic->second) == kSpecial_IntrinsicKind) {
+            intrinsicId = std::get<1>(intrinsic->second);
+        }
+    } else {
+        intrinsicId = std::get<1>(intrinsic->second);
+    }
+    switch (std::get<0>(intrinsic->second)) {
+        case kSpecial_IntrinsicKind:
+            return this->writeSpecialIntrinsic(c, (SpecialIntrinsic) intrinsicId);
+        default:
+            ABORT("unsupported intrinsic kind");
+    }
+}
+
 void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
+    const auto& entry = fIntrinsicMap.find(c.fFunction.fName);
+    if (entry != fIntrinsicMap.end()) {
+        this->writeIntrinsicCall(c);
+        return;
+    }
     if (c.fFunction.fBuiltin && "atan" == c.fFunction.fName && 2 == c.fArguments.size()) {
         this->write("atan2");
     } else {
@@ -164,6 +196,18 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         this->writeExpression(arg, kSequence_Precedence);
     }
     this->write(")");
+}
+
+void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIntrinsic kind) {
+    switch (kind) {
+        case kTexture_SpecialIntrinsic:
+            this->write("_colorMap.sample($colorSampler, ");
+            this->writeExpression(*c.fArguments[1], kSequence_Precedence);
+            this->write(".xy)"); // FIXME - dimension checking
+            break;
+        default:
+            ABORT("unsupported special intrinsic kind");
+    }
 }
 
 void MetalCodeGenerator::writeConstructor(const Constructor& c) {
@@ -201,6 +245,9 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
     switch (ref.fVariable.fModifiers.fLayout.fBuiltin) {
         case SK_FRAGCOLOR_BUILTIN:
             this->write("sk_FragColor");
+            break;
+        case SK_FRAGCOORD_BUILTIN:
+            this->writeFragCoord();
             break;
         default:
             if (Variable::kGlobal_Storage == ref.fVariable.fStorage) {
@@ -390,6 +437,7 @@ void MetalCodeGenerator::writeSetting(const Setting& s) {
 }
 
 void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
+    bool needColorSampler = false;
     const char* separator = "";
     if ("main" == f.fDeclaration.fName) {
         switch (fProgram.fKind) {
@@ -406,6 +454,21 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
         if (-1 != fUniformBuffer) {
             this->write(", constant Uniforms& _uniforms [[buffer(" +
                         to_string(fUniformBuffer) + ")]]");
+        }
+        for (const auto& e : fProgram) {
+            if (ProgramElement::kVar_Kind == e.fKind) {
+                VarDeclarations& decls = (VarDeclarations&) e;
+                if (!decls.fVars.size()) {
+                    continue;
+                }
+                for(const auto& stmt: decls.fVars){
+                    VarDeclaration& var = (VarDeclaration&) *stmt;
+                    if(var.fVar->fType == *fContext.fSampler2D_Type){
+                        needColorSampler = true;
+                        this->write(", texture2d<half> _colorMap [[texture(TextureIndexColor)]]");
+                    } // FIXME may require textureindexcolor field, hardcoded for now
+                }
+            }
         }
         separator = ", ";
     } else {
@@ -454,6 +517,10 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     ASSERT(!fProgram.fSettings.fFragColorIsInOut);
 
     if ("main" == f.fDeclaration.fName) {
+        if (needColorSampler) {
+            this->writeLine("    constexpr sampler "
+                "$colorSampler(mip_filter::linear, mag_filter::linear, min_filter::linear);");
+        }
         switch (fProgram.fKind) {
             case Program::kFragment_Kind:
                 this->writeLine("    half4 sk_FragColor;");
@@ -546,6 +613,9 @@ void MetalCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool 
                                            Modifiers::kUniform_Flag)) {
             ASSERT(global);
             continue;
+        }
+        if (var.fVar->fType == *fContext.fSampler2D_Type){
+            continue; // FIXME - temporarily ignoring global sampler2Ds
         }
         if (wroteType) {
             this->write(", ");
