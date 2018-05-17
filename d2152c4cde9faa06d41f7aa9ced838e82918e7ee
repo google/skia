@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "737fd2aa_9587407f",
+        "filename": "src/ports/SkFontConfigInterface.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 6605
+      },
+      "writtenOn": "2018-05-17T17:28:40Z",
+      "side": 1,
+      "message": "Does this need to be initialized to nullptr?",
+      "revId": "d2152c4cde9faa06d41f7aa9ced838e82918e7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
