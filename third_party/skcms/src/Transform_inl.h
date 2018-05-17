@@ -25,6 +25,10 @@
 //    NS(id): a macro that returns unique identifiers
 //    ATTR:   an __attribute__ to apply to functions
 
+#if defined(__ARM_FEATURE_FP16_VECTOR_ARITHMETIC)
+    // TODO(mtklein): this build supports FP16 compute
+#endif
+
 #if defined(__ARM_NEON)
     #include <arm_neon.h>
 #elif defined(__SSE__)
