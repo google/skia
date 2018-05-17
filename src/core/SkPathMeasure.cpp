@@ -11,6 +11,7 @@
 #include "SkGeometry.h"
 #include "SkPath.h"
 #include "SkTSearch.h"
+#include "SkPathOpsConic.h"
 
 #define kMaxTValue  0x3FFFFFFF
 
