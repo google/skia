@@ -448,6 +448,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			}
 			d["device_type"] = deviceInfo[0]
 			d["device_os"] = deviceInfo[1]
+			d["id"] = "build439-m1--device5"
 		} else if strings.Contains(parts["os"], "iOS") {
 			device, ok := map[string]string{
 				"iPadMini4": "iPad5,1",
