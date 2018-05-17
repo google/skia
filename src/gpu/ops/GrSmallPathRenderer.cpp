@@ -17,6 +17,7 @@
 #include "SkAutoMalloc.h"
 #include "SkAutoPixmapStorage.h"
 #include "SkDistanceFieldGen.h"
+#include "SkPointPriv.h"
 #include "SkRasterClip.h"
 #include "effects/GrBitmapTextGeoProc.h"
 #include "effects/GrDistanceFieldGeoProc.h"
@@ -743,8 +744,7 @@ private:
         // vertex positions
         // TODO make the vertex attributes a struct
         if (fUsesDistanceField && !ctm.hasPerspective()) {
-            GrQuad quad;
-            quad.setFromMappedRect(translatedBounds, ctm);
+            GrQuad quad(translatedBounds, ctm);
             intptr_t positionOffset = offset;
             SkPoint* position = (SkPoint*)positionOffset;
             *position = quad.point(0);

@@ -512,8 +512,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
                 return;
             }
             // Does the rect bound the RT?
-            GrQuad quad;
-            quad.setFromMappedRect(rtRect, invM);
+            GrQuad quad(rtRect, invM);
             if (rect_contains_inclusive(rect, quad.point(0)) &&
                 rect_contains_inclusive(rect, quad.point(1)) &&
                 rect_contains_inclusive(rect, quad.point(2)) &&

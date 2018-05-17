@@ -8,9 +8,9 @@
 #ifndef GrQuad_DEFINED
 #define GrQuad_DEFINED
 
-#include "SkPoint.h"
 #include "SkMatrix.h"
-#include "SkMatrixPriv.h"
+#include "SkNx.h"
+#include "SkPoint.h"
 
 /**
  * GrQuad is a collection of 4 points which can be used to represent an arbitrary quadrilateral. The
@@ -18,50 +18,39 @@
  */
 class GrQuad {
 public:
-    GrQuad() {}
+    GrQuad() = default;
 
-    GrQuad(const GrQuad& that) {
-        *this = that;
+    GrQuad(const GrQuad& that) = default;
+
+    explicit GrQuad(const SkRect& rect)
+            : fX{rect.fLeft, rect.fLeft, rect.fRight, rect.fRight}
+            , fY{rect.fTop, rect.fBottom, rect.fTop, rect.fBottom} {}
+
+    /** Sets the quad to the rect as transformed by the matrix. */
+    GrQuad(const SkRect&, const SkMatrix&);
+
+    explicit GrQuad(const SkPoint pts[4])
+            : fX{pts[0].fX, pts[1].fX, pts[2].fX, pts[3].fX}
+            , fY{pts[0].fY, pts[1].fY, pts[2].fY, pts[3].fY} {}
+
+    GrQuad& operator=(const GrQuad& that) = default;
+
+    SkPoint point(int i) const { return {fX[i], fY[i]}; }
+
+    SkRect bounds() const {
+        auto x = this->x4f(), y = this->y4f();
+        return {x.min(), y.min(), x.max(), y.max()};
     }
 
-    explicit GrQuad(const SkRect& rect) {
-        this->set(rect);
-    }
+    float x(int i) const { return fX[i]; }
+    float y(int i) const { return fY[i]; }
 
-    void set(const SkRect& rect) {
-        SkPointPriv::SetRectTriStrip(fPoints, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom,
-                sizeof(SkPoint));
-    }
-
-    void map(const SkMatrix& matrix) {
-        matrix.mapPoints(fPoints, kNumPoints);
-    }
-
-    void setFromMappedRect(const SkRect& rect, const SkMatrix& matrix) {
-        SkMatrixPriv::SetMappedRectTriStrip(matrix, rect, fPoints);
-    }
-
-    const GrQuad& operator=(const GrQuad& that) {
-        memcpy(fPoints, that.fPoints, sizeof(SkPoint) * kNumPoints);
-        return *this;
-    }
-
-    SkPoint* points() {
-        return fPoints;
-    }
-
-    const SkPoint* points() const {
-        return fPoints;
-    }
-
-    const SkPoint& point(int i) const {
-        SkASSERT(i < kNumPoints);
-        return fPoints[i];
-    }
+    Sk4f x4f() const { return Sk4f::Load(fX); }
+    Sk4f y4f() const { return Sk4f::Load(fY); }
 
 private:
-    static const int kNumPoints = 4;
-    SkPoint fPoints[kNumPoints];
+    float fX[4];
+    float fY[4];
 };
 
 #endif
