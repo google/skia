@@ -404,12 +404,11 @@ SkIRect SkMatrixConvolutionImageFilter::onFilterNodeBounds(const SkIRect& src, c
                                                            MapDirection direction) const {
     SkIRect dst = src;
     int w = fKernelSize.width() - 1, h = fKernelSize.height() - 1;
-    dst.fRight = Sk32_sat_add(dst.fRight, w);
-    dst.fBottom = Sk32_sat_add(dst.fBottom, h);
+
     if (kReverse_MapDirection == direction) {
-        dst.offset(-fKernelOffset);
+        dst.adjust(-fKernelOffset.fX, -fKernelOffset.fY, w - fKernelOffset.fX, h - fKernelOffset.fY);
     } else {
-        dst.offset(fKernelOffset - SkIPoint::Make(w, h));
+        dst.adjust(fKernelOffset.fX - w, fKernelOffset.fY - h, fKernelOffset.fX, fKernelOffset.fY);
     }
     return dst;
 }
