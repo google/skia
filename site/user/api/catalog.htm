@@ -3101,6 +3101,13 @@
     "name": "SkRect::setBoundsCheck",
         "stdout": "count: 0 rect: 0, 0, 0, 0 success: true\\nadded:   3, 4 count: 1 rect: 3, 4, 3, 4 success: true\\nadded:   1, 2 count: 2 rect: 1, 2, 3, 4 success: true\\nadded:   5, 6 count: 3 rect: 1, 2, 5, 6 success: true\\nadded: nan, 8 count: 4 rect: 0, 0, 0, 0 success: false\\n"
     },
+        "SkRect_setBoundsNoCheck": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPoint points[] = {{3, 4}, {1, 2}, {SK_ScalarInfinity, 6}, {SK_ScalarNaN, 8}};\n    for (int count = 0; count <= (int) SK_ARRAY_COUNT(points); ++count) {\n        SkRect rect;\n        rect.setBoundsNoCheck(points, count);\n        if (count > 0) {\n            SkDebugf(\"added: %3g, %g \", points[count - 1].fX,  points[count - 1].fY);\n        } else {\n            SkDebugf(\"%14s\", \" \");\n        }\n        SkDebugf(\"count: %d rect: %g, %g, %g, %g\\n\", count,\n                rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);\n    }\n}",
+    "hash": "be10cb1411dbcf7e38e0198e8a9b8b0e",
+    "file": "SkRect_Reference",
+    "name": "SkRect::setBoundsNoCheck",
+        "stdout": "count: 0 rect: 0, 0, 0, 0\\nadded:   3, 4 count: 1 rect: 3, 4, 3, 4\\nadded:   1, 2 count: 2 rect: 1, 2, 3, 4\\nadded: inf, 6 count: 3 rect: nan, nan, nan, nan\\nadded: nan, 8 count: 4 rect: nan, nan, nan, nan\\n"
+    },
         "SkRect_setEmpty": {
     "code": "void draw(SkCanvas* canvas) {\n    SkRect rect = {3, 4, 1, 2};\n    for (int i = 0; i < 2; ++i) {\n    SkDebugf(\"rect: {%g, %g, %g, %g} is %s\" \"empty\\n\", rect.fLeft, rect.fTop,\n             rect.fRight, rect.fBottom, rect.isEmpty() ? \"\" : \"not \");\n    rect.setEmpty();\n    }\n}",
     "hash": "2cf67542d45ef5d7a7efb673b651ff54",
@@ -5720,10 +5727,10 @@
     "name": "SkMatrix::mapRect_2"
 },
     "SkMatrix_mapRect_3": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkRect rect{110, 50, 180, 100};\n    SkMatrix matrix;\n    matrix.setRotate(50, 28, 28);\n    SkRect mapped = matrix.mapRect(rect);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawRect(rect, paint);\n    canvas->drawRect(mapped, paint);\n    canvas->concat(matrix);\n    canvas->drawRect(rect, paint);\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "3b7b1f884437ab450f986234e4aec27f",
     "file": "SkMatrix_Reference",
     "name": "SkMatrix::mapRect_3"
 },
@@ -7166,14 +7173,6 @@
     "hash": "4fb2da4a3d9b14ca4ac24eefb0f5126a",
     "file": "SkColor_Reference",
     "name": "SkRGBToHSV"
-},
-    "SkRect_setBoundsNoCheck": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkRect_Reference",
-    "name": "SkRect::setBoundsNoCheck"
 },
     "SkSurface_MakeFromBackendTexture": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n         canvas->drawString(\"GPU only!\", 20, 40, paint);\n         return;\n    }\n    sk_sp<SkSurface> gpuSurface = SkSurface::MakeFromBackendTexture(context,\n            backEndTexture, kTopLeft_GrSurfaceOrigin, 0,\n            kRGBA_8888_SkColorType, nullptr, nullptr);\n    auto surfaceCanvas = gpuSurface->getCanvas();\n    surfaceCanvas->drawString(\"GPU rocks!\", 20, 40, paint);\n    sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());\n    canvas->drawImage(image, 0, 0);\n}",

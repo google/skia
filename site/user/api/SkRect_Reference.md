@@ -1637,8 +1637,8 @@ added: nan, 8 count: 4 rect: 0, 0, 0, 0 success: false
 void <a href='#SkRect_setBoundsNoCheck'>setBoundsNoCheck</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts[], int count)
 </pre>
 
-Sets to bounds of <a href='SkPoint_Reference#Point'>Point</a> array with <a href='#SkRect_setBoundsNoCheck_count'>count</a> entries. If any point contains a non-finite value
-then the rect will also be non-finite.
+Sets to bounds of <a href='SkPoint_Reference#Point'>Point</a> <a href='#SkRect_setBoundsNoCheck_pts'>pts</a> array with <a href='#SkRect_setBoundsNoCheck_count'>count</a> entries. If any <a href='SkPoint_Reference#Point'>Point</a> in <a href='#SkRect_setBoundsNoCheck_pts'>pts</a>
+contains infinity or NaN, all <a href='#Rect'>Rect</a> dimensions are set to NaN.
 
 ### Parameters
 
@@ -1652,7 +1652,7 @@ then the rect will also be non-finite.
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="be10cb1411dbcf7e38e0198e8a9b8b0e"></fiddle-embed></div>
 
 ### See Also
 
