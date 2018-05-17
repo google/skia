@@ -25,9 +25,7 @@ SkColorTable::~SkColorTable() {
 
 void SkColorTable::Skip(SkReadBuffer& buffer) {
     const int count = buffer.getArrayCount();
-    if (count < 0 || count > 256) {
-        buffer.validate(false);
-    } else {
+    if (buffer.validate(count >= 0 && count <= 256)) {
         buffer.skip(count * sizeof(SkPMColor));
     }
 }

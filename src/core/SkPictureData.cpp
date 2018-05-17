@@ -427,7 +427,7 @@ void SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
         case SK_PICT_READER_TAG: {
             // Preflight check that we can initialize all data from the buffer
             // before allocating it.
-            if (!buffer.validate(size <= buffer.available())) {
+            if (!buffer.validateCanReadN<uint8_t>(size)) {
                 return;
             }
             auto data(SkData::MakeUninitialized(size));

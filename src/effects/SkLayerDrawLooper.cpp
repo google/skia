@@ -272,6 +272,9 @@ sk_sp<SkFlattenable> SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer) {
         buffer.readPoint(&info.fOffset);
         info.fPostTranslate = buffer.readBool();
         buffer.readPaint(builder.addLayerOnTop(info));
+        if (!buffer.isValid()) {
+            return nullptr;
+        }
     }
     return builder.detach();
 }

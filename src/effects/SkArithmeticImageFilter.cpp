@@ -86,6 +86,9 @@ sk_sp<SkFlattenable> ArithmeticImageFilterImpl::CreateProc(SkReadBuffer& buffer)
         k[i] = buffer.readScalar();
     }
     const bool enforcePMColor = buffer.readBool();
+    if (!buffer.isValid()) {
+        return nullptr;
+    }
     return SkArithmeticImageFilter::Make(k[0], k[1], k[2], k[3], enforcePMColor, common.getInput(0),
                                          common.getInput(1), &common.cropRect());
 }

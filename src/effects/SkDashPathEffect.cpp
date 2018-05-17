@@ -369,7 +369,7 @@ sk_sp<SkFlattenable> SkDashImpl::CreateProc(SkReadBuffer& buffer) {
     uint32_t count = buffer.getArrayCount();
 
     // Don't allocate gigantic buffers if there's not data for them.
-    if (count > buffer.size() / sizeof(SkScalar)) {
+    if (!buffer.validateCanReadN<SkScalar>(count)) {
         return nullptr;
     }
 

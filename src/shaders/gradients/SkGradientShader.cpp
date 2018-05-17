@@ -17,7 +17,6 @@
 #include "SkMallocPixelRef.h"
 #include "SkRadialGradient.h"
 #include "SkReadBuffer.h"
-#include "SkSafeMath.h"
 #include "SkSweepGradient.h"
 #include "SkTwoPointConicalGradient.h"
 #include "SkWriteBuffer.h"
@@ -74,10 +73,7 @@ void SkGradientShaderBase::Descriptor::flatten(SkWriteBuffer& buffer) const {
 
 template <int N, typename T, bool MEM_MOVE>
 static bool validate_array(SkReadBuffer& buffer, size_t count, SkSTArray<N, T, MEM_MOVE>* array) {
-    SkSafeMath safe;
-    const auto expectedSize = safe.mul(sizeof(T), count);
-
-    if (!buffer.validate(safe && expectedSize <= buffer.available())) {
+    if (!buffer.validateCanReadN<T>(count)) {
         return false;
     }
 

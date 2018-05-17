@@ -219,6 +219,17 @@ public:
         }
         return !fError;
     }
+
+    /**
+     * Helper function to do a preflight check before a large allocation or read.
+     * Returns true if there is enough bytes in the buffer to read n elements of T.
+     * If not, the buffer will be "invalid" and false will be returned.
+     */
+    template <typename T>
+    bool validateCanReadN(size_t n) {
+        return this->validate(n <= (fReader.available() / sizeof(T)));
+    }
+
     bool isValid() const { return !fError; }
     bool validateIndex(int index, int count) {
         return this->validate(index >= 0 && index < count);
