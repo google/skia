@@ -2,6 +2,75 @@
   "comments": [
     {
       "key": {
+        "uuid": "76592bbb_acfe2333",
+        "filename": "infra/bots/recipe_modules/build/api.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-17T19:04:44Z",
+      "side": 1,
+      "message": "nits:\nA. It\u0027s confusing to call this build_dir because api.core.build_dir also exists and has a completely different meaning. (Same comment applies to all build_dir local variables in this CL.)\nB. This dir is always checkout_root.join(\u0027skia\u0027) except for Flutter where it\u0027s checkout_root.join(\u0027src\u0027). I think it might be simpler to pass in checkout_root here and let compile_fn determine which subdir it wants to look at. This would remove some extra logic from callers. (This would also make it easier to resolve the TODO you added.)",
+      "range": {
+        "startLine": 39,
+        "startChar": 21,
+        "endLine": 39,
+        "endChar": 30
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28cf889f_4e404c3c",
+        "filename": "infra/bots/recipe_modules/build/api.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-17T19:04:44Z",
+      "side": 1,
+      "message": "nit: I think it might make things simpler to have compile_fn compute and return out_dir rather than passing it in. I don\u0027t think callers really care where the binaries are built, since they will always need to call copy_build_products to put them where they want them to be.\n\nYou might even consider merging copy_build_products into this function. Caller can either pass a path as dst to copy there or None to ignore the build products (only one caller would want this).",
+      "range": {
+        "startLine": 39,
+        "startChar": 32,
+        "endLine": 39,
+        "endChar": 39
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "997ae39c_0ca1041f",
+        "filename": "infra/bots/recipe_modules/build/api.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-17T19:04:44Z",
+      "side": 1,
+      "message": "nit: An alternative to passing in build_dir here would be to move the SKQP-related code to the compile recipe. \u0027infra/cts/whitelist_devices.json\u0027 is not a build product, so it\u0027s a bit strange for it to be handled here.",
+      "range": {
+        "startLine": 43,
+        "startChar": 32,
+        "endLine": 43,
+        "endChar": 41
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cbcc2f2a_c9f7e99f",
         "filename": "infra/bots/recipe_modules/build/examples/full.expected/Build-Debian9-GCC-x86_64-Release-Flutter_Android.json",
         "patchSetId": 5
@@ -22,6 +91,30 @@
       "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0a50762_557d365a",
+        "filename": "infra/bots/recipe_modules/build/examples/full.expected/Build-Debian9-GCC-x86_64-Release-Flutter_Android.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-17T19:04:44Z",
+      "side": 1,
+      "message": "Make sure you run tryjobs. I\u0027ve had trouble with ninja using absolute paths, although probably I was doing something else wrong.",
+      "parentUuid": "cbcc2f2a_c9f7e99f",
+      "range": {
+        "startLine": 33,
+        "startChar": 7,
+        "endLine": 33,
+        "endChar": 61
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -48,6 +141,156 @@
     },
     {
       "key": {
+        "uuid": "48a80400_4c1a1526",
+        "filename": "infra/bots/recipe_modules/build/examples/full.expected/Build-Debian9-GCC-x86_64-Release-Flutter_Android.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-17T19:04:44Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "dd4ca955_1b5bdb4f",
+      "range": {
+        "startLine": 48,
+        "startChar": 6,
+        "endLine": 48,
+        "endChar": 63
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5fb39197_a3b81b2e",
+        "filename": "infra/bots/recipe_modules/build/examples/full.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-17T19:04:44Z",
+      "side": 1,
+      "message": "Can we remove it in a followup CL?",
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a7fc558_149ca65f",
+        "filename": "infra/bots/recipe_modules/core/api.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-17T19:04:44Z",
+      "side": 1,
+      "message": "nit: ensure_directory does this",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 45
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7571e11b_c48c7a74",
+        "filename": "infra/bots/recipe_modules/core/api.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-17T19:04:44Z",
+      "side": 1,
+      "message": "nit: \"checkout_root\"",
+      "range": {
+        "startLine": 55,
+        "startChar": 45,
+        "endLine": 55,
+        "endChar": 58
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01bcfd56_76089554",
+        "filename": "infra/bots/recipe_modules/core/api.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-17T19:04:44Z",
+      "side": 1,
+      "message": "nit: This might be more refactoring than what you want to do in this CL, but...\n\nIt seems like this logic should be in the recipe rather than in this module. I.e. pass in need_chromium_checkout, need_flutter_checkout, gclient_extra_env.\n\nIf you do the same for \"\u0027Android\u0027 in self.m.vars.extra_tokens\" and \"\u0027ParentRevision\u0027 in self.m.vars.extra_tokens\", this module will be independent of buildername.",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 0
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b8ffe43_34944420",
+        "filename": "infra/bots/recipe_modules/flavor/api.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-17T19:04:44Z",
+      "side": 1,
+      "message": "nit: Set self.skia_dir in setup and use throughout the flavor module rather than \"self.m.path[\u0027start_dir\u0027].join(\u0027skia\u0027...\"\n\nShould we pass in skia_dir to setup?",
+      "range": {
+        "startLine": 142,
+        "startChar": 4,
+        "endLine": 142,
+        "endChar": 52
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a154cf30_d0af57d6",
+        "filename": "infra/bots/recipe_modules/flavor/default_flavor.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-17T19:04:44Z",
+      "side": 1,
+      "message": "Now that we have separate swarming_out_dirs for build, test, perf, it would be nice to simplify some of these paths. E.g.:\nbin_dir\u003dself.m.vars.build_dir,\ndm_dir\u003dself.m.vars.swarming_out_dir,\nperf_data_dir\u003dself.m.vars.swarming_out_dir,\n\nObviously we need to make such a change very carefully to ensure Build tasks match up with Test/Perf tasks which match up with Upload tasks.",
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ed2fea01_8241de8a",
         "filename": "infra/bots/recipe_modules/flavor/examples/full.expected/Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SwiftShader.json",
         "patchSetId": 5
@@ -64,6 +307,122 @@
         "startChar": 26,
         "endLine": 155,
         "endChar": 69
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb3ebc83_5ffb3d5b",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.expected/Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SwiftShader.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-17T19:04:44Z",
+      "side": 1,
+      "message": "The tryjob disagrees.",
+      "parentUuid": "ed2fea01_8241de8a",
+      "range": {
+        "startLine": 155,
+        "startChar": 26,
+        "endLine": 155,
+        "endChar": 69
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c5df6d7_70abc23a",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-17T19:04:44Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 22,
+        "startChar": 21,
+        "endLine": 22,
+        "endChar": 29
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df1fbdd0_a6b038dc",
+        "filename": "infra/bots/recipes/ct_skps.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-17T19:04:44Z",
+      "side": 1,
+      "message": "Remove -- you\u0027re joining with infrabots_dir rather than skia_dir.",
+      "range": {
+        "startLine": 156,
+        "startChar": 38,
+        "endLine": 156,
+        "endChar": 53
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01f56581_8ff58d7f",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 837,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-17T19:04:44Z",
+      "side": 1,
+      "message": "Should this be host_dm_dir? (Expectations will change, but I think that\u0027s ok.)",
+      "range": {
+        "startLine": 837,
+        "startChar": 37,
+        "endLine": 837,
+        "endChar": 71
+      },
+      "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a737b643_2d54dba5",
+        "filename": "infra/bots/recipes/upload_calmbench_results.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-17T19:04:44Z",
+      "side": 1,
+      "message": "Should this be api.flavor.host_dirs.perf_data_dir?",
+      "range": {
+        "startLine": 30,
+        "startChar": 8,
+        "endLine": 30,
+        "endChar": 42
       },
       "revId": "67b702abc44059dcaa4796e9f309fca2a73e6a98",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
