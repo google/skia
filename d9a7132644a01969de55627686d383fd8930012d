@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8612f30c_837407a8",
+        "filename": "src/effects/SkMatrixConvolutionImageFilter.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-17T15:18:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5bca8c51_781f4cd1",
+      "range": {
+        "startLine": 172,
+        "startChar": 50,
+        "endLine": 172,
+        "endChar": 58
+      },
+      "revId": "d9a7132644a01969de55627686d383fd8930012d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0a6bfc77_b7b7a984",
         "filename": "tests/ImageFilterTest.cpp",
         "patchSetId": 17
@@ -36,6 +60,30 @@
       "writtenOn": "2018-05-17T15:00:56Z",
       "side": 1,
       "message": "indent 8 from Sk... above?",
+      "range": {
+        "startLine": 196,
+        "startChar": 22,
+        "endLine": 198,
+        "endChar": 59
+      },
+      "revId": "d9a7132644a01969de55627686d383fd8930012d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40233b7c_b2a81018",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-17T15:18:11Z",
+      "side": 1,
+      "message": "In some places we indent to the \u0027(\u0027. When clang-format is used it does the indent-4 formatting. Since I\u0027m not going to reflow the parameters to get them to line up with the \u0027(\u0027, this is my compromise solution.",
+      "parentUuid": "0a6bfc77_b7b7a984",
       "range": {
         "startLine": 196,
         "startChar": 22,
