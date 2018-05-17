@@ -879,24 +879,42 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlag
 
     const SkMatrix& ctm = fMCRec->fMatrix;  // this->getTotalMatrix()
 
-    if (imageFilter) {
-        clipBounds = imageFilter->filterBounds(clipBounds, ctm,
-                                               SkImageFilter::kReverse_MapDirection);
-        if (bounds && !imageFilter->canComputeFastBounds()) {
-            bounds = nullptr;
-        }
+    if (imageFilter && bounds && !imageFilter->canComputeFastBounds()) {
+        // If the image filter DAG affects transparent black then we will need to render
+        // out to the clip bounds
+        bounds = nullptr;
     }
-    SkIRect ir;
+
+    SkIRect inputSaveLayerBounds;
     if (bounds) {
         SkRect r;
         ctm.mapRect(&r, *bounds);
-        r.roundOut(&ir);
+        r.roundOut(&inputSaveLayerBounds);
     } else {    // no user bounds, so just use the clip
-        ir = clipBounds;
+        inputSaveLayerBounds = clipBounds;
+    }
+
+    if (imageFilter) {
+        // expand the clip bounds by the image filter DAG to include extra content that might
+        // be required by the image filters.
+        clipBounds = imageFilter->filterBounds(clipBounds, ctm,
+                                               SkImageFilter::kReverse_MapDirection,
+                                               &inputSaveLayerBounds);
+    }
+
+    SkIRect clippedSaveLayerBounds;
+    if (bounds) {
+        // For better or for worse, user bounds currently act as a hard clip on the layer's
+        // extent (i.e., they implement the CSS filter-effects 'filter region' feature).
+        clippedSaveLayerBounds = inputSaveLayerBounds;
+    } else {
+        // If there are no user bounds, we don't want to artificially restrict the resulting
+        // layer bounds, so allow the expanded clip bounds free reign.
+        clippedSaveLayerBounds = clipBounds;
     }
 
     // early exit if the layer's bounds are clipped out
-    if (!ir.intersect(clipBounds)) {
+    if (!clippedSaveLayerBounds.intersect(clipBounds)) {
         if (BoundsAffectsClip(saveLayerFlags)) {
             fMCRec->fTopLayer->fDevice->clipRegion(SkRegion(), SkClipOp::kIntersect); // empty
             fMCRec->fRasterClip.setEmpty();
@@ -904,17 +922,18 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlag
         }
         return false;
     }
-    SkASSERT(!ir.isEmpty());
+    SkASSERT(!clippedSaveLayerBounds.isEmpty());
 
     if (BoundsAffectsClip(saveLayerFlags)) {
         // Simplify the current clips since they will be applied properly during restore()
-        fMCRec->fRasterClip.setRect(ir);
-        fDeviceClipBounds = qr_clip_bounds(ir);
+        fMCRec->fRasterClip.setRect(clippedSaveLayerBounds);
+        fDeviceClipBounds = qr_clip_bounds(clippedSaveLayerBounds);
     }
 
     if (intersection) {
-        *intersection = ir;
+        *intersection = clippedSaveLayerBounds;
     }
+
     return true;
 }
 
