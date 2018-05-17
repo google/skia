@@ -605,18 +605,6 @@ static void assert_usable_as_destination(const skcms_ICCProfile* profile) {
 #endif
 }
 
-static float max_roundtrip_error(const skcms_TransferFunction* inv_tf, const skcms_Curve* curve) {
-    int N = curve->table_entries ? (int)curve->table_entries : 256;
-    const float x_scale = 1.0f / (N - 1);
-    float err = 0;
-    for (int i = 0; i < N; i++) {
-        float x = i * x_scale,
-              y = skcms_eval_curve(curve, x);
-        err = fmaxf_(err, fabsf_(x - skcms_TransferFunction_eval(inv_tf, y)));
-    }
-    return err;
-}
-
 bool skcms_MakeUsableAsDestination(skcms_ICCProfile* profile) {
     skcms_Matrix3x3 fromXYZD50;
     if (!profile->has_trc || !profile->has_toXYZD50
@@ -664,7 +652,7 @@ bool skcms_MakeUsableAsDestinationWithSingleCurve(skcms_ICCProfile* profile) {
 
         float err = 0;
         for (int j = 0; j < 3; ++j) {
-            err = fmaxf_(err, max_roundtrip_error(&inv, &profile->trc[j]));
+            err = fmaxf_(err, skcms_MaxRoundtripError(&profile->trc[j], &inv));
         }
         if (min_max_error > err) {
             min_max_error = err;

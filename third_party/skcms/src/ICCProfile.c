@@ -863,6 +863,21 @@ const skcms_ICCProfile* skcms_XYZD50_profile() {
     return &XYZD50_profile;
 }
 
+const skcms_TransferFunction* skcms_sRGB_TransferFunction() {
+    return &skcms_sRGB_profile()->trc[0].parametric;
+}
+
+const skcms_TransferFunction* skcms_sRGB_Inverse_TransferFunction() {
+    static const skcms_TransferFunction sRGB_inv =
+        { (float)(1/2.4), 1.137119f, 0, 12.92f, 0.0031308f, -0.055f, 0 };
+    return &sRGB_inv;
+}
+
+const skcms_TransferFunction* skcms_Identity_TransferFunction() {
+    static const skcms_TransferFunction identity = {1,1,0,0,0,0,0};
+    return &identity;
+}
+
 const uint8_t skcms_252_random_bytes[] = {
     8, 179, 128, 204, 253, 38, 134, 184, 68, 102, 32, 138, 99, 39, 169, 215,
     119, 26, 3, 223, 95, 239, 52, 132, 114, 74, 81, 234, 97, 116, 244, 205, 30,
@@ -926,6 +941,17 @@ bool skcms_ApproximatelyEqualProfiles(const skcms_ICCProfile* A, const skcms_ICC
         }
     }
     return true;
+}
+
+bool skcms_TRCs_AreApproximateInverse(const skcms_ICCProfile* profile,
+                                      const skcms_TransferFunction* inv_tf) {
+    if (!profile || !profile->has_trc) {
+        return false;
+    }
+
+    return skcms_AreApproximateInverses(&profile->trc[0], inv_tf) &&
+           skcms_AreApproximateInverses(&profile->trc[1], inv_tf) &&
+           skcms_AreApproximateInverses(&profile->trc[2], inv_tf);
 }
 
 static bool is_zero_to_one(float x) {

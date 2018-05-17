@@ -43,3 +43,19 @@ float skcms_eval_curve(const skcms_Curve* curve, float x) {
     }
     return l + (h-l)*t;
 }
+
+float skcms_MaxRoundtripError(const skcms_Curve* curve, const skcms_TransferFunction* inv_tf) {
+    uint32_t N = curve->table_entries > 256 ? curve->table_entries : 256;
+    const float dx = 1.0f / (N - 1);
+    float err = 0;
+    for (uint32_t i = 0; i < N; i++) {
+        float x = i * dx,
+              y = skcms_eval_curve(curve, x);
+        err = fmaxf_(err, fabsf_(x - skcms_TransferFunction_eval(inv_tf, y)));
+    }
+    return err;
+}
+
+bool skcms_AreApproximateInverses(const skcms_Curve* curve, const skcms_TransferFunction* inv_tf) {
+    return skcms_MaxRoundtripError(curve, inv_tf) < (1/512.0f);
+}
