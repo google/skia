@@ -21,8 +21,10 @@ public:
                                      const SkRect& dst,
                                      sk_sp<SkImageFilter> input);
 
-    SkIRect onFilterBounds(const SkIRect& src, const SkMatrix&, MapDirection) const override;
-    SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&, MapDirection) const override;
+    SkIRect onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
+                           const SkIRect* inputRect, MapDirection) const override;
+    SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
+                               const SkIRect* inputRect, MapDirection) const override;
     SkRect computeFastBounds(const SkRect& src) const override;
 
     void toString(SkString* str) const override;
