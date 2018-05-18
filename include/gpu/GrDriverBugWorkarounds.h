@@ -43,7 +43,7 @@ class SK_API GrDriverBugWorkarounds {
 
   ~GrDriverBugWorkarounds();
 
-#define GPU_OP(type, name) bool name = false;
+#define GPU_OP(type, name) bool name = true;
   GPU_DRIVER_BUG_WORKAROUNDS(GPU_OP)
 #undef GPU_OP
 };
