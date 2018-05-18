@@ -27,6 +27,23 @@ DEPS = [
 ]
 
 
+def upload_perf_results(buildername):
+  if 'Release' not in buildername:
+    return False
+  skip_upload_bots = [
+    'ASAN',
+    'Coverage',
+    'MSAN',
+    'TSAN',
+    'UBSAN',
+    'Valgrind',
+  ]
+  for s in skip_upload_bots:
+    if s in buildername:
+      return False
+  return True
+
+
 def nanobench_flags(api, bot):
   args = ['--pre_log']
 
@@ -240,14 +257,15 @@ def nanobench_flags(api, bot):
 
 def perf_steps(api):
   """Run Skia benchmarks."""
-  if api.vars.upload_perf_results:
+  b = api.properties['buildername']
+  if upload_perf_results(b):
     api.flavor.create_clean_device_dir(
         api.flavor.device_dirs.perf_data_dir)
 
   # Run nanobench.
   properties = [
     '--properties',
-    'gitHash',      api.vars.got_revision,
+    'gitHash', api.properties['revision'],
   ]
   if api.vars.is_trybot:
     properties.extend([
@@ -297,12 +315,12 @@ def perf_steps(api):
       '~shapes_rrect_inner_rrect_50_500x500', # skia:7551
     ])
 
-  if api.vars.upload_perf_results:
+  if upload_perf_results(b):
     now = api.time.utcnow()
     ts = int(calendar.timegm(now.utctimetuple()))
     json_path = api.flavor.device_path_join(
         api.flavor.device_dirs.perf_data_dir,
-        'nanobench_%s_%d.json' % (api.vars.got_revision, ts))
+        'nanobench_%s_%d.json' % (api.properties['revision'], ts))
     args.extend(['--outResultsFile', json_path])
     args.extend(properties)
 
@@ -320,12 +338,13 @@ def perf_steps(api):
           abort_on_failure=False)
 
   # Copy results to swarming out dir.
-  if api.vars.upload_perf_results:
-    api.file.ensure_directory('makedirs perf_dir',
-                              api.path.dirname(api.vars.perf_data_dir))
+  if upload_perf_results(b):
+    api.file.ensure_directory(
+        'makedirs perf_dir',
+        api.path.dirname(api.flavor.host_dirs.perf_data_dir))
     api.flavor.copy_directory_contents_to_host(
         api.flavor.device_dirs.perf_data_dir,
-        api.vars.perf_data_dir)
+        api.flavor.host_dirs.perf_data_dir)
 
 
 def RunSteps(api):

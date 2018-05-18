@@ -21,16 +21,16 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
     super(GNChromebookFlavorUtils, self).__init__(m)
     self._user_ip = ''
 
+    self.chromeos_homedir = '/home/chronos/user/'
     self.device_dirs = default_flavor.DeviceDirs(
-      dm_dir        = self.m.vars.chromeos_homedir + 'dm_out',
-      perf_data_dir = self.m.vars.chromeos_homedir + 'perf',
-      resource_dir  = self.m.vars.chromeos_homedir + 'resources',
-      images_dir    = self.m.vars.chromeos_homedir + 'images',
-      skp_dir       = self.m.vars.chromeos_homedir + 'skps',
-      svg_dir       = self.m.vars.chromeos_homedir + 'svgs',
-      tmp_dir       = self.m.vars.chromeos_homedir)
-
-    self._bin_dir = self.m.vars.chromeos_homedir + 'bin'
+      bin_dir       = self.chromeos_homedir + 'bin',
+      dm_dir        = self.chromeos_homedir + 'dm_out',
+      perf_data_dir = self.chromeos_homedir + 'perf',
+      resource_dir  = self.chromeos_homedir + 'resources',
+      images_dir    = self.chromeos_homedir + 'images',
+      skp_dir       = self.chromeos_homedir + 'skps',
+      svg_dir       = self.chromeos_homedir + 'svgs',
+      tmp_dir       = self.chromeos_homedir)
 
   @property
   def user_ip(self):
@@ -62,10 +62,10 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
               self.device_dirs.resource_dir)
 
     # Ensure the home dir is marked executable
-    self._ssh('remount %s as exec' % self.m.vars.chromeos_homedir,
+    self._ssh('remount %s as exec' % self.chromeos_homedir,
               'sudo', 'mount', '-i', '-o', 'remount,exec', '/home/chronos')
 
-    self.create_clean_device_dir(self._bin_dir)
+    self.create_clean_device_dir(self.device_dirs.bin_dir)
 
   def create_clean_device_dir(self, path):
     # use -f to silently return if path doesn't exist
@@ -121,13 +121,13 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
     name = cmd[0]
 
     if name == 'dm':
-      self.create_clean_host_dir(self.m.vars.dm_dir)
+      self.create_clean_host_dir(self.host_dirs.dm_dir)
     if name == 'nanobench':
-      self.create_clean_host_dir(self.m.vars.perf_data_dir)
+      self.create_clean_host_dir(self.host_dirs.perf_data_dir)
 
-    app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
+    app = self.m.vars.skia_out.join(cmd[0])
 
-    cmd[0] = '%s/%s' % (self._bin_dir, cmd[0])
+    cmd[0] = '%s/%s' % (self.device_dirs.bin_dir, cmd[0])
     self.copy_file_to_device(app, cmd[0])
 
     self._ssh('chmod %s' % name, 'chmod', '+x', cmd[0])

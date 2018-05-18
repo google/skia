@@ -16,7 +16,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
                infra_step=infra_step)
 
   def step(self, name, cmd):
-    app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
+    app = self.device_dirs.bin_dir.join(cmd[0])
     cmd = [app] + cmd[1:]
     env = self.m.context.env
     path = []
@@ -43,7 +43,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
         ld_library_path.append(slave_dir.join('linux_vulkan_sdk', 'lib'))
 
     if 'SwiftShader' in extra_tokens:
-      ld_library_path.append(self.m.vars.skia_out.join('swiftshader_out'))
+      ld_library_path.append(
+          self.m.vars.build_dir.join('out', 'swiftshader_out'))
 
     if 'MSAN' in extra_tokens:
       # Find the MSAN-built libc++.
@@ -60,7 +61,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     elif self.m.vars.is_linux:
       cmd = ['catchsegv'] + cmd
     elif 'ProcDump' in extra_tokens:
-      self.m.file.ensure_directory('makedirs dumps', self.m.vars.dumps_dir)
+      dumps_dir = self.m.path.join(self.m.vars.swarming_out_dir, 'dumps')
+      self.m.file.ensure_directory('makedirs dumps', dumps_dir)
       procdump = str(self.m.vars.slave_dir.join('procdump_win',
                                                 'procdump64.exe'))
       # Full docs for ProcDump here:
@@ -70,8 +72,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       # -e 1 tells procdump to dump once
       # -x <dump dir> <exe> <args> launches exe and writes dumps to the
       #   specified dir
-      cmd = [procdump, '-accepteula', '-mp', '-e', '1',
-             '-x', self.m.vars.dumps_dir] + cmd
+      cmd = [procdump, '-accepteula', '-mp', '-e', '1', '-x', dumps_dir] + cmd
 
     if 'ASAN' in extra_tokens or 'UBSAN' in extra_tokens:
       if 'Mac' in self.m.vars.builder_cfg.get('os', ''):
@@ -104,7 +105,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       # Convert path objects or placeholders into strings such that they can
       # be passed to symbolize_stack_trace.py
       args = [slave_dir] + [str(x) for x in cmd]
-      with self.m.context(cwd=self.m.vars.skia_dir, env=env):
+      with self.m.context(cwd=self.m.path['start_dir'].join('skia'), env=env):
         self._py('symbolized %s' % name,
                  self.module.resource('symbolize_stack_trace.py'),
                  args=args,

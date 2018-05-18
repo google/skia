@@ -28,7 +28,8 @@ def RunSteps(api):
   api.flavor.install(skps=True, svgs=True)
   api.file.ensure_directory('makedirs perf', api.vars.swarming_out_dir)
 
-  with api.context(cwd=api.vars.skia_dir):
+  skia_dir = api.path['start_dir'].join('skia')
+  with api.context(cwd=skia_dir):
     extra_arg = '--svgs %s --skps %s' % (api.flavor.device_dirs.svg_dir,
                                          api.flavor.device_dirs.skp_dir)
 
@@ -41,7 +42,7 @@ def RunSteps(api):
 
     command = [
         'python',
-        api.vars.skia_dir.join('tools', 'calmbench', 'ab.py'),
+        skia_dir.join('tools', 'calmbench', 'ab.py'),
         api.vars.swarming_out_dir,
         'modified', 'master',
         api.vars.build_dir.join("out", api.vars.configuration, 'nanobench'),
@@ -53,7 +54,7 @@ def RunSteps(api):
         config,
         -1,         # threads; let ab.py decide the threads
         "false",    # noinit
-        "--githash", api.vars.got_revision,
+        "--githash", api.properties['revision'],
         "--concise"
     ]
 

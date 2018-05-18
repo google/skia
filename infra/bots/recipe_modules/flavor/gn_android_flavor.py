@@ -22,14 +22,17 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
       self.ADB_PUB_KEY = ('/home/chrome-bot/.android/'
                           'chrome_infrastructure_adbkey')
 
+    # Data should go in android_data_dir, which may be preserved across runs.
+    android_data_dir = '/sdcard/revenge_of_the_skiabot/'
     self.device_dirs = default_flavor.DeviceDirs(
-        dm_dir        = self.m.vars.android_data_dir + 'dm_out',
-        perf_data_dir = self.m.vars.android_data_dir + 'perf',
-        resource_dir  = self.m.vars.android_data_dir + 'resources',
-        images_dir    = self.m.vars.android_data_dir + 'images',
-        skp_dir       = self.m.vars.android_data_dir + 'skps',
-        svg_dir       = self.m.vars.android_data_dir + 'svgs',
-        tmp_dir       = self.m.vars.android_data_dir)
+        bin_dir       = '/data/local/tmp/',
+        dm_dir        = android_data_dir + 'dm_out',
+        perf_data_dir = android_data_dir + 'perf',
+        resource_dir  = android_data_dir + 'resources',
+        images_dir    = android_data_dir + 'images',
+        skp_dir       = android_data_dir + 'skps',
+        svg_dir       = android_data_dir + 'svgs',
+        tmp_dir       = android_data_dir)
 
     # A list of devices we can't root.  If rooting fails and a device is not
     # on the list, we fail the task to avoid perf inconsistencies.
@@ -71,7 +74,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     }
 
   def _run(self, title, *cmd, **kwargs):
-    with self.m.context(cwd=self.m.vars.skia_dir):
+    with self.m.context(cwd=self.m.path['start_dir'].join('skia')):
       return self.m.run(self.m.step, title, cmd=list(cmd), **kwargs)
 
   def _adb(self, title, *cmd, **kwargs):
@@ -99,7 +102,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
                  timeout=180, abort_on_failure=False,
                  fail_build_on_failure=False)
 
-    with self.m.context(cwd=self.m.vars.skia_dir):
+    with self.m.context(cwd=self.m.path['start_dir'].join('skia')):
       with self.m.env({'ADB_VENDOR_KEYS': self.ADB_PUB_KEY}):
         return self.m.run.with_retry(self.m.step, title, attempts,
                                      cmd=[self.ADB_BINARY]+list(cmd),
@@ -427,7 +430,7 @@ wait_for_device()
                 line = line.replace(addr, addr + ' ' + sym.strip())
             print line
           """ % self.ADB_BINARY,
-          args=[self.m.vars.skia_out.join(self.m.vars.configuration)],
+          args=[self.m.vars.skia_out],
           infra_step=True,
           timeout=300,
           abort_on_failure=False)
@@ -453,17 +456,17 @@ wait_for_device()
       self._scale_for_nanobench()
     else:
       self._scale_for_dm()
-    app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
+    app = self.m.vars.skia_out.join(cmd[0])
     self._adb('push %s' % cmd[0],
-              'push', app, self.m.vars.android_bin_dir)
+              'push', app, self.device_dirs.bin_dir)
 
     sh = '%s.sh' % cmd[0]
     self.m.run.writefile(self.m.vars.tmp_dir.join(sh),
-        'set -x; %s%s; echo $? >%src' %
-        (self.m.vars.android_bin_dir, subprocess.list2cmdline(map(str, cmd)),
-            self.m.vars.android_bin_dir))
+        'set -x; %s%s; echo $? >%src' % (
+            self.device_dirs.bin_dir, subprocess.list2cmdline(map(str, cmd)),
+            self.device_dirs.bin_dir))
     self._adb('push %s' % sh,
-              'push', self.m.vars.tmp_dir.join(sh), self.m.vars.android_bin_dir)
+              'push', self.m.vars.tmp_dir.join(sh), self.device_dirs.bin_dir)
 
     self._adb('clear log', 'logcat', '-c')
     self.m.python.inline('%s' % cmd[0], """
@@ -479,7 +482,7 @@ wait_for_device()
       print "Couldn't read the return code.  Probably killed for OOM."
       sys.exit(1)
     """ % (self.ADB_BINARY, self.ADB_BINARY),
-      args=[self.m.vars.android_bin_dir, sh])
+      args=[self.device_dirs.bin_dir, sh])
 
   def copy_file_to_device(self, host, device):
     self._adb('push %s %s' % (host, device), 'push', host, device)

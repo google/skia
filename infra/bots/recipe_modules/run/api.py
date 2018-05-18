@@ -51,14 +51,14 @@ class SkiaStepApi(recipe_api.RecipeApi):
     """Wrapper around api.file.rmtree."""
     self.m.file.rmtree('rmtree %s' % self.m.path.basename(path), path)
 
-  def asset_version(self, asset_name, test_data=None):
+  def asset_version(self, asset_name, skia_dir, test_data=None):
     """Return the contents of VERSION for the given asset as a string.
 
     If test_data is not specified, reads the property
     'test_<asset_name>_version' or if not present, uses
     TEST_DEFAULT_ASSET_VERSION."""
-    version_file = self.m.vars.infrabots_dir.join(
-        'assets', asset_name, 'VERSION')
+    version_file = skia_dir.join(
+        'infra', 'bots', 'assets', asset_name, 'VERSION')
     if not test_data:
       test_data = self.m.properties.get(
           'test_%s_version' % asset_name, TEST_DEFAULT_ASSET_VERSION)

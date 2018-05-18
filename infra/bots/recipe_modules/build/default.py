@@ -6,12 +6,12 @@
 from . import util
 
 
-def build_command_buffer(api):
+def build_command_buffer(api, chrome_dir, skia_dir, out):
   api.run(api.python, 'build command_buffer',
-      script=api.vars.skia_dir.join('tools', 'build_command_buffer.py'),
+      script=skia_dir.join('tools', 'build_command_buffer.py'),
       args=[
-        '--chrome-dir', api.vars.checkout_root,
-        '--output-dir', api.vars.skia_out.join(api.vars.configuration),
+        '--chrome-dir', chrome_dir,
+        '--output-dir', out,
         '--no-sync', '--no-hooks', '--make-output-dir'])
 
 
@@ -40,7 +40,8 @@ def compile_swiftshader(api, swiftshader_root, cc, cxx, out):
             cmd=['ninja', '-C', out, 'libEGL.so', 'libGLESv2.so'])
 
 
-def compile_fn(api, out_dir):
+def compile_fn(api, checkout_root, out_dir):
+  skia_dir      = checkout_root.join('skia')
   compiler      = api.vars.builder_cfg.get('compiler',      '')
   configuration = api.vars.builder_cfg.get('configuration', '')
   extra_tokens  = api.vars.extra_tokens
@@ -69,7 +70,7 @@ def compile_fn(api, out_dir):
     extra_ldflags.append('-B%s/bin' % clang_linux)
     extra_ldflags.append('-fuse-ld=lld')
     extra_cflags.append('-DDUMMY_clang_linux_version=%s' %
-                        api.run.asset_version('clang_linux'))
+                        api.run.asset_version('clang_linux', skia_dir))
     if os == 'Ubuntu14':
       extra_ldflags.extend(['-static-libstdc++', '-static-libgcc'])
 
@@ -89,7 +90,7 @@ def compile_fn(api, out_dir):
           '-Wno-format-truncation',
           '-Wno-uninitialized',
           ('-DDUMMY_mips64el_toolchain_linux_version=%s' %
-           api.run.asset_version('mips64el_toolchain_linux'))
+           api.run.asset_version('mips64el_toolchain_linux', skia_dir))
       ])
       if configuration == 'Release':
         # This warning is only triggered when fuzz_canvas is inlined.
@@ -106,7 +107,7 @@ def compile_fn(api, out_dir):
     cxx  = emscripten_sdk + '/emscripten/incoming/em++'
     extra_cflags.append('-Wno-unknown-warning-option')
     extra_cflags.append('-DDUMMY_emscripten_sdk_version=%s' %
-                        api.run.asset_version('emscripten_sdk'))
+                        api.run.asset_version('emscripten_sdk', skia_dir))
   if 'Coverage' in extra_tokens:
     # See https://clang.llvm.org/docs/SourceBasedCodeCoverage.html for
     # more info on using llvm to gather coverage information.
@@ -139,8 +140,7 @@ def compile_fn(api, out_dir):
   if 'ANGLE' in extra_tokens:
     args['skia_use_angle'] = 'true'
   if 'SwiftShader' in extra_tokens:
-    swiftshader_root = api.vars.skia_dir.join('third_party', 'externals',
-                                              'swiftshader')
+    swiftshader_root = skia_dir.join('third_party', 'externals', 'swiftshader')
     swiftshader_out = out_dir.join('swiftshader_out')
     compile_swiftshader(api, swiftshader_root, cc, cxx, swiftshader_out)
     args['skia_use_egl'] = 'true'
@@ -154,7 +154,8 @@ def compile_fn(api, out_dir):
         '-L%s' % swiftshader_out,
     ])
   if 'CommandBuffer' in extra_tokens:
-    api.run.run_once(build_command_buffer, api)
+    chrome_dir = checkout_root
+    api.run.run_once(build_command_buffer, api, chrome_dir, skia_dir, out_dir)
   if 'MSAN' in extra_tokens:
     args['skia_enable_gpu']     = 'false'
     args['skia_use_fontconfig'] = 'false'
@@ -215,7 +216,7 @@ def compile_fn(api, out_dir):
   if compiler == 'Clang' and 'Win' in os:
     args['clang_win'] = '"%s"' % api.vars.slave_dir.join('clang_win')
     extra_cflags.append('-DDUMMY_clang_win_version=%s' %
-                        api.run.asset_version('clang_win'))
+                        api.run.asset_version('clang_win', skia_dir))
   if target_arch == 'wasm':
     args.update({
       'skia_use_freetype':   'false',
@@ -253,18 +254,18 @@ def compile_fn(api, out_dir):
 
   gn    = 'gn.exe'    if 'Win' in os else 'gn'
   ninja = 'ninja.exe' if 'Win' in os else 'ninja'
-  gn = api.vars.skia_dir.join('bin', gn)
+  gn = skia_dir.join('bin', gn)
 
-  with api.context(cwd=api.vars.skia_dir):
+  with api.context(cwd=skia_dir):
     api.run(api.python,
             'fetch-gn',
-            script=api.vars.skia_dir.join('bin', 'fetch-gn'),
+            script=skia_dir.join('bin', 'fetch-gn'),
             infra_step=True)
     if 'CheckGeneratedFiles' in extra_tokens:
-      env['PATH'] = '%s:%%(PATH)s' % api.vars.skia_dir.join('bin')
+      env['PATH'] = '%s:%%(PATH)s' % skia_dir.join('bin')
       api.run(api.python,
               'fetch-clang-format',
-              script=api.vars.skia_dir.join('bin', 'fetch-clang-format'),
+              script=skia_dir.join('bin', 'fetch-clang-format'),
               infra_step=True)
     if target_arch == 'wasm':
       fastcomp = emscripten_sdk + '/clang/fastcomp/build_incoming_64/bin'

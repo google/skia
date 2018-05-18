@@ -20,14 +20,15 @@ DEPS = [
 
 def RunSteps(api):
   api.vars.setup()
-  api.core.checkout_bot_update()
+  checkout_root = api.core.default_checkout_root
+  api.core.checkout_bot_update(checkout_root=checkout_root)
   api.infra.update_go_deps()
 
   # Run the infra tests.
   repo_name = api.properties['repository'].split('/')[-1]
   if repo_name.endswith('.git'):
     repo_name = repo_name[:-len('.git')]
-  with api.context(cwd=api.vars.checkout_root.join(repo_name),
+  with api.context(cwd=checkout_root.join(repo_name),
                    env=api.infra.go_env):
     api.step('infra_tests', cmd=['make', '-C', 'infra/bots', 'test'])
 

@@ -5,6 +5,7 @@
 
 DEPS = [
   'build',
+  'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
   'run',
@@ -15,10 +16,24 @@ DEPS = [
 def RunSteps(api):
   api.vars.setup()
 
-  api.build()
-  api.build.copy_build_products(
-      api.vars.swarming_out_dir.join(
-          'out', api.vars.configuration))
+  # Hackery to avoid changing expectations.
+  checkout_root = api.vars.cache_dir.join('work')
+  out_dir = checkout_root.join(
+      'skia', 'out', api.vars.builder_name, api.vars.configuration)
+  if ('CheckGeneratedFiles' in api.vars.builder_name or
+      '-CT_' in api.vars.builder_name):
+    out_dir = api.vars.build_dir.join('out', api.vars.configuration)
+  elif 'NoDEPS' in api.vars.builder_name:
+    checkout_root = api.path['start_dir']
+    out_dir = checkout_root.join(
+        'skia', 'out', api.vars.builder_name, api.vars.configuration)
+  elif 'Flutter' in api.vars.builder_name:
+    checkout_root = checkout_root.join('flutter')
+    out_dir = checkout_root.join('src', 'out', 'android_release')
+
+  api.build(checkout_root=checkout_root, out_dir=out_dir)
+  dst = api.vars.swarming_out_dir.join('out', api.vars.configuration)
+  api.build.copy_build_products(out_dir=out_dir, dst=dst)
   api.run.check_failure()
 
 
