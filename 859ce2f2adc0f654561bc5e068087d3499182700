@@ -46,6 +46,30 @@
       "revId": "859ce2f2adc0f654561bc5e068087d3499182700",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32991046_e921ca1a",
+        "filename": ".clang-format",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-18T15:04:13Z",
+      "side": 1,
+      "message": "Hm, I think for now we just have to live with manual fix-ups of sk_sp (unless someone wants to dig into the clang-format code and submit a fix). Otherwise, I think making everything touched one-per line will add a lot of reformatting noise.",
+      "parentUuid": "0c846067_bcb9ff48",
+      "range": {
+        "startLine": 30,
+        "startChar": 19,
+        "endLine": 30,
+        "endChar": 24
+      },
+      "revId": "859ce2f2adc0f654561bc5e068087d3499182700",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
