@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cc0d302d_6b128184",
+        "filename": "gn/gn_to_cmake.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-18T19:31:59Z",
+      "side": 1,
+      "message": "I think you want to add empty.cpp to sources[\u0027cxx\u0027] when there are no other sources at all for whatever target types are affected here to make everything else work out nicely.",
+      "revId": "b8112e240b3d8eadd3c8d5c3880dc41eaa9eb856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2333c43c_5f122f04",
+        "filename": "gn/gn_to_cmake.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 629,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-18T19:31:59Z",
+      "side": 1,
+      "message": "posixpath.join(project.build_path, \u0027empty.cpp\u0027)\n\nin general, never trust CMake with a relative path.",
+      "range": {
+        "startLine": 629,
+        "startChar": 24,
+        "endLine": 629,
+        "endChar": 35
+      },
+      "revId": "b8112e240b3d8eadd3c8d5c3880dc41eaa9eb856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
