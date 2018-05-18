@@ -369,41 +369,25 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
-  ('Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-'
-   'Android_Vulkan'),
   'Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-All-Android',
-  'Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-Android',
-  'Perf-Android-Clang-Nexus7-CPU-Tegra3-arm-Release-All-Android',
-  'Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-All-Android',
-  'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android',
   'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android_Vulkan',
   'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-Android_Skpbench',
   'Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All',
   'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug-All',
   'Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN',
-  'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All',
   'Perf-Debian9-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All-Vulkan',
-  'Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan',
   'Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All',
-  'Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All',
-  'Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All',
   ('Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-'
     'CommandBuffer'),
   ('Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-'
    'MoltenVK_Vulkan'),
   ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
     'Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
-  ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
-    'Valgrind_SK_CPU_LIMIT_SSE41'),
-  'Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE',
   'Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-Vulkan',
   'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE',
   'Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-ANGLE',
   'Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan',
-  'Perf-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All-ANGLE',
-  'Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All',
-  'Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All',
   'Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All',
 ]
 
@@ -467,93 +451,4 @@ def GenTests(api):
                                      'svg', 'VERSION'),
         api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
     )
-  )
-
-  builder = ('Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-All-' +
-             'Android')
-  yield (
-    api.test('failed_push') +
-    api.properties(buildername=builder,
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
-    api.path.exists(
-        api.path['start_dir'].join('skia'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'skimage', 'VERSION'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'svg', 'VERSION'),
-        api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
-    ) +
-    api.step_data('push [START_DIR]/skia/resources/* '+
-                  '/sdcard/revenge_of_the_skiabot/resources', retcode=1)
-  )
-
-  yield (
-    api.test('cpu_scale_failed_once') +
-    api.properties(buildername=builder,
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
-    api.path.exists(
-        api.path['start_dir'].join('skia'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'skimage', 'VERSION'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'svg', 'VERSION'),
-        api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
-    ) +
-    api.step_data('Scale CPU 0 to 0.600000', retcode=1)
-  )
-
-  yield (
-    api.test('cpu_scale_failed') +
-    api.properties(buildername=builder,
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
-    api.path.exists(
-        api.path['start_dir'].join('skia'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'skimage', 'VERSION'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'svg', 'VERSION'),
-        api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
-    ) +
-    api.step_data('get swarming bot id',
-                  stdout=api.raw_io.output('skia-rpi-022')) +
-    api.step_data('Scale CPU 0 to 0.600000', retcode=1)+
-    api.step_data('Scale CPU 0 to 0.600000 (attempt 2)', retcode=1)+
-    api.step_data('Scale CPU 0 to 0.600000 (attempt 3)', retcode=1)
-  )
-
-  builder = ('Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release'
-             '-All-Android')
-  yield (
-    api.test('cpu_scale_failed_golo') +
-    api.properties(buildername=builder,
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
-    api.path.exists(
-        api.path['start_dir'].join('skia'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'skimage', 'VERSION'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'svg', 'VERSION'),
-        api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
-    ) +
-    api.step_data('get swarming bot id',
-                  stdout=api.raw_io.output('build123-m2--device5')) +
-    api.step_data('Scale CPU 4 to 0.600000', retcode=1)+
-    api.step_data('Scale CPU 4 to 0.600000 (attempt 2)', retcode=1)+
-    api.step_data('Scale CPU 4 to 0.600000 (attempt 3)', retcode=1)
   )
