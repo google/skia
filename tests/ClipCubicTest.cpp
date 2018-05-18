@@ -211,3 +211,14 @@ DEF_TEST(test_fuzz_crbug_698714, reporter) {
     canvas->clipRect({0, 0, 65, 202});
     canvas->drawPath(path, paint);
 }
+
+DEF_TEST(cubic_scan_error_crbug_844457, reporter) {
+    auto surface(SkSurface::MakeRasterN32Premul(100, 100));
+
+    SkPath path;
+    path.moveTo(-30/64.0, -31/64.0);
+    path.cubicTo(-31/64.0, -31/64,-31/64.0, -31/64,-31/64.0, 100);
+    path.lineTo(100,100);
+
+    surface->getCanvas()->drawPath(path, SkPaint());
+}
