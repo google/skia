@@ -85,10 +85,12 @@ public:
 
 protected:
     typedef int Requirements;
+    typedef unsigned int TextureId;
     static constexpr Requirements kNo_Requirements      = 0;
     static constexpr Requirements kInputs_Requirement   = 1 << 0;
     static constexpr Requirements kOutputs_Requirement  = 1 << 1;
     static constexpr Requirements kUniforms_Requirement = 1 << 2;
+    static constexpr Requirements kGlobals_Requirement  = 1 << 3;
 
     enum IntrinsicKind {
         kSpecial_IntrinsicKind
@@ -99,6 +101,8 @@ protected:
     };
 
     void setupIntrinsics();
+
+    TextureId nextTextureId();
 
     void write(const char* s);
 
@@ -117,6 +121,8 @@ protected:
     void writeInputStruct();
 
     void writeOutputStruct();
+
+    void writeGlobalStruct();
 
     void writePrecisionModifier();
 
@@ -210,6 +216,10 @@ protected:
 
     typedef std::tuple<IntrinsicKind, int32_t, int32_t, int32_t, int32_t> Intrinsic;
     std::unordered_map<String, Intrinsic> fIntrinsicMap;
+    std::vector<const VarDeclaration*> fInitNonConstGlobalVars;
+    TextureId fCurrentTextureId = 0;
+    std::unordered_map<String, TextureId> fTextureMap;
+    bool fNeedsGlobalStructInit = false;
     const char* fLineEnding;
     const Context& fContext;
     StringStream fHeader;
