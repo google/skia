@@ -15,9 +15,6 @@ CONFIG_RELEASE = 'Release'
 
 class SkiaVarsApi(recipe_api.RecipeApi):
 
-  override_checkout_root = None
-  override_gclient_cache = None
-
   def setup(self):
     """Prepare the variables."""
     # Setup
@@ -27,87 +24,19 @@ class SkiaVarsApi(recipe_api.RecipeApi):
 
     # Special input/output directories.
     self.build_dir = self.slave_dir.join('build')
-    self.test_dir = self.slave_dir.join('test')
-    self.perf_dir = self.slave_dir.join('perf')
 
-    self.checkout_root = self.slave_dir
     self.default_env = self.m.context.env
     self.default_env['CHROME_HEADLESS'] = '1'
     self.default_env['PATH'] = self.m.path.pathsep.join([
         self.default_env.get('PATH', '%(PATH)s'),
         str(self.m.bot_update._module.PACKAGE_REPO_ROOT),
     ])
-    self.gclient_env = {'DEPOT_TOOLS_UPDATE': '0'}
-    self.is_compile_bot = self.builder_name.startswith('Build-')
-
-    self.persistent_checkout = False
-    # Compile bots keep a persistent checkout.
-    if self.is_compile_bot and 'NoDEPS' not in self.builder_name:
-      self.persistent_checkout = True
-    if 'Housekeeper' in self.builder_name:
-      self.persistent_checkout = True
-    if '-CT_' in self.builder_name:
-      self.persistent_checkout = True
-    # We need the source code for the Coverage's Upload step to be in the
-    # same absolute location as when we compiled it so we can map the
-    # coverage data to actual line numbers. We ensure this by making sure
-    # we have a checkout on the Coverage's Upload step and that the Upload
-    # step runs on the same bots that Compile.
-    if 'Coverage' in self.builder_name and 'Upload' in self.builder_name:
-      self.persistent_checkout = True
-
     self.cache_dir = self.slave_dir.join('cache')
-    if self.persistent_checkout:
-      self.checkout_root = self.cache_dir.join('work')
-      self.gclient_cache = self.cache_dir.join('git')
-    if self.override_checkout_root:
-      self.checkout_root = self.override_checkout_root
-      self.gclient_cache = self.override_gclient_cache
-      # got_revision is filled in after checkout steps.
-      self.got_revision = None
-    else:
-      # If there's no persistent checkout, then we have to assume we got the
-      # correct revision of the files from isolate.
-      self.got_revision = self.m.properties['revision']
 
-    # Some bots also require a checkout of Flutter; in this case we use the
-    # checkout of Skia obtained through DEPS in src/third_party/skia.
-    self.need_flutter_checkout = 'Flutter' in self.builder_name
-
-    self.skia_dir = self.checkout_root.join('skia')
-    if self.need_flutter_checkout:
-      self.checkout_root = self.checkout_root.join('flutter')
-      self.skia_dir = self.checkout_root.join('src', 'third_party', 'skia')
-
-    if not self.persistent_checkout:
-      self.m.path['checkout'] = self.skia_dir
-
-    self.infrabots_dir = self.skia_dir.join('infra', 'bots')
-    self.resource_dir = self.skia_dir.join('resources')
-    self.images_dir = self.slave_dir.join('skimage')
-    self.skia_out = self.skia_dir.join('out', self.builder_name)
     self.swarming_out_dir = self.slave_dir.join(
         self.m.properties['swarm_out_dir'])
-    if 'ParentRevision' in self.builder_name:
-      # Tasks that depend on ParentRevision builds usually also depend on a
-      # second build task. Use a different path for build results so that the
-      # binaries end up in different directories in the isolate.
-      self.swarming_out_dir = self.swarming_out_dir.join('ParentRevision')
-    self.local_skp_dir = self.slave_dir.join('skp')
-    self.local_svg_dir = self.slave_dir.join('svg')
-    if not self.is_compile_bot:
-      self.skia_out = self.build_dir.join('out')
-    self.tmp_dir = self.m.path['start_dir'].join('tmp')
 
-    # Some bots also require a checkout of chromium.
-    self.need_chromium_checkout = False
-    if 'CommandBuffer' in self.builder_name:
-      self.need_chromium_checkout = True
-      self.gclient_env['GYP_CHROMIUM_NO_ACTION'] = '0'
-    if 'RecreateSKPs' in self.builder_name:
-      self.need_chromium_checkout = True
-      self.gclient_env['CPPFLAGS'] = (
-          '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1')
+    self.tmp_dir = self.m.path['start_dir'].join('tmp')
 
     self.builder_cfg = self.m.builder_name_schema.DictForBuilderName(
         self.builder_name)
@@ -120,6 +49,9 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     arch = (self.builder_cfg.get('arch') or self.builder_cfg.get('target_arch'))
     if ('Win' in self.builder_cfg.get('os', '') and arch == 'x86_64'):
       self.configuration += '_x64'
+
+    self.skia_out = self.build_dir.join('out', self.configuration)
+
     self.extra_tokens = []
     if len(self.builder_cfg.get('extra_config', '')) > 0:
       if self.builder_cfg['extra_config'].startswith('SK'):
@@ -138,26 +70,8 @@ class SkiaVarsApi(recipe_api.RecipeApi):
       self.issue = self.m.properties['patch_issue']
       self.patchset = self.m.properties['patch_set']
 
-    self.dm_dir = self.m.path.join(
-        self.swarming_out_dir, 'dm')
-    self.perf_data_dir = self.m.path.join(self.swarming_out_dir,
-        'perfdata', self.builder_name, 'data')
-    self.dumps_dir = self.m.path.join(
-        self.swarming_out_dir, 'dumps')
     self._swarming_bot_id = None
     self._swarming_task_id = None
-
-    # Data should go under in _data_dir, which may be preserved across runs.
-    self.android_data_dir = '/sdcard/revenge_of_the_skiabot/'
-    # Executables go under _bin_dir, which, well, allows executable files.
-    self.android_bin_dir  = '/data/local/tmp/'
-
-    if self.builder_cfg.get('os', '') == 'Chromecast':
-      # On the Chromecast, everything goes in the (~110M) /cache/skia
-      self.android_bin_dir  = '/cache/skia/'
-      self.android_data_dir = '/cache/skia/'
-
-    self.chromeos_homedir = '/home/chronos/user/'
 
     # Internal bot support.
     self.internal_hardware_label = (
@@ -167,44 +81,6 @@ class SkiaVarsApi(recipe_api.RecipeApi):
   @property
   def is_linux(self):
     return 'Ubuntu' in self.builder_name or 'Debian' in self.builder_name
-
-  @property
-  def upload_dm_results(self):
-    # TODO(borenet): Move this into the swarm_test recipe.
-    skip_upload_bots = [
-      'ASAN',
-      'Coverage',
-      'MSAN',
-      'TSAN',
-      'UBSAN',
-      'Valgrind',
-    ]
-    upload_dm_results = True
-    for s in skip_upload_bots:
-      if s in self.m.properties['buildername']:
-        upload_dm_results = False
-        break
-    return upload_dm_results
-
-  @property
-  def upload_perf_results(self):
-    # TODO(borenet): Move this into the swarm_perf recipe.
-    if 'Release' not in self.m.properties['buildername']:
-      return False
-    skip_upload_bots = [
-      'ASAN',
-      'Coverage',
-      'MSAN',
-      'TSAN',
-      'UBSAN',
-      'Valgrind',
-    ]
-    upload_perf_results = True
-    for s in skip_upload_bots:
-      if s in self.m.properties['buildername']:
-        upload_perf_results = False
-        break
-    return upload_perf_results
 
   @property
   def swarming_bot_id(self):

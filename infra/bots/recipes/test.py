@@ -24,6 +24,21 @@ DEPS = [
 ]
 
 
+def upload_dm_results(buildername):
+  skip_upload_bots = [
+    'ASAN',
+    'Coverage',
+    'MSAN',
+    'TSAN',
+    'UBSAN',
+    'Valgrind',
+  ]
+  for s in skip_upload_bots:
+    if s in buildername:
+      return False
+  return True
+
+
 def dm_flags(api, bot):
   args = []
   configs = []
@@ -828,10 +843,11 @@ def key_params(api):
 
 def test_steps(api):
   """Run the DM test."""
+  b = api.properties['buildername']
   use_hash_file = False
-  if api.vars.upload_dm_results:
-    host_dm_dir = str(api.vars.dm_dir)
-    api.flavor.create_clean_host_dir(api.vars.test_dir)
+  if upload_dm_results(b):
+    host_dm_dir = str(api.flavor.host_dirs.dm_dir)
+    api.flavor.create_clean_host_dir(api.path['start_dir'].join('test'))
     device_dm_dir = str(api.flavor.device_dirs.dm_dir)
     if host_dm_dir != device_dm_dir:
       api.flavor.create_clean_device_dir(device_dm_dir)
@@ -887,7 +903,7 @@ def test_steps(api):
 
   # Run DM.
   properties = [
-    'gitHash',              api.vars.got_revision,
+    'gitHash',              api.properties['revision'],
     'builder',              api.vars.builder_name,
     'buildbucket_build_id', api.properties.get('buildbucket_build_id', ''),
   ]
@@ -931,7 +947,7 @@ def test_steps(api):
 
   if use_hash_file:
     args.extend(['--uninterestingHashesFile', hashes_file])
-  if api.vars.upload_dm_results:
+  if upload_dm_results(b):
     args.extend(['--writePath', api.flavor.device_dirs.dm_dir])
 
   args.extend(dm_flags(api, api.vars.builder_name))
@@ -946,10 +962,10 @@ def test_steps(api):
 
   api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
 
-  if api.vars.upload_dm_results:
+  if upload_dm_results(b):
     # Copy images and JSON to host machine if needed.
     api.flavor.copy_directory_contents_to_host(
-        api.flavor.device_dirs.dm_dir, api.vars.dm_dir)
+        api.flavor.device_dirs.dm_dir, api.flavor.host_dirs.dm_dir)
 
 
 def RunSteps(api):

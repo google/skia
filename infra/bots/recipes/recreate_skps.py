@@ -36,11 +36,13 @@ TEST_BUILDERS = {
 def RunSteps(api):
   # Check out Chrome.
   api.vars.setup()
-  api.core.checkout_bot_update()
+  checkout_root = api.core.default_checkout_root
+  api.core.checkout_bot_update(checkout_root=checkout_root)
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
   api.flavor.setup()
 
-  src_dir = api.vars.checkout_root.join('src')
+  src_dir = checkout_root.join('src')
+  skia_dir = checkout_root.join('skia')
   out_dir = src_dir.join('out', 'Release')
 
   with api.context(cwd=src_dir):
@@ -62,7 +64,7 @@ def RunSteps(api):
   api.file.ensure_directory('makedirs skp_output', output_dir)
 
   # Capture the SKPs.
-  asset_dir = api.vars.infrabots_dir.join('assets', 'skp')
+  asset_dir = skia_dir.join('infra', 'bots', 'assets', 'skp')
   cmd = ['python', asset_dir.join('create.py'),
          '--chrome_src_path', src_dir,
          '--browser_executable', src_dir.join('out', 'Release', 'chrome'),
@@ -70,16 +72,16 @@ def RunSteps(api):
   # TODO(rmistry): Uncomment the below after skbug.com/6797 is fixed.
   # if 'Canary' not in api.properties['buildername']:
   #   cmd.append('--upload_to_partner_bucket')
-  with api.context(cwd=api.vars.skia_dir):
+  with api.context(cwd=skia_dir):
     api.run(api.step, 'Recreate SKPs', cmd=cmd)
 
   # Upload the SKPs.
   if 'Canary' not in api.properties['buildername']:
     api.infra.update_go_deps()
     cmd = ['python',
-           api.vars.skia_dir.join('infra', 'bots', 'upload_skps.py'),
+           skia_dir.join('infra', 'bots', 'upload_skps.py'),
            '--target_dir', output_dir]
-    with api.context(cwd=api.vars.skia_dir, env=api.infra.go_env):
+    with api.context(cwd=skia_dir, env=api.infra.go_env):
       api.run(api.step, 'Upload SKPs', cmd=cmd)
 
 
