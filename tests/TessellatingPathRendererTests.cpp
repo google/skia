@@ -472,6 +472,20 @@ static SkPath create_path_31() {
     return path;
 }
 
+// Reduction from skbug.com/7911 that causes a crash due to splitting a
+// zombie edge.
+static SkPath create_path_32() {
+    SkPath path;
+    path.moveTo(                   0, 1.0927740941146660348e+24);
+    path.lineTo(2.9333931225865729333e+32,             16476101);
+    path.lineTo(1.0927731573659435417e+24, 1.0927740941146660348e+24);
+    path.lineTo(1.0927740941146660348e+24, 3.7616281094287041715e-37);
+    path.lineTo(1.0927740941146660348e+24, 1.0927740941146660348e+24);
+    path.lineTo(1.3061803026169399536e-33, 1.0927740941146660348e+24);
+    path.lineTo(4.7195362919941370727e-16, -8.4247545146051822591e+32);
+    return path;
+}
+
 static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
 
     SkPoint pts[2] = { {0, 0}, {1, 1} };
@@ -563,5 +577,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_29());
     test_path(ctx, rtc.get(), create_path_30());
     test_path(ctx, rtc.get(), create_path_31(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, rtc.get(), create_path_32());
 }
 #endif
