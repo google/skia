@@ -1045,7 +1045,7 @@ describes an area: fLeft is less than fRight, and fTop is less than fBottom.
 
 #In Inset_Outset_Offset
 #Line # moves the sides independently relative to their original locations ##
-Adjusts IRect by adding dL to fLeft, dT to fTop, dR to fRight, and fB to fBottom.
+Adjusts IRect by adding dL to fLeft, dT to fTop, dR to fRight, and dB to fBottom.
 
 If dL is positive, narrows IRect on the left. If negative, widens it on the left.
 If dT is positive, shrinks IRect on the top. If negative, lengthens it on the top.
