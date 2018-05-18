@@ -159,24 +159,3 @@ SkIRect SkDropShadowImageFilter::onFilterNodeBounds(const SkIRect& src, const Sk
     return dst;
 }
 
-void SkDropShadowImageFilter::toString(SkString* str) const {
-    str->appendf("SkDropShadowImageFilter: (");
-
-    str->appendf("dX: %f ", fDx);
-    str->appendf("dY: %f ", fDy);
-    str->appendf("sigmaX: %f ", fSigmaX);
-    str->appendf("sigmaY: %f ", fSigmaY);
-
-    str->append("Color: ");
-    str->appendHex(fColor);
-
-    static const char* gModeStrings[] = {
-        "kDrawShadowAndForeground", "kDrawShadowOnly"
-    };
-
-    static_assert(kShadowModeCount == SK_ARRAY_COUNT(gModeStrings), "enum_mismatch");
-
-    str->appendf(" mode: %s", gModeStrings[fShadowMode]);
-
-    str->append(")");
-}
