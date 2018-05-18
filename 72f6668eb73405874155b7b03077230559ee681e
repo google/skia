@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22349f5f_25eb341b",
+        "filename": "infra/bots/recipe_modules/vars/examples/full.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-18T13:21:03Z",
+      "side": 0,
+      "message": "Just to check my understanding -- this should have been removed in the previous CL, right?",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 59
+      },
+      "revId": "72f6668eb73405874155b7b03077230559ee681e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
