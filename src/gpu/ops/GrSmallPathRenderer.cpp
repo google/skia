@@ -758,12 +758,7 @@ private:
             position = (SkPoint*)positionOffset;
             *position = quad.point(3);
         } else {
-            SkPointPriv::SetRectTriStrip(positions,
-                                         translatedBounds.left(),
-                                         translatedBounds.top(),
-                                         translatedBounds.right(),
-                                         translatedBounds.bottom(),
-                                         vertexStride);
+            SkPointPriv::SetRectTriStrip(positions, translatedBounds, vertexStride);
         }
 
         // colors

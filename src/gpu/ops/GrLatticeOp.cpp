@@ -239,8 +239,7 @@ private:
             static const Sk4f kFlipMuls(1.f, -1.f, 1.f, -1.f);
             while (patch.fIter->next(&srcR, &dstR)) {
                 auto vertices = reinterpret_cast<LatticeGP::Vertex*>(verts);
-                SkPointPriv::SetRectTriStrip(&vertices->fPosition, dstR.fLeft, dstR.fTop,
-                                             dstR.fRight, dstR.fBottom, vertexStride);
+                SkPointPriv::SetRectTriStrip(&vertices->fPosition, dstR, vertexStride);
                 Sk4f coords(SkIntToScalar(srcR.fLeft), SkIntToScalar(srcR.fTop),
                             SkIntToScalar(srcR.fRight), SkIntToScalar(srcR.fBottom));
                 Sk4f domain = coords + kDomainOffsets;
