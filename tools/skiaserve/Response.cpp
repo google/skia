@@ -15,7 +15,7 @@
 #include "SkData.h"
 #include "SkString.h"
 
-DEFINE_string(source, "https://debugger.skia.org", "Where to load the web UI from.");
+DEFINE_string(source, "https://debugger-assets.skia.org", "Where to load the web UI from.");
 
 static SkString generate_template(SkString source) {
     SkString debuggerTemplate;
@@ -24,18 +24,18 @@ static SkString generate_template(SkString source) {
         "<html>\n"
         "<head>\n"
         "    <title>SkDebugger</title>\n"
-        "    <meta charset=\"utf-8\" />\n"
-        "    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=egde,chrome=1\">\n"
-        "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
-        "    <script src=\"%s/res/js/core.js\" type=\"text/javascript\" charset=\"utf-8\"></script>\n"
-        "    <link href=\"%s/res/vul/elements.html\" rel=\"import\" />\n"
-        "    <link rel='shortcut icon' href='https://debugger.skia.org/res/img/favicon.ico' type='image/x-icon'/ >"
+        "    <meta charset='utf-8' />\n"
+        "    <meta http-equiv='X-UA-Compatible' content='IE=egde,chrome=1'>\n"
+        "    <meta name='viewport' content='width=device-width, initial-scale=1.0'>\n"
+        "    <script src='%s/res/js/core.js' type='text/javascript' charset='utf-8'></script>\n"
+        "    <link href='%s/res/vul/elements.html' rel='import' />\n"
+        "    <link rel='shortcut icon' href='%s/res/img/favicon.ico' type='image/x-icon'/ >"
         "</head>\n"
-        "<body class=\"fullbleed layout vertical\">\n"
+        "<body class='fullbleed layout vertical'>\n"
             "  <debugger-app-sk>This is the app."
             "  </debugger-app-sk>\n"
         "</body>\n"
-        "</html>", source.c_str(), source.c_str());
+        "</html>", source.c_str(), source.c_str(), source.c_str());
     return debuggerTemplate;
 }
 
