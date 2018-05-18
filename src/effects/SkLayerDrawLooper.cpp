@@ -279,62 +279,6 @@ sk_sp<SkFlattenable> SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer) {
     return builder.detach();
 }
 
-void SkLayerDrawLooper::toString(SkString* str) const {
-    str->appendf("SkLayerDrawLooper (%d): ", fCount);
-
-    Rec* rec = fRecs;
-    for (int i = 0; i < fCount; i++) {
-        str->appendf("%d: paintBits: (", i);
-        if (0 == rec->fInfo.fPaintBits) {
-            str->append("None");
-        } else if (kEntirePaint_Bits == rec->fInfo.fPaintBits) {
-            str->append("EntirePaint");
-        } else {
-            bool needSeparator = false;
-            SkAddFlagToString(str, SkToBool(kStyle_Bit & rec->fInfo.fPaintBits), "Style",
-                              &needSeparator);
-            SkAddFlagToString(str, SkToBool(kTextSkewX_Bit & rec->fInfo.fPaintBits), "TextSkewX",
-                              &needSeparator);
-            SkAddFlagToString(str, SkToBool(kPathEffect_Bit & rec->fInfo.fPaintBits), "PathEffect",
-                              &needSeparator);
-            SkAddFlagToString(str, SkToBool(kMaskFilter_Bit & rec->fInfo.fPaintBits), "MaskFilter",
-                              &needSeparator);
-            SkAddFlagToString(str, SkToBool(kShader_Bit & rec->fInfo.fPaintBits), "Shader",
-                              &needSeparator);
-            SkAddFlagToString(str, SkToBool(kColorFilter_Bit & rec->fInfo.fPaintBits), "ColorFilter",
-                              &needSeparator);
-            SkAddFlagToString(str, SkToBool(kXfermode_Bit & rec->fInfo.fPaintBits), "Xfermode",
-                              &needSeparator);
-        }
-        str->append(") ");
-
-        static const char* gModeStrings[(int)SkBlendMode::kLastMode+1] = {
-            "kClear", "kSrc", "kDst", "kSrcOver", "kDstOver", "kSrcIn", "kDstIn",
-            "kSrcOut", "kDstOut", "kSrcATop", "kDstATop", "kXor", "kPlus",
-            "kMultiply", "kScreen", "kOverlay", "kDarken", "kLighten", "kColorDodge",
-            "kColorBurn", "kHardLight", "kSoftLight", "kDifference", "kExclusion"
-        };
-
-        str->appendf("mode: %s ", gModeStrings[(int)rec->fInfo.fColorMode]);
-
-        str->append("offset: (");
-        str->appendScalar(rec->fInfo.fOffset.fX);
-        str->append(", ");
-        str->appendScalar(rec->fInfo.fOffset.fY);
-        str->append(") ");
-
-        str->append("postTranslate: ");
-        if (rec->fInfo.fPostTranslate) {
-            str->append("true ");
-        } else {
-            str->append("false ");
-        }
-
-        rec->fPaint.toString(str);
-        rec = rec->fNext;
-    }
-}
-
 SkLayerDrawLooper::Builder::Builder()
         : fRecs(nullptr),
           fTopRec(nullptr),

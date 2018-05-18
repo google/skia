@@ -479,18 +479,3 @@ bool SkMatrixConvolutionImageFilter::affectsTransparentBlack() const {
     // pixels it will affect in object-space.
     return kRepeat_TileMode != fTileMode;
 }
-
-void SkMatrixConvolutionImageFilter::toString(SkString* str) const {
-    str->appendf("SkMatrixConvolutionImageFilter: (");
-    str->appendf("size: (%d,%d) kernel: (", fKernelSize.width(), fKernelSize.height());
-    for (int y = 0; y < fKernelSize.height(); y++) {
-        for (int x = 0; x < fKernelSize.width(); x++) {
-            str->appendf("%f ", fKernel[y * fKernelSize.width() + x]);
-        }
-    }
-    str->appendf(")");
-    str->appendf("gain: %f bias: %f ", fGain, fBias);
-    str->appendf("offset: (%d, %d) ", fKernelOffset.fX, fKernelOffset.fY);
-    str->appendf("convolveAlpha: %s", fConvolveAlpha ? "true" : "false");
-    str->append(")");
-}

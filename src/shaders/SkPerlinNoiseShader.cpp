@@ -364,7 +364,6 @@ public:
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
 
-    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPerlinNoiseShaderImpl)
 
 protected:
@@ -1476,37 +1475,6 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
 }
 
 #endif
-
-void SkPerlinNoiseShaderImpl::toString(SkString* str) const {
-    str->append("SkPerlinNoiseShaderImpl: (");
-
-    str->append("type: ");
-    switch (fType) {
-        case kFractalNoise_Type:
-            str->append("\"fractal noise\"");
-            break;
-        case kTurbulence_Type:
-            str->append("\"turbulence\"");
-            break;
-        default:
-            str->append("\"unknown\"");
-            break;
-    }
-    str->append(" base frequency: (");
-    str->appendScalar(fBaseFrequencyX);
-    str->append(", ");
-    str->appendScalar(fBaseFrequencyY);
-    str->append(") number of octaves: ");
-    str->appendS32(fNumOctaves);
-    str->append(" seed: ");
-    str->appendScalar(fSeed);
-    str->append(" stitch tiles: ");
-    str->append(fStitchTiles ? "true " : "false ");
-
-    this->INHERITED::toString(str);
-
-    str->append(")");
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

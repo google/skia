@@ -44,7 +44,6 @@ public:
             GrContext*, const GrColorSpaceInfo&) const override;
 #endif
 
-    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkGaussianColorFilter)
 
 protected:
@@ -61,10 +60,6 @@ private:
 
 sk_sp<SkFlattenable> SkGaussianColorFilter::CreateProc(SkReadBuffer&) {
     return Make();
-}
-
-void SkGaussianColorFilter::toString(SkString* str) const {
-    str->append("SkGaussianColorFilter ");
 }
 
 #if SK_SUPPORT_GPU

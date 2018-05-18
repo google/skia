@@ -727,14 +727,6 @@ public:
     */
     sk_sp<SkData> refEncodedData() const;
 
-    /** Appends SkImage description to string, including unique ID, width, height, and
-        whether the image is opaque.
-
-        @param string  storage for description; existing content is preserved
-        @return        string appended with SkImage description
-    */
-    const char* toString(SkString* string) const;
-
     /** Returns subset of SkImage. subset must be fully contained by SkImage dimensions().
         The implementation may share pixels, or may copy them.
 

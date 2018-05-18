@@ -144,18 +144,3 @@ bool SkColorFilterImageFilter::onIsColorFilterNode(SkColorFilter** filter) const
 bool SkColorFilterImageFilter::affectsTransparentBlack() const {
     return fColorFilter->affectsTransparentBlack();
 }
-
-void SkColorFilterImageFilter::toString(SkString* str) const {
-    str->appendf("SkColorFilterImageFilter: (");
-
-    str->appendf("input: (");
-
-    if (this->getInput(0)) {
-        this->getInput(0)->toString(str);
-    }
-
-    str->appendf(") color filter: ");
-    fColorFilter->toString(str);
-
-    str->append(")");
-}

@@ -81,9 +81,3 @@ sk_sp<SkImageFilter> SkPaintImageFilter::onMakeColorSpace(SkColorSpaceXformer* x
 bool SkPaintImageFilter::affectsTransparentBlack() const {
     return true;
 }
-
-void SkPaintImageFilter::toString(SkString* str) const {
-    str->appendf("SkPaintImageFilter: (");
-    fPaint.toString(str);
-    str->append(")");
-}

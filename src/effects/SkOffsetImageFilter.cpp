@@ -124,13 +124,3 @@ SkOffsetImageFilter::SkOffsetImageFilter(SkScalar dx, SkScalar dy,
     : INHERITED(&input, 1, cropRect) {
     fOffset.set(dx, dy);
 }
-
-void SkOffsetImageFilter::toString(SkString* str) const {
-    str->appendf("SkOffsetImageFilter: (");
-    str->appendf("offset: (%f, %f) ", fOffset.fX, fOffset.fY);
-    str->append("input: (");
-    if (this->getInput(0)) {
-        this->getInput(0)->toString(str);
-    }
-    str->append("))");
-}
