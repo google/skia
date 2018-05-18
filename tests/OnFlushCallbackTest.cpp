@@ -139,8 +139,7 @@ private:
 
         // Setup positions
         SkPoint* position = (SkPoint*) vertices;
-        SkPointPriv::SetRectTriStrip(position, fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
-                                     vertexStride);
+        SkPointPriv::SetRectTriStrip(position, fRect, vertexStride);
 
         // Setup vertex colors
         GrColor* color = (GrColor*)((intptr_t)vertices + kColorOffset);
