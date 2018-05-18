@@ -735,6 +735,13 @@
     "name": "SkIRect::MakeXYWH",
         "stdout": "rect: 5, 35, -10, 60  isEmpty: true\\nrect: -10, 35, 5, 60  isEmpty: false\\n"
     },
+        "SkIRect_adjust": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkIRect rect = { 8, 11, 19, 22 };\n    rect.adjust(2, -1, 1, -2);\n    SkDebugf(\"rect: %d, %d, %d, %d\\n\", rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);\n}",
+    "hash": "8dc91284493dd012cca3d0ce4c66bda4",
+    "file": "SkIRect_Reference",
+    "name": "SkIRect::adjust()",
+        "stdout": "rect: 10, 10, 20, 20\\n"
+    },
         "SkIRect_bottom": {
     "code": "void draw(SkCanvas* canvas) {\n    SkIRect unsorted = { 15, 25, 10, 5 };\n    SkDebugf(\"unsorted.fBottom: %d unsorted.bottom(): %d\\n\", unsorted.fBottom, unsorted.bottom());\n    SkIRect sorted = unsorted.makeSorted();\n    SkDebugf(\"sorted.fBottom: %d sorted.bottom(): %d\\n\", sorted.fBottom, sorted.bottom());\n}",
     "hash": "c32afebc296054a181621648a184b8e3",
