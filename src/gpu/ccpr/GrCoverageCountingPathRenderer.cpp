@@ -180,12 +180,8 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
         const GrCCRTPendingPaths& rtPendingPaths = iter->second;
 
         for (const GrCCDrawPathsOp* op : rtPendingPaths.fDrawOps) {
-            for (const GrCCDrawPathsOp::SingleDraw* draw = op->head(); draw; draw = draw->fNext) {
-                flushingPathStats.statPath(draw->fPath);
-                ++numPathDraws;
-            }
+            numPathDraws += op->countPaths(&flushingPathStats);
         }
-
         for (const auto& clipsIter : rtPendingPaths.fClipPaths) {
             flushingPathStats.statPath(clipsIter.second.deviceSpacePath());
         }
@@ -213,7 +209,6 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
             op->setupResources(resources.get(), onFlushRP);
             SkDEBUGCODE(numSkippedPaths += op->numSkippedInstances_debugOnly());
         }
-
         for (auto& clipsIter : rtPendingPaths->fClipPaths) {
             clipsIter.second.placePathInAtlas(resources.get(), onFlushRP);
         }

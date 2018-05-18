@@ -9,7 +9,9 @@
 #define GrCCDrawPathsOp_DEFINED
 
 #include "SkTInternalLList.h"
+#include "ccpr/GrCCPathParser.h"
 #include "ccpr/GrCCPathProcessor.h"
+#include "ccpr/GrCCSTLList.h"
 #include "ops/GrDrawOp.h"
 
 class GrCCAtlas;
@@ -25,10 +27,6 @@ public:
     DEFINE_OP_CLASS_ID
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrCCDrawPathsOp);
 
-    GrCCDrawPathsOp(GrCoverageCountingPathRenderer*, GrPaint&&, const SkIRect& clipIBounds,
-                    const SkMatrix&, const SkPath&, const SkRect& devBounds);
-    ~GrCCDrawPathsOp() override;
-
     struct SingleDraw {
         SkIRect fClipIBounds;
         SkMatrix fMatrix;
@@ -37,12 +35,9 @@ public:
         SingleDraw* fNext;
     };
 
-    const SingleDraw* head() const {
-        SkASSERT(fInstanceCount >= 1);
-        return &fHeadDraw;
-    }
-
-    SkDEBUGCODE(int numSkippedInstances_debugOnly() const { return fNumSkippedInstances; })
+    GrCCDrawPathsOp(GrCoverageCountingPathRenderer*, GrPaint&&, const SkIRect& clipIBounds,
+                    const SkMatrix&, const SkPath&, const SkRect& devBounds);
+    ~GrCCDrawPathsOp() override;
 
     const char* name() const override { return "GrCCDrawOp"; }
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
@@ -55,14 +50,16 @@ public:
     }
     void onPrepare(GrOpFlushState*) override {}
 
+    int countPaths(GrCCPathParser::PathStats*) const;
     void setupResources(GrCCPerFlushResources*, GrOnFlushResourceProvider*);
+    SkDEBUGCODE(int numSkippedInstances_debugOnly() const { return fNumSkippedInstances; })
 
     void onExecute(GrOpFlushState*) override;
 
 private:
     SkPath::FillType getFillType() const {
-        SkASSERT(fInstanceCount >= 1);
-        return fHeadDraw.fPath.getFillType();
+        SkASSERT(fNumDraws >= 1);
+        return fDraws.head().fPath.getFillType();
     }
 
     struct AtlasBatch {
@@ -78,20 +75,17 @@ private:
     }
 
     GrCoverageCountingPathRenderer* const fCCPR;
+    const uint32_t fSRGBFlags;
+
+    GrCCSTLList<SingleDraw> fDraws;
+    SkDEBUGCODE(int fNumDraws = 1);
+
+    GrProcessorSet fProcessors;
     GrCCRTPendingPaths* fOwningRTPendingPaths = nullptr;
 
-    SingleDraw fHeadDraw;
-    SingleDraw* fTailDraw = &fHeadDraw;
-
-    const uint32_t fSRGBFlags;
-    GrProcessorSet fProcessors;
-
     int fBaseInstance;
-    SkDEBUGCODE(int fInstanceCount);
-    SkDEBUGCODE(int fNumSkippedInstances);
     SkSTArray<1, AtlasBatch, true> fAtlasBatches;
-
-    typedef GrDrawOp INHERITED;
+    SkDEBUGCODE(int fNumSkippedInstances = 0);
 };
 
 #endif
