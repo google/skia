@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21e9b814_05cdf82f",
+        "filename": "include/gpu/GrDriverBugWorkarounds.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2018-05-18T20:52:46Z",
+      "side": 1,
+      "message": "Temporary for testing.",
+      "revId": "aa9600c1b6e678bcb06d2ece8e830ae98e741c30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93ec7bee_1d603b10",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2818,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2018-05-18T20:52:46Z",
+      "side": 1,
+      "message": "I got getRenderTargetSampleCount above but missed this function.",
+      "revId": "aa9600c1b6e678bcb06d2ece8e830ae98e741c30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9907c765_ba4195cf",
+        "filename": "src/gpu/gl/GrGLCreateNullInterface.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2018-05-18T20:52:46Z",
+      "side": 1,
+      "message": "This needs a more gl expert opinion.  I\u0027m not sure why a renderbuffer has to be bound before unattaching.  This is failing because of the code added in GrGLGpu::deleteFramebuffer.\n\nDoes this mean I need to track all renderbuffer attachments?",
+      "revId": "aa9600c1b6e678bcb06d2ece8e830ae98e741c30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
