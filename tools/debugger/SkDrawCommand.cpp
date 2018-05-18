@@ -225,6 +225,7 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kConcat_OpType: return "Concat";
         case kDrawAnnotation_OpType: return "DrawAnnotation";
         case kDrawBitmap_OpType: return "DrawBitmap";
+        case kDrawBitmapLattice_OpType: return "DrawBitmapLattice";
         case kDrawBitmapNine_OpType: return "DrawBitmapNine";
         case kDrawBitmapRect_OpType: return "DrawBitmapRect";
         case kDrawDRRect_OpType: return "DrawDRRect";
@@ -2076,6 +2077,57 @@ SkDrawBitmapCommand* SkDrawBitmapCommand::fromJSON(Json::Value& command,
     return result;
 }
 
+SkDrawBitmapLatticeCommand::SkDrawBitmapLatticeCommand(const SkBitmap& bitmap,
+                                                       const SkCanvas::Lattice& lattice,
+                                                       const SkRect& dst, const SkPaint* paint)
+    : INHERITED(kDrawBitmapLattice_OpType)
+    , fBitmap(bitmap)
+    , fLattice(lattice)
+    , fDst(dst) {
+
+    if (paint) {
+        fPaint.set(*paint);
+    }
+}
+
+void SkDrawBitmapLatticeCommand::execute(SkCanvas* canvas) const {
+    canvas->drawBitmapLattice(fBitmap, fLattice, fDst, fPaint.getMaybeNull());
+}
+
+bool SkDrawBitmapLatticeCommand::render(SkCanvas* canvas) const {
+    SkAutoCanvasRestore acr(canvas, true);
+    canvas->clear(0xFFFFFFFF);
+
+    xlate_and_scale_to_bounds(canvas, fDst);
+
+    this->execute(canvas);
+    return true;
+}
+
+Json::Value SkDrawBitmapLatticeCommand::toJSON(UrlDataManager& urlDataManager) const {
+    Json::Value result = INHERITED::toJSON(urlDataManager);
+    Json::Value encoded;
+    if (flatten(fBitmap, &encoded, urlDataManager)) {
+        result[SKDEBUGCANVAS_ATTRIBUTE_BITMAP] = encoded;
+        result[SKDEBUGCANVAS_ATTRIBUTE_LATTICE] = MakeJsonLattice(fLattice);
+        result[SKDEBUGCANVAS_ATTRIBUTE_DST] = MakeJsonRect(fDst);
+        if (fPaint.isValid()) {
+            result[SKDEBUGCANVAS_ATTRIBUTE_PAINT] = MakeJsonPaint(*fPaint.get(), urlDataManager);
+        }
+    }
+
+    SkString desc;
+    result[SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC] = Json::Value(str_append(&desc, fDst)->c_str());
+
+    return result;
+}
+
+SkDrawBitmapLatticeCommand* SkDrawBitmapLatticeCommand::fromJSON(Json::Value& command,
+                                                                 UrlDataManager& urlDataManager) {
+    SkDEBUGFAIL("Not implemented yet.");
+    return nullptr;
+}
+
 SkDrawBitmapNineCommand::SkDrawBitmapNineCommand(const SkBitmap& bitmap, const SkIRect& center,
                                                  const SkRect& dst, const SkPaint* paint)
     : INHERITED(kDrawBitmapNine_OpType) {
@@ -2324,12 +2376,7 @@ SkDrawImageLatticeCommand::SkDrawImageLatticeCommand(const SkImage* image,
 }
 
 void SkDrawImageLatticeCommand::execute(SkCanvas* canvas) const {
-    SkLatticeIter iter(fLattice, fDst);
-    SkRect srcR, dstR;
-    while (iter.next(&srcR, &dstR)) {
-        canvas->legacy_drawImageRect(fImage.get(), &srcR, dstR,
-                                     fPaint.getMaybeNull(), SkCanvas::kStrict_SrcRectConstraint);
-    }
+    canvas->drawImageLattice(fImage.get(), fLattice, fDst, fPaint.getMaybeNull());
 }
 
 bool SkDrawImageLatticeCommand::render(SkCanvas* canvas) const {
