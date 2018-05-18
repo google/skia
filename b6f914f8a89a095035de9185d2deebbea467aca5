@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d41b358_535eaf8a",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-18T20:47:45Z",
+      "side": 1,
+      "message": "I have a chromium side change to plumb this from the renderer to gpu, to ensure draw and analysis have the same knobs.",
+      "range": {
+        "startLine": 65,
+        "startChar": 30,
+        "endLine": 65,
+        "endChar": 60
+      },
+      "revId": "b6f914f8a89a095035de9185d2deebbea467aca5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
