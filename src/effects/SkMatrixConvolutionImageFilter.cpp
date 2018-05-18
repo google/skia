@@ -90,6 +90,9 @@ sk_sp<SkFlattenable> SkMatrixConvolutionImageFilter::CreateProc(SkReadBuffer& bu
     if (!buffer.validate(kernelArea == count)) {
         return nullptr;
     }
+    if (!buffer.validateCanReadN<SkScalar>(count)) {
+        return nullptr;
+    }
     SkAutoSTArray<16, SkScalar> kernel(count);
     if (!buffer.readScalarArray(kernel.get(), count)) {
         return nullptr;
@@ -103,6 +106,9 @@ sk_sp<SkFlattenable> SkMatrixConvolutionImageFilter::CreateProc(SkReadBuffer& bu
     TileMode tileMode = buffer.read32LE(kLast_TileMode);
     bool convolveAlpha = buffer.readBool();
 
+    if (!buffer.isValid()) {
+        return nullptr;
+    }
     return Make(kernelSize, kernel.get(), gain, bias, kernelOffset, tileMode,
                 convolveAlpha, common.getInput(0), &common.cropRect());
 }
