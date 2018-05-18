@@ -22,6 +22,30 @@
       "revId": "72f6668eb73405874155b7b03077230559ee681e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cba93ee8_4258c46f",
+        "filename": "infra/bots/recipe_modules/vars/examples/full.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-18T13:25:23Z",
+      "side": 0,
+      "message": "Yes, I missed it.",
+      "parentUuid": "22349f5f_25eb341b",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 59
+      },
+      "revId": "72f6668eb73405874155b7b03077230559ee681e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
