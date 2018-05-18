@@ -95,7 +95,7 @@ static bool can_use_draw_texture_affine(const SkPaint& paint, GrAA aa, const SkM
                                         SkCanvas::SrcRectConstraint constraint) {
     return (!paint.getColorFilter() && !paint.getShader() && !paint.getMaskFilter() &&
             !paint.getImageFilter() && paint.getFilterQuality() < kMedium_SkFilterQuality &&
-            paint.getBlendMode() == SkBlendMode::kSrcOver && !ctm.hasPerspective() &&
+            paint.getBlendMode() == SkBlendMode::kSrcOver /*&& !ctm.hasPerspective() */&&
             SkCanvas::kFast_SrcRectConstraint == constraint);
 }
 

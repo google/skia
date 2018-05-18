@@ -1664,7 +1664,7 @@ void SkMatrix::dump() const {
 }
 
 void SkMatrix::toString(SkString* str) const {
-    str->appendf("[%8.4f %8.4f %8.4f][%8.4f %8.4f %8.4f][%8.4f %8.4f %8.4f]",
+    str->appendf("(%8.8f, %8.8f, %8.8f, %8.8f, %8.8f, %8.8f, %8.8f, %8.8f, %8.8f)",
              fMat[0], fMat[1], fMat[2], fMat[3], fMat[4], fMat[5],
              fMat[6], fMat[7], fMat[8]);
 }

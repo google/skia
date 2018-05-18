@@ -82,7 +82,8 @@ public:
     enum class Interpolation {
         kInterpolated,
         kCanBeFlat, // Use "flat" if it will be faster.
-        kMustBeFlat // Use "flat" even if it is known to be slow.
+        kMustBeFlat, // Use "flat" even if it is known to be slow.
+        kNoPerspective,
     };
 
     /*
@@ -121,6 +122,7 @@ protected:
     struct VaryingInfo {
         GrSLType         fType;
         bool             fIsFlat;
+        bool             fIsNoperspective;
         SkString         fVsOut;
         SkString         fGsOut;
         GrShaderFlags    fVisibility;
