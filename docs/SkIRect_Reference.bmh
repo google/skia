@@ -1041,6 +1041,41 @@ describes an area: fLeft is less than fRight, and fTop is less than fBottom.
 
 # ------------------------------------------------------------------------------
 
+#Method void adjust(int32_t dL, int32_t dT, int32_t dR, int32_t dB)
+
+#In Inset_Outset_Offset
+#Line # moves the sides independently relative to their original locations ##
+Adjusts IRect by adding dL to fLeft, dT to fTop, dR to fRight, and fB to fBottom.
+
+If dL is positive, narrows IRect on the left. If negative, widens it on the left.
+If dT is positive, shrinks IRect on the top. If negative, lengthens it on the top.
+If dR is positive, narrows IRect on the right. If negative, widens it on the right.
+If dB is positive, shrinks IRect on the bottom. If negative, lengthens it on the bottom.
+
+The resulting IRect is not checked for validity. Thus, if the resulting IRect left is
+greater than right, the IRect will be considered empty. Call sort() after this call
+if that is not the desired behavior.
+
+#Param dL  offset added to fLeft ##
+#Param dT  offset added to fTop ##
+#Param dR  offset added to fRight ##
+#Param dB  offset added to fBottom ##
+
+#Example
+    SkIRect rect = { 8, 11, 19, 22 };
+    rect.adjust(2, -1, 1, -2);
+    SkDebugf("rect: %d, %d, %d, %d\n", rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
+#StdOut
+rect: 10, 10, 20, 20
+##
+##
+
+#SeeAlso inset outset
+
+##
+
+# ------------------------------------------------------------------------------
+
 #Method bool contains(int32_t x, int32_t y) const
 
 #In Intersection
