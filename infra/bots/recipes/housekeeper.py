@@ -10,15 +10,14 @@ import calendar
 
 
 DEPS = [
-  'core',
-  'depot_tools/bot_update',
+  'binary_size',
+  'checkout',
+  'doxygen',
   'flavor',
   'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/properties',
-  'recipe_engine/python',
-  'recipe_engine/step',
   'recipe_engine/time',
   'run',
   'vars',
@@ -28,8 +27,8 @@ DEPS = [
 def RunSteps(api):
   # Checkout, compile, etc.
   api.vars.setup()
-  checkout_root = api.core.default_checkout_root
-  got_revision = api.core.checkout_bot_update(checkout_root=checkout_root)
+  checkout_root = api.checkout.default_checkout_root
+  got_revision = api.checkout.bot_update(checkout_root=checkout_root)
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
   api.flavor.setup()
 
@@ -37,11 +36,7 @@ def RunSteps(api):
 
   with api.context(cwd=checkout_root.join('skia')):
     if not api.vars.is_trybot:
-      api.run(
-        api.step,
-        'generate and upload doxygen',
-        cmd=['python', api.core.resource('generate_and_upload_doxygen.py')],
-        abort_on_failure=False)
+      api.doxygen.generate_and_upload()
 
     now = api.time.utcnow()
     ts = int(calendar.timegm(now.utctimetuple()))
@@ -49,16 +44,7 @@ def RunSteps(api):
     dest_dir = api.flavor.host_dirs.perf_data_dir
     dest_file = dest_dir + '/' + filename
     api.file.ensure_directory('makedirs perf_dir', dest_dir)
-    cmd = ['python', api.core.resource('run_binary_size_analysis.py'),
-           '--library', api.vars.skia_out.join('libskia.so'),
-           '--githash', api.properties['revision'],
-           '--dest', dest_file]
-    if api.vars.is_trybot:
-      cmd.extend(['--issue_number', str(api.properties['patch_issue'])])
-    api.run(
-      api.step,
-      'generate binary size data',
-      cmd=cmd)
+    api.binary_size.run_analysis(dest_file)
 
 
 def GenTests(api):

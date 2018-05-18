@@ -7,7 +7,6 @@
 
 
 DEPS = [
-  'core',
   'env',
   'flavor',
   'recipe_engine/context',
