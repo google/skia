@@ -15,9 +15,12 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     super(GNAndroidFlavorUtils, self).__init__(m)
     self._ever_ran_adb = False
     self.ADB_BINARY = '/usr/bin/adb.1.0.35'
+    self.ADB_PUB_KEY = '/home/chrome-bot/.android/adbkey'
     self._golo_devices = ['Nexus5x']
     if self.m.vars.builder_cfg.get('model') in self._golo_devices:
       self.ADB_BINARY = '/opt/infra-android/tools/adb'
+      self.ADB_PUB_KEY = ('/home/chrome-bot/.android/'
+                          'chrome_infrastructure_adbkey')
 
     self.device_dirs = default_flavor.DeviceDirs(
         dm_dir        = self.m.vars.android_data_dir + 'dm_out',
@@ -102,10 +105,11 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
                  fail_build_on_failure=False)
 
     with self.m.context(cwd=self.m.vars.skia_dir):
-      return self.m.run.with_retry(self.m.step, title, attempts,
-                                   cmd=[self.ADB_BINARY]+list(cmd),
-                                   between_attempts_fn=wait_for_device,
-                                   **kwargs)
+      with self.m.env({'ADB_VENDOR_KEYS': self.ADB_PUB_KEY}):
+        return self.m.run.with_retry(self.m.step, title, attempts,
+                                     cmd=[self.ADB_BINARY]+list(cmd),
+                                     between_attempts_fn=wait_for_device,
+                                     **kwargs)
 
   def _scale_for_dm(self):
     device = self.m.vars.builder_cfg.get('model')
