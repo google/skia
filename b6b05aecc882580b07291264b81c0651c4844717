@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6130859_cbb8781d",
+        "filename": "docs/SkIRect_Reference.bmh",
+        "patchSetId": 5
+      },
+      "lineNbr": 1047,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-05-18T13:51:43Z",
+      "side": 1,
+      "message": "/s/assymmetrically/asymmetrically/\nalthough I would probably rewrite this as \u0027independently\u0027. Also, the description implies that the movement is relative to the center, but it is relative to its original location.",
+      "revId": "b6b05aecc882580b07291264b81c0651c4844717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f559225a_554e2770",
+        "filename": "docs/SkIRect_Reference.bmh",
+        "patchSetId": 5
+      },
+      "lineNbr": 1048,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-05-18T13:51:43Z",
+      "side": 1,
+      "message": "/s/Adjust/Adjusts/\n/s/SkIRect/IRect/\n/s/fRight/fRight,/",
+      "revId": "b6b05aecc882580b07291264b81c0651c4844717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5b024c8_37d40a8d",
+        "filename": "docs/SkIRect_Reference.bmh",
+        "patchSetId": 5
+      },
+      "lineNbr": 1053,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-05-18T13:51:43Z",
+      "side": 1,
+      "message": "If the resulting IRect left is greater than right, ?",
+      "revId": "b6b05aecc882580b07291264b81c0651c4844717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89d7a7dd_2778fcb9",
+        "filename": "docs/SkIRect_Reference.bmh",
+        "patchSetId": 5
+      },
+      "lineNbr": 1063,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-05-18T13:51:43Z",
+      "side": 1,
+      "message": "An example. Cool beans",
+      "revId": "b6b05aecc882580b07291264b81c0651c4844717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
