@@ -43,24 +43,14 @@ public:
         SkPoint fTextureCoords;
         GrColor fColor;
     };
-    struct AAVertex {
-        SkPoint fPosition;
-        SkPoint fTextureCoords;
+    struct AAVertex : public Vertex {
         SkPoint3 fEdges[4];
-        GrColor fColor;
     };
-    struct MultiTextureVertex {
-        SkPoint fPosition;
+    struct MultiTextureVertex : Vertex {
         int fTextureIdx;
-        SkPoint fTextureCoords;
-        GrColor fColor;
     };
-    struct AAMultiTextureVertex {
-        SkPoint fPosition;
-        int fTextureIdx;
-        SkPoint fTextureCoords;
+    struct AAMultiTextureVertex : MultiTextureVertex {
         SkPoint3 fEdges[4];
-        GrColor fColor;
     };
 
     // Maximum number of textures supported by this op. Must also be checked against the caps
@@ -243,7 +233,6 @@ private:
                              const GrSamplerState::Filter filters[], const GrShaderCaps& caps)
             : INHERITED(kTextureGeometryProcessor_ClassID), fColorSpaceXform(std::move(csxf)) {
         SkASSERT(proxyCnt > 0 && samplerCnt >= proxyCnt);
-        fPositions = this->addVertexAttrib("position", kFloat2_GrVertexAttribType);
         fSamplers[0].reset(std::move(proxies[0]), filters[0]);
         this->addTextureSampler(&fSamplers[0]);
         for (int i = 1; i < proxyCnt; ++i) {
@@ -252,6 +241,11 @@ private:
             new (&fSamplers[i]) TextureSampler(std::move(proxies[i]), filters[i]);
             this->addTextureSampler(&fSamplers[i]);
         }
+
+        fPositions = this->addVertexAttrib("position", kFloat2_GrVertexAttribType);
+        fTextureCoords = this->addVertexAttrib("textureCoords", kFloat2_GrVertexAttribType);
+        fColors = this->addVertexAttrib("color", kUByte4_norm_GrVertexAttribType);
+
         if (samplerCnt > 1) {
             // Here we initialize any extra samplers by repeating the last one samplerCnt - proxyCnt
             // times.
@@ -264,20 +258,18 @@ private:
             fTextureIdx = this->addVertexAttrib("textureIdx", kInt_GrVertexAttribType);
         }
 
-        fTextureCoords = this->addVertexAttrib("textureCoords", kFloat2_GrVertexAttribType);
         if (coverageAA) {
             fAAEdges[0] = this->addVertexAttrib("aaEdge0", kFloat3_GrVertexAttribType);
             fAAEdges[1] = this->addVertexAttrib("aaEdge1", kFloat3_GrVertexAttribType);
             fAAEdges[2] = this->addVertexAttrib("aaEdge2", kFloat3_GrVertexAttribType);
             fAAEdges[3] = this->addVertexAttrib("aaEdge3", kFloat3_GrVertexAttribType);
         }
-        fColors = this->addVertexAttrib("color", kUByte4_norm_GrVertexAttribType);
     }
 
     Attribute fPositions;
-    Attribute fTextureIdx;
-    Attribute fTextureCoords;
     Attribute fColors;
+    Attribute fTextureCoords;
+    Attribute fTextureIdx;
     Attribute fAAEdges[4];
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
     TextureSampler fSamplers[1];
