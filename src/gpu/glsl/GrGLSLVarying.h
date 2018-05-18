@@ -59,15 +59,15 @@ static const int kVaryingsPerBlock = 8;
 class GrGLSLVaryingHandler {
 public:
     explicit GrGLSLVaryingHandler(GrGLSLProgramBuilder* program)
-        : fVaryings(kVaryingsPerBlock)
-        , fVertexInputs(kVaryingsPerBlock)
-        , fVertexOutputs(kVaryingsPerBlock)
-        , fGeomInputs(kVaryingsPerBlock)
-        , fGeomOutputs(kVaryingsPerBlock)
-        , fFragInputs(kVaryingsPerBlock)
-        , fFragOutputs(kVaryingsPerBlock)
-        , fProgramBuilder(program)
-        , fDefaultInterpolationModifier(nullptr) {}
+            : fVaryings(kVaryingsPerBlock)
+            , fVertexInputs(kVaryingsPerBlock)
+            , fVertexOutputs(kVaryingsPerBlock)
+            , fGeomInputs(kVaryingsPerBlock)
+            , fGeomOutputs(kVaryingsPerBlock)
+            , fFragInputs(kVaryingsPerBlock)
+            , fFragOutputs(kVaryingsPerBlock)
+            , fProgramBuilder(program)
+            , fShaderIsNoPerspective(false) {}
 
     virtual ~GrGLSLVaryingHandler() {}
 
@@ -81,8 +81,9 @@ public:
 
     enum class Interpolation {
         kInterpolated,
-        kCanBeFlat, // Use "flat" if it will be faster.
-        kMustBeFlat // Use "flat" even if it is known to be slow.
+        kCanBeFlat,      // Use "flat" if it will be faster.
+        kMustBeFlat,     // Use "flat" even if it is known to be slow.
+        kNoPerspective,  // Screen space interpolation rather than perspective-correct.
     };
 
     /*
@@ -119,11 +120,11 @@ public:
 
 protected:
     struct VaryingInfo {
-        GrSLType         fType;
-        bool             fIsFlat;
-        SkString         fVsOut;
-        SkString         fGsOut;
-        GrShaderFlags    fVisibility;
+        GrSLType fType;
+        Interpolation fInterpolation;
+        SkString fVsOut;
+        SkString fGsOut;
+        GrShaderFlags fVisibility;
     };
 
     typedef GrTAllocator<VaryingInfo> VaryingList;
@@ -149,7 +150,7 @@ private:
     // helper function for get*Decls
     void appendDecls(const VarArray& vars, SkString* out) const;
 
-    const char* fDefaultInterpolationModifier;
+    bool fShaderIsNoPerspective;
 
     friend class GrGLSLProgramBuilder;
 };

@@ -9,6 +9,7 @@
 #define SkPointPriv_DEFINED
 
 #include "SkPoint.h"
+#include "SkRect.h"
 
 class SkPointPriv {
 public:
@@ -127,7 +128,9 @@ public:
         ((SkPoint*)((intptr_t)v + 2 * stride))->set(r, t);
         ((SkPoint*)((intptr_t)v + 3 * stride))->set(r, b);
     }
-
+    static void SetRectTriStrip(SkPoint v[], const SkRect& rect, size_t stride) {
+        SetRectTriStrip(v, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, stride);
+    }
 };
 
 #endif

@@ -9,6 +9,8 @@
 #include "glsl/GrGLSLVarying.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 
+using Interpolation = GrGLSLVaryingHandler::Interpolation;
+
 void GrGLSLVaryingHandler::addPassThroughAttribute(const GrGeometryProcessor::Attribute* input,
                                                    const char* output,
                                                    Interpolation interpolation) {
@@ -20,24 +22,6 @@ void GrGLSLVaryingHandler::addPassThroughAttribute(const GrGeometryProcessor::At
     fProgramBuilder->fFS.codeAppendf("%s = %s;", output, v.fsIn());
 }
 
-static bool use_flat_interpolation(GrGLSLVaryingHandler::Interpolation interpolation,
-                                   const GrShaderCaps& shaderCaps) {
-    switch (interpolation) {
-        using Interpolation = GrGLSLVaryingHandler::Interpolation;
-        case Interpolation::kInterpolated:
-            return false;
-        case Interpolation::kCanBeFlat:
-            SkASSERT(!shaderCaps.preferFlatInterpolation() ||
-                     shaderCaps.flatInterpolationSupport());
-            return shaderCaps.preferFlatInterpolation();
-        case Interpolation::kMustBeFlat:
-            SkASSERT(shaderCaps.flatInterpolationSupport());
-            return true;
-    }
-    SK_ABORT("Invalid interpolation");
-    return false;
-}
-
 void GrGLSLVaryingHandler::addVarying(const char* name, GrGLSLVarying* varying,
                                       Interpolation interpolation) {
     SkASSERT(GrSLTypeIsFloatType(varying->type()) || Interpolation::kMustBeFlat == interpolation);
@@ -47,7 +31,7 @@ void GrGLSLVaryingHandler::addVarying(const char* name, GrGLSLVarying* varying,
     SkASSERT(varying);
     SkASSERT(kVoid_GrSLType != varying->fType);
     v.fType = varying->fType;
-    v.fIsFlat = use_flat_interpolation(interpolation, *fProgramBuilder->shaderCaps());
+    v.fInterpolation = interpolation;
     fProgramBuilder->nameVariable(&v.fVsOut, 'v', name);
     v.fVisibility = kNone_GrShaderFlags;
     if (varying->isInVertexShader()) {
@@ -102,13 +86,40 @@ void GrGLSLVaryingHandler::setNoPerspective() {
         }
         fProgramBuilder->fFS.addFeature(bit, extension);
     }
-    fDefaultInterpolationModifier = "noperspective";
+    fShaderIsNoPerspective = true;
+}
+
+static const char* interpolation_modifier(Interpolation interpolation, const GrShaderCaps& caps,
+                                          bool isShaderNoPerspective) {
+    switch (interpolation) {
+        case Interpolation::kInterpolated:
+            if (!isShaderNoPerspective) {
+                return "";
+            } else if (isShaderNoPerspective) {
+                SkASSERT(caps.noperspectiveInterpolationSupport());
+                return "noperspective";
+            } else {
+                return "";
+            }
+        case Interpolation::kCanBeFlat:
+            SkASSERT(!caps.preferFlatInterpolation() || caps.flatInterpolationSupport());
+            return caps.preferFlatInterpolation() ? "flat" : "";
+        case Interpolation::kMustBeFlat:
+            SkASSERT(caps.flatInterpolationSupport());
+            return "flat";
+        case Interpolation::kNoPerspective:
+            SkASSERT(caps.noperspectiveInterpolationSupport());
+            return "noperspective";
+    }
+    SK_ABORT("Invalid interpolation");
+    return "";
 }
 
 void GrGLSLVaryingHandler::finalize() {
     for (int i = 0; i < fVaryings.count(); ++i) {
         const VaryingInfo& v = this->fVaryings[i];
-        const char* modifier = v.fIsFlat ? "flat" : fDefaultInterpolationModifier;
+        const char* modifier = interpolation_modifier(
+                v.fInterpolation, *fProgramBuilder->caps()->shaderCaps(), fShaderIsNoPerspective);
         if (v.fVisibility & kVertex_GrShaderFlag) {
             fVertexOutputs.push_back().set(v.fType, v.fVsOut, GrShaderVar::kOut_TypeModifier,
                                            kDefault_GrSLPrecision, nullptr, modifier);
