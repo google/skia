@@ -56,6 +56,9 @@ private:
 class SK_API SkLine2DPathEffect : public Sk2DPathEffect {
 public:
     static sk_sp<SkPathEffect> Make(SkScalar width, const SkMatrix& matrix) {
+        if (!(width >= 0)) {
+            return nullptr;
+        }
         return sk_sp<SkPathEffect>(new SkLine2DPathEffect(width, matrix));
     }
 
@@ -67,7 +70,9 @@ public:
 
 protected:
     SkLine2DPathEffect(SkScalar width, const SkMatrix& matrix)
-        : Sk2DPathEffect(matrix), fWidth(width) {}
+        : Sk2DPathEffect(matrix), fWidth(width) {
+            SkASSERT(width >= 0);
+        }
     void flatten(SkWriteBuffer&) const override;
 
     void nextSpan(int u, int v, int ucount, SkPath*) const override;
