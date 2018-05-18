@@ -582,7 +582,7 @@ static bool quad_in_line(const SkPoint quad[3]) {
     SkASSERT(outer2 >= 1 && outer2 <= 2);
     SkASSERT(outer1 < outer2);
     int mid = outer1 ^ outer2 ^ 3;
-    SkScalar lineSlop =  ptMax * ptMax * 0.00001f;  // this multiplier is pulled out of the air
+    SkScalar lineSlop =  ptMax * ptMax * 0.000005f;  // this multiplier is pulled out of the air
     return pt_to_line(quad[mid], quad[outer1], quad[outer2]) <= lineSlop;
 }
 
@@ -642,20 +642,12 @@ SkPathStroker::ReductionType SkPathStroker::CheckConicLinear(const SkConic& coni
     if (!conic_in_line(conic)) {
         return kQuad_ReductionType;
     }
-#if 0   // once findMaxCurvature is implemented, this will be a better solution
-    SkScalar t;
-    if (!conic.findMaxCurvature(&t) || 0 == t) {
-        return kLine_ReductionType;
-    }
-#else  // but for now, use extrema instead
-    SkScalar xT = 0, yT = 0;
-    (void) conic.findXExtrema(&xT);
-    (void) conic.findYExtrema(&yT);
-    SkScalar t = SkTMax(xT, yT);
+    // SkFindConicMaxCurvature would be a better solution, once we know how to
+    // implement it. Quad curvature is a reasonable substitute
+    SkScalar t = SkFindQuadMaxCurvature(conic.fPts);
     if (0 == t) {
         return kLine_ReductionType;
     }
-#endif
     conic.evalAt(t, reduction, nullptr);
     return kDegenerate_ReductionType;
 }
