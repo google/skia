@@ -57,8 +57,6 @@ def RunSteps(api):
 TEST_BUILDERS = [
   'Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android',
   'Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android',
-  'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android',
-  'Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android',
   'Perf-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All',
   'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release-All',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN',
@@ -67,22 +65,15 @@ TEST_BUILDERS = [
   'Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android',
   'Test-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android',
   'Test-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-Android_ASAN',
-  'Test-Android-Clang-Nexus7-CPU-Tegra3-arm-Release-All-Android',
-  'Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android',
   'Test-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All',
-  'Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Coverage',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SwiftShader',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN',
   'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan',
-  'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-All',
   'Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug-All-ASAN',
   ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan_ProcDump',
-  'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-All',
-  'Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-All',
-  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SafeStack',
 ]
 
 # Default properties used for TEST_BUILDERS.
@@ -175,16 +166,6 @@ def GenTests(api):
       api.step_data(fail_step_name + ' (attempt 3)', retcode=1)
   )
 
-  yield (
-      api.test('cpu_scale_failed') +
-      api.properties(buildername=builder,
-                     repository='https://skia.googlesource.com/skia.git',
-                     revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
-      api.step_data('Scale CPU 0 to 0.600000', retcode=1)
-  )
-
   builder = 'Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release-All'
   fail_step_name = 'install_dm'
   yield (
@@ -206,4 +187,43 @@ def GenTests(api):
                      swarm_out_dir='[SWARM_OUT_DIR]') +
       api.step_data(fail_step_name, retcode=1) +
       api.step_data(fail_step_name + ' (attempt 2)', retcode=1)
+  )
+
+  builder = ('Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-All-' +
+             'Android')
+  yield (
+    api.test('cpu_scale_failed_once') +
+    api.properties(buildername=builder,
+                   revision='abc123',
+                   path_config='kitchen',
+                   swarm_out_dir='[SWARM_OUT_DIR]') +
+    api.step_data('Scale CPU 0 to 0.600000', retcode=1)
+  )
+
+  yield (
+    api.test('cpu_scale_failed') +
+    api.properties(buildername=builder,
+                   revision='abc123',
+                   path_config='kitchen',
+                   swarm_out_dir='[SWARM_OUT_DIR]') +
+    api.step_data('get swarming bot id',
+                  stdout=api.raw_io.output('skia-rpi-022')) +
+    api.step_data('Scale CPU 0 to 0.600000', retcode=1)+
+    api.step_data('Scale CPU 0 to 0.600000 (attempt 2)', retcode=1)+
+    api.step_data('Scale CPU 0 to 0.600000 (attempt 3)', retcode=1)
+  )
+
+  builder = ('Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release'
+             '-All-Android')
+  yield (
+    api.test('cpu_scale_failed_golo') +
+    api.properties(buildername=builder,
+                   revision='abc123',
+                   path_config='kitchen',
+                   swarm_out_dir='[SWARM_OUT_DIR]') +
+    api.step_data('get swarming bot id',
+                  stdout=api.raw_io.output('build123-m2--device5')) +
+    api.step_data('Scale CPU 4 to 0.600000', retcode=1)+
+    api.step_data('Scale CPU 4 to 0.600000 (attempt 2)', retcode=1)+
+    api.step_data('Scale CPU 4 to 0.600000 (attempt 3)', retcode=1)
   )

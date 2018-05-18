@@ -30,7 +30,24 @@ def RunSteps(api):
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
 
 
+TEST_BUILDERS = [
+  'Build-Win-Clang-x86_64-Release-ParentRevision',
+  'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
+  'Housekeeper-Weekly-RecreateSKPs',
+]
+
+
 def GenTests(api):
+  for buildername in TEST_BUILDERS:
+    yield (
+        api.test(buildername) +
+        api.properties(buildername=buildername,
+                       repository='https://skia.googlesource.com/skia.git',
+                       revision='abc123',
+                       path_config='kitchen',
+                       swarm_out_dir='[SWARM_OUT_DIR]')
+    )
+
   buildername = 'Build-Win-Clang-x86_64-Release-Vulkan'
   yield (
       api.test('test') +
@@ -48,15 +65,6 @@ def GenTests(api):
     )
 
   buildername = 'Build-Win-Clang-x86_64-Release-ParentRevision'
-  yield (
-      api.test('parent_revision') +
-      api.properties(buildername=buildername,
-                     repository='https://skia.googlesource.com/skia.git',
-                     revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]')
-  )
-
   yield (
       api.test('parent_revision_trybot') +
       api.properties(buildername=buildername,
@@ -96,17 +104,6 @@ def GenTests(api):
       )
   )
 
-  builder = 'Housekeeper-Weekly-RecreateSKPs'
-  yield (
-      api.test(builder) +
-      api.properties(buildername=builder,
-                     repository='https://skia.googlesource.com/skia.git',
-                     revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
-      api.path.exists(api.path['start_dir'].join('skp_output'))
-  )
-
   builder = 'Build-Debian9-Clang-x86_64-Release-NoDEPS'
   yield (
       api.test(builder) +
@@ -143,24 +140,4 @@ def GenTests(api):
       api.path.exists(
           api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
       )
-  )
-
-  buildername = 'Build-Mac-Clang-x86_64-Debug-CommandBuffer'
-  yield (
-      api.test(buildername) +
-      api.properties(buildername=buildername,
-                     repository='https://skia.googlesource.com/skia.git',
-                     revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]')
-  )
-
-  buildername = 'Build-Debian9-GCC-x86_64-Release-Flutter_Android'
-  yield (
-      api.test(buildername) +
-      api.properties(buildername=buildername,
-                     repository='https://skia.googlesource.com/skia.git',
-                     revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]')
   )
