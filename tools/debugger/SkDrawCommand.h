@@ -35,6 +35,7 @@ public:
         kConcat_OpType,
         kDrawAnnotation_OpType,
         kDrawBitmap_OpType,
+        kDrawBitmapLattice_OpType,
         kDrawBitmapNine_OpType,
         kDrawBitmapRect_OpType,
         kDrawDRRect_OpType,
@@ -261,6 +262,25 @@ private:
     SkScalar fTop;
     SkPaint  fPaint;
     SkPaint* fPaintPtr;
+
+    typedef SkDrawCommand INHERITED;
+};
+
+class SkDrawBitmapLatticeCommand : public SkDrawCommand {
+public:
+    SkDrawBitmapLatticeCommand(const SkBitmap& bitmap, const SkCanvas::Lattice& lattice,
+                               const SkRect& dst, const SkPaint* paint);
+    void execute(SkCanvas* canvas) const override;
+    bool render(SkCanvas* canvas) const override;
+    Json::Value toJSON(UrlDataManager& urlDataManager) const override;
+    static SkDrawBitmapLatticeCommand* fromJSON(Json::Value& command,
+                                                UrlDataManager& urlDataManager);
+
+private:
+    SkBitmap          fBitmap;
+    SkCanvas::Lattice fLattice;
+    SkRect            fDst;
+    SkTLazy<SkPaint>  fPaint;
 
     typedef SkDrawCommand INHERITED;
 };
