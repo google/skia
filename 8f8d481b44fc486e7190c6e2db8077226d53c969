@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2be64e75_975f93e0",
+        "filename": "include/core/SkRect.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-05-18T15:06:19Z",
+      "side": 1,
+      "message": "for my taste, we don\u0027t need these four lines (e.g. I feel the same about similar comments in outset etc.)",
+      "range": {
+        "startLine": 418,
+        "startChar": 14,
+        "endLine": 418,
+        "endChar": 16
+      },
+      "revId": "8f8d481b44fc486e7190c6e2db8077226d53c969",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "308c1021_95b4e494",
+        "filename": "include/core/SkRect.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-05-18T15:06:19Z",
+      "side": 1,
+      "message": "recently I am must happier (as a client) with makeFoo variants, that are const, and return the new rect.",
+      "range": {
+        "startLine": 428,
+        "startChar": 9,
+        "endLine": 428,
+        "endChar": 15
+      },
+      "revId": "8f8d481b44fc486e7190c6e2db8077226d53c969",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
