@@ -1017,6 +1017,7 @@ void merge_edges_above(Edge* edge, Edge* other, EdgeList* activeEdges, Vertex** 
         rewind(activeEdges, current, edge->fTop, c);
         other->fWinding += edge->fWinding;
         disconnect(edge);
+        edge->fTop = edge->fBottom = nullptr;
     } else if (c.sweep_lt(edge->fTop->fPoint, other->fTop->fPoint)) {
         rewind(activeEdges, current, edge->fTop, c);
         other->fWinding += edge->fWinding;
@@ -1037,6 +1038,7 @@ void merge_edges_below(Edge* edge, Edge* other, EdgeList* activeEdges, Vertex** 
         rewind(activeEdges, current, edge->fTop, c);
         other->fWinding += edge->fWinding;
         disconnect(edge);
+        edge->fTop = edge->fBottom = nullptr;
     } else if (c.sweep_lt(edge->fBottom->fPoint, other->fBottom->fPoint)) {
         rewind(activeEdges, current, other->fTop, c);
         edge->fWinding += other->fWinding;
@@ -1074,7 +1076,7 @@ void merge_collinear_edges(Edge* edge, EdgeList* activeEdges, Vertex** current, 
 
 void split_edge(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, Comparator& c,
                 SkArenaAlloc& alloc) {
-    if (v == edge->fTop || v == edge->fBottom) {
+    if (!edge->fTop || !edge->fBottom || v == edge->fTop || v == edge->fBottom) {
         return;
     }
     LOG("splitting edge (%g -> %g) at vertex %g (%g, %g)\n",
