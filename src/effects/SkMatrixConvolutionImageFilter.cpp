@@ -229,7 +229,16 @@ void SkMatrixConvolutionImageFilter::filterInteriorPixels(const SkBitmap& src,
                                                           SkIVector& offset,
                                                           const SkIRect& rect,
                                                           const SkIRect& bounds) const {
-    filterPixels<UncheckedPixelFetcher>(src, result, offset, rect, bounds);
+    switch (fTileMode) {
+        case kRepeat_TileMode:
+            // In repeat mode, we still need to wrap the samples around the src
+            filterPixels<RepeatPixelFetcher>(src, result, offset, rect, bounds);
+            break;
+        case kClamp_TileMode:
+        case kClampToBlack_TileMode:
+            filterPixels<UncheckedPixelFetcher>(src, result, offset, rect, bounds);
+            break;
+    }
 }
 
 void SkMatrixConvolutionImageFilter::filterBorderPixels(const SkBitmap& src,
@@ -392,6 +401,13 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
                                          dstBounds.top() + fKernelOffset.fY,
                                          dstBounds.width() - fKernelSize.fWidth + 1,
                                          dstBounds.height() - fKernelSize.fHeight + 1);
+
+    if (kRepeat_TileMode == fTileMode) {
+        // In repeat mode the above computation of interior can exceed the bounds of 'dst'.
+        interior.sort();
+        interior.intersect(dstBounds);
+    }
+
     SkIRect top = SkIRect::MakeLTRB(dstBounds.left(), dstBounds.top(),
                                     dstBounds.right(), interior.top());
     SkIRect bottom = SkIRect::MakeLTRB(dstBounds.left(), interior.bottom(),
