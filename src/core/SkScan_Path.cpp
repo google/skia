@@ -564,7 +564,10 @@ static bool clip_to_limit(const SkRegion& orig, SkRegion* reduced) {
 // Bias used for conservative rounding of float rects to int rects, to nudge the irects a little
 // larger, so we don't "think" a path's bounds are inside a clip, when (due to numeric drift in
 // the scan-converter) we might walk beyond the predicted limits.
-static const double kConservativeRoundBias = 0.5 + 0.5 / SK_FDot6One;
+//
+// This value has been determined trial and error: pick the smallest value (after the 0.5) that
+// fixes any problematic cases (e.g. crbug.com/844457)
+static const double kConservativeRoundBias = 0.5 + 1.0 / SK_FDot6One;
 
 /**
  *  Round the value down. This is used to round the top and left of a rectangle,
