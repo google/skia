@@ -2089,10 +2089,6 @@ int get_contour_count(const SkPath& path, SkScalar tolerance) {
     if (maxPts <= 0) {
         return 0;
     }
-    if (maxPts > ((int)SK_MaxU16 + 1)) {
-        SkDebugf("Path not rendered, too many verts (%d)\n", maxPts);
-        return 0;
-    }
     return contourCnt;
 }
 
