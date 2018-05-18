@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3a2c085_db747b7e",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-05-18T18:30:37Z",
+      "side": 1,
+      "message": "So we\u0027re just ignoring projection for now?",
+      "revId": "6ab0cac8d02bb67cc35b617e5ae42527af916e30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
