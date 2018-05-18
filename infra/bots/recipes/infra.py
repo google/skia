@@ -7,12 +7,12 @@
 
 
 DEPS = [
+  'checkout',
+  'infra',
   'recipe_engine/context',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/step',
-  'core',
-  'infra',
   'run',
   'vars',
 ]
@@ -20,8 +20,8 @@ DEPS = [
 
 def RunSteps(api):
   api.vars.setup()
-  checkout_root = api.core.default_checkout_root
-  api.core.checkout_bot_update(checkout_root=checkout_root)
+  checkout_root = api.checkout.default_checkout_root
+  api.checkout.bot_update(checkout_root=checkout_root)
   api.infra.update_go_deps()
 
   # Run the infra tests.

@@ -5,14 +5,17 @@
 # Disable warning about setting self.device_dirs in install(); we need to.
 # pylint: disable=W0201
 
-import default_flavor
-import gn_flavor
-import os
 
-class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
+from . import default
+
+
+"""iOS flavor, used for running code on iOS."""
+
+
+class iOSFlavor(default.DefaultFlavor):
   def __init__(self, m):
-    super(iOSFlavorUtils, self).__init__(m)
-    self.device_dirs = default_flavor.DeviceDirs(
+    super(iOSFlavor, self).__init__(m)
+    self.device_dirs = default.DeviceDirs(
         bin_dir='[unused]',
         dm_dir='dm',
         perf_data_dir='perf',
