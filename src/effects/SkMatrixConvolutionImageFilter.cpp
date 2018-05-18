@@ -403,15 +403,16 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
     dstBounds.offset(-inputOffset);
     srcBounds.offset(-inputOffset);
 
-    SkIRect interior = SkIRect::MakeXYWH(dstBounds.left() + fKernelOffset.fX,
-                                         dstBounds.top() + fKernelOffset.fY,
-                                         dstBounds.width() - fKernelSize.fWidth + 1,
-                                         dstBounds.height() - fKernelSize.fHeight + 1);
-
+    SkIRect interior;
     if (kRepeat_TileMode == fTileMode) {
-        // In repeat mode the above computation of interior can exceed the bounds of 'dst'.
-        interior.sort();
-        interior.intersect(dstBounds);
+        // In repeat mode, the filterPixels calls will wrap around
+        // so we just need to render 'dstBounds'
+        interior = dstBounds;
+    } else {
+        interior = SkIRect::MakeXYWH(dstBounds.left() + fKernelOffset.fX,
+                                     dstBounds.top() + fKernelOffset.fY,
+                                     dstBounds.width() - fKernelSize.fWidth + 1,
+                                     dstBounds.height() - fKernelSize.fHeight + 1);
     }
 
     SkIRect top = SkIRect::MakeLTRB(dstBounds.left(), dstBounds.top(),
