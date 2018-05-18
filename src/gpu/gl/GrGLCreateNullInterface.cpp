@@ -403,6 +403,9 @@ public:
         Framebuffer* framebuffer = fFramebufferManager.lookUp(id);
 
         GrAlwaysAssert(GR_GL_RENDERBUFFER == renderbuffertarget);
+        if (!renderBufferID && !fCurrRenderbuffer) {
+           return;
+        }
         GrAlwaysAssert(fCurrRenderbuffer);
         Renderbuffer* renderbuffer = fRenderbufferManager.lookUp(fCurrRenderbuffer);
 
