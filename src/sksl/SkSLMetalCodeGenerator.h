@@ -77,16 +77,32 @@ public:
                       OutputStream* out)
     : INHERITED(program, errors, out)
     , fLineEnding("\n")
-    , fContext(*context) {}
+    , fContext(*context) {
+        this->setupIntrinsics();
+    }
 
     bool generateCode() override;
 
 protected:
     typedef int Requirements;
+    typedef unsigned int TextureId;
     static constexpr Requirements kNo_Requirements      = 0;
     static constexpr Requirements kInputs_Requirement   = 1 << 0;
     static constexpr Requirements kOutputs_Requirement  = 1 << 1;
     static constexpr Requirements kUniforms_Requirement = 1 << 2;
+    static constexpr Requirements kGlobals_Requirement  = 1 << 3;
+
+    enum IntrinsicKind {
+        kSpecial_IntrinsicKind
+    };
+
+    enum SpecialIntrinsic {
+        kTexture_SpecialIntrinsic,
+    };
+
+    void setupIntrinsics();
+
+    TextureId nextTextureId();
 
     void write(const char* s);
 
@@ -105,6 +121,8 @@ protected:
     void writeInputStruct();
 
     void writeOutputStruct();
+
+    void writeGlobalStruct();
 
     void writePrecisionModifier();
 
@@ -141,6 +159,8 @@ protected:
     void writeMinAbsHack(Expression& absExpr, Expression& otherExpr);
 
     void writeFunctionCall(const FunctionCall& c);
+
+    void writeSpecialIntrinsic(const FunctionCall& c, SpecialIntrinsic kind);
 
     void writeConstructor(const Constructor& c);
 
@@ -194,6 +214,12 @@ protected:
 
     Requirements requirements(const Statement& e);
 
+    typedef std::tuple<IntrinsicKind, int32_t, int32_t, int32_t, int32_t> Intrinsic;
+    std::unordered_map<String, Intrinsic> fIntrinsicMap;
+    std::vector<const VarDeclaration*> fInitNonConstGlobalVars;
+    TextureId fCurrentTextureId = 0;
+    std::unordered_map<String, TextureId> fTextureMap;
+    bool fNeedsGlobalStructInit = false;
     const char* fLineEnding;
     const Context& fContext;
     StringStream fHeader;
