@@ -505,9 +505,8 @@ SkIRect SkImageFilter::DetermineRepeatedSrcBound(const SkIRect& srcBounds,
                                                  const SkISize& filterSize,
                                                  const SkIRect& originalSrcBounds) {
     SkIRect tmp = srcBounds;
-    tmp.fRight = Sk32_sat_add(tmp.fRight, filterSize.fWidth);
-    tmp.fBottom = Sk32_sat_add(tmp.fBottom, filterSize.fHeight);
-    tmp.offset(-filterOffset.fX, -filterOffset.fY);
+    tmp.adjust(-filterOffset.fX, -filterOffset.fY,
+               filterSize.fWidth - filterOffset.fX, filterSize.fHeight - filterOffset.fY);
 
     if (tmp.fLeft < originalSrcBounds.fLeft || tmp.fRight > originalSrcBounds.fRight) {
         tmp.fLeft = originalSrcBounds.fLeft;
