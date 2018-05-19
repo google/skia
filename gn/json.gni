@@ -1,0 +1,12 @@
+# Copyright 2018 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Things are easiest for everyone if these source paths are absolute.
+_modules = get_path_info("../modules", "abspath")
+_tests = get_path_info("../tests", "abspath")
+
+json_sources = [ "$_modules/json/SkJSON.cpp" ]
+
+json_test_sources = [ "$_tests/SkJSONTest.cpp" ]

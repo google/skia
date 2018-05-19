@@ -38,6 +38,7 @@ declare_args() {
   skia_enable_flutter_defines = false
   skia_enable_fontmgr_empty = false
   skia_enable_gpu = true
+  skia_enable_json = true
   skia_enable_pdf = true
   skia_enable_skottie = true
   skia_enable_spirv_validation = is_skia_dev_build && is_debug
@@ -378,6 +379,9 @@ template("optional") {
       if (defined(invoker.public_defines)) {
         defines = invoker.public_defines
       }
+      if (defined(invoker.public_include_dirs)) {
+        include_dirs = invoker.public_include_dirs
+      }
       if (defined(invoker.public_configs)) {
         configs = invoker.public_configs
       }
@@ -387,6 +391,7 @@ template("optional") {
                              "*",
                              [
                                "public_defines",
+                               "public_include_dirs",
                                "sources_when_disabled",
                                "configs_to_remove",
                              ])
@@ -402,6 +407,7 @@ template("optional") {
                              "*",
                              [
                                "public_defines",
+                               "public_include_dirs",
                                "deps",
                                "libs",
                                "sources",
@@ -848,6 +854,15 @@ optional("xml") {
     "src/xml/SkXMLParser.cpp",
     "src/xml/SkXMLWriter.cpp",
   ]
+}
+
+import("gn/json.gni")
+optional("json") {
+  enabled = skia_enable_json
+  public_defines = [ "SK_ENABLE_JSON" ]
+  public_include_dirs = [ "modules/json" ]
+
+  sources = json_sources
 }
 
 if (skia_enable_gpu && skia_generate_workarounds) {
@@ -1437,10 +1452,14 @@ if (skia_enable_tools) {
     if (!fontmgr_android_enabled) {
       sources -= [ "//tests/FontMgrAndroidParserTest.cpp" ]
     }
+    if (skia_enable_json) {
+      sources += json_test_sources
+    }
     deps = [
       ":experimental_sksg",
       ":experimental_svg_model",
       ":flags",
+      ":json",
       ":skia",
       ":third_party_skcms",
       ":tool_utils",
