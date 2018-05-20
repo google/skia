@@ -530,6 +530,7 @@ public:
                                      sk_sp<SkImageFilter>,
                                      const CropRect*);
 
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDiffuseLightingImageFilter)
     SkScalar kd() const { return fKD; }
 
@@ -564,6 +565,7 @@ public:
                                      SkScalar ks, SkScalar shininess,
                                      sk_sp<SkImageFilter>, const CropRect*);
 
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSpecularLightingImageFilter)
 
     SkScalar ks() const { return fKS; }
@@ -1369,6 +1371,12 @@ const {
     return this->refMe();
 }
 
+void SkDiffuseLightingImageFilter::toString(SkString* str) const {
+    str->appendf("SkDiffuseLightingImageFilter: (");
+    str->appendf("kD: %f\n", fKD);
+    str->append(")");
+}
+
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkDiffuseLightingImageFilter::makeFragmentProcessor(
         sk_sp<GrTextureProxy> proxy,
@@ -1516,6 +1524,12 @@ const {
                                                    std::move(input), this->getCropRectIfSet());
     }
     return this->refMe();
+}
+
+void SkSpecularLightingImageFilter::toString(SkString* str) const {
+    str->appendf("SkSpecularLightingImageFilter: (");
+    str->appendf("kS: %f shininess: %f", fKS, fShininess);
+    str->append(")");
 }
 
 #if SK_SUPPORT_GPU

@@ -241,6 +241,20 @@ sk_sp<SkShader> SkSweepGradient::onMakeColorSpace(SkColorSpaceXformer* xformer) 
                                        fGradFlags, &this->getLocalMatrix());
 }
 
+void SkSweepGradient::toString(SkString* str) const {
+    str->append("SkSweepGradient: (");
+
+    str->append("center: (");
+    str->appendScalar(fCenter.fX);
+    str->append(", ");
+    str->appendScalar(fCenter.fY);
+    str->append(") ");
+
+    this->INHERITED::toString(str);
+
+    str->append(")");
+}
+
 void SkSweepGradient::appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* p,
                                            SkRasterPipeline*) const {
     p->append(SkRasterPipeline::xy_to_unit_angle);

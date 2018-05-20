@@ -34,6 +34,7 @@ public:
     SkXfermodeImageFilter_Base(SkBlendMode mode, sk_sp<SkImageFilter> inputs[2],
                                const CropRect* cropRect);
 
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkXfermodeImageFilter_Base)
 
 protected:
@@ -246,6 +247,22 @@ void SkXfermodeImageFilter_Base::drawForeground(SkCanvas* canvas, SkSpecialImage
     canvas->clipRect(SkRect::Make(fgBounds), kDifference_SkClipOp);
     paint.setColor(0);
     canvas->drawPaint(paint);
+}
+
+void SkXfermodeImageFilter_Base::toString(SkString* str) const {
+    str->appendf("SkXfermodeImageFilter: (");
+    str->appendf("blendmode: (%d)", (int)fMode);
+    if (this->getInput(0)) {
+        str->appendf("foreground: (");
+        this->getInput(0)->toString(str);
+        str->appendf(")");
+    }
+    if (this->getInput(1)) {
+        str->appendf("background: (");
+        this->getInput(1)->toString(str);
+        str->appendf(")");
+    }
+    str->append(")");
 }
 
 #if SK_SUPPORT_GPU

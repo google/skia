@@ -861,6 +861,19 @@ public:
         typedef Context INHERITED;
     };
 
+    void toString(SkString* str) const override {
+        str->append("Sk3DShader: (");
+
+        if (fProxy) {
+            str->append("Proxy: ");
+            as_SB(fProxy)->toString(str);
+        }
+
+        this->INHERITED::toString(str);
+
+        str->append(")");
+    }
+
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Sk3DShader)
 
 protected:

@@ -132,6 +132,12 @@ sk_sp<SkImage> SkImage::MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* su
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+const char* SkImage::toString(SkString* str) const {
+    str->appendf("image: (id:%d (%d, %d) %s)", this->uniqueID(), this->width(), this->height(),
+                 this->isOpaque() ? "opaque" : "");
+    return str->c_str();
+}
+
 sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset) const {
     if (subset.isEmpty()) {
         return nullptr;

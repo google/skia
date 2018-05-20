@@ -18,6 +18,7 @@ public:
     SkMask::Format getFormat() const override;
     bool filterMask(SkMask*, const SkMask&, const SkMatrix&, SkIPoint*) const override;
 
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTableMaskFilterImpl)
 
 protected:
@@ -165,4 +166,16 @@ void SkTableMaskFilter::MakeClipTable(uint8_t table[256], uint8_t min,
     }
     SkDebugf("\n\n");
 #endif
+}
+
+void SkTableMaskFilterImpl::toString(SkString* str) const {
+    str->append("SkTableMaskFilter: (");
+
+    str->append("table: ");
+    for (int i = 0; i < 255; ++i) {
+        str->appendf("%d, ", fTable[i]);
+    }
+    str->appendf("%d", fTable[255]);
+
+    str->append(")");
 }

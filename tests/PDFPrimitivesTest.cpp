@@ -357,6 +357,7 @@ public:
         return sk_sp<DummyImageFilter>(new DummyImageFilter(visited));
     }
 
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(DummyImageFilter)
     bool visited() const { return fVisited; }
 
@@ -383,6 +384,11 @@ sk_sp<SkFlattenable> DummyImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
     bool visited = buffer.readBool();
     return DummyImageFilter::Make(visited);
+}
+
+void DummyImageFilter::toString(SkString* str) const {
+    str->appendf("DummyImageFilter: (");
+    str->append(")");
 }
 
 };

@@ -95,6 +95,8 @@ FT_Load_Glyph
 
 #Topic Color_Filter
 #Class SkColorFilter
+#Method void toString(SkString* str) const
+##
 #Class ##
 ##
 
@@ -287,6 +289,8 @@ FT_Load_Glyph
 
 #Topic Image_Filter
 #Class SkImageFilter
+#Method void toString(SkString* str) const
+##
 #Class ##
 #Topic ##
 
@@ -325,6 +329,8 @@ FT_Load_Glyph
 
 #Topic Mask_Filter
 #Class SkMaskFilter
+#Method void toString(SkString* str) const
+##
 #Class ##
 #Topic ##
 
@@ -434,6 +440,8 @@ FT_Load_Glyph
 
 #Topic Path_Effect
     #Class SkPathEffect
+    #Method void toString(SkString* str) const
+    ##
     #Class ##
 #Topic ##
 

@@ -33,6 +33,7 @@ public:
             GrContext*, const GrColorSpaceInfo&) const override;
 #endif
 
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLumaColorFilter)
 
 protected:
