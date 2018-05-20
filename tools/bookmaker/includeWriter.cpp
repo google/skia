@@ -1407,11 +1407,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                                 child.fContentStart;
                         this->writeBlockTrim((int) (bodyEnd - fStart), fStart);
                         if (fPendingMethod) {
-                            if (fIndent >= 4) {
-                                fIndent -= 4;
-                            } else {
-                                fIndent = 0;
-                            }
+                            fIndent -= 4;
                             fPendingMethod = false;
                         }
                         startDef = requireDense ? requireDense : &child;

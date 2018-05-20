@@ -61,6 +61,7 @@ public:
     virtual bool filterPath(SkPath*, const SkPath&,
                             SkStrokeRec*, const SkRect*) const override;
 
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPath1DPathEffect)
 
 protected:

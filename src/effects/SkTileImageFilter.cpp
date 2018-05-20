@@ -157,3 +157,17 @@ void SkTileImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeRect(fSrcRect);
     buffer.writeRect(fDstRect);
 }
+
+void SkTileImageFilter::toString(SkString* str) const {
+    str->appendf("SkTileImageFilter: (");
+    str->appendf("src: %.2f %.2f %.2f %.2f",
+                 fSrcRect.fLeft, fSrcRect.fTop, fSrcRect.fRight, fSrcRect.fBottom);
+    str->appendf(" dst: %.2f %.2f %.2f %.2f",
+                 fDstRect.fLeft, fDstRect.fTop, fDstRect.fRight, fDstRect.fBottom);
+    if (this->getInput(0)) {
+        str->appendf("input: (");
+        this->getInput(0)->toString(str);
+        str->appendf(")");
+    }
+    str->append(")");
+}

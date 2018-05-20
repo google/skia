@@ -22,6 +22,8 @@ public:
     bool asColorMode(SkColor*, SkBlendMode*) const override;
     uint32_t getFlags() const override;
 
+    void toString(SkString* str) const override;
+
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
             GrContext*, const GrColorSpaceInfo&) const override;

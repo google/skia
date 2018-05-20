@@ -23,6 +23,7 @@ public:
 
     bool isOpaque() const override;
 
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkImageShader)
 
 #if SK_SUPPORT_GPU

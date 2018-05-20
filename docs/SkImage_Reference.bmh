@@ -1749,6 +1749,39 @@ Returns nullptr if Image contents are not encoded.
 #Line # rarely called management functions ##
 ##
 
+#Method const char* toString(SkString* string) const
+#In Utility
+#Line # converts Image to machine readable form ##
+Appends Image description to string, including unique ID, width, height, and
+whether the image is opaque.
+
+#Param string  storage for description; existing content is preserved ##
+
+#Return string appended with Image description ##
+
+#Example
+#Image 4
+    struct {
+        const char* name;
+        sk_sp<SkImage> image;
+    } tests[] = { { "image", image }, { "bitmap", SkImage::MakeFromBitmap(source) },
+          { "texture", SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,
+                            kTopLeft_GrSurfaceOrigin, kN32_SkColorType, kOpaque_SkAlphaType,
+                            nullptr) } };
+    SkString string;
+    SkPaint paint;
+    for (const auto& test : tests ) {
+        string.printf("%s: ", test.name);
+        test.image ? (void) test.image->toString(&string) : string.append("no image");
+        canvas->drawString(string, 10, 20, paint);
+        canvas->translate(0, 20);
+    }
+##
+
+#SeeAlso SkPaint::toString
+
+#Method ##
+
 # ------------------------------------------------------------------------------
 
 #Method sk_sp<SkImage> makeSubset(const SkIRect& subset) const

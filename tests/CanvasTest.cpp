@@ -838,6 +838,7 @@ class ZeroBoundsImageFilter : public SkImageFilter {
 public:
     static sk_sp<SkImageFilter> Make() { return sk_sp<SkImageFilter>(new ZeroBoundsImageFilter); }
 
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(ZeroBoundsImageFilter)
 
 protected:
@@ -859,6 +860,10 @@ private:
 sk_sp<SkFlattenable> ZeroBoundsImageFilter::CreateProc(SkReadBuffer& buffer) {
     SkDEBUGFAIL("Should never get here");
     return nullptr;
+}
+
+void ZeroBoundsImageFilter::toString(SkString* str) const {
+    str->appendf("ZeroBoundsImageFilter: ()");
 }
 
 }  // anonymous namespace

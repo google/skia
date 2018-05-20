@@ -404,6 +404,20 @@ SkIRect SkDisplacementMapEffect::onFilterBounds(const SkIRect& src, const SkMatr
     return src;
 }
 
+void SkDisplacementMapEffect::toString(SkString* str) const {
+    str->appendf("SkDisplacementMapEffect: (");
+    str->appendf("scale: %f ", fScale);
+    str->appendf("displacement: (");
+    if (this->getDisplacementInput()) {
+        this->getDisplacementInput()->toString(str);
+    }
+    str->appendf(") color: (");
+    if (this->getColorInput()) {
+        this->getColorInput()->toString(str);
+    }
+    str->appendf("))");
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU

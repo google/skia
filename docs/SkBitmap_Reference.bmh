@@ -3438,6 +3438,38 @@ SK_DEBUG is defined at compile time.
 
 # ------------------------------------------------------------------------------
 
+#Method void toString(SkString* str) const;
+#In Utility
+#Line # converts Bitmap to machine readable form ##
+
+Creates string representation of Bitmap. The representation is read by
+internal debugging tools.
+
+#Param str  storage for string representation ##
+
+#Example
+    SkBitmap bitmap;
+    int width = 6;
+    int height = 11;
+    bitmap.allocPixels(SkImageInfo::MakeN32Premul(width, height));
+    SkString string;
+    bitmap.toString(&string);
+    SkString match;
+    match.printf("(%d, %d)", width, height);
+    int start = string.find(match.c_str());
+    if (start >= 0) {
+        SkString whStr(&string.c_str()[start], match.size());
+        SkDebugf("bitmap dimensions %s\n", whStr.c_str());
+    }
+    #StdOut
+    bitmap dimensions (6, 11)
+    ##
+##
+
+#SeeAlso SkPaint::toString
+
+##
+
 #Class SkBitmap ##
 
 #Topic Bitmap ##

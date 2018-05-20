@@ -71,6 +71,11 @@ void SkToSRGBColorFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeDataAsByteArray(fSrcColorSpace->serialize().get());
 }
 
+void SkToSRGBColorFilter::toString(SkString* str) const {
+    // TODO
+    str->append("SkToSRGBColorFilter ");
+}
+
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkToSRGBColorFilter::asFragmentProcessor(
         GrContext*, const GrColorSpaceInfo&) const {
