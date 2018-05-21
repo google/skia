@@ -810,44 +810,35 @@ uint8_t SkPathRef::Iter::peek() const {
     return next <= fVerbStop ? (uint8_t) SkPath::kDone_Verb : *next;
 }
 
+static void invalid_signal(const char* cond) {
+    // this odd construct just exists so it is easy to set a break-point here, to notice which
+    // condition triggered isValid() to fail. In the future, if we have a cool runtime way to
+    // report the failure to the client, it might use a similar setup.
+    if (false) {
+        SkDebugf("%s\n", cond);
+    }
+}
+
+#define SIGNAL_INVALID(pred)    \
+    do { if (pred) { invalid_signal(""); return false; } } while (0)
 
 bool SkPathRef::isValid() const {
-    if (static_cast<ptrdiff_t>(fFreeSpace) < 0) {
-        return false;
-    }
-    if (reinterpret_cast<intptr_t>(fVerbs) - reinterpret_cast<intptr_t>(fPoints) < 0) {
-        return false;
-    }
-    if ((nullptr == fPoints) != (nullptr == fVerbs)) {
-        return false;
-    }
-    if (nullptr == fPoints && 0 != fFreeSpace) {
-        return false;
-    }
-    if (nullptr == fPoints && fPointCnt) {
-        return false;
-    }
-    if (nullptr == fVerbs && fVerbCnt) {
-        return false;
-    }
-    if (this->currSize() !=
-                fFreeSpace + sizeof(SkPoint) * fPointCnt + sizeof(uint8_t) * fVerbCnt) {
-        return false;
-    }
+    SIGNAL_INVALID(static_cast<ptrdiff_t>(fFreeSpace) < 0);
+    SIGNAL_INVALID(reinterpret_cast<intptr_t>(fVerbs) - reinterpret_cast<intptr_t>(fPoints) < 0);
+    SIGNAL_INVALID((nullptr == fPoints) != (nullptr == fVerbs));
+    SIGNAL_INVALID(nullptr == fPoints && 0 != fFreeSpace);
+    SIGNAL_INVALID(nullptr == fPoints && fPointCnt);
+    SIGNAL_INVALID(nullptr == fVerbs && fVerbCnt);
+    SIGNAL_INVALID(this->currSize() !=
+                   fFreeSpace + sizeof(SkPoint) * fPointCnt + sizeof(uint8_t) * fVerbCnt);
 
     if (fIsOval || fIsRRect) {
         // Currently we don't allow both of these to be set, even though ovals are ro
-        if (fIsOval == fIsRRect) {
-            return false;
-        }
+        SIGNAL_INVALID(fIsOval == fIsRRect);
         if (fIsOval) {
-            if (fRRectOrOvalStartIdx >= 4) {
-                return false;
-            }
+            SIGNAL_INVALID(fRRectOrOvalStartIdx >= 4);
         } else {
-            if (fRRectOrOvalStartIdx >= 8) {
-                return false;
-            }
+            SIGNAL_INVALID(fRRectOrOvalStartIdx >= 8);
         }
     }
 
@@ -871,15 +862,12 @@ bool SkPathRef::isValid() const {
             }
 #endif
 
-            if (fPoints[i].isFinite() && (point < leftTop).anyTrue() && !(point > rightBot).anyTrue())
-                return false;
+            SIGNAL_INVALID(fPoints[i].isFinite() && (point < leftTop).anyTrue() && !(point > rightBot).anyTrue());
             if (!fPoints[i].isFinite()) {
                 isFinite = false;
             }
         }
-        if (SkToBool(fIsFinite) != isFinite) {
-            return false;
-        }
+        SIGNAL_INVALID(SkToBool(fIsFinite) != isFinite);
     }
     return true;
 }
