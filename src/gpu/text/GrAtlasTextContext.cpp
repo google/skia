@@ -849,6 +849,11 @@ void GrAtlasTextContext::DfAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
 
 void GrAtlasTextContext::FallbackTextHelper::appendText(const SkGlyph& glyph, int count,
                                                         const char* text, SkPoint glyphPos) {
+    // can't handle perspective at the moment
+    if (fViewMatrix.hasPerspective()) {
+        return;
+    }
+
     SkScalar maxDim;
     if (fViewMatrix.isScaleTranslate()) {
         maxDim = SkTMax(glyph.fWidth, glyph.fHeight)*fTextRatio;
