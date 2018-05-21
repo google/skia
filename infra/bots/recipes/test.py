@@ -426,12 +426,13 @@ def dm_flags(api, bot):
 
   if api.vars.internal_hardware_label == '1':
     # skia:7046
-    blacklist('_ test _ WritePixelsNonTexture_Gpu')
-    blacklist('_ test _ WritePixelsNonTextureMSAA_Gpu')
-    blacklist('_ test _ WritePixels_Gpu')
-    blacklist('_ test _ WritePixelsMSAA_Gpu')
-    blacklist('_ test _ GrSurfaceRenderability')
+    blacklist('_ test _ EGLImageTest')
     blacklist('_ test _ ES2BlendWithNoTexture')
+    blacklist('_ test _ GrSurfaceRenderability')
+    blacklist('_ test _ WritePixelsMSAA_Gpu')
+    blacklist('_ test _ WritePixelsNonTextureMSAA_Gpu')
+    blacklist('_ test _ WritePixelsNonTexture_Gpu')
+    blacklist('_ test _ WritePixels_Gpu')
 
   if api.vars.internal_hardware_label == '2':
     # skia:7160
