@@ -4690,6 +4690,7 @@ Blend_Mode, and Draw_Looper. If #bitmap_or_image# is kAlpha_8_SkColorType, apply
 If paint contains Mask_Filter, generate mask from #bitmap_or_image# bounds. If paint
 Filter_Quality set to kNone_SkFilterQuality, disable pixel filtering. For all
 other values of paint Filter_Quality, use kLow_SkFilterQuality to filter pixels.
+Any SkMaskFilter on the paint is ignored as is the paint's antialiasing state.
 ##
 
 #Method void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
