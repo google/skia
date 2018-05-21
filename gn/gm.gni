@@ -238,6 +238,7 @@ gm_sources = [
   "$_gm/pathreverse.cpp",
   "$_gm/pdf_never_embed.cpp",
   "$_gm/perlinnoise.cpp",
+  "$_gm/perspimages.cpp",
   "$_gm/perspshaders.cpp",
   "$_gm/picture.cpp",
   "$_gm/pictureimagefilter.cpp",
