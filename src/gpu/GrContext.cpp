@@ -1514,6 +1514,10 @@ bool GrContext::validPMUPMConversionExists() {
     return fPMUPMConversionsRoundTrip;
 }
 
+bool GrContext::shaderDerivativeSupport() const {
+    return fCaps->shaderCaps()->shaderDerivativeSupport();
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 // DDL TODO: remove 'maxResources'
