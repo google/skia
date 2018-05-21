@@ -121,6 +121,30 @@
     },
     {
       "key": {
+        "uuid": "4c1b6fd4_7cb40141",
+        "filename": "third_party/vulkan/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-21T14:49:13Z",
+      "side": 1,
+      "message": "made public_configs and also had to make :gpu a public_deps of :skia",
+      "parentUuid": "18d8e50d_9b746598",
+      "range": {
+        "startLine": 52,
+        "startChar": 2,
+        "endLine": 52,
+        "endChar": 23
+      },
+      "revId": "2a7becf77e8ba5fcf30d2abddf87bdc557470ff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "16cb48bf_aba43b44",
         "filename": "third_party/vulkan/vulkan_config.gni",
         "patchSetId": 3
@@ -132,6 +156,24 @@
       "writtenOn": "2018-05-16T15:42:14Z",
       "side": 1,
       "message": "Before we land this, it mightt be nice to get as many of these singly-homed as possible, either back in the top-level BUILD.gn or in third_party/vulkan/BUILD.gn.  Sort of feels like skia_use_vulkan belongs in top-level, the rest in vulkan/BUILD.gn?",
+      "revId": "2a7becf77e8ba5fcf30d2abddf87bdc557470ff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb06baf5_f16de34d",
+        "filename": "third_party/vulkan/vulkan_config.gni",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-21T14:49:13Z",
+      "side": 1,
+      "message": "Alright moved everything out of here into appropriate skia or vulkan BUILD files. The only \"special\" thing that need to be done was to move skia_vulkan_sdk and skia_moltenvk_path into BUILDCONFIG file since it is needed in both places.",
+      "parentUuid": "16cb48bf_aba43b44",
       "revId": "2a7becf77e8ba5fcf30d2abddf87bdc557470ff9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
