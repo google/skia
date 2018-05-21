@@ -22,7 +22,8 @@ public:
     DashType asADash(DashInfo* info) const override;
 
     void toString(SkString* str) const override;
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDashImpl)
+
+    Factory getFactory() const override { return CreateProc; }
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     bool exposedInAndroidJavaAPI() const override { return true; }
@@ -33,6 +34,9 @@ protected:
     void flatten(SkWriteBuffer&) const override;
 
 private:
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
+    friend class SkFlattenable::PrivateInitializer;
+
     SkScalar*   fIntervals;
     int32_t     fCount;
     SkScalar    fPhase;

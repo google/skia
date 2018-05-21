@@ -16,7 +16,7 @@ enum SkBlurStyle {
     kOuter_SkBlurStyle,   //!< nothing inside, fuzzy outside
     kInner_SkBlurStyle,   //!< fuzzy inside, nothing outside
 
-    kLastEnum_SkBlurStyle = kInner_SkBlurStyle
+    kLastEnum_SkBlurStyle = kInner_SkBlurStyle,
 };
 
 #endif
