@@ -48,11 +48,12 @@ void GrCCClipPath::init(GrProxyProvider* proxyProvider,
     fAccessRect = accessRect;
 }
 
-void GrCCClipPath::placePathInAtlas(GrCCPerFlushResources* resources,
-                                    GrOnFlushResourceProvider* onFlushRP) {
+void GrCCClipPath::renderPathInAtlas(GrCCPerFlushResources* resources,
+                                     GrOnFlushResourceProvider* onFlushRP) {
     SkASSERT(this->isInitialized());
     SkASSERT(!fHasAtlas);
-    fAtlas = resources->addDeviceSpacePathToAtlas(*onFlushRP->caps(), fAccessRect, fDeviceSpacePath,
-                                                  fPathDevIBounds, &fAtlasOffsetX, &fAtlasOffsetY);
+    fAtlas = resources->renderDeviceSpacePathInAtlas(*onFlushRP->caps(), fAccessRect,
+                                                     fDeviceSpacePath, fPathDevIBounds,
+                                                     &fAtlasOffsetX, &fAtlasOffsetY);
     SkDEBUGCODE(fHasAtlas = true);
 }
