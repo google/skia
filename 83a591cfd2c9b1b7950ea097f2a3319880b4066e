@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f8a982c6_fd88d154",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-05-21T17:51:25Z",
+      "side": 1,
+      "message": "These aren\u0027t really necessary, right? They\u0027re just used to set a default template argument for the helpers? (And those helpers are specialized for all combinations anyway - might be clearer to just remove kAA and kIsMultiTexture?)",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 0
+      },
+      "revId": "83a591cfd2c9b1b7950ea097f2a3319880b4066e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
