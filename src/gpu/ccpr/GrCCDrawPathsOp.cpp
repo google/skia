@@ -15,15 +15,13 @@
 GrCCDrawPathsOp::GrCCDrawPathsOp(GrCoverageCountingPathRenderer* ccpr, GrPaint&& paint,
                                  const SkIRect& clipIBounds, const SkMatrix& viewMatrix,
                                  const SkPath& path, const SkRect& devBounds)
-        : INHERITED(ClassID())
+        : GrDrawOp(ClassID())
         , fCCPR(ccpr)
-        , fHeadDraw{clipIBounds, viewMatrix, path, paint.getColor(), nullptr}
         , fSRGBFlags(GrPipeline::SRGBFlagsFromPaint(paint))
+        , fDraws({clipIBounds, viewMatrix, path, paint.getColor(), nullptr})
         , fProcessors(std::move(paint)) {
     SkDEBUGCODE(fCCPR->incrDrawOpCount_debugOnly());
     SkDEBUGCODE(fBaseInstance = -1);
-    SkDEBUGCODE(fInstanceCount = 1);
-    SkDEBUGCODE(fNumSkippedInstances = 0);
     // FIXME: intersect with clip bounds to (hopefully) improve batching.
     // (This is nontrivial due to assumptions in generating the octagon cover geometry.)
     this->setBounds(devBounds, GrOp::HasAABloat::kYes, GrOp::IsZeroArea::kNo);
@@ -42,11 +40,10 @@ GrDrawOp::RequiresDstTexture GrCCDrawPathsOp::finalize(const GrCaps& caps,
                                                        GrPixelConfigIsClamped dstIsClamped) {
     SkASSERT(!fCCPR->isFlushing_debugOnly());
     // There should only be one single path draw in this Op right now.
-    SkASSERT(1 == fInstanceCount);
-    SkASSERT(&fHeadDraw == fTailDraw);
+    SkASSERT(1 == fNumDraws);
     GrProcessorSet::Analysis analysis =
-            fProcessors.finalize(fHeadDraw.fColor, GrProcessorAnalysisCoverage::kSingleChannel,
-                                 clip, false, caps, dstIsClamped, &fHeadDraw.fColor);
+            fProcessors.finalize(fDraws.head().fColor, GrProcessorAnalysisCoverage::kSingleChannel,
+                                 clip, false, caps, dstIsClamped, &fDraws.head().fColor);
     return analysis.requiresDstTexture() ? RequiresDstTexture::kYes : RequiresDstTexture::kNo;
 }
 
@@ -55,22 +52,20 @@ bool GrCCDrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps& caps) {
     SkASSERT(fCCPR == that->fCCPR);
     SkASSERT(!fCCPR->isFlushing_debugOnly());
     SkASSERT(fOwningRTPendingPaths);
-    SkASSERT(fInstanceCount);
+    SkASSERT(fNumDraws);
     SkASSERT(!that->fOwningRTPendingPaths || that->fOwningRTPendingPaths == fOwningRTPendingPaths);
-    SkASSERT(that->fInstanceCount);
+    SkASSERT(that->fNumDraws);
 
     if (this->getFillType() != that->getFillType() || fSRGBFlags != that->fSRGBFlags ||
         fProcessors != that->fProcessors) {
         return false;
     }
 
-    fTailDraw->fNext = &fOwningRTPendingPaths->fDrawsAllocator.push_back(that->fHeadDraw);
-    fTailDraw = (that->fTailDraw == &that->fHeadDraw) ? fTailDraw->fNext : that->fTailDraw;
-
+    fDraws.append(std::move(that->fDraws), &fOwningRTPendingPaths->fAllocator);
     this->joinBounds(*that);
 
-    SkDEBUGCODE(fInstanceCount += that->fInstanceCount);
-    SkDEBUGCODE(that->fInstanceCount = 0);
+    SkDEBUGCODE(fNumDraws += that->fNumDraws);
+    SkDEBUGCODE(that->fNumDraws = 0);
     return true;
 }
 
@@ -80,21 +75,30 @@ void GrCCDrawPathsOp::wasRecorded(GrRenderTargetOpList* opList) {
     fOwningRTPendingPaths->fDrawOps.addToTail(this);
 }
 
+int GrCCDrawPathsOp::countPaths(GrCCPathParser::PathStats* stats) const {
+    int numPaths = 0;
+    for (const GrCCDrawPathsOp::SingleDraw& draw : fDraws) {
+        stats->statPath(draw.fPath);
+        ++numPaths;
+    }
+    return numPaths;
+}
+
 void GrCCDrawPathsOp::setupResources(GrCCPerFlushResources* resources,
                                      GrOnFlushResourceProvider* onFlushRP) {
     const GrCCAtlas* currentAtlas = nullptr;
-    SkASSERT(fInstanceCount > 0);
+    SkASSERT(fNumDraws > 0);
     SkASSERT(-1 == fBaseInstance);
     fBaseInstance = resources->pathInstanceCount();
 
-    for (const SingleDraw* draw = this->head(); draw; draw = draw->fNext) {
+    for (const SingleDraw& draw : fDraws) {
         // addPathToAtlas gives us two tight bounding boxes: one in device space, as well as a
         // second one rotated an additional 45 degrees. The path vertex shader uses these two
         // bounding boxes to generate an octagon that circumscribes the path.
         SkRect devBounds, devBounds45;
         int16_t atlasOffsetX, atlasOffsetY;
-        GrCCAtlas* atlas = resources->addPathToAtlas(*onFlushRP->caps(), draw->fClipIBounds,
-                                                     draw->fMatrix, draw->fPath, &devBounds,
+        GrCCAtlas* atlas = resources->addPathToAtlas(*onFlushRP->caps(), draw.fClipIBounds,
+                                                     draw.fMatrix, draw.fPath, &devBounds,
                                                      &devBounds45, &atlasOffsetX, &atlasOffsetY);
         if (!atlas) {
             SkDEBUGCODE(++fNumSkippedInstances);
@@ -107,18 +111,17 @@ void GrCCDrawPathsOp::setupResources(GrCCPerFlushResources* resources,
             currentAtlas = atlas;
         }
 
-        const SkMatrix& m = draw->fMatrix;
+        const SkMatrix& m = draw.fMatrix;
         resources->appendDrawPathInstance(
                 devBounds,
                 devBounds45,
                 {{m.getScaleX(), m.getSkewY(), m.getSkewX(), m.getScaleY()}},
                 {{m.getTranslateX(), m.getTranslateY()}},
                 {{atlasOffsetX, atlasOffsetY}},
-                draw->fColor);
+                draw.fColor);
     }
 
-    SkASSERT(resources->pathInstanceCount() ==
-                     fBaseInstance + fInstanceCount - fNumSkippedInstances);
+    SkASSERT(resources->pathInstanceCount() == fBaseInstance + fNumDraws - fNumSkippedInstances);
     if (currentAtlas) {
         this->addAtlasBatch(currentAtlas, resources->pathInstanceCount());
     }
@@ -157,5 +160,5 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState) {
                            baseInstance, batch.fEndInstanceIdx, this->bounds());
     }
 
-    SkASSERT(baseInstance == fBaseInstance + fInstanceCount - fNumSkippedInstances);
+    SkASSERT(baseInstance == fBaseInstance + fNumDraws - fNumSkippedInstances);
 }
