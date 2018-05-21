@@ -43,6 +43,8 @@ config("moltenvk") {
 
 config("vulkan_config") {
   include_dirs = []
+  configs = []
+
   if (skia_tools_vulkan_header_dir != "") {
     include_dirs += [ skia_tools_vulkan_header_dir ]
   }
@@ -56,7 +58,7 @@ config("vulkan_config") {
     defines += [ "SK_VULKAN_HEADER=\"GrVulkanDefines.h\"" ]
   }
   if (skia_moltenvk_path != "") {
-    public_configs += [ ":moltenvk" ]
+    configs += [ ":moltenvk" ]
   }
 }
 
