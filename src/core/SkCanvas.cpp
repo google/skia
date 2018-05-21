@@ -2172,11 +2172,15 @@ bool SkCanvas::canDrawBitmapAsSprite(SkScalar x, SkScalar y, int w, int h, const
 // Given storage for a real paint, and an optional paint parameter, clean-up the param (if non-null)
 // given the drawing semantics for drawImage/bitmap (skbug.com/7804) and return it, or the original
 // null.
-static const SkPaint* init_image_paint(SkPaint* real, const SkPaint* paintParam) {
+static const SkPaint* init_image_paint(SkPaint* real, const SkPaint* paintParam,
+                                       bool limitFilteringToLow = false) {
     if (paintParam) {
         *real = *paintParam;
         real->setStyle(SkPaint::kFill_Style);
         real->setPathEffect(nullptr);
+        if (limitFilteringToLow && (paintParam->getFilterQuality() > kLow_SkFilterQuality)) {
+            real->setFilterQuality(kLow_SkFilterQuality);
+        }
         paintParam = real;
     }
     return paintParam;
@@ -2347,7 +2351,7 @@ void SkCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const
 void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                                const SkPaint* paint) {
     SkPaint realPaint;
-    paint = init_image_paint(&realPaint, paint);
+    paint = init_image_paint(&realPaint, paint, true);
 
     if (nullptr == paint || paint->canComputeFastBounds()) {
         SkRect storage;
@@ -2370,7 +2374,7 @@ void SkCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, c
                                 const SkPaint* paint) {
     SkDEBUGCODE(bitmap.validate();)
     SkPaint realPaint;
-    paint = init_image_paint(&realPaint, paint);
+    paint = init_image_paint(&realPaint, paint, true);
 
     if (nullptr == paint || paint->canComputeFastBounds()) {
         SkRect storage;
@@ -2392,7 +2396,7 @@ void SkCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, c
 void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                   const SkPaint* paint) {
     SkPaint realPaint;
-    paint = init_image_paint(&realPaint, paint);
+    paint = init_image_paint(&realPaint, paint, true);
 
     if (nullptr == paint || paint->canComputeFastBounds()) {
         SkRect storage;
@@ -2414,7 +2418,7 @@ void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, 
 void SkCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
                                    const SkRect& dst, const SkPaint* paint) {
     SkPaint realPaint;
-    paint = init_image_paint(&realPaint, paint);
+    paint = init_image_paint(&realPaint, paint, true);
 
     if (nullptr == paint || paint->canComputeFastBounds()) {
         SkRect storage;
