@@ -146,11 +146,11 @@ public:
      * Creates an op that draws a subrectangle of a texture. The passed color is modulated by the
      * texture's color. 'srcRect' specifies the rectangle of the texture to draw. 'dstRect'
      * specifies the rectangle to draw in local coords which will be transformed by 'viewMatrix' to
-     * device space. This asserts that the view matrix does not have perspective.
+     * device space.
      */
-    void drawTextureAffine(const GrClip& clip, sk_sp<GrTextureProxy>, GrSamplerState::Filter,
-                           GrColor, const SkRect& srcRect, const SkRect& dstRect, GrAA aa,
-                           const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform>);
+    void drawTexture(const GrClip& clip, sk_sp<GrTextureProxy>, GrSamplerState::Filter, GrColor,
+                     const SkRect& srcRect, const SkRect& dstRect, GrAA aa,
+                     const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform>);
 
     /**
      * Draw a roundrect using a paint.
