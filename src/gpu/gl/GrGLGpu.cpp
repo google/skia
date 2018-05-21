@@ -3399,7 +3399,9 @@ void GrGLGpu::bindFramebuffer(GrGLenum target, GrGLuint fboid) {
     }
 
     // The driver forgets the correct scissor when modifying the FBO binding.
-    fHWScissorSettings.fRect.pushToGLScissor(this->glInterface());
+    if (!fHWScissorSettings.fRect.isInvalid()) {
+        fHWScissorSettings.fRect.pushToGLScissor(this->glInterface());
+    }
 
     // crbug.com/222018 - Also on QualComm, the flush here avoids flicker,
     // it's unclear how this bug works.

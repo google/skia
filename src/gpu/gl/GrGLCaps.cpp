@@ -2815,7 +2815,11 @@ int GrGLCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
     if (!table.count()) {
         return 0;
     }
-    return table[table.count() - 1];
+    int count = table[table.count() - 1];
+    if (fDriverBugWorkarounds.max_msaa_sample_count_4) {
+        count = SkTMin(count, 4);
+    }
+    return count;
 }
 
 bool validate_sized_format(GrGLenum format, SkColorType ct, GrPixelConfig* config,
