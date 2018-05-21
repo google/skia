@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "acdb5f00_65becc07",
+        "filename": "src/core/SkPathRef.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 823,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-21T20:14:41Z",
+      "side": 1,
+      "message": "did you mean this to be #pred?  If not, not sure why we pass the string at all?",
+      "range": {
+        "startLine": 823,
+        "startChar": 36,
+        "endLine": 823,
+        "endChar": 38
+      },
+      "revId": "1ea44413a8d29a6a31e97bd03fc69a348627f27e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fae27861_24b59269",
+        "filename": "src/core/SkPathRef.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-21T20:14:41Z",
+      "side": 1,
+      "message": "Is there a way we can write these so that we still write \"return false;\" outside the macro?  Coming at this code fresh, I\u0027m finding the control flow a little more confusing without that familiar explicit we\u0027re-done-here signal.",
+      "revId": "1ea44413a8d29a6a31e97bd03fc69a348627f27e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
