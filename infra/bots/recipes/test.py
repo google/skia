@@ -481,6 +481,9 @@ def dm_flags(api, bot):
   # skia:6189
   bad_serialize_gms.append('shadow_utils')
 
+  # skia:7938
+  bad_serialize_gms.append('persp_images')
+
   # Not expected to round trip encoding/decoding.
   bad_serialize_gms.append('all_bitmap_configs')
   bad_serialize_gms.append('makecolorspace')

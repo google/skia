@@ -763,16 +763,15 @@ static bool must_filter(const SkRect& src, const SkRect& dst, const SkMatrix& ct
     return !SkScalarIsInt(x) || !SkScalarIsInt(y);
 }
 
-void GrRenderTargetContext::drawTextureAffine(const GrClip& clip, sk_sp<GrTextureProxy> proxy,
-                                              GrSamplerState::Filter filter, GrColor color,
-                                              const SkRect& srcRect, const SkRect& dstRect, GrAA aa,
-                                              const SkMatrix& viewMatrix,
-                                              sk_sp<GrColorSpaceXform> colorSpaceXform) {
+void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy> proxy,
+                                        GrSamplerState::Filter filter, GrColor color,
+                                        const SkRect& srcRect, const SkRect& dstRect, GrAA aa,
+                                        const SkMatrix& viewMatrix,
+                                        sk_sp<GrColorSpaceXform> colorSpaceXform) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTextureAffine", fContext);
-    SkASSERT(!viewMatrix.hasPerspective());
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTexture", fContext);
     if (filter != GrSamplerState::Filter::kNearest && !must_filter(srcRect, dstRect, viewMatrix)) {
         filter = GrSamplerState::Filter::kNearest;
     }
