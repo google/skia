@@ -113,10 +113,8 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
     run.fInitialized = true;
 
     bool hasW = subRun->hasWCoord();
-    // DF glyphs drawn in perspective must always have a w coord.
-    SkASSERT(hasW || !subRun->drawAsDistanceFields() || !fInitialViewMatrix.hasPerspective());
-    // Non-DF glyphs should never have a w coord.
-    SkASSERT(!hasW || subRun->drawAsDistanceFields());
+    // glyphs drawn in perspective must always have a w coord.
+    SkASSERT(hasW || !fInitialViewMatrix.hasPerspective());
 
     size_t vertexStride = GetVertexStride(format, hasW);
 
