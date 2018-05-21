@@ -68,6 +68,24 @@
       "revId": "aa9600c1b6e678bcb06d2ece8e830ae98e741c30",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e8a28d2_ed6b2c4d",
+        "filename": "src/gpu/gl/GrGLCreateNullInterface.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-21T18:31:55Z",
+      "side": 1,
+      "message": "Sorry, I meant to comment. The null GL interface is basically on life support. It is used by some Chrome unit tests as a mock GL implementation of Ganesh. However, I\u0027d like to move those over to cc::TestContextProvider and remove this from Skia. So I\u0027m fine with the minimal update that keeps things working.",
+      "parentUuid": "4e44f30b_bf06a304",
+      "revId": "aa9600c1b6e678bcb06d2ece8e830ae98e741c30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
