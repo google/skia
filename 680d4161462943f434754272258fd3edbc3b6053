@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "379cd61a_15bc59bf",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1782,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-21T18:32:09Z",
+      "side": 1,
+      "message": "nit: latticePaint?",
+      "range": {
+        "startLine": 1782,
+        "startChar": 21,
+        "endLine": 1782,
+        "endChar": 29
+      },
+      "revId": "680d4161462943f434754272258fd3edbc3b6053",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
