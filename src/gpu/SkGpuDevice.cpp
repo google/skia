@@ -1397,17 +1397,6 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawProducerLattice", fContext.get());
     SkTCopyOnFirstWrite<SkPaint> paint(&origPaint);
 
-    bool useFallback = paint->getMaskFilter() || paint->isAntiAlias() ||
-                       GrFSAAType::kUnifiedMSAA == fRenderTargetContext->fsaaType();
-    if (useFallback) {
-        SkRect srcR, dstR;
-        while (iter->next(&srcR, &dstR)) {
-            this->drawTextureProducer(producer, &srcR, &dstR, SkCanvas::kStrict_SrcRectConstraint,
-                                      this->ctm(), *paint);
-        }
-        return;
-    }
-
     if (!producer->isAlphaOnly() && (paint->getColor() & 0x00FFFFFF) != 0x00FFFFFF) {
         paint.writable()->setColor(SkColorSetARGB(origPaint.getAlpha(), 0xFF, 0xFF, 0xFF));
     }
