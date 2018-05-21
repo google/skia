@@ -389,22 +389,37 @@ if 'already disabled' not in output:
   subprocess.check_output([ADB, 'reboot'])
   wait_for_device()
 
-# ASAN setup script is idempotent, either it installs it or says it's installed
-output = subprocess.check_output([ADB, 'wait-for-device'])
-process = subprocess.Popen([ASAN_SETUP], env={'ADB': ADB},
-                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+def installASAN(revert=False):
+  # ASAN setup script is idempotent, either it installs it or
+  # says it's installed
+  out = subprocess.check_output([ADB, 'wait-for-device'])
+  print out
+  cmd = [ASAN_SETUP]
+  if revert:
+    cmd = [ASAN_SETUP, '--revert']
+  process = subprocess.Popen(cmd, env={'ADB': ADB},
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-# this also blocks until command finishes
-(stdout, stderr) = process.communicate()
-print stdout
-print 'Stderr: %s' % stderr
-if process.returncode:
-  raise Exception('setup ASAN returned with non-zero exit code: %d' %
-                  process.returncode)
+  # this also blocks until command finishes
+  (stdout, stderr) = process.communicate()
+  print stdout
+  print 'Stderr: %s' % stderr
+  return process.returncode
 
-if 'Please wait until the device restarts' in stdout:
+if installASAN():
+  # ASAN script sometimes has issues if it was interrupted or partially applied
+  # Try reverting it, then re-enabling it
+  if installASAN(revert=True):
+    raise Exception('reverting ASAN install failed')
+
   # Sleep because device does not reboot instantly
-  time.sleep(30)
+  time.sleep(10)
+
+  if installASAN():
+    raise Exception('Tried twice to setup ASAN and failed.')
+
+# Sleep because device does not reboot instantly
+time.sleep(10)
 wait_for_device()
 """,
         args = [self.ADB_BINARY, asan_setup],
