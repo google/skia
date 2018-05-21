@@ -81,7 +81,7 @@ void SkOverdrawCanvas::drawPosTextCommon(const void* text, size_t byteLength, co
             paint, &props, SkScalerContextFlags::kNone, &this->getTotalMatrix());
     SkFindAndPlaceGlyph::ProcessPosText(paint.getTextEncoding(), (const char*) text, byteLength,
                                         SkPoint::Make(0, 0), SkMatrix(), (const SkScalar*) pos, 2,
-                                        paint.getTextAlign(), cache.get(), processBounds);
+                                        cache.get(), processBounds);
 }
 
 void SkOverdrawCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],

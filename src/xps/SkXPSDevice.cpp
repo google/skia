@@ -2137,8 +2137,7 @@ void SkXPSDevice::drawPosText(const void* text, size_t byteLen,
 
     SkFindAndPlaceGlyph::ProcessPosText(
         paint.getTextEncoding(), static_cast<const char*>(text), byteLen,
-        offset, SkMatrix::I(), pos, scalarsPerPos, paint.getTextAlign(),
-        cache.get(), processOneGlyph);
+        offset, SkMatrix::I(), pos, scalarsPerPos, cache.get(), processOneGlyph);
 
     if (xpsGlyphs.count() == 0) {
         return;

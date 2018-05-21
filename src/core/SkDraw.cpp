@@ -1590,7 +1590,6 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength, const SkS
             paint, props, this->scalerContextFlags(), nullptr);
 
     const char*        stop = text + byteLength;
-    SkTextAlignProc    alignProc(paint.getTextAlign());
     SkTextMapStateProc tmsProc(SkMatrix::I(), offset, scalarsPerPosition);
 
     // Now restore the original settings, so we "draw" with whatever style/stroking.
@@ -1602,10 +1601,8 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength, const SkS
         if (glyph.fWidth) {
             const SkPath* path = cache->findPath(glyph);
             if (path) {
-                SkPoint tmsLoc;
-                tmsProc(pos, &tmsLoc);
                 SkPoint loc;
-                alignProc(tmsLoc, glyph, &loc);
+                tmsProc(pos, &loc);
 
                 matrix[SkMatrix::kMTransX] = loc.fX;
                 matrix[SkMatrix::kMTransY] = loc.fY;
@@ -1641,11 +1638,10 @@ void SkDraw::drawPosText(const char text[], size_t byteLength, const SkScalar po
     SkAutoBlitterChoose    blitterChooser(*this, nullptr, paint);
     SkAAClipBlitterWrapper wrapper(*fRC, blitterChooser.get());
     DrawOneGlyph           drawOneGlyph(*this, paint, cache.get(), wrapper.getBlitter());
-    SkPaint::Align         textAlignment = paint.getTextAlign();
 
     SkFindAndPlaceGlyph::ProcessPosText(
         paint.getTextEncoding(), text, byteLength,
-        offset, *fMatrix, pos, scalarsPerPosition, textAlignment, cache.get(), drawOneGlyph);
+        offset, *fMatrix, pos, scalarsPerPosition, cache.get(), drawOneGlyph);
 }
 
 #if defined _WIN32

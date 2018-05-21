@@ -44,7 +44,6 @@ public:
     static void ProcessPosText(
         SkPaint::TextEncoding, const char text[], size_t byteLength,
         SkPoint offset, const SkMatrix& matrix, const SkScalar pos[], int scalarsPerPosition,
-        SkPaint::Align textAlignment,
         SkGlyphCache* cache, ProcessOneGlyph&& processOneGlyph);
 
     // The SubpixelAlignment function produces a suitable position for the glyph cache to
@@ -288,23 +287,6 @@ private:
         const SkMatrixPriv::MapXYProc fMapProc;
     };
 
-    // TextAlignmentAdjustment handles shifting the glyph based on its width.
-    static SkPoint TextAlignmentAdjustment(SkPaint::Align textAlignment, const SkGlyph& glyph) {
-        switch (textAlignment) {
-            case SkPaint::kLeft_Align:
-                return {0.0f, 0.0f};
-            case SkPaint::kCenter_Align:
-                return {SkFloatToScalar(glyph.fAdvanceX) / 2,
-                        SkFloatToScalar(glyph.fAdvanceY) / 2};
-            case SkPaint::kRight_Align:
-                return {SkFloatToScalar(glyph.fAdvanceX),
-                        SkFloatToScalar(glyph.fAdvanceY)};
-        }
-        // Even though the entire enum is covered above, MVSC doesn't think so. Make it happy.
-        SK_ABORT("Should never get here.");
-        return {0.0f, 0.0f};
-    }
-
     // The "call" to SkFixedToScalar is actually a macro. It's macros all the way down.
     // Needs to be a macro because you can't have a const float unless you make it constexpr.
     static constexpr SkScalar kSubpixelRounding = SkFixedToScalar(SkGlyph::kSubpixelRound);
@@ -336,8 +318,7 @@ private:
     // GlyphFindAndPlaceSubpixel handles finding and placing glyphs when sub-pixel positioning is
     // requested. After it has found and placed the glyph it calls the templated function
     // ProcessOneGlyph in order to actually perform an action.
-    template<typename ProcessOneGlyph, SkPaint::Align kTextAlignment,
-             SkAxisAlignment kAxisAlignment>
+    template<typename ProcessOneGlyph, SkAxisAlignment kAxisAlignment>
     class GlyphFindAndPlaceSubpixel final : public GlyphFindAndPlaceInterface<ProcessOneGlyph> {
     public:
         explicit GlyphFindAndPlaceSubpixel(GlyphFinderInterface* glyphFinder)
@@ -345,24 +326,6 @@ private:
 
         SkPoint findAndPositionGlyph(
             const char** text, SkPoint position, ProcessOneGlyph&& processOneGlyph) override {
-
-            if (kTextAlignment != SkPaint::kLeft_Align) {
-                // Get the width of an un-sub-pixel positioned glyph for calculating the
-                // alignment. This is not needed for kLeftAlign because its adjustment is
-                // always {0, 0}.
-                const char* tempText = *text;
-                const SkGlyph &metricGlyph = fGlyphFinder->lookupGlyph(&tempText);
-
-                if (metricGlyph.fWidth <= 0) {
-                    // Exiting early, be sure to update text pointer.
-                    *text = tempText;
-                    return position + SkPoint{SkFloatToScalar(metricGlyph.fAdvanceX),
-                                              SkFloatToScalar(metricGlyph.fAdvanceY)};
-                }
-
-                // Adjust the final position by the alignment adjustment.
-                position -= TextAlignmentAdjustment(kTextAlignment, metricGlyph);
-            }
 
             // Find the glyph.
             SkIPoint lookupPosition = SubpixelAlignment(kAxisAlignment, position);
@@ -384,7 +347,7 @@ private:
 
     // GlyphFindAndPlaceFullPixel handles finding and placing glyphs when no sub-pixel
     // positioning is requested.
-    template<typename ProcessOneGlyph, SkPaint::Align kTextAlignment>
+    template<typename ProcessOneGlyph>
     class GlyphFindAndPlaceFullPixel final : public GlyphFindAndPlaceInterface<ProcessOneGlyph> {
     public:
         explicit GlyphFindAndPlaceFullPixel(GlyphFinderInterface* glyphFinder)
@@ -397,7 +360,6 @@ private:
             const SkGlyph& glyph = fGlyphFinder->lookupGlyph(text);
 
             if (glyph.fWidth > 0) {
-                finalPosition -= TextAlignmentAdjustment(kTextAlignment, glyph);
                 processOneGlyph(glyph, finalPosition, {SK_ScalarHalf, SK_ScalarHalf});
             }
             return finalPosition + SkPoint{SkFloatToScalar(glyph.fAdvanceX),
@@ -408,20 +370,20 @@ private:
         GlyphFinderInterface* fGlyphFinder;
     };
 
-    template <typename ProcessOneGlyph, SkPaint::Align kTextAlignment>
+    template <typename ProcessOneGlyph>
     static GlyphFindAndPlaceInterface<ProcessOneGlyph>* getSubpixel(
         SkArenaAlloc* arena, SkAxisAlignment axisAlignment, GlyphFinderInterface* glyphFinder)
     {
         switch (axisAlignment) {
             case kX_SkAxisAlignment:
                 return arena->make<GlyphFindAndPlaceSubpixel<
-                    ProcessOneGlyph, kTextAlignment, kX_SkAxisAlignment>>(glyphFinder);
+                    ProcessOneGlyph, kX_SkAxisAlignment>>(glyphFinder);
             case kNone_SkAxisAlignment:
                 return arena->make<GlyphFindAndPlaceSubpixel<
-                    ProcessOneGlyph, kTextAlignment, kNone_SkAxisAlignment>>(glyphFinder);
+                    ProcessOneGlyph, kNone_SkAxisAlignment>>(glyphFinder);
             case kY_SkAxisAlignment:
                 return arena->make<GlyphFindAndPlaceSubpixel<
-                    ProcessOneGlyph, kTextAlignment, kY_SkAxisAlignment>>(glyphFinder);
+                    ProcessOneGlyph, kY_SkAxisAlignment>>(glyphFinder);
         }
         SK_ABORT("Should never get here.");
         return nullptr;
@@ -449,7 +411,6 @@ template<typename ProcessOneGlyph>
 inline void SkFindAndPlaceGlyph::ProcessPosText(
     SkPaint::TextEncoding textEncoding, const char text[], size_t byteLength,
     SkPoint offset, const SkMatrix& matrix, const SkScalar pos[], int scalarsPerPosition,
-    SkPaint::Align textAlignment,
     SkGlyphCache* cache, ProcessOneGlyph&& processOneGlyph) {
 
     SkAxisAlignment axisAlignment = cache->getScalerContext()->computeAxisAlignmentForHText();
@@ -457,7 +418,6 @@ inline void SkFindAndPlaceGlyph::ProcessPosText(
 
     // Specialized code for handling the most common case for blink.
     if (textEncoding == SkPaint::kGlyphID_TextEncoding
-        && textAlignment == SkPaint::kLeft_Align
         && axisAlignment == kX_SkAxisAlignment
         && cache->isSubpixel()
         && mtype <= SkMatrix::kTranslate_Mask)
@@ -465,7 +425,7 @@ inline void SkFindAndPlaceGlyph::ProcessPosText(
         GlyphIdGlyphFinder glyphFinder(cache);
         using Positioner =
             GlyphFindAndPlaceSubpixel <
-                ProcessOneGlyph, SkPaint::kLeft_Align, kX_SkAxisAlignment>;
+                ProcessOneGlyph, kX_SkAxisAlignment>;
         HorizontalPositions hPositions{pos};
         ArbitraryPositions  aPositions{pos};
         PositionReaderInterface* positions = nullptr;
@@ -509,37 +469,9 @@ inline void SkFindAndPlaceGlyph::ProcessPosText(
 
     GlyphFindAndPlaceInterface<ProcessOneGlyph>* findAndPosition = nullptr;
     if (cache->isSubpixel()) {
-        switch (textAlignment) {
-            case SkPaint::kLeft_Align:
-                findAndPosition = getSubpixel<ProcessOneGlyph, SkPaint::kLeft_Align>(
-                    &arena, axisAlignment, glyphFinder);
-                break;
-            case SkPaint::kCenter_Align:
-                findAndPosition = getSubpixel<ProcessOneGlyph, SkPaint::kCenter_Align>(
-                    &arena, axisAlignment, glyphFinder);
-                break;
-            case SkPaint::kRight_Align:
-                findAndPosition = getSubpixel<ProcessOneGlyph, SkPaint::kRight_Align>(
-                    &arena, axisAlignment, glyphFinder);
-                break;
-        }
+        findAndPosition = getSubpixel<ProcessOneGlyph>(&arena, axisAlignment, glyphFinder);
     } else {
-        switch (textAlignment) {
-            case SkPaint::kLeft_Align:
-                findAndPosition = arena.make<
-                    GlyphFindAndPlaceFullPixel<ProcessOneGlyph, SkPaint::kLeft_Align>>(glyphFinder);
-                break;
-            case SkPaint::kCenter_Align:
-                findAndPosition = arena.make<
-                    GlyphFindAndPlaceFullPixel<ProcessOneGlyph,
-                        SkPaint::kCenter_Align>>(glyphFinder);
-                break;
-            case SkPaint::kRight_Align:
-                findAndPosition = arena.make<
-                    GlyphFindAndPlaceFullPixel<ProcessOneGlyph,
-                        SkPaint::kRight_Align>>(glyphFinder);
-                break;
-        }
+        findAndPosition = arena.make<GlyphFindAndPlaceFullPixel<ProcessOneGlyph>>(glyphFinder);
     }
 
     const char* stop = text + byteLength;
@@ -575,10 +507,10 @@ inline void SkFindAndPlaceGlyph::ProcessText(
     GlyphFindAndPlaceInterface<ProcessOneGlyph>* findAndPosition = nullptr;
     if (cache->isSubpixel()) {
         SkAxisAlignment axisAlignment = cache->getScalerContext()->computeAxisAlignmentForHText();
-        findAndPosition = getSubpixel<ProcessOneGlyph, SkPaint::kLeft_Align>(
+        findAndPosition = getSubpixel<ProcessOneGlyph>(
             &arena, axisAlignment, glyphFinder);
     } else {
-        using FullPixel = GlyphFindAndPlaceFullPixel<ProcessOneGlyph, SkPaint::kLeft_Align>;
+        using FullPixel = GlyphFindAndPlaceFullPixel<ProcessOneGlyph>;
         findAndPosition = arena.make<FullPixel>(glyphFinder);
     }
 
