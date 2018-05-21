@@ -5051,3 +5051,24 @@ DEF_TEST(Path_isRect, reporter) {
     compare.set(&points53[1], 4);
     REPORTER_ASSERT(reporter, rect == compare);
 }
+
+/*
+ *  addOval (which is called by bitmapdevice::drawOval) used to assume that if the bounds were
+ *  finite, then the resulting path would be too. However, with the right (i.e. nasty) coordinates,
+ *  its possible to make the calculation of the path overflow float and produce a nonfinite path.
+ *  The fix was easy -- we just remove that assumption from addOval, and instead let it (lazily)
+ *  compute the path as normal (i.e. just the same as if the client has made the calls to construct
+ *  a path from conics).
+ *
+ *  Before the fix, this test would assert
+ */
+DEF_TEST(giant_ovals, reporter) {
+    SkPaint paint;
+    SkRect r = {  -3.01901558E+38f, 0, -5.32108205E+37f, 10 };
+
+    auto surface(SkSurface::MakeRasterN32Premul(84, 88));
+    SkCanvas* canvas = surface->getCanvas();
+
+    canvas->translate(-r.fLeft, 0);
+    canvas->drawOval(r, paint);
+}
