@@ -8,6 +8,7 @@
 #include "SkTileImageFilter.h"
 #include "SkColorSpaceXformer.h"
 #include "SkCanvas.h"
+#include "SkFlattenablePriv.h"
 #include "SkImage.h"
 #include "SkImageFilterPriv.h"
 #include "SkMatrix.h"

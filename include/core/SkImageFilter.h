@@ -250,8 +250,23 @@ public:
                                                  sk_sp<SkImageFilter> input);
 
     virtual void toString(SkString* str) const = 0;
-    SK_DEFINE_FLATTENABLE_TYPE(SkImageFilter)
-    SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
+
+    static void InitializeFlattenables();
+
+    static SkFlattenable::Type GetFlattenableType() {
+        return kSkImageFilter_Type;
+    }
+
+    SkFlattenable::Type getFlattenableType() const override {
+        return kSkImageFilter_Type;
+    }
+
+    static sk_sp<SkImageFilter> Deserialize(const void* data, size_t size,
+                                          const SkDeserialProcs* procs = nullptr) {
+        return sk_sp<SkImageFilter>(static_cast<SkImageFilter*>(
+                                  SkFlattenable::Deserialize(
+                                  kSkImageFilter_Type, data, size, procs).release()));
+    }
 
 protected:
     class Common {

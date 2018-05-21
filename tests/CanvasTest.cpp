@@ -53,7 +53,7 @@
 #include "SkClipOpPriv.h"
 #include "SkColor.h"
 #include "SkDocument.h"
-#include "SkFlattenable.h"
+#include "SkFlattenablePriv.h"
 #include "SkImageFilter.h"
 #include "SkImageInfo.h"
 #include "SkMalloc.h"

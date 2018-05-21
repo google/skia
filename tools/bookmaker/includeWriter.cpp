@@ -1018,6 +1018,7 @@ void IncludeWriter::structSizeMembers(const Definition& child) {
                 case KeyWord::kUint16_t:
                 case KeyWord::kUint32_t:
                 case KeyWord::kUint64_t:
+                case KeyWord::kUintPtr_t:
                 case KeyWord::kSize_t:
                 case KeyWord::kFloat:
                 case KeyWord::kBool:
@@ -1502,6 +1503,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 case KeyWord::kUint16_t:
                 case KeyWord::kUint32_t:
                 case KeyWord::kUint64_t:
+                case KeyWord::kUintPtr_t:
                 case KeyWord::kUnsigned:
                 case KeyWord::kSize_t:
                 case KeyWord::kFloat:
