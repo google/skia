@@ -88,29 +88,25 @@ DEF_TEST(DrawText, reporter) {
                 SkPoint point = SkPoint::Make(25.0f + offsetX,
                                               25.0f + offsetY);
 
-                for (int align = 0; align < SkPaint::kAlignCount; ++align) {
-                    paint.setTextAlign(static_cast<SkPaint::Align>(align));
+                for (unsigned int flags = 0; flags < (1 << 3); ++flags) {
+                    static const unsigned int antiAliasFlag = 1;
+                    static const unsigned int subpixelFlag = 1 << 1;
+                    static const unsigned int lcdFlag = 1 << 2;
 
-                    for (unsigned int flags = 0; flags < (1 << 3); ++flags) {
-                        static const unsigned int antiAliasFlag = 1;
-                        static const unsigned int subpixelFlag = 1 << 1;
-                        static const unsigned int lcdFlag = 1 << 2;
+                    paint.setAntiAlias(SkToBool(flags & antiAliasFlag));
+                    paint.setSubpixelText(SkToBool(flags & subpixelFlag));
+                    paint.setLCDRenderText(SkToBool(flags & lcdFlag));
 
-                        paint.setAntiAlias(SkToBool(flags & antiAliasFlag));
-                        paint.setSubpixelText(SkToBool(flags & subpixelFlag));
-                        paint.setLCDRenderText(SkToBool(flags & lcdFlag));
+                    // Test: drawText and drawPosText draw the same.
+                    drawBG(&drawTextCanvas);
+                    drawTextCanvas.drawText(c, 1, point.fX, point.fY, paint);
 
-                        // Test: drawText and drawPosText draw the same.
-                        drawBG(&drawTextCanvas);
-                        drawTextCanvas.drawText(c, 1, point.fX, point.fY, paint);
+                    drawBG(&drawPosTextCanvas);
+                    drawPosTextCanvas.drawPosText(c, 1, &point, paint);
 
-                        drawBG(&drawPosTextCanvas);
-                        drawPosTextCanvas.drawPosText(c, 1, &point, paint);
-
-                        REPORTER_ASSERT(reporter,
-                                        compare(drawTextBitmap, drawTextRect,
-                                                drawPosTextBitmap, drawPosTextRect));
-                    }
+                    REPORTER_ASSERT(reporter,
+                                    compare(drawTextBitmap, drawTextRect,
+                                            drawPosTextBitmap, drawPosTextRect));
                 }
             }
         }
