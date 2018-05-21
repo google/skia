@@ -22,6 +22,52 @@
       "revId": "b6f914f8a89a095035de9185d2deebbea467aca5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aff92aaa_4579ff83",
+        "filename": "src/gpu/text/GrAtlasTextContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-05-21T18:57:53Z",
+      "side": 1,
+      "message": "InitOptions doesn\u0027t seem quite right -- maybe SanitizeOptions?",
+      "range": {
+        "startLine": 568,
+        "startChar": 25,
+        "endLine": 568,
+        "endChar": 36
+      },
+      "revId": "b6f914f8a89a095035de9185d2deebbea467aca5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d0adf16_f6e07ca6",
+        "filename": "src/gpu/text/GrAtlasTextContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 666,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-05-21T18:57:53Z",
+      "side": 1,
+      "message": "Add {}.",
+      "range": {
+        "startLine": 666,
+        "startChar": 13,
+        "endLine": 666,
+        "endChar": 0
+      },
+      "revId": "b6f914f8a89a095035de9185d2deebbea467aca5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
