@@ -693,9 +693,10 @@ SkRect SkBlurImageFilterImpl::computeFastBounds(const SkRect& src) const {
 }
 
 SkIRect SkBlurImageFilterImpl::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                                  MapDirection, const SkIRect* inputRect) const {
+                                                  MapDirection dir, const SkIRect* inputRect) const {
     SkVector sigma = map_sigma(fSigma, ctm);
-    return src.makeOutset(SkScalarCeilToInt(sigma.x() * 3), SkScalarCeilToInt(sigma.y() * 3));
+    SkIRect r = src.makeOutset(SkScalarCeilToInt(sigma.x() * 3), SkScalarCeilToInt(sigma.y() * 3));
+    return r;
 }
 
 void SkBlurImageFilterImpl::toString(SkString* str) const {

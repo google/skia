@@ -120,9 +120,10 @@ static void draw_set(SkCanvas* canvas, sk_sp<SkImageFilter> filters[], int count
     for (int i = 0; i < count; ++i) {
         canvas->save();
         SkRRect rr = SkRRect::MakeRectXY(r.makeOffset(dx, dy), 20, 20);
+
         canvas->clipRRect(rr, true);
-        canvas->saveLayer({ &rr.getBounds(), nullptr, filters[i].get(), nullptr, nullptr, 0 });
-        canvas->drawColor(0x40FFFFFF);
+            canvas->saveLayer({ &rr.getBounds(), nullptr, filters[i].get(), nullptr, nullptr, 0 });
+            canvas->drawColor(0x40FFFFFF);
         canvas->restore();
         canvas->restore();
 
@@ -135,33 +136,63 @@ static void draw_set(SkCanvas* canvas, sk_sp<SkImageFilter> filters[], int count
     }
 }
 
-DEF_SIMPLE_GM(savelayer_with_backdrop, canvas, 830, 550) {
+static sk_sp<SkImage> create_solid_bitmap(int width, int height, SkColor color) {
+    SkBitmap bm;
+    bm.allocN32Pixels(width, height);
+    SkCanvas canvas(bm);
+    canvas.clear(color);
+        for (int y = 0; y < height; ++y) {
+            for (int x = 0; x < width; ++x) {
+                SkPaint paint;
+                if (x % 2) {
+                    paint.setColor(SK_ColorRED);
+                } else {
+                    paint.setColor(SK_ColorGREEN);
+                }
+
+                canvas.drawRect(SkRect::MakeXYWH(SkIntToScalar(x),
+                    SkIntToScalar(y), SK_Scalar1, SK_Scalar1), paint);
+            }
+        }
+    bm.setImmutable();
+    return SkImage::MakeFromBitmap(bm);
+}
+
+DEF_SIMPLE_GM(savelayer_with_backdrop, canvas, 300, 200) {
+#if 0
     SkColorMatrix cm;
     cm.setSaturation(10);
     sk_sp<SkColorFilter> cf(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
     const SkScalar kernel[] = { 4, 0, 4, 0, -15, 0, 4, 0, 4 };
+#endif
     sk_sp<SkImageFilter> filters[] = {
         SkBlurImageFilter::Make(10, 10, nullptr),
+#if 0
         SkDilateImageFilter::Make(8, 8, nullptr),
         SkMatrixConvolutionImageFilter::Make(
                                            { 3, 3 }, kernel, 1, 0, { 0, 0 },
                                            SkMatrixConvolutionImageFilter::kClampToBlack_TileMode,
                                            true, nullptr),
         SkColorFilterImageFilter::Make(std::move(cf), nullptr),
+#endif
     };
 
     const struct {
         SkScalar    fSx, fSy, fTx, fTy;
     } xforms[] = {
         { 1, 1, 0, 0 },
-        { 0.5f, 0.5f, 530, 0 },
-        { 0.25f, 0.25f, 530, 275 },
-        { 0.125f, 0.125f, 530, 420 },
+//        { 0.5f, 0.5f, 530, 0 },
+//        { 0.25f, 0.25f, 530, 275 },
+//        { 0.125f, 0.125f, 530, 420 },
     };
 
     SkPaint paint;
     paint.setFilterQuality(kMedium_SkFilterQuality);
-    sk_sp<SkImage> image(GetResourceAsImage("images/mandrill_512.png"));
+    //sk_sp<SkImage> image(GetResourceAsImage("images/mandrill_512.png"));
+
+    sk_sp<SkImage> image(create_solid_bitmap(512, 512, SK_ColorRED));
+
+  canvas->saveLayer(SkRect::MakeWH(276, 183), nullptr);
 
     canvas->translate(20, 20);
     for (const auto& xform : xforms) {
@@ -172,4 +203,5 @@ DEF_SIMPLE_GM(savelayer_with_backdrop, canvas, 830, 550) {
         draw_set(canvas, filters, SK_ARRAY_COUNT(filters));
         canvas->restore();
     }
+  canvas->restore();
 }
