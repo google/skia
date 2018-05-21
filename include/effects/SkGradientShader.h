@@ -224,7 +224,7 @@ public:
         return MakeSweep(cx, cy, colors, std::move(colorSpace), pos, count, 0, nullptr);
     }
 
-    SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
+    static void InitializeFlattenables();
 };
 
 #endif

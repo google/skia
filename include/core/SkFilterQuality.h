@@ -20,7 +20,7 @@ enum SkFilterQuality {
     kMedium_SkFilterQuality,    //!< typically bilerp + mipmaps for down-scaling
     kHigh_SkFilterQuality,      //!< slowest but highest quality, typically bicubic or better
 
-    kLast_SkFilterQuality = kHigh_SkFilterQuality
+    kLast_SkFilterQuality = kHigh_SkFilterQuality,
 };
 
 #endif

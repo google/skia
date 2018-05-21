@@ -8,6 +8,7 @@
 #ifndef SkComposeImageFilter_DEFINED
 #define SkComposeImageFilter_DEFINED
 
+#include "SkFlattenable.h"
 #include "SkImageFilter.h"
 
 class SK_API SkComposeImageFilter : public SkImageFilter {
@@ -17,7 +18,8 @@ public:
     SkRect computeFastBounds(const SkRect& src) const override;
 
     void toString(SkString* str) const override;
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposeImageFilter)
+
+    Factory getFactory() const override { return CreateProc; }
 
 protected:
     explicit SkComposeImageFilter(sk_sp<SkImageFilter> inputs[2]) : INHERITED(inputs, 2, nullptr) {
@@ -32,6 +34,9 @@ protected:
     bool onCanHandleComplexCTM() const override { return true; }
 
 private:
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
+    friend class SkFlattenable::PrivateInitializer;
+
     typedef SkImageFilter INHERITED;
 };
 

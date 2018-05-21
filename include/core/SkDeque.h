@@ -66,7 +66,7 @@ public:
     public:
         enum IterStart {
             kFront_IterStart,
-            kBack_IterStart
+            kBack_IterStart,
         };
 
         /**

@@ -9,6 +9,7 @@
 #include "Sk4fLinearGradient.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkColorSpaceXformer.h"
+#include "SkFlattenablePriv.h"
 #include "SkFloatBits.h"
 #include "SkGradientBitmapCache.h"
 #include "SkGradientShaderPriv.h"

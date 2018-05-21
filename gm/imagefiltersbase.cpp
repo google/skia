@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
+#include "SkFlattenablePriv.h"
 #include "SkImageFilterPriv.h"
 #include "SkShader.h"
 

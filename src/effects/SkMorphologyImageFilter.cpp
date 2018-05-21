@@ -10,6 +10,7 @@
 #include "SkBitmap.h"
 #include "SkColorData.h"
 #include "SkColorSpaceXformer.h"
+#include "SkFlattenablePriv.h"
 #include "SkImageFilterPriv.h"
 #include "SkOpts.h"
 #include "SkReadBuffer.h"

@@ -8,6 +8,7 @@
 #ifndef SkTrimImpl_DEFINED
 #define SkTrimImpl_DEFINED
 
+#include "SkFlattenablePriv.h"
 #include "SkPathEffect.h"
 
 #include "SkTrimPathEffect.h"

@@ -50,6 +50,7 @@ const IncludeKey kKeyWords[] = {
     { "uint32_t",   KeyWord::kUint32_t,     KeyProperty::kNumber         },
     { "uint64_t",   KeyWord::kUint64_t,     KeyProperty::kNumber         },
     { "uint8_t",    KeyWord::kUint8_t,      KeyProperty::kNumber         },
+    { "uintptr_t",  KeyWord::kUintPtr_t,    KeyProperty::kNumber         },
     { "union",      KeyWord::kUnion,        KeyProperty::kObject         },
     { "unsigned",   KeyWord::kUnsigned,     KeyProperty::kNumber         },
     { "void",       KeyWord::kVoid,         KeyProperty::kNumber         },

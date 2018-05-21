@@ -8,6 +8,7 @@
 #ifndef SkMatrixConvolutionImageFilter_DEFINED
 #define SkMatrixConvolutionImageFilter_DEFINED
 
+#include "SkFlattenable.h"
 #include "SkImageFilter.h"
 #include "SkScalar.h"
 #include "SkSize.h"
@@ -68,7 +69,8 @@ public:
                                      const CropRect* cropRect = nullptr);
 
     void toString(SkString* str) const override;
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMatrixConvolutionImageFilter)
+
+    Factory getFactory() const override { return CreateProc; }
 
 protected:
     SkMatrixConvolutionImageFilter(const SkISize& kernelSize,
@@ -90,6 +92,9 @@ protected:
     bool affectsTransparentBlack() const override;
 
 private:
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
+    friend class SkFlattenable::PrivateInitializer;
+
     SkISize   fKernelSize;
     SkScalar* fKernel;
     SkScalar  fGain;

@@ -8,6 +8,7 @@
 #ifndef SkOffsetImageFilter_DEFINED
 #define SkOffsetImageFilter_DEFINED
 
+#include "SkFlattenable.h"
 #include "SkImageFilter.h"
 #include "SkPoint.h"
 
@@ -20,7 +21,8 @@ public:
     SkRect computeFastBounds(const SkRect& src) const override;
 
     void toString(SkString* str) const override;
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkOffsetImageFilter)
+
+    Factory getFactory() const override { return CreateProc; }
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -32,6 +34,8 @@ protected:
 
 private:
     SkOffsetImageFilter(SkScalar dx, SkScalar dy, sk_sp<SkImageFilter> input, const CropRect*);
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
+    friend class SkFlattenable::PrivateInitializer;
 
     SkVector fOffset;
 

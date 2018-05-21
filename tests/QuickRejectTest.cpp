@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkColorSpaceXformer.h"
 #include "SkDrawLooper.h"
+#include "SkFlattenablePriv.h"
 #include "SkLightingImageFilter.h"
 #include "SkPoint3.h"
 #include "SkTypes.h"

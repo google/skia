@@ -8,6 +8,7 @@
 #ifndef SkCornerPathEffect_DEFINED
 #define SkCornerPathEffect_DEFINED
 
+#include "SkFlattenable.h"
 #include "SkPathEffect.h"
 
 /** \class SkCornerPathEffect
@@ -28,7 +29,8 @@ public:
                             SkStrokeRec*, const SkRect*) const override;
 
     void toString(SkString* str) const override;
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkCornerPathEffect)
+
+    Factory getFactory() const override { return CreateProc; }
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     bool exposedInAndroidJavaAPI() const override { return true; }
@@ -36,6 +38,8 @@ public:
 
 protected:
     ~SkCornerPathEffect() override;
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
+    friend class SkFlattenable::PrivateInitializer;
 
     explicit SkCornerPathEffect(SkScalar radius);
     void flatten(SkWriteBuffer&) const override;

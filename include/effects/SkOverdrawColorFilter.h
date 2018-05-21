@@ -36,7 +36,7 @@ public:
 
     static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer);
     Factory getFactory() const override { return CreateProc; }
-    SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
+    static void InitializeFlattenables();
 
 protected:
     void flatten(SkWriteBuffer& buffer) const override;

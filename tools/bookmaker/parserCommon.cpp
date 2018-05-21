@@ -23,6 +23,13 @@ bool ParserCommon::parseFile(const char* fileOrPath, const char* suffix, OneFile
     } else if (OneFile::kNo == oneFile) {
         SkOSFile::Iter it(fileOrPath, suffix);
         for (SkString file; it.next(&file); ) {
+            // FIXME: skip difficult file for now
+            if (string::npos != string(file.c_str()).find("SkFontArguments")) {
+                continue;
+            }
+            if (string::npos != string(file.c_str()).find("SkFontStyle")) {
+                continue;
+            }
             SkString p = SkOSPath::Join(fileOrPath, file.c_str());
             const char* hunk = p.c_str();
             if (!SkStrEndsWith(hunk, suffix)) {

@@ -8,6 +8,7 @@
 #ifndef Sk2DPathEffect_DEFINED
 #define Sk2DPathEffect_DEFINED
 
+#include "SkFlattenable.h"
 #include "SkPath.h"
 #include "SkPathEffect.h"
 #include "SkMatrix.h"
@@ -66,7 +67,8 @@ public:
                             SkStrokeRec*, const SkRect*) const override;
 
     void toString(SkString* str) const override;
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLine2DPathEffect)
+
+    Factory getFactory() const override { return CreateProc; }
 
 protected:
     SkLine2DPathEffect(SkScalar width, const SkMatrix& matrix)
@@ -78,6 +80,9 @@ protected:
     void nextSpan(int u, int v, int ucount, SkPath*) const override;
 
 private:
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
+    friend class SkFlattenable::PrivateInitializer;
+
     SkScalar fWidth;
 
     typedef Sk2DPathEffect INHERITED;
@@ -94,7 +99,8 @@ public:
     }
 
     void toString(SkString* str) const override;
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPath2DPathEffect)
+
+    Factory getFactory() const override { return CreateProc; }
 
 protected:
     SkPath2DPathEffect(const SkMatrix&, const SkPath&);
@@ -103,6 +109,9 @@ protected:
     void next(const SkPoint&, int u, int v, SkPath*) const override;
 
 private:
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
+    friend class SkFlattenable::PrivateInitializer;
+
     SkPath  fPath;
 
     typedef Sk2DPathEffect INHERITED;

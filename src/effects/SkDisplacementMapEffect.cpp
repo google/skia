@@ -9,6 +9,7 @@
 
 #include "SkBitmap.h"
 #include "SkColorSpaceXformer.h"
+#include "SkFlattenablePriv.h"
 #include "SkImageFilterPriv.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"

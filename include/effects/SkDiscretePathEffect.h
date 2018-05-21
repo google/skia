@@ -8,6 +8,7 @@
 #ifndef SkDiscretePathEffect_DEFINED
 #define SkDiscretePathEffect_DEFINED
 
+#include "SkFlattenable.h"
 #include "SkPathEffect.h"
 
 /** \class SkDiscretePathEffect
@@ -35,7 +36,8 @@ public:
                             SkStrokeRec*, const SkRect*) const override;
 
     void toString(SkString* str) const override;
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDiscretePathEffect)
+
+    Factory getFactory() const override { return CreateProc; }
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     bool exposedInAndroidJavaAPI() const override { return true; }
@@ -48,6 +50,9 @@ protected:
     void flatten(SkWriteBuffer&) const override;
 
 private:
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
+    friend class SkFlattenable::PrivateInitializer;
+
     SkScalar fSegLength, fPerterb;
 
     /* Caller-supplied 32 bit seed assist */
