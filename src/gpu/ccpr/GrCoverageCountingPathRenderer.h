@@ -10,6 +10,7 @@
 
 #include "GrPathRenderer.h"
 #include "GrRenderTargetOpList.h"
+#include "SkArenaAlloc.h"
 #include "SkTInternalLList.h"
 #include "ccpr/GrCCClipPath.h"
 #include "ccpr/GrCCDrawPathsOp.h"
@@ -34,7 +35,7 @@ struct GrCCRTPendingPaths {
 
     SkTInternalLList<GrCCDrawPathsOp> fDrawOps;
     std::map<uint32_t, GrCCClipPath> fClipPaths;
-    GrSTAllocator<256, GrCCDrawPathsOp::SingleDraw> fDrawsAllocator;
+    SkSTArenaAlloc<10 * 1024> fAllocator{10 * 1024 * 2};
 };
 
 /**

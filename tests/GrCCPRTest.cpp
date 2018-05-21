@@ -175,6 +175,13 @@ class GrCCPRTest_cleanup : public CCPRTest {
         // Ensure paths get unreffed.
         for (int i = 0; i < 10; ++i) {
             ccpr.drawPath(fPath);
+        }
+        REPORTER_ASSERT(reporter, !SkPathPriv::TestingOnly_unique(fPath));
+        ccpr.flush();
+        REPORTER_ASSERT(reporter, SkPathPriv::TestingOnly_unique(fPath));
+
+        // Ensure clip paths get unreffed.
+        for (int i = 0; i < 10; ++i) {
             ccpr.clipFullscreenRect(fPath);
         }
         REPORTER_ASSERT(reporter, !SkPathPriv::TestingOnly_unique(fPath));
