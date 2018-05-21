@@ -148,7 +148,6 @@ gm_sources = [
   "$_gm/getpostextpath.cpp",
   "$_gm/giantbitmap.cpp",
   "$_gm/glyph_pos.cpp",
-  "$_gm/glyph_pos_align.cpp",
   "$_gm/gm.cpp",
   "$_gm/gradient_matrix.cpp",
   "$_gm/gradientDirtyLaundry.cpp",

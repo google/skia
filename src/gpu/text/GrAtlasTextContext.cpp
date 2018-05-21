@@ -425,7 +425,7 @@ void GrAtlasTextContext::DrawBmpPosText(GrAtlasTextBlob* blob, int runIndex,
     auto cache = blob->setupCache(runIndex, props, scalerContextFlags, paint, &viewMatrix);
     SkFindAndPlaceGlyph::ProcessPosText(
             paint.skPaint().getTextEncoding(), text, byteLength, offset, viewMatrix, pos,
-            scalarsPerPosition, paint.skPaint().getTextAlign(), cache.get(),
+            scalarsPerPosition, cache.get(),
             [&](const SkGlyph& glyph, SkPoint position, SkPoint rounding) {
                 position += rounding;
                 BmpAppendGlyph(blob, runIndex, glyphCache, &currStrike, glyph,
@@ -504,16 +504,13 @@ void GrAtlasTextContext::DrawBmpPosTextAsPaths(GrAtlasTextBlob* blob, int runInd
 
     const char*        stop = text + byteLength;
     const char*        lastText = text;
-    SkTextAlignProc    alignProc(pathPaint.getTextAlign());
     SkTextMapStateProc tmsProc(SkMatrix::I(), offset, scalarsPerPosition);
 
     while (text < stop) {
         const SkGlyph& glyph = glyphCacheProc(cache.get(), &text);
         if (glyph.fWidth) {
-            SkPoint tmsLoc;
-            tmsProc(pos, &tmsLoc);
             SkPoint loc;
-            alignProc(tmsLoc, glyph, &loc);
+            tmsProc(pos, &loc);
             if (SkMask::kARGB32_Format == glyph.fMaskFormat) {
                 fallbackTextHelper.appendText(glyph, text - lastText, lastText, loc);
             } else {
@@ -687,12 +684,6 @@ void GrAtlasTextContext::drawDFText(GrAtlasTextBlob* blob, int runIndex,
     const char* textPtr = text;
     SkScalar stopX = 0;
     SkScalar stopY = 0;
-    SkScalar origin = 0;
-    switch (skPaint.getTextAlign()) {
-        case SkPaint::kRight_Align: origin = SK_Scalar1; break;
-        case SkPaint::kCenter_Align: origin = SK_ScalarHalf; break;
-        case SkPaint::kLeft_Align: origin = 0; break;
-    }
 
     SkAutoDescriptor desc;
     SkScalerContextEffects effects;
@@ -712,14 +703,11 @@ void GrAtlasTextContext::drawDFText(GrAtlasTextBlob* blob, int runIndex,
             // same advance
             const SkGlyph& glyph = glyphCacheProc(origPaintCache.get(), &textPtr);
 
-            SkScalar width = SkFloatToScalar(glyph.fAdvanceX);
-            positions.push_back(stopX + origin * width);
+            positions.push_back(stopX);
+            positions.push_back(stopY);
 
-            SkScalar height = SkFloatToScalar(glyph.fAdvanceY);
-            positions.push_back(stopY + origin * height);
-
-            stopX += width;
-            stopY += height;
+            stopX += SkFloatToScalar(glyph.fAdvanceX);
+            stopY += SkFloatToScalar(glyph.fAdvanceY);
         }
         SkASSERT(textPtr == stop);
     }
@@ -781,9 +769,6 @@ void GrAtlasTextContext::drawDFPosText(GrAtlasTextBlob* blob, int runIndex,
 
         const char* stop = text + byteLength;
 
-        SkPaint::Align align = dfPaint.getTextAlign();
-        SkScalar alignMul = SkPaint::kCenter_Align == align ? SK_ScalarHalf :
-                            (SkPaint::kRight_Align == align ? SK_Scalar1 : 0);
         while (text < stop) {
             const char* lastText = text;
             // the last 2 parameters are ignored
@@ -791,9 +776,8 @@ void GrAtlasTextContext::drawDFPosText(GrAtlasTextBlob* blob, int runIndex,
 
             if (glyph.fWidth) {
                 SkPoint glyphPos(offset);
-                glyphPos.fX += pos[0] - SkFloatToScalar(glyph.fAdvanceX) * alignMul * textRatio;
-                glyphPos.fY += (2 == scalarsPerPosition ? pos[1] : 0) -
-                               SkFloatToScalar(glyph.fAdvanceY) * alignMul * textRatio;
+                glyphPos.fX += pos[0];
+                glyphPos.fY += (2 == scalarsPerPosition ? pos[1] : 0);
 
                 if (glyph.fMaskFormat == SkMask::kSDF_Format) {
                     DfAppendGlyph(blob, runIndex, glyphCache, &currStrike, glyph, glyphPos.fX,
