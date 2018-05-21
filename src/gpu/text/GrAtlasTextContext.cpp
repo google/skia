@@ -687,12 +687,6 @@ void GrAtlasTextContext::drawDFText(GrAtlasTextBlob* blob, int runIndex,
     const char* textPtr = text;
     SkScalar stopX = 0;
     SkScalar stopY = 0;
-    SkScalar origin = 0;
-    switch (skPaint.getTextAlign()) {
-        case SkPaint::kRight_Align: origin = SK_Scalar1; break;
-        case SkPaint::kCenter_Align: origin = SK_ScalarHalf; break;
-        case SkPaint::kLeft_Align: origin = 0; break;
-    }
 
     SkAutoDescriptor desc;
     SkScalerContextEffects effects;
@@ -712,14 +706,11 @@ void GrAtlasTextContext::drawDFText(GrAtlasTextBlob* blob, int runIndex,
             // same advance
             const SkGlyph& glyph = glyphCacheProc(origPaintCache.get(), &textPtr);
 
-            SkScalar width = SkFloatToScalar(glyph.fAdvanceX);
-            positions.push_back(stopX + origin * width);
+            positions.push_back(stopX);
+            positions.push_back(stopY);
 
-            SkScalar height = SkFloatToScalar(glyph.fAdvanceY);
-            positions.push_back(stopY + origin * height);
-
-            stopX += width;
-            stopY += height;
+            stopX += SkFloatToScalar(glyph.fAdvanceX);
+            stopY += SkFloatToScalar(glyph.fAdvanceY);
         }
         SkASSERT(textPtr == stop);
     }
@@ -738,8 +729,13 @@ void GrAtlasTextContext::drawDFText(GrAtlasTextBlob* blob, int runIndex,
     y -= alignY;
     SkPoint offset = SkPoint::Make(x, y);
 
-    this->drawDFPosText(blob, runIndex, glyphCache, props, paint, scalerContextFlags, viewMatrix,
-                        text, byteLength, positions.begin(), 2, offset);
+    SkPaint leftAlignedSkPaint(skPaint);
+    leftAlignedSkPaint.setTextAlign(SkPaint::kLeft_Align);
+
+    GrTextUtils::Paint leftAlignedPaint(&leftAlignedSkPaint, paint.dstColorSpaceInfo());
+
+    this->drawDFPosText(blob, runIndex, glyphCache, props, leftAlignedPaint, scalerContextFlags,
+                        viewMatrix, text, byteLength, positions.begin(), 2, offset);
 }
 
 void GrAtlasTextContext::drawDFPosText(GrAtlasTextBlob* blob, int runIndex,
