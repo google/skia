@@ -76,6 +76,7 @@ enum class KeyWord {
     kUint32_t,
     kUint64_t,
     kUint8_t,
+    kUintPtr_t,
     kUnion,
     kUnsigned,
     kVoid,
