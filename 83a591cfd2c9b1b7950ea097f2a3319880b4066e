@@ -22,6 +22,53 @@
       "revId": "83a591cfd2c9b1b7950ea097f2a3319880b4066e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7565eb09_c04e3386",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-21T18:01:33Z",
+      "side": 1,
+      "message": "see comment below...",
+      "parentUuid": "f8a982c6_fd88d154",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 0
+      },
+      "revId": "83a591cfd2c9b1b7950ea097f2a3319880b4066e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c7d9851_dfa0a01a",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 520,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-21T18:01:33Z",
+      "side": 1,
+      "message": "Here is where they are used as default template parameters. Otherwise, the TESS_VERTS macro macro below has to take and pass GrAA, isMT, and SkPoint/SkPoint3 to this function and then this function has to forward them on to the two helpers.",
+      "range": {
+        "startLine": 515,
+        "startChar": 4,
+        "endLine": 520,
+        "endChar": 56
+      },
+      "revId": "83a591cfd2c9b1b7950ea097f2a3319880b4066e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
