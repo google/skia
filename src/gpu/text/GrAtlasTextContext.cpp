@@ -712,14 +712,11 @@ void GrAtlasTextContext::drawDFText(GrAtlasTextBlob* blob, int runIndex,
             // same advance
             const SkGlyph& glyph = glyphCacheProc(origPaintCache.get(), &textPtr);
 
-            SkScalar width = SkFloatToScalar(glyph.fAdvanceX);
-            positions.push_back(stopX + origin * width);
+            positions.push_back(stopX);
+            positions.push_back(stopY);
 
-            SkScalar height = SkFloatToScalar(glyph.fAdvanceY);
-            positions.push_back(stopY + origin * height);
-
-            stopX += width;
-            stopY += height;
+            stopX += SkFloatToScalar(glyph.fAdvanceX);
+            stopY += SkFloatToScalar(glyph.fAdvanceY);
         }
         SkASSERT(textPtr == stop);
     }
