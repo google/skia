@@ -43,9 +43,6 @@ declare_args() {
   skia_enable_spirv_validation = is_skia_dev_build && is_debug
   skia_enable_tools = is_skia_dev_build
   skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
-  skia_vulkan_header = ""
-  skia_vulkan_sdk = getenv("VULKAN_SDK")
-  skia_moltenvk_path = ""
   skia_qt_path = getenv("QT_PATH")
   skia_compile_processors = false
   skia_generate_workarounds = false
@@ -77,17 +74,6 @@ declare_args() {
   if (is_ios) {
     skia_ios_identity = ".*Google.*"
     skia_ios_profile = "Google Development"
-  }
-}
-declare_args() {
-  skia_tools_vulkan_header_dir = ""
-  if (skia_use_vulkan) {
-    # When buliding on Android we get the header via the NDK so no need for any extra path.
-    if (is_fuchsia) {
-      skia_tools_vulkan_header_dir = "$fuchsia_vulkan_sdk/include"
-    } else if (is_linux || is_win) {
-      skia_tools_vulkan_header_dir = "$skia_vulkan_sdk/include"
-    }
   }
 }
 
@@ -131,9 +117,6 @@ if (skia_use_metal) {
 # Skia public API, generally provided by :skia.
 config("skia_public") {
   include_dirs = skia_public_includes
-  if (skia_tools_vulkan_header_dir != "") {
-    include_dirs += [ skia_tools_vulkan_header_dir ]
-  }
   defines = []
   if (is_component_build) {
     defines += [ "SKIA_DLL" ]
@@ -223,32 +206,6 @@ config("skia_private") {
 config("skia_library") {
   visibility = [ ":*" ]
   defines = [ "SKIA_IMPLEMENTATION=1" ]
-}
-
-config("moltenvk") {
-  if (is_ios) {
-    moltenvk_framework_path = "$skia_moltenvk_path/MoltenVK/iOS"
-  } else {
-    moltenvk_framework_path = "$skia_moltenvk_path/MoltenVK/macOS"
-  }
-  cflags = [
-    "-F$moltenvk_framework_path",
-    "-isystem$skia_moltenvk_path/MoltenVK/include",  # for <vulkan/vulkan.h>
-  ]
-  ldflags = [ "-F$moltenvk_framework_path" ]
-  libs = [
-    "MoltenVK.framework",
-    "Metal.framework",
-    "IOSurface.framework",
-    "QuartzCore.framework",
-    "Foundation.framework",
-  ]
-  if (is_ios) {
-    libs += [ "UIKit.framework" ]
-  } else {
-    libs += [ "IOKit.framework" ]
-  }
-  defines = [ "SK_MOLTENVK" ]
 }
 
 skia_library_configs = [
@@ -402,6 +359,7 @@ template("optional") {
                              "*",
                              [
                                "public_defines",
+                               "public_deps",
                                "deps",
                                "libs",
                                "sources",
@@ -623,6 +581,7 @@ optional("gpu") {
   }
   public_defines = []
   public_configs = []
+  public_deps = []
 
   sources = skia_gpu_sources + skia_sksl_sources + skia_gpu_processor_outputs
 
@@ -658,22 +617,17 @@ optional("gpu") {
   }
 
   if (skia_use_vulkan) {
-    public_defines += [ "SK_VULKAN" ]
+    # TODO: We should make this deps be //third_party/vulkan and then update clients to have a
+    # //third_party/vulkan directory in their trees so they can set up the vulkan library however
+    # they want. For example this would allow us to remove the fuchsia specific vulkan code in our
+    # vulkan files.
+    public_deps += [ "third_party/vulkan" ]
     sources += skia_vk_sources
     if (skia_enable_vulkan_debug_layers) {
       public_defines += [ "SK_ENABLE_VK_LAYERS" ]
     }
-    if (skia_vulkan_header != "") {
-      public_defines += [ "SK_VULKAN_HEADER=\"$skia_vulkan_header\"" ]
-    } else if (skia_moltenvk_path != "") {
-      public_defines += [ "SK_VULKAN_HEADER=<MoltenVK/mvk_vulkan.h>" ]
-    } else if (is_skia_dev_build) {
-      public_defines += [ "SK_VULKAN_HEADER=\"GrVulkanDefines.h\"" ]
-    }
-    if (skia_moltenvk_path != "") {
-      public_configs += [ ":moltenvk" ]
-    }
   }
+
   if (skia_use_legacy_gpu_pixel_ops) {
     public_defines += [ "SK_LEGACY_GPU_PIXEL_OPS" ]
   }
@@ -891,7 +845,6 @@ component("skia") {
     ":fontmgr_empty",
     ":fontmgr_fontconfig",
     ":fontmgr_fuchsia",
-    ":gpu",
     ":heif",
     ":hsw",
     ":jpeg",
@@ -906,6 +859,12 @@ component("skia") {
     ":ssse3",
     ":webp",
     ":xml",
+  ]
+
+  # We need the public deps here for Vulkan. Our third_party/vulkan target sets some defines that
+  # need to get propagated up to the tools that depend on :skia and thus :gpu.
+  public_deps = [
+    ":gpu",
   ]
 
   # This file (and all GN files in Skia) are designed to work with an
