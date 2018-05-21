@@ -31,8 +31,6 @@ public:
                                      sk_sp<SkImageFilter> color,
                                      const CropRect* cropRect = nullptr);
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDisplacementMapEffect)
-
     SkRect computeFastBounds(const SkRect& src) const override;
 
     virtual SkIRect onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
@@ -42,6 +40,8 @@ public:
                                MapDirection, const SkIRect* inputRect) const override;
 
     void toString(SkString* str) const override;
+
+    Factory getFactory() const override { return CreateProc; }
 
 protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
@@ -54,6 +54,9 @@ protected:
     void flatten(SkWriteBuffer&) const override;
 
 private:
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
+    friend class SkFlattenable::PrivateInitializer;
+
     ChannelSelectorType fXChannelSelector;
     ChannelSelectorType fYChannelSelector;
     SkScalar fScale;
