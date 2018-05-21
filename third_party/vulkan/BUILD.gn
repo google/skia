@@ -43,6 +43,8 @@ config("moltenvk") {
 
 config("vulkan_config") {
   include_dirs = []
+  public_configs = []
+
   if (skia_tools_vulkan_header_dir != "") {
     include_dirs += [ skia_tools_vulkan_header_dir ]
   }
