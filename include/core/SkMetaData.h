@@ -121,9 +121,9 @@ public:
         kPtr_Type,
         kBool_Type,
         kData_Type,
-
-        kTypeCount
     };
+
+    static constexpr int kTypeCount = (int) kData_Type + 1;
 
     struct Rec;
     class Iter;

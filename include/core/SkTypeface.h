@@ -132,7 +132,7 @@ public:
     enum Encoding {
         kUTF8_Encoding,
         kUTF16_Encoding,
-        kUTF32_Encoding
+        kUTF32_Encoding,
     };
 
     /**

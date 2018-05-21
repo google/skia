@@ -11,7 +11,9 @@
 #include "SkPoint.h"
 
 struct SK_API SkPoint3 {
-    SkScalar fX, fY, fZ;
+    SkScalar fX;
+    SkScalar fY;
+    SkScalar fZ;
 
     static SkPoint3 Make(SkScalar x, SkScalar y, SkScalar z) {
         SkPoint3 pt;

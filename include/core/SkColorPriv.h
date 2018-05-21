@@ -100,8 +100,7 @@ static inline SkPMColor SkPackARGB32NoCheck(U8CPU a, U8CPU r, U8CPU g, U8CPU b) 
            (g << SK_G32_SHIFT) | (b << SK_B32_SHIFT);
 }
 
-static inline
-SkPMColor SkPremultiplyARGBInline(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
+static inline SkPMColor SkPremultiplyARGBInline(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     SkA32Assert(a);
     SkR32Assert(r);
     SkG32Assert(g);

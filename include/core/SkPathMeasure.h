@@ -50,7 +50,7 @@ public:
     enum MatrixFlags {
         kGetPosition_MatrixFlag     = 0x01,
         kGetTangent_MatrixFlag      = 0x02,
-        kGetPosAndTan_MatrixFlag    = kGetPosition_MatrixFlag | kGetTangent_MatrixFlag
+        kGetPosAndTan_MatrixFlag    = kGetPosition_MatrixFlag | kGetTangent_MatrixFlag,
     };
 
     /** Pins distance to 0 <= distance <= getLength(), and then computes

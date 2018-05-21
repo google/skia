@@ -862,8 +862,7 @@ bool IncludeParser::dumpGlobals() {
     size_t lastSlash = fFileName.rfind('/');
     size_t lastDotH = fFileName.rfind(".h");
     SkASSERT(string::npos != lastDotH);
-    if (string::npos != lastBSlash && (string::npos == lastSlash
-            || lastBSlash < lastSlash)) {
+    if (string::npos != lastBSlash && (string::npos == lastSlash || lastBSlash > lastSlash)) {
         lastSlash = lastBSlash;
     } else if (string::npos == lastSlash) {
         lastSlash = -1;
@@ -873,7 +872,7 @@ bool IncludeParser::dumpGlobals() {
     string fileName = globalsName + "_Reference.bmh";
     fOut = fopen(fileName.c_str(), "wb");
     if (!fOut) {
-        SkDebugf("could not open output file %s\n", globalsName.c_str());
+        SkDebugf("could not open output file %s\n", fileName.c_str());
         return false;
     }
     string prefixName = globalsName.substr(0, 2);
@@ -1036,7 +1035,7 @@ void IncludeParser::dumpMethod(const Definition& token, string className) {
             name = name.substr(0, constPos) + "_const";
         }
     }
-    this->writeString(name);
+    this->writeBlock(name.length(), &name.front());
     string inType;
     if (this->isConstructor(token, className)) {
         inType = "Constructor";
@@ -1389,21 +1388,21 @@ bool IncludeParser::parseComment(string filename, const char* start, const char*
             // Doxygen tag may be "file" or "fn" in addition to "class", "enum", "struct"
             if (parser.skipExact("file")) {
                 if (Definition::Type::kFileType != fParent->fType) {
-                    return reportError<bool>("expected parent is file");
+                    return parser.reportError<bool>("expected parent is file"), false;
                 }
                 string filename = markupDef->fileName();
                 if (!parser.skipWord(filename.c_str())) {
-                    return reportError<bool>("missing object type");
+                    return parser.reportError<bool>("missing object type"), false;
                 }
             } else if (parser.skipExact("fn")) {
                 SkASSERT(0);  // incomplete
             } else {
                 if (!parser.skipWord(kKeyWords[(int) markupDef->fKeyWord].fName)) {
-                    return reportError<bool>("missing object type");
+                    return parser.reportError<bool>("missing object type"), false;
                 }
                 if (!parser.skipWord(markupDef->fName.c_str()) &&
                         KeyWord::kEnum != markupDef->fKeyWord) {
-                    return reportError<bool>("missing object name");
+                    return parser.reportError("missing object name"), false;
                 }
             }
         }
@@ -1650,7 +1649,7 @@ bool IncludeParser::parseEnum(Definition* child, Definition* markupDef) {
         parser.skipToNonName();
         string memberName(memberStart, parser.fChar);
         if (parser.eof() || !parser.skipWhiteSpace()) {
-            return this->reportError<bool>("enum member must end with comma 1");
+            return parser.reportError<bool>("enum member must end with comma 1"), false;
         }
         const char* dataStart = parser.fChar;
         if ('=' == parser.peek()) {
@@ -1661,7 +1660,7 @@ bool IncludeParser::parseEnum(Definition* child, Definition* markupDef) {
             continue;
         }
         if (parser.eof() || ',' != parser.peek()) {
-            return this->reportError<bool>("enum member must end with comma 2");
+            return parser.reportError<bool>("enum member must end with comma 2"), false;
         }
         dataEnd = parser.fChar;
         const char* start = parser.anyOf("/\n");
@@ -2630,9 +2629,9 @@ bool IncludeParser::references(const SkString& file) const {
     return false;
 }
 
-void IncludeParser::RemoveFile(const char* docs, const char* includes) {
+void IncludeParser::RemoveBmhFiles(const char* includes) {
     if (!sk_isdir(includes)) {
-        IncludeParser::RemoveOneFile(docs, includes);
+        IncludeParser::RemoveOneBmhFile(includes);
     } else {
         SkOSFile::Iter it(includes, ".h");
         for (SkString file; it.next(&file); ) {
@@ -2641,12 +2640,12 @@ void IncludeParser::RemoveFile(const char* docs, const char* includes) {
             if (!SkStrEndsWith(hunk, ".h")) {
                 continue;
             }
-            IncludeParser::RemoveOneFile(docs, hunk);
+            IncludeParser::RemoveOneBmhFile(hunk);
         }
     }
 }
 
-void IncludeParser::RemoveOneFile(const char* docs, const char* includesFile) {
+void IncludeParser::RemoveOneBmhFile(const char* includesFile) {
     const char* lastForward = strrchr(includesFile, '/');
     const char* lastBackward = strrchr(includesFile, '\\');
     const char* last = lastForward > lastBackward ? lastForward : lastBackward;
@@ -2655,10 +2654,9 @@ void IncludeParser::RemoveOneFile(const char* docs, const char* includesFile) {
     } else {
         last += 1;
     }
-    SkString baseName(last);
-    SkASSERT(baseName.endsWith(".h"));
-    baseName.remove(baseName.size() - 2, 2);
-    baseName.append("_Reference.bmh");
-    SkString fullName = SkOSPath::Join(docs, baseName.c_str());
-    remove(fullName.c_str());
+    string baseName(last);
+    SkASSERT(baseName.length() - 2 == baseName.find(".h"));
+    baseName = baseName.substr(0, baseName.length() - 2);
+    baseName += "_Reference.bmh";
+    remove(baseName.c_str());
 }

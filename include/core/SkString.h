@@ -288,7 +288,7 @@ enum SkStrSplitMode {
     // Only nonempty results will be added to the results. Multiple separators will be
     // coalesced. Separators at the beginning and end of the input will be ignored.  If the input is
     // ",," and the separator is ',', this will return an empty vector.
-    kCoalesce_SkStrSplitMode
+    kCoalesce_SkStrSplitMode,
 };
 
 // Split str on any characters in delimiters into out.  (Think, strtok with a sane API.)

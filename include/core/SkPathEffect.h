@@ -67,7 +67,7 @@ public:
      */
     virtual void computeFastBounds(SkRect* dst, const SkRect& src) const;
 
-    /** \class PointData
+    /** \class SkPathEffect::PointData
 
         PointData aggregates all the information needed to draw the point
         primitives returned by an 'asPoints' call.

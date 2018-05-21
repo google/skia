@@ -201,7 +201,7 @@ public:
         kUpperLeft_Corner,
         kUpperRight_Corner,
         kLowerRight_Corner,
-        kLowerLeft_Corner
+        kLowerLeft_Corner,
     };
 
     const SkRect& rect() const { return fRect; }

@@ -27,7 +27,7 @@ public:
         kLight_LevelOfDetail,
 
         // Dump the detailed breakdown of the objects in the caches.
-        kObjectsBreakdowns_LevelOfDetail
+        kObjectsBreakdowns_LevelOfDetail,
     };
 
     /**

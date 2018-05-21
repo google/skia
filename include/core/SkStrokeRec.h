@@ -17,7 +17,7 @@ class SkStrokeRec {
 public:
     enum InitStyle {
         kHairline_InitStyle,
-        kFill_InitStyle
+        kFill_InitStyle,
     };
     SkStrokeRec(InitStyle style);
     SkStrokeRec(const SkPaint&, SkPaint::Style, SkScalar resScale = 1);
@@ -27,7 +27,7 @@ public:
         kHairline_Style,
         kFill_Style,
         kStroke_Style,
-        kStrokeAndFill_Style
+        kStrokeAndFill_Style,
     };
 
     static constexpr int kStyleCount = kStrokeAndFill_Style + 1;

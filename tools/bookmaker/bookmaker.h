@@ -1122,6 +1122,8 @@ public:
         fParent = def;
     }
 
+    void addExisting(const char* path, const char* suffix, vector<string>* );
+
     void indentToColumn(int column) {
         SkASSERT(column >= fColumn);
         if (fDebugOut) {
@@ -1166,7 +1168,8 @@ public:
         fPendingSpace = 0;
     }
 
-    bool parseFile(const char* file, const char* suffix, OneFile );
+    bool parseFile(const char* file, const char* suffix, OneFile ,
+            vector<string>* exclusions = nullptr);
     bool parseStatus(const char* file, const char* suffix, StatusFilter filter);
     virtual bool parseFromFile(const char* path) = 0;
     bool parseSetup(const char* path);
@@ -1709,8 +1712,8 @@ public:
 
     bool references(const SkString& file) const;
 
-    static void RemoveFile(const char* docs, const char* includes);
-    static void RemoveOneFile(const char* docs, const char* includesFileOrPath);
+    static void RemoveBmhFiles(const char* includes);
+    static void RemoveOneBmhFile(const char* includesFileOrPath);
 
     void reset() override {
         INHERITED::resetCommon();

@@ -2545,9 +2545,6 @@ int main(int argc, char** const argv) {
     }
     bmhParser.reset();
     if (!FLAGS_bmh.isEmpty()) {
-        if (FLAGS_tokens)  {
-            IncludeParser::RemoveFile(FLAGS_bmh[0], FLAGS_include[0]);
-        }
         if (!bmhParser.parseFile(FLAGS_bmh[0], ".bmh", ParserCommon::OneFile::kNo)) {
             return -1;
         }
@@ -2576,16 +2573,38 @@ int main(int argc, char** const argv) {
     if (!FLAGS_include.isEmpty() && FLAGS_tokens) {
         IncludeParser includeParser;
         includeParser.validate();
-        if (!includeParser.parseFile(FLAGS_include[0], ".h", ParserCommon::OneFile::kNo)) {
+        vector<string> exclusions = {
+            "SkFontArguments.h",  // 3 deep struct
+            "SkFontStyle.h",  // constexpr constructor
+            "SkMath.h", // preprocessor in function inline
+            "SkMatrix44.h", // member array
+            "SkPicture.h",  // static_assert
+            "SkPictureRecorder.h",  // namespace
+            "SkPostConfig.h",  // quote in #define
+            "SkPreConfig.h",  // quote in #define
+            "SkRefCnt.h",  // using
+            "SkRegion.h",  // namespace
+            "SkScalar.h",  // #undef
+            "SkShader.h",  // member array
+            "SkTLazy.h",  // operator ->
+            "SkTypes.h",  // quote in #define
+            "SkYUVSizeInfo.h",  // member array
+            "SkString.h",  // ... (ellipsis) parameter
+        };
+        // don't parse completed files again
+        start here;
+        // this doesn't work: maybe once the output bmh file is known, dumpTokens can skip it
+        includeParser.addExisting(FLAGS_bmh[0],".bmh", &exclusions);
+        if (!includeParser.parseFile(FLAGS_include[0], ".h", ParserCommon::OneFile::kNo,
+                &exclusions)) {
             return -1;
         }
-        if (FLAGS_tokens) {
-            includeParser.fDebugOut = FLAGS_stdout;
-            if (includeParser.dumpTokens()) {
-                bmhParser.fWroteOut = true;
-            }
-            done = true;
+        IncludeParser::RemoveBmhFiles(FLAGS_include[0]);
+        includeParser.fDebugOut = FLAGS_stdout;
+        if (includeParser.dumpTokens()) {
+            bmhParser.fWroteOut = true;
         }
+        done = true;
     } else if (!FLAGS_include.isEmpty() || !FLAGS_status.isEmpty()) {
         if (FLAGS_crosscheck) {
             IncludeParser includeParser;

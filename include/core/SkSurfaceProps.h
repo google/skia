@@ -59,7 +59,7 @@ public:
     SkSurfaceProps(uint32_t flags, SkPixelGeometry);
 
     enum InitType {
-        kLegacyFontHost_InitType
+        kLegacyFontHost_InitType,
     };
     SkSurfaceProps(InitType);
     SkSurfaceProps(uint32_t flags, InitType);

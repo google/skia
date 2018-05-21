@@ -28,9 +28,20 @@ class SkColorSpace;
 */
 class SK_API SkSurfaceCharacterization {
 public:
-    enum class Textureable : bool { kNo = false, kYes = true };
-    enum class MipMapped : bool { kNo = false, kYes = true };
-    enum class UsesGLFBO0 : bool { kNo = false, kYes = true };
+    enum class Textureable : bool {
+        kNo = false,
+        kYes = true,
+    };
+
+    enum class MipMapped : bool {
+        kNo = false,
+        kYes = true,
+    };
+
+    enum class UsesGLFBO0 : bool {
+        kNo = false,
+        kYes = true,
+    };
 
     SkSurfaceCharacterization()
             : fCacheMaxResourceBytes(0)

@@ -14,7 +14,16 @@ static void debug_out(int len, const char* data) {
     SkDebugf("%.*s", len, data);
 }
 
-bool ParserCommon::parseFile(const char* fileOrPath, const char* suffix, OneFile oneFile) {
+void ParserCommon::addExisting(const char* path, const char* suffix, vector<string>* list) {
+    SkASSERT(sk_isdir(path));
+    SkOSFile::Iter it(path, suffix);
+    for (SkString file; it.next(&file); ) {
+        list->push_back(string(file.c_str()));
+    }
+}
+
+bool ParserCommon::parseFile(const char* fileOrPath, const char* suffix, OneFile oneFile,
+        vector<string>* exclusions) {
     if (!sk_isdir(fileOrPath)) {
         if (!this->parseFromFile(fileOrPath)) {
             SkDebugf("failed to parse %s\n", fileOrPath);
@@ -24,12 +33,11 @@ bool ParserCommon::parseFile(const char* fileOrPath, const char* suffix, OneFile
         SkOSFile::Iter it(fileOrPath, suffix);
         for (SkString file; it.next(&file); ) {
             // FIXME: skip difficult file for now
-            if (string::npos != string(file.c_str()).find("SkFontArguments")) {
+            if (exclusions && std::any_of(exclusions->begin(), exclusions->end(),
+                    [file](string str) { return string(file.c_str()) == str; } )) {
                 continue;
             }
-            if (string::npos != string(file.c_str()).find("SkFontStyle")) {
-                continue;
-            }
+
             SkString p = SkOSPath::Join(fileOrPath, file.c_str());
             const char* hunk = p.c_str();
             if (!SkStrEndsWith(hunk, suffix)) {
