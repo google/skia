@@ -125,10 +125,13 @@ public:
                                              TextureContext textureContext);
 
     /** Implementation of MakeFromYUVTexturesCopy and MakeFromNV12TexturesCopy */
-    static sk_sp<SkImage> MakeFromYUVTexturesCopyImpl(
-            GrContext* ctx, SkYUVColorSpace colorSpace, bool nv12,
-            const GrBackendTexture yuvBackendTextures[], GrSurfaceOrigin origin,
-            sk_sp<SkColorSpace> imageColorSpace);
+    static sk_sp<SkImage> MakeFromYUVATexturesCopyImpl(GrContext* ctx,
+                                                       SkYUVColorSpace colorSpace,
+                                                       const GrBackendTexture yuvaTextures[],
+                                                       SkYUVAIndex yuvaIndices[4],
+                                                       SkISize size,
+                                                       GrSurfaceOrigin origin,
+                                                       sk_sp<SkColorSpace> imageColorSpace);
 
     bool onIsValid(GrContext*) const override;
 
