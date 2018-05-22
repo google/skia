@@ -41,14 +41,8 @@ static const int kDefaultMaxDistanceFieldFontSize = 2 * kLargeDFFontSize;
 #endif
 
 GrAtlasTextContext::GrAtlasTextContext(const Options& options)
-        : fDistanceAdjustTable(new GrDistanceFieldAdjustTable) {
-    fMaxDistanceFieldFontSize = options.fMaxDistanceFieldFontSize < 0.f
-                                        ? kDefaultMaxDistanceFieldFontSize
-                                        : options.fMaxDistanceFieldFontSize;
-    fMinDistanceFieldFontSize = options.fMinDistanceFieldFontSize < 0.f
-                                        ? kDefaultMinDistanceFieldFontSize
-                                        : options.fMinDistanceFieldFontSize;
-    fDistanceFieldVerticesAlwaysHaveW = options.fDistanceFieldVerticesAlwaysHaveW;
+        : fDistanceAdjustTable(new GrDistanceFieldAdjustTable), fOptions(options) {
+    SanitizeOptions(&fOptions);
 }
 
 std::unique_ptr<GrAtlasTextContext> GrAtlasTextContext::Make(const Options& options) {
@@ -211,7 +205,8 @@ void GrAtlasTextContext::regenerateTextBlob(GrAtlasTextBlob* cacheBlob,
         }
         cacheBlob->setRunPaintFlags(run, runPaint.skPaint().getFlags());
 
-        if (this->canDrawAsDistanceFields(runPaint, viewMatrix, props, shaderCaps)) {
+        if (CanDrawAsDistanceFields(runPaint, viewMatrix, props,
+                                    shaderCaps.supportsDistanceFieldText(), fOptions)) {
             switch (it.positioning()) {
                 case SkTextBlob::kDefault_Positioning: {
                     this->drawDFText(cacheBlob, run, glyphCache, props, runPaint, scalerContextFlags,
@@ -274,7 +269,8 @@ GrAtlasTextContext::makeDrawTextBlob(GrTextBlobCache* blobCache,
     blob->initThrowawayBlob(viewMatrix, x, y);
     blob->setRunPaintFlags(0, paint.skPaint().getFlags());
 
-    if (this->canDrawAsDistanceFields(paint, viewMatrix, props, shaderCaps)) {
+    if (CanDrawAsDistanceFields(paint, viewMatrix, props, shaderCaps.supportsDistanceFieldText(),
+                                fOptions)) {
         this->drawDFText(blob.get(), 0, glyphCache, props, paint, scalerContextFlags, viewMatrix,
                          text, byteLength, x, y);
     } else {
@@ -304,7 +300,8 @@ GrAtlasTextContext::makeDrawPosTextBlob(GrTextBlobCache* blobCache,
     blob->initThrowawayBlob(viewMatrix, offset.x(), offset.y());
     blob->setRunPaintFlags(0, paint.skPaint().getFlags());
 
-    if (this->canDrawAsDistanceFields(paint, viewMatrix, props, shaderCaps)) {
+    if (CanDrawAsDistanceFields(paint, viewMatrix, props, shaderCaps.supportsDistanceFieldText(),
+                                fOptions)) {
         this->drawDFPosText(blob.get(), 0, glyphCache, props, paint, scalerContextFlags, viewMatrix,
                             text, byteLength, pos, scalarsPerPosition, offset);
     } else {
@@ -565,16 +562,26 @@ void GrAtlasTextContext::BmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
                       textRatio, true);
 }
 
-bool GrAtlasTextContext::canDrawAsDistanceFields(const SkPaint& skPaint, const SkMatrix& viewMatrix,
+void GrAtlasTextContext::SanitizeOptions(Options* options) {
+    if (options->fMaxDistanceFieldFontSize < 0.f) {
+        options->fMaxDistanceFieldFontSize = kDefaultMaxDistanceFieldFontSize;
+    }
+    if (options->fMinDistanceFieldFontSize < 0.f) {
+        options->fMinDistanceFieldFontSize = kDefaultMinDistanceFieldFontSize;
+    }
+}
+
+bool GrAtlasTextContext::CanDrawAsDistanceFields(const SkPaint& skPaint, const SkMatrix& viewMatrix,
                                                  const SkSurfaceProps& props,
-                                                 const GrShaderCaps& caps) const {
+                                                 bool contextSupportsDistanceFieldText,
+                                                 const Options& options) {
     if (!viewMatrix.hasPerspective()) {
         SkScalar maxScale = viewMatrix.getMaxScale();
         SkScalar scaledTextSize = maxScale * skPaint.getTextSize();
         // Hinted text looks far better at small resolutions
         // Scaling up beyond 2x yields undesireable artifacts
-        if (scaledTextSize < fMinDistanceFieldFontSize ||
-            scaledTextSize > fMaxDistanceFieldFontSize) {
+        if (scaledTextSize < options.fMinDistanceFieldFontSize ||
+            scaledTextSize > options.fMaxDistanceFieldFontSize) {
             return false;
         }
 
@@ -589,7 +596,7 @@ bool GrAtlasTextContext::canDrawAsDistanceFields(const SkPaint& skPaint, const S
     }
 
     // mask filters modify alpha, which doesn't translate well to distance
-    if (skPaint.getMaskFilter() || !caps.shaderDerivativeSupport()) {
+    if (skPaint.getMaskFilter() || !contextSupportsDistanceFieldText) {
         return false;
     }
 
@@ -601,10 +608,12 @@ bool GrAtlasTextContext::canDrawAsDistanceFields(const SkPaint& skPaint, const S
     return true;
 }
 
-void GrAtlasTextContext::initDistanceFieldPaint(GrAtlasTextBlob* blob,
+void GrAtlasTextContext::InitDistanceFieldPaint(GrAtlasTextBlob* blob,
                                                 SkPaint* skPaint,
+                                                const SkMatrix& viewMatrix,
+                                                const Options& options,
                                                 SkScalar* textRatio,
-                                                const SkMatrix& viewMatrix) const {
+                                                SkScalerContextFlags* flags) {
     SkScalar textSize = skPaint->getTextSize();
     SkScalar scaledTextSize = textSize;
 
@@ -627,7 +636,7 @@ void GrAtlasTextContext::initDistanceFieldPaint(GrAtlasTextBlob* blob,
     SkScalar dfMaskScaleFloor;
     SkScalar dfMaskScaleCeil;
     if (scaledTextSize <= kSmallDFFontLimit) {
-        dfMaskScaleFloor = fMinDistanceFieldFontSize;
+        dfMaskScaleFloor = options.fMinDistanceFieldFontSize;
         dfMaskScaleCeil = kSmallDFFontLimit;
         *textRatio = textSize / kSmallDFFontSize;
         skPaint->setTextSize(SkIntToScalar(kSmallDFFontSize));
@@ -638,7 +647,7 @@ void GrAtlasTextContext::initDistanceFieldPaint(GrAtlasTextBlob* blob,
         skPaint->setTextSize(SkIntToScalar(kMediumDFFontSize));
     } else {
         dfMaskScaleFloor = kMediumDFFontLimit;
-        dfMaskScaleCeil = fMaxDistanceFieldFontSize;
+        dfMaskScaleCeil = options.fMaxDistanceFieldFontSize;
         *textRatio = textSize / kLargeDFFontSize;
         skPaint->setTextSize(SkIntToScalar(kLargeDFFontSize));
     }
@@ -651,7 +660,10 @@ void GrAtlasTextContext::initDistanceFieldPaint(GrAtlasTextBlob* blob,
     // against these values to decide if we can reuse or not(ie, will a given scale change our mip
     // level)
     SkASSERT(dfMaskScaleFloor <= scaledTextSize && scaledTextSize <= dfMaskScaleCeil);
-    blob->setMinAndMaxScale(dfMaskScaleFloor / scaledTextSize, dfMaskScaleCeil / scaledTextSize);
+    if (blob) {
+        blob->setMinAndMaxScale(dfMaskScaleFloor / scaledTextSize,
+                                dfMaskScaleCeil / scaledTextSize);
+    }
 
     skPaint->setAntiAlias(true);
     skPaint->setLCDRenderText(false);
@@ -660,6 +672,10 @@ void GrAtlasTextContext::initDistanceFieldPaint(GrAtlasTextBlob* blob,
     skPaint->setSubpixelText(true);
 
     skPaint->setMaskFilter(GrSDFMaskFilter::Make());
+
+    // We apply the fake-gamma by altering the distance in the shader, so we ignore the
+    // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).
+    *flags = SkScalerContextFlags::kNone;
 }
 
 void GrAtlasTextContext::drawDFText(GrAtlasTextBlob* blob, int runIndex,
@@ -745,12 +761,13 @@ void GrAtlasTextContext::drawDFPosText(GrAtlasTextBlob* blob, int runIndex,
         return;
     }
 
-    bool hasWCoord = viewMatrix.hasPerspective() || fDistanceFieldVerticesAlwaysHaveW;
+    bool hasWCoord = viewMatrix.hasPerspective() || fOptions.fDistanceFieldVerticesAlwaysHaveW;
 
     // Setup distance field paint and text ratio
     SkScalar textRatio;
     SkPaint dfPaint(paint);
-    this->initDistanceFieldPaint(blob, &dfPaint, &textRatio, viewMatrix);
+    SkScalerContextFlags flags;
+    InitDistanceFieldPaint(blob, &dfPaint, viewMatrix, fOptions, &textRatio, &flags);
     blob->setHasDistanceField();
     blob->setSubRunHasDistanceFields(runIndex, paint.skPaint().isLCDRenderText(),
                                      paint.skPaint().isAntiAlias(), hasWCoord);
@@ -760,10 +777,7 @@ void GrAtlasTextContext::drawDFPosText(GrAtlasTextBlob* blob, int runIndex,
     sk_sp<GrTextStrike> currStrike;
 
     {
-        // We apply the fake-gamma by altering the distance in the shader, so we ignore the
-        // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).
-        auto cache = blob->setupCache(runIndex, props, SkScalerContextFlags::kNone, dfPaint,
-                                      nullptr);
+        auto cache = blob->setupCache(runIndex, props, flags, dfPaint, nullptr);
         SkPaint::GlyphCacheProc glyphCacheProc =
             SkPaint::GetGlyphCacheProc(dfPaint.getTextEncoding(), true);
 
