@@ -32,8 +32,6 @@ public:
     enum class InstanceAttribs {
         kDevBounds,
         kDevBounds45,
-        kViewMatrix, // FIXME: This causes a lot of duplication. It could move to a texel buffer.
-        kViewTranslate,
         kAtlasOffset,
         kColor
     };
@@ -43,24 +41,24 @@ public:
         SkRect fDevBounds;
         SkRect fDevBounds45; // Bounding box in "| 1  -1 | * devCoords" space.
                              //                  | 1   1 |
-        std::array<float, 4> fViewMatrix;  // {kScaleX, kSkewy, kSkewX, kScaleY}
-        std::array<float, 2> fViewTranslate;
         std::array<int16_t, 2> fAtlasOffset;
         uint32_t fColor;
 
         GR_STATIC_ASSERT(SK_SCALAR_IS_FLOAT);
     };
 
-    GR_STATIC_ASSERT(4 * 16 == sizeof(Instance));
+    GR_STATIC_ASSERT(4 * 10 == sizeof(Instance));
 
     static sk_sp<const GrBuffer> FindVertexBuffer(GrOnFlushResourceProvider*);
     static sk_sp<const GrBuffer> FindIndexBuffer(GrOnFlushResourceProvider*);
 
-    GrCCPathProcessor(GrResourceProvider*, sk_sp<GrTextureProxy> atlas, SkPath::FillType);
+    GrCCPathProcessor(GrResourceProvider*, sk_sp<GrTextureProxy> atlas, SkPath::FillType,
+                      const SkMatrix& viewMatrixIfUsingLocalCoords = SkMatrix::I());
 
     const char* name() const override { return "GrCCPathProcessor"; }
     const GrSurfaceProxy* atlasProxy() const { return fAtlasAccess.proxy(); }
     const GrTexture* atlas() const { return fAtlasAccess.peekTexture(); }
+    const SkMatrix& localMatrix() const { return fLocalMatrix; }
     SkPath::FillType fillType() const { return fFillType; }
     const Attribute& getInstanceAttrib(InstanceAttribs attribID) const {
         const Attribute& attrib = this->getAttrib((int)attribID);
@@ -84,6 +82,7 @@ public:
 private:
     const SkPath::FillType fFillType;
     const TextureSampler fAtlasAccess;
+    SkMatrix fLocalMatrix;
 
     typedef GrGeometryProcessor INHERITED;
 };
