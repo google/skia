@@ -987,6 +987,9 @@ void rewind_if_necessary(Edge* edge, EdgeList* activeEdges, Vertex** current, Co
 }
 
 void set_top(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, Comparator& c) {
+    if (!edge->fTop) { // Only operate on live edges.
+        return;
+    }
     remove_edge_below(edge);
     edge->fTop = v;
     edge->recompute();
@@ -996,6 +999,9 @@ void set_top(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, Com
 }
 
 void set_bottom(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, Comparator& c) {
+    if (!edge->fBottom) { // Only operate on live edges.
+        return;
+    }
     remove_edge_above(edge);
     edge->fBottom = v;
     edge->recompute();
