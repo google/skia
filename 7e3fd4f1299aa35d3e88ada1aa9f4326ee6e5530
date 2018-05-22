@@ -70,6 +70,30 @@
       "revId": "7e3fd4f1299aa35d3e88ada1aa9f4326ee6e5530",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "708817f2_4e0588b6",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-22T19:14:18Z",
+      "side": 1,
+      "message": "Sure, that makes sense. Done.",
+      "parentUuid": "bd7bf1e1_30667369",
+      "range": {
+        "startLine": 285,
+        "startChar": 3,
+        "endLine": 285,
+        "endChar": 41
+      },
+      "revId": "7e3fd4f1299aa35d3e88ada1aa9f4326ee6e5530",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
