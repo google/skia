@@ -322,10 +322,10 @@ bool GrRenderTargetOpList::combineIfPossible(const RecordedOp& a, GrOp* b,
     return a.fOp->combineIfPossible(b, caps);
 }
 
-void GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
-                                    const GrCaps& caps,
-                                    GrAppliedClip* clip,
-                                    const DstProxy* dstProxy) {
+uint32_t GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
+                                        const GrCaps& caps,
+                                        GrAppliedClip* clip,
+                                        const DstProxy* dstProxy) {
     SkASSERT(fTarget.get());
 
     // A closed GrOpList should never receive new/more ops
@@ -358,7 +358,7 @@ void GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
                 GrOP_INFO("\t\t\tBackward: Combined op info:\n");
                 GrOP_INFO(SkTabString(candidate.fOp->dumpInfo(), 4).c_str());
                 GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, candidate.fOp.get(), op.get());
-                return;
+                return SK_InvalidUniqueID;
             }
             // Stop going backwards if we would cause a painter's order violation.
             if (!can_reorder(fRecordedOps.fromBack(i).fOp->bounds(), op->bounds())) {
@@ -381,7 +381,7 @@ void GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
         SkDEBUGCODE(fNumClips++;)
     }
     fRecordedOps.emplace_back(std::move(op), clip, dstProxy);
-    fRecordedOps.back().fOp->wasRecorded(this);
+    return this->uniqueID();
 }
 
 void GrRenderTargetOpList::forwardCombine(const GrCaps& caps) {

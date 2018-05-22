@@ -81,10 +81,11 @@ bool GrCCDrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps& caps) {
     return true;
 }
 
-void GrCCDrawPathsOp::wasRecorded(GrRenderTargetOpList* opList) {
+void GrCCDrawPathsOp::wasRecorded(GrCCRTPendingPaths* owningRTPendingPaths) {
+    SkASSERT(1 == fNumDraws);
     SkASSERT(!fOwningRTPendingPaths);
-    fOwningRTPendingPaths = fCCPR->lookupRTPendingPaths(opList);
-    fOwningRTPendingPaths->fDrawOps.addToTail(this);
+    owningRTPendingPaths->fDrawOps.addToTail(this);
+    fOwningRTPendingPaths = owningRTPendingPaths;
 }
 
 int GrCCDrawPathsOp::countPaths(GrCCPathParser::PathStats* stats) const {
@@ -134,6 +135,8 @@ void GrCCDrawPathsOp::setupResources(GrCCPerFlushResources* resources,
 }
 
 void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState) {
+    SkASSERT(fOwningRTPendingPaths);
+
     const GrCCPerFlushResources* resources = fCCPR->getPerFlushResources();
     if (!resources) {
         return;  // Setup failed.

@@ -78,10 +78,7 @@ public:
 private:
     GrCoverageCountingPathRenderer(bool drawCachablePaths);
 
-    GrCCRTPendingPaths* lookupRTPendingPaths(GrRenderTargetOpList* opList) {
-        SkASSERT(!fFlushing);
-        return &fRTPendingPathsMap[opList->uniqueID()];
-    }
+    void adoptAndRecordOp(GrCCDrawPathsOp*, const DrawPathArgs&);
 
     const GrCCPerFlushResources* getPerFlushResources() const {
         SkASSERT(fFlushing);
@@ -96,7 +93,6 @@ private:
 
     const bool fDrawCachablePaths;
 
-    friend void GrCCDrawPathsOp::wasRecorded(GrRenderTargetOpList*);  // For lookupRTPendingPaths.
     friend void GrCCDrawPathsOp::onExecute(GrOpFlushState*);  // For getPerFlushResources.
 };
 

@@ -112,17 +112,23 @@ bool GrCoverageCountingPathRenderer::onDrawPath(const DrawPathArgs& args) {
         SkPath croppedPath;
         path.transform(*args.fViewMatrix, &croppedPath);
         crop_path(croppedPath, clipIBounds, &croppedPath);
-        auto op = skstd::make_unique<GrCCDrawPathsOp>(this, std::move(args.fPaint), clipIBounds,
-                                                      SkMatrix::I(), croppedPath,
-                                                      croppedPath.getBounds());
-        rtc->addDrawOp(*args.fClip, std::move(op));
+        this->adoptAndRecordOp(new GrCCDrawPathsOp(this, std::move(args.fPaint), clipIBounds,
+                                                   SkMatrix::I(), croppedPath,
+                                                   croppedPath.getBounds()), args);
         return true;
     }
 
-    auto op = skstd::make_unique<GrCCDrawPathsOp>(this, std::move(args.fPaint), clipIBounds,
-                                                  *args.fViewMatrix, path, devBounds);
-    rtc->addDrawOp(*args.fClip, std::move(op));
+    this->adoptAndRecordOp(new GrCCDrawPathsOp(this, std::move(args.fPaint), clipIBounds,
+                                               *args.fViewMatrix, path, devBounds), args);
     return true;
+}
+
+void GrCoverageCountingPathRenderer::adoptAndRecordOp(GrCCDrawPathsOp* op,
+                                                      const DrawPathArgs& args) {
+    GrRenderTargetContext* rtc = args.fRenderTargetContext;
+    if (uint32_t opListID = rtc->addDrawOp(*args.fClip, std::unique_ptr<GrDrawOp>(op))) {
+        op->wasRecorded(&fRTPendingPathsMap[opListID]);
+    }
 }
 
 std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipProcessor(

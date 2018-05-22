@@ -442,6 +442,7 @@ static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject
         AtlasedRectOp* sparePtr = op.get();
 
         uint32_t opListID = rtc->priv().testingOnly_addDrawOp(std::move(op));
+        SkASSERT(SK_InvalidUniqueID != opListID);
 
         object->addOp(opListID, sparePtr);
     }
