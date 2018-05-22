@@ -57,8 +57,7 @@ public:
         if (nullptr == fLua) {
             fLua = new SkLua;
 
-            SkString str = GetResourcePath(LUA_FILENAME);
-            sk_sp<SkData> data(SkData::MakeFromFileName(str.c_str()));
+            sk_sp<SkData> data = GetResourceAsData(LUA_FILENAME);
             if (data) {
                 fLua->runCode(data->data(), data->size());
                 this->setImageFilename(fLua->get());

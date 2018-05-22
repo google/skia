@@ -1,7 +1,7 @@
 gShowBounds = false
 gUseBlurInTransitions = false
 
-gPath = "resources/"
+gPath = "resources/lua/"
 
 function load_file(file)
     local prev_path = package.path
@@ -12,7 +12,7 @@ end
 
 load_file("slides_utils")
 
-gSlides = parse_file(io.open("resources/slides_content2.lua", "r"))
+gSlides = parse_file(io.open("resources/lua/slides_content2.lua", "r"))
 
 function make_rect(l, t, r, b)
     return { left = l, top = t, right = r, bottom = b }
