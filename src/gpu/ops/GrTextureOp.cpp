@@ -31,6 +31,8 @@
 
 namespace {
 
+enum class MultiTexture : bool { kNo = false, kYes = true };
+
 /**
  * Geometry Processor that draws a texture modulated by a vertex color (though, this is meant to be
  * the same value across all vertices of a quad and uses flat interpolation when available). This is
@@ -38,26 +40,37 @@ namespace {
  */
 class TextureGeometryProcessor : public GrGeometryProcessor {
 public:
-    template <typename P> struct Vertex {
-        static constexpr GrAA kAA = GrAA::kNo;
-        static constexpr bool kIsMultiTexture = false;
-        using Position = P;
-        P fPosition;
-        SkPoint fTextureCoords;
+    template <typename Pos> struct VertexCommon {
+        using Position = Pos;
+        Position fPosition;
         GrColor fColor;
+        SkPoint fTextureCoords;
     };
-    template <typename P> struct AAVertex : Vertex<P> {
-        static constexpr GrAA kAA = GrAA::kYes;
-        SkPoint3 fEdges[4];
+
+    template <typename Pos, MultiTexture MT> struct OptionalMultiTextureVertex;
+    template <typename Pos>
+    struct OptionalMultiTextureVertex<Pos, MultiTexture::kNo> : VertexCommon<Pos> {
+        static constexpr MultiTexture kMultiTexture = MultiTexture::kNo;
     };
-    template <typename P> struct MultiTextureVertex : Vertex<P> {
-        static constexpr bool kIsMultiTexture = true;
+    template <typename Pos>
+    struct OptionalMultiTextureVertex<Pos, MultiTexture::kYes> : VertexCommon<Pos> {
+        static constexpr MultiTexture kMultiTexture = MultiTexture::kYes;
         int fTextureIdx;
     };
-    template <typename P> struct AAMultiTextureVertex : MultiTextureVertex<P> {
+
+    template <typename Pos, MultiTexture MT, GrAA> struct OptionalAAVertex;
+    template <typename Pos, MultiTexture MT>
+    struct OptionalAAVertex<Pos, MT, GrAA::kNo> : OptionalMultiTextureVertex<Pos, MT> {
+        static constexpr GrAA kAA = GrAA::kNo;
+    };
+    template <typename Pos, MultiTexture MT>
+    struct OptionalAAVertex<Pos, MT, GrAA::kYes> : OptionalMultiTextureVertex<Pos, MT> {
         static constexpr GrAA kAA = GrAA::kYes;
         SkPoint3 fEdges[4];
     };
+
+    template <typename Pos, MultiTexture MT, GrAA AA>
+    using Vertex = OptionalAAVertex<Pos, MT, AA>;
 
     // Maximum number of textures supported by this op. Must also be checked against the caps
     // limit. These numbers were based on some limited experiments on a HP Z840 and Pixel XL 2016
@@ -279,8 +292,8 @@ private:
         } else {
             fPositions = this->addVertexAttrib("position", kFloat2_GrVertexAttribType);
         }
-        fTextureCoords = this->addVertexAttrib("textureCoords", kFloat2_GrVertexAttribType);
         fColors = this->addVertexAttrib("color", kUByte4_norm_GrVertexAttribType);
+        fTextureCoords = this->addVertexAttrib("textureCoords", kFloat2_GrVertexAttribType);
 
         if (samplerCnt > 1) {
             // Here we initialize any extra samplers by repeating the last one samplerCnt - proxyCnt
@@ -483,9 +496,9 @@ private:
     }
 };
 
-template <typename V, bool MT = V::kIsMultiTexture> struct TexIdAssigner;
+template <typename V, MultiTexture MT = V::kMultiTexture> struct TexIdAssigner;
 
-template <typename V> struct TexIdAssigner<V, true> {
+template <typename V> struct TexIdAssigner<V, MultiTexture::kYes> {
     static void Assign(V* vertices, int textureIdx) {
         for (int i = 0; i < 4; ++i) {
             vertices[i].fTextureIdx = textureIdx;
@@ -493,7 +506,7 @@ template <typename V> struct TexIdAssigner<V, true> {
     }
 };
 
-template <typename V> struct TexIdAssigner<V, false> {
+template <typename V> struct TexIdAssigner<V, MultiTexture::kNo> {
     static void Assign(V* vertices, int textureIdx) {}
 };
 }  // anonymous namespace
@@ -519,6 +532,7 @@ static void tessellate_quad(const GrPerspQuad& devQuad, const SkRect& srcRect, G
     vertices[3].fColor = color;
     TexIdAssigner<V>::Assign(vertices, textureIdx);
 }
+
 /**
  * Op that implements GrTextureOp::Make. It draws textured quads. Each quad can modulate against a
  * the texture by color. The blend with the destination is always src-over. The edges are non-AA.
@@ -638,6 +652,20 @@ __attribute__((no_sanitize("float-cast-overflow")))
         fMaxApproxDstPixelArea = RectSizeAsSizeT(bounds);
     }
 
+    template <typename Pos, MultiTexture MT, GrAA AA>
+    void tess(void* v, const float iw[], const float ih[], const GrGeometryProcessor* gp) {
+        using Vertex = TextureGeometryProcessor::Vertex<Pos, MT, AA>;
+        SkASSERT(gp->getVertexStride() == sizeof(Vertex));
+        auto vertices = static_cast<Vertex*>(v);
+        auto proxies = this->proxies();
+        for (const auto& draw : fDraws) {
+            auto origin = proxies[draw.fTextureIdx]->origin();
+            tessellate_quad<Vertex>(draw.fQuad, draw.fSrcRect, draw.fColor, origin, vertices,
+                                    iw[draw.fTextureIdx], ih[draw.fTextureIdx], draw.fTextureIdx);
+            vertices += 4;
+        }
+    }
+
     void onPrepareDraws(Target* target) override {
         sk_sp<GrTextureProxy> proxiesSPs[kMaxTextures];
         auto proxies = this->proxies();
@@ -676,17 +704,6 @@ __attribute__((no_sanitize("float-cast-overflow")))
             return;
         }
 
-// Generic lambda in C++14?
-#define TESS_VERTS(Vertex)                                                                     \
-    SkASSERT(gp->getVertexStride() == sizeof(Vertex));                                         \
-    auto vertices = static_cast<Vertex*>(vdata);                                               \
-    for (const auto& draw : fDraws) {                                                          \
-        auto origin = proxies[draw.fTextureIdx]->origin();                                     \
-        tessellate_quad<Vertex>(draw.fQuad, draw.fSrcRect, draw.fColor, origin, vertices,      \
-                                iw[draw.fTextureIdx], ih[draw.fTextureIdx], draw.fTextureIdx); \
-        vertices += 4;                                                                         \
-    }
-
         float iw[kMaxTextures];
         float ih[kMaxTextures];
         for (int t = 0; t < fProxyCnt; ++t) {
@@ -695,32 +712,32 @@ __attribute__((no_sanitize("float-cast-overflow")))
             ih[t] = 1.f / texture->height();
         }
 
-        if (1 == fProxyCnt) {
-            if (coverageAA) {
-                if (fPerspective) {
-                    TESS_VERTS(TextureGeometryProcessor::AAVertex<SkPoint3>)
+        if (fPerspective) {
+            if (fProxyCnt > 1) {
+                if (coverageAA) {
+                    this->tess<SkPoint3, MultiTexture::kYes, GrAA::kYes>(vdata, iw, ih, gp.get());
                 } else {
-                    TESS_VERTS(TextureGeometryProcessor::AAVertex<SkPoint>)
+                    this->tess<SkPoint3, MultiTexture::kYes, GrAA::kNo>(vdata, iw, ih, gp.get());
                 }
             } else {
-                if (fPerspective) {
-                    TESS_VERTS(TextureGeometryProcessor::Vertex<SkPoint3>)
+                if (coverageAA) {
+                    this->tess<SkPoint3, MultiTexture::kNo, GrAA::kYes>(vdata, iw, ih, gp.get());
                 } else {
-                    TESS_VERTS(TextureGeometryProcessor::Vertex<SkPoint>)
+                    this->tess<SkPoint3, MultiTexture::kNo, GrAA::kNo>(vdata, iw, ih, gp.get());
                 }
             }
         } else {
-            if (coverageAA) {
-                if (fPerspective) {
-                    TESS_VERTS(TextureGeometryProcessor::AAMultiTextureVertex<SkPoint3>)
+            if (fProxyCnt > 1) {
+                if (coverageAA) {
+                    this->tess<SkPoint, MultiTexture::kYes, GrAA::kYes>(vdata, iw, ih, gp.get());
                 } else {
-                    TESS_VERTS(TextureGeometryProcessor::AAMultiTextureVertex<SkPoint>)
+                    this->tess<SkPoint, MultiTexture::kYes, GrAA::kNo>(vdata, iw, ih, gp.get());
                 }
             } else {
-                if (fPerspective) {
-                    TESS_VERTS(TextureGeometryProcessor::MultiTextureVertex<SkPoint3>)
+                if (coverageAA) {
+                    this->tess<SkPoint, MultiTexture::kNo, GrAA::kYes>(vdata, iw, ih, gp.get());
                 } else {
-                    TESS_VERTS(TextureGeometryProcessor::MultiTextureVertex<SkPoint>)
+                    this->tess<SkPoint, MultiTexture::kNo, GrAA::kNo>(vdata, iw, ih, gp.get());
                 }
             }
         }
