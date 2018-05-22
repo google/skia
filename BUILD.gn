@@ -104,9 +104,6 @@ skia_public_includes = [
   "include/utils/mac",
 ]
 
-if (skia_use_vulkan) {
-  skia_public_includes += [ "include/gpu/vk" ]
-}
 if (skia_enable_atlas_text) {
   skia_public_includes += [ "include/atlastext" ]
 }
