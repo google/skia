@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd349ff8_56f1472f",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-22T18:26:00Z",
+      "side": 1,
+      "message": "how far away are we from removing this? Part of me recalls that this will be much harder but I forget why",
+      "range": {
+        "startLine": 121,
+        "startChar": 2,
+        "endLine": 121,
+        "endChar": 46
+      },
+      "revId": "13f2fca9e7b37821f4a6269c7e5e74841f48f649",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
