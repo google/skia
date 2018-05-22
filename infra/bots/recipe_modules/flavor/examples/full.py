@@ -67,8 +67,8 @@ TEST_BUILDERS = [
   'Test-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-Android_ASAN',
   'Test-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Coverage',
-  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SwiftShader',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN',
+  'Test-Debian9-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader',
   'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan',
   'Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug-All-ASAN',
   ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All'
