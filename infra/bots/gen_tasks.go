@@ -459,6 +459,13 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				glog.Fatalf("Entry %q not found in iOS mapping.", parts["model"])
 			}
 			d["device"] = device
+		} else if strings.Contains(parts["extra_config"], "SwiftShader") {
+			if parts["model"] != "GCE" || d["os"] != DEFAULT_OS_DEBIAN || parts["cpu_or_gpu_value"] != "SwiftShader" {
+				glog.Fatalf("Please update defaultSwarmDimensions for SwiftShader %s %s %s.", parts["os"], parts["model"], parts["cpu_or_gpu_value"])
+			}
+			d["cpu"] = "x86-64-Haswell_GCE"
+			d["os"] = DEFAULT_OS_LINUX_GCE
+			d["machine_type"] = MACHINE_TYPE_SMALL
 		} else if parts["cpu_or_gpu"] == "CPU" {
 			modelMapping, ok := map[string]map[string]string{
 				"AVX": {

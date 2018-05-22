@@ -1017,8 +1017,8 @@ TEST_BUILDERS = [
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-T8888',
   ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All'
    '-SK_FORCE_RASTER_PIPELINE_BLITTER'),
-  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SwiftShader',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN',
+  'Test-Debian9-Clang-GCE-GPU-SwiftShader-x86_64-Release-All-SwiftShader',
   'Test-Debian9-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan',
   'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan',
   'Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All',
