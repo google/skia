@@ -85,8 +85,6 @@ skia_core_sources = [
   "$_src/core/SkColorSpaceXformCanvas.cpp",
   "$_src/core/SkColorSpaceXformer.cpp",
   "$_src/core/SkColorSpaceXformer.h",
-  "$_src/core/SkColorSpaceXform_A2B.cpp",
-  "$_src/core/SkColorSpaceXform_A2B.h",
   "$_src/core/SkColorTable.cpp",
   "$_src/core/SkConvertPixels.cpp",
   "$_src/core/SkConvertPixels.h",

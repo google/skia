@@ -40,7 +40,7 @@
     M(clamp_0) M(clamp_1) M(clamp_a) M(clamp_a_dst)                \
     M(unpremul) M(premul) M(premul_dst)                            \
     M(force_opaque) M(force_opaque_dst)                            \
-    M(set_rgb) M(swap_rb) M(invert)                                \
+    M(set_rgb) M(swap_rb)                                          \
     M(from_srgb) M(from_srgb_dst) M(to_srgb)                       \
     M(black_color) M(white_color) M(uniform_color)                 \
     M(seed_shader) M(dither)                                       \
@@ -54,8 +54,7 @@
     M(load_bgra) M(load_bgra_dst) M(store_bgra) M(gather_bgra)     \
     M(load_1010102) M(load_1010102_dst) M(store_1010102) M(gather_1010102) \
     M(bilerp_clamp_8888)                                           \
-    M(load_u16_be) M(load_rgb_u16_be) M(store_u16_be)              \
-    M(load_tables_u16_be) M(load_tables_rgb_u16_be) M(load_tables) \
+    M(store_u16_be)                                                \
     M(load_rgba) M(store_rgba)                                     \
     M(scale_u8) M(scale_565) M(scale_1_float)                      \
     M( lerp_u8) M( lerp_565) M( lerp_1_float)                      \
@@ -72,11 +71,9 @@
     M(matrix_perspective)                                          \
     M(parametric_r) M(parametric_g) M(parametric_b)                \
     M(parametric_a) M(gamma) M(gamma_dst)                          \
-    M(table_r) M(table_g) M(table_b) M(table_a)                    \
-    M(lab_to_xyz)                                                  \
-                 M(mirror_x)   M(repeat_x)                         \
-                 M(mirror_y)   M(repeat_y)                         \
-                 M(decal_x)    M(decal_y)   M(decal_x_and_y)       \
+    M(mirror_x)   M(repeat_x)                                      \
+    M(mirror_y)   M(repeat_y)                                      \
+    M(decal_x)    M(decal_y)   M(decal_x_and_y)                    \
     M(check_decal_mask)                                            \
     M(negate_x)                                                    \
     M(bilinear_nx) M(bilinear_px) M(bilinear_ny) M(bilinear_py)    \
@@ -98,9 +95,8 @@
     M(alter_2pt_conical_unswap)                                    \
     M(mask_2pt_conical_nan)                                        \
     M(mask_2pt_conical_degenerates) M(apply_vector_mask)           \
-    M(byte_tables) M(byte_tables_rgb)                              \
+    M(byte_tables)                                                 \
     M(rgb_to_hsl) M(hsl_to_rgb)                                    \
-    M(clut_3D) M(clut_4D)                                          \
     M(gauss_a_to_rgba)
 
 class SkRasterPipeline {
