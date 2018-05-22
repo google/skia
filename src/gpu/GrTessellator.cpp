@@ -1122,12 +1122,16 @@ void merge_vertices(Vertex* src, Vertex* dst, VertexList* mesh, Comparator& c,
     }
     for (Edge* edge = src->fFirstEdgeAbove; edge;) {
         Edge* next = edge->fNextEdgeAbove;
-        set_bottom(edge, dst, nullptr, nullptr, c);
+        if (edge->fBottom) {
+            set_bottom(edge, dst, nullptr, nullptr, c);
+        }
         edge = next;
     }
     for (Edge* edge = src->fFirstEdgeBelow; edge;) {
         Edge* next = edge->fNextEdgeBelow;
-        set_top(edge, dst, nullptr, nullptr, c);
+        if (edge->fTop) {
+            set_top(edge, dst, nullptr, nullptr, c);
+        }
         edge = next;
     }
     mesh->remove(src);
