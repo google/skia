@@ -17,15 +17,7 @@ public:
                             skcms_AlphaFormat premulFormat)
         : fSrcProfile(srcProfile)
         , fDstProfile(dstProfile)
-        , fPremulFormat(premulFormat) {
-    #ifndef SK_DONT_OPTIMIZE_SRC_PROFILES_FOR_SPEED
-        skcms_OptimizeForSpeed(&fSrcProfile);
-    #endif
-    #ifndef SK_DONT_OPTIMIZE_DST_PROFILES_FOR_SPEED
-        // (This doesn't do anything yet, but we'd sure like it to.)
-        skcms_OptimizeForSpeed(&fDstProfile);
-    #endif
-    }
+        , fPremulFormat(premulFormat) {}
 
     bool apply(ColorFormat, void*, ColorFormat, const void*, int, SkAlphaType) const override;
 
@@ -88,10 +80,11 @@ void SkColorSpace::toProfile(skcms_ICCProfile* profile) const {
     }
 }
 
-std::unique_ptr<SkColorSpaceXform> MakeSkcmsXform(SkColorSpace* src, SkColorSpace* dst,
-                                                  SkTransferFunctionBehavior premulBehavior) {
+std::unique_ptr<SkColorSpaceXform> SkMakeColorSpaceXform_skcms(SkColorSpace* src,
+                                                               SkColorSpace* dst,
+                                                               SkTransferFunctionBehavior premul) {
     // Construct skcms_ICCProfiles from each color space. For now, support A2B and XYZ.
-    // Eventually, only need to support XYZ. Map premulBehavior to one of the two premul formats
+    // Eventually, only need to support XYZ. Map premul to one of the two premul formats
     // in skcms.
     skcms_ICCProfile srcProfile, dstProfile;
 
@@ -102,8 +95,9 @@ std::unique_ptr<SkColorSpaceXform> MakeSkcmsXform(SkColorSpace* src, SkColorSpac
         return nullptr;
     }
 
-    skcms_AlphaFormat premulFormat = SkTransferFunctionBehavior::kRespect == premulBehavior
-            ? skcms_AlphaFormat_PremulLinear : skcms_AlphaFormat_PremulAsEncoded;
+    skcms_AlphaFormat premulFormat = SkTransferFunctionBehavior::kRespect == premul
+            ? skcms_AlphaFormat_PremulLinear
+            : skcms_AlphaFormat_PremulAsEncoded;
     return skstd::make_unique<SkColorSpaceXform_skcms>(srcProfile, dstProfile, premulFormat);
 }
 
