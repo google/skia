@@ -486,6 +486,22 @@ static SkPath create_path_32() {
     return path;
 }
 
+// From crbug.com/844873. Crashes trying to merge a zombie edge.
+static SkPath create_path_33() {
+    SkPath path;
+    path.moveTo( 316.000579833984375, -4338355948977389568);
+    path.lineTo(1.5069369808623501312e+20, 75180972320904708096.0);
+    path.lineTo(1.5069369808623501312e+20, 75180972320904708096.0);
+    path.lineTo(  771.21014404296875, -4338355948977389568.0);
+    path.lineTo( 316.000579833984375, -4338355948977389568.0);
+    path.moveTo(       354.208984375, -4338355948977389568.0);
+    path.lineTo(  773.00177001953125, -4338355948977389568.0);
+    path.lineTo(1.5069369808623501312e+20, 75180972320904708096.0);
+    path.lineTo(1.5069369808623501312e+20, 75180972320904708096.0);
+    path.lineTo(       354.208984375, -4338355948977389568.0);
+    return path;
+}
+
 static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
 
     SkPoint pts[2] = { {0, 0}, {1, 1} };
@@ -578,5 +594,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_30());
     test_path(ctx, rtc.get(), create_path_31(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_32());
+    test_path(ctx, rtc.get(), create_path_33());
 }
 #endif

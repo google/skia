@@ -908,6 +908,7 @@ void insert_edge_below(Edge* edge, Vertex* v, Comparator& c) {
 }
 
 void remove_edge_above(Edge* edge) {
+    SkASSERT(edge->fTop && edge->fBottom);
     LOG("removing edge (%g -> %g) above vertex %g\n", edge->fTop->fID, edge->fBottom->fID,
         edge->fBottom->fID);
     list_remove<Edge, &Edge::fPrevEdgeAbove, &Edge::fNextEdgeAbove>(
@@ -915,6 +916,7 @@ void remove_edge_above(Edge* edge) {
 }
 
 void remove_edge_below(Edge* edge) {
+    SkASSERT(edge->fTop && edge->fBottom);
     LOG("removing edge (%g -> %g) below vertex %g\n", edge->fTop->fID, edge->fBottom->fID,
         edge->fTop->fID);
     list_remove<Edge, &Edge::fPrevEdgeBelow, &Edge::fNextEdgeBelow>(
@@ -1120,15 +1122,11 @@ void merge_vertices(Vertex* src, Vertex* dst, VertexList* mesh, Comparator& c,
     if (src->fPartner) {
         src->fPartner->fPartner = dst;
     }
-    for (Edge* edge = src->fFirstEdgeAbove; edge;) {
-        Edge* next = edge->fNextEdgeAbove;
+    while (Edge* edge = src->fFirstEdgeAbove) {
         set_bottom(edge, dst, nullptr, nullptr, c);
-        edge = next;
     }
-    for (Edge* edge = src->fFirstEdgeBelow; edge;) {
-        Edge* next = edge->fNextEdgeBelow;
+    while (Edge* edge = src->fFirstEdgeBelow) {
         set_top(edge, dst, nullptr, nullptr, c);
-        edge = next;
     }
     mesh->remove(src);
 }
