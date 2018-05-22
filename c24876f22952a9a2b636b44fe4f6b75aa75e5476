@@ -52,6 +52,24 @@
       "revId": "c24876f22952a9a2b636b44fe4f6b75aa75e5476",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c382fdad_f49f0ae4",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-05-22T18:58:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "834c7e29_a56de90b",
+      "revId": "c24876f22952a9a2b636b44fe4f6b75aa75e5476",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
