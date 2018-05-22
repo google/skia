@@ -96,7 +96,6 @@ public:
                                     GrPixelConfigIsClamped) override {
             return RequiresDstTexture::kNo;
         }
-        void wasRecorded(GrRenderTargetOpList*) override {}
         bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override { return false; }
         void onPrepare(GrOpFlushState*) override {}
 

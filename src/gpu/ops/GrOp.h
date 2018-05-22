@@ -138,14 +138,6 @@ public:
     }
 
     /**
-     * This is called to notify the op that it has been recorded into a GrOpList. Ops can use this
-     * to begin preparations for the flush of the op list. Note that the op still may either be
-     * combined into another op or have another op combined into it via combineIfPossible() after
-     * this call is made.
-     */
-    virtual void wasRecorded(GrRenderTargetOpList*) {}
-
-    /**
      * Called prior to executing. The op should perform any resource creation or data transfers
      * necessary before execute() is called.
      */

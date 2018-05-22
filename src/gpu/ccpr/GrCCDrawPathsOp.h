@@ -35,13 +35,13 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
     RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*,
                                 GrPixelConfigIsClamped) override;
-    void wasRecorded(GrRenderTargetOpList*) override;
     bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override;
     void visitProxies(const VisitProxyFunc& func) const override {
         fProcessors.visitProxies(func);
     }
     void onPrepare(GrOpFlushState*) override {}
 
+    void wasRecorded(GrCCRTPendingPaths* owningRTPendingPaths);
     int countPaths(GrCCPathParser::PathStats*) const;
     void setupResources(GrCCPerFlushResources*, GrOnFlushResourceProvider*);
     SkDEBUGCODE(int numSkippedInstances_debugOnly() const { return fNumSkippedInstances; })
