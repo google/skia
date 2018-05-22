@@ -42,8 +42,9 @@ def skpbench_steps(api):
   api.file.ensure_directory(
       'makedirs perf_dir', api.flavor.host_dirs.perf_data_dir)
 
-  app = api.vars.skia_out.join('skpbench')
-  _adb(api, 'push skpbench', 'push', app, api.flavor.device_dirs.bin_dir)
+  if 'Android' in api.vars.builder_name:
+    app = api.vars.skia_out.join('skpbench')
+    _adb(api, 'push skpbench', 'push', app, api.flavor.device_dirs.bin_dir)
 
   skpbench_dir = api.vars.slave_dir.join('skia', 'tools', 'skpbench')
   table = api.path.join(api.vars.swarming_out_dir, 'table')
@@ -55,12 +56,14 @@ def skpbench_steps(api):
 
   skpbench_args = [
         api.path.join(api.flavor.device_dirs.bin_dir, 'skpbench'),
-        '--adb',
-        '--adb_binary', ADB_BINARY,
         '--resultsfile', table,
         '--config', config,
         # TODO(dogben): Track down what's causing bots to die.
         '-v5']
+  if 'Android' in api.vars.builder_name:
+    skpbench_args += [
+        '--adb',
+        '--adb_binary', ADB_BINARY]
   if 'CCPR' in api.vars.builder_name:
     skpbench_args += [
         '--pr', 'ccpr',
@@ -124,6 +127,7 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
+  'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan_Skpbench',
   'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-Android_Skpbench',
   ('Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-'
    'Android_Vulkan_Skpbench'),
