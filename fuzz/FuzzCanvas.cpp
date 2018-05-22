@@ -257,6 +257,7 @@ static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
         return nullptr;
     }
     fuzz->nextRange(&shaderType, 0, 14);
+    SkDebugf("range %d\n", shaderType);
     switch (shaderType) {
         case 0:
             return nullptr;
@@ -1084,6 +1085,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
     SkAutoCanvasRestore autoCanvasRestore(canvas, false);
     unsigned N;
     fuzz->nextRange(&N, 0, 2000);
+    SkDebugf("N = %u\n", N);
     for (unsigned i = 0; i < N; ++i) {
         if (fuzz->exhausted()) {
             return;
@@ -1092,6 +1094,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
         SkMatrix matrix;
         unsigned drawCommand;
         fuzz->nextRange(&drawCommand, 0, 53);
+        SkDebugf("drawCommand = %u\n", drawCommand);
         switch (drawCommand) {
             case 0:
                 canvas->flush();
@@ -1292,7 +1295,13 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 canvas->drawOval(r, paint);
                 break;
             }
-            case 28: break; // must have deleted this some time earlier
+            case 28: {
+                fuzz_paint(fuzz, &paint, depth - 1);
+                SkPath path;
+                FuzzPath(fuzz, &path, 60);
+                canvas->drawPath(path, paint);
+                break;
+            }
             case 29: {
                 fuzz_paint(fuzz, &paint, depth - 1);
                 SkRRect rr;
@@ -1320,6 +1329,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 break;
             }
             case 32: {
+                fuzz_paint(fuzz, &paint, depth - 1);
                 SkPath path;
                 FuzzPath(fuzz, &path, 60);
                 canvas->drawPath(path, paint);
@@ -1702,6 +1712,30 @@ DEF_FUZZ(RasterN32Canvas, fuzz) {
     auto surface = SkSurface::MakeRasterN32Premul(kCanvasSize.width(), kCanvasSize.height());
     if (!surface || !surface->getCanvas()) { fuzz->signalBug(); }
     fuzz_canvas(fuzz, surface->getCanvas());
+    return;
+
+    SkPaint p;
+
+    p.setAntiAlias(false);
+
+    p.setStyle(SkPaint::kFill_Style);
+
+    SkColor colors[2] = {SkColorSetARGB(10,0,0,0), SkColorSetARGB(10,255,255,255)};
+    SkPoint points[2] = {
+     SkPoint::Make(0.0f, 0.0f),
+     SkPoint::Make(256.0f, 256.0f)
+    };
+    p.setShader(SkGradientShader::MakeLinear(
+             points, colors, nullptr, 2,
+             SkShader::kClamp_TileMode, 0, nullptr));
+
+    SkPath path;
+    path.moveTo(-30/64.0, -31/64.0);
+    path.cubicTo(-31/64.0, -31/64,-31/64.0, -31/64,-31/64.0, 160);
+    path.lineTo(128,160);
+    path.lineTo(128,-31/64.0);
+
+    surface->getCanvas()->drawPath(path, p);
 }
 
 DEF_FUZZ(RasterN32CanvasViaSerialization, fuzz) {

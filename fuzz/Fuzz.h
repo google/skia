@@ -26,6 +26,9 @@ public:
     bool exhausted(){
         return fBytes->size() == fNextByte;
     }
+    size_t available() {
+        return this->size() - fNextByte;
+    }
 
     // next() loads fuzzed bytes into the variable passed in by pointer.
     // We use this approach instead of T next() because different compilers

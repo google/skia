@@ -120,7 +120,90 @@ int main(int argc, char** argv) {
 }
 
 static int fuzz_file(SkString path, SkString type) {
-    sk_sp<SkData> bytes(SkData::MakeFromFileName(path.c_str()));
+    sk_sp<SkData> bytes(SkData::MakeUninitialized(128));
+    auto writeable = ((uint8_t*)bytes->writable_data());
+#define PACK(T, val)                                        \
+    {                                                       \
+        T a = val;                                  \
+        memcpy(writeable + idx, &a, sizeof(T));      \
+        idx += sizeof(T);                            \
+    }
+
+    size_t idx = 0;
+    //fuzz_canvas
+    PACK(unsigned, 1992);
+    // switch 32 is a vanilla FuzzPath WITHOUT fuzz_paint!
+    // I repurposed 28 for path with paint
+    PACK(unsigned, 32);
+
+    //fuzz_paint
+    PACK(bool, false); // antialias
+    PACK(bool, false); // dither
+    PACK(SkColor, 4278190080);
+    PACK(SkBlendMode, SkBlendMode::kSrcOver);
+    PACK(SkFilterQuality, SkFilterQuality::kNone_SkFilterQuality);
+    PACK(SkPaint::Style, SkPaint::kFill_Style);
+
+    // make_fuzz_shader
+    PACK(int, 10);
+    PACK(SkPoint, SkPoint::Make(0.0f, 0.0f));
+    PACK(SkPoint, SkPoint::Make(256.0f, 256.0f));
+    // 2 colors, but min 2
+    PACK(int, 0);
+    PACK(SkColor, SkColorSetARGB(10,0,0,0));
+    PACK(SkColor, SkColorSetARGB(10,255,255,255));
+
+    PACK(SkShader::TileMode, SkShader::kClamp_TileMode);
+    PACK(bool, false); // no matrix
+    PACK(bool, false); // no usePos
+
+    //nullptr fuzz_patheffect
+    PACK(uint8_t, 0);
+
+    //nullptr fuzz_maskfilter
+    PACK(int, 0);
+
+    //nullptr fuzz_imageFilter
+    PACK(uint8_t, 0);
+
+    //nullptr fuzz_colorfilter
+    PACK(int, 0);
+
+    //FuzzPath
+    PACK(uint8_t, 0); //fillType
+    PACK(uint8_t, 2); // this is a range with min 2, so 2+2=4
+
+    PACK(uint8_t, 0); // moveTo
+    PACK(SkScalar, -30/64.0);
+    PACK(SkScalar, -31/64.0);
+
+    PACK(uint8_t, 4); // cubicTo
+    PACK(SkScalar, -31/64.0);
+    PACK(SkScalar, -31/64);  //fancy zero?
+    PACK(SkScalar, -31/64.0);
+    PACK(SkScalar, -31/64);
+    PACK(SkScalar, -31/64.0);
+    PACK(SkScalar, 160);
+
+    PACK(uint8_t, 1); // lineTo
+    PACK(SkScalar, 128);
+    PACK(SkScalar, 160);
+
+    PACK(uint8_t, 1); // lineTo
+    PACK(SkScalar, 128);
+    PACK(SkScalar, -31/64.0);
+    // leaveFuzzPath
+
+    auto file = sk_fopen("crbug_844457", SkFILE_Flags::kWrite_SkFILE_Flag);
+    sk_fwrite(bytes->bytes(), bytes->size(), file);
+    sk_fclose(file);
+
+
+
+
+    SkDebugf("Wrote %u bytes\n", idx);
+
+    //sk_sp<SkData> bytes(SkData::MakeFromFileName(path.c_str()));
     if (!bytes) {
         SkDebugf("Could not read %s\n", path.c_str());
         return 1;

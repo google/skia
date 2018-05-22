@@ -15,9 +15,11 @@ void FuzzPath(Fuzz* fuzz, SkPath* path, int maxOps) {
     }
     uint8_t fillType;
     fuzz->nextRange(&fillType, 0, (uint8_t)SkPath::kInverseEvenOdd_FillType);
+    SkDebugf("type %u (0)\n", fillType);
     path->setFillType((SkPath::FillType)fillType);
     uint8_t numOps;
     fuzz->nextRange(&numOps, 2, maxOps);
+    SkDebugf("num ops %u(4)\n", numOps);
     for (uint8_t i = 0; i < numOps; ++i) {
         uint8_t op;
         fuzz->nextRange(&op, 0, 6);
@@ -25,10 +27,12 @@ void FuzzPath(Fuzz* fuzz, SkPath* path, int maxOps) {
         switch (op) {
             case 0:
                 fuzz_nice_float(fuzz, &a, &b);
+                SkDebugf("moveTo(%f, %f)\n", a, b);
                 path->moveTo(a, b);
                 break;
             case 1:
                 fuzz_nice_float(fuzz, &a, &b);
+                SkDebugf("lineTo(%f, %f)\n", a,b);
                 path->lineTo(a, b);
                 break;
             case 2:
@@ -41,6 +45,7 @@ void FuzzPath(Fuzz* fuzz, SkPath* path, int maxOps) {
                 break;
             case 4:
                 fuzz_nice_float(fuzz, &a, &b, &c, &d, &e, &f);
+                SkDebugf("cubicTo(%f, %f, %f, %f, %f, %f)\n", a, b, c, d, e, f);
                 path->cubicTo(a, b, c, d, e, f);
                 break;
             case 5:
