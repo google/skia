@@ -46,6 +46,30 @@
       "revId": "7e3fd4f1299aa35d3e88ada1aa9f4326ee6e5530",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd7bf1e1_30667369",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-22T18:30:21Z",
+      "side": 1,
+      "message": "I see. Is it used to specify whether distance fields are supported or not? If so could we rename this to something like supportsDistanceFieldText? Then if we ever decided to no support distance fields for some reason other than lack of shader derivatives we change the implementation but the API would still make sense.",
+      "parentUuid": "a1e86621_8e250757",
+      "range": {
+        "startLine": 285,
+        "startChar": 3,
+        "endLine": 285,
+        "endChar": 41
+      },
+      "revId": "7e3fd4f1299aa35d3e88ada1aa9f4326ee6e5530",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
