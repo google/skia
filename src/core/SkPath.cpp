@@ -1252,9 +1252,7 @@ void SkPath::addOval(const SkRect &oval, Direction dir, unsigned startPointIndex
     }
 
     SkAutoDisableDirectionCheck addc(this);
-    // unlike addRect(), we can't use SkAutoPathBoundsUpdate here, since even with a finite
-    // bounds, we might (due to an overflow in intermediate calculations) create a nonfinite
-    // path.
+    SkAutoPathBoundsUpdate apbu(this, oval);
 
     SkDEBUGCODE(int initialVerbCount = this->countVerbs());
     const int kVerbs = 6; // moveTo + 4x conicTo + close
