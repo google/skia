@@ -16,6 +16,24 @@
       "revId": "c24876f22952a9a2b636b44fe4f6b75aa75e5476",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "027e4662_af3e83bf",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-05-22T17:05:02Z",
+      "side": 1,
+      "message": "Hmm. I named it this on purpose to make it clear that this Matrix only gets used to find local coords. My concern with naming it \"fViewMatrix\" is that it would be easy to get confused and assume the Matrix is also used to transform coordinates (which it isn\u0027t). It also might trip people up and make them wonder why it gets set to the identity when there are no coord transforms?",
+      "parentUuid": "b8ee06d7_0aceda84",
+      "revId": "c24876f22952a9a2b636b44fe4f6b75aa75e5476",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
