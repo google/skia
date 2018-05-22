@@ -21,6 +21,7 @@ public:
      *  @param srcSpace The encoded color space.
      *  @param dstSpace The destination color space.
      *
+     *  This method will always fail unless you build Skia with skcms (defining SK_USE_SKCMS).
      */
     static std::unique_ptr<SkColorSpaceXform> New(SkColorSpace* srcSpace, SkColorSpace* dstSpace);
 
@@ -53,12 +54,13 @@ public:
      *                        kUnpremul preserves input alpha values
      *                        kPremul   performs a premultiplication and also preserves alpha values
      *                        kOpaque   optimization hint, |dst| alphas set to 1
-     *
      */
-    virtual bool apply(ColorFormat dstFormat, void* dst, ColorFormat srcFormat, const void* src,
+    virtual bool apply(ColorFormat dstFormat, void* dst,
+                       ColorFormat srcFormat, const void* src,
                        int count, SkAlphaType alphaType) const = 0;
 
-    virtual ~SkColorSpaceXform() {}
+    SkColorSpaceXform() = default;
+    virtual ~SkColorSpaceXform() = default;
 
     enum AlphaOp {
         kPreserve_AlphaOp,      // just transfer src-alpha to dst-alpha
@@ -68,9 +70,6 @@ public:
     static bool Apply(SkColorSpace* dstCS, ColorFormat dstFormat, void* dst,
                       SkColorSpace* srcCS, ColorFormat srcFormat, const void* src,
                       int count, AlphaOp);
-
-protected:
-    SkColorSpaceXform() {}
 };
 
 #endif
