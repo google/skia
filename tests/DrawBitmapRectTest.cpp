@@ -7,17 +7,16 @@
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkMatrix.h"
+#include "SkData.h"
+#include "SkDiscardableMemoryPool.h"
+#include "SkImageGenerator.h"
 #include "SkMatrixUtils.h"
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkPixelRef.h"
 #include "SkRandom.h"
-#include "SkRect.h"
-#include "SkScalar.h"
 #include "SkShader.h"
-#include "SkSize.h"
-#include "SkTypes.h"
+#include "SkSurface.h"
 #include "Test.h"
 
 ///////////////////////////////////////////////////////////////////////////////

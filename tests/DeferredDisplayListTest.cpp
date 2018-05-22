@@ -8,31 +8,16 @@
 #include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
+
 #include "GrBackendSurface.h"
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextFactory.h"
 #include "GrContextPriv.h"
-#include "GrGLTypes.h"
 #include "GrGpu.h"
-#include "GrRenderTargetContext.h"
-#include "GrRenderTargetProxy.h"
-#include "GrTextureProxy.h"
 #include "GrTextureProxyPriv.h"
-#include "GrTypes.h"
-#include "GrTypesPriv.h"
-#include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkColorSpace.h"
-#include "SkDeferredDisplayList.h"
+#include "SkColorSpacePriv.h"
 #include "SkDeferredDisplayListRecorder.h"
 #include "SkGpuDevice.h"
-#include "SkImage.h"
-#include "SkImageInfo.h"
 #include "SkImage_Gpu.h"
-#include "SkPaint.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
 #include "SkSurface.h"
 #include "SkSurfaceCharacterization.h"
 #include "SkSurfaceProps.h"
@@ -40,14 +25,9 @@
 #include "Test.h"
 #include "gl/GrGLCaps.h"
 #include "gl/GrGLDefines.h"
-
 #ifdef SK_VULKAN
 #include "vk/GrVkDefines.h"
 #endif
-
-#include <initializer_list>
-#include <memory>
-#include <utility>
 
 // Try to create a backend format from the provided colorType and config. Return an invalid
 // backend format if the combination is infeasible.

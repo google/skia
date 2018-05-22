@@ -20,7 +20,7 @@
 #include "SkTypes.h"
 #include "Test.h"
 
-#include <cmath>
+#include <math.h>
 
 static const SkColor bgColor = SK_ColorWHITE;
 

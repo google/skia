@@ -8,37 +8,10 @@
 #include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "GrContextFactory.h"
+
 #include "GrContextPriv.h"
-#include "GrDeferredUpload.h"
-#include "GrDrawOpAtlas.h"
-#include "GrDrawingManager.h"
-#include "GrOnFlushResourceProvider.h"
-#include "GrOpFlushState.h"
-#include "GrRenderTargetContext.h"
-#include "GrSurfaceProxyPriv.h"
-#include "GrTextureProxy.h"
-#include "GrTypesPriv.h"
-#include "GrXferProcessor.h"
-#include "SkBitmap.h"
-#include "SkColor.h"
-#include "SkColorSpace.h"
-#include "SkIPoint16.h"
-#include "SkImageInfo.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkPoint.h"
-#include "SkRefCnt.h"
 #include "Test.h"
-#include "ops/GrDrawOp.h"
-#include "text/GrAtlasManager.h"
-#include "text/GrAtlasTextContext.h"
-#include "text/GrTextUtils.h"
-
-#include <memory>
-
-class GrResourceProvider;
+#include "text/GrGlyphCache.h"
 
 static const int kNumPlots = 2;
 static const int kPlotSize = 32;
@@ -171,6 +144,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
 
     check(reporter, atlas.get(), 1, 4, 1);
 }
+
+#include "GrTest.h"
+
+#include "GrDrawingManager.h"
+#include "GrOpFlushState.h"
+#include "GrProxyProvider.h"
+
+#include "effects/GrConstColorProcessor.h"
+#include "ops/GrAtlasTextOp.h"
+#include "text/GrAtlasTextContext.h"
 
 // This test verifies that the GrAtlasTextOp::onPrepare method correctly handles a failure
 // when allocating an atlas page.

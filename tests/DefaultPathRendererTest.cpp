@@ -5,33 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "Test.h"
+#include "SkBitmap.h"
 
 #if SK_SUPPORT_GPU
 #include "GrClip.h"
-#include "GrColor.h"
-#include "GrContext.h"
-#include "GrContextFactory.h"
-#include "GrContextOptions.h"
-#include "GrContextPriv.h"
-#include "GrFragmentProcessor.h"
-#include "GrPaint.h"
 #include "GrRenderTargetContext.h"
 #include "GrStyle.h"
 #include "GrTypesPriv.h"
-#include "SkBitmap.h"
-#include "SkColor.h"
-#include "SkColorSpace.h"
-#include "SkImageInfo.h"
-#include "SkMatrix.h"
-#include "SkPath.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkStrokeRec.h"
-#include "Test.h"
-#include "effects/GrConstColorProcessor.h"
 
-#include <utility>
+#include "effects/GrConstColorProcessor.h"
 
 static void only_allow_default(GrContextOptions* options) {
     options->fGpuPathRenderers = GpuPathRenderers::kNone;

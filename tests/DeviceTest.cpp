@@ -5,23 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
+#include "SkBitmapDevice.h"
 #include "SkDevice.h"
-#include "SkImage.h"
-#include "SkImageInfo.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
 #include "SkSpecialImage.h"
-#include "SkTypes.h"
-#include "Test.h"
-class SkColorSpace;
 
 #if SK_SUPPORT_GPU
-#include "GrContextFactory.h"
-#include "GrTypes.h"
 #include "SkGpuDevice.h"
-class GrContext;
 #endif
+
+#include "Test.h"
 
 class DeviceTestingAccess {
 public:

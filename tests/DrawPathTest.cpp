@@ -7,21 +7,9 @@
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkColor.h"
 #include "SkDashPathEffect.h"
-#include "SkImageInfo.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPathEffect.h"
-#include "SkPoint.h"
-#include "SkRRect.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
 #include "SkStrokeRec.h"
 #include "SkSurface.h"
-#include "SkTypes.h"
 #include "Test.h"
 
 // test that we can draw an aa-rect at coordinates > 32K (bigger than fixedpoint)

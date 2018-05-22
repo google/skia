@@ -6,10 +6,7 @@
  */
 
 #include "SkTDynamicHash.h"
-#include "SkTypes.h"
 #include "Test.h"
-
-#include <cstring>
 
 namespace {
 
