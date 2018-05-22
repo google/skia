@@ -15,34 +15,38 @@ declare_args() {
   if (is_fuchsia) {
     skia_tools_vulkan_header_dir = "$fuchsia_vulkan_sdk/include"
   } else if (is_linux || is_win) {
-    skia_tools_vulkan_header_dir = "$skia_vulkan_sdk/include"
+    if (defined(skia_vulkan_sdk) && skia_vulkan_sdk != "") {
+      skia_tools_vulkan_header_dir = "$skia_vulkan_sdk/include"
+    }
   }
 }
 
 config("moltenvk") {
-  if (is_ios) {
-    moltenvk_framework_path = "$skia_moltenvk_path/MoltenVK/iOS"
-  } else {
-    moltenvk_framework_path = "$skia_moltenvk_path/MoltenVK/macOS"
+  if (defined(skia_moltenvk_path) && skia_moltenvk_path != "") {
+    if (is_ios) {
+      moltenvk_framework_path = "$skia_moltenvk_path/MoltenVK/iOS"
+    } else {
+      moltenvk_framework_path = "$skia_moltenvk_path/MoltenVK/macOS"
+    }
+    cflags = [
+      "-F$moltenvk_framework_path",
+      "-isystem$skia_moltenvk_path/MoltenVK/include",  # for <vulkan/vulkan.h>
+    ]
+    ldflags = [ "-F$moltenvk_framework_path" ]
+    libs = [
+      "MoltenVK.framework",
+      "Metal.framework",
+      "IOSurface.framework",
+      "QuartzCore.framework",
+      "Foundation.framework",
+    ]
+    if (is_ios) {
+      libs += [ "UIKit.framework" ]
+    } else {
+      libs += [ "IOKit.framework" ]
+    }
+    defines = [ "SK_MOLTENVK" ]
   }
-  cflags = [
-    "-F$moltenvk_framework_path",
-    "-isystem$skia_moltenvk_path/MoltenVK/include",  # for <vulkan/vulkan.h>
-  ]
-  ldflags = [ "-F$moltenvk_framework_path" ]
-  libs = [
-    "MoltenVK.framework",
-    "Metal.framework",
-    "IOSurface.framework",
-    "QuartzCore.framework",
-    "Foundation.framework",
-  ]
-  if (is_ios) {
-    libs += [ "UIKit.framework" ]
-  } else {
-    libs += [ "IOKit.framework" ]
-  }
-  defines = [ "SK_MOLTENVK" ]
 }
 
 config("vulkan_config") {
@@ -59,7 +63,7 @@ config("vulkan_config") {
              !is_official_build) {
     defines += [ "SK_VULKAN_HEADER=\"GrVulkanDefines.h\"" ]
   }
-  if (skia_moltenvk_path != "") {
+  if (defined(skia_moltenvk_path) && skia_moltenvk_path != "") {
     configs += [ ":moltenvk" ]
   }
 }
