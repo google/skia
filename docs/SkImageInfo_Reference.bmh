@@ -1037,6 +1037,22 @@ with studio range of 16 to 235 range for components.
 
 # ------------------------------------------------------------------------------
 
+#Struct SkYUVAIndex
+
+Describes which image source and which channel to read for each YUVA planes.
+
+#Member int fIndex
+Describes which image source to be reading from. The Alpha plane is optional and could be set to -1.
+##
+
+#Member SkImageSourceChannel fChannel
+Describes which of the RGBA channel to read from.
+##
+
+#Struct SkYUVAIndex ##
+
+# ------------------------------------------------------------------------------
+
 #Struct SkImageInfo
 
 Describes pixel dimensions and encoding. Bitmap, Image, PixMap, and Surface
