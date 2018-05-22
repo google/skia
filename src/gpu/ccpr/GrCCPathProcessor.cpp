@@ -76,15 +76,14 @@ sk_sp<const GrBuffer> GrCCPathProcessor::FindIndexBuffer(GrOnFlushResourceProvid
 }
 
 GrCCPathProcessor::GrCCPathProcessor(GrResourceProvider* resourceProvider,
-                                     sk_sp<GrTextureProxy> atlas, SkPath::FillType fillType)
+                                     sk_sp<GrTextureProxy> atlas, SkPath::FillType fillType,
+                                     const SkMatrix& viewMatrixIfUsingLocalCoords)
         : INHERITED(kGrCCPathProcessor_ClassID)
         , fFillType(fillType)
         , fAtlasAccess(std::move(atlas), GrSamplerState::Filter::kNearest,
                        GrSamplerState::WrapMode::kClamp, kFragment_GrShaderFlag) {
     this->addInstanceAttrib("devbounds", kFloat4_GrVertexAttribType);
     this->addInstanceAttrib("devbounds45", kFloat4_GrVertexAttribType);
-    this->addInstanceAttrib("view_matrix", kFloat4_GrVertexAttribType);
-    this->addInstanceAttrib("view_translate", kFloat2_GrVertexAttribType);
     this->addInstanceAttrib("atlas_offset", kShort2_GrVertexAttribType);
     this->addInstanceAttrib("color", kUByte4_norm_GrVertexAttribType);
 
@@ -92,25 +91,25 @@ GrCCPathProcessor::GrCCPathProcessor(GrResourceProvider* resourceProvider,
              this->getInstanceAttrib(InstanceAttribs::kDevBounds).fOffsetInRecord);
     SkASSERT(offsetof(Instance, fDevBounds45) ==
              this->getInstanceAttrib(InstanceAttribs::kDevBounds45).fOffsetInRecord);
-    SkASSERT(offsetof(Instance, fViewMatrix) ==
-             this->getInstanceAttrib(InstanceAttribs::kViewMatrix).fOffsetInRecord);
-    SkASSERT(offsetof(Instance, fViewTranslate) ==
-             this->getInstanceAttrib(InstanceAttribs::kViewTranslate).fOffsetInRecord);
     SkASSERT(offsetof(Instance, fAtlasOffset) ==
              this->getInstanceAttrib(InstanceAttribs::kAtlasOffset).fOffsetInRecord);
     SkASSERT(offsetof(Instance, fColor) ==
              this->getInstanceAttrib(InstanceAttribs::kColor).fOffsetInRecord);
     SkASSERT(sizeof(Instance) == this->getInstanceStride());
 
-    GR_STATIC_ASSERT(6 == kNumInstanceAttribs);
+    GR_STATIC_ASSERT(4 == kNumInstanceAttribs);
 
     this->addVertexAttrib("edge_norms", kFloat4_GrVertexAttribType);
+
+    if (resourceProvider->caps()->usePrimitiveRestart()) {
+        this->setWillUsePrimitiveRestart();
+    }
 
     fAtlasAccess.instantiate(resourceProvider);
     this->addTextureSampler(&fAtlasAccess);
 
-    if (resourceProvider->caps()->usePrimitiveRestart()) {
-        this->setWillUsePrimitiveRestart();
+    if (!viewMatrixIfUsingLocalCoords.invert(&fLocalMatrix)) {
+        fLocalMatrix.setIdentity();
     }
 }
 
@@ -128,7 +127,7 @@ private:
         const GrCCPathProcessor& proc = primProc.cast<GrCCPathProcessor>();
         pdman.set2f(fAtlasAdjustUniform, 1.0f / proc.atlas()->width(),
                     1.0f / proc.atlas()->height());
-        this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
+        this->setTransformDataHelper(proc.localMatrix(), pdman, &transformIter);
     }
 
     GrGLSLUniformHandler::UniformHandle fAtlasAdjustUniform;
@@ -223,15 +222,8 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                        texcoord.vsOut(), atlasAdjust, atlasAdjust);
     }
 
-    // Convert to path/local cordinates.
-    v->codeAppendf("float2x2 viewmatrix = float2x2(%s.xy, %s.zw);", // float2x2(float4) busts Intel.
-                   proc.getInstanceAttrib(InstanceAttribs::kViewMatrix).fName,
-                   proc.getInstanceAttrib(InstanceAttribs::kViewMatrix).fName);
-    v->codeAppendf("float2 pathcoord = inverse(viewmatrix) * (octocoord - %s);",
-                   proc.getInstanceAttrib(InstanceAttribs::kViewTranslate).fName);
-
-    this->emitTransforms(v, varyingHandler, uniHandler, GrShaderVar("pathcoord", kFloat2_GrSLType),
-                         args.fFPCoordTransformHandler);
+    this->emitTransforms(v, varyingHandler, uniHandler, GrShaderVar("octocoord", kFloat2_GrSLType),
+                         proc.localMatrix(), args.fFPCoordTransformHandler);
 
     // Fragment shader.
     GrGLSLFPFragmentBuilder* f = args.fFragBuilder;

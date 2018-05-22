@@ -479,6 +479,15 @@ GrFragmentProcessor::Iter::Iter(const GrPipeline& pipeline) {
     }
 }
 
+GrFragmentProcessor::Iter::Iter(const GrPaint& paint) {
+    for (int i = paint.numCoverageFragmentProcessors() - 1; i >= 0; --i) {
+        fFPStack.push_back(paint.getCoverageFragmentProcessor(i));
+    }
+    for (int i = paint.numColorFragmentProcessors() - 1; i >= 0; --i) {
+        fFPStack.push_back(paint.getColorFragmentProcessor(i));
+    }
+}
+
 const GrFragmentProcessor* GrFragmentProcessor::Iter::next() {
     if (fFPStack.empty()) {
         return nullptr;

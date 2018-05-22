@@ -13,6 +13,7 @@
 class GrCoordTransform;
 class GrGLSLFragmentProcessor;
 class GrInvariantOutput;
+class GrPaint;
 class GrPipeline;
 class GrProcessorKeyBuilder;
 class GrShaderCaps;
@@ -191,6 +192,7 @@ public:
     public:
         explicit Iter(const GrFragmentProcessor* fp) { fFPStack.push_back(fp); }
         explicit Iter(const GrPipeline& pipeline);
+        explicit Iter(const GrPaint&);
         const GrFragmentProcessor* next();
 
     private:

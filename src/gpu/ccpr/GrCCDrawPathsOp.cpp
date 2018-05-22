@@ -12,12 +12,23 @@
 #include "ccpr/GrCCPerFlushResources.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
 
+static bool has_coord_transforms(const GrPaint& paint) {
+    GrFragmentProcessor::Iter iter(paint);
+    while (const GrFragmentProcessor* fp = iter.next()) {
+        if (!fp->coordTransforms().empty()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 GrCCDrawPathsOp::GrCCDrawPathsOp(GrCoverageCountingPathRenderer* ccpr, GrPaint&& paint,
                                  const SkIRect& clipIBounds, const SkMatrix& viewMatrix,
                                  const SkPath& path, const SkRect& devBounds)
         : GrDrawOp(ClassID())
         , fCCPR(ccpr)
         , fSRGBFlags(GrPipeline::SRGBFlagsFromPaint(paint))
+        , fViewMatrixIfUsingLocalCoords(has_coord_transforms(paint) ? viewMatrix : SkMatrix::I())
         , fDraws({clipIBounds, viewMatrix, path, paint.getColor(), nullptr})
         , fProcessors(std::move(paint)) {
     SkDEBUGCODE(fCCPR->incrDrawOpCount_debugOnly());
@@ -57,7 +68,8 @@ bool GrCCDrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps& caps) {
     SkASSERT(that->fNumDraws);
 
     if (this->getFillType() != that->getFillType() || fSRGBFlags != that->fSRGBFlags ||
-        fProcessors != that->fProcessors) {
+        fProcessors != that->fProcessors ||
+        fViewMatrixIfUsingLocalCoords != that->fViewMatrixIfUsingLocalCoords) {
         return false;
     }
 
@@ -111,14 +123,8 @@ void GrCCDrawPathsOp::setupResources(GrCCPerFlushResources* resources,
             currentAtlas = atlas;
         }
 
-        const SkMatrix& m = draw.fMatrix;
-        resources->appendDrawPathInstance(
-                devBounds,
-                devBounds45,
-                {{m.getScaleX(), m.getSkewY(), m.getSkewX(), m.getScaleY()}},
-                {{m.getTranslateX(), m.getTranslateY()}},
-                {{atlasOffsetX, atlasOffsetY}},
-                draw.fColor);
+        resources->appendDrawPathInstance() =
+                {devBounds, devBounds45, {{atlasOffsetX, atlasOffsetY}}, draw.fColor};
     }
 
     SkASSERT(resources->pathInstanceCount() == fBaseInstance + fNumDraws - fNumSkippedInstances);
@@ -154,7 +160,8 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState) {
         }
 
         GrCCPathProcessor pathProc(flushState->resourceProvider(),
-                                   sk_ref_sp(batch.fAtlas->textureProxy()), this->getFillType());
+                                   sk_ref_sp(batch.fAtlas->textureProxy()), this->getFillType(),
+                                   fViewMatrixIfUsingLocalCoords);
         pathProc.drawPaths(flushState, pipeline, resources->indexBuffer(),
                            resources->vertexBuffer(), resources->instanceBuffer(),
                            baseInstance, batch.fEndInstanceIdx, this->bounds());

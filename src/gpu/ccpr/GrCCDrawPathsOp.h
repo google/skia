@@ -68,6 +68,7 @@ private:
 
     GrCoverageCountingPathRenderer* const fCCPR;
     const uint32_t fSRGBFlags;
+    const SkMatrix fViewMatrixIfUsingLocalCoords;
 
     struct SingleDraw {
         SkIRect fClipIBounds;

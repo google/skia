@@ -30,16 +30,10 @@ public:
                                          const SkPath& devPath, const SkIRect& devPathIBounds,
                                          int16_t* atlasOffsetX, int16_t* atlasOffsetY);
 
-    // See GrCCPathProcessor::Instance.
-    int appendDrawPathInstance(const SkRect& devBounds, const SkRect& devBounds45,
-                               const std::array<float, 4>& viewMatrix,
-                               const std::array<float, 2>& viewTranslate,
-                               const std::array<int16_t, 2>& atlasOffset, uint32_t color) {
+    GrCCPathProcessor::Instance& appendDrawPathInstance() {
         SkASSERT(this->isMapped());
         SkASSERT(fPathInstanceCount < fPathInstanceBufferCount);
-        fPathInstanceData[fPathInstanceCount] = {devBounds, devBounds45, viewMatrix, viewTranslate,
-                                                 atlasOffset, color};
-        return fPathInstanceCount++;
+        return fPathInstanceData[fPathInstanceCount++];
     }
     int pathInstanceCount() const { return fPathInstanceCount; }
 
