@@ -33,9 +33,6 @@ declare_args() {
   win_toolchain_version = ""
 
   clang_win = ""
-
-  skia_vulkan_sdk = getenv("VULKAN_SDK")
-  skia_moltenvk_path = ""
 }
 declare_args() {
   is_debug = !is_official_build
