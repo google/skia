@@ -1326,28 +1326,6 @@ Deprecated.
 
 <a href='#SkSurface_getBackendTexture'>getBackendTexture</a> <a href='#SkSurface_getBackendRenderTarget'>getBackendRenderTarget</a>
 
-<a name='SkSurface_getTextureHandle'></a>
-## getTextureHandle
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#GrBackendObject'>GrBackendObject</a> <a href='#SkSurface_getTextureHandle'>getTextureHandle</a>(<a href='#SkSurface_BackendHandleAccess'>BackendHandleAccess</a> backendHandleAccess)
-</pre>
-
-Deprecated.
-
----
-
-<a name='SkSurface_getRenderTargetHandle'></a>
-## getRenderTargetHandle
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkSurface_getRenderTargetHandle'>getRenderTargetHandle</a>(<a href='undocumented#GrBackendObject'>GrBackendObject</a>* backendObject, <a href='#SkSurface_BackendHandleAccess'>BackendHandleAccess</a> backendHandleAccess)
-</pre>
-
-Deprecated.
-
----
-
 <a name='SkSurface_getBackendTexture'></a>
 ## getBackendTexture
 

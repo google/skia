@@ -1873,17 +1873,6 @@ true if <a href='#Image'>Image</a> can be drawn
 
 ---
 
-<a name='SkImage_getTextureHandle'></a>
-## getTextureHandle
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#GrBackendObject'>GrBackendObject</a> <a href='#SkImage_getTextureHandle'>getTextureHandle</a>(bool flushPendingGrContextIO, <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a>* origin = nullptr) const
-</pre>
-
-Deprecated.
-
----
-
 <a name='SkImage_getBackendTexture'></a>
 ## getBackendTexture
 

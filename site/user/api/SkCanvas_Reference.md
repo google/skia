@@ -5108,6 +5108,7 @@ If <a href='SkPaint_Reference#Paint'>Paint</a> <a href='#SkCanvas_drawImageNine_
 If <a href='#SkCanvas_drawImageNine_paint'>paint</a> contains <a href='undocumented#Mask_Filter'>Mask Filter</a>, generate mask from image bounds. If <a href='#SkCanvas_drawImageNine_paint'>paint</a>
 <a href='undocumented#Filter_Quality'>Filter Quality</a> set to <a href='undocumented#kNone_SkFilterQuality'>kNone_SkFilterQuality</a>, disable pixel filtering. For all
 other values of <a href='#SkCanvas_drawImageNine_paint'>paint</a> <a href='undocumented#Filter_Quality'>Filter Quality</a>, use <a href='undocumented#kLow_SkFilterQuality'>kLow_SkFilterQuality</a> to filter pixels.
+Any <a href='undocumented#SkMaskFilter'>SkMaskFilter</a> on the <a href='#SkCanvas_drawImageNine_paint'>paint</a> is ignored as is the <a href='#SkCanvas_drawImageNine_paint'>paint</a>'s antialiasing state.
 If generated mask extends beyond <a href='#SkCanvas_drawImageNine_image'>image</a> bounds, replicate <a href='#SkCanvas_drawImageNine_image'>image</a> edge colors, just
 as <a href='undocumented#Shader'>Shader</a> made from <a href='SkImage_Reference#SkImage_makeShader'>SkImage::makeShader</a> with <a href='undocumented#SkShader_kClamp_TileMode'>SkShader::kClamp TileMode</a> set
 replicates the <a href='#SkCanvas_drawImageNine_image'>image</a> edge color when it samples outside of its bounds.
@@ -5423,6 +5424,7 @@ If <a href='SkPaint_Reference#Paint'>Paint</a> <a href='#SkCanvas_drawBitmapNine
 If <a href='#SkCanvas_drawBitmapNine_paint'>paint</a> contains <a href='undocumented#Mask_Filter'>Mask Filter</a>, generate mask from bitmap bounds. If <a href='#SkCanvas_drawBitmapNine_paint'>paint</a>
 <a href='undocumented#Filter_Quality'>Filter Quality</a> set to <a href='undocumented#kNone_SkFilterQuality'>kNone_SkFilterQuality</a>, disable pixel filtering. For all
 other values of <a href='#SkCanvas_drawBitmapNine_paint'>paint</a> <a href='undocumented#Filter_Quality'>Filter Quality</a>, use <a href='undocumented#kLow_SkFilterQuality'>kLow_SkFilterQuality</a> to filter pixels.
+Any <a href='undocumented#SkMaskFilter'>SkMaskFilter</a> on the <a href='#SkCanvas_drawBitmapNine_paint'>paint</a> is ignored as is the <a href='#SkCanvas_drawBitmapNine_paint'>paint</a>'s antialiasing state.
 If generated mask extends beyond <a href='#SkCanvas_drawBitmapNine_bitmap'>bitmap</a> bounds, replicate <a href='#SkCanvas_drawBitmapNine_bitmap'>bitmap</a> edge colors,
 just as <a href='undocumented#Shader'>Shader</a> made from <a href='undocumented#SkShader_MakeBitmapShader'>SkShader::MakeBitmapShader</a> with
 <a href='undocumented#SkShader_kClamp_TileMode'>SkShader::kClamp TileMode</a> set replicates the <a href='#SkCanvas_drawBitmapNine_bitmap'>bitmap</a> edge color when it samples
@@ -5661,6 +5663,7 @@ If <a href='SkPaint_Reference#Paint'>Paint</a> <a href='#SkCanvas_drawBitmapLatt
 If <a href='#SkCanvas_drawBitmapLattice_paint'>paint</a> contains <a href='undocumented#Mask_Filter'>Mask Filter</a>, generate mask from bitmap bounds. If <a href='#SkCanvas_drawBitmapLattice_paint'>paint</a>
 <a href='undocumented#Filter_Quality'>Filter Quality</a> set to <a href='undocumented#kNone_SkFilterQuality'>kNone_SkFilterQuality</a>, disable pixel filtering. For all
 other values of <a href='#SkCanvas_drawBitmapLattice_paint'>paint</a> <a href='undocumented#Filter_Quality'>Filter Quality</a>, use <a href='undocumented#kLow_SkFilterQuality'>kLow_SkFilterQuality</a> to filter pixels.
+Any <a href='undocumented#SkMaskFilter'>SkMaskFilter</a> on the <a href='#SkCanvas_drawBitmapLattice_paint'>paint</a> is ignored as is the <a href='#SkCanvas_drawBitmapLattice_paint'>paint</a>'s antialiasing state.
 If generated mask extends beyond <a href='#SkCanvas_drawBitmapLattice_bitmap'>bitmap</a> bounds, replicate <a href='#SkCanvas_drawBitmapLattice_bitmap'>bitmap</a> edge colors,
 just as <a href='undocumented#Shader'>Shader</a> made from <a href='undocumented#SkShader_MakeBitmapShader'>SkShader::MakeBitmapShader</a> with
 <a href='undocumented#SkShader_kClamp_TileMode'>SkShader::kClamp TileMode</a> set replicates the <a href='#SkCanvas_drawBitmapLattice_bitmap'>bitmap</a> edge color when it samples
@@ -5721,6 +5724,7 @@ If <a href='SkPaint_Reference#Paint'>Paint</a> <a href='#SkCanvas_drawImageLatti
 If <a href='#SkCanvas_drawImageLattice_paint'>paint</a> contains <a href='undocumented#Mask_Filter'>Mask Filter</a>, generate mask from image bounds. If <a href='#SkCanvas_drawImageLattice_paint'>paint</a>
 <a href='undocumented#Filter_Quality'>Filter Quality</a> set to <a href='undocumented#kNone_SkFilterQuality'>kNone_SkFilterQuality</a>, disable pixel filtering. For all
 other values of <a href='#SkCanvas_drawImageLattice_paint'>paint</a> <a href='undocumented#Filter_Quality'>Filter Quality</a>, use <a href='undocumented#kLow_SkFilterQuality'>kLow_SkFilterQuality</a> to filter pixels.
+Any <a href='undocumented#SkMaskFilter'>SkMaskFilter</a> on the <a href='#SkCanvas_drawImageLattice_paint'>paint</a> is ignored as is the <a href='#SkCanvas_drawImageLattice_paint'>paint</a>'s antialiasing state.
 If generated mask extends beyond bitmap bounds, replicate bitmap edge colors,
 just as <a href='undocumented#Shader'>Shader</a> made from <a href='undocumented#SkShader_MakeBitmapShader'>SkShader::MakeBitmapShader</a> with
 <a href='undocumented#SkShader_kClamp_TileMode'>SkShader::kClamp TileMode</a> set replicates the bitmap edge color when it samples
