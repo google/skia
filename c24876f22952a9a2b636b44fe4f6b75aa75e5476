@@ -34,6 +34,24 @@
       "revId": "c24876f22952a9a2b636b44fe4f6b75aa75e5476",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "834c7e29_a56de90b",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-22T17:14:14Z",
+      "side": 1,
+      "message": "We usually use \"local matrix\" for cases where a SkShader or some other effect transforms local coords (e.g. there is a SkLocalMatrixShader which transforms local coords by a matrix and then invokes an inner SkShader with those coords).\n\nIn other places we\u0027ve called this \"fViewMatrixIfUsingLocalCoords\" which is somewhat verbose.",
+      "parentUuid": "027e4662_af3e83bf",
+      "revId": "c24876f22952a9a2b636b44fe4f6b75aa75e5476",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
