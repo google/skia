@@ -37,7 +37,7 @@ PUBLIC_API_OWNERS = (
 
 AUTHORS_FILE_NAME = 'AUTHORS'
 
-DOCS_PREVIEW_URL = 'https://skia.org/?cl='
+DOCS_PREVIEW_URL = 'https://preview.skia.org/?cl='
 GOLD_TRYBOT_URL = 'https://gold.skia.org/search?issue='
 
 # Path to CQ bots feature is described in https://bug.skia.org/4364
