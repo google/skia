@@ -358,35 +358,35 @@ static void compute_quad_edges_and_outset_vertices(Sk4f* x, Sk4f* y, Sk4f* a, Sk
 
 namespace {
 // This is a class soley so it can be partially specialized (functions cannot be).
-template <typename Vertex, GrAA AA = Vertex::kAA, typename Position = typename Vertex::Position>
+template <typename V, GrAA AA = V::kAA, typename Position = typename V::Position>
 class VertexAAHandler;
 
-template<typename Vertex> class VertexAAHandler<Vertex, GrAA::kNo, SkPoint> {
+template<typename V> class VertexAAHandler<V, GrAA::kNo, SkPoint> {
 public:
-    static void AssignPositionsAndTexCoords(Vertex* vertices, const GrPerspQuad& quad,
+    static void AssignPositionsAndTexCoords(V* vertices, const GrPerspQuad& quad,
                                             const SkRect& texRect) {
         SkASSERT((quad.w4f() == Sk4f(1.f)).allTrue());
-        SkPointPriv::SetRectTriStrip(&vertices[0].fTextureCoords, texRect, sizeof(Vertex));
+        SkPointPriv::SetRectTriStrip(&vertices[0].fTextureCoords, texRect, sizeof(V));
         for (int i = 0; i < 4; ++i) {
             vertices[i].fPosition = {quad.x(i), quad.y(i)};
         }
     }
 };
 
-template<typename Vertex> class VertexAAHandler<Vertex, GrAA::kNo, SkPoint3> {
+template<typename V> class VertexAAHandler<V, GrAA::kNo, SkPoint3> {
 public:
-    static void AssignPositionsAndTexCoords(Vertex* vertices, const GrPerspQuad& quad,
+    static void AssignPositionsAndTexCoords(V* vertices, const GrPerspQuad& quad,
                                             const SkRect& texRect) {
-        SkPointPriv::SetRectTriStrip(&vertices[0].fTextureCoords, texRect, sizeof(Vertex));
+        SkPointPriv::SetRectTriStrip(&vertices[0].fTextureCoords, texRect, sizeof(V));
         for (int i = 0; i < 4; ++i) {
             vertices[i].fPosition = quad.point(i);
         }
     }
 };
 
-template<typename Vertex> class VertexAAHandler<Vertex, GrAA::kYes, SkPoint> {
+template<typename V> class VertexAAHandler<V, GrAA::kYes, SkPoint> {
 public:
-    static void AssignPositionsAndTexCoords(Vertex* vertices, const GrPerspQuad& quad,
+    static void AssignPositionsAndTexCoords(V* vertices, const GrPerspQuad& quad,
                                             const SkRect& texRect) {
         SkASSERT((quad.w4f() == Sk4f(1.f)).allTrue());
         auto x = quad.x4f();
@@ -405,7 +405,7 @@ public:
     }
 
 private:
-    static void AssignTexCoords(Vertex* vertices, const GrPerspQuad& quad, const SkRect& tex) {
+    static void AssignTexCoords(V* vertices, const GrPerspQuad& quad, const SkRect& tex) {
         SkMatrix q = SkMatrix::MakeAll(quad.x(0), quad.x(1), quad.x(2),
                                        quad.y(0), quad.y(1), quad.y(2),
                                              1.f,       1.f,       1.f);
@@ -418,14 +418,14 @@ private:
                                              1.f,          1.f,        1.f);
         SkMatrix map;
         map.setConcat(t, qinv);
-        SkMatrixPriv::MapPointsWithStride(map, &vertices[0].fTextureCoords, sizeof(Vertex),
-                                          &vertices[0].fPosition, sizeof(Vertex), 4);
+        SkMatrixPriv::MapPointsWithStride(map, &vertices[0].fTextureCoords, sizeof(V),
+                                          &vertices[0].fPosition, sizeof(V), 4);
     }
 };
 
-template<typename Vertex> class VertexAAHandler<Vertex, GrAA::kYes, SkPoint3> {
+template<typename V> class VertexAAHandler<V, GrAA::kYes, SkPoint3> {
 public:
-    static void AssignPositionsAndTexCoords(Vertex* vertices, const GrPerspQuad& quad,
+    static void AssignPositionsAndTexCoords(V* vertices, const GrPerspQuad& quad,
                                             const SkRect& texRect) {
         auto x = quad.x4f();
         auto y = quad.y4f();
@@ -459,7 +459,7 @@ public:
     }
 
 private:
-    static void AssignTexCoords(Vertex* vertices, const GrPerspQuad& quad, const SkRect& tex) {
+    static void AssignTexCoords(V* vertices, const GrPerspQuad& quad, const SkRect& tex) {
         SkMatrix q = SkMatrix::MakeAll(quad.x(0), quad.x(1), quad.x(2),
                                        quad.y(0), quad.y(1), quad.y(2),
                                        quad.w(0), quad.w(1), quad.w(2));
@@ -474,7 +474,7 @@ private:
         map.setConcat(t, qinv);
         SkPoint3 tempTexCoords[4];
         SkMatrixPriv::MapHomogeneousPointsWithStride(map, tempTexCoords, sizeof(SkPoint3),
-                                                     &vertices[0].fPosition, sizeof(Vertex), 4);
+                                                     &vertices[0].fPosition, sizeof(V), 4);
         for (int i = 0; i < 4; ++i) {
             auto invW = 1.f / tempTexCoords[i].fZ;
             vertices[i].fTextureCoords.fX = tempTexCoords[i].fX * invW;
@@ -483,24 +483,24 @@ private:
     }
 };
 
-template <typename Vertex, bool MT = Vertex::kIsMultiTexture> struct TexIdAssigner;
+template <typename V, bool MT = V::kIsMultiTexture> struct TexIdAssigner;
 
-template <typename Vertex> struct TexIdAssigner<Vertex, true> {
-    static void Assign(Vertex* vertices, int textureIdx) {
+template <typename V> struct TexIdAssigner<V, true> {
+    static void Assign(V* vertices, int textureIdx) {
         for (int i = 0; i < 4; ++i) {
             vertices[i].fTextureIdx = textureIdx;
         }
     }
 };
 
-template <typename Vertex> struct TexIdAssigner<Vertex, false> {
-    static void Assign(Vertex* vertices, int textureIdx) {}
+template <typename V> struct TexIdAssigner<V, false> {
+    static void Assign(V* vertices, int textureIdx) {}
 };
 }  // anonymous namespace
 
-template <typename Vertex>
+template <typename V>
 static void tessellate_quad(const GrPerspQuad& devQuad, const SkRect& srcRect, GrColor color,
-                            GrSurfaceOrigin origin, Vertex* vertices, SkScalar iw, SkScalar ih,
+                            GrSurfaceOrigin origin, V* vertices, SkScalar iw, SkScalar ih,
                             int textureIdx) {
     SkRect texRect = {
             iw * srcRect.fLeft,
@@ -512,12 +512,12 @@ static void tessellate_quad(const GrPerspQuad& devQuad, const SkRect& srcRect, G
         texRect.fTop = 1.f - texRect.fTop;
         texRect.fBottom = 1.f - texRect.fBottom;
     }
-    VertexAAHandler<Vertex>::AssignPositionsAndTexCoords(vertices, devQuad, texRect);
+    VertexAAHandler<V>::AssignPositionsAndTexCoords(vertices, devQuad, texRect);
     vertices[0].fColor = color;
     vertices[1].fColor = color;
     vertices[2].fColor = color;
     vertices[3].fColor = color;
-    TexIdAssigner<Vertex>::Assign(vertices, textureIdx);
+    TexIdAssigner<V>::Assign(vertices, textureIdx);
 }
 /**
  * Op that implements GrTextureOp::Make. It draws textured quads. Each quad can modulate against a
