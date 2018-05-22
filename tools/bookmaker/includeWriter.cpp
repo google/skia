@@ -967,15 +967,61 @@ Definition* IncludeWriter::structMemberOut(const Definition* memberStart, const 
                 valueStart->fContentStart);
     }
     this->writeString(";");
+    auto lineIter = std::find_if(commentBlock->fChildren.begin(), commentBlock->fChildren.end(),
+        [](const Definition* def){ return MarkType::kLine == def->fMarkType; } );
+    SkASSERT(commentBlock->fChildren.end() != lineIter);
+    const Definition* lineDef = *lineIter;
     /* if (commentBlock->fShort) */ {
         this->indentToColumn(fStructCommentTab);
         this->writeString("//!<");
         this->writeSpace();
         string extract = fBmhParser->extractText(commentBlock, BmhParser::TrimExtract::kYes);
-        this->rewriteBlock(extract.length(), &extract.front(), Phrase::kNo);
+        this->rewriteBlock(lineDef->length(), lineDef->fContentStart, Phrase::kNo);
     }
-    this->lf(2);
+    this->lf(1);
     return valueEnd;
+}
+
+// const and constexpr and #define aren't contained in a braces like struct and enum.
+// use a bmh subtopic to group like ones together, then measure them in the include as if
+// they were formally linked together
+void IncludeWriter::constSizeMembers() {
+    // fBmhConst->fParent is subtopic containing all grouped const expressions
+    // fConstDef is token of const include name, hopefully on same line as const start
+    int longestType = 0;
+    const Definition* test = fConstDef;
+    const Definition* tokens = &test->fParent->fTokens.front();
+    int tokenIndex = test->fParentIndex;
+    int longestName = 0;
+    int longestValue = 0;
+    const Definition* subtopic = fBmhConst->fParent;
+    SkASSERT(subtopic);
+    SkASSERT(MarkType::kSubtopic == subtopic->fMarkType);
+    // back up to first token on line
+    int lineCount = test->fLineCount;
+    const Definition* last;
+    do {
+        last = test;
+        test = &tokens[--tokenIndex];
+        SkASSERT(test->fParentIndex == tokenIndex);
+    } while (lineCount == test->fLineCount);
+    test = last;
+    for (auto child : subtopic->fChildren) {
+        if (MarkType::kConst != child->fMarkType) {
+            continue;
+        }
+        // expect found name to be on the left of assign
+        // expect assign
+        // expect semicolon
+        // no parens, no braces
+        const Definition* first = test;
+        while (test->fName != child->fName) {
+            test = &tokens[++tokenIndex];
+            SkASSERT(lineCount == test->fLineCount);
+        }
+    }
+
+    // write fStructMemberTab, fStructValueTab, fStructCommentTab
 }
 
 void IncludeWriter::structSizeMembers(const Definition& child) {
@@ -1134,6 +1180,9 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
     const Definition* requireDense = nullptr;
     const Definition* startDef = nullptr;
     for (auto& child : def->fTokens) {
+        if (87 == child.fParentIndex) {
+            SkDebugf("");
+        }
         if (KeyWord::kOperator == child.fKeyWord && method &&
                 Definition::MethodType::kOperator == method->fMethodType) {
             eatOperator = true;
@@ -1218,6 +1267,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                         params.skipToEndBracket('(');
                         if (params.startsWith(child.fContentStart, childLen)) {
                             this->methodOut(clonedMethod, child);
+                            sawConst = false;
                             break;
                         }
                         ++alternate;
@@ -1263,6 +1313,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                     return child.reportError<bool>("method not found");
                 }
                 this->methodOut(method, child);
+                sawConst = false;
                 continue;
             }
             if (Definition::Type::kPunctuation == child.fType &&
@@ -1283,6 +1334,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                     continue;
                 }
                 this->methodOut(method, child);
+                sawConst = false;
                 continue;
             } else if (fBmhStructDef && fBmhStructDef->fDeprecated) {
                 fContinuation = nullptr;
@@ -1343,6 +1395,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 continue;
             }
             this->methodOut(method, child);
+            sawConst = false;
             if (fAttrDeprecated) {
                 startDef = fAttrDeprecated;
                 fStart = fAttrDeprecated->fContentStart;
@@ -1636,6 +1689,27 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                     fDeferComment = nullptr;
                     sawConst = false;
                 }
+            } else if (MarkType::kNone == child.fMarkType && sawConst && !fEnumDef) {
+                string match;
+                if (root) {
+                    match = root->fName + "::";
+                    match += string(child.fContentStart, child.fContentEnd - child.fContentStart);
+                    auto bmhClassIter = fBmhParser->fClassMap.find(root->fName);
+                    SkASSERT(fBmhParser->fClassMap.end() != bmhClassIter);
+                    RootDefinition& bmhClass = bmhClassIter->second;
+                    auto constIter = std::find_if(bmhClass.fLeaves.begin(), bmhClass.fLeaves.end(),
+                            [match](auto& leaf){ return match == leaf.second.fName; } );
+                    if (bmhClass.fLeaves.end() != constIter) {
+                        const Definition& bmhConst = constIter->second;
+                        if (MarkType::kConst == bmhConst.fMarkType) {
+                            fBmhConst = &bmhConst;
+                            fConstDef = &child;
+                        }
+                    }
+                } else {
+                    SkDebugf("");  // FIXME: support global constexpr
+                }
+
             }
             if (child.fMemberStart) {
                 memberStart = &child;
@@ -1649,8 +1723,36 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
         }
         if (Definition::Type::kPunctuation == child.fType) {
             if (Punctuation::kSemicolon == child.fPunctuation) {
+                if (sawConst && fBmhConst) {  // find bmh documentation. Parent must be subtopic.
+                    const Definition* subtopic = fBmhConst->fParent;
+                    SkASSERT(subtopic);
+                    SkASSERT(MarkType::kSubtopic == subtopic->fMarkType);
+                    auto firstConst = std::find_if(subtopic->fChildren.begin(),
+                            subtopic->fChildren.end(),
+                            [](const Definition* def){ return MarkType::kConst == def->fMarkType;});
+                    SkASSERT(firstConst != subtopic->fChildren.end());
+                    bool constIsFirst = *firstConst == fBmhConst;
+                    if (constIsFirst) {  // If first #Const child, output subtopic description.
+                        this->writeCommentHeader();
+                        fIndent += 4;
+                        this->descriptionOut(subtopic, SkipFirstLine::kNo, Phrase::kNo);
+                        fIndent -= 4;
+                        this->lfcr();
+                        this->writeCommentTrailer();
+                        // find member / value / comment tabs
+                        // look for a one-to-one correspondence between bmh and include
+                        this->constSizeMembers();
+                    }
+                    // after const code, output #Line description as short comment
+                    auto lineIter = std::find_if(fBmhConst->fChildren.begin(),
+                            fBmhConst->fChildren.end(),
+                            [](const Definition* def){ return MarkType::kLine == def->fMarkType; });
+                    SkASSERT(fBmhConst->fChildren.end() != lineIter);
+
+                    fBmhConst = nullptr;
+                    sawConst = false;
+                }
                 memberStart = nullptr;
-                sawConst = false;
                 staticOnly = false;
                 if (inStruct) {
                     fInStruct = false;
