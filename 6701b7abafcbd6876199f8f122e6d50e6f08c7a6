@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "bbd64886_f915436f",
+        "filename": "infra/bots/recipe_modules/doxygen/api.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-22T15:29:26Z",
+      "side": 1,
+      "message": "nit: Seems like this depends on the CWD being a skia checkout. Should document that.",
+      "revId": "6701b7abafcbd6876199f8f122e6d50e6f08c7a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "052aff05_67ee271b",
         "filename": "infra/bots/recipe_modules/flavor/api.py",
         "patchSetId": 2
@@ -18,6 +35,53 @@
         "startChar": 0,
         "endLine": 2,
         "endChar": 0
+      },
+      "revId": "6701b7abafcbd6876199f8f122e6d50e6f08c7a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4172261_607291b3",
+        "filename": "infra/bots/recipe_modules/flavor/api.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-22T15:29:26Z",
+      "side": 1,
+      "message": "\u0027device\u0027? \u0027platform\u0027?",
+      "parentUuid": "052aff05_67ee271b",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 2,
+        "endChar": 0
+      },
+      "revId": "6701b7abafcbd6876199f8f122e6d50e6f08c7a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c00afbb_75a81839",
+        "filename": "infra/bots/recipe_modules/flavor/chromebook.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-05-22T15:29:26Z",
+      "side": 1,
+      "message": "nit: this is probably wrong",
+      "range": {
+        "startLine": 12,
+        "startChar": 47,
+        "endLine": 12,
+        "endChar": 50
       },
       "revId": "6701b7abafcbd6876199f8f122e6d50e6f08c7a6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
