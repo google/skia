@@ -9,7 +9,7 @@
 #include <Windows.h>
 #include <GL/gl.h>
 #include "../GLWindowContext.h"
-#include "GrGLInterface.h"
+#include "gl/GrGLInterface.h"
 #include "WindowContextFactory_win.h"
 #include "win/SkWGL.h"
 

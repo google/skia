@@ -109,7 +109,6 @@ skia_public_includes = [
   "include/effects",
   "include/encode",
   "include/gpu",
-  "include/gpu/gl",
   "include/atlastext",
   "include/pathops",
   "include/ports",
