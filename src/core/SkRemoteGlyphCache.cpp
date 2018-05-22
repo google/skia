@@ -198,7 +198,6 @@ SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
                                                      SkStrikeServer* strikeSever, Settings settings)
         : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(SkIRect::MakeWH(width, height), props)}
         , fDeviceMatrix{deviceMatrix}
-        , fSurfaceProps{props}
         , fStrikeServer{strikeSever}
         , fSettings{settings} {
     SkASSERT(fStrikeServer);
@@ -284,7 +283,7 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
     options.fMinDistanceFieldFontSize = fSettings.fMinDistanceFieldFontSize;
     options.fMaxDistanceFieldFontSize = fSettings.fMaxDistanceFieldFontSize;
     GrAtlasTextContext::SanitizeOptions(&options);
-    if (GrAtlasTextContext::CanDrawAsDistanceFields(runPaint, runMatrix, fSurfaceProps,
+    if (GrAtlasTextContext::CanDrawAsDistanceFields(runPaint, runMatrix, surfaceProps(),
                                                     fSettings.fContextSupportsDistanceFieldText,
                                                     options)) {
         SkScalar textRatio;
@@ -358,7 +357,7 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
     SkScalerContextEffects effects;
     auto* glyphCacheState =
             static_cast<SkStrikeServer*>(fStrikeServer)
-                    ->getOrCreateCache(runPaint, &fSurfaceProps, &runMatrix,
+                    ->getOrCreateCache(runPaint, &surfaceProps(), &runMatrix,
                                        SkScalerContextFlags::kFakeGammaAndBoostContrast,
                                        &deviceSpecificRec, &effects);
     SkASSERT(glyphCacheState);
@@ -397,7 +396,7 @@ void SkTextBlobCacheDiffCanvas::processGlyphRunForPaths(const SkTextBlobRunItera
     SkScalerContextEffects effects;
     auto* glyphCacheState =
             static_cast<SkStrikeServer*>(fStrikeServer)
-                    ->getOrCreateCache(pathPaint, &fSurfaceProps, nullptr,
+                    ->getOrCreateCache(pathPaint, &surfaceProps(), nullptr,
                                        SkScalerContextFlags::kFakeGammaAndBoostContrast,
                                        &deviceSpecificRec, &effects);
 
@@ -418,7 +417,7 @@ void SkTextBlobCacheDiffCanvas::processGlyphRunForDFT(const SkTextBlobRunIterato
     SkScalerContextRec deviceSpecificRec;
     SkScalerContextEffects effects;
     auto* glyphCacheState = static_cast<SkStrikeServer*>(fStrikeServer)
-                                    ->getOrCreateCache(runPaint, &fSurfaceProps, nullptr, flags,
+                                    ->getOrCreateCache(runPaint, &surfaceProps(), nullptr, flags,
                                                        &deviceSpecificRec, &effects);
 
     const bool asPath = false;
@@ -430,6 +429,10 @@ void SkTextBlobCacheDiffCanvas::processGlyphRunForDFT(const SkTextBlobRunIterato
                                   SkPackedGlyphID(glyphs[index], subPixelPos.x(), subPixelPos.y()),
                                   asPath);
     }
+}
+
+const SkSurfaceProps& SkTextBlobCacheDiffCanvas::surfaceProps() const {
+    return this->getTopDevice()->surfaceProps();
 }
 
 struct StrikeSpec {
