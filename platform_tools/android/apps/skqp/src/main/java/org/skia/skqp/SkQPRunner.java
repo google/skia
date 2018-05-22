@@ -64,12 +64,12 @@ public class SkQPRunner extends Runner implements Filterable {
         for (int backend = 0; backend < impl.mBackends.length; backend++) {
             for (int gm = 0; gm < impl.mGMs.length; gm++) {
                 mTests[index++] = Description.createTestDescription(SkQPRunner.class,
-                    impl.mBackends[backend] + "/" + impl.mGMs[gm]);
+                    impl.mBackends[backend] + "_" + impl.mGMs[gm]);
             }
         }
         for (int unitTest = 0; unitTest < impl.mUnitTests.length; unitTest++) {
             mTests[index++] = Description.createTestDescription(SkQPRunner.class,
-                    "unitTest/" + impl.mUnitTests[unitTest]);
+                    "unitTest_" + impl.mUnitTests[unitTest]);
         }
         assert(index == mTests.length);
         mShouldRunTestCount = mTests.length;
