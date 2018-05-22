@@ -1138,6 +1138,9 @@ void Viewer::drawSlide(SkCanvas* canvas) {
     int count = slideCanvas->save();
     slideCanvas->clear(SK_ColorWHITE);
     slideCanvas->concat(computeMatrix());
+    if (kPerspective_Real == fPerspectiveMode) {
+        slideCanvas->clipRect(SkRect::MakeWH(fWindow->width(), fWindow->height()));
+    }
     // Time the painting logic of the slide
     fStatsLayer.beginTiming(fPaintTimer);
     OveridePaintFilterCanvas filterCanvas(slideCanvas, &fPaint, &fPaintOverrides);
