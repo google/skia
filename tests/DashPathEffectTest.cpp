@@ -5,21 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkDashPathEffect.h"
-#include "SkImageInfo.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPathEffect.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
-#include "SkStrokeRec.h"
-#include "SkSurface.h"
-#include "SkTypes.h"
 #include "Test.h"
+
+#include "SkDashPathEffect.h"
+#include "SkWriteBuffer.h"
+#include "SkStrokeRec.h"
+#include "SkCanvas.h"
+#include "SkSurface.h"
 
 // crbug.com/348821 was rooted in SkDashPathEffect refusing to flatten and unflatten itself when
 // the effect is nonsense.  Here we test that it fails when passed nonsense parameters.

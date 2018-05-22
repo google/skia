@@ -9,20 +9,11 @@
 #include "SkDataTable.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
-#include "SkRWBuffer.h"
-#include "SkRefCnt.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkStream.h"
-#include "SkString.h"
 #include "SkTArray.h"
-#include "SkTaskGroup.h"
-#include "SkTemplates.h"
-#include "SkTypes.h"
 #include "Test.h"
-
-#include <cstdio>
-#include <cstring>
-#include <memory>
-#include <utility>
 
 static void test_is_equal(skiatest::Reporter* reporter,
                           const SkDataTable* a, const SkDataTable* b) {
@@ -210,6 +201,7 @@ DEF_TEST(Data, reporter) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SkRWBuffer.h"
 
 const char gABC[] = "abcdefghijklmnopqrstuvwxyz";
 
@@ -258,6 +250,8 @@ static void check_alphabet_buffer(skiatest::Reporter* reporter, const SkROBuffer
     REPORTER_ASSERT(reporter, offset == size);
     check_abcs(reporter, storage.get(), size);
 }
+
+#include "SkTaskGroup.h"
 
 DEF_TEST(RWBuffer, reporter) {
     // Knowing that the default capacity is 4096, choose N large enough so we force it to use

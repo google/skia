@@ -12,7 +12,7 @@
 #ifdef SK_VULKAN
 
 #ifdef SK_VULKAN_HEADER
-#include SK_VULKAN_HEADER // IWYU pragma: export
+#include SK_VULKAN_HEADER
 #else
 // This is deprecated and all clients should define their own custum header shim that sets up
 // defines and includes the vulkan.h header. Then they should define SK_VULKAN_HEADER or set the
@@ -43,7 +43,7 @@
 #    define VK_NO_PROTOTYPES
 #  endif
 
-#  include <vulkan/vulkan.h> // IWYU pragma: export
+#  include <vulkan/vulkan.h>
 #endif // SK_VULKAN_HEADER
 
 #define SKIA_REQUIRED_VULKAN_HEADER_VERSION 17

@@ -5,23 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
-
-#if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "GrContextFactory.h"
-#include "GrContextPriv.h"
-#include "GrProxyProvider.h"
-#include "GrSamplerState.h"
-#include "GrTextureProducer.h"
-#include "GrTextureProxy.h"
-#include "GrTypes.h"
-#include "GrTypesPriv.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
 #include "Test.h"
 
-#include <initializer_list>
+#if SK_SUPPORT_GPU
+
+#include "GrContextPriv.h"
+#include "GrProxyProvider.h"
+#include "GrSurfaceProxy.h"
+#include "GrTextureProducer.h"
+#include "GrTextureProxy.h"
 
 // For DetermineDomainMode (in the MDB world) we have 3 rects:
 //      1) the final instantiated backing storage (i.e., the actual GrTexture's extent)
