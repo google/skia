@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "126fd946_5723735b",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-22T15:13:14Z",
+      "side": 1,
+      "message": "sdk",
+      "range": {
+        "startLine": 71,
+        "startChar": 43,
+        "endLine": 71,
+        "endChar": 46
+      },
+      "revId": "b94ea5458eff8be936f53f0c2ef038aa5f66216e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eeac24fa_7c439c16",
+        "filename": "tools/gpu/vk/GrVulkanDefines.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-22T15:13:14Z",
+      "side": 1,
+      "message": "It\u0027d be nice to reindent all this preprocessor so the nesting is clear.",
+      "revId": "b94ea5458eff8be936f53f0c2ef038aa5f66216e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
