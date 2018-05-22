@@ -1579,6 +1579,7 @@ if (skia_enable_tools) {
         "src/utils/SkLuaCanvas.cpp",
       ]
       deps = [
+        ":skshaper",
         "//third_party/lua",
       ]
     }
