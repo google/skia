@@ -93,14 +93,6 @@ static uint16_t h(float f) {
                   : SkTo<uint16_t>((s>>16) + (em>>13) - ((127-15)<<10));
 }
 
-static uint16_t n(uint16_t x) {
-    return (x<<8) | (x>>8);
-}
-
-static float a(uint16_t x) {
-    return (1/65535.0f) * x;
-}
-
 DEF_TEST(SkRasterPipeline_tail, r) {
     {
         float data[][4] = {
@@ -160,46 +152,6 @@ DEF_TEST(SkRasterPipeline_tail, r) {
             for (int j = i; j < 4; j++) {
                 for (auto f : buffer[j]) {
                     REPORTER_ASSERT(r, f == 0xffff);
-                }
-            }
-        }
-    }
-
-    {
-        uint16_t data[][3] = {
-            {n(00), n(01), n(02)},
-            {n(10), n(11), n(12)},
-            {n(20), n(21), n(22)},
-            {n(30), n(31), n(32)}
-        };
-
-        float answer[][4] = {
-            {a(00), a(01), a(02), 1.0f},
-            {a(10), a(11), a(12), 1.0f},
-            {a(20), a(21), a(22), 1.0f},
-            {a(30), a(31), a(32), 1.0f}
-        };
-
-        float buffer[4][4];
-        SkJumper_MemoryCtx src = { &data[0][0], 0 },
-                           dst = { &buffer[0][0], 0 };
-
-        for (unsigned i = 1; i <= 4; i++) {
-            memset(buffer, 0xff, sizeof(buffer));
-            SkRasterPipeline_<256> p;
-            p.append(SkRasterPipeline::load_rgb_u16_be, &src);
-            p.append(SkRasterPipeline::store_f32, &dst);
-            p.run(0,0, i,1);
-            for (unsigned j = 0; j < i; j++) {
-                for (unsigned k = 0; k < 4; k++) {
-                    if (buffer[j][k] != answer[j][k]) {
-                        ERRORF(r, "(%u, %u) - a: %g r: %g\n", j, k, answer[j][k], buffer[j][k]);
-                    }
-                }
-            }
-            for (int j = i; j < 4; j++) {
-                for (auto f : buffer[j]) {
-                    REPORTER_ASSERT(r, SkScalarIsNaN(f));
                 }
             }
         }
