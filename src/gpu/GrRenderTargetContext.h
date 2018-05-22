@@ -435,7 +435,7 @@ private:
 
     // These perform processing specific to Gr[Mesh]DrawOp-derived ops before recording them into
     // the op list. They return the id of the opList to which the op was added, or 0, if it was
-    // dropped (e.g., due to clipping).
+    // dropped (e.g., due to clipping or being combined).
     uint32_t addDrawOp(const GrClip&, std::unique_ptr<GrDrawOp>);
 
     // Makes a copy of the proxy if it is necessary for the draw and places the texture that should
