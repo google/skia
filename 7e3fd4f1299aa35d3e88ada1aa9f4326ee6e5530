@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e91d1b3_bb5ae71e",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-22T18:17:14Z",
+      "side": 1,
+      "message": "Does this need to be in the public API? If it\u0027s for the test then the test could do:\n\ncontext-\u003econtextPriv()-\u003ecaps()-\u003eshaderCaps()-\u003eshaderDerivativeSupport()",
+      "range": {
+        "startLine": 285,
+        "startChar": 3,
+        "endLine": 285,
+        "endChar": 41
+      },
+      "revId": "7e3fd4f1299aa35d3e88ada1aa9f4326ee6e5530",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
