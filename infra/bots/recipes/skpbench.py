@@ -124,6 +124,7 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
+  'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan_Skpbench',
   'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-Android_Skpbench',
   ('Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-'
    'Android_Vulkan_Skpbench'),
