@@ -54,10 +54,6 @@ private:
     mutable SkMatrix44     fFromXYZD50;
     mutable SkOnce         fFromXYZOnce;
 
-    mutable sk_sp<SkData>  fDstStorage;
-    mutable const uint8_t* fToDstGammaTables[3];
-    mutable SkOnce         fToDstGammaOnce;
-
     bool fNonlinearBlending = false;
 
     friend class SkColorSpace;
