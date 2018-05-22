@@ -1320,6 +1320,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 break;
             }
             case 32: {
+                fuzz_paint(fuzz, &paint, depth - 1);
                 SkPath path;
                 FuzzPath(fuzz, &path, 60);
                 canvas->drawPath(path, paint);
