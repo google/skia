@@ -50,9 +50,9 @@ GCOV="$(realpath tools/gcov_shim)"
 lcov -q --gcov-tool="$GCOV" -c -b "$BUILD" -d "$BUILD" -o "$DIR"/baseline -i
 
 # Running the binary generates the real coverage information, the .gcda files.
-QUEUES=("$1/api_parse_path/fuzzer0/queue/*" "$1/color_deserialize/fuzzer0/queue/*" "$1/color_icc/fuzzer0/queue/*" "$1/skcodec_scale/fuzzer0/queue/*" "$1/skcodec_mode/fuzzer0/queue/*" "$1/api_draw_functions/fuzzer0/queue/*" "$1/api_gradient/fuzzer0/queue/*" "$1/api_image_filter/fuzzer0/queue/*" "$1/api_pathop/fuzzer0/queue/*" "$1/sksl2glsl/fuzzer0/queue/*" "$1/null_canvas/fuzzer0/queue/*" "$1/pdf_canvas/fuzzer0/queue/*" "$1/n32_canvas/fuzzer0/queue/*")
+QUEUES=("$1/api_parse_path/fuzzer0/queue/*" "$1/color_deserialize/fuzzer0/queue/*" "$1/skcodec_scale/fuzzer0/queue/*" "$1/skcodec_mode/fuzzer0/queue/*" "$1/api_draw_functions/fuzzer0/queue/*" "$1/api_gradient/fuzzer0/queue/*" "$1/api_image_filter/fuzzer0/queue/*" "$1/api_pathop/fuzzer0/queue/*" "$1/sksl2glsl/fuzzer0/queue/*" "$1/null_canvas/fuzzer0/queue/*" "$1/pdf_canvas/fuzzer0/queue/*" "$1/n32_canvas/fuzzer0/queue/*")
 
-ARGS=("-n ParsePath" "-t color_deserialize" "-t icc" "-t image_scale" "-t image_mode" "-n DrawFunctions" "-n Gradients" "-n SerializedImageFilter" "-n Pathop" "-t sksl2glsl" "-n NullCanvas" "-n PDFCanvas" "-n RasterN32Canvas")
+ARGS=("-n ParsePath" "-t color_deserialize" "-t image_scale" "-t image_mode" "-n DrawFunctions" "-n Gradients" "-n SerializedImageFilter" "-n Pathop" "-t sksl2glsl" "-n NullCanvas" "-n PDFCanvas" "-n RasterN32Canvas")
 
 # We can't simply pass the directories to the fuzzers because some of the fuzzes will
 # crash or assert, which would kill the call to fuzz prematurely. Instead we run them
