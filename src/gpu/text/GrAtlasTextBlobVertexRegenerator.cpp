@@ -282,7 +282,7 @@ bool Regenerator::doRegen(Regenerator::Result* result) {
                 code = strike->addGlyphToAtlas(fResourceProvider, fUploadTarget, fGlyphCache,
                                               fFullAtlasManager, glyph,
                                               fLazyCache->get(), fSubRun->maskFormat(),
-                                              fSubRun->hasScaledGlyphs());
+                                              fSubRun->needsTransform());
                 if (GrDrawOpAtlas::ErrorCode::kError == code) {
                     // Something horrible has happened - drop the op
                     return false;
