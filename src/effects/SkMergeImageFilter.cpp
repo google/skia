@@ -121,15 +121,3 @@ void SkMergeImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 }
 
-void SkMergeImageFilter::toString(SkString* str) const {
-    str->appendf("SkMergeImageFilter: (");
-
-    for (int i = 0; i < this->countInputs(); ++i) {
-        SkImageFilter* filter = this->getInput(i);
-        str->appendf("%d: (", i);
-        filter->toString(str);
-        str->appendf(")");
-    }
-
-    str->append(")");
-}

@@ -98,15 +98,6 @@ public:
         return fOuter->getFlags() & fInner->getFlags();
     }
 
-    void toString(SkString* str) const override {
-        SkString outerS, innerS;
-        fOuter->toString(&outerS);
-        fInner->toString(&innerS);
-        // These strings can be long.  SkString::appendf has limitations.
-        str->append(SkStringPrintf("SkComposeColorFilter: outer(%s) inner(%s)", outerS.c_str(),
-                                   innerS.c_str()));
-    }
-
     void onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkArenaAlloc* scratch,
                         bool shaderIsOpaque) const override {
         bool innerIsOpaque = shaderIsOpaque;
@@ -225,8 +216,6 @@ public:
     }
 #endif
 
-    void toString(SkString* str) const override;
-
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSRGBGammaColorFilter)
 
     void onAppendStages(SkRasterPipeline* p, SkColorSpace*, SkArenaAlloc* alloc,
@@ -265,10 +254,6 @@ sk_sp<SkFlattenable> SkSRGBGammaColorFilter::CreateProc(SkReadBuffer& buffer) {
         return nullptr;
     }
     return sk_sp<SkFlattenable>(new SkSRGBGammaColorFilter(static_cast<Direction>(dir)));
-}
-
-void SkSRGBGammaColorFilter::toString(SkString* str) const {
-    str->append("srgbgamma");
 }
 
 template <SkSRGBGammaColorFilter::Direction dir>

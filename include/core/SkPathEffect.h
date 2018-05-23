@@ -145,7 +145,6 @@ public:
 
     virtual DashType asADash(DashInfo* info) const;
 
-    virtual void toString(SkString* str) const = 0;
     SK_DEFINE_FLATTENABLE_TYPE(SkPathEffect)
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK

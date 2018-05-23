@@ -38,7 +38,6 @@ public:
         return fProxyShader;
     }
 
-    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLocalMatrixShader)
 
 protected:

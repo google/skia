@@ -207,14 +207,4 @@ std::unique_ptr<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(
 
 #endif
 
-void SkLinearGradient::toString(SkString* str) const {
-    str->append("SkLinearGradient (");
-
-    str->appendf("start: (%f, %f)", fStart.fX, fStart.fY);
-    str->appendf(" end: (%f, %f) ", fEnd.fX, fEnd.fY);
-
-    this->INHERITED::toString(str);
-
-    str->append(")");
-}
 

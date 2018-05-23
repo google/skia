@@ -29,7 +29,6 @@ public:
                                      const CropRect* cropRect = nullptr);
 
     SkRect computeFastBounds(const SkRect&) const override;
-    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDropShadowImageFilter)
 
 protected:
