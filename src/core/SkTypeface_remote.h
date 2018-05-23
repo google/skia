@@ -13,16 +13,18 @@
 #include "SkFontDescriptor.h"
 #include "SkFontStyle.h"
 #include "SkPaint.h"
-#include "SkRemoteGlyphCache.h"
 #include "SkScalerContext.h"
 #include "SkTypeface.h"
+
+class SkStrikeClient;
+class SkTypefaceProxy;
 
 class SkScalerContextProxy : public SkScalerContext {
 public:
     SkScalerContextProxy(sk_sp<SkTypeface> tf,
                          const SkScalerContextEffects& effects,
                          const SkDescriptor* desc,
-                         sk_sp<SkStrikeClient::DiscardableHandleManager> manager);
+                         SkStrikeClient* rsc);
 
 protected:
     unsigned generateGlyphCount() override;
@@ -40,8 +42,10 @@ private:
     static constexpr size_t kMinGlyphImageSize = 16 /* height */ * 8 /* width */;
     static constexpr size_t kMinAllocAmount = kMinGlyphImageSize * kMinGlyphCount;
 
+    SkTypefaceProxy* typefaceProxy();
+
     SkArenaAlloc          fAlloc{kMinAllocAmount};
-    sk_sp<SkStrikeClient::DiscardableHandleManager> fDiscardableManager;
+    SkStrikeClient* const fClient;
     typedef SkScalerContext INHERITED;
 };
 
@@ -51,13 +55,14 @@ public:
                     int glyphCount,
                     const SkFontStyle& style,
                     bool isFixed,
-                    sk_sp<SkStrikeClient::DiscardableHandleManager> manager)
-            : INHERITED{style, false}
-            , fFontId{fontId}
-            , fGlyphCount{glyphCount}
-            , fDiscardableManager{std::move(manager)} {}
+                    SkStrikeClient* rsc)
+            : INHERITED{style, false}, fFontId{fontId}, fGlyphCount{glyphCount}, fRsc{rsc} {}
     SkFontID remoteTypefaceID() const {return fFontId;}
     int glyphCount() const {return fGlyphCount;}
+    static SkTypefaceProxy* DownCast(SkTypeface* typeface) {
+        // TODO: how to check the safety of the down cast?
+        return (SkTypefaceProxy*)typeface;
+    }
 
 protected:
     int onGetUPEM() const override { SK_ABORT("Should never be called."); return 0; }
@@ -92,11 +97,16 @@ protected:
     SkScalerContext* onCreateScalerContext(const SkScalerContextEffects& effects,
                                            const SkDescriptor* desc) const override {
         return new SkScalerContextProxy(sk_ref_sp(const_cast<SkTypefaceProxy*>(this)), effects,
-                                        desc, fDiscardableManager);
+                                         desc, fRsc);
+
     }
     void onFilterRec(SkScalerContextRec* rec) const override {
-        // The rec filtering is already applied by the server when generating
-        // the glyphs.
+        // Add all the device information here.
+        //rec->fPost2x2[0][0] = 0.5f;
+
+        // This would be the best place to run the host SkTypeface_* onFilterRec.
+        // Can we move onFilterRec to the FongMgr, that way we don't need to cross the boundary to
+        // filter.
     }
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override {
         SK_ABORT("Should never be called.");
@@ -128,7 +138,8 @@ private:
     const SkFontID        fFontId;
     const int             fGlyphCount;
 
-    sk_sp<SkStrikeClient::DiscardableHandleManager> fDiscardableManager;
+    // TODO: Does this need a ref to the strike client? If yes, make it a weak ref.
+    SkStrikeClient* const fRsc;
 
     typedef SkTypeface INHERITED;
 };
