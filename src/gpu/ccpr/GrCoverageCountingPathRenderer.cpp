@@ -215,10 +215,10 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
             SkDEBUGCODE(numSkippedPaths += op->numSkippedInstances_debugOnly());
         }
         for (auto& clipsIter : flushingPaths->fClipPaths) {
-            clipsIter.second.renderPathInAtlas(resources.get(), onFlushRP);
+            clipsIter.second.placePathInAtlas(resources.get(), onFlushRP);
         }
     }
-    SkASSERT(resources->nextPathInstanceIdx() == numPathDraws - numSkippedPaths);
+    SkASSERT(resources->pathInstanceCount() == numPathDraws - numSkippedPaths);
 
     // Allocate the atlases and create instance buffers to draw them.
     if (!resources->finalize(onFlushRP, atlasDraws)) {

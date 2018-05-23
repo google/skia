@@ -38,10 +38,10 @@ GrCCPerFlushResources::GrCCPerFlushResources(GrOnFlushResourceProvider* onFlushR
     SkDEBUGCODE(fPathInstanceBufferCount = numPathDraws);
 }
 
-GrCCAtlas* GrCCPerFlushResources::renderPathInAtlas(const GrCaps& caps, const SkIRect& clipIBounds,
-                                                    const SkMatrix& m, const SkPath& path,
-                                                    SkRect* devBounds, SkRect* devBounds45,
-                                                    int16_t* atlasOffsetX, int16_t* atlasOffsetY) {
+GrCCAtlas* GrCCPerFlushResources::addPathToAtlas(const GrCaps& caps, const SkIRect& clipIBounds,
+                                                 const SkMatrix& m, const SkPath& path,
+                                                 SkRect* devBounds, SkRect* devBounds45,
+                                                 int16_t* atlasOffsetX, int16_t* atlasOffsetY) {
     SkASSERT(this->isMapped());
     SkIRect devIBounds;
     fPathParser->parsePath(m, path, devBounds, devBounds45);
@@ -49,12 +49,12 @@ GrCCAtlas* GrCCPerFlushResources::renderPathInAtlas(const GrCaps& caps, const Sk
     return this->placeParsedPathInAtlas(caps, clipIBounds, devIBounds, atlasOffsetX, atlasOffsetY);
 }
 
-GrCCAtlas* GrCCPerFlushResources::renderDeviceSpacePathInAtlas(const GrCaps& caps,
-                                                               const SkIRect& clipIBounds,
-                                                               const SkPath& devPath,
-                                                               const SkIRect& devPathIBounds,
-                                                               int16_t* atlasOffsetX,
-                                                               int16_t* atlasOffsetY) {
+GrCCAtlas* GrCCPerFlushResources::addDeviceSpacePathToAtlas(const GrCaps& caps,
+                                                            const SkIRect& clipIBounds,
+                                                            const SkPath& devPath,
+                                                            const SkIRect& devPathIBounds,
+                                                            int16_t* atlasOffsetX,
+                                                            int16_t* atlasOffsetY) {
     SkASSERT(this->isMapped());
     fPathParser->parseDeviceSpacePath(devPath);
     return this->placeParsedPathInAtlas(caps, clipIBounds, devPathIBounds, atlasOffsetX,

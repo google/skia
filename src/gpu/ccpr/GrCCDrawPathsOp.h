@@ -48,6 +48,11 @@ public:
     void onExecute(GrOpFlushState*) override;
 
 private:
+    SkPath::FillType getFillType() const {
+        SkASSERT(fNumDraws >= 1);
+        return fDraws.head().fPath.getFillType();
+    }
+
     struct AtlasBatch {
         const GrCCAtlas* fAtlas;
         int fEndInstanceIdx;

@@ -26,21 +26,22 @@ public:
 
     bool isMapped() const { return SkToBool(fPathInstanceData); }
 
-    GrCCAtlas* renderPathInAtlas(const GrCaps&, const SkIRect& clipIBounds, const SkMatrix&,
-                                 const SkPath&, SkRect* devBounds, SkRect* devBounds45,
-                                 int16_t* offsetX, int16_t* offsetY);
-    GrCCAtlas* renderDeviceSpacePathInAtlas(const GrCaps&, const SkIRect& clipIBounds,
-                                            const SkPath& devPath, const SkIRect& devPathIBounds,
-                                            int16_t* atlasOffsetX, int16_t* atlasOffsetY);
+    GrCCAtlas* addPathToAtlas(const GrCaps&, const SkIRect& clipIBounds, const SkMatrix&,
+                              const SkPath&, SkRect* devBounds, SkRect* devBounds45,
+                              int16_t* offsetX, int16_t* offsetY);
+    GrCCAtlas* addDeviceSpacePathToAtlas(const GrCaps&, const SkIRect& clipIBounds,
+                                         const SkPath& devPath, const SkIRect& devPathIBounds,
+                                         int16_t* atlasOffsetX, int16_t* atlasOffsetY);
 
     GrCCPathProcessor::Instance& appendDrawPathInstance() {
         SkASSERT(this->isMapped());
-        SkASSERT(fNextPathInstanceIdx < fPathInstanceBufferCount);
-        return fPathInstanceData[fNextPathInstanceIdx++];
+        SkASSERT(fPathInstanceCount < fPathInstanceBufferCount);
+        return fPathInstanceData[fPathInstanceCount++];
     }
-    int nextPathInstanceIdx() const { return fNextPathInstanceIdx; }
+    int pathInstanceCount() const { return fPathInstanceCount; }
 
-    bool finalize(GrOnFlushResourceProvider*, SkTArray<sk_sp<GrRenderTargetContext>>* atlasDraws);
+    bool finalize(GrOnFlushResourceProvider*,
+                  SkTArray<sk_sp<GrRenderTargetContext>>* atlasDraws);
 
     const GrBuffer* indexBuffer() const { SkASSERT(!this->isMapped()); return fIndexBuffer.get(); }
     const GrBuffer* vertexBuffer() const { SkASSERT(!this->isMapped()); return fVertexBuffer.get();}
@@ -58,7 +59,7 @@ private:
     sk_sp<GrBuffer> fInstanceBuffer;
 
     GrCCPathProcessor::Instance* fPathInstanceData = nullptr;
-    int fNextPathInstanceIdx = 0;
+    int fPathInstanceCount = 0;
     SkDEBUGCODE(int fPathInstanceBufferCount);
 
     GrSTAllocator<4, GrCCAtlas> fAtlases;
