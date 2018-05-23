@@ -766,6 +766,7 @@ static bool must_filter(const SkRect& src, const SkRect& dst, const SkMatrix& ct
 void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy> proxy,
                                         GrSamplerState::Filter filter, GrColor color,
                                         const SkRect& srcRect, const SkRect& dstRect, GrAA aa,
+                                        SkCanvas::SrcRectConstraint constraint,
                                         const SkMatrix& viewMatrix,
                                         sk_sp<GrColorSpaceXform> colorSpaceXform) {
     ASSERT_SINGLE_OWNER
@@ -783,9 +784,9 @@ void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy
     }
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     bool allowSRGB = SkToBool(this->colorSpaceInfo().colorSpace());
-    this->addDrawOp(
-            clip, GrTextureOp::Make(std::move(proxy), filter, color, clippedSrcRect, clippedDstRect,
-                                    aaType, viewMatrix, std::move(colorSpaceXform), allowSRGB));
+    this->addDrawOp(clip, GrTextureOp::Make(std::move(proxy), filter, color, clippedSrcRect,
+                                            clippedDstRect, aaType, constraint, viewMatrix,
+                                            std::move(colorSpaceXform), allowSRGB));
 }
 
 void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
