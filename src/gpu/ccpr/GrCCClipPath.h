@@ -55,7 +55,7 @@ public:
         return fPathDevIBounds;
     }
 
-    void placePathInAtlas(GrCCPerFlushResources*, GrOnFlushResourceProvider*);
+    void renderPathInAtlas(GrCCPerFlushResources*, GrOnFlushResourceProvider*);
 
     const SkVector& atlasScale() const { SkASSERT(fHasAtlasTransform); return fAtlasScale; }
     const SkVector& atlasTranslate() const { SkASSERT(fHasAtlasTransform); return fAtlasTranslate; }
