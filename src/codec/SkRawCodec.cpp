@@ -134,14 +134,12 @@ public:
 
     uint32 PerformAreaTaskThreads() override {
 #ifdef SK_BUILD_FOR_ANDROID
-        // According to https://codereview.chromium.org/1634763002/diff/20001/src/codec/SkRawCodec.cpp#newcode71,
-        // having more tasks than CPU threads typically helps performance due
-        // to uneven task runtime. Today's Android devices tend to only have two
-        // cores, so above two should be enough. Too many threads raises the risk
-        // of running out of memory, as each task may allocate a large amount of
-        // memory, so keep this low. This value allows a marlin to decode a
-        // memory-intensive dng file successfully.
-        return 4;
+        // Only use 1 thread. DNGs with the warp effect require a lot of memory,
+        // and the amount of memory required scales linearly with the number of
+        // threads. The sample used in CTS requires over 500 MB, so even two
+        // threads is significantly expensive. There is no good way to tell
+        // whether the image has the warp effect.
+        return 1;
 #else
         return kMaxMPThreads;
 #endif
