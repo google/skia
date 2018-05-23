@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c3d27a63_1571047b",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-23T12:27:14Z",
+      "side": 1,
+      "message": "This shouldn\u0027t be necessary, since Skpbench bots don\u0027t run this recipe.",
+      "range": {
+        "startLine": 372,
+        "startChar": 0,
+        "endLine": 372,
+        "endChar": 76
+      },
+      "revId": "b4891757af5f7e473eac8f4c7bb01f53a3a4cdcc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe0afd7c_af5e994d",
+        "filename": "infra/bots/recipes/skpbench.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-23T12:27:14Z",
+      "side": 1,
+      "message": "Nit: sort",
+      "range": {
+        "startLine": 130,
+        "startChar": 2,
+        "endLine": 130,
+        "endChar": 76
+      },
+      "revId": "b4891757af5f7e473eac8f4c7bb01f53a3a4cdcc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
