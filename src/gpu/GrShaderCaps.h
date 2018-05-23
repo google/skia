@@ -37,6 +37,8 @@ public:
 
     void dumpJSON(SkJSONWriter*) const;
 
+    bool supportsDistanceFieldText() const { return fShaderDerivativeSupport; }
+
     bool shaderDerivativeSupport() const { return fShaderDerivativeSupport; }
     bool geometryShaderSupport() const { return fGeometryShaderSupport; }
     bool gsInvocationsSupport() const { return fGSInvocationsSupport; }
