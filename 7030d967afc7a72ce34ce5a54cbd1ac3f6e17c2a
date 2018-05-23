@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dbf26442_c0792a7e",
+        "filename": "tests/SkRemoteGlyphCacheTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-05-23T22:46:28Z",
+      "side": 1,
+      "message": "This was it. Because we don\u0027t unpin the caches at the end, valgrind thinks we\u0027re leaking memory. :/",
+      "range": {
+        "startLine": 121,
+        "startChar": 4,
+        "endLine": 121,
+        "endChar": 45
+      },
+      "revId": "7030d967afc7a72ce34ce5a54cbd1ac3f6e17c2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
