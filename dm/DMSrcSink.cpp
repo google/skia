@@ -71,6 +71,10 @@
     #include "SkXMLWriter.h"
 #endif
 
+#if defined(SK_USE_SKCMS)
+    #include "skcms.h"
+#endif
+
 #if SK_SUPPORT_GPU
 #include "GrBackendSurface.h"
 #include "GrContextPriv.h"
@@ -1084,7 +1088,14 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
     if (kDst_sRGB_Mode == fMode) {
         dstSpace = SkColorSpace::MakeSRGB();
     } else if (kDst_HPZR30w_Mode == fMode) {
-        dstSpace = SkColorSpace::MakeICC(dstData->data(), dstData->size());
+#if defined(SK_USE_SKCMS)
+        skcms_ICCProfile profile;
+        SkAssertResult(skcms_Parse(dstData->data(), dstData->size(), &profile));
+        dstSpace = SkColorSpace::Make(profile);
+        SkASSERT(dstSpace);
+#else
+        return "Cannot use ICC profile without skcms support.";
+#endif
     }
 
     SkImageInfo decodeInfo = codec->getInfo().makeColorType(fColorType).makeColorSpace(dstSpace);
