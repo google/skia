@@ -60,8 +60,7 @@ bool GrCCDrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps& caps) {
     SkASSERT(!that->fOwningPerOpListPaths || that->fOwningPerOpListPaths == fOwningPerOpListPaths);
     SkASSERT(that->fNumDraws);
 
-    if (this->getFillType() != that->getFillType() || fSRGBFlags != that->fSRGBFlags ||
-        fProcessors != that->fProcessors ||
+    if (fSRGBFlags != that->fSRGBFlags || fProcessors != that->fProcessors ||
         fViewMatrixIfUsingLocalCoords != that->fViewMatrixIfUsingLocalCoords) {
         return false;
     }
@@ -95,35 +94,35 @@ void GrCCDrawPathsOp::setupResources(GrCCPerFlushResources* resources,
     const GrCCAtlas* currentAtlas = nullptr;
     SkASSERT(fNumDraws > 0);
     SkASSERT(-1 == fBaseInstance);
-    fBaseInstance = resources->pathInstanceCount();
+    fBaseInstance = resources->nextPathInstanceIdx();
 
     for (const SingleDraw& draw : fDraws) {
-        // addPathToAtlas gives us two tight bounding boxes: one in device space, as well as a
+        // renderPathInAtlas gives us two tight bounding boxes: one in device space, as well as a
         // second one rotated an additional 45 degrees. The path vertex shader uses these two
         // bounding boxes to generate an octagon that circumscribes the path.
         SkRect devBounds, devBounds45;
         int16_t atlasOffsetX, atlasOffsetY;
-        GrCCAtlas* atlas = resources->addPathToAtlas(*onFlushRP->caps(), draw.fClipIBounds,
-                                                     draw.fMatrix, draw.fPath, &devBounds,
-                                                     &devBounds45, &atlasOffsetX, &atlasOffsetY);
+        GrCCAtlas* atlas = resources->renderPathInAtlas(*onFlushRP->caps(), draw.fClipIBounds,
+                                                        draw.fMatrix, draw.fPath, &devBounds,
+                                                        &devBounds45, &atlasOffsetX, &atlasOffsetY);
         if (!atlas) {
             SkDEBUGCODE(++fNumSkippedInstances);
             continue;
         }
         if (currentAtlas != atlas) {
             if (currentAtlas) {
-                this->addAtlasBatch(currentAtlas, resources->pathInstanceCount());
+                this->addAtlasBatch(currentAtlas, resources->nextPathInstanceIdx());
             }
             currentAtlas = atlas;
         }
 
-        resources->appendDrawPathInstance() =
-                {devBounds, devBounds45, {{atlasOffsetX, atlasOffsetY}}, draw.fColor};
+        resources->appendDrawPathInstance().set(draw.fPath.getFillType(), devBounds, devBounds45,
+                                                atlasOffsetX, atlasOffsetY, draw.fColor);
     }
 
-    SkASSERT(resources->pathInstanceCount() == fBaseInstance + fNumDraws - fNumSkippedInstances);
+    SkASSERT(resources->nextPathInstanceIdx() == fBaseInstance + fNumDraws - fNumSkippedInstances);
     if (currentAtlas) {
-        this->addAtlasBatch(currentAtlas, resources->pathInstanceCount());
+        this->addAtlasBatch(currentAtlas, resources->nextPathInstanceIdx());
     }
 }
 
@@ -156,7 +155,7 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState) {
         }
 
         GrCCPathProcessor pathProc(flushState->resourceProvider(),
-                                   sk_ref_sp(batch.fAtlas->textureProxy()), this->getFillType(),
+                                   sk_ref_sp(batch.fAtlas->textureProxy()),
                                    fViewMatrixIfUsingLocalCoords);
         pathProc.drawPaths(flushState, pipeline, resources->indexBuffer(),
                            resources->vertexBuffer(), resources->instanceBuffer(),
