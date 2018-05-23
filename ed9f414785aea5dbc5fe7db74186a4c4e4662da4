@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f5966b92_f978b26f",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-23T14:08:03Z",
+      "side": 1,
+      "message": "bike shed here: is GrCCRTPendingPaths the right name? It makes sense when they are stored in the  fRTPendingPathsMap but less so when they are in the fFlushingRTPaths array. Maybe GrCCPerOpListPaths/PerRTPaths? Dunno.",
+      "revId": "ed9f414785aea5dbc5fe7db74186a4c4e4662da4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c47266cf_75b90f34",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-23T14:08:03Z",
+      "side": 1,
+      "message": "// In DDL mode, Ganesh needs to be able to move the GrCCRTPendingPaths objects to the DDL object (detachRTPendingPaths) and then return then upon replay (mergeRTPendingPaths).\n\n?",
+      "revId": "ed9f414785aea5dbc5fe7db74186a4c4e4662da4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
