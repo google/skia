@@ -45,8 +45,6 @@ public:
                         SkArenaAlloc* scratch,
                         bool shaderIsOpaque) const override;
 
-    void toString(SkString* str) const override;
-
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkHighContrast_Filter)
 
 protected:
@@ -155,10 +153,6 @@ sk_sp<SkColorFilter> SkHighContrastFilter::Make(
         return nullptr;
     }
     return sk_make_sp<SkHighContrast_Filter>(config);
-}
-
-void SkHighContrast_Filter::toString(SkString* str) const {
-    str->append("SkHighContrastColorFilter ");
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkHighContrastFilter)

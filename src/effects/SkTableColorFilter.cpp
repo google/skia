@@ -90,8 +90,6 @@ public:
             GrContext*, const GrColorSpaceInfo&) const override;
 #endif
 
-    void toString(SkString* str) const override;
-
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTable_ColorFilter)
 
     enum {
@@ -139,35 +137,6 @@ private:
 
     typedef SkColorFilter INHERITED;
 };
-
-void SkTable_ColorFilter::toString(SkString* str) const {
-    const uint8_t* table = fStorage;
-    const uint8_t* tableA = gIdentityTable;
-    const uint8_t* tableR = gIdentityTable;
-    const uint8_t* tableG = gIdentityTable;
-    const uint8_t* tableB = gIdentityTable;
-    if (fFlags & kA_Flag) {
-        tableA = table; table += 256;
-    }
-    if (fFlags & kR_Flag) {
-        tableR = table; table += 256;
-    }
-    if (fFlags & kG_Flag) {
-        tableG = table; table += 256;
-    }
-    if (fFlags & kB_Flag) {
-        tableB = table;
-    }
-
-    str->append("SkTable_ColorFilter (");
-
-    for (int i = 0; i < 256; ++i) {
-        str->appendf("%d: %d,%d,%d,%d\n",
-                     i, tableR[i], tableG[i], tableB[i], tableA[i]);
-    }
-
-    str->append(")");
-}
 
 static const uint8_t gCountNibBits[] = {
     0, 1, 1, 2,

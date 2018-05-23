@@ -21,8 +21,6 @@ public:
 
     DashType asADash(DashInfo* info) const override;
 
-    void toString(SkString* str) const override;
-
     Factory getFactory() const override { return CreateProc; }
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
