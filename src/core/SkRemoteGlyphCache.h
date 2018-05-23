@@ -28,6 +28,7 @@ class Serializer;
 class SkDescriptor;
 class SkGlyphCache;
 struct SkPackedGlyphID;
+enum SkScalerContextFlags : uint32_t;
 class SkScalerContextRecDescriptor;
 class SkTextBlobRunIterator;
 class SkTypefaceProxy;
@@ -51,8 +52,17 @@ using SkDescriptorSet =
 // which will be serialized and renderered using the SkStrikeClient.
 class SK_API SkTextBlobCacheDiffCanvas : public SkNoDrawCanvas {
 public:
+    struct SK_API Settings {
+        Settings();
+        ~Settings();
+
+        bool fContextSupportsDistanceFieldText = true;
+        SkScalar fMinDistanceFieldFontSize = -1.f;
+        SkScalar fMaxDistanceFieldFontSize = -1.f;
+    };
     SkTextBlobCacheDiffCanvas(int width, int height, const SkMatrix& deviceMatrix,
-                              const SkSurfaceProps& props, SkStrikeServer* strikeserver);
+                              const SkSurfaceProps& props, SkStrikeServer* strikeserver,
+                              Settings settings = Settings());
     ~SkTextBlobCacheDiffCanvas() override;
 
 protected:
@@ -70,10 +80,13 @@ private:
                          const SkTextBlobRunIterator& it,
                          const SkPaint& runPaint);
     void processGlyphRunForPaths(const SkTextBlobRunIterator& it, const SkPaint& runPaint);
+    void processGlyphRunForDFT(const SkTextBlobRunIterator& it, const SkPaint& runPaint,
+                               SkScalerContextFlags flags);
 
     const SkMatrix fDeviceMatrix;
     const SkSurfaceProps fSurfaceProps;
     SkStrikeServer* const fStrikeServer;
+    const Settings fSettings;
 };
 
 using SkDiscardableHandleId = uint32_t;
@@ -161,7 +174,7 @@ public:
     };
 
     SkGlyphCacheState* getOrCreateCache(const SkPaint&, const SkSurfaceProps*, const SkMatrix*,
-                                        SkScalerContextRec* deviceRec,
+                                        SkScalerContextFlags flags, SkScalerContextRec* deviceRec,
                                         SkScalerContextEffects* effects);
 
 private:
