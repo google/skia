@@ -107,9 +107,6 @@ skia_public_includes = [
 if (skia_enable_atlas_text) {
   skia_public_includes += [ "include/atlastext" ]
 }
-if (skia_use_metal) {
-  skia_public_includes += [ "include/gpu/mtl" ]
-}
 
 # Skia public API, generally provided by :skia.
 config("skia_public") {
