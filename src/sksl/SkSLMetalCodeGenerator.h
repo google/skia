@@ -85,7 +85,6 @@ public:
 
 protected:
     typedef int Requirements;
-    typedef unsigned int TextureId;
     static constexpr Requirements kNo_Requirements      = 0;
     static constexpr Requirements kInputs_Requirement   = 1 << 0;
     static constexpr Requirements kOutputs_Requirement  = 1 << 1;
@@ -93,16 +92,22 @@ protected:
     static constexpr Requirements kGlobals_Requirement  = 1 << 3;
 
     enum IntrinsicKind {
-        kSpecial_IntrinsicKind
+        kSpecial_IntrinsicKind,
+        kMetal_IntrinsicKind,
     };
 
     enum SpecialIntrinsic {
         kTexture_SpecialIntrinsic,
     };
 
-    void setupIntrinsics();
+    enum MetalIntrinsic {
+        kLessThan_MetalIntrinsic,
+        kLessThanEqual_MetalIntrinsic,
+        kGreaterThan_MetalIntrinsic,
+        kGreaterThanEqual_MetalIntrinsic,
+    };
 
-    TextureId nextTextureId();
+    void setupIntrinsics();
 
     void write(const char* s);
 
@@ -217,8 +222,10 @@ protected:
     typedef std::tuple<IntrinsicKind, int32_t, int32_t, int32_t, int32_t> Intrinsic;
     std::unordered_map<String, Intrinsic> fIntrinsicMap;
     std::vector<const VarDeclaration*> fInitNonConstGlobalVars;
-    TextureId fCurrentTextureId = 0;
-    std::unordered_map<String, TextureId> fTextureMap;
+    std::vector<const Variable*> fTextures;
+    std::unordered_map<const Type::Field*, const InterfaceBlock*> fInterfaceBlockMap;
+    std::unordered_map<const InterfaceBlock*, String> fInterfaceBlockNameMap;
+    int fAnonInterfaceCount = 0;
     bool fNeedsGlobalStructInit = false;
     const char* fLineEnding;
     const Context& fContext;
