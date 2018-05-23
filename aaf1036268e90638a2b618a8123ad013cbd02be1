@@ -22,6 +22,30 @@
       "revId": "aaf1036268e90638a2b618a8123ad013cbd02be1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e5e1c90_8bc28a9a",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-05-23T20:46:43Z",
+      "side": 1,
+      "message": "Not quite -- added a fix. Good catch.",
+      "parentUuid": "a55b5cb0_97be46af",
+      "range": {
+        "startLine": 389,
+        "startChar": 2,
+        "endLine": 391,
+        "endChar": 5
+      },
+      "revId": "aaf1036268e90638a2b618a8123ad013cbd02be1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
