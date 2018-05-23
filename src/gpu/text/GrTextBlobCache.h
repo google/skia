@@ -23,11 +23,10 @@ public:
      */
     typedef void (*PFOverBudgetCB)(void* data);
 
-    GrTextBlobCache(PFOverBudgetCB cb, void* data, uint32_t uniqueID, bool usePool)
-        : fPool(usePool ? new GrMemoryPool(0u, kMinGrowthSize) : nullptr)
-        , fCallback(cb)
+    GrTextBlobCache(PFOverBudgetCB cb, void* data, uint32_t uniqueID)
+        : fCallback(cb)
         , fData(data)
-        , fBudget(kDefaultBudget)
+        , fSizeBudget(kDefaultBudget)
         , fUniqueID(uniqueID)
         , fPurgeBlobInbox(uniqueID) {
         SkASSERT(cb && data);
@@ -36,14 +35,14 @@ public:
 
     // creates an uncached blob
     sk_sp<GrAtlasTextBlob> makeBlob(int glyphCount, int runCount) {
-        return GrAtlasTextBlob::Make(fPool, glyphCount, runCount);
+        return GrAtlasTextBlob::Make(glyphCount, runCount);
     }
 
     sk_sp<GrAtlasTextBlob> makeBlob(const SkTextBlob* blob) {
         int glyphCount = 0;
         int runCount = 0;
         BlobGlyphCount(&glyphCount, &runCount, blob);
-        return GrAtlasTextBlob::Make(fPool, glyphCount, runCount);
+        return GrAtlasTextBlob::Make(glyphCount, runCount);
     }
 
     sk_sp<GrAtlasTextBlob> makeCachedBlob(const SkTextBlob* blob,
@@ -67,6 +66,7 @@ public:
         auto* idEntry = fBlobIDCache.find(id);
         SkASSERT(idEntry);
 
+        fCurrentSize -= blob->size();
         fBlobList.remove(blob);
         idEntry->removeBlob(blob);
         if (idEntry->fBlobs.empty()) {
@@ -94,7 +94,7 @@ public:
     }
 
     void setBudget(size_t budget) {
-        fBudget = budget;
+        fSizeBudget = budget;
         this->checkPurge();
     }
 
@@ -165,22 +165,22 @@ private:
         // Safe to retain a raw ptr temporarily here, because the cache will hold a ref.
         GrAtlasTextBlob* rawBlobPtr = blob.get();
         fBlobList.addToHead(rawBlobPtr);
+        fCurrentSize += blob->size();
         idEntry->addBlob(std::move(blob));
 
         this->checkPurge(rawBlobPtr);
     }
 
     void checkPurge(GrAtlasTextBlob* blob = nullptr);
-    bool overBudget() const;
 
     static const int kMinGrowthSize = 1 << 16;
     static const int kDefaultBudget = 1 << 22;
-    GrMemoryPool* fPool;
     BitmapBlobList fBlobList;
     SkTHashMap<uint32_t, BlobIDCacheEntry> fBlobIDCache;
     PFOverBudgetCB fCallback;
     void* fData;
-    size_t fBudget;
+    size_t fSizeBudget;
+    size_t fCurrentSize{0};
     uint32_t fUniqueID;      // unique id to use for messaging
     SkMessageBus<PurgeBlobMessage>::Inbox fPurgeBlobInbox;
 };

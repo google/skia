@@ -136,7 +136,7 @@ bool GrContext::initCommon(const GrContextOptions& options) {
     fGlyphCache = new GrGlyphCache(fCaps.get(), options.fGlyphCacheTextureMaximumBytes);
 
     fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB,
-                                             this, this->uniqueID(), SkToBool(fGpu)));
+                                             this, this->uniqueID()));
 
     // DDL TODO: we need to think through how the task group & persistent cache
     // get passed on to/shared between all the DDLRecorders created with this context.

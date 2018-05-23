@@ -19,7 +19,7 @@
 #include "SkTextToPathIter.h"
 #include "ops/GrAtlasTextOp.h"
 
-sk_sp<GrAtlasTextBlob> GrAtlasTextBlob::Make(GrMemoryPool* pool, int glyphCount, int runCount) {
+sk_sp<GrAtlasTextBlob> GrAtlasTextBlob::Make(int glyphCount, int runCount) {
     // We allocate size for the GrAtlasTextBlob itself, plus size for the vertices array,
     // and size for the glyphIds array.
     size_t verticesCount = glyphCount * kVerticesPerGlyph * kMaxVASize;
@@ -28,12 +28,8 @@ sk_sp<GrAtlasTextBlob> GrAtlasTextBlob::Make(GrMemoryPool* pool, int glyphCount,
                   glyphCount * sizeof(GrGlyph**) +
                   sizeof(GrAtlasTextBlob::Run) * runCount;
 
-    void* allocation;
-    if (pool) {
-        allocation = pool->allocate(size);
-    } else {
-        allocation = ::operator new (size);
-    }
+    void* allocation = ::operator new (size);
+
     if (CACHE_SANITY_CHECK) {
         sk_bzero(allocation, size);
     }
@@ -51,7 +47,6 @@ sk_sp<GrAtlasTextBlob> GrAtlasTextBlob::Make(GrMemoryPool* pool, int glyphCount,
         new (&cacheBlob->fRuns[i]) GrAtlasTextBlob::Run;
     }
     cacheBlob->fRunCount = runCount;
-    cacheBlob->fPool = pool;
     return cacheBlob;
 }
 
@@ -400,7 +395,6 @@ std::unique_ptr<GrDrawOp> GrAtlasTextBlob::test_makeOp(
 
 void GrAtlasTextBlob::AssertEqual(const GrAtlasTextBlob& l, const GrAtlasTextBlob& r) {
     SkASSERT_RELEASE(l.fSize == r.fSize);
-    SkASSERT_RELEASE(l.fPool == r.fPool);
 
     SkASSERT_RELEASE(l.fBlurRec.fSigma == r.fBlurRec.fSigma);
     SkASSERT_RELEASE(l.fBlurRec.fStyle == r.fBlurRec.fStyle);
