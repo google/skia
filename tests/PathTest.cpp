@@ -5051,3 +5051,18 @@ DEF_TEST(Path_isRect, reporter) {
     compare.set(&points53[1], 4);
     REPORTER_ASSERT(reporter, rect == compare);
 }
+
+#include "SkVertices.h"
+DEF_TEST(triangle_onehalf, reporter) {
+    auto surface(SkSurface::MakeRasterN32Premul(100, 100));
+
+    const SkPoint pts[] = {
+        {  0.499069244f, 9.63295173f },
+        {  0.499402374f, 7.88207579f },
+        { 10.2363272f,   0.49999997f }
+    };
+    const SkColor colors[] = { SK_ColorBLACK, SK_ColorBLACK, SK_ColorBLACK };
+
+    auto v = SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode, 3, pts, nullptr, colors);
+    surface->getCanvas()->drawVertices(v, SkBlendMode::kSrcOver, SkPaint());
+}
