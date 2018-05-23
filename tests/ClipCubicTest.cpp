@@ -212,13 +212,23 @@ DEF_TEST(test_fuzz_crbug_698714, reporter) {
     canvas->drawPath(path, paint);
 }
 
-DEF_TEST(cubic_scan_error_crbug_844457, reporter) {
+DEF_TEST(cubic_scan_error_crbug_844457_and_845489, reporter) {
     auto surface(SkSurface::MakeRasterN32Premul(100, 100));
+    SkCanvas* canvas = surface->getCanvas();
+    SkPaint p;
 
     SkPath path;
     path.moveTo(-30/64.0, -31/64.0);
     path.cubicTo(-31/64.0, -31/64,-31/64.0, -31/64,-31/64.0, 100);
-    path.lineTo(100,100);
+    path.lineTo(100, 100);
+    canvas->drawPath(path, p);
 
-    surface->getCanvas()->drawPath(path, SkPaint());
+    // May need to define SK_RASTERIZE_EVEN_ROUNDING to trigger the need for this test
+    path.reset();
+    path.moveTo(-30/64.0f,             -31/64.0f + 1/256.0f);
+    path.cubicTo(-31/64.0f + 1/256.0f, -31/64.0f + 1/256.0f,
+                 -31/64.0f + 1/256.0f, -31/64.0f + 1/256.0f,
+                 -31/64.0f + 1/256.0f, 100);
+    path.lineTo(100, 100);
+    canvas->drawPath(path, p);
 }

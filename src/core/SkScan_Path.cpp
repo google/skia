@@ -567,7 +567,9 @@ static bool clip_to_limit(const SkRegion& orig, SkRegion* reduced) {
 //
 // This value has been determined trial and error: pick the smallest value (after the 0.5) that
 // fixes any problematic cases (e.g. crbug.com/844457)
-static const double kConservativeRoundBias = 0.5 + 1.0 / SK_FDot6One;
+// NOTE: cubics appear to be the main reason for needing this slop. If we could (perhaps) have a
+// more accurate walker for cubics, we may be able to reduce this fudge factor.
+static const double kConservativeRoundBias = 0.5 + 1.5 / SK_FDot6One;
 
 /**
  *  Round the value down. This is used to round the top and left of a rectangle,
