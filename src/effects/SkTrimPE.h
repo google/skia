@@ -19,7 +19,6 @@ public:
 
     bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
 
-    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTrimPE)
 
 protected:

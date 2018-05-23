@@ -208,8 +208,6 @@ public:
         return nullptr;
     }
 
-    virtual void toString(SkString* str) const;
-
     SK_DEFINE_FLATTENABLE_TYPE(SkShaderBase)
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 

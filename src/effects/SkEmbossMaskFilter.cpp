@@ -140,22 +140,3 @@ void SkEmbossMaskFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeByteArray(&tmpLight, sizeof(tmpLight));
     buffer.writeScalar(fBlurSigma);
 }
-
-void SkEmbossMaskFilter::toString(SkString* str) const {
-    str->append("SkEmbossMaskFilter: (");
-
-    str->append("direction: (");
-    str->appendScalar(fLight.fDirection[0]);
-    str->append(", ");
-    str->appendScalar(fLight.fDirection[1]);
-    str->append(", ");
-    str->appendScalar(fLight.fDirection[2]);
-    str->append(") ");
-
-    str->appendf("ambient: %d specular: %d ",
-        fLight.fAmbient, fLight.fSpecular);
-
-    str->append("blurSigma: ");
-    str->appendScalar(fBlurSigma);
-    str->append(")");
-}

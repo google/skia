@@ -18,8 +18,6 @@ public:
                                      sk_sp<SkImageFilter> input,
                                      const CropRect* cropRect = nullptr);
 
-    void toString(SkString* str) const override;
-
     Factory getFactory() const override { return CreateProc; }
 
 protected:

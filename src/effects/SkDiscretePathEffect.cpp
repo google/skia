@@ -143,9 +143,3 @@ void SkDiscretePathEffect::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fPerterb);
     buffer.writeUInt(fSeedAssist);
 }
-
-void SkDiscretePathEffect::toString(SkString* str) const {
-    str->appendf("SkDiscretePathEffect: (");
-    str->appendf("segLength: %.2f deviation: %.2f seed %d", fSegLength, fPerterb, fSeedAssist);
-    str->append(")");
-}

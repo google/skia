@@ -627,38 +627,6 @@ void SkGradientShaderBase::commonAsAGradient(GradientInfo* info) const {
     }
 }
 
-void SkGradientShaderBase::toString(SkString* str) const {
-
-    str->appendf("%d colors: ", fColorCount);
-
-    for (int i = 0; i < fColorCount; ++i) {
-        str->appendHex(this->getLegacyColor(i), 8);
-        if (i < fColorCount-1) {
-            str->append(", ");
-        }
-    }
-
-    if (fColorCount > 2) {
-        str->append(" points: (");
-        for (int i = 0; i < fColorCount; ++i) {
-            str->appendScalar(this->getPos(i));
-            if (i < fColorCount-1) {
-                str->append(", ");
-            }
-        }
-        str->append(")");
-    }
-
-    static const char* gTileModeName[SkShader::kTileModeCount] = {
-        "clamp", "repeat", "mirror", "decal",
-    };
-
-    str->append(" ");
-    str->append(gTileModeName[fTileMode]);
-
-    this->INHERITED::toString(str);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 

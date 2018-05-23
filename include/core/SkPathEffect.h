@@ -145,8 +145,6 @@ public:
 
     virtual DashType asADash(DashInfo* info) const;
 
-    virtual void toString(SkString* str) const = 0;
-
     static void InitializeFlattenables();
 
     static SkFlattenable::Type GetFlattenableType() {

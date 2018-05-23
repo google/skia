@@ -25,7 +25,6 @@ public:
      */
     static sk_sp<SkImageFilter> Make(sk_sp<SkPicture> picture, const SkRect& cropRect);
 
-    void toString(SkString* str) const override;
 
     Factory getFactory() const override { return CreateProc; }
 

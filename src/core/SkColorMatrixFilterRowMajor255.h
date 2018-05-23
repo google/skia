@@ -28,8 +28,6 @@ public:
             GrContext*, const GrColorSpaceInfo&) const override;
 #endif
 
-    void toString(SkString* str) const override;
-
     Factory getFactory() const override { return CreateProc; }
 
 protected:
