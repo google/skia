@@ -1629,6 +1629,7 @@ if (skia_enable_tools) {
         ":gpu_tool_utils",
         ":skia",
         ":tests",
+        ":third_party_skcms",
         ":tool_utils",
         "//third_party/jsoncpp",
         "//third_party/libpng",
