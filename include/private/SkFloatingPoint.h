@@ -124,7 +124,7 @@ static inline int64_t sk_float_saturate2int64(float x) {
 #define sk_double_round(x)          floor((x) + 0.5)
 #define sk_double_ceil(x)           ceil(x)
 #define sk_double_floor2int(x)      (int)floor(x)
-#define sk_double_round2int(x)      (int)floor((x) + 0.5f)
+#define sk_double_round2int(x)      (int)floor((x) + 0.5)
 #define sk_double_ceil2int(x)       (int)ceil(x)
 
 // Cast double to float, ignoring any warning about too-large finite values being cast to float.
