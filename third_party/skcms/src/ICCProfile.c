@@ -6,6 +6,7 @@
  */
 
 #include "../skcms.h"
+#include "ICCProfile.h"
 #include "LinearAlgebra.h"
 #include "Macros.h"
 #include "PortableMath.h"
@@ -35,11 +36,14 @@ enum {
     skcms_Signature_A2B1 = 0x41324231,
     skcms_Signature_mAB  = 0x6D414220,
 
+    skcms_Signature_CHAD = 0x63686164,
+
     // Type signatures
     skcms_Signature_curv = 0x63757276,
     skcms_Signature_mft1 = 0x6D667431,
     skcms_Signature_mft2 = 0x6D667432,
     skcms_Signature_para = 0x70617261,
+    skcms_Signature_sf32 = 0x73663332,
     // XYZ is also a PCS signature, so it's defined in skcms.h
     // skcms_Signature_XYZ = 0x58595A20,
 };
@@ -106,6 +110,33 @@ typedef struct {
 
 static const tag_Layout* get_tag_table(const skcms_ICCProfile* profile) {
     return (const tag_Layout*)(profile->buffer + SAFE_SIZEOF(header_Layout));
+}
+
+// s15Fixed16ArrayType is technically variable sized, holding N values. However, the only valid
+// use of the type is for the CHAD tag that stores exactly nine values.
+typedef struct {
+    uint8_t type     [ 4];
+    uint8_t reserved [ 4];
+    uint8_t values   [36];
+} sf32_Layout;
+
+bool skcms_GetCHAD(const skcms_ICCProfile* profile, skcms_Matrix3x3* m) {
+    skcms_ICCTag tag;
+    if (!skcms_GetTagBySignature(profile, skcms_Signature_CHAD, &tag)) {
+        return false;
+    }
+
+    if (tag.type != skcms_Signature_sf32 || tag.size < SAFE_SIZEOF(sf32_Layout)) {
+        return false;
+    }
+
+    const sf32_Layout* sf32Tag = (const sf32_Layout*)tag.buf;
+    const uint8_t* values = sf32Tag->values;
+    for (int r = 0; r < 3; ++r)
+    for (int c = 0; c < 3; ++c, values += 4) {
+        m->vals[r][c] = read_big_fixed(values);
+    }
+    return true;
 }
 
 // XYZType is technically variable sized, holding N XYZ triples. However, the only valid uses of

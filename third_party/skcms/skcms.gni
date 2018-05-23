@@ -7,6 +7,7 @@ skcms_sources = [
   "src/Curve.c",
   "src/Curve.h",
   "src/ICCProfile.c",
+  "src/ICCProfile.h",
   "src/LinearAlgebra.c",
   "src/LinearAlgebra.h",
   "src/Macros.h",
