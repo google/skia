@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "50606b84_4571521d",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 793,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-23T19:50:38Z",
+      "side": 1,
+      "message": "I had a similar thought, put it off to the end, and then got lazy. I\u0027ll take a crack at it.",
+      "parentUuid": "904b5d76_bdef24bb",
+      "revId": "b0924b2e73ecdb1b553238bbe3198e436366f01d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f1c3bf51_c86e2a8e",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2018-05-23T19:39:34Z",
       "side": 1,
       "message": "I think this \"works\" but you\u0027re likely to get warnings from some compilers here, about a signed bitfield, right? fHasDomain is either 0 or -1. Actually, does the cast to Domain in domain() work correctly?",
+      "revId": "b0924b2e73ecdb1b553238bbe3198e436366f01d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "995d862f_274a0875",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1042,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-23T19:50:38Z",
+      "side": 1,
+      "message": "Ah, yeah! Will make this be unsigned.",
+      "parentUuid": "f1c3bf51_c86e2a8e",
       "revId": "b0924b2e73ecdb1b553238bbe3198e436366f01d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
