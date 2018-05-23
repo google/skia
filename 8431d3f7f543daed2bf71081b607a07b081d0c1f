@@ -22,6 +22,30 @@
       "revId": "8431d3f7f543daed2bf71081b607a07b081d0c1f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a24f2ba_8f0ccd6e",
+        "filename": "gn/find_headers.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-23T14:34:24Z",
+      "side": 1,
+      "message": "The CL I actually want is the one where I can ask gn for all the transitive public headers available from a target and just use that list instead.",
+      "parentUuid": "9c0b733c_4213d743",
+      "range": {
+        "startLine": 12,
+        "startChar": 8,
+        "endLine": 12,
+        "endChar": 19
+      },
+      "revId": "8431d3f7f543daed2bf71081b607a07b081d0c1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
