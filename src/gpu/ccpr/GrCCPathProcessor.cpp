@@ -76,9 +76,10 @@ sk_sp<const GrBuffer> GrCCPathProcessor::FindIndexBuffer(GrOnFlushResourceProvid
 }
 
 GrCCPathProcessor::GrCCPathProcessor(GrResourceProvider* resourceProvider,
-                                     sk_sp<GrTextureProxy> atlas,
+                                     sk_sp<GrTextureProxy> atlas, SkPath::FillType fillType,
                                      const SkMatrix& viewMatrixIfUsingLocalCoords)
         : INHERITED(kGrCCPathProcessor_ClassID)
+        , fFillType(fillType)
         , fAtlasAccess(std::move(atlas), GrSamplerState::Filter::kNearest,
                        GrSamplerState::WrapMode::kClamp, kFragment_GrShaderFlag) {
     this->addInstanceAttrib("devbounds", kFloat4_GrVertexAttribType);
@@ -110,6 +111,10 @@ GrCCPathProcessor::GrCCPathProcessor(GrResourceProvider* resourceProvider,
     if (!viewMatrixIfUsingLocalCoords.invert(&fLocalMatrix)) {
         fLocalMatrix.setIdentity();
     }
+}
+
+void GrCCPathProcessor::getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
+    b->add32((fFillType << 16) | this->atlasProxy()->origin());
 }
 
 class GLSLPathProcessor : public GrGLSLGeometryProcessor {
@@ -168,7 +173,7 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     varyingHandler->emitAttributes(proc);
 
-    GrGLSLVarying texcoord(kFloat3_GrSLType);
+    GrGLSLVarying texcoord(kFloat2_GrSLType);
     GrGLSLVarying color(kHalf4_GrSLType);
     varyingHandler->addVarying("texcoord", &texcoord);
     varyingHandler->addPassThroughAttribute(&proc.getInstanceAttrib(InstanceAttribs::kColor),
@@ -188,11 +193,9 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     // N[0] is the normal for the edge we are intersecting from the regular bounding box, pointing
     // out of the octagon.
-    v->codeAppendf("float4 devbounds = %s;",
+    v->codeAppendf("float2 refpt = (0 == sk_VertexID >> 2) ? %s.xy : %s.zw;",
+                   proc.getInstanceAttrib(InstanceAttribs::kDevBounds).fName,
                    proc.getInstanceAttrib(InstanceAttribs::kDevBounds).fName);
-    v->codeAppend ("float2 refpt = (0 == sk_VertexID >> 2)"
-                           "? float2(min(devbounds.x, devbounds.z), devbounds.y)"
-                           ": float2(max(devbounds.x, devbounds.z), devbounds.w);");
     v->codeAppendf("refpt += N[0] * %f;", kAABloatRadius); // bloat for AA.
 
     // N[1] is the normal for the edge we are intersecting from the 45-degree bounding box, pointing
@@ -212,15 +215,12 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     v->codeAppendf("float2 atlascoord = octocoord + float2(%s);",
                    proc.getInstanceAttrib(InstanceAttribs::kAtlasOffset).fName);
     if (kTopLeft_GrSurfaceOrigin == proc.atlasProxy()->origin()) {
-        v->codeAppendf("%s.xy = atlascoord * %s;", texcoord.vsOut(), atlasAdjust);
+        v->codeAppendf("%s = atlascoord * %s;", texcoord.vsOut(), atlasAdjust);
     } else {
         SkASSERT(kBottomLeft_GrSurfaceOrigin == proc.atlasProxy()->origin());
-        v->codeAppendf("%s.xy = float2(atlascoord.x * %s.x, 1 - atlascoord.y * %s.y);",
+        v->codeAppendf("%s = float2(atlascoord.x * %s.x, 1 - atlascoord.y * %s.y);",
                        texcoord.vsOut(), atlasAdjust, atlasAdjust);
     }
-    // The third texture coordinate is -.5 for even-odd paths and +.5 for winding ones.
-    // ("right < left" indicates even-odd fill type.)
-    v->codeAppendf("%s.z = sign(devbounds.z - devbounds.x) * .5;", texcoord.vsOut());
 
     this->emitTransforms(v, varyingHandler, uniHandler, GrShaderVar("octocoord", kFloat2_GrSLType),
                          proc.localMatrix(), args.fFPCoordTransformHandler);
@@ -228,19 +228,15 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // Fragment shader.
     GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
 
-    // Look up coverage count in the atlas.
-    f->codeAppend ("half coverage = ");
-    f->appendTextureLookup(args.fTexSamplers[0], SkStringPrintf("%s.xy", texcoord.fsIn()).c_str(),
-                           kFloat2_GrSLType);
+    f->codeAppend ("half coverage_count = ");
+    f->appendTextureLookup(args.fTexSamplers[0], texcoord.fsIn(), kFloat2_GrSLType);
     f->codeAppend (".a;");
 
-    // Scale coverage count by .5. Make it negative for even-odd paths and positive for winding
-    // ones. Clamp winding coverage counts at 1.0 (i.e. min(coverage/2, .5)).
-    f->codeAppendf("coverage = min(abs(coverage) * %s.z, .5);", texcoord.fsIn());
-
-    // For negative values, this finishes the even-odd sawtooth function. Since positive (winding)
-    // values were clamped at "coverage/2 = .5", this only undoes the previous multiply by .5.
-    f->codeAppend ("coverage = 1 - abs(fma(fract(coverage), 2, -1));");
-
-    f->codeAppendf("%s = half4(coverage);", args.fOutputCoverage);
+    if (SkPath::kWinding_FillType == proc.fillType()) {
+        f->codeAppendf("%s = half4(min(abs(coverage_count), 1));", args.fOutputCoverage);
+    } else {
+        SkASSERT(SkPath::kEvenOdd_FillType == proc.fillType());
+        f->codeAppend ("half t = mod(abs(coverage_count), 2);");
+        f->codeAppendf("%s = half4(1 - abs(t - 1));", args.fOutputCoverage);
+    }
 }
