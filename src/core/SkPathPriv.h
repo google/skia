@@ -259,6 +259,10 @@ public:
         SkASSERT(verb < SK_ARRAY_COUNT(gPtsInVerb));
         return gPtsInVerb[verb];
     }
+
+    static const SkPoint* PeekPoints(const SkPath& path) {
+        return path.fPathRef->getPoints();
+    }
 };
 
 #endif

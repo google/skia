@@ -11,6 +11,7 @@
 #include "SkEdgeBuilder.h"
 #include "SkGeometry.h"
 #include "SkPath.h"
+#include "SkPathPriv.h"
 #include "SkQuadClipper.h"
 #include "SkRasterClip.h"
 #include "SkRectPriv.h"
@@ -613,6 +614,14 @@ static SkIRect conservative_round_to_int(const SkRect& src) {
     };
 }
 
+static void sk_fill_triangle(const SkPoint pts[], const SkIRect* clipRect,
+                      SkBlitter* blitter, const SkIRect& ir);
+
+static bool is_triangle(const SkPath& path) {
+    return path.countPoints() == 3 &&
+          (path.getSegmentMasks() & SkPath::kLine_SegmentMask) == SkPath::kLine_SegmentMask;
+}
+
 void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
                       SkBlitter* blitter) {
     if (origClip.isEmpty()) {
@@ -653,6 +662,11 @@ void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
 
     blitter = clipper.getBlitter();
     if (blitter) {
+        if (!path.isInverseFillType() && is_triangle(path)) {
+            sk_fill_triangle(SkPathPriv::PeekPoints(path), &clipPtr->getBounds(), blitter, ir);
+            return;
+        }
+
         // we have to keep our calls to blitter in sorted order, so we
         // must blit the above section first, then the middle, then the bottom.
         if (path.isInverseFillType()) {
