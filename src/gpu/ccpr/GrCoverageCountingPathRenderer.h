@@ -57,6 +57,15 @@ public:
         SkASSERT(!fFlushing);
     }
 
+    using RTPendingPathsMap = std::map<uint32_t, std::unique_ptr<GrCCRTPendingPaths>>;
+
+    RTPendingPathsMap detachRTPendingPaths() { return std::move(fRTPendingPathsMap); }
+
+    void mergeRTPendingPaths(RTPendingPathsMap&& rtPaths) {
+        fRTPendingPathsMap.insert(std::make_move_iterator(rtPaths.begin()),
+                                  std::make_move_iterator(rtPaths.end()));
+    }
+
     // GrPathRenderer overrides.
     StencilSupport onGetStencilSupport(const GrShape&) const override {
         return GrPathRenderer::kNoSupport_StencilSupport;
@@ -81,7 +90,7 @@ private:
     GrCCRTPendingPaths* lookupRTPendingPaths(uint32_t opListID);
     void adoptAndRecordOp(GrCCDrawPathsOp*, const DrawPathArgs&);
 
-    std::map<uint32_t, std::unique_ptr<GrCCRTPendingPaths>> fRTPendingPathsMap;
+    RTPendingPathsMap fRTPendingPathsMap;
     SkSTArray<4, std::unique_ptr<GrCCRTPendingPaths>> fFlushingRTPaths;
     SkDEBUGCODE(bool fFlushing = false);
 
