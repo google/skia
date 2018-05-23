@@ -25,14 +25,14 @@ namespace skottie {
 
 namespace json { class ValueRef; }
 
-class ResourceProvider : public SkNoncopyable {
+class SK_API ResourceProvider : public SkNoncopyable {
 public:
     virtual ~ResourceProvider() = default;
 
     virtual std::unique_ptr<SkStream> openStream(const char resource[]) const = 0;
 };
 
-class Animation : public SkRefCnt {
+class SK_API Animation : public SkRefCnt {
 public:
     struct Stats {
         float  fTotalLoadTimeMS,
