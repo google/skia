@@ -13,16 +13,16 @@
 #include "SkArenaAlloc.h"
 #include "SkTInternalLList.h"
 #include "ccpr/GrCCClipPath.h"
-#include "ccpr/GrCCDrawPathsOp.h"
+#include "ccpr/GrCCPerFlushResources.h"
 #include <map>
 
-class GrCCPerFlushResources;
+class GrCCDrawPathsOp;
 
 /**
- * Tracks all the paths in a single render target that will be drawn at next flush.
+ * Tracks all the paths in a given opList that will be drawn when it flushes.
  */
-struct GrCCRTPendingPaths {
-    ~GrCCRTPendingPaths() {
+struct GrCCPerOpListPaths {
+    ~GrCCPerOpListPaths() {
         // Ensure there are no surviving DrawPathsOps with a dangling pointer into this class.
         if (!fDrawOps.isEmpty()) {
             SK_ABORT("GrCCDrawPathsOp(s) not deleted during flush");
@@ -36,6 +36,7 @@ struct GrCCRTPendingPaths {
     SkTInternalLList<GrCCDrawPathsOp> fDrawOps;
     std::map<uint32_t, GrCCClipPath> fClipPaths;
     SkSTArenaAlloc<10 * 1024> fAllocator{10 * 1024 * 2};
+    sk_sp<const GrCCPerFlushResources> fFlushResources;
 };
 
 /**
@@ -50,7 +51,11 @@ public:
     static bool IsSupported(const GrCaps&);
     static sk_sp<GrCoverageCountingPathRenderer> CreateIfSupported(const GrCaps&,
                                                                    bool drawCachablePaths);
-    ~GrCoverageCountingPathRenderer() override;
+    ~GrCoverageCountingPathRenderer() override {
+        // Ensure callers are actually flushing paths they record, not causing us to leak memory.
+        SkASSERT(fPendingPaths.empty());
+        SkASSERT(!fFlushing);
+    }
 
     // GrPathRenderer overrides.
     StencilSupport onGetStencilSupport(const GrShape&) const override {
@@ -69,31 +74,24 @@ public:
                   SkTArray<sk_sp<GrRenderTargetContext>>* atlasDraws) override;
     void postFlush(GrDeferredUploadToken, const uint32_t* opListIDs, int numOpListIDs) override;
 
-#ifdef SK_DEBUG
-    bool isFlushing_debugOnly() const { return fFlushing; }
-    void incrDrawOpCount_debugOnly() { ++fNumOutstandingDrawOps; }
-    void decrDrawOpCount_debugOnly() { --fNumOutstandingDrawOps; }
-#endif
-
 private:
-    GrCoverageCountingPathRenderer(bool drawCachablePaths);
+    GrCoverageCountingPathRenderer(bool drawCachablePaths)
+            : fDrawCachablePaths(drawCachablePaths) {}
 
+    GrCCPerOpListPaths* lookupPendingPaths(uint32_t opListID);
     void adoptAndRecordOp(GrCCDrawPathsOp*, const DrawPathArgs&);
 
-    const GrCCPerFlushResources* getPerFlushResources() const {
-        SkASSERT(fFlushing);
-        return fPerFlushResources.get();
-    }
+    // fPendingPaths holds the GrCCPerOpListPaths objects that have already been created, but not
+    // flushed, and those that are still being created. All GrCCPerOpListPaths objects will first
+    // reside in fPendingPaths, then be moved to fFlushingPaths during preFlush().
+    std::map<uint32_t, std::unique_ptr<GrCCPerOpListPaths>> fPendingPaths;
 
-    std::map<uint32_t, GrCCRTPendingPaths> fRTPendingPathsMap;
-    SkSTArray<4, std::map<uint32_t, GrCCRTPendingPaths>::iterator> fFlushingRTPathIters;
-    std::unique_ptr<GrCCPerFlushResources> fPerFlushResources;
+    // fFlushingPaths holds the GrCCPerOpListPaths objects that are currently being flushed.
+    // (It will only contain elements when fFlushing is true.)
+    SkSTArray<4, std::unique_ptr<GrCCPerOpListPaths>> fFlushingPaths;
     SkDEBUGCODE(bool fFlushing = false);
-    SkDEBUGCODE(int fNumOutstandingDrawOps = 0);
 
     const bool fDrawCachablePaths;
-
-    friend void GrCCDrawPathsOp::onExecute(GrOpFlushState*);  // For getPerFlushResources.
 };
 
 #endif
