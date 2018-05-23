@@ -149,6 +149,13 @@ public:
         subRun.setHasWCoord(hasWCoord);
     }
 
+    // sets the last subrun of runIndex to use w values
+    void setSubRunHasW(int runIndex, bool hasWCoord) {
+        Run& run = fRuns[runIndex];
+        Run::SubRunInfo& subRun = run.fSubRunInfo.back();
+        subRun.setHasWCoord(hasWCoord);
+    }
+
     void setRunPaintFlags(int runIndex, uint16_t paintFlags) {
         fRuns[runIndex].fPaintFlags = paintFlags & Run::kPaintFlagsMask;
     }
@@ -188,15 +195,14 @@ public:
     void appendPathGlyph(int runIndex, const SkPath& path,
                          SkScalar x, SkScalar y, SkScalar scale, bool preTransformed);
 
-    static size_t GetVertexStride(GrMaskFormat maskFormat, bool isDistanceFieldWithWCoord) {
+    static size_t GetVertexStride(GrMaskFormat maskFormat, bool hasWCoord) {
         switch (maskFormat) {
             case kA8_GrMaskFormat:
-                return isDistanceFieldWithWCoord ? kGrayTextDFPerspectiveVASize : kGrayTextVASize;
+                return hasWCoord ? kGrayTextDFPerspectiveVASize : kGrayTextVASize;
             case kARGB_GrMaskFormat:
-                SkASSERT(!isDistanceFieldWithWCoord);
-                return kColorTextVASize;
+                return hasWCoord ? kColorTextPerspectiveVASize : kColorTextVASize;
             default:
-                SkASSERT(!isDistanceFieldWithWCoord);
+                SkASSERT(!hasWCoord);
                 return kLCDTextVASize;
         }
     }
@@ -244,6 +250,7 @@ public:
 
     // position + local coord
     static const size_t kColorTextVASize = sizeof(SkPoint) + sizeof(SkIPoint16);
+    static const size_t kColorTextPerspectiveVASize = sizeof(SkPoint3) + sizeof(SkIPoint16);
     static const size_t kGrayTextVASize = sizeof(SkPoint) + sizeof(GrColor) + sizeof(SkIPoint16);
     static const size_t kGrayTextDFPerspectiveVASize =
             sizeof(SkPoint3) + sizeof(GrColor) + sizeof(SkIPoint16);
@@ -432,11 +439,11 @@ private:
                 fFlags  = hasW ? (fFlags | kHasWCoord_Flag) : fFlags & ~kHasWCoord_Flag;
             }
             bool hasWCoord() const { return SkToBool(fFlags & kHasWCoord_Flag); }
-            void setHasScaledGlyphs(bool hasScaledGlyphs) {
-                fFlags  = hasScaledGlyphs ? (fFlags | kHasScaledGlyphs_Flag)
-                                          : fFlags & ~kHasScaledGlyphs_Flag;
+            void setNeedsTransform(bool needsTransform) {
+                fFlags  = needsTransform ? (fFlags | kNeedsTransform_Flag)
+                                          : fFlags & ~kNeedsTransform_Flag;
             }
-            bool hasScaledGlyphs() const { return SkToBool(fFlags & kHasScaledGlyphs_Flag); }
+            bool needsTransform() const { return SkToBool(fFlags & kNeedsTransform_Flag); }
 
         private:
             enum Flag {
@@ -444,7 +451,7 @@ private:
                 kUseLCDText_Flag = 0x02,
                 kAntiAliased_Flag = 0x04,
                 kHasWCoord_Flag = 0x08,
-                kHasScaledGlyphs_Flag = 0x10
+                kNeedsTransform_Flag = 0x10
             };
 
             GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;

@@ -85,8 +85,8 @@ private:
             , fTextSize(pathPaint.getTextSize())
             , fMaxTextSize(glyphCache->getGlyphSizeLimit())
             , fTextRatio(textRatio)
-            , fScaledFallbackTextSize(fMaxTextSize)
-            , fUseScaledFallback(false) {
+            , fTransformedFallbackTextSize(fMaxTextSize)
+            , fUseTransformedFallback(false) {
             fMaxScale = viewMatrix.getMaxScale();
         }
 
@@ -102,9 +102,9 @@ private:
         SkScalar fTextSize;
         SkScalar fMaxTextSize;
         SkScalar fTextRatio;
-        SkScalar fScaledFallbackTextSize;
+        SkScalar fTransformedFallbackTextSize;
         SkScalar fMaxScale;
-        bool fUseScaledFallback;
+        bool fUseTransformedFallback;
     };
 
     // sets up the descriptor on the blob and returns a detached cache.  Client must attach
@@ -184,7 +184,7 @@ private:
 
     static void BmpAppendGlyph(GrAtlasTextBlob*, int runIndex, GrGlyphCache*,
                                sk_sp<GrTextStrike>*, const SkGlyph&, SkScalar sx, SkScalar sy,
-                               GrColor color, SkGlyphCache*, SkScalar textRatio);
+                               GrColor color, SkGlyphCache*, SkScalar textRatio, bool needsXform);
 
     static void DfAppendGlyph(GrAtlasTextBlob*, int runIndex, GrGlyphCache*,
                               sk_sp<GrTextStrike>*, const SkGlyph&, SkScalar sx, SkScalar sy,

@@ -48,6 +48,8 @@ void GrAtlasTextOp::init() {
             fDFGPFlags |=
                     (kLCDBGRDistanceField_MaskType == fMaskType) ? kBGR_DistanceFieldEffectFlag : 0;
         }
+
+        fNeedsGlyphTransform = true;
     }
 }
 
@@ -239,21 +241,20 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     FlushInfo flushInfo;
     flushInfo.fPipeline =
             target->makePipeline(fSRGBFlags, std::move(fProcessors), target->detachAppliedClip());
-    SkDEBUGCODE(bool dfPerspective = false);
+    bool vmPerspective = fGeoData[0].fViewMatrix.hasPerspective();
     if (this->usesDistanceFields()) {
         flushInfo.fGeometryProcessor = this->setupDfProcessor(proxies, numActiveProxies);
-        SkDEBUGCODE(dfPerspective = fGeoData[0].fViewMatrix.hasPerspective());
     } else {
-        GrSamplerState samplerState = fHasScaledGlyphs ? GrSamplerState::ClampBilerp()
-                                                       : GrSamplerState::ClampNearest();
+        GrSamplerState samplerState = fNeedsGlyphTransform ? GrSamplerState::ClampBilerp()
+                                                           : GrSamplerState::ClampNearest();
         flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
             this->color(), proxies, numActiveProxies, samplerState, maskFormat,
-            localMatrix, this->usesLocalCoords());
+            localMatrix, vmPerspective);
     }
 
     flushInfo.fGlyphsToFlush = 0;
     size_t vertexStride = flushInfo.fGeometryProcessor->getVertexStride();
-    SkASSERT(vertexStride == GrAtlasTextBlob::GetVertexStride(maskFormat, dfPerspective));
+    SkASSERT(vertexStride == GrAtlasTextBlob::GetVertexStride(maskFormat, vmPerspective));
 
     int glyphCount = this->numGlyphs();
     const GrBuffer* vertexBuffer;
@@ -291,11 +292,11 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
             if (args.fClipRect.isEmpty()) {
                 memcpy(currVertex, result.fFirstVertex, vertexBytes);
             } else {
-                SkASSERT(!dfPerspective);
+                SkASSERT(!vmPerspective);
                 clip_quads(args.fClipRect, currVertex, result.fFirstVertex, vertexStride,
                            result.fGlyphsRegenerated);
             }
-            if (this->usesDistanceFields() && !args.fViewMatrix.isIdentity()) {
+            if (fNeedsGlyphTransform && !args.fViewMatrix.isIdentity()) {
                 // We always do the distance field view matrix transformation after copying rather
                 // than during blob vertex generation time in the blob as handling successive
                 // arbitrary transformations would be complicated and accumulate error.
@@ -346,8 +347,8 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
                     proxies, numActiveProxies, GrSamplerState::ClampBilerp());
             }
         } else {
-            GrSamplerState samplerState = fHasScaledGlyphs ? GrSamplerState::ClampBilerp()
-                                                           : GrSamplerState::ClampNearest();
+            GrSamplerState samplerState = fNeedsGlyphTransform ? GrSamplerState::ClampBilerp()
+                                                               : GrSamplerState::ClampNearest();
             reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewProxies(proxies, numActiveProxies,
                                                                       samplerState);
         }
@@ -385,6 +386,15 @@ bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         return false;
     }
 
+    if (fNeedsGlyphTransform != that->fNeedsGlyphTransform) {
+        return false;
+    }
+
+    if (fNeedsGlyphTransform &&
+        (thisFirstMatrix.hasPerspective() != thatFirstMatrix.hasPerspective())) {
+        return false;
+    }
+
     if (this->usesDistanceFields()) {
         if (fDFGPFlags != that->fDFGPFlags) {
             return false;
@@ -398,9 +408,6 @@ bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
             return false;
         }
 
-        if (fHasScaledGlyphs != that->fHasScaledGlyphs) {
-            return false;
-        }
     }
 
     // Keep the batch vertex buffer size below 32K so we don't have to create a special one

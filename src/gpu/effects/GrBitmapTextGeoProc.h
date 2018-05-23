@@ -26,10 +26,10 @@ public:
                                            const sk_sp<GrTextureProxy>* proxies,
                                            int numActiveProxies,
                                            const GrSamplerState& p, GrMaskFormat format,
-                                           const SkMatrix& localMatrix, bool usesLocalCoords) {
+                                           const SkMatrix& localMatrix, bool usesW) {
         return sk_sp<GrGeometryProcessor>(
             new GrBitmapTextGeoProc(color, proxies, numActiveProxies, p, format,
-                                    localMatrix, usesLocalCoords));
+                                    localMatrix, usesW));
     }
 
     ~GrBitmapTextGeoProc() override {}
@@ -43,7 +43,7 @@ public:
     GrColor color() const { return fColor; }
     bool hasVertexColor() const { return SkToBool(fInColor); }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
-    bool usesLocalCoords() const { return fUsesLocalCoords; }
+    bool usesW() const { return fUsesW; }
 
     void addNewProxies(const sk_sp<GrTextureProxy>*, int numActiveProxies, const GrSamplerState&);
 
@@ -56,11 +56,11 @@ private:
 
     GrBitmapTextGeoProc(GrColor, const sk_sp<GrTextureProxy>* proxies, int numProxies,
                         const GrSamplerState& params, GrMaskFormat format,
-                        const SkMatrix& localMatrix, bool usesLocalCoords);
+                        const SkMatrix& localMatrix, bool usesW);
 
     GrColor          fColor;
     SkMatrix         fLocalMatrix;
-    bool             fUsesLocalCoords;
+    bool             fUsesW;
     TextureSampler   fTextureSamplers[kMaxTextures];
     const Attribute* fInPosition;
     const Attribute* fInColor;

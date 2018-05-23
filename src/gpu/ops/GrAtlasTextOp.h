@@ -42,7 +42,7 @@ public:
 
     static std::unique_ptr<GrAtlasTextOp> MakeBitmap(
                                 GrPaint&& paint, GrMaskFormat maskFormat, int glyphCount,
-                                bool hasScaledGlyphs) {
+                                bool needsTransform) {
         std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(std::move(paint)));
 
         switch (maskFormat) {
@@ -59,7 +59,7 @@ public:
         op->fNumGlyphs = glyphCount;
         op->fGeoCount = 1;
         op->fLuminanceColor = 0;
-        op->fHasScaledGlyphs = hasScaledGlyphs;
+        op->fNeedsGlyphTransform = needsTransform;
         return op;
     }
 
@@ -186,7 +186,7 @@ private:
         uint32_t fUsesLocalCoords : 1;
         uint32_t fCanCombineOnTouchOrOverlap : 1;
         uint32_t fUseGammaCorrectDistanceTable : 1;
-        uint32_t fHasScaledGlyphs : 1;
+        uint32_t fNeedsGlyphTransform : 1;
     };
     int fGeoCount;
     int fNumGlyphs;

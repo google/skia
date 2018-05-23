@@ -113,10 +113,8 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
     run.fInitialized = true;
 
     bool hasW = subRun->hasWCoord();
-    // DF glyphs drawn in perspective must always have a w coord.
-    SkASSERT(hasW || !subRun->drawAsDistanceFields() || !fInitialViewMatrix.hasPerspective());
-    // Non-DF glyphs should never have a w coord.
-    SkASSERT(!hasW || subRun->drawAsDistanceFields());
+    // glyphs drawn in perspective must always have a w coord.
+    SkASSERT(hasW || !fInitialViewMatrix.hasPerspective());
 
     size_t vertexStride = GetVertexStride(format, hasW);
 
@@ -153,7 +151,7 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
     subRun->appendVertices(vertexStride);
     fGlyphs[subRun->glyphEndIndex()] = glyph;
     subRun->glyphAppended();
-    subRun->setHasScaledGlyphs(SK_Scalar1 != scale);
+    subRun->setNeedsTransform(!preTransformed);
 }
 
 void GrAtlasTextBlob::appendPathGlyph(int runIndex, const SkPath& path, SkScalar x, SkScalar y,
@@ -263,7 +261,7 @@ inline std::unique_ptr<GrAtlasTextOp> GrAtlasTextBlob::makeOp(
                 props, info.isAntiAliased(), info.hasUseLCDText());
     } else {
         op = GrAtlasTextOp::MakeBitmap(std::move(grPaint), format, glyphCount,
-                                       info.hasScaledGlyphs());
+                                       info.needsTransform());
     }
     GrAtlasTextOp::Geometry& geometry = op->geometry();
     geometry.fViewMatrix = viewMatrix;
@@ -352,9 +350,9 @@ void GrAtlasTextBlob::flush(GrTextUtils::Target* target, const SkSurfaceProps& p
             SkRect rtBounds = SkRect::MakeWH(target->width(), target->height());
             SkRRect clipRRect;
             GrAA aa;
-            // We can clip geometrically if we're not using SDFs or scaled glyphs,
+            // We can clip geometrically if we're not using SDFs or transformed glyphs,
             // and we have an axis-aligned rectangular non-AA clip
-            if (!info.drawAsDistanceFields() && !info.hasScaledGlyphs() &&
+            if (!info.drawAsDistanceFields() && !info.needsTransform() &&
                 clip.isRRect(rtBounds, &clipRRect, &aa) &&
                 clipRRect.isRect() && GrAA::kNo == aa) {
                 skipClip = true;
