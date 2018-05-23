@@ -189,6 +189,14 @@ private:
 
 class SK_API SkStrikeClient {
 public:
+    enum CacheMissType : uint32_t {
+        kFontMetrics,
+        kGlyphMetrics,
+        kGlyphImage,
+        kGlyphPath,
+        kLast = kGlyphPath
+    };
+
     // An interface to delete handles that may be pinned by the remote server.
     class DiscardableHandleManager : public SkRefCnt {
     public:
@@ -197,6 +205,8 @@ public:
         // Returns true if the handle was unlocked and can be safely deleted. Once
         // successful, subsequent attempts to delete the same handle are invalid.
         virtual bool deleteHandle(SkDiscardableHandleId) = 0;
+
+        virtual void NotifyCacheMiss(CacheMissType) {}
     };
 
     SkStrikeClient(sk_sp<DiscardableHandleManager>);
@@ -211,19 +221,6 @@ public:
     // is rasterized.
     // Returns false if the data is invalid.
     bool readStrikeData(const volatile void* memory, size_t memorySize);
-
-    // TODO: Remove these since we don't support pulling this data on-demand.
-    void generateFontMetrics(const SkTypefaceProxy& typefaceProxy,
-                             const SkScalerContextRec& rec,
-                             SkPaint::FontMetrics* metrics);
-    void generateMetricsAndImage(const SkTypefaceProxy& typefaceProxy,
-                                 const SkScalerContextRec& rec,
-                                 SkArenaAlloc* alloc,
-                                 SkGlyph* glyph);
-    void generatePath(const SkTypefaceProxy& typefaceProxy,
-                      const SkScalerContextRec& rec,
-                      SkGlyphID glyphID,
-                      SkPath* path);
 
 private:
     class DiscardableStrikePinner;
