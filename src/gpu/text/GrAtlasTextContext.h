@@ -60,6 +60,18 @@ public:
                                                    const SkMatrix& viewMatrix, const char* text,
                                                    int x, int y);
 
+    static void SanitizeOptions(Options* options);
+    static bool CanDrawAsDistanceFields(const SkPaint& skPaint, const SkMatrix& viewMatrix,
+                                        const SkSurfaceProps& props,
+                                        bool contextSupportsDistanceFieldText,
+                                        const Options& options);
+    static void InitDistanceFieldPaint(GrAtlasTextBlob* blob,
+                                       SkPaint* skPaint,
+                                       const SkMatrix& viewMatrix,
+                                       const Options& options,
+                                       SkScalar* textRatio,
+                                       SkScalerContextFlags* flags);
+
 private:
     GrAtlasTextContext(const Options& options);
 
@@ -158,9 +170,6 @@ private:
                                       const SkPoint& offset);
 
     // functions for appending distance field text
-    bool canDrawAsDistanceFields(const SkPaint& skPaint, const SkMatrix& viewMatrix,
-                                 const SkSurfaceProps& props, const GrShaderCaps& caps) const;
-
     void drawDFText(GrAtlasTextBlob* blob, int runIndex, GrGlyphCache*, const SkSurfaceProps&,
                     const GrTextUtils::Paint& paint, SkScalerContextFlags scalerContextFlags,
                     const SkMatrix& viewMatrix, const char text[], size_t byteLength, SkScalar x,
@@ -172,11 +181,6 @@ private:
                        const SkMatrix& viewMatrix, const char text[],
                        size_t byteLength, const SkScalar pos[], int scalarsPerPosition,
                        const SkPoint& offset) const;
-
-    void initDistanceFieldPaint(GrAtlasTextBlob* blob,
-                                SkPaint* skPaint,
-                                SkScalar* textRatio,
-                                const SkMatrix& viewMatrix) const;
 
     static void BmpAppendGlyph(GrAtlasTextBlob*, int runIndex, GrGlyphCache*,
                                sk_sp<GrTextStrike>*, const SkGlyph&, SkScalar sx, SkScalar sy,
@@ -190,9 +194,7 @@ private:
 
     sk_sp<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
 
-    SkScalar fMinDistanceFieldFontSize;
-    SkScalar fMaxDistanceFieldFontSize;
-    bool fDistanceFieldVerticesAlwaysHaveW;
+    Options fOptions;
 
 #if GR_TEST_UTILS
     static const SkScalerContextFlags kTextBlobOpScalerContextFlags =

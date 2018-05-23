@@ -282,6 +282,8 @@ public:
     // Chrome is using this!
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
 
+    bool supportsDistanceFieldText() const;
+
 protected:
     GrContext(GrBackend, int32_t id = SK_InvalidGenID);
 
