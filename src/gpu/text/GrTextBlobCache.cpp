@@ -11,7 +11,6 @@ DECLARE_SKMESSAGEBUS_MESSAGE(GrTextBlobCache::PurgeBlobMessage)
 
 GrTextBlobCache::~GrTextBlobCache() {
     this->freeAll();
-    delete fPool;
 }
 
 void GrTextBlobCache::freeAll() {
@@ -23,8 +22,9 @@ void GrTextBlobCache::freeAll() {
 
     fBlobIDCache.reset();
 
+    fCurrentSize = 0;
+
     // There should be no allocations in the memory pool at this point
-    SkASSERT(!fPool || fPool->isEmpty());
     SkASSERT(fBlobList.isEmpty());
 }
 
@@ -46,6 +46,7 @@ void GrTextBlobCache::purgeStaleBlobs() {
 
         // remove all blob entries from the LRU list
         for (const auto& blob : idEntry->fBlobs) {
+            fCurrentSize -= blob->size();
             fBlobList.remove(blob.get());
         }
 
@@ -54,26 +55,16 @@ void GrTextBlobCache::purgeStaleBlobs() {
     }
 }
 
-bool GrTextBlobCache::overBudget() const {
-    if (fPool) {
-        return fPool->size() > fBudget;
-    }
-
-    // When DDLs are being recorded no GrAtlasTextBlob will be deleted so the cache budget is
-    // somewhat meaningless.
-    return false;
-}
-
 void GrTextBlobCache::checkPurge(GrAtlasTextBlob* blob) {
     // First, purge all stale blob IDs.
     this->purgeStaleBlobs();
 
     // If we are still over budget, then unref until we are below budget again
-    if (this->overBudget()) {
+    if (fCurrentSize > fSizeBudget) {
         BitmapBlobList::Iter iter;
         iter.init(fBlobList, BitmapBlobList::Iter::kTail_IterStart);
         GrAtlasTextBlob* lruBlob = nullptr;
-        while (this->overBudget() && (lruBlob = iter.get()) && lruBlob != blob) {
+        while (fCurrentSize > fSizeBudget && (lruBlob = iter.get()) && lruBlob != blob) {
             // Backup the iterator before removing and unrefing the blob
             iter.prev();
 
@@ -88,7 +79,7 @@ void GrTextBlobCache::checkPurge(GrAtlasTextBlob* blob) {
         }
 
 #ifdef SPEW_BUDGET_MESSAGE
-        if (this->overBudget()) {
+        if (fCurrentSize > fSizeBudget) {
             SkDebugf("Single textblob is larger than our whole budget");
         }
 #endif
