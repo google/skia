@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "904b5d76_bdef24bb",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 793,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-05-23T19:39:34Z",
+      "side": 1,
+      "message": "What about something like (although this doesn\u0027t work, they\u0027d need to be member function pointers, but still...):\ntypedef void (*TessFunc)(void*, const float[], const float[], const GrGeometryProcessor*);\nconst TessFunc[] tessFuncs \u003d {\n  tess\u003cSkPoint, kNo, kNo, kNo\u003e,\n  ...\n};\nint funcIndex \u003d 0;\nif (fProxyCnt) { funcIndex |\u003d 1; }\nif (fDomain) { funcIndex |\u003d 2; }\nif (coverageAA) { funcIndex |\u003d 4; }\nif (fPerspective} { funcIndex |\u003d 8; }\ntessFuncs[funcIndex](vdata, ...);",
+      "revId": "b0924b2e73ecdb1b553238bbe3198e436366f01d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1c3bf51_c86e2a8e",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1042,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-05-23T19:39:34Z",
+      "side": 1,
+      "message": "I think this \"works\" but you\u0027re likely to get warnings from some compilers here, about a signed bitfield, right? fHasDomain is either 0 or -1. Actually, does the cast to Domain in domain() work correctly?",
+      "revId": "b0924b2e73ecdb1b553238bbe3198e436366f01d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
