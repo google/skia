@@ -434,3 +434,13 @@ DEF_TEST(region_inverse_union_skbug_7491, reporter) {
     REPORTER_ASSERT(reporter, clip == rgn);
 }
 
+DEF_TEST(giant_path_region, reporter) {
+    const SkScalar big = 32767;
+    SkPath path;
+    path.moveTo(-big, 0);
+    path.quadTo(big, 0, big, big);
+    SkIRect ir = path.getBounds().round();
+    SkRegion rgn;
+    rgn.setPath(path, SkRegion(ir));
+}
+
