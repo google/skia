@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f6270c93_8014aa21",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1632,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-23T15:56:29Z",
+      "side": 1,
+      "message": "This means we\u0027ll need something similar in Google3 right?",
+      "revId": "9f318e213d99a6d88db3a80496b1a1663510013a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
