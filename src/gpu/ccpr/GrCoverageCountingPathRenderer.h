@@ -57,6 +57,19 @@ public:
         SkASSERT(!fFlushing);
     }
 
+    using PendingPathsMap = std::map<uint32_t, std::unique_ptr<GrCCPerOpListPaths>>;
+
+    // In DDL mode, Ganesh needs to be able to move the pending GrCCPerOpListPaths to the DDL object
+    // (detachPendingPaths) and then return them upon replay (mergePendingPaths).
+    PendingPathsMap detachPendingPaths() { return std::move(fPendingPaths); }
+
+    void mergePendingPaths(PendingPathsMap&& paths) {
+        // Ensure there are no duplicate opList IDs between the incoming path map and ours.
+        SkDEBUGCODE(for (const auto& it : paths) SkASSERT(!fPendingPaths.count(it.first)));
+        fPendingPaths.insert(std::make_move_iterator(paths.begin()),
+                             std::make_move_iterator(paths.end()));
+    }
+
     // GrPathRenderer overrides.
     StencilSupport onGetStencilSupport(const GrShape&) const override {
         return GrPathRenderer::kNoSupport_StencilSupport;
@@ -84,7 +97,7 @@ private:
     // fPendingPaths holds the GrCCPerOpListPaths objects that have already been created, but not
     // flushed, and those that are still being created. All GrCCPerOpListPaths objects will first
     // reside in fPendingPaths, then be moved to fFlushingPaths during preFlush().
-    std::map<uint32_t, std::unique_ptr<GrCCPerOpListPaths>> fPendingPaths;
+    PendingPathsMap fPendingPaths;
 
     // fFlushingPaths holds the GrCCPerOpListPaths objects that are currently being flushed.
     // (It will only contain elements when fFlushing is true.)
