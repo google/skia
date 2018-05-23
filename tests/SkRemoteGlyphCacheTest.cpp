@@ -22,7 +22,7 @@
 class DiscardableManager : public SkStrikeServer::DiscardableHandleManager,
                            public SkStrikeClient::DiscardableHandleManager {
 public:
-    DiscardableManager() { sk_bzero(&fCacheMissCount, sizeof(fCacheMissCount)); }
+    DiscardableManager() = default;
     ~DiscardableManager() override = default;
 
     // Server implementation.
@@ -39,7 +39,6 @@ public:
 
     // Client implementation.
     bool deleteHandle(SkDiscardableHandleId id) override { return id <= fLastDeletedHandleId; }
-    void NotifyCacheMiss(SkStrikeClient::CacheMissType type) override { fCacheMissCount[type]++; }
 
     void unlockAll() { fLockedHandles.reset(); }
     void unlockAndDeleteAll() {
@@ -48,13 +47,11 @@ public:
     }
     const SkTHashSet<SkDiscardableHandleId>& lockedHandles() const { return fLockedHandles; }
     SkDiscardableHandleId handleCount() { return fNextHandleId; }
-    int cacheMissCount(SkStrikeClient::CacheMissType type) { return fCacheMissCount[type]; }
 
 private:
     SkDiscardableHandleId fNextHandleId = 0u;
     SkDiscardableHandleId fLastDeletedHandleId = 0u;
     SkTHashSet<SkDiscardableHandleId> fLockedHandles;
-    int fCacheMissCount[SkStrikeClient::CacheMissType::kLast + 1u];
 };
 
 sk_sp<SkTextBlob> buildTextBlob(sk_sp<SkTypeface> tf, int glyphCount) {
@@ -117,7 +114,7 @@ DEF_TEST(SkRemoteGlyphCache_TypefaceSerialization, reporter) {
 
     auto client_tf = client.deserializeTypeface(tf_data->data(), tf_data->size());
     REPORTER_ASSERT(reporter, client_tf);
-    REPORTER_ASSERT(reporter, static_cast<SkTypefaceProxy*>(client_tf.get())->remoteTypefaceID() ==
+    REPORTER_ASSERT(reporter, SkTypefaceProxy::DownCast(client_tf.get())->remoteTypefaceID() ==
                                       server_tf->uniqueID());
 }
 
@@ -351,32 +348,5 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT, reporter, c
     SkBitmap actual = RasterBlob(clientBlob, 10, 10, paint, ctxInfo.grContext(), &matrix);
     COMPARE_BLOBS(expected, actual, reporter);
     SkStrikeCache::Validate();
-}
-
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_CacheMissReporting, reporter, ctxInfo) {
-    sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager);
-
-    auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
-    auto tfData = server.serializeTypeface(serverTf.get());
-    auto clientTf = client.deserializeTypeface(tfData->data(), tfData->size());
-    REPORTER_ASSERT(reporter, clientTf);
-    int glyphCount = 10;
-    auto clientBlob = buildTextBlob(clientTf, glyphCount);
-
-    // Raster the client-side blob without the glyph data, we should get cache miss notifications.
-    SkPaint paint;
-    SkMatrix matrix = SkMatrix::I();
-    RasterBlob(clientBlob, 10, 10, paint, ctxInfo.grContext(), &matrix);
-    REPORTER_ASSERT(reporter,
-                    discardableManager->cacheMissCount(SkStrikeClient::kFontMetrics) == 1);
-    REPORTER_ASSERT(reporter,
-                    discardableManager->cacheMissCount(SkStrikeClient::kGlyphMetrics) == 10);
-
-    // There shouldn't be any image or path requests, since we mark the glyph as empty on a cache
-    // miss.
-    REPORTER_ASSERT(reporter, discardableManager->cacheMissCount(SkStrikeClient::kGlyphImage) == 0);
-    REPORTER_ASSERT(reporter, discardableManager->cacheMissCount(SkStrikeClient::kGlyphPath) == 0);
 }
 #endif

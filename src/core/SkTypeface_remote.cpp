@@ -6,16 +6,15 @@
  */
 
 #include "SkTypeface_remote.h"
-#include "SkPaint.h"
 #include "SkRemoteGlyphCache.h"
-#include "SkStrikeCache.h"
-#include "SkTraceEvent.h"
+
+#include "SkPaint.h"
 
 SkScalerContextProxy::SkScalerContextProxy(sk_sp<SkTypeface> tf,
                                            const SkScalerContextEffects& effects,
                                            const SkDescriptor* desc,
-                                           sk_sp<SkStrikeClient::DiscardableHandleManager> manager)
-        : SkScalerContext{std::move(tf), effects, desc}, fDiscardableManager{std::move(manager)} {}
+                                           SkStrikeClient* rsc)
+        : SkScalerContext{std::move(tf), effects, desc}, fClient{rsc} {}
 
 unsigned SkScalerContextProxy::generateGlyphCount()  {
     SK_ABORT("Should never be called.");
@@ -32,34 +31,21 @@ void  SkScalerContextProxy::generateAdvance(SkGlyph* glyph) {
 }
 
 void SkScalerContextProxy::generateMetrics(SkGlyph* glyph) {
-    TRACE_EVENT1("skia", "generateMetrics", "rec", TRACE_STR_COPY(this->getRec().dump().c_str()));
-    SkDebugf("GlyphCacheMiss generateMetrics: %s\n", this->getRec().dump().c_str());
-
-    fDiscardableManager->NotifyCacheMiss(SkStrikeClient::CacheMissType::kGlyphMetrics);
-    glyph->zeroMetrics();
+    fClient->generateMetricsAndImage(*this->typefaceProxy(), this->getRec(), &fAlloc, glyph);
 }
 
 void SkScalerContextProxy::generateImage(const SkGlyph& glyph) {
-    TRACE_EVENT1("skia", "generateImage", "rec", TRACE_STR_COPY(this->getRec().dump().c_str()));
-    SkDebugf("GlyphCacheMiss generateImage: %s\n", this->getRec().dump().c_str());
-
-    fDiscardableManager->NotifyCacheMiss(SkStrikeClient::CacheMissType::kGlyphImage);
 }
 
 bool SkScalerContextProxy::generatePath(SkGlyphID glyphID, SkPath* path) {
-    TRACE_EVENT1("skia", "generatePath", "rec", TRACE_STR_COPY(this->getRec().dump().c_str()));
-    SkDebugf("GlyphCacheMiss generatePath: %s\n", this->getRec().dump().c_str());
-
-    fDiscardableManager->NotifyCacheMiss(SkStrikeClient::CacheMissType::kGlyphPath);
+    fClient->generatePath(*this->typefaceProxy(), this->getRec(), glyphID, path);
     return false;
 }
 
 void SkScalerContextProxy::generateFontMetrics(SkPaint::FontMetrics* metrics) {
-    TRACE_EVENT1(
-            "skia", "generateFontMetrics", "rec", TRACE_STR_COPY(this->getRec().dump().c_str()));
-    SkDebugf("GlyphCacheMiss generateFontMetrics: %s\n", this->getRec().dump().c_str());
-    SkDEBUGCODE(SkStrikeCache::Dump());
+    fClient->generateFontMetrics(*this->typefaceProxy(), this->getRec(), metrics);
+}
 
-    fDiscardableManager->NotifyCacheMiss(SkStrikeClient::CacheMissType::kFontMetrics);
-    sk_bzero(metrics, sizeof(*metrics));
+SkTypefaceProxy* SkScalerContextProxy::typefaceProxy() {
+    return SkTypefaceProxy::DownCast(this->getTypeface());
 }
