@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a55b5cb0_97be46af",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-23T19:49:10Z",
+      "side": 1,
+      "message": "I assume this is what makes line 244 safe (checking only fGeoData[0] for perspective)?",
+      "range": {
+        "startLine": 389,
+        "startChar": 2,
+        "endLine": 391,
+        "endChar": 5
+      },
+      "revId": "aaf1036268e90638a2b618a8123ad013cbd02be1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
