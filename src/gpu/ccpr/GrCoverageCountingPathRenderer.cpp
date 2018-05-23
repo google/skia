@@ -13,8 +13,8 @@
 #include "SkMakeUnique.h"
 #include "SkPathOps.h"
 #include "ccpr/GrCCClipProcessor.h"
+#include "ccpr/GrCCDrawPathsOp.h"
 #include "ccpr/GrCCPathParser.h"
-#include "ccpr/GrCCPerFlushResources.h"
 
 using PathInstance = GrCCPathProcessor::Instance;
 
@@ -47,14 +47,21 @@ sk_sp<GrCoverageCountingPathRenderer> GrCoverageCountingPathRenderer::CreateIfSu
     return sk_sp<GrCoverageCountingPathRenderer>(ccpr);
 }
 
-GrCoverageCountingPathRenderer::GrCoverageCountingPathRenderer(bool drawCachablePaths)
-        : fDrawCachablePaths(drawCachablePaths) {
+GrCCRTPendingPaths* GrCoverageCountingPathRenderer::lookupRTPendingPaths(uint32_t opListID) {
+    auto it = fRTPendingPathsMap.find(opListID);
+    if (fRTPendingPathsMap.end() == it) {
+        it = fRTPendingPathsMap.insert(
+                     std::make_pair(opListID, skstd::make_unique<GrCCRTPendingPaths>())).first;
+    }
+    return it->second.get();
 }
 
-GrCoverageCountingPathRenderer::~GrCoverageCountingPathRenderer() {
-    // Ensure no Ops exist that could have a dangling pointer back into this class.
-    SkASSERT(fRTPendingPathsMap.empty());
-    SkASSERT(0 == fNumOutstandingDrawOps);
+void GrCoverageCountingPathRenderer::adoptAndRecordOp(GrCCDrawPathsOp* op,
+                                                      const DrawPathArgs& args) {
+    GrRenderTargetContext* rtc = args.fRenderTargetContext;
+    if (uint32_t opListID = rtc->addDrawOp(*args.fClip, std::unique_ptr<GrDrawOp>(op))) {
+        op->wasRecorded(this->lookupRTPendingPaths(opListID));
+    }
 }
 
 GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
@@ -112,23 +119,15 @@ bool GrCoverageCountingPathRenderer::onDrawPath(const DrawPathArgs& args) {
         SkPath croppedPath;
         path.transform(*args.fViewMatrix, &croppedPath);
         crop_path(croppedPath, clipIBounds, &croppedPath);
-        this->adoptAndRecordOp(new GrCCDrawPathsOp(this, std::move(args.fPaint), clipIBounds,
+        this->adoptAndRecordOp(new GrCCDrawPathsOp(std::move(args.fPaint), clipIBounds,
                                                    SkMatrix::I(), croppedPath,
                                                    croppedPath.getBounds()), args);
         return true;
     }
 
-    this->adoptAndRecordOp(new GrCCDrawPathsOp(this, std::move(args.fPaint), clipIBounds,
+    this->adoptAndRecordOp(new GrCCDrawPathsOp(std::move(args.fPaint), clipIBounds,
                                                *args.fViewMatrix, path, devBounds), args);
     return true;
-}
-
-void GrCoverageCountingPathRenderer::adoptAndRecordOp(GrCCDrawPathsOp* op,
-                                                      const DrawPathArgs& args) {
-    GrRenderTargetContext* rtc = args.fRenderTargetContext;
-    if (uint32_t opListID = rtc->addDrawOp(*args.fClip, std::unique_ptr<GrDrawOp>(op))) {
-        op->wasRecorded(&fRTPendingPathsMap[opListID]);
-    }
 }
 
 std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipProcessor(
@@ -140,7 +139,7 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
     SkASSERT(!fFlushing);
 
     GrCCClipPath& clipPath =
-            fRTPendingPathsMap[opListID].fClipPaths[deviceSpacePath.getGenerationID()];
+            this->lookupRTPendingPaths(opListID)->fClipPaths[deviceSpacePath.getGenerationID()];
     if (!clipPath.isInitialized()) {
         // This ClipPath was just created during lookup. Initialize it.
         const SkRect& pathDevBounds = deviceSpacePath.getBounds();
@@ -166,56 +165,55 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
                                               const uint32_t* opListIDs, int numOpListIDs,
                                               SkTArray<sk_sp<GrRenderTargetContext>>* atlasDraws) {
     SkASSERT(!fFlushing);
-    SkASSERT(!fPerFlushResources);
+    SkASSERT(fFlushingRTPaths.empty());
     SkDEBUGCODE(fFlushing = true);
 
     if (fRTPendingPathsMap.empty()) {
         return;  // Nothing to draw.
     }
 
-    // Count up the paths about to be flushed so we can preallocate buffers.
+    // Move the RT paths from fRTPendingPathsMap to fFlushingRTPaths, and count up the paths about
+    // to be flushed so we can preallocate buffers.
     int numPathDraws = 0;
     int numClipPaths = 0;
     GrCCPathParser::PathStats flushingPathStats;
-    fFlushingRTPathIters.reserve(numOpListIDs);
+    fFlushingRTPaths.reserve(numOpListIDs);
     for (int i = 0; i < numOpListIDs; ++i) {
         auto iter = fRTPendingPathsMap.find(opListIDs[i]);
         if (fRTPendingPathsMap.end() == iter) {
-            continue;
+            continue;  // No paths on this RT.
         }
-        const GrCCRTPendingPaths& rtPendingPaths = iter->second;
 
-        for (const GrCCDrawPathsOp* op : rtPendingPaths.fDrawOps) {
+        fFlushingRTPaths.push_back(std::move(iter->second)).get();
+        fRTPendingPathsMap.erase(iter);
+
+        for (const GrCCDrawPathsOp* op : fFlushingRTPaths.back()->fDrawOps) {
             numPathDraws += op->countPaths(&flushingPathStats);
         }
-        for (const auto& clipsIter : rtPendingPaths.fClipPaths) {
+        for (const auto& clipsIter : fFlushingRTPaths.back()->fClipPaths) {
             flushingPathStats.statPath(clipsIter.second.deviceSpacePath());
         }
-        numClipPaths += rtPendingPaths.fClipPaths.size();
-
-        fFlushingRTPathIters.push_back(std::move(iter));
+        numClipPaths += fFlushingRTPaths.back()->fClipPaths.size();
     }
 
     if (0 == numPathDraws + numClipPaths) {
         return;  // Nothing to draw.
     }
 
-    auto resources = skstd::make_unique<GrCCPerFlushResources>(onFlushRP, numPathDraws,
-                                                               numClipPaths, flushingPathStats);
+    auto resources = sk_make_sp<GrCCPerFlushResources>(onFlushRP, numPathDraws, numClipPaths,
+                                                       flushingPathStats);
     if (!resources->isMapped()) {
         return;  // Some allocation failed.
     }
 
     // Layout atlas(es) and parse paths.
     SkDEBUGCODE(int numSkippedPaths = 0);
-    for (const auto& iter : fFlushingRTPathIters) {
-        GrCCRTPendingPaths* rtPendingPaths = &iter->second;
-
-        for (GrCCDrawPathsOp* op : rtPendingPaths->fDrawOps) {
+    for (const auto& flushingPaths : fFlushingRTPaths) {
+        for (GrCCDrawPathsOp* op : flushingPaths->fDrawOps) {
             op->setupResources(resources.get(), onFlushRP);
             SkDEBUGCODE(numSkippedPaths += op->numSkippedInstances_debugOnly());
         }
-        for (auto& clipsIter : rtPendingPaths->fClipPaths) {
+        for (auto& clipsIter : flushingPaths->fClipPaths) {
             clipsIter.second.placePathInAtlas(resources.get(), onFlushRP);
         }
     }
@@ -226,17 +224,16 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
         return;
     }
 
-    fPerFlushResources = std::move(resources);
+    // Commit flushing paths to the resources once they are successfully completed.
+    for (auto& flushingPaths : fFlushingRTPaths) {
+        flushingPaths->fPerFlushResources = resources;
+    }
 }
 
 void GrCoverageCountingPathRenderer::postFlush(GrDeferredUploadToken, const uint32_t* opListIDs,
                                                int numOpListIDs) {
     SkASSERT(fFlushing);
-    fPerFlushResources.reset();
     // We wait to erase these until after flush, once Ops and FPs are done accessing their data.
-    for (const auto& iter : fFlushingRTPathIters) {
-        fRTPendingPathsMap.erase(iter);
-    }
-    fFlushingRTPathIters.reset();
+    fFlushingRTPaths.reset();
     SkDEBUGCODE(fFlushing = false);
 }

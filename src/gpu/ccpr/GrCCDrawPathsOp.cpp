@@ -22,16 +22,13 @@ static bool has_coord_transforms(const GrPaint& paint) {
     return false;
 }
 
-GrCCDrawPathsOp::GrCCDrawPathsOp(GrCoverageCountingPathRenderer* ccpr, GrPaint&& paint,
-                                 const SkIRect& clipIBounds, const SkMatrix& viewMatrix,
+GrCCDrawPathsOp::GrCCDrawPathsOp(GrPaint&& paint, const SkIRect& clipIBounds, const SkMatrix& m,
                                  const SkPath& path, const SkRect& devBounds)
         : GrDrawOp(ClassID())
-        , fCCPR(ccpr)
         , fSRGBFlags(GrPipeline::SRGBFlagsFromPaint(paint))
-        , fViewMatrixIfUsingLocalCoords(has_coord_transforms(paint) ? viewMatrix : SkMatrix::I())
-        , fDraws({clipIBounds, viewMatrix, path, paint.getColor(), nullptr})
+        , fViewMatrixIfUsingLocalCoords(has_coord_transforms(paint) ? m : SkMatrix::I())
+        , fDraws({clipIBounds, m, path, paint.getColor(), nullptr})
         , fProcessors(std::move(paint)) {
-    SkDEBUGCODE(fCCPR->incrDrawOpCount_debugOnly());
     SkDEBUGCODE(fBaseInstance = -1);
     // FIXME: intersect with clip bounds to (hopefully) improve batching.
     // (This is nontrivial due to assumptions in generating the octagon cover geometry.)
@@ -43,13 +40,11 @@ GrCCDrawPathsOp::~GrCCDrawPathsOp() {
         // Remove CCPR's dangling pointer to this Op before deleting it.
         fOwningRTPendingPaths->fDrawOps.remove(this);
     }
-    SkDEBUGCODE(fCCPR->decrDrawOpCount_debugOnly());
 }
 
 GrDrawOp::RequiresDstTexture GrCCDrawPathsOp::finalize(const GrCaps& caps,
                                                        const GrAppliedClip* clip,
                                                        GrPixelConfigIsClamped dstIsClamped) {
-    SkASSERT(!fCCPR->isFlushing_debugOnly());
     // There should only be one single path draw in this Op right now.
     SkASSERT(1 == fNumDraws);
     GrProcessorSet::Analysis analysis =
@@ -60,8 +55,6 @@ GrDrawOp::RequiresDstTexture GrCCDrawPathsOp::finalize(const GrCaps& caps,
 
 bool GrCCDrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps& caps) {
     GrCCDrawPathsOp* that = op->cast<GrCCDrawPathsOp>();
-    SkASSERT(fCCPR == that->fCCPR);
-    SkASSERT(!fCCPR->isFlushing_debugOnly());
     SkASSERT(fOwningRTPendingPaths);
     SkASSERT(fNumDraws);
     SkASSERT(!that->fOwningRTPendingPaths || that->fOwningRTPendingPaths == fOwningRTPendingPaths);
@@ -137,7 +130,7 @@ void GrCCDrawPathsOp::setupResources(GrCCPerFlushResources* resources,
 void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState) {
     SkASSERT(fOwningRTPendingPaths);
 
-    const GrCCPerFlushResources* resources = fCCPR->getPerFlushResources();
+    const GrCCPerFlushResources* resources = fOwningRTPendingPaths->fPerFlushResources.get();
     if (!resources) {
         return;  // Setup failed.
     }

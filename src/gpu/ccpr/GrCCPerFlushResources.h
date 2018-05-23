@@ -9,6 +9,7 @@
 #define GrCCPerFlushResources_DEFINED
 
 #include "GrAllocator.h"
+#include "GrNonAtomicRef.h"
 #include "ccpr/GrCCAtlas.h"
 #include "ccpr/GrCCPathParser.h"
 #include "ccpr/GrCCPathProcessor.h"
@@ -16,7 +17,7 @@
 /**
  * This class wraps all the GPU resources that CCPR builds at flush time.
  */
-class GrCCPerFlushResources {
+class GrCCPerFlushResources : public GrNonAtomicRef<GrCCPerFlushResources> {
 public:
     GrCCPerFlushResources(GrOnFlushResourceProvider*, int numPathDraws, int numClipPaths,
                           const GrCCPathParser::PathStats&);
