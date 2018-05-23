@@ -17,6 +17,7 @@ BUILD_PRODUCTS_ISOLATE_WHITELIST = [
   'nanobench',
   'nanobench.exe',
   'skpbench',
+  'skpbench.exe',
   '*.so',
   '*.dll',
   '*.dylib',
