@@ -1329,6 +1329,7 @@ if (skia_enable_tools) {
       "tools/CrashHandler.cpp",
       "tools/LsanSuppressions.cpp",
       "tools/ProcStats.cpp",
+      "tools/PromiseImageHelper.cpp",
       "tools/Resources.cpp",
       "tools/UrlDataManager.cpp",
       "tools/debugger/SkDebugCanvas.cpp",

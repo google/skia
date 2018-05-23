@@ -9,6 +9,7 @@
 #include <cmath>
 #include <functional>
 #include "../src/jumper/SkJumper.h"
+#include "PromiseImageHelper.h"
 #include "Resources.h"
 #include "SkAndroidCodec.h"
 #include "SkAutoMalloc.h"
@@ -2010,180 +2011,6 @@ ViaDDL::ViaDDL(int numDivisions, Sink* sink)
     , fNumDivisions(numDivisions) {
 }
 
-// This class consolidates tracking & extraction of the original image data from the sources,
-// the upload of said data to the GPU and the fulfillment of promise images.
-//
-// The way this works is:
-//    the original skp is converted to SkData and all its image info is extracted into this
-//       class and only indices into this class are left in the SkData
-//    Prior to replaying in threads, all the images stored in this class are uploaded to the
-//       gpu and PromiseImageCallbackContexts are created for them
-//    Each thread reinflates the SkData into an SkPicture replacing all the indices w/
-//       promise images (all using the same GrBackendTexture and getting a ref to the
-//       appropriate PromiseImageCallbackContext) and then creates a DDL.
-//    This class is then reset - dropping all of its refs on the PromiseImageCallbackContexts
-//    Each done callback unrefs its PromiseImageCallbackContext so, once all the promise images
-//       are done the PromiseImageCallbackContext is freed and its GrBackendTexture removed
-//       from VRAM
-//
-class ViaDDL::PromiseImageHelper {
-public:
-    // This class acts as a proxy for the single GrBackendTexture representing an image.
-    // Whenever a promise image is created for the image the promise image receives a ref to
-    // this object. Once all the promise images receive their done callbacks this object
-    // is deleted - removing the GrBackendTexture from VRAM.
-    // Note that while the DDLs are being created in the threads, the PromiseImageHelper holds
-    // a ref on all the PromiseImageCallbackContexts. However, once all the threads are done
-    // it drops all of its refs (via "reset").
-    class PromiseImageCallbackContext : public SkRefCnt {
-    public:
-        PromiseImageCallbackContext(GrContext* context) : fContext(context) {}
-
-        ~PromiseImageCallbackContext() {
-            GrGpu* gpu = fContext->contextPriv().getGpu();
-
-            if (fBackendTexture.isValid()) {
-                gpu->deleteTestingOnlyBackendTexture(fBackendTexture);
-            }
-        }
-
-        void setBackendTexture(const GrBackendTexture& backendTexture) {
-            fBackendTexture = backendTexture;
-        }
-
-        const GrBackendTexture& backendTexture() const { return fBackendTexture; }
-
-    private:
-        GrContext*       fContext;
-        GrBackendTexture fBackendTexture;
-
-        typedef SkRefCnt INHERITED;
-    };
-
-    // This is the information extracted into this class from the parsing of the skp file.
-    // Once it has all been uploaded to the GPU and distributed to the promise images, it
-    // is all dropped via "reset".
-    class PromiseImageInfo {
-    public:
-        int                                fIndex;                // index in the 'fImageInfo' array
-        uint32_t                           fOriginalUniqueID;     // original ID for deduping
-        SkBitmap                           fBitmap;               // CPU-side cache of the contents
-        sk_sp<PromiseImageCallbackContext> fCallbackContext;
-    };
-
-    PromiseImageHelper() { }
-
-    void reset() { fImageInfo.reset(); }
-
-    bool isValidID(int id) const {
-        return id >= 0 && id < fImageInfo.count();
-    }
-
-    const PromiseImageInfo& getInfo(int id) const {
-        return fImageInfo[id];
-    }
-
-    // returns -1 on failure
-    int findOrDefineImage(SkImage* image) {
-        int preExistingID = this->findImage(image);
-        if (preExistingID >= 0) {
-            SkASSERT(this->isValidID(preExistingID));
-            return preExistingID;
-        }
-
-        int newID = this->addImage(image);
-        SkASSERT(this->isValidID(newID));
-        return newID;
-    }
-
-    void uploadAllToGPU(GrContext* context) {
-        GrGpu* gpu = context->contextPriv().getGpu();
-        SkASSERT(gpu);
-
-        for (int i = 0; i < fImageInfo.count(); ++i) {
-            sk_sp<PromiseImageCallbackContext> callbackContext(
-                                                    new PromiseImageCallbackContext(context));
-
-            const PromiseImageInfo& info = fImageInfo[i];
-
-            // DDL TODO: how can we tell if we need mipmapping!
-            callbackContext->setBackendTexture(gpu->createTestingOnlyBackendTexture(
-                                                                info.fBitmap.getPixels(),
-                                                                info.fBitmap.width(),
-                                                                info.fBitmap.height(),
-                                                                info.fBitmap.colorType(),
-                                                                info.fBitmap.colorSpace(),
-                                                                false, GrMipMapped::kNo));
-            // The GMs sometimes request too large an image
-            //SkAssertResult(callbackContext->backendTexture().isValid());
-
-            // The fImageInfo array gets the creation ref
-            fImageInfo[i].fCallbackContext = std::move(callbackContext);
-        }
-    }
-
-    static void PromiseImageFulfillProc(void* textureContext, GrBackendTexture* outTexture) {
-        auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
-        SkASSERT(callbackContext->backendTexture().isValid());
-        *outTexture = callbackContext->backendTexture();
-    }
-
-    static void PromiseImageReleaseProc(void* textureContext) {
-#ifdef SK_DEBUG
-        auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
-        SkASSERT(callbackContext->backendTexture().isValid());
-#endif
-    }
-
-    static void PromiseImageDoneProc(void* textureContext) {
-        auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
-        callbackContext->unref();
-    }
-
-private:
-    // returns -1 if not found
-    int findImage(SkImage* image) const {
-        for (int i = 0; i < fImageInfo.count(); ++i) {
-            if (fImageInfo[i].fOriginalUniqueID == image->uniqueID()) {
-                SkASSERT(fImageInfo[i].fIndex == i);
-                SkASSERT(this->isValidID(i) && this->isValidID(fImageInfo[i].fIndex));
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    // returns -1 on failure
-    int addImage(SkImage* image) {
-        sk_sp<SkImage> rasterImage = image->makeRasterImage(); // force decoding of lazy images
-
-        SkImageInfo ii = SkImageInfo::Make(rasterImage->width(), rasterImage->height(),
-                                           rasterImage->colorType(), rasterImage->alphaType(),
-                                           rasterImage->refColorSpace());
-
-        SkBitmap bm;
-        bm.allocPixels(ii);
-
-        if (!rasterImage->readPixels(bm.pixmap(), 0, 0)) {
-            return -1;
-        }
-
-        bm.setImmutable();
-
-        PromiseImageInfo newImageInfo;
-        newImageInfo.fIndex = fImageInfo.count();
-        newImageInfo.fOriginalUniqueID = image->uniqueID();
-        newImageInfo.fBitmap = bm;
-        /* fCallbackContext is filled in by uploadAllToGPU */
-
-        fImageInfo.push_back(newImageInfo);
-        SkASSERT(newImageInfo.fIndex == fImageInfo.count()-1);
-        return fImageInfo.count()-1;
-    }
-
-    SkTArray<PromiseImageInfo> fImageInfo;
-};
-
 // TileData class encapsulates the information and behavior for a single tile/thread in
 // a DDL rendering.
 class ViaDDL::TileData {
@@ -2206,19 +2033,10 @@ public:
         // Maybe set it up in the ctor?
         SkCanvas* subCanvas = recorder.getCanvas();
 
-        sk_sp<SkPicture> reconstitutedPicture;
-
-        {
-            PerRecorderContext perRecorderContext { &recorder, &helper };
-
-            SkDeserialProcs procs;
-            procs.fImageCtx = (void*) &perRecorderContext;
-            procs.fImageProc = PromiseImageCreator;
-
-            reconstitutedPicture = SkPicture::MakeFromData(compressedPictureData, &procs);
-            if (!reconstitutedPicture) {
-                return;
-            }
+        sk_sp<SkPicture> reconstitutedPicture = helper.reinflateSKP(&recorder,
+                                                                    compressedPictureData);
+        if (!reconstitutedPicture) {
+            return;
         }
 
         subCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
@@ -2247,59 +2065,6 @@ public:
     }
 
 private:
-    // This stack-based context allows each thread to re-inflate the image indices into
-    // promise images while still using the same GrBackendTexture.
-    struct PerRecorderContext {
-        SkDeferredDisplayListRecorder* fRecorder;
-        const PromiseImageHelper*      fHelper;
-    };
-
-    // This generates promise images to replace the indices in the compressed picture. This
-    // reconstitution is performed separately in each thread so we end up with multiple
-    // promise images referring to the same GrBackendTexture.
-    static sk_sp<SkImage> PromiseImageCreator(const void* rawData, size_t length, void* ctxIn) {
-        PerRecorderContext* perRecorderContext = static_cast<PerRecorderContext*>(ctxIn);
-        const PromiseImageHelper* helper = perRecorderContext->fHelper;
-        SkDeferredDisplayListRecorder* recorder = perRecorderContext->fRecorder;
-
-        SkASSERT(length == sizeof(int));
-
-        const int* indexPtr = static_cast<const int*>(rawData);
-        SkASSERT(helper->isValidID(*indexPtr));
-
-        const PromiseImageHelper::PromiseImageInfo& curImage = helper->getInfo(*indexPtr);
-
-        if (!curImage.fCallbackContext->backendTexture().isValid()) {
-            // We weren't able to make a backend texture for this SkImage. In this case we create
-            // a separate bitmap-backed image for each thread.
-            // Note: we would like to share the same bitmap between all the threads but
-            // SkBitmap is not thread-safe.
-            return SkImage::MakeRasterCopy(curImage.fBitmap.pixmap());
-        }
-        SkASSERT(curImage.fIndex == *indexPtr);
-
-        GrBackendFormat backendFormat = curImage.fCallbackContext->backendTexture().format();
-
-        // Each DDL recorder gets its own ref on the promise callback context for the
-        // promise images it creates.
-        // DDL TODO: sort out mipmapping
-        sk_sp<SkImage> image = recorder->makePromiseTexture(
-                                                backendFormat,
-                                                curImage.fBitmap.width(),
-                                                curImage.fBitmap.height(),
-                                                GrMipMapped::kNo,
-                                                GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
-                                                curImage.fBitmap.colorType(),
-                                                curImage.fBitmap.alphaType(),
-                                                curImage.fBitmap.refColorSpace(),
-                                                PromiseImageHelper::PromiseImageFulfillProc,
-                                                PromiseImageHelper::PromiseImageReleaseProc,
-                                                PromiseImageHelper::PromiseImageDoneProc,
-                                                (void*) SkSafeRef(curImage.fCallbackContext.get()));
-        SkASSERT(image);
-        return image;
-    }
-
     sk_sp<SkSurface>                       fSurface;
     SkIRect                                fClip;    // in the device space of the dest canvas
     std::unique_ptr<SkDeferredDisplayList> fDisplayList;
@@ -2320,29 +2085,9 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
     SkIRect viewport = SkIRect::MakeWH(size.fWidth, size.fHeight);
 
     PromiseImageHelper helper;
-    sk_sp<SkData> compressedPictureData;
-
-    // Convert the SkPicture into SkData replacing all the SkImages with an index.
-    {
-        SkSerialProcs procs;
-
-        procs.fImageCtx = &helper;
-        procs.fImageProc = [](SkImage* image, void* ctx) -> sk_sp<SkData> {
-            auto helper = static_cast<PromiseImageHelper*>(ctx);
-
-            int id = helper->findOrDefineImage(image);
-            if (id >= 0) {
-                SkASSERT(helper->isValidID(id));
-                return SkData::MakeWithCopy(&id, sizeof(id));
-            }
-
-            return nullptr;
-        };
-
-        compressedPictureData = inputPicture->serialize(&procs);
-        if (!compressedPictureData) {
-            return SkStringPrintf("ViaDDL: Couldn't deflate SkPicture");
-        }
+    sk_sp<SkData> compressedPictureData = helper.deflateSKP(inputPicture.get());
+    if (!compressedPictureData) {
+        return SkStringPrintf("ViaDDL: Couldn't deflate SkPicture");
     }
 
     return draw_to_canvas(fSink.get(), bitmap, stream, log, size,

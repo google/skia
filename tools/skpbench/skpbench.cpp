@@ -15,6 +15,7 @@
 #include "GrCaps.h"
 #include "GrContextFactory.h"
 #include "GrContextPriv.h"
+#include "PromiseImageHelper.h"
 #include "SkCanvas.h"
 #include "SkCommonFlags.h"
 #include "SkCommonFlagsGpu.h"
@@ -42,6 +43,10 @@
  *
  * Currently, only GPU configs are supported.
  */
+
+DEFINE_bool(ddl, false, "record the skp into DDLs before rendering");
+DEFINE_int32(ddlNumAdditionalThreads, 0, "number of DDL recording threads in addition to main one");
+DEFINE_int32(ddlTilingWidthHeight, 0, "number of tiles along one edge when in DDL mode");
 
 DEFINE_int32(duration, 5000, "number of milliseconds to run the benchmark");
 DEFINE_int32(sampleMs, 50, "minimum duration of a sample");
@@ -100,16 +105,25 @@ static bool mkdir_p(const SkString& name);
 static SkString join(const SkCommandLineFlags::StringArray&);
 static void exitf(ExitErr, const char* format, ...);
 
-static void run_benchmark(const sk_gpu_test::FenceSync* fenceSync, SkCanvas* canvas,
-                          const SkPicture* skp, std::vector<Sample>* samples) {
+static void run_ddl_benchmark(const sk_gpu_test::FenceSync* fenceSync,
+                              GrContext* context, SkCanvas* canvas,
+                              sk_sp<SkPicture> skp, std::vector<Sample>* samples) {
     using clock = std::chrono::high_resolution_clock;
     const Sample::duration sampleDuration = std::chrono::milliseconds(FLAGS_sampleMs);
     const clock::duration benchDuration = std::chrono::milliseconds(FLAGS_duration);
 
-    draw_skp_and_flush(canvas, skp);
+    PromiseImageHelper helper;
+    sk_sp<SkData> compressedPictureData = helper.deflateSKP(skp.get());
+    if (!compressedPictureData) {
+        exitf(ExitErr::kUnavailable, "DDL: conversion of skp failed");
+    }
+
+    helper.uploadAllToGPU(context);
+
+    draw_ddls_and_flush(surfaces, skp.get());
     GpuSync gpuSync(fenceSync);
 
-    draw_skp_and_flush(canvas, skp);
+    draw_skp_and_flush(canvas, skp.get());
     gpuSync.syncToPreviousFrame();
 
     clock::time_point now = clock::now();
@@ -121,7 +135,38 @@ static void run_benchmark(const sk_gpu_test::FenceSync* fenceSync, SkCanvas* can
         Sample& sample = samples->back();
 
         do {
-            draw_skp_and_flush(canvas, skp);
+            draw_skp_and_flush(canvas, skp.get());
+            gpuSync.syncToPreviousFrame();
+
+            now = clock::now();
+            sample.fDuration = now - sampleStart;
+            ++sample.fFrames;
+        } while (sample.fDuration < sampleDuration);
+    } while (now < endTime || 0 == samples->size() % 2);
+}
+
+static void run_benchmark(const sk_gpu_test::FenceSync* fenceSync, SkCanvas* canvas,
+                          sk_sp<SkPicture> skp, std::vector<Sample>* samples) {
+    using clock = std::chrono::high_resolution_clock;
+    const Sample::duration sampleDuration = std::chrono::milliseconds(FLAGS_sampleMs);
+    const clock::duration benchDuration = std::chrono::milliseconds(FLAGS_duration);
+
+    draw_skp_and_flush(canvas, skp.get());
+    GpuSync gpuSync(fenceSync);
+
+    draw_skp_and_flush(canvas, skp.get());
+    gpuSync.syncToPreviousFrame();
+
+    clock::time_point now = clock::now();
+    const clock::time_point endTime = now + benchDuration;
+
+    do {
+        clock::time_point sampleStart = now;
+        samples->emplace_back();
+        Sample& sample = samples->back();
+
+        do {
+            draw_skp_and_flush(canvas, skp.get());
             gpuSync.syncToPreviousFrame();
 
             now = clock::now();
@@ -133,7 +178,7 @@ static void run_benchmark(const sk_gpu_test::FenceSync* fenceSync, SkCanvas* can
 
 static void run_gpu_time_benchmark(sk_gpu_test::GpuTimer* gpuTimer,
                                    const sk_gpu_test::FenceSync* fenceSync, SkCanvas* canvas,
-                                   const SkPicture* skp, std::vector<Sample>* samples) {
+                                   sk_sp<SkPicture> skp, std::vector<Sample>* samples) {
     using sk_gpu_test::PlatformTimerQuery;
     using clock = std::chrono::steady_clock;
     const clock::duration sampleDuration = std::chrono::milliseconds(FLAGS_sampleMs);
@@ -144,11 +189,11 @@ static void run_gpu_time_benchmark(sk_gpu_test::GpuTimer* gpuTimer,
                         "results may be unreliable\n");
     }
 
-    draw_skp_and_flush(canvas, skp);
+    draw_skp_and_flush(canvas, skp.get());
     GpuSync gpuSync(fenceSync);
 
     gpuTimer->queueStart();
-    draw_skp_and_flush(canvas, skp);
+    draw_skp_and_flush(canvas, skp.get());
     PlatformTimerQuery previousTime = gpuTimer->queueStop();
     gpuSync.syncToPreviousFrame();
 
@@ -162,7 +207,7 @@ static void run_gpu_time_benchmark(sk_gpu_test::GpuTimer* gpuTimer,
 
         do {
             gpuTimer->queueStart();
-            draw_skp_and_flush(canvas, skp);
+            draw_skp_and_flush(canvas, skp.get());
             PlatformTimerQuery time = gpuTimer->queueStop();
             gpuSync.syncToPreviousFrame();
 
@@ -339,18 +384,29 @@ int main(int argc, char** argv) {
     SkCanvas* canvas = surface->getCanvas();
     canvas->translate(-skp->cullRect().x(), -skp->cullRect().y());
     if (!FLAGS_gpuClock) {
-        run_benchmark(testCtx->fenceSync(), canvas, skp.get(), &samples);
+        if (FLAGS_ddl) {
+            run_ddl_benchmark(testCtx->fenceSync(), ctx, canvas, std::move(skp), &samples);
+        } else {
+            run_benchmark(testCtx->fenceSync(), canvas, std::move(skp), &samples);
+        }
     } else {
+        if (FLAGS_ddl) {
+            exitf(ExitErr::kUnavailable, "DDL: GPU-only timing not supported");
+        }
         if (!testCtx->gpuTimingSupport()) {
             exitf(ExitErr::kUnavailable, "GPU does not support timing");
         }
-        run_gpu_time_benchmark(testCtx->gpuTimer(), testCtx->fenceSync(), canvas, skp.get(),
+        run_gpu_time_benchmark(testCtx->gpuTimer(), testCtx->fenceSync(), canvas, std::move(skp),
                                &samples);
     }
     print_result(samples, config->getTag().c_str(), skpname.c_str());
 
     // Save a proof (if one was requested).
     if (!FLAGS_png.isEmpty()) {
+        if (FLAGS_ddl) {
+            exitf(ExitErr::kUnavailable, "DDL: image output not supported");
+        }
+
         SkBitmap bmp;
         bmp.allocPixels(info);
         if (!surface->getCanvas()->readPixels(bmp, 0, 0)) {
@@ -448,4 +504,9 @@ void GpuSync::updateFence() {
     if (sk_gpu_test::kInvalidFence == fFence) {
         exitf(ExitErr::kUnavailable, "failed to insert fence");
     }
+}
+
+sk_sp<SkPicture> munge_skp(sk_sp<SkPicture> old) {
+
+    return old;
 }
