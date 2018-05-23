@@ -1275,6 +1275,12 @@ STAGE(swap_rb, Ctx::None) {
     r = b;
     b = tmp;
 }
+STAGE(invert, Ctx::None) {
+    r = inv(r);
+    g = inv(g);
+    b = inv(b);
+    a = inv(a);
+}
 
 STAGE(move_src_dst, Ctx::None) {
     dr = r;
@@ -1469,6 +1475,38 @@ STAGE(lerp_565, const SkJumper_MemoryCtx* ctx) {
     a = lerp(da, a, ca);
 }
 
+STAGE(load_tables, const SkJumper_LoadTablesCtx* c) {
+    auto px = load<U32>((const uint32_t*)c->src + dx, tail);
+    r = gather(c->r, (px      ) & 0xff);
+    g = gather(c->g, (px >>  8) & 0xff);
+    b = gather(c->b, (px >> 16) & 0xff);
+    a = cast(        (px >> 24)) * (1/255.0f);
+}
+STAGE(load_tables_u16_be, const SkJumper_LoadTablesCtx* c) {
+    auto ptr = (const uint16_t*)c->src + 4*dx;
+
+    U16 R,G,B,A;
+    load4(ptr, tail, &R,&G,&B,&A);
+
+    // c->src is big-endian, so & 0xff grabs the 8 most signficant bits.
+    r = gather(c->r, expand(R) & 0xff);
+    g = gather(c->g, expand(G) & 0xff);
+    b = gather(c->b, expand(B) & 0xff);
+    a = (1/65535.0f) * cast(expand(bswap(A)));
+}
+STAGE(load_tables_rgb_u16_be, const SkJumper_LoadTablesCtx* c) {
+    auto ptr = (const uint16_t*)c->src + 3*dx;
+
+    U16 R,G,B;
+    load3(ptr, tail, &R,&G,&B);
+
+    // c->src is big-endian, so & 0xff grabs the 8 most signficant bits.
+    r = gather(c->r, expand(R) & 0xff);
+    g = gather(c->g, expand(G) & 0xff);
+    b = gather(c->b, expand(B) & 0xff);
+    a = 1.0f;
+}
+
 STAGE(byte_tables, const void* ctx) {  // TODO: rename Tables SkJumper_ByteTablesCtx
     struct Tables { const uint8_t *r, *g, *b, *a; };
     auto tables = (const Tables*)ctx;
@@ -1478,6 +1516,21 @@ STAGE(byte_tables, const void* ctx) {  // TODO: rename Tables SkJumper_ByteTable
     b = from_byte(gather(tables->b, to_unorm(b, 255)));
     a = from_byte(gather(tables->a, to_unorm(a, 255)));
 }
+
+STAGE(byte_tables_rgb, const SkJumper_ByteTablesRGBCtx* ctx) {
+    int scale = ctx->n - 1;
+    r = from_byte(gather(ctx->r, to_unorm(r, scale)));
+    g = from_byte(gather(ctx->g, to_unorm(g, scale)));
+    b = from_byte(gather(ctx->b, to_unorm(b, scale)));
+}
+
+SI F table(F v, const SkJumper_TableCtx* ctx) {
+    return gather(ctx->table, to_unorm(v, ctx->size - 1));
+}
+STAGE(table_r, const SkJumper_TableCtx* ctx) { r = table(r, ctx); }
+STAGE(table_g, const SkJumper_TableCtx* ctx) { g = table(g, ctx); }
+STAGE(table_b, const SkJumper_TableCtx* ctx) { b = table(b, ctx); }
+STAGE(table_a, const SkJumper_TableCtx* ctx) { a = table(a, ctx); }
 
 SI F parametric(F v, const SkJumper_ParametricTransferFunction* ctx) {
     F r = if_then_else(v <= ctx->D, mad(ctx->C, v, ctx->F)
@@ -1498,6 +1551,25 @@ STAGE(gamma_dst, const float* G) {
     dr = approx_powf(dr, *G);
     dg = approx_powf(dg, *G);
     db = approx_powf(db, *G);
+}
+
+STAGE(lab_to_xyz, Ctx::None) {
+    F L = r * 100.0f,
+      A = g * 255.0f - 128.0f,
+      B = b * 255.0f - 128.0f;
+
+    F Y = (L + 16.0f) * (1/116.0f),
+      X = Y + A*(1/500.0f),
+      Z = Y - B*(1/200.0f);
+
+    X = if_then_else(X*X*X > 0.008856f, X*X*X, (X - (16/116.0f)) * (1/7.787f));
+    Y = if_then_else(Y*Y*Y > 0.008856f, Y*Y*Y, (Y - (16/116.0f)) * (1/7.787f));
+    Z = if_then_else(Z*Z*Z > 0.008856f, Z*Z*Z, (Z - (16/116.0f)) * (1/7.787f));
+
+    // Adjust to D50 illuminant.
+    r = X * 0.96422f;
+    g = Y           ;
+    b = Z * 0.82521f;
 }
 
 STAGE(load_a8, const SkJumper_MemoryCtx* ctx) {
@@ -1702,6 +1774,28 @@ STAGE(store_f16, const SkJumper_MemoryCtx* ctx) {
                               , to_half(a));
 }
 
+STAGE(load_u16_be, const SkJumper_MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<const uint16_t>(ctx, 4*dx,dy);
+
+    U16 R,G,B,A;
+    load4(ptr,tail, &R,&G,&B,&A);
+
+    r = (1/65535.0f) * cast(expand(bswap(R)));
+    g = (1/65535.0f) * cast(expand(bswap(G)));
+    b = (1/65535.0f) * cast(expand(bswap(B)));
+    a = (1/65535.0f) * cast(expand(bswap(A)));
+}
+STAGE(load_rgb_u16_be, const SkJumper_MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<const uint16_t>(ctx, 3*dx,dy);
+
+    U16 R,G,B;
+    load3(ptr,tail, &R,&G,&B);
+
+    r = (1/65535.0f) * cast(expand(bswap(R)));
+    g = (1/65535.0f) * cast(expand(bswap(G)));
+    b = (1/65535.0f) * cast(expand(bswap(B)));
+    a = 1.0f;
+}
 STAGE(store_u16_be, const SkJumper_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint16_t>(ctx, 4*dx,dy);
 
@@ -2099,6 +2193,58 @@ STAGE(callback, SkJumper_CallbackCtx* c) {
     store4(c->rgba,0, r,g,b,a);
     c->fn(c, tail ? tail : N);
     load4(c->read_from,0, &r,&g,&b,&a);
+}
+
+// Our general strategy is to recursively interpolate each dimension,
+// accumulating the index to sample at, and our current pixel stride to help accumulate the index.
+template <int dim>
+SI void color_lookup_table(const SkJumper_ColorLookupTableCtx* ctx,
+                           F& r, F& g, F& b, F a, U32 index, U32 stride) {
+    // We'd logically like to sample this dimension at x.
+    int limit = ctx->limits[dim-1];
+    F src;
+    switch(dim) {
+        case 1: src = r; break;
+        case 2: src = g; break;
+        case 3: src = b; break;
+        case 4: src = a; break;
+    }
+    F x = src * (limit - 1);
+
+    // We can't index an array by a float (darn) so we have to snap to nearby integers lo and hi.
+    U32 lo = trunc_(x          ),
+        hi = trunc_(x + 0.9999f);
+
+    // Recursively sample at lo and hi.
+    F lr = r, lg = g, lb = b,
+      hr = r, hg = g, hb = b;
+    color_lookup_table<dim-1>(ctx, lr,lg,lb,a, stride*lo + index, stride*limit);
+    color_lookup_table<dim-1>(ctx, hr,hg,hb,a, stride*hi + index, stride*limit);
+
+    // Linearly interpolate those colors based on their distance to x.
+    F t = x - cast(lo);
+    r = lerp(lr, hr, t);
+    g = lerp(lg, hg, t);
+    b = lerp(lb, hb, t);
+}
+
+// Bottom out our recursion at 0 dimensions, i.e. just return the colors at index.
+template<>
+inline void color_lookup_table<0>(const SkJumper_ColorLookupTableCtx* ctx,
+                                  F& r, F& g, F& b, F a, U32 index, U32 stride) {
+    r = gather(ctx->table, 3*index+0);
+    g = gather(ctx->table, 3*index+1);
+    b = gather(ctx->table, 3*index+2);
+}
+
+STAGE(clut_3D, const SkJumper_ColorLookupTableCtx* ctx) {
+    color_lookup_table<3>(ctx, r,g,b,a, 0,1);
+    // This 3D color lookup table leaves alpha alone.
+}
+STAGE(clut_4D, const SkJumper_ColorLookupTableCtx* ctx) {
+    color_lookup_table<4>(ctx, r,g,b,a, 0,1);
+    // "a" was really CMYK's K, so we just set alpha opaque.
+    a = 1.0f;
 }
 
 STAGE(gauss_a_to_rgba, Ctx::None) {
@@ -2549,6 +2695,13 @@ STAGE_PP(move_dst_src, Ctx::None) {
     g = dg;
     b = db;
     a = da;
+}
+
+STAGE_PP(invert, Ctx::None) {
+    r = inv(r);
+    g = inv(g);
+    b = inv(b);
+    a = inv(a);
 }
 
 // ~~~~~~ Blend modes ~~~~~~ //
@@ -3245,13 +3398,15 @@ static NotImplemented
         load_f16    , load_f16_dst    , store_f16    , gather_f16,
         load_f32    , load_f32_dst    , store_f32    , gather_f32,
         load_1010102, load_1010102_dst, store_1010102, gather_1010102,
-        store_u16_be,
-        byte_tables,
+        load_u16_be, load_rgb_u16_be, store_u16_be,
+        load_tables_u16_be, load_tables_rgb_u16_be,
+        load_tables, byte_tables, byte_tables_rgb,
         colorburn, colordodge, softlight, hue, saturation, color, luminosity,
         matrix_3x4, matrix_4x5, matrix_4x3,
         parametric_r, parametric_g, parametric_b, parametric_a,
+        table_r, table_g, table_b, table_a,
         gamma, gamma_dst,
-        rgb_to_hsl, hsl_to_rgb,
+        lab_to_xyz, rgb_to_hsl, hsl_to_rgb, clut_3D, clut_4D,
         gauss_a_to_rgba,
         mirror_x, repeat_x,
         mirror_y, repeat_y,

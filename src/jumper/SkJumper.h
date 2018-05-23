@@ -61,6 +61,21 @@ struct SkJumper_CallbackCtx {
     float* read_from = rgba;
 };
 
+struct SkJumper_LoadTablesCtx {
+    const void* src;
+    const float *r, *g, *b;
+};
+
+struct SkJumper_TableCtx {
+    const float* table;
+    int          size;
+};
+
+struct SkJumper_ByteTablesRGBCtx {
+    const uint8_t *r, *g, *b;
+    int n;
+};
+
 // This should line up with the memory layout of SkColorSpaceTransferFn.
 struct SkJumper_ParametricTransferFunction {
     float G, A,B,C,D,E,F;
@@ -82,6 +97,11 @@ struct SkJumper_2PtConicalCtx {
 struct SkJumper_UniformColorCtx {
     float r,g,b,a;
     uint16_t rgba[4];  // [0,255] in a 16-bit lane.
+};
+
+struct SkJumper_ColorLookupTableCtx {
+    const float* table;
+    int limits[4];
 };
 
 #endif//SkJumper_DEFINED

@@ -9,7 +9,7 @@
 #include "SkCodec.h"
 #include "SkCodecPriv.h"
 #include "SkColorSpace.h"
-#include "SkColorSpaceXformPriv.h"
+#include "SkColorSpaceXform_Base.h"
 #include "SkData.h"
 #include "SkFrameHolder.h"
 #include "SkGifCodec.h"
@@ -657,9 +657,8 @@ bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Al
     bool needsColorCorrectPremul = needs_premul(dstInfo.alphaType(), encodedAlpha) &&
                                    SkTransferFunctionBehavior::kRespect == premulBehavior;
     if (needs_color_xform(dstInfo, fSrcInfo.colorSpace(), needsColorCorrectPremul)) {
-        fColorXform = SkMakeColorSpaceXform(fSrcInfo.colorSpace(),
-                                            dstInfo.colorSpace(),
-                                            premulBehavior);
+        fColorXform = SkColorSpaceXform_Base::New(fSrcInfo.colorSpace(), dstInfo.colorSpace(),
+                                                  premulBehavior);
         if (!fColorXform) {
             return false;
         }

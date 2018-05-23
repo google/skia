@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkColorSpaceXform_Base.h"
 #include "SkColorSpaceXformPriv.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorTable.h"
@@ -148,7 +149,7 @@ static inline bool apply_color_xform(const SkImageInfo& dstInfo, void* dstPixels
     }
 
     std::unique_ptr<SkColorSpaceXform> xform =
-            SkMakeColorSpaceXform(srcInfo.colorSpace(), dstInfo.colorSpace(), behavior);
+            SkColorSpaceXform_Base::New(srcInfo.colorSpace(), dstInfo.colorSpace(), behavior);
     if (!xform) {
         return false;
     }
