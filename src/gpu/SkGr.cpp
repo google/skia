@@ -41,6 +41,7 @@
 #include "effects/GrDitherEffect.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
+#include "effects/GrSkSLFP.h"
 
 GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info, const GrCaps& caps) {
     GrSurfaceDesc desc;
@@ -316,6 +317,38 @@ static inline bool blend_requires_shader(const SkBlendMode mode) {
     return SkBlendMode::kDst != mode;
 }
 
+static inline int dither_range_type_for_config(GrPixelConfig dstConfig) {
+    switch (dstConfig) {
+        case kGray_8_GrPixelConfig:
+        case kGray_8_as_Lum_GrPixelConfig:
+        case kGray_8_as_Red_GrPixelConfig:
+        case kRGBA_8888_GrPixelConfig:
+        case kRGB_888_GrPixelConfig:
+        case kBGRA_8888_GrPixelConfig:
+        case kSRGBA_8888_GrPixelConfig:
+        case kSBGRA_8888_GrPixelConfig:
+            return 0;
+        case kRGB_565_GrPixelConfig:
+            return 1;
+        case kRGBA_4444_GrPixelConfig:
+            return 2;
+        case kUnknown_GrPixelConfig:
+        case kRGBA_1010102_GrPixelConfig:
+        case kAlpha_half_GrPixelConfig:
+        case kAlpha_half_as_Red_GrPixelConfig:
+        case kRGBA_float_GrPixelConfig:
+        case kRG_float_GrPixelConfig:
+        case kRGBA_half_GrPixelConfig:
+        case kAlpha_8_GrPixelConfig:
+        case kAlpha_8_as_Alpha_GrPixelConfig:
+        case kAlpha_8_as_Red_GrPixelConfig:
+            SkASSERT(false);
+            return 0;
+    }
+}
+
+GrSkSLFPFactory* ditherFactory = nullptr;
+
 static inline bool skpaint_to_grpaint_impl(GrContext* context,
                                            const GrColorSpaceInfo& colorSpaceInfo,
                                            const SkPaint& skPaint,
@@ -453,7 +486,11 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     GrPixelConfigToColorType(colorSpaceInfo.config(), &ct);
     if (SkPaintPriv::ShouldDither(skPaint, ct) && grPaint->numColorFragmentProcessors() > 0 &&
         !colorSpaceInfo.isGammaCorrect()) {
-        auto ditherFP = GrDitherEffect::Make(colorSpaceInfo.config());
+        std::unordered_map<SkSL::String, SkSL::Program::Settings::Value> args;
+        args.insert(std::make_pair("rangeType",
+            SkSL::Program::Settings::Value(dither_range_type_for_config(colorSpaceInfo.config()))));
+        auto ditherFP = //GrDitherEffect::Make(colorSpaceInfo.config());
+                        GrSkSLFP::Make(context, GrSkSLFP::ProcessorType::kDither, args);
         if (ditherFP) {
             grPaint->addColorFragmentProcessor(std::move(ditherFP));
         }

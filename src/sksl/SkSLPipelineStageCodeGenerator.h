@@ -1,0 +1,85 @@
+/*
+ * Copyright 2017 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SKSL_PIPELINESTAGECODEGENERATOR
+#define SKSL_PIPELINESTAGECODEGENERATOR
+
+#include "SkSLGLSLCodeGenerator.h"
+#include "SkSLSectionAndParameterHelper.h"
+
+#include <set>
+
+namespace SkSL {
+
+class PipelineStageCodeGenerator : public GLSLCodeGenerator {
+public:
+    PipelineStageCodeGenerator(const Context* context, const Program* program,
+                               ErrorReporter* errors, OutputStream* out,
+                               std::vector<Compiler::FormatArg>* outFormatArgs);
+
+private:
+    void writef(const char* s, va_list va) SKSL_PRINTF_LIKE(2, 0);
+
+    void writef(const char* s, ...) SKSL_PRINTF_LIKE(2, 3);
+
+    bool writeSection(const char* name, const char* prefix = "");
+
+    void writeHeader() override;
+
+    bool usesPrecisionModifiers() const override;
+
+    String getTypeName(const Type& type) override;
+
+    void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence) override;
+
+    void writeIndexExpression(const IndexExpression& i) override;
+
+    void writeIntLiteral(const IntLiteral& i) override;
+
+    void writeVariableReference(const VariableReference& ref) override;
+
+    String getSamplerHandle(const Variable& var);
+
+    void writeIfStatement(const IfStatement& s) override;
+
+    void writeSwitchStatement(const SwitchStatement& s) override;
+
+    void writeFunction(const FunctionDefinition& f) override;
+
+    void writeProgramElement(const ProgramElement& p) override;
+
+    void addUniform(const Variable& var);
+
+    void writeVarInitializer(const Variable& var, const Expression& value) override;
+
+    void writePrivateVars();
+
+    void writePrivateVarValues();
+
+    bool writeEmitCode(std::vector<const Variable*>& uniforms);
+
+    void writeSetData(std::vector<const Variable*>& uniforms);
+
+    void writeGetKey();
+
+    void writeClone();
+
+    void writeTest();
+
+    String fName;
+    String fFullName;
+    SectionAndParameterHelper fSectionAndParameterHelper;
+    String fExtraEmitCodeCode;
+    std::set<int> fWrittenTransformedCoords;
+    std::vector<Compiler::FormatArg>* fFormatArgs;
+
+    typedef GLSLCodeGenerator INHERITED;
+};
+
+}
+
+#endif
