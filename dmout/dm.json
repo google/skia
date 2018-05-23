@@ -1,0 +1,17 @@
+{
+   "max_rss_MB" : 64,
+   "results" : [
+      {
+         "key" : {
+            "config" : "gl",
+            "name" : "persp_images",
+            "source_type" : "gm"
+         },
+         "md5" : "f1773eee259a5b9d471c0cb9523fc112",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      }
+   ]
+}

@@ -1,0 +1,5 @@
+311ms	1 srcs * 1 sinks + 0 tests == 1 tasks
+311ms	start gl gm  persp_images
+690ms	done  gl gm  persp_images
+690ms	
+58MB RAM, 64MB peak, 690ms elapsed, 0 queued, 0 active:
