@@ -31,12 +31,6 @@
 
 namespace {
 
-enum class MultiTexture : bool { kNo = false, kYes = true };
-
-enum class Domain : bool { kNo = false, kYes = true };
-
-using GrTextureOp::SrcRectConstraint;
-
 /**
  * Geometry Processor that draws a texture modulated by a vertex color (though, this is meant to be
  * the same value across all vertices of a quad and uses flat interpolation when available). This is
@@ -44,48 +38,35 @@ using GrTextureOp::SrcRectConstraint;
  */
 class TextureGeometryProcessor : public GrGeometryProcessor {
 public:
-    template <typename Pos> struct VertexCommon {
-        using Position = Pos;
-        Position fPosition;
-        GrColor fColor;
+    template <typename P> struct VertexBase;
+    template <> struct VertexBase<SkPoint>{
+        using Quad = GrQuad;
+        SkPoint fPosition;
+    };
+    template <> struct VertexBase<SkPoint3>{
+        using Quad = GrPerspQuad;
+        SkPoint3 fPosition;
+    };
+    template <typename P> struct Vertex : VertexBase<P> {
         SkPoint fTextureCoords;
+        GrColor fColor;
     };
-
-    template <typename Pos, MultiTexture MT> struct OptionalMultiTextureVertex;
-    template <typename Pos>
-    struct OptionalMultiTextureVertex<Pos, MultiTexture::kNo> : VertexCommon<Pos> {
-        static constexpr MultiTexture kMultiTexture = MultiTexture::kNo;
-    };
-    template <typename Pos>
-    struct OptionalMultiTextureVertex<Pos, MultiTexture::kYes> : VertexCommon<Pos> {
-        static constexpr MultiTexture kMultiTexture = MultiTexture::kYes;
-        int fTextureIdx;
-    };
-
-    template <typename Pos, MultiTexture MT, Domain D> struct OptionalDomainVertex;
-    template <typename Pos, MultiTexture MT>
-    struct OptionalDomainVertex<Pos, MT, Domain::kNo> : OptionalMultiTextureVertex<Pos, MT> {
-        static constexpr Domain kDomain = Domain::kNo;
-    };
-    template <typename Pos, MultiTexture MT>
-    struct OptionalDomainVertex<Pos, MT, Domain::kYes> : OptionalMultiTextureVertex<Pos, MT> {
-        static constexpr Domain kDomain = Domain::kYes;
-        SkRect fTextureDomain;
-    };
-
-    template <typename Pos, MultiTexture MT, Domain D, GrAA> struct OptionalAAVertex;
-    template <typename Pos, MultiTexture MT, Domain D>
-    struct OptionalAAVertex<Pos, MT, D, GrAA::kNo> : OptionalDomainVertex<Pos, MT, D> {
-        static constexpr GrAA kAA = GrAA::kNo;
-    };
-    template <typename Pos, MultiTexture MT, Domain D>
-    struct OptionalAAVertex<Pos, MT, D, GrAA::kYes> : OptionalDomainVertex<Pos, MT, D> {
-        static constexpr GrAA kAA = GrAA::kYes;
+    template <typename P> struct AAVertex : VertexBase<P> {
+        SkPoint fTextureCoords;
         SkPoint3 fEdges[4];
+        GrColor fColor;
     };
-
-    template <typename Pos, MultiTexture MT, Domain D, GrAA AA>
-    using Vertex = OptionalAAVertex<Pos, MT, D, AA>;
+    template <typename P> struct MultiTextureVertex : VertexBase<P> {
+        int fTextureIdx;
+        SkPoint fTextureCoords;
+        GrColor fColor;
+    };
+    template <typename P> struct AAMultiTextureVertex : VertexBase<P> {
+        int fTextureIdx;
+        SkPoint fTextureCoords;
+        SkPoint3 fEdges[4];
+        GrColor fColor;
+    };
 
     // Maximum number of textures supported by this op. Must also be checked against the caps
     // limit. These numbers were based on some limited experiments on a HP Z840 and Pixel XL 2016
@@ -102,7 +83,7 @@ public:
 
     static sk_sp<GrGeometryProcessor> Make(sk_sp<GrTextureProxy> proxies[], int proxyCnt,
                                            sk_sp<GrColorSpaceXform> csxf, bool coverageAA,
-                                           bool perspective, Domain domain,
+                                           bool perspective,
                                            const GrSamplerState::Filter filters[],
                                            const GrShaderCaps& caps) {
         // We use placement new to avoid always allocating space for kMaxTextures TextureSampler
@@ -110,9 +91,9 @@ public:
         int samplerCnt = NumSamplersToUse(proxyCnt, caps);
         size_t size = sizeof(TextureGeometryProcessor) + sizeof(TextureSampler) * (samplerCnt - 1);
         void* mem = GrGeometryProcessor::operator new(size);
-        return sk_sp<TextureGeometryProcessor>(
-                new (mem) TextureGeometryProcessor(proxies, proxyCnt, samplerCnt, std::move(csxf),
-                                                   coverageAA, perspective, domain, filters, caps));
+        return sk_sp<TextureGeometryProcessor>(new (mem) TextureGeometryProcessor(
+                proxies, proxyCnt, samplerCnt, std::move(csxf), coverageAA, perspective, filters,
+                caps));
     }
 
     ~TextureGeometryProcessor() override {
@@ -128,7 +109,6 @@ public:
         b->add32(GrColorSpaceXform::XformKey(fColorSpaceXform.get()));
         uint32_t x = this->usesCoverageEdgeAA() ? 0 : 1;
         x |= kFloat3_GrVertexAttribType == fPositions.fType ? 0 : 2;
-        x |= fDomain.isInitialized() ? 4 : 0;
         b->add32(x);
     }
 
@@ -167,14 +147,6 @@ public:
                 args.fFragBuilder->codeAppend("float2 texCoord;");
                 args.fVaryingHandler->addPassThroughAttribute(&textureGP.fTextureCoords,
                                                               "texCoord");
-                if (textureGP.fDomain.isInitialized()) {
-                    args.fFragBuilder->codeAppend("float4 domain;");
-                    args.fVaryingHandler->addPassThroughAttribute(
-                            &textureGP.fDomain, "domain",
-                            GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
-                    args.fFragBuilder->codeAppend(
-                            "texCoord = clamp(texCoord, domain.xy, domain.zw);");
-                }
                 if (textureGP.numTextureSamplers() > 1) {
                     // If this changes to float, reconsider Interpolation::kMustBeFlat.
                     SkASSERT(kInt_GrVertexAttribType == textureGP.fTextureIdx.fType);
@@ -208,7 +180,7 @@ public:
                     // When interpolation is inaccurate we perform the evaluation of the edge
                     // equations in the fragment shader rather than interpolating values computed
                     // in the vertex shader.
-                    if (!args.fShaderCaps->interpolantsAreInaccurate()) {
+                    if (!(args.fShaderCaps->interpolantsAreInaccurate())) {
                         GrGLSLVarying aaDistVarying(kFloat4_GrSLType,
                                                     GrGLSLVarying::Scope::kVertToFrag);
                         if (kFloat3_GrVertexAttribType == textureGP.fPositions.fType) {
@@ -216,8 +188,8 @@ public:
                             // The distance from edge equation e to homogenous point p=sk_Position
                             // is e.x*p.x/p.wx + e.y*p.y/p.w + e.z. However, we want screen space
                             // interpolation of this distance. We can do this by multiplying the
-                            // varying in the VS by p.w and then multiplying by sk_FragCoord.w in
-                            // the FS. So we output e.x*p.x + e.y*p.y + e.z * p.w
+                            // varying in the VS by p.w and then dividing by sk_FragCoord.w in the
+                            // FS. So we output e.x*p.x + e.y*p.y + e.z * p.w
                             args.fVertBuilder->codeAppendf(
                                     R"(%s = float4(dot(aaEdge0, %s), dot(aaEdge1, %s),
                                                    dot(aaEdge2, %s), dot(aaEdge3, %s));)",
@@ -300,10 +272,14 @@ private:
 
     TextureGeometryProcessor(sk_sp<GrTextureProxy> proxies[], int proxyCnt, int samplerCnt,
                              sk_sp<GrColorSpaceXform> csxf, bool coverageAA, bool perspective,
-                             Domain domain, const GrSamplerState::Filter filters[],
-                             const GrShaderCaps& caps)
+                             const GrSamplerState::Filter filters[], const GrShaderCaps& caps)
             : INHERITED(kTextureGeometryProcessor_ClassID), fColorSpaceXform(std::move(csxf)) {
         SkASSERT(proxyCnt > 0 && samplerCnt >= proxyCnt);
+        if (perspective) {
+            fPositions = this->addVertexAttrib("position", kFloat3_GrVertexAttribType);
+        } else {
+            fPositions = this->addVertexAttrib("position", kFloat2_GrVertexAttribType);
+        }
         fSamplers[0].reset(std::move(proxies[0]), filters[0]);
         this->addTextureSampler(&fSamplers[0]);
         for (int i = 1; i < proxyCnt; ++i) {
@@ -312,15 +288,6 @@ private:
             new (&fSamplers[i]) TextureSampler(std::move(proxies[i]), filters[i]);
             this->addTextureSampler(&fSamplers[i]);
         }
-
-        if (perspective) {
-            fPositions = this->addVertexAttrib("position", kFloat3_GrVertexAttribType);
-        } else {
-            fPositions = this->addVertexAttrib("position", kFloat2_GrVertexAttribType);
-        }
-        fColors = this->addVertexAttrib("color", kUByte4_norm_GrVertexAttribType);
-        fTextureCoords = this->addVertexAttrib("textureCoords", kFloat2_GrVertexAttribType);
-
         if (samplerCnt > 1) {
             // Here we initialize any extra samplers by repeating the last one samplerCnt - proxyCnt
             // times.
@@ -332,22 +299,21 @@ private:
             SkASSERT(caps.integerSupport());
             fTextureIdx = this->addVertexAttrib("textureIdx", kInt_GrVertexAttribType);
         }
-        if (domain == Domain::kYes) {
-            fDomain = this->addVertexAttrib("domain", kFloat4_GrVertexAttribType);
-        }
+
+        fTextureCoords = this->addVertexAttrib("textureCoords", kFloat2_GrVertexAttribType);
         if (coverageAA) {
             fAAEdges[0] = this->addVertexAttrib("aaEdge0", kFloat3_GrVertexAttribType);
             fAAEdges[1] = this->addVertexAttrib("aaEdge1", kFloat3_GrVertexAttribType);
             fAAEdges[2] = this->addVertexAttrib("aaEdge2", kFloat3_GrVertexAttribType);
             fAAEdges[3] = this->addVertexAttrib("aaEdge3", kFloat3_GrVertexAttribType);
         }
+        fColors = this->addVertexAttrib("color", kUByte4_norm_GrVertexAttribType);
     }
 
     Attribute fPositions;
-    Attribute fColors;
-    Attribute fTextureCoords;
     Attribute fTextureIdx;
-    Attribute fDomain;
+    Attribute fTextureCoords;
+    Attribute fColors;
     Attribute fAAEdges[4];
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
     TextureSampler fSamplers[1];
@@ -360,8 +326,7 @@ private:
 // and the outset points as output. 'a', 'b', and 'c' are the edge equation coefficients on output.
 static void compute_quad_edges_and_outset_vertices(Sk4f* x, Sk4f* y, Sk4f* a, Sk4f* b, Sk4f* c) {
     static constexpr auto fma = SkNx_fma<4, float>;
-    // These rotate the points/edge values either clockwise or counterclockwise assuming tri strip
-    // order.
+    // These rotate the points/edge values either clockwise or counterclockwise.
     auto nextCW  = [](const Sk4f& v) { return SkNx_shuffle<2, 0, 3, 1>(v); };
     auto nextCCW = [](const Sk4f& v) { return SkNx_shuffle<1, 3, 0, 2>(v); };
 
@@ -387,7 +352,9 @@ static void compute_quad_edges_and_outset_vertices(Sk4f* x, Sk4f* y, Sk4f* a, Sk
 
     // Reverse the process to compute the points of the bloated quad from the edge equations.
     // This time the inputs don't have 1s as their third coord and we want to homogenize rather
-    // than normalize.
+    // than normalize. 'anext', 'bnext', and 'cnext' are the edge coefficients of the next edges
+    // in a CW walk of the quad. This means the bloated points in 'x' and 'y' correspond to the
+    // original tri strip order of the points.
     auto anext = nextCW(*a);
     auto bnext = nextCW(*b);
     auto cnext = nextCW(*c);
@@ -400,39 +367,30 @@ static void compute_quad_edges_and_outset_vertices(Sk4f* x, Sk4f* y, Sk4f* a, Sk
 
 namespace {
 // This is a class soley so it can be partially specialized (functions cannot be).
-template <typename V, GrAA AA = V::kAA, typename Position = typename V::Position>
-class VertexAAHandler;
+template<GrAA, typename Vertex, typename Quad = typename Vertex::Quad> class VertexAAHandler;
 
-template<typename V> class VertexAAHandler<V, GrAA::kNo, SkPoint> {
+template<typename Vertex> class VertexAAHandler<GrAA::kNo, Vertex> {
 public:
-    static void AssignPositionsAndTexCoords(V* vertices, const GrPerspQuad& quad,
+    static void AssignPositionsAndTexCoords(Vertex* vertices, const typename Vertex::Quad& quad,
                                             const SkRect& texRect) {
-        SkASSERT((quad.w4f() == Sk4f(1.f)).allTrue());
-        SkPointPriv::SetRectTriStrip(&vertices[0].fTextureCoords, texRect, sizeof(V));
-        for (int i = 0; i < 4; ++i) {
-            vertices[i].fPosition = {quad.x(i), quad.y(i)};
-        }
+        vertices[0].fPosition = quad.point(0);
+        vertices[0].fTextureCoords = {texRect.fLeft, texRect.fTop};
+        vertices[1].fPosition = quad.point(1);
+        vertices[1].fTextureCoords = {texRect.fLeft, texRect.fBottom};
+        vertices[2].fPosition = quad.point(2);
+        vertices[2].fTextureCoords = {texRect.fRight, texRect.fTop};
+        vertices[3].fPosition = quad.point(3);
+        vertices[3].fTextureCoords = {texRect.fRight, texRect.fBottom};
     }
 };
 
-template<typename V> class VertexAAHandler<V, GrAA::kNo, SkPoint3> {
+template<typename Vertex> class VertexAAHandler<GrAA::kYes, Vertex, GrQuad> {
 public:
-    static void AssignPositionsAndTexCoords(V* vertices, const GrPerspQuad& quad,
+    static void AssignPositionsAndTexCoords(Vertex* vertices, const typename Vertex::Quad& quad,
                                             const SkRect& texRect) {
-        SkPointPriv::SetRectTriStrip(&vertices[0].fTextureCoords, texRect, sizeof(V));
-        for (int i = 0; i < 4; ++i) {
-            vertices[i].fPosition = quad.point(i);
-        }
-    }
-};
-
-template<typename V> class VertexAAHandler<V, GrAA::kYes, SkPoint> {
-public:
-    static void AssignPositionsAndTexCoords(V* vertices, const GrPerspQuad& quad,
-                                            const SkRect& texRect) {
-        SkASSERT((quad.w4f() == Sk4f(1.f)).allTrue());
         auto x = quad.x4f();
         auto y = quad.y4f();
+
         Sk4f a, b, c;
         compute_quad_edges_and_outset_vertices(&x, &y, &a, &b, &c);
 
@@ -447,7 +405,7 @@ public:
     }
 
 private:
-    static void AssignTexCoords(V* vertices, const GrPerspQuad& quad, const SkRect& tex) {
+    static void AssignTexCoords(Vertex* vertices, const GrQuad& quad, const SkRect& tex) {
         SkMatrix q = SkMatrix::MakeAll(quad.x(0), quad.x(1), quad.x(2),
                                        quad.y(0), quad.y(1), quad.y(2),
                                              1.f,       1.f,       1.f);
@@ -460,14 +418,14 @@ private:
                                              1.f,          1.f,        1.f);
         SkMatrix map;
         map.setConcat(t, qinv);
-        SkMatrixPriv::MapPointsWithStride(map, &vertices[0].fTextureCoords, sizeof(V),
-                                          &vertices[0].fPosition, sizeof(V), 4);
+        SkMatrixPriv::MapPointsWithStride(map, &vertices[0].fTextureCoords, sizeof(Vertex),
+                                          &vertices[0].fPosition, sizeof(Vertex), 4);
     }
 };
 
-template<typename V> class VertexAAHandler<V, GrAA::kYes, SkPoint3> {
+template<typename Vertex> class VertexAAHandler<GrAA::kYes, Vertex, GrPerspQuad> {
 public:
-    static void AssignPositionsAndTexCoords(V* vertices, const GrPerspQuad& quad,
+    static void AssignPositionsAndTexCoords(Vertex* vertices, const typename Vertex::Quad& quad,
                                             const SkRect& texRect) {
         auto x = quad.x4f();
         auto y = quad.y4f();
@@ -477,7 +435,9 @@ public:
 
         // Get an equation for w from device space coords.
         SkMatrix P;
-        P.setAll(x[0], y[0], 1, x[1], y[1], 1, x[2], y[2], 1);
+        P.setAll(x[0], y[0], 1,
+                 x[1], y[1], 1,
+                 x[2], y[2], 1);
         SkAssertResult(P.invert(&P));
         SkPoint3 weq{quad.w(0), quad.w(1), quad.w(2)};
         P.mapHomogeneousPoints(&weq, &weq, 1);
@@ -493,7 +453,7 @@ public:
         for (int i = 0; i < 4; ++i) {
             vertices[i].fPosition = {x[i], y[i], w[i]};
             for (int j = 0; j < 4; ++j) {
-                vertices[i].fEdges[j] = {a[j], b[j], c[j]};
+                vertices[i].fEdges[j]  = {a[j], b[j], c[j]};
             }
         }
 
@@ -501,7 +461,7 @@ public:
     }
 
 private:
-    static void AssignTexCoords(V* vertices, const GrPerspQuad& quad, const SkRect& tex) {
+    static void AssignTexCoords(Vertex* vertices, const typename Vertex::Quad& quad, const SkRect& tex) {
         SkMatrix q = SkMatrix::MakeAll(quad.x(0), quad.x(1), quad.x(2),
                                        quad.y(0), quad.y(1), quad.y(2),
                                        quad.w(0), quad.w(1), quad.w(2));
@@ -516,7 +476,7 @@ private:
         map.setConcat(t, qinv);
         SkPoint3 tempTexCoords[4];
         SkMatrixPriv::MapHomogeneousPointsWithStride(map, tempTexCoords, sizeof(SkPoint3),
-                                                     &vertices[0].fPosition, sizeof(V), 4);
+                                                     &vertices[0].fPosition, sizeof(Vertex), 4);
         for (int i = 0; i < 4; ++i) {
             auto invW = 1.f / tempTexCoords[i].fZ;
             vertices[i].fTextureCoords.fX = tempTexCoords[i].fX * invW;
@@ -525,65 +485,26 @@ private:
     }
 };
 
-template <typename V, MultiTexture MT = V::kMultiTexture> struct TexIdAssigner;
+template <typename Vertex, bool IsMultiTex> struct TexIdAssigner;
 
-template <typename V> struct TexIdAssigner<V, MultiTexture::kYes> {
-    static void Assign(V* vertices, int textureIdx) {
-        for (int i = 0; i < 4; ++i) {
-            vertices[i].fTextureIdx = textureIdx;
-        }
+template <typename Vertex> struct TexIdAssigner<Vertex, true> {
+    static void Assign(Vertex* vertices, int textureIdx) {
+        vertices[0].fTextureIdx = textureIdx;
+        vertices[1].fTextureIdx = textureIdx;
+        vertices[2].fTextureIdx = textureIdx;
+        vertices[3].fTextureIdx = textureIdx;
     }
 };
 
-template <typename V> struct TexIdAssigner<V, MultiTexture::kNo> {
-    static void Assign(V* vertices, int textureIdx) {}
+template <typename Vertex> struct TexIdAssigner<Vertex, false> {
+    static void Assign(Vertex* vertices, int textureIdx) {}
 };
-
-template <typename V, Domain D = V::kDomain> struct DomainAssigner;
-
-template <typename V> struct DomainAssigner<V, Domain::kYes> {
-    static void Assign(V* vertices, Domain domain, GrSamplerState::Filter filter,
-                       const SkRect& srcRect, GrSurfaceOrigin origin, float iw, float ih) {
-        static constexpr SkRect kLargeRect = {-2, -2, 2, 2};
-        SkRect domainRect;
-        if (domain == Domain::kYes) {
-            auto ltrb = Sk4f::Load(&srcRect);
-            if (filter == GrSamplerState::Filter::kBilerp) {
-                auto rblt = SkNx_shuffle<2, 3, 0, 1>(ltrb);
-                auto whwh = (rblt - ltrb).abs();
-                auto c = (rblt + ltrb) * 0.5f;
-                static const Sk4f kOffsets = {0.5f, 0.5f, -0.5f, -0.5f};
-                ltrb = (whwh < 1.f).thenElse(c, ltrb + kOffsets);
-            }
-            ltrb *= Sk4f(iw, ih, iw, ih);
-            if (origin == kBottomLeft_GrSurfaceOrigin) {
-                static const Sk4f kMul = {1.f, -1.f, 1.f, -1.f};
-                static const Sk4f kAdd = {0.f, 1.f, 0.f, 1.f};
-                ltrb = SkNx_shuffle<0, 3, 2, 1>(kMul * ltrb + kAdd);
-            }
-            ltrb.store(&domainRect);
-        } else {
-            domainRect = kLargeRect;
-        }
-        for (int i = 0; i < 4; ++i) {
-            vertices[i].fTextureDomain = domainRect;
-        }
-    }
-};
-
-template <typename V> struct DomainAssigner<V, Domain::kNo> {
-    static void Assign(V*, Domain domain, GrSamplerState::Filter, const SkRect&, GrSurfaceOrigin,
-                       float iw, float ih) {
-        SkASSERT(domain == Domain::kNo);
-    }
-};
-
 }  // anonymous namespace
 
-template <typename V>
-static void tessellate_quad(const GrPerspQuad& devQuad, const SkRect& srcRect, GrColor color,
-                            GrSurfaceOrigin origin, GrSamplerState::Filter filter, V* vertices,
-                            SkScalar iw, SkScalar ih, int textureIdx, Domain domain) {
+template <typename Vertex, bool IsMultiTex, GrAA AA>
+static void tessellate_quad(const typename Vertex::Quad& devQuad, const SkRect& srcRect, GrColor color,
+                            GrSurfaceOrigin origin, Vertex* vertices, SkScalar iw, SkScalar ih,
+                            int textureIdx) {
     SkRect texRect = {
             iw * srcRect.fLeft,
             ih * srcRect.fTop,
@@ -594,15 +515,13 @@ static void tessellate_quad(const GrPerspQuad& devQuad, const SkRect& srcRect, G
         texRect.fTop = 1.f - texRect.fTop;
         texRect.fBottom = 1.f - texRect.fBottom;
     }
-    VertexAAHandler<V>::AssignPositionsAndTexCoords(vertices, devQuad, texRect);
+    VertexAAHandler<AA, Vertex>::AssignPositionsAndTexCoords(vertices, devQuad, texRect);
     vertices[0].fColor = color;
     vertices[1].fColor = color;
     vertices[2].fColor = color;
     vertices[3].fColor = color;
-    TexIdAssigner<V>::Assign(vertices, textureIdx);
-    DomainAssigner<V>::Assign(vertices, domain, filter, srcRect, origin, iw, ih);
+    TexIdAssigner<Vertex, IsMultiTex>::Assign(vertices, textureIdx);
 }
-
 /**
  * Op that implements GrTextureOp::Make. It draws textured quads. Each quad can modulate against a
  * the texture by color. The blend with the destination is always src-over. The edges are non-AA.
@@ -612,12 +531,11 @@ public:
     static std::unique_ptr<GrDrawOp> Make(sk_sp<GrTextureProxy> proxy,
                                           GrSamplerState::Filter filter, GrColor color,
                                           const SkRect& srcRect, const SkRect& dstRect,
-                                          GrAAType aaType, SrcRectConstraint constraint,
-                                          const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> csxf,
-                                          bool allowSRBInputs) {
+                                          GrAAType aaType, const SkMatrix& viewMatrix,
+                                          sk_sp<GrColorSpaceXform> csxf, bool allowSRBInputs) {
         return std::unique_ptr<GrDrawOp>(new TextureOp(std::move(proxy), filter, color, srcRect,
-                                                       dstRect, aaType, constraint, viewMatrix,
-                                                       std::move(csxf), allowSRBInputs));
+                                                       dstRect, aaType, viewMatrix, std::move(csxf),
+                                                       allowSRBInputs));
     }
 
     ~TextureOp() override {
@@ -658,11 +576,11 @@ public:
             str.appendf(
                     "%d: Color: 0x%08x, ProxyIdx: %d, TexRect [L: %.2f, T: %.2f, R: %.2f, B: %.2f] "
                     "Quad [(%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f)]\n",
-                    i, draw.color(), draw.textureIdx(), draw.srcRect().fLeft, draw.srcRect().fTop,
-                    draw.srcRect().fRight, draw.srcRect().fBottom, draw.quad().point(0).fX,
-                    draw.quad().point(0).fY, draw.quad().point(1).fX, draw.quad().point(1).fY,
-                    draw.quad().point(2).fX, draw.quad().point(2).fY, draw.quad().point(3).fX,
-                    draw.quad().point(3).fY);
+                    i, draw.fColor, draw.fTextureIdx, draw.fSrcRect.fLeft, draw.fSrcRect.fTop,
+                    draw.fSrcRect.fRight, draw.fSrcRect.fBottom, draw.fQuad.point(0).fX,
+                    draw.fQuad.point(0).fY, draw.fQuad.point(1).fX, draw.fQuad.point(1).fY,
+                    draw.fQuad.point(2).fX, draw.fQuad.point(2).fY, draw.fQuad.point(3).fX,
+                    draw.fQuad.point(3).fY);
         }
         str += INHERITED::dumpInfo();
         return str;
@@ -700,8 +618,7 @@ __attribute__((no_sanitize("float-cast-overflow")))
 
     TextureOp(sk_sp<GrTextureProxy> proxy, GrSamplerState::Filter filter, GrColor color,
               const SkRect& srcRect, const SkRect& dstRect, GrAAType aaType,
-              SrcRectConstraint constraint, const SkMatrix& viewMatrix,
-              sk_sp<GrColorSpaceXform> csxf, bool allowSRGBInputs)
+              const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> csxf, bool allowSRGBInputs)
             : INHERITED(ClassID())
             , fColorSpaceXform(std::move(csxf))
             , fProxy0(proxy.release())
@@ -711,38 +628,22 @@ __attribute__((no_sanitize("float-cast-overflow")))
             , fFinalized(0)
             , fAllowSRGBInputs(allowSRGBInputs ? 1 : 0) {
         SkASSERT(aaType != GrAAType::kMixedSamples);
-        // No need to use a texture domain with nearest filtering unless there is AA bloating.
-        if (constraint == SkCanvas::kStrict_SrcRectConstraint &&
-            filter == GrSamplerState::Filter::kNearest && GrAAType::kCoverage != aaType) {
-            constraint = SkCanvas::kFast_SrcRectConstraint;
-        }
-
-        const Draw& draw = fDraws.emplace_back(srcRect, 0, GrPerspQuad(dstRect, viewMatrix),
-                                               constraint, color);
+        Draw& draw = fDraws.push_back();
+        draw.fSrcRect = srcRect;
+        draw.fTextureIdx = 0;
+        draw.fColor = color;
         fPerspective = viewMatrix.hasPerspective();
-        fDomain = (bool)draw.domain();
         SkRect bounds;
-        bounds = draw.quad().bounds();
+        if (fPerspective) {
+            draw.fPerspQuad = GrPerspQuad(dstRect, viewMatrix);
+            bounds = draw.fPerspQuad.bounds();
+        } else {
+            draw.fQuad = GrQuad(dstRect, viewMatrix);
+            bounds = draw.fQuad.bounds();
+        }
         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
 
         fMaxApproxDstPixelArea = RectSizeAsSizeT(bounds);
-    }
-
-    template <typename Pos, MultiTexture MT, Domain D, GrAA AA>
-    void tess(void* v, const float iw[], const float ih[], const GrGeometryProcessor* gp) {
-        using Vertex = TextureGeometryProcessor::Vertex<Pos, MT, D, AA>;
-        SkASSERT(gp->getVertexStride() == sizeof(Vertex));
-        auto vertices = static_cast<Vertex*>(v);
-        auto proxies = this->proxies();
-        auto filters = this->filters();
-        for (const auto& draw : fDraws) {
-            auto textureIdx = draw.textureIdx();
-            auto origin = proxies[textureIdx]->origin();
-            tessellate_quad<Vertex>(draw.quad(), draw.srcRect(), draw.color(), origin,
-                                    filters[textureIdx], vertices, iw[textureIdx], ih[textureIdx],
-                                    textureIdx, draw.domain());
-            vertices += 4;
-        }
     }
 
     void onPrepareDraws(Target* target) override {
@@ -756,11 +657,11 @@ __attribute__((no_sanitize("float-cast-overflow")))
             proxiesSPs[i] = sk_ref_sp(proxies[i]);
         }
 
-        Domain domain = fDomain ? Domain::kYes : Domain::kNo;
         bool coverageAA = GrAAType::kCoverage == this->aaType();
-        sk_sp<GrGeometryProcessor> gp = TextureGeometryProcessor::Make(
-                proxiesSPs, fProxyCnt, std::move(fColorSpaceXform), coverageAA, fPerspective,
-                domain, filters, *target->caps().shaderCaps());
+        sk_sp<GrGeometryProcessor> gp =
+                TextureGeometryProcessor::Make(proxiesSPs, fProxyCnt, std::move(fColorSpaceXform),
+                                               coverageAA, fPerspective, filters,
+                                               *target->caps().shaderCaps());
         GrPipeline::InitArgs args;
         args.fProxy = target->proxy();
         args.fCaps = &target->caps();
@@ -783,6 +684,16 @@ __attribute__((no_sanitize("float-cast-overflow")))
             SkDebugf("Could not allocate vertices\n");
             return;
         }
+#define TESS_VERTS(Vertex, Q, AA, MT) \
+        SkASSERT(gp->getVertexStride() == sizeof(Vertex)); \
+        auto vertices = static_cast<Vertex *>(vdata); \
+        for (const auto& draw : fDraws) { \
+            auto origin =  proxies[draw.fTextureIdx]->origin(); \
+            tessellate_quad<Vertex, MT, AA>( \
+                    draw.Q, draw.fSrcRect, draw.fColor, origin, \
+                    vertices, iw[draw.fTextureIdx], ih[draw.fTextureIdx], draw.fTextureIdx); \
+            vertices += 4; \
+        }
 
         float iw[kMaxTextures];
         float ih[kMaxTextures];
@@ -792,80 +703,32 @@ __attribute__((no_sanitize("float-cast-overflow")))
             ih[t] = 1.f / texture->height();
         }
 
-        if (fPerspective) {
-            if (fProxyCnt > 1) {
-                if (fDomain) {
-                    if (coverageAA) {
-                        this->tess<SkPoint3, MultiTexture::kYes, Domain::kYes, GrAA::kYes>(
-                                vdata, iw, ih, gp.get());
-                    } else {
-                        this->tess<SkPoint3, MultiTexture::kYes, Domain::kYes, GrAA::kNo>(
-                                vdata, iw, ih, gp.get());
-                    }
+        if (1 == fProxyCnt) {
+            if (coverageAA) {
+                if (fPerspective) {
+                    TESS_VERTS(TextureGeometryProcessor::AAVertex<SkPoint3>, fPerspQuad, GrAA::kYes, false)
                 } else {
-                    if (coverageAA) {
-                        this->tess<SkPoint3, MultiTexture::kYes, Domain::kNo, GrAA::kYes>(
-                                vdata, iw, ih, gp.get());
-                    } else {
-                        this->tess<SkPoint3, MultiTexture::kYes, Domain::kNo, GrAA::kNo>(
-                                vdata, iw, ih, gp.get());
-                    }
+                    TESS_VERTS(TextureGeometryProcessor::AAVertex<SkPoint>, fQuad, GrAA::kYes, false)
                 }
             } else {
-                if (fDomain) {
-                    if (coverageAA) {
-                        this->tess<SkPoint3, MultiTexture::kNo, Domain::kYes, GrAA::kYes>(
-                                vdata, iw, ih, gp.get());
-                    } else {
-                        this->tess<SkPoint3, MultiTexture::kNo, Domain::kYes, GrAA::kNo>(
-                                vdata, iw, ih, gp.get());
-                    }
+                if (fPerspective) {
+                    TESS_VERTS(TextureGeometryProcessor::Vertex<SkPoint3>, fPerspQuad, GrAA::kNo, false)
                 } else {
-                    if (coverageAA) {
-                        this->tess<SkPoint3, MultiTexture::kNo, Domain::kNo, GrAA::kYes>(
-                                vdata, iw, ih, gp.get());
-                    } else {
-                        this->tess<SkPoint3, MultiTexture::kNo, Domain::kNo, GrAA::kNo>(
-                                vdata, iw, ih, gp.get());
-                    }
+                    TESS_VERTS(TextureGeometryProcessor::Vertex<SkPoint>, fQuad, GrAA::kNo, false)
                 }
             }
         } else {
-            if (fProxyCnt > 1) {
-                if (fDomain) {
-                    if (coverageAA) {
-                        this->tess<SkPoint, MultiTexture::kYes, Domain::kYes, GrAA::kYes>(
-                                vdata, iw, ih, gp.get());
-                    } else {
-                        this->tess<SkPoint, MultiTexture::kYes, Domain::kYes, GrAA::kNo>(
-                                vdata, iw, ih, gp.get());
-                    }
+            if (coverageAA) {
+                if (fPerspective) {
+                    TESS_VERTS(TextureGeometryProcessor::AAMultiTextureVertex<SkPoint3>, fPerspQuad, GrAA::kYes, true)
                 } else {
-                    if (coverageAA) {
-                        this->tess<SkPoint, MultiTexture::kYes, Domain::kNo, GrAA::kYes>(
-                                vdata, iw, ih, gp.get());
-                    } else {
-                        this->tess<SkPoint, MultiTexture::kYes, Domain::kNo, GrAA::kNo>(
-                                vdata, iw, ih, gp.get());
-                    }
+                    TESS_VERTS(TextureGeometryProcessor::AAMultiTextureVertex<SkPoint>, fQuad, GrAA::kYes, true)
                 }
             } else {
-                if (fDomain) {
-                    if (coverageAA) {
-                        this->tess<SkPoint, MultiTexture::kNo, Domain::kYes, GrAA::kYes>(
-                                vdata, iw, ih, gp.get());
-                    } else {
-                        this->tess<SkPoint, MultiTexture::kNo, Domain::kYes, GrAA::kNo>(
-                                vdata, iw, ih, gp.get());
-                    }
+                if (fPerspective) {
+                    TESS_VERTS(TextureGeometryProcessor::MultiTextureVertex<SkPoint3>, fPerspQuad, GrAA::kNo, true)
                 } else {
-                    if (coverageAA) {
-                        this->tess<SkPoint, MultiTexture::kNo, Domain::kNo, GrAA::kYes>(
-                                vdata, iw, ih, gp.get());
-                    } else {
-                        this->tess<SkPoint, MultiTexture::kNo, Domain::kNo, GrAA::kNo>(
-                                vdata, iw, ih, gp.get());
-                    }
+                    TESS_VERTS(TextureGeometryProcessor::MultiTextureVertex<SkPoint>, fQuad, GrAA::kNo, true)
                 }
             }
         }
@@ -894,6 +757,9 @@ __attribute__((no_sanitize("float-cast-overflow")))
             return false;
         }
         if (this->aaType() != that->aaType()) {
+            return false;
+        }
+        if (fPerspective != that->fPerspective) {
             return false;
         }
         // Because of an issue where GrColorSpaceXform adds the same function every time it is used
@@ -934,7 +800,7 @@ __attribute__((no_sanitize("float-cast-overflow")))
             int firstNewDraw = fDraws.count();
             fDraws.push_back_n(that->fDraws.count(), that->fDraws.begin());
             for (int i = firstNewDraw; i < fDraws.count(); ++i) {
-                fDraws[i].setTextureIdx(map[fDraws[i].textureIdx()]);
+                fDraws[i].fTextureIdx = map[fDraws[i].fTextureIdx];
             }
         } else {
             // We can get here when one of the ops is already multitextured but the other cannot
@@ -949,8 +815,6 @@ __attribute__((no_sanitize("float-cast-overflow")))
         }
         this->joinBounds(*that);
         fMaxApproxDstPixelArea = SkTMax(that->fMaxApproxDstPixelArea, fMaxApproxDstPixelArea);
-        fPerspective |= that->fPerspective;
-        fDomain |= that->fDomain;
         return true;
     }
 
@@ -1023,27 +887,15 @@ __attribute__((no_sanitize("float-cast-overflow")))
         return &fFilter0;
     }
 
-    class Draw {
-    public:
-        Draw(const SkRect& srcRect, int textureIdx, const GrPerspQuad& quad,
-             SrcRectConstraint constraint, GrColor color)
-                : fSrcRect(srcRect)
-                , fHasDomain(constraint == SkCanvas::kStrict_SrcRectConstraint)
-                , fTextureIdx(textureIdx)
-                , fQuad(quad)
-                , fColor(color) {}
-        const GrPerspQuad& quad() const { return fQuad; }
-        int textureIdx() const { return fTextureIdx; }
-        const SkRect& srcRect() const { return fSrcRect; }
-        GrColor color() const { return fColor; }
-        Domain domain() const { return Domain(fHasDomain); }
-        void setTextureIdx(int i) { fTextureIdx = i; }
-
-    private:
+    struct Draw {
+        Draw() {}
+        Draw(const Draw& draw) { memcpy(this, &draw, sizeof(Draw)); }
         SkRect fSrcRect;
-        int fHasDomain : 1;
-        int fTextureIdx : 31;
-        GrPerspQuad fQuad;
+        int fTextureIdx;
+        union {
+            GrQuad fQuad;
+            GrPerspQuad fPerspQuad;
+        };
         GrColor fColor;
     };
     SkSTArray<1, Draw, true> fDraws;
@@ -1060,7 +912,6 @@ __attribute__((no_sanitize("float-cast-overflow")))
     uint8_t fProxyCnt;
     unsigned fAAType : 2;
     unsigned fPerspective : 1;
-    unsigned fDomain : 1;
     // Used to track whether fProxy is ref'ed or has a pending IO after finalize() is called.
     unsigned fFinalized : 1;
     unsigned fAllowSRGBInputs : 1;
@@ -1077,11 +928,11 @@ namespace GrTextureOp {
 
 std::unique_ptr<GrDrawOp> Make(sk_sp<GrTextureProxy> proxy, GrSamplerState::Filter filter,
                                GrColor color, const SkRect& srcRect, const SkRect& dstRect,
-                               GrAAType aaType, SrcRectConstraint constraint,
-                               const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> csxf,
-                               bool allowSRGBInputs) {
-    return TextureOp::Make(std::move(proxy), filter, color, srcRect, dstRect, aaType, constraint,
-                           viewMatrix, std::move(csxf), allowSRGBInputs);
+                               GrAAType aaType, const SkMatrix& viewMatrix,
+                               sk_sp<GrColorSpaceXform> csxf, bool allowSRGBInputs) {
+    //SkASSERT(!viewMatrix.hasPerspective());
+    return TextureOp::Make(std::move(proxy), filter, color, srcRect, dstRect, aaType, viewMatrix,
+                           std::move(csxf), allowSRGBInputs);
 }
 
 }  // namespace GrTextureOp
@@ -1118,10 +969,8 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     if (random->nextBool()) {
         aaType = (fsaaType == GrFSAAType::kUnifiedMSAA) ? GrAAType::kMSAA : GrAAType::kCoverage;
     }
-    auto constraint = random->nextBool() ? SkCanvas::kStrict_SrcRectConstraint
-                                         : SkCanvas::kFast_SrcRectConstraint;
-    return GrTextureOp::Make(std::move(proxy), filter, color, srcRect, rect, aaType, constraint,
-                             viewMatrix, std::move(csxf), allowSRGBInputs);
+    return GrTextureOp::Make(std::move(proxy), filter, color, srcRect, rect, aaType, viewMatrix,
+                             std::move(csxf), allowSRGBInputs);
 }
 
 #endif
