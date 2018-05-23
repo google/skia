@@ -52,7 +52,6 @@ DEFINE_string2(type, t, "", "How to interpret --bytes, one of:\n"
                             "api\n"
                             "color_deserialize\n"
                             "filter_fuzz (equivalent to Chrome's filter_fuzz_stub)\n"
-                            "icc\n"
                             "image_decode\n"
                             "image_mode\n"
                             "image_scale\n"
@@ -72,7 +71,6 @@ static SkString try_auto_detect(SkString path, SkString* name);
 static void fuzz_api(sk_sp<SkData> bytes, SkString name);
 static void fuzz_color_deserialize(sk_sp<SkData>);
 static void fuzz_filter_fuzz(sk_sp<SkData>);
-static void fuzz_icc(sk_sp<SkData>);
 static void fuzz_img2(sk_sp<SkData>);
 static void fuzz_animated_img(sk_sp<SkData>);
 static void fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
@@ -147,10 +145,6 @@ static int fuzz_file(SkString path, SkString type) {
     }
     if (type.equals("color_deserialize")) {
         fuzz_color_deserialize(bytes);
-        return 0;
-    }
-    if (type.equals("icc")) {
-        fuzz_icc(bytes);
         return 0;
     }
     if (type.equals("image_decode")) {
@@ -616,15 +610,6 @@ static void fuzz_skpipe(sk_sp<SkData> bytes) {
     SkCanvas canvas(bitmap);
     canvas.drawPicture(pic);
     SkDebugf("[terminated] Success! Decoded and rendered an SkPicture from SkPipe!\n");
-}
-
-static void fuzz_icc(sk_sp<SkData> bytes) {
-    sk_sp<SkColorSpace> space(SkColorSpace::MakeICC(bytes->data(), bytes->size()));
-    if (!space) {
-        SkDebugf("[terminated] Couldn't decode ICC.\n");
-        return;
-    }
-    SkDebugf("[terminated] Success! Decoded ICC.\n");
 }
 
 static void fuzz_color_deserialize(sk_sp<SkData> bytes) {
