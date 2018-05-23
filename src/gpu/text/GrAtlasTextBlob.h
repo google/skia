@@ -55,7 +55,7 @@ public:
 
     class VertexRegenerator;
 
-    static sk_sp<GrAtlasTextBlob> Make(GrMemoryPool*, int glyphCount, int runCount);
+    static sk_sp<GrAtlasTextBlob> Make(int glyphCount, int runCount);
 
     /**
      * We currently force regeneration of a blob if old or new matrix differ in having perspective.
@@ -106,22 +106,15 @@ public:
     }
 
     void operator delete(void* p) {
-        GrAtlasTextBlob* blob = reinterpret_cast<GrAtlasTextBlob*>(p);
-        if (blob->fPool) {
-            blob->fPool->release(p);
-        } else {
-            ::operator delete(p);
-        }
+        ::operator delete(p);
     }
+
     void* operator new(size_t) {
         SK_ABORT("All blobs are created by placement new.");
         return sk_malloc_throw(0);
     }
 
     void* operator new(size_t, void* p) { return p; }
-    void operator delete(void* target, void* placement) {
-        ::operator delete(target, placement);
-    }
 
     bool hasDistanceField() const { return SkToBool(fTextType & kHasDistanceField_TextType); }
     bool hasBitmap() const { return SkToBool(fTextType & kHasBitmap_TextType); }
@@ -274,6 +267,8 @@ public:
     }
 
     const Key& key() const { return fKey; }
+
+    size_t size() const { return fSize; }
 
     ~GrAtlasTextBlob() {
         for (int i = 0; i < fRunCount; i++) {
@@ -540,7 +535,6 @@ private:
     char* fVertices;
     GrGlyph** fGlyphs;
     Run* fRuns;
-    GrMemoryPool* fPool;   // this will be null when DDLs are being recorded
     SkMaskFilterBase::BlurRec fBlurRec;
     StrokeInfo fStrokeInfo;
     Key fKey;
