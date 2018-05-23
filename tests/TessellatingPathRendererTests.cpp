@@ -502,6 +502,19 @@ static SkPath create_path_33() {
     return path;
 }
 
+// Edges which differ by less than machine epsilon, and cause a
+// ping-pong infinite loop on split.
+static SkPath create_path_34() {
+    SkPath path;
+    path.moveTo(     0,      0);
+    path.lineTo(    68,      0);
+    path.lineTo(    79, 10e-07);
+    path.moveTo(10e-07,     50);
+    path.lineTo(   -17, -10000);
+    path.lineTo(10e-07, 10e-07);
+    return path;
+}
+
 static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
 
     SkPoint pts[2] = { {0, 0}, {1, 1} };
@@ -595,5 +608,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_31(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_32());
     test_path(ctx, rtc.get(), create_path_33());
+    test_path(ctx, rtc.get(), create_path_34());
 }
 #endif
