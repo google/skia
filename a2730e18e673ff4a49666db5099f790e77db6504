@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f97bf12b_0e03c310",
+        "filename": "src/gpu/ccpr/GrCCPerFlushResources.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-23T14:00:27Z",
+      "side": 1,
+      "message": "// It is allocated in GrCCPR::preFlush and shared with all the GrCCRTPendingPaths that are being flushed. It is deleted in GrCCPR::postFlush when all the GrCCRTPendingPaths that were flushed are deleted.\n\n?",
+      "revId": "a2730e18e673ff4a49666db5099f790e77db6504",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ec4f14a_27c82879",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-23T14:00:27Z",
+      "side": 1,
+      "message": "// If the op was not dropped or combined, give it a pointer to its owning GrCCRTPendingPaths object.\n\n??",
+      "revId": "a2730e18e673ff4a49666db5099f790e77db6504",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aef15be6_d7303899",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-23T14:00:27Z",
+      "side": 1,
+      "message": "// fRTPendingPathsMap holds those GrCCRTPendingPaths objects that have already been created, but not flushed, and those that are still being created.\n// fFlushingRTPaths holds those GrCCRTPendingPaths objects that are going to be flushed.\n// All GrCCRTPendingPaths objects will first reside in fRTPendingPathsMap but will be moved to fFlushingRTPaths in GrCCPR::preFlush\n\n??",
+      "revId": "a2730e18e673ff4a49666db5099f790e77db6504",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
