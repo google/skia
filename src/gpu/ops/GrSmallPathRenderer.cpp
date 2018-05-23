@@ -343,7 +343,7 @@ private:
             flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
                     this->color(), fAtlas->getProxies(), fAtlas->numActivePages(),
                     GrSamplerState::ClampNearest(), kA8_GrMaskFormat, invert,
-                    fHelper.usesLocalCoords());
+                    false);
         }
 
         // allocate vertices
