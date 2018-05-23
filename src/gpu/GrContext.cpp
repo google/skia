@@ -1514,10 +1514,6 @@ bool GrContext::validPMUPMConversionExists() {
     return fPMUPMConversionsRoundTrip;
 }
 
-bool GrContext::supportsDistanceFieldText() const {
-    return fCaps->shaderCaps()->supportsDistanceFieldText();
-}
-
 //////////////////////////////////////////////////////////////////////////////
 
 // DDL TODO: remove 'maxResources'
