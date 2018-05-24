@@ -120,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "b5c6dd7e_12723a7b",
+        "filename": "src/gpu/text/GrAtlasTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-24T19:23:57Z",
+      "side": 1,
+      "message": "Builds fine for me with all of these removed. I\u0027m not sure what the first two are protecting us from as this isn\u0027t subclassed (could be final) and has no public constructors.",
+      "parentUuid": "6640b77e_c693cce1",
+      "range": {
+        "startLine": 107,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 53
+      },
+      "revId": "deb9ee58a153be8fd923d53d09e85b08239d0a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d51c1dab_870548e3",
         "filename": "src/gpu/text/GrTextBlobCache.h",
         "patchSetId": 2
@@ -188,6 +212,30 @@
       "revId": "deb9ee58a153be8fd923d53d09e85b08239d0a4d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40be26b9_0cc5d7b3",
+        "filename": "src/gpu/text/GrTextBlobCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-24T19:23:57Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c05abfb7_b1dcbcee",
+      "range": {
+        "startLine": 168,
+        "startChar": 23,
+        "endLine": 168,
+        "endChar": 35
+      },
+      "revId": "deb9ee58a153be8fd923d53d09e85b08239d0a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
