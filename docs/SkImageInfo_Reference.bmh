@@ -981,6 +981,7 @@ and return true if alphaType is not kUnknown_SkAlphaType.
 #Subtopic YUV_ColorSpace
 #Line # color range of YUV pixels ##
 #Alias YUV_ColorSpace
+
 #Enum SkYUVColorSpace
 #Line # color range of YUV pixels ##
 
@@ -1034,22 +1035,6 @@ with studio range of 16 to 235 range for components.
 
 #Enum SkYUVColorSpace ##
 #Subtopic YUV_ColorSpace ##
-
-# ------------------------------------------------------------------------------
-
-#Struct SkYUVAIndex
-
-Describes which image source and which channel to read for each YUVA planes.
-
-#Member int fIndex
-Describes which image source to be reading from. The Alpha plane is optional and could be set to -1.
-##
-
-#Member SkImageSourceChannel fChannel
-Describes which of the RGBA channel to read from.
-##
-
-#Struct SkYUVAIndex ##
 
 # ------------------------------------------------------------------------------
 
