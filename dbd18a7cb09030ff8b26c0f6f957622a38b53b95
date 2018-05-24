@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30b98da8_cde16b43",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-24T17:50:00Z",
+      "side": 1,
+      "message": "this-\u003e",
+      "range": {
+        "startLine": 286,
+        "startChar": 73,
+        "endLine": 286,
+        "endChar": 85
+      },
+      "revId": "dbd18a7cb09030ff8b26c0f6f957622a38b53b95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5aba04d2_ae747c04",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-24T17:50:00Z",
+      "side": 1,
+      "message": "this-\u003e",
+      "range": {
+        "startLine": 360,
+        "startChar": 50,
+        "endLine": 360,
+        "endChar": 62
+      },
+      "revId": "dbd18a7cb09030ff8b26c0f6f957622a38b53b95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44ecd797_37947108",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-24T17:50:00Z",
+      "side": 1,
+      "message": "Comment about why this is true.",
+      "range": {
+        "startLine": 434,
+        "startChar": 49,
+        "endLine": 434,
+        "endChar": 61
+      },
+      "revId": "dbd18a7cb09030ff8b26c0f6f957622a38b53b95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
