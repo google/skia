@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a997d6fc_e338374a",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-05-24T15:07:52Z",
+      "side": 1,
+      "message": "why auto here and not below?  For something simple/short like SkRect is seems better to use the type directly instead of auto.",
+      "range": {
+        "startLine": 215,
+        "startChar": 8,
+        "endLine": 215,
+        "endChar": 12
+      },
+      "revId": "1093ef0c50d34a388e5622a9d01f399ccca9567b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28da7d0a_55be56d1",
+        "filename": "tests/CodecAnimTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-05-24T15:07:52Z",
+      "side": 1,
+      "message": "why do you need to unpremul before comparison?",
+      "revId": "1093ef0c50d34a388e5622a9d01f399ccca9567b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91c8a230_8cf26bff",
+        "filename": "tests/CodecAnimTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-05-24T15:07:52Z",
+      "side": 1,
+      "message": "Is the reason that you do this compare one pixel at a time so you can get an actual/expected value?  I would assume otherwise we have a utility to compare the pixel values of bitmaps.",
+      "revId": "1093ef0c50d34a388e5622a9d01f399ccca9567b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a26c549_2df00081",
+        "filename": "tests/CodecAnimTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-05-24T15:07:52Z",
+      "side": 1,
+      "message": "shouldn\u0027t this be bm2?",
+      "range": {
+        "startLine": 454,
+        "startChar": 47,
+        "endLine": 454,
+        "endChar": 49
+      },
+      "revId": "1093ef0c50d34a388e5622a9d01f399ccca9567b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
