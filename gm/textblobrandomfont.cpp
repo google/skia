@@ -124,29 +124,30 @@ protected:
 
         SkScalar stride = SkScalarCeilToScalar(fBlob->bounds().height());
         SkScalar yOffset = 5;
-        for (int i = 0; i < 1; i++) {
-            // fiddle the canvas to force regen of textblobs
-            canvas->rotate(i % 2 ? 0.0f : -0.05f);
 
-            canvas->drawTextBlob(fBlob, 10, yOffset, paint);
-            yOffset += stride;
+        canvas->rotate(-0.05f);
 
-            // this will test lcd masks when not requested
-            // on cpu this currently causes unspecified behavior, so avoid until it is fixed
-            if (canvas->getGrContext()) {
-                c->drawTextBlob(fBlob, 10, yOffset, paint);
-                surface->draw(canvas, 0, 0, nullptr);
-            }
-            yOffset += stride;
+        canvas->drawTextBlob(fBlob, 10, yOffset, paint);
+        yOffset += stride;
 
-            // free gpu resources and verify
-            if (canvas->getGrContext()) {
-                canvas->getGrContext()->freeGpuResources();
-            }
-
-            canvas->drawTextBlob(fBlob, 10, yOffset, paint);
-            yOffset += stride;
+        // this will test lcd masks when not requested
+        // on cpu this currently causes unspecified behavior, so avoid until it is fixed
+        if (canvas->getGrContext()) {
+            c->rotate(-0.05f);
+            c->drawTextBlob(fBlob, 10, yOffset, paint);
+            canvas->rotate(0.05f);
+            surface->draw(canvas, 0, 0, nullptr);
+            canvas->rotate(-0.05f);
         }
+        yOffset += stride;
+
+        // free gpu resources and verify
+        if (canvas->getGrContext()) {
+            canvas->getGrContext()->freeGpuResources();
+        }
+
+        canvas->drawTextBlob(fBlob, 10, yOffset, paint);
+        yOffset += stride;
     }
 
 private:
