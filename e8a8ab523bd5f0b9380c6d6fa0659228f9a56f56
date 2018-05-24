@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f2554619_fe2ac815",
+        "filename": "include/gpu/vk/GrVkMemoryAllocator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-24T17:32:15Z",
+      "side": 1,
+      "message": "One API that is missing here is stat/usage queries for the allocator. What type of queries do we want to expose? By default I think we should at least have a total memory allocated query.\n\nWe could start getting even more fine grained like reporting all the info for each specific vulkan heap, but I\u0027m not sure if that is something clients would want or not. For reference you can see what AMD reports (they basically track and report everything), https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/struct_vma_stats.html",
+      "range": {
+        "startLine": 16,
+        "startChar": 6,
+        "endLine": 16,
+        "endChar": 25
+      },
+      "revId": "e8a8ab523bd5f0b9380c6d6fa0659228f9a56f56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
