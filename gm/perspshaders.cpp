@@ -136,7 +136,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        if (!fImage) {
+        if (!fImage || !fImage->isValid(canvas->getGrContext())) {
             fImage = make_image(canvas, kCellSize, kCellSize);
         }
 

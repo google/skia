@@ -153,7 +153,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        if (!fImage) {
+        if (!fImage || !fImage->isValid(canvas->getGrContext())) {
             this->setupImage(canvas);
         }
 

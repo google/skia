@@ -67,7 +67,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        if (nullptr == fBitmap.pixelRef()) {
+        if (nullptr == fBitmap.pixelRef() || !fImage->isValid(canvas->getGrContext())) {
             fImage = make_image(canvas, &fCenter);
             image_to_bitmap(fImage.get(), &fBitmap);
         }
