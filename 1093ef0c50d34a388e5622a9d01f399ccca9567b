@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e392b926_a4f4abe5",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-24T17:08:05Z",
+      "side": 1,
+      "message": "\u003e why auto here and not below?\n\nI probably wrote them at different times. In this case, I don\u0027t know that it makes a big difference, which is why I\u0027m inconsistent here. Google\u0027s C++ style guide has some guidelines, but in this case I don\u0027t think it has a strong impact on readability one way or the other. IIUC, Scott Meyers\u0027 Modern Effective C++ encouraged me to lean towards using auto.\n\n\u003e For something simple/short like SkRect is seems better to use the type directly instead of auto.\n\nWhy? I think you\u0027re saying \"Use auto when it prevents you from redundantly writing a long type name, but otherwise use the type.\" Does that sound right?",
+      "parentUuid": "a997d6fc_e338374a",
+      "range": {
+        "startLine": 215,
+        "startChar": 8,
+        "endLine": 215,
+        "endChar": 12
+      },
+      "revId": "1093ef0c50d34a388e5622a9d01f399ccca9567b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "28da7d0a_55be56d1",
         "filename": "tests/CodecAnimTest.cpp",
         "patchSetId": 2
@@ -36,6 +60,24 @@
       "writtenOn": "2018-05-24T15:07:52Z",
       "side": 1,
       "message": "why do you need to unpremul before comparison?",
+      "revId": "1093ef0c50d34a388e5622a9d01f399ccca9567b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f03b35e_324a63b9",
+        "filename": "tests/CodecAnimTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-24T17:08:05Z",
+      "side": 1,
+      "message": "That\u0027s just to help me print the colors, I believe.\n\nBut I\u0027m fine to remove all this code. Everything is working now, so I can simplify.",
+      "parentUuid": "28da7d0a_55be56d1",
       "revId": "1093ef0c50d34a388e5622a9d01f399ccca9567b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "0ee73e00_2d0208a2",
+        "filename": "tests/CodecAnimTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-24T17:08:05Z",
+      "side": 1,
+      "message": "\u003e Is the reason that you do this compare one pixel at a time so you can get an actual/expected value? \n\nYes.\n\n\u003e I would assume otherwise we have a utility to compare the pixel values of bitmaps.\n\nI\u0027m not aware that we do. In some cases we create an MD5 hash, but if we\u0027re just comparing two bitmaps one time, that seems like an extra unnecessary step to me.",
+      "parentUuid": "91c8a230_8cf26bff",
+      "revId": "1093ef0c50d34a388e5622a9d01f399ccca9567b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2a26c549_2df00081",
         "filename": "tests/CodecAnimTest.cpp",
         "patchSetId": 2
@@ -70,6 +130,30 @@
       "writtenOn": "2018-05-24T15:07:52Z",
       "side": 1,
       "message": "shouldn\u0027t this be bm2?",
+      "range": {
+        "startLine": 454,
+        "startChar": 47,
+        "endLine": 454,
+        "endChar": 49
+      },
+      "revId": "1093ef0c50d34a388e5622a9d01f399ccca9567b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4022b7e_b889052c",
+        "filename": "tests/CodecAnimTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-05-24T17:08:05Z",
+      "side": 1,
+      "message": "Yes! I thought I had used this to help me diagnose something, but I must have not used the images themselves...",
+      "parentUuid": "2a26c549_2df00081",
       "range": {
         "startLine": 454,
         "startChar": 47,
