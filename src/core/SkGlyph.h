@@ -85,6 +85,12 @@ struct SkPackedID {
         return SkChecksum::CheapMix(fID);
     }
 
+    SkString dump() const {
+        SkString str;
+        str.appendf("code: %u x: %u, y: %u", code(), getSubXFixed(), getSubYFixed());
+        return str;
+    }
+
 private:
     static unsigned ID2SubX(uint32_t id) {
         return id >> (kSubShift + kSubShiftX);

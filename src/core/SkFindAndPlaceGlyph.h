@@ -8,14 +8,15 @@
 #ifndef SkFindAndPositionGlyph_DEFINED
 #define SkFindAndPositionGlyph_DEFINED
 
+#include <utility>
 #include "SkArenaAlloc.h"
 #include "SkGlyph.h"
 #include "SkGlyphCache.h"
 #include "SkMatrixPriv.h"
 #include "SkPaint.h"
 #include "SkTemplates.h"
+#include "SkTraceEvent.h"
 #include "SkUtils.h"
-#include <utility>
 
 class SkFindAndPlaceGlyph {
 public:
@@ -83,6 +84,38 @@ public:
         }
         SK_ABORT("Should not get here.");
         return {0.0f, 0.0f};
+    }
+
+    // MapperInterface given a point map it through the matrix. There are several shortcut
+    // variants.
+    // * TranslationMapper - assumes a translation only matrix.
+    // * XScaleMapper - assumes an X scaling and a translation.
+    // * GeneralMapper - Does all other matricies.
+    class MapperInterface {
+    public:
+        virtual ~MapperInterface() {}
+
+        virtual SkPoint map(SkPoint position) const = 0;
+    };
+
+    static MapperInterface* CreateMapper(const SkMatrix& matrix,
+                                         const SkPoint& offset,
+                                         int scalarsPerPosition,
+                                         SkArenaAlloc* arena) {
+        uint32_t mtype = matrix.getType();
+        if ((mtype & (SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask)) ||
+            scalarsPerPosition == 2) {
+            TRACE_EVENT0("skia", "GeneralMapper");
+            return arena->make<GeneralMapper>(matrix, offset);
+        }
+
+        if (mtype & SkMatrix::kScale_Mask) {
+            TRACE_EVENT0("skia", "XScaleMapper");
+            return arena->make<XScaleMapper>(matrix, offset);
+        }
+
+        TRACE_EVENT0("skia", "TranslationMapper");
+        return arena->make<TranslationMapper>(matrix, offset);
     }
 
 private:
@@ -230,18 +263,6 @@ private:
         const SkScalar* fPositions;
     };
 
-    // MapperInterface given a point map it through the matrix. There are several shortcut
-    // variants.
-    // * TranslationMapper - assumes a translation only matrix.
-    // * XScaleMapper - assumes an X scaling and a translation.
-    // * GeneralMapper - Does all other matricies.
-    class MapperInterface {
-    public:
-        virtual ~MapperInterface() { }
-
-        virtual SkPoint map(SkPoint position) const = 0;
-    };
-
     class TranslationMapper final : public MapperInterface {
     public:
         TranslationMapper(const SkMatrix& matrix, const SkPoint origin)
@@ -328,7 +349,10 @@ private:
             const char** text, SkPoint position, ProcessOneGlyph&& processOneGlyph) override {
 
             // Find the glyph.
+            TRACE_EVENT2("skia", "MappedPosition", "x", position.x(), "y", position.y());
             SkIPoint lookupPosition = SubpixelAlignment(kAxisAlignment, position);
+            TRACE_EVENT2("skia", "LookupPosition", "x", lookupPosition.x(), "y",
+                         lookupPosition.y());
             const SkGlyph& renderGlyph =
                 fGlyphFinder->lookupGlyphXY(text, lookupPosition.fX, lookupPosition.fY);
 
@@ -439,7 +463,13 @@ inline void SkFindAndPlaceGlyph::ProcessPosText(
         const char* cursor = text;
         const char* stop = text + byteLength;
         while (cursor < stop) {
-            SkPoint mappedPoint = mapper.TranslationMapper::map(positions->nextPoint());
+            SkPoint nextPoint = positions->nextPoint();
+            TRACE_EVENT2("skia", "OriginalPointTranslate", "x", nextPoint.x(), "y", nextPoint.y());
+
+            SkPoint mappedPoint = mapper.TranslationMapper::map(nextPoint);
+            TRACE_EVENT2("skia", "MappedPointTranslate", "x", mappedPoint.x(), "y",
+                         mappedPoint.y());
+
             positioner.Positioner::findAndPositionGlyph(
                 &cursor, mappedPoint, std::forward<ProcessOneGlyph>(processOneGlyph));
         }
@@ -457,16 +487,7 @@ inline void SkFindAndPlaceGlyph::ProcessPosText(
         positionReader = arena.make<HorizontalPositions>(pos);
     }
 
-    MapperInterface* mapper = nullptr;
-    if (mtype & (SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask)
-        || scalarsPerPosition == 2) {
-        mapper = arena.make<GeneralMapper>(matrix, offset);
-    } else if (mtype & SkMatrix::kScale_Mask) {
-        mapper = arena.make<XScaleMapper>(matrix, offset);
-    } else {
-        mapper = arena.make<TranslationMapper>(matrix, offset);
-    }
-
+    MapperInterface* mapper = CreateMapper(matrix, offset, scalarsPerPosition, &arena);
     GlyphFindAndPlaceInterface<ProcessOneGlyph>* findAndPosition = nullptr;
     if (cache->isSubpixel()) {
         findAndPosition = getSubpixel<ProcessOneGlyph>(&arena, axisAlignment, glyphFinder);
@@ -476,7 +497,12 @@ inline void SkFindAndPlaceGlyph::ProcessPosText(
 
     const char* stop = text + byteLength;
     while (text < stop) {
-        SkPoint mappedPoint = mapper->map(positionReader->nextPoint());
+        SkPoint nextPoint = positionReader->nextPoint();
+        TRACE_EVENT2("skia", "OriginalPoint", "x", nextPoint.x(), "y", nextPoint.y());
+
+        SkPoint mappedPoint = mapper->map(nextPoint);
+        TRACE_EVENT2("skia", "MappedPoint", "x", mappedPoint.x(), "y", mappedPoint.y());
+
         findAndPosition->findAndPositionGlyph(
             &text, mappedPoint, std::forward<ProcessOneGlyph>(processOneGlyph));
     }

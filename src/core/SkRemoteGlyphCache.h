@@ -80,8 +80,8 @@ private:
                          const SkTextBlobRunIterator& it,
                          const SkPaint& runPaint);
     void processGlyphRunForPaths(const SkTextBlobRunIterator& it, const SkPaint& runPaint);
-    void processGlyphRunForDFT(const SkTextBlobRunIterator& it, const SkPaint& runPaint,
-                               SkScalerContextFlags flags);
+    void processGlyphRunFullPixel(const SkTextBlobRunIterator& it, const SkPaint& runPaint,
+                                  SkScalerContextFlags flags);
     const SkSurfaceProps& surfaceProps() const;
 
     const SkMatrix fDeviceMatrix;

@@ -51,7 +51,8 @@ public:
     int cacheMissCount(SkStrikeClient::CacheMissType type) { return fCacheMissCount[type]; }
     bool hasCacheMiss() const {
         for (uint32_t i = 0; i <= SkStrikeClient::CacheMissType::kLast; ++i) {
-            if (fCacheMissCount[i] > 0) return true;
+            if (fCacheMissCount[i] > 0)
+                return true;
         }
         return false;
     }
@@ -114,13 +115,15 @@ SkBitmap RasterBlob(sk_sp<SkTextBlob> blob, GrContext* context,
     const SkImageInfo info = SkImageInfo::Make(settings.width, settings.height, kN32_SkColorType,
                                                kPremul_SkAlphaType);
     auto surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
-    if (settings.matrix) surface->getCanvas()->concat(*settings.matrix);
+    if (settings.matrix)
+        surface->getCanvas()->concat(*settings.matrix);
     if (settings.insertSaveLayer) {
         SkCanvas::SaveLayerRec rec;
         surface->getCanvas()->saveLayer(rec);
     }
     surface->getCanvas()->drawTextBlob(blob.get(), 0u, 0u, settings.paint);
-    if (settings.insertSaveLayer) surface->getCanvas()->restore();
+    if (settings.insertSaveLayer)
+        surface->getCanvas()->restore();
 
     SkBitmap bitmap;
     bitmap.allocN32Pixels(settings.width, settings.height);
