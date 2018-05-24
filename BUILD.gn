@@ -1979,6 +1979,44 @@ if (skia_enable_tools) {
       libs = [ "android" ]
     }
   }
+  if (is_android && skia_enable_gpu && skia_enable_skottie) {
+    test_app("skottie") {
+      is_shared_library = true
+
+      sources = [
+        "tools/skottie/jni/skottie_android.cpp",
+        "tools/viewer/BisectSlide.cpp",
+        "tools/viewer/GMSlide.cpp",
+        "tools/viewer/ImGuiLayer.cpp",
+        "tools/viewer/ImageSlide.cpp",
+        "tools/viewer/SKPSlide.cpp",
+        "tools/viewer/SampleSlide.cpp",
+        "tools/viewer/SkottieSlide.cpp",
+        "tools/viewer/SlideDir.cpp",
+        "tools/viewer/StatsLayer.cpp",
+        "tools/viewer/SvgSlide.cpp",
+        "tools/viewer/Viewer.cpp",
+      ]
+      libs = []
+
+      include_dirs = []
+      deps = [
+        ":experimental_skottie",
+        ":experimental_sksg",
+        ":experimental_svg_model",
+        ":flags",
+        ":gm",
+        ":gpu_tool_utils",
+        ":samples",
+        ":sk_app",
+        ":skia",
+        ":tool_utils",
+        ":views",
+        "//third_party/imgui",
+        "//third_party/jsoncpp",
+      ]
+    }
+  }
 
   test_app("list_gms") {
     sources = [
