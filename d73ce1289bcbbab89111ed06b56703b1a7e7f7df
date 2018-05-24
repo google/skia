@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5200b61d_adad4be6",
+        "filename": "BUILD.gn",
+        "patchSetId": 7
+      },
+      "lineNbr": 2046,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-24T21:52:56Z",
+      "side": 1,
+      "message": "Is there any way to pull this off with an external BUILD.gn?\n\n(if not, it\u0027s not a big deal: I can include the source unconditionally and guard inside based on SK_HAS_SKSG)",
+      "range": {
+        "startLine": 2046,
+        "startChar": 8,
+        "endLine": 2046,
+        "endChar": 29
+      },
+      "revId": "d73ce1289bcbbab89111ed06b56703b1a7e7f7df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
