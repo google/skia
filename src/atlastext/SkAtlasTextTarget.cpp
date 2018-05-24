@@ -193,13 +193,13 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
     }
 
     for (int i = 0; i < fGeoCount; ++i) {
-        GrAtlasTextBlob::VertexRegenerator regenerator(
+        GrTextBlob::VertexRegenerator regenerator(
                 resourceProvider, fGeoData[i].fBlob, fGeoData[i].fRun, fGeoData[i].fSubRun,
                 fGeoData[i].fViewMatrix, fGeoData[i].fX, fGeoData[i].fY, fGeoData[i].fColor,
                 &context, glyphCache, atlasManager, &autoGlyphCache);
         bool done = false;
         while (!done) {
-            GrAtlasTextBlob::VertexRegenerator::Result result;
+            GrTextBlob::VertexRegenerator::Result result;
             if (!regenerator.regenerate(&result)) {
                 break;
             }

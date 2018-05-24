@@ -254,7 +254,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
     flushInfo.fGlyphsToFlush = 0;
     size_t vertexStride = flushInfo.fGeometryProcessor->getVertexStride();
-    SkASSERT(vertexStride == GrAtlasTextBlob::GetVertexStride(maskFormat, vmPerspective));
+    SkASSERT(vertexStride == GrTextBlob::GetVertexStride(maskFormat, vmPerspective));
 
     int glyphCount = this->numGlyphs();
     const GrBuffer* vertexBuffer;
@@ -275,13 +275,13 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     for (int i = 0; i < fGeoCount; i++) {
         const Geometry& args = fGeoData[i];
         Blob* blob = args.fBlob;
-        GrAtlasTextBlob::VertexRegenerator regenerator(
+        GrTextBlob::VertexRegenerator regenerator(
                 resourceProvider, blob, args.fRun, args.fSubRun, args.fViewMatrix, args.fX, args.fY,
                 args.fColor, target->deferredUploadTarget(), glyphCache, atlasManager,
                 &autoGlyphCache);
         bool done = false;
         while (!done) {
-            GrAtlasTextBlob::VertexRegenerator::Result result;
+            GrTextBlob::VertexRegenerator::Result result;
             if (!regenerator.regenerate(&result)) {
                 break;
             }

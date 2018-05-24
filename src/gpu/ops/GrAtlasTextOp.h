@@ -25,10 +25,10 @@ public:
         }
     }
 
-    static const int kVerticesPerGlyph = GrAtlasTextBlob::kVerticesPerGlyph;
+    static const int kVerticesPerGlyph = GrTextBlob::kVerticesPerGlyph;
     static const int kIndicesPerGlyph = 6;
 
-    typedef GrAtlasTextBlob Blob;
+    typedef GrTextBlob Blob;
     struct Geometry {
         SkMatrix fViewMatrix;
         SkIRect  fClipRect;

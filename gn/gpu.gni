@@ -407,9 +407,6 @@ skia_gpu_sources = [
   # text
   "$_src/gpu/text/GrAtlasManager.cpp",
   "$_src/gpu/text/GrAtlasManager.h",
-  "$_src/gpu/text/GrAtlasTextBlob.cpp",
-  "$_src/gpu/text/GrAtlasTextBlobVertexRegenerator.cpp",
-  "$_src/gpu/text/GrAtlasTextBlob.h",
   "$_src/gpu/text/GrAtlasTextContext.cpp",
   "$_src/gpu/text/GrAtlasTextContext.h",
   "$_src/gpu/text/GrDistanceFieldAdjustTable.cpp",
@@ -418,8 +415,11 @@ skia_gpu_sources = [
   "$_src/gpu/text/GrGlyphCache.h",
   "$_src/gpu/text/GrSDFMaskFilter.cpp",
   "$_src/gpu/text/GrSDFMaskFilter.h",
+  "$_src/gpu/text/GrTextBlob.cpp",
+  "$_src/gpu/text/GrTextBlob.h",
   "$_src/gpu/text/GrTextBlobCache.cpp",
   "$_src/gpu/text/GrTextBlobCache.h",
+  "$_src/gpu/text/GrTextBlobVertexRegenerator.cpp",
   "$_src/gpu/text/GrTextUtils.cpp",
   "$_src/gpu/text/GrTextUtils.h",
 
