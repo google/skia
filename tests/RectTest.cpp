@@ -139,3 +139,24 @@ DEF_TEST(Rect_setbounds, reporter) {
         }
     }
 }
+
+static float make_big_value(skiatest::Reporter* reporter) {
+    // need to make a big value, one that will cause rect.width() to overflow to inf.
+    // however, the windows compiler wants about this if it can see the big value inlined.
+    // hence, this stupid trick to try to fool their compiler.
+    SkASSERT(reporter);
+    return reporter ? SK_ScalarMax * 0.75f : 0;
+}
+
+DEF_TEST(Rect_center, reporter) {
+    // ensure we can compute center even when the width/height might overflow
+    const SkScalar big = make_big_value(reporter);
+    const SkRect r = { -big, -big, big, big };
+
+    REPORTER_ASSERT(reporter, r.isFinite());
+    REPORTER_ASSERT(reporter, SkScalarIsFinite(r.centerX()));
+    REPORTER_ASSERT(reporter, SkScalarIsFinite(r.centerY()));
+    REPORTER_ASSERT(reporter, !SkScalarIsFinite(r.width()));
+    REPORTER_ASSERT(reporter, !SkScalarIsFinite(r.height()));
+}
+

@@ -931,14 +931,20 @@ struct SK_API SkRect {
 
         @return  midpoint in x
     */
-    SkScalar    centerX() const { return SkScalarHalf(fLeft + fRight); }
+    SkScalar centerX() const {
+        // don't use SkScalarHalf(fLeft + fBottom) as that might overflow before the 0.5
+        return SkScalarHalf(fLeft) + SkScalarHalf(fRight);
+    }
 
     /** Returns average of top edge and bottom edge. Result does not change if SkRect
         is sorted. Result may overflow to infinity if SkRect is far from the origin.
 
         @return  midpoint in y
     */
-    SkScalar    centerY() const { return SkScalarHalf(fTop + fBottom); }
+    SkScalar centerY() const {
+        // don't use SkScalarHalf(fTop + fBottom) as that might overflow before the 0.5
+        return SkScalarHalf(fTop) + SkScalarHalf(fBottom);
+    }
 
     /** Returns true if all members in a: fLeft, fTop, fRight, and fBottom; are
         equal to the corresponding members in b.
