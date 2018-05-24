@@ -16,6 +16,24 @@
       "revId": "d1ece2083550edad0fb22408a5a217c873889d76",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "664ecce6_7aa16afb",
+        "filename": "gm/ninepatchstretch.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-24T18:56:12Z",
+      "side": 1,
+      "message": "The test wants to exercise drawImageNine and drawBitmapNine so it generates fBitmap from fImage.",
+      "parentUuid": "d345a5a6_e8ef1fed",
+      "revId": "d1ece2083550edad0fb22408a5a217c873889d76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
