@@ -9,6 +9,9 @@
 #include "SkMatrix44.h"
 #include "SkBitmapScaler.h"
 #include "SkBlurMaskFilter.h"
+#include "SkPngEncoder.h"
+#include "SkJpegEncoder.h"
+#include "SkWebpEncoder.h"
 
 #if SK_SUPPORT_GPU
 #include "GrTypes.h"
@@ -360,6 +363,28 @@ static_assert ((int)SkHighContrastConfig::InvertStyle::kInvertLightness    == (i
 
 // sk_bitmap_allocflags_t
 static_assert ((int)SkBitmap::AllocFlags::kZeroPixels_AllocFlag   == (int)ZERO_PIXELS_SK_BITMAP_ALLOC_FLAGS,   ASSERT_MSG(SkBitmap::AllocFlags, sk_bitmap_allocflags_t));
+
+// sk_pngencoder_filterflags_t
+static_assert ((int)SkPngEncoder::FilterFlag::kZero    == (int)ZERO_SK_PNGENCODER_FILTER_FLAGS,    ASSERT_MSG(SkPngEncoder::FilterFlag, sk_pngencoder_filterflags_t));
+static_assert ((int)SkPngEncoder::FilterFlag::kNone    == (int)NONE_SK_PNGENCODER_FILTER_FLAGS,    ASSERT_MSG(SkPngEncoder::FilterFlag, sk_pngencoder_filterflags_t));
+static_assert ((int)SkPngEncoder::FilterFlag::kSub     == (int)SUB_SK_PNGENCODER_FILTER_FLAGS,     ASSERT_MSG(SkPngEncoder::FilterFlag, sk_pngencoder_filterflags_t));
+static_assert ((int)SkPngEncoder::FilterFlag::kUp      == (int)UP_SK_PNGENCODER_FILTER_FLAGS,      ASSERT_MSG(SkPngEncoder::FilterFlag, sk_pngencoder_filterflags_t));
+static_assert ((int)SkPngEncoder::FilterFlag::kAvg     == (int)AVG_SK_PNGENCODER_FILTER_FLAGS,     ASSERT_MSG(SkPngEncoder::FilterFlag, sk_pngencoder_filterflags_t));
+static_assert ((int)SkPngEncoder::FilterFlag::kPaeth   == (int)PAETH_SK_PNGENCODER_FILTER_FLAGS,   ASSERT_MSG(SkPngEncoder::FilterFlag, sk_pngencoder_filterflags_t));
+static_assert ((int)SkPngEncoder::FilterFlag::kAll     == (int)ALL_SK_PNGENCODER_FILTER_FLAGS,     ASSERT_MSG(SkPngEncoder::FilterFlag, sk_pngencoder_filterflags_t));
+
+// sk_jpegencoder_downsample_t
+static_assert ((int)SkJpegEncoder::Downsample::k420   == (int)DOWNSAMPLE_420_SK_JPEGENCODER_DOWNSAMPLE,   ASSERT_MSG(SkJpegEncoder::Downsample, sk_jpegencoder_downsample_t));
+static_assert ((int)SkJpegEncoder::Downsample::k422   == (int)DOWNSAMPLE_422_SK_JPEGENCODER_DOWNSAMPLE,   ASSERT_MSG(SkJpegEncoder::Downsample, sk_jpegencoder_downsample_t));
+static_assert ((int)SkJpegEncoder::Downsample::k444   == (int)DOWNSAMPLE_444_SK_JPEGENCODER_DOWNSAMPLE,   ASSERT_MSG(SkJpegEncoder::Downsample, sk_jpegencoder_downsample_t));
+
+// sk_jpegencoder_alphaoption_t
+static_assert ((int)SkJpegEncoder::AlphaOption::kIgnore         == (int)IGNORE_SK_JPEGENCODER_ALPHA_OPTION,           ASSERT_MSG(SkJpegEncoder::AlphaOption, sk_jpegencoder_alphaoption_t));
+static_assert ((int)SkJpegEncoder::AlphaOption::kBlendOnBlack   == (int)BLEND_ON_BLACK_SK_JPEGENCODER_ALPHA_OPTION,   ASSERT_MSG(SkJpegEncoder::AlphaOption, sk_jpegencoder_alphaoption_t));
+
+// sk_webpencoder_compression_t
+static_assert ((int)SkWebpEncoder::Compression::kLossy      == (int)LOSSY_SK_WEBPENCODER_COMPTRESSION,      ASSERT_MSG(SkWebpEncoder::Compression, sk_webpencoder_compression_t));
+static_assert ((int)SkWebpEncoder::Compression::kLossless   == (int)LOSSLESS_SK_WEBPENCODER_COMPTRESSION,   ASSERT_MSG(SkWebpEncoder::Compression, sk_webpencoder_compression_t));
 
 #if SK_SUPPORT_GPU
 

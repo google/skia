@@ -122,3 +122,15 @@ void sk_swizzle_swap_rb(uint32_t* dest, const uint32_t* src, int count)
 {
     SkSwapRB(dest, src, count);
 }
+
+bool sk_webpencoder_encode(sk_wstream_t* dst, const sk_pixmap_t* src, sk_webpencoder_options_t options) {
+    return SkWebpEncoder::Encode(AsWStream(dst), AsPixmap(*src), AsWebpEncoderOptions(options));
+}
+
+bool sk_jpegencoder_encode(sk_wstream_t* dst, const sk_pixmap_t* src, sk_jpegencoder_options_t options) {
+    return SkJpegEncoder::Encode(AsWStream(dst), AsPixmap(*src), AsJpegEncoderOptions(options));
+}
+
+bool sk_pngencoder_encode(sk_wstream_t* dst, const sk_pixmap_t* src, sk_pngencoder_options_t options) {
+    return SkPngEncoder::Encode(AsWStream(dst), AsPixmap(*src), AsPngEncoderOptions(options));
+}

@@ -924,6 +924,55 @@ typedef struct {
     float fContrast;
 } sk_highcontrastconfig_t;
 
+typedef enum {
+    ZERO_SK_PNGENCODER_FILTER_FLAGS  = 0x00,
+    NONE_SK_PNGENCODER_FILTER_FLAGS  = 0x08,
+    SUB_SK_PNGENCODER_FILTER_FLAGS   = 0x10,
+    UP_SK_PNGENCODER_FILTER_FLAGS    = 0x20,
+    AVG_SK_PNGENCODER_FILTER_FLAGS   = 0x40,
+    PAETH_SK_PNGENCODER_FILTER_FLAGS = 0x80,
+    ALL_SK_PNGENCODER_FILTER_FLAGS   = NONE_SK_PNGENCODER_FILTER_FLAGS |
+                                       SUB_SK_PNGENCODER_FILTER_FLAGS |
+                                       UP_SK_PNGENCODER_FILTER_FLAGS | 
+                                       AVG_SK_PNGENCODER_FILTER_FLAGS | 
+                                       PAETH_SK_PNGENCODER_FILTER_FLAGS,
+} sk_pngencoder_filterflags_t;
+
+typedef struct {
+    sk_pngencoder_filterflags_t fFilterFlags;
+    int fZLibLevel;
+    sk_transfer_function_behavior_t fUnpremulBehavior;
+} sk_pngencoder_options_t;
+
+typedef enum {
+    DOWNSAMPLE_420_SK_JPEGENCODER_DOWNSAMPLE,
+    DOWNSAMPLE_422_SK_JPEGENCODER_DOWNSAMPLE,
+    DOWNSAMPLE_444_SK_JPEGENCODER_DOWNSAMPLE,
+} sk_jpegencoder_downsample_t;
+
+typedef enum {
+    IGNORE_SK_JPEGENCODER_ALPHA_OPTION,
+    BLEND_ON_BLACK_SK_JPEGENCODER_ALPHA_OPTION,
+} sk_jpegencoder_alphaoption_t;
+
+typedef struct {
+    int fQuality;
+    sk_jpegencoder_downsample_t fDownsample;
+    sk_jpegencoder_alphaoption_t fAlphaOption;
+    sk_transfer_function_behavior_t fBlendBehavior;
+} sk_jpegencoder_options_t;
+
+typedef enum {
+    LOSSY_SK_WEBPENCODER_COMPTRESSION,
+    LOSSLESS_SK_WEBPENCODER_COMPTRESSION,
+} sk_webpencoder_compression_t;
+
+typedef struct {
+    sk_webpencoder_compression_t fCompression;
+    float fQuality;
+    sk_transfer_function_behavior_t fUnpremulBehavior;
+} sk_webpencoder_options_t;
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

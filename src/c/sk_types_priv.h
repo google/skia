@@ -40,6 +40,9 @@
 #include "SkTime.h"
 #include "SkCamera.h"
 #include "SkHighContrastFilter.h"
+#include "SkPngEncoder.h"
+#include "SkJpegEncoder.h"
+#include "SkWebpEncoder.h"
 
 #include "sk_path.h"
 #include "sk_paint.h"
@@ -861,6 +864,30 @@ static inline sk_vertices_t* ToVertices(SkVertices* p) {
 
 static inline const sk_vertices_t* ToVertices(const SkVertices* p) {
     return reinterpret_cast<const sk_vertices_t*>(p);
+}
+
+static inline const SkPngEncoder::Options& AsPngEncoderOptions(const sk_pngencoder_options_t& p) {
+    return reinterpret_cast<const SkPngEncoder::Options&>(p);
+}
+
+static inline const SkPngEncoder::Options* AsPngEncoderOptions(const sk_pngencoder_options_t* p) {
+    return reinterpret_cast<const SkPngEncoder::Options*>(p);
+}
+
+static inline const SkJpegEncoder::Options& AsJpegEncoderOptions(const sk_jpegencoder_options_t& p) {
+    return reinterpret_cast<const SkJpegEncoder::Options&>(p);
+}
+
+static inline const SkJpegEncoder::Options* AsJpegEncoderOptions(const sk_jpegencoder_options_t* p) {
+    return reinterpret_cast<const SkJpegEncoder::Options*>(p);
+}
+
+static inline const SkWebpEncoder::Options& AsWebpEncoderOptions(const sk_webpencoder_options_t& p) {
+    return reinterpret_cast<const SkWebpEncoder::Options&>(p);
+}
+
+static inline const SkWebpEncoder::Options* AsWebpEncoderOptions(const sk_webpencoder_options_t* p) {
+    return reinterpret_cast<const SkWebpEncoder::Options*>(p);
 }
 
 static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
