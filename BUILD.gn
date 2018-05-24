@@ -55,6 +55,9 @@ declare_args() {
   skia_llvm_lib = "LLVM"
 
   skia_tools_require_resources = false
+
+  # optional modules
+  skia_enable_sksg = true
 }
 declare_args() {
   skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
@@ -798,6 +801,82 @@ optional("xml") {
   ]
 }
 
+template("module") {
+  mod_name = target_name
+  mod_sources = []
+  mod_include = []
+  mod_defines = []
+  mod_configs = []
+  mod_tests_sources = []
+  mod_samples_sources = []
+
+  if (invoker.enabled) {
+    import("modules/" + target_name + "/" + target_name + ".gni")
+
+    mod_sources += module_sources
+    mod_include += module_includes
+
+    if (defined(module_tests_sources)) {
+      mod_tests_sources += module_tests_sources
+    }
+    if (defined(module_samples_sources)) {
+      mod_samples_sources += module_samples_sources
+    }
+
+    if (defined(invoker.public_defines)) {
+      mod_defines += invoker.public_defines
+    }
+    if (defined(invoker.public_configs)) {
+      mod_configs += invoker.public_configs
+    }
+  }
+
+  config(target_name + "_public") {
+    include_dirs = mod_include
+    defines = mod_defines
+    configs = mod_configs
+  }
+
+  source_set(target_name) {
+    sources = mod_sources
+    forward_variables_from(invoker,
+                           "*",
+                           [
+                             "public_defines",
+                             "sources_when_disabled",
+                             "configs_to_remove",
+                           ])
+    all_dependent_configs = [ ":" + target_name + "_public" ]
+    configs += skia_library_configs
+  }
+
+  source_set(target_name + "_tests") {
+    sources = mod_tests_sources
+    configs += skia_library_configs + [
+                 ":gpu_tool_utils_config",
+                 ":tests_config",
+               ]
+    deps = [
+      ":" + mod_name,
+    ]
+  }
+
+  # samples, views are only built for non-wasm
+  if (target_cpu != "wasm") {
+    source_set(target_name + "_samples") {
+      sources = mod_samples_sources
+      configs += skia_library_configs + [
+                   ":samples_config",
+                   ":views_config",
+                   ":gm_config",
+                 ]
+      deps = [
+        ":" + mod_name,
+      ]
+    }
+  }
+}
+
 if (skia_enable_gpu && skia_generate_workarounds) {
   action("workaround_list") {
     script = "tools/build_workaround_header.py"
@@ -1375,10 +1454,10 @@ if (skia_enable_tools) {
     public_include_dirs = [ "gm" ]
     sources = gm_sources
     deps = [
-      ":experimental_sksg",
       ":flags",
       ":gpu_tool_utils",
       ":skia",
+      ":sksg",
       ":tool_utils",
     ]
   }
@@ -1391,10 +1470,10 @@ if (skia_enable_tools) {
       sources -= [ "//tests/FontMgrAndroidParserTest.cpp" ]
     }
     deps = [
-      ":experimental_sksg",
       ":experimental_svg_model",
       ":flags",
       ":skia",
+      ":sksg_tests",
       ":third_party_skcms",
       ":tool_utils",
       "//third_party/libpng",
@@ -1418,9 +1497,16 @@ if (skia_enable_tools) {
     ]
   }
 
+  module("sksg") {
+    enabled = skia_enable_sksg
+    public_defines = [ "SK_HAS_SKSG" ]
+  }
+
   test_lib("experimental_skottie") {
     public_include_dirs = []
     if (skia_enable_skottie) {
+      assert(skia_enable_sksg,
+             "Skottie requires SkSG (skia_enable_sksg == true).")
       public_include_dirs += [ "experimental/skottie" ]
       public_defines = [ "SK_ENABLE_SKOTTIE" ]
       sources = [
@@ -1431,8 +1517,8 @@ if (skia_enable_tools) {
         "experimental/skottie/SkottieValue.cpp",
       ]
       deps = [
-        ":experimental_sksg",
         ":skia",
+        ":sksg",
         "//third_party/rapidjson",
       ]
     }
@@ -1472,44 +1558,6 @@ if (skia_enable_tools) {
         ":xml",
       ]
     }
-  }
-
-  test_lib("experimental_sksg") {
-    public_include_dirs = [
-      "experimental/sksg",
-      "experimental/sksg/effects",
-      "experimental/sksg/geometry",
-      "experimental/sksg/paint",
-    ]
-    sources = [
-      "experimental/sksg/SkSGDraw.cpp",
-      "experimental/sksg/SkSGEffectNode.cpp",
-      "experimental/sksg/SkSGGeometryNode.cpp",
-      "experimental/sksg/SkSGGroup.cpp",
-      "experimental/sksg/SkSGImage.cpp",
-      "experimental/sksg/SkSGInvalidationController.cpp",
-      "experimental/sksg/SkSGNode.cpp",
-      "experimental/sksg/SkSGPaintNode.cpp",
-      "experimental/sksg/SkSGRenderNode.cpp",
-      "experimental/sksg/SkSGScene.cpp",
-      "experimental/sksg/effects/SkSGClipEffect.cpp",
-      "experimental/sksg/effects/SkSGMaskEffect.cpp",
-      "experimental/sksg/effects/SkSGOpacityEffect.cpp",
-      "experimental/sksg/effects/SkSGTransform.cpp",
-      "experimental/sksg/geometry/SkSGGeometryTransform.cpp",
-      "experimental/sksg/geometry/SkSGMerge.cpp",
-      "experimental/sksg/geometry/SkSGPath.cpp",
-      "experimental/sksg/geometry/SkSGPlane.cpp",
-      "experimental/sksg/geometry/SkSGRect.cpp",
-      "experimental/sksg/geometry/SkSGRoundEffect.cpp",
-      "experimental/sksg/geometry/SkSGText.cpp",
-      "experimental/sksg/geometry/SkSGTrimEffect.cpp",
-      "experimental/sksg/paint/SkSGColor.cpp",
-      "experimental/sksg/paint/SkSGGradient.cpp",
-    ]
-    deps = [
-      ":skia",
-    ]
   }
 
   if (target_cpu != "wasm") {
@@ -1590,10 +1638,10 @@ if (skia_enable_tools) {
       include_dirs = [ "experimental" ]
       sources = samples_sources
       deps = [
-        ":experimental_sksg",
         ":experimental_svg_model",
         ":flags",
         ":gm",
+        ":sksg_samples",
         ":skshaper",
         ":tool_utils",
         ":views",
@@ -1619,12 +1667,12 @@ if (skia_enable_tools) {
       deps = [
         ":common_flags",
         ":experimental_skottie",
-        ":experimental_sksg",
         ":experimental_svg_model",
         ":flags",
         ":gm",
         ":gpu_tool_utils",
         ":skia",
+        ":sksg",
         ":tests",
         ":third_party_skcms",
         ":tool_utils",
@@ -1652,12 +1700,12 @@ if (skia_enable_tools) {
     deps = [
       ":bench",
       ":common_flags",
-      ":experimental_sksg",
       ":experimental_svg_model",
       ":flags",
       ":gm",
       ":gpu_tool_utils",
       ":skia",
+      ":sksg",
       ":tool_utils",
       "//third_party/jsoncpp",
     ]
@@ -2059,7 +2107,6 @@ if (skia_enable_tools) {
         "tools/viewer/ImageSlide.cpp",
         "tools/viewer/SKPSlide.cpp",
         "tools/viewer/SampleSlide.cpp",
-        "tools/viewer/SlideDir.cpp",
         "tools/viewer/StatsLayer.cpp",
         "tools/viewer/SvgSlide.cpp",
         "tools/viewer/Viewer.cpp",
@@ -2068,7 +2115,6 @@ if (skia_enable_tools) {
 
       include_dirs = []
       deps = [
-        ":experimental_sksg",
         ":experimental_svg_model",
         ":flags",
         ":gm",
@@ -2076,12 +2122,16 @@ if (skia_enable_tools) {
         ":samples",
         ":sk_app",
         ":skia",
+        ":sksg",
         ":tool_utils",
         ":views",
         "//third_party/imgui",
         "//third_party/jsoncpp",
       ]
 
+      if (skia_enable_sksg) {
+        sources += [ "tools/viewer/SlideDir.cpp" ]
+      }
       if (skia_enable_skottie) {
         sources += [ "tools/viewer/SkottieSlide.cpp" ]
         deps += [ ":experimental_skottie" ]
