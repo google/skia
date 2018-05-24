@@ -43,17 +43,16 @@
 #include "SkReadPixelsRec.h"
 #include "SkTraceEvent.h"
 
-SkImage_Gpu::SkImage_Gpu(GrContext* context, uint32_t uniqueID, SkAlphaType at,
-                         sk_sp<GrTextureProxy> proxy,
-                         sk_sp<SkColorSpace> colorSpace, SkBudgeted budgeted)
-    : INHERITED(proxy->worstCaseWidth(), proxy->worstCaseHeight(), uniqueID)
-    , fContext(context)
-    , fProxy(std::move(proxy))
-    , fAlphaType(at)
-    , fBudgeted(budgeted)
-    , fColorSpace(std::move(colorSpace))
-    , fAddedRasterVersionToCache(false) {
-}
+SkImage_Gpu::SkImage_Gpu(sk_sp<GrContext> context, uint32_t uniqueID, SkAlphaType at,
+                         sk_sp<GrTextureProxy> proxy, sk_sp<SkColorSpace> colorSpace,
+                         SkBudgeted budgeted)
+        : INHERITED(proxy->worstCaseWidth(), proxy->worstCaseHeight(), uniqueID)
+        , fContext(std::move(context))
+        , fProxy(std::move(proxy))
+        , fAlphaType(at)
+        , fBudgeted(budgeted)
+        , fColorSpace(std::move(colorSpace))
+        , fAddedRasterVersionToCache(false) {}
 
 SkImage_Gpu::~SkImage_Gpu() {
     if (fAddedRasterVersionToCache.load()) {
@@ -130,12 +129,12 @@ sk_sp<GrTextureProxy> SkImage_Gpu::asTextureProxyRef(GrContext* context,
                                                      SkColorSpace* dstColorSpace,
                                                      sk_sp<SkColorSpace>* texColorSpace,
                                                      SkScalar scaleAdjust[2]) const {
-    if (context != fContext) {
+    if (context != fContext.get()) {
         SkASSERT(0);
         return nullptr;
     }
 
-    GrTextureAdjuster adjuster(fContext, fProxy, this->alphaType(), this->uniqueID(),
+    GrTextureAdjuster adjuster(fContext.get(), fProxy, this->alphaType(), this->uniqueID(),
                                this->fColorSpace.get());
     return adjuster.refTextureProxyForParams(params, dstColorSpace, texColorSpace, scaleAdjust);
 }
@@ -318,8 +317,8 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
         return nullptr;
     }
 
-    return sk_make_sp<SkImage_Gpu>(ctx, kNeedNewImageUniqueID,
-                                   at, std::move(proxy), std::move(colorSpace), SkBudgeted::kNo);
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, at, std::move(proxy),
+                                   std::move(colorSpace), SkBudgeted::kNo);
 }
 
 bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex, GrPixelConfig* config,
@@ -463,7 +462,7 @@ sk_sp<SkImage> SkImage_Gpu::MakeFromYUVATexturesCopyImpl(GrContext* ctx,
     ctx->contextPriv().flushSurfaceWrites(renderTargetContext->asSurfaceProxy());
 
     // MDB: this call is okay bc we know 'renderTargetContext' was exact
-    return sk_make_sp<SkImage_Gpu>(ctx, kNeedNewImageUniqueID, kOpaque_SkAlphaType,
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, kOpaque_SkAlphaType,
                                    renderTargetContext->asTextureProxyRef(),
                                    renderTargetContext->colorSpaceInfo().refColorSpace(),
                                    SkBudgeted::kYes);
@@ -508,8 +507,8 @@ static sk_sp<SkImage> create_image_from_maker(GrContext* context, GrTextureMaker
     if (!proxy) {
         return nullptr;
     }
-    return sk_make_sp<SkImage_Gpu>(context, id, at,
-                                   std::move(proxy), std::move(texColorSpace), SkBudgeted::kNo);
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), id, at, std::move(proxy),
+                                   std::move(texColorSpace), SkBudgeted::kNo);
 }
 
 sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace) const {
@@ -742,8 +741,8 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
         return nullptr;
     }
 
-    return sk_make_sp<SkImage_Gpu>(context, kNeedNewImageUniqueID, alphaType, std::move(proxy),
-                                   std::move(colorSpace), SkBudgeted::kNo);
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, alphaType,
+                                   std::move(proxy), std::move(colorSpace), SkBudgeted::kNo);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1007,7 +1006,7 @@ bool SkImage_Gpu::onIsValid(GrContext* context) const {
         return false;
     }
 
-    if (context && context != fContext) {
+    if (context && context != fContext.get()) {
         return false;
     }
 

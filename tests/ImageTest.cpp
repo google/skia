@@ -580,6 +580,45 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UnpremulTextureImage, reporter, ctxInfo) {
     }
 }
 
+DEF_GPUTEST(AbandonedContextImage, reporter, options) {
+    using Factory = sk_gpu_test::GrContextFactory;
+    for (int ct = 0; ct < Factory::kContextTypeCnt; ++ct) {
+        auto type = static_cast<Factory::ContextType>(ct);
+        std::unique_ptr<Factory> factory(new Factory);
+        if (!factory->get(type)) {
+            continue;
+        }
+
+        sk_sp<SkImage> img;
+        auto gsurf = SkSurface::MakeRenderTarget(
+                factory->get(type), SkBudgeted::kYes,
+                SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType), 1,
+                nullptr);
+        if (!gsurf) {
+            continue;
+        }
+        img = gsurf->makeImageSnapshot();
+        gsurf.reset();
+
+        auto rsurf = SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(100, 100));
+
+        REPORTER_ASSERT(reporter, img->isValid(factory->get(type)));
+        REPORTER_ASSERT(reporter, img->isValid(rsurf->getCanvas()->getGrContext()));
+
+        factory->get(type)->abandonContext();
+        REPORTER_ASSERT(reporter, !img->isValid(factory->get(type)));
+        REPORTER_ASSERT(reporter, !img->isValid(rsurf->getCanvas()->getGrContext()));
+        // This shouldn't crash.
+        rsurf->getCanvas()->drawImage(img, 0, 0);
+
+        // Give up all other refs on GrContext.
+        factory.reset(nullptr);
+        REPORTER_ASSERT(reporter, !img->isValid(rsurf->getCanvas()->getGrContext()));
+        // This shouldn't crash.
+        rsurf->getCanvas()->drawImage(img, 0, 0);
+    }
+}
+
 #endif
 
 class EmptyGenerator : public SkImageGenerator {

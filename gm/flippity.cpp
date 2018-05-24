@@ -114,7 +114,7 @@ static sk_sp<SkImage> make_reference_image(GrContext* context,
         return nullptr;
     }
 
-    return sk_make_sp<SkImage_Gpu>(context, kNeedNewImageUniqueID, kOpaque_SkAlphaType,
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, kOpaque_SkAlphaType,
                                    std::move(proxy), nullptr, SkBudgeted::kYes);
 }
 

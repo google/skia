@@ -137,8 +137,9 @@ sk_sp<SkImage> GrContextPriv::getFontAtlasImage_ForTesting(GrMaskFormat format, 
     }
 
     SkASSERT(proxies[index]->priv().isExact());
-    sk_sp<SkImage> image(new SkImage_Gpu(fContext, kNeedNewImageUniqueID, kPremul_SkAlphaType,
-                                         proxies[index], nullptr, SkBudgeted::kNo));
+    sk_sp<SkImage> image(new SkImage_Gpu(sk_ref_sp(fContext), kNeedNewImageUniqueID,
+                                         kPremul_SkAlphaType, proxies[index], nullptr,
+                                         SkBudgeted::kNo));
     return image;
 }
 
