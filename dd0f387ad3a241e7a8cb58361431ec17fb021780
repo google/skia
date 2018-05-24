@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2244fca4_d5a1cd41",
+        "filename": "src/core/SkColorSpaceXformSteps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-05-24T18:06:41Z",
+      "side": 1,
+      "message": "We really ought to stop using SkMatrix44 in SkColorSpace.",
+      "range": {
+        "startLine": 65,
+        "startChar": 1,
+        "endLine": 68,
+        "endChar": 0
+      },
+      "revId": "dd0f387ad3a241e7a8cb58361431ec17fb021780",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
