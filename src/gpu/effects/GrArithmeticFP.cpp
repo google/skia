@@ -81,11 +81,16 @@ void GrArithmeticFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrArithmeticFP::onIsEqual(const GrFragmentProcessor& other) const {
     const GrArithmeticFP& that = other.cast<GrArithmeticFP>();
     (void)that;
-    if (fK1 != that.fK1) return false;
-    if (fK2 != that.fK2) return false;
-    if (fK3 != that.fK3) return false;
-    if (fK4 != that.fK4) return false;
-    if (fEnforcePMColor != that.fEnforcePMColor) return false;
+    if (fK1 != that.fK1)
+        return false;
+    if (fK2 != that.fK2)
+        return false;
+    if (fK3 != that.fK3)
+        return false;
+    if (fK4 != that.fK4)
+        return false;
+    if (fEnforcePMColor != that.fEnforcePMColor)
+        return false;
     return true;
 }
 GrArithmeticFP::GrArithmeticFP(const GrArithmeticFP& src)

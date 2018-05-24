@@ -81,9 +81,12 @@ void GrAlphaThresholdFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps
 bool GrAlphaThresholdFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     const GrAlphaThresholdFragmentProcessor& that = other.cast<GrAlphaThresholdFragmentProcessor>();
     (void)that;
-    if (fMask != that.fMask) return false;
-    if (fInnerThreshold != that.fInnerThreshold) return false;
-    if (fOuterThreshold != that.fOuterThreshold) return false;
+    if (fMask != that.fMask)
+        return false;
+    if (fInnerThreshold != that.fInnerThreshold)
+        return false;
+    if (fOuterThreshold != that.fOuterThreshold)
+        return false;
     return true;
 }
 GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(

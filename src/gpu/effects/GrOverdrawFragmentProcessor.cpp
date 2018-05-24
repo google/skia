@@ -71,12 +71,18 @@ void GrOverdrawFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps
 bool GrOverdrawFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     const GrOverdrawFragmentProcessor& that = other.cast<GrOverdrawFragmentProcessor>();
     (void)that;
-    if (fColor0 != that.fColor0) return false;
-    if (fColor1 != that.fColor1) return false;
-    if (fColor2 != that.fColor2) return false;
-    if (fColor3 != that.fColor3) return false;
-    if (fColor4 != that.fColor4) return false;
-    if (fColor5 != that.fColor5) return false;
+    if (fColor0 != that.fColor0)
+        return false;
+    if (fColor1 != that.fColor1)
+        return false;
+    if (fColor2 != that.fColor2)
+        return false;
+    if (fColor3 != that.fColor3)
+        return false;
+    if (fColor4 != that.fColor4)
+        return false;
+    if (fColor5 != that.fColor5)
+        return false;
     return true;
 }
 GrOverdrawFragmentProcessor::GrOverdrawFragmentProcessor(const GrOverdrawFragmentProcessor& src)

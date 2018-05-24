@@ -51,7 +51,8 @@ void GrConfigConversionEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrConfigConversionEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrConfigConversionEffect& that = other.cast<GrConfigConversionEffect>();
     (void)that;
-    if (fPmConversion != that.fPmConversion) return false;
+    if (fPmConversion != that.fPmConversion)
+        return false;
     return true;
 }
 GrConfigConversionEffect::GrConfigConversionEffect(const GrConfigConversionEffect& src)

@@ -134,10 +134,14 @@ void GrRRectBlurEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrRRectBlurEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrRRectBlurEffect& that = other.cast<GrRRectBlurEffect>();
     (void)that;
-    if (fSigma != that.fSigma) return false;
-    if (fRect != that.fRect) return false;
-    if (fCornerRadius != that.fCornerRadius) return false;
-    if (fNinePatchSampler != that.fNinePatchSampler) return false;
+    if (fSigma != that.fSigma)
+        return false;
+    if (fRect != that.fRect)
+        return false;
+    if (fCornerRadius != that.fCornerRadius)
+        return false;
+    if (fNinePatchSampler != that.fNinePatchSampler)
+        return false;
     return true;
 }
 GrRRectBlurEffect::GrRRectBlurEffect(const GrRRectBlurEffect& src)

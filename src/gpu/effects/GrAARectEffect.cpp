@@ -87,8 +87,10 @@ void GrAARectEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrAARectEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrAARectEffect& that = other.cast<GrAARectEffect>();
     (void)that;
-    if (fEdgeType != that.fEdgeType) return false;
-    if (fRect != that.fRect) return false;
+    if (fEdgeType != that.fEdgeType)
+        return false;
+    if (fRect != that.fRect)
+        return false;
     return true;
 }
 GrAARectEffect::GrAARectEffect(const GrAARectEffect& src)

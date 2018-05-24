@@ -142,13 +142,20 @@ void GrMagnifierEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrMagnifierEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrMagnifierEffect& that = other.cast<GrMagnifierEffect>();
     (void)that;
-    if (fSrc != that.fSrc) return false;
-    if (fBounds != that.fBounds) return false;
-    if (fSrcRect != that.fSrcRect) return false;
-    if (fXInvZoom != that.fXInvZoom) return false;
-    if (fYInvZoom != that.fYInvZoom) return false;
-    if (fXInvInset != that.fXInvInset) return false;
-    if (fYInvInset != that.fYInvInset) return false;
+    if (fSrc != that.fSrc)
+        return false;
+    if (fBounds != that.fBounds)
+        return false;
+    if (fSrcRect != that.fSrcRect)
+        return false;
+    if (fXInvZoom != that.fXInvZoom)
+        return false;
+    if (fYInvZoom != that.fYInvZoom)
+        return false;
+    if (fXInvInset != that.fXInvInset)
+        return false;
+    if (fYInvInset != that.fYInvInset)
+        return false;
     return true;
 }
 GrMagnifierEffect::GrMagnifierEffect(const GrMagnifierEffect& src)

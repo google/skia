@@ -71,8 +71,10 @@ void GrConstColorProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrConstColorProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     const GrConstColorProcessor& that = other.cast<GrConstColorProcessor>();
     (void)that;
-    if (fColor != that.fColor) return false;
-    if (fMode != that.fMode) return false;
+    if (fColor != that.fColor)
+        return false;
+    if (fMode != that.fMode)
+        return false;
     return true;
 }
 GrConstColorProcessor::GrConstColorProcessor(const GrConstColorProcessor& src)

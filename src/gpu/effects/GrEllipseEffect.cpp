@@ -114,9 +114,12 @@ void GrEllipseEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrEllipseEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrEllipseEffect& that = other.cast<GrEllipseEffect>();
     (void)that;
-    if (fEdgeType != that.fEdgeType) return false;
-    if (fCenter != that.fCenter) return false;
-    if (fRadii != that.fRadii) return false;
+    if (fEdgeType != that.fEdgeType)
+        return false;
+    if (fCenter != that.fCenter)
+        return false;
+    if (fRadii != that.fRadii)
+        return false;
     return true;
 }
 GrEllipseEffect::GrEllipseEffect(const GrEllipseEffect& src)

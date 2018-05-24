@@ -49,7 +49,8 @@ void GrBlurredEdgeFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& c
 bool GrBlurredEdgeFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     const GrBlurredEdgeFragmentProcessor& that = other.cast<GrBlurredEdgeFragmentProcessor>();
     (void)that;
-    if (fMode != that.fMode) return false;
+    if (fMode != that.fMode)
+        return false;
     return true;
 }
 GrBlurredEdgeFragmentProcessor::GrBlurredEdgeFragmentProcessor(

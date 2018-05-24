@@ -317,10 +317,14 @@ void GrCircleBlurFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& ca
 bool GrCircleBlurFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     const GrCircleBlurFragmentProcessor& that = other.cast<GrCircleBlurFragmentProcessor>();
     (void)that;
-    if (fCircleRect != that.fCircleRect) return false;
-    if (fTextureRadius != that.fTextureRadius) return false;
-    if (fSolidRadius != that.fSolidRadius) return false;
-    if (fBlurProfileSampler != that.fBlurProfileSampler) return false;
+    if (fCircleRect != that.fCircleRect)
+        return false;
+    if (fTextureRadius != that.fTextureRadius)
+        return false;
+    if (fSolidRadius != that.fSolidRadius)
+        return false;
+    if (fBlurProfileSampler != that.fBlurProfileSampler)
+        return false;
     return true;
 }
 GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(

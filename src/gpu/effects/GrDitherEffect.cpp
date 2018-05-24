@@ -58,7 +58,8 @@ void GrDitherEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrDitherEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrDitherEffect& that = other.cast<GrDitherEffect>();
     (void)that;
-    if (fRangeType != that.fRangeType) return false;
+    if (fRangeType != that.fRangeType)
+        return false;
     return true;
 }
 GrDitherEffect::GrDitherEffect(const GrDitherEffect& src)

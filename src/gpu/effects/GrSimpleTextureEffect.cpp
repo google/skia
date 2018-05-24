@@ -45,8 +45,10 @@ void GrSimpleTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrSimpleTextureEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrSimpleTextureEffect& that = other.cast<GrSimpleTextureEffect>();
     (void)that;
-    if (fImage != that.fImage) return false;
-    if (fMatrix != that.fMatrix) return false;
+    if (fImage != that.fImage)
+        return false;
+    if (fMatrix != that.fMatrix)
+        return false;
     return true;
 }
 GrSimpleTextureEffect::GrSimpleTextureEffect(const GrSimpleTextureEffect& src)

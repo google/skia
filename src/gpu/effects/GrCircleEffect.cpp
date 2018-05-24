@@ -92,9 +92,12 @@ void GrCircleEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrCircleEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrCircleEffect& that = other.cast<GrCircleEffect>();
     (void)that;
-    if (fEdgeType != that.fEdgeType) return false;
-    if (fCenter != that.fCenter) return false;
-    if (fRadius != that.fRadius) return false;
+    if (fEdgeType != that.fEdgeType)
+        return false;
+    if (fCenter != that.fCenter)
+        return false;
+    if (fRadius != that.fRadius)
+        return false;
     return true;
 }
 GrCircleEffect::GrCircleEffect(const GrCircleEffect& src)

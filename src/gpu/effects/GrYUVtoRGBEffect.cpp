@@ -136,14 +136,22 @@ void GrYUVtoRGBEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrYUVtoRGBEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrYUVtoRGBEffect& that = other.cast<GrYUVtoRGBEffect>();
     (void)that;
-    if (fYSampler != that.fYSampler) return false;
-    if (fYSamplerTransform != that.fYSamplerTransform) return false;
-    if (fUSampler != that.fUSampler) return false;
-    if (fUSamplerTransform != that.fUSamplerTransform) return false;
-    if (fVSampler != that.fVSampler) return false;
-    if (fVSamplerTransform != that.fVSamplerTransform) return false;
-    if (fColorSpaceMatrix != that.fColorSpaceMatrix) return false;
-    if (fNv12 != that.fNv12) return false;
+    if (fYSampler != that.fYSampler)
+        return false;
+    if (fYSamplerTransform != that.fYSamplerTransform)
+        return false;
+    if (fUSampler != that.fUSampler)
+        return false;
+    if (fUSamplerTransform != that.fUSamplerTransform)
+        return false;
+    if (fVSampler != that.fVSampler)
+        return false;
+    if (fVSamplerTransform != that.fVSamplerTransform)
+        return false;
+    if (fColorSpaceMatrix != that.fColorSpaceMatrix)
+        return false;
+    if (fNv12 != that.fNv12)
+        return false;
     return true;
 }
 GrYUVtoRGBEffect::GrYUVtoRGBEffect(const GrYUVtoRGBEffect& src)
