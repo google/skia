@@ -55,9 +55,6 @@ declare_args() {
   skia_llvm_lib = "LLVM"
 
   skia_tools_require_resources = false
-
-  # optional modules
-  skia_enable_sksg = true
 }
 declare_args() {
   skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
@@ -801,109 +798,6 @@ optional("xml") {
   ]
 }
 
-# Modules are optional Skia components, conforming to the following rules:
-#
-#   * all related files are located under a single
-#       module_dir := ${skia_root}/modules/${module_name}
-#
-#   * there is a top-level ${module_dir}/module.gni defining
-#
-#     'module_includes'        - list of public module include dirs [required]
-#     'module_sources'         - list of module source files        [required]
-#     'module_tests_sources'   - list of module test src files      [optional]
-#     'module_samples_sources' - list of module sample src files    [optional]
-#
-# Template instantiation requires a local 'enabled' predicate.  E.g.:
-#
-#   module("foo") {
-#     enabled = skia_enable_foo
-#     public_defines = [ "SK_HAS_FOO" ]
-#     public_configs = [ ":foo_extra_config" ]
-#     deps = [ ":foodep" ]
-#   }
-#
-# The template emits one public config (':${module_name}_public') and three
-# source_sets: ':${module_name}', ':${module_name}_tests', ':${module_name}_samples'
-#
-# 'public_defines' and 'public_configs' are propagated to the main source set when
-#  the module is enabled.
-#
-template("module") {
-  mod_name = target_name
-  mod_sources = []
-  mod_include = []
-  mod_defines = []
-  mod_configs = []
-  mod_tests_sources = []
-  mod_samples_sources = []
-
-  if (invoker.enabled) {
-    import("modules/" + target_name + "/module.gni")
-
-    mod_sources += module_sources
-    mod_include += module_includes
-
-    if (defined(module_tests_sources)) {
-      mod_tests_sources += module_tests_sources
-    }
-    if (defined(module_samples_sources)) {
-      mod_samples_sources += module_samples_sources
-    }
-
-    if (defined(invoker.public_defines)) {
-      mod_defines += invoker.public_defines
-    }
-    if (defined(invoker.public_configs)) {
-      mod_configs += invoker.public_configs
-    }
-  }
-
-  config(target_name + "_public") {
-    include_dirs = mod_include
-    defines = mod_defines
-    configs = mod_configs
-  }
-
-  source_set(target_name) {
-    sources = mod_sources
-    forward_variables_from(invoker,
-                           "*",
-                           [
-                             "public_defines",
-                             "sources_when_disabled",
-                             "configs_to_remove",
-                           ])
-    all_dependent_configs = [ ":" + target_name + "_public" ]
-    configs += skia_library_configs
-  }
-
-  source_set(target_name + "_tests") {
-    sources = mod_tests_sources
-    configs += skia_library_configs + [
-                 ":gpu_tool_utils_config",
-                 ":tests_config",
-               ]
-    deps = [
-      ":" + mod_name,
-    ]
-  }
-
-  # samples, views are only built for non-wasm
-  if (target_cpu != "wasm") {
-    source_set(target_name + "_samples") {
-      sources = mod_samples_sources
-      configs += skia_library_configs + [
-                   ":samples_config",
-                   ":views_config",
-                   ":gm_config",
-                 ]
-      deps = [
-        ":" + mod_name,
-      ]
-    }
-  }
-}
-
 if (skia_enable_gpu && skia_generate_workarounds) {
   action("workaround_list") {
     script = "tools/build_workaround_header.py"
@@ -1484,8 +1378,8 @@ if (skia_enable_tools) {
       ":flags",
       ":gpu_tool_utils",
       ":skia",
-      ":sksg",
       ":tool_utils",
+      "modules/sksg",
     ]
   }
 
@@ -1500,9 +1394,9 @@ if (skia_enable_tools) {
       ":experimental_svg_model",
       ":flags",
       ":skia",
-      ":sksg_tests",
       ":third_party_skcms",
       ":tool_utils",
+      "modules/sksg:tests",
       "//third_party/libpng",
       "//third_party/zlib",
     ]
@@ -1524,16 +1418,9 @@ if (skia_enable_tools) {
     ]
   }
 
-  module("sksg") {
-    enabled = skia_enable_sksg
-    public_defines = [ "SK_HAS_SKSG" ]
-  }
-
   test_lib("experimental_skottie") {
     public_include_dirs = []
     if (skia_enable_skottie) {
-      assert(skia_enable_sksg,
-             "Skottie requires SkSG (skia_enable_sksg == true).")
       public_include_dirs += [ "experimental/skottie" ]
       public_defines = [ "SK_ENABLE_SKOTTIE" ]
       sources = [
@@ -1545,7 +1432,7 @@ if (skia_enable_tools) {
       ]
       deps = [
         ":skia",
-        ":sksg",
+        "modules/sksg",
         "//third_party/rapidjson",
       ]
     }
@@ -1668,7 +1555,6 @@ if (skia_enable_tools) {
         ":experimental_svg_model",
         ":flags",
         ":gm",
-        ":sksg_samples",
         ":skshaper",
         ":tool_utils",
         ":views",
@@ -1699,10 +1585,10 @@ if (skia_enable_tools) {
         ":gm",
         ":gpu_tool_utils",
         ":skia",
-        ":sksg",
         ":tests",
         ":third_party_skcms",
         ":tool_utils",
+        "modules/sksg",
         "//third_party/jsoncpp",
         "//third_party/libpng",
       ]
@@ -1732,8 +1618,8 @@ if (skia_enable_tools) {
       ":gm",
       ":gpu_tool_utils",
       ":skia",
-      ":sksg",
       ":tool_utils",
+      "modules/sksg",
       "//third_party/jsoncpp",
     ]
   }
@@ -2149,16 +2035,13 @@ if (skia_enable_tools) {
         ":samples",
         ":sk_app",
         ":skia",
-        ":sksg",
         ":tool_utils",
         ":views",
+        "modules/sksg",
         "//third_party/imgui",
         "//third_party/jsoncpp",
       ]
 
-      if (skia_enable_sksg) {
-        sources += [ "tools/viewer/SlideDir.cpp" ]
-      }
       if (skia_enable_skottie) {
         sources += [ "tools/viewer/SkottieSlide.cpp" ]
         deps += [ ":experimental_skottie" ]
