@@ -49,13 +49,12 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
 #endif
 
     bool srcNL = src->nonlinearBlending(),
-         srcPM = srcAT == kPremul_SkAlphaType,
          dstNL = dst->nonlinearBlending();
 
     // Step 1)  get source colors into linear, unpremul format
-    this->early_unpremul =  srcNL && srcPM;
+    this->early_unpremul =  srcNL && srcAT == kPremul_SkAlphaType;
     this->linearize_src  =   true;
-    this->late_unpremul  = !srcNL && srcPM;
+    this->late_unpremul  = !srcNL && srcAT == kPremul_SkAlphaType;
 
     // Step 2)  transform source colors into destination gamut
     this->gamut_transform = (src->toXYZD50Hash() != dst->toXYZD50Hash());
@@ -77,7 +76,7 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
     this->early_encode = dstNL;
 
     // Step 4)  premul so we can blend
-    this->premul = true || !srcPM;
+    this->premul = srcAT != kOpaque_SkAlphaType;
 
     // Step a)  linearize if dst has linear blending
     this->linearize_dst = !dstNL;
