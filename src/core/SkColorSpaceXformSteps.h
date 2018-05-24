@@ -29,11 +29,9 @@ struct SkColorSpaceXformSteps {
     // Post-blend steps.
     bool late_encode;
 
-/* TODO
     SkColorSpaceTransferFn srcTFInv,  // Apply for linearize_src.
                            dstTFInv,  // Apply for linearize_dst.
                            dstTF;     // Apply for early_encode or late_encode.
-*/
     float src_to_dst_matrix[9];       // Apply this 3x3 row-major matrix for gamut_transform.
 };
 
