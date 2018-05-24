@@ -46,6 +46,30 @@
       "revId": "d73ce1289bcbbab89111ed06b56703b1a7e7f7df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5bf0946c_cd093ebf",
+        "filename": "BUILD.gn",
+        "patchSetId": 7
+      },
+      "lineNbr": 2046,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-24T23:12:22Z",
+      "side": 1,
+      "message": "I\u0027m not sure.  This is something Greg and I were puzzling over the other day too, reading a variable out of another BUILD.gn.",
+      "parentUuid": "3decc45f_5933ee8a",
+      "range": {
+        "startLine": 2046,
+        "startChar": 8,
+        "endLine": 2046,
+        "endChar": 29
+      },
+      "revId": "d73ce1289bcbbab89111ed06b56703b1a7e7f7df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
