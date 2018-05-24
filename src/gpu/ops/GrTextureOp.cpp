@@ -790,9 +790,15 @@ __attribute__((no_sanitize("float-cast-overflow")))
             ih[t] = 1.f / texture->height();
         }
 
+#if defined(_MSC_VER) && _MSC_VER <= 1910
+#   define MAYBE_CONSTEXPR const
+#else
+#   define MAYBE_CONSTEXPR constexpr
+#endif
+
         using TessFn =
                 decltype(&TextureOp::tess<SkPoint, MultiTexture::kNo, Domain::kNo, GrAA::kNo>);
-        static constexpr TessFn kTessFns[] = {
+        static MAYBE_CONSTEXPR TessFn kTessFns[] = {
                 &TextureOp::tess<SkPoint,  MultiTexture::kNo,  Domain::kNo,  GrAA::kNo>,
                 &TextureOp::tess<SkPoint,  MultiTexture::kNo,  Domain::kNo,  GrAA::kYes>,
                 &TextureOp::tess<SkPoint,  MultiTexture::kNo,  Domain::kYes, GrAA::kNo>,
