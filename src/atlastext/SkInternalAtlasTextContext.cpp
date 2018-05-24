@@ -77,7 +77,7 @@ void SkInternalAtlasTextContext::recordDraw(const void* srcVertexData, int glyph
     memcpy(vertexData, srcVertexData, vertexDataSize);
     for (int i = 0; i < 4 * glyphCnt; ++i) {
         auto* vertex = reinterpret_cast<SkAtlasTextRenderer::SDFVertex*>(vertexData) + i;
-        // GrAtlasTextContext encodes a texture index into the lower bit of each texture coord.
+        // GrTextContext encodes a texture index into the lower bit of each texture coord.
         // This isn't expected by SkAtlasTextRenderer subclasses.
         vertex->fTextureCoordX /= 2;
         vertex->fTextureCoordY /= 2;

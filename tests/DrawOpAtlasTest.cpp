@@ -33,7 +33,7 @@
 #include "Test.h"
 #include "ops/GrDrawOp.h"
 #include "text/GrAtlasManager.h"
-#include "text/GrAtlasTextContext.h"
+#include "text/GrTextContext.h"
 #include "text/GrTextUtils.h"
 
 #include <memory>
@@ -181,7 +181,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     auto gpu = context->contextPriv().getGpu();
     auto resourceProvider = context->contextPriv().resourceProvider();
     auto drawingManager = context->contextPriv().drawingManager();
-    auto textContext = drawingManager->getAtlasTextContext();
+    auto textContext = drawingManager->getTextContext();
 
     auto rtc =  context->contextPriv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
                                                                        32, 32,

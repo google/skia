@@ -8,7 +8,7 @@
 #ifndef GrTextBlobCache_DEFINED
 #define GrTextBlobCache_DEFINED
 
-#include "GrAtlasTextContext.h"
+#include "GrTextContext.h"
 #include "SkMessageBus.h"
 #include "SkRefCnt.h"
 #include "SkTArray.h"

@@ -16,7 +16,7 @@
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
-#include "text/GrAtlasTextContext.h"
+#include "text/GrTextContext.h"
 #endif
 
 class DiscardableManager : public SkStrikeServer::DiscardableHandleManager,
@@ -342,9 +342,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT, reporter, c
     matrix[SkMatrix::kMPersp0] = 0.5f;
     REPORTER_ASSERT(reporter, matrix.hasPerspective());
     SkSurfaceProps surfaceProps(0, kUnknown_SkPixelGeometry);
-    GrAtlasTextContext::Options options;
-    GrAtlasTextContext::SanitizeOptions(&options);
-    REPORTER_ASSERT(reporter, GrAtlasTextContext::CanDrawAsDistanceFields(
+    GrTextContext::Options options;
+    GrTextContext::SanitizeOptions(&options);
+    REPORTER_ASSERT(reporter, GrTextContext::CanDrawAsDistanceFields(
                                       paint, matrix, surfaceProps, true, options));
 
     // Server.

@@ -31,7 +31,7 @@ class SkDrawFilter;
 class SkTextBlob;
 class SkTextBlobRunIterator;
 
-// With this flag enabled, the GrAtlasTextContext will, as a sanity check, regenerate every blob
+// With this flag enabled, the GrTextContext will, as a sanity check, regenerate every blob
 // that comes in to verify the integrity of its cache
 #define CACHE_SANITY_CHECK 0
 
@@ -322,7 +322,7 @@ private:
      * many SubRuns as it has glyphs, ie if a run alternates between color emoji and A8.  In
      * practice, the vast majority of runs have only a single subrun.
      *
-     * Finally, for runs where the entire thing is too large for the GrAtlasTextContext to
+     * Finally, for runs where the entire thing is too large for the GrTextContext to
      * handle, we have a bit to mark the run as flushable via rendering as paths or as scaled
      * glyphs. It would be a bit expensive to figure out ahead of time whether or not a run
      * can flush in this manner, so we always allocate vertices for the run, regardless of

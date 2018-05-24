@@ -116,20 +116,20 @@ bool GrContext::initCommon(const GrContextOptions& options) {
         prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kCoverageCounting;
     }
 
-    GrAtlasTextContext::Options atlasTextContextOptions;
-    atlasTextContextOptions.fMaxDistanceFieldFontSize = options.fGlyphsAsPathsFontSize;
-    atlasTextContextOptions.fMinDistanceFieldFontSize = options.fMinDistanceFieldFontSize;
-    atlasTextContextOptions.fDistanceFieldVerticesAlwaysHaveW = false;
+    GrTextContext::Options textContextOptions;
+    textContextOptions.fMaxDistanceFieldFontSize = options.fGlyphsAsPathsFontSize;
+    textContextOptions.fMinDistanceFieldFontSize = options.fMinDistanceFieldFontSize;
+    textContextOptions.fDistanceFieldVerticesAlwaysHaveW = false;
 #if SK_SUPPORT_ATLAS_TEXT
     if (GrContextOptions::Enable::kYes == options.fDistanceFieldGlyphVerticesAlwaysHaveW) {
-        atlasTextContextOptions.fDistanceFieldVerticesAlwaysHaveW = true;
+        textContextOptions.fDistanceFieldVerticesAlwaysHaveW = true;
     }
 #endif
 
     bool explicitlyAllocatingResources = fResourceProvider
                                             ? fResourceProvider->explicitlyAllocateGPUResources()
                                             : false;
-    fDrawingManager.reset(new GrDrawingManager(this, prcOptions, atlasTextContextOptions,
+    fDrawingManager.reset(new GrDrawingManager(this, prcOptions, textContextOptions,
                                                &fSingleOwner, explicitlyAllocatingResources,
                                                options.fSortRenderTargets));
 

@@ -48,7 +48,7 @@
 #include "ops/GrShadowRRectOp.h"
 #include "ops/GrStencilPathOp.h"
 #include "ops/GrTextureOp.h"
-#include "text/GrAtlasTextContext.h"
+#include "text/GrTextContext.h"
 #include "text/GrTextUtils.h"
 
 class GrRenderTargetContext::TextTarget : public GrTextUtils::Target {
@@ -226,7 +226,7 @@ void GrRenderTargetContext::drawText(const GrClip& clip, const SkPaint& skPaint,
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawText", fContext);
 
-    GrAtlasTextContext* atlasTextContext = this->drawingManager()->getAtlasTextContext();
+    GrTextContext* atlasTextContext = this->drawingManager()->getTextContext();
     atlasTextContext->drawText(fContext, fTextTarget.get(), clip, skPaint, viewMatrix,
                                fSurfaceProps, text, byteLength, x, y, clipBounds);
 }
@@ -241,7 +241,7 @@ void GrRenderTargetContext::drawPosText(const GrClip& clip, const SkPaint& paint
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawPosText", fContext);
 
-    GrAtlasTextContext* atlasTextContext = this->drawingManager()->getAtlasTextContext();
+    GrTextContext* atlasTextContext = this->drawingManager()->getTextContext();
     atlasTextContext->drawPosText(fContext, fTextTarget.get(), clip, paint, viewMatrix,
                                   fSurfaceProps, text, byteLength, pos, scalarsPerPosition, offset,
                                   clipBounds);
@@ -256,7 +256,7 @@ void GrRenderTargetContext::drawTextBlob(const GrClip& clip, const SkPaint& pain
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTextBlob", fContext);
 
-    GrAtlasTextContext* atlasTextContext = this->drawingManager()->getAtlasTextContext();
+    GrTextContext* atlasTextContext = this->drawingManager()->getTextContext();
     atlasTextContext->drawTextBlob(fContext, fTextTarget.get(), clip, paint, viewMatrix,
                                    fSurfaceProps, blob, x, y, filter, clipBounds);
 }
