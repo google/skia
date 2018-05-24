@@ -102,4 +102,22 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
         this->linearize_src = false;
         this->early_encode  = false;
     }
+
+    // Skip unpremul...premul if there are no non-linear operations between.
+    if ( this->early_unpremul &&
+        !this->linearize_src  &&
+        !this->early_encode   &&
+         this->premul)
+    {
+        this->early_unpremul = false;
+        this->premul         = false;
+    }
+
+    if ( this->late_unpremul &&
+        !this->early_encode  &&
+         this->premul)
+    {
+        this->late_unpremul = false;
+        this->premul        = false;
+    }
 }

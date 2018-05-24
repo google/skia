@@ -69,16 +69,16 @@ DEF_TEST(SkColorSpaceXformSteps, r) {
         { adobe_L, srgb_L, kPremul_SkAlphaType,
             false,  // src is encoded as f(s*a),a, so we linearize before unpremul.
             true,   // Linearize,
-            true,   // then unpremul.
+            false,  // then unpremul, but we can skip this here.
 
             true,   // Gamut transform.
             false,  // We're doing linear blending, so we don't encode to sRGB yet.
-            true,   // Premul so we can blend.
+            false,  // Premul so we can blend, but skipped because we never unpremulled.
 
             true,   // We're doing linear blending, so we need to linearize dst.
             true,   // Once blending is done, finally encode to sRGB.
         },
-        { srgb_L, adobe_L, kPremul_SkAlphaType,  false,true,true, true,false,true, true,true },
+        { srgb_L, adobe_L, kPremul_SkAlphaType,  false,true,false, true,false,false, true,true },
 
         { adobe_L, srgb_N, kPremul_SkAlphaType,
             false,  // src is encoded as f(s*a),a, so we linearize before unpremul.
@@ -138,8 +138,8 @@ DEF_TEST(SkColorSpaceXformSteps, r) {
         { srgb_N, srgb22_N, kPremul_SkAlphaType,   true,true,false, false,true,true,  false,false },
         { srgb22_N, srgb_N, kPremul_SkAlphaType,   true,true,false, false,true,true,  false,false },
 
-        { srgb_L, srgb22_L, kPremul_SkAlphaType,   false,true,true, false,false,true, true,true   },
-        { srgb22_L, srgb_L, kPremul_SkAlphaType,   false,true,true, false,false,true, true,true   },
+        { srgb_L, srgb22_L, kPremul_SkAlphaType,   false,true,false, false,false,false, true,true },
+        { srgb22_L, srgb_L, kPremul_SkAlphaType,   false,true,false, false,false,false, true,true },
 
         { srgb_L, srgb22_N, kPremul_SkAlphaType,   false,true,true, false,true,true,  false,false },
         { srgb22_L, srgb_N, kPremul_SkAlphaType,   false,true,true, false,true,true,  false,false },
@@ -170,10 +170,10 @@ DEF_TEST(SkColorSpaceXformSteps, r) {
 
         // These four test cases test drawing in the same color space.
         // There is lots of room for optimization here.
-        { srgb_N, srgb_N, kPremul_SkAlphaType,   true,false,false, false,false,true,  false,false },
-        { srgb_L, srgb_L, kPremul_SkAlphaType,   false,true,true, false,false,true, true,true   },
-        { srgb_L, srgb_N, kPremul_SkAlphaType,   false,true,true, false,true,true,  false,false },
-        { srgb_N, srgb_L, kPremul_SkAlphaType,   true,true,false, false,false,true, true,true   },
+        { srgb_N, srgb_N, kPremul_SkAlphaType,   false,false,false, false,false,false, false,false},
+        { srgb_L, srgb_L, kPremul_SkAlphaType,   false,true,false,  false,false,false, true,true  },
+        { srgb_L, srgb_N, kPremul_SkAlphaType,   false,true,true,   false,true,true,   false,false},
+        { srgb_N, srgb_L, kPremul_SkAlphaType,   true,true,false,   false,false,true,  true,true  },
 
         // And the usual variants for opaque + unpremul sources.
         { srgb_N, srgb_N,   kOpaque_SkAlphaType, false,false,false, false,false,false, false,false},
