@@ -36,6 +36,7 @@ DEF_TEST(SkColorSpaceXformSteps, r) {
 
     struct {
         sk_sp<SkColorSpace> src, dst;
+        SkAlphaType         srcAT;
 
         bool early_unpremul;
         bool linearize_src;
@@ -51,7 +52,7 @@ DEF_TEST(SkColorSpaceXformSteps, r) {
         // The first eight cases we test are back and forth between two color spaces with
         // different gamuts and transfer functions.  There's not much optimization possible here.
 
-        { adobe_N, srgb_N,
+        { adobe_N, srgb_N, kPremul_SkAlphaType,
             true,   // src is encoded as f(s)*a,a, so we unpremul to f(s),a before linearizing.
             true,   // Linearize to s,a.
             false,
@@ -63,9 +64,9 @@ DEF_TEST(SkColorSpaceXformSteps, r) {
             false,  // Non-linear blending, so no need to linearize dst.
             false,  // Non-linear blending, so the output of our blend function is what we want.
         },
-        { srgb_N, adobe_N,  true,true,false, true,true,true, false,false },
+        { srgb_N, adobe_N, kPremul_SkAlphaType,  true,true,false, true,true,true, false,false },
 
-        { adobe_L, srgb_L,
+        { adobe_L, srgb_L, kPremul_SkAlphaType,
             false,  // src is encoded as f(s*a),a, so we linearize before unpremul.
             true,   // Linearize,
             true,   // then unpremul.
@@ -77,9 +78,9 @@ DEF_TEST(SkColorSpaceXformSteps, r) {
             true,   // We're doing linear blending, so we need to linearize dst.
             true,   // Once blending is done, finally encode to sRGB.
         },
-        { srgb_L, adobe_L, false,true,true, true,false,true, true,true },
+        { srgb_L, adobe_L, kPremul_SkAlphaType,  false,true,true, true,false,true, true,true },
 
-        { adobe_L, srgb_N,
+        { adobe_L, srgb_N, kPremul_SkAlphaType,
             false,  // src is encoded as f(s*a),a, so we linearize before unpremul.
             true,   // Linearize,
             true,   // then unpremul.
@@ -91,9 +92,9 @@ DEF_TEST(SkColorSpaceXformSteps, r) {
             false,  // We're doing non-linear blending, so dst is already ready to blend.
             false,  // The output of the blend is just what we want.
         },
-        { srgb_L, adobe_N,  false,true,true, true,true,true, false,false },
+        { srgb_L, adobe_N, kPremul_SkAlphaType,   false,true,true, true,true,true, false,false },
 
-        { adobe_N, srgb_L,
+        { adobe_N, srgb_L, kPremul_SkAlphaType,
             true,   // src is encoded as f(s)*a,a, so we unpremul to f(s),a before linearizing.
             true,   // Linearize to s,a.
             false,
@@ -105,46 +106,89 @@ DEF_TEST(SkColorSpaceXformSteps, r) {
             true,   // We're doing linear blending, so we need to linearize dst.
             true,   // Once blending is done, finally encode to sRGB.
         },
-        { srgb_N, adobe_L,  true,true,false, true,false,true, true,true },
+        { srgb_N, adobe_L, kPremul_SkAlphaType,   true,true,false, true,false,true, true,true },
+
+        // These next 16 are the previous 8 with opaque and unpremul srcs.
+        // Generally, the steps that change are the early_unpremul, late_unpremul, and premul steps,
+        // but optimizations can sometimes make more steps drop out.
+        { adobe_N, srgb_N, kOpaque_SkAlphaType,   false,true,false, true,true,false,  false,false },
+        { adobe_N, srgb_N, kUnpremul_SkAlphaType, false,true,false, true,true,true,   false,false },
+        { srgb_N, adobe_N, kOpaque_SkAlphaType,   false,true,false, true,true,false,  false,false },
+        { srgb_N, adobe_N, kUnpremul_SkAlphaType, false,true,false, true,true,true,   false,false },
+
+        { adobe_L, srgb_L, kOpaque_SkAlphaType,   false,true,false, true,false,false, true,true },
+        { adobe_L, srgb_L, kUnpremul_SkAlphaType, false,true,false, true,false,true,  true,true },
+        { srgb_L, adobe_L, kOpaque_SkAlphaType,   false,true,false, true,false,false, true,true },
+        { srgb_L, adobe_L, kUnpremul_SkAlphaType, false,true,false, true,false,true,  true,true },
+
+        { adobe_L, srgb_N, kOpaque_SkAlphaType,   false,true,false, true,true,false,  false,false },
+        { adobe_L, srgb_N, kUnpremul_SkAlphaType, false,true,false, true,true,true,   false,false },
+        { srgb_L, adobe_N, kOpaque_SkAlphaType,   false,true,false, true,true,false,  false,false },
+        { srgb_L, adobe_N, kUnpremul_SkAlphaType, false,true,false, true,true,true,   false,false },
+
+        { adobe_N, srgb_L, kOpaque_SkAlphaType,   false,true,false, true,false,false, true,true },
+        { adobe_N, srgb_L, kUnpremul_SkAlphaType, false,true,false, true,false,true,  true,true },
+        { srgb_N, adobe_L, kOpaque_SkAlphaType,   false,true,false, true,false,false, true,true },
+        { srgb_N, adobe_L, kUnpremul_SkAlphaType, false,true,false, true,false,true,  true,true },
 
         // These eight cases transform between color spaces with different
         // transfer functions and the same gamut.  Optimization here is limited
-        // to skipping the gamut_transform step: |
-        //                                       v This column has all become false.
-        { srgb_N, srgb22_N,   true,true,false, false,true,true,  false,false },
-        { srgb22_N, srgb_N,   true,true,false, false,true,true,  false,false },
+        // to skipping the gamut_transform step:                      |
+        //                                                This column v has all become false.
+        { srgb_N, srgb22_N, kPremul_SkAlphaType,   true,true,false, false,true,true,  false,false },
+        { srgb22_N, srgb_N, kPremul_SkAlphaType,   true,true,false, false,true,true,  false,false },
 
-        { srgb_L, srgb22_L,   false,true,true, false,false,true, true,true   },
-        { srgb22_L, srgb_L,   false,true,true, false,false,true, true,true   },
+        { srgb_L, srgb22_L, kPremul_SkAlphaType,   false,true,true, false,false,true, true,true   },
+        { srgb22_L, srgb_L, kPremul_SkAlphaType,   false,true,true, false,false,true, true,true   },
 
-        { srgb_N, srgb22_L,   true,true,false, false,false,true, true,true   },
-        { srgb22_N, srgb_L,   true,true,false, false,false,true, true,true   },
+        { srgb_L, srgb22_N, kPremul_SkAlphaType,   false,true,true, false,true,true,  false,false },
+        { srgb22_L, srgb_N, kPremul_SkAlphaType,   false,true,true, false,true,true,  false,false },
 
-        { srgb_L, srgb22_N,   false,true,true, false,true,true,  false,false },
-        { srgb22_L, srgb_N,   false,true,true, false,true,true,  false,false },
+        { srgb_N, srgb22_L, kPremul_SkAlphaType,   true,true,false, false,false,true, true,true   },
+        { srgb22_N, srgb_L, kPremul_SkAlphaType,   true,true,false, false,false,true, true,true   },
+
+        // Same deal, the next 16 are the previous 8 in opaque and unpremul.
+        { srgb_N, srgb22_N, kOpaque_SkAlphaType,   false,true,false, false,true,false, false,false},
+        { srgb_N, srgb22_N, kUnpremul_SkAlphaType, false,true,false, false,true,true,  false,false},
+        { srgb22_N, srgb_N, kOpaque_SkAlphaType,   false,true,false, false,true,false, false,false},
+        { srgb22_N, srgb_N, kUnpremul_SkAlphaType, false,true,false, false,true,true,  false,false},
+
+        { srgb_L, srgb22_L, kOpaque_SkAlphaType,   false,true,false, false,false,false, true,true },
+        { srgb_L, srgb22_L, kUnpremul_SkAlphaType, false,true,false, false,false,true,  true,true },
+        { srgb22_L, srgb_L, kOpaque_SkAlphaType,   false,true,false, false,false,false, true,true },
+        { srgb22_L, srgb_L, kUnpremul_SkAlphaType, false,true,false, false,false,true,  true,true },
+
+        { srgb_L, srgb22_N, kOpaque_SkAlphaType,   false,true,false, false,true,false, false,false},
+        { srgb_L, srgb22_N, kUnpremul_SkAlphaType, false,true,false, false,true,true,  false,false},
+        { srgb22_L, srgb_N, kOpaque_SkAlphaType,   false,true,false, false,true,false, false,false},
+        { srgb22_L, srgb_N, kUnpremul_SkAlphaType, false,true,false, false,true,true,  false,false},
+
+        { srgb_N, srgb22_L, kOpaque_SkAlphaType,   false,true,false, false,false,false, true,true },
+        { srgb_N, srgb22_L, kUnpremul_SkAlphaType, false,true,false, false,false,true,  true,true },
+        { srgb22_N, srgb_L, kOpaque_SkAlphaType,   false,true,false, false,false,false, true,true },
+        { srgb22_N, srgb_L, kUnpremul_SkAlphaType, false,true,false, false,false,true,  true,true },
 
         // These four test cases test drawing in the same color space.
         // There is lots of room for optimization here.
-        { srgb_N, srgb_N,   true,true,false, false,true,true,  false,false },  // a.k.a  legacy 8888
-        { srgb_L, srgb_L,   false,true,true, false,false,true, true,true   },  // <canvas> use case
-        { srgb_N, srgb_L,   true,true,false, false,false,true, true,true   },
-        { srgb_L, srgb_N,   false,true,true, false,true,true,  false,false },
+        { srgb_N, srgb_N, kPremul_SkAlphaType,   true,true,false, false,true,true,  false,false },
+        { srgb_L, srgb_L, kPremul_SkAlphaType,   false,true,true, false,false,true, true,true   },
+        { srgb_L, srgb_N, kPremul_SkAlphaType,   false,true,true, false,true,true,  false,false },
+        { srgb_N, srgb_L, kPremul_SkAlphaType,   true,true,false, false,false,true, true,true   },
+
+        // And the usual variants for opaque + unpremul sources.
+        { srgb_N, srgb_N,   kOpaque_SkAlphaType, false,true,false, false,true,false,  false,false },
+        { srgb_N, srgb_N, kUnpremul_SkAlphaType, false,true,false, false,true,true,   false,false },
+        { srgb_L, srgb_L,   kOpaque_SkAlphaType, false,true,false, false,false,false, true,true   },
+        { srgb_L, srgb_L, kUnpremul_SkAlphaType, false,true,false, false,false,true,  true,true   },
+        { srgb_L, srgb_N,   kOpaque_SkAlphaType, false,true,false, false,true,false,  false,false },
+        { srgb_L, srgb_N, kUnpremul_SkAlphaType, false,true,false, false,true,true,   false,false },
+        { srgb_N, srgb_L,   kOpaque_SkAlphaType, false,true,false, false,false,false, true,true   },
+        { srgb_N, srgb_L, kUnpremul_SkAlphaType, false,true,false, false,false,true,  true,true   },
 
         // TODO: versions of above crossing in linear transfer functions
     };
 
     for (auto t : tests) {
-        // Our expectations are written for premul source alpha types.
-        check_eq(r, SkColorSpaceXformSteps(t.src.get(), kPremul_SkAlphaType, t.dst.get()), t);
-
-        // Opaque and unpremul sources should always go through the same steps,
-        // and they should be the same as premul's steps, with these fixed premul/unpremul steps.
-        auto upm = t;
-        upm.early_unpremul = false;
-        upm.late_unpremul  = false;
-        upm.premul         = true;
-
-        check_eq(r, SkColorSpaceXformSteps(t.src.get(), kUnpremul_SkAlphaType, t.dst.get()), upm);
-        check_eq(r, SkColorSpaceXformSteps(t.src.get(),   kOpaque_SkAlphaType, t.dst.get()), upm);
+        check_eq(r, SkColorSpaceXformSteps(t.src.get(), t.srcAT, t.dst.get()), t);
     }
 }
