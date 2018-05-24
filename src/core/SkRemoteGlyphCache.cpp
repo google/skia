@@ -23,7 +23,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrDrawOpAtlas.h"
-#include "text/GrAtlasTextContext.h"
+#include "text/GrTextContext.h"
 #endif
 
 static SkDescriptor* auto_descriptor_from_desc(const SkDescriptor* source_desc,
@@ -280,24 +280,24 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
     runMatrix.preTranslate(it.offset().x(), it.offset().y());
 
 #if SK_SUPPORT_GPU
-    GrAtlasTextContext::Options options;
+    GrTextContext::Options options;
     options.fMinDistanceFieldFontSize = fSettings.fMinDistanceFieldFontSize;
     options.fMaxDistanceFieldFontSize = fSettings.fMaxDistanceFieldFontSize;
-    GrAtlasTextContext::SanitizeOptions(&options);
-    if (GrAtlasTextContext::CanDrawAsDistanceFields(runPaint, runMatrix, fSurfaceProps,
+    GrTextContext::SanitizeOptions(&options);
+    if (GrTextContext::CanDrawAsDistanceFields(runPaint, runMatrix, fSurfaceProps,
                                                     fSettings.fContextSupportsDistanceFieldText,
                                                     options)) {
         SkScalar textRatio;
         SkPaint dfPaint(runPaint);
         SkScalerContextFlags flags;
-        GrAtlasTextContext::InitDistanceFieldPaint(nullptr, &dfPaint, runMatrix, options,
+        GrTextContext::InitDistanceFieldPaint(nullptr, &dfPaint, runMatrix, options,
                                                    &textRatio, &flags);
         this->processGlyphRunForDFT(it, dfPaint, flags);
     }
 #endif
 
     // If the matrix has perspective, we fall back to using distance field text or paths.
-    // TODO: Add distance field text support, and FallbackTextHelper logic from GrAtlasTextContext.
+    // TODO: Add distance field text support, and FallbackTextHelper logic from GrTextContext.
     if (SkDraw::ShouldDrawTextAsPaths(runPaint, runMatrix)) {
         this->processGlyphRunForPaths(it, runPaint);
         return;
@@ -387,7 +387,7 @@ void SkTextBlobCacheDiffCanvas::processGlyphRunForPaths(const SkTextBlobRunItera
                                                         const SkPaint& runPaint) {
     TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRunForPaths");
 
-    // The code below borrowed from GrAtlasTextContext::DrawBmpPosTextAsPaths.
+    // The code below borrowed from GrTextContext::DrawBmpPosTextAsPaths.
     SkPaint pathPaint(runPaint);
     pathPaint.setupForAsPaths();
     pathPaint.setStyle(SkPaint::kFill_Style);

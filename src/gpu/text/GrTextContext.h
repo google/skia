@@ -25,7 +25,7 @@ class SkGlyph;
 /*
  * Renders text using some kind of an atlas, ie BitmapText or DistanceField text
  */
-class GrAtlasTextContext {
+class GrTextContext {
 public:
     struct Options {
         /**
@@ -42,7 +42,7 @@ public:
         bool fDistanceFieldVerticesAlwaysHaveW = false;
     };
 
-    static std::unique_ptr<GrAtlasTextContext> Make(const Options& options);
+    static std::unique_ptr<GrTextContext> Make(const Options& options);
 
     void drawText(GrContext*, GrTextUtils::Target*, const GrClip&, const SkPaint&,
                   const SkMatrix& viewMatrix, const SkSurfaceProps&, const char text[],
@@ -55,7 +55,7 @@ public:
                       const SkMatrix& viewMatrix, const SkSurfaceProps&, const SkTextBlob*,
                       SkScalar x, SkScalar y, SkDrawFilter*, const SkIRect& clipBounds);
 
-    std::unique_ptr<GrDrawOp> createOp_TestingOnly(GrContext*, GrAtlasTextContext*,
+    std::unique_ptr<GrDrawOp> createOp_TestingOnly(GrContext*, GrTextContext*,
                                                    GrRenderTargetContext*, const SkPaint&,
                                                    const SkMatrix& viewMatrix, const char* text,
                                                    int x, int y);
@@ -73,7 +73,7 @@ public:
                                        SkScalerContextFlags* flags);
 
 private:
-    GrAtlasTextContext(const Options& options);
+    GrTextContext(const Options& options);
 
     class FallbackTextHelper {
     public:
