@@ -51,6 +51,50 @@
 #error "Vulkan header version is too low"
 #endif
 
+// The AMD VulkanMemoryAllocator needs the objects from this extension to be declared.
+#ifndef VK_KHR_get_memory_requirements2
+
+#define VK_KHR_get_memory_requirements2 1
+#define VK_KHR_GET_MEMORY_REQUIREMENTS_2_SPEC_VERSION 1
+#define VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME "VK_KHR_get_memory_requirements2"
+
+typedef struct VkBufferMemoryRequirementsInfo2KHR {
+    VkStructureType    sType;
+    const void*        pNext;
+    VkBuffer           buffer;
+} VkBufferMemoryRequirementsInfo2KHR;
+
+typedef struct VkImageMemoryRequirementsInfo2KHR {
+    VkStructureType    sType;
+    const void*        pNext;
+    VkImage            image;
+} VkImageMemoryRequirementsInfo2KHR;
+
+typedef struct VkImageSparseMemoryRequirementsInfo2KHR {
+    VkStructureType    sType;
+    const void*        pNext;
+    VkImage            image;
+} VkImageSparseMemoryRequirementsInfo2KHR;
+
+typedef struct VkMemoryRequirements2KHR {
+    VkStructureType         sType;
+    void*                   pNext;
+    VkMemoryRequirements    memoryRequirements;
+} VkMemoryRequirements2KHR;
+
+typedef struct VkSparseImageMemoryRequirements2KHR {
+    VkStructureType                    sType;
+    void*                              pNext;
+    VkSparseImageMemoryRequirements    memoryRequirements;
+} VkSparseImageMemoryRequirements2KHR;
+
+
+typedef void (VKAPI_PTR *PFN_vkGetImageMemoryRequirements2KHR)(VkDevice device, const VkImageMemoryRequirementsInfo2KHR* pInfo, VkMemoryRequirements2KHR* pMemoryRequirements);
+typedef void (VKAPI_PTR *PFN_vkGetBufferMemoryRequirements2KHR)(VkDevice device, const VkBufferMemoryRequirementsInfo2KHR* pInfo, VkMemoryRequirements2KHR* pMemoryRequirements);
+typedef void (VKAPI_PTR *PFN_vkGetImageSparseMemoryRequirements2KHR)(VkDevice device, const VkImageSparseMemoryRequirementsInfo2KHR* pInfo, uint32_t* pSparseMemoryRequirementCount, VkSparseImageMemoryRequirements2KHR* pSparseMemoryRequirements);
+
+#endif // VK_KHR_get_memory_requirements2
+
 #endif
 
 #endif
