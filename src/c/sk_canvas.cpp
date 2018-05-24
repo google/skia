@@ -297,3 +297,31 @@ void sk_canvas_draw_image_nine(sk_canvas_t* ccanvas,
 void sk_canvas_draw_vertices(sk_canvas_t* ccanvas, sk_vertices_t* vertices, sk_blendmode_t mode, const sk_paint_t* paint) {
     AsCanvas(ccanvas)->drawVertices(AsVertices(vertices), (SkBlendMode)mode, AsPaint(*paint));
 }
+
+sk_nodraw_canvas_t* sk_nodraw_canvas_new(int width, int height) {
+    return ToNoDrawCanvas(new SkNoDrawCanvas(width, height));
+}
+
+void sk_nodraw_canvas_destroy(sk_nodraw_canvas_t* t) {
+    delete AsNoDrawCanvas(t);
+}
+
+sk_nway_canvas_t* sk_nway_canvas_new(int width, int height) {
+    return ToNWayCanvas(new SkNWayCanvas(width, height));
+}
+
+void sk_nway_canvas_destroy(sk_nway_canvas_t* t) {
+    delete AsNWayCanvas(t);
+}
+
+void sk_nway_canvas_add_canvas(sk_nway_canvas_t* t, sk_canvas_t* canvas) {
+    AsNWayCanvas(t)->addCanvas(AsCanvas(canvas));
+}
+
+void sk_nway_canvas_remove_canvas(sk_nway_canvas_t* t, sk_canvas_t* canvas) {
+    AsNWayCanvas(t)->removeCanvas(AsCanvas(canvas));
+}
+
+void sk_nway_canvas_remove_all(sk_nway_canvas_t* t) {
+    AsNWayCanvas(t)->removeAll();
+}

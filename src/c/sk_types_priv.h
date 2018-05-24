@@ -10,6 +10,8 @@
 
 #include "SkImageInfo.h"
 #include "SkCanvas.h"
+#include "SkNoDrawCanvas.h"
+#include "SkNWayCanvas.h"
 #include "SkSurface.h"
 #include "SkVertices.h"
 #include "SkBlurTypes.h"
@@ -249,6 +251,22 @@ static inline sk_canvas_t* ToCanvas(SkCanvas* canvas) {
 
 static inline SkCanvas* AsCanvas(sk_canvas_t* ccanvas) {
     return reinterpret_cast<SkCanvas*>(ccanvas);
+}
+
+static inline sk_nodraw_canvas_t* ToNoDrawCanvas(SkNoDrawCanvas* canvas) {
+    return reinterpret_cast<sk_nodraw_canvas_t*>(canvas);
+}
+
+static inline SkNoDrawCanvas* AsNoDrawCanvas(sk_nodraw_canvas_t* ccanvas) {
+    return reinterpret_cast<SkNoDrawCanvas*>(ccanvas);
+}
+
+static inline sk_nway_canvas_t* ToNWayCanvas(SkNWayCanvas* canvas) {
+    return reinterpret_cast<sk_nway_canvas_t*>(canvas);
+}
+
+static inline SkNWayCanvas* AsNWayCanvas(sk_nway_canvas_t* ccanvas) {
+    return reinterpret_cast<SkNWayCanvas*>(ccanvas);
 }
 
 static inline SkPictureRecorder* AsPictureRecorder(sk_picture_recorder_t* crec) {
