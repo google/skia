@@ -139,3 +139,16 @@ DEF_TEST(Rect_setbounds, reporter) {
         }
     }
 }
+
+DEF_TEST(Rect_center, reporter) {
+    // ensure we can compute center even when the width/height might overflow
+    const SkScalar big = SK_ScalarMax * 0.75f;
+    const SkRect r = { -big, -big, big, big };
+
+    REPORTER_ASSERT(reporter, r.isFinite());
+    REPORTER_ASSERT(reporter, SkScalarIsFinite(r.centerX()));
+    REPORTER_ASSERT(reporter, SkScalarIsFinite(r.centerY()));
+    REPORTER_ASSERT(reporter, !SkScalarIsFinite(r.width()));
+    REPORTER_ASSERT(reporter, !SkScalarIsFinite(r.height()));
+}
+
