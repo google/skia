@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "8a8429f3_212af489",
+        "filename": "src/gpu/text/GrAtlasTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-24T19:10:31Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0f4d91c2_4c25b6dd",
+      "range": {
+        "startLine": 31,
+        "startChar": 23,
+        "endLine": 31,
+        "endChar": 33
+      },
+      "revId": "deb9ee58a153be8fd923d53d09e85b08239d0a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6d6a285c_9f40b7b9",
         "filename": "src/gpu/text/GrAtlasTextBlob.h",
         "patchSetId": 2
@@ -60,6 +84,30 @@
       "writtenOn": "2018-05-24T18:23:27Z",
       "side": 1,
       "message": "Can\u0027t we just delete all of this now?",
+      "range": {
+        "startLine": 107,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 53
+      },
+      "revId": "deb9ee58a153be8fd923d53d09e85b08239d0a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6640b77e_c693cce1",
+        "filename": "src/gpu/text/GrAtlasTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-24T19:10:31Z",
+      "side": 1,
+      "message": "The first two are needed because we actually allocate more bytes than sizeof(SkAtlasTextBlob)\nto store arrays.\n\nI tried to delete the last one, but this seems needed to make placement new work in ::Make.",
+      "parentUuid": "6d6a285c_9f40b7b9",
       "range": {
         "startLine": 107,
         "startChar": 0,
@@ -119,6 +167,30 @@
     },
     {
       "key": {
+        "uuid": "c05abfb7_b1dcbcee",
+        "filename": "src/gpu/text/GrTextBlobCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-24T19:10:31Z",
+      "side": 1,
+      "message": "The sub runs are stored in a SkSTArray, and don\u0027t seem to be accounted for. \nBefore all the accounting was done by the pool, and the subruns were not allocated in the pool, and therefore not counted.\n\nThe fact that the DDL implementation bypassed the pool implies that the DDL implementation would never purge based on demand, and never purge based on the message box. Now DDL will purge based on LRU.",
+      "parentUuid": "d51c1dab_870548e3",
+      "range": {
+        "startLine": 168,
+        "startChar": 23,
+        "endLine": 168,
+        "endChar": 35
+      },
+      "revId": "deb9ee58a153be8fd923d53d09e85b08239d0a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a4d2ee86_22c96d95",
         "filename": "src/gpu/text/GrTextBlobCache.h",
         "patchSetId": 2
@@ -139,6 +211,30 @@
       "revId": "deb9ee58a153be8fd923d53d09e85b08239d0a4d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb44b13f_a69c64a3",
+        "filename": "src/gpu/text/GrTextBlobCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-24T19:10:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a4d2ee86_22c96d95",
+      "range": {
+        "startLine": 183,
+        "startChar": 11,
+        "endLine": 183,
+        "endChar": 22
+      },
+      "revId": "deb9ee58a153be8fd923d53d09e85b08239d0a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
