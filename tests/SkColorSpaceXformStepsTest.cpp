@@ -110,25 +110,25 @@ DEF_TEST(SkColorSpaceXformSteps, r) {
         // These eight cases transform between color spaces with different
         // transfer functions and the same gamut.  Optimization here is limited
         // to skipping the gamut_transform step: |
-        //                                       v This column of true can all become false.
-        { srgb_N, srgb22_N,   true,true,false, true,true,true,  false,false },
-        { srgb22_N, srgb_N,   true,true,false, true,true,true,  false,false },
+        //                                       v This column has all become false.
+        { srgb_N, srgb22_N,   true,true,false, false,true,true,  false,false },
+        { srgb22_N, srgb_N,   true,true,false, false,true,true,  false,false },
 
-        { srgb_L, srgb22_L,   false,true,true, true,false,true, true,true   },
-        { srgb22_L, srgb_L,   false,true,true, true,false,true, true,true   },
+        { srgb_L, srgb22_L,   false,true,true, false,false,true, true,true   },
+        { srgb22_L, srgb_L,   false,true,true, false,false,true, true,true   },
 
-        { srgb_N, srgb22_L,   true,true,false, true,false,true, true,true   },
-        { srgb22_N, srgb_L,   true,true,false, true,false,true, true,true   },
+        { srgb_N, srgb22_L,   true,true,false, false,false,true, true,true   },
+        { srgb22_N, srgb_L,   true,true,false, false,false,true, true,true   },
 
-        { srgb_L, srgb22_N,   false,true,true, true,true,true,  false,false },
-        { srgb22_L, srgb_N,   false,true,true, true,true,true,  false,false },
+        { srgb_L, srgb22_N,   false,true,true, false,true,true,  false,false },
+        { srgb22_L, srgb_N,   false,true,true, false,true,true,  false,false },
 
         // These four test cases test drawing in the same color space.
-        // There is lots of room for optimization here, but none implemented yet.
-        { srgb_N, srgb_N,   true,true,false, true,true,true,  false,false },  // a.k.a  legacy 8888
-        { srgb_L, srgb_L,   false,true,true, true,false,true, true,true   },  // <canvas> use case
-        { srgb_N, srgb_L,   true,true,false, true,false,true, true,true   },
-        { srgb_L, srgb_N,   false,true,true, true,true,true,  false,false },
+        // There is lots of room for optimization here.
+        { srgb_N, srgb_N,   true,true,false, false,true,true,  false,false },  // a.k.a  legacy 8888
+        { srgb_L, srgb_L,   false,true,true, false,false,true, true,true   },  // <canvas> use case
+        { srgb_N, srgb_L,   true,true,false, false,false,true, true,true   },
+        { srgb_L, srgb_N,   false,true,true, false,true,true,  false,false },
 
         // TODO: versions of above crossing in linear transfer functions
     };
