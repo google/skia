@@ -6,16 +6,11 @@
 # pylint: disable=W0201
 
 
-import json
-import os
-import re
-import sys
-
 from recipe_engine import recipe_api
 from recipe_engine import config_types
 
 
-class SkiaApi(recipe_api.RecipeApi):
+class CheckoutApi(recipe_api.RecipeApi):
 
   @property
   def default_checkout_root(self):
@@ -26,7 +21,7 @@ class SkiaApi(recipe_api.RecipeApi):
     """Build a ref for the given issue and patchset."""
     return 'refs/changes/%s/%s/%s' % (issue[-2:], issue, patchset)
 
-  def checkout_git(self, checkout_root):
+  def git(self, checkout_root):
     """Run the steps to perform a pure-git checkout without DEPS."""
     skia_dir = checkout_root.join('skia')
     self.m.git.checkout(
@@ -39,7 +34,7 @@ class SkiaApi(recipe_api.RecipeApi):
       self.m.git('rebase', self.m.properties['revision'])
       return self.m.properties['revision']
 
-  def checkout_bot_update(self, checkout_root, gclient_cache=None):
+  def bot_update(self, checkout_root, gclient_cache=None):
     """Run the steps to obtain a checkout using bot_update."""
     if not gclient_cache:
       gclient_cache = self.m.vars.cache_dir.join('git')

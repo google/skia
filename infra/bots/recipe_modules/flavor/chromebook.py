@@ -5,24 +5,21 @@
 
 from recipe_engine import recipe_api
 
-import default_flavor
-import gn_flavor
-import json
-import subprocess
+import default
+import json  # TODO(borenet): No! Remove this.
 
 
-"""
-  GN Chromebook flavor utils, used for building and testing Skia for ARM
-  Chromebooks with GN
-"""
-class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
+"""Chromebook flavor, used for running code on Chromebooks."""
+
+
+class ChromebookFlavor(default.DefaultFlavor):
 
   def __init__(self, m):
-    super(GNChromebookFlavorUtils, self).__init__(m)
+    super(ChromebookFlavor, self).__init__(m)
     self._user_ip = ''
 
     self.chromeos_homedir = '/home/chronos/user/'
-    self.device_dirs = default_flavor.DeviceDirs(
+    self.device_dirs = default.DeviceDirs(
       bin_dir       = self.chromeos_homedir + 'bin',
       dm_dir        = self.chromeos_homedir + 'dm_out',
       perf_data_dir = self.chromeos_homedir + 'perf',

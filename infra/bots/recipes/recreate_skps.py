@@ -7,7 +7,7 @@
 
 
 DEPS = [
-  'core',
+  'checkout',
   'depot_tools/gclient',
   'flavor',
   'infra',
@@ -36,8 +36,8 @@ TEST_BUILDERS = {
 def RunSteps(api):
   # Check out Chrome.
   api.vars.setup()
-  checkout_root = api.core.default_checkout_root
-  api.core.checkout_bot_update(checkout_root=checkout_root)
+  checkout_root = api.checkout.default_checkout_root
+  api.checkout.bot_update(checkout_root=checkout_root)
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
   api.flavor.setup()
 

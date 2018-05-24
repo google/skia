@@ -2,17 +2,19 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+
 from recipe_engine import recipe_api
 
-import default_flavor
-import re
-import subprocess
+from . import default
+import subprocess  # TODO(borenet): No! Remove this.
 
 
-"""GN Android flavor utils, used for building Skia for Android with GN."""
-class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
+"""Android flavor, used for running code on Android."""
+
+
+class AndroidFlavor(default.DefaultFlavor):
   def __init__(self, m):
-    super(GNAndroidFlavorUtils, self).__init__(m)
+    super(AndroidFlavor, self).__init__(m)
     self._ever_ran_adb = False
     self.ADB_BINARY = '/usr/bin/adb.1.0.35'
     self.ADB_PUB_KEY = '/home/chrome-bot/.android/adbkey'
@@ -24,7 +26,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     # Data should go in android_data_dir, which may be preserved across runs.
     android_data_dir = '/sdcard/revenge_of_the_skiabot/'
-    self.device_dirs = default_flavor.DeviceDirs(
+    self.device_dirs = default.DeviceDirs(
         bin_dir       = '/data/local/tmp/',
         dm_dir        = android_data_dir + 'dm_out',
         perf_data_dir = android_data_dir + 'perf',
