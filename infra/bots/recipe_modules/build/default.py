@@ -146,9 +146,10 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_use_egl'] = 'true'
     extra_cflags.extend([
         '-DGR_EGL_TRY_GLES3_THEN_GLES2',
-        # TODO(dogben): Use headers from Khronos rather than SwiftShader's
-        # copy.
-        '-I%s' % swiftshader_root.join('include'),
+        '-I%s' % skia_dir.join(
+            'third_party', 'externals', 'egl-registry', 'api'),
+        '-I%s' % skia_dir.join(
+            'third_party', 'externals', 'opengl-registry', 'api'),
     ])
     extra_ldflags.extend([
         '-L%s' % swiftshader_out,
