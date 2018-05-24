@@ -34,10 +34,6 @@ namespace GrVkMemory {
                                  GrVkAlloc* alloc);
     void FreeImageMemory(const GrVkGpu* gpu, bool linearTiling, const GrVkAlloc& alloc);
 
-    VkPipelineStageFlags LayoutToPipelineStageFlags(const VkImageLayout layout);
-
-    VkAccessFlags LayoutToSrcAccessMask(const VkImageLayout layout);
-
     void FlushMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc, VkDeviceSize offset,
                           VkDeviceSize size);
     void InvalidateMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc, VkDeviceSize offset,

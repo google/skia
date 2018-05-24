@@ -1391,7 +1391,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
     memset(&barrier, 0, sizeof(VkImageMemoryBarrier));
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
     barrier.pNext = nullptr;
-    barrier.srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(initialLayout);
+    barrier.srcAccessMask = GrVkImage::LayoutToSrcAccessMask(initialLayout);
     barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
     barrier.oldLayout = initialLayout;
     barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
@@ -1400,7 +1400,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
     barrier.image = image;
     barrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, mipLevels, 0, 1};
 
-    VK_CALL(CmdPipelineBarrier(cmdBuffer, GrVkMemory::LayoutToPipelineStageFlags(initialLayout),
+    VK_CALL(CmdPipelineBarrier(cmdBuffer, GrVkImage::LayoutToPipelineStageFlags(initialLayout),
                                VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1,
                                &barrier));
     initialLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
@@ -1432,7 +1432,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
         memset(&barrier, 0, sizeof(VkImageMemoryBarrier));
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
         barrier.pNext = nullptr;
-        barrier.srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(initialLayout);
+        barrier.srcAccessMask = GrVkImage::LayoutToSrcAccessMask(initialLayout);
         barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
         barrier.oldLayout = initialLayout;
         barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -1441,7 +1441,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
         barrier.image = image;
         barrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, mipLevels, 0, 1};
         VK_CALL(CmdPipelineBarrier(cmdBuffer,
-                                   GrVkMemory::LayoutToPipelineStageFlags(initialLayout),
+                                   GrVkImage::LayoutToPipelineStageFlags(initialLayout),
                                    VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
                                    0,
                                    0, nullptr,

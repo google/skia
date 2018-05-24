@@ -12,8 +12,8 @@
 #include "SkSurface.h"
 #include "VulkanWindowContext.h"
 
+#include "vk/GrVkImage.h"
 #include "vk/GrVkInterface.h"
-#include "vk/GrVkMemory.h"
 #include "vk/GrVkUtil.h"
 #include "vk/GrVkTypes.h"
 
@@ -565,9 +565,9 @@ void VulkanWindowContext::swapBuffers() {
     SkASSERT(imageInfo.fImage == fImages[backbuffer->fImageIndex]);
 
     VkImageLayout layout = imageInfo.fImageLayout;
-    VkPipelineStageFlags srcStageMask = GrVkMemory::LayoutToPipelineStageFlags(layout);
+    VkPipelineStageFlags srcStageMask = GrVkImage::LayoutToPipelineStageFlags(layout);
     VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-    VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(layout);
+    VkAccessFlags srcAccessMask = GrVkImage::LayoutToSrcAccessMask(layout);
     VkAccessFlags dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
 
     VkImageMemoryBarrier imageMemoryBarrier = {
