@@ -58,7 +58,20 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
     this->late_unpremul  = !srcNL && srcPM;
 
     // Step 2)  transform source colors into destination gamut
-    this->gamut_transform = true;
+    this->gamut_transform = (src->toXYZD50Hash() != dst->toXYZD50Hash());
+
+    if (this->gamut_transform && src->toXYZD50() && dst->fromXYZD50()) {
+        auto xform = SkMatrix44(*src->toXYZD50(),  *dst->fromXYZD50());
+        if (xform.get(3,0) == 0 && xform.get(3,1) == 0 && xform.get(3,2) == 0 &&
+            xform.get(3,3) == 1 &&
+            xform.get(0,3) == 0 && xform.get(1,3) == 0 && xform.get(2,3) == 0) {
+
+            for (int r = 0; r < 3; r++)
+            for (int c = 0; c < 3; c++) {
+                this->src_to_dst_matrix[3*r+c] = xform.get(r,c);
+            }
+        }
+    }
 
     // Step 3)  encode with dst transfer function if dst has non-linear blending
     this->early_encode = dstNL;
