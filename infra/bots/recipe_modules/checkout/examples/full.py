@@ -4,7 +4,7 @@
 
 
 DEPS = [
-  'core',
+  'checkout',
   'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/properties',
@@ -21,12 +21,12 @@ def RunSteps(api):
     bot_update = False
 
   if bot_update:
-    checkout_root = api.core.default_checkout_root
+    checkout_root = api.checkout.default_checkout_root
     if 'Flutter' in api.vars.builder_name:
       checkout_root = checkout_root.join('flutter')
-    api.core.checkout_bot_update(checkout_root=checkout_root)
+    api.checkout.bot_update(checkout_root=checkout_root)
   else:
-    api.core.checkout_git(checkout_root=api.path['start_dir'])
+    api.checkout.git(checkout_root=api.path['start_dir'])
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
 
 

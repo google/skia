@@ -4,15 +4,16 @@
 
 from recipe_engine import recipe_api
 
-import default_flavor
-import gn_android_flavor
-import subprocess
+from . import android
+from . import default
 
 
-"""GN Chromecast flavor utils, used for building Skia for Chromecast with GN"""
-class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
+"""Chromecast flavor, used for running code on Chromecast"""
+
+
+class ChromecastFlavor(android.AndroidFlavor):
   def __init__(self, m):
-    super(GNChromecastFlavorUtils, self).__init__(m)
+    super(ChromecastFlavor, self).__init__(m)
     self._ever_ran_adb = False
     self._user_ip = ''
 
@@ -21,7 +22,7 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
     # resources, executable and output the dm images.  So, we have dm_out be
     # on the tempfs (i.e. RAM) /dev/shm. (which is about 140M)
     data_dir = '/cache/skia/'
-    self.device_dirs = default_flavor.DeviceDirs(
+    self.device_dirs = default.DeviceDirs(
         bin_dir       = '/cache/skia/bin',
         dm_dir        = '/dev/shm/skia/dm_out',
         perf_data_dir = data_dir + 'perf',
@@ -51,7 +52,7 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
     return self.user_ip_host.split(':')[0]
 
   def install(self):
-    super(GNChromecastFlavorUtils, self).install()
+    super(ChromecastFlavor, self).install()
     self._adb('mkdir ' + self.device_dirs.bin_dir,
               'shell', 'mkdir', '-p', self.device_dirs.bin_dir)
 
