@@ -433,7 +433,7 @@ bool skcms_Transform(const void*             src,
         *ops++ = Op_swap_rb;
     }
 
-    if (srcProfile->data_color_space == skcms_Signature_CMYK) {
+    if (srcProfile && srcProfile->data_color_space == skcms_Signature_CMYK) {
         // Photoshop creates CMYK images as inverse CMYK.
         // These happen to be the only ones we've _ever_ seen.
         *ops++ = Op_invert;
