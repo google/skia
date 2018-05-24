@@ -22,6 +22,30 @@
       "revId": "d73ce1289bcbbab89111ed06b56703b1a7e7f7df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3decc45f_5933ee8a",
+        "filename": "BUILD.gn",
+        "patchSetId": 7
+      },
+      "lineNbr": 2046,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-24T22:03:41Z",
+      "side": 1,
+      "message": "\u003e (if not, it\u0027s not a big deal: I can include the source unconditionally and guard inside based on SK_HAS_SKSG)\n\nDone.",
+      "parentUuid": "5200b61d_adad4be6",
+      "range": {
+        "startLine": 2046,
+        "startChar": 8,
+        "endLine": 2046,
+        "endChar": 29
+      },
+      "revId": "d73ce1289bcbbab89111ed06b56703b1a7e7f7df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
