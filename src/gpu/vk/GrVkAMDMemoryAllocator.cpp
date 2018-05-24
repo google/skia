@@ -8,6 +8,7 @@
 #include "GrVkAMDMemoryAllocator.h"
 
 #include "vk/GrVkInterface.h"
+#include "GrVkMemory.h"
 #include "GrVkUtil.h"
 
 GrVkAMDMemoryAllocator::GrVkAMDMemoryAllocator(VkPhysicalDevice physicalDevice,
@@ -198,24 +199,9 @@ void GrVkAMDMemoryAllocator::flushMappedMemory(const GrVkBackendMemory& memoryHa
         vmaGetPhysicalDeviceProperties(fAllocator, &physDevProps);
         VkDeviceSize alignment = physDevProps->limits.nonCoherentAtomSize;
 
-        offset = offset + info.fOffset;
-        VkDeviceSize offsetDiff = offset & (alignment -1);
-        offset = offset - offsetDiff;
-        size = (size + alignment - 1) & ~(alignment - 1);
-#ifdef SK_DEBUG
-        SkASSERT(offset >= info.fOffset);
-        SkASSERT(offset + size <= info.fOffset + info.fSize);
-        SkASSERT(0 == (offset & (alignment-1)));
-        SkASSERT(size > 0);
-        SkASSERT(0 == (size & (alignment-1)));
-#endif
-
         VkMappedMemoryRange mappedMemoryRange;
-        memset(&mappedMemoryRange, 0, sizeof(VkMappedMemoryRange));
-        mappedMemoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-        mappedMemoryRange.memory = info.fMemory;
-        mappedMemoryRange.offset = offset;
-        mappedMemoryRange.size = size;
+        GrVkMemory::GetNonCoherentMappedMemoryRange(info, offset, size, alignment,
+                                                    &mappedMemoryRange);
         GR_VK_CALL(fInterface, FlushMappedMemoryRanges(fDevice, 1, &mappedMemoryRange));
     }
 }
@@ -231,24 +217,9 @@ void GrVkAMDMemoryAllocator::invalidateMappedMemory(const GrVkBackendMemory& mem
         vmaGetPhysicalDeviceProperties(fAllocator, &physDevProps);
         VkDeviceSize alignment = physDevProps->limits.nonCoherentAtomSize;
 
-        offset = offset + info.fOffset;
-        VkDeviceSize offsetDiff = offset & (alignment -1);
-        offset = offset - offsetDiff;
-        size = (size + alignment - 1) & ~(alignment - 1);
-#ifdef SK_DEBUG
-        SkASSERT(offset >= info.fOffset);
-        SkASSERT(offset + size <= info.fOffset + info.fSize);
-        SkASSERT(0 == (offset & (alignment-1)));
-        SkASSERT(size > 0);
-        SkASSERT(0 == (size & (alignment-1)));
-#endif
-
         VkMappedMemoryRange mappedMemoryRange;
-        memset(&mappedMemoryRange, 0, sizeof(VkMappedMemoryRange));
-        mappedMemoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-        mappedMemoryRange.memory = info.fMemory;
-        mappedMemoryRange.offset = offset;
-        mappedMemoryRange.size = size;
+        GrVkMemory::GetNonCoherentMappedMemoryRange(info, offset, size, alignment,
+                                                    &mappedMemoryRange);
         GR_VK_CALL(fInterface, InvalidateMappedMemoryRanges(fDevice, 1, &mappedMemoryRange));
     }
 }
