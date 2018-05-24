@@ -1331,7 +1331,7 @@ SkScalar SkConic::TransformW(const SkPoint pts[], SkScalar w, const SkMatrix& ma
     double w0 = dst[0].fZ;
     double w1 = dst[1].fZ;
     double w2 = dst[2].fZ;
-    return sk_double_to_float(sqrt((w1 * w1) / (w0 * w2)));
+    return sk_double_to_float(sqrt(sk_ieee_double_divide(w1 * w1, w0 * w2)));
 }
 
 int SkConic::BuildUnitArc(const SkVector& uStart, const SkVector& uStop, SkRotationDirection dir,
