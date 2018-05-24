@@ -71,6 +71,30 @@
     },
     {
       "key": {
+        "uuid": "a9f54c5c_83d5e213",
+        "filename": "src/gpu/text/GrTextBlobCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-05-24T18:52:48Z",
+      "side": 1,
+      "message": "It looks like fSize is only set at creation. Subruns are allocated on the heap, but not tracked.",
+      "parentUuid": "d51c1dab_870548e3",
+      "range": {
+        "startLine": 168,
+        "startChar": 23,
+        "endLine": 168,
+        "endChar": 35
+      },
+      "revId": "deb9ee58a153be8fd923d53d09e85b08239d0a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a4d2ee86_22c96d95",
         "filename": "src/gpu/text/GrTextBlobCache.h",
         "patchSetId": 2
