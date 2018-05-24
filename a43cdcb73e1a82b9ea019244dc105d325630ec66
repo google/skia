@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cb0838f1_ef65374c",
+        "filename": "src/core/SkColorSpaceXformSteps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-05-24T17:43:00Z",
+      "side": 1,
+      "message": "Just guarding against future changes here?",
+      "revId": "a43cdcb73e1a82b9ea019244dc105d325630ec66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
