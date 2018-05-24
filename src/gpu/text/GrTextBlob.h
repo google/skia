@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrAtlasTextBlob_DEFINED
-#define GrAtlasTextBlob_DEFINED
+#ifndef GrTextBlob_DEFINED
+#define GrTextBlob_DEFINED
 
 #include "GrColor.h"
 #include "GrDrawOpAtlas.h"
@@ -36,26 +36,26 @@ class SkTextBlobRunIterator;
 #define CACHE_SANITY_CHECK 0
 
 /*
- * A GrAtlasTextBlob contains a fully processed SkTextBlob, suitable for nearly immediate drawing
+ * A GrTextBlob contains a fully processed SkTextBlob, suitable for nearly immediate drawing
  * on the GPU.  These are initially created with valid positions and colors, but invalid
- * texture coordinates.  The GrAtlasTextBlob itself has a few Blob-wide properties, and also
+ * texture coordinates.  The GrTextBlob itself has a few Blob-wide properties, and also
  * consists of a number of runs.  Runs inside a blob are flushed individually so they can be
  * reordered.
  *
- * The only thing(aside from a memcopy) required to flush a GrAtlasTextBlob is to ensure that
+ * The only thing(aside from a memcopy) required to flush a GrTextBlob is to ensure that
  * the GrAtlas will not evict anything the Blob needs.
  *
  * Note: This struct should really be named GrCachedAtasTextBlob, but that is too verbose.
  *
  * *WARNING* If you add new fields to this struct, then you may need to to update AssertEqual
  */
-class GrAtlasTextBlob : public SkNVRefCnt<GrAtlasTextBlob> {
+class GrTextBlob : public SkNVRefCnt<GrTextBlob> {
 public:
-    SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrAtlasTextBlob);
+    SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrTextBlob);
 
     class VertexRegenerator;
 
-    static sk_sp<GrAtlasTextBlob> Make(int glyphCount, int runCount);
+    static sk_sp<GrTextBlob> Make(int glyphCount, int runCount);
 
     /**
      * We currently force regeneration of a blob if old or new matrix differ in having perspective.
@@ -83,7 +83,7 @@ public:
         }
     };
 
-    void setupKey(const GrAtlasTextBlob::Key& key,
+    void setupKey(const GrTextBlob::Key& key,
                   const SkMaskFilterBase::BlurRec& blurRec,
                   const SkPaint& paint) {
         fKey = key;
@@ -97,7 +97,7 @@ public:
         }
     }
 
-    static const Key& GetKey(const GrAtlasTextBlob& blob) {
+    static const Key& GetKey(const GrTextBlob& blob) {
         return blob.fKey;
     }
 
@@ -251,7 +251,7 @@ public:
     static const size_t kMaxVASize = kGrayTextDFPerspectiveVASize;
     static const int kVerticesPerGlyph = 4;
 
-    static void AssertEqual(const GrAtlasTextBlob&, const GrAtlasTextBlob&);
+    static void AssertEqual(const GrTextBlob&, const GrTextBlob&);
 
     // The color here is the GrPaint color, and it is used to determine whether we
     // have to regenerate LCD text blobs.
@@ -270,7 +270,7 @@ public:
 
     size_t size() const { return fSize; }
 
-    ~GrAtlasTextBlob() {
+    ~GrTextBlob() {
         for (int i = 0; i < fRunCount; i++) {
             fRuns[i].~Run();
         }
@@ -285,7 +285,7 @@ public:
                                           GrTextUtils::Target*);
 
 private:
-    GrAtlasTextBlob()
+    GrTextBlob()
         : fMaxMinScale(-SK_ScalarMax)
         , fMinMaxScale(SK_ScalarMax)
         , fTextType(0) {}
@@ -562,14 +562,14 @@ private:
  * free up atlas space. Thus, this generator is stateful and should be invoked in a loop until the
  * entire sub run has been completed.
  */
-class GrAtlasTextBlob::VertexRegenerator {
+class GrTextBlob::VertexRegenerator {
 public:
     /**
      * Consecutive VertexRegenerators often use the same SkGlyphCache. If the same instance of
      * SkAutoGlyphCache is reused then it can save the cost of multiple detach/attach operations of
      * SkGlyphCache.
      */
-    VertexRegenerator(GrResourceProvider*, GrAtlasTextBlob*, int runIdx, int subRunIdx,
+    VertexRegenerator(GrResourceProvider*, GrTextBlob*, int runIdx, int subRunIdx,
                       const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
                       GrDeferredUploadTarget*, GrGlyphCache*, GrAtlasManager*,
                       SkExclusiveStrikePtr*);
@@ -601,7 +601,7 @@ private:
 
     GrResourceProvider* fResourceProvider;
     const SkMatrix& fViewMatrix;
-    GrAtlasTextBlob* fBlob;
+    GrTextBlob* fBlob;
     GrDeferredUploadTarget* fUploadTarget;
     GrGlyphCache* fGlyphCache;
     GrAtlasManager* fFullAtlasManager;
@@ -617,4 +617,4 @@ private:
     bool fBrokenRun = false;
 };
 
-#endif
+#endif  // GrTextBlob_DEFINED
