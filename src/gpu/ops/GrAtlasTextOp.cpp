@@ -449,7 +449,7 @@ bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
 }
 
 // TODO trying to figure out why lcd is so whack
-// (see comments in GrAtlasTextContext::ComputeCanonicalColor)
+// (see comments in GrTextContext::ComputeCanonicalColor)
 sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(const sk_sp<GrTextureProxy>* proxies,
                                                            unsigned int numActiveProxies) const {
     bool isLCD = this->isLCD();

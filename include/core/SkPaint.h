@@ -1678,7 +1678,7 @@ private:
     static SkScalar MaxCacheSize2(SkScalar maxLimit);
 
     friend class GrAtlasTextBlob;
-    friend class GrAtlasTextContext;
+    friend class GrTextContext;
     friend class GrGLPathRendering;
     friend class GrPathRendering;
     friend class GrTextUtils;

@@ -15,7 +15,7 @@
 #include "SkGr.h"
 #include "SkInternalAtlasTextContext.h"
 #include "ops/GrAtlasTextOp.h"
-#include "text/GrAtlasTextContext.h"
+#include "text/GrTextContext.h"
 
 static constexpr int kMaxBatchLookBack = 10;
 
@@ -135,7 +135,7 @@ void SkInternalAtlasTextTarget::drawText(const SkGlyphID glyphs[], const SkPoint
     SkSurfaceProps props(SkSurfaceProps::kUseDistanceFieldFonts_Flag, kUnknown_SkPixelGeometry);
     auto* grContext = this->context()->internal().grContext();
     auto bounds = SkIRect::MakeWH(fWidth, fHeight);
-    auto atlasTextContext = grContext->contextPriv().drawingManager()->getAtlasTextContext();
+    auto atlasTextContext = grContext->contextPriv().drawingManager()->getTextContext();
     size_t byteLength = sizeof(SkGlyphID) * glyphCnt;
     const SkScalar* pos = &positions->fX;
     atlasTextContext->drawPosText(grContext, this, GrNoClip(), paint, this->ctm(), props,
