@@ -26,7 +26,7 @@
 #include "SkSurface_Gpu.h"
 #include "SkTTopoSort.h"
 #include "GrTracing.h"
-#include "text/GrAtlasTextContext.h"
+#include "text/GrTextContext.h"
 
 // Turn on/off the sorting of opLists at flush time
 #ifndef SK_DISABLE_RENDER_TARGET_SORTING
@@ -35,7 +35,7 @@
 
 GrDrawingManager::GrDrawingManager(GrContext* context,
                                    const GrPathRendererChain::Options& optionsForPathRendererChain,
-                                   const GrAtlasTextContext::Options& optionsForAtlasTextContext,
+                                   const GrTextContext::Options& optionsForAtlasTextContext,
                                    GrSingleOwner* singleOwner,
                                    bool explicitlyAllocating,
                                    GrContextOptions::Enable sortRenderTargets)
@@ -438,9 +438,9 @@ sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(GrTextureProxy* textur
     return opList;
 }
 
-GrAtlasTextContext* GrDrawingManager::getAtlasTextContext() {
+GrTextContext* GrDrawingManager::getAtlasTextContext() {
     if (!fAtlasTextContext) {
-        fAtlasTextContext = GrAtlasTextContext::Make(fOptionsForAtlasTextContext);
+        fAtlasTextContext = GrTextContext::Make(fOptionsForAtlasTextContext);
     }
 
     return fAtlasTextContext.get();

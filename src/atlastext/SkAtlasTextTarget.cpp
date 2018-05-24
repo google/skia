@@ -15,7 +15,7 @@
 #include "SkGr.h"
 #include "SkInternalAtlasTextContext.h"
 #include "ops/GrAtlasTextOp.h"
-#include "text/GrAtlasTextContext.h"
+#include "text/GrTextContext.h"
 
 static constexpr int kMaxBatchLookBack = 10;
 

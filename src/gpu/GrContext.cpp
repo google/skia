@@ -116,7 +116,7 @@ bool GrContext::initCommon(const GrContextOptions& options) {
         prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kCoverageCounting;
     }
 
-    GrAtlasTextContext::Options atlasTextContextOptions;
+    GrTextContext::Options atlasTextContextOptions;
     atlasTextContextOptions.fMaxDistanceFieldFontSize = options.fGlyphsAsPathsFontSize;
     atlasTextContextOptions.fMinDistanceFieldFontSize = options.fMinDistanceFieldFontSize;
     atlasTextContextOptions.fDistanceFieldVerticesAlwaysHaveW = false;

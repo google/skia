@@ -33,7 +33,7 @@
 #include "Test.h"
 #include "ops/GrDrawOp.h"
 #include "text/GrAtlasManager.h"
-#include "text/GrAtlasTextContext.h"
+#include "text/GrTextContext.h"
 #include "text/GrTextUtils.h"
 
 #include <memory>
