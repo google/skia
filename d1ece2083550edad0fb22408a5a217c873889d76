@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d345a5a6_e8ef1fed",
+        "filename": "gm/ninepatchstretch.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-24T18:45:10Z",
+      "side": 1,
+      "message": "This all (i.e., the readback) seems kind of messed up.",
+      "revId": "d1ece2083550edad0fb22408a5a217c873889d76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
