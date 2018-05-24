@@ -16,7 +16,7 @@
 #include "SkTextToPathIter.h"
 #include "SkTLazy.h"
 
-class GrAtlasTextBlob;
+class GrTextBlob;
 class GrAtlasTextOp;
 class GrTextStrike;
 class GrClip;

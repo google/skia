@@ -6,13 +6,13 @@
  */
 
 #include "GrAtlasManager.h"
-#include "GrAtlasTextBlob.h"
+#include "GrTextBlob.h"
 #include "GrTextUtils.h"
 #include "SkDistanceFieldGen.h"
 #include "SkGlyphCache.h"
 #include "ops/GrAtlasTextOp.h"
 
-using Regenerator = GrAtlasTextBlob::VertexRegenerator;
+using Regenerator = GrTextBlob::VertexRegenerator;
 
 enum RegenMask {
     kNoRegen    = 0x0,
@@ -191,7 +191,7 @@ inline void regen_vertices(char* vertex, const GrGlyph* glyph, size_t vertexStri
     }
 }
 
-Regenerator::VertexRegenerator(GrResourceProvider* resourceProvider, GrAtlasTextBlob* blob,
+Regenerator::VertexRegenerator(GrResourceProvider* resourceProvider, GrTextBlob* blob,
                                int runIdx, int subRunIdx,
                                const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
                                GrDeferredUploadTarget* uploadTarget, GrGlyphCache* glyphCache,

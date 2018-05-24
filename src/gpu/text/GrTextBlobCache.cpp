@@ -55,7 +55,7 @@ void GrTextBlobCache::purgeStaleBlobs() {
     }
 }
 
-void GrTextBlobCache::checkPurge(GrAtlasTextBlob* blob) {
+void GrTextBlobCache::checkPurge(GrTextBlob* blob) {
     // First, purge all stale blob IDs.
     this->purgeStaleBlobs();
 
@@ -63,7 +63,7 @@ void GrTextBlobCache::checkPurge(GrAtlasTextBlob* blob) {
     if (fCurrentSize > fSizeBudget) {
         BitmapBlobList::Iter iter;
         iter.init(fBlobList, BitmapBlobList::Iter::kTail_IterStart);
-        GrAtlasTextBlob* lruBlob = nullptr;
+        GrTextBlob* lruBlob = nullptr;
         while (fCurrentSize > fSizeBudget && (lruBlob = iter.get()) && lruBlob != blob) {
             // Backup the iterator before removing and unrefing the blob
             iter.prev();
