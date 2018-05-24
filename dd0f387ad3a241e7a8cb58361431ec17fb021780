@@ -22,6 +22,30 @@
       "revId": "dd0f387ad3a241e7a8cb58361431ec17fb021780",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6873211f_d555c7c8",
+        "filename": "src/core/SkColorSpaceXformSteps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-05-24T18:20:58Z",
+      "side": 1,
+      "message": "Yes indeed.",
+      "parentUuid": "2244fca4_d5a1cd41",
+      "range": {
+        "startLine": 65,
+        "startChar": 1,
+        "endLine": 68,
+        "endChar": 0
+      },
+      "revId": "dd0f387ad3a241e7a8cb58361431ec17fb021780",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
