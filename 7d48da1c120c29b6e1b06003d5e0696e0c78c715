@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a7f9673_bac1ce07",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-05-24T17:47:31Z",
+      "side": 1,
+      "message": "With how many spots we\u0027re using this suffix in, I\u0027d prefer to see it broken out as a constant rather than used as a magic string.",
+      "range": {
+        "startLine": 249,
+        "startChar": 25,
+        "endLine": 249,
+        "endChar": 30
+      },
+      "revId": "7d48da1c120c29b6e1b06003d5e0696e0c78c715",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0dc3f99a_352bcff0",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-05-24T17:47:31Z",
+      "side": 1,
+      "message": "This only works if the vertex shader doesn\u0027t have any return statements. It\u0027s not a big deal for right this second, but I\u0027d at least like to see a FIXME indicating that we know about this problem.",
+      "revId": "7d48da1c120c29b6e1b06003d5e0696e0c78c715",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
