@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrAtlasTextContext_DEFINED
-#define GrAtlasTextContext_DEFINED
+#ifndef GrTextContext_DEFINED
+#define GrTextContext_DEFINED
 
-#include "GrAtlasTextBlob.h"
+#include "GrTextBlob.h"
 #include "GrDistanceFieldAdjustTable.h"
 #include "GrGeometryProcessor.h"
 #include "GrTextUtils.h"
@@ -65,7 +65,7 @@ public:
                                         const SkSurfaceProps& props,
                                         bool contextSupportsDistanceFieldText,
                                         const Options& options);
-    static void InitDistanceFieldPaint(GrAtlasTextBlob* blob,
+    static void InitDistanceFieldPaint(GrTextBlob* blob,
                                        SkPaint* skPaint,
                                        const SkMatrix& viewMatrix,
                                        const Options& options,
@@ -91,7 +91,7 @@ private:
         }
 
         void appendText(const SkGlyph& glyph, int count, const char* text, SkPoint glyphPos);
-        void drawText(GrAtlasTextBlob* blob, int runIndex, GrGlyphCache*, const SkSurfaceProps&,
+        void drawText(GrTextBlob* blob, int runIndex, GrGlyphCache*, const SkSurfaceProps&,
                       const GrTextUtils::Paint&, SkScalerContextFlags);
 
     private:
@@ -111,7 +111,7 @@ private:
     static SkColor ComputeCanonicalColor(const SkPaint&, bool lcd);
     // Determines if we need to use fake gamma (and contrast boost):
     static SkScalerContextFlags ComputeScalerContextFlags(const GrColorSpaceInfo&);
-    void regenerateTextBlob(GrAtlasTextBlob* bmp,
+    void regenerateTextBlob(GrTextBlob* bmp,
                             GrGlyphCache*,
                             const GrShaderCaps&,
                             const GrTextUtils::Paint&,
@@ -123,7 +123,7 @@ private:
 
     static bool HasLCD(const SkTextBlob*);
 
-    sk_sp<GrAtlasTextBlob> makeDrawTextBlob(GrTextBlobCache*, GrGlyphCache*,
+    sk_sp<GrTextBlob> makeDrawTextBlob(GrTextBlobCache*, GrGlyphCache*,
                                             const GrShaderCaps&,
                                             const GrTextUtils::Paint&,
                                             SkScalerContextFlags scalerContextFlags,
@@ -132,7 +132,7 @@ private:
                                             const char text[], size_t byteLength,
                                             SkScalar x, SkScalar y) const;
 
-    sk_sp<GrAtlasTextBlob> makeDrawPosTextBlob(GrTextBlobCache*, GrGlyphCache*,
+    sk_sp<GrTextBlob> makeDrawPosTextBlob(GrTextBlobCache*, GrGlyphCache*,
                                                const GrShaderCaps&,
                                                const GrTextUtils::Paint&,
                                                SkScalerContextFlags scalerContextFlags,
@@ -143,25 +143,25 @@ private:
                                                int scalarsPerPosition,
                                                const SkPoint& offset) const;
 
-    // Functions for appending BMP text to GrAtlasTextBlob
-    static void DrawBmpText(GrAtlasTextBlob*, int runIndex, GrGlyphCache*,
+    // Functions for appending BMP text to GrTextBlob
+    static void DrawBmpText(GrTextBlob*, int runIndex, GrGlyphCache*,
                             const SkSurfaceProps&, const GrTextUtils::Paint& paint,
                             SkScalerContextFlags scalerContextFlags, const SkMatrix& viewMatrix,
                             const char text[], size_t byteLength, SkScalar x, SkScalar y);
 
-    static void DrawBmpPosText(GrAtlasTextBlob*, int runIndex, GrGlyphCache*,
+    static void DrawBmpPosText(GrTextBlob*, int runIndex, GrGlyphCache*,
                                const SkSurfaceProps&, const GrTextUtils::Paint& paint,
                                SkScalerContextFlags scalerContextFlags, const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength, const SkScalar pos[],
                                int scalarsPerPosition, const SkPoint& offset);
 
-    static void DrawBmpTextAsPaths(GrAtlasTextBlob*, int runIndex, GrGlyphCache*,
+    static void DrawBmpTextAsPaths(GrTextBlob*, int runIndex, GrGlyphCache*,
                                    const SkSurfaceProps&, const GrTextUtils::Paint& paint,
                                    SkScalerContextFlags scalerContextFlags,
                                    const SkMatrix& viewMatrix, const char text[],
                                    size_t byteLength, SkScalar x, SkScalar y);
 
-    static void DrawBmpPosTextAsPaths(GrAtlasTextBlob*, int runIndex, GrGlyphCache*,
+    static void DrawBmpPosTextAsPaths(GrTextBlob*, int runIndex, GrGlyphCache*,
                                       const SkSurfaceProps&, const GrTextUtils::Paint& paint,
                                       SkScalerContextFlags scalerContextFlags,
                                       const SkMatrix& viewMatrix,
@@ -170,23 +170,23 @@ private:
                                       const SkPoint& offset);
 
     // functions for appending distance field text
-    void drawDFText(GrAtlasTextBlob* blob, int runIndex, GrGlyphCache*, const SkSurfaceProps&,
+    void drawDFText(GrTextBlob* blob, int runIndex, GrGlyphCache*, const SkSurfaceProps&,
                     const GrTextUtils::Paint& paint, SkScalerContextFlags scalerContextFlags,
                     const SkMatrix& viewMatrix, const char text[], size_t byteLength, SkScalar x,
                     SkScalar y) const;
 
-    void drawDFPosText(GrAtlasTextBlob* blob, int runIndex, GrGlyphCache*,
+    void drawDFPosText(GrTextBlob* blob, int runIndex, GrGlyphCache*,
                        const SkSurfaceProps&, const GrTextUtils::Paint& paint,
                        SkScalerContextFlags scalerContextFlags,
                        const SkMatrix& viewMatrix, const char text[],
                        size_t byteLength, const SkScalar pos[], int scalarsPerPosition,
                        const SkPoint& offset) const;
 
-    static void BmpAppendGlyph(GrAtlasTextBlob*, int runIndex, GrGlyphCache*,
+    static void BmpAppendGlyph(GrTextBlob*, int runIndex, GrGlyphCache*,
                                sk_sp<GrTextStrike>*, const SkGlyph&, SkScalar sx, SkScalar sy,
                                GrColor color, SkGlyphCache*, SkScalar textRatio, bool needsXform);
 
-    static void DfAppendGlyph(GrAtlasTextBlob*, int runIndex, GrGlyphCache*,
+    static void DfAppendGlyph(GrTextBlob*, int runIndex, GrGlyphCache*,
                               sk_sp<GrTextStrike>*, const SkGlyph&, SkScalar sx, SkScalar sy,
                               GrColor color, SkGlyphCache* cache, SkScalar textRatio);
 
@@ -203,4 +203,4 @@ private:
 #endif
 };
 
-#endif
+#endif  // GrTextContext_DEFINED
