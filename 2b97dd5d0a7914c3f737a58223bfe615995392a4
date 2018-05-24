@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ee2782f6_a6144002",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-05-24T19:38:33Z",
+      "side": 1,
+      "message": "Rename this?",
+      "range": {
+        "startLine": 441,
+        "startChar": 33,
+        "endLine": 441,
+        "endChar": 52
+      },
+      "revId": "2b97dd5d0a7914c3f737a58223bfe615995392a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6edfbd13_dac1ca47",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-05-24T19:38:33Z",
+      "side": 1,
+      "message": "And this?",
+      "range": {
+        "startLine": 443,
+        "startChar": 8,
+        "endLine": 443,
+        "endChar": 26
+      },
+      "revId": "2b97dd5d0a7914c3f737a58223bfe615995392a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
