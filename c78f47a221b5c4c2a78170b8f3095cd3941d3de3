@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebe17082_ae8670d9",
+        "filename": "BUILD.gn",
+        "patchSetId": 9
+      },
+      "lineNbr": 1382,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-24T23:18:56Z",
+      "side": 1,
+      "message": "These leading // won\u0027t work in other trees, but I think just \"modules/sksg\" will.\n\nI think // is the directory containing .gn?  Wherever it is, it tends to move about.",
+      "revId": "c78f47a221b5c4c2a78170b8f3095cd3941d3de3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
