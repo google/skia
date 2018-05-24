@@ -8,13 +8,24 @@
 
 from recipe_engine import recipe_api
 
-from . import default_flavor
-from . import gn_android_flavor
-from . import gn_chromebook_flavor
-from . import gn_chromecast_flavor
-from . import gn_flavor
-from . import ios_flavor
-from . import valgrind_flavor
+from . import android
+from . import chromebook
+from . import chromecast
+from . import default
+from . import ios
+from . import valgrind
+
+
+"""Abstractions for running code on various platforms.
+
+The methods in this module define how certain high-level functions should work.
+Each flavor should correspond to a subclass of DefaultFlavor which may override
+any of these functions as appropriate for that flavor.
+
+For example, the AndroidFlavor will override the functions for copying files
+between the host and Android device, as well as the 'step' function, so that
+commands may be run through ADB.
+"""
 
 
 VERSION_FILE_SK_IMAGE = 'SK_IMAGE_VERSION'
@@ -50,17 +61,17 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
   def get_flavor(self, vars_api):
     """Return a flavor utils object specific to the given builder."""
     if is_chromecast(vars_api):
-      return gn_chromecast_flavor.GNChromecastFlavorUtils(self)
+      return chromecast.ChromecastFlavor(self)
     if is_chromebook(vars_api):
-      return gn_chromebook_flavor.GNChromebookFlavorUtils(self)
+      return chromebook.ChromebookFlavor(self)
     if is_android(vars_api) and not is_test_skqp(vars_api):
-      return gn_android_flavor.GNAndroidFlavorUtils(self)
+      return android.AndroidFlavor(self)
     elif is_ios(vars_api):
-      return ios_flavor.iOSFlavorUtils(self)
+      return ios.iOSFlavor(self)
     elif is_valgrind(vars_api):
-      return valgrind_flavor.ValgrindFlavorUtils(self)
+      return valgrind.ValgrindFlavor(self)
     else:
-      return gn_flavor.GNFlavorUtils(self)
+      return default.DefaultFlavor(self)
 
   def setup(self):
     self._f = self.get_flavor(self.m.vars)

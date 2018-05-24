@@ -5,7 +5,6 @@
 # Recipe module for Skia Swarming SKQP testing.
 
 DEPS = [
-  'core',
   'flavor',
   'recipe_engine/file',
   'recipe_engine/path',

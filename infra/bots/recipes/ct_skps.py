@@ -8,7 +8,7 @@ import math
 
 DEPS = [
   'build',
-  'core',
+  'checkout',
   'ct',
   'recipe_engine/context',
   'recipe_engine/file',
@@ -78,8 +78,8 @@ def RunSteps(api):
   api.vars.setup()
   checkout_root = make_path(api, '/', 'b', 'work')
   gclient_cache = make_path(api, '/', 'b', 'cache')
-  got_revision = api.core.checkout_bot_update(checkout_root=checkout_root,
-                                              gclient_cache=gclient_cache)
+  got_revision = api.checkout.bot_update(checkout_root=checkout_root,
+                                         gclient_cache=gclient_cache)
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
 
   out_dir = api.vars.build_dir.join('out', api.vars.configuration)

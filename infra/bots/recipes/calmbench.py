@@ -6,7 +6,6 @@
 # Recipe module for Skia Swarming calmbench.
 
 DEPS = [
-  'core',
   'flavor',
   'recipe_engine/context',
   'recipe_engine/file',

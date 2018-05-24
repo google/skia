@@ -11,7 +11,6 @@ import os
 
 
 DEPS = [
-  'core',
   'env',
   'flavor',
   'recipe_engine/file',

@@ -7,7 +7,6 @@
 
 
 DEPS = [
-  'core',
   'infra',
   'recipe_engine/file',
   'recipe_engine/path',

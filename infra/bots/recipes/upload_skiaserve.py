@@ -7,7 +7,6 @@
 
 
 DEPS = [
-  'core',
   'flavor',
   'gsutil',
   'recipe_engine/context',
