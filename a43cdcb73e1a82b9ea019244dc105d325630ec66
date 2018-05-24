@@ -16,6 +16,24 @@
       "revId": "a43cdcb73e1a82b9ea019244dc105d325630ec66",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "597e5f4a_34d347c0",
+        "filename": "src/core/SkColorSpaceXformSteps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-24T17:52:43Z",
+      "side": 1,
+      "message": "Yeah, the `true` will change, but the `|| !srcPM` will always stay.",
+      "parentUuid": "cb0838f1_ef65374c",
+      "revId": "a43cdcb73e1a82b9ea019244dc105d325630ec66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
