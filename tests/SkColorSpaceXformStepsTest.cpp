@@ -170,20 +170,20 @@ DEF_TEST(SkColorSpaceXformSteps, r) {
 
         // These four test cases test drawing in the same color space.
         // There is lots of room for optimization here.
-        { srgb_N, srgb_N, kPremul_SkAlphaType,   true,true,false, false,true,true,  false,false },
+        { srgb_N, srgb_N, kPremul_SkAlphaType,   true,false,false, false,false,true,  false,false },
         { srgb_L, srgb_L, kPremul_SkAlphaType,   false,true,true, false,false,true, true,true   },
         { srgb_L, srgb_N, kPremul_SkAlphaType,   false,true,true, false,true,true,  false,false },
         { srgb_N, srgb_L, kPremul_SkAlphaType,   true,true,false, false,false,true, true,true   },
 
         // And the usual variants for opaque + unpremul sources.
-        { srgb_N, srgb_N,   kOpaque_SkAlphaType, false,true,false, false,true,false,  false,false },
-        { srgb_N, srgb_N, kUnpremul_SkAlphaType, false,true,false, false,true,true,   false,false },
-        { srgb_L, srgb_L,   kOpaque_SkAlphaType, false,true,false, false,false,false, true,true   },
-        { srgb_L, srgb_L, kUnpremul_SkAlphaType, false,true,false, false,false,true,  true,true   },
-        { srgb_L, srgb_N,   kOpaque_SkAlphaType, false,true,false, false,true,false,  false,false },
-        { srgb_L, srgb_N, kUnpremul_SkAlphaType, false,true,false, false,true,true,   false,false },
-        { srgb_N, srgb_L,   kOpaque_SkAlphaType, false,true,false, false,false,false, true,true   },
-        { srgb_N, srgb_L, kUnpremul_SkAlphaType, false,true,false, false,false,true,  true,true   },
+        { srgb_N, srgb_N,   kOpaque_SkAlphaType, false,false,false, false,false,false, false,false},
+        { srgb_N, srgb_N, kUnpremul_SkAlphaType, false,false,false, false,false,true,  false,false},
+        { srgb_L, srgb_L,   kOpaque_SkAlphaType, false,true,false,  false,false,false, true,true  },
+        { srgb_L, srgb_L, kUnpremul_SkAlphaType, false,true,false,  false,false,true,  true,true  },
+        { srgb_L, srgb_N,   kOpaque_SkAlphaType, false,false,false, false,false,false, false,false},
+        { srgb_L, srgb_N, kUnpremul_SkAlphaType, false,false,false, false,false,true,  false,false},
+        { srgb_N, srgb_L,   kOpaque_SkAlphaType, false,true,false,  false,false,false, true,true  },
+        { srgb_N, srgb_L, kUnpremul_SkAlphaType, false,true,false,  false,false,true,  true,true  },
 
         // TODO: versions of above crossing in linear transfer functions
     };
