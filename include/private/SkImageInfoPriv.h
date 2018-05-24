@@ -166,7 +166,7 @@ static inline bool SkImageInfoIsValid(const SkImageInfo& info,
 }
 
 /**
- *  Returns true if Skia has defined a pixel conversion from the |src| to the |dst|.
+ *  Returns true if Skia has defined a ame pixel conversion from the |src| to the |dst|.
  *  Returns false otherwise.  Some discussion of false cases:
  *      We will not convert to kIndex8 unless it exactly matches the src, since color tables
  *      are immutable.
@@ -212,4 +212,5 @@ static inline bool SkImageInfoValidConversion(const SkImageInfo& dst, const SkIm
 
     return true;
 }
+
 #endif  // SkImageInfoPriv_DEFINED
