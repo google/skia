@@ -120,33 +120,39 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
 
-        SkCanvas* c = surface->getCanvas();
+        SkCanvas* surfaceCanvas = surface->getCanvas();
 
         SkScalar stride = SkScalarCeilToScalar(fBlob->bounds().height());
         SkScalar yOffset = 5;
-        for (int i = 0; i < 1; i++) {
-            // fiddle the canvas to force regen of textblobs
-            canvas->rotate(i % 2 ? 0.0f : -0.05f);
 
-            canvas->drawTextBlob(fBlob, 10, yOffset, paint);
-            yOffset += stride;
+        canvas->save();
+        // Originally we would alternate between rotating and not to force blob regeneration,
+        // but that code seems to have rotted. Keeping the rotate to match the old GM as
+        // much as possible, and it seems like a reasonable stress test for transformed
+        // color emoji.
+        canvas->rotate(-0.05f);
+        canvas->drawTextBlob(fBlob, 10, yOffset, paint);
+        yOffset += stride;
+        canvas->restore();
 
-            // this will test lcd masks when not requested
-            // on cpu this currently causes unspecified behavior, so avoid until it is fixed
-            if (canvas->getGrContext()) {
-                c->drawTextBlob(fBlob, 10, yOffset, paint);
-                surface->draw(canvas, 0, 0, nullptr);
-            }
-            yOffset += stride;
-
-            // free gpu resources and verify
-            if (canvas->getGrContext()) {
-                canvas->getGrContext()->freeGpuResources();
-            }
-
-            canvas->drawTextBlob(fBlob, 10, yOffset, paint);
-            yOffset += stride;
+        // this will test lcd masks when not requested
+        // on cpu this currently causes unspecified behavior, so avoid until it is fixed
+        if (canvas->getGrContext()) {
+            // Rotate in the surface canvas, not the final canvas, to avoid aliasing
+            surfaceCanvas->rotate(-0.05f);
+            surfaceCanvas->drawTextBlob(fBlob, 10, yOffset, paint);
+            surface->draw(canvas, 0, 0, nullptr);
         }
+        yOffset += stride;
+
+        // free gpu resources and verify
+        if (canvas->getGrContext()) {
+            canvas->getGrContext()->freeGpuResources();
+        }
+
+        canvas->rotate(-0.05f);
+        canvas->drawTextBlob(fBlob, 10, yOffset, paint);
+        yOffset += stride;
     }
 
 private:
