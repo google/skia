@@ -144,6 +144,30 @@
     },
     {
       "key": {
+        "uuid": "aa126941_6a669e64",
+        "filename": "src/gpu/text/GrAtlasTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-05-24T19:32:02Z",
+      "side": 1,
+      "message": "The operator delete is important to Google3. In Google3, they use the variant of delete that takes a size. In the default implementation, the size passed will be sizeof(SkAtlasTextBlob), and not the proper fSize. This will crash the malloc system. This forces delete to call the unsized delete operator.\n\nThe operator new is a protection against anyone trying to create one of these without the additional memory. It can be deleted, but is a deterrent for people bypassing ::Make to try to construct one of these.",
+      "parentUuid": "b5c6dd7e_12723a7b",
+      "range": {
+        "startLine": 107,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 53
+      },
+      "revId": "deb9ee58a153be8fd923d53d09e85b08239d0a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d51c1dab_870548e3",
         "filename": "src/gpu/text/GrTextBlobCache.h",
         "patchSetId": 2
