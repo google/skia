@@ -801,40 +801,7 @@ sk_sp<SkTypeface> SkStrikeClient::addTypeface(const WireTypeface& wire) {
     if (typeface) return *typeface;
 
     auto newTypeface = sk_make_sp<SkTypefaceProxy>(wire.typefaceID, wire.glyphCount, wire.style,
-                                                   wire.isFixed, this);
+                                                   wire.isFixed, fDiscardableHandleManager);
     fRemoteFontIdToTypeface.set(wire.typefaceID, newTypeface);
     return std::move(newTypeface);
-}
-
-void SkStrikeClient::generateFontMetrics(const SkTypefaceProxy& typefaceProxy,
-                                         const SkScalerContextRec& rec,
-                                         SkPaint::FontMetrics* metrics) {
-    TRACE_EVENT1("skia", "generateFontMetrics", "rec", TRACE_STR_COPY(rec.dump().c_str()));
-    SkDebugf("generateFontMetrics: %s\n", rec.dump().c_str());
-    SkStrikeCache::Dump();
-    SkDEBUGFAIL("GlyphCacheMiss");
-
-    sk_bzero(metrics, sizeof(*metrics));
-}
-
-void SkStrikeClient::generateMetricsAndImage(const SkTypefaceProxy& typefaceProxy,
-                                             const SkScalerContextRec& rec,
-                                             SkArenaAlloc* alloc,
-                                             SkGlyph* glyph) {
-    TRACE_EVENT1("skia", "generateMetricsAndImage", "rec", TRACE_STR_COPY(rec.dump().c_str()));
-    SkDebugf("generateMetricsAndImage: %s\n", rec.dump().c_str());
-    SkStrikeCache::Dump();
-    SkDEBUGFAIL("GlyphCacheMiss");
-
-    glyph->zeroMetrics();
-}
-
-void SkStrikeClient::generatePath(const SkTypefaceProxy& typefaceProxy,
-                                  const SkScalerContextRec& rec,
-                                  SkGlyphID glyphID,
-                                  SkPath* path) {
-    TRACE_EVENT1("skia", "generatePath", "rec", TRACE_STR_COPY(rec.dump().c_str()));
-    SkDebugf("generatePath: %s\n", rec.dump().c_str());
-    SkStrikeCache::Dump();
-    SkDEBUGFAIL("GlyphCacheMiss");
 }
