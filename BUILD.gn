@@ -1014,9 +1014,7 @@ if (skia_enable_tools) {
     public_configs = [ ":skia.h_config" ]
     skia_h = "$target_gen_dir/skia.h"
     script = "gn/find_headers.py"
-    args = [ rebase_path("//bin/gn") ] +
-           [ rebase_path("//") ] +
-           [ rebase_path(skia_h, root_build_dir) ] +
+    args = [ rebase_path(skia_h, root_build_dir) ] +
            rebase_path(skia_public_includes)
     depfile = "$skia_h.deps"
     outputs = [

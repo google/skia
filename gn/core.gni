@@ -392,7 +392,6 @@ skia_core_sources = [
   "$_include/core/SkData.h",
   "$_include/core/SkDeferredDisplayListRecorder.h",
   "$_include/core/SkDeque.h",
-  "$_include/core/SkDocument.h",
   "$_include/core/SkDrawable.h",
   "$_include/core/SkDrawFilter.h",
   "$_include/core/SkDrawLooper.h",
