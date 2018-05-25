@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d1886e5_5ecc5d4d",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 716,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-25T19:58:22Z",
+      "side": 1,
+      "message": "// Disable coverage AA when rect falls on integers\n\n?",
+      "revId": "1826e042872d7bcced63dffbc3ebbea4c792cd54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
