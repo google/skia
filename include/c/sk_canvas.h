@@ -351,6 +351,15 @@ SK_C_API void sk_canvas_draw_image_nine(sk_canvas_t* t, const sk_image_t* image,
 
 SK_C_API void sk_canvas_draw_vertices(sk_canvas_t* ccanvas, sk_vertices_t* vertices, sk_blendmode_t mode, const sk_paint_t* paint);
 
+SK_C_API sk_nodraw_canvas_t* sk_nodraw_canvas_new(int width, int height);
+SK_C_API void sk_nodraw_canvas_destroy(sk_nodraw_canvas_t*);
+
+SK_C_API sk_nway_canvas_t* sk_nway_canvas_new(int width, int height);
+SK_C_API void sk_nway_canvas_destroy(sk_nway_canvas_t*);
+SK_C_API void sk_nway_canvas_add_canvas(sk_nway_canvas_t*, sk_canvas_t* canvas);
+SK_C_API void sk_nway_canvas_remove_canvas(sk_nway_canvas_t*, sk_canvas_t* canvas);
+SK_C_API void sk_nway_canvas_remove_all(sk_nway_canvas_t*);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif
