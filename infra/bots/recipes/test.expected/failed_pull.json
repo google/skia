@@ -812,6 +812,106 @@
   },
   {
     "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "kill-server"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "kill adb server after failure of 'pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm' (attempt 1)",
+    "timeout": 30
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "wait-for-device"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "wait for device after failure of 'pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm' (attempt 1)",
+    "timeout": 180
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "pull",
+      "/sdcard/revenge_of_the_skiabot/dm_out",
+      "[START_DIR]/[SWARM_OUT_DIR]/dm"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm (attempt 2)",
+    "~followup_annotations": [
+      "step returned non-zero exit code: 1",
+      "@@@STEP_EXCEPTION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "kill-server"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "kill adb server after failure of 'pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm' (attempt 2)",
+    "timeout": 30
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "wait-for-device"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "wait for device after failure of 'pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm' (attempt 2)",
+    "timeout": 180
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "pull",
+      "/sdcard/revenge_of_the_skiabot/dm_out",
+      "[START_DIR]/[SWARM_OUT_DIR]/dm"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm (attempt 3)",
+    "~followup_annotations": [
+      "step returned non-zero exit code: 1",
+      "@@@STEP_EXCEPTION@@@"
+    ]
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['/usr/bin/adb.1.0.35', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
@@ -859,7 +959,7 @@
   },
   {
     "name": "$result",
-    "reason": "Infra Failure: Step('pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm') returned 1",
+    "reason": "Infra Failure: Step('pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm (attempt 3)') returned 1",
     "recipe_result": null,
     "status_code": 1
   }
