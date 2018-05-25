@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "60dc2acc_589adad7",
+        "filename": "platform_tools/android/CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-25T19:10:03Z",
+      "side": 1,
+      "message": "This isn\u0027t a generated file, so this comment should be removed.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 30
+      },
+      "revId": "e379ec4136451ccaa0605ec608ab392e528b996d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f99d2bd_2ca1bdce",
+        "filename": "platform_tools/android/CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-25T19:10:03Z",
+      "side": 1,
+      "message": "Doesn\u0027t seem to be used?",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 25
+      },
+      "revId": "e379ec4136451ccaa0605ec608ab392e528b996d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9344f0c_0110d393",
+        "filename": "platform_tools/android/CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-25T19:10:03Z",
+      "side": 1,
+      "message": "How does this differ from just\n\ninclude(${CMAKE_CURRENT_SOURCE_DIR}/../../out/android_${ANDROID_ABI}/CMakeLists.txt)",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 84
+      },
+      "revId": "e379ec4136451ccaa0605ec608ab392e528b996d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
