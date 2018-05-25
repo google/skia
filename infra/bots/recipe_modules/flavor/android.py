@@ -85,10 +85,8 @@ class AndroidFlavor(default.DefaultFlavor):
       kwargs['infra_step'] = True
 
     self._ever_ran_adb = True
-    attempts = 1
-    flaky_devices = ['NexusPlayer', 'PixelC']
-    if self.m.vars.builder_cfg.get('model') in flaky_devices:
-      attempts = 3
+    # ADB seems to be occasionally flaky on every device, so always retry.
+    attempts = 3
 
     def wait_for_device(attempt):
       self.m.run(self.m.step,

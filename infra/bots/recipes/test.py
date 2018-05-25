@@ -1182,6 +1182,8 @@ def GenTests(api):
   )
 
   builder = 'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-All-Android'
+  retry_step_name = ('pull /sdcard/revenge_of_the_skiabot/dm_out '
+                     '[START_DIR]/[SWARM_OUT_DIR]/dm')
   yield (
     api.test('failed_pull') +
     api.properties(buildername=builder,
@@ -1200,8 +1202,9 @@ def GenTests(api):
         api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
     ) +
     api.step_data('dm', retcode=1) +
-    api.step_data('pull /sdcard/revenge_of_the_skiabot/dm_out '+
-                  '[START_DIR]/[SWARM_OUT_DIR]/dm', retcode=1)
+    api.step_data(retry_step_name, retcode=1) +
+    api.step_data(retry_step_name + ' (attempt 2)', retcode=1) +
+    api.step_data(retry_step_name + ' (attempt 3)', retcode=1)
   )
 
   yield (
