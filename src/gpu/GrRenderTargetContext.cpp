@@ -776,13 +776,22 @@ void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy
     if (filter != GrSamplerState::Filter::kNearest && !must_filter(srcRect, dstRect, viewMatrix)) {
         filter = GrSamplerState::Filter::kNearest;
     }
+    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
+    if (constraint == SkCanvas::kStrict_SrcRectConstraint) {
+        // No need to use a texture domain with nearest filtering unless there is AA bloating.
+        // Also, no need if the srcRect contains the entire texture.
+        if (filter == GrSamplerState::Filter::kNearest && aaType != GrAAType::kCoverage) {
+            constraint = SkCanvas::kFast_SrcRectConstraint;
+        } else if (srcRect.contains(proxy->getWorstCaseBoundsRect())) {
+            constraint = SkCanvas::kFast_SrcRectConstraint;
+        }
+    }
     SkRect clippedDstRect = dstRect;
     SkRect clippedSrcRect = srcRect;
     if (!crop_filled_rect(this->width(), this->height(), clip, viewMatrix, &clippedDstRect,
                           &clippedSrcRect)) {
         return;
     }
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     bool allowSRGB = SkToBool(this->colorSpaceInfo().colorSpace());
     this->addDrawOp(clip, GrTextureOp::Make(std::move(proxy), filter, color, clippedSrcRect,
                                             clippedDstRect, aaType, constraint, viewMatrix,
