@@ -1,0 +1,90 @@
+# Copyright 2018 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+  skia_enable_sksg = true
+}
+
+config("public_config") {
+  if (skia_enable_sksg) {
+    defines = [ "SK_HAS_SKSG" ]
+    include_dirs = [ "include" ]
+  }
+}
+
+source_set("sksg") {
+  if (skia_enable_sksg) {
+    public_configs = [ ":public_config" ]
+    sources = [
+      "src/SkSGClipEffect.cpp",
+      "src/SkSGColor.cpp",
+      "src/SkSGDraw.cpp",
+      "src/SkSGEffectNode.cpp",
+      "src/SkSGGeometryNode.cpp",
+      "src/SkSGGeometryTransform.cpp",
+      "src/SkSGGradient.cpp",
+      "src/SkSGGroup.cpp",
+      "src/SkSGImage.cpp",
+      "src/SkSGInvalidationController.cpp",
+      "src/SkSGMaskEffect.cpp",
+      "src/SkSGMerge.cpp",
+      "src/SkSGNode.cpp",
+      "src/SkSGOpacityEffect.cpp",
+      "src/SkSGPaintNode.cpp",
+      "src/SkSGPath.cpp",
+      "src/SkSGPlane.cpp",
+      "src/SkSGRect.cpp",
+      "src/SkSGRenderNode.cpp",
+      "src/SkSGRoundEffect.cpp",
+      "src/SkSGScene.cpp",
+      "src/SkSGText.cpp",
+      "src/SkSGTransform.cpp",
+      "src/SkSGTrimEffect.cpp",
+    ]
+    configs += [ "../../:skia_private" ]
+    deps = [
+      "../..:skia",
+    ]
+  }
+}
+
+source_set("tests") {
+  if (skia_enable_sksg) {
+    testonly = true
+
+    configs += [
+      "../..:skia_private",
+      "../..:tests_config",  # TODO: refactor to make this nicer
+    ]
+    sources = [
+      "tests/SGTest.cpp",
+    ]
+    deps = [
+      ":sksg",
+      "../..:gpu_tool_utils",  # TODO: refactor to make this nicer
+      "../..:skia",
+    ]
+  }
+}
+
+source_set("samples") {
+  if (skia_enable_sksg) {
+    testonly = true
+
+    configs += [
+      "../..:skia_private",
+      "../..:samples_config",  # TODO: refactor to make this nicer
+    ]
+    sources = [
+      "samples/SampleSVGPong.cpp",
+    ]
+    deps = [
+      ":sksg",
+      "../..:gm",  # TODO: refactor to make this nicer
+      "../..:skia",
+      "../..:views",  # TODO: refactor to make this nicer
+    ]
+  }
+}
