@@ -228,8 +228,6 @@ def strip_slashes(lst):
   return {str(p.lstrip('/')) for p in lst}
 
 srcs            = strip_slashes(js['targets']['//:skia']['sources'])
-cflags          = strip_slashes(js['targets']['//:skia']['cflags'])
-cflags_cc       = strip_slashes(js['targets']['//:skia']['cflags_cc'])
 local_includes  = strip_slashes(js['targets']['//:skia']['include_dirs'])
 export_includes = strip_slashes(js['targets']['//:public']['include_dirs'])
 defines      = [str(d) for d in js['targets']['//:skia']['defines']]
@@ -256,8 +254,8 @@ srcs            = {s for s in srcs           if not s.endswith('.h')}
 dm_srcs         = {s for s in dm_srcs        if not s.endswith('.h')}
 nanobench_srcs  = {s for s in nanobench_srcs if not s.endswith('.h')}
 
-cflags = gn_to_bp_utils.CleanupCFlags(cflags)
-cflags_cc = gn_to_bp_utils.CleanupCCFlags(cflags_cc)
+cflags = gn_to_bp_utils.GetCFlags()
+cflags_cc = gn_to_bp_utils.GetCCFlags()
 
 # We need to add the include path to the vulkan defines and header file set in
 # then skia_vulkan_header gn arg that is used for framework builds.
