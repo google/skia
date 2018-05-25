@@ -7,6 +7,8 @@
 
 #include "SlideDir.h"
 
+#ifdef SK_HAS_SKSG
+
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkCubicMap.h"
@@ -418,3 +420,5 @@ const SlideDir::Rec* SlideDir::findCell(float x, float y) const {
 
     return idx < fRecs.count() ? &fRecs[idx] : nullptr;
 }
+
+#endif // SK_HAS_SKSG
