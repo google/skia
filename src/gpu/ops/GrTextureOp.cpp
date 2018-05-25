@@ -709,15 +709,26 @@ __attribute__((no_sanitize("float-cast-overflow")))
             , fFinalized(0)
             , fAllowSRGBInputs(allowSRGBInputs ? 1 : 0) {
         SkASSERT(aaType != GrAAType::kMixedSamples);
-
-        const Draw& draw = fDraws.emplace_back(srcRect, 0, GrPerspQuad(dstRect, viewMatrix),
-                                               constraint, color);
         fPerspective = viewMatrix.hasPerspective();
-        fDomain = (bool)draw.domain();
-        SkRect bounds;
-        bounds = draw.quad().bounds();
+        auto quad = GrPerspQuad(dstRect, viewMatrix);
+        auto bounds = quad.bounds();
+        if (GrAAType::kCoverage == this->aaType() && viewMatrix.rectStaysRect()) {
+            // Disable coverage AA when rect falls on integers in device space.
+            auto is_int = [](float f) { return f == sk_float_floor(f); };
+            if (is_int(bounds.fLeft) && is_int(bounds.fTop) && is_int(bounds.fRight) &&
+                is_int(bounds.fBottom)) {
+                fAAType = static_cast<unsigned>(GrAAType::kNone);
+                // We may have had a strict constraint with nearest filter soley due to possible AA
+                // bloat. In that case it's no longer necessary.
+                if (constraint == SkCanvas::kStrict_SrcRectConstraint &&
+                    filter == GrSamplerState::Filter::kNearest) {
+                    constraint = SkCanvas::kFast_SrcRectConstraint;
+                }
+            }
+        }
+        const auto& draw = fDraws.emplace_back(srcRect, 0, quad, constraint, color);
         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
-
+        fDomain = static_cast<bool>(draw.domain());
         fMaxApproxDstPixelArea = RectSizeAsSizeT(bounds);
     }
 
