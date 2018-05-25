@@ -1,5 +1,5 @@
 #Topic Canvas
-#Alias Canvas_Reference
+#Alias Canvas_Reference ##
 
 #Class SkCanvas
 
@@ -1463,6 +1463,8 @@ depth = 1
 #Subtopic Layer
 #Substitute layer
 #Alias Layers
+#Substitute layers
+##
 #Line # temporary Bitmap to draw into ##
 
 Layer allocates a temporary Bitmap to draw into. When the drawing is
@@ -4690,7 +4692,7 @@ Blend_Mode, and Draw_Looper. If #bitmap_or_image# is kAlpha_8_SkColorType, apply
 If paint contains Mask_Filter, generate mask from #bitmap_or_image# bounds. If paint
 Filter_Quality set to kNone_SkFilterQuality, disable pixel filtering. For all
 other values of paint Filter_Quality, use kLow_SkFilterQuality to filter pixels.
-Any SkMaskFilter on the paint is ignored as is the paint's antialiasing state.
+Any SkMaskFilter on paint is ignored as is paint Anti_Aliasing state.
 ##
 
 #Method void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,

@@ -1,6 +1,6 @@
 #Topic Bitmap
-#Alias Bitmaps
-#Alias Bitmap_Reference
+#Alias Bitmaps ##
+#Alias Bitmap_Reference ##
 
 #Class SkBitmap
 
