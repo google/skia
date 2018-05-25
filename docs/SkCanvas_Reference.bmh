@@ -1,5 +1,5 @@
 #Topic Canvas
-#Alias Canvas_Reference
+#Alias Canvas_Reference ##
 
 #Class SkCanvas
 
@@ -1463,6 +1463,8 @@ depth = 1
 #Subtopic Layer
 #Substitute layer
 #Alias Layers
+#Substitute layers
+##
 #Line # temporary Bitmap to draw into ##
 
 Layer allocates a temporary Bitmap to draw into. When the drawing is

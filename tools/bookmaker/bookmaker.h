@@ -2047,8 +2047,8 @@ public:
 
     bool checkChildCommentLength(const Definition* parent, MarkType childType) const;
     void checkEnumLengths(const Definition& child, string enumName, ItemLength* length) const;
-	void constOut(const Definition* memberStart, const Definition& child,
-		    const Definition* bmhConst);
+	void constOut(const Definition* memberStart, const Definition* bmhConst);
+    void constSizeMembers(const RootDefinition* root);
     void descriptionOut(const Definition* def, SkipFirstLine , Phrase );
     void enumHeaderOut(RootDefinition* root, const Definition& child);
     string enumMemberComment(const Definition* currentEnumItem, const Definition& child) const;
@@ -2080,6 +2080,8 @@ public:
         fBmhParser = nullptr;
         fEnumDef = nullptr;
         fMethodDef = nullptr;
+        fBmhConst = nullptr;
+        fConstDef = nullptr;
         fBmhStructDef = nullptr;
         fInStruct = false;
         fWroteMethod = false;
@@ -2101,6 +2103,8 @@ private:
     const Definition* fBmhMethod;
     const Definition* fEnumDef;
     const Definition* fMethodDef;
+    const Definition* fBmhConst;
+    const Definition* fConstDef;
     Definition* fBmhStructDef;
     const char* fContinuation;  // used to construct paren-qualified method name
     int fAnonymousEnumCount;
@@ -2109,6 +2113,10 @@ private:
     int fStructMemberTab;
     int fStructValueTab;
     int fStructCommentTab;
+    int fStructMemberLength;
+    int fConstValueTab;
+    int fConstCommentTab;
+    int fConstLength;
     bool fInStruct;
     bool fWroteMethod;
     bool fIndentNext;

@@ -50,16 +50,16 @@ FT_Load_Glyph
 #External ##
 
 #Topic Alias
-#Alias Aliased
-#Alias Aliasing
+#Alias Aliased ##
+#Alias Aliasing ##
 ##
 
 #Topic Arc
-#Alias Arcs
+#Alias Arcs ##
 #Topic ##
 
 #Topic Backend_Semaphore
-#Alias Backend_Semaphores
+#Alias Backend_Semaphores ##
 #Class GrBackendSemaphore
 ##
 ##
@@ -81,7 +81,7 @@ FT_Load_Glyph
 #Topic ##
 
 #Topic Circle
-#Alias Circles
+#Alias Circles ##
 #Topic ##
 
 #Topic Clip_Op
@@ -132,7 +132,7 @@ FT_Load_Glyph
 ##
 
 #Topic Curve
-#Alias Curves
+#Alias Curves ##
 ##
 
 #Topic Data
@@ -261,7 +261,7 @@ FT_Load_Glyph
 #Topic ##
 
 #Topic Glyph
-#Alias Glyphs
+#Alias Glyphs ##
 ##
 
 #Topic GPU_Context
@@ -309,7 +309,7 @@ FT_Load_Glyph
 ##
 
 #Topic Line
-#Alias Lines
+#Alias Lines ##
 #Topic ##
 
 # to be in Topic Malloc_Pixel_Ref
@@ -372,7 +372,7 @@ FT_Load_Glyph
     #Typedef uint16_t SkGlyphID
     #Typedef ##
     #Topic Scalar
-    #Alias Scalar
+    #Alias Scalar ##
     #Typedef float SkScalar
     #Typedef ##
     ##
@@ -420,7 +420,7 @@ FT_Load_Glyph
 ##
 
 #Topic Oval
-#Alias Ovals
+#Alias Ovals ##
 #Topic ##
 
 #Topic Paint_Defaults
@@ -435,7 +435,7 @@ FT_Load_Glyph
 #Topic ##
 
 #Topic Patch
-#Alias Patches
+#Alias Patches ##
 #Topic ##
 
 #Topic Path_Effect
@@ -495,10 +495,6 @@ FT_Load_Glyph
 #Enum SkPixelGeometry
 ##
 
-# Topic Point_Array
-# Substitute SkPoint arrays
-# Topic ##
-
 #Topic Point3
 #Struct SkPoint3
 ##
@@ -512,7 +508,7 @@ FT_Load_Glyph
 ##
 
 #Topic Premultiply
-#Alias Premultiplied
+#Alias Premultiplied ##
 ##
 
 #Topic Raster_Engine
@@ -597,7 +593,7 @@ FT_Load_Glyph
 ##
 
 #Topic Sprite
-#Alias Sprites
+#Alias Sprites ##
 #Topic ##
 
 #Topic Stream
@@ -693,7 +689,7 @@ FT_Load_Glyph
 # end of defined in types
 
 #Topic Unpremultiply
-#Alias Unpremultiplied
+#Alias Unpremultiplied ##
 ##
 
 #Topic Vertices
