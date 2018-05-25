@@ -135,6 +135,11 @@ public:
 
     bool onIsValid(GrContext*) const override;
 
+    void resetContext(sk_sp<GrContext> newContext) {
+        SkASSERT(fContext->uniqueID() == newContext->uniqueID());
+        fContext = newContext;
+    }
+
 private:
     sk_sp<GrContext>       fContext;
     sk_sp<GrTextureProxy>  fProxy;
