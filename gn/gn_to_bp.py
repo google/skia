@@ -251,6 +251,10 @@ srcs          .add("third_party/skcms/skcms.c")
 local_includes.add("third_party/skcms")
 dm_includes   .add("third_party/skcms")
 
+# need to manually include the vulkanmemoryallocator headers. If HWUI ever needs
+# direct access to the allocator we need to add it to export_includes as well.
+local_includes.add("third_party/vulkanmemoryallocator/")
+
 # No need to list headers.
 srcs            = {s for s in srcs           if not s.endswith('.h')}
 dm_srcs         = {s for s in dm_srcs        if not s.endswith('.h')}
