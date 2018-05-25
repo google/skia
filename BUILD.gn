@@ -616,6 +616,7 @@ optional("gpu") {
     # they want. For example this would allow us to remove the fuchsia specific vulkan code in our
     # vulkan files.
     public_deps += [ "third_party/vulkan" ]
+    deps += [ "third_party/vulkanmemoryallocator" ]
     sources += skia_vk_sources
     if (skia_enable_vulkan_debug_layers) {
       public_defines += [ "SK_ENABLE_VK_LAYERS" ]
