@@ -70,7 +70,7 @@ source_set("tests") {
 }
 
 source_set("samples") {
-  if (skia_enable_sksg) {
+  if (skia_enable_sksg && target_cpu != "wasm") {  # TODO: clean up wasm test
     testonly = true
 
     configs += [
