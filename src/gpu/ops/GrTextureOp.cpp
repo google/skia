@@ -709,15 +709,22 @@ __attribute__((no_sanitize("float-cast-overflow")))
             , fFinalized(0)
             , fAllowSRGBInputs(allowSRGBInputs ? 1 : 0) {
         SkASSERT(aaType != GrAAType::kMixedSamples);
-
-        const Draw& draw = fDraws.emplace_back(srcRect, 0, GrPerspQuad(dstRect, viewMatrix),
-                                               constraint, color);
         fPerspective = viewMatrix.hasPerspective();
-        fDomain = (bool)draw.domain();
-        SkRect bounds;
-        bounds = draw.quad().bounds();
+        auto quad = GrPerspQuad(dstRect, viewMatrix);
+        SkRect bounds = quad.bounds();
+        if (GrAAType::kCoverage == this->aaType() && viewMatrix.rectStaysRect()) {
+            auto is_int = [](float f) { return f == sk_float_floor(f); };
+            if (is_int(bounds.fLeft)&& is_int(bounds.fTop) && is_int(bounds.fRight) && is_int(bounds.fBottom)) {
+                fAAType = static_cast<unsigned>(GrAAType::kNone);
+                if (constraint == SkCanvas::kStrict_SrcRectConstraint &&
+                    filter == GrSamplerState::Filter::kNearest) {
+                    constraint = SkCanvas::kFast_SrcRectConstraint;
+                }
+            }
+        }
+        const Draw& draw = fDraws.emplace_back(srcRect, 0, quad, constraint, color);
         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
-
+        fDomain = (bool)draw.domain();
         fMaxApproxDstPixelArea = RectSizeAsSizeT(bounds);
     }
 
