@@ -26,9 +26,6 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////
-
-typedef intptr_t GrVkBackendMemory;
-
 /**
  * Types for interacting with Vulkan resources created externally to Skia. GrBackendObjects for
  * Vulkan textures are really const GrVkImageInfo*
@@ -39,7 +36,6 @@ struct GrVkAlloc {
             , fOffset(0)
             , fSize(0)
             , fFlags(0)
-            , fBackendMemory(0)
             , fUsesSystemHeap(false) {}
 
     GrVkAlloc(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, uint32_t flags)
@@ -47,18 +43,15 @@ struct GrVkAlloc {
             , fOffset(offset)
             , fSize(size)
             , fFlags(flags)
-            , fBackendMemory(0)
             , fUsesSystemHeap(false) {}
 
-    VkDeviceMemory    fMemory;  // can be VK_NULL_HANDLE iff is an RT and is borrowed
-    VkDeviceSize      fOffset;
-    VkDeviceSize      fSize;    // this can be indeterminate iff Tex uses borrow semantics
-    uint32_t          fFlags;
-    GrVkBackendMemory fBackendMemory; // handle to memory allocated via GrVkMemoryAllocator.
+    VkDeviceMemory fMemory;  // can be VK_NULL_HANDLE iff is an RT and is borrowed
+    VkDeviceSize   fOffset;
+    VkDeviceSize   fSize;    // this can be indeterminate iff Tex uses borrow semantics
+    uint32_t       fFlags;
 
     enum Flag {
         kNoncoherent_Flag = 0x1,   // memory must be flushed to device after mapping
-        kMappable_Flag    = 0x2,   // memory is able to be mapped.
     };
 
     bool operator==(const GrVkAlloc& that) const {
