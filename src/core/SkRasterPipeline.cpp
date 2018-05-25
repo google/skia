@@ -10,8 +10,9 @@
 #include "SkPM4fPriv.h"
 #include "../jumper/SkJumper.h"
 #include <algorithm>
+#include "SkSLCompiler.h"
 
-SkRasterPipeline::SkRasterPipeline(SkArenaAlloc* alloc) : fAlloc(alloc) {
+SkRasterPipeline::SkRasterPipeline(SkArenaAlloc* alloc) : fAlloc(alloc)/*, fJIT(&fCompiler)*/ {
     this->reset();
 }
 void SkRasterPipeline::reset() {
@@ -33,6 +34,56 @@ void SkRasterPipeline::append(void* fn, void* ctx) {
     fStages = fAlloc->make<StageList>( StageList{fStages, (uint64_t) fn, ctx, true} );
     fNumStages   += 1;
     fSlotsNeeded += ctx ? 2 : 1;
+}
+
+void* SkRasterPipeline::ditherJIT() {
+    abort();
+/*    SkSL::Compiler compiler;
+    SkSL::Program::Settings settings;
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kPipelineStage_Kind,
+        "void main(int x, int y, inout half4 color) {\n"
+        "    half value;\n"
+        "    half range;\n"
+        "    @switch (0) {\n"
+        "        case 0:\n"
+        "            range = 1.0 / 255.0;\n"
+        "            break;\n"
+        "        case 1:\n"
+        "            range = 1.0 / 63.0;\n"
+        "            break;\n"
+        "        default:\n"
+        "            // Experimentally this looks better than the expected value of 1/15.\n"
+        "            range = 1.0 / 15.0;\n"
+        "            break;\n"
+        "    }\n"
+        "    @if (sk_Caps.integerSupport) {\n"
+        "        // This ordered-dither code is lifted from the cpu backend.\n"
+        "        uint x = uint(x);\n"
+        "        uint y = uint(y);\n"
+        "        uint m = (y & 1) << 5 | (x & 1) << 4 |\n"
+        "                 (y & 2) << 2 | (x & 2) << 1 |\n"
+        "                 (y & 4) >> 1 | (x & 4) >> 2;\n"
+        "        value = half(m) * 1.0 / 64.0 - 63.0 / 128.0;\n"
+        "    } else {\n"
+        "        // Simulate the integer effect used above using step/mod. For speed, simulates a 4x4\n"
+        "        // dither pattern rather than an 8x8 one.\n"
+        "        half4 modValues = mod(float4(x, y, x, y), half4(2.0, 2.0, 4.0, 4.0));\n"
+        "        half4 stepValues = step(modValues, half4(1.0, 1.0, 2.0, 2.0));\n"
+        "        value = dot(stepValues, half4(8.0 / 16.0, 4.0 / 16.0, 2.0 / 16.0, 1.0 / 16.0)) - 15.0 / 32.0;\n"
+        "    }\n"
+        "    // For each color channel, add the random offset to the channel value and then clamp\n"
+        "    // between 0 and alpha to keep the color premultiplied.\n"
+        "    color = half4(clamp(color.rgb + value * range, 0.0, color.a), color.a);\n"
+        "}",
+        settings);
+    if (!program) {
+        printf("%s\n", compiler.errorText().c_str());
+        abort();
+    }
+    std::unique_ptr<SkSL::JIT::Module> module = fJIT.compile(std::move(program));
+    void* func = module->getJumperStage("main");
+    fModules.push_back(std::move(module));
+    return func;*/
 }
 
 void SkRasterPipeline::extend(const SkRasterPipeline& src) {

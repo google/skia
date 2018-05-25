@@ -21,6 +21,7 @@
 #include "SkUtils.h"
 #include "SkValidationUtils.h"
 #include "SkWriteBuffer.h"
+#include "effects/GrSkSLFP.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -111,7 +112,7 @@ std::unique_ptr<GrFragmentProcessor> SkModeColorFilter::asFragmentProcessor(
     // With a solid color input this should always be able to compute the blended color
     // (at least for coeff modes)
     if ((unsigned)fMode <= (unsigned)SkBlendMode::kLastCoeffMode) {
-        SkASSERT(fp->hasConstantOutputForConstantInput());
+//        SkASSERT(fp->hasConstantOutputForConstantInput());
     }
 #endif
     return fp;

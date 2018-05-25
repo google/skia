@@ -28,8 +28,14 @@ struct Setting : public Expression {
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override;
 
+    std::unique_ptr<Expression> clone() const override {
+        return std::unique_ptr<Expression>(new Setting(fOffset, fName, fValue->clone()));
+    }
+
     String description() const override {
-        return fName;
+        char buffer[255];
+        sprintf(buffer, "%s(%p)", fName.c_str(), this);
+        return String(buffer);
     }
 
     bool hasSideEffects() const override {
