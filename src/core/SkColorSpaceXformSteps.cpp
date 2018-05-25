@@ -7,27 +7,7 @@
 
 #include "SkColorSpaceXformSteps.h"
 
-// Our logical flow modulo any optimization is:
-//   For source colors:
-//    1) get colors into linear, unpremul format
-//    2) transform to dst gamut
-//    3) encode with dst transfer function if dst has non-linear blending
-//    4) premul so we can blend
-//
-//   For destination colors:
-//    a) Linearize if dst has linear blending
-//    b) (Presumably all destinations are already premul, but logically, premul here)
-//
-//   Now the source and destination pipelines unify:
-//    I)  blend the src and dst colors, which are encoded the same way in the same gamut
-//    II) if dst has linear blending, encode using dst transfer function
-//
-//  Step 1) is represented by three bits:
-//     - early_unpremul, converting f(s)*a,a to f(s),a if src has non-linear blending
-//     - linearize_src,  converting f(s),a to s,a   _or_  f(s*a),a to s*a,a
-//     - late_unpremul,  converting s*a,a to s,a if src has linear blending
-//  So we'll either early_unpremul and linearize_src, or linearize_src and late_unpremul.
-//
+// TODO: explain
 
 SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType srcAT,
                                                SkColorSpace* dst) {
@@ -35,29 +15,13 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
     memset(this, 0, sizeof(*this));
 
     // We have some options about what to do with null src or dst here.
-#if 1
     SkASSERT(src && dst);
-#else
-    // If either the source or destination color space is unspecified,
-    // treat it as non-linearly-blended sRGB ("legacy").
-    sk_sp<SkColorSpace> sRGB_NL;
-    if (!src || !dst) {
-        sRGB_NL = SkColorSpace::MakeSRGB()->makeNonlinearBlending();
-        if (!src) { src = sRGB_NL.get(); }
-        if (!dst) { dst = sRGB_NL.get(); }
-    }
-#endif
 
-    bool srcNL = src->nonlinearBlending(),
-         dstNL = dst->nonlinearBlending();
-
-    // Step 1)  get source colors into linear, unpremul format
-    this->early_unpremul =  srcNL && srcAT == kPremul_SkAlphaType;
-    this->linearize_src  =   true;
-    this->late_unpremul  = !srcNL && srcAT == kPremul_SkAlphaType;
-
-    // Step 2)  transform source colors into destination gamut
-    this->gamut_transform = (src->toXYZD50Hash() != dst->toXYZD50Hash());
+    this->unpremul        = srcAT == kPremul_SkAlphaType;
+    this->linearize       = !src->gammaIsLinear();
+    this->gamut_transform = src->toXYZD50Hash() != dst->toXYZD50Hash();
+    this->encode          = !dst->gammaIsLinear();
+    this->premul          = srcAT != kOpaque_SkAlphaType;
 
     if (this->gamut_transform && src->toXYZD50() && dst->fromXYZD50()) {
         auto xform = SkMatrix44(*src->toXYZD50(),  *dst->fromXYZD50());
@@ -72,52 +36,30 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
         }
     }
 
-    // Step 3)  encode with dst transfer function if dst has non-linear blending
-    this->early_encode = dstNL;
-
-    // Step 4)  premul so we can blend
-    this->premul = srcAT != kOpaque_SkAlphaType;
-
-    // Step a)  linearize if dst has linear blending
-    this->linearize_dst = !dstNL;
-
-    // Step II) if dst has linear blending, encode back using dst transfer function before storing
-    this->late_encode = !dstNL;
-
     // Fill out all the transfer functions we'll use:
     SkColorSpaceTransferFn srcTF, dstTF;
     SkAssertResult(src->isNumericalTransferFn(&srcTF));
     SkAssertResult(dst->isNumericalTransferFn(&dstTF));
     this->srcTFInv = srcTF.invert();
     this->dstTF    = dstTF;
-    this->dstTFInv = dstTF.invert();
 
     // If we linearize then immediately reencode with the same transfer function, skip both.
-    if ( this->linearize_src   &&
-        !this->late_unpremul   &&
+    if ( this->linearize       &&
         !this->gamut_transform &&
-         this->early_encode    &&
+         this->encode          &&
         0 == memcmp(&srcTF, &dstTF, sizeof(SkColorSpaceTransferFn)))
     {
-        this->linearize_src = false;
-        this->early_encode  = false;
+        this->linearize  = false;
+        this->encode     = false;
     }
 
     // Skip unpremul...premul if there are no non-linear operations between.
-    if ( this->early_unpremul &&
-        !this->linearize_src  &&
-        !this->early_encode   &&
+    if ( this->unpremul   &&
+        !this->linearize  &&
+        !this->encode     &&
          this->premul)
     {
-        this->early_unpremul = false;
-        this->premul         = false;
-    }
-
-    if ( this->late_unpremul &&
-        !this->early_encode  &&
-         this->premul)
-    {
-        this->late_unpremul = false;
-        this->premul        = false;
+        this->unpremul = false;
+        this->premul   = false;
     }
 }

@@ -15,23 +15,14 @@ struct SkColorSpaceXformSteps {
     SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType srcAT,
                            SkColorSpace* dst);
 
-    // Source pipeline steps, pre-blend.
-    bool early_unpremul;
-    bool linearize_src;
-    bool late_unpremul;
+    bool unpremul;
+    bool linearize;
     bool gamut_transform;
-    bool early_encode;
+    bool encode;
     bool premul;
 
-    // Destination pipeline steps, pre-blend.
-    bool linearize_dst;
-
-    // Post-blend steps.
-    bool late_encode;
-
-    SkColorSpaceTransferFn srcTFInv,  // Apply for linearize_src.
-                           dstTFInv,  // Apply for linearize_dst.
-                           dstTF;     // Apply for early_encode or late_encode.
+    SkColorSpaceTransferFn srcTFInv,  // Apply for linearize.
+                           dstTF;     // Apply for encode.
     float src_to_dst_matrix[9];       // Apply this 3x3 row-major matrix for gamut_transform.
 };
 
