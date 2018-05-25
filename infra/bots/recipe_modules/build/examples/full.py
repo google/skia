@@ -43,7 +43,6 @@ TEST_BUILDERS = [
   'Build-Debian9-EMCC-wasm-Release',
   'Build-Debian9-GCC-arm-Release-Chromecast',
   'Build-Debian9-GCC-loongson3a-Release',
-  'Build-Debian9-GCC-x86_64-Debug-EmbededResouces',
   'Build-Debian9-GCC-x86_64-Release-ANGLE',
   'Build-Debian9-GCC-x86_64-Release-Flutter_Android',
   'Build-Debian9-GCC-x86_64-Release-NoGPU',

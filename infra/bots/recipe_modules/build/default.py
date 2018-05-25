@@ -193,8 +193,6 @@ def compile_fn(api, checkout_root, out_dir):
     })
   if 'NoGPU' in extra_tokens:
     args['skia_enable_gpu'] = 'false'
-  if 'EmbededResouces' in extra_tokens:
-    args['skia_embed_resoucres'] = 'true'
   if 'Shared' in extra_tokens:
     args['is_component_build'] = 'true'
   if 'Vulkan' in extra_tokens and not 'Android' in extra_tokens:
