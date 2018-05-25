@@ -1317,7 +1317,9 @@ bool BmhParser::findDefinitions() {
                     return this->reportError<bool>("duplicate name");
                 }
                 if (hasEnd && expectEnd) {
-                    SkASSERT(fMC != this->peek());
+                    if (fMC == this->peek()) {
+                        return this->reportError<bool>("missing body");
+                    }
                 }
                 if (!this->addDefinition(defStart, hasEnd, markType, typeNameBuilder,
                         HasTag::kYes)) {

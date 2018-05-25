@@ -981,6 +981,7 @@ and return true if alphaType is not kUnknown_SkAlphaType.
 #Subtopic YUV_ColorSpace
 #Line # color range of YUV pixels ##
 #Alias YUV_ColorSpace
+
 #Enum SkYUVColorSpace
 #Line # color range of YUV pixels ##
 
@@ -1036,7 +1037,6 @@ with studio range of 16 to 235 range for components.
 #Subtopic YUV_ColorSpace ##
 
 # ------------------------------------------------------------------------------
-
 
 #Struct SkImageInfo
 
