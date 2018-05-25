@@ -42,18 +42,16 @@ def GrabDependentValues(js, name, value_type, list_to_extend, exclude):
     list_to_extend.update(_strip_slash(js['targets'][dep].get(value_type, [])))
     GrabDependentValues(js, dep, value_type, list_to_extend, exclude)
 
-def CleanupCFlags(cflags):
-  # Only use the generated flags related to warnings.
-  cflags = {s for s in cflags if s.startswith('-W')}
-  # Add the rest of the flags we want.
-  cflags = cflags.union([
+def GetCFlags():
+  cflags = [
     "-fvisibility=hidden",
     "-D_FORTIFY_SOURCE=1",
     "-DSKIA_DLL",
     "-DSKIA_IMPLEMENTATION=1",
     "-DATRACE_TAG=ATRACE_TAG_VIEW",
     "-DSK_PRINT_CODEC_MESSAGES",
-  ])
+    "-w",
+  ]
 
   # We need to undefine FORTIFY_SOURCE before we define it. Insert it at the
   # beginning after sorting.
@@ -61,11 +59,8 @@ def CleanupCFlags(cflags):
   cflags.insert(0, "-U_FORTIFY_SOURCE")
   return cflags
 
-def CleanupCCFlags(cflags_cc):
-  # Only use the generated flags related to warnings.
-  cflags_cc       = {s for s in cflags_cc      if s.startswith('-W')}
-  # Add the rest of the flags we want.
-  cflags_cc.add("-fexceptions")
+def GetCCFlags():
+  cflags_cc = ["-fexceptions"]
   return cflags_cc
 
 def _get_path_info(path, kind):
