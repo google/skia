@@ -709,6 +709,11 @@ __attribute__((no_sanitize("float-cast-overflow")))
             , fFinalized(0)
             , fAllowSRGBInputs(allowSRGBInputs ? 1 : 0) {
         SkASSERT(aaType != GrAAType::kMixedSamples);
+        // No need to use a texture domain with nearest filtering unless there is AA bloating.
+        if (constraint == SkCanvas::kStrict_SrcRectConstraint &&
+            filter == GrSamplerState::Filter::kNearest && GrAAType::kCoverage != aaType) {
+            constraint = SkCanvas::kFast_SrcRectConstraint;
+        }
 
         const Draw& draw = fDraws.emplace_back(srcRect, 0, GrPerspQuad(dstRect, viewMatrix),
                                                constraint, color);

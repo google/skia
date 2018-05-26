@@ -239,21 +239,6 @@ public:
     }
     int worstCaseWidth() const;
     int worstCaseHeight() const;
-    /**
-     * Helper that gets the width and height of the surface as a bounding rectangle.
-     */
-    SkRect getBoundsRect() const {
-        SkASSERT(LazyState::kFully != this->lazyInstantiationState());
-        return SkRect::MakeIWH(this->width(), this->height());
-    }
-    /**
-     * Helper that gets the worst case width and height of the surface as a bounding rectangle.
-     */
-    SkRect getWorstCaseBoundsRect() const {
-        SkASSERT(LazyState::kFully != this->lazyInstantiationState());
-        return SkRect::MakeIWH(this->worstCaseWidth(), this->worstCaseHeight());
-    }
-
     GrSurfaceOrigin origin() const {
         SkASSERT(kTopLeft_GrSurfaceOrigin == fOrigin || kBottomLeft_GrSurfaceOrigin == fOrigin);
         return fOrigin;
@@ -316,6 +301,14 @@ public:
     virtual bool instantiate(GrResourceProvider* resourceProvider) = 0;
 
     void deInstantiate();
+
+    /**
+     * Helper that gets the width and height of the surface as a bounding rectangle.
+     */
+    SkRect getBoundsRect() const {
+        SkASSERT(LazyState::kFully != this->lazyInstantiationState());
+        return SkRect::MakeIWH(this->width(), this->height());
+    }
 
     /**
      * @return the texture proxy associated with the surface proxy, may be NULL.
