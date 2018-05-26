@@ -8,7 +8,6 @@
 #include "GrColor.h"
 #include "GrSamplerState.h"
 #include "GrTypesPriv.h"
-#include "SkCanvas.h"
 #include "SkRefCnt.h"
 
 class GrColorSpaceXform;
@@ -18,7 +17,6 @@ struct SkRect;
 class SkMatrix;
 
 namespace GrTextureOp {
-
 /**
  * Creates an op that draws a sub-rectangle of a texture. The passed color is modulated by the
  * texture's color. 'srcRect' specifies the rectangle of the texture to draw. 'dstRect' specifies
@@ -27,6 +25,6 @@ namespace GrTextureOp {
  */
 std::unique_ptr<GrDrawOp> Make(sk_sp<GrTextureProxy>, GrSamplerState::Filter, GrColor,
                                const SkRect& srcRect, const SkRect& dstRect, GrAAType,
-                               SkCanvas::SrcRectConstraint, const SkMatrix& viewMatrix,
-                               sk_sp<GrColorSpaceXform>, bool allowSRGBInputs);
+                               const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform>,
+                               bool allowSRGBInputs);
 }

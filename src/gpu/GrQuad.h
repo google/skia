@@ -64,7 +64,7 @@ public:
 
     SkPoint3 point(int i) const { return {fX[i], fY[i], fW[i]}; }
 
-    SkRect bounds() const {
+    SkRect bounds() {
         auto x = this->x4f() * this->iw4f();
         auto y = this->y4f() * this->iw4f();
         return {x.min(), y.min(), x.max(), y.max()};
