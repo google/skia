@@ -39,7 +39,6 @@ declare_args() {
   skia_enable_fontmgr_empty = false
   skia_enable_gpu = true
   skia_enable_pdf = true
-  skia_enable_skottie = true
   skia_enable_spirv_validation = is_skia_dev_build && is_debug
   skia_enable_tools = is_skia_dev_build
   skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
@@ -1013,8 +1012,7 @@ if (skia_enable_tools) {
     public_configs = [ ":skia.h_config" ]
     skia_h = "$target_gen_dir/skia.h"
     script = "gn/find_headers.py"
-    args = [ rebase_path("//bin/gn") ] +
-           [ rebase_path("//") ] +
+    args = [ rebase_path("//bin/gn") ] + [ rebase_path("//") ] +
            [ rebase_path(skia_h, root_build_dir) ] +
            rebase_path(skia_public_includes)
     depfile = "$skia_h.deps"
@@ -1420,26 +1418,6 @@ if (skia_enable_tools) {
     ]
   }
 
-  test_lib("experimental_skottie") {
-    public_include_dirs = []
-    if (skia_enable_skottie) {
-      public_include_dirs += [ "experimental/skottie" ]
-      public_defines = [ "SK_ENABLE_SKOTTIE" ]
-      sources = [
-        "experimental/skottie/Skottie.cpp",
-        "experimental/skottie/SkottieAdapter.cpp",
-        "experimental/skottie/SkottieAnimator.cpp",
-        "experimental/skottie/SkottieJson.cpp",
-        "experimental/skottie/SkottieValue.cpp",
-      ]
-      deps = [
-        ":skia",
-        "modules/sksg",
-        "//third_party/rapidjson",
-      ]
-    }
-  }
-
   test_lib("experimental_svg_model") {
     public_include_dirs = []
     if (skia_use_expat) {
@@ -1582,7 +1560,6 @@ if (skia_enable_tools) {
       include_dirs = [ "tests" ]
       deps = [
         ":common_flags",
-        ":experimental_skottie",
         ":experimental_svg_model",
         ":flags",
         ":gm",
@@ -1591,6 +1568,7 @@ if (skia_enable_tools) {
         ":tests",
         ":third_party_skcms",
         ":tool_utils",
+        "modules/skottie",
         "modules/sksg",
         "//third_party/jsoncpp",
         "//third_party/libpng",
@@ -1790,17 +1768,13 @@ if (skia_enable_tools) {
       "tools/picture_utils.cpp",
     ]
     deps = [
-      ":experimental_skottie",
       ":flags",
       ":gpu_tool_utils",
       ":skia",
+      "modules/skottie:fuzz",
       "//third_party/jsoncpp",
       "//third_party/libpng",
     ]
-
-    if (skia_enable_skottie) {
-      sources += [ "fuzz/oss_fuzz/FuzzSkottieJSON.cpp" ]
-    }
   }
 
   test_app("pathops_unittest") {
@@ -2023,6 +1997,7 @@ if (skia_enable_tools) {
         "tools/viewer/ImageSlide.cpp",
         "tools/viewer/SKPSlide.cpp",
         "tools/viewer/SampleSlide.cpp",
+        "tools/viewer/SkottieSlide.cpp",
         "tools/viewer/SlideDir.cpp",
         "tools/viewer/StatsLayer.cpp",
         "tools/viewer/SvgSlide.cpp",
@@ -2041,15 +2016,11 @@ if (skia_enable_tools) {
         ":skia",
         ":tool_utils",
         ":views",
+        "modules/skottie",
         "modules/sksg",
         "//third_party/imgui",
         "//third_party/jsoncpp",
       ]
-
-      if (skia_enable_skottie) {
-        sources += [ "tools/viewer/SkottieSlide.cpp" ]
-        deps += [ ":experimental_skottie" ]
-      }
     }
   }
 
