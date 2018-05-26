@@ -7,8 +7,9 @@
 
 #include "SkMask.h"
 
-#include "sk_types_priv.h"
 #include "sk_mask.h"
+
+#include "sk_types_priv.h"
 
 uint8_t* sk_mask_alloc_image(size_t bytes) {
     return SkMask::AllocImage(bytes);

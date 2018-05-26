@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkImage.h"
 #include "SkImageEncoder.h"
 
 #include "sk_image.h"
@@ -50,7 +51,7 @@ sk_image_t* sk_image_new_from_bitmap(const sk_bitmap_t* cbitmap) {
     return ToImage(SkImage::MakeFromBitmap(*AsBitmap(cbitmap)).release());
 }
 
-sk_image_t* sk_image_new_from_encoded(const sk_data_t* cdata, const sk_irect_t* subset) {
+sk_image_t* sk_image_new_from_encoded(sk_data_t* cdata, const sk_irect_t* subset) {
     return ToImage(SkImage::MakeFromEncoded(sk_ref_sp(AsData(cdata)), AsIRect(subset)).release());
 }
 

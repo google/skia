@@ -8,917 +8,157 @@
 #ifndef sk_types_priv_DEFINED
 #define sk_types_priv_DEFINED
 
-#include "SkImageInfo.h"
-#include "SkCanvas.h"
-#include "SkNoDrawCanvas.h"
-#include "SkNWayCanvas.h"
-#include "SkSurface.h"
-#include "SkVertices.h"
-#include "SkBlurTypes.h"
-#include "SkDocument.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPathMeasure.h"
-#include "SkCodec.h"
-#include "SkColorSpace.h"
-#include "SkPicture.h"
-#include "SkPixmap.h"
-#include "SkPictureRecorder.h"
-#include "SkPoint3.h"
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkDisplacementMapEffect.h"
-#include "SkDropShadowImageFilter.h"
-#include "SkMatrixConvolutionImageFilter.h"
-#include "SkMask.h"
-#include "Sk1DPathEffect.h"
-#include "SkFontStyle.h"
-#include "SkXMLWriter.h"
-#include "SkPathOps.h"
-#include "SkRegion.h"
-#include "SkTypeface.h"
-#include "SkFontMgr.h"
-#include "SkEncodedInfo.h"
-#include "SkTime.h"
-#include "SkCamera.h"
-#include "SkHighContrastFilter.h"
-#include "SkPngEncoder.h"
-#include "SkJpegEncoder.h"
-#include "SkWebpEncoder.h"
-
-#include "sk_path.h"
-#include "sk_paint.h"
-#include "sk_shader.h"
-#include "sk_maskfilter.h"
-
 #include "sk_types.h"
 
-class SkMaskFilter;
-class SkPaint;
-class SkShader;
-class GrContext;
-struct GrContextOptions;
-struct GrGLInterface;
 
-static inline const SkPaint& AsPaint(const sk_paint_t& cpaint) {
-    return reinterpret_cast<const SkPaint&>(cpaint);
-}
+// Define a mapping between a C++ type and the C type.
+//
+// Usual Values:
+//  - C++  |  SkType   |  SkSomeType
+//  - C    |  sk_type  |  sk_some_type_t
+//  - Map  |  Name     |  ToSomeType / AsSomeType
+//
+#define DEF_MAP_DECL(SkType, sk_type, Name, Declaration)       \
+    Declaration;                                               \
+    static inline const SkType& As##Name(const sk_type& t) {   \
+        return reinterpret_cast<const SkType&>(t);             \
+    }                                                          \
+    static inline const SkType* As##Name(const sk_type* t) {   \
+        return reinterpret_cast<const SkType*>(t);             \
+    }                                                          \
+    static inline SkType& As##Name(sk_type& t) {               \
+        return reinterpret_cast<SkType&>(t);                   \
+    }                                                          \
+    static inline SkType* As##Name(sk_type* t) {               \
+        return reinterpret_cast<SkType*>(t);                   \
+    }                                                          \
+    static inline const sk_type& To##Name(const SkType& t) {   \
+        return reinterpret_cast<const sk_type&>(t);            \
+    }                                                          \
+    static inline const sk_type* To##Name(const SkType* t) {   \
+        return reinterpret_cast<const sk_type*>(t);            \
+    }                                                          \
+    static inline sk_type& To##Name(SkType& t) {               \
+        return reinterpret_cast<sk_type&>(t);                  \
+    }                                                          \
+    static inline sk_type* To##Name(SkType* t) {               \
+        return reinterpret_cast<sk_type*>(t);                  \
+    }
+
+#define DEF_CLASS_MAP(SkType, sk_type, Name)                   \
+    DEF_MAP_DECL(SkType, sk_type, Name, class SkType)
+
+#define DEF_STRUCT_MAP(SkType, sk_type, Name)                  \
+    DEF_MAP_DECL(SkType, sk_type, Name, struct SkType)
+
+#define DEF_MAP(SkType, sk_type, Name)                         \
+    DEF_MAP_DECL(SkType, sk_type, Name, )
+
+
+DEF_CLASS_MAP(Sk3DView, sk_3dview_t, 3DView)
+DEF_CLASS_MAP(SkBitmap, sk_bitmap_t, Bitmap)
+DEF_CLASS_MAP(SkCanvas, sk_canvas_t, Canvas)
+DEF_CLASS_MAP(SkCodec, sk_codec_t, Codec)
+DEF_CLASS_MAP(SkColorFilter, sk_colorfilter_t, ColorFilter)
+DEF_CLASS_MAP(SkColorSpace, sk_colorspace_t, ColorSpace)
+DEF_CLASS_MAP(SkColorTable, sk_colortable_t, ColorTable)
+DEF_CLASS_MAP(SkData, sk_data_t, Data)
+DEF_CLASS_MAP(SkDocument, sk_document_t, Document)
+DEF_CLASS_MAP(SkDynamicMemoryWStream, sk_wstream_dynamicmemorystream_t, DynamicMemoryWStream)
+DEF_CLASS_MAP(SkFILEStream, sk_stream_filestream_t, FileStream)
+DEF_CLASS_MAP(SkFILEWStream, sk_wstream_filestream_t, FileWStream)
+DEF_CLASS_MAP(SkFontMgr, sk_fontmgr_t, FontMgr)
+DEF_CLASS_MAP(SkImage, sk_image_t, Image)
+DEF_CLASS_MAP(SkImageFilter, sk_imagefilter_t, ImageFilter)
+DEF_CLASS_MAP(SkMaskFilter, sk_maskfilter_t, MaskFilter)
+DEF_CLASS_MAP(SkMatrix44, sk_matrix44_t, Matrix44)
+DEF_CLASS_MAP(SkMemoryStream, sk_stream_memorystream_t, MemoryStream)
+DEF_CLASS_MAP(SkNWayCanvas, sk_nway_canvas_t, NWayCanvas)
+DEF_CLASS_MAP(SkNoDrawCanvas, sk_nodraw_canvas_t, NoDrawCanvas)
+DEF_CLASS_MAP(SkOpBuilder, sk_opbuilder_t, OpBuilder)
+DEF_CLASS_MAP(SkPaint, sk_paint_t, Paint)
+DEF_CLASS_MAP(SkPath, sk_path_t, Path)
+DEF_CLASS_MAP(SkPathEffect, sk_path_effect_t, PathEffect)
+DEF_CLASS_MAP(SkPathMeasure, sk_pathmeasure_t, PathMeasure)
+DEF_CLASS_MAP(SkPicture, sk_picture_t, Picture)
+DEF_CLASS_MAP(SkPictureRecorder, sk_picture_recorder_t, PictureRecorder)
+DEF_CLASS_MAP(SkPixelSerializer, sk_pixelserializer_t, PixelSerializer)
+DEF_CLASS_MAP(SkPixmap, sk_pixmap_t, Pixmap)
+DEF_CLASS_MAP(SkRegion, sk_region_t, Region)
+DEF_CLASS_MAP(SkShader, sk_shader_t, Shader)
+DEF_CLASS_MAP(SkStream, sk_stream_t, Stream)
+DEF_CLASS_MAP(SkStreamAsset, sk_stream_asset_t, StreamAsset)
+DEF_CLASS_MAP(SkStreamRewindable, sk_stream_streamrewindable_t, StreamRewindable)
+DEF_CLASS_MAP(SkString, sk_string_t, String)
+DEF_CLASS_MAP(SkSurface, sk_surface_t, Surface)
+DEF_CLASS_MAP(SkTypeface, sk_typeface_t, Typeface)
+DEF_CLASS_MAP(SkVertices, sk_vertices_t, Vertices)
+DEF_CLASS_MAP(SkWStream, sk_wstream_t, WStream)
+DEF_CLASS_MAP(SkXMLStreamWriter, sk_xmlstreamwriter_t, XMLStreamWriter)
+DEF_CLASS_MAP(SkXMLWriter, sk_xmlwriter_t, XMLWriter)
+
+DEF_CLASS_MAP(GrContext, gr_context_t, GrContext)
+
+DEF_STRUCT_MAP(SkColorSpacePrimaries, sk_colorspaceprimaries_t, ColorSpacePrimaries)
+DEF_STRUCT_MAP(SkColorSpaceTransferFn, sk_colorspace_transfer_fn_t, ColorSpaceTransferFn)
+DEF_STRUCT_MAP(SkEncodedInfo, sk_encodedinfo_t, EncodedInfo)
+DEF_STRUCT_MAP(SkHighContrastConfig, sk_highcontrastconfig_t, HighContrastConfig)
+DEF_STRUCT_MAP(SkIPoint, sk_ipoint_t, IPoint)
+DEF_STRUCT_MAP(SkIRect, sk_irect_t, IRect)
+DEF_STRUCT_MAP(SkISize, sk_isize_t, ISize)
+DEF_STRUCT_MAP(SkMask, sk_mask_t, Mask)
+DEF_STRUCT_MAP(SkPoint, sk_point_t, Point)
+DEF_STRUCT_MAP(SkPoint3, sk_point3_t, Point3)
+DEF_STRUCT_MAP(SkRect, sk_rect_t, Rect)
+DEF_STRUCT_MAP(SkSize, sk_size_t, Size)
 
-static inline const SkPaint* AsPaint(const sk_paint_t* cpaint) {
-    return reinterpret_cast<const SkPaint*>(cpaint);
-}
+DEF_STRUCT_MAP(GrBackendRenderTargetDesc, gr_backend_rendertarget_desc_t, GrBackendRenderTargetDesc)
+DEF_STRUCT_MAP(GrBackendTextureDesc, gr_backend_texture_desc_t, GrBackendTextureDesc)
+DEF_STRUCT_MAP(GrContextOptions, gr_context_options_t, GrContextOptions)
+DEF_STRUCT_MAP(GrGLInterface, gr_glinterface_t, GrGLInterface)
 
-static inline SkPaint* AsPaint(sk_paint_t* cpaint) {
-    return reinterpret_cast<SkPaint*>(cpaint);
-}
+#include "SkCanvas.h"
+DEF_MAP(SkCanvas::Lattice, sk_lattice_t, Lattice)
 
-static inline SkMaskFilter* AsMaskFilter(sk_maskfilter_t* cfilter) {
-    return reinterpret_cast<SkMaskFilter*>(cfilter);
-}
+#include "SkCodec.h"
+DEF_MAP(SkCodec::FrameInfo, sk_codec_frameinfo_t, FrameInfo)
+DEF_MAP(SkCodec::Options, sk_codec_options_t, CodecOptions)
 
-static inline sk_maskfilter_t* ToMaskFilter(SkMaskFilter* filter) {
-    return reinterpret_cast<sk_maskfilter_t*>(filter);
-}
+#include "SkImageFilter.h"
+DEF_MAP(SkImageFilter::CropRect, sk_imagefilter_croprect_t, ImageFilterCropRect)
 
-static inline SkShader* AsShader(sk_shader_t* cshader) {
-    return reinterpret_cast<SkShader*>(cshader);
-}
+#include "SkJpegEncoder.h"
+DEF_MAP(SkJpegEncoder::Options, sk_jpegencoder_options_t, JpegEncoderOptions)
 
-static inline SkRect* AsRect(sk_rect_t* crect) {
-    return reinterpret_cast<SkRect*>(crect);
-}
+#include "SkPaint.h"
+DEF_MAP(SkPaint::FontMetrics, sk_fontmetrics_t, FontMetrics)
 
-static inline const SkRect* AsRect(const sk_rect_t* crect) {
-    return reinterpret_cast<const SkRect*>(crect);
-}
+#include "SkPath.h"
+DEF_MAP(SkPath::Iter, sk_path_iterator_t, PathIter)
+DEF_MAP(SkPath::RawIter, sk_path_rawiterator_t, PathRawIter)
 
-static inline const SkRect& AsRect(const sk_rect_t& crect) {
-    return reinterpret_cast<const SkRect&>(crect);
-}
+#include "SkPngEncoder.h"
+DEF_MAP(SkPngEncoder::Options, sk_pngencoder_options_t, PngEncoderOptions)
 
-static inline sk_rect_t ToRect(const SkRect& rect) {
-    return reinterpret_cast<const sk_rect_t&>(rect);
-}
+#include "SkTime.h"
+DEF_MAP(SkTime::DateTime, sk_time_datetime_t, TimeDateTime)
 
-static inline sk_irect_t ToIRect(const SkIRect& rect) {
-    return reinterpret_cast<const sk_irect_t&>(rect);
-}
+#include "SkWebpEncoder.h"
+DEF_MAP(SkWebpEncoder::Options, sk_webpencoder_options_t, WebpEncoderOptions)
 
-static inline SkIRect* AsIRect(sk_irect_t* crect) {
-    return reinterpret_cast<SkIRect*>(crect);
-}
 
-static inline const SkIRect* AsIRect(const sk_irect_t* crect) {
-    return reinterpret_cast<const SkIRect*>(crect);
-}
-
-static inline const SkIRect& AsIRect(const sk_irect_t& crect) {
-    return reinterpret_cast<const SkIRect&>(crect);
-}
-
-static inline SkRegion* AsRegion(sk_region_t* creg) {
-    return reinterpret_cast<SkRegion*>(creg);
-}
-
-static inline SkRegion& AsRegion(sk_region_t& creg) {
-    return reinterpret_cast<SkRegion&>(creg);
-}
-
-static inline const SkRegion* AsRegion(const sk_region_t* creg) {
-    return reinterpret_cast<const SkRegion*>(creg);
-}
-
-static inline const SkRegion& AsRegion(const sk_region_t& creg) {
-    return reinterpret_cast<const SkRegion&>(creg);
-}
-
-static inline sk_region_t* ToRegion(SkRegion* reg) {
-    return reinterpret_cast<sk_region_t*>(reg);
-}
-
-static inline const SkBitmap* AsBitmap(const sk_bitmap_t* cbitmap) {
-    return reinterpret_cast<const SkBitmap*>(cbitmap);
-}
-
-static inline const SkBitmap& AsBitmap(const sk_bitmap_t& cbitmap) {
-    return reinterpret_cast<const SkBitmap&>(cbitmap);
-}
-
-static inline SkBitmap* AsBitmap(sk_bitmap_t* cbitmap) {
-    return reinterpret_cast<SkBitmap*>(cbitmap);
-}
-
-static inline SkBitmap& AsBitmap(sk_bitmap_t& cbitmap) {
-    return reinterpret_cast<SkBitmap&>(cbitmap);
-}
-
-static inline const SkPixmap* AsPixmap(const sk_pixmap_t* cpixmap) {
-    return reinterpret_cast<const SkPixmap*>(cpixmap);
-}
-
-static inline const SkPixmap& AsPixmap(const sk_pixmap_t& cpixmap) {
-    return reinterpret_cast<const SkPixmap&>(cpixmap);
-}
-
-static inline SkPixmap* AsPixmap(sk_pixmap_t* cpixmap) {
-    return reinterpret_cast<SkPixmap*>(cpixmap);
-}
-
-static inline SkPixmap& AsPixmap(sk_pixmap_t& cpixmap) {
-    return reinterpret_cast<SkPixmap&>(cpixmap);
-}
-
-static inline const sk_pixmap_t& ToPixmap(const SkPixmap& pixmap) {
-    return reinterpret_cast<const sk_pixmap_t&>(pixmap);
-}
-
-static inline sk_pixmap_t* ToPixmap(SkPixmap* pixmap) {
-    return reinterpret_cast<sk_pixmap_t*>(pixmap);
-}
-
-static inline const sk_pixmap_t* ToPixmap(const SkPixmap* pixmap) {
-    return reinterpret_cast<const sk_pixmap_t*>(pixmap);
-}
-
-static inline const SkPixelSerializer* AsPixelSerializer(const sk_pixelserializer_t* cpixelserializer) {
-    return reinterpret_cast<const SkPixelSerializer*>(cpixelserializer);
-}
-
-static inline const SkPixelSerializer& AsPixelSerializer(const sk_pixelserializer_t& cpixelserializer) {
-    return reinterpret_cast<const SkPixelSerializer&>(cpixelserializer);
-}
-
-static inline SkPixelSerializer* AsPixelSerializer(sk_pixelserializer_t* cpixelserializer) {
-    return reinterpret_cast<SkPixelSerializer*>(cpixelserializer);
-}
-
-static inline SkPixelSerializer& AsPixelSerializer(sk_pixelserializer_t& cpixelserializer) {
-    return reinterpret_cast<SkPixelSerializer&>(cpixelserializer);
-}
-
-static inline sk_pixelserializer_t* ToPixelSerializer(SkPixelSerializer* pixelserializer) {
-    return reinterpret_cast<sk_pixelserializer_t*>(pixelserializer);
-}
-
-static inline SkMask* AsMask(sk_mask_t* cmask) {
-    return reinterpret_cast<SkMask*>(cmask);
-}
-
-static inline const SkMask* AsMask(const sk_mask_t* cmask) {
-    return reinterpret_cast<const SkMask*>(cmask);
-}
-
-static inline sk_mask_t* ToMask(SkMask* mask) {
-    return reinterpret_cast<sk_mask_t*>(mask);
-}
-
-static inline SkData* AsData(const sk_data_t* cdata) {
-    return reinterpret_cast<SkData*>(const_cast<sk_data_t*>(cdata));
-}
-
-static inline sk_data_t* ToData(SkData* data) {
-    return reinterpret_cast<sk_data_t*>(data);
-}
-
-static inline sk_path_t* ToPath(SkPath* cpath) {
-    return reinterpret_cast<sk_path_t*>(cpath);
-}
-
-static inline const SkPath& AsPath(const sk_path_t& cpath) {
-    return reinterpret_cast<const SkPath&>(cpath);
-}
-
-static inline SkPath* AsPath(sk_path_t* cpath) {
-    return reinterpret_cast<SkPath*>(cpath);
-}
-
-static inline const SkPath* AsPath(const sk_path_t* cpath) {
-    return reinterpret_cast<const SkPath*>(cpath);
-}
-
-static inline const SkImage* AsImage(const sk_image_t* cimage) {
-    return reinterpret_cast<const SkImage*>(cimage);
-}
-
-static inline SkImage* AsImage(sk_image_t* cimage) {
-    return reinterpret_cast<SkImage*>(cimage);
-}
-
-static inline sk_image_t* ToImage(SkImage* cimage) {
-    return reinterpret_cast<sk_image_t*>(cimage);
-}
-
-static inline sk_canvas_t* ToCanvas(SkCanvas* canvas) {
-    return reinterpret_cast<sk_canvas_t*>(canvas);
-}
-
-static inline SkCanvas* AsCanvas(sk_canvas_t* ccanvas) {
-    return reinterpret_cast<SkCanvas*>(ccanvas);
-}
-
-static inline sk_nodraw_canvas_t* ToNoDrawCanvas(SkNoDrawCanvas* canvas) {
-    return reinterpret_cast<sk_nodraw_canvas_t*>(canvas);
-}
-
-static inline SkNoDrawCanvas* AsNoDrawCanvas(sk_nodraw_canvas_t* ccanvas) {
-    return reinterpret_cast<SkNoDrawCanvas*>(ccanvas);
-}
-
-static inline sk_nway_canvas_t* ToNWayCanvas(SkNWayCanvas* canvas) {
-    return reinterpret_cast<sk_nway_canvas_t*>(canvas);
-}
-
-static inline SkNWayCanvas* AsNWayCanvas(sk_nway_canvas_t* ccanvas) {
-    return reinterpret_cast<SkNWayCanvas*>(ccanvas);
-}
-
-static inline SkPictureRecorder* AsPictureRecorder(sk_picture_recorder_t* crec) {
-    return reinterpret_cast<SkPictureRecorder*>(crec);
-}
-
-static inline sk_picture_recorder_t* ToPictureRecorder(SkPictureRecorder* rec) {
-    return reinterpret_cast<sk_picture_recorder_t*>(rec);
-}
-
-static inline const SkPicture* AsPicture(const sk_picture_t* cpic) {
-    return reinterpret_cast<const SkPicture*>(cpic);
-}
-
-static inline SkPicture* AsPicture(sk_picture_t* cpic) {
-    return reinterpret_cast<SkPicture*>(cpic);
-}
-
-static inline sk_picture_t* ToPicture(SkPicture* pic) {
-    return reinterpret_cast<sk_picture_t*>(pic);
-}
-
-static inline SkImageFilter* AsImageFilter(sk_imagefilter_t* cfilter) {
-    return reinterpret_cast<SkImageFilter*>(cfilter);
-}
-
-static inline const SkImageFilter* AsImageFilter(const sk_imagefilter_t* cfilter) {
-    return reinterpret_cast<const SkImageFilter*>(cfilter);
-}
-
-static inline SkImageFilter** AsImageFilters(sk_imagefilter_t** cfilter) {
-    return reinterpret_cast<SkImageFilter**>(cfilter);
-}
-
-static inline sk_imagefilter_t* ToImageFilter(SkImageFilter* filter) {
-    return reinterpret_cast<sk_imagefilter_t*>(filter);
-}
-
-static inline SkColorFilter* AsColorFilter(sk_colorfilter_t* cfilter) {
-    return reinterpret_cast<SkColorFilter*>(cfilter);
-}
-
-static inline sk_colorfilter_t* ToColorFilter(SkColorFilter* filter) {
-    return reinterpret_cast<sk_colorfilter_t*>(filter);
-}
-
-static inline const SkCodec* AsCodec(const sk_codec_t* codec) {
-    return reinterpret_cast<const SkCodec*>(codec);
-}
-
-static inline const SkCodec& AsCodec(const sk_codec_t& codec) {
-    return reinterpret_cast<const SkCodec&>(codec);
-}
-
-static inline SkCodec* AsCodec(sk_codec_t* codec) {
-    return reinterpret_cast<SkCodec*>(codec);
-}
-
-static inline sk_codec_t* ToCodec(SkCodec* codec) {
-    return reinterpret_cast<sk_codec_t*>(codec);
-}
-
-static inline const SkCodec::Options* AsCodecOptions(const sk_codec_options_t* t) {
-    return reinterpret_cast<const SkCodec::Options*>(t);
-}
-
-static inline SkTypeface* AsTypeface(sk_typeface_t* typeface) {
-    return reinterpret_cast<SkTypeface*>(typeface);
-}
-
-static inline sk_typeface_t* ToTypeface(SkTypeface* typeface) {
-    return reinterpret_cast<sk_typeface_t*>(typeface);
-}
-
-static inline SkFontMgr* AsFontMgr(sk_fontmgr_t* fontmgr) {
-    return reinterpret_cast<SkFontMgr*>(fontmgr);
-}
-
-static inline sk_fontmgr_t* ToFontMgr(SkFontMgr* fontmgr) {
-    return reinterpret_cast<sk_fontmgr_t*>(fontmgr);
-}
-
-static inline sk_colorspace_t* ToColorSpace(SkColorSpace* colorspace) {
-    return reinterpret_cast<sk_colorspace_t*>(colorspace);
-}
-
-static inline SkColorSpace* AsColorSpace(sk_colorspace_t* colorspace) {
-    return reinterpret_cast<SkColorSpace*>(colorspace);
-}
-
-static inline const SkColorSpace* AsColorSpace(const sk_colorspace_t* colorspace) {
-    return reinterpret_cast<const SkColorSpace*>(colorspace);
-}
-
-static inline sk_shader_t* ToShader(SkShader* shader) {
-    return reinterpret_cast<sk_shader_t*>(shader);
-}
-
-static inline const SkFILEStream* AsFileStream(const sk_stream_filestream_t* cfilestream) {
-    return reinterpret_cast<const SkFILEStream*>(cfilestream);
-}
-
-static inline SkFILEStream* AsFileStream(sk_stream_filestream_t* cfilestream) {
-    return reinterpret_cast<SkFILEStream*>(cfilestream);
-}
-
-static inline sk_stream_filestream_t* ToFileStream(SkFILEStream* stream) {
-    return reinterpret_cast<sk_stream_filestream_t*>(stream);
-}
-
-static inline const SkMemoryStream* AsMemoryStream(const sk_stream_memorystream_t* cmemorystream) {
-    return reinterpret_cast<const SkMemoryStream*>(cmemorystream);
-}
-
-static inline SkMemoryStream* AsMemoryStream(sk_stream_memorystream_t* cmemorystream) {
-    return reinterpret_cast<SkMemoryStream*>(cmemorystream);
-}
-
-static inline sk_stream_memorystream_t* ToMemoryStream(SkMemoryStream* stream) {
-    return reinterpret_cast<sk_stream_memorystream_t*>(stream);
-}
-
-static inline SkStreamRewindable* AsStreamRewindable(sk_stream_streamrewindable_t* cstreamrewindable) {
-    return reinterpret_cast<SkStreamRewindable*>(cstreamrewindable);
-}
-
-static inline const SkStream* AsStream(const sk_stream_t* cstream) {
-    return reinterpret_cast<const SkStream*>(cstream);
-}
-
-static inline SkStream* AsStream(sk_stream_t* cstream) {
-    return reinterpret_cast<SkStream*>(cstream);
-}
-
-static inline sk_stream_t* ToStream(SkStream* cstream) {
-    return reinterpret_cast<sk_stream_t*>(cstream);
-}
-
-static inline sk_stream_asset_t* ToStreamAsset(SkStreamAsset* cstream) {
-    return reinterpret_cast<sk_stream_asset_t*>(cstream);
-}
-
-static inline SkStreamAsset* AsStreamAsset(sk_stream_asset_t* cstream) {
-    return reinterpret_cast<SkStreamAsset*>(cstream);
-}
-
-static inline SkFILEWStream* AsFileWStream(sk_wstream_filestream_t* cfilestream) {
-    return reinterpret_cast<SkFILEWStream*>(cfilestream);
-}
-
-static inline SkDynamicMemoryWStream* AsDynamicMemoryWStream(sk_wstream_dynamicmemorystream_t* cmemorystream) {
-    return reinterpret_cast<SkDynamicMemoryWStream*>(cmemorystream);
-}
-
-static inline SkWStream* AsWStream(sk_wstream_t* cstream) {
-    return reinterpret_cast<SkWStream*>(cstream);
-}
-
-static inline sk_wstream_filestream_t* ToFileWStream(SkFILEWStream* filestream) {
-    return reinterpret_cast<sk_wstream_filestream_t*>(filestream);
-}
-
-static inline sk_wstream_dynamicmemorystream_t* ToDynamicMemoryWStream(SkDynamicMemoryWStream* memorystream) {
-    return reinterpret_cast<sk_wstream_dynamicmemorystream_t*>(memorystream);
-}
-
-static inline sk_wstream_t* ToWStream(SkWStream* stream) {
-    return reinterpret_cast<sk_wstream_t*>(stream);
-}
-
-static inline const SkPoint& AsPoint(const sk_point_t& p) {
-    return reinterpret_cast<const SkPoint&>(p);
-}
-
-static inline const SkPoint* AsPoint(const sk_point_t* p) {
-    return reinterpret_cast<const SkPoint*>(p);
-}
-
-static inline SkPoint* AsPoint(sk_point_t* p) {
-    return reinterpret_cast<SkPoint*>(p);
-}
-
-static inline sk_point_t* ToPoint(SkPoint *p) {
-    return reinterpret_cast<sk_point_t*>(p);
-}
-
-static inline sk_point_t& ToPoint(SkPoint &p) {
-    return reinterpret_cast<sk_point_t&>(p);
-}
-
-static inline const SkIPoint& AsIPoint(const sk_ipoint_t& p) {
-    return reinterpret_cast<const SkIPoint&>(p);
-}
-
-static inline const SkIPoint* AsIPoint(const sk_ipoint_t* p) {
-    return reinterpret_cast<const SkIPoint*>(p);
-}
-
-static inline SkIPoint* AsIPoint(sk_ipoint_t* p) {
-    return reinterpret_cast<SkIPoint*>(p);
-}
-
-static inline const SkSize& AsSize(const sk_size_t& p) {
-    return reinterpret_cast<const SkSize&>(p);
-}
-
-static inline const SkSize* AsSize(const sk_size_t* p) {
-    return reinterpret_cast<const SkSize*>(p);
-}
-
-static inline const SkISize& AsISize(const sk_isize_t& p) {
-    return reinterpret_cast<const SkISize&>(p);
-}
-
-static inline const SkISize* AsISize(const sk_isize_t* p) {
-    return reinterpret_cast<const SkISize*>(p);
-}
-
-static inline SkISize* AsISize(sk_isize_t* p) {
-    return reinterpret_cast<SkISize*>(p);
-}
-
-static inline const sk_isize_t& ToISize(const SkISize& p) {
-    return reinterpret_cast<const sk_isize_t&>(p);
-}
-
-static inline const sk_isize_t* ToISize(const SkISize* p) {
-    return reinterpret_cast<const sk_isize_t*>(p);
-}
-
-static inline const SkPoint3& AsPoint3(const sk_point3_t& p) {
-    return reinterpret_cast<const SkPoint3&>(p);
-}
-
-static inline const SkPoint3* AsPoint3(const sk_point3_t* p) {
-    return reinterpret_cast<const SkPoint3*>(p);
-}
-
-static inline const SkImageFilter::CropRect& AsImageFilterCropRect(const sk_imagefilter_croprect_t& p) {
-    return reinterpret_cast<const SkImageFilter::CropRect&>(p);
-}
-
-static inline const SkImageFilter::CropRect* AsImageFilterCropRect(const sk_imagefilter_croprect_t* p) {
-    return reinterpret_cast<const SkImageFilter::CropRect*>(p);
-}
-
-static inline SkPaint::FontMetrics* AsFontMetrics(sk_fontmetrics_t* p) {
-    return reinterpret_cast<SkPaint::FontMetrics*>(p);
-}
-
-static inline sk_fontmetrics_t* ToFontMetrics(SkPaint::FontMetrics* p) {
-    return reinterpret_cast<sk_fontmetrics_t*>(p);
-}
-
-static inline const SkString* AsString(const sk_string_t* str) {
-    return reinterpret_cast<const SkString*>(str);
-}
-
-static inline SkString* AsString(sk_string_t* str) {
-    return reinterpret_cast<SkString*>(str);
-}
-
-static inline SkString& AsString(sk_string_t& str) {
-    return reinterpret_cast<SkString&>(str);
-}
-
-static inline sk_string_t* ToString(SkString* data) {
-    return reinterpret_cast<sk_string_t*>(data);
-}
-
-static inline SkDocument* AsDocument(sk_document_t* cdocument) {
-    return reinterpret_cast<SkDocument*>(cdocument);
-}
-
-static inline sk_document_t* ToDocument(SkDocument* document) {
-    return reinterpret_cast<sk_document_t*>(document);
-}
-
-static inline SkPath::Iter* AsPathIter(sk_path_iterator_t* iter) {
-    return reinterpret_cast<SkPath::Iter*>(iter);
-}
-
-static inline sk_path_iterator_t* ToPathIter(SkPath::Iter* iter) {
-    return reinterpret_cast<sk_path_iterator_t*>(iter);
-}
-
-static inline SkPath::RawIter* AsPathRawIter(sk_path_rawiterator_t* iter) {
-    return reinterpret_cast<SkPath::RawIter*>(iter);
-}
-
-static inline sk_path_rawiterator_t* ToPathRawIter(SkPath::RawIter* iter) {
-    return reinterpret_cast<sk_path_rawiterator_t*>(iter);
-}
-
-static inline const SkPathEffect* AsPathEffect(const sk_path_effect_t* p) {
-    return reinterpret_cast<const SkPathEffect*>(p);
-}
-
-static inline SkPathEffect* AsPathEffect(sk_path_effect_t* p) {
-    return reinterpret_cast<SkPathEffect*>(p);
-}
-
-static inline sk_path_effect_t* ToPathEffect(SkPathEffect* p) {
-    return reinterpret_cast<sk_path_effect_t*>(p);
-}
-
-static inline const sk_path_effect_t* ToPathEffect(const SkPathEffect* p) {
-    return reinterpret_cast<const sk_path_effect_t*>(p);
-}
-
-static inline const SkColorTable* AsColorTable(const sk_colortable_t* p) {
-    return reinterpret_cast<const SkColorTable*>(p);
-}
-
-static inline SkColorTable* AsColorTable(sk_colortable_t* p) {
-    return reinterpret_cast<SkColorTable*>(p);
-}
-
-static inline sk_colortable_t* ToColorTable(SkColorTable* p) {
-    return reinterpret_cast<sk_colortable_t*>(p);
-}
-
-static inline const sk_colortable_t* ToColorTable(const SkColorTable* p) {
-    return reinterpret_cast<const sk_colortable_t*>(p);
-}
-
-static inline sk_surface_t* ToSurface(SkSurface* p) {
-    return reinterpret_cast<sk_surface_t*>(p);
-}
-
-static inline SkSurface* AsSurface(sk_surface_t* p) {
-    return reinterpret_cast<SkSurface*>(p);
-}
-
-static inline gr_context_t* ToGrContext(GrContext* p) {
-    return reinterpret_cast<gr_context_t*>(p);
-}
-
-static inline GrContext* AsGrContext(gr_context_t* p) {
-    return reinterpret_cast<GrContext*>(p);
-}
-static inline const GrContextOptions& AsGrContextOptions(const gr_context_options_t& p) {
-    return reinterpret_cast<const GrContextOptions&>(p);
-}
-
-static inline const GrBackendRenderTargetDesc& AsGrBackendRenderTargetDesc(const gr_backend_rendertarget_desc_t& p) {
-    return reinterpret_cast<const GrBackendRenderTargetDesc&>(p);
-}
-
-static inline const GrBackendTextureDesc& AsGrBackendTextureDesc(const gr_backend_texture_desc_t& p) {
-    return reinterpret_cast<const GrBackendTextureDesc&>(p);
-}
-
-
-static inline gr_glinterface_t* ToGrGLInterface(GrGLInterface* p) {
-    return reinterpret_cast<gr_glinterface_t*>(p);
-}
-
-static inline GrGLInterface* AsGrGLInterface(gr_glinterface_t* p) {
-    return reinterpret_cast<GrGLInterface*>(p);
-}
-
-static inline const gr_glinterface_t* ToGrGLInterface(const GrGLInterface* p) {
-    return reinterpret_cast<const gr_glinterface_t*>(p);
-}
-
-static inline const GrGLInterface* AsGrGLInterface(const gr_glinterface_t* p) {
-    return reinterpret_cast<const GrGLInterface*>(p);
-}
-
-static inline sk_opbuilder_t* ToOpBuilder(SkOpBuilder* p) {
-    return reinterpret_cast<sk_opbuilder_t*>(p);
-}
-
-static inline SkOpBuilder* AsOpBuilder(sk_opbuilder_t* p) {
-    return reinterpret_cast<SkOpBuilder*>(p);
-}
-
-static inline const SkCanvas::Lattice& AsLattice(const sk_lattice_t& p) {
-    return reinterpret_cast<const SkCanvas::Lattice&>(p);
-}
-
-static inline const SkTime::DateTime& AsTimeDateTime(const sk_time_datetime_t& p) {
-    return reinterpret_cast<const SkTime::DateTime&>(p);
-}
-
-static inline sk_pathmeasure_t* ToPathMeasure(SkPathMeasure* p) {
-    return reinterpret_cast<sk_pathmeasure_t*>(p);
-}
-
-static inline SkPathMeasure* AsPathMeasure(sk_pathmeasure_t* p) {
-    return reinterpret_cast<SkPathMeasure*>(p);
-}
-
-static inline sk_encodedinfo_t* ToEncodedInfo(SkEncodedInfo *p) {
-    return reinterpret_cast<sk_encodedinfo_t*>(p);
-}
-
-static inline sk_encodedinfo_t& ToEncodedInfo(SkEncodedInfo &p) {
-    return reinterpret_cast<sk_encodedinfo_t&>(p);
-}
-
-static inline const sk_encodedinfo_t* ToEncodedInfo(const SkEncodedInfo *p) {
-    return reinterpret_cast<const sk_encodedinfo_t*>(p);
-}
-
-static inline const sk_encodedinfo_t& ToEncodedInfo(const SkEncodedInfo &p) {
-    return reinterpret_cast<const sk_encodedinfo_t&>(p);
-}
-
-static inline const SkColorSpacePrimaries* AsColorSpacePrimaries(const sk_colorspaceprimaries_t* p) {
-    return reinterpret_cast<const SkColorSpacePrimaries*>(p);
-}
-
-static inline const SkColorSpacePrimaries& AsColorSpacePrimaries(const sk_colorspaceprimaries_t& p) {
-    return reinterpret_cast<const SkColorSpacePrimaries&>(p);
-}
-
-static inline SkColorSpacePrimaries* AsColorSpacePrimaries(sk_colorspaceprimaries_t* p) {
-    return reinterpret_cast<SkColorSpacePrimaries*>(p);
-}
-
-static inline SkColorSpacePrimaries& AsColorSpacePrimaries(sk_colorspaceprimaries_t& p) {
-    return reinterpret_cast<SkColorSpacePrimaries&>(p);
-}
-
-static inline sk_colorspaceprimaries_t* ToColorSpacePrimaries(SkColorSpacePrimaries *p) {
-    return reinterpret_cast<sk_colorspaceprimaries_t*>(p);
-}
-
-static inline sk_colorspaceprimaries_t& ToColorSpacePrimaries(SkColorSpacePrimaries &p) {
-    return reinterpret_cast<sk_colorspaceprimaries_t&>(p);
-}
-
-static inline const sk_colorspaceprimaries_t* ToColorSpacePrimaries(const SkColorSpacePrimaries *p) {
-    return reinterpret_cast<const sk_colorspaceprimaries_t*>(p);
-}
-
-static inline const sk_colorspaceprimaries_t& ToColorSpacePrimaries(const SkColorSpacePrimaries &p) {
-    return reinterpret_cast<const sk_colorspaceprimaries_t&>(p);
-}
-
-static inline const SkColorSpaceTransferFn* AsColorSpaceTransferFn(const sk_colorspace_transfer_fn_t* p) {
-    return reinterpret_cast<const SkColorSpaceTransferFn*>(p);
-}
-
-static inline const SkColorSpaceTransferFn& AsColorSpaceTransferFn(const sk_colorspace_transfer_fn_t& p) {
-    return reinterpret_cast<const SkColorSpaceTransferFn&>(p);
-}
-
-static inline SkColorSpaceTransferFn* AsColorSpaceTransferFn(sk_colorspace_transfer_fn_t* p) {
-    return reinterpret_cast<SkColorSpaceTransferFn*>(p);
-}
-
-static inline SkColorSpaceTransferFn& AsColorSpaceTransferFn(sk_colorspace_transfer_fn_t& p) {
-    return reinterpret_cast<SkColorSpaceTransferFn&>(p);
-}
-
-static inline sk_colorspace_transfer_fn_t* ToColorSpaceTransferFn(SkColorSpaceTransferFn *p) {
-    return reinterpret_cast<sk_colorspace_transfer_fn_t*>(p);
-}
-
-static inline sk_colorspace_transfer_fn_t& ToColorSpaceTransferFn(SkColorSpaceTransferFn &p) {
-    return reinterpret_cast<sk_colorspace_transfer_fn_t&>(p);
-}
-
-static inline const sk_colorspace_transfer_fn_t* ToColorSpaceTransferFn(const SkColorSpaceTransferFn *p) {
-    return reinterpret_cast<const sk_colorspace_transfer_fn_t*>(p);
-}
-
-static inline const sk_colorspace_transfer_fn_t& ToColorSpaceTransferFn(const SkColorSpaceTransferFn &p) {
-    return reinterpret_cast<const sk_colorspace_transfer_fn_t&>(p);
-}
-
-static inline SkCodec::FrameInfo* AsFrameInfo(sk_codec_frameinfo_t *p) {
-    return reinterpret_cast<SkCodec::FrameInfo*>(p);
-}
-
-static inline sk_codec_frameinfo_t* ToFrameInfo(SkCodec::FrameInfo *p) {
-    return reinterpret_cast<sk_codec_frameinfo_t*>(p);
-}
-
-static inline sk_codec_frameinfo_t& ToFrameInfo(SkCodec::FrameInfo &p) {
-    return reinterpret_cast<sk_codec_frameinfo_t&>(p);
-}
-
-static inline const sk_codec_frameinfo_t* ToFrameInfo(const SkCodec::FrameInfo *p) {
-    return reinterpret_cast<const sk_codec_frameinfo_t*>(p);
-}
-
-static inline const sk_codec_frameinfo_t& ToFrameInfo(const SkCodec::FrameInfo &p) {
-    return reinterpret_cast<const sk_codec_frameinfo_t&>(p);
-}
-
-static inline const SkXMLStreamWriter* AsXMLStreamWriter(const sk_xmlstreamwriter_t* p) {
-    return reinterpret_cast<const SkXMLStreamWriter*>(p);
-}
-
-static inline SkXMLStreamWriter* AsXMLStreamWriter(sk_xmlstreamwriter_t* p) {
-    return reinterpret_cast<SkXMLStreamWriter*>(p);
-}
-
-static inline sk_xmlstreamwriter_t* ToXMLStreamWriter(SkXMLStreamWriter* p) {
-    return reinterpret_cast<sk_xmlstreamwriter_t*>(p);
-}
-
-static inline const sk_xmlstreamwriter_t* ToXMLStreamWriter(const SkXMLStreamWriter* p) {
-    return reinterpret_cast<const sk_xmlstreamwriter_t*>(p);
-}
-
-static inline const SkXMLWriter* AsXMLWriter(const sk_xmlwriter_t* p) {
-    return reinterpret_cast<const SkXMLWriter*>(p);
-}
-
-static inline SkXMLWriter* AsXMLWriter(sk_xmlwriter_t* p) {
-    return reinterpret_cast<SkXMLWriter*>(p);
-}
-
-static inline sk_xmlwriter_t* ToXMLWriter(SkXMLWriter* p) {
-    return reinterpret_cast<sk_xmlwriter_t*>(p);
-}
-
-static inline const sk_xmlwriter_t* ToXMLWriter(const SkXMLWriter* p) {
-    return reinterpret_cast<const sk_xmlwriter_t*>(p);
-}
-
-static inline const Sk3DView* As3DView(const sk_3dview_t* p) {
-    return reinterpret_cast<const Sk3DView*>(p);
-}
-
-static inline Sk3DView* As3DView(sk_3dview_t* p) {
-    return reinterpret_cast<Sk3DView*>(p);
-}
-
-static inline sk_3dview_t* To3DView(Sk3DView* p) {
-    return reinterpret_cast<sk_3dview_t*>(p);
-}
-
-static inline const sk_3dview_t* To3DView(const Sk3DView* p) {
-    return reinterpret_cast<const sk_3dview_t*>(p);
-}
-
-static inline const SkMatrix44& AsMatrix44(const sk_matrix44_t& p) {
-    return reinterpret_cast<const SkMatrix44&>(p);
-}
-
-static inline SkMatrix44& AsMatrix44(sk_matrix44_t& p) {
-    return reinterpret_cast<SkMatrix44&>(p);
-}
-
-static inline const SkMatrix44* AsMatrix44(const sk_matrix44_t* p) {
-    return reinterpret_cast<const SkMatrix44*>(p);
-}
-
-static inline SkMatrix44* AsMatrix44(sk_matrix44_t* p) {
-    return reinterpret_cast<SkMatrix44*>(p);
-}
-
-static inline sk_matrix44_t* ToMatrix44(SkMatrix44* p) {
-    return reinterpret_cast<sk_matrix44_t*>(p);
-}
-
-static inline const sk_matrix44_t* ToMatrix44(const SkMatrix44* p) {
-    return reinterpret_cast<const sk_matrix44_t*>(p);
-}
-
-static inline const SkHighContrastConfig* AsHighContrastConfig(const sk_highcontrastconfig_t* p) {
-    return reinterpret_cast<const SkHighContrastConfig*>(p);
-}
-
-static inline const SkHighContrastConfig& AsHighContrastConfig(const sk_highcontrastconfig_t& p) {
-    return reinterpret_cast<const SkHighContrastConfig&>(p);
-}
-
-static inline SkHighContrastConfig* AsHighContrastConfig(sk_highcontrastconfig_t* p) {
-    return reinterpret_cast<SkHighContrastConfig*>(p);
-}
-
-static inline SkHighContrastConfig& AsHighContrastConfig(sk_highcontrastconfig_t& p) {
-    return reinterpret_cast<SkHighContrastConfig&>(p);
-}
-
-static inline sk_highcontrastconfig_t* ToHighContrastConfig(SkHighContrastConfig *p) {
-    return reinterpret_cast<sk_highcontrastconfig_t*>(p);
-}
-
-static inline sk_highcontrastconfig_t& ToHighContrastConfig(SkHighContrastConfig &p) {
-    return reinterpret_cast<sk_highcontrastconfig_t&>(p);
-}
-
-static inline const sk_highcontrastconfig_t* ToHighContrastConfig(const SkHighContrastConfig *p) {
-    return reinterpret_cast<const sk_highcontrastconfig_t*>(p);
-}
-
-static inline const sk_highcontrastconfig_t& ToHighContrastConfig(const SkHighContrastConfig &p) {
-    return reinterpret_cast<const sk_highcontrastconfig_t&>(p);
-}
-
-static inline const SkVertices* AsVertices(const sk_vertices_t* p) {
-    return reinterpret_cast<const SkVertices*>(p);
-}
-
-static inline SkVertices* AsVertices(sk_vertices_t* p) {
-    return reinterpret_cast<SkVertices*>(p);
-}
-
-static inline sk_vertices_t* ToVertices(SkVertices* p) {
-    return reinterpret_cast<sk_vertices_t*>(p);
-}
-
-static inline const sk_vertices_t* ToVertices(const SkVertices* p) {
-    return reinterpret_cast<const sk_vertices_t*>(p);
-}
-
-static inline const SkPngEncoder::Options& AsPngEncoderOptions(const sk_pngencoder_options_t& p) {
-    return reinterpret_cast<const SkPngEncoder::Options&>(p);
-}
-
-static inline const SkPngEncoder::Options* AsPngEncoderOptions(const sk_pngencoder_options_t* p) {
-    return reinterpret_cast<const SkPngEncoder::Options*>(p);
-}
-
-static inline const SkJpegEncoder::Options& AsJpegEncoderOptions(const sk_jpegencoder_options_t& p) {
-    return reinterpret_cast<const SkJpegEncoder::Options&>(p);
-}
-
-static inline const SkJpegEncoder::Options* AsJpegEncoderOptions(const sk_jpegencoder_options_t* p) {
-    return reinterpret_cast<const SkJpegEncoder::Options*>(p);
-}
-
-static inline const SkWebpEncoder::Options& AsWebpEncoderOptions(const sk_webpencoder_options_t& p) {
-    return reinterpret_cast<const SkWebpEncoder::Options&>(p);
-}
-
-static inline const SkWebpEncoder::Options* AsWebpEncoderOptions(const sk_webpencoder_options_t* p) {
-    return reinterpret_cast<const SkWebpEncoder::Options*>(p);
-}
-
+#include "SkMatrix.h"
 static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
     matrix->setAll(
         cmatrix->mat[0], cmatrix->mat[1], cmatrix->mat[2],
         cmatrix->mat[3], cmatrix->mat[4], cmatrix->mat[5],
         cmatrix->mat[6], cmatrix->mat[7], cmatrix->mat[8]);
 }
-
 static inline void from_sk(const SkMatrix* matrix, sk_matrix_t* cmatrix) {
     matrix->get9(cmatrix->mat);
 }
 
+#include "SkImageInfo.h"
 static inline void from_c(const sk_imageinfo_t& cinfo, SkImageInfo* info) {
     if (info) { 
         *info = SkImageInfo::Make(
@@ -929,7 +169,6 @@ static inline void from_c(const sk_imageinfo_t& cinfo, SkImageInfo* info) {
             sk_ref_sp(AsColorSpace(cinfo.colorspace))); 
     } 
 } 
-
 static inline void from_sk(const SkImageInfo& info, sk_imageinfo_t* cinfo) {
     if (cinfo) { 
         *cinfo = {
@@ -942,6 +181,7 @@ static inline void from_sk(const SkImageInfo& info, sk_imageinfo_t* cinfo) {
     } 
 } 
 
+#include "SkDocument.h"
 static inline void from_c(const sk_document_pdf_metadata_t& cmetadata, SkDocument::PDFMetadata* metadata) {
     if (metadata) {
         SkDocument::PDFMetadata md;
@@ -963,10 +203,10 @@ static inline void from_c(const sk_document_pdf_metadata_t& cmetadata, SkDocumen
     } 
 } 
 
+#include "SkSurfaceProps.h"
 static inline void from_c(const sk_surfaceprops_t* cprops, SkSurfaceProps* props) {
     *props = SkSurfaceProps(cprops->flags, (SkPixelGeometry)cprops->pixelGeometry);
 }
-
 static inline void from_sk(const SkSurfaceProps* props, sk_surfaceprops_t* cprops) {
     *cprops = {
         (sk_pixelgeometry_t)props->pixelGeometry(),

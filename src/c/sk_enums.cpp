@@ -6,12 +6,25 @@
  */
 
 #include "sk_types_priv.h"
+
 #include "SkMatrix44.h"
 #include "SkBitmapScaler.h"
 #include "SkBlurMaskFilter.h"
 #include "SkPngEncoder.h"
 #include "SkJpegEncoder.h"
 #include "SkWebpEncoder.h"
+#include "SkTypeface.h"
+#include "SkDropShadowImageFilter.h"
+#include "SkDisplacementMapEffect.h"
+#include "SkShader.h"
+#include "SkMatrixConvolutionImageFilter.h"
+#include "SkPathMeasure.h"
+#include "SkVertices.h"
+#include "SkImage.h"
+#include "SkPathOps.h"
+#include "SkRegion.h"
+#include "Sk1DPathEffect.h"
+#include "SkHighContrastFilter.h"
 
 #if SK_SUPPORT_GPU
 #include "GrTypes.h"

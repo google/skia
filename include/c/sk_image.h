@@ -23,7 +23,7 @@ SK_C_API sk_image_t* sk_image_new_raster_copy_with_colortable(const sk_imageinfo
 SK_C_API sk_image_t* sk_image_new_raster_data(const sk_imageinfo_t* cinfo, sk_data_t* pixels, size_t rowBytes);
 SK_C_API sk_image_t* sk_image_new_raster(const sk_pixmap_t* pixmap, sk_image_raster_release_proc releaseProc, void* context);
 SK_C_API sk_image_t* sk_image_new_from_bitmap(const sk_bitmap_t *cbitmap);
-SK_C_API sk_image_t* sk_image_new_from_encoded(const sk_data_t* encoded, const sk_irect_t* subset);
+SK_C_API sk_image_t* sk_image_new_from_encoded(sk_data_t* encoded, const sk_irect_t* subset);
 SK_C_API sk_image_t* sk_image_new_from_texture(gr_context_t* context, const gr_backend_texture_desc_t* desc, sk_alphatype_t alpha, sk_colorspace_t* colorSpace, sk_image_texture_release_proc releaseProc, void* releaseContext);
 SK_C_API sk_image_t* sk_image_new_from_adopted_texture(gr_context_t* context, const gr_backend_texture_desc_t* desc, sk_alphatype_t alpha, sk_colorspace_t* colorSpace);
 SK_C_API sk_image_t* sk_image_new_from_picture(sk_picture_t* picture, const sk_isize_t* dimensions, const sk_matrix_t* matrix, const sk_paint_t* paint);

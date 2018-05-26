@@ -6,6 +6,7 @@
  */
 
 #include "SkColorMatrixFilter.h"
+#include "SkHighContrastFilter.h"
 #include "SkLumaColorFilter.h"
 #include "SkTableColorFilter.h"
 

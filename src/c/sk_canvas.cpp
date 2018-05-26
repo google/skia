@@ -7,6 +7,8 @@
 
 #include "SkCanvas.h"
 #include "SkAnnotation.h"
+#include "SkNoDrawCanvas.h"
+#include "SkNWayCanvas.h"
 
 #include "sk_canvas.h"
 

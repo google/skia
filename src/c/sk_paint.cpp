@@ -8,6 +8,7 @@
 #include "SkColorFilter.h"
 #include "SkMaskFilter.h"
 #include "SkPaint.h"
+#include "SkPathEffect.h"
 #include "SkShader.h"
 #include "SkTypeface.h"
 

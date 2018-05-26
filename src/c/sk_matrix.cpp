@@ -5,7 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkStream.h"
+#include "SkMatrix.h"
+#include "SkCamera.h"
+#include "SkMatrix44.h"
 
 #include "sk_matrix.h"
 

@@ -6,6 +6,7 @@
  */
 
 #include "SkPicture.h"
+#include "SkPictureRecorder.h"
 
 #include "sk_picture.h"
 

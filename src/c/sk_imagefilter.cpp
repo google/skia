@@ -25,6 +25,7 @@
 #include "SkArithmeticImageFilter.h"
 #include "SkImageSource.h"
 #include "SkPaintImageFilter.h"
+#include "SkRegion.h"
 
 #include "sk_imagefilter.h"
 

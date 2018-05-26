@@ -9,6 +9,10 @@
 #include "SkBitmapScaler.h"
 #include "SkImageEncoder.h"
 #include "SkSwizzle.h"
+#include "SkJpegEncoder.h"
+#include "SkPngEncoder.h"
+#include "SkWebpEncoder.h"
+#include "SkUnPreMultiply.h"
 
 #include "sk_pixmap.h"
 
