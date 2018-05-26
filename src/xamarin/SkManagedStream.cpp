@@ -1,9 +1,10 @@
-//
-//  SkManagedStream.cpp
-//
-//  Created by Matthew on 2016/01/08.
-//  Copyright © 2016 Xamarin. All rights reserved.
-//
+/*
+ * Copyright 2015 Xamarin Inc.
+ * Copyright 2017 Microsoft Corporation. All rights reserved.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 
 #include "SkManagedStream.h"
 

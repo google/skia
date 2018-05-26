@@ -1,12 +1,11 @@
 /*
- * Copyright 2016 Xamarin Inc.
+ * Copyright 2014 Google Inc.
+ * Copyright 2015 Xamarin Inc.
+ * Copyright 2017 Microsoft Corporation. All rights reserved.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-// EXPERIMENTAL EXPERIMENTAL EXPERIMENTAL EXPERIMENTAL
-// DO NOT USE -- FOR INTERNAL TESTING ONLY
 
 #ifndef sk_codec_DEFINED
 #define sk_codec_DEFINED
@@ -19,7 +18,6 @@ SK_C_API size_t sk_codec_min_buffered_bytes_needed(void);
 
 SK_C_API sk_codec_t* sk_codec_new_from_stream(sk_stream_t* stream);
 SK_C_API sk_codec_t* sk_codec_new_from_data(sk_data_t* data);
-
 SK_C_API void sk_codec_destroy(sk_codec_t* codec);
 SK_C_API void sk_codec_get_info(sk_codec_t* codec, sk_imageinfo_t* info);
 SK_C_API void sk_codec_get_encodedinfo(sk_codec_t* codec, sk_encodedinfo_t* info);

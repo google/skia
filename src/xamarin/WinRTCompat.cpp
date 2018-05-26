@@ -1,9 +1,10 @@
-//
-//  WinRTCompat.c
-//
-//  Created by Matthew Leibowitz on 06/09/16.
-//  Copyright © 2016 Xamarin. All rights reserved.
-//
+/*
+ * Copyright 2015 Xamarin Inc.
+ * Copyright 2017 Microsoft Corporation. All rights reserved.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 
 #include "WinRTCompat.h"
 

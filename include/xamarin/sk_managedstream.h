@@ -1,12 +1,10 @@
 /*
  * Copyright 2015 Xamarin Inc.
+ * Copyright 2017 Microsoft Corporation. All rights reserved.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-// EXPERIMENTAL EXPERIMENTAL EXPERIMENTAL EXPERIMENTAL
-// DO NOT USE -- FOR INTERNAL TESTING ONLY
 
 #ifndef sk_managedstream_DEFINED
 #define sk_managedstream_DEFINED

@@ -1,9 +1,10 @@
-//
-//  SkManagedPixelSerializer.h
-//
-//  Created by Matthew on 2017/08/18.
-//  Copyright © 2017 Xamarin. All rights reserved.
-//
+/*
+ * Copyright 2015 Xamarin Inc.
+ * Copyright 2017 Microsoft Corporation. All rights reserved.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 
 #ifndef SkManagedPixelSerializer_h
 #define SkManagedPixelSerializer_h

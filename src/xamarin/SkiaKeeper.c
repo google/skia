@@ -1,9 +1,10 @@
-//
-//  SkiaKeeper.c
-//
-//  Created by Bill Holmes on 11/23/15.
-//  Copyright © 2015 Xamarin. All rights reserved.
-//
+/*
+ * Copyright 2015 Xamarin Inc.
+ * Copyright 2017 Microsoft Corporation. All rights reserved.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 
 #include "sk_xamarin.h"
 
