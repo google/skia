@@ -87,19 +87,20 @@ static bool can_ignore_bilerp_constraint(const GrTextureProducer& producer,
 }
 
 /**
- * Checks whether the paint is compatible with using GrRenderTargetContext::drawTexture. It is more
- * efficient than the GrTextureProducer general case.
+ * Checks whether the paint, matrix, and constraint are compatible with using
+ * GrRenderTargetContext::drawTexture. It is more efficient than the GrTextureProducer
+ * general case.
  */
-static bool can_use_draw_texture(const SkPaint& paint) {
+static bool can_use_draw_texture(const SkPaint& paint, GrAA aa, const SkMatrix& ctm,
+                                 SkCanvas::SrcRectConstraint constraint) {
     return (!paint.getColorFilter() && !paint.getShader() && !paint.getMaskFilter() &&
             !paint.getImageFilter() && paint.getFilterQuality() < kMedium_SkFilterQuality &&
-            paint.getBlendMode() == SkBlendMode::kSrcOver);
+            paint.getBlendMode() == SkBlendMode::kSrcOver &&
+            SkCanvas::kFast_SrcRectConstraint == constraint);
 }
 
 static void draw_texture(const SkPaint& paint, const SkMatrix& ctm, const SkRect* src,
-                         const SkRect* dst, GrAA aa, SkCanvas::SrcRectConstraint constraint,
-                         sk_sp<GrTextureProxy> proxy,
-
+                         const SkRect* dst, GrAA aa, sk_sp<GrTextureProxy> proxy,
                          SkColorSpace* colorSpace, const GrClip& clip, GrRenderTargetContext* rtc) {
     SkASSERT(!(SkToBool(src) && !SkToBool(dst)));
     SkRect srcRect = src ? *src : SkRect::MakeWH(proxy->width(), proxy->height());
@@ -128,7 +129,7 @@ static void draw_texture(const SkPaint& paint, const SkMatrix& ctm, const SkRect
     GrColor color = GrPixelConfigIsAlphaOnly(proxy->config())
                             ? SkColorToPremulGrColor(paint.getColor())
                             : SkColorAlphaToGrColor(paint.getColor());
-    rtc->drawTexture(clip, std::move(proxy), filter, color, srcRect, dstRect, aa, constraint, ctm,
+    rtc->drawTexture(clip, std::move(proxy), filter, color, srcRect, dstRect, aa, ctm,
                      std::move(csxf));
 }
 
@@ -140,9 +141,9 @@ void SkGpuDevice::drawPinnedTextureProxy(sk_sp<GrTextureProxy> proxy, uint32_t p
                                          SkCanvas::SrcRectConstraint constraint,
                                          const SkMatrix& viewMatrix, const SkPaint& paint) {
     GrAA aa = GrAA(paint.isAntiAlias());
-    if (can_use_draw_texture(paint)) {
-        draw_texture(paint, viewMatrix, srcRect, dstRect, aa, constraint, std::move(proxy),
-                     colorSpace, this->clip(), fRenderTargetContext.get());
+    if (can_use_draw_texture(paint, aa, this->ctm(), constraint)) {
+        draw_texture(paint, viewMatrix, srcRect, dstRect, aa, std::move(proxy), colorSpace,
+                     this->clip(), fRenderTargetContext.get());
         return;
     }
     GrTextureAdjuster adjuster(this->context(), std::move(proxy), alphaType, pinnedUniqueID,
@@ -155,7 +156,7 @@ void SkGpuDevice::drawTextureMaker(GrTextureMaker* maker, int imageW, int imageH
                                    SkCanvas::SrcRectConstraint constraint,
                                    const SkMatrix& viewMatrix, const SkPaint& paint) {
     GrAA aa = GrAA(paint.isAntiAlias());
-    if (can_use_draw_texture(paint)) {
+    if (can_use_draw_texture(paint, aa, viewMatrix, constraint)) {
         sk_sp<SkColorSpace> cs;
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
         // scaling adjustments.
@@ -165,8 +166,8 @@ void SkGpuDevice::drawTextureMaker(GrTextureMaker* maker, int imageW, int imageH
         if (!proxy) {
             return;
         }
-        draw_texture(paint, viewMatrix, srcRect, dstRect, aa, constraint, std::move(proxy),
-                     cs.get(), this->clip(), fRenderTargetContext.get());
+        draw_texture(paint, viewMatrix, srcRect, dstRect, aa, std::move(proxy), cs.get(),
+                     this->clip(), fRenderTargetContext.get());
         return;
     }
     this->drawTextureProducer(maker, srcRect, dstRect, constraint, viewMatrix, paint);

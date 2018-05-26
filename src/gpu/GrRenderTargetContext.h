@@ -150,8 +150,7 @@ public:
      */
     void drawTexture(const GrClip& clip, sk_sp<GrTextureProxy>, GrSamplerState::Filter, GrColor,
                      const SkRect& srcRect, const SkRect& dstRect, GrAA aa,
-                     SkCanvas::SrcRectConstraint, const SkMatrix& viewMatrix,
-                     sk_sp<GrColorSpaceXform>);
+                     const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform>);
 
     /**
      * Draw a roundrect using a paint.

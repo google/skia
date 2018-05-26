@@ -28,7 +28,7 @@ public:
 protected:
     SkString onShortName() override { return SkString("persp_images"); }
 
-    SkISize onISize() override { return SkISize::Make(1150, 1280); }
+    SkISize onISize() override { return SkISize::Make(1150, 880); }
 
     void onOnceBeforeDraw() override {
         fImages.push_back(make_image1());
@@ -60,13 +60,7 @@ protected:
         }
         canvas->translate(-bounds.fLeft + 10.f, -bounds.fTop + 10.f);
         canvas->save();
-        enum class DrawType {
-            kDrawImage,
-            kDrawImageRectStrict,
-            kDrawImageRectFast,
-        };
-        for (auto type :
-             {DrawType::kDrawImage, DrawType::kDrawImageRectStrict, DrawType::kDrawImageRectFast}) {
+        for (auto subrect : {false, true}) {
             for (const auto& m : matrices) {
                 for (auto aa : {false, true}) {
                     paint.setAntiAlias(aa);
@@ -76,22 +70,14 @@ protected:
                             paint.setFilterQuality(filter);
                             canvas->save();
                             canvas->concat(m);
-                            SkRect src = {img->width() / 4.f, img->height() / 4.f,
-                                          3.f * img->width() / 4.f, 3.f * img->height() / 4};
-                            SkRect dst = {0, 0,
-                                          3.f / 4.f * img->width(), 3.f / 4.f * img->height()};
-                            switch (type) {
-                                case DrawType::kDrawImage:
-                                    canvas->drawImage(img, 0, 0, &paint);
-                                    break;
-                                case DrawType::kDrawImageRectStrict:
-                                    canvas->drawImageRect(img, src, dst, &paint,
-                                                          SkCanvas::kStrict_SrcRectConstraint);
-                                    break;
-                                case DrawType::kDrawImageRectFast:
-                                    canvas->drawImageRect(img, src, dst, &paint,
-                                                          SkCanvas::kFast_SrcRectConstraint);
-                                    break;
+                            if (subrect) {
+                                SkRect src = {img->width() / 4.f, img->height() / 4.f,
+                                              3.f * img->width() / 4.f, 3.f * img->height() / 4};
+                                SkRect dst = {0, 0,
+                                              3.f / 4.f * img->width(), 3.f / 4.f * img->height()};
+                                canvas->drawImageRect(img, src, dst, &paint);
+                            } else {
+                                canvas->drawImage(img, 0, 0, &paint);
                             }
                             canvas->restore();
                             ++n;
