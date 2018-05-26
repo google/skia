@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe6afaaf_c2c4a7fa",
+        "filename": "docker/skia-release/Dockerfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2018-05-26T19:18:45Z",
+      "side": 1,
+      "message": "I missed a \"skia\" in the path name before, so the args.gn was never getting applied.",
+      "revId": "84673a6025b1309559165c5ac125d3a2571a6efc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
