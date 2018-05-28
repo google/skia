@@ -98,8 +98,133 @@ private:
     SkScalar fRX, fRY, fRZ;
     typedef SampleView INHERITED;
 };
+static SkView* MyFactory() { return new CameraView; }
+static SkViewRegister reg(MyFactory);
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new CameraView; }
-static SkViewRegister reg(MyFactory);
+#include "Sk3D.h"
+
+class Sk3DSample : public SampleView {
+    float   fNear = 0.5;
+    float   fFar = 4;
+    float   fAngle = SK_ScalarPI / 4;
+
+    SkPoint3    fEye { -0.3, -1, 4 };
+    SkPoint3    fCOA { 0, 0, 0 };
+    SkPoint3    fUp = { 0, 1, 0 };
+
+    SkMatrix44  fMV;
+
+    SkPoint3    fP3[8];
+
+    float fRY = 0;
+
+public:
+    Sk3DSample() {
+        int index = 0;
+        for (float x = 0; x <= 1; ++x) {
+            for (float y = 0; y <= 1; ++y) {
+                for (float z = 0; z <= 1; ++z) {
+                    fP3[index++] = { x, -y, -z };
+                }
+            }
+        }
+        fMV.setIdentity();//setTranslate(-0.5, -0.5, -0.5);
+    }
+
+protected:
+    // overrides from SkEventSink
+    bool onQuery(SkEvent* evt) override {
+        if (SampleCode::TitleQ(*evt)) {
+            SampleCode::TitleR(evt, "Sk3DSample");
+            return true;
+        }
+        return this->INHERITED::onQuery(evt);
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        SkMatrix44  camera, perspective, mv = fMV;
+
+        if (false) {
+            SkMatrix44 rot;
+            rot.setRotateDegreesAbout(1, 0, 0, fRY);
+            mv.postConcat(rot);
+        }
+      //  fEye.fY = fRY;
+
+        Sk3Perspective(&perspective, fNear, fFar, fAngle);
+        Sk3LookAt(&camera, fEye, fCOA, fUp);
+        mv.postConcat(camera);
+        mv.postConcat(perspective);
+        SkPoint pts[8];
+        Sk3MapPts(pts, mv, fP3, 8);
+
+        canvas->save();
+        float w = canvas->getBaseLayerSize().width();
+        float h = canvas->getBaseLayerSize().height();
+        canvas->translate(w/2, h/2);
+        float s = std::min(w, h);
+        canvas->scale(s/4, s/4);
+
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+
+        SkPath cube;
+
+        for (int i = 0; i < 8; ++i) {
+        //    SkDebugf("[i] %g %g\n", pts[i].fX, pts[i].fY);
+        }
+
+        cube.moveTo(pts[0]);
+        cube.lineTo(pts[2]);
+        cube.lineTo(pts[6]);
+        cube.lineTo(pts[4]);
+        cube.close();
+
+        cube.moveTo(pts[1]);
+        cube.lineTo(pts[3]);
+        cube.lineTo(pts[7]);
+        cube.lineTo(pts[5]);
+        cube.close();
+
+        cube.moveTo(pts[0]);    cube.lineTo(pts[1]);
+        cube.moveTo(pts[2]);    cube.lineTo(pts[3]);
+        cube.moveTo(pts[4]);    cube.lineTo(pts[5]);
+        cube.moveTo(pts[6]);    cube.lineTo(pts[7]);
+
+        canvas->drawPath(cube, paint);
+
+        {
+            SkPoint3 src[4] = {
+                { 0, 0, 0 }, { 3, 0, 0 }, { 0, -3, 0 }, { 0, 0, -3 },
+            };
+            SkPoint dst[4];
+            mv.setConcat(perspective, camera);
+            Sk3MapPts(dst, mv, src, 4);
+            const char str[] = "XYZ";
+            for (int i = 1; i <= 3; ++i) {
+                canvas->drawLine(dst[0], dst[i], paint);
+            }
+
+            canvas->getTotalMatrix().mapPoints(dst, 4);
+
+            canvas->restore();
+            for (int i = 1; i <= 3; ++i) {
+                canvas->drawText(&str[i-1], 1, dst[i].fX, dst[i].fY, paint);
+            }
+        }
+    }
+
+    bool onAnimate(const SkAnimTimer& timer) override {
+        if (timer.isStopped()) {
+            fRY = 0;
+        } else {
+            fRY = SkScalarSin(timer.scaled(1, SK_ScalarPI*2));
+        }
+        return true;
+    }
+
+    typedef SampleView INHERITED;
+};
+DEF_SAMPLE( return new Sk3DSample; )
