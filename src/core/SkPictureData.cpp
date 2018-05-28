@@ -378,7 +378,7 @@ bool new_array_from_buffer(SkReadBuffer& buffer, uint32_t inCount,
     for (uint32_t i = 0; i < inCount; ++i) {
         auto obj = factory(buffer);
 
-        if (!buffer.validate(obj)) {
+        if (!buffer.validate(obj != nullptr)) {
             array.reset();
             return false;
         }
@@ -506,7 +506,7 @@ bool SkPictureData::parseBuffer(SkReadBuffer& buffer) {
     }
 
     // Check that we encountered required tags
-    if (!buffer.validate(this->opData())) {
+    if (!buffer.validate(this->opData() != nullptr)) {
         // If we didn't build any opData, we are invalid. Even an EmptyPicture allocates the
         // SkData for the ops (though its length may be zero).
         return false;
