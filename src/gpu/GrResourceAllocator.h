@@ -137,7 +137,7 @@ private:
         }
 
         void assign(sk_sp<GrSurface>);
-        bool wasAssignedSurface() const { return fAssignedSurface; }
+        bool wasAssignedSurface() const { return fAssignedSurface != nullptr; }
         sk_sp<GrSurface> detachSurface() { return std::move(fAssignedSurface); }
 
         // for SkTDynamicHash

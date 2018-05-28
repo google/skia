@@ -33,7 +33,7 @@ public:
         SkASSERT(fHasAtlasTransform);
     }
 
-    bool isInitialized() const { return fAtlasLazyProxy; }
+    bool isInitialized() const { return fAtlasLazyProxy != nullptr; }
     void init(GrProxyProvider* proxyProvider,
               const SkPath& deviceSpacePath, const SkIRect& accessRect,
               int rtWidth, int rtHeight);
