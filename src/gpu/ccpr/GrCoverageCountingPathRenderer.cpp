@@ -185,7 +185,7 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
             continue;  // No paths on this opList.
         }
 
-        fFlushingPaths.push_back(std::move(iter->second)).get();
+        fFlushingPaths.push_back(std::move(iter->second));
         fPendingPaths.erase(iter);
 
         for (const GrCCDrawPathsOp* op : fFlushingPaths.back()->fDrawOps) {
