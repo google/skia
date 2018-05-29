@@ -1,0 +1,37 @@
+# Copyright 2018 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+config("vulkanmemoryallocator_public") {
+  include_dirs = [ "." ]
+}
+
+source_set("vulkanmemoryallocator") {
+  public_configs = [ ":vulkanmemoryallocator_public" ]
+
+  include_dirs = []
+  if (defined(is_skia_standalone) && is_skia_standalone && !is_official_build) {
+    include_dirs += [ "../../tools/gpu/vk" ]
+    include_dirs += [ "../../include/core" ]
+    include_dirs += [ "../../include/config" ]
+  }
+
+  sources = [
+    "GrVulkanMemoryAllocator.cpp",
+    "GrVulkanMemoryAllocator.h",
+  ]
+
+  # TODO: As described in the main skia BUILD.gn file we eventually want to move this to be
+  # //third_party/vulkan once clients have created their own //third_party/vulkan directory.
+  deps = [
+    "../vulkan",
+  ]
+
+  # Warnings are just noise if we're not maintaining the code.
+  if (is_win) {
+    cflags = [ "/w" ]
+  } else {
+    cflags = [ "-w" ]
+  }
+}
