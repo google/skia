@@ -30,6 +30,7 @@ changes, then in the Chromium CL add the following to
         'name': 'apply_custom_patch',
         'pattern': '.',
         'action': ['git', '-C', 'src/third_party/skia/',
+                   '-c', 'user.name=Custom Patch', '-c', 'user.email=custompatch@example.com',
                    'cherry-pick', 'FETCH_HEAD',
         ],
       },
