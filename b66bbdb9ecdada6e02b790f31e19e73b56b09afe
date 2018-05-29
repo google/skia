@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "53bcf637_ab07806b",
+        "filename": "tools/fiddle/egl_context.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-29T14:39:47Z",
+      "side": 1,
+      "message": "I don\u0027t think you need this now.",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 29
+      },
+      "revId": "b66bbdb9ecdada6e02b790f31e19e73b56b09afe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9e16256_1ec6aa49",
+        "filename": "tools/fiddle/egl_context.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-29T14:39:47Z",
+      "side": 1,
+      "message": "Probably worth a comment that we\u0027re leaking this (or could take sk_sp\u003cGLTestContext\u003e* as a param and so the caller release release it at the end)",
+      "range": {
+        "startLine": 22,
+        "startChar": 4,
+        "endLine": 22,
+        "endChar": 98
+      },
+      "revId": "b66bbdb9ecdada6e02b790f31e19e73b56b09afe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
