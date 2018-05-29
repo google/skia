@@ -11,7 +11,10 @@
 #include "SkSurfaceCharacterization.h"
 
 #if SK_SUPPORT_GPU
+#include <map>
 #include "GrOpList.h"
+
+struct GrCCPerOpListPaths;
 #endif
 
 class SkSurface;
@@ -42,6 +45,7 @@ public:
 
     SkDeferredDisplayList(const SkSurfaceCharacterization& characterization,
                           sk_sp<LazyProxyData>);
+    ~SkDeferredDisplayList();
 
     const SkSurfaceCharacterization& characterization() const {
         return fCharacterization;
@@ -54,7 +58,11 @@ private:
     const SkSurfaceCharacterization fCharacterization;
 
 #if SK_SUPPORT_GPU
+    // This needs to match the same type in GrCoverageCountingPathRenderer.h
+    using PendingPathsMap = std::map<uint32_t, std::unique_ptr<GrCCPerOpListPaths>>;
+
     SkTArray<sk_sp<GrOpList>>    fOpLists;
+    PendingPathsMap              fPendingPaths;  // This is the path data from CCPR.
 #endif
     sk_sp<LazyProxyData>         fLazyProxyData;
 };
