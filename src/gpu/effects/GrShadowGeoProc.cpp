@@ -33,7 +33,7 @@ public:
         varyingHandler->addPassThroughAttribute(rsgp.inColor(), args.fOutputColor);
 
         // Setup position
-        this->writeOutputPosition(vertBuilder, gpArgs, rsgp.inPosition()->fName);
+        this->writeOutputPosition(vertBuilder, gpArgs, rsgp.inPosition()->name());
 
         // emit transforms
         this->emitTransforms(vertBuilder,

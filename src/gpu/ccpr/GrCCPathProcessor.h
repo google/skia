@@ -62,13 +62,13 @@ public:
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
     const Attribute& getInstanceAttrib(InstanceAttribs attribID) const {
         const Attribute& attrib = this->getAttrib((int)attribID);
-        SkASSERT(Attribute::InputRate::kPerInstance == attrib.fInputRate);
+        SkASSERT(Attribute::InputRate::kPerInstance == attrib.inputRate());
         return attrib;
     }
     const Attribute& getEdgeNormsAttrib() const {
         SkASSERT(1 + kNumInstanceAttribs == this->numAttribs());
         const Attribute& attrib = this->getAttrib(kNumInstanceAttribs);
-        SkASSERT(Attribute::InputRate::kPerVertex == attrib.fInputRate);
+        SkASSERT(Attribute::InputRate::kPerVertex == attrib.inputRate());
         return attrib;
     }
 
