@@ -529,9 +529,6 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 private:
 #if SK_SUPPORT_GPU
-    class PromiseImageHelper;
-    class TileData;
-
     const int fNumDivisions;
 #endif
 };

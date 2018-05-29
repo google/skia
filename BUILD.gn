@@ -1324,6 +1324,8 @@ if (skia_enable_tools) {
     sources = [
       "tools/AndroidSkDebugToStdOut.cpp",
       "tools/CrashHandler.cpp",
+      "tools/DDLPromiseImageHelper.cpp",
+      "tools/DDLTileHelper.cpp",
       "tools/LsanSuppressions.cpp",
       "tools/ProcStats.cpp",
       "tools/Resources.cpp",
