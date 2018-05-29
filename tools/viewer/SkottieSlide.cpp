@@ -13,6 +13,8 @@
 #include "SkCanvas.h"
 #include "Skottie.h"
 
+#include <cmath>
+
 static void draw_stats_box(SkCanvas* canvas, const skottie::Animation::Stats& stats) {
     static constexpr SkRect kR = { 10, 10, 280, 120 };
     static constexpr SkScalar kTextSize = 20;
@@ -101,8 +103,9 @@ bool SkottieSlide::animate(const SkAnimTimer& timer) {
     }
 
     if (fAnimation) {
-        auto t = timer.msec() - fTimeBase;
-        fAnimation->animationTick(t);
+        const auto t = timer.msec() - fTimeBase;
+        const auto d = fAnimation->duration() * 1000;
+        fAnimation->seek(std::fmod(t, d) / d);
     }
     return true;
 }

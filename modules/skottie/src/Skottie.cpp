@@ -733,9 +733,7 @@ sk_sp<sksg::RenderNode> AttachNestedAnimation(const char* path, AttachContext* c
 
     protected:
         void onTick(float t) {
-            // map back from frame # to ms.
-            const auto t_ms = t * 1000 / fFrameRate;
-            fAnimation->animationTick(t_ms);
+            fAnimation->seek(t * fFrameRate / fAnimation->frameRate());
         }
 
     private:
@@ -1288,7 +1286,7 @@ Animation::Animation(const ResourceProvider& resources,
     fScene = sksg::Scene::Make(std::move(root), std::move(animators));
 
     // In case the client calls render before the first tick.
-    this->animationTick(0);
+    this->seek(0);
 }
 
 Animation::~Animation() = default;
@@ -1312,16 +1310,11 @@ void Animation::render(SkCanvas* canvas, const SkRect* dstR) const {
     fScene->render(canvas);
 }
 
-void Animation::animationTick(SkMSec ms) {
+void Animation::seek(SkScalar t) {
     if (!fScene)
         return;
 
-    // 't' in the BM model really means 'frame #'
-    auto t = static_cast<float>(ms) * fFrameRate / 1000;
-
-    t = fInPoint + std::fmod(t, fOutPoint - fInPoint);
-
-    fScene->animate(t);
+    fScene->animate(fInPoint + SkTPin(t, 0.0f, 1.0f) * (fOutPoint - fInPoint));
 }
 
 } // namespace skottie
