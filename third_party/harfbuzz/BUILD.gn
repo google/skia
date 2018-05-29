@@ -61,5 +61,4 @@ third_party("harfbuzz") {
     sources += [ "../externals/harfbuzz/src/hb-coretext.cc" ]
     defines += [ "HAVE_CORETEXT" ]
   }
-  testonly = true
 }
