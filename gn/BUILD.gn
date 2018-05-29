@@ -32,7 +32,6 @@ declare_args() {
     }
   }
 
-  msvc = 2017
   run_vcvars = true
 
   extra_asmflags = []
@@ -50,10 +49,11 @@ declare_args() {
   }
 }
 declare_args() {
-  windk = exec_script("find_windk.py", [ "$msvc" ], "trim string")
+  windk = exec_script("find_windk.py", [ ], "trim string")
 }
 declare_args() {
-  msvc_root = exec_script("find_msvc_root.py", [ "$msvc", windk ], "trim string")
+  msvc_root = exec_script("find_msvc_root.py", [ windk ], "trim string")
+  win_kits = "$windk/../../../Windows Kits"
 }
 
 if (host_os == "win") {
@@ -116,11 +116,6 @@ config("default") {
 
     include_dirs = [ ]
     lib_dirs = [ ]
-    if (msvc == 2015) {
-      win_kits = "$windk/../Windows Kits"
-    } else if (msvc == 2017) {
-      win_kits = "$windk/../../../Windows Kits"
-    }
     include_dirs += [
       "$msvc_root/include",
       "$win_kits/10/Include/10.0.10240.0/ucrt",
@@ -128,21 +123,15 @@ config("default") {
       "$win_kits/10/Include/10.0.10240.0/shared",
       "$win_kits/10/Include/10.0.10240.0/winrt",
     ]
+    _is_store = ""
+    if (is_winrt) {
+      _is_store = "/store"
+    }
     lib_dirs += [
+      "$msvc_root/lib/$target_cpu$_is_store",
       "$win_kits/10/lib/10.0.10240.0/ucrt/$target_cpu",
       "$win_kits/10/lib/10.0.10240.0/um/$target_cpu",
     ]
-    if (msvc == 2015) {
-      if (target_cpu == "x86") {
-        lib_dirs += [ "$msvc_root/lib" ]
-      } else if (target_cpu == "arm") {
-        lib_dirs += [ "$msvc_root/lib/arm" ]
-      } else {
-        lib_dirs += [ "$msvc_root/lib/amd64" ]
-      }
-    } else  if (msvc == 2017) {
-      lib_dirs += [ "$msvc_root/lib/$target_cpu" ]
-    }
   } else {
     cflags += [
       "-fstrict-aliasing",
@@ -521,29 +510,26 @@ toolchain("msvc") {
 
   env_setup = ""
   env_setup_end = ""
-  if (target_cpu != "x64") {
-    _target = "amd64_" + target_cpu
-    if (msvc == 2015) {
-      _vcvarsall = "$msvc_root/vcvarsall.bat"
-    } else if (msvc == 2017) {
-      _vcvarsall = "$msvc_root/../../../Auxiliary/Build/vcvarsall.bat"
-    }
-    if (run_vcvars) {
-      env_setup = "cmd /c \"set __VSCMD_ARG_NO_LOGO=1 && set VSCMD_START_DIR=%CD% && \"$_vcvarsall\" $_target && "
-      env_setup_end = "\""
-    } else {
-      print("Be sure to run")
-      print("\"$_vcvarsall\" $_target")
-      print("to set up your environment before running ninja.")
-    }
-  } else if (msvc == 2015) {
+
+  if (target_cpu == "x64") {
     _target = "amd64"
+  } else {
+    _target = "amd64_" + target_cpu
   }
-  if (msvc == 2015) {
-    bin = "$msvc_root/bin/$_target"
-  } else if (msvc == 2017) {
-    bin = "$msvc_root/bin/HostX64/$target_cpu"
+  if (is_winrt) {
+    _target  += " store"
   }
+
+  _vcvarsall = "$msvc_root/../../../Auxiliary/Build/vcvarsall.bat"
+  if (run_vcvars) {
+    env_setup = "cmd /c \"set __VSCMD_ARG_NO_LOGO=1 && set VSCMD_START_DIR=%CD% && \"$_vcvarsall\" $_target && "
+    env_setup_end = "\""
+  } else {
+    print("Be sure to run")
+    print("\"$_vcvarsall\" $_target")
+    print("to set up your environment before running ninja.")
+  }
+  bin = "$msvc_root/bin/HostX64/$target_cpu"
 
   tool("asm") {
     _ml = "ml"
