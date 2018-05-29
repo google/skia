@@ -570,7 +570,7 @@ public:
 
             GrGLSLVarying v(kHalf4_GrSLType);
             varyingHandler->addVarying("QuadEdge", &v);
-            vertBuilder->codeAppendf("%s = %s;", v.vsOut(), qe.fInQuadEdge->fName);
+            vertBuilder->codeAppendf("%s = %s;", v.vsOut(), qe.fInQuadEdge->name());
 
             // Setup pass through color
             varyingHandler->addPassThroughAttribute(qe.fInColor, args.fOutputColor);
@@ -578,7 +578,7 @@ public:
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
             // Setup position
-            this->writeOutputPosition(vertBuilder, gpArgs, qe.fInPosition->fName);
+            this->writeOutputPosition(vertBuilder, gpArgs, qe.fInPosition->name());
 
             // emit transforms
             this->emitTransforms(vertBuilder,

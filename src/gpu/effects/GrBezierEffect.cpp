@@ -79,7 +79,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     GrGLSLVarying v(kFloat4_GrSLType);
     varyingHandler->addVarying("ConicCoeffs", &v);
-    vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inConicCoeffs()->fName);
+    vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inConicCoeffs()->name());
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
@@ -89,7 +89,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->writeOutputPosition(vertBuilder,
                               uniformHandler,
                               gpArgs,
-                              gp.inPosition()->fName,
+                              gp.inPosition()->name(),
                               gp.viewMatrix(),
                               &fViewMatrixUniform);
 
@@ -331,7 +331,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     GrGLSLVarying v(kHalf4_GrSLType);
     varyingHandler->addVarying("HairQuadEdge", &v);
-    vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inHairQuadEdge()->fName);
+    vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inHairQuadEdge()->name());
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
@@ -341,7 +341,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->writeOutputPosition(vertBuilder,
                               uniformHandler,
                               gpArgs,
-                              gp.inPosition()->fName,
+                              gp.inPosition()->name(),
                               gp.viewMatrix(),
                               &fViewMatrixUniform);
 
@@ -544,7 +544,7 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->writeOutputPosition(vertBuilder,
                               uniformHandler,
                               gpArgs,
-                              gp.inPosition()->fName,
+                              gp.inPosition()->name(),
                               gp.viewMatrix(),
                               &fViewMatrixUniform);
 
