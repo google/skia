@@ -22,6 +22,30 @@
       "revId": "2fd69ce5deb81f3b1f6fbca25c9a36d1acc953c7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2dc0194f_d793a3ad",
+        "filename": "infra/bots/assets/node/create.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2018-05-29T12:17:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "be6a6270_ee9d659d",
+      "range": {
+        "startLine": 16,
+        "startChar": 36,
+        "endLine": 16,
+        "endChar": 43
+      },
+      "revId": "2fd69ce5deb81f3b1f6fbca25c9a36d1acc953c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
