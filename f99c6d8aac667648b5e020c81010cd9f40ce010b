@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "575e6349_14fd6c34",
+        "filename": "modules/skottie/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-29T13:26:41Z",
+      "side": 1,
+      "message": "Hmm, I thought that would get pulled indirectly, via the \":skottie\" dependency...  Or maybe public_configs is not transitive?",
+      "revId": "f99c6d8aac667648b5e020c81010cd9f40ce010b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
