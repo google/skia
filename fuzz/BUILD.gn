@@ -1,0 +1,39 @@
+# Copyright 2018 Google, LLC
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+source_set("fuzzing") {
+  testonly = true
+  include_dirs = [
+    "../tools",
+    "../tools/debugger",
+  ]
+  sources = [
+    "./FuzzCanvas.cpp",
+    "./FuzzCommon.cpp",
+    "./FuzzDrawFunctions.cpp",
+    "./FuzzEncoders.cpp",
+    "./FuzzGradients.cpp",
+    "./FuzzParsePath.cpp",
+    "./FuzzPathMeasure.cpp",
+    "./FuzzPathop.cpp",
+    "./FuzzRegionOp.cpp",
+    "./fuzz.cpp",
+    "./oss_fuzz/FuzzAnimatedImage.cpp",
+    "./oss_fuzz/FuzzImage.cpp",
+    "./oss_fuzz/FuzzImageFilterDeserialize.cpp",
+    "./oss_fuzz/FuzzPathDeserialize.cpp",
+    "./oss_fuzz/FuzzRegionDeserialize.cpp",
+    "./oss_fuzz/FuzzRegionSetPath.cpp",
+    "./oss_fuzz/FuzzTextBlobDeserialize.cpp",
+  ]
+  deps = [
+    "..:debug_canvas",
+    "..:gpu_tool_utils",
+  ]
+  public_deps = [
+    "..:flags",
+    "..:skia",
+  ]
+}

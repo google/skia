@@ -1738,29 +1738,13 @@ if (skia_enable_tools) {
     }
   }
 
-  test_app("fuzz") {
+  source_set("debug_canvas") {
+    testonly = true
     include_dirs = [
       "tools",
       "tools/debugger",
     ]
     sources = [
-      "fuzz/FuzzCanvas.cpp",
-      "fuzz/FuzzCommon.cpp",
-      "fuzz/FuzzDrawFunctions.cpp",
-      "fuzz/FuzzEncoders.cpp",
-      "fuzz/FuzzGradients.cpp",
-      "fuzz/FuzzParsePath.cpp",
-      "fuzz/FuzzPathMeasure.cpp",
-      "fuzz/FuzzPathop.cpp",
-      "fuzz/FuzzRegionOp.cpp",
-      "fuzz/fuzz.cpp",
-      "fuzz/oss_fuzz/FuzzAnimatedImage.cpp",
-      "fuzz/oss_fuzz/FuzzImage.cpp",
-      "fuzz/oss_fuzz/FuzzImageFilterDeserialize.cpp",
-      "fuzz/oss_fuzz/FuzzPathDeserialize.cpp",
-      "fuzz/oss_fuzz/FuzzRegionDeserialize.cpp",
-      "fuzz/oss_fuzz/FuzzRegionSetPath.cpp",
-      "fuzz/oss_fuzz/FuzzTextBlobDeserialize.cpp",
       "tools/UrlDataManager.cpp",
       "tools/debugger/SkDebugCanvas.cpp",
       "tools/debugger/SkDrawCommand.cpp",
@@ -1768,12 +1752,19 @@ if (skia_enable_tools) {
       "tools/picture_utils.cpp",
     ]
     deps = [
-      ":flags",
       ":gpu_tool_utils",
       ":skia",
-      "modules/skottie:fuzz",
-      "//third_party/jsoncpp",
       "//third_party/libpng",
+    ]
+    public_deps = [
+      "//third_party/jsoncpp",
+    ]
+  }
+
+  test_app("fuzz") {
+    deps = [
+      "fuzz:fuzzing",
+      "modules/skottie:fuzz",
     ]
   }
 
