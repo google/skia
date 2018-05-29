@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75ded496_110e76fd",
+        "filename": "tools/fiddle/egl_context.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2018-05-29T15:01:31Z",
+      "side": 1,
+      "message": "Not sure what to do about the lifetime of tc, does this need to be static?",
+      "revId": "a42d7b7a6d72d5f804a5ebf09b85f203f769d480",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
