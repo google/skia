@@ -1474,7 +1474,7 @@ if (skia_enable_tools) {
         "src/utils/SkLuaCanvas.cpp",
       ]
       deps = [
-        ":skshaper",
+        "modules/skshaper",
         "//third_party/lua",
       ]
     }
@@ -1535,11 +1535,11 @@ if (skia_enable_tools) {
         ":experimental_svg_model",
         ":flags",
         ":gm",
-        ":skshaper",
         ":tool_utils",
         ":views",
         ":xml",
         "modules/sksg:samples",
+        "modules/skshaper",
       ]
 
       if (skia_use_lua) {
@@ -1629,33 +1629,13 @@ if (skia_enable_tools) {
     }
   }
 
-  test_lib("skshaper") {
-    public_include_dirs = [ "tools/shape" ]
-    deps = [
-      ":skia",
-    ]
-
-    if (target_cpu == "wasm") {
-      sources = [
-        "tools/shape/SkShaper_primitive.cpp",
-      ]
-    } else {
-      sources = [
-        "tools/shape/SkShaper_harfbuzz.cpp",
-      ]
-      deps += [
-        "//third_party/harfbuzz",
-        "//third_party/icu",
-      ]
-    }
-  }
   test_app("sktexttopdf") {
     sources = [
-      "tools/shape/using_skia_and_harfbuzz.cpp",
+      "tools/using_skia_and_harfbuzz.cpp",
     ]
     deps = [
       ":skia",
-      ":skshaper",
+      "modules/skshaper",
     ]
   }
 
