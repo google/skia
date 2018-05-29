@@ -17,6 +17,10 @@ struct Enum : public ProgramElement {
     , fTypeName(typeName)
     , fSymbols(std::move(symbols)) {}
 
+    std::unique_ptr<ProgramElement> clone() const override {
+        return std::unique_ptr<ProgramElement>(new Enum(fOffset, fTypeName, fSymbols));
+    }
+
     String description() const override {
         String result = "enum class " + fTypeName + " {\n";
         String separator;

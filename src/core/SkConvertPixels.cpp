@@ -356,6 +356,7 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
     }
     if (dither_rate > 0) {
         pipeline.append(SkRasterPipeline::dither, &dither_rate);
+        //pipeline.append(pipeline.ditherJIT(), nullptr);
     }
 
     switch (dstInfo.colorType()) {
