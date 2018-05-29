@@ -1,5 +1,5 @@
 #Topic Image
-#Alias Image_Reference
+#Alias Image_Reference ##
 
 #Class SkImage
 
@@ -19,7 +19,7 @@ include BMP, GIF, HEIF, ICO, JPEG, PNG, WBMP, WebP. Supported encoding details
 vary with platform.
 
 #Subtopic Raster_Image
-#Alias Raster_Image
+#Alias Raster_Image ##
 #Line # pixels decoded in Raster_Bitmap ##
 Raster_Image pixels are decoded in a Raster_Bitmap. These pixels may be read
 directly and in most cases written to, although edited pixels may not be drawn
