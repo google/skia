@@ -82,9 +82,9 @@ private:
     void processGlyphRunForPaths(const SkTextBlobRunIterator& it, const SkPaint& runPaint);
     void processGlyphRunForDFT(const SkTextBlobRunIterator& it, const SkPaint& runPaint,
                                SkScalerContextFlags flags);
-    const SkSurfaceProps& surfaceProps() const;
 
     const SkMatrix fDeviceMatrix;
+    const SkSurfaceProps fSurfaceProps;
     SkStrikeServer* const fStrikeServer;
     const Settings fSettings;
 };
