@@ -245,8 +245,7 @@ def dm_flags(api, bot):
 
     # Vulkan bot *only* runs the vk config.
     if 'Vulkan' in bot:
-      # skbug.com/7961
-      configs = ['vk' if not 'MoltenVK' in bot else 'vknostencils']
+      configs = ['vk']
 
     # Test 1010102 on our Linux/NVIDIA bots
     if 'QuadroP400' in bot and api.vars.is_linux:
@@ -745,14 +744,9 @@ def dm_flags(api, bot):
     blacklist(['_', 'gm', '_', 'vertices_scaled_shader'])
     blacklist(['_', 'gm', '_', 'vertices'])
     match.append('~^InitialTextureClear$')
-    match.append('~^ProcessorCloneTest$')
     match.append('~^RGB565TextureTest$')
     match.append('~^RGBA4444TextureTest$')
     match.append('~^WritePixelsNonTextureMSAA_Gpu$')
-    # skbug.com/7961
-    match.append('~^GrDefaultPathRendererTest$')
-    match.append('~^ResourceCacheStencilBuffers$')
-    match.append('~^SurfaceCopyOnWrite_Gpu$')
 
   if (('RadeonR9M470X' in bot or 'RadeonHD7770' in bot) and 'ANGLE' in bot):
     # skia:7096
