@@ -23,6 +23,10 @@ RUN cd /tmp \
   && cd /tmp/skia \
   && fetch skia
 
+RUN cd /tmp/skia/skia \
+  && git fetch https://skia.googlesource.com/skia refs/changes/25/130325/7 \
+  && git checkout FETCH_HEAD
+
 RUN mkdir -p /tmp/skia/skia/out/Static
 RUN echo '  \n\
 cc = "clang"  \n\
