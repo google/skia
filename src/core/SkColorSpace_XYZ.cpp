@@ -102,13 +102,3 @@ sk_sp<SkColorSpace> SkColorSpace_XYZ::makeColorSpin() const {
     (void)spin.getType();  // Pre-cache spin matrix type to avoid races in future getType() calls.
     return sk_sp<SkColorSpace>(new SkColorSpace_XYZ(fGammaNamed, fGammas, spin, fProfileData));
 }
-
-sk_sp<SkColorSpace> SkColorSpace_XYZ::makeNonlinearBlending() const {
-    if (this->nonlinearBlending()) {
-        return sk_ref_sp(const_cast<SkColorSpace_XYZ*>(this));
-    }
-
-    auto cs = sk_make_sp<SkColorSpace_XYZ>(fGammaNamed, fGammas, fToXYZD50, fProfileData);
-    cs->fNonlinearBlending = true;
-    return std::move(cs);
-}
