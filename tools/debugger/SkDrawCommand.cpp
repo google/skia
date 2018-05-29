@@ -250,6 +250,7 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kDrawTextOnPath_OpType: return "DrawTextOnPath";
         case kDrawTextRSXform_OpType: return "DrawTextRSXform";
         case kDrawVertices_OpType: return "DrawVertices";
+        case kDrawAtlas_OpType: return "DrawAtlas";
         case kEndDrawPicture_OpType: return "EndDrawPicture";
         case kRestore_OpType: return "Restore";
         case kSave_OpType: return "Save";
@@ -3509,6 +3510,29 @@ SkDrawVerticesCommand::SkDrawVerticesCommand(sk_sp<SkVertices> vertices, SkBlend
 void SkDrawVerticesCommand::execute(SkCanvas* canvas) const {
     canvas->drawVertices(fVertices, fBlendMode, fPaint);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkDrawAtlasCommand::SkDrawAtlasCommand(const SkImage* image, const SkRSXform xform[],
+                                       const SkRect tex[], const SkColor colors[], int count,
+                                       SkBlendMode bmode, const SkRect* cull,
+                                       const SkPaint* paint)
+    : INHERITED(kDrawAtlas_OpType)
+    , fImage(SkRef(image))
+    , fXform(xform, count)
+    , fTex(tex, count)
+    , fColors(colors, colors ? count : 0)
+    , fBlendMode(bmode)
+    , fCull(cull)
+    , fPaint(paint) {}
+
+void SkDrawAtlasCommand::execute(SkCanvas* canvas) const {
+    canvas->drawAtlas(fImage.get(), fXform.begin(), fTex.begin(),
+                      fColors.isEmpty() ? nullptr : fColors.begin(), fXform.count(), fBlendMode,
+                      fCull.getMaybeNull(), fPaint.getMaybeNull());
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkRestoreCommand::SkRestoreCommand()
     : INHERITED(kRestore_OpType) {}

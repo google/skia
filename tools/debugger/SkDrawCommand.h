@@ -60,6 +60,7 @@ public:
         kDrawTextOnPath_OpType,
         kDrawTextRSXform_OpType,
         kDrawVertices_OpType,
+        kDrawAtlas_OpType,
         kEndDrawPicture_OpType,
         kRestore_OpType,
         kSave_OpType,
@@ -738,6 +739,25 @@ private:
     sk_sp<SkVertices>   fVertices;
     SkBlendMode         fBlendMode;
     SkPaint             fPaint;
+
+    typedef SkDrawCommand INHERITED;
+};
+
+class SkDrawAtlasCommand : public SkDrawCommand {
+public:
+    SkDrawAtlasCommand(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int,
+                       SkBlendMode, const SkRect*, const SkPaint*);
+
+    void execute(SkCanvas* canvas) const override;
+
+private:
+    sk_sp<const SkImage> fImage;
+    SkTDArray<SkRSXform> fXform;
+    SkTDArray<SkRect>    fTex;
+    SkTDArray<SkColor>   fColors;
+    SkBlendMode          fBlendMode;
+    SkTLazy<SkRect>      fCull;
+    SkTLazy<SkPaint>     fPaint;
 
     typedef SkDrawCommand INHERITED;
 };
