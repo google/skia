@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7efe3c27_8271fe3e",
+        "filename": "tools/DDLPromiseImageHelper.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-29T18:34:44Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "14bb7001_c2991559",
+      "range": {
+        "startLine": 50,
+        "startChar": 29,
+        "endLine": 50,
+        "endChar": 38
+      },
+      "revId": "6c623b9ed9d3a6b74df2627eb03bb25211c8a94a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9b1127f1_7106618f",
         "filename": "tools/skpbench/skpbench.cpp",
         "patchSetId": 13
@@ -36,6 +60,30 @@
       "writtenOn": "2018-05-29T15:04:04Z",
       "side": 1,
       "message": "Do we ever use these methods?\n\nThe output is designed to report the min, max, median, etc. of 1 single value, and the \"clock\" field currently tells us whether these times should be understood as \"cpu\" or \"gpu\".\n\nDo you think instead we could add a third clock called \"ddl\"? We would need another command line flag, and then the ddl Benchmark could decide on its own whether to record \"cpu\" times (i.e. total frame times as recorded by the CPU, using a gpuSync) into fDuration, or \"ddl\" times (i.e. just the ddl record times.). When printing the output, we would write \"ddl\" to the clock field if the values are to be understood as just the ddl Record Times.",
+      "range": {
+        "startLine": 78,
+        "startChar": 4,
+        "endLine": 83,
+        "endChar": 75
+      },
+      "revId": "6c623b9ed9d3a6b74df2627eb03bb25211c8a94a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e33825aa_720bc2e6",
+        "filename": "tools/skpbench/skpbench.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-29T18:34:44Z",
+      "side": 1,
+      "message": "We don\u0027t use them yet.\n\nI have yet to talk w/ Joe about this but I suspect that, to get perf to behave how I want, I will need to run the skpbench ddl bots twice. Once to spit out the combined time and once to spit out only the ddl record time.",
+      "parentUuid": "9b1127f1_7106618f",
       "range": {
         "startLine": 78,
         "startChar": 4,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "df6e4ac8_4b735866",
+        "filename": "tools/skpbench/skpbench.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-29T18:34:44Z",
+      "side": 1,
+      "message": "To boot strap the timing process. I invoke ddl_sample first w/o both a \u0027gpuSync\u0027 or a \u0027sample\u0027.\nThe second time I invoke it ddl_sample w/ a \u0027gpuSync\u0027 but still no \u0027sample\u0027 and then for the remaining calls I invoke it with both a \u0027gpuSync\u0027 and a \u0027sample\u0027.",
+      "parentUuid": "709149a5_4ebae157",
+      "range": {
+        "startLine": 131,
+        "startChar": 8,
+        "endLine": 131,
+        "endChar": 15
+      },
+      "revId": "6c623b9ed9d3a6b74df2627eb03bb25211c8a94a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3165f436_36e83907",
         "filename": "tools/skpbench/skpbench.cpp",
         "patchSetId": 13
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "7478ea8d_08263aeb",
+        "filename": "tools/skpbench/skpbench.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-29T18:34:44Z",
+      "side": 1,
+      "message": "Yep, while bootstrapping the timing. Only once we\u0027re rolling (after the first two calls) do times start getting recorded.",
+      "parentUuid": "3165f436_36e83907",
+      "range": {
+        "startLine": 139,
+        "startChar": 8,
+        "endLine": 139,
+        "endChar": 14
+      },
+      "revId": "6c623b9ed9d3a6b74df2627eb03bb25211c8a94a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6d5866a6_99df97c2",
         "filename": "tools/skpbench/skpbench.cpp",
         "patchSetId": 13
@@ -105,6 +201,30 @@
       "writtenOn": "2018-05-29T15:04:04Z",
       "side": 1,
       "message": "I don\u0027t think I like having gaps in the timing for the total sample duration. Can run_ddl_benchmark() just find the sample time outside this method, without gaps (kind of like the normal benchmark does)?\n\nOr are we trying to avoid timing resetAllTiles()?",
+      "range": {
+        "startLine": 142,
+        "startChar": 26,
+        "endLine": 142,
+        "endChar": 28
+      },
+      "revId": "6c623b9ed9d3a6b74df2627eb03bb25211c8a94a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "092bcda7_656b5fed",
+        "filename": "tools/skpbench/skpbench.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-29T18:34:44Z",
+      "side": 1,
+      "message": "It is mainly to make this method self-contained.\n\nI\u0027ve updated this CL w/ a version that has a persistent start/stop time for your consideration.",
+      "parentUuid": "6d5866a6_99df97c2",
       "range": {
         "startLine": 142,
         "startChar": 26,
