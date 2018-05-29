@@ -484,6 +484,10 @@ void SkDebugCanvas::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& r
     this->addDrawCommand(new SkDrawShadowCommand(path, rec));
 }
 
+void SkDebugCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
+    this->addDrawCommand(new SkDrawDrawableCommand(drawable, matrix));
+}
+
 void SkDebugCanvas::willRestore() {
     this->addDrawCommand(new SkRestoreCommand());
     this->INHERITED::willRestore();

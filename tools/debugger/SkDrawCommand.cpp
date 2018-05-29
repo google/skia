@@ -12,6 +12,7 @@
 #include "SkAutoMalloc.h"
 #include "SkColorFilter.h"
 #include "SkDashPathEffect.h"
+#include "SkDrawable.h"
 #include "SkImageFilter.h"
 #include "SkJsonWriteBuffer.h"
 #include "SkMaskFilterBase.h"
@@ -247,6 +248,7 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kDrawTextRSXform_OpType: return "DrawTextRSXform";
         case kDrawVertices_OpType: return "DrawVertices";
         case kDrawAtlas_OpType: return "DrawAtlas";
+        case kDrawDrawable_OpType: return "DrawDrawable";
         case kEndDrawPicture_OpType: return "EndDrawPicture";
         case kRestore_OpType: return "Restore";
         case kSave_OpType: return "Save";
@@ -2139,6 +2141,19 @@ Json::Value SkDrawShadowCommand::toJSON(UrlDataManager& urlDataManager) const {
     store_bool(&result, SKDEBUGCANVAS_SHADOWFLAG_GEOMETRIC_ONLY, geometricOnly, false);
     return result;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkDrawDrawableCommand::SkDrawDrawableCommand(SkDrawable* drawable, const SkMatrix* matrix)
+    : INHERITED(kDrawDrawable_OpType)
+    , fDrawable(SkRef(drawable))
+    , fMatrix(matrix) {}
+
+void SkDrawDrawableCommand::execute(SkCanvas* canvas) const {
+    canvas->drawDrawable(fDrawable.get(), fMatrix.getMaybeNull());
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkDrawTextCommand::SkDrawTextCommand(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                                      const SkPaint& paint)
