@@ -50,7 +50,7 @@ sk_sp<GrCoverageCountingPathRenderer> GrCoverageCountingPathRenderer::CreateIfSu
 GrCCPerOpListPaths* GrCoverageCountingPathRenderer::lookupPendingPaths(uint32_t opListID) {
     auto it = fPendingPaths.find(opListID);
     if (fPendingPaths.end() == it) {
-        auto paths = skstd::make_unique<GrCCPerOpListPaths>();
+        sk_sp<GrCCPerOpListPaths> paths = sk_make_sp<GrCCPerOpListPaths>();
         it = fPendingPaths.insert(std::make_pair(opListID, std::move(paths))).first;
     }
     return it->second.get();
