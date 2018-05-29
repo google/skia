@@ -26,6 +26,7 @@
 #include "SkSurface_Gpu.h"
 #include "SkTTopoSort.h"
 #include "GrTracing.h"
+#include "ccpr/GrCoverageCountingPathRenderer.h"
 #include "text/GrTextContext.h"
 
 // Turn on/off the sorting of opLists at flush time
@@ -381,6 +382,9 @@ void GrDrawingManager::moveOpListsToDDL(SkDeferredDisplayList* ddl) {
     }
 
     ddl->fOpLists = std::move(fOpLists);
+    if (auto ccpr = fPathRendererChain->getCoverageCountingPathRenderer()) {
+        ddl->fPendingPaths = ccpr->detachPendingPaths();
+    }
 }
 
 void GrDrawingManager::copyOpListsFromDDL(const SkDeferredDisplayList* ddl,
