@@ -16,33 +16,17 @@
 struct SkRect;
 
 /** \struct SkIRect
-    SkIRect holds four 32 bit integer coordinates describing the upper and
+    SkIRect holds four 32-bit integer coordinates describing the upper and
     lower bounds of a rectangle. SkIRect may be created from outer bounds or
     from position, width, and height. SkIRect describes an area; if its right
     is less than or equal to its left, or if its bottom is less than or equal to
     its top, it is considered empty.
 */
 struct SK_API SkIRect {
-
-    /** May contain any value. The smaller of the horizontal values when sorted.
-        When equal to or greater than fRight, SkIRect is empty.
-    */
-    int32_t fLeft;
-
-    /** May contain any value. The smaller of the horizontal values when sorted.
-        When equal to or greater than fBottom, SkIRect is empty.
-    */
-    int32_t fTop;
-
-    /** May contain any value. The larger of the vertical values when sorted.
-        When equal to or less than fLeft, SkIRect is empty.
-    */
-    int32_t fRight;
-
-    /** May contain any value. The larger of the vertical values when sorted.
-        When equal to or less than fTop, SkIRect is empty.
-    */
-    int32_t fBottom;
+    int32_t fLeft;   //!< smaller x-axis bounds
+    int32_t fTop;    //!< smaller y-axis bounds
+    int32_t fRight;  //!< larger x-axis bounds
+    int32_t fBottom; //!< larger y-axis bounds
 
     /** Returns constructed SkIRect set to (0, 0, 0, 0).
         Many other rectangles are empty; if left is equal to or greater than right,
@@ -414,12 +398,16 @@ struct SK_API SkIRect {
     */
     void outset(int32_t dx, int32_t dy)  { this->inset(-dx, -dy); }
 
-    /** Adjust SkIRect by adding dL to fLeft, dT to fTop, dR to fRight and fB to fBottom.
+    /** Adjusts SkIRect by adding dL to fLeft, dT to fTop, dR to fRight, and dB to fBottom.
 
         If dL is positive, narrows SkIRect on the left. If negative, widens it on the left.
         If dT is positive, shrinks SkIRect on the top. If negative, lengthens it on the top.
         If dR is positive, narrows SkIRect on the right. If negative, widens it on the right.
         If dB is positive, shrinks SkIRect on the bottom. If negative, lengthens it on the bottom.
+
+        The resulting SkIRect is not checked for validity. Thus, if the resulting SkIRect left is
+        greater than right, the SkIRect will be considered empty. Call sort() after this call
+        if that is not the desired behavior.
 
         @param dL  offset added to fLeft
         @param dT  offset added to fTop
@@ -685,26 +673,10 @@ struct SK_API SkIRect {
     its top, it is considered empty.
 */
 struct SK_API SkRect {
-
-    /** May contain any value, including infinities and NaN. The smaller of the
-        horizontal values when sorted. When equal to or greater than fRight, SkRect is empty.
-    */
-    SkScalar fLeft;
-
-    /** May contain any value, including infinities and NaN. The smaller of the
-        vertical values when sorted. When equal to or greater than fBottom, SkRect is empty.
-    */
-    SkScalar fTop;
-
-    /** May contain any value, including infinities and NaN. The larger of the
-        horizontal values when sorted. When equal to or less than fLeft, SkRect is empty.
-    */
-    SkScalar fRight;
-
-    /** May contain any value, including infinities and NaN. The larger of the
-        vertical values when sorted. When equal to or less than fTop, SkRect is empty.
-    */
-    SkScalar fBottom;
+    SkScalar fLeft;   //!< smaller x-axis bounds
+    SkScalar fTop;    //!< smaller y-axis bounds
+    SkScalar fRight;  //!< larger x-axis bounds
+    SkScalar fBottom; //!< larger y-axis bounds
 
     /** Returns constructed SkRect set to (0, 0, 0, 0).
         Many other rectangles are empty; if left is equal to or greater than right,
@@ -976,7 +948,7 @@ struct SK_API SkRect {
 
     /** Returns four points in quad that enclose SkRect ordered as: top-left, top-right,
         bottom-right, bottom-left.
-        Consider adding param to control whether quad is CW or CCW.
+        Consider adding param to control whether quad is clockwise or counterclockwise.
 
         @param quad  storage for corners of SkRect
     */
@@ -1103,10 +1075,12 @@ struct SK_API SkRect {
     */
     bool setBoundsCheck(const SkPoint pts[], int count);
 
-    /**
-     *  Like setBoundsCheck() but this does not check for finite/nonfinite values. If any of the
-     *  points are nonfinite, then the bounds will also be nonfinite.
-     */
+    /** Sets to bounds of SkPoint pts array with count entries. If any SkPoint in pts
+        contains infinity or NaN, all SkRect dimensions are set to NaN.
+
+        @param pts    SkPoint array
+        @param count  entries in array
+    */
     void setBoundsNoCheck(const SkPoint pts[], int count);
 
     /** Sets bounds to the smallest SkRect enclosing SkPoint p0 and p1. The result is
