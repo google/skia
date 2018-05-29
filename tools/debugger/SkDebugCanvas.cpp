@@ -473,6 +473,13 @@ void SkDebugCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode
                                                    bmode, paint));
 }
 
+void SkDebugCanvas::onDrawAtlas(const SkImage* image, const SkRSXform xform[], const SkRect tex[],
+                                const SkColor colors[], int count, SkBlendMode bmode,
+                                const SkRect* cull, const SkPaint* paint) {
+    this->addDrawCommand(new SkDrawAtlasCommand(image, xform, tex, colors, count, bmode, cull,
+                                                paint));
+}
+
 void SkDebugCanvas::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
     this->addDrawCommand(new SkDrawShadowCommand(path, rec));
 }

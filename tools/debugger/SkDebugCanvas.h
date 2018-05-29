@@ -168,6 +168,8 @@ protected:
                           const SkPaint*) override;
     void onDrawImageNine(const SkImage*, const SkIRect& center, const SkRect& dst,
                          const SkPaint*) override;
+    void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
+                     int, SkBlendMode, const SkRect*, const SkPaint*) override;
     void onClipRect(const SkRect&, SkClipOp, ClipEdgeStyle) override;
     void onClipRRect(const SkRRect&, SkClipOp, ClipEdgeStyle) override;
     void onClipPath(const SkPath&, SkClipOp, ClipEdgeStyle) override;
