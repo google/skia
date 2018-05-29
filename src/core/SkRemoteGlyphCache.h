@@ -25,8 +25,10 @@
 #include "SkTypeface.h"
 
 class Serializer;
+enum SkAxisAlignment : uint32_t;
 class SkDescriptor;
 class SkGlyphCache;
+class SkGlyphCacheState;
 struct SkPackedGlyphID;
 enum SkScalerContextFlags : uint32_t;
 class SkScalerContextRecDescriptor;
@@ -79,9 +81,10 @@ private:
     void processGlyphRun(const SkPoint& position,
                          const SkTextBlobRunIterator& it,
                          const SkPaint& runPaint);
-    void processGlyphRunForPaths(const SkTextBlobRunIterator& it, const SkPaint& runPaint);
-    void processGlyphRunForDFT(const SkTextBlobRunIterator& it, const SkPaint& runPaint,
-                               SkScalerContextFlags flags);
+    void processGlyphRunFullPixel(const SkTextBlobRunIterator& it, const SkPaint& runPaint,
+                                  const SkScalerContextEffects& effects, SkGlyphCacheState* cache,
+                                  bool asPath);
+
     const SkSurfaceProps& surfaceProps() const;
 
     const SkMatrix fDeviceMatrix;
@@ -90,6 +93,52 @@ private:
 };
 
 using SkDiscardableHandleId = uint32_t;
+
+class SkGlyphCacheState {
+public:
+    SkGlyphCacheState(std::unique_ptr<SkDescriptor> deviceDescriptor,
+                      std::unique_ptr<SkDescriptor>
+                              keyDescriptor,
+                      SkScalerContextRec& deviceRec,
+                      SkDiscardableHandleId discardableHandleId);
+    ~SkGlyphCacheState();
+
+    void addGlyph(SkTypeface*, const SkScalerContextEffects&, SkPackedGlyphID, bool pathOnly);
+    void writePendingGlyphs(Serializer* serializer);
+    bool has_pending_glyphs() const {
+        return !fPendingGlyphImages.empty() || !fPendingGlyphPaths.empty();
+    }
+    SkDiscardableHandleId discardable_handle_id() const { return fDiscardableHandleId; }
+    const SkDescriptor& getDeviceDescriptor() { return *fDeviceDescriptor; }
+    bool isSubpixel() const { return fIsSubpixel; }
+    SkAxisAlignment axisAlignment() const { return fAxisAlignment; }
+
+    const SkDescriptor& getKeyDescriptor() { return *fKeyDescriptor; }
+
+private:
+    void writeGlyphPath(const SkPackedGlyphID& glyphID, Serializer* serializer) const;
+
+    // The set of glyphs cached on the remote client.
+    SkTHashSet<SkPackedGlyphID> fCachedGlyphImages;
+    SkTHashSet<SkPackedGlyphID> fCachedGlyphPaths;
+
+    // The set of glyphs which has not yet been serialized and sent to the
+    // remote client.
+    std::vector<SkPackedGlyphID> fPendingGlyphImages;
+    std::vector<SkPackedGlyphID> fPendingGlyphPaths;
+
+    // The device descriptor is used to create the scaler context. The glyphs to have the
+    // correct device rendering. The key descriptor is used for communication. The GPU side will
+    // create descriptors with out the device filtering, thus matching the key descriptor.
+    std::unique_ptr<SkDescriptor> fDeviceDescriptor;
+    std::unique_ptr<SkDescriptor> fKeyDescriptor;
+    const SkDiscardableHandleId fDiscardableHandleId = static_cast<SkDiscardableHandleId>(-1);
+
+    // The context built using fDeviceDescriptor.
+    std::unique_ptr<SkScalerContext> fContext;
+    const bool fIsSubpixel;
+    const SkAxisAlignment fAxisAlignment;
+};
 
 // This class is not thread-safe.
 class SK_API SkStrikeServer {
@@ -129,52 +178,8 @@ public:
     void writeStrikeData(std::vector<uint8_t>* memory);
 
     // Methods used internally in skia ------------------------------------------
-    class SkGlyphCacheState {
-    public:
-        SkGlyphCacheState(std::unique_ptr<SkDescriptor> deviceDescriptor,
-                          std::unique_ptr<SkDescriptor> keyDescriptor,
-                          SkDiscardableHandleId discardableHandleId);
-        ~SkGlyphCacheState();
-
-        void addGlyph(SkTypeface*, const SkScalerContextEffects&, SkPackedGlyphID, bool pathOnly);
-        void writePendingGlyphs(Serializer* serializer);
-        bool has_pending_glyphs() const {
-            return !fPendingGlyphImages.empty() || !fPendingGlyphPaths.empty();
-        }
-        SkDiscardableHandleId discardable_handle_id() const { return fDiscardableHandleId; }
-        const SkDescriptor& getDeviceDescriptor() {
-            return *fDeviceDescriptor;
-        }
-
-        const SkDescriptor& getKeyDescriptor() {
-            return *fKeyDescriptor;
-        }
-
-    private:
-        void writeGlyphPath(const SkPackedGlyphID& glyphID, Serializer* serializer) const;
-
-        // The set of glyphs cached on the remote client.
-        SkTHashSet<SkPackedGlyphID> fCachedGlyphImages;
-        SkTHashSet<SkPackedGlyphID> fCachedGlyphPaths;
-
-        // The set of glyphs which has not yet been serialized and sent to the
-        // remote client.
-        std::vector<SkPackedGlyphID> fPendingGlyphImages;
-        std::vector<SkPackedGlyphID> fPendingGlyphPaths;
-
-        // The device descriptor is used to create the scaler context. The glyphs to have the
-        // correct device rendering. The key descriptor is used for communication. The GPU side will
-        // create descriptors with out the device filtering, thus matching the key descriptor.
-        std::unique_ptr<SkDescriptor> fDeviceDescriptor;
-        std::unique_ptr<SkDescriptor> fKeyDescriptor;
-        const SkDiscardableHandleId fDiscardableHandleId = static_cast<SkDiscardableHandleId>(-1);
-
-        // The context built using fDeviceDescriptor
-        std::unique_ptr<SkScalerContext> fContext;
-    };
-
     SkGlyphCacheState* getOrCreateCache(const SkPaint&, const SkSurfaceProps*, const SkMatrix*,
-                                        SkScalerContextFlags flags, SkScalerContextRec* deviceRec,
+                                        SkScalerContextFlags flags,
                                         SkScalerContextEffects* effects);
 
 private:
