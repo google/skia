@@ -411,6 +411,11 @@ void SkImage_unpinAsTexture(const SkImage* image, GrContext* ctx) {
     as_IB(image)->onUnpinAsTexture(ctx);
 }
 
+SkIRect SkImage_getSubset(const SkImage* image) {
+    SkASSERT(image);
+    return as_IB(image)->onGetSubset();
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkImage> SkImageMakeRasterCopyAndAssignColorSpace(const SkImage* src,

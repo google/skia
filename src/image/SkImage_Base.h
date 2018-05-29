@@ -38,6 +38,10 @@ public:
     virtual SkColorType onColorType() const = 0;
     virtual SkAlphaType onAlphaType() const = 0;
 
+    virtual SkIRect onGetSubset() const {
+        return { 0, 0, this->width(), this->height() };
+    }
+
     virtual bool onPeekPixels(SkPixmap*) const { return false; }
 
     virtual const SkBitmap* onPeekBitmap() const { return nullptr; }

@@ -78,6 +78,7 @@ public:
         kRemoveHeaderFlags_Version         = 60,
         kTwoColorDrawShadow_Version        = 61,
         kDontNegateImageSize_Version       = 62,
+        kStoreImageBounds_Version          = 63,
     };
 
     /**

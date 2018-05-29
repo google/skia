@@ -9,6 +9,7 @@
 #include "SkBitmap.h"
 #include "SkData.h"
 #include "SkDeduper.h"
+#include "SkImagePriv.h"
 #include "SkPaintPriv.h"
 #include "SkPixelRef.h"
 #include "SkPtrRecorder.h"
@@ -133,14 +134,19 @@ bool SkBinaryWriteBuffer::writeToStream(SkWStream* stream) {
     return fWriter.writeToStream(stream);
 }
 
+/*  Format:
+ *  (subset) bounds
+ *  size (31bits)
+ *  data [ encoded, with raw width/height ]
+ */
 void SkBinaryWriteBuffer::writeImage(const SkImage* image) {
     if (fDeduper) {
         this->write32(fDeduper->findOrDefineImage(const_cast<SkImage*>(image)));
         return;
     }
 
-    this->writeInt(image->width());
-    this->writeInt(image->height());
+    const SkIRect bounds = SkImage_getSubset(image);
+    this->writeIRect(bounds);
 
     sk_sp<SkData> data;
     if (fProcs.fImageProc) {
