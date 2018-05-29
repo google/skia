@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d9159bd_4e9b27ad",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-05-29T14:43:14Z",
+      "side": 1,
+      "message": "Nit: False",
+      "range": {
+        "startLine": 467,
+        "startChar": 51,
+        "endLine": 467,
+        "endChar": 56
+      },
+      "revId": "2e0021190024fac01dd57b61c86956f271280314",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2445a3d_142e2ea5",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-05-29T14:43:14Z",
+      "side": 1,
+      "message": "Ni: cmd.append(\u0027--revert\u0027)",
+      "range": {
+        "startLine": 472,
+        "startChar": 4,
+        "endLine": 472,
+        "endChar": 34
+      },
+      "revId": "2e0021190024fac01dd57b61c86956f271280314",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
