@@ -82,7 +82,7 @@ protected:
                                   const Desc& descriptor);
 
     GrVkBuffer(const Desc& desc, const GrVkBuffer::Resource* resource)
-        : fDesc(desc), fResource(resource), fOffset(0), fMapPtr(nullptr), fMappedSize(0) {
+        : fDesc(desc), fResource(resource), fOffset(0), fMapPtr(nullptr) {
     }
 
     void* vkMap(GrVkGpu* gpu) {
@@ -115,9 +115,6 @@ private:
     const Resource*         fResource;
     VkDeviceSize            fOffset;
     void*                   fMapPtr;
-    // On certain Intel devices/drivers there is a bug if we try to flush non-coherent memory and
-    // pass in VK_WHOLE_SIZE. Thus we track our mapped size and explicitly set it when calling flush
-    VkDeviceSize            fMappedSize;
 
     typedef SkNoncopyable INHERITED;
 };
