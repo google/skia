@@ -903,21 +903,19 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
     if (FLAGS_cpu) {
         auto srgbColorSpace = SkColorSpace::MakeSRGB();
         auto srgbLinearColorSpace = SkColorSpace::MakeSRGBLinear();
-        auto esrgb = SkColorSpace::MakeSRGB()->makeNonlinearBlending();
 
         SINK("g8",      RasterSink, kGray_8_SkColorType);
         SINK("565",     RasterSink, kRGB_565_SkColorType);
         SINK("4444",    RasterSink, kARGB_4444_SkColorType);
         SINK("8888",    RasterSink, kN32_SkColorType);
-        SINK("srgb",    RasterSink, kN32_SkColorType, srgbColorSpace);
         SINK("rgba",    RasterSink, kRGBA_8888_SkColorType);
         SINK("bgra",    RasterSink, kBGRA_8888_SkColorType);
         SINK("rgbx",    RasterSink, kRGB_888x_SkColorType);
         SINK("1010102", RasterSink, kRGBA_1010102_SkColorType);
         SINK("101010x", RasterSink, kRGB_101010x_SkColorType);
         SINK("f16",     RasterSink, kRGBA_F16_SkColorType, srgbLinearColorSpace);
-        SINK("esrgb",   RasterSink, kRGBA_F16_SkColorType, esrgb);
-        SINK("srgbnl",  RasterSink, kRGBA_8888_SkColorType, esrgb);
+        SINK("esrgb",   RasterSink, kRGBA_F16_SkColorType, srgbColorSpace);
+        SINK("srgbnl",  RasterSink, kRGBA_8888_SkColorType, srgbColorSpace);
         SINK("t8888",   ThreadedSink, kN32_SkColorType);
         SINK("pdf",     PDFSink, false, SK_ScalarDefaultRasterDPI);
         SINK("skp",     SKPSink);
@@ -928,6 +926,9 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
         SINK("pdfa",    PDFSink, true,  SK_ScalarDefaultRasterDPI);
         SINK("pdf300",  PDFSink, false, 300);
         SINK("jsdebug", DebugSink);
+
+        // TODO: kRGBA_sRGB_SkColorType / srgbLinearColorSpace?
+        SINK("srgb",    RasterSink, kN32_SkColorType, srgbColorSpace);
     }
 #undef SINK
     return nullptr;

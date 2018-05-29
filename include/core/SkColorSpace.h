@@ -256,9 +256,6 @@ public:
      */
     static bool Equals(const SkColorSpace* src, const SkColorSpace* dst);
 
-    virtual bool nonlinearBlending() const { return false; }
-    virtual sk_sp<SkColorSpace> makeNonlinearBlending() const { return nullptr; }
-
 private:
     virtual const SkMatrix44* onToXYZD50() const = 0;
     virtual uint32_t onToXYZD50Hash() const = 0;
