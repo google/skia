@@ -1131,6 +1131,17 @@ void merge_vertices(Vertex* src, Vertex* dst, VertexList* mesh, Comparator& c,
     mesh->remove(src);
 }
 
+bool out_of_range_and_collinear(const SkPoint& p, Edge* edge, Comparator& c) {
+    if (c.sweep_lt(p, edge->fTop->fPoint) &&
+        !Line(p, edge->fBottom->fPoint).dist(edge->fTop->fPoint)) {
+        return true;
+    } else if (c.sweep_lt(edge->fBottom->fPoint, p) &&
+        !Line(edge->fTop->fPoint, p).dist(edge->fBottom->fPoint)) {
+        return true;
+    }
+    return false;
+}
+
 Vertex* create_sorted_vertex(const SkPoint& p, uint8_t alpha, VertexList* mesh,
                              Vertex* reference, Comparator& c, SkArenaAlloc& alloc) {
     Vertex* prevV = reference;
@@ -1163,12 +1174,6 @@ Vertex* create_sorted_vertex(const SkPoint& p, uint8_t alpha, VertexList* mesh,
     return v;
 }
 
-bool nearly_flat(Comparator& c, Edge* edge) {
-    SkPoint diff = edge->fBottom->fPoint - edge->fTop->fPoint;
-    float primaryDiff = c.fDirection == Comparator::Direction::kHorizontal ? diff.fX : diff.fY;
-    return fabs(primaryDiff) < std::numeric_limits<float>::epsilon();
-}
-
 bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vertex** current,
                             VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
     if (!edge || !other) {
@@ -1177,7 +1182,13 @@ bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vert
     SkPoint p;
     uint8_t alpha;
     if (edge->intersect(*other, &p, &alpha) && p.isFinite()) {
-        Vertex* v = nullptr;
+        // Ignore any out-of-range intersections which are also collinear,
+        // since the resulting edges would cancel each other out by merging.
+        if (out_of_range_and_collinear(p, edge, c) ||
+            out_of_range_and_collinear(p, other, c)) {
+            return false;
+        }
+        Vertex* v;
         LOG("found intersection, pt is %g, %g\n", p.fX, p.fY);
         Vertex* top = *current;
         // If the intersection point is above the current vertex, rewind to the vertex above the
@@ -1185,23 +1196,15 @@ bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vert
         while (top && c.sweep_lt(p, top->fPoint)) {
             top = top->fPrev;
         }
-        if (p == edge->fTop->fPoint ||
-            (c.sweep_lt(p, edge->fTop->fPoint) && !nearly_flat(c, edge))) {
+        if (p == edge->fTop->fPoint) {
             v = edge->fTop;
-        }
-        if (p == edge->fBottom->fPoint ||
-            (c.sweep_lt(edge->fBottom->fPoint, p) && !nearly_flat(c, edge))) {
+        } else if (p == edge->fBottom->fPoint) {
             v = edge->fBottom;
-        }
-        if (p == other->fTop->fPoint ||
-            (c.sweep_lt(p, other->fTop->fPoint) && !nearly_flat(c, other))) {
+        } else if (p == other->fTop->fPoint) {
             v = other->fTop;
-        }
-        if (p == other->fBottom->fPoint ||
-            (c.sweep_lt(other->fBottom->fPoint, p) && !nearly_flat(c, other))) {
+        } else if (p == other->fBottom->fPoint) {
             v = other->fBottom;
-        }
-        if (!v) {
+        } else {
             v = create_sorted_vertex(p, alpha, mesh, top, c, alloc);
             if (edge->fTop->fPartner) {
                 Line line1 = edge->fLine;

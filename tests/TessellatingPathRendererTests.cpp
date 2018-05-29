@@ -502,16 +502,6 @@ static SkPath create_path_33() {
     return path;
 }
 
-// From crbug.com/844873. Hangs repeatedly splitting alternate vertices.
-static SkPath create_path_34() {
-    SkPath path;
-    path.moveTo(10, -1e+20f);
-    path.lineTo(11, 25000);
-    path.lineTo(10, 25000);
-    path.lineTo(11, 25010);
-    return path;
-}
-
 static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
 
     SkPoint pts[2] = { {0, 0}, {1, 1} };
@@ -605,6 +595,5 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_31(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_32());
     test_path(ctx, rtc.get(), create_path_33());
-    test_path(ctx, rtc.get(), create_path_34());
 }
 #endif
