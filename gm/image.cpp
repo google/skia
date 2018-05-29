@@ -399,3 +399,36 @@ DEF_SIMPLE_GM(scalepixels_unpremul, canvas, 1080, 280) {
         canvas->translate(pm2.width() + 10.0f, 0);
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static sk_sp<SkImage> make_lazy_image(SkSurface* surf) {
+    surf->getCanvas()->drawCircle(100, 100, 100, SkPaint());
+    auto data = surf->makeImageSnapshot()->encodeToData();
+    return SkImage::MakeFromEncoded(data);
+}
+
+#include "SkWriteBuffer.h"
+#include "SkReadBuffer.h"
+static sk_sp<SkImage> serial_deserial(SkImage* img) {
+    SkBinaryWriteBuffer writer;
+    writer.writeImage(img);
+    size_t length = writer.bytesWritten();
+    auto data = SkData::MakeUninitialized(length);
+    writer.writeToMemory(data->writable_data());
+
+    SkReadBuffer reader(data->data(), length);
+    return reader.readImage();
+}
+
+DEF_SIMPLE_GM(image_subset, canvas, 440, 220) {
+    SkImageInfo info = SkImageInfo::MakeN32Premul(200, 200, nullptr);
+    auto surf = sk_tool_utils::makeSurface(canvas, info, nullptr);
+    auto img = make_lazy_image(surf.get());
+
+    canvas->drawImage(img, 10, 10, nullptr);
+    auto sub = img->makeSubset({100, 100, 200, 200});
+    canvas->drawImage(sub, 220, 10);
+    sub = serial_deserial(sub.get());
+    canvas->drawImage(sub, 220+110, 10);
+}
