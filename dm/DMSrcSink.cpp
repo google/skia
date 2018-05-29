@@ -1234,9 +1234,7 @@ Error SkottieSrc::draw(SkCanvas* canvas) const {
 
     canvas->drawColor(SK_ColorWHITE);
 
-    const auto ip = fAnimation->inPoint() * 1000 / fAnimation->frameRate(),
-               op = fAnimation->outPoint() * 1000 / fAnimation->frameRate(),
-               fr = (op - ip) / (kTileCount * kTileCount - 1);
+    const auto t_rate = 1.0f / (kTileCount * kTileCount - 1);
 
     // Shuffled order to exercise non-linear frame progression.
     static constexpr int frames[] = { 4, 0, 3, 1, 2 };
@@ -1249,7 +1247,7 @@ Error SkottieSrc::draw(SkCanvas* canvas) const {
             const SkScalar x = frames[j] * fTileSize.width();
             SkRect dest = SkRect::MakeXYWH(x, y, fTileSize.width(), fTileSize.height());
 
-            const auto t = fr * (frames[i] * kTileCount + frames[j]);
+            const auto t = t_rate * (frames[i] * kTileCount + frames[j]);
             {
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->clipRect(dest, true);
@@ -1257,7 +1255,7 @@ Error SkottieSrc::draw(SkCanvas* canvas) const {
                                                         dest,
                                                         SkMatrix::kCenter_ScaleToFit));
 
-                fAnimation->animationTick(t);
+                fAnimation->seek(t);
                 fAnimation->render(canvas);
             }
         }
