@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b28acc5_d21edf92",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-05-29T22:29:05Z",
+      "side": 1,
+      "message": "I think we\u0027re missing a \"!\" here :-)",
+      "range": {
+        "startLine": 230,
+        "startChar": 16,
+        "endLine": 230,
+        "endChar": 18
+      },
+      "revId": "f31f0079fbba85c7baa45987b155f00d5dbaecb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
