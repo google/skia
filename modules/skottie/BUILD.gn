@@ -37,6 +37,7 @@ source_set("fuzz") {
   if (skia_enable_skottie) {
     testonly = true
 
+    public_configs = [ ":public_config" ]
     configs += [ "../..:skia_private" ]
     sources = [
       "fuzz/FuzzSkottieJSON.cpp",

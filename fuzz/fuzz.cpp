@@ -201,7 +201,7 @@ static int fuzz_file(SkString path, SkString type) {
         return 0;
     }
 #endif
-    SkDebugf("Unknown type %s\n");
+    SkDebugf("Unknown type %s\n", type.c_str());
     SkCommandLineFlags::PrintUsage();
     return 1;
 }
