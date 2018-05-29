@@ -16,6 +16,24 @@
       "revId": "a42d7b7a6d72d5f804a5ebf09b85f203f769d480",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23421c02_65bc6638",
+        "filename": "tools/fiddle/egl_context.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-29T16:39:12Z",
+      "side": 1,
+      "message": "I uploaded a patchset that passes the GLTestContext out so that it is destroyed after the GrContext. Can you give that a try?",
+      "parentUuid": "75ded496_110e76fd",
+      "revId": "a42d7b7a6d72d5f804a5ebf09b85f203f769d480",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
