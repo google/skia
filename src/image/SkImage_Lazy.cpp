@@ -77,6 +77,10 @@ public:
         return fInfo.alphaType();
     }
 
+    SkIRect onGetSubset() const override {
+        return SkIRect::MakeXYWH(fOrigin.fX, fOrigin.fY, fInfo.width(), fInfo.height());
+    }
+
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY,
                       CachingHint) const override;
 #if SK_SUPPORT_GPU
