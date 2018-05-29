@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c847daf_bf2147f7",
+        "filename": "modules/skottie/BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-29T14:13:14Z",
+      "side": 1,
+      "message": "public_configs are transitive through public_deps.  Ordinary deps stops them.\n\nSo this is another - maybe clearer? - way to write this\n\n    configs +\u003d [ \"../..:skia_private\" ]\n    sources \u003d [\n      \"fuzz/FuzzSkottieJSON.cpp\",\n    ]\n    deps \u003d [\n      \"../..:skia\",  # TODO: refactor to make this nicer\n    ]\n    public_deps \u003d [\n      \":skottie\",\n    ]",
+      "revId": "457fa97bc84bd3dac1a3c0a5c3b66c168ced70da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "904818be_44fc7b0c",
+        "filename": "modules/skottie/BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-29T14:13:14Z",
+      "side": 1,
+      "message": "This looks fine to me.  What did you have in mind here to make this nicer?",
+      "range": {
+        "startLine": 47,
+        "startChar": 21,
+        "endLine": 47,
+        "endChar": 56
+      },
+      "revId": "457fa97bc84bd3dac1a3c0a5c3b66c168ced70da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
