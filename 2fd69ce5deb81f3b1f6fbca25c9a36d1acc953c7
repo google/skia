@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "be6a6270_ee9d659d",
+        "filename": "infra/bots/assets/node/create.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-29T11:06:33Z",
+      "side": 1,
+      "message": "If we think this URL will remain predictable, we could add a NODE_VERSION variable and insert it here and below.",
+      "range": {
+        "startLine": 16,
+        "startChar": 36,
+        "endLine": 16,
+        "endChar": 43
+      },
+      "revId": "2fd69ce5deb81f3b1f6fbca25c9a36d1acc953c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
