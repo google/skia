@@ -38,6 +38,11 @@
 #define SK_SKQP_GLOBAL_ERROR_TOLERANCE 0
 #endif
 
+#ifndef SK_SKQP_BADNESS_TOLERANCE
+#define SK_SKQP_BADNESS_TOLERANCE 100
+#endif
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 static int get_error(uint32_t value, uint32_t value_max, uint32_t value_min) {
@@ -230,15 +235,16 @@ float Check(const uint32_t* pixels,
             }
         }
     }
-
-    if (badness == 0) {
+    int64_t badnessMetric = badness * badPixelCount;
+    if (badnessMetric < SK_SKQP_BADNESS_TOLERANCE) {
         std::lock_guard<std::mutex> lock(gMutex);
         gErrors.push_back(Run{SkString(backend), SkString(name), 0, 0});
-    }
-    if (report_directory_path && badness > 0 && report_directory_path[0] != '\0') {
-        if (!backend) {
-            backend = "skia";
+        if (error_out) {
+            *error_out = Error::kNone;
         }
+        return 0;
+    }
+    if (report_directory_path && report_directory_path[0] != '\0') {
         SkString images_directory = SkOSPath::Join(report_directory_path, IMAGES_DIRECTORY_PATH);
         sk_mkdir(images_directory.c_str());
 
@@ -270,7 +276,7 @@ float Check(const uint32_t* pixels,
     if (error_out) {
         *error_out = Error::kNone;
     }
-    return (float)badness;
+    return (float)badnessMetric;
 }
 
 static constexpr char kDocHead[] =

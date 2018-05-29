@@ -61,7 +61,7 @@ public class SkQP {
               } else if (value != 0) {
                 // Record failure and carry on.
                   // SkQPRunner.Fail(desc, notifier, String.format(
-                  //             "Image mismatch: max channel diff = %f", value));
+                  //             "Image mismatch: error metric = %f", value));
               } else {
                 // Record success for this test.
               }
