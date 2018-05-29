@@ -16,6 +16,24 @@
       "revId": "9ca7cda77b9e609e49fdb3f6dd055e85ef6cfbf4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61b5eeb9_2309fa55",
+        "filename": "tools/fiddle/egl_context.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-05-29T16:58:56Z",
+      "side": 1,
+      "message": "I must have been building the no-gpu version locally. :( This should be (*glContext)-\u003emakeCurrent();",
+      "parentUuid": "2435c55c_af28011d",
+      "revId": "9ca7cda77b9e609e49fdb3f6dd055e85ef6cfbf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
