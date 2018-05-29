@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "88483b2d_c3b799a5",
+        "filename": "include/private/SkDeferredDisplayList.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-29T21:25:31Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8d081f61_b4c3a11b",
+      "revId": "3b727ddf1fc707a72d03cb6dceae95dc47da83c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1958904b_9dfad8f7",
         "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
         "patchSetId": 2
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "3ef72dc8_b1a551ce",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-29T21:25:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1958904b_9dfad8f7",
+      "range": {
+        "startLine": 46,
+        "startChar": 15,
+        "endLine": 46,
+        "endChar": 45
+      },
+      "revId": "3b727ddf1fc707a72d03cb6dceae95dc47da83c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4a464b4b_2342b0a8",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 2
@@ -53,6 +95,24 @@
       "writtenOn": "2018-05-29T19:17:38Z",
       "side": 1,
       "message": "I\u0027m a bit concerned about how we do something here that is semantically a move, in a method that expects it to be a copy.\n\nCould this be changed to a move method? And if not, I\u0027m concerned ccpr might not be compatible as is.",
+      "revId": "3b727ddf1fc707a72d03cb6dceae95dc47da83c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92e87681_b63ac505",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-29T21:25:31Z",
+      "side": 1,
+      "message": "I\u0027ve uploaded a new version that uses sk_sp rather than unique_ptrs. PTAL.",
+      "parentUuid": "4a464b4b_2342b0a8",
       "revId": "3b727ddf1fc707a72d03cb6dceae95dc47da83c4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
