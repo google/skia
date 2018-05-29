@@ -34,6 +34,24 @@
       "revId": "9ca7cda77b9e609e49fdb3f6dd055e85ef6cfbf4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b2a3d80_bc6b465d",
+        "filename": "tools/fiddle/egl_context.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2018-05-29T17:58:19Z",
+      "side": 1,
+      "message": "Thanks, now working.",
+      "parentUuid": "61b5eeb9_2309fa55",
+      "revId": "9ca7cda77b9e609e49fdb3f6dd055e85ef6cfbf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
