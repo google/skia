@@ -275,7 +275,7 @@ def dm_flags(api, bot):
       # This bot generates gl and vk comparison images for the large skps
       configs = [c for c in configs if c == 'gl' or c == 'vk']
       args.extend(['--skpViewportSize', "2048"])
-      args.extend(['--pr', '~ccpr', '~small'])
+      args.extend(['--pr', '~small'])
     if 'DDL3' in bot:
       # This bot generates the ddl-gl and ddl-vk images for the
       # large skps and the gms
@@ -998,6 +998,10 @@ TEST_BUILDERS = [
   'Test-Android-Clang-Nexus7-CPU-Tegra3-arm-Release-All-Android',
   'Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android_Vulkan',
   'Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_Vulkan',
+  ('Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Debug-All'
+   '-Android_DDL1_Vulkan'),
+  ('Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Debug-All'
+   '-Android_DDL3_Vulkan'),
   ('Test-ChromeOS-Clang-AcerChromebookR13Convertible-GPU-PowerVRGX6250-'
    'arm-Debug-All'),
   'Test-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release-All',
