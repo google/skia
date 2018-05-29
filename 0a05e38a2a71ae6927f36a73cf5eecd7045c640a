@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "729fcc7b_69a1bb5c",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1634,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-29T20:25:49Z",
+      "side": 1,
+      "message": "Leave as tools/shape",
+      "range": {
+        "startLine": 1634,
+        "startChar": 7,
+        "endLine": 1634,
+        "endChar": 32
+      },
+      "revId": "0a05e38a2a71ae6927f36a73cf5eecd7045c640a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98738d11_f168d113",
+        "filename": "modules/skshaper/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-29T20:25:49Z",
+      "side": 1,
+      "message": "public \u003d [ \"include/SkShaper.h\" ]",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 4
+      },
+      "revId": "0a05e38a2a71ae6927f36a73cf5eecd7045c640a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "008dbd44_7afaf8d4",
+        "filename": "modules/skshaper/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-29T20:25:49Z",
+      "side": 1,
+      "message": "does it build without it? Probably not, but worth trying once. And then cleaning up sometime in the distant future.",
+      "range": {
+        "startLine": 35,
+        "startChar": 16,
+        "endLine": 35,
+        "endChar": 38
+      },
+      "revId": "0a05e38a2a71ae6927f36a73cf5eecd7045c640a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
