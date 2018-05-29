@@ -54,12 +54,10 @@ static const struct {
     { "gl888x",                "gpu", "api=gl,color=888x" },
     { "gl1010102",             "gpu", "api=gl,color=1010102" },
     { "glsrgb",                "gpu", "api=gl,color=srgb" },
-    { "glsrgbnl",              "gpu", "api=gl,color=srgbnl" },
     { "glesf16",               "gpu", "api=gles,color=f16" },
     { "gles888x",              "gpu", "api=gles,color=888x" },
     { "gles1010102",           "gpu", "api=gles,color=1010102" },
     { "glessrgb",              "gpu", "api=gles,color=srgb" },
-    { "glessrgbnl",            "gpu", "api=gles,color=srgbnl" },
     { "glwide",                "gpu", "api=gl,color=f16_wide" },
     { "glnarrow",              "gpu", "api=gl,color=f16_narrow" },
     { "glnostencils",          "gpu", "api=gl,stencils=false" },
@@ -366,7 +364,7 @@ static bool parse_option_gpu_color(const SkString& value,
         *outColorType = kRGBA_F16_SkColorType;
         return true;
     }
-    if (commands[0].equals("srgb") || commands[0].equals("srgbnl")) {
+    if (commands[0].equals("srgb")) {
         *outColorType = kRGBA_8888_SkColorType;
         return true;
     }

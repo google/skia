@@ -30,7 +30,6 @@ public:
     sk_sp<SkColorSpace> makeLinearGamma() const override;
     sk_sp<SkColorSpace> makeSRGBGamma() const override;
     sk_sp<SkColorSpace> makeColorSpin() const override;
-    sk_sp<SkColorSpace> makeNonlinearBlending() const override;
 
     SkGammaNamed onGammaNamed() const override { return fGammaNamed; }
 
@@ -53,8 +52,6 @@ private:
 
     mutable SkMatrix44     fFromXYZD50;
     mutable SkOnce         fFromXYZOnce;
-
-    bool fNonlinearBlending = false;
 
     friend class SkColorSpace;
     friend class ColorSpaceXformTest;
