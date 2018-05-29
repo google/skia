@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "960f211e_60d62765",
+        "filename": "include/utils/Sk3D.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-29T16:54:19Z",
+      "side": 1,
+      "message": "// Return a matrix that rotates and translates world coordinates into eye coordinates. The resulting coordinate space has the viewer looking down the -Z axis. \u0027eye\u0027, \u0027center\u0027, \u0027up\u0027 are all specified in world space.\n\n?",
+      "revId": "b0d383baff9cc8f19013a8309e634d7fae9c5a60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43289966_7a4f991f",
+        "filename": "include/utils/Sk3D.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-29T16:54:19Z",
+      "side": 1,
+      "message": "Also Sk3Orthographic ?\n\n// Returns a perspective projection matrix that maps from eye space to NDC. \u0027angle\u0027 is the half angle of the camera. \u0027near\u0027 to \u0027far\u0027 distances along the Z axis are mapped to 0..-1.\n\n?\n\nDoc how the two matrices are combined ?",
+      "revId": "b0d383baff9cc8f19013a8309e634d7fae9c5a60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c432914e_10309a93",
+        "filename": "samplecode/SampleCamera.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-29T16:54:19Z",
+      "side": 1,
+      "message": "fModelView ?",
+      "revId": "b0d383baff9cc8f19013a8309e634d7fae9c5a60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a04fab48_abda5a7d",
+        "filename": "samplecode/SampleCamera.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-29T16:54:19Z",
+      "side": 1,
+      "message": "Maybe wrap this in a projectToDeviceSpace helper ?",
+      "revId": "b0d383baff9cc8f19013a8309e634d7fae9c5a60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6f14d92_293c2d86",
+        "filename": "src/utils/Sk3D.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-29T16:54:19Z",
+      "side": 1,
+      "message": "We don\u0027t have this already ?",
+      "revId": "b0d383baff9cc8f19013a8309e634d7fae9c5a60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17cb844c_5e563f6d",
+        "filename": "src/utils/Sk3D.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-29T16:54:19Z",
+      "side": 1,
+      "message": "\u0027s\u0027 -\u003e \u0027right\u0027 ?",
+      "revId": "b0d383baff9cc8f19013a8309e634d7fae9c5a60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
