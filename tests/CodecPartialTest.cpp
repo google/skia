@@ -439,7 +439,7 @@ DEF_TEST(Codec_incomplete, r) {
                               "images/mandrill.wbmp",
                               }) {
         sk_sp<SkData> file = GetResourceAsData(name);
-        if (!name) {
+        if (!file) {
             continue;
         }
 
