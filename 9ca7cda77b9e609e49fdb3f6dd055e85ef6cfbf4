@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2435c55c_af28011d",
+        "filename": "tools/fiddle/egl_context.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2018-05-29T16:55:06Z",
+      "side": 1,
+      "message": "../../tools/fiddle/egl_context.cpp:27:16: error: no member named \u0027makeCurrent\u0027 in \u0027std::unique_ptr\u003csk_gpu_test::GLTestContext, std::default_delete\u003csk_gpu_test::GLTestContext\u003e \u003e\u0027\n    glContext-\u003emakeCurrent();",
+      "revId": "9ca7cda77b9e609e49fdb3f6dd055e85ef6cfbf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
