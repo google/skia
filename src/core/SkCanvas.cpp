@@ -2578,6 +2578,7 @@ void SkCanvas::drawTextRSXform(const void* text, size_t byteLength, const SkRSXf
 void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                             const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
+    // Hello
     RETURN_ON_NULL(blob);
     RETURN_ON_FALSE(blob->bounds().makeOffset(x, y).isFinite());
     this->onDrawTextBlob(blob, x, y, paint);
