@@ -486,16 +486,14 @@ class SkDrawTextCommand : public SkDrawCommand {
 public:
     SkDrawTextCommand(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                       const SkPaint& paint);
-    ~SkDrawTextCommand() override { delete [] fText; }
     void execute(SkCanvas* canvas) const override;
     Json::Value toJSON(UrlDataManager& urlDataManager) const override;
 
 private:
-    char*    fText;
-    size_t   fByteLength;
-    SkScalar fX;
-    SkScalar fY;
-    SkPaint  fPaint;
+    sk_sp<SkData> fText;
+    SkScalar      fX;
+    SkScalar      fY;
+    SkPaint       fPaint;
 
     typedef SkDrawCommand INHERITED;
 };
@@ -504,15 +502,13 @@ class SkDrawPosTextCommand : public SkDrawCommand {
 public:
     SkDrawPosTextCommand(const void* text, size_t byteLength, const SkPoint pos[],
                          const SkPaint& paint);
-    ~SkDrawPosTextCommand() override { delete [] fPos; delete [] fText; }
     void execute(SkCanvas* canvas) const override;
     Json::Value toJSON(UrlDataManager& urlDataManager) const override;
 
 private:
-    char*    fText;
-    size_t   fByteLength;
-    SkPoint* fPos;
-    SkPaint  fPaint;
+    sk_sp<SkData>      fText;
+    SkTDArray<SkPoint> fPos;
+    SkPaint            fPaint;
 
     typedef SkDrawCommand INHERITED;
 };
@@ -521,13 +517,11 @@ class SkDrawTextOnPathCommand : public SkDrawCommand {
 public:
     SkDrawTextOnPathCommand(const void* text, size_t byteLength, const SkPath& path,
                             const SkMatrix* matrix, const SkPaint& paint);
-    ~SkDrawTextOnPathCommand() override { delete [] fText; }
     void execute(SkCanvas* canvas) const override;
     Json::Value toJSON(UrlDataManager& urlDataManager) const override;
 
 private:
-    char*             fText;
-    size_t            fByteLength;
+    sk_sp<SkData>     fText;
     SkPath            fPath;
     SkTLazy<SkMatrix> fMatrix;
     SkPaint           fPaint;
@@ -539,16 +533,14 @@ class SkDrawTextRSXformCommand : public SkDrawCommand {
 public:
     SkDrawTextRSXformCommand(const void* text, size_t byteLength, const SkRSXform[],
                              const SkRect*, const SkPaint& paint);
-    ~SkDrawTextRSXformCommand() override { delete[] fText; delete[] fXform; }
     void execute(SkCanvas* canvas) const override;
     Json::Value toJSON(UrlDataManager& urlDataManager) const override;
 
 private:
-    char*           fText;
-    size_t          fByteLength;
-    SkRSXform*      fXform;
-    SkTLazy<SkRect> fCull;
-    SkPaint         fPaint;
+    sk_sp<SkData>        fText;
+    SkTDArray<SkRSXform> fXform;
+    SkTLazy<SkRect>      fCull;
+    SkPaint              fPaint;
 
     typedef SkDrawCommand INHERITED;
 };
@@ -557,16 +549,14 @@ class SkDrawPosTextHCommand : public SkDrawCommand {
 public:
     SkDrawPosTextHCommand(const void* text, size_t byteLength, const SkScalar xpos[],
                           SkScalar constY, const SkPaint& paint);
-    ~SkDrawPosTextHCommand() override { delete [] fXpos; delete [] fText; }
     void execute(SkCanvas* canvas) const override;
     Json::Value toJSON(UrlDataManager& urlDataManager) const override;
 
 private:
-    SkScalar* fXpos;
-    char*     fText;
-    size_t    fByteLength;
-    SkScalar  fConstY;
-    SkPaint   fPaint;
+    sk_sp<SkData>       fText;
+    SkTDArray<SkScalar> fXpos;
+    SkScalar            fConstY;
+    SkPaint             fPaint;
 
     typedef SkDrawCommand INHERITED;
 };
