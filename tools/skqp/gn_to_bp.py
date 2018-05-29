@@ -143,7 +143,6 @@ gn_args = {
   'skia_use_icu':              'false',
   'skia_use_lua':              'false',
   'skia_use_piex':             'false',
-  'skia_use_skcms':            'false',
 
   # specify that the Android.bp will supply the necessary components
   'skia_use_system_expat':         'true', # removed this when gn is fixed
