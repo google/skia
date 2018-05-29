@@ -109,11 +109,11 @@ public:
         Used to identify the complexity of SkMatrix, to optimize performance.
     */
     enum TypeMask {
-        kIdentity_Mask    = 0,    //!< all bits clear if SkMatrix is identity
-        kTranslate_Mask   = 0x01, //!< set if SkMatrix has translation
-        kScale_Mask       = 0x02, //!< set if SkMatrix has x or y scale
-        kAffine_Mask      = 0x04, //!< set if SkMatrix skews or rotates
-        kPerspective_Mask = 0x08, //!< set if SkMatrix has perspective
+        kIdentity_Mask    = 0,    //!< identity SkMatrix; all bits clear
+        kTranslate_Mask   = 0x01, //!< translation SkMatrix
+        kScale_Mask       = 0x02, //!< scale SkMatrix
+        kAffine_Mask      = 0x04, //!< skew or rotate SkMatrix
+        kPerspective_Mask = 0x08, //!< perspective SkMatrix
     };
 
     /** Returns a bit field describing the transformations the matrix may
@@ -1069,29 +1069,10 @@ public:
         how SkMatrix maps to the side or center of the destination SkRect.
     */
     enum ScaleToFit {
-        /** Computes SkMatrix that scales in x and y independently, so that source SkRect is
-            mapped to completely fill destination SkRect. The aspect ratio of source SkRect
-            may change.
-        */
-        kFill_ScaleToFit,
-
-        /** Computes SkMatrix that maintains source SkRect aspect ratio, mapping source SkRect
-            width or height to destination SkRect. Aligns mapping to left and top edges
-            of destination SkRect.
-        */
-        kStart_ScaleToFit,
-
-        /** Computes SkMatrix that maintains source SkRect aspect ratio, mapping source SkRect
-            width or height to destination SkRect. Aligns mapping to center of destination
-            SkRect.
-        */
-        kCenter_ScaleToFit,
-
-        /** Computes SkMatrix that maintains source SkRect aspect ratio, mapping source SkRect
-            width or height to destination SkRect. Aligns mapping to right and bottom
-            edges of destination SkRect.
-        */
-        kEnd_ScaleToFit,
+        kFill_ScaleToFit,   //!< scales in x and y to fill destination SkRect
+        kStart_ScaleToFit,  //!< scales and aligns to left and top
+        kCenter_ScaleToFit, //!< scales and aligns to center
+        kEnd_ScaleToFit,    //!< scales and aligns to right and bottom
     };
 
     /** Sets SkMatrix to scale and translate src SkRect to dst SkRect. stf selects whether
@@ -1452,9 +1433,11 @@ public:
         return this->mapRect(rect, *rect);
     }
 
-    /**
-     *  Map the rectangle though the matrix, and return the bounds of the transformed points.
-     */
+    /** Returns bounds of src corners mapped by SkMatrix.
+
+        @param src  rectangle to map
+        @return     mapped bounds
+    */
     SkRect mapRect(const SkRect& src) const {
         SkRect dst;
         (void)this->mapRect(&dst, src);
