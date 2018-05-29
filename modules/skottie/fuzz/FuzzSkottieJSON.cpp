@@ -23,7 +23,7 @@ void FuzzSkottieJSON(sk_sp<SkData> bytes) {
     if (!animation) {
         return;
     }
-    animation->animationTick(1337); // A "nothing up my sleeve" number
+    animation->seek(0.1337f); // A "nothing up my sleeve" number
 }
 
 #if defined(IS_FUZZING_WITH_LIBFUZZER)
