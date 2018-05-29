@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "8d081f61_b4c3a11b",
+        "filename": "include/private/SkDeferredDisplayList.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-05-29T19:17:38Z",
+      "side": 1,
+      "message": "I\u0027m wondering if maybe we should put a ccpr .h in include/private so you don\u0027t have to redefine this here? Although I\u0027m not convinced if it would be an improvement.\n\nI\u0027m fine either way. Just throwing out a brain dump.",
+      "revId": "3b727ddf1fc707a72d03cb6dceae95dc47da83c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1958904b_9dfad8f7",
         "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
         "patchSetId": 2
@@ -19,6 +36,23 @@
         "endLine": 46,
         "endChar": 45
       },
+      "revId": "3b727ddf1fc707a72d03cb6dceae95dc47da83c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a464b4b_2342b0a8",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-05-29T19:17:38Z",
+      "side": 1,
+      "message": "I\u0027m a bit concerned about how we do something here that is semantically a move, in a method that expects it to be a copy.\n\nCould this be changed to a move method? And if not, I\u0027m concerned ccpr might not be compatible as is.",
       "revId": "3b727ddf1fc707a72d03cb6dceae95dc47da83c4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
