@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f878b4d4_82d7a163",
+        "filename": "tools/fiddle/egl_context.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2018-05-29T13:55:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "25c5808b_eef2b97a",
+      "revId": "aa3999f20bbf31c8373e335e737c2cf0fb6ff285",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "49622b92_87d2b4bd",
         "filename": "tools/fiddle/egl_context.cpp",
         "patchSetId": 5
@@ -85,6 +103,78 @@
       "revId": "aa3999f20bbf31c8373e335e737c2cf0fb6ff285",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96e8d9d2_0d9201a9",
+        "filename": "tools/fiddle/egl_context.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2018-05-29T13:55:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3e39fb14_52d44420",
+      "range": {
+        "startLine": 23,
+        "startChar": 35,
+        "endLine": 23,
+        "endChar": 51
+      },
+      "revId": "aa3999f20bbf31c8373e335e737c2cf0fb6ff285",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b7f416da_daafaab7",
+        "filename": "tools/fiddle/egl_context.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2018-05-29T13:55:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c9b6ae31_2515184d",
+      "range": {
+        "startLine": 23,
+        "startChar": 87,
+        "endLine": 23,
+        "endChar": 100
+      },
+      "revId": "aa3999f20bbf31c8373e335e737c2cf0fb6ff285",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb826085_574cbaeb",
+        "filename": "tools/fiddle/egl_context.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2018-05-29T13:55:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "49622b92_87d2b4bd",
+      "range": {
+        "startLine": 23,
+        "startChar": 53,
+        "endLine": 23,
+        "endChar": 56
+      },
+      "revId": "aa3999f20bbf31c8373e335e737c2cf0fb6ff285",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
