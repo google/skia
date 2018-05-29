@@ -13,8 +13,9 @@ import argparse
 import os
 import subprocess
 
-NODE_URL = "https://nodejs.org/dist/v8.10.0/node-v8.10.0-linux-x64.tar.xz"
-NODE_EXTRACT_NAME = "node-v8.10.0-linux-x64"
+NODE_VERSION= "v8.11.2"
+NODE_URL = "https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64.tar.xz"
+NODE_EXTRACT_NAME = "node-${NODE_VERSION}-linux-x64"
 
 def create_asset(target_dir):
   """Create the asset."""
