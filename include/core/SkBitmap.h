@@ -29,8 +29,8 @@ class SkString;
     SkImageInfo bounds may be located anywhere fully inside SkPixelRef bounds.
 
     SkBitmap can be drawn using SkCanvas. SkBitmap can be a drawing destination for SkCanvas
-    draw methods. SkBitmap flexibility as a pixel container limits some optimizations
-    available to the target platform.
+    draw member functionss. SkBitmap flexibility as a pixel container limits some
+    optimizations available to the target platform.
 
     If pixel array is primarily read-only, use SkImage for better performance.
     If pixel array is primarily written to, use SkSurface for better performance.
@@ -419,8 +419,7 @@ public:
         AllocFlags provides the option to zero pixel memory when allocated.
     */
     enum AllocFlags {
-        /** Instructs tryAllocPixelsFlags() and allocPixelsFlags() to zero pixel memory. */
-        kZeroPixels_AllocFlag = 1 << 0,
+        kZeroPixels_AllocFlag = 1 << 0, //!< zero pixel memory
     };
 
     /** Sets SkImageInfo to info following the rules in setInfo() and allocates pixel
@@ -542,7 +541,7 @@ public:
         this->allocPixels(info, info.minRowBytes());
     }
 
-    /** Sets SkImageInfo to width, height, and native SkColorType; and allocates
+    /** Sets SkImageInfo to width, height, and native color type; and allocates
         pixel memory. If isOpaque is true, sets SkImageInfo to kOpaque_SkAlphaType;
         otherwise, sets to kPremul_SkAlphaType.
 
@@ -565,7 +564,7 @@ public:
         return this->tryAllocPixels(info);
     }
 
-    /** Sets SkImageInfo to width, height, and the native SkColorType; and allocates
+    /** Sets SkImageInfo to width, height, and the native color type; and allocates
         pixel memory. If isOpaque is true, sets SkImageInfo to kPremul_SkAlphaType;
         otherwise, sets to kOpaque_SkAlphaType.
 
@@ -784,9 +783,9 @@ public:
         then r, g, and b are ignored.
 
         @param a  amount of color alpha, from fully transparent (0) to fully opaque (255)
-        @param r  amount of color rgb red, from no red (0) to full red (255)
-        @param g  amount of color rgb green, from no green (0) to full green (255)
-        @param b  amount of color rgb blue, from no blue (0) to full blue (255)
+        @param r  amount of red, from no red (0) to full red (255)
+        @param g  amount of green, from no green (0) to full green (255)
+        @param b  amount of blue, from no blue (0) to full blue (255)
     */
     void eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const {
         this->eraseColor(SkColorSetARGB(a, r, g, b));
@@ -1187,7 +1186,7 @@ public:
 
         @param dst        holds SkPixelRef to fill with alpha layer
         @param paint      holds optional SkMaskFilter; may be nullptr
-        @param allocator  method to reserve memory for SkPixelRef; may be nullptr
+        @param allocator  function to reserve memory for SkPixelRef; may be nullptr
         @param offset     top-left position for dst; may be nullptr
         @return           true if alpha layer was constructed in dst SkPixelRef
     */
