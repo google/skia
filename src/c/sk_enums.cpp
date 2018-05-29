@@ -401,6 +401,20 @@ static_assert ((int)SkJpegEncoder::AlphaOption::kBlendOnBlack   == (int)BLEND_ON
 static_assert ((int)SkWebpEncoder::Compression::kLossy      == (int)LOSSY_SK_WEBPENCODER_COMPTRESSION,      ASSERT_MSG(SkWebpEncoder::Compression, sk_webpencoder_compression_t));
 static_assert ((int)SkWebpEncoder::Compression::kLossless   == (int)LOSSLESS_SK_WEBPENCODER_COMPTRESSION,   ASSERT_MSG(SkWebpEncoder::Compression, sk_webpencoder_compression_t));
 
+// sk_rrect_type_t
+static_assert ((int)SkRRect::Type::kEmpty_Type       == (int)EMPTY_SK_RRECT_TYPE,        ASSERT_MSG(SkRRect::Type, sk_rrect_type_t));
+static_assert ((int)SkRRect::Type::kRect_Type        == (int)RECT_SK_RRECT_TYPE,         ASSERT_MSG(SkRRect::Type, sk_rrect_type_t));
+static_assert ((int)SkRRect::Type::kOval_Type        == (int)OVAL_SK_RRECT_TYPE,         ASSERT_MSG(SkRRect::Type, sk_rrect_type_t));
+static_assert ((int)SkRRect::Type::kSimple_Type      == (int)SIMPLE_SK_RRECT_TYPE,       ASSERT_MSG(SkRRect::Type, sk_rrect_type_t));
+static_assert ((int)SkRRect::Type::kNinePatch_Type   == (int)NINE_PATCH_SK_RRECT_TYPE,   ASSERT_MSG(SkRRect::Type, sk_rrect_type_t));
+static_assert ((int)SkRRect::Type::kComplex_Type     == (int)COMPLEX_SK_RRECT_TYPE,      ASSERT_MSG(SkRRect::Type, sk_rrect_type_t));
+
+// sk_rrect_corner_t
+static_assert ((int)SkRRect::Corner::kUpperLeft_Corner    == (int)UPPER_LEFT_SK_RRECT_CORNER,    ASSERT_MSG(SkRRect::Corner, sk_rrect_corner_t));
+static_assert ((int)SkRRect::Corner::kUpperRight_Corner   == (int)UPPER_RIGHT_SK_RRECT_CORNER,   ASSERT_MSG(SkRRect::Corner, sk_rrect_corner_t));
+static_assert ((int)SkRRect::Corner::kLowerRight_Corner   == (int)LOWER_RIGHT_SK_RRECT_CORNER,   ASSERT_MSG(SkRRect::Corner, sk_rrect_corner_t));
+static_assert ((int)SkRRect::Corner::kLowerLeft_Corner    == (int)LOWER_LEFT_SK_RRECT_CORNER,    ASSERT_MSG(SkRRect::Corner, sk_rrect_corner_t));
+
 #if SK_SUPPORT_GPU
 
 // gr_surfaceorigin_t

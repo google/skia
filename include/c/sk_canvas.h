@@ -30,6 +30,7 @@ SK_C_API void sk_canvas_clip_region(sk_canvas_t* canvas, const sk_region_t* regi
 SK_C_API void sk_canvas_clip_path(sk_canvas_t*, const sk_path_t*);
 SK_C_API void sk_canvas_draw_paint(sk_canvas_t*, const sk_paint_t*);
 SK_C_API void sk_canvas_draw_rect(sk_canvas_t*, const sk_rect_t*, const sk_paint_t*);
+SK_C_API void sk_canvas_draw_rrect(sk_canvas_t*, const sk_rrect_t*, const sk_paint_t*);
 SK_C_API void sk_canvas_draw_region(sk_canvas_t*, const sk_region_t*, const sk_paint_t*);
 SK_C_API void sk_canvas_draw_circle(sk_canvas_t*, float cx, float cy, float rad, const sk_paint_t*);
 SK_C_API void sk_canvas_draw_oval(sk_canvas_t*, const sk_rect_t*, const sk_paint_t*);
@@ -56,6 +57,7 @@ SK_C_API void sk_canvas_get_total_matrix(sk_canvas_t* ccanvas, sk_matrix_t* matr
 SK_C_API void sk_canvas_draw_round_rect(sk_canvas_t*, const sk_rect_t*, float rx, float ry, const sk_paint_t*);
 SK_C_API void sk_canvas_clip_rect_with_operation(sk_canvas_t* t, const sk_rect_t* crect, sk_clipop_t op, bool doAA);
 SK_C_API void sk_canvas_clip_path_with_operation(sk_canvas_t* t, const sk_path_t* crect, sk_clipop_t op, bool doAA);
+SK_C_API void sk_canvas_clip_rrect_with_operation(sk_canvas_t* t, const sk_rrect_t* crect, sk_clipop_t op, bool doAA);
 SK_C_API bool sk_canvas_get_local_clip_bounds(sk_canvas_t* t, sk_rect_t* cbounds);
 SK_C_API bool sk_canvas_get_device_clip_bounds(sk_canvas_t* t, sk_irect_t* cbounds);
 SK_C_API void sk_canvas_flush(sk_canvas_t* ccanvas);

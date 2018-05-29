@@ -123,6 +123,10 @@ void sk_canvas_clip_path_with_operation(sk_canvas_t* ccanvas, const sk_path_t* c
     AsCanvas(ccanvas)->clipPath(AsPath(*cpath), (SkClipOp)op, doAA);
 }
 
+void sk_canvas_clip_rrect_with_operation(sk_canvas_t* ccanvas, const sk_rrect_t* crect, sk_clipop_t op, bool doAA) {
+    AsCanvas(ccanvas)->clipRRect(AsRRect(*crect), (SkClipOp)op, doAA);
+}
+
 bool sk_canvas_get_local_clip_bounds(sk_canvas_t* ccanvas, sk_rect_t* cbounds) {
     return AsCanvas(ccanvas)->getLocalClipBounds(AsRect(cbounds));
 }
@@ -196,6 +200,10 @@ void sk_canvas_draw_region(sk_canvas_t* ccanvas, const sk_region_t* cregion, con
 
 void sk_canvas_draw_rect(sk_canvas_t* ccanvas, const sk_rect_t* crect, const sk_paint_t* cpaint) {
     AsCanvas(ccanvas)->drawRect(AsRect(*crect), AsPaint(*cpaint));
+}
+
+void sk_canvas_draw_rrect(sk_canvas_t* ccanvas, const sk_rrect_t* crect, const sk_paint_t* cpaint) {
+    AsCanvas(ccanvas)->drawRRect(AsRRect(*crect), AsPaint(*cpaint));
 }
 
 void sk_canvas_draw_circle(sk_canvas_t* ccanvas, float cx, float cy, float rad,

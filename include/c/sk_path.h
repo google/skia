@@ -28,6 +28,8 @@ SK_C_API void sk_path_arc_to_with_oval(sk_path_t*, const sk_rect_t* oval, float 
 SK_C_API void sk_path_arc_to_with_points(sk_path_t*, float x1, float y1, float x2, float y2, float radius);
 SK_C_API void sk_path_close(sk_path_t*);
 SK_C_API void sk_path_add_rect(sk_path_t*, const sk_rect_t*, sk_path_direction_t);
+SK_C_API void sk_path_add_rrect(sk_path_t*, const sk_rrect_t*, sk_path_direction_t);
+SK_C_API void sk_path_add_rrect_start(sk_path_t*, const sk_rrect_t*, sk_path_direction_t, uint32_t);
 SK_C_API void sk_path_add_rounded_rect(sk_path_t*, const sk_rect_t*, float, float, sk_path_direction_t);
 SK_C_API void sk_path_add_oval(sk_path_t*, const sk_rect_t*, sk_path_direction_t);
 SK_C_API void sk_path_add_circle(sk_path_t*, float x, float y, float radius, sk_path_direction_t dir);

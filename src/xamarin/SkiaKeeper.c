@@ -30,6 +30,7 @@
 #include "sk_pixmap.h"
 #include "sk_pixelserializer.h"
 #include "sk_region.h"
+#include "sk_rrect.h"
 #include "sk_shader.h"
 #include "sk_stream.h"
 #include "sk_string.h"
@@ -71,6 +72,7 @@ void** KeepSkiaCSymbols (void)
         (void*)sk_pixmap_destructor,
         (void*)sk_pixelserializer_unref,
         (void*)sk_region_new,
+        (void*)sk_rrect_new,
         (void*)sk_shader_ref,
         (void*)sk_stream_asset_destroy,
         (void*)sk_string_new_empty,

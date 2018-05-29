@@ -973,6 +973,23 @@ typedef struct {
     float fQuality;
     sk_transfer_function_behavior_t fUnpremulBehavior;
 } sk_webpencoder_options_t;
+typedef struct sk_rrect_t sk_rrect_t;
+
+typedef enum {
+    EMPTY_SK_RRECT_TYPE,
+    RECT_SK_RRECT_TYPE,
+    OVAL_SK_RRECT_TYPE,
+    SIMPLE_SK_RRECT_TYPE,
+    NINE_PATCH_SK_RRECT_TYPE,
+    COMPLEX_SK_RRECT_TYPE,
+} sk_rrect_type_t;
+
+typedef enum {
+    UPPER_LEFT_SK_RRECT_CORNER,
+    UPPER_RIGHT_SK_RRECT_CORNER,
+    LOWER_RIGHT_SK_RRECT_CORNER,
+    LOWER_LEFT_SK_RRECT_CORNER,
+} sk_rrect_corner_t;
 
 SK_C_PLUS_PLUS_END_GUARD
 

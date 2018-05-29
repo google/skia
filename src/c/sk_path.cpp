@@ -209,6 +209,14 @@ void sk_path_add_rect(sk_path_t* cpath, const sk_rect_t* crect, sk_path_directio
     AsPath(cpath)->addRect(AsRect(*crect), (SkPath::Direction)cdir);
 }
 
+void sk_path_add_rrect(sk_path_t* cpath, const sk_rrect_t* crect, sk_path_direction_t cdir) {
+    AsPath(cpath)->addRRect(AsRRect(*crect), (SkPath::Direction)cdir);
+}
+
+void sk_path_add_rrect_start(sk_path_t* cpath, const sk_rrect_t* crect, sk_path_direction_t cdir, uint32_t start) {
+    AsPath(cpath)->addRRect(AsRRect(*crect), (SkPath::Direction)cdir, start);
+}
+
 void sk_path_add_rounded_rect(sk_path_t* cpath, const sk_rect_t* crect, float rx, float ry, sk_path_direction_t cdir) {
     AsPath(cpath)->addRoundRect(AsRect(*crect), rx, ry, (SkPath::Direction)cdir);
 }
