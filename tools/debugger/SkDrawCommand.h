@@ -61,6 +61,7 @@ public:
         kDrawTextRSXform_OpType,
         kDrawVertices_OpType,
         kDrawAtlas_OpType,
+        kDrawDrawable_OpType,
         kEndDrawPicture_OpType,
         kRestore_OpType,
         kSave_OpType,
@@ -724,5 +725,16 @@ private:
 
     typedef SkDrawCommand INHERITED;
 };
-#endif
 
+class SkDrawDrawableCommand : public SkDrawCommand {
+public:
+    SkDrawDrawableCommand(SkDrawable*, const SkMatrix*);
+    void execute(SkCanvas* canvas) const override;
+
+private:
+    sk_sp<SkDrawable> fDrawable;
+    SkTLazy<SkMatrix> fMatrix;
+
+    typedef SkDrawCommand INHERITED;
+};
+#endif
