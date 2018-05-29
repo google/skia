@@ -86,7 +86,7 @@ public:
                 varyingHandler->addVarying("color", &varying);
 
                 // There are several optional steps to process the color. Start with the attribute:
-                vertBuilder->codeAppendf("half4 color = %s;", gp.inColor()->fName);
+                vertBuilder->codeAppendf("half4 color = %s;", gp.inColor()->name());
 
                 // Linearize
                 if (gp.linearizeColor()) {
@@ -102,10 +102,10 @@ public:
                                               ": pow((x + 0.055) / 1.055, 2.4);",
                                               &srgbFuncName);
                     vertBuilder->codeAppendf("color = half4(%s(%s.r), %s(%s.g), %s(%s.b), %s.a);",
-                                             srgbFuncName.c_str(), gp.inColor()->fName,
-                                             srgbFuncName.c_str(), gp.inColor()->fName,
-                                             srgbFuncName.c_str(), gp.inColor()->fName,
-                                             gp.inColor()->fName);
+                                             srgbFuncName.c_str(), gp.inColor()->name(),
+                                             srgbFuncName.c_str(), gp.inColor()->name(),
+                                             srgbFuncName.c_str(), gp.inColor()->name(),
+                                             gp.inColor()->name());
                 }
 
                 // For SkColor, do a red/blue swap and premul
@@ -135,7 +135,7 @@ public:
             this->writeOutputPosition(vertBuilder,
                                       uniformHandler,
                                       gpArgs,
-                                      gp.inPosition()->fName,
+                                      gp.inPosition()->name(),
                                       gp.viewMatrix(),
                                       &fViewMatrixUniform);
 

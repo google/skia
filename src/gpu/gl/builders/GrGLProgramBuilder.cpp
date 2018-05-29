@@ -225,7 +225,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         if (!useNvpr) {
             int vaCount = primProc.numAttribs();
             for (int i = 0; i < vaCount; i++) {
-                GL_CALL(BindAttribLocation(programID, i, primProc.getAttrib(i).fName));
+                GL_CALL(BindAttribLocation(programID, i, primProc.getAttrib(i).name()));
             }
         }
 

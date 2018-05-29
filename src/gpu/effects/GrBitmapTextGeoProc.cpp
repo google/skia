@@ -40,8 +40,8 @@ public:
         GrGLSLVarying uv(kFloat2_GrSLType);
         GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
         GrGLSLVarying texIdx(texIdxType);
-        append_index_uv_varyings(args, btgp.inTextureCoords()->fName, atlasSizeInvName,
-                                 &uv, &texIdx, nullptr);
+        append_index_uv_varyings(args, btgp.inTextureCoords()->name(), atlasSizeInvName, &uv,
+                                 &texIdx, nullptr);
 
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         // Setup pass through color

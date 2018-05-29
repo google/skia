@@ -1889,10 +1889,10 @@ void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
     for (int i = 0; i < numAttribs; ++i) {
         using InputRate = GrPrimitiveProcessor::Attribute::InputRate;
         const GrGeometryProcessor::Attribute& attrib = primProc.getAttrib(i);
-        const int divisor = InputRate::kPerInstance == attrib.fInputRate ? 1 : 0;
+        const int divisor = InputRate::kPerInstance == attrib.inputRate() ? 1 : 0;
         const auto& binding = bindings[divisor];
-        attribState->set(this, i, binding.fBuffer, attrib.fType, binding.fStride,
-                         binding.fBufferOffset + attrib.fOffsetInRecord, divisor);
+        attribState->set(this, i, binding.fBuffer, attrib.type(), binding.fStride,
+                         binding.fBufferOffset + attrib.offsetInRecord(), divisor);
     }
 }
 

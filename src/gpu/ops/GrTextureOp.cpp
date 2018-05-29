@@ -125,7 +125,7 @@ public:
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
         b->add32(GrColorSpaceXform::XformKey(fColorSpaceXform.get()));
         uint32_t x = this->usesCoverageEdgeAA() ? 0 : 1;
-        x |= kFloat3_GrVertexAttribType == fPositions.fType ? 0 : 2;
+        x |= kFloat3_GrVertexAttribType == fPositions.type() ? 0 : 2;
         x |= fDomain.isInitialized() ? 4 : 0;
         b->add32(x);
     }
@@ -148,7 +148,7 @@ public:
                 const auto& textureGP = args.fGP.cast<TextureGeometryProcessor>();
                 fColorSpaceXformHelper.emitCode(
                         args.fUniformHandler, textureGP.fColorSpaceXform.get());
-                if (kFloat2_GrVertexAttribType == textureGP.fPositions.fType) {
+                if (kFloat2_GrVertexAttribType == textureGP.fPositions.type()) {
                     args.fVaryingHandler->setNoPerspective();
                 }
                 args.fVaryingHandler->emitAttributes(textureGP);
@@ -175,7 +175,7 @@ public:
                 }
                 if (textureGP.numTextureSamplers() > 1) {
                     // If this changes to float, reconsider Interpolation::kMustBeFlat.
-                    SkASSERT(kInt_GrVertexAttribType == textureGP.fTextureIdx.fType);
+                    SkASSERT(kInt_GrVertexAttribType == textureGP.fTextureIdx.type());
                     SkASSERT(args.fShaderCaps->integerSupport());
                     args.fFragBuilder->codeAppend("int texIdx;");
                     args.fVaryingHandler->addPassThroughAttribute(&textureGP.fTextureIdx, "texIdx",
@@ -209,7 +209,7 @@ public:
                     if (!args.fShaderCaps->interpolantsAreInaccurate()) {
                         GrGLSLVarying aaDistVarying(kFloat4_GrSLType,
                                                     GrGLSLVarying::Scope::kVertToFrag);
-                        if (kFloat3_GrVertexAttribType == textureGP.fPositions.fType) {
+                        if (kFloat3_GrVertexAttribType == textureGP.fPositions.type()) {
                             args.fVaryingHandler->addVarying("aaDists", &aaDistVarying);
                             // The distance from edge equation e to homogenous point p=sk_Position
                             // is e.x*p.x/p.wx + e.y*p.y/p.w + e.z. However, we want screen space
@@ -219,9 +219,9 @@ public:
                             args.fVertBuilder->codeAppendf(
                                     R"(%s = float4(dot(aaEdge0, %s), dot(aaEdge1, %s),
                                                    dot(aaEdge2, %s), dot(aaEdge3, %s));)",
-                                    aaDistVarying.vsOut(), textureGP.fPositions.fName,
-                                    textureGP.fPositions.fName, textureGP.fPositions.fName,
-                                    textureGP.fPositions.fName);
+                                    aaDistVarying.vsOut(), textureGP.fPositions.name(),
+                                    textureGP.fPositions.name(), textureGP.fPositions.name(),
+                                    textureGP.fPositions.name());
                             mulByFragCoordW = true;
                         } else {
                             args.fVaryingHandler->addVarying("aaDists", &aaDistVarying);
@@ -230,9 +230,9 @@ public:
                                                    dot(aaEdge1.xy, %s.xy) + aaEdge1.z,
                                                    dot(aaEdge2.xy, %s.xy) + aaEdge2.z,
                                                    dot(aaEdge3.xy, %s.xy) + aaEdge3.z);)",
-                                    aaDistVarying.vsOut(), textureGP.fPositions.fName,
-                                    textureGP.fPositions.fName, textureGP.fPositions.fName,
-                                    textureGP.fPositions.fName);
+                                    aaDistVarying.vsOut(), textureGP.fPositions.name(),
+                                    textureGP.fPositions.name(), textureGP.fPositions.name(),
+                                    textureGP.fPositions.name());
                         }
                         aaDistName = aaDistVarying.fsIn();
                     } else {

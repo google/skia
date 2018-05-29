@@ -69,8 +69,8 @@ public:
         GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
         GrGLSLVarying texIdx(texIdxType);
         GrGLSLVarying st(kFloat2_GrSLType);
-        append_index_uv_varyings(args, dfTexEffect.inTextureCoords()->fName, atlasSizeInvName,
-                                 &uv, &texIdx, &st);
+        append_index_uv_varyings(args, dfTexEffect.inTextureCoords()->name(), atlasSizeInvName, &uv,
+                                 &texIdx, &st);
 
         bool isUniformScale = (dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask) ==
                               kUniformScale_DistanceFieldEffectMask;
@@ -337,8 +337,8 @@ public:
         GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
         GrGLSLVarying texIdx(texIdxType);
         GrGLSLVarying st(kFloat2_GrSLType);
-        append_index_uv_varyings(args, dfPathEffect.inTextureCoords()->fName, atlasSizeInvName, &uv,
-                                 &texIdx, &st);
+        append_index_uv_varyings(args, dfPathEffect.inTextureCoords()->name(), atlasSizeInvName,
+                                 &uv, &texIdx, &st);
 
         // setup pass through color
         varyingHandler->addPassThroughAttribute(dfPathEffect.inColor(), args.fOutputColor);
@@ -348,7 +348,7 @@ public:
             this->writeOutputPosition(vertBuilder,
                                       uniformHandler,
                                       gpArgs,
-                                      dfPathEffect.inPosition()->fName,
+                                      dfPathEffect.inPosition()->name(),
                                       dfPathEffect.matrix(),
                                       &fMatrixUniform);
 
@@ -360,7 +360,7 @@ public:
                                  args.fFPCoordTransformHandler);
         } else {
             // Setup position
-            this->writeOutputPosition(vertBuilder, gpArgs, dfPathEffect.inPosition()->fName);
+            this->writeOutputPosition(vertBuilder, gpArgs, dfPathEffect.inPosition()->name());
 
             // emit transforms
             this->emitTransforms(vertBuilder,
@@ -629,8 +629,8 @@ public:
         GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
         GrGLSLVarying texIdx(texIdxType);
         GrGLSLVarying st(kFloat2_GrSLType);
-        append_index_uv_varyings(args, dfTexEffect.inTextureCoords()->fName, atlasSizeInvName,
-                                 &uv, &texIdx, &st);
+        append_index_uv_varyings(args, dfTexEffect.inTextureCoords()->name(), atlasSizeInvName, &uv,
+                                 &texIdx, &st);
 
         GrGLSLVarying delta(kFloat_GrSLType);
         varyingHandler->addVarying("Delta", &delta);

@@ -152,14 +152,14 @@ private:
                 // This is the cap radius in normalized space where the outer radius is 1 and
                 // circledEdge.w is the normalized inner radius.
                 vertBuilder->codeAppendf("%s = (1.0 - %s.w) / 2.0;", capRadius.vsOut(),
-                                         cgp.fInCircleEdge->fName);
+                                         cgp.fInCircleEdge->name());
             }
 
             // setup pass through color
             varyingHandler->addPassThroughAttribute(cgp.fInColor, args.fOutputColor);
 
             // Setup position
-            this->writeOutputPosition(vertBuilder, gpArgs, cgp.fInPosition->fName);
+            this->writeOutputPosition(vertBuilder, gpArgs, cgp.fInPosition->name());
 
             // emit transforms
             this->emitTransforms(vertBuilder,
@@ -314,7 +314,7 @@ private:
             GrGLSLVarying lastIntervalLength(kHalf_GrSLType);
             varyingHandler->addVarying("lastIntervalLength", &lastIntervalLength,
                                        GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
-            vertBuilder->codeAppendf("float4 dashParams = %s;", bcscgp.fInDashParams->fName);
+            vertBuilder->codeAppendf("float4 dashParams = %s;", bcscgp.fInDashParams->name());
             // Our fragment shader works in on/off intervals as specified by dashParams.xy:
             //     x = length of on interval, y = length of on + off.
             // There are two other parameters in dashParams.zw:
@@ -380,7 +380,7 @@ private:
                     GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
 
             // Setup position
-            this->writeOutputPosition(vertBuilder, gpArgs, bcscgp.fInPosition->fName);
+            this->writeOutputPosition(vertBuilder, gpArgs, bcscgp.fInPosition->name());
 
             // emit transforms
             this->emitTransforms(vertBuilder,
@@ -549,18 +549,18 @@ private:
             GrGLSLVarying ellipseOffsets(kHalf2_GrSLType);
             varyingHandler->addVarying("EllipseOffsets", &ellipseOffsets);
             vertBuilder->codeAppendf("%s = %s;", ellipseOffsets.vsOut(),
-                                     egp.fInEllipseOffset->fName);
+                                     egp.fInEllipseOffset->name());
 
             GrGLSLVarying ellipseRadii(kHalf4_GrSLType);
             varyingHandler->addVarying("EllipseRadii", &ellipseRadii);
-            vertBuilder->codeAppendf("%s = %s;", ellipseRadii.vsOut(), egp.fInEllipseRadii->fName);
+            vertBuilder->codeAppendf("%s = %s;", ellipseRadii.vsOut(), egp.fInEllipseRadii->name());
 
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
             // setup pass through color
             varyingHandler->addPassThroughAttribute(egp.fInColor, args.fOutputColor);
 
             // Setup position
-            this->writeOutputPosition(vertBuilder, gpArgs, egp.fInPosition->fName);
+            this->writeOutputPosition(vertBuilder, gpArgs, egp.fInPosition->name());
 
             // emit transforms
             this->emitTransforms(vertBuilder,
@@ -688,11 +688,13 @@ private:
 
             GrGLSLVarying offsets0(kHalf2_GrSLType);
             varyingHandler->addVarying("EllipseOffsets0", &offsets0);
-            vertBuilder->codeAppendf("%s = %s;", offsets0.vsOut(), diegp.fInEllipseOffsets0->fName);
+            vertBuilder->codeAppendf("%s = %s;", offsets0.vsOut(),
+                                     diegp.fInEllipseOffsets0->name());
 
             GrGLSLVarying offsets1(kHalf2_GrSLType);
             varyingHandler->addVarying("EllipseOffsets1", &offsets1);
-            vertBuilder->codeAppendf("%s = %s;", offsets1.vsOut(), diegp.fInEllipseOffsets1->fName);
+            vertBuilder->codeAppendf("%s = %s;", offsets1.vsOut(),
+                                     diegp.fInEllipseOffsets1->name());
 
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
             varyingHandler->addPassThroughAttribute(diegp.fInColor, args.fOutputColor);
@@ -701,7 +703,7 @@ private:
             this->writeOutputPosition(vertBuilder,
                                       uniformHandler,
                                       gpArgs,
-                                      diegp.fInPosition->fName,
+                                      diegp.fInPosition->name(),
                                       diegp.fViewMatrix,
                                       &fViewMatrixUniform);
 

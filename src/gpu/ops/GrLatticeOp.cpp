@@ -64,7 +64,7 @@ public:
                                                 latticeGP.fColorSpaceXform.get());
 
                 args.fVaryingHandler->emitAttributes(latticeGP);
-                this->writeOutputPosition(args.fVertBuilder, gpArgs, latticeGP.fPositions.fName);
+                this->writeOutputPosition(args.fVertBuilder, gpArgs, latticeGP.fPositions.name());
                 this->emitTransforms(args.fVertBuilder,
                                      args.fVaryingHandler,
                                      args.fUniformHandler,

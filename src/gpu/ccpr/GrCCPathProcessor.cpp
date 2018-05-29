@@ -87,13 +87,13 @@ GrCCPathProcessor::GrCCPathProcessor(GrResourceProvider* resourceProvider,
     this->addInstanceAttrib("color", kUByte4_norm_GrVertexAttribType);
 
     SkASSERT(offsetof(Instance, fDevBounds) ==
-             this->getInstanceAttrib(InstanceAttribs::kDevBounds).fOffsetInRecord);
+             this->getInstanceAttrib(InstanceAttribs::kDevBounds).offsetInRecord());
     SkASSERT(offsetof(Instance, fDevBounds45) ==
-             this->getInstanceAttrib(InstanceAttribs::kDevBounds45).fOffsetInRecord);
+             this->getInstanceAttrib(InstanceAttribs::kDevBounds45).offsetInRecord());
     SkASSERT(offsetof(Instance, fAtlasOffset) ==
-             this->getInstanceAttrib(InstanceAttribs::kAtlasOffset).fOffsetInRecord);
+             this->getInstanceAttrib(InstanceAttribs::kAtlasOffset).offsetInRecord());
     SkASSERT(offsetof(Instance, fColor) ==
-             this->getInstanceAttrib(InstanceAttribs::kColor).fOffsetInRecord);
+             this->getInstanceAttrib(InstanceAttribs::kColor).offsetInRecord());
     SkASSERT(sizeof(Instance) == this->getInstanceStride());
 
     GR_STATIC_ASSERT(4 == kNumInstanceAttribs);
@@ -183,13 +183,13 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     //
     // NOTE: "float2x2(float4)" is valid and equivalent to "float2x2(float4.xy, float4.zw)",
     // however Intel compilers crash when we use the former syntax in this shader.
-    v->codeAppendf("float2x2 N = float2x2(%s.xy, %s.zw);",
-                   proc.getEdgeNormsAttrib().fName, proc.getEdgeNormsAttrib().fName);
+    v->codeAppendf("float2x2 N = float2x2(%s.xy, %s.zw);", proc.getEdgeNormsAttrib().name(),
+                   proc.getEdgeNormsAttrib().name());
 
     // N[0] is the normal for the edge we are intersecting from the regular bounding box, pointing
     // out of the octagon.
     v->codeAppendf("float4 devbounds = %s;",
-                   proc.getInstanceAttrib(InstanceAttribs::kDevBounds).fName);
+                   proc.getInstanceAttrib(InstanceAttribs::kDevBounds).name());
     v->codeAppend ("float2 refpt = (0 == sk_VertexID >> 2)"
                            "? float2(min(devbounds.x, devbounds.z), devbounds.y)"
                            ": float2(max(devbounds.x, devbounds.z), devbounds.w);");
@@ -198,8 +198,8 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // N[1] is the normal for the edge we are intersecting from the 45-degree bounding box, pointing
     // out of the octagon.
     v->codeAppendf("float2 refpt45 = (0 == ((sk_VertexID + 1) & (1 << 2))) ? %s.xy : %s.zw;",
-                   proc.getInstanceAttrib(InstanceAttribs::kDevBounds45).fName,
-                   proc.getInstanceAttrib(InstanceAttribs::kDevBounds45).fName);
+                   proc.getInstanceAttrib(InstanceAttribs::kDevBounds45).name(),
+                   proc.getInstanceAttrib(InstanceAttribs::kDevBounds45).name());
     v->codeAppendf("refpt45 *= float2x2(.5,.5,-.5,.5);"); // transform back to device space.
     v->codeAppendf("refpt45 += N[1] * %f;", kAABloatRadius); // bloat for AA.
 
@@ -210,7 +210,7 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     // Convert to atlas coordinates in order to do our texture lookup.
     v->codeAppendf("float2 atlascoord = octocoord + float2(%s);",
-                   proc.getInstanceAttrib(InstanceAttribs::kAtlasOffset).fName);
+                   proc.getInstanceAttrib(InstanceAttribs::kAtlasOffset).name());
     if (kTopLeft_GrSurfaceOrigin == proc.atlasProxy()->origin()) {
         v->codeAppendf("%s.xy = atlascoord * %s;", texcoord.vsOut(), atlasAdjust);
     } else {

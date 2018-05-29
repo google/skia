@@ -40,23 +40,33 @@ class GrGLSLPrimitiveProcessor;
  */
 class GrPrimitiveProcessor : public GrResourceIOProcessor, public GrProgramElement {
 public:
-    struct Attribute {
+    class Attribute {
+    public:
         enum class InputRate : bool {
             kPerVertex,
             kPerInstance
         };
-        GrShaderVar asShaderVar() const {
-            return GrShaderVar(fName, GrVertexAttribTypeToSLType(fType),
-                               GrShaderVar::kIn_TypeModifier);
-        }
-        bool isInitialized() const { return SkToBool(fName); }
-        Attribute() = default;
-        Attribute(const char* name, GrVertexAttribType type, int offset, InputRate rate)
+
+        constexpr Attribute() = default;
+        constexpr Attribute(const char* name, GrVertexAttribType type, int offset, InputRate rate)
                 : fName(name), fType(type), fOffsetInRecord(offset), fInputRate(rate) {}
-        const char*          fName = nullptr;
-        GrVertexAttribType   fType;
-        int                  fOffsetInRecord;
-        InputRate            fInputRate;
+
+        bool isInitialized() const { return SkToBool(fName); }
+
+        const char* name() const { return fName; }
+        GrVertexAttribType type() const { return fType; }
+        int offsetInRecord() const { return fOffsetInRecord; }
+        InputRate inputRate() const { return fInputRate; }
+
+        GrShaderVar asShaderVar() const {
+            return {fName, GrVertexAttribTypeToSLType(fType), GrShaderVar::kIn_TypeModifier};
+        }
+
+    private:
+        const char* fName = nullptr;
+        GrVertexAttribType fType = kFloat_GrVertexAttribType;
+        int fOffsetInRecord = 0;
+        InputRate fInputRate = InputRate::kPerVertex;
     };
 
     GrPrimitiveProcessor(ClassID classID)

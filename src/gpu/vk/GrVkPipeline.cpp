@@ -85,10 +85,10 @@ static void setup_vertex_input_state(const GrPrimitiveProcessor& primProc,
             const GrGeometryProcessor::Attribute& attrib = primProc.getAttrib(attribIndex);
             VkVertexInputAttributeDescription& vkAttrib = attributeDesc[attribIndex];
             vkAttrib.location = attribIndex; // for now assume location = attribIndex
-            vkAttrib.binding = InputRate::kPerInstance == attrib.fInputRate ? instanceBinding
-                                                                            : vertexBinding;
-            vkAttrib.format = attrib_type_to_vkformat(attrib.fType);
-            vkAttrib.offset = attrib.fOffsetInRecord;
+            vkAttrib.binding =
+                    InputRate::kPerInstance == attrib.inputRate() ? instanceBinding : vertexBinding;
+            vkAttrib.format = attrib_type_to_vkformat(attrib.type());
+            vkAttrib.offset = attrib.offsetInRecord();
         }
     }
 
