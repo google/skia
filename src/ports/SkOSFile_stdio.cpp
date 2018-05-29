@@ -136,6 +136,7 @@ void sk_fsync(FILE* f) {
 }
 
 size_t sk_ftell(FILE* f) {
+    SkASSERT(f);
     long curr = ftell(f);
     if (curr < 0) {
         return 0;
