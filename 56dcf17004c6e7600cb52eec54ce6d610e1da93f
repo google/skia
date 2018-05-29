@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c431f7a3_43f9b601",
+        "filename": "tools/fiddle/egl_context.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-29T15:44:19Z",
+      "side": 1,
+      "message": "We only call create_grcontext() once right?  If more, might as well make this static so that every call shared the same `tc`.",
+      "revId": "56dcf17004c6e7600cb52eec54ce6d610e1da93f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
