@@ -22,38 +22,22 @@ class SkWriteBuffer;
     be opaque, or color alpha, describing multiple levels of transparency.
 
     In simple blending, color alpha weights the draw color and the destination
-    color to create a new color. If alpha describes a weight from zero to one:In practice alpha is encoded in two or more bits, where 1.0 equals all bits set.
+    color to create a new color. If alpha describes a weight from zero to one:
+
+    new color = draw color * alpha + destination color * (1 - alpha)
+
+    In practice alpha is encoded in two or more bits, where 1.0 equals all bits set.
 
     RGB may have color alpha included in each component value; the stored
     value is the original RGB multiplied by color alpha. Premultiplied color
     components improve performance.
 */
 enum SkAlphaType {
-    kUnknown_SkAlphaType,                          //!< SkAlphaType is uninitialized.
-
-    /** Pixels are opaque. The SkColorType must have no explicit alpha
-        component, or all alpha components must be set to their maximum value.
-    */
-    kOpaque_SkAlphaType,
-
-    /** Pixels have alpha premultiplied into color components.
-        SkSurface pixels must be premultiplied.
-    */
-    kPremul_SkAlphaType,
-
-    /** Pixel color component values are independent of alpha value.
-        Images generated from encoded data like PNG do not premultiply pixel color
-        components. kUnpremul_SkAlphaType is supported for SkImage pixels, but not for
-        SkSurface pixels.
-    */
-    kUnpremul_SkAlphaType,
-
-    /** Pixel color component values are independent of alpha value.
-        Images generated from encoded data like PNG do not premultiply pixel color
-        components. kUnpremul_SkAlphaType is supported for SkImage pixels, but not for
-        SkSurface pixels.
-    */
-    kLastEnum_SkAlphaType = kUnpremul_SkAlphaType,
+    kUnknown_SkAlphaType,                          //!< uninitialized
+    kOpaque_SkAlphaType,                           //!< pixel is opaque
+    kPremul_SkAlphaType,                           //!< pixel components are premultiplied by alpha
+    kUnpremul_SkAlphaType,                         //!< pixel components are independent of alpha
+    kLastEnum_SkAlphaType = kUnpremul_SkAlphaType, //!< last valid value
 };
 
 /** Returns true if SkAlphaType equals kOpaque_SkAlphaType. kOpaque_SkAlphaType is a
@@ -78,7 +62,7 @@ static inline bool SkAlphaTypeIsOpaque(SkAlphaType at) {
 
 /** \enum SkImageInfo::SkColorType
     Describes how pixel bits encode color. A pixel may be an alpha mask, a
-    gray level, RGB, or ARGB.
+    grayscale, RGB, or ARGB.
 
     kN32_SkColorType selects the native 32-bit ARGB format. On Little_Endian
     processors, pixels containing 8-bit ARGB components pack into 32-bit
@@ -86,54 +70,24 @@ static inline bool SkAlphaTypeIsOpaque(SkAlphaType at) {
     kRGBA_8888_SkColorType.
 */
 enum SkColorType {
-    /** SkColorType is uninitialized; encoding format and size is unknown. */
-    kUnknown_SkColorType,
-
-    /** Encodes color alpha as alpha 8 pixel in an 8-bit byte. */
-    kAlpha_8_SkColorType,
-
-    /** Encodes RGB as bgr 565 pixel in a 16-bit word. */
-    kRGB_565_SkColorType,
-
-    /** Encodes ARGB as abgr 4444 pixel in a 16-bit word. */
-    kARGB_4444_SkColorType,
-
-    /** Encodes ARGB as rgba 8888 pixel in a 32-bit word. */
-    kRGBA_8888_SkColorType,
-
-    /** Encodes RGB as rgb 888x pixel in a 32-bit word. */
-    kRGB_888x_SkColorType,
-
-    /** Encodes ARGB as bgra 8888 pixel in a 32-bit word. */
-    kBGRA_8888_SkColorType,
-
-    /** Encodes ARGB as rgba 1010102 pixel in a 32-bit word. */
-    kRGBA_1010102_SkColorType,
-
-    /** Encodes RGB as rgb 101010x pixel in a 32-bit word. */
-    kRGB_101010x_SkColorType,
-
-    /** Encodes color gray as gray 8 in an 8-bit byte. */
-    kGray_8_SkColorType,
-
-    /** Encodes ARGB as rgba f16 in a 64-bit word. */
-    kRGBA_F16_SkColorType,
-
-    /** Encodes ARGB as rgba f16 in a 64-bit word. */
-    kLastEnum_SkColorType     = kRGBA_F16_SkColorType,
+    kUnknown_SkColorType,      //!< uninitialized
+    kAlpha_8_SkColorType,      //!< pixel with alpha in 8-bit byte
+    kRGB_565_SkColorType,      //!< pixel with 5 bits red, 6 bits green, 5 bits blue, in 16-bit word
+    kARGB_4444_SkColorType,    //!< pixel with 4 bits for alpha, red, green, blue; in 16-bit word
+    kRGBA_8888_SkColorType,    //!< pixel with 8 bits for red, green, blue, alpha; in 32-bit word
+    kRGB_888x_SkColorType,     //!< pixel with 8 bits each for red, green, blue; in 32-bit word
+    kBGRA_8888_SkColorType,    //!< pixel with 8 bits for blue, green, red, alpha; in 32-bit word
+    kRGBA_1010102_SkColorType, //!< 10 bits for red, green, blue; 2 bits for alpha; in 32-bit word
+    kRGB_101010x_SkColorType,  //!< pixel with 10 bits each for red, green, blue; in 32-bit word
+    kGray_8_SkColorType,       //!< pixel with grayscale level in 8-bit byte
+    kRGBA_F16_SkColorType,   //!< pixel with half floats for red, green, blue, alpha; in 64-bit word
+    kLastEnum_SkColorType     = kRGBA_F16_SkColorType,//!< last valid value
 
 #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
-    /** Encodes ARGB as either rgba 8888 or bgra 8888, whichever
-        is native to the platform.
-    */
-    kN32_SkColorType          = kBGRA_8888_SkColorType,
+    kN32_SkColorType          = kBGRA_8888_SkColorType,//!< native ARGB 32-bit encoding
 
 #elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
-
-    /** Encodes ARGB as either rgba 8888 or bgra 8888, whichever
-        is native to the platform.
-    */
-    kN32_SkColorType          = kRGBA_8888_SkColorType,
+    kN32_SkColorType          = kRGBA_8888_SkColorType,//!< native ARGB 32-bit encoding
 
 #else
     #error "SK_*32_SHIFT values must correspond to BGRA or RGBA byte order"
@@ -206,17 +160,10 @@ SK_API bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alph
     encoding and conversion to RGB are described in YCbCr color space.
 */
 enum SkYUVColorSpace {
-    /** Describes standard JPEG color space; */
-    kJPEG_SkYUVColorSpace,
-
-    /** Describes standard used by SDTV; */
-    kRec601_SkYUVColorSpace,
-
-    /** Describes standard used by HDTV; */
-    kRec709_SkYUVColorSpace,
-
-    /** Describes standard used by HDTV; */
-    kLastEnum_SkYUVColorSpace = kRec709_SkYUVColorSpace,
+    kJPEG_SkYUVColorSpace,                               //!< describes full range
+    kRec601_SkYUVColorSpace,                             //!< describes SDTV range
+    kRec709_SkYUVColorSpace,                             //!< describes HDTV range
+    kLastEnum_SkYUVColorSpace = kRec709_SkYUVColorSpace, //!< last valid value
 };
 
 /** \struct SkImageInfo
@@ -535,8 +482,8 @@ public:
     int shiftPerPixel() const;
 
     /** Returns minimum bytes per row, computed from pixel width() and SkColorType, which
-        specifies bytesPerPixel(). SkBitmap maximum value for row bytes must be representable
-        as a positive value in a 32-bit signed integer.
+        specifies bytesPerPixel(). SkBitmap maximum value for row bytes must fit
+        in 31 bits.
 
         @return  width() times bytesPerPixel() as unsigned 64-bit integer
     */
@@ -545,8 +492,8 @@ public:
     }
 
     /** Returns minimum bytes per row, computed from pixel width() and SkColorType, which
-        specifies bytesPerPixel(). SkBitmap maximum value for row bytes must be representable
-        as a positive value in a 32-bit signed integer.
+        specifies bytesPerPixel(). SkBitmap maximum value for row bytes must fit
+        in 31 bits.
 
         @return  width() times bytesPerPixel() as signed 32-bit integer
     */
@@ -583,7 +530,7 @@ public:
     }
 
     /** Compares SkImageInfo with other, and returns true if width, height, SkColorType,
-        SkAlphaType, and SkColorSpace are equivalent.
+        SkAlphaType, and SkColorSpace are not equivalent.
 
         @param other  SkImageInfo to compare
         @return       true if SkImageInfo is not equal to other
