@@ -23,9 +23,8 @@ DEFINE_double(frame, 1.0, "A double value in [0, 1] that specifies the point in 
 #include "GrBackendSurface.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
-
 #include "GrTest.h"
-
+#include "gl/GLTestContext.h"
 
 // Globals externed in fiddle_main.h
 sk_sp<GrTexture>      backingTexture;  // not externed
@@ -283,7 +282,8 @@ int main(int argc, char** argv) {
         rasterData = encode_snapshot(rasterSurface);
     }
     if (options.gpu) {
-        sk_sp<GrContext> grContext = create_grcontext(gGLDriverInfo);
+        std::unique_ptr<sk_gpu_test::GLTestContext> glContext;
+        sk_sp<GrContext> grContext = create_grcontext(gGLDriverInfo, &glContext);
         if (!grContext) {
             fputs("Unable to get GrContext.\n", stderr);
         } else {
