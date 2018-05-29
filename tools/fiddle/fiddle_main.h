@@ -20,6 +20,7 @@
     #include "skia.h"
 #endif
 
+#include <memory>
 #include <sstream>
 
 extern GrBackendTexture backEndTexture;
@@ -29,6 +30,10 @@ extern SkBitmap source;
 extern sk_sp<SkImage> image;
 extern double duration; // The total duration of the animation in seconds.
 extern double frame;    // A value in [0, 1] of where we are in the animation.
+
+namespace sk_gpu_test {
+class GLTestContext;
+}
 
 struct DrawOptions {
     DrawOptions(int w, int h, bool r, bool g, bool p, bool k, bool srgb, bool f16,
@@ -86,6 +91,7 @@ extern void draw(SkCanvas*);
 
 // There are different implementations of create_grcontext() for EGL, Mesa,
 // and a fallback to a null context.
-extern sk_sp<GrContext> create_grcontext(std::ostringstream &driverinfo);
+extern sk_sp<GrContext> create_grcontext(std::ostringstream& driverinfo,
+                                         std::unique_ptr<sk_gpu_test::GLTestContext>* glContext);
 
 #endif  // fiddle_main_DEFINED

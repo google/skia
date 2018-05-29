@@ -17,11 +17,11 @@ ADD --chown=skia:skia https://storage.googleapis.com/swiftshader-binaries/OpenGL
 ADD --chown=skia:skia  https://storage.googleapis.com/swiftshader-binaries/OpenGL_ES/Latest/Linux/libEGL.so /usr/local/lib/libEGL.so
 RUN cd /tmp \
   && git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git' \
-  && export PATH="/tmp/depot_tools:${PATH}" \
   && git clone https://swiftshader.googlesource.com/SwiftShader swiftshader \
   && mkdir -p /tmp/skia \
   && cd /tmp/skia \
-  && fetch skia
+  && /tmp/depot_tools/fetch skia \
+  && cd skia
 
 RUN mkdir -p /tmp/skia/skia/out/Static
 RUN echo '  \n\
@@ -42,9 +42,14 @@ extra_ldflags = [  \n\
 ] ' > /tmp/skia/skia/out/Static/args.gn
 
 RUN cd /tmp/skia/skia \
-  && export PATH="/tmp/depot_tools:${PATH}" \
   && python tools/git-sync-deps \
   && ./bin/fetch-gn \
-  && gn gen out/Static \
-  && ninja -C out/Static \
-  && cd out/Static \
+  && ./bin/gn gen out/Static \
+  && /tmp/depot_tools/ninja -C out/Static
+
+# Uncomment the lines below and update the ref to patch in a CL.
+#
+#RUN cd /tmp/skia/skia \
+#  && git fetch https://skia.googlesource.com/skia refs/changes/25/130325/15 \
+#  && git checkout FETCH_HEAD \
+#  && /tmp/depot_tools/ninja -C out/Static
