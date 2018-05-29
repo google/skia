@@ -16,6 +16,24 @@
       "revId": "97eac870c27e0d48253d5533fd34a88764b35c87",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87f853e8_5c53339e",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-05-29T21:04:27Z",
+      "side": 1,
+      "message": "Thanks for that! I\u0027ve fixed this more than once, it\u0027s embarrassing that it is still cropping up.",
+      "parentUuid": "081a0ce0_98342173",
+      "revId": "97eac870c27e0d48253d5533fd34a88764b35c87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
