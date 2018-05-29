@@ -22,6 +22,30 @@
       "revId": "e2084824bedd210b91577e9a3907d70f2adaeeac",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebc22876_c23fbfb1",
+        "filename": "modules/skottie/include/Skottie.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-29T17:47:40Z",
+      "side": 1,
+      "message": "\u003e why not seconds, since its a float?\n\nDone.",
+      "parentUuid": "b9d94e1b_c9398f8e",
+      "range": {
+        "startLine": 67,
+        "startChar": 29,
+        "endLine": 67,
+        "endChar": 37
+      },
+      "revId": "e2084824bedd210b91577e9a3907d70f2adaeeac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
