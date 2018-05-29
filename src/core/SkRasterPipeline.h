@@ -16,6 +16,7 @@
 #include "SkTypes.h"
 #include <functional>
 #include <vector>
+#include "SkSLCompiler.h"
 
 /**
  * SkRasterPipeline provides a cheap way to chain together a pixel processing pipeline.
@@ -167,6 +168,9 @@ private:
     StageList*    fStages;
     int           fNumStages;
     int           fSlotsNeeded;
+//    SkSL::Compiler fCompiler;
+//    SkSL::JIT     fJIT;
+//    std::vector<std::unique_ptr<SkSL::JIT::Module>> fModules;
 };
 
 template <size_t bytes>

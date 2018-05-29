@@ -10,8 +10,9 @@
 #include "SkPM4fPriv.h"
 #include "../jumper/SkJumper.h"
 #include <algorithm>
+#include "SkSLCompiler.h"
 
-SkRasterPipeline::SkRasterPipeline(SkArenaAlloc* alloc) : fAlloc(alloc) {
+SkRasterPipeline::SkRasterPipeline(SkArenaAlloc* alloc) : fAlloc(alloc)/*, fJIT(&fCompiler)*/ {
     this->reset();
 }
 void SkRasterPipeline::reset() {
