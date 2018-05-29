@@ -23,12 +23,7 @@ class GrAuditTrail;
 class SkNWayCanvas;
 class SkPicture;
 
-// TODO: Continue filling in missing functionality so this can be switched on
-#if 0
 class SkDebugCanvas : public SkCanvasVirtualEnforcer<SkCanvas> {
-#else
-class SkDebugCanvas : public SkCanvas {
-#endif
 public:
     SkDebugCanvas(int width, int height);
 
@@ -176,6 +171,7 @@ protected:
     void onClipRegion(const SkRegion& region, SkClipOp) override;
     void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override;
 
+    void onDrawDrawable(SkDrawable*, const SkMatrix*) override;
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
 
 private:
@@ -198,7 +194,7 @@ private:
     void drawAndCollectOps(int n, SkCanvas*);
     void cleanupAuditTrail(SkCanvas*);
 
-    typedef SkCanvas INHERITED;
+    typedef SkCanvasVirtualEnforcer<SkCanvas> INHERITED;
 };
 
 #endif
