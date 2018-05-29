@@ -912,19 +912,19 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // XY are dashPos, Z is dashInterval
     GrGLSLVarying dashParams(kHalf3_GrSLType);
     varyingHandler->addVarying("DashParam", &dashParams);
-    vertBuilder->codeAppendf("%s = %s;", dashParams.vsOut(), dce.inDashParams()->fName);
+    vertBuilder->codeAppendf("%s = %s;", dashParams.vsOut(), dce.inDashParams()->name());
 
     // x refers to circle radius - 0.5, y refers to cicle's center x coord
     GrGLSLVarying circleParams(kHalf2_GrSLType);
     varyingHandler->addVarying("CircleParams", &circleParams);
-    vertBuilder->codeAppendf("%s = %s;", circleParams.vsOut(), dce.inCircleParams()->fName);
+    vertBuilder->codeAppendf("%s = %s;", circleParams.vsOut(), dce.inCircleParams()->name());
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
 
     // Setup position
-    this->writeOutputPosition(vertBuilder, gpArgs, dce.inPosition()->fName);
+    this->writeOutputPosition(vertBuilder, gpArgs, dce.inPosition()->name());
 
     // emit transforms
     this->emitTransforms(vertBuilder,
@@ -1114,20 +1114,20 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // XY refers to dashPos, Z is the dash interval length
     GrGLSLVarying inDashParams(kFloat3_GrSLType);
     varyingHandler->addVarying("DashParams", &inDashParams);
-    vertBuilder->codeAppendf("%s = %s;", inDashParams.vsOut(), de.inDashParams()->fName);
+    vertBuilder->codeAppendf("%s = %s;", inDashParams.vsOut(), de.inDashParams()->name());
 
     // The rect uniform's xyzw refer to (left + 0.5, top + 0.5, right - 0.5, bottom - 0.5),
     // respectively.
     GrGLSLVarying inRectParams(kFloat4_GrSLType);
     varyingHandler->addVarying("RectParams", &inRectParams);
-    vertBuilder->codeAppendf("%s = %s;", inRectParams.vsOut(), de.inRectParams()->fName);
+    vertBuilder->codeAppendf("%s = %s;", inRectParams.vsOut(), de.inRectParams()->name());
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
 
     // Setup position
-    this->writeOutputPosition(vertBuilder, gpArgs, de.inPosition()->fName);
+    this->writeOutputPosition(vertBuilder, gpArgs, de.inPosition()->name());
 
     // emit transforms
     this->emitTransforms(vertBuilder,

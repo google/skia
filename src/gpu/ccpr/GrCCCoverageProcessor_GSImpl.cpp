@@ -32,8 +32,8 @@ protected:
 
         // The vertex shader simply forwards transposed x or y values to the geometry shader.
         SkASSERT(1 == proc.numAttribs());
-        gpArgs->fPositionVar.set(GrVertexAttribTypeToSLType(proc.getAttrib(0).fType),
-                                 proc.getAttrib(0).fName);
+        gpArgs->fPositionVar.set(GrVertexAttribTypeToSLType(proc.getAttrib(0).type()),
+                                 proc.getAttrib(0).name());
 
         // Geometry shader.
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
@@ -62,7 +62,7 @@ protected:
         Shader::CalcWind(proc, g, "pts", wind.c_str());
         if (PrimitiveType::kWeightedTriangles == proc.fPrimitiveType) {
             SkASSERT(3 == numInputPoints);
-            SkASSERT(kFloat4_GrVertexAttribType == proc.getAttrib(0).fType);
+            SkASSERT(kFloat4_GrVertexAttribType == proc.getAttrib(0).type());
             g->codeAppendf("%s *= sk_in[0].sk_Position.w;", wind.c_str());
         }
 

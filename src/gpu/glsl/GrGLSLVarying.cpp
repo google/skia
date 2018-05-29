@@ -13,10 +13,10 @@ void GrGLSLVaryingHandler::addPassThroughAttribute(const GrGeometryProcessor::At
                                                    const char* output,
                                                    Interpolation interpolation) {
     SkASSERT(!fProgramBuilder->primitiveProcessor().willUseGeoShader());
-    GrSLType type = GrVertexAttribTypeToSLType(input->fType);
+    GrSLType type = GrVertexAttribTypeToSLType(input->type());
     GrGLSLVarying v(type);
-    this->addVarying(input->fName, &v, interpolation);
-    fProgramBuilder->fVS.codeAppendf("%s = %s;", v.vsOut(), input->fName);
+    this->addVarying(input->name(), &v, interpolation);
+    fProgramBuilder->fVS.codeAppendf("%s = %s;", v.vsOut(), input->name());
     fProgramBuilder->fFS.codeAppendf("%s = %s;", output, v.fsIn());
 }
 
@@ -70,10 +70,7 @@ void GrGLSLVaryingHandler::emitAttributes(const GrGeometryProcessor& gp) {
     int vaCount = gp.numAttribs();
     for (int i = 0; i < vaCount; i++) {
         const GrGeometryProcessor::Attribute& attr = gp.getAttrib(i);
-        this->addAttribute(GrShaderVar(attr.fName,
-                                       GrVertexAttribTypeToSLType(attr.fType),
-                                       GrShaderVar::kIn_TypeModifier,
-                                       GrShaderVar::kNonArray));
+        this->addAttribute(attr.asShaderVar());
     }
 }
 
