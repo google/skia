@@ -17,9 +17,10 @@ config("public_config") {
 source_set("skottie") {
   if (skia_enable_skottie) {
     public_configs = [ ":public_config" ]
-    sources = [
-      # TODO: move this to public
+    public = [
       "include/Skottie.h",
+    ]
+    sources = [
       "src/Skottie.cpp",
       "src/SkottieAdapter.cpp",
       "src/SkottieAdapter.h",
