@@ -383,6 +383,7 @@ skia_core_sources = [
   "$_src/shaders/SkShader.cpp",
   "$_src/shaders/SkShaderBase.h",
 
+  "$_include/core/Sk3D.h.h",
   "$_include/core/SkBBHFactory.h",
   "$_include/core/SkBitmap.h",
   "$_include/core/SkCanvas.h",
