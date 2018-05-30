@@ -101,7 +101,6 @@ protected:
         constexpr SkScalar kDrawPad = 10.f;
         constexpr SkScalar kTestPad = 10.f;
         constexpr SkScalar kColorSpaceOffset = 36.f;
-        SkISize sizes[3] = {{YSIZE, YSIZE}, {USIZE, USIZE}, {VSIZE, VSIZE}};
 
         for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {
             SkRect renderRect = SkRect::MakeWH(SkIntToScalar(fBmp[0].width()),
@@ -119,7 +118,6 @@ protected:
                         GrYUVtoRGBEffect::Make(proxy[indices[i][0]],
                                                proxy[indices[i][1]],
                                                proxy[indices[i][2]],
-                                               sizes,
                                                static_cast<SkYUVColorSpace>(space),
                                                false));
                 if (fp) {
@@ -227,7 +225,6 @@ protected:
         constexpr SkScalar kDrawPad = 10.f;
         constexpr SkScalar kTestPad = 10.f;
         constexpr SkScalar kColorSpaceOffset = 36.f;
-        SkISize sizes[3] = {{YSIZE, YSIZE}, {USIZE, USIZE}, {VSIZE, VSIZE}};
 
         for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {
             SkRect renderRect =
@@ -239,7 +236,7 @@ protected:
 
             GrPaint grPaint;
             grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
-            auto fp = GrYUVtoRGBEffect::Make(proxy[0], proxy[1], proxy[2], sizes,
+            auto fp = GrYUVtoRGBEffect::Make(proxy[0], proxy[1], proxy[2],
                                              static_cast<SkYUVColorSpace>(space), true);
             if (fp) {
                 SkMatrix viewMatrix;

@@ -27,22 +27,21 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(sk_sp<GrTextureProxy
                                                                     uProxy,
                                                             sk_sp<GrTextureProxy>
                                                                     vProxy,
-                                                            const SkISize sizes[3],
                                                             SkYUVColorSpace colorSpace,
                                                             bool nv12) {
     SkScalar w[3], h[3];
-    w[0] = SkIntToScalar(sizes[0].fWidth);
-    h[0] = SkIntToScalar(sizes[0].fHeight);
-    w[1] = SkIntToScalar(sizes[1].fWidth);
-    h[1] = SkIntToScalar(sizes[1].fHeight);
-    w[2] = SkIntToScalar(sizes[2].fWidth);
-    h[2] = SkIntToScalar(sizes[2].fHeight);
+    w[0] = SkIntToScalar(yProxy->width());
+    h[0] = SkIntToScalar(yProxy->height());
+    w[1] = SkIntToScalar(uProxy->width());
+    h[1] = SkIntToScalar(uProxy->height());
+    w[2] = SkIntToScalar(vProxy->width());
+    h[2] = SkIntToScalar(vProxy->height());
     SkMatrix yTransform = SkMatrix::I();
     SkMatrix uTransform = SkMatrix::MakeScale(w[1] / w[0], h[1] / h[0]);
     SkMatrix vTransform = SkMatrix::MakeScale(w[2] / w[0], h[2] / h[0]);
     GrSamplerState::Filter uvFilterMode =
-            ((sizes[1].fWidth != sizes[0].fWidth) || (sizes[1].fHeight != sizes[0].fHeight) ||
-             (sizes[2].fWidth != sizes[0].fWidth) || (sizes[2].fHeight != sizes[0].fHeight))
+            ((uProxy->width() != yProxy->width()) || (uProxy->height() != yProxy->height()) ||
+             (vProxy->width() != yProxy->width()) || (vProxy->height() != yProxy->height()))
                     ? GrSamplerState::Filter::kBilerp
                     : GrSamplerState::Filter::kNearest;
     SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);

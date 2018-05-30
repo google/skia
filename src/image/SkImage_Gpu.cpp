@@ -439,14 +439,10 @@ sk_sp<SkImage> SkImage_Gpu::MakeFromYUVATexturesCopyImpl(GrContext* ctx,
 
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    // TODO: Move the sizes into GrYUVtoRGBEffect since this can just be done there.
-    SkISize sizes[] = {{yProxy->width(), yProxy->height()},
-                       {uProxy->width(), uProxy->height()},
-                       {vProxy->width(), vProxy->height()}};
     // TODO: Modify the fragment processor to sample from different channel instead of taking nv12
     // bool.
     paint.addColorFragmentProcessor(
-            GrYUVtoRGBEffect::Make(yProxy, uProxy, vProxy, sizes, colorSpace, nv12));
+            GrYUVtoRGBEffect::Make(yProxy, uProxy, vProxy, colorSpace, nv12));
 
     const SkRect rect = SkRect::MakeIWH(width, height);
 
