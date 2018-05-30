@@ -278,6 +278,13 @@ config("default") {
     if (sanitizers == "memory") {
       cflags += [ "-fsanitize-memory-track-origins" ]
     }
+  } else if (is_debug && is_clang && is_linux) {
+    cflags += [ "-fsanitize=scudo" ]
+    cflags_cc += [ "-stdlib=libc++" ]
+    ldflags += [
+      "-fsanitize=scudo",
+      "-stdlib=libc++",
+    ]
   }
 }
 
