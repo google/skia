@@ -8,7 +8,6 @@
 #define SkCodecImageGenerator_DEFINED
 
 #include "SkCodec.h"
-#include "SkColorTable.h"
 #include "SkData.h"
 #include "SkImageGenerator.h"
 
@@ -38,7 +37,6 @@ private:
 
     std::unique_ptr<SkCodec> fCodec;
     sk_sp<SkData> fData;
-    sk_sp<SkColorTable> fColorTable;
 
     typedef SkImageGenerator INHERITED;
 };
