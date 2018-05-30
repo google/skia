@@ -46,6 +46,30 @@
       "revId": "3fc08eeb6f9fad874266ea4885316edddcb412ba",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71857e3d_72c0da5d",
+        "filename": "gn/find_headers.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-30T17:13:57Z",
+      "side": 1,
+      "message": "Ooooh.\n\n  # We\u0027ll use `public` headers if they\u0027re listed, or pull them from `sources` if not.\n  # GN sneaks in a default \"public\": \"*\" into the JSON if you don\u0027t set one explicitly.\n  search_list \u003d target.get(\u0027public\u0027)\n  if search_list \u003d\u003d \u0027*\u0027:\n    search_list \u003d target.get(\u0027sources\u0027, [])\n\n?",
+      "parentUuid": "a757c032_e625bd7b",
+      "range": {
+        "startLine": 50,
+        "startChar": 2,
+        "endLine": 54,
+        "endChar": 39
+      },
+      "revId": "3fc08eeb6f9fad874266ea4885316edddcb412ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
