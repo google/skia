@@ -22,6 +22,30 @@
       "revId": "89e542a3d479117fa312f1361799d801f202cbb7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0cc3f2a_7e790490",
+        "filename": "src/gpu/vk/GrVkBackendContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-30T18:54:40Z",
+      "side": 1,
+      "message": "This is reseting the sk_sp not the actually allocator.",
+      "parentUuid": "dcf77afb_73b69b71",
+      "range": {
+        "startLine": 326,
+        "startChar": 21,
+        "endLine": 326,
+        "endChar": 26
+      },
+      "revId": "89e542a3d479117fa312f1361799d801f202cbb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

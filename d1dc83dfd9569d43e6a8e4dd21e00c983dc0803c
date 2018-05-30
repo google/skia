@@ -22,6 +22,30 @@
       "revId": "d1dc83dfd9569d43e6a8e4dd21e00c983dc0803c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8815b214_2700f69d",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-05-30T18:54:40Z",
+      "side": 0,
+      "message": "Using the new allocator system, the concepts of heaps no longer make sense on a GrVkGpu or GrVkMemory level. Instead the individual allocators should manage how they allocate blocks and sub allocate based on memory types.\n\nOn a side note a tweaked the default block size and now the old and new allocators use about the same total memory when running through our gms.",
+      "parentUuid": "9c85a29a_7c75f23d",
+      "range": {
+        "startLine": 147,
+        "startChar": 11,
+        "endLine": 147,
+        "endChar": 28
+      },
+      "revId": "d1dc83dfd9569d43e6a8e4dd21e00c983dc0803c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
