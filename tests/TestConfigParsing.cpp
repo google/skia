@@ -105,8 +105,6 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
         "glsrgb",
         "glmsaa4",
         "vk",
-        "glwide",
-        "glnarrow",
         "glnostencils",
         "mock",
         "mtl",
@@ -176,39 +174,28 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
 #ifdef SK_VULKAN
     REPORTER_ASSERT(reporter, configs[28]->asConfigGpu());
 #endif
-    REPORTER_ASSERT(reporter, configs[29]->asConfigGpu()->getColorType() == kRGBA_F16_SkColorType);
-    REPORTER_ASSERT(reporter, configs[29]->asConfigGpu()->getColorSpace());
-    REPORTER_ASSERT(reporter, configs[29]->asConfigGpu()->getColorSpace()->gammaIsLinear());
-    const SkMatrix44* config41XYZ = configs[29]->asConfigGpu()->getColorSpace()->toXYZD50();
-    SkASSERT(config41XYZ);
-    REPORTER_ASSERT(reporter, *config41XYZ != *srgbXYZ);
-    REPORTER_ASSERT(reporter, configs[30]->asConfigGpu()->getColorType() == kRGBA_F16_SkColorType);
-    REPORTER_ASSERT(reporter, configs[30]->asConfigGpu()->getColorSpace());
-    REPORTER_ASSERT(reporter, configs[30]->asConfigGpu()->getColorSpace()->gammaIsLinear());
-    REPORTER_ASSERT(reporter, *configs[30]->asConfigGpu()->getColorSpace()->toXYZD50() !=
-                    *srgbColorSpace->toXYZD50());
-    REPORTER_ASSERT(reporter, configs[31]->asConfigGpu()->getContextType() ==
+    REPORTER_ASSERT(reporter, configs[29]->asConfigGpu()->getContextType() ==
                               GrContextFactory::kGL_ContextType);
-    REPORTER_ASSERT(reporter, SkToBool(configs[31]->asConfigGpu()->getContextOverrides() &
+    REPORTER_ASSERT(reporter, SkToBool(configs[29]->asConfigGpu()->getContextOverrides() &
                               SkCommandLineConfigGpu::ContextOverrides::kAvoidStencilBuffers));
-    REPORTER_ASSERT(reporter, configs[32]->asConfigGpu()->getContextType() ==
+    REPORTER_ASSERT(reporter, configs[30]->asConfigGpu()->getContextType() ==
                               GrContextFactory::kMock_ContextType);
 
-    REPORTER_ASSERT(reporter, configs[34]->asConfigGpu()->getContextType() ==
+    REPORTER_ASSERT(reporter, configs[32]->asConfigGpu()->getContextType() ==
                               GrContextFactory::kGL_ContextType);
-    REPORTER_ASSERT(reporter, configs[34]->asConfigGpu()->getColorType() == kARGB_4444_SkColorType);
-    REPORTER_ASSERT(reporter, configs[34]->asConfigGpu()->getAlphaType() == kPremul_SkAlphaType);
-    REPORTER_ASSERT(reporter, configs[35]->asConfigGpu()->getContextType() ==
+    REPORTER_ASSERT(reporter, configs[32]->asConfigGpu()->getColorType() == kARGB_4444_SkColorType);
+    REPORTER_ASSERT(reporter, configs[32]->asConfigGpu()->getAlphaType() == kPremul_SkAlphaType);
+    REPORTER_ASSERT(reporter, configs[33]->asConfigGpu()->getContextType() ==
                               GrContextFactory::kGL_ContextType);
-    REPORTER_ASSERT(reporter, configs[35]->asConfigGpu()->getColorType() == kRGB_565_SkColorType);
-    REPORTER_ASSERT(reporter, configs[35]->asConfigGpu()->getAlphaType() == kOpaque_SkAlphaType);
-    REPORTER_ASSERT(reporter, configs[36]->asConfigGpu());
-    REPORTER_ASSERT(reporter, configs[36]->asConfigGpu()->getTestThreading());
-    REPORTER_ASSERT(reporter, configs[37]->asConfigGpu());
-    REPORTER_ASSERT(reporter, configs[37]->asConfigGpu()->getColorType() ==
+    REPORTER_ASSERT(reporter, configs[33]->asConfigGpu()->getColorType() == kRGB_565_SkColorType);
+    REPORTER_ASSERT(reporter, configs[33]->asConfigGpu()->getAlphaType() == kOpaque_SkAlphaType);
+    REPORTER_ASSERT(reporter, configs[34]->asConfigGpu());
+    REPORTER_ASSERT(reporter, configs[34]->asConfigGpu()->getTestThreading());
+    REPORTER_ASSERT(reporter, configs[35]->asConfigGpu());
+    REPORTER_ASSERT(reporter, configs[35]->asConfigGpu()->getColorType() ==
                               kRGBA_1010102_SkColorType);
-    REPORTER_ASSERT(reporter, configs[38]->asConfigGpu());
-    REPORTER_ASSERT(reporter, configs[38]->asConfigGpu()->getSurfType() ==
+    REPORTER_ASSERT(reporter, configs[36]->asConfigGpu());
+    REPORTER_ASSERT(reporter, configs[36]->asConfigGpu()->getSurfType() ==
                                       SkCommandLineConfigGpu::SurfType::kBackendRenderTarget);
 #endif
 }
