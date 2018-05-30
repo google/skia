@@ -1042,7 +1042,7 @@
 /* GL_OES_EGL_image_external */
 #define GR_GL_TEXTURE_EXTERNAL                              0x8D65
 
-/* GL_ARB_texture_rectangle */
+/* GL_ARB_texture_rectangle or GL_ANGLE_texture_rectangle */
 #define GR_GL_TEXTURE_RECTANGLE                             0x84F5
 
 /* GL_EXT_window_rectangles */
