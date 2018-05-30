@@ -22,6 +22,7 @@ skia_utils_sources = [
   "$_include/utils/SkRandom.h",
   "$_include/utils/SkShadowUtils.h",
 
+  "$_src/utils/Sk3D.cpp",
   "$_src/utils/SkBase64.cpp",
   "$_src/utils/SkBase64.h",
   "$_src/utils/SkBitSet.h",
