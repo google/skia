@@ -103,6 +103,17 @@ void SkBitmap::getBounds(SkIRect* bounds) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static SkImageInfo tweaked(SkImageInfo info) {
+    if (info.colorType() == kRGBA_8888_SkColorType ||
+        info.colorType() == kBGRA_8888_SkColorType)
+    {
+        if (info.colorSpace() && info.colorSpace()->isSRGB()) {
+            info = info.makeColorSpace(nullptr);
+        }
+    }
+    return info;
+}
+
 bool SkBitmap::setInfo(const SkImageInfo& info, size_t rowBytes) {
     SkAlphaType newAT = info.alphaType();
     if (!SkColorTypeValidateAlphaType(info.colorType(), info.alphaType(), &newAT)) {
@@ -132,7 +143,7 @@ bool SkBitmap::setInfo(const SkImageInfo& info, size_t rowBytes) {
     }
 
     fPixelRef = nullptr;  // Free pixels.
-    fPixmap.reset(info.makeAlphaType(newAT), nullptr, SkToU32(rowBytes));
+    fPixmap.reset(tweaked(info.makeAlphaType(newAT)), nullptr, SkToU32(rowBytes));
     SkDEBUGCODE(this->validate();)
     return true;
 }

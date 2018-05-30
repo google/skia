@@ -183,39 +183,50 @@ void SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static SkImageInfo tweaked(SkImageInfo info) {
+    if (info.colorType() == kRGBA_8888_SkColorType ||
+        info.colorType() == kBGRA_8888_SkColorType)
+    {
+        if (info.colorSpace() && info.colorSpace()->isSRGB()) {
+            info = info.makeColorSpace(nullptr);
+        }
+    }
+    return info;
+}
+
 sk_sp<SkSurface> SkSurface::MakeRasterDirectReleaseProc(const SkImageInfo& info, void* pixels,
         size_t rb, void (*releaseProc)(void* pixels, void* context), void* context,
         const SkSurfaceProps* props) {
     if (nullptr == releaseProc) {
         context = nullptr;
     }
-    if (!SkSurfaceValidateRasterInfo(info, rb)) {
+    if (!SkSurfaceValidateRasterInfo(tweaked(info), rb)) {
         return nullptr;
     }
     if (nullptr == pixels) {
         return nullptr;
     }
 
-    return sk_make_sp<SkSurface_Raster>(info, pixels, rb, releaseProc, context, props);
+    return sk_make_sp<SkSurface_Raster>(tweaked(info), pixels, rb, releaseProc, context, props);
 }
 
 sk_sp<SkSurface> SkSurface::MakeRasterDirect(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                              const SkSurfaceProps* props) {
-    return MakeRasterDirectReleaseProc(info, pixels, rowBytes, nullptr, nullptr, props);
+    return MakeRasterDirectReleaseProc(tweaked(info), pixels, rowBytes, nullptr, nullptr, props);
 }
 
 sk_sp<SkSurface> SkSurface::MakeRaster(const SkImageInfo& info, size_t rowBytes,
                                        const SkSurfaceProps* props) {
-    if (!SkSurfaceValidateRasterInfo(info)) {
+    if (!SkSurfaceValidateRasterInfo(tweaked(info))) {
         return nullptr;
     }
 
-    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeZeroed(info, rowBytes);
+    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeZeroed(tweaked(info), rowBytes);
     if (!pr) {
         return nullptr;
     }
     if (rowBytes) {
         SkASSERT(pr->rowBytes() == rowBytes);
     }
-    return sk_make_sp<SkSurface_Raster>(info, std::move(pr), props);
+    return sk_make_sp<SkSurface_Raster>(tweaked(info), std::move(pr), props);
 }
