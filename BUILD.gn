@@ -30,7 +30,6 @@ declare_args() {
   skia_use_zlib = true
   skia_use_metal = false
   skia_use_libheif = is_skia_dev_build
-  skia_use_skcms = true
 
   skia_android_serial = ""
   skia_enable_discrete_gpu = true
@@ -724,12 +723,7 @@ optional("raw") {
 }
 
 import("third_party/skcms/skcms.gni")
-config("third_party_skcms_public") {
-  include_dirs = [ "third_party/skcms" ]
-}
-source_set("third_party_skcms") {
-  public_configs = [ ":third_party_skcms_public" ]
-
+source_set("skcms") {
   cflags = []
   if (!is_win || is_clang) {
     cflags += [
@@ -742,18 +736,6 @@ source_set("third_party_skcms") {
     "third_party/skcms/skcms.h",
   ]
   sources = rebase_path(skcms_sources, ".", "third_party/skcms")
-}
-
-optional("skcms") {
-  enabled = skia_use_skcms
-
-  public_defines = [ "SK_USE_SKCMS" ]
-  deps = [
-    ":third_party_skcms",
-  ]
-  sources = [
-    "src/core/SkColorSpaceXform_skcms.cpp",
-  ]
 }
 
 optional("typeface_freetype") {
@@ -1406,7 +1388,6 @@ if (skia_enable_tools) {
       ":experimental_svg_model",
       ":flags",
       ":skia",
-      ":third_party_skcms",
       ":tool_utils",
       "modules/sksg:tests",
       "//third_party/libpng",
@@ -1578,7 +1559,6 @@ if (skia_enable_tools) {
         ":gpu_tool_utils",
         ":skia",
         ":tests",
-        ":third_party_skcms",
         ":tool_utils",
         "modules/skottie",
         "modules/sksg",
