@@ -156,7 +156,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/build/out/Release_x64/nanobench",
+      "[START_DIR]/build/nanobench",
       "-i",
       "[START_DIR]/skia/resources",
       "--skps",

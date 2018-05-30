@@ -137,7 +137,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/build/out/Release/bookmaker",
+      "[START_DIR]/build/bookmaker",
       "-a",
       "docs/status.json",
       "-e",
@@ -176,7 +176,7 @@
       "python",
       "[START_DIR]/cache/work/skia/infra/bots/upload_md.py",
       "--bookmaker_binary",
-      "[START_DIR]/build/out/Release/bookmaker",
+      "[START_DIR]/build/bookmaker",
       "--fiddlecli_output",
       "[START_DIR]/fiddleout.json"
     ],
