@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3879871f_4c1a2e33",
+        "filename": "gn/find_headers.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-30T17:05:28Z",
+      "side": 1,
+      "message": "Might want just\n\n  search_list \u003d target.get(\u0027public\u0027)\n  if not search_list:\n     search_list \u003d target.get(\u0027sources\u0027, [])\n\n?",
+      "range": {
+        "startLine": 50,
+        "startChar": 2,
+        "endLine": 54,
+        "endChar": 39
+      },
+      "revId": "3fc08eeb6f9fad874266ea4885316edddcb412ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
