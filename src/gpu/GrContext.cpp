@@ -113,6 +113,7 @@ bool GrContext::initCommon(const GrContextOptions& options) {
         // Disable the small path renderer bc of the proxies in the atlas. They need to be
         // unified when the opLists are added back to the destination drawing manager.
         prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
+        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kCoverageCounting;
     }
 
     GrTextContext::Options textContextOptions;
