@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dcf77afb_73b69b71",
+        "filename": "src/gpu/vk/GrVkBackendContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-05-30T17:28:52Z",
+      "side": 1,
+      "message": "Is this what we want? What if the client is still using it?",
+      "range": {
+        "startLine": 326,
+        "startChar": 21,
+        "endLine": 326,
+        "endChar": 26
+      },
+      "revId": "89e542a3d479117fa312f1361799d801f202cbb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
