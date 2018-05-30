@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40ac5773_2cb857f6",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-30T11:31:11Z",
+      "side": 1,
+      "message": "As written, doesn\u0027t this get called every time we construct an SkShaper?  The SkOnce should be static or global, right?",
+      "range": {
+        "startLine": 453,
+        "startChar": 0,
+        "endLine": 454,
+        "endChar": 30
+      },
+      "revId": "264182c3f7d282e57a4b1d46fde3ef702b81c5c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
