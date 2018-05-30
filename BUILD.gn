@@ -1013,9 +1013,16 @@ if (skia_enable_tools) {
     public_configs = [ ":skia.h_config" ]
     skia_h = "$target_gen_dir/skia.h"
     script = "gn/find_headers.py"
-    args = [ rebase_path("//bin/gn") ] + [ rebase_path("//") ] +
-           [ rebase_path(skia_h, root_build_dir) ] +
-           rebase_path(skia_public_includes)
+
+    # TODO: would be cool to not hard-code these here, but how?
+    module_public_includes = [
+      "modules/sksg/include",
+      "modules/skottie/include",
+    ]
+    args =
+        [ rebase_path("//bin/gn") ] + [ rebase_path("//") ] +
+        [ rebase_path(skia_h, root_build_dir) ] +
+        rebase_path(skia_public_includes) + rebase_path(module_public_includes)
     depfile = "$skia_h.deps"
     outputs = [
       skia_h,
@@ -1041,6 +1048,7 @@ if (skia_enable_tools) {
         ":gpu_tool_utils",
         ":skia",
         ":skia.h",
+        "modules/skottie",
       ]
     }
   }
@@ -1054,6 +1062,7 @@ if (skia_enable_tools) {
       deps = [
         ":skia",
         ":skia.h",
+        "modules/skottie",
       ]
     }
   }
