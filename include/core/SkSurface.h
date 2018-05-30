@@ -138,7 +138,7 @@ public:
         Allocates and zeroes pixel memory. Pixel memory size is height times width times
         four. Pixel memory is deleted when SkSurface is deleted.
 
-        Internally, sets SkImageInfo to width, height, native SkColorType, and
+        Internally, sets SkImageInfo to width, height, native color type, and
         kPremul_SkAlphaType.
 
         SkSurface is returned if width and height are greater than zero.
@@ -391,26 +391,24 @@ public:
         ContentChangeMode members are parameters to notifyContentWillChange().
     */
     enum ContentChangeMode {
-        kDiscard_ContentChangeMode, //!< the surface is cleared or overwritten.
-
-        /** If a snapshot has been generated, this copies the SkSurface contents. */
-        kRetain_ContentChangeMode,
+        kDiscard_ContentChangeMode, //!< discards surface on change
+        kRetain_ContentChangeMode,  //!< preserves surface on change
     };
 
     /** Notifies that SkSurface contents will be changed by code outside of Skia.
         Subsequent calls to generationID() return a different value.
 
         mode is normally passed as kRetain_ContentChangeMode.
-        CAN WE DEPRECATE THIS?
+        Can we deprecate this?
 
         @param mode  one of: kDiscard_ContentChangeMode, kRetain_ContentChangeMode
     */
     void notifyContentWillChange(ContentChangeMode mode);
 
     enum BackendHandleAccess {
-        kFlushRead_BackendHandleAccess,    //!< Caller may read from the back-end object.
-        kFlushWrite_BackendHandleAccess,   //!< Caller may write to the back-end object.
-        kDiscardWrite_BackendHandleAccess, //!< Caller must overwrite the entire back-end object.
+        kFlushRead_BackendHandleAccess,    //!< back-end object is readable
+        kFlushWrite_BackendHandleAccess,   //!< back-end object is writable
+        kDiscardWrite_BackendHandleAccess, //!< back-end object must be overwritten
     };
 
     /** Deprecated.
@@ -428,29 +426,27 @@ public:
     static const BackendHandleAccess kDiscardWrite_TextureHandleAccess =
             kDiscardWrite_BackendHandleAccess;
 
-    /** Retrieves the backend texture. If Surface has no backend texture, an invalid
+    /** Retrieves the back-end texture. If SkSurface has no back-end texture, an invalid
         object is returned. Call GrBackendTexture::isValid to determine if the result
         is valid.
 
-        The returned GrBackendTexture should be discarded if the Surface is drawn to or deleted.
+        The returned GrBackendTexture should be discarded if the SkSurface is drawn to or deleted.
 
         @param backendHandleAccess  one of:  kFlushRead_BackendHandleAccess,
-                                             kFlushWrite_BackendHandleAccess,
-                                             kDiscardWrite_BackendHandleAccess
+                                    kFlushWrite_BackendHandleAccess, kDiscardWrite_BackendHandleAccess
         @return                     GPU texture reference; invalid on failure
     */
     GrBackendTexture getBackendTexture(BackendHandleAccess backendHandleAccess);
 
-    /** Retrieves the backend render target. If Surface has no backend render target, an invalid
+    /** Retrieves the back-end render target. If SkSurface has no back-end render target, an invalid
         object is returned. Call GrBackendRenderTarget::isValid to determine if the result
         is valid.
 
-        The returned GrBackendRenderTarget should be discarded if the Surface is drawn to
+        The returned GrBackendRenderTarget should be discarded if the SkSurface is drawn to
         or deleted.
 
         @param backendHandleAccess  one of:  kFlushRead_BackendHandleAccess,
-                                             kFlushWrite_BackendHandleAccess,
-                                             kDiscardWrite_BackendHandleAccess
+                                    kFlushWrite_BackendHandleAccess, kDiscardWrite_BackendHandleAccess
         @return                     GPU render target reference; invalid on failure
     */
     GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess backendHandleAccess);
@@ -486,7 +482,7 @@ public:
 
     /** Draws SkSurface contents to canvas, with its top-left corner at (x, y).
 
-        If SkPaint paint is not nullptr, apply SkColorFilter, color alpha, SkImageFilter,
+        If SkPaint paint is not nullptr, apply SkColorFilter, alpha, SkImageFilter,
         SkBlendMode, and SkDrawLooper.
 
         @param canvas  SkCanvas drawn into

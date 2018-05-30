@@ -16,12 +16,11 @@ struct SkIPoint;
 typedef SkIPoint SkIVector;
 
 /** \struct SkIPoint
-    SkIPoint holds two 32 bit integer coordinates.
+    SkIPoint holds two 32-bit integer coordinates.
 */
 struct SkIPoint {
-    int32_t fX; //!< x-axis value used by SkIPoint.
-
-    int32_t fY; //!< y-axis value used by SkIPoint.
+    int32_t fX; //!< x-axis value
+    int32_t fY; //!< y-axis value
 
     /** Sets fX to x, fY to y.
 
@@ -147,19 +146,11 @@ struct SkPoint;
 typedef SkPoint SkVector;
 
 /** \struct SkPoint
-    SkPoint holds two 32 bit floating point coordinates.
+    SkPoint holds two 32-bit floating point coordinates.
 */
 struct SK_API SkPoint {
-
-    /** x-axis value used by both SkPoint and vector. May contain any value, including
-        infinities and NaN.
-    */
-    SkScalar fX;
-
-    /** y-axis value used by both SkPoint and vector. May contain any value, including
-        infinities and NaN.
-    */
-    SkScalar fY;
+    SkScalar fX; //!< x-axis value
+    SkScalar fY; //!< y-axis value
 
     /** Sets fX to x, fY to y. Used both to set SkPoint and vector.
 

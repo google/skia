@@ -51,8 +51,8 @@ public:
         travel counterclockwise.
     */
     enum Direction {
-        kCW_Direction,  //!< Contour travels in a clockwise direction
-        kCCW_Direction, //!< Contour travels in a counterclockwise direction
+        kCW_Direction,  //!< contour travels clockwise
+        kCCW_Direction, //!< contour travels counterclockwise
     };
 
     /** By default, SkPath has no verbs, no SkPoint, and no weights.
@@ -161,17 +161,10 @@ public:
         kInverseEvenOdd_FillType fills where the number of contour edges is even.
     */
     enum FillType {
-        /** Specifies fill as area is enclosed by a non-zero sum of contour directions. */
-        kWinding_FillType,
-
-        /** Specifies fill as area enclosed by an odd number of contours. */
-        kEvenOdd_FillType,
-
-        /** Specifies fill as area is enclosed by a zero sum of contour directions. */
-        kInverseWinding_FillType,
-
-        /** Specifies fill as area enclosed by an even number of contours. */
-        kInverseEvenOdd_FillType,
+        kWinding_FillType,        //!< is enclosed by a non-zero sum of contour directions
+        kEvenOdd_FillType,        //!< is enclosed by an odd number of contours
+        kInverseWinding_FillType, //!< is enclosed by a zero sum of contour directions
+        kInverseEvenOdd_FillType, //!< is enclosed by an even number of contours
     };
 
     /** Returns FillType, the rule used to fill SkPath. FillType of a new SkPath is
@@ -219,11 +212,9 @@ public:
         if needed by destination SkSurface.
     */
     enum Convexity : uint8_t {
-        kUnknown_Convexity, //!< Indicates Convexity has not been determined.
-
-        /** SkPath has one contour made of a simple geometry without indentations. */
-        kConvex_Convexity,
-        kConcave_Convexity, //!< SkPath has more than one contour, or a geometry with indentations.
+        kUnknown_Convexity, //!< indicates Convexity has not been determined
+        kConvex_Convexity,  //!< one contour made of a simple geometry without indentations
+        kConcave_Convexity, //!< more than one contour, or a geometry with indentations
     };
 
     /** Computes SkPath::Convexity if required, and returns stored value.
@@ -1169,15 +1160,8 @@ public:
         the last contour or start a new contour.
     */
     enum AddPathMode {
-        /** Since SkPath verb array begins with kMove_Verb if src is not empty, this
-            starts a new contour.
-        */
-        kAppend_AddPathMode,
-
-        /** is not empty, add line from last point to added SkPath first SkPoint. Skip added
-            SkPath initial kMove_Verb, then append remining verbs, SkPoint, and conic weights.
-        */
-        kExtend_AddPathMode,
+        kAppend_AddPathMode, //!< appended to destination unaltered
+        kExtend_AddPathMode, //!< add line if prior contour is not closed
     };
 
     /** Append src to SkPath, offset by (dx, dy).
@@ -1297,12 +1281,10 @@ public:
         instance, if SkPath only contains lines, only the kLine_SegmentMask bit is set.
     */
     enum SegmentMask {
-        kLine_SegmentMask  = 1 << 0, //!< Set if verb array contains kLine_Verb.
-
-        /** Set if verb array contains kQuad_Verb. Note that conicTo() may add a quad. */
-        kQuad_SegmentMask  = 1 << 1,
-        kConic_SegmentMask = 1 << 2, //!< Set if verb array contains kConic_Verb.
-        kCubic_SegmentMask = 1 << 3, //!< Set if verb array contains kCubic_Verb.
+        kLine_SegmentMask  = 1 << 0, //!< contains one or more lines
+        kQuad_SegmentMask  = 1 << 1, //!< contains one or more quads
+        kConic_SegmentMask = 1 << 2, //!< contains one or more conics
+        kCubic_SegmentMask = 1 << 3, //!< contains one or more cubics
     };
 
     /** Returns a mask, where each set bit corresponds to a SegmentMask constant
@@ -1320,37 +1302,19 @@ public:
         manage contour, and terminate SkPath.
     */
     enum Verb {
-        kMove_Verb,  //!< Starts new contour at next SkPoint.
-
-        /** Adds line from last point to next SkPoint.
-            Line is a straight segment from SkPoint to SkPoint.
-        */
-        kLine_Verb,
-
-        /** Adds quad from last point, using control SkPoint, and end SkPoint.
-            Quad is a parabolic section within tangents from last point to control SkPoint,
-            and control SkPoint to end SkPoint.
-        */
-        kQuad_Verb,
-
-        /** Adds conic from last point, using control SkPoint, end SkPoint, and conic weight.
-            Conic is a elliptical, parabolic, or hyperbolic section within tangents
-            from last point to control SkPoint, and control SkPoint to end SkPoint, constrained
-            by conic weight. conic weight less than one is elliptical; equal to one is
-            parabolic (and identical to Quad); greater than one hyperbolic.
-        */
-        kConic_Verb,
-
-        /** Adds cubic from last point, using two control SkPoint, and end SkPoint.
-            Cubic is a third-order Bezier_Curve section within tangents from last point
-            to first control SkPoint, and from second control SkPoint to end SkPoint.
-        */
-        kCubic_Verb,
-        kClose_Verb, //!< Closes contour, connecting last point to kMove_Verb SkPoint.
-        kDone_Verb,  //!< Terminates SkPath. Not in verb array, but returned by SkPath iterator.
+        kMove_Verb,  //!< starts new contour at next SkPoint
+        kLine_Verb,  //!< adds line from last point to next SkPoint
+        kQuad_Verb,  //!< adds quad from last point
+        kConic_Verb, //!< adds conic from last point
+        kCubic_Verb, //!< adds cubic from last point
+        kClose_Verb, //!< closes contour
+        kDone_Verb,  //!< terminates SkPath
     };
 
     /** \class SkPath::Iter
+        Iterates through verb array, and associated SkPoint array and conic weight.
+        Provides options to treat open contours as closed, and to ignore
+        degenerate data.
     */
     class SK_API Iter {
     public:
@@ -1452,6 +1416,8 @@ public:
     };
 
     /** \class SkPath::RawIter
+        Iterates through verb array, and associated SkPoint array and conic weight.
+        verb array, SkPoint array, and conic weight are returned unaltered.
     */
     class SK_API RawIter {
     public:
@@ -1530,7 +1496,7 @@ public:
         Set dumpAsHex true to generate exact binary representations
         of floating point numbers used in SkPoint array and conic weights.
 
-        @param stream      writable SkStream receiving SkPath text representation; may be nullptr
+        @param stream      writable SkWStream receiving SkPath text representation; may be nullptr
         @param forceClose  true if missing kClose_Verb is output
         @param dumpAsHex   true if SkScalar values are written as hexadecimal
     */
