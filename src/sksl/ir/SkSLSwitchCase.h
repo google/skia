@@ -23,6 +23,16 @@ struct SwitchCase : public Statement {
     , fValue(std::move(value))
     , fStatements(std::move(statements)) {}
 
+    std::unique_ptr<Statement> clone() const override {
+        std::vector<std::unique_ptr<Statement>> cloned;
+        for (const auto& s : fStatements) {
+            cloned.push_back(s->clone());
+        }
+        return std::unique_ptr<Statement>(new SwitchCase(fOffset,
+                                                         fValue ? fValue->clone() : nullptr,
+                                                         std::move(cloned)));
+    }
+
     String description() const override {
         String result;
         if (fValue) {
