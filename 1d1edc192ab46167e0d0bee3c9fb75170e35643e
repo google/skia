@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b97e43a4_eaffb0ad",
+        "filename": "src/core/SkConvertPixels.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-30T17:51:52Z",
+      "side": 0,
+      "message": "I had  been wondering about this.  :)",
+      "range": {
+        "startLine": 18,
+        "startChar": 21,
+        "endLine": 18,
+        "endChar": 43
+      },
+      "revId": "1d1edc192ab46167e0d0bee3c9fb75170e35643e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
