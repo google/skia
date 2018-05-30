@@ -10,7 +10,7 @@
 #define GrVkTypes_DEFINED
 
 #include "GrTypes.h"
-#include "GrVkDefines.h"
+#include "vk/GrVkDefines.h"
 
 /**
  * KHR_debug

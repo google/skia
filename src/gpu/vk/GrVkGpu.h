@@ -23,7 +23,6 @@
 class GrPipeline;
 
 class GrVkBufferImpl;
-class GrVkMemoryAllocator;
 class GrVkPipeline;
 class GrVkPipelineState;
 class GrVkPrimaryCommandBuffer;
@@ -46,8 +45,6 @@ public:
 
     const GrVkInterface* vkInterface() const { return fBackendContext->fInterface.get(); }
     const GrVkCaps& vkCaps() const { return *fVkCaps; }
-
-    GrVkMemoryAllocator* memoryAllocator() const { return fMemoryAllocator.get(); }
 
     VkDevice device() const { return fDevice; }
     VkQueue  queue() const { return fQueue; }
@@ -143,6 +140,28 @@ public:
                     VkDeviceSize dstOffset, VkDeviceSize size);
     bool updateBuffer(GrVkBuffer* buffer, const void* src, VkDeviceSize offset, VkDeviceSize size);
 
+    // Heaps
+    enum Heap {
+        kLinearImage_Heap = 0,
+        // We separate out small (i.e., <= 16K) images to reduce fragmentation
+        // in the main heap.
+        kOptimalImage_Heap,
+        kSmallOptimalImage_Heap,
+        // We have separate vertex and image heaps, because it's possible that
+        // a given Vulkan driver may allocate them separately.
+        kVertexBuffer_Heap,
+        kIndexBuffer_Heap,
+        kUniformBuffer_Heap,
+        kTexelBuffer_Heap,
+        kCopyReadBuffer_Heap,
+        kCopyWriteBuffer_Heap,
+
+        kLastHeap = kCopyWriteBuffer_Heap
+    };
+    static const int kHeapCount = kLastHeap + 1;
+
+    GrVkHeap* getHeap(Heap heap) const { return fHeaps[heap].get(); }
+
 private:
     GrVkGpu(GrContext*, const GrContextOptions&, sk_sp<const GrVkBackendContext> backendContext);
 
@@ -232,7 +251,6 @@ private:
 #endif
 
     sk_sp<const GrVkBackendContext> fBackendContext;
-    sk_sp<GrVkMemoryAllocator>      fMemoryAllocator;
     sk_sp<GrVkCaps>                 fVkCaps;
 
     // These Vulkan objects are provided by the client, and also stored in fBackendContext.
@@ -251,6 +269,8 @@ private:
 
     VkPhysicalDeviceProperties                   fPhysDevProps;
     VkPhysicalDeviceMemoryProperties             fPhysDevMemProps;
+
+    std::unique_ptr<GrVkHeap>                    fHeaps[kHeapCount];
 
     GrVkCopyManager                              fCopyManager;
 
