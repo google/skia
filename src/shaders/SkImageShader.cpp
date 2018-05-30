@@ -327,7 +327,7 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
     };
     auto misc = alloc->make<MiscCtx>();
     misc->state       = std::move(state);  // Extend lifetime to match the pipeline's.
-    misc->paint_color = SkColor4f_from_SkColor(rec.fPaint.getColor(), rec.fDstCS);
+    misc->paint_color = transform_colorspace(rec.fPaint.getColor(), rec.fDstCS);
     p->append_matrix(alloc, matrix);
 
     auto gather = alloc->make<SkJumper_GatherCtx>();

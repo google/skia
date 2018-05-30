@@ -1797,6 +1797,15 @@ STAGE(matrix_2x3, const float* m) {
     r = R;
     g = G;
 }
+STAGE(matrix_3x3, const float* m) {
+    // N.B. Unlike most other matrix_ stages, this matrix is row-major.
+    auto R = mad(r,m[0], mad(g,m[1], b*m[2])),
+         G = mad(r,m[3], mad(g,m[4], b*m[5])),
+         B = mad(r,m[6], mad(g,m[7], b*m[8]));
+    r = R;
+    g = G;
+    b = B;
+}
 STAGE(matrix_3x4, const float* m) {
     auto R = mad(r,m[0], mad(g,m[3], mad(b,m[6], m[ 9]))),
          G = mad(r,m[1], mad(g,m[4], mad(b,m[7], m[10]))),
@@ -1825,7 +1834,7 @@ STAGE(matrix_4x3, const float* m) {
     a = mad(X, m[3], mad(Y, m[7], m[11]));
 }
 STAGE(matrix_perspective, const float* m) {
-    // N.B. Unlike the other matrix_ stages, this matrix is row-major.
+    // N.B. Unlike most other matrix_ stages, this matrix is row-major.
     auto R = mad(r,m[0], mad(g,m[1], m[2])),
          G = mad(r,m[3], mad(g,m[4], m[5])),
          Z = mad(r,m[6], mad(g,m[7], m[8]));
@@ -3248,7 +3257,7 @@ static NotImplemented
         store_u16_be,
         byte_tables,
         colorburn, colordodge, softlight, hue, saturation, color, luminosity,
-        matrix_3x4, matrix_4x5, matrix_4x3,
+        matrix_3x3, matrix_3x4, matrix_4x5, matrix_4x3,
         parametric_r, parametric_g, parametric_b, parametric_a,
         gamma, gamma_dst,
         rgb_to_hsl, hsl_to_rgb,

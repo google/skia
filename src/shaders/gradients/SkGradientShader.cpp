@@ -525,7 +525,7 @@ void SkGradientShaderBase::initLinearBitmap(SkBitmap* bitmap, GradientBitmapType
 
 SkColor4f SkGradientShaderBase::getXformedColor(size_t i, SkColorSpace* dstCS) const {
     if (dstCS) {
-        return to_colorspace(fOrigColors4f[i], fColorSpace.get(), dstCS);
+        return transform_colorspace(fOrigColors4f[i], fColorSpace.get(), dstCS);
     }
 
     // Legacy/srgb color.
