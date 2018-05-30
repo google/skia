@@ -60,6 +60,11 @@ def skpbench_steps(api):
         '--config', config,
         # TODO(dogben): Track down what's causing bots to die.
         '-v5']
+  if 'DDLTotal_9x9' in api.vars.builder_name:
+    skpbench_args += [
+        '--ddl', 'true',
+        '--ddlNumAdditionalThreads', 9,
+        '--ddlTilingWidthHeight', 3]
   if 'Android' in api.vars.builder_name:
     skpbench_args += [
         '--adb',
