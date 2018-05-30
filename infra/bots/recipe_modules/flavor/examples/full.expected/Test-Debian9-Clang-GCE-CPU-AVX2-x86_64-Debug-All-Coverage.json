@@ -146,7 +146,7 @@
       "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
       "[START_DIR]",
       "catchsegv",
-      "[START_DIR]/build/out/Debug/dm",
+      "[START_DIR]/build/dm",
       "--some-flag"
     ],
     "cwd": "[START_DIR]/skia",

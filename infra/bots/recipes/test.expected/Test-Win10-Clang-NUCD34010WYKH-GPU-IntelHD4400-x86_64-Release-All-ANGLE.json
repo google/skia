@@ -203,7 +203,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]\\build\\out\\Release_x64\\dm",
+      "[START_DIR]\\build\\dm",
       "--resourcePath",
       "[START_DIR]\\skia\\resources",
       "--skps",
