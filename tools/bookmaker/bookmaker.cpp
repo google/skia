@@ -176,7 +176,7 @@ BmhParser::MarkProps BmhParser::kMarkProps[] = {
 , { "Set",          MarkType::kSet,          R_N, E_N, M(Example) | M(NoExample) }
 , { "StdOut",       MarkType::kStdOut,       R_N, E_N, M(Example) | M(NoExample) }
 , { "Struct",       MarkType::kStruct,       R_Y, E_O, M(Class) | M_ST }
-, { "Substitute",   MarkType::kSubstitute,   R_N, E_N, M_ST }
+, { "Substitute",   MarkType::kSubstitute,   R_N, E_N, M(Alias) | M_ST }
 , { "Subtopic",     MarkType::kSubtopic,     R_Y, E_Y, M_CSST }
 , { "Table",        MarkType::kTable,        R_Y, E_N, M(Method) | M_CSST | M_E }
 , { "Template",     MarkType::kTemplate,     R_Y, E_N, M_CSST }
@@ -426,6 +426,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kDescription:
         case MarkType::kStdOut:
         // may be one-liner
+        case MarkType::kAlias:
         case MarkType::kNoExample:
         case MarkType::kParam:
         case MarkType::kPhraseDef:
@@ -473,6 +474,19 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                         this->reportError<bool>("put ## on separate line");
                     }
                     fParent->fChildren.push_back(definition);
+                }
+                if (MarkType::kAlias == markType) {
+                    const char* end = definition->fChildren.size() > 0 ?
+                            definition->fChildren[0]->fStart : definition->fContentEnd;
+                    TextParser parser(definition->fFileName, definition->fContentStart, end,
+                            definition->fLineCount);
+                    parser.trimEnd();
+                    string key = string(parser.fStart, parser.lineLength());
+                    if (fAliasMap.end() != fAliasMap.find(key)) {
+                        return this->reportError<bool>("duplicate alias");
+                    }
+                    fAliasMap[key] = definition;
+                    definition->fFiddle = definition->fParent->fFiddle;
                 }
                 break;
             } else if (MarkType::kPhraseDef == markType) {
@@ -563,7 +577,6 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
             }
             break;
             // always treated as one-liners (can't detect misuse easily)
-        case MarkType::kAlias:
         case MarkType::kAnchor:
         case MarkType::kBug:
         case MarkType::kDeprecated:
@@ -614,18 +627,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                 definition->fContentEnd = link->fContentEnd;
                 definition->fTerminator = fChar;
                 definition->fChildren.emplace_back(link);
-            } else if (MarkType::kAlias == markType) {
-                this->skipWhiteSpace();
-                const char* start = fChar;
-                this->skipToNonName();
-                string alias(start, fChar - start);
-                if (fAliasMap.end() != fAliasMap.find(alias)) {
-                    return this->reportError<bool>("duplicate alias");
-                }
-                fAliasMap[alias] = definition;
-                definition->fFiddle = definition->fParent->fFiddle;
-			}
-			else if (MarkType::kLine == markType) {
+			} else if (MarkType::kLine == markType) {
 				const char* nextLF = this->strnchr('\n', this->fEnd);
 				const char* start = fChar;
 				const char* end = this->trimmedBracketEnd(fMC);
@@ -663,7 +665,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                  fParent->fDetails =
                         this->skipExact("soon") ? Definition::Details::kSoonToBe_Deprecated :
                         this->skipExact("testing") ? Definition::Details::kTestingOnly_Experiment :
-                        this->skipExact("do not use") ? Definition::Details::kDoNotUse_Experiement :
+                        this->skipExact("do not use") ? Definition::Details::kDoNotUse_Experiment :
                         this->skipExact("not ready") ? Definition::Details::kNotReady_Experiment :
                         Definition::Details::kNone;
                  this->skipSpace();
@@ -1317,7 +1319,9 @@ bool BmhParser::findDefinitions() {
                     return this->reportError<bool>("duplicate name");
                 }
                 if (hasEnd && expectEnd) {
-                    SkASSERT(fMC != this->peek());
+                    if (fMC == this->peek()) {
+                        return this->reportError<bool>("missing body");
+                    }
                 }
                 if (!this->addDefinition(defStart, hasEnd, markType, typeNameBuilder,
                         HasTag::kYes)) {
@@ -1847,6 +1851,10 @@ const Definition* BmhParser::parentSpace() const {
     return parent;
 }
 
+// A full terminal statement is in the form:
+//     \n optional-white-space #MarkType white-space #[# white-space]
+//     \n optional-white-space #MarkType white-space Name white-space #[# white-space]
+// MarkType must match definition->fMarkType
 const char* BmhParser::checkForFullTerminal(const char* end, const Definition* definition) const {
     const char* start = end;
     while ('\n' != start[0] && start > fStart) {
@@ -1864,25 +1872,27 @@ const char* BmhParser::checkForFullTerminal(const char* end, const Definition* d
         return end;
     }
     parser.skipWhiteSpace();
-    const char* nameStart = parser.fChar;
-    if (isupper(nameStart[0])) {
-        parser.skipToWhiteSpace();
-        if (parser.eof()) {
-            return end;
-        }
-        string defName = string(nameStart, parser.fChar - nameStart);
-        size_t defNamePos = definition->fName.rfind(defName);
-        if (definition->fName.length() != defNamePos + defName.length()) {
-            return end;
+    TextParser startName(fFileName, definition->fStart, definition->fContentStart,
+            definition->fLineCount);
+    if ('#' == startName.next()) {
+        startName.skipToSpace();
+        if (!startName.eof() && startName.skipSpace()) {
+            const char* nameBegin = startName.fChar;
+            startName.skipToWhiteSpace();
+            string name(nameBegin, (int) (startName.fChar - nameBegin));
+            if (fMC != parser.peek() && !parser.skipExact(name.c_str())) {
+                return end;
+            }
+            parser.skipSpace();
         }
     }
-    parser.skipWhiteSpace();
-    if (fMC != parser.next()) {
+    if (parser.eof() || fMC != parser.next()) {
         return end;
     }
     if (!parser.eof() && fMC != parser.next()) {
         return end;
     }
+    SkASSERT(parser.eof());
     return start;
 }
 
