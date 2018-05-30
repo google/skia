@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4fcdc4f8_1557860c",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1016,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-30T11:26:30Z",
+      "side": 1,
+      "message": "we could move this logic into find_headers.py, and there you could do it a little more abstractly (e.g. modules/*/include, or search under all **/include?).",
+      "revId": "cacf65f5ef61dcb4a07a2b720aa70c191aff804f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f314c7c_442aa1fe",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1050,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-30T11:26:30Z",
+      "side": 1,
+      "message": "if you like, you can write this as \"modules/skottie\".",
+      "range": {
+        "startLine": 1050,
+        "startChar": 9,
+        "endLine": 1050,
+        "endChar": 32
+      },
+      "revId": "cacf65f5ef61dcb4a07a2b720aa70c191aff804f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea1cb649_62492db0",
+        "filename": "modules/skottie/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-30T11:26:30Z",
+      "side": 1,
+      "message": "If these modules stay small enough, we might want to consider making the convention that the public headers are in the top-level . directory instead of under include.  They\u0027ll be the first thing you see when you look at the module:\n\n   Skottie.h\n   src/\n   test/\n   fuzz/",
+      "range": {
+        "startLine": 13,
+        "startChar": 22,
+        "endLine": 13,
+        "endChar": 29
+      },
+      "revId": "cacf65f5ef61dcb4a07a2b720aa70c191aff804f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16b70226_e2f28a49",
+        "filename": "modules/skottie/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-30T11:26:30Z",
+      "side": 1,
+      "message": "I think Ben\u0027s trying an experiment where this would go in `public`, which is meant to list a target\u0027s public headers.  May want to give that a shot?",
+      "revId": "cacf65f5ef61dcb4a07a2b720aa70c191aff804f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
