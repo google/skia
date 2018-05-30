@@ -15,11 +15,7 @@
 #include "SkICCPriv.h"
 #include "SkTemplates.h"
 
-#if defined(SK_USE_SKCMS)
-    bool skcms_can_parse(const void*, size_t);
-#else
-    static bool skcms_can_parse(const void*, size_t) { return true; }
-#endif
+bool skcms_can_parse(const void*, size_t);
 
 #define return_if_false(pred, msg)                                   \
     do {                                                             \

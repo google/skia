@@ -16,11 +16,9 @@ std::unique_ptr<SkColorSpaceXform> SkMakeColorSpaceXform(
         SkColorSpace* src,
         SkColorSpace* dst,
         SkTransferFunctionBehavior premulBehavior) {
-#if defined(SK_USE_SKCMS)
     if (src && dst && dst->toXYZD50()) {
         return SkMakeColorSpaceXform_skcms(src, dst, premulBehavior);
     }
-#endif
     return nullptr;
 }
 

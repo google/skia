@@ -30,7 +30,6 @@ declare_args() {
   skia_use_zlib = true
   skia_use_metal = false
   skia_use_libheif = is_skia_dev_build
-  skia_use_skcms = true
 
   skia_android_serial = ""
   skia_enable_discrete_gpu = true
@@ -743,18 +742,6 @@ source_set("third_party_skcms") {
   sources = rebase_path(skcms_sources, ".", "third_party/skcms")
 }
 
-optional("skcms") {
-  enabled = skia_use_skcms
-
-  public_defines = [ "SK_USE_SKCMS" ]
-  deps = [
-    ":third_party_skcms",
-  ]
-  sources = [
-    "src/core/SkColorSpaceXform_skcms.cpp",
-  ]
-}
-
 optional("typeface_freetype") {
   enabled = skia_use_freetype
 
@@ -845,11 +832,11 @@ component("skia") {
     ":pdf",
     ":png",
     ":raw",
-    ":skcms",
     ":sse2",
     ":sse41",
     ":sse42",
     ":ssse3",
+    ":third_party_skcms",
     ":webp",
     ":xml",
   ]
