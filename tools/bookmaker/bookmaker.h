@@ -811,7 +811,7 @@ public:
         kNone,
         kSoonToBe_Deprecated,
         kTestingOnly_Experiment,
-        kDoNotUse_Experiement,
+        kDoNotUse_Experiment,
         kNotReady_Experiment,
     };
 
@@ -1107,6 +1107,11 @@ public:
         kYes,
     };
 
+    enum class OneLine {
+        kNo,
+        kYes,
+    };
+
     ParserCommon() : TextParser()
         , fParent(nullptr)
         , fDebugOut(false)
@@ -1209,7 +1214,7 @@ public:
         SkAssertResult(writeBlockTrim(size, data));
     }
 
-    void writeBlockIndent(int size, const char* data);
+    bool writeBlockIndent(int size, const char* data);
 
     void writeBlockSeparator() {
             this->writeString(
@@ -1225,7 +1230,12 @@ public:
         this->writeSpace();
     }
 
-    void writeCommentTrailer() {
+    void writeCommentTrailer(OneLine oneLine) {
+        if (OneLine::kNo == oneLine) {
+            this->lf(1);
+        } else {
+            this->writeSpace();
+        }
         this->writeString("*/");
         this->lfcr();
     }
@@ -2012,6 +2022,11 @@ public:
     };
 
     struct Item {
+        void reset() {
+            fName = "";
+            fValue = "";
+        }
+
         string fName;
         string fValue;
     };
@@ -2047,9 +2062,9 @@ public:
 
     bool checkChildCommentLength(const Definition* parent, MarkType childType) const;
     void checkEnumLengths(const Definition& child, string enumName, ItemLength* length) const;
-	void constOut(const Definition* memberStart, const Definition& child,
-		    const Definition* bmhConst);
-    void descriptionOut(const Definition* def, SkipFirstLine , Phrase );
+	void constOut(const Definition* memberStart, const Definition* bmhConst);
+    void constSizeMembers(const RootDefinition* root);
+    bool descriptionOut(const Definition* def, SkipFirstLine , Phrase );
     void enumHeaderOut(RootDefinition* root, const Definition& child);
     string enumMemberComment(const Definition* currentEnumItem, const Definition& child) const;
     const Definition* enumMemberForComment(const Definition* currentEnumItem) const;
@@ -2080,6 +2095,8 @@ public:
         fBmhParser = nullptr;
         fEnumDef = nullptr;
         fMethodDef = nullptr;
+        fBmhConst = nullptr;
+        fConstDef = nullptr;
         fBmhStructDef = nullptr;
         fInStruct = false;
         fWroteMethod = false;
@@ -2087,6 +2104,7 @@ public:
         fPendingMethod = false;
     }
 
+    string resolveAlias(const Definition* );
     string resolveMethod(const char* start, const char* end, bool first);
     string resolveRef(const char* start, const char* end, bool first, RefType* refType);
     Wrote rewriteBlock(int size, const char* data, Phrase phrase);
@@ -2101,6 +2119,9 @@ private:
     const Definition* fBmhMethod;
     const Definition* fEnumDef;
     const Definition* fMethodDef;
+    const Definition* fBmhConst;
+    const Definition* fConstDef;
+    const Definition* fLastDescription;
     Definition* fBmhStructDef;
     const char* fContinuation;  // used to construct paren-qualified method name
     int fAnonymousEnumCount;
@@ -2109,6 +2130,10 @@ private:
     int fStructMemberTab;
     int fStructValueTab;
     int fStructCommentTab;
+    int fStructMemberLength;
+    int fConstValueTab;
+    int fConstCommentTab;
+    int fConstLength;
     bool fInStruct;
     bool fWroteMethod;
     bool fIndentNext;

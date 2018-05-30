@@ -349,7 +349,7 @@ SkPaint related constants are defined by <code>enum</code>, <code>enum class</co
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_kFull_Hinting'>kFull Hinting</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>modifies glyph outlines for maxiumum constrast</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>modifies glyph outlines for maximum constrast</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_kGlyphID_TextEncoding'>kGlyphID TextEncoding</a></td>
@@ -1357,7 +1357,7 @@ gray-level rendering.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kFull_Hinting'><code>SkPaint::kFull_Hinting</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>3</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Modifies glyph outlines for maxiumum constrast. With FreeType, this selects
+Modifies glyph outlines for maximum constrast. With FreeType, this selects
 FT_LOAD_TARGET_LCD or FT_LOAD_TARGET_LCD_V if <a href='#SkPaint_kLCDRenderText_Flag'>kLCDRenderText Flag</a> is set.
 FT_LOAD_TARGET_LCD is a variant of FT_LOAD_TARGET_NORMAL optimized for
 horizontally decimated LCD displays; FT_LOAD_TARGET_LCD_V is a
@@ -1367,9 +1367,9 @@ variant of FT_LOAD_TARGET_NORMAL optimized for vertically decimated LCD displays
 </table>
 
 On <a href='undocumented#OS_X'>OS X</a> and iOS, hinting controls whether <a href='undocumented#Core_Graphics'>Core Graphics</a> dilates the font outlines
-to account for LCD text. No hinting uses <a href='undocumented#Core_Text'>Core Text</a> gray scale output.
+to account for LCD text. No hinting uses <a href='undocumented#Core_Text'>Core Text</a> <a href='undocumented#Grayscale'>Grayscale</a> output.
 Normal hinting uses <a href='undocumented#Core_Text'>Core Text</a> LCD output. If <a href='#SkPaint_kLCDRenderText_Flag'>kLCDRenderText Flag</a> is clear,
-the LCD output is reduced to a single grayscale channel.
+the LCD output is reduced to a single <a href='undocumented#Grayscale'>Grayscale</a> channel.
 
 On Windows with DirectWrite, <a href='#SkPaint_Hinting'>Hinting</a> has no effect.
 
@@ -2249,7 +2249,7 @@ is positioned to the right of the preceding glyph. <a href='#Vertical_Text'>Vert
 
 Skia can translate text character codes as a series of <a href='undocumented#Glyph'>Glyphs</a>, but does not implement
 font substitution,
-textual substitution, line layout, or contextual spacing like Kerning pairs. Use
+textual substitution, line layout, or contextual spacing like <a href='undocumented#Kerning'>Kerning</a> pairs. Use
 a text shaping engine like <a href='https://harfbuzz.org/'>HarfBuzz</a></a> to translate text runs
 into glyph series.
 
@@ -2416,12 +2416,12 @@ paint1 == paint2
 ## <a name='Full_Hinting_Spacing'>Full Hinting Spacing</a>
 
 if <a href='#SkPaint_Hinting'>Hinting</a> is set to <a href='#SkPaint_kFull_Hinting'>kFull Hinting</a>, <a href='#Full_Hinting_Spacing'>Full Hinting Spacing</a> adjusts the character
-spacing by the difference of the hinted and Unhinted <a href='undocumented#Left_Side_Bearing'>Left Side Bearing</a> and
+spacing by the difference of the hinted and <a href='undocumented#Unhinted'>Unhinted</a> <a href='undocumented#Left_Side_Bearing'>Left Side Bearing</a> and
 <a href='undocumented#Right_Side_Bearing'>Right Side Bearing</a>. <a href='#Full_Hinting_Spacing'>Full Hinting Spacing</a> only applies to platforms that use
 FreeType as their <a href='undocumented#Engine'>Font Engine</a>.
 
-<a href='#Full_Hinting_Spacing'>Full Hinting Spacing</a> is not related to text Kerning, where the space between
-a specific pair of characters is adjusted using data in the font Kerning tables.
+<a href='#Full_Hinting_Spacing'>Full Hinting Spacing</a> is not related to text <a href='undocumented#Kerning'>Kerning</a>, where the space between
+a specific pair of characters is adjusted using data in the font <a href='undocumented#Kerning'>Kerning</a> tables.
 
 <a name='SkPaint_isDevKernText'></a>
 ## isDevKernText
@@ -4393,7 +4393,8 @@ and by its height if <a href='#SkPaint_Flags'>Flags</a> has <a href='#SkPaint_kV
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kAlignCount'><code>SkPaint::kAlignCount</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>3</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-number of different Text_Align values defined</td>
+May be used to verify that <a href='#SkPaint_Align'>Align</a> is a legal value.
+</td>
   </tr>
 </table>
 
@@ -5788,7 +5789,7 @@ Uses <a href='#SkPaint_getPosTextPath_pos'>pos</a> array and <a href='#Text_Alig
 
 <a href='#Text_Intercepts'>Text Intercepts</a> describe the intersection of drawn text <a href='undocumented#Glyph'>Glyphs</a> with a pair
 of lines parallel to the text advance. <a href='#Text_Intercepts'>Text Intercepts</a> permits creating a
-underline that skips Descenders.
+underline that skips <a href='undocumented#Descenders'>Descenders</a>.
 
 <a name='SkPaint_getTextIntercepts'></a>
 ## getTextIntercepts
@@ -6071,7 +6072,7 @@ For example:
 if (!path.isInverseFillType() && paint.<a href='#SkPaint_canComputeFastBounds'>canComputeFastBounds</a>) {
 <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPaint_computeFastBounds_storage'>storage</a>;
 if (canvas->quickReject(paint.computeFastBounds(path.getBounds(), &<a href='#SkPaint_computeFastBounds_storage'>storage</a>))) {
-return; // don't draw the path
+return; // do not draw the path
 }
 }
 // draw the path

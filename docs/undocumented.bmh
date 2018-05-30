@@ -2,7 +2,6 @@
 #External
  DirectWrite TrueType Windows Linux Android iOS __ANDROID_API__ AHardwareBuffer
  FreeType FreeType-based Harfbuzz
- Descenders Kerning Unhinted
  LCD RGB sRGB ARGB BGR YUV SDTV HDTV
  YUV_Component_Y YUV_Component_U YUV_Component_V
  Unicode Unicode5 UTF-8 UTF-16 UTF-32 ASCII Unichar
@@ -14,7 +13,7 @@
  RFC
  NaN NaNs
  Bezier_Curve Coons_Patch Cartesian_Coordinate Euclidean_Distance Euclidean_Space Mip_Map
- C C++ Destructor Subclasses
+ C C++ 
  CSS HTML
  HTML_Gray HTML_DarkGray HTML_LightGray HTML_Silver HTML_Lime HTML_Green HTML_Aqua HTML_Fuchsia
  SVG_lightgray SVG_darkgray
@@ -49,17 +48,49 @@ FT_Load_Glyph
 
 #External ##
 
+# this jargon requires a substitute to lower-case the word. The word is uppercase because
+# it is not a dictionary word. An alternative would be to put this in an exception list
+# in the spell checker
+#Topic Destructor
+#Substitute destructor
+##
+
+# see comment for Destructor above
+#Topic Subclasses
+#Substitute subclasses
+##
+
+# see comment for Destructor above
+#Topic Descenders
+#Substitute descenders
+##
+
+# see comment for Destructor above
+#Topic Grayscale
+#Substitute grayscale
+##
+
+# see comment for Destructor above
+#Topic Kerning
+#Substitute kerning
+##
+
+# see comment for Destructor above
+#Topic Unhinted
+#Substitute unhinted
+##
+
 #Topic Alias
-#Alias Aliased
-#Alias Aliasing
+#Alias Aliased ##
+#Alias Aliasing ##
 ##
 
 #Topic Arc
-#Alias Arcs
+#Alias Arcs ##
 #Topic ##
 
 #Topic Backend_Semaphore
-#Alias Backend_Semaphores
+#Alias Backend_Semaphores ##
 #Class GrBackendSemaphore
 ##
 ##
@@ -81,7 +112,7 @@ FT_Load_Glyph
 #Topic ##
 
 #Topic Circle
-#Alias Circles
+#Alias Circles ##
 #Topic ##
 
 #Topic Clip_Op
@@ -132,7 +163,7 @@ FT_Load_Glyph
 ##
 
 #Topic Curve
-#Alias Curves
+#Alias Curves ##
 ##
 
 #Topic Data
@@ -261,7 +292,7 @@ FT_Load_Glyph
 #Topic ##
 
 #Topic Glyph
-#Alias Glyphs
+#Alias Glyphs ##
 ##
 
 #Topic GPU_Context
@@ -309,7 +340,7 @@ FT_Load_Glyph
 ##
 
 #Topic Line
-#Alias Lines
+#Alias Lines ##
 #Topic ##
 
 # to be in Topic Malloc_Pixel_Ref
@@ -372,7 +403,7 @@ FT_Load_Glyph
     #Typedef uint16_t SkGlyphID
     #Typedef ##
     #Topic Scalar
-    #Alias Scalar
+    #Alias Scalar ##
     #Typedef float SkScalar
     #Typedef ##
     ##
@@ -420,7 +451,7 @@ FT_Load_Glyph
 ##
 
 #Topic Oval
-#Alias Ovals
+#Alias Ovals ##
 #Topic ##
 
 #Topic Paint_Defaults
@@ -435,7 +466,7 @@ FT_Load_Glyph
 #Topic ##
 
 #Topic Patch
-#Alias Patches
+#Alias Patches ##
 #Topic ##
 
 #Topic Path_Effect
@@ -495,10 +526,6 @@ FT_Load_Glyph
 #Enum SkPixelGeometry
 ##
 
-# Topic Point_Array
-# Substitute SkPoint arrays
-# Topic ##
-
 #Topic Point3
 #Struct SkPoint3
 ##
@@ -512,7 +539,7 @@ FT_Load_Glyph
 ##
 
 #Topic Premultiply
-#Alias Premultiplied
+#Alias Premultiplied ##
 ##
 
 #Topic Raster_Engine
@@ -597,7 +624,7 @@ FT_Load_Glyph
 ##
 
 #Topic Sprite
-#Alias Sprites
+#Alias Sprites ##
 #Topic ##
 
 #Topic Stream
@@ -693,7 +720,7 @@ FT_Load_Glyph
 # end of defined in types
 
 #Topic Unpremultiply
-#Alias Unpremultiplied
+#Alias Unpremultiplied ##
 ##
 
 #Topic Vertices

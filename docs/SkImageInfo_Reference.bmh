@@ -1,5 +1,5 @@
 #Topic Image_Info
-#Alias Image_Info_Reference
+#Alias Image_Info_Reference ##
 
 Image_Info specifies the dimensions and encoding of the pixels in a Bitmap.
 The dimensions are integral width and height. The encoding is how pixel
@@ -22,8 +22,8 @@ but Image and Surface may not contain Image_Info.
 # ------------------------------------------------------------------------------
 #Subtopic Alpha_Type
 #Line # encoding for pixel transparency ##
-#Alias Alpha_Type
-#Alias Alpha_Types
+#Alias Alpha_Type ##
+#Alias Alpha_Types ##
 
 #PhraseDef list_of_alpha_types
 kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
@@ -224,8 +224,8 @@ opaque, then the result of drawing any pixel with a Color_Alpha value less than
 # ------------------------------------------------------------------------------
 #Subtopic Color_Type
 #Line # encoding for pixel color ##
-#Alias Color_Type
-#Alias Color_Types
+#Alias Color_Type ##
+#Alias Color_Types ##
 
 #PhraseDef list_of_color_types
 kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
@@ -265,7 +265,7 @@ $$$#
 #Code ##
 
 Describes how pixel bits encode color. A pixel may be an alpha mask, a
-grayscale, RGB, or ARGB.
+Grayscale, RGB, or ARGB.
 
 kN32_SkColorType selects the native 32-bit ARGB format. On Little_Endian
 processors, pixels containing 8-bit ARGB components pack into 32-bit
@@ -335,7 +335,7 @@ kRGBA_8888_SkColorType.
 ##
 
 #Const kGray_8_SkColorType 9
-#Line # pixel with grayscale level in 8-bit byte ##
+#Line # pixel with Grayscale level in 8-bit byte ##
 #Details Gray_8
     Stores 8-bit byte pixel encoding that equivalent to equal values for red,
     blue, and green, representing colors from black to white.
@@ -355,7 +355,7 @@ kRGBA_8888_SkColorType.
 ##
 
 #Const kN32_SkColorType 4 or 6
-#Alias Native_Color_Type
+#Alias Native_Color_Type ##
 #NoJustify
 #Line # native ARGB 32-bit encoding ##
     Encodes ARGB as either kRGBA_8888_SkColorType or
@@ -733,8 +733,8 @@ kRGBA_8888_SkColorType.
 ##
 
 #Subtopic Gray_8
-#Line # encodes level of grayscale in 8 bits ##
-    kGray_8_SkColorType encodes grayscale level in eight bits that is equivalent
+#Line # encodes level of Grayscale in 8 bits ##
+    kGray_8_SkColorType encodes Grayscale level in eight bits that is equivalent
     to equal values for red, blue, and green, representing colors from black to
     white.  Pixels described by kGray_8_SkColorType are fully
     opaque as if its Color_Alpha was set to one, and should always be paired with
@@ -980,7 +980,8 @@ and return true if alphaType is not kUnknown_SkAlphaType.
 # ------------------------------------------------------------------------------
 #Subtopic YUV_ColorSpace
 #Line # color range of YUV pixels ##
-#Alias YUV_ColorSpace
+#Alias YUV_ColorSpace ##
+
 #Enum SkYUVColorSpace
 #Line # color range of YUV pixels ##
 
@@ -1036,7 +1037,6 @@ with studio range of 16 to 235 range for components.
 #Subtopic YUV_ColorSpace ##
 
 # ------------------------------------------------------------------------------
-
 
 #Struct SkImageInfo
 

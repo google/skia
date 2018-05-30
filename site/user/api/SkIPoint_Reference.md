@@ -724,4 +724,4 @@ Can also be used to add <a href='#IVector'>IVector</a> to <a href='#IVector'>IVe
 </pre>
 
 <a href='#SkIVector'>SkIVector</a> provides an alternative name for <a href='#SkIPoint'>SkIPoint</a>. <a href='#SkIVector'>SkIVector</a> and <a href='#SkIPoint'>SkIPoint</a>
-can be used interchangably for all purposes.
+can be used interchangeably for all purposes.

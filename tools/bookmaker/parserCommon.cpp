@@ -102,7 +102,8 @@ bool ParserCommon::parseSetup(const char* path) {
     return true;
 }
 
-void ParserCommon::writeBlockIndent(int size, const char* data) {
+bool ParserCommon::writeBlockIndent(int size, const char* data) {
+    bool wroteSomething = false;
     while (size && ' ' >= data[size - 1]) {
         --size;
     }
@@ -113,7 +114,7 @@ void ParserCommon::writeBlockIndent(int size, const char* data) {
             --size;
         }
         if (!size) {
-            return;
+            return wroteSomething;
         }
         if (newLine) {
             this->lf(1);
@@ -130,7 +131,9 @@ void ParserCommon::writeBlockIndent(int size, const char* data) {
         size -= len;
         data += len;
         newLine = true;
+        wroteSomething = true;
     }
+    return wroteSomething;
 }
 
 bool ParserCommon::writeBlockTrim(int size, const char* data) {

@@ -814,21 +814,20 @@ bool Definition::hasMatch(string name) const {
 }
 
 string Definition::incompleteMessage(DetailsType detailsType) const {
-    if (!IncompleteAllowed(fMarkType)) {
-        auto iter = std::find_if(fChildren.begin(), fChildren.end(),
-                [](const Definition* test) { return IncompleteAllowed(test->fMarkType); });
-        SkASSERT(fChildren.end() != iter);
-        return (*iter)->incompleteMessage(detailsType);
-    }
-    string message = MarkType::kExperimental == fMarkType ?
+    SkASSERT(!IncompleteAllowed(fMarkType));
+    auto iter = std::find_if(fChildren.begin(), fChildren.end(),
+            [](const Definition* test) { return IncompleteAllowed(test->fMarkType); });
+    SkASSERT(fChildren.end() != iter);
+    SkASSERT(Details::kNone == (*iter)->fDetails);
+    string message = MarkType::kExperimental == (*iter)->fMarkType ?
             "Experimental." : "Deprecated.";
-    if (Definition::Details::kDoNotUse_Experiement == fDetails) {
+    if (Details::kDoNotUse_Experiment == fDetails) {
         message += " Do not use.";
-    } else if (Definition::Details::kNotReady_Experiment == fDetails) {
+    } else if (Details::kNotReady_Experiment == fDetails) {
         message += " Not ready for general use.";
-    } else if (Definition::Details::kSoonToBe_Deprecated == fDetails) {
-        message += " Soon to be deprecated.";
-    } else if (Definition::Details::kTestingOnly_Experiment == fDetails) {
+    } else if (Details::kSoonToBe_Deprecated == fDetails) {
+        message = "To be deprecated soon.";
+    } else if (Details::kTestingOnly_Experiment == fDetails) {
         message += " For testing only.";
     }
     if (DetailsType::kPhrase == detailsType) {

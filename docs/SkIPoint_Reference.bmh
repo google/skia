@@ -1,6 +1,6 @@
 #Topic IPoint
-#Alias IPoints
-#Alias IPoint_Reference
+#Alias IPoints ##
+#Alias IPoint_Reference ##
 
 #Struct SkIPoint
 
@@ -454,15 +454,15 @@ Can also be used to add IVector to IVector, returning IVector.
 
 #Subtopic IVector
 #Line # alias for IPoint ##
-    #Alias IVector
-    #Alias IVectors
+    #Alias IVector ##
+    #Alias IVectors ##
     #Typedef SkIPoint SkIVector
     #Line # alias for IPoint ##
     #Code
     typedef SkIPoint SkIVector;
     ##
     SkIVector provides an alternative name for SkIPoint. SkIVector and SkIPoint
-    can be used interchangably for all purposes.
+    can be used interchangeably for all purposes.
     #Typedef ##
 ##
 

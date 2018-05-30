@@ -1,6 +1,6 @@
 #Topic IRect
-#Alias IRects
-#Alias IRect_Reference
+#Alias IRects ##
+#Alias IRect_Reference ##
 
 #Struct SkIRect
 

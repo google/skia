@@ -1,6 +1,6 @@
 #Topic Point
-#Alias Points
-#Alias Point_Reference
+#Alias Points ##
+#Alias Point_Reference ##
 
 #Struct SkPoint
 
@@ -1261,8 +1261,8 @@ Returns the dot product of Vector and Vector vec.
 
 #Subtopic Vector
 #Line # alias for Point ##
-    #Alias Vector
-    #Alias Vectors
+    #Alias Vector ##
+    #Alias Vectors ##
     #Typedef SkPoint SkVector
     #Line # alias for Point ##
     #Code

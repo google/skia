@@ -11,7 +11,7 @@ describing the pixel format, and <a href='undocumented#Color_Space'>Color Space<
 <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> bounds may be located anywhere fully inside <a href='undocumented#Pixel_Ref'>Pixel Ref</a> bounds.
 
 <a href='#Bitmap'>Bitmap</a> can be drawn using <a href='SkCanvas_Reference#Canvas'>Canvas</a>. <a href='#Bitmap'>Bitmap</a> can be a drawing destination for <a href='SkCanvas_Reference#Canvas'>Canvas</a>
-draw member functionss. <a href='#Bitmap'>Bitmap</a> flexibility as a pixel container limits some
+draw member functions. <a href='#Bitmap'>Bitmap</a> flexibility as a pixel container limits some
 optimizations available to the target platform.
 
 If pixel array is primarily read-only, use <a href='SkImage_Reference#Image'>Image</a> for better performance.

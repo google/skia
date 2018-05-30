@@ -96,7 +96,7 @@ utility to restore <a href='SkCanvas_Reference#Canvas'>Canvas</a> state on destr
 <a href='#SkAutoCanvasRestore_destructor'>~SkAutoCanvasRestore</a>()
 </pre>
 
-Restores <a href='SkCanvas_Reference#Canvas'>Canvas</a> to saved state. Destructor is called when container goes out of
+Restores <a href='SkCanvas_Reference#Canvas'>Canvas</a> to saved state. <a href='undocumented#Destructor'>Destructor</a> is called when container goes out of
 scope.
 
 ### See Also

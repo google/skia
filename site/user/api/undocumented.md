@@ -180,6 +180,10 @@ SK_API void <a href='#SkDebugf'>SkDebugf</a>(const char format[], ...)
 
 # <a name='SkDeferredDisplayListRecorder'>Class SkDeferredDisplayListRecorder</a>
 
+# <a name='Descenders'>Descenders</a>
+
+# <a name='Destructor'>Destructor</a>
+
 # <a name='Device'>Device</a>
 
 # <a name='SkBaseDevice'>Class SkBaseDevice</a>
@@ -293,6 +297,8 @@ void <a href='#GrContext_flush'>flush</a>()
 
 # <a name='Glyph'>Glyph</a>
 
+# <a name='Grayscale'>Grayscale</a>
+
 # <a name='HTML_Canvas'>HTML Canvas</a>
 
 ## <a name='ArcTo'>ArcTo</a>
@@ -315,6 +321,8 @@ void <a href='#SkImageFilter_toString'>toString</a>(<a href='#SkString'>SkString
 ---
 
 # <a name='Image_Scaling'>Image Scaling</a>
+
+# <a name='Kerning'>Kerning</a>
 
 # <a name='Left_Side_Bearing'>Left Side Bearing</a>
 
@@ -637,6 +645,8 @@ static <a href='#sk_sp'>sk sp</a>&lt;<a href='#SkShader'>SkShader</a>&gt; <a hre
 
 # <a name='SkString'>Class SkString</a>
 
+# <a name='Subclasses'>Subclasses</a>
+
 # <a name='Supersampling'>Supersampling</a>
 
 # <a name='Surface_Characterization'>Surface Characterization</a>
@@ -692,6 +702,8 @@ bool <a href='#GrBackendTexture_isValid'>isValid</a>() const
 # <a name='Typeface'>Typeface</a>
 
 # <a name='SkTypeface'>Class SkTypeface</a>
+
+# <a name='Unhinted'>Unhinted</a>
 
 # <a name='Unpremultiply'>Unpremultiply</a>
 

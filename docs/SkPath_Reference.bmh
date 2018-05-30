@@ -1,6 +1,6 @@
 #Topic Path
-#Alias Path_Reference
-#Alias Paths
+#Alias Path_Reference ##
+#Alias Paths ##
 
 Path contains Lines and Curves which can be stroked or filled. Contour is
 composed of a series of connected Lines and Curves. Path may contain zero,
@@ -76,7 +76,7 @@ a new Path independent of the original. Internally, the copy does not duplicate
 its contents until it is edited, to reduce memory use and improve performance.
 
 #Subtopic Contour
-#Alias Contours
+#Alias Contours ##
 #Line # loop of lines and curves ##
 
 Contour contains one or more Verbs, and as many Points as
@@ -135,7 +135,7 @@ void draw(SkCanvas* canvas) {
 ##
 
 #Subtopic Zero_Length
-#Alias Zero_Length_Contour
+#Alias Zero_Length_Contour ##
 #Line # consideration when contour has no length ##
 Contour length is distance traveled from first Point to Last_Point,
 plus, if Contour is closed, distance from Last_Point to first Point.
@@ -214,7 +214,7 @@ SkPath::updateBoundsCache to make Path thread safe.
 ##
 
 #Subtopic Verb
-#Alias Verbs
+#Alias Verbs ##
 #Line # line and curve type ##
 #Enum Verb
 #Line # controls how Path Points are interpreted ##
@@ -326,7 +326,7 @@ verbs: kMove_Verb kLine_Verb kQuad_Verb kClose_Verb kMove_Verb kCubic_Verb kConi
 # ------------------------------------------------------------------------------
 #Subtopic Direction
 #Line # contour orientation, clockwise or counterclockwise ##
-#Alias Directions
+#Alias Directions ##
 
 #Enum Direction
 #Line # sets Contour clockwise or counterclockwise ##
@@ -2316,10 +2316,10 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 #Subtopic Quad
-#Alias Quad
-#Alias Quads
-#Alias Quadratic_Bezier
-#Alias Quadratic_Beziers
+#Alias Quad ##
+#Alias Quads ##
+#Alias Quadratic_Bezier ##
+#Alias Quadratic_Beziers ##
 #Line # curve described by second-order polynomial ##
 
 Quad describes a quadratic Bezier, a second-order curve identical to a section
@@ -2491,7 +2491,7 @@ void draw(SkCanvas* canvas) {
 
 #Subtopic Conic
 #Line # conic section defined by three points and a weight ##
-#Alias Conics
+#Alias Conics ##
 
 Conic describes a conical section: a piece of an ellipse, or a piece of a
 parabola, or a piece of a hyperbola. Conic begins at a start Point,
@@ -2502,8 +2502,8 @@ Each Conic in Path adds two Points and one Conic_Weight. Conic_Weights in Path
 may be inspected with Iter, or with RawIter.
 
 #Subtopic Weight
-#Alias Conic_Weights
-#Alias Weights
+#Alias Conic_Weights ##
+#Alias Weights ##
 #Line # strength of Conic control Point ##
 
 Weight determines both the strength of the control Point and the type of Conic.
@@ -2512,7 +2512,7 @@ have no effect; Conic is identical to a line segment from start Point to end
 point. If Weight is less than one, Conic follows an elliptical arc.
 If Weight is exactly one, then Conic is identical to Quad; Conic follows a
 parabolic arc. If Weight is greater than one, Conic follows a hyperbolic
-arc. If Weight is infinity, Conic is indentical to two line segments, connecting
+arc. If Weight is infinity, Conic is identical to two line segments, connecting
 start Point to control Point, and control Point to end Point.
 
 #Example
@@ -2788,10 +2788,10 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 #Subtopic Cubic
-#Alias Cubic
-#Alias Cubics
-#Alias Cubic_Bezier
-#Alias Cubic_Beziers
+#Alias Cubic ##
+#Alias Cubics ##
+#Alias Cubic_Bezier ##
+#Alias Cubic_Beziers ##
 #Line # curve described by third-order polynomial ##
 
 Cubic describes a Bezier_Curve segment described by a third-order polynomial.
@@ -5266,7 +5266,7 @@ length = 40; returned by readFromMemory = 36
 
 # ------------------------------------------------------------------------------
 #Subtopic Generation_ID
-#Alias Generation_IDs
+#Alias Generation_IDs ##
 #Line # value reflecting contents change ##
 Generation_ID provides a quick way to check if Verb_Array, Point_Array, or
 Conic_Weight has changed. Generation_ID is not a hash; identical Paths will
@@ -5339,10 +5339,6 @@ empty genID = 1
 #Class Iter
 #Line # data iterator ##
 
-Iterates through Verb_Array, and associated Point_Array and Conic_Weight.
-Provides options to treat open Contours as closed, and to ignore
-degenerate data.
-
 #Code
 class Iter {
 public:
@@ -5355,6 +5351,10 @@ public:
     bool isClosedContour() const;
 };
 ##
+
+Iterates through Verb_Array, and associated Point_Array and Conic_Weight.
+Provides options to treat open Contours as closed, and to ignore
+degenerate data.
 
 #Example
 #Height 128
@@ -5733,9 +5733,6 @@ with close(),    forceClose is true : isClosedContour returns true
 #Class RawIter
 #Line # raw data iterator ##
 
-Iterates through Verb_Array, and associated Point_Array and Conic_Weight.
-Verb_Array, Point_Array, and Conic_Weight are returned unaltered.
-
 #Code
     class RawIter {
     public:
@@ -5747,6 +5744,9 @@ Verb_Array, Point_Array, and Conic_Weight are returned unaltered.
         SkScalar conicWeight() const;
     }
 ##
+
+Iterates through Verb_Array, and associated Point_Array and Conic_Weight.
+Verb_Array, Point_Array, and Conic_Weight are returned unaltered.
 
     #Method RawIter()
     #Line # constructs empty Path iterator ##

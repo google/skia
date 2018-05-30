@@ -1,5 +1,5 @@
 #Topic Canvas
-#Alias Canvas_Reference
+#Alias Canvas_Reference ##
 
 #Class SkCanvas
 
@@ -1463,6 +1463,8 @@ depth = 1
 #Subtopic Layer
 #Substitute layer
 #Alias Layers
+#Substitute layers
+##
 #Line # temporary Bitmap to draw into ##
 
 Layer allocates a temporary Bitmap to draw into. When the drawing is
@@ -1691,12 +1693,11 @@ Call restoreToCount with returned value to restore this and subsequent saves.
 
 #Typedef uint32_t SaveLayerFlags
 #Line # options for SaveLayerRec ##
+##
 
 SaveLayerFlags provides options that may be used in any combination in SaveLayerRec,
 defining how Layer allocated by saveLayer operates. It may be set to zero,
 kPreserveLCDText_SaveLayerFlag, kInitWithPrevious_SaveLayerFlag, or both flags.
-
-##
 
 #Const kPreserveLCDText_SaveLayerFlag 2
 #Line # creates Layer for LCD text ##
@@ -1751,8 +1752,6 @@ void draw(SkCanvas* canvas) {
 #Struct SaveLayerRec
 #Line # contains the state used to create the Layer ##
 
-SaveLayerRec contains the state used to create the Layer.
-
 #Code
     struct SaveLayerRec {
         SaveLayerRec*(...
@@ -1763,6 +1762,8 @@ SaveLayerRec contains the state used to create the Layer.
         SaveLayerFlags          fSaveLayerFlags;
     };
 ##
+
+SaveLayerRec contains the state used to create the Layer.
 
 #Subtopic Overview
 #Populate
@@ -2502,7 +2503,7 @@ The clip restriction is not recorded in pictures.
 Pass an empty rect to disable maximum clip.
 
 #Private
-This is private API to be used only by Android framework.
+This private API is for use by Android framework only.
 ##
 
 #Param  rect   maximum allowed clip in device coordinates
@@ -4401,9 +4402,7 @@ are larger than dst; center and four sides are scaled to fit remaining space, if
 
 Additionally transform draw using Clip, Matrix, and optional Paint paint.
 
-If Paint paint is supplied, apply Color_Filter, Color_Alpha, Image_Filter,
-Blend_Mode, and Draw_Looper. If image is kAlpha_8_SkColorType, apply Shader.
-If paint contains Mask_Filter, generate mask from image bounds.
+#paint_as_used_by_draw_lattice_or_draw_nine(image)#
 
 If generated mask extends beyond image bounds, replicate image edge colors, just
 as Shader made from SkImage::makeShader with SkShader::kClamp_TileMode set
@@ -4690,7 +4689,7 @@ Blend_Mode, and Draw_Looper. If #bitmap_or_image# is kAlpha_8_SkColorType, apply
 If paint contains Mask_Filter, generate mask from #bitmap_or_image# bounds. If paint
 Filter_Quality set to kNone_SkFilterQuality, disable pixel filtering. For all
 other values of paint Filter_Quality, use kLow_SkFilterQuality to filter pixels.
-Any SkMaskFilter on the paint is ignored as is the paint's antialiasing state.
+Any SkMaskFilter on paint is ignored as is paint Anti_Aliasing state.
 ##
 
 #Method void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
@@ -4767,14 +4766,6 @@ void draw(SkCanvas* canvas) {
 #Struct Lattice
 #Line # divides Bitmap or Image into a rectangular grid ##
 
-Lattice divides Bitmap or Image into a rectangular grid.
-Grid entries on even columns and even rows are fixed; these entries are
-always drawn at their original size if the destination is large enough.
-If the destination side is too small to hold the fixed entries, all fixed
-entries are proportionately scaled down to fit.
-The grid entries not on even columns and rows are scaled to fit the
-remaining space, if any.
-
 #Code
     struct Lattice {
         enum RectType ...
@@ -4788,6 +4779,14 @@ remaining space, if any.
         const SkColor*  fColors;
     };
 ##
+
+Lattice divides Bitmap or Image into a rectangular grid.
+Grid entries on even columns and even rows are fixed; these entries are
+always drawn at their original size if the destination is large enough.
+If the destination side is too small to hold the fixed entries, all fixed
+entries are proportionately scaled down to fit.
+The grid entries not on even columns and rows are scaled to fit the
+remaining space, if any.
 
 #Subtopic Overview
 #Populate
@@ -5192,7 +5191,7 @@ Paint paint. The number of entries in pos array must match the number of Glyphs
 described by byteLength of text.
 
 text meaning depends on Paint_Text_Encoding; by default, text is encoded as
-UTF-8. pos elements' meaning depends on Paint_Text_Align and Paint_Vertical_Text;
+UTF-8. pos elements meaning depends on Paint_Vertical_Text;
 by default each glyph left side bearing is positioned at x and its
 baseline is positioned at y. Text size is affected by Matrix and
 Paint_Text_Size.
@@ -5238,7 +5237,7 @@ constY, using Clip, Matrix, and Paint paint. The number of entries in xpos array
 must match the number of Glyphs described by byteLength of text.
 
 text meaning depends on Paint_Text_Encoding; by default, text is encoded as
-UTF-8. xpos elements' meaning depends on Paint_Text_Align and Paint_Vertical_Text;
+UTF-8. xpos elements meaning depends on Paint_Vertical_Text;
 by default each glyph left side bearing is positioned at an xpos element and
 its baseline is positioned at constY. Text size is affected by Matrix and
 Paint_Text_Size.
@@ -5332,21 +5331,22 @@ filled 12 point black Glyphs.
 Draw text on Path path, using Clip, Matrix, and Paint paint.
 
 Origin of text is at beginning of path offset by matrix, if not nullptr.
-matrix also transforms text before text is mapped to path. If the path section
+matrix transforms text before text is mapped to path. If the path section
 corresponding the glyph advance is curved, the glyph is drawn curved to match;
 control points in the glyph are mapped to projected points parallel to the path.
 If the text advance is larger than the path length, the excess text is clipped.
 
+matrix does not effect paint Shader.
+
 text meaning depends on Paint_Text_Encoding; by default, text is encoded as
 UTF-8. Origin meaning depends on Paint_Text_Align and Paint_Vertical_Text; by
 default text positions the first glyph left side bearing at origin x and its
-baseline at origin y. Text size is affected by matrix parameter, Canvas_Matrix,
+baseline at origin y. Text size is affected by matrix parameter, Canvas Matrix,
 and Paint_Text_Size.
 
 All elements of paint: Path_Effect, Mask_Filter, Shader,
 Color_Filter, Image_Filter, and Draw_Looper; apply to text. By default, draws
-filled 12 point black Glyphs. Canvas Matrix does effect paint Shader, but
-matrix parameter does not.
+filled 12 point black Glyphs.
 
 #Param  text         character code points or Glyphs drawn ##
 #Param  byteLength   byte length of text array ##
@@ -5391,8 +5391,8 @@ matrix parameter does not.
 Draw text, transforming each glyph by the corresponding SkRSXform,
 using Clip, Matrix, and Paint paint.
 
-RSXform array specifies a separate square scale, rotation, and translation for
-each glyph.
+RSXform xform array specifies a separate square scale, rotation, and translation
+for each glyph. xform does not affect paint Shader.
 
 Optional Rect cullRect is a conservative bounds of text, taking into account
 RSXform and paint. If cullRect is outside of Clip, canvas can skip drawing.

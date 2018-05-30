@@ -1,6 +1,6 @@
 #Topic Rect
-#Alias Rects
-#Alias Rect_Reference
+#Alias Rects ##
+#Alias Rect_Reference ##
 
 #Struct SkRect
 

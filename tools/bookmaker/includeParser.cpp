@@ -1276,7 +1276,7 @@ bool IncludeParser::findComments(const Definition& includeDef, Definition* marku
     return true;
 }
 
-// caller calls reportError, so just return false here
+// caller just returns, so report error here
 bool IncludeParser::parseClass(Definition* includeDef, IsStruct isStruct) {
     SkASSERT(includeDef->fTokens.size() > 0);
     // parse class header
@@ -1323,14 +1323,10 @@ bool IncludeParser::parseClass(Definition* includeDef, IsStruct isStruct) {
         while (iter != includeDef->fTokens.end()
                 && (publicLen != (size_t) (iter->fContentEnd - iter->fStart)
                 || strncmp(iter->fStart, publicName, publicLen))) {
+            iter->fPrivate = true;
             iter = std::next(iter);
             ++publicIndex;
         }
-    }
-    auto childIter = includeDef->fChildren.begin();
-    while (childIter != includeDef->fChildren.end() && (*childIter)->fParentIndex < publicIndex) {
-        (*childIter)->fPrivate = true;
-        childIter = std::next(childIter);
     }
     int keyIndex = publicIndex;
     KeyWord currentKey = KeyWord::kPublic;
@@ -1340,9 +1336,12 @@ bool IncludeParser::parseClass(Definition* includeDef, IsStruct isStruct) {
     size_t protectedLen = strlen(protectedName);
     const char* privateName = kKeyWords[(int) KeyWord::kPrivate].fName;
     size_t privateLen = strlen(privateName);
+    auto childIter = includeDef->fChildren.begin();
+    std::advance(childIter, publicIndex);
     while (childIter != includeDef->fChildren.end()) {
         Definition* child = *childIter;
         while (child->fParentIndex > keyIndex && iter != includeDef->fTokens.end()) {
+            iter->fPrivate = KeyWord::kPublic != currentKey;
             const char* testStart = iter->fStart;
             size_t testLen = (size_t) (iter->fContentEnd - testStart);
             iter = std::next(iter);
@@ -1365,11 +1364,13 @@ bool IncludeParser::parseClass(Definition* includeDef, IsStruct isStruct) {
             if (!this->parseObject(child, markupDef)) {
                 return false;
             }
-        } else {
-            child->fPrivate = true;
         }
         fLastObject = child;
         childIter = std::next(childIter);
+    }
+    while (iter != includeDef->fTokens.end()) {
+        iter->fPrivate = KeyWord::kPublic != currentKey;
+        iter = std::next(iter);
     }
     SkASSERT(fParent->fParent);
     fParent = fParent->fParent;
