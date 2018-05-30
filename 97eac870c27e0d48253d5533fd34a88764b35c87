@@ -34,6 +34,24 @@
       "revId": "97eac870c27e0d48253d5533fd34a88764b35c87",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f30ef71_ac094b0e",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-05-30T12:08:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "87f853e8_5c53339e",
+      "revId": "97eac870c27e0d48253d5533fd34a88764b35c87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
