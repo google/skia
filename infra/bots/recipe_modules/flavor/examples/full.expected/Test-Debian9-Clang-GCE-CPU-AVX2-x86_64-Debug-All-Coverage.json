@@ -153,7 +153,8 @@
     "env": {
       "CHROME_HEADLESS": "1",
       "LLVM_PROFILE_FILE": "[START_DIR]/[SWARM_OUT_DIR]/All.profraw",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SCUDO_OPTIONS": "symbolize=1 print_stacktrace=1"
     },
     "name": "symbolized dm"
   },

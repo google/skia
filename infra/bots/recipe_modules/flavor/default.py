@@ -217,6 +217,10 @@ class DefaultFlavor(object):
       env[ 'LSAN_OPTIONS'] = 'symbolize=1 print_suppressions=1'
       env['UBSAN_OPTIONS'] = 'symbolize=1 print_stacktrace=1'
 
+    if (self.m.vars.builder_cfg.get('configuration', '') == 'Debug' and
+        self.m.vars.is_linux):
+      env['SCUDO_OPTIONS'] = 'symbolize=1 print_stacktrace=1'
+
     if 'TSAN' in extra_tokens:
       # We don't care about malloc(), fprintf, etc. used in signal handlers.
       # If we're in a signal handler, we're already crashing...
