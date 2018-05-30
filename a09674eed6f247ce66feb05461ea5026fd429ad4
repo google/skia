@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1566e5c9_5fcac1f0",
+        "filename": "infra/bots/recipe_modules/checkout/api.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-30T18:37:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c6d44c14_2501e59a",
+      "revId": "a09674eed6f247ce66feb05461ea5026fd429ad4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "48f9abc8_35f4bfe3",
         "filename": "infra/bots/recipe_modules/checkout/examples/full.expected/Housekeeper-Weekly-RecreateSKPs.json",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2018-05-30T18:26:47Z",
       "side": 1,
       "message": "I assume this change was intended?",
+      "revId": "a09674eed6f247ce66feb05461ea5026fd429ad4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55639bbd_e279a01f",
+        "filename": "infra/bots/recipe_modules/checkout/examples/full.expected/Housekeeper-Weekly-RecreateSKPs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-05-30T18:37:35Z",
+      "side": 1,
+      "message": "Yes. Although I\u0027m not sure that this even has an effect any more.",
+      "parentUuid": "48f9abc8_35f4bfe3",
       "revId": "a09674eed6f247ce66feb05461ea5026fd429ad4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
