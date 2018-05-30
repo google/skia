@@ -12,8 +12,7 @@
 
 #include "vk/GrVkDefines.h"
 #include "vk/GrVkInterface.h"
-
-class GrVkMemoryAllocator;
+#include "vk/GrVkMemoryAllocator.h"
 
 enum GrVkExtensionFlags {
     kEXT_debug_report_GrVkExtensionFlag    = 0x0001,
