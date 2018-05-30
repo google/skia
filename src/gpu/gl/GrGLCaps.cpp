@@ -221,7 +221,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     fBindUniformLocationSupport = ctxInfo.hasExtension("GL_CHROMIUM_bind_uniform_location");
 
     if (kGL_GrGLStandard == standard) {
-        if (version >= GR_GL_VER(3, 1) || ctxInfo.hasExtension("GL_ARB_texture_rectangle")) {
+        if (version >= GR_GL_VER(3, 1) || ctxInfo.hasExtension("GL_ARB_texture_rectangle") ||
+            ctxInfo.hasExtension("GL_ANGLE_texture_rectangle")) {
             // We also require textureSize() support for rectangle 2D samplers which was added in
             // GLSL 1.40.
             if (ctxInfo.glslGeneration() >= k140_GrGLSLGeneration) {
@@ -2921,5 +2922,3 @@ bool GrGLCaps::getConfigFromBackendFormat(const GrBackendFormat& format, SkColor
     }
     return validate_sized_format(*glFormat, ct, config, fStandard);
 }
-
-
