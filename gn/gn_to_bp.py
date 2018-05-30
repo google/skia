@@ -247,7 +247,6 @@ gn_to_bp_utils.GrabDependentValues(js, '//:nanobench', 'sources',
                                    nanobench_srcs, 'skia')
 
 # skcms is a little special, kind of a second-party library.
-srcs          .add("third_party/skcms/skcms.c")
 local_includes.add("third_party/skcms")
 dm_includes   .add("third_party/skcms")
 

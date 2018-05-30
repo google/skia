@@ -18,10 +18,7 @@
 #include "SkTypes.h"
 #include "Test.h"
 #include "png.h"
-
-#if defined(SK_USE_SKCMS)
-#include "skcms.h"
-#endif
+#include "../third_party/skcms/skcms.h"
 
 #include <memory>
 #include <utility>
@@ -208,7 +205,6 @@ DEF_TEST(ColorSpace_Serialize, r) {
     test_serialize(r, SkColorSpace::MakeSRGB(), true);
     test_serialize(r, SkColorSpace::MakeSRGBLinear(), true);
 
-#if defined(SK_USE_SKCMS)
     auto test = [&](const char* path) {
         sk_sp<SkData> data = GetResourceAsData(path);
 
@@ -222,7 +218,6 @@ DEF_TEST(ColorSpace_Serialize, r) {
     };
     test("icc_profiles/HP_ZR30w.icc");
     test("icc_profiles/HP_Z32x.icc");
-#endif
 
     SkColorSpaceTransferFn fn;
     fn.fA = 1.0f;
@@ -239,7 +234,6 @@ DEF_TEST(ColorSpace_Serialize, r) {
 DEF_TEST(ColorSpace_Equals, r) {
     sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
 
-#if defined(SK_USE_SKCMS)
     auto parse = [&](const char* path) {
         sk_sp<SkData> data = GetResourceAsData(path);
 
@@ -253,7 +247,6 @@ DEF_TEST(ColorSpace_Equals, r) {
     };
     sk_sp<SkColorSpace> z30 = parse("icc_profiles/HP_ZR30w.icc");
     sk_sp<SkColorSpace> z32 = parse("icc_profiles/HP_Z32x.icc");
-#endif
 
     SkColorSpaceTransferFn fn;
     fn.fA = 1.0f;
@@ -268,19 +261,15 @@ DEF_TEST(ColorSpace_Equals, r) {
 
     REPORTER_ASSERT(r, SkColorSpace::Equals(nullptr, nullptr));
     REPORTER_ASSERT(r, SkColorSpace::Equals(srgb.get(), srgb.get()));
-#if defined(SK_USE_SKCMS)
     REPORTER_ASSERT(r, SkColorSpace::Equals(z30.get(), z30.get()));
     REPORTER_ASSERT(r, SkColorSpace::Equals(z32.get(), z32.get()));
-#endif
     REPORTER_ASSERT(r, SkColorSpace::Equals(rgb4.get(), rgb4.get()));
 
     REPORTER_ASSERT(r, !SkColorSpace::Equals(nullptr, srgb.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(srgb.get(), nullptr));
-#if defined(SK_USE_SKCMS)
     REPORTER_ASSERT(r, !SkColorSpace::Equals(z30.get(), srgb.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(z32.get(), z30.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(z30.get(), rgb4.get()));
-#endif
     REPORTER_ASSERT(r, !SkColorSpace::Equals(srgb.get(), rgb4.get()));
 }
 
@@ -431,9 +420,7 @@ DEF_TEST(ColorSpace_IsSRGB, r) {
     REPORTER_ASSERT(r, !twoDotTwo->isSRGB());
 }
 
-#if defined(SK_USE_SKCMS)
 DEF_TEST(ColorSpace_skcms_IsSRGB, r) {
     sk_sp<SkColorSpace> srgb = SkColorSpace::Make(*skcms_sRGB_profile());
     REPORTER_ASSERT(r, srgb->isSRGB());
 }
-#endif

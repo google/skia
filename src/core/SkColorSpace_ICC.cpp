@@ -14,12 +14,7 @@
 #include "SkFixed.h"
 #include "SkICCPriv.h"
 #include "SkTemplates.h"
-
-#if defined(SK_USE_SKCMS)
-    bool skcms_can_parse(const void*, size_t);
-#else
-    static bool skcms_can_parse(const void*, size_t) { return true; }
-#endif
+#include "../../third_party/skcms/skcms.h"
 
 #define return_if_false(pred, msg)                                   \
     do {                                                             \
@@ -1489,7 +1484,8 @@ sk_sp<SkColorSpace> SkColorSpace::MakeICC(const void* input, size_t len) {
     }
 
     // Make sure we're at least as strict as skcms_Parse().
-    if (!skcms_can_parse(input, len)) {
+    skcms_ICCProfile p;
+    if (!skcms_Parse(input, len, &p)) {
         return nullptr;
     }
 
