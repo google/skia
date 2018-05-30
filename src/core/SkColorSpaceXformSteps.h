@@ -21,8 +21,8 @@ struct SkColorSpaceXformSteps {
     bool encode;
     bool premul;
 
-    SkColorSpaceTransferFn srcTFInv,  // Apply for linearize.
-                           dstTF;     // Apply for encode.
+    SkColorSpaceTransferFn srcTF,     // Apply for linearize.
+                           dstTFInv;  // Apply for encode.
     float src_to_dst_matrix[9];       // Apply this 3x3 row-major matrix for gamut_transform.
 };
 

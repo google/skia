@@ -40,8 +40,8 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
     SkColorSpaceTransferFn srcTF, dstTF;
     SkAssertResult(src->isNumericalTransferFn(&srcTF));
     SkAssertResult(dst->isNumericalTransferFn(&dstTF));
-    this->srcTFInv = srcTF.invert();
-    this->dstTF    = dstTF;
+    this->srcTF    = srcTF;
+    this->dstTFInv = dstTF.invert();
 
     // If we linearize then immediately reencode with the same transfer function, skip both.
     if ( this->linearize       &&
