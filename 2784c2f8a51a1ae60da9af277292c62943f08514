@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b0ceb327_766993e2",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 728,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-05-30T13:53:42Z",
+      "side": 1,
+      "message": "Rename this to skcms, too?",
+      "revId": "2784c2f8a51a1ae60da9af277292c62943f08514",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
