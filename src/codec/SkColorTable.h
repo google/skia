@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -6,14 +5,11 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkColorTable_DEFINED
 #define SkColorTable_DEFINED
 
-#include "../private/SkOnce.h"
 #include "SkColor.h"
-#include "SkFlattenable.h"
-#include "SkImageInfo.h"
+#include "SkRefCnt.h"
 
 /** \class SkColorTable
 
@@ -43,9 +39,6 @@ public:
 
     /** Return the array of colors for reading. */
     const SkPMColor* readColors() const { return fColors; }
-
-    // may return null
-    static void Skip(SkReadBuffer&);
 
 private:
     SkPMColor*  fColors;

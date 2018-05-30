@@ -27,7 +27,6 @@
 #include "GrTextureStripAtlas.h"
 #include "GrTracing.h"
 #include "SkAutoPixmapStorage.h"
-#include "SkConvertPixels.h"
 #include "SkDeferredDisplayList.h"
 #include "SkGr.h"
 #include "SkImageInfoPriv.h"

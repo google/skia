@@ -21,7 +21,6 @@
 #include "SkBlendModePriv.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
-#include "SkConvertPixels.h"
 #include "SkData.h"
 #include "SkImage_Base.h"
 #include "SkImageInfoPriv.h"

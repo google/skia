@@ -89,7 +89,7 @@ bool SkPixmap::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t ds
     const void* srcPixels = this->addr(rec.fX, rec.fY);
     const SkImageInfo srcInfo = fInfo.makeWH(rec.fInfo.width(), rec.fInfo.height());
     SkConvertPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, srcInfo, srcPixels, this->rowBytes(),
-                    nullptr, behavior);
+                    behavior);
     return true;
 }
 
