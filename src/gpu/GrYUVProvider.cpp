@@ -128,7 +128,7 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
             GrYUVtoRGBEffect::Make(std::move(yuvTextureProxies[0]),
                                    std::move(yuvTextureProxies[1]),
                                    std::move(yuvTextureProxies[2]),
-                                   yuvInfo.fSizeInfo.fSizes, yuvInfo.fColorSpace, false);
+                                   yuvInfo.fColorSpace, false);
     paint.addColorFragmentProcessor(std::move(yuvToRgbProcessor));
 
     // If we're decoding an sRGB image, the result of our linear math on the YUV planes is already

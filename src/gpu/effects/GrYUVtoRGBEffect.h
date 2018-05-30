@@ -18,7 +18,6 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> yProxy,
                                                      sk_sp<GrTextureProxy> uProxy,
                                                      sk_sp<GrTextureProxy> vProxy,
-                                                     const SkISize sizes[3],
                                                      SkYUVColorSpace colorSpace, bool nv12);
     SkMatrix44 ySamplerTransform() const { return fYSamplerTransform; }
     SkMatrix44 uSamplerTransform() const { return fUSamplerTransform; }
