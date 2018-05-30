@@ -22,6 +22,30 @@
       "revId": "3fc08eeb6f9fad874266ea4885316edddcb412ba",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a757c032_e625bd7b",
+        "filename": "gn/find_headers.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-30T17:09:00Z",
+      "side": 1,
+      "message": "By default gn appears to inject \"public\" : \"*\" for all targets, so I don\u0027t think the conditional would work in that form:\n\ngn desc out/Release --root\u003d...skia --format\u003djson \\* public\n\n...\n   \"//third_party/sfntly:sfntly\": {\n      \"public\": \"*\"\n   },\n   \"//third_party/zlib:zlib\": {\n      \"public\": \"*\"\n   },\n   \"//third_party/zlib:zlib_x86\": {\n      \"public\": \"*\"\n   },\n   \"//third_party:fontconfig\": {\n      \"public\": \"*\"\n   }\n...",
+      "parentUuid": "3879871f_4c1a2e33",
+      "range": {
+        "startLine": 50,
+        "startChar": 2,
+        "endLine": 54,
+        "endChar": 39
+      },
+      "revId": "3fc08eeb6f9fad874266ea4885316edddcb412ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
