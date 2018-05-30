@@ -187,8 +187,6 @@ public:
     }
 };
 
-class SkColorTable;
-
 static bool valid_for_bitmap_device(const SkImageInfo& info,
                                     SkAlphaType* newAlphaType) {
     if (info.width() < 0 || info.height() < 0) {

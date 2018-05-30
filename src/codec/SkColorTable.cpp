@@ -6,8 +6,7 @@
  */
 
 #include "SkColorTable.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
+#include "../private/SkMalloc.h"
 
 SkColorTable::SkColorTable(const SkPMColor colors[], int count) {
     SkASSERT(0 == count || colors);
@@ -21,11 +20,4 @@ SkColorTable::SkColorTable(const SkPMColor colors[], int count) {
 
 SkColorTable::~SkColorTable() {
     sk_free(fColors);
-}
-
-void SkColorTable::Skip(SkReadBuffer& buffer) {
-    const int count = buffer.getArrayCount();
-    if (buffer.validate(count >= 0 && count <= 256)) {
-        buffer.skip(count * sizeof(SkPMColor));
-    }
 }
