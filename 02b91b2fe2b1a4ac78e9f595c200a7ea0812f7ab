@@ -16,6 +16,24 @@
       "revId": "02b91b2fe2b1a4ac78e9f595c200a7ea0812f7ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98ada89f_ab5ee6eb",
+        "filename": "tools/flags/SkCommonFlagsConfig.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-30T19:50:43Z",
+      "side": 1,
+      "message": "ok by me.  happy to switch the cpu configs to match",
+      "parentUuid": "5fd19aad_6d8d3b93",
+      "revId": "02b91b2fe2b1a4ac78e9f595c200a7ea0812f7ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
