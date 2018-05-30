@@ -45,6 +45,29 @@
       "revId": "2223f5b5fa7905675f41836e91c66666183a14d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3baccecd_3cbd3803",
+        "filename": "gn/find_headers.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-30T14:14:53Z",
+      "side": 1,
+      "message": "Yes, if it doesn\u0027t break anything here, I\u0027d like to try that. Something like\n\nsources \u003d {os.path.join(absolute_source, os.path.normpath(source[2:]))\n           for target in desc_json.itervalues()\n           for source in target.get(\u0027public\u0027, [])}\n\nif not sources:\n  sources \u003d {os.path.join(absolute_source, os.path.normpath(source[2:]))\n             for target in desc_json.itervalues()\n             for source in target.get(\u0027sources\u0027, [])}\n\nIn fact it would be nice to go even further and say that anything in \u0027public\u0027 is a valid include even if it isn\u0027t directly on any include path (though we don\u0027t need to deal with that right now).",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 22
+      },
+      "revId": "2223f5b5fa7905675f41836e91c66666183a14d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
