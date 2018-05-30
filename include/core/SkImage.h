@@ -346,8 +346,8 @@ public:
                                                    sk_sp<SkColorSpace> colorSpace = nullptr);
 
     enum class BitDepth {
-        kU8,  //!< Use 8 bits per ARGB component using unsigned integer format.
-        kF16, //!< Use 16 bits per ARGB component using half-precision floating point format.
+        kU8,  //!< uses 8-bit unsigned int per color component
+        kF16, //!< uses 16-bit float per color component
     };
 
     /** Creates SkImage from picture. Returned SkImage width and height are set by dimensions.
@@ -360,7 +360,7 @@ public:
         @param dimensions  width and height
         @param matrix      SkMatrix to rotate, scale, translate, and so on; may be nullptr
         @param paint       SkPaint to apply transparency, filtering, and so on; may be nullptr
-        @param bitDepth    8 bit integer or 16 bit float: per component
+        @param bitDepth    8-bit integer or 16-bit float: per component
         @param colorSpace  range of colors; may be nullptr
         @return            created SkImage, or nullptr
     */
@@ -534,7 +534,7 @@ public:
     */
     bool isValid(GrContext* context) const;
 
-    /** Retrieves the backend texture. If SkImage has no backend texture, an invalid
+    /** Retrieves the back-end texture. If SkImage has no back-end texture, an invalid
         object is returned. Call GrBackendTexture::isValid to determine if the result
         is valid.
 
@@ -563,10 +563,8 @@ public:
         pixels are not accessible.
     */
     enum CachingHint {
-        kAllow_CachingHint,    //!< Allows Skia to internally cache decoded and copied pixels.
-
-        /** Disallows Skia from internally caching decoded and copied pixels. */
-        kDisallow_CachingHint,
+        kAllow_CachingHint,    //!< allows internally caching decoded and copied pixels
+        kDisallow_CachingHint, //!< disallows internally caching decoded and copied pixels
     };
 
     /** Copies SkRect of pixels from SkImage to dstPixels. Copy starts at offset (srcX, srcY),
@@ -809,9 +807,9 @@ public:
 
         @param context                    GPU context
         @param image                      SkImage used for texture
-        @param backendTexture             storage for backend texture
+        @param backendTexture             storage for back-end texture
         @param backendTextureReleaseProc  storage for clean up function
-        @return                           true if backend texture was created
+        @return                           true if back-end texture was created
     */
     static bool MakeBackendTextureFromSkImage(GrContext* context,
                                               sk_sp<SkImage> image,
@@ -819,7 +817,7 @@ public:
                                               BackendTextureReleaseProc* backendTextureReleaseProc);
 
     enum LegacyBitmapMode {
-        kRO_LegacyBitmapMode, //!< Returned bitmap is read-only and immutable.
+        kRO_LegacyBitmapMode, //!< returned bitmap is read-only and immutable
     };
 
     /** Creates raster SkBitmap with same pixels as SkImage. If legacyBitmapMode is
