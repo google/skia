@@ -82,6 +82,10 @@ FT_BEGIN_HEADER
   /* to control the various font drivers and modules.  The controllable    */
   /* properties are listed in the section @properties.                     */
   /*                                                                       */
+  /* You have to undefine this configuration option on platforms that lack */
+  /* the concept of environment variables (and thus don't have the         */
+  /* `getenv' function), for example Windows CE.                           */
+  /*                                                                       */
   /* `FREETYPE_PROPERTIES' has the following syntax form (broken here into */
   /* multiple lines for better readability).                               */
   /*                                                                       */
@@ -483,35 +487,6 @@ FT_BEGIN_HEADER
 
 
   /*************************************************************************/
-  /*                                                                       */
-  /* Position Independent Code                                             */
-  /*                                                                       */
-  /*   If this macro is set (which is _not_ the default), FreeType2 will   */
-  /*   avoid creating constants that require address fixups.  Instead the  */
-  /*   constants will be moved into a struct and additional intialization  */
-  /*   code will be used.                                                  */
-  /*                                                                       */
-  /*   Setting this macro is needed for systems that prohibit address      */
-  /*   fixups, such as BREW.  [Note that standard compilers like gcc or    */
-  /*   clang handle PIC generation automatically; you don't have to set    */
-  /*   FT_CONFIG_OPTION_PIC, which is only necessary for very special      */
-  /*   compilers.]                                                         */
-  /*                                                                       */
-  /*   Note that FT_CONFIG_OPTION_PIC support is not available for all     */
-  /*   modules (see `modules.cfg' for a complete list).  For building with */
-  /*   FT_CONFIG_OPTION_PIC support, do the following.                     */
-  /*                                                                       */
-  /*     0. Clone the repository.                                          */
-  /*     1. Define FT_CONFIG_OPTION_PIC.                                   */
-  /*     2. Remove all subdirectories in `src' that don't have             */
-  /*        FT_CONFIG_OPTION_PIC support.                                  */
-  /*     3. Comment out the corresponding modules in `modules.cfg'.        */
-  /*     4. Compile.                                                       */
-  /*                                                                       */
-/* #define FT_CONFIG_OPTION_PIC */
-
-
-  /*************************************************************************/
   /*************************************************************************/
   /****                                                                 ****/
   /****        S F N T   D R I V E R    C O N F I G U R A T I O N       ****/
@@ -527,6 +502,15 @@ FT_BEGIN_HEADER
   /* TrueType & OpenType).                                                 */
   /*                                                                       */
 #define TT_CONFIG_OPTION_EMBEDDED_BITMAPS
+
+
+  /*************************************************************************/
+  /*                                                                       */
+  /* Define TT_CONFIG_OPTION_COLOR_LAYERS if you want to support coloured  */
+  /* outlines (from the COLR/CPAL tables) in all formats using the SFNT    */
+  /* module (namely TrueType & OpenType).                                  */
+  /*                                                                       */
+#define TT_CONFIG_OPTION_COLOR_LAYERS
 
 
   /*************************************************************************/
