@@ -411,7 +411,7 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
             p->append(fClampAsIfUnpremul ? SkRasterPipeline::clamp_1
                                          : SkRasterPipeline::clamp_a);
         }
-        append_gamut_transform(p, alloc, info.colorSpace(), rec.fDstCS,
+        transform_to_dst_colorspace(p, alloc, info.colorSpace(), rec.fDstCS,
                                fClampAsIfUnpremul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType);
         return true;
     };

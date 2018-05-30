@@ -100,7 +100,7 @@ static inline void analyze_3x4_matrix(const float matrix[12],
 
 // N.B. scratch_matrix_3x4 must live at least as long as p.
 // Returns false if no gamut tranformation was necessary.
-static inline bool append_gamut_transform_noclamp(SkRasterPipeline* p,
+static inline bool transform_to_dst_colorspace_noclamp(SkRasterPipeline* p,
                                                   float scratch_matrix_3x4[12],
                                                   SkColorSpace* src,
                                                   SkColorSpace* dst) {
@@ -111,7 +111,7 @@ static inline bool append_gamut_transform_noclamp(SkRasterPipeline* p,
     const SkMatrix44 *fromSrc = src->  toXYZD50(),
                        *toDst = dst->fromXYZD50();
     if (!fromSrc || !toDst) {
-        SkDEBUGFAIL("We can't handle non-XYZ color spaces in append_gamut_transform().");
+        SkDEBUGFAIL("We can't handle non-XYZ color spaces in transform_to_dst_colorspace().");
         return false;
     }
 
@@ -134,12 +134,12 @@ static inline bool append_gamut_transform_noclamp(SkRasterPipeline* p,
 
 
 // N.B. scratch_matrix_3x4 must live at least as long as p.
-static inline void append_gamut_transform(SkRasterPipeline* p,
+static inline void transform_to_dst_colorspace(SkRasterPipeline* p,
                                           float scratch_matrix_3x4[12],
                                           SkColorSpace* src,
                                           SkColorSpace* dst,
                                           SkAlphaType alphaType) {
-    if (append_gamut_transform_noclamp(p, scratch_matrix_3x4, src, dst)) {
+    if (transform_to_dst_colorspace_noclamp(p, scratch_matrix_3x4, src, dst)) {
         bool needs_clamp_0, needs_clamp_1;
         analyze_3x4_matrix(scratch_matrix_3x4, &needs_clamp_0, &needs_clamp_1);
 
@@ -151,12 +151,12 @@ static inline void append_gamut_transform(SkRasterPipeline* p,
     }
 }
 
-static inline void append_gamut_transform(SkRasterPipeline* p,
+static inline void transform_to_dst_colorspace(SkRasterPipeline* p,
                                           SkArenaAlloc* alloc,
                                           SkColorSpace* src,
                                           SkColorSpace* dst,
                                           SkAlphaType alphaType) {
-    append_gamut_transform(p, alloc->makeArrayDefault<float>(12), src, dst, alphaType);
+    transform_to_dst_colorspace(p, alloc->makeArrayDefault<float>(12), src, dst, alphaType);
 }
 
 static inline SkColor4f to_colorspace(const SkColor4f& c, SkColorSpace* src, SkColorSpace* dst) {
@@ -169,7 +169,7 @@ static inline SkColor4f to_colorspace(const SkColor4f& c, SkColorSpace* src, SkC
         SkSTArenaAlloc<256> alloc;
         SkRasterPipeline p(&alloc);
         p.append_constant_color(&alloc, color4f);
-        append_gamut_transform(&p, scratch_matrix_3x4, src, dst, kUnpremul_SkAlphaType);
+        transform_to_dst_colorspace(&p, scratch_matrix_3x4, src, dst, kUnpremul_SkAlphaType);
         p.append(SkRasterPipeline::store_f32, &color4f_ptr);
 
         p.run(0,0,1,1);
