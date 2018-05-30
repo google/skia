@@ -36,8 +36,15 @@ TEST_BUILDERS = {
 def RunSteps(api):
   # Check out Chrome.
   api.vars.setup()
+
   checkout_root = api.checkout.default_checkout_root
-  api.checkout.bot_update(checkout_root=checkout_root)
+  extra_gclient_env = {
+      'CPPFLAGS': '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1'}
+  api.checkout.bot_update(
+      checkout_root=checkout_root,
+      checkout_chromium=True,
+      extra_gclient_env=extra_gclient_env)
+
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
   api.flavor.setup()
 
