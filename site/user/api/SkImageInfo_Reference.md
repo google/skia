@@ -69,7 +69,7 @@ SkImageInfo related constants are defined by <code>enum</code>, <code>enum class
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#kGray_8_SkColorType'>kGray_8_SkColorType</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>pixel with grayscale level in 8-bit byte</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>pixel with <a href='undocumented#Grayscale'>Grayscale</a> level in 8-bit byte</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#kJPEG_SkYUVColorSpace'>kJPEG_SkYUVColorSpace</a></td>
@@ -346,7 +346,7 @@ true if <a href='#SkAlphaTypeIsOpaque_at'>at</a> equals <a href='#kOpaque_SkAlph
 </pre>
 
 Describes how pixel bits encode color. A pixel may be an alpha mask, a
-grayscale, RGB, or ARGB.
+<a href='undocumented#Grayscale'>Grayscale</a>, RGB, or ARGB.
 
 <a href='#kN32_SkColorType'>kN32_SkColorType</a> selects the native 32-bit ARGB format. On Little_Endian
 processors, pixels containing 8-bit ARGB components pack into 32-bit
@@ -684,7 +684,7 @@ draw all colors possible to a <a href='#kRGB_101010x_SkColorType'>kRGB_101010x_S
 
 ## <a name='Color_Type_Gray_8'>Color Type Gray 8</a>
 
-<a href='#kGray_8_SkColorType'>kGray_8_SkColorType</a> encodes grayscale level in eight bits that is equivalent
+<a href='#kGray_8_SkColorType'>kGray_8_SkColorType</a> encodes <a href='undocumented#Grayscale'>Grayscale</a> level in eight bits that is equivalent
 to equal values for red, blue, and green, representing colors from black to
 white.  Pixels described by <a href='#kGray_8_SkColorType'>kGray_8_SkColorType</a> are fully
 opaque as if its <a href='SkColor_Reference#Alpha'>Color Alpha</a> was set to one, and should always be paired with
@@ -1146,7 +1146,7 @@ SkImageInfo global, <code>struct</code>, and <code>class</code> related member f
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_Gray_8'>Color Type Gray 8</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes level of grayscale in 8 bits</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes level of <a href='undocumented#Grayscale'>Grayscale</a> in 8 bits</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_RGBA_1010102'>Color Type RGBA 1010102</a></td>

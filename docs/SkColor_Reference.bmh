@@ -1,5 +1,5 @@
 #Topic Color
-#Alias Color_Reference
+#Alias Color_Reference ##
 
 #Subtopic Overview
 #Populate
@@ -36,7 +36,9 @@ floating point values. Unsigned integer Alpha ranges from zero, fully
 transparent, to all bits set, fully opaque. Floating point Alpha ranges from
 zero, fully transparent, to one, fully opaque.
 
-#Alias Alpha
+#Alias Alpha 
+#Substitute alpha
+##
 
 #Typedef uint8_t SkAlpha
 #Line # defines Alpha as eight bits ##

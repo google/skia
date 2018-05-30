@@ -58,22 +58,24 @@ void IncludeWriter::checkEnumLengths(const Definition& child, string enumName, I
     }
 }
 
-void IncludeWriter::constOut(const Definition* memberStart, const Definition& child,
-    const Definition* bmhConst) {
+void IncludeWriter::constOut(const Definition* memberStart, const Definition* bmhConst) {
     const char* bodyEnd = fDeferComment ? fDeferComment->fContentStart - 1 :
         memberStart->fContentStart;
     this->writeBlockTrim((int) (bodyEnd - fStart), fStart);  // may write nothing
     this->lf(2);
     this->writeCommentHeader();
     fIndent += 4;
-    this->descriptionOut(bmhConst, SkipFirstLine::kYes, Phrase::kNo);
+    if (!this->descriptionOut(bmhConst, SkipFirstLine::kYes, Phrase::kNo)) {
+        return memberStart->reportError<void>("expected description for const");
+    }
     fIndent -= 4;
-    this->writeCommentTrailer();
+    this->writeCommentTrailer(OneLine::kNo);
     fStart = memberStart->fContentStart;
 }
 
-void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirstLine,
+bool IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirstLine,
             Phrase phrase) {
+    bool wroteSomething = false;
     const char* commentStart = def->fContentStart;
     if (SkipFirstLine::kYes == skipFirstLine) {
         TextParser parser(def);
@@ -87,8 +89,12 @@ void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
         string message = def->incompleteMessage(Definition::DetailsType::kSentence);
         this->writeString(message);
         this->lfcr();
+        wroteSomething = true;
     }
+    const Definition* lastDescription = def;
     for (auto prop : def->fChildren) {
+        fLastDescription = lastDescription;
+        lastDescription = prop;
         switch (prop->fMarkType) {
             case MarkType::kCode: {
                 bool literal = false;
@@ -98,6 +104,7 @@ void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                     SkASSERT(commentLen < 1000);
                     if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart, Phrase::kNo)) {
                         this->lf(2);
+                        wroteSomething = true;
                     }
                 }
                 size_t childSize = prop->fChildren.size();
@@ -116,14 +123,14 @@ void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                     if (!literalOutdent) {
                         fIndent += 4;
                     }
-                    this->writeBlockIndent(commentLen, commentStart);
+                    wroteSomething |= this->writeBlockIndent(commentLen, commentStart);
                     this->lf(2);
                     if (!literalOutdent) {
                         fIndent -= 4;
                     }
-                    commentStart = prop->fTerminator;
                     SkDEBUGCODE(wroteCode = true);
                 }
+                commentStart = prop->fTerminator;
                 } break;
             case MarkType::kDefinedBy:
                 commentStart = prop->fTerminator;
@@ -133,6 +140,7 @@ void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                     prop->fContentEnd - prop->fContentStart) + ')');
                 this->writeString(bugstr);
                 this->lfcr();
+                wroteSomething = true;
             }
             case MarkType::kDeprecated:
             case MarkType::kPrivate:
@@ -141,10 +149,11 @@ void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                     SkASSERT(commentLen < 1000);
                     if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart, Phrase::kNo)) {
                         this->lfcr();
+                        wroteSomething = true;
                     }
                 }
                 commentStart = prop->fContentStart;
-                if (' ' < commentStart[0]) {
+                if (MarkType::kPrivate != prop->fMarkType && ' ' < commentStart[0]) {
                     commentStart = strchr(commentStart, '\n');
                 }
                 if (MarkType::kBug == prop->fMarkType) {
@@ -152,7 +161,7 @@ void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                 }
                 commentLen = (int) (prop->fContentEnd - commentStart);
                 if (commentLen > 0) {
-                    this->writeBlockIndent(commentLen, commentStart);
+                    wroteSomething |= this->writeBlockIndent(commentLen, commentStart);
                     const char* end = commentStart + commentLen;
                     while (end > commentStart && ' ' == end[-1]) {
                         --end;
@@ -165,8 +174,6 @@ void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                 commentLen = (int) (def->fContentEnd - commentStart);
                 break;
             case MarkType::kExperimental:
-                this->writeString("EXPERIMENTAL:");
-                this->writeSpace();
                 commentStart = prop->fContentStart;
                 if (' ' < commentStart[0]) {
                     commentStart = strchr(commentStart, '\n');
@@ -175,6 +182,7 @@ void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                 if (commentLen > 0) {
                     if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart, Phrase::kNo)) {
                         this->lfcr();
+                        wroteSomething = true;
                     }
                 }
                 commentStart = prop->fTerminator;
@@ -190,13 +198,14 @@ void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                         } else {
                             this->writeSpace();
                         }
+                        wroteSomething = true;
                     }
                 }
                 int saveIndent = fIndent;
                 if (fIndent < fColumn + 1) {
                     fIndent = fColumn + 1;
                 }
-                this->writeBlockIndent(prop->length(), prop->fContentStart);
+                wroteSomething |= this->writeBlockIndent(prop->length(), prop->fContentStart);
                 fIndent = saveIndent;
                 commentStart = prop->fTerminator;
                 commentLen = (int) (def->fContentEnd - commentStart);
@@ -217,6 +226,7 @@ void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                     SkASSERT(commentLen < 1000);
                     if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart, Phrase::kNo)) {
                         this->lfcr();
+                        wroteSomething = true;
                     }
                 }
                 commentStart = prop->fTerminator;
@@ -228,6 +238,7 @@ void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                     if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart,
                             Phrase::kNo)) {
                         this->lfcr();
+                        wroteSomething = true;
                     }
                 }
                 for (auto row : prop->fChildren) {
@@ -236,7 +247,7 @@ void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                         SkASSERT(MarkType::kColumn == column->fMarkType);
                         this->writeString("-");
                         this->writeSpace();
-                        this->descriptionOut(column, SkipFirstLine::kNo, Phrase::kNo);
+                        wroteSomething |= this->descriptionOut(column, SkipFirstLine::kNo, Phrase::kNo);
                         this->lf(1);
                     }
                 }
@@ -252,10 +263,11 @@ void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                     this->rewriteBlock(commentLen, commentStart, Phrase::kNo);
                     // ince we don't do line wrapping, always insert LF before phrase
                     this->lfcr();   // TODO: remove this once rewriteBlock rewraps paragraphs
+                    wroteSomething = true;
                 }
                 auto iter = fBmhParser->fPhraseMap.find(prop->fName);
                 if (fBmhParser->fPhraseMap.end() == iter) {
-                    return this->reportError<void>("missing phrase definition");
+                    return this->reportError<bool>("missing phrase definition");
                 }
                 Definition* phraseDef = iter->second;
                 // TODO: given TextParser(commentStart, prop->fStart + up to #) return if
@@ -289,12 +301,16 @@ void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                         this->writeSpace();
                     }
                     defIsPhrase = Phrase::kYes;
+                    wroteSomething = true;
                 }
                 if (length > 0) {
                     this->rewriteBlock(length, start, defIsPhrase);
                 }
                 commentStart = prop->fContentStart;
                 commentLen = (int) (def->fContentEnd - commentStart);
+                if ('\n' == commentStart[0] && '\n' == commentStart[1]) {
+                    this->lf(2);
+                }
                 } break;
             default:
                 commentLen = (int) (prop->fStart - commentStart);
@@ -307,7 +323,9 @@ void IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
     SkASSERT(wroteCode || (commentLen > 0 && commentLen < 1500) || def->fDeprecated);
     if (commentLen > 0) {
         this->rewriteBlock(commentLen, commentStart, phrase);
+        wroteSomething = true;
     }
+    return wroteSomething;
 }
 
 void IncludeWriter::enumHeaderOut(RootDefinition* root, const Definition& child) {
@@ -435,7 +453,7 @@ void IncludeWriter::enumHeaderOut(RootDefinition* root, const Definition& child)
     if (wroteHeader) {
         fIndent -= 4;
         this->lfcr();
-        this->writeCommentTrailer();
+        this->writeCommentTrailer(OneLine::kNo);
     }
     Definition* braceHolder = child.fChildren[0];
     if (KeyWord::kClass == braceHolder->fKeyWord) {
@@ -474,7 +492,7 @@ string IncludeWriter::enumMemberComment(const Definition* currentEnumItem,
             break;
         }
         if (IncompleteAllowed(constItem->fMarkType)) {
-            shortComment = constItem->incompleteMessage(Definition::DetailsType::kPhrase);
+            shortComment = constItem->fParent->incompleteMessage(Definition::DetailsType::kPhrase);
         }
     }
     if (!shortComment.length()) {
@@ -617,6 +635,7 @@ void IncludeWriter::enumMembersOut(Definition& child) {
         }
         if (ItemState::kNone != state) {
             this->enumMemberOut(currentEnumItem, child, item, preprocessor);
+            item.reset();
             fStart = token.fContentStart;
             state = ItemState::kNone;
             last.fStart = nullptr;
@@ -840,7 +859,7 @@ void IncludeWriter::methodOut(Definition* method, const Definition& child) {
     }
     fIndent -= 4;
     this->lfcr();
-    this->writeCommentTrailer();
+    this->writeCommentTrailer(OneLine::kNo);
     fBmhMethod = nullptr;
     fMethodDef = nullptr;
     fEnumDef = nullptr;
@@ -864,7 +883,7 @@ void IncludeWriter::structOut(const Definition* root, const Definition& child,
     }
     fIndent -= 4;
     this->lfcr();
-    this->writeCommentTrailer();
+    this->writeCommentTrailer(OneLine::kNo);
 }
 
 bool IncludeWriter::findEnumSubtopic(string undername, const Definition** rootDefPtr) const {
@@ -916,36 +935,18 @@ Definition* IncludeWriter::structMemberOut(const Definition* memberStart, const 
     string name(child.fContentStart, (int) (child.fContentEnd - child.fContentStart));
     Definition* commentBlock = this->findMemberCommentBlock(fBmhStructDef->fChildren, name);
     if (!commentBlock) {
-        return memberStart->reportError<Definition*>("member missing comment block");
+        return memberStart->reportError<Definition*>("member missing comment block 2");
     }
-#if 0
-    if (!commentBlock->fShort) {
-        const char* commentStart = commentBlock->fContentStart;
-        ptrdiff_t commentLen = commentBlock->fContentEnd - commentStart;
+    auto lineIter = std::find_if(commentBlock->fChildren.begin(), commentBlock->fChildren.end(),
+        [](const Definition* def){ return MarkType::kLine == def->fMarkType; } );
+    SkASSERT(commentBlock->fChildren.end() != lineIter);
+    const Definition* lineDef = *lineIter;
+    if (fStructMemberLength > 100) {
         this->writeCommentHeader();
-        bool wroteLineFeed = false;
-        fIndent += 4;
-        for (auto child : commentBlock->fChildren) {
-            commentLen = child->fStart - commentStart;
-            wroteLineFeed |= Wrote::kLF == this->rewriteBlock(commentLen, commentStart, Phrase::kNo);
-            if (MarkType::kFormula == child->fMarkType) {
-                this->writeSpace();
-                this->writeBlock((int) (child->fContentEnd - child->fContentStart),
-                        child->fContentStart);
-            }
-            commentStart = child->fTerminator;
-        }
-        commentLen = commentBlock->fContentEnd - commentStart;
-        wroteLineFeed |= Wrote::kLF == this->rewriteBlock(commentLen, commentStart, Phrase::kNo);
-        fIndent -= 4;
-        if (wroteLineFeed || fColumn > 100 - 3 /* space * / */ ) {
-            this->lfcr();
-        } else {
-            this->writeSpace();
-        }
-        this->writeCommentTrailer();
+        this->writeSpace();
+        this->rewriteBlock(lineDef->length(), lineDef->fContentStart, Phrase::kYes);
+        this->writeCommentTrailer(OneLine::kYes);
     }
-#endif
     this->lfcr();
     this->writeBlock((int) (child.fStart - memberStart->fContentStart),
             memberStart->fContentStart);
@@ -967,15 +968,72 @@ Definition* IncludeWriter::structMemberOut(const Definition* memberStart, const 
                 valueStart->fContentStart);
     }
     this->writeString(";");
-    /* if (commentBlock->fShort) */ {
+    if (fStructMemberLength <= 100) {
         this->indentToColumn(fStructCommentTab);
         this->writeString("//!<");
         this->writeSpace();
-        string extract = fBmhParser->extractText(commentBlock, BmhParser::TrimExtract::kYes);
-        this->rewriteBlock(extract.length(), &extract.front(), Phrase::kNo);
+        this->rewriteBlock(lineDef->length(), lineDef->fContentStart, Phrase::kYes);
     }
-    this->lf(2);
+    this->lf(1);
     return valueEnd;
+}
+
+// const and constexpr and #define aren't contained in a braces like struct and enum.
+// use a bmh subtopic to group like ones together, then measure them in the include as if
+// they were formally linked together
+void IncludeWriter::constSizeMembers(const RootDefinition* root) {
+    // fBmhConst->fParent is subtopic containing all grouped const expressions
+    // fConstDef is token of const include name, hopefully on same line as const start
+    string rootPrefix = root ? root->fName + "::" : "";
+    const Definition* test = fConstDef;
+    int tokenIndex = test->fParentIndex;
+    int longestName = 0;
+    int longestValue = 0;
+    int longestComment = 0;
+    const Definition* subtopic = fBmhConst->fParent;
+    SkASSERT(subtopic);
+    SkASSERT(MarkType::kSubtopic == subtopic->fMarkType);
+    // back up to first token on line
+    size_t lineCount = test->fLineCount;
+    const Definition* last;
+    auto tokenIter = test->fParent->fTokens.begin();
+    std::advance(tokenIter, tokenIndex);
+    do {
+        last = test;
+        std::advance(tokenIter, -1);
+        test = &*tokenIter;
+        SkASSERT(test->fParentIndex == --tokenIndex);
+    } while (lineCount == test->fLineCount);
+    test = last;
+    for (auto child : subtopic->fChildren) {
+        if (MarkType::kConst != child->fMarkType) {
+            continue;
+        }
+        // expect found name to be on the left of assign
+        // expect assign
+        // expect semicolon
+        // no parens, no braces
+        while (rootPrefix + test->fName != child->fName) {
+            std::advance(tokenIter, 1);
+            test = &*tokenIter;
+            SkASSERT(lineCount >= test->fLineCount);
+        }
+        ++lineCount;
+        TextParser constText(test);
+        const char* nameEnd = constText.trimmedBracketEnd('=');
+        SkAssertResult(constText.skipToEndBracket('='));
+        const char* valueEnd = constText.trimmedBracketEnd(';');
+        auto lineIter = std::find_if(child->fChildren.begin(), child->fChildren.end(),
+                [](const Definition* def){ return MarkType::kLine == def->fMarkType; });
+        SkASSERT(child->fChildren.end() != lineIter);
+        longestName = SkTMax(longestName, (int) (nameEnd - constText.fStart));
+        longestValue = SkTMax(longestValue, (int) (valueEnd - constText.fChar));
+        longestComment = SkTMax(longestComment, (*lineIter)->length());
+    }
+    // write fStructValueTab, fStructCommentTab
+    fConstValueTab = longestName + fIndent + 1;
+    fConstCommentTab = fConstValueTab + longestValue + 2;
+    fConstLength = fConstCommentTab + longestComment + (int) sizeof("//!<");
 }
 
 void IncludeWriter::structSizeMembers(const Definition& child) {
@@ -983,6 +1041,7 @@ void IncludeWriter::structSizeMembers(const Definition& child) {
     Definition* typeStart = nullptr;
     int longestName = 0;
     int longestValue = 0;
+    int longestComment = 0;
     SkASSERT(child.fChildren.size() == 1 || child.fChildren.size() == 2);
     bool inEnum = false;
     bool inMethod = false;
@@ -1066,6 +1125,18 @@ void IncludeWriter::structSizeMembers(const Definition& child) {
             longestName = SkTMax(longestName, (int) (token.fContentEnd - token.fContentStart));
             typeStart->fMemberStart = true;
             inMember = true;
+            string tokenName(token.fContentStart, (int) (token.fContentEnd - token.fContentStart));
+            Definition* commentBlock = this->findMemberCommentBlock(fBmhStructDef->fChildren,
+                    tokenName);
+            if (!commentBlock) {
+                return token.reportError<void>("member missing comment block 1");
+            }
+            auto lineIter = std::find_if(commentBlock->fChildren.begin(),
+                    commentBlock->fChildren.end(),
+                    [](const Definition* def){ return MarkType::kLine == def->fMarkType; } );
+            SkASSERT(commentBlock->fChildren.end() != lineIter);
+            const Definition* lineDef = *lineIter;
+            longestComment = SkTMax(longestComment, lineDef->length());
             continue;
         }
         if (MarkType::kMethod == token.fMarkType) {
@@ -1089,6 +1160,7 @@ void IncludeWriter::structSizeMembers(const Definition& child) {
         fStructCommentTab += longestValue + 3 /* space = space */ ;
         fStructValueTab -= 1 /* ; */ ;
     }
+    fStructMemberLength = fStructCommentTab + longestComment;
     // iterate through struct to ensure that members' comments fit on line
     // struct or class may not have any members
     (void) this->checkChildCommentLength(fBmhStructDef, MarkType::kMember);
@@ -1218,6 +1290,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                         params.skipToEndBracket('(');
                         if (params.startsWith(child.fContentStart, childLen)) {
                             this->methodOut(clonedMethod, child);
+                            sawConst = false;
                             break;
                         }
                         ++alternate;
@@ -1263,6 +1336,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                     return child.reportError<bool>("method not found");
                 }
                 this->methodOut(method, child);
+                sawConst = false;
                 continue;
             }
             if (Definition::Type::kPunctuation == child.fType &&
@@ -1283,6 +1357,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                     continue;
                 }
                 this->methodOut(method, child);
+                sawConst = false;
                 continue;
             } else if (fBmhStructDef && fBmhStructDef->fDeprecated) {
                 fContinuation = nullptr;
@@ -1343,6 +1418,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 continue;
             }
             this->methodOut(method, child);
+            sawConst = false;
             if (fAttrDeprecated) {
                 startDef = fAttrDeprecated;
                 fStart = fAttrDeprecated->fContentStart;
@@ -1387,6 +1463,8 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                                 name = child.fName;
                             } else if (1 == trial) {
                                 name = root->fName + "::" + child.fName;
+                            } else if (2 == trial) {
+                                name = root->fName;
                             } else {
                                 SkASSERT(parent);
                                 name = parent->fName + "::" + child.fName;
@@ -1451,11 +1529,12 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                                 continue;
                             }
                 #endif
+                            Definition* priorBlock = fBmhStructDef;
                             Definition* codeBlock = nullptr;
                             Definition* nextBlock = nullptr;
                             for (auto test : fBmhStructDef->fChildren) {
                                 if (MarkType::kCode == test->fMarkType) {
-                                    SkASSERT(!codeBlock);  // FIXME: check enum for correct order earlier
+                                    SkASSERT(!codeBlock);  // FIXME: check enum earlier
                                     codeBlock = test;
                                     continue;
                                 }
@@ -1463,13 +1542,34 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                                     nextBlock = test;
                                     break;
                                 }
+                                priorBlock = test;
                             }
-                            // FIXME: trigger error earlier if inner #Struct or #Class is missing #Code
+                      // FIXME: trigger error earlier if inner #Struct or #Class is missing #Code
                             if (!fBmhStructDef->fDeprecated) {
                                 SkASSERT(codeBlock);
                                 SkASSERT(nextBlock);  // FIXME: check enum for correct order earlier
                                 const char* commentStart = codeBlock->fTerminator;
                                 const char* commentEnd = nextBlock->fStart;
+                      // FIXME: trigger error if #Code is present but comment is before it earlier
+                                SkASSERT(priorBlock); // code always preceded by #Line (I think)
+                                TextParser priorComment(priorBlock->fFileName,
+                                        priorBlock->fTerminator, codeBlock->fStart,
+                                        priorBlock->fLineCount);
+                                priorComment.trimEnd();
+                                if (!priorComment.eof()) {
+                                    return priorBlock->reportError<bool>(
+                                            "expect no comment before #Code");
+                                }
+                                TextParser nextComment(codeBlock->fFileName, commentStart,
+                                        commentEnd, codeBlock->fLineCount);
+                                nextComment.trimEnd();
+                                if (!priorComment.eof()) {
+                                    return priorBlock->reportError<bool>(
+                                            "expect comment after #Code");
+                                }
+                                if (!nextComment.eof()) {
+
+                                }
                                 fIndentNext = true;
                                 this->structOut(root, *fBmhStructDef, commentStart, commentEnd);
                             }
@@ -1632,10 +1732,33 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                     }
                 }
                 if (bmhConst) {
-                    this->constOut(memberStart, child, bmhConst);
+                    this->constOut(memberStart, bmhConst);
                     fDeferComment = nullptr;
                     sawConst = false;
                 }
+            } else if (MarkType::kNone == child.fMarkType && sawConst && !fEnumDef) {
+                string match;
+                if (root) {
+                    match = root->fName + "::";
+                    match += string(child.fContentStart, child.fContentEnd - child.fContentStart);
+                    auto bmhClassIter = fBmhParser->fClassMap.find(root->fName);
+                    if (fBmhParser->fClassMap.end() != bmhClassIter) {
+                        RootDefinition& bmhClass = bmhClassIter->second;
+                        auto constIter = std::find_if(bmhClass.fLeaves.begin(), bmhClass.fLeaves.end(),
+                                [match](std::pair<const string, Definition>& leaf){ return match == leaf.second.fName; } );
+                        if (bmhClass.fLeaves.end() != constIter) {
+                            const Definition& bmhConst = constIter->second;
+                            if (MarkType::kConst == bmhConst.fMarkType
+                                    && MarkType::kSubtopic == bmhConst.fParent->fMarkType) {
+                                fBmhConst = &bmhConst;
+                                fConstDef = &child;
+                            }
+                        }
+                    }
+                } else {
+                    SkDebugf("");  // FIXME: support global constexpr
+                }
+
             }
             if (child.fMemberStart) {
                 memberStart = &child;
@@ -1649,8 +1772,59 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
         }
         if (Definition::Type::kPunctuation == child.fType) {
             if (Punctuation::kSemicolon == child.fPunctuation) {
+                if (sawConst && fBmhConst) {  // find bmh documentation. Parent must be subtopic.
+                    const Definition* subtopic = fBmhConst->fParent;
+                    SkASSERT(subtopic);
+                    SkASSERT(MarkType::kSubtopic == subtopic->fMarkType);
+                    auto firstConst = std::find_if(subtopic->fChildren.begin(),
+                            subtopic->fChildren.end(),
+                            [](const Definition* def){ return MarkType::kConst == def->fMarkType;});
+                    SkASSERT(firstConst != subtopic->fChildren.end());
+                    bool constIsFirst = *firstConst == fBmhConst;
+                    if (constIsFirst) {  // If first #Const child, output subtopic description.
+                        this->constOut(memberStart, subtopic);
+                        // find member / value / comment tabs
+                        // look for a one-to-one correspondence between bmh and include
+                        this->constSizeMembers(root);
+                    }
+                    const char* blockStart = fDeferComment ? fLastComment->fContentEnd : fStart;
+                    const char* blockEnd = fDeferComment ? fDeferComment->fStart - 1 :
+                            memberStart->fStart;
+                    this->writeBlockTrim((int) (blockEnd - blockStart), blockStart);
+                    // after const code, output #Line description as short comment
+                    auto lineIter = std::find_if(fBmhConst->fChildren.begin(),
+                            fBmhConst->fChildren.end(),
+                            [](const Definition* def){ return MarkType::kLine == def->fMarkType; });
+                    SkASSERT(fBmhConst->fChildren.end() != lineIter);
+                    const Definition* lineDef = *lineIter;
+                    if (fConstLength > 100) {
+                        this->writeCommentHeader();
+                        this->writeSpace();
+                        this->rewriteBlock(lineDef->length(), lineDef->fContentStart, Phrase::kYes);
+                        this->writeCommentTrailer(OneLine::kYes);
+                    }
+                    this->lfcr();
+                    TextParser constText(memberStart);
+                    const char* nameEnd = constText.trimmedBracketEnd('=');
+                    SkAssertResult(constText.skipToEndBracket('='));
+                    const char* valueEnd = constText.trimmedBracketEnd(';');
+                    this->writeBlock((int) (nameEnd - memberStart->fContentStart),
+                            memberStart->fContentStart);
+                    this->indentToColumn(fConstValueTab);
+                    this->writeBlock((int) (valueEnd - constText.fChar), constText.fChar);
+                    this->writeString(";");
+                    if (fConstLength <= 100) {
+                        this->indentToColumn(fConstCommentTab);
+                        this->writeString("//!<");
+                        this->writeSpace();
+                        this->rewriteBlock(lineDef->length(), lineDef->fContentStart, Phrase::kYes);
+                    }
+                    fStart = child.fContentStart + 1;
+                    fDeferComment = nullptr;
+                    fBmhConst = nullptr;
+                    sawConst = false;
+                }
                 memberStart = nullptr;
-                sawConst = false;
                 staticOnly = false;
                 if (inStruct) {
                     fInStruct = false;
@@ -1763,6 +1937,25 @@ string IncludeWriter::resolveMethod(const char* start, const char* end, bool fir
                 RootDefinition::AllowParens::kNo);
         if (defRef && MarkType::kMethod == defRef->fMarkType) {
             substitute = methodname + "()";
+        } else {
+            auto defineIter = fBmhParser->fDefineMap.find(methodname);
+            if (fBmhParser->fDefineMap.end() != defineIter) {
+                const RootDefinition& defineDef = defineIter->second;
+                auto codeIter = std::find_if(defineDef.fChildren.begin(),
+                        defineDef.fChildren.end(),
+                        [](Definition* child){ return MarkType::kCode == child->fMarkType; } );
+                if (defineDef.fChildren.end() != codeIter) {
+                    const Definition* codeDef = *codeIter;
+                    string codeContents(codeDef->fContentStart, codeDef->length());
+                    size_t namePos = codeContents.find(methodname);
+                    if (string::npos != namePos) {
+                        size_t parenPos = namePos + methodname.length();
+                        if (parenPos < codeContents.length() && '(' == codeContents[parenPos]) {
+                            substitute = methodname + "()";
+                        }
+                    }
+                }
+            }
         }
     }
     if (fMethodDef && methodname == fMethodDef->fName) {
@@ -1781,6 +1974,18 @@ string IncludeWriter::resolveMethod(const char* start, const char* end, bool fir
         }
     }
     return substitute;
+}
+
+string IncludeWriter::resolveAlias(const Definition* def) {
+    for (auto child : def->fChildren) {
+        if (MarkType::kSubstitute == child->fMarkType) {
+            return string(child->fContentStart, (int) (child->fContentEnd - child->fContentStart));
+        }
+        if (MarkType::kAlias == child->fMarkType && def->fName == child->fName) {
+            return this->resolveAlias(child);
+        }
+    }
+    return "";
 }
 
 string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
@@ -1820,6 +2025,9 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
                     }
                 }
             }
+            if (!rootDef && fEnumDef && "Sk" + prefixedName == fEnumDef->fFiddle) {
+                rootDef = fEnumDef;
+            }
             if (!rootDef && !substitute.length()) {
                 auto aliasIter = fBmhParser->fAliasMap.find(undername);
                 if (fBmhParser->fAliasMap.end() != aliasIter) {
@@ -1837,17 +2045,9 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
     }
     if (rootDef) {
         MarkType rootType = rootDef->fMarkType;
-        bool isTopic = MarkType::kSubtopic == rootType || MarkType::kTopic == rootType;
-        auto substituteParent = MarkType::kAlias == rootType ? rootDef->fParent :
-                isTopic ? rootDef : nullptr;
-        if (substituteParent) {
-            for (auto child : substituteParent->fChildren) {
-                if (MarkType::kSubstitute == child->fMarkType) {
-                    substitute = string(child->fContentStart,
-                            (int) (child->fContentEnd - child->fContentStart));
-                    break;
-                }
-            }
+        if (MarkType::kSubtopic == rootType || MarkType::kTopic == rootType
+                || MarkType::kAlias == rootType) {
+            substitute = this->resolveAlias(rootDef);
         }
         if (!substitute.length()) {
             string match = rootDef->fName;
@@ -1856,7 +2056,7 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
                 match.erase(index, 1);
             }
             string skmatch = "Sk" + match;
-            auto parent = substituteParent ? substituteParent : rootDef;
+            auto parent = MarkType::kAlias == rootType ? rootDef->fParent : rootDef;
             for (auto child : parent->fChildren) {
                 // there may be more than one
                 // prefer the one mostly closely matching in text
@@ -1910,6 +2110,22 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
                         substitute += ' ';
                         substitute += ConvertRef(rootDef->fName, false);
                     } else {
+                        size_t underpos = undername.find('_');
+                        if (string::npos != underpos) {
+                            string parentName = undername.substr(0, underpos);
+                            string skName = "Sk" + parentName;
+                            if (skName == parent->fName) {
+                                SkASSERT(start >= fLastDescription->fContentStart);
+                                string lastDescription = string(fLastDescription->fContentStart,
+                                        (int) (start - fLastDescription->fContentStart));
+                                size_t lineStart = lastDescription.rfind('\n');
+                                SkASSERT(string::npos != lineStart);
+                                fLine = fLastDescription->fContentStart + lineStart + 1;
+                                fChar = start;
+                                fEnd = end;
+                                return this->reportError<string>("remove underline");
+                            }
+                        }
                         substitute += ConvertRef(undername, first);
                     }
                 }

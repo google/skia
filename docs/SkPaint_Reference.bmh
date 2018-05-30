@@ -1,5 +1,5 @@
 #Topic Paint
-#Alias Paint_Reference
+#Alias Paint_Reference ##
 
 #Class SkPaint
 
@@ -440,8 +440,8 @@ as the Font_Engine.
     gray-level rendering.
 ##
 #Const kFull_Hinting 3
-#Line # modifies glyph outlines for maxiumum constrast ##
-    Modifies glyph outlines for maxiumum constrast. With FreeType, this selects
+#Line # modifies glyph outlines for maximum constrast ##
+    Modifies glyph outlines for maximum constrast. With FreeType, this selects
     FT_LOAD_TARGET_LCD or FT_LOAD_TARGET_LCD_V if kLCDRenderText_Flag is set.
     FT_LOAD_TARGET_LCD is a variant of FT_LOAD_TARGET_NORMAL optimized for
     horizontally decimated LCD displays; FT_LOAD_TARGET_LCD_V is a
@@ -450,9 +450,9 @@ as the Font_Engine.
 
 #Bug 915
 On OS_X and iOS, hinting controls whether Core_Graphics dilates the font outlines
-to account for LCD text. No hinting uses Core_Text gray scale output.
+to account for LCD text. No hinting uses Core_Text Grayscale output.
 Normal hinting uses Core_Text LCD output. If kLCDRenderText_Flag is clear,
-the LCD output is reduced to a single grayscale channel.
+the LCD output is reduced to a single Grayscale channel.
 
 On Windows with DirectWrite, Hinting has no effect.
 
@@ -650,11 +650,14 @@ All Flags members may be cleared, or one or more may be set.
 # ------------------------------------------------------------------------------
 #Subtopic Anti_Alias
 #Alias Anti_Alias
-#Substitute Anti-alias
+#Substitute anti-alias
+##
 #Alias Anti_Aliased
-#Substitute Anti-aliased
+#Substitute anti-aliased
+##
 #Alias Anti_Aliasing
-#Substitute Anti-aliasing
+#Substitute anti-aliasing
+##
 #In Related_Function
 #Line # approximating coverage with transparency ##
 
@@ -948,7 +951,7 @@ kLCDRenderText_Flag or kSubpixelText_Flag (or both) at compile time.
 #Subtopic Device_Text ##
 
 #Subtopic Linear_Text
-#Alias Linear_Text
+#Alias Linear_Text ##
 #Line # selects text rendering as Glyph or Path ##
 
 Linear_Text selects whether text is rendered as a Glyph or as a Path.
@@ -1025,7 +1028,7 @@ If kLinearText_Flag is clear, it is the same as setting Hinting to kNo_Hinting.
 #Subtopic Linear_Text ##
 
 #Subtopic Subpixel_Text
-#Alias Subpixel_Text
+#Alias Subpixel_Text ##
 #Line # uses pixel transparency to represent fractional offset ##
 
 Flags kSubpixelText_Flag uses the pixel transparency to represent a fractional offset.
@@ -1085,9 +1088,12 @@ SkDebugf("paint.isSubpixelText() %c= !!(paint.getFlags() & SkPaint::kSubpixelTex
 #Subtopic Subpixel_Text ##
 
 #Subtopic LCD_Text
-#Substitute LCD text
 #Line # text relying on the order of RGB stripes ##
-#Alias LCD_Text # makes this a top level name, since it is under subtopic Device_Text
+
+# make this a top level name, since it is under subtopic Device_Text
+#Alias LCD_Text
+#Substitute LCD text
+##
 
 When set, Flags kLCDRenderText_Flag takes advantage of the organization of RGB stripes that
 create a color, and relies
@@ -1151,7 +1157,7 @@ SkDebugf("paint.isLCDRenderText() %c= !!(paint.getFlags() & SkPaint::kLCDRenderT
 # ------------------------------------------------------------------------------
 #Subtopic Font_Embedded_Bitmaps
 #Line # custom sized bitmap Glyphs ##
-#Alias Font_Embedded_Bitmaps # long-winded enough, alias so I don't type Paint_Font_...
+#Alias Font_Embedded_Bitmaps ## # long-winded enough, alias so I don't type Paint_Font_...
 
 Font_Embedded_Bitmaps allows selecting custom sized bitmap Glyphs.
 Flags kEmbeddedBitmapText_Flag when set chooses an embedded bitmap glyph over an outline contained
@@ -1515,7 +1521,7 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 #Subtopic Full_Hinting_Spacing
 #Line # glyph spacing affected by hinting ##
-#Alias Full_Hinting_Spacing # long winded enough -- maybe things with two underscores auto-aliased?
+#Alias Full_Hinting_Spacing ## # long winded enough -- maybe things with two underscores auto-aliased?
 
 if Hinting is set to kFull_Hinting, Full_Hinting_Spacing adjusts the character
 spacing by the difference of the hinted and Unhinted Left_Side_Bearing and
@@ -1834,7 +1840,7 @@ may have gaps, and if kAntiAlias_Flag is set, Color_Alpha will increase to visua
 
 #Subtopic Hairline
 #Line # lines and curves with minimal width ##
-#Alias Hairline # maybe should be Stroke_Hairline ?
+#Alias Hairline ## # maybe should be Stroke_Hairline ?
 
 Stroke_Width of zero has a special meaning and switches drawing to use Hairline.
 Hairline draws the thinnest continuous frame. If kAntiAlias_Flag is clear, adjacent pixels
@@ -3494,6 +3500,7 @@ Align defaults to kLeft_Align.
 
 #Const kAlignCount 3
 #Line # number of different Text_Align values defined ##
+May be used to verify that Align is a legal value.
 ##
 
 #Enum ##
@@ -5053,7 +5060,7 @@ Paint may draw to.
     if (!path.isInverseFillType() && paint.canComputeFastBounds()) {
         SkRect storage;
         if (canvas->quickReject(paint.computeFastBounds(path.getBounds(), &storage))) {
-            return; // don't draw the path
+            return; // do not draw the path
         }
     }
     // draw the path

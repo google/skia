@@ -998,7 +998,7 @@ Releases ownership of any shared data and deletes data if <a href='#Path'>Path</
 
 ### Example
 
-<div><fiddle-embed name="01ad6be9b7d15a2217daea273eb3d466"><div>delete calls <a href='#Path'>Path</a> Destructor, but copy of original in path2 is unaffected.
+<div><fiddle-embed name="01ad6be9b7d15a2217daea273eb3d466"><div>delete calls <a href='#Path'>Path</a> <a href='undocumented#Destructor'>Destructor</a>, but copy of original in path2 is unaffected.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -3228,7 +3228,7 @@ have no effect; <a href='#Conic'>Conic</a> is identical to a line segment from s
 point. If <a href='#Conic_Weight'>Weight</a> is less than one, <a href='#Conic'>Conic</a> follows an elliptical arc.
 If <a href='#Conic_Weight'>Weight</a> is exactly one, then <a href='#Conic'>Conic</a> is identical to <a href='#Quad'>Quad</a>; <a href='#Conic'>Conic</a> follows a
 parabolic arc. If <a href='#Conic_Weight'>Weight</a> is greater than one, <a href='#Conic'>Conic</a> follows a hyperbolic
-arc. If <a href='#Conic_Weight'>Weight</a> is infinity, <a href='#Conic'>Conic</a> is indentical to two line segments, connecting
+arc. If <a href='#Conic_Weight'>Weight</a> is infinity, <a href='#Conic'>Conic</a> is identical to two line segments, connecting
 start <a href='SkPoint_Reference#Point'>Point</a> to control <a href='SkPoint_Reference#Point'>Point</a>, and control <a href='SkPoint_Reference#Point'>Point</a> to end <a href='SkPoint_Reference#Point'>Point</a>.
 
 ### Example
@@ -5334,7 +5334,7 @@ Returns zero if <a href='#Path'>Path</a> contains no <a href='undocumented#Line'
 
 ### Example
 
-<div><fiddle-embed name="af0c66aea3ef81b709664c7007f48aae">
+<div><fiddle-embed name="657a3f3e11acafea92b84d6bb0c13633">
 
 #### Example Output
 
@@ -5746,9 +5746,7 @@ SkPath member functions read and modify the structure properties.
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
 </table>
-Iterates through <a href='#Verb_Array'>Verb Array</a>, and associated <a href='#Point_Array'>Point Array</a> and <a href='#Conic_Weight'>Conic Weight</a>.
-Provides options to treat open <a href='#Contour'>Contours</a> as closed, and to ignore
-degenerate data.
+
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 class <a href='#SkPath_Iter_Iter'>Iter</a> {
@@ -5762,6 +5760,10 @@ public:
     bool <a href='#SkPath_Iter_isClosedContour'>isClosedContour</a> const;
 };
 </pre>
+
+Iterates through <a href='#Verb_Array'>Verb Array</a>, and associated <a href='#Point_Array'>Point Array</a> and <a href='#Conic_Weight'>Conic Weight</a>.
+Provides options to treat open <a href='#Contour'>Contours</a> as closed, and to ignore
+degenerate data.
 
 ### Example
 
@@ -6120,8 +6122,7 @@ SkPath member functions read and modify the structure properties.
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
 </table>
-Iterates through <a href='#Verb_Array'>Verb Array</a>, and associated <a href='#Point_Array'>Point Array</a> and <a href='#Conic_Weight'>Conic Weight</a>.
-<a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Conic Weight</a> are returned unaltered.
+
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     class <a href='#SkPath_RawIter_RawIter'>RawIter</a> {
@@ -6134,6 +6135,9 @@ Iterates through <a href='#Verb_Array'>Verb Array</a>, and associated <a href='#
         <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_RawIter_conicWeight'>conicWeight</a> const;
     }
 </pre>
+
+Iterates through <a href='#Verb_Array'>Verb Array</a>, and associated <a href='#Point_Array'>Point Array</a> and <a href='#Conic_Weight'>Conic Weight</a>.
+<a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Conic Weight</a> are returned unaltered.
 
 <a name='SkPath_RawIter_RawIter'></a>
 ## RawIter
