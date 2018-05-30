@@ -20,11 +20,34 @@ def RunSteps(api):
   if 'NoDEPS' in api.properties['buildername']:
     bot_update = False
 
+  checkout_root = api.checkout.default_checkout_root
+  checkout_chromium = False
+  checkout_flutter = False
+  extra_gclient_env = {}
+  flutter_android = False
+  parent_rev = False
+  if 'CommandBuffer' in api.vars.builder_name:
+    checkout_chromium = True
+  if 'RecreateSKPs' in api.vars.builder_name:
+    checkout_chromium = True
+    extra_gclient_env['CPPFLAGS'] = (
+        '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1')
+  if 'Flutter' in api.vars.builder_name:
+    checkout_root = checkout_root.join('flutter')
+    checkout_flutter = True
+    if 'Android' in api.vars.builder_name:
+      flutter_android = True
+  if 'ParentRevision' in api.vars.builder_name:
+    parent_rev = True
+
   if bot_update:
-    checkout_root = api.checkout.default_checkout_root
-    if 'Flutter' in api.vars.builder_name:
-      checkout_root = checkout_root.join('flutter')
-    api.checkout.bot_update(checkout_root=checkout_root)
+    api.checkout.bot_update(
+        checkout_root=checkout_root,
+        checkout_chromium=checkout_chromium,
+        checkout_flutter=checkout_flutter,
+        extra_gclient_env=extra_gclient_env,
+        flutter_android=flutter_android,
+        parent_rev=parent_rev)
   else:
     api.checkout.git(checkout_root=api.path['start_dir'])
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)

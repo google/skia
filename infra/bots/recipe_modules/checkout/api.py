@@ -34,53 +34,62 @@ class CheckoutApi(recipe_api.RecipeApi):
       self.m.git('rebase', self.m.properties['revision'])
       return self.m.properties['revision']
 
-  def bot_update(self, checkout_root, gclient_cache=None):
-    """Run the steps to obtain a checkout using bot_update."""
+  def bot_update(self, checkout_root, gclient_cache=None,
+                 checkout_chromium=False, checkout_flutter=False,
+                 extra_gclient_env=None, parent_rev=False,
+                 flutter_android=False):
+    """Run the steps to obtain a checkout using bot_update.
+
+    Args:
+      checkout_root: Root directory where the code will be synced.
+      gclient_cache: Optional, directory of the gclient cache.
+      checkout_chromium: If True, will check out chromium/src.git in addition
+          to the primary repo.
+      checkout_flutter: If True, will checkout flutter in addition to the
+          primary repo.
+      extra_gclient_env: Map of extra environment variable names to their values
+          to supply while running gclient.
+      parent_rev: If True, checks out the parent of the specified revision,
+          rather than the revision itself, ie. HEAD^ for normal jobs and HEAD
+          (no patch) for try jobs.
+      flutter_android: Indicates that we're checking out flutter for Android.
+    """
     if not gclient_cache:
       gclient_cache = self.m.vars.cache_dir.join('git')
+    if not extra_gclient_env:
+      extra_gclient_env = {}
 
     cfg_kwargs = {}
-    is_parent_revision = 'ParentRevision' in self.m.vars.extra_tokens
 
     # Use a persistent gclient cache for Swarming.
     cfg_kwargs['CACHE_DIR'] = gclient_cache
 
     # Create the checkout path if necessary.
-    if not self.m.path.exists(checkout_root):
-      self.m.file.ensure_directory('makedirs checkout_path', checkout_root)
+    # TODO(borenet): 'makedirs checkout_root'
+    self.m.file.ensure_directory('makedirs checkout_path', checkout_root)
 
     # Initial cleanup.
     gclient_cfg = self.m.gclient.make_config(**cfg_kwargs)
 
-    # Some bots also require a checkout of chromium.
-    need_chromium_checkout = False
-    gclient_env = {'DEPOT_TOOLS_UPDATE': '0'}
-    if 'CommandBuffer' in self.m.properties['buildername']:
-      need_chromium_checkout = True
-      gclient_env['GYP_CHROMIUM_NO_ACTION'] = '0'
-    if 'RecreateSKPs' in self.m.properties['buildername']:
-      need_chromium_checkout = True
-      gclient_env['CPPFLAGS'] = '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1'
-
     # Add chromium first because of skbug.com/7917.
-    if need_chromium_checkout:
+    if checkout_chromium:
       chromium = gclient_cfg.solutions.add()
       chromium.name = 'src'
       chromium.managed = False
       chromium.url = 'https://chromium.googlesource.com/chromium/src.git'
       chromium.revision = 'origin/master'
+      extra_gclient_env['GYP_CHROMIUM_NO_ACTION'] = '0'
 
     main_repo = self.m.properties['repository']
 
-    need_flutter_checkout = 'Flutter' in self.m.properties['buildername']
-    if need_flutter_checkout:
+    if checkout_flutter:
       main_repo = 'https://github.com/flutter/engine.git'
     main_name = self.m.path.basename(main_repo)
     if main_name.endswith('.git'):
       main_name = main_name[:-len('.git')]
       # Special case for flutter because it seems to need a very specific
       # directory structure to successfully build.
-      if need_flutter_checkout and main_name == 'engine':
+      if checkout_flutter and main_name == 'engine':
         main_name = 'src/flutter'
     main = gclient_cfg.solutions.add()
     main.name = main_name
@@ -97,13 +106,13 @@ class CheckoutApi(recipe_api.RecipeApi):
       if patch_root.endswith('.git'):
         patch_root = patch_root[:-4]
 
-    if need_flutter_checkout:
+    if checkout_flutter:
       # Skia is a DEP of Flutter; the 'revision' property is a Skia revision,
       # and any patch should be applied to Skia, not Flutter.
       main.revision = 'origin/master'
       main.managed = True
       m[main_name] = 'got_flutter_revision'
-      if 'Android' in self.m.vars.extra_tokens:
+      if flutter_android:
         gclient_cfg.target_os.add('android')
 
       skia_dep_path = 'src/third_party/skia'
@@ -130,7 +139,7 @@ class CheckoutApi(recipe_api.RecipeApi):
       # code and properties to agree with bot_update.
       self.m.bot_update._repository = patch_repo
 
-    if not self.m.vars.is_trybot and is_parent_revision:
+    if not self.m.vars.is_trybot and parent_rev:
       main.revision = main.revision + '^'
 
     self.m.gclient.c = gclient_cfg
@@ -141,10 +150,13 @@ class CheckoutApi(recipe_api.RecipeApi):
           # patch=False, we'll see "... (without patch)" in the step names, even
           # for non-trybot runs, which is misleading and confusing. Therefore,
           # always specify patch=True for non-trybot runs.
-          patch=not (self.m.vars.is_trybot and is_parent_revision)
+          patch=not (self.m.vars.is_trybot and parent_rev)
       )
 
-    if need_chromium_checkout or need_flutter_checkout:
+    if checkout_chromium or checkout_flutter:
+      gclient_env = {'DEPOT_TOOLS_UPDATE': '0'}
+      if extra_gclient_env:
+        gclient_env.update(extra_gclient_env)
       with self.m.context(cwd=checkout_root, env=gclient_env):
         self.m.gclient.runhooks()
     return update_step.presentation.properties['got_revision']
