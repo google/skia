@@ -1,6 +1,6 @@
 #Topic Bitmap
-#Alias Bitmaps
-#Alias Bitmap_Reference
+#Alias Bitmaps ##
+#Alias Bitmap_Reference ##
 
 #Class SkBitmap
 
@@ -11,7 +11,7 @@ Bitmap points to Pixel_Ref, which describes the physical array of pixels.
 Image_Info bounds may be located anywhere fully inside Pixel_Ref bounds.
 
 Bitmap can be drawn using Canvas. Bitmap can be a drawing destination for Canvas
-draw member functionss. Bitmap flexibility as a pixel container limits some
+draw member functions. Bitmap flexibility as a pixel container limits some
 optimizations available to the target platform.
 
 If pixel array is primarily read-only, use Image for better performance.
