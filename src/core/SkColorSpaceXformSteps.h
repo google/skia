@@ -8,8 +8,10 @@
 #ifndef SkColorSpaceXformSteps_DEFINED
 #define SkColorSpaceXformSteps_DEFINED
 
-#include "SkColorSpace.h"
 #include "SkImageInfo.h"
+class SkArenaAlloc;
+class SkColorSpace;
+class SkRasterPipeline;
 
 struct SkColorSpaceXformSteps {
     SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType srcAT,
@@ -24,6 +26,8 @@ struct SkColorSpaceXformSteps {
     SkColorSpaceTransferFn srcTF,     // Apply for linearize.
                            dstTFInv;  // Apply for encode.
     float src_to_dst_matrix[9];       // Apply this 3x3 row-major matrix for gamut_transform.
+
+    void appendStages(SkRasterPipeline*, SkArenaAlloc*) const;
 };
 
 

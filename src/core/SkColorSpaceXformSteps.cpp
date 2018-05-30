@@ -5,7 +5,10 @@
  * found in the LICENSE file.
  */
 
+#incldue "SkArenaAlloc.h"
+#include "SkColorSpace.h"
 #include "SkColorSpaceXformSteps.h"
+#include "SkRasterPipeline.h"
 
 // TODO: explain
 
@@ -62,4 +65,33 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
         this->unpremul = false;
         this->premul   = false;
     }
+}
+
+void SkColorSpaceXformSteps::appendStages(SkRasterPipeline* p, SkArenaAlloc* alloc) const {
+    if (this->unpremul)  { p->append(SkRasterPipeline::unpremul); }
+    if (this->linearize) {
+        if (src->gammaCloseToSRGB()) {
+            p->append(SkRasterPipeline::from_srgb);
+        } else {
+            auto tf = alloc->make<SkColorSpaceTransferFn>(this->srcTF);
+            p->append(SkRasterPipeline::parametric_r, tf);
+            p->append(SkRasterPipeline::parametric_g, tf);
+            p->append(SkRasterPipeline::parametric_b, tf);
+        }
+    }
+    if (this->gamut_transform) {
+        auto m = memcpy(alloc->makeArray<float>(9), this->src_to_dst_matrix, 9*sizeof(float));
+        p->append(SkRasterPipeline::matrix_3x3, m);
+    }
+    if (this->encode) {
+        if (dst->gammaCloseToSRGB()) {
+            p->append(SkRasterPipeline::to_srgb);
+        } else {
+            auto tf = alloc->make<SkColorSpaceTransferFn>(this->dstTFInv);
+            p->append(SkRasterPipeline::parametric_r, tf);
+            p->append(SkRasterPipeline::parametric_g, tf);
+            p->append(SkRasterPipeline::parametric_b, tf);
+        }
+    }
+    if (this->premul) { p->append(SkRasterPipeline::premul); }
 }

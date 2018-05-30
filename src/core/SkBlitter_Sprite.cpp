@@ -138,8 +138,8 @@ public:
             p.append(SkRasterPipeline::set_rgb, &fPaintColor);
             p.append(SkRasterPipeline::premul);
         }
-        append_gamut_transform(&p, fAlloc,
-                               fSource.colorSpace(), fDst.colorSpace(), kPremul_SkAlphaType);
+        transform_colorspace(&p, fAlloc,
+                             fSource.colorSpace(), fDst.colorSpace(), kPremul_SkAlphaType);
         if (fPaintColor.fA != 1.0f) {
             p.append(SkRasterPipeline::scale_1_float, &fPaintColor.fA);
         }
