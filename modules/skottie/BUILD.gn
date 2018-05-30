@@ -18,11 +18,17 @@ source_set("skottie") {
   if (skia_enable_skottie) {
     public_configs = [ ":public_config" ]
     sources = [
+      # TODO: move this to public
+      "include/Skottie.h",
       "src/Skottie.cpp",
       "src/SkottieAdapter.cpp",
+      "src/SkottieAdapter.h",
       "src/SkottieAnimator.cpp",
+      "src/SkottieAnimator.h",
       "src/SkottieJson.cpp",
+      "src/SkottieJson.h",
       "src/SkottieValue.cpp",
+      "src/SkottieValue.h",
     ]
     configs += [ "../../:skia_private" ]
     deps = [
