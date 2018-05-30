@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "736d46a8_195f097e",
+        "filename": "gn/find_headers.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-30T14:59:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d7e4d799_37ca0ce7",
+      "range": {
+        "startLine": 51,
+        "startChar": 57,
+        "endLine": 51,
+        "endChar": 63
+      },
+      "revId": "2223f5b5fa7905675f41836e91c66666183a14d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5cebd955_0bb8a73d",
         "filename": "gn/find_headers.py",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "f6b58fa4_72cbacee",
+        "filename": "gn/find_headers.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-30T14:59:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5cebd955_0bb8a73d",
+      "range": {
+        "startLine": 55,
+        "startChar": 29,
+        "endLine": 55,
+        "endChar": 56
+      },
+      "revId": "2223f5b5fa7905675f41836e91c66666183a14d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3baccecd_3cbd3803",
         "filename": "gn/find_headers.py",
         "patchSetId": 1
@@ -68,6 +116,30 @@
       "revId": "2223f5b5fa7905675f41836e91c66666183a14d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3d2e4dd_73221569",
+        "filename": "gn/find_headers.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-30T14:59:32Z",
+      "side": 1,
+      "message": "\u003e Yes, if it doesn\u0027t break anything here, I\u0027d like to try that. Something like\n\u003e \n\u003e sources \u003d {os.path.join(absolute_source, os.path.normpath(source[2:]))\n\u003e            for target in desc_json.itervalues()\n\u003e            for source in target.get(\u0027public\u0027, [])}\n\u003e \n\u003e if not sources:\n\u003e   sources \u003d {os.path.join(absolute_source, os.path.normpath(source[2:]))\n\u003e              for target in desc_json.itervalues()\n\u003e              for source in target.get(\u0027sources\u0027, [])}\n\u003e \n\u003e In fact it would be nice to go even further and say that anything in \u0027public\u0027 is a valid include even if it isn\u0027t directly on any include path (though we don\u0027t need to deal with that right now).\n\nDone, with a twist: checking \u0027public\u0027 is required per-target, unless we convert all targets to use \u0027public\u0027 exclusively.  Otherwise, targets which do use it would eclipse targets which don\u0027t.",
+      "parentUuid": "3baccecd_3cbd3803",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 22
+      },
+      "revId": "2223f5b5fa7905675f41836e91c66666183a14d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
