@@ -2114,3 +2114,8 @@ if (skia_enable_tools) {
     }
   }
 }
+
+executable("jpeg_to_pdf") {
+  sources = [ "tools/jpeg_to_pdf.cpp", ]
+  deps = [ ":skia", ]
+}
