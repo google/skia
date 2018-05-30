@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5fd19aad_6d8d3b93",
+        "filename": "tools/flags/SkCommonFlagsConfig.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-05-30T19:40:44Z",
+      "side": 1,
+      "message": "Mike: I went for f16nl rather than esrgb, to avoid glesrgb vs glessrgb vs glesesrgb.",
+      "revId": "02b91b2fe2b1a4ac78e9f595c200a7ea0812f7ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
