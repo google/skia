@@ -302,10 +302,10 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
         }
     }
 
-    float matrix[12];
+    SkSTArenaAlloc<12*sizeof(float)> alloc;
     if (isColorAware) {
-        append_gamut_transform(&pipeline, matrix, srcInfo.colorSpace(), dstInfo.colorSpace(),
-                               premulState);
+        append_gamut_transform(&pipeline, &alloc,
+                               srcInfo.colorSpace(), dstInfo.colorSpace(), premulState);
     }
 
     SkAlphaType dat = dstInfo.alphaType();

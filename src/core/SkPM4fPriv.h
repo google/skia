@@ -75,88 +75,36 @@ static inline float exact_srgb_to_linear(float srgb) {
     return linear;
 }
 
-static inline void analyze_3x4_matrix(const float matrix[12],
-                                      bool* can_underflow, bool* can_overflow) {
-    // | 0 3 6  9 |   |r|   |x|
-    // | 1 4 7 10 | x |g| = |y|
-    // | 2 5 8 11 |   |b|   |z|
-    //                |1|
-    // We'll find min/max bounds on each of x,y,z assuming r,g,b are all in [0,1].
-    // If any can be <0, we'll set can_underflow; if any can be >1, can_overflow.
-    bool underflow = false,
-          overflow = false;
-    for (int i = 0; i < 3; i++) {
-        SkScalar min = matrix[i+9],
-                 max = matrix[i+9];
-        (matrix[i+0] < 0 ? min : max) += matrix[i+0];
-        (matrix[i+3] < 0 ? min : max) += matrix[i+3];
-        (matrix[i+6] < 0 ? min : max) += matrix[i+6];
-        underflow = underflow || min < 0;
-        overflow  =  overflow || max > 1;
-    }
-    *can_underflow = underflow;
-    *can_overflow  =  overflow;
-}
-
 // N.B. scratch_matrix_3x4 must live at least as long as p.
-// Returns false if no gamut tranformation was necessary.
-static inline bool append_gamut_transform_noclamp(SkRasterPipeline* p,
-                                                  float scratch_matrix_3x4[12],
-                                                  SkColorSpace* src,
-                                                  SkColorSpace* dst) {
+static inline void append_gamut_transform(SkRasterPipeline* p,
+                                          SkArenaAlloc* alloc,
+                                          SkColorSpace* src,
+                                          SkColorSpace* dst,
+                                          SkAlphaType srcAT) {
     if (src == dst || !dst || !src) {
-        return false;
+        return;
     }
 
     const SkMatrix44 *fromSrc = src->  toXYZD50(),
                        *toDst = dst->fromXYZD50();
     if (!fromSrc || !toDst) {
         SkDEBUGFAIL("We can't handle non-XYZ color spaces in append_gamut_transform().");
-        return false;
+        return;
     }
 
     // Slightly more sophisticated version of if (src == dst)
     if (src->toXYZD50Hash() == dst->toXYZD50Hash()) {
-        return false;
+        return;
     }
 
     // Convert from 4x4 to (column-major) 3x4.
     SkMatrix44 m44(*toDst, *fromSrc);
-    auto ptr = scratch_matrix_3x4;
+    float* ptr = alloc->makeArrayDefault<float>(12);
     *ptr++ = m44.get(0,0); *ptr++ = m44.get(1,0); *ptr++ = m44.get(2,0);
     *ptr++ = m44.get(0,1); *ptr++ = m44.get(1,1); *ptr++ = m44.get(2,1);
     *ptr++ = m44.get(0,2); *ptr++ = m44.get(1,2); *ptr++ = m44.get(2,2);
     *ptr++ = m44.get(0,3); *ptr++ = m44.get(1,3); *ptr++ = m44.get(2,3);
-
-    p->append(SkRasterPipeline::matrix_3x4, scratch_matrix_3x4);
-    return true;
-}
-
-
-// N.B. scratch_matrix_3x4 must live at least as long as p.
-static inline void append_gamut_transform(SkRasterPipeline* p,
-                                          float scratch_matrix_3x4[12],
-                                          SkColorSpace* src,
-                                          SkColorSpace* dst,
-                                          SkAlphaType alphaType) {
-    if (append_gamut_transform_noclamp(p, scratch_matrix_3x4, src, dst)) {
-        bool needs_clamp_0, needs_clamp_1;
-        analyze_3x4_matrix(scratch_matrix_3x4, &needs_clamp_0, &needs_clamp_1);
-
-        if (needs_clamp_0) { p->append(SkRasterPipeline::clamp_0); }
-        if (needs_clamp_1) {
-            (kPremul_SkAlphaType == alphaType) ? p->append(SkRasterPipeline::clamp_a)
-                                               : p->append(SkRasterPipeline::clamp_1);
-        }
-    }
-}
-
-static inline void append_gamut_transform(SkRasterPipeline* p,
-                                          SkArenaAlloc* alloc,
-                                          SkColorSpace* src,
-                                          SkColorSpace* dst,
-                                          SkAlphaType alphaType) {
-    append_gamut_transform(p, alloc->makeArrayDefault<float>(12), src, dst, alphaType);
+    p->append(SkRasterPipeline::matrix_3x4, ptr-12);
 }
 
 static inline SkColor4f to_colorspace(const SkColor4f& c, SkColorSpace* src, SkColorSpace* dst) {
@@ -164,12 +112,10 @@ static inline SkColor4f to_colorspace(const SkColor4f& c, SkColorSpace* src, SkC
     if (src && dst && !SkColorSpace::Equals(src, dst)) {
         SkJumper_MemoryCtx color4f_ptr = { &color4f, 0 };
 
-        float scratch_matrix_3x4[12];
-
         SkSTArenaAlloc<256> alloc;
         SkRasterPipeline p(&alloc);
         p.append_constant_color(&alloc, color4f);
-        append_gamut_transform(&p, scratch_matrix_3x4, src, dst, kUnpremul_SkAlphaType);
+        append_gamut_transform(&p, &alloc, src, dst, kUnpremul_SkAlphaType);
         p.append(SkRasterPipeline::store_f32, &color4f_ptr);
 
         p.run(0,0,1,1);
