@@ -10,7 +10,6 @@
 
 #ifdef SK_LLVM_AVAILABLE
 
-#include "ir/SkSLAppendStage.h"
 #include "ir/SkSLBinaryExpression.h"
 #include "ir/SkSLBreakStatement.h"
 #include "ir/SkSLContinueStatement.h"
@@ -45,6 +44,8 @@ class SkRasterPipeline;
 
 namespace SkSL {
 
+struct AppendStage;
+
 /**
  * A just-in-time compiler for SkSL code which uses an LLVM backend. Only available when the
  * skia_llvm_path gn arg is set.
@@ -54,7 +55,8 @@ namespace SkSL {
  * #ifdef SK_LLVM_AVAILABLE
  *   SkSL::Compiler compiler;
  *   SkSL::Program::Settings settings;
- *   std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kCPU_Kind,
+ *   std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
+         SkSL::Program::kPipelineStage_Kind,
  *       "void swap(int x, int y, inout float4 color) {"
  *       "    color.rb = color.br;"
  *       "}",
@@ -304,6 +306,10 @@ private:
     LLVMBasicBlockRef fCurrentBlock;
     LLVMTypeRef fVoidType;
     LLVMTypeRef fInt1Type;
+    LLVMTypeRef fInt1VectorType;
+    LLVMTypeRef fInt1Vector2Type;
+    LLVMTypeRef fInt1Vector3Type;
+    LLVMTypeRef fInt1Vector4Type;
     LLVMTypeRef fInt8Type;
     LLVMTypeRef fInt8PtrType;
     LLVMTypeRef fInt32Type;
@@ -332,6 +338,12 @@ private:
     std::vector<LLVMBasicBlockRef> fBreakTarget;
     std::vector<LLVMBasicBlockRef> fContinueTarget;
 
+    LLVMValueRef fFoldAnd2Func;
+    LLVMValueRef fFoldOr2Func;
+    LLVMValueRef fFoldAnd3Func;
+    LLVMValueRef fFoldOr3Func;
+    LLVMValueRef fFoldAnd4Func;
+    LLVMValueRef fFoldOr4Func;
     LLVMValueRef fAppendFunc;
     LLVMValueRef fAppendCallbackFunc;
     LLVMValueRef fDebugFunc;
