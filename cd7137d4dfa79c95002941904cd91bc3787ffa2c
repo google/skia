@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf4e770b_265b72d3",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-30T14:17:52Z",
+      "side": 1,
+      "message": "If we just rewrite all the includes to be relative we can ditch this too.",
+      "revId": "cd7137d4dfa79c95002941904cd91bc3787ffa2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
