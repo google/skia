@@ -318,8 +318,7 @@ GrGLint GLTestContext::createTextureRectangle(int width, int height, GrGLenum in
                                           GrGLenum externalFormat, GrGLenum externalType,
                                           GrGLvoid* data) {
     if (!(kGL_GrGLStandard == fGL->fStandard && GrGLGetVersion(fGL.get()) >= GR_GL_VER(3, 1)) &&
-        !(fGL->fExtensions.has("GL_ARB_texture_rectangle") ||
-          fGL->fExtensions.has("GL_ANGLE_texture_rectangle"))) {
+        !fGL->fExtensions.has("GL_ARB_texture_rectangle")) {
         return 0;
     }
 

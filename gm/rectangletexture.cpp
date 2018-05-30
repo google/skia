@@ -72,8 +72,7 @@ protected:
         }
 
         if (!(kGL_GrGLStandard == glCtx->standard() && glCtx->version() >= GR_GL_VER(3, 1)) &&
-            !(glCtx->hasExtension("GL_ARB_texture_rectangle") ||
-              glCtx->hasExtension("GL_ANGLE_texture_rectangle"))) {
+            !glCtx->hasExtension("GL_ARB_texture_rectangle")) {
             return nullptr;
         }
 
