@@ -27,27 +27,37 @@ include_dirs = [os.path.join(os.path.normpath(include_dir), '')
                 for include_dir in include_dirs]
 include_dirs.sort(key=len, reverse=True)
 
-# If skia ever uses 'public' that will need to be considered as well or instead.
-gn_sources_cmd = [gn, 'desc', '.', '--root=%s' % absolute_source,
-                  '--format=json', '*', 'sources']
+gn_desc_cmd = [gn, 'desc', '.', '--root=%s' % absolute_source, '--format=json',
+               '*']
 
-sources_json_txt = ''
+desc_json_txt = ''
 try:
-  sources_json_txt = subprocess.check_output(gn_sources_cmd)
+  desc_json_txt = subprocess.check_output(gn_desc_cmd)
 except subprocess.CalledProcessError as e:
   print e.output
   raise
 
-sources_json = {}
+desc_json = {}
 try:
-  sources_json = json.loads(sources_json_txt)
+  desc_json = json.loads(desc_json_txt)
 except ValueError:
-  print sources_json_txt
+  print desc_json_txt
   raise
 
-sources = {os.path.join(absolute_source, os.path.normpath(source[2:]))
-           for target in sources_json.itervalues()
-           for source in target.get('sources', [])}
+sources = set()
+
+for target in desc_json.itervalues():
+  public = target.get('public', [])
+
+  # All targets get a default "public": "*"
+  if isinstance(public, list):
+    # If a target has an explicit "public" list, use that.
+    for name in  public:
+      sources.add(os.path.join(absolute_source, os.path.normpath(name[2:])))
+  else:
+    # Otherwise, search its sources.
+    for name in target.get('sources', []):
+      sources.add(os.path.join(absolute_source, os.path.normpath(name[2:])))
 
 Header = collections.namedtuple('Header', ['absolute', 'include'])
 headers = {}
