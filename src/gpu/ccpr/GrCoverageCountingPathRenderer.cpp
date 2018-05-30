@@ -50,7 +50,7 @@ sk_sp<GrCoverageCountingPathRenderer> GrCoverageCountingPathRenderer::CreateIfSu
 GrCCPerOpListPaths* GrCoverageCountingPathRenderer::lookupPendingPaths(uint32_t opListID) {
     auto it = fPendingPaths.find(opListID);
     if (fPendingPaths.end() == it) {
-        auto paths = skstd::make_unique<GrCCPerOpListPaths>();
+        sk_sp<GrCCPerOpListPaths> paths = sk_make_sp<GrCCPerOpListPaths>();
         it = fPendingPaths.insert(std::make_pair(opListID, std::move(paths))).first;
     }
     return it->second.get();
@@ -227,6 +227,7 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
 
     // Commit flushing paths to the resources once they are successfully completed.
     for (auto& flushingPaths : fFlushingPaths) {
+        SkASSERT(!flushingPaths->fFlushResources);
         flushingPaths->fFlushResources = resources;
     }
 }
@@ -234,6 +235,13 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
 void GrCoverageCountingPathRenderer::postFlush(GrDeferredUploadToken, const uint32_t* opListIDs,
                                                int numOpListIDs) {
     SkASSERT(fFlushing);
+
+    // In DDL mode these aren't guaranteed to be deleted so we must clear out the perFlush
+    // resources manually.
+    for (auto& flushingPaths : fFlushingPaths) {
+        flushingPaths->fFlushResources = nullptr;
+    }
+
     // We wait to erase these until after flush, once Ops and FPs are done accessing their data.
     fFlushingPaths.reset();
     SkDEBUGCODE(fFlushing = false);
