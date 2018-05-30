@@ -8,7 +8,6 @@
 #include "GrVkAMDMemoryAllocator.h"
 
 #include "vk/GrVkInterface.h"
-#include "GrVkMemory.h"
 #include "GrVkUtil.h"
 
 GrVkAMDMemoryAllocator::GrVkAMDMemoryAllocator(VkPhysicalDevice physicalDevice,
@@ -43,10 +42,7 @@ GrVkAMDMemoryAllocator::GrVkAMDMemoryAllocator(VkPhysicalDevice physicalDevice,
     info.flags = 0;
     info.physicalDevice = physicalDevice;
     info.device = device;
-    // Manually testing runs of dm using 64 here instead of the default 256 shows less memory usage
-    // on average. Also dm seems to run faster using 64 so it doesn't seem to be trading off speed
-    // for memory.
-    info.preferredLargeHeapBlockSize = 64*1024*1024;
+    info.preferredLargeHeapBlockSize = 0;
     info.pAllocationCallbacks = nullptr;
     info.pDeviceMemoryCallbacks = nullptr;
     info.frameInUseCount = 0;
@@ -202,9 +198,24 @@ void GrVkAMDMemoryAllocator::flushMappedMemory(const GrVkBackendMemory& memoryHa
         vmaGetPhysicalDeviceProperties(fAllocator, &physDevProps);
         VkDeviceSize alignment = physDevProps->limits.nonCoherentAtomSize;
 
+        offset = offset + info.fOffset;
+        VkDeviceSize offsetDiff = offset & (alignment -1);
+        offset = offset - offsetDiff;
+        size = (size + alignment - 1) & ~(alignment - 1);
+#ifdef SK_DEBUG
+        SkASSERT(offset >= info.fOffset);
+        SkASSERT(offset + size <= info.fOffset + info.fSize);
+        SkASSERT(0 == (offset & (alignment-1)));
+        SkASSERT(size > 0);
+        SkASSERT(0 == (size & (alignment-1)));
+#endif
+
         VkMappedMemoryRange mappedMemoryRange;
-        GrVkMemory::GetNonCoherentMappedMemoryRange(info, offset, size, alignment,
-                                                    &mappedMemoryRange);
+        memset(&mappedMemoryRange, 0, sizeof(VkMappedMemoryRange));
+        mappedMemoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+        mappedMemoryRange.memory = info.fMemory;
+        mappedMemoryRange.offset = offset;
+        mappedMemoryRange.size = size;
         GR_VK_CALL(fInterface, FlushMappedMemoryRanges(fDevice, 1, &mappedMemoryRange));
     }
 }
@@ -220,9 +231,24 @@ void GrVkAMDMemoryAllocator::invalidateMappedMemory(const GrVkBackendMemory& mem
         vmaGetPhysicalDeviceProperties(fAllocator, &physDevProps);
         VkDeviceSize alignment = physDevProps->limits.nonCoherentAtomSize;
 
+        offset = offset + info.fOffset;
+        VkDeviceSize offsetDiff = offset & (alignment -1);
+        offset = offset - offsetDiff;
+        size = (size + alignment - 1) & ~(alignment - 1);
+#ifdef SK_DEBUG
+        SkASSERT(offset >= info.fOffset);
+        SkASSERT(offset + size <= info.fOffset + info.fSize);
+        SkASSERT(0 == (offset & (alignment-1)));
+        SkASSERT(size > 0);
+        SkASSERT(0 == (size & (alignment-1)));
+#endif
+
         VkMappedMemoryRange mappedMemoryRange;
-        GrVkMemory::GetNonCoherentMappedMemoryRange(info, offset, size, alignment,
-                                                    &mappedMemoryRange);
+        memset(&mappedMemoryRange, 0, sizeof(VkMappedMemoryRange));
+        mappedMemoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+        mappedMemoryRange.memory = info.fMemory;
+        mappedMemoryRange.offset = offset;
+        mappedMemoryRange.size = size;
         GR_VK_CALL(fInterface, InvalidateMappedMemoryRanges(fDevice, 1, &mappedMemoryRange));
     }
 }
