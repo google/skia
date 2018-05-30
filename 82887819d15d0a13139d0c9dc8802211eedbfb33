@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27346756_b1665994",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-30T17:36:53Z",
+      "side": 1,
+      "message": "The presubmit hooks forced me to add this but it seems weird to me.",
+      "revId": "82887819d15d0a13139d0c9dc8802211eedbfb33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
