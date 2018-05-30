@@ -21,7 +21,8 @@ class GrCCDrawPathsOp;
 /**
  * Tracks all the paths in a given opList that will be drawn when it flushes.
  */
-struct GrCCPerOpListPaths {
+// DDL TODO: given the usage pattern in DDL mode, this could probably be non-atomic refcounting.
+struct GrCCPerOpListPaths : SkRefCnt {
     ~GrCCPerOpListPaths() {
         // Ensure there are no surviving DrawPathsOps with a dangling pointer into this class.
         if (!fDrawOps.isEmpty()) {
@@ -57,17 +58,23 @@ public:
         SkASSERT(!fFlushing);
     }
 
-    using PendingPathsMap = std::map<uint32_t, std::unique_ptr<GrCCPerOpListPaths>>;
+    using PendingPathsMap = std::map<uint32_t, sk_sp<GrCCPerOpListPaths>>;
 
     // In DDL mode, Ganesh needs to be able to move the pending GrCCPerOpListPaths to the DDL object
     // (detachPendingPaths) and then return them upon replay (mergePendingPaths).
     PendingPathsMap detachPendingPaths() { return std::move(fPendingPaths); }
 
-    void mergePendingPaths(PendingPathsMap&& paths) {
+    void mergePendingPaths(const PendingPathsMap& paths) {
+#ifdef SK_DEBUG
         // Ensure there are no duplicate opList IDs between the incoming path map and ours.
-        SkDEBUGCODE(for (const auto& it : paths) SkASSERT(!fPendingPaths.count(it.first)));
-        fPendingPaths.insert(std::make_move_iterator(paths.begin()),
-                             std::make_move_iterator(paths.end()));
+        // This should always be true since opList IDs are globally unique and these are coming
+        // from different DDL recordings.
+        for (const auto& it : paths) {
+            SkASSERT(!fPendingPaths.count(it.first));
+        }
+#endif
+
+        fPendingPaths.insert(paths.begin(), paths.end());
     }
 
     // GrPathRenderer overrides.
@@ -101,7 +108,7 @@ private:
 
     // fFlushingPaths holds the GrCCPerOpListPaths objects that are currently being flushed.
     // (It will only contain elements when fFlushing is true.)
-    SkSTArray<4, std::unique_ptr<GrCCPerOpListPaths>> fFlushingPaths;
+    SkSTArray<4, sk_sp<GrCCPerOpListPaths>> fFlushingPaths;
     SkDEBUGCODE(bool fFlushing = false);
 
     const bool fDrawCachablePaths;
