@@ -53,6 +53,31 @@ protected:
         canvas->restore();
     }
 
+    static void draw_skia(SkCanvas* canvas, const SkMatrix44& m4, const SkMatrix& vp) {
+        auto proc = [canvas, vp](SkColor c, const SkMatrix44& m4) {
+            SkPaint p;
+            p.setColor(c);
+            canvas->save();
+            canvas->concat(vp * SkMatrix(m4));
+            canvas->drawRect({0, 0, 1, 1}, p);
+            canvas->restore();
+        };
+
+        SkMatrix44 tmp(SkMatrix44::kIdentity_Constructor);
+
+        proc(0x400000FF, m4);
+        tmp.setTranslate(0, 0, 1);
+        proc(0xC00000FF, m4 * tmp);
+        tmp.setRotateAboutUnit(1, 0, 0, SK_ScalarPI/2);
+        proc(0x4000FF00, m4 * tmp);
+        tmp.postTranslate(0, 1, 0);
+        proc(0xC000FF00, m4 * tmp);
+        tmp.setRotateAboutUnit(0, 1, 0, -SK_ScalarPI/2);
+        proc(0x40FF0000, m4 * tmp);
+        tmp.postTranslate(1, 0, 0);
+        proc(0xC0FF0000, m4 * tmp);
+    }
+
     void onDraw(SkCanvas* canvas) override {
         SkMatrix44  camera(SkMatrix44::kIdentity_Constructor),
                     perspective(SkMatrix44::kIdentity_Constructor),
@@ -118,6 +143,8 @@ protected:
                 canvas->drawText(&str[i-1], 1, dst[i].fX, dst[i].fY, paint);
             }
         }
+
+        draw_skia(canvas, mv, viewport);
     }
 
     SkISize onISize() override { return { 1024, 768 }; }

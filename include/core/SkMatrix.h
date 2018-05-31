@@ -645,6 +645,12 @@ public:
     */
     void setConcat(const SkMatrix& a, const SkMatrix& b);
 
+    friend SkMatrix operator*(const SkMatrix& a, const SkMatrix& b) {
+        SkMatrix c;
+        c.setConcat(a, b);
+        return c;
+    }
+
     /** Sets SkMatrix to SkMatrix multiplied by SkMatrix constructed from translation (dx, dy).
         This can be thought of as moving the point to be mapped before applying SkMatrix.
 
