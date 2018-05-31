@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "90656757_dc89162d",
+        "filename": "include/private/GrCCPerOpListPaths.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-05-31T16:23:03Z",
+      "side": 1,
+      "message": "2018?",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "3cc0e019fe64d3773700b96124af31c23ec03fc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64b3481c_eff3690c",
+        "filename": "include/private/GrCCPerOpListPaths.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-05-31T16:23:03Z",
+      "side": 1,
+      "message": "CCPR paths? (Only since we aren\u0027t in the ccpr subdirectory anymore)",
+      "range": {
+        "startLine": 21,
+        "startChar": 18,
+        "endLine": 21,
+        "endChar": 23
+      },
+      "revId": "3cc0e019fe64d3773700b96124af31c23ec03fc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ed5d11c_5ada267f",
+        "filename": "include/private/GrCCPerOpListPaths.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-05-31T16:23:03Z",
+      "side": 1,
+      "message": "Any reason to change this to a class? Since the fields are accessed directly I thought struct made sense.",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 5
+      },
+      "revId": "3cc0e019fe64d3773700b96124af31c23ec03fc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "714eb2ad_4409013d",
+        "filename": "include/private/SkDeferredDisplayList.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-05-31T16:23:03Z",
+      "side": 1,
+      "message": "Since GrCCPerOpListPaths is fully defined now, we might not need to explicitly define the destructor anymore.",
+      "revId": "3cc0e019fe64d3773700b96124af31c23ec03fc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6566381a_19432221",
+        "filename": "src/core/SkDeferredDisplayList.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-05-31T16:23:03Z",
+      "side": 1,
+      "message": "We don\u0027t need this include anymore, do we?",
+      "revId": "3cc0e019fe64d3773700b96124af31c23ec03fc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9ea3034_8f893576",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-05-31T16:23:03Z",
+      "side": 1,
+      "message": "Do we need this include?",
+      "revId": "3cc0e019fe64d3773700b96124af31c23ec03fc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
