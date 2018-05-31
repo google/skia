@@ -32,6 +32,18 @@ static void crop_path(const SkPath& path, const SkIRect& cropbox, SkPath* out) {
     out->setIsVolatile(true);
 }
 
+
+GrCCPerOpListPaths::~GrCCPerOpListPaths() {
+    // Ensure there are no surviving DrawPathsOps with a dangling pointer into this class.
+    if (!fDrawOps.isEmpty()) {
+        SK_ABORT("GrCCDrawPathsOp(s) not deleted during flush");
+    }
+    // Clip lazy proxies also reference this class from their callbacks, but those callbacks
+    // are only invoked at flush time while we are still alive. (Unlike DrawPathsOps, that
+    // unregister themselves upon destruction.) So it shouldn't matter if any clip proxies
+    // are still around.
+}
+
 bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
     const GrShaderCaps& shaderCaps = *caps.shaderCaps();
     return shaderCaps.integerSupport() && shaderCaps.flatInterpolationSupport() &&
@@ -50,7 +62,7 @@ sk_sp<GrCoverageCountingPathRenderer> GrCoverageCountingPathRenderer::CreateIfSu
 GrCCPerOpListPaths* GrCoverageCountingPathRenderer::lookupPendingPaths(uint32_t opListID) {
     auto it = fPendingPaths.find(opListID);
     if (fPendingPaths.end() == it) {
-        auto paths = skstd::make_unique<GrCCPerOpListPaths>();
+        sk_sp<GrCCPerOpListPaths> paths = sk_make_sp<GrCCPerOpListPaths>();
         it = fPendingPaths.insert(std::make_pair(opListID, std::move(paths))).first;
     }
     return it->second.get();
@@ -227,6 +239,7 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
 
     // Commit flushing paths to the resources once they are successfully completed.
     for (auto& flushingPaths : fFlushingPaths) {
+        SkASSERT(!flushingPaths->fFlushResources);
         flushingPaths->fFlushResources = resources;
     }
 }
@@ -234,6 +247,13 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
 void GrCoverageCountingPathRenderer::postFlush(GrDeferredUploadToken, const uint32_t* opListIDs,
                                                int numOpListIDs) {
     SkASSERT(fFlushing);
+
+    // In DDL mode these aren't guaranteed to be deleted so we must clear out the perFlush
+    // resources manually.
+    for (auto& flushingPaths : fFlushingPaths) {
+        flushingPaths->fFlushResources = nullptr;
+    }
+
     // We wait to erase these until after flush, once Ops and FPs are done accessing their data.
     fFlushingPaths.reset();
     SkDEBUGCODE(fFlushing = false);
