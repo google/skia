@@ -1373,6 +1373,7 @@ if (skia_enable_tools) {
       ":gpu_tool_utils",
       ":skia",
       ":tool_utils",
+      "modules/skottie",
       "modules/sksg",
     ]
   }
