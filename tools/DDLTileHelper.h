@@ -12,8 +12,6 @@
 #include "SkRefCnt.h"
 #include "SkSurfaceCharacterization.h"
 
-#if SK_SUPPORT_GPU
-
 class DDLPromiseImageHelper;
 class SkCanvas;
 class SkData;
@@ -76,5 +74,4 @@ private:
     SkTArray<TileData> fTiles;
 };
 
-#endif
 #endif

@@ -9,8 +9,6 @@
 
 #include "gm.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrProxyProvider.h"
@@ -155,5 +153,3 @@ private:
 
 DEF_GM(return new TextureDomainEffect;)
 }
-
-#endif

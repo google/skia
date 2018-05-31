@@ -42,11 +42,9 @@
 #include "Test.h"
 #include "sk_tool_utils.h"
 
-#if SK_SUPPORT_GPU
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
-#endif
 
 static const int kBitmapSize = 4;
 
@@ -390,14 +388,11 @@ static sk_sp<SkImageFilter> make_blue(sk_sp<SkImageFilter> input,
 }
 
 static sk_sp<SkSpecialSurface> create_empty_special_surface(GrContext* context, int widthHeight) {
-#if SK_SUPPORT_GPU
     if (context) {
         return SkSpecialSurface::MakeRenderTarget(context,
                                                   widthHeight, widthHeight,
                                                   kRGBA_8888_GrPixelConfig, nullptr);
-    } else
-#endif
-    {
+    } else {
         const SkImageInfo info = SkImageInfo::MakeN32(widthHeight, widthHeight,
                                                       kOpaque_SkAlphaType);
         return SkSpecialSurface::MakeRaster(info);
@@ -406,12 +401,9 @@ static sk_sp<SkSpecialSurface> create_empty_special_surface(GrContext* context, 
 
 static sk_sp<SkSurface> create_surface(GrContext* context, int width, int height) {
     const SkImageInfo info = SkImageInfo::MakeN32(width, height, kOpaque_SkAlphaType);
-#if SK_SUPPORT_GPU
     if (context) {
         return SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
-    } else
-#endif
-    {
+    } else {
         return SkSurface::MakeRaster(info);
     }
 }
@@ -650,11 +642,9 @@ DEF_TEST(ImageFilterNegativeBlurSigma, reporter) {
     test_negative_blur_sigma(reporter, nullptr);
 }
 
-#if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterNegativeBlurSigma_Gpu, reporter, ctxInfo) {
     test_negative_blur_sigma(reporter, ctxInfo.grContext());
 }
-#endif
 
 static void test_zero_blur_sigma(skiatest::Reporter* reporter, GrContext* context) {
     // Check that SkBlurImageFilter with a zero sigma and a non-zero srcOffset works correctly.
@@ -694,11 +684,9 @@ DEF_TEST(ImageFilterZeroBlurSigma, reporter) {
     test_zero_blur_sigma(reporter, nullptr);
 }
 
-#if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterZeroBlurSigma_Gpu, reporter, ctxInfo) {
     test_zero_blur_sigma(reporter, ctxInfo.grContext());
 }
-#endif
 
 
 // Tests that, even when an upstream filter has returned null (due to failure or clipping), a
@@ -726,11 +714,9 @@ DEF_TEST(ImageFilterFailAffectsTransparentBlack, reporter) {
     test_fail_affects_transparent_black(reporter, nullptr);
 }
 
-#if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterFailAffectsTransparentBlack_Gpu, reporter, ctxInfo) {
     test_fail_affects_transparent_black(reporter, ctxInfo.grContext());
 }
-#endif
 
 DEF_TEST(ImageFilterDrawTiled, reporter) {
     // Check that all filters when drawn tiled (with subsequent clip rects) exactly
@@ -1017,11 +1003,9 @@ DEF_TEST(ImageFilterMergeResultSize, reporter) {
     test_imagefilter_merge_result_size(reporter, nullptr);
 }
 
-#if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterMergeResultSize_Gpu, reporter, ctxInfo) {
     test_imagefilter_merge_result_size(reporter, ctxInfo.grContext());
 }
-#endif
 
 static void draw_blurred_rect(SkCanvas* canvas) {
     SkPaint filterPaint;
@@ -1186,22 +1170,18 @@ DEF_TEST(ImageFilterMatrixConvolutionBigKernel, reporter) {
     test_big_kernel(reporter, nullptr);
 }
 
-#if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterMatrixConvolutionBigKernel_Gpu,
                                    reporter, ctxInfo) {
     test_big_kernel(reporter, ctxInfo.grContext());
 }
-#endif
 
 DEF_TEST(ImageFilterCropRect, reporter) {
     test_crop_rects(reporter, nullptr);
 }
 
-#if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCropRect_Gpu, reporter, ctxInfo) {
     test_crop_rects(reporter, ctxInfo.grContext());
 }
-#endif
 
 DEF_TEST(ImageFilterMatrix, reporter) {
     SkBitmap temp;
@@ -1260,11 +1240,9 @@ DEF_TEST(ImageFilterClippedPictureImageFilter, reporter) {
     test_clipped_picture_imagefilter(reporter, nullptr);
 }
 
-#if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterClippedPictureImageFilter_Gpu, reporter, ctxInfo) {
     test_clipped_picture_imagefilter(reporter, ctxInfo.grContext());
 }
-#endif
 
 DEF_TEST(ImageFilterEmptySaveLayer, reporter) {
     // Even when there's an empty saveLayer()/restore(), ensure that an image
@@ -1516,11 +1494,9 @@ DEF_TEST(ComposedImageFilterOffset, reporter) {
     test_composed_imagefilter_offset(reporter, nullptr);
 }
 
-#if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ComposedImageFilterOffset_Gpu, reporter, ctxInfo) {
     test_composed_imagefilter_offset(reporter, ctxInfo.grContext());
 }
-#endif
 
 static void test_composed_imagefilter_bounds(skiatest::Reporter* reporter, GrContext* context) {
     // The bounds passed to the inner filter must be filtered by the outer
@@ -1558,11 +1534,9 @@ DEF_TEST(ComposedImageFilterBounds, reporter) {
     test_composed_imagefilter_bounds(reporter, nullptr);
 }
 
-#if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ComposedImageFilterBounds_Gpu, reporter, ctxInfo) {
     test_composed_imagefilter_bounds(reporter, ctxInfo.grContext());
 }
-#endif
 
 static void test_partial_crop_rect(skiatest::Reporter* reporter, GrContext* context) {
     sk_sp<SkSpecialImage> srcImg(create_empty_special_image(context, 100));
@@ -1587,11 +1561,9 @@ DEF_TEST(ImageFilterPartialCropRect, reporter) {
     test_partial_crop_rect(reporter, nullptr);
 }
 
-#if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterPartialCropRect_Gpu, reporter, ctxInfo) {
     test_partial_crop_rect(reporter, ctxInfo.grContext());
 }
-#endif
 
 DEF_TEST(ImageFilterCanComputeFastBounds, reporter) {
 
@@ -1692,12 +1664,10 @@ static void test_large_blur_input(skiatest::Reporter* reporter, SkCanvas* canvas
     SkBitmap largeBmp;
     int largeW = 5000;
     int largeH = 5000;
-#if SK_SUPPORT_GPU
     // If we're GPU-backed make the bitmap too large to be converted into a texture.
     if (GrContext* ctx = canvas->getGrContext()) {
         largeW = ctx->contextPriv().caps()->maxTextureSize() + 1;
     }
-#endif
 
     largeBmp.allocN32Pixels(largeW, largeH);
     largeBmp.eraseColor(0);
@@ -1799,13 +1769,9 @@ DEF_TEST(ImageFilterMakeWithFilter, reporter) {
     test_make_with_filter(reporter, nullptr);
 }
 
-#if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterMakeWithFilter_Gpu, reporter, ctxInfo) {
     test_make_with_filter(reporter, ctxInfo.grContext());
 }
-#endif
-
-#if SK_SUPPORT_GPU
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterHugeBlur_Gpu, reporter, ctxInfo) {
 
@@ -1834,7 +1800,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFilterBlurLargeImage_Gpu, reporter, ctxInfo) {
             SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType)));
     test_large_blur_input(reporter, surface->getCanvas());
 }
-#endif
 
 /*
  *  Test that colorfilterimagefilter does not require its CTM to be decomposed when it has more

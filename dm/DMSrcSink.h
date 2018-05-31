@@ -8,7 +8,6 @@
 #ifndef DMSrcSink_DEFINED
 #define DMSrcSink_DEFINED
 
-#include "DMGpuSupport.h"
 #include "SkBBHFactory.h"
 #include "SkBBoxHierarchy.h"
 #include "SkBitmap.h"
@@ -528,9 +527,7 @@ public:
     ViaDDL(int numDivisions, Sink* sink);
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 private:
-#if SK_SUPPORT_GPU
     const int fNumDivisions;
-#endif
 };
 
 class ViaSVG : public Via {

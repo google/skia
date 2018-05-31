@@ -7,9 +7,6 @@
 
 #include "SkTypes.h"
 
-// This tests a Gr class
-#if SK_SUPPORT_GPU
-
 #include "Benchmark.h"
 #include "GrMemoryPool.h"
 #include "SkRandom.h"
@@ -176,5 +173,3 @@ private:
 DEF_BENCH( return new GrMemoryPoolBenchStack(); )
 DEF_BENCH( return new GrMemoryPoolBenchRandom(); )
 DEF_BENCH( return new GrMemoryPoolBenchQueue(); )
-
-#endif

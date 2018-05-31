@@ -6,8 +6,6 @@
  */
 
 #include "Test.h"
-// This is a GPU-backend specific test
-#if SK_SUPPORT_GPU
 #include "GrMemoryPool.h"
 #include "SkRandom.h"
 #include "SkTArray.h"
@@ -397,5 +395,3 @@ DEF_TEST(GrObjectMemoryPoolAPI, reporter) {
         REPORTER_ASSERT(reporter, secondBlockCount == kMinAllocCount);
     }
 }
-
-#endif

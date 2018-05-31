@@ -7,8 +7,6 @@
 
 #include "TestUtils.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrProxyProvider.h"
 #include "GrSurfaceContext.h"
 #include "GrSurfaceContextPriv.h"
@@ -115,5 +113,3 @@ void test_copy_to_surface(skiatest::Reporter* reporter, GrProxyProvider* proxyPr
         }
     }
 }
-
-#endif

@@ -7,7 +7,6 @@
 
 #include "gm.h"
 #include "sk_tool_utils.h"
-#if SK_SUPPORT_GPU
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrRenderTargetContextPriv.h"
@@ -129,4 +128,3 @@ DEF_GM( return new BigRRectAAEffectGM (SkRRect::MakeRectXY(SkRect::MakeIWH(kSize
 DEF_GM( return new BigRRectAAEffectGM (SkRRect::MakeRectXY(SkRect::MakeIWH(kSize - 1, kSize - 10), kSize/2.f - 10.f, kSize/2.f - 15.f), "elliptical_corner"); )
 
 }
-#endif

@@ -7,8 +7,6 @@
 
 #include "SkTypes.h"
 
-// This is a GR test
-#if SK_SUPPORT_GPU
 #include "GrClipStackClip.h"
 #include "SkClipOpPriv.h"
 #include "SkClipStack.h"
@@ -56,5 +54,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrClipBounds, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, intScreen == devGrClipBound);
     REPORTER_ASSERT(reporter, isIntersectionOfRects);
 }
-
-#endif
