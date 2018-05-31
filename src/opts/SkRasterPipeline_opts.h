@@ -2388,14 +2388,6 @@ SI D join(S lo, S hi) {
     memcpy((char*)&v + 1*sizeof(S), &hi, sizeof(S));
     return v;
 }
-template <typename V, typename H>
-SI V map(V v, H (*fn)(H)) {
-    H lo,hi;
-    split(v, &lo,&hi);
-    lo = fn(lo);
-    hi = fn(hi);
-    return join<V>(lo,hi);
-}
 
 SI F if_then_else(I32 c, F t, F e) {
     return bit_cast<F>( (bit_cast<I32>(t) & c) | (bit_cast<I32>(e) & ~c) );
@@ -2408,32 +2400,48 @@ SI U32 trunc_(F x) { return (U32)cast<I32>(x); }
 
 SI F rcp(F x) {
 #if defined(__AVX2__)
-    return map(x, _mm256_rcp_ps);
+    __m256 lo,hi;
+    split(x, &lo,&hi);
+    return join<F>(_mm256_rcp_ps(lo), _mm256_rcp_ps(hi));
 #elif defined(__SSE__)
-    return map(x, _mm_rcp_ps);
+    __m128 lo,hi;
+    split(x, &lo,&hi);
+    return join<F>(_mm_rcp_ps(lo), _mm_rcp_ps(hi));
 #elif defined(__ARM_NEON)
-    return map(x, +[](float32x4_t v) {
+    auto rcp = [](float32x4_t v) {
         auto est = vrecpeq_f32(v);
         return vrecpsq_f32(v,est)*est;
-    });
+    };
+    float32x4_t lo,hi;
+    split(x, &lo,&hi);
+    return join<F>(rcp(lo), rcp(hi));
 #else
     return 1.0f / x;
 #endif
 }
 SI F sqrt_(F x) {
 #if defined(__AVX2__)
-    return map(x, _mm256_sqrt_ps);
+    __m256 lo,hi;
+    split(x, &lo,&hi);
+    return join<F>(_mm256_sqrt_ps(lo), _mm256_sqrt_ps(hi));
 #elif defined(__SSE__)
-    return map(x, _mm_sqrt_ps);
+    __m128 lo,hi;
+    split(x, &lo,&hi);
+    return join<F>(_mm_sqrt_ps(lo), _mm_sqrt_ps(hi));
 #elif defined(__aarch64__)
-    return map(x, vsqrtq_f32);
+    float32x4_t lo,hi;
+    split(x, &lo,&hi);
+    return join<F>(vsqrtq_f32(lo), vsqrtq_f32(hi));
 #elif defined(__ARM_NEON)
-    return map(x, +[](float32x4_t v) {
+    auto sqrt = [](float32x4_t v) {
         auto est = vrsqrteq_f32(v);  // Estimate and two refinement steps for est = rsqrt(v).
         est *= vrsqrtsq_f32(v,est*est);
         est *= vrsqrtsq_f32(v,est*est);
         return v*est;                // sqrt(v) == v*rsqrt(v).
-    });
+    };
+    float32x4_t lo,hi;
+    split(x, &lo,&hi);
+    return join<F>(sqrt(lo), sqrt(hi));
 #else
     return F{
         sqrtf(x[0]), sqrtf(x[1]), sqrtf(x[2]), sqrtf(x[3]),
@@ -2444,11 +2452,17 @@ SI F sqrt_(F x) {
 
 SI F floor_(F x) {
 #if defined(__aarch64__)
-    return map(x, vrndmq_f32);
+    float32x4_t lo,hi;
+    split(x, &lo,&hi);
+    return join<F>(vrndmq_f32(lo), vrndmq_f32(hi));
 #elif defined(__AVX2__)
-    return map(x, +[](__m256 v){ return _mm256_floor_ps(v); });  // _mm256_floor_ps is a macro...
+    __m256 lo,hi;
+    split(x, &lo,&hi);
+    return join<F>(_mm256_floor_ps(lo), _mm256_floor_ps(hi));
 #elif defined(__SSE4_1__)
-    return map(x, +[](__m128 v){ return    _mm_floor_ps(v); });  // _mm_floor_ps() is a macro too.
+    __m128 lo,hi;
+    split(x, &lo,&hi);
+    return join<F>(_mm_floor_ps(lo), _mm_floor_ps(hi));
 #else
     F roundtrip = cast<F>(cast<I32>(x));
     return roundtrip - if_then_else(roundtrip > x, F(1), F(0));
