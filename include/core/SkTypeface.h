@@ -139,6 +139,7 @@ public:
         argument. If the cloned typeface would be exaclty the same as this typeface then
         this typeface may be ref'ed and returned. May return nullptr on failure.
     */
+
     sk_sp<SkTypeface> makeClone(const SkFontArguments&) const;
 
     /** Write a unique signature to a stream, sufficient to reconstruct a
