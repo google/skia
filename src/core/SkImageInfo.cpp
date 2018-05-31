@@ -137,7 +137,9 @@ bool SkReadPixelsRec::trim(int srcWidth, int srcHeight) {
         y = 0;
     }
     // here x,y are either 0 or negative
-    fPixels = ((char*)fPixels - y * fRowBytes - x * fInfo.bytesPerPixel());
+    // This may create an fPixels that points outside its allocation.
+    // This'll be safe, but UBSAN (pointer-overflow) can't know that, so we do math on uintptr_t.
+    fPixels = (char*)((uintptr_t)fPixels - y * fRowBytes - x * fInfo.bytesPerPixel());
     // the intersect may have shrunk info's logical size
     fInfo = fInfo.makeWH(srcR.width(), srcR.height());
     fX = srcR.x();
@@ -173,7 +175,9 @@ bool SkWritePixelsRec::trim(int dstWidth, int dstHeight) {
         y = 0;
     }
     // here x,y are either 0 or negative
-    fPixels = ((const char*)fPixels - y * fRowBytes - x * fInfo.bytesPerPixel());
+    // This may create an fPixels that points outside its allocation.
+    // This'll be safe, but UBSAN (pointer-overflow) can't know that, so we do math on uintptr_t.
+    fPixels = (const char*)((uintptr_t)fPixels - y * fRowBytes - x * fInfo.bytesPerPixel());
     // the intersect may have shrunk info's logical size
     fInfo = fInfo.makeWH(dstR.width(), dstR.height());
     fX = dstR.x();
