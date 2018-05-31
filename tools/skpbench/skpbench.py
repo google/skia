@@ -66,6 +66,13 @@ __argparse.add_argument('-c', '--config',
   default='gl', help="comma- or space-separated list of GPU configs")
 __argparse.add_argument('-a', '--resultsfile',
   help="optional file to append results into")
+__argparse.add_argument('--ddl',
+  action='store_true', help="record the skp into DDLs before rendering")
+__argparse.add_argument('--ddlNumAdditionalThreads',
+  type=int, default=0,
+  help="number of DDL recording threads in addition to main one")
+__argparse.add_argument('--ddlTilingWidthHeight',
+  type=int, default=0, help="number of tiles along one edge when in DDL mode")
 __argparse.add_argument('skps',
   nargs='+',
   help=".skp files or directories to expand for .skp files")
@@ -120,6 +127,16 @@ class SKPBench:
     ARGV.extend(['--pr'] + re.split(r'[ ,]', FLAGS.pr))
   if FLAGS.nocache:
     ARGV.extend(['--cachePathMasks', 'false'])
+
+  # DDL parameters
+  if FLAGS.ddl:
+    ARGV.extend(['--ddl', 'true'])
+  if FLAGS.ddlNumAdditionalThreads:
+    ARGV.extend(['--ddlNumAdditionalThreads',
+                 str(FLAGS.ddlNumAdditionalThreads)])
+  if FLAGS.ddlTilingWidthHeight:
+    ARGV.extend(['--ddlTilingWidthHeight', str(FLAGS.ddlTilingWidthHeight)])
+
   if FLAGS.adb:
     if FLAGS.device_serial is None:
       ARGV[:0] = [FLAGS.adb_binary, 'shell']
