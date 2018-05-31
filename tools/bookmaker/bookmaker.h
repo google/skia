@@ -2078,6 +2078,7 @@ public:
     void enumSizeItems(const Definition& child);
     bool findEnumSubtopic(string undername, const Definition** ) const;
 	Definition* findMemberCommentBlock(const vector<Definition*>& bmhChildren, string name) const;
+    Definition* findMethod(string name, RootDefinition* ) const; 
     int lookupMethod(const PunctuationState punctuation, const Word word,
             const int start, const int run, int lastWrite,
             const char* data, bool hasIndirection);
@@ -2097,6 +2098,8 @@ public:
         fMethodDef = nullptr;
         fBmhConst = nullptr;
         fConstDef = nullptr;
+        fLastDescription = nullptr;
+        fStartSetter = nullptr;
         fBmhStructDef = nullptr;
         fInStruct = false;
         fWroteMethod = false;
@@ -2108,6 +2111,8 @@ public:
     string resolveMethod(const char* start, const char* end, bool first);
     string resolveRef(const char* start, const char* end, bool first, RefType* refType);
     Wrote rewriteBlock(int size, const char* data, Phrase phrase);
+    void setStart(const char* start, const Definition * );
+    void setStartBack(const char* start, const Definition * );
     Definition* structMemberOut(const Definition* memberStart, const Definition& child);
     void structOut(const Definition* root, const Definition& child,
             const char* commentStart, const char* commentEnd);
@@ -2122,6 +2127,7 @@ private:
     const Definition* fBmhConst;
     const Definition* fConstDef;
     const Definition* fLastDescription;
+    const Definition* fStartSetter;
     Definition* fBmhStructDef;
     const char* fContinuation;  // used to construct paren-qualified method name
     int fAnonymousEnumCount;
