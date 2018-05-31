@@ -60,6 +60,11 @@ def skpbench_steps(api):
         '--config', config,
         # TODO(dogben): Track down what's causing bots to die.
         '-v5']
+  if 'DDLTotal_9x9' in api.vars.builder_name:
+    skpbench_args += [
+        '--ddl',
+        '--ddlNumAdditionalThreads', 9,
+        '--ddlTilingWidthHeight', 3]
   if 'Android' in api.vars.builder_name:
     skpbench_args += [
         '--adb',
@@ -133,6 +138,8 @@ TEST_BUILDERS = [
   ('Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-'
    'Android_CCPR_Skpbench'),
   'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan_Skpbench',
+  ('Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-'
+   'Vulkan_Skpbench_DDLTotal_9x9'),
 ]
 
 

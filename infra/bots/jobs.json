@@ -256,6 +256,7 @@
   "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE",
   "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan",
   "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan_Skpbench",
+  "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan_Skpbench_DDLTotal_9x9",
   "Perf-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Debug-All",
   "Perf-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Debug-All-ANGLE",
   "Perf-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-All",
