@@ -59,7 +59,8 @@ public:
     /**
      * Updates the animation state for |t|.
      *
-     * @param t   normalized [0..1] frame selector, where 0 == inPoint and 1 == outPoint.
+     * @param t   normalized [0..1] frame selector (0 -> first frame, 1 -> final frame)
+     *
      */
     void seek(SkScalar t);
 
@@ -72,9 +73,6 @@ public:
 
     const SkString& version() const { return fVersion;   }
     const SkSize&      size() const { return fSize;      }
-         SkScalar frameRate() const { return fFrameRate; }
-         SkScalar   inPoint() const { return fInPoint;   }
-         SkScalar  outPoint() const { return fOutPoint;  }
 
     void setShowInval(bool show);
 
