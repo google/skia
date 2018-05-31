@@ -10,6 +10,19 @@
 #include "SkPath.h"
 #include "SkPoint3.h"
 
+#ifdef SK_ENABLE_SKOTTIE
+
+#include "SkAnimTimer.h"
+#include "Resources.h"
+#include "SkStream.h"
+#include "Skottie.h"
+
+static SkMatrix operator*(const SkMatrix& a, const SkMatrix& b) {
+    SkMatrix44 c;
+    c.setConcat(a, b);
+    return c;
+}
+
 class GM3d : public skiagm::GM {
     float   fNear = 0.5;
     float   fFar = 4;
@@ -19,15 +32,20 @@ class GM3d : public skiagm::GM {
     SkPoint3    fCOA {0,0,0};//{ 0.5f, 0.5f, 0.5f };
     SkPoint3    fUp  { 0, 1, 0 };
 
-    SkMatrix44  fMV;
-
     SkPoint3    fP3[8];
+
+    sk_sp<skottie::Animation> fAnim;
+    SkScalar fAnimT = 0;
+
 public:
-    GM3d() : fMV(SkMatrix44::kIdentity_Constructor) {}
+    GM3d() {}
     ~GM3d() override {}
 
 protected:
     void onOnceBeforeDraw() override {
+        auto stream = GetResourceAsStream("skotty/skotty_sample_2.json");
+        fAnim = skottie::Animation::Make(stream.get());
+
         int index = 0;
         for (float x = 0; x <= 1; ++x) {
             for (float y = 0; y <= 1; ++y) {
@@ -36,7 +54,6 @@ protected:
                 }
             }
         }
-        fMV.setIdentity();
     }
 
     static void draw_viewport(SkCanvas* canvas, const SkMatrix& viewport) {
@@ -53,10 +70,38 @@ protected:
         canvas->restore();
     }
 
+    static void draw_skia(SkCanvas* canvas, const SkMatrix44& m4, const SkMatrix& vp,
+                          skottie::Animation* anim) {
+        auto proc = [canvas, vp, anim](SkColor c, const SkMatrix44& m4) {
+            SkPaint p;
+            p.setColor(c);
+            SkRect r = { 0, 0, 1, 1 };
+            canvas->save();
+            canvas->concat(vp * SkMatrix(m4));
+            anim->render(canvas, &r);
+//            canvas->drawRect({0, 0, 1, 1}, p);
+            canvas->restore();
+        };
+
+        SkMatrix44 tmp(SkMatrix44::kIdentity_Constructor);
+
+        proc(0x400000FF, m4);
+        tmp.setTranslate(0, 0, 1);
+        proc(0xC00000FF, m4 * tmp);
+        tmp.setRotateAboutUnit(1, 0, 0, SK_ScalarPI/2);
+        proc(0x4000FF00, m4 * tmp);
+        tmp.postTranslate(0, 1, 0);
+        proc(0xC000FF00, m4 * tmp);
+        tmp.setRotateAboutUnit(0, 1, 0, -SK_ScalarPI/2);
+        proc(0x40FF0000, m4 * tmp);
+        tmp.postTranslate(1, 0, 0);
+        proc(0xC0FF0000, m4 * tmp);
+    }
+
     void onDraw(SkCanvas* canvas) override {
         SkMatrix44  camera(SkMatrix44::kIdentity_Constructor),
                     perspective(SkMatrix44::kIdentity_Constructor),
-                    mv = fMV;
+                    mv(SkMatrix44::kIdentity_Constructor);
         SkMatrix    viewport;
 
         {
@@ -118,13 +163,20 @@ protected:
                 canvas->drawText(&str[i-1], 1, dst[i].fX, dst[i].fY, paint);
             }
         }
+
+        fAnim->seek(fAnimT);
+        draw_skia(canvas, mv, viewport, fAnim.get());
     }
 
     SkISize onISize() override { return { 1024, 768 }; }
 
     SkString onShortName() override { return SkString("3dgm"); }
 
-    bool onAnimate(const SkAnimTimer&) override { return false; }
+    bool onAnimate(const SkAnimTimer& timer) override {
+        SkScalar dur = fAnim->duration();
+        fAnimT = fmod(timer.secs(), dur) / dur;
+        return true;
+    }
     bool onHandleKey(SkUnichar uni) override {
         switch (uni) {
             case 'a': fEye.fX += 0.125f; return true;
@@ -145,3 +197,6 @@ protected:
 };
 
 DEF_GM(return new GM3d;)
+
+#endif
+
