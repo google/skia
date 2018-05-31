@@ -9,9 +9,7 @@
 #include "Resources.h"
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
 #include "GrContext.h"
-#endif
 #include "SkCanvas.h"
 #include "SkImage.h"
 #include "SkSurface.h"
@@ -34,8 +32,6 @@ DEF_TEST(ImageIsOpaqueTest, reporter) {
     check_isopaque(reporter, surfaceOpaque, true);
 }
 
-#if SK_SUPPORT_GPU
-
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageIsOpaqueTest_Gpu, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     SkImageInfo infoTransparent = SkImageInfo::MakeN32Premul(5, 5);
@@ -47,8 +43,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageIsOpaqueTest_Gpu, reporter, ctxInfo) {
 
     check_isopaque(reporter, surfaceOpaque, true);
 }
-
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #include "SkPictureRecorder.h"

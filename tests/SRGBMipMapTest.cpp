@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#if SK_SUPPORT_GPU
 #include "GrCaps.h"
 #include "GrClip.h"
 #include "GrContext.h"
@@ -185,4 +184,3 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SRGBMipMaps, reporter, ctxInfo) {
     read_and_check_pixels(reporter, s32RenderTargetContext.get(), expectedSRGB, iiSRGBA, error,
                           "re-render as sRGB");
 }
-#endif

@@ -12,9 +12,7 @@
 #include "SkTypes.h"
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
 #include "GrContext.h"
-#endif
 
 static void test_bitmap_equality(skiatest::Reporter* reporter, SkBitmap& bm1, SkBitmap& bm2) {
     REPORTER_ASSERT(reporter, bm1.computeByteSize() == bm2.computeByteSize());
@@ -106,8 +104,6 @@ DEF_TEST(ImageNewShader, reporter) {
     run_shader_test(reporter, sourceSurface.get(), destinationSurface.get(), info);
 }
 
-#if SK_SUPPORT_GPU
-
 static void gpu_to_gpu(skiatest::Reporter* reporter, GrContext* context) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(5, 5);
 
@@ -145,5 +141,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageNewShader_GPU, reporter, ctxInfo) {
     //  RASTER -> GPU
     raster_to_gpu(reporter, ctxInfo.grContext());
 }
-
-#endif

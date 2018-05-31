@@ -9,8 +9,6 @@
 // The test fails when we add a discard to a newly created render target.
 #if 0
 
-#if SK_SUPPORT_GPU
-
 #include "GrContext.h"
 #include "GrLayerCache.h"
 #include "GrResourceCache.h"
@@ -370,5 +368,4 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GpuLayerCache, reporter, ctxInfo) {
 #endif
 }
 
-#endif
 #endif

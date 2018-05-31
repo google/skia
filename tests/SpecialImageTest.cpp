@@ -15,7 +15,6 @@
 #include "SkSurface.h"
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
 #include "GrBackendSurface.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
@@ -23,7 +22,6 @@
 #include "GrSurfaceProxy.h"
 #include "GrTextureProxy.h"
 #include "SkGr.h"
-#endif
 
 
 // This test creates backing resources exactly sized to [kFullSize x kFullSize].
@@ -68,14 +66,12 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
     // Test that isTextureBacked reports the correct backing type
     REPORTER_ASSERT(reporter, isGPUBacked == img->isTextureBacked());
 
-#if SK_SUPPORT_GPU
     //--------------
     // Test asTextureProxyRef - as long as there is a context this should succeed
     if (context) {
         sk_sp<GrTextureProxy> proxy(img->asTextureProxyRef(context));
         REPORTER_ASSERT(reporter, proxy);
     }
-#endif
 
     //--------------
     // Test getROPixels - this should always succeed regardless of backing store
@@ -127,7 +123,6 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
         SkPixmap tmpPixmap;
         REPORTER_ASSERT(reporter, isGPUBacked != !!tightImg->peekPixels(&tmpPixmap));
     }
-#if SK_SUPPORT_GPU
     {
         SkImageFilter::OutputProperties outProps(img->getColorSpace());
         sk_sp<SkSurface> tightSurf(img->makeTightSurface(outProps, subset.size()));
@@ -140,7 +135,6 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
         SkPixmap tmpPixmap;
         REPORTER_ASSERT(reporter, isGPUBacked != !!tightSurf->peekPixels(&tmpPixmap));
     }
-#endif
 }
 
 DEF_TEST(SpecialImage_Raster, reporter) {
@@ -195,8 +189,6 @@ DEF_TEST(SpecialImage_Image_ColorSpaceAware, reporter) {
     sk_sp<SkColorSpace> srgbColorSpace = SkColorSpace::MakeSRGB();
     test_specialimage_image(reporter, srgbColorSpace.get());
 }
-
-#if SK_SUPPORT_GPU
 
 static void test_texture_backed(skiatest::Reporter* reporter,
                                 const sk_sp<SkSpecialImage>& orig,
@@ -341,5 +333,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_DeferredGpu, reporter, ctxInfo) 
         test_image(subSImg2, reporter, context, true, kPad, kFullSize);
     }
 }
-
-#endif

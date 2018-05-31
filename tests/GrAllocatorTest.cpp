@@ -6,8 +6,6 @@
  */
 
 #include "Test.h"
-// This is a GPU-backend specific test
-#if SK_SUPPORT_GPU
 #include "GrAllocator.h"
 
 namespace {
@@ -99,5 +97,3 @@ DEF_TEST(GrAllocator, reporter) {
         check_allocator(allocators[i], 100, 10, reporter);
     }
 }
-
-#endif
