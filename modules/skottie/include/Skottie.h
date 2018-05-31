@@ -42,7 +42,7 @@ public:
                fAnimatorCount;
     };
 
-    static sk_sp<Animation> Make(SkStream*, const ResourceProvider&, Stats* = nullptr);
+    static sk_sp<Animation> Make(SkStream*, const ResourceProvider* = nullptr, Stats* = nullptr);
     static sk_sp<Animation> MakeFromFile(const char path[], const ResourceProvider* = nullptr,
                                          Stats* = nullptr);
 
