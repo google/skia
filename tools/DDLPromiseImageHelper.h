@@ -11,8 +11,6 @@
 #include "SkBitmap.h"
 #include "SkTArray.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrBackendSurface.h"
 
 class GrContext;
@@ -140,5 +138,4 @@ private:
     SkTArray<PromiseImageInfo> fImageInfo;
 };
 
-#endif
 #endif

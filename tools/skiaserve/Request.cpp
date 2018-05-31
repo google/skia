@@ -27,20 +27,14 @@ Request::Request(SkString rootUrl)
     , fOverdraw(false)
     , fColorMode(0) {
     // create surface
-#if SK_SUPPORT_GPU
     GrContextOptions grContextOpts;
     fContextFactory = new GrContextFactory(grContextOpts);
-#else
-    fContextFactory = nullptr;
-#endif
 }
 
 Request::~Request() {
-#if SK_SUPPORT_GPU
     if (fContextFactory) {
         delete fContextFactory;
     }
-#endif
 }
 
 SkBitmap* Request::getBitmapFromCanvas(SkCanvas* canvas) {
@@ -70,7 +64,6 @@ sk_sp<SkData> Request::writeCanvasToPng(SkCanvas* canvas) {
 }
 
 SkCanvas* Request::getCanvas() {
-#if SK_SUPPORT_GPU
     GrContextFactory* factory = fContextFactory;
     GLTestContext* gl = factory->getContextInfo(GrContextFactory::kGL_ContextType,
             GrContextFactory::ContextOverrides::kNone).glContext();
@@ -81,7 +74,6 @@ SkCanvas* Request::getCanvas() {
     if (gl) {
         gl->makeCurrent();
     }
-#endif
     SkASSERT(fDebugCanvas);
 
     // create the appropriate surface if necessary
@@ -117,7 +109,6 @@ sk_sp<SkData> Request::writeOutSkp() {
 }
 
 GrContext* Request::getContext() {
-#if SK_SUPPORT_GPU
     GrContext* result = fContextFactory->get(GrContextFactory::kGL_ContextType,
                                              GrContextFactory::ContextOverrides::kNone);
     if (!result) {
@@ -125,9 +116,6 @@ GrContext* Request::getContext() {
                                       GrContextFactory::ContextOverrides::kNone);
     }
     return result;
-#else
-    return nullptr;
-#endif
 }
 
 SkIRect Request::getBounds() {
@@ -135,11 +123,9 @@ SkIRect Request::getBounds() {
     if (fPicture) {
         bounds = fPicture->cullRect().roundOut();
         if (fGPUEnabled) {
-#if SK_SUPPORT_GPU
             int maxRTSize = this->getContext()->maxRenderTargetSize();
             bounds = SkIRect::MakeWH(SkTMin(bounds.width(), maxRTSize),
                                      SkTMin(bounds.height(), maxRTSize));
-#endif
         }
     } else {
         bounds = SkIRect::MakeWH(kDefaultWidth, kDefaultHeight);

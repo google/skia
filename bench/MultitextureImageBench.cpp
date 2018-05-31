@@ -6,7 +6,6 @@
  */
 
 #include "Benchmark.h"
-#if SK_SUPPORT_GPU
 
 #include "GrContextOptions.h"
 #include "SkCanvas.h"
@@ -135,5 +134,3 @@ DEF_BENCH(return new MultitextureImages(512, 512, true, true));
 DEF_BENCH(return new MultitextureImages(512, 512, false, true));
 DEF_BENCH(return new MultitextureImages(128, 32, true, true));
 DEF_BENCH(return new MultitextureImages(128, 32, false, true));
-
-#endif

@@ -8,8 +8,6 @@
 #include "SkTypes.h"
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrClip.h"
@@ -310,5 +308,3 @@ class GrCCPRTest_busyPath : public CCPRRenderingTest {
     }
 };
 DEF_CCPR_RENDERING_TEST(GrCCPRTest_busyPath)
-
-#endif

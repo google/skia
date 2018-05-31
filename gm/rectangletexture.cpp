@@ -9,8 +9,6 @@
 
 #include "gm.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrBackendSurface.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
@@ -188,5 +186,3 @@ private:
 
 DEF_GM(return new RectangleTexture;)
 }
-
-#endif

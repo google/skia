@@ -9,7 +9,6 @@
 
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
 #include "GrContextPriv.h"
 #include "GrGpuResourceRef.h"
 #include "GrProxyProvider.h"
@@ -195,5 +194,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
         }
     }
 }
-
-#endif

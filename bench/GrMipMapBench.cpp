@@ -11,8 +11,6 @@
 #include "SkPaint.h"
 #include "SkSurface.h"
 
-#if SK_SUPPORT_GPU
-
 class GrMipMapBench: public Benchmark {
     sk_sp<SkSurface> fSurface;
     SkString fName;
@@ -75,5 +73,3 @@ DEF_BENCH( return new GrMipMapBench(511, 511); )
 DEF_BENCH( return new GrMipMapBench(512, 511); )
 DEF_BENCH( return new GrMipMapBench(511, 512); )
 DEF_BENCH( return new GrMipMapBench(512, 512); )
-
-#endif

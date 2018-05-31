@@ -857,17 +857,8 @@ static void push_sink(const SkCommandLineConfig& config, Sink* s) {
     ts.tag = config.getTag();
 }
 
-static bool gpu_supported() {
-#if SK_SUPPORT_GPU
-    return FLAGS_gpu;
-#else
-    return false;
-#endif
-}
-
 static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLineConfig* config) {
-#if SK_SUPPORT_GPU
-    if (gpu_supported()) {
+    if (FLAGS_gpu) {
         if (const SkCommandLineConfigGpu* gpuConfig = config->asConfigGpu()) {
             GrContextFactory::ContextType contextType = gpuConfig->getContextType();
             GrContextFactory::ContextOverrides contextOverrides = gpuConfig->getContextOverrides();
@@ -892,7 +883,6 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
             }
         }
     }
-#endif
     if (const SkCommandLineConfigSvg* svgConfig = config->asConfigSvg()) {
         int pageIndex = svgConfig->getPageIndex();
         return new SVGSink(pageIndex);
@@ -1273,7 +1263,7 @@ static void gather_tests() {
         if (SkCommandLineFlags::ShouldSkip(FLAGS_match, test.name)) {
             continue;
         }
-        if (test.needsGpu && gpu_supported()) {
+        if (test.needsGpu && FLAGS_gpu) {
             (FLAGS_gpu_threading ? gParallelTests : gSerialTests).push(test);
         } else if (!test.needsGpu && FLAGS_cpu) {
             gParallelTests.push(test);
@@ -1366,9 +1356,7 @@ int main(int argc, char** argv) {
     }
 
     GrContextOptions grCtxOptions;
-#if SK_SUPPORT_GPU
     SetCtxOptionsFromCommonFlags(&grCtxOptions);
-#endif
 
     JsonWriter::DumpJson();  // It's handy for the bots to assume this is ~never missing.
     SkAutoGraphics ag;

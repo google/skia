@@ -9,7 +9,6 @@
 
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
 #include "GrBackendSurface.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
@@ -175,4 +174,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxIn
         REPORTER_ASSERT(reporter, !tProxy->asRenderTargetProxy());
     }
 }
-#endif
