@@ -5,8 +5,6 @@
 * found in the LICENSE file.
 */
 
-#if SK_SUPPORT_GPU
-
 #include "GrRectanizer_pow2.h"
 #include "GrRectanizer_skyline.h"
 #include "SkRandom.h"
@@ -70,5 +68,3 @@ DEF_GPUTEST(GpuRectanizer, reporter, factory) {
     test_skyline(reporter, rects);
     test_pow2(reporter, rects);
 }
-
-#endif

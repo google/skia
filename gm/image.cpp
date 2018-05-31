@@ -16,9 +16,7 @@
 #include "SkStream.h"
 #include "SkSurface.h"
 
-#if SK_SUPPORT_GPU
 #include "GrContext.h"
-#endif
 
 static void drawContents(SkSurface* surface, SkColor fillC) {
     SkSize size = SkSize::Make(SkIntToScalar(surface->width()),
@@ -152,11 +150,8 @@ protected:
         SkImageInfo info = SkImageInfo::MakeN32Premul(W, H);
         sk_sp<SkSurface> surf0(SkSurface::MakeRasterDirect(info, fBuffer, RB));
         sk_sp<SkSurface> surf1(SkSurface::MakeRaster(info));
-        sk_sp<SkSurface> surf2;  // gpu
-
-#if SK_SUPPORT_GPU
-        surf2 = SkSurface::MakeRenderTarget(canvas->getGrContext(), SkBudgeted::kNo, info);
-#endif
+        sk_sp<SkSurface> surf2(SkSurface::MakeRenderTarget(canvas->getGrContext(),
+                                                           SkBudgeted::kNo, info));
 
         test_surface(canvas, surf0.get(), true);
         canvas->translate(80, 0);

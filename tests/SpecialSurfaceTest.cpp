@@ -11,12 +11,10 @@
 #include "SkSpecialSurface.h"
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "SkGr.h"
-#endif
 
 class TestingSpecialSurfaceAccess {
 public:
@@ -79,8 +77,6 @@ DEF_TEST(SpecialSurface_Raster2, reporter) {
     // TODO: check that the clear didn't escape the active region
 }
 
-#if SK_SUPPORT_GPU
-
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu1, reporter, ctxInfo) {
     for (auto config : { kRGBA_8888_GrPixelConfig, kRGBA_1010102_GrPixelConfig }) {
         if (!ctxInfo.grContext()->contextPriv().caps()->isConfigRenderable(config)) {
@@ -92,5 +88,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu1, reporter, ctxInfo) {
         test_surface(surf, reporter, 0);
     }
 }
-
-#endif

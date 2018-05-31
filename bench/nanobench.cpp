@@ -60,23 +60,19 @@ extern bool gSkForceRasterPipelineBlitter;
 
 #endif
 
-#if SK_SUPPORT_GPU
-    #include "GrCaps.h"
-    #include "GrContextFactory.h"
-    #include "GrContextPriv.h"
-    #include "SkGr.h"
-    #include "gl/GrGLDefines.h"
-    #include "gl/GrGLGpu.h"
-    #include "gl/GrGLUtil.h"
+#include "GrCaps.h"
+#include "GrContextFactory.h"
+#include "GrContextPriv.h"
+#include "SkGr.h"
+#include "gl/GrGLDefines.h"
+#include "gl/GrGLGpu.h"
+#include "gl/GrGLUtil.h"
 
-    using sk_gpu_test::ContextInfo;
-    using sk_gpu_test::GrContextFactory;
-    using sk_gpu_test::TestContext;
+using sk_gpu_test::ContextInfo;
+using sk_gpu_test::GrContextFactory;
+using sk_gpu_test::TestContext;
 
-    GrContextOptions grContextOpts;
-#endif
-
-    struct GrContextOptions;
+GrContextOptions grContextOpts;
 
 static const int kAutoTuneLoops = 0;
 
@@ -171,7 +167,6 @@ bool Target::capturePixels(SkBitmap* bmp) {
     return true;
 }
 
-#if SK_SUPPORT_GPU
 struct GPUTarget : public Target {
     explicit GPUTarget(const Config& c) : Target(c) {}
     ContextInfo contextInfo;
@@ -242,8 +237,6 @@ struct GPUTarget : public Target {
         this->contextInfo.grContext()->contextPriv().printGpuStats();
     }
 };
-
-#endif
 
 static double time(int loops, Benchmark* bench, Target* target) {
     SkCanvas* canvas = target->getCanvas();
@@ -409,17 +402,10 @@ static int setup_gpu_bench(Target* target, Benchmark* bench, int maxGpuFrameLag)
     return loops;
 }
 
-#if SK_SUPPORT_GPU
 #define kBogusContextType GrContextFactory::kGL_ContextType
 #define kBogusContextOverrides GrContextFactory::ContextOverrides::kNone
-#else
-#define kBogusContextType 0
-#define kBogusContextOverrides 0
-#endif
 
 static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* configs) {
-
-#if SK_SUPPORT_GPU
     if (const auto* gpuConfig = config->asConfigGpu()) {
         if (!FLAGS_gpu) {
             SkDebugf("Skipping config '%s' as requested.\n", config->getTag().c_str());
@@ -468,7 +454,6 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         configs->push_back(target);
         return;
     }
-#endif
 
     #define CPU_CONFIG(name, backend, color, alpha, colorSpace)                \
         if (config->getTag().equals(#name)) {                                  \
@@ -544,11 +529,9 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
     Target* target = nullptr;
 
     switch (config.backend) {
-#if SK_SUPPORT_GPU
     case Benchmark::kGPU_Backend:
         target = new GPUTarget(config);
         break;
-#endif
     default:
         target = new Target(config);
         break;
@@ -1141,9 +1124,7 @@ int main(int argc, char** argv) {
     SkAutoGraphics ag;
     SkTaskGroup::Enabler enabled(FLAGS_threads);
 
-#if SK_SUPPORT_GPU
     SetCtxOptionsFromCommonFlags(&grContextOpts);
-#endif
 
     if (FLAGS_veryVerbose) {
         FLAGS_verbose = true;
@@ -1295,7 +1276,6 @@ int main(int argc, char** argv) {
                 }
             }
 
-#if SK_SUPPORT_GPU
             SkTArray<SkString> keys;
             SkTArray<double> values;
             bool gpuStatsDump = FLAGS_gpuStatsDump && Benchmark::kGPU_Backend == configs[i].backend;
@@ -1303,7 +1283,6 @@ int main(int argc, char** argv) {
                 // TODO cache stats
                 bench->getGpuStats(canvas, &keys, &values);
             }
-#endif
 
             bench->perCanvasPostDraw(canvas);
 
@@ -1322,7 +1301,6 @@ int main(int argc, char** argv) {
             target->fillOptions(log.get());
             log->metric("min_ms",    stats.min);
             log->metrics("samples",    samples);
-#if SK_SUPPORT_GPU
             if (gpuStatsDump) {
                 // dump to json, only SKPBench currently returns valid keys / values
                 SkASSERT(keys.count() == values.count());
@@ -1330,7 +1308,6 @@ int main(int argc, char** argv) {
                     log->metric(keys[i].c_str(), values[i]);
                 }
             }
-#endif
 
             if (runs++ % FLAGS_flushEvery == 0) {
                 log->flush();
@@ -1382,11 +1359,9 @@ int main(int argc, char** argv) {
                         );
             }
 
-#if SK_SUPPORT_GPU
             if (FLAGS_gpuStats && Benchmark::kGPU_Backend == configs[i].backend) {
                 target->dumpStats();
             }
-#endif
 
             if (FLAGS_verbose) {
                 SkDebugf("Samples:  ");

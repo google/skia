@@ -7,8 +7,6 @@
 
 #include "SkTypes.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrContextFactory.h"
 #include "Test.h"
 
@@ -49,5 +47,3 @@ DEF_GPUTEST(GrContext_abandonContext, reporter, options) {
         }
     }
 }
-
-#endif

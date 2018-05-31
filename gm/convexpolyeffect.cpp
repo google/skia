@@ -9,8 +9,6 @@
 
 #include "gm.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrOpFlushState.h"
@@ -278,5 +276,3 @@ private:
 
 DEF_GM(return new ConvexPolyEffect;)
 }
-
-#endif
