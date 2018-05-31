@@ -16,7 +16,7 @@ public class ViewerApplication extends Application {
     private String mStateJsonStr, mTitle;
 
     static {
-        System.loadLibrary("viewer");
+        System.loadLibrary("libviewer");
     }
 
     private native long createNativeApp(AssetManager assetManager);

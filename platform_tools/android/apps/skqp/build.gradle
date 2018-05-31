@@ -4,7 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 apply plugin: 'com.android.application'
+
+//Make sure this is directory corresponds to skia/platform_tools/android
+final String ANDROID_CMAKE_HEADER_PATH = "../../CMakeLists.txt"
 
 dependencies {
     compile 'com.android.support:design:26.+'
@@ -21,9 +25,48 @@ android {
         versionCode 1
         versionName "1.0"
         signingConfig signingConfigs.debug
+
+        externalNativeBuild {
+            cmake {
+                //Native libraries to build
+                targets "libskqp_app"
+
+                arguments "-DANDROID_STL=c++_static",
+                        "-DTARGETS=${android.defaultConfig.externalNativeBuild.cmake.targets}"
+            }
+        }
+
+        buildTypes {
+            debug {
+                applicationIdSuffix ".debug"
+                debuggable true
+            }
+        }
+
+        productFlavors {
+            arm {
+                ndk {
+                    abiFilters "armeabi-v7a"
+                }
+            }
+
+            x86 {
+                ndk {
+                    abiFilters "x86"
+                }
+            }
+
+            x64 {
+                ndk {
+                    abiFilters "x86_64"
+                }
+            }
+        }
     }
-    sourceSets.main.jni.srcDirs = []
-    sourceSets.main.jniLibs.srcDir "src/main/libs"
-    productFlavors { universal{}; arm {}; arm64 {}; x86 {}; x64 {}; arm64vulkan{}; }
-    setupSkiaLibraryBuild(project, applicationVariants, "libskqp_app")
+
+    externalNativeBuild {
+        cmake {
+            path ANDROID_CMAKE_HEADER_PATH
+        }
+    }
 }

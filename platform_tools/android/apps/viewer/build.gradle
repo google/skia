@@ -4,7 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 apply plugin: 'com.android.application'
+
+//Make sure this is directory corresponds to skia/platform_tools/android
+final String ANDROID_CMAKE_HEADER_PATH = "../../CMakeLists.txt"
 
 dependencies {
     compile 'com.android.support:support-v13:23.3.0'
@@ -21,10 +25,54 @@ android {
         versionCode 1
         versionName "1.0"
         signingConfig signingConfigs.debug
-    }
-    sourceSets.main.jni.srcDirs = [] //disable automatic ndk-build call
-    sourceSets.main.jniLibs.srcDir "src/main/libs"
-    productFlavors { universal{}; arm {}; arm64 {}; x86 {}; x64 {}; arm64vulkan{}; }
 
-    setupSkiaLibraryBuild(project, applicationVariants, "libviewer")
+        externalNativeBuild {
+            cmake {
+                //Native libraries to build
+                targets "libviewer"
+
+                arguments "-DANDROID_STL=c++_static",
+                        "-DTARGETS=${android.defaultConfig.externalNativeBuild.cmake.targets}"
+            }
+        }
+
+        buildTypes {
+            debug {
+                applicationIdSuffix ".debug"
+                debuggable true
+            }
+        }
+
+        productFlavors {
+            arm64 {
+                ndk {
+                    abiFilters "arm64-v8a"
+                }
+            }
+
+            arm {
+                ndk {
+                    abiFilters "armeabi-v7a"
+                }
+            }
+
+            x86 {
+                ndk {
+                    abiFilters "x86"
+                }
+            }
+
+            x64 {
+                ndk {
+                    abiFilters "x86_64"
+                }
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path ANDROID_CMAKE_HEADER_PATH
+        }
+    }
 }

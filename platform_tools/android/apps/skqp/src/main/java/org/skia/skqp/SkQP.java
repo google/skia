@@ -28,7 +28,7 @@ public class SkQP {
     protected static final String LOG_PREFIX = "org.skia.skqp";
 
     static {
-      System.loadLibrary("skqp_app");
+      System.loadLibrary("libskqp_app");
     }
 
     protected void runTests(Context context, String outputDirPath) {
