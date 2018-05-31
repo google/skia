@@ -4,7 +4,7 @@
       "python",
       "RECIPE_MODULE[skia::binary_size]/resources/run_binary_size_analysis.py",
       "--library",
-      "[START_DIR]/build/out/Release/libskia.so",
+      "[START_DIR]/build/libskia.so",
       "--githash",
       "abc123",
       "--dest",

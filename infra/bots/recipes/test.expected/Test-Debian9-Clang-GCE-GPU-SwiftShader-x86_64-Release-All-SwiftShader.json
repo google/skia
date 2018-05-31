@@ -208,7 +208,7 @@
       "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
       "[START_DIR]",
       "catchsegv",
-      "[START_DIR]/build/out/Release/dm",
+      "[START_DIR]/build/dm",
       "--resourcePath",
       "[START_DIR]/skia/resources",
       "--skps",
@@ -368,7 +368,7 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "LD_LIBRARY_PATH": "[START_DIR]/build/out/swiftshader_out",
+      "LD_LIBRARY_PATH": "[START_DIR]/build/swiftshader_out",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "symbolized dm"
