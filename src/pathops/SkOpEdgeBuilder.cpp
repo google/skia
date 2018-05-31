@@ -175,10 +175,11 @@ bool SkOpEdgeBuilder::close() {
 bool SkOpEdgeBuilder::walk() {
     uint8_t* verbPtr = fPathVerbs.begin();
     uint8_t* endOfFirstHalf = &verbPtr[fSecondHalf];
-    SkPoint* pointsPtr = fPathPts.begin() - 1;
+    SkPoint* pointsPtr = fPathPts.begin();
     SkScalar* weightPtr = fWeights.begin();
     SkPath::Verb verb;
     SkOpContour* contour = fContourBuilder.contour();
+    int moveToPtrBump = 0;
     while ((verb = (SkPath::Verb) *verbPtr) != SkPath::kDone_Verb) {
         if (verbPtr == endOfFirstHalf) {
             fOperand = true;
@@ -198,7 +199,8 @@ bool SkOpEdgeBuilder::walk() {
                 }
                 contour->init(fGlobalState, fOperand,
                     fXorMask[fOperand] == kEvenOdd_PathOpsMask);
-                pointsPtr += 1;
+                pointsPtr += moveToPtrBump;
+                moveToPtrBump = 1;
                 continue;
             case SkPath::kLine_Verb:
                 fContourBuilder.addLine(pointsPtr);
