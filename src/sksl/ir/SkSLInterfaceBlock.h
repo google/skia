@@ -35,6 +35,17 @@ struct InterfaceBlock : public ProgramElement {
     , fSizes(std::move(sizes))
     , fTypeOwner(typeOwner) {}
 
+    std::unique_ptr<ProgramElement> clone() const override {
+        std::vector<std::unique_ptr<Expression>> sizesClone;
+        for (const auto& s : fSizes) {
+            sizesClone.push_back(s->clone());
+        }
+        return std::unique_ptr<ProgramElement>(new InterfaceBlock(fOffset, &fVariable, fTypeName,
+                                                                  fInstanceName,
+                                                                  std::move(sizesClone),
+                                                                  fTypeOwner));
+    }
+
     String description() const override {
         String result = fVariable.fModifiers.description() + fTypeName + " {\n";
         const Type* structType = &fVariable.fType;

@@ -19,8 +19,12 @@ namespace SkSL {
 struct IntLiteral : public Expression {
     // FIXME: we will need to revisit this if/when we add full support for both signed and unsigned
     // 64-bit integers, but for right now an int64_t will hold every value we care about
-    IntLiteral(const Context& context, int offset, int64_t value, const Type* type = nullptr)
-    : INHERITED(offset, kIntLiteral_Kind, type ? *type : *context.fInt_Type)
+    IntLiteral(const Context& context, int offset, int64_t value)
+    : INHERITED(offset, kIntLiteral_Kind, *context.fInt_Type)
+    , fValue(value) {}
+
+    IntLiteral(int offset, int64_t value, const Type* type = nullptr)
+    : INHERITED(offset, kIntLiteral_Kind, *type)
     , fValue(value) {}
 
     String description() const override {
@@ -49,6 +53,10 @@ struct IntLiteral : public Expression {
 
     int64_t getConstantInt() const override {
         return fValue;
+    }
+
+    std::unique_ptr<Expression> clone() const override {
+        return std::unique_ptr<Expression>(new IntLiteral(fOffset, fValue, &fType));
     }
 
     const int64_t fValue;
