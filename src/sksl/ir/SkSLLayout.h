@@ -311,6 +311,9 @@ struct Layout {
         if (result.size() > 0) {
             result = "layout (" + result + ")";
         }
+        if (fKey) {
+            result += "/* key */";
+        }
         return result;
     }
 

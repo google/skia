@@ -328,6 +328,10 @@ private:
 
     GrContextOptions::PersistentCache*      fPersistentCache;
 
+    // points to a (possibly null) std::unordered_map<const char*,std::unique_ptr<GrSkSLFPFactory>>,
+    // but we can't import GrSkSLFP.h from here so we can't define it with the correct type
+    void* fFPFactories = nullptr;
+
     // TODO: have the GrClipStackClip use renderTargetContexts and rm this friending
     friend class GrContextPriv;
 
