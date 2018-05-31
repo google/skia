@@ -135,7 +135,6 @@ skia_core_sources = [
   "$_src/core/SkFDot6.h",
   "$_src/core/SkFindAndPlaceGlyph.h",
   "$_src/core/SkArenaAlloc.cpp",
-  "$_src/core/SkArenaAlloc.h",
   "$_src/core/SkArenaAllocList.h",
   "$_src/core/SkGaussFilter.cpp",
   "$_src/core/SkGaussFilter.h",
@@ -310,7 +309,6 @@ skia_core_sources = [
   "$_src/core/SkTaskGroup2D.h",
   "$_src/core/SkTDPQueue.h",
   "$_src/core/SkTDynamicHash.h",
-  "$_src/core/SkTInternalLList.h",
   "$_src/core/SkTextBlob.cpp",
   "$_src/core/SkTextBlobRunIterator.h",
   "$_src/core/SkTextFormatParams.h",
@@ -448,6 +446,7 @@ skia_core_sources = [
   "$_src/jumper/SkJumper.cpp",
 
   # private
+  "$_include/private/SkArenaAlloc.h",
   "$_include/private/SkAtomics.h",
   "$_include/private/SkChecksum.h",
   "$_include/private/SkDeferredDisplayList.h",
@@ -467,6 +466,7 @@ skia_core_sources = [
   "$_include/private/SkTDArray.h",
   "$_include/private/SkTFitsIn.h",
   "$_include/private/SkTHash.h",
+  "$_include/private/SkTInternalLList.h",
   "$_include/private/SkThreadID.h",
   "$_include/private/SkTSearch.h",
   "$_include/private/SkTLogic.h",
