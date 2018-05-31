@@ -46,6 +46,8 @@ bin/clang-format
 bin/clang-format.exe
 bin/clang_win
 
+platform_tools/android/apps/arcore/.externalNativeBuild
+
 vulkan-out
 gl-out
 
