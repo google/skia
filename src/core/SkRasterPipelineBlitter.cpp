@@ -472,19 +472,21 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
 
     std::function<void(size_t,size_t,size_t,size_t)>* blitter = nullptr;
     // Update fMaskPtr to point "into" this current mask, but lined up with fDstPtr at (0,0).
+    // This sort of trickery upsets UBSAN (pointer-overflow) so we do our math in uintptr_t.
+
     // mask.fRowBytes is a uint32_t, which would break our addressing math on 64-bit builds.
     size_t rowBytes = mask.fRowBytes;
     switch (effectiveMaskFormat) {
         case SkMask::kA8_Format:
             fMaskPtr.stride = rowBytes;
-            fMaskPtr.pixels = (uint8_t*)(mask.fImage - mask.fBounds.left() * (size_t)1
-                                                     - mask.fBounds.top()  * rowBytes);
+            fMaskPtr.pixels = (void*)((uintptr_t)mask.fImage - mask.fBounds.left() * (size_t)1
+                                                             - mask.fBounds.top()  * rowBytes);
             blitter = &fBlitMaskA8;
             break;
         case SkMask::kLCD16_Format:
             fMaskPtr.stride = rowBytes / 2;
-            fMaskPtr.pixels = (uint16_t*)(mask.fImage - mask.fBounds.left() * (size_t)2
-                                                      - mask.fBounds.top()  * rowBytes);
+            fMaskPtr.pixels = (void*)((uintptr_t)mask.fImage - mask.fBounds.left() * (size_t)2
+                                                             - mask.fBounds.top()  * rowBytes);
             blitter = &fBlitMaskLCD16;
             break;
         default:
