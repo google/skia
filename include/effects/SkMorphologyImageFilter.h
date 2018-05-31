@@ -62,6 +62,8 @@ public:
                                      sk_sp<SkImageFilter> input,
                                      const CropRect* cropRect = nullptr);
 
+    void toString(SkString* str) const override;
+
     Factory getFactory() const override { return CreateProc; }
 
 protected:
@@ -84,6 +86,8 @@ public:
     static sk_sp<SkImageFilter> Make(int radiusX, int radiusY,
                                      sk_sp<SkImageFilter> input,
                                      const CropRect* cropRect = nullptr);
+
+    void toString(SkString* str) const override;
 
     Factory getFactory() const override { return CreateProc; }
 

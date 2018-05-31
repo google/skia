@@ -72,6 +72,8 @@ public:
     }
 #endif
 
+    void toString(SkString* str) const override { fMatrixFilter->toString(str); }
+
 private:
     SkColor              fMul, fAdd;
     sk_sp<SkColorFilter> fMatrixFilter;

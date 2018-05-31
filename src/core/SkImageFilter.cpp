@@ -28,6 +28,35 @@
 #include "SkGr.h"
 #endif
 
+void SkImageFilter::CropRect::toString(SkString* str) const {
+    if (!fFlags) {
+        return;
+    }
+
+    str->appendf("cropRect (");
+    if (fFlags & CropRect::kHasLeft_CropEdge) {
+        str->appendf("%.2f, ", fRect.fLeft);
+    } else {
+        str->appendf("X, ");
+    }
+    if (fFlags & CropRect::kHasTop_CropEdge) {
+        str->appendf("%.2f, ", fRect.fTop);
+    } else {
+        str->appendf("X, ");
+    }
+    if (fFlags & CropRect::kHasWidth_CropEdge) {
+        str->appendf("%.2f, ", fRect.width());
+    } else {
+        str->appendf("X, ");
+    }
+    if (fFlags & CropRect::kHasHeight_CropEdge) {
+        str->appendf("%.2f", fRect.height());
+    } else {
+        str->appendf("X");
+    }
+    str->appendf(") ");
+}
+
 void SkImageFilter::CropRect::applyTo(const SkIRect& imageBounds,
                                       const SkMatrix& ctm,
                                       bool embiggen,

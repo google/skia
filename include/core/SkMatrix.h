@@ -1558,6 +1558,14 @@ public:
     */
     void dump() const;
 
+    /** Creates string representation of SkMatrix. Floating point values
+        are written with limited precision; it may not be possible to reconstruct
+        original SkMatrix from output.
+
+        @param str  storage for string representation of SkMatrix
+    */
+    void toString(SkString* str) const;
+
     /** Returns the minimum scaling factor of SkMatrix by decomposing the scaling and
         skewing elements.
         Returns -1 if scale factor overflows or SkMatrix contains perspective.

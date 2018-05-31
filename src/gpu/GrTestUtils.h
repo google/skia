@@ -74,6 +74,7 @@ public:
     bool filterPath(SkPath* dst, const SkPath&, SkStrokeRec* , const SkRect*) const override;
     DashType asADash(DashInfo* info) const override;
     Factory getFactory() const override { return nullptr; }
+    void toString(SkString*) const override {}
 
 private:
     TestDashPathEffect(const SkScalar* intervals, int count, SkScalar phase);

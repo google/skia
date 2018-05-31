@@ -96,6 +96,8 @@ public:
      */
     virtual bool asABlurShadow(BlurShadowRec*) const;
 
+    virtual void toString(SkString* str) const = 0;
+
     static SkFlattenable::Type GetFlattenableType() {
         return kSkDrawLooper_Type;
     }

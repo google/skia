@@ -32,6 +32,8 @@ public:
 
     SkRect computeFastBounds(const SkRect&) const override;
 
+    void toString(SkString* str) const override;
+
     Factory getFactory() const override { return CreateProc; }
 
 protected:

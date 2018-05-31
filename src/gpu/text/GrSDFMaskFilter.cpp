@@ -26,6 +26,7 @@ public:
 
     void computeFastBounds(const SkRect&, SkRect*) const override;
 
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(GrSDFMaskFilterImpl)
 
 protected:
@@ -84,6 +85,10 @@ void GrSDFMaskFilterImpl::computeFastBounds(const SkRect& src,
 
 sk_sp<SkFlattenable> GrSDFMaskFilterImpl::CreateProc(SkReadBuffer& buffer) {
     return GrSDFMaskFilter::Make();
+}
+
+void GrSDFMaskFilterImpl::toString(SkString* str) const {
+    str->append("GrSDFMaskFilterImpl: ()");
 }
 
 void gr_register_sdf_maskfilter_createproc() {

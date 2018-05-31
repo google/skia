@@ -51,9 +51,22 @@ protected:
     sk_sp<SkPathEffect> fPE0;
     sk_sp<SkPathEffect> fPE1;
 
+    void toString(SkString* str) const override;
+
 private:
     typedef SkPathEffect INHERITED;
 };
+
+void SkPairPathEffect::toString(SkString* str) const {
+    str->appendf("first: ");
+    if (fPE0) {
+        fPE0->toString(str);
+    }
+    str->appendf(" second: ");
+    if (fPE1) {
+        fPE1->toString(str);
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -91,6 +104,7 @@ public:
     }
 
 
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposePathEffect)
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -114,6 +128,12 @@ sk_sp<SkFlattenable> SkComposePathEffect::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkPathEffect> pe0(buffer.readPathEffect());
     sk_sp<SkPathEffect> pe1(buffer.readPathEffect());
     return SkComposePathEffect::Make(std::move(pe0), std::move(pe1));
+}
+
+void SkComposePathEffect::toString(SkString* str) const {
+    str->appendf("SkComposePathEffect: (");
+    this->INHERITED::toString(str);
+    str->appendf(")");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -148,6 +168,7 @@ public:
     }
 
 
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSumPathEffect)
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -171,6 +192,12 @@ sk_sp<SkFlattenable> SkSumPathEffect::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkPathEffect> pe0(buffer.readPathEffect());
     sk_sp<SkPathEffect> pe1(buffer.readPathEffect());
     return SkSumPathEffect::Make(pe0, pe1);
+}
+
+void SkSumPathEffect::toString(SkString* str) const {
+    str->appendf("SkSumPathEffect: (");
+    this->INHERITED::toString(str);
+    str->appendf(")");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

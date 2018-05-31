@@ -39,6 +39,8 @@ public:
     SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
                                MapDirection, const SkIRect* inputRect) const override;
 
+    void toString(SkString* str) const override;
+
     Factory getFactory() const override { return CreateProc; }
 
 protected:
