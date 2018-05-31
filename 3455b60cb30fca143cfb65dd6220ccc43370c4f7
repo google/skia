@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6e2ad8b_849f07cf",
+        "filename": "gm/3dgm.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-31T15:34:11Z",
+      "side": 1,
+      "message": "You need to make \"gm\" depend on \"modules/skottie\" in BUILD.gn -- that would also allow you to include just \"Skottie.h\" here.",
+      "range": {
+        "startLine": 16,
+        "startChar": 10,
+        "endLine": 16,
+        "endChar": 49
+      },
+      "revId": "3455b60cb30fca143cfb65dd6220ccc43370c4f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
