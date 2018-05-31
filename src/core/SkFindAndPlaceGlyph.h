@@ -85,6 +85,33 @@ public:
         return {0.0f, 0.0f};
     }
 
+    // MapperInterface given a point map it through the matrix. There are several shortcut
+    // variants.
+    // * TranslationMapper - assumes a translation only matrix.
+    // * XScaleMapper - assumes an X scaling and a translation.
+    // * GeneralMapper - Does all other matricies.
+    class MapperInterface {
+    public:
+        virtual ~MapperInterface() {}
+
+        virtual SkPoint map(SkPoint position) const = 0;
+    };
+
+    static MapperInterface* CreateMapper(const SkMatrix& matrix, const SkPoint& offset,
+                                         int scalarsPerPosition, SkArenaAlloc* arena) {
+        auto mtype = matrix.getType();
+        if (mtype & (SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask) ||
+            scalarsPerPosition == 2) {
+            return arena->make<GeneralMapper>(matrix, offset);
+        }
+
+        if (mtype & SkMatrix::kScale_Mask) {
+            return arena->make<XScaleMapper>(matrix, offset);
+        }
+
+        return arena->make<TranslationMapper>(matrix, offset);
+    }
+
 private:
     // GlyphFinderInterface is the polymorphic base for classes that parse a stream of chars into
     // the right UniChar (or GlyphID) and lookup up the glyph on the cache. The concrete
@@ -228,18 +255,6 @@ private:
 
     private:
         const SkScalar* fPositions;
-    };
-
-    // MapperInterface given a point map it through the matrix. There are several shortcut
-    // variants.
-    // * TranslationMapper - assumes a translation only matrix.
-    // * XScaleMapper - assumes an X scaling and a translation.
-    // * GeneralMapper - Does all other matricies.
-    class MapperInterface {
-    public:
-        virtual ~MapperInterface() { }
-
-        virtual SkPoint map(SkPoint position) const = 0;
     };
 
     class TranslationMapper final : public MapperInterface {
@@ -457,16 +472,7 @@ inline void SkFindAndPlaceGlyph::ProcessPosText(
         positionReader = arena.make<HorizontalPositions>(pos);
     }
 
-    MapperInterface* mapper = nullptr;
-    if (mtype & (SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask)
-        || scalarsPerPosition == 2) {
-        mapper = arena.make<GeneralMapper>(matrix, offset);
-    } else if (mtype & SkMatrix::kScale_Mask) {
-        mapper = arena.make<XScaleMapper>(matrix, offset);
-    } else {
-        mapper = arena.make<TranslationMapper>(matrix, offset);
-    }
-
+    MapperInterface* mapper = CreateMapper(matrix, offset, scalarsPerPosition, &arena);
     GlyphFindAndPlaceInterface<ProcessOneGlyph>* findAndPosition = nullptr;
     if (cache->isSubpixel()) {
         findAndPosition = getSubpixel<ProcessOneGlyph>(&arena, axisAlignment, glyphFinder);
