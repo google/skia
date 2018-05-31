@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3c241bda_8fed66fe",
+        "filename": "src/utils/SkFloatToDecimal.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-05-31T19:23:08Z",
+      "side": 1,
+      "message": "Not needed?",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 26
+      },
+      "revId": "6b144fa3a56be71966dfcde4394f7111a9f8e315",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
