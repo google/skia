@@ -15,9 +15,7 @@
 #include "SkTypeface_remote.h"
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
 #include "text/GrTextContext.h"
-#endif
 
 class DiscardableManager : public SkStrikeServer::DiscardableHandleManager,
                            public SkStrikeClient::DiscardableHandleManager {
@@ -86,7 +84,6 @@ sk_sp<SkTextBlob> buildTextBlob(sk_sp<SkTypeface> tf, int glyphCount) {
         }                                                                                \
     }
 
-#if SK_SUPPORT_GPU
 SkTextBlobCacheDiffCanvas::Settings MakeSettings(GrContext* context) {
     SkTextBlobCacheDiffCanvas::Settings settings;
     settings.fContextSupportsDistanceFieldText = context->supportsDistanceFieldText();
@@ -105,7 +102,6 @@ SkBitmap RasterBlob(sk_sp<SkTextBlob> blob, int width, int height, const SkPaint
     surface->readPixels(bitmap, 0, 0);
     return bitmap;
 }
-#endif
 
 DEF_TEST(SkRemoteGlyphCache_TypefaceSerialization, reporter) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
@@ -124,7 +120,6 @@ DEF_TEST(SkRemoteGlyphCache_TypefaceSerialization, reporter) {
     discardableManager->unlockAndDeleteAll();
 }
 
-#if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_StrikeSerialization, reporter, ctxInfo) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
     SkStrikeServer server(discardableManager.get());
@@ -158,7 +153,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_StrikeSerialization, repor
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
 }
-#endif
 
 DEF_TEST(SkRemoteGlyphCache_StrikeLockingServer, reporter) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
@@ -290,7 +284,6 @@ DEF_TEST(SkRemoteGlyphCache_ClientMemoryAccounting, reporter) {
     discardableManager->unlockAndDeleteAll();
 }
 
-#if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsPath, reporter, ctxInfo) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
     SkStrikeServer server(discardableManager.get());
@@ -328,9 +321,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsPath, reporter, 
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
 }
-#endif
 
-#if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT, reporter, ctxInfo) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
     SkStrikeServer server(discardableManager.get());
@@ -406,4 +397,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_CacheMissReporting, report
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
 }
-#endif

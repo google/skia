@@ -7,8 +7,6 @@
 
 #include "DDLPromiseImageHelper.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
@@ -177,5 +175,3 @@ int DDLPromiseImageHelper::findOrDefineImage(SkImage* image) {
     SkASSERT(this->isValidID(newID));
     return newID;
 }
-
-#endif

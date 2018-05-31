@@ -46,7 +46,6 @@ protected:
 
     virtual void onDraw(SkCanvas* inputCanvas) override {
     // set up offscreen rendering with distance field text
-#if SK_SUPPORT_GPU
         GrContext* ctx = inputCanvas->getGrContext();
         SkISize size = this->onISize();
         if (!inputCanvas->getBaseLayerSize().isEmpty()) {
@@ -60,9 +59,6 @@ protected:
         SkCanvas* canvas = surface ? surface->getCanvas() : inputCanvas;
         // init our new canvas with the old canvas's matrix
         canvas->setMatrix(inputCanvas->getTotalMatrix());
-#else
-        SkCanvas* canvas = inputCanvas;
-#endif
         SkScalar x = 0, y = 0;
         SkScalar maxH = 0;
         for (auto twm : {TranslateWithMatrix::kNo, TranslateWithMatrix::kYes}) {
@@ -88,7 +84,6 @@ protected:
                 maxH = 0;
             }
         }
-#if SK_SUPPORT_GPU
         // render offscreen buffer
         if (surface) {
             SkAutoCanvasRestore acr(inputCanvas, true);
@@ -96,7 +91,6 @@ protected:
             inputCanvas->resetMatrix();
             inputCanvas->drawImage(surface->makeImageSnapshot().get(), 0, 0, nullptr);
         }
-#endif
     }
 
 private:

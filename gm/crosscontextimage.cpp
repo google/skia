@@ -8,7 +8,6 @@
 #include "gm.h"
 #include "Resources.h"
 
-#if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "SkImage.h"
 
@@ -46,5 +45,3 @@ DEF_SIMPLE_GM(cross_context_image, canvas, 512 * 3 + 60, 512 + 128 + 30) {
     canvas->drawImage(crossContextSubset, 512 + 30, 512 + 30);
     canvas->drawImage(crossContextRasterSubset, 512 + 512 + 60, 512 + 30);
 }
-
-#endif

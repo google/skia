@@ -11,9 +11,7 @@
 
 #include <stdlib.h>
 
-#if SK_SUPPORT_GPU
 using sk_gpu_test::GrContextFactory;
-#endif
 
 #if defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_IOS)
 #    define DEFAULT_GPU_CONFIG "gles"
@@ -35,7 +33,6 @@ static const struct {
     const char* backend;
     const char* options;
 } gPredefinedConfigs[] = {
-#if SK_SUPPORT_GPU
     { "gl",                    "gpu", "api=gl" },
     { "gles",                  "gpu", "api=gles" },
     { "glmsaa4",               "gpu", "api=gl,samples=4" },
@@ -96,9 +93,6 @@ static const struct {
     ,{ "mtlmsaa4",              "gpu", "api=metal,samples=4" }
     ,{ "mtlmsaa8",              "gpu", "api=metal,samples=8" }
 #endif
-#else
-     { "", "", "" }
-#endif
 };
 
 static const char configHelp[] =
@@ -117,7 +111,6 @@ static const char* config_help_fn() {
 static const char configExtendedHelp[] =
     "Extended form: 'backend(option=value,...)'\n\n"
     "Possible backends and options:\n"
-#if SK_SUPPORT_GPU
     "\n"
     "gpu[api=string,color=string,dit=bool,nvpr=bool,inst=bool,samples=int]\n"
     "\tapi\ttype: string\trequired\n"
@@ -171,7 +164,6 @@ static const char configExtendedHelp[] =
     "\n"
     "Predefined configs:\n\n"
     // Help text for pre-defined configs is auto-generated from gPredefinedConfigs
-#endif
     ;
 
 static const char* config_extended_help_fn() {
@@ -217,7 +209,6 @@ static bool parse_option_bool(const SkString& value, bool* outBool) {
     }
     return false;
 }
-#if SK_SUPPORT_GPU
 static bool parse_option_gpu_api(const SkString& value,
                                  SkCommandLineConfigGpu::ContextType* outContextType) {
     if (value.equals("gl")) {
@@ -337,7 +328,6 @@ static bool parse_option_gpu_surf_type(const SkString& value,
     }
     return false;
 }
-#endif
 
 // Extended options take form --config item[key1=value1,key2=value2,...]
 // Example: --config gpu[api=gl,color=8888]
@@ -366,7 +356,6 @@ public:
         *outParseSucceeded = true;
     }
 
-#if SK_SUPPORT_GPU
     bool get_option_gpu_color(const char* optionKey,
                               SkColorType* outColorType,
                               SkAlphaType* alphaType,
@@ -398,7 +387,6 @@ public:
         }
         return parse_option_gpu_surf_type(*optionValue, outSurfType);
     }
-#endif
 
     bool get_option_int(const char* optionKey, int* outInt, bool optional = true) const {
         SkString* optionValue = fOptionsMap.find(SkString(optionKey));
@@ -420,7 +408,6 @@ private:
     SkTHashMap<SkString, SkString> fOptionsMap;
 };
 
-#if SK_SUPPORT_GPU
 SkCommandLineConfigGpu::SkCommandLineConfigGpu(
         const SkString& tag, const SkTArray<SkString>& viaParts, ContextType contextType,
         bool useNVPR, bool useDIText, int samples, SkColorType colorType, SkAlphaType alphaType,
@@ -499,7 +486,6 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
                                       colorType, alphaType, colorSpace, useStencils, testThreading,
                                       surfType);
 }
-#endif
 
 SkCommandLineConfigSvg::SkCommandLineConfigSvg(const SkString& tag,
                                                const SkTArray<SkString>& viaParts, int pageIndex)
@@ -570,11 +556,9 @@ void ParseConfigs(const SkCommandLineFlags::StringArray& configs,
             }
         }
         SkCommandLineConfig* parsedConfig = nullptr;
-#if SK_SUPPORT_GPU
         if (extendedBackend.equals("gpu")) {
             parsedConfig = parse_command_line_config_gpu(tag, vias, extendedOptions);
         }
-#endif
         if (extendedBackend.equals("svg")) {
             parsedConfig = parse_command_line_config_svg(tag, vias, extendedOptions);
         }
