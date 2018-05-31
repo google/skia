@@ -213,7 +213,9 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
                             &error)) {
             if (GrResourceAllocator::AssignError::kFailedProxyInstantiation == error) {
                 for (int i = startIndex; i < stopIndex; ++i) {
-                    fOpLists[i]->purgeOpsWithUninstantiatedProxies();
+                    if (fOpLists[i]) {
+                        fOpLists[i]->purgeOpsWithUninstantiatedProxies();
+                    }
                 }
             }
 
