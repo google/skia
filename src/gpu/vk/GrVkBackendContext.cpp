@@ -8,7 +8,6 @@
 #include "SkAutoMalloc.h"
 #include "vk/GrVkBackendContext.h"
 #include "vk/GrVkExtensions.h"
-#include "vk/GrVkInterface.h"
 #include "vk/GrVkUtil.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -323,6 +322,7 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
 }
 
 GrVkBackendContext::~GrVkBackendContext() {
+    fMemoryAllocator.reset();
     if (fInterface == nullptr || !fOwnsInstanceAndDevice) {
         return;
     }

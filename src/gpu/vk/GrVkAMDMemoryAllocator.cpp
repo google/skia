@@ -8,6 +8,7 @@
 #include "GrVkAMDMemoryAllocator.h"
 
 #include "vk/GrVkInterface.h"
+#include "GrVkMemory.h"
 #include "GrVkUtil.h"
 
 GrVkAMDMemoryAllocator::GrVkAMDMemoryAllocator(VkPhysicalDevice physicalDevice,
@@ -42,7 +43,10 @@ GrVkAMDMemoryAllocator::GrVkAMDMemoryAllocator(VkPhysicalDevice physicalDevice,
     info.flags = 0;
     info.physicalDevice = physicalDevice;
     info.device = device;
-    info.preferredLargeHeapBlockSize = 0;
+    // Manually testing runs of dm using 64 here instead of the default 256 shows less memory usage
+    // on average. Also dm seems to run faster using 64 so it doesn't seem to be trading off speed
+    // for memory.
+    info.preferredLargeHeapBlockSize = 64*1024*1024;
     info.pAllocationCallbacks = nullptr;
     info.pDeviceMemoryCallbacks = nullptr;
     info.frameInUseCount = 0;
@@ -106,10 +110,10 @@ bool GrVkAMDMemoryAllocator::allocateMemoryForBuffer(VkBuffer buffer, BufferUsag
             info.preferredFlags = VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
             break;
         case BufferUsage::kCpuWritesGpuReads:
-            // First attempt to try memory is also device local
+            // First attempt to try memory is also cached
             info.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-            info.preferredFlags = VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+                                 VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+            info.preferredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
             break;
         case BufferUsage::kGpuWritesCpuReads:
             info.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
@@ -134,7 +138,7 @@ bool GrVkAMDMemoryAllocator::allocateMemoryForBuffer(VkBuffer buffer, BufferUsag
     VkResult result = vmaAllocateMemoryForBuffer(fAllocator, buffer, &info, &allocation, nullptr);
     if (VK_SUCCESS != result) {
         if (usage == BufferUsage::kCpuWritesGpuReads) {
-            // We try again but this time drop the requirement for device local
+            // We try again but this time drop the requirement for cached
             info.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
             result = vmaAllocateMemoryForBuffer(fAllocator, buffer, &info, &allocation, nullptr);
         }
@@ -142,6 +146,18 @@ bool GrVkAMDMemoryAllocator::allocateMemoryForBuffer(VkBuffer buffer, BufferUsag
     if (VK_SUCCESS != result) {
         return false;
     }
+
+    VmaAllocationInfo vmaInfo;
+    vmaGetAllocationInfo(fAllocator, allocation, &vmaInfo);
+
+    VkMemoryPropertyFlags memFlags;
+    vmaGetMemoryTypeProperties(fAllocator, vmaInfo.memoryType, &memFlags);
+
+    SkDebugf("deviceMemory: %d, offset: %d, size: %d, memFlags: %d\n",
+             vmaInfo.deviceMemory, vmaInfo.offset, vmaInfo.size, memFlags);
+    VkDeviceSize alignment = 64;
+    SkASSERT(0 == (vmaInfo.size & (alignment-1)));
+
     *backendMemory = (GrVkBackendMemory)allocation;
     return true;
 }
@@ -198,24 +214,9 @@ void GrVkAMDMemoryAllocator::flushMappedMemory(const GrVkBackendMemory& memoryHa
         vmaGetPhysicalDeviceProperties(fAllocator, &physDevProps);
         VkDeviceSize alignment = physDevProps->limits.nonCoherentAtomSize;
 
-        offset = offset + info.fOffset;
-        VkDeviceSize offsetDiff = offset & (alignment -1);
-        offset = offset - offsetDiff;
-        size = (size + alignment - 1) & ~(alignment - 1);
-#ifdef SK_DEBUG
-        SkASSERT(offset >= info.fOffset);
-        SkASSERT(offset + size <= info.fOffset + info.fSize);
-        SkASSERT(0 == (offset & (alignment-1)));
-        SkASSERT(size > 0);
-        SkASSERT(0 == (size & (alignment-1)));
-#endif
-
         VkMappedMemoryRange mappedMemoryRange;
-        memset(&mappedMemoryRange, 0, sizeof(VkMappedMemoryRange));
-        mappedMemoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-        mappedMemoryRange.memory = info.fMemory;
-        mappedMemoryRange.offset = offset;
-        mappedMemoryRange.size = size;
+        GrVkMemory::GetNonCoherentMappedMemoryRange(info, offset, size, alignment,
+                                                    &mappedMemoryRange);
         GR_VK_CALL(fInterface, FlushMappedMemoryRanges(fDevice, 1, &mappedMemoryRange));
     }
 }
@@ -231,24 +232,9 @@ void GrVkAMDMemoryAllocator::invalidateMappedMemory(const GrVkBackendMemory& mem
         vmaGetPhysicalDeviceProperties(fAllocator, &physDevProps);
         VkDeviceSize alignment = physDevProps->limits.nonCoherentAtomSize;
 
-        offset = offset + info.fOffset;
-        VkDeviceSize offsetDiff = offset & (alignment -1);
-        offset = offset - offsetDiff;
-        size = (size + alignment - 1) & ~(alignment - 1);
-#ifdef SK_DEBUG
-        SkASSERT(offset >= info.fOffset);
-        SkASSERT(offset + size <= info.fOffset + info.fSize);
-        SkASSERT(0 == (offset & (alignment-1)));
-        SkASSERT(size > 0);
-        SkASSERT(0 == (size & (alignment-1)));
-#endif
-
         VkMappedMemoryRange mappedMemoryRange;
-        memset(&mappedMemoryRange, 0, sizeof(VkMappedMemoryRange));
-        mappedMemoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-        mappedMemoryRange.memory = info.fMemory;
-        mappedMemoryRange.offset = offset;
-        mappedMemoryRange.size = size;
+        GrVkMemory::GetNonCoherentMappedMemoryRange(info, offset, size, alignment,
+                                                    &mappedMemoryRange);
         GR_VK_CALL(fInterface, InvalidateMappedMemoryRanges(fDevice, 1, &mappedMemoryRange));
     }
 }
