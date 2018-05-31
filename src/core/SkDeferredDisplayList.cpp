@@ -10,8 +10,15 @@
 #include "SkCanvas.h"
 #include "SkSurface.h"
 
+#if SK_SUPPORT_GPU
+#include "ccpr/GrCoverageCountingPathRenderer.h"
+#endif
+
 SkDeferredDisplayList::SkDeferredDisplayList(const SkSurfaceCharacterization& characterization,
                                              sk_sp<LazyProxyData> lazyProxyData)
         : fCharacterization(characterization)
         , fLazyProxyData(std::move(lazyProxyData)) {
+}
+
+SkDeferredDisplayList::~SkDeferredDisplayList() {
 }

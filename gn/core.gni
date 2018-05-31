@@ -135,7 +135,6 @@ skia_core_sources = [
   "$_src/core/SkFDot6.h",
   "$_src/core/SkFindAndPlaceGlyph.h",
   "$_src/core/SkArenaAlloc.cpp",
-  "$_src/core/SkArenaAlloc.h",
   "$_src/core/SkArenaAllocList.h",
   "$_src/core/SkGaussFilter.cpp",
   "$_src/core/SkGaussFilter.h",
@@ -448,6 +447,7 @@ skia_core_sources = [
   "$_src/jumper/SkJumper.cpp",
 
   # private
+  "$_include/private/SkArenaAlloc.h",
   "$_include/private/SkAtomics.h",
   "$_include/private/SkChecksum.h",
   "$_include/private/SkDeferredDisplayList.h",
