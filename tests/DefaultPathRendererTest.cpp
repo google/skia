@@ -7,7 +7,6 @@
 
 #include "SkTypes.h"
 
-#if SK_SUPPORT_GPU
 #include "GrClip.h"
 #include "GrColor.h"
 #include "GrContext.h"
@@ -138,5 +137,3 @@ DEF_GPUTEST_FOR_CONTEXTS(GrDefaultPathRendererTest,
 
     run_test(ctx, reporter);
 }
-
-#endif

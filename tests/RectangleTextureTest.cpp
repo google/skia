@@ -8,7 +8,6 @@
 #include "Test.h"
 #include "TestUtils.h"
 
-#if SK_SUPPORT_GPU
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
@@ -167,5 +166,3 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
         GR_GL_CALL(glContext->gl(), DeleteTextures(1, &rectTexID));
     }
 }
-
-#endif

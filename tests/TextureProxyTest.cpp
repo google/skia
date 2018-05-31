@@ -9,8 +9,6 @@
 
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrBackendSurface.h"
 #include "GrContextPriv.h"
 #include "GrResourceCache.h"
@@ -303,5 +301,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureProxyTest, reporter, ctxInfo) {
     invalidation_test(context, reporter);
     invalidation_and_instantiation_test(context, reporter);
 }
-
-#endif

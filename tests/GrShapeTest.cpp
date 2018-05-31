@@ -8,7 +8,6 @@
 #include <initializer_list>
 #include <functional>
 #include "Test.h"
-#if SK_SUPPORT_GPU
 #include "GrShape.h"
 #include "SkCanvas.h"
 #include "SkDashPathEffect.h"
@@ -2328,5 +2327,3 @@ DEF_TEST(GrShape_arcs, reporter) {
         ovalArcWithCenter.compare(reporter, oval, ovalExpectations);
     }
 }
-
-#endif

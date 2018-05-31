@@ -14,11 +14,9 @@
 #include "SkTextBlob.h"
 #include "SkClipOpPriv.h"
 
-#if SK_SUPPORT_GPU
 #include "GrAuditTrail.h"
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
-#endif
 
 #define SKDEBUGCANVAS_VERSION                     1
 #define SKDEBUGCANVAS_ATTRIBUTE_VERSION           "version"
@@ -112,17 +110,14 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
 
     DebugPaintFilterCanvas filterCanvas(originalCanvas, fOverdrawViz);
 
-#if SK_SUPPORT_GPU
     // If we have a GPU backend we can also visualize the op information
     GrAuditTrail* at = nullptr;
     if (fDrawGpuOpBounds || m != -1) {
         // The audit trail must be obtained from the original canvas.
         at = this->getAuditTrail(originalCanvas);
     }
-#endif
 
     for (int i = 0; i <= index; i++) {
-#if SK_SUPPORT_GPU
         // We need to flush any pending operations, or they might combine with commands below.
         // Previous operations were not registered with the audit trail when they were
         // created, so if we allow them to combine, the audit trail will fail to find them.
@@ -132,16 +127,13 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         if (at) {
             acb = new GrAuditTrail::AutoCollectOps(at, i);
         }
-#endif
 
         if (fCommandVector[i]->isVisible()) {
             fCommandVector[i]->execute(&filterCanvas);
         }
-#if SK_SUPPORT_GPU
         if (at && acb) {
             delete acb;
         }
-#endif
     }
 
     if (SkColorGetA(fClipVizColor) != 0) {
@@ -160,7 +152,6 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
     fClip = filterCanvas.getDeviceClipBounds();
     filterCanvas.restoreToCount(saveCount);
 
-#if SK_SUPPORT_GPU
     // draw any ops if required and issue a full reset onto GrAuditTrail
     if (at) {
         // just in case there is global reordering, we flush the canvas before querying
@@ -208,7 +199,6 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
             }
         }
     }
-#endif
     this->cleanupAuditTrail(originalCanvas);
 }
 
@@ -225,17 +215,14 @@ SkDrawCommand* SkDebugCanvas::getDrawCommandAt(int index) {
 
 GrAuditTrail* SkDebugCanvas::getAuditTrail(SkCanvas* canvas) {
     GrAuditTrail* at = nullptr;
-#if SK_SUPPORT_GPU
     GrContext* ctx = canvas->getGrContext();
     if (ctx) {
         at = ctx->contextPriv().getAuditTrail();
     }
-#endif
     return at;
 }
 
 void SkDebugCanvas::drawAndCollectOps(int n, SkCanvas* canvas) {
-#if SK_SUPPORT_GPU
     GrAuditTrail* at = this->getAuditTrail(canvas);
     if (at) {
         // loop over all of the commands and draw them, this is to collect reordering
@@ -251,16 +238,13 @@ void SkDebugCanvas::drawAndCollectOps(int n, SkCanvas* canvas) {
             canvas->flush();
         }
     }
-#endif
 }
 
 void SkDebugCanvas::cleanupAuditTrail(SkCanvas* canvas) {
     GrAuditTrail* at = this->getAuditTrail(canvas);
     if (at) {
-#if SK_SUPPORT_GPU
         GrAuditTrail::AutoEnable ae(at);
         at->fullReset();
-#endif
     }
 }
 
@@ -268,15 +252,12 @@ Json::Value SkDebugCanvas::toJSON(UrlDataManager& urlDataManager, int n, SkCanva
     this->drawAndCollectOps(n, canvas);
 
     // now collect json
-#if SK_SUPPORT_GPU
     GrAuditTrail* at = this->getAuditTrail(canvas);
-#endif
     Json::Value result = Json::Value(Json::objectValue);
     result[SKDEBUGCANVAS_ATTRIBUTE_VERSION] = Json::Value(SKDEBUGCANVAS_VERSION);
     Json::Value commands = Json::Value(Json::arrayValue);
     for (int i = 0; i < this->getSize() && i <= n; i++) {
         commands[i] = this->getDrawCommandAt(i)->toJSON(urlDataManager);
-#if SK_SUPPORT_GPU
         if (at) {
             // TODO if this is inefficient we could add a method to GrAuditTrail which takes
             // a Json::Value and is only compiled in this file
@@ -286,7 +267,6 @@ Json::Value SkDebugCanvas::toJSON(UrlDataManager& urlDataManager, int n, SkCanva
 
             commands[i][SKDEBUGCANVAS_ATTRIBUTE_AUDITTRAIL] = parsedFromString;
         }
-#endif
     }
     this->cleanupAuditTrail(canvas);
     result[SKDEBUGCANVAS_ATTRIBUTE_COMMANDS] = commands;
@@ -297,14 +277,12 @@ Json::Value SkDebugCanvas::toJSONOpList(int n, SkCanvas* canvas) {
     this->drawAndCollectOps(n, canvas);
 
     Json::Value parsedFromString;
-#if SK_SUPPORT_GPU
     GrAuditTrail* at = this->getAuditTrail(canvas);
     if (at) {
         GrAuditTrail::AutoManageOpList enable(at);
         Json::Reader reader;
         SkAssertResult(reader.parse(at->toJson().c_str(), parsedFromString));
     }
-#endif
     this->cleanupAuditTrail(canvas);
     return parsedFromString;
 }

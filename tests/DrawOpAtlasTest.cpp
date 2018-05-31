@@ -7,7 +7,6 @@
 
 #include "SkTypes.h"
 
-#if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextFactory.h"
 #include "GrContextPriv.h"
@@ -224,6 +223,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     op->prepare(&flushState);
     flushState.setOpArgs(nullptr);
 }
-
-
-#endif

@@ -7,7 +7,6 @@
 
 #include "SkTypes.h"
 
-#if SK_SUPPORT_GPU
 #include "GrContextPriv.h"
 #include "GrContextFactory.h"
 #include "GrTest.h"
@@ -312,5 +311,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo)
     }
 #endif
 }
-
-#endif

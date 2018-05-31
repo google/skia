@@ -9,8 +9,6 @@
 
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
-
 static void test_failure(skiatest::Reporter* r, const char* src, const char* error) {
     SkSL::Compiler compiler;
     SkSL::Program::Settings settings;
@@ -508,4 +506,3 @@ DEF_TEST(SkSLDuplicateOutput, r) {
                  "layout (location=0, index=0) out half4 duplicateOutput;",
                  "error: 1: out location=0, index=0 is reserved for sk_FragColor\n1 error\n");
 }
-#endif

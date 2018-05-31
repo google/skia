@@ -7,8 +7,6 @@
 
 #include "Benchmark.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
@@ -183,6 +181,4 @@ DEF_BENCH( return new GrResourceCacheBenchFind(25); )
 DEF_BENCH( return new GrResourceCacheBenchFind(54); )
 DEF_BENCH( return new GrResourceCacheBenchFind(55); )
 DEF_BENCH( return new GrResourceCacheBenchFind(56); )
-#endif
-
 #endif

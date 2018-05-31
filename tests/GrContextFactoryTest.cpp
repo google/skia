@@ -7,8 +7,6 @@
 
 #include "SkTypes.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrContextFactory.h"
 #include "GrContextPriv.h"
 #include "GrCaps.h"
@@ -167,5 +165,3 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrContextDump, reporter, ctxInfo) {
     SkString result = ctxInfo.grContext()->contextPriv().dump();
     REPORTER_ASSERT(reporter, !result.isEmpty());
 }
-
-#endif

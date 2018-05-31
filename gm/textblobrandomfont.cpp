@@ -17,8 +17,6 @@
 #include "SkTextBlob.h"
 #include "SkTypeface.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrContext.h"
 
 namespace skiagm {
@@ -168,4 +166,3 @@ private:
 
 DEF_GM(return new TextBlobRandomFont;)
 }
-#endif

@@ -7,7 +7,6 @@
 
 #include "SkTypes.h"
 
-#if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextFactory.h"
 #include "GrContextPriv.h"
@@ -389,5 +388,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DetermineDomainModeTest, reporter, ctxInfo) {
 
     proxy_test(reporter, context->contextPriv().proxyProvider());
 }
-
-#endif

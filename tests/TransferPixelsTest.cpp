@@ -9,8 +9,6 @@
 
 #include "SkTypes.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrContextFactory.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
@@ -194,5 +192,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsTest, reporter, ctxInfo) {
     basic_transfer_test(reporter, ctxInfo.grContext(), GrColorType::kBGRA_8888,
                         kBottomLeft_GrSurfaceOrigin, true);
 }
-
-#endif

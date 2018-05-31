@@ -150,8 +150,6 @@ bool CollectImages(SkCommandLineFlags::StringArray images, SkTArray<SkString>* o
     return true;
 }
 
-#if SK_SUPPORT_GPU
-
 #include "SkCommonFlagsGpu.h"
 
 DEFINE_int32(gpuThreads, 2, "Create this many extra threads to assist with GPU work, "
@@ -175,5 +173,3 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
     ctxOptions->fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
     ctxOptions->fDisableDriverCorrectnessWorkarounds = FLAGS_disableDriverCorrectnessWorkarounds;
 }
-
-#endif

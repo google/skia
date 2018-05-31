@@ -8,7 +8,6 @@
 #include "Test.h"
 
 // This test is specific to the GPU backend.
-#if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrProxyProvider.h"
@@ -218,5 +217,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         }
     }
 }
-
-#endif

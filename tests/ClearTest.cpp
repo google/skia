@@ -7,7 +7,6 @@
 
 #include "SkTypes.h"
 
-#if SK_SUPPORT_GPU
 #include "GrColor.h"
 #include "GrContext.h"
 #include "GrContextFactory.h"
@@ -295,5 +294,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FullScreenClearWithLayers, reporter, ctxInfo)
         fullscreen_clear_with_layer_test(reporter, workaroundFactory.get(ctxInfo.type()));
     }
 }
-
-#endif

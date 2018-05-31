@@ -5,10 +5,8 @@
  * found in the LICENSE file.
  */
 
-// Include here to ensure SK_SUPPORT_GPU is set correctly before it is examined.
 #include "SkTypes.h"
 
-#if SK_SUPPORT_GPU
 #include <thread>
 #include "GrContext.h"
 #include "GrContextPriv.h"
@@ -1810,5 +1808,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
         REPORTER_ASSERT(reporter, kSize*kSize*4+(kSize*kSize*4)/3 == size);
     }
 }
-
-#endif

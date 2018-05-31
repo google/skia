@@ -9,8 +9,6 @@
 
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
-
 using namespace sk_gpu_test;
 
 #include "GrContextFactory.h"
@@ -128,5 +126,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PinnedImageTest, reporter, ctxInfo) {
     basic_test(reporter, ctxInfo.grContext());
     cleanup_test(reporter);
 }
-
-#endif

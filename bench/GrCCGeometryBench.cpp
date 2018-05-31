@@ -7,8 +7,6 @@
 
 #include "Benchmark.h"
 
-#if SK_SUPPORT_GPU
-
 #include "ccpr/GrCCGeometry.h"
 #include "SkGeometry.h"
 
@@ -93,5 +91,3 @@ DEF_BENCH( return new GrCCGeometryBench(513.049988f, 245.049988f, 73.750000f, 13
 DEF_BENCH( return new GrCCGeometryBench(560.049988f, 364.049988f, 217.750000f, 314.049988f,
                                         21.750000f, 364.950012f, 83.049988f, 624.950012f,
                                         "0_roots"); )
-
-#endif

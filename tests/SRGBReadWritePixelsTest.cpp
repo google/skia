@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#if SK_SUPPORT_GPU
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
@@ -386,4 +385,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
     test_write_read(Encoding::kLinear, Encoding::kLinear, Encoding::kLinear, error,
                     check_no_conversion, context, reporter);
 }
-#endif

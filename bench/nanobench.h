@@ -9,13 +9,10 @@
 #define nanobench_DEFINED
 
 #include "Benchmark.h"
+#include "GrContextFactory.h"
 #include "SkImageInfo.h"
 #include "SkSurface.h"
 #include "SkTypes.h"
-
-#if SK_SUPPORT_GPU
-#include "GrContextFactory.h"
-#endif
 
 class ResultsWriter;
 class SkBitmap;
@@ -28,15 +25,9 @@ struct Config {
     SkAlphaType alpha;
     sk_sp<SkColorSpace> colorSpace;
     int samples;
-#if SK_SUPPORT_GPU
     sk_gpu_test::GrContextFactory::ContextType ctxType;
     sk_gpu_test::GrContextFactory::ContextOverrides ctxOverrides;
     bool useDFText;
-#else
-    int bogusInt;
-    int bogusIntOption;
-    bool bogusBool;
-#endif
 };
 
 struct Target {

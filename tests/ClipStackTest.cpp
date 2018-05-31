@@ -27,7 +27,6 @@
 #include "SkTypes.h"
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
 #include "GrCaps.h"
 #include "GrClip.h"
 #include "GrClipStackClip.h"
@@ -43,7 +42,6 @@
 #include "GrTextureProxy.h"
 typedef GrReducedClip::ElementList ElementList;
 typedef GrReducedClip::InitialState InitialState;
-#endif
 
 #include <cstring>
 #include <new>
@@ -878,7 +876,6 @@ static void test_invfill_diff_bug(skiatest::Reporter* reporter) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if SK_SUPPORT_GPU
 // Functions that add a shape to the clip stack. The shape is computed from a rectangle.
 // AA is always disabled since the clip stack reducer can cause changes in aa rasterization of the
 // stack. A fractional edge repeated in different elements may be rasterized fewer times using the
@@ -1430,8 +1427,6 @@ static void test_tiny_query_bounds_assertion_bug(skiatest::Reporter* reporter) {
     }
 }
 
-#endif
-
 DEF_TEST(ClipStack, reporter) {
     SkClipStack stack;
 
@@ -1478,18 +1473,16 @@ DEF_TEST(ClipStack, reporter) {
     test_path_replace(reporter);
     test_quickContains(reporter);
     test_invfill_diff_bug(reporter);
-#if SK_SUPPORT_GPU
+
     test_reduced_clip_stack(reporter);
     test_reduced_clip_stack_genid(reporter);
     test_reduced_clip_stack_no_aa_crash(reporter);
     test_reduced_clip_stack_aa(reporter);
     test_tiny_query_bounds_assertion_bug(reporter);
-#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-#if SK_SUPPORT_GPU
 sk_sp<GrTextureProxy> GrClipStackClip::testingOnly_createClipMask(GrContext* context) const {
     const GrReducedClip reducedClip(*fStack, SkRect::MakeWH(512, 512), 0);
     return this->createSoftwareClipMask(context, reducedClip, nullptr);
@@ -1563,4 +1556,3 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(canvas_private_clipRgn, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, rgn.getBounds() == SkIRect::MakeLTRB(3, 3, 7, 7));
     canvas->restore();
 }
-#endif

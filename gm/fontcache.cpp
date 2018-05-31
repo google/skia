@@ -10,8 +10,6 @@
 
 #include "gm.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrContextOptions.h"
@@ -142,5 +140,3 @@ constexpr SkScalar FontCacheGM::kSize;
 
 DEF_GM(return new FontCacheGM(GrContextOptions::Enable::kNo))
 DEF_GM(return new FontCacheGM(GrContextOptions::Enable::kYes))
-
-#endif

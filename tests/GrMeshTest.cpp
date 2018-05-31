@@ -8,8 +8,6 @@
 #include "SkTypes.h"
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
-
 #include <array>
 #include <vector>
 #include "GrCaps.h"
@@ -406,5 +404,3 @@ static void run_test(const char* testName, skiatest::Reporter* reporter,
         }
     }
 }
-
-#endif

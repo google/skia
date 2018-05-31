@@ -75,11 +75,9 @@
 
 #include "../third_party/skcms/skcms.h"
 
-#if SK_SUPPORT_GPU
 #include "GrBackendSurface.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
-#endif
 
 DEFINE_bool(multiPage, false, "For document-type backends, render the source"
             " into multiple pages");
@@ -1500,7 +1498,6 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     SkImageInfo info =
             SkImageInfo::Make(size.width(), size.height(), fColorType, fAlphaType, fColorSpace);
     sk_sp<SkSurface> surface;
-#if SK_SUPPORT_GPU
     GrContext* context = factory.getContextInfo(fContextType, fContextOverrides).grContext();
     const int maxDimension = context->contextPriv().caps()->maxTextureSize();
     if (maxDimension < SkTMax(size.width(), size.height())) {
@@ -1537,7 +1534,6 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
             }
             break;
     }
-#endif
 
     if (!surface) {
         return "Could not create a surface.";
@@ -1552,10 +1548,8 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     }
     canvas->flush();
     if (FLAGS_gpuStats) {
-#if SK_SUPPORT_GPU
         canvas->getGrContext()->contextPriv().dumpCacheStats(log);
         canvas->getGrContext()->contextPriv().dumpGpuStats(log);
-#endif
     }
     if (info.colorType() == kRGB_565_SkColorType || info.colorType() == kARGB_4444_SkColorType ||
         info.colorType() == kRGB_888x_SkColorType) {
@@ -1571,7 +1565,6 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     } else if (FLAGS_releaseAndAbandonGpuContext) {
         factory.releaseResourcesAndAbandonContexts();
     }
-#if SK_SUPPORT_GPU
     if (!context->contextPriv().abandoned()) {
         surface.reset();
         if (backendTexture.isValid()) {
@@ -1581,7 +1574,6 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
             context->contextPriv().getGpu()->deleteTestingOnlyBackendRenderTarget(backendRT);
         }
     }
-#endif
     return "";
 }
 
@@ -1599,11 +1591,7 @@ GPUThreadTestingSink::GPUThreadTestingSink(GrContextFactory::ContextType ct,
                                            const GrContextOptions& grCtxOptions)
         : INHERITED(ct, overrides, surfType, samples, diText, colorType, alphaType,
                     std::move(colorSpace), threaded, grCtxOptions)
-#if SK_SUPPORT_GPU
         , fExecutor(SkExecutor::MakeFIFOThreadPool(FLAGS_gpuThreads)) {
-#else
-        , fExecutor(nullptr) {
-#endif
     SkASSERT(fExecutor);
 }
 
@@ -1613,10 +1601,8 @@ Error GPUThreadTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* wStre
     // Also, force us to only use the software path renderer, so we really stress-test the threaded
     // version of that code.
     GrContextOptions contextOptions = this->baseContextOptions();
-#if SK_SUPPORT_GPU
     contextOptions.fGpuPathRenderers = GpuPathRenderers::kNone;
     contextOptions.fExecutor = fExecutor.get();
-#endif
 
     Error err = this->onDraw(src, dst, wStream, log, contextOptions);
     if (!err.isEmpty() || !dst) {
@@ -1626,9 +1612,7 @@ Error GPUThreadTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* wStre
     SkBitmap reference;
     SkString refLog;
     SkDynamicMemoryWStream refStream;
-#if SK_SUPPORT_GPU
     contextOptions.fExecutor = nullptr;
-#endif
     Error refErr = this->onDraw(src, &reference, &refStream, &refLog, contextOptions);
     if (!refErr.isEmpty()) {
         return refErr;
@@ -2008,8 +1992,6 @@ Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-#if SK_SUPPORT_GPU
-
 ViaDDL::ViaDDL(int numDivisions, Sink* sink)
     : Via(sink)
     , fNumDivisions(numDivisions) {
@@ -2070,16 +2052,6 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
                     return "";
                 });
 }
-
-#else
-
-ViaDDL::ViaDDL(int numDivisions, Sink* sink) : Via(sink) { }
-
-Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-    return "ViaDDL is GPU only";
-}
-
-#endif
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 

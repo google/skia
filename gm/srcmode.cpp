@@ -116,11 +116,9 @@ protected:
         SkImageInfo info = SkImageInfo::MakeN32Premul(size);
 
         bool callNewSurface = true;
-#if SK_SUPPORT_GPU
         if (canvas->getGrContext() && skipGPU) {
             callNewSurface = false;
         }
-#endif
         sk_sp<SkSurface> surface = callNewSurface ? canvas->makeSurface(info) : nullptr;
         if (nullptr == surface) {
             // picture canvas will return null, so fall-back to raster

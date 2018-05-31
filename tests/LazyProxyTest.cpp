@@ -7,8 +7,6 @@
 
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrClip.h"
 #include "GrContextPriv.h"
 #include "GrProxyProvider.h"
@@ -469,5 +467,3 @@ DEF_GPUTEST(LazyProxyUninstantiateTest, reporter, /* options */) {
         gpu->deleteTestingOnlyBackendTexture(backendTex);
     }
 }
-
-#endif

@@ -7,8 +7,6 @@
 
 #include "SkTypes.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrContext.h"
 #include "GrPath.h"
 #include "GrShape.h"
@@ -163,5 +161,3 @@ DEF_GPUTEST(GrPathKeys, reporter, /* options */) {
         }
     }
 }
-
-#endif

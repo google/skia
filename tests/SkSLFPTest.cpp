@@ -9,8 +9,6 @@
 
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
-
 static void test(skiatest::Reporter* r, const char* src, const GrShaderCaps& caps,
                  std::vector<const char*> expectedH, std::vector<const char*> expectedCPP) {
     SkSL::Program::Settings settings;
@@ -383,5 +381,3 @@ DEF_TEST(SkSLFPChildProcessors, r) {
             "this->registerChildProcessor(src.childProcessor(1).clone());"
          });
 }
-
-#endif

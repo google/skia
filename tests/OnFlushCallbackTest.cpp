@@ -7,8 +7,6 @@
 
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrBackendSemaphore.h"
 #include "GrClip.h"
 #include "GrContextPriv.h"
@@ -584,5 +582,3 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
     x += kDrawnTileSize;
     test_color(reporter, readBack, x, SK_ColorYELLOW);
 }
-
-#endif

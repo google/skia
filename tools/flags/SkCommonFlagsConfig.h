@@ -9,16 +9,11 @@
 #define SK_COMMON_FLAGS_CONFIG_H
 
 #include "SkCommandLineFlags.h"
-
-#if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
-#endif
 
 DECLARE_string(config);
 
-#if SK_SUPPORT_GPU
 class SkCommandLineConfigGpu;
-#endif
 class SkCommandLineConfigSvg;
 
 // SkCommandLineConfig represents a Skia rendering configuration string.
@@ -32,9 +27,7 @@ class SkCommandLineConfig {
     SkCommandLineConfig(const SkString& tag, const SkString& backend,
                         const SkTArray<SkString>& viaParts);
     virtual ~SkCommandLineConfig();
-#if SK_SUPPORT_GPU
     virtual const SkCommandLineConfigGpu* asConfigGpu() const { return nullptr; }
-#endif
     virtual const SkCommandLineConfigSvg* asConfigSvg() const { return nullptr; }
     const SkString& getTag() const { return fTag; }
     const SkString& getBackend() const { return fBackend; }
@@ -45,7 +38,6 @@ class SkCommandLineConfig {
     SkTArray<SkString> fViaParts;
 };
 
-#if SK_SUPPORT_GPU
 // SkCommandLineConfigGpu is a SkCommandLineConfig that extracts information out of the backend
 // part of the tag. It is constructed tags that have:
 // * backends of form "gpu[option=value,option2=value,...]"
@@ -94,7 +86,6 @@ private:
     bool fTestThreading;
     SurfType fSurfType;
 };
-#endif
 
 // SkCommandLineConfigSvg is a SkCommandLineConfig that extracts information out of the backend
 // part of the tag. It is constructed tags that have:

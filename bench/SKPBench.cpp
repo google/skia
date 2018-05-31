@@ -10,10 +10,8 @@
 #include "SkMultiPictureDraw.h"
 #include "SkSurface.h"
 
-#if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextPriv.h"
-#endif
 
 // These CPU tile sizes are not good per se, but they are similar to what Chrome uses.
 DEFINE_int32(CPUbenchTileW, 256, "Tile width  used for CPU SKP playback.");
@@ -120,12 +118,10 @@ void SKPBench::onDraw(int loops, SkCanvas* canvas) {
         if (0 == --loops) {
             break;
         }
-#if SK_SUPPORT_GPU
         // Ensure the GrContext doesn't combine ops across draw loops.
         if (GrContext* context = canvas->getGrContext()) {
             context->flush();
         }
-#endif
     }
 }
 
@@ -158,7 +154,6 @@ void SKPBench::drawPicture() {
     }
 }
 
-#if SK_SUPPORT_GPU
 #include "GrGpu.h"
 static void draw_pic_for_stats(SkCanvas* canvas, GrContext* context, const SkPicture* picture,
                                SkTArray<SkString>* keys, SkTArray<double>* values,
@@ -176,10 +171,8 @@ static void draw_pic_for_stats(SkCanvas* canvas, GrContext* context, const SkPic
         (*keys)[i].appendf("_%s", tag);
     }
 }
-#endif
 
 void SKPBench::getGpuStats(SkCanvas* canvas, SkTArray<SkString>* keys, SkTArray<double>* values) {
-#if SK_SUPPORT_GPU
     // we do a special single draw and then dump the key / value pairs
     GrContext* context = canvas->getGrContext();
     if (!context) {
@@ -195,6 +188,4 @@ void SKPBench::getGpuStats(SkCanvas* canvas, SkTArray<SkString>* keys, SkTArray<
 
     // draw second frame
     draw_pic_for_stats(canvas, context, fPic.get(), keys, values, "second_frame");
-
-#endif
 }

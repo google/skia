@@ -10,8 +10,6 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "SkGr.h"
@@ -184,5 +182,3 @@ private:
 
 DEF_GM(return new ConstColorProcessor;)
 }
-
-#endif

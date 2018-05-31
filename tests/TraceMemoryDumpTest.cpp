@@ -9,8 +9,6 @@
 
 #include "Test.h"
 
-// These tests are currently GPU-speicifc.
-#if SK_SUPPORT_GPU
 #include "GrContextPriv.h"
 #include "GrRenderTarget.h"
 #include "GrTexture.h"
@@ -176,5 +174,3 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_unownedGLRenderTarget, r
 
     ValidateMemoryDumps(reporter, context, rt->gpuMemorySize(), false /* isOwned */);
 }
-
-#endif

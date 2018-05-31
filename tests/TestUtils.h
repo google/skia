@@ -7,8 +7,6 @@
 
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
-
 class GrSurfaceContext;
 class GrSurfaceProxy;
 
@@ -31,4 +29,3 @@ void test_copy_from_surface(skiatest::Reporter*, GrContext*,
 // Ensure that RGBA 8888 pixels can be copied into 'dstContext'
 void test_copy_to_surface(skiatest::Reporter*, GrProxyProvider*,
                           GrSurfaceContext* dstContext, const char* testName);
-#endif

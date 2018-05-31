@@ -10,8 +10,6 @@
 #include "SkSize.h"
 #include "SkTDArray.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrRectanizer_pow2.h"
 #include "GrRectanizer_skyline.h"
 
@@ -134,5 +132,3 @@ DEF_BENCH(return new RectanizerBench(RectanizerBench::kSkyline_RectanizerType,
                                      RectanizerBench::kRandPow2_RectType);)
 DEF_BENCH(return new RectanizerBench(RectanizerBench::kSkyline_RectanizerType,
                                      RectanizerBench::kSmallPow2_RectType);)
-
-#endif

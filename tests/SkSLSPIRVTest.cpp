@@ -9,8 +9,6 @@
 
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
-
 static void test_failure(skiatest::Reporter* r, const char* src, const char* error) {
     SkSL::Compiler compiler;
     SkSL::Program::Settings settings;
@@ -40,5 +38,3 @@ DEF_TEST(SkSLBadOffset, r) {
                  "sk_FragColor.r = float(bad.x); }",
                  "error: 1: offset of field 'y' must be at least 4\n1 error\n");
 }
-
-#endif

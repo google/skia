@@ -10,8 +10,6 @@
 
 #include "SkSurface.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrContextPriv.h"
 #include "ProxyUtils.h"
 #include "SkImage_Gpu.h"
@@ -271,5 +269,3 @@ private:
 };
 
 DEF_GM(return new FlippityGM;)
-
-#endif

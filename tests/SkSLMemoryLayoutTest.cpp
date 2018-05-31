@@ -10,8 +10,6 @@
 
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
-
 DEF_TEST(SkSLMemoryLayout140Test, r) {
     SkSL::Context context;
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::k140_Standard);
@@ -173,4 +171,3 @@ DEF_TEST(SkSLMemoryLayout430Test, r) {
     REPORTER_ASSERT(r, 16 == layout.alignment(array2));
     REPORTER_ASSERT(r, 16 == layout.stride(array2));
 }
-#endif

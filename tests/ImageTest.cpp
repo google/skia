@@ -32,14 +32,12 @@
 #include "sk_pixel_iter.h"
 #include "sk_tool_utils.h"
 
-#if SK_SUPPORT_GPU
 #include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrResourceCache.h"
 #include "GrTest.h"
 #include "GrTexture.h"
 #include "SkGr.h"
-#endif
 
 using namespace sk_gpu_test;
 
@@ -106,7 +104,6 @@ static sk_sp<SkImage> create_data_image() {
     sk_sp<SkData> data(create_image_data(&info));
     return SkImage::MakeRasterData(info, std::move(data), info.minRowBytes());
 }
-#if SK_SUPPORT_GPU // not gpu-specific but currently only used in GPU tests
 static sk_sp<SkImage> create_image_large(int maxTextureSize) {
     const SkImageInfo info = SkImageInfo::MakeN32(maxTextureSize + 1, 32, kOpaque_SkAlphaType);
     auto surface(SkSurface::MakeRaster(info));
@@ -124,7 +121,6 @@ static sk_sp<SkImage> create_picture_image() {
                                     nullptr, nullptr, SkImage::BitDepth::kU8,
                                     SkColorSpace::MakeSRGB());
 };
-#endif
 // Want to ensure that our Release is called when the owning image is destroyed
 struct RasterDataHolder {
     RasterDataHolder() : fReleaseCount(0) {}
@@ -151,14 +147,12 @@ static sk_sp<SkImage> create_codec_image() {
     sk_sp<SkData> src(sk_tool_utils::EncodeImageToData(bitmap, SkEncodedImageFormat::kPNG, 100));
     return SkImage::MakeFromEncoded(std::move(src));
 }
-#if SK_SUPPORT_GPU
 static sk_sp<SkImage> create_gpu_image(GrContext* context) {
     const SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
     auto surface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));
     draw_image_test_pattern(surface->getCanvas());
     return surface->makeImageSnapshot();
 }
-#endif
 
 static void test_encode(skiatest::Reporter* reporter, SkImage* image) {
     const SkIRect ir = SkIRect::MakeXYWH(5, 5, 10, 10);
@@ -185,11 +179,9 @@ DEF_TEST(ImageEncode, reporter) {
     test_encode(reporter, create_image().get());
 }
 
-#if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageEncode_Gpu, reporter, ctxInfo) {
     test_encode(reporter, create_gpu_image(ctxInfo.grContext()).get());
 }
-#endif
 
 DEF_TEST(Image_MakeFromRasterBitmap, reporter) {
     const struct {
@@ -331,7 +323,6 @@ DEF_TEST(image_newfrombitmap, reporter) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#if SK_SUPPORT_GPU
 
 #include "SkBitmapCache.h"
 
@@ -619,8 +610,6 @@ DEF_GPUTEST(AbandonedContextImage, reporter, options) {
     }
 }
 
-#endif
-
 class EmptyGenerator : public SkImageGenerator {
 public:
     EmptyGenerator() : SkImageGenerator(SkImageInfo::MakeN32Premul(0, 0)) {}
@@ -721,11 +710,9 @@ DEF_TEST(ImageReadPixels, reporter) {
     image = create_codec_image();
     image_test_read_pixels(reporter, image.get());
 }
-#if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageReadPixels_Gpu, reporter, ctxInfo) {
     image_test_read_pixels(reporter, create_gpu_image(ctxInfo.grContext()).get());
 }
-#endif
 
 static void check_legacy_bitmap(skiatest::Reporter* reporter, const SkImage* image,
                                 const SkBitmap& bitmap) {
@@ -779,12 +766,10 @@ DEF_TEST(ImageLegacyBitmap, reporter) {
     image = create_codec_image();
     test_legacy_bitmap(reporter, image.get());
 }
-#if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageLegacyBitmap_Gpu, reporter, ctxInfo) {
     sk_sp<SkImage> image(create_gpu_image(ctxInfo.grContext()));
     test_legacy_bitmap(reporter, image.get());
 }
-#endif
 
 static void test_peek(skiatest::Reporter* reporter, SkImage* image, bool expectPeekSuccess) {
     if (!image) {
@@ -821,14 +806,11 @@ DEF_TEST(ImagePeek, reporter) {
     image = create_codec_image();
     test_peek(reporter, image.get(), false);
 }
-#if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImagePeek_Gpu, reporter, ctxInfo) {
     sk_sp<SkImage> image(create_gpu_image(ctxInfo.grContext()));
     test_peek(reporter, image.get(), false);
 }
-#endif
 
-#if SK_SUPPORT_GPU
 struct TextureReleaseChecker {
     TextureReleaseChecker() : fReleaseCount(0) {}
     int fReleaseCount;
@@ -1153,7 +1135,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(makeBackendTexture, reporter, ctxInfo) {
         context->flush();
     }
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1346,7 +1327,6 @@ DEF_TEST(ImageScalePixels, reporter) {
     test_scale_pixels(reporter, codecImage.get(), pmRed);
 }
 
-#if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageScalePixels_Gpu, reporter, ctxInfo) {
     const SkPMColor pmRed = SkPackARGB32(0xFF, 0xFF, 0, 0);
     const SkColor red = SK_ColorRED;
@@ -1358,7 +1338,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageScalePixels_Gpu, reporter, ctxInfo) {
     sk_sp<SkImage> gpuImage = surface->makeImageSnapshot();
     test_scale_pixels(reporter, gpuImage.get(), pmRed);
 }
-#endif
 
 static sk_sp<SkImage> any_image_will_do() {
     return GetResourceAsImage("images/mandrill_32.png");

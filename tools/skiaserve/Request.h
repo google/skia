@@ -10,9 +10,7 @@
 
 #include "SkTypes.h"
 
-#if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
-#endif
 
 #include "SkDebugCanvas.h"
 #include "SkPicture.h"

@@ -13,7 +13,6 @@
 // mixes this test up. Re-enable once backing GPU resources are distributed by MDB at flush time.
 #if 0
 
-#if SK_SUPPORT_GPU
 #include "GrTextureProxy.h"
 #include "GrRenderTargetContext.h"
 
@@ -74,5 +73,4 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RenderTargetContextTest, reporter, ctxInfo) {
     // GrRenderTargetContext calls do not force the instantiation of a deferred
     // GrRenderTargetContext
 }
-#endif
 #endif

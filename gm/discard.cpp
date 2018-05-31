@@ -12,8 +12,6 @@
 #include "SkRandom.h"
 #include "SkSurface.h"
 
-#if SK_SUPPORT_GPU
-
 namespace skiagm {
 
 /*
@@ -87,5 +85,3 @@ private:
 DEF_GM(return new DiscardGM;)
 
 } // end namespace
-
-#endif

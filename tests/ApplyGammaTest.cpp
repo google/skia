@@ -7,8 +7,6 @@
 
 #include "SkTypes.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrContextFactory.h"
@@ -168,4 +166,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
         }
     }
 }
-#endif

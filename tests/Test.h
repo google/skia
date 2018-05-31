@@ -12,18 +12,7 @@
 #include "SkString.h"
 #include "SkTraceEvent.h"
 #include "SkTypes.h"
-
-#if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
-#else
-namespace sk_gpu_test {
-class GrContextFactory;
-class ContextInfo;
-class GLTestContext;
-}  // namespace sk_gpu_test
-class GrContext;
-struct GrContextOptions;
-#endif
 
 namespace skiatest {
 
@@ -133,11 +122,7 @@ typedef sk_tools::Registry<Test> TestRegistry;
     }
 */
 
-#if SK_SUPPORT_GPU
 using GrContextFactoryContextType = sk_gpu_test::GrContextFactory::ContextType;
-#else
-using GrContextFactoryContextType = int;
-#endif
 
 typedef void GrContextTestFn(Reporter*, const sk_gpu_test::ContextInfo&);
 typedef bool GrContextTypeFilterFn(GrContextFactoryContextType);

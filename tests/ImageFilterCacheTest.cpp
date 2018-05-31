@@ -191,7 +191,6 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
     test_image_backed(reporter, srcImage);
 }
 
-#if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrProxyProvider.h"
@@ -282,4 +281,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo
     test_internal_purge(reporter, fullImg);
     test_explicit_purging(reporter, fullImg, subsetImg);
 }
-#endif

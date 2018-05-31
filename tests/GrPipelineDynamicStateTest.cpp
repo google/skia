@@ -8,8 +8,6 @@
 #include "SkTypes.h"
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrContext.h"
 #include "GrColor.h"
 #include "GrGeometryProcessor.h"
@@ -218,5 +216,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo
         }
     }
 }
-
-#endif

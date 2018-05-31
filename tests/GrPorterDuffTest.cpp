@@ -7,8 +7,6 @@
 
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrContextFactory.h"
 #include "GrContextOptions.h"
 #include "GrContextPriv.h"
@@ -1104,5 +1102,3 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
     }
     gpu->deleteTestingOnlyBackendTexture(backendTex);
 }
-
-#endif

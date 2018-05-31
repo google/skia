@@ -10,8 +10,6 @@
 #include "SkString.h"
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrTRecorder.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -292,5 +290,3 @@ DEF_GPUTEST(GrTRecorder, reporter, /* options */) {
     test_subclasses(reporter);
     REPORTER_ASSERT(reporter, 0 == activeRecorderItems); // Ensure ~GrTRecorder invokes dtors.
 }
-
-#endif

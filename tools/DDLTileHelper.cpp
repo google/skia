@@ -7,8 +7,6 @@
 
 #include "DDLTileHelper.h"
 
-#if SK_SUPPORT_GPU
-
 #include "DDLPromiseImageHelper.h"
 #include "SkCanvas.h"
 #include "SkDeferredDisplayListRecorder.h"
@@ -162,5 +160,3 @@ void DDLTileHelper::resetAllTiles() {
         fTiles[i].reset();
     }
 }
-
-#endif

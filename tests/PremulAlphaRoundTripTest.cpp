@@ -10,9 +10,7 @@
 #include "Test.h"
 #include "sk_tool_utils.h"
 
-#if SK_SUPPORT_GPU
 #include "GrContext.h"
-#endif
 
 static uint32_t pack_unpremul_rgba(SkColor c) {
     uint32_t packed;
@@ -102,7 +100,6 @@ DEF_TEST(PremulAlphaRoundTrip, reporter) {
 
     test_premul_alpha_roundtrip(reporter, surf.get());
 }
-#if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PremulAlphaRoundTrip_Gpu, reporter, ctxInfo) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
 
@@ -111,4 +108,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PremulAlphaRoundTrip_Gpu, reporter, ctxInfo) 
                                                       info));
     test_premul_alpha_roundtrip(reporter, surf.get());
 }
-#endif
