@@ -1131,17 +1131,6 @@ void merge_vertices(Vertex* src, Vertex* dst, VertexList* mesh, Comparator& c,
     mesh->remove(src);
 }
 
-bool out_of_range_and_collinear(const SkPoint& p, Edge* edge, Comparator& c) {
-    if (c.sweep_lt(p, edge->fTop->fPoint) &&
-        !Line(p, edge->fBottom->fPoint).dist(edge->fTop->fPoint)) {
-        return true;
-    } else if (c.sweep_lt(edge->fBottom->fPoint, p) &&
-        !Line(edge->fTop->fPoint, p).dist(edge->fBottom->fPoint)) {
-        return true;
-    }
-    return false;
-}
-
 Vertex* create_sorted_vertex(const SkPoint& p, uint8_t alpha, VertexList* mesh,
                              Vertex* reference, Comparator& c, SkArenaAlloc& alloc) {
     Vertex* prevV = reference;
@@ -1174,6 +1163,15 @@ Vertex* create_sorted_vertex(const SkPoint& p, uint8_t alpha, VertexList* mesh,
     return v;
 }
 
+// If an edge's top and bottom points differ only by 1/2 machine epsilon in the primary
+// sort criterion, it may not be possible to split correctly, since there is no point which is
+// below the top and above the bottom. This function detects that case.
+bool nearly_flat(Comparator& c, Edge* edge) {
+    SkPoint diff = edge->fBottom->fPoint - edge->fTop->fPoint;
+    float primaryDiff = c.fDirection == Comparator::Direction::kHorizontal ? diff.fX : diff.fY;
+    return fabs(primaryDiff) < std::numeric_limits<float>::epsilon();
+}
+
 bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vertex** current,
                             VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
     if (!edge || !other) {
@@ -1182,12 +1180,6 @@ bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vert
     SkPoint p;
     uint8_t alpha;
     if (edge->intersect(*other, &p, &alpha) && p.isFinite()) {
-        // Ignore any out-of-range intersections which are also collinear,
-        // since the resulting edges would cancel each other out by merging.
-        if (out_of_range_and_collinear(p, edge, c) ||
-            out_of_range_and_collinear(p, other, c)) {
-            return false;
-        }
         Vertex* v;
         LOG("found intersection, pt is %g, %g\n", p.fX, p.fY);
         Vertex* top = *current;
@@ -1196,7 +1188,15 @@ bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vert
         while (top && c.sweep_lt(p, top->fPoint)) {
             top = top->fPrev;
         }
-        if (p == edge->fTop->fPoint) {
+        if (c.sweep_lt(p, edge->fTop->fPoint) && !nearly_flat(c, edge)) {
+            v = edge->fTop;
+        } else if (c.sweep_lt(edge->fBottom->fPoint, p) && !nearly_flat(c, edge)) {
+            v = edge->fBottom;
+        } else if (c.sweep_lt(p, other->fTop->fPoint) && !nearly_flat(c, other)) {
+            v = other->fTop;
+        } else if (c.sweep_lt(other->fBottom->fPoint, p) && !nearly_flat(c, other)) {
+            v = other->fBottom;
+        } else if (p == edge->fTop->fPoint) {
             v = edge->fTop;
         } else if (p == edge->fBottom->fPoint) {
             v = edge->fBottom;

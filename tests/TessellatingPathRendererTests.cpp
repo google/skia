@@ -502,6 +502,29 @@ static SkPath create_path_33() {
     return path;
 }
 
+// From crbug.com/844873. Hangs repeatedly splitting alternate vertices.
+static SkPath create_path_34() {
+    SkPath path;
+    path.moveTo(10, -1e+20f);
+    path.lineTo(11, 25000);
+    path.lineTo(10, 25000);
+    path.lineTo(11, 25010);
+    return path;
+}
+
+// Reduction from circular_arcs_stroke_and_fill_round GM which
+// repeatedly splits on the opposite edge from case 34 above.
+static SkPath create_path_35() {
+    SkPath path;
+    path.moveTo(               16.25, 26.495191574096679688);
+    path.lineTo(32.420825958251953125, 37.377376556396484375);
+    path.lineTo(25.176382064819335938, 39.31851959228515625);
+    path.moveTo(                  20,                   20);
+    path.lineTo(28.847436904907226562, 37.940830230712890625);
+    path.lineTo(25.17638397216796875, 39.31851959228515625);
+    return path;
+}
+
 static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
 
     SkPoint pts[2] = { {0, 0}, {1, 1} };
@@ -595,5 +618,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_31(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_32());
     test_path(ctx, rtc.get(), create_path_33());
+    test_path(ctx, rtc.get(), create_path_34());
+    test_path(ctx, rtc.get(), create_path_35());
 }
 #endif
