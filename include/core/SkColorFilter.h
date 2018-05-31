@@ -138,6 +138,8 @@ public:
         return this->filterColor(SK_ColorTRANSPARENT) != SK_ColorTRANSPARENT;
     }
 
+    virtual void toString(SkString* str) const = 0;
+
     static void InitializeFlattenables();
 
     static SkFlattenable::Type GetFlattenableType() {

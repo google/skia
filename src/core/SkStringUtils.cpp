@@ -9,6 +9,16 @@
 #include "SkStringUtils.h"
 #include "SkUtils.h"
 
+void SkAddFlagToString(SkString* string, bool flag, const char* flagStr, bool* needSeparator) {
+    if (flag) {
+        if (*needSeparator) {
+            string->append("|");
+        }
+        string->append(flagStr);
+        *needSeparator = true;
+    }
+}
+
 void SkAppendScalar(SkString* str, SkScalar value, SkScalarAsStringType asType) {
     switch (asType) {
         case kHex_SkScalarAsStringType:

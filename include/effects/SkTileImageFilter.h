@@ -28,6 +28,8 @@ public:
                                MapDirection, const SkIRect* inputRect) const override;
     SkRect computeFastBounds(const SkRect& src) const override;
 
+    void toString(SkString* str) const override;
+
     Factory getFactory() const override { return CreateProc; }
 
 protected:

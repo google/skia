@@ -4103,7 +4103,40 @@ matrix != nearlyEqual
 ##
 ##
 
-#SeeAlso SkPath::dump
+#SeeAlso toString
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void toString(SkString* str) const
+#In Utility
+#Line # converts Matrix to machine readable form ##
+Creates string representation of Matrix. Floating point values
+are written with limited precision; it may not be possible to reconstruct
+original Matrix from output.
+
+#Param str  storage for string representation of Matrix ##
+
+#Example
+    SkMatrix matrix;
+    matrix.setRotate(45);
+    SkString mStr, neStr;
+    matrix.toString(&mStr);
+    SkMatrix nearlyEqual;
+    nearlyEqual.setAll(0.7071f, -0.7071f, 0,   0.7071f, 0.7071f, 0,   0, 0, 1);
+    nearlyEqual.toString(&neStr);
+    SkDebugf("mStr  %s\n", mStr.c_str());
+    SkDebugf("neStr %s\n", neStr.c_str());
+    SkDebugf("matrix %c= nearlyEqual\n", matrix == nearlyEqual ? '=' : '!');
+#StdOut
+mStr  [  0.7071  -0.7071   0.0000][  0.7071   0.7071   0.0000][  0.0000   0.0000   1.0000]
+neStr [  0.7071  -0.7071   0.0000][  0.7071   0.7071   0.0000][  0.0000   0.0000   1.0000]
+matrix != nearlyEqual
+##
+##
+
+#SeeAlso dump
 
 ##
 

@@ -199,6 +199,31 @@ sk_sp<SkShader> SkTwoPointConicalGradient::onMakeColorSpace(SkColorSpaceXformer*
                                                  fTileMode, fGradFlags, &this->getLocalMatrix());
 }
 
+
+void SkTwoPointConicalGradient::toString(SkString* str) const {
+    str->append("SkTwoPointConicalGradient: (");
+
+    str->append("center1: (");
+    str->appendScalar(fCenter1.fX);
+    str->append(", ");
+    str->appendScalar(fCenter1.fY);
+    str->append(") radius1: ");
+    str->appendScalar(fRadius1);
+    str->append(" ");
+
+    str->append("center2: (");
+    str->appendScalar(fCenter2.fX);
+    str->append(", ");
+    str->appendScalar(fCenter2.fY);
+    str->append(") radius2: ");
+    str->appendScalar(fRadius2);
+    str->append(" ");
+
+    this->INHERITED::toString(str);
+
+    str->append(")");
+}
+
 void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* p,
                                                      SkRasterPipeline* postPipeline) const {
     const auto dRadius = fRadius2 - fRadius1;

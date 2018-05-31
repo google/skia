@@ -338,6 +338,22 @@ void SkPictureShader::PictureShaderContext::shadeSpan(int x, int y, SkPMColor ds
     fBitmapShaderContext->shadeSpan(x, y, dstC, count);
 }
 
+void SkPictureShader::toString(SkString* str) const {
+    static const char* gTileModeName[SkShader::kTileModeCount] = {
+        "clamp", "repeat", "mirror"
+    };
+
+    str->appendf("PictureShader: [%f:%f:%f:%f] ",
+                 fPicture->cullRect().fLeft,
+                 fPicture->cullRect().fTop,
+                 fPicture->cullRect().fRight,
+                 fPicture->cullRect().fBottom);
+
+    str->appendf("(%s, %s)", gTileModeName[fTmx], gTileModeName[fTmy]);
+
+    this->INHERITED::toString(str);
+}
+
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
         const GrFPArgs& args) const {

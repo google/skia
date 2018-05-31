@@ -5113,6 +5113,36 @@ Paint may draw to.
 #Line # rarely called management functions ##
 ##
 
+#Method void toString(SkString* str) const
+#In Utility
+#Line # converts Paint to machine readable form ##
+
+Creates string representation of Paint. The representation is read by
+internal debugging tools.
+
+#Param str  storage for string representation of Paint ##
+
+#Example
+    SkPaint paint;
+    SkString str;
+    paint.toString(&str);
+    const char textSize[] = "TextSize:";
+    const int trailerSize = strlen("</dd><dt>");
+    int textSizeLoc = str.find(textSize) + strlen(textSize) + trailerSize;
+    const char* sizeStart = &str.c_str()[textSizeLoc];
+    int textSizeEnd = SkStrFind(sizeStart, "</dd>");
+    SkDebugf("text size = %.*s\n", textSizeEnd, sizeStart);
+
+    #StdOut
+    text size = 12
+    ##
+
+##
+
+#SeeAlso SkPathEffect::toString SkMaskFilter::toString SkColorFilter::toString SkImageFilter::toString
+
+##
+
 # ------------------------------------------------------------------------------
 
 #Class SkPaint ##

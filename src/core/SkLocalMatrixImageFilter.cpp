@@ -67,3 +67,8 @@ const {
     }
     return this->refMe();
 }
+
+void SkLocalMatrixImageFilter::toString(SkString* str) const {
+    str->append("SkLocalMatrixImageFilter: (");
+    str->append(")");
+}
