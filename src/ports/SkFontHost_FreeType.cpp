@@ -31,6 +31,7 @@
 #include <ft2build.h>
 #include FT_ADVANCES_H
 #include FT_BITMAP_H
+#include FT_COLOR_H
 #include FT_FREETYPE_H
 #include FT_LCD_FILTER_H
 #include FT_MODULE_H
@@ -487,7 +488,7 @@ private:
     bool      fLCDIsVert;
 
     FT_Error setupSize();
-    void getBBoxForCurrentGlyph(SkGlyph* glyph, FT_BBox* bbox,
+    void getBBoxForCurrentGlyph(const SkGlyph* glyph, FT_BBox* bbox,
                                 bool snapToPixelBoundary = false);
     bool getCBoxForLetter(char letter, FT_BBox* bbox);
     // Caller must lock gFTMutex before calling this function.
@@ -909,6 +910,8 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
         return;
     }
 
+    //FT_Palette_Select(fFaceRec->fFace.get(), 0, nullptr);
+
     fFTSize = ftSize.release();
     fFace = fFaceRec->fFace.get();
     fDoLinearMetrics = linearMetrics;
@@ -999,7 +1002,7 @@ void SkScalerContext_FreeType::generateAdvance(SkGlyph* glyph) {
     return;
 }
 
-void SkScalerContext_FreeType::getBBoxForCurrentGlyph(SkGlyph* glyph,
+void SkScalerContext_FreeType::getBBoxForCurrentGlyph(const SkGlyph* glyph,
                                                       FT_BBox* bbox,
                                                       bool snapToPixelBoundary) {
 
@@ -1098,24 +1101,48 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
     emboldenIfNeeded(fFace, fFace->glyph, glyph->getGlyphID());
 
     switch ( fFace->glyph->format ) {
-      case FT_GLYPH_FORMAT_OUTLINE:
-        if (0 == fFace->glyph->outline.n_contours) {
-            glyph->fWidth = 0;
-            glyph->fHeight = 0;
-            glyph->fTop = 0;
-            glyph->fLeft = 0;
+      case FT_GLYPH_FORMAT_OUTLINE: {
+        FT_UShort anum_layers;
+        FT_Glyph_Layer alayers;
+        FT_Glyph_LayerRec simple{glyph->getGlyphID(), 0xffff};
+        if (FT_Get_GlyphLayers(fFace->glyph, &anum_layers, &alayers) == 0 && 0 < anum_layers) {
+            glyph->fMaskFormat = SkMask::kARGB32_Format;
         } else {
-            FT_BBox bbox;
-            getBBoxForCurrentGlyph(glyph, &bbox, true);
+            anum_layers = 1;
+            alayers = &simple;
+        }
+        SkSTArray<8, FT_Glyph_LayerRec, true> layers(alayers, anum_layers);
 
-            glyph->fWidth   = SkToU16(SkFDot6Floor(bbox.xMax - bbox.xMin));
-            glyph->fHeight  = SkToU16(SkFDot6Floor(bbox.yMax - bbox.yMin));
-            glyph->fTop     = -SkToS16(SkFDot6Floor(bbox.yMax));
-            glyph->fLeft    = SkToS16(SkFDot6Floor(bbox.xMin));
+        SkIRect bounds = SkIRect::MakeEmpty();
+        for (FT_Glyph_LayerRec* layer = layers.begin(); layer < layers.end(); ++layer) {
+            err = FT_Load_Glyph(fFace, layer->glyph_index,
+                                fLoadGlyphFlags | FT_LOAD_BITMAP_METRICS_ONLY);
+            if (err != 0) {
+                glyph->zeroMetrics();
+                return;
+            }
+            emboldenIfNeeded(fFace, fFace->glyph, layer->glyph_index);
 
+            if (0 < fFace->glyph->outline.n_contours) {
+                FT_BBox bbox;
+                getBBoxForCurrentGlyph(glyph, &bbox, true);
+
+                SkIRect layerBounds = SkIRect::MakeLTRB(SkToS16(SkFDot6Floor(bbox.xMin)),
+                                                        -SkToS16(SkFDot6Floor(bbox.yMax)),
+                                                        SkToS16(SkFDot6Floor(bbox.xMax)),
+                                                        -SkToS16(SkFDot6Floor(bbox.yMin))
+                );
+                bounds.join(layerBounds);
+            }
+        }
+        glyph->fWidth = bounds.width();
+        glyph->fHeight = bounds.height();
+        glyph->fTop = bounds.top();
+        glyph->fLeft = bounds.left();
+        if (!bounds.isEmpty()) {
             updateGlyphIfLCD(glyph);
         }
-        break;
+      } break;
 
       case FT_GLYPH_FORMAT_BITMAP:
         if (fRec.fFlags & SkScalerContext::kVertical_Flag) {
