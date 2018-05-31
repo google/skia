@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4ef9ec9d_682b6cb6",
+        "filename": "gm/3dgm.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-31T17:38:03Z",
+      "side": 1,
+      "message": "#if defined(SK_ENABLE_SKOTTIE)\n\n(since Skottie support is optional, we need to make this whole GM optional too)",
+      "revId": "b79804543f8ee2061be17d78faf6a16257960dc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd1f3099_69d37b48",
+        "filename": "gm/3dgm.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-31T17:38:03Z",
+      "side": 1,
+      "message": "No longer needed.",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 2
+      },
+      "revId": "b79804543f8ee2061be17d78faf6a16257960dc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c379b62_34662ffe",
+        "filename": "gm/3dgm.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-05-31T17:38:03Z",
+      "side": 1,
+      "message": "I think MakeFromFile should work also?",
+      "range": {
+        "startLine": 52,
+        "startChar": 36,
+        "endLine": 52,
+        "endChar": 40
+      },
+      "revId": "b79804543f8ee2061be17d78faf6a16257960dc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
