@@ -747,7 +747,7 @@ sk_sp<sksg::RenderNode> AttachNestedAnimation(const char* path, AttachContext* c
         return nullptr;
     }
 
-    auto animation = Animation::Make(resStream.get(), ctx->fResources);
+    auto animation = Animation::Make(resStream.get(), &ctx->fResources);
     if (!animation) {
         LOG("!! Could not load nested animation: %s\n", path);
         return nullptr;
@@ -1191,7 +1191,7 @@ sk_sp<sksg::RenderNode> AttachComposition(const json::ValueRef& comp, AttachCont
 
 } // namespace
 
-sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider& res, Stats* stats) {
+sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider* provider, Stats* stats) {
     Stats stats_storage;
     if (!stats)
         stats = &stats_storage;
@@ -1225,8 +1225,13 @@ sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider& res, 
         return nullptr;
     }
 
-    const auto anim =
-        sk_sp<Animation>(new Animation(res, std::move(version), size, fps, json, stats));
+    class NullResourceProvider final : public ResourceProvider {
+        std::unique_ptr<SkStream> openStream(const char[]) const { return nullptr; }
+    };
+
+    const NullResourceProvider null_provider;
+    const auto anim = sk_sp<Animation>(new Animation(provider ? *provider : null_provider,
+                                                     std::move(version), size, fps, json, stats));
     const auto t2 = SkTime::GetMSecs();
     stats->fSceneParseTimeMS = t2 - t1;
     stats->fTotalLoadTimeMS  = t2 - t0;
@@ -1258,7 +1263,7 @@ sk_sp<Animation> Animation::MakeFromFile(const char path[], const ResourceProvid
         defaultProvider = skstd::make_unique<DirectoryResourceProvider>(SkOSPath::Dirname(path));
     }
 
-    return Make(jsonStream.get(), res ? *res : *defaultProvider, stats);
+    return Make(jsonStream.get(), res ? res : defaultProvider.get(), stats);
 }
 
 Animation::Animation(const ResourceProvider& resources,

@@ -10,16 +10,8 @@
 #include "SkStream.h"
 
 void FuzzSkottieJSON(sk_sp<SkData> bytes) {
-    // Always returns nullptr to any resource
-    class EmptyResourceProvider final : public skottie::ResourceProvider {
-    public:
-        std::unique_ptr<SkStream> openStream(const char resource[]) const override {
-            return nullptr;
-        }
-    };
     SkMemoryStream stream(bytes);
-    EmptyResourceProvider erp;
-    auto animation = skottie::Animation::Make(&stream, erp);
+    auto animation = skottie::Animation::Make(&stream);
     if (!animation) {
         return;
     }
