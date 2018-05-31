@@ -1245,13 +1245,6 @@ public:
         bool allocPixelRef(SkBitmap* bitmap) override;
     };
 
-    /** Creates string representation of SkBitmap. The representation is read by
-        internal debugging tools.
-
-        @param str  storage for string representation
-    */
-    void toString(SkString* str) const;
-
 private:
     enum Flags {
         kImageIsVolatile_Flag   = 0x02,

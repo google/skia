@@ -633,33 +633,6 @@ void SkBitmap::validate() const {
 }
 #endif
 
-#include "SkString.h"
-void SkBitmap::toString(SkString* str) const {
-
-    static const char* gColorTypeNames[kLastEnum_SkColorType + 1] = {
-        "UNKNOWN", "A8", "565", "4444", "RGBA", "BGRA", "INDEX8",
-    };
-
-    str->appendf("bitmap: ((%d, %d) %s", this->width(), this->height(),
-                 gColorTypeNames[this->colorType()]);
-
-    str->append(" (");
-    if (this->isOpaque()) {
-        str->append("opaque");
-    } else {
-        str->append("transparent");
-    }
-    if (this->isImmutable()) {
-        str->append(", immutable");
-    } else {
-        str->append(", not-immutable");
-    }
-    str->append(")");
-
-    str->appendf(" pixelref:%p", this->pixelRef());
-    str->append(")");
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkBitmap::peekPixels(SkPixmap* pmap) const {

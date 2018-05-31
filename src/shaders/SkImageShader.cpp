@@ -173,17 +173,6 @@ sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
     return sk_sp<SkShader>{ new SkImageShader(image, tx,ty, localMatrix, clampAsIfUnpremul) };
 }
 
-void SkImageShader::toString(SkString* str) const {
-    const char* gTileModeName[SkShader::kTileModeCount] = {
-        "clamp", "repeat", "mirror"
-    };
-
-    str->appendf("ImageShader: ((%s %s) ", gTileModeName[fTileModeX], gTileModeName[fTileModeY]);
-    fImage->toString(str);
-    this->INHERITED::toString(str);
-    str->append(")");
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
