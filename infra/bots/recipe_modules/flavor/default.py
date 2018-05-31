@@ -78,7 +78,7 @@ class DefaultFlavor(object):
     self.m = module.m
     self._chrome_path = None
     self.device_dirs = DeviceDirs(
-        bin_dir=self.m.vars.build_dir.join('out', self.m.vars.configuration),
+        bin_dir=self.m.vars.build_dir,
         dm_dir=self.m.path.join(self.m.vars.swarming_out_dir, 'dm'),
         perf_data_dir=self.m.path.join(
             self.m.vars.swarming_out_dir,
@@ -178,8 +178,7 @@ class DefaultFlavor(object):
         ld_library_path.append(slave_dir.join('linux_vulkan_sdk', 'lib'))
 
     if 'SwiftShader' in extra_tokens:
-      ld_library_path.append(
-          self.m.vars.build_dir.join('out', 'swiftshader_out'))
+      ld_library_path.append(self.host_dirs.bin_dir.join('swiftshader_out'))
 
     if 'MSAN' in extra_tokens:
       # Find the MSAN-built libc++.

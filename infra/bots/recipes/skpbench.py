@@ -43,7 +43,7 @@ def skpbench_steps(api):
       'makedirs perf_dir', api.flavor.host_dirs.perf_data_dir)
 
   if 'Android' in api.vars.builder_name:
-    app = api.vars.skia_out.join('skpbench')
+    app = api.vars.build_dir.join('skpbench')
     _adb(api, 'push skpbench', 'push', app, api.flavor.device_dirs.bin_dir)
 
   skpbench_dir = api.vars.slave_dir.join('skia', 'tools', 'skpbench')
