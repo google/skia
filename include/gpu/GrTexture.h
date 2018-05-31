@@ -81,7 +81,6 @@ private:
     GrSamplerState::Filter        fHighestFilterMode;
     GrMipMapsStatus               fMipMapsStatus;
     int                           fMaxMipMapLevel;
-    SkDestinationSurfaceColorMode fMipColorMode;
     friend class GrTexturePriv;
 
     typedef GrSurface INHERITED;

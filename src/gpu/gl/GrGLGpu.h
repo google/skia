@@ -54,12 +54,12 @@ public:
     }
 
     // Used by GrGLProgram to configure OpenGL state.
-    void bindTexture(int unitIdx, const GrSamplerState& samplerState, bool allowSRGBInputs,
-                     GrGLTexture* texture, GrSurfaceOrigin textureOrigin);
+    void bindTexture(int unitIdx, const GrSamplerState& samplerState, GrGLTexture* texture,
+                     GrSurfaceOrigin textureOrigin);
 
     void bindTexelBuffer(int unitIdx, GrPixelConfig, GrGLBuffer*);
 
-    void generateMipmaps(const GrSamplerState& params, bool allowSRGBInputs, GrGLTexture* texture,
+    void generateMipmaps(const GrSamplerState& params, GrGLTexture* texture,
                          GrSurfaceOrigin textureOrigin);
 
     // These functions should be used to bind GL objects. They track the GL state and skip redundant
@@ -289,7 +289,7 @@ private:
     bool copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                                       GrSurface* src, GrSurfaceOrigin srcOrigin,
                                       const SkIRect& srcRect, const SkIPoint& dstPoint);
-    bool generateMipmap(GrGLTexture* texture, GrSurfaceOrigin textureOrigin, bool gammaCorrect);
+    bool generateMipmap(GrGLTexture* texture, GrSurfaceOrigin textureOrigin);
     void clearStencilClipAsDraw(const GrFixedClip&, bool insideStencilMask,
                                 GrRenderTarget*, GrSurfaceOrigin);
 
