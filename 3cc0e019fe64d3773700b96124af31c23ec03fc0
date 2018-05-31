@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5dc0449c_7518ab9b",
+        "filename": "include/private/GrCCPerOpListPaths.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-31T16:44:16Z",
+      "side": 1,
+      "message": "Doh - done.",
+      "parentUuid": "90656757_dc89162d",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "3cc0e019fe64d3773700b96124af31c23ec03fc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "64b3481c_eff3690c",
         "filename": "include/private/GrCCPerOpListPaths.h",
         "patchSetId": 8
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "82c6119a_aee21b06",
+        "filename": "include/private/GrCCPerOpListPaths.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-31T16:44:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "64b3481c_eff3690c",
+      "range": {
+        "startLine": 21,
+        "startChar": 18,
+        "endLine": 21,
+        "endChar": 23
+      },
+      "revId": "3cc0e019fe64d3773700b96124af31c23ec03fc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2ed5d11c_5ada267f",
         "filename": "include/private/GrCCPerOpListPaths.h",
         "patchSetId": 8
@@ -59,6 +107,30 @@
       "writtenOn": "2018-05-31T16:23:03Z",
       "side": 1,
       "message": "Any reason to change this to a class? Since the fields are accessed directly I thought struct made sense.",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 5
+      },
+      "revId": "3cc0e019fe64d3773700b96124af31c23ec03fc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c87a8fa5_ab0d10d2",
+        "filename": "include/private/GrCCPerOpListPaths.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-31T16:44:16Z",
+      "side": 1,
+      "message": "It is inheriting from another class and has a dtor. It is walking \u0026 talking more like a class now.\n\nThat said, I don\u0027t feel super strongly about what it is.",
+      "parentUuid": "2ed5d11c_5ada267f",
       "range": {
         "startLine": 24,
         "startChar": 0,
@@ -88,6 +160,24 @@
     },
     {
       "key": {
+        "uuid": "c3b55dbc_dceffd34",
+        "filename": "include/private/SkDeferredDisplayList.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-31T16:44:16Z",
+      "side": 1,
+      "message": "That\u0027s true but, ideally, I would like that bot\u0027s clang to be upgraded and then move all those headers back into src.",
+      "parentUuid": "714eb2ad_4409013d",
+      "revId": "3cc0e019fe64d3773700b96124af31c23ec03fc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6566381a_19432221",
         "filename": "src/core/SkDeferredDisplayList.cpp",
         "patchSetId": 8
@@ -105,6 +195,24 @@
     },
     {
       "key": {
+        "uuid": "6b35e364_8ddbff7d",
+        "filename": "src/core/SkDeferredDisplayList.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-31T16:44:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6566381a_19432221",
+      "revId": "3cc0e019fe64d3773700b96124af31c23ec03fc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b9ea3034_8f893576",
         "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
         "patchSetId": 8
@@ -119,6 +227,24 @@
       "revId": "3cc0e019fe64d3773700b96124af31c23ec03fc0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6764e62d_dd28b31a",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-05-31T16:44:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b9ea3034_8f893576",
+      "revId": "3cc0e019fe64d3773700b96124af31c23ec03fc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
