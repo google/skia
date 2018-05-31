@@ -22,6 +22,30 @@
       "revId": "ccbf4e1ceaf594bf177b60d23cf391328e57f016",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f4d10cc_f46038ad",
+        "filename": "platform_tools/android/apps/arcore/CMakeLists.txt",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-05-31T14:44:32Z",
+      "side": 1,
+      "message": "Should be fixed now",
+      "parentUuid": "d3c566aa_67d44877",
+      "range": {
+        "startLine": 47,
+        "startChar": 12,
+        "endLine": 47,
+        "endChar": 41
+      },
+      "revId": "ccbf4e1ceaf594bf177b60d23cf391328e57f016",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
