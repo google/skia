@@ -126,7 +126,7 @@ DEF_TEST(SkColorSpaceXformSteps, r) {
         }
         // Unpremul then premul should be optimized away to a noop, so 0b10001 isn't possible.
         // A gamut transform in the middle is fine too, so 0b10101 isn't possible either.
-        if (t == 17 || t == 21) {
+        if (t == 0b10001 || t == 0b10101) {
             continue;
         }
 
