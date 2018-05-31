@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5cb13d49_32780e11",
+        "filename": "gm/google_text.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-05-31T20:09:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8bc0513e_4e9026f2",
+      "revId": "6ac5fbe64205827c0686cedb706f5713d37e4e9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a0ec92b7_0c4a2f24",
         "filename": "platform_tools/android/apps/settings.gradle",
         "patchSetId": 9
@@ -30,6 +48,24 @@
       "writtenOn": "2018-05-31T18:12:21Z",
       "side": 1,
       "message": "before we could submit this CL we would need to uncomment viewer and skqp.",
+      "revId": "6ac5fbe64205827c0686cedb706f5713d37e4e9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eef2c46c_765ac734",
+        "filename": "platform_tools/android/apps/settings.gradle",
+        "patchSetId": 9
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-05-31T20:09:53Z",
+      "side": 1,
+      "message": "I\u0027m planning to keep working on this branch until most of the project is done, so no need for that for now.",
+      "parentUuid": "a0ec92b7_0c4a2f24",
       "revId": "6ac5fbe64205827c0686cedb706f5713d37e4e9a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
