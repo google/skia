@@ -15,3 +15,6 @@ SkDeferredDisplayList::SkDeferredDisplayList(const SkSurfaceCharacterization& ch
         : fCharacterization(characterization)
         , fLazyProxyData(std::move(lazyProxyData)) {
 }
+
+SkDeferredDisplayList::~SkDeferredDisplayList() {
+}

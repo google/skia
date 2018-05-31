@@ -26,6 +26,7 @@
 #include "SkSurface_Gpu.h"
 #include "SkTTopoSort.h"
 #include "GrTracing.h"
+#include "ccpr/GrCoverageCountingPathRenderer.h"
 #include "text/GrTextContext.h"
 
 // Turn on/off the sorting of opLists at flush time
@@ -383,6 +384,11 @@ void GrDrawingManager::moveOpListsToDDL(SkDeferredDisplayList* ddl) {
     }
 
     ddl->fOpLists = std::move(fOpLists);
+    if (fPathRendererChain) {
+        if (auto ccpr = fPathRendererChain->getCoverageCountingPathRenderer()) {
+            ddl->fPendingPaths = ccpr->detachPendingPaths();
+        }
+    }
 }
 
 void GrDrawingManager::copyOpListsFromDDL(const SkDeferredDisplayList* ddl,
@@ -390,6 +396,12 @@ void GrDrawingManager::copyOpListsFromDDL(const SkDeferredDisplayList* ddl,
     // Here we jam the proxy that backs the current replay SkSurface into the LazyProxyData.
     // The lazy proxy that references it (in the copied opLists) will steal its GrTexture.
     ddl->fLazyProxyData->fReplayDest = newDest;
+
+    if (ddl->fPendingPaths.size()) {
+        GrCoverageCountingPathRenderer* ccpr = this->getCoverageCountingPathRenderer();
+
+        ccpr->mergePendingPaths(ddl->fPendingPaths);
+    }
     fOpLists.push_back_n(ddl->fOpLists.count(), ddl->fOpLists.begin());
 }
 

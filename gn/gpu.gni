@@ -33,6 +33,8 @@ skia_gpu_sources = [
   # Private includes
   "$_include/private/GrAuditTrail.h",
   "$_include/private/GrColor.h",
+  "$_include/private/GrCCClipPath.h",
+  "$_include/private/GrCCPerOpListPaths.h",
   "$_include/private/GrGLSL.h",
   "$_include/private/GrOpList.h",
   "$_include/private/GrSingleOwner.h",
@@ -302,7 +304,6 @@ skia_gpu_sources = [
   "$_src/gpu/ccpr/GrCCAtlas.cpp",
   "$_src/gpu/ccpr/GrCCAtlas.h",
   "$_src/gpu/ccpr/GrCCClipPath.cpp",
-  "$_src/gpu/ccpr/GrCCClipPath.h",
   "$_src/gpu/ccpr/GrCCClipProcessor.cpp",
   "$_src/gpu/ccpr/GrCCClipProcessor.h",
   "$_src/gpu/ccpr/GrCCConicShader.cpp",

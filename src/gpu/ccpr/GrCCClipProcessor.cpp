@@ -7,10 +7,10 @@
 
 #include "GrCCClipProcessor.h"
 
+#include "GrCCClipPath.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
 #include "SkMakeUnique.h"
-#include "ccpr/GrCCClipPath.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
