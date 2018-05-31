@@ -43,6 +43,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
 #include "GrContextPriv.h"
 #include "GrProxyProvider.h"
 #include "GrTexture.h"
+#include "ccpr/GrCoverageCountingPathRenderer.h"
 
 #include "SkGr.h"
 #include "SkImage_Gpu.h"
