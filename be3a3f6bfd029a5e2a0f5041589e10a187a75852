@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf8120af_f6357420",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 981,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-05-31T17:24:24Z",
+      "side": 1,
+      "message": "Other reviewers, notice everything changed below here is inside this skia_enables_tools check, which now includes skia_enable_gpu.",
+      "revId": "be3a3f6bfd029a5e2a0f5041589e10a187a75852",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
