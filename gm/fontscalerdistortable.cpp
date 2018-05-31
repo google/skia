@@ -29,13 +29,26 @@ protected:
         return SkISize::Make(550, 700);
     }
 
+    bool onGetControls(SkMetaData* meta) override {
+        SkScalar weights[3] = { fWeight, 0.5, 2.0 };
+        meta->setScalars("Weight", 3, weights);
+        return true;
+    }
+    void onSetControls(const SkMetaData& meta) override {
+        float val[3];
+        int count;
+        meta.findScalars("Weight", &count, val);
+        fWeight = val[0];
+    }
+
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setLCDRenderText(true);
         sk_sp<SkFontMgr> fontMgr(SkFontMgr::RefDefault());
 
-        std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
+        //sk_sp<SkTypeface> distortable(MakeResourceAsTypeface("fonts/Distortable.ttf"));
+        sk_sp<SkTypeface> distortable(SkTypeface::MakeFromName("Skia", SkFontStyle()));
         if (!distortable) {
             return;
         }
@@ -52,9 +65,8 @@ protected:
                 SkFontArguments::VariationPosition::Coordinate coordinates[] = {{tag, styleValue}};
                 SkFontArguments::VariationPosition position =
                         { coordinates, SK_ARRAY_COUNT(coordinates) };
-                paint.setTypeface(sk_sp<SkTypeface>(fontMgr->makeFromStream(
-                        distortable->duplicate(),
-                        SkFontArguments().setVariationDesignPosition(position))));
+                paint.setTypeface(distortable->makeClone(
+                        SkFontArguments().setVariationDesignPosition(position)));
 
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->translate(SkIntToScalar(30 + i * 100), SkIntToScalar(20));
@@ -81,6 +93,7 @@ protected:
     }
 
 private:
+    SkScalar fWeight = 1.0f;
     typedef GM INHERITED;
 };
 
