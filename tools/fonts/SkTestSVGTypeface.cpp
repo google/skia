@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "SkTestSVGTypeface.h"
+
+#ifdef SK_XML
+
 #include "Resources.h"
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkBitmap.h"
@@ -35,7 +39,6 @@
 #include "SkSize.h"
 #include "SkStream.h"
 #include "SkSurface.h"
-#include "SkTestSVGTypeface.h"
 #include "SkTDArray.h"
 #include "SkTemplates.h"
 #include "SkUtils.h"
@@ -1296,3 +1299,4 @@ void SkTestSVGTypeface::exportTtxColr(SkWStream* out) const {
 
     out->writeText("</ttFont>\n");
 }
+#endif  // SK_XML
