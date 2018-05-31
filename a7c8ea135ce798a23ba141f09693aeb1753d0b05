@@ -1,0 +1,135 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a51f516a_025be187",
+        "filename": "platform_tools/android/CMakeLists.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-05-31T17:52:06Z",
+      "side": 1,
+      "message": "would a better name be android_cmake?  This can be triggered from command line gradle without needing android studio.",
+      "range": {
+        "startLine": 9,
+        "startChar": 5,
+        "endLine": 9,
+        "endChar": 19
+      },
+      "revId": "a7c8ea135ce798a23ba141f09693aeb1753d0b05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36706753_1c6a720f",
+        "filename": "platform_tools/android/CMakeLists.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-05-31T17:52:06Z",
+      "side": 1,
+      "message": "android_cmake_${ANDROID_ABI}",
+      "range": {
+        "startLine": 28,
+        "startChar": 72,
+        "endLine": 28,
+        "endChar": 80
+      },
+      "revId": "a7c8ea135ce798a23ba141f09693aeb1753d0b05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d4cc320_3a312090",
+        "filename": "platform_tools/android/CMakeLists.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-05-31T17:52:06Z",
+      "side": 1,
+      "message": "move the declaration of this variable prior to line 28 and then use it everywhere you keep using the full path.",
+      "revId": "a7c8ea135ce798a23ba141f09693aeb1753d0b05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9a690e7_40e519d7",
+        "filename": "platform_tools/android/apps/build.gradle",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-05-31T17:52:06Z",
+      "side": 1,
+      "message": "what is this line used for?",
+      "revId": "a7c8ea135ce798a23ba141f09693aeb1753d0b05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4083c5fb_1faff785",
+        "filename": "platform_tools/android/apps/skqp/build.gradle",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-05-31T17:52:06Z",
+      "side": 1,
+      "message": "can you please add the other build variants as well?",
+      "revId": "a7c8ea135ce798a23ba141f09693aeb1753d0b05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "122bfc6b_7b7b9f4e",
+        "filename": "platform_tools/android/apps/viewer/build.gradle",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-05-31T17:52:06Z",
+      "side": 1,
+      "message": "need other ABIs",
+      "revId": "a7c8ea135ce798a23ba141f09693aeb1753d0b05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a5cf4d7_bd12014e",
+        "filename": "platform_tools/android/apps/viewer/build.gradle",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-05-31T17:52:06Z",
+      "side": 1,
+      "message": "do you need these 2 lines?",
+      "revId": "a7c8ea135ce798a23ba141f09693aeb1753d0b05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
