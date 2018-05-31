@@ -276,8 +276,6 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
 
     SkMatrix runMatrix{fDeviceMatrix};
     runMatrix.preConcat(this->getTotalMatrix());
-    runMatrix.preTranslate(position.x(), position.y());
-    runMatrix.preTranslate(it.offset().x(), it.offset().y());
 
 #if SK_SUPPORT_GPU
     GrTextContext::Options options;
@@ -305,53 +303,26 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
 
     using PosFn = SkPoint(*)(int index, const SkScalar* pos);
     PosFn posFn;
+    SkSTArenaAlloc<120> arena;
+    SkFindAndPlaceGlyph::MapperInterface* mapper = nullptr;
     switch (it.positioning()) {
         case SkTextBlob::kHorizontal_Positioning:
             posFn = [](int index, const SkScalar* pos) {
                 return SkPoint{pos[index], 0};
             };
-
+            mapper = SkFindAndPlaceGlyph::CreateMapper(
+                    runMatrix, SkPoint::Make(position.x(), position.y() + it.offset().y()), 1,
+                    &arena);
             break;
-
         case SkTextBlob::kFull_Positioning:
             posFn = [](int index, const SkScalar* pos) {
                 return SkPoint{pos[2 * index], pos[2 * index + 1]};
             };
+            mapper = SkFindAndPlaceGlyph::CreateMapper(runMatrix, position, 2, &arena);
             break;
-
         default:
             posFn = nullptr;
             SK_ABORT("unhandled positioning mode");
-    }
-
-    using MapFn = SkPoint(*)(const SkMatrix& m, SkPoint pt);
-    MapFn mapFn;
-    switch ((int)runMatrix.getType()) {
-        case SkMatrix::kIdentity_Mask:
-        case SkMatrix::kTranslate_Mask:
-            mapFn = [](const SkMatrix& m, SkPoint pt) {
-                pt.offset(m.getTranslateX(), m.getTranslateY());
-                return pt;
-            };
-            break;
-        case SkMatrix::kScale_Mask:
-        case SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask:
-            mapFn = [](const SkMatrix& m, SkPoint pt) {
-                return SkPoint{pt.x() * m.getScaleX() + m.getTranslateX(),
-                               pt.y() * m.getScaleY() + m.getTranslateY()};
-            };
-            break;
-        case SkMatrix::kAffine_Mask | SkMatrix::kScale_Mask:
-        case SkMatrix::kAffine_Mask | SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask:
-            mapFn = [](const SkMatrix& m, SkPoint pt) {
-                return SkPoint{
-                        pt.x() * m.getScaleX() + pt.y() * m.getSkewX() + m.getTranslateX(),
-                        pt.x() * m.getSkewY() + pt.y() * m.getScaleY() + m.getTranslateY()};
-            };
-            break;
-        default:
-            mapFn = nullptr;
-            SK_ABORT("Bad matrix.");
     }
 
     SkScalerContextRec deviceSpecificRec;
@@ -371,8 +342,8 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
     const uint16_t* glyphs = it.glyphs();
     for (uint32_t index = 0; index < it.glyphCount(); index++) {
         SkIPoint subPixelPos{0, 0};
-        if (runPaint.isAntiAlias() && isSubpixel) {
-            SkPoint glyphPos = mapFn(runMatrix, posFn(index, pos));
+        if (isSubpixel) {
+            SkPoint glyphPos = mapper->map(posFn(index, pos));
             subPixelPos = SkFindAndPlaceGlyph::SubpixelAlignment(axisAlignment, glyphPos);
         }
 
@@ -602,6 +573,9 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
         glyph->fPathData = nullptr;
         glyph->fImage = nullptr;
 
+        // Glyphs which are too large for the atlas still request images when computing the bounds
+        // for the glyph, which is why its necessary to send both. See related code in
+        // get_packed_glyph_bounds in GrGlyphCache.cpp and crbug.com/510931.
         bool tooLargeForAtlas = false;
 #if SK_SUPPORT_GPU
         tooLargeForAtlas = GrDrawOpAtlas::GlyphTooLargeForAtlas(glyph->fWidth, glyph->fHeight);
@@ -611,7 +585,6 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
             // for this glyph.
             fCachedGlyphPaths.add(glyphID);
             writeGlyphPath(glyphID, serializer);
-            continue;
         }
 
         auto imageSize = glyph->computeImageSize();
@@ -758,7 +731,6 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
 #endif
             if (tooLargeForAtlas) {
                 if (!read_path(&deserializer, allocatedGlyph, strike.get())) READ_FAILURE
-                continue;
             }
 
             auto imageSize = glyph.computeImageSize();
