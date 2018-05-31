@@ -59,8 +59,6 @@ declare_args() {
   skia_use_sfntly = skia_use_icu
   skia_enable_atlas_text = is_skia_dev_build && skia_enable_gpu
 
-  skia_use_legacy_gpu_pixel_ops = is_skia_dev_build && is_win  # Arbitrary to keep old code path tested until deletion.
-
   if (is_android) {
     skia_use_vulkan = defined(ndk_api) && ndk_api >= 24
   } else if (is_fuchsia) {
@@ -621,9 +619,6 @@ optional("gpu") {
     }
   }
 
-  if (skia_use_legacy_gpu_pixel_ops) {
-    public_defines += [ "SK_LEGACY_GPU_PIXEL_OPS" ]
-  }
   if (skia_enable_spirv_validation) {
     deps += [ "//third_party/spirv-tools" ]
     public_defines += [ "SK_ENABLE_SPIRV_VALIDATION" ]
