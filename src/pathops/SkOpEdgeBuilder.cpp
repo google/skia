@@ -172,6 +172,10 @@ bool SkOpEdgeBuilder::close() {
     return true;
 }
 
+#if defined(__clang__)
+    // TODO: can we rewrite this function to not start pointsPtr at fPathPts.begin() - 1?
+    __attribute__((no_sanitize("pointer-overflow")))
+#endif
 bool SkOpEdgeBuilder::walk() {
     uint8_t* verbPtr = fPathVerbs.begin();
     uint8_t* endOfFirstHalf = &verbPtr[fSecondHalf];
