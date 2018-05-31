@@ -2436,6 +2436,7 @@ public:
 
     // don't call
     virtual GrRenderTargetContext* internal_private_accessTopLayerRenderTargetContext();
+    SkIRect internal_private_getTopLayerBounds() const { return getTopLayerBounds(); }
 
     // don't call
     static void Internal_Private_SetIgnoreSaveLayerBounds(bool);
