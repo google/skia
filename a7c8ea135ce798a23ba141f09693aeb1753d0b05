@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f54491f7_4b9936ff",
+        "filename": "platform_tools/android/CMakeLists.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-05-31T19:55:24Z",
+      "side": 1,
+      "message": "I\u0027m not quite sure what you mean by this. Could you elaborate please?",
+      "parentUuid": "a51f516a_025be187",
+      "range": {
+        "startLine": 9,
+        "startChar": 5,
+        "endLine": 9,
+        "endChar": 19
+      },
+      "revId": "a7c8ea135ce798a23ba141f09693aeb1753d0b05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "36706753_1c6a720f",
         "filename": "platform_tools/android/CMakeLists.txt",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "8672b7bc_5f0e67fe",
+        "filename": "platform_tools/android/CMakeLists.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-05-31T19:55:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "36706753_1c6a720f",
+      "range": {
+        "startLine": 28,
+        "startChar": 72,
+        "endLine": 28,
+        "endChar": 80
+      },
+      "revId": "a7c8ea135ce798a23ba141f09693aeb1753d0b05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7d4cc320_3a312090",
         "filename": "platform_tools/android/CMakeLists.txt",
         "patchSetId": 2
@@ -62,6 +110,24 @@
       "revId": "a7c8ea135ce798a23ba141f09693aeb1753d0b05",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f71e82c9_bff4ad56",
+        "filename": "platform_tools/android/CMakeLists.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-05-31T19:55:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7d4cc320_3a312090",
+      "revId": "a7c8ea135ce798a23ba141f09693aeb1753d0b05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -82,6 +148,24 @@
     },
     {
       "key": {
+        "uuid": "c11bf85b_7960f0e2",
+        "filename": "platform_tools/android/apps/build.gradle",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-05-31T19:55:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c9a690e7_40e519d7",
+      "revId": "a7c8ea135ce798a23ba141f09693aeb1753d0b05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4083c5fb_1faff785",
         "filename": "platform_tools/android/apps/skqp/build.gradle",
         "patchSetId": 2
@@ -96,6 +180,24 @@
       "revId": "a7c8ea135ce798a23ba141f09693aeb1753d0b05",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36aceb09_f74bce33",
+        "filename": "platform_tools/android/apps/skqp/build.gradle",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-05-31T19:55:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4083c5fb_1faff785",
+      "revId": "a7c8ea135ce798a23ba141f09693aeb1753d0b05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -116,6 +218,42 @@
     },
     {
       "key": {
+        "uuid": "a7a7110e_fbb4511d",
+        "filename": "platform_tools/android/apps/viewer/build.gradle",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-05-31T19:55:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "122bfc6b_7b7b9f4e",
+      "revId": "a7c8ea135ce798a23ba141f09693aeb1753d0b05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "04f7565f_7667cdd3",
+        "filename": "platform_tools/android/apps/viewer/build.gradle",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-05-31T19:55:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "122bfc6b_7b7b9f4e",
+      "revId": "a7c8ea135ce798a23ba141f09693aeb1753d0b05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a5cf4d7_bd12014e",
         "filename": "platform_tools/android/apps/viewer/build.gradle",
         "patchSetId": 2
@@ -130,6 +268,42 @@
       "revId": "a7c8ea135ce798a23ba141f09693aeb1753d0b05",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8521d8a3_efc82110",
+        "filename": "platform_tools/android/apps/viewer/build.gradle",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-05-31T19:55:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a5cf4d7_bd12014e",
+      "revId": "a7c8ea135ce798a23ba141f09693aeb1753d0b05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e89a375f_4a88d09f",
+        "filename": "platform_tools/android/apps/viewer/build.gradle",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-05-31T19:55:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a5cf4d7_bd12014e",
+      "revId": "a7c8ea135ce798a23ba141f09693aeb1753d0b05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

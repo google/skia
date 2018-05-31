@@ -164,6 +164,30 @@
       "revId": "e379ec4136451ccaa0605ec608ab392e528b996d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57fe3da8_53c18f76",
+        "filename": "platform_tools/android/CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-05-31T19:55:24Z",
+      "side": 1,
+      "message": "Tested it. Works fine now!",
+      "parentUuid": "7bbb8879_f24e6a90",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 84
+      },
+      "revId": "e379ec4136451ccaa0605ec608ab392e528b996d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
