@@ -51,6 +51,7 @@
 DEFINE_bool(ddl, false, "record the skp into DDLs before rendering");
 DEFINE_int32(ddlNumAdditionalThreads, 0, "number of DDL recording threads in addition to main one");
 DEFINE_int32(ddlTilingWidthHeight, 0, "number of tiles along one edge when in DDL mode");
+DEFINE_bool(ddlRecordTime, false, "report just the cpu time spent recording DDLs");
 
 DEFINE_int32(duration, 5000, "number of milliseconds to run the benchmark");
 DEFINE_int32(sampleMs, 50, "minimum duration of a sample");
@@ -117,9 +118,11 @@ static void ddl_sample(GrContext* context, DDLTileHelper* tiles, GpuSync* gpuSyn
 
     tiles->createDDLsInParallel();
 
-    tiles->drawAllTilesAndFlush(context, true);
-    if (gpuSync) {
-        gpuSync->syncToPreviousFrame();
+    if (!FLAGS_ddlRecordTime) {
+        tiles->drawAllTilesAndFlush(context, true);
+        if (gpuSync) {
+            gpuSync->syncToPreviousFrame();
+        }
     }
 
     *startStopTime = clock::now();
