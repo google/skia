@@ -35,7 +35,7 @@ protected:
         paint.setLCDRenderText(true);
         sk_sp<SkFontMgr> fontMgr(SkFontMgr::RefDefault());
 
-        std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
+        sk_sp<SkTypeface> distortable(MakeResourceAsTypeface("fonts/Distortable.ttf"));
         if (!distortable) {
             return;
         }
@@ -52,9 +52,8 @@ protected:
                 SkFontArguments::VariationPosition::Coordinate coordinates[] = {{tag, styleValue}};
                 SkFontArguments::VariationPosition position =
                         { coordinates, SK_ARRAY_COUNT(coordinates) };
-                paint.setTypeface(sk_sp<SkTypeface>(fontMgr->makeFromStream(
-                        distortable->duplicate(),
-                        SkFontArguments().setVariationDesignPosition(position))));
+                paint.setTypeface(distortable->makeClone(
+                        SkFontArguments().setVariationDesignPosition(position)));
 
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->translate(SkIntToScalar(30 + i * 100), SkIntToScalar(20));
