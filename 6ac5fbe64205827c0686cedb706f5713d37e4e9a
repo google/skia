@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8bc0513e_4e9026f2",
+        "filename": "gm/google_text.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-05-31T18:12:21Z",
+      "side": 1,
+      "message": "use spaces instead of tabs",
+      "revId": "6ac5fbe64205827c0686cedb706f5713d37e4e9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0ec92b7_0c4a2f24",
+        "filename": "platform_tools/android/apps/settings.gradle",
+        "patchSetId": 9
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-05-31T18:12:21Z",
+      "side": 1,
+      "message": "before we could submit this CL we would need to uncomment viewer and skqp.",
+      "revId": "6ac5fbe64205827c0686cedb706f5713d37e4e9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
