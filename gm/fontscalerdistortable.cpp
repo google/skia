@@ -29,16 +29,35 @@ protected:
         return SkISize::Make(550, 700);
     }
 
+    bool onGetControls(SkMetaData* meta) override {
+        SkScalar weights[3] = { fWeight, 0.5, 2.0 };
+        meta->setScalars("Weight", 3, weights);
+        return true;
+    }
+    void onSetControls(const SkMetaData& meta) override {
+        float val[3];
+        int count;
+        meta.findScalars("Weight", &count, val);
+        fWeight = val[0];
+    }
+
+    void onOnceBeforeDraw() override {
+        sk_sp<SkFontMgr> fontMgr(SkFontMgr::RefDefault());
+
+        sk_sp<SkTypeface> temp = SkTypeface::MakeFromName("Skia", SkFontStyle());
+//        std::unique_ptr<SkStreamAsset> stream(temp->openStream(nullptr));
+//        fTypeface = fontMgr->makeFromStream(std::move(stream), 0);
+//        sk_sp<SkTypeface> temp(MakeResourceAsTypeface("fonts/Distortable.ttf"));
+        fTypeface = temp;
+    }
+
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setLCDRenderText(true);
-        sk_sp<SkFontMgr> fontMgr(SkFontMgr::RefDefault());
 
-        std::unique_ptr<SkStreamAsset> distortableStream(GetResourceAsStream("fonts/Distortable.ttf"));
-        sk_sp<SkTypeface> distortable(MakeResourceAsTypeface("fonts/Distortable.ttf"));
-
-        if (!distortableStream) {
+        sk_sp<SkTypeface> distortable = fTypeface;
+        if (!distortable) {
             return;
         }
         const char* text = "abc";
@@ -50,19 +69,15 @@ protected:
                 SkScalar y = SkIntToScalar(20);
 
                 SkFourByteTag tag = SkSetFourByteTag('w','g','h','t');
-                SkScalar styleValue = SkDoubleToScalar(0.5 + (5 * j + i) * ((2.0 - 0.5) / (2 * 5)));
+                SkScalar styleValue = fWeight; //SkDoubleToScalar(0.5 + (5*j + i) * ((2.0 - 0.5) / (2 * 5)));
                 SkFontArguments::VariationPosition::Coordinate coordinates[] = {{tag, styleValue}};
                 SkFontArguments::VariationPosition position =
                         { coordinates, SK_ARRAY_COUNT(coordinates) };
-                if (j == 0 && distortable) {
-                    paint.setTypeface(sk_sp<SkTypeface>(
-                        distortable->makeClone(
-                            SkFontArguments().setVariationDesignPosition(position))));
-                } else {
-                    paint.setTypeface(sk_sp<SkTypeface>(fontMgr->makeFromStream(
-                        distortableStream->duplicate(),
-                        SkFontArguments().setVariationDesignPosition(position))));
-                }
+//                paint.setTypeface(sk_sp<SkTypeface>(fontMgr->makeFromStream(
+//                        stream->duplicate(),
+//                        SkFontArguments().setVariationDesignPosition(position))));
+                paint.setTypeface(distortable->makeClone(
+                        SkFontArguments().setVariationDesignPosition(position)));
 
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->translate(SkIntToScalar(30 + i * 100), SkIntToScalar(20));
@@ -89,6 +104,8 @@ protected:
     }
 
 private:
+    sk_sp<SkTypeface> fTypeface;
+    SkScalar fWeight = 1.0f;
     typedef GM INHERITED;
 };
 
