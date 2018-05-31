@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "6b9c6fd5_65156b7a",
+        "filename": "platform_tools/android/CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-05-31T15:02:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f99d2bd_2ca1bdce",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 25
+      },
+      "revId": "e379ec4136451ccaa0605ec608ab392e528b996d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c9344f0c_0110d393",
         "filename": "platform_tools/android/CMakeLists.txt",
         "patchSetId": 1
@@ -59,6 +83,30 @@
       "writtenOn": "2018-05-25T19:10:03Z",
       "side": 1,
       "message": "How does this differ from just\n\ninclude(${CMAKE_CURRENT_SOURCE_DIR}/../../out/android_${ANDROID_ABI}/CMakeLists.txt)",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 84
+      },
+      "revId": "e379ec4136451ccaa0605ec608ab392e528b996d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7205ad2f_c7d025a1",
+        "filename": "platform_tools/android/CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-05-31T15:02:59Z",
+      "side": 1,
+      "message": "When I apply this change, which makes sense to me, I get this error. This means that CMake is once again unable to find the file. If I manually change include(CMakeLists.ext) to include(path to CMakeLists.ext) this works, but that would involve changing the python script for this specific need. Is it worth it?\n\nCMake Error at /usr/local/google/home/ziadb/skia/out/android_arm64-v8a/CMakeLists.txt:7 (include):\n    include could not find load file:\n  \n      CMakeLists.ext\n  Call Stack (most recent call first):\n    CMakeLists.txt:49 (include)",
+      "parentUuid": "c9344f0c_0110d393",
       "range": {
         "startLine": 50,
         "startChar": 0,
