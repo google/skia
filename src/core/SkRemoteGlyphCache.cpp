@@ -198,7 +198,6 @@ SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
                                                      SkStrikeServer* strikeSever, Settings settings)
         : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(SkIRect::MakeWH(width, height), props)}
         , fDeviceMatrix{deviceMatrix}
-        , fSurfaceProps{props}
         , fStrikeServer{strikeSever}
         , fSettings{settings} {
     SkASSERT(fStrikeServer);
@@ -282,9 +281,9 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
     options.fMinDistanceFieldFontSize = fSettings.fMinDistanceFieldFontSize;
     options.fMaxDistanceFieldFontSize = fSettings.fMaxDistanceFieldFontSize;
     GrTextContext::SanitizeOptions(&options);
-    if (GrTextContext::CanDrawAsDistanceFields(runPaint, runMatrix, fSurfaceProps,
-                                                    fSettings.fContextSupportsDistanceFieldText,
-                                                    options)) {
+    if (GrTextContext::CanDrawAsDistanceFields(runPaint, runMatrix, this->surfaceProps(),
+                                               fSettings.fContextSupportsDistanceFieldText,
+                                               options)) {
         SkScalar textRatio;
         SkPaint dfPaint(runPaint);
         SkScalerContextFlags flags;
@@ -329,7 +328,7 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
     SkScalerContextEffects effects;
     auto* glyphCacheState =
             static_cast<SkStrikeServer*>(fStrikeServer)
-                    ->getOrCreateCache(runPaint, &fSurfaceProps, &runMatrix,
+                    ->getOrCreateCache(runPaint, &this->surfaceProps(), &runMatrix,
                                        SkScalerContextFlags::kFakeGammaAndBoostContrast,
                                        &deviceSpecificRec, &effects);
     SkASSERT(glyphCacheState);
@@ -368,7 +367,7 @@ void SkTextBlobCacheDiffCanvas::processGlyphRunForPaths(const SkTextBlobRunItera
     SkScalerContextEffects effects;
     auto* glyphCacheState =
             static_cast<SkStrikeServer*>(fStrikeServer)
-                    ->getOrCreateCache(pathPaint, &fSurfaceProps, nullptr,
+                    ->getOrCreateCache(pathPaint, &this->surfaceProps(), nullptr,
                                        SkScalerContextFlags::kFakeGammaAndBoostContrast,
                                        &deviceSpecificRec, &effects);
 
@@ -389,8 +388,8 @@ void SkTextBlobCacheDiffCanvas::processGlyphRunForDFT(const SkTextBlobRunIterato
     SkScalerContextRec deviceSpecificRec;
     SkScalerContextEffects effects;
     auto* glyphCacheState = static_cast<SkStrikeServer*>(fStrikeServer)
-                                    ->getOrCreateCache(runPaint, &fSurfaceProps, nullptr, flags,
-                                                       &deviceSpecificRec, &effects);
+                                    ->getOrCreateCache(runPaint, &this->surfaceProps(), nullptr,
+                                                       flags, &deviceSpecificRec, &effects);
 
     const bool asPath = false;
     const SkIPoint subPixelPos{0, 0};
@@ -401,6 +400,15 @@ void SkTextBlobCacheDiffCanvas::processGlyphRunForDFT(const SkTextBlobRunIterato
                                   SkPackedGlyphID(glyphs[index], subPixelPos.x(), subPixelPos.y()),
                                   asPath);
     }
+}
+
+const SkSurfaceProps& SkTextBlobCacheDiffCanvas::surfaceProps() const {
+    // SaveLayers can change the SurfaceProps used, and we ensure that the props used by the top
+    // device for the layer is correct. This is done by ensuring that TrackLayerDevice used by this
+    // canvas propagates them correctly when a new device is created for a layer.
+    const auto* device = this->getTopDevice();
+    SkASSERT(device);
+    return device->surfaceProps();
 }
 
 struct StrikeSpec {
