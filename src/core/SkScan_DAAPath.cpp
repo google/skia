@@ -182,8 +182,9 @@ void gen_alpha_deltas(const SkPath& path, const SkIRect& clippedIR, const SkIRec
             }
 
             SkAnalyticEdge l, r;
-            l.setLine(lb->fP0, lb->fP1);
-            r.setLine(rb->fP0, rb->fP1);
+            if (!l.setLine(lb->fP0, lb->fP1) || !r.setLine(rb->fP0, rb->fP1)) {
+                continue;
+            }
 
             SkFixed xorUpperY = l.fUpperY ^ r.fUpperY;
             SkFixed xorLowerY = l.fLowerY ^ r.fLowerY;
