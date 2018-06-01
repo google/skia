@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "33027e7a_ff1cd328",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1590,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-01T13:25:39Z",
+      "side": 1,
+      "message": "Why not \u0027\u003c\u0027 ?",
+      "revId": "b4f7ba3336adb8383c2b96856c0ba2415d947bc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
