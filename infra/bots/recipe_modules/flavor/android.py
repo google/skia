@@ -446,7 +446,7 @@ wait_for_device()
                 line = line.replace(addr, addr + ' ' + sym.strip())
             print line
           """ % self.ADB_BINARY,
-          args=[self.m.vars.skia_out],
+          args=[self.host_dirs.bin_dir],
           infra_step=True,
           timeout=300,
           abort_on_failure=False)
@@ -472,7 +472,7 @@ wait_for_device()
       self._scale_for_nanobench()
     else:
       self._scale_for_dm()
-    app = self.m.vars.skia_out.join(cmd[0])
+    app = self.host_dirs.bin_dir.join(cmd[0])
     self._adb('push %s' % cmd[0],
               'push', app, self.device_dirs.bin_dir)
 

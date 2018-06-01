@@ -44,9 +44,8 @@ def RunSteps(api):
         skia_dir.join('tools', 'calmbench', 'ab.py'),
         api.vars.swarming_out_dir,
         'modified', 'master',
-        api.vars.build_dir.join("out", api.vars.configuration, 'nanobench'),
-        api.vars.build_dir.join("ParentRevision", "out",
-                                api.vars.configuration, 'nanobench'),
+        api.vars.build_dir.join('nanobench'),
+        api.vars.build_dir.join('ParentRevision', 'nanobench'),
         extra_arg, extra_arg,
         2,          # reps
         "false",    # skipbase

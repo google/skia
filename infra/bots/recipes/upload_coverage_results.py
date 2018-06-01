@@ -54,7 +54,7 @@ def RunSteps(api):
 
 
   # The instrumented executable is brought in as an isolated input.
-  executable = api.path['start_dir'].join('build', 'out','Debug','dm')
+  executable = api.path['start_dir'].join('build', 'dm')
   # clang_dir is brought in via CIPD.
   clang_dir = api.path['start_dir'].join('clang_linux', 'bin')
 

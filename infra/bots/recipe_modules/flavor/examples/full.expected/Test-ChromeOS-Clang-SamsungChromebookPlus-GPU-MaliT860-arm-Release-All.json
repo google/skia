@@ -671,11 +671,11 @@
       "python",
       "-u",
       "\nimport subprocess\nimport sys\nhost = sys.argv[1]\ndevice   = sys.argv[2]\nprint subprocess.check_output(['scp', host, device])\n",
-      "[START_DIR]/build/out/Release/dm",
+      "[START_DIR]/build/dm",
       "foo@127.0.0.1:/home/chronos/user/bin/dm"
     ],
     "infra_step": true,
-    "name": "scp [START_DIR]/build/out/Release/dm foo@127.0.0.1:/home/chronos/user/bin/dm",
+    "name": "scp [START_DIR]/build/dm foo@127.0.0.1:/home/chronos/user/bin/dm",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",

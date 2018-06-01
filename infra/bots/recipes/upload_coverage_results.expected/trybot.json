@@ -67,7 +67,7 @@
     "cmd": [
       "[START_DIR]/clang_linux/bin/llvm-cov",
       "show",
-      "[START_DIR]/build/out/Debug/dm",
+      "[START_DIR]/build/dm",
       "-instr-profile=[START_DIR]/output.profdata",
       "-use-color=0",
       "-format=text",
@@ -108,7 +108,7 @@
     "cmd": [
       "[START_DIR]/clang_linux/bin/llvm-cov",
       "show",
-      "[START_DIR]/build/out/Debug/dm",
+      "[START_DIR]/build/dm",
       "-instr-profile=[START_DIR]/output.profdata",
       "-use-color=1",
       "-format=html",
