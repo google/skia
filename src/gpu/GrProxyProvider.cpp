@@ -300,7 +300,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxyFromBitmap(const SkBitma
     }
 
     ATRACE_ANDROID_FRAMEWORK("Upload MipMap Texture [%ux%u]", pixmap.width(), pixmap.height());
-    sk_sp<SkMipMap> mipmaps(SkMipMap::Build(pixmap, mipColorMode, nullptr));
+    sk_sp<SkMipMap> mipmaps(SkMipMap::Build(pixmap, nullptr));
     if (!mipmaps) {
         return nullptr;
     }
@@ -328,7 +328,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxyFromBitmap(const SkBitma
     }
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
-            [desc, baseLevel, mipmaps, mipColorMode](GrResourceProvider* resourceProvider) {
+            [desc, baseLevel, mipmaps](GrResourceProvider* resourceProvider) {
                 if (!resourceProvider) {
                     return sk_sp<GrTexture>();
                 }
@@ -353,7 +353,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxyFromBitmap(const SkBitma
                 }
 
                 return resourceProvider->createTexture(desc, SkBudgeted::kYes, texels.get(),
-                                                       mipLevelCount, mipColorMode);
+                                                       mipLevelCount);
             },
             desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kYes, SkBackingFit::kExact,
             SkBudgeted::kYes);
