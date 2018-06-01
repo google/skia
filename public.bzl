@@ -433,7 +433,6 @@ DM_SRCS_ALL = struct(
         "dm/*.h",
         "experimental/svg/model/*.cpp",
         "experimental/svg/model/*.h",
-        "gm/*.c",
         "gm/*.cpp",
         "gm/*.h",
         "src/xml/*.cpp",
@@ -489,6 +488,7 @@ DM_SRCS_ALL = struct(
         "tools/trace/*.h",
     ],
     exclude = [
+        "gm/cgms.cpp",
         "tests/FontMgrAndroidParserTest.cpp",  # Android-only.
         "tests/skia_test.cpp",  # Old main.
         "tools/gpu/atlastext/*",
