@@ -214,8 +214,8 @@ bool GrGpu::copySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                                canDiscardOutsideDstRect);
 }
 
-bool GrGpu::readPixels(GrSurface* surface, GrSurfaceOrigin origin, int left, int top, int width,
-                       int height, GrColorType dstColorType, void* buffer, size_t rowBytes) {
+bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int height,
+                       GrColorType dstColorType, void* buffer, size_t rowBytes) {
     SkASSERT(surface);
 
     int bpp = GrColorTypeBytesPerPixel(dstColorType);
@@ -228,8 +228,7 @@ bool GrGpu::readPixels(GrSurface* surface, GrSurfaceOrigin origin, int left, int
 
     this->handleDirtyContext();
 
-    return this->onReadPixels(surface, origin, left, top, width, height, dstColorType, buffer,
-                              rowBytes);
+    return this->onReadPixels(surface, left, top, width, height, dstColorType, buffer, rowBytes);
 }
 
 bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int height,
