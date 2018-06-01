@@ -323,18 +323,8 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context,
     dstDesc.fHeight = srcRect.height();
     dstDesc.fConfig = src->config();
 
-    // We use an ephemeral surface context to make the copy. Here it isn't clear what color space
-    // to tag it with. That's ok because GrSurfaceContext::copy doesn't do any color space
-    // conversions. However, if the pixel config is sRGB then the passed color space here must
-    // have sRGB gamma or GrSurfaceContext creation fails. See skbug.com/7611 about making this
-    // with the correct color space information and returning the context to the caller.
-    sk_sp<SkColorSpace> colorSpace;
-    if (GrPixelConfigIsSRGB(dstDesc.fConfig)) {
-        colorSpace = SkColorSpace::MakeSRGB();
-    }
     sk_sp<GrSurfaceContext> dstContext(context->contextPriv().makeDeferredSurfaceContext(
-            dstDesc, src->origin(), mipMapped, SkBackingFit::kExact, budgeted,
-            std::move(colorSpace)));
+            dstDesc, src->origin(), mipMapped, SkBackingFit::kExact, budgeted));
     if (!dstContext) {
         return nullptr;
     }

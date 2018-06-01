@@ -816,12 +816,6 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurface
                                                                  const SkSurfaceProps* props) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    // sRGB pixel configs may only be used with near-sRGB gamma color spaces.
-    if (GrPixelConfigIsSRGB(proxy->config())) {
-        if (!colorSpace || !colorSpace->gammaCloseToSRGB()) {
-            return nullptr;
-        }
-    }
     if (proxy->asRenderTargetProxy()) {
         return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
                                                                std::move(colorSpace), props);
