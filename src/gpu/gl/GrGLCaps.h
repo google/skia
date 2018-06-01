@@ -343,8 +343,6 @@ public:
 
     bool doManualMipmapping() const { return fDoManualMipmapping; }
 
-    bool srgbDecodeDisableAffectsMipmaps() const { return fSRGBDecodeDisableAffectsMipmaps; }
-
     void onDumpJSON(SkJSONWriter*) const override;
 
     bool rgba8888PixelsOpsAreSlow() const { return fRGBA8888PixelsOpsAreSlow; }
@@ -517,7 +515,6 @@ private:
 
     // Driver workarounds
     bool fDoManualMipmapping : 1;
-    bool fSRGBDecodeDisableAffectsMipmaps : 1;
     bool fClearToBoundaryValuesIsBroken : 1;
     bool fDrawArraysBaseVertexIsBroken : 1;
     bool fUseDrawToClearColor : 1;

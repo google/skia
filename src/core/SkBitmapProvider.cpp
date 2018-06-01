@@ -44,5 +44,5 @@ void SkBitmapProvider::notifyAddedToCache() const {
 }
 
 bool SkBitmapProvider::asBitmap(SkBitmap* bm) const {
-    return as_IB(fImage)->getROPixels(bm, fDstColorSpace, SkImage::kAllow_CachingHint);
+    return as_IB(fImage)->getROPixels(bm, nullptr, SkImage::kAllow_CachingHint);
 }

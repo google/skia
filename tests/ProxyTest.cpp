@@ -223,7 +223,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
             }
 
             for (auto numSamples : {1, 4}) {
-                GrPixelConfig config = SkImageInfo2GrPixelConfig(colorType, nullptr, caps);
+                GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
                 SkASSERT(kUnknown_GrPixelConfig != config);
                 int supportedNumSamples = caps.getRenderTargetSampleCount(numSamples, config);
 
@@ -253,7 +253,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                 {
                     GrBackendTexture backendTex =
                             gpu->createTestingOnlyBackendTexture(nullptr, kWidthHeight,
-                                                                 kWidthHeight, colorType, nullptr,
+                                                                 kWidthHeight, colorType,
                                                                  true, GrMipMapped::kNo);
                     sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapBackendTextureAsRenderTarget(
                             backendTex, origin, supportedNumSamples);
@@ -277,7 +277,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                 {
                     GrBackendTexture backendTex =
                             gpu->createTestingOnlyBackendTexture(nullptr, kWidthHeight,
-                                                                 kWidthHeight, colorType, nullptr,
+                                                                 kWidthHeight, colorType,
                                                                  true, GrMipMapped::kNo);
 
                     sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapRenderableBackendTexture(
@@ -303,7 +303,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     // Internal offscreen texture
                     GrBackendTexture backendTex =
                             gpu->createTestingOnlyBackendTexture(nullptr, kWidthHeight,
-                                                                 kWidthHeight, colorType, nullptr,
+                                                                 kWidthHeight, colorType,
                                                                  false, GrMipMapped::kNo);
 
                     sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapBackendTexture(

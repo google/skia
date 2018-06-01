@@ -261,9 +261,6 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     if (ContextOverrides::kDisableNVPR & overrides) {
         grOptions.fSuppressPathRendering = true;
     }
-    if (ContextOverrides::kAllowSRGBWithoutDecodeControl & overrides) {
-        grOptions.fRequireDecodeDisableForSRGB = false;
-    }
     if (ContextOverrides::kAvoidStencilBuffers & overrides) {
         grOptions.fAvoidStencilBuffers = true;
     }
