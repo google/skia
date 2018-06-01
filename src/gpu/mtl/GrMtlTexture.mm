@@ -31,12 +31,7 @@ sk_sp<GrMtlTexture> GrMtlTexture::CreateNewTexture(GrMtlGpu* gpu, SkBudgeted bud
     descriptor.cpuCacheMode = MTLCPUCacheModeWriteCombined;
     // Shared is not available on MacOS. Is there a reason to want managed to allow mapping?
     descriptor.storageMode = MTLStorageModePrivate;
-
-    MTLTextureUsage texUsage = MTLTextureUsageShaderRead;
-    if (GrMTLFormatIsSRGB(format, nullptr)) {
-        texUsage |= MTLTextureUsagePixelFormatView;
-    }
-    descriptor.usage = texUsage;
+    descriptor.usage = MTLTextureUsageShaderRead;
 
     id<MTLTexture> texture = [gpu->device() newTextureWithDescriptor:descriptor];
 

@@ -108,16 +108,10 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
                                                                  1, SkBudgeted::kYes, fit);
     }
 
-    // We never want to perform color-space conversion during the decode. However, if the proxy
-    // config is sRGB then we must use a sRGB color space.
-    sk_sp<SkColorSpace> colorSpace;
-    if (GrPixelConfigIsSRGB(desc.fConfig)) {
-        colorSpace = SkColorSpace::MakeSRGB();
-    }
     // TODO: investigate preallocating mip maps here
     sk_sp<GrRenderTargetContext> renderTargetContext(
         ctx->contextPriv().makeDeferredRenderTargetContext(
-            SkBackingFit::kExact, desc.fWidth, desc.fHeight, desc.fConfig, std::move(colorSpace),
+            SkBackingFit::kExact, desc.fWidth, desc.fHeight, desc.fConfig, nullptr,
             desc.fSampleCnt, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin));
     if (!renderTargetContext) {
         return nullptr;

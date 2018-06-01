@@ -43,8 +43,7 @@ public:
 
     /**
      * Skia convention is that a device only has sRGB support if it supports sRGB formats for both
-     * textures and framebuffers. In addition:
-     *   Decoding to linear of an sRGB texture can be disabled.
+     * textures and framebuffers.
      */
     bool srgbSupport() const { return fSRGBSupport; }
     /**
