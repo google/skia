@@ -184,25 +184,16 @@ public:
      * @param texels        array of mipmap levels containing texture data
      * @param mipLevelCount number of levels in 'texels'
      */
-    bool writePixels(GrSurface* surface, GrSurfaceOrigin origin, int left, int top, int width,
-                     int height, GrColorType srcColorType, const GrMipLevel texels[],
-                     int mipLevelCount);
+    bool writePixels(GrSurface* surface, int left, int top, int width, int height,
+                     GrColorType srcColorType, const GrMipLevel texels[], int mipLevelCount);
 
     /**
-     * This function is a shim which creates a SkTArray<GrMipLevel> of size 1.
-     * It then calls writePixels with that SkTArray.
-     */
-    bool writePixels(GrSurface*, GrSurfaceOrigin, int left, int top, int width, int height,
-                     GrColorType, const void* buffer, size_t rowBytes);
-
-    /**
-     * This version of writePixels doesn't take an origin. TODO: Remove origin handling from
-     * GrGpu::writePixels entirely.
+     * Helper for the case of a single level.
      */
     bool writePixels(GrSurface* surface, int left, int top, int width, int height,
                      GrColorType srcColorType, const void* buffer, size_t rowBytes) {
-        return this->writePixels(surface, kTopLeft_GrSurfaceOrigin, left, top, width, height,
-                                 srcColorType, buffer, rowBytes);
+        GrMipLevel mipLevel = {buffer, rowBytes};
+        return this->writePixels(surface, left, top, width, height, srcColorType, &mipLevel, 1);
     }
 
     /**
@@ -449,9 +440,8 @@ private:
                               GrColorType, void* buffer, size_t rowBytes) = 0;
 
     // overridden by backend-specific derived class to perform the surface write
-    virtual bool onWritePixels(GrSurface*, GrSurfaceOrigin, int left, int top, int width,
-                               int height, GrColorType, const GrMipLevel texels[],
-                               int mipLevelCount) = 0;
+    virtual bool onWritePixels(GrSurface*, int left, int top, int width, int height, GrColorType,
+                               const GrMipLevel texels[], int mipLevelCount) = 0;
 
     // overridden by backend-specific derived class to perform the texture transfer
     virtual bool onTransferPixels(GrTexture*, int left, int top, int width, int height,

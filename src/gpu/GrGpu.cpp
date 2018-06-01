@@ -232,9 +232,8 @@ bool GrGpu::readPixels(GrSurface* surface, GrSurfaceOrigin origin, int left, int
                               rowBytes);
 }
 
-bool GrGpu::writePixels(GrSurface* surface, GrSurfaceOrigin origin, int left, int top, int width,
-                        int height, GrColorType srcColorType, const GrMipLevel texels[],
-                        int mipLevelCount) {
+bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int height,
+                        GrColorType srcColorType, const GrMipLevel texels[], int mipLevelCount) {
     SkASSERT(surface);
     if (1 == mipLevelCount) {
         // We require that if we are not mipped, then the write region is contained in the surface
@@ -255,21 +254,14 @@ bool GrGpu::writePixels(GrSurface* surface, GrSurfaceOrigin origin, int left, in
     }
 
     this->handleDirtyContext();
-    if (this->onWritePixels(surface, origin, left, top, width, height, srcColorType, texels,
+    if (this->onWritePixels(surface, left, top, width, height, srcColorType, texels,
                             mipLevelCount)) {
         SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
-        this->didWriteToSurface(surface, origin, &rect, mipLevelCount);
+        this->didWriteToSurface(surface, kTopLeft_GrSurfaceOrigin, &rect, mipLevelCount);
         fStats.incTextureUploads();
         return true;
     }
     return false;
-}
-
-bool GrGpu::writePixels(GrSurface* surface, GrSurfaceOrigin origin, int left, int top, int width,
-                        int height, GrColorType srcColorType, const void* buffer, size_t rowBytes) {
-    GrMipLevel mipLevel = { buffer, rowBytes };
-
-    return this->writePixels(surface, origin, left, top, width, height, srcColorType, &mipLevel, 1);
 }
 
 bool GrGpu::transferPixels(GrTexture* texture, int left, int top, int width, int height,

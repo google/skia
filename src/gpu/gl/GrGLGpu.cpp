@@ -661,9 +661,9 @@ static bool check_write_and_transfer_input(GrGLTexture* glTex) {
     return true;
 }
 
-bool GrGLGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin, int left, int top,
-                            int width, int height, GrColorType srcColorType,
-                            const GrMipLevel texels[], int mipLevelCount) {
+bool GrGLGpu::onWritePixels(GrSurface* surface, int left, int top, int width, int height,
+                            GrColorType srcColorType, const GrMipLevel texels[],
+                            int mipLevelCount) {
     auto glTex = static_cast<GrGLTexture*>(surface->asTexture());
 
     if (!check_write_and_transfer_input(glTex)) {
@@ -680,9 +680,9 @@ bool GrGLGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin, int left
     // caps knows to make the external format be GL_RGBA.
     auto srgbEncoded = GrPixelConfigIsSRGBEncoded(surface->config());
     auto srcAsConfig = GrColorTypeToPixelConfig(srcColorType, srgbEncoded);
-    return this->uploadTexData(glTex->config(), glTex->width(), glTex->height(), origin,
-                               glTex->target(), kWrite_UploadType, left, top, width, height,
-                               srcAsConfig, texels, mipLevelCount);
+    return this->uploadTexData(glTex->config(), glTex->width(), glTex->height(), glTex->target(),
+                               kWrite_UploadType, left, top, width, height, srcAsConfig, texels,
+                               mipLevelCount);
 }
 
 // For GL_[UN]PACK_ALIGNMENT. TODO: This really wants to be GrColorType.
@@ -907,13 +907,10 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
  * @param glFlipY            Did GL flip the texture vertically?
  */
 static void restore_pixelstore_state(const GrGLInterface& interface, const GrGLCaps& caps,
-                                     bool restoreGLRowLength, bool glFlipY) {
+                                     bool restoreGLRowLength) {
     if (restoreGLRowLength) {
         SkASSERT(caps.unpackRowLengthSupport());
         GR_GL_CALL(&interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
-    }
-    if (glFlipY) {
-        GR_GL_CALL(&interface, PixelStorei(GR_GL_UNPACK_FLIP_Y, GR_GL_FALSE));
     }
 }
 
@@ -928,10 +925,9 @@ void GrGLGpu::unbindCpuToGpuXferBuffer() {
 
 // TODO: Make this take a GrColorType instead of dataConfig. This requires updating GrGLCaps to
 // convert from GrColorType to externalFormat/externalType GLenum values.
-bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight,
-                            GrSurfaceOrigin texOrigin, GrGLenum target, UploadType uploadType,
-                            int left, int top, int width, int height, GrPixelConfig dataConfig,
-                            const GrMipLevel texels[], int mipLevelCount,
+bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight, GrGLenum target,
+                            UploadType uploadType, int left, int top, int width, int height,
+                            GrPixelConfig dataConfig, const GrMipLevel texels[], int mipLevelCount,
                             GrMipMapsStatus* mipMapsStatus) {
     SkASSERT(this->caps()->isConfigTexturable(texConfig));
     SkDEBUGCODE(
@@ -984,16 +980,6 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
      *  GL_UNPACK_ROW_LENGTH.
      */
     bool restoreGLRowLength = false;
-    bool swFlipY = false;
-    bool glFlipY = false;
-
-    if (kBottomLeft_GrSurfaceOrigin == texOrigin && mipLevelCount) {
-        if (caps.unpackFlipYSupport()) {
-            glFlipY = true;
-        } else {
-            swFlipY = true;
-        }
-    }
 
     // in case we need a temporary, trimmed copy of the src pixels
     SkAutoSMalloc<128 * 128> tempStorage;
@@ -1021,9 +1007,7 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
                     ? texelsShallowCopy[currentMipLevel].fRowBytes
                     : trimRowBytes;
 
-
-            if (((!caps.unpackRowLengthSupport() || usesMips) && trimRowBytes != rowBytes) ||
-                swFlipY) {
+            if (((!caps.unpackRowLengthSupport() || usesMips) && trimRowBytes != rowBytes)) {
                 willNeedData = true;
             }
 
@@ -1068,27 +1052,20 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
         // TODO: This optimization should be enabled with or without mips.
         // For use with mips, we must set GR_GL_UNPACK_ROW_LENGTH once per
         // mip level, before calling glTexImage2D.
-        if (caps.unpackRowLengthSupport() && !swFlipY && !usesMips) {
+        if (caps.unpackRowLengthSupport() && !usesMips) {
             // can't use this for flipping, only non-neg values allowed. :(
             if (rowBytes != trimRowBytes) {
                 GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
                 GR_GL_CALL(interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
                 restoreGLRowLength = true;
             }
-        } else if (trimRowBytes != rowBytes || swFlipY) {
+        } else if (trimRowBytes != rowBytes) {
             // copy data into our new storage, skipping the trailing bytes
             const char* src = (const char*)texelsShallowCopy[currentMipLevel].fPixels;
-            if (swFlipY && currentHeight >= 1) {
-                src += (currentHeight - 1) * rowBytes;
-            }
             char* dst = buffer + individualMipOffsets[currentMipLevel];
             for (int y = 0; y < currentHeight; y++) {
                 memcpy(dst, src, trimRowBytes);
-                if (swFlipY) {
-                    src -= rowBytes;
-                } else {
-                    src += rowBytes;
-                }
+                src += rowBytes;
                 dst += trimRowBytes;
             }
             // now point data to our copied version
@@ -1099,9 +1076,6 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     }
 
     if (mipLevelCount) {
-        if (glFlipY) {
-            GR_GL_CALL(interface, PixelStorei(GR_GL_UNPACK_FLIP_Y, GR_GL_TRUE));
-        }
         GR_GL_CALL(interface, PixelStorei(GR_GL_UNPACK_ALIGNMENT, config_alignment(texConfig)));
     }
 
@@ -1116,9 +1090,6 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
             succeeded = false;
         }
     } else {
-        if (swFlipY || glFlipY) {
-            top = texHeight - (top + height);
-        }
         for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
             if (!texelsShallowCopy[currentMipLevel].fPixels) {
                 continue;
@@ -1137,7 +1108,7 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
         }
     }
 
-    restore_pixelstore_state(*interface, caps, restoreGLRowLength, glFlipY);
+    restore_pixelstore_state(*interface, caps, restoreGLRowLength);
 
     return succeeded;
 }
@@ -1563,9 +1534,9 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
         set_initial_texture_params(this->glInterface(), *info, initialTexParams);
     }
 
-    if (!this->uploadTexData(desc.fConfig, desc.fWidth, desc.fHeight, kTopLeft_GrSurfaceOrigin,
-                             info->fTarget, kNewTexture_UploadType, 0, 0, desc.fWidth, desc.fHeight,
-                             desc.fConfig, texels, mipLevelCount, mipMapsStatus)) {
+    if (!this->uploadTexData(desc.fConfig, desc.fWidth, desc.fHeight, info->fTarget,
+                             kNewTexture_UploadType, 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
+                             texels, mipLevelCount, mipMapsStatus)) {
         GL_CALL(DeleteTextures(1, &(info->fID)));
         return false;
     }

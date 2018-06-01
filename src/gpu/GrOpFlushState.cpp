@@ -88,8 +88,8 @@ void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload) {
             fGpu->caps()->supportedWritePixelsColorType(dstSurface->config(), srcColorType) != srcColorType) {
             return false;
         }
-        return this->fGpu->writePixels(dstSurface, dstProxy->origin(), left, top, width, height,
-                                       srcColorType, buffer, rowBytes);
+        return this->fGpu->writePixels(dstSurface, left, top, width, height, srcColorType, buffer,
+                                       rowBytes);
     };
     upload(wp);
 }

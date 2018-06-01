@@ -327,9 +327,9 @@ GrBuffer* GrVkGpu::onCreateBuffer(size_t size, GrBufferType type, GrAccessPatter
     return buff;
 }
 
-bool GrVkGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin, int left, int top,
-                            int width, int height, GrColorType srcColorType,
-                            const GrMipLevel texels[], int mipLevelCount) {
+bool GrVkGpu::onWritePixels(GrSurface* surface, int left, int top, int width, int height,
+                            GrColorType srcColorType, const GrMipLevel texels[],
+                            int mipLevelCount) {
     GrVkTexture* vkTex = static_cast<GrVkTexture*>(surface->asTexture());
     if (!vkTex) {
         return false;
@@ -356,7 +356,7 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin, int left
                                   false);
             this->submitCommandBuffer(kForce_SyncQueue);
         }
-        success = this->uploadTexDataLinear(vkTex, origin, left, top, width, height, srcColorType,
+        success = this->uploadTexDataLinear(vkTex, left, top, width, height, srcColorType,
                                             texels[0].fPixels, texels[0].fRowBytes);
     } else {
         int currentMipLevels = vkTex->texturePriv().maxMipMapLevel() + 1;
@@ -365,8 +365,8 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin, int left
                 return false;
             }
         }
-        success = this->uploadTexDataOptimal(vkTex, origin, left, top, width, height, srcColorType,
-                                             texels, mipLevelCount);
+        success = this->uploadTexDataOptimal(vkTex, left, top, width, height, srcColorType, texels,
+                                             mipLevelCount);
     }
 
     return success;
@@ -486,9 +486,8 @@ void GrVkGpu::internalResolveRenderTarget(GrRenderTarget* target, bool requiresS
     }
 }
 
-bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, GrSurfaceOrigin texOrigin, int left, int top,
-                                  int width, int height, GrColorType dataColorType,
-                                  const void* data, size_t rowBytes) {
+bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, int left, int top, int width, int height,
+                                  GrColorType dataColorType, const void* data, size_t rowBytes) {
     SkASSERT(data);
     SkASSERT(tex->isLinearTiled());
 
@@ -519,9 +518,8 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, GrSurfaceOrigin texOrigin, i
                                                     &subres,
                                                     &layout));
 
-    int texTop = kBottomLeft_GrSurfaceOrigin == texOrigin ? tex->height() - top - height : top;
     const GrVkAlloc& alloc = tex->alloc();
-    VkDeviceSize offset = texTop*layout.rowPitch + left*bpp;
+    VkDeviceSize offset = top * layout.rowPitch + left * bpp;
     VkDeviceSize size = height*layout.rowPitch;
     SkASSERT(size + offset <= alloc.fSize);
     void* mapPtr = GrVkMemory::MapAlloc(this, alloc);
@@ -530,19 +528,8 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, GrSurfaceOrigin texOrigin, i
     }
     mapPtr = reinterpret_cast<char*>(mapPtr) + offset;
 
-    if (kBottomLeft_GrSurfaceOrigin == texOrigin) {
-        // copy into buffer by rows
-        const char* srcRow = reinterpret_cast<const char*>(data);
-        char* dstRow = reinterpret_cast<char*>(mapPtr)+(height - 1)*layout.rowPitch;
-        for (int y = 0; y < height; y++) {
-            memcpy(dstRow, srcRow, trimRowBytes);
-            srcRow += rowBytes;
-            dstRow -= layout.rowPitch;
-        }
-    } else {
-        SkRectMemcpy(mapPtr, static_cast<size_t>(layout.rowPitch), data, rowBytes, trimRowBytes,
-                     height);
-    }
+    SkRectMemcpy(mapPtr, static_cast<size_t>(layout.rowPitch), data, rowBytes, trimRowBytes,
+                 height);
 
     GrVkMemory::FlushMappedAlloc(this, alloc, offset, size);
     GrVkMemory::UnmapAlloc(this, alloc);
@@ -550,9 +537,9 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, GrSurfaceOrigin texOrigin, i
     return true;
 }
 
-bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin, int left, int top,
-                                   int width, int height, GrColorType dataColorType,
-                                   const GrMipLevel texels[], int mipLevelCount) {
+bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int width, int height,
+                                   GrColorType dataColorType, const GrMipLevel texels[],
+                                   int mipLevelCount) {
     SkASSERT(!tex->isLinearTiled());
     // The assumption is either that we have no mipmaps, or that our rect is the entire texture
     SkASSERT(1 == mipLevelCount ||
@@ -578,9 +565,6 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin, 
         texelsShallowCopy.reset(mipLevelCount);
         memcpy(texelsShallowCopy.get(), texels, mipLevelCount*sizeof(GrMipLevel));
     }
-
-    // Determine whether we need to flip when we copy into the buffer
-    bool flipY = (kBottomLeft_GrSurfaceOrigin == texOrigin && mipLevelCount);
 
     SkTArray<size_t> individualMipOffsets(mipLevelCount);
     individualMipOffsets.push_back(0);
@@ -640,16 +624,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin, 
             // copy data into the buffer, skipping the trailing bytes
             char* dst = buffer + individualMipOffsets[currentMipLevel];
             const char* src = (const char*)texelsShallowCopy[currentMipLevel].fPixels;
-            if (flipY) {
-                src += (currentHeight - 1) * rowBytes;
-                for (int y = 0; y < currentHeight; y++) {
-                    memcpy(dst, src, trimRowBytes);
-                    src -= rowBytes;
-                    dst += trimRowBytes;
-                }
-            } else {
-                SkRectMemcpy(dst, trimRowBytes, src, rowBytes, trimRowBytes, currentHeight);
-            }
+            SkRectMemcpy(dst, trimRowBytes, src, rowBytes, trimRowBytes, currentHeight);
 
             VkBufferImageCopy& region = regions.push_back();
             memset(&region, 0, sizeof(VkBufferImageCopy));
@@ -657,7 +632,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin, 
             region.bufferRowLength = currentWidth;
             region.bufferImageHeight = currentHeight;
             region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, SkToU32(currentMipLevel), 0, 1 };
-            region.imageOffset = { left, flipY ? layerHeight - top - currentHeight : top, 0 };
+            region.imageOffset = {left, top, 0};
             region.imageExtent = { (uint32_t)currentWidth, (uint32_t)currentHeight, 1 };
         }
         currentWidth = SkTMax(1, currentWidth/2);
@@ -753,8 +728,8 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
 
     auto colorType = GrPixelConfigToColorType(desc.fConfig);
     if (mipLevelCount) {
-        if (!this->uploadTexDataOptimal(tex.get(), kTopLeft_GrSurfaceOrigin, 0, 0, desc.fWidth,
-                                        desc.fHeight, colorType, texels, mipLevelCount)) {
+        if (!this->uploadTexDataOptimal(tex.get(), 0, 0, desc.fWidth, desc.fHeight, colorType,
+                                        texels, mipLevelCount)) {
             tex->unref();
             return nullptr;
         }

@@ -76,9 +76,8 @@ private:
         return true;
     }
 
-    bool onWritePixels(GrSurface* surface, GrSurfaceOrigin, int left, int top, int width,
-                       int height, GrColorType, const GrMipLevel texels[],
-                       int mipLevelCount) override {
+    bool onWritePixels(GrSurface* surface, int left, int top, int width, int height, GrColorType,
+                       const GrMipLevel texels[], int mipLevelCount) override {
         return true;
     }
 

@@ -234,8 +234,8 @@ private:
     bool onReadPixels(GrSurface*, GrSurfaceOrigin, int left, int top, int width, int height,
                       GrColorType, void* buffer, size_t rowBytes) override;
 
-    bool onWritePixels(GrSurface*, GrSurfaceOrigin, int left, int top, int width, int height,
-                       GrColorType, const GrMipLevel texels[], int mipLevelCount) override;
+    bool onWritePixels(GrSurface*, int left, int top, int width, int height, GrColorType,
+                       const GrMipLevel texels[], int mipLevelCount) override;
 
     bool onTransferPixels(GrTexture*, int left, int top, int width, int height, GrColorType,
                           GrBuffer* transferBuffer, size_t offset, size_t rowBytes) override;
@@ -370,10 +370,9 @@ private:
         kNewTexture_UploadType,   // we are creating a new texture
         kWrite_UploadType,        // we are using TexSubImage2D to copy data to an existing texture
     };
-    bool uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight,
-                       GrSurfaceOrigin texOrigin, GrGLenum target, UploadType uploadType, int left,
-                       int top, int width, int height, GrPixelConfig dataConfig,
-                       const GrMipLevel texels[], int mipLevelCount,
+    bool uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight, GrGLenum target,
+                       UploadType uploadType, int left, int top, int width, int height,
+                       GrPixelConfig dataConfig, const GrMipLevel texels[], int mipLevelCount,
                        GrMipMapsStatus* mipMapsStatus = nullptr);
 
     bool createRenderTargetObjects(const GrSurfaceDesc&, const GrGLTextureInfo& texInfo,
