@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "efa1af7d_b469fa56",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-01T15:47:21Z",
+      "side": 1,
+      "message": "This is still used in one place. I\u0027ll look at removing it in a follow up CL.",
+      "range": {
+        "startLine": 204,
+        "startChar": 9,
+        "endLine": 204,
+        "endChar": 27
+      },
+      "revId": "2d7db1536e65c5ca34a55683a9e05469109df56f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
