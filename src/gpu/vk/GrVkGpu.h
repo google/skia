@@ -168,9 +168,8 @@ private:
     bool onReadPixels(GrSurface* surface, GrSurfaceOrigin, int left, int top, int width, int height,
                       GrColorType, void* buffer, size_t rowBytes) override;
 
-    bool onWritePixels(GrSurface* surface, GrSurfaceOrigin, int left, int top, int width,
-                       int height, GrColorType, const GrMipLevel texels[],
-                       int mipLevelCount) override;
+    bool onWritePixels(GrSurface* surface, int left, int top, int width, int height, GrColorType,
+                       const GrMipLevel texels[], int mipLevelCount) override;
 
     bool onTransferPixels(GrTexture*, int left, int top, int width, int height, GrColorType,
                           GrBuffer* transferBuffer, size_t offset, size_t rowBytes) override;
@@ -209,12 +208,10 @@ private:
                               const SkIPoint& dstPoint);
 
     // helpers for onCreateTexture and writeTexturePixels
-    bool uploadTexDataLinear(GrVkTexture* tex, GrSurfaceOrigin texOrigin, int left, int top,
-                             int width, int height, GrColorType colorType, const void* data,
-                             size_t rowBytes);
-    bool uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin, int left, int top,
-                              int width, int height, GrColorType colorType,
-                              const GrMipLevel texels[], int mipLevelCount);
+    bool uploadTexDataLinear(GrVkTexture* tex, int left, int top, int width, int height,
+                             GrColorType colorType, const void* data, size_t rowBytes);
+    bool uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int width, int height,
+                              GrColorType colorType, const GrMipLevel texels[], int mipLevelCount);
 
     void resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect& srcRect,
                       const SkIPoint& dstPoint);
