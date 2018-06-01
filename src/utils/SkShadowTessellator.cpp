@@ -45,7 +45,7 @@ protected:
 
     bool setZOffset(const SkRect& bounds, bool perspective);
 
-    virtual void handleLine(const SkPoint& p) = 0;
+    void handleLine(const SkPoint& p);
     void handleLine(const SkMatrix& m, SkPoint* p);
 
     void handleQuad(const SkPoint pts[3]);
@@ -81,6 +81,10 @@ protected:
     SkTDArray<SkPoint>  fPositions;
     SkTDArray<SkColor>  fColors;
     SkTDArray<uint16_t> fIndices;
+
+    SkTDArray<SkPoint>  fPathPolygon;
+    SkPoint             fCentroid;
+    SkScalar            fArea;
 
     int                 fFirstVertexIndex;
     SkVector            fFirstOutset;
@@ -143,6 +147,10 @@ static SkScalar perp_dot(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2
     return v0.cross(v1);
 }
 
+static bool is_collinear(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2) {
+    return (SkScalarNearlyZero(perp_dot(p0, p1, p2)));
+}
+
 SkBaseShadowTessellator::SkBaseShadowTessellator(const SkPoint3& zPlaneParams, bool transparent)
         : fZPlaneParams(zPlaneParams)
         , fZOffset(0)
@@ -189,8 +197,32 @@ static const SkScalar kCubicTolerance = 0.2f;
 #endif
 static const SkScalar kConicTolerance = 0.5f;
 
+void SkBaseShadowTessellator::handleLine(const SkPoint& p) {
+    // remove coincident points and add to centroid
+    if (fPathPolygon.count() > 0) {
+        const SkPoint& lastPoint = fPathPolygon[fPathPolygon.count() - 1];
+        if (duplicate_pt(p, lastPoint)) {
+            return;
+        }
+        SkScalar quadArea = lastPoint.cross(p);
+        fCentroid.fX += (p.fX + lastPoint.fX) * quadArea;
+        fCentroid.fY += (p.fY + lastPoint.fY) * quadArea;
+        fArea += quadArea;
+    }
+
+    // try to remove collinear points
+    if (fPathPolygon.count() > 1 && is_collinear(fPathPolygon[fPathPolygon.count() - 2],
+                                                 fPathPolygon[fPathPolygon.count() - 1],
+                                                 p)) {
+        fPathPolygon[fPathPolygon.count() - 1] = p;
+    } else {
+        *fPathPolygon.push() = p;
+    }
+}
+
 void SkBaseShadowTessellator::handleLine(const SkMatrix& m, SkPoint* p) {
     m.mapPoints(p, 1);
+
     this->handleLine(*p);
 }
 
@@ -386,7 +418,8 @@ public:
                                const SkPoint3& zPlaneParams, bool transparent);
 
 private:
-    void handleLine(const SkPoint& p) override;
+    void computePathPolygon(const SkPath& path, const SkMatrix& ctm);
+    void handlePoint(const SkPoint& p);
     void addEdge(const SkVector& nextPoint, const SkVector& nextNormal);
 
     static constexpr auto kMaxEdgeLenSqr = 20 * 20;
@@ -438,39 +471,21 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
     // Middle ring: 0
     fIndices.setReserve(12 * path.countPoints());
 
-    // walk around the path, tessellate and generate outer ring
-    // if original path is transparent, will accumulate sum of points for centroid
-    SkPath::Iter iter(path, true);
-    SkPoint pts[4];
-    SkPath::Verb verb;
+    fPathPolygon.setReserve(path.countPoints());
+    this->computePathPolygon(path, ctm);
+    if (fPathPolygon.count() < 3) {
+        return;
+    }
+
+    // TODO: update with computed centroid
     if (fTransparent) {
         *fPositions.push() = SkPoint::Make(0, 0);
         *fColors.push() = fUmbraColor;
         fCentroidCount = 0;
     }
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-        switch (verb) {
-            case SkPath::kLine_Verb:
-                this->INHERITED::handleLine(ctm, &pts[1]);
-                break;
-            case SkPath::kQuad_Verb:
-                this->handleQuad(ctm, pts);
-                break;
-            case SkPath::kCubic_Verb:
-                this->handleCubic(ctm, pts);
-                break;
-            case SkPath::kConic_Verb:
-                this->handleConic(ctm, pts, iter.conicWeight());
-                break;
-            case SkPath::kMove_Verb:
-            case SkPath::kClose_Verb:
-            case SkPath::kDone_Verb:
-                break;
-        }
-        // TODO: add support for concave paths
-        if (!fIsConvex) {
-            return;
-        }
+
+    for (int i = 0; i < fPathPolygon.count(); ++i) {
+        this->handlePoint(fPathPolygon[i]);
     }
 
     if (!this->indexCount()) {
@@ -582,7 +597,55 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
     fSucceeded = true;
 }
 
-void SkAmbientShadowTessellator::handleLine(const SkPoint& p)  {
+void SkAmbientShadowTessellator::computePathPolygon(const SkPath& path, const SkMatrix& ctm) {
+    // walk around the path, tessellate and generate outer ring
+    // if original path is transparent, will accumulate sum of points for centroid
+    SkPath::Iter iter(path, true);
+    SkPoint pts[4];
+    SkPath::Verb verb;
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+        switch (verb) {
+        case SkPath::kLine_Verb:
+            this->handleLine(ctm, &pts[1]);
+            break;
+        case SkPath::kQuad_Verb:
+            this->handleQuad(ctm, pts);
+            break;
+        case SkPath::kCubic_Verb:
+            this->handleCubic(ctm, pts);
+            break;
+        case SkPath::kConic_Verb:
+            this->handleConic(ctm, pts, iter.conicWeight());
+            break;
+        case SkPath::kMove_Verb:
+        case SkPath::kClose_Verb:
+        case SkPath::kDone_Verb:
+            break;
+        }
+        // TODO: add support for concave paths
+        if (!fIsConvex) {
+            return;
+        }
+    }
+
+    // TODO: find coincident and collinear points across polygon start
+
+    // finish centroid
+    if (fPathPolygon.count() > 0) {
+        SkPoint currPoint = fPathPolygon[fPathPolygon.count() - 1];
+        SkPoint nextPoint = fPathPolygon[0];
+        SkScalar quadArea = currPoint.cross(nextPoint);
+        fCentroid.fX += (currPoint.fX + nextPoint.fX) * quadArea;
+        fCentroid.fY += (currPoint.fY + nextPoint.fY) * quadArea;
+        fArea += quadArea;
+        fCentroid *= sk_ieee_float_divide(1, 3 * fArea);
+    }
+
+    // Compute convexity somewhere? And normals (paired)?
+}
+
+
+void SkAmbientShadowTessellator::handlePoint(const SkPoint& p)  {
     // skip duplicate points
     if (!fInitPoints.isEmpty() && duplicate_pt(p, fInitPoints[fInitPoints.count() - 1])) {
         return;
@@ -769,7 +832,6 @@ private:
     bool computeConvexShadow(SkScalar radius);
     bool computeConcaveShadow(SkScalar radius);
 
-    void handleLine(const SkPoint& p) override;
     bool handlePolyPoint(const SkPoint& p);
 
     void mapPoints(SkScalar scale, const SkVector& xlate, SkPoint* pts, int count);
@@ -788,10 +850,7 @@ private:
 
     SkTDArray<SkPoint>  fClipPolygon;
     SkTDArray<SkVector> fClipVectors;
-    SkPoint             fCentroid;
-    SkScalar            fArea;
 
-    SkTDArray<SkPoint>  fPathPolygon;
     SkTDArray<SkPoint>  fUmbraPolygon;
     int                 fCurrClipPoint;
     int                 fCurrUmbraPoint;
@@ -906,24 +965,12 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
         }
     }
 
-    if (ctm.hasPerspective()) {
-        for (int i = 0; i < fPositions.count(); ++i) {
-            SkScalar pathZ = fTransformedHeightFunc(fPositions[i]);
-            SkScalar factor = SkScalarInvert(fLightZ - pathZ);
-            fPositions[i].fX = (fPositions[i].fX*fLightZ - lightPos.fX*pathZ)*factor;
-        }
-    }
-
     if (fIsConvex) {
         if (!this->computeConvexShadow(radius)) {
             return;
         }
-    } else {
-        // For now
+    } else if (fTransparent || !this->computeConcaveShadow(radius)) {
         return;
-        //if (!this->computeConcaveShadow(radius)) {
-        //    return;
-        //}
     }
 
     if (ctm.hasPerspective()) {
@@ -1390,33 +1437,6 @@ void SkSpotShadowTessellator::mapPoints(SkScalar scale, const SkVector& xlate,
     for (int i = 0; i < count; ++i) {
         pts[i] *= scale;
         pts[i] += xlate;
-    }
-}
-
-static bool is_collinear(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2) {
-    return (SkScalarNearlyZero(perp_dot(p0, p1, p2)));
-}
-
-void SkSpotShadowTessellator::handleLine(const SkPoint& p) {
-    // remove coincident points and add to centroid
-    if (fPathPolygon.count() > 0) {
-        const SkPoint& lastPoint = fPathPolygon[fPathPolygon.count() - 1];
-        if (duplicate_pt(p, lastPoint)) {
-            return;
-        }
-        SkScalar quadArea = lastPoint.cross(p);
-        fCentroid.fX += (p.fX + lastPoint.fX) * quadArea;
-        fCentroid.fY += (p.fY + lastPoint.fY) * quadArea;
-        fArea += quadArea;
-    }
-
-    // try to remove collinear points
-    if (fPathPolygon.count() > 1 && is_collinear(fPathPolygon[fPathPolygon.count()-2],
-                                                 fPathPolygon[fPathPolygon.count()-1],
-                                                 p)) {
-        fPathPolygon[fPathPolygon.count() - 1] = p;
-    } else {
-        *fPathPolygon.push() = p;
     }
 }
 
