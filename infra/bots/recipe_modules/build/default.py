@@ -279,4 +279,4 @@ def copy_extra_build_products(api, src, dst):
   if 'SwiftShader' in api.vars.extra_tokens:
     util.copy_whitelisted_build_products(api,
         src.join('swiftshader_out'),
-        api.vars.swarming_out_dir.join('out', 'swiftshader_out'))
+        api.vars.swarming_out_dir.join('swiftshader_out'))
