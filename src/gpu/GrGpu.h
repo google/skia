@@ -160,17 +160,8 @@ public:
      *              because of a unsupported pixel config or because no render
      *              target is currently set.
      */
-    bool readPixels(GrSurface* surface, GrSurfaceOrigin, int left, int top, int width, int height,
-                    GrColorType dstColorType, void* buffer, size_t rowBytes);
-    /**
-     * This version of readPixels doesn't take an origin. TODO: Remove origin handling from
-     * GrGpu::readPixels entirely.
-     */
     bool readPixels(GrSurface* surface, int left, int top, int width, int height,
-                    GrColorType dstColorType, void* buffer, size_t rowBytes) {
-        return this->readPixels(surface, kTopLeft_GrSurfaceOrigin, left, top, width, height,
-                                dstColorType, buffer, rowBytes);
-    }
+                    GrColorType dstColorType, void* buffer, size_t rowBytes);
 
     /**
      * Updates the pixels in a rectangle of a surface.  No sRGB/linear conversions are performed.
@@ -436,8 +427,8 @@ private:
                                      const void* data) = 0;
 
     // overridden by backend-specific derived class to perform the surface read
-    virtual bool onReadPixels(GrSurface*, GrSurfaceOrigin, int left, int top, int width, int height,
-                              GrColorType, void* buffer, size_t rowBytes) = 0;
+    virtual bool onReadPixels(GrSurface*, int left, int top, int width, int height, GrColorType,
+                              void* buffer, size_t rowBytes) = 0;
 
     // overridden by backend-specific derived class to perform the surface write
     virtual bool onWritePixels(GrSurface*, int left, int top, int width, int height, GrColorType,
