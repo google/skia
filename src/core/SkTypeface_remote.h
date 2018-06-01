@@ -17,6 +17,8 @@
 #include "SkScalerContext.h"
 #include "SkTypeface.h"
 
+class SkTypefaceProxy;
+
 class SkScalerContextProxy : public SkScalerContext {
 public:
     SkScalerContextProxy(sk_sp<SkTypeface> tf,
@@ -32,6 +34,7 @@ protected:
     void generateImage(const SkGlyph& glyph) override;
     bool generatePath(SkGlyphID glyphID, SkPath* path) override;
     void generateFontMetrics(SkPaint::FontMetrics* metrics) override;
+    SkTypefaceProxy* getProxyTypeface() const;
 
 private:
     // Copied from SkGlyphCache
@@ -40,7 +43,7 @@ private:
     static constexpr size_t kMinGlyphImageSize = 16 /* height */ * 8 /* width */;
     static constexpr size_t kMinAllocAmount = kMinGlyphImageSize * kMinGlyphCount;
 
-    SkArenaAlloc          fAlloc{kMinAllocAmount};
+    SkArenaAlloc                                    fAlloc{kMinAllocAmount};
     sk_sp<SkStrikeClient::DiscardableHandleManager> fDiscardableManager;
     typedef SkScalerContext INHERITED;
 };
@@ -51,13 +54,16 @@ public:
                     int glyphCount,
                     const SkFontStyle& style,
                     bool isFixed,
-                    sk_sp<SkStrikeClient::DiscardableHandleManager> manager)
+                    sk_sp<SkStrikeClient::DiscardableHandleManager> manager,
+                    bool isLogging = true)
             : INHERITED{style, false}
             , fFontId{fontId}
             , fGlyphCount{glyphCount}
+            , fIsLogging{isLogging}
             , fDiscardableManager{std::move(manager)} {}
     SkFontID remoteTypefaceID() const {return fFontId;}
     int glyphCount() const {return fGlyphCount;}
+    bool isLogging() const {return fIsLogging;}
 
 protected:
     int onGetUPEM() const override { SK_ABORT("Should never be called."); return 0; }
@@ -125,10 +131,11 @@ protected:
     }
 
 private:
-    const SkFontID        fFontId;
-    const int             fGlyphCount;
-
+    const SkFontID                                  fFontId;
+    const int                                       fGlyphCount;
+    const bool                                      fIsLogging;
     sk_sp<SkStrikeClient::DiscardableHandleManager> fDiscardableManager;
+
 
     typedef SkTypeface INHERITED;
 };

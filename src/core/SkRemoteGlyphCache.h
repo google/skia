@@ -209,7 +209,7 @@ public:
         virtual void NotifyCacheMiss(CacheMissType) {}
     };
 
-    SkStrikeClient(sk_sp<DiscardableHandleManager>);
+    SkStrikeClient(sk_sp<DiscardableHandleManager>, bool isLogging = true);
     ~SkStrikeClient();
 
     // Deserializes the typeface previously serialized using the SkStrikeServer. Returns null if the
@@ -229,6 +229,7 @@ private:
 
     SkTHashMap<SkFontID, sk_sp<SkTypeface>> fRemoteFontIdToTypeface;
     sk_sp<DiscardableHandleManager> fDiscardableHandleManager;
+    const bool fIsLogging;
 };
 
 #endif  // SkRemoteGlyphCache_DEFINED

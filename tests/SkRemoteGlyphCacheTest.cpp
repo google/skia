@@ -106,7 +106,7 @@ SkBitmap RasterBlob(sk_sp<SkTextBlob> blob, int width, int height, const SkPaint
 DEF_TEST(SkRemoteGlyphCache_TypefaceSerialization, reporter) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
     SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager);
+    SkStrikeClient client(discardableManager, false);
 
     auto server_tf = SkTypeface::MakeDefault();
     auto tf_data = server.serializeTypeface(server_tf.get());
@@ -123,7 +123,7 @@ DEF_TEST(SkRemoteGlyphCache_TypefaceSerialization, reporter) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_StrikeSerialization, reporter, ctxInfo) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
     SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager);
+    SkStrikeClient client(discardableManager, false);
     const SkPaint paint;
 
     // Server.
@@ -157,7 +157,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_StrikeSerialization, repor
 DEF_TEST(SkRemoteGlyphCache_StrikeLockingServer, reporter) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
     SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager);
+    SkStrikeClient client(discardableManager, false);
 
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
     server.serializeTypeface(serverTf.get());
@@ -191,7 +191,7 @@ DEF_TEST(SkRemoteGlyphCache_StrikeLockingServer, reporter) {
 DEF_TEST(SkRemoteGlyphCache_StrikeDeletionServer, reporter) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
     SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager);
+    SkStrikeClient client(discardableManager, false);
 
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
     server.serializeTypeface(serverTf.get());
@@ -219,7 +219,7 @@ DEF_TEST(SkRemoteGlyphCache_StrikeDeletionServer, reporter) {
 DEF_TEST(SkRemoteGlyphCache_StrikePinningClient, reporter) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
     SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager);
+    SkStrikeClient client(discardableManager, false);
 
     // Server.
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
@@ -258,7 +258,7 @@ DEF_TEST(SkRemoteGlyphCache_StrikePinningClient, reporter) {
 DEF_TEST(SkRemoteGlyphCache_ClientMemoryAccounting, reporter) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
     SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager);
+    SkStrikeClient client(discardableManager, false);
 
     // Server.
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
@@ -287,7 +287,7 @@ DEF_TEST(SkRemoteGlyphCache_ClientMemoryAccounting, reporter) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsPath, reporter, ctxInfo) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
     SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager);
+    SkStrikeClient client(discardableManager, false);
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(0);
@@ -325,7 +325,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsPath, reporter, 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT, reporter, ctxInfo) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
     SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager);
+    SkStrikeClient client(discardableManager, false);
     SkPaint paint;
 
     // A perspective transform forces fallback to dft.
@@ -371,7 +371,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT, reporter, c
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_CacheMissReporting, reporter, ctxInfo) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
     SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager);
+    SkStrikeClient client(discardableManager, false);
 
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
     auto tfData = server.serializeTypeface(serverTf.get());
