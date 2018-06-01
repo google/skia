@@ -35,7 +35,7 @@ public:
     ~MemoryPoolAccessor() { gOpPoolSpinLock.release(); }
 #endif
 
-    GrMemoryPool* pool() const {
+    GrMemoryPool* pool1() const {
         static GrMemoryPool gPool(16384, 16384);
         return &gPool;
     }
@@ -46,12 +46,13 @@ int32_t GrOp::gCurrOpClassID = GrOp::kIllegalOpID;
 
 int32_t GrOp::gCurrOpUniqueID = GrOp::kIllegalOpID;
 
+delete these
 void* GrOp::operator new(size_t size) {
-    return MemoryPoolAccessor().pool()->allocate(size);
+    return MemoryPoolAccessor().pool1()->allocate(size);
 }
 
 void GrOp::operator delete(void* target) {
-    return MemoryPoolAccessor().pool()->release(target);
+    return MemoryPoolAccessor().pool1()->release(target);
 }
 
 GrOp::GrOp(uint32_t classID)

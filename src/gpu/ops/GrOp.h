@@ -10,6 +10,7 @@
 
 #include "../private/SkAtomics.h"
 #include "GrGpuResource.h"
+#include "GrMemoryPool.h"
 #include "GrNonAtomicRef.h"
 #include "GrTracing.h"
 #include "GrXferProcessor.h"
@@ -66,6 +67,12 @@ class GrOp : private SkNoncopyable {
 public:
     GrOp(uint32_t classID);
     virtual ~GrOp();
+
+    template <typename Op, typename... OpArgs>
+    static std::unique_ptr<Op> Gimme(GrMemoryPool* pool, OpArgs&&... opArgs) {
+        char* mem = (char*) pool->allocate(sizeof(Op));
+        return std::unique_ptr<Op>(new (mem) Op(std::forward<OpArgs>(opArgs)...));
+    }
 
     virtual const char* name() const = 0;
 
