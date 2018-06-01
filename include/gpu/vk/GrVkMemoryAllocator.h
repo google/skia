@@ -28,7 +28,7 @@ public:
         // The allocation will be mapped immediately and stay mapped until it is destroyed. This
         // flag is only valid for buffers which are host visible (i.e. must have a usage other than
         // BufferUsage::kGpuOnly).
-        kPersistentlyMapped  = 0x3,
+        kPersistentlyMapped  = 0x4,
     };
 
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(AllocationPropertyFlags);

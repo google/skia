@@ -41,8 +41,23 @@ bool GrVkMemory::AllocAndBindBufferMemory(const GrVkGpu* gpu,
 
     GrVkMemoryAllocator::BufferUsage usage = get_buffer_usage(type, dynamic);
 
-    if (!allocator->allocateMemoryForBuffer(buffer, usage, AllocationPropertyFlags::kNone,
-                                            &memory)) {
+    AllocationPropertyFlags propFlags;
+    if (usage == GrVkMemoryAllocator::BufferUsage::kCpuWritesGpuReads) {
+        // In general it is always fine (and often better) to keep buffers always mapped.
+        // TODO: According to AMDs guide for the VulkanMemoryAllocator they suggest there are two
+        // cases when keeping it mapped can hurt. The first is when running on Win7 or Win8 (Win 10
+        // is fine). In general, by the time Vulkan ships it is probably less likely to be running
+        // on non Win10 or newer machines. The second use case is if running on an AMD card and you
+        // are using the special GPU local and host mappable memory. However, in general we don't
+        // pick this memory as we've found it slower than using the cached host visible memory. In
+        // the future if we find the need to special case either of these two issues we can add
+        // checks for them here.
+        propFlags = AllocationPropertyFlags::kPersistentlyMapped;
+    } else {
+        propFlags = AllocationPropertyFlags::kNone;
+    }
+
+    if (!allocator->allocateMemoryForBuffer(buffer, usage, propFlags, &memory)) {
         return false;
     }
     allocator->getAllocInfo(memory, alloc);
