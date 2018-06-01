@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e8822f6b_dbc4d305",
+        "filename": "include/gpu/vk/GrVkMemoryAllocator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-01T17:36:06Z",
+      "side": 1,
+      "message": "Haha yeah I didn\u0027t make it easy on myself trying to debug that and the weird behaviors it was causing",
+      "parentUuid": "d167bee0_4e7f1158",
+      "range": {
+        "startLine": 31,
+        "startChar": 31,
+        "endLine": 31,
+        "endChar": 34
+      },
+      "revId": "42fd7d6dc37d22cd7888a7c12da3e564b47546f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "db5cde39_4cdcf4e5",
         "filename": "src/gpu/vk/GrVkMemory.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "42fd7d6dc37d22cd7888a7c12da3e564b47546f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57e21ce3_6e65e680",
+        "filename": "src/gpu/vk/GrVkMemory.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-01T17:36:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db5cde39_4cdcf4e5",
+      "range": {
+        "startLine": 46,
+        "startChar": 22,
+        "endLine": 46,
+        "endChar": 25
+      },
+      "revId": "42fd7d6dc37d22cd7888a7c12da3e564b47546f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
