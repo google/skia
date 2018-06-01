@@ -130,7 +130,8 @@ bool GrVkAMDMemoryAllocator::allocateMemoryForBuffer(VkBuffer buffer, BufferUsag
         info.preferredFlags |= VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT;
     }
 
-    if ((AllocationPropertyFlags::kPersistentlyMapped & flags) && BufferUsage::kGpuOnly != usage) {
+    if (AllocationPropertyFlags::kPersistentlyMapped & flags) {
+        SkASSERT(BufferUsage::kGpuOnly != usage);
         info.flags |= VMA_ALLOCATION_CREATE_MAPPED_BIT;
     }
 
