@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "160653db_0d4aca3f",
+        "filename": "src/core/SkTypeface_remote.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 7831
+      },
+      "writtenOn": "2018-06-01T19:49:28Z",
+      "side": 1,
+      "message": "This also removes it from prod code. Is there anyway it could be disabled for tests only?",
+      "range": {
+        "startLine": 36,
+        "startChar": 4,
+        "endLine": 36,
+        "endChar": 86
+      },
+      "revId": "021e5863313cda6ccf55891320ee1433fd32f398",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
