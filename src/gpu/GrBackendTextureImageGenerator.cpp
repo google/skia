@@ -181,8 +181,8 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
     }
 
     // We can't pass the fact that this creates a wrapped texture into createLazyProxy so we need
-    // to manually call setDoesNotSupportMipMaps.
-    if (GrMipMapped::kNo == mipMapped) {
+    // to manually call setDoesNotSupportMipMaps. GL does allow mip generation for wrapped textures.
+    if (GrMipMapped::kNo == mipMapped && context->contextPriv().getBackend() != kOpenGL_GrBackend) {
         proxy->texPriv().setDoesNotSupportMipMaps();
     }
 
