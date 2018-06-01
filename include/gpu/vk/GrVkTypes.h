@@ -71,10 +71,6 @@ private:
     bool fUsesSystemHeap;
 };
 struct GrVkImageInfo {
-    /**
-     * If the image's format is sRGB (GrVkFormatIsSRGB returns true), then the image must have
-     * been created with VkImageCreateFlags containing VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT.
-     */
     VkImage        fImage;
     GrVkAlloc      fAlloc;
     VkImageTiling  fImageTiling;

@@ -68,7 +68,7 @@ public:
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, uint32_t flags = 0);
 
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, const GrMipLevel texels[],
-                                   int mipLevelCount, SkDestinationSurfaceColorMode mipColorMode);
+                                   int mipLevelCount);
 
     // Create a potentially loose fit texture with the provided data
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, SkBackingFit,

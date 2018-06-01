@@ -329,12 +329,12 @@ int GrContext::maxTextureSize() const { return fCaps->maxTextureSize(); }
 int GrContext::maxRenderTargetSize() const { return fCaps->maxRenderTargetSize(); }
 
 bool GrContext::colorTypeSupportedAsImage(SkColorType colorType) const {
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(colorType, nullptr, *fCaps);
+    GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
     return fCaps->isConfigTexturable(config);
 }
 
 int GrContext::maxSurfaceSampleCountForColorType(SkColorType colorType) const {
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(colorType, nullptr, *fCaps);
+    GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
     return fCaps->maxRenderTargetSampleCount(config);
 }
 
@@ -654,8 +654,6 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
         GrPaint paint;
         paint.addColorFragmentProcessor(std::move(fp));
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-        paint.setAllowSRGBInputs(dst->colorSpaceInfo().isGammaCorrect() ||
-                                 GrPixelConfigIsSRGB(dst->colorSpaceInfo().config()));
         SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
         renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, matrix, rect,
                                         nullptr);
@@ -814,7 +812,6 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
             GrPaint paint;
             paint.addColorFragmentProcessor(std::move(fp));
             paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-            paint.setAllowSRGBInputs(true);
             SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
             tempRTC->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), rect,
                                 nullptr);

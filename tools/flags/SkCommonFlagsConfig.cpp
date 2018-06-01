@@ -430,17 +430,6 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(
         // samples and we couldn't test the mixed samples backend for simple shapes.
         fContextOverrides |= ContextOverrides::kDisableNVPR;
     }
-    // Subtle logic: If the config has a color space attached, we're going to be rendering to sRGB,
-    // so we need that capability. In addition, to get the widest test coverage, we DO NOT require
-    // that we can disable sRGB decode. (That's for rendering sRGB sources to legacy surfaces).
-    //
-    // If the config doesn't have a color space attached, we're going to be rendering in legacy
-    // mode. In that case, we don't require sRGB capability and we defer to the client to decide on
-    // sRGB decode control.
-    if (fColorSpace) {
-        fContextOverrides |= ContextOverrides::kRequireSRGBSupport;
-        fContextOverrides |= ContextOverrides::kAllowSRGBWithoutDecodeControl;
-    }
     if (!useStencilBuffers) {
         fContextOverrides |= ContextOverrides::kAvoidStencilBuffers;
     }

@@ -157,7 +157,7 @@ sk_sp<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
         return nullptr;
     }
 
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(origInfo, *context->contextPriv().caps());
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(origInfo);
     if (kUnknown_GrPixelConfig == config) {
         return nullptr;
     }
