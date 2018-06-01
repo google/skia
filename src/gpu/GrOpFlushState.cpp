@@ -83,36 +83,13 @@ void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload) {
                                                      int width, int height,
                                                      GrColorType srcColorType, const void* buffer,
                                                      size_t rowBytes) {
-        // We don't allow srgb conversions via op flush state uploads.
-        static constexpr auto kSRGBConversion = GrSRGBConversion::kNone;
         GrSurface* dstSurface = dstProxy->priv().peekSurface();
-        GrGpu::DrawPreference drawPreference = GrGpu::kNoDraw_DrawPreference;
-        GrGpu::WritePixelTempDrawInfo tempInfo;
-        if (!fGpu->getWritePixelsInfo(dstSurface, dstProxy->origin(), width, height, srcColorType,
-                                      kSRGBConversion, &drawPreference, &tempInfo)) {
+        if (!fGpu->caps()->surfaceSupportsWritePixels(dstSurface) &&
+            fGpu->caps()->supportedWritePixelsColorType(dstSurface->config(), srcColorType) != srcColorType) {
             return false;
         }
-        if (GrGpu::kNoDraw_DrawPreference == drawPreference) {
-            return this->fGpu->writePixels(dstSurface, dstProxy->origin(), left, top, width, height,
-                                           srcColorType, buffer, rowBytes);
-        }
-        // TODO: Shouldn't we be bailing here if a draw is really required instead of a copy?
-        // e.g. if (tempInfo.fSwizzle != "RGBA") fail.
-        GrSurfaceDesc desc;
-        desc.fWidth = width;
-        desc.fHeight = height;
-        desc.fConfig = dstProxy->config();
-        sk_sp<GrTexture> temp(this->fResourceProvider->createApproxTexture(
-                desc, GrResourceProvider::kNoPendingIO_Flag));
-        if (!temp) {
-            return false;
-        }
-        if (!fGpu->writePixels(temp.get(), dstProxy->origin(), 0, 0, width, height,
-                               tempInfo.fWriteColorType, buffer, rowBytes)) {
-            return false;
-        }
-        return fGpu->copySurface(dstSurface, dstProxy->origin(), temp.get(), dstProxy->origin(),
-                                 SkIRect::MakeWH(width, height), {left, top});
+        return this->fGpu->writePixels(dstSurface, dstProxy->origin(), left, top, width, height,
+                                       srcColorType, buffer, rowBytes);
     };
     upload(wp);
 }

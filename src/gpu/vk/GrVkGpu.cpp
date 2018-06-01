@@ -327,54 +327,6 @@ GrBuffer* GrVkGpu::onCreateBuffer(size_t size, GrBufferType type, GrAccessPatter
     return buff;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin, int width,
-                                   int height, GrColorType srcColorType,
-                                   DrawPreference* drawPreference,
-                                   WritePixelTempDrawInfo* tempDrawInfo) {
-    // We don't want to introduce a sRGB conversion if we trigger a draw.
-    auto srcConfigSRGBEncoded = GrPixelConfigIsSRGBEncoded(dstSurface->config());
-    if (*drawPreference != kNoDraw_DrawPreference) {
-        // We assume the base class has only inserted a draw for sRGB reasons. So the temp surface
-        // has the config of the original src data. There is no swizzling nor src config spoofing.
-        SkASSERT(tempDrawInfo->fWriteColorType == srcColorType);
-        SkASSERT(GrPixelConfigToColorType(tempDrawInfo->fTempSurfaceDesc.fConfig) == srcColorType);
-        SkASSERT(tempDrawInfo->fSwizzle == GrSwizzle::RGBA());
-        // Don't undo a sRGB conversion introduced by our caller via an intermediate draw.
-        srcConfigSRGBEncoded = GrPixelConfigIsSRGBEncoded(tempDrawInfo->fTempSurfaceDesc.fConfig);
-    }
-    if (GrColorTypeIsAlphaOnly(srcColorType)) {
-        srcConfigSRGBEncoded = GrSRGBEncoded::kNo;
-    }
-    GrRenderTarget* renderTarget = dstSurface->asRenderTarget();
-
-    if (GrPixelConfigToColorType(dstSurface->config()) == srcColorType) {
-        // We only support writing pixels to textures. Forcing a draw lets us write to pure RTs.
-        if (!dstSurface->asTexture()) {
-            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-        }
-        // If the dst is MSAA, we have to draw, or we'll just be writing to the resolve target.
-        if (renderTarget && renderTarget->numColorSamples() > 1) {
-            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-        }
-        return true;
-    }
-
-    // Any color type change requires a draw
-    ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-
-    auto srcAsConfig = GrColorTypeToPixelConfig(srcColorType, srcConfigSRGBEncoded);
-    SkASSERT(srcAsConfig != kUnknown_GrPixelConfig);
-    bool configsAreRBSwaps = GrPixelConfigSwapRAndB(srcAsConfig) == dstSurface->config();
-
-    if (!this->vkCaps().isConfigTexturable(srcAsConfig) && configsAreRBSwaps) {
-        tempDrawInfo->fTempSurfaceDesc.fConfig = dstSurface->config();
-        tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
-        tempDrawInfo->fWriteColorType = GrPixelConfigToColorType(dstSurface->config());
-    }
-    return true;
-}
-
 bool GrVkGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin, int left, int top,
                             int width, int height, GrColorType srcColorType,
                             const GrMipLevel texels[], int mipLevelCount) {

@@ -31,12 +31,6 @@ public:
 
     id<MTLDevice> device() const { return fDevice; }
 
-    bool onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin, int width,
-                              int height, GrColorType srcColorType, DrawPreference*,
-                              WritePixelTempDrawInfo*) override {
-        return false;
-    }
-
     bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                        GrSurface* src, GrSurfaceOrigin srcOrigin,
                        const SkIRect& srcRect,
