@@ -165,8 +165,8 @@ private:
     GrBuffer* onCreateBuffer(size_t size, GrBufferType type, GrAccessPattern,
                              const void* data) override;
 
-    bool onReadPixels(GrSurface* surface, GrSurfaceOrigin, int left, int top, int width, int height,
-                      GrColorType, void* buffer, size_t rowBytes) override;
+    bool onReadPixels(GrSurface* surface, int left, int top, int width, int height, GrColorType,
+                      void* buffer, size_t rowBytes) override;
 
     bool onWritePixels(GrSurface* surface, int left, int top, int width, int height, GrColorType,
                        const GrMipLevel texels[], int mipLevelCount) override;
