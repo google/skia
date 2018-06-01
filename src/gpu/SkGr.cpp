@@ -67,17 +67,12 @@ void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& ima
 
 //////////////////////////////////////////////////////////////////////////////
 sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrProxyProvider* proxyProvider,
-                                                   const SkBitmap& bitmap,
-                                                   SkColorSpace* dstColorSpace) {
+                                                   const SkBitmap& bitmap) {
     if (!bitmap.peekPixels(nullptr)) {
         return nullptr;
     }
 
-    SkDestinationSurfaceColorMode colorMode = dstColorSpace
-        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
-        : SkDestinationSurfaceColorMode::kLegacy;
-
-    if (!SkImageInfoIsValid(bitmap.info(), colorMode)) {
+    if (!SkImageInfoIsValid(bitmap.info())) {
         return nullptr;
     }
 
