@@ -31,7 +31,7 @@ class iOSFlavor(default.DefaultFlavor):
 
     # Install the app.
     for app_name in ['dm', 'nanobench']:
-      app_package = self.host_dirs.bin_dir.join('%s.app' % app_name)
+      app_package = self.m.vars.skia_out.join('%s.app' % app_name)
 
       def uninstall_app(attempt):
         # If app ID changes, upgrade will fail, so try uninstalling.

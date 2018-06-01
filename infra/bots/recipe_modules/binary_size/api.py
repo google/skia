@@ -10,7 +10,7 @@ from recipe_engine import config_types
 class BinarySizeApi(recipe_api.RecipeApi):
   def run_analysis(self, skia_dir, dest_file):
     cmd = ['python', self.resource('run_binary_size_analysis.py'),
-           '--library', self.m.vars.build_dir.join('libskia.so'),
+           '--library', self.m.vars.skia_out.join('libskia.so'),
            '--githash', self.m.properties['revision'],
            '--dest', dest_file]
     if self.m.vars.is_trybot:

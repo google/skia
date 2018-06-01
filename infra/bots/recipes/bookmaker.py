@@ -46,7 +46,7 @@ def RunSteps(api):
 
   skia_dir = checkout_root.join('skia')
   with api.context(cwd=skia_dir, env=api.infra.go_env):
-    bookmaker_binary = api.vars.build_dir.join('bookmaker')
+    bookmaker_binary = api.vars.skia_out.join('bookmaker')
     buildername = api.vars.builder_name
 
     if 'PerCommit' in buildername:

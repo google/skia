@@ -79,7 +79,7 @@
     "cmd": [
       "ideviceinstaller",
       "-i",
-      "[START_DIR]/build/dm.app"
+      "[START_DIR]/build/out/Release/dm.app"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
@@ -109,7 +109,7 @@
     "cmd": [
       "ideviceinstaller",
       "-i",
-      "[START_DIR]/build/dm.app"
+      "[START_DIR]/build/out/Release/dm.app"
     ],
     "env": {
       "CHROME_HEADLESS": "1",

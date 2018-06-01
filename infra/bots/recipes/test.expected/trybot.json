@@ -203,7 +203,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/build/dm",
+      "[START_DIR]/build/out/Debug/dm",
       "--resourcePath",
       "[START_DIR]/skia/resources",
       "--skps",

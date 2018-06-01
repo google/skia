@@ -122,7 +122,7 @@ class ChromebookFlavor(default.DefaultFlavor):
     if name == 'nanobench':
       self.create_clean_host_dir(self.host_dirs.perf_data_dir)
 
-    app = self.host_dirs.bin_dir.join(cmd[0])
+    app = self.m.vars.skia_out.join(cmd[0])
 
     cmd[0] = '%s/%s' % (self.device_dirs.bin_dir, cmd[0])
     self.copy_file_to_device(app, cmd[0])
