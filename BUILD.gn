@@ -1382,7 +1382,7 @@ if (skia_enable_tools) {
       ":flags",
       ":skia",
       ":tool_utils",
-      "modules/sksg:sg_tests",
+      "modules/sksg:tests",
       "//third_party/libpng",
       "//third_party/zlib",
     ]
@@ -1524,7 +1524,7 @@ if (skia_enable_tools) {
         ":tool_utils",
         ":views",
         ":xml",
-        "modules/sksg:sg_samples",
+        "modules/sksg:samples",
         "modules/skshaper",
       ]
 
