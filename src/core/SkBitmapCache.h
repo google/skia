@@ -64,10 +64,9 @@ private:
 class SkMipMapCache {
 public:
     // Note: the scaled width/height in desc must be 0, as any other value would not make sense.
-    static const SkMipMap* FindAndRef(const SkBitmapCacheDesc&, SkDestinationSurfaceColorMode,
+    static const SkMipMap* FindAndRef(const SkBitmapCacheDesc&,
                                       SkResourceCache* localCache = nullptr);
-    static const SkMipMap* AddAndRef(const SkBitmap& src, SkDestinationSurfaceColorMode,
-                                     SkResourceCache* localCache = nullptr);
+    static const SkMipMap* AddAndRef(const SkBitmap& src, SkResourceCache* localCache = nullptr);
 };
 
 #endif

@@ -47,9 +47,7 @@ GrTexture::GrTexture(GrGpu* gpu, const GrSurfaceDesc& desc, GrSLType samplerType
         : INHERITED(gpu, desc)
         , fSamplerType(samplerType)
         , fHighestFilterMode(highestFilterMode)
-        , fMipMapsStatus(mipMapsStatus)
-        // Mip color mode is explicitly set after creation via GrTexturePriv
-        , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy) {
+        , fMipMapsStatus(mipMapsStatus) {
     if (GrMipMapsStatus::kNotAllocated == fMipMapsStatus) {
         fMaxMipMapLevel = 0;
     } else {
