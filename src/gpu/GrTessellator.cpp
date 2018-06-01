@@ -1082,6 +1082,7 @@ void split_edge(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, 
         v->fID, v->fPoint.fX, v->fPoint.fY);
     Vertex* top;
     Vertex* bottom;
+    int winding = edge->fWinding;
     if (c.sweep_lt(v->fPoint, edge->fTop->fPoint)) {
         top = v;
         bottom = edge->fTop;
@@ -1095,7 +1096,7 @@ void split_edge(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, 
         bottom = edge->fBottom;
         set_bottom(edge, v, activeEdges, current, c);
     }
-    Edge* newEdge = alloc.make<Edge>(top, bottom, edge->fWinding, edge->fType);
+    Edge* newEdge = alloc.make<Edge>(top, bottom, winding, edge->fType);
     insert_edge_below(newEdge, top, c);
     insert_edge_above(newEdge, bottom, c);
     merge_collinear_edges(newEdge, activeEdges, current, c);
