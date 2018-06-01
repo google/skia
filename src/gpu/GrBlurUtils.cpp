@@ -91,6 +91,17 @@ static bool sw_draw_with_mask_filter(GrContext* context,
     }
     bm.setImmutable();
 
+
+    static int sID = 0;
+    char filename[256];
+    _snprintf(filename, 256, "D:\\src\\bugs\\img%d.png", sID++);
+    filename[255] = '\0';
+
+    SkFILEWStream file(filename);
+    SkAssertResult(file.isValid());
+
+    SkAssertResult(SkEncodeImage(&file, bm, SkEncodedImageFormat::kPNG, 100));
+
     sk_sp<SkImage> image = SkImage::MakeFromBitmap(bm);
     if (!image) {
         return false;

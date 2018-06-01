@@ -19,11 +19,11 @@ static void draw_masked_image(SkCanvas* canvas, const SkImage* image, SkScalar x
     SkMatrix matrix = SkMatrix::MakeScale(SkIntToScalar(image->width()) / mask->width(),
                                           SkIntToScalar(image->height() / mask->height()));
     SkPaint paint;
-    auto mf = SkShaderMaskFilter::Make(mask->makeShader(&matrix));
+    sk_sp<SkMaskFilter> mf = SkShaderMaskFilter::Make(mask->makeShader(&matrix));
     if (outer) {
-        mf = SkMaskFilter::MakeCompose(outer, mf);
+        mf = SkMaskFilter::MakeCompose(outer, std::move(mf));
     }
-    paint.setMaskFilter(mf);
+    paint.setMaskFilter(std::move(mf));
     paint.setAntiAlias(true);
     paint.setBlendMode(mode);
     canvas->drawImage(image, x, y, &paint);
@@ -58,13 +58,13 @@ DEF_SIMPLE_GM(shadermaskfilter_image, canvas, 560, 370) {
     canvas->scale(1.25f, 1.25f);
 
     auto image = GetResourceAsImage("images/mandrill_128.png");
-    auto mask = GetResourceAsImage("images/color_wheel.png");
+    sk_sp<SkImage> mask = GetResourceAsImage("images/color_wheel.png");
     auto blurmf = SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 5);
     auto gradmf = SkShaderMaskFilter::Make(make_shader(SkRect::MakeIWH(mask->width(),
                                                                        mask->height())));
 
-    const sk_sp<SkMaskFilter> array[] = { nullptr , blurmf, gradmf };
-    for (SkBlendMode mode : {SkBlendMode::kSrcOver, SkBlendMode::kSrcIn}) {
+    const sk_sp<SkMaskFilter> array[] = { /*nullptr ,*/ blurmf /*, gradmf*/ };
+    for (SkBlendMode mode : {SkBlendMode::kSrcOver }) { // , SkBlendMode::kSrcIn}) {
         canvas->save();
         for (sk_sp<SkMaskFilter> mf : array) {
             draw_masked_image(canvas, image.get(), 10, 10, mask.get(), mf, mode);

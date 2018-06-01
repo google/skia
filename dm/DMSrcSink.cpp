@@ -2374,10 +2374,18 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
                         }
                     }
 
+#if 0
                     // Second, run the cpu pre-processing in threads
                     SkTaskGroup().batch(tileData.count(), [&](int i) {
                         tileData[i].preprocess(compressedPictureData.get(), helper);
                     });
+#else
+                    for (int i = 0; i < tileData.count(); ++i) {
+                        if (0 == i) {
+                            tileData[i].preprocess(compressedPictureData.get(), helper);
+                        }
+                    }
+#endif
 
                     // This drops the helper's refs on all the promise images
                     helper.reset();
@@ -2386,14 +2394,18 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
                     // TODO: it would be cool to not wait until all the tiles are drawn to begin
                     // drawing to the GPU and composing to the final surface
                     for (int i = 0; i < tileData.count(); ++i) {
-                        tileData[i].draw();
+                        if (0 == i) {
+                            tileData[i].draw();
+                        }
                     }
 
                     // Finally, compose the drawn tiles into the result
                     // Note: the separation between the tiles and the final composition better
                     // matches Chrome but costs us a copy
                     for (int i = 0; i < tileData.count(); ++i) {
-                        tileData[i].compose(canvas);
+                        if (0 == i) {
+                            tileData[i].compose(canvas);
+                        }
                     }
 
                     context->flush();
