@@ -37,6 +37,10 @@
     #elif __clang_major__ < 5
         #define JUMPER_IS_SCALAR
     #endif
+
+    #if defined(JUMPER_IS_NEON) && defined(JUMPER_IS_SCALAR)
+        #undef  JUMPER_IS_NEON
+    #endif
 #endif
 
 #if defined(JUMPER_IS_SCALAR)
