@@ -310,8 +310,8 @@ bool SkBlurMaskFilterImpl::filterRectMask(SkMask* dst, const SkRect& r,
 }
 
 bool SkBlurMaskFilterImpl::filterRRectMask(SkMask* dst, const SkRRect& r,
-                                          const SkMatrix& matrix,
-                                          SkIPoint* margin, SkMask::CreateMode createMode) const {
+                                           const SkMatrix& matrix,
+                                           SkIPoint* margin, SkMask::CreateMode createMode) const {
     SkScalar sigma = computeXformedSigma(matrix);
 
     return SkBlurMask::BlurRRect(sigma, dst, r, fBlurStyle, margin, createMode);
