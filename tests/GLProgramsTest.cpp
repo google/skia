@@ -252,9 +252,6 @@ static void set_random_state(GrPaint* paint, SkRandom* random) {
     if (random->nextBool()) {
         paint->setDisableOutputConversionToSRGB(true);
     }
-    if (random->nextBool()) {
-        paint->setAllowSRGBInputs(true);
-    }
 }
 
 #endif

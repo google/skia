@@ -62,8 +62,7 @@ GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSin
 }
 
 sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                                   const GrMipLevel texels[], int mipLevelCount,
-                                                   SkDestinationSurfaceColorMode mipColorMode) {
+                                                   const GrMipLevel texels[], int mipLevelCount) {
     ASSERT_SINGLE_OWNER
 
     SkASSERT(mipLevelCount > 0);
@@ -77,12 +76,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
         return nullptr;
     }
 
-    sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, texels, mipLevelCount));
-    if (tex) {
-        tex->texturePriv().setMipColorMode(mipColorMode);
-    }
-
-    return tex;
+    return fGpu->createTexture(desc, budgeted, texels, mipLevelCount);
 }
 
 sk_sp<GrTexture> GrResourceProvider::getExactScratch(const GrSurfaceDesc& desc,

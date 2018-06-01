@@ -108,8 +108,7 @@ private:
 
     void writeSamplers(
             GrVkGpu* gpu,
-            const SkTArray<const GrResourceIOProcessor::TextureSampler*>& textureBindings,
-            bool allowSRGBInputs);
+            const SkTArray<const GrResourceIOProcessor::TextureSampler*>& textureBindings);
 
     void writeTexelBuffers(
             GrVkGpu* gpu,

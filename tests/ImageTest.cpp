@@ -485,7 +485,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsImage, reporter
         bool can = ctxInfo.grContext()->colorTypeSupportedAsImage(colorType);
         auto* gpu = ctxInfo.grContext()->contextPriv().getGpu();
         GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-                nullptr, kSize, kSize, colorType, nullptr, false, GrMipMapped::kNo);
+                nullptr, kSize, kSize, colorType, false, GrMipMapped::kNo);
         auto img =
                 SkImage::MakeFromTexture(ctxInfo.grContext(), backendTex, kTopLeft_GrSurfaceOrigin,
                                          colorType, kOpaque_SkAlphaType, nullptr);

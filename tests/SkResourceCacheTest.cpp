@@ -44,18 +44,14 @@ static void test_mipmapcache(skiatest::Reporter* reporter, SkResourceCache* cach
     src.allocN32Pixels(5, 5);
     src.setImmutable();
 
-    const SkDestinationSurfaceColorMode colorMode = SkDestinationSurfaceColorMode::kLegacy;
-
-    const SkMipMap* mipmap = SkMipMapCache::FindAndRef(SkBitmapCacheDesc::Make(src), colorMode,
-                                                       cache);
+    const SkMipMap* mipmap = SkMipMapCache::FindAndRef(SkBitmapCacheDesc::Make(src), cache);
     REPORTER_ASSERT(reporter, nullptr == mipmap);
 
-    mipmap = SkMipMapCache::AddAndRef(src, colorMode, cache);
+    mipmap = SkMipMapCache::AddAndRef(src, cache);
     REPORTER_ASSERT(reporter, mipmap);
 
     {
-        const SkMipMap* mm = SkMipMapCache::FindAndRef(SkBitmapCacheDesc::Make(src), colorMode,
-                                                       cache);
+        const SkMipMap* mm = SkMipMapCache::FindAndRef(SkBitmapCacheDesc::Make(src), cache);
         REPORTER_ASSERT(reporter, mm);
         REPORTER_ASSERT(reporter, mm == mipmap);
         mm->unref();
@@ -69,7 +65,7 @@ static void test_mipmapcache(skiatest::Reporter* reporter, SkResourceCache* cach
     check_data(reporter, mipmap, 1, kInCache, kNotLocked);
 
     // find us again
-    mipmap = SkMipMapCache::FindAndRef(SkBitmapCacheDesc::Make(src), colorMode, cache);
+    mipmap = SkMipMapCache::FindAndRef(SkBitmapCacheDesc::Make(src), cache);
     check_data(reporter, mipmap, 2, kInCache, kLocked);
 
     cache->purgeAll();
@@ -79,19 +75,18 @@ static void test_mipmapcache(skiatest::Reporter* reporter, SkResourceCache* cach
 }
 
 static void test_mipmap_notify(skiatest::Reporter* reporter, SkResourceCache* cache) {
-    const SkDestinationSurfaceColorMode colorMode = SkDestinationSurfaceColorMode::kLegacy;
     const int N = 3;
 
     SkBitmap src[N];
     for (int i = 0; i < N; ++i) {
         src[i].allocN32Pixels(5, 5);
         src[i].setImmutable();
-        SkMipMapCache::AddAndRef(src[i], colorMode, cache)->unref();
+        SkMipMapCache::AddAndRef(src[i], cache)->unref();
     }
 
     for (int i = 0; i < N; ++i) {
         const auto desc = SkBitmapCacheDesc::Make(src[i]);
-        const SkMipMap* mipmap = SkMipMapCache::FindAndRef(desc, colorMode, cache);
+        const SkMipMap* mipmap = SkMipMapCache::FindAndRef(desc, cache);
         if (cache) {
             // if cache is null, we're working on the global cache, and other threads might purge
             // it, making this check fragile.
@@ -101,7 +96,7 @@ static void test_mipmap_notify(skiatest::Reporter* reporter, SkResourceCache* ca
 
         src[i].reset(); // delete the underlying pixelref, which *should* remove us from the cache
 
-        mipmap = SkMipMapCache::FindAndRef(desc, colorMode, cache);
+        mipmap = SkMipMapCache::FindAndRef(desc, cache);
         REPORTER_ASSERT(reporter, !mipmap);
     }
 }
