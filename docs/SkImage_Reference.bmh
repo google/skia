@@ -2012,8 +2012,8 @@ By translating canvas by returned offset, Image appears stationary.
 typedef std::function<void(GrBackendTexture)> BackendTextureReleaseProc;
 ##
 
-Defines a function take one parameter of type
-GrBackendTexture with no return value.
+Defines a callback function, taking one parameter of type GrBackendTexture with
+no return value. Function is called when back-end texture is to be released.
 ##
 
 # ------------------------------------------------------------------------------
