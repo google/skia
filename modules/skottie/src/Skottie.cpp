@@ -1231,7 +1231,7 @@ sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider* provi
         std::unique_ptr<SkStream> openStream(const char[]) const { return nullptr; }
     };
 
-    const NullResourceProvider null_provider;
+    NullResourceProvider null_provider;
     const auto anim = sk_sp<Animation>(new Animation(provider ? *provider : null_provider,
                                                      std::move(version), size, fps, json, stats));
     const auto t2 = SkTime::GetMSecs();
