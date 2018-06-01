@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "1d41c353_3b3cc9e5",
+        "filename": "platform_tools/android/CMakeLists.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-01T14:04:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f54491f7_4b9936ff",
+      "range": {
+        "startLine": 9,
+        "startChar": 5,
+        "endLine": 9,
+        "endChar": 19
+      },
+      "revId": "a7c8ea135ce798a23ba141f09693aeb1753d0b05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "36706753_1c6a720f",
         "filename": "platform_tools/android/CMakeLists.txt",
         "patchSetId": 2
