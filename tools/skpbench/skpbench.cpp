@@ -381,8 +381,7 @@ int main(int argc, char** argv) {
         exitf(ExitErr::kUnavailable, "render target size %ix%i not supported by platform (max: %i)",
               width, height, ctx->maxRenderTargetSize());
     }
-    GrPixelConfig grPixConfig = SkImageInfo2GrPixelConfig(
-            config->getColorType(), config->getColorSpace(), *ctx->contextPriv().caps());
+    GrPixelConfig grPixConfig = SkColorType2GrPixelConfig(config->getColorType());
     if (kUnknown_GrPixelConfig == grPixConfig) {
         exitf(ExitErr::kUnavailable, "failed to get GrPixelConfig from SkColorType: %d",
                                      config->getColorType());

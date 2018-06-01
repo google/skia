@@ -18,7 +18,6 @@
 #include "../private/GrTypesPriv.h"
 
 class GrTexturePriv;
-enum class SkDestinationSurfaceColorMode;
 
 class GrTexture : virtual public GrSurface {
 public:
@@ -81,7 +80,6 @@ private:
     GrSamplerState::Filter        fHighestFilterMode;
     GrMipMapsStatus               fMipMapsStatus;
     int                           fMaxMipMapLevel;
-    SkDestinationSurfaceColorMode fMipColorMode;
     friend class GrTexturePriv;
 
     typedef GrSurface INHERITED;

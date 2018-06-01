@@ -424,8 +424,7 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
 
         GrContextFactory factory(grContextOpts);
         if (const GrContext* ctx = factory.get(ctxType, ctxOverrides)) {
-            GrPixelConfig grPixConfig =
-                    SkImageInfo2GrPixelConfig(colorType, colorSpace, *ctx->contextPriv().caps());
+            GrPixelConfig grPixConfig = SkColorType2GrPixelConfig(colorType);
             int supportedSampleCount =
                     ctx->contextPriv().caps()->getRenderTargetSampleCount(sampleCount, grPixConfig);
             if (sampleCount != supportedSampleCount) {

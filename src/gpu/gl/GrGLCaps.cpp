@@ -52,7 +52,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fRGBAToBGRAReadbackConversionsAreSlow = false;
     fUseBufferDataNullHint = SkToBool(GR_GL_USE_BUFFER_DATA_NULL_HINT);
     fDoManualMipmapping = false;
-    fSRGBDecodeDisableAffectsMipmaps = false;
     fClearToBoundaryValuesIsBroken = false;
     fClearTextureSupport = false;
     fDrawArraysBaseVertexIsBroken = false;
@@ -587,11 +586,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     // Safely moving textures between contexts requires fences.
     fCrossContextTextureSupport = fFenceSyncSupport;
-
-    fSRGBDecodeDisableSupport = ctxInfo.hasExtension("GL_EXT_texture_sRGB_decode");
-
-    fSRGBDecodeDisableAffectsMipmaps = fSRGBDecodeDisableSupport &&
-        kChromium_GrGLDriver != ctxInfo.driver();
 
     if (kGL_GrGLStandard == standard) {
         if (version >= GR_GL_VER(4, 1)) {
@@ -1529,8 +1523,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     }
     fConfigTable[kBGRA_8888_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
-    // We only enable srgb support if both textures and FBOs support srgb,
-    // *and* we can disable sRGB decode-on-read, to support "legacy" mode.
+    // We only enable srgb support if both textures and FBOs support srgb.
     if (kGL_GrGLStandard == standard) {
         if (ctxInfo.version() >= GR_GL_VER(3,0)) {
             fSRGBSupport = true;
@@ -1554,11 +1547,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         // See https://bug.skia.org/5329 for Adreno4xx issue.
         fSRGBWriteControl = !disableSRGBWriteControlForAdreno4xx &&
             ctxInfo.hasExtension("GL_EXT_sRGB_write_control");
-    }
-    if (contextOptions.fRequireDecodeDisableForSRGB && !fSRGBDecodeDisableSupport) {
-        // To support "legacy" L32 mode, we require the ability to turn off sRGB decode. Clients
-        // can opt-out of that requirement, if they intend to always do linear blending.
-        fSRGBSupport = false;
     }
 
     // This is very conservative, if we're on a platform where N32 is BGRA, and using ES, disable

@@ -326,7 +326,6 @@ private:
            bool fullDash, const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID())
             , fColor(paint.getColor())
-            , fAllowsSRGBInputs(paint.getAllowSRGBInputs())
             , fDisableSRGBOutputConversion(paint.getDisableOutputConversionToSRGB())
             , fFullDash(fullDash)
             , fCap(cap)
@@ -687,9 +686,6 @@ private:
         if (fDisableSRGBOutputConversion) {
             pipelineFlags |= GrPipeline::kDisableOutputConversionToSRGB_Flag;
         }
-        if (fAllowsSRGBInputs) {
-            pipelineFlags |= GrPipeline::kAllowSRGBInputs_Flag;
-        }
         const GrPipeline* pipeline = target->makePipeline(pipelineFlags, std::move(fProcessorSet),
                                                           target->detachAppliedClip());
         helper.recordDraw(target, gp.get(), pipeline);
@@ -742,7 +738,6 @@ private:
 
     SkSTArray<1, LineData, true> fLines;
     GrColor fColor;
-    bool fAllowsSRGBInputs : 1;
     bool fDisableSRGBOutputConversion : 1;
     bool fDisallowCombineOnTouchOrOverlap : 1;
     bool fUsesLocalCoords : 1;

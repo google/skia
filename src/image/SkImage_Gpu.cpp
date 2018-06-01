@@ -841,13 +841,9 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context,
     if (buildMips) {
         SkBitmap bmp;
         bmp.installPixels(*pixmap);
-        proxy = proxyProvider->createMipMapProxyFromBitmap(bmp, dstColorSpace);
+        proxy = proxyProvider->createMipMapProxyFromBitmap(bmp);
     } else {
-        SkDestinationSurfaceColorMode colorMode = dstColorSpace
-                ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
-                : SkDestinationSurfaceColorMode::kLegacy;
-
-        if (SkImageInfoIsValid(pixmap->info(), colorMode)) {
+        if (SkImageInfoIsValid(pixmap->info())) {
             ATRACE_ANDROID_FRAMEWORK("Upload Texture [%ux%u]", pixmap->width(), pixmap->height());
             // We don't need a release proc on the data in pixmap since we know we are in a
             // GrContext that has a resource provider. Thus the createTextureProxy call will

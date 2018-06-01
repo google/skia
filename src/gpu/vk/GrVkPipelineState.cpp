@@ -281,7 +281,7 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
         fSamplerDescriptorSet = gpu->resourceProvider().getSamplerDescriptorSet(fSamplerDSHandle);
         int samplerDSIdx = GrVkUniformHandler::kSamplerDescSet;
         fDescriptorSets[samplerDSIdx] = fSamplerDescriptorSet->descriptorSet();
-        this->writeSamplers(gpu, textureBindings, pipeline.getAllowSRGBInputs());
+        this->writeSamplers(gpu, textureBindings);
     }
 
     if (fNumTexelBuffers) {
@@ -372,8 +372,7 @@ void GrVkPipelineState::writeUniformBuffers(const GrVkGpu* gpu) {
 
 void GrVkPipelineState::writeSamplers(
         GrVkGpu* gpu,
-        const SkTArray<const GrResourceIOProcessor::TextureSampler*>& textureBindings,
-        bool allowSRGBInputs) {
+        const SkTArray<const GrResourceIOProcessor::TextureSampler*>& textureBindings) {
     SkASSERT(fNumSamplers == textureBindings.count());
 
     for (int i = 0; i < textureBindings.count(); ++i) {
@@ -388,7 +387,7 @@ void GrVkPipelineState::writeSamplers(
         textureResource->ref();
         fTextures.push(textureResource);
 
-        const GrVkImageView* textureView = texture->textureView(allowSRGBInputs);
+        const GrVkImageView* textureView = texture->textureView();
         textureView->ref();
         fTextureViews.push(textureView);
 

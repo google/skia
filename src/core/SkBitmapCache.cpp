@@ -330,26 +330,23 @@ static unsigned gMipMapKeyNamespaceLabel;
 
 struct MipMapKey : public SkResourceCache::Key {
 public:
-    MipMapKey(uint32_t imageID, const SkIRect& subset, SkDestinationSurfaceColorMode colorMode)
+    MipMapKey(uint32_t imageID, const SkIRect& subset)
         : fImageID(imageID)
-        , fColorMode(static_cast<uint32_t>(colorMode))
         , fSubset(subset)
     {
         SkASSERT(fImageID);
         SkASSERT(!subset.isEmpty());
         this->init(&gMipMapKeyNamespaceLabel, SkMakeResourceCacheSharedIDForBitmap(fImageID),
-                   sizeof(fImageID) + sizeof(fColorMode) + sizeof(fSubset));
+                   sizeof(fImageID) + sizeof(fSubset));
     }
 
     uint32_t    fImageID;
-    uint32_t    fColorMode;
     SkIRect     fSubset;
 };
 
 struct MipMapRec : public SkResourceCache::Rec {
-    MipMapRec(uint32_t imageID, const SkIRect& subset, SkDestinationSurfaceColorMode colorMode,
-              const SkMipMap* result)
-        : fKey(imageID, subset, colorMode)
+    MipMapRec(uint32_t imageID, const SkIRect& subset, const SkMipMap* result)
+        : fKey(imageID, subset)
         , fMipMap(result)
     {
         fMipMap->attachToCacheAndRef();
@@ -387,11 +384,10 @@ private:
 }
 
 const SkMipMap* SkMipMapCache::FindAndRef(const SkBitmapCacheDesc& desc,
-                                          SkDestinationSurfaceColorMode colorMode,
                                           SkResourceCache* localCache) {
     SkASSERT(desc.fScaledWidth == 0);
     SkASSERT(desc.fScaledHeight == 0);
-    MipMapKey key(desc.fImageID, desc.fSubset, colorMode);
+    MipMapKey key(desc.fImageID, desc.fSubset);
     const SkMipMap* result;
 
     if (!CHECK_LOCAL(localCache, find, Find, key, MipMapRec::Finder, &result)) {
@@ -405,13 +401,10 @@ static SkResourceCache::DiscardableFactory get_fact(SkResourceCache* localCache)
                       : SkResourceCache::GetDiscardableFactory();
 }
 
-const SkMipMap* SkMipMapCache::AddAndRef(const SkBitmap& src,
-                                         SkDestinationSurfaceColorMode colorMode,
-                                         SkResourceCache* localCache) {
-    SkMipMap* mipmap = SkMipMap::Build(src, colorMode, get_fact(localCache));
+const SkMipMap* SkMipMapCache::AddAndRef(const SkBitmap& src, SkResourceCache* localCache) {
+    SkMipMap* mipmap = SkMipMap::Build(src, get_fact(localCache));
     if (mipmap) {
-        MipMapRec* rec = new MipMapRec(src.getGenerationID(), get_bounds_from_bitmap(src),
-                                       colorMode, mipmap);
+        MipMapRec* rec = new MipMapRec(src.getGenerationID(), get_bounds_from_bitmap(src), mipmap);
         CHECK_LOCAL(localCache, add, Add, rec);
         src.pixelRef()->notifyAddedToCache();
     }

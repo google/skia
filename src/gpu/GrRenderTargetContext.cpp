@@ -792,10 +792,9 @@ void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy
                           &clippedSrcRect)) {
         return;
     }
-    bool allowSRGB = SkToBool(this->colorSpaceInfo().colorSpace());
     this->addDrawOp(clip, GrTextureOp::Make(std::move(proxy), filter, color, clippedSrcRect,
                                             clippedDstRect, aaType, constraint, viewMatrix,
-                                            std::move(colorSpaceXform), allowSRGB));
+                                            std::move(colorSpaceXform)));
 }
 
 void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,

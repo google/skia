@@ -10,11 +10,6 @@
 
 #include "SkImageInfo.h"
 
-enum class SkDestinationSurfaceColorMode {
-    kLegacy,
-    kGammaAndColorSpaceAware,
-};
-
 enum SkColorTypeComponentFlag {
     kRed_SkColorTypeComponentFlag    = 0x1,
     kGreen_SkColorTypeComponentFlag  = 0x2,
@@ -154,14 +149,9 @@ static inline bool SkImageInfoIsValidRenderingCS(const SkImageInfo& info) {
 
 /**
  *  Returns true if |info| contains a valid combination of width, height, colorType, alphaType,
- *  colorSpace.  Uses |colorMode| to decide how to treat color spaces.
+ *  colorSpace.
  */
-static inline bool SkImageInfoIsValid(const SkImageInfo& info,
-                                      SkDestinationSurfaceColorMode colorMode) {
-    if (SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware == colorMode) {
-        return SkImageInfoIsValidRenderingCS(info);
-    }
-
+static inline bool SkImageInfoIsValid(const SkImageInfo& info) {
     return SkImageInfoIsValidAllowNumericalCS(info);
 }
 

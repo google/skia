@@ -164,8 +164,7 @@ static bool setup_backend_objects(GrContext* context,
         }
 
         backingTexture = resourceProvider->createTexture(backingDesc, SkBudgeted::kNo, texels.get(),
-                                                         mipLevelCount,
-                                                         SkDestinationSurfaceColorMode::kLegacy);
+                                                         mipLevelCount);
         if (!backingTexture) {
             return false;
         }
@@ -191,8 +190,8 @@ static bool setup_backend_objects(GrContext* context,
         // We use this fact to initialize it with data but don't allow mipmaps
         GrMipLevel level0 = { data.get(), backingDesc.fWidth*sizeof(uint32_t) };
 
-        sk_sp<GrTexture> tmp = resourceProvider->createTexture(
-                backingDesc, SkBudgeted::kNo, &level0, 1, SkDestinationSurfaceColorMode::kLegacy);
+        sk_sp<GrTexture> tmp = resourceProvider->createTexture(backingDesc, SkBudgeted::kNo,
+                                                               &level0, 1);
         if (!tmp || !tmp->asRenderTarget()) {
             return false;
         }
@@ -219,9 +218,8 @@ static bool setup_backend_objects(GrContext* context,
             texels[i].fRowBytes = 0;
         }
 
-        backingTextureRenderTarget = resourceProvider->createTexture(
-                backingDesc, SkBudgeted::kNo, texels.get(), mipLevelCount,
-                SkDestinationSurfaceColorMode::kLegacy);
+        backingTextureRenderTarget = resourceProvider->createTexture(backingDesc, SkBudgeted::kNo,
+                                                                     texels.get(), mipLevelCount);
         if (!backingTextureRenderTarget || !backingTextureRenderTarget->asRenderTarget()) {
             return false;
         }

@@ -101,7 +101,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
 
         auto* gpu = ctxInfo.grContext()->contextPriv().getGpu();
         GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-                nullptr, kSize, kSize, colorType, nullptr, true, GrMipMapped::kNo);
+                nullptr, kSize, kSize, colorType, true, GrMipMapped::kNo);
         surf = SkSurface::MakeFromBackendTexture(ctxInfo.grContext(), backendTex,
                                                  kTopLeft_GrSurfaceOrigin, 0, colorType, nullptr,
                                                  nullptr);
@@ -128,8 +128,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
         REPORTER_ASSERT(reporter, can == SkToBool(surf), "ct: %d, can: %d, surf: %d",
                         colorType, can, SkToBool(surf));
 
-        backendTex = gpu->createTestingOnlyBackendTexture(nullptr, kSize, kSize, colorType, nullptr,
-                                                          true, GrMipMapped::kNo);
+        backendTex = gpu->createTestingOnlyBackendTexture(nullptr, kSize, kSize, colorType, true,
+                                                          GrMipMapped::kNo);
         surf = SkSurface::MakeFromBackendTexture(ctxInfo.grContext(), backendTex,
                                                  kTopLeft_GrSurfaceOrigin, kSampleCnt, colorType,
                                                  nullptr, nullptr);
@@ -182,7 +182,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_maxSurfaceSamplesForColorType, repo
         }
         auto* gpu = ctxInfo.grContext()->contextPriv().getGpu();
         GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-                nullptr, kSize, kSize, colorType, nullptr, true, GrMipMapped::kNo);
+                nullptr, kSize, kSize, colorType, true, GrMipMapped::kNo);
         if (!backendTex.isValid()) {
             continue;
         }
@@ -915,9 +915,9 @@ static void test_surface_creation_and_snapshot_with_color_space(
         const char*         fDescription;
     } testConfigs[] = {
         { kN32_SkColorType,       nullptr,          true,  "N32-nullptr" },
-        { kN32_SkColorType,       linearColorSpace, false, "N32-linear"  },
+        { kN32_SkColorType,       linearColorSpace, true,  "N32-linear"  },
         { kN32_SkColorType,       srgbColorSpace,   true,  "N32-srgb"    },
-        { kN32_SkColorType,       oddColorSpace,    false, "N32-odd"     },
+        { kN32_SkColorType,       oddColorSpace,    true,  "N32-odd"     },
         { kRGBA_F16_SkColorType,  nullptr,          true,  "F16-nullptr" },
         { kRGBA_F16_SkColorType,  linearColorSpace, true,  "F16-linear"  },
         { kRGBA_F16_SkColorType,  srgbColorSpace,   true,  "F16-srgb"    },
@@ -978,7 +978,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCreationWithColorSpace_Gpu, reporter, 
         GrGpu* gpu = context->contextPriv().getGpu();
 
         static const int kSize = 10;
-        GrPixelConfig config = SkImageInfo2GrPixelConfig(info, *context->contextPriv().caps());
+        GrPixelConfig config = SkImageInfo2GrPixelConfig(info);
         SkASSERT(kUnknown_GrPixelConfig != config);
 
         GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(

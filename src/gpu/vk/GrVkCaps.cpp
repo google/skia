@@ -29,7 +29,6 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     **************************************************************************/
     fMipMapSupport = true;   // always available in Vulkan
     fSRGBSupport = true;   // always available in Vulkan
-    fSRGBDecodeDisableSupport = true;  // always available in Vulkan
     fNPOTTextureTileSupport = true;  // always available in Vulkan
     fDiscardRenderTargetSupport = true;
     fReuseScratchTextures = true; //TODO: figure this out
@@ -477,15 +476,13 @@ void GrVkCaps::ConfigInfo::initSampleCounts(const GrVkInterface* interface,
                               VK_IMAGE_USAGE_TRANSFER_DST_BIT |
                               VK_IMAGE_USAGE_SAMPLED_BIT |
                               VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-    VkImageCreateFlags createFlags = GrVkFormatIsSRGB(format, nullptr)
-        ? VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT : 0;
     VkImageFormatProperties properties;
     GR_VK_CALL(interface, GetPhysicalDeviceImageFormatProperties(physDev,
                                                                  format,
                                                                  VK_IMAGE_TYPE_2D,
                                                                  VK_IMAGE_TILING_OPTIMAL,
                                                                  usage,
-                                                                 createFlags,
+                                                                 0,  // createFlags
                                                                  &properties));
     VkSampleCountFlags flags = properties.sampleCounts;
     if (flags & VK_SAMPLE_COUNT_1_BIT) {

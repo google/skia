@@ -54,15 +54,10 @@ public:
         kSnapVerticesToPixelCenters_Flag = 0x2,
         /** Disables conversion to sRGB from linear when writing to a sRGB destination. */
         kDisableOutputConversionToSRGB_Flag = 0x4,
-        /** Allows conversion from sRGB to linear when reading from processor's sRGB texture. */
-        kAllowSRGBInputs_Flag = 0x8,
     };
 
     static uint32_t SRGBFlagsFromPaint(const GrPaint& paint) {
         uint32_t flags = 0;
-        if (paint.getAllowSRGBInputs()) {
-            flags |= kAllowSRGBInputs_Flag;
-        }
         if (paint.getDisableOutputConversionToSRGB()) {
             flags |= kDisableOutputConversionToSRGB_Flag;
         }
@@ -185,9 +180,6 @@ public:
     bool getDisableOutputConversionToSRGB() const {
         return SkToBool(fFlags & kDisableOutputConversionToSRGB_Flag);
     }
-    bool getAllowSRGBInputs() const {
-        return SkToBool(fFlags & kAllowSRGBInputs_Flag);
-    }
     bool hasStencilClip() const {
         return SkToBool(fFlags & kHasStencilClip_Flag);
     }
@@ -209,9 +201,6 @@ public:
             }
             if (flags & GrPipeline::kDisableOutputConversionToSRGB_Flag) {
                 result.append("Disable output conversion to sRGB.\n");
-            }
-            if (flags & GrPipeline::kAllowSRGBInputs_Flag) {
-                result.append("Allow sRGB Inputs.\n");
             }
             return result;
         }

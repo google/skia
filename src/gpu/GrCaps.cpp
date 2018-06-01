@@ -44,7 +44,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fNPOTTextureTileSupport = false;
     fSRGBSupport = false;
     fSRGBWriteControl = false;
-    fSRGBDecodeDisableSupport = false;
     fDiscardRenderTargetSupport = false;
     fReuseScratchTextures = true;
     fReuseScratchBuffers = true;
@@ -156,7 +155,6 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("NPOT Texture Tile Support", fNPOTTextureTileSupport);
     writer->appendBool("sRGB Support", fSRGBSupport);
     writer->appendBool("sRGB Write Control", fSRGBWriteControl);
-    writer->appendBool("sRGB Decode Disable", fSRGBDecodeDisableSupport);
     writer->appendBool("Discard Render Target Support", fDiscardRenderTargetSupport);
     writer->appendBool("Reuse Scratch Textures", fReuseScratchTextures);
     writer->appendBool("Reuse Scratch Buffers", fReuseScratchBuffers);

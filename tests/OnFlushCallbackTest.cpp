@@ -477,7 +477,7 @@ sk_sp<GrTextureProxy> pre_create_atlas(GrContext* context) {
     save_bm(bm, "atlas-fake.png");
 #endif
 
-    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bm.info(), *context->caps());
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bm.info());
     desc.fFlags |= kRenderTarget_GrSurfaceFlag;
 
     sk_sp<GrSurfaceProxy> tmp = GrSurfaceProxy::MakeDeferred(*context->caps(),
