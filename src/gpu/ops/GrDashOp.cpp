@@ -263,11 +263,15 @@ public:
         SkScalar fPerpendicularScale;
     };
 
-    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const LineData& geometry,
-                                          SkPaint::Cap cap, AAMode aaMode, bool fullDash,
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          GrPaint&& paint,
+                                          const LineData& geometry,
+                                          SkPaint::Cap cap,
+                                          AAMode aaMode, bool fullDash,
                                           const GrUserStencilSettings* stencilSettings) {
-        return std::unique_ptr<GrDrawOp>(
-                new DashOp(std::move(paint), geometry, cap, aaMode, fullDash, stencilSettings));
+        // $$
+        return std::unique_ptr<GrDrawOp>(new DashOp(std::move(paint), geometry, cap,
+                                                    aaMode, fullDash, stencilSettings));
     }
 
     const char* name() const override { return "DashOp"; }
@@ -756,7 +760,8 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
-std::unique_ptr<GrDrawOp> GrDashOp::MakeDashLineOp(GrPaint&& paint,
+std::unique_ptr<GrDrawOp> GrDashOp::MakeDashLineOp(GrContext* context,
+                                                   GrPaint&& paint,
                                                    const SkMatrix& viewMatrix,
                                                    const SkPoint pts[2],
                                                    AAMode aaMode,
@@ -807,7 +812,7 @@ std::unique_ptr<GrDrawOp> GrDashOp::MakeDashLineOp(GrPaint&& paint,
     lineData.fIntervals[0] = intervals[0];
     lineData.fIntervals[1] = intervals[1];
 
-    return DashOp::Make(std::move(paint), lineData, cap, aaMode, fullDash, stencilSettings);
+    return DashOp::Make(context, std::move(paint), lineData, cap, aaMode, fullDash, stencilSettings);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1336,7 +1341,7 @@ GR_DRAW_OP_TEST_DEFINE(DashOp) {
 
     GrStyle style(p);
 
-    return GrDashOp::MakeDashLineOp(std::move(paint), viewMatrix, pts, aaMode, style,
+    return GrDashOp::MakeDashLineOp(context, std::move(paint), viewMatrix, pts, aaMode, style,
                                     GrGetRandomStencil(random, context));
 }
 

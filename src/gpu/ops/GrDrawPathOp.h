@@ -80,8 +80,12 @@ class GrDrawPathOp final : public GrDrawPathOpBase {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(const SkMatrix& viewMatrix, GrPaint&& paint,
-                                          GrAAType aaType, GrPath* path) {
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          const SkMatrix& viewMatrix,
+                                          GrPaint&& paint,
+                                          GrAAType aaType,
+                                          GrPath* path) {
+        // $$
         return std::unique_ptr<GrDrawOp>(
                 new GrDrawPathOp(viewMatrix, std::move(paint), aaType, path));
     }
