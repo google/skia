@@ -3004,8 +3004,8 @@ static GrGLenum filter_to_gl_min_filter(GrSamplerState::Filter filter) {
     return 0;
 }
 
-void GrGLGpu::bindTexture(int unitIdx, const GrSamplerState& samplerState, bool allowSRGBInputs,
-                          GrGLTexture* texture, GrSurfaceOrigin textureOrigin) {
+void GrGLGpu::bindTexture(int unitIdx, const GrSamplerState& samplerState, GrGLTexture* texture,
+                          GrSurfaceOrigin textureOrigin) {
     SkASSERT(texture);
 
 #ifdef SK_DEBUG
@@ -3050,24 +3050,10 @@ void GrGLGpu::bindTexture(int unitIdx, const GrSamplerState& samplerState, bool 
     newTexParams.fMinFilter = filter_to_gl_min_filter(filterMode);
     newTexParams.fMagFilter = filter_to_gl_mag_filter(filterMode);
 
-    if (this->glCaps().srgbDecodeDisableSupport() && GrPixelConfigIsSRGB(texture->config())) {
-        newTexParams.fSRGBDecode = allowSRGBInputs ? GR_GL_DECODE_EXT : GR_GL_SKIP_DECODE_EXT;
-        if (setAll || newTexParams.fSRGBDecode != oldTexParams.fSRGBDecode) {
-            this->setTextureUnit(unitIdx);
-            GL_CALL(TexParameteri(target, GR_GL_TEXTURE_SRGB_DECODE_EXT, newTexParams.fSRGBDecode));
-        }
-    }
-
 #ifdef SK_DEBUG
-    // We were supposed to ensure MipMaps were up-to-date and built correctly before getting here.
+    // We were supposed to ensure MipMaps were up-to-date before getting here.
     if (GrSamplerState::Filter::kMipMap == filterMode) {
         SkASSERT(!texture->texturePriv().mipMapsAreDirty());
-        if (GrPixelConfigIsSRGB(texture->config())) {
-            SkDestinationSurfaceColorMode colorMode = allowSRGBInputs
-                ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
-                : SkDestinationSurfaceColorMode::kLegacy;
-            SkASSERT(texture->texturePriv().mipColorMode() == colorMode);
-        }
     }
 #endif
 
@@ -3159,8 +3145,8 @@ void GrGLGpu::bindTexelBuffer(int unitIdx, GrPixelConfig texelConfig, GrGLBuffer
     }
 }
 
-void GrGLGpu::generateMipmaps(const GrSamplerState& params, bool allowSRGBInputs,
-                              GrGLTexture* texture, GrSurfaceOrigin textureOrigin) {
+void GrGLGpu::generateMipmaps(const GrSamplerState& params, GrGLTexture* texture,
+                              GrSurfaceOrigin textureOrigin) {
     SkASSERT(texture);
 
     // First, figure out if we need mips for this texture at all:
@@ -3174,17 +3160,6 @@ void GrGLGpu::generateMipmaps(const GrSamplerState& params, bool allowSRGBInputs
 
     if (GrSamplerState::Filter::kMipMap != filterMode) {
         return;
-    }
-
-    // If this is an sRGB texture and the mips were previously built the "other" way
-    // (gamma-correct vs. not), then we need to rebuild them. We don't need to check for
-    // srgbSupport - we'll *never* get an sRGB pixel config if we don't support it.
-    SkDestinationSurfaceColorMode colorMode = allowSRGBInputs
-        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
-        : SkDestinationSurfaceColorMode::kLegacy;
-    if (GrPixelConfigIsSRGB(texture->config()) &&
-        colorMode != texture->texturePriv().mipColorMode()) {
-        texture->texturePriv().markMipMapsDirty();
     }
 
     // If the mips aren't dirty, we're done:
@@ -3203,30 +3178,14 @@ void GrGLGpu::generateMipmaps(const GrSamplerState& params, bool allowSRGBInputs
     this->setScratchTextureUnit();
     GL_CALL(BindTexture(target, texture->textureID()));
 
-    // Configure sRGB decode, if necessary. This state is the only thing needed for the driver
-    // call (glGenerateMipmap) to work correctly. Our manual method dirties other state, too.
-    if (this->glCaps().srgbDecodeDisableSupport() && GrPixelConfigIsSRGB(texture->config())) {
-        GrGLenum srgbDecode = allowSRGBInputs ? GR_GL_DECODE_EXT : GR_GL_SKIP_DECODE_EXT;
-        // Command buffer's sRGB decode extension doesn't influence mipmap generation correctly.
-        // If we set this to skip_decode, it appears to suppress sRGB -> Linear for each downsample,
-        // but not the Linear -> sRGB when writing the next level. The result is that mip-chains
-        // get progressively brighter as you go down. Forcing this to 'decode' gives predictable
-        // (and only slightly incorrect) results. See crbug.com/655247 (~comment 28)
-        if (!this->glCaps().srgbDecodeDisableAffectsMipmaps()) {
-            srgbDecode = GR_GL_DECODE_EXT;
-        }
-        GL_CALL(TexParameteri(target, GR_GL_TEXTURE_SRGB_DECODE_EXT, srgbDecode));
-    }
-
     // Either do manual mipmap generation or (if that fails), just rely on the driver:
-    if (!this->generateMipmap(texture, textureOrigin, allowSRGBInputs)) {
+    if (!this->generateMipmap(texture, textureOrigin)) {
         GL_CALL(GenerateMipmap(target));
     }
 
     texture->texturePriv().markMipMapsClean();
     texture->texturePriv().setMaxMipMapLevel(SkMipMap::ComputeLevelCount(
         texture->width(), texture->height()));
-    texture->texturePriv().setMipColorMode(colorMode);
 
     // We have potentially set lots of state on the texture. Easiest to dirty it all:
     texture->textureParamsModified();
@@ -3993,7 +3952,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     int w = srcRect.width();
     int h = srcRect.height();
 
-    this->bindTexture(0, GrSamplerState::ClampNearest(), true, srcTex, srcOrigin);
+    this->bindTexture(0, GrSamplerState::ClampNearest(), srcTex, srcOrigin);
 
     GrGLIRect dstVP;
     this->bindSurfaceFBOForPixelOps(dst, GR_GL_FRAMEBUFFER, &dstVP, kDst_TempFBOTarget);
@@ -4153,8 +4112,7 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurfaceOrigin dstOr
 // Manual implementation of mipmap generation, to work around driver bugs w/sRGB.
 // Uses draw calls to do a series of downsample operations to successive mips.
 // If this returns false, then the calling code falls back to using glGenerateMipmap.
-bool GrGLGpu::generateMipmap(GrGLTexture* texture, GrSurfaceOrigin textureOrigin,
-                             bool gammaCorrect) {
+bool GrGLGpu::generateMipmap(GrGLTexture* texture, GrSurfaceOrigin textureOrigin) {
     // Our iterative downsample requires the ability to limit which level we're sampling:
     if (!this->glCaps().doManualMipmapping()) {
         return false;
@@ -4168,17 +4126,6 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, GrSurfaceOrigin textureOrigin
     // We need to be able to render to the texture for this to work:
     if (!this->glCaps().canConfigBeFBOColorAttachment(texture->config())) {
         return false;
-    }
-
-    // If we're mipping an sRGB texture, we need to ensure FB sRGB is correct:
-    if (GrPixelConfigIsSRGB(texture->config())) {
-        // If we have write-control, just set the state that we want:
-        if (this->glCaps().srgbWriteControl()) {
-            this->flushFramebufferSRGB(gammaCorrect);
-        } else if (!gammaCorrect) {
-            // If we don't have write-control we can't do non-gamma-correct mipmapping:
-            return false;
-        }
     }
 
     int width = texture->width();
@@ -4217,7 +4164,7 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, GrSurfaceOrigin textureOrigin
     // Bind the texture, to get things configured for filtering.
     // We'll be changing our base level further below:
     this->setTextureUnit(0);
-    this->bindTexture(0, GrSamplerState::ClampBilerp(), gammaCorrect, texture, textureOrigin);
+    this->bindTexture(0, GrSamplerState::ClampBilerp(), texture, textureOrigin);
 
     // Vertex data:
     if (!fMipmapProgramArrayBuffer) {

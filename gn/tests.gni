@@ -236,7 +236,6 @@ tests_sources = [
   "$_tests/SpecialImageTest.cpp",
   "$_tests/SpecialSurfaceTest.cpp",
   "$_tests/SrcOverTest.cpp",
-  "$_tests/SRGBMipMapTest.cpp",
   "$_tests/SRGBReadWritePixelsTest.cpp",
   "$_tests/SRGBTest.cpp",
   "$_tests/StreamBufferTest.cpp",
