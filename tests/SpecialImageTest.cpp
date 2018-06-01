@@ -231,8 +231,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
 
     {
         // gpu
-        const GrSurfaceDesc desc =
-                GrImageInfoToSurfaceDesc(bm.info(), *context->contextPriv().caps());
+        const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bm.info());
 
         sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(
                 desc, SkBudgeted::kNo, bm.getPixels(), bm.rowBytes());
@@ -265,7 +264,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     SkBitmap bm = create_bm();
 
-    const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bm.info(), *context->contextPriv().caps());
+    const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bm.info());
 
     sk_sp<GrTextureProxy> proxy =
             proxyProvider->createTextureProxy(desc, SkBudgeted::kNo, bm.getPixels(), bm.rowBytes());
