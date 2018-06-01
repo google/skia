@@ -838,10 +838,10 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
     SkBitmap bitmap;
     if (!proxy && this->lockAsBitmap(&bitmap, chint, format, genPixelsInfo, behavior)) {
         if (willBeMipped) {
-            proxy = proxyProvider->createMipMapProxyFromBitmap(bitmap, dstColorSpace);
+            proxy = proxyProvider->createMipMapProxyFromBitmap(bitmap);
         }
         if (!proxy) {
-            proxy = GrUploadBitmapToTextureProxy(proxyProvider, bitmap, dstColorSpace);
+            proxy = GrUploadBitmapToTextureProxy(proxyProvider, bitmap);
         }
         if (proxy && (!willBeMipped || GrMipMapped::kYes == proxy->mipMapped())) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kRGBA_LockTexturePath,
