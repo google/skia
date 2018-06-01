@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cdc50b5b_5d9d7e4c",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-01T16:06:31Z",
+      "side": 1,
+      "message": "Is this going to stay this way?  We\u0027ll moot this whole function, right?",
+      "range": {
+        "startLine": 275,
+        "startChar": 8,
+        "endLine": 276,
+        "endChar": 38
+      },
+      "revId": "d3110f0a4cf380db145e7e1db232799f762c38aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "020b96ea_0a94a3e0",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-01T16:06:31Z",
+      "side": 1,
+      "message": "Are you thinking we\u0027ll keep this all around in case we add the new color type?",
+      "range": {
+        "startLine": 282,
+        "startChar": 12,
+        "endLine": 282,
+        "endChar": 38
+      },
+      "revId": "d3110f0a4cf380db145e7e1db232799f762c38aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "803e47ad_df908fa1",
+        "filename": "tools/flags/SkCommonFlagsConfig.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-01T16:06:31Z",
+      "side": 1,
+      "message": "Is this still true?",
+      "range": {
+        "startLine": 433,
+        "startChar": 0,
+        "endLine": 434,
+        "endChar": 34
+      },
+      "revId": "d3110f0a4cf380db145e7e1db232799f762c38aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
