@@ -1776,8 +1776,8 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     return false;
 }
 
-bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left, int top, int width,
-                           int height, GrColorType dstColorType, void* buffer, size_t rowBytes) {
+bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
+                           GrColorType dstColorType, void* buffer, size_t rowBytes) {
     if (GrPixelConfigToColorType(surface->config()) != dstColorType) {
         return false;
     }
@@ -1815,7 +1815,6 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left,
 
     int bpp = GrColorTypeBytesPerPixel(dstColorType);
     size_t tightRowBytes = bpp * width;
-    bool flipY = kBottomLeft_GrSurfaceOrigin == origin;
 
     VkBufferImageCopy region;
     memset(&region, 0, sizeof(VkBufferImageCopy));
@@ -1823,16 +1822,9 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left,
     bool copyFromOrigin = this->vkCaps().mustDoCopiesFromOrigin();
     if (copyFromOrigin) {
         region.imageOffset = { 0, 0, 0 };
-        region.imageExtent = { (uint32_t)(left + width),
-                               (uint32_t)(flipY ? surface->height() - top : top + height),
-                               1
-                             };
+        region.imageExtent = { (uint32_t)(left + width), (uint32_t)(top + height), 1 };
     } else {
-        VkOffset3D offset = {
-            left,
-            flipY ? surface->height() - top - height : top,
-            0
-        };
+        VkOffset3D offset = { left, top, 0 };
         region.imageOffset = offset;
         region.imageExtent = { (uint32_t)width, (uint32_t)height, 1 };
     }
@@ -1877,17 +1869,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left,
         mappedMemory = (char*)mappedMemory + transBufferRowBytes * skipRows + bpp * left;
     }
 
-    if (flipY) {
-        const char* srcRow = reinterpret_cast<const char*>(mappedMemory);
-        char* dstRow = reinterpret_cast<char*>(buffer)+(height - 1) * rowBytes;
-        for (int y = 0; y < height; y++) {
-            memcpy(dstRow, srcRow, tightRowBytes);
-            srcRow += transBufferRowBytes;
-            dstRow -= rowBytes;
-        }
-    } else {
-        SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, tightRowBytes, height);
-    }
+    SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, tightRowBytes, height);
 
     transferBuffer->unmap();
     transferBuffer->unref();

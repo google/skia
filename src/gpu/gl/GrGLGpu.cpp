@@ -26,6 +26,7 @@
 #include "GrTexturePriv.h"
 #include "GrTypes.h"
 #include "SkAutoMalloc.h"
+#include "SkConvertPixels.h"
 #include "SkHalf.h"
 #include "SkJSONWriter.h"
 #include "SkMakeUnique.h"
@@ -1063,11 +1064,7 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
             // copy data into our new storage, skipping the trailing bytes
             const char* src = (const char*)texelsShallowCopy[currentMipLevel].fPixels;
             char* dst = buffer + individualMipOffsets[currentMipLevel];
-            for (int y = 0; y < currentHeight; y++) {
-                memcpy(dst, src, trimRowBytes);
-                src += rowBytes;
-                dst += trimRowBytes;
-            }
+            SkRectMemcpy(dst, trimRowBytes, src, rowBytes, trimRowBytes, currentHeight);
             // now point data to our copied version
             texelsShallowCopy[currentMipLevel].fPixels = buffer +
                 individualMipOffsets[currentMipLevel];
@@ -2025,8 +2022,8 @@ bool GrGLGpu::readPixelsSupported(GrSurface* surfaceForConfig, GrPixelConfig rea
     }
 }
 
-bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left, int top, int width,
-                           int height, GrColorType dstColorType, void* buffer, size_t rowBytes) {
+bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
+                           GrColorType dstColorType, void* buffer, size_t rowBytes) {
     SkASSERT(surface);
 
     GrGLRenderTarget* renderTarget = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
@@ -2043,8 +2040,8 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left,
         if (kAlpha_8_GrPixelConfig == dstAsConfig &&
             this->readPixelsSupported(surface, kRGBA_8888_GrPixelConfig)) {
             std::unique_ptr<uint32_t[]> temp(new uint32_t[width * height * 4]);
-            if (this->onReadPixels(surface, origin, left, top, width, height,
-                                   GrColorType::kRGBA_8888, temp.get(), width * 4)) {
+            if (this->onReadPixels(surface, left, top, width, height, GrColorType::kRGBA_8888,
+                                   temp.get(), width * 4)) {
                 uint8_t* dst = reinterpret_cast<uint8_t*>(buffer);
                 for (int j = 0; j < height; ++j) {
                     for (int i = 0; i < width; ++i) {
@@ -2060,8 +2057,8 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left,
         if (kRGBA_half_GrPixelConfig == dstAsConfig &&
             this->readPixelsSupported(surface, kRGBA_float_GrPixelConfig)) {
             std::unique_ptr<float[]> temp(new float[width * height * 4]);
-            if (this->onReadPixels(surface, origin, left, top, width, height,
-                                   GrColorType::kRGBA_F32, temp.get(), width * sizeof(float) * 4)) {
+            if (this->onReadPixels(surface, left, top, width, height, GrColorType::kRGBA_F32,
+                                   temp.get(), width * sizeof(float) * 4)) {
                 uint8_t* dst = reinterpret_cast<uint8_t*>(buffer);
                 float* src = temp.get();
                 for (int j = 0; j < height; ++j) {
@@ -2085,7 +2082,6 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left,
                                             &externalType)) {
         return false;
     }
-    bool flipY = kBottomLeft_GrSurfaceOrigin == origin;
 
     GrGLIRect glvp;
     if (renderTarget) {
@@ -2113,7 +2109,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left,
 
     // the read rect is viewport-relative
     GrGLIRect readRect;
-    readRect.setRelativeTo(glvp, left, top, width, height, origin);
+    readRect.setRelativeTo(glvp, left, top, width, height, kTopLeft_GrSurfaceOrigin);
 
     int bytesPerPixel = GrBytesPerPixel(dstAsConfig);
     size_t tightRowBytes = bytesPerPixel * width;
@@ -2121,8 +2117,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left,
     size_t readDstRowBytes = tightRowBytes;
     void* readDst = buffer;
 
-    // determine if GL can read using the passed rowBytes or if we need
-    // a scratch buffer.
+    // determine if GL can read using the passed rowBytes or if we need a scratch buffer.
     SkAutoSMalloc<32 * sizeof(GrColor)> scratch;
     if (rowBytes != tightRowBytes) {
         if (this->glCaps().packRowLengthSupport() && !(rowBytes % bytesPerPixel)) {
@@ -2134,9 +2129,6 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left,
             readDst = scratch.get();
         }
     }
-    if (flipY && this->glCaps().packFlipYSupport()) {
-        GL_CALL(PixelStorei(GR_GL_PACK_REVERSE_ROW_ORDER, 1));
-    }
     GL_CALL(PixelStorei(GR_GL_PACK_ALIGNMENT, config_alignment(dstAsConfig)));
 
     GL_CALL(ReadPixels(readRect.fLeft, readRect.fBottom,
@@ -2146,50 +2138,13 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left,
         SkASSERT(this->glCaps().packRowLengthSupport());
         GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, 0));
     }
-    if (flipY && this->glCaps().packFlipYSupport()) {
-        GL_CALL(PixelStorei(GR_GL_PACK_REVERSE_ROW_ORDER, 0));
-        flipY = false;
-    }
 
-    // now reverse the order of the rows, since GL's are bottom-to-top, but our
-    // API presents top-to-bottom. We must preserve the padding contents. Note
-    // that the above readPixels did not overwrite the padding.
-    if (readDst == buffer) {
-        SkASSERT(rowBytes == readDstRowBytes);
-        if (flipY) {
-            scratch.reset(tightRowBytes);
-            void* tmpRow = scratch.get();
-            // flip y in-place by rows
-            const int halfY = height >> 1;
-            char* top = reinterpret_cast<char*>(buffer);
-            char* bottom = top + (height - 1) * rowBytes;
-            for (int y = 0; y < halfY; y++) {
-                memcpy(tmpRow, top, tightRowBytes);
-                memcpy(top, bottom, tightRowBytes);
-                memcpy(bottom, tmpRow, tightRowBytes);
-                top += rowBytes;
-                bottom -= rowBytes;
-            }
-        }
-    } else {
+    if (readDst != buffer) {
         SkASSERT(readDst != buffer);
         SkASSERT(rowBytes != tightRowBytes);
-        // copy from readDst to buffer while flipping y
-        // const int halfY = height >> 1;
         const char* src = reinterpret_cast<const char*>(readDst);
         char* dst = reinterpret_cast<char*>(buffer);
-        if (flipY) {
-            dst += (height-1) * rowBytes;
-        }
-        for (int y = 0; y < height; y++) {
-            memcpy(dst, src, tightRowBytes);
-            src += readDstRowBytes;
-            if (!flipY) {
-                dst += rowBytes;
-            } else {
-                dst -= rowBytes;
-            }
-        }
+        SkRectMemcpy(dst, rowBytes, src, readDstRowBytes, tightRowBytes, height);
     }
     if (!renderTarget) {
         this->unbindTextureFBOForPixelOps(GR_GL_FRAMEBUFFER, surface);

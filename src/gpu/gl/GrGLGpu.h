@@ -231,8 +231,8 @@ private:
     // variations above, depending on whether the surface is a render target or not.
     bool readPixelsSupported(GrSurface* surfaceForConfig, GrPixelConfig readConfig);
 
-    bool onReadPixels(GrSurface*, GrSurfaceOrigin, int left, int top, int width, int height,
-                      GrColorType, void* buffer, size_t rowBytes) override;
+    bool onReadPixels(GrSurface*, int left, int top, int width, int height, GrColorType,
+                      void* buffer, size_t rowBytes) override;
 
     bool onWritePixels(GrSurface*, int left, int top, int width, int height, GrColorType,
                        const GrMipLevel texels[], int mipLevelCount) override;
