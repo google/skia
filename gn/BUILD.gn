@@ -143,7 +143,7 @@ config("default") {
     libs += [ malloc ]
   }
 
-  if (is_android && !is_android_cmake) {
+  if (is_android) {
     asmflags += [ "--target=$ndk_target" ]
     cflags += [
       "--sysroot=$ndk/sysroot",

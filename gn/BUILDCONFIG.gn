@@ -10,7 +10,6 @@ is_skia_standalone = true
 declare_args() {
   is_official_build = false
   is_component_build = false
-  is_android_cmake = false
   ndk = ""
 
   # It's nice to keep ndk_api set to what Clank targets, but probably no big deal if we can't.
@@ -38,7 +37,6 @@ declare_args() {
   skia_vulkan_sdk = getenv("VULKAN_SDK")
   skia_moltenvk_path = ""
 }
-
 declare_args() {
   is_debug = !is_official_build
 }

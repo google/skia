@@ -18,3 +18,92 @@ allprojects {
         jcenter()
     }
 }
+
+def setupSkiaLibraryBuild(project, appVariants, appName) {
+    appVariants.all{ variant ->
+        def buildNativeLib = project.task("${variant.name}_BuildSkiaLib", type:Exec) {
+            workingDir '../../../..' // top-level skia directory
+            commandLine constructBuildCommand(project, variant, appName).split()
+        }
+        buildNativeLib.onlyIf { !project.hasProperty("suppressNativeBuild") }
+
+        def copyNativeLib = project.task("${variant.name}_CopySkiaLib", type:Copy) {
+            def fromDir = getVariantOutDir(project, variant).skiaOut
+            def intoDir = getVariantOutDir(project, variant).androidOut
+            from fromDir
+            into intoDir
+            include "${appName}.so"
+        }
+
+        TaskCollection<Task> compileTask = project.tasks.matching {
+            //  println(it.name)
+            it.name.toLowerCase().contains("compile" + variant.name.toLowerCase()) &&
+                    it.name.toLowerCase().endsWith("ndk")
+        }
+        compileTask.findAll()*.dependsOn copyNativeLib
+        copyNativeLib.dependsOn buildNativeLib
+    }
+}
+
+def getLocalProperties() {
+    Properties properties = new Properties()
+    File propFile = project.rootProject.file('local.properties')
+    if (propFile.canRead()) {
+        properties.load(propFile.newDataInputStream())
+    }
+    propFile = project.rootProject.file('gradle.properties')
+    if (propFile.canRead()) {
+        properties.load(propFile.newDataInputStream())
+    }
+    return properties
+}
+
+def getVariantOutDir(project, variant) {
+    String variantPrefix = null
+    String androidLibDir = null
+    if (variant.name.startsWith("arm64")) {
+        variantPrefix = "arm64"
+        androidLibDir = "arm64-v8a"
+    } else if (variant.name.startsWith("arm")) {
+        variantPrefix = "arm"
+        androidLibDir = "armeabi-v7a"
+    } else if (variant.name.startsWith("x64")) {
+        variantPrefix = "x64"
+        androidLibDir = "x86_64"
+    } else if (variant.name.startsWith("x86")) {
+        variantPrefix = "x86"
+        androidLibDir = "x86"
+    }
+
+    String skiaOutDir = null
+    String propName = "${variantPrefix}.out.dir"
+    if (project.hasProperty(propName)) {
+        skiaOutDir = project.getProperties().getAt(propName)
+    } else {
+        skiaOutDir = getLocalProperties().getProperty(propName, "missing_variant_out")
+    }
+
+    return [skiaOut: skiaOutDir,
+            androidOut: "src/main/libs/${androidLibDir}"]
+}
+
+def constructBuildCommand(project, variant, appName) {
+    String depotToolsDir = null
+    for (String entry : System.getenv("PATH").split(":")) {
+        if (entry.contains("depot_tools")) {
+            depotToolsDir = entry;
+            break;
+        }
+    }
+    if (depotToolsDir == null) {
+        depotToolsDir = getLocalProperties().getProperty('depot_tools.dir', null)
+    }
+
+    if (depotToolsDir == null) {
+        throw GradleScriptException("Depot Tools not found! Please update your path to include" +
+                " depot_tools or define depot_tools.dir in local.properties")
+    }
+
+    String out_dir = getVariantOutDir(project, variant).skiaOut
+    return "${depotToolsDir}/ninja -C $out_dir $appName"
+}
