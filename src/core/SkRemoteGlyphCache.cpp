@@ -651,8 +651,9 @@ private:
     sk_sp<DiscardableHandleManager> fManager;
 };
 
-SkStrikeClient::SkStrikeClient(sk_sp<DiscardableHandleManager> discardableManager)
-        : fDiscardableHandleManager(std::move(discardableManager)) {}
+SkStrikeClient::SkStrikeClient(sk_sp<DiscardableHandleManager> discardableManager, bool isLogging)
+        : fDiscardableHandleManager(std::move(discardableManager))
+        , fIsLogging{isLogging} {}
 
 SkStrikeClient::~SkStrikeClient() = default;
 
@@ -780,8 +781,9 @@ sk_sp<SkTypeface> SkStrikeClient::addTypeface(const WireTypeface& wire) {
     auto* typeface = fRemoteFontIdToTypeface.find(wire.typefaceID);
     if (typeface) return *typeface;
 
-    auto newTypeface = sk_make_sp<SkTypefaceProxy>(wire.typefaceID, wire.glyphCount, wire.style,
-                                                   wire.isFixed, fDiscardableHandleManager);
+    auto newTypeface = sk_make_sp<SkTypefaceProxy>(
+            wire.typefaceID, wire.glyphCount, wire.style, wire.isFixed,
+            fDiscardableHandleManager, fIsLogging);
     fRemoteFontIdToTypeface.set(wire.typefaceID, newTypeface);
     return std::move(newTypeface);
 }
