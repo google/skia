@@ -143,9 +143,9 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
 ////////////////////////////////////////////////////////////////////////////////
 // Misc Sk to Gr type conversions
 
-GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo&, const GrCaps&);
-GrPixelConfig SkImageInfo2GrPixelConfig(const SkColorType, SkColorSpace*, const GrCaps& caps);
-GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info, const GrCaps& caps);
+GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo&);
+GrPixelConfig SkColorType2GrPixelConfig(const SkColorType);
+GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info);
 
 bool GrPixelConfigToColorType(GrPixelConfig, SkColorType*);
 
@@ -206,8 +206,7 @@ sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrContext*,
  * The bitmap must have CPU-accessible pixels. Attempts to take advantage of faster paths for
  * yuv planes.
  */
-sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrProxyProvider*, const SkBitmap&,
-                                                   SkColorSpace* dstColorSpace);
+sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrProxyProvider*, const SkBitmap&);
 
 /**
  * Creates a new texture with mipmap levels and copies the baseProxy into the base layer.

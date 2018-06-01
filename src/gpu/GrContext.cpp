@@ -329,12 +329,12 @@ int GrContext::maxTextureSize() const { return fCaps->maxTextureSize(); }
 int GrContext::maxRenderTargetSize() const { return fCaps->maxRenderTargetSize(); }
 
 bool GrContext::colorTypeSupportedAsImage(SkColorType colorType) const {
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(colorType, nullptr, *fCaps);
+    GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
     return fCaps->isConfigTexturable(config);
 }
 
 int GrContext::maxSurfaceSampleCountForColorType(SkColorType colorType) const {
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(colorType, nullptr, *fCaps);
+    GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
     return fCaps->maxRenderTargetSampleCount(config);
 }
 

@@ -57,7 +57,6 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
                                                             info.fBitmap.width(),
                                                             info.fBitmap.height(),
                                                             info.fBitmap.colorType(),
-                                                            info.fBitmap.colorSpace(),
                                                             false, GrMipMapped::kNo));
         // The GMs sometimes request too large an image
         //SkAssertResult(callbackContext->backendTexture().isValid());
