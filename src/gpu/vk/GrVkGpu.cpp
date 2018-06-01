@@ -1849,39 +1849,6 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     return false;
 }
 
-bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin, int width,
-                                  int height, size_t rowBytes, GrColorType dstColorType,
-                                  DrawPreference* drawPreference,
-                                  ReadPixelTempDrawInfo* tempDrawInfo) {
-    // We don't want to introduce a sRGB conversion if we trigger a draw.
-    auto dstConfigSRGBEncoded = GrPixelConfigIsSRGBEncoded(srcSurface->config());
-    if (*drawPreference != kNoDraw_DrawPreference) {
-        // We assume the base class has only inserted a draw for sRGB reasons. So the
-        // the temp surface has the config of the dst data. There is no swizzling nor dst config.
-        // spoofing.
-        SkASSERT(tempDrawInfo->fReadColorType == dstColorType);
-        SkASSERT(GrPixelConfigToColorType(tempDrawInfo->fTempSurfaceDesc.fConfig) == dstColorType);
-        SkASSERT(tempDrawInfo->fSwizzle == GrSwizzle::RGBA());
-        // Don't undo a sRGB conversion introduced by our caller via an intermediate draw.
-        dstConfigSRGBEncoded = GrPixelConfigIsSRGBEncoded(tempDrawInfo->fTempSurfaceDesc.fConfig);
-    }
-    if (GrColorTypeIsAlphaOnly(dstColorType)) {
-        dstConfigSRGBEncoded = GrSRGBEncoded::kNo;
-    }
-
-    if (GrPixelConfigToColorType(srcSurface->config()) == dstColorType) {
-        return true;
-    }
-
-    // Any config change requires a draw
-    ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-    tempDrawInfo->fTempSurfaceDesc.fConfig =
-            GrColorTypeToPixelConfig(dstColorType, dstConfigSRGBEncoded);
-    tempDrawInfo->fReadColorType = dstColorType;
-
-    return kUnknown_GrPixelConfig != tempDrawInfo->fTempSurfaceDesc.fConfig;
-}
-
 bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left, int top, int width,
                            int height, GrColorType dstColorType, void* buffer, size_t rowBytes) {
     if (GrPixelConfigToColorType(surface->config()) != dstColorType) {
