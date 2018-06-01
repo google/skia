@@ -353,7 +353,8 @@ void GrTextBlob::flush(GrTextUtils::Target* target, const SkSurfaceProps& props,
                 skipClip = true;
                 // We only need to do clipping work if the subrun isn't contained by the clip
                 SkRect subRunBounds;
-                this->computeSubRunBounds(&subRunBounds, runIndex, subRun, viewMatrix, x, y);
+                this->computeSubRunBounds(&subRunBounds, runIndex, subRun, viewMatrix, x, y,
+                                          false);
                 if (!clipRRect.getBounds().contains(subRunBounds)) {
                     // If the subrun is completely outside, don't add an op for it
                     if (!clipRRect.getBounds().intersects(subRunBounds)) {

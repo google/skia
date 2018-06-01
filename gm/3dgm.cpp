@@ -173,6 +173,9 @@ protected:
     SkString onShortName() override { return SkString("3dgm"); }
 
     bool onAnimate(const SkAnimTimer& timer) override {
+        if (!fAnim) {
+            return false;
+        }
         SkScalar dur = fAnim->duration();
         fAnimT = fmod(timer.secs(), dur) / dur;
         return true;

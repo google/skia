@@ -25,11 +25,6 @@ static const int kDistanceAdjustLumShift = 5;
 
 void GrAtlasTextOp::init() {
     const Geometry& geo = fGeoData[0];
-    SkRect bounds;
-    geo.fBlob->computeSubRunBounds(&bounds, geo.fRun, geo.fSubRun, geo.fViewMatrix, geo.fX, geo.fY);
-    // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
-    // we treat this as a set of non-AA rects rendered with a texture.
-    this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
     if (this->usesDistanceFields()) {
         bool isLCD = this->isLCD();
 
@@ -51,6 +46,13 @@ void GrAtlasTextOp::init() {
 
         fNeedsGlyphTransform = true;
     }
+
+    SkRect bounds;
+    geo.fBlob->computeSubRunBounds(&bounds, geo.fRun, geo.fSubRun, geo.fViewMatrix, geo.fX, geo.fY,
+                                   fNeedsGlyphTransform);
+    // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
+    // we treat this as a set of non-AA rects rendered with a texture.
+    this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
 }
 
 void GrAtlasTextOp::visitProxies(const VisitProxyFunc& func) const {
