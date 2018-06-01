@@ -132,7 +132,7 @@
       "-u",
       "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
       "[START_DIR]",
-      "[START_DIR]/build/dm",
+      "[START_DIR]/build/out/Release/dm",
       "--resourcePath",
       "[START_DIR]/skia/resources",
       "--skps",

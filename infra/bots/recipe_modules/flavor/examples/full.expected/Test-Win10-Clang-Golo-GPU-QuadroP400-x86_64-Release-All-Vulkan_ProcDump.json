@@ -163,7 +163,7 @@
       "1",
       "-x",
       "[START_DIR]/[SWARM_OUT_DIR]/dumps",
-      "[START_DIR]/build/dm",
+      "[START_DIR]/build/out/Release_x64/dm",
       "--some-flag"
     ],
     "env": {

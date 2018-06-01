@@ -137,7 +137,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/build/bookmaker",
+      "[START_DIR]/build/out/Release/bookmaker",
       "-a",
       "docs/status.json",
       "-x"

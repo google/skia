@@ -125,7 +125,7 @@ class ChromecastFlavor(android.AndroidFlavor):
                 line = line.replace(addr, addr + ' ' + sym.strip())
             print line
           """,
-          args=[self.host_dirs.bin_dir],
+          args=[self.m.vars.skia_out],
           infra_step=True,
           abort_on_failure=False)
 
@@ -145,7 +145,7 @@ class ChromecastFlavor(android.AndroidFlavor):
     return self.m.run(self.m.step, title, cmd=ssh_cmd, **kwargs)
 
   def step(self, name, cmd, **kwargs):
-    app = self.host_dirs.bin_dir.join(cmd[0])
+    app = self.m.vars.skia_out.join(cmd[0])
 
     self._adb('push %s' % cmd[0],
               'push', app, self.device_dirs.bin_dir)

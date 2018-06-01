@@ -50,6 +50,8 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     if ('Win' in self.builder_cfg.get('os', '') and arch == 'x86_64'):
       self.configuration += '_x64'
 
+    self.skia_out = self.build_dir.join('out', self.configuration)
+
     self.extra_tokens = []
     if len(self.builder_cfg.get('extra_config', '')) > 0:
       if self.builder_cfg['extra_config'].startswith('SK'):

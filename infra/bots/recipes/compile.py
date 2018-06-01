@@ -69,14 +69,16 @@ def RunSteps(api):
     api.build(checkout_root=checkout_root, out_dir=out_dir)
 
     # TODO(borenet): Move this out of the try/finally.
-    dst = api.vars.swarming_out_dir
+    dst = api.vars.swarming_out_dir.join('out', api.vars.configuration)
     if 'ParentRevision' in api.vars.builder_name:
-      dst = api.vars.swarming_out_dir.join('ParentRevision')
+      dst = api.vars.swarming_out_dir.join(
+          'ParentRevision', 'out', api.vars.configuration)
     api.build.copy_build_products(out_dir=out_dir, dst=dst)
     if 'SKQP' in api.vars.extra_tokens:
       wlist = checkout_root.join(
           'skia', 'infra','cts', 'whitelist_devices.json')
       api.file.copy('copy whitelist', wlist, dst)
+
   finally:
     if 'Win' in api.vars.builder_cfg.get('os', ''):
       api.python.inline(

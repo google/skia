@@ -161,7 +161,7 @@
       "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
       "[START_DIR]",
       "catchsegv",
-      "[START_DIR]/build/nanobench",
+      "[START_DIR]/build/out/Release/nanobench",
       "-i",
       "[START_DIR]/skia/resources",
       "--skps",

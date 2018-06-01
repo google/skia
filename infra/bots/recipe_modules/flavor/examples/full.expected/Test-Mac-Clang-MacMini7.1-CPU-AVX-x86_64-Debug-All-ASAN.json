@@ -141,7 +141,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/build/dm",
+      "[START_DIR]/build/out/Debug/dm",
       "--some-flag"
     ],
     "env": {
