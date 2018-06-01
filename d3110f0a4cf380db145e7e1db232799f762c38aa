@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "d874e539_6edbb96b",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-01T16:26:32Z",
+      "side": 1,
+      "message": "Yeah, we still have a lot of code to handle GL\u0027s sRGB format, and I\u0027d rather keep it around for the moment. My current goal is to dis-entangle sRGB pixel config from anything to do with color spaces.",
+      "parentUuid": "020b96ea_0a94a3e0",
+      "range": {
+        "startLine": 282,
+        "startChar": 12,
+        "endLine": 282,
+        "endChar": 38
+      },
+      "revId": "d3110f0a4cf380db145e7e1db232799f762c38aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "803e47ad_df908fa1",
         "filename": "tools/flags/SkCommonFlagsConfig.cpp",
         "patchSetId": 10
@@ -68,6 +92,30 @@
       "revId": "d3110f0a4cf380db145e7e1db232799f762c38aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5ea3b74_3437c838",
+        "filename": "tools/flags/SkCommonFlagsConfig.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-01T16:26:32Z",
+      "side": 1,
+      "message": "No, that\u0027s actually not true, either. Good point.",
+      "parentUuid": "803e47ad_df908fa1",
+      "range": {
+        "startLine": 433,
+        "startChar": 0,
+        "endLine": 434,
+        "endChar": 34
+      },
+      "revId": "d3110f0a4cf380db145e7e1db232799f762c38aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
