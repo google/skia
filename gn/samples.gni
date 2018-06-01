@@ -50,6 +50,7 @@ samples_sources = [
   "$_samplecode/SampleFlutterAnimate.cpp",
   "$_samplecode/SampleFontScalerTest.cpp",
   "$_samplecode/SampleFuzz.cpp",
+  "$_samplecode/SampleGlyphTransform.cpp",
   "$_samplecode/SampleGradients.cpp",
   "$_samplecode/SampleHairCurves.cpp",
   "$_samplecode/SampleHairline.cpp",
