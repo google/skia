@@ -141,34 +141,6 @@ public:
      */
     void resolveRenderTarget(GrRenderTarget*);
 
-    /** Info struct returned by getReadPixelsInfo about performing intermediate draws before
-        reading pixels for performance or correctness. */
-    struct ReadPixelTempDrawInfo {
-        /**
-         * If the GrGpu is requesting that the caller do a draw to an intermediate surface then
-         * this is descriptor for the temp surface. The draw should always be a rect with dst
-         * 0,0,w,h.
-         */
-        GrSurfaceDesc   fTempSurfaceDesc;
-        /**
-         * Indicates whether there is a performance advantage to using an exact match texture
-         * (in terms of width and height) for the intermediate texture instead of approximate.
-         */
-        SkBackingFit    fTempSurfaceFit;
-        /**
-         * Swizzle to apply during the draw. This is used to compensate for either feature or
-         * performance limitations in the underlying 3D API.
-         */
-        GrSwizzle       fSwizzle;
-        /**
-         * The color type that should be used to read from the temp surface after the draw. This
-         * may be different than the original read color type in order to compensate for swizzling.
-         * The read data will effectively be in the original color type. The original gamma
-         * encoding is always used.
-         */
-        GrColorType     fReadColorType;
-    };
-
     /** Describes why an intermediate draw must/should be performed before readPixels. */
     enum DrawPreference {
         /**
@@ -196,15 +168,6 @@ public:
          */
         kRequireDraw_DrawPreference
     };
-
-    /**
-     * Used to negotiate whether and how an intermediate draw should or must be performed before
-     * a readPixels call. If this returns false then GrGpu could not deduce an intermediate draw
-     * that would allow a successful readPixels call. The passed width, height, and rowBytes,
-     * must be non-zero and already reflect clipping to the src bounds.
-     */
-    bool getReadPixelsInfo(GrSurface*, GrSurfaceOrigin, int width, int height, size_t rowBytes,
-                           GrColorType, GrSRGBConversion, DrawPreference*, ReadPixelTempDrawInfo*);
 
     /**
      * Info struct returned by getWritePixelsInfo about performing an intermediate draw in order
@@ -554,9 +517,6 @@ private:
     virtual GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
                                      const void* data) = 0;
 
-    virtual bool onGetReadPixelsInfo(GrSurface*, GrSurfaceOrigin, int width, int height,
-                                     size_t rowBytes, GrColorType, DrawPreference*,
-                                     ReadPixelTempDrawInfo*) = 0;
     virtual bool onGetWritePixelsInfo(GrSurface*, GrSurfaceOrigin, int width, int height,
                                       GrColorType, DrawPreference*, WritePixelTempDrawInfo*) = 0;
 

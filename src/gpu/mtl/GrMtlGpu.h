@@ -31,12 +31,6 @@ public:
 
     id<MTLDevice> device() const { return fDevice; }
 
-    bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin origin, int readWidth,
-                             int readHeight, size_t rowBytes, GrColorType readConfig,
-                             DrawPreference*, ReadPixelTempDrawInfo*) override {
-        return false;
-    }
-
     bool onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin, int width,
                               int height, GrColorType srcColorType, DrawPreference*,
                               WritePixelTempDrawInfo*) override {

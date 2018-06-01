@@ -130,9 +130,7 @@ public:
     };
 
     /**
-     * Reads a rectangle of pixels from a surface. There are currently two versions of this.
-     * readSurfacePixels() is the older version which will be replaced by the more robust and
-     * maintainable (but perhaps slower) readSurfacePixels2().
+     * Reads a rectangle of pixels from a surface.
      *
      * @param src           the surface context to read from.
      * @param left          left edge of the rectangle to read (inclusive)
@@ -152,14 +150,9 @@ public:
     bool readSurfacePixels(GrSurfaceContext* src, int left, int top, int width, int height,
                            GrColorType dstColorType, SkColorSpace* dstColorSpace, void* buffer,
                            size_t rowBytes = 0, uint32_t pixelOpsFlags = 0);
-    bool readSurfacePixels2(GrSurfaceContext* src, int left, int top, int width, int height,
-                            GrColorType dstColorType, SkColorSpace* dstColorSpace, void* buffer,
-                            size_t rowBytes = 0, uint32_t pixelOpsFlags = 0);
 
     /**
-     * Writes a rectangle of pixels to a surface. There are currently two versions of this.
-     * writeSurfacePixels() is the older version which will be replaced by the more robust and
-     * maintainable (but perhaps slower) writeSurfacePixels2().
+     * Writes a rectangle of pixels to a surface.
      *
      * @param dst           the surface context to write to.
      * @param left          left edge of the rectangle to write (inclusive)
@@ -178,9 +171,6 @@ public:
     bool writeSurfacePixels(GrSurfaceContext* dst, int left, int top, int width, int height,
                             GrColorType srcColorType, SkColorSpace* srcColorSpace,
                             const void* buffer, size_t rowBytes, uint32_t pixelOpsFlags = 0);
-    bool writeSurfacePixels2(GrSurfaceContext* dst, int left, int top, int width, int height,
-                             GrColorType srcColorType, SkColorSpace* srcColorSpace,
-                             const void* buffer, size_t rowBytes, uint32_t pixelOpsFlags = 0);
 
     GrBackend getBackend() const { return fContext->fBackend; }
 
