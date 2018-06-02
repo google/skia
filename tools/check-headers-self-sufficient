@@ -128,7 +128,7 @@ def compile_header(header):
     args = ([]                 if fnmatch.fnmatch(header, 'include/c/*') else
             public_header_args if fnmatch.fnmatch(header, 'include/*')   else
             all_header_args)
-    cmd = ['c++', '--std=c++11'] + args + [ '-o', '/dev/null', '-c', '-x', 'c++', '-']
+    cmd = ['c++', '--std=c++14'] + args + [ '-o', '/dev/null', '-c', '-x', 'c++', '-']
     proc = subprocess.Popen(cmd, stdin=subprocess.PIPE,
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     proc.stdin.write('#include "%s"\n#include "%s"\n' % (header, header))
