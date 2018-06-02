@@ -195,6 +195,10 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
                                                          fFS.fCompilerStrings.count(),
                                                          settings,
                                                          &glsl);
+        if (!fs) {
+          this->cleanupProgram(programID, shadersToDelete);
+          return nullptr;
+        }
         inputs = fs->fInputs;
         if (inputs.fRTHeight) {
             this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
