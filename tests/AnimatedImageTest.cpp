@@ -193,8 +193,8 @@ DEF_TEST(AnimatedImage, r) {
         std::vector<SkCodec::FrameInfo> frameInfos = codec->getFrameInfo();
         std::vector<SkBitmap> frames(frameInfos.size());
         // Used down below for our test image.
-        const auto imageInfo = codec->getInfo().makeAlphaType(kPremul_SkAlphaType);
-
+        const auto imageInfo = codec->getInfo().makeAlphaType(kPremul_SkAlphaType)
+                                               .makeColorSpace(nullptr);
         for (size_t i = 0; i < frameInfos.size(); ++i) {
             auto info = codec->getInfo().makeAlphaType(frameInfos[i].fAlphaType);
             auto& bm = frames[i];
