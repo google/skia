@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0dda4828_167b6736",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-04T13:47:17Z",
+      "side": 1,
+      "message": "I\u0027m a bit concerned about this as a general pattern. Creating an unordered_map for every constructor seems like it could add performance overhead. I\u0027m ok with it if we can show otherwise but maybe we there are other patterns we could explore for creating built in effects? I get that we might need something like this if we are incorporating effects that weren\u0027t known at build time, though.\n\nThis effect happens to be one that is used frequently on low end devices where Chrome draws using a low bit depth destination buffer.",
+      "range": {
+        "startLine": 528,
+        "startChar": 0,
+        "endLine": 537,
+        "endChar": 9
+      },
+      "revId": "8dc406e82ac2bc9f637b7c272318f9cf203e95cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
