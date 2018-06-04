@@ -16,15 +16,6 @@
 #include "SkSRGB.h"
 #include "../jumper/SkJumper.h"
 
-static inline Sk4f set_alpha(const Sk4f& px, float alpha) {
-    return { px[0], px[1], px[2], alpha };
-}
-
-static inline float get_alpha(const Sk4f& px) {
-    return px[3];
-}
-
-
 static inline Sk4f Sk4f_fromL32(uint32_t px) {
     return SkNx_cast<float>(Sk4b::Load(&px)) * (1/255.0f);
 }
@@ -51,31 +42,6 @@ static inline uint32_t Sk4f_toS32(const Sk4f& px) {
     return s32;
 }
 
-
-// SkColor handling:
-//   SkColor has an ordering of (b, g, r, a) if cast to an Sk4f, so the code swizzles r and b to
-// produce the needed (r, g, b, a) ordering.
-static inline Sk4f Sk4f_from_SkColor(SkColor color) {
-    return swizzle_rb(Sk4f_fromS32(color));
-}
-
-static inline void assert_unit(float x) {
-    SkASSERT(0 <= x && x <= 1);
-}
-
-static inline float exact_srgb_to_linear(float srgb) {
-    assert_unit(srgb);
-    float linear;
-    if (srgb <= 0.04045) {
-        linear = srgb / 12.92f;
-    } else {
-        linear = powf((srgb + 0.055f) / 1.055f, 2.4f);
-    }
-    assert_unit(linear);
-    return linear;
-}
-
-// N.B. scratch_matrix_3x4 must live at least as long as p.
 static inline void append_gamut_transform(SkRasterPipeline* p,
                                           SkArenaAlloc* alloc,
                                           SkColorSpace* src,
