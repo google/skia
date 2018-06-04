@@ -11,13 +11,13 @@
 #include "SkRefCnt.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
+#include "SkGlyphRun.h"
 #include "SkRegion.h"
 #include "SkSurfaceProps.h"
 
 class SkBitmap;
 class SkDrawFilter;
 struct SkDrawShadowRec;
-class SkGlyphRun;
 class SkImageFilterCache;
 struct SkIRect;
 class SkMatrix;
@@ -381,6 +381,7 @@ private:
     const SkImageInfo    fInfo;
     const SkSurfaceProps fSurfaceProps;
     SkMatrix             fCTM;
+    SkGlyphSet           fGlyphSet;
 
     typedef SkRefCnt INHERITED;
 };

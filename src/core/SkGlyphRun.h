@@ -17,19 +17,37 @@
 #include "SkPoint.h"
 #include "SkTypes.h"
 
+// A faster set implementation that does not need any initialization, and reading the set items
+// is order the number of items, and not the size of the universe.
+// This implementation is based on the paper by Briggs and Torczon, "An Efficient Representation
+// for Sparse Sets"
+class SkGlyphSet {
+public:
+    SkGlyphSet() = default;
+    uint16_t add(SkGlyphID glyphID);
+    std::tuple<uint16_t, std::unique_ptr<SkGlyphID[]>> uniqueGlyphIDs() const;
+    void reuse(uint32_t glyphUniverseSize);
+
+private:
+    uint32_t                    fUniverseSize{0};
+    uint16_t                    fUniqueCount{0};
+    std::vector<uint16_t>       fIndexes;
+    std::vector<SkGlyphID>      fUniqueGlyphIDs;
+};
+
 class SkGlyphRun {
 public:
     SkGlyphRun() = default;
     SkGlyphRun(SkGlyphRun&&) = default;
     static SkGlyphRun MakeFromDrawText(
             const SkPaint& paint, const void* bytes, size_t byteLength,
-            SkPoint origin);
+            SkPoint origin, SkGlyphSet* glyphSet);
     static SkGlyphRun MakeFromDrawPosTextH(
             const SkPaint& paint, const void* bytes, size_t byteLength,
-            const SkScalar xpos[], SkScalar constY);
+            const SkScalar xpos[], SkScalar constY, SkGlyphSet* glyphSet);
     static SkGlyphRun MakeFromDrawPosText(
             const SkPaint& paint, const void* bytes, size_t byteLength,
-            const SkPoint pos[]);
+            const SkPoint pos[], SkGlyphSet* glyphSet);
 
     size_t runSize() const { return fRunSize; }
     uint16_t uniqueSize() const { return fUniqueSize; }
