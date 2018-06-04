@@ -144,7 +144,8 @@ public:
     bool updateBuffer(GrVkBuffer* buffer, const void* src, VkDeviceSize offset, VkDeviceSize size);
 
 private:
-    GrVkGpu(GrContext*, const GrContextOptions&, sk_sp<const GrVkBackendContext> backendContext);
+    GrVkGpu(GrContext*, const GrContextOptions&, sk_sp<const GrVkBackendContext> backendContext,
+            const GrVkExtensions&);
 
     void onResetContext(uint32_t resetBits) override {}
 

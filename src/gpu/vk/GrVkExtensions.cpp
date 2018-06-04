@@ -6,7 +6,9 @@
  */
 
 #include "vk/GrVkExtensions.h"
-#include "vk/GrVkUtil.h"
+
+#include "GrVkUtil.h"
+#include "vk/GrVkBackendContext.h"
 
 #include "SkTSearch.h"
 #include "SkTSort.h"
@@ -30,13 +32,94 @@ static int find_string(const SkTArray<SkString>& strings, const char ext[]) {
     return idx;
 }
 
+GrVkExtensions::GrVkExtensions(uint32_t instanceExtensionCount,
+                               const char* const* instanceExtensions,
+                               uint32_t deviceExtensionCount,
+                               const char* const* deviceExtensions)
+        : fExtensionStrings(new SkTArray<SkString>) {
+    SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
+
+    for (uint32_t i = 0; i < instanceExtensionCount; ++i) {
+        const char* extension = instanceExtensions[i];
+        // if not already in the list, add it
+        if (find_string(*fExtensionStrings, extension) < 0) {
+            fExtensionStrings->push_back() = extension;
+            SkTQSort(&fExtensionStrings->front(), &fExtensionStrings->back(), cmp);
+        }
+    }
+    for (uint32_t i = 0; i < deviceExtensionCount; ++i) {
+        const char* extension = deviceExtensions[i];
+        // if not already in the list, add it
+        if (find_string(*fExtensionStrings, extension) < 0) {
+            fExtensionStrings->push_back() = extension;
+            SkTQSort(&fExtensionStrings->front(), &fExtensionStrings->back(), cmp);
+        }
+    }
+}
+
+GrVkExtensions::GrVkExtensions(uint32_t extensionFlags)
+        : fExtensionStrings(new SkTArray<SkString>) {
+    SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
+
+    SkTArray<const char*> extensionNames;
+    GetExtensionArrayFromFlags(extensionFlags, &extensionNames);
+    for (int i = 0; i < extensionNames.count(); ++i) {
+        // if not already in the list, add it
+        if (find_string(*fExtensionStrings, extensionNames[i]) < 0) {
+            fExtensionStrings->push_back() = extensionNames[i];
+            SkTQSort(&fExtensionStrings->front(), &fExtensionStrings->back(), cmp);
+        }
+    }
+}
+
+bool GrVkExtensions::hasExtension(const char ext[]) const {
+    return find_string(*fExtensionStrings, ext) >= 0;
+}
+
+void GrVkExtensions::GetExtensionArrayFromFlags(uint32_t extensionFlags,
+                                                SkTArray<const char*>* extensions) {
+#ifdef SK_ENABLE_VK_LAYERS
+    if (extensionFlags & kEXT_debug_report_GrVkExtensionFlag) {
+        extensions->push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+    }
+#endif
+    if (extensionFlags & kKHR_surface_GrVkExtensionFlag) {
+        extensions->push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+    }
+    if (extensionFlags & kKHR_swapchain_GrVkExtensionFlag) {
+        extensions->push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+    }
+#ifdef SK_BUILD_FOR_WIN
+    if (extensionFlags & kKHR_win32_surface_GrVkExtensionFlag) {
+        extensions->push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+    }
+#elif defined(SK_BUILD_FOR_ANDROID)
+    if (extensionFlags & kKHR_android_surface_GrVkExtensionFlag) {
+        extensions->push_back(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
+    }
+#elif defined(SK_BUILD_FOR_UNIX) && !defined(__Fuchsia__)
+    if (extensionFlags & kKHR_xcb_surface_GrVkExtensionFlag) {
+        extensions->push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
+    }
+#endif
+    // Device extensions
+    if (extensionFlags & kKHR_swapchain_GrVkExtensionFlag) {
+        extensions->push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+    }
+    if (extensionFlags & kNV_glsl_shader_GrVkExtensionFlag) {
+        extensions->push_back("VK_NV_glsl_shader");
+    }
+}
+
+#if GR_TEST_UTILS || defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+
 #define GET_PROC_LOCAL(F, inst, device) PFN_vk ## F F = (PFN_vk ## F) fGetProc("vk" #F, inst, device)
 
 static uint32_t remove_patch_version(uint32_t specVersion) {
     return (specVersion >> 12) << 12;
 }
 
-bool GrVkExtensions::initInstance(uint32_t specVersion) {
+bool GrVkExtensionsHelper::initInstance(uint32_t specVersion) {
     if (fGetProc == nullptr) {
         return false;
     }
@@ -126,7 +209,7 @@ bool GrVkExtensions::initInstance(uint32_t specVersion) {
     return true;
 }
 
-bool GrVkExtensions::initDevice(uint32_t specVersion, VkInstance inst, VkPhysicalDevice physDev) {
+bool GrVkExtensionsHelper::initDevice(uint32_t specVersion, VkInstance inst, VkPhysicalDevice physDev) {
     if (fGetProc == nullptr) {
         return false;
     }
@@ -218,23 +301,23 @@ bool GrVkExtensions::initDevice(uint32_t specVersion, VkInstance inst, VkPhysica
     return true;
 }
 
-bool GrVkExtensions::hasInstanceExtension(const char ext[]) const {
+bool GrVkExtensionsHelper::hasInstanceExtension(const char ext[]) const {
     return find_string(*fInstanceExtensionStrings, ext) >= 0;
 }
 
-bool GrVkExtensions::hasDeviceExtension(const char ext[]) const {
+bool GrVkExtensionsHelper::hasDeviceExtension(const char ext[]) const {
     return find_string(*fDeviceExtensionStrings, ext) >= 0;
 }
 
-bool GrVkExtensions::hasInstanceLayer(const char ext[]) const {
+bool GrVkExtensionsHelper::hasInstanceLayer(const char ext[]) const {
     return find_string(*fInstanceLayerStrings, ext) >= 0;
 }
 
-bool GrVkExtensions::hasDeviceLayer(const char ext[]) const {
+bool GrVkExtensionsHelper::hasDeviceLayer(const char ext[]) const {
     return find_string(*fDeviceLayerStrings, ext) >= 0;
 }
 
-void GrVkExtensions::print(const char* sep) const {
+void GrVkExtensionsHelper::print(const char* sep) const {
     if (nullptr == sep) {
         sep = " ";
     }
@@ -259,3 +342,5 @@ void GrVkExtensions::print(const char* sep) const {
         SkDebugf("%s%s", (*fDeviceLayerStrings)[i].c_str(), (i < cnt - 1) ? sep : "");
     }
 }
+#endif // GR_TEST_UTILS || defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+

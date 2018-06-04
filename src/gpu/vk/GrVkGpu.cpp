@@ -37,6 +37,7 @@
 #include "SkConvertPixels.h"
 #include "SkMipMap.h"
 
+#include "vk/GrVkExtensions.h"
 #include "vk/GrVkInterface.h"
 #include "vk/GrVkTypes.h"
 
@@ -80,17 +81,34 @@ sk_sp<GrGpu> GrVkGpu::Make(sk_sp<const GrVkBackendContext> backendContext,
         return nullptr;
     }
 
-    if (!backendContext->fInterface->validate(backendContext->fExtensions)) {
+    auto MakeGrVkExtensions = [](const GrVkBackendContext* backendContext) {
+        if (backendContext->fExtensions == 0) {
+            return GrVkExtensions(backendContext->fInstanceExtensionCount,
+                                  backendContext->fInstanceExtensions,
+                                  backendContext->fDeviceExtensionCount,
+                                  backendContext->fDeviceExtensions);
+        } else {
+            SkASSERT(!backendContext->fInstanceExtensionCount &&
+                     !backendContext->fInstanceExtensions &&
+                     !backendContext->fDeviceExtensionCount &&
+                     !backendContext->fDeviceExtensions);
+            return GrVkExtensions(backendContext->fExtensions);
+        }
+    };
+
+    GrVkExtensions extensions = MakeGrVkExtensions(backendContext.get());
+
+    if (!backendContext->fInterface->validate(extensions)) {
         return nullptr;
     }
 
-    return sk_sp<GrGpu>(new GrVkGpu(context, options, std::move(backendContext)));
+    return sk_sp<GrGpu>(new GrVkGpu(context, options, std::move(backendContext), extensions));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
-                 sk_sp<const GrVkBackendContext> backendCtx)
+                 sk_sp<const GrVkBackendContext> backendCtx, const GrVkExtensions& extensions)
         : INHERITED(context)
         , fBackendContext(std::move(backendCtx))
         , fMemoryAllocator(fBackendContext->fMemoryAllocator)
@@ -100,7 +118,7 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
         , fDisconnected(false) {
 #ifdef SK_ENABLE_VK_LAYERS
     fCallback = VK_NULL_HANDLE;
-    if (fBackendContext->fExtensions & kEXT_debug_report_GrVkExtensionFlag) {
+    if (extensions.hasExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME)) {
         // Setup callback creation information
         VkDebugReportCallbackCreateInfoEXT callbackCreateInfo;
         callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
@@ -129,7 +147,7 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
     fCompiler = new SkSL::Compiler();
 
     fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), fBackendContext->fPhysicalDevice,
-                               fBackendContext->fFeatures, fBackendContext->fExtensions));
+                               fBackendContext->fFeatures, extensions));
     fCaps.reset(SkRef(fVkCaps.get()));
 
     VK_CALL(GetPhysicalDeviceProperties(fBackendContext->fPhysicalDevice, &fPhysDevProps));

@@ -12,6 +12,8 @@
 
 #include "vk/GrVkDefines.h"
 
+class GrVkExtensions;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -50,17 +52,24 @@ public:
     GrVkInterface(GetProc getProc,
                   VkInstance instance,
                   VkDevice device,
+                  const GrVkExtensions&);
+
+    // TODO: This is deprecated. Remove onces clients have switch to new interface. The extensions
+    // flags passed in must be 0 (i.e. unused).
+    GrVkInterface(GetProc getProc,
+                  VkInstance instance,
+                  VkDevice device,
                   uint32_t extensionFlags);
 
     GrVkInterface(const GetInstanceProc&,
                   const GetDeviceProc&,
                   VkInstance instance,
                   VkDevice device,
-                  uint32_t extensionFlags);
+                  const GrVkExtensions&);
 
     // Validates that the GrVkInterface supports its advertised standard. This means the necessary
     // function pointers have been initialized for Vulkan version.
-    bool validate(uint32_t extensionFlags) const;
+    bool validate(const GrVkExtensions&) const;
 
     /**
      * The function pointers are in a struct so that we can have a compiler generated assignment
