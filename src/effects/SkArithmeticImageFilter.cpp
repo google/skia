@@ -358,7 +358,6 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
     if (!renderTargetContext) {
         return nullptr;
     }
-    paint.setGammaCorrect(renderTargetContext->colorSpaceInfo().isGammaCorrect());
 
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));

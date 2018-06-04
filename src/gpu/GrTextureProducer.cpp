@@ -33,8 +33,6 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrContext* context,
     }
 
     GrPaint paint;
-    paint.setGammaCorrect(true);
-
     SkRect localRect = SkRect::MakeWH(inputProxy->width(), inputProxy->height());
 
     bool needsDomain = false;
