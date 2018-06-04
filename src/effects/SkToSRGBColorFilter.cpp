@@ -38,7 +38,7 @@ void SkToSRGBColorFilter::onAppendStages(SkRasterPipeline* p,
     }
 
     // Step 2: Transform to sRGB gamut (without clamping).
-    append_gamut_transform(p,
+    transform_colorspace(p,
                            alloc,
                            fSrcColorSpace.get(),
                            SkColorSpace::MakeSRGB().get(),

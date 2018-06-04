@@ -303,7 +303,7 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
 
     SkSTArenaAlloc<12*sizeof(float)> alloc;
     if (isColorAware) {
-        append_gamut_transform(&pipeline, &alloc,
+        transform_colorspace(&pipeline, &alloc,
                                srcInfo.colorSpace(), dstInfo.colorSpace(), premulState);
     }
 
