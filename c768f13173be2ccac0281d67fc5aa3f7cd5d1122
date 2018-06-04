@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a022d542_5378a14e",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-04T15:25:54Z",
+      "side": 1,
+      "message": "Be careful not to exclude glyph 0xFFFF, there are a few fonts with this glyph.",
+      "range": {
+        "startLine": 46,
+        "startChar": 23,
+        "endLine": 46,
+        "endChar": 35
+      },
+      "revId": "c768f13173be2ccac0281d67fc5aa3f7cd5d1122",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

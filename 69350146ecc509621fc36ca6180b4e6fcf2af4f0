@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5daa25f5_e3858094",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-04T15:25:54Z",
+      "side": 1,
+      "message": "nit: space",
+      "range": {
+        "startLine": 136,
+        "startChar": 20,
+        "endLine": 136,
+        "endChar": 22
+      },
+      "revId": "69350146ecc509621fc36ca6180b4e6fcf2af4f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67407fa2_0b752c4f",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-04T15:25:54Z",
+      "side": 1,
+      "message": "This is super confusing. A lot of codebases use the trailing underscore for fields, so doing the opposite here is really jarring. Skia\u0027s general use of \u0027f\u0027 on the fields is a bit old, but would be consistent with the rest of src.",
+      "range": {
+        "startLine": 26,
+        "startChar": 34,
+        "endLine": 26,
+        "endChar": 35
+      },
+      "revId": "69350146ecc509621fc36ca6180b4e6fcf2af4f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "606e70f9_9894e1a7",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-04T15:25:54Z",
+      "side": 1,
+      "message": "This doesn\u0027t seem to need a forward declare?",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 21
+      },
+      "revId": "69350146ecc509621fc36ca6180b4e6fcf2af4f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abf70df8_d3781a79",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-04T15:25:54Z",
+      "side": 1,
+      "message": "Remove now? If this field is not needed does this class need to exist?",
+      "range": {
+        "startLine": 63,
+        "startChar": 4,
+        "endLine": 63,
+        "endChar": 44
+      },
+      "revId": "69350146ecc509621fc36ca6180b4e6fcf2af4f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71c55ea2_7e9159e2",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-04T15:25:54Z",
+      "side": 1,
+      "message": "I normally wouldn\u0027t jump on this too much, but if we\u0027re introducing this can it be in src/core/SkSpan.h with a note to keep this as much like std::span as possible so that we can start using that instead once we can use c++20 (https://github.com/cplusplus/draft/blob/57de3af9d24037d60d996b255c1ded8ee65387d2/source/containers.tex#L9688 )?",
+      "range": {
+        "startLine": 68,
+        "startChar": 6,
+        "endLine": 68,
+        "endChar": 12
+      },
+      "revId": "69350146ecc509621fc36ca6180b4e6fcf2af4f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7260cff0_64ec9c38",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-04T15:25:54Z",
+      "side": 1,
+      "message": "In the c++ spec I believe this is also ptrdiff_t. It would be nice to use the same typedefs/usings the std version does for consistency.",
+      "range": {
+        "startLine": 75,
+        "startChar": 4,
+        "endLine": 75,
+        "endChar": 10
+      },
+      "revId": "69350146ecc509621fc36ca6180b4e6fcf2af4f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
