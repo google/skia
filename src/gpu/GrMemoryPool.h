@@ -121,6 +121,7 @@ protected:
     };
 };
 
+#if 0
 /**
  * Variant of GrMemoryPool that can only allocate objects of a single type. It is
  * not as flexible as GrMemoryPool, but it has more convenient allocate() method,
@@ -164,7 +165,7 @@ public:
      * Allocates memory for an object, but doesn't construct or otherwise initialize it.
      * The memory must be freed with release().
      */
-    T* allocate() { return static_cast<T*>(GrMemoryPool::allocate(sizeof(T))); }
+    T* allocate1() { return static_cast<T*>(GrMemoryPool::allocate(sizeof(T))); }
 
 private:
     constexpr static size_t kTotalObjectSize =
@@ -185,5 +186,6 @@ public:
 
 template <class T>
 constexpr size_t GrObjectMemoryPool<T>::kSmallestMinAllocCount;
+#endif
 
 #endif
