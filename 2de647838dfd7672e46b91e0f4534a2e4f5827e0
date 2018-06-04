@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9dcf0f25_3043bffe",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-06-04T19:21:16Z",
+      "side": 1,
+      "message": "I\u0027m not clear on what \"inserting MSL code directly\" means exactly.",
+      "range": {
+        "startLine": 17,
+        "startChar": 56,
+        "endLine": 17,
+        "endChar": 83
+      },
+      "revId": "2de647838dfd7672e46b91e0f4534a2e4f5827e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88342636_dafb525b",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 713,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-06-04T19:21:16Z",
+      "side": 1,
+      "message": "I imagine it\u0027s not that \"MoltenVK wants half types converted to floats\", but rather that \"MoltenVK and Skia disagree on how big a half is\".\n\nAnd since we\u0027re already converting all of our halfs to floats, why do Skia and MVK still disagree on the alignment and packing of the struct...? (Or more specifically, why do we need to do these manual layout calculations here?)",
+      "range": {
+        "startLine": 712,
+        "startChar": 84,
+        "endLine": 713,
+        "endChar": 44
+      },
+      "revId": "2de647838dfd7672e46b91e0f4534a2e4f5827e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c6b39de_585a394f",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 778,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-06-04T19:21:16Z",
+      "side": 1,
+      "message": "We need rtHeight under Metal?",
+      "range": {
+        "startLine": 778,
+        "startChar": 8,
+        "endLine": 778,
+        "endChar": 47
+      },
+      "revId": "2de647838dfd7672e46b91e0f4534a2e4f5827e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a54c07e_bf5fb2ac",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 850,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-06-04T19:21:16Z",
+      "side": 1,
+      "message": "Surely we can math this out rather than having to list them all, can\u0027t we?",
+      "range": {
+        "startLine": 811,
+        "startChar": 0,
+        "endLine": 850,
+        "endChar": 0
+      },
+      "revId": "2de647838dfd7672e46b91e0f4534a2e4f5827e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c05a1cad_acbbc771",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 882,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-06-04T19:21:16Z",
+      "side": 1,
+      "message": "Same here. Also, I\u0027m not clear on why matrices aren\u0027t getting aligned similarly to vectors.",
+      "range": {
+        "startLine": 861,
+        "startChar": 0,
+        "endLine": 882,
+        "endChar": 0
+      },
+      "revId": "2de647838dfd7672e46b91e0f4534a2e4f5827e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3925bc5c_7ec6bc49",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1290,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-06-04T19:21:16Z",
+      "side": 1,
+      "message": "Perhaps \"handled elsewhere, do nothing\" would be more helpful here?",
+      "range": {
+        "startLine": 1290,
+        "startChar": 12,
+        "endLine": 1290,
+        "endChar": 21
+      },
+      "revId": "2de647838dfd7672e46b91e0f4534a2e4f5827e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
