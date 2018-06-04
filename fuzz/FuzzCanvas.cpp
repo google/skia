@@ -498,13 +498,17 @@ static sk_sp<SkMaskFilter> make_fuzz_maskfilter(Fuzz* fuzz) {
             SkScalar sigma;
             fuzz->next(&sigma);
             SkRect occluder{0.0f, 0.0f, 0.0f, 0.0f};
-            if (make_fuzz_t<bool>(fuzz)) {
+            bool useOccluder;
+            fuzz->next(&useOccluder);
+            if (useOccluder) {
                 fuzz->next(&occluder);
             }
-            uint32_t flags;
-            fuzz->nextRange(&flags, 0, 1);
-            bool respectCTM = flags != 0;
-            return SkMaskFilter::MakeBlur(blurStyle, sigma, occluder, respectCTM);
+            bool respectCTM;
+            fuzz->next(&respectCTM);
+            if (useOccluder) {
+                return SkMaskFilter::MakeBlur(blurStyle, sigma, occluder, respectCTM);
+            }
+            return SkMaskFilter::MakeBlur(blurStyle, sigma, respectCTM);
         }
         default:
             SkASSERT(false);
