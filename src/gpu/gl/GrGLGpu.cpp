@@ -2039,6 +2039,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
     if (!this->readPixelsSupported(surface, dstAsConfig)) {
         if (kAlpha_8_GrPixelConfig == dstAsConfig &&
             this->readPixelsSupported(surface, kRGBA_8888_GrPixelConfig)) {
+            SK_ABORT("ALPHA FALLBACK");
             std::unique_ptr<uint32_t[]> temp(new uint32_t[width * height * 4]);
             if (this->onReadPixels(surface, left, top, width, height, GrColorType::kRGBA_8888,
                                    temp.get(), width * 4)) {
