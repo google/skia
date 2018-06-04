@@ -8,13 +8,14 @@
 #ifndef SkPM4fPriv_DEFINED
 #define SkPM4fPriv_DEFINED
 
+#include "../jumper/SkJumper.h"
+#include "SkArenaAlloc.h"
 #include "SkColorData.h"
 #include "SkColorSpace.h"
-#include "SkArenaAlloc.h"
+#include "SkColorSpaceXformSteps.h"
 #include "SkPM4f.h"
 #include "SkRasterPipeline.h"
 #include "SkSRGB.h"
-#include "../jumper/SkJumper.h"
 
 static inline Sk4f set_alpha(const Sk4f& px, float alpha) {
     return { px[0], px[1], px[2], alpha };
@@ -75,69 +76,98 @@ static inline float exact_srgb_to_linear(float srgb) {
     return linear;
 }
 
-// N.B. scratch_matrix_3x4 must live at least as long as p.
-static inline void append_gamut_transform(SkRasterPipeline* p,
-                                          SkArenaAlloc* alloc,
-                                          SkColorSpace* src,
-                                          SkColorSpace* dst,
-                                          SkAlphaType srcAT) {
-    if (src == dst || !dst || !src) {
-        return;
+static inline void transform_colorspace(SkRasterPipeline* p,
+                                        SkArenaAlloc* alloc,
+                                        SkColorSpace* src,
+                                        SkColorSpace* dst,
+                                        SkAlphaType srcAT) {
+    sk_sp<SkColorSpace> sRGB;
+    if (!src || !dst) {
+        sRGB = SkColorSpace::MakeSRGB();
+        if (!src) { src = sRGB.get(); }
+        if (!dst) { dst = sRGB.get(); }
     }
 
-    const SkMatrix44 *fromSrc = src->  toXYZD50(),
-                       *toDst = dst->fromXYZD50();
-    if (!fromSrc || !toDst) {
-        SkDEBUGFAIL("We can't handle non-XYZ color spaces in append_gamut_transform().");
-        return;
-    }
+    SkColorSpaceXformSteps steps(src, srcAT, dst);
 
-    // Slightly more sophisticated version of if (src == dst)
-    if (src->toXYZD50Hash() == dst->toXYZD50Hash()) {
-        return;
+    if (steps.unpremul) { p->append(SkRasterPipeline::unpremul); }
+    if (steps.linearize) {
+        if (src->gammaCloseToSRGB()) {
+            p->append(SkRasterPipeline::from_srgb);
+        } else {
+            auto tf = alloc->make<SkColorSpaceTransferFn>(steps.srcTF);
+            p->append(SkRasterPipeline::parametric_r, tf);
+            p->append(SkRasterPipeline::parametric_g, tf);
+            p->append(SkRasterPipeline::parametric_b, tf);
+        }
     }
-
-    // Convert from 4x4 to (column-major) 3x4.
-    SkMatrix44 m44(*toDst, *fromSrc);
-    float* ptr = alloc->makeArrayDefault<float>(12);
-    *ptr++ = m44.get(0,0); *ptr++ = m44.get(1,0); *ptr++ = m44.get(2,0);
-    *ptr++ = m44.get(0,1); *ptr++ = m44.get(1,1); *ptr++ = m44.get(2,1);
-    *ptr++ = m44.get(0,2); *ptr++ = m44.get(1,2); *ptr++ = m44.get(2,2);
-    *ptr++ = m44.get(0,3); *ptr++ = m44.get(1,3); *ptr++ = m44.get(2,3);
-    p->append(SkRasterPipeline::matrix_3x4, ptr-12);
+    if (steps.gamut_transform) {
+        auto m = memcpy(alloc->makeArrayDefault<float>(9), steps.src_to_dst_matrix, 36);
+        p->append(SkRasterPipeline::matrix_3x3, m);
+    }
+    if (steps.encode) {
+        if (dst->gammaCloseToSRGB()) {
+            p->append(SkRasterPipeline::to_srgb);
+        } else {
+            auto tf = alloc->make<SkColorSpaceTransferFn>(steps.dstTFInv);
+            p->append(SkRasterPipeline::parametric_r, tf);
+            p->append(SkRasterPipeline::parametric_g, tf);
+            p->append(SkRasterPipeline::parametric_b, tf);
+        }
+    }
+    if (steps.premul) { p->append(SkRasterPipeline::premul); }
 }
 
-static inline SkColor4f to_colorspace(const SkColor4f& c, SkColorSpace* src, SkColorSpace* dst) {
-    SkColor4f color4f = c;
-    if (src && dst && !SkColorSpace::Equals(src, dst)) {
-        SkJumper_MemoryCtx color4f_ptr = { &color4f, 0 };
+// I'm being a bit careful here to avoid older methods that assume SkColor4f is linear.
 
-        SkSTArenaAlloc<256> alloc;
-        SkRasterPipeline p(&alloc);
-        p.append_constant_color(&alloc, color4f);
-        append_gamut_transform(&p, &alloc, src, dst, kUnpremul_SkAlphaType);
-        p.append(SkRasterPipeline::store_f32, &color4f_ptr);
+static inline SkColor4f to_colorspace(SkColor4f color, SkColorSpace* src, SkColorSpace* dst) {
+    SkColor4f result;
 
-        p.run(0,0,1,1);
-    }
-    return color4f;
+    SkJumper_MemoryCtx src_ctx = { &color , 0 },
+                       dst_ctx = { &result, 0 };
+
+    SkSTArenaAlloc<256> alloc;
+    SkRasterPipeline p(&alloc);
+    p.append(SkRasterPipeline::load_f32, &src_ctx);
+    transform_colorspace(&p,&alloc,
+                         src,dst,kOpaque_SkAlphaType/*a lie, but maps unpremul to unpremul*/);
+    p.append(SkRasterPipeline::store_f32, &dst_ctx);
+    p.run(0,0,1,1);
+
+    return result;
 }
 
 static inline SkColor4f SkColor4f_from_SkColor(SkColor color, SkColorSpace* dst) {
-    SkColor4f color4f;
-    if (dst) {
-        // sRGB gamma, sRGB gamut.
-        color4f = to_colorspace(SkColor4f::FromColor(color),
-                                SkColorSpace::MakeSRGB().get(), dst);
-    } else {
-        // Linear gamma, dst gamut.
-        swizzle_rb(SkNx_cast<float>(Sk4b::Load(&color)) * (1/255.0f)).store(&color4f);
-    }
-    return color4f;
+    SkColor4f result;
+
+    SkJumper_MemoryCtx src_ctx = { &color , 0 },
+                       dst_ctx = { &result, 0 };
+
+    SkSTArenaAlloc<256> alloc;
+    SkRasterPipeline p(&alloc);
+    p.append(SkRasterPipeline::load_bgra, &src_ctx);
+    transform_colorspace(&p,&alloc,
+                         nullptr,dst,kOpaque_SkAlphaType/*a lie, but maps unpremul to unpremul*/);
+    p.append(SkRasterPipeline::store_f32, &dst_ctx);
+    p.run(0,0,1,1);
+
+    return result;
 }
 
 static inline SkPM4f SkPM4f_from_SkColor(SkColor color, SkColorSpace* dst) {
-    return SkColor4f_from_SkColor(color, dst).premul();
-}
+    SkPM4f result;
 
+    SkJumper_MemoryCtx src_ctx = { &color , 0 },
+                       dst_ctx = { &result, 0 };
+
+    SkSTArenaAlloc<256> alloc;
+    SkRasterPipeline p(&alloc);
+    p.append(SkRasterPipeline::load_bgra, &src_ctx);
+    transform_colorspace(&p,&alloc,
+                         nullptr,dst,kUnpremul_SkAlphaType);
+    p.append(SkRasterPipeline::store_f32, &dst_ctx);
+    p.run(0,0,1,1);
+
+    return result;
+}
 #endif

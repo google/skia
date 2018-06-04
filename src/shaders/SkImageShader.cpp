@@ -391,9 +391,6 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
         if (decal_ctx) {
             p->append(SkRasterPipeline::check_decal_mask, decal_ctx);
         }
-        if (is_srgb) {
-            p->append(SkRasterPipeline::from_srgb);
-        }
     };
 
     auto append_misc = [&] {
@@ -410,10 +407,8 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
             p->append(fClampAsIfUnpremul ? SkRasterPipeline::clamp_1
                                          : SkRasterPipeline::clamp_a);
         }
-        append_gamut_transform(p, alloc,
-                               info.colorSpace(),
-                               rec.fDstCS,
-                               fClampAsIfUnpremul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType);
+        transform_colorspace(p, alloc,
+                             info.colorSpace(), rec.fDstCS, kPremul_SkAlphaType);
         return true;
     };
 
