@@ -77,7 +77,6 @@ SkMask SkMask::PrepareDestination(int radiusX, int radiusY, const SkMask& src) {
     return dst;
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////
 
 static const int gMaskFormatToShift[] = {
