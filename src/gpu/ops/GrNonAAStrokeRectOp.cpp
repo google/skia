@@ -78,8 +78,11 @@ public:
         return string;
     }
 
-    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix,
-                                          const SkRect& rect, const SkStrokeRec& stroke,
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          GrPaint&& paint,
+                                          const SkMatrix& viewMatrix,
+                                          const SkRect& rect,
+                                          const SkStrokeRec& stroke,
                                           GrAAType aaType) {
         if (!allowed_stroke(stroke)) {
             return nullptr;
@@ -91,7 +94,8 @@ public:
         if (stroke.getStyle() == SkStrokeRec::kHairline_Style && aaType != GrAAType::kMSAA) {
             flags |= Helper::Flags::kSnapVerticesToPixelCenters;
         }
-        return Helper::FactoryHelper<NonAAStrokeRectOp>(std::move(paint), flags, viewMatrix, rect,
+        return Helper::FactoryHelper<NonAAStrokeRectOp>(context, std::move(paint), flags,
+                                                        viewMatrix, rect,
                                                         stroke, aaType);
     }
 
@@ -211,12 +215,13 @@ private:
 }  // anonymous namespace
 
 namespace GrRectOpFactory {
-std::unique_ptr<GrDrawOp> MakeNonAAStroke(GrPaint&& paint,
+std::unique_ptr<GrDrawOp> MakeNonAAStroke(GrContext* context,
+                                          GrPaint&& paint,
                                           const SkMatrix& viewMatrix,
                                           const SkRect& rect,
                                           const SkStrokeRec& stroke,
                                           GrAAType aaType) {
-    return NonAAStrokeRectOp::Make(std::move(paint), viewMatrix, rect, stroke, aaType);
+    return NonAAStrokeRectOp::Make(context, std::move(paint), viewMatrix, rect, stroke, aaType);
 }
 }  // namespace GrRectOpFactory
 
@@ -235,7 +240,7 @@ GR_DRAW_OP_TEST_DEFINE(NonAAStrokeRectOp) {
     if (fsaaType == GrFSAAType::kUnifiedMSAA) {
         aaType = random->nextBool() ? GrAAType::kMSAA : GrAAType::kNone;
     }
-    return NonAAStrokeRectOp::Make(std::move(paint), viewMatrix, rect, strokeRec, aaType);
+    return NonAAStrokeRectOp::Make(context, std::move(paint), viewMatrix, rect, strokeRec, aaType);
 }
 
 #endif
