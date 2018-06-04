@@ -722,7 +722,9 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
     // cannot allocate mips for them and thus will need a copy to use a mipped image. We can't pass
     // the fact that this creates a wrapped texture into createLazyProxy so we need to manually set
     // in in the passed in flags.
-    if (GrMipMapped::kNo == mipMapped) {
+    // TODO: Currently for GL we allow late mip allocations for wrapped texture to not change old
+    // behavior. Find a way so to not do this without effecting clients.
+    if (GrMipMapped::kNo == mipMapped && context->contextPriv().getBackend() != kOpenGL_GrBackend) {
         formatFlags |= GrInternalSurfaceFlags::kDoesNotSupportMipMaps;
     }
 

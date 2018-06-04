@@ -429,7 +429,12 @@ DEF_GPUTEST(LazyProxyUninstantiateTest, reporter, /* options */) {
 
         // We can't pass the fact that this creates a wrapped texture into createLazyProxy so we
         // need to manually call setDoesNotSupportMipMaps.
-        lazyProxy->texPriv().setDoesNotSupportMipMaps();
+        // TODO: To let chrome work as it has in the past we are allowing the GL backend to allocate
+        // mips on wrapped textures. Once, we can get chrome moved to allocating the mip levels
+        // themselves, we can remove this.
+        if (ctx->contextPriv().getBackend() != kOpenGL_GrBackend) {
+            lazyProxy->texPriv().setDoesNotSupportMipMaps();
+        }
 
         rtc->priv().testingOnly_addDrawOp(skstd::make_unique<LazyUninstantiateTestOp>(lazyProxy));
 

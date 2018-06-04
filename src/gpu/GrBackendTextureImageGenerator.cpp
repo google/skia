@@ -181,8 +181,11 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
     }
 
     // We can't pass the fact that this creates a wrapped texture into createLazyProxy so we need
-    // to manually call setDoesNotSupportMipMaps.
-    if (GrMipMapped::kNo == mipMapped) {
+    // to manually call setDoesNotSupportMipMaps. GL does allow mip generation for wrapped textures.
+    // TODO: To let chrome work as it has in the past we are allowing the GL backend to allocate
+    // mips on wrapped textures. Once, we can get chrome moved to allocating the mip levels
+    // themselves, we can remove this.
+    if (GrMipMapped::kNo == mipMapped && context->contextPriv().getBackend() != kOpenGL_GrBackend) {
         proxy->texPriv().setDoesNotSupportMipMaps();
     }
 

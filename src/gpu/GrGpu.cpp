@@ -139,9 +139,13 @@ sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
         return nullptr;
     }
     sk_sp<GrTexture> tex = this->onWrapBackendTexture(backendTex, ownership);
-    if (tex && !backendTex.hasMipMaps()) {
+    if (tex && !backendTex.hasMipMaps() &&
+        fContext->contextPriv().getBackend() != kOpenGL_GrBackend) {
         // Ganesh will not ever allocate mipmaps for a wrapped resource. By setting this flag here,
         // it will be propagated to any proxy that wraps this texture.
+        // TODO: To let chrome work as it has in the past we are allowing the GL backend to allocate
+        // mips on wrapped textures. Once, we can get chrome moved to allocating the mip levels
+        // themselves, we can remove this.
         tex->texturePriv().setDoesNotSupportMipMaps();
     }
     return tex;
@@ -163,9 +167,13 @@ sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& bac
         return nullptr;
     }
     sk_sp<GrTexture> tex = this->onWrapRenderableBackendTexture(backendTex, sampleCnt, ownership);
-    if (tex && !backendTex.hasMipMaps()) {
+    if (tex && !backendTex.hasMipMaps() &&
+        fContext->contextPriv().getBackend() != kOpenGL_GrBackend) {
         // Ganesh will not ever allocate mipmaps for a wrapped resource. By setting this flag here,
         // it will be propagated to any proxy that wraps this texture.
+        // TODO: To let chrome work as it has in the past we are allowing the GL backend to allocate
+        // mips on wrapped textures. Once, we can get chrome moved to allocating the mip levels
+        // themselves, we can remove this.
         tex->texturePriv().setDoesNotSupportMipMaps();
     }
     SkASSERT(!tex || tex->asRenderTarget());
