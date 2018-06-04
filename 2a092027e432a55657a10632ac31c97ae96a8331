@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "052348b9_79444d49",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2039,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-04T18:33:35Z",
+      "side": 1,
+      "message": "Remove stale comment",
+      "range": {
+        "startLine": 2037,
+        "startChar": 1,
+        "endLine": 2039,
+        "endChar": 0
+      },
+      "revId": "2a092027e432a55657a10632ac31c97ae96a8331",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
