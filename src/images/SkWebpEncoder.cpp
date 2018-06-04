@@ -109,7 +109,7 @@ static int stream_writer(const uint8_t* data, size_t data_size,
 }
 
 bool SkWebpEncoder::Encode(SkWStream* stream, const SkPixmap& pixmap, const Options& opts) {
-    if (!SkPixmapIsValid(pixmap, opts.fUnpremulBehavior)) {
+    if (!SkPixmapIsValid(pixmap)) {
         return false;
     }
 

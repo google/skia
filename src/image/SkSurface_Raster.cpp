@@ -38,10 +38,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
-    if (!SkImageInfoIsValidCommon(info)) {
-        return false;
-    }
-    if (info.isEmpty()) {
+    if (!SkImageInfoIsValid(info)) {
         return false;
     }
 
