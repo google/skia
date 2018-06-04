@@ -342,8 +342,6 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
     limit_y->scale = pm.height();
     limit_y->invScale = 1.0f / pm.height();
 
-    bool is_srgb = rec.fDstCS && (!info.colorSpace() || info.gammaCloseToSRGB());
-
     SkJumper_DecalTileCtx* decal_ctx = nullptr;
     bool decal_x_and_y = fTileModeX == kDecal_TileMode && fTileModeY == kDecal_TileMode;
     if (fTileModeX == kDecal_TileMode || fTileModeY == kDecal_TileMode) {
@@ -391,9 +389,6 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
         if (decal_ctx) {
             p->append(SkRasterPipeline::check_decal_mask, decal_ctx);
         }
-        if (is_srgb) {
-            p->append(SkRasterPipeline::from_srgb);
-        }
     };
 
     auto append_misc = [&] {
@@ -410,10 +405,8 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
             p->append(fClampAsIfUnpremul ? SkRasterPipeline::clamp_1
                                          : SkRasterPipeline::clamp_a);
         }
-        append_gamut_transform(p, alloc,
-                               info.colorSpace(),
-                               rec.fDstCS,
-                               fClampAsIfUnpremul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType);
+        transform_colorspace(p, alloc,
+                             info.colorSpace(), rec.fDstCS, kPremul_SkAlphaType);
         return true;
     };
 
@@ -423,8 +416,7 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
         && (ct == kRGBA_8888_SkColorType || ct == kBGRA_8888_SkColorType)
         && quality == kLow_SkFilterQuality
         && fTileModeX == SkShader::kClamp_TileMode
-        && fTileModeY == SkShader::kClamp_TileMode
-        && !is_srgb) {
+        && fTileModeY == SkShader::kClamp_TileMode) {
 
         p->append(SkRasterPipeline::bilerp_clamp_8888, gather);
         if (ct == kBGRA_8888_SkColorType) {
