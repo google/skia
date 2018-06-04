@@ -329,7 +329,7 @@ bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex, GrPix
     // TODO: Create a SkImageColorInfo struct for color, alpha, and color space so we don't need to
     // create a fake image info here.
     SkImageInfo info = SkImageInfo::Make(1, 1, ct, at, cs);
-    if (!SkImageInfoIsValidAllowNumericalCS(info)) {
+    if (!SkImageInfoIsValid(info)) {
         return false;
     }
 
@@ -697,7 +697,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
     }
 
     SkImageInfo info = SkImageInfo::Make(width, height, colorType, alphaType, colorSpace);
-    if (!SkImageInfoIsValidAllowNumericalCS(info)) {
+    if (!SkImageInfoIsValid(info)) {
         return nullptr;
     }
     GrPixelConfig config = kUnknown_GrPixelConfig;

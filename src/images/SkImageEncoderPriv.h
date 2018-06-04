@@ -11,17 +11,9 @@
 #include "SkImageEncoder.h"
 #include "SkImageInfoPriv.h"
 
-static inline bool SkPixmapIsValid(const SkPixmap& src,
-                                   SkTransferFunctionBehavior unpremulBehavior)
-{
-    if (SkTransferFunctionBehavior::kRespect == unpremulBehavior) {
-        if (!SkImageInfoIsValidRenderingCS(src.info())) {
-            return false;
-        }
-    } else {
-        if (!SkImageInfoIsValidAllowNumericalCS(src.info())) {
-            return false;
-        }
+static inline bool SkPixmapIsValid(const SkPixmap& src) {
+    if (!SkImageInfoIsValid(src.info())) {
+        return false;
     }
 
     if (!src.addr() || src.rowBytes() < src.info().minRowBytes()) {
