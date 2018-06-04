@@ -1276,6 +1276,36 @@ bool IncludeParser::findComments(const Definition& includeDef, Definition* marku
     return true;
 }
 
+Definition* IncludeParser::findIncludeObject(const Definition& includeDef, MarkType markType,
+        string typeName) {
+    typedef Definition* DefinitionPtr;
+    auto mapIter = std::find_if(fMaps.begin(), fMaps.end(),
+            [markType](DefinitionMap& defMap){ return markType == defMap.fMarkType; } );
+    if (mapIter == fMaps.end()) {
+        return nullptr;
+    }
+    if (mapIter->fInclude->end() == mapIter->fInclude->find(typeName)) {
+        return reportError<DefinitionPtr>("invalid mark type");
+    }
+    string name = this->uniqueName(*mapIter->fInclude, typeName);
+    Definition& markupDef = *(*mapIter->fInclude)[name];
+    if (markupDef.fStart) {
+        return reportError<DefinitionPtr>("definition already defined");
+    }
+    markupDef.fFileName = fFileName;
+    markupDef.fStart = includeDef.fStart;
+    markupDef.fContentStart = includeDef.fStart;
+    markupDef.fName = name;
+    markupDef.fContentEnd = includeDef.fContentEnd;
+    markupDef.fTerminator = includeDef.fTerminator;
+    markupDef.fParent = fParent;
+    markupDef.fLineCount = includeDef.fLineCount;
+    markupDef.fMarkType = markType;
+    markupDef.fKeyWord = includeDef.fKeyWord;
+    markupDef.fType = Definition::Type::kMark;
+    return &markupDef;
+}
+
 // caller just returns, so report error here
 bool IncludeParser::parseClass(Definition* includeDef, IsStruct isStruct) {
     SkASSERT(includeDef->fTokens.size() > 0);
@@ -2124,6 +2154,7 @@ bool IncludeParser::parseTypedef(Definition* child, Definition* markupDef) {
             return false;
         }
         fITypedefMap[globalUniqueName] = globalMarkupChild;
+        child->fName = nameStr;
         return true;
     }
     markupDef->fTokens.emplace_back(MarkType::kTypedef, child->fContentStart, child->fContentEnd,
@@ -2133,6 +2164,7 @@ bool IncludeParser::parseTypedef(Definition* child, Definition* markupDef) {
     markupChild->fTerminator = markupChild->fContentEnd;
     IClassDefinition& classDef = fIClassMap[markupDef->fName];
     classDef.fTypedefs[nameStr] = markupChild;
+    child->fName = markupDef->fName + "::" + nameStr;
     return true;
 }
 
@@ -2377,6 +2409,14 @@ bool IncludeParser::parseChar() {
             if (!this->checkForWord()) {
                 return false;
             }
+            if ('=' == test) {
+                if (Bracket::kNone == this->topBracket()) {
+                    const Definition& lastToken = fParent->fTokens.back();
+                    if (lastToken.fType == Definition::Type::kWord) {
+                        fSawEqual = true;
+                    }
+                }
+            }
             break;
         case ';':
             if (fInCharCommentString || fInBrace) {
@@ -2604,9 +2644,6 @@ done:
 }
 
 void IncludeParser::validate() const {
-    for (int index = 0; index <= (int) Last_MarkType; ++index) {
-        SkASSERT(fMaps[index].fMarkType == (MarkType) index);
-    }
     IncludeParser::ValidateKeyWords();
 }
 
