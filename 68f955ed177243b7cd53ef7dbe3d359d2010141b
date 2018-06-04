@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57f6de03_5d4667d7",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-06-04T19:35:21Z",
+      "side": 1,
+      "message": "Make private?",
+      "range": {
+        "startLine": 226,
+        "startChar": 17,
+        "endLine": 226,
+        "endChar": 28
+      },
+      "revId": "68f955ed177243b7cd53ef7dbe3d359d2010141b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82308e92_f94b9a45",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-06-04T19:35:21Z",
+      "side": 1,
+      "message": "Turn this into SkSparseSet\u003cSkGlyphID\u003e at some point (i.e. make an SkSparseSet template from this)? Seems like it could be generally useful.",
+      "range": {
+        "startLine": 36,
+        "startChar": 6,
+        "endLine": 36,
+        "endChar": 15
+      },
+      "revId": "68f955ed177243b7cd53ef7dbe3d359d2010141b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
