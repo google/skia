@@ -47,7 +47,10 @@ struct SK_API GrVkBackendContext : public SkRefCnt {
     uint32_t                   fFeatures;
     sk_sp<const GrVkInterface> fInterface;
     sk_sp<GrVkMemoryAllocator> fMemoryAllocator;
-
+    uint32_t                   fInstanceExtensionCount = 0;
+    const char* const*         fInstanceExtensions = nullptr;
+    uint32_t                   fDeviceExtensionCount = 0;
+    const char* const*         fDeviceExtensions = nullptr;
     /**
      * Controls whether this object destroys the instance and device upon destruction. The default
      * is temporarily 'true' to avoid breaking existing clients but will be changed to 'false'.
@@ -57,6 +60,9 @@ struct SK_API GrVkBackendContext : public SkRefCnt {
     using CanPresentFn = std::function<bool(VkInstance, VkPhysicalDevice,
                                             uint32_t queueFamilyIndex)>;
 
+// TODO: Once android no longer uses our helpers to build GrVkBackendContext, move this helper into
+// our tools directory.
+#if GR_TEST_UTILS || defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
     /**
      * Helper function to create the Vulkan objects needed for a Vulkan-backed GrContext.
      * Note that the version that uses the unified "GetProc" instead of separate "GetInstanceProc"
@@ -88,6 +94,7 @@ struct SK_API GrVkBackendContext : public SkRefCnt {
         };
         return Create(presentQueueIndex, canPresent, getProc);
     }
+#endif
 
     ~GrVkBackendContext() override;
 };

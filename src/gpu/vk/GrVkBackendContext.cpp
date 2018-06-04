@@ -10,6 +10,8 @@
 #include "vk/GrVkExtensions.h"
 #include "vk/GrVkUtil.h"
 
+#if GR_TEST_UTILS || defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+
 ////////////////////////////////////////////////////////////////////////////////
 // Helper code to set up Vulkan context objects
 
@@ -69,44 +71,44 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         kGrVkMinimumVersion,                // apiVersion
     };
 
-    GrVkExtensions extensions(getProc);
-    extensions.initInstance(kGrVkMinimumVersion);
+    GrVkExtensionsHelper extensionsHelper(getProc);
+    extensionsHelper.initInstance(kGrVkMinimumVersion);
 
     SkTArray<const char*> instanceLayerNames;
     SkTArray<const char*> instanceExtensionNames;
     uint32_t extensionFlags = 0;
 #ifdef SK_ENABLE_VK_LAYERS
     for (size_t i = 0; i < SK_ARRAY_COUNT(kDebugLayerNames); ++i) {
-        if (extensions.hasInstanceLayer(kDebugLayerNames[i])) {
+        if (extensionsHelper.hasInstanceLayer(kDebugLayerNames[i])) {
             instanceLayerNames.push_back(kDebugLayerNames[i]);
         }
     }
-    if (extensions.hasInstanceExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME)) {
+    if (extensionsHelper.hasInstanceExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME)) {
         instanceExtensionNames.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
         extensionFlags |= kEXT_debug_report_GrVkExtensionFlag;
     }
 #endif
 
-    if (extensions.hasInstanceExtension(VK_KHR_SURFACE_EXTENSION_NAME)) {
+    if (extensionsHelper.hasInstanceExtension(VK_KHR_SURFACE_EXTENSION_NAME)) {
         instanceExtensionNames.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
         extensionFlags |= kKHR_surface_GrVkExtensionFlag;
     }
-    if (extensions.hasInstanceExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)) {
+    if (extensionsHelper.hasInstanceExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)) {
         instanceExtensionNames.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
         extensionFlags |= kKHR_swapchain_GrVkExtensionFlag;
     }
 #ifdef SK_BUILD_FOR_WIN
-    if (extensions.hasInstanceExtension(VK_KHR_WIN32_SURFACE_EXTENSION_NAME)) {
+    if (extensionsHelper.hasInstanceExtension(VK_KHR_WIN32_SURFACE_EXTENSION_NAME)) {
         instanceExtensionNames.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
         extensionFlags |= kKHR_win32_surface_GrVkExtensionFlag;
     }
 #elif defined(SK_BUILD_FOR_ANDROID)
-    if (extensions.hasInstanceExtension(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME)) {
+    if (extensionsHelper.hasInstanceExtension(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME)) {
         instanceExtensionNames.push_back(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
         extensionFlags |= kKHR_android_surface_GrVkExtensionFlag;
     }
 #elif defined(SK_BUILD_FOR_UNIX) && !defined(__Fuchsia__)
-    if (extensions.hasInstanceExtension(VK_KHR_XCB_SURFACE_EXTENSION_NAME)) {
+    if (extensionsHelper.hasInstanceExtension(VK_KHR_XCB_SURFACE_EXTENSION_NAME)) {
         instanceExtensionNames.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
         extensionFlags |= kKHR_xcb_surface_GrVkExtensionFlag;
     }
@@ -212,22 +214,22 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         presentQueueIndex = graphicsQueueIndex;
     }
 
-    extensions.initDevice(kGrVkMinimumVersion, inst, physDev);
+    extensionsHelper.initDevice(kGrVkMinimumVersion, inst, physDev);
 
     SkTArray<const char*> deviceLayerNames;
     SkTArray<const char*> deviceExtensionNames;
 #ifdef SK_ENABLE_VK_LAYERS
     for (size_t i = 0; i < SK_ARRAY_COUNT(kDebugLayerNames); ++i) {
-        if (extensions.hasDeviceLayer(kDebugLayerNames[i])) {
+        if (extensionsHelper.hasDeviceLayer(kDebugLayerNames[i])) {
             deviceLayerNames.push_back(kDebugLayerNames[i]);
         }
     }
 #endif
-    if (extensions.hasDeviceExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)) {
+    if (extensionsHelper.hasDeviceExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)) {
         deviceExtensionNames.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
         extensionFlags |= kKHR_swapchain_GrVkExtensionFlag;
     }
-    if (extensions.hasDeviceExtension("VK_NV_glsl_shader")) {
+    if (extensionsHelper.hasDeviceExtension("VK_NV_glsl_shader")) {
         deviceExtensionNames.push_back("VK_NV_glsl_shader");
         extensionFlags |= kNV_glsl_shader_GrVkExtensionFlag;
     }
@@ -293,8 +295,13 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         return nullptr;
     }
 
-    auto interface =
-        sk_make_sp<GrVkInterface>(getProc, inst, device, extensionFlags);
+    GrVkExtensions extensions((uint32_t) instanceExtensionNames.count(),
+                              instanceExtensionNames.begin(),
+                              (uint32_t) deviceExtensionNames.count(),
+                              deviceExtensionNames.begin());
+
+    auto interface = sk_make_sp<GrVkInterface>(getProc, inst, device, extensions);
+#if 0
     if (!interface->validate(extensionFlags)) {
         SkDebugf("Vulkan interface validation failed\n");
         grVkDeviceWaitIdle(device);
@@ -302,6 +309,7 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         grVkDestroyInstance(inst, nullptr);
         return nullptr;
     }
+#endif
 
     VkQueue queue;
     grVkGetDeviceQueue(device, graphicsQueueIndex, 0, &queue);
@@ -320,6 +328,7 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
 
     return ctx;
 }
+#endif // GR_TEST_UTILS || defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
 
 GrVkBackendContext::~GrVkBackendContext() {
     fMemoryAllocator.reset();

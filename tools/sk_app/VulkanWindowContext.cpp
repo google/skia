@@ -12,6 +12,7 @@
 #include "SkSurface.h"
 #include "VulkanWindowContext.h"
 
+#include "vk/GrVkExtensions.h"
 #include "vk/GrVkImage.h"
 #include "vk/GrVkInterface.h"
 #include "vk/GrVkUtil.h"
@@ -52,8 +53,13 @@ void VulkanWindowContext::initializeContext() {
     fBackendContext.reset(GrVkBackendContext::Create(fGetInstanceProcAddr, fGetDeviceProcAddr,
                                                      &fPresentQueueIndex, fCanPresentFn));
 
-    if (!(fBackendContext->fExtensions & kKHR_surface_GrVkExtensionFlag) ||
-        !(fBackendContext->fExtensions & kKHR_swapchain_GrVkExtensionFlag)) {
+    SkASSERT(fBackendContext->fExtensions == 0);
+    GrVkExtensions extensions(fBackendContext->fInstanceExtensionCount,
+                              fBackendContext->fInstanceExtensions,
+                              fBackendContext->fDeviceExtensionCount,
+                              fBackendContext->fDeviceExtensions);
+    if (!extensions.hasExtension(VK_KHR_SURFACE_EXTENSION_NAME) ||
+        !extensions.hasExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)) {
         fBackendContext.reset(nullptr);
         return;
     }
