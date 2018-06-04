@@ -22,6 +22,30 @@
       "revId": "33c6d0d21f550089e9ce145e0c7de443f3291057",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4461314d_dfcd1733",
+        "filename": "src/core/SkTypeface_remote.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-04T15:05:06Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "fffefcb3_97dda74a",
+      "range": {
+        "startLine": 62,
+        "startChar": 14,
+        "endLine": 62,
+        "endChar": 24
+      },
+      "revId": "33c6d0d21f550089e9ce145e0c7de443f3291057",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
