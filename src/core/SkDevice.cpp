@@ -160,10 +160,11 @@ void SkBaseDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 
         switch (it.positioning()) {
         case SkTextBlob::kDefault_Positioning: {
+            SkGlyphSet glyphSet;
             auto origin = SkPoint::Make(x + offset.x(), y + offset.y());
             auto glyphRun =
-                    SkGlyphRun::MakeFromDrawText(runPaint,
-                                                 (const char*) it.glyphs(), textLen, origin);
+                    SkGlyphRun::MakeFromDrawText(
+                            runPaint, (const char*) it.glyphs(), textLen, origin, &glyphSet);
             this->drawPosText(
                     it.glyphs(), textLen, glyphRun.getPositions(), 2,
                     SkPoint::Make(0, 0), runPaint);

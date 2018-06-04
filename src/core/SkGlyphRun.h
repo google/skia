@@ -17,22 +17,39 @@
 #include "SkPoint.h"
 #include "SkTypes.h"
 
+// A faster set implementation that does not need any initialization, and reading the set items
+// is order the number of items, and not the size of the universe.
+// This implementation is based on the paper by Briggs and Torczon, "An Efficient Representation
+// for Sparse Sets"
+class SkGlyphSet {
+public:
+    SkGlyphSet() = default;
+    uint16_t add(SkGlyphID glyphID);
+    std::vector<SkGlyphID> uniqueGlyphIDs();
+    void reuse(uint32_t glyphUniverseSize);
+
+private:
+    uint32_t                    fUniverseSize{0};
+    std::vector<uint16_t>       fIndices;
+    std::vector<SkGlyphID>      fUniqueGlyphIDs;
+};
+
 class SkGlyphRun {
 public:
     SkGlyphRun() = default;
     SkGlyphRun(SkGlyphRun&&) = default;
     static SkGlyphRun MakeFromDrawText(
             const SkPaint& paint, const void* bytes, size_t byteLength,
-            SkPoint origin);
+            SkPoint origin, SkGlyphSet* glyphSet);
     static SkGlyphRun MakeFromDrawPosTextH(
             const SkPaint& paint, const void* bytes, size_t byteLength,
-            const SkScalar xpos[], SkScalar constY);
+            const SkScalar xpos[], SkScalar constY, SkGlyphSet* glyphSet);
     static SkGlyphRun MakeFromDrawPosText(
             const SkPaint& paint, const void* bytes, size_t byteLength,
-            const SkPoint pos[]);
+            const SkPoint pos[], SkGlyphSet* glyphSet);
 
     size_t runSize() const { return fRunSize; }
-    uint16_t uniqueSize() const { return fUniqueSize; }
+    uint16_t uniqueSize() const { return fUniqueGlyphs.size(); }
 
     // copyGlyphIDs is temporary glue to work with the existing system. Don't use with new code.
     std::unique_ptr<SkGlyphID[]> copyGlyphIDs() const;
@@ -44,14 +61,12 @@ private:
     SkGlyphRun(size_t runSize,
                std::unique_ptr<uint16_t[]>&& denseIndex,
                std::unique_ptr<SkPoint[]>&& positions,
-               uint16_t uniqueSize,
-               std::unique_ptr<SkGlyphID[]>&& uniqueGlyphIDs);
+               std::vector<SkGlyphID>&& uniqueGlyphIDs);
 
     std::unique_ptr<uint16_t[]>  fDenseIndex;
     std::unique_ptr<SkPoint[]>   fPositions;
-    std::unique_ptr<SkGlyphID[]> fUniqueGlyphs;
+    std::vector<SkGlyphID>       fUniqueGlyphs;
     const size_t                 fRunSize{0};
-    const uint16_t               fUniqueSize{0};
 };
 
 template <typename T>

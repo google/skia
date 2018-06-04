@@ -590,6 +590,8 @@ void SkCanvas::init(sk_sp<SkBaseDevice> device, InitFlags flags) {
 
         device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect);
     }
+
+    fScratchGlyphSet = skstd::make_unique<SkGlyphSet>();
 }
 
 SkCanvas::SkCanvas()
@@ -2448,7 +2450,7 @@ void SkCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkSca
 
     while (iter.next()) {
         auto glyphRun = SkGlyphRun::MakeFromDrawText(
-                looper.paint(), text, byteLength, SkPoint::Make(x, y));
+                looper.paint(), text, byteLength, SkPoint::Make(x, y), fScratchGlyphSet.get());
         iter.fDevice->drawGlyphRun(looper.paint(), &glyphRun);
     }
 
@@ -2461,7 +2463,8 @@ void SkCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint 
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, nullptr)
 
     while (iter.next()) {
-        auto glyphRun = SkGlyphRun::MakeFromDrawPosText(looper.paint(), text, byteLength, pos);
+        auto glyphRun = SkGlyphRun::MakeFromDrawPosText(
+                looper.paint(), text, byteLength, pos, fScratchGlyphSet.get());
         iter.fDevice->drawGlyphRun(looper.paint(), &glyphRun);
     }
 
@@ -2475,7 +2478,8 @@ void SkCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScala
 
     while (iter.next()) {
         auto glyphRun =
-                SkGlyphRun::MakeFromDrawPosTextH(looper.paint(), text, byteLength, xpos, constY);
+                SkGlyphRun::MakeFromDrawPosTextH(
+                        looper.paint(), text, byteLength, xpos, constY, fScratchGlyphSet.get());
         iter.fDevice->drawGlyphRun(looper.paint(), &glyphRun);
     }
 
