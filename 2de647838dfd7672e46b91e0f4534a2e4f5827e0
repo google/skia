@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f8392ef9_65587dde",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-06-04T19:47:32Z",
+      "side": 1,
+      "message": "It\u0027s when I have msl shader code and I just want to have skslc read from a file instead of compiling from sksl.",
+      "parentUuid": "9dcf0f25_3043bffe",
+      "range": {
+        "startLine": 17,
+        "startChar": 56,
+        "endLine": 17,
+        "endChar": 83
+      },
+      "revId": "2de647838dfd7672e46b91e0f4534a2e4f5827e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "88342636_dafb525b",
         "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-06-04T19:21:16Z",
       "side": 1,
       "message": "I imagine it\u0027s not that \"MoltenVK wants half types converted to floats\", but rather that \"MoltenVK and Skia disagree on how big a half is\".\n\nAnd since we\u0027re already converting all of our halfs to floats, why do Skia and MVK still disagree on the alignment and packing of the struct...? (Or more specifically, why do we need to do these manual layout calculations here?)",
+      "range": {
+        "startLine": 712,
+        "startChar": 84,
+        "endLine": 713,
+        "endChar": 44
+      },
+      "revId": "2de647838dfd7672e46b91e0f4534a2e4f5827e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6998c1c_f92cdf2b",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 713,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-06-04T19:47:32Z",
+      "side": 1,
+      "message": "Say the original sksl interface is something like:\n\ninterface {\n    half3 A (offset \u003d 0)\n    half B (offset \u003d 12)\n}\n\nMVK expects:\n\nstruct {\n    packed_float3 A;\n    float B;\n}\n\nfloat3 has to be packed since the size of float3 in MSL is 16 bytes. Maybe I\u0027m missing something obvious, so please let me know if you think this doesn\u0027t make sense.",
+      "parentUuid": "88342636_dafb525b",
       "range": {
         "startLine": 712,
         "startChar": 84,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "10946354_203c255b",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 778,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-06-04T19:47:32Z",
+      "side": 1,
+      "message": "The MVK code expects it and it is used to invert the frag coord y axis. Maybe this is because the pipeline is built from Vulkan calls? Regardless, I\u0027m pretty sure it\u0027s needed for the correct output.",
+      "parentUuid": "4c6b39de_585a394f",
+      "range": {
+        "startLine": 778,
+        "startChar": 8,
+        "endLine": 778,
+        "endChar": 47
+      },
+      "revId": "2de647838dfd7672e46b91e0f4534a2e4f5827e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6a54c07e_bf5fb2ac",
         "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
         "patchSetId": 2
@@ -82,6 +154,30 @@
       "writtenOn": "2018-06-04T19:21:16Z",
       "side": 1,
       "message": "Surely we can math this out rather than having to list them all, can\u0027t we?",
+      "range": {
+        "startLine": 811,
+        "startChar": 0,
+        "endLine": 850,
+        "endChar": 0
+      },
+      "revId": "2de647838dfd7672e46b91e0f4534a2e4f5827e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bea47d17_9f87d9ff",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 850,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-06-04T19:47:32Z",
+      "side": 1,
+      "message": "Yes, I have a fixme already at the beginning of the function. Essentially, I just want to make sure its producing the right sizes based on the MSL documentation. I don\u0027t want problems to be from math while I am fixing other things.",
+      "parentUuid": "6a54c07e_bf5fb2ac",
       "range": {
         "startLine": 811,
         "startChar": 0,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "18694bd4_ba4e05ac",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 882,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-06-04T19:47:32Z",
+      "side": 1,
+      "message": "When I actually implement the math it will be calculated, but for right now I don\u0027t ever need the alignment of a matrix. I would only need the alignment if I was packing a matrix, but matrices can\u0027t be packed in MSL as far as I can tell.",
+      "parentUuid": "c05a1cad_acbbc771",
+      "range": {
+        "startLine": 861,
+        "startChar": 0,
+        "endLine": 882,
+        "endChar": 0
+      },
+      "revId": "2de647838dfd7672e46b91e0f4534a2e4f5827e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3925bc5c_7ec6bc49",
         "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
         "patchSetId": 2
@@ -137,6 +257,30 @@
       "revId": "2de647838dfd7672e46b91e0f4534a2e4f5827e0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6613687e_38b9672c",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1290,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-06-04T19:47:32Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "3925bc5c_7ec6bc49",
+      "range": {
+        "startLine": 1290,
+        "startChar": 12,
+        "endLine": 1290,
+        "endChar": 21
+      },
+      "revId": "2de647838dfd7672e46b91e0f4534a2e4f5827e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
