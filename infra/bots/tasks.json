@@ -18419,7 +18419,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:NPJ25.93-14",
+        "device_os:NPJS25.93-14.7-8",
         "device_type:athene",
         "os:Android",
         "pool:Skia"
@@ -18520,7 +18520,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:NPJ25.93-14",
+        "device_os:NPJS25.93-14.7-8",
         "device_type:athene",
         "os:Android",
         "pool:Skia"
@@ -40759,7 +40759,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:NPJ25.93-14",
+        "device_os:NPJS25.93-14.7-8",
         "device_type:athene",
         "os:Android",
         "pool:Skia"
@@ -40860,7 +40860,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:NPJ25.93-14",
+        "device_os:NPJS25.93-14.7-8",
         "device_type:athene",
         "os:Android",
         "pool:Skia"
