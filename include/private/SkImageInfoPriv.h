@@ -88,10 +88,9 @@ static inline size_t SkColorTypeComputeOffset(SkColorType ct, int x, int y, size
 }
 
 /**
- *  This contains shared checks on SkImageInfo.  Depending on the desired color space behavior,
- *  the caller should choose one of the two versions below.
+ *  Returns true if |info| contains a valid combination of width, height, colorType, and alphaType.
  */
-static inline bool SkImageInfoIsValidCommon(const SkImageInfo& info) {
+static inline bool SkImageInfoIsValid(const SkImageInfo& info) {
     if (info.width() <= 0 || info.height() <= 0) {
         return false;
     }
@@ -114,52 +113,8 @@ static inline bool SkImageInfoIsValidCommon(const SkImageInfo& info) {
 }
 
 /**
- *  Returns true if |info| contains a valid combination of width, height, colorType, alphaType,
- *  colorSpace.  Allows numerical color spaces.  Returns false otherwise.
- */
-static inline bool SkImageInfoIsValidAllowNumericalCS(const SkImageInfo& info) {
-    if (!SkImageInfoIsValidCommon(info)) {
-        return false;
-    }
-
-    SkColorSpaceTransferFn fn;
-    if (info.colorSpace() && !info.colorSpace()->isNumericalTransferFn(&fn)) {
-        return false;
-    }
-
-    return true;
-}
-
-/**
- *  Returns true if |info| contains a valid combination of width, height, colorType, alphaType,
- *  colorSpace.  Only supports rendering color spaces.  Returns false otherwise.
- */
-static inline bool SkImageInfoIsValidRenderingCS(const SkImageInfo& info) {
-    if (!SkImageInfoIsValidCommon(info)) {
-        return false;
-    }
-
-    if (info.colorSpace() &&
-       (!info.colorSpace()->gammaCloseToSRGB() && !info.colorSpace()->gammaIsLinear())) {
-        return false;
-    }
-
-    return true;
-}
-
-/**
- *  Returns true if |info| contains a valid combination of width, height, colorType, alphaType,
- *  colorSpace.
- */
-static inline bool SkImageInfoIsValid(const SkImageInfo& info) {
-    return SkImageInfoIsValidAllowNumericalCS(info);
-}
-
-/**
  *  Returns true if Skia has defined a pixel conversion from the |src| to the |dst|.
  *  Returns false otherwise.  Some discussion of false cases:
- *      We will not convert to kIndex8 unless it exactly matches the src, since color tables
- *      are immutable.
  *      We do not convert to kGray8 when the |src| is not kGray8 in the same color space.
  *      We may add this feature - it just requires some work to convert to luminance while
  *      handling color spaces correctly.  Currently no one is asking for this.
@@ -174,7 +129,7 @@ static inline bool SkImageInfoIsValid(const SkImageInfo& info) {
  *      conversion is not well-defined.
  */
 static inline bool SkImageInfoValidConversion(const SkImageInfo& dst, const SkImageInfo& src) {
-    if (!SkImageInfoIsValidAllowNumericalCS(dst) || !SkImageInfoIsValidAllowNumericalCS(src)) {
+    if (!SkImageInfoIsValid(dst) || !SkImageInfoIsValid(src)) {
         return false;
     }
 
