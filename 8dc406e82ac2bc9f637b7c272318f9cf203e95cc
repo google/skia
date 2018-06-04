@@ -22,6 +22,30 @@
       "revId": "8dc406e82ac2bc9f637b7c272318f9cf203e95cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d8a62e2_29bb3ffe",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-06-04T19:26:25Z",
+      "side": 1,
+      "message": "I had been thinking it wasn\u0027t a major issue, since we cache the effects and only create them on a cache miss, which involves a slow compilation process anyway... but of course I forgot that we always create the GrDitherEffect, and the thing that gets cached is the Gr*GLSL*DitherEffect. My bad. I have an idea of how to fix this, going to see if I can make it work...",
+      "parentUuid": "0dda4828_167b6736",
+      "range": {
+        "startLine": 528,
+        "startChar": 0,
+        "endLine": 537,
+        "endChar": 9
+      },
+      "revId": "8dc406e82ac2bc9f637b7c272318f9cf203e95cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
