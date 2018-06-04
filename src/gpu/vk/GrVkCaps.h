@@ -12,6 +12,7 @@
 #include "GrVkStencilAttachment.h"
 #include "vk/GrVkDefines.h"
 
+class GrVkExtensions;
 struct GrVkInterface;
 class GrShaderCaps;
 
@@ -27,7 +28,7 @@ public:
      * be called to fill out the caps.
      */
     GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-             VkPhysicalDevice device, uint32_t featureFlags, uint32_t extensionFlags);
+             VkPhysicalDevice device, uint32_t featureFlags, const GrVkExtensions&);
 
     bool isConfigTexturable(GrPixelConfig config) const override {
         return SkToBool(ConfigInfo::kTextureable_Flag & fConfigTable[config].fOptimalFlags);
@@ -153,7 +154,7 @@ private:
     };
 
     void init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-              VkPhysicalDevice device, uint32_t featureFlags, uint32_t extensionFlags);
+              VkPhysicalDevice device, uint32_t featureFlags, const GrVkExtensions&);
     void initGrCaps(const VkPhysicalDeviceProperties&,
                     const VkPhysicalDeviceMemoryProperties&,
                     uint32_t featureFlags);

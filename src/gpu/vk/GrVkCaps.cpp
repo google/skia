@@ -12,10 +12,12 @@
 #include "GrShaderCaps.h"
 #include "GrVkUtil.h"
 #include "vk/GrVkBackendContext.h"
+#include "vk/GrVkExtensions.h"
 #include "vk/GrVkInterface.h"
 
 GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-                   VkPhysicalDevice physDev, uint32_t featureFlags, uint32_t extensionFlags)
+                   VkPhysicalDevice physDev, uint32_t featureFlags,
+                   const GrVkExtensions& extensions)
     : INHERITED(contextOptions) {
     fCanUseGLSLForShaderModule = false;
     fMustDoCopiesFromOrigin = false;
@@ -49,7 +51,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
-    this->init(contextOptions, vkInterface, physDev, featureFlags, extensionFlags);
+    this->init(contextOptions, vkInterface, physDev, featureFlags, extensions);
 }
 
 bool GrVkCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
@@ -197,7 +199,8 @@ bool GrVkCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* s
 }
 
 void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-                    VkPhysicalDevice physDev, uint32_t featureFlags, uint32_t extensionFlags) {
+                    VkPhysicalDevice physDev, uint32_t featureFlags,
+                   const GrVkExtensions& extensions) {
 
     VkPhysicalDeviceProperties properties;
     GR_VK_CALL(vkInterface, GetPhysicalDeviceProperties(physDev, &properties));
