@@ -446,7 +446,6 @@ void SkLightingImageFilterInternal::drawRect(GrRenderTargetContext* renderTarget
                                              const SkIRect& bounds) const {
     SkRect srcRect = dstRect.makeOffset(SkIntToScalar(bounds.x()), SkIntToScalar(bounds.y()));
     GrPaint paint;
-    paint.setGammaCorrect(renderTargetContext->colorSpaceInfo().isGammaCorrect());
     auto fp = this->makeFragmentProcessor(std::move(srcProxy), matrix, srcBounds, boundaryMode);
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);

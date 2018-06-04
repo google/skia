@@ -62,14 +62,6 @@ public:
     void setDisableOutputConversionToSRGB(bool srgb) { fDisableOutputConversionToSRGB = srgb; }
     bool getDisableOutputConversionToSRGB() const { return fDisableOutputConversionToSRGB; }
 
-    /**
-     * Should rendering be gamma-correct, end-to-end. Causes sRGB render targets to behave
-     * as such (with linear blending).
-     */
-    void setGammaCorrect(bool gammaCorrect) {
-        this->setDisableOutputConversionToSRGB(!gammaCorrect);
-    }
-
     void setXPFactory(const GrXPFactory* xpFactory) {
         fXPFactory = xpFactory;
         fTrivial &= !SkToBool(xpFactory);
