@@ -2037,21 +2037,6 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
     // We have a special case fallback for reading eight bit alpha. We will read back all four 8
     // bit channels as RGBA and then extract A.
     if (!this->readPixelsSupported(surface, dstAsConfig)) {
-        if (kAlpha_8_GrPixelConfig == dstAsConfig &&
-            this->readPixelsSupported(surface, kRGBA_8888_GrPixelConfig)) {
-            std::unique_ptr<uint32_t[]> temp(new uint32_t[width * height * 4]);
-            if (this->onReadPixels(surface, left, top, width, height, GrColorType::kRGBA_8888,
-                                   temp.get(), width * 4)) {
-                uint8_t* dst = reinterpret_cast<uint8_t*>(buffer);
-                for (int j = 0; j < height; ++j) {
-                    for (int i = 0; i < width; ++i) {
-                        dst[j*rowBytes + i] = (0xFF000000U & temp[j*width+i]) >> 24;
-                    }
-                }
-                return true;
-            }
-        }
-
         // If reading in half float format is not supported, then read in a temporary float buffer
         // and convert to half float.
         if (kRGBA_half_GrPixelConfig == dstAsConfig &&
