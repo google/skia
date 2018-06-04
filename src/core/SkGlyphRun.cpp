@@ -21,61 +21,7 @@
 
 namespace {
 
-// A faster set implementation that does not need any initialization, and reading the set items
-// is order the number of items, and not the size of the universe.
-// This implementation is based on the paper by Briggs and Torczon, "An Efficient Representation
-// for Sparse Sets"
-class GlyphSet {
-public:
-    GlyphSet(uint32_t glyphUniverseSize)
-    : fUniverseSize{glyphUniverseSize}
-    , fIndexes{skstd::make_unique_default<uint16_t[]>(2 * glyphUniverseSize)}
-    , fUniqueGlyphIDs{&fIndexes[glyphUniverseSize]} {
-        SkASSERT(glyphUniverseSize <= (1 << 16));
-        sk_msan_mark_initialized(fIndexes.get(), &fIndexes[glyphUniverseSize], "works with uninited");
-    }
-
-    uint16_t add(SkGlyphID glyphID) {
-        if (glyphID >= fUniverseSize) {
-            glyphID = kUndefGlyph;
-        }
-        auto index = fIndexes[glyphID];
-        if (index < fUniqueCount && fUniqueGlyphIDs[index] == glyphID) {
-            return index;
-        }
-
-        fUniqueGlyphIDs[fUniqueCount] = glyphID;
-        fIndexes[glyphID] = fUniqueCount;
-        fUniqueCount += 1;
-        return fUniqueCount - 1;
-    }
-
-    std::tuple<uint16_t, std::unique_ptr<SkGlyphID[]>> uniqueGlyphIDs() const {
-        auto uniqueGlyphs = skstd::make_unique_default<SkGlyphID[]>(fUniqueCount);
-        memcpy(uniqueGlyphs.get(), fUniqueGlyphIDs, fUniqueCount * sizeof(SkGlyphID));
-        return std::make_tuple(fUniqueCount, std::move(uniqueGlyphs));
-    }
-
-private:
-    static constexpr SkGlyphID  kUndefGlyph{0};
-    const uint32_t              fUniverseSize;
-    uint16_t                    fUniqueCount{0};
-    std::unique_ptr<uint16_t[]> fIndexes;
-    SkGlyphID*                  fUniqueGlyphIDs;
- };
-
-template<typename T>
-bool is_aligned(const void* ptr) {
-    uintptr_t bits = reinterpret_cast<uintptr_t>(ptr);
-    return (bits & (alignof(T) - 1)) == 0;
-}
-
-template<typename T>
-bool is_aligned_size(size_t size) {
-    return size % sizeof(T) == 0;
-}
-
-SkTypeface::Encoding convert_encoding(SkPaint::TextEncoding encoding) {
+static SkTypeface::Encoding convert_encoding(SkPaint::TextEncoding encoding) {
     switch (encoding) {
         case  SkPaint::kUTF8_TextEncoding: return SkTypeface::kUTF8_Encoding;
         case SkPaint::kUTF16_TextEncoding: return SkTypeface::kUTF16_Encoding;
@@ -84,32 +30,28 @@ SkTypeface::Encoding convert_encoding(SkPaint::TextEncoding encoding) {
     }
 }
 
-using Core = std::tuple<size_t,   std::unique_ptr<uint16_t[]>,
-                        uint16_t, std::unique_ptr<SkGlyphID[]>>;
+using Core = std::tuple<size_t,   std::unique_ptr<uint16_t[]>, std::vector<SkGlyphID>>;
 
-Core make_from_glyphids(size_t glyphCount, const SkGlyphID* glyphs, SkGlyphID maxGlyphID) {
-    if (glyphCount == 0) { return Core(0, nullptr, 0, nullptr); }
+Core make_from_glyphids(
+        size_t glyphCount, const SkGlyphID* glyphs, SkGlyphID maxGlyphID, SkGlyphSet* glyphSet) {
+    if (glyphCount == 0) { return Core(0, nullptr, std::vector<SkGlyphID>()); }
 
-    GlyphSet glyphSet{maxGlyphID};
+    glyphSet->reuse(maxGlyphID);
 
     auto denseIndex = skstd::make_unique_default<uint16_t[]>(glyphCount);
     for (size_t i = 0; i < glyphCount; i++) {
-        denseIndex[i] = glyphSet.add(glyphs[i]);
+        denseIndex[i] = glyphSet->add(glyphs[i]);
     }
 
-    std::unique_ptr<SkGlyphID[]> uniqueGlyphIDs;
-    uint16_t uniqueCount;
-    std::tie(uniqueCount, uniqueGlyphIDs) = glyphSet.uniqueGlyphIDs();
-
-    return Core(glyphCount, std::move(denseIndex), uniqueCount, std::move(uniqueGlyphIDs));
+    return Core(glyphCount, std::move(denseIndex), glyphSet->uniqueGlyphIDs());
 }
 
 Core make_from_utfn(size_t byteLength, const void* utfN, const SkTypeface& typeface,
-                    SkTypeface::Encoding encoding) {
+                    SkTypeface::Encoding encoding, SkGlyphSet* glyphSet) {
     auto count = SkUTFN_CountUnichars(encoding, utfN, byteLength);
 
     if (count <= 0) {
-        return Core(0, nullptr, 0, nullptr);
+        return Core(0, nullptr, std::vector<SkGlyphID>());
     }
 
     auto glyphs = skstd::make_unique_default<SkGlyphID[]>(count);
@@ -117,17 +59,18 @@ Core make_from_utfn(size_t byteLength, const void* utfN, const SkTypeface& typef
     // TODO: move to using cached version.
     typeface.charsToGlyphs(utfN, encoding, glyphs.get(), count);
 
-    return make_from_glyphids(count, glyphs.get(), typeface.countGlyphs());
+    return make_from_glyphids(count, glyphs.get(), typeface.countGlyphs(), glyphSet);
 }
 
-Core make_core(const SkPaint& paint, const void* bytes, size_t byteLength) {
+Core make_core(const SkPaint& paint, const void* bytes, size_t byteLength, SkGlyphSet* glyphSet) {
     auto encoding = paint.getTextEncoding();
     auto typeface = SkPaintPriv::GetTypefaceOrDefault(paint);
     if (encoding == SkPaint::kGlyphID_TextEncoding) {
         return make_from_glyphids(
-                byteLength / 2, reinterpret_cast<const SkGlyphID*>(bytes), typeface->countGlyphs());
+                byteLength / 2, reinterpret_cast<const SkGlyphID*>(bytes),
+                typeface->countGlyphs(), glyphSet);
     } else {
-        return make_from_utfn(byteLength, bytes, *typeface, convert_encoding(encoding));
+        return make_from_utfn(byteLength, bytes, *typeface, convert_encoding(encoding), glyphSet);
     }
 }
 
@@ -135,20 +78,20 @@ Core make_core(const SkPaint& paint, const void* bytes, size_t byteLength) {
 
 SkGlyphRun SkGlyphRun::MakeFromDrawText(
         const SkPaint& paint, const void* bytes, size_t byteLength,
-        const SkPoint origin) {
+        const SkPoint origin, SkGlyphSet* glyphSet) {
     size_t runSize;
     std::unique_ptr<uint16_t[]> denseIndex;
-    uint16_t uniqueSize;
-    std::unique_ptr<SkGlyphID[]> uniqueGlyphIDs;
-    std::tie(runSize, denseIndex, uniqueSize, uniqueGlyphIDs) = make_core(paint, bytes, byteLength);
+    std::vector<SkGlyphID> uniqueGlyphIDs;
+    std::tie(runSize, denseIndex, uniqueGlyphIDs) = make_core(paint, bytes, byteLength, glyphSet);
 
     if (runSize == 0) { return SkGlyphRun{}; }
 
-    auto advances = skstd::make_unique_default<SkPoint[]>(uniqueSize);
+    auto advances = skstd::make_unique_default<SkPoint[]>(uniqueGlyphIDs.size());
 
     {
         auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(paint);
-        cache->getAdvances(SkSpan<SkGlyphID>{uniqueGlyphIDs.get(), uniqueSize}, advances.get());
+        cache->getAdvances(SkSpan<SkGlyphID>{uniqueGlyphIDs.data(),
+                                             uniqueGlyphIDs.size()}, advances.get());
     }
 
     auto positions = skstd::make_unique_default<SkPoint[]>(runSize);
@@ -171,17 +114,16 @@ SkGlyphRun SkGlyphRun::MakeFromDrawText(
     }
 
     return SkGlyphRun{
-        runSize, std::move(denseIndex), std::move(positions), uniqueSize, std::move(uniqueGlyphIDs)};
+        runSize, std::move(denseIndex), std::move(positions), std::move(uniqueGlyphIDs)};
 }
 
 SkGlyphRun SkGlyphRun::MakeFromDrawPosTextH(
         const SkPaint& paint, const void* bytes, size_t byteLength,
-        const SkScalar xpos[], SkScalar constY) {
+        const SkScalar xpos[], SkScalar constY, SkGlyphSet* glyphSet) {
     size_t runSize;
     std::unique_ptr<uint16_t[]> denseIndex;
-    uint16_t uniqueSize;
-    std::unique_ptr<SkGlyphID[]> uniqueGlyphIDs;
-    std::tie(runSize, denseIndex, uniqueSize, uniqueGlyphIDs) = make_core(paint, bytes, byteLength);
+    std::vector<SkGlyphID> uniqueGlyphIDs;
+    std::tie(runSize, denseIndex, uniqueGlyphIDs) = make_core(paint, bytes, byteLength, glyphSet);
 
     if (runSize == 0) { return SkGlyphRun{}; }
 
@@ -192,17 +134,16 @@ SkGlyphRun SkGlyphRun::MakeFromDrawPosTextH(
     }
 
     return SkGlyphRun{
-        runSize, std::move(denseIndex), std::move(positions), uniqueSize, std::move(uniqueGlyphIDs)};
+        runSize, std::move(denseIndex), std::move(positions), std::move(uniqueGlyphIDs)};
 }
 
 SkGlyphRun SkGlyphRun::MakeFromDrawPosText(
         const SkPaint& paint, const void* bytes, size_t byteLength,
-        const SkPoint pos[]) {
+        const SkPoint pos[], SkGlyphSet* glyphSet) {
     size_t runSize;
     std::unique_ptr<uint16_t[]> denseIndex;
-    uint16_t uniqueSize;
-    std::unique_ptr<SkGlyphID[]> uniqueGlyphIDs;
-    std::tie(runSize, denseIndex, uniqueSize, uniqueGlyphIDs) = make_core(paint, bytes, byteLength);
+    std::vector<SkGlyphID> uniqueGlyphIDs;
+    std::tie(runSize, denseIndex, uniqueGlyphIDs) = make_core(paint, bytes, byteLength, glyphSet);
 
     if (runSize == 0) { return SkGlyphRun{}; }
 
@@ -211,7 +152,7 @@ SkGlyphRun SkGlyphRun::MakeFromDrawPosText(
     memcpy(positions.get(), pos, sizeof(SkPoint) * runSize);
 
     return SkGlyphRun{
-        runSize, std::move(denseIndex), std::move(positions), uniqueSize, std::move(uniqueGlyphIDs)};
+        runSize, std::move(denseIndex), std::move(positions), std::move(uniqueGlyphIDs)};
 }
 
 std::unique_ptr<SkGlyphID[]> SkGlyphRun::copyGlyphIDs() const {
@@ -227,10 +168,55 @@ std::unique_ptr<SkGlyphID[]> SkGlyphRun::copyGlyphIDs() const {
 SkGlyphRun::SkGlyphRun(size_t runSize,
                        std::unique_ptr<uint16_t[]>&& denseIndex,
                        std::unique_ptr<SkPoint[]>&& positions,
-                       uint16_t uniqueSize,
-                       std::unique_ptr<SkGlyphID[]>&& uniqueGlyphIDs)
+                       std::vector<SkGlyphID>&& uniqueGlyphIDs)
     : fDenseIndex{std::move(denseIndex)}
     , fPositions{std::move(positions)}
     , fUniqueGlyphs{std::move(uniqueGlyphIDs)}
-    , fRunSize{runSize}
-    , fUniqueSize{uniqueSize} { }
+    , fRunSize{runSize} { }
+
+uint16_t SkGlyphSet::add(SkGlyphID glyphID) {
+    static constexpr SkGlyphID  kUndefGlyph{0};
+
+    if (glyphID >= fUniverseSize) {
+        glyphID = kUndefGlyph;
+    }
+
+    if (glyphID >= fIndices.size()) {
+        fIndices.resize(glyphID + 1);
+    }
+
+    auto index = fIndices[glyphID];
+    if (index < fUniqueGlyphIDs.size() && fUniqueGlyphIDs[index] == glyphID) {
+        return index;
+    }
+
+    uint16_t newIndex = SkTo<uint16_t>(fUniqueGlyphIDs.size());
+    fUniqueGlyphIDs.push_back(glyphID);
+    fIndices[glyphID] = newIndex;
+    return newIndex;
+}
+
+std::vector<SkGlyphID> SkGlyphSet::uniqueGlyphIDs() {
+    return fUniqueGlyphIDs;
+}
+
+void SkGlyphSet::reuse(uint32_t glyphUniverseSize) {
+    SkASSERT(glyphUniverseSize <= (1 << 16));
+    fUniverseSize = glyphUniverseSize;
+    // If we're hanging onto these arrays for a long time, we don't want their size to drift
+    // endlessly upwards. It's unusual to see more than 256 unique glyphs used in a run,
+    // or a typeface with more than 4096 possible glyphs.
+    if (fUniqueGlyphIDs.size() > 256) {
+        fUniqueGlyphIDs.resize(256);
+        fUniqueGlyphIDs.shrink_to_fit();
+    }
+    fUniqueGlyphIDs.clear();
+
+    if (glyphUniverseSize < 4096 && fIndices.size() > 4096) {
+        fIndices.resize(4096);
+        fIndices.shrink_to_fit();
+    }
+
+    // No need to clear fIndices here... SkGlyphSet's set insertion algorithm is designed to work
+    // correctly even when the fIndexes buffer is uninitialized!
+}
