@@ -154,6 +154,7 @@ GrContext::~GrContext() {
         fDrawingManager->cleanup();
     }
 
+    //$$ ??
     fTextureStripAtlasManager = nullptr;
     delete fResourceProvider;
     delete fResourceCache;
@@ -233,6 +234,7 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
 void GrContext::abandonContext() {
     ASSERT_SINGLE_OWNER
 
+    // $$ ??
     fTextureStripAtlasManager->abandon();
     fProxyProvider->abandon();
     fResourceProvider->abandon();
@@ -254,6 +256,7 @@ void GrContext::abandonContext() {
 void GrContext::releaseResourcesAndAbandonContext() {
     ASSERT_SINGLE_OWNER
 
+    // $$ ??
     fTextureStripAtlasManager->abandon();
     fProxyProvider->abandon();
     fResourceProvider->abandon();
@@ -810,6 +813,17 @@ void GrContextPriv::flushSurfaceIO(GrSurfaceProxy* proxy) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+sk_sp<GrMemoryPool> GrContextPriv::refOpMemoryPool() {
+    if (!fContext->fOpMemoryPool) {
+        // DDL TODO: should the size of the memory pool be decreased in DDL mode? CPU-side memory
+        // consumed in DDL mode vs. normal mode for a single skp might be a good metric of wasted
+        // memory.
+        fContext->fOpMemoryPool = sk_sp<GrMemoryPool>(new GrMemoryPool(16384, 16384)); 
+    }
+
+    return fContext->fOpMemoryPool;
+}
 
 sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy> proxy,
                                                                  sk_sp<SkColorSpace> colorSpace,

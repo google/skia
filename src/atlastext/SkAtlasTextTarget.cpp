@@ -95,6 +95,10 @@ public:
         grPaint->setColor4f(SkColorToPremulGrColor4fLegacy(skPaint.getColor()));
     }
 
+    GrContext* getContext() override {
+        return this->context()->internal().grContext();
+    }
+
     /** SkAtlasTextTarget overrides */
 
     void drawText(const SkGlyphID[], const SkPoint[], int glyphCnt, uint32_t color,

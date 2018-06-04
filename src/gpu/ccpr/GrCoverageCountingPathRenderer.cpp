@@ -132,13 +132,13 @@ bool GrCoverageCountingPathRenderer::onDrawPath(const DrawPathArgs& args) {
         SkPath croppedPath;
         path.transform(*args.fViewMatrix, &croppedPath);
         crop_path(croppedPath, clipIBounds, &croppedPath);
-        this->adoptAndRecordOp(new GrCCDrawPathsOp(std::move(args.fPaint), clipIBounds,
-                                                   SkMatrix::I(), croppedPath,
+        this->adoptAndRecordOp(new GrCCDrawPathsOp(args.fContext, std::move(args.fPaint),
+                                                   clipIBounds, SkMatrix::I(), croppedPath,
                                                    croppedPath.getBounds()), args);
         return true;
     }
 
-    this->adoptAndRecordOp(new GrCCDrawPathsOp(std::move(args.fPaint), clipIBounds,
+    this->adoptAndRecordOp(new GrCCDrawPathsOp(args.fContext, std::move(args.fPaint), clipIBounds,
                                                *args.fViewMatrix, path, devBounds), args);
     return true;
 }

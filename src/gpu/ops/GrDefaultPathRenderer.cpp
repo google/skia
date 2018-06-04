@@ -14,6 +14,7 @@
 #include "GrOpFlushState.h"
 #include "GrPathUtils.h"
 #include "GrSimpleMeshDrawOpHelper.h"
+#include "GrSurfaceContextPriv.h"
 #include "SkGeometry.h"
 #include "SkString.h"
 #include "SkStrokeRec.h"
@@ -332,13 +333,19 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkPath& path, SkScalar tolerance,
-                                          uint8_t coverage, const SkMatrix& viewMatrix,
-                                          bool isHairline, GrAAType aaType, const SkRect& devBounds,
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          GrPaint&& paint,
+                                          const SkPath& path,
+                                          SkScalar tolerance,
+                                          uint8_t coverage,
+                                          const SkMatrix& viewMatrix,
+                                          bool isHairline,
+                                          GrAAType aaType,
+                                          const SkRect& devBounds,
                                           const GrUserStencilSettings* stencilSettings) {
-        return Helper::FactoryHelper<DefaultPathOp>(std::move(paint), path, tolerance, coverage,
-                                                    viewMatrix, isHairline, aaType, devBounds,
-                                                    stencilSettings);
+        return Helper::FactoryHelper<DefaultPathOp>(context, std::move(paint), path, tolerance,
+                                                    coverage, viewMatrix, isHairline, aaType,
+                                                    devBounds, stencilSettings);
     }
 
     const char* name() const override { return "DefaultPathOp"; }
@@ -479,6 +486,8 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
                                              const SkMatrix& viewMatrix,
                                              const GrShape& shape,
                                              bool stencilOnly) {
+    GrContext* context = renderTargetContext->surfPriv().getContext();
+
     SkASSERT(GrAAType::kCoverage != aaType);
     SkPath path;
     shape.asPath(&path);
@@ -594,17 +603,19 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             renderTargetContext->addDrawOp(
                     clip,
                     GrRectOpFactory::MakeNonAAFillWithLocalMatrix(
-                            std::move(paint), viewM, localMatrix, bounds, aaType, passes[p]));
+                            context, std::move(paint), viewM, localMatrix,
+                            bounds, aaType, passes[p]));
         } else {
             bool stencilPass = stencilOnly || passCount > 1;
             std::unique_ptr<GrDrawOp> op;
             if (stencilPass) {
                 GrPaint stencilPaint;
                 stencilPaint.setXPFactory(GrDisableColorXPFactory::Get());
-                op = DefaultPathOp::Make(std::move(stencilPaint), path, srcSpaceTol, newCoverage,
-                                         viewMatrix, isHairline, aaType, devBounds, passes[p]);
+                op = DefaultPathOp::Make(context, std::move(stencilPaint), path, srcSpaceTol,
+                                         newCoverage, viewMatrix, isHairline, aaType, devBounds,
+                                         passes[p]);
             } else {
-                op = DefaultPathOp::Make(std::move(paint), path, srcSpaceTol, newCoverage,
+                op = DefaultPathOp::Make(context, std::move(paint), path, srcSpaceTol, newCoverage,
                                          viewMatrix, isHairline, aaType, devBounds, passes[p]);
             }
             renderTargetContext->addDrawOp(clip, std::move(op));
@@ -678,8 +689,8 @@ GR_DRAW_OP_TEST_DEFINE(DefaultPathOp) {
     if (GrFSAAType::kUnifiedMSAA == fsaaType && random->nextBool()) {
         aaType = GrAAType::kMSAA;
     }
-    return DefaultPathOp::Make(std::move(paint), path, srcSpaceTol, coverage, viewMatrix, true,
-                               aaType, bounds, GrGetRandomStencil(random, context));
+    return DefaultPathOp::Make(context, std::move(paint), path, srcSpaceTol, coverage, viewMatrix,
+                               true, aaType, bounds, GrGetRandomStencil(random, context));
 }
 
 #endif
