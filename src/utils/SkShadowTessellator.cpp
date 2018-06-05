@@ -1587,7 +1587,8 @@ sk_sp<SkVertices> SkShadowTessellator::MakeSpot(const SkPath& path, const SkMatr
                                                 const SkPoint3& zPlane, const SkPoint3& lightPos,
                                                 SkScalar lightRadius,  bool transparent) {
     if (!ctm.mapRect(path.getBounds()).isFinite() || !zPlane.isFinite() ||
-        !lightPos.isFinite() || !SkScalarIsFinite(lightRadius) || !(lightRadius > 0)) {
+        !lightPos.isFinite() || !(lightPos.fZ >= SK_ScalarNearlyZero) ||
+        !SkScalarIsFinite(lightRadius) || !(lightRadius >= SK_ScalarNearlyZero)) {
         return nullptr;
     }
     SkSpotShadowTessellator spotTess(path, ctm, zPlane, lightPos, lightRadius, transparent);

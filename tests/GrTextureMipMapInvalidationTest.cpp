@@ -7,8 +7,6 @@
 
 #include "SkTypes.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrContext.h"
 #include "GrTexturePriv.h"
 #include "SkCanvas.h"
@@ -53,5 +51,3 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrTextureMipMapInvalidationTest, reporter, ctxInf
     REPORTER_ASSERT(reporter, isMipped(surf1.get()));
     REPORTER_ASSERT(reporter, mipsAreDirty(surf1.get()));
 }
-
-#endif

@@ -17,7 +17,7 @@
   {
     "cmd": [
       "catchsegv",
-      "[START_DIR]/build/out/devrel/run_testlab",
+      "[START_DIR]/build/run_testlab",
       "--logtostderr",
       "--devices",
       "[START_DIR]/whitelist_devices.json",

@@ -116,6 +116,21 @@ void draw_pointy_golf_club(SkCanvas* canvas, const SkPaint& paint, SkScalar widt
     canvas->drawPath(path, paint);
 }
 
+void draw_small_i(SkCanvas* canvas, const SkPaint& paint, SkScalar width) {
+    SkPath path;
+    path.moveTo(1.25 - width, 18.75 + width);
+    path.lineTo(1.25 - width, 12.25 - width);
+    path.lineTo(2.50 + width, 12.25 - width);
+    path.lineTo(2.50 + width, 18.75 + width);
+    path.moveTo(1.25 - width, 11.75 + width);
+    path.lineTo(1.25 - width, 10.25 - width);
+    path.lineTo(2.50 + width, 10.25 - width);
+    path.lineTo(2.50 + width, 11.75 + width);
+    canvas->drawPath(path, paint);
+}
+
+
+
 };
 
 DEF_SIMPLE_GM(thinconcavepaths, canvas, 550, 400) {
@@ -177,6 +192,13 @@ DEF_SIMPLE_GM(thinconcavepaths, canvas, 550, 400) {
     canvas->save();
     for (SkScalar width = 0.2f; width < 2.1f; width += 0.2f) {
         draw_pointy_golf_club(canvas, paint, width);
+        canvas->translate(0, 30);
+    }
+    canvas->restore();
+    canvas->translate(100, 0);
+    canvas->save();
+    for (SkScalar width = 0.0f; width < 0.5f; width += 0.05f) {
+        draw_small_i(canvas, paint, width);
         canvas->translate(0, 30);
     }
     canvas->restore();

@@ -7,8 +7,6 @@
 
 #include "DDLPromiseImageHelper.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
@@ -59,7 +57,6 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
                                                             info.fBitmap.width(),
                                                             info.fBitmap.height(),
                                                             info.fBitmap.colorType(),
-                                                            info.fBitmap.colorSpace(),
                                                             false, GrMipMapped::kNo));
         // The GMs sometimes request too large an image
         //SkAssertResult(callbackContext->backendTexture().isValid());
@@ -177,5 +174,3 @@ int DDLPromiseImageHelper::findOrDefineImage(SkImage* image) {
     SkASSERT(this->isValidID(newID));
     return newID;
 }
-
-#endif

@@ -1205,8 +1205,10 @@ void SkRectClipCheckBlitter::blitAntiRect(int x, int y, int width, int height,
                                      SkAlpha leftAlpha, SkAlpha rightAlpha) {
     bool skipLeft = !leftAlpha;
     bool skipRight = !rightAlpha;
-    SkASSERT(fClipRect.contains(SkIRect::MakeXYWH(x + skipLeft, y,
-            width + 2 - skipRight - skipLeft, height)));
+#ifdef SK_DEBUG
+    SkIRect r = SkIRect::MakeXYWH(x + skipLeft, y, width + 2 - skipRight - skipLeft, height);
+    SkASSERT(r.isEmpty() || fClipRect.contains(r));
+#endif
     fBlitter->blitAntiRect(x, y, width, height, leftAlpha, rightAlpha);
 }
 

@@ -7,14 +7,12 @@
 
 #include "gm.h"
 #include "sk_tool_utils.h"
-#if SK_SUPPORT_GPU
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "effects/GrRRectEffect.h"
 #include "ops/GrDrawOp.h"
 #include "ops/GrRectOpFactory.h"
-#endif
 #include "SkRRect.h"
 
 namespace skiagm {
@@ -83,11 +81,7 @@ protected:
                                                      SkIntToScalar(kImageHeight));
 #endif
 
-#if SK_SUPPORT_GPU
         int lastEdgeType = (kEffect_Type == fType) ? (int) GrClipEdgeType::kLast: 0;
-#else
-        int lastEdgeType = 0;
-#endif
 
         int y = 1;
         for (int et = 0; et <= lastEdgeType; ++et) {
@@ -103,7 +97,6 @@ protected:
                 canvas->save();
                     canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
                     if (kEffect_Type == fType) {
-#if SK_SUPPORT_GPU
                         SkRRect rrect = fRRects[curRRect];
                         rrect.offset(SkIntToScalar(x), SkIntToScalar(y));
                         GrClipEdgeType edgeType = (GrClipEdgeType) et;
@@ -125,7 +118,6 @@ protected:
                         } else {
                             drew = false;
                         }
-#endif
                     } else if (kBW_Clip_Type == fType || kAA_Clip_Type == fType) {
                         bool aaClip = (kAA_Clip_Type == fType);
                         canvas->clipRRect(fRRects[curRRect], aaClip);
@@ -257,8 +249,6 @@ DEF_GM( return new RRectGM(RRectGM::kAA_Draw_Type); )
 DEF_GM( return new RRectGM(RRectGM::kBW_Draw_Type); )
 DEF_GM( return new RRectGM(RRectGM::kAA_Clip_Type); )
 DEF_GM( return new RRectGM(RRectGM::kBW_Clip_Type); )
-#if SK_SUPPORT_GPU
 DEF_GM( return new RRectGM(RRectGM::kEffect_Type); )
-#endif
 
 }

@@ -62,7 +62,7 @@
       "python",
       "-u",
       "[START_DIR]/skia/tools/skpbench/skpbench.py",
-      "[START_DIR]/build/out/Release_x64/skpbench",
+      "[START_DIR]/build/skpbench",
       "--resultsfile",
       "[START_DIR]/[SWARM_OUT_DIR]/table",
       "--config",

@@ -17,6 +17,15 @@
 #include <stdint.h>
 #include <string.h>
 
+// Without this wasm would try to use the N=4 128-bit vector code path,
+// which while ideal, causes tons of compiler problems.  This would be
+// a good thing to revisit as emcc matures (currently 1.38.5).
+#if 1 && defined(__EMSCRIPTEN_major__)
+    #if !defined(SKCMS_PORTABLE)
+        #define  SKCMS_PORTABLE
+    #endif
+#endif
+
 extern bool g_skcms_dump_profile;
 bool g_skcms_dump_profile = false;
 

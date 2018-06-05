@@ -610,17 +610,12 @@
 /* TextureUsage */
 #define GR_GL_FRAMEBUFFER_ATTACHMENT         0x93A3
 
-/* TextureSRGBDecode */
-#define GR_GL_DECODE_EXT                     0x8A49
-#define GR_GL_SKIP_DECODE_EXT                0x8A4A
-
 /* TextureParameterName */
 #define GR_GL_TEXTURE_MAG_FILTER             0x2800
 #define GR_GL_TEXTURE_MIN_FILTER             0x2801
 #define GR_GL_TEXTURE_WRAP_S                 0x2802
 #define GR_GL_TEXTURE_WRAP_T                 0x2803
 #define GR_GL_TEXTURE_USAGE                  0x93A2
-#define GR_GL_TEXTURE_SRGB_DECODE_EXT        0x8A48
 
 /* TextureTarget */
 /*      GL_TEXTURE_2D */

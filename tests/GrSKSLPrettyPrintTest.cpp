@@ -7,7 +7,6 @@
 
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
 #include "GrSKSLPrettyPrint.h"
 
 #define ASSERT(x) REPORTER_ASSERT(r, x)
@@ -120,5 +119,3 @@ DEF_TEST(GrSKSLPrettyPrint, r) {
     ASSERT(GrSKSLPrettyPrint::PrettyPrint(testStr.begin(), lengths.begin(), 1,
                                           true).c_str() != nullptr);
 }
-
-#endif

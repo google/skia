@@ -210,7 +210,8 @@ public:
                SkScalar y);
 
     void computeSubRunBounds(SkRect* outBounds, int runIndex, int subRunIndex,
-                             const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
+                             const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
+                             bool needsGlyphTransform) {
         // We don't yet position distance field text on the cpu, so we have to map the vertex bounds
         // into device space.
         // We handle vertex bounds differently for distance field text and bitmap text because
@@ -219,7 +220,7 @@ public:
         const Run& run = fRuns[runIndex];
         const Run::SubRunInfo& subRun = run.fSubRunInfo[subRunIndex];
         *outBounds = subRun.vertexBounds();
-        if (subRun.drawAsDistanceFields()) {
+        if (needsGlyphTransform) {
             // Distance field text is positioned with the (X,Y) as part of the glyph position,
             // and currently the view matrix is applied on the GPU
             outBounds->offset(x - fInitialX, y - fInitialY);

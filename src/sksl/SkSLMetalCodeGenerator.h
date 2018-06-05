@@ -53,6 +53,7 @@ namespace SkSL {
 class MetalCodeGenerator : public CodeGenerator {
 public:
     static constexpr const char* SAMPLER_SUFFIX = "Smplr";
+    static constexpr const char* PACKED_PREFIX = "packed_";
 
     enum Precedence {
         kParentheses_Precedence    =  1,
@@ -83,6 +84,7 @@ public:
         this->setupIntrinsics();
     }
 
+    bool generateCode(int shaderNum); // FIXME - remove when done inserting MSL
     bool generateCode() override;
 
 protected:
@@ -128,6 +130,12 @@ protected:
     void writeInputStruct();
 
     void writeOutputStruct();
+
+    void writeInterfaceBlocks();
+
+    int size(const Type* type, bool isPacked) const;
+
+    int alignment(const Type* type, bool isPacked) const;
 
     void writeGlobalStruct();
 
@@ -221,13 +229,14 @@ protected:
 
     Requirements requirements(const Statement& e);
 
-    typedef std::tuple<IntrinsicKind, int32_t, int32_t, int32_t, int32_t> Intrinsic;
+    typedef std::pair<IntrinsicKind, int32_t> Intrinsic;
     std::unordered_map<String, Intrinsic> fIntrinsicMap;
     std::vector<const VarDeclaration*> fInitNonConstGlobalVars;
     std::vector<const Variable*> fTextures;
     std::unordered_map<const Type::Field*, const InterfaceBlock*> fInterfaceBlockMap;
     std::unordered_map<const InterfaceBlock*, String> fInterfaceBlockNameMap;
     int fAnonInterfaceCount = 0;
+    int fPaddingCount = 0;
     bool fNeedsGlobalStructInit = false;
     const char* fLineEnding;
     const Context& fContext;

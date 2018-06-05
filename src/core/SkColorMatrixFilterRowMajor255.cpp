@@ -85,7 +85,7 @@ bool SkColorMatrixFilterRowMajor255::asColorMatrix(SkScalar matrix[20]) const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-//  This code was duplicated from src/effects/SkColorMatrixc.cpp in order to be used in core.
+//  This code was duplicated from src/effects/SkColorMatrix.cpp in order to be used in core.
 //////
 
 // To detect if we need to apply clamping after applying a matrix, we check if
@@ -315,6 +315,10 @@ void SkColorMatrixFilterRowMajor255::toString(SkString* str) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkColorFilter> SkColorFilter::MakeMatrixFilterRowMajor255(const SkScalar array[20]) {
+    if (!SkScalarsAreFinite(array, 20)) {
+        return nullptr;
+    }
+
     return sk_sp<SkColorFilter>(new SkColorMatrixFilterRowMajor255(array));
 }
 
@@ -322,6 +326,10 @@ sk_sp<SkColorFilter> SkColorFilter::MakeMatrixFilterRowMajor255(const SkScalar a
 
 sk_sp<SkColorFilter>
 SkColorMatrixFilterRowMajor255::MakeSingleChannelOutput(const SkScalar row[5]) {
+    if (!SkScalarsAreFinite(row, 5)) {
+        return nullptr;
+    }
+
     SkASSERT(row);
     auto cf = sk_make_sp<SkColorMatrixFilterRowMajor255>();
     static_assert(sizeof(SkScalar) * 5 * 4 == sizeof(cf->fMatrix), "sizes don't match");

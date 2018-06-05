@@ -9,7 +9,6 @@
 
 #include "SkPath.h"
 
-#if SK_SUPPORT_GPU
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
@@ -621,4 +620,3 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_34());
     test_path(ctx, rtc.get(), create_path_35());
 }
-#endif

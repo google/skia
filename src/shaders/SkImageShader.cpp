@@ -117,8 +117,7 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
     }
 
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
-                                                 SkBitmapProvider(fImage.get(), rec.fDstColorSpace),
-                                                 rec, alloc);
+                                                 SkBitmapProvider(fImage.get()), rec, alloc);
 }
 
 SkImage* SkImageShader::onIsAImage(SkMatrix* texM, TileMode xy[]) const {
@@ -285,7 +284,7 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
     }
     auto quality = rec.fPaint.getFilterQuality();
 
-    SkBitmapProvider provider(fImage.get(), rec.fDstCS);
+    SkBitmapProvider provider(fImage.get());
     SkDefaultBitmapController controller;
     std::unique_ptr<SkBitmapController::State> state {
         controller.requestBitmap(provider, matrix, quality)

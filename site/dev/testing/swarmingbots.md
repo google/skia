@@ -24,10 +24,11 @@ Skia's Swarming bots are hosted in three places:
 Connecting to Swarming Bots
 ---------------------------
 
-- Machine name like “skia-gce-NNN”, “skia-i-gce-NNN”, “ct-gce-NNN”, “skia-ct-gce-NNN”, “ct-xxx-builder-NNN” -> GCE
+- Machine name like “skia-gce-NNN”, “skia-ct-gce-NNN”, “skia-i-gce-NNN”, “ct-gce-NNN”, “ct-xxx-builder-NNN” -> GCE
   * First determine the project for the bot:
      + skia-gce-NNN, skia-ct-gce-NNN: [skia-swarming-bots](https://console.cloud.google.com/compute/instances?project=skia-swarming-bots)
-     + skia-i-gce-NNN, ct-gce-NNN, ct-xxx-builder-NNN: [google.com:skia-buildbots](https://console.cloud.google.com/compute/instances?project=google.com:skia-buildbots)
+     + skia-i-gce-NNN: [google.com:skia-buildbots](https://console.cloud.google.com/compute/instances?project=google.com:skia-buildbots)
+     + ct-gce-NNN, ct-xxx-builder-NNN: [ct-swarming-bots](https://console.cloud.google.com/compute/instances?project=ct-swarming-bots)
   * To log in to a Linux bot in GCE, use `gcloud compute ssh --project <project> default@<machine name>`. Choose the zone listed on the VM's detail page (see links above). You may also specify the zone using the `--zone` command-line flag.
   * To log in to a Windows bot in GCE, on the VM's detail page, first click the "Set Windows password" button, then click the "RDP" button. (If it hasn't been installed, you will be instructed to install the Chrome RDP Extension for GCP.)
 

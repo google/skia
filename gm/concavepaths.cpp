@@ -234,6 +234,24 @@ void test_partners(SkCanvas* canvas, const SkPaint& paint) {
     canvas->restore();
 }
 
+// A split edge causes one half to be merged to zero winding (destroyed).
+// Test that the other half of the split doesn't also get zero winding.
+void test_winding_merged_to_zero(SkCanvas* canvas, const SkPaint& paint) {
+    SkPath path;
+    canvas->save();
+    canvas->translate(400, 350);
+    path.moveTo(20, 80);
+    path.moveTo(70,  -0.000001f);
+    path.lineTo(70,   0.0);
+    path.lineTo(60, -30.0);
+    path.lineTo(40,  20.0);
+    path.moveTo(50,  50.0);
+    path.lineTo(50, -50.0);
+    path.lineTo(10,  50.0);
+    canvas->drawPath(path, paint);
+    canvas->restore();
+}
+
 // Monotone test 1 (point in the middle)
 void test_monotone_1(SkCanvas* canvas, const SkPaint& paint) {
     SkPath path;
@@ -429,6 +447,7 @@ DEF_SIMPLE_GM(concavepaths, canvas, 500, 600) {
     test_stairstep2(canvas, paint);
     test_overlapping(canvas, paint);
     test_partners(canvas, paint);
+    test_winding_merged_to_zero(canvas, paint);
     test_monotone_1(canvas, paint);
     test_monotone_2(canvas, paint);
     test_monotone_3(canvas, paint);

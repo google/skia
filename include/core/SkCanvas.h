@@ -2378,6 +2378,7 @@ public:
 
     // don't call
     virtual GrRenderTargetContext* internal_private_accessTopLayerRenderTargetContext();
+    SkIRect internal_private_getTopLayerBounds() const { return getTopLayerBounds(); }
 
     // TEMP helpers until we switch virtual over to const& for src-rect
     void legacy_drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
