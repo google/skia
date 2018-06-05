@@ -58,3 +58,21 @@ source_set("fuzz") {
     ]
   }
 }
+
+source_set("tool") {
+  testonly = true
+
+  configs += [ "../..:skia_private" ]
+  sources = [
+    "src/SkottieTool.cpp",
+  ]
+
+  deps = [
+    "../..:flags",
+    "../..:skia",
+  ]
+
+  public_deps = [
+    ":skottie",
+  ]
+}

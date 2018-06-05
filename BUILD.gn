@@ -1514,6 +1514,14 @@ if (skia_enable_tools) {
     ]
   }
 
+  if (is_linux || is_mac || is_win) {
+    test_app("skottie_tool") {
+      deps = [
+        "modules/skottie:tool",
+      ]
+    }
+  }
+
   if (target_cpu != "wasm") {
     import("gn/samples.gni")
     test_lib("samples") {
