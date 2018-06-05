@@ -76,14 +76,22 @@ static const GrColorSpaceInfo kColorSpaceInfo(nullptr, kRGBA_8888_GrPixelConfig)
 
 class SkInternalAtlasTextTarget : public GrTextUtils::Target, public SkAtlasTextTarget {
 public:
-    SkInternalAtlasTextTarget(sk_sp<SkAtlasTextContext> context, int width, int height,
+    SkInternalAtlasTextTarget(sk_sp<SkAtlasTextContext> context,
+                              sk_sp<GrMemoryPool> opMemoryPool,
+                              int width, int height,
                               void* handle)
             : GrTextUtils::Target(width, height, kColorSpaceInfo)
-            , SkAtlasTextTarget(std::move(context), width, height, handle) {}
+            , SkAtlasTextTarget(std::move(context), width, height, handle)
+            , fOpMemoryPool(std::move(opMemoryPool)) {
+    }
+
+    ~SkInternalAtlasTextTarget() {
+        this->deleteOps();
+    }
 
     /** GrTextUtils::Target overrides */
 
-    void addDrawOp(const GrClip&, std::unique_ptr<GrAtlasTextOp> op) override;
+    void addDrawOp1(const GrClip&, std::unique_ptr<GrAtlasTextOp> op) override;
 
     void drawPath(const GrClip&, const SkPath&, const SkPaint&, const SkMatrix& viewMatrix,
                   const SkMatrix* pathMatrix, const SkIRect& clipBounds) override {
@@ -95,6 +103,10 @@ public:
         grPaint->setColor4f(SkColorToPremulGrColor4fLegacy(skPaint.getColor()));
     }
 
+    GrContext* getContext() override {
+        return this->context()->internal().grContext();
+    }
+
     /** SkAtlasTextTarget overrides */
 
     void drawText(const SkGlyphID[], const SkPoint[], int glyphCnt, uint32_t color,
@@ -102,18 +114,23 @@ public:
     void flush() override;
 
 private:
+    void deleteOps();
+
     uint32_t fColor;
     using SkAtlasTextTarget::fWidth;
     using SkAtlasTextTarget::fHeight;
-    SkTArray<std::unique_ptr<GrAtlasTextOp>, true> fOps;
+    SkTArray<GrAtlasTextOp*, true> fOps1;
+    sk_sp<GrMemoryPool> fOpMemoryPool;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<SkAtlasTextTarget> SkAtlasTextTarget::Make(sk_sp<SkAtlasTextContext> context,
+                                                           sk_sp<GrMemoryPool> opMemoryPool,
                                                            int width, int height, void* handle) {
     return std::unique_ptr<SkAtlasTextTarget>(
-            new SkInternalAtlasTextTarget(std::move(context), width, height, handle));
+            new SkInternalAtlasTextTarget(std::move(context), std::move(opMemoryPool),
+                                          width, height, handle));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -142,7 +159,7 @@ void SkInternalAtlasTextTarget::drawText(const SkGlyphID glyphs[], const SkPoint
                                   (const char*)glyphs, byteLength, pos, 2, {0, 0}, bounds);
 }
 
-void SkInternalAtlasTextTarget::addDrawOp(const GrClip& clip, std::unique_ptr<GrAtlasTextOp> op) {
+void SkInternalAtlasTextTarget::addDrawOp1(const GrClip& clip, std::unique_ptr<GrAtlasTextOp> op) {
     SkASSERT(clip.quickContains(SkRect::MakeIWH(fWidth, fHeight)));
     // The SkAtlasTextRenderer currently only handles grayscale SDF glyphs.
     if (op->maskType() != GrAtlasTextOp::kGrayscaleDistanceField_MaskType) {
@@ -150,10 +167,16 @@ void SkInternalAtlasTextTarget::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
     }
     const GrCaps& caps = *this->context()->internal().grContext()->contextPriv().caps();
     op->finalizeForTextTarget(fColor, caps);
-    int n = SkTMin(kMaxBatchLookBack, fOps.count());
+    int n = SkTMin(kMaxBatchLookBack, fOps1.count());
     for (int i = 0; i < n; ++i) {
-        GrAtlasTextOp* other = fOps.fromBack(i).get();
+        GrAtlasTextOp* other = fOps1.fromBack(i);
         if (other->combineIfPossible(op.get(), caps)) {
+            // $$
+            {
+                GrOp* foo = op.release();
+                foo->~GrOp();
+                fOpMemoryPool->release(foo);
+            }
             return;
         }
         if (GrRectsOverlap(op->bounds(), other->bounds())) {
@@ -161,15 +184,26 @@ void SkInternalAtlasTextTarget::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
         }
     }
     op->visitProxies([](GrSurfaceProxy*) {});
-    fOps.emplace_back(std::move(op));
+    fOps1.emplace_back(op.release());
+}
+
+void SkInternalAtlasTextTarget::deleteOps() {
+    for (int i = 0; i < fOps1.count(); ++i) {
+        GrOp* foo = fOps1[i];
+        if (foo) {
+            foo->~GrOp();
+            fOpMemoryPool->release(foo);
+        }
+    }
+    fOps1.reset();
 }
 
 void SkInternalAtlasTextTarget::flush() {
-    for (int i = 0; i < fOps.count(); ++i) {
-        fOps[i]->executeForTextTarget(this);
+    for (int i = 0; i < fOps1.count(); ++i) {
+        fOps1[i]->executeForTextTarget(this);
     }
     this->context()->internal().flush();
-    fOps.reset();
+    this->deleteOps();
 }
 
 void GrAtlasTextOp::finalizeForTextTarget(uint32_t color, const GrCaps& caps) {

@@ -32,7 +32,8 @@ private:
     using DstProxy = GrXferProcessor::DstProxy;
 
 public:
-    GrRenderTargetOpList(GrResourceProvider*, GrRenderTargetProxy*, GrAuditTrail*);
+    GrRenderTargetOpList(GrResourceProvider*, sk_sp<GrMemoryPool>,
+                         GrRenderTargetProxy*, GrAuditTrail*);
 
     ~GrRenderTargetOpList() override;
 
@@ -46,7 +47,7 @@ public:
         INHERITED::makeClosed(caps);
     }
 
-    bool isEmpty() const { return fRecordedOps.empty(); }
+    bool isEmpty() const { return fRecordedOps1.empty(); }
 
     /**
      * Empties the draw buffer of any queued up draws.
@@ -93,7 +94,7 @@ public:
     void discard();
 
     /** Clears the entire render target */
-    void fullClear(const GrCaps& caps, GrColor color);
+    void fullClear(GrContext*, GrColor color);
 
     /**
      * Copies a pixel rectangle from one surface to another. This call may finalize
@@ -105,7 +106,7 @@ public:
      * depending on the type of surface, configs, etc, and the backend-specific
      * limitations.
      */
-    bool copySurface(const GrCaps& caps,
+    bool copySurface(GrContext*,
                      GrSurfaceProxy* dst,
                      GrSurfaceProxy* src,
                      const SkIRect& srcRect,
@@ -115,19 +116,32 @@ public:
 
     SkDEBUGCODE(void dump(bool printDependencies) const override;)
 
-    SkDEBUGCODE(int numOps() const override { return fRecordedOps.count(); })
+    SkDEBUGCODE(int numOps() const override { return fRecordedOps1.count(); })
     SkDEBUGCODE(int numClips() const override { return fNumClips; })
     SkDEBUGCODE(void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const;)
 
 private:
     friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive
 
+    void deleteOps();
+
     struct RecordedOp {
         RecordedOp(std::unique_ptr<GrOp> op, GrAppliedClip* appliedClip, const DstProxy* dstProxy)
-                : fOp(std::move(op)), fAppliedClip(appliedClip) {
+                : fOp(op.release()), fAppliedClip(appliedClip) {
             if (dstProxy) {
                 fDstProxy = *dstProxy;
             }
+        }
+
+        ~RecordedOp() {
+            // The ops are stored in a GrMemoryPool so had better have been handled separately
+            SkASSERT(!fOp);
+        }
+
+        void deleteOp(GrMemoryPool* opMemoryPool) {
+            fOp->~GrOp();
+            opMemoryPool->release(fOp);
+            fOp = nullptr;
         }
 
         void visitProxies(const GrOp::VisitProxyFunc& func) const {
@@ -142,8 +156,8 @@ private:
             }
         }
 
-        std::unique_ptr<GrOp> fOp;
-        DstProxy fDstProxy;
+        GrOp*          fOp;
+        DstProxy       fDstProxy;
         GrAppliedClip* fAppliedClip;
     };
 
@@ -167,7 +181,7 @@ private:
     int                            fLastClipNumAnalyticFPs;
 
     // For ops/opList we have mean: 5 stdDev: 28
-    SkSTArray<5, RecordedOp, true> fRecordedOps;
+    SkSTArray<5, RecordedOp, true> fRecordedOps1;
 
     // MDB TODO: 4096 for the first allocation of the clip space will be huge overkill.
     // Gather statistics to determine the correct size.

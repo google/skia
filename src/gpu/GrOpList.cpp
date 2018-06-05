@@ -24,11 +24,13 @@ uint32_t GrOpList::CreateUniqueID() {
     return id;
 }
 
-GrOpList::GrOpList(GrResourceProvider* resourceProvider,
+GrOpList::GrOpList(GrResourceProvider* resourceProvider, sk_sp<GrMemoryPool> opMemoryPool,
                    GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail)
-    : fAuditTrail(auditTrail)
-    , fUniqueID(CreateUniqueID())
-    , fFlags(0) {
+        : fOpMemoryPool(std::move(opMemoryPool))
+        , fAuditTrail(auditTrail)
+        , fUniqueID(CreateUniqueID())
+        , fFlags(0) {
+    SkASSERT(fOpMemoryPool);
     fTarget.setProxy(sk_ref_sp(surfaceProxy), kWrite_GrIOType);
     fTarget.get()->setLastOpList(this);
 

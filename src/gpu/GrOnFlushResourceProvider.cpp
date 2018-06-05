@@ -135,3 +135,7 @@ sk_sp<const GrBuffer> GrOnFlushResourceProvider::findOrMakeStaticBuffer(GrBuffer
 const GrCaps* GrOnFlushResourceProvider::caps() const {
     return fDrawingMgr->getContext()->contextPriv().caps();
 }
+
+GrContext* GrOnFlushResourceProvider::context() {
+    return fDrawingMgr->getContext();
+}

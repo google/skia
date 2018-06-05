@@ -251,11 +251,11 @@ inline std::unique_ptr<GrAtlasTextOp> GrTextBlob::makeOp(
     std::unique_ptr<GrAtlasTextOp> op;
     if (info.drawAsDistanceFields()) {
         op = GrAtlasTextOp::MakeDistanceField(
-                std::move(grPaint), glyphCount, distanceAdjustTable,
+                target->getContext(), std::move(grPaint), glyphCount, distanceAdjustTable,
                 target->colorSpaceInfo().isGammaCorrect(), paint.luminanceColor(),
                 props, info.isAntiAliased(), info.hasUseLCDText());
     } else {
-        op = GrAtlasTextOp::MakeBitmap(std::move(grPaint), format, glyphCount,
+        op = GrAtlasTextOp::MakeBitmap(target->getContext(), std::move(grPaint), format, glyphCount,
                                        info.needsTransform());
     }
     GrAtlasTextOp::Geometry& geometry = op->geometry();
@@ -372,10 +372,10 @@ void GrTextBlob::flush(GrTextUtils::Target* target, const SkSurfaceProps& props,
                                        target);
                 if (op) {
                     if (skipClip) {
-                        target->addDrawOp(GrNoClip(), std::move(op));
+                        target->addDrawOp1(GrNoClip(), std::move(op));
                     }
                     else {
-                        target->addDrawOp(clip, std::move(op));
+                        target->addDrawOp1(clip, std::move(op));
                     }
                 }
             }
