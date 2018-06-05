@@ -386,6 +386,7 @@ skia_core_sources = [
   "$_include/core/SkColor.h",
   "$_include/core/SkColorFilter.h",
   "$_include/core/SkColorPriv.h",
+  "$_include/core/SkColorSpaceXform.h",
   "$_include/core/SkData.h",
   "$_include/core/SkDeferredDisplayListRecorder.h",
   "$_include/core/SkDeque.h",
