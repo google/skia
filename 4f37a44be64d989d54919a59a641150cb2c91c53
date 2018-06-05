@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ccef424_42d895e3",
+        "filename": "src/ports/SkFontMgr_win_dw.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 972,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-05T21:17:37Z",
+      "side": 1,
+      "message": "This should go inside the \u0027if\u0027 block below since \u0027fontResources\u0027 is only used there.",
+      "range": {
+        "startLine": 971,
+        "startChar": 0,
+        "endLine": 972,
+        "endChar": 59
+      },
+      "revId": "4f37a44be64d989d54919a59a641150cb2c91c53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41374500_66c00c0a",
+        "filename": "src/ports/SkFontMgr_win_dw.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 973,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-05T21:17:37Z",
+      "side": 1,
+      "message": "Before using fontFace5 this needs to check that it is non-null (earlier versions of Windows won\u0027t know of this type). After moving the above two lines into this \u0027if\u0027 block, I think it\u0027s enough to change the predicate here to\n\nif (fontFace5 \u0026\u0026 fontFace5-\u003eHasVariations()) {",
+      "range": {
+        "startLine": 973,
+        "startChar": 16,
+        "endLine": 973,
+        "endChar": 25
+      },
+      "revId": "4f37a44be64d989d54919a59a641150cb2c91c53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "adc4e7bc_0e81d4a7",
+        "filename": "src/ports/SkFontMgr_win_dw.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 989,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-05T21:17:37Z",
+      "side": 1,
+      "message": "This line is quite long, should wrap the parameters.",
+      "range": {
+        "startLine": 989,
+        "startChar": 100,
+        "endLine": 989,
+        "endChar": 132
+      },
+      "revId": "4f37a44be64d989d54919a59a641150cb2c91c53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
