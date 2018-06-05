@@ -158,7 +158,6 @@ def compile_fn(api, checkout_root, out_dir):
     chrome_dir = checkout_root
     api.run.run_once(build_command_buffer, api, chrome_dir, skia_dir, out_dir)
   if 'MSAN' in extra_tokens:
-    args['skia_enable_gpu']     = 'false'
     args['skia_use_fontconfig'] = 'false'
   if 'ASAN' in extra_tokens or 'UBSAN' in extra_tokens:
     args['skia_enable_spirv_validation'] = 'false'
@@ -280,4 +279,4 @@ def copy_extra_build_products(api, src, dst):
   if 'SwiftShader' in api.vars.extra_tokens:
     util.copy_whitelisted_build_products(api,
         src.join('swiftshader_out'),
-        api.vars.swarming_out_dir.join('out', 'swiftshader_out'))
+        api.vars.swarming_out_dir.join('swiftshader_out'))

@@ -443,7 +443,7 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context,
     desc.fWidth  = bitmap.width();
     desc.fHeight = 128;
     desc.fRowHeight = bitmap.height();
-    desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info(), *context->contextPriv().caps());
+    desc.fConfig = SkColorType2GrPixelConfig(bitmap.colorType());
 
     if (kUnknown_GrPixelConfig == desc.fConfig) {
         return nullptr;

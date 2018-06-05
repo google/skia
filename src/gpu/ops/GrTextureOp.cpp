@@ -611,11 +611,11 @@ public:
                                           GrSamplerState::Filter filter, GrColor color,
                                           const SkRect& srcRect, const SkRect& dstRect,
                                           GrAAType aaType, SkCanvas::SrcRectConstraint constraint,
-                                          const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> csxf,
-                                          bool allowSRBInputs) {
+                                          const SkMatrix& viewMatrix,
+                                          sk_sp<GrColorSpaceXform> csxf) {
         return std::unique_ptr<GrDrawOp>(new TextureOp(std::move(proxy), filter, color, srcRect,
                                                        dstRect, aaType, constraint, viewMatrix,
-                                                       std::move(csxf), allowSRBInputs));
+                                                       std::move(csxf)));
     }
 
     ~TextureOp() override {
@@ -644,7 +644,6 @@ public:
 
     SkString dumpInfo() const override {
         SkString str;
-        str.appendf("AllowSRGBInputs: %d\n", fAllowSRGBInputs);
         str.appendf("# draws: %d\n", fDraws.count());
         auto proxies = this->proxies();
         for (int i = 0; i < fProxyCnt; ++i) {
@@ -699,15 +698,14 @@ __attribute__((no_sanitize("float-cast-overflow")))
     TextureOp(sk_sp<GrTextureProxy> proxy, GrSamplerState::Filter filter, GrColor color,
               const SkRect& srcRect, const SkRect& dstRect, GrAAType aaType,
               SkCanvas::SrcRectConstraint constraint, const SkMatrix& viewMatrix,
-              sk_sp<GrColorSpaceXform> csxf, bool allowSRGBInputs)
+              sk_sp<GrColorSpaceXform> csxf)
             : INHERITED(ClassID())
             , fColorSpaceXform(std::move(csxf))
             , fProxy0(proxy.release())
             , fFilter0(filter)
             , fProxyCnt(1)
             , fAAType(static_cast<unsigned>(aaType))
-            , fFinalized(0)
-            , fAllowSRGBInputs(allowSRGBInputs ? 1 : 0) {
+            , fFinalized(0) {
         SkASSERT(aaType != GrAAType::kMixedSamples);
         fPerspective = viewMatrix.hasPerspective();
         auto quad = GrPerspQuad(dstRect, viewMatrix);
@@ -772,9 +770,6 @@ __attribute__((no_sanitize("float-cast-overflow")))
         args.fCaps = &target->caps();
         args.fResourceProvider = target->resourceProvider();
         args.fFlags = 0;
-        if (fAllowSRGBInputs) {
-            args.fFlags |= GrPipeline::kAllowSRGBInputs_Flag;
-        }
         if (GrAAType::kMSAA == this->aaType()) {
             args.fFlags |= GrPipeline::kHWAntialias_Flag;
         }
@@ -1025,7 +1020,6 @@ __attribute__((no_sanitize("float-cast-overflow")))
     unsigned fDomain : 1;
     // Used to track whether fProxy is ref'ed or has a pending IO after finalize() is called.
     unsigned fFinalized : 1;
-    unsigned fAllowSRGBInputs : 1;
 
     typedef GrMeshDrawOp INHERITED;
 };
@@ -1040,10 +1034,9 @@ namespace GrTextureOp {
 std::unique_ptr<GrDrawOp> Make(sk_sp<GrTextureProxy> proxy, GrSamplerState::Filter filter,
                                GrColor color, const SkRect& srcRect, const SkRect& dstRect,
                                GrAAType aaType, SkCanvas::SrcRectConstraint constraint,
-                               const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> csxf,
-                               bool allowSRGBInputs) {
+                               const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> csxf) {
     return TextureOp::Make(std::move(proxy), filter, color, srcRect, dstRect, aaType, constraint,
-                           viewMatrix, std::move(csxf), allowSRGBInputs);
+                           viewMatrix, std::move(csxf));
 }
 
 }  // namespace GrTextureOp
@@ -1075,7 +1068,6 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     GrSamplerState::Filter filter = (GrSamplerState::Filter)random->nextULessThan(
             static_cast<uint32_t>(GrSamplerState::Filter::kMipMap) + 1);
     auto csxf = GrTest::TestColorXform(random);
-    bool allowSRGBInputs = random->nextBool();
     GrAAType aaType = GrAAType::kNone;
     if (random->nextBool()) {
         aaType = (fsaaType == GrFSAAType::kUnifiedMSAA) ? GrAAType::kMSAA : GrAAType::kCoverage;
@@ -1083,7 +1075,7 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     auto constraint = random->nextBool() ? SkCanvas::kStrict_SrcRectConstraint
                                          : SkCanvas::kFast_SrcRectConstraint;
     return GrTextureOp::Make(std::move(proxy), filter, color, srcRect, rect, aaType, constraint,
-                             viewMatrix, std::move(csxf), allowSRGBInputs);
+                             viewMatrix, std::move(csxf));
 }
 
 #endif

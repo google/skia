@@ -40,21 +40,35 @@ DEF_BENCH(return new WStreamWriteTextBenchmark;)
 // Test speed of SkFloatToDecimal for typical floats that
 // might be found in a PDF document.
 struct PDFScalarBench : public Benchmark {
+    PDFScalarBench(const char* n, float (*f)(SkRandom*)) : fName(n), fNextFloat(f) {}
+    const char* fName;
+    float (*fNextFloat)(SkRandom*);
     bool isSuitableFor(Backend b) override {
         return b == kNonRendering_Backend;
     }
-    const char* onGetName() override { return "PDFScalar"; }
+    const char* onGetName() override { return fName; }
     void onDraw(int loops, SkCanvas*) override {
         SkRandom random;
         char dst[kMaximumSkFloatToDecimalLength];
         while (loops-- > 0) {
-            auto f = random.nextRangeF(-500.0f, 1500.0f);
+            auto f = fNextFloat(&random);
             (void)SkFloatToDecimal(f, dst);
         }
     }
 };
 
-DEF_BENCH(return new PDFScalarBench;)
+float next_common(SkRandom* random) {
+    return random->nextRangeF(-500.0f, 1500.0f);
+}
+float next_any(SkRandom* random) {
+    union { uint32_t u; float f; };
+    u = random->nextU();
+    static_assert(sizeof(float) == sizeof(uint32_t), "");
+    return f;
+}
+
+DEF_BENCH(return new PDFScalarBench("PDFScalar_common", next_common);)
+DEF_BENCH(return new PDFScalarBench("PDFScalar_random", next_any);)
 
 #ifdef SK_SUPPORT_PDF
 

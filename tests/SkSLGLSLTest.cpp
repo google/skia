@@ -9,8 +9,6 @@
 
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
-
 // Note that the optimizer will aggressively kill dead code and substitute constants in place of
 // variables, so we have to jump through a few hoops to ensure that the code in these tests has the
 // necessary side-effects to remain live. In some cases we rely on the optimizer not (yet) being
@@ -1956,5 +1954,3 @@ DEF_TEST(SkSLFrExp, r) {
          "    sk_FragColor = vec4(float(exp));\n"
          "}\n");
 }
-
-#endif

@@ -329,7 +329,7 @@ bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex, GrPix
     // TODO: Create a SkImageColorInfo struct for color, alpha, and color space so we don't need to
     // create a fake image info here.
     SkImageInfo info = SkImageInfo::Make(1, 1, ct, at, cs);
-    if (!SkImageInfoIsValidAllowNumericalCS(info)) {
+    if (!SkImageInfoIsValid(info)) {
         return false;
     }
 
@@ -697,7 +697,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
     }
 
     SkImageInfo info = SkImageInfo::Make(width, height, colorType, alphaType, colorSpace);
-    if (!SkImageInfoIsValidAllowNumericalCS(info)) {
+    if (!SkImageInfoIsValid(info)) {
         return nullptr;
     }
     GrPixelConfig config = kUnknown_GrPixelConfig;
@@ -841,13 +841,9 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context,
     if (buildMips) {
         SkBitmap bmp;
         bmp.installPixels(*pixmap);
-        proxy = proxyProvider->createMipMapProxyFromBitmap(bmp, dstColorSpace);
+        proxy = proxyProvider->createMipMapProxyFromBitmap(bmp);
     } else {
-        SkDestinationSurfaceColorMode colorMode = dstColorSpace
-                ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
-                : SkDestinationSurfaceColorMode::kLegacy;
-
-        if (SkImageInfoIsValid(pixmap->info(), colorMode)) {
+        if (SkImageInfoIsValid(pixmap->info())) {
             ATRACE_ANDROID_FRAMEWORK("Upload Texture [%ux%u]", pixmap->width(), pixmap->height());
             // We don't need a release proc on the data in pixmap since we know we are in a
             // GrContext that has a resource provider. Thus the createTextureProxy call will

@@ -10,8 +10,6 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrContext.h"
 #include "GrOpFlushState.h"
 #include "GrPathUtils.h"
@@ -638,5 +636,3 @@ DEF_GM(return new BezierCubicEffects;)
 DEF_GM(return new BezierConicEffects;)
 DEF_GM(return new BezierQuadEffects;)
 }
-
-#endif

@@ -54,12 +54,12 @@ public:
     }
 
     // Used by GrGLProgram to configure OpenGL state.
-    void bindTexture(int unitIdx, const GrSamplerState& samplerState, bool allowSRGBInputs,
-                     GrGLTexture* texture, GrSurfaceOrigin textureOrigin);
+    void bindTexture(int unitIdx, const GrSamplerState& samplerState, GrGLTexture* texture,
+                     GrSurfaceOrigin textureOrigin);
 
     void bindTexelBuffer(int unitIdx, GrPixelConfig, GrGLBuffer*);
 
-    void generateMipmaps(const GrSamplerState& params, bool allowSRGBInputs, GrGLTexture* texture,
+    void generateMipmaps(const GrSamplerState& params, GrGLTexture* texture,
                          GrSurfaceOrigin textureOrigin);
 
     // These functions should be used to bind GL objects. They track the GL state and skip redundant
@@ -231,17 +231,11 @@ private:
     // variations above, depending on whether the surface is a render target or not.
     bool readPixelsSupported(GrSurface* surfaceForConfig, GrPixelConfig readConfig);
 
-    bool onGetReadPixelsInfo(GrSurface*, GrSurfaceOrigin, int width, int height, size_t rowBytes,
-                             GrColorType, DrawPreference*, ReadPixelTempDrawInfo*) override;
+    bool onReadPixels(GrSurface*, int left, int top, int width, int height, GrColorType,
+                      void* buffer, size_t rowBytes) override;
 
-    bool onGetWritePixelsInfo(GrSurface*, GrSurfaceOrigin, int width, int height, GrColorType,
-                              DrawPreference*, WritePixelTempDrawInfo*) override;
-
-    bool onReadPixels(GrSurface*, GrSurfaceOrigin, int left, int top, int width, int height,
-                      GrColorType, void* buffer, size_t rowBytes) override;
-
-    bool onWritePixels(GrSurface*, GrSurfaceOrigin, int left, int top, int width, int height,
-                       GrColorType, const GrMipLevel texels[], int mipLevelCount) override;
+    bool onWritePixels(GrSurface*, int left, int top, int width, int height, GrColorType,
+                       const GrMipLevel texels[], int mipLevelCount) override;
 
     bool onTransferPixels(GrTexture*, int left, int top, int width, int height, GrColorType,
                           GrBuffer* transferBuffer, size_t offset, size_t rowBytes) override;
@@ -289,7 +283,7 @@ private:
     bool copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                                       GrSurface* src, GrSurfaceOrigin srcOrigin,
                                       const SkIRect& srcRect, const SkIPoint& dstPoint);
-    bool generateMipmap(GrGLTexture* texture, GrSurfaceOrigin textureOrigin, bool gammaCorrect);
+    bool generateMipmap(GrGLTexture* texture, GrSurfaceOrigin textureOrigin);
     void clearStencilClipAsDraw(const GrFixedClip&, bool insideStencilMask,
                                 GrRenderTarget*, GrSurfaceOrigin);
 
@@ -376,10 +370,9 @@ private:
         kNewTexture_UploadType,   // we are creating a new texture
         kWrite_UploadType,        // we are using TexSubImage2D to copy data to an existing texture
     };
-    bool uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight,
-                       GrSurfaceOrigin texOrigin, GrGLenum target, UploadType uploadType, int left,
-                       int top, int width, int height, GrPixelConfig dataConfig,
-                       const GrMipLevel texels[], int mipLevelCount,
+    bool uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight, GrGLenum target,
+                       UploadType uploadType, int left, int top, int width, int height,
+                       GrPixelConfig dataConfig, const GrMipLevel texels[], int mipLevelCount,
                        GrMipMapsStatus* mipMapsStatus = nullptr);
 
     bool createRenderTargetObjects(const GrSurfaceDesc&, const GrGLTextureInfo& texInfo,

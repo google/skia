@@ -17,6 +17,7 @@
 #include "GrRenderTargetPriv.h"
 #include "GrTexturePriv.h"
 
+#include "GrVkAMDMemoryAllocator.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkGpuCommandBuffer.h"
 #include "GrVkImage.h"
@@ -92,6 +93,7 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
                  sk_sp<const GrVkBackendContext> backendCtx)
         : INHERITED(context)
         , fBackendContext(std::move(backendCtx))
+        , fMemoryAllocator(fBackendContext->fMemoryAllocator)
         , fDevice(fBackendContext->fDevice)
         , fQueue(fBackendContext->fQueue)
         , fResourceProvider(this)
@@ -118,6 +120,12 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
     }
 #endif
 
+    if (!fMemoryAllocator) {
+        // We were not given a memory allocator at creation
+        fMemoryAllocator.reset(new GrVkAMDMemoryAllocator(fBackendContext->fPhysicalDevice,
+                                                          fDevice, fBackendContext->fInterface));
+    }
+
     fCompiler = new SkSL::Compiler();
 
     fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), fBackendContext->fPhysicalDevice,
@@ -142,17 +150,6 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
     fCurrentCmdBuffer = fResourceProvider.findOrCreatePrimaryCommandBuffer();
     SkASSERT(fCurrentCmdBuffer);
     fCurrentCmdBuffer->begin(this);
-
-    // set up our heaps
-    fHeaps[kLinearImage_Heap].reset(new GrVkHeap(this, GrVkHeap::kSubAlloc_Strategy, 16*1024*1024));
-    fHeaps[kOptimalImage_Heap].reset(new GrVkHeap(this, GrVkHeap::kSubAlloc_Strategy, 64*1024*1024));
-    fHeaps[kSmallOptimalImage_Heap].reset(new GrVkHeap(this, GrVkHeap::kSubAlloc_Strategy, 2*1024*1024));
-    fHeaps[kVertexBuffer_Heap].reset(new GrVkHeap(this, GrVkHeap::kSingleAlloc_Strategy, 0));
-    fHeaps[kIndexBuffer_Heap].reset(new GrVkHeap(this, GrVkHeap::kSingleAlloc_Strategy, 0));
-    fHeaps[kUniformBuffer_Heap].reset(new GrVkHeap(this, GrVkHeap::kSubAlloc_Strategy, 256*1024));
-    fHeaps[kTexelBuffer_Heap].reset(new GrVkHeap(this, GrVkHeap::kSingleAlloc_Strategy, 0));
-    fHeaps[kCopyReadBuffer_Heap].reset(new GrVkHeap(this, GrVkHeap::kSingleAlloc_Strategy, 0));
-    fHeaps[kCopyWriteBuffer_Heap].reset(new GrVkHeap(this, GrVkHeap::kSubAlloc_Strategy, 16*1024*1024));
 }
 
 void GrVkGpu::destroyResources() {
@@ -330,57 +327,9 @@ GrBuffer* GrVkGpu::onCreateBuffer(size_t size, GrBufferType type, GrAccessPatter
     return buff;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin, int width,
-                                   int height, GrColorType srcColorType,
-                                   DrawPreference* drawPreference,
-                                   WritePixelTempDrawInfo* tempDrawInfo) {
-    // We don't want to introduce a sRGB conversion if we trigger a draw.
-    auto srcConfigSRGBEncoded = GrPixelConfigIsSRGBEncoded(dstSurface->config());
-    if (*drawPreference != kNoDraw_DrawPreference) {
-        // We assume the base class has only inserted a draw for sRGB reasons. So the temp surface
-        // has the config of the original src data. There is no swizzling nor src config spoofing.
-        SkASSERT(tempDrawInfo->fWriteColorType == srcColorType);
-        SkASSERT(GrPixelConfigToColorType(tempDrawInfo->fTempSurfaceDesc.fConfig) == srcColorType);
-        SkASSERT(tempDrawInfo->fSwizzle == GrSwizzle::RGBA());
-        // Don't undo a sRGB conversion introduced by our caller via an intermediate draw.
-        srcConfigSRGBEncoded = GrPixelConfigIsSRGBEncoded(tempDrawInfo->fTempSurfaceDesc.fConfig);
-    }
-    if (GrColorTypeIsAlphaOnly(srcColorType)) {
-        srcConfigSRGBEncoded = GrSRGBEncoded::kNo;
-    }
-    GrRenderTarget* renderTarget = dstSurface->asRenderTarget();
-
-    if (GrPixelConfigToColorType(dstSurface->config()) == srcColorType) {
-        // We only support writing pixels to textures. Forcing a draw lets us write to pure RTs.
-        if (!dstSurface->asTexture()) {
-            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-        }
-        // If the dst is MSAA, we have to draw, or we'll just be writing to the resolve target.
-        if (renderTarget && renderTarget->numColorSamples() > 1) {
-            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-        }
-        return true;
-    }
-
-    // Any color type change requires a draw
-    ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-
-    auto srcAsConfig = GrColorTypeToPixelConfig(srcColorType, srcConfigSRGBEncoded);
-    SkASSERT(srcAsConfig != kUnknown_GrPixelConfig);
-    bool configsAreRBSwaps = GrPixelConfigSwapRAndB(srcAsConfig) == dstSurface->config();
-
-    if (!this->vkCaps().isConfigTexturable(srcAsConfig) && configsAreRBSwaps) {
-        tempDrawInfo->fTempSurfaceDesc.fConfig = dstSurface->config();
-        tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
-        tempDrawInfo->fWriteColorType = GrPixelConfigToColorType(dstSurface->config());
-    }
-    return true;
-}
-
-bool GrVkGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin, int left, int top,
-                            int width, int height, GrColorType srcColorType,
-                            const GrMipLevel texels[], int mipLevelCount) {
+bool GrVkGpu::onWritePixels(GrSurface* surface, int left, int top, int width, int height,
+                            GrColorType srcColorType, const GrMipLevel texels[],
+                            int mipLevelCount) {
     GrVkTexture* vkTex = static_cast<GrVkTexture*>(surface->asTexture());
     if (!vkTex) {
         return false;
@@ -407,7 +356,7 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin, int left
                                   false);
             this->submitCommandBuffer(kForce_SyncQueue);
         }
-        success = this->uploadTexDataLinear(vkTex, origin, left, top, width, height, srcColorType,
+        success = this->uploadTexDataLinear(vkTex, left, top, width, height, srcColorType,
                                             texels[0].fPixels, texels[0].fRowBytes);
     } else {
         int currentMipLevels = vkTex->texturePriv().maxMipMapLevel() + 1;
@@ -416,8 +365,8 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin, int left
                 return false;
             }
         }
-        success = this->uploadTexDataOptimal(vkTex, origin, left, top, width, height, srcColorType,
-                                             texels, mipLevelCount);
+        success = this->uploadTexDataOptimal(vkTex, left, top, width, height, srcColorType, texels,
+                                             mipLevelCount);
     }
 
     return success;
@@ -537,9 +486,8 @@ void GrVkGpu::internalResolveRenderTarget(GrRenderTarget* target, bool requiresS
     }
 }
 
-bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, GrSurfaceOrigin texOrigin, int left, int top,
-                                  int width, int height, GrColorType dataColorType,
-                                  const void* data, size_t rowBytes) {
+bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, int left, int top, int width, int height,
+                                  GrColorType dataColorType, const void* data, size_t rowBytes) {
     SkASSERT(data);
     SkASSERT(tex->isLinearTiled());
 
@@ -562,7 +510,6 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, GrSurfaceOrigin texOrigin, i
         0,  // arraySlice
     };
     VkSubresourceLayout layout;
-    VkResult err;
 
     const GrVkInterface* interface = this->vkInterface();
 
@@ -571,54 +518,28 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, GrSurfaceOrigin texOrigin, i
                                                     &subres,
                                                     &layout));
 
-    int texTop = kBottomLeft_GrSurfaceOrigin == texOrigin ? tex->height() - top - height : top;
     const GrVkAlloc& alloc = tex->alloc();
-    VkDeviceSize offset = alloc.fOffset + texTop*layout.rowPitch + left*bpp;
-    VkDeviceSize offsetDiff = 0;
+    VkDeviceSize offset = top * layout.rowPitch + left * bpp;
     VkDeviceSize size = height*layout.rowPitch;
-    // For Noncoherent buffers we want to make sure the range that we map, both offset and size,
-    // are aligned to the nonCoherentAtomSize limit. We may have to move the initial offset back to
-    // meet the alignment requirements. So we track how far we move back and then adjust the mapped
-    // ptr back up so that this is opaque to the caller.
-    if (SkToBool(alloc.fFlags & GrVkAlloc::kNoncoherent_Flag)) {
-        VkDeviceSize alignment = this->physicalDeviceProperties().limits.nonCoherentAtomSize;
-        offsetDiff = offset & (alignment - 1);
-        offset = offset - offsetDiff;
-        // Make size of the map aligned to nonCoherentAtomSize
-        size = (size + alignment - 1) & ~(alignment - 1);
-    }
-    SkASSERT(offset >= alloc.fOffset);
-    SkASSERT(size <= alloc.fOffset + alloc.fSize);
-    void* mapPtr;
-    err = GR_VK_CALL(interface, MapMemory(fDevice, alloc.fMemory, offset, size, 0, &mapPtr));
-    if (err) {
+    SkASSERT(size + offset <= alloc.fSize);
+    void* mapPtr = GrVkMemory::MapAlloc(this, alloc);
+    if (!mapPtr) {
         return false;
     }
-    mapPtr = reinterpret_cast<char*>(mapPtr) + offsetDiff;
+    mapPtr = reinterpret_cast<char*>(mapPtr) + offset;
 
-    if (kBottomLeft_GrSurfaceOrigin == texOrigin) {
-        // copy into buffer by rows
-        const char* srcRow = reinterpret_cast<const char*>(data);
-        char* dstRow = reinterpret_cast<char*>(mapPtr)+(height - 1)*layout.rowPitch;
-        for (int y = 0; y < height; y++) {
-            memcpy(dstRow, srcRow, trimRowBytes);
-            srcRow += rowBytes;
-            dstRow -= layout.rowPitch;
-        }
-    } else {
-        SkRectMemcpy(mapPtr, static_cast<size_t>(layout.rowPitch), data, rowBytes, trimRowBytes,
-                     height);
-    }
+    SkRectMemcpy(mapPtr, static_cast<size_t>(layout.rowPitch), data, rowBytes, trimRowBytes,
+                 height);
 
     GrVkMemory::FlushMappedAlloc(this, alloc, offset, size);
-    GR_VK_CALL(interface, UnmapMemory(fDevice, alloc.fMemory));
+    GrVkMemory::UnmapAlloc(this, alloc);
 
     return true;
 }
 
-bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin, int left, int top,
-                                   int width, int height, GrColorType dataColorType,
-                                   const GrMipLevel texels[], int mipLevelCount) {
+bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int width, int height,
+                                   GrColorType dataColorType, const GrMipLevel texels[],
+                                   int mipLevelCount) {
     SkASSERT(!tex->isLinearTiled());
     // The assumption is either that we have no mipmaps, or that our rect is the entire texture
     SkASSERT(1 == mipLevelCount ||
@@ -644,9 +565,6 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin, 
         texelsShallowCopy.reset(mipLevelCount);
         memcpy(texelsShallowCopy.get(), texels, mipLevelCount*sizeof(GrMipLevel));
     }
-
-    // Determine whether we need to flip when we copy into the buffer
-    bool flipY = (kBottomLeft_GrSurfaceOrigin == texOrigin && mipLevelCount);
 
     SkTArray<size_t> individualMipOffsets(mipLevelCount);
     individualMipOffsets.push_back(0);
@@ -706,16 +624,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin, 
             // copy data into the buffer, skipping the trailing bytes
             char* dst = buffer + individualMipOffsets[currentMipLevel];
             const char* src = (const char*)texelsShallowCopy[currentMipLevel].fPixels;
-            if (flipY) {
-                src += (currentHeight - 1) * rowBytes;
-                for (int y = 0; y < currentHeight; y++) {
-                    memcpy(dst, src, trimRowBytes);
-                    src -= rowBytes;
-                    dst += trimRowBytes;
-                }
-            } else {
-                SkRectMemcpy(dst, trimRowBytes, src, rowBytes, trimRowBytes, currentHeight);
-            }
+            SkRectMemcpy(dst, trimRowBytes, src, rowBytes, trimRowBytes, currentHeight);
 
             VkBufferImageCopy& region = regions.push_back();
             memset(&region, 0, sizeof(VkBufferImageCopy));
@@ -723,7 +632,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin, 
             region.bufferRowLength = currentWidth;
             region.bufferImageHeight = currentHeight;
             region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, SkToU32(currentMipLevel), 0, 1 };
-            region.imageOffset = { left, flipY ? layerHeight - top - currentHeight : top, 0 };
+            region.imageOffset = {left, top, 0};
             region.imageExtent = { (uint32_t)currentWidth, (uint32_t)currentHeight, 1 };
         }
         currentWidth = SkTMax(1, currentWidth/2);
@@ -819,8 +728,8 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
 
     auto colorType = GrPixelConfigToColorType(desc.fConfig);
     if (mipLevelCount) {
-        if (!this->uploadTexDataOptimal(tex.get(), kTopLeft_GrSurfaceOrigin, 0, 0, desc.fWidth,
-                                        desc.fHeight, colorType, texels, mipLevelCount)) {
+        if (!this->uploadTexDataOptimal(tex.get(), 0, 0, desc.fWidth, desc.fHeight, colorType,
+                                        texels, mipLevelCount)) {
             tex->unref();
             return nullptr;
         }
@@ -1147,33 +1056,14 @@ GrStencilAttachment* GrVkGpu::createStencilAttachmentForRenderTarget(const GrRen
 
 bool copy_testing_data(GrVkGpu* gpu, const void* srcData, const GrVkAlloc& alloc,
                        size_t bufferOffset, size_t srcRowBytes, size_t dstRowBytes, int h) {
-    // For Noncoherent buffers we want to make sure the range that we map, both offset and size,
-    // are aligned to the nonCoherentAtomSize limit. We may have to move the initial offset back to
-    // meet the alignment requirements. So we track how far we move back and then adjust the mapped
-    // ptr back up so that this is opaque to the caller.
-    VkDeviceSize mapSize = dstRowBytes * h;
-    VkDeviceSize mapOffset = alloc.fOffset + bufferOffset;
-    VkDeviceSize offsetDiff = 0;
-    if (SkToBool(alloc.fFlags & GrVkAlloc::kNoncoherent_Flag)) {
-        VkDeviceSize alignment = gpu->physicalDeviceProperties().limits.nonCoherentAtomSize;
-        offsetDiff = mapOffset & (alignment - 1);
-        mapOffset = mapOffset - offsetDiff;
-        // Make size of the map aligned to nonCoherentAtomSize
-        mapSize = (mapSize + alignment - 1) & ~(alignment - 1);
-    }
-    SkASSERT(mapOffset >= alloc.fOffset);
-    SkASSERT(mapSize + mapOffset <= alloc.fOffset + alloc.fSize);
-    void* mapPtr;
-    VkResult err = GR_VK_CALL(gpu->vkInterface(), MapMemory(gpu->device(),
-                                                            alloc.fMemory,
-                                                            mapOffset,
-                                                            mapSize,
-                                                            0,
-                                                            &mapPtr));
-    mapPtr = reinterpret_cast<char*>(mapPtr) + offsetDiff;
-    if (err) {
+    VkDeviceSize size = dstRowBytes * h;
+    VkDeviceSize offset = bufferOffset;
+    SkASSERT(size + offset <= alloc.fSize);
+    void* mapPtr = GrVkMemory::MapAlloc(gpu, alloc);
+    if (!mapPtr) {
         return false;
     }
+    mapPtr = reinterpret_cast<char*>(mapPtr) + offset;
 
     if (srcData) {
         // If there is no padding on dst we can do a single memcopy.
@@ -1192,8 +1082,8 @@ bool copy_testing_data(GrVkGpu* gpu, const void* srcData, const GrVkAlloc& alloc
             }
         }
     }
-    GrVkMemory::FlushMappedAlloc(gpu, alloc, mapOffset, mapSize);
-    GR_VK_CALL(gpu->vkInterface(), UnmapMemory(gpu->device(), alloc.fMemory));
+    GrVkMemory::FlushMappedAlloc(gpu, alloc, offset, size);
+    GrVkMemory::UnmapAlloc(gpu, alloc);
     return true;
 }
 
@@ -1250,14 +1140,10 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
         mipLevels = SkMipMap::ComputeLevelCount(w, h) + 1;
     }
 
-    // sRGB format images may need to be aliased to linear for various reasons (legacy mode):
-    VkImageCreateFlags createFlags = GrVkFormatIsSRGB(pixelFormat, nullptr)
-        ? VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT : 0;
-
     const VkImageCreateInfo imageCreateInfo = {
             VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,  // sType
             nullptr,                              // pNext
-            createFlags,                          // VkImageCreateFlags
+            0,                                    // VkImageCreateFlags
             VK_IMAGE_TYPE_2D,                     // VkImageType
             pixelFormat,                          // VkFormat
             {(uint32_t)w, (uint32_t)h, 1},        // VkExtent3D
@@ -1890,41 +1776,8 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     return false;
 }
 
-bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin, int width,
-                                  int height, size_t rowBytes, GrColorType dstColorType,
-                                  DrawPreference* drawPreference,
-                                  ReadPixelTempDrawInfo* tempDrawInfo) {
-    // We don't want to introduce a sRGB conversion if we trigger a draw.
-    auto dstConfigSRGBEncoded = GrPixelConfigIsSRGBEncoded(srcSurface->config());
-    if (*drawPreference != kNoDraw_DrawPreference) {
-        // We assume the base class has only inserted a draw for sRGB reasons. So the
-        // the temp surface has the config of the dst data. There is no swizzling nor dst config.
-        // spoofing.
-        SkASSERT(tempDrawInfo->fReadColorType == dstColorType);
-        SkASSERT(GrPixelConfigToColorType(tempDrawInfo->fTempSurfaceDesc.fConfig) == dstColorType);
-        SkASSERT(tempDrawInfo->fSwizzle == GrSwizzle::RGBA());
-        // Don't undo a sRGB conversion introduced by our caller via an intermediate draw.
-        dstConfigSRGBEncoded = GrPixelConfigIsSRGBEncoded(tempDrawInfo->fTempSurfaceDesc.fConfig);
-    }
-    if (GrColorTypeIsAlphaOnly(dstColorType)) {
-        dstConfigSRGBEncoded = GrSRGBEncoded::kNo;
-    }
-
-    if (GrPixelConfigToColorType(srcSurface->config()) == dstColorType) {
-        return true;
-    }
-
-    // Any config change requires a draw
-    ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-    tempDrawInfo->fTempSurfaceDesc.fConfig =
-            GrColorTypeToPixelConfig(dstColorType, dstConfigSRGBEncoded);
-    tempDrawInfo->fReadColorType = dstColorType;
-
-    return kUnknown_GrPixelConfig != tempDrawInfo->fTempSurfaceDesc.fConfig;
-}
-
-bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left, int top, int width,
-                           int height, GrColorType dstColorType, void* buffer, size_t rowBytes) {
+bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
+                           GrColorType dstColorType, void* buffer, size_t rowBytes) {
     if (GrPixelConfigToColorType(surface->config()) != dstColorType) {
         return false;
     }
@@ -1962,7 +1815,6 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left,
 
     int bpp = GrColorTypeBytesPerPixel(dstColorType);
     size_t tightRowBytes = bpp * width;
-    bool flipY = kBottomLeft_GrSurfaceOrigin == origin;
 
     VkBufferImageCopy region;
     memset(&region, 0, sizeof(VkBufferImageCopy));
@@ -1970,16 +1822,9 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left,
     bool copyFromOrigin = this->vkCaps().mustDoCopiesFromOrigin();
     if (copyFromOrigin) {
         region.imageOffset = { 0, 0, 0 };
-        region.imageExtent = { (uint32_t)(left + width),
-                               (uint32_t)(flipY ? surface->height() - top : top + height),
-                               1
-                             };
+        region.imageExtent = { (uint32_t)(left + width), (uint32_t)(top + height), 1 };
     } else {
-        VkOffset3D offset = {
-            left,
-            flipY ? surface->height() - top - height : top,
-            0
-        };
+        VkOffset3D offset = { left, top, 0 };
         region.imageOffset = offset;
         region.imageExtent = { (uint32_t)width, (uint32_t)height, 1 };
     }
@@ -2017,24 +1862,14 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin, int left,
     this->submitCommandBuffer(kForce_SyncQueue);
     void* mappedMemory = transferBuffer->map();
     const GrVkAlloc& transAlloc = transferBuffer->alloc();
-    GrVkMemory::InvalidateMappedAlloc(this, transAlloc, transAlloc.fOffset, VK_WHOLE_SIZE);
+    GrVkMemory::InvalidateMappedAlloc(this, transAlloc, 0, transAlloc.fSize);
 
     if (copyFromOrigin) {
         uint32_t skipRows = region.imageExtent.height - height;
         mappedMemory = (char*)mappedMemory + transBufferRowBytes * skipRows + bpp * left;
     }
 
-    if (flipY) {
-        const char* srcRow = reinterpret_cast<const char*>(mappedMemory);
-        char* dstRow = reinterpret_cast<char*>(buffer)+(height - 1) * rowBytes;
-        for (int y = 0; y < height; y++) {
-            memcpy(dstRow, srcRow, tightRowBytes);
-            srcRow += transBufferRowBytes;
-            dstRow -= rowBytes;
-        }
-    } else {
-        SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, tightRowBytes, height);
-    }
+    SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, tightRowBytes, height);
 
     transferBuffer->unmap();
     transferBuffer->unref();

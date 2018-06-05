@@ -5,11 +5,16 @@
  * found in the LICENSE file.
  */
 
+#include <vector>
+
 #include "SkFontDescriptor.h"
 #include "SkTestFontMgr.h"
 #include "sk_tool_utils.h"
 #include "SkTestTypeface.h"
+
+#ifdef SK_XML
 #include "SkTestSVGTypeface.h"
+#endif
 
 namespace {
 
@@ -90,20 +95,23 @@ private:
 class FontMgr final : public SkFontMgr {
 public:
     FontMgr() {
-        fFamilies[0] = sk_make_sp<FontStyleSet>(0);
-        fFamilies[1] = sk_make_sp<FontStyleSet>(1);
-        fFamilies[2] = sk_make_sp<FontStyleSet>(2);
-        fFamilies[3] = sk_make_sp<JustOneTypefaceStyleSet>(SkTestSVGTypeface::Default());
+        fFamilies.push_back(sk_make_sp<FontStyleSet>(0));
+        fFamilies.push_back(sk_make_sp<FontStyleSet>(1));
+        fFamilies.push_back(sk_make_sp<FontStyleSet>(2));
+        #ifdef SK_XML
+        fFamilies.push_back(sk_make_sp<JustOneTypefaceStyleSet>(SkTestSVGTypeface::Default()));
+        #endif
     }
 
-    int onCountFamilies() const override { return SK_ARRAY_COUNT(fFamilies); }
+    int onCountFamilies() const override { return fFamilies.size(); }
 
     void onGetFamilyName(int index, SkString* familyName) const override {
         *familyName = kFamilyNames[index];
     }
 
     SkFontStyleSet* onCreateStyleSet(int index) const override {
-        return SkRef(fFamilies[index].get());
+        sk_sp<SkFontStyleSet> ref = fFamilies[index];
+        return ref.release();
     }
 
     SkFontStyleSet* onMatchFamily(const char familyName[]) const override {
@@ -111,7 +119,9 @@ public:
             if (strstr(familyName,  "ans")) { return this->createStyleSet(0); }
             if (strstr(familyName, "erif")) { return this->createStyleSet(1); }
             if (strstr(familyName,  "ono")) { return this->createStyleSet(2); }
+            #ifdef SK_XML
             if (strstr(familyName,  "oji")) { return this->createStyleSet(3); }
+            #endif
         }
         return this->createStyleSet(0);
     }
@@ -164,7 +174,7 @@ public:
     }
 
 private:
-    sk_sp<SkFontStyleSet> fFamilies[4];
+    std::vector<sk_sp<SkFontStyleSet>> fFamilies;
 };
 }
 

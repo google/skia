@@ -44,12 +44,6 @@ bool GrVkFormatIsSupported(VkFormat);
  */
 bool GrVkFormatPixelConfigPairIsValid(VkFormat, GrPixelConfig);
 
-/**
- * Returns true if the given vulkan texture format is sRGB encoded.
- * Also provides the non-sRGB version, if there is one.
- */
-bool GrVkFormatIsSRGB(VkFormat format, VkFormat* linearFormat);
-
 bool GrSampleCountToVkSampleCount(uint32_t samples, VkSampleCountFlagBits* vkSamples);
 
 bool GrCompileVkShaderModule(const GrVkGpu* gpu,

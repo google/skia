@@ -8,8 +8,6 @@
 #ifndef SK_COMMON_FLAGS_GPU_H
 #define SK_COMMON_FLAGS_GPU_H
 
-#if SK_SUPPORT_GPU
-
 #include "GrTypesPriv.h"
 #include "SkCommandLineFlags.h"
 #include "SkTypes.h"
@@ -66,7 +64,5 @@ inline GpuPathRenderers CollectGpuPathRenderersFromFlags() {
  *  Helper to set GrContextOptions from common GPU flags.
  */
 void SetCtxOptionsFromCommonFlags(struct GrContextOptions*);
-
-#endif // SK_SUPPORT_GPU
 
 #endif

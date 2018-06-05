@@ -8,7 +8,6 @@
 #include "SkTypes.h"
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
 #include <random>
 #include "GrClip.h"
 #include "GrContext.h"
@@ -567,4 +566,3 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
 
 #endif  // GR_TEST_UTILS
 #endif  // SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
-#endif  // SK_SUPPORT_GPU

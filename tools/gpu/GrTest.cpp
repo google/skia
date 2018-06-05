@@ -165,10 +165,9 @@ void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>*
 #endif
 
 GrBackendTexture GrGpu::createTestingOnlyBackendTexture(const void* pixels, int w, int h,
-                                                        SkColorType colorType,
-                                                        SkColorSpace* cs, bool isRenderTarget,
+                                                        SkColorType colorType, bool isRenderTarget,
                                                         GrMipMapped mipMapped) {
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(colorType, cs, *this->caps());
+    GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
     if (kUnknown_GrPixelConfig == config) {
         return GrBackendTexture();
     }

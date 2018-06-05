@@ -7,9 +7,6 @@
 
 #include "SkTypes.h"
 
-// This test is a GPU-backend specific test.
-#if SK_SUPPORT_GPU
-
 #include "gl/GrGLDefines.h"
 #include "gl/GrGLExtensions.h"
 #include "Test.h"
@@ -49,5 +46,3 @@ DEF_TEST(GrGLExtensionsTest_remove, reporter) {
     REPORTER_ASSERT(reporter, ext.remove("test_extension_1"));
     REPORTER_ASSERT(reporter, !ext.has("test_extension_1"));
 }
-
-#endif

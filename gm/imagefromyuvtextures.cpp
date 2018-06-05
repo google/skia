@@ -9,8 +9,6 @@
 
 #include "gm.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
@@ -169,5 +167,3 @@ private:
 
 DEF_GM(return new ImageFromYUVTextures;)
 }
-
-#endif

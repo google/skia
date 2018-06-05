@@ -15,7 +15,6 @@
 #include <float.h>
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrProxyProvider.h"
@@ -98,5 +97,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(HalfFloatRGBATextureTest, reporter, ctxInfo) 
                       kMaxIntegerRepresentableInHalfFloatingPoint, HALF_RGBA_CONTROL_ARRAY_SIZE,
                       GrColorType::kRGBA_F16);
 }
-
-#endif

@@ -284,7 +284,6 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
     if (!renderTargetContext) {
         return nullptr;
     }
-    paint.setGammaCorrect(renderTargetContext->colorSpaceInfo().isGammaCorrect());
 
     SkIRect dstIRect = SkIRect::MakeWH(bounds.width(), bounds.height());
     SkRect srcRect = SkRect::Make(bounds);
