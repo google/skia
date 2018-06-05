@@ -195,6 +195,20 @@ public:
 
     void toMask(SkMask* mask) const;
 
+    void copyImageData(const SkGlyph& from, SkArenaAlloc* alloc) {
+        fMaskFormat = from.fMaskFormat;
+        fWidth = from.fWidth;
+        fHeight = from.fHeight;
+        fLeft = from.fLeft;
+        fTop = from.fTop;
+        fForceBW = from.fForceBW;
+
+        if (from.fImage != nullptr) {
+            auto imageSize = this->allocImage(alloc);
+            memcpy(fImage, from.fImage, imageSize);
+        }
+    }
+
     class HashTraits {
     public:
         static SkPackedGlyphID GetKey(const SkGlyph& glyph) {
