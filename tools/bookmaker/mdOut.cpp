@@ -1434,6 +1434,8 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             break;
         case MarkType::kExternal:
             break;
+        case MarkType::kFile:
+            break;
         case MarkType::kFormula:
             break;
         case MarkType::kFunction:
