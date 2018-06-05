@@ -38,8 +38,15 @@ void SkScalerContextProxy::generateMetrics(SkGlyph* glyph) {
         SkDebugf("GlyphCacheMiss generateMetrics: %s\n", this->getRec().dump().c_str());
     }
 
+    // Since the scaler context is being called, we don't have the needed data. Go look through
+    // looking for a suitable substitute before failing.
+    auto desc = SkScalerContext::DescriptorGivenRecAndEffects(this->getRec(), this->getEffects());
+    SkStrikeCache::DesperationSearchForImage(*desc, glyph, &fAlloc);
+
+    if (glyph->fMaskFormat == MASK_FORMAT_UNKNOWN) {
+        glyph->zeroMetrics();
+    }
     fDiscardableManager->notifyCacheMiss(SkStrikeClient::CacheMissType::kGlyphMetrics);
-    glyph->zeroMetrics();
 }
 
 void SkScalerContextProxy::generateImage(const SkGlyph& glyph) {
@@ -48,6 +55,8 @@ void SkScalerContextProxy::generateImage(const SkGlyph& glyph) {
         SkDebugf("GlyphCacheMiss generateImage: %s\n", this->getRec().dump().c_str());
     }
 
+    // There is no desperation search here, because if there was an image to be found it was
+    // copied over with the metrics search.
     fDiscardableManager->notifyCacheMiss(SkStrikeClient::CacheMissType::kGlyphImage);
 }
 
@@ -56,9 +65,13 @@ bool SkScalerContextProxy::generatePath(SkGlyphID glyphID, SkPath* path) {
     if (this->getProxyTypeface()->isLogging()) {
         SkDebugf("GlyphCacheMiss generatePath: %s\n", this->getRec().dump().c_str());
     }
+    // Since the scaler context is being called, we don't have the needed data. Go look through
+    // looking for a suitable substitute before failing.
+    auto desc = SkScalerContext::DescriptorGivenRecAndEffects(this->getRec(), this->getEffects());
+    bool foundPath = SkStrikeCache::DesperationSearchForPath(*desc, glyphID, path);
 
     fDiscardableManager->notifyCacheMiss(SkStrikeClient::CacheMissType::kGlyphPath);
-    return false;
+    return foundPath;
 }
 
 void SkScalerContextProxy::generateFontMetrics(SkPaint::FontMetrics* metrics) {
@@ -69,6 +82,7 @@ void SkScalerContextProxy::generateFontMetrics(SkPaint::FontMetrics* metrics) {
         SkDEBUGCODE(SkStrikeCache::Dump());
     }
 
+    // Font metrics aren't really used for render, so just zero out the data and return.
     fDiscardableManager->notifyCacheMiss(SkStrikeClient::CacheMissType::kFontMetrics);
     sk_bzero(metrics, sizeof(*metrics));
 }

@@ -408,3 +408,109 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_CacheMissReporting, report
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
 }
+
+DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    auto typeface = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    paint.setTypeface(typeface);
+    paint.setColor(SK_ColorRED);
+
+    auto lostGlyphID = SkPackedGlyphID(1, SK_FixedHalf, SK_FixedHalf);
+
+    const uint8_t glyphImage[] = {0xFF, 0xFF};
+
+    // Build a fallback cache.
+    {
+        SkAutoDescriptor ad;
+        SkScalerContextRec rec;
+        SkScalerContextEffects effects;
+        SkScalerContextFlags flags = SkScalerContextFlags::kFakeGammaAndBoostContrast;
+        SkScalerContext::MakeRecAndEffects(paint, nullptr, nullptr, flags, &rec, &effects, false);
+        auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
+
+        auto fallbackCache = SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface);
+        auto glyph = fallbackCache->getRawGlyphByID(lostGlyphID);
+        glyph->fMaskFormat = SkMask::kA8_Format;
+        glyph->fHeight = 1;
+        glyph->fWidth = 2;
+        fallbackCache->initializeImage(glyphImage, glyph->computeImageSize(), glyph);
+        glyph->fImage = (void *)glyphImage;
+    }
+
+    // Make sure we can find the fall back cache.
+    {
+        SkAutoDescriptor ad;
+        SkScalerContextRec rec;
+        SkScalerContextEffects effects;
+        SkScalerContextFlags flags = SkScalerContextFlags::kFakeGammaAndBoostContrast;
+        SkScalerContext::MakeRecAndEffects(paint, nullptr, nullptr, flags, &rec, &effects, false);
+        auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
+        auto testCache = SkStrikeCache::FindStrikeExclusive(*desc);
+        REPORTER_ASSERT(reporter, !(testCache == nullptr));
+    }
+
+    // Make sure we can't find the target cache.
+    {
+        SkAutoDescriptor ad;
+        SkScalerContextRec rec;
+        SkScalerContextEffects effects;
+        SkScalerContextFlags flags = SkScalerContextFlags::kNone;
+        SkScalerContext::MakeRecAndEffects(paint, nullptr, nullptr, flags, &rec, &effects, false);
+        auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
+        auto testCache = SkStrikeCache::FindStrikeExclusive(*desc);
+        REPORTER_ASSERT(reporter, testCache == nullptr);
+    }
+
+    {
+        SkGlyph lostGlyph;
+        lostGlyph.initWithGlyphID(lostGlyphID);
+
+        SkAutoDescriptor ad;
+        SkScalerContextRec rec;
+        SkScalerContextEffects effects;
+        SkScalerContextFlags flags = SkScalerContextFlags::kNone;
+        SkScalerContext::MakeRecAndEffects(paint, nullptr, nullptr, flags, &rec, &effects, false);
+        auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
+        SkArenaAlloc alloc{100};
+        auto found = SkStrikeCache::DesperationSearchForImage(*desc, &lostGlyph, &alloc);
+        REPORTER_ASSERT(reporter, found);
+        REPORTER_ASSERT(reporter, lostGlyph.fHeight == 1);
+        REPORTER_ASSERT(reporter, lostGlyph.fWidth == 2);
+        REPORTER_ASSERT(reporter, lostGlyph.fMaskFormat == SkMask::kA8_Format);
+    }
+
+    {
+        SkGlyph lostGlyph;
+        auto reallyLostGlyphID = SkPackedGlyphID(1, SK_FixedQuarter, SK_FixedQuarter);
+        lostGlyph.initWithGlyphID(reallyLostGlyphID);
+
+        SkAutoDescriptor ad;
+        SkScalerContextRec rec;
+        SkScalerContextEffects effects;
+        SkScalerContextFlags flags = SkScalerContextFlags::kNone;
+        SkScalerContext::MakeRecAndEffects(paint, nullptr, nullptr, flags, &rec, &effects, false);
+        auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
+        SkArenaAlloc alloc{100};
+        auto found = SkStrikeCache::DesperationSearchForImage(*desc, &lostGlyph, &alloc);
+        REPORTER_ASSERT(reporter, found);
+        REPORTER_ASSERT(reporter, lostGlyph.fHeight == 1);
+        REPORTER_ASSERT(reporter, lostGlyph.fWidth == 2);
+        REPORTER_ASSERT(reporter, lostGlyph.fMaskFormat == SkMask::kA8_Format);
+    }
+
+    // Make sure we can't find the target cache again.
+    {
+        SkAutoDescriptor ad;
+        SkScalerContextRec rec;
+        SkScalerContextEffects effects;
+        SkScalerContextFlags flags = SkScalerContextFlags::kNone;
+        SkScalerContext::MakeRecAndEffects(paint, nullptr, nullptr, flags, &rec, &effects, false);
+        auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
+        auto testCache = SkStrikeCache::FindStrikeExclusive(*desc);
+        REPORTER_ASSERT(reporter, testCache == nullptr);
+    }
+
+    SkStrikeCache::Validate();
+
+}
