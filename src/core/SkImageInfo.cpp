@@ -65,7 +65,7 @@ size_t SkImageInfo::computeByteSize(size_t rowBytes) const {
         return 0;
     }
     SkSafeMath safe;
-    size_t bytes = safe.add(safe.mul(fHeight - 1, rowBytes),
+    size_t bytes = safe.add(safe.mul(safe.addInt(fHeight, -1), rowBytes),
                             safe.mul(fWidth, this->bytesPerPixel()));
     return safe ? bytes : SK_MaxSizeT;
 }
