@@ -67,7 +67,11 @@ public:
         Node* fNode;
     };
 
+
     static ExclusiveStrikePtr FindStrikeExclusive(const SkDescriptor&);
+
+    static bool DesperationSearchExclusive(
+            const SkDescriptor& desc, SkGlyph* glyph, SkArenaAlloc* arena);
 
     static ExclusiveStrikePtr CreateStrikeExclusive(
             const SkDescriptor& desc,
@@ -102,6 +106,7 @@ public:
     // call when a glyphcache is available for caching (i.e. not in use)
     void attachNode(Node* node);
     ExclusiveStrikePtr findStrikeExclusive(const SkDescriptor&);
+    bool desperationSearchExclusive(const SkDescriptor& desc, SkGlyph* glyph, SkArenaAlloc* alloc);
 
     void purgeAll(); // does not change budget
 

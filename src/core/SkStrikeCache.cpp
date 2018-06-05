@@ -101,6 +101,11 @@ SkExclusiveStrikePtr SkStrikeCache::FindStrikeExclusive(const SkDescriptor& desc
     return get_globals().findStrikeExclusive(desc);
 }
 
+bool SkStrikeCache::DesperationSearchExclusive(
+        const SkDescriptor& desc, SkGlyph* glyph, SkArenaAlloc* arena) {
+    return get_globals().desperationSearchExclusive(desc, glyph, arena);
+}
+
 std::unique_ptr<SkScalerContext> SkStrikeCache::CreateScalerContext(
         const SkDescriptor& desc,
         const SkScalerContextEffects& effects,
@@ -253,6 +258,66 @@ SkExclusiveStrikePtr SkStrikeCache::findStrikeExclusive(const SkDescriptor& desc
     }
 
     return SkExclusiveStrikePtr(nullptr);
+}
+
+bool SkStrikeCache::desperationSearchExclusive(
+        const SkDescriptor& desc, SkGlyph* glyph, SkArenaAlloc* alloc) {
+    Node*           node;
+    SkAutoExclusive ac(fLock);
+
+    auto looseCompare = [](const SkDescriptor& lhs, const SkDescriptor& rhs) {
+        uint32_t size;
+        auto ptr = lhs.findEntry(kRec_SkDescriptorTag, &size);
+        SkScalerContextRec lhsRec;
+        std::memcpy(&lhsRec, ptr, size);
+
+        ptr = rhs.findEntry(kRec_SkDescriptorTag, &size);
+        SkScalerContextRec rhsRec;
+        std::memcpy(&rhsRec, ptr, size);
+
+        bool possible = lhsRec.fFontID == rhsRec.fFontID &&
+                        lhsRec.fTextSize == rhsRec.fTextSize &&
+                        lhsRec.fPreScaleX == rhsRec.fPreScaleX &&
+                        lhsRec.fPreSkewX == rhsRec.fPreSkewX;
+
+        if (possible) {
+            for (int i = 0; i < 2; i++) {
+                for (int j = 0; j < 2; j++) {
+                    possible &= lhsRec.fPost2x2[i][j] == rhsRec.fPost2x2[i][j];
+                }
+            }
+        }
+
+        return possible;
+    };
+
+
+    SkGlyphID glyphID = glyph->getGlyphID();
+    SkFixed subX = glyph->getSubXFixed(),
+            subY = glyph->getSubYFixed();
+
+    for (node = internalGetHead(); node != nullptr; node = node->fNext) {
+        if (looseCompare(node->fCache.getDescriptor(), desc)) {
+            if (node->fCache.isGlyphCached(glyphID, subX, subY)) {
+                auto from = node->fCache.getRawGlyphByID(SkPackedGlyphID(glyphID, subX, subY));
+                glyph->copyData(*from, alloc);
+                return true;
+            }
+
+            for (SkFixed y = 0; y < SK_Fixed1; y += SK_FixedQuarter) {
+                for (SkFixed x = 0; x < SK_Fixed1; x += SK_FixedQuarter) {
+                    if (node->fCache.isGlyphCached(glyphID, x, y)) {
+                        this->internalDetachCache(node);
+                        auto from = node->fCache.getRawGlyphByID(SkPackedGlyphID(glyphID, x, y));
+                        glyph->copyData(*from, alloc);
+                        return true;
+                    }
+                }
+            }
+
+        }
+    }
+    return false;
 }
 
 SkExclusiveStrikePtr SkStrikeCache::CreateStrikeExclusive(

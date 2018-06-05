@@ -195,6 +195,14 @@ public:
 
     void toMask(SkMask* mask) const;
 
+    void copyData(const SkGlyph& from, SkArenaAlloc* alloc) {
+        auto preservedGlyphID = from.fID;
+        *this = from;
+        fID = preservedGlyphID;
+        auto imageSize = this->allocImage(alloc);
+        memcpy(fImage, from.fImage, imageSize);
+    }
+
     class HashTraits {
     public:
         static SkPackedGlyphID GetKey(const SkGlyph& glyph) {
