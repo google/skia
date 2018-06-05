@@ -14,22 +14,12 @@
 #include "SkTextBlobRunIterator.h"
 
 void GrTextUtils::Paint::initFilteredColor() {
-    // This mirrors the logic in skpaint_to_grpaint_impl for handling paint colors
-    if (fDstColorSpaceInfo->colorSpace()) {
-        GrColor4f filteredColor =
-                SkColorToUnpremulGrColor4f(fPaint->getColor(), *fDstColorSpaceInfo);
-        if (fPaint->getColorFilter()) {
-            filteredColor = GrColor4f::FromSkColor4f(
-                fPaint->getColorFilter()->filterColor4f(filteredColor.toSkColor4f()));
-        }
-        fFilteredPremulColor = filteredColor.premul().toGrColor();
-    } else {
-        SkColor filteredSkColor = fPaint->getColor();
-        if (fPaint->getColorFilter()) {
-            filteredSkColor = fPaint->getColorFilter()->filterColor(filteredSkColor);
-        }
-        fFilteredPremulColor = SkColorToPremulGrColor(filteredSkColor);
+    GrColor4f filteredColor = SkColorToUnpremulGrColor4f(fPaint->getColor(), *fDstColorSpaceInfo);
+    if (fPaint->getColorFilter()) {
+        filteredColor = GrColor4f::FromSkColor4f(
+            fPaint->getColorFilter()->filterColor4f(filteredColor.toSkColor4f()));
     }
+    fFilteredPremulColor = filteredColor.premul().toGrColor();
 }
 
 
