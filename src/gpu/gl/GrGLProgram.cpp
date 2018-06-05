@@ -33,23 +33,32 @@ GrGLProgram::GrGLProgram(GrGLGpu* gpu,
                          const UniformInfoArray& textureSamplers,
                          const UniformInfoArray& texelBuffers,
                          const VaryingInfoArray& pathProcVaryings,
-                         std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
-                         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
-                         const GrGLSLFragProcs& fragmentProcessors)
-    : fBuiltinUniformHandles(builtinUniforms)
-    , fProgramID(programID)
-    , fGeometryProcessor(std::move(geometryProcessor))
-    , fXferProcessor(std::move(xferProcessor))
-    , fFragmentProcessors(fragmentProcessors)
-    , fDesc(desc)
-    , fGpu(gpu)
-    , fProgramDataManager(gpu, programID, uniforms, pathProcVaryings)
-    , fNumTextureSamplers(textureSamplers.count())
-    , fNumTexelBuffers(texelBuffers.count()) {
+                         std::unique_ptr<GrGLSLPrimitiveProcessor> glslPrimitiveProcessor,
+                         std::unique_ptr<GrGLSLXferProcessor> glslXferProcessor,
+                         const GrGLSLFragProcs& glslFragmentProcessors,
+                         const GrPrimitiveProcessor& primitiveProcessor)
+        : fBuiltinUniformHandles(builtinUniforms)
+        , fProgramID(programID)
+        , fPrimitiveProcessor(std::move(glslPrimitiveProcessor))
+        , fXferProcessor(std::move(glslXferProcessor))
+        , fFragmentProcessors(glslFragmentProcessors)
+        , fDesc(desc)
+        , fGpu(gpu)
+        , fProgramDataManager(gpu, programID, uniforms, pathProcVaryings)
+        , fNumTextureSamplers(textureSamplers.count())
+        , fNumTexelBuffers(texelBuffers.count()) {
     // Assign texture units to sampler uniforms one time up front.
     GL_CALL(UseProgram(fProgramID));
     fProgramDataManager.setSamplerUniforms(textureSamplers, 0);
     fProgramDataManager.setSamplerUniforms(texelBuffers, fNumTextureSamplers);
+    fNumAttributes = primitiveProcessor.numAttribs();
+    fAttributes.reset(new Attribute[fNumAttributes]);
+    for (int i = 0; i < fNumAttributes; ++i) {
+        const GrPrimitiveProcessor::Attribute& attr = primitiveProcessor.getAttrib(i);
+        fAttributes[i] = {attr.type(), attr.offsetInRecord(), attr.inputRate()};
+    }
+    fVertexStride = primitiveProcessor.getVertexStride();
+    fInstanceStride = primitiveProcessor.getInstanceStride();
 }
 
 GrGLProgram::~GrGLProgram() {
@@ -78,8 +87,8 @@ void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrPipeline
     // Within each group we will bind them in primProc, fragProcs, XP order.
     int nextTexSamplerIdx = 0;
     int nextTexelBufferIdx = fNumTextureSamplers;
-    fGeometryProcessor->setData(fProgramDataManager, primProc,
-                                GrFragmentProcessor::CoordTransformIter(pipeline));
+    fPrimitiveProcessor->setData(fProgramDataManager, primProc,
+                                 GrFragmentProcessor::CoordTransformIter(pipeline));
     this->bindTextures(primProc, &nextTexSamplerIdx, &nextTexelBufferIdx);
 
     this->setFragmentData(primProc, pipeline, &nextTexSamplerIdx, &nextTexelBufferIdx);

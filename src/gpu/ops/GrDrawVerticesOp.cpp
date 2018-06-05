@@ -245,7 +245,8 @@ void GrDrawVerticesOp::onPrepareDraws(Target* target) {
     if (!indices) {
         mesh.setNonIndexedNonInstanced(fVertexCount);
     } else {
-        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertexCount - 1);
+        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertexCount - 1,
+                        GrPrimitiveRestart::kNo);
     }
     mesh.setVertexData(vertexBuffer, firstVertex);
     target->draw(gp.get(), fHelper.makePipeline(target), mesh);

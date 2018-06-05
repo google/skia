@@ -397,5 +397,6 @@ GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
                            fVaryingHandler.fPathProcVaryingInfos,
                            std::move(fGeometryProcessor),
                            std::move(fXferProcessor),
-                           fFragmentProcessors);
+                           fFragmentProcessors,
+                           fPrimProc);
 }

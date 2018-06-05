@@ -830,7 +830,8 @@ private:
                                      fHelper.compatibleWithAlphaAsCoverage());
 
             GrMesh mesh(GrPrimitiveType::kTriangles);
-            mesh.setIndexed(indexBuffer, tess.numIndices(), firstIndex, 0, tess.numPts() - 1);
+            mesh.setIndexed(indexBuffer, tess.numIndices(), firstIndex, 0, tess.numPts() - 1,
+                            GrPrimitiveRestart::kNo);
             mesh.setVertexData(vertexBuffer, firstVertex);
             target->draw(gp.get(), pipeline, mesh);
         }
@@ -917,7 +918,8 @@ private:
 
             for (int j = 0; j < draws.count(); ++j) {
                 const Draw& draw = draws[j];
-                mesh.setIndexed(indexBuffer, draw.fIndexCnt, firstIndex, 0, draw.fVertexCnt - 1);
+                mesh.setIndexed(indexBuffer, draw.fIndexCnt, firstIndex, 0, draw.fVertexCnt - 1,
+                                GrPrimitiveRestart::kNo);
                 mesh.setVertexData(vertexBuffer, firstVertex);
                 target->draw(quadProcessor.get(), pipeline, mesh);
                 firstIndex += draw.fIndexCnt;

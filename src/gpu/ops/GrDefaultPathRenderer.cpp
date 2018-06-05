@@ -269,7 +269,8 @@ private:
             if (!this->isIndexed()) {
                 fMesh.setNonIndexedNonInstanced(vertexCount);
             } else {
-                fMesh.setIndexed(fIndexBuffer, indexCount, fFirstIndex, 0, vertexCount - 1);
+                fMesh.setIndexed(fIndexBuffer, indexCount, fFirstIndex, 0, vertexCount - 1,
+                                 GrPrimitiveRestart::kNo);
             }
             fMesh.setVertexData(fVertexBuffer, fFirstVertex);
             fTarget->draw(fGeometryProcessor, fPipeline, fMesh);
