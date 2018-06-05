@@ -12,6 +12,18 @@
 #include "ccpr/GrCCPerFlushResources.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
 
+GrCCDrawPathsOp* GrCCDrawPathsOp::Make(GrContext* context,
+                                       GrPaint&& paint,
+                                       const SkIRect& clipIBounds,
+                                       const SkMatrix& m,
+                                       const SkPath& path,
+                                       const SkRect& devBounds) {
+    GrMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+    char* mem = (char*) pool->allocate(sizeof(GrCCDrawPathsOp));
+    return new (mem) GrCCDrawPathsOp(std::move(paint), clipIBounds, m, path, devBounds);
+}
+
 static bool has_coord_transforms(const GrPaint& paint) {
     GrFragmentProcessor::Iter iter(paint);
     while (const GrFragmentProcessor* fp = iter.next()) {

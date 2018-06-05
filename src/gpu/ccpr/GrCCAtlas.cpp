@@ -54,14 +54,15 @@ class GrCCAtlas::DrawCoverageCountOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    DrawCoverageCountOp(sk_sp<const GrCCPathParser> parser, CoverageCountBatchID batchID,
-                        const SkISize& drawBounds)
-            : INHERITED(ClassID())
-            , fParser(std::move(parser))
-            , fBatchID(batchID)
-            , fDrawBounds(drawBounds) {
-        this->setBounds(SkRect::MakeIWH(fDrawBounds.width(), fDrawBounds.height()),
-                        GrOp::HasAABloat::kNo, GrOp::IsZeroArea::kNo);
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          sk_sp<const GrCCPathParser> parser,
+                                          CoverageCountBatchID batchID,
+                                          const SkISize& drawBounds) {
+        GrMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        char* mem = (char*) pool->allocate(sizeof(DrawCoverageCountOp));
+        return std::unique_ptr<GrDrawOp>(new (mem) DrawCoverageCountOp(std::move(parser),
+                                                                       batchID, drawBounds));
     }
 
     // GrDrawOp interface.
@@ -77,6 +78,16 @@ public:
     }
 
 private:
+    DrawCoverageCountOp(sk_sp<const GrCCPathParser> parser, CoverageCountBatchID batchID,
+                        const SkISize& drawBounds)
+            : INHERITED(ClassID())
+            , fParser(std::move(parser))
+            , fBatchID(batchID)
+            , fDrawBounds(drawBounds) {
+        this->setBounds(SkRect::MakeIWH(fDrawBounds.width(), fDrawBounds.height()),
+                        GrOp::HasAABloat::kNo, GrOp::IsZeroArea::kNo);
+    }
+
     const sk_sp<const GrCCPathParser> fParser;
     const CoverageCountBatchID fBatchID;
     const SkISize fDrawBounds;
@@ -160,8 +171,10 @@ sk_sp<GrRenderTargetContext> GrCCAtlas::finalize(GrOnFlushResourceProvider* onFl
     SkIRect clearRect = SkIRect::MakeSize(fDrawBounds);
     rtc->clear(&clearRect, 0, GrRenderTargetContext::CanClearFullscreen::kYes);
 
-    auto op = skstd::make_unique<DrawCoverageCountOp>(std::move(parser), fCoverageCountBatchID,
-                                                      fDrawBounds);
+    std::unique_ptr<GrDrawOp> op = DrawCoverageCountOp::Make(onFlushRP->context(),
+                                                             std::move(parser),
+                                                             fCoverageCountBatchID,
+                                                             fDrawBounds);
     rtc->addDrawOp(GrNoClip(), std::move(op));
 
     fTextureProxy = sk_ref_sp(rtc->asTextureProxy());

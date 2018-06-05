@@ -765,7 +765,8 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint,
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          GrPaint&& paint,
                                           const SkMatrix& viewMatrix,
                                           const SkPath& path,
                                           const GrStyle& style,
@@ -780,7 +781,8 @@ public:
         const SkStrokeRec& stroke = style.strokeRec();
         SkScalar capLength = SkPaint::kButt_Cap != stroke.getCap() ? hairlineCoverage * 0.5f : 0.0f;
 
-        return Helper::FactoryHelper<AAHairlineOp>(std::move(paint), newCoverage, viewMatrix, path,
+        return Helper::FactoryHelper<AAHairlineOp>(context, std::move(paint), newCoverage,
+                                                   viewMatrix, path,
                                                    devClipBounds, capLength, stencilSettings);
     }
 
@@ -1057,7 +1059,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPath path;
     args.fShape->asPath(&path);
     std::unique_ptr<GrDrawOp> op =
-            AAHairlineOp::Make(std::move(args.fPaint), *args.fViewMatrix, path,
+            AAHairlineOp::Make(args.fContext, std::move(args.fPaint), *args.fViewMatrix, path,
                                args.fShape->style(), devClipBounds, args.fUserStencilSettings);
     args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
     return true;
@@ -1072,8 +1074,9 @@ GR_DRAW_OP_TEST_DEFINE(AAHairlineOp) {
     SkPath path = GrTest::TestPath(random);
     SkIRect devClipBounds;
     devClipBounds.setEmpty();
-    return AAHairlineOp::Make(std::move(paint), viewMatrix, path, GrStyle::SimpleHairline(),
-                              devClipBounds, GrGetRandomStencil(random, context));
+    return AAHairlineOp::Make(context, std::move(paint), viewMatrix, path,
+                              GrStyle::SimpleHairline(), devClipBounds,
+                              GrGetRandomStencil(random, context));
 }
 
 #endif

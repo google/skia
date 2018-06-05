@@ -23,7 +23,7 @@ struct SkIRect;
 
 class GrTextureOpList final : public GrOpList {
 public:
-    GrTextureOpList(GrResourceProvider*, GrTextureProxy*, GrAuditTrail*);
+    GrTextureOpList(GrResourceProvider*, sk_sp<GrMemoryPool>, GrTextureProxy*, GrAuditTrail*);
     ~GrTextureOpList() override;
 
     /**
@@ -48,7 +48,7 @@ public:
      * depending on the type of surface, configs, etc, and the backend-specific
      * limitations.
      */
-    bool copySurface(const GrCaps& caps,
+    bool copySurface(GrContext*,
                      GrSurfaceProxy* dst,
                      GrSurfaceProxy* src,
                      const SkIRect& srcRect,
@@ -58,16 +58,21 @@ public:
 
     SkDEBUGCODE(void dump(bool printDependencies) const override;)
 
-    SkDEBUGCODE(int numOps() const override { return fRecordedOps.count(); })
+    SkDEBUGCODE(int numOps() const override { return fRecordedOps1.count(); })
 
 private:
+    void deleteOp(int index);
+    void deleteOps();
+
     void purgeOpsWithUninstantiatedProxies() override;
 
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 
     void recordOp(std::unique_ptr<GrOp>);
 
-    SkSTArray<2, std::unique_ptr<GrOp>, true> fRecordedOps;
+    // The memory for the ops in 'fRecordedOps' is actually stored in 'fOpMemoryPool'
+    SkSTArray<2, GrOp*, true> fRecordedOps1;
+    sk_sp<GrMemoryPool> fOpMemoryPool;
 
     typedef GrOpList INHERITED;
 };

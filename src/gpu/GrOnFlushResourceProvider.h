@@ -92,6 +92,7 @@ public:
                                                  const GrUniqueKey&);
 
     const GrCaps* caps() const;
+    GrContext* context();
 
 private:
     GrOnFlushResourceProvider(const GrOnFlushResourceProvider&) = delete;

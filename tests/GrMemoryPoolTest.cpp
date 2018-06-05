@@ -319,6 +319,7 @@ DEF_TEST(GrMemoryPoolAPI, reporter) {
     }
 }
 
+#if 0
 DEF_TEST(GrObjectMemoryPoolAPI, reporter) {
     struct Data {
         int value[5];
@@ -333,7 +334,7 @@ DEF_TEST(GrObjectMemoryPoolAPI, reporter) {
         size_t count = 0;
         size_t origPoolSize = pool.size();
         while (pool.size() == origPoolSize) {
-            r.add(pool.allocate());
+            r.add(pool.allocate1());
             count++;
         }
         return count - 1;
@@ -395,3 +396,5 @@ DEF_TEST(GrObjectMemoryPoolAPI, reporter) {
         REPORTER_ASSERT(reporter, secondBlockCount == kMinAllocCount);
     }
 }
+#endif
+

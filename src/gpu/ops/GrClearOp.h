@@ -17,21 +17,33 @@ class GrClearOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrClearOp> Make(const GrFixedClip& clip, GrColor color,
+    static std::unique_ptr<GrClearOp> Make(GrContext* context,
+                                           const GrFixedClip& clip,
+                                           GrColor color,
                                            GrSurfaceProxy* dstProxy) {
         const SkIRect rect = SkIRect::MakeWH(dstProxy->width(), dstProxy->height());
         if (clip.scissorEnabled() && !SkIRect::Intersects(clip.scissorRect(), rect)) {
             return nullptr;
         }
 
-        return std::unique_ptr<GrClearOp>(new GrClearOp(clip, color, dstProxy));
+        // $$
+        GrMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        char* mem = (char*) pool->allocate(sizeof(GrClearOp));
+        return std::unique_ptr<GrClearOp>(new (mem) GrClearOp(clip, color, dstProxy));
     }
 
-    static std::unique_ptr<GrClearOp> Make(const SkIRect& rect, GrColor color,
+    static std::unique_ptr<GrClearOp> Make(GrContext* context,
+                                           const SkIRect& rect,
+                                           GrColor color,
                                            bool fullScreen) {
         SkASSERT(fullScreen || !rect.isEmpty());
 
-        return std::unique_ptr<GrClearOp>(new GrClearOp(rect, color, fullScreen));
+        // $$
+        GrMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        char* mem = (char*) pool->allocate(sizeof(GrClearOp));
+        return std::unique_ptr<GrClearOp>(new (mem) GrClearOp(rect, color, fullScreen));
     }
 
     const char* name() const override { return "Clear"; }
