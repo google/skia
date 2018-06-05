@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29e260fd_d6437eec",
+        "filename": "src/core/SkImageInfo.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2018-06-05T20:10:11Z",
+      "side": 1,
+      "message": "I guess alternatively I could return 0 above if fHeight \u003c 0.",
+      "revId": "79709029f8534e2080e3f72065afdd973283fd3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
