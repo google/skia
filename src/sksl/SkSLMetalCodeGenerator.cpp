@@ -14,19 +14,16 @@
 #include "ir/SkSLModifiersDeclaration.h"
 #include "ir/SkSLNop.h"
 #include "ir/SkSLVariableReference.h"
+#include <fstream>  // FIXME - remove streams when done inserting MSL code directly
+#include <sstream>
 
 static const uint32_t MVKMagicNum = 0x19960412; // FIXME - remove when decoupled from MVK
 
 namespace SkSL {
 
 void MetalCodeGenerator::setupIntrinsics() {
-#define METAL(x) std::make_tuple(kMetal_IntrinsicKind, k ## x ## _MetalIntrinsic, \
-                                k ## x ## _MetalIntrinsic, k ## x ## _MetalIntrinsic, \
-                                k ## x ## _MetalIntrinsic)
-#define SPECIAL(x) std::make_tuple(kSpecial_IntrinsicKind, k ## x ## _SpecialIntrinsic, \
-                                k ## x ## _SpecialIntrinsic, k ## x ## _SpecialIntrinsic, \
-                                k ## x ## _SpecialIntrinsic)
-// FIXME - tuple probably doesn't need this many fields, will fix when all intrinsics written
+#define METAL(x) std::make_pair(kMetal_IntrinsicKind, k ## x ## _MetalIntrinsic)
+#define SPECIAL(x) std::make_pair(kSpecial_IntrinsicKind, k ## x ## _SpecialIntrinsic)
     fIntrinsicMap[String("texture")]            = SPECIAL(Texture);
     fIntrinsicMap[String("lessThan")]           = METAL(LessThan);
     fIntrinsicMap[String("lessThanEqual")]      = METAL(LessThanEqual);
@@ -96,10 +93,19 @@ void MetalCodeGenerator::writeType(const Type& type) {
             this->write(to_string(type.columns()));
             break;
         case Type::kSampler_Kind:
-            this->write("texture2d<half> "); //FIXME - support other texture types;
+            this->write("texture2d<float> "); //FIXME - support other texture types;
             break;
         default:
-            this->write(type.name());
+            // FIXME - converted all half types to floats for MVK integration
+            if ((type.kind() == Type::kVector_Kind || type.kind() == Type::kMatrix_Kind) &&
+                type.componentType() == *fContext.fHalf_Type) {
+                this->writeType(fContext.fFloat_Type->toCompound(fContext, type.columns(),
+                                                                 type.rows()));
+            } else if (type == *fContext.fHalf_Type) {
+                this->writeType(*fContext.fFloat_Type);
+            } else {
+                this->write(type.name());
+            }
     }
 }
 
@@ -153,17 +159,11 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
 }
 
 void MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
-    auto intrinsic = fIntrinsicMap.find(c.fFunction.fName);
-    ASSERT(intrinsic != fIntrinsicMap.end());
-    int32_t intrinsicId = 0;
-    if (c.fArguments.size() > 0) {
-        if (std::get<0>(intrinsic->second) == kSpecial_IntrinsicKind) {
-            intrinsicId = std::get<1>(intrinsic->second);
-        }
-    } else {
-        intrinsicId = std::get<1>(intrinsic->second);
-    }
-    switch (std::get<0>(intrinsic->second)) {
+    auto i = fIntrinsicMap.find(c.fFunction.fName);
+    ASSERT(i != fIntrinsicMap.end());
+    Intrinsic intrinsic = i->second;
+    int32_t intrinsicId = intrinsic.second;
+    switch (intrinsic.first) {
         case kSpecial_IntrinsicKind:
             return this->writeSpecialIntrinsic(c, (SpecialIntrinsic) intrinsicId);
             break;
@@ -204,6 +204,10 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         this->write("rsqrt");
     } else if (c.fFunction.fBuiltin && "mod" == c.fFunction.fName) {
         this->write("fmod");
+    } else if (c.fFunction.fBuiltin && "dFdx" == c.fFunction.fName) {
+        this->write("dfdx");
+    } else if (c.fFunction.fBuiltin && "dFdy" == c.fFunction.fName) {
+        this->write("dfdy");
     } else {
         this->write(c.fFunction.fName);
     }
@@ -289,13 +293,13 @@ void MetalCodeGenerator::writeConstructor(const Constructor& c) {
 }
 
 void MetalCodeGenerator::writeFragCoord() {
-    this->write("_in.position");
+    this->write("float4(_fragCoord.x, _anonInterface0.u_skRTHeight - _fragCoord.y, 0.0, 1.0)");
 }
 
 void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
     switch (ref.fVariable.fModifiers.fLayout.fBuiltin) {
         case SK_FRAGCOLOR_BUILTIN:
-            this->write("sk_FragColor");
+            this->write("_out->sk_FragColor");
             break;
         case SK_FRAGCOORD_BUILTIN:
             this->writeFragCoord();
@@ -313,6 +317,13 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
                     this->write("_globals->");
                 }
             }
+            // FIXME - probably going to eventually have a map of renamed functions and
+            // use it to detect conflicts with variable names.
+            if (ref.fVariable.fName == "dfdx") {
+                this->write("dFdx");
+            } else if (ref.fVariable.fName == "dfdy") {
+                this->write("dFdy");
+            }
             this->write(ref.fVariable.fName);
     }
 }
@@ -325,11 +336,12 @@ void MetalCodeGenerator::writeIndexExpression(const IndexExpression& expr) {
 }
 
 void MetalCodeGenerator::writeFieldAccess(const FieldAccess& f) {
+    const Type::Field* field = &f.fBase->fType.fields()[f.fFieldIndex];
     if (FieldAccess::kDefault_OwnerKind == f.fOwnerKind) {
         this->writeExpression(*f.fBase, kPostfix_Precedence);
         this->write(".");
     }
-    switch (f.fBase->fType.fields()[f.fFieldIndex].fModifiers.fLayout.fBuiltin) {
+    switch (field->fModifiers.fLayout.fBuiltin) {
         case SK_CLIPDISTANCE_BUILTIN:
             this->write("gl_ClipDistance");
             break;
@@ -337,12 +349,16 @@ void MetalCodeGenerator::writeFieldAccess(const FieldAccess& f) {
             this->write("_out->position");
             break;
         default:
-            if (FieldAccess::kAnonymousInterfaceBlock_OwnerKind == f.fOwnerKind) {
-                this->write(fInterfaceBlockNameMap[
-                            fInterfaceBlockMap[&f.fBase->fType.fields()[f.fFieldIndex]]]);
-                this->write(".");
+            if (field->fName == "sk_PointSize") {
+                this->write("_out->sk_PointSize");
+            } else {
+                if (FieldAccess::kAnonymousInterfaceBlock_OwnerKind == f.fOwnerKind) {
+                    this->write("_globals->");
+                    this->write(fInterfaceBlockNameMap[fInterfaceBlockMap[field]]);
+                    this->write("->");
+                }
+                this->write(field->fName);
             }
-            this->write(f.fBase->fType.fields()[f.fFieldIndex].fName);
     }
 }
 
@@ -497,7 +513,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     if ("main" == f.fDeclaration.fName) {
         switch (fProgram.fKind) {
             case Program::kFragment_Kind:
-                this->write("fragment half4 main0"); // FIXME - named main0 for MVK integration
+                this->write("fragment Outputs main0"); // FIXME - named main0 for MVK integration
                 break;
             case Program::kVertex_Kind:
                 this->write("vertex Outputs main0");
@@ -519,7 +535,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                 for (const auto& stmt: decls.fVars) {
                     VarDeclaration& var = (VarDeclaration&) *stmt;
                     if (var.fVar->fType.kind() == Type::kSampler_Kind) {
-                        this->write(", texture2d<half> "); // FIXME - support other texture types
+                        this->write(", texture2d<float> "); // FIXME - support other texture types
                         this->write(var.fVar->fName);
                         this->write("[[texture(");
                         this->write(to_string(var.fVar->fModifiers.fLayout.fBinding));
@@ -542,9 +558,16 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                 this->write("& " );
                 this->write(fInterfaceBlockNameMap[&intf]);
                 this->write(" [[buffer(");
-                this->write(to_string(intf.fVariable.fModifiers.fLayout.fBinding));
+                this->write(to_string(intf.fVariable.fModifiers.fLayout.fSet));
                 this->write(")]]");
             }
+        }
+        if (fInterfaceBlockNameMap.empty()) {
+            // FIXME - used for MVK integration
+            this->write(", constant sksl_synthetic_uniforms& _anonInterface0 [[buffer(0)]]");
+        }
+        if (fProgram.fKind == Program::kFragment_Kind) {
+            this->write(", float4 _fragCoord [[position]]");
         }
         separator = ", ";
     } else {
@@ -601,6 +624,14 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
         if (fNeedsGlobalStructInit) {
             this->writeLine("    Globals globalStruct;");
             this->writeLine("    thread Globals* _globals = &globalStruct;");
+            for (const auto& intf: fInterfaceBlockNameMap) {
+                const auto& intfName = intf.second;
+                this->write("    _globals->");
+                this->write(intfName);
+                this->write(" = &");
+                this->write(intfName);
+                this->write(";\n");
+            }
             for (const auto& var: fInitNonConstGlobalVars) {
                 this->write("    _globals->");
                 this->write(var->fVar->fName);
@@ -623,17 +654,8 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                 this->write(";\n");
             }
         }
-        switch (fProgram.fKind) {
-            case Program::kFragment_Kind:
-                this->writeLine("    half4 sk_FragColor;");
-                break;
-            case Program::kVertex_Kind:
-                this->writeLine("    Outputs _outputStruct;");
-                this->writeLine("    thread Outputs* _out = &_outputStruct;");
-                break;
-            default:
-                ASSERT(false);
-        }
+        this->writeLine("    Outputs _outputStruct;");
+        this->writeLine("    thread Outputs* _out = &_outputStruct;");
     }
     fFunctionHeader = "";
     OutputStream* oldOut = fOut;
@@ -644,7 +666,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     if ("main" == f.fDeclaration.fName) {
         switch (fProgram.fKind) {
             case Program::kFragment_Kind:
-                this->writeLine("return sk_FragColor;");
+                this->writeLine("return *_out;");
                 break;
             case Program::kVertex_Kind:
                 this->writeLine("_out->position.y = -_out->position.y;");
@@ -685,11 +707,49 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     while (Type::kArray_Kind == structType->kind()) {
         structType = &structType->componentType();
     }
-    for (const auto& f : structType->fields()) {
-        this->writeModifiers(f.fModifiers, false);
-        this->writeType(*f.fType);
-        this->writeLine(" " + f.fName + ";");
-        fInterfaceBlockMap[&f] = &intf;
+    int currentOffset = 0;
+    // Pack half/float3 types and add char arrays for padding when needed to maintain alignment
+    for (const auto& field: structType->fields()) {
+        int fieldOffset = field.fModifiers.fLayout.fOffset;
+        if (fieldOffset != -1) {
+            if (currentOffset > fieldOffset) {
+                ABORT("Original interface offsets are too close for MoltenVK");
+            } else if (currentOffset < fieldOffset) {
+                this->write("char pad");
+                this->write(to_string(fPaddingCount++));
+                this->write("[");
+                this->write(to_string(fieldOffset - currentOffset));
+                this->writeLine("];");
+                currentOffset = fieldOffset;
+            }
+        }
+        const Type* fieldType = field.fType;
+        std::vector<int> sizes;
+        while (fieldType->kind() == Type::kArray_Kind) {
+            sizes.push_back(fieldType->columns());
+            fieldType = &fieldType->componentType();
+        }
+        bool isPacked = false;
+        if (fieldType->kind() == Type::kVector_Kind && fieldType->columns() == 3 &&
+            fieldOffset != -1) {
+            this->write(PACKED_PREFIX);
+            isPacked = true;
+        }
+        this->writeType(*fieldType);
+        this->write(" " + field.fName);
+        for (int s : sizes) {
+            if (s <= 0) {
+                this->write("[]");
+            } else {
+                this->write("[" + to_string(s) + "]");
+            }
+        }
+        this->writeLine(";");
+        fInterfaceBlockMap[&field] = &intf;
+        currentOffset += size(fieldType, isPacked);
+    }
+    if (fProgram.fKind == Program::kFragment_Kind) {
+        this->writeLine("float u_skRTHeight;");
     }
     fIndentation--;
     this->write("}");
@@ -705,9 +765,95 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
         }
         fInterfaceBlockNameMap[&intf] = intf.fInstanceName;
     } else {
-        fInterfaceBlockNameMap[&intf] = "_AnonInterface" +  to_string(fAnonInterfaceCount++);
+        fInterfaceBlockNameMap[&intf] = "_anonInterface" +  to_string(fAnonInterfaceCount++);
     }
     this->writeLine(";");
+}
+
+// FIXME - Update SkSLMemoryLayout.h to calculate size and alignment values below for MSL shaders.
+// Also, the below currently only handle cases needed for gm's
+int MetalCodeGenerator::size(const Type* type, bool isPacked) const {
+    if (type->kind() == Type::kArray_Kind && type->componentType().kind() == Type::kScalar_Kind) {
+        return type->columns() * 4;
+    }
+    if ((type->kind() == Type::kVector_Kind || type->kind() == Type::kMatrix_Kind) &&
+        type->componentType() == *fContext.fHalf_Type) {
+        type = &fContext.fFloat_Type->toCompound(fContext, type->columns(),type->rows());
+    } else if (type == fContext.fHalf_Type.get()) {
+        type = fContext.fFloat_Type.get();
+    }
+    if (isPacked) {
+        if (type == fContext.fFloat_Type.get()) {
+            return 4;
+        } else if (type == fContext.fFloat2_Type.get()) {
+            return 8;
+        } else if (type == fContext.fFloat3_Type.get()) {
+            return 12;
+        } else if (type == fContext.fFloat4_Type.get()) {
+            return 16;
+        }
+    } else {
+        if (type == fContext.fFloat_Type.get()) {
+            return 4;
+        } else if (type == fContext.fFloat2_Type.get()) {
+            return 8;
+        } else if (type == fContext.fFloat3_Type.get()) {
+            return 16;
+        } else if (type == fContext.fFloat4_Type.get()) {
+            return 16;
+        } else if (type == fContext.fFloat2x2_Type.get()) {
+            return 16;
+        } else if (type == fContext.fFloat2x3_Type.get()) {
+            return 32;
+        } else if (type == fContext.fFloat2x4_Type.get()) {
+            return 32;
+        } else if (type == fContext.fFloat3x2_Type.get()) {
+            return 24;
+        } else if (type == fContext.fFloat3x3_Type.get()) {
+            return 48;
+        } else if (type == fContext.fFloat3x4_Type.get()) {
+            return 48;
+        } else if (type == fContext.fFloat4x2_Type.get()) {
+            return 32;
+        } else if (type == fContext.fFloat4x3_Type.get()) {
+            return 64;
+        } else if (type == fContext.fFloat4x4_Type.get()) {
+            return 64;
+        }
+    }
+
+    ABORT("Unsupported type for size: %s", String(type->fName).c_str());
+}
+
+int MetalCodeGenerator::alignment(const Type* type, bool isPacked) const {
+    if ((type->kind() == Type::kVector_Kind || type->kind() == Type::kMatrix_Kind) &&
+        type->componentType() == *fContext.fHalf_Type) {
+        type = &fContext.fFloat_Type->toCompound(fContext, type->columns(),type->rows());
+    } else if (type == fContext.fHalf_Type.get()) {
+        type = fContext.fFloat_Type.get();
+    }
+    if (isPacked) {
+        if (type == fContext.fFloat_Type.get()) {
+            return 4;
+        } else if (type == fContext.fFloat2_Type.get()) {
+            return 4;
+        } else if (type == fContext.fFloat3_Type.get()) {
+            return 4;
+        } else if (type == fContext.fFloat4_Type.get()) {
+            return 4;
+        }
+    } else {
+        if (type == fContext.fFloat_Type.get()) {
+            return 4;
+        } else if (type == fContext.fFloat2_Type.get()) {
+            return 8;
+        } else if (type == fContext.fFloat3_Type.get()) {
+            return 16;
+        } else if (type == fContext.fFloat4_Type.get()) {
+            return 16;
+        }
+    }
+    ABORT("Unsupported type for alignment: %s", String(type->fName).c_str());
 }
 
 void MetalCodeGenerator::writeVarInitializer(const Variable& var, const Expression& value) {
@@ -729,6 +875,13 @@ void MetalCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool 
             this->writeType(decl.fBaseType);
             this->write(" ");
             wroteType = true;
+        }
+        // FIXME - probably going to eventually have a map of all renamed functions and
+        // use it to detect conflicts with variable names.
+        if (var.fVar->fName == "dfdx") {
+            this->write("dFdx");
+        } else if (var.fVar->fName == "dfdy") {
+            this->write("dFdy");
         }
         this->write(var.fVar->fName);
         for (const auto& size : var.fSizes) {
@@ -943,9 +1096,6 @@ void MetalCodeGenerator::writeUniformStruct() {
 
 void MetalCodeGenerator::writeInputStruct() {
     this->write("struct Inputs {\n");
-    if (Program::kFragment_Kind == fProgram.fKind) {
-        this->write("    float4 position [[position]];\n");
-    }
     for (const auto& e : fProgram) {
         if (ProgramElement::kVar_Kind == e.fKind) {
             VarDeclarations& decls = (VarDeclarations&) e;
@@ -962,8 +1112,13 @@ void MetalCodeGenerator::writeInputStruct() {
                     VarDeclaration& var = (VarDeclaration&) *stmt;
                     this->write(var.fVar->fName);
                     if (-1 != var.fVar->fModifiers.fLayout.fLocation) {
-                        this->write("  [[attribute(" +
-                                    to_string(var.fVar->fModifiers.fLayout.fLocation) + ")]]");
+                        if (fProgram.fKind == Program::kVertex_Kind) {
+                            this->write("  [[attribute(" +
+                                        to_string(var.fVar->fModifiers.fLayout.fLocation) + ")]]");
+                        } else if (fProgram.fKind == Program::kFragment_Kind) {
+                            this->write("  [[user(locn" +
+                                        to_string(var.fVar->fModifiers.fLayout.fLocation) + ")]]");
+                        }
                     }
                 }
                 this->write(";\n");
@@ -975,7 +1130,11 @@ void MetalCodeGenerator::writeInputStruct() {
 
 void MetalCodeGenerator::writeOutputStruct() {
     this->write("struct Outputs {\n");
-    this->write("    float4 position [[position]];\n");
+    if (fProgram.fKind == Program::kVertex_Kind) {
+        this->write("    float4 position [[position]];\n");
+    } else if (fProgram.fKind == Program::kFragment_Kind) {
+        this->write("    float4 sk_FragColor [[color(0), index(0)]];\n");
+    }
     for (const auto& e : fProgram) {
         if (ProgramElement::kVar_Kind == e.fKind) {
             VarDeclarations& decls = (VarDeclarations&) e;
@@ -991,15 +1150,58 @@ void MetalCodeGenerator::writeOutputStruct() {
                 for (const auto& stmt : decls.fVars) {
                     VarDeclaration& var = (VarDeclaration&) *stmt;
                     this->write(var.fVar->fName);
+                    if (fProgram.fKind == Program::kVertex_Kind) {
+                        this->write("  [[user(locn" +
+                                    to_string(var.fVar->fModifiers.fLayout.fLocation) + ")]]");
+                    } else if (fProgram.fKind == Program::kFragment_Kind) {
+                        this->write(" [[color(" +
+                                    to_string(var.fVar->fModifiers.fLayout.fLocation) +
+                                    "), index(" +
+                                    to_string(var.fVar->fModifiers.fLayout.fIndex) + ")]]");
+                    }
                 }
                 this->write(";\n");
             }
         }
-    }    this->write("};\n");
+    }
+    if (fProgram.fKind == Program::kVertex_Kind) {
+        this->write("    float sk_PointSize;\n");
+    }
+    this->write("};\n");
+}
+
+void MetalCodeGenerator::writeInterfaceBlocks() {
+    bool wroteInterfaceBlock = false;
+    for (const auto& e : fProgram) {
+        if (ProgramElement::kInterfaceBlock_Kind == e.fKind) {
+            this->writeInterfaceBlock((InterfaceBlock&) e);
+            wroteInterfaceBlock = true;
+        }
+    }
+    if (!wroteInterfaceBlock && (fProgram.fKind == Program::kFragment_Kind)) {
+        // FIXME - below struct needed for mvk integration
+        this->writeLine("struct sksl_synthetic_uniforms {");
+        this->writeLine("    float u_skRTHeight;");
+        this->writeLine("};");
+    }
 }
 
 void MetalCodeGenerator::writeGlobalStruct() {
     bool wroteStructDecl = false;
+    for (const auto& intf : fInterfaceBlockNameMap) {
+        if (!wroteStructDecl) {
+            this->write("struct Globals {\n");
+            wroteStructDecl = true;
+        }
+        fNeedsGlobalStructInit = true;
+        const auto& intfType = intf.first;
+        const auto& intfName = intf.second;
+        this->write("    constant ");
+        this->write(intfType->fTypeName);
+        this->write("* ");
+        this->write(intfName);
+        this->write(";\n");
+    }
     for (const auto& e : fProgram) {
         if (ProgramElement::kVar_Kind == e.fKind) {
             VarDeclarations& decls = (VarDeclarations&) e;
@@ -1059,7 +1261,7 @@ void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
             break;
         }
         case ProgramElement::kInterfaceBlock_Kind:
-            this->writeInterfaceBlock((InterfaceBlock&) e);
+            // handled in writeInterfaceBlocks, do nothing
             break;
         case ProgramElement::kFunction_Kind:
             this->writeFunction((FunctionDefinition&) e);
@@ -1092,8 +1294,13 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
             }
             return result;
         }
-        case Expression::kFieldAccess_Kind:
+        case Expression::kFieldAccess_Kind: {
+            const FieldAccess& f = (const FieldAccess&) e;
+            if (FieldAccess::kAnonymousInterfaceBlock_OwnerKind == f.fOwnerKind) {
+                return kGlobals_Requirement;
+            }
             return this->requirements(*((const FieldAccess&) e).fBase);
+        }
         case Expression::kSwizzle_Kind:
             return this->requirements(*((const Swizzle&) e).fBase);
         case Expression::kBinary_Kind: {
@@ -1143,6 +1350,22 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Statemen
             Requirements result = kNo_Requirements;
             for (const auto& child : ((const Block&) s).fStatements) {
                 result |= this->requirements(*child);
+            }
+            return result;
+        }
+        case Statement::kVarDeclaration_Kind: {
+            Requirements result = kNo_Requirements;
+            const VarDeclaration& var = (const VarDeclaration&) s;
+            if (var.fValue) {
+                result = this->requirements(*var.fValue);
+            }
+            return result;
+        }
+        case Statement::kVarDeclarations_Kind: {
+            Requirements result = kNo_Requirements;
+            const VarDeclarations& decls = *((const VarDeclarationsStatement&) s).fDeclaration;
+            for (const auto& stmt : decls.fVars) {
+                result |= this->requirements(*stmt);
             }
             return result;
         }
@@ -1213,7 +1436,12 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Function
     return found->second;
 }
 
-bool MetalCodeGenerator::generateCode() {
+bool MetalCodeGenerator::generateCode() { // FIXME - use this one when done with inserting MSL
+    return false;
+}
+
+// FIXME - temporarily using this while inserting MSL
+bool MetalCodeGenerator::generateCode(int shaderNum) {
     OutputStream* rawOut = fOut;
     fOut = &fHeader;
     fOut->write((const char*) &MVKMagicNum, sizeof(MVKMagicNum)); // FIXME - for MVK integration
@@ -1221,9 +1449,8 @@ bool MetalCodeGenerator::generateCode() {
     this->writeHeader();
     this->writeUniformStruct();
     this->writeInputStruct();
-    if (Program::kVertex_Kind == fProgram.fKind) {
-        this->writeOutputStruct();
-    }
+    this->writeOutputStruct();
+    this->writeInterfaceBlocks();
     this->writeGlobalStruct();
     StringStream body;
     fOut = &body;
@@ -1236,6 +1463,34 @@ bool MetalCodeGenerator::generateCode() {
     write_stringstream(body, *rawOut);
     this->write("\0"); // FIXME - for MVK integration
     return true;
+
+    // FIXME - remove when done inserting MSL
+    // OutputStream* rawOut = fOut;
+    // fOut = &fHeader;
+    // // fOut->write((const char*) &MVKMagicNum, sizeof(MVKMagicNum)); // FIXME - for MVK integration
+    // // fProgramKind = fProgram.fKind;
+    // // this->writeHeader();
+    // // this->writeUniformStruct();
+    // // this->writeInputStruct();
+    // // this->writeOutputStruct();
+    // // this->writeGlobalStruct();
+    // (void) MVKMagicNum;
+    // StringStream body;
+    // fOut = &body;
+    // // for (const auto& e : fProgram) {
+    // //     this->writeProgramElement(e);
+    // // }
+    // std::ifstream mvkin("/Users/timliang/MVKShaders/mvk" + std::to_string(shaderNum) + ".metal");
+    // std::ostringstream contents;
+    // contents << mvkin.rdbuf();
+    // mvkin.close();
+    // this->write(contents.str().c_str());
+    // fOut = rawOut;
+
+    // write_stringstream(fHeader, *rawOut);
+    // write_stringstream(body, *rawOut);
+    // this->write("\0"); // FIXME - for MVK integration
+    // return true;
 }
 
 }
