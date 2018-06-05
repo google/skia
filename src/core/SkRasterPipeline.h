@@ -41,7 +41,7 @@
     M(unpremul) M(premul) M(premul_dst)                            \
     M(force_opaque) M(force_opaque_dst)                            \
     M(set_rgb) M(swap_rb)                                          \
-    M(from_srgb) M(from_srgb_dst) M(to_srgb)                       \
+    M(from_srgb) M(to_srgb)                                        \
     M(black_color) M(white_color) M(uniform_color)                 \
     M(seed_shader) M(dither)                                       \
     M(load_a8)   M(load_a8_dst)   M(store_a8)   M(gather_a8)       \
