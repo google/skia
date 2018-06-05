@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "32708382_3ac9a941",
+        "filename": "site/dev/testing/xsan.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-05T13:27:07Z",
+      "side": 1,
+      "message": "I don\u0027t think this is quite what\u0027s happening.  I think it\u0027s, \"If you want to run this binary on a system without libGL, libGLU, libX11, etc., you may be able to use `patchelf --remove-needed` to prune GPU backend\u0027s dlopen()-only dependencies that won\u0027t be used.\"  The GPU code is all still there.\n\nI also kind of think we\u0027re documenting something here that only you will ever run into, and despite us liking you and the fuzzers, it\u0027s not something we want anyone to ever have to do.  It might just be simpler to get some X11/GL installed?",
+      "range": {
+        "startLine": 63,
+        "startChar": 50,
+        "endLine": 64,
+        "endChar": 69
+      },
+      "revId": "57ddb1fd877fdccaa4a14845e0637131f723929f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
