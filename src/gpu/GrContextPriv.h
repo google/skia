@@ -11,6 +11,7 @@
 #include "GrContext.h"
 #include "GrSurfaceContext.h"
 #include "text/GrAtlasManager.h"
+#include "effects/GrSkSLFP.h"
 
 class GrBackendRenderTarget;
 class GrOnFlushCallbackObject;
@@ -276,6 +277,15 @@ public:
     GrAuditTrail* getAuditTrail() { return &fContext->fAuditTrail; }
 
     GrContextOptions::PersistentCache* getPersistentCache() { return fContext->fPersistentCache; }
+
+    std::unordered_map<const char*, std::unique_ptr<GrSkSLFPFactory>>* getFPFactories() {
+        if (!fContext->fFPFactories) {
+            fContext->fFPFactories = new std::unordered_map<const char*,
+                                                            std::unique_ptr<GrSkSLFPFactory>>();
+        }
+        return (std::unordered_map<const char*,
+                                   std::unique_ptr<GrSkSLFPFactory>>*) fContext->fFPFactories;
+    }
 
     /** This is only useful for debug purposes */
     SkDEBUGCODE(GrSingleOwner* debugSingleOwner() const { return &fContext->fSingleOwner; } )

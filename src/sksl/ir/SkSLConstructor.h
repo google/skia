@@ -43,8 +43,7 @@ struct Constructor : public Expression {
                        fType == *irGenerator.fContext.fUShort_Type) {
                 // promote uint(1) to 1u
                 int64_t intValue = ((IntLiteral&) *fArguments[0]).fValue;
-                return std::unique_ptr<Expression>(new IntLiteral(irGenerator.fContext,
-                                                                  fOffset,
+                return std::unique_ptr<Expression>(new IntLiteral(fOffset,
                                                                   intValue,
                                                                   &fType));
             }
@@ -59,6 +58,14 @@ struct Constructor : public Expression {
             }
         }
         return false;
+    }
+
+    std::unique_ptr<Expression> clone() const override {
+        std::vector<std::unique_ptr<Expression>> cloned;
+        for (const auto& arg : fArguments) {
+            cloned.push_back(arg->clone());
+        }
+        return std::unique_ptr<Expression>(new Constructor(fOffset, fType, std::move(cloned)));
     }
 
     String description() const override {
