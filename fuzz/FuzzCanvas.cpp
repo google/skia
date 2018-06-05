@@ -1811,11 +1811,16 @@ static void fuzz_ganesh(Fuzz* fuzz, GrContext* context) {
     fuzz_canvas(fuzz, surface->getCanvas());
 }
 
+extern bool FLAGS_gpuInfo;
+
 DEF_FUZZ(NativeGLCanvas, fuzz) {
     sk_gpu_test::GrContextFactory f;
     GrContext* context = f.get(sk_gpu_test::GrContextFactory::kGL_ContextType);
     if (!context) {
         context = f.get(sk_gpu_test::GrContextFactory::kGLES_ContextType);
+    }
+    if (FLAGS_gpuInfo) {
+        dumpGPUInfo(context);
     }
     fuzz_ganesh(fuzz, context);
 }
