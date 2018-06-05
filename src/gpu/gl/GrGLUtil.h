@@ -38,6 +38,7 @@ typedef uint64_t GrGLDriverVersion;
  */
 enum GrGLVendor {
     kARM_GrGLVendor,
+    kGoogle_GrGLVendor,
     kImagination_GrGLVendor,
     kIntel_GrGLVendor,
     kQualcomm_GrGLVendor,
@@ -56,6 +57,7 @@ enum GrGLRenderer {
     kAdreno4xx_GrGLRenderer,
     kAdreno5xx_GrGLRenderer,
     kOSMesa_GrGLRenderer,
+    kGoogleSwiftShader_GrGLRenderer,
     kIntelIrisPro_GrGLRenderer,
     /** Either HD 4xxx or Iris 4xxx */
     kIntel4xxx_GrGLRenderer,
@@ -80,6 +82,7 @@ enum GrGLDriver {
     kNVIDIA_GrGLDriver,
     kIntel_GrGLDriver,
     kANGLE_GrGLDriver,
+    kSwiftShader_GrGLDriver,
     kQualcomm_GrGLDriver,
     kUnknown_GrGLDriver
 };
