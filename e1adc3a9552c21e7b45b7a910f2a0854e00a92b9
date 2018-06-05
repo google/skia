@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d0aaee9_20a502f6",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 915,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-06-05T13:48:27Z",
+      "side": 0,
+      "message": "This was a merge bug -- the full perspective mapping is done below.",
+      "range": {
+        "startLine": 909,
+        "startChar": 4,
+        "endLine": 915,
+        "endChar": 5
+      },
+      "revId": "e1adc3a9552c21e7b45b7a910f2a0854e00a92b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
