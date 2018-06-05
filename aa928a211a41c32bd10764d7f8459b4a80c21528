@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c0bf9aeb_8cf93883",
+        "filename": "src/ports/SkFontMgr_win_dw.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 973,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-05T19:59:40Z",
+      "side": 1,
+      "message": "HRN",
+      "range": {
+        "startLine": 973,
+        "startChar": 12,
+        "endLine": 973,
+        "endChar": 54
+      },
+      "revId": "aa928a211a41c32bd10764d7f8459b4a80c21528",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "770c33c3_eda16bc4",
+        "filename": "src/ports/SkFontMgr_win_dw.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 990,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-05T19:59:40Z",
+      "side": 1,
+      "message": "HRN",
+      "range": {
+        "startLine": 990,
+        "startChar": 16,
+        "endLine": 990,
+        "endChar": 44
+      },
+      "revId": "aa928a211a41c32bd10764d7f8459b4a80c21528",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b39f3f3_94646368",
+        "filename": "src/ports/SkFontMgr_win_dw.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 994,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-05T19:59:40Z",
+      "side": 1,
+      "message": "This should go outside this block and use fontFace.get(). Right here should be something like\n\nfontFace.reset();\nfontFace5_Out-\u003eQueryInterface(\u0026fontFace);",
+      "range": {
+        "startLine": 991,
+        "startChar": 0,
+        "endLine": 994,
+        "endChar": 71
+      },
+      "revId": "aa928a211a41c32bd10764d7f8459b4a80c21528",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "748b32df_7403beef",
+        "filename": "src/ports/SkFontMgr_win_dw.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 999,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-05T19:59:40Z",
+      "side": 1,
+      "message": "nullptr",
+      "range": {
+        "startLine": 999,
+        "startChar": 11,
+        "endLine": 999,
+        "endChar": 77
+      },
+      "revId": "aa928a211a41c32bd10764d7f8459b4a80c21528",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
