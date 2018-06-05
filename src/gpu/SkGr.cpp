@@ -397,15 +397,8 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     SkColorFilter* colorFilter = skPaint.getColorFilter();
     if (colorFilter) {
         if (applyColorFilterToPaintColor) {
-            // If we're in legacy mode, we *must* avoid using the 4f version of the color filter,
-            // because that will combine with the linearized version of the stored color.
-            if (colorSpaceInfo.isGammaCorrect()) {
-                grPaint->setColor4f(GrColor4f::FromSkColor4f(
+            grPaint->setColor4f(GrColor4f::FromSkColor4f(
                     colorFilter->filterColor4f(origColor.toSkColor4f())).premul());
-            } else {
-                grPaint->setColor4f(SkColorToPremulGrColor4fLegacy(
-                        colorFilter->filterColor(skPaint.getColor())));
-            }
         } else {
             auto cfFP = colorFilter->asFragmentProcessor(context, colorSpaceInfo);
             if (cfFP) {
