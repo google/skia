@@ -655,6 +655,9 @@ optional("jpeg") {
   deps = [
     "//third_party/libjpeg-turbo:libjpeg",
   ]
+  public = [
+    "include/encode/SkJpegEncoder.h",
+  ]
   sources = [
     "src/codec/SkJpegCodec.cpp",
     "src/codec/SkJpegDecoderMgr.cpp",
