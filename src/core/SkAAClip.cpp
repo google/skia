@@ -1065,13 +1065,16 @@ public:
             this->addRun(x + width, y, rightAlpha, 1);
         }
 
-        // we assume the rect must be all we'll see for these scanlines
-        // so we ensure our row goes all the way to our right
-        this->flushRowH(fCurrRow);
+        // if we never called addRun, we might not have a fCurrRow yet
+        if (fCurrRow) {
+            // we assume the rect must be all we'll see for these scanlines
+            // so we ensure our row goes all the way to our right
+            this->flushRowH(fCurrRow);
 
-        y -= fBounds.fTop;
-        SkASSERT(y == fCurrRow->fY);
-        fCurrRow->fY = y + height - 1;
+            y -= fBounds.fTop;
+            SkASSERT(y == fCurrRow->fY);
+            fCurrRow->fY = y + height - 1;
+        }
     }
 
     bool finish(SkAAClip* target) {
