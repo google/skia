@@ -1314,24 +1314,18 @@ STAGE(unpremul, Ctx::None) {
 STAGE(force_opaque    , Ctx::None) {  a = 1; }
 STAGE(force_opaque_dst, Ctx::None) { da = 1; }
 
-SI F from_srgb_(F s) {
-    auto lo = s * (1/12.92f);
-    auto hi = mad(s*s, mad(s, 0.3000f, 0.6975f), 0.0025f);
-    return if_then_else(s < 0.055f, lo, hi);
-}
-
 STAGE(from_srgb, Ctx::None) {
-    r = from_srgb_(r);
-    g = from_srgb_(g);
-    b = from_srgb_(b);
-}
-STAGE(from_srgb_dst, Ctx::None) {
-    dr = from_srgb_(dr);
-    dg = from_srgb_(dg);
-    db = from_srgb_(db);
+    auto fn = [](F s) {
+        auto lo = s * (1/12.92f);
+        auto hi = mad(s*s, mad(s, 0.3000f, 0.6975f), 0.0025f);
+        return if_then_else(s < 0.055f, lo, hi);
+    };
+    r = fn(r);
+    g = fn(g);
+    b = fn(b);
 }
 STAGE(to_srgb, Ctx::None) {
-    auto fn = [&](F l) {
+    auto fn = [](F l) {
         // We tweak c and d for each instruction set to make sure fn(1) is exactly 1.
     #if defined(JUMPER_IS_AVX512)
         const float c = 1.130026340485f,

@@ -248,9 +248,6 @@ void SkRasterPipelineBlitter::append_load_dst(SkRasterPipeline* p) const {
         case kRGB_101010x_SkColorType:  p->append(SkRasterPipeline::load_1010102_dst, ctx);
                                         p->append(SkRasterPipeline::force_opaque_dst     ); break;
     }
-    if (fDst.info().gammaCloseToSRGB()) {
-        p->append(SkRasterPipeline::from_srgb_dst);
-    }
     if (fDst.info().alphaType() == kUnpremul_SkAlphaType) {
         p->append(SkRasterPipeline::premul_dst);
     }
@@ -260,12 +257,7 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
     if (fDst.info().alphaType() == kUnpremul_SkAlphaType) {
         p->append(SkRasterPipeline::unpremul);
     }
-    if (fDst.info().gammaCloseToSRGB()) {
-        p->append(SkRasterPipeline::to_srgb);
-    }
     if (fDitherRate > 0.0f) {
-        // We dither after any sRGB transfer function to make sure our 1/255.0f is sensible
-        // over the whole range.  If we did it before, 1/255.0f is too big a rate near zero.
         p->append(SkRasterPipeline::dither, &fDitherRate);
     }
 
