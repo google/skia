@@ -8,6 +8,7 @@
 #ifndef GrDebugMarkerOp_DEFINED
 #define GrDebugMarkerOp_DEFINED
 
+#include "GrCaps.h"
 #include "GrGpuCommandBuffer.h"
 #include "GrOp.h"
 #include "GrOpFlushState.h"
@@ -17,9 +18,9 @@ class GrDebugMarkerOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrOp> Make(GrRenderTargetProxy* proxy, const SkString& str) {
-        return std::unique_ptr<GrOp>(new GrDebugMarkerOp(proxy, str));
-    }
+    static std::unique_ptr<GrOp> Make(GrContext*,
+                                      GrRenderTargetProxy*,
+                                      const SkString&);
 
     const char* name() const override { return "DebugMarker"; }
 

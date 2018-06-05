@@ -32,7 +32,7 @@ public:
 
     SkAtlasTextRenderer* renderer() const { return fRenderer.get(); }
 
-    GrContext* grContext() const { return fGrContext.get(); }
+    GrContext* grContext() const { return fGrContext1.get(); }
     GrGlyphCache* glyphCache();
     GrTextBlobCache* textBlobCache();
 
@@ -76,7 +76,7 @@ private:
     SkArenaAllocList<Draw> fDraws;
     SkArenaAllocList<GrDeferredTextureUploadFn> fASAPUploads;
     SkArenaAlloc fArena{1024 * 40};
-    sk_sp<GrContext> fGrContext;
+    sk_sp<GrContext> fGrContext1;
     AtlasTexture fDistanceFieldAtlas;
 };
 

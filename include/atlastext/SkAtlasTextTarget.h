@@ -18,6 +18,8 @@ class SkAtlasTextFont;
 class SkMatrix;
 struct SkPoint;
 
+class GrMemoryPool;
+
 /** Represents a client-created renderable surface and is used to draw text into the surface. */
 class SK_API SkAtlasTextTarget {
 public:
@@ -27,7 +29,10 @@ public:
      * Creates a text drawing target. ‘handle’ is used to identify this rendering surface when
      * draws are flushed to the SkAtlasTextContext's SkAtlasTextRenderer.
      */
-    static std::unique_ptr<SkAtlasTextTarget> Make(sk_sp<SkAtlasTextContext>, int width, int height,
+    static std::unique_ptr<SkAtlasTextTarget> Make(sk_sp<SkAtlasTextContext>,
+                                                   sk_sp<GrMemoryPool>,
+                                                   int width,
+                                                   int height,
                                                    void* handle);
 
     /**

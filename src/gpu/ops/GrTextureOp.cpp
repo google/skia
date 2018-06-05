@@ -8,6 +8,8 @@
 #include "GrTextureOp.h"
 #include "GrAppliedClip.h"
 #include "GrCaps.h"
+#include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrDrawOpTest.h"
 #include "GrGeometryProcessor.h"
 #include "GrMeshDrawOp.h"
@@ -607,15 +609,23 @@ static void tessellate_quad(const GrPerspQuad& devQuad, const SkRect& srcRect, G
  */
 class TextureOp final : public GrMeshDrawOp {
 public:
-    static std::unique_ptr<GrDrawOp> Make(sk_sp<GrTextureProxy> proxy,
-                                          GrSamplerState::Filter filter, GrColor color,
-                                          const SkRect& srcRect, const SkRect& dstRect,
-                                          GrAAType aaType, SkCanvas::SrcRectConstraint constraint,
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          sk_sp<GrTextureProxy> proxy,
+                                          GrSamplerState::Filter filter,
+                                          GrColor color,
+                                          const SkRect& srcRect,
+                                          const SkRect& dstRect,
+                                          GrAAType aaType,
+                                          SkCanvas::SrcRectConstraint constraint,
                                           const SkMatrix& viewMatrix,
                                           sk_sp<GrColorSpaceXform> csxf) {
-        return std::unique_ptr<GrDrawOp>(new TextureOp(std::move(proxy), filter, color, srcRect,
-                                                       dstRect, aaType, constraint, viewMatrix,
-                                                       std::move(csxf)));
+        // $$
+        GrMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        char* mem = (char*) pool->allocate(sizeof(TextureOp));
+        return std::unique_ptr<GrDrawOp>(new (mem) TextureOp(std::move(proxy), filter, color,
+                                                             srcRect, dstRect, aaType, constraint,
+                                                             viewMatrix, std::move(csxf)));
     }
 
     ~TextureOp() override {
@@ -1031,12 +1041,18 @@ constexpr int TextureOp::kMaxTextures;
 
 namespace GrTextureOp {
 
-std::unique_ptr<GrDrawOp> Make(sk_sp<GrTextureProxy> proxy, GrSamplerState::Filter filter,
-                               GrColor color, const SkRect& srcRect, const SkRect& dstRect,
-                               GrAAType aaType, SkCanvas::SrcRectConstraint constraint,
-                               const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> csxf) {
-    return TextureOp::Make(std::move(proxy), filter, color, srcRect, dstRect, aaType, constraint,
-                           viewMatrix, std::move(csxf));
+std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                               sk_sp<GrTextureProxy> proxy,
+                               GrSamplerState::Filter filter,
+                               GrColor color,
+                               const SkRect& srcRect,
+                               const SkRect& dstRect,
+                               GrAAType aaType,
+                               SkCanvas::SrcRectConstraint constraint,
+                               const SkMatrix& viewMatrix,
+                               sk_sp<GrColorSpaceXform> csxf) {
+    return TextureOp::Make(context, std::move(proxy), filter, color, srcRect, dstRect, aaType,
+                           constraint, viewMatrix, std::move(csxf));
 }
 
 }  // namespace GrTextureOp
@@ -1074,8 +1090,8 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     }
     auto constraint = random->nextBool() ? SkCanvas::kStrict_SrcRectConstraint
                                          : SkCanvas::kFast_SrcRectConstraint;
-    return GrTextureOp::Make(std::move(proxy), filter, color, srcRect, rect, aaType, constraint,
-                             viewMatrix, std::move(csxf));
+    return GrTextureOp::Make(context, std::move(proxy), filter, color, srcRect, rect, aaType,
+                             constraint, viewMatrix, std::move(csxf));
 }
 
 #endif

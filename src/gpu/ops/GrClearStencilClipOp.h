@@ -18,9 +18,16 @@ class GrClearStencilClipOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrOp> Make(const GrFixedClip& clip, bool insideStencilMask,
+    static std::unique_ptr<GrOp> Make(GrContext* context,
+                                      const GrFixedClip& clip,
+                                      bool insideStencilMask,
                                       GrRenderTargetProxy* proxy) {
-        return std::unique_ptr<GrOp>(new GrClearStencilClipOp(clip, insideStencilMask, proxy));
+        // ##
+        GrMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        char* mem = (char*) pool->allocate(sizeof(GrClearStencilClipOp));
+        return std::unique_ptr<GrOp>(new (mem) GrClearStencilClipOp(clip, insideStencilMask,
+                                                                    proxy));
     }
 
     const char* name() const override { return "ClearStencilClip"; }

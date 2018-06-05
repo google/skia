@@ -32,13 +32,13 @@ SkInternalAtlasTextContext::SkInternalAtlasTextContext(sk_sp<SkAtlasTextRenderer
     options.fMinDistanceFieldFontSize = 0.f;
     options.fGlyphsAsPathsFontSize = SK_ScalarInfinity;
     options.fDistanceFieldGlyphVerticesAlwaysHaveW = GrContextOptions::Enable::kYes;
-    fGrContext = GrContext::MakeMock(nullptr, options);
+    fGrContext1 = GrContext::MakeMock(nullptr, options);
 }
 
 SkInternalAtlasTextContext::~SkInternalAtlasTextContext() {
     if (fDistanceFieldAtlas.fProxy) {
 #ifdef SK_DEBUG
-        auto atlasManager = fGrContext->contextPriv().getAtlasManager();
+        auto atlasManager = fGrContext1->contextPriv().getAtlasManager();
         if (atlasManager) {
             unsigned int numProxies;
             atlasManager->getProxies(kA8_GrMaskFormat, &numProxies);
@@ -50,11 +50,11 @@ SkInternalAtlasTextContext::~SkInternalAtlasTextContext() {
 }
 
 GrGlyphCache* SkInternalAtlasTextContext::glyphCache() {
-    return fGrContext->contextPriv().getGlyphCache();
+    return fGrContext1->contextPriv().getGlyphCache();
 }
 
 GrTextBlobCache* SkInternalAtlasTextContext::textBlobCache() {
-    return fGrContext->contextPriv().getTextBlobCache();
+    return fGrContext1->contextPriv().getTextBlobCache();
 }
 
 GrDeferredUploadToken SkInternalAtlasTextContext::addInlineUpload(
@@ -88,7 +88,7 @@ void SkInternalAtlasTextContext::recordDraw(const void* srcVertexData, int glyph
 }
 
 void SkInternalAtlasTextContext::flush() {
-    auto* atlasManager = fGrContext->contextPriv().getAtlasManager();
+    auto* atlasManager = fGrContext1->contextPriv().getAtlasManager();
     if (!fDistanceFieldAtlas.fProxy) {
         unsigned int numProxies;
         fDistanceFieldAtlas.fProxy = atlasManager->getProxies(kA8_GrMaskFormat, &numProxies)->get();

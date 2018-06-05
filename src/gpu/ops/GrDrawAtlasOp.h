@@ -20,10 +20,15 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix,
-                                          GrAAType aaType, int spriteCount, const SkRSXform* xforms,
-                                          const SkRect* rects, const SkColor* colors) {
-        return Helper::FactoryHelper<GrDrawAtlasOp>(std::move(paint), viewMatrix, aaType,
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          GrPaint&& paint,
+                                          const SkMatrix& viewMatrix,
+                                          GrAAType aaType,
+                                          int spriteCount,
+                                          const SkRSXform* xforms,
+                                          const SkRect* rects,
+                                          const SkColor* colors) {
+        return Helper::FactoryHelper<GrDrawAtlasOp>(context, std::move(paint), viewMatrix, aaType,
                                                     spriteCount, xforms, rects, colors);
     }
 

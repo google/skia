@@ -49,13 +49,15 @@ public:
         int height() const { return fHeight; }
         const GrColorSpaceInfo& colorSpaceInfo() const { return fColorSpaceInfo; }
 
-        virtual void addDrawOp(const GrClip&, std::unique_ptr<GrAtlasTextOp> op) = 0;
+        virtual void addDrawOp1(const GrClip&, std::unique_ptr<GrAtlasTextOp> op) = 0;
 
         virtual void drawPath(const GrClip&, const SkPath&, const SkPaint&,
                               const SkMatrix& viewMatrix, const SkMatrix* pathMatrix,
                               const SkIRect& clipBounds) = 0;
         virtual void makeGrPaint(GrMaskFormat, const SkPaint&, const SkMatrix& viewMatrix,
                                  GrPaint*) = 0;
+
+        virtual GrContext* getContext() = 0;
 
     protected:
         Target(int width, int height, const GrColorSpaceInfo& colorSpaceInfo)
