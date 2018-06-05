@@ -1175,6 +1175,16 @@ bool nearly_flat(Comparator& c, Edge* edge) {
     return fabs(primaryDiff) < std::numeric_limits<float>::epsilon();
 }
 
+SkPoint clamp(SkPoint p, SkPoint min, SkPoint max, Comparator& c) {
+    if (c.sweep_lt(p, min)) {
+        return min;
+    } else if (c.sweep_lt(max, p)) {
+        return max;
+    } else {
+        return p;
+    }
+}
+
 bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vertex** current,
                             VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
     if (!edge || !other) {
@@ -1191,15 +1201,13 @@ bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vert
         while (top && c.sweep_lt(p, top->fPoint)) {
             top = top->fPrev;
         }
-        if (c.sweep_lt(p, edge->fTop->fPoint) && !nearly_flat(c, edge)) {
-            v = edge->fTop;
-        } else if (c.sweep_lt(edge->fBottom->fPoint, p) && !nearly_flat(c, edge)) {
-            v = edge->fBottom;
-        } else if (c.sweep_lt(p, other->fTop->fPoint) && !nearly_flat(c, other)) {
-            v = other->fTop;
-        } else if (c.sweep_lt(other->fBottom->fPoint, p) && !nearly_flat(c, other)) {
-            v = other->fBottom;
-        } else if (p == edge->fTop->fPoint) {
+        if (!nearly_flat(c, edge)) {
+            p = clamp(p, edge->fTop->fPoint, edge->fBottom->fPoint, c);
+        }
+        if (!nearly_flat(c, other)) {
+            p = clamp(p, other->fTop->fPoint, other->fBottom->fPoint, c);
+        }
+        if (p == edge->fTop->fPoint) {
             v = edge->fTop;
         } else if (p == edge->fBottom->fPoint) {
             v = edge->fBottom;

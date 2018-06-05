@@ -524,6 +524,17 @@ static SkPath create_path_35() {
     return path;
 }
 
+// Reduction from crbug.com/843135 where an intersection is found
+// below the bottom of both intersected edges.
+static SkPath create_path_36() {
+    SkPath path;
+    path.moveTo(-2791476679359332352,  2608107002026524672);
+    path.lineTo(                   0, 11.95427703857421875);
+    path.lineTo(-2781824066779086848,  2599088532777598976);
+    path.lineTo(          -7772.6875,                 7274);
+    return path;
+}
+
 static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
 
     SkPoint pts[2] = { {0, 0}, {1, 1} };
@@ -619,4 +630,5 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_33());
     test_path(ctx, rtc.get(), create_path_34());
     test_path(ctx, rtc.get(), create_path_35());
+    test_path(ctx, rtc.get(), create_path_36());
 }
