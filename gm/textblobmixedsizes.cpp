@@ -98,7 +98,6 @@ protected:
         SkCanvas* canvas = inputCanvas;
         sk_sp<SkSurface> surface;
         if (fUseDFT) {
-#if SK_SUPPORT_GPU
             // Create a new Canvas to enable DFT
             GrContext* ctx = inputCanvas->getGrContext();
             SkISize size = onISize();
@@ -111,7 +110,6 @@ protected:
             canvas = surface.get() ? surface->getCanvas() : inputCanvas;
             // init our new canvas with the old canvas's matrix
             canvas->setMatrix(inputCanvas->getTotalMatrix());
-#endif
         }
         canvas->drawColor(sk_tool_utils::color_to_565(SK_ColorWHITE));
 
@@ -164,7 +162,6 @@ protected:
         }
         canvas->restore();
 
-#if SK_SUPPORT_GPU
         // render offscreen buffer
         if (surface) {
             SkAutoCanvasRestore acr(inputCanvas, true);
@@ -172,7 +169,6 @@ protected:
             inputCanvas->resetMatrix();
             inputCanvas->drawImage(surface->makeImageSnapshot().get(), 0, 0, nullptr);
         }
-#endif
     }
 
 private:
@@ -189,7 +185,5 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new TextBlobMixedSizes(false); )
-#if SK_SUPPORT_GPU
 DEF_GM( return new TextBlobMixedSizes(true); )
-#endif
 }

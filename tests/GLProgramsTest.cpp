@@ -9,7 +9,7 @@
 
 #include "SkTypes.h"
 
-#if SK_SUPPORT_GPU && SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
+#if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
 #include "GrAutoLocaleSetter.h"
 #include "GrContextFactory.h"
@@ -251,9 +251,6 @@ static void set_random_color_coverage_stages(GrPaint* paint,
 static void set_random_state(GrPaint* paint, SkRandom* random) {
     if (random->nextBool()) {
         paint->setDisableOutputConversionToSRGB(true);
-    }
-    if (random->nextBool()) {
-        paint->setAllowSRGBInputs(true);
     }
 }
 

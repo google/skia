@@ -262,7 +262,7 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
     VkDescriptorImageInfo imageInfo;
     memset(&imageInfo, 0, sizeof(VkDescriptorImageInfo));
     imageInfo.sampler = sampler->sampler();
-    imageInfo.imageView = srcTex->textureView(true)->imageView();
+    imageInfo.imageView = srcTex->textureView()->imageView();
     imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
     VkWriteDescriptorSet writeInfo;
@@ -353,7 +353,7 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
     // One sampler, texture view, and texture
     SkSTArray<3, const GrVkResource*> descriptorResources;
     descriptorResources.push_back(sampler);
-    descriptorResources.push_back(srcTex->textureView(true));
+    descriptorResources.push_back(srcTex->textureView());
     descriptorResources.push_back(srcTex->resource());
 
     cmdBuffer->bindDescriptorSets(gpu,

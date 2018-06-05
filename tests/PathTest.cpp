@@ -5053,6 +5053,20 @@ DEF_TEST(Path_isRect, reporter) {
 }
 
 #include "SkVertices.h"
+static void draw_triangle(SkCanvas* canvas, const SkPoint pts[]) {
+    // draw in different ways, looking for an assert
+
+    {
+        SkPath path;
+        path.addPoly(pts, 3, false);
+        canvas->drawPath(path, SkPaint());
+    }
+
+    const SkColor colors[] = { SK_ColorBLACK, SK_ColorBLACK, SK_ColorBLACK };
+    auto v = SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode, 3, pts, nullptr, colors);
+    canvas->drawVertices(v, SkBlendMode::kSrcOver, SkPaint());
+}
+
 DEF_TEST(triangle_onehalf, reporter) {
     auto surface(SkSurface::MakeRasterN32Premul(100, 100));
 
@@ -5061,8 +5075,22 @@ DEF_TEST(triangle_onehalf, reporter) {
         {  0.499402374f, 7.88207579f },
         { 10.2363272f,   0.49999997f }
     };
-    const SkColor colors[] = { SK_ColorBLACK, SK_ColorBLACK, SK_ColorBLACK };
-
-    auto v = SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode, 3, pts, nullptr, colors);
-    surface->getCanvas()->drawVertices(v, SkBlendMode::kSrcOver, SkPaint());
+    draw_triangle(surface->getCanvas(), pts);
 }
+
+DEF_TEST(triangle_big, reporter) {
+    auto surface(SkSurface::MakeRasterN32Premul(4, 4304));
+
+    // The first two points, when sent through our fixed-point SkEdge, can walk negative beyond
+    // -0.5 due to accumulated += error of the slope. We have since make the bounds calculation
+    // be conservative, so we invoke clipping if we get in this situation.
+    // This test was added to demonstrate the need for this conservative bounds calc.
+    // (found by a fuzzer)
+    const SkPoint pts[] = {
+        { 0.327190518f, -114.945152f },
+        { -0.5f, 1.00003874f },
+        { 0.666425824f, 4304.26172f },
+    };
+    draw_triangle(surface->getCanvas(), pts);
+}
+

@@ -10,8 +10,6 @@
 #include "SkCanvas.h"
 #include "SkSurface.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrContext.h"
 #include "GrTest.h"
 #include "Test.h"
@@ -96,5 +94,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(skbug6653, reporter, ctxInfo) {
         REPORTER_ASSERT(reporter, match);
     }
 }
-
-#endif

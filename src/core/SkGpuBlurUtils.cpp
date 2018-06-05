@@ -81,8 +81,6 @@ static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
                                  GrTextureDomain::Mode mode,
                                  int bounds[2]) {
     GrPaint paint;
-    paint.setGammaCorrect(renderTargetContext->colorSpaceInfo().isGammaCorrect());
-
     std::unique_ptr<GrFragmentProcessor> conv(GrGaussianConvolutionFragmentProcessor::Make(
             std::move(proxy), direction, radius, sigma, mode, bounds));
     paint.addColorFragmentProcessor(std::move(conv));
@@ -140,8 +138,6 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian_2d(GrContext* context,
     SkISize size = SkISize::Make(2 * radiusX + 1,  2 * radiusY + 1);
     SkIPoint kernelOffset = SkIPoint::Make(radiusX, radiusY);
     GrPaint paint;
-    paint.setGammaCorrect(renderTargetContext->colorSpaceInfo().isGammaCorrect());
-
     auto conv = GrMatrixConvolutionEffect::MakeGaussian(std::move(proxy), srcBounds, size, 1.0, 0.0,
                                                         kernelOffset, mode, true, sigmaX, sigmaY);
     paint.addColorFragmentProcessor(std::move(conv));
@@ -297,8 +293,6 @@ static sk_sp<GrTextureProxy> decimate(GrContext* context,
         }
 
         GrPaint paint;
-        paint.setGammaCorrect(dstRenderTargetContext->colorSpaceInfo().isGammaCorrect());
-
         if (GrTextureDomain::kIgnore_Mode != mode && i == 1) {
             // GrTextureDomainEffect does not support kRepeat_Mode with GrSamplerState::Filter.
             GrTextureDomain::Mode modeForScaling = GrTextureDomain::kRepeat_Mode == mode
@@ -397,8 +391,6 @@ static sk_sp<GrRenderTargetContext> reexpand(GrContext* context,
     }
 
     GrPaint paint;
-    paint.setGammaCorrect(dstRenderTargetContext->colorSpaceInfo().isGammaCorrect());
-
     if (GrTextureDomain::kIgnore_Mode != mode) {
         // GrTextureDomainEffect does not support kRepeat_Mode with GrSamplerState::Filter.
         GrTextureDomain::Mode modeForScaling = GrTextureDomain::kRepeat_Mode == mode

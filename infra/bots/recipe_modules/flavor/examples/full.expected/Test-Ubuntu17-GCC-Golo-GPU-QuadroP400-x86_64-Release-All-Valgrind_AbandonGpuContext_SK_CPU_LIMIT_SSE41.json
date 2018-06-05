@@ -148,7 +148,7 @@
       "--error-exitcode=1",
       "--num-callers=40",
       "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
-      "[START_DIR]/build/out/Release/dm",
+      "[START_DIR]/build/dm",
       "--some-flag"
     ],
     "env": {

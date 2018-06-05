@@ -6,13 +6,12 @@
 
 set -e
 
-BRANCH="${1:-origin/skqp/dev}"
-COUNT="${2:-40}"
+COUNT=40
+BUCKET='skia-skqp'
 
 cd "$(dirname "$0")/../.."
 
 EXTANT="$(mktemp "${TMPDIR:-/tmp}/extant.XXXXXXXXXX")"
-BUCKET='skia-skqp'
 gsutil ls "gs://$BUCKET" > $EXTANT
 
 cat << EOF
@@ -34,25 +33,33 @@ td { padding:12px 6px; }
 </head>
 <body>
 <h1>SkQP Pre-built APKs</h1>
-<table>
-<tr>
-<th>APK</th>
-<th>Date</th>
-<th>Commit</th>
-</tr>
 EOF
 
-for commit in $(git log "$BRANCH" -${COUNT} -\-format=%H) ; do
-    short="$(git log -1 -\-format=%h $commit)"
-    name="${BUCKET}/skqp-universal-${short}.apk"
-    if ! grep -q "gs://$name" "$EXTANT"; then
-        continue
-    fi
-    url="https://storage.googleapis.com/$name"
-    date=$(TZ='' git log -\-date='format-local:%Y-%m-%d %H:%M:%S %Z' -1 $commit -\-format=%cd)
-    subj=$(git log -1 $commit -\-format='%<(50,trunc)%s' | sed 's/  *$//')
-    commit_url="https://skia.googlesource.com/skia/+/${commit}"
-    printf '<tr>\n<td><a href="%s">skqp-universal-%s.apk</a></td>\n' "$url" "$short"
-    printf '<td>%s</td>\n<td><a href="%s">%s</a></td>\n</tr>\n' "$date" "$commit_url" "$subj"
-done
-printf '</body>\n</head>\n'
+table() {
+    printf '<h2>%s</h2>\n' "$*"
+    printf '<table>\n<tr><th>APK</th><th>Date</th><th>Commit</th></tr>\n'
+    for commit in $(git log "$@" -${COUNT} --format=%H) ; do
+        short="$(git log -1 --format=%h $commit)"
+        name="${BUCKET}/skqp-universal-${short}.apk"
+        if ! grep -q "gs://$name" "$EXTANT"; then
+            url=''
+        else
+            url="https://storage.googleapis.com/$name"
+        fi
+        date=$(TZ='' git log --date='format-local:%Y-%m-%d %H:%M:%S %Z' -1 $commit --format=%cd)
+        subj=$(git log -1 $commit --format='%<(50,trunc)%s' | sed 's/  *$//')
+        commit_url="https://skia.googlesource.com/skia/+/${commit}"
+        if [ "$url" ]; then
+            printf '<tr>\n<td><a href="%s">skqp-universal-%s.apk</a></td>\n' "$url" "$short"
+        else
+            printf '<tr>\n<td>%s</td>\n' "$short"
+        fi
+        printf '<td>%s</td>\n<td><a href="%s">%s</a></td>\n</tr>\n' "$date" "$commit_url" "$subj"
+    done
+    printf '</table>\n'
+}
+
+table  "origin/skqp/release" "^origin/skqp/dev"
+table "origin/skqp/dev"
+
+printf '</body>\n</html>\n'

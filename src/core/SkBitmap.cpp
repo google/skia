@@ -8,7 +8,6 @@
 #include "SkAtomics.h"
 #include "SkBitmap.h"
 #include "SkColorData.h"
-#include "SkColorTable.h"
 #include "SkConvertPixels.h"
 #include "SkData.h"
 #include "SkFilterQuality.h"
@@ -502,7 +501,7 @@ bool SkBitmap::writePixels(const SkPixmap& src, int dstX, int dstY,
     void* dstPixels = this->getAddr(rec.fX, rec.fY);
     const SkImageInfo dstInfo = this->info().makeWH(rec.fInfo.width(), rec.fInfo.height());
     SkConvertPixels(dstInfo, dstPixels, this->rowBytes(), rec.fInfo, rec.fPixels, rec.fRowBytes,
-                    nullptr, behavior);
+                    behavior);
     this->notifyPixelsChanged();
     return true;
 }
@@ -522,7 +521,7 @@ static bool GetBitmapAlpha(const SkBitmap& src, uint8_t* SK_RESTRICT alpha, int 
         return false;
     }
     SkConvertPixels(SkImageInfo::MakeA8(pmap.width(), pmap.height()), alpha, alphaRowBytes,
-                    pmap.info(), pmap.addr(), pmap.rowBytes(), nullptr,
+                    pmap.info(), pmap.addr(), pmap.rowBytes(),
                     SkTransferFunctionBehavior::kRespect);
     return true;
 }

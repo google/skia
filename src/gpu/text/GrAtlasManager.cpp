@@ -71,14 +71,14 @@ GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider, GrGlyphCache* gly
 GrAtlasManager::~GrAtlasManager() {
 }
 
-static GrPixelConfig mask_format_to_pixel_config(GrMaskFormat format, const GrCaps& caps) {
+static GrPixelConfig mask_format_to_pixel_config(GrMaskFormat format) {
     switch (format) {
         case kA8_GrMaskFormat:
             return kAlpha_8_GrPixelConfig;
         case kA565_GrMaskFormat:
             return kRGB_565_GrPixelConfig;
         case kARGB_GrMaskFormat:
-            return caps.srgbSupport() ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
+            return kRGBA_8888_GrPixelConfig;
         default:
             SkDEBUGFAIL("unsupported GrMaskFormat");
             return kAlpha_8_GrPixelConfig;
@@ -208,7 +208,7 @@ void GrAtlasManager::setAtlasSizes_ForTesting(const GrDrawOpAtlasConfig configs[
 bool GrAtlasManager::initAtlas(GrMaskFormat format) {
     int index = MaskFormatToAtlasIndex(format);
     if (!fAtlases[index]) {
-        GrPixelConfig config = mask_format_to_pixel_config(format, *fCaps);
+        GrPixelConfig config = mask_format_to_pixel_config(format);
         int width = fAtlasConfigs[index].fWidth;
         int height = fAtlasConfigs[index].fHeight;
         int numPlotsX = fAtlasConfigs[index].numPlotsX();

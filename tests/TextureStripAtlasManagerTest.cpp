@@ -15,9 +15,6 @@
 #include "Resources.h"
 #include "Test.h"
 
-#if SK_SUPPORT_GPU // These are all GPU-backend specific tests
-
-
 // The gradient shader will use the texture strip atlas if it has too many colors. Make sure
 // abandoning the context works.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureStripAtlasManagerGradientTest, reporter, ctxInfo) {
@@ -72,5 +69,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureStripAtlasManagerColorFilterTest, repo
 
     context->abandonContext();
 }
-
-#endif

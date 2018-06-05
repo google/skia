@@ -34,9 +34,6 @@ GrSurfaceContext::GrSurfaceContext(GrContext* context,
         , fSingleOwner(singleOwner)
 #endif
 {
-    // We never should have a sRGB pixel config with a non-SRGB gamma color space.
-    SkASSERT(!GrPixelConfigIsSRGB(config) ||
-             (fColorSpaceInfo.colorSpace() && fColorSpaceInfo.colorSpace()->gammaCloseToSRGB()));
 }
 
 bool GrSurfaceContext::readPixels(const SkImageInfo& dstInfo, void* dstBuffer,

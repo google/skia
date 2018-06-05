@@ -10,7 +10,6 @@
 
 #include "SkDWrite.h"
 #include "SkDWriteFontFileStream.h"
-
 #include "SkEndian.h"
 #include "SkFontMgr.h"
 #include "SkHRESULT.h"
@@ -970,7 +969,7 @@ sk_sp<SkTypeface> SkFontMgr_DirectWrite::onMakeFromStreamArgs(std::unique_ptr<Sk
             SkTScopedComPtr<IDWriteFontFace5> fontFace5;
             HRN(fontFace->QueryInterface(&fontFace5));
             SkTScopedComPtr<IDWriteFontResource> fontResource;
-            fontFace5->GetFontResource(&fontResource);
+            HRN(fontFace5->GetFontResource(&fontResource));
             if (fontFace5->HasVariations()) {
                 UINT32 fontAxisCount = fontFace5->GetFontAxisValueCount();
                 SkAutoSTMalloc<8, DWRITE_FONT_AXIS_VALUE> fontAxisValue(fontAxisCount);
@@ -987,16 +986,18 @@ sk_sp<SkTypeface> SkFontMgr_DirectWrite::onMakeFromStreamArgs(std::unique_ptr<Sk
                     }
                 }
                 SkTScopedComPtr<IDWriteFontFace5> fontFace5_Out;
-                fontResource->CreateFontFace(DWRITE_FONT_SIMULATIONS_NONE, fontAxisValue.get(), fontAxisCount, &fontFace5_Out);
-                return sk_sp<SkTypeface>(DWriteFontTypeface::Create(
-                        fFactory.get(), fontFace5_Out.get(), font.get(), fontFamily.get(),
-                        autoUnregisterFontFileLoader.detatch(),
-                        autoUnregisterFontCollectionLoader.detatch()));
+                HRN(fontResource->CreateFontFace(DWRITE_FONT_SIMULATIONS_NONE, fontAxisValue.get(), fontAxisCount, &fontFace5_Out));
+                fontFace.reset();
+                fontFace5_Out->QueryInterface(&fontFace);
             }
+            return sk_sp<SkTypeface>(DWriteFontTypeface::Create(
+                    fFactory.get(), fontFace.get(), font.get(), fontFamily.get(),
+                    autoUnregisterFontFileLoader.detatch(),
+                    autoUnregisterFontCollectionLoader.detatch()));
         }
     }
 
-    return this->makeFromStream(std::move(stream), args.getCollectionIndex());
+    return nullptr;
 }
 
 sk_sp<SkTypeface> SkFontMgr_DirectWrite::onMakeFromData(sk_sp<SkData> data, int ttcIndex) const {

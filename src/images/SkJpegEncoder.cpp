@@ -181,7 +181,7 @@ bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo, const SkJpegEncoder
 
 std::unique_ptr<SkEncoder> SkJpegEncoder::Make(SkWStream* dst, const SkPixmap& src,
                                                const Options& options) {
-    if (!SkPixmapIsValid(src, options.fBlendBehavior)) {
+    if (!SkPixmapIsValid(src)) {
         return nullptr;
     }
 

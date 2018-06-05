@@ -214,170 +214,8 @@ bool GrGpu::copySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                                canDiscardOutsideDstRect);
 }
 
-bool GrGpu::getReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin, int width,
-                              int height, size_t rowBytes, GrColorType dstColorType,
-                              GrSRGBConversion srgbConversion, DrawPreference* drawPreference,
-                              ReadPixelTempDrawInfo* tempDrawInfo) {
-    SkASSERT(drawPreference);
-    SkASSERT(tempDrawInfo);
-    SkASSERT(srcSurface);
-    SkASSERT(kGpuPrefersDraw_DrawPreference != *drawPreference);
-
-    // We currently do not support reading into the packed formats 565 or 4444 as they are not
-    // required to have read back support on all devices and backends.
-    if (GrColorType::kRGB_565 == dstColorType || GrColorType::kABGR_4444 == dstColorType) {
-        return false;
-    }
-
-    GrPixelConfig tempSurfaceConfig = kUnknown_GrPixelConfig;
-    // GrGpu::readPixels doesn't do any sRGB conversions, so we must draw if there is one.
-    switch (srgbConversion) {
-        case GrSRGBConversion::kNone:
-            // We support reading from RGBA to just A. In that case there is no sRGB version of the
-            // dst format but we still want to succeed.
-            if (GrColorTypeIsAlphaOnly(dstColorType)) {
-                tempSurfaceConfig = GrColorTypeToPixelConfig(dstColorType, GrSRGBEncoded::kNo);
-            } else {
-                tempSurfaceConfig = GrColorTypeToPixelConfig(
-                        dstColorType, GrPixelConfigIsSRGBEncoded(srcSurface->config()));
-            }
-            break;
-        case GrSRGBConversion::kLinearToSRGB:
-            SkASSERT(this->caps()->srgbSupport());
-            tempSurfaceConfig = GrColorTypeToPixelConfig(dstColorType, GrSRGBEncoded::kYes);
-            // Currently we don't expect to make a SRGB encoded surface and then read data from it
-            // such that we treat it as though it were linear and is then converted to sRGB.
-            if (GrPixelConfigIsSRGB(srcSurface->config())) {
-                return false;
-            }
-            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-            break;
-        case GrSRGBConversion::kSRGBToLinear:
-            SkASSERT(this->caps()->srgbSupport());
-            tempSurfaceConfig = GrColorTypeToPixelConfig(dstColorType, GrSRGBEncoded::kNo);
-            // We don't currently support reading sRGB encoded data into linear from a surface
-            // unless it is an sRGB-encoded config. That is likely to change when we need to store
-            // sRGB encoded data in 101010102 and F16 textures. We'll have to provoke the caller to
-            // do the conversion in a shader.
-            if (GrSRGBEncoded::kNo == GrPixelConfigIsSRGBEncoded(srcSurface->config())) {
-                return false;
-            }
-            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-            break;
-    }
-    if (kUnknown_GrPixelConfig == tempSurfaceConfig) {
-        return false;
-    }
-
-    // Default values for intermediate draws. The intermediate texture config matches the dst's
-    // config, is approx sized to the read rect, no swizzling or spoofing of the dst config.
-    tempDrawInfo->fTempSurfaceDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    tempDrawInfo->fTempSurfaceDesc.fWidth = width;
-    tempDrawInfo->fTempSurfaceDesc.fHeight = height;
-    tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 1;
-    tempDrawInfo->fTempSurfaceDesc.fConfig = tempSurfaceConfig;
-    tempDrawInfo->fTempSurfaceFit = SkBackingFit::kApprox;
-    tempDrawInfo->fSwizzle = GrSwizzle::RGBA();
-    tempDrawInfo->fReadColorType = dstColorType;
-
-    if (!this->onGetReadPixelsInfo(srcSurface, srcOrigin, width, height, rowBytes, dstColorType,
-                                   drawPreference, tempDrawInfo)) {
-        return false;
-    }
-
-    // Check to see if we're going to request that the caller draw when drawing is not possible.
-    if (!srcSurface->asTexture() ||
-        !this->caps()->isConfigRenderable(tempDrawInfo->fTempSurfaceDesc.fConfig)) {
-        // If we don't have a fallback to a straight read then fail.
-        if (kRequireDraw_DrawPreference == *drawPreference) {
-            return false;
-        }
-        *drawPreference = kNoDraw_DrawPreference;
-    }
-
-    return true;
-}
-
-bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin, int width,
-                               int height, GrColorType srcColorType,
-                               GrSRGBConversion srgbConversion, DrawPreference* drawPreference,
-                               WritePixelTempDrawInfo* tempDrawInfo) {
-    SkASSERT(drawPreference);
-    SkASSERT(tempDrawInfo);
-    SkASSERT(dstSurface);
-    SkASSERT(kGpuPrefersDraw_DrawPreference != *drawPreference);
-
-    GrPixelConfig tempSurfaceConfig = kUnknown_GrPixelConfig;
-    // GrGpu::writePixels doesn't do any sRGB conversions, so we must draw if there is one.
-    switch (srgbConversion) {
-        case GrSRGBConversion::kNone:
-            // We support writing just A to a RGBA. In that case there is no sRGB version of the
-            // src format but we still want to succeed.
-            if (GrColorTypeIsAlphaOnly(srcColorType)) {
-                tempSurfaceConfig = GrColorTypeToPixelConfig(srcColorType, GrSRGBEncoded::kNo);
-            } else {
-                tempSurfaceConfig = GrColorTypeToPixelConfig(
-                        srcColorType, GrPixelConfigIsSRGBEncoded(dstSurface->config()));
-            }
-            break;
-        case GrSRGBConversion::kLinearToSRGB:
-            SkASSERT(this->caps()->srgbSupport());
-            // This assert goes away when we start referring to CPU data using color type.
-            tempSurfaceConfig = GrColorTypeToPixelConfig(srcColorType, GrSRGBEncoded::kNo);
-            // We don't currently support storing sRGB encoded data in a surface unless it is
-            // an SRGB-encoded config. That is likely to change when we need to store sRGB encoded
-            // data in 101010102 and F16 textures. We'll have to provoke the caller to do the
-            // conversion in a shader.
-            if (!GrPixelConfigIsSRGB(dstSurface->config())) {
-                return false;
-            }
-            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-            break;
-        case GrSRGBConversion::kSRGBToLinear:
-            SkASSERT(this->caps()->srgbSupport());
-            tempSurfaceConfig = GrColorTypeToPixelConfig(srcColorType, GrSRGBEncoded::kYes);
-            // Currently we don't expect to make a SRGB encoded surface and then succeed at
-            // treating it as though it were linear and then convert to sRGB.
-            if (GrSRGBEncoded::kYes == GrPixelConfigIsSRGBEncoded(dstSurface->config())) {
-                return false;
-            }
-            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-            break;
-    }
-    if (kUnknown_GrPixelConfig == tempSurfaceConfig) {
-        return false;
-    }
-
-    // Default values for intermediate draws. The intermediate texture config matches the dst's
-    // config, is approx sized to the write rect, no swizzling or sppofing of the src config.
-    tempDrawInfo->fTempSurfaceDesc.fFlags = kNone_GrSurfaceFlags;
-    tempDrawInfo->fTempSurfaceDesc.fConfig = tempSurfaceConfig;
-    tempDrawInfo->fTempSurfaceDesc.fWidth = width;
-    tempDrawInfo->fTempSurfaceDesc.fHeight = height;
-    tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 1;
-    tempDrawInfo->fSwizzle = GrSwizzle::RGBA();
-    tempDrawInfo->fWriteColorType = srcColorType;
-
-    if (!this->onGetWritePixelsInfo(dstSurface, dstOrigin, width, height, srcColorType,
-                                    drawPreference, tempDrawInfo)) {
-        return false;
-    }
-
-    // Check to see if we're going to request that the caller draw when drawing is not possible.
-    if (!dstSurface->asRenderTarget() ||
-        !this->caps()->isConfigTexturable(tempDrawInfo->fTempSurfaceDesc.fConfig)) {
-        // If we don't have a fallback to a straight upload then fail.
-        if (kRequireDraw_DrawPreference == *drawPreference /*TODO ||
-            !this->caps()->isConfigTexturable(srcConfig)*/) {
-            return false;
-        }
-        *drawPreference = kNoDraw_DrawPreference;
-    }
-    return true;
-}
-
-bool GrGpu::readPixels(GrSurface* surface, GrSurfaceOrigin origin, int left, int top, int width,
-                       int height, GrColorType dstColorType, void* buffer, size_t rowBytes) {
+bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int height,
+                       GrColorType dstColorType, void* buffer, size_t rowBytes) {
     SkASSERT(surface);
 
     int bpp = GrColorTypeBytesPerPixel(dstColorType);
@@ -390,13 +228,11 @@ bool GrGpu::readPixels(GrSurface* surface, GrSurfaceOrigin origin, int left, int
 
     this->handleDirtyContext();
 
-    return this->onReadPixels(surface, origin, left, top, width, height, dstColorType, buffer,
-                              rowBytes);
+    return this->onReadPixels(surface, left, top, width, height, dstColorType, buffer, rowBytes);
 }
 
-bool GrGpu::writePixels(GrSurface* surface, GrSurfaceOrigin origin, int left, int top, int width,
-                        int height, GrColorType srcColorType, const GrMipLevel texels[],
-                        int mipLevelCount) {
+bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int height,
+                        GrColorType srcColorType, const GrMipLevel texels[], int mipLevelCount) {
     SkASSERT(surface);
     if (1 == mipLevelCount) {
         // We require that if we are not mipped, then the write region is contained in the surface
@@ -417,21 +253,14 @@ bool GrGpu::writePixels(GrSurface* surface, GrSurfaceOrigin origin, int left, in
     }
 
     this->handleDirtyContext();
-    if (this->onWritePixels(surface, origin, left, top, width, height, srcColorType, texels,
+    if (this->onWritePixels(surface, left, top, width, height, srcColorType, texels,
                             mipLevelCount)) {
         SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
-        this->didWriteToSurface(surface, origin, &rect, mipLevelCount);
+        this->didWriteToSurface(surface, kTopLeft_GrSurfaceOrigin, &rect, mipLevelCount);
         fStats.incTextureUploads();
         return true;
     }
     return false;
-}
-
-bool GrGpu::writePixels(GrSurface* surface, GrSurfaceOrigin origin, int left, int top, int width,
-                        int height, GrColorType srcColorType, const void* buffer, size_t rowBytes) {
-    GrMipLevel mipLevel = { buffer, rowBytes };
-
-    return this->writePixels(surface, origin, left, top, width, height, srcColorType, &mipLevel, 1);
 }
 
 bool GrGpu::transferPixels(GrTexture* texture, int left, int top, int width, int height,
