@@ -479,10 +479,12 @@ struct EdgeList {
 };
 
 struct Event {
-    Event(Edge* edge, const SkPoint& point, uint8_t alpha)
-      : fEdge(edge), fPoint(point), fAlpha(alpha), fPrev(nullptr), fNext(nullptr) {
+    Event(Edge* edge, bool isOuterBoundary, const SkPoint& point, uint8_t alpha)
+      : fEdge(edge), fIsOuterBoundary(isOuterBoundary), fPoint(point), fAlpha(alpha)
+      , fPrev(nullptr), fNext(nullptr) {
     }
     Edge* fEdge;
+    bool  fIsOuterBoundary;
     SkPoint fPoint;
     uint8_t fAlpha;
     Event* fPrev;
@@ -496,7 +498,7 @@ bool compare(Event* const& e1, Event* const& e2) {
 
 struct EventList : public SkTDPQueue<Event*, &compare> {};
 
-void create_event(Edge* e, EventList* events, SkArenaAlloc& alloc) {
+void create_event(Edge* e, bool isOuterBoundary, EventList* events, SkArenaAlloc& alloc) {
     Edge bisector1(e->fTop, e->fTop->fPartner, 1, Edge::Type::kConnector);
     Edge bisector2(e->fBottom, e->fBottom->fPartner, 1, Edge::Type::kConnector);
     SkPoint p;
@@ -504,7 +506,7 @@ void create_event(Edge* e, EventList* events, SkArenaAlloc& alloc) {
     if (bisector1.intersect(bisector2, &p, &alpha)) {
         LOG("found overlap edge %g -> %g, will collapse to %g,%g alpha %d\n",
             e->fTop->fID, e->fBottom->fID, p.fX, p.fY, alpha);
-        e->fEvent = alloc.make<Event>(e, p, alpha);
+        e->fEvent = alloc.make<Event>(e, isOuterBoundary, p, alpha);
         events->insert(e->fEvent);
     }
 }
@@ -1691,7 +1693,15 @@ void Event::apply(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
 
     // Since the destination has multiple partners, give it none.
     dest->fPartner = nullptr;
-    disconnect(fEdge);
+
+    // Disconnect all collapsed edges except outer boundaries.
+    // Those are required to preserve shape coverage and winding correctness.
+    if (!fIsOuterBoundary) {
+        disconnect(fEdge);
+    } else {
+        LOG("edge %g -> %g is outer boundary; not disconnecting.\n",
+            fEdge->fTop->fID, fEdge->fBottom->fID);
+    }
 
     // If top still has some connected edges, set its partner to dest.
     top->fPartner = top->fFirstEdgeAbove || top->fFirstEdgeBelow ? dest : nullptr;
@@ -1738,7 +1748,10 @@ bool collapse_overlap_regions(VertexList* mesh, Comparator& c, SkArenaAlloc& all
             }
             e->fOverlap = e->fOverlap || is_overlap_edge(e);
             if (e->fOverlap) {
-                create_event(e, &events, alloc);
+                // If this edge borders a zero-winding area, it's a boundary; don't disconnect it.
+                bool isOuterBoundary = e->fType == Edge::Type::kOuter &&
+                                       (!prev || prev->fWinding == 0 || e->fWinding == 0);
+                create_event(e, isOuterBoundary, &events, alloc);
             }
             insert_edge(e, prev, &activeEdges);
             prev = e;
