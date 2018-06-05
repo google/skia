@@ -22,6 +22,30 @@
       "revId": "57ddb1fd877fdccaa4a14845e0637131f723929f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e6802f4_25db9520",
+        "filename": "site/dev/testing/xsan.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-06-05T13:37:11Z",
+      "side": 1,
+      "message": "On my desktop, if I just build out/MSAN/fuzz and run it, I see a crash on startup\n\nskia$ out/MSAN/fuzz\nUninitialized bytes in __interceptor_strlen at offset 0 inside [0x7030000001b0, 37)\n\u003d\u003d118286\u003d\u003dWARNING: MemorySanitizer: use-of-uninitialized-value\n    #0 0x7fef471747b5  (/usr/lib/x86_64-linux-gnu/libGL.so.1+0xc97b5)\n\n  Uninitialized value was created by a heap allocation\n    #0 0xf77ac1 in __interceptor_malloc /tmp/tmpt5tVDi/llvm/projects/compiler-rt/lib/msan/msan_interceptors.cc:865\n    #1 0x7fef47170751  (/usr/lib/x86_64-linux-gnu/libGL.so.1+0xc5751)\n\nSUMMARY: MemorySanitizer: use-of-uninitialized-value (/usr/lib/x86_64-linux-gnu/libGL.so.1+0xc97b5) \n\nSo, if we can do something that avoids opening or whatever those libs to avoid that startup crash, then I\u0027d much prefer that.\n\nWhen I run the patchelf commands, it works.",
+      "parentUuid": "32708382_3ac9a941",
+      "range": {
+        "startLine": 63,
+        "startChar": 50,
+        "endLine": 64,
+        "endChar": 69
+      },
+      "revId": "57ddb1fd877fdccaa4a14845e0637131f723929f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
