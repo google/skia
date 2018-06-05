@@ -67,7 +67,14 @@ public:
         Node* fNode;
     };
 
+
     static ExclusiveStrikePtr FindStrikeExclusive(const SkDescriptor&);
+
+    static bool DesperationSearchForImage(
+            const SkDescriptor& desc, SkGlyph* glyph, SkArenaAlloc* arena);
+
+    static bool DesperationSearchForPath(
+            const SkDescriptor& desc, SkGlyphID glyphID, SkPath* path);
 
     static ExclusiveStrikePtr CreateStrikeExclusive(
             const SkDescriptor& desc,
@@ -102,6 +109,11 @@ public:
     // call when a glyphcache is available for caching (i.e. not in use)
     void attachNode(Node* node);
     ExclusiveStrikePtr findStrikeExclusive(const SkDescriptor&);
+
+    // Routines to find suitable data when working in a remote cache situation. These are
+    // suitable as substitutes for similar calls in SkScalerContext.
+    bool desperationSearchForImage(const SkDescriptor& desc, SkGlyph* glyph, SkArenaAlloc* alloc);
+    bool desperationSearchForPath(const SkDescriptor& desc, SkGlyphID glyphID, SkPath* path);
 
     void purgeAll(); // does not change budget
 

@@ -155,6 +155,12 @@ SkGlyph* SkGlyphCache::lookupByPackedGlyphID(SkPackedGlyphID packedGlyphID, Metr
     } else {
         if (type == kFull_MetricsType && glyph->isJustAdvance()) {
            fScalerContext->getMetrics(glyph);
+
+           // Just in case someone allocated an image in the getMetrics call, be sure to account
+           // for the memory used.
+           if (glyph->fImage != nullptr) {
+               fMemoryUsed += glyph->computeImageSize();
+           }
         }
     }
     return glyph;
