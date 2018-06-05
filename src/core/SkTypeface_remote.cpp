@@ -38,8 +38,14 @@ void SkScalerContextProxy::generateMetrics(SkGlyph* glyph) {
         SkDebugf("GlyphCacheMiss generateMetrics: %s\n", this->getRec().dump().c_str());
     }
 
-    fDiscardableManager->notifyCacheMiss(SkStrikeClient::CacheMissType::kGlyphMetrics);
-    glyph->zeroMetrics();
+    auto desc = SkScalerContext::DescriptorGivenRecAndEffects(this->getRec(), this->getEffects());
+
+    SkStrikeCache::DesperationSearchExclusive(*desc, glyph, &fAlloc);
+
+    if (glyph->fMaskFormat == MASK_FORMAT_UNKNOWN) {
+        fDiscardableManager->notifyCacheMiss(SkStrikeClient::CacheMissType::kGlyphMetrics);
+        glyph->zeroMetrics();
+    }
 }
 
 void SkScalerContextProxy::generateImage(const SkGlyph& glyph) {
