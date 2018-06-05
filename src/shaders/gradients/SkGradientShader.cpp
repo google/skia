@@ -1288,7 +1288,7 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
         desc.fWidth  = bitmap.width();
         desc.fHeight = 32;
         desc.fRowHeight = bitmap.height(); // always 1 here
-        desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info(), *caps);
+        desc.fConfig = SkColorType2GrPixelConfig(bitmap.colorType());
         fAtlas = atlasManager->refAtlas(desc);
         SkASSERT(fAtlas);
 

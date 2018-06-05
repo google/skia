@@ -65,11 +65,10 @@ void SkottieSlide::load(SkScalar w, SkScalar h) {
 
     if (fAnimation) {
         fAnimation->setShowInval(fShowAnimationInval);
-        SkDebugf("loaded Bodymovin animation v: %s, size: [%f %f], fr: %f\n",
+        SkDebugf("loaded Bodymovin animation v: %s, size: [%f %f]\n",
                  fAnimation->version().c_str(),
                  fAnimation->size().width(),
-                 fAnimation->size().height(),
-                 fAnimation->frameRate());
+                 fAnimation->size().height());
     } else {
         SkDebugf("failed to load Bodymovin animation: %s\n", fPath.c_str());
     }

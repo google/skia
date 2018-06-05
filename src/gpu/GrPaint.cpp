@@ -16,7 +16,6 @@ GrPaint::GrPaint(const GrPaint& that)
         , fColorFragmentProcessors(that.fColorFragmentProcessors.count())
         , fCoverageFragmentProcessors(that.fCoverageFragmentProcessors.count())
         , fDisableOutputConversionToSRGB(that.fDisableOutputConversionToSRGB)
-        , fAllowSRGBInputs(that.fAllowSRGBInputs)
         , fTrivial(that.fTrivial)
         , fColor(that.fColor) {
     for (int i = 0; i < that.fColorFragmentProcessors.count(); ++i) {

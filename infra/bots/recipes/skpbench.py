@@ -43,7 +43,7 @@ def skpbench_steps(api):
       'makedirs perf_dir', api.flavor.host_dirs.perf_data_dir)
 
   if 'Android' in api.vars.builder_name:
-    app = api.vars.skia_out.join('skpbench')
+    app = api.vars.build_dir.join('skpbench')
     _adb(api, 'push skpbench', 'push', app, api.flavor.device_dirs.bin_dir)
 
   skpbench_dir = api.vars.slave_dir.join('skia', 'tools', 'skpbench')
@@ -60,6 +60,15 @@ def skpbench_steps(api):
         '--config', config,
         # TODO(dogben): Track down what's causing bots to die.
         '-v5']
+  if 'DDL' in api.vars.builder_name:
+    # This adds the "--ddl" flag for both DDLTotal and DDLRecord
+    skpbench_args += ['--ddl']
+  if 'DDLRecord' in api.vars.builder_name:
+    skpbench_args += ['--ddlRecord']
+  if '9x9' in api.vars.builder_name:
+    skpbench_args += [
+        '--ddlNumAdditionalThreads', 9,
+        '--ddlTilingWidthHeight', 3]
   if 'Android' in api.vars.builder_name:
     skpbench_args += [
         '--adb',
@@ -133,6 +142,10 @@ TEST_BUILDERS = [
   ('Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-'
    'Android_CCPR_Skpbench'),
   'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan_Skpbench',
+  ('Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-'
+   'Vulkan_Skpbench_DDLTotal_9x9'),
+  ('Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-'
+   'Vulkan_Skpbench_DDLRecord_9x9'),
 ]
 
 

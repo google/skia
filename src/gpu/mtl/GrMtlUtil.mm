@@ -113,23 +113,3 @@ GrPixelConfig GrMTLFormatToPixelConfig(MTLPixelFormat format) {
             return kUnknown_GrPixelConfig;
     }
 }
-
-bool GrMTLFormatIsSRGB(MTLPixelFormat format, MTLPixelFormat* linearFormat) {
-    MTLPixelFormat linearFmt = format;
-    switch (format) {
-        case MTLPixelFormatRGBA8Unorm_sRGB:
-            linearFmt = MTLPixelFormatRGBA8Unorm;
-            break;
-        case MTLPixelFormatBGRA8Unorm_sRGB:
-            linearFmt = MTLPixelFormatBGRA8Unorm;
-            break;
-        default:
-            break;
-    }
-
-    if (linearFormat) {
-        *linearFormat = linearFmt;
-    }
-    return (linearFmt != format);
-}
-

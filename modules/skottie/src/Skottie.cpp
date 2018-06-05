@@ -62,7 +62,7 @@ using AssetMap = SkTHashMap<SkString, AssetInfo>;
 struct AttachContext {
     const ResourceProvider& fResources;
     const AssetMap&         fAssets;
-    const float             fFrameRate;
+    const float             fDuration;
     sksg::AnimatorList&     fAnimators;
 };
 
@@ -724,21 +724,21 @@ sk_sp<sksg::RenderNode> AttachNestedAnimation(const char* path, AttachContext* c
 
     class SkottieAnimatorAdapter final : public sksg::Animator {
     public:
-        SkottieAnimatorAdapter(sk_sp<Animation> animation, float frameRate)
+        SkottieAnimatorAdapter(sk_sp<Animation> animation, float time_scale)
             : fAnimation(std::move(animation))
-            , fFrameRate(frameRate) {
+            , fTimeScale(time_scale) {
             SkASSERT(fAnimation);
-            SkASSERT(fFrameRate > 0);
         }
 
     protected:
         void onTick(float t) {
-            fAnimation->seek(t * fFrameRate / fAnimation->frameRate());
+            // TODO: we prolly need more sophisticated timeline mapping for nested animations.
+            fAnimation->seek(t * fTimeScale);
         }
 
     private:
         const sk_sp<Animation> fAnimation;
-        const float            fFrameRate;
+        const float            fTimeScale;
     };
 
     const auto resStream  = ctx->fResources.openStream(path);
@@ -747,14 +747,16 @@ sk_sp<sksg::RenderNode> AttachNestedAnimation(const char* path, AttachContext* c
         return nullptr;
     }
 
-    auto animation = Animation::Make(resStream.get(), ctx->fResources);
+    auto animation = Animation::Make(resStream.get(), &ctx->fResources);
     if (!animation) {
         LOG("!! Could not load nested animation: %s\n", path);
         return nullptr;
     }
 
-    ctx->fAnimators.push_back(skstd::make_unique<SkottieAnimatorAdapter>(animation,
-                                                                         ctx->fFrameRate));
+
+    ctx->fAnimators.push_back(
+        skstd::make_unique<SkottieAnimatorAdapter>(animation,
+                                                   animation->duration() / ctx->fDuration));
 
     return sk_make_sp<SkottieSGAdapter>(std::move(animation));
 }
@@ -1051,7 +1053,7 @@ sk_sp<sksg::RenderNode> AttachLayer(const json::ValueRef& jlayer, AttachLayerCon
     sksg::AnimatorList layer_animators;
     AttachContext local_ctx = { layerCtx->fCtx->fResources,
                                 layerCtx->fCtx->fAssets,
-                                layerCtx->fCtx->fFrameRate,
+                                layerCtx->fCtx->fDuration,
                                 layer_animators};
 
     // Layer attachers may adjust these.
@@ -1191,7 +1193,7 @@ sk_sp<sksg::RenderNode> AttachComposition(const json::ValueRef& comp, AttachCont
 
 } // namespace
 
-sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider& res, Stats* stats) {
+sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider* provider, Stats* stats) {
     Stats stats_storage;
     if (!stats)
         stats = &stats_storage;
@@ -1225,8 +1227,13 @@ sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider& res, 
         return nullptr;
     }
 
-    const auto anim =
-        sk_sp<Animation>(new Animation(res, std::move(version), size, fps, json, stats));
+    class NullResourceProvider final : public ResourceProvider {
+        std::unique_ptr<SkStream> openStream(const char[]) const { return nullptr; }
+    };
+
+    NullResourceProvider null_provider;
+    const auto anim = sk_sp<Animation>(new Animation(provider ? *provider : null_provider,
+                                                     std::move(version), size, fps, json, stats));
     const auto t2 = SkTime::GetMSecs();
     stats->fSceneParseTimeMS = t2 - t1;
     stats->fTotalLoadTimeMS  = t2 - t0;
@@ -1258,7 +1265,7 @@ sk_sp<Animation> Animation::MakeFromFile(const char path[], const ResourceProvid
         defaultProvider = skstd::make_unique<DirectoryResourceProvider>(SkOSPath::Dirname(path));
     }
 
-    return Make(jsonStream.get(), res ? *res : *defaultProvider, stats);
+    return Make(jsonStream.get(), res ? res : defaultProvider.get(), stats);
 }
 
 Animation::Animation(const ResourceProvider& resources,
@@ -1278,7 +1285,7 @@ Animation::Animation(const ResourceProvider& resources,
     }
 
     sksg::AnimatorList animators;
-    AttachContext ctx = { resources, assets, fFrameRate, animators };
+    AttachContext ctx = { resources, assets, this->duration(), animators };
     auto root = AttachComposition(json, &ctx);
 
     stats->fAnimatorCount = animators.size();

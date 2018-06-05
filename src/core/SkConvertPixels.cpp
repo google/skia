@@ -7,7 +7,6 @@
 
 #include "SkColorSpaceXformPriv.h"
 #include "SkColorSpacePriv.h"
-#include "SkColorTable.h"
 #include "SkConvertPixels.h"
 #include "SkHalf.h"
 #include "SkImageInfoPriv.h"
@@ -164,7 +163,7 @@ static inline bool apply_color_xform(const SkImageInfo& dstInfo, void* dstPixels
 
 // Fast Path 4: Alpha 8 dsts.
 static void convert_to_alpha8(uint8_t* dst, size_t dstRB, const SkImageInfo& srcInfo,
-                              const void* src, size_t srcRB, SkColorTable* ctable) {
+                              const void* src, size_t srcRB) {
     if (srcInfo.isOpaque()) {
         for (int y = 0; y < srcInfo.height(); ++y) {
            memset(dst, 0xFF, srcInfo.width());
@@ -405,7 +404,7 @@ static bool swizzle_and_multiply_color_type(SkColorType ct) {
 
 void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                      const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB,
-                     SkColorTable* ctable, SkTransferFunctionBehavior behavior) {
+                     SkTransferFunctionBehavior behavior) {
     SkASSERT(dstInfo.dimensions() == srcInfo.dimensions());
     SkASSERT(SkImageInfoValidConversion(dstInfo, srcInfo));
 
@@ -434,7 +433,7 @@ void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
 
     // Fast Path 4: Alpha 8 dsts.
     if (kAlpha_8_SkColorType == dstInfo.colorType()) {
-        convert_to_alpha8((uint8_t*) dstPixels, dstRB, srcInfo, srcPixels, srcRB, ctable);
+        convert_to_alpha8((uint8_t*) dstPixels, dstRB, srcInfo, srcPixels, srcRB);
         return;
     }
 

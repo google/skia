@@ -195,6 +195,10 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
                                                          fFS.fCompilerStrings.count(),
                                                          settings,
                                                          &glsl);
+        if (!fs) {
+            this->cleanupProgram(programID, shadersToDelete);
+            return nullptr;
+        }
         inputs = fs->fInputs;
         if (inputs.fRTHeight) {
             this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
@@ -213,9 +217,9 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
                                                          fVS.fCompilerStrings.count(),
                                                          settings,
                                                          &glsl);
-        if (!this->compileAndAttachShaders(glsl.c_str(), glsl.size(), programID,
-                                           GR_GL_VERTEX_SHADER, &shadersToDelete, settings,
-                                           inputs)) {
+        if (!vs || !this->compileAndAttachShaders(glsl.c_str(), glsl.size(), programID,
+                                                  GR_GL_VERTEX_SHADER, &shadersToDelete, settings,
+                                                  inputs)) {
             this->cleanupProgram(programID, shadersToDelete);
             return nullptr;
         }
@@ -238,13 +242,12 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
                               fGS.fCompilerStrings.count(),
                               settings,
                               &glsl);
-            if (!this->compileAndAttachShaders(glsl.c_str(), glsl.size(), programID,
-                                               GR_GL_GEOMETRY_SHADER, &shadersToDelete, settings,
-                                               inputs)) {
+            if (!gs || !this->compileAndAttachShaders(glsl.c_str(), glsl.size(), programID,
+                                                      GR_GL_GEOMETRY_SHADER, &shadersToDelete,
+                                                      settings, inputs)) {
                 this->cleanupProgram(programID, shadersToDelete);
                 return nullptr;
             }
-
         }
         this->bindProgramResourceLocations(programID);
 

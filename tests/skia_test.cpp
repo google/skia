@@ -19,12 +19,8 @@
 #include "SkTime.h"
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextFactory.h"
-#else
-struct GrContextOptions {};
-#endif
 
 using namespace skiatest;
 using namespace sk_gpu_test;

@@ -399,8 +399,6 @@ static void apply_morphology_rect(GrRenderTargetContext* renderTargetContext,
                                   const float bounds[2],
                                   GrMorphologyEffect::Direction direction) {
     GrPaint paint;
-    paint.setGammaCorrect(renderTargetContext->colorSpaceInfo().isGammaCorrect());
-
     paint.addColorFragmentProcessor(GrMorphologyEffect::Make(std::move(proxy),
                                                              direction, radius, morphType,
                                                              bounds));
@@ -418,8 +416,6 @@ static void apply_morphology_rect_no_bounds(GrRenderTargetContext* renderTargetC
                                             GrMorphologyEffect::Type morphType,
                                             GrMorphologyEffect::Direction direction) {
     GrPaint paint;
-    paint.setGammaCorrect(renderTargetContext->colorSpaceInfo().isGammaCorrect());
-
     paint.addColorFragmentProcessor(GrMorphologyEffect::Make(std::move(proxy),
                                                              direction, radius, morphType));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);

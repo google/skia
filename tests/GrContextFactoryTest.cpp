@@ -7,8 +7,6 @@
 
 #include "SkTypes.h"
 
-#if SK_SUPPORT_GPU
-
 #include "GrContextFactory.h"
 #include "GrContextPriv.h"
 #include "GrCaps.h"
@@ -45,28 +43,6 @@ DEF_GPUTEST(GrContextFactory_NoPathRenderingIfNVPRDisabled, reporter, options) {
         if (context) {
             REPORTER_ASSERT(reporter,
                             !context->contextPriv().caps()->shaderCaps()->pathRenderingSupport());
-        }
-    }
-}
-
-DEF_GPUTEST(GrContextFactory_RequiredSRGBSupport, reporter, options) {
-    // Test that if sRGB support is requested, the context always has that capability
-    // or the context creation fails. Also test that if the creation fails, a context
-    // created without that flag would not have had sRGB support.
-    for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
-        GrContextFactory testFactory(options);
-        // Test that if sRGB is requested, caps are in sync.
-        GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
-        GrContext* context =
-            testFactory.get(ctxType, GrContextFactory::ContextOverrides::kRequireSRGBSupport);
-
-        if (context) {
-            REPORTER_ASSERT(reporter, context->contextPriv().caps()->srgbSupport());
-        } else {
-            context = testFactory.get(ctxType);
-            if (context) {
-                REPORTER_ASSERT(reporter, !context->contextPriv().caps()->srgbSupport());
-            }
         }
     }
 }
@@ -167,5 +143,3 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrContextDump, reporter, ctxInfo) {
     SkString result = ctxInfo.grContext()->contextPriv().dump();
     REPORTER_ASSERT(reporter, !result.isEmpty());
 }
-
-#endif
