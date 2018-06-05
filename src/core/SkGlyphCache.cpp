@@ -155,6 +155,16 @@ SkGlyph* SkGlyphCache::lookupByPackedGlyphID(SkPackedGlyphID packedGlyphID, Metr
     } else {
         if (type == kFull_MetricsType && glyph->isJustAdvance()) {
            fScalerContext->getMetrics(glyph);
+
+           // TODO: I think this is needed to account for image memory when the remote scaler
+           // context creates the image, but this does not seem to be true. It may be that a
+           // desperations search is needed for both metrics and image.
+
+           // Just in case someone allocated an image in the getMetrics call, be sure to account
+           // for the memory used.
+           if (glyph->fImage != nullptr) {
+               //fMemoryUsed += glyph->computeImageSize();
+           }
         }
     }
     return glyph;

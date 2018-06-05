@@ -101,6 +101,16 @@ SkExclusiveStrikePtr SkStrikeCache::FindStrikeExclusive(const SkDescriptor& desc
     return get_globals().findStrikeExclusive(desc);
 }
 
+bool SkStrikeCache::DesperationSearchForImage(
+        const SkDescriptor& desc, SkGlyph* glyph, SkArenaAlloc* arena) {
+    return get_globals().desperationSearchForImage(desc, glyph, arena);
+}
+
+bool SkStrikeCache::DesperationSearchForPath(
+        const SkDescriptor& desc, SkGlyphID glyphID, SkPath* path) {
+    return get_globals().desperationSearchForPath(desc, glyphID, path);
+}
+
 std::unique_ptr<SkScalerContext> SkStrikeCache::CreateScalerContext(
         const SkDescriptor& desc,
         const SkScalerContextEffects& effects,
@@ -253,6 +263,98 @@ SkExclusiveStrikePtr SkStrikeCache::findStrikeExclusive(const SkDescriptor& desc
     }
 
     return SkExclusiveStrikePtr(nullptr);
+}
+
+static bool loose_compare (const SkDescriptor& lhs, const SkDescriptor& rhs) {
+    uint32_t size;
+    auto ptr = lhs.findEntry(kRec_SkDescriptorTag, &size);
+    SkScalerContextRec lhsRec;
+    std::memcpy(&lhsRec, ptr, size);
+
+    ptr = rhs.findEntry(kRec_SkDescriptorTag, &size);
+    SkScalerContextRec rhsRec;
+    std::memcpy(&rhsRec, ptr, size);
+
+    // If these don't match, there's no way we can use these strikes interchangeably.
+    // TODO: make sure we don't search other renderer's caches.
+    return
+        lhsRec.fFontID == rhsRec.fFontID &&
+        lhsRec.fTextSize == rhsRec.fTextSize &&
+        lhsRec.fPreScaleX == rhsRec.fPreScaleX &&
+        lhsRec.fPreSkewX == rhsRec.fPreSkewX &&
+        lhsRec.fPost2x2[0][0] == rhsRec.fPost2x2[0][0] &&
+        lhsRec.fPost2x2[0][1] == rhsRec.fPost2x2[0][1] &&
+        lhsRec.fPost2x2[1][0] == rhsRec.fPost2x2[1][0] &&
+        lhsRec.fPost2x2[1][1] == rhsRec.fPost2x2[1][1];
+}
+
+bool SkStrikeCache::desperationSearchForImage(
+        const SkDescriptor& desc, SkGlyph* glyph, SkArenaAlloc* alloc) {
+    SkAutoExclusive ac(fLock);
+
+    SkGlyphID glyphID = glyph->getGlyphID();
+    SkFixed targetSubX = glyph->getSubXFixed(),
+            targetSubY = glyph->getSubYFixed();
+
+    // We don't have this glyph with the exact subpixel positioning,
+    // but we might have this glyph with another subpixel position... search them all.
+    for (Node* node = internalGetHead(); node != nullptr; node = node->fNext) {
+        if (loose_compare(node->fCache.getDescriptor(), desc)) {
+            auto targetGlyphID = SkPackedGlyphID(glyphID, targetSubX, targetSubY);
+            if (node->fCache.isGlyphCached(glyphID, targetSubX, targetSubY)) {
+                SkGlyph* from = node->fCache.getRawGlyphByID(targetGlyphID);
+                if (from->fImage != nullptr) {
+                    // This desperate-match node may disappear as soon as we drop fLock, so we
+                    // need to copy the glyph from node into this strike, including a
+                    // deep copy of the mask.
+                    glyph->copyImageData(*from, alloc);
+                    return true;
+                }
+            }
+
+            // We don't have this glyph with the exact subpixel positioning,
+            // but we might have this glyph with another subpixel position... search them all.
+            for (SkFixed subY = 0; subY < SK_Fixed1; subY += SK_FixedQuarter) {
+                for (SkFixed subX = 0; subX < SK_Fixed1; subX += SK_FixedQuarter) {
+                    if (node->fCache.isGlyphCached(glyphID, subX, subY)) {
+                        SkGlyph* from =
+                                node->fCache.getRawGlyphByID(SkPackedGlyphID(glyphID, subX, subY));
+                        if (from->fImage != nullptr) {
+                            glyph->copyImageData(*from, alloc);
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool SkStrikeCache::desperationSearchForPath(
+        const SkDescriptor& desc, SkGlyphID glyphID, SkPath* path) {
+    SkAutoExclusive ac(fLock);
+
+    // The following is wrong there is subpixel positioning with paths...
+    // Paths are only ever at sub-pixel position (0,0), so we can just try that directly rather
+    // than try our packed position first then search all others on failure like for masks.
+    //
+    // This will have to search the sub-pixel positions too.
+    // There is also a problem with accounting for cache size with shared path data.
+    for (Node* node = internalGetHead(); node != nullptr; node = node->fNext) {
+        if (loose_compare(node->fCache.getDescriptor(), desc)) {
+            if (node->fCache.isGlyphCached(glyphID, 0, 0)) {
+                SkGlyph* from = node->fCache.getRawGlyphByID(SkPackedGlyphID(glyphID));
+                if (from->fPathData->fPath != nullptr) {
+                    // We can just copy the path out by value here, so no need to worry
+                    // about the lifetime of this desperate-match node.
+                    *path = *from->fPathData->fPath;
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 }
 
 SkExclusiveStrikePtr SkStrikeCache::CreateStrikeExclusive(
