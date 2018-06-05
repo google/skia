@@ -2,6 +2,7 @@ SkColor Reference
 ===
 
 # <a name='Color'>Color</a>
+Types, consts, functions, and macros for colors.
 
 ## Overview
 
@@ -203,7 +204,7 @@ zero, fully transparent, to one, fully opaque.
 typedef uint8_t <a href='#SkAlpha'>SkAlpha</a>;
 </pre>
 
-8-bit type for an alpha value. 0xFF is 100% opaque, 0x00 is 100% transparent.
+8-bit type for an alpha value. 255 is 100% opaque, zero is 100% transparent.
 
 ## <a name='SkColor'>Typedef SkColor</a>
 
@@ -761,7 +762,13 @@ modulo 360, where zero degrees is red.
 
 ## <a name='HSV_Saturation'>HSV Saturation</a>
 
+<a href='#HSV_Saturation'>Saturation</a> represents the intensity of the color. <a href='#HSV_Saturation'>Saturation</a> varies from zero,
+with no <a href='#HSV_Hue'>Hue</a> contribution; to one, with full <a href='#HSV_Hue'>Hue</a> contribution.
+
 ## <a name='HSV_Value'>HSV Value</a>
+
+<a href='#HSV_Value'>Value</a> represents the lightness of the color. <a href='#HSV_Value'>Value</a> varies from zero, black; to
+one, full brightness.
 
 <a name='SkRGBToHSV'></a>
 ## SkRGBToHSV
@@ -771,9 +778,9 @@ void <a href='#SkRGBToHSV'>SkRGBToHSV</a>(<a href='undocumented#U8CPU'>U8CPU</a>
 </pre>
 
 Converts RGB to its <a href='#HSV'>HSV</a> components.
-<a href='#SkRGBToHSV_hsv'>hsv</a>[0] contains <a href='#HSV_Hue'>Hue</a>, a value from zero to less than 360.
-<a href='#SkRGBToHSV_hsv'>hsv</a>[1] contains <a href='#HSV_Saturation'>Saturation</a>, a value from zero to one.
-<a href='#SkRGBToHSV_hsv'>hsv</a>[2] contains <a href='#HSV_Value'>Value</a>, a value from zero to one.
+<a href='#SkRGBToHSV_hsv'>hsv</a>[0] contains <a href='#HSV_Hue'>HSV Hue</a>, a value from zero to less than 360.
+<a href='#SkRGBToHSV_hsv'>hsv</a>[1] contains <a href='#HSV_Saturation'>HSV Saturation</a>, a value from zero to one.
+<a href='#SkRGBToHSV_hsv'>hsv</a>[2] contains <a href='#HSV_Value'>HSV Value</a>, a value from zero to one.
 
 ### Parameters
 
@@ -809,9 +816,9 @@ void <a href='#SkColorToHSV'>SkColorToHSV</a>(<a href='#SkColor'>SkColor</a> col
 </pre>
 
 Converts ARGB to its <a href='#HSV'>HSV</a> components. <a href='#Alpha'>Alpha</a> in ARGB is ignored.
-<a href='#SkColorToHSV_hsv'>hsv</a>[0] contains <a href='#HSV_Hue'>Hue</a>, and is assigned a value from zero to less than 360.
-<a href='#SkColorToHSV_hsv'>hsv</a>[1] contains <a href='#HSV_Saturation'>Saturation</a>, a value from zero to one.
-<a href='#SkColorToHSV_hsv'>hsv</a>[2] contains <a href='#HSV_Value'>Value</a>, a value from zero to one.
+<a href='#SkColorToHSV_hsv'>hsv</a>[0] contains <a href='#HSV_Hue'>HSV Hue</a>, and is assigned a value from zero to less than 360.
+<a href='#SkColorToHSV_hsv'>hsv</a>[1] contains <a href='#HSV_Saturation'>HSV Saturation</a>, a value from zero to one.
+<a href='#SkColorToHSV_hsv'>hsv</a>[2] contains <a href='#HSV_Value'>HSV Value</a>, a value from zero to one.
 
 ### Parameters
 
@@ -841,9 +848,9 @@ Converts ARGB to its <a href='#HSV'>HSV</a> components. <a href='#Alpha'>Alpha</
 </pre>
 
 Converts <a href='#HSV'>HSV</a> components to an ARGB color. <a href='#Alpha'>Alpha</a> is passed through unchanged.
-<a href='#SkHSVToColor_hsv'>hsv</a>[0] represents <a href='#HSV_Hue'>Hue</a>, an angle from zero to less than 360.
-<a href='#SkHSVToColor_hsv'>hsv</a>[1] represents <a href='#HSV_Saturation'>Saturation</a>, and varies from zero to one.
-<a href='#SkHSVToColor_hsv'>hsv</a>[2] represents <a href='#HSV_Value'>Value</a>, and varies from zero to one.
+<a href='#SkHSVToColor_hsv'>hsv</a>[0] represents <a href='#HSV_Hue'>HSV Hue</a>, an angle from zero to less than 360.
+<a href='#SkHSVToColor_hsv'>hsv</a>[1] represents <a href='#HSV_Saturation'>HSV Saturation</a>, and varies from zero to one.
+<a href='#SkHSVToColor_hsv'>hsv</a>[2] represents <a href='#HSV_Value'>HSV Value</a>, and varies from zero to one.
 
 Out of range <a href='#SkHSVToColor_hsv'>hsv</a> values are pinned.
 
@@ -877,10 +884,10 @@ ARGB equivalent to <a href='#HSV'>HSV</a>
 <a href='#SkColor'>SkColor</a> <a href='#SkHSVToColor'>SkHSVToColor</a>(const <a href='undocumented#SkScalar'>SkScalar</a> hsv[3])
 </pre>
 
-Convert <a href='#HSV'>HSV</a> components to an ARGB color. <a href='#Alpha'>Alpha</a> is set to 0xFF.
-<a href='#SkHSVToColor_2_hsv'>hsv</a>[0] represents <a href='#HSV_Hue'>Hue</a>, an angle from zero to less than 360.
-<a href='#SkHSVToColor_2_hsv'>hsv</a>[1] represents <a href='#HSV_Saturation'>Saturation</a>, and varies from zero to one.
-<a href='#SkHSVToColor_2_hsv'>hsv</a>[2] represents <a href='#HSV_Value'>Value</a>, and varies from zero to one.
+Converts <a href='#HSV'>HSV</a> components to an ARGB color. <a href='#Alpha'>Alpha</a> is set to 255.
+<a href='#SkHSVToColor_2_hsv'>hsv</a>[0] represents <a href='#HSV_Hue'>HSV Hue</a>, an angle from zero to less than 360.
+<a href='#SkHSVToColor_2_hsv'>hsv</a>[1] represents <a href='#HSV_Saturation'>HSV Saturation</a>, and varies from zero to one.
+<a href='#SkHSVToColor_2_hsv'>hsv</a>[2] represents <a href='#HSV_Value'>HSV Value</a>, and varies from zero to one.
 
 Out of range <a href='#SkHSVToColor_2_hsv'>hsv</a> values are pinned.
 
