@@ -187,6 +187,8 @@ bool SpellCheck::check(Definition* def) {
             break;
         case MarkType::kExternal:
             break;
+        case MarkType::kFile:
+            break;
         case MarkType::kFormula:
             fInFormula = true;
             break;

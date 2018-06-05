@@ -1,6 +1,10 @@
 #Topic Color
 #Alias Color_Reference ##
 
+#File
+Types, consts, functions, and macros for colors.
+##
+
 #Subtopic Overview
 #Populate
 ##
@@ -47,7 +51,7 @@ zero, fully transparent, to one, fully opaque.
 typedef uint8_t SkAlpha;
 ##
 
-8-bit type for an alpha value. 0xFF is 100% opaque, 0x00 is 100% transparent.
+8-bit type for an alpha value. 255 is 100% opaque, zero is 100% transparent.
 
 #Typedef ##
 
@@ -607,9 +611,13 @@ modulo 360, where zero degrees is red.
 ##
 
 #Subtopic Saturation
+Saturation represents the intensity of the color. Saturation varies from zero,
+with no Hue contribution; to one, with full Hue contribution.
 ##
 
 #Subtopic Value
+Value represents the lightness of the color. Value varies from zero, black; to
+one, full brightness.
 ##
 
 #Method void SkRGBToHSV(U8CPU red, U8CPU green, U8CPU blue, SkScalar hsv[3])
@@ -617,9 +625,9 @@ modulo 360, where zero degrees is red.
 #Line # converts RGB to HSV ##
 
 Converts RGB to its HSV components.
-hsv[0] contains Hue, a value from zero to less than 360.
-hsv[1] contains Saturation, a value from zero to one.
-hsv[2] contains Value, a value from zero to one.
+hsv[0] contains HSV_Hue, a value from zero to less than 360.
+hsv[1] contains HSV_Saturation, a value from zero to one.
+hsv[2] contains HSV_Value, a value from zero to one.
 
 #Param red  red component value from zero to 255 ##
 #Param green  green component value from zero to 255 ##
@@ -653,9 +661,9 @@ hsv[2] contains Value, a value from zero to one.
 #Line # converts RGB to HSV ##
 
 Converts ARGB to its HSV components. Alpha in ARGB is ignored.
-hsv[0] contains Hue, and is assigned a value from zero to less than 360.
-hsv[1] contains Saturation, a value from zero to one.
-hsv[2] contains Value, a value from zero to one.
+hsv[0] contains HSV_Hue, and is assigned a value from zero to less than 360.
+hsv[1] contains HSV_Saturation, a value from zero to one.
+hsv[2] contains HSV_Value, a value from zero to one.
 
 #Param color  ARGB color to convert
 ##
@@ -688,9 +696,9 @@ hsv[2] contains Value, a value from zero to one.
 #Line # converts HSV with Alpha to RGB ##
 
 Converts HSV components to an ARGB color. Alpha is passed through unchanged.
-hsv[0] represents Hue, an angle from zero to less than 360.
-hsv[1] represents Saturation, and varies from zero to one.
-hsv[2] represents Value, and varies from zero to one.
+hsv[0] represents HSV_Hue, an angle from zero to less than 360.
+hsv[1] represents HSV_Saturation, and varies from zero to one.
+hsv[2] represents HSV_Value, and varies from zero to one.
 
 Out of range hsv values are pinned.
 
@@ -728,10 +736,10 @@ Out of range hsv values are pinned.
 #In Function
 #Line # converts HSV to RGB ##
 
-Convert HSV components to an ARGB color. Alpha is set to 0xFF.
-hsv[0] represents Hue, an angle from zero to less than 360.
-hsv[1] represents Saturation, and varies from zero to one.
-hsv[2] represents Value, and varies from zero to one.
+Converts HSV components to an ARGB color. Alpha is set to 255.
+hsv[0] represents HSV_Hue, an angle from zero to less than 360.
+hsv[1] represents HSV_Saturation, and varies from zero to one.
+hsv[2] represents HSV_Value, and varies from zero to one.
 
 Out of range hsv values are pinned.
 
