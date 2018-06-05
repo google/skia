@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fbbde736_2a209149",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-05T15:27:00Z",
+      "side": 1,
+      "message": "this is almost a duplicate of finishPathPolygon. Could they share a helper?",
+      "range": {
+        "startLine": 258,
+        "startChar": 2,
+        "endLine": 293,
+        "endChar": 29
+      },
+      "revId": "eb2db51e02195a92724f06cb7562533f7c3116f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
