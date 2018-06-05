@@ -58,6 +58,15 @@ MSAN-instrumented libc++:
 
     env LD_LIBRARY_PATH=$CLANGDIR/msan out/dm ...
 
+If you want to build our tools (DM, nanobench, fuzzers) with MSAN, you will need to set
+`skia_enable_gpu = true`. This causes problems GPU code actually gets executed because
+the GPU drivers have not been compiled with MSAN. However, if you only care about CPU-only
+code, you can "de-link" the GPU code with the following instructions:
+
+    patchelf --remove-needed libX11.so.6 out/MSAN/fuzz
+    patchelf --remove-needed libGLU.so.1 out/MSAN/fuzz
+    patchelf --remove-needed libGL.so.1 out/MSAN/fuzz
+
 Configure and Compile Skia with ASAN
 ------------------------------------
 
