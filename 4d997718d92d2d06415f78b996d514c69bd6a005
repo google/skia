@@ -1,0 +1,579 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04d8dae3_595a0319",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "nit: refactor*",
+      "range": {
+        "startLine": 7,
+        "startChar": 6,
+        "endLine": 7,
+        "endChar": 15
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23bfb39e_53b600c6",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "It seems like it would be useful to check the return value here. (Otherwise the client might be reading garbage.) It looks like \u003c 0 means an error. Should we also care if it is \u003c size?",
+      "range": {
+        "startLine": 40,
+        "startChar": 16,
+        "endLine": 40,
+        "endChar": 33
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db90aa1f_6f5e4082",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "To be robust, we need to make sure that NewStringUTF did not fail. It can return NULL and throw an OutOfMemoryError. It\u0027s not clear to me whether it can do just one or the other. Either way, it won\u0027t be safe to call this if one or both failures occur.",
+      "range": {
+        "startLine": 56,
+        "startChar": 4,
+        "endLine": 56,
+        "endChar": 50
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1900de49_3010563d",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "Again, this could fail, in which case we can\u0027t keep calling JNI methods. This should abort on failure, and the caller should check for it.",
+      "range": {
+        "startLine": 76,
+        "startChar": 31,
+        "endLine": 76,
+        "endChar": 45
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e896cff0_0fd8ed09",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "If jassert throws, later calls to JNI methods are problematic. But maybe that\u0027s okay because you don\u0027t expect it to throw?",
+      "range": {
+        "startLine": 85,
+        "startChar": 4,
+        "endLine": 85,
+        "endChar": 11
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d539f83c_537620e7",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "It might be helpful to know what class this is? Put it in a comment?",
+      "range": {
+        "startLine": 95,
+        "startChar": 4,
+        "endLine": 95,
+        "endChar": 47
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3a74d4e_19ab35f4",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "Did you mean to assert gAAssetManager?",
+      "range": {
+        "startLine": 105,
+        "startChar": 17,
+        "endLine": 105,
+        "endChar": 29
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "242960ef_19bc8a67",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "This seems to imply that multiple threads might call this method. Can we exit early if gSkQP already exists? Can this be an std::once?",
+      "range": {
+        "startLine": 107,
+        "startChar": 4,
+        "endLine": 107,
+        "endChar": 45
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce809f25_8ed51f50",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "Does jboolean not convert as expected? I find the \"0 !\u003d \" notation hard to follow. Can\u0027t this just be \"experimentalMode\"?",
+      "range": {
+        "startLine": 109,
+        "startChar": 40,
+        "endLine": 109,
+        "endChar": 61
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1689be2e_1f3bf262",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "kStringArrayType, since it\u0027s a constant?",
+      "range": {
+        "startLine": 120,
+        "startChar": 19,
+        "endLine": 120,
+        "endChar": 34
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a20c24c_ac608c36",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "No one ever looks at this. I guess it\u0027s just here because evaluateGM needs to set it. Maybe move its declaration here, and even name it \"errorCount_unused\"?\n\nEDIT: And I now know about std::ignore. I think you can use that here?",
+      "range": {
+        "startLine": 142,
+        "startChar": 27,
+        "endLine": 142,
+        "endChar": 37
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70091a9e_156dcee6",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "Why not \"(jfloat)\"?",
+      "range": {
+        "startLine": 148,
+        "startChar": 11,
+        "endLine": 148,
+        "endChar": 18
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "034c85fc_954c7323",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "Can this not use gStringClass? (Or this whole bit use to_java_string_array?)",
+      "range": {
+        "startLine": 163,
+        "startChar": 4,
+        "endLine": 164,
+        "endChar": 30
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "702995ec_5ae4a381",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "Can this use to_java_string_array?",
+      "range": {
+        "startLine": 165,
+        "startChar": 4,
+        "endLine": 168,
+        "endChar": 5
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "964962a3_cbbf555b",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "Why do you need a NewGlobalRef? Does this get called by another native method? If this returns to Java, I think you\u0027re safe to just return \"array\". If this does create a Global Ref, I think it should be documented. (Also, who deletes it?)",
+      "range": {
+        "startLine": 169,
+        "startChar": 30,
+        "endLine": 169,
+        "endChar": 42
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08887e33_59b63bbc",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "Why is this method necessary? (It seems like it uses more characters?)",
+      "range": {
+        "startLine": 71,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 1
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5913525b_98e7625a",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "I don\u0027t follow this. You have a list of known gpu unit tests, and you are creating a new list which includes gpu tests. You only add to your list if the known list is empty or if the test is already in the known list? Why?",
+      "range": {
+        "startLine": 79,
+        "startChar": 47,
+        "endLine": 79,
+        "endChar": 64
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75f4dfb3_1caed233",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "Maybe a candidate for auto?",
+      "range": {
+        "startLine": 81,
+        "startChar": 15,
+        "endLine": 81,
+        "endChar": 37
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6095d61d_16499759",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "This could use is_empty, but it seems like this is more concise, and is_empty isn\u0027t necessary?",
+      "range": {
+        "startLine": 83,
+        "startChar": 13,
+        "endLine": 83,
+        "endChar": 38
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "359aed6b_7eb6599c",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "std::pair?\n\nAlso, I\u0027m stopping reviewing here for now, as I need to head home. Will finish the rest of these files tomorrow.",
+      "range": {
+        "startLine": 99,
+        "startChar": 4,
+        "endLine": 99,
+        "endChar": 20
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e42a1146_105689f4",
+        "filename": "tools/skqp/src/skqp.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "Should this be noncopyable?",
+      "range": {
+        "startLine": 31,
+        "startChar": 6,
+        "endLine": 31,
+        "endChar": 22
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a2961de_2864ab7c",
+        "filename": "tools/skqp/src/skqp.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "Should this be noncopyable?",
+      "range": {
+        "startLine": 37,
+        "startChar": 6,
+        "endLine": 37,
+        "endChar": 10
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f64069d1_7b27d2ed",
+        "filename": "tools/skqp/src/skqp.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "It would be nice to distinguish what the first int means versus the second.",
+      "range": {
+        "startLine": 71,
+        "startChar": 16,
+        "endLine": 72,
+        "endChar": 32
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c98219e_63c8b314",
+        "filename": "tools/skqp/src/skqp.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "To do what?",
+      "range": {
+        "startLine": 80,
+        "startChar": 8,
+        "endLine": 80,
+        "endChar": 43
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc063634_1d5c9435",
+        "filename": "tools/skqp/src/skqp.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-05T20:40:46Z",
+      "side": 1,
+      "message": "I think all these methods should be marked const? (The return value is already marked const, but the method is not.)",
+      "range": {
+        "startLine": 84,
+        "startChar": 36,
+        "endLine": 84,
+        "endChar": 56
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
