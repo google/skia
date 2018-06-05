@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "7f616376_5baf9eef",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-05T17:59:47Z",
+      "side": 1,
+      "message": "The limits were wrong, and not needed. They have been removed. In addition, I have converted this to use make_from_glyphids.",
+      "parentUuid": "e250be71_19e26c81",
+      "range": {
+        "startLine": 166,
+        "startChar": 4,
+        "endLine": 166,
+        "endChar": 12
+      },
+      "revId": "e2f8ea133aa11f4171acbe285bd119c7271a7ded",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "314d3cd2_934c6be6",
         "filename": "src/core/SkGlyphRun.cpp",
         "patchSetId": 22
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "So the reason for the dense index map is to look up masks directly, not glyphIDs (the dense map index is used here as an input index to glyph id, but later this will be used as input index to mask of that glyph id. So in the future this call seems to go away anyway.",
       "parentUuid": "314d3cd2_934c6be6",
+      "range": {
+        "startLine": 296,
+        "startChar": 41,
+        "endLine": 296,
+        "endChar": 53
+      },
+      "revId": "e2f8ea133aa11f4171acbe285bd119c7271a7ded",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4c7e8964_dff0003f",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-05T17:59:47Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "be558485_21f2a4cd",
       "range": {
         "startLine": 296,
         "startChar": 41,
