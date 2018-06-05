@@ -174,6 +174,21 @@ void GrGLGetDriverInfo(GrGLStandard standard,
         }
     }
 
+    if (kGoogle_GrGLVendor == vendor) {
+        // Swiftshader is the only Google vendor at the moment
+        *outDriver = kSwiftShader_GrGLDriver;
+
+        // Swiftshader has a strange version string: w.x.y.z  Going to arbitrarily ignore
+        // y and assume w,x and z are major, minor, point.
+        // As of writing, version is 4.0.0.6
+        int n = sscanf(versionString, "OpenGL ES %d.%d SwiftShader %d.%d.0.%d", &major, &minor,
+                       &driverMajor, &driverMinor, &driverPoint);
+        if (5 == n) {
+            *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, driverPoint);
+        }
+        return;
+    }
+
     if (kIntel_GrGLVendor == vendor) {
         // We presume we're on the Intel driver since it hasn't identified itself as Mesa.
         *outDriver = kIntel_GrGLDriver;
@@ -267,6 +282,9 @@ GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
         if (0 == strcmp(vendorString, "ARM")) {
             return kARM_GrGLVendor;
         }
+        if (0 == strcmp(vendorString, "Google Inc.")) {
+            return kGoogle_GrGLVendor;
+        }
         if (0 == strcmp(vendorString, "Imagination Technologies")) {
             return kImagination_GrGLVendor;
         }
@@ -344,6 +362,9 @@ GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
                     return kAdreno5xx_GrGLRenderer;
                 }
             }
+        }
+        if (0 == strcmp("Google SwiftShader", rendererString)) {
+            return kGoogleSwiftShader_GrGLRenderer;
         }
         if (0 == strcmp("Intel Iris Pro OpenGL Engine", rendererString)) {
             return kIntelIrisPro_GrGLRenderer;
