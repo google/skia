@@ -75,6 +75,12 @@ public:
           , fWrapY(0)
         {}
 
+        StitchData(SkScalar w, SkScalar h)
+          : fWidth(SkTMin(SkScalarRoundToInt(w), SK_MaxS32 - kPerlinNoise))
+          , fWrapX(kPerlinNoise + fWidth)
+          , fHeight(SkTMin(SkScalarRoundToInt(h), SK_MaxS32 - kPerlinNoise))
+          , fWrapY(kPerlinNoise + fHeight) {}
+
         bool operator==(const StitchData& other) const {
             return fWidth == other.fWidth &&
                    fWrapX == other.fWrapX &&
@@ -290,12 +296,8 @@ public:
                 }
             }
             // Set up TurbulenceInitial stitch values.
-            fStitchDataInit.fWidth  =
-                SkScalarRoundToInt(tileWidth * fBaseFrequency.fX);
-            fStitchDataInit.fWrapX  = kPerlinNoise + fStitchDataInit.fWidth;
-            fStitchDataInit.fHeight =
-                SkScalarRoundToInt(tileHeight * fBaseFrequency.fY);
-            fStitchDataInit.fWrapY  = kPerlinNoise + fStitchDataInit.fHeight;
+            fStitchDataInit = StitchData(tileWidth * fBaseFrequency.fX,
+                                         tileHeight * fBaseFrequency.fY);
         }
 
     public:
@@ -543,10 +545,8 @@ SkScalar SkPerlinNoiseShaderImpl::PerlinNoiseShaderContext::calculateTurbulenceV
         ratio *= 2;
         if (perlinNoiseShader.fStitchTiles) {
             // Update stitch values
-            stitchData.fWidth  *= 2;
-            stitchData.fWrapX   = stitchData.fWidth + kPerlinNoise;
-            stitchData.fHeight *= 2;
-            stitchData.fWrapY   = stitchData.fHeight + kPerlinNoise;
+            stitchData = StitchData(SkIntToScalar(stitchData.fWidth)  * 2,
+                                    SkIntToScalar(stitchData.fHeight) * 2);
         }
     }
 
