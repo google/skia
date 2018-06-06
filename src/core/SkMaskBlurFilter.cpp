@@ -147,6 +147,7 @@ public:
                 sum1 += sum0;
                 sum2 += sum1;
 
+                SkASSERT(dst < dstEnd);
                 *dst = this->finalScale(sum2);
 
                 sum2 -= *buffer2Cursor;
