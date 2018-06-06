@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "e63636d6_3558a0da",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-06-06T20:52:23Z",
+      "side": 1,
+      "message": "My question isn\u0027t really \"why are we packing float3\" - I get that we need to do that because Skia is packing float3.\n\nI guess my questions are:\n\n1) Why does float3 have an alignment of 4, but float2 have an alignment of 8? That just cannot be right. Perhaps I\u0027m misreading the code...?\n\n2) Do we need the \"packed\" flag in the MemoryLayout at all? There doesn\u0027t seem to be a case in which we *don\u0027t* pack the fields, so why specify it?\n\n3) Why treat float3 differently in the first place? It seems like a simple formula would give you the right size and alignment for all of the vector types without having to specifically check anywhere if it had 3 columns.\n\n4) Does the Metal memory layout actually differ from k430_Standard, and if so, how? I wonder if we just need to tell our Vulkan backend to use 430 instead of 140.\n\nIt\u0027s entirely possible that one or more of these are stupid questions - I\u0027m feeling a bit under the weather today, so maybe I\u0027m just being a bit slower than usual :-).",
+      "parentUuid": "32cf1e62_f11b2a45",
+      "range": {
+        "startLine": 735,
+        "startChar": 7,
+        "endLine": 740,
+        "endChar": 9
+      },
+      "revId": "9034332a4575c5309954c9e079c12a8c337ad10d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "26042a6a_6d967459",
         "filename": "src/sksl/SkSLMetalCodeGenerator.h",
         "patchSetId": 1
