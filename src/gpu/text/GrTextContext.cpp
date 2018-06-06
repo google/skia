@@ -703,10 +703,21 @@ void GrTextContext::drawDFText(GrTextBlob* blob, int runIndex,
 
     SkAutoDescriptor desc;
     SkScalerContextEffects effects;
+    SkScalar advanceScale = SK_Scalar1;
     // We apply the fake-gamma by altering the distance in the shader, so we ignore the
     // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).
-    SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
-        skPaint, &props, SkScalerContextFlags::kNone, nullptr, &desc, &effects);
+    if (skPaint.getTextSize() < kSmallDFFontLimit && !skPaint.isAntiAlias()) {
+        // When using small text sizes with aliased paints, the advances may not scale well
+        // so we use a larger text size and rescale below to get better placement.
+        SkPaint scaledPaint(paint);
+        scaledPaint.setTextSize(kSmallDFFontLimit);
+        advanceScale = skPaint.getTextSize() / kSmallDFFontLimit;
+        SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
+            scaledPaint, &props, SkScalerContextFlags::kNone, nullptr, &desc, &effects);
+    } else {
+        SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
+            skPaint, &props, SkScalerContextFlags::kNone, nullptr, &desc, &effects);
+    }
     auto typeface = SkPaintPriv::GetTypefaceOrDefault(skPaint);
 
     {
@@ -722,8 +733,8 @@ void GrTextContext::drawDFText(GrTextBlob* blob, int runIndex,
             positions.push_back(stopX);
             positions.push_back(stopY);
 
-            stopX += SkFloatToScalar(glyph.fAdvanceX);
-            stopY += SkFloatToScalar(glyph.fAdvanceY);
+            stopX += SkFloatToScalar(glyph.fAdvanceX)*advanceScale;
+            stopY += SkFloatToScalar(glyph.fAdvanceY)*advanceScale;
         }
         SkASSERT(textPtr == stop);
     }
