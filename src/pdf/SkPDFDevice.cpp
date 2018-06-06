@@ -1450,6 +1450,12 @@ void SkPDFDevice::internalDrawText(
     }
 }
 
+void SkPDFDevice::drawText(const void* text, size_t len,
+                           SkScalar x, SkScalar y, const SkPaint& paint) {
+    this->internalDrawText(text, len, nullptr, SkTextBlob::kDefault_Positioning,
+                           SkPoint{x, y}, paint, nullptr, 0, nullptr);
+}
+
 void SkPDFDevice::drawPosText(const void* text, size_t len,
                               const SkScalar pos[], int scalarsPerPos,
                               const SkPoint& offset, const SkPaint& paint) {

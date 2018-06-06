@@ -44,6 +44,9 @@ public:
 
     static std::unique_ptr<GrTextContext> Make(const Options& options);
 
+    void drawText(GrContext*, GrTextUtils::Target*, const GrClip&, const SkPaint&,
+                  const SkMatrix& viewMatrix, const SkSurfaceProps&, const char text[],
+                  size_t byteLength, SkScalar x, SkScalar y, const SkIRect& regionClipBounds);
     void drawPosText(GrContext*, GrTextUtils::Target*, const GrClip&, const SkPaint&,
                      const SkMatrix& viewMatrix, const SkSurfaceProps&, const char text[],
                      size_t byteLength, const SkScalar pos[], int scalarsPerPosition,
@@ -120,6 +123,15 @@ private:
 
     static bool HasLCD(const SkTextBlob*);
 
+    sk_sp<GrTextBlob> makeDrawTextBlob(GrTextBlobCache*, GrGlyphCache*,
+                                            const GrShaderCaps&,
+                                            const GrTextUtils::Paint&,
+                                            SkScalerContextFlags scalerContextFlags,
+                                            const SkMatrix& viewMatrix,
+                                            const SkSurfaceProps&,
+                                            const char text[], size_t byteLength,
+                                            SkScalar x, SkScalar y) const;
+
     sk_sp<GrTextBlob> makeDrawPosTextBlob(GrTextBlobCache*, GrGlyphCache*,
                                                const GrShaderCaps&,
                                                const GrTextUtils::Paint&,
@@ -132,11 +144,22 @@ private:
                                                const SkPoint& offset) const;
 
     // Functions for appending BMP text to GrTextBlob
+    static void DrawBmpText(GrTextBlob*, int runIndex, GrGlyphCache*,
+                            const SkSurfaceProps&, const GrTextUtils::Paint& paint,
+                            SkScalerContextFlags scalerContextFlags, const SkMatrix& viewMatrix,
+                            const char text[], size_t byteLength, SkScalar x, SkScalar y);
+
     static void DrawBmpPosText(GrTextBlob*, int runIndex, GrGlyphCache*,
                                const SkSurfaceProps&, const GrTextUtils::Paint& paint,
                                SkScalerContextFlags scalerContextFlags, const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength, const SkScalar pos[],
                                int scalarsPerPosition, const SkPoint& offset);
+
+    static void DrawBmpTextAsPaths(GrTextBlob*, int runIndex, GrGlyphCache*,
+                                   const SkSurfaceProps&, const GrTextUtils::Paint& paint,
+                                   SkScalerContextFlags scalerContextFlags,
+                                   const SkMatrix& viewMatrix, const char text[],
+                                   size_t byteLength, SkScalar x, SkScalar y);
 
     static void DrawBmpPosTextAsPaths(GrTextBlob*, int runIndex, GrGlyphCache*,
                                       const SkSurfaceProps&, const GrTextUtils::Paint& paint,
@@ -147,6 +170,11 @@ private:
                                       const SkPoint& offset);
 
     // functions for appending distance field text
+    void drawDFText(GrTextBlob* blob, int runIndex, GrGlyphCache*, const SkSurfaceProps&,
+                    const GrTextUtils::Paint& paint, SkScalerContextFlags scalerContextFlags,
+                    const SkMatrix& viewMatrix, const char text[], size_t byteLength, SkScalar x,
+                    SkScalar y) const;
+
     void drawDFPosText(GrTextBlob* blob, int runIndex, GrGlyphCache*,
                        const SkSurfaceProps&, const GrTextUtils::Paint& paint,
                        SkScalerContextFlags scalerContextFlags,

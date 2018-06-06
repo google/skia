@@ -17,7 +17,6 @@
 class SkBitmap;
 class SkDrawFilter;
 struct SkDrawShadowRec;
-class SkGlyphRun;
 class SkImageFilterCache;
 struct SkIRect;
 class SkMatrix;
@@ -223,7 +222,11 @@ protected:
      *  Does not handle text decoration.
      *  Decorations (underline and stike-thru) will be handled by SkCanvas.
      */
-    virtual void drawGlyphRun(const SkPaint& paint, SkGlyphRun* info);
+    virtual void drawText(const void* text, size_t len,
+                          SkScalar x, SkScalar y, const SkPaint& paint) = 0;
+    virtual void drawPosText(const void* text, size_t len,
+                             const SkScalar pos[], int scalarsPerPos,
+                             const SkPoint& offset, const SkPaint& paint) = 0;
     virtual void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) = 0;
     virtual void drawShadow(const SkPath&, const SkDrawShadowRec&);
 
@@ -346,10 +349,6 @@ private:
     friend class SkSurface_Raster;
     friend class DeviceTestingAccess;
 
-    virtual void drawPosText(const void* text, size_t len,
-                             const SkScalar pos[], int scalarsPerPos,
-                             const SkPoint& offset, const SkPaint& paint) = 0;
-
     // used to change the backend's pixels (and possibly config/rowbytes)
     // but cannot change the width/height, so there should be no change to
     // any clip information.
@@ -428,6 +427,7 @@ protected:
     void drawSprite(const SkBitmap&, int, int, const SkPaint&) override {}
     void drawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&, const SkPaint&,
                         SkCanvas::SrcRectConstraint) override {}
+    void drawText(const void*, size_t, SkScalar, SkScalar, const SkPaint&) override {}
     void drawPosText(const void*, size_t, const SkScalar[], int, const SkPoint&,
                      const SkPaint&) override {}
     void drawDevice(SkBaseDevice*, int, int, const SkPaint&) override {}

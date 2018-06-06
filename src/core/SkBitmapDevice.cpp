@@ -565,6 +565,12 @@ void SkBitmapDevice::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPa
     BDDraw(this).drawSprite(bitmap, x, y, paint);
 }
 
+void SkBitmapDevice::drawText(const void* text, size_t len,
+                              SkScalar x, SkScalar y, const SkPaint& paint) {
+    SkBitmapDeviceFilteredSurfaceProps props(fBitmap, paint, fSurfaceProps);
+    LOOP_TILER( drawText((const char*)text, len, x, y, paint, &props()), nullptr)
+}
+
 void SkBitmapDevice::drawPosText(const void* text, size_t len, const SkScalar xpos[],
                                  int scalarsPerPos, const SkPoint& offset, const SkPaint& paint) {
     SkBitmapDeviceFilteredSurfaceProps props(fBitmap, paint, fSurfaceProps);

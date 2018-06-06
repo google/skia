@@ -217,6 +217,20 @@ GrOpList* GrRenderTargetContext::getOpList() {
     return this->getRTOpList();
 }
 
+void GrRenderTargetContext::drawText(const GrClip& clip, const SkPaint& skPaint,
+                                     const SkMatrix& viewMatrix, const char text[],
+                                     size_t byteLength, SkScalar x, SkScalar y,
+                                     const SkIRect& clipBounds) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawText", fContext);
+
+    GrTextContext* atlasTextContext = this->drawingManager()->getTextContext();
+    atlasTextContext->drawText(fContext, fTextTarget.get(), clip, skPaint, viewMatrix,
+                               fSurfaceProps, text, byteLength, x, y, clipBounds);
+}
+
 void GrRenderTargetContext::drawPosText(const GrClip& clip, const SkPaint& paint,
                                         const SkMatrix& viewMatrix, const char text[],
                                         size_t byteLength, const SkScalar pos[],

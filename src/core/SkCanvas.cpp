@@ -15,8 +15,6 @@
 #include "SkDrawable.h"
 #include "SkDrawFilter.h"
 #include "SkDrawLooper.h"
-#include "SkGlyphCache.h"
-#include "SkGlyphRun.h"
 #include "SkImage.h"
 #include "SkImage_Base.h"
 #include "SkImageFilter.h"
@@ -36,7 +34,6 @@
 #include "SkRasterHandleAllocator.h"
 #include "SkRRect.h"
 #include "SkSpecialImage.h"
-#include "SkStrikeCache.h"
 #include "SkString.h"
 #include "SkSurface_Base.h"
 #include "SkTextBlob.h"
@@ -1078,8 +1075,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         const bool preserveLCDText = kOpaque_SkAlphaType == info.alphaType() ||
                                      (saveLayerFlags & kPreserveLCDText_SaveLayerFlag);
         const SkBaseDevice::TileUsage usage = SkBaseDevice::kNever_TileUsage;
-        const bool trackCoverage =
-                SkToBool(saveLayerFlags & kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag);
+        const bool trackCoverage = SkToBool(saveLayerFlags & kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag);
         const SkBaseDevice::CreateInfo createInfo = SkBaseDevice::CreateInfo(info, usage, geo,
                                                                              preserveLCDText,
                                                                              trackCoverage,
@@ -2443,13 +2439,10 @@ void SkCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattic
 
 void SkCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                           const SkPaint& paint) {
-
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, nullptr)
 
     while (iter.next()) {
-        auto glyphRun = SkGlyphRun::MakeFromDrawText(
-                looper.paint(), text, byteLength, SkPoint::Make(x, y));
-        iter.fDevice->drawGlyphRun(looper.paint(), &glyphRun);
+        iter.fDevice->drawText(text, byteLength, x, y, looper.paint());
     }
 
     LOOPER_END
@@ -2457,12 +2450,12 @@ void SkCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkSca
 
 void SkCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
                              const SkPaint& paint) {
+    SkPoint textOffset = SkPoint::Make(0, 0);
 
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, nullptr)
 
     while (iter.next()) {
-        auto glyphRun = SkGlyphRun::MakeFromDrawPosText(looper.paint(), text, byteLength, pos);
-        iter.fDevice->drawGlyphRun(looper.paint(), &glyphRun);
+        iter.fDevice->drawPosText(text, byteLength, &pos->fX, 2, textOffset, looper.paint());
     }
 
     LOOPER_END
@@ -2471,12 +2464,12 @@ void SkCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint 
 void SkCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
                               SkScalar constY, const SkPaint& paint) {
 
+    SkPoint textOffset = SkPoint::Make(0, constY);
+
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, nullptr)
 
     while (iter.next()) {
-        auto glyphRun =
-                SkGlyphRun::MakeFromDrawPosTextH(looper.paint(), text, byteLength, xpos, constY);
-        iter.fDevice->drawGlyphRun(looper.paint(), &glyphRun);
+        iter.fDevice->drawPosText(text, byteLength, xpos, 1, textOffset, looper.paint());
     }
 
     LOOPER_END

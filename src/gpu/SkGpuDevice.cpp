@@ -1611,6 +1611,17 @@ void SkGpuDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void SkGpuDevice::drawText(const void* text,
+                           size_t byteLength, SkScalar x, SkScalar y,
+                           const SkPaint& paint) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawText", fContext.get());
+    SkDEBUGCODE(this->validate();)
+
+    fRenderTargetContext->drawText(this->clip(), paint, this->ctm(), (const char*)text, byteLength,
+                                   x, y, this->devClipBounds());
+}
+
 void SkGpuDevice::drawPosText(const void* text, size_t byteLength,
                               const SkScalar pos[], int scalarsPerPos,
                               const SkPoint& offset, const SkPaint& paint) {
