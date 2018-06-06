@@ -91,6 +91,30 @@
       "revId": "6df176a60c93618ab31a727a8567d294484f6095",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9f20b5e_b3044f7e",
+        "filename": "src/gpu/text/GrTextContext.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 712,
+      "author": {
+        "id": 7831
+      },
+      "writtenOn": "2018-06-06T20:16:55Z",
+      "side": 1,
+      "message": "I was just trying to structure it so we use a common method for setting up the parameters used to generate the desc and since the fallback path itself is pretty uncommon, didn\u0027t consider the extra copy too bad. I could use a SkTLazy instead, if you think its worth avoiding.",
+      "parentUuid": "e85d4942_0875ad61",
+      "range": {
+        "startLine": 712,
+        "startChar": 16,
+        "endLine": 712,
+        "endChar": 38
+      },
+      "revId": "6df176a60c93618ab31a727a8567d294484f6095",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
