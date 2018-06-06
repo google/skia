@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f3541a40_f0e79534",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-06-06T19:49:47Z",
+      "side": 1,
+      "message": "Probably worth adding a comment to the effect of \"// prepending an underscore to avoid conflict with a reserved word\". And since we\u0027re doing the exact same logic in two spots, probably worth breaking this out into a \"get_variable_name\" function.",
+      "range": {
+        "startLine": 332,
+        "startChar": 16,
+        "endLine": 332,
+        "endChar": 33
+      },
+      "revId": "9034332a4575c5309954c9e079c12a8c337ad10d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eef8c188_650a28e4",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-06-06T19:49:47Z",
+      "side": 1,
+      "message": "Why is only float3 packed? As written, this means that float3 has a smaller alignment than float2, which would be very surprising. Why do we believe that that is the case?\n\nWhy is it only packed when fieldOffset is specified?",
+      "range": {
+        "startLine": 735,
+        "startChar": 7,
+        "endLine": 740,
+        "endChar": 9
+      },
+      "revId": "9034332a4575c5309954c9e079c12a8c337ad10d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26042a6a_6d967459",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-06-06T19:49:47Z",
+      "side": 1,
+      "message": "It took me a bit to figure out why we were keeping track of renamed functions. The fact that the function is renamed is basically irrelevant - the real issue is that the function name is reserved, and variables with that name will conflict with it, so you\u0027re renaming them to avoid that conflict.\n\nAnd, of course, that makes perfect sense, but \"fRenamedFunctionSet\" doesn\u0027t really convey that at all. Naming this something like \"fReservedWords\" would have made that a lot more clear.",
+      "range": {
+        "startLine": 83,
+        "startChar": 6,
+        "endLine": 83,
+        "endChar": 62
+      },
+      "revId": "9034332a4575c5309954c9e079c12a8c337ad10d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
