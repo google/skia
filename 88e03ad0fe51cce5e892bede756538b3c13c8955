@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "95d5ab65_3806c671",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-06T13:53:02Z",
+      "side": 1,
+      "message": "This feels a little brittle. If I updated the code below I\u0027m not sure if I or a reviewer would catch that this needs to change. Could we do this test closer to where we makeVertexSpace?",
+      "range": {
+        "startLine": 308,
+        "startChar": 0,
+        "endLine": 310,
+        "endChar": 9
+      },
+      "revId": "88e03ad0fe51cce5e892bede756538b3c13c8955",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
