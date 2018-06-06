@@ -59,6 +59,8 @@ public:
         bool fContextSupportsDistanceFieldText = true;
         SkScalar fMinDistanceFieldFontSize = -1.f;
         SkScalar fMaxDistanceFieldFontSize = -1.f;
+        int fMaxTextureSize = 0;
+        float fMaxTextureBytes = 0.f;
     };
     SkTextBlobCacheDiffCanvas(int width, int height, const SkMatrix& deviceMatrix,
                               const SkSurfaceProps& props, SkStrikeServer* strikeserver,
@@ -79,9 +81,12 @@ private:
     void processGlyphRun(const SkPoint& position,
                          const SkTextBlobRunIterator& it,
                          const SkPaint& runPaint);
-    void processGlyphRunForPaths(const SkTextBlobRunIterator& it, const SkPaint& runPaint);
-    void processGlyphRunForDFT(const SkTextBlobRunIterator& it, const SkPaint& runPaint,
-                               SkScalerContextFlags flags);
+    void processGlyphRunForPaths(const SkTextBlobRunIterator& it, const SkPaint& runPaint,
+                                 const SkMatrix& runMatrix);
+#if SK_SUPPORT_GPU
+    bool processGlyphRunForDFT(const SkTextBlobRunIterator& it, const SkPaint& runPaint,
+                               const SkMatrix& runMatrix);
+#endif
     const SkSurfaceProps& surfaceProps() const;
 
     const SkMatrix fDeviceMatrix;
@@ -138,9 +143,6 @@ public:
 
         void addGlyph(SkTypeface*, const SkScalerContextEffects&, SkPackedGlyphID, bool pathOnly);
         void writePendingGlyphs(Serializer* serializer);
-        bool has_pending_glyphs() const {
-            return !fPendingGlyphImages.empty() || !fPendingGlyphPaths.empty();
-        }
         SkDiscardableHandleId discardable_handle_id() const { return fDiscardableHandleId; }
         const SkDescriptor& getDeviceDescriptor() {
             return *fDeviceDescriptor;
@@ -149,8 +151,12 @@ public:
         const SkDescriptor& getKeyDescriptor() {
             return *fKeyDescriptor;
         }
+        const SkGlyph& findGlyph(SkTypeface*, const SkScalerContextEffects&, SkPackedGlyphID);
 
     private:
+        bool has_pending_glyphs() const {
+            return !fPendingGlyphImages.empty() || !fPendingGlyphPaths.empty();
+        }
         void writeGlyphPath(const SkPackedGlyphID& glyphID, Serializer* serializer) const;
 
         // The set of glyphs cached on the remote client.
@@ -171,6 +177,9 @@ public:
 
         // The context built using fDeviceDescriptor
         std::unique_ptr<SkScalerContext> fContext;
+        // FallbackTextHelper cases require glyph metrics when analyzing a glyph run, in which case
+        // we cache them here.
+        SkTHashMap<SkPackedGlyphID, SkGlyph> fGlyphMap;
     };
 
     SkGlyphCacheState* getOrCreateCache(const SkPaint&, const SkSurfaceProps*, const SkMatrix*,
