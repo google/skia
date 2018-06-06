@@ -64,6 +64,9 @@ static constexpr uint16_t kOctoIndicesAsTris[] = {
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
 
+constexpr GrPrimitiveProcessor::Attribute GrCCPathProcessor::kInstanceAttribs[];
+constexpr GrPrimitiveProcessor::Attribute GrCCPathProcessor::kEdgeNormsAttrib;
+
 sk_sp<const GrBuffer> GrCCPathProcessor::FindIndexBuffer(GrOnFlushResourceProvider* onFlushRP) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gIndexBufferKey);
     if (onFlushRP->caps()->usePrimitiveRestart()) {
@@ -81,24 +84,10 @@ GrCCPathProcessor::GrCCPathProcessor(GrResourceProvider* resourceProvider,
         : INHERITED(kGrCCPathProcessor_ClassID)
         , fAtlasAccess(std::move(atlas), GrSamplerState::Filter::kNearest,
                        GrSamplerState::WrapMode::kClamp, kFragment_GrShaderFlag) {
-    this->addInstanceAttrib("devbounds", kFloat4_GrVertexAttribType);
-    this->addInstanceAttrib("devbounds45", kFloat4_GrVertexAttribType);
-    this->addInstanceAttrib("atlas_offset", kShort2_GrVertexAttribType);
-    this->addInstanceAttrib("color", kUByte4_norm_GrVertexAttribType);
+    this->setInstanceAttributeInfo(kNumInstanceAttribs, kInstanceAttribs[kNumInstanceAttribs-1].nextOffsetInRecord());
+    GR_STATIC_ASSERT(kInstanceAttribs[kNumInstanceAttribs-1].nextOffsetInRecord() == sizeof(Instance));
 
-    SkASSERT(offsetof(Instance, fDevBounds) ==
-             this->getInstanceAttrib(InstanceAttribs::kDevBounds).offsetInRecord());
-    SkASSERT(offsetof(Instance, fDevBounds45) ==
-             this->getInstanceAttrib(InstanceAttribs::kDevBounds45).offsetInRecord());
-    SkASSERT(offsetof(Instance, fAtlasOffset) ==
-             this->getInstanceAttrib(InstanceAttribs::kAtlasOffset).offsetInRecord());
-    SkASSERT(offsetof(Instance, fColor) ==
-             this->getInstanceAttrib(InstanceAttribs::kColor).offsetInRecord());
-    SkASSERT(sizeof(Instance) == this->getInstanceStride());
-
-    GR_STATIC_ASSERT(4 == kNumInstanceAttribs);
-
-    this->addVertexAttrib("edge_norms", kFloat4_GrVertexAttribType);
+    this->setVertexAttributeInfo(1, kEdgeNormsAttrib.nextOffsetInRecord());
 
     fAtlasAccess.instantiate(resourceProvider);
     this->addTextureSampler(&fAtlasAccess);
@@ -171,7 +160,7 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     GrGLSLVarying texcoord(kFloat3_GrSLType);
     GrGLSLVarying color(kHalf4_GrSLType);
     varyingHandler->addVarying("texcoord", &texcoord);
-    varyingHandler->addPassThroughAttribute(&proc.getInstanceAttrib(InstanceAttribs::kColor),
+    varyingHandler->addPassThroughAttribute(proc.getInstanceAttrib(InstanceAttribs::kColor),
                                             args.fOutputColor, Interpolation::kCanBeFlat);
 
     // The vertex shader bloats and intersects the devBounds and devBounds45 rectangles, in order to

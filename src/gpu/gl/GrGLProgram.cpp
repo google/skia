@@ -51,11 +51,16 @@ GrGLProgram::GrGLProgram(GrGLGpu* gpu,
     GL_CALL(UseProgram(fProgramID));
     fProgramDataManager.setSamplerUniforms(textureSamplers, 0);
     fProgramDataManager.setSamplerUniforms(texelBuffers, fNumTextureSamplers);
-    fNumAttributes = primitiveProcessor.numAttribs();
-    fAttributes.reset(new Attribute[fNumAttributes]);
-    for (int i = 0; i < fNumAttributes; ++i) {
-        const GrPrimitiveProcessor::Attribute& attr = primitiveProcessor.getAttrib(i);
-        fAttributes[i] = {attr.type(), attr.offsetInRecord(), attr.inputRate()};
+    fNumVertexAttributes = primitiveProcessor.numVertexAttributes();
+    fNumInstanceAttributes = primitiveProcessor.numInstanceAttributes();
+    fAttributes.reset(new Attribute[fNumVertexAttributes + fNumInstanceAttributes]);
+    for (int i = 0; i < fNumVertexAttributes; ++i) {
+        const GrPrimitiveProcessor::Attribute &attr = primitiveProcessor.vertexAttribute(i);
+        fAttributes[i] = {attr.type(), attr.offset()};
+    }
+    for (int i = 0; i < fNumInstanceAttributes; ++i) {
+        const GrPrimitiveProcessor::Attribute &attr = primitiveProcessor.instanceAttribute(i);
+        fAttributes[i + fNumVertexAttributes] = {attr.type(), attr.offset()};
     }
     fVertexStride = primitiveProcessor.getVertexStride();
     fInstanceStride = primitiveProcessor.getInstanceStride();

@@ -110,11 +110,20 @@ public:
      */
     struct Attribute {
         GrVertexAttribType fType;
-        int fOffset;
-        GrPrimitiveProcessor::Attribute::InputRate fInputRate;
+        size_t fOffset;
     };
-    int numAttributes() const { return fNumAttributes; }
-    const Attribute& attribute(int i) const { return fAttributes[i]; }
+
+    int numVertexAttributes() const { return fNumVertexAttributes; }
+    const Attribute& vertexAttribute(int i) const {
+        SkASSERT(i >= 0 && i < fNumVertexAttributes);
+        return fAttributes[i];
+    }
+
+    int numInstanceAttributes() const { return fNumInstanceAttributes; }
+    const Attribute& instanceAttribute(int i) const {
+        SkASSERT(i >= 0 && i < fNumInstanceAttributes);
+        return fAttributes[i + fNumVertexAttributes];
+    }
 
 protected:
     using UniformHandle    = GrGLSLProgramDataManager::UniformHandle ;
@@ -157,7 +166,8 @@ protected:
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
     GrGLSLFragProcs fFragmentProcessors;
 
-    int fNumAttributes;
+    int fNumVertexAttributes;
+    int fNumInstanceAttributes;
     std::unique_ptr<Attribute[]> fAttributes;
 
     GrProgramDesc fDesc;
