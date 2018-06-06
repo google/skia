@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d36b8e18_0c849722",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 2713,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-06T15:32:52Z",
+      "side": 1,
+      "message": "Might want to call these fScratchGlyphSet to make it clear it\u0027s not needed long-term?",
+      "range": {
+        "startLine": 2713,
+        "startChar": 32,
+        "endLine": 2713,
+        "endChar": 42
+      },
+      "revId": "9971f3cc05f3eec0bc7c12635298ee7cc7c243b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e71e3bce_1dc5fc8b",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-06T15:32:52Z",
+      "side": 1,
+      "message": "We\u0027re thinking to scope the SkGlyphSet here?",
+      "range": {
+        "startLine": 162,
+        "startChar": 6,
+        "endLine": 162,
+        "endChar": 48
+      },
+      "revId": "9971f3cc05f3eec0bc7c12635298ee7cc7c243b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3025a436_0014ce20",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-06T15:32:52Z",
+      "side": 1,
+      "message": "never changed from 0.  :(",
+      "range": {
+        "startLine": 283,
+        "startChar": 19,
+        "endLine": 283,
+        "endChar": 32
+      },
+      "revId": "9971f3cc05f3eec0bc7c12635298ee7cc7c243b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1da286ec_80a8f02a",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-06T15:32:52Z",
+      "side": 1,
+      "message": "Should be fUniqueCount \u003d\u003d fUniqueGlyphIDS.size()?",
+      "range": {
+        "startLine": 292,
+        "startChar": 16,
+        "endLine": 292,
+        "endChar": 28
+      },
+      "revId": "9971f3cc05f3eec0bc7c12635298ee7cc7c243b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
