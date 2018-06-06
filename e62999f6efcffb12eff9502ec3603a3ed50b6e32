@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e19354eb_c1975083",
+        "filename": "tests/TestConfigParsing.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-06T15:20:56Z",
+      "side": 0,
+      "message": "I was going to suggest we add a test for make_string_array.",
+      "revId": "e62999f6efcffb12eff9502ec3603a3ed50b6e32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
