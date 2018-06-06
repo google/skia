@@ -241,3 +241,36 @@ DEF_GM( return new DrawBitmapRectGM(bitmapproc      , nullptr); )
 DEF_GM( return new DrawBitmapRectGM(bitmapsubsetproc, "-subset"); )
 DEF_GM( return new DrawBitmapRectGM(imageproc       , "-imagerect"); )
 DEF_GM( return new DrawBitmapRectGM(imagesubsetproc , "-imagerect-subset"); )
+
+#include "GrContextPriv.h"
+#include "GrGpu.h"
+#include "GrTest.h"
+#include "Resources.h"
+
+DEF_SIMPLE_GM(aslegacybitmap, canvas, 256, 256) {
+     sk_sp<SkImage> image( GetResourceAsImage("images/mandrill_64.png"));
+
+    SkBitmap bitImage;
+    if (image->asLegacyBitmap(&bitImage, SkImage::kRO_LegacyBitmapMode)) {
+        canvas->drawBitmap(bitImage, 0, 0);
+    }
+    GrContext* grContext = canvas->getGrContext();
+    if (!grContext) {
+        return;
+    }
+    GrGpu* gpu = grContext->contextPriv().getGpu();
+
+    const int kWidth = 64;
+    const int kHeight = 64;
+    std::unique_ptr<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
+    GrBackendTexture backEndTexture = gpu->createTestingOnlyBackendTexture(
+               pixels.get(), kWidth, kHeight, kRGBA_8888_GrPixelConfig, true, GrMipMapped::kNo);
+    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(grContext, backEndTexture,
+                                kTopLeft_GrSurfaceOrigin, kN32_SkColorType, kOpaque_SkAlphaType,
+                                nullptr));
+    canvas->drawImage(textureImage, 45, 45);
+    if (textureImage->asLegacyBitmap(&bitImage, SkImage::kRO_LegacyBitmapMode)) {
+        canvas->drawBitmap(bitImage, 90, 90);
+    }
+
+}
