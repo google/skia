@@ -22,6 +22,7 @@
 #include "SkPointPriv.h"
 #include "SkString.h"
 #include "SkTraceEvent.h"
+#include "SkTypes.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -132,8 +133,8 @@ static bool compute_vectors(SegmentArray* segments,
         normSide = SkPointPriv::kLeft_Side;
     }
 
-    *vCount = 0;
-    *iCount = 0;
+    int64_t vCount64 = 0;
+    int64_t iCount64 = 0;
     // compute normals at all points
     for (int a = 0; a < count; ++a) {
         Segment& sega = (*segments)[a];
@@ -149,11 +150,11 @@ static bool compute_vectors(SegmentArray* segments,
             prevPt = &segb.fPts[p];
         }
         if (Segment::kLine == segb.fType) {
-            *vCount += 5;
-            *iCount += 9;
+            vCount64 += 5;
+            iCount64 += 9;
         } else {
-            *vCount += 6;
-            *iCount += 12;
+            vCount64 += 6;
+            iCount64 += 12;
         }
     }
 
@@ -166,9 +167,14 @@ static bool compute_vectors(SegmentArray* segments,
         segb.fMid = segb.fNorms[0] + sega.endNorm();
         segb.fMid.normalize();
         // corner wedges
-        *vCount += 4;
-        *iCount += 6;
+        vCount64 += 4;
+        iCount64 += 6;
     }
+    if (vCount64 > SK_MaxS32 || iCount64 > SK_MaxS32) {
+        return false;
+    }
+    *vCount = vCount64;
+    *iCount = iCount64;
     return true;
 }
 

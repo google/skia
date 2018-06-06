@@ -305,6 +305,9 @@ private:
 
     void onPrepareDraws(Target* target) override {
         int instanceCount = fShapes.count();
+        if (instanceCount > SK_MaxS32 / kVerticesPerQuad) {
+            return;
+        }
 
         FlushInfo flushInfo;
         flushInfo.fPipeline = fHelper.makePipeline(target);
