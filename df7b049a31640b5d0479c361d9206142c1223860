@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a9cf5526_5ec8e94c",
+        "filename": "src/ports/SkFontMgr_win_dw.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 970,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-06T03:04:12Z",
+      "side": 1,
+      "message": "I forgot that NTDDI_WIN10_RS3 is (of course) only defined in versions of the SDK which know about RS3. Since the older SDK doesn\u0027t define NTDDI_WIN10_RS3 it is implicitly 0 here, so NTDDI_VERSION is greater than it. I think this needs to be\n\n#if defined(NTDDI_WIN10_RS3) \u0026\u0026 NTDDI_VERSION \u003e\u003d NTDDI_WIN10_RS3\n\nI\u0027ll tweak it right now and see if that works.",
+      "range": {
+        "startLine": 970,
+        "startChar": 0,
+        "endLine": 970,
+        "endChar": 36
+      },
+      "revId": "df7b049a31640b5d0479c361d9206142c1223860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
