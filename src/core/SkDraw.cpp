@@ -1537,6 +1537,37 @@ SkScalerContextFlags SkDraw::scalerContextFlags() const {
     return flags;
 }
 
+void SkDraw::drawText(const char text[], size_t byteLength, SkScalar x, SkScalar y,
+                      const SkPaint& paint, const SkSurfaceProps* props) const {
+    SkASSERT(byteLength == 0 || text != nullptr);
+
+    SkDEBUGCODE(this->validate();)
+
+    // nothing to draw
+    if (text == nullptr || byteLength == 0 || fRC->isEmpty()) {
+        return;
+    }
+
+    // SkScalarRec doesn't currently have a way of representing hairline stroke and
+    // will fill if its frame-width is 0.
+    if (ShouldDrawTextAsPaths(paint, *fMatrix)) {
+        this->drawText_asPaths(text, byteLength, x, y, paint);
+        return;
+    }
+
+    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
+            paint, props, this->scalerContextFlags(), fMatrix);
+
+    // The Blitter Choose needs to be live while using the blitter below.
+    SkAutoBlitterChoose    blitterChooser(*this, nullptr, paint);
+    SkAAClipBlitterWrapper wrapper(*fRC, blitterChooser.get());
+    DrawOneGlyph           drawOneGlyph(*this, paint, cache.get(), wrapper.getBlitter());
+
+    SkFindAndPlaceGlyph::ProcessText(
+        paint.getTextEncoding(), text, byteLength,
+        {x, y}, *fMatrix, paint.getTextAlign(), cache.get(), drawOneGlyph);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength, const SkScalar pos[],
