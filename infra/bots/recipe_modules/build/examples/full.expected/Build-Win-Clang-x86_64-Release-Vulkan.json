@@ -32,7 +32,7 @@
       "[START_DIR]/cache/work/skia/bin/gn.exe",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86_64-Release-Vulkan/Release_x64",
-      "--args=cc=\"clang\" clang_win=\"[START_DIR]/clang_win\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_clang_win_version=42\"] is_debug=false skia_enable_vulkan_debug_layers=false skia_vulkan_sdk=\"[START_DIR]/win_vulkan_sdk\" target_cpu=\"x86_64\" win_sdk=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/a9e1098bba66d2acccc377d5ee81265910f29272/win_sdk\" win_vc=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/a9e1098bba66d2acccc377d5ee81265910f29272/VC\""
+      "--args=cc=\"clang\" clang_win=\"[START_DIR]/clang_win\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_clang_win_version=42\"] is_debug=false skia_enable_vulkan_debug_layers=false skia_vulkan_sdk=\"[START_DIR]/win_vulkan_sdk\" target_cpu=\"x86_64\" win_sdk=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/5454e45bf3764c03d3fc1024b3bf5bc41e3ab62c/win_sdk\" win_vc=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/5454e45bf3764c03d3fc1024b3bf5bc41e3ab62c/VC\""
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {

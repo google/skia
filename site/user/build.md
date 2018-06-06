@@ -257,8 +257,8 @@ The bots use a packaged 2017 toolchain, which Googlers can download like this:
 
 You can then pass the VC and SDK paths to GN by setting your GN args:
 
-    win_vc = "C:\toolchain\depot_tools\win_toolchain\vs_files\a9e1098bba66d2acccc377d5ee81265910f29272\VC"
-    win_sdk = "C:\toolchain\depot_tools\win_toolchain\vs_files\a9e1098bba66d2acccc377d5ee81265910f29272\win_sdk"
+    win_vc = "C:\toolchain\depot_tools\win_toolchain\vs_files\5454e45bf3764c03d3fc1024b3bf5bc41e3ab62c\VC"
+    win_sdk = "C:\toolchain\depot_tools\win_toolchain\vs_files\5454e45bf3764c03d3fc1024b3bf5bc41e3ab62c\win_sdk"
 
 This toolchain is the only way we support 32-bit builds, by also setting `target_cpu="x86"`.
 There is also a corresponding 2015 toolchain, downloaded via `infra/bots/assets/win_toolchain_2015`.
