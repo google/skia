@@ -40,7 +40,7 @@ public:
     SkGlyphRun(SkGlyphRun&&) = default;
     static SkGlyphRun MakeFromDrawText(
             const SkPaint& paint, const void* bytes, size_t byteLength,
-            SkPoint origin, SkGlyphSet* glyphSet);
+            SkPoint origin, SkGlyphSet* glyphSet, SkScalar advanceScale = SK_Scalar);
     static SkGlyphRun MakeFromDrawPosTextH(
             const SkPaint& paint, const void* bytes, size_t byteLength,
             const SkScalar xpos[], SkScalar constY, SkGlyphSet* glyphSet);
