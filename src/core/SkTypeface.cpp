@@ -161,6 +161,10 @@ sk_sp<SkTypeface> SkTypeface::MakeFromFile(const char path[], int index) {
     return fm->makeFromFile(path, index);
 }
 
+sk_sp<SkTypeface> SkTypeface::makeClone(const SkFontArguments& args) const {
+    return this->onMakeClone(args);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkTypeface::serialize(SkWStream* wstream) const {
@@ -319,6 +323,10 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface::getAdvancedMetrics() cons
 bool SkTypeface::onGetKerningPairAdjustments(const uint16_t glyphs[], int count,
                                              int32_t adjustments[]) const {
     return false;
+}
+
+sk_sp<SkTypeface> SkTypeface::onMakeClone(const SkFontArguments& args) const {
+    return sk_ref_sp(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
