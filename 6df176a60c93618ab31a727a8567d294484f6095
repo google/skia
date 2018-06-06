@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f52de8c_f93e825f",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-06T19:33:55Z",
+      "side": 1,
+      "message": "This looks like the Chromium member naming style? (and discardable_handle_id)",
+      "range": {
+        "startLine": 157,
+        "startChar": 8,
+        "endLine": 157,
+        "endChar": 33
+      },
+      "revId": "6df176a60c93618ab31a727a8567d294484f6095",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
