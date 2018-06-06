@@ -135,7 +135,7 @@ bool SkOpAngle::after(SkOpAngle* test) {
     }
     int trOrder;
     if (rh->fSectorMask & fSectorMask) {
-        trOrder = (int) orderable(rh);
+        trOrder = (int) this->orderable(rh);
     } else {
         int trGap = (rh->fSectorStart - fSectorStart + 32) & 0x1f;
         trOrder = trGap > 20 ? 0 : trGap > 11 ? -1 : 1;
@@ -166,6 +166,41 @@ bool SkOpAngle::after(SkOpAngle* test) {
         bool lrOpposite = lh->oppositePlanes(rh);
 //        SkASSERT(lrOpposite != trOpposite);
         return COMPARE_RESULT(10, lrOpposite);
+    }
+    // if a pair couldn't be ordered, there's not enough information to determine the sort
+    if (fUnorderable || lh->fUnorderable || rh->fUnorderable) {
+        // limit to lines; should work with curves, but wait for a failing test to verify
+        if (!fPart.isCurve() && !lh->fPart.isCurve() && !rh->fPart.isCurve()) {
+            // see if original raw data is orderable
+            // if two share a point, check if third has both points in same half plane
+            int ltShare = lh->fOriginalCurvePart[0] == fOriginalCurvePart[0];
+            int lrShare = lh->fOriginalCurvePart[0] == rh->fOriginalCurvePart[0];
+            int trShare = fOriginalCurvePart[0] == rh->fOriginalCurvePart[0];
+            // if only one pair are the same, the third point touches neither of the pair
+            if (ltShare + lrShare + trShare == 1) {
+                if (ltShare) {
+                    int lrOOrder = lh->allOnOriginalSide(rh);
+                    int trOOrder = rh->allOnOriginalSide(this);
+                    // result must be 0 and 1 or 1 and 0 to be valid
+                    if ((lrOOrder ^ trOOrder) == 1) {
+                        return trOOrder;
+                    }
+                } else if (lrShare) {
+                    int ltOOrder = lh->allOnOriginalSide(this);
+                    int trOOrder = rh->allOnOriginalSide(this);
+                    if ((ltOOrder ^ trOOrder) == 1) {
+                        return ltOOrder;
+                    }
+                } else {
+                    SkASSERT(trShare);
+                    int ltOOrder = this->allOnOriginalSide(lh);
+                    int lrOOrder = rh->allOnOriginalSide(lh);
+                    if ((ltOOrder ^ lrOOrder) == 1) {
+                        return lrOOrder;
+                    }
+                }
+            }
+        }
     }
     if (lrOrder < 0) {
         if (ltOrder < 0) {
@@ -209,6 +244,38 @@ int SkOpAngle::allOnOneSide(const SkOpAngle* test) {
     }
     if (SkPath::kCubic_Verb == testVerb && crosses[2]) {
         return crosses[2] < 0;
+    }
+    fUnorderable = true;
+    return -1;
+}
+
+// experiment works only with lines for now
+int SkOpAngle::allOnOriginalSide(const SkOpAngle* test) {
+    SkASSERT(!fPart.isCurve());
+    SkASSERT(!test->fPart.isCurve());
+    SkDPoint origin = fOriginalCurvePart[0];
+    SkDVector line = fOriginalCurvePart[1] - origin;
+    double dots[2];
+    double crosses[2];
+    const SkDCurve& testCurve = test->fOriginalCurvePart;
+    for (int index = 0; index < 2; ++index) {
+        SkDVector testLine = testCurve[index] - origin;
+        double xy1 = line.fX * testLine.fY;
+        double xy2 = line.fY * testLine.fX;
+        dots[index] = line.fX * testLine.fX + line.fY * testLine.fY;
+        crosses[index] = AlmostBequalUlps(xy1, xy2) ? 0 : xy1 - xy2;
+    }
+    if (crosses[0] * crosses[1] < 0) {
+        return -1;
+    }
+    if (crosses[0]) {
+        return crosses[0] < 0;
+    }
+    if (crosses[1]) {
+        return crosses[1] < 0;
+    }
+    if ((!dots[0] && dots[1] < 0) || (dots[0] < 0 && !dots[1])) {
+        return 2;  // 180 degrees apart
     }
     fUnorderable = true;
     return -1;
