@@ -167,7 +167,8 @@ bool SkOpAngle::after(SkOpAngle* test) {
 //        SkASSERT(lrOpposite != trOpposite);
         return COMPARE_RESULT(10, lrOpposite);
     }
-    // if a pair couldn't be ordered, there's not enough information to determine the sort
+    // If a pair couldn't be ordered, there's not enough information to determine the sort.
+    // Refer to:  https://docs.google.com/drawings/d/1KV-8SJTedku9fj4K6fd1SB-8divuV_uivHVsSgwXICQ
     if (fUnorderable || lh->fUnorderable || rh->fUnorderable) {
         // limit to lines; should work with curves, but wait for a failing test to verify
         if (!fPart.isCurve() && !lh->fPart.isCurve() && !rh->fPart.isCurve()) {
@@ -178,25 +179,25 @@ bool SkOpAngle::after(SkOpAngle* test) {
             int trShare = fOriginalCurvePart[0] == rh->fOriginalCurvePart[0];
             // if only one pair are the same, the third point touches neither of the pair
             if (ltShare + lrShare + trShare == 1) {
-                if (ltShare) {
-                    int lrOOrder = lh->allOnOriginalSide(rh);
+                if (lrShare) {
+                    int ltOOrder = lh->allOnOriginalSide(this);
+                    int rtOOrder = rh->allOnOriginalSide(this);
+                    if ((rtOOrder ^ ltOOrder) == 1) {
+                        return ltOOrder;
+                    }
+                } else if (trShare) {
+                    int tlOOrder = this->allOnOriginalSide(lh);
+                    int rlOOrder = rh->allOnOriginalSide(lh);
+                    if ((tlOOrder ^ rlOOrder) == 1) {
+                        return rlOOrder;
+                    }
+                } else {
+                    SkASSERT(ltShare);
                     int trOOrder = rh->allOnOriginalSide(this);
+                    int lrOOrder = lh->allOnOriginalSide(rh);
                     // result must be 0 and 1 or 1 and 0 to be valid
                     if ((lrOOrder ^ trOOrder) == 1) {
                         return trOOrder;
-                    }
-                } else if (lrShare) {
-                    int ltOOrder = lh->allOnOriginalSide(this);
-                    int trOOrder = rh->allOnOriginalSide(this);
-                    if ((ltOOrder ^ trOOrder) == 1) {
-                        return ltOOrder;
-                    }
-                } else {
-                    SkASSERT(trShare);
-                    int ltOOrder = this->allOnOriginalSide(lh);
-                    int lrOOrder = rh->allOnOriginalSide(lh);
-                    if ((ltOOrder ^ lrOOrder) == 1) {
-                        return lrOOrder;
                     }
                 }
             }
