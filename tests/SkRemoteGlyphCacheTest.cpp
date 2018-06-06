@@ -87,6 +87,8 @@ sk_sp<SkTextBlob> buildTextBlob(sk_sp<SkTypeface> tf, int glyphCount) {
 SkTextBlobCacheDiffCanvas::Settings MakeSettings(GrContext* context) {
     SkTextBlobCacheDiffCanvas::Settings settings;
     settings.fContextSupportsDistanceFieldText = context->supportsDistanceFieldText();
+    settings.fMaxTextureSize = context->maxTextureSize();
+    settings.fMaxTextureBytes = GrContextOptions().fGlyphCacheTextureMaximumBytes;
     return settings;
 }
 
