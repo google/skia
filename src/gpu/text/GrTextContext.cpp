@@ -377,7 +377,8 @@ void GrTextContext::DrawBmpPosTextAsPaths(GrTextBlob* blob, int runIndex,
     // setup our std paint, in hopes of getting hits in the cache
     SkPaint pathPaint(origPaint);
     SkScalar matrixScale = pathPaint.setupForAsPaths();
-    FallbackTextHelper fallbackTextHelper(viewMatrix, origPaint, glyphCache, matrixScale);
+    FallbackTextHelper fallbackTextHelper(viewMatrix, origPaint, glyphCache->getGlyphSizeLimit(),
+                                          matrixScale);
 
     // Temporarily jam in kFill, so we only ever ask for the raw outline from the cache.
     pathPaint.setStyle(SkPaint::kFill_Style);
@@ -593,7 +594,8 @@ void GrTextContext::drawDFPosText(GrTextBlob* blob, int runIndex,
     blob->setSubRunHasDistanceFields(runIndex, paint.skPaint().isLCDRenderText(),
                                      paint.skPaint().isAntiAlias(), hasWCoord);
 
-    FallbackTextHelper fallbackTextHelper(viewMatrix, paint, glyphCache, textRatio);
+    FallbackTextHelper fallbackTextHelper(viewMatrix, paint, glyphCache->getGlyphSizeLimit(),
+                                          textRatio);
 
     sk_sp<GrTextStrike> currStrike;
 
@@ -707,7 +709,7 @@ void GrTextContext::FallbackTextHelper::drawText(GrTextBlob* blob, int runIndex,
         if (fUseTransformedFallback) {
             // Set up paint and matrix to scale glyphs
             SkPaint scaledPaint(skPaint);
-            scaledPaint.setTextSize(fTransformedFallbackTextSize);
+            this->modifyFallbackPaint(&scaledPaint);
             textRatio = fTextSize / fTransformedFallbackTextSize;
             cache = blob->setupCache(runIndex, props, scalerContextFlags, scaledPaint,
                                      &SkMatrix::I());
@@ -733,6 +735,11 @@ void GrTextContext::FallbackTextHelper::drawText(GrTextBlob* blob, int runIndex,
             glyphPos++;
         }
     }
+}
+
+void GrTextContext::FallbackTextHelper::modifyFallbackPaint(SkPaint* paint) const {
+    if (!fUseTransformedFallback) return;
+    paint->setTextSize(fTransformedFallbackTextSize);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

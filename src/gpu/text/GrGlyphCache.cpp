@@ -5,9 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrAtlasManager.h"
-#include "GrDistanceFieldGenFromVector.h"
 #include "GrGlyphCache.h"
+#include "GrAtlasManager.h"
+#include "GrCaps.h"
+#include "GrDistanceFieldGenFromVector.h"
 
 #include "SkAutoMalloc.h"
 #include "SkDistanceFieldGen.h"
@@ -15,10 +16,7 @@
 GrGlyphCache::GrGlyphCache(const GrCaps* caps, float maxTextureBytes)
         : fPreserveStrike(nullptr)
         , fGlyphSizeLimit(0) {
-
-    int maxDim, minDim, maxPlot, minPlot;
-    GrAtlasManager::ComputeAtlasLimits(caps, maxTextureBytes, &maxDim, &minDim, &maxPlot, &minPlot);
-    fGlyphSizeLimit = minPlot;
+    fGlyphSizeLimit = ComputeGlyphSizeLimit(caps->maxTextureSize(), maxTextureBytes);
 }
 
 GrGlyphCache::~GrGlyphCache() {
@@ -38,6 +36,13 @@ void GrGlyphCache::freeAll() {
         ++iter;
     }
     fCache.rewind();
+}
+
+SkScalar GrGlyphCache::ComputeGlyphSizeLimit(int maxTextureSize, float maxTextureBytes) {
+    int maxDim, minDim, maxPlot, minPlot;
+    GrAtlasManager::ComputeAtlasLimits(maxTextureSize, maxTextureBytes, &maxDim, &minDim, &maxPlot,
+                                       &minPlot);
+    return minPlot;
 }
 
 void GrGlyphCache::HandleEviction(GrDrawOpAtlas::AtlasID id, void* ptr) {
