@@ -99,6 +99,7 @@ private:
     bool after(SkOpAngle* test);
     void alignmentSameSide(const SkOpAngle* test, int* order) const;
     int allOnOneSide(const SkOpAngle* test);
+    int allOnOriginalSide(const SkOpAngle* test);
     bool checkCrossesZero() const;
     bool checkParallel(SkOpAngle* );
     bool computeSector();
