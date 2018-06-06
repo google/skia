@@ -24,7 +24,7 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
     this->premul          = srcAT != kOpaque_SkAlphaType;
 
     if (this->gamut_transform && src->toXYZD50() && dst->fromXYZD50()) {
-        auto xform = SkMatrix44(*src->toXYZD50(),  *dst->fromXYZD50());
+        auto xform = SkMatrix44(*dst->fromXYZD50(), *src->toXYZD50());
         if (xform.get(3,0) == 0 && xform.get(3,1) == 0 && xform.get(3,2) == 0 &&
             xform.get(3,3) == 1 &&
             xform.get(0,3) == 0 && xform.get(1,3) == 0 && xform.get(2,3) == 0) {
