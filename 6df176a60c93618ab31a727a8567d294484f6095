@@ -68,6 +68,29 @@
       "revId": "6df176a60c93618ab31a727a8567d294484f6095",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e85d4942_0875ad61",
+        "filename": "src/gpu/text/GrTextContext.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 712,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-06-06T20:05:49Z",
+      "side": 1,
+      "message": "Is there a reason for this change? This will end up copying the paint every time, even when there\u0027s no need to modify it (which will be more common than the transform case).",
+      "range": {
+        "startLine": 712,
+        "startChar": 16,
+        "endLine": 712,
+        "endChar": 38
+      },
+      "revId": "6df176a60c93618ab31a727a8567d294484f6095",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
