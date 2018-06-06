@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ace64149_52d97124",
+        "filename": "src/ports/SkFontMgr_win_dw.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 966,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-06T20:57:44Z",
+      "side": 1,
+      "message": "So right here we need something like\n\nint faceIndex \u003d fontFace-\u003eGetIndex();\nif (faceIndex !\u003d ttcIndex) {\n   continue;\n}",
+      "revId": "3abc7757f8aed9f3f6db9d6b89eacfc366afec80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
