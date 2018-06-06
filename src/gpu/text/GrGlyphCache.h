@@ -130,6 +130,7 @@ public:
     void freeAll();
 
     static void HandleEviction(GrDrawOpAtlas::AtlasID, void*);
+    static SkScalar ComputeGlyphSizeLimit(int maxTextureSize, float maxTextureBytes);
 
 private:
     sk_sp<GrTextStrike> generateStrike(const SkGlyphCache* cache) {
