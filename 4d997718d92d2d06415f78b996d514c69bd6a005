@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "af441645_2e2d54af",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-06-06T14:05:10Z",
+      "side": 1,
+      "message": "These are the key functions that this module exposes. It would be useful IMO at the top to know what class they map to and what the signature of the functions are in Java (as suggest by Leon below).\nSo a new reader doesn\u0027t have to flip back and forth between this and the Java code.",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 80
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "23bfb39e_53b600c6",
         "filename": "tools/skqp/src/jni_skqp.cpp",
         "patchSetId": 8
