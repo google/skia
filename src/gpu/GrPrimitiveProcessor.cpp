@@ -10,16 +10,6 @@
 #include "GrCoordTransform.h"
 
 /**
- * The key for an individual coord transform is made up of a matrix type, and a bit that indicates
- * the source of the input coords.
- */
-enum {
-    kMatrixTypeKeyBits   = 1,
-    kPositionCoords_Flag = 1 << kMatrixTypeKeyBits,
-    kTransformKeyBits    = kMatrixTypeKeyBits + 1,
-};
-
-/**
  * We specialize the vertex code for each of these matrix types.
  */
 enum MatrixType {
@@ -39,13 +29,7 @@ GrPrimitiveProcessor::getTransformKey(const SkTArray<const GrCoordTransform*, tr
         } else {
             key |= kNoPersp_MatrixType;
         }
-
-        if (!this->hasExplicitLocalCoords()) {
-            key |= kPositionCoords_Flag;
-        }
-
-        key <<= kTransformKeyBits * t;
-
+        key <<= t;
         SkASSERT(0 == (totalKey & key)); // keys for each transform ought not to overlap
         totalKey |= key;
     }

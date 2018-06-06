@@ -40,8 +40,6 @@ public:
 private:
     GrPathProcessor(GrColor, const SkMatrix& viewMatrix, const SkMatrix& localMatrix);
 
-    bool hasExplicitLocalCoords() const override { return false; }
-
     GrColor fColor;
     const SkMatrix fViewMatrix;
     const SkMatrix fLocalMatrix;
