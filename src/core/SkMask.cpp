@@ -77,7 +77,10 @@ SkMask SkMask::PrepareDestination(int radiusX, int radiusY, const SkMask& src) {
 
     size_t toAlloc = safe.mul(dstW, dstH);
 
-    if (safe && src.fImage != nullptr) {
+    if (safe && src.fImage != nullptr &&
+        dst.fBounds.width() == src.fBounds.width() &&
+        dst.fBounds.height() == src.fBounds.height())
+    {
         dst.fImage = SkMask::AllocImage(toAlloc);
     }
 
