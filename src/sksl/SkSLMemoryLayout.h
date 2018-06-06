@@ -16,7 +16,8 @@ class MemoryLayout {
 public:
     enum Standard {
         k140_Standard,
-        k430_Standard
+        k430_Standard,
+        kMetal_Standard
     };
 
     MemoryLayout(Standard std)
@@ -35,6 +36,7 @@ public:
         switch (fStd) {
             case k140_Standard: return (raw + 15) & ~15;
             case k430_Standard: return raw;
+            case kMetal_Standard: return raw;
         }
         ABORT("unreachable");
     }
@@ -42,12 +44,15 @@ public:
     /**
      * Returns a type's required alignment when used as a standalone variable.
      */
-    size_t alignment(const Type& type) const {
+    size_t alignment(const Type& type, bool isPacked = false) const {
         // See OpenGL Spec 7.6.2.2 Standard Uniform Block Layout
         switch (type.kind()) {
             case Type::kScalar_Kind:
                 return this->size(type);
             case Type::kVector_Kind:
+                if (fStd == kMetal_Standard && isPacked) {
+                    return this->size(type.componentType());
+                }
                 return vector_alignment(this->size(type.componentType()), type.columns());
             case Type::kMatrix_Kind:
                 return this->roundUpIfNeeded(vector_alignment(this->size(type.componentType()),
@@ -86,7 +91,7 @@ public:
     /**
      * Returns the size of a type in bytes.
      */
-    size_t size(const Type& type) const {
+    size_t size(const Type& type, bool isPacked = false) const {
         switch (type.kind()) {
             case Type::kScalar_Kind:
                 if (type.name() == "bool") {
@@ -96,7 +101,11 @@ public:
                 // handle it...
                 return 4;
             case Type::kVector_Kind:
-                return type.columns() * this->size(type.componentType());
+                if (fStd != kMetal_Standard || isPacked) {
+                    return type.columns() * this->size(type.componentType());
+                } else {
+                    return this->alignment(type);
+                }
             case Type::kMatrix_Kind: // fall through
             case Type::kArray_Kind:
                 return type.columns() * this->stride(type);
