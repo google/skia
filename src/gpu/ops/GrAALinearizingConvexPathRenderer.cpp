@@ -229,7 +229,8 @@ private:
             return;
         }
         memcpy(idxs, indices, indexCount * sizeof(uint16_t));
-        mesh.setIndexed(indexBuffer, indexCount, firstIndex, 0, vertexCount - 1);
+        mesh.setIndexed(indexBuffer, indexCount, firstIndex, 0, vertexCount - 1,
+                        GrPrimitiveRestart::kNo);
         mesh.setVertexData(vertexBuffer, firstVertex);
         target->draw(gp, pipeline, mesh);
     }

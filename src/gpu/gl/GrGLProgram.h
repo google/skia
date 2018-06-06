@@ -101,6 +101,21 @@ public:
      */
     void generateMipmaps(const GrPrimitiveProcessor&, const GrPipeline&);
 
+    int vertexStride() const { return fVertexStride; }
+    int instanceStride() const { return fInstanceStride; }
+
+    /**
+     * This class has its own Attribute representation as it does not need the name and we don't
+     * want to worry about copying the name string to memory with life time of GrGLProgram.
+     */
+    struct Attribute {
+        GrVertexAttribType fType;
+        int fOffset;
+        GrPrimitiveProcessor::Attribute::InputRate fInputRate;
+    };
+    int numAttributes() const { return fNumAttributes; }
+    const Attribute& attribute(int i) const { return fAttributes[i]; }
+
 protected:
     using UniformHandle    = GrGLSLProgramDataManager::UniformHandle ;
     using UniformInfoArray = GrGLProgramDataManager::UniformInfoArray;
@@ -113,10 +128,11 @@ protected:
                 const UniformInfoArray& uniforms,
                 const UniformInfoArray& textureSamplers,
                 const UniformInfoArray& texelBuffers,
-                const VaryingInfoArray&, // used for NVPR only currently
-                std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
-                std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
-                const GrGLSLFragProcs& fragmentProcessors);
+                const VaryingInfoArray&,  // used for NVPR only currently
+                std::unique_ptr<GrGLSLPrimitiveProcessor>,
+                std::unique_ptr<GrGLSLXferProcessor>,
+                const GrGLSLFragProcs&,
+                const GrPrimitiveProcessor&);
 
     // A helper to loop over effects, set the transforms (via subclass) and bind textures
     void setFragmentData(const GrPrimitiveProcessor&, const GrPipeline&, int* nextTexSamplerIdx,
@@ -137,14 +153,19 @@ protected:
     GrGLuint fProgramID;
 
     // the installed effects
-    std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
+    std::unique_ptr<GrGLSLPrimitiveProcessor> fPrimitiveProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
     GrGLSLFragProcs fFragmentProcessors;
+
+    int fNumAttributes;
+    std::unique_ptr<Attribute[]> fAttributes;
 
     GrProgramDesc fDesc;
     GrGLGpu* fGpu;
     GrGLProgramDataManager fProgramDataManager;
 
+    int fVertexStride;
+    int fInstanceStride;
     int fNumTextureSamplers;
     int fNumTexelBuffers;
 
