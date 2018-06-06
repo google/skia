@@ -731,3 +731,21 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BlurMaskBiggerThanDest, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, SkColorGetB(readback.getColor(15, 15)) == 0);
     REPORTER_ASSERT(reporter, readback.getColor(31, 31) == SK_ColorBLACK);
 }
+
+DEF_TEST(skbug_7956, r) {
+    sk_sp<SkMaskFilter> maskFilter = SkMaskFilter::MakeBlur(
+                                                            kInner_SkBlurStyle, 195.262741f, true);
+
+    SkMask sourceMask;
+    sourceMask.fBounds = {2147483392, -99, 2147483520, 294};
+    sourceMask.fRowBytes = 128;
+    sourceMask.fFormat = SkMask::kA8_Format;
+    std::vector<uint8_t> src(50304, 0xFF);
+    sourceMask.fImage = src.data();
+
+    SkMatrix ctm = SkMatrix::MakeTrans(2147483520.0f, 0);
+
+    SkIPoint margin;
+    SkMask dstMask;
+    (void)as_MFB(maskFilter)->filterMask(&dstMask, sourceMask, ctm, &margin);
+}
