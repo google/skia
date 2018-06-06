@@ -108,7 +108,7 @@ private:
  */
 class GrGlyphCache {
 public:
-    GrGlyphCache(const GrCaps* caps, float maxTextureBytes);
+    GrGlyphCache(const GrCaps* caps, size_t maxTextureBytes);
     ~GrGlyphCache();
 
     SkScalar getGlyphSizeLimit() const { return fGlyphSizeLimit; }
@@ -130,6 +130,7 @@ public:
     void freeAll();
 
     static void HandleEviction(GrDrawOpAtlas::AtlasID, void*);
+    static SkScalar ComputeGlyphSizeLimit(int maxTextureSize, size_t maxTextureBytes);
 
 private:
     sk_sp<GrTextStrike> generateStrike(const SkGlyphCache* cache) {

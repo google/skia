@@ -69,27 +69,27 @@ public:
                                        SkScalar* textRatio,
                                        SkScalerContextFlags* flags);
 
-private:
-    GrTextContext(const Options& options);
-
     class FallbackTextHelper {
     public:
         FallbackTextHelper(const SkMatrix& viewMatrix,
                            const SkPaint& pathPaint,
-                           const GrGlyphCache* glyphCache,
+                           SkScalar maxTextSize,
                            SkScalar textRatio)
-            : fViewMatrix(viewMatrix)
-            , fTextSize(pathPaint.getTextSize())
-            , fMaxTextSize(glyphCache->getGlyphSizeLimit())
-            , fTextRatio(textRatio)
-            , fTransformedFallbackTextSize(fMaxTextSize)
-            , fUseTransformedFallback(false) {
+                : fViewMatrix(viewMatrix)
+                , fTextSize(pathPaint.getTextSize())
+                , fMaxTextSize(maxTextSize)
+                , fTextRatio(textRatio)
+                , fTransformedFallbackTextSize(fMaxTextSize)
+                , fUseTransformedFallback(false) {
             fMaxScale = viewMatrix.getMaxScale();
         }
 
         void appendText(const SkGlyph& glyph, int count, const char* text, SkPoint glyphPos);
         void drawText(GrTextBlob* blob, int runIndex, GrGlyphCache*, const SkSurfaceProps&,
                       const GrTextUtils::Paint&, SkScalerContextFlags);
+
+        void initializeForDraw(SkPaint* paint, SkScalar* textRatio, SkMatrix* matrix) const;
+        const SkTDArray<char>& fallbackText() const { return fFallbackTxt; }
 
     private:
         SkTDArray<char> fFallbackTxt;
@@ -103,6 +103,9 @@ private:
         SkScalar fMaxScale;
         bool fUseTransformedFallback;
     };
+
+private:
+    GrTextContext(const Options& options);
 
     // sets up the descriptor on the blob and returns a detached cache.  Client must attach
     static SkColor ComputeCanonicalColor(const SkPaint&, bool lcd);
