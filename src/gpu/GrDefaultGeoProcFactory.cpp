@@ -139,7 +139,7 @@ public:
                                       gp.viewMatrix(),
                                       &fViewMatrixUniform);
 
-            if (gp.hasExplicitLocalCoords()) {
+            if (gp.inLocalCoords()) {
                 // emit transforms with explicit local coords
                 this->emitTransforms(vertBuilder,
                                      varyingHandler,
@@ -260,7 +260,6 @@ private:
         }
         if (fFlags & kLocalCoordAttribute_GPFlag) {
             fInLocalCoords = &this->addVertexAttrib("inLocalCoord", kFloat2_GrVertexAttribType);
-            this->setHasExplicitLocalCoords();
         }
         if (fFlags & kCoverageAttribute_GPFlag) {
             fInCoverage = &this->addVertexAttrib("inCoverage", kHalf_GrVertexAttribType);

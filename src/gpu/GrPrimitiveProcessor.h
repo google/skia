@@ -157,7 +157,6 @@ private:
     void removeRefs() const override { GrResourceIOProcessor::removeRefs(); }
     void pendingIOComplete() const override { GrResourceIOProcessor::pendingIOComplete(); }
     void notifyRefCntIsZero() const final {}
-    virtual bool hasExplicitLocalCoords() const = 0;
 
     SkSTArray<8, Attribute> fAttribs;
     int fVertexStride = 0;

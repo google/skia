@@ -22,14 +22,9 @@ public:
     GrGeometryProcessor(ClassID classID)
         : INHERITED(classID)
         , fWillUseGeoShader(false)
-        , fLocalCoordsType(kUnused_LocalCoordsType)
         , fSampleShading(0.0) {}
 
     bool willUseGeoShader() const final { return fWillUseGeoShader; }
-
-    bool hasExplicitLocalCoords() const final {
-        return kHasExplicit_LocalCoordsType == fLocalCoordsType;
-    }
 
     /**
      * Returns the minimum fraction of samples for which the fragment shader will be run. For
@@ -40,36 +35,12 @@ public:
 
 protected:
     void setWillUseGeoShader() { fWillUseGeoShader = true; }
-
-    /**
-     * If a GrFragmentProcessor in the GrPipeline needs localCoods, we will provide them in one of
-     * three ways
-     * 1) LocalCoordTransform * Position - in Shader
-     * 2) LocalCoordTransform * ExplicitLocalCoords- in Shader
-     * 3) A transformation on the CPU uploaded via vertex attribute
-     */
-    enum LocalCoordsType {
-        kUnused_LocalCoordsType,
-        kHasExplicit_LocalCoordsType,
-        kHasTransformed_LocalCoordsType
-    };
-
-    void setHasExplicitLocalCoords() {
-        SkASSERT(kUnused_LocalCoordsType == fLocalCoordsType);
-        fLocalCoordsType = kHasExplicit_LocalCoordsType;
-    }
-    void setHasTransformedLocalCoords() {
-        SkASSERT(kUnused_LocalCoordsType == fLocalCoordsType);
-        fLocalCoordsType = kHasTransformed_LocalCoordsType;
-    }
-
     void setSampleShading(float sampleShading) {
         fSampleShading = sampleShading;
     }
 
 private:
     bool fWillUseGeoShader;
-    LocalCoordsType fLocalCoordsType;
     float fSampleShading;
 
     typedef GrPrimitiveProcessor INHERITED;
