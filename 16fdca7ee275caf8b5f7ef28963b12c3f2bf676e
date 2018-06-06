@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "10a04f12_8950a6d6",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-06T18:19:18Z",
+      "side": 1,
+      "message": "Returning a copy for now. Let me rip out some more code, and circle back to this.",
+      "parentUuid": "54f7eef7_5195e52b",
+      "range": {
+        "startLine": 302,
+        "startChar": 11,
+        "endLine": 302,
+        "endChar": 19
+      },
+      "revId": "16fdca7ee275caf8b5f7ef28963b12c3f2bf676e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "36bd144f_06f12e92",
         "filename": "src/core/SkGlyphRun.cpp",
         "patchSetId": 2
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "fa4f80ad_613e3647",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-06T18:19:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "36bd144f_06f12e92",
+      "revId": "16fdca7ee275caf8b5f7ef28963b12c3f2bf676e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "019b8015_67eda7f2",
         "filename": "src/core/SkGlyphRun.cpp",
         "patchSetId": 2
@@ -56,6 +98,24 @@
       "revId": "16fdca7ee275caf8b5f7ef28963b12c3f2bf676e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76f75711_7474dc4b",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-06T18:19:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "019b8015_67eda7f2",
+      "revId": "16fdca7ee275caf8b5f7ef28963b12c3f2bf676e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -79,6 +139,30 @@
       "revId": "16fdca7ee275caf8b5f7ef28963b12c3f2bf676e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a7077ec_fb970d11",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-06T18:19:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e1e93a12_7f0c110b",
+      "range": {
+        "startLine": 33,
+        "startChar": 32,
+        "endLine": 33,
+        "endChar": 41
+      },
+      "revId": "16fdca7ee275caf8b5f7ef28963b12c3f2bf676e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
