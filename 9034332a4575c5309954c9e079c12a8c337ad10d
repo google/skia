@@ -144,6 +144,30 @@
     },
     {
       "key": {
+        "uuid": "7f8a8674_5a3d03c0",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-06-06T21:17:39Z",
+      "side": 1,
+      "message": "\u003e 1) float3 has alignment of 16. I\u0027m not packing to address alignment issues of the float 3 though. I\u0027m packing to address the alignment of what comes after it, if what comes after has an alignment of 4.\n\nWhen I say \"alignment of what comes after it\", I mean offset of what comes after it. Sorry for any confusion.",
+      "parentUuid": "70489556_4dc68b48",
+      "range": {
+        "startLine": 735,
+        "startChar": 7,
+        "endLine": 740,
+        "endChar": 9
+      },
+      "revId": "9034332a4575c5309954c9e079c12a8c337ad10d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "26042a6a_6d967459",
         "filename": "src/sksl/SkSLMetalCodeGenerator.h",
         "patchSetId": 1
