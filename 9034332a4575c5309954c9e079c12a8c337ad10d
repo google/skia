@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "68d318c0_6a424561",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-06-06T20:27:05Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "f3541a40_f0e79534",
+      "range": {
+        "startLine": 332,
+        "startChar": 16,
+        "endLine": 332,
+        "endChar": 33
+      },
+      "revId": "9034332a4575c5309954c9e079c12a8c337ad10d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eef8c188_650a28e4",
         "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2018-06-06T19:49:47Z",
       "side": 1,
       "message": "Why is only float3 packed? As written, this means that float3 has a smaller alignment than float2, which would be very surprising. Why do we believe that that is the case?\n\nWhy is it only packed when fieldOffset is specified?",
+      "range": {
+        "startLine": 735,
+        "startChar": 7,
+        "endLine": 740,
+        "endChar": 9
+      },
+      "revId": "9034332a4575c5309954c9e079c12a8c337ad10d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32cf1e62_f11b2a45",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-06-06T20:27:05Z",
+      "side": 1,
+      "message": "I\u0027m a little confused. I thought we agreed yesterday to just pack the float3s? As for why it needs to be packed it\u0027s not just for alignment, it\u0027s mainly because packed_float3 has size 12 while float3 has size 16 in MSL. float3 has size 12 in SkSL, so things with alignment 4 after a float3 will have an layout offset of +12, which means the float3 will need to be packed on the MSL side. The other vectors float2 and float4 have the same size in MSL and SkSL, so this problem isn\u0027t encountered. I think the check for offset specification is leftover from when I was checking to pack other types that aren\u0027t float3s, so I will remove it since it doesn\u0027t seem to make a difference now.",
+      "parentUuid": "eef8c188_650a28e4",
       "range": {
         "startLine": 735,
         "startChar": 7,
@@ -68,6 +116,30 @@
       "revId": "9034332a4575c5309954c9e079c12a8c337ad10d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5558973f_1d845649",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-06-06T20:27:05Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "26042a6a_6d967459",
+      "range": {
+        "startLine": 83,
+        "startChar": 6,
+        "endLine": 83,
+        "endChar": 62
+      },
+      "revId": "9034332a4575c5309954c9e079c12a8c337ad10d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
