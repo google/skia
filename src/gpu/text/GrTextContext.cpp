@@ -212,9 +212,20 @@ void GrTextContext::regenerateTextBlob(GrTextBlob* cacheBlob,
                 case SkTextBlob::kDefault_Positioning: {
                     SkGlyphSet glyphSet;
                     auto origin = SkPoint::Make(x + offset.x(), y + offset.y());
+                    SkScalar advanceScale = SK_Scalar1;
+                    SkPaint drawTextPaint(runPaint);
+                    // When using small text sizes (e.g., for perspective text), the advances from
+                    // that size may not scale well and result in odd placements when we apply the
+                    // ctm. Instead, we use a larger text size and then rescale the resulting
+                    // advances to get better fractional placement.
+                    if (drawTextPaint.getTextSize() < kSmallDFFontLimit) {
+                        SkPaint scaledPaint(paint);
+                        scaledPaint.setTextSize(kSmallDFFontLimit);
+                        advanceScale = runPaint.skPaint().getTextSize() / kSmallDFFontLimit;
+                    }
                     auto glyphRun =
-                            SkGlyphRun::MakeFromDrawText(runPaint.skPaint(),
-                                    (const char*)it.glyphs(), textLen, origin, &glyphSet);
+                            SkGlyphRun::MakeFromDrawText(drawTextPaint,
+                                    (const char*)it.glyphs(), textLen, origin, &glyphSet, advanceScale);
 
                     this->drawDFPosText(cacheBlob, run, glyphCache, props, runPaint,
                                         scalerContextFlags, viewMatrix, (const char*)it.glyphs(),

@@ -78,7 +78,7 @@ Core make_core(const SkPaint& paint, const void* bytes, size_t byteLength, SkGly
 
 SkGlyphRun SkGlyphRun::MakeFromDrawText(
         const SkPaint& paint, const void* bytes, size_t byteLength,
-        const SkPoint origin, SkGlyphSet* glyphSet) {
+        const SkPoint origin, SkGlyphSet* glyphSet, SkScalar advanceScale) {
     size_t runSize;
     std::unique_ptr<uint16_t[]> denseIndex;
     std::vector<SkGlyphID> uniqueGlyphIDs;
@@ -100,7 +100,7 @@ SkGlyphRun SkGlyphRun::MakeFromDrawText(
 
     for (size_t i = 0; i < runSize; i++) {
         positions[i] = endOfLastGlyph;
-        endOfLastGlyph += advances[denseIndex[i]];
+        endOfLastGlyph += advances[denseIndex[i]]*advanceScale;
     }
 
     if (paint.getTextAlign() != SkPaint::kLeft_Align) {
