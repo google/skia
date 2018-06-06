@@ -4,30 +4,23 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gm.h"
 #include "Resources.h"
 #include "SkFixed.h"
 #include "SkFontDescriptor.h"
 #include "SkFontMgr.h"
 #include "SkTypeface.h"
-
+#include "gm.h"
+#include <iostream>
 namespace skiagm {
 
 class FontScalerDistortableGM : public GM {
 public:
-    FontScalerDistortableGM() {
-        this->setBGColor(0xFFFFFFFF);
-    }
+    FontScalerDistortableGM() { this->setBGColor(0xFFFFFFFF); }
 
 protected:
+    SkString onShortName() override { return SkString("fontscalerdistortable"); }
 
-    SkString onShortName() override {
-        return SkString("fontscalerdistortable");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(550, 700);
-    }
+    SkISize onISize() override { return SkISize::Make(550, 700); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
@@ -35,7 +28,8 @@ protected:
         paint.setLCDRenderText(true);
         sk_sp<SkFontMgr> fontMgr(SkFontMgr::RefDefault());
 
-        std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
+        // std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
+        sk_sp<SkTypeface> distortable(MakeResourceAsTypeface("fonts/Distortable.ttf"));
         if (!distortable) {
             return;
         }
@@ -47,13 +41,13 @@ protected:
                 SkScalar x = SkIntToScalar(10);
                 SkScalar y = SkIntToScalar(20);
 
-                SkFourByteTag tag = SkSetFourByteTag('w','g','h','t');
-                SkScalar styleValue = SkDoubleToScalar(0.5 + (5*j + i) * ((2.0 - 0.5) / (2 * 5)));
+                SkFourByteTag tag = SkSetFourByteTag('w', 'g', 'h', 't');
+                SkScalar styleValue = SkDoubleToScalar(0.5 + (5 * j + i) * ((2.0 - 0.5) / (2 * 5)));
                 SkFontArguments::VariationPosition::Coordinate coordinates[] = {{tag, styleValue}};
-                SkFontArguments::VariationPosition position =
-                        { coordinates, SK_ARRAY_COUNT(coordinates) };
-                paint.setTypeface(sk_sp<SkTypeface>(fontMgr->makeFromStream(
-                        distortable->duplicate(),
+                SkFontArguments::VariationPosition position = {coordinates,
+                                                               SK_ARRAY_COUNT(coordinates)};
+                paint.setTypeface(sk_sp<SkTypeface>(distortable->makeClone( // fontMgr->makeFromStream(
+                        // distortable->duplicate(),
                         SkFontArguments().setVariationDesignPosition(position))));
 
                 SkAutoCanvasRestore acr(canvas, true);
@@ -64,8 +58,8 @@ protected:
                     SkPaint p;
                     p.setAntiAlias(true);
                     SkRect r;
-                    r.set(x - SkIntToScalar(3), SkIntToScalar(15),
-                          x - SkIntToScalar(1), SkIntToScalar(280));
+                    r.set(x - SkIntToScalar(3), SkIntToScalar(15), x - SkIntToScalar(1),
+                          SkIntToScalar(280));
                     canvas->drawRect(r, p);
                 }
 
@@ -89,4 +83,4 @@ private:
 static GM* MyFactory(void*) { return new FontScalerDistortableGM; }
 static GMRegistry reg(MyFactory);
 
-}
+}  // namespace skiagm
