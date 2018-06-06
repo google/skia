@@ -117,6 +117,12 @@ public:
     */
     static sk_sp<SkTypeface> MakeFromFontData(std::unique_ptr<SkFontData>);
 
+    /** Return a new typeface based on this typeface but parameterized as specified in the
+        SkFontArguments. If the cloned typeface would be exaclty the same as this typeface
+        then this typeface may be ref'ed and returned. May return nullptr on failure.
+    */
+    sk_sp<SkTypeface> makeClone(const SkFontArguments&) const;
+
     /** Write a unique signature to a stream, sufficient to reconstruct a
         typeface referencing the same font when Deserialize is called.
      */
@@ -300,6 +306,8 @@ protected:
     */
     SkTypeface(const SkFontStyle& style, bool isFixedPitch = false);
     virtual ~SkTypeface();
+
+    virtual sk_sp<SkTypeface> onMakeClone(const SkFontArguments&) const;
 
     /** Sets the fixedPitch bit. If used, must be called in the constructor. */
     void setIsFixedPitch(bool isFixedPitch) { fIsFixedPitch = isFixedPitch; }
