@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b846cb3f_f44933a1",
+        "filename": "src/core/SkMask.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-06-06T16:50:04Z",
+      "side": 1,
+      "message": "option: could just be dst.fBounds.size() \u003d\u003d src.fBounds.size()",
+      "range": {
+        "startLine": 74,
+        "startChar": 35,
+        "endLine": 74,
+        "endChar": 42
+      },
+      "revId": "19ef513d443ddaf7d2e13742d2cb18c1d46895a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
