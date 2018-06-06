@@ -2619,10 +2619,6 @@ Returns true if <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> is stored in <a h
 
 true if <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> was created
 
-### Example
-
-<div><fiddle-embed name="5d88bd87c3585a5dfeca39c2ebd08e52" gpu="true"></fiddle-embed></div>
-
 ### See Also
 
 <a href='#SkImage_MakeRasterData'>MakeRasterData</a> <a href='#SkImage_makeRasterImage'>makeRasterImage</a> <a href='#SkImage_makeNonTextureImage'>makeNonTextureImage</a>

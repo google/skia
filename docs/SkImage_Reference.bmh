@@ -2117,7 +2117,8 @@ Bitmap write did not succeed.
 
 #Return true if Bitmap was created ##
 
-#Example
+#NoExample
+#Bug 8051
 #Image 4
 #Platform gpu
     SkBitmap bitImage;
