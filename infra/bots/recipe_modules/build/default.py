@@ -53,7 +53,7 @@ def compile_fn(api, checkout_root, out_dir):
   linux_vulkan_sdk   = str(api.vars.slave_dir.join('linux_vulkan_sdk'))
   win_toolchain = str(api.vars.slave_dir.join(
     't', 'depot_tools', 'win_toolchain', 'vs_files',
-    'a9e1098bba66d2acccc377d5ee81265910f29272'))
+    '5454e45bf3764c03d3fc1024b3bf5bc41e3ab62c'))
   win_vulkan_sdk = str(api.vars.slave_dir.join('win_vulkan_sdk'))
   moltenvk = str(api.vars.slave_dir.join('moltenvk'))
 
