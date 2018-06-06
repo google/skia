@@ -334,6 +334,7 @@ template("optional") {
                              "*",
                              [
                                "public_defines",
+                               "public_include_dirs",
                                "sources_when_disabled",
                                "configs_to_remove",
                              ])
@@ -350,6 +351,7 @@ template("optional") {
                              [
                                "public_defines",
                                "public_deps",
+                               "public_include_dirs",
                                "deps",
                                "libs",
                                "sources",
@@ -1385,6 +1387,7 @@ if (skia_enable_tools) {
       ":flags",
       ":skia",
       ":tool_utils",
+      "modules/skjson:tests",
       "modules/sksg:tests",
       "//third_party/libpng",
       "//third_party/zlib",
@@ -1404,6 +1407,8 @@ if (skia_enable_tools) {
       ":gpu_tool_utils",
       ":skia",
       ":tool_utils",
+      "modules/skjson:bench",
+      "//third_party/rapidjson",
     ]
   }
 
