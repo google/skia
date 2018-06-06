@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "54f7eef7_5195e52b",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-06T16:12:43Z",
+      "side": 1,
+      "message": "This is kind of unusual, right?  Wouldn\u0027t we conventionally just use int?\n\nOr just\n\nstd::vector\u003cSkGlyphID\u003e SkGlyphSet::uniqueGlyphIDs() const {\n   return fUniqueGlyphIDs;   // returning a copy\n}\n\nActually, why is it important here that we return a copy?  Can we just return a reference to fUniqueGlyphIDs and work from that?",
+      "range": {
+        "startLine": 302,
+        "startChar": 11,
+        "endLine": 302,
+        "endChar": 19
+      },
+      "revId": "16fdca7ee275caf8b5f7ef28963b12c3f2bf676e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36bd144f_06f12e92",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-06T16:12:43Z",
+      "side": 1,
+      "message": "// If we\u0027re hanging onto these arrays for a long time, \n// we don\u0027t want their size to drift endlessly upwards.\n// It\u0027s unusual to see more than 256 unique glyphs used in a run, \n// or a typeface with more than 4096 possible glyphs.",
+      "revId": "16fdca7ee275caf8b5f7ef28963b12c3f2bf676e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "019b8015_67eda7f2",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-06T16:12:43Z",
+      "side": 1,
+      "message": "// No need to clear fIndexes here... SkGlyphSet\u0027s set insertion algorithm is designed to work correctly even when the fIndexes buffer is uninitialized!",
+      "revId": "16fdca7ee275caf8b5f7ef28963b12c3f2bf676e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1e93a12_7f0c110b",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-06T16:12:43Z",
+      "side": 1,
+      "message": "Wouldn\u0027t we normally call this fIndices?",
+      "range": {
+        "startLine": 33,
+        "startChar": 32,
+        "endLine": 33,
+        "endChar": 41
+      },
+      "revId": "16fdca7ee275caf8b5f7ef28963b12c3f2bf676e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
