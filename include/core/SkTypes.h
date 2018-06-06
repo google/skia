@@ -212,6 +212,14 @@ static inline int64_t SkLeftShift(int64_t value, int32_t shift) {
     return (int64_t) ((uint64_t) value << shift);
 }
 
+static constexpr inline bool test_14(int x) {
+    switch (x) {
+        case 14:
+           return true;
+    }
+    return false;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 /** Returns the number of entries in an array (not a pointer) */

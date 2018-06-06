@@ -227,9 +227,13 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         // NVPR actually requires a vertex shader to compile
         bool useNvpr = primProc.isPathRendering();
         if (!useNvpr) {
-            int vaCount = primProc.numAttribs();
+            int vaCount = primProc.numVertexAttributes();
             for (int i = 0; i < vaCount; i++) {
-                GL_CALL(BindAttribLocation(programID, i, primProc.getAttrib(i).name()));
+                GL_CALL(BindAttribLocation(programID, i, primProc.vertexAttribute(i).name()));
+            }
+            int iaCount = primProc.numInstanceAttributes();
+            for (int i = 0; i < iaCount; i++) {
+                GL_CALL(BindAttribLocation(programID, i, primProc.instanceAttribute(i).name()));
             }
         }
 

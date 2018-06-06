@@ -54,13 +54,13 @@ public:
         varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
 
         // Setup position
-        gpArgs->fPositionVar = dfTexEffect.inPosition()->asShaderVar();
+        gpArgs->fPositionVar = dfTexEffect.inPosition().asShaderVar();
 
         // emit transforms
         this->emitTransforms(vertBuilder,
                              varyingHandler,
                              uniformHandler,
-                             dfTexEffect.inPosition()->asShaderVar(),
+                             dfTexEffect.inPosition().asShaderVar(),
                              dfTexEffect.localMatrix(),
                              args.fFPCoordTransformHandler);
 
@@ -69,7 +69,7 @@ public:
         GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
         GrGLSLVarying texIdx(texIdxType);
         GrGLSLVarying st(kFloat2_GrSLType);
-        append_index_uv_varyings(args, dfTexEffect.inTextureCoords()->name(), atlasSizeInvName, &uv,
+        append_index_uv_varyings(args, dfTexEffect.inTextureCoords().name(), atlasSizeInvName, &uv,
                                  &texIdx, &st);
 
         bool isUniformScale = (dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask) ==
@@ -220,18 +220,22 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(
         , fDistanceAdjust(distanceAdjust)
 #endif
         , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
-        , fInColor(nullptr)
         , fLocalMatrix(localMatrix) {
     SkASSERT(numProxies <= kMaxTextures);
-
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
+
     if (flags & kPerspective_DistanceFieldEffectFlag) {
-        fInPosition = &this->addVertexAttrib("inPosition", kFloat3_GrVertexAttribType);
+        fInPosition = {"inPosition", kFloat3_GrVertexAttribType, 0};
     } else {
-        fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, 0};
     }
-    fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
-    fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kUShort2_GrVertexAttribType);
+    size_t offset = fInPosition.size();
+    fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, offset};
+    offset += fInColor.size();
+    fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType, offset};
+    offset += fInTextureCoords.size();
+    this->setVertexAttributeInfo(3, offset);
+
     for (int i = 0; i < numProxies; ++i) {
         SkASSERT(proxies[i]);
 
@@ -337,7 +341,7 @@ public:
         GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
         GrGLSLVarying texIdx(texIdxType);
         GrGLSLVarying st(kFloat2_GrSLType);
-        append_index_uv_varyings(args, dfPathEffect.inTextureCoords()->name(), atlasSizeInvName,
+        append_index_uv_varyings(args, dfPathEffect.inTextureCoords().name(), atlasSizeInvName,
                                  &uv, &texIdx, &st);
 
         // setup pass through color
@@ -348,7 +352,7 @@ public:
             this->writeOutputPosition(vertBuilder,
                                       uniformHandler,
                                       gpArgs,
-                                      dfPathEffect.inPosition()->name(),
+                                      dfPathEffect.inPosition().name(),
                                       dfPathEffect.matrix(),
                                       &fMatrixUniform);
 
@@ -356,17 +360,17 @@ public:
             this->emitTransforms(vertBuilder,
                                  varyingHandler,
                                  uniformHandler,
-                                 dfPathEffect.inPosition()->asShaderVar(),
+                                 dfPathEffect.inPosition().asShaderVar(),
                                  args.fFPCoordTransformHandler);
         } else {
             // Setup position
-            this->writeOutputPosition(vertBuilder, gpArgs, dfPathEffect.inPosition()->name());
+            this->writeOutputPosition(vertBuilder, gpArgs, dfPathEffect.inPosition().name());
 
             // emit transforms
             this->emitTransforms(vertBuilder,
                                  varyingHandler,
                                  uniformHandler,
-                                 dfPathEffect.inPosition()->asShaderVar(),
+                                 dfPathEffect.inPosition().asShaderVar(),
                                  dfPathEffect.matrix(),
                                  args.fFPCoordTransformHandler);
         }
@@ -499,6 +503,10 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+constexpr GrPrimitiveProcessor::Attribute GrDistanceFieldPathGeoProc::kInPosition;
+constexpr GrPrimitiveProcessor::Attribute GrDistanceFieldPathGeoProc::kInColor;
+constexpr GrPrimitiveProcessor::Attribute GrDistanceFieldPathGeoProc::kInTextureCoords;
+
 GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
                                                  const SkMatrix& matrix,
                                                  const sk_sp<GrTextureProxy>* proxies,
@@ -507,14 +515,11 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
                                                  uint32_t flags)
         : INHERITED(kGrDistanceFieldPathGeoProc_ClassID)
         , fMatrix(matrix)
-        , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
-        , fInColor(nullptr) {
+        , fFlags(flags & kNonLCD_DistanceFieldEffectMask) {
     SkASSERT(numProxies <= kMaxTextures);
-
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
-    fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
-    fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
-    fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kUShort2_GrVertexAttribType);
+
+    this->setVertexAttributeInfo(3, kInTextureCoords.nextOffsetInRecord());
     for (int i = 0; i < numProxies; ++i) {
         SkASSERT(proxies[i]);
 
@@ -546,6 +551,11 @@ void GrDistanceFieldPathGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
 GrGLSLPrimitiveProcessor*
 GrDistanceFieldPathGeoProc::createGLSLInstance(const GrShaderCaps&) const {
     return new GrGLDistanceFieldPathGeoProc();
+}
+
+
+const GrPrimitiveProcessor::Attribute &GrDistanceFieldPathGeoProc::onVertexAttribute(int i) const {
+    return IthAttribute(i, kInPosition, kInColor, kInTextureCoords);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -580,6 +590,7 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTes
                                             samplerState,
                                             flags);
 }
+
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -614,13 +625,13 @@ public:
         varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
 
         // Setup position
-        gpArgs->fPositionVar = dfTexEffect.inPosition()->asShaderVar();
+        gpArgs->fPositionVar = dfTexEffect.inPosition().asShaderVar();
 
         // emit transforms
         this->emitTransforms(vertBuilder,
                              varyingHandler,
                              uniformHandler,
-                             dfTexEffect.inPosition()->asShaderVar(),
+                             dfTexEffect.inPosition().asShaderVar(),
                              dfTexEffect.localMatrix(),
                              args.fFPCoordTransformHandler);
 
@@ -629,7 +640,7 @@ public:
         GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
         GrGLSLVarying texIdx(texIdxType);
         GrGLSLVarying st(kFloat2_GrSLType);
-        append_index_uv_varyings(args, dfTexEffect.inTextureCoords()->name(), atlasSizeInvName, &uv,
+        append_index_uv_varyings(args, dfTexEffect.inTextureCoords().name(), atlasSizeInvName, &uv,
                                  &texIdx, &st);
 
         GrGLSLVarying delta(kFloat_GrSLType);
@@ -814,15 +825,20 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
         , fFlags(flags & kLCD_DistanceFieldEffectMask)
         , fLocalMatrix(localMatrix) {
     SkASSERT(numProxies <= kMaxTextures);
-
     SkASSERT(!(flags & ~kLCD_DistanceFieldEffectMask) && (flags & kUseLCD_DistanceFieldEffectFlag));
+
     if (fFlags & kPerspective_DistanceFieldEffectFlag) {
-        fInPosition = &this->addVertexAttrib("inPosition", kFloat3_GrVertexAttribType);
+        fInPosition = {"inPosition", kFloat3_GrVertexAttribType, 0};
     } else {
-        fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, 0};
     }
-    fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
-    fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kUShort2_GrVertexAttribType);
+    size_t offset = fInPosition.size();
+    fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, offset};
+    offset += fInColor.size();
+    fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType, offset};
+    offset += fInTextureCoords.size();
+    this->setVertexAttributeInfo(3, offset);
+
     for (int i = 0; i < numProxies; ++i) {
         SkASSERT(proxies[i]);
 
@@ -855,6 +871,11 @@ GrGLSLPrimitiveProcessor* GrDistanceFieldLCDTextGeoProc::createGLSLInstance(cons
     return new GrGLDistanceFieldLCDTextGeoProc();
 }
 
+const GrPrimitiveProcessor::Attribute&
+GrDistanceFieldLCDTextGeoProc::onVertexAttribute(int i) const {
+    return IthAttribute(i, fInPosition, fInColor, fInTextureCoords);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldLCDTextGeoProc);
@@ -885,4 +906,5 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldLCDTextGeoProc::TestCreate(GrProcessor
     SkMatrix localMatrix = GrTest::TestMatrix(d->fRandom);
     return GrDistanceFieldLCDTextGeoProc::Make(proxies, 1, samplerState, wa, flags, localMatrix);
 }
+
 #endif

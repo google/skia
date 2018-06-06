@@ -1777,31 +1777,34 @@ void GrGLGpu::setupGeometry(const GrBuffer* indexBuffer,
         const GrBuffer*   fBuffer;
         int               fStride;
         size_t            fBufferOffset;
-    } bindings[2];
+    } vertexBinding, instanceBinding;
+
+    int numAttribs = fHWProgram->numVertexAttributes() + fHWProgram->numInstanceAttributes();
+    attribState->enableVertexArrays(this, numAttribs, enablePrimitiveRestart);
 
     if (int vertexStride = fHWProgram->vertexStride()) {
         SkASSERT(vertexBuffer && !vertexBuffer->isMapped());
-        bindings[0].fBuffer = vertexBuffer;
-        bindings[0].fStride = vertexStride;
-        bindings[0].fBufferOffset = vertexBuffer->baseOffset() + baseVertex * vertexStride;
+        vertexBinding.fBuffer = vertexBuffer;
+        vertexBinding.fStride = vertexStride;
+        vertexBinding.fBufferOffset = vertexBuffer->baseOffset() + baseVertex * vertexStride;
+    }
+    for (int i = 0; i < fHWProgram->numVertexAttributes(); ++i) {
+        const GrGLProgram::Attribute& attrib = fHWProgram->vertexAttribute(i);
+        static constexpr int kDivisor = 0;
+        attribState->set(this, i, vertexBinding.fBuffer, attrib.fType, vertexBinding.fStride,
+                         vertexBinding.fBufferOffset + attrib.fOffset, kDivisor);
     }
     if (int instanceStride = fHWProgram->instanceStride()) {
         SkASSERT(instanceBuffer && !instanceBuffer->isMapped());
-        bindings[1].fBuffer = instanceBuffer;
-        bindings[1].fStride = instanceStride;
-        bindings[1].fBufferOffset = instanceBuffer->baseOffset() + baseInstance * instanceStride;
+        instanceBinding.fBuffer = instanceBuffer;
+        instanceBinding.fStride = instanceStride;
+        instanceBinding.fBufferOffset = instanceBuffer->baseOffset() + baseInstance * instanceStride;
     }
-
-    auto numAttributes = fHWProgram->numAttributes();
-    attribState->enableVertexArrays(this, numAttributes, enablePrimitiveRestart);
-
-    for (int i = 0; i < numAttributes; ++i) {
-        using InputRate = GrPrimitiveProcessor::Attribute::InputRate;
-        const GrGLProgram::Attribute& attribute = fHWProgram->attribute(i);
-        const int divisor = InputRate::kPerInstance == attribute.fInputRate ? 1 : 0;
-        const auto& binding = bindings[divisor];
-        attribState->set(this, i, binding.fBuffer, attribute.fType, binding.fStride,
-                         binding.fBufferOffset + attribute.fOffset, divisor);
+    for (int i = 0; i < fHWProgram->numInstanceAttributes(); ++i) {
+        const GrGLProgram::Attribute& attrib = fHWProgram->instanceAttribute(i);
+        static constexpr int kDivisor = 1;
+        attribState->set(this, i, instanceBinding.fBuffer, attrib.fType, instanceBinding.fStride,
+                         instanceBinding.fBufferOffset + attrib.fOffset, kDivisor);
     }
 }
 
