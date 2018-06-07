@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "bcf85176_78cd2822",
+        "filename": "include/private/GrTextureProxy.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-07T18:52:35Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "975f34fc_bc019c88",
+      "revId": "9f15d7ab310b6a0fa3c367e20b26e4bc5049940c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d28e4010_eb56fd05",
         "filename": "src/gpu/GrTexture.cpp",
         "patchSetId": 3
