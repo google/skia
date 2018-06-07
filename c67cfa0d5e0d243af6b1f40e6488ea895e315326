@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b5dc1b38_6051ecc2",
+        "filename": "include/private/GrTextureProxy.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-07T19:09:00Z",
+      "side": 1,
+      "message": "Woops. Changed all the callers just forgot to delete the actually function",
+      "parentUuid": "ecccb9bd_2a6e70df",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 5
+      },
+      "revId": "c67cfa0d5e0d243af6b1f40e6488ea895e315326",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dab89562_01dd64dc",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 5
@@ -45,6 +69,30 @@
       "revId": "c67cfa0d5e0d243af6b1f40e6488ea895e315326",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "457c768a_50e2961c",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1748,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-07T19:09:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dab89562_01dd64dc",
+      "range": {
+        "startLine": 1748,
+        "startChar": 51,
+        "endLine": 1748,
+        "endChar": 94
+      },
+      "revId": "c67cfa0d5e0d243af6b1f40e6488ea895e315326",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
