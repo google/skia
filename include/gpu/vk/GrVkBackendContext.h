@@ -54,6 +54,7 @@ struct SK_API GrVkBackendContext : public SkRefCnt {
      */
     bool                       fOwnsInstanceAndDevice = true;
 
+#if GR_TEST_UTILS || defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
     using CanPresentFn = std::function<bool(VkInstance, VkPhysicalDevice,
                                             uint32_t queueFamilyIndex)>;
 
@@ -88,6 +89,7 @@ struct SK_API GrVkBackendContext : public SkRefCnt {
         };
         return Create(presentQueueIndex, canPresent, getProc);
     }
+#endif // GR_TEST_UTILS || defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
 
     ~GrVkBackendContext() override;
 };
