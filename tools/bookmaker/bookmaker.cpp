@@ -145,6 +145,7 @@ BmhParser::MarkProps BmhParser::kMarkProps[] = {
 , { "Example",      MarkType::kExample,      R_O, E_N, M_CSST | M_E | M_MD }
 , { "Experimental", MarkType::kExperimental, R_Y, E_N, M_CS | M_MDCM | M_E }
 , { "External",     MarkType::kExternal,     R_Y, E_N, 0 }
+, { "File",         MarkType::kFile,         R_Y, E_N, M(Topic) }
 , { "Formula",      MarkType::kFormula,      R_F, E_N, M(Column) | M(Description)
                                                      | M_E | M_ST | M_MDCM }
 , { "Function",     MarkType::kFunction,     R_O, E_N, M(Example) | M(NoExample) }
@@ -523,6 +524,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         // not one-liners
         case MarkType::kCode:
         case MarkType::kExample:
+        case MarkType::kFile:
         case MarkType::kFormula:
         case MarkType::kFunction:
         case MarkType::kLegend:
@@ -1240,6 +1242,15 @@ void BmhParser::setWrapper(Definition* def) const {
     if (wrapCode) {
         def->fWrapper = hasCanvas ? string(drawNoCanvas) : string(drawWrapper);
     }
+}
+
+RootDefinition* BmhParser::findBmhObject(MarkType markType, string typeName) {
+    const auto& mapIter = std::find_if(fMaps.begin(), fMaps.end(),
+            [markType](DefinitionMap& defMap){ return markType == defMap.fMarkType; } );
+    if (mapIter == fMaps.end()) {
+        return nullptr;
+    }
+    return &(*mapIter->fMap)[typeName];
 }
 
 // FIXME: some examples may produce different output on different platforms
@@ -2211,6 +2222,7 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kDetails:
         case MarkType::kDuration:
         case MarkType::kExperimental:
+        case MarkType::kFile:
         case MarkType::kHeight:
         case MarkType::kIllustration:
         case MarkType::kImage:
