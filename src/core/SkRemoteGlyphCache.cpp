@@ -221,14 +221,28 @@ size_t SkDescriptorMapOperators::operator()(const SkDescriptor* key) const {
     }
 
 // -- TrackLayerDevice -----------------------------------------------------------------------------
-class TrackLayerDevice : public SkNoPixelsDevice {
-public:
-    TrackLayerDevice(const SkIRect& bounds, const SkSurfaceProps& props)
-            : SkNoPixelsDevice(bounds, props) { }
-    SkBaseDevice* onCreateDevice(const CreateInfo& cinfo, const SkPaint*) override {
-        const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
-        return new TrackLayerDevice(this->getGlobalBounds(), surfaceProps);
-    }
+    class SkTextBlobCacheDiffCanvas::TrackLayerDevice : public SkNoPixelsDevice {
+    public:
+        TrackLayerDevice(const SkIRect& bounds, const SkSurfaceProps& props,
+                         SkTextBlobCacheDiffCanvas* canvas)
+                : SkNoPixelsDevice(bounds, props), fCanvas(canvas) {}
+        SkBaseDevice* onCreateDevice(const CreateInfo& cinfo, const SkPaint*) override {
+            const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
+            return new TrackLayerDevice(this->getGlobalBounds(), surfaceProps, fCanvas);
+        }
+
+    protected:
+        void drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint,
+                          SkDrawFilter* drawFilter) override {
+            // The looper should be applied by the SkCanvas.
+            SkASSERT(paint.getDrawLooper() == nullptr);
+            // We don't support SkDrawFilter.
+            SkASSERT(drawFilter == nullptr);
+            fCanvas->drawTextBlobFromDevice(blob, x, y, paint, this->ctm());
+        }
+
+    private:
+        SkTextBlobCacheDiffCanvas* fCanvas;
 };
 
 // -- SkTextBlobCacheDiffCanvas -------------------------------------------------------------------
@@ -239,7 +253,7 @@ SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
                                                      const SkMatrix& deviceMatrix,
                                                      const SkSurfaceProps& props,
                                                      SkStrikeServer* strikeSever, Settings settings)
-        : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(SkIRect::MakeWH(width, height), props)}
+        : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(SkIRect::MakeWH(width, height), props, this)}
         , fDeviceMatrix{deviceMatrix}
         , fStrikeServer{strikeSever}
         , fSettings{settings} {
@@ -254,8 +268,14 @@ SkCanvas::SaveLayerStrategy SkTextBlobCacheDiffCanvas::getSaveLayerStrategy(
     return kFullLayer_SaveLayerStrategy;
 }
 
-void SkTextBlobCacheDiffCanvas::onDrawTextBlob(
-        const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint) {
+void SkTextBlobCacheDiffCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
+                                               const SkPaint& paint) {
+    SkCanvas::onDrawTextBlob(blob, x, y, paint);
+}
+
+void SkTextBlobCacheDiffCanvas::drawTextBlobFromDevice(const SkTextBlob* blob, SkScalar x,
+                                                       SkScalar y, const SkPaint& paint,
+                                                       const SkMatrix& ctm) {
     SkPoint position{x, y};
 
     SkPaint runPaint{paint};
@@ -264,28 +284,7 @@ void SkTextBlobCacheDiffCanvas::onDrawTextBlob(
         // applyFontToPaint() always overwrites the exact same attributes,
         // so it is safe to not re-seed the paint for this reason.
         it.applyFontToPaint(&runPaint);
-        if (auto looper = runPaint.getLooper()) {
-            this->processLooper(position, it, runPaint, looper);
-        } else {
-            this->processGlyphRun(position, it, runPaint);
-        }
-    }
-}
-
-void SkTextBlobCacheDiffCanvas::processLooper(
-        const SkPoint& position,
-        const SkTextBlobRunIterator& it,
-        const SkPaint& origPaint,
-        SkDrawLooper* looper)
-{
-    SkSTArenaAlloc<48> alloc;
-    auto context = looper->makeContext(this, &alloc);
-    SkPaint runPaint = origPaint;
-    while (context->next(this, &runPaint)) {
-        this->save();
-        this->processGlyphRun(position, it, runPaint);
-        this->restore();
-        runPaint = origPaint;
+        this->processGlyphRun(position, it, runPaint, ctm);
     }
 }
 
@@ -293,12 +292,10 @@ void SkTextBlobCacheDiffCanvas::processLooper(
     SkDEBUGFAIL("Failed to process glyph run"); \
     return;
 
-void SkTextBlobCacheDiffCanvas::processGlyphRun(
-        const SkPoint& position,
-        const SkTextBlobRunIterator& it,
-        const SkPaint& runPaint)
-{
-
+void SkTextBlobCacheDiffCanvas::processGlyphRun(const SkPoint& position,
+                                                const SkTextBlobRunIterator& it,
+                                                const SkPaint& runPaint,
+                                                const SkMatrix& ctm) {
     if (runPaint.getTextEncoding() != SkPaint::TextEncoding::kGlyphID_TextEncoding) {
         TRACE_EVENT0("skia", "kGlyphID_TextEncoding");
         FAIL_AND_RETURN
@@ -317,7 +314,7 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
     }
 
     SkMatrix runMatrix{fDeviceMatrix};
-    runMatrix.preConcat(this->getTotalMatrix());
+    runMatrix.preConcat(ctm);
 
 #if SK_SUPPORT_GPU
     if (this->processGlyphRunForDFT(it, runPaint, runMatrix)) {

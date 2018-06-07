@@ -69,18 +69,18 @@ public:
 
 protected:
     SkCanvas::SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override;
-
     void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                         const SkPaint& paint) override;
 
 private:
-    void processLooper(const SkPoint& position,
-                       const SkTextBlobRunIterator& it,
-                       const SkPaint& origPaint,
-                       SkDrawLooper* looper);
+    class TrackLayerDevice;
+
+    void drawTextBlobFromDevice(const SkTextBlob* blob, SkScalar x, SkScalar y,
+                                const SkPaint& paint, const SkMatrix& ctm);
     void processGlyphRun(const SkPoint& position,
                          const SkTextBlobRunIterator& it,
-                         const SkPaint& runPaint);
+                         const SkPaint& runPaint,
+                         const SkMatrix& ctm);
     void processGlyphRunForPaths(const SkTextBlobRunIterator& it, const SkPaint& runPaint,
                                  const SkMatrix& runMatrix);
 #if SK_SUPPORT_GPU
