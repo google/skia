@@ -99,3 +99,84 @@ DEF_TEST(PathOpsRectsThreaded, reporter) {
 finish:
     testRunner.render();
 }
+
+static void testPathOpsFastMain(PathOpsThreadState* data)
+{
+    SkASSERT(data);
+    PathOpsThreadState& state = *data;
+    SkString pathStr;
+    int step = data->fReporter->allowExtendedTest() ? 2 : 5;
+
+    for (bool a : { false, true } ) {
+        for (bool b : { false, true } ) {
+            for (int c = 0; c < 6; c += step) {
+                for (int d = 0; d < 6; d += step) {
+        for (int e = SkPath::kWinding_FillType; e <= SkPath::kInverseEvenOdd_FillType; ++e) {
+            for (int f = SkPath::kWinding_FillType; f <= SkPath::kInverseEvenOdd_FillType; ++f) {
+        SkPath pathA, pathB;
+        pathA.setFillType((SkPath::FillType) e);
+        if (a) {
+        pathA.addRect(SkIntToScalar(state.fA), SkIntToScalar(state.fA), SkIntToScalar(state.fB) + c,
+                SkIntToScalar(state.fB), SkPath::kCW_Direction);
+        }
+        pathA.close();
+        pathB.setFillType((SkPath::FillType) f);
+        if (b) {
+        pathB.addRect(SkIntToScalar(state.fC), SkIntToScalar(state.fC), SkIntToScalar(state.fD) + d,
+                SkIntToScalar(state.fD), SkPath::kCW_Direction);
+        }
+        pathB.close();
+        const char* fillTypeStr[] = { "Winding", "EvenOdd", "InverseWinding", "InverseEvenOdd" };
+        for (int op = 0; op <= kXOR_SkPathOp; ++op)    {
+            if (state.fReporter->verbose()) {
+                pathStr.printf(
+                        "static void fast%d(skiatest::Reporter* reporter,"
+                        "const char* filename) {\n", loopNo);
+                pathStr.appendf("    SkPath path, pathB;");
+                pathStr.appendf("    path.setFillType(SkPath::k%s_FillType);\n", fillTypeStr[e]);
+                if (a) {
+                    pathStr.appendf("    path.addRect(%d, %d, %d, %d,"
+                          " SkPath::kCW_Direction);\n", state.fA, state.fA, state.fB + c, state.fB);
+                }
+                pathStr.appendf("    path.setFillType(SkPath::k%s_FillType);\n", fillTypeStr[f]);
+                if (b) {
+                    pathStr.appendf("    path.addRect(%d, %d, %d, %d,"
+                          " SkPath::kCW_Direction);\n", state.fC, state.fC, state.fD + d, state.fD);
+                }
+                pathStr.appendf("    testPathOp(reporter, path, pathB, %s, filename);\n",
+                        SkPathOpsDebug::OpStr((SkPathOp) op));
+                pathStr.appendf("}\n\n");
+                state.outputProgress(pathStr.c_str(), (SkPathOp) op);
+            }
+            if (!testPathOp(state.fReporter, pathA, pathB, (SkPathOp) op, "fast")) {
+                if (state.fReporter->verbose()) {
+                    ++loopNo;
+                    goto skipToNext;
+                }
+            }
+        }
+    }
+                    }
+skipToNext: ;
+                }
+            }
+        }
+    }
+}
+
+DEF_TEST(PathOpsFastThreaded, reporter) {
+    initializeTests(reporter, "testOp");
+    PathOpsThreadedTestRunner testRunner(reporter);
+    int step = reporter->allowExtendedTest() ? 2 : 5;
+    for (int a = 0; a < 6; a += step) {  // outermost
+        for (int b = a + 1; b < 7; b += step) {
+            for (int c = 0 ; c < 6; c += step) {
+                for (int d = c + 1; d < 7; d += step) {
+                    *testRunner.fRunnables.append() = new PathOpsThreadedRunnable(
+                            &testPathOpsFastMain, a, b, c, d, &testRunner);
+                }
+            }
+       }
+    }
+    testRunner.render();
+}
