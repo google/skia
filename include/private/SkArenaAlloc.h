@@ -79,7 +79,7 @@ public:
         uint32_t size      = SkTo<uint32_t>(sizeof(T));
         uint32_t alignment = SkTo<uint32_t>(alignof(T));
         char* objStart;
-        if (skstd::is_trivially_destructible<T>::value) {
+        if (std::is_trivially_destructible<T>::value) {
             objStart = this->allocObject(size, alignment);
             fCursor = objStart + size;
         } else {
@@ -173,7 +173,7 @@ private:
         uint32_t arraySize = SkTo<uint32_t>(count * sizeof(T));
         uint32_t alignment = SkTo<uint32_t>(alignof(T));
 
-        if (skstd::is_trivially_destructible<T>::value) {
+        if (std::is_trivially_destructible<T>::value) {
             objStart = this->allocObject(arraySize, alignment);
             fCursor = objStart + arraySize;
         } else {

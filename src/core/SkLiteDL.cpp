@@ -706,16 +706,11 @@ typedef void(*void_fn)(const void*);
 static const draw_fn draw_fns[] = { TYPES(M) };
 #undef M
 
-// Older libstdc++ has pre-standard std::has_trivial_destructor.
-#if defined(__GLIBCXX__) && (__GLIBCXX__ < 20130000)
-    template <typename T> using can_skip_destructor = std::has_trivial_destructor<T>;
-#else
-    template <typename T> using can_skip_destructor = std::is_trivially_destructible<T>;
-#endif
-
 // Most state ops (matrix, clip, save, restore) have a trivial destructor.
-#define M(T) !can_skip_destructor<T>::value ? [](const void* op) { ((const T*)op)->~T(); } \
-                                            : (void_fn)nullptr,
+#define M(T) !std::is_trivially_destructible<T>::value \
+    ? [](const void* op) { ((const T*)op)->~T(); }     \
+    : (void_fn)nullptr,
+
 static const void_fn dtor_fns[] = { TYPES(M) };
 #undef M
 
