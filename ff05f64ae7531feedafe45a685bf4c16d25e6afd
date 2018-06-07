@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4da084ad_d16e8d19",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T18:16:22Z",
+      "side": 1,
+      "message": "I know this isn\u0027t new, but I would have expected size_t here?",
+      "range": {
+        "startLine": 28,
+        "startChar": 26,
+        "endLine": 28,
+        "endChar": 35
+      },
+      "revId": "ff05f64ae7531feedafe45a685bf4c16d25e6afd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a592d9a2_bd9db461",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T18:16:22Z",
+      "side": 1,
+      "message": "same?",
+      "range": {
+        "startLine": 31,
+        "startChar": 4,
+        "endLine": 31,
+        "endChar": 13
+      },
+      "revId": "ff05f64ae7531feedafe45a685bf4c16d25e6afd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a476a3b_de00cb2c",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T18:16:22Z",
+      "side": 1,
+      "message": "Move is the same as copy for this type right?  None of the spans own anything?\n\nI almost wonder if this would be clearer as\n\nstruct SkGlyphRun {\n  SkSpan\u003cuint16_t\u003e  denseIndex;\n  SkSpan\u003cSkPoint\u003e   positions;\n  SkSpan\u003cSkGlyphID\u003e uniqueGlyphIDs;\n\n  /*\n     assert(denseIndex.size() \u003d\u003d positions.size());\n     for (size_t i \u003d 0; i \u003c denseIndex.size(); i++) {\n        SkGlyphID glyphID \u003d uniqueGlyphIDs[denseIndex[i]];\n        SkPoint       pos \u003d positions[i];\n        ...\n     }\n  */\n};\n\nOr is it \n\n  /*\n     assert(denseIndex.size() \u003d\u003d positions.size());\n     for (size_t i \u003d 0; i \u003c denseIndex.size(); i++) {\n        SkGlyphID glyphID \u003d denseIndex[i];\n        SkPoint       pos \u003d positions[i];\n        ...\n     }\n  */\n\n?  If so, we might want to make sure to call it an SkSpan\u003cSkGlyphID\u003e also.  Come to think of it, if we\u0027re not doing that, what\u0027s the downside?  uint16_t \u003d\u003d SkGlyphID, so it\u0027s the same cost to just store the non-uniqued glyph IDs alongside the unique ones, right?",
+      "revId": "ff05f64ae7531feedafe45a685bf4c16d25e6afd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29781d51_4b0842ed",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T18:16:22Z",
+      "side": 1,
+      "message": "I think this function could use some docs.\n\nMight want to change DrawPosThing to read more function-y?  Having \"Thing\" in the name makes it seem like DrawPosThing is a data type.\n\nMaybe just\n\n  template \u003ctypename Fn\u003e\n  void temporaryShuntToCallback(Fn fn) {\n     ...\n     fn(this-\u003erunSize(), bytes, pos);\n  }\n\nthough it\u0027d really be clearer if this didn\u0027t have to be templated at all.",
+      "range": {
+        "startLine": 96,
+        "startChar": 23,
+        "endLine": 96,
+        "endChar": 35
+      },
+      "revId": "ff05f64ae7531feedafe45a685bf4c16d25e6afd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "341dbc6f_5a360f6e",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T18:16:22Z",
+      "side": 1,
+      "message": "Are all three of these only used for utfN?  Probably then \"a temporary\" -\u003e \"temporaries\"?\n\nIf not, let\u0027s put the comment on the line of the one that\u0027s used for utfN text.",
+      "range": {
+        "startLine": 110,
+        "startChar": 4,
+        "endLine": 111,
+        "endChar": 44
+      },
+      "revId": "ff05f64ae7531feedafe45a685bf4c16d25e6afd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
