@@ -46,6 +46,7 @@ const IncludeKey kKeyWords[] = {
     { "struct",     KeyWord::kStruct,       KeyProperty::kObject         },
     { "template",   KeyWord::kTemplate,     KeyProperty::kObject         },
     { "typedef",    KeyWord::kTypedef,      KeyProperty::kObject         },
+    { "typename",   KeyWord::kTypename,     KeyProperty::kObject         },
     { "uint16_t",   KeyWord::kUint16_t,     KeyProperty::kNumber         },
     { "uint32_t",   KeyWord::kUint32_t,     KeyProperty::kNumber         },
     { "uint64_t",   KeyWord::kUint64_t,     KeyProperty::kNumber         },
@@ -1276,6 +1277,36 @@ bool IncludeParser::findComments(const Definition& includeDef, Definition* marku
     return true;
 }
 
+Definition* IncludeParser::findIncludeObject(const Definition& includeDef, MarkType markType,
+        string typeName) {
+    typedef Definition* DefinitionPtr;
+    auto mapIter = std::find_if(fMaps.begin(), fMaps.end(),
+            [markType](DefinitionMap& defMap){ return markType == defMap.fMarkType; } );
+    if (mapIter == fMaps.end()) {
+        return nullptr;
+    }
+    if (mapIter->fInclude->end() == mapIter->fInclude->find(typeName)) {
+        return reportError<DefinitionPtr>("invalid mark type");
+    }
+    string name = this->uniqueName(*mapIter->fInclude, typeName);
+    Definition& markupDef = *(*mapIter->fInclude)[name];
+    if (markupDef.fStart) {
+        return reportError<DefinitionPtr>("definition already defined");
+    }
+    markupDef.fFileName = fFileName;
+    markupDef.fStart = includeDef.fStart;
+    markupDef.fContentStart = includeDef.fStart;
+    markupDef.fName = name;
+    markupDef.fContentEnd = includeDef.fContentEnd;
+    markupDef.fTerminator = includeDef.fTerminator;
+    markupDef.fParent = fParent;
+    markupDef.fLineCount = includeDef.fLineCount;
+    markupDef.fMarkType = markType;
+    markupDef.fKeyWord = includeDef.fKeyWord;
+    markupDef.fType = Definition::Type::kMark;
+    return &markupDef;
+}
+
 // caller just returns, so report error here
 bool IncludeParser::parseClass(Definition* includeDef, IsStruct isStruct) {
     SkASSERT(includeDef->fTokens.size() > 0);
@@ -1431,32 +1462,11 @@ bool IncludeParser::parseComment(string filename, const char* start, const char*
 }
 
 bool IncludeParser::parseConst(Definition* child, Definition* markupDef) {
-    // todo: hard code to constexpr for now
-    TextParser constParser(child);
-    if (!constParser.skipExact("static")) {
-        return false;
-    }
-    constParser.skipWhiteSpace();
-    if (!constParser.skipExact("constexpr")) {
-        return false;
-    }
-    constParser.skipWhiteSpace();
-    const char* typeStart = constParser.fChar;
-    constParser.skipToSpace();
-    KeyWord constType = FindKey(typeStart, constParser.fChar);
-    if (KeyWord::kNone == constType) {
-        // todo: this could be a non-keyword, ... do we need to look for type?
-        return false;
-    }
-    constParser.skipWhiteSpace();
-    const char* nameStart = constParser.fChar;
-    constParser.skipToSpace();
-    string nameStr = string(nameStart, constParser.fChar - nameStart);
     if (!markupDef) {
         fGlobals.emplace_back(MarkType::kConst, child->fContentStart, child->fContentEnd,
                 child->fLineCount, fParent, '\0');
         Definition* globalMarkupChild = &fGlobals.back();
-        string globalUniqueName = this->uniqueName(fIConstMap, nameStr);
+        string globalUniqueName = this->uniqueName(fIConstMap, child->fName);
         globalMarkupChild->fName = globalUniqueName;
         if (!this->findComments(*child, globalMarkupChild)) {
             return false;
@@ -1467,10 +1477,10 @@ bool IncludeParser::parseConst(Definition* child, Definition* markupDef) {
     markupDef->fTokens.emplace_back(MarkType::kConst, child->fContentStart, child->fContentEnd,
         child->fLineCount, markupDef, '\0');
     Definition* markupChild = &markupDef->fTokens.back();
-    markupChild->fName = nameStr;
+    markupChild->fName = child->fName;
     markupChild->fTerminator = markupChild->fContentEnd;
     IClassDefinition& classDef = fIClassMap[markupDef->fName];
-    classDef.fConsts[nameStr] = markupChild;
+    classDef.fConsts[child->fName] = markupChild;
     return true;
 }
 
@@ -1935,10 +1945,12 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
 }
 
 bool IncludeParser::parseObjects(Definition* parent, Definition* markupDef) {
-    for (auto& child : parent->fChildren) {
+    fPriorObject = nullptr;
+    for (auto child : parent->fChildren) {
         if (!this->parseObject(child, markupDef)) {
             return false;
         }
+        fPriorObject = child;
     }
     return true;
 }
@@ -1957,6 +1969,8 @@ bool IncludeParser::parseObject(Definition* child, Definition* markupDef) {
                     }
                     break;
                 case KeyWord::kStatic:
+                case KeyWord::kConst:
+                case KeyWord::kConstExpr:
                     if (!this->parseConst(child, markupDef)) {
                         return child->reportError<bool>("failed to parse const or constexpr");
                     }
@@ -2021,6 +2035,9 @@ bool IncludeParser::parseObject(Definition* child, Definition* markupDef) {
                                 break;
                             }
                         }
+                    }
+                    if (fPriorObject && MarkType::kConst == fPriorObject->fMarkType) {
+                        break;
                     }
                     if (!this->parseMethod(child, markupDef)) {
                         return child->reportError<bool>("failed to parse method");
@@ -2124,6 +2141,7 @@ bool IncludeParser::parseTypedef(Definition* child, Definition* markupDef) {
             return false;
         }
         fITypedefMap[globalUniqueName] = globalMarkupChild;
+        child->fName = nameStr;
         return true;
     }
     markupDef->fTokens.emplace_back(MarkType::kTypedef, child->fContentStart, child->fContentEnd,
@@ -2133,6 +2151,7 @@ bool IncludeParser::parseTypedef(Definition* child, Definition* markupDef) {
     markupChild->fTerminator = markupChild->fContentEnd;
     IClassDefinition& classDef = fIClassMap[markupDef->fName];
     classDef.fTypedefs[nameStr] = markupChild;
+    child->fName = markupDef->fName + "::" + nameStr;
     return true;
 }
 
@@ -2253,6 +2272,10 @@ bool IncludeParser::parseChar() {
             if (':' == test && (fInBrace || ':' == fChar[-1] || ':' == fChar[1])) {
                 break;
             }
+            if (fConstExpr) {
+                fConstExpr->fContentEnd = fParent->fTokens.back().fContentEnd;
+                fConstExpr = nullptr;
+            }
             if (!fInBrace) {
                 if (!this->checkForWord()) {
                     return false;
@@ -2368,7 +2391,6 @@ bool IncludeParser::parseChar() {
         case '&':
         case ',':
         case '+':
-        case '=':
         case '-':
         case '!':
             if (fInCharCommentString || fInBrace) {
@@ -2378,12 +2400,105 @@ bool IncludeParser::parseChar() {
                 return false;
             }
             break;
+        case '=':
+            if (fInCharCommentString || fInBrace) {
+                break;
+            }
+            if (!this->checkForWord()) {
+                return false;
+            }
+            {
+                const Definition& lastToken = fParent->fTokens.back();
+                if (lastToken.fType != Definition::Type::kWord) {
+                    break;
+                }
+                string name(lastToken.fContentStart, lastToken.length());
+                if ("SK_" != name.substr(0, 3) && 'k' != name[0]) {
+                    break;
+                }
+                // find token on start of line
+                auto lineIter = fParent->fTokens.end();
+                do {
+                    --lineIter;
+                } while (lineIter->fContentStart > fLine);
+                if (lineIter->fContentStart < fLine) {
+                    ++lineIter;
+                }
+                Definition* lineStart = &*lineIter;
+                // walk tokens looking for [template <typename T>] [static] [const | constexpr]
+                bool sawConst = false;
+                bool sawStatic = false;
+                bool sawTemplate = false;
+                bool sawType = false;
+                while (&lastToken != &*lineIter) {
+                    if (KeyWord::kTemplate == lineIter->fKeyWord) {
+                        if (sawConst || sawStatic || sawTemplate) {
+                            sawConst = false;
+                            break;
+                        }
+                        if (&lastToken == &*++lineIter) {
+                            break;
+                        }
+                        if (KeyWord::kTypename != lineIter->fKeyWord) {
+                            break;
+                        }
+                        if (&lastToken == &*++lineIter) {
+                            break;
+                        }
+                        if (Definition::Type::kWord != lineIter->fType) {
+                            break;
+                        }
+                        sawTemplate = true;
+                    } else if (KeyWord::kStatic == lineIter->fKeyWord) {
+                        if (sawConst || sawStatic) {
+                            sawConst = false;
+                            break;
+                        }
+                        sawStatic = true;
+                    } else if (KeyWord::kConst == lineIter->fKeyWord
+                            || KeyWord::kConstExpr == lineIter->fKeyWord) {
+                        if (sawConst) {
+                            sawConst = false;
+                            break;
+                        }
+                        sawConst = true;
+                    } else {
+                        if (sawType) {
+                            sawType = false;
+                            break;
+                        }
+                        if (Definition::Type::kKeyWord == lineIter->fType
+                                && KeyProperty::kNumber
+                                == kKeyWords[(int) lineIter->fKeyWord].fProperty) {
+                            sawType = true;
+                        } else if (Definition::Type::kWord == lineIter->fType) {
+                            string typeName(lineIter->fContentStart, lineIter->length());
+                            if ("Sk" != name.substr(0, 2)) {
+                                sawType = true;
+                            }
+                        }
+                    }
+                    ++lineIter;
+                }
+                if (sawType && sawConst) {
+                    // if found, name first
+                    lineStart->fName = name;
+                    lineStart->fMarkType = MarkType::kConst;
+                    fParent->fChildren.emplace_back(lineStart);
+                    fConstExpr = lineStart;
+                }
+            }
+            break;
         case ';':
             if (fInCharCommentString || fInBrace) {
                 break;
             }
             if (!this->checkForWord()) {
                 return false;
+            }
+            if (fConstExpr) {
+                fConstExpr->fContentEnd = fParent->fTokens.back().fContentEnd;
+                fConstExpr = nullptr;
             }
             if (Definition::Type::kKeyWord == fParent->fType
                     && KeyProperty::kObject == (kKeyWords[(int) fParent->fKeyWord].fProperty)) {
@@ -2527,43 +2642,6 @@ bool IncludeParser::parseChar() {
                             fPriorEnum = priorEnum;
                         }
                     }
-                } else {  // check for static constexpr not following an enum
-                    // find first token on line
-                    auto backTokenWalker = fParent->fTokens.end();
-                    while (fParent->fTokens.begin() != backTokenWalker
-                            && (fParent->fTokens.end() == backTokenWalker
-                            || backTokenWalker->fStart > fLine)) {
-                        std::advance(backTokenWalker, -1);
-                    }
-                    if (fParent->fTokens.end() != backTokenWalker
-                            && backTokenWalker->fStart < fLine) {
-                        std::advance(backTokenWalker, 1);
-                    }
-                    // look for static constexpr
-                    Definition* start = &*backTokenWalker;
-                    bool foundExpected = true;
-                    for (KeyWord expected : {KeyWord::kStatic, KeyWord::kConstExpr}){
-                        const Definition* test = &*backTokenWalker;
-                        if (expected != test->fKeyWord) {
-                            foundExpected = false;
-                            break;
-                        }
-                        if (backTokenWalker == fParent->fTokens.end()) {
-                            break;
-                        }
-                        std::advance(backTokenWalker, 1);
-                    }
-                    if (foundExpected) {
-                        std::advance(backTokenWalker, 1);
-                        const char* nameStart = backTokenWalker->fStart;
-                        std::advance(backTokenWalker, 1);
-                        TextParser parser(fFileName, nameStart, backTokenWalker->fStart, fLineCount);
-                        parser.skipToNonAlphaNum();
-                        start->fMarkType = MarkType::kConst;
-                        start->fName = string(nameStart, parser.fChar - nameStart);
-                        start->fContentEnd = backTokenWalker->fContentEnd;
-                        fParent->fChildren.emplace_back(start);
-                    }
                 }
             }
             this->addPunctuation(Punctuation::kSemicolon);
@@ -2604,9 +2682,6 @@ done:
 }
 
 void IncludeParser::validate() const {
-    for (int index = 0; index <= (int) Last_MarkType; ++index) {
-        SkASSERT(fMaps[index].fMarkType == (MarkType) index);
-    }
     IncludeParser::ValidateKeyWords();
 }
 

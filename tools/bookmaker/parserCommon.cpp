@@ -116,6 +116,9 @@ bool ParserCommon::writeBlockIndent(int size, const char* data) {
         if (!size) {
             return wroteSomething;
         }
+        if (fReturnOnWrite) {
+            return true;
+        }
         if (newLine) {
             this->lf(1);
         }
@@ -137,7 +140,8 @@ bool ParserCommon::writeBlockIndent(int size, const char* data) {
 }
 
 bool ParserCommon::writeBlockTrim(int size, const char* data) {
-    if (fOutdentNext) {
+    SkASSERT(size >= 0);
+    if (!fReturnOnWrite && fOutdentNext) {
         fIndent -= 4;
         fOutdentNext = false;
     }
@@ -149,8 +153,13 @@ bool ParserCommon::writeBlockTrim(int size, const char* data) {
         --size;
     }
     if (size <= 0) {
-        fLastChar = '\0';
+        if (!fReturnOnWrite) {
+            fLastChar = '\0';
+        }
         return false;
+    }
+    if (fReturnOnWrite) {
+        return true;
     }
     SkASSERT(size < 16000);
     if (size > 3 && !strncmp("#end", data, 4)) {
@@ -182,6 +191,7 @@ bool ParserCommon::writeBlockTrim(int size, const char* data) {
 }
 
 void ParserCommon::writePending() {
+    SkASSERT(!fReturnOnWrite);
     fPendingLF = SkTMin(fPendingLF, fMaxLF);
     bool wroteLF = false;
     while (fLinefeeds < fPendingLF) {
@@ -214,6 +224,7 @@ void ParserCommon::writePending() {
 }
 
 void ParserCommon::writeString(const char* str) {
+    SkASSERT(!fReturnOnWrite);
     const size_t len = strlen(str);
     SkASSERT(len > 0);
     SkASSERT(' ' < str[0]);

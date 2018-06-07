@@ -72,6 +72,7 @@ enum class KeyWord {
     kStruct,
     kTemplate,
     kTypedef,
+    kTypename,
     kUint16_t,
     kUint32_t,
     kUint64_t,
@@ -103,6 +104,7 @@ enum class MarkType {
     kExample,
     kExperimental,
     kExternal,
+    kFile,
     kFormula,
     kFunction,
     kHeight,
@@ -1112,10 +1114,31 @@ public:
         kYes,
     };
 
+    enum class IndentKind {
+        kConstOut,
+        kEnumChild,
+        kEnumChild2,
+        kEnumHeader,
+        kEnumHeader2,
+        kMethodOut,
+        kStructMember,
+    };
+
+    struct IndentState {
+        IndentState(IndentKind kind, int indent)
+            : fKind(kind)
+            , fIndent(indent) {
+        }
+
+        IndentKind fKind;
+        int fIndent;
+    };
+
     ParserCommon() : TextParser()
         , fParent(nullptr)
         , fDebugOut(false)
         , fValidate(false)
+        , fReturnOnWrite(false)
     {
     }
 
@@ -1127,8 +1150,21 @@ public:
         fParent = def;
     }
 
+    void indentIn(IndentKind kind) {
+        fIndent += 4;
+        fIndentStack.emplace_back(kind, fIndent);
+    }
+
+    void indentOut() {
+        SkASSERT(fIndent >= 4);
+        SkASSERT(fIndentStack.back().fIndent == fIndent);
+        fIndent -= 4;
+        fIndentStack.pop_back();
+    }
+
     void indentToColumn(int column) {
         SkASSERT(column >= fColumn);
+        SkASSERT(!fReturnOnWrite);
         if (fDebugOut) {
             SkDebugf("%*s", column - fColumn, "");
         }
@@ -1165,6 +1201,7 @@ public:
     }
 
     void nl() {
+        SkASSERT(!fReturnOnWrite);
         fLinefeeds = 0;
         fSpaces = 0;
         fColumn = 0;
@@ -1245,6 +1282,7 @@ public:
     // write a pending space, so that two consecutive calls
     // don't double write, and trailing spaces on lines aren't written
     void writeSpace(int count = 1) {
+        SkASSERT(!fReturnOnWrite);
         SkASSERT(!fPendingLF);
         SkASSERT(!fLinefeeds);
         SkASSERT(fColumn > 0);
@@ -1262,6 +1300,7 @@ public:
 
     unordered_map<string, sk_sp<SkData>> fRawData;
     unordered_map<string, vector<char>> fLFOnly;
+    vector<IndentState> fIndentStack;
     Definition* fParent;
     FILE* fOut;
     int fLinefeeds;    // number of linefeeds last written, zeroed on non-space
@@ -1276,6 +1315,7 @@ public:
     bool fValidate;    // set true to check anchor defs and refs
     bool fOutdentNext; // set at end of embedded struct to prevent premature outdent
     bool fWroteSomething; // used to detect empty content; an alternative source is preferable
+    bool fReturnOnWrite; // used to detect non-empty content; allowing early return
 
 private:
     typedef TextParser INHERITED;
@@ -1351,67 +1391,14 @@ public:
 
     BmhParser(bool skip) : ParserCommon()
         , fMaps {
-          { nullptr,       MarkType::kNone }
-        , { nullptr,       MarkType::kAnchor }
-        , { nullptr,       MarkType::kAlias }
-        , { nullptr,       MarkType::kBug }
-        , { &fClassMap,    MarkType::kClass }
-        , { nullptr,       MarkType::kCode }
-        , { nullptr,       MarkType::kColumn }
-        , { nullptr,       MarkType::kComment }
+          { &fClassMap,    MarkType::kClass }
         , { &fConstMap,    MarkType::kConst }
         , { &fDefineMap,   MarkType::kDefine }
-        , { nullptr,       MarkType::kDefinedBy }
-        , { nullptr,       MarkType::kDeprecated }
-        , { nullptr,       MarkType::kDescription }
-        , { nullptr,       MarkType::kDetails }
-        , { nullptr,       MarkType::kDuration }
         , { &fEnumMap,     MarkType::kEnum }
         , { &fClassMap,    MarkType::kEnumClass }
-        , { nullptr,       MarkType::kExample }
-        , { nullptr,       MarkType::kExperimental }
-        , { nullptr,       MarkType::kExternal }
-        , { nullptr,       MarkType::kFormula }
-        , { nullptr,       MarkType::kFunction }
-        , { nullptr,       MarkType::kHeight }
-        , { nullptr,       MarkType::kIllustration }
-        , { nullptr,       MarkType::kImage }
-        , { nullptr,       MarkType::kIn }
-        , { nullptr,       MarkType::kLegend }
-        , { nullptr,       MarkType::kLine }
-        , { nullptr,       MarkType::kLink }
-        , { nullptr,       MarkType::kList }
-        , { nullptr,       MarkType::kLiteral }
-        , { nullptr,       MarkType::kMarkChar }
-        , { nullptr,       MarkType::kMember }
         , { &fMethodMap,   MarkType::kMethod }
-        , { nullptr,       MarkType::kNoExample }
-        , { nullptr,       MarkType::kNoJustify }
-        , { nullptr,       MarkType::kOutdent }
-        , { nullptr,       MarkType::kParam }
-        , { nullptr,       MarkType::kPhraseDef }
-        , { nullptr,       MarkType::kPhraseParam }
-        , { nullptr,       MarkType::kPhraseRef }
-        , { nullptr,       MarkType::kPlatform }
-        , { nullptr,       MarkType::kPopulate }
-        , { nullptr,       MarkType::kPrivate }
-        , { nullptr,       MarkType::kReturn }
-        , { nullptr,       MarkType::kRow }
-        , { nullptr,       MarkType::kSeeAlso }
-        , { nullptr,       MarkType::kSet }
-        , { nullptr,       MarkType::kStdOut }
         , { &fClassMap,    MarkType::kStruct }
-        , { nullptr,       MarkType::kSubstitute }
-        , { nullptr,       MarkType::kSubtopic }
-        , { nullptr,       MarkType::kTable }
-        , { nullptr,       MarkType::kTemplate }
-        , { nullptr,       MarkType::kText }
-        , { nullptr,       MarkType::kToDo }
-        , { nullptr,       MarkType::kTopic }
         , { &fTypedefMap,  MarkType::kTypedef }
-        , { nullptr,       MarkType::kUnion }
-        , { nullptr,       MarkType::kVolatile }
-        , { nullptr,       MarkType::kWidth }
         }
         , fSkip(skip) {
             this->reset();
@@ -1434,15 +1421,7 @@ public:
     bool endTableColumn(const char* end, const char* terminator);
     bool exampleToScript(Definition*, ExampleOptions, string* result ) const;
     string extractText(const Definition* , TrimExtract ) const;
-
-    RootDefinition* findBmhObject(MarkType markType, string typeName) const {
-        auto map = fMaps[(int) markType].fMap;
-        if (!map) {
-            return nullptr;
-        }
-        return &(*map)[typeName];
-    }
-
+    RootDefinition* findBmhObject(MarkType markType, string typeName);
     bool findDefinitions();
     Definition* findExample(string name) const;
     MarkType getMarkType(MarkLookup lookup) const;
@@ -1505,7 +1484,7 @@ public:
         MarkType fMarkType;
     };
 
-    DefinitionMap fMaps[Last_MarkType + 1];
+    vector<DefinitionMap> fMaps;
 
     static MarkProps kMarkProps[Last_MarkType + 1];
     forward_list<RootDefinition> fTopics;
@@ -1550,67 +1529,15 @@ public:
 
     IncludeParser() : ParserCommon()
         , fMaps {
-          { nullptr,        MarkType::kNone }
-        , { nullptr,        MarkType::kAnchor }
-        , { nullptr,        MarkType::kAlias }
-        , { nullptr,        MarkType::kBug }
-        , { nullptr,        MarkType::kClass }
-        , { nullptr,        MarkType::kCode }
-        , { nullptr,        MarkType::kColumn }
-        , { nullptr,        MarkType::kComment }
-        , { &fIConstMap,    MarkType::kConst }
+          { &fIConstMap,    MarkType::kConst }
         , { &fIDefineMap,   MarkType::kDefine }
-        , { nullptr,        MarkType::kDefinedBy }
-        , { nullptr,        MarkType::kDeprecated }
-        , { nullptr,        MarkType::kDescription }
-        , { nullptr,        MarkType::kDetails }
-        , { nullptr,        MarkType::kDuration }
         , { &fIEnumMap,     MarkType::kEnum }
         , { &fIEnumMap,     MarkType::kEnumClass }
-        , { nullptr,        MarkType::kExample }
-        , { nullptr,        MarkType::kExperimental }
-        , { nullptr,        MarkType::kExternal }
-        , { nullptr,        MarkType::kFormula }
-        , { nullptr,        MarkType::kFunction }
-        , { nullptr,        MarkType::kHeight }
-        , { nullptr,        MarkType::kIllustration }
-		, { nullptr,        MarkType::kImage }
-		, { nullptr,        MarkType::kIn }
-		, { nullptr,        MarkType::kLegend }
-		, { nullptr,        MarkType::kLine }
-		, { nullptr,        MarkType::kLink }
-        , { nullptr,        MarkType::kList }
-        , { nullptr,        MarkType::kLiteral }
-        , { nullptr,        MarkType::kMarkChar }
-        , { nullptr,        MarkType::kMember }
-        , { nullptr,        MarkType::kMethod }
-        , { nullptr,        MarkType::kNoExample }
-        , { nullptr,        MarkType::kNoJustify }
-        , { nullptr,        MarkType::kOutdent }
-        , { nullptr,        MarkType::kParam }
-        , { nullptr,        MarkType::kPhraseDef }
-        , { nullptr,        MarkType::kPhraseParam }
-        , { nullptr,        MarkType::kPhraseRef }
-        , { nullptr,        MarkType::kPlatform }
-        , { nullptr,        MarkType::kPopulate }
-        , { nullptr,        MarkType::kPrivate }
-        , { nullptr,        MarkType::kReturn }
-        , { nullptr,        MarkType::kRow }
-        , { nullptr,        MarkType::kSeeAlso }
-        , { nullptr,        MarkType::kSet }
-        , { nullptr,        MarkType::kStdOut }
         , { &fIStructMap,   MarkType::kStruct }
-        , { nullptr,        MarkType::kSubstitute }
-        , { nullptr,        MarkType::kSubtopic }
-        , { nullptr,        MarkType::kTable }
         , { &fITemplateMap, MarkType::kTemplate }
-        , { nullptr,        MarkType::kText }
-        , { nullptr,        MarkType::kToDo }
-        , { nullptr,        MarkType::kTopic }
         , { &fITypedefMap,  MarkType::kTypedef }
         , { &fIUnionMap,    MarkType::kUnion }
-        , { nullptr,        MarkType::kVolatile }
-        , { nullptr,        MarkType::kWidth } }
+        }
     {
         this->reset();
     }
@@ -1645,33 +1572,8 @@ public:
     bool dumpTokens();
     bool dumpTokens(string skClassName);
     bool findComments(const Definition& includeDef, Definition* markupDef);
-
     Definition* findIncludeObject(const Definition& includeDef, MarkType markType,
-            string typeName) {
-        typedef Definition* DefinitionPtr;
-        unordered_map<string, Definition*>* map = fMaps[(int) markType].fInclude;
-        if (!map) {
-            return reportError<DefinitionPtr>("invalid mark type");
-        }
-        string name = this->uniqueName(*map, typeName);
-        Definition& markupDef = *(*map)[name];
-        if (markupDef.fStart) {
-            return reportError<DefinitionPtr>("definition already defined");
-        }
-        markupDef.fFileName = fFileName;
-        markupDef.fStart = includeDef.fStart;
-        markupDef.fContentStart = includeDef.fStart;
-        markupDef.fName = name;
-        markupDef.fContentEnd = includeDef.fContentEnd;
-        markupDef.fTerminator = includeDef.fTerminator;
-        markupDef.fParent = fParent;
-        markupDef.fLineCount = includeDef.fLineCount;
-        markupDef.fMarkType = markType;
-        markupDef.fKeyWord = includeDef.fKeyWord;
-        markupDef.fType = Definition::Type::kMark;
-        return &markupDef;
-    }
-
+                                  string typeName);
     static KeyWord FindKey(const char* start, const char* end);
     bool isClone(const Definition& token);
     bool isConstructor(const Definition& token, string className);
@@ -1725,9 +1627,12 @@ public:
     void reset() override {
         INHERITED::resetCommon();
         fRootTopic = nullptr;
+        fConstExpr = nullptr;
         fInBrace = nullptr;
         fIncludeWord = nullptr;
         fLastObject = nullptr;
+        fPriorEnum = nullptr;
+        fPriorObject = nullptr;
         fAttrDeprecated = nullptr;
         fPrev = '\0';
         fInChar = false;
@@ -1738,7 +1643,6 @@ public:
         fInFunction = false;
         fInString = false;
         fFailed = false;
-        fPriorEnum = nullptr;
     }
 
     void setBracketShortCuts(Bracket bracket) {
@@ -1905,7 +1809,7 @@ protected:
     static const char gAttrDeprecated[];
     static const size_t kAttrDeprecatedLen;
 
-    DefinitionMap fMaps[Last_MarkType + 1];
+    vector<DefinitionMap> fMaps;
     unordered_map<string, Definition> fIncludeMap;
     list<Definition> fGlobals;
     unordered_map<string, IClassDefinition> fIClassMap;
@@ -1918,9 +1822,11 @@ protected:
     unordered_map<string, Definition*> fITypedefMap;
     unordered_map<string, Definition*> fIUnionMap;
     Definition* fRootTopic;
+    Definition* fConstExpr;
     Definition* fInBrace;
     Definition* fLastObject;
     Definition* fPriorEnum;
+    Definition* fPriorObject;
     const Definition* fAttrDeprecated;
     int fPriorIndex;
     const char* fIncludeWord;
@@ -2077,7 +1983,18 @@ public:
         vector<IterState>& iterStack, IterState** iterState, Preprocessor* );
     void enumSizeItems(const Definition& child);
     bool findEnumSubtopic(string undername, const Definition** ) const;
+    void firstBlock(int size, const char* data);
+    bool firstBlockTrim(int size, const char* data);
 	Definition* findMemberCommentBlock(const vector<Definition*>& bmhChildren, string name) const;
+    Definition* findMethod(string name, RootDefinition* ) const;
+
+    void indentDeferred(IndentKind kind) {
+        if (fIndentNext) {
+            this->indentIn(kind);
+            fIndentNext = false;
+        }
+    }
+
     int lookupMethod(const PunctuationState punctuation, const Word word,
             const int start, const int run, int lastWrite,
             const char* data, bool hasIndirection);
@@ -2091,37 +2008,46 @@ public:
 
     void reset() override {
         INHERITED::resetCommon();
-        fBmhMethod = nullptr;
         fBmhParser = nullptr;
+        fDeferComment = nullptr;
+        fBmhMethod = nullptr;
         fEnumDef = nullptr;
         fMethodDef = nullptr;
         fBmhConst = nullptr;
         fConstDef = nullptr;
+        fLastDescription = nullptr;
+        fStartSetter = nullptr;
         fBmhStructDef = nullptr;
+        fContinuation = nullptr;
         fInStruct = false;
         fWroteMethod = false;
         fIndentNext = false;
         fPendingMethod = false;
+        fFirstWrite = false;
+        fStructEnded = false;
     }
 
     string resolveAlias(const Definition* );
     string resolveMethod(const char* start, const char* end, bool first);
     string resolveRef(const char* start, const char* end, bool first, RefType* refType);
     Wrote rewriteBlock(int size, const char* data, Phrase phrase);
+    void setStart(const char* start, const Definition * );
+    void setStartBack(const char* start, const Definition * );
     Definition* structMemberOut(const Definition* memberStart, const Definition& child);
     void structOut(const Definition* root, const Definition& child,
             const char* commentStart, const char* commentEnd);
     void structSizeMembers(const Definition& child);
 private:
+    vector<const Definition* > fICSStack;
     BmhParser* fBmhParser;
     Definition* fDeferComment;
-    Definition* fLastComment;
     const Definition* fBmhMethod;
     const Definition* fEnumDef;
     const Definition* fMethodDef;
     const Definition* fBmhConst;
     const Definition* fConstDef;
     const Definition* fLastDescription;
+    const Definition* fStartSetter;
     Definition* fBmhStructDef;
     const char* fContinuation;  // used to construct paren-qualified method name
     int fAnonymousEnumCount;
@@ -2134,10 +2060,12 @@ private:
     int fConstValueTab;
     int fConstCommentTab;
     int fConstLength;
-    bool fInStruct;
+    bool fInStruct;  // set if struct is inside class
     bool fWroteMethod;
     bool fIndentNext;
     bool fPendingMethod;
+    bool fFirstWrite;  // set to write file information just after includes
+    bool fStructEnded;  // allow resetting indent after struct is complete
 
     typedef IncludeParser INHERITED;
 };

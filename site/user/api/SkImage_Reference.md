@@ -2510,8 +2510,8 @@ By translating canvas by returned <a href='#SkImage_makeWithFilter_offset'>offse
 typedef std::function<void(GrBackendTexture)> <a href='#SkImage_BackendTextureReleaseProc'>BackendTextureReleaseProc</a>;
 </pre>
 
-Defines a function take one parameter of type
-<a href='undocumented#GrBackendTexture'>GrBackendTexture</a> with no return value.
+Defines a callback function, taking one parameter of type <a href='undocumented#GrBackendTexture'>GrBackendTexture</a> with
+no return value. Function is called when back-end texture is to be released.
 
 <a name='SkImage_MakeBackendTextureFromSkImage'></a>
 ## MakeBackendTextureFromSkImage
