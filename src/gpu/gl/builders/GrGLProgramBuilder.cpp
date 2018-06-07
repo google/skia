@@ -55,7 +55,6 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPipeline& pipeline,
         // to skip the SkSL->GLSL step on a cache hit.
     }
     if (!builder.emitAndInstallProcs()) {
-        builder.cleanupFragmentProcessors();
         return nullptr;
     }
     return builder.finalize();
@@ -137,7 +136,6 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     GrGLuint programID;
     GL_CALL_RET(programID, CreateProgram());
     if (0 == programID) {
-        this->cleanupFragmentProcessors();
         return nullptr;
     }
 
@@ -378,7 +376,6 @@ void GrGLProgramBuilder::resolveProgramResourceLocations(GrGLuint programID) {
 void GrGLProgramBuilder::cleanupProgram(GrGLuint programID, const SkTDArray<GrGLuint>& shaderIDs) {
     GL_CALL(DeleteProgram(programID));
     this->cleanupShaders(shaderIDs);
-    this->cleanupFragmentProcessors();
 }
 void GrGLProgramBuilder::cleanupShaders(const SkTDArray<GrGLuint>& shaderIDs) {
     for (int i = 0; i < shaderIDs.count(); ++i) {
@@ -397,5 +394,6 @@ GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
                            fVaryingHandler.fPathProcVaryingInfos,
                            std::move(fGeometryProcessor),
                            std::move(fXferProcessor),
-                           fFragmentProcessors);
+                           std::move(fFragmentProcessors),
+                           fFragmentProcessorCnt);
 }
