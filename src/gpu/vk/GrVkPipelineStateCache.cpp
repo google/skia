@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "GrVkResourceProvider.h"
-
-#include "GrVkGpu.h"
 #include "GrProcessor.h"
-#include "GrRenderTargetPriv.h" // TODO: remove once refPipelineState gets passed stencil settings.
+#include "GrRenderTargetPriv.h"  // TODO: remove once refPipelineState gets passed stencil settings.
+#include "GrStencilSettings.h"
+#include "GrVkGpu.h"
 #include "GrVkPipelineState.h"
 #include "GrVkPipelineStateBuilder.h"
+#include "GrVkResourceProvider.h"
 #include "SkOpts.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -91,9 +91,9 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
     }
 
     // Get GrVkProgramDesc
-    GrVkPipelineState::Desc desc;
-    if (!GrVkPipelineState::Desc::Build(&desc, primProc, pipeline, stencil,
-                                        primitiveType, *fGpu->caps()->shaderCaps())) {
+    GrVkPipelineStateBuilder::Desc desc;
+    if (!GrVkPipelineStateBuilder::Desc::Build(&desc, primProc, pipeline, stencil, primitiveType,
+                                               *fGpu->caps()->shaderCaps())) {
         GrCapsDebugf(fGpu->caps(), "Failed to build vk program descriptor!\n");
         return nullptr;
     }
