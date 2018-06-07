@@ -54,45 +54,11 @@ SK_API extern void sk_abort_no_print(void);
 #define SK_INIT_TO_AVOID_WARNING    = 0
 
 #ifndef SkDebugf
-    SK_API void SkDebugf(const char format[], ...);
+    SK_API void SkDebugPrintf(const char format[], ...);
+    #define SkDebugf(...) SkDebugPrintf(__VA_ARGS__)
 #endif
 
-// SkASSERT, SkASSERTF and SkASSERT_RELEASE can be used as stand alone assertion expressions, e.g.
-//    uint32_t foo(int x) {
-//        SkASSERT(x > 4);
-//        return x - 4;
-//    }
-// and are also written to be compatible with constexpr functions:
-//    constexpr uint32_t foo(int x) {
-//        return SkASSERT(x > 4),
-//               x - 4;
-//    }
-#define SkASSERT_RELEASE(cond) \
-        static_cast<void>( (cond) ? (void)0 : []{ SK_ABORT("assert(" #cond ")"); }() )
-
-#ifdef SK_DEBUG
-    #define SkASSERT(cond) SkASSERT_RELEASE(cond)
-    #define SkASSERTF(cond, fmt, ...) static_cast<void>( (cond) ? (void)0 : [&]{ \
-                                          SkDebugf(fmt"\n", __VA_ARGS__);        \
-                                          SK_ABORT("assert(" #cond ")");         \
-                                      }() )
-    #define SkDEBUGFAIL(message)        SK_ABORT(message)
-    #define SkDEBUGFAILF(fmt, ...)      SkASSERTF(false, fmt, ##__VA_ARGS__)
-    #define SkDEBUGCODE(...)            __VA_ARGS__
-    #define SkDEBUGF(args       )       SkDebugf args
-    #define SkAssertResult(cond)        SkASSERT(cond)
-#else
-    #define SkASSERT(cond)            static_cast<void>(0)
-    #define SkASSERTF(cond, fmt, ...) static_cast<void>(0)
-    #define SkDEBUGFAIL(message)
-    #define SkDEBUGFAILF(fmt, ...)
-    #define SkDEBUGCODE(...)
-    #define SkDEBUGF(args)
-
-    // unlike SkASSERT, this guy executes its condition in the non-debug build.
-    // The if is present so that this can be used with functions marked SK_WARN_UNUSED_RESULT.
-    #define SkAssertResult(cond)         if (cond) {} do {} while(false)
-#endif
+#include "../private/SkAssert.h"
 
 // some clients (e.g. third_party/WebKit/Source/platform/fonts/FontCustomPlatformData.h)
 // depend on SkString forward declaration below. Remove this once dependencies are fixed.

@@ -17,7 +17,7 @@
 // applications (e.g. skia_launcher).
 bool gSkDebugToStdOut = false;
 
-void SkDebugf(const char format[], ...) {
+void SkDebugPrintf(const char format[], ...) {
     va_list args1, args2;
     va_start(args1, format);
 

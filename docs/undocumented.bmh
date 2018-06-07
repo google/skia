@@ -177,7 +177,7 @@ FT_Load_Glyph
 ##
 
 #Topic Debugging
-#Method SK_API void SkDebugf(const char format[], ...)
+#Method SK_API void SkDebugPrintf(const char format[], ...)
 ##
 ##
 

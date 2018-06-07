@@ -47,7 +47,7 @@ std::ostringstream gTextOutput;
 // Global to record the GL driver info via create_grcontext().
 std::ostringstream gGLDriverInfo;
 
-void SkDebugf(const char * fmt, ...) {
+void SkDebugPrintf(const char * fmt, ...) {
     va_list args;
     va_start(args, fmt);
     char formatbuffer[1024];
