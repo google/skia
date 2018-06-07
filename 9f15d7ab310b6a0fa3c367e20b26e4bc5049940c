@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "975f34fc_bc019c88",
+        "filename": "include/private/GrTextureProxy.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-07T18:26:26Z",
+      "side": 1,
+      "message": "It seems more straightforward to me to just use mipMapped() and remove this. If we hadn\u0027t already had this function I don\u0027t think we\u0027d add it.",
+      "parentUuid": "bfb37d49_921ddb45",
+      "revId": "9f15d7ab310b6a0fa3c367e20b26e4bc5049940c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d28e4010_eb56fd05",
         "filename": "src/gpu/GrTexture.cpp",
         "patchSetId": 3
@@ -190,6 +208,30 @@
       "writtenOn": "2018-06-07T17:08:37Z",
       "side": 1,
       "message": "What are thoughts on this? I don\u0027t believe it will ever be possible for a client to give us a mipped external or rectangle texture so might as well just not allow this here.",
+      "range": {
+        "startLine": 710,
+        "startChar": 2,
+        "endLine": 715,
+        "endChar": 5
+      },
+      "revId": "9f15d7ab310b6a0fa3c367e20b26e4bc5049940c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c8e1970_e121303b",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 715,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-07T18:26:26Z",
+      "side": 1,
+      "message": "Seems fine to me.",
+      "parentUuid": "51b107f0_260ea52b",
       "range": {
         "startLine": 710,
         "startChar": 2,
