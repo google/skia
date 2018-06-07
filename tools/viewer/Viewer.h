@@ -48,6 +48,7 @@ public:
         bool fImageFilter = false;
 
         bool fTextSize = false;
+        SkScalar fTextSizeRange[2] = { 0, 20 };
         bool fTextScaleX = false;
         bool fTextSkewX = false;
         bool fColor = false;
