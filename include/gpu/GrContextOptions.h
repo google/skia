@@ -98,7 +98,7 @@ struct GrContextOptions {
     /**
      * The maximum size of cache textures used for Skia's Glyph cache.
      */
-    float fGlyphCacheTextureMaximumBytes = 2048 * 1024 * 4;
+    size_t fGlyphCacheTextureMaximumBytes = 2048 * 1024 * 4;
 
     /**
      * Below this threshold size in device space distance field fonts won't be used. Distance field

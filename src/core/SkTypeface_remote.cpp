@@ -38,7 +38,7 @@ void SkScalerContextProxy::generateMetrics(SkGlyph* glyph) {
         SkDebugf("GlyphCacheMiss generateMetrics: %s\n", this->getRec().dump().c_str());
     }
 
-    fDiscardableManager->NotifyCacheMiss(SkStrikeClient::CacheMissType::kGlyphMetrics);
+    fDiscardableManager->notifyCacheMiss(SkStrikeClient::CacheMissType::kGlyphMetrics);
     glyph->zeroMetrics();
 }
 
@@ -48,7 +48,7 @@ void SkScalerContextProxy::generateImage(const SkGlyph& glyph) {
         SkDebugf("GlyphCacheMiss generateImage: %s\n", this->getRec().dump().c_str());
     }
 
-    fDiscardableManager->NotifyCacheMiss(SkStrikeClient::CacheMissType::kGlyphImage);
+    fDiscardableManager->notifyCacheMiss(SkStrikeClient::CacheMissType::kGlyphImage);
 }
 
 bool SkScalerContextProxy::generatePath(SkGlyphID glyphID, SkPath* path) {
@@ -57,7 +57,7 @@ bool SkScalerContextProxy::generatePath(SkGlyphID glyphID, SkPath* path) {
         SkDebugf("GlyphCacheMiss generatePath: %s\n", this->getRec().dump().c_str());
     }
 
-    fDiscardableManager->NotifyCacheMiss(SkStrikeClient::CacheMissType::kGlyphPath);
+    fDiscardableManager->notifyCacheMiss(SkStrikeClient::CacheMissType::kGlyphPath);
     return false;
 }
 
@@ -69,7 +69,7 @@ void SkScalerContextProxy::generateFontMetrics(SkPaint::FontMetrics* metrics) {
         SkDEBUGCODE(SkStrikeCache::Dump());
     }
 
-    fDiscardableManager->NotifyCacheMiss(SkStrikeClient::CacheMissType::kFontMetrics);
+    fDiscardableManager->notifyCacheMiss(SkStrikeClient::CacheMissType::kFontMetrics);
     sk_bzero(metrics, sizeof(*metrics));
 }
 

@@ -43,8 +43,8 @@ public:
 
     SkScalar getGlyphSizeLimit() const { return fGlyphSizeLimit; }
 
-    static void ComputeAtlasLimits(const GrCaps* caps, float maxTextureBytes,
-                                   int* maxDim, int* minDim, int* maxPlot, int* minPlot);
+    static void ComputeAtlasLimits(int maxTextureSize, size_t maxTextureBytes, int* maxDim,
+                                   int* minDim, int* maxPlot, int* minPlot);
 
     void freeAll();
 
