@@ -6,9 +6,9 @@
 */
 
 #include "GrVkPipeline.h"
-
 #include "GrGeometryProcessor.h"
 #include "GrPipeline.h"
+#include "GrStencilSettings.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkGpu.h"
 #include "GrVkRenderTarget.h"
