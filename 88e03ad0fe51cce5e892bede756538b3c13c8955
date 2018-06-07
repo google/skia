@@ -22,6 +22,30 @@
       "revId": "88e03ad0fe51cce5e892bede756538b3c13c8955",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5bd6716b_2263394a",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-07T17:15:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "95d5ab65_3806c671",
+      "range": {
+        "startLine": 308,
+        "startChar": 0,
+        "endLine": 310,
+        "endChar": 9
+      },
+      "revId": "88e03ad0fe51cce5e892bede756538b3c13c8955",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
