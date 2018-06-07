@@ -1742,17 +1742,15 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     grayRedInfo.fSwizzle = GrSwizzle::RRRA();
     grayRedInfo.fFlags = ConfigInfo::kTextureable_Flag;
 
-#if 0 // Leaving Gray8 as non-renderable, to keep things simple and match raster. Needs to be
-      // updated to support Gray8_as_Lum and Gray8_as_red if this is ever enabled.
-    if (this->textureRedSupport() ||
-        (kDesktop_ARB_MSFBOType == this->msFBOType() &&
-         ctxInfo.renderer() != kOSMesa_GrGLRenderer)) {
+    // Leaving Gray8 as non-renderable, to keep things simple and match raster. However, we do
+    // enable the FBOColorAttachment_Flag so that we can bind it to an FBO for copies.
+    grayRedInfo.fFlags |= ConfigInfo::kFBOColorAttachment_Flag;;
+    if (kStandard_MSFBOType == this->msFBOType() && ctxInfo.renderer() != kOSMesa_GrGLRenderer) {
         // desktop ARB extension/3.0+ supports LUMINANCE8 as renderable.
         // However, osmesa fails if it used even when GL_ARB_framebuffer_object is present.
         // Core profile removes LUMINANCE8 support, but we should have chosen R8 in that case.
-        fConfigTable[kGray_8_GrPixelConfig].fFlags |= allRenderFlags;
+        grayLumInfo.fFlags |= ConfigInfo::kFBOColorAttachment_Flag;;
     }
-#endif
     if (texStorageSupported && !isCommandBufferES2) {
         if (!disableR8TexStorageForANGLEGL) {
             grayLumInfo.fFlags |= ConfigInfo::kCanUseTexStorage_Flag;

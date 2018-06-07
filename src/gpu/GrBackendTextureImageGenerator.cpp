@@ -180,12 +180,6 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         return nullptr;
     }
 
-    // We can't pass the fact that this creates a wrapped texture into createLazyProxy so we need
-    // to manually call setDoesNotSupportMipMaps.
-    if (GrMipMapped::kNo == mipMapped) {
-        proxy->texPriv().setDoesNotSupportMipMaps();
-    }
-
     if (0 == origin.fX && 0 == origin.fY &&
         info.width() == fBackendTexture.width() && info.height() == fBackendTexture.height() &&
         (!willNeedMipMaps || GrMipMapped::kYes == proxy->mipMapped())) {
