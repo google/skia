@@ -160,14 +160,10 @@ void SkBaseDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 
         switch (it.positioning()) {
         case SkTextBlob::kDefault_Positioning: {
-            SkGlyphSet glyphSet;
             auto origin = SkPoint::Make(x + offset.x(), y + offset.y());
-            auto glyphRun =
-                    SkGlyphRun::MakeFromDrawText(
-                            runPaint, (const char*) it.glyphs(), textLen, origin, &glyphSet);
-            this->drawPosText(
-                    it.glyphs(), textLen, glyphRun.getPositions(), 2,
-                    SkPoint::Make(0, 0), runPaint);
+            SkGlyphRunBuilder builder;
+            builder.prepareDrawText(runPaint, (const char*) it.glyphs(), textLen, origin);
+            builder.temporaryShuntToDrawPosText(runPaint, this);
         }
         break;
         case SkTextBlob::kHorizontal_Positioning:
@@ -253,15 +249,11 @@ void SkBaseDevice::drawImageLattice(const SkImage* image,
     }
 }
 
-void SkBaseDevice::drawGlyphRun(const SkPaint& paint, SkGlyphRun* info) {
+void SkBaseDevice::drawGlyphRun(const SkPaint& paint, SkGlyphRunBuilder* runBuilder) {
     SkPaint glyphPaint(paint);
     glyphPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
-    auto glyphs = info->copyGlyphIDs();
-
-    this->drawPosText(
-            glyphs.get(), info->runSize() * 2,
-            info->getPositions(), 2, SkPoint::Make(0, 0), glyphPaint);
+    runBuilder->temporaryShuntToDrawPosText(glyphPaint, this);
 }
 
 void SkBaseDevice::drawBitmapLattice(const SkBitmap& bitmap,

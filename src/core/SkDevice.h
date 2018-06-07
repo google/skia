@@ -18,6 +18,7 @@ class SkBitmap;
 class SkDrawFilter;
 struct SkDrawShadowRec;
 class SkGlyphRun;
+class SkGlyphRunBuilder;
 class SkImageFilterCache;
 struct SkIRect;
 class SkMatrix;
@@ -223,7 +224,7 @@ protected:
      *  Does not handle text decoration.
      *  Decorations (underline and stike-thru) will be handled by SkCanvas.
      */
-    virtual void drawGlyphRun(const SkPaint& paint, SkGlyphRun* info);
+    virtual void drawGlyphRun(const SkPaint& paint, SkGlyphRunBuilder* info);
     virtual void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) = 0;
     virtual void drawShadow(const SkPath&, const SkDrawShadowRec&);
 
@@ -346,6 +347,8 @@ private:
     friend class SkSurface_Raster;
     friend class DeviceTestingAccess;
 
+    // Temporarily friend the SkGlyphRunBuilder until drawPosText is gone.
+    friend class SkGlyphRunBuilder;
     virtual void drawPosText(const void* text, size_t len,
                              const SkScalar pos[], int scalarsPerPos,
                              const SkPoint& offset, const SkPaint& paint) = 0;

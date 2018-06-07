@@ -591,7 +591,7 @@ void SkCanvas::init(sk_sp<SkBaseDevice> device, InitFlags flags) {
         device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect);
     }
 
-    fScratchGlyphSet = skstd::make_unique<SkGlyphSet>();
+    fScratchGlyphRunBuilder = skstd::make_unique<SkGlyphRunBuilder>();
 }
 
 SkCanvas::SkCanvas()
@@ -2449,9 +2449,8 @@ void SkCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkSca
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, nullptr)
 
     while (iter.next()) {
-        auto glyphRun = SkGlyphRun::MakeFromDrawText(
-                looper.paint(), text, byteLength, SkPoint::Make(x, y), fScratchGlyphSet.get());
-        iter.fDevice->drawGlyphRun(looper.paint(), &glyphRun);
+        fScratchGlyphRunBuilder->prepareDrawText(paint, text, byteLength, SkPoint::Make(x, y));
+        iter.fDevice->drawGlyphRun(looper.paint(), fScratchGlyphRunBuilder.get());
     }
 
     LOOPER_END
@@ -2463,9 +2462,8 @@ void SkCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint 
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, nullptr)
 
     while (iter.next()) {
-        auto glyphRun = SkGlyphRun::MakeFromDrawPosText(
-                looper.paint(), text, byteLength, pos, fScratchGlyphSet.get());
-        iter.fDevice->drawGlyphRun(looper.paint(), &glyphRun);
+        fScratchGlyphRunBuilder->prepareDrawPosText(paint, text, byteLength, pos);
+        iter.fDevice->drawGlyphRun(looper.paint(), fScratchGlyphRunBuilder.get());
     }
 
     LOOPER_END
@@ -2477,10 +2475,8 @@ void SkCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScala
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, nullptr)
 
     while (iter.next()) {
-        auto glyphRun =
-                SkGlyphRun::MakeFromDrawPosTextH(
-                        looper.paint(), text, byteLength, xpos, constY, fScratchGlyphSet.get());
-        iter.fDevice->drawGlyphRun(looper.paint(), &glyphRun);
+        fScratchGlyphRunBuilder->prepareDrawPosTextH(paint, text, byteLength, xpos, constY);
+        iter.fDevice->drawGlyphRun(looper.paint(), fScratchGlyphRunBuilder.get());
     }
 
     LOOPER_END
