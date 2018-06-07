@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "90d07b09_0d3a3bb0",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1812,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T14:02:37Z",
+      "side": 1,
+      "message": "while we\u0027re at it, let\u0027s rename it dump_GPU_info() to match our usual file-local-static naming convention?",
+      "range": {
+        "startLine": 1812,
+        "startChar": 11,
+        "endLine": 1812,
+        "endChar": 23
+      },
+      "revId": "55f351eaa239339fe324dda609151a21a2a7a2b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
