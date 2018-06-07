@@ -127,19 +127,20 @@ bool GrCoverageCountingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkRect devBounds;
     args.fViewMatrix->mapRect(&devBounds, path.getBounds());
 
+    GrCCDrawPathsOp* op;
     if (SkTMax(devBounds.height(), devBounds.width()) > kPathCropThreshold) {
         // The path is too large. Crop it or analytic AA can run out of fp32 precision.
         SkPath croppedPath;
         path.transform(*args.fViewMatrix, &croppedPath);
         crop_path(croppedPath, clipIBounds, &croppedPath);
-        this->adoptAndRecordOp(new GrCCDrawPathsOp(std::move(args.fPaint), clipIBounds,
-                                                   SkMatrix::I(), croppedPath,
-                                                   croppedPath.getBounds()), args);
-        return true;
+        op = GrCCDrawPathsOp::Make(args.fContext, std::move(args.fPaint), clipIBounds,
+                                   SkMatrix::I(), croppedPath, croppedPath.getBounds());
+    } else {
+        op = GrCCDrawPathsOp::Make(args.fContext, std::move(args.fPaint), clipIBounds,
+                                   *args.fViewMatrix, path, devBounds);
     }
 
-    this->adoptAndRecordOp(new GrCCDrawPathsOp(std::move(args.fPaint), clipIBounds,
-                                               *args.fViewMatrix, path, devBounds), args);
+    this->adoptAndRecordOp(op, args);
     return true;
 }
 

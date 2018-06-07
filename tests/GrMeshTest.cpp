@@ -75,11 +75,12 @@ struct Box {
  * from the set (r,g,b) = (0,255)^3, so the GPU renderings ought to produce exact matches.
  */
 
-static void run_test(const char* testName, skiatest::Reporter*, const sk_sp<GrRenderTargetContext>&,
-                     const SkBitmap& gold, std::function<void(DrawMeshHelper*)> testFn);
+static void run_test(GrContext* context, const char* testName, skiatest::Reporter*,
+                     const sk_sp<GrRenderTargetContext>&, const SkBitmap& gold,
+                     std::function<void(DrawMeshHelper*)> testFn);
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
-    GrContext* const context = ctxInfo.grContext();
+    GrContext* context = ctxInfo.grContext();
 
     sk_sp<GrRenderTargetContext> rtc(context->contextPriv().makeDeferredRenderTargetContext(
                                                  SkBackingFit::kExact, kImageWidth, kImageHeight,
@@ -136,26 +137,27 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
         return; \
     }
 
-    run_test("setNonIndexedNonInstanced", reporter, rtc, gold, [&](DrawMeshHelper* helper) {
-        SkTArray<Box> expandedVertexData;
-        for (int i = 0; i < kBoxCount; ++i) {
-            for (int j = 0; j < 6; ++j) {
-                expandedVertexData.push_back(vertexData[i][kIndexPattern[j]]);
-            }
-        }
+    run_test(context, "setNonIndexedNonInstanced", reporter, rtc, gold,
+             [&](DrawMeshHelper* helper) {
+                 SkTArray<Box> expandedVertexData;
+                 for (int i = 0; i < kBoxCount; ++i) {
+                     for (int j = 0; j < 6; ++j) {
+                         expandedVertexData.push_back(vertexData[i][kIndexPattern[j]]);
+                     }
+                 }
 
-        // Draw boxes one line at a time to exercise base vertex.
-        auto vbuff = helper->makeVertexBuffer(expandedVertexData);
-        VALIDATE(vbuff);
-        for (int y = 0; y < kBoxCountY; ++y) {
-            GrMesh mesh(GrPrimitiveType::kTriangles);
-            mesh.setNonIndexedNonInstanced(kBoxCountX * 6);
-            mesh.setVertexData(vbuff.get(), y * kBoxCountX * 6);
-            helper->drawMesh(mesh);
-        }
-    });
+                 // Draw boxes one line at a time to exercise base vertex.
+                 auto vbuff = helper->makeVertexBuffer(expandedVertexData);
+                 VALIDATE(vbuff);
+                 for (int y = 0; y < kBoxCountY; ++y) {
+                     GrMesh mesh(GrPrimitiveType::kTriangles);
+                     mesh.setNonIndexedNonInstanced(kBoxCountX * 6);
+                     mesh.setVertexData(vbuff.get(), y * kBoxCountX * 6);
+                     helper->drawMesh(mesh);
+                 }
+             });
 
-    run_test("setIndexed", reporter, rtc, gold, [&](DrawMeshHelper* helper) {
+    run_test(context, "setIndexed", reporter, rtc, gold, [&](DrawMeshHelper* helper) {
         auto ibuff = helper->getIndexBuffer();
         VALIDATE(ibuff);
         auto vbuff = helper->makeVertexBuffer(vertexData);
@@ -179,7 +181,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
         }
     });
 
-    run_test("setIndexedPatterned", reporter, rtc, gold, [&](DrawMeshHelper* helper) {
+    run_test(context, "setIndexedPatterned", reporter, rtc, gold, [&](DrawMeshHelper* helper) {
         auto ibuff = helper->getIndexBuffer();
         VALIDATE(ibuff);
         auto vbuff = helper->makeVertexBuffer(vertexData);
@@ -200,7 +202,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
             break;
         }
 
-        run_test(indexed ? "setIndexedInstanced" : "setInstanced",
+        run_test(context, indexed ? "setIndexedInstanced" : "setInstanced",
                  reporter, rtc, gold, [&](DrawMeshHelper* helper) {
             auto idxbuff = indexed ? helper->getIndexBuffer() : nullptr;
             auto instbuff = helper->makeVertexBuffer(boxes);
@@ -252,6 +254,12 @@ class GrMeshTestOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          std::function<void(DrawMeshHelper*)> testFn) {
+        return std::unique_ptr<GrDrawOp>(new GrMeshTestOp(testFn));
+    }
+
+private:
     GrMeshTestOp(std::function<void(DrawMeshHelper*)> testFn)
         : INHERITED(ClassID())
         , fTestFn(testFn) {
@@ -259,7 +267,6 @@ public:
                         HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-private:
     const char* name() const override { return "GrMeshTestOp"; }
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
     RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*,
@@ -374,7 +381,7 @@ void DrawMeshHelper::drawMesh(const GrMesh& mesh) {
                                     SkRect::MakeIWH(kImageWidth, kImageHeight));
 }
 
-static void run_test(const char* testName, skiatest::Reporter* reporter,
+static void run_test(GrContext* context, const char* testName, skiatest::Reporter* reporter,
                      const sk_sp<GrRenderTargetContext>& rtc, const SkBitmap& gold,
                      std::function<void(DrawMeshHelper*)> testFn) {
     const int w = gold.width(), h = gold.height(), rowBytes = gold.rowBytes();
@@ -390,7 +397,7 @@ static void run_test(const char* testName, skiatest::Reporter* reporter,
 
     SkAutoSTMalloc<kImageHeight * kImageWidth, uint32_t> resultPx(h * rowBytes);
     rtc->clear(nullptr, 0xbaaaaaad, GrRenderTargetContext::CanClearFullscreen::kYes);
-    rtc->priv().testingOnly_addDrawOp(skstd::make_unique<GrMeshTestOp>(testFn));
+    rtc->priv().testingOnly_addDrawOp(GrMeshTestOp::Make(context, testFn));
     rtc->readPixels(gold.info(), resultPx, rowBytes, 0, 0, 0);
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {

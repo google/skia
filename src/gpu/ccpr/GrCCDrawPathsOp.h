@@ -26,8 +26,13 @@ public:
     DEFINE_OP_CLASS_ID
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrCCDrawPathsOp);
 
-    GrCCDrawPathsOp(GrPaint&&, const SkIRect& clipIBounds, const SkMatrix&, const SkPath&,
-                    const SkRect& devBounds);
+    static GrCCDrawPathsOp* Make(GrContext*,
+                                 GrPaint&&,
+                                 const SkIRect& clipIBounds,
+                                 const SkMatrix&,
+                                 const SkPath&,
+                                 const SkRect& devBounds);
+
     ~GrCCDrawPathsOp() override;
 
     const char* name() const override { return "GrCCDrawOp"; }
@@ -48,6 +53,9 @@ public:
     void onExecute(GrOpFlushState*) override;
 
 private:
+    GrCCDrawPathsOp(GrPaint&&, const SkIRect& clipIBounds, const SkMatrix&, const SkPath&,
+                    const SkRect& devBounds);
+
     struct AtlasBatch {
         const GrCCAtlas* fAtlas;
         int fEndInstanceIdx;

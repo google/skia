@@ -105,6 +105,14 @@ class GrPipelineDynamicStateTestOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          ScissorState scissorState,
+                                          sk_sp<const GrBuffer> vbuff) {
+        return std::unique_ptr<GrDrawOp>(new GrPipelineDynamicStateTestOp(scissorState,
+                                                                          std::move(vbuff)));
+    }
+
+private:
     GrPipelineDynamicStateTestOp(ScissorState scissorState, sk_sp<const GrBuffer> vbuff)
         : INHERITED(ClassID())
         , fScissorState(scissorState)
@@ -113,7 +121,6 @@ public:
                         HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-private:
     const char* name() const override { return "GrPipelineDynamicStateTestOp"; }
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
     RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*,
@@ -143,7 +150,7 @@ private:
 };
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo) {
-    GrContext* const context = ctxInfo.grContext();
+    GrContext* context = ctxInfo.grContext();
     GrResourceProvider* rp = context->contextPriv().resourceProvider();
 
     sk_sp<GrRenderTargetContext> rtc(context->contextPriv().makeDeferredRenderTargetContext(
@@ -192,7 +199,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo
     for (ScissorState scissorState : {ScissorState::kEnabled, ScissorState::kDisabled}) {
         rtc->clear(nullptr, 0xbaaaaaad, GrRenderTargetContext::CanClearFullscreen::kYes);
         rtc->priv().testingOnly_addDrawOp(
-            skstd::make_unique<GrPipelineDynamicStateTestOp>(scissorState, vbuff));
+            GrPipelineDynamicStateTestOp::Make(context, scissorState, vbuff));
         rtc->readPixels(SkImageInfo::Make(kScreenSize, kScreenSize,
                                           kRGBA_8888_SkColorType, kPremul_SkAlphaType),
                         resultPx, 4 * kScreenSize, 0, 0, 0);
