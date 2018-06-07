@@ -43,10 +43,11 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
 
     GrUniqueKey key;
     this->makeCopyKey(copyParams, &key, nullptr);
+    sk_sp<GrTextureProxy> cachedCopy;
     if (key.isValid()) {
-        sk_sp<GrTextureProxy> cachedCopy =
-                proxyProvider->findOrCreateProxyByUniqueKey(key, this->originalProxy()->origin());
-        if (cachedCopy) {
+        cachedCopy = proxyProvider->findOrCreateProxyByUniqueKey(key,
+                                                                 this->originalProxy()->origin());
+        if (cachedCopy && (!willBeMipped || GrMipMapped::kYes == cachedCopy->mipMapped())) {
             return cachedCopy;
         }
     }
@@ -57,6 +58,14 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
     if (copy) {
         if (key.isValid()) {
             SkASSERT(copy->origin() == this->originalProxy()->origin());
+            if (cachedCopy) {
+                SkASSERT(GrMipMapped::kYes == copy->mipMapped() &&
+                         GrMipMapped::kNo == cachedCopy->mipMapped());
+                // If we had a cachedProxy, that means there already is a proxy in the cache which
+                // matches the key, but it does not have mip levels and we require them. Thus we
+                // must remove the unique key from that proxy.
+                proxyProvider->removeUniqueKeyFromProxy(key, cachedCopy.get());
+            }
             proxyProvider->assignUniqueKeyToProxy(key, copy.get());
             this->didCacheCopy(key);
         }
