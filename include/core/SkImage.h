@@ -51,6 +51,9 @@ class GrTexture;
 */
 class SK_API SkImage : public SkRefCnt {
 public:
+
+    /** Caller data passed to RasterReleaseProc; may be nullptr.
+    */
     typedef void* ReleaseContext;
 
     /** Creates SkImage from SkPixmap and copy of pixels. Since pixels are copied, SkPixmap
@@ -85,6 +88,9 @@ public:
     static sk_sp<SkImage> MakeRasterData(const SkImageInfo& info, sk_sp<SkData> pixels,
                                          size_t rowBytes);
 
+    /** Function called when SkImage no longer shares pixels. ReleaseContext is
+        provided by caller when SkImage is created, and may be nullptr.
+    */
     typedef void (*RasterReleaseProc)(const void* pixels, ReleaseContext);
 
     /** Creates SkImage from pixmap, sharing SkPixmap pixels. Pixels must remain valid and
@@ -158,6 +164,8 @@ public:
     */
     static sk_sp<SkImage> MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* subset = nullptr);
 
+    /** User function called when supplied texture may be deleted.
+    */
     typedef void (*TextureReleaseProc)(ReleaseContext releaseContext);
 
     /** Creates SkImage from GPU texture associated with context. Caller is responsible for
@@ -788,6 +796,9 @@ public:
                                   const SkIRect& clipBounds, SkIRect* outSubset,
                                   SkIPoint* offset) const;
 
+    /** Defines a callback function, taking one parameter of type GrBackendTexture with
+        no return value. Function is called when back-end texture is to be released.
+    */
     typedef std::function<void(GrBackendTexture)> BackendTextureReleaseProc;
 
     /** Creates a GrBackendTexture from the provided SkImage. Returns true and

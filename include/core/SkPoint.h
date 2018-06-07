@@ -13,6 +13,10 @@
 #include "../private/SkSafe32.h"
 
 struct SkIPoint;
+
+/** SkIVector provides an alternative name for SkIPoint. SkIVector and SkIPoint
+    can be used interchangeably for all purposes.
+*/
 typedef SkIPoint SkIVector;
 
 /** \struct SkIPoint
@@ -143,6 +147,10 @@ struct SkIPoint {
 };
 
 struct SkPoint;
+
+/** SkVector provides an alternative name for SkPoint. SkVector and SkPoint can
+    be used interchangably for all purposes.
+*/
 typedef SkPoint SkVector;
 
 /** \struct SkPoint
