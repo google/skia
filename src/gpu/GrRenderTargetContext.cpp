@@ -1409,7 +1409,7 @@ bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
 }
 
 void GrRenderTargetContext::insertEventMarker(const SkString& str) {
-    std::unique_ptr<GrOp> op(GrDebugMarkerOp::Make(fRenderTargetProxy.get(), str));
+    std::unique_ptr<GrOp> op(GrDebugMarkerOp::Make(fContext, fRenderTargetProxy.get(), str));
     this->getRTOpList()->addOp(std::move(op), *this->caps());
 }
 
