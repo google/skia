@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "93160a47_5cdc4d97",
+        "filename": "src/ports/SkFontMgr_win_dw.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 979,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-07T14:01:36Z",
+      "side": 1,
+      "message": "Because of getting the \u0027defaults\u0027 from here any axis which is in the font but not mentioned in the args will get the value which this fontFace had. In the new SkTypeface::makeClone method this is exactly what we want, but right here I think we want to set any default values to the default axis values (which can be found from the IDWriteFontResource).",
+      "range": {
+        "startLine": 979,
+        "startChar": 49,
+        "endLine": 979,
+        "endChar": 62
+      },
+      "revId": "5f08ba3f11bd886bad168d80a13c750e03622a14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
