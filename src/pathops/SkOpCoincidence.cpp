@@ -789,7 +789,7 @@ bool SkOpCoincidence::addMissing(bool* added  DEBUG_COIN_DECLARE_PARAMS()) {
         const SkOpPtT* ocs = outer->coinPtTStart();
         FAIL_IF(ocs->deleted());
         const SkOpSegment* outerCoin = ocs->segment();
-        SkASSERT(!outerCoin->done());  // if it's done, should have already been removed from list
+        FAIL_IF(outerCoin->done());
         const SkOpPtT* oos = outer->oppPtTStart();
         if (oos->deleted()) {
             return true;
