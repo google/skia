@@ -13,6 +13,7 @@
 #include <unordered_map>
 
 #include "SkSLCodeGenerator.h"
+#include "SkSLMemoryLayout.h"
 #include "SkSLStringStream.h"
 #include "ir/SkSLBinaryExpression.h"
 #include "ir/SkSLBoolLiteral.h"
@@ -79,6 +80,7 @@ public:
     MetalCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
                       OutputStream* out)
     : INHERITED(program, errors, out)
+    , fReservedWords({"atan2", "rsqrt", "dfdx", "dfdy"})
     , fLineEnding("\n")
     , fContext(*context) {
         this->setupIntrinsics();
@@ -102,6 +104,7 @@ protected:
 
     enum SpecialIntrinsic {
         kTexture_SpecialIntrinsic,
+        kMod_SpecialIntrinsic,
     };
 
     enum MetalIntrinsic {
@@ -160,6 +163,8 @@ protected:
     void writeGlobalVars(const VarDeclaration& vs);
 
     void writeVarInitializer(const Variable& var, const Expression& value);
+
+    void writeName(const String& name);
 
     void writeVarDeclarations(const VarDeclarations& decl, bool global);
 
@@ -231,6 +236,7 @@ protected:
 
     typedef std::pair<IntrinsicKind, int32_t> Intrinsic;
     std::unordered_map<String, Intrinsic> fIntrinsicMap;
+    std::unordered_set<String> fReservedWords;
     std::vector<const VarDeclaration*> fInitNonConstGlobalVars;
     std::vector<const Variable*> fTextures;
     std::unordered_map<const Type::Field*, const InterfaceBlock*> fInterfaceBlockMap;
