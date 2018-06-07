@@ -255,10 +255,10 @@ private:
 
         int instanceCount = fPaths.count();
 
-        int vertexCount = 0;
-        int indexCount = 0;
-        int maxVertices = DEFAULT_BUFFER_SIZE;
-        int maxIndices = DEFAULT_BUFFER_SIZE;
+        int64_t vertexCount = 0;
+        int64_t indexCount = 0;
+        int64_t maxVertices = DEFAULT_BUFFER_SIZE;
+        int64_t maxIndices = DEFAULT_BUFFER_SIZE;
         uint8_t* vertices = (uint8_t*) sk_malloc_throw(maxVertices * vertexStride);
         uint16_t* indices = (uint16_t*) sk_malloc_throw(maxIndices * sizeof(uint16_t));
         for (int i = 0; i < instanceCount; i++) {
@@ -270,8 +270,8 @@ private:
                 continue;
             }
 
-            int currentIndices = tess.numIndices();
-            if (indexCount + currentIndices > static_cast<int>(UINT16_MAX)) {
+            int currentVertices = tess.numPts();
+            if (vertexCount + currentVertices > static_cast<int>(UINT16_MAX)) {
                 // if we added the current instance, we would overflow the indices we can store in a
                 // uint16_t. Draw what we've got so far and reset.
                 this->draw(target, gp.get(), pipeline, vertexCount, vertexStride, vertices,
@@ -279,13 +279,23 @@ private:
                 vertexCount = 0;
                 indexCount = 0;
             }
-            int currentVertices = tess.numPts();
             if (vertexCount + currentVertices > maxVertices) {
                 maxVertices = SkTMax(vertexCount + currentVertices, maxVertices * 2);
+                if (maxVertices * vertexStride > SK_MaxS32) {
+                    sk_free(vertices);
+                    sk_free(indices);
+                    return;
+                }
                 vertices = (uint8_t*) sk_realloc_throw(vertices, maxVertices * vertexStride);
             }
+            int currentIndices = tess.numIndices();
             if (indexCount + currentIndices > maxIndices) {
                 maxIndices = SkTMax(indexCount + currentIndices, maxIndices * 2);
+                if (maxIndices * sizeof(uint16_t) > SK_MaxS32) {
+                    sk_free(vertices);
+                    sk_free(indices);
+                    return;
+                }
                 indices = (uint16_t*) sk_realloc_throw(indices, maxIndices * sizeof(uint16_t));
             }
 
@@ -295,8 +305,10 @@ private:
             vertexCount += currentVertices;
             indexCount += currentIndices;
         }
-        this->draw(target, gp.get(), pipeline, vertexCount, vertexStride, vertices, indexCount,
-                   indices);
+        if (vertexCount <= SK_MaxS32 && indexCount <= SK_MaxS32) {
+            this->draw(target, gp.get(), pipeline, vertexCount, vertexStride, vertices, indexCount,
+                       indices);
+        }
         sk_free(vertices);
         sk_free(indices);
     }

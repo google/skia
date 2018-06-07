@@ -2116,8 +2116,8 @@ int get_contour_count(const SkPath& path, SkScalar tolerance) {
     return contourCnt;
 }
 
-int count_points(Poly* polys, SkPath::FillType fillType) {
-    int count = 0;
+int64_t count_points(Poly* polys, SkPath::FillType fillType) {
+    int64_t count = 0;
     for (Poly* poly = polys; poly; poly = poly->fNext) {
         if (apply_fill_type(fillType, poly) && poly->fCount >= 3) {
             count += (poly->fCount - 2) * (TESSELLATOR_WIREFRAME ? 6 : 3);
@@ -2126,8 +2126,8 @@ int count_points(Poly* polys, SkPath::FillType fillType) {
     return count;
 }
 
-int count_outer_mesh_points(const VertexList& outerMesh) {
-    int count = 0;
+int64_t count_outer_mesh_points(const VertexList& outerMesh) {
+    int64_t count = 0;
     for (Vertex* v = outerMesh.fHead; v; v = v->fNext) {
         for (Edge* e = v->fFirstEdgeBelow; e; e = e->fNextEdgeBelow) {
             count += TESSELLATOR_WIREFRAME ? 12 : 6;
@@ -2169,13 +2169,14 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
     Poly* polys = path_to_polys(path, tolerance, clipBounds, contourCnt, alloc, antialias,
                                 isLinear, &outerMesh);
     SkPath::FillType fillType = antialias ? SkPath::kWinding_FillType : path.getFillType();
-    int count = count_points(polys, fillType);
+    int64_t count64 = count_points(polys, fillType);
     if (antialias) {
-        count += count_outer_mesh_points(outerMesh);
+        count64 += count_outer_mesh_points(outerMesh);
     }
-    if (0 == count) {
+    if (0 == count64 || count64 > SK_MaxS32) {
         return 0;
     }
+    int count = count64;
 
     void* verts = vertexAllocator->lock(count);
     if (!verts) {
@@ -2209,11 +2210,12 @@ int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBou
     Poly* polys = path_to_polys(path, tolerance, clipBounds, contourCnt, alloc, false, &isLinear,
                                 nullptr);
     SkPath::FillType fillType = path.getFillType();
-    int count = count_points(polys, fillType);
-    if (0 == count) {
+    int64_t count64 = count_points(polys, fillType);
+    if (0 == count64 || count64 > SK_MaxS32) {
         *verts = nullptr;
         return 0;
     }
+    int count = count64;
 
     *verts = new GrTessellator::WindingVertex[count];
     GrTessellator::WindingVertex* vertsEnd = *verts;
