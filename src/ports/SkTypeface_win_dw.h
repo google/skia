@@ -19,6 +19,7 @@
 #include <dwrite.h>
 #include <dwrite_1.h>
 #include <dwrite_2.h>
+#include <dwrite_3.h>
 
 class SkFontDescriptor;
 struct SkScalerContextRec;
@@ -100,6 +101,7 @@ protected:
         INHERITED::weak_dispose();
     }
 
+    sk_sp<SkTypeface> onMakeClone(const SkFontArguments&) const override;
     SkStreamAsset* onOpenStream(int* ttcIndex) const override;
     SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
                                            const SkDescriptor*) const override;
