@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "87a2d1af_30bc1c4f",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-07T20:37:49Z",
+      "side": 1,
+      "message": "Ack, I haven\u0027t thought of that.\n\nSounds like a really nice idea if we decide we need double precision.\n\n(although it may clash with the long-short-string optimization due to the zero tag?)",
+      "parentUuid": "3f94ca47_6bd90d09",
+      "revId": "629e00498de31eabb7d06dfe6fb083d3867b6666",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0e91320b_b5adf3a0",
         "filename": "modules/skjson/src/SkJSON.cpp",
         "patchSetId": 8
@@ -66,6 +84,30 @@
     },
     {
       "key": {
+        "uuid": "2c0bccba_d634d784",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-07T20:37:49Z",
+      "side": 1,
+      "message": "Updated to store the type in the high bits + some diagrams.",
+      "parentUuid": "9adcdc07_7e2900e8",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 6
+      },
+      "revId": "629e00498de31eabb7d06dfe6fb083d3867b6666",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a9724e99_763805bc",
         "filename": "modules/skjson/src/SkJSON.cpp",
         "patchSetId": 8
@@ -110,6 +152,30 @@
       "revId": "629e00498de31eabb7d06dfe6fb083d3867b6666",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ef32672_633e1487",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-07T20:37:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a94e527b_95c9f6f7",
+      "range": {
+        "startLine": 585,
+        "startChar": 16,
+        "endLine": 585,
+        "endChar": 23
+      },
+      "revId": "629e00498de31eabb7d06dfe6fb083d3867b6666",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "633ebc88_9f8422b5",
+        "filename": "modules/skjson/BUILD.gn",
+        "patchSetId": 10
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-07T20:37:49Z",
+      "side": 1,
+      "message": "Yeah, for now :)\n\nWe\u0027ll need to sort it out.",
+      "parentUuid": "c289a35f_d91307b5",
+      "range": {
+        "startLine": 28,
+        "startChar": 6,
+        "endLine": 28,
+        "endChar": 19
+      },
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e3ec906e_09f9d45a",
         "filename": "modules/skjson/BUILD.gn",
         "patchSetId": 10
@@ -59,6 +83,24 @@
     },
     {
       "key": {
+        "uuid": "ddd85a68_ed0b11cc",
+        "filename": "modules/skjson/include/SkJSON.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-07T20:37:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d1c48e89_9284d7e4",
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5bc76623_ebb5fb29",
         "filename": "modules/skjson/include/SkJSON.h",
         "patchSetId": 10
@@ -70,6 +112,30 @@
       "writtenOn": "2018-06-07T12:35:37Z",
       "side": 1,
       "message": "Remind me how this works?  Does it only work because no one uses operator[] with StringValue?\n\nDoes it make sense to model StringValue as PrimitiveValue\u003cstd::string/SkString, Value::Type::kString\u003e?",
+      "range": {
+        "startLine": 99,
+        "startChar": 59,
+        "endLine": 99,
+        "endChar": 68
+      },
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b0650ab_cce19eea",
+        "filename": "modules/skjson/include/SkJSON.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-07T20:37:49Z",
+      "side": 1,
+      "message": "\u003e Remind me how this works?  Does it only work because no one uses operator[] with StringValue?\n\nBusted!  Yeah, it only works because at this time nobody calls for StringValue.\n\n\u003e \n\u003e Does it make sense to model StringValue as PrimitiveValue\u003cstd::string/SkString, Value::Type::kString\u003e?\n\nHmm, wouldn\u0027t that imply we need to copy/create the string every time we access a StringValue?",
+      "parentUuid": "5bc76623_ebb5fb29",
       "range": {
         "startLine": 99,
         "startChar": 59,
@@ -105,6 +171,30 @@
     },
     {
       "key": {
+        "uuid": "2eeeb7a8_6528203b",
+        "filename": "modules/skjson/include/SkJSON.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-07T20:37:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b3e92b45_4b591875",
+      "range": {
+        "startLine": 104,
+        "startChar": 4,
+        "endLine": 104,
+        "endChar": 15
+      },
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c18b3158_76e3831d",
         "filename": "modules/skjson/include/SkJSON.h",
         "patchSetId": 10
@@ -116,6 +206,30 @@
       "writtenOn": "2018-06-07T12:35:37Z",
       "side": 1,
       "message": "Do you think it\u0027s useful to split this into IntValue and FloatValue?  Or does that just confuse things for people expecting JSON\u0027s value types using SkJSON?",
+      "range": {
+        "startLine": 111,
+        "startChar": 6,
+        "endLine": 111,
+        "endChar": 41
+      },
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f2a2984_787d6b17",
+        "filename": "modules/skjson/include/SkJSON.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-07T20:37:49Z",
+      "side": 1,
+      "message": "I don\u0027t really have a strong opinion on this one.  Some libs expose the underlying type, some just treat everything as double.  I guess we can always add IntValue when the need arises?",
+      "parentUuid": "c18b3158_76e3831d",
       "range": {
         "startLine": 111,
         "startChar": 6,
@@ -151,6 +265,30 @@
     },
     {
       "key": {
+        "uuid": "2f464658_b07b498d",
+        "filename": "modules/skjson/include/SkJSON.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-07T20:37:49Z",
+      "side": 1,
+      "message": "Yup, this is actually one access pattern I\u0027m interested in for Skottie: currently properties are accessed in random order, and I suspect we can speed up parsing by reading sequentially (and collect in some builder struct).",
+      "parentUuid": "b51dc803_90b21300",
+      "range": {
+        "startLine": 115,
+        "startChar": 33,
+        "endLine": 115,
+        "endChar": 51
+      },
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7b3fe970_c6b85d1d",
         "filename": "modules/skjson/include/SkJSON.h",
         "patchSetId": 10
@@ -162,6 +300,30 @@
       "writtenOn": "2018-06-07T12:35:37Z",
       "side": 1,
       "message": "this is probably DOM, right?  Or ParseTree?",
+      "range": {
+        "startLine": 120,
+        "startChar": 6,
+        "endLine": 120,
+        "endChar": 9
+      },
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90e6f5ac_80a401f0",
+        "filename": "modules/skjson/include/SkJSON.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-07T20:37:49Z",
+      "side": 1,
+      "message": "Done (DOM).",
+      "parentUuid": "7b3fe970_c6b85d1d",
       "range": {
         "startLine": 120,
         "startChar": 6,
@@ -191,6 +353,24 @@
     },
     {
       "key": {
+        "uuid": "cf70090c_e8c1d1ee",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-07T20:37:49Z",
+      "side": 1,
+      "message": "Clever!  Done.",
+      "parentUuid": "2ff28d7e_3d7b86db",
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fbfccc6d_41a8207a",
         "filename": "modules/skjson/src/SkJSON.cpp",
         "patchSetId": 10
@@ -205,6 +385,24 @@
       "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eaf7a183_08902373",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-07T20:37:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fbfccc6d_41a8207a",
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -225,6 +423,24 @@
     },
     {
       "key": {
+        "uuid": "09ae78de_20960fc7",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-07T20:37:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d79b87ae_26b3bd7e",
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c50a9aba_fa76faf4",
         "filename": "modules/skjson/src/SkJSON.cpp",
         "patchSetId": 10
@@ -236,6 +452,30 @@
       "writtenOn": "2018-06-07T12:35:37Z",
       "side": 1,
       "message": "?",
+      "range": {
+        "startLine": 379,
+        "startChar": 1,
+        "endLine": 379,
+        "endChar": 12
+      },
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b365549_7a779757",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-07T20:37:49Z",
+      "side": 1,
+      "message": "Not strictly required, but since this will most likely sit in L1, maybe a good idea to ensure it doesn\u0027t straddle two lines?",
+      "parentUuid": "c50a9aba_fa76faf4",
       "range": {
         "startLine": 379,
         "startChar": 1,
@@ -265,6 +505,24 @@
     },
     {
       "key": {
+        "uuid": "6c0f7126_77f9675e",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-07T20:37:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "30e529e1_ca192c82",
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "33055fc9_a1891404",
         "filename": "modules/skjson/src/SkJSON.cpp",
         "patchSetId": 10
@@ -276,6 +534,24 @@
       "writtenOn": "2018-06-07T12:35:37Z",
       "side": 1,
       "message": "Are you thinking we\u0027ll get this up onto Dom?",
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46f0b6b0_5f145fc4",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-07T20:37:49Z",
+      "side": 1,
+      "message": "Yeah, I have some vague plans to surface this info if needed.",
+      "parentUuid": "33055fc9_a1891404",
       "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -313,6 +589,24 @@
       "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1fc6f16_0a1eb31c",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 883,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-07T20:37:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a2fcc3b_dbc6b56d",
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
