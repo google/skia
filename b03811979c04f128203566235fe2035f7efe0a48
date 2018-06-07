@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b77f2bc9_3884d2f3",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-07T20:01:11Z",
+      "side": 1,
+      "message": "This is saying anything that\u0027s not a number or letter (or underscore)? I don\u0027t understand the pattern that\u0027s used by RunnerArgs to validate, but my guess is that this is perhaps unnecessarily restrictive, but that\u0027s okay.",
+      "range": {
+        "startLine": 64,
+        "startChar": 33,
+        "endLine": 64,
+        "endChar": 46
+      },
+      "revId": "b03811979c04f128203566235fe2035f7efe0a48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82d95186_5c073300",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-07T20:01:11Z",
+      "side": 1,
+      "message": "Does this mean \"backendName does not start with a number\"? why does that matter? (Is that disallowed by the validator?)",
+      "range": {
+        "startLine": 67,
+        "startChar": 12,
+        "endLine": 67,
+        "endChar": 51
+      },
+      "revId": "b03811979c04f128203566235fe2035f7efe0a48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
