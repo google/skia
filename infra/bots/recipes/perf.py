@@ -60,12 +60,8 @@ def nanobench_flags(api, bot):
     args.append('--nogpu')
     configs.extend(['8888', 'nonrendering'])
 
-    if '-arm-' not in bot:
-      # For Android CPU tests, these take too long and cause the task to time
-      # out.
-      configs += [ 'f16', 'srgb' ]
     if '-GCE-' in bot:
-      configs += [ '565' ]
+      configs += [ 'f16' ]
 
   elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
     args.append('--nocpu')

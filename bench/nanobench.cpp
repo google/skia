@@ -478,9 +478,6 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
                kN32_SkColorType, kPremul_SkAlphaType, nullptr)
     CPU_CONFIG(565,  kRaster_Backend,
                kRGB_565_SkColorType, kOpaque_SkAlphaType, nullptr)
-    auto srgbColorSpace = SkColorSpace::MakeSRGB();
-    CPU_CONFIG(srgb, kRaster_Backend,
-               kN32_SkColorType,  kPremul_SkAlphaType, srgbColorSpace)
     auto srgbLinearColorSpace = SkColorSpace::MakeSRGBLinear();
     CPU_CONFIG(f16,  kRaster_Backend,
                kRGBA_F16_SkColorType, kPremul_SkAlphaType, srgbLinearColorSpace)
