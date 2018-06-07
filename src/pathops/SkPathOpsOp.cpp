@@ -217,12 +217,6 @@ extern void (*gVerboseFinalize)();
 
 bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
         SkDEBUGPARAMS(bool skipAssert) SkDEBUGPARAMS(const char* testName)) {
-    SkSTArenaAlloc<4096> allocator;  // FIXME: add a constant expression here, tune
-    SkOpContour contour;
-    SkOpContourHead* contourList = static_cast<SkOpContourHead*>(&contour);
-    SkOpGlobalState globalState(contourList, &allocator
-            SkDEBUGPARAMS(skipAssert) SkDEBUGPARAMS(testName));
-    SkOpCoincidence coincidence(&globalState);
 #if DEBUG_DUMP_VERIFY
 #ifndef SK_DEBUG
     const char* testName = "release";
@@ -234,6 +228,46 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
     op = gOpInverse[op][one.isInverseFillType()][two.isInverseFillType()];
     SkPath::FillType fillType = gOutInverse[op][one.isInverseFillType()][two.isInverseFillType()]
             ? SkPath::kInverseEvenOdd_FillType : SkPath::kEvenOdd_FillType;
+    SkRect rect1, rect2;
+    if (kIntersect_SkPathOp == op && one.isRect(&rect1) && two.isRect(&rect2)) {
+        result->reset();
+        result->setFillType(fillType);
+        if (rect1.intersect(rect2)) {
+            result->addRect(rect1);
+        }
+        return true;
+    }
+    if (one.isEmpty() || two.isEmpty()) {
+        SkPath work;
+        work.setFillType(fillType);
+        switch (op) {
+            case kIntersect_SkPathOp:
+                break;
+            case kUnion_SkPathOp:
+            case kXOR_SkPathOp:
+                work = one.isEmpty() ? two : one;
+                break;
+            case kDifference_SkPathOp:
+                if (!one.isEmpty()) {
+                    work = one;
+                }
+                break;
+            case kReverseDifference_SkPathOp:
+                if (!two.isEmpty()) {
+                    work = two;
+                }
+                break;
+            default:
+                SkASSERT(0);  // unhandled case
+        }
+        return Simplify(work, result);
+    }
+    SkSTArenaAlloc<4096> allocator;  // FIXME: add a constant expression here, tune
+    SkOpContour contour;
+    SkOpContourHead* contourList = static_cast<SkOpContourHead*>(&contour);
+    SkOpGlobalState globalState(contourList, &allocator
+            SkDEBUGPARAMS(skipAssert) SkDEBUGPARAMS(testName));
+    SkOpCoincidence coincidence(&globalState);
     SkScalar scaleFactor = SkTMax(ScaleFactor(one), ScaleFactor(two));
     SkPath scaledOne, scaledTwo;
     const SkPath* minuend, * subtrahend;
