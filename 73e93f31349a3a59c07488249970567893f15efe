@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7717807c_dd769106",
+        "filename": "src/ports/SkFontMgr_win_dw.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 977,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-07T20:18:58Z",
+      "side": 1,
+      "message": "It\u0027s actually ok for this to fail, we expect it to fail on earlier versions of windows.",
+      "range": {
+        "startLine": 977,
+        "startChar": 12,
+        "endLine": 977,
+        "endChar": 16
+      },
+      "revId": "73e93f31349a3a59c07488249970567893f15efe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e6064af_c77b194c",
+        "filename": "src/ports/SkFontMgr_win_dw.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 978,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-07T20:18:58Z",
+      "side": 1,
+      "message": "In order to match the style of the rest of this file this should be\n\nSUCCEEDED(fontFace-\u003eQueryInterface(\u0026fontFace5))",
+      "range": {
+        "startLine": 978,
+        "startChar": 16,
+        "endLine": 978,
+        "endChar": 25
+      },
+      "revId": "73e93f31349a3a59c07488249970567893f15efe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
