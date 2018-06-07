@@ -26,14 +26,14 @@
 // Examples:
 //
 //   char block[mostCasesSize];
-//   SkArenaAlloc arena(block, almostAllCasesSize);
+//   SkArenaAlloc arena(block, mostCasesSize);
 //
 // If mostCasesSize is too large for the stack, you can use the following pattern.
 //
 //   std::unique_ptr<char[]> block{new char[mostCasesSize]};
 //   SkArenaAlloc arena(block.get(), mostCasesSize, almostAllCasesSize);
 //
-// If the program only sometimes allocates memory, use the following.
+// If the program only sometimes allocates memory, use the following pattern.
 //
 //   SkArenaAlloc arena(nullptr, 0, almostAllCasesSize);
 //
@@ -42,7 +42,7 @@
 //
 //   class Foo {
 //       char storage[mostCasesSize];
-//       SkArenaAlloc arena (storage, almostAllCasesSize);
+//       SkArenaAlloc arena (storage, mostCasesSize);
 //   };
 //
 // In addition, the system is optimized to handle POD data including arrays of PODs (where
@@ -57,7 +57,7 @@
 // there are 71 allocations.
 class SkArenaAlloc {
 public:
-    SkArenaAlloc(char* block, size_t size, size_t);
+    SkArenaAlloc(char* block, size_t blockSize, size_t extraSize);
 
     SkArenaAlloc(size_t extraSize)
         : SkArenaAlloc(nullptr, 0, extraSize)
