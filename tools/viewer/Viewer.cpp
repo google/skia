@@ -1018,6 +1018,9 @@ public:
         if (*paint == nullptr) {
             return true;
         }
+        if (fPaintOverrides->fTextSize) {
+            paint->writable()->setTextSize(fPaint->getTextSize());
+        }
         if (fPaintOverrides->fHinting) {
             paint->writable()->setHinting(fPaint->getHinting());
         }
@@ -1651,6 +1654,22 @@ void Viewer::drawImGui() {
                           "Default\0No Vertical Text\0Vertical Text\0\0",
                           SkPaint::kVerticalText_Flag,
                           &SkPaint::isVerticalText, &SkPaint::setVerticalText);
+
+                ImGui::Checkbox("Override TextSize", &fPaintOverrides.fTextSize);
+                if (fPaintOverrides.fTextSize) {
+                    ImGui::DragFloat2("TextRange", fPaintOverrides.fTextSizeRange,
+                                      0.001f, -10.0f, 300.0f, "%.6f", 2.0f);
+                    float textSize = fPaint.getTextSize();
+                    if (ImGui::DragFloat("TextSize", &textSize, 0.001f,
+                                         fPaintOverrides.fTextSizeRange[0],
+                                         fPaintOverrides.fTextSizeRange[1],
+                                         "%.6f", 2.0f))
+                    {
+                        fPaint.setTextSize(textSize);
+                        this->preTouchMatrixChanged();
+                        paramsChanged = true;
+                    }
+                }
             }
 
             {
