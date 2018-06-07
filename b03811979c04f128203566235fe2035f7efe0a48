@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "643c4b64_a30010c3",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-06-07T20:07:57Z",
+      "side": 1,
+      "message": "yep.",
+      "parentUuid": "b77f2bc9_3884d2f3",
+      "range": {
+        "startLine": 64,
+        "startChar": 33,
+        "endLine": 64,
+        "endChar": 46
+      },
+      "revId": "b03811979c04f128203566235fe2035f7efe0a48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "82d95186_5c073300",
         "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "b03811979c04f128203566235fe2035f7efe0a48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4cc08148_1c6688fd",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-06-07T20:07:57Z",
+      "side": 1,
+      "message": "It assumes a valid Java method name.",
+      "parentUuid": "82d95186_5c073300",
+      "range": {
+        "startLine": 67,
+        "startChar": 12,
+        "endLine": 67,
+        "endChar": 51
+      },
+      "revId": "b03811979c04f128203566235fe2035f7efe0a48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
