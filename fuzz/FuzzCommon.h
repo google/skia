@@ -12,30 +12,6 @@
 #include "SkPath.h"
 #include "SkRegion.h"
 
-
-#if SK_SUPPORT_GPU
-#include "GrContextFactory.h"
-#include "gl/GrGLFunctions.h"
-#include "gl/GrGLGpu.h"
-#include "gl/GrGLUtil.h"
-#include "GrContextPriv.h"
-
-inline void dumpGPUInfo(GrContext* context) {
-    const GrGLInterface* gl = static_cast<GrGLGpu*>(context->contextPriv().getGpu())
-                                    ->glInterface();
-    const GrGLubyte* output;
-    GR_GL_CALL_RET(gl, output, GetString(GR_GL_RENDERER));
-    SkDebugf("GL_RENDERER %s\n", (const char*) output);
-
-    GR_GL_CALL_RET(gl, output, GetString(GR_GL_VENDOR));
-    SkDebugf("GL_VENDOR %s\n", (const char*) output);
-
-    GR_GL_CALL_RET(gl, output, GetString(GR_GL_VERSION));
-    SkDebugf("GL_VERSION %s\n", (const char*) output);
-}
-
-#endif
-
 // We don't always want to test NaNs and infinities.
 static inline void fuzz_nice_float(Fuzz* fuzz, float* f) {
     float v;
