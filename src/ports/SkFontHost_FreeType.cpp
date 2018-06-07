@@ -794,19 +794,9 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
                 loadFlags = FT_LOAD_TARGET_LIGHT;  // This implies FORCE_AUTOHINT
                 break;
             case SkPaint::kNormal_Hinting:
-                if (fRec.fFlags & SkScalerContext::kForceAutohinting_Flag) {
-                    loadFlags = FT_LOAD_FORCE_AUTOHINT;
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-                } else {
-                    loadFlags = FT_LOAD_NO_AUTOHINT;
-#endif
-                }
+                loadFlags = FT_LOAD_TARGET_NORMAL;
                 break;
             case SkPaint::kFull_Hinting:
-                if (fRec.fFlags & SkScalerContext::kForceAutohinting_Flag) {
-                    loadFlags = FT_LOAD_FORCE_AUTOHINT;
-                    break;
-                }
                 loadFlags = FT_LOAD_TARGET_NORMAL;
                 if (isLCD(fRec)) {
                     if (fLCDIsVert) {
@@ -820,6 +810,14 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
                 SkDebugf("---------- UNKNOWN hinting %d\n", fRec.getHinting());
                 break;
             }
+        }
+
+        if (fRec.fFlags & SkScalerContext::kForceAutohinting_Flag) {
+            loadFlags |= FT_LOAD_FORCE_AUTOHINT;
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+        } else {
+            loadFlags |= FT_LOAD_NO_AUTOHINT;
+#endif
         }
 
         if ((fRec.fFlags & SkScalerContext::kEmbeddedBitmapText_Flag) == 0) {
