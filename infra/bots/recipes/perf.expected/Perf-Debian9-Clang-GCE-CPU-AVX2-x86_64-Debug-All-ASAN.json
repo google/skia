@@ -150,8 +150,6 @@
       "8888",
       "nonrendering",
       "f16",
-      "srgb",
-      "565",
       "--match",
       "~^floor2int_undef$",
       "~inc0.gif",

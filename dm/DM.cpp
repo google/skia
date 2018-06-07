@@ -916,17 +916,9 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
         SINK("pdfa",    PDFSink, true,  SK_ScalarDefaultRasterDPI);
         SINK("pdf300",  PDFSink, false, 300);
         SINK("jsdebug", DebugSink);
-
-        // TODO: kRGBA_sRGB_SkColorType / srgbLinearColorSpace?
-        SINK("srgb",    RasterSink, kN32_SkColorType, srgbColorSpace);
     }
 #undef SINK
     return nullptr;
-}
-
-static sk_sp<SkColorSpace> adobe_rgb() {
-    return SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                 SkColorSpace::kAdobeRGB_Gamut);
 }
 
 static sk_sp<SkColorSpace> rgb_to_gbr() {
@@ -935,7 +927,6 @@ static sk_sp<SkColorSpace> rgb_to_gbr() {
 
 static Sink* create_via(const SkString& tag, Sink* wrapped) {
 #define VIA(t, via, ...) if (tag.equals(t)) { return new via(__VA_ARGS__); }
-    VIA("adobe",     ViaCSXform,           wrapped, adobe_rgb(), false);
     VIA("gbr",       ViaCSXform,           wrapped, rgb_to_gbr(), true);
     VIA("lite",      ViaLite,              wrapped);
     VIA("pipe",      ViaPipe,              wrapped);
