@@ -131,6 +131,24 @@
     },
     {
       "key": {
+        "uuid": "458df74c_420d2291",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1835,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T13:49:00Z",
+      "side": 1,
+      "message": "How did this work before then?\n\nIt looks like this flag is only used from this file.  Why don\u0027t we just move it here?",
+      "parentUuid": "e9a3e5b5_1b85308c",
+      "revId": "1219ce7ac15816f870bfdf34fee3e7c429faa7af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "40c6b749_6de049b0",
         "filename": "fuzz/FuzzCanvas.cpp",
         "patchSetId": 1
