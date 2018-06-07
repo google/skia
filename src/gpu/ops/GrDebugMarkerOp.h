@@ -8,18 +8,18 @@
 #ifndef GrDebugMarkerOp_DEFINED
 #define GrDebugMarkerOp_DEFINED
 
-#include "GrGpuCommandBuffer.h"
 #include "GrOp.h"
-#include "GrOpFlushState.h"
 #include "GrRenderTargetProxy.h"
+
+class GrOpFlushState;
 
 class GrDebugMarkerOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrOp> Make(GrRenderTargetProxy* proxy, const SkString& str) {
-        return std::unique_ptr<GrOp>(new GrDebugMarkerOp(proxy, str));
-    }
+    static std::unique_ptr<GrOp> Make(GrContext* context,
+                                      GrRenderTargetProxy* proxy,
+                                      const SkString& str);
 
     const char* name() const override { return "DebugMarker"; }
 
@@ -41,12 +41,7 @@ private:
 
     void onPrepare(GrOpFlushState*) override {}
 
-    void onExecute(GrOpFlushState* state) override {
-        //SkDebugf("%s\n", fStr.c_str());
-        if (state->caps().gpuTracingSupport()) {
-            state->commandBuffer()->insertEventMarker(fStr.c_str());
-        }
-    }
+    void onExecute(GrOpFlushState* state) override;
 
     SkString fStr;
 
