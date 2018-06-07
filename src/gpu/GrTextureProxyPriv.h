@@ -41,10 +41,6 @@ public:
     // We only support the clamp wrap mode with gl rectangle or external textures.
     bool isClampOnly() const { return fTextureProxy->isGLTextureRectangleOrExternal(); }
 
-    void setDoesNotSupportMipMaps() {
-        fTextureProxy->setDoesNotSupportMipMaps();
-    }
-
 private:
     explicit GrTextureProxyPriv(GrTextureProxy* textureProxy) : fTextureProxy(textureProxy) {}
     GrTextureProxyPriv(const GrTextureProxyPriv&) {} // unimpl

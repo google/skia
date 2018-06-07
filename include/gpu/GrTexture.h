@@ -68,6 +68,12 @@ protected:
     GrTexture(GrGpu*, const GrSurfaceDesc&, GrSLType samplerType,
               GrSamplerState::Filter highestFilterMode, GrMipMapsStatus);
 
+    bool doesNotSupportMipMaps() const {
+        SkASSERT(GrMipMapsStatus::kNotAllocated == fMipMapsStatus ||
+                 !this->isGLTextureRectangleOrExternal());
+        return GrMipMapsStatus::kNotAllocated == fMipMapsStatus;
+    }
+
     virtual bool onStealBackendTexture(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) = 0;
 
 private:

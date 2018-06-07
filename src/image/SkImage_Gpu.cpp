@@ -663,8 +663,7 @@ private:
 static GrInternalSurfaceFlags get_flags_from_format(const GrBackendFormat& backendFormat) {
     if (const GrGLenum* target = backendFormat.getGLTarget()) {
         if (GR_GL_TEXTURE_RECTANGLE == *target || GR_GL_TEXTURE_EXTERNAL == *target) {
-            return GrInternalSurfaceFlags::kDoesNotSupportMipMaps |
-                   GrInternalSurfaceFlags::kIsGLTextureRectangleOrExternal;
+            return GrInternalSurfaceFlags::kIsGLTextureRectangleOrExternal;
         }
     }
 
@@ -706,6 +705,15 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
         return nullptr;
     }
 
+    GrInternalSurfaceFlags formatFlags = get_flags_from_format(backendFormat);
+
+    if (mipMapped == GrMipMapped::kYes &&
+        SkToBool(formatFlags & GrInternalSurfaceFlags::kIsGLTextureRectangleOrExternal)) {
+        // It is invalid to have a GL_TEXTURE_EXTERNAL or GL_TEXTURE_RECTANGLE and have mips as
+        // well.
+        return nullptr;
+    }
+
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
 
     GrSurfaceDesc desc;
@@ -715,16 +723,6 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
 
     PromiseImageHelper promiseHelper(textureFulfillProc, textureReleaseProc, promiseDoneProc,
                                      textureContext);
-
-    GrInternalSurfaceFlags formatFlags = get_flags_from_format(backendFormat);
-
-    // Promise images always wrap resources. So if the promise image doesn't have mip maps, we
-    // cannot allocate mips for them and thus will need a copy to use a mipped image. We can't pass
-    // the fact that this creates a wrapped texture into createLazyProxy so we need to manually set
-    // in in the passed in flags.
-    if (GrMipMapped::kNo == mipMapped) {
-        formatFlags |= GrInternalSurfaceFlags::kDoesNotSupportMipMaps;
-    }
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
             [promiseHelper, config] (GrResourceProvider* resourceProvider) mutable {

@@ -28,6 +28,7 @@ void GrTexture::markMipMapsClean() {
     const bool sizeChanged = GrMipMapsStatus::kNotAllocated == fMipMapsStatus;
     fMipMapsStatus = GrMipMapsStatus::kValid;
     if (sizeChanged) {
+        SkASSERT(false);
         // This must not be called until after changing fMipMapsStatus.
         this->didChangeGpuMemorySize();
         // TODO(http://skbug.com/4548) - The desc and scratch key should be

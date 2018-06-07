@@ -44,8 +44,8 @@ public:
         return fTexture->fMaxMipMapLevel;
     }
 
-    void setDoesNotSupportMipMaps() {
-        fTexture->setDoesNotSupportMipMaps();
+    bool doesNotSupportMipMaps() const {
+        return fTexture->doesNotSupportMipMaps();
     }
 
     GrSLType samplerType() const { return fTexture->fSamplerType; }
