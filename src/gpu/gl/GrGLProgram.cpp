@@ -26,26 +26,28 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrGLProgram::GrGLProgram(GrGLGpu* gpu,
-                         const GrProgramDesc& desc,
-                         const BuiltinUniformHandles& builtinUniforms,
-                         GrGLuint programID,
-                         const UniformInfoArray& uniforms,
-                         const UniformInfoArray& textureSamplers,
-                         const UniformInfoArray& texelBuffers,
-                         const VaryingInfoArray& pathProcVaryings,
-                         std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
-                         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
-                         const GrGLSLFragProcs& fragmentProcessors)
-    : fBuiltinUniformHandles(builtinUniforms)
-    , fProgramID(programID)
-    , fGeometryProcessor(std::move(geometryProcessor))
-    , fXferProcessor(std::move(xferProcessor))
-    , fFragmentProcessors(fragmentProcessors)
-    , fDesc(desc)
-    , fGpu(gpu)
-    , fProgramDataManager(gpu, programID, uniforms, pathProcVaryings)
-    , fNumTextureSamplers(textureSamplers.count())
-    , fNumTexelBuffers(texelBuffers.count()) {
+        const GrProgramDesc& desc,
+        const BuiltinUniformHandles& builtinUniforms,
+        GrGLuint programID,
+        const UniformInfoArray& uniforms,
+        const UniformInfoArray& textureSamplers,
+        const UniformInfoArray& texelBuffers,
+        const VaryingInfoArray& pathProcVaryings,
+        std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
+        std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
+        std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors,
+        int fragmentProcessorCnt)
+        : fBuiltinUniformHandles(builtinUniforms)
+        , fProgramID(programID)
+        , fGeometryProcessor(std::move(geometryProcessor))
+        , fXferProcessor(std::move(xferProcessor))
+        , fFragmentProcessors(std::move(fragmentProcessors))
+        , fFragmentProcessorCnt(fragmentProcessorCnt)
+        , fDesc(desc)
+        , fGpu(gpu)
+        , fProgramDataManager(gpu, programID, uniforms, pathProcVaryings)
+        , fNumTextureSamplers(textureSamplers.count())
+        , fNumTexelBuffers(texelBuffers.count()) {
     // Assign texture units to sampler uniforms one time up front.
     GL_CALL(UseProgram(fProgramID));
     fProgramDataManager.setSamplerUniforms(textureSamplers, 0);
@@ -55,9 +57,6 @@ GrGLProgram::GrGLProgram(GrGLGpu* gpu,
 GrGLProgram::~GrGLProgram() {
     if (fProgramID) {
         GL_CALL(DeleteProgram(fProgramID));
-    }
-    for (int i = 0; i < fFragmentProcessors.count(); ++i) {
-        delete fFragmentProcessors[i];
     }
 }
 
@@ -113,8 +112,7 @@ void GrGLProgram::setFragmentData(const GrPrimitiveProcessor& primProc,
                                   int* nextTexSamplerIdx,
                                   int* nextTexelBufferIdx) {
     GrFragmentProcessor::Iter iter(pipeline);
-    GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.begin(),
-                                           fFragmentProcessors.count());
+    GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
     const GrFragmentProcessor* fp = iter.next();
     GrGLSLFragmentProcessor* glslFP = glslIter.next();
     while (fp && glslFP) {

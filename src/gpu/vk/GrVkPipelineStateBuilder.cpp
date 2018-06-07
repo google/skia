@@ -28,7 +28,6 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
     GrVkPipelineStateBuilder builder(gpu, pipeline, primProc, desc);
 
     if (!builder.emitAndInstallProcs()) {
-        builder.cleanupFragmentProcessors();
         return nullptr;
     }
 
@@ -192,7 +191,6 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
     if (!pipeline) {
         GR_VK_CALL(fGpu->vkInterface(), DestroyPipelineLayout(fGpu->device(), pipelineLayout,
                                                               nullptr));
-        this->cleanupFragmentProcessors();
         return nullptr;
     }
 
@@ -210,6 +208,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
                                  (uint32_t)fUniformHandler.numTexelBuffers(),
                                  std::move(fGeometryProcessor),
                                  std::move(fXferProcessor),
-                                 fFragmentProcessors);
+                                 std::move(fFragmentProcessors),
+                                 fFragmentProcessorCnt);
 }
 

@@ -88,21 +88,23 @@ private:
     typedef GrVkPipelineStateDataManager::UniformInfoArray UniformInfoArray;
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
-    GrVkPipelineState(GrVkGpu* gpu,
-                      const GrVkPipelineState::Desc&,
-                      GrVkPipeline* pipeline,
-                      VkPipelineLayout layout,
-                      const GrVkDescriptorSetManager::Handle& samplerDSHandle,
-                      const GrVkDescriptorSetManager::Handle& texelBufferDSHandle,
-                      const BuiltinUniformHandles& builtinUniformHandles,
-                      const UniformInfoArray& uniforms,
-                      uint32_t geometryUniformSize,
-                      uint32_t fragmentUniformSize,
-                      uint32_t numSamplers,
-                      uint32_t numTexelBuffers,
-                      std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
-                      std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
-                      const GrGLSLFragProcs& fragmentProcessors);
+    GrVkPipelineState(
+            GrVkGpu* gpu,
+            const GrVkPipelineState::Desc&,
+            GrVkPipeline* pipeline,
+            VkPipelineLayout layout,
+            const GrVkDescriptorSetManager::Handle& samplerDSHandle,
+            const GrVkDescriptorSetManager::Handle& texelBufferDSHandle,
+            const BuiltinUniformHandles& builtinUniformHandles,
+            const UniformInfoArray& uniforms,
+            uint32_t geometryUniformSize,
+            uint32_t fragmentUniformSize,
+            uint32_t numSamplers,
+            uint32_t numTexelBuffers,
+            std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
+            std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
+            std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors,
+            int fFragmentProcessorCnt);
 
     void writeUniformBuffers(const GrVkGpu* gpu);
 
@@ -193,7 +195,8 @@ private:
     // Processors in the GrVkPipelineState
     std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
-    GrGLSLFragProcs fFragmentProcessors;
+    std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fFragmentProcessors;
+    int fFragmentProcessorCnt;
 
     Desc fDesc;
 

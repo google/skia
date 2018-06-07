@@ -169,9 +169,9 @@ public:
     class Iter : public SkNoncopyable {
     public:
         explicit Iter(GrGLSLFragmentProcessor* fp) { fFPStack.push_back(fp); }
-        explicit Iter(GrGLSLFragmentProcessor* fps[], int cnt) {
+        explicit Iter(std::unique_ptr<GrGLSLFragmentProcessor> fps[], int cnt) {
             for (int i = cnt - 1; i >= 0; --i) {
-                fFPStack.push_back(fps[i]);
+                fFPStack.push_back(fps[i].get());
             }
         }
         GrGLSLFragmentProcessor* next();

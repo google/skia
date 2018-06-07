@@ -128,28 +128,37 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
 void GrGLSLProgramBuilder::emitAndInstallFragProcs(SkString* color, SkString* coverage) {
     int transformedCoordVarsIdx = 0;
     SkString** inOut = &color;
+    SkSTArray<8, std::unique_ptr<GrGLSLFragmentProcessor>> glslFragmentProcessors;
     for (int i = 0; i < this->pipeline().numFragmentProcessors(); ++i) {
         if (i == this->pipeline().numColorFragmentProcessors()) {
             inOut = &coverage;
         }
         SkString output;
         const GrFragmentProcessor& fp = this->pipeline().getFragmentProcessor(i);
-        output = this->emitAndInstallFragProc(fp, i, transformedCoordVarsIdx, **inOut, output);
+        output = this->emitAndInstallFragProc(fp, i, transformedCoordVarsIdx, **inOut, output,
+                                              &glslFragmentProcessors);
         GrFragmentProcessor::Iter iter(&fp);
         while (const GrFragmentProcessor* fp = iter.next()) {
             transformedCoordVarsIdx += fp->numCoordTransforms();
         }
         **inOut = output;
     }
+    fFragmentProcessorCnt = glslFragmentProcessors.count();
+    fFragmentProcessors.reset(new std::unique_ptr<GrGLSLFragmentProcessor>[fFragmentProcessorCnt]);
+    for (int i = 0; i < fFragmentProcessorCnt; ++i) {
+        fFragmentProcessors[i] = std::move(glslFragmentProcessors[i]);
+    }
 }
 
 // TODO Processors cannot output zeros because an empty string is all 1s
 // the fix is to allow effects to take the SkString directly
-SkString GrGLSLProgramBuilder::emitAndInstallFragProc(const GrFragmentProcessor& fp,
-                                                      int index,
-                                                      int transformedCoordVarsIdx,
-                                                      const SkString& input,
-                                                      SkString output) {
+SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
+        const GrFragmentProcessor& fp,
+        int index,
+        int transformedCoordVarsIdx,
+        const SkString& input,
+        SkString output,
+        SkTArray<std::unique_ptr<GrGLSLFragmentProcessor>>* glslFragmentProcessors) {
     SkASSERT(input.size());
     // Program builders have a bit of state we need to clear with each effect
     AutoStageAdvance adv(this);
@@ -188,7 +197,7 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(const GrFragmentProcessor&
     // We have to check that effects and the code they emit are consistent, ie if an effect
     // asks for dst color, then the emit code needs to follow suit
     SkDEBUGCODE(verify(fp);)
-    fFragmentProcessors.push_back(fragProc);
+    glslFragmentProcessors->emplace_back(fragProc);
 
     fFS.codeAppend("}");
     return output;
@@ -401,12 +410,6 @@ void GrGLSLProgramBuilder::addRTHeightUniform(const char* name) {
             uniformHandler->internalAddUniformArray(kFragment_GrShaderFlag,
                                                     kHalf_GrSLType, kDefault_GrSLPrecision,
                                                     name, false, 0, nullptr);
-}
-
-void GrGLSLProgramBuilder::cleanupFragmentProcessors() {
-    for (int i = 0; i < fFragmentProcessors.count(); ++i) {
-        delete fFragmentProcessors[i];
-    }
 }
 
 void GrGLSLProgramBuilder::finalizeShaders() {
