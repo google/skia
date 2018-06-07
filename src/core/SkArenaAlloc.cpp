@@ -13,10 +13,10 @@ static char* end_chain(char*) { return nullptr; }
 SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t extraSize)
     : fDtorCursor {block}
     , fCursor     {block}
-    , fEnd        {block + SkTo<uint32_t>(size)}
+    , fEnd        {block + ToU32(size)}
     , fFirstBlock {block}
-    , fFirstSize  {SkTo<uint32_t>(size)}
-    , fExtraSize  {SkTo<uint32_t>(extraSize)}
+    , fFirstSize  {ToU32(size)}
+    , fExtraSize  {ToU32(extraSize)}
 {
     if (size < sizeof(Footer)) {
         fEnd = fCursor = fDtorCursor = nullptr;
@@ -37,11 +37,11 @@ void SkArenaAlloc::reset() {
 }
 
 void SkArenaAlloc::installFooter(FooterAction* action, uint32_t padding) {
-    SkASSERT(padding < 64);
+    assert(padding < 64);
     int64_t actionInt = (int64_t)(intptr_t)action;
 
     // The top 14 bits should be either all 0s or all 1s. Check this.
-    SkASSERT((actionInt << 6) >> 6 == actionInt);
+    assert((actionInt << 6) >> 6 == actionInt);
     Footer encodedFooter = (actionInt << 6) | padding;
     memmove(fCursor, &encodedFooter, sizeof(Footer));
     fCursor += sizeof(Footer);
@@ -96,11 +96,11 @@ void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
     constexpr uint32_t alignof_max_align_t = 8;
     constexpr uint32_t maxSize = std::numeric_limits<uint32_t>::max();
     constexpr uint32_t overhead = headerSize + sizeof(Footer);
-    SkASSERT_RELEASE(size <= maxSize - overhead);
+    AssertRelease(size <= maxSize - overhead);
     uint32_t objSizeAndOverhead = size + overhead;
     if (alignment > alignof_max_align_t) {
         uint32_t alignmentOverhead = alignment - 1;
-        SkASSERT_RELEASE(objSizeAndOverhead <= maxSize - alignmentOverhead);
+        AssertRelease(objSizeAndOverhead <= maxSize - alignmentOverhead);
         objSizeAndOverhead += alignmentOverhead;
     }
 
@@ -118,7 +118,7 @@ void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
     // heuristic is from the JEMalloc behavior.
     {
         uint32_t mask = allocationSize > (1 << 15) ? (1 << 12) - 1 : 16 - 1;
-        SkASSERT_RELEASE(allocationSize <= maxSize - mask);
+        AssertRelease(allocationSize <= maxSize - mask);
         allocationSize = (allocationSize + mask) & ~mask;
     }
 
@@ -148,14 +148,13 @@ restart:
         goto restart;
     }
 
-    SkASSERT((ptrdiff_t)totalSize <= fEnd - objStart);
+    AssertRelease((ptrdiff_t)totalSize <= fEnd - objStart);
 
     // Install a skip footer if needed, thus terminating a run of POD data. The calling code is
     // responsible for installing the footer after the object.
     if (needsSkipFooter) {
-        this->installUint32Footer(SkipPod, SkTo<uint32_t>(fCursor - fDtorCursor), 0);
+        this->installUint32Footer(SkipPod, ToU32(fCursor - fDtorCursor), 0);
     }
 
     return objStart;
 }
-
