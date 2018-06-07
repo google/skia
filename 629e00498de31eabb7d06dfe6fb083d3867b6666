@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "3f94ca47_6bd90d09",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T12:57:26Z",
+      "side": 1,
+      "message": "Have you considered the NaN tagged approach here?  8 aligned bytes that represent a double, and different NaN values represent the remaining tagged values.\n\nif (v as double \u003d\u003d v as double) {\n   type is Number\n} else {\n   switch (the 3 bits nearest the exponent) {\n       case 0: (unused, will explain)\n       case 1: null\n       case 2: bool\n       case 3: short string\n       case 4: long string\n       case 5: array\n       case 6: object\n       case 7: (available)\n   }\n}\n\nA double has a sign bit, 11 exponent bits, and 52 mantissa bits.  If you use the top 3 mantissa bits for the type tag when NaN, you\u0027ve got 49 left for payload.  Or make it an even 4 and 48, 6 bytes for the payload.  Even on 64-bit machines pointers fit in 6 bytes.\n\nI\u0027d avoid using tag 0 just to make sure you stay well far away from accidentally creating Infinity, which has the same exponent as NaN but all zero mantissa.",
+      "revId": "629e00498de31eabb7d06dfe6fb083d3867b6666",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0e91320b_b5adf3a0",
         "filename": "modules/skjson/src/SkJSON.cpp",
         "patchSetId": 8
@@ -25,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "9adcdc07_7e2900e8",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T12:57:26Z",
+      "side": 1,
+      "message": "I think this might be clearer if we return a pointer?  It\u0027s hard to remember that when we return const char\u0026, we\u0027re returning a string... references are pretty programmed in my head to be about single objects, not like pointers that are more flexibly single objects or arrays.\n\nI think this setup is fine and pretty clever if we show a few examples in a diagram, like how this works with sizeof(T) \u003d\u003d 1 and sizeof(T) \u003d\u003d 4?  Where base points, where the tag is, where the data goes?",
+      "parentUuid": "0e91320b_b5adf3a0",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 6
+      },
+      "revId": "629e00498de31eabb7d06dfe6fb083d3867b6666",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a9724e99_763805bc",
         "filename": "modules/skjson/src/SkJSON.cpp",
         "patchSetId": 8
@@ -36,6 +77,30 @@
       "writtenOn": "2018-06-07T00:17:10Z",
       "side": 1,
       "message": "Win doesn\u0027t seem to know about ssize_t, so I guess we\u0027ll have to go with int32_t or something?  So much for \u003e 2GB arrays *sniff*.",
+      "range": {
+        "startLine": 585,
+        "startChar": 16,
+        "endLine": 585,
+        "endChar": 23
+      },
+      "revId": "629e00498de31eabb7d06dfe6fb083d3867b6666",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a94e527b_95c9f6f7",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T12:57:26Z",
+      "side": 1,
+      "message": "Yeah, ssize_t isn\u0027t a standard C/C++ type.  It\u0027s a standard POSIX type.\n\nYou can use intptr_t if you want a signed pointer-sized integer.",
+      "parentUuid": "a9724e99_763805bc",
       "range": {
         "startLine": 585,
         "startChar": 16,
