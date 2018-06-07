@@ -253,8 +253,9 @@ GR_DRAW_OP_TEST_DEFINE(GrDrawAtlasOp) {
         aaType = GrAAType::kMSAA;
     }
 
-    return GrDrawAtlasOp::Make(std::move(paint), viewMatrix, aaType, spriteCount, xforms.begin(),
-                               texRects.begin(), hasColors ? colors.begin() : nullptr);
+    return GrDrawAtlasOp::Make(context, std::move(paint), viewMatrix, aaType, spriteCount,
+                               xforms.begin(), texRects.begin(),
+                               hasColors ? colors.begin() : nullptr);
 }
 
 #endif

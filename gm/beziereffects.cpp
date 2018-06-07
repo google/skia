@@ -46,6 +46,7 @@ protected:
             , fColor(color)
             , fGeometryProcessor(std::move(gp))
             , fProcessorSet(SkBlendMode::kSrc) {
+        SkASSERT(fGeometryProcessor);
         this->setBounds(rect, HasAABloat::kYes, IsZeroArea::kNo);
     }
 
@@ -75,9 +76,14 @@ public:
 
     const char* name() const override { return "BezierCubicTestOp"; }
 
-    static std::unique_ptr<GrDrawOp> Make(sk_sp<GrGeometryProcessor> gp, const SkRect& rect,
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          sk_sp<GrGeometryProcessor> gp,
+                                          const SkRect& rect,
                                           GrColor color) {
-        return std::unique_ptr<GrDrawOp>(new BezierCubicTestOp(std::move(gp), rect, color));
+        GrMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        char* mem = (char*) pool->allocate(sizeof(BezierCubicTestOp));
+        return std::unique_ptr<GrDrawOp>(new (mem) BezierCubicTestOp(std::move(gp), rect, color));
     }
 
 private:
@@ -230,7 +236,7 @@ protected:
                     }
 
                     std::unique_ptr<GrDrawOp> op =
-                            BezierCubicTestOp::Make(std::move(gp), bounds, color);
+                            BezierCubicTestOp::Make(context, std::move(gp), bounds, color);
                     renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
                 }
                 ++col;
@@ -254,10 +260,17 @@ public:
 
     const char* name() const override { return "BezierConicTestOp"; }
 
-    static std::unique_ptr<GrDrawOp> Make(sk_sp<GrGeometryProcessor> gp, const SkRect& rect,
-                                          GrColor color, const SkMatrix& klm) {
-        return std::unique_ptr<GrMeshDrawOp>(
-                new BezierConicTestOp(std::move(gp), rect, color, klm));
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          sk_sp<GrGeometryProcessor> gp,
+                                          const SkRect& rect,
+                                          GrColor color,
+                                          const SkMatrix& klm) {
+        // $$
+        GrMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        char* mem = (char*) pool->allocate(sizeof(BezierConicTestOp));
+        return std::unique_ptr<GrDrawOp>(new (mem) BezierConicTestOp(std::move(gp), rect,
+                                                                     color, klm));
     }
 
 private:
@@ -406,7 +419,8 @@ protected:
                     boundsPaint.setStyle(SkPaint::kStroke_Style);
                     canvas->drawRect(bounds, boundsPaint);
 
-                    std::unique_ptr<GrDrawOp> op = BezierConicTestOp::Make(gp, bounds, color, klm);
+                    std::unique_ptr<GrDrawOp> op = BezierConicTestOp::Make(context, gp, bounds,
+                                                                           color, klm);
                     renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
                 }
                 ++col;
@@ -469,9 +483,17 @@ public:
     DEFINE_OP_CLASS_ID
     const char* name() const override { return "BezierQuadTestOp"; }
 
-    static std::unique_ptr<GrDrawOp> Make(sk_sp<GrGeometryProcessor> gp, const SkRect& rect,
-                                          GrColor color, const GrPathUtils::QuadUVMatrix& devToUV) {
-        return std::unique_ptr<GrDrawOp>(new BezierQuadTestOp(std::move(gp), rect, color, devToUV));
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          sk_sp<GrGeometryProcessor> gp,
+                                          const SkRect& rect,
+                                          GrColor color,
+                                          const GrPathUtils::QuadUVMatrix& devToUV) {
+        // $$
+        GrMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        char* mem = (char*) pool->allocate(sizeof(BezierQuadTestOp));
+        return std::unique_ptr<GrDrawOp>(new (mem) BezierQuadTestOp(std::move(gp), rect,
+                                                                    color, devToUV));
     }
 
 private:
@@ -615,8 +637,8 @@ protected:
 
                     GrPathUtils::QuadUVMatrix DevToUV(pts);
 
-                    std::unique_ptr<GrDrawOp> op =
-                            BezierQuadTestOp::Make(gp, bounds, color, DevToUV);
+                    std::unique_ptr<GrDrawOp> op = BezierQuadTestOp::Make(context, gp,
+                                                                          bounds, color, DevToUV);
                     renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
                 }
                 ++col;

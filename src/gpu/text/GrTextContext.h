@@ -52,10 +52,14 @@ public:
                       const SkMatrix& viewMatrix, const SkSurfaceProps&, const SkTextBlob*,
                       SkScalar x, SkScalar y, SkDrawFilter*, const SkIRect& clipBounds);
 
-    std::unique_ptr<GrDrawOp> createOp_TestingOnly(GrContext*, GrTextContext*,
-                                                   GrRenderTargetContext*, const SkPaint&,
-                                                   const SkMatrix& viewMatrix, const char* text,
-                                                   int x, int y);
+    std::unique_ptr<GrDrawOp> createOp_TestingOnly(GrContext*,
+                                                   GrTextContext*,
+                                                   GrRenderTargetContext*,
+                                                   const SkPaint&,
+                                                   const SkMatrix& viewMatrix,
+                                                   const char* text,
+                                                   int x,
+                                                   int y);
 
     static void SanitizeOptions(Options* options);
     static bool CanDrawAsDistanceFields(const SkPaint& skPaint, const SkMatrix& viewMatrix,
