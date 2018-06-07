@@ -435,6 +435,15 @@ void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter* blitte
     // this returns the first and last edge after they're sorted into a dlink list
     SkEdge* edge = sort_edges(list, count, &last);
 
+    SkASSERT(list[0]->fFirstY == list[1]->fFirstY);
+//    SkASSERT(list[0]->fFirstY < list[2]->fFirstY);
+    for (int i = 1; i < count; ++i) {
+        if (list[i]->fFirstY == list[0]->fFirstY) {
+            SkDebugf("same as [0] %d\n", i);
+        }
+        SkASSERT(list[i - 1]->fFirstY <= list[i]->fFirstY);
+    }
+
     headEdge.fPrev = nullptr;
     headEdge.fNext = edge;
     headEdge.fFirstY = kEDGE_HEAD_Y;
