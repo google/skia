@@ -126,13 +126,14 @@ bool IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                 }
                 size_t childSize = prop->fChildren.size();
                 if (childSize) {
-                    SkASSERT(1 == childSize || 2 == childSize);  // incomplete
-                    SkASSERT(MarkType::kLiteral == prop->fChildren[0]->fMarkType);
-                    SkASSERT(1 == childSize || MarkType::kOutdent == prop->fChildren[1]->fMarkType);
-                    commentStart = prop->fChildren[childSize - 1]->fContentStart;
-                    literal = true;
-                    literalOutdent = 2 == childSize &&
-                            MarkType::kOutdent == prop->fChildren[1]->fMarkType;
+                    if (MarkType::kLiteral == prop->fChildren[0]->fMarkType) {
+                        SkASSERT(1 == childSize || 2 == childSize);  // incomplete
+                        SkASSERT(1 == childSize || MarkType::kOutdent == prop->fChildren[1]->fMarkType);
+                        commentStart = prop->fChildren[childSize - 1]->fContentStart;
+                        literal = true;
+                        literalOutdent = 2 == childSize &&
+                                MarkType::kOutdent == prop->fChildren[1]->fMarkType;
+                    }
                 }
                 commentLen = (int) (prop->fContentEnd - commentStart);
                 SkASSERT(commentLen > 0);
@@ -1154,6 +1155,22 @@ void IncludeWriter::constSizeMembers(const RootDefinition* root) {
     fConstLength = fConstCommentTab + longestComment + (int) sizeof("//!<");
 }
 
+bool IncludeWriter::defineOut(const Definition& def) {
+    if (def.fTokens.size() < 1) {
+        return false;
+    }
+    auto& child = def.fTokens.front();
+    string name(child.fContentStart, child.length());
+    auto defIter = fBmhParser->fDefineMap.find(name);
+    if (fBmhParser->fDefineMap.end() == defIter) {
+        return false;
+    }
+    const Definition& bmhDef = defIter->second;
+    this->constOut(&def, &bmhDef);
+    SkDebugf("");
+    return true;
+}
+
 void IncludeWriter::structSizeMembers(const Definition& child) {
     int longestType = 0;
     Definition* typeStart = nullptr;
@@ -1325,7 +1342,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
     const Definition* requireDense = nullptr;
     const Definition* startDef = nullptr;
     for (auto& child : def->fTokens) {
-        if (131 == child.fLineCount) {
+        if (39 == child.fLineCount) {
             SkDebugf("");
         }
         if (KeyWord::kInline == child.fKeyWord) {
@@ -1762,11 +1779,9 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 case KeyWord::kTemplate:
                     break;
                 case KeyWord::kTypedef:
-#if 01
                     SkASSERT(!memberStart);
                     memberStart = &child;
                     sawTypedef = true;
-#endif
                     break;
                 case KeyWord::kSK_BEGIN_REQUIRE_DENSE:
                     requireDense = &child;
@@ -1835,6 +1850,10 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 continue;
             }
             if (fAttrDeprecated) {
+                continue;
+            }
+            if (KeyWord::kDefine == child.fKeyWord && this->defineOut(child)) {
+                fDeferComment = nullptr;
                 continue;
             }
             fDeferComment = nullptr;

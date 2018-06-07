@@ -1970,6 +1970,7 @@ public:
     void checkEnumLengths(const Definition& child, string enumName, ItemLength* length) const;
 	void constOut(const Definition* memberStart, const Definition* bmhConst);
     void constSizeMembers(const RootDefinition* root);
+    bool defineOut(const Definition& );
     bool descriptionOut(const Definition* def, SkipFirstLine , Phrase );
     void enumHeaderOut(RootDefinition* root, const Definition& child);
     string enumMemberComment(const Definition* currentEnumItem, const Definition& child) const;
