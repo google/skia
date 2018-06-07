@@ -61,15 +61,22 @@
 #include "SkXfermodeImageFilter.h"
 
 // SRC
+#include "SkCommandLineFlags.h"
 #include "SkUtils.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
+#include "GrContextPriv.h"
+#include "gl/GrGLFunctions.h"
+#include "gl/GrGLGpu.h"
+#include "gl/GrGLUtil.h"
 #endif
 
 // MISC
 
 #include <iostream>
+
+DEFINE_bool2(gpuInfo, g, false, "Display GPU information on relevant targets.");
 
 // TODO:
 //   SkTextBlob with Unicode
@@ -1801,6 +1808,21 @@ DEF_FUZZ(SerializedImageFilter, fuzz) {
 }
 
 #if SK_SUPPORT_GPU
+
+static void dump_GPU_info(GrContext* context) {
+    const GrGLInterface* gl = static_cast<GrGLGpu*>(context->contextPriv().getGpu())
+                                    ->glInterface();
+    const GrGLubyte* output;
+    GR_GL_CALL_RET(gl, output, GetString(GR_GL_RENDERER));
+    SkDebugf("GL_RENDERER %s\n", (const char*) output);
+
+    GR_GL_CALL_RET(gl, output, GetString(GR_GL_VENDOR));
+    SkDebugf("GL_VENDOR %s\n", (const char*) output);
+
+    GR_GL_CALL_RET(gl, output, GetString(GR_GL_VERSION));
+    SkDebugf("GL_VERSION %s\n", (const char*) output);
+}
+
 static void fuzz_ganesh(Fuzz* fuzz, GrContext* context) {
     SkASSERT(context);
     auto surface = SkSurface::MakeRenderTarget(
@@ -1811,8 +1833,6 @@ static void fuzz_ganesh(Fuzz* fuzz, GrContext* context) {
     fuzz_canvas(fuzz, surface->getCanvas());
 }
 
-extern bool FLAGS_gpuInfo;
-
 DEF_FUZZ(NativeGLCanvas, fuzz) {
     sk_gpu_test::GrContextFactory f;
     GrContext* context = f.get(sk_gpu_test::GrContextFactory::kGL_ContextType);
@@ -1820,7 +1840,7 @@ DEF_FUZZ(NativeGLCanvas, fuzz) {
         context = f.get(sk_gpu_test::GrContextFactory::kGLES_ContextType);
     }
     if (FLAGS_gpuInfo) {
-        dumpGPUInfo(context);
+        dump_GPU_info(context);
     }
     fuzz_ganesh(fuzz, context);
 }
