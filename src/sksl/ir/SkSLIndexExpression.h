@@ -62,6 +62,11 @@ struct IndexExpression : public Expression {
         return fBase->hasSideEffects() || fIndex->hasSideEffects();
     }
 
+    std::unique_ptr<Expression> clone() const override {
+        return std::unique_ptr<Expression>(new IndexExpression(fBase->clone(), fIndex->clone(),
+                                                               &fType));
+    }
+
     String description() const override {
         return fBase->description() + "[" + fIndex->description() + "]";
     }
@@ -70,6 +75,13 @@ struct IndexExpression : public Expression {
     std::unique_ptr<Expression> fIndex;
 
     typedef Expression INHERITED;
+
+private:
+    IndexExpression(std::unique_ptr<Expression> base, std::unique_ptr<Expression> index,
+                    const Type* type)
+    : INHERITED(base->fOffset, kIndex_Kind, *type)
+    , fBase(std::move(base))
+    , fIndex(std::move(index)) {}
 };
 
 } // namespace

@@ -37,6 +37,7 @@
 #include "SkUnPreMultiplyPriv.h"
 #include "effects/GrConfigConversionEffect.h"
 #include "text/GrTextBlobCache.h"
+#include <unordered_map>
 
 #define ASSERT_OWNED_PROXY(P) \
 SkASSERT(!(P) || !((P)->priv().peekTexture()) || (P)->priv().peekTexture()->getContext() == this)
@@ -152,6 +153,9 @@ GrContext::~GrContext() {
 
     if (fDrawingManager) {
         fDrawingManager->cleanup();
+    }
+    if (fFPFactories != nullptr) {
+        delete (std::vector<std::unique_ptr<GrSkSLFPFactory>>*) fFPFactories;
     }
 
     fTextureStripAtlasManager = nullptr;
