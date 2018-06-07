@@ -819,7 +819,7 @@ created <a href='#Image'>Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="fdc498de45b53569743ec13012bf476c" gpu="true"><div>A back-end texture has been created and uploaded to the GPU outside of this example.
+<div><fiddle-embed name="94e9296c53bad074bf2a48ff885dac13" gpu="true"><div>A back-end texture has been created and uploaded to the GPU outside of this example.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -1829,7 +1829,7 @@ true if <a href='#Image'>Image</a> is a <a href='undocumented#GPU_Texture'>GPU T
 
 ### Example
 
-<div><fiddle-embed name="2cc1b659ebfefe530a6ce57d2d66a910" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="27a0ab44659201f1aa2ac7fea73368c2" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -1865,7 +1865,7 @@ true if <a href='#Image'>Image</a> can be drawn
 
 ### Example
 
-<div><fiddle-embed name="d900e5b1a6548041a630c74a69e777c6" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="8f7281446008cf4a9910fe73f44fa8d6" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -2251,7 +2251,7 @@ encoded <a href='#Image'>Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="897b831f8a144d267538dc0262f8babd" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="80856fe921ce36f8d5a32d8672bccbfc" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -2311,7 +2311,7 @@ whether the image is opaque.
 
 ### Example
 
-<div><fiddle-embed name="91cd1d8fa0bc1e541898d0aa78e1219a"></fiddle-embed></div>
+<div><fiddle-embed name="b112d69ab4eb00ea38a2e01a7d7e740b"></fiddle-embed></div>
 
 ### See Also
 
@@ -2383,7 +2383,7 @@ created <a href='#Image'>Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="3ccb7e57d7a2e6d95f0567ce5c723009" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="b14d9debfe87295373b44a179992a999" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -2410,7 +2410,7 @@ Returns nullptr if backed by <a href='undocumented#GPU_Texture'>GPU Texture</a> 
 
 ### Example
 
-<div><fiddle-embed name="fef31e26a8cd73dc835d656c93624994" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="c77bfb00fb82e378eea4b7f7c18a8b84" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -2437,7 +2437,7 @@ Returns nullptr if copy, decode, or pixel read fails.
 
 ### Example
 
-<div><fiddle-embed name="b60e637abc24199e99682c4f04ac3bfc" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="505a6d9458394b1deb5d2f6c44e1cd76" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -2619,6 +2619,10 @@ Returns true if <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> is stored in <a h
 
 true if <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> was created
 
+### Example
+
+<div><fiddle-embed name="78374702fa113076ddc6070053ab5cd4" gpu="true"></fiddle-embed></div>
+
 ### See Also
 
 <a href='#SkImage_MakeRasterData'>MakeRasterData</a> <a href='#SkImage_makeRasterImage'>makeRasterImage</a> <a href='#SkImage_makeNonTextureImage'>makeNonTextureImage</a>
@@ -2645,7 +2649,7 @@ true if <a href='#Image'>Image</a> is created as needed
 
 ### Example
 
-<div><fiddle-embed name="678ceb21c29c89a95628b71440e9784f" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="25305461b916baf40d7d379e04a5589c" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
