@@ -10,7 +10,6 @@
 #include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"
-#include "SkGr.h"
 #include "SkRectPriv.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
@@ -25,24 +24,6 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrContext* context,
     const SkRect dstRect = SkRect::MakeIWH(copyParams.fWidth, copyParams.fHeight);
     GrMipMapped mipMapped = dstWillRequireMipMaps ? GrMipMapped::kYes : GrMipMapped::kNo;
 
-    SkRect localRect = SkRect::MakeWH(inputProxy->width(), inputProxy->height());
-
-    bool needsDomain = false;
-    bool resizing = false;
-    if (copyParams.fFilter != GrSamplerState::Filter::kNearest) {
-        bool resizing = localRect.width()  != dstRect.width() ||
-                        localRect.height() != dstRect.height();
-        needsDomain = resizing && !GrProxyProvider::IsFunctionallyExact(inputProxy.get());
-    }
-
-    if (copyParams.fFilter == GrSamplerState::Filter::kNearest && !needsDomain && !resizing &&
-        dstWillRequireMipMaps) {
-        sk_sp<GrTextureProxy> proxy = GrCopyBaseMipMapToTextureProxy(context, inputProxy.get());
-        if (proxy) {
-            return proxy;
-        }
-    }
-
     sk_sp<GrRenderTargetContext> copyRTC =
         context->contextPriv().makeDeferredRenderTargetContextWithFallback(
             SkBackingFit::kExact, dstRect.width(), dstRect.height(), inputProxy->config(),
@@ -52,6 +33,14 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrContext* context,
     }
 
     GrPaint paint;
+    SkRect localRect = SkRect::MakeWH(inputProxy->width(), inputProxy->height());
+
+    bool needsDomain = false;
+    if (copyParams.fFilter != GrSamplerState::Filter::kNearest) {
+        bool resizing = localRect.width()  != dstRect.width() ||
+                        localRect.height() != dstRect.height();
+        needsDomain = resizing && !GrProxyProvider::IsFunctionallyExact(inputProxy.get());
+    }
 
     if (needsDomain) {
         const SkRect domain = localRect.makeInset(0.5f, 0.5f);
