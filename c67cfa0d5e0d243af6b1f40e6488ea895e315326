@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ecccb9bd_2a6e70df",
+        "filename": "include/private/GrTextureProxy.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-07T19:02:29Z",
+      "side": 1,
+      "message": "Do the same thing at this level (rm doesNotSUpportMipMaps and use mippMapped)?",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 5
+      },
+      "revId": "c67cfa0d5e0d243af6b1f40e6488ea895e315326",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dab89562_01dd64dc",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1748,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-07T19:02:29Z",
+      "side": 1,
+      "message": "side comment: this should be be a workaround set at the stop of the function :(",
+      "range": {
+        "startLine": 1748,
+        "startChar": 51,
+        "endLine": 1748,
+        "endChar": 94
+      },
+      "revId": "c67cfa0d5e0d243af6b1f40e6488ea895e315326",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
