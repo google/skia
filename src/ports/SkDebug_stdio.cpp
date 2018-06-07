@@ -11,7 +11,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-void SkDebugf(const char format[], ...) {
+void SkDebugPrintf(const char format[], ...) {
     va_list args;
     va_start(args, format);
     vfprintf(stderr, format, args);

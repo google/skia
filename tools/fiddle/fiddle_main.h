@@ -86,7 +86,7 @@ struct DrawOptions {
 };
 
 extern DrawOptions GetDrawOptions();
-extern void SkDebugf(const char * format, ...);
+extern void SkDebugPrintf(const char * format, ...);
 extern void draw(SkCanvas*);
 
 // There are different implementations of create_grcontext() for EGL, Mesa,
