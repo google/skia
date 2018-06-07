@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0e91320b_b5adf3a0",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-07T00:17:10Z",
+      "side": 1,
+      "message": "I don\u0027t like this very much, but can\u0027t think of a nicer way to dodge the type bits.  Ideas welcome.",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 6
+      },
+      "revId": "629e00498de31eabb7d06dfe6fb083d3867b6666",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9724e99_763805bc",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-07T00:17:10Z",
+      "side": 1,
+      "message": "Win doesn\u0027t seem to know about ssize_t, so I guess we\u0027ll have to go with int32_t or something?  So much for \u003e 2GB arrays *sniff*.",
+      "range": {
+        "startLine": 585,
+        "startChar": 16,
+        "endLine": 585,
+        "endChar": 23
+      },
+      "revId": "629e00498de31eabb7d06dfe6fb083d3867b6666",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
