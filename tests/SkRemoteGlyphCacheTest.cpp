@@ -37,7 +37,7 @@ public:
 
     // Client implementation.
     bool deleteHandle(SkDiscardableHandleId id) override { return id <= fLastDeletedHandleId; }
-    void NotifyCacheMiss(SkStrikeClient::CacheMissType type) override { fCacheMissCount[type]++; }
+    void notifyCacheMiss(SkStrikeClient::CacheMissType type) override { fCacheMissCount[type]++; }
 
     void unlockAll() { fLockedHandles.reset(); }
     void unlockAndDeleteAll() {
@@ -47,6 +47,12 @@ public:
     const SkTHashSet<SkDiscardableHandleId>& lockedHandles() const { return fLockedHandles; }
     SkDiscardableHandleId handleCount() { return fNextHandleId; }
     int cacheMissCount(SkStrikeClient::CacheMissType type) { return fCacheMissCount[type]; }
+    bool hasCacheMiss() const {
+        for (uint32_t i = 0; i <= SkStrikeClient::CacheMissType::kLast; ++i) {
+            if (fCacheMissCount[i] > 0) return true;
+        }
+        return false;
+    }
 
 private:
     SkDiscardableHandleId fNextHandleId = 0u;
@@ -87,6 +93,8 @@ sk_sp<SkTextBlob> buildTextBlob(sk_sp<SkTypeface> tf, int glyphCount) {
 SkTextBlobCacheDiffCanvas::Settings MakeSettings(GrContext* context) {
     SkTextBlobCacheDiffCanvas::Settings settings;
     settings.fContextSupportsDistanceFieldText = context->supportsDistanceFieldText();
+    settings.fMaxTextureSize = context->maxTextureSize();
+    settings.fMaxTextureBytes = GrContextOptions().fGlyphCacheTextureMaximumBytes;
     return settings;
 }
 
@@ -149,6 +157,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_StrikeSerialization, repor
     SkBitmap expected = RasterBlob(serverBlob, 10, 10, paint, ctxInfo.grContext());
     SkBitmap actual = RasterBlob(clientBlob, 10, 10, paint, ctxInfo.grContext());
     COMPARE_BLOBS(expected, actual, reporter);
+    REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
 
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
@@ -316,6 +325,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsPath, reporter, 
     SkBitmap expected = RasterBlob(serverBlob, 10, 10, paint, ctxInfo.grContext());
     SkBitmap actual = RasterBlob(clientBlob, 10, 10, paint, ctxInfo.grContext());
     COMPARE_BLOBS(expected, actual, reporter);
+    REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
     SkStrikeCache::Validate();
 
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
@@ -362,6 +372,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT, reporter, c
     SkBitmap expected = RasterBlob(serverBlob, 10, 10, paint, ctxInfo.grContext(), &matrix);
     SkBitmap actual = RasterBlob(clientBlob, 10, 10, paint, ctxInfo.grContext(), &matrix);
     COMPARE_BLOBS(expected, actual, reporter);
+    REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
     SkStrikeCache::Validate();
 
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
