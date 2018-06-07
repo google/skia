@@ -1052,16 +1052,10 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     desc.fHeight = random->nextULessThan(90) + 10;
     desc.fWidth = random->nextULessThan(90) + 10;
     auto origin = random->nextBool() ? kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
-    GrMipMapped mipMapped = random->nextBool() ? GrMipMapped::kYes : GrMipMapped::kNo;
-    SkBackingFit fit = SkBackingFit::kExact;
-    if (mipMapped == GrMipMapped::kNo) {
-        fit = random->nextBool() ? SkBackingFit::kApprox : SkBackingFit::kExact;
-    }
+    SkBackingFit fit = random->nextBool() ? SkBackingFit::kApprox : SkBackingFit::kExact;
 
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(desc, origin, mipMapped, fit,
-                                                             SkBudgeted::kNo,
-                                                             GrInternalSurfaceFlags::kNone);
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(desc, origin, fit, SkBudgeted::kNo);
 
     SkRect rect = GrTest::TestRect(random);
     SkRect srcRect;
@@ -1073,10 +1067,6 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     GrColor color = SkColorToPremulGrColor(random->nextU());
     GrSamplerState::Filter filter = (GrSamplerState::Filter)random->nextULessThan(
             static_cast<uint32_t>(GrSamplerState::Filter::kMipMap) + 1);
-    while (mipMapped == GrMipMapped::kNo && filter == GrSamplerState::Filter::kMipMap) {
-        filter = (GrSamplerState::Filter)random->nextULessThan(
-                static_cast<uint32_t>(GrSamplerState::Filter::kMipMap) + 1);
-    }
     auto csxf = GrTest::TestColorXform(random);
     GrAAType aaType = GrAAType::kNone;
     if (random->nextBool()) {

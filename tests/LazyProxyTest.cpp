@@ -427,6 +427,10 @@ DEF_GPUTEST(LazyProxyUninstantiateTest, reporter, /* options */) {
 
         REPORTER_ASSERT(reporter, lazyProxy.get());
 
+        // We can't pass the fact that this creates a wrapped texture into createLazyProxy so we
+        // need to manually call setDoesNotSupportMipMaps.
+        lazyProxy->texPriv().setDoesNotSupportMipMaps();
+
         rtc->priv().testingOnly_addDrawOp(skstd::make_unique<LazyUninstantiateTestOp>(lazyProxy));
 
         ctx->flush();

@@ -116,7 +116,8 @@ protected:
                 const VaryingInfoArray&, // used for NVPR only currently
                 std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
                 std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
-                const GrGLSLFragProcs& fragmentProcessors);
+                std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors,
+                int fragmentProcessorCnt);
 
     // A helper to loop over effects, set the transforms (via subclass) and bind textures
     void setFragmentData(const GrPrimitiveProcessor&, const GrPipeline&, int* nextTexSamplerIdx,
@@ -139,7 +140,8 @@ protected:
     // the installed effects
     std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
-    GrGLSLFragProcs fFragmentProcessors;
+    std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fFragmentProcessors;
+    int fFragmentProcessorCnt;
 
     GrProgramDesc fDesc;
     GrGLGpu* fGpu;

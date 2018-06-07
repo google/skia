@@ -30,33 +30,35 @@
 #include "SkMipMap.h"
 
 GrVkPipelineState::GrVkPipelineState(GrVkGpu* gpu,
-                                     const GrVkPipelineState::Desc& desc,
-                                     GrVkPipeline* pipeline,
-                                     VkPipelineLayout layout,
-                                     const GrVkDescriptorSetManager::Handle& samplerDSHandle,
-                                     const GrVkDescriptorSetManager::Handle& texelBufferDSHandle,
-                                     const BuiltinUniformHandles& builtinUniformHandles,
-                                     const UniformInfoArray& uniforms,
-                                     uint32_t geometryUniformSize,
-                                     uint32_t fragmentUniformSize,
-                                     uint32_t numSamplers,
-                                     uint32_t numTexelBuffers,
-                                     std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
-                                     std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
-                                     const GrGLSLFragProcs& fragmentProcessors)
-    : fPipeline(pipeline)
-    , fPipelineLayout(layout)
-    , fUniformDescriptorSet(nullptr)
-    , fSamplerDescriptorSet(nullptr)
-    , fTexelBufferDescriptorSet(nullptr)
-    , fSamplerDSHandle(samplerDSHandle)
-    , fTexelBufferDSHandle(texelBufferDSHandle)
-    , fBuiltinUniformHandles(builtinUniformHandles)
-    , fGeometryProcessor(std::move(geometryProcessor))
-    , fXferProcessor(std::move(xferProcessor))
-    , fFragmentProcessors(fragmentProcessors)
-    , fDesc(desc)
-    , fDataManager(uniforms, geometryUniformSize, fragmentUniformSize) {
+        const GrVkPipelineState::Desc& desc,
+        GrVkPipeline* pipeline,
+        VkPipelineLayout layout,
+        const GrVkDescriptorSetManager::Handle& samplerDSHandle,
+        const GrVkDescriptorSetManager::Handle& texelBufferDSHandle,
+        const BuiltinUniformHandles& builtinUniformHandles,
+        const UniformInfoArray& uniforms,
+        uint32_t geometryUniformSize,
+        uint32_t fragmentUniformSize,
+        uint32_t numSamplers,
+        uint32_t numTexelBuffers,
+        std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
+        std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
+        std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors,
+        int fragmentProcessorCnt)
+        : fPipeline(pipeline)
+        , fPipelineLayout(layout)
+        , fUniformDescriptorSet(nullptr)
+        , fSamplerDescriptorSet(nullptr)
+        , fTexelBufferDescriptorSet(nullptr)
+        , fSamplerDSHandle(samplerDSHandle)
+        , fTexelBufferDSHandle(texelBufferDSHandle)
+        , fBuiltinUniformHandles(builtinUniformHandles)
+        , fGeometryProcessor(std::move(geometryProcessor))
+        , fXferProcessor(std::move(xferProcessor))
+        , fFragmentProcessors(std::move(fragmentProcessors))
+        , fFragmentProcessorCnt(fragmentProcessorCnt)
+        , fDesc(desc)
+        , fDataManager(uniforms, geometryUniformSize, fragmentUniformSize) {
     fSamplers.setReserve(numSamplers);
     fTextureViews.setReserve(numSamplers);
     fTextures.setReserve(numSamplers);
@@ -83,10 +85,6 @@ GrVkPipelineState::~GrVkPipelineState() {
     SkASSERT(!fTextures.count());
     SkASSERT(!fBufferViews.count());
     SkASSERT(!fTexelBuffers.count());
-
-    for (int i = 0; i < fFragmentProcessors.count(); ++i) {
-        delete fFragmentProcessors[i];
-    }
 }
 
 void GrVkPipelineState::freeTempResources(const GrVkGpu* gpu) {
@@ -245,8 +243,7 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
     append_texture_bindings(primProc, &textureBindings, &bufferAccesses);
 
     GrFragmentProcessor::Iter iter(pipeline);
-    GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.begin(),
-                                           fFragmentProcessors.count());
+    GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
     const GrFragmentProcessor* fp = iter.next();
     GrGLSLFragmentProcessor* glslFP = glslIter.next();
     while (fp && glslFP) {

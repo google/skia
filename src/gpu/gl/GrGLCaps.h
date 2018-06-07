@@ -123,8 +123,8 @@ public:
         // In GL we have three ways to be able to copy. CopyTexImage, blit, and draw. CopyTexImage
         // requires the src to be an FBO attachment, blit requires both src and dst to be FBO
         // attachments, and draw requires the dst to be an FBO attachment. Thus to copy from and to
-        // the same config, we need that config to be bindable to an FBO.
-        return this->canConfigBeFBOColorAttachment(config);
+        // the same config, we need that config to be renderable so we can attach it to an FBO.
+        return this->isConfigRenderable(config, false);
     }
 
     bool canConfigBeFBOColorAttachment(GrPixelConfig config) const {

@@ -40,6 +40,7 @@ public:
 
     GrInternalSurfaceFlags flags() const { return fSurface->fSurfaceFlags; }
 
+    bool doesNotSupportMipMaps() const { return fSurface->doesNotSupportMipMaps(); }
     bool isGLTextureRectangleOrExternal() const {
         return fSurface->isGLTextureRectangleOrExternal();
     }

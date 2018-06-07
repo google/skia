@@ -974,8 +974,7 @@ sk_sp<SkTypeface> SkFontMgr_DirectWrite::onMakeFromStreamArgs(std::unique_ptr<Sk
 #if defined(NTDDI_WIN10_RS3) && NTDDI_VERSION >= NTDDI_WIN10_RS3
 
             SkTScopedComPtr<IDWriteFontFace5> fontFace5;
-            HRN(fontFace->QueryInterface(&fontFace5));
-            if (fontFace5 && fontFace5->HasVariations()) {
+            if (SUCCEEDED(fontFace->QueryInterface(&fontFace5)) && fontFace5->HasVariations()) {
                 UINT32 fontAxisCount = fontFace5->GetFontAxisValueCount();
                 UINT32 argsCoordCount = args.getVariationDesignPosition().coordinateCount;
                 SkAutoSTMalloc<8, DWRITE_FONT_AXIS_VALUE> fontAxisValues(fontAxisCount);
@@ -1000,7 +999,7 @@ sk_sp<SkTypeface> SkFontMgr_DirectWrite::onMakeFromStreamArgs(std::unique_ptr<Sk
                                                  fontAxisCount,
                                                  &fontFace5_Out));
                 fontFace.reset();
-                fontFace5_Out->QueryInterface(&fontFace);
+                HRN(fontFace5_Out->QueryInterface(&fontFace));
             }
 
 #endif

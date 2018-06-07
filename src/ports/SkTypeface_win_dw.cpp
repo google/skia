@@ -237,9 +237,7 @@ sk_sp<SkTypeface> DWriteFontTypeface::onMakeClone(const SkFontArguments& args) c
 #if defined(NTDDI_WIN10_RS3) && NTDDI_VERSION >= NTDDI_WIN10_RS3
 
     SkTScopedComPtr<IDWriteFontFace5> fontFace5;
-    HRN(fDWriteFontFace->QueryInterface(&fontFace5));
-
-    if (fontFace5 && fontFace5->HasVariations()) {
+    if (SUCCEEDED(fDWriteFontFace->QueryInterface(&fontFace5)) && fontFace5->HasVariations()) {
         UINT32 fontAxisCount = fontFace5->GetFontAxisValueCount();
         UINT32 argsCoordCount = args.getVariationDesignPosition().coordinateCount;
         SkAutoSTMalloc<8, DWRITE_FONT_AXIS_VALUE> fontAxisValue(fontAxisCount);
@@ -264,13 +262,12 @@ sk_sp<SkTypeface> DWriteFontTypeface::onMakeClone(const SkFontArguments& args) c
 
         SkTScopedComPtr<IDWriteFontFace> fontFace;
         HRN(fontFace5_Out->QueryInterface(&fontFace));
-        return sk_sp<SkTypeface>(DWriteFontTypeface::Create(
-            fFactory.get(),
-            fontFace.get(),
-            fDWriteFont.get(),
-            fDWriteFontFamily.get(),
-            fDWriteFontFileLoader.get(),
-            fDWriteFontCollectionLoader.get()));
+        return sk_sp<SkTypeface>(DWriteFontTypeface::Create(fFactory.get(),
+                                                            fontFace.get(),
+                                                            fDWriteFont.get(),
+                                                            fDWriteFontFamily.get(),
+                                                            fDWriteFontFileLoader.get(),
+                                                            fDWriteFontCollectionLoader.get()));
     }
 
 #endif
