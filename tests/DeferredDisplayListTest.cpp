@@ -846,31 +846,26 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest, reporter, ctxInfo) {
     SkDeferredDisplayListRecorder recorder(characterization);
 
     for (GrGLenum target : { GR_GL_TEXTURE_EXTERNAL, GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_2D } ) {
-        for (auto mipMapped : { GrMipMapped::kNo, GrMipMapped::kYes }) {
-            GrBackendFormat format = GrBackendFormat::MakeGL(GR_GL_RGBA8, target);
+        GrBackendFormat format = GrBackendFormat::MakeGL(GR_GL_RGBA8, target);
 
-            sk_sp<SkImage> image = recorder.makePromiseTexture(format, 32, 32, mipMapped,
-                                                               kTopLeft_GrSurfaceOrigin,
-                                                               kRGBA_8888_SkColorType,
-                                                               kPremul_SkAlphaType, nullptr,
-                                                               dummy_fulfill_proc,
-                                                               dummy_release_proc,
-                                                               dummy_done_proc,
-                                                               nullptr);
-            if (GR_GL_TEXTURE_2D != target && mipMapped == GrMipMapped::kYes) {
-                REPORTER_ASSERT(reporter, !image);
-                continue;
-            }
-            REPORTER_ASSERT(reporter, image);
+        sk_sp<SkImage> image = recorder.makePromiseTexture(format, 32, 32, GrMipMapped::kYes,
+                                                           kTopLeft_GrSurfaceOrigin,
+                                                           kRGBA_8888_SkColorType,
+                                                           kPremul_SkAlphaType, nullptr,
+                                                           dummy_fulfill_proc,
+                                                           dummy_release_proc,
+                                                           dummy_done_proc,
+                                                           nullptr);
+        REPORTER_ASSERT(reporter, image);
 
-            GrTextureProxy* backingProxy = ((SkImage_Gpu*) image.get())->peekProxy();
+        GrTextureProxy* backingProxy = ((SkImage_Gpu*) image.get())->peekProxy();
 
-            REPORTER_ASSERT(reporter, backingProxy->mipMapped() == mipMapped);
-            if (GR_GL_TEXTURE_2D == target) {
-                REPORTER_ASSERT(reporter, !backingProxy->texPriv().isClampOnly());
-            } else {
-                REPORTER_ASSERT(reporter, backingProxy->texPriv().isClampOnly());
-            }
+        if (GR_GL_TEXTURE_2D == target) {
+            REPORTER_ASSERT(reporter, !backingProxy->texPriv().doesNotSupportMipMaps());
+            REPORTER_ASSERT(reporter, !backingProxy->texPriv().isClampOnly());
+        } else {
+            REPORTER_ASSERT(reporter, backingProxy->texPriv().doesNotSupportMipMaps());
+            REPORTER_ASSERT(reporter, backingProxy->texPriv().isClampOnly());
         }
     }
 }
