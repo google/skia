@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "95cf0e18_2e9a226b",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-06-07T13:46:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "be428866_5d616a1b",
+      "range": {
+        "startLine": 67,
+        "startChar": 1,
+        "endLine": 71,
+        "endChar": 26
+      },
+      "revId": "1219ce7ac15816f870bfdf34fee3e7c429faa7af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2fab078d_aa379b97",
         "filename": "fuzz/FuzzCanvas.cpp",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "67e30ac4_9ac845b6",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1809,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-06-07T13:46:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2fab078d_aa379b97",
+      "range": {
+        "startLine": 1809,
+        "startChar": 0,
+        "endLine": 1809,
+        "endChar": 6
+      },
+      "revId": "1219ce7ac15816f870bfdf34fee3e7c429faa7af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6153b6d2_45dc69ba",
         "filename": "fuzz/FuzzCanvas.cpp",
         "patchSetId": 1
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "e9a3e5b5_1b85308c",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1835,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-06-07T13:46:40Z",
+      "side": 1,
+      "message": "When we build with libfuzzer, we don\u0027t link in fuzz/fuzz.cpp because it has a main() and that would confuse libfuzzer.",
+      "parentUuid": "6153b6d2_45dc69ba",
+      "revId": "1219ce7ac15816f870bfdf34fee3e7c429faa7af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "40c6b749_6de049b0",
         "filename": "fuzz/FuzzCanvas.cpp",
         "patchSetId": 1
@@ -76,6 +142,30 @@
       "writtenOn": "2018-06-07T13:39:51Z",
       "side": 1,
       "message": "Why do we do this here and not say, in main()?  Seems like a weird thing for fuzzers to print FYI information.",
+      "range": {
+        "startLine": 1846,
+        "startChar": 0,
+        "endLine": 1848,
+        "endChar": 5
+      },
+      "revId": "1219ce7ac15816f870bfdf34fee3e7c429faa7af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffe43778_ae69e182",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1848,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-06-07T13:46:40Z",
+      "side": 1,
+      "message": "It made sense to me to put it closest to where the GrContext is made so I can be supremely confident which one the fuzzer is working on.",
+      "parentUuid": "40c6b749_6de049b0",
       "range": {
         "startLine": 1846,
         "startChar": 0,
