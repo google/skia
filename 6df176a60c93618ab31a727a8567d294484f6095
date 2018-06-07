@@ -187,6 +187,30 @@
       "revId": "6df176a60c93618ab31a727a8567d294484f6095",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45860aca_ca6478ee",
+        "filename": "src/gpu/text/GrTextContext.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 712,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-06-07T13:33:32Z",
+      "side": 1,
+      "message": "Embarrassingly, I just realized that I followed this pattern yesterday, so I guess it\u0027s okay. :-) If we see a perf hit we can address it then.",
+      "parentUuid": "f9f20b5e_b3044f7e",
+      "range": {
+        "startLine": 712,
+        "startChar": 16,
+        "endLine": 712,
+        "endChar": 38
+      },
+      "revId": "6df176a60c93618ab31a727a8567d294484f6095",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
