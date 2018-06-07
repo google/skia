@@ -10,6 +10,8 @@
 #include "vk/GrVkExtensions.h"
 #include "vk/GrVkUtil.h"
 
+#if GR_TEST_UTILS || defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+
 ////////////////////////////////////////////////////////////////////////////////
 // Helper code to set up Vulkan context objects
 
@@ -320,6 +322,7 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
 
     return ctx;
 }
+#endif // GR_TEST_UTILS || defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
 
 GrVkBackendContext::~GrVkBackendContext() {
     fMemoryAllocator.reset();
