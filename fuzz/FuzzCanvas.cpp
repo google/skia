@@ -65,6 +65,10 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
+#include "gl/GrGLFunctions.h"
+#include "gl/GrGLGpu.h"
+#include "gl/GrGLUtil.h"
+#include "GrContextPriv.h"
 #endif
 
 // MISC
@@ -1801,6 +1805,21 @@ DEF_FUZZ(SerializedImageFilter, fuzz) {
 }
 
 #if SK_SUPPORT_GPU
+
+inline void dumpGPUInfo(GrContext* context) {
+    const GrGLInterface* gl = static_cast<GrGLGpu*>(context->contextPriv().getGpu())
+                                    ->glInterface();
+    const GrGLubyte* output;
+    GR_GL_CALL_RET(gl, output, GetString(GR_GL_RENDERER));
+    SkDebugf("GL_RENDERER %s\n", (const char*) output);
+
+    GR_GL_CALL_RET(gl, output, GetString(GR_GL_VENDOR));
+    SkDebugf("GL_VENDOR %s\n", (const char*) output);
+
+    GR_GL_CALL_RET(gl, output, GetString(GR_GL_VERSION));
+    SkDebugf("GL_VERSION %s\n", (const char*) output);
+}
+
 static void fuzz_ganesh(Fuzz* fuzz, GrContext* context) {
     SkASSERT(context);
     auto surface = SkSurface::MakeRenderTarget(
@@ -1811,7 +1830,12 @@ static void fuzz_ganesh(Fuzz* fuzz, GrContext* context) {
     fuzz_canvas(fuzz, surface->getCanvas());
 }
 
+#if defined(IS_FUZZING_WITH_LIBFUZZER)
+// Pretend this flag is set when using Libfuzzer builds.
+bool FLAGS_gpuInfo = false;
+#else
 extern bool FLAGS_gpuInfo;
+#endif
 
 DEF_FUZZ(NativeGLCanvas, fuzz) {
     sk_gpu_test::GrContextFactory f;
