@@ -8,8 +8,12 @@
 #ifndef SkArenaAlloc_DEFINED
 #define SkArenaAlloc_DEFINED
 
-#include "SkTypes.h"
+#include <cassert>
 #include <cstddef>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
+#include <limits>
 #include <new>
 #include <type_traits>
 #include <utility>
@@ -67,8 +71,8 @@ public:
 
     template <typename T, typename... Args>
     T* make(Args&&... args) {
-        uint32_t size      = SkTo<uint32_t>(sizeof(T));
-        uint32_t alignment = SkTo<uint32_t>(alignof(T));
+        uint32_t size      = ToU32(sizeof(T));
+        uint32_t alignment = ToU32(alignof(T));
         char* objStart;
         if (std::is_trivially_destructible<T>::value) {
             objStart = this->allocObject(size, alignment);
@@ -76,7 +80,7 @@ public:
         } else {
             objStart = this->allocObjectWithFooter(size + sizeof(Footer), alignment);
             // Can never be UB because max value is alignof(T).
-            uint32_t padding = SkTo<uint32_t>(objStart - fCursor);
+            uint32_t padding = ToU32(objStart - fCursor);
 
             // Advance to end of object to install footer.
             fCursor = objStart + size;
@@ -94,7 +98,7 @@ public:
 
     template <typename T>
     T* makeArrayDefault(size_t count) {
-        uint32_t safeCount = SkTo<uint32_t>(count);
+        uint32_t safeCount = ToU32(count);
         T* array = (T*)this->commonArrayAlloc<T>(safeCount);
 
         // If T is primitive then no initialization takes place.
@@ -106,7 +110,7 @@ public:
 
     template <typename T>
     T* makeArray(size_t count) {
-        uint32_t safeCount = SkTo<uint32_t>(count);
+        uint32_t safeCount = ToU32(count);
         T* array = (T*)this->commonArrayAlloc<T>(safeCount);
 
         // If T is primitive then the memory is initialized. For example, an array of chars will
@@ -119,7 +123,7 @@ public:
 
     // Only use makeBytesAlignedTo if none of the typed variants are impractical to use.
     void* makeBytesAlignedTo(size_t size, size_t align) {
-        auto objStart = this->allocObject(SkTo<uint32_t>(size), SkTo<uint32_t>(align));
+        auto objStart = this->allocObject(ToU32(size), ToU32(align));
         fCursor = objStart + size;
         return objStart;
     }
@@ -128,6 +132,12 @@ public:
     void reset();
 
 private:
+    static void AssertRelease(bool cond) { if (!cond) { ::abort(); } }
+    static uint32_t ToU32(size_t v) {
+        assert(v <= 0xffffffff);
+        return (uint32_t)v;
+    }
+
     using Footer = int64_t;
     using FooterAction = char* (char*);
 
@@ -145,9 +155,7 @@ private:
         uintptr_t mask = alignment - 1;
         uintptr_t alignedOffset = (~reinterpret_cast<uintptr_t>(fCursor) + 1) & mask;
         uintptr_t totalSize = size + alignedOffset;
-        if (totalSize < size) {
-            SK_ABORT("The total size of allocation overflowed uintptr_t.");
-        }
+        AssertRelease(totalSize >= size);
         if (totalSize > static_cast<uintptr_t>(fEnd - fCursor)) {
             this->ensureSpace(size, alignment);
             alignedOffset = (~reinterpret_cast<uintptr_t>(fCursor) + 1) & mask;
@@ -160,21 +168,21 @@ private:
     template <typename T>
     char* commonArrayAlloc(uint32_t count) {
         char* objStart;
-        SkASSERT_RELEASE(count <= std::numeric_limits<uint32_t>::max() / sizeof(T));
-        uint32_t arraySize = SkTo<uint32_t>(count * sizeof(T));
-        uint32_t alignment = SkTo<uint32_t>(alignof(T));
+        AssertRelease(count <= std::numeric_limits<uint32_t>::max() / sizeof(T));
+        uint32_t arraySize = ToU32(count * sizeof(T));
+        uint32_t alignment = ToU32(alignof(T));
 
         if (std::is_trivially_destructible<T>::value) {
             objStart = this->allocObject(arraySize, alignment);
             fCursor = objStart + arraySize;
         } else {
             constexpr uint32_t overhead = sizeof(Footer) + sizeof(uint32_t);
-            SkASSERT_RELEASE(arraySize <= std::numeric_limits<uint32_t>::max() - overhead);
+            AssertRelease(arraySize <= std::numeric_limits<uint32_t>::max() - overhead);
             uint32_t totalSize = arraySize + overhead;
             objStart = this->allocObjectWithFooter(totalSize, alignment);
 
             // Can never be UB because max value is alignof(T).
-            uint32_t padding = SkTo<uint32_t>(objStart - fCursor);
+            uint32_t padding = ToU32(objStart - fCursor);
 
             // Advance to end of array to install footer.?
             fCursor = objStart + arraySize;
@@ -190,7 +198,7 @@ private:
                     }
                     return objStart;
                 },
-                SkTo<uint32_t>(count),
+                ToU32(count),
                 padding);
         }
 
