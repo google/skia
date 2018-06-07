@@ -377,7 +377,8 @@ void GrTextContext::DrawBmpPosTextAsPaths(GrTextBlob* blob, int runIndex,
     // setup our std paint, in hopes of getting hits in the cache
     SkPaint pathPaint(origPaint);
     SkScalar matrixScale = pathPaint.setupForAsPaths();
-    FallbackTextHelper fallbackTextHelper(viewMatrix, origPaint, glyphCache, matrixScale);
+    FallbackTextHelper fallbackTextHelper(viewMatrix, origPaint, glyphCache->getGlyphSizeLimit(),
+                                          matrixScale);
 
     // Temporarily jam in kFill, so we only ever ask for the raw outline from the cache.
     pathPaint.setStyle(SkPaint::kFill_Style);
@@ -593,7 +594,8 @@ void GrTextContext::drawDFPosText(GrTextBlob* blob, int runIndex,
     blob->setSubRunHasDistanceFields(runIndex, paint.skPaint().isLCDRenderText(),
                                      paint.skPaint().isAntiAlias(), hasWCoord);
 
-    FallbackTextHelper fallbackTextHelper(viewMatrix, paint, glyphCache, textRatio);
+    FallbackTextHelper fallbackTextHelper(viewMatrix, paint, glyphCache->getGlyphSizeLimit(),
+                                          textRatio);
 
     sk_sp<GrTextStrike> currStrike;
 
@@ -669,6 +671,8 @@ void GrTextContext::DfAppendGlyph(GrTextBlob* blob, int runIndex,
 void GrTextContext::FallbackTextHelper::appendText(const SkGlyph& glyph, int count,
                                                         const char* text, SkPoint glyphPos) {
     SkScalar maxDim = SkTMax(glyph.fWidth, glyph.fHeight)*fTextRatio;
+    if (SkScalarNearlyZero(maxDim)) return;
+
     if (!fUseTransformedFallback) {
         if (!fViewMatrix.isScaleTranslate() || maxDim*fMaxScale > fMaxTextSize) {
             fUseTransformedFallback = true;
@@ -703,18 +707,12 @@ void GrTextContext::FallbackTextHelper::drawText(GrTextBlob* blob, int runIndex,
         SkPaint::GlyphCacheProc glyphCacheProc =
             SkPaint::GetGlyphCacheProc(skPaint.getTextEncoding(), true);
         SkColor textColor = paint.filteredPremulColor();
+
         SkScalar textRatio = SK_Scalar1;
-        if (fUseTransformedFallback) {
-            // Set up paint and matrix to scale glyphs
-            SkPaint scaledPaint(skPaint);
-            scaledPaint.setTextSize(fTransformedFallbackTextSize);
-            textRatio = fTextSize / fTransformedFallbackTextSize;
-            cache = blob->setupCache(runIndex, props, scalerContextFlags, scaledPaint,
-                                     &SkMatrix::I());
-        } else {
-            cache = blob->setupCache(runIndex, props, scalerContextFlags, paint,
-                                     &fViewMatrix);
-        }
+        SkPaint fallbackPaint(skPaint);
+        SkMatrix matrix = fViewMatrix;
+        this->initializeForDraw(&fallbackPaint, &textRatio, &matrix);
+        cache = blob->setupCache(runIndex, props, scalerContextFlags, fallbackPaint, &matrix);
 
         sk_sp<GrTextStrike> currStrike;
         const char* text = fFallbackTxt.begin();
@@ -733,6 +731,15 @@ void GrTextContext::FallbackTextHelper::drawText(GrTextBlob* blob, int runIndex,
             glyphPos++;
         }
     }
+}
+
+void GrTextContext::FallbackTextHelper::initializeForDraw(SkPaint* paint, SkScalar* textRatio,
+                                                          SkMatrix* matrix) const {
+    if (!fUseTransformedFallback) return;
+
+    paint->setTextSize(fTransformedFallbackTextSize);
+    *textRatio = fTextSize / fTransformedFallbackTextSize;
+    *matrix = SkMatrix::I();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
