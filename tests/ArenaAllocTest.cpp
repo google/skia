@@ -172,17 +172,4 @@ DEF_TEST(ArenaAlloc, r) {
     REPORTER_ASSERT(r, created == 128);
     REPORTER_ASSERT(r, destroyed == 128);
 
-    {
-        created = 0;
-        destroyed = 0;
-        SkSTArenaAlloc<64> arena;
-
-        sk_sp<FooRefCnt> f = arena.makeSkSp<FooRefCnt>(4, 5.0f);
-        REPORTER_ASSERT(r, f->x == 4);
-        REPORTER_ASSERT(r, f->y == 5.0f);
-        REPORTER_ASSERT(r, created == 1);
-        REPORTER_ASSERT(r, destroyed == 0);
-    }
-    REPORTER_ASSERT(r, created == 1);
-    REPORTER_ASSERT(r, destroyed == 1);
 }
