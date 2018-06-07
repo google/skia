@@ -138,13 +138,7 @@ sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
         backendTex.height() > this->caps()->maxTextureSize()) {
         return nullptr;
     }
-    sk_sp<GrTexture> tex = this->onWrapBackendTexture(backendTex, ownership);
-    if (tex && !backendTex.hasMipMaps()) {
-        // Ganesh will not ever allocate mipmaps for a wrapped resource. By setting this flag here,
-        // it will be propagated to any proxy that wraps this texture.
-        tex->texturePriv().setDoesNotSupportMipMaps();
-    }
-    return tex;
+    return this->onWrapBackendTexture(backendTex, ownership);
 }
 
 sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& backendTex,
@@ -163,11 +157,6 @@ sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& bac
         return nullptr;
     }
     sk_sp<GrTexture> tex = this->onWrapRenderableBackendTexture(backendTex, sampleCnt, ownership);
-    if (tex && !backendTex.hasMipMaps()) {
-        // Ganesh will not ever allocate mipmaps for a wrapped resource. By setting this flag here,
-        // it will be propagated to any proxy that wraps this texture.
-        tex->texturePriv().setDoesNotSupportMipMaps();
-    }
     SkASSERT(!tex || tex->asRenderTarget());
     return tex;
 }
