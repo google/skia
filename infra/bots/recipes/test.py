@@ -118,7 +118,6 @@ def dm_flags(api, bot):
       configs.extend(['f16'])
       configs.extend(['lite-8888'])              # Experimental display list.
       configs.extend(['gbr-8888'])
-      configs.extend(['srgb'])
       configs.extend(['srgbnl'])
       configs.extend(['esrgb'])
 
