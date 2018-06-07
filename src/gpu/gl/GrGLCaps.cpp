@@ -1338,14 +1338,11 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     bool disableR8TexStorageForANGLEGL = false;
     bool disableSRGBRenderWithMSAAForMacAMD = false;
     bool disableRGB8ForMali400 = false;
-    bool disableGrayLumFBOForMesa = false;
 
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
         // ARB_texture_rg is part of OpenGL 3.0, but osmesa doesn't support GL_RED
         // and GL_RG on FBO textures.
         disableTextureRedForMesa = kOSMesa_GrGLRenderer == ctxInfo.renderer();
-
-        disableGrayLumFBOForMesa = kOSMesa_GrGLRenderer == ctxInfo.renderer();
 
         bool isX86PowerVR = false;
 #if defined(SK_CPU_X86)
@@ -1745,15 +1742,17 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     grayRedInfo.fSwizzle = GrSwizzle::RRRA();
     grayRedInfo.fFlags = ConfigInfo::kTextureable_Flag;
 
-    // Leaving Gray8 as non-renderable, to keep things simple and match raster. However, we do
-    // enable the FBOColorAttachment_Flag so that we can bind it to an FBO for copies.
-    grayRedInfo.fFlags |= ConfigInfo::kFBOColorAttachment_Flag;;
-    if (kStandard_MSFBOType == this->msFBOType() && !disableGrayLumFBOForMesa) {
+#if 0 // Leaving Gray8 as non-renderable, to keep things simple and match raster. Needs to be
+      // updated to support Gray8_as_Lum and Gray8_as_red if this is ever enabled.
+    if (this->textureRedSupport() ||
+        (kDesktop_ARB_MSFBOType == this->msFBOType() &&
+         ctxInfo.renderer() != kOSMesa_GrGLRenderer)) {
         // desktop ARB extension/3.0+ supports LUMINANCE8 as renderable.
         // However, osmesa fails if it used even when GL_ARB_framebuffer_object is present.
         // Core profile removes LUMINANCE8 support, but we should have chosen R8 in that case.
-        grayLumInfo.fFlags |= ConfigInfo::kFBOColorAttachment_Flag;;
+        fConfigTable[kGray_8_GrPixelConfig].fFlags |= allRenderFlags;
     }
+#endif
     if (texStorageSupported && !isCommandBufferES2) {
         if (!disableR8TexStorageForANGLEGL) {
             grayLumInfo.fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
