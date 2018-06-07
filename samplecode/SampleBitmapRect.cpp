@@ -195,7 +195,18 @@ class BitmapRectView2 : public SampleView {
     }
 
 public:
-    BitmapRectView2() {
+    BitmapRectView2() { }
+
+protected:
+    bool onQuery(SkEvent* evt) override {
+        if (SampleCode::TitleQ(*evt)) {
+            SampleCode::TitleR(evt, "BigBitmapRect");
+            return true;
+        }
+        return this->INHERITED::onQuery(evt);
+    }
+
+    void onOnceBeforeDraw() override {
         make_big_bitmap(&fBitmap);
 
         this->setBGColor(SK_ColorGRAY);
@@ -207,15 +218,6 @@ public:
         fDstR[0] = SkRect::MakeXYWH(20, 20, 600, 200);
         fDstR[1] = fDstR[0];
         fDstR[1].offset(0, fDstR[0].height() * 5/4);
-    }
-
-protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "BigBitmapRect");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
     }
 
     void onDrawContent(SkCanvas* canvas) override {
