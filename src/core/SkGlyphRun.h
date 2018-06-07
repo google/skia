@@ -17,11 +17,13 @@
 #include "SkPoint.h"
 #include "SkTypes.h"
 
+class SkBaseDevice;
+
 // A faster set implementation that does not need any initialization, and reading the set items
 // is order the number of items, and not the size of the universe.
 // This implementation is based on the paper by Briggs and Torczon, "An Efficient Representation
 // for Sparse Sets"
-class SkGlyphSet {
+/*class SkGlyphSet {
 public:
     SkGlyphSet() = default;
     uint16_t add(SkGlyphID glyphID);
@@ -32,8 +34,36 @@ private:
     uint32_t                    fUniverseSize{0};
     std::vector<uint16_t>       fIndices;
     std::vector<SkGlyphID>      fUniqueGlyphIDs;
+}; */
+
+class SkGlyphSet2 {
+public:
+    SkGlyphSet2() = default;
+    uint16_t add(SkGlyphID glyphID);
+    void reuse(uint32_t glyphUniverseSize, std::vector<SkGlyphID>* uniqueGlyphIDs);
+
+private:
+    uint32_t                    fUniverseSize{0};
+    std::vector<uint16_t>       fIndices;
+    std::vector<SkGlyphID>*     fUniqueGlyphIDs{nullptr};
 };
 
+template <typename T>
+class SkSpan {
+public:
+    SkSpan(const T* ptr, size_t size) : fPtr{ptr}, fSize{size} {}
+    SkSpan(const std::vector<T>& v) : fPtr{v.data()}, fSize{v.size()} {}
+    const T& operator [] (ptrdiff_t i) const { return fPtr[i]; }
+    const T* begin() const { return fPtr; }
+    const T* end() const { return fPtr + fSize; }
+    ptrdiff_t size() const { return fSize; }
+
+private:
+    const T* fPtr;
+    size_t fSize;
+};
+
+/*
 class SkGlyphRun {
 public:
     SkGlyphRun() = default;
@@ -68,20 +98,51 @@ private:
     std::vector<SkGlyphID>       fUniqueGlyphs;
     const size_t                 fRunSize{0};
 };
+ */
 
-template <typename T>
-class SkSpan {
+class SkGlyphRunBuilder {
 public:
-    SkSpan(const T* ptr, size_t size) : fPtr{ptr}, fSize{size} {}
-    SkSpan(const std::vector<T>& v) : fPtr{v.data()}, fSize{v.size()} {}
-    const T& operator [] (ptrdiff_t i) const { return fPtr[i]; }
-    const T* begin() const { return fPtr; }
-    const T* end() const { return fPtr + fSize; }
-    ptrdiff_t size() const { return fSize; }
+    SkGlyphRunBuilder() = default;
+    void prepareDrawText(
+            const SkPaint& paint, const void* bytes, size_t byteLength, SkPoint origin);
+    void prepareDrawPosTextH(
+            const SkPaint& paint, const void* bytes, size_t byteLength,
+            const SkScalar xpos[], SkScalar constY);
+    void prepareDrawPosText(
+            const SkPaint& paint, const void* bytes, size_t byteLength, const SkPoint pos[]);
+
+    size_t runSize() const {return fDenseIndex.size();}
+    size_t uniqueSize() const {return fUniqueGlyphs.size();}
+
+    //const SkGlyphRun& useGlyphRun() const;
+    //SkGlyphRun makeGlyphRun();
+
+    void temporaryShuntToDrawPosText(const SkPaint& paint, SkBaseDevice* device);
+    template <typename DrawPosThing>
+    void temporaryShuntToDrawPosThing(DrawPosThing drawPosThing) {
+        auto pos = (const SkScalar*)fPositions.data();
+        auto bytes = (const char *)fTemporaryShuntGlyphIDs;
+        drawPosThing(this->runSize(), bytes, pos);
+    }
 
 private:
-    const T* fPtr;
-    size_t fSize;
+    void initializeDenseAndUnique(const SkPaint& paint, const void* bytes, size_t byteLength);
+
+    std::vector<uint16_t>  fDenseIndex;
+    std::vector<SkPoint>   fPositions;
+    std::vector<SkGlyphID> fUniqueGlyphs;
+
+    // Used as a temporary for preparing using utfN text.
+    std::vector<SkGlyphID> fScratchGlyphIDs;
+    std::vector<SkPoint>   fScratchAdvances;
+
+    // Used as an aid to shunt from glyph runs to drawPosText. It will either be fScratchIDs or
+    // the bytes passed in.
+    const SkGlyphID*       fTemporaryShuntGlyphIDs;
+
+    SkGlyphSet2            fGlyphSet;
 };
+
+
 
 #endif  // SkGlyphRunInfo_DEFINED
