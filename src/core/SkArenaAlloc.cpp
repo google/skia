@@ -10,7 +10,7 @@
 
 static char* end_chain(char*) { return nullptr; }
 
-SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t extraSize, Tracking tracking)
+SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t extraSize)
     : fDtorCursor {block}
     , fCursor     {block}
     , fEnd        {block + SkTo<uint32_t>(size)}
@@ -22,32 +22,18 @@ SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t extraSize, Tracking 
         fEnd = fCursor = fDtorCursor = nullptr;
     }
 
-    if (tracking == kTrack) {
-        fTotalSlop = 0;
-    }
-
     if (fCursor != nullptr) {
         this->installFooter(end_chain, 0);
-        if (fTotalSlop >= 0) {
-            fTotalAlloc += fFirstSize;
-        }
     }
 }
 
 SkArenaAlloc::~SkArenaAlloc() {
-    if (fTotalSlop >= 0) {
-        int32_t lastSlop = fEnd - fCursor;
-        fTotalSlop += lastSlop;
-        SkDebugf("SkArenaAlloc initial: %p %u %u total alloc: %u total slop: %d last slop: %d\n",
-            fFirstBlock, fFirstSize, fExtraSize, fTotalAlloc, fTotalSlop, lastSlop);
-    }
     RunDtorsOnBlock(fDtorCursor);
 }
 
 void SkArenaAlloc::reset() {
     this->~SkArenaAlloc();
-    new (this) SkArenaAlloc{fFirstBlock, fFirstSize, fExtraSize,
-                            fTotalSlop < 0 ? kDontTrack : kTrack};
+    new (this) SkArenaAlloc{fFirstBlock, fFirstSize, fExtraSize};
 }
 
 void SkArenaAlloc::installFooter(FooterAction* action, uint32_t padding) {
@@ -137,11 +123,6 @@ void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
     }
 
     char* newBlock = new char[allocationSize];
-
-    if (fTotalSlop >= 0) {
-        fTotalAlloc += allocationSize;
-        fTotalSlop += fEnd - fCursor;
-    }
 
     auto previousDtor = fDtorCursor;
     fCursor = newBlock;
