@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "51b107f0_260ea52b",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 715,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-07T17:08:37Z",
+      "side": 1,
+      "message": "What are thoughts on this? I don\u0027t believe it will ever be possible for a client to give us a mipped external or rectangle texture so might as well just not allow this here.",
+      "range": {
+        "startLine": 710,
+        "startChar": 2,
+        "endLine": 715,
+        "endChar": 5
+      },
+      "revId": "9f15d7ab310b6a0fa3c367e20b26e4bc5049940c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
