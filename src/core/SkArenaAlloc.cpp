@@ -5,10 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include <algorithm>
-#include <cstddef>
 #include "SkArenaAlloc.h"
-#include "SkTypes.h"
+#include <algorithm>
 
 static char* end_chain(char*) { return nullptr; }
 

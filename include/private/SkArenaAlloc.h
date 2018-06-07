@@ -8,8 +8,6 @@
 #ifndef SkArenaAlloc_DEFINED
 #define SkArenaAlloc_DEFINED
 
-#include "SkRefCnt.h"
-#include "SkTFitsIn.h"
 #include "SkTypes.h"
 #include <cstddef>
 #include <new>
@@ -101,15 +99,6 @@ public:
 
         // This must be last to make objects with nested use of this allocator work.
         return new(objStart) T(std::forward<Args>(args)...);
-    }
-
-    template <typename T, typename... Args>
-    sk_sp<T> makeSkSp(Args&&... args) {
-        SkASSERT(SkTFitsIn<uint32_t>(sizeof(T)));
-
-        // The arena takes a ref for itself to account for the destructor. The sk_sp count can't
-        // become zero or the sk_sp will try to call free on the pointer.
-        return sk_sp<T>(SkRef(this->make<T>(std::forward<Args>(args)...)));
     }
 
     template <typename T>
