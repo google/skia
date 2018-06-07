@@ -179,12 +179,45 @@ protected:
             canvas->drawText(text, textLen, 580, 125, paint);
         }
 
+        // check perspective
+        {
+            paint.setLCDRenderText(false);
+            SkAutoCanvasRestore acr(canvas, true);
+            SkMatrix persp;
+            persp.setAll(0.9839f, 0, 0,
+                         0.2246f, 0.6829f, 0,
+                         0.0002352f, -0.0003844f, 1);
+            canvas->concat(persp);
+            canvas->translate(1100, -295);
+            canvas->scale(375, 375);
+            paint.setTextSize(0.1f);
+            canvas->drawText(text, textLen, 0, 0, paint);
+        }
+        {
+            paint.setSubpixelText(false);
+            paint.setAntiAlias(false);
+            SkAutoCanvasRestore acr(canvas, true);
+            SkMatrix persp;
+            persp.setAll(0.9839f, 0, 0,
+                         0.2246f, 0.6829f, 0,
+                         0.0002352f, -0.0003844f, 1);
+            canvas->concat(persp);
+            canvas->translate(1075, -245);
+            canvas->scale(375, 375);
+            paint.setTextSize(0.1f);
+            canvas->drawText(text, textLen, 0, 0, paint);
+        }
+
         // check color emoji
         if (fEmojiTypeface) {
-            paint.setTypeface(fEmojiTypeface);
-            paint.setTextSize(SkIntToScalar(19));
-            canvas->drawString(fEmojiText, 670, 90, paint);
+            SkPaint emojiPaint;
+            emojiPaint.setSubpixelText(true);
+            emojiPaint.setAntiAlias(true);
+            emojiPaint.setTypeface(fEmojiTypeface);
+            emojiPaint.setTextSize(SkIntToScalar(19));
+            canvas->drawString(fEmojiText, 670, 90, emojiPaint);
         }
+
         // render offscreen buffer
         if (surface) {
             SkAutoCanvasRestore acr(inputCanvas, true);
