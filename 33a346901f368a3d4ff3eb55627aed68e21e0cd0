@@ -1,0 +1,335 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c289a35f_d91307b5",
+        "filename": "modules/skjson/BUILD.gn",
+        "patchSetId": 10
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T12:35:37Z",
+      "side": 1,
+      "message": "This\u0027ll mean eventually that nothing in Skia proper can depend on this, right?  Otherwise there\u0027s a dependency cycle?",
+      "range": {
+        "startLine": 28,
+        "startChar": 6,
+        "endLine": 28,
+        "endChar": 19
+      },
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3ec906e_09f9d45a",
+        "filename": "modules/skjson/BUILD.gn",
+        "patchSetId": 10
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T12:35:37Z",
+      "side": 1,
+      "message": "Probably a good idea to have a fuzzer from the start too?",
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1c48e89_9284d7e4",
+        "filename": "modules/skjson/include/SkJSON.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T12:35:37Z",
+      "side": 1,
+      "message": "You might be able to flatten this out a bit by folding TypeBoundValue into Null, Primitive, and Vector.  The same number of classes, a touch more IsType() duplication, but one less level of inheritance?",
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5bc76623_ebb5fb29",
+        "filename": "modules/skjson/include/SkJSON.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T12:35:37Z",
+      "side": 1,
+      "message": "Remind me how this works?  Does it only work because no one uses operator[] with StringValue?\n\nDoes it make sense to model StringValue as PrimitiveValue\u003cstd::string/SkString, Value::Type::kString\u003e?",
+      "range": {
+        "startLine": 99,
+        "startChar": 59,
+        "endLine": 99,
+        "endChar": 68
+      },
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3e92b45_4b591875",
+        "filename": "modules/skjson/include/SkJSON.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T12:35:37Z",
+      "side": 1,
+      "message": "It\u0027s not\n\n   StringValue fKey;\n   Value       fValue;\n\n?",
+      "range": {
+        "startLine": 104,
+        "startChar": 4,
+        "endLine": 104,
+        "endChar": 15
+      },
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c18b3158_76e3831d",
+        "filename": "modules/skjson/include/SkJSON.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T12:35:37Z",
+      "side": 1,
+      "message": "Do you think it\u0027s useful to split this into IntValue and FloatValue?  Or does that just confuse things for people expecting JSON\u0027s value types using SkJSON?",
+      "range": {
+        "startLine": 111,
+        "startChar": 6,
+        "endLine": 111,
+        "endChar": 41
+      },
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b51dc803_90b21300",
+        "filename": "modules/skjson/include/SkJSON.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T12:35:37Z",
+      "side": 1,
+      "message": "Do we actually anticipate iterating over object members like this?  Wondering if we\u0027re calling Objects vectors of Members for convenience or for a strong usability reason.  Seems like it leaves us a little more flexibility if we don\u0027t make them VectorValues or iterable, even if implemented similarly?",
+      "range": {
+        "startLine": 115,
+        "startChar": 33,
+        "endLine": 115,
+        "endChar": 51
+      },
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b3fe970_c6b85d1d",
+        "filename": "modules/skjson/include/SkJSON.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T12:35:37Z",
+      "side": 1,
+      "message": "this is probably DOM, right?  Or ParseTree?",
+      "range": {
+        "startLine": 120,
+        "startChar": 6,
+        "endLine": 120,
+        "endChar": 9
+      },
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ff28d7e_3d7b86db",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T12:35:37Z",
+      "side": 1,
+      "message": "If we store these as \\0 terminated strings and use 0b000 as the tag for ShortString, we should be able to get this up to 7 bytes of inline string (8 counting the \\0)?",
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbfccc6d_41a8207a",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T12:35:37Z",
+      "side": 1,
+      "message": "Might want to try writing these as 0bxxx literals now to make it clear it\u0027s 3 bits?",
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d79b87ae_26b3bd7e",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T12:35:37Z",
+      "side": 1,
+      "message": "Let\u0027s just assume SK_CPU_LENDIAN?  We don\u0027t have anything testing the other side of this #if.",
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c50a9aba_fa76faf4",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T12:35:37Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 379,
+        "startChar": 1,
+        "endLine": 379,
+        "endChar": 12
+      },
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30e529e1_ca192c82",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T12:35:37Z",
+      "side": 1,
+      "message": "Can probably move inside pow10()?",
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33055fc9_a1891404",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T12:35:37Z",
+      "side": 1,
+      "message": "Are you thinking we\u0027ll get this up onto Dom?",
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77e3bb22_89f5dc38",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 863,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T12:35:37Z",
+      "side": 1,
+      "message": "Boy, what a freebie compared to parse!",
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a2fcc3b_dbc6b56d",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 883,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T12:35:37Z",
+      "side": 1,
+      "message": "These seem good places for \"for (auto\u0026\u0026 x : array)\" loops?",
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "631a28f5_7f491280",
+        "filename": "modules/skjson/src/SkJSONBench.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-07T12:35:37Z",
+      "side": 1,
+      "message": "Are you thinking resources/, or xxd it into a header and include here?\n\nOr like, is the bench only useful to convince us that SkJSON is worth doing, and doesn\u0027t actually need to land now that that\u0027s proven?",
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
