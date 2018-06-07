@@ -26,7 +26,7 @@ class SkDraw;
 class SkDrawable;
 class SkDrawFilter;
 struct SkDrawShadowRec;
-class SkGlyphSet;
+class SkGlyphRunBuilder;
 class SkImage;
 class SkImageFilter;
 class SkMetaData;
@@ -2710,7 +2710,7 @@ private:
     void validateClip() const {}
 #endif
 
-    std::unique_ptr<SkGlyphSet> fScratchGlyphSet;
+    std::unique_ptr<SkGlyphRunBuilder> fScratchGlyphRunBuilder;
 
     typedef SkRefCnt INHERITED;
 };
