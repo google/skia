@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "26bbed53_b3460793",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-07T21:41:30Z",
+      "side": 1,
+      "message": "Ben pointed out that this is what the upcoming spec says, and asked me to change it. Same for below.",
+      "parentUuid": "4da084ad_d16e8d19",
+      "range": {
+        "startLine": 28,
+        "startChar": 26,
+        "endLine": 28,
+        "endChar": 35
+      },
+      "revId": "ff05f64ae7531feedafe45a685bf4c16d25e6afd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a592d9a2_bd9db461",
         "filename": "src/core/SkGlyphRun.h",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "dbae46a0_af9fe6ac",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-07T21:41:30Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a592d9a2_bd9db461",
+      "range": {
+        "startLine": 31,
+        "startChar": 4,
+        "endLine": 31,
+        "endChar": 13
+      },
+      "revId": "ff05f64ae7531feedafe45a685bf4c16d25e6afd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a476a3b_de00cb2c",
         "filename": "src/core/SkGlyphRun.h",
         "patchSetId": 3
@@ -62,6 +110,24 @@
       "revId": "ff05f64ae7531feedafe45a685bf4c16d25e6afd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e3af263_a030b530",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-07T21:41:30Z",
+      "side": 1,
+      "message": "It is the first one: uniqueGlyphIDs[denseIndex[i]].\n\nI want to keep this as a class because this will be come much more complicated when it has to handle fallback drawing.",
+      "parentUuid": "5a476a3b_de00cb2c",
+      "revId": "ff05f64ae7531feedafe45a685bf4c16d25e6afd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "70ec3fea_ab1cc250",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-07T21:41:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "29781d51_4b0842ed",
+      "range": {
+        "startLine": 96,
+        "startChar": 23,
+        "endLine": 96,
+        "endChar": 35
+      },
+      "revId": "ff05f64ae7531feedafe45a685bf4c16d25e6afd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "341dbc6f_5a360f6e",
         "filename": "src/core/SkGlyphRun.h",
         "patchSetId": 3
@@ -108,6 +198,30 @@
       "revId": "ff05f64ae7531feedafe45a685bf4c16d25e6afd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc9857f5_88f5560e",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-07T21:41:30Z",
+      "side": 1,
+      "message": "Better organization and comments.",
+      "parentUuid": "341dbc6f_5a360f6e",
+      "range": {
+        "startLine": 110,
+        "startChar": 4,
+        "endLine": 111,
+        "endChar": 44
+      },
+      "revId": "ff05f64ae7531feedafe45a685bf4c16d25e6afd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
