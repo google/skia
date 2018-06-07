@@ -61,15 +61,18 @@ public class SkQPRunner extends Runner implements Filterable {
         mTests = new Description[this.testCount()];
         mShouldSkipTest = new boolean[mTests.length]; // = {false, false, ....};
         int index = 0;
+        String badIdentifiers = "[^A-Za-z0-9_]";
         for (int backend = 0; backend < impl.mBackends.length; backend++) {
+            String backendName = impl.mBackends[backend];
+            assert(!backendName.matches("^[0-9]"));
             for (int gm = 0; gm < impl.mGMs.length; gm++) {
-                mTests[index++] = Description.createTestDescription(SkQPRunner.class,
-                    impl.mBackends[backend] + "_" + impl.mGMs[gm]);
+                String name = (backendName + "_" + impl.mGMs[gm]).replaceAll(badIdentifiers, "_");
+                mTests[index++] = Description.createTestDescription(SkQPRunner.class, name);
             }
         }
         for (int unitTest = 0; unitTest < impl.mUnitTests.length; unitTest++) {
-            mTests[index++] = Description.createTestDescription(SkQPRunner.class,
-                    "unitTest_" + impl.mUnitTests[unitTest]);
+            String name = ("unitTest_" + impl.mUnitTests[unitTest]).replaceAll(badIdentifiers, "_");
+            mTests[index++] = Description.createTestDescription(SkQPRunner.class, name);
         }
         assert(index == mTests.length);
         mShouldRunTestCount = mTests.length;
