@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "bfb37d49_921ddb45",
+        "filename": "include/private/GrTextureProxy.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-07T18:21:57Z",
+      "side": 1,
+      "message": "mipMapped is public. At first I had deleted the doesNotSupportMipMaps() query and just used mipMapped(), but then I was wondering if this just small abstraction gives us easier flexibility if we even wanted to change our requirements for if we support using mipmaps (versus simply having them). Happy to delete this and go with just mipMapped() if we like that better.",
+      "parentUuid": "59b29c94_ee353063",
+      "revId": "9f15d7ab310b6a0fa3c367e20b26e4bc5049940c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d28e4010_eb56fd05",
         "filename": "src/gpu/GrTexture.cpp",
         "patchSetId": 3
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "1fda60c2_02314bdc",
+        "filename": "src/gpu/GrTexture.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-07T18:21:57Z",
+      "side": 1,
+      "message": "\u003e SkASSERT(GrMipMapsStatus::kNotAllocated !\u003d fMipMapsStatus) ?\n\nYeah I was going to clean up all these calls in the next CL, but I can at least make this one function nicer now since I\u0027m already touching it.",
+      "parentUuid": "d28e4010_eb56fd05",
+      "range": {
+        "startLine": 28,
+        "startChar": 3,
+        "endLine": 28,
+        "endChar": 78
+      },
+      "revId": "9f15d7ab310b6a0fa3c367e20b26e4bc5049940c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "27eded36_66fc9cae",
         "filename": "src/gpu/GrTexture.cpp",
         "patchSetId": 3
@@ -53,6 +95,30 @@
       "writtenOn": "2018-06-07T18:12:24Z",
       "side": 1,
       "message": "this can go, right?",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 58
+      },
+      "revId": "9f15d7ab310b6a0fa3c367e20b26e4bc5049940c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e97e94b7_2681cea1",
+        "filename": "src/gpu/GrTexture.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-07T18:21:57Z",
+      "side": 1,
+      "message": "dito of above.",
+      "parentUuid": "27eded36_66fc9cae",
       "range": {
         "startLine": 34,
         "startChar": 0,
