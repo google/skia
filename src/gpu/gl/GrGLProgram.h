@@ -9,20 +9,17 @@
 #ifndef GrGLProgram_DEFINED
 #define GrGLProgram_DEFINED
 
-#include "GrGLContext.h"
-#include "GrProgramDesc.h"
-#include "GrGLTexture.h"
 #include "GrGLProgramDataManager.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
 
-#include "SkString.h"
-
-#include "builders/GrGLProgramBuilder.h"
-
-class GrGLInstalledProcessors;
-class GrGLProgramBuilder;
+class GrGLSLFragmentProcessor;
+class GrGLSLPrimitiveProcessor;
+class GrGLSLXferProcessor;
 class GrPipeline;
+class GrPrimitiveProcessor;
+class GrRenderTargetProxy;
+class GrResourceIOProcessor;
 
 /**
  * This class manages a GPU program and records per-program information.
@@ -35,16 +32,12 @@ class GrPipeline;
  */
 class GrGLProgram : public SkRefCnt {
 public:
-    typedef GrGLSLProgramBuilder::BuiltinUniformHandles BuiltinUniformHandles;
-
     ~GrGLProgram();
 
     /**
      * Call to abandon GL objects owned by this program.
      */
     void abandon();
-
-    const GrProgramDesc& getDesc() { return fDesc; }
 
     /**
      * Gets the GL program ID for this program.
@@ -107,8 +100,7 @@ protected:
     using VaryingInfoArray = GrGLProgramDataManager::VaryingInfoArray;
 
     GrGLProgram(GrGLGpu*,
-                const GrProgramDesc&,
-                const BuiltinUniformHandles&,
+                const GrGLSLBuiltinUniformHandles&,
                 GrGLuint programID,
                 const UniformInfoArray& uniforms,
                 const UniformInfoArray& textureSamplers,
@@ -134,7 +126,7 @@ protected:
 
     // these reflect the current values of uniforms (GL uniform values travel with program)
     RenderTargetState fRenderTargetState;
-    BuiltinUniformHandles fBuiltinUniformHandles;
+    GrGLSLBuiltinUniformHandles fBuiltinUniformHandles;
     GrGLuint fProgramID;
 
     // the installed effects
@@ -143,7 +135,6 @@ protected:
     std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fFragmentProcessors;
     int fFragmentProcessorCnt;
 
-    GrProgramDesc fDesc;
     GrGLGpu* fGpu;
     GrGLProgramDataManager fProgramDataManager;
 

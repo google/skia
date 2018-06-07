@@ -6,10 +6,10 @@
 */
 
 #include "GrVkPipelineState.h"
-
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrPipeline.h"
+#include "GrStencilSettings.h"
 #include "GrTexturePriv.h"
 #include "GrVkBufferView.h"
 #include "GrVkCommandBuffer.h"
@@ -24,18 +24,18 @@
 #include "GrVkTexelBuffer.h"
 #include "GrVkTexture.h"
 #include "GrVkUniformBuffer.h"
+#include "SkMipMap.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLXferProcessor.h"
-#include "SkMipMap.h"
 
-GrVkPipelineState::GrVkPipelineState(GrVkGpu* gpu,
-        const GrVkPipelineState::Desc& desc,
+GrVkPipelineState::GrVkPipelineState(
+        GrVkGpu* gpu,
         GrVkPipeline* pipeline,
         VkPipelineLayout layout,
         const GrVkDescriptorSetManager::Handle& samplerDSHandle,
         const GrVkDescriptorSetManager::Handle& texelBufferDSHandle,
-        const BuiltinUniformHandles& builtinUniformHandles,
+        const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
         const UniformInfoArray& uniforms,
         uint32_t geometryUniformSize,
         uint32_t fragmentUniformSize,
@@ -57,7 +57,6 @@ GrVkPipelineState::GrVkPipelineState(GrVkGpu* gpu,
         , fXferProcessor(std::move(xferProcessor))
         , fFragmentProcessors(std::move(fragmentProcessors))
         , fFragmentProcessorCnt(fragmentProcessorCnt)
-        , fDesc(desc)
         , fDataManager(uniforms, geometryUniformSize, fragmentUniformSize) {
     fSamplers.setReserve(numSamplers);
     fTextureViews.setReserve(numSamplers);

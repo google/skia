@@ -10,15 +10,13 @@
 #define GrVkPipelineState_DEFINED
 
 #include "GrProgramDesc.h"
-#include "GrStencilSettings.h"
 #include "GrVkDescriptorSetManager.h"
-#include "GrVkImage.h"
 #include "GrVkPipelineStateDataManager.h"
 #include "glsl/GrGLSLProgramBuilder.h"
-
 #include "vk/GrVkDefines.h"
 
 class GrPipeline;
+class GrStencilSettings;
 class GrVkBufferView;
 class GrVkCommandBuffer;
 class GrVkDescriptorPool;
@@ -37,11 +35,7 @@ class GrVkUniformBuffer;
  */
 class GrVkPipelineState : public SkRefCnt {
 public:
-    typedef GrGLSLProgramBuilder::BuiltinUniformHandles BuiltinUniformHandles;
-
     ~GrVkPipelineState();
-
-    GrVkPipeline* vkPipeline() const { return fPipeline; }
 
     void setData(GrVkGpu*, const GrPrimitiveProcessor&, const GrPipeline&);
 
@@ -82,20 +76,17 @@ public:
         typedef GrProgramDesc INHERITED;
     };
 
-    const Desc& getDesc() { return fDesc; }
-
 private:
     typedef GrVkPipelineStateDataManager::UniformInfoArray UniformInfoArray;
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
     GrVkPipelineState(
             GrVkGpu* gpu,
-            const GrVkPipelineState::Desc&,
             GrVkPipeline* pipeline,
             VkPipelineLayout layout,
             const GrVkDescriptorSetManager::Handle& samplerDSHandle,
             const GrVkDescriptorSetManager::Handle& texelBufferDSHandle,
-            const BuiltinUniformHandles& builtinUniformHandles,
+            const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
             const UniformInfoArray& uniforms,
             uint32_t geometryUniformSize,
             uint32_t fragmentUniformSize,
@@ -190,15 +181,13 @@ private:
 
     // Tracks the current render target uniforms stored in the vertex buffer.
     RenderTargetState fRenderTargetState;
-    BuiltinUniformHandles fBuiltinUniformHandles;
+    GrGLSLBuiltinUniformHandles fBuiltinUniformHandles;
 
     // Processors in the GrVkPipelineState
     std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
     std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fFragmentProcessors;
     int fFragmentProcessorCnt;
-
-    Desc fDesc;
 
     GrVkPipelineStateDataManager fDataManager;
 
