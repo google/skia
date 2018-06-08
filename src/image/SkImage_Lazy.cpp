@@ -819,18 +819,22 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
         // The pixels in the texture will be in the generator's color space. If onMakeColorSpace
         // has been called then this will not match this image's color space. To correct this, apply
         // a color space conversion from the generator's color space to this image's color space.
+        // Note that we can only do this conversion (on the GPU) if both color spaces are XYZ type.
         const SkColorSpace* generatorColorSpace =
                 fSharedGenerator->fGenerator->getInfo().colorSpace();
         const SkColorSpace* thisColorSpace = fInfo.colorSpace();
 
-        // TODO: Update to create the mipped surface in the YUV generator and draw the base layer
-        // directly into the mipped surface.
-        proxy = provider.refAsTextureProxy(ctx, desc, generatorColorSpace, thisColorSpace);
-        if (proxy) {
-            SK_HISTOGRAM_ENUMERATION("LockTexturePath", kYUV_LockTexturePath,
-                                     kLockTexturePathCount);
-            set_key_on_proxy(proxyProvider, proxy.get(), nullptr, key);
-            return proxy;
+        if ((!generatorColorSpace || generatorColorSpace->toXYZD50()) &&
+             (!thisColorSpace || thisColorSpace->toXYZD50())) {
+            // TODO: Update to create the mipped surface in the YUV generator and draw the base
+            // layer directly into the mipped surface.
+            proxy = provider.refAsTextureProxy(ctx, desc, generatorColorSpace, thisColorSpace);
+            if (proxy) {
+                SK_HISTOGRAM_ENUMERATION("LockTexturePath", kYUV_LockTexturePath,
+                                         kLockTexturePathCount);
+                set_key_on_proxy(proxyProvider, proxy.get(), nullptr, key);
+                return proxy;
+            }
         }
     }
 
