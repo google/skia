@@ -22,6 +22,30 @@
       "revId": "a191c5e27c4e3d4b2c03e259794be851a76df48d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8015918a_846fd3c6",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1738,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-08T21:22:36Z",
+      "side": 1,
+      "message": "Right, we never destroy the non-GrGLProgram programs until the end of the context lifetime.",
+      "parentUuid": "16bc77b7_26b68cff",
+      "range": {
+        "startLine": 1738,
+        "startChar": 4,
+        "endLine": 1738,
+        "endChar": 79
+      },
+      "revId": "a191c5e27c4e3d4b2c03e259794be851a76df48d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
