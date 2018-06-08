@@ -6,6 +6,9 @@
  */
 
 #include "bookmaker.h"
+#include <chrono>
+#include <ctime>
+#include <string>
 
 bool IncludeWriter::checkChildCommentLength(const Definition* parent, MarkType childType) const {
     bool oneMember = false;
@@ -126,13 +129,14 @@ bool IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                 }
                 size_t childSize = prop->fChildren.size();
                 if (childSize) {
-                    SkASSERT(1 == childSize || 2 == childSize);  // incomplete
-                    SkASSERT(MarkType::kLiteral == prop->fChildren[0]->fMarkType);
-                    SkASSERT(1 == childSize || MarkType::kOutdent == prop->fChildren[1]->fMarkType);
-                    commentStart = prop->fChildren[childSize - 1]->fContentStart;
-                    literal = true;
-                    literalOutdent = 2 == childSize &&
-                            MarkType::kOutdent == prop->fChildren[1]->fMarkType;
+                    if (MarkType::kLiteral == prop->fChildren[0]->fMarkType) {
+                        SkASSERT(1 == childSize || 2 == childSize);  // incomplete
+                        SkASSERT(1 == childSize || MarkType::kOutdent == prop->fChildren[1]->fMarkType);
+                        commentStart = prop->fChildren[childSize - 1]->fContentStart;
+                        literal = true;
+                        literalOutdent = 2 == childSize &&
+                                MarkType::kOutdent == prop->fChildren[1]->fMarkType;
+                    }
                 }
                 commentLen = (int) (prop->fContentEnd - commentStart);
                 SkASSERT(commentLen > 0);
@@ -1154,6 +1158,22 @@ void IncludeWriter::constSizeMembers(const RootDefinition* root) {
     fConstLength = fConstCommentTab + longestComment + (int) sizeof("//!<");
 }
 
+bool IncludeWriter::defineOut(const Definition& def) {
+    if (def.fTokens.size() < 1) {
+        return false;
+    }
+    auto& child = def.fTokens.front();
+    string name(child.fContentStart, child.length());
+    auto defIter = fBmhParser->fDefineMap.find(name);
+    if (fBmhParser->fDefineMap.end() == defIter) {
+        return false;
+    }
+    const Definition& bmhDef = defIter->second;
+    this->constOut(&def, &bmhDef);
+    SkDebugf("");
+    return true;
+}
+
 void IncludeWriter::structSizeMembers(const Definition& child) {
     int longestType = 0;
     Definition* typeStart = nullptr;
@@ -1325,7 +1345,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
     const Definition* requireDense = nullptr;
     const Definition* startDef = nullptr;
     for (auto& child : def->fTokens) {
-        if (131 == child.fLineCount) {
+        if (39 == child.fLineCount) {
             SkDebugf("");
         }
         if (KeyWord::kInline == child.fKeyWord) {
@@ -1762,11 +1782,9 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 case KeyWord::kTemplate:
                     break;
                 case KeyWord::kTypedef:
-#if 01
                     SkASSERT(!memberStart);
                     memberStart = &child;
                     sawTypedef = true;
-#endif
                     break;
                 case KeyWord::kSK_BEGIN_REQUIRE_DENSE:
                     requireDense = &child;
@@ -1835,6 +1853,10 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 continue;
             }
             if (fAttrDeprecated) {
+                continue;
+            }
+            if (KeyWord::kDefine == child.fKeyWord && this->defineOut(child)) {
+                fDeferComment = nullptr;
                 continue;
             }
             fDeferComment = nullptr;
@@ -2052,6 +2074,7 @@ bool IncludeWriter::populate(BmhParser& bmhParser) {
         this->setStartBack(includeMapper.second.fContentStart, &includeMapper.second);
         fEnd = includeMapper.second.fContentEnd;
         fAnonymousEnumCount = 1;
+        this->writeHeader(includeMapper);
         allPassed &= this->populate(&includeMapper.second, nullptr, root);
         this->writeBlock((int) (fEnd - fStart), fStart);
 #if 0
@@ -2642,4 +2665,109 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data, Phr
         this->writeBlock(run - lastWrite, &data[lastWrite]);
     }
     return wroteLineFeeds ? Wrote::kLF : Wrote::kChars;
+}
+
+static string paddedString(int num) {
+    auto padded = std::to_string(num);
+    padded.insert(0, 2U - std::min(string::size_type(2), padded.length()), '0');
+    return padded;
+}
+
+bool IncludeWriter::writeHeader(std::pair<const string, Definition>& include) {
+    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    time_t tt = std::chrono::system_clock::to_time_t(now);
+    tm local_tm = *localtime(&tt);
+
+    // find end of copyright header
+    fChar = fStart;
+    if (!this->skipExact(
+            "/*\n"
+            " * Copyright ")) {
+        return this->reportError<bool>("copyright mismatch 1");
+    }
+    const char* date = fChar;
+    this->skipToSpace();
+    string yearStr(date, fChar - date);
+    int year = stoi(yearStr);
+    if (year < 2005 || year > local_tm.tm_year + 1900) {
+        return this->reportError<bool>("copyright year out of range");
+    }
+    this->skipSpace();
+    const char android[] = "The Android Open Source Project";
+    const char google[] = "Google Inc.";
+    if (this->startsWith(android)) {
+        this->skipExact(android);
+    } else if (!this->skipExact(google)) {
+        return this->reportError<bool>("copyright mismatch 2");
+    }
+    if (!this->skipExact(
+            "\n"
+            " *\n"
+            " * Use of this source code is governed by a BSD-style license that can be\n"
+            " * found in the LICENSE file.\n"
+            " */\n"
+            "\n"
+            )) {
+        return this->reportError<bool>("copyright mismatch 2");
+    }
+    this->writeBlock(fChar - fStart, fStart);
+    this->lf(2);
+    this->writeString("/* Generated by tools/bookmaker from");
+    this->writeSpace();
+    string includeName = include.first;
+    std::replace(includeName.begin(), includeName.end(), '\\', '/');
+    this->writeString(includeName);
+    this->writeSpace();
+    this->writeString("and");
+    this->writeSpace();
+    string bmhName = fRootTopic->fFileName;
+    std::replace(bmhName.begin(), bmhName.end(), '\\', '/');
+    this->writeString(bmhName);
+    this->lfcr();
+    fIndent = 3;
+    string dateTimeStr = std::to_string(local_tm.tm_year + 1900) + "-"
+            + paddedString(local_tm.tm_mon + 1) + "-"
+            + paddedString(local_tm.tm_mday) + " "
+            + paddedString(local_tm.tm_hour) + ":"
+            + paddedString(local_tm.tm_min) + ":"
+            + paddedString(local_tm.tm_sec);
+    this->writeString("on");
+    this->writeSpace();
+    this->writeString(dateTimeStr);
+    this->writeString(". Additional documentation and examples can be found at:");
+    this->lfcr();
+    this->writeString("https://skia.org/user/api/");
+    size_t bmhPageStart = bmhName.rfind('/');
+    size_t bmhPageEnd = bmhName.rfind('.');
+    if (string::npos == bmhPageStart || string::npos == bmhPageEnd) {
+        return this->reportError<bool>("badly formed bmh page name");
+    }
+    ++bmhPageStart;
+    string bmhPage = bmhName.substr(bmhPageStart, bmhPageEnd - bmhPageStart);
+    this->writeString(bmhPage);
+    this->lf(2);
+    this->writeString("You may edit either file directly. Structural changes to public interfaces require");
+    this->lfcr();
+    this->writeString("editing both files. After editing");
+    this->writeSpace();
+    this->writeString(bmhName);
+    this->writeSpace();
+    this->writeString(", run:");
+    this->lfcr();
+    fIndent += 4;
+    this->writeString("bookmaker -b docs -i");
+    this->writeSpace();
+    this->writeString(includeName);
+    this->writeSpace();
+    this->writeString("-p");
+    this->lfcr();
+    fIndent -= 4;
+    this->writeString("to create an updated version of this file.");
+    this->lfcr();
+    fIndent = 1;
+    this->writeString("*/");
+    this->lf(2);
+    fIndent = 0;
+    fStart = fChar;
+    return true;
 }

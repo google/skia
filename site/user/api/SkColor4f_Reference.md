@@ -96,10 +96,14 @@ SkColor4f member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets components to valid range</td>
   </tr>
   <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkColor4f_premul'>premul</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='undocumented#Premultiply'>Premultiplied</a> color; internal use only</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkColor4f_toSkColor'>toSkColor</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns closest <a href='SkColor_Reference#Color'>Color</a></td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkColor4f_vec'>vec</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns array of components</td>
   </tr>
@@ -422,10 +426,13 @@ Returns <a href='#Color4f'>Color4f</a> with all components in the range from zer
 <a href='#SkPM4f'>SkPM4f</a> <a href='#SkColor4f_premul'>premul</a>() const
 </pre>
 
-Deprecated.
+Internal use only.
+
+### Return Value
+
+<a href='undocumented#Premultiply'>Premultiplied</a> color
 
 ---
 
 # <a name='SkPM4f'>Struct SkPM4f</a>
-Deprecated.
-
+Internal use only.
