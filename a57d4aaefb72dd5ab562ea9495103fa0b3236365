@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f348d83_fc94e79d",
+        "filename": "gm/fontscalerdistortable.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-08T14:32:51Z",
+      "side": 1,
+      "message": "Un-comment this and rename thei \u0027distortable\u0027 to \u0027distortableStream\u0027.",
+      "range": {
+        "startLine": 38,
+        "startChar": 8,
+        "endLine": 38,
+        "endChar": 11
+      },
+      "revId": "a57d4aaefb72dd5ab562ea9495103fa0b3236365",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3583ba12_2dd2d43f",
+        "filename": "gm/fontscalerdistortable.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-08T14:32:51Z",
+      "side": 1,
+      "message": "This should test distortableStream and not the typeface.",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 9
+      },
+      "revId": "a57d4aaefb72dd5ab562ea9495103fa0b3236365",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00dad979_5fcba886",
+        "filename": "gm/fontscalerdistortable.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-08T14:32:51Z",
+      "side": 1,
+      "message": "if (j \u003d\u003d 0 \u0026\u0026 distortable) {\n   distortable-\u003emakeClone...\n} else {\n   fontMgr-\u003emakeFromStream(distortable-\u003eduplicate()\n}",
+      "range": {
+        "startLine": 56,
+        "startChar": 16,
+        "endLine": 59,
+        "endChar": 101
+      },
+      "revId": "a57d4aaefb72dd5ab562ea9495103fa0b3236365",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cef8f49e_7b71816e",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-08T14:32:51Z",
+      "side": 1,
+      "message": "I\u0027d like to rename this to newFontFace5.",
+      "range": {
+        "startLine": 257,
+        "startChar": 42,
+        "endLine": 257,
+        "endChar": 55
+      },
+      "revId": "a57d4aaefb72dd5ab562ea9495103fa0b3236365",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2a90f88_4022d670",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-08T14:32:51Z",
+      "side": 1,
+      "message": "Maybe fDWriteFont-\u003eGetSimulations() and remove the test at the beginning? Not sure what the effect of that is.",
+      "range": {
+        "startLine": 258,
+        "startChar": 41,
+        "endLine": 258,
+        "endChar": 69
+      },
+      "revId": "a57d4aaefb72dd5ab562ea9495103fa0b3236365",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "881ae67a_ddbd22f6",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-08T14:32:51Z",
+      "side": 1,
+      "message": "And name this newFontFace.",
+      "range": {
+        "startLine": 263,
+        "startChar": 41,
+        "endLine": 263,
+        "endChar": 49
+      },
+      "revId": "a57d4aaefb72dd5ab562ea9495103fa0b3236365",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
