@@ -336,13 +336,6 @@
     "name": "SkBitmap::swap()",
         "stdout": "one width:1 height:1 colorType:kRGBA_8888_SkColorType alphaType:kOpaque_SkAlphaType\\ntwo width:2 height:2 colorType:kBGRA_8888_SkColorType alphaType:kPremul_SkAlphaType\\none width:2 height:2 colorType:kBGRA_8888_SkColorType alphaType:kPremul_SkAlphaType\\ntwo width:1 height:1 colorType:kRGBA_8888_SkColorType alphaType:kOpaque_SkAlphaType\\n"
     },
-        "SkBitmap_toString": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkBitmap bitmap;\n    int width = 6;\n    int height = 11;\n    bitmap.allocPixels(SkImageInfo::MakeN32Premul(width, height));\n    SkString string;\n    bitmap.toString(&string);\n    SkString match;\n    match.printf(\"(%d, %d)\", width, height);\n    int start = string.find(match.c_str());\n    if (start >= 0) {\n        SkString whStr(&string.c_str()[start], match.size());\n        SkDebugf(\"bitmap dimensions %s\\n\", whStr.c_str());\n    }\n}",
-    "hash": "6018d98695245510839a318caabba9c9",
-    "file": "SkBitmap_Reference",
-    "name": "SkBitmap::toString",
-        "stdout": "bitmap dimensions (6, 11)\\n"
-    },
         "SkBitmap_tryAllocPixelsFlags": {
     "code": "void draw(SkCanvas* canvas) {\n    SkBitmap bitmap;\n    if (!bitmap.tryAllocPixelsFlags(SkImageInfo::MakeN32(10000, 10000, kOpaque_SkAlphaType),\n                                    SkBitmap::kZeroPixels_AllocFlag)) {\n        SkDebugf(\"bitmap allocation failed!\\n\");\n    } else {\n        SkDebugf(\"bitmap allocation succeeded!\\n\");\n    }\n}",
     "hash": "f1d1880d38e0aea4cefd3e11745e8a09",
@@ -1442,13 +1435,6 @@
     "name": "SkMatrix::setScaleTranslate",
         "stdout": "[  1.0000   0.0000   3.0000][  0.0000   2.0000   4.0000][  0.0000   0.0000   1.0000]\\n"
     },
-        "SkMatrix_toString": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkMatrix matrix;\n    matrix.setRotate(45);\n    SkString mStr, neStr;\n    matrix.toString(&mStr);\n    SkMatrix nearlyEqual;\n    nearlyEqual.setAll(0.7071f, -0.7071f, 0,   0.7071f, 0.7071f, 0,   0, 0, 1);\n    nearlyEqual.toString(&neStr);\n    SkDebugf(\"mStr  %s\\n\", mStr.c_str());\n    SkDebugf(\"neStr %s\\n\", neStr.c_str());\n    SkDebugf(\"matrix %c= nearlyEqual\\n\", matrix == nearlyEqual ? '=' : '!');\n}",
-    "hash": "1d86e43958e42b8eaaa9b16df1baa4c8",
-    "file": "SkMatrix_Reference",
-    "name": "SkMatrix::toString",
-        "stdout": "mStr  [  0.7071  -0.7071   0.0000][  0.7071   0.7071   0.0000][  0.0000   0.0000   1.0000]\\nneStr [  0.7071  -0.7071   0.0000][  0.7071   0.7071   0.0000][  0.0000   0.0000   1.0000]\\nmatrix != nearlyEqual\\n"
-    },
         "SkPaint_containsText": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    const uint16_t goodChar = 0x00B0;  // degree symbol\n    const uint16_t badChar = 0xD800;   // Unicode surrogate\n    paint.setTextEncoding(SkPaint::kUTF16_TextEncoding);\n    SkDebugf(\"0x%04x %c= has char\\n\", goodChar,\n            paint.containsText(&goodChar, 2) ? '=' : '!');\n    SkDebugf(\"0x%04x %c= has char\\n\", badChar,\n            paint.containsText(&badChar, 2) ? '=' : '!');\n}",
     "hash": "71b417d6651cbcecae1a05067c94ab3e",
@@ -1980,13 +1966,6 @@
     "file": "SkPaint_Reference",
     "name": "SkPaint::setVerticalText",
         "stdout": "paint1 == paint2\\n"
-    },
-        "SkPaint_toString": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkString str;\n    paint.toString(&str);\n    const char textSize[] = \"TextSize:\";\n    const int trailerSize = strlen(\"</dd><dt>\");\n    int textSizeLoc = str.find(textSize) + strlen(textSize) + trailerSize;\n    const char* sizeStart = &str.c_str()[textSizeLoc];\n    int textSizeEnd = SkStrFind(sizeStart, \"</dd>\");\n    SkDebugf(\"text size = %.*s\\n\", textSizeEnd, sizeStart);\n}",
-    "hash": "5670c04b4562908169a776c48c92d104",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::toString",
-        "stdout": "text size = 12\\n"
     },
         "SkPath_ConvertToNonInverseFillType": {
     "code": "#define nameValue(fill) { SkPath::fill, #fill }\n\nvoid draw(SkCanvas* canvas) {\n    struct {\n        SkPath::FillType fill;\n        const char* name;\n    } fills[] = {\n        nameValue(kWinding_FillType),\n        nameValue(kEvenOdd_FillType),\n        nameValue(kInverseWinding_FillType),\n        nameValue(kInverseEvenOdd_FillType),\n    };\n    for (unsigned i = 0; i < SK_ARRAY_COUNT(fills); ++i) {\n        if (fills[i].fill != (SkPath::FillType) i) {\n            SkDebugf(\"fills array order does not match FillType enum order\");\n            break;\n        }\n        SkDebugf(\"ConvertToNonInverseFillType(%s) == %s\\n\", fills[i].name,\n                fills[(int) SkPath::ConvertToNonInverseFillType(fills[i].fill)].name);\n    }\n}\n",
@@ -5540,14 +5519,6 @@
     "hash": "5949c9a63610cae30019e5b1899ee38f",
     "file": "SkImage_Reference",
     "name": "SkImage::scalePixels"
-},
-    "SkImage_toString": {
-    "code": "void draw(SkCanvas* canvas) {\n    struct {\n        const char* name;\n        sk_sp<SkImage> image;\n    } tests[] = { { \"image\", image }, { \"bitmap\", SkImage::MakeFromBitmap(source) },\n          { \"texture\", SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,\n                            kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType,\n                            kOpaque_SkAlphaType, nullptr) } };\n    SkString string;\n    SkPaint paint;\n    for (const auto& test : tests ) {\n        string.printf(\"%s: \", test.name);\n        test.image ? (void) test.image->toString(&string) : string.append(\"no image\");\n        canvas->drawString(string, 10, 20, paint);\n        canvas->translate(0, 20);\n    }\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "b112d69ab4eb00ea38a2e01a7d7e740b",
-    "file": "SkImage_Reference",
-    "name": "SkImage::toString"
 },
     "SkImage_uniqueID": {
     "code": "void draw(SkCanvas* canvas) {\n    sk_sp<SkImage> subset = image->makeSubset({10, 20, 90, 100});\n    canvas->drawImage(image, 0, 0);\n    canvas->drawImage(subset, 128, 0);\n    SkPaint paint;\n    SkString s;\n    s.printf(\"original id: %d\", image->uniqueID());\n    canvas->drawString(s, 20, image->height() + 20, paint);\n    s.printf(\"subset id: %d\", subset->uniqueID());\n    canvas->drawString(s, 148, subset->height() + 20, paint);\n}",
