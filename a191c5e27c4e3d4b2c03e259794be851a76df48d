@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2d068b55_60c356f0",
+        "filename": "src/gpu/ccpr/GrCCCoverageProcessor_VSImpl.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-08T22:05:41Z",
+      "side": 1,
+      "message": "I like that better. Done.",
+      "parentUuid": "c23427c4_8fb2721f",
+      "revId": "a191c5e27c4e3d4b2c03e259794be851a76df48d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0e5b50c4_d677244f",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 7
@@ -30,6 +48,30 @@
       "writtenOn": "2018-06-08T21:29:41Z",
       "side": 1,
       "message": "nit: Wondering if we still need fHWProgramID? Or can we track this state now with just fHWProgram?",
+      "range": {
+        "startLine": 500,
+        "startChar": 8,
+        "endLine": 500,
+        "endChar": 20
+      },
+      "revId": "a191c5e27c4e3d4b2c03e259794be851a76df48d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe053997_e0c6f03f",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-08T22:05:41Z",
+      "side": 1,
+      "message": "We have a handful of programs used internally to GrGLGpu that don\u0027t have GrGLPrograms around them (for copies, making mips, ...).",
+      "parentUuid": "0e5b50c4_d677244f",
       "range": {
         "startLine": 500,
         "startChar": 8,
@@ -100,6 +142,24 @@
       "writtenOn": "2018-06-08T21:29:41Z",
       "side": 1,
       "message": "Just curious - IIRC some people prefer to just use std::vector\u003c\u003e rather that unique_ptr\u003c[]\u003e, even if they don\u0027t plan on appending to the array. Any reason not to use a const SkTArray\u003c\u003e instead, so the count() is part of fAttributes?\n\nNot a big deal either way, I\u0027m just wondering.",
+      "revId": "a191c5e27c4e3d4b2c03e259794be851a76df48d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3226ebc_6c7963a9",
+        "filename": "src/gpu/gl/builders/GrGLProgramBuilder.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-08T22:05:41Z",
+      "side": 1,
+      "message": "Mostly just that I know the allocation is tight to the number of attributes which will never change and SkTArray has at least one extra member to store the alloc size.",
+      "parentUuid": "42dd35bf_91a17b6d",
       "revId": "a191c5e27c4e3d4b2c03e259794be851a76df48d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
