@@ -257,6 +257,14 @@ DEF_TEST(SkNx_floor, r) {
     REPORTER_ASSERT(r, fs[1] == -1.0f);
     REPORTER_ASSERT(r, fs[2] ==  0.0f);
     REPORTER_ASSERT(r, fs[3] == -1.0f);
+
+    auto fs2 = Sk2f(0.4f, -0.4f).floor();
+    REPORTER_ASSERT(r, fs2[0] ==  0.0f);
+    REPORTER_ASSERT(r, fs2[1] == -1.0f);
+
+    auto fs3 = Sk2f(0.6f, -0.6f).floor();
+    REPORTER_ASSERT(r, fs3[0] ==  0.0f);
+    REPORTER_ASSERT(r, fs3[1] == -1.0f);
 }
 
 DEF_TEST(SkNx_shuffle, r) {

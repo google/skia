@@ -15,6 +15,17 @@
 
 namespace {
 
+// Emulate _mm_floor_ps() with SSE2:
+//   - roundtrip through integers via truncation
+//   - subtract 1 if that's too big (possible for negative values).
+// This restricts the domain of our inputs to a maximum somehwere around 2^31.
+// Seems plenty big.
+AI static __m128 emulate_mm_floor_ps(__m128 v) {
+    __m128 roundtrip = _mm_cvtepi32_ps(_mm_cvttps_epi32(v));
+    __m128 too_big = _mm_cmpgt_ps(roundtrip, v);
+    return _mm_sub_ps(roundtrip, _mm_and_ps(too_big, _mm_set1_ps(1.0f)));
+}
+
 template <>
 class SkNx<2, float> {
 public:
@@ -71,7 +82,15 @@ public:
     AI static SkNx Min(const SkNx& l, const SkNx& r) { return _mm_min_ps(l.fVec, r.fVec); }
     AI static SkNx Max(const SkNx& l, const SkNx& r) { return _mm_max_ps(l.fVec, r.fVec); }
 
-    AI SkNx    abs() const { return _mm_andnot_ps(_mm_set1_ps(-0.0f), fVec); }
+    AI SkNx abs() const { return _mm_andnot_ps(_mm_set1_ps(-0.0f), fVec); }
+    AI SkNx floor() const {
+    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
+        return _mm_floor_ps(fVec);
+    #else
+        return emulate_mm_floor_ps(fVec);
+    #endif
+    }
+
     AI SkNx   sqrt() const { return _mm_sqrt_ps (fVec);  }
     AI SkNx  rsqrt() const { return _mm_rsqrt_ps(fVec); }
     AI SkNx invert() const { return _mm_rcp_ps(fVec); }
@@ -161,14 +180,7 @@ public:
     #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
         return _mm_floor_ps(fVec);
     #else
-        // Emulate _mm_floor_ps() with SSE2:
-        //   - roundtrip through integers via truncation
-        //   - subtract 1 if that's too big (possible for negative values).
-        // This restricts the domain of our inputs to a maximum somehwere around 2^31.
-        // Seems plenty big.
-        __m128 roundtrip = _mm_cvtepi32_ps(_mm_cvttps_epi32(fVec));
-        __m128 too_big = _mm_cmpgt_ps(roundtrip, fVec);
-        return _mm_sub_ps(roundtrip, _mm_and_ps(too_big, _mm_set1_ps(1.0f)));
+        return emulate_mm_floor_ps(fVec);
     #endif
     }
 
