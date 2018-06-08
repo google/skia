@@ -1176,7 +1176,7 @@ def GenTests(api):
 
   builder = 'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-All-Android'
   retry_step_name = ('pull /sdcard/revenge_of_the_skiabot/dm_out '
-                     '[START_DIR]/[SWARM_OUT_DIR]/dm')
+                     '[START_DIR]/[SWARM_OUT_DIR]')
   yield (
     api.test('failed_pull') +
     api.properties(buildername=builder,
