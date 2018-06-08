@@ -4276,19 +4276,19 @@ public:
 
         // Check that listener is notified on moveTo().
 
-        SkPathPriv::AddGenIDChangeListener(p, new ChangeListener(&changed));
+        SkPathPriv::AddGenIDChangeListener(p, sk_make_sp<ChangeListener>(&changed));
         REPORTER_ASSERT(reporter, !changed);
         p.moveTo(10, 0);
         REPORTER_ASSERT(reporter, changed);
 
         // Check that listener is notified on lineTo().
-        SkPathPriv::AddGenIDChangeListener(p, new ChangeListener(&changed));
+        SkPathPriv::AddGenIDChangeListener(p, sk_make_sp<ChangeListener>(&changed));
         REPORTER_ASSERT(reporter, !changed);
         p.lineTo(20, 0);
         REPORTER_ASSERT(reporter, changed);
 
         // Check that listener is notified on reset().
-        SkPathPriv::AddGenIDChangeListener(p, new ChangeListener(&changed));
+        SkPathPriv::AddGenIDChangeListener(p, sk_make_sp<ChangeListener>(&changed));
         REPORTER_ASSERT(reporter, !changed);
         p.reset();
         REPORTER_ASSERT(reporter, changed);
@@ -4296,7 +4296,7 @@ public:
         p.moveTo(0, 0);
 
         // Check that listener is notified on rewind().
-        SkPathPriv::AddGenIDChangeListener(p, new ChangeListener(&changed));
+        SkPathPriv::AddGenIDChangeListener(p, sk_make_sp<ChangeListener>(&changed));
         REPORTER_ASSERT(reporter, !changed);
         p.rewind();
         REPORTER_ASSERT(reporter, changed);
@@ -4305,7 +4305,7 @@ public:
         {
             SkPath q;
             q.moveTo(10, 10);
-            SkPathPriv::AddGenIDChangeListener(q, new ChangeListener(&changed));
+            SkPathPriv::AddGenIDChangeListener(q, sk_make_sp<ChangeListener>(&changed));
             REPORTER_ASSERT(reporter, !changed);
         }
         // q went out of scope.
