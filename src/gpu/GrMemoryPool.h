@@ -9,6 +9,9 @@
 #define GrMemoryPool_DEFINED
 
 #include "GrTypes.h"
+
+#include "SkRefCnt.h"
+
 #ifdef SK_DEBUG
 #include "SkTHash.h"
 #endif
@@ -20,7 +23,7 @@
  * and delete overrides. All allocations are expected to be released before the
  * pool's destructor is called. Allocations will be 8-byte aligned.
  */
-class GrMemoryPool {
+class GrMemoryPool1 {
 public:
     /**
      * Prealloc size is the amount of space to allocate at pool creation
@@ -34,9 +37,9 @@ public:
      * Both sizes is what the pool will end up allocating from the system, and
      * portions of the allocated memory is used for internal bookkeeping.
      */
-    GrMemoryPool(size_t preallocSize, size_t minAllocSize);
+    GrMemoryPool1(size_t preallocSize, size_t minAllocSize);
 
-    ~GrMemoryPool();
+    ~GrMemoryPool1();
 
     /**
      * Allocates memory. The memory must be freed with release().
@@ -119,6 +122,31 @@ protected:
         kHeaderSize   = GR_CT_ALIGN_UP(sizeof(BlockHeader), kAlignment),
         kPerAllocPad  = GR_CT_ALIGN_UP(sizeof(AllocHeader), kAlignment),
     };
+};
+
+class GrOp;
+
+// DDL TODO: for the DLL use case this could probably non-intrinsic-based ref counting
+class GrOpMemoryPool : public SkRefCnt {
+public:
+    GrOpMemoryPool(size_t preallocSize, size_t minAllocSize)
+            : fMemoryPool(preallocSize, minAllocSize) {
+    }
+
+    template <typename Op, typename... OpArgs>
+    std::unique_ptr<Op> allocate(OpArgs&&... opArgs) {
+        char* mem = (char*) fMemoryPool.allocate(sizeof(Op));
+        return std::unique_ptr<Op>(new (mem) Op(std::forward<OpArgs>(opArgs)...));
+    }
+
+    void* allocate(size_t size) {
+        return fMemoryPool.allocate(size);
+    }
+
+    void release(std::unique_ptr<GrOp> op);
+
+private:
+    GrMemoryPool1 fMemoryPool;
 };
 
 #endif

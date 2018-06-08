@@ -256,10 +256,20 @@ public:
 
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           std::function<void(DrawMeshHelper*)> testFn) {
-        return std::unique_ptr<GrDrawOp>(new GrMeshTestOp(testFn));
+        // $$
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+#if 0
+        char* mem = (char*) pool->allocate(sizeof(GrMeshTestOp));
+        return std::unique_ptr<GrDrawOp>(new (mem) GrMeshTestOp(testFn));
+#else
+        return pool->allocate<GrMeshTestOp>(testFn);
+#endif
     }
 
 private:
+    friend class GrOpMemoryPool; // for ctor
+
     GrMeshTestOp(std::function<void(DrawMeshHelper*)> testFn)
         : INHERITED(ClassID())
         , fTestFn(testFn) {

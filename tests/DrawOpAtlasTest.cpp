@@ -181,6 +181,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     auto resourceProvider = context->contextPriv().resourceProvider();
     auto drawingManager = context->contextPriv().drawingManager();
     auto textContext = drawingManager->getTextContext();
+    auto opMemoryPool = context->contextPriv().opMemoryPool();
 
     auto rtc =  context->contextPriv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
                                                                        32, 32,
@@ -222,4 +223,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     flushState.setOpArgs(&opArgs);
     op->prepare(&flushState);
     flushState.setOpArgs(nullptr);
+
+    // $$
+#if 0
+    {
+        GrOp* foo = op.release();
+        foo->~GrOp();
+        opMemoryPool->release(foo);
+    }
+#else
+    opMemoryPool->release(std::move(op));
+#endif
 }

@@ -45,7 +45,7 @@ public:
     static A* Create(SkRandom* r);
 
     static void SetAllocator(size_t preallocSize, size_t minAllocSize) {
-        GrMemoryPool* pool = new GrMemoryPool(preallocSize, minAllocSize);
+        GrMemoryPool1* pool = new GrMemoryPool1(preallocSize, minAllocSize);
         gPool.reset(pool);
     }
 
@@ -54,11 +54,11 @@ public:
     }
 
 private:
-    static std::unique_ptr<GrMemoryPool> gPool;
+    static std::unique_ptr<GrMemoryPool1> gPool;
     char fChar;
 };
 
-std::unique_ptr<GrMemoryPool> A::gPool;
+std::unique_ptr<GrMemoryPool1> A::gPool;
 
 class B : public A {
 public:
@@ -230,7 +230,7 @@ DEF_TEST(GrMemoryPool, reporter) {
 // achieving that by releasing all added memory in the destructor.
 class AutoPoolReleaser {
 public:
-    AutoPoolReleaser(GrMemoryPool& pool): fPool(pool) {
+    AutoPoolReleaser(GrMemoryPool1& pool): fPool(pool) {
     }
     ~AutoPoolReleaser() {
         for (void* ptr: fAllocated) {
@@ -241,15 +241,15 @@ public:
         fAllocated.push_back(ptr);
     }
 private:
-    GrMemoryPool& fPool;
+    GrMemoryPool1& fPool;
     SkTArray<void*> fAllocated;
 };
 
 DEF_TEST(GrMemoryPoolAPI, reporter) {
-    constexpr size_t kSmallestMinAllocSize = GrMemoryPool::kSmallestMinAllocSize;
+    constexpr size_t kSmallestMinAllocSize = GrMemoryPool1::kSmallestMinAllocSize;
 
     // Allocates memory until pool adds a new block (pool.size() changes).
-    auto allocateMemory = [](GrMemoryPool& pool, AutoPoolReleaser& r) {
+    auto allocateMemory = [](GrMemoryPool1& pool, AutoPoolReleaser& r) {
         size_t origPoolSize = pool.size();
         while (pool.size() == origPoolSize) {
             r.add(pool.allocate(31));
@@ -258,20 +258,20 @@ DEF_TEST(GrMemoryPoolAPI, reporter) {
 
     // Effective prealloc space capacity is >= kSmallestMinAllocSize.
     {
-        GrMemoryPool pool(0, 0);
+        GrMemoryPool1 pool(0, 0);
         REPORTER_ASSERT(reporter, pool.preallocSize() == kSmallestMinAllocSize);
     }
 
     // Effective prealloc space capacity is >= minAllocSize.
     {
         constexpr size_t kMinAllocSize = kSmallestMinAllocSize * 2;
-        GrMemoryPool pool(kSmallestMinAllocSize, kMinAllocSize);
+        GrMemoryPool1 pool(kSmallestMinAllocSize, kMinAllocSize);
         REPORTER_ASSERT(reporter, pool.preallocSize() == kMinAllocSize);
     }
 
     // Effective block size capacity >= kSmallestMinAllocSize.
     {
-        GrMemoryPool pool(kSmallestMinAllocSize, kSmallestMinAllocSize / 2);
+        GrMemoryPool1 pool(kSmallestMinAllocSize, kSmallestMinAllocSize / 2);
         AutoPoolReleaser r(pool);
 
         allocateMemory(pool, r);
@@ -281,14 +281,14 @@ DEF_TEST(GrMemoryPoolAPI, reporter) {
     // Pool allocates exactly preallocSize on creation.
     {
         constexpr size_t kPreallocSize = kSmallestMinAllocSize * 5;
-        GrMemoryPool pool(kPreallocSize, 0);
+        GrMemoryPool1 pool(kPreallocSize, 0);
         REPORTER_ASSERT(reporter, pool.preallocSize() == kPreallocSize);
     }
 
     // Pool allocates exactly minAllocSize when it expands.
     {
         constexpr size_t kMinAllocSize = kSmallestMinAllocSize * 7;
-        GrMemoryPool pool(0, kMinAllocSize);
+        GrMemoryPool1 pool(0, kMinAllocSize);
         AutoPoolReleaser r(pool);
 
         allocateMemory(pool, r);
@@ -302,7 +302,7 @@ DEF_TEST(GrMemoryPoolAPI, reporter) {
     // to accommodate all internal structures.
     {
         constexpr size_t kMinAllocSize = kSmallestMinAllocSize * 2;
-        GrMemoryPool pool(kSmallestMinAllocSize, kMinAllocSize);
+        GrMemoryPool1 pool(kSmallestMinAllocSize, kMinAllocSize);
         AutoPoolReleaser r(pool);
 
         REPORTER_ASSERT(reporter, pool.size() == 0);

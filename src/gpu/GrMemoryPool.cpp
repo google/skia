@@ -17,9 +17,17 @@
     #define VALIDATE
 #endif
 
-constexpr size_t GrMemoryPool::kSmallestMinAllocSize;
+#include "ops/GrOp.h"
 
-GrMemoryPool::GrMemoryPool(size_t preallocSize, size_t minAllocSize) {
+void GrOpMemoryPool::release(std::unique_ptr<GrOp> op) {
+    GrOp* tmp = op.release();
+    tmp->~GrOp();
+    fMemoryPool.release(tmp);
+}
+
+constexpr size_t GrMemoryPool1::kSmallestMinAllocSize;
+
+GrMemoryPool1::GrMemoryPool1(size_t preallocSize, size_t minAllocSize) {
     SkDEBUGCODE(fAllocationCnt = 0);
     SkDEBUGCODE(fAllocBlockCnt = 0);
 
@@ -36,7 +44,7 @@ GrMemoryPool::GrMemoryPool(size_t preallocSize, size_t minAllocSize) {
     VALIDATE;
 };
 
-GrMemoryPool::~GrMemoryPool() {
+GrMemoryPool1::~GrMemoryPool1() {
     VALIDATE;
 #ifdef SK_DEBUG
     int i = 0;
@@ -57,7 +65,7 @@ GrMemoryPool::~GrMemoryPool() {
     DeleteBlock(fHead);
 };
 
-void* GrMemoryPool::allocate(size_t size) {
+void* GrMemoryPool1::allocate(size_t size) {
     VALIDATE;
     size += kPerAllocPad;
     size = GrSizeAlignUp(size, kAlignment);
@@ -95,7 +103,7 @@ void* GrMemoryPool::allocate(size_t size) {
     return reinterpret_cast<void*>(ptr);
 }
 
-void GrMemoryPool::release(void* p) {
+void GrMemoryPool1::release(void* p) {
     VALIDATE;
     intptr_t ptr = reinterpret_cast<intptr_t>(p) - kPerAllocPad;
     AllocHeader* allocData = reinterpret_cast<AllocHeader*>(ptr);
@@ -137,7 +145,7 @@ void GrMemoryPool::release(void* p) {
     VALIDATE;
 }
 
-GrMemoryPool::BlockHeader* GrMemoryPool::CreateBlock(size_t blockSize) {
+GrMemoryPool1::BlockHeader* GrMemoryPool1::CreateBlock(size_t blockSize) {
     blockSize = SkTMax<size_t>(blockSize, kHeaderSize);
     BlockHeader* block =
         reinterpret_cast<BlockHeader*>(sk_malloc_throw(blockSize));
@@ -152,13 +160,13 @@ GrMemoryPool::BlockHeader* GrMemoryPool::CreateBlock(size_t blockSize) {
     return block;
 }
 
-void GrMemoryPool::DeleteBlock(BlockHeader* block) {
+void GrMemoryPool1::DeleteBlock(BlockHeader* block) {
     SkASSERT(kAssignedMarker == block->fBlockSentinal);
     SkDEBUGCODE(block->fBlockSentinal = kFreedMarker); // FWIW
     sk_free(block);
 }
 
-void GrMemoryPool::validate() {
+void GrMemoryPool1::validate() {
 #ifdef SK_DEBUG
     BlockHeader* block = fHead;
     BlockHeader* prev = nullptr;

@@ -32,7 +32,8 @@ private:
     using DstProxy = GrXferProcessor::DstProxy;
 
 public:
-    GrRenderTargetOpList(GrResourceProvider*, GrRenderTargetProxy*, GrAuditTrail*);
+    GrRenderTargetOpList(GrResourceProvider*, sk_sp<GrOpMemoryPool>,
+                         GrRenderTargetProxy*, GrAuditTrail*);
 
     ~GrRenderTargetOpList() override;
 
@@ -93,7 +94,7 @@ public:
     void discard();
 
     /** Clears the entire render target */
-    void fullClear(const GrCaps& caps, GrColor color);
+    void fullClear(GrContext*, GrColor color);
 
     /**
      * Copies a pixel rectangle from one surface to another. This call may finalize
@@ -105,7 +106,7 @@ public:
      * depending on the type of surface, configs, etc, and the backend-specific
      * limitations.
      */
-    bool copySurface(const GrCaps& caps,
+    bool copySurface(GrContext*,
                      GrSurfaceProxy* dst,
                      GrSurfaceProxy* src,
                      const SkIRect& srcRect,
@@ -122,17 +123,34 @@ public:
 private:
     friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive
 
+    void deleteOps();
+
     struct RecordedOp {
         RecordedOp(std::unique_ptr<GrOp> op, GrAppliedClip* appliedClip, const DstProxy* dstProxy)
-                : fOp(std::move(op)), fAppliedClip(appliedClip) {
+                : fOp1(std::move(op)), fAppliedClip(appliedClip) {
             if (dstProxy) {
                 fDstProxy = *dstProxy;
             }
         }
 
+        ~RecordedOp() {
+            // The ops are stored in a GrMemoryPool so had better have been handled separately
+            SkASSERT(!fOp);
+        }
+
+        void deleteOp(GrOpMemoryPool* opMemoryPool) {
+#if 0
+            fOp->~GrOp();
+            opMemoryPool->release(fOp);
+            fOp = nullptr;
+#else
+            opMemoryPool->release(std::move(fOp1));
+#endif
+        }
+
         void visitProxies(const GrOp::VisitProxyFunc& func) const {
-            if (fOp) {
-                fOp->visitProxies(func);
+            if (fOp1) {
+                fOp1->visitProxies(func);
             }
             if (fDstProxy.proxy()) {
                 func(fDstProxy.proxy());
@@ -142,9 +160,9 @@ private:
             }
         }
 
-        std::unique_ptr<GrOp> fOp;
-        DstProxy fDstProxy;
-        GrAppliedClip* fAppliedClip;
+        std::unique_ptr<GrOp> fOp1;
+        DstProxy              fDstProxy;
+        GrAppliedClip*        fAppliedClip;
     };
 
     void purgeOpsWithUninstantiatedProxies() override;

@@ -31,8 +31,15 @@ public:
 
     const char* name() const override { return "Dummy Op"; }
 
-    static std::unique_ptr<GrDrawOp> Make(int numAttribs) {
-        return std::unique_ptr<GrDrawOp>(new Op(numAttribs));
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          int numAttribs) {
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+#if 0
+        char* mem = (char*) pool->allocate(sizeof(Op));
+        return std::unique_ptr<GrDrawOp>(new (mem) Op(numAttribs));
+#else
+        return pool->allocate<Op>(numAttribs);
+#endif
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override {
@@ -45,6 +52,8 @@ public:
     }
 
 private:
+    friend class GrOpMemoryPool;
+
     Op(int numAttribs) : INHERITED(ClassID()), fNumAttribs(numAttribs) {
         this->setBounds(SkRect::MakeWH(1.f, 1.f), HasAABloat::kNo, IsZeroArea::kNo);
     }
@@ -140,14 +149,14 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
 
     GrPaint grPaint;
     // This one should succeed.
-    renderTargetContext->priv().testingOnly_addDrawOp(Op::Make(attribCnt));
+    renderTargetContext->priv().testingOnly_addDrawOp(Op::Make(context, attribCnt));
     context->flush();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, gpu->stats()->numDraws() == 1);
     REPORTER_ASSERT(reporter, gpu->stats()->numFailedDraws() == 0);
 #endif
     context->contextPriv().resetGpuStats();
-    renderTargetContext->priv().testingOnly_addDrawOp(Op::Make(attribCnt + 1));
+    renderTargetContext->priv().testingOnly_addDrawOp(Op::Make(context, attribCnt + 1));
     context->flush();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, gpu->stats()->numDraws() == 0);

@@ -6,6 +6,9 @@
  */
 
 #include "GrShadowRRectOp.h"
+
+#include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrDrawOpTest.h"
 #include "GrOpFlushState.h"
 #include "SkRRectPriv.h"
@@ -652,7 +655,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace GrShadowRRectOp {
-std::unique_ptr<GrDrawOp> Make(GrColor color,
+std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                               GrColor color,
                                const SkMatrix& viewMatrix,
                                const SkRRect& rrect,
                                SkScalar blurWidth,
@@ -672,12 +676,24 @@ std::unique_ptr<GrDrawOp> Make(GrColor color,
     SkScalar scaledRadius = SkScalarAbs(radius*matrixFactor);
     SkScalar scaledInsetWidth = SkScalarAbs(insetWidth*matrixFactor);
 
-    return std::unique_ptr<GrDrawOp>(new ShadowCircularRRectOp(color, bounds,
-                                                               scaledRadius,
-                                                               rrect.isOval(),
-                                                               blurWidth,
-                                                               scaledInsetWidth,
-                                                               blurClamp));
+    // $$
+    GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+    return pool->allocate<ShadowCircularRRectOp>(color, bounds,
+                                                 scaledRadius,
+                                                 rrect.isOval(),
+                                                 blurWidth,
+                                                 scaledInsetWidth,
+                                                 blurClamp);
+#if 0
+    char* mem = (char*) pool->allocate(sizeof(ShadowCircularRRectOp));
+    return std::unique_ptr<GrDrawOp>(new (mem) ShadowCircularRRectOp(color, bounds,
+                                                                     scaledRadius,
+                                                                     rrect.isOval(),
+                                                                     blurWidth,
+                                                                     scaledInsetWidth,
+                                                                     blurClamp));
+#endif
 }
 }
 
@@ -704,14 +720,16 @@ GR_DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
     if (isCircle) {
         SkRect circle = GrTest::TestSquare(random);
         SkRRect rrect = SkRRect::MakeOval(circle);
-        return GrShadowRRectOp::Make(color, viewMatrix, rrect, blurWidth, insetWidth, blurClamp);
+        return GrShadowRRectOp::Make(context, color, viewMatrix, rrect, blurWidth,
+                                     insetWidth, blurClamp);
     } else {
         SkRRect rrect;
         do {
             // This may return a rrect with elliptical corners, which we don't support.
             rrect = GrTest::TestRRectSimple(random);
         } while (!SkRRectPriv::IsSimpleCircular(rrect));
-        return GrShadowRRectOp::Make(color, viewMatrix, rrect, blurWidth, insetWidth, blurClamp);
+        return GrShadowRRectOp::Make(context, color, viewMatrix, rrect, blurWidth,
+                                     insetWidth, blurClamp);
     }
 }
 

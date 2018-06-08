@@ -8,6 +8,8 @@
 #ifndef GrAtlasTextOp_DEFINED
 #define GrAtlasTextOp_DEFINED
 
+#include "GrContext.h"
+#include "GrContextPriv.h"
 #include "ops/GrMeshDrawOp.h"
 #include "text/GrTextContext.h"
 #include "text/GrDistanceFieldAdjustTable.h"
@@ -41,9 +43,17 @@ public:
     };
 
     static std::unique_ptr<GrAtlasTextOp> MakeBitmap(
-                                GrPaint&& paint, GrMaskFormat maskFormat, int glyphCount,
-                                bool needsTransform) {
-        std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(std::move(paint)));
+                                GrContext* context, GrPaint&& paint, GrMaskFormat maskFormat,
+                                int glyphCount, bool needsTransform) {
+        // $$
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+#if 0
+        char* mem = (char*) pool->allocate(sizeof(GrAtlasTextOp));
+        std::unique_ptr<GrAtlasTextOp> op(new (mem) GrAtlasTextOp(std::move(paint)));
+#else
+        std::unique_ptr<GrAtlasTextOp> op = pool->allocate<GrAtlasTextOp>(std::move(paint));
+#endif
 
         switch (maskFormat) {
             case kA8_GrMaskFormat:
@@ -64,10 +74,19 @@ public:
     }
 
     static std::unique_ptr<GrAtlasTextOp> MakeDistanceField(
-            GrPaint&& paint, int glyphCount, const GrDistanceFieldAdjustTable* distanceAdjustTable,
+            GrContext* context, GrPaint&& paint, int glyphCount,
+            const GrDistanceFieldAdjustTable* distanceAdjustTable,
             bool useGammaCorrectDistanceTable, SkColor luminanceColor, const SkSurfaceProps& props,
             bool isAntiAliased, bool useLCD) {
-        std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(std::move(paint)));
+        // $$
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+#if 0
+        char* mem = (char*) pool->allocate(sizeof(GrAtlasTextOp));
+        std::unique_ptr<GrAtlasTextOp> op(new (mem) GrAtlasTextOp(std::move(paint)));
+#else
+        std::unique_ptr<GrAtlasTextOp> op = pool->allocate<GrAtlasTextOp>(std::move(paint));
+#endif
 
         bool isBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
         bool isLCD = useLCD && SkPixelGeometryIsH(props.pixelGeometry());
@@ -118,6 +137,8 @@ public:
     void executeForTextTarget(SkAtlasTextTarget*);
 
 private:
+    friend class GrOpMemoryPool; // for ctor
+
     // The minimum number of Geometry we will try to allocate.
     static constexpr auto kMinGeometryAllocated = 12;
 

@@ -18,7 +18,14 @@ GrCCDrawPathsOp* GrCCDrawPathsOp::Make(GrContext* context,
                                        const SkMatrix& m,
                                        const SkPath& path,
                                        const SkRect& devBounds) {
-    return new GrCCDrawPathsOp(std::move(paint), clipIBounds, m, path, devBounds);
+    GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+#if 0
+    char* mem = (char*) pool->allocate(sizeof(GrCCDrawPathsOp));
+    return new (mem) GrCCDrawPathsOp(std::move(paint), clipIBounds, m, path, devBounds);
+#else
+    return pool->allocate<GrCCDrawPathsOp>(std::move(paint), clipIBounds,
+                                           m, path, devBounds).release();
+#endif
 }
 
 static bool has_coord_transforms(const GrPaint& paint) {

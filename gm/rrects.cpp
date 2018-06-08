@@ -69,6 +69,11 @@ protected:
             return;
         }
 
+        GrContext* context = canvas->getGrContext();
+        if (!context) {
+            return;
+        }
+
         SkPaint paint;
         if (kAA_Draw_Type == fType) {
             paint.setAntiAlias(true);
@@ -112,7 +117,7 @@ protected:
                             bounds.outset(2.f, 2.f);
 
                             renderTargetContext->priv().testingOnly_addDrawOp(
-                                    GrRectOpFactory::MakeNonAAFill(std::move(grPaint),
+                                    GrRectOpFactory::MakeNonAAFill(context, std::move(grPaint),
                                                                    SkMatrix::I(), bounds,
                                                                    GrAAType::kNone));
                         } else {

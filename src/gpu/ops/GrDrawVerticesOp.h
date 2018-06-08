@@ -36,8 +36,13 @@ public:
      * specified. If gammaCorrect is true, the vertex colors will be linearized in the shader to get
      * correct rendering.
      */
-    static std::unique_ptr<GrDrawOp> Make(GrPaint&&, sk_sp<SkVertices>, const SkMatrix& viewMatrix,
-                                          GrAAType, bool gammaCorrect, sk_sp<GrColorSpaceXform>,
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          GrPaint&&,
+                                          sk_sp<SkVertices>,
+                                          const SkMatrix& viewMatrix,
+                                          GrAAType,
+                                          bool gammaCorrect,
+                                          sk_sp<GrColorSpaceXform>,
                                           GrPrimitiveType* overridePrimType = nullptr);
 
     GrDrawVerticesOp(const Helper::MakeArgs& helperArgs, GrColor, sk_sp<SkVertices>,

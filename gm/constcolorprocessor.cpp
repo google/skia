@@ -108,7 +108,7 @@ protected:
 
                     grPaint.addColorFragmentProcessor(std::move(fp));
                     renderTargetContext->priv().testingOnly_addDrawOp(
-                            GrRectOpFactory::MakeNonAAFill(std::move(grPaint), viewMatrix,
+                            GrRectOpFactory::MakeNonAAFill(context, std::move(grPaint), viewMatrix,
                                                            renderRect, GrAAType::kNone));
 
                     // Draw labels for the input to the processor and the processor to the right of
