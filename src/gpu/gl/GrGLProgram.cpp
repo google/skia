@@ -38,7 +38,8 @@ GrGLProgram::GrGLProgram(
         std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors,
         int fragmentProcessorCnt,
         std::unique_ptr<Attribute[]> attributes,
-        int attributeCnt,
+        int vertexAttributeCnt,
+        int instanceAttributeCnt,
         int vertexStride,
         int instanceStride)
         : fBuiltinUniformHandles(builtinUniforms)
@@ -48,7 +49,8 @@ GrGLProgram::GrGLProgram(
         , fFragmentProcessors(std::move(fragmentProcessors))
         , fFragmentProcessorCnt(fragmentProcessorCnt)
         , fAttributes(std::move(attributes))
-        , fAttributeCnt(attributeCnt)
+        , fVertexAttributeCnt(vertexAttributeCnt)
+        , fInstanceAttributeCnt(instanceAttributeCnt)
         , fVertexStride(vertexStride)
         , fInstanceStride(instanceStride)
         , fGpu(gpu)
