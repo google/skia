@@ -245,7 +245,7 @@ void ParserCommon::writeString(const char* str) {
     fMaxLF = 2;
 }
 
-const char* ParserCommon::ReadToBuffer(string filename, int* size) {
+char* ParserCommon::ReadToBuffer(string filename, int* size) {
     FILE* file = fopen(filename.c_str(), "rb");
     if (!file) {
         return nullptr;
@@ -261,13 +261,27 @@ const char* ParserCommon::ReadToBuffer(string filename, int* size) {
     return buffer;
 }
 
+char* ParserCommon::FindDateTime(char* buffer, int size) {
+    int index = -1;
+    int lineCount = 8;
+    while (++index < size && ('\n' != buffer[index] || --lineCount))
+        ;
+    if (lineCount) {
+        return nullptr;
+    }
+    if (strncmp("\n   on 20", &buffer[index], 9)) {
+        return nullptr;
+    }
+    return &buffer[index];
+}
+
 bool ParserCommon::writtenFileDiffers(string filename, string readname) {
     int writtenSize, readSize;
-    const char* written = ReadToBuffer(filename, &writtenSize);
+    char* written = ReadToBuffer(filename, &writtenSize);
     if (!written) {
         return true;
     }
-    const char* read = ReadToBuffer(readname, &readSize);
+    char* read = ReadToBuffer(readname, &readSize);
     if (!read) {
         delete[] written;
         return true;
@@ -284,6 +298,12 @@ bool ParserCommon::writtenFileDiffers(string filename, string readname) {
 #endif
     if (readSize != writtenSize) {
         return true;
+    }
+    // force the date/time to be the same, if present in both
+    const char* newDateTime = FindDateTime(written, writtenSize);
+    char* oldDateTime = FindDateTime(read, readSize);
+    if (newDateTime && oldDateTime) {
+        memcpy(oldDateTime, newDateTime, 26);
     }
     bool result = !!memcmp(written, read, writtenSize);
     delete[] written;

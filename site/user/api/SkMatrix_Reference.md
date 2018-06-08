@@ -496,10 +496,6 @@ SkMatrix member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_setTranslateY'>setTranslateY</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets vertical translation</td>
   </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_toString'>toString</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>converts <a href='#Matrix'>Matrix</a> to machine readable form</td>
-  </tr>
 </table>
 
 
@@ -5341,10 +5337,6 @@ true if <a href='#Matrix'>Matrix</a> <a href='#SkMatrix_notequal_operator_a'>a</
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_dump'>dump</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sends text representation using floats to standard output</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_toString'>toString</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>converts <a href='#Matrix'>Matrix</a> to machine readable form</td>
-  </tr>
 </table>
 
 
@@ -5375,45 +5367,7 @@ matrix != nearlyEqual
 
 ### See Also
 
-<a href='#SkMatrix_toString'>toString</a>
-
----
-
-<a name='SkMatrix_toString'></a>
-## toString
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkMatrix_toString'>toString</a>(<a href='undocumented#SkString'>SkString</a>* str) const
-</pre>
-
-Creates string representation of <a href='#Matrix'>Matrix</a>. Floating point values
-are written with limited precision; it may not be possible to reconstruct
-original <a href='#Matrix'>Matrix</a> from output.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkMatrix_toString_str'><code><strong>str</strong></code></a></td>
-    <td>storage for string representation of <a href='#Matrix'>Matrix</a></td>
-  </tr>
-</table>
-
-### Example
-
-<div><fiddle-embed name="1d86e43958e42b8eaaa9b16df1baa4c8">
-
-#### Example Output
-
-~~~~
-mStr  [  0.7071  -0.7071   0.0000][  0.7071   0.7071   0.0000][  0.0000   0.0000   1.0000]
-neStr [  0.7071  -0.7071   0.0000][  0.7071   0.7071   0.0000][  0.0000   0.0000   1.0000]
-matrix != nearlyEqual
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href='#SkMatrix_dump'>dump</a>
+<a href='SkPath_Reference#SkPath_dump'>SkPath::dump</a><sup><a href='SkPath_Reference#SkPath_dump_2'>[2]</a></sup>
 
 ---
 
