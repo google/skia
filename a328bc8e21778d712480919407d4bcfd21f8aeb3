@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d5a5c1ac_28fb685b",
+        "filename": "include/private/SkAssert.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T14:46:29Z",
+      "side": 1,
+      "message": "This seems error-prone, doesn\u0027t it?  The inclusion order of these headers changes SkDebugf?",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 0
+      },
+      "revId": "a328bc8e21778d712480919407d4bcfd21f8aeb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
