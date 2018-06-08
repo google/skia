@@ -1,0 +1,96 @@
+# Copyright 2018 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+  skia_enable_skjson = true
+}
+
+config("public_config") {
+  if (skia_enable_skjson) {
+    defines = [ "SK_ENABLE_SKJSON" ]
+    include_dirs = [ "include" ]
+  }
+}
+
+source_set("skjson") {
+  if (skia_enable_skjson) {
+    public_configs = [ ":public_config" ]
+    public = [
+      "include/SkJSON.h",
+    ]
+    sources = [
+      "src/SkJSON.cpp",
+    ]
+    configs += [ "../../:skia_private" ]
+    deps = [
+      "../..:skia",
+    ]
+  }
+}
+
+source_set("tests") {
+  if (skia_enable_skjson) {
+    testonly = true
+
+    configs += [
+      "../..:skia_private",
+      "../..:tests_config",
+    ]
+    sources = [
+      "src/SkJSONTest.cpp",
+    ]
+
+    deps = [
+      "../..:gpu_tool_utils",
+      "../..:skia",
+    ]
+
+    public_deps = [
+      ":skjson",
+    ]
+  }
+}
+
+source_set("bench") {
+  if (skia_enable_skjson) {
+    testonly = true
+
+    configs += [
+      "../..:bench_config",
+      "../..:skia_private",
+    ]
+    sources = [
+      "src/SkJSONBench.cpp",
+    ]
+
+    deps = [
+      "../..:skia",
+      "../../third_party/rapidjson",
+    ]
+
+    public_deps = [
+      ":skjson",
+    ]
+  }
+}
+
+source_set("fuzz") {
+  if (skia_enable_skjson) {
+    testonly = true
+
+    configs += [ "../..:skia_private" ]
+    sources = [
+      "src/FuzzSkJSON.cpp",
+    ]
+
+    deps = [
+      "../..:skia",
+    ]
+
+    public_deps = [
+      ":skjson",
+    ]
+  }
+}
