@@ -961,7 +961,7 @@
       "/usr/bin/adb.1.0.35",
       "pull",
       "/sdcard/revenge_of_the_skiabot/perf",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-All-Android/data"
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -970,7 +970,7 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "pull /sdcard/revenge_of_the_skiabot/perf [START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-All-Android/data"
+    "name": "pull /sdcard/revenge_of_the_skiabot/perf [START_DIR]/[SWARM_OUT_DIR]"
   },
   {
     "cmd": [

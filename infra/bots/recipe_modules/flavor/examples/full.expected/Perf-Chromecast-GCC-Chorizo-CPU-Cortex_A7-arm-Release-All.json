@@ -642,7 +642,7 @@
       "adb",
       "pull",
       "/cache/skia/perf",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release-All/data"
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -650,7 +650,7 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "pull /cache/skia/perf [START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release-All/data"
+    "name": "pull /cache/skia/perf [START_DIR]/[SWARM_OUT_DIR]"
   },
   {
     "cmd": [

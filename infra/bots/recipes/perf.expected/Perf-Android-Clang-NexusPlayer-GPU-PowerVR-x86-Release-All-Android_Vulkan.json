@@ -897,7 +897,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android_Vulkan"
+      "[START_DIR]"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"
@@ -907,7 +907,7 @@
       "/usr/bin/adb.1.0.35",
       "pull",
       "/sdcard/revenge_of_the_skiabot/perf",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android_Vulkan/data"
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -916,7 +916,7 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "pull /sdcard/revenge_of_the_skiabot/perf [START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android_Vulkan/data"
+    "name": "pull /sdcard/revenge_of_the_skiabot/perf [START_DIR]/[SWARM_OUT_DIR]"
   },
   {
     "cmd": [

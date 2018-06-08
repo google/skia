@@ -751,7 +751,7 @@
       "/usr/bin/adb.1.0.35",
       "pull",
       "/sdcard/revenge_of_the_skiabot/dm_out",
-      "[START_DIR]/[SWARM_OUT_DIR]/dm"
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -760,7 +760,7 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm"
+    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]"
   },
   {
     "cmd": [

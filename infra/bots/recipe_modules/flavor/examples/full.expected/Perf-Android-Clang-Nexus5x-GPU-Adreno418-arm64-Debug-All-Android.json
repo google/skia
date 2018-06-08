@@ -1031,7 +1031,7 @@
       "/opt/infra-android/tools/adb",
       "pull",
       "/sdcard/revenge_of_the_skiabot/perf",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android/data"
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -1040,7 +1040,7 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "pull /sdcard/revenge_of_the_skiabot/perf [START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android/data"
+    "name": "pull /sdcard/revenge_of_the_skiabot/perf [START_DIR]/[SWARM_OUT_DIR]"
   },
   {
     "cmd": [
