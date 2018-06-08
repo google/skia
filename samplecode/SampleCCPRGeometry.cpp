@@ -24,6 +24,7 @@
 #include "ccpr/GrCCCoverageProcessor.h"
 #include "ccpr/GrCCGeometry.h"
 #include "gl/GrGLGpu.cpp"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "ops/GrDrawOp.h"
 
 using TriPointInstance = GrCCCoverageProcessor::TriPointInstance;

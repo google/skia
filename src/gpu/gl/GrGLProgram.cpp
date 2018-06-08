@@ -25,9 +25,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrGLProgram::GrGLProgram(GrGLGpu* gpu,
-        const GrProgramDesc& desc,
-        const BuiltinUniformHandles& builtinUniforms,
+GrGLProgram::GrGLProgram(
+        GrGLGpu* gpu,
+        const GrGLSLBuiltinUniformHandles& builtinUniforms,
         GrGLuint programID,
         const UniformInfoArray& uniforms,
         const UniformInfoArray& textureSamplers,
@@ -43,7 +43,6 @@ GrGLProgram::GrGLProgram(GrGLGpu* gpu,
         , fXferProcessor(std::move(xferProcessor))
         , fFragmentProcessors(std::move(fragmentProcessors))
         , fFragmentProcessorCnt(fragmentProcessorCnt)
-        , fDesc(desc)
         , fGpu(gpu)
         , fProgramDataManager(gpu, programID, uniforms, pathProcVaryings)
         , fNumTextureSamplers(textureSamplers.count())

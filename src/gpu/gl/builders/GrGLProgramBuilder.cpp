@@ -385,7 +385,6 @@ void GrGLProgramBuilder::cleanupShaders(const SkTDArray<GrGLuint>& shaderIDs) {
 
 GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
     return new GrGLProgram(fGpu,
-                           *this->desc(),
                            fUniformHandles,
                            programID,
                            fUniformHandler.fUniforms,

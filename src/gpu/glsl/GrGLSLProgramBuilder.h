@@ -54,15 +54,6 @@ public:
         return this->uniformHandler()->texelBufferVariable(handle);
     }
 
-    // Handles for program uniforms (other than per-effect uniforms)
-    struct BuiltinUniformHandles {
-        UniformHandle       fRTAdjustmentUni;
-
-        // We use the render target height to provide a y-down frag coord when specifying
-        // origin_upper_left is not supported.
-        UniformHandle       fRTHeightUni;
-    };
-
     // Used to add a uniform for the RenderTarget height (used for frag position) without mangling
     // the name of the uniform inside of a stage.
     void addRTHeightUniform(const char* name);
@@ -94,7 +85,7 @@ public:
     const GrPrimitiveProcessor& fPrimProc;
     GrProgramDesc*              fDesc;
 
-    BuiltinUniformHandles fUniformHandles;
+    GrGLSLBuiltinUniformHandles fUniformHandles;
 
     std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;

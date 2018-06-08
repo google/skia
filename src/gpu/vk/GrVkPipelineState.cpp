@@ -6,10 +6,10 @@
 */
 
 #include "GrVkPipelineState.h"
-
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrPipeline.h"
+#include "GrRenderTarget.h"
 #include "GrTexturePriv.h"
 #include "GrVkBufferView.h"
 #include "GrVkCommandBuffer.h"
@@ -19,23 +19,22 @@
 #include "GrVkImageView.h"
 #include "GrVkMemory.h"
 #include "GrVkPipeline.h"
-#include "GrVkRenderTarget.h"
 #include "GrVkSampler.h"
 #include "GrVkTexelBuffer.h"
 #include "GrVkTexture.h"
 #include "GrVkUniformBuffer.h"
+#include "SkMipMap.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLXferProcessor.h"
-#include "SkMipMap.h"
 
-GrVkPipelineState::GrVkPipelineState(GrVkGpu* gpu,
-        const GrVkPipelineState::Desc& desc,
+GrVkPipelineState::GrVkPipelineState(
+        GrVkGpu* gpu,
         GrVkPipeline* pipeline,
         VkPipelineLayout layout,
         const GrVkDescriptorSetManager::Handle& samplerDSHandle,
         const GrVkDescriptorSetManager::Handle& texelBufferDSHandle,
-        const BuiltinUniformHandles& builtinUniformHandles,
+        const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
         const UniformInfoArray& uniforms,
         uint32_t geometryUniformSize,
         uint32_t fragmentUniformSize,
@@ -57,7 +56,6 @@ GrVkPipelineState::GrVkPipelineState(GrVkGpu* gpu,
         , fXferProcessor(std::move(xferProcessor))
         , fFragmentProcessors(std::move(fragmentProcessors))
         , fFragmentProcessorCnt(fragmentProcessorCnt)
-        , fDesc(desc)
         , fDataManager(uniforms, geometryUniformSize, fragmentUniformSize) {
     fSamplers.setReserve(numSamplers);
     fTextureViews.setReserve(numSamplers);
@@ -542,47 +540,4 @@ void GrVkPipelineState::addUniformResources(GrVkCommandBuffer& commandBuffer) {
     for (int i = 0; i < fTexelBuffers.count(); ++i) {
         commandBuffer.addResource(fTexelBuffers[i]);
     }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-uint32_t get_blend_info_key(const GrPipeline& pipeline) {
-    GrXferProcessor::BlendInfo blendInfo;
-    pipeline.getXferProcessor().getBlendInfo(&blendInfo);
-
-    static const uint32_t kBlendWriteShift = 1;
-    static const uint32_t kBlendCoeffShift = 5;
-    GR_STATIC_ASSERT(kLast_GrBlendCoeff < (1 << kBlendCoeffShift));
-    GR_STATIC_ASSERT(kFirstAdvancedGrBlendEquation - 1 < 4);
-
-    uint32_t key = blendInfo.fWriteColor;
-    key |= (blendInfo.fSrcBlend << kBlendWriteShift);
-    key |= (blendInfo.fDstBlend << (kBlendWriteShift + kBlendCoeffShift));
-    key |= (blendInfo.fEquation << (kBlendWriteShift + 2 * kBlendCoeffShift));
-
-    return key;
-}
-
-bool GrVkPipelineState::Desc::Build(Desc* desc,
-                                    const GrPrimitiveProcessor& primProc,
-                                    const GrPipeline& pipeline,
-                                    const GrStencilSettings& stencil,
-                                    GrPrimitiveType primitiveType,
-                                    const GrShaderCaps& caps) {
-    if (!INHERITED::Build(desc, primProc, primitiveType == GrPrimitiveType::kPoints, pipeline,
-                          caps)) {
-        return false;
-    }
-
-    GrProcessorKeyBuilder b(&desc->key());
-    GrVkRenderTarget* vkRT = (GrVkRenderTarget*)pipeline.renderTarget();
-    vkRT->simpleRenderPass()->genKey(&b);
-
-    stencil.genKey(&b);
-
-    b.add32(get_blend_info_key(pipeline));
-
-    b.add32((uint32_t)primitiveType);
-
-    return true;
 }
