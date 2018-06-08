@@ -71,7 +71,7 @@ def compile_fn(api, checkout_root, out_dir):
     extra_ldflags.append('-fuse-ld=lld')
     extra_cflags.append('-DDUMMY_clang_linux_version=%s' %
                         api.run.asset_version('clang_linux', skia_dir))
-    if os == 'Ubuntu14':
+    if 'Static' in extra_tokens:
       extra_ldflags.extend(['-static-libstdc++', '-static-libgcc'])
 
   elif compiler == 'Clang':

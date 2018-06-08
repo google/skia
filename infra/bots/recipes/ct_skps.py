@@ -7,7 +7,6 @@ import math
 
 
 DEPS = [
-  'build',
   'checkout',
   'ct',
   'recipe_engine/context',
@@ -78,19 +77,19 @@ def RunSteps(api):
   api.vars.setup()
   checkout_root = make_path(api, '/', 'b', 'work')
   gclient_cache = make_path(api, '/', 'b', 'cache')
-  got_revision = api.checkout.bot_update(checkout_root=checkout_root,
-                                         gclient_cache=gclient_cache)
+  api.checkout.bot_update(checkout_root=checkout_root,
+                          gclient_cache=gclient_cache)
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-
-  out_dir = api.vars.build_dir.join('out', api.vars.configuration)
-  api.build(checkout_root=checkout_root, out_dir=out_dir)
 
   # Required paths.
   infrabots_dir = checkout_root.join('skia', 'infra', 'bots')
   isolate_dir = infrabots_dir.join('ct')
   isolate_path = isolate_dir.join(CT_SKPS_ISOLATE)
 
-  api.build.copy_build_products(out_dir=out_dir, dst=isolate_dir)
+  # Copy the required binary to the isolate dir.
+  src = api.vars.build_dir.join(skia_tool)
+  api.file.copy('copy %s' % skia_tool, src, isolate_dir.join(skia_tool))
+
   api.skia_swarming.setup(
       infrabots_dir.join('tools', 'luci-go'),
       swarming_rev='')
@@ -132,8 +131,8 @@ def RunSteps(api):
   # referenced also needs to change. As of 8/8/17 the other places are:
   # * infra/bots/ct/ct_skps.isolate
   # * infra/bots/ct/run_ct_skps.py
-  skps_dir = checkout_root.join('skps', skps_chromium_build,
-                                ct_page_type, str(ct_num_slaves))
+  skps_dir = checkout_root.join(
+      'skps', skps_chromium_build, ct_page_type, str(ct_num_slaves))
   version_file = skps_dir.join(SKPS_VERSION_FILE)
   if api.path.exists(version_file):  # pragma: nocover
     version_file_contents = api.file.read_text(
@@ -174,7 +173,7 @@ def RunSteps(api):
     extra_variables = {
         'SLAVE_NUM': str(slave_num),
         'TOOL_NAME': skia_tool,
-        'GIT_HASH': got_revision,
+        'GIT_HASH': api.properties['revision'],
         'CONFIGURATION': api.vars.configuration,
         'BUILDER': buildername,
         'CHROMIUM_BUILD': skps_chromium_build,
@@ -455,6 +454,7 @@ def GenTests(api):
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
         repository='https://skia.googlesource.com/skia.git',
+        revision=skia_revision,
         patch_storage='gerrit') +
     api.properties.tryserver(
         buildername=builder,
