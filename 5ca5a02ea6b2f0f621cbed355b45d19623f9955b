@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "977a06e0_7070b0fb",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T20:10:32Z",
+      "side": 1,
+      "message": "these might be clearer with their full types?  is it const SkGlyph*?",
+      "range": {
+        "startLine": 305,
+        "startChar": 15,
+        "endLine": 305,
+        "endChar": 20
+      },
+      "revId": "5ca5a02ea6b2f0f621cbed355b45d19623f9955b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0475ed7_38aa4541",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T20:10:32Z",
+      "side": 1,
+      "message": "// This desperate-match node may disappear as soon as we drop fLock, so we need to copy the glyph from node into this strike, including a deep copy of the mask.",
+      "revId": "5ca5a02ea6b2f0f621cbed355b45d19623f9955b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba7152e9_d18c6084",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T20:10:32Z",
+      "side": 1,
+      "message": "Maybe move this down a couple lines to where you write (glyphID, 0,0)?\n\nIs it,\n\n// Paths are only ever at sub-pixel position (0,0), so we can just try that directly rather than try our packed position first then search all others on failure like for masks.",
+      "revId": "5ca5a02ea6b2f0f621cbed355b45d19623f9955b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8df06556_06367dfa",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T20:10:32Z",
+      "side": 1,
+      "message": "// We can just copy the path out by value here, so no need to worry about the lifetime of this desperate-match node.",
+      "revId": "5ca5a02ea6b2f0f621cbed355b45d19623f9955b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
