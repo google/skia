@@ -63,6 +63,16 @@ void init_stencil_pass_settings(const GrOpFlushState& flushState,
 
 //////////////////////////////////////////////////////////////////////////////
 
+std::unique_ptr<GrDrawOp> GrDrawPathOp::Make(GrContext* context,
+                                             const SkMatrix& viewMatrix,
+                                             GrPaint&& paint,
+                                             GrAAType aaType,
+                                             GrPath* path) {
+    GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+    return pool->allocate<GrDrawPathOp>(viewMatrix, std::move(paint), aaType, path);
+}
+
 void GrDrawPathOp::onExecute(GrOpFlushState* state) {
     GrPipeline pipeline(this->pipelineInitArgs(*state), this->detachProcessors(),
                         state->detachAppliedClip());

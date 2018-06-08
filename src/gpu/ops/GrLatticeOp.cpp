@@ -125,13 +125,17 @@ public:
     static const int kVertsPerRect = 4;
     static const int kIndicesPerRect = 6;
 
-    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix,
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          GrPaint&& paint,
+                                          const SkMatrix& viewMatrix,
                                           sk_sp<GrTextureProxy> proxy,
                                           sk_sp<GrColorSpaceXform> colorSpaceXForm,
                                           GrSamplerState::Filter filter,
-                                          std::unique_ptr<SkLatticeIter> iter, const SkRect& dst) {
+                                          std::unique_ptr<SkLatticeIter> iter,
+                                          const SkRect& dst) {
         SkASSERT(proxy);
-        return Helper::FactoryHelper<NonAALatticeOp>(std::move(paint), viewMatrix, std::move(proxy),
+        return Helper::FactoryHelper<NonAALatticeOp>(context, std::move(paint), viewMatrix,
+                                                     std::move(proxy),
                                                      std::move(colorSpaceXForm), filter,
                                                      std::move(iter), dst);
     }
@@ -310,12 +314,15 @@ private:
 }  // anonymous namespace
 
 namespace GrLatticeOp {
-std::unique_ptr<GrDrawOp> MakeNonAA(GrPaint&& paint, const SkMatrix& viewMatrix,
+std::unique_ptr<GrDrawOp> MakeNonAA(GrContext* context,
+                                    GrPaint&& paint,
+                                    const SkMatrix& viewMatrix,
                                     sk_sp<GrTextureProxy> proxy,
                                     sk_sp<GrColorSpaceXform> colorSpaceXform,
                                     GrSamplerState::Filter filter,
-                                    std::unique_ptr<SkLatticeIter> iter, const SkRect& dst) {
-    return NonAALatticeOp::Make(std::move(paint), viewMatrix, std::move(proxy),
+                                    std::unique_ptr<SkLatticeIter> iter,
+                                    const SkRect& dst) {
+    return NonAALatticeOp::Make(context, std::move(paint), viewMatrix, std::move(proxy),
                                 std::move(colorSpaceXform), filter, std::move(iter), dst);
 }
 };
@@ -424,8 +431,8 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
     auto csxf = GrTest::TestColorXform(random);
     GrSamplerState::Filter filter =
             random->nextBool() ? GrSamplerState::Filter::kNearest : GrSamplerState::Filter::kBilerp;
-    return NonAALatticeOp::Make(std::move(paint), viewMatrix, std::move(proxy), std::move(csxf),
-                                filter, std::move(iter), dst);
+    return NonAALatticeOp::Make(context, std::move(paint), viewMatrix, std::move(proxy),
+                                std::move(csxf), filter, std::move(iter), dst);
 }
 
 #endif

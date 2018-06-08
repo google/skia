@@ -76,10 +76,18 @@ static const GrColorSpaceInfo kColorSpaceInfo(nullptr, kRGBA_8888_GrPixelConfig)
 
 class SkInternalAtlasTextTarget : public GrTextUtils::Target, public SkAtlasTextTarget {
 public:
-    SkInternalAtlasTextTarget(sk_sp<SkAtlasTextContext> context, int width, int height,
+    SkInternalAtlasTextTarget(sk_sp<SkAtlasTextContext> context,
+                              sk_sp<GrOpMemoryPool> opMemoryPool,
+                              int width, int height,
                               void* handle)
             : GrTextUtils::Target(width, height, kColorSpaceInfo)
-            , SkAtlasTextTarget(std::move(context), width, height, handle) {}
+            , SkAtlasTextTarget(std::move(context), width, height, handle)
+            , fOpMemoryPool(std::move(opMemoryPool)) {
+    }
+
+    ~SkInternalAtlasTextTarget() {
+        this->deleteOps();
+    }
 
     /** GrTextUtils::Target overrides */
 
@@ -95,6 +103,10 @@ public:
         grPaint->setColor4f(SkColorToPremulGrColor4fLegacy(skPaint.getColor()));
     }
 
+    GrContext* getContext() override {
+        return this->context()->internal().grContext();
+    }
+
     /** SkAtlasTextTarget overrides */
 
     void drawText(const SkGlyphID[], const SkPoint[], int glyphCnt, uint32_t color,
@@ -102,18 +114,23 @@ public:
     void flush() override;
 
 private:
+    void deleteOps();
+
     uint32_t fColor;
     using SkAtlasTextTarget::fWidth;
     using SkAtlasTextTarget::fHeight;
     SkTArray<std::unique_ptr<GrAtlasTextOp>, true> fOps;
+    sk_sp<GrOpMemoryPool> fOpMemoryPool;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<SkAtlasTextTarget> SkAtlasTextTarget::Make(sk_sp<SkAtlasTextContext> context,
+                                                           sk_sp<GrOpMemoryPool> opMemoryPool,
                                                            int width, int height, void* handle) {
     return std::unique_ptr<SkAtlasTextTarget>(
-            new SkInternalAtlasTextTarget(std::move(context), width, height, handle));
+            new SkInternalAtlasTextTarget(std::move(context), std::move(opMemoryPool),
+                                          width, height, handle));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -154,6 +171,7 @@ void SkInternalAtlasTextTarget::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
     for (int i = 0; i < n; ++i) {
         GrAtlasTextOp* other = fOps.fromBack(i).get();
         if (other->combineIfPossible(op.get(), caps)) {
+            fOpMemoryPool->release(std::move(op));
             return;
         }
         if (GrRectsOverlap(op->bounds(), other->bounds())) {
@@ -164,12 +182,21 @@ void SkInternalAtlasTextTarget::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
     fOps.emplace_back(std::move(op));
 }
 
+void SkInternalAtlasTextTarget::deleteOps() {
+    for (int i = 0; i < fOps.count(); ++i) {
+        if (fOps[i]) {
+            fOpMemoryPool->release(std::move(fOps[i]));
+        }
+    }
+    fOps.reset();
+}
+
 void SkInternalAtlasTextTarget::flush() {
     for (int i = 0; i < fOps.count(); ++i) {
         fOps[i]->executeForTextTarget(this);
     }
     this->context()->internal().flush();
-    fOps.reset();
+    this->deleteOps();
 }
 
 void GrAtlasTextOp::finalizeForTextTarget(uint32_t color, const GrCaps& caps) {

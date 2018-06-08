@@ -56,6 +56,11 @@ protected:
             return;
         }
 
+        GrContext* context = canvas->getGrContext();
+        if (!context) {
+            return;
+        }
+
         SkPaint paint;
 
         int y = kPad;
@@ -90,7 +95,8 @@ protected:
                     bounds.offset(SkIntToScalar(x), SkIntToScalar(y));
 
                     renderTargetContext->priv().testingOnly_addDrawOp(
-                            GrRectOpFactory::MakeNonAAFill(std::move(grPaint), SkMatrix::I(),
+                            GrRectOpFactory::MakeNonAAFill(context, std::move(grPaint),
+                                                           SkMatrix::I(),
                                                            bounds, GrAAType::kNone));
                 }
             canvas->restore();

@@ -10,6 +10,7 @@
 
 #include "../private/SkAtomics.h"
 #include "GrGpuResource.h"
+#include "GrMemoryPool.h"
 #include "GrNonAtomicRef.h"
 #include "GrTracing.h"
 #include "GrXferProcessor.h"

@@ -104,13 +104,18 @@ private:
     using Helper = GrSimpleMeshDrawOpHelperWithStencil;
 
 public:
-    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix,
-                                          const SkRect& rect, const SkRect* localRect,
-                                          const SkMatrix* localMatrix, GrAAType aaType,
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          GrPaint&& paint,
+                                          const SkMatrix& viewMatrix,
+                                          const SkRect& rect,
+                                          const SkRect* localRect,
+                                          const SkMatrix* localMatrix,
+                                          GrAAType aaType,
                                           const GrUserStencilSettings* stencilSettings) {
         SkASSERT(GrAAType::kCoverage != aaType);
-        return Helper::FactoryHelper<NonAAFillRectOp>(std::move(paint), viewMatrix, rect, localRect,
-                                                      localMatrix, aaType, stencilSettings);
+        return Helper::FactoryHelper<NonAAFillRectOp>(context, std::move(paint), viewMatrix, rect,
+                                                      localRect, localMatrix, aaType,
+                                                      stencilSettings);
     }
 
     NonAAFillRectOp() = delete;
@@ -228,12 +233,17 @@ private:
     using Helper = GrSimpleMeshDrawOpHelperWithStencil;
 
 public:
-    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix,
-                                          const SkRect& rect, const SkRect* localRect,
-                                          const SkMatrix* localMatrix, GrAAType aaType,
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          GrPaint&& paint,
+                                          const SkMatrix& viewMatrix,
+                                          const SkRect& rect,
+                                          const SkRect* localRect,
+                                          const SkMatrix* localMatrix,
+                                          GrAAType aaType,
                                           const GrUserStencilSettings* stencilSettings) {
         SkASSERT(GrAAType::kCoverage != aaType);
-        return Helper::FactoryHelper<NonAAFillRectPerspectiveOp>(std::move(paint), viewMatrix, rect,
+        return Helper::FactoryHelper<NonAAFillRectPerspectiveOp>(context, std::move(paint),
+                                                                 viewMatrix, rect,
                                                                  localRect, localMatrix, aaType,
                                                                  stencilSettings);
     }
@@ -375,39 +385,50 @@ private:
 
 namespace GrRectOpFactory {
 
-std::unique_ptr<GrDrawOp> MakeNonAAFill(GrPaint&& paint, const SkMatrix& viewMatrix,
-                                        const SkRect& rect, GrAAType aaType,
+std::unique_ptr<GrDrawOp> MakeNonAAFill(GrContext* context,
+                                        GrPaint&& paint,
+                                        const SkMatrix& viewMatrix,
+                                        const SkRect& rect,
+                                        GrAAType aaType,
                                         const GrUserStencilSettings* stencilSettings) {
     if (viewMatrix.hasPerspective()) {
-        return NonAAFillRectPerspectiveOp::Make(std::move(paint), viewMatrix, rect, nullptr,
-                                                nullptr, aaType, stencilSettings);
+        return NonAAFillRectPerspectiveOp::Make(context, std::move(paint), viewMatrix, rect,
+                                                nullptr, nullptr, aaType, stencilSettings);
     } else {
-        return NonAAFillRectOp::Make(std::move(paint), viewMatrix, rect, nullptr, nullptr, aaType,
-                                     stencilSettings);
-    }
-}
-
-std::unique_ptr<GrDrawOp> MakeNonAAFillWithLocalMatrix(
-        GrPaint&& paint, const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
-        const SkRect& rect, GrAAType aaType, const GrUserStencilSettings* stencilSettings) {
-    if (viewMatrix.hasPerspective() || localMatrix.hasPerspective()) {
-        return NonAAFillRectPerspectiveOp::Make(std::move(paint), viewMatrix, rect, nullptr,
-                                                &localMatrix, aaType, stencilSettings);
-    } else {
-        return NonAAFillRectOp::Make(std::move(paint), viewMatrix, rect, nullptr, &localMatrix,
+        return NonAAFillRectOp::Make(context, std::move(paint), viewMatrix, rect, nullptr, nullptr,
                                      aaType, stencilSettings);
     }
 }
 
-std::unique_ptr<GrDrawOp> MakeNonAAFillWithLocalRect(GrPaint&& paint, const SkMatrix& viewMatrix,
-                                                     const SkRect& rect, const SkRect& localRect,
+std::unique_ptr<GrDrawOp> MakeNonAAFillWithLocalMatrix(
+                                                    GrContext* context,
+                                                    GrPaint&& paint,
+                                                    const SkMatrix& viewMatrix,
+                                                    const SkMatrix& localMatrix,
+                                                    const SkRect& rect,
+                                                    GrAAType aaType,
+                                                    const GrUserStencilSettings* stencilSettings) {
+    if (viewMatrix.hasPerspective() || localMatrix.hasPerspective()) {
+        return NonAAFillRectPerspectiveOp::Make(context, std::move(paint), viewMatrix, rect,
+                                                nullptr, &localMatrix, aaType, stencilSettings);
+    } else {
+        return NonAAFillRectOp::Make(context, std::move(paint), viewMatrix, rect, nullptr,
+                                     &localMatrix, aaType, stencilSettings);
+    }
+}
+
+std::unique_ptr<GrDrawOp> MakeNonAAFillWithLocalRect(GrContext* context,
+                                                     GrPaint&& paint,
+                                                     const SkMatrix& viewMatrix,
+                                                     const SkRect& rect,
+                                                     const SkRect& localRect,
                                                      GrAAType aaType) {
     if (viewMatrix.hasPerspective()) {
-        return NonAAFillRectPerspectiveOp::Make(std::move(paint), viewMatrix, rect, &localRect,
-                                                nullptr, aaType, nullptr);
+        return NonAAFillRectPerspectiveOp::Make(context, std::move(paint), viewMatrix, rect,
+                                                &localRect, nullptr, aaType, nullptr);
     } else {
-        return NonAAFillRectOp::Make(std::move(paint), viewMatrix, rect, &localRect, nullptr,
-                                     aaType, nullptr);
+        return NonAAFillRectOp::Make(context, std::move(paint), viewMatrix, rect, &localRect,
+                                     nullptr, aaType, nullptr);
     }
 }
 
@@ -430,10 +451,11 @@ GR_DRAW_OP_TEST_DEFINE(NonAAFillRectOp) {
     const SkRect* lr = random->nextBool() ? &localRect : nullptr;
     const SkMatrix* lm = random->nextBool() ? &localMatrix : nullptr;
     if (viewMatrix.hasPerspective() || (lm && lm->hasPerspective())) {
-        return NonAAFillRectPerspectiveOp::Make(std::move(paint), viewMatrix, rect, lr, lm, aaType,
-                                                stencil);
+        return NonAAFillRectPerspectiveOp::Make(context, std::move(paint), viewMatrix, rect,
+                                                lr, lm, aaType, stencil);
     } else {
-        return NonAAFillRectOp::Make(std::move(paint), viewMatrix, rect, lr, lm, aaType, stencil);
+        return NonAAFillRectOp::Make(context, std::move(paint), viewMatrix, rect,
+                                     lr, lm, aaType, stencil);
     }
 }
 
