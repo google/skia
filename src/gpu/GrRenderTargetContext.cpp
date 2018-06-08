@@ -861,7 +861,6 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
     GrAAType aaType = this->chooseAAType(GrAA::kNo, GrAllowMixedSamples::kNo);
     std::unique_ptr<GrDrawOp> op = GrDrawVerticesOp::Make(
             std::move(paint), std::move(vertices), viewMatrix, aaType,
-            this->colorSpaceInfo().isGammaCorrect(),
             this->colorSpaceInfo().refColorSpaceXformFromSRGB(), overridePrimType);
     this->addDrawOp(clip, std::move(op));
 }
