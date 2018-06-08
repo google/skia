@@ -306,12 +306,12 @@ public:
      */
     uint32_t genID() const;
 
-    struct GenIDChangeListener {
+    struct GenIDChangeListener : SkRefCnt {
         virtual ~GenIDChangeListener() {}
         virtual void onChange() = 0;
     };
 
-    void addGenIDChangeListener(GenIDChangeListener* listener);
+    void addGenIDChangeListener(sk_sp<GenIDChangeListener>);
 
     bool isValid() const;
     SkDEBUGCODE(void validate() const { SkASSERT(this->isValid()); } )
@@ -538,7 +538,7 @@ private:
     mutable uint32_t    fGenerationID;
     SkDEBUGCODE(int32_t fEditorsAttached;) // assert that only one editor in use at any time.
 
-    SkTDArray<GenIDChangeListener*> fGenIDChangeListeners;  // pointers are owned
+    SkTDArray<GenIDChangeListener*> fGenIDChangeListeners;  // pointers are reffed
 
     mutable uint8_t  fBoundsIsDirty;
     mutable SkBool8  fIsFinite;    // only meaningful if bounds are valid

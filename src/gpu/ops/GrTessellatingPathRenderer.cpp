@@ -284,7 +284,7 @@ private:
         info.fCount = count;
         key.setCustomData(SkData::MakeWithCopy(&info, sizeof(info)));
         rp->assignUniqueKeyToResource(key, allocator.vertexBuffer());
-        fShape.addGenIDChangeListener(new PathInvalidator(key));
+        fShape.addGenIDChangeListener(sk_make_sp<PathInvalidator>(key));
     }
 
     void drawAA(Target* target, const GrGeometryProcessor* gp) {

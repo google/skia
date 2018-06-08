@@ -669,12 +669,11 @@ uint32_t SkPathRef::genID() const {
     return fGenerationID;
 }
 
-void SkPathRef::addGenIDChangeListener(GenIDChangeListener* listener) {
+void SkPathRef::addGenIDChangeListener(sk_sp<GenIDChangeListener> listener) {
     if (nullptr == listener || this == gEmpty) {
-        delete listener;
         return;
     }
-    *fGenIDChangeListeners.append() = listener;
+    *fGenIDChangeListeners.append() = listener.release();
 }
 
 // we need to be called *before* the genID gets changed or zerod
@@ -684,7 +683,7 @@ void SkPathRef::callGenIDChangeListeners() {
     }
 
     // Listeners get at most one shot, so whether these triggered or not, blow them away.
-    fGenIDChangeListeners.deleteAll();
+    fGenIDChangeListeners.unrefAll();
 }
 
 SkRRect SkPathRef::getRRect() const {
