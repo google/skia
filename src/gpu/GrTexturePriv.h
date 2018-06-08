@@ -44,6 +44,10 @@ public:
         return fTexture->fMaxMipMapLevel;
     }
 
+    void setDoesNotSupportMipMaps() {
+        fTexture->setDoesNotSupportMipMaps();
+    }
+
     GrSLType samplerType() const { return fTexture->fSamplerType; }
 
     /** The filter used is clamped to this value in GrProcessor::TextureSampler. */
