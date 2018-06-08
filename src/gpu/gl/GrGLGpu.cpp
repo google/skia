@@ -2734,7 +2734,8 @@ void GrGLGpu::bindTexture(int unitIdx, const GrSamplerState& samplerState, GrGLT
     GrSamplerState::Filter filterMode = samplerState.filter();
 
     if (GrSamplerState::Filter::kMipMap == filterMode) {
-        if (!this->caps()->mipMapSupport()) {
+        if (!this->caps()->mipMapSupport() ||
+            texture->texturePriv().mipMapped() == GrMipMapped::kNo) {
             filterMode = GrSamplerState::Filter::kBilerp;
         }
     }
@@ -2845,7 +2846,8 @@ void GrGLGpu::generateMipmaps(const GrSamplerState& params, GrGLTexture* texture
     GrSamplerState::Filter filterMode = params.filter();
 
     if (GrSamplerState::Filter::kMipMap == filterMode) {
-        if (!this->caps()->mipMapSupport()) {
+        if (!this->caps()->mipMapSupport() ||
+            texture->texturePriv().mipMapped() == GrMipMapped::kNo) {
             filterMode = GrSamplerState::Filter::kBilerp;
         }
     }
