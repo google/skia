@@ -76,9 +76,9 @@ public:
 
     const char* name() const override { return "DistanceFieldA8Text"; }
 
-    const Attribute* inPosition() const { return fInPosition; }
-    const Attribute* inColor() const { return fInColor; }
-    const Attribute* inTextureCoords() const { return fInTextureCoords; }
+    const Attribute& inPosition() const { return fInPosition; }
+    const Attribute& inColor() const { return fInColor; }
+    const Attribute& inTextureCoords() const { return fInTextureCoords; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
 #ifdef SK_GAMMA_APPLY_TO_A8
     float getDistanceAdjust() const { return fDistanceAdjust; }
@@ -100,6 +100,10 @@ private:
 #endif
                                  uint32_t flags, const SkMatrix& localMatrix);
 
+    const Attribute &onVertexAttribute(int i) const override {
+        return IthAttribute(i, fInPosition, fInColor, fInTextureCoords);
+    }
+
     static constexpr int kMaxTextures = 4;
 
     TextureSampler   fTextureSamplers[kMaxTextures];
@@ -107,9 +111,9 @@ private:
     float            fDistanceAdjust;
 #endif
     uint32_t         fFlags;
-    const Attribute* fInPosition;
-    const Attribute* fInColor;
-    const Attribute* fInTextureCoords;
+    Attribute        fInPosition;
+    Attribute        fInColor;
+    Attribute        fInTextureCoords;
     SkMatrix         fLocalMatrix;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
@@ -139,9 +143,9 @@ public:
 
     const char* name() const override { return "DistanceFieldPath"; }
 
-    const Attribute* inPosition() const { return fInPosition; }
-    const Attribute* inColor() const { return fInColor; }
-    const Attribute* inTextureCoords() const { return fInTextureCoords; }
+    const Attribute& inPosition() const { return kInPosition; }
+    const Attribute& inColor() const { return kInColor; }
+    const Attribute& inTextureCoords() const { return kInTextureCoords; }
     const SkMatrix& matrix() const { return fMatrix; }
     uint32_t getFlags() const { return fFlags; }
 
@@ -159,12 +163,14 @@ private:
                                int numActiveProxies,
                                const GrSamplerState&, uint32_t flags);
 
+    const Attribute &onVertexAttribute(int i) const override;
+
     SkMatrix         fMatrix;      // view matrix if perspective, local matrix otherwise
     TextureSampler   fTextureSamplers[kMaxTextures];
     uint32_t         fFlags;
-    const Attribute* fInPosition;
-    const Attribute* fInColor;
-    const Attribute* fInTextureCoords;
+    static constexpr Attribute kInPosition  = {"inPosition", kFloat2_GrVertexAttribType};
+    static constexpr Attribute kInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kInPosition};
+    static constexpr Attribute kInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType, kInColor};
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
@@ -209,9 +215,9 @@ public:
 
     const char* name() const override { return "DistanceFieldLCDText"; }
 
-    const Attribute* inPosition() const { return fInPosition; }
-    const Attribute* inColor() const { return fInColor; }
-    const Attribute* inTextureCoords() const { return fInTextureCoords; }
+    const Attribute& inPosition() const { return fInPosition; }
+    const Attribute& inColor() const { return fInColor; }
+    const Attribute& inTextureCoords() const { return fInTextureCoords; }
     DistanceAdjust getDistanceAdjust() const { return fDistanceAdjust; }
     uint32_t getFlags() const { return fFlags; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
@@ -227,14 +233,16 @@ private:
                                   const GrSamplerState& params, DistanceAdjust wa, uint32_t flags,
                                   const SkMatrix& localMatrix);
 
+    const Attribute& onVertexAttribute(int) const override;
+
     static constexpr int kMaxTextures = 4;
 
     TextureSampler   fTextureSamplers[kMaxTextures];
     DistanceAdjust   fDistanceAdjust;
     uint32_t         fFlags;
-    const Attribute* fInPosition;
-    const Attribute* fInColor;
-    const Attribute* fInTextureCoords;
+    Attribute        fInPosition;
+    Attribute        fInColor;
+    Attribute        fInTextureCoords;
     const SkMatrix   fLocalMatrix;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST

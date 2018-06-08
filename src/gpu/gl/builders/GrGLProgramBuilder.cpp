@@ -70,7 +70,8 @@ GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu,
         , fGpu(gpu)
         , fVaryingHandler(this)
         , fUniformHandler(this)
-        , fAttributeCnt(0)
+        , fVertexAttributeCnt(0)
+        , fInstanceAttributeCnt(0)
         , fVertexStride(0)
         , fInstanceStride(0) {}
 
@@ -227,17 +228,22 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         // NVPR actually requires a vertex shader to compile
         bool useNvpr = primProc.isPathRendering();
         if (!useNvpr) {
-            fAttributeCnt = primProc.numAttribs();
-            fAttributes.reset(new GrGLProgram::Attribute[fAttributeCnt]);
+            fVertexAttributeCnt = primProc.numVertexAttributes();
+            fInstanceAttributeCnt = primProc.numInstanceAttributes();
+            fAttributes.reset(new GrGLProgram::Attribute[fVertexAttributeCnt + fInstanceAttributeCnt]);
             fVertexStride = primProc.getVertexStride();
             fInstanceStride = primProc.getInstanceStride();
-            for (int i = 0; i < fAttributeCnt; i++) {
-                const auto& attr = primProc.getAttrib(i);
-                fAttributes[i].fInputRate = attr.inputRate();
-                fAttributes[i].fType = attr.type();
-                fAttributes[i].fOffset = attr.offsetInRecord();
+            auto addAttr = [&] (int i, const auto& a) {
+                fAttributes[i].fType = a.type();
+                fAttributes[i].fOffset = a.offset();
                 fAttributes[i].fLocation = i;
-                GL_CALL(BindAttribLocation(programID, i, attr.name()));
+                GL_CALL(BindAttribLocation(programID, i, a.name()));
+            };
+            for (int i = 0; i < fVertexAttributeCnt; i++) {
+                addAttr(i, primProc.vertexAttribute(i));
+            }
+            for (int i = 0; i < fInstanceAttributeCnt; i++) {
+                addAttr(i + fVertexAttributeCnt, primProc.instanceAttribute(i));
             }
         }
 
@@ -406,7 +412,8 @@ GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
                            std::move(fFragmentProcessors),
                            fFragmentProcessorCnt,
                            std::move(fAttributes),
-                           fAttributeCnt,
+                           fVertexAttributeCnt,
+                           fInstanceAttributeCnt,
                            fVertexStride,
                            fInstanceStride);
 }
