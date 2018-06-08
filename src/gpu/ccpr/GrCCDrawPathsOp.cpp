@@ -8,6 +8,7 @@
 #include "GrCCDrawPathsOp.h"
 
 #include "GrGpuCommandBuffer.h"
+#include "GrMemoryPool.h"
 #include "GrOpFlushState.h"
 #include "ccpr/GrCCPerFlushResources.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
@@ -18,7 +19,10 @@ GrCCDrawPathsOp* GrCCDrawPathsOp::Make(GrContext* context,
                                        const SkMatrix& m,
                                        const SkPath& path,
                                        const SkRect& devBounds) {
-    return new GrCCDrawPathsOp(std::move(paint), clipIBounds, m, path, devBounds);
+    GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+    return pool->allocate<GrCCDrawPathsOp>(std::move(paint), clipIBounds,
+                                           m, path, devBounds).release();
 }
 
 static bool has_coord_transforms(const GrPaint& paint) {

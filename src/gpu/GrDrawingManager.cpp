@@ -10,6 +10,7 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "GrMemoryPool.h"
 #include "GrOnFlushResourceProvider.h"
 #include "GrOpList.h"
 #include "GrRenderTargetContext.h"
@@ -236,6 +237,11 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
 #endif
     fOpLists.reset();
 
+#ifdef SK_DEBUG
+    GrMemoryPool* opMemoryPool = fContext->contextPriv().opMemoryPool();
+    opMemoryPool->isEmpty();
+#endif
+
     GrSemaphoresSubmitted result = gpu->finishFlush(numSemaphores, backendSemaphores);
 
     flushState.uninstantiateProxyTracker()->uninstantiateAllProxies();
@@ -420,6 +426,7 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* r
 
     sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(
                                                         resourceProvider,
+                                                        fContext->contextPriv().refOpMemoryPool(),
                                                         rtp,
                                                         fContext->contextPriv().getAuditTrail()));
     SkASSERT(rtp->getLastOpList() == opList.get());
@@ -442,6 +449,7 @@ sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(GrTextureProxy* textur
     }
 
     sk_sp<GrTextureOpList> opList(new GrTextureOpList(fContext->contextPriv().resourceProvider(),
+                                                      fContext->contextPriv().refOpMemoryPool(),
                                                       textureProxy,
                                                       fContext->contextPriv().getAuditTrail()));
 

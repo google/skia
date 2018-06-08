@@ -11,6 +11,7 @@
 #include <memory>
 #include "GrColor.h"
 
+class GrContext;
 class GrDrawOp;
 class SkMatrix;
 class SkRRect;
@@ -18,8 +19,13 @@ class SkStrokeRec;
 
 namespace GrShadowRRectOp {
 
-std::unique_ptr<GrDrawOp> Make(GrColor, const SkMatrix& viewMatrix, const SkRRect& rrect,
-                               SkScalar blurWidth, SkScalar insetWidth, SkScalar blurClamp = 1);
+std::unique_ptr<GrDrawOp> Make(GrContext*,
+                               GrColor,
+                               const SkMatrix& viewMatrix,
+                               const SkRRect& rrect,
+                               SkScalar blurWidth,
+                               SkScalar insetWidth,
+                               SkScalar blurClamp = 1);
 }
 
 #endif
