@@ -522,7 +522,6 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
     SkASSERT(sizeof(int32_t) == this->getVertexStride());
 
     if (caps.usePrimitiveRestart()) {
-        this->setWillUsePrimitiveRestart();
         fVSTriangleType = GrPrimitiveType::kTriangleStrip;
     } else {
         fVSTriangleType = GrPrimitiveType::kTriangles;
@@ -533,8 +532,9 @@ void GrCCCoverageProcessor::appendVSMesh(GrBuffer* instanceBuffer, int instanceC
                                          int baseInstance, SkTArray<GrMesh>* out) const {
     SkASSERT(Impl::kVertexShader == fImpl);
     GrMesh& mesh = out->emplace_back(fVSTriangleType);
+    auto primitiveRestart = GrPrimitiveRestart(GrPrimitiveType::kTriangleStrip == fVSTriangleType);
     mesh.setIndexedInstanced(fVSIndexBuffer.get(), fVSNumIndicesPerInstance, instanceBuffer,
-                             instanceCount, baseInstance);
+                             instanceCount, baseInstance, primitiveRestart);
     mesh.setVertexData(fVSVertexBuffer.get(), 0);
 }
 
