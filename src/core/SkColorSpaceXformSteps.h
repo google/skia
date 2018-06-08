@@ -10,6 +10,8 @@
 
 #include "SkColorSpace.h"
 #include "SkImageInfo.h"
+class SkArenaAlloc;
+class SkRasterPipeline;
 
 struct SkColorSpaceXformSteps {
     SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType srcAT,
@@ -33,6 +35,11 @@ struct SkColorSpaceXformSteps {
     float src_to_dst_matrix[9];       // Apply this 3x3 row-major matrix for gamut_transform.
 };
 
+// Append stages to convert from (src,srcAT) to (dst,premul).
+void SkAppendColorSpaceXform(SkRasterPipeline*, SkArenaAlloc*,
+                             SkColorSpace* src,
+                             SkColorSpace* dst,
+                             SkAlphaType srcAT);
 
 
 #endif//SkColorSpaceXformSteps_DEFINED

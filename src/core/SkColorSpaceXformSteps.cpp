@@ -5,7 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "SkArenaAlloc.h"
 #include "SkColorSpaceXformSteps.h"
+#include "SkRasterPipeline.h"
 
 // TODO: explain
 
@@ -62,4 +64,57 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
         this->unpremul = false;
         this->premul   = false;
     }
+}
+
+// We don't use this, but the implementation of SkAppendColorSpaceXform should change
+// when we remove SkColorSpaceXformCanvas, to treat dst == nullptr as sRGB just like src.
+#include "SkColorSpaceXformCanvas.h"
+
+void SkAppendColorSpaceXform(SkRasterPipeline* p, SkArenaAlloc* alloc,
+                             SkColorSpace* src,
+                             SkColorSpace* dst,
+                             SkAlphaType srcAT) {
+    // nullptr dst is currently a signal that src is already in the destination colorspace.
+    if (!dst) {
+        if (srcAT == kUnpremul_SkAlphaType) {
+            p->append(SkRasterPipeline::premul);
+        }
+        return;
+    }
+
+    // nullptr src always means sRGB (and one day, so will nullptr dst).
+    sk_sp<SkColorSpace> sRGB;
+    if (!src) {
+        sRGB = SkColorSpace::MakeSRGB();
+        src = sRGB.get();
+    }
+
+    SkColorSpaceXformSteps steps{src,srcAT,dst};
+
+    if (steps.unpremul) { p->append(SkRasterPipeline::unpremul); }
+    if (steps.linearize) {
+        if (src->gammaCloseToSRGB()) {
+            p->append(SkRasterPipeline::from_srgb);
+        } else {
+            auto tf = alloc->make<SkColorSpaceTransferFn>(steps.srcTF);
+            p->append(SkRasterPipeline::parametric_r, tf);
+            p->append(SkRasterPipeline::parametric_g, tf);
+            p->append(SkRasterPipeline::parametric_b, tf);
+        }
+    }
+    if (steps.gamut_transform) {
+        auto m = memcpy(alloc->makeArray<float>(9), steps.src_to_dst_matrix, 9*sizeof(float));
+        p->append(SkRasterPipeline::matrix_3x3, m);
+    }
+    if (steps.encode) {
+        if (dst->gammaCloseToSRGB()) {
+            p->append(SkRasterPipeline::to_srgb);
+        } else {
+            auto tf = alloc->make<SkColorSpaceTransferFn>(steps.dstTFInv);
+            p->append(SkRasterPipeline::parametric_r, tf);
+            p->append(SkRasterPipeline::parametric_g, tf);
+            p->append(SkRasterPipeline::parametric_b, tf);
+        }
+    }
+    if (steps.premul)   { p->append(SkRasterPipeline::premul); }
 }
