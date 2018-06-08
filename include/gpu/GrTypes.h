@@ -123,6 +123,12 @@ template<typename TFlags> inline TFlags& operator&=(TFlags& a, GrTFlagsMask<TFla
     friend X& operator |=(X&, X); \
     friend constexpr bool operator &(X, X);
 
+#define GR_MAKE_YES_NO_ENUM(X) \
+    enum class X : bool { \
+        kNo = false, \
+        kYes = true \
+    }
+
 ////////////////////////////////////////////////////////////////////////////////
 
 // compile time versions of min/max

@@ -14,11 +14,7 @@ class GrCCClipPath;
 
 class GrCCClipProcessor : public GrFragmentProcessor {
 public:
-    enum class MustCheckBounds : bool {
-        kNo = false,
-        kYes = true
-    };
-
+    GR_MAKE_YES_NO_ENUM(MustCheckBounds);
     GrCCClipProcessor(const GrCCClipPath*, MustCheckBounds, SkPath::FillType overrideFillType);
 
     const char* name() const override { return "GrCCClipProcessor"; }

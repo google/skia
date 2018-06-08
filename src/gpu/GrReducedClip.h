@@ -120,10 +120,7 @@ private:
 
     void addWindowRectangle(const SkRect& elementInteriorRect, bool elementIsAA);
 
-    enum class Invert : bool {
-        kNo = false,
-        kYes = true
-    };
+    GR_MAKE_YES_NO_ENUM(Invert);
 
     static GrClipEdgeType GetClipEdgeType(Invert, GrAA);
     ClipResult addAnalyticFP(const SkRect& deviceSpaceRect, Invert, GrAA);

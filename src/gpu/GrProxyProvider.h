@@ -147,17 +147,10 @@ public:
                                                            int sampleCnt);
 
     using LazyInstantiateCallback = std::function<sk_sp<GrSurface>(GrResourceProvider*)>;
-    enum class Textureable : bool {
-        kNo = false,
-        kYes = true
-    };
-
-    enum class Renderable : bool {
-        kNo = false,
-        kYes = true
-    };
-
     using LazyInstantiationType = GrSurfaceProxy::LazyInstantiationType;
+    GR_MAKE_YES_NO_ENUM(Textureable);
+    GR_MAKE_YES_NO_ENUM(Renderable);
+
     /**
      * Creates a texture proxy that will be instantiated by a user-supplied callback during flush.
      * (Stencil is not supported by this method.) The width and height must either both be greater

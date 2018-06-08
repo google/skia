@@ -78,11 +78,6 @@ public:
      */
     void discard();
 
-    enum class CanClearFullscreen : bool {
-        kNo = false,
-        kYes = true
-    };
-
     /**
      * Clear the entire or rect of the render target, ignoring any clips.
      * @param rect  the rect to clear or the whole thing if rect is NULL.
@@ -90,6 +85,7 @@ public:
      * @param CanClearFullscreen allows partial clears to be converted to fullscreen clears on
      *                           tiling platforms where that is an optimization.
      */
+    GR_MAKE_YES_NO_ENUM(CanClearFullscreen);
     void clear(const SkIRect* rect, GrColor color, CanClearFullscreen);
 
     /**
