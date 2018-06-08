@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "16bc77b7_26b68cff",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1738,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-08T21:14:11Z",
+      "side": 1,
+      "message": "I\u0027m assuming we won\u0027t ever get into the state where we went through the non GrGLProgram call and set the fHWProgramID but then made a GrGLProgram that happen to use the same one (I suppose the first would somehow need to have been destroyed in between and the draws would have to back to back to hit this assert).",
+      "range": {
+        "startLine": 1738,
+        "startChar": 4,
+        "endLine": 1738,
+        "endChar": 79
+      },
+      "revId": "a191c5e27c4e3d4b2c03e259794be851a76df48d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
