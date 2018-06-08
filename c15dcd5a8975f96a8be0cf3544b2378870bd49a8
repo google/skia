@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "39ec0d94_8bd9eda8",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-08T20:02:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "92c1c7b3_55c8673d",
+      "revId": "c15dcd5a8975f96a8be0cf3544b2378870bd49a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1882f9_83349d06",
         "filename": "src/core/SkStrikeCache.cpp",
         "patchSetId": 3
@@ -33,6 +51,24 @@
       "revId": "c15dcd5a8975f96a8be0cf3544b2378870bd49a8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8896073f_d186fd8e",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-08T20:02:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1882f9_83349d06",
+      "revId": "c15dcd5a8975f96a8be0cf3544b2378870bd49a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "44bffc57_e786b1a5",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-08T20:02:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f7aa572d_fbcb6a48",
+      "range": {
+        "startLine": 281,
+        "startChar": 8,
+        "endLine": 289,
+        "endChar": 9
+      },
+      "revId": "c15dcd5a8975f96a8be0cf3544b2378870bd49a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b630426f_910622bd",
         "filename": "src/core/SkStrikeCache.cpp",
         "patchSetId": 3
@@ -79,6 +139,30 @@
       "revId": "c15dcd5a8975f96a8be0cf3544b2378870bd49a8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86198670_76de5eee",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-08T20:02:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b630426f_910622bd",
+      "range": {
+        "startLine": 299,
+        "startChar": 9,
+        "endLine": 299,
+        "endChar": 13
+      },
+      "revId": "c15dcd5a8975f96a8be0cf3544b2378870bd49a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -105,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "306a913c_366dcc47",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-08T20:02:56Z",
+      "side": 1,
+      "message": "If there is no image we want to keep searching so no return for false.",
+      "parentUuid": "728e102c_396e156c",
+      "range": {
+        "startLine": 303,
+        "startChar": 16,
+        "endLine": 304,
+        "endChar": 28
+      },
+      "revId": "c15dcd5a8975f96a8be0cf3544b2378870bd49a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "09f1e1b7_0f11767d",
         "filename": "src/core/SkStrikeCache.cpp",
         "patchSetId": 3
@@ -119,6 +227,24 @@
       "revId": "c15dcd5a8975f96a8be0cf3544b2378870bd49a8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d429fa86_ed312f7e",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-08T20:02:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "09f1e1b7_0f11767d",
+      "revId": "c15dcd5a8975f96a8be0cf3544b2378870bd49a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -139,6 +265,24 @@
     },
     {
       "key": {
+        "uuid": "5ca64d15_409130e5",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-08T20:02:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e6709655_5e475ea8",
+      "revId": "c15dcd5a8975f96a8be0cf3544b2378870bd49a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a6e2f997_a5a634c2",
         "filename": "src/core/SkTypeface_remote.cpp",
         "patchSetId": 3
@@ -153,6 +297,24 @@
       "revId": "c15dcd5a8975f96a8be0cf3544b2378870bd49a8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8bfe2a77_e4fd37ed",
+        "filename": "src/core/SkTypeface_remote.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-08T20:02:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a6e2f997_a5a634c2",
+      "revId": "c15dcd5a8975f96a8be0cf3544b2378870bd49a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
