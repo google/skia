@@ -100,10 +100,6 @@ GrCCPathProcessor::GrCCPathProcessor(GrResourceProvider* resourceProvider,
 
     this->addVertexAttrib("edge_norms", kFloat4_GrVertexAttribType);
 
-    if (resourceProvider->caps()->usePrimitiveRestart()) {
-        this->setWillUsePrimitiveRestart();
-    }
-
     fAtlasAccess.instantiate(resourceProvider);
     this->addTextureSampler(&fAtlasAccess);
 
@@ -146,8 +142,10 @@ void GrCCPathProcessor::drawPaths(GrOpFlushState* flushState, const GrPipeline& 
                                         ? SK_ARRAY_COUNT(kOctoIndicesAsStrips)
                                         : SK_ARRAY_COUNT(kOctoIndicesAsTris);
     GrMesh mesh(primitiveType);
+    auto enablePrimitiveRestart = GrPrimitiveRestart(flushState->caps().usePrimitiveRestart());
+
     mesh.setIndexedInstanced(indexBuffer, numIndicesPerInstance, instanceBuffer,
-                             endInstance - baseInstance, baseInstance);
+                             endInstance - baseInstance, baseInstance, enablePrimitiveRestart);
     mesh.setVertexData(vertexBuffer);
 
     flushState->rtCommandBuffer()->draw(pipeline, *this, &mesh, nullptr, 1, bounds);
