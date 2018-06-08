@@ -366,6 +366,9 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 			"target_arch":   parts["arch"],
 			"configuration": parts["configuration"],
 		}
+		if strings.Contains(jobName, "-CT_") {
+			ec = []string{"Static"}
+		}
 		if len(ec) > 0 {
 			jobNameMap["extra_config"] = strings.Join(ec, "_")
 		}
@@ -845,14 +848,15 @@ func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 
 // ctSKPs generates a CT SKPs task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
-func ctSKPs(b *specs.TasksCfgBuilder, name string) string {
+func ctSKPs(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
 	dims := []string{
 		"pool:SkiaCT",
 		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
 	}
-	task := kitchenTask(name, "ct_skps", "skia_repo.isolate", SERVICE_ACCOUNT_CT_SKPS, dims, nil, OUTPUT_NONE)
+	task := kitchenTask(name, "ct_skps", "swarm_recipe.isolate", SERVICE_ACCOUNT_CT_SKPS, dims, nil, OUTPUT_NONE)
 	usesGit(task, name)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("clang_linux"))
+	task.Dependencies = append(task.Dependencies, compileTaskName)
 	timeout(task, 24*time.Hour)
 	task.MaxAttempts = 1
 	b.MustAddTask(name, task)
@@ -1179,11 +1183,6 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		deps = append(deps, recreateSKPs(b, name))
 	}
 
-	// CT bots.
-	if strings.Contains(name, "-CT_") {
-		deps = append(deps, ctSKPs(b, name))
-	}
-
 	// Infra tests.
 	if name == "Housekeeper-PerCommit-InfraTests" {
 		deps = append(deps, infra(b, name))
@@ -1225,6 +1224,11 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		if parts["role"] == "Calmbench" {
 			compile(b, compileParentName, compileParentParts)
 		}
+	}
+
+	// CT bots.
+	if strings.Contains(name, "-CT_") {
+		deps = append(deps, ctSKPs(b, name, compileTaskName))
 	}
 
 	// Housekeepers.

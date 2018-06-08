@@ -38,6 +38,7 @@ TEST_BUILDERS = [
   'Build-Debian9-Clang-x86_64-Release-Fast',
   'Build-Debian9-Clang-x86_64-Release-Mini',
   'Build-Debian9-Clang-x86_64-Release-NoDEPS',
+  'Build-Debian9-Clang-x86_64-Release-Static',
   'Build-Debian9-Clang-x86_64-Release-SwiftShader',
   'Build-Debian9-Clang-x86_64-Release-Vulkan',
   'Build-Debian9-EMCC-wasm-Release',
@@ -56,7 +57,6 @@ TEST_BUILDERS = [
   'Build-Win-Clang-x86-Debug-Exceptions',
   'Build-Win-Clang-x86_64-Release-Vulkan',
   'Housekeeper-PerCommit-CheckGeneratedFiles',
-  'Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-CT_DM_10k_SKPs'
 ]
 
 # Default properties used for TEST_BUILDERS.
