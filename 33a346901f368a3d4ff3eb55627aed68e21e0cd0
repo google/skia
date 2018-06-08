@@ -66,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "7e64ef36_11020523",
+        "filename": "modules/skjson/BUILD.gn",
+        "patchSetId": 10
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-08T13:38:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3ec906e_09f9d45a",
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d1c48e89_9284d7e4",
         "filename": "modules/skjson/include/SkJSON.h",
         "patchSetId": 10
@@ -524,6 +542,30 @@
       "side": 1,
       "message": "Ha.  What\u0027s an order of magnitude here and there?! :)\n\nDo you think it\u0027s still worth aligning to 32 or 64 then, or just forget it?",
       "parentUuid": "0d57e122_a56f4e61",
+      "range": {
+        "startLine": 379,
+        "startChar": 1,
+        "endLine": 379,
+        "endChar": 12
+      },
+      "revId": "33a346901f368a3d4ff3eb55627aed68e21e0cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e01dd79_d897bf76",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-08T13:38:31Z",
+      "side": 1,
+      "message": "done: alignas(32)",
+      "parentUuid": "8fa632e6_c09ce6e7",
       "range": {
         "startLine": 379,
         "startChar": 1,
