@@ -9,23 +9,6 @@
 #define SkTypes_DEFINED
 
 // IWYU pragma: begin_exports
-
-// In at least two known scenarios when using GCC with libc++:
-//  * GCC 4.8 targeting ARMv7 with NEON
-//  * GCC 4.9 targeting ARMv8 64 bit
-// we need to typedef float float32_t (or include <arm_neon.h> which does that)
-// before #including <memory>. This makes no sense.  I'm not very interested in
-// understanding why... these are old, bizarre platform configuration that we
-// should just let die.
-// See https://llvm.org/bugs/show_bug.cgi?id=25608 .
-#include <ciso646>  // Include something innocuous to define _LIBCPP_VERISON if it's libc++.
-#if defined(__GNUC__) && __GNUC__ == 4 \
- && ((defined(__arm__) && (defined(__ARM_NEON__) || defined(__ARM_NEON))) || defined(__aarch64__)) \
- && defined(_LIBCPP_VERSION)
-    typedef float float32_t;
-    #include <memory>
-#endif
-
 #include "SkPreConfig.h"
 #include "SkUserConfig.h"
 #include "SkPostConfig.h"
