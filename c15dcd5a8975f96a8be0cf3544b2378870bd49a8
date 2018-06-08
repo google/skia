@@ -1,0 +1,158 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "92c1c7b3_55c8673d",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T18:31:24Z",
+      "side": 1,
+      "message": "// TODO: path?\n\nMaybe move this into the desperation search so that it\u0027s unique constraints are more obvious?",
+      "revId": "c15dcd5a8975f96a8be0cf3544b2378870bd49a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a1882f9_83349d06",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T18:31:24Z",
+      "side": 1,
+      "message": "// If these don\u0027t match, there\u0027s no way we can use these strikes interchangeably.",
+      "revId": "c15dcd5a8975f96a8be0cf3544b2378870bd49a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7aa572d_fbcb6a48",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T18:31:24Z",
+      "side": 1,
+      "message": "let\u0027s just check the matrix the long way as part of the \u0026\u0026 chain?  then we can just return possible.",
+      "range": {
+        "startLine": 281,
+        "startChar": 8,
+        "endLine": 289,
+        "endChar": 9
+      },
+      "revId": "c15dcd5a8975f96a8be0cf3544b2378870bd49a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b630426f_910622bd",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T18:31:24Z",
+      "side": 1,
+      "message": "Node* node?",
+      "range": {
+        "startLine": 299,
+        "startChar": 9,
+        "endLine": 299,
+        "endChar": 13
+      },
+      "revId": "c15dcd5a8975f96a8be0cf3544b2378870bd49a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "728e102c_396e156c",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T18:31:24Z",
+      "side": 1,
+      "message": "return glyph-\u003ecopyDataIfImagePresent(*from, alloc);\n\n?",
+      "range": {
+        "startLine": 303,
+        "startChar": 16,
+        "endLine": 304,
+        "endChar": 28
+      },
+      "revId": "c15dcd5a8975f96a8be0cf3544b2378870bd49a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09f1e1b7_0f11767d",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T18:31:24Z",
+      "side": 1,
+      "message": "// We don\u0027t have this glyph with the exact subpixel positioning,\n// but we might have this glyph with another subpixel position... search them all.",
+      "revId": "c15dcd5a8975f96a8be0cf3544b2378870bd49a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6709655_5e475ea8",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T18:31:24Z",
+      "side": 1,
+      "message": "not balanced? seems suspicious",
+      "revId": "c15dcd5a8975f96a8be0cf3544b2378870bd49a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6e2f997_a5a634c2",
+        "filename": "src/core/SkTypeface_remote.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T18:31:24Z",
+      "side": 1,
+      "message": "Let\u0027s put a comment about how this is a failure case, and it\u0027s better to try the DesperationSearch than fail completely?",
+      "revId": "c15dcd5a8975f96a8be0cf3544b2378870bd49a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
