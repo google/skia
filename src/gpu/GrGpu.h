@@ -384,6 +384,13 @@ public:
                                               const GrSamplerState&, GrTextureProducer::CopyParams*,
                                               SkScalar scaleAdjust[2]);
 
+    // Determines whether a texture will need to be copied because the draw requires mips but the
+    // texutre doesn't have any. This call should be only checked if IsACopyNeededForTextureParams
+    // fails. If the previous call succeeds, then a copy should be done using those params and the
+    // mip mapping requirements will be handled there.
+    static bool IsACopyNeededForMips(const GrCaps* caps, const GrTextureProxy* texProxy,
+                                     GrTextureProducer::CopyParams* copyParams);
+
     void handleDirtyContext() {
         if (fResetBits) {
             this->resetContext();

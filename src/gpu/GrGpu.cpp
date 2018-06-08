@@ -72,17 +72,30 @@ bool GrGpu::IsACopyNeededForTextureParams(const GrCaps* caps, GrTextureProxy* te
     }
 
     if (texProxy) {
-        bool willNeedMips = GrSamplerState::Filter::kMipMap == textureParams.filter() &&
-                            caps->mipMapSupport();
         // If the texture format itself doesn't support repeat wrap mode or mipmapping (and
         // those capabilities are required) force a copy.
-        if ((textureParams.isRepeated() && texProxy->texPriv().isClampOnly()) ||
-            (willNeedMips && texProxy->mipMapped() == GrMipMapped::kNo)) {
+        if (textureParams.isRepeated() && texProxy->texPriv().isClampOnly()) {
             copyParams->fFilter = GrSamplerState::Filter::kNearest;
             copyParams->fWidth = texProxy->width();
             copyParams->fHeight = texProxy->height();
             return true;
         }
+    }
+
+    return false;
+}
+
+bool GrGpu::IsACopyNeededForMips(const GrCaps* caps, const GrTextureProxy* texProxy,
+                                 GrTextureProducer::CopyParams* copyParams) {
+    SkASSERT(texProxy);
+    bool willNeedMips = caps->mipMapSupport();
+    // If the texture format itself doesn't support mipmapping (and those capabilities are required)
+    // force a copy.
+    if (willNeedMips && texProxy->mipMapped() == GrMipMapped::kNo) {
+        copyParams->fFilter = GrSamplerState::Filter::kNearest;
+        copyParams->fWidth = texProxy->width();
+        copyParams->fHeight = texProxy->height();
+        return true;
     }
 
     return false;
