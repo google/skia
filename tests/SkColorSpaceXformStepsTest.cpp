@@ -98,11 +98,11 @@ DEF_TEST(SkColorSpaceXformSteps, r) {
     uint32_t tested = 0x00000000;
     for (auto t : tests) {
         SkColorSpaceXformSteps steps{t.src.get(), t.srcAT, t.dst.get()};
-        REPORTER_ASSERT(r, steps.unpremul        == t.unpremul);
-        REPORTER_ASSERT(r, steps.linearize       == t.linearize);
-        REPORTER_ASSERT(r, steps.gamut_transform == t.gamut_transform);
-        REPORTER_ASSERT(r, steps.encode          == t.encode);
-        REPORTER_ASSERT(r, steps.premul          == t.premul);
+        REPORTER_ASSERT(r, steps.flags.unpremul        == t.unpremul);
+        REPORTER_ASSERT(r, steps.flags.linearize       == t.linearize);
+        REPORTER_ASSERT(r, steps.flags.gamut_transform == t.gamut_transform);
+        REPORTER_ASSERT(r, steps.flags.encode          == t.encode);
+        REPORTER_ASSERT(r, steps.flags.premul          == t.premul);
 
         uint32_t bits = (uint32_t)t.unpremul        << 0
                       | (uint32_t)t.linearize       << 1
