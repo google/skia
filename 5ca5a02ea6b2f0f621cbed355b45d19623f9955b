@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "9a9c3900_fde581ac",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-06-08T20:23:42Z",
+      "side": 1,
+      "message": "That should already work out. The typeface from all renderers have a unique fFontID on the GPU, assigned when we create the SkTypefaceProxy.",
+      "range": {
+        "startLine": 279,
+        "startChar": 7,
+        "endLine": 279,
+        "endChar": 63
+      },
+      "revId": "5ca5a02ea6b2f0f621cbed355b45d19623f9955b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "977a06e0_7070b0fb",
         "filename": "src/core/SkStrikeCache.cpp",
         "patchSetId": 4
@@ -70,6 +93,29 @@
       "writtenOn": "2018-06-08T20:10:32Z",
       "side": 1,
       "message": "// We can just copy the path out by value here, so no need to worry about the lifetime of this desperate-match node.",
+      "revId": "5ca5a02ea6b2f0f621cbed355b45d19623f9955b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00562bad_cc224cd5",
+        "filename": "src/core/SkTypeface_remote.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-06-08T20:23:42Z",
+      "side": 1,
+      "message": "We could also look for the glyph within the current strike that this is being called from first, since we could get the desc right and the pos is wrong and that strike is not in the list anymore. The caller has the exclusive ptr.",
+      "range": {
+        "startLine": 43,
+        "startChar": 16,
+        "endLine": 43,
+        "endChar": 98
+      },
       "revId": "5ca5a02ea6b2f0f621cbed355b45d19623f9955b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
