@@ -9,6 +9,9 @@
 #define GrMemoryPool_DEFINED
 
 #include "GrTypes.h"
+
+#include "SkRefCnt.h"
+
 #ifdef SK_DEBUG
 #include "SkTHash.h"
 #endif
@@ -20,7 +23,8 @@
  * and delete overrides. All allocations are expected to be released before the
  * pool's destructor is called. Allocations will be 8-byte aligned.
  */
-class GrMemoryPool {
+// DDL TODO: for the DLL use case this could probably non-intrinsic-based ref counting
+class GrMemoryPool : public SkRefCnt {
 public:
     /**
      * Prealloc size is the amount of space to allocate at pool creation

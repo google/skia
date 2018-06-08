@@ -17,9 +17,9 @@ class GrDebugMarkerOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrOp> Make(GrContext* context,
-                                      GrRenderTargetProxy* proxy,
-                                      const SkString& str);
+    static std::unique_ptr<GrOp> Make(GrContext*,
+                                      GrRenderTargetProxy*,
+                                      const SkString&);
 
     const char* name() const override { return "DebugMarker"; }
 
