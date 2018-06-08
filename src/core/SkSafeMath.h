@@ -1,3 +1,4 @@
+#include "../private/SkTFitsIn.h"
 /*
  * Copyright 2017 Google Inc.
  *
