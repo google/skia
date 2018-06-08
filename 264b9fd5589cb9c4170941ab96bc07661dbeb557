@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "99bfcbe3_40ebdcdc",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-08T17:04:18Z",
+      "side": 1,
+      "message": "Don\u0027t think we need these lines.",
+      "range": {
+        "startLine": 221,
+        "startChar": 0,
+        "endLine": 222,
+        "endChar": 55
+      },
+      "revId": "264b9fd5589cb9c4170941ab96bc07661dbeb557",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
