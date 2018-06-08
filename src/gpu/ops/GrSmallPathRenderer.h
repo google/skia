@@ -50,10 +50,13 @@ public:
     using ShapeCache = SkTDynamicHash<ShapeData, ShapeDataKey>;
     typedef SkTInternalLList<ShapeData> ShapeDataList;
 
-    static std::unique_ptr<GrDrawOp> createOp_TestingOnly(GrPaint&&, const GrShape&,
+    static std::unique_ptr<GrDrawOp> createOp_TestingOnly(GrContext*,
+                                                          GrPaint&&,
+                                                          const GrShape&,
                                                           const SkMatrix& viewMatrix,
                                                           GrDrawOpAtlas* atlas,
-                                                          ShapeCache*, ShapeDataList*,
+                                                          ShapeCache*,
+                                                          ShapeDataList*,
                                                           bool gammaCorrect,
                                                           const GrUserStencilSettings*);
     struct PathTestStruct;

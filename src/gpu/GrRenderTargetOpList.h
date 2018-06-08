@@ -93,7 +93,7 @@ public:
     void discard();
 
     /** Clears the entire render target */
-    void fullClear(const GrCaps& caps, GrColor color);
+    void fullClear(GrContext*, GrColor color);
 
     /**
      * Copies a pixel rectangle from one surface to another. This call may finalize
@@ -105,7 +105,7 @@ public:
      * depending on the type of surface, configs, etc, and the backend-specific
      * limitations.
      */
-    bool copySurface(const GrCaps& caps,
+    bool copySurface(GrContext*,
                      GrSurfaceProxy* dst,
                      GrSurfaceProxy* src,
                      const SkIRect& srcRect,
@@ -130,6 +130,8 @@ private:
             }
         }
 
+        ~RecordedOp() { }
+
         void visitProxies(const GrOp::VisitProxyFunc& func) const {
             if (fOp) {
                 fOp->visitProxies(func);
@@ -143,8 +145,8 @@ private:
         }
 
         std::unique_ptr<GrOp> fOp;
-        DstProxy fDstProxy;
-        GrAppliedClip* fAppliedClip;
+        DstProxy              fDstProxy;
+        GrAppliedClip*        fAppliedClip;
     };
 
     void purgeOpsWithUninstantiatedProxies() override;

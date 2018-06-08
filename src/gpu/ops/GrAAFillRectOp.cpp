@@ -171,15 +171,16 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint,
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          GrPaint&& paint,
                                           const SkMatrix& viewMatrix,
                                           const SkRect& rect,
                                           const SkRect& devRect,
                                           const SkMatrix* localMatrix,
                                           const GrUserStencilSettings* stencil) {
         SkASSERT(view_matrix_ok_for_aa_fill_rect(viewMatrix));
-        return Helper::FactoryHelper<AAFillRectOp>(std::move(paint), viewMatrix, rect, devRect,
-                                                   localMatrix, stencil);
+        return Helper::FactoryHelper<AAFillRectOp>(context, std::move(paint), viewMatrix, rect,
+                                                   devRect, localMatrix, stencil);
     }
 
     AAFillRectOp(const Helper::MakeArgs& helperArgs,
@@ -360,17 +361,23 @@ private:
 
 namespace GrRectOpFactory {
 
-std::unique_ptr<GrDrawOp> MakeAAFill(GrPaint&& paint, const SkMatrix& viewMatrix,
-                                     const SkRect& rect, const GrUserStencilSettings* stencil) {
+std::unique_ptr<GrDrawOp> MakeAAFill(GrContext* context,
+                                     GrPaint&& paint,
+                                     const SkMatrix& viewMatrix,
+                                     const SkRect& rect,
+                                     const GrUserStencilSettings* stencil) {
     if (!view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
         return nullptr;
     }
     SkRect devRect;
     viewMatrix.mapRect(&devRect, rect);
-    return AAFillRectOp::Make(std::move(paint), viewMatrix, rect, devRect, nullptr, stencil);
+    return AAFillRectOp::Make(context, std::move(paint), viewMatrix, rect, devRect,
+                              nullptr, stencil);
 }
 
-std::unique_ptr<GrDrawOp> MakeAAFillWithLocalMatrix(GrPaint&& paint, const SkMatrix& viewMatrix,
+std::unique_ptr<GrDrawOp> MakeAAFillWithLocalMatrix(GrContext* context,
+                                                    GrPaint&& paint,
+                                                    const SkMatrix& viewMatrix,
                                                     const SkMatrix& localMatrix,
                                                     const SkRect& rect) {
     if (!view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
@@ -378,11 +385,15 @@ std::unique_ptr<GrDrawOp> MakeAAFillWithLocalMatrix(GrPaint&& paint, const SkMat
     }
     SkRect devRect;
     viewMatrix.mapRect(&devRect, rect);
-    return AAFillRectOp::Make(std::move(paint), viewMatrix, rect, devRect, &localMatrix, nullptr);
+    return AAFillRectOp::Make(context, std::move(paint), viewMatrix, rect, devRect,
+                              &localMatrix, nullptr);
 }
 
-std::unique_ptr<GrDrawOp> MakeAAFillWithLocalRect(GrPaint&& paint, const SkMatrix& viewMatrix,
-                                                  const SkRect& rect, const SkRect& localRect) {
+std::unique_ptr<GrDrawOp> MakeAAFillWithLocalRect(GrContext* context,
+                                                  GrPaint&& paint,
+                                                  const SkMatrix& viewMatrix,
+                                                  const SkRect& rect,
+                                                  const SkRect& localRect) {
     if (!view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
         return nullptr;
     }
@@ -392,7 +403,8 @@ std::unique_ptr<GrDrawOp> MakeAAFillWithLocalRect(GrPaint&& paint, const SkMatri
     if (!localMatrix.setRectToRect(rect, localRect, SkMatrix::kFill_ScaleToFit)) {
         return nullptr;
     }
-    return AAFillRectOp::Make(std::move(paint), viewMatrix, rect, devRect, &localMatrix, nullptr);
+    return AAFillRectOp::Make(context, std::move(paint), viewMatrix, rect, devRect,
+                              &localMatrix, nullptr);
 }
 
 }  // namespace GrRectOpFactory
@@ -416,9 +428,10 @@ GR_DRAW_OP_TEST_DEFINE(AAFillRectOp) {
     if (random->nextBool()) {
         m = GrTest::TestMatrix(random);
     }
-    const GrUserStencilSettings* stencil =
-            random->nextBool() ? nullptr : GrGetRandomStencil(random, context);
-    return AAFillRectOp::Make(std::move(paint), viewMatrix, rect, devRect, localMatrix, stencil);
+    const GrUserStencilSettings* stencil = random->nextBool() ? nullptr
+                                                              : GrGetRandomStencil(random, context);
+    return AAFillRectOp::Make(context, std::move(paint), viewMatrix, rect,
+                              devRect, localMatrix, stencil);
 }
 
 #endif

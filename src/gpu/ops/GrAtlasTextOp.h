@@ -14,6 +14,7 @@
 #include "text/GrGlyphCache.h"
 
 class SkAtlasTextTarget;
+class GrContext;
 
 class GrAtlasTextOp final : public GrMeshDrawOp {
 public:
@@ -40,48 +41,22 @@ public:
         GrColor  fColor;
     };
 
-    static std::unique_ptr<GrAtlasTextOp> MakeBitmap(
-                                GrPaint&& paint, GrMaskFormat maskFormat, int glyphCount,
-                                bool needsTransform) {
-        std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(std::move(paint)));
-
-        switch (maskFormat) {
-            case kA8_GrMaskFormat:
-                op->fMaskType = kGrayscaleCoverageMask_MaskType;
-                break;
-            case kA565_GrMaskFormat:
-                op->fMaskType = kLCDCoverageMask_MaskType;
-                break;
-            case kARGB_GrMaskFormat:
-                op->fMaskType = kColorBitmapMask_MaskType;
-                break;
-        }
-        op->fNumGlyphs = glyphCount;
-        op->fGeoCount = 1;
-        op->fLuminanceColor = 0;
-        op->fNeedsGlyphTransform = needsTransform;
-        return op;
-    }
+    static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrContext* context,
+                                                     GrPaint&& paint,
+                                                     GrMaskFormat maskFormat,
+                                                     int glyphCount,
+                                                     bool needsTransform);
 
     static std::unique_ptr<GrAtlasTextOp> MakeDistanceField(
-            GrPaint&& paint, int glyphCount, const GrDistanceFieldAdjustTable* distanceAdjustTable,
-            bool useGammaCorrectDistanceTable, SkColor luminanceColor, const SkSurfaceProps& props,
-            bool isAntiAliased, bool useLCD) {
-        std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(std::move(paint)));
-
-        bool isBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
-        bool isLCD = useLCD && SkPixelGeometryIsH(props.pixelGeometry());
-        op->fMaskType = !isAntiAliased ? kAliasedDistanceField_MaskType
-                                       : isLCD ? (isBGR ? kLCDBGRDistanceField_MaskType
-                                                        : kLCDDistanceField_MaskType)
-                                               : kGrayscaleDistanceField_MaskType;
-        op->fDistanceAdjustTable.reset(SkRef(distanceAdjustTable));
-        op->fUseGammaCorrectDistanceTable = useGammaCorrectDistanceTable;
-        op->fLuminanceColor = luminanceColor;
-        op->fNumGlyphs = glyphCount;
-        op->fGeoCount = 1;
-        return op;
-    }
+            GrContext* context,
+            GrPaint&& paint,
+            int glyphCount,
+            const GrDistanceFieldAdjustTable* distanceAdjustTable,
+            bool useGammaCorrectDistanceTable,
+            SkColor luminanceColor,
+            const SkSurfaceProps& props,
+            bool isAntiAliased,
+            bool useLCD);
 
     // To avoid even the initial copy of the struct, we have a getter for the first item which
     // is used to seed the op with its initial geometry.  After seeding, the client should call
@@ -118,6 +93,8 @@ public:
     void executeForTextTarget(SkAtlasTextTarget*);
 
 private:
+    friend class GrOpMemoryPool; // for ctor
+
     // The minimum number of Geometry we will try to allocate.
     static constexpr auto kMinGeometryAllocated = 12;
 
