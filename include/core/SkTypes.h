@@ -29,11 +29,15 @@
 #include "SkPreConfig.h"
 #include "SkUserConfig.h"
 #include "SkPostConfig.h"
-#include <stddef.h>
-#include <stdint.h>
+
+#include <cstddef>
+#include <cstdint>
 // IWYU pragma: end_exports
 
-#include <string.h>
+#include <cstring>
+
+#include "../private/SkNumbers.h"
+#include "../private/SkTFitsIn.h"
 
 /** \file SkTypes.h
 */
@@ -172,7 +176,6 @@ typedef unsigned U16CPU;
  */
 typedef uint8_t SkBool8;
 
-#include "../private/SkTFitsIn.h"
 template <typename D, typename S> constexpr D SkTo(S s) {
     return SkASSERT(SkTFitsIn<D>(s)),
            static_cast<D>(s);
@@ -191,32 +194,7 @@ template <typename D, typename S> constexpr D SkTo(S s) {
 */
 #define SkToBool(cond)  ((cond) != 0)
 
-#define SK_MaxS16   32767
-#define SK_MinS16   -32767
-#define SK_MaxU16   0xFFFF
-#define SK_MinU16   0
-#define SK_MaxS32   0x7FFFFFFF
-#define SK_MinS32   -SK_MaxS32
-#define SK_MaxU32   0xFFFFFFFF
-#define SK_MinU32   0
-#define SK_NaN32    ((int) (1U << 31))
-#define SK_MaxSizeT SIZE_MAX
-static constexpr int64_t SK_MaxS64 = 0x7FFFFFFFFFFFFFFF;
-static constexpr int64_t SK_MinS64 = -SK_MaxS64;
-
-static inline int32_t SkLeftShift(int32_t value, int32_t shift) {
-    return (int32_t) ((uint32_t) value << shift);
-}
-
-static inline int64_t SkLeftShift(int64_t value, int32_t shift) {
-    return (int64_t) ((uint64_t) value << shift);
-}
-
 //////////////////////////////////////////////////////////////////////////////
-
-/** Returns the number of entries in an array (not a pointer) */
-template <typename T, size_t N> char (&SkArrayCountHelper(T (&array)[N]))[N];
-#define SK_ARRAY_COUNT(array) (sizeof(SkArrayCountHelper(array)))
 
 // Can be used to bracket data types that must be dense, e.g. hash keys.
 #if defined(__clang__)  // This should work on GCC too, but GCC diagnostic pop didn't seem to work!
@@ -228,23 +206,11 @@ template <typename T, size_t N> char (&SkArrayCountHelper(T (&array)[N]))[N];
     #define SK_END_REQUIRE_DENSE
 #endif
 
-#define SkAlign2(x)     (((x) + 1) >> 1 << 1)
-#define SkIsAlign2(x)   (0 == ((x) & 1))
-
-#define SkAlign4(x)     (((x) + 3) >> 2 << 2)
-#define SkIsAlign4(x)   (0 == ((x) & 3))
-
-#define SkAlign8(x)     (((x) + 7) >> 3 << 3)
-#define SkIsAlign8(x)   (0 == ((x) & 7))
-
-#define SkAlign16(x)     (((x) + 15) >> 4 << 4)
-#define SkIsAlign16(x)   (0 == ((x) & 15))
-
-#define SkAlignPtr(x)   (sizeof(void*) == 8 ?   SkAlign8(x) :   SkAlign4(x))
-#define SkIsAlignPtr(x) (sizeof(void*) == 8 ? SkIsAlign8(x) : SkIsAlign4(x))
 
 typedef uint32_t SkFourByteTag;
-#define SkSetFourByteTag(a, b, c, d)    (((a) << 24) | ((b) << 16) | ((c) << 8) | (d))
+constexpr inline SkFourByteTag SkSetFourByteTag(char a, char b, char c, char d) {
+    return ((uint8_t)a << 24) | ((uint8_t)b << 16) | ((uint8_t)c << 8) | ((uint8_t)d << 0);
+}
 
 /** 32 bit integer to hold a unicode value
 */
@@ -278,16 +244,6 @@ typedef uint32_t SkMSec;
  */
 #define SK_InvalidUniqueID  0
 
-/****************************************************************************
-    The rest of these only build with C++
-*/
-#ifdef __cplusplus
-
-/** Faster than SkToBool for integral conditions. Returns 0 or 1
-*/
-static inline constexpr int Sk32ToBool(uint32_t n) {
-    return (n | (0-n)) >> 31;
-}
 
 /** Generic swap function. Classes with efficient swaps should specialize this function to take
     their fast path. This function is used by SkTSort. */
@@ -304,50 +260,6 @@ static inline int32_t SkAbs32(int32_t value) {
     }
     return value;
 }
-
-template <typename T> static inline T SkTAbs(T value) {
-    if (value < 0) {
-        value = -value;
-    }
-    return value;
-}
-
-static inline int32_t SkMax32(int32_t a, int32_t b) {
-    if (a < b)
-        a = b;
-    return a;
-}
-
-static inline int32_t SkMin32(int32_t a, int32_t b) {
-    if (a > b)
-        a = b;
-    return a;
-}
-
-template <typename T> constexpr const T& SkTMin(const T& a, const T& b) {
-    return (a < b) ? a : b;
-}
-
-template <typename T> constexpr const T& SkTMax(const T& a, const T& b) {
-    return (b < a) ? a : b;
-}
-
-static inline int32_t SkSign32(int32_t a) {
-    return (a >> 31) | ((unsigned) -a >> 31);
-}
-
-static inline int32_t SkFastMin32(int32_t value, int32_t max) {
-    if (value > max) {
-        value = max;
-    }
-    return value;
-}
-
-/** Returns value pinned between min and max, inclusively. */
-template <typename T> static constexpr const T& SkTPin(const T& value, const T& min, const T& max) {
-    return SkTMax(SkTMin(value, max), min);
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -370,27 +282,6 @@ enum class SkBackingFit {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/** Use to combine multiple bits in a bitmask in a type safe way.
- */
-template <typename T>
-T SkTBitOr(T a, T b) {
-    return (T)(a | b);
-}
-
-/**
- *  Use to cast a pointer to a different type, and maintaining strict-aliasing
- */
-template <typename Dst> Dst SkTCast(const void* ptr) {
-    union {
-        const void* src;
-        Dst dst;
-    } data;
-    data.src = ptr;
-    return data.dst;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
 /** \class SkNoncopyable
 
 SkNoncopyable is the base class for objects that do not want to
@@ -406,7 +297,5 @@ public:
     SkNoncopyable(const SkNoncopyable&) = delete;
     SkNoncopyable& operator=(const SkNoncopyable&) = delete;
 };
-
-#endif /* C++ */
 
 #endif

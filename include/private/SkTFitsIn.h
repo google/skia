@@ -8,9 +8,9 @@
 #ifndef SkTFitsIn_DEFINED
 #define SkTFitsIn_DEFINED
 
-#include "../private/SkTLogic.h"
 #include <limits>
-#include <type_traits>
+
+#include "SkTLogic.h"
 
 /**
  * In C++ an unsigned to signed cast where the source value cannot be represented in the destination
