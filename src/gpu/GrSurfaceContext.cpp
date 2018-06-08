@@ -87,6 +87,6 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
         return false;
     }
 
-    return this->getOpList()->copySurface(*fContext->contextPriv().caps(), this->asSurfaceProxy(),
+    return this->getOpList()->copySurface(fContext, this->asSurfaceProxy(),
                                           src, srcRect, dstPoint);
 }

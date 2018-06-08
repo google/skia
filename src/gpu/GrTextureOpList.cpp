@@ -8,6 +8,8 @@
 #include "GrTextureOpList.h"
 
 #include "GrAuditTrail.h"
+#include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrResourceAllocator.h"
 #include "GrTextureProxy.h"
@@ -17,12 +19,32 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 GrTextureOpList::GrTextureOpList(GrResourceProvider* resourceProvider,
+                                 sk_sp<GrMemoryPool> opMemoryPool,
                                  GrTextureProxy* proxy,
                                  GrAuditTrail* auditTrail)
-    : INHERITED(resourceProvider, proxy, auditTrail) {
+        : INHERITED(resourceProvider, std::move(opMemoryPool), proxy, auditTrail) {
+    SkASSERT(fOpMemoryPool);
+}
+
+void GrTextureOpList::deleteOp(int index) {
+    SkASSERT(index < fRecordedOps.count());
+    fRecordedOps[index]->~GrOp();
+    fOpMemoryPool->release(fRecordedOps[index]);
+    fRecordedOps[index] = nullptr;
+}
+
+void GrTextureOpList::deleteOps() {
+    for (int i = 0; i < fRecordedOps.count(); ++i) {
+        GrOp* op = fRecordedOps[i];
+        op->~GrOp();
+        fOpMemoryPool->release(op);
+    }
+    fRecordedOps.reset();
+    fOpMemoryPool = nullptr;
 }
 
 GrTextureOpList::~GrTextureOpList() {
+    this->deleteOps();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -58,7 +80,7 @@ void GrTextureOpList::onPrepare(GrOpFlushState* flushState) {
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         if (fRecordedOps[i]) {
             GrOpFlushState::OpArgs opArgs = {
-                fRecordedOps[i].get(),
+                fRecordedOps[i],
                 nullptr,
                 nullptr,
                 GrXferProcessor::DstProxy()
@@ -88,7 +110,7 @@ bool GrTextureOpList::onExecute(GrOpFlushState* flushState) {
         }
 
         GrOpFlushState::OpArgs opArgs = {
-            fRecordedOps[i].get(),
+            fRecordedOps[i],
             nullptr,
             nullptr,
             GrXferProcessor::DstProxy()
@@ -105,7 +127,7 @@ bool GrTextureOpList::onExecute(GrOpFlushState* flushState) {
 }
 
 void GrTextureOpList::endFlush() {
-    fRecordedOps.reset();
+    this->deleteOps();
     INHERITED::endFlush();
 }
 
@@ -113,20 +135,21 @@ void GrTextureOpList::endFlush() {
 
 // This closely parallels GrRenderTargetOpList::copySurface but renderTargetOpList
 // stores extra data with the op
-bool GrTextureOpList::copySurface(const GrCaps& caps,
+bool GrTextureOpList::copySurface(GrContext* context,
                                   GrSurfaceProxy* dst,
                                   GrSurfaceProxy* src,
                                   const SkIRect& srcRect,
                                   const SkIPoint& dstPoint) {
     SkASSERT(dst == fTarget.get());
 
-    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(dst, src, srcRect, dstPoint);
+    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(context, dst, src, srcRect, dstPoint);
     if (!op) {
         return false;
     }
 
-    auto addDependency = [ &caps, this ] (GrSurfaceProxy* p) {
-        this->addDependency(p, caps);
+    const GrCaps* caps = context->contextPriv().caps();
+    auto addDependency = [ caps, this ] (GrSurfaceProxy* p) {
+        this->addDependency(p, *caps);
     };
     op->visitProxies(addDependency);
 
@@ -142,14 +165,14 @@ void GrTextureOpList::purgeOpsWithUninstantiatedProxies() {
         }
     };
     for (int i = 0; i < fRecordedOps.count(); ++i) {
-        const GrOp* op = fRecordedOps[i].get(); // only diff from the GrRenderTargetOpList version
+        const GrOp* op = fRecordedOps[i]; // only diff from the GrRenderTargetOpList version
         hasUninstantiatedProxy = false;
         if (op) {
             op->visitProxies(checkInstantiation);
         }
         if (hasUninstantiatedProxy) {
             // When instantiation of the proxy fails we drop the Op
-            fRecordedOps[i] = nullptr;
+            this->deleteOp(i);
         }
     }
 }
@@ -172,7 +195,7 @@ void GrTextureOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
         alloc->addInterval(p SkDEBUGCODE(, p == fTarget.get()));
     };
     for (int i = 0; i < fRecordedOps.count(); ++i) {
-        const GrOp* op = fRecordedOps[i].get(); // only diff from the GrRenderTargetOpList version
+        const GrOp* op = fRecordedOps[i]; // only diff from the GrRenderTargetOpList version
         if (op) {
             op->visitProxies(gather);
         }
@@ -198,5 +221,5 @@ void GrTextureOpList::recordOp(std::unique_ptr<GrOp> op) {
     GrOP_INFO(SkTabString(op->dumpInfo(), 1).c_str());
     GR_AUDIT_TRAIL_OP_RESULT_NEW(fAuditTrail, op.get());
 
-    fRecordedOps.emplace_back(std::move(op));
+    fRecordedOps.emplace_back(op.release());
 }

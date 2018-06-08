@@ -298,6 +298,13 @@ void print_result(const std::vector<Sample>& samples, const char* config, const 
     // Technically, this is the relative standard deviation.
     const double stddev = 100/*%*/ * sqrt(variance) / accumValue;
 
+#if 0
+    SkDebugf("-----------%8.4g  %8.4g  %8.4g  %8.4g  %6.3g%%  %7li  %9i  %-5s  %-6s  %-9s %s",
+             accumValue, values[values.size() / 2], values.back(), values.front(),
+             stddev, values.size(), FLAGS_sampleMs, FLAGS_gpuClock ? "gpu" : "cpu", Sample::metric(),
+             config, bench);
+#endif
+
     printf(resultFormat, accumValue, values[values.size() / 2], values.back(), values.front(),
            stddev, values.size(), FLAGS_sampleMs, FLAGS_gpuClock ? "gpu" : "cpu", Sample::metric(),
            config, bench);

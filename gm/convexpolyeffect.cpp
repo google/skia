@@ -41,8 +41,14 @@ class PolyBoundsOp : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkRect& rect) {
-        return std::unique_ptr<GrDrawOp>(new PolyBoundsOp(std::move(paint), rect));
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          GrPaint&& paint,
+                                          const SkRect& rect) {
+        // $$
+        GrMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        char* mem = (char*) pool->allocate(sizeof(PolyBoundsOp));
+        return std::unique_ptr<GrDrawOp>(new (mem) PolyBoundsOp(std::move(paint), rect));
     }
 
     const char* name() const override { return "PolyBoundsOp"; }
@@ -181,6 +187,11 @@ protected:
             return;
         }
 
+        GrContext* context = canvas->getGrContext();
+        if (!context) {
+            return;
+        }
+
         SkScalar y = 0;
         constexpr SkScalar kDX = 12.f;
         for (PathList::Iter iter(fPaths, PathList::Iter::kHead_IterStart);
@@ -206,7 +217,7 @@ protected:
                 grPaint.addCoverageFragmentProcessor(std::move(fp));
 
                 std::unique_ptr<GrDrawOp> op =
-                        PolyBoundsOp::Make(std::move(grPaint), p.getBounds());
+                        PolyBoundsOp::Make(context, std::move(grPaint), p.getBounds());
                 renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
 
                 x += SkScalarCeilToScalar(path->getBounds().width() + kDX);
@@ -245,7 +256,8 @@ protected:
                 grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
                 grPaint.addCoverageFragmentProcessor(std::move(fp));
 
-                std::unique_ptr<GrDrawOp> op = PolyBoundsOp::Make(std::move(grPaint), rect);
+                std::unique_ptr<GrDrawOp> op = PolyBoundsOp::Make(context, std::move(grPaint),
+                                                                  rect);
                 renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
 
                 x += SkScalarCeilToScalar(rect.width() + kDX);
