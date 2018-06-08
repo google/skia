@@ -862,10 +862,6 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
             set_key_on_proxy(proxyProvider, mippedProxy.get(), proxy.get(), key);
             return mippedProxy;
         }
-        // We failed to make a mipped proxy with the base copied into it. This could have
-        // been from failure to make the proxy or failure to do the copy. Thus we will fall
-        // back to just using the non mipped proxy; See skbug.com/7094.
-        return proxy;
     }
 
     SK_HISTOGRAM_ENUMERATION("LockTexturePath", kFailure_LockTexturePath,

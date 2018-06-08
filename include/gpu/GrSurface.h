@@ -63,20 +63,9 @@ public:
                               GrMipMapped, bool useNextPow2 = false);
 
 protected:
-    void setDoesNotSupportMipMaps() {
-        SkASSERT(this->asTexture());
-        fSurfaceFlags |= GrInternalSurfaceFlags::kDoesNotSupportMipMaps;
-    }
-    bool doesNotSupportMipMaps() const {
-        return fSurfaceFlags & GrInternalSurfaceFlags::kDoesNotSupportMipMaps;
-    }
-
     void setIsGLTextureRectangleOrExternal() {
         SkASSERT(this->asTexture());
         fSurfaceFlags |= GrInternalSurfaceFlags::kIsGLTextureRectangleOrExternal;
-        // If we are a GL rectangle or external texture, it also means that we do not support
-        // generating mip maps.
-        this->setDoesNotSupportMipMaps();
     }
     bool isGLTextureRectangleOrExternal() const {
         return fSurfaceFlags & GrInternalSurfaceFlags::kIsGLTextureRectangleOrExternal;

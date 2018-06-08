@@ -27,27 +27,31 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrTextureMipMapInvalidationTest, reporter, ctxInf
 
     GrContext* context = ctxInfo.grContext();
     auto info = SkImageInfo::MakeN32Premul(256, 256);
-    auto surf1 = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info);
-    auto surf2 = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info);
-    // Draw something just in case we ever had a solid color optimization
-    surf1->getCanvas()->drawCircle(128, 128, 50, SkPaint());
-    surf1->getCanvas()->flush();
+    for (auto allocateMips : {false, true}) {
+        auto surf1 = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info, 0,
+                                                 kBottomLeft_GrSurfaceOrigin, nullptr,
+                                                 allocateMips);
+        auto surf2 = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info);
+        // Draw something just in case we ever had a solid color optimization
+        surf1->getCanvas()->drawCircle(128, 128, 50, SkPaint());
+        surf1->getCanvas()->flush();
 
-    // No mipmaps initially
-    REPORTER_ASSERT(reporter, !isMipped(surf1.get()));
+        // No mipmaps initially
+        REPORTER_ASSERT(reporter, isMipped(surf1.get()) == allocateMips);
 
-    // Painting with downscale and medium filter quality should result in mipmap creation
-    SkPaint paint;
-    paint.setFilterQuality(kMedium_SkFilterQuality);
-    surf2->getCanvas()->scale(0.2f, 0.2f);
-    surf2->getCanvas()->drawImage(surf1->makeImageSnapshot(), 0, 0, &paint);
-    surf2->getCanvas()->flush();
-    REPORTER_ASSERT(reporter, isMipped(surf1.get()));
-    REPORTER_ASSERT(reporter, !mipsAreDirty(surf1.get()));
+        // Painting with downscale and medium filter quality should result in mipmap creation
+        SkPaint paint;
+        paint.setFilterQuality(kMedium_SkFilterQuality);
+        surf2->getCanvas()->scale(0.2f, 0.2f);
+        surf2->getCanvas()->drawImage(surf1->makeImageSnapshot(), 0, 0, &paint);
+        surf2->getCanvas()->flush();
+        REPORTER_ASSERT(reporter, isMipped(surf1.get()) == allocateMips);
+        REPORTER_ASSERT(reporter, !allocateMips || !mipsAreDirty(surf1.get()));
 
-    // Changing the contents of the surface should invalidate the mipmap, but not de-allocate
-    surf1->getCanvas()->drawCircle(128, 128, 100, SkPaint());
-    surf1->getCanvas()->flush();
-    REPORTER_ASSERT(reporter, isMipped(surf1.get()));
-    REPORTER_ASSERT(reporter, mipsAreDirty(surf1.get()));
+        // Changing the contents of the surface should invalidate the mipmap, but not de-allocate
+        surf1->getCanvas()->drawCircle(128, 128, 100, SkPaint());
+        surf1->getCanvas()->flush();
+        REPORTER_ASSERT(reporter, isMipped(surf1.get()) == allocateMips);
+        REPORTER_ASSERT(reporter, mipsAreDirty(surf1.get()));
+    }
 }

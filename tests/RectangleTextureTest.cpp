@@ -15,6 +15,7 @@
 #include "GrRenderTargetContext.h"
 #include "GrSurfacePriv.h"
 #include "GrTest.h"
+#include "GrTexturePriv.h"
 #include "GrTextureProxyPriv.h"
 #include "gl/GLTestContext.h"
 #include "gl/GrGLGpu.h"
@@ -136,8 +137,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
             continue;
         }
 
-        SkASSERT(rectProxy->texPriv().doesNotSupportMipMaps());
-        SkASSERT(rectProxy->priv().peekTexture()->surfacePriv().doesNotSupportMipMaps());
+        SkASSERT(rectProxy->mipMapped() == GrMipMapped::kNo);
+        SkASSERT(rectProxy->priv().peekTexture()->texturePriv().mipMapped() == GrMipMapped::kNo);
 
         SkASSERT(rectProxy->texPriv().isGLTextureRectangleOrExternal());
         SkASSERT(rectProxy->priv().peekTexture()->surfacePriv().isGLTextureRectangleOrExternal());
