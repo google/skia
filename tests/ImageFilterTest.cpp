@@ -57,7 +57,6 @@ public:
         return sk_sp<SkImageFilter>(new MatrixTestImageFilter(reporter, expectedMatrix));
     }
 
-    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(MatrixTestImageFilter)
 
 protected:
@@ -101,7 +100,6 @@ public:
         return nullptr;
     }
 
-    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(FailImageFilter)
 
 private:
@@ -111,11 +109,6 @@ private:
 sk_sp<SkFlattenable> FailImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
     return sk_sp<SkFlattenable>(new FailImageFilter());
-}
-
-void FailImageFilter::toString(SkString* str) const {
-    str->appendf("FailImageFilter: (");
-    str->append(")");
 }
 
 void draw_gradient_circle(SkCanvas* canvas, int width, int height) {
@@ -295,7 +288,6 @@ public:
             : SkImageFilter(nullptr, 0, nullptr), fBounds(bounds) {}
 
 private:
-    void toString(SkString*) const override {}
     Factory getFactory() const override { return nullptr; }
 
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* src, const Context&,
@@ -316,11 +308,6 @@ private:
 sk_sp<SkFlattenable> MatrixTestImageFilter::CreateProc(SkReadBuffer& buffer) {
     SkDEBUGFAIL("Should never get here");
     return nullptr;
-}
-
-void MatrixTestImageFilter::toString(SkString* str) const {
-    str->appendf("MatrixTestImageFilter: (");
-    str->append(")");
 }
 
 static sk_sp<SkImage> make_small_image() {
@@ -1840,8 +1827,6 @@ DEF_TEST(ImageFilterColorSpaceDAG, reporter) {
     class TestFilter final : public SkImageFilter {
     public:
         TestFilter() : INHERITED(nullptr, 0, nullptr) {}
-
-        void toString(SkString*) const override {}
 
         Factory getFactory() const override { return nullptr; }
 

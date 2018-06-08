@@ -1452,13 +1452,6 @@ public:
     const SkRect& doComputeFastBounds(const SkRect& orig, SkRect* storage,
                                       Style style) const;
 
-    /** Creates string representation of SkPaint. The representation is read by
-        internal debugging tools.
-
-        @param str  storage for string representation of SkPaint
-    */
-    void toString(SkString* str) const;
-
 private:
     typedef const SkGlyph& (*GlyphCacheProc)(SkGlyphCache*, const char**);
 

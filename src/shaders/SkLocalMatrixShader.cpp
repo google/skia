@@ -71,16 +71,6 @@ bool SkLocalMatrixShader::onAppendStages(const StageRec& rec) const {
     return as_SB(fProxyShader)->appendStages(newRec);
 }
 
-void SkLocalMatrixShader::toString(SkString* str) const {
-    str->append("SkLocalMatrixShader: (");
-
-    as_SB(fProxyShader)->toString(str);
-
-    this->INHERITED::toString(str);
-
-    str->append(")");
-}
-
 sk_sp<SkShader> SkShader::makeWithLocalMatrix(const SkMatrix& localMatrix) const {
     if (localMatrix.isIdentity()) {
         return sk_ref_sp(const_cast<SkShader*>(this));

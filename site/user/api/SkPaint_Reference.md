@@ -907,10 +907,6 @@ SkPaint member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_textToGlyphs'>textToGlyphs</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>converts text into glyph indices</td>
   </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_toString'>toString</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>converts <a href='#Paint'>Paint</a> to machine readable form</td>
-  </tr>
 </table>
 
 
@@ -6175,45 +6171,4 @@ fast computed bounds
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_textToGlyphs'>textToGlyphs</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>converts text into glyph indices</td>
   </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_toString'>toString</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>converts <a href='#Paint'>Paint</a> to machine readable form</td>
-  </tr>
 </table>
-
-
-<a name='SkPaint_toString'></a>
-## toString
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPaint_toString'>toString</a>(<a href='undocumented#SkString'>SkString</a>* str) const
-</pre>
-
-Creates string representation of <a href='#Paint'>Paint</a>. The representation is read by
-internal debugging tools.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_toString_str'><code><strong>str</strong></code></a></td>
-    <td>storage for string representation of <a href='#Paint'>Paint</a></td>
-  </tr>
-</table>
-
-### Example
-
-<div><fiddle-embed name="5670c04b4562908169a776c48c92d104">
-
-#### Example Output
-
-~~~~
-text size = 12
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href='undocumented#SkPathEffect_toString'>SkPathEffect::toString</a> <a href='undocumented#SkMaskFilter_toString'>SkMaskFilter::toString</a> <a href='undocumented#SkColorFilter_toString'>SkColorFilter::toString</a> <a href='undocumented#SkImageFilter_toString'>SkImageFilter::toString</a>
-
----
-

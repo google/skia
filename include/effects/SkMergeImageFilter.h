@@ -25,8 +25,6 @@ public:
         return Make(array, 2, cropRect);
     }
 
-    void toString(SkString* str) const override;
-
     Factory getFactory() const override { return CreateProc; }
 
 protected:

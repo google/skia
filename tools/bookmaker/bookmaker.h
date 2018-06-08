@@ -1150,6 +1150,8 @@ public:
         fParent = def;
     }
 
+    char* FindDateTime(char* buffer, int size);
+
     void indentIn(IndentKind kind) {
         fIndent += 4;
         fIndentStack.emplace_back(kind, fIndent);
@@ -1218,7 +1220,7 @@ public:
         fParent = fParent->fParent;
     }
 
-    const char* ReadToBuffer(string filename, int* size);
+    char* ReadToBuffer(string filename, int* size);
 
     virtual void reset() = 0;
 

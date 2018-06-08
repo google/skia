@@ -77,7 +77,6 @@ public:
     void computeFastBounds(const SkRect&, SkRect*) const override;
     bool asABlur(BlurRec*) const override;
 
-    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurMaskFilterImpl)
 
 protected:
@@ -991,23 +990,6 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrContext* context,
 }
 
 #endif // SK_SUPPORT_GPU
-
-
-void SkBlurMaskFilterImpl::toString(SkString* str) const {
-    str->append("SkBlurMaskFilterImpl: (");
-
-    str->append("sigma: ");
-    str->appendScalar(fSigma);
-    str->append(" ");
-
-    static const char* gStyleName[kLastEnum_SkBlurStyle + 1] = {
-        "normal", "solid", "outer", "inner"
-    };
-
-    str->appendf("style: %s ", gStyleName[fBlurStyle]);
-    str->appendf("respectCTM: %s ", fRespectCTM ? "true" : "false");
-    str->append(")");
-}
 
 void sk_register_blur_maskfilter_createproc() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBlurMaskFilterImpl)
