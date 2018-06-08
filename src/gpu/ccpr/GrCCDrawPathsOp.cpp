@@ -8,6 +8,7 @@
 #include "GrCCDrawPathsOp.h"
 
 #include "GrGpuCommandBuffer.h"
+#include "GrMemoryPool.h"
 #include "GrOpFlushState.h"
 #include "ccpr/GrCCPerFlushResources.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"

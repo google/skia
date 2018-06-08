@@ -11,6 +11,7 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpuCommandBuffer.h"
+#include "GrMemoryPool.h"
 #include "GrOpFlushState.h"
 
 std::unique_ptr<GrOp> GrDebugMarkerOp::Make(GrContext* context,
