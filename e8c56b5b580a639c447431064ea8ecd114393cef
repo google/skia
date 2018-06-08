@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "49736315_6f172679",
+        "filename": "modules/skjson/src/FuzzSkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-08T16:26:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "05c370bf_1d5296e1",
+      "range": {
+        "startLine": 15,
+        "startChar": 17,
+        "endLine": 15,
+        "endChar": 22
+      },
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e01d9683_80a704dd",
         "filename": "modules/skjson/src/SkJSON.cpp",
         "patchSetId": 15
@@ -36,6 +60,30 @@
       "writtenOn": "2018-06-08T15:28:51Z",
       "side": 1,
       "message": "Isn\u0027t this the same as 0b111ULL \u003c\u003c kTypeShift?  The other bits all shift off the left?",
+      "range": {
+        "startLine": 54,
+        "startChar": 44,
+        "endLine": 54,
+        "endChar": 70
+      },
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b96dc54_188ce4e2",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-08T16:26:31Z",
+      "side": 1,
+      "message": "Future-proofing attempt, in case we decide to use more bits later.  Changed to a less sloppy form.",
+      "parentUuid": "e01d9683_80a704dd",
       "range": {
         "startLine": 54,
         "startChar": 44,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "c00fcb93_0a0be305",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-08T16:26:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "79818fb0_9cdeb4b9",
+      "range": {
+        "startLine": 57,
+        "startChar": 39,
+        "endLine": 57,
+        "endChar": 52
+      },
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f973d2b6_b13447d2",
         "filename": "modules/skjson/src/SkJSON.cpp",
         "patchSetId": 15
@@ -91,6 +163,30 @@
       "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f45d5c48_83d1c69e",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-08T16:26:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f973d2b6_b13447d2",
+      "range": {
+        "startLine": 85,
+        "startChar": 8,
+        "endLine": 88,
+        "endChar": 81
+      },
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "94e189e4_e4f340e0",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-08T16:26:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "81699ca1_194ffb1e",
+      "range": {
+        "startLine": 90,
+        "startChar": 9,
+        "endLine": 90,
+        "endChar": 22
+      },
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f79aab7b_ae910140",
         "filename": "modules/skjson/src/SkJSON.cpp",
         "patchSetId": 15
@@ -137,6 +257,30 @@
       "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3aa72ecb_573b9f3e",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-08T16:26:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f79aab7b_ae910140",
+      "range": {
+        "startLine": 135,
+        "startChar": 41,
+        "endLine": 135,
+        "endChar": 46
+      },
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -186,6 +330,30 @@
     },
     {
       "key": {
+        "uuid": "8f700001_59ad8083",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-08T16:26:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6049a910_28ea1db5",
+      "range": {
+        "startLine": 377,
+        "startChar": 8,
+        "endLine": 377,
+        "endChar": 49
+      },
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eb922cdf_ae395d63",
         "filename": "modules/skjson/src/SkJSON.cpp",
         "patchSetId": 15
@@ -206,6 +374,30 @@
       "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8836f064_8c38f833",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-08T16:26:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb922cdf_ae395d63",
+      "range": {
+        "startLine": 378,
+        "startChar": 12,
+        "endLine": 378,
+        "endChar": 13
+      },
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -232,6 +424,30 @@
     },
     {
       "key": {
+        "uuid": "cd30ba0b_3303ac91",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-08T16:26:31Z",
+      "side": 1,
+      "message": "Removed.",
+      "parentUuid": "e838ed24_7f60287b",
+      "range": {
+        "startLine": 400,
+        "startChar": 0,
+        "endLine": 400,
+        "endChar": 11
+      },
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0cdf60d2_606f17f4",
         "filename": "modules/skjson/src/SkJSON.cpp",
         "patchSetId": 15
@@ -255,6 +471,30 @@
     },
     {
       "key": {
+        "uuid": "28865912_253be76e",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-08T16:26:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0cdf60d2_606f17f4",
+      "range": {
+        "startLine": 463,
+        "startChar": 19,
+        "endLine": 463,
+        "endChar": 24
+      },
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "edc5a1f0_ad7e6200",
         "filename": "modules/skjson/src/SkJSON.cpp",
         "patchSetId": 15
@@ -269,6 +509,24 @@
       "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4725b874_3fcca10d",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-08T16:26:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "edc5a1f0_ad7e6200",
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -289,6 +547,24 @@
     },
     {
       "key": {
+        "uuid": "fc6909d2_ee3b7f87",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-08T16:26:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f6c02538_3e0dfb25",
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7db5451b_4bb72973",
         "filename": "modules/skjson/src/SkJSON.cpp",
         "patchSetId": 15
@@ -303,6 +579,24 @@
       "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5046182_3eccec66",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-08T16:26:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7db5451b_4bb72973",
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -323,6 +617,24 @@
     },
     {
       "key": {
+        "uuid": "e1ddc49a_ef956a6c",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-08T16:26:31Z",
+      "side": 1,
+      "message": "That\u0027s cute!\n\nI\u0027m just a bit hesitant because it puts more of a burden on clients to know what a valid JSON root is: Object/Array \u003d\u003d parsed successfully vs. String/everything else \u003d\u003d failed.\n\nA NullValue check feels more natural to detecting parse errors.",
+      "parentUuid": "c4076d3f_c0df6743",
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bc8e973b_4a42078d",
         "filename": "modules/skjson/src/SkJSON.cpp",
         "patchSetId": 15
@@ -337,6 +649,24 @@
       "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "150322ed_24ba6edf",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 715,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-08T16:26:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bc8e973b_4a42078d",
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -363,6 +693,30 @@
     },
     {
       "key": {
+        "uuid": "350acd18_3b468876",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 724,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-08T16:26:31Z",
+      "side": 1,
+      "message": "Good point.  This started off with the parser separate from the lexer, and after much refactoring and copy-pasta ended up in this inconsistent state.\n\nUpdated.",
+      "parentUuid": "62949c27_db4a2bb2",
+      "range": {
+        "startLine": 720,
+        "startChar": 4,
+        "endLine": 724,
+        "endChar": 29
+      },
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "982d54f6_477ff3bc",
         "filename": "modules/skjson/src/SkJSONTest.cpp",
         "patchSetId": 15
@@ -377,6 +731,24 @@
       "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "251ad228_c9084f50",
+        "filename": "modules/skjson/src/SkJSONTest.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-08T16:26:31Z",
+      "side": 1,
+      "message": "feels... refreshing :)",
+      "parentUuid": "982d54f6_477ff3bc",
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
