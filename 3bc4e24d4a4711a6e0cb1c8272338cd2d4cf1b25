@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "70fb020f_6257e529",
+        "filename": "src/core/SkColorSpaceXformSteps.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:21:11Z",
+      "side": 1,
+      "message": "This lgtm.",
+      "revId": "3bc4e24d4a4711a6e0cb1c8272338cd2d4cf1b25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
