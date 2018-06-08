@@ -3119,7 +3119,10 @@ GR_DRAW_OP_TEST_DEFINE(CircleOp) {
         SkScalar rotate = random->nextSScalar1() * 360.f;
         SkScalar translateX = random->nextSScalar1() * 1000.f;
         SkScalar translateY = random->nextSScalar1() * 1000.f;
-        SkScalar scale = random->nextSScalar1() * 100.f;
+        SkScalar scale;
+        do {
+            scale = random->nextSScalar1() * 100.f;
+        } while (scale == 0);
         SkMatrix viewMatrix;
         viewMatrix.setRotate(rotate);
         viewMatrix.postTranslate(translateX, translateY);
@@ -3148,7 +3151,10 @@ GR_DRAW_OP_TEST_DEFINE(ButtCapDashedCircleOp) {
     SkScalar rotate = random->nextSScalar1() * 360.f;
     SkScalar translateX = random->nextSScalar1() * 1000.f;
     SkScalar translateY = random->nextSScalar1() * 1000.f;
-    SkScalar scale = random->nextSScalar1() * 100.f;
+    SkScalar scale;
+    do {
+        scale = random->nextSScalar1() * 100.f;
+    } while (scale == 0);
     SkMatrix viewMatrix;
     viewMatrix.setRotate(rotate);
     viewMatrix.postTranslate(translateX, translateY);
