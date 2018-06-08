@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7870f9b3_2d6055e4",
+        "filename": "src/opts/SkNx_neon.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T17:16:00Z",
+      "side": 1,
+      "message": "Just like this, but float32x2_t... all the same intrinsics without the q.",
+      "revId": "ea38b78cca820ee4548a16744734e0ca4f276e12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ceb50ca_7ccfa6e9",
+        "filename": "src/opts/SkNx_neon.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T17:16:00Z",
+      "side": 1,
+      "message": "Sadly, you\u0027re gonna have to implement this.",
+      "revId": "ea38b78cca820ee4548a16744734e0ca4f276e12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd9ec6f6_d5900bf7",
+        "filename": "src/opts/SkNx_sse.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T17:16:00Z",
+      "side": 1,
+      "message": "Let\u0027s factor this out as like, __m128 approximate_floor_sse2(__m128)?",
+      "range": {
+        "startLine": 179,
+        "startChar": 0,
+        "endLine": 186,
+        "endChar": 77
+      },
+      "revId": "ea38b78cca820ee4548a16744734e0ca4f276e12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
