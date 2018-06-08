@@ -81,6 +81,10 @@ static bool isLCD(const SkScalerContextRec& rec) {
     return SkMask::kLCD16_Format == rec.fMaskFormat;
 }
 
+static SkScalar SkFT_FixedToScalar(FT_Fixed x) {
+  return SkFixedToScalar(x);
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 extern "C" {
@@ -763,15 +767,6 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
         return;
     }
 
-    fRec.computeMatrices(SkScalerContextRec::kFull_PreMatrixScale, &fScale, &fMatrix22Scalar);
-
-    FT_F26Dot6 scaleX = SkScalarToFDot6(fScale.fX);
-    FT_F26Dot6 scaleY = SkScalarToFDot6(fScale.fY);
-    fMatrix22.xx = SkScalarToFixed(fMatrix22Scalar.getScaleX());
-    fMatrix22.xy = SkScalarToFixed(-fMatrix22Scalar.getSkewX());
-    fMatrix22.yx = SkScalarToFixed(-fMatrix22Scalar.getSkewY());
-    fMatrix22.yy = SkScalarToFixed(fMatrix22Scalar.getScaleY());
-
     fLCDIsVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
 
     // compute the flags we send to Load_Glyph
@@ -864,13 +859,29 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
         return;
     }
 
+    fRec.computeMatrices(SkScalerContextRec::kFull_PreMatrixScale, &fScale, &fMatrix22Scalar);
+    FT_F26Dot6 scaleX = SkScalarToFDot6(fScale.fX);
+    FT_F26Dot6 scaleY = SkScalarToFDot6(fScale.fY);
+
     if (FT_IS_SCALABLE(fFaceRec->fFace)) {
         err = FT_Set_Char_Size(fFaceRec->fFace.get(), scaleX, scaleY, 72, 72);
         if (err != 0) {
             SK_TRACEFTR(err, "FT_Set_CharSize(%s, %f, %f) failed.",
-                         fFaceRec->fFace->family_name, fScale.fX, fScale.fY);
+                        fFaceRec->fFace->family_name, fScale.fX, fScale.fY);
             return;
         }
+
+        // Adjust the matrix to reflect the actually chosen scale.
+        // FreeType currently does not allow requesting sizes less than 1, this allow for scaling.
+        // Don't do this at all sizes as that will interfere with hinting.
+        if (fScale.fX < 1 || fScale.fY < 1) {
+            SkScalar upem = fFaceRec->fFace->units_per_EM;
+            FT_Size_Metrics& ftmetrics = fFaceRec->fFace->size->metrics;
+            SkScalar x_ppem = upem * SkFT_FixedToScalar(ftmetrics.x_scale) / 64.0f;
+            SkScalar y_ppem = upem * SkFT_FixedToScalar(ftmetrics.y_scale) / 64.0f;
+            fMatrix22Scalar.preScale(fScale.x() / x_ppem, fScale.y() / y_ppem);
+        }
+
     } else if (FT_HAS_FIXED_SIZES(fFaceRec->fFace)) {
         fStrikeIndex = chooseBitmapStrike(fFaceRec->fFace.get(), scaleY);
         if (fStrikeIndex == -1) {
@@ -882,19 +893,15 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
         err = FT_Select_Size(fFaceRec->fFace.get(), fStrikeIndex);
         if (err != 0) {
             SK_TRACEFTR(err, "FT_Select_Size(%s, %d) failed.",
-                         fFaceRec->fFace->family_name, fStrikeIndex);
+                        fFaceRec->fFace->family_name, fStrikeIndex);
             fStrikeIndex = -1;
             return;
         }
 
-        // A non-ideal size was picked, so recompute the matrix.
-        // This adjusts for the difference between FT_Set_Char_Size and FT_Select_Size.
+        // Adjust the matrix to reflect the actually chosen scale.
+        // It is likely that the ppem chosen was no the one requested, this allows for scaling.
         fMatrix22Scalar.preScale(fScale.x() / fFaceRec->fFace->size->metrics.x_ppem,
                                  fScale.y() / fFaceRec->fFace->size->metrics.y_ppem);
-        fMatrix22.xx = SkScalarToFixed(fMatrix22Scalar.getScaleX());
-        fMatrix22.xy = SkScalarToFixed(-fMatrix22Scalar.getSkewX());
-        fMatrix22.yx = SkScalarToFixed(-fMatrix22Scalar.getSkewY());
-        fMatrix22.yy = SkScalarToFixed(fMatrix22Scalar.getScaleY());
 
         // FreeType does not provide linear metrics for bitmap fonts.
         linearMetrics = false;
@@ -910,6 +917,11 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
         SkDEBUGF(("Unknown kind of font \"%s\" size %f.\n", fFaceRec->fFace->family_name, fScale.fY));
         return;
     }
+
+    fMatrix22.xx = SkScalarToFixed(fMatrix22Scalar.getScaleX());
+    fMatrix22.xy = SkScalarToFixed(-fMatrix22Scalar.getSkewX());
+    fMatrix22.yx = SkScalarToFixed(-fMatrix22Scalar.getSkewY());
+    fMatrix22.yy = SkScalarToFixed(fMatrix22Scalar.getScaleY());
 
     fFTSize = ftSize.release();
     fFace = fFaceRec->fFace.get();
@@ -964,10 +976,6 @@ SkUnichar SkScalerContext_FreeType::generateGlyphToChar(uint16_t glyph) {
     }
 
     return 0;
-}
-
-static SkScalar SkFT_FixedToScalar(FT_Fixed x) {
-  return SkFixedToScalar(x);
 }
 
 void SkScalerContext_FreeType::generateAdvance(SkGlyph* glyph) {
