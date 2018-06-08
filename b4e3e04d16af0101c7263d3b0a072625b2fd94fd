@@ -22,6 +22,30 @@
       "revId": "b4e3e04d16af0101c7263d3b0a072625b2fd94fd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93db560e_e11f26e9",
+        "filename": "BUILD.gn",
+        "patchSetId": 17
+      },
+      "lineNbr": 1411,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-08T17:42:47Z",
+      "side": 1,
+      "message": "It shouldn\u0027t be, but I had to add this for Android Framework builds to pass.\n\nSomething strange is going on: I see SkJSON.cpp being compiled twice - for both \"skia_dm\" and \"skia_nanobench\" targets.  Same for e.g. SkSG*.",
+      "parentUuid": "ea8b6836_a58a2e12",
+      "range": {
+        "startLine": 1409,
+        "startChar": 0,
+        "endLine": 1411,
+        "endChar": 5
+      },
+      "revId": "b4e3e04d16af0101c7263d3b0a072625b2fd94fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
