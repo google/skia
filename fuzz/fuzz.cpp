@@ -28,6 +28,10 @@
 #include "SkSLCompiler.h"
 #endif
 
+#if defined(SK_ENABLE_SKJSON)
+#include "SkJSON.h"
+#endif
+
 #if defined(SK_ENABLE_SKOTTIE)
 #include "Skottie.h"
 #endif
@@ -60,6 +64,7 @@ DEFINE_string2(type, t, "", "How to interpret --bytes, one of:\n"
                             "pipe\n"
                             "region_deserialize\n"
                             "region_set_path\n"
+                            "skjson\n"
                             "skp\n"
                             "sksl2glsl\n"
                             "skottie_json\n"
@@ -86,6 +91,10 @@ static void print_api_names();
 
 #if SK_SUPPORT_GPU
 static void fuzz_sksl2glsl(sk_sp<SkData>);
+#endif
+
+#if defined(SK_ENABLE_SKJSON)
+static void fuzz_skjson(sk_sp<SkData>);
 #endif
 
 #if defined(SK_ENABLE_SKOTTIE)
@@ -182,6 +191,12 @@ static int fuzz_file(SkString path, SkString type) {
         fuzz_skpipe(bytes);
         return 0;
     }
+#if defined(SK_ENABLE_SKJSON)
+    if (type.equals("skjson")) {
+        fuzz_skjson(bytes);
+        return 0;
+    }
+#endif
 #if defined(SK_ENABLE_SKOTTIE)
     if (type.equals("skottie_json")) {
         fuzz_skottie_json(bytes);
@@ -266,6 +281,15 @@ static SkString try_auto_detect(SkString path, SkString* name) {
 
     return SkString("");
 }
+
+#if defined(SK_ENABLE_SKJSON)
+void FuzzSkJSON(sk_sp<SkData> bytes);
+
+static void fuzz_skjson(sk_sp<SkData> bytes){
+    FuzzSkJSON(bytes);
+    SkDebugf("[terminated] Done parsing!\n");
+}
+#endif
 
 #if defined(SK_ENABLE_SKOTTIE)
 void FuzzSkottieJSON(sk_sp<SkData> bytes);
