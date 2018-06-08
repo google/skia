@@ -76,7 +76,6 @@ bench_sources = [
   "$_bench/MorphologyBench.cpp",
   "$_bench/MultitextureImageBench.cpp",
   "$_bench/MutexBench.cpp",
-  "$_bench/pack_int_uint16_t_Bench.cpp",
   "$_bench/PatchBench.cpp",
   "$_bench/PathBench.cpp",
   "$_bench/PathIterBench.cpp",
