@@ -100,6 +100,11 @@ static constexpr bool GrPrimTypeRequiresGeometryShaderSupport(GrPrimitiveType ty
     return GrPrimitiveType::kLinesAdjacency == type;
 }
 
+enum class GrPrimitiveRestart : bool {
+    kNo = false,
+    kYes = true
+};
+
 /**
  *  Formats for masks, used by the font cache. Important that these are 0-based.
  */

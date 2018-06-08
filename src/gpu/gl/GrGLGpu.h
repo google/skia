@@ -95,24 +95,22 @@ public:
 
     // GrMesh::SendToGpuImpl methods. These issue the actual GL draw calls.
     // Marked final as a hint to the compiler to not use virtual dispatch.
-    void sendMeshToGpu(const GrPrimitiveProcessor&, GrPrimitiveType,
-                       const GrBuffer* vertexBuffer, int vertexCount, int baseVertex) final;
+    void sendMeshToGpu(GrPrimitiveType, const GrBuffer* vertexBuffer, int vertexCount,
+                       int baseVertex) final;
 
-    void sendIndexedMeshToGpu(const GrPrimitiveProcessor&, GrPrimitiveType,
-                              const GrBuffer* indexBuffer, int indexCount, int baseIndex,
-                              uint16_t minIndexValue, uint16_t maxIndexValue,
-                              const GrBuffer* vertexBuffer, int baseVertex) final;
+    void sendIndexedMeshToGpu(GrPrimitiveType, const GrBuffer* indexBuffer, int indexCount,
+                              int baseIndex, uint16_t minIndexValue, uint16_t maxIndexValue,
+                              const GrBuffer* vertexBuffer, int baseVertex,
+                              GrPrimitiveRestart) final;
 
-    void sendInstancedMeshToGpu(const GrPrimitiveProcessor&, GrPrimitiveType,
-                                const GrBuffer* vertexBuffer, int vertexCount, int baseVertex,
-                                const GrBuffer* instanceBuffer, int instanceCount,
+    void sendInstancedMeshToGpu(GrPrimitiveType, const GrBuffer* vertexBuffer, int vertexCount,
+                                int baseVertex, const GrBuffer* instanceBuffer, int instanceCount,
                                 int baseInstance) final;
 
-    void sendIndexedInstancedMeshToGpu(const GrPrimitiveProcessor&, GrPrimitiveType,
-                                       const GrBuffer* indexBuffer, int indexCount, int baseIndex,
-                                       const GrBuffer* vertexBuffer, int baseVertex,
+    void sendIndexedInstancedMeshToGpu(GrPrimitiveType, const GrBuffer* indexBuffer, int indexCount,
+                                       int baseIndex, const GrBuffer* vertexBuffer, int baseVertex,
                                        const GrBuffer* instanceBuffer, int instanceCount,
-                                       int baseInstance) final;
+                                       int baseInstance, GrPrimitiveRestart) final;
 
     // The GrGLGpuRTCommandBuffer does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clear call for the corresponding passthrough function
@@ -260,13 +258,18 @@ private:
     // willDrawPoints must be true if point primitives will be rendered after setting the GL state.
     bool flushGLState(const GrPipeline&, const GrPrimitiveProcessor&, bool willDrawPoints);
 
+    void flushProgram(sk_sp<GrGLProgram>);
+
+    // Version for programs that aren't GrGLProgram.
+    void flushProgram(GrGLuint);
+
     // Sets up vertex/instance attribute pointers and strides.
-    void setupGeometry(const GrPrimitiveProcessor&,
-                       const GrBuffer* indexBuffer,
+    void setupGeometry(const GrBuffer* indexBuffer,
                        const GrBuffer* vertexBuffer,
                        int baseVertex,
                        const GrBuffer* instanceBuffer,
-                       int baseInstance);
+                       int baseInstance,
+                       GrPrimitiveRestart);
 
     void flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle&);
 
@@ -408,7 +411,9 @@ private:
     ///@name Caching of GL State
     ///@{
     int                         fHWActiveTextureUnitIdx;
+
     GrGLuint                    fHWProgramID;
+    sk_sp<GrGLProgram>          fHWProgram;
 
     enum TriState {
         kNo_TriState,
