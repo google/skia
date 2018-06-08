@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e29b3e3_0d397c66",
+        "filename": "infra/bots/recipe_modules/build/default.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-06-08T16:57:23Z",
+      "side": 1,
+      "message": "\u0027Static\u0027 seemed like a sensible name, but I\u0027m open to suggestions.",
+      "range": {
+        "startLine": 74,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 0
+      },
+      "revId": "21f0ec10ba55eaa02d518f42f3e27557c37e3e0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
