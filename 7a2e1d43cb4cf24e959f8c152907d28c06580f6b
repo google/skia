@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a85e339f_d49519af",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-08T18:27:43Z",
+      "side": 1,
+      "message": "SkTo\u003cUINT32\u003e(...)",
+      "range": {
+        "startLine": 222,
+        "startChar": 39,
+        "endLine": 222,
+        "endChar": 64
+      },
+      "revId": "7a2e1d43cb4cf24e959f8c152907d28c06580f6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
