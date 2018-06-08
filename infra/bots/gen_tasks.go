@@ -23,7 +23,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/skia-dev/glog"
+	"github.com/golang/glog"
 	"go.skia.org/infra/go/sklog"
 	"go.skia.org/infra/go/util"
 	"go.skia.org/infra/task_scheduler/go/specs"
