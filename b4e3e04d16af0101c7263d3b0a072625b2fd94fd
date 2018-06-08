@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ea8b6836_a58a2e12",
+        "filename": "BUILD.gn",
+        "patchSetId": 17
+      },
+      "lineNbr": 1411,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T17:04:06Z",
+      "side": 1,
+      "message": "Might be a signal this a dependency of nanobench?",
+      "range": {
+        "startLine": 1409,
+        "startChar": 0,
+        "endLine": 1411,
+        "endChar": 5
+      },
+      "revId": "b4e3e04d16af0101c7263d3b0a072625b2fd94fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
