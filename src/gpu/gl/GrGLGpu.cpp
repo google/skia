@@ -2833,6 +2833,8 @@ void GrGLGpu::generateMipmaps(const GrSamplerState& params, GrGLTexture* texture
         return;
     }
 
+    SkASSERT(texture->texturePriv().mipMapped() == GrMipMapped::kYes);
+
     // If the mips aren't dirty, we're done:
     if (!texture->texturePriv().mipMapsAreDirty()) {
         return;
