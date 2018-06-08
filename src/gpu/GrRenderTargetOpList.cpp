@@ -10,6 +10,7 @@
 #include "GrCaps.h"
 #include "GrGpu.h"
 #include "GrGpuCommandBuffer.h"
+#include "GrMemoryPool.h"
 #include "GrRect.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceAllocator.h"
@@ -201,7 +202,7 @@ void GrRenderTargetOpList::discard() {
     }
 }
 
-void GrRenderTargetOpList::fullClear(const GrCaps& caps, GrColor color) {
+void GrRenderTargetOpList::fullClear(GrContext* context, GrColor color) {
 
     // This is conservative. If the opList is marked as needing a stencil buffer then there
     // may be a prior op that writes to the stencil buffer. Although the clear will ignore the
@@ -216,30 +217,31 @@ void GrRenderTargetOpList::fullClear(const GrCaps& caps, GrColor color) {
         return;
     }
 
-    std::unique_ptr<GrClearOp> op(GrClearOp::Make(GrFixedClip::Disabled(), color, fTarget.get()));
+    std::unique_ptr<GrClearOp> op(GrClearOp::Make(context, GrFixedClip::Disabled(),
+                                                  color, fTarget.get()));
     if (!op) {
         return;
     }
 
-    this->recordOp(std::move(op), caps);
+    this->recordOp(std::move(op), *context->contextPriv().caps());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 // This closely parallels GrTextureOpList::copySurface but renderTargetOpLists
 // also store the applied clip and dest proxy with the op
-bool GrRenderTargetOpList::copySurface(const GrCaps& caps,
+bool GrRenderTargetOpList::copySurface(GrContext* context,
                                        GrSurfaceProxy* dst,
                                        GrSurfaceProxy* src,
                                        const SkIRect& srcRect,
                                        const SkIPoint& dstPoint) {
     SkASSERT(dst->asRenderTargetProxy() == fTarget.get());
-    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(dst, src, srcRect, dstPoint);
+    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(context, dst, src, srcRect, dstPoint);
     if (!op) {
         return false;
     }
 
-    this->addOp(std::move(op), caps);
+    this->addOp(std::move(op), *context->contextPriv().caps());
     return true;
 }
 

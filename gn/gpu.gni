@@ -253,6 +253,7 @@ skia_gpu_sources = [
   "$_src/gpu/ops/GrAtlasTextOp.h",
   "$_src/gpu/ops/GrClearOp.cpp",
   "$_src/gpu/ops/GrClearOp.h",
+  "$_src/gpu/ops/GrClearStencilClipOp.cpp",
   "$_src/gpu/ops/GrClearStencilClipOp.h",
   "$_src/gpu/ops/GrCopySurfaceOp.cpp",
   "$_src/gpu/ops/GrCopySurfaceOp.h",
