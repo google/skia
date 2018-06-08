@@ -45,16 +45,11 @@ public:
              size_t offsetInBytes,
              int divisor = 0);
 
-    enum class EnablePrimitiveRestart : bool {
-        kYes = true,
-        kNo = false
-    };
-
     /**
      * This function enables the first 'enabledCount' vertex arrays and disables the rest.
      */
     void enableVertexArrays(const GrGLGpu*, int enabledCount,
-                            EnablePrimitiveRestart = EnablePrimitiveRestart::kNo);
+                            GrPrimitiveRestart = GrPrimitiveRestart::kNo);
 
     void invalidate() {
         int count = fAttribArrayStates.count();
@@ -90,7 +85,7 @@ private:
 
     SkSTArray<16, AttribArrayState, true> fAttribArrayStates;
     int fNumEnabledArrays;
-    EnablePrimitiveRestart fPrimitiveRestartEnabled;
+    GrPrimitiveRestart fPrimitiveRestartEnabled;
     bool fEnableStateIsValid = false;
 };
 

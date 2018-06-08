@@ -66,11 +66,13 @@ GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu,
                                        const GrPipeline& pipeline,
                                        const GrPrimitiveProcessor& primProc,
                                        GrProgramDesc* desc)
-    : INHERITED(pipeline, primProc, desc)
-    , fGpu(gpu)
-    , fVaryingHandler(this)
-    , fUniformHandler(this) {
-}
+        : INHERITED(pipeline, primProc, desc)
+        , fGpu(gpu)
+        , fVaryingHandler(this)
+        , fUniformHandler(this)
+        , fAttributeCnt(0)
+        , fVertexStride(0)
+        , fInstanceStride(0) {}
 
 const GrCaps* GrGLProgramBuilder::caps() const {
     return fGpu->caps();
@@ -225,9 +227,17 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         // NVPR actually requires a vertex shader to compile
         bool useNvpr = primProc.isPathRendering();
         if (!useNvpr) {
-            int vaCount = primProc.numAttribs();
-            for (int i = 0; i < vaCount; i++) {
-                GL_CALL(BindAttribLocation(programID, i, primProc.getAttrib(i).name()));
+            fAttributeCnt = primProc.numAttribs();
+            fAttributes.reset(new GrGLProgram::Attribute[fAttributeCnt]);
+            fVertexStride = primProc.getVertexStride();
+            fInstanceStride = primProc.getInstanceStride();
+            for (int i = 0; i < fAttributeCnt; i++) {
+                const auto& attr = primProc.getAttrib(i);
+                fAttributes[i].fInputRate = attr.inputRate();
+                fAttributes[i].fType = attr.type();
+                fAttributes[i].fOffset = attr.offsetInRecord();
+                fAttributes[i].fLocation = i;
+                GL_CALL(BindAttribLocation(programID, i, attr.name()));
             }
         }
 
@@ -379,7 +389,7 @@ void GrGLProgramBuilder::cleanupProgram(GrGLuint programID, const SkTDArray<GrGL
 }
 void GrGLProgramBuilder::cleanupShaders(const SkTDArray<GrGLuint>& shaderIDs) {
     for (int i = 0; i < shaderIDs.count(); ++i) {
-      GL_CALL(DeleteShader(shaderIDs[i]));
+        GL_CALL(DeleteShader(shaderIDs[i]));
     }
 }
 
@@ -394,5 +404,9 @@ GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
                            std::move(fGeometryProcessor),
                            std::move(fXferProcessor),
                            std::move(fFragmentProcessors),
-                           fFragmentProcessorCnt);
+                           fFragmentProcessorCnt,
+                           std::move(fAttributes),
+                           fAttributeCnt,
+                           fVertexStride,
+                           fInstanceStride);
 }

@@ -30,6 +30,7 @@ public:
     virtual ~GrGLSLUniformHandler() {}
 
     using UniformHandle = GrGLSLProgramDataManager::UniformHandle;
+
     GR_DEFINE_RESOURCE_HANDLE_CLASS(SamplerHandle);
     GR_DEFINE_RESOURCE_HANDLE_CLASS(TexelBufferHandle);
 

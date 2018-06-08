@@ -10,6 +10,7 @@
 #define GrGLProgram_DEFINED
 
 #include "GrGLProgramDataManager.h"
+#include "GrPrimitiveProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
 
@@ -22,16 +23,23 @@ class GrRenderTargetProxy;
 class GrResourceIOProcessor;
 
 /**
- * This class manages a GPU program and records per-program information.
- * We can specify the attribute locations so that they are constant
- * across our shaders. But the driver determines the uniform locations
- * at link time. We don't need to remember the sampler uniform location
- * because we will bind a texture slot to it and never change it
- * Uniforms are program-local so we can't rely on fHWState to hold the
- * previous uniform state after a program change.
+ * This class manages a GPU program and records per-program information. It also records the vertex
+ * and instance attribute layouts that are to be used with the program.
  */
 class GrGLProgram : public SkRefCnt {
 public:
+    /**
+     * This class has its own Attribute representation as it does not need the name and we don't
+     * want to worry about copying the name string to memory with life time of GrGLProgram.
+     * Additionally, these store the attribute location.
+     */
+    struct Attribute {
+        GrVertexAttribType fType;
+        int fOffset;
+        GrGLint fLocation;
+        GrPrimitiveProcessor::Attribute::InputRate fInputRate;
+    };
+
     using UniformHandle = GrGLSLProgramDataManager::UniformHandle;
     using UniformInfoArray = GrGLProgramDataManager::UniformInfoArray;
     using VaryingInfoArray = GrGLProgramDataManager::VaryingInfoArray;
@@ -46,7 +54,11 @@ public:
                 std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
                 std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
                 std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors,
-                int fragmentProcessorCnt);
+                int fragmentProcessorCnt,
+                std::unique_ptr<Attribute[]>,
+                int attributeCnt,
+                int vertexStride,
+                int instanceStride);
 
     ~GrGLProgram();
 
@@ -109,6 +121,11 @@ public:
      * ensures that any textures requiring mipmaps have their mipmaps correctly built.
      */
     void generateMipmaps(const GrPrimitiveProcessor&, const GrPipeline&);
+    int vertexStride() const { return fVertexStride; }
+    int instanceStride() const { return fInstanceStride; }
+
+    int numAttributes() const { return fAttributeCnt; }
+    const Attribute& attribute(int i) const { return fAttributes[i]; }
 
 private:
     // A helper to loop over effects, set the transforms (via subclass) and bind textures
@@ -130,10 +147,15 @@ private:
     GrGLuint fProgramID;
 
     // the installed effects
-    std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
+    std::unique_ptr<GrGLSLPrimitiveProcessor> fPrimitiveProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
     std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fFragmentProcessors;
     int fFragmentProcessorCnt;
+
+    std::unique_ptr<Attribute[]> fAttributes;
+    int fAttributeCnt;
+    int fVertexStride;
+    int fInstanceStride;
 
     GrGLGpu* fGpu;
     GrGLProgramDataManager fProgramDataManager;

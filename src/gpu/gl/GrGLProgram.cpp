@@ -36,13 +36,21 @@ GrGLProgram::GrGLProgram(
         std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
         std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors,
-        int fragmentProcessorCnt)
+        int fragmentProcessorCnt,
+        std::unique_ptr<Attribute[]> attributes,
+        int attributeCnt,
+        int vertexStride,
+        int instanceStride)
         : fBuiltinUniformHandles(builtinUniforms)
         , fProgramID(programID)
-        , fGeometryProcessor(std::move(geometryProcessor))
+        , fPrimitiveProcessor(std::move(geometryProcessor))
         , fXferProcessor(std::move(xferProcessor))
         , fFragmentProcessors(std::move(fragmentProcessors))
         , fFragmentProcessorCnt(fragmentProcessorCnt)
+        , fAttributes(std::move(attributes))
+        , fAttributeCnt(attributeCnt)
+        , fVertexStride(vertexStride)
+        , fInstanceStride(instanceStride)
         , fGpu(gpu)
         , fProgramDataManager(gpu, programID, uniforms, pathProcVaryings)
         , fNumTextureSamplers(textureSamplers.count())
@@ -76,8 +84,8 @@ void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrPipeline
     // Within each group we will bind them in primProc, fragProcs, XP order.
     int nextTexSamplerIdx = 0;
     int nextTexelBufferIdx = fNumTextureSamplers;
-    fGeometryProcessor->setData(fProgramDataManager, primProc,
-                                GrFragmentProcessor::CoordTransformIter(pipeline));
+    fPrimitiveProcessor->setData(fProgramDataManager, primProc,
+                                 GrFragmentProcessor::CoordTransformIter(pipeline));
     this->bindTextures(primProc, &nextTexSamplerIdx, &nextTexelBufferIdx);
 
     this->setFragmentData(primProc, pipeline, &nextTexSamplerIdx, &nextTexelBufferIdx);

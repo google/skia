@@ -251,6 +251,7 @@ GrGLGpu::~GrGLGpu() {
     fMipmapProgramArrayBuffer.reset();
     fStencilClipClearArrayBuffer.reset();
 
+    fHWProgram.reset();
     if (fHWProgramID) {
         // detach the current program so there is no confusion on OpenGL's part
         // that we want it to be deleted
@@ -328,6 +329,7 @@ void GrGLGpu::disconnect(DisconnectType type) {
         }
     }
 
+    fHWProgram.reset();
     delete fProgramCache;
     fProgramCache = nullptr;
 
@@ -496,6 +498,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
 
     if (resetBits & kProgram_GrGLBackendState) {
         fHWProgramID = 0;
+        fHWProgram.reset();
     }
 }
 
@@ -1695,11 +1698,7 @@ bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcesso
     this->flushColorWrite(blendInfo.fWriteColor);
     this->flushMinSampleShading(primProc.getSampleShading());
 
-    GrGLuint programID = program->programID();
-    if (fHWProgramID != programID) {
-        GL_CALL(UseProgram(programID));
-        fHWProgramID = programID;
-    }
+    this->flushProgram(std::move(program));
 
     if (blendInfo.fWriteColor) {
         // Swizzle the blend to match what the shader will output.
@@ -1708,7 +1707,7 @@ bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcesso
         this->flushBlend(blendInfo, swizzle);
     }
 
-    program->setData(primProc, pipeline);
+    fHWProgram->setData(primProc, pipeline);
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.renderTarget());
     GrStencilSettings stencil;
@@ -1730,13 +1729,41 @@ bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcesso
     return true;
 }
 
-void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
-                            const GrBuffer* indexBuffer,
+void GrGLGpu::flushProgram(sk_sp<GrGLProgram> program) {
+    if (!program) {
+        fHWProgram.reset();
+        fHWProgramID = 0;
+        return;
+    }
+    SkASSERT((program == fHWProgram) == (fHWProgramID == program->programID()));
+    if (program == fHWProgram) {
+        return;
+    }
+    auto id = program->programID();
+    SkASSERT(id);
+    GL_CALL(UseProgram(id));
+    fHWProgram = std::move(program);
+    fHWProgramID = id;
+}
+
+void GrGLGpu::flushProgram(GrGLuint id) {
+    SkASSERT(id);
+    if (fHWProgramID == id) {
+        SkASSERT(!fHWProgram);
+        return;
+    }
+    fHWProgram.reset();
+    GL_CALL(UseProgram(id));
+    fHWProgramID = id;
+}
+
+void GrGLGpu::setupGeometry(const GrBuffer* indexBuffer,
                             const GrBuffer* vertexBuffer,
                             int baseVertex,
                             const GrBuffer* instanceBuffer,
-                            int baseInstance) {
-    using EnablePrimitiveRestart = GrGLAttribArrayState::EnablePrimitiveRestart;
+                            int baseInstance,
+                            GrPrimitiveRestart enablePrimitiveRestart) {
+    SkASSERT((enablePrimitiveRestart == GrPrimitiveRestart::kNo) || indexBuffer);
 
     GrGLAttribArrayState* attribState;
     if (indexBuffer) {
@@ -1752,30 +1779,29 @@ void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
         size_t            fBufferOffset;
     } bindings[2];
 
-    if (int vertexStride = primProc.getVertexStride()) {
+    if (int vertexStride = fHWProgram->vertexStride()) {
         SkASSERT(vertexBuffer && !vertexBuffer->isMapped());
         bindings[0].fBuffer = vertexBuffer;
         bindings[0].fStride = vertexStride;
         bindings[0].fBufferOffset = vertexBuffer->baseOffset() + baseVertex * vertexStride;
     }
-    if (int instanceStride = primProc.getInstanceStride()) {
+    if (int instanceStride = fHWProgram->instanceStride()) {
         SkASSERT(instanceBuffer && !instanceBuffer->isMapped());
         bindings[1].fBuffer = instanceBuffer;
         bindings[1].fStride = instanceStride;
         bindings[1].fBufferOffset = instanceBuffer->baseOffset() + baseInstance * instanceStride;
     }
 
-    int numAttribs = primProc.numAttribs();
-    auto enableRestart = EnablePrimitiveRestart(primProc.willUsePrimitiveRestart() && indexBuffer);
-    attribState->enableVertexArrays(this, numAttribs, enableRestart);
+    auto numAttributes = fHWProgram->numAttributes();
+    attribState->enableVertexArrays(this, numAttributes, enablePrimitiveRestart);
 
-    for (int i = 0; i < numAttribs; ++i) {
+    for (int i = 0; i < numAttributes; ++i) {
         using InputRate = GrPrimitiveProcessor::Attribute::InputRate;
-        const GrGeometryProcessor::Attribute& attrib = primProc.getAttrib(i);
-        const int divisor = InputRate::kPerInstance == attrib.inputRate() ? 1 : 0;
+        const GrGLProgram::Attribute& attribute = fHWProgram->attribute(i);
+        const int divisor = InputRate::kPerInstance == attribute.fInputRate ? 1 : 0;
         const auto& binding = bindings[divisor];
-        attribState->set(this, i, binding.fBuffer, attrib.type(), binding.fStride,
-                         binding.fBufferOffset + attrib.offsetInRecord(), divisor);
+        attribState->set(this, attribute.fLocation, binding.fBuffer, attribute.fType,
+                         binding.fStride, binding.fBufferOffset + attribute.fOffset, divisor);
     }
 }
 
@@ -2242,7 +2268,7 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
             GL_CALL(Enable(GR_GL_CULL_FACE));
             GL_CALL(Disable(GR_GL_CULL_FACE));
         }
-        meshes[i].sendToGpu(primProc, this);
+        meshes[i].sendToGpu(this);
         fLastPrimitiveType = meshes[i].primitiveType();
     }
 
@@ -2279,14 +2305,14 @@ static GrGLenum gr_primitive_type_to_gl_mode(GrPrimitiveType primitiveType) {
     return GR_GL_TRIANGLES;
 }
 
-void GrGLGpu::sendMeshToGpu(const GrPrimitiveProcessor& primProc, GrPrimitiveType primitiveType,
-                            const GrBuffer* vertexBuffer, int vertexCount, int baseVertex) {
+void GrGLGpu::sendMeshToGpu(GrPrimitiveType primitiveType, const GrBuffer* vertexBuffer,
+                            int vertexCount, int baseVertex) {
     const GrGLenum glPrimType = gr_primitive_type_to_gl_mode(primitiveType);
     if (this->glCaps().drawArraysBaseVertexIsBroken()) {
-        this->setupGeometry(primProc, nullptr, vertexBuffer, baseVertex, nullptr, 0);
+        this->setupGeometry(nullptr, vertexBuffer, baseVertex, nullptr, 0, GrPrimitiveRestart::kNo);
         GL_CALL(DrawArrays(glPrimType, 0, vertexCount));
     } else {
-        this->setupGeometry(primProc, nullptr, vertexBuffer, 0, nullptr, 0);
+        this->setupGeometry(nullptr, vertexBuffer, 0, nullptr, 0, GrPrimitiveRestart::kNo);
         GL_CALL(DrawArrays(glPrimType, baseVertex, vertexCount));
     }
     if (this->glCaps().requiresFlushBetweenNonAndInstancedDraws()) {
@@ -2295,16 +2321,15 @@ void GrGLGpu::sendMeshToGpu(const GrPrimitiveProcessor& primProc, GrPrimitiveTyp
     fStats.incNumDraws();
 }
 
-void GrGLGpu::sendIndexedMeshToGpu(const GrPrimitiveProcessor& primProc,
-                                   GrPrimitiveType primitiveType, const GrBuffer* indexBuffer,
+void GrGLGpu::sendIndexedMeshToGpu(GrPrimitiveType primitiveType, const GrBuffer* indexBuffer,
                                    int indexCount, int baseIndex, uint16_t minIndexValue,
                                    uint16_t maxIndexValue, const GrBuffer* vertexBuffer,
-                                   int baseVertex) {
+                                   int baseVertex, GrPrimitiveRestart enablePrimitiveRestart) {
     const GrGLenum glPrimType = gr_primitive_type_to_gl_mode(primitiveType);
     GrGLvoid* const indices = reinterpret_cast<void*>(indexBuffer->baseOffset() +
                                                       sizeof(uint16_t) * baseIndex);
 
-    this->setupGeometry(primProc, indexBuffer, vertexBuffer, baseVertex, nullptr, 0);
+    this->setupGeometry(indexBuffer, vertexBuffer, baseVertex, nullptr, 0, enablePrimitiveRestart);
 
     if (this->glCaps().drawRangeElementsSupport()) {
         GL_CALL(DrawRangeElements(glPrimType, minIndexValue, maxIndexValue, indexCount,
@@ -2318,8 +2343,7 @@ void GrGLGpu::sendIndexedMeshToGpu(const GrPrimitiveProcessor& primProc,
     fStats.incNumDraws();
 }
 
-void GrGLGpu::sendInstancedMeshToGpu(const GrPrimitiveProcessor& primProc, GrPrimitiveType
-                                     primitiveType, const GrBuffer* vertexBuffer,
+void GrGLGpu::sendInstancedMeshToGpu(GrPrimitiveType primitiveType, const GrBuffer* vertexBuffer,
                                      int vertexCount, int baseVertex,
                                      const GrBuffer* instanceBuffer, int instanceCount,
                                      int baseInstance) {
@@ -2331,19 +2355,20 @@ void GrGLGpu::sendInstancedMeshToGpu(const GrPrimitiveProcessor& primProc, GrPri
     GrGLenum glPrimType = gr_primitive_type_to_gl_mode(primitiveType);
     int maxInstances = this->glCaps().maxInstancesPerDrawArraysWithoutCrashing(instanceCount);
     for (int i = 0; i < instanceCount; i += maxInstances) {
-        this->setupGeometry(primProc, nullptr, vertexBuffer, 0, instanceBuffer, baseInstance + i);
+        this->setupGeometry(nullptr, vertexBuffer, 0, instanceBuffer, baseInstance + i,
+                            GrPrimitiveRestart::kNo);
         GL_CALL(DrawArraysInstanced(glPrimType, baseVertex, vertexCount,
                                     SkTMin(instanceCount - i, maxInstances)));
         fStats.incNumDraws();
     }
 }
 
-void GrGLGpu::sendIndexedInstancedMeshToGpu(const GrPrimitiveProcessor& primProc,
-                                            GrPrimitiveType primitiveType,
+void GrGLGpu::sendIndexedInstancedMeshToGpu(GrPrimitiveType primitiveType,
                                             const GrBuffer* indexBuffer, int indexCount,
                                             int baseIndex, const GrBuffer* vertexBuffer,
                                             int baseVertex, const GrBuffer* instanceBuffer,
-                                            int instanceCount, int baseInstance) {
+                                            int instanceCount, int baseInstance,
+                                            GrPrimitiveRestart enablePrimitiveRestart) {
     if (fRequiresFlushBeforeNextInstancedDraw) {
         SkASSERT(this->glCaps().requiresFlushBetweenNonAndInstancedDraws());
         GL_CALL(Flush());
@@ -2352,8 +2377,8 @@ void GrGLGpu::sendIndexedInstancedMeshToGpu(const GrPrimitiveProcessor& primProc
     const GrGLenum glPrimType = gr_primitive_type_to_gl_mode(primitiveType);
     GrGLvoid* indices = reinterpret_cast<void*>(indexBuffer->baseOffset() +
                                                 sizeof(uint16_t) * baseIndex);
-    this->setupGeometry(primProc, indexBuffer, vertexBuffer, baseVertex,
-                        instanceBuffer, baseInstance);
+    this->setupGeometry(indexBuffer, vertexBuffer, baseVertex, instanceBuffer, baseInstance,
+                        enablePrimitiveRestart);
     GL_CALL(DrawElementsInstanced(glPrimType, indexCount, GR_GL_UNSIGNED_SHORT, indices,
                                   instanceCount));
     fStats.incNumDraws();
@@ -3458,8 +3483,7 @@ void GrGLGpu::clearStencilClipAsDraw(const GrFixedClip& clip, bool insideStencil
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(rt->asRenderTarget());
     this->flushRenderTarget(glRT);
 
-    GL_CALL(UseProgram(fStencilClipClearProgram));
-    fHWProgramID = fStencilClipClearProgram;
+    this->flushProgram(fStencilClipClearProgram);
 
     fHWVertexArrayState.setVertexArrayID(this, 0);
 
@@ -3571,8 +3595,7 @@ void GrGLGpu::clearColorAsDraw(const GrFixedClip& clip, GrGLfloat r, GrGLfloat g
     this->flushViewport(dstVP);
     fHWBoundRenderTargetUniqueID.makeInvalid();
 
-    GL_CALL(UseProgram(fClearColorProgram.fProgram));
-    fHWProgramID = fClearColorProgram.fProgram;
+    this->flushProgram(fClearColorProgram.fProgram);
 
     fHWVertexArrayState.setVertexArrayID(this, 0);
 
@@ -3632,8 +3655,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrigin,
 
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY, w, h);
 
-    GL_CALL(UseProgram(fCopyPrograms[progIdx].fProgram));
-    fHWProgramID = fCopyPrograms[progIdx].fProgram;
+    this->flushProgram(fCopyPrograms[progIdx].fProgram);
 
     fHWVertexArrayState.setVertexArrayID(this, 0);
 
@@ -3885,8 +3907,7 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, GrSurfaceOrigin textureOrigin
                 return false;
             }
         }
-        GL_CALL(UseProgram(fMipmapPrograms[progIdx].fProgram));
-        fHWProgramID = fMipmapPrograms[progIdx].fProgram;
+        this->flushProgram(fMipmapPrograms[progIdx].fProgram);
 
         // Texcoord uniform is expected to contain (1/w, (w-1)/w, 1/h, (h-1)/h)
         const float invWidth = 1.0f / width;

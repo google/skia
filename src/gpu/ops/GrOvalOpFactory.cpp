@@ -1413,7 +1413,8 @@ private:
         }
 
         GrMesh mesh(GrPrimitiveType::kTriangles);
-        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1);
+        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
+                        GrPrimitiveRestart::kNo);
         mesh.setVertexData(vertexBuffer, firstVertex);
         target->draw(gp.get(),  fHelper.makePipeline(target), mesh);
     }
@@ -1722,7 +1723,8 @@ private:
         }
 
         GrMesh mesh(GrPrimitiveType::kTriangles);
-        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1);
+        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
+                        GrPrimitiveRestart::kNo);
         mesh.setVertexData(vertexBuffer, firstVertex);
         target->draw(gp.get(), fHelper.makePipeline(target), mesh);
     }
@@ -2646,7 +2648,8 @@ private:
         }
 
         GrMesh mesh(GrPrimitiveType::kTriangles);
-        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1);
+        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
+                        GrPrimitiveRestart::kNo);
         mesh.setVertexData(vertexBuffer, firstVertex);
         target->draw(gp.get(), fHelper.makePipeline(target), mesh);
     }

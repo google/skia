@@ -9,6 +9,7 @@
 #define GrGLProgramBuilder_DEFINED
 
 #include "GrPipeline.h"
+#include "gl/GrGLProgram.h"
 #include "gl/GrGLProgramDataManager.h"
 #include "gl/GrGLUniformHandler.h"
 #include "gl/GrGLVaryingHandler.h"
@@ -78,6 +79,11 @@ private:
     GrGLGpu*              fGpu;
     GrGLVaryingHandler    fVaryingHandler;
     GrGLUniformHandler    fUniformHandler;
+
+    std::unique_ptr<GrGLProgram::Attribute[]> fAttributes;
+    int fAttributeCnt;
+    int fVertexStride;
+    int fInstanceStride;
 
     // shader pulled from cache. Data is organized as:
     // SkSL::Program::Inputs inputs

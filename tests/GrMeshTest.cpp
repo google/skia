@@ -172,7 +172,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
 
             GrMesh mesh(GrPrimitiveType::kTriangles);
             mesh.setIndexed(ibuff.get(), repetitionCount * 6, baseRepetition * 6,
-                            baseRepetition * 4, (baseRepetition + repetitionCount) * 4 - 1);
+                            baseRepetition * 4, (baseRepetition + repetitionCount) * 4 - 1,
+                            GrPrimitiveRestart::kNo);
             mesh.setVertexData(vbuff.get(), (i - baseRepetition) * 4);
             helper->drawMesh(mesh);
 
@@ -220,8 +221,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                                     : GrPrimitiveType::kTriangleStrip);
                 if (indexed) {
                     VALIDATE(idxbuff);
-                    mesh.setIndexedInstanced(idxbuff.get(), 6,
-                                             instbuff.get(), kBoxCountX, y * kBoxCountX);
+                    mesh.setIndexedInstanced(idxbuff.get(), 6, instbuff.get(), kBoxCountX,
+                                             y * kBoxCountX, GrPrimitiveRestart::kNo);
                 } else {
                     mesh.setInstanced(instbuff.get(), kBoxCountX, y * kBoxCountX, 4);
                 }
