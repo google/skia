@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4fa885c8_052133dd",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-08T17:55:14Z",
+      "side": 1,
+      "message": "Calling back to the canvas seems a little awkward. Maybe consider pulling the machinery for processGlyph* out into its own class, and have this use it.",
+      "range": {
+        "startLine": 241,
+        "startChar": 21,
+        "endLine": 241,
+        "endChar": 43
+      },
+      "revId": "03267615a9d43b004fd17ce5df07049ffc44d4a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
