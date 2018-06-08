@@ -45,6 +45,47 @@
       "revId": "6163bbbe5c31fff19b8b844bf22e0013f26b6b6d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5e244a6_b3f5f704",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-08T22:22:56Z",
+      "side": 1,
+      "message": "Ignore this comment. I think it is needed.",
+      "parentUuid": "79e10a69_b661fd32",
+      "range": {
+        "startLine": 159,
+        "startChar": 10,
+        "endLine": 163,
+        "endChar": 12
+      },
+      "revId": "6163bbbe5c31fff19b8b844bf22e0013f26b6b6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f711d66a_c22a7348",
+        "filename": "tests/SkRemoteGlyphCacheTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-08T22:22:56Z",
+      "side": 1,
+      "message": "The problem with this test is that none of the new glyphs actually flow into the cache. Therefore, it does not really exercise the memory accounting for fImage data.",
+      "revId": "6163bbbe5c31fff19b8b844bf22e0013f26b6b6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
