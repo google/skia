@@ -130,13 +130,17 @@ private:
 
 /** Wraps SkAutoTArray, with room for kCountRequested elements preallocated.
  */
-template <int kCountRequested, typename T> class SkAutoSTArray : SkNoncopyable {
+template <int kCountRequested, typename T> class SkAutoSTArray {
 public:
     /** Initialize with no objects */
     SkAutoSTArray() {
         fArray = nullptr;
         fCount = 0;
     }
+    SkAutoSTArray(SkAutoSTArray&&) = delete;
+    SkAutoSTArray(const SkAutoSTArray&) = delete;
+    SkAutoSTArray& operator=(SkAutoSTArray&&) = delete;
+    SkAutoSTArray& operator=(const SkAutoSTArray&) = delete;
 
     /** Allocate count number of T elements
      */
@@ -272,9 +276,13 @@ private:
     std::unique_ptr<T, SkFunctionWrapper<void, void, sk_free>> fPtr;
 };
 
-template <size_t kCountRequested, typename T> class SkAutoSTMalloc : SkNoncopyable {
+template <size_t kCountRequested, typename T> class SkAutoSTMalloc {
 public:
     SkAutoSTMalloc() : fPtr(fTStorage) {}
+    SkAutoSTMalloc(SkAutoSTMalloc&&) = delete;
+    SkAutoSTMalloc(const SkAutoSTMalloc&) = delete;
+    SkAutoSTMalloc& operator=(SkAutoSTMalloc&&) = delete;
+    SkAutoSTMalloc& operator=(const SkAutoSTMalloc&) = delete;
 
     SkAutoSTMalloc(size_t count) {
         if (count > kCount) {
@@ -395,8 +403,14 @@ T* SkInPlaceNewCheck(void* storage, size_t size, Args&&... args) {
  * Reserves memory that is aligned on double and pointer boundaries.
  * Hopefully this is sufficient for all practical purposes.
  */
-template <size_t N> class SkAlignedSStorage : SkNoncopyable {
+template <size_t N> class SkAlignedSStorage {
 public:
+    SkAlignedSStorage() = default;
+    SkAlignedSStorage(SkAlignedSStorage&&) = delete;
+    SkAlignedSStorage(const SkAlignedSStorage&) = delete;
+    SkAlignedSStorage& operator=(SkAlignedSStorage&&) = delete;
+    SkAlignedSStorage& operator=(const SkAlignedSStorage&) = delete;
+
     size_t size() const { return N; }
     void* get() { return fData; }
     const void* get() const { return fData; }
@@ -415,8 +429,13 @@ private:
  * we have to do some arcane trickery to determine alignment of non-POD
  * types. Lifetime of the memory is the lifetime of the object.
  */
-template <int N, typename T> class SkAlignedSTStorage : SkNoncopyable {
+template <int N, typename T> class SkAlignedSTStorage {
 public:
+    SkAlignedSTStorage() = default;
+    SkAlignedSTStorage(SkAlignedSTStorage&&) = delete;
+    SkAlignedSTStorage(const SkAlignedSTStorage&) = delete;
+    SkAlignedSTStorage& operator=(SkAlignedSTStorage&&) = delete;
+    SkAlignedSTStorage& operator=(const SkAlignedSTStorage&) = delete;
     /**
      * Returns void* because this object does not initialize the
      * memory. Use placement new for types that require a cons.

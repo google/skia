@@ -38,12 +38,16 @@ template <typename T> class SkPtrWrapper {
 /**
  * This class implements a templated internal doubly linked list data structure.
  */
-template <class T> class SkTInternalLList : SkNoncopyable {
+template <class T> class SkTInternalLList {
 public:
     SkTInternalLList()
         : fHead(nullptr)
         , fTail(nullptr) {
     }
+    SkTInternalLList(SkTInternalLList&&) = delete;
+    SkTInternalLList(const SkTInternalLList&) = delete;
+    SkTInternalLList& operator=(SkTInternalLList&&) = delete;
+    SkTInternalLList& operator=(const SkTInternalLList&) = delete;
 
     void reset() {
         fHead = nullptr;
@@ -311,8 +315,6 @@ public:
 private:
     T* fHead;
     T* fTail;
-
-    typedef SkNoncopyable INHERITED;
 };
 
 #endif

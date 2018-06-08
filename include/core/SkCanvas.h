@@ -64,7 +64,7 @@ class SkVertices;
     SkCanvas can be constructed to draw to SkBitmap without first creating raster surface.
     This approach may be deprecated in the future.
 */
-class SK_API SkCanvas : SkNoncopyable {
+class SK_API SkCanvas {
     enum PrivateSaveLayerFlags {
         kDontClipToLayer_PrivateSaveLayerFlag   = 1U << 31,
     };
@@ -171,6 +171,11 @@ public:
         @return        SkCanvas that can be used to draw into bitmap
     */
     explicit SkCanvas(const SkBitmap& bitmap);
+
+    SkCanvas(SkCanvas&&) = default;
+    SkCanvas(const SkCanvas&) = delete;
+    SkCanvas& operator=(SkCanvas&&) = default;
+    SkCanvas& operator=(const SkCanvas&) = delete;
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     enum class ColorBehavior {
@@ -2693,13 +2698,16 @@ private:
     bool fAllowSoftClip;
     bool fAllowSimplifyClip;
 
-    class AutoValidateClip : ::SkNoncopyable {
+    class AutoValidateClip {
     public:
         explicit AutoValidateClip(SkCanvas* canvas) : fCanvas(canvas) {
             fCanvas->validateClip();
         }
+        AutoValidateClip(AutoValidateClip&&) = default;
+        AutoValidateClip(const AutoValidateClip&) = delete;
+        AutoValidateClip& operator=(AutoValidateClip&&) = default;
+        AutoValidateClip& operator=(const AutoValidateClip&) = delete;
         ~AutoValidateClip() { fCanvas->validateClip(); }
-
     private:
         const SkCanvas* fCanvas;
     };
@@ -2720,7 +2728,7 @@ private:
     goes out of scope. Use this to guarantee that the canvas is restored to a known
     state.
 */
-class SkAutoCanvasRestore : SkNoncopyable {
+class SkAutoCanvasRestore {
 public:
 
     /** Preserves SkCanvas save count. Optionally saves SkCanvas clip and SkCanvas matrix.
@@ -2746,6 +2754,11 @@ public:
             fCanvas->restoreToCount(fSaveCount);
         }
     }
+
+    SkAutoCanvasRestore(SkAutoCanvasRestore&&) = delete;
+    SkAutoCanvasRestore(const SkAutoCanvasRestore&) = delete;
+    SkAutoCanvasRestore& operator=(SkAutoCanvasRestore&&) = delete;
+    SkAutoCanvasRestore& operator=(const SkAutoCanvasRestore&) = delete;
 
     /** Restores SkCanvas to saved state immediately. Subsequent calls and
         ~SkAutoCanvasRestore have no effect.

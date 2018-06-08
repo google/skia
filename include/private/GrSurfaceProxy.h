@@ -28,7 +28,7 @@ class GrTextureProxy;
 // This class replicates the functionality GrIORef<GrSurface> but tracks the
 // utilitization for later resource allocation (for the deferred case) and
 // forwards on the utilization in the wrapped case
-class GrIORefProxy : public SkNoncopyable {
+class GrIORefProxy {
 public:
     void ref() const {
         this->validate();
@@ -150,6 +150,10 @@ protected:
         // We don't unref 'fTarget' here since the 'unref' method will already
         // have forwarded on the unref call that got us here.
     }
+    GrIORefProxy(GrIORefProxy&&) = default;
+    GrIORefProxy(const GrIORefProxy&) = delete;
+    GrIORefProxy& operator=(GrIORefProxy&&) = default;
+    GrIORefProxy& operator=(const GrIORefProxy&) = delete;
 
     // This GrIORefProxy was deferred before but has just been instantiated. To
     // make all the reffing & unreffing work out we now need to transfer any deferred

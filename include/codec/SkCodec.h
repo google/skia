@@ -38,7 +38,7 @@ class ColorCodecSrc;
 /**
  *  Abstraction layer directly on top of an image codec.
  */
-class SK_API SkCodec : SkNoncopyable {
+class SK_API SkCodec {
 public:
     /**
      *  Minimum number of bytes that must be buffered in SkStream input.
@@ -684,6 +684,11 @@ protected:
             XformFormat srcFormat,
             std::unique_ptr<SkStream>,
             SkEncodedOrigin = kTopLeft_SkEncodedOrigin);
+
+    SkCodec(SkCodec&&) = default;
+    SkCodec(const SkCodec&) = delete;
+    SkCodec& operator=(SkCodec&&) = default;
+    SkCodec& operator=(const SkCodec&) = delete;
 
     virtual SkISize onGetScaledDimensions(float /*desiredScale*/) const {
         // By default, scaling is not supported.

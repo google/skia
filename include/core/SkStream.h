@@ -37,7 +37,7 @@ class SkStreamMemory;
  *  no more data (at EOF or hit an error). The caller should *not* call again
  *  in hopes of fulfilling more of the request.
  */
-class SK_API SkStream : public SkNoncopyable {
+class SK_API SkStream {
 public:
     virtual ~SkStream() {}
 
@@ -148,6 +148,13 @@ public:
     //TODO: replace with virtual const SkData* getData()
     virtual const void* getMemoryBase() { return nullptr; }
 
+protected:
+    SkStream() = default;
+    SkStream(SkStream&&) = default;
+    SkStream(const SkStream&) = delete;
+    SkStream& operator=(SkStream&&) = default;
+    SkStream& operator=(const SkStream&) = delete;
+
 private:
     virtual SkStream* onDuplicate() const { return nullptr; }
     virtual SkStream* onFork() const { return nullptr; }
@@ -217,7 +224,7 @@ private:
     SkStreamMemory* onFork() const override = 0;
 };
 
-class SK_API SkWStream : SkNoncopyable {
+class SK_API SkWStream {
 public:
     virtual ~SkWStream();
 
@@ -268,6 +275,13 @@ public:
      * 'value'.
      */
     static int SizeOfPackedUInt(size_t value);
+
+protected:
+    SkWStream() = default;
+    SkWStream(SkWStream&&) = default;
+    SkWStream(const SkWStream&) = delete;
+    SkWStream& operator=(SkWStream&&) = default;
+    SkWStream& operator=(const SkWStream&) = delete;
 };
 
 class SK_API SkNullWStream : public SkWStream {

@@ -240,9 +240,14 @@ public:
         SkString fString;
         SkString fLanguage;
     };
-    class LocalizedStrings : ::SkNoncopyable {
+    class LocalizedStrings {
     public:
         virtual ~LocalizedStrings() { }
+        LocalizedStrings() = default;
+        LocalizedStrings(LocalizedStrings&&) = default;
+        LocalizedStrings(const LocalizedStrings&) = delete;
+        LocalizedStrings& operator=(LocalizedStrings&&) = default;
+        LocalizedStrings& operator=(const LocalizedStrings&) = delete;
         virtual bool next(LocalizedString* localizedString) = 0;
         void unref() { delete this; }
     };

@@ -115,10 +115,14 @@ private:
     void doUpdate() const;
 };
 
-class SK_API Sk3DView : SkNoncopyable {
+class SK_API Sk3DView {
 public:
     Sk3DView();
     ~Sk3DView();
+    Sk3DView(Sk3DView&&) = delete;
+    Sk3DView(const Sk3DView&) = delete;
+    Sk3DView& operator=(Sk3DView&&) = default;
+    Sk3DView& operator=(const Sk3DView&) = delete;
 
     void save();
     void restore();

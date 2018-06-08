@@ -13,7 +13,7 @@
 
 struct SkConic;
 
-class SK_API SkPathMeasure : SkNoncopyable {
+class SK_API SkPathMeasure {
 public:
     SkPathMeasure();
     /** Initialize the pathmeasure with the specified path. The path must remain valid
@@ -26,6 +26,11 @@ public:
     */
     SkPathMeasure(const SkPath& path, bool forceClosed, SkScalar resScale = 1);
     ~SkPathMeasure();
+
+    SkPathMeasure(SkPathMeasure&&) = default;
+    SkPathMeasure(const SkPathMeasure&) = delete;
+    SkPathMeasure& operator=(SkPathMeasure&&) = default;
+    SkPathMeasure& operator=(const SkPathMeasure&) = delete;
 
     /** Reset the pathmeasure with the specified path. The path must remain valid
         for the lifetime of the measure object, or until setPath() is called with

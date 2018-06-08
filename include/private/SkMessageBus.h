@@ -15,7 +15,7 @@
 #include "SkTypes.h"
 
 template <typename Message>
-class SkMessageBus : SkNoncopyable {
+class SkMessageBus {
 public:
     // Post a message to be received by Inboxes for this Message type.  Threadsafe.
     // If id is SK_InvalidUniqueID then it will be sent to all inboxes.
@@ -41,6 +41,11 @@ public:
 
 private:
     SkMessageBus();
+    SkMessageBus(SkMessageBus&&) = default;
+    SkMessageBus(const SkMessageBus&) = delete;
+    SkMessageBus& operator=(SkMessageBus&&) = default;
+    SkMessageBus& operator=(const SkMessageBus&) = delete;
+
     static SkMessageBus* Get();
 
     SkTDArray<Inbox*> fInboxes;

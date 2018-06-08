@@ -18,7 +18,7 @@ namespace SkOpts {
     extern uint32_t (*hash_fn)(const void*, size_t, uint32_t);
 }
 
-class SkChecksum : SkNoncopyable {
+class SkChecksum {
 public:
     /**
      * uint32_t -> uint32_t hash, useful for when you're about to trucate this hash but you

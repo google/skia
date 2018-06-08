@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,9 +5,10 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkDeque_DEFINED
 #define SkDeque_DEFINED
+
+#include <cstddef>
 
 #include "SkTypes.h"
 
@@ -23,7 +23,7 @@
  * on the block boundaries don't cause thrashing). This can result in the first/
  * last element not residing in the first/last block.
  */
-class SK_API SkDeque : SkNoncopyable {
+class SK_API SkDeque {
 public:
     /**
      * elemSize specifies the size of each individual element in the deque
@@ -32,6 +32,11 @@ public:
     explicit SkDeque(size_t elemSize, int allocCount = 1);
     SkDeque(size_t elemSize, void* storage, size_t storageSize, int allocCount = 1);
     ~SkDeque();
+
+    SkDeque(SkDeque&&) = delete;
+    SkDeque(const SkDeque&) = delete;
+    SkDeque& operator=(SkDeque&&) = delete;
+    SkDeque& operator=(const SkDeque&) = delete;
 
     bool    empty() const { return 0 == fCount; }
     int     count() const { return fCount; }

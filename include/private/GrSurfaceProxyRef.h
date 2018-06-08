@@ -12,7 +12,7 @@
 
 class GrSurfaceProxy;
 
-class GrSurfaceProxyRef : SkNoncopyable {
+class GrSurfaceProxyRef {
 public:
     virtual ~GrSurfaceProxyRef();
 
@@ -35,6 +35,11 @@ protected:
     /** ioType expresses what type of IO operations will be marked as
         pending on the resource when markPendingIO is called. */
     GrSurfaceProxyRef(sk_sp<GrSurfaceProxy>, GrIOType);
+
+    GrSurfaceProxyRef(GrSurfaceProxyRef&&) = default;
+    GrSurfaceProxyRef(const GrSurfaceProxyRef&) = delete;
+    GrSurfaceProxyRef& operator=(GrSurfaceProxyRef&&) = default;
+    GrSurfaceProxyRef& operator=(const GrSurfaceProxyRef&) = delete;
 
     /** ioType expresses what type of IO operations will be marked as
         pending on the resource when markPendingIO is called. */
@@ -64,8 +69,6 @@ private:
     mutable bool    fOwnRef;
     mutable bool    fPendingIO;
     GrIOType        fIOType;
-
-    typedef SkNoncopyable INHERITED;
 };
 
 #endif

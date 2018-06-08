@@ -47,10 +47,15 @@ T sk_atomic_exchange(T*, T, sk_memory_order = sk_memory_order_seq_cst);
 // ensure they're always used atomically.  This is our stand-in for std::atomic<T>.
 // !!! Please _really_ know what you're doing if you change default_memory_order. !!!
 template <typename T, sk_memory_order default_memory_order = sk_memory_order_seq_cst>
-class SkAtomic : SkNoncopyable {
+class SkAtomic {
 public:
     SkAtomic() {}
     explicit SkAtomic(const T& val) : fVal(val) {}
+
+    SkAtomic(SkAtomic&&) = delete;
+    SkAtomic(const SkAtomic&) = delete;
+    SkAtomic& operator=(SkAtomic&&) = delete;
+    SkAtomic& operator=(const SkAtomic&) = delete;
 
     // It is essential we return by value rather than by const&.  fVal may change at any time.
     T load(sk_memory_order mo = default_memory_order) const {

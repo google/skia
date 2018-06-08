@@ -12,7 +12,7 @@
 
 class SkColorSpace;
 
-class SK_API SkColorSpaceXform : SkNoncopyable {
+class SK_API SkColorSpaceXform {
 public:
 
     /**
@@ -71,6 +71,10 @@ public:
 
 protected:
     SkColorSpaceXform() {}
+    SkColorSpaceXform(SkColorSpaceXform&&) = default;
+    SkColorSpaceXform(const SkColorSpaceXform&) = delete;
+    SkColorSpaceXform& operator=(SkColorSpaceXform&&) = default;
+    SkColorSpaceXform& operator=(const SkColorSpaceXform&) = delete;
 };
 
 #endif

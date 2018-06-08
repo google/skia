@@ -24,7 +24,7 @@ class SkMatrix;
 class SkPaint;
 class SkPicture;
 
-class SK_API SkImageGenerator : public SkNoncopyable {
+class SK_API SkImageGenerator {
 public:
     /**
      *  The PixelRef which takes ownership of this SkImageGenerator
@@ -173,6 +173,11 @@ protected:
     static constexpr int kNeedNewImageUniqueID = 0;
 
     SkImageGenerator(const SkImageInfo& info, uint32_t uniqueId = kNeedNewImageUniqueID);
+
+    SkImageGenerator(SkImageGenerator&&) = default;
+    SkImageGenerator(const SkImageGenerator&) = delete;
+    SkImageGenerator& operator=(SkImageGenerator&&) = default;
+    SkImageGenerator& operator=(const SkImageGenerator&) = delete;
 
     virtual sk_sp<SkData> onRefEncodedData() { return nullptr; }
     virtual bool onGetPixels(const SkImageInfo&, void*, size_t, const Options&) { return false; }

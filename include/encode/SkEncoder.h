@@ -11,7 +11,7 @@
 #include "SkPixmap.h"
 #include "../private/SkTemplates.h"
 
-class SK_API SkEncoder : SkNoncopyable {
+class SK_API SkEncoder {
 public:
 
     /**
@@ -32,6 +32,10 @@ protected:
         , fCurrRow(0)
         , fStorage(storageBytes)
     {}
+    SkEncoder(SkEncoder&&) = default;
+    SkEncoder(const SkEncoder&) = delete;
+    SkEncoder& operator=(SkEncoder&&) = default;
+    SkEncoder& operator=(const SkEncoder&) = delete;
 
     const SkPixmap&        fSrc;
     int                    fCurrRow;

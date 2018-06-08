@@ -43,7 +43,7 @@ class SkTraceMemoryDump;
  * GrIORef and GrGpuResource are separate classes for organizational reasons and to be
  * able to give access via friendship to only the functions related to pending IO operations.
  */
-template <typename DERIVED> class GrIORef : public SkNoncopyable {
+template <typename DERIVED> class GrIORef {
 public:
     // Some of the signatures are written to mirror SkRefCnt so that GrGpuResource can work with
     // templated helper classes (e.g. sk_sp). However, we have different categories of
@@ -77,6 +77,10 @@ public:
 
 protected:
     GrIORef() : fRefCnt(1), fPendingReads(0), fPendingWrites(0) { }
+    GrIORef(GrIORef&&) = default;
+    GrIORef(const GrIORef&) = delete;
+    GrIORef& operator=(GrIORef&&) = default;
+    GrIORef& operator=(const GrIORef&) = delete;
 
     enum CntType {
         kRef_CntType,

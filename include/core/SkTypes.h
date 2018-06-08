@@ -35,6 +35,8 @@
 
 #include <string.h>
 
+#include "../private/SkNoncopyable.h"
+
 /** \file SkTypes.h
 */
 
@@ -390,22 +392,6 @@ template <typename Dst> Dst SkTCast(const void* ptr) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-
-/** \class SkNoncopyable
-
-SkNoncopyable is the base class for objects that do not want to
-be copied. It hides its copy-constructor and its assignment-operator.
-*/
-class SK_API SkNoncopyable {
-public:
-    SkNoncopyable() = default;
-
-    SkNoncopyable(SkNoncopyable&&) = default;
-    SkNoncopyable& operator =(SkNoncopyable&&) = default;
-
-    SkNoncopyable(const SkNoncopyable&) = delete;
-    SkNoncopyable& operator=(const SkNoncopyable&) = delete;
-};
 
 #endif /* C++ */
 

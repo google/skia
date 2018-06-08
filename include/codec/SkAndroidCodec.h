@@ -17,7 +17,7 @@
  *  Abstract interface defining image codec functionality that is necessary for
  *  Android.
  */
-class SK_API SkAndroidCodec : SkNoncopyable {
+class SK_API SkAndroidCodec {
 public:
     enum class ExifOrientationBehavior {
         /**
@@ -271,6 +271,11 @@ public:
 
 protected:
     SkAndroidCodec(SkCodec*, ExifOrientationBehavior = ExifOrientationBehavior::kIgnore);
+
+    SkAndroidCodec(SkAndroidCodec&&) = default;
+    SkAndroidCodec(const SkAndroidCodec&) = delete;
+    SkAndroidCodec& operator=(SkAndroidCodec&&) = default;
+    SkAndroidCodec& operator=(const SkAndroidCodec&) = delete;
 
     virtual SkISize onGetSampledDimensions(int sampleSize) const = 0;
 

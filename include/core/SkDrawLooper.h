@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2011 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkDrawLooper_DEFINED
 #define SkDrawLooper_DEFINED
@@ -38,10 +36,14 @@ public:
      *  Subclasses of SkDrawLooper should create a subclass of this object to
      *  hold state specific to their subclass.
      */
-    class SK_API Context : ::SkNoncopyable {
+    class SK_API Context  {
     public:
         Context() {}
         virtual ~Context() {}
+        Context(Context&&) = default;
+        Context(const Context&) = delete;
+        Context& operator=(Context&&) = default;
+        Context& operator=(const Context&) = delete;
 
         /**
          *  Called in a loop on objects returned by SkDrawLooper::createContext().

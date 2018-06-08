@@ -26,10 +26,15 @@ class SkPictureRecord;
 class SkRecord;
 class SkRecorder;
 
-class SK_API SkPictureRecorder : SkNoncopyable {
+class SK_API SkPictureRecorder {
 public:
     SkPictureRecorder();
     ~SkPictureRecorder();
+
+    SkPictureRecorder(SkPictureRecorder&&) = default;
+    SkPictureRecorder(const SkPictureRecorder&) = delete;
+    SkPictureRecorder& operator=(SkPictureRecorder&&) = default;
+    SkPictureRecorder& operator=(const SkPictureRecorder&) = delete;
 
     enum RecordFlags {
         // If you call drawPicture() or drawDrawable() on the recording canvas, this flag forces
@@ -117,8 +122,6 @@ private:
     std::unique_ptr<SkRecorder> fRecorder;
     sk_sp<SkRecord>             fRecord;
     std::unique_ptr<SkMiniRecorder> fMiniRecorder;
-
-    typedef SkNoncopyable INHERITED;
 };
 
 #endif

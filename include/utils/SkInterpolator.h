@@ -12,7 +12,7 @@
 
 #include "SkScalar.h"
 
-class SK_API SkInterpolatorBase : SkNoncopyable {
+class SK_API SkInterpolatorBase {
 public:
     enum Result {
         kNormal_Result,
@@ -22,6 +22,10 @@ public:
 protected:
     SkInterpolatorBase();
     ~SkInterpolatorBase();
+    SkInterpolatorBase(SkInterpolatorBase&&) = delete;
+    SkInterpolatorBase(const SkInterpolatorBase&) = delete;
+    SkInterpolatorBase& operator=(SkInterpolatorBase&&) = delete;
+    SkInterpolatorBase& operator=(const SkInterpolatorBase&) = delete;
 public:
     void    reset(int elemCount, int frameCount);
 
