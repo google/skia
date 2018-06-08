@@ -25,8 +25,14 @@ void GrTexture::markMipMapsDirty() {
 }
 
 void GrTexture::markMipMapsClean() {
-    SkASSERT(GrMipMapsStatus::kNotAllocated != fMipMapsStatus);
+    const bool sizeChanged = GrMipMapsStatus::kNotAllocated == fMipMapsStatus;
     fMipMapsStatus = GrMipMapsStatus::kValid;
+    if (sizeChanged) {
+        // This must not be called until after changing fMipMapsStatus.
+        this->didChangeGpuMemorySize();
+        // TODO(http://skbug.com/4548) - The desc and scratch key should be
+        // updated to reflect the newly-allocated mipmaps.
+    }
 }
 
 size_t GrTexture::onGpuMemorySize() const {

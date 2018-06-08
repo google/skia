@@ -273,8 +273,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         dummyDesc.fHeight = 18;
         dummyDesc.fConfig = kRGBA_8888_GrPixelConfig;
         proxies[0] = proxyProvider->createProxy(dummyDesc, kBottomLeft_GrSurfaceOrigin,
-                                                GrMipMapped::kYes, SkBackingFit::kExact,
-                                                SkBudgeted::kNo, GrInternalSurfaceFlags::kNone);
+                                                SkBackingFit::kExact, SkBudgeted::kNo);
     }
     {
         GrSurfaceDesc dummyDesc;
@@ -283,8 +282,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         dummyDesc.fHeight = 22;
         dummyDesc.fConfig = kAlpha_8_GrPixelConfig;
         proxies[1] = proxyProvider->createProxy(dummyDesc, kTopLeft_GrSurfaceOrigin,
-                                                GrMipMapped::kYes, SkBackingFit::kExact,
-                                                SkBudgeted::kNo, GrInternalSurfaceFlags::kNone);
+                                                SkBackingFit::kExact, SkBudgeted::kNo);
     }
 
     if (!proxies[0] || !proxies[1]) {

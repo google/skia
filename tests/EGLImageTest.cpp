@@ -16,7 +16,6 @@
 #include "GrTest.h"
 #include "GrTexture.h"
 #include "GrTextureContext.h"
-#include "GrTexturePriv.h"
 #include "GrTextureProxyPriv.h"
 #include "gl/GLTestContext.h"
 #include "gl/GrGLGpu.h"
@@ -167,9 +166,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     }
 
     GrTextureProxy* proxy = surfaceContext->asTextureProxy();
-    REPORTER_ASSERT(reporter, proxy->mipMapped() == GrMipMapped::kNo);
-    REPORTER_ASSERT(reporter,
-                    proxy->priv().peekTexture()->texturePriv().mipMapped() == GrMipMapped::kNo);
+    REPORTER_ASSERT(reporter, proxy->texPriv().doesNotSupportMipMaps());
+    REPORTER_ASSERT(reporter, proxy->priv().peekTexture()->surfacePriv().doesNotSupportMipMaps());
 
     REPORTER_ASSERT(reporter, proxy->texPriv().isGLTextureRectangleOrExternal());
     REPORTER_ASSERT(reporter,
