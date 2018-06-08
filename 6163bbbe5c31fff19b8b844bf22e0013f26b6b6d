@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cbcaef8c_41b20bc6",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-06-08T22:12:21Z",
+      "side": 1,
+      "message": "Could we pass through the SkGlyphCache here and use initializeImage on it? That will avoid any memory accounting issues handled later.",
+      "range": {
+        "startLine": 198,
+        "startChar": 44,
+        "endLine": 198,
+        "endChar": 63
+      },
+      "revId": "6163bbbe5c31fff19b8b844bf22e0013f26b6b6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
