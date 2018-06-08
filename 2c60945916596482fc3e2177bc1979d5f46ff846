@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f1b34d81_2fe8a75b",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-08T20:50:47Z",
+      "side": 1,
+      "message": "Should we make this be IsCopyNeededForRepeatWrapMode and have it take the filter mode and not params? Thinking that\u0027d be more similar to IsACopyNeededForMips()",
+      "range": {
+        "startLine": 48,
+        "startChar": 12,
+        "endLine": 48,
+        "endChar": 41
+      },
+      "revId": "2c60945916596482fc3e2177bc1979d5f46ff846",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
