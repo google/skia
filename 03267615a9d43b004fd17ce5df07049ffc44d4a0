@@ -22,6 +22,30 @@
       "revId": "03267615a9d43b004fd17ce5df07049ffc44d4a0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d036401e_02d5b0ea",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-06-08T20:02:45Z",
+      "side": 1,
+      "message": "Actually that\u0027s an excellent idea. I just moved all this setup into TrackLayerDevice, makes it much easier to enforce that we only read state from the device, not canvas.",
+      "parentUuid": "4fa885c8_052133dd",
+      "range": {
+        "startLine": 241,
+        "startChar": 21,
+        "endLine": 241,
+        "endChar": 43
+      },
+      "revId": "03267615a9d43b004fd17ce5df07049ffc44d4a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
