@@ -9,8 +9,9 @@
 
 #include "GrClip.h"
 #include "GrContextPriv.h"
-#include "GrProxyProvider.h"
+#include "GrMemoryPool.h"
 #include "GrOnFlushResourceProvider.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrSurfaceProxy.h"
@@ -71,6 +72,8 @@ public:
         }
 
     private:
+        friend class GrOpMemoryPool; // for ctor
+
         Op(GrProxyProvider* proxyProvider, LazyProxyTest* test, bool nullTexture)
                     : GrDrawOp(ClassID()), fTest(test) {
             fProxy = proxyProvider->createFullyLazyProxy([this, nullTexture](
@@ -276,6 +279,8 @@ public:
     }
 
 private:
+    friend class GrOpMemoryPool; // for ctor
+
     LazyFailedInstantiationTestOp(GrProxyProvider* proxyProvider, int* testExecuteValue,
                                   bool shouldFailInstantiation)
             : INHERITED(ClassID())
@@ -370,6 +375,8 @@ public:
     }
 
 private:
+    friend class GrOpMemoryPool; // for ctor
+
     LazyUninstantiateTestOp(sk_sp<GrTextureProxy> proxy)
             : INHERITED(ClassID())
             , fLazyProxy(std::move(proxy)) {
