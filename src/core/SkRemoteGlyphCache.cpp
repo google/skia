@@ -841,9 +841,8 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
             if (imageSize == 0u) continue;
 
             auto* image = deserializer.read(imageSize, allocatedGlyph->formatAlignment());
-            if (!image ||
-                !strike->initializeImage(image, imageSize, allocatedGlyph))
-                READ_FAILURE
+            if (!image) READ_FAILURE
+            strike->initializeImage(image, imageSize, allocatedGlyph);
         }
 
         size_t glyphPathsCount = 0u;
