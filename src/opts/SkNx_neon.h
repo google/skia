@@ -102,6 +102,13 @@ public:
     AI static SkNx Max(const SkNx& l, const SkNx& r) { return vmax_f32(l.fVec, r.fVec); }
 
     AI SkNx abs() const { return vabs_f32(fVec); }
+    AI SkNx floor() const {
+    #if defined(SK_CPU_ARM64)
+        return vrndm_f32(fVec);
+    #else
+        return armv7_vrndm_f32(fVec);
+    #endif
+    }
 
     AI SkNx rsqrt() const {
         float32x2_t est0 = vrsqrte_f32(fVec);
