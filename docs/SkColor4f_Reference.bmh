@@ -285,13 +285,20 @@ Returns Color4f with all components in the range from zero to one.
 # ------------------------------------------------------------------------------
 
 #Method SkPM4f premul() const
-#Deprecated
+#In Utility
+#Line # returns Premultiplied color; internal use only ##
+#Private
+Internal use only.
+##
+#Return Premultiplied color ##
 #Method ##
 
 #Struct SkColor4f ##
 
 #Struct SkPM4f
-#Deprecated
+#Private
+Internal use only.
+##
 ##
 
 #Topic Color4f ##
