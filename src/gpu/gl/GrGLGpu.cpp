@@ -2035,27 +2035,6 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
     auto dstAsConfig = GrColorTypeToPixelConfig(dstColorType, GrSRGBEncoded::kNo);
 
     if (!this->readPixelsSupported(surface, dstAsConfig)) {
-        // If reading in half float format is not supported, then read in a temporary float buffer
-        // and convert to half float.
-        if (kRGBA_half_GrPixelConfig == dstAsConfig &&
-            this->readPixelsSupported(surface, kRGBA_float_GrPixelConfig)) {
-            std::unique_ptr<float[]> temp(new float[width * height * 4]);
-            if (this->onReadPixels(surface, left, top, width, height, GrColorType::kRGBA_F32,
-                                   temp.get(), width * sizeof(float) * 4)) {
-                uint8_t* dst = reinterpret_cast<uint8_t*>(buffer);
-                float* src = temp.get();
-                for (int j = 0; j < height; ++j) {
-                    SkHalf* dstRow = reinterpret_cast<SkHalf*>(dst);
-                    for (int i = 0; i < width; ++i) {
-                        for (int color = 0; color < 4; color++) {
-                            *dstRow++ = SkFloatToHalf(*src++);
-                        }
-                    }
-                    dst += rowBytes;
-                }
-                return true;
-            }
-        }
         return false;
     }
 
