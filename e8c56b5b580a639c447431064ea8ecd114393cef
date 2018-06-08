@@ -1,0 +1,382 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "05c370bf_1d5296e1",
+        "filename": "modules/skjson/src/FuzzSkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:28:51Z",
+      "side": 1,
+      "message": "This might read more clearly if you swap the names data and c_str?",
+      "range": {
+        "startLine": 15,
+        "startChar": 17,
+        "endLine": 15,
+        "endChar": 22
+      },
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e01d9683_80a704dd",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:28:51Z",
+      "side": 1,
+      "message": "Isn\u0027t this the same as 0b111ULL \u003c\u003c kTypeShift?  The other bits all shift off the left?",
+      "range": {
+        "startLine": 54,
+        "startChar": 44,
+        "endLine": 54,
+        "endChar": 70
+      },
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79818fb0_9cdeb4b9",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:28:51Z",
+      "side": 1,
+      "message": "... so that tag 0b000 and stored max_size-size (7-7\u003d0) conveniently overlap the \u0027\\0\u0027 terminator, allowing us to store a 7 character C string inline.\n\n?",
+      "range": {
+        "startLine": 57,
+        "startChar": 39,
+        "endLine": 57,
+        "endChar": 52
+      },
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f973d2b6_b13447d2",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:28:51Z",
+      "side": 1,
+      "message": "Maybe leave this one out until we have one?",
+      "range": {
+        "startLine": 85,
+        "startChar": 8,
+        "endLine": 88,
+        "endChar": 81
+      },
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81699ca1_194ffb1e",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:28:51Z",
+      "side": 1,
+      "message": "Might want to show a 64-bit pointer too?",
+      "range": {
+        "startLine": 90,
+        "startChar": 9,
+        "endLine": 90,
+        "endChar": 22
+      },
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f79aab7b_ae910140",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:28:51Z",
+      "side": 1,
+      "message": "upper?",
+      "range": {
+        "startLine": 135,
+        "startChar": 41,
+        "endLine": 135,
+        "endChar": 46
+      },
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbb07278_270bccc4",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:28:51Z",
+      "side": 1,
+      "message": "very clever",
+      "range": {
+        "startLine": 208,
+        "startChar": 10,
+        "endLine": 209,
+        "endChar": 85
+      },
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6049a910_28ea1db5",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:28:51Z",
+      "side": 1,
+      "message": "Isn\u0027t this statically guaranteed now?",
+      "range": {
+        "startLine": 377,
+        "startChar": 8,
+        "endLine": 377,
+        "endChar": 49
+      },
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb922cdf_ae395d63",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:28:51Z",
+      "side": 1,
+      "message": "maybe 0 \u003d\u003d here?  Helps keep the tri-state strcmp result stand apart from bools, I find.",
+      "range": {
+        "startLine": 378,
+        "startChar": 12,
+        "endLine": 378,
+        "endChar": 13
+      },
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e838ed24_7f60287b",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:28:51Z",
+      "side": 1,
+      "message": "I bet you can even just leave this out.  Compilers usually do a pretty good job about putting constants in appropriately aligned sections.  E.g., Clang puts it in a 32 byte aligned .const section with this alignas(32), or a 16 byte aligned one without.\n\nThough, if we\u0027re gonna keep it in, might as well shoot for 64 to be aligned for both 32- and 64-byte cache lines?",
+      "range": {
+        "startLine": 400,
+        "startChar": 0,
+        "endLine": 400,
+        "endChar": 11
+      },
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0cdf60d2_606f17f4",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:28:51Z",
+      "side": 1,
+      "message": "We still probably want to this-\u003eerror( all these?",
+      "range": {
+        "startLine": 463,
+        "startChar": 19,
+        "endLine": 463,
+        "endChar": 24
+      },
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "edc5a1f0_ad7e6200",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:28:51Z",
+      "side": 1,
+      "message": "might want to indent all these labels one stop so they\u0027re more visibly scoped to parse()?",
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6c02538_3e0dfb25",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:28:51Z",
+      "side": 1,
+      "message": "braces here?",
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7db5451b_4bb72973",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:28:51Z",
+      "side": 1,
+      "message": "{}?",
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4076d3f_c0df6743",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:28:51Z",
+      "side": 1,
+      "message": "Is it a crazy idea to return errors from parse as a StringValue containing the message?  Too confusing?",
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc8e973b_4a42078d",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 715,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:28:51Z",
+      "side": 1,
+      "message": "Feels like it wants to be outside the class, or SkipWS?\n\nI was expecting to see it right after the block of functions like is_ws(), so maybe there outside?",
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62949c27_db4a2bb2",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 724,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:28:51Z",
+      "side": 1,
+      "message": "Is there a logic here for match_true() vs. matchTrue(), pushTrue() vs. this-\u003epushTrue()?  Seems best to get them all on the same page unless there\u0027s some sort of logical divsion?",
+      "range": {
+        "startLine": 720,
+        "startChar": 4,
+        "endLine": 724,
+        "endChar": 29
+      },
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "982d54f6_477ff3bc",
+        "filename": "modules/skjson/src/SkJSONTest.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:28:51Z",
+      "side": 1,
+      "message": "Might want to see how this file feels with a\n\n   using namespace skjson;\n\n?",
+      "revId": "e8c56b5b580a639c447431064ea8ecd114393cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
