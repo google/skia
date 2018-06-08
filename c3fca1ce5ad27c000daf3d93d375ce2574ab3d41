@@ -1,0 +1,147 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e71a0255_60cd4b73",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-08T14:02:55Z",
+      "side": 1,
+      "message": "Why can\u0027t we? Could it be in include/private?",
+      "range": {
+        "startLine": 332,
+        "startChar": 6,
+        "endLine": 332,
+        "endChar": 24
+      },
+      "revId": "c3fca1ce5ad27c000daf3d93d375ce2574ab3d41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92761481_e592a7e1",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-08T14:02:55Z",
+      "side": 1,
+      "message": "The compiler might optimize it anyway but SkAlign4, etc looks more efficient (no integer mod).",
+      "revId": "c3fca1ce5ad27c000daf3d93d375ce2574ab3d41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62fc81ff_a0a56cba",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-08T14:02:55Z",
+      "side": 1,
+      "message": "Am I wrong that this map gets created every time we create a FP?",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 65,
+        "endChar": 5
+      },
+      "revId": "c3fca1ce5ad27c000daf3d93d375ce2574ab3d41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23c92904_0fc0f500",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-08T14:02:55Z",
+      "side": 1,
+      "message": "same, is this sksl or glsl?",
+      "range": {
+        "startLine": 125,
+        "startChar": 23,
+        "endLine": 125,
+        "endChar": 28
+      },
+      "revId": "c3fca1ce5ad27c000daf3d93d375ce2574ab3d41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91aeeeb1_9aa85bfe",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-08T14:02:55Z",
+      "side": 1,
+      "message": "This is a frequent operation (used for attempting to batch, invoked up to 10 times per draw). I\u0027m not sure we can afford a string compare.\n\nThis function is used to determine not just whether the two FPs would gen the same code but also whether they use the same data (as required the batch). I think that means that they would have to have the the same inputs and not just the same key-vars if I\u0027m understanding things correctly.",
+      "revId": "c3fca1ce5ad27c000daf3d93d375ce2574ab3d41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97332851_1ebbcdc7",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-08T14:02:55Z",
+      "side": 1,
+      "message": "I think this will need to be an atomic increment.",
+      "revId": "c3fca1ce5ad27c000daf3d93d375ce2574ab3d41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc0e66e5_8ad6d085",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-08T14:02:55Z",
+      "side": 1,
+      "message": "Is it GLSL or is it SkSL?",
+      "range": {
+        "startLine": 108,
+        "startChar": 17,
+        "endLine": 108,
+        "endChar": 22
+      },
+      "revId": "c3fca1ce5ad27c000daf3d93d375ce2574ab3d41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
