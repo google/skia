@@ -659,6 +659,15 @@ std::unique_ptr<GrDrawOp> Make(GrColor color,
                                SkScalar insetWidth,
                                SkScalar blurClamp) {
     // Shadow rrect ops only handle simple circular rrects.
+    if (!viewMatrix.isSimilarity()) {
+        SkDebugf("%f %f %f %f %f %f %f %f %f\n", viewMatrix[0], viewMatrix[1], viewMatrix[2],
+        viewMatrix[3], viewMatrix[4], viewMatrix[5], viewMatrix[6], viewMatrix[7], viewMatrix[8]);
+        SkASSERT(false);
+    }
+    if (!SkRRectPriv::EqualRadii(rrect)) {
+        rrect.dump();
+        SkASSERT(false);
+    }
     SkASSERT(viewMatrix.isSimilarity() && SkRRectPriv::EqualRadii(rrect));
 
     // Do any matrix crunching before we reset the draw state for device coords.
