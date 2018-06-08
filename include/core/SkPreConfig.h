@@ -225,48 +225,4 @@
     #endif
 #endif
 
-//////////////////////////////////////////////////////////////////////
-
-/**
- * Use SK_PURE_FUNC as an attribute to indicate that a function's
- * return value only depends on the value of its parameters. This
- * can help the compiler optimize out successive calls.
- *
- * Usage:
- *      void  function(int params)  SK_PURE_FUNC;
- */
-#if defined(__GNUC__)
-#  define  SK_PURE_FUNC  __attribute__((pure))
-#else
-#  define  SK_PURE_FUNC  /* nothing */
-#endif
-
-//////////////////////////////////////////////////////////////////////
-
-/**
- * SK_HAS_ATTRIBUTE(<name>) should return true iff the compiler
- * supports __attribute__((<name>)). Mostly important because
- * Clang doesn't support all of GCC attributes.
- */
-#if defined(__has_attribute)
-#   define SK_HAS_ATTRIBUTE(x) __has_attribute(x)
-#elif defined(__GNUC__)
-#   define SK_HAS_ATTRIBUTE(x) 1
-#else
-#   define SK_HAS_ATTRIBUTE(x) 0
-#endif
-
-/**
- * SK_ATTRIBUTE_OPTIMIZE_O1 can be used as a function attribute
- * to specify individual optimization level of -O1, if the compiler
- * supports it.
- *
- * NOTE: Clang/ARM (r161757) does not support the 'optimize' attribute.
- */
-#if SK_HAS_ATTRIBUTE(optimize)
-#   define SK_ATTRIBUTE_OPTIMIZE_O1 __attribute__((optimize("O1")))
-#else
-#   define SK_ATTRIBUTE_OPTIMIZE_O1 /* nothing */
-#endif
-
 #endif

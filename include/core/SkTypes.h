@@ -127,12 +127,6 @@ class SkString;
 ///////////////////////////////////////////////////////////////////////
 
 /**
- *  Fast type for signed 8 bits. Use for parameter passing and local variables,
- *  not for storage.
- */
-typedef int S8CPU;
-
-/**
  *  Fast type for unsigned 8 bits. Use for parameter passing and local
  *  variables, not for storage
  */
@@ -220,9 +214,6 @@ template <typename T, size_t N> char (&SkArrayCountHelper(T (&array)[N]))[N];
 #define SkAlign8(x)     (((x) + 7) >> 3 << 3)
 #define SkIsAlign8(x)   (0 == ((x) & 7))
 
-#define SkAlign16(x)     (((x) + 15) >> 4 << 4)
-#define SkIsAlign16(x)   (0 == ((x) & 15))
-
 #define SkAlignPtr(x)   (sizeof(void*) == 8 ?   SkAlign8(x) :   SkAlign4(x))
 #define SkIsAlignPtr(x) (sizeof(void*) == 8 ? SkIsAlign8(x) : SkIsAlign4(x))
 
@@ -241,18 +232,9 @@ typedef uint16_t SkGlyphID;
  *  Note that SK_MSecMax is about 25 days.
  */
 typedef uint32_t SkMSec;
-/** 1 second measured in milliseconds
-*/
-#define SK_MSec1 1000
 /** maximum representable milliseconds; 24d 20h 31m 23.647s.
 */
 #define SK_MSecMax 0x7FFFFFFF
-/** Returns a < b for milliseconds, correctly handling wrap-around from 0xFFFFFFFF to 0
-*/
-#define SkMSec_LT(a, b)     ((int32_t)(a) - (int32_t)(b) < 0)
-/** Returns a <= b for milliseconds, correctly handling wrap-around from 0xFFFFFFFF to 0
-*/
-#define SkMSec_LE(a, b)     ((int32_t)(a) - (int32_t)(b) <= 0)
 
 /** The generation IDs in Skia reserve 0 has an invalid marker.
  */
@@ -265,12 +247,6 @@ typedef uint32_t SkMSec;
     The rest of these only build with C++
 */
 #ifdef __cplusplus
-
-/** Faster than SkToBool for integral conditions. Returns 0 or 1
-*/
-static inline constexpr int Sk32ToBool(uint32_t n) {
-    return (n | (0-n)) >> 31;
-}
 
 /** Generic swap function. Classes with efficient swaps should specialize this function to take
     their fast path. This function is used by SkTSort. */
@@ -315,10 +291,6 @@ template <typename T> constexpr const T& SkTMax(const T& a, const T& b) {
     return (b < a) ? a : b;
 }
 
-static inline int32_t SkSign32(int32_t a) {
-    return (a >> 31) | ((unsigned) -a >> 31);
-}
-
 static inline int32_t SkFastMin32(int32_t value, int32_t max) {
     if (value > max) {
         value = max;
@@ -352,13 +324,6 @@ enum class SkBackingFit {
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
-/** Use to combine multiple bits in a bitmask in a type safe way.
- */
-template <typename T>
-T SkTBitOr(T a, T b) {
-    return (T)(a | b);
-}
 
 /**
  *  Use to cast a pointer to a different type, and maintaining strict-aliasing

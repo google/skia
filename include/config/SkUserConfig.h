@@ -100,14 +100,6 @@
  */
 //#define SK_MAX_SIZE_FOR_LCDTEXT     48
 
-/*  If SK_DEBUG is defined, then you can optionally define SK_SUPPORT_UNITTEST
-    which will run additional self-tests at startup. These can take a long time,
-    so this flag is optional.
- */
-#ifdef SK_DEBUG
-//#define SK_SUPPORT_UNITTEST
-#endif
-
 /*  Change the ordering to work in X windows.
  */
 #ifdef SK_SAMPLES_FOR_X
