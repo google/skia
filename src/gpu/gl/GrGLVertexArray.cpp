@@ -150,7 +150,7 @@ void GrGLAttribArrayState::set(GrGLGpu* gpu,
 }
 
 void GrGLAttribArrayState::enableVertexArrays(const GrGLGpu* gpu, int enabledCount,
-                                              EnablePrimitiveRestart enablePrimitiveRestart) {
+                                              GrPrimitiveRestart enablePrimitiveRestart) {
     SkASSERT(enabledCount <= fAttribArrayStates.count());
 
     if (!fEnableStateIsValid || enabledCount != fNumEnabledArrays) {
@@ -167,12 +167,12 @@ void GrGLAttribArrayState::enableVertexArrays(const GrGLGpu* gpu, int enabledCou
         fNumEnabledArrays = enabledCount;
     }
 
-    SkASSERT(EnablePrimitiveRestart::kNo == enablePrimitiveRestart ||
+    SkASSERT(GrPrimitiveRestart::kNo == enablePrimitiveRestart ||
              gpu->caps()->usePrimitiveRestart());
 
     if (gpu->caps()->usePrimitiveRestart() &&
         (!fEnableStateIsValid || enablePrimitiveRestart != fPrimitiveRestartEnabled)) {
-        if (EnablePrimitiveRestart::kYes == enablePrimitiveRestart) {
+        if (GrPrimitiveRestart::kYes == enablePrimitiveRestart) {
             GR_GL_CALL(gpu->glInterface(), Enable(GR_GL_PRIMITIVE_RESTART_FIXED_INDEX));
         } else {
             GR_GL_CALL(gpu->glInterface(), Disable(GR_GL_PRIMITIVE_RESTART_FIXED_INDEX));

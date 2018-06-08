@@ -99,8 +99,6 @@ public:
     // we put these calls on the base class to prevent having to cast
     virtual bool willUseGeoShader() const = 0;
 
-    bool willUsePrimitiveRestart() const { return fWillUsePrimitiveRestart; }
-
     /**
      * Computes a transformKey from an array of coord transforms. Will only look at the first
      * <numCoords> transforms in the array.
@@ -150,8 +148,6 @@ protected:
         return fAttribs.back();
     }
 
-    void setWillUsePrimitiveRestart() { fWillUsePrimitiveRestart = true; }
-
 private:
     void addPendingIOs() const override { GrResourceIOProcessor::addPendingIOs(); }
     void removeRefs() const override { GrResourceIOProcessor::removeRefs(); }
@@ -161,7 +157,6 @@ private:
     SkSTArray<8, Attribute> fAttribs;
     int fVertexStride = 0;
     int fInstanceStride = 0;
-    bool fWillUsePrimitiveRestart = false;
 
     typedef GrProcessor INHERITED;
 };

@@ -520,8 +520,7 @@ void GrVkGpuRTCommandBuffer::copy(GrSurface* src, GrSurfaceOrigin srcOrigin, con
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrVkGpuRTCommandBuffer::bindGeometry(const GrPrimitiveProcessor& primProc,
-                                          const GrBuffer* indexBuffer,
+void GrVkGpuRTCommandBuffer::bindGeometry(const GrBuffer* indexBuffer,
                                           const GrBuffer* vertexBuffer,
                                           const GrBuffer* instanceBuffer) {
     GrVkSecondaryCommandBuffer* currCmdBuf = fCommandBufferInfos[fCurrentCmdInfo].currentCmdBuf();
@@ -534,7 +533,7 @@ void GrVkGpuRTCommandBuffer::bindGeometry(const GrPrimitiveProcessor& primProc,
     // assigned in GrVkPipeline. That is, vertex first (if any) followed by instance.
     uint32_t binding = 0;
 
-    if (primProc.hasVertexAttribs()) {
+    if (vertexBuffer) {
         SkASSERT(vertexBuffer);
         SkASSERT(!vertexBuffer->isCPUBacked());
         SkASSERT(!vertexBuffer->isMapped());
@@ -543,7 +542,7 @@ void GrVkGpuRTCommandBuffer::bindGeometry(const GrPrimitiveProcessor& primProc,
                                     static_cast<const GrVkVertexBuffer*>(vertexBuffer));
     }
 
-    if (primProc.hasInstanceAttribs()) {
+    if (instanceBuffer) {
         SkASSERT(instanceBuffer);
         SkASSERT(!instanceBuffer->isCPUBacked());
         SkASSERT(!instanceBuffer->isMapped());
@@ -690,7 +689,7 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPipeline& pipeline,
         }
 
         SkASSERT(pipelineState);
-        mesh.sendToGpu(primProc, this);
+        mesh.sendToGpu(this);
     }
 
     cbInfo.fBounds.join(bounds);
@@ -702,8 +701,7 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPipeline& pipeline,
     pipelineState->freeTempResources(fGpu);
 }
 
-void GrVkGpuRTCommandBuffer::sendInstancedMeshToGpu(const GrPrimitiveProcessor& primProc,
-                                                    GrPrimitiveType,
+void GrVkGpuRTCommandBuffer::sendInstancedMeshToGpu(GrPrimitiveType,
                                                     const GrBuffer* vertexBuffer,
                                                     int vertexCount,
                                                     int baseVertex,
@@ -711,13 +709,12 @@ void GrVkGpuRTCommandBuffer::sendInstancedMeshToGpu(const GrPrimitiveProcessor& 
                                                     int instanceCount,
                                                     int baseInstance) {
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
-    this->bindGeometry(primProc, nullptr, vertexBuffer, instanceBuffer);
+    this->bindGeometry(nullptr, vertexBuffer, instanceBuffer);
     cbInfo.currentCmdBuf()->draw(fGpu, vertexCount, instanceCount, baseVertex, baseInstance);
     fGpu->stats()->incNumDraws();
 }
 
-void GrVkGpuRTCommandBuffer::sendIndexedInstancedMeshToGpu(const GrPrimitiveProcessor& primProc,
-                                                           GrPrimitiveType,
+void GrVkGpuRTCommandBuffer::sendIndexedInstancedMeshToGpu(GrPrimitiveType,
                                                            const GrBuffer* indexBuffer,
                                                            int indexCount,
                                                            int baseIndex,
@@ -725,11 +722,12 @@ void GrVkGpuRTCommandBuffer::sendIndexedInstancedMeshToGpu(const GrPrimitiveProc
                                                            int baseVertex,
                                                            const GrBuffer* instanceBuffer,
                                                            int instanceCount,
-                                                           int baseInstance) {
+                                                           int baseInstance,
+                                                           GrPrimitiveRestart restart) {
+    SkASSERT(restart == GrPrimitiveRestart::kNo);
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
-    this->bindGeometry(primProc, indexBuffer, vertexBuffer, instanceBuffer);
+    this->bindGeometry(indexBuffer, vertexBuffer, instanceBuffer);
     cbInfo.currentCmdBuf()->drawIndexed(fGpu, indexCount, instanceCount,
                                         baseIndex, baseVertex, baseInstance);
     fGpu->stats()->incNumDraws();
 }
-
