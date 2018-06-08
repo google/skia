@@ -69,7 +69,8 @@ GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu,
     : INHERITED(pipeline, primProc, desc)
     , fGpu(gpu)
     , fVaryingHandler(this)
-    , fUniformHandler(this) {
+    , fUniformHandler(this),
+    , fAttributeCnt(0), fVertexStride(0), fInstanceStride(0) {
 }
 
 const GrCaps* GrGLProgramBuilder::caps() const {
@@ -225,9 +226,17 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         // NVPR actually requires a vertex shader to compile
         bool useNvpr = primProc.isPathRendering();
         if (!useNvpr) {
-            int vaCount = primProc.numAttribs();
-            for (int i = 0; i < vaCount; i++) {
-                GL_CALL(BindAttribLocation(programID, i, primProc.getAttrib(i).name()));
+            fAttributeCnt = primProc.numAttribs();
+            fAttributes.reset(new GrGLProgram::Attribute[fAttributeCnt]);
+            fVertexStride = primProc.getVertexStride();
+            fInstanceStride = primProc.getInstanceStride();
+            for (int i = 0; i < fAttributeCnt; i++) {
+                const auto& attr = primProc.getAttrib(i);
+                fAttributes[i].fInputRate = attr.inputRate();
+                fAttributes[i].fType = attr.type();
+                fAttributes[i].fOffset = attr.offsetInRecord();
+                fAttributes[i].fLocation = i;
+                GL_CALL(BindAttribLocation(programID, i, attrib.name()));
             }
         }
 
@@ -394,5 +403,6 @@ GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
                            std::move(fGeometryProcessor),
                            std::move(fXferProcessor),
                            std::move(fFragmentProcessors),
-                           fFragmentProcessorCnt);
+                           std::move(fAttributes),
+                           fAttributeCnt);
 }

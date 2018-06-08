@@ -30,6 +30,16 @@ public:
     virtual ~GrGLSLUniformHandler() {}
 
     using UniformHandle = GrGLSLProgramDataManager::UniformHandle;
+
+    // Handles for program uniforms (other than per-effect uniforms)
+    struct BuiltinUniformHandles {
+        UniformHandle       fRTAdjustmentUni;
+
+        // We use the render target height to provide a y-down frag coord when specifying
+        // origin_upper_left is not supported.
+        UniformHandle       fRTHeightUni;
+    };
+
     GR_DEFINE_RESOURCE_HANDLE_CLASS(SamplerHandle);
     GR_DEFINE_RESOURCE_HANDLE_CLASS(TexelBufferHandle);
 
