@@ -331,10 +331,11 @@ public:
 private:
     sk_sp<SkImage> prepareImage(const SkImage* image) {
         GrContext* gr = fTarget->getGrContext();
-        if (gr) {
-            // If fTarget is GPU-accelerated, we want to upload to a texture
-            // before applying the transform. This way, we can get cache hits
-            // in the texture cache and the transform gets applied on the GPU.
+        // If fTarget is GPU-accelerated, we want to upload to a texture before applying the
+        // transform. This way, we can get cache hits in the texture cache and the transform gets
+        // applied on the GPU. We can't do A2B transforms on the GPU, though, so force those down
+        // the slower CPU path.
+        if (gr && (!image->colorSpace() || image->colorSpace()->toXYZD50())) {
             sk_sp<SkImage> textureImage = image->makeTextureImage(gr, nullptr);
             if (textureImage)
                 return fXformer->apply(textureImage.get());
