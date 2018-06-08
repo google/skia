@@ -8,8 +8,34 @@
 #include "GrClearOp.h"
 
 #include "GrGpuCommandBuffer.h"
+#include "GrMemoryPool.h"
 #include "GrOpFlushState.h"
 #include "GrProxyProvider.h"
+
+std::unique_ptr<GrClearOp> GrClearOp::Make(GrContext* context,
+                                           const GrFixedClip& clip,
+                                           GrColor color,
+                                           GrSurfaceProxy* dstProxy) {
+    const SkIRect rect = SkIRect::MakeWH(dstProxy->width(), dstProxy->height());
+    if (clip.scissorEnabled() && !SkIRect::Intersects(clip.scissorRect(), rect)) {
+        return nullptr;
+    }
+
+    GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+    return pool->allocate<GrClearOp>(clip, color, dstProxy);
+}
+
+std::unique_ptr<GrClearOp> GrClearOp::Make(GrContext* context,
+                                           const SkIRect& rect,
+                                           GrColor color,
+                                           bool fullScreen) {
+    SkASSERT(fullScreen || !rect.isEmpty());
+
+    GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+    return pool->allocate<GrClearOp>(rect, color, fullScreen);
+}
 
 GrClearOp::GrClearOp(const GrFixedClip& clip, GrColor color, GrSurfaceProxy* proxy)
         : INHERITED(ClassID())

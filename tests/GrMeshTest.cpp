@@ -15,6 +15,7 @@
 #include "GrContextPriv.h"
 #include "GrGeometryProcessor.h"
 #include "GrGpuCommandBuffer.h"
+#include "GrMemoryPool.h"
 #include "GrOpFlushState.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
@@ -256,10 +257,14 @@ public:
 
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           std::function<void(DrawMeshHelper*)> testFn) {
-        return std::unique_ptr<GrDrawOp>(new GrMeshTestOp(testFn));
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        return pool->allocate<GrMeshTestOp>(testFn);
     }
 
 private:
+    friend class GrOpMemoryPool; // for ctor
+
     GrMeshTestOp(std::function<void(DrawMeshHelper*)> testFn)
         : INHERITED(ClassID())
         , fTestFn(testFn) {

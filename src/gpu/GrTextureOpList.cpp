@@ -8,7 +8,10 @@
 #include "GrTextureOpList.h"
 
 #include "GrAuditTrail.h"
+#include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "GrMemoryPool.h"
 #include "GrResourceAllocator.h"
 #include "GrTextureProxy.h"
 #include "SkStringUtils.h"
@@ -17,12 +20,28 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 GrTextureOpList::GrTextureOpList(GrResourceProvider* resourceProvider,
+                                 sk_sp<GrOpMemoryPool> opMemoryPool,
                                  GrTextureProxy* proxy,
                                  GrAuditTrail* auditTrail)
-    : INHERITED(resourceProvider, proxy, auditTrail) {
+        : INHERITED(resourceProvider, std::move(opMemoryPool), proxy, auditTrail) {
+    SkASSERT(fOpMemoryPool);
+}
+
+void GrTextureOpList::deleteOp(int index) {
+    SkASSERT(index >= 0 && index < fRecordedOps.count());
+    fOpMemoryPool->release(std::move(fRecordedOps[index]));
+}
+
+void GrTextureOpList::deleteOps() {
+    for (int i = 0; i < fRecordedOps.count(); ++i) {
+        fOpMemoryPool->release(std::move(fRecordedOps[i]));
+    }
+    fRecordedOps.reset();
+    fOpMemoryPool = nullptr;
 }
 
 GrTextureOpList::~GrTextureOpList() {
+    this->deleteOps();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -105,7 +124,7 @@ bool GrTextureOpList::onExecute(GrOpFlushState* flushState) {
 }
 
 void GrTextureOpList::endFlush() {
-    fRecordedOps.reset();
+    this->deleteOps();
     INHERITED::endFlush();
 }
 
@@ -113,20 +132,21 @@ void GrTextureOpList::endFlush() {
 
 // This closely parallels GrRenderTargetOpList::copySurface but renderTargetOpList
 // stores extra data with the op
-bool GrTextureOpList::copySurface(const GrCaps& caps,
+bool GrTextureOpList::copySurface(GrContext* context,
                                   GrSurfaceProxy* dst,
                                   GrSurfaceProxy* src,
                                   const SkIRect& srcRect,
                                   const SkIPoint& dstPoint) {
     SkASSERT(dst == fTarget.get());
 
-    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(dst, src, srcRect, dstPoint);
+    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(context, dst, src, srcRect, dstPoint);
     if (!op) {
         return false;
     }
 
-    auto addDependency = [ &caps, this ] (GrSurfaceProxy* p) {
-        this->addDependency(p, caps);
+    const GrCaps* caps = context->contextPriv().caps();
+    auto addDependency = [ caps, this ] (GrSurfaceProxy* p) {
+        this->addDependency(p, *caps);
     };
     op->visitProxies(addDependency);
 
@@ -149,7 +169,7 @@ void GrTextureOpList::purgeOpsWithUninstantiatedProxies() {
         }
         if (hasUninstantiatedProxy) {
             // When instantiation of the proxy fails we drop the Op
-            fRecordedOps[i] = nullptr;
+            this->deleteOp(i);
         }
     }
 }

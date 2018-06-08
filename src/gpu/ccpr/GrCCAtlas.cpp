@@ -8,10 +8,12 @@
 #include "GrCCAtlas.h"
 
 #include "GrClip.h"
+#include "GrMemoryPool.h"
 #include "GrOnFlushResourceProvider.h"
 #include "GrSurfaceContextPriv.h"
 #include "GrRectanizer_skyline.h"
 #include "GrRenderTargetContext.h"
+#include "GrSurfaceContextPriv.h"
 #include "GrTextureProxy.h"
 #include "SkMakeUnique.h"
 #include "SkMathPriv.h"
@@ -59,8 +61,9 @@ public:
                                           sk_sp<const GrCCPathParser> parser,
                                           CoverageCountBatchID batchID,
                                           const SkISize& drawBounds) {
-        return std::unique_ptr<GrDrawOp>(new DrawCoverageCountOp(std::move(parser),
-                                                                 batchID, drawBounds));
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        return pool->allocate<DrawCoverageCountOp>(std::move(parser), batchID, drawBounds);
     }
 
     // GrDrawOp interface.
@@ -76,6 +79,8 @@ public:
     }
 
 private:
+    friend class GrOpMemoryPool; // for ctor
+
     DrawCoverageCountOp(sk_sp<const GrCCPathParser> parser, CoverageCountBatchID batchID,
                         const SkISize& drawBounds)
             : INHERITED(ClassID())

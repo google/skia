@@ -21,6 +21,11 @@
 #include "gpu/atlastext/TestAtlasTextRenderer.h"
 #include "sk_tool_utils.h"
 
+#include "GrContext.h"
+#include "GrContextPriv.h"
+#include "GrMemoryPool.h"
+#include "../src/atlastext/SkInternalAtlasTextContext.h"
+
 // GM that draws text using the Atlas Text interface offscreen and then blits that to the canvas.
 
 static SkScalar draw_string(SkAtlasTextTarget* target, const SkString& text, SkScalar x, SkScalar y,
@@ -72,7 +77,11 @@ protected:
         if (!targetHandle) {
             return;
         }
-        fTarget = SkAtlasTextTarget::Make(fContext, kSize, kSize, targetHandle);
+
+        GrContext* context = fContext->internal().grContext();
+        sk_sp<GrOpMemoryPool> opMemoryPool = context->contextPriv().refOpMemoryPool();
+        fTarget = SkAtlasTextTarget::Make(fContext, std::move(opMemoryPool),
+                                          kSize, kSize, targetHandle);
 
         fTypefaces[0] = sk_tool_utils::create_portable_typeface("serif", SkFontStyle::Italic());
         fTypefaces[1] =
@@ -90,7 +99,7 @@ protected:
             return;
         }
         fRenderer->clearTarget(fTarget->handle(), 0xFF808080);
-        auto bmp = this->drawText();
+        SkBitmap bmp = this->drawText();
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kSrc);
         canvas->drawBitmap(bmp, 0, 0);

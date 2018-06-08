@@ -9,8 +9,9 @@
 
 #include "GrClip.h"
 #include "GrContextPriv.h"
-#include "GrProxyProvider.h"
+#include "GrMemoryPool.h"
 #include "GrOnFlushResourceProvider.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrSurfaceProxy.h"
@@ -58,7 +59,9 @@ public:
                                               GrProxyProvider* proxyProvider,
                                               LazyProxyTest* test,
                                               bool nullTexture) {
-            return std::unique_ptr<GrDrawOp>(new Op(proxyProvider, test, nullTexture));
+            GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+            return pool->allocate<Op>(proxyProvider, test, nullTexture);
         }
 
         void visitProxies(const VisitProxyFunc& func) const override {
@@ -71,6 +74,8 @@ public:
         }
 
     private:
+        friend class GrOpMemoryPool; // for ctor
+
         Op(GrProxyProvider* proxyProvider, LazyProxyTest* test, bool nullTexture)
                     : GrDrawOp(ClassID()), fTest(test) {
             fProxy = proxyProvider->createFullyLazyProxy([this, nullTexture](
@@ -267,8 +272,11 @@ public:
                                           GrProxyProvider* proxyProvider,
                                           int* testExecuteValue,
                                           bool shouldFailInstantiation) {
-        return std::unique_ptr<GrDrawOp>(new LazyFailedInstantiationTestOp(
-            proxyProvider, testExecuteValue, shouldFailInstantiation));
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        return pool->allocate<LazyFailedInstantiationTestOp>(proxyProvider,
+                                                             testExecuteValue,
+                                                             shouldFailInstantiation);
     }
 
     void visitProxies(const VisitProxyFunc& func) const override {
@@ -276,6 +284,8 @@ public:
     }
 
 private:
+    friend class GrOpMemoryPool; // for ctor
+
     LazyFailedInstantiationTestOp(GrProxyProvider* proxyProvider, int* testExecuteValue,
                                   bool shouldFailInstantiation)
             : INHERITED(ClassID())
@@ -362,7 +372,9 @@ public:
     DEFINE_OP_CLASS_ID
 
     static std::unique_ptr<GrDrawOp> Make(GrContext* context, sk_sp<GrTextureProxy> proxy) {
-        return std::unique_ptr<GrDrawOp>(new LazyUninstantiateTestOp(std::move(proxy)));
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        return pool->allocate<LazyUninstantiateTestOp>(std::move(proxy));
     }
 
     void visitProxies(const VisitProxyFunc& func) const override {
@@ -370,6 +382,8 @@ public:
     }
 
 private:
+    friend class GrOpMemoryPool; // for ctor
+
     LazyUninstantiateTestOp(sk_sp<GrTextureProxy> proxy)
             : INHERITED(ClassID())
             , fLazyProxy(std::move(proxy)) {
