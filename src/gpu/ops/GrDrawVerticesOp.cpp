@@ -15,21 +15,18 @@ std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrPaint&& paint,
                                                  sk_sp<SkVertices> vertices,
                                                  const SkMatrix& viewMatrix,
                                                  GrAAType aaType,
-                                                 bool gammaCorrect,
                                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
                                                  GrPrimitiveType* overridePrimType) {
     SkASSERT(vertices);
     GrPrimitiveType primType = overridePrimType ? *overridePrimType
                                                 : SkVertexModeToGrPrimitiveType(vertices->mode());
     return Helper::FactoryHelper<GrDrawVerticesOp>(std::move(paint), std::move(vertices), primType,
-                                                   aaType, gammaCorrect, std::move(colorSpaceXform),
-                                                   viewMatrix);
+                                                   aaType, std::move(colorSpaceXform), viewMatrix);
 }
 
 GrDrawVerticesOp::GrDrawVerticesOp(const Helper::MakeArgs& helperArgs, GrColor color,
                                    sk_sp<SkVertices> vertices, GrPrimitiveType primitiveType,
-                                   GrAAType aaType, bool gammaCorrect,
-                                   sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                   GrAAType aaType, sk_sp<GrColorSpaceXform> colorSpaceXform,
                                    const SkMatrix& viewMatrix)
         : INHERITED(ClassID())
         , fHelper(helperArgs, aaType)
@@ -41,9 +38,6 @@ GrDrawVerticesOp::GrDrawVerticesOp(const Helper::MakeArgs& helperArgs, GrColor c
     fIndexCount = vertices->indexCount();
     fColorArrayType = vertices->hasColors() ? ColorArrayType::kSkColor
                                             : ColorArrayType::kPremulGrColor;
-    // GrColor is linearized (and gamut converted) during paint conversion, but SkColors need to be
-    // handled in the shader
-    fLinearizeColors = gammaCorrect && vertices->hasColors();
 
     Mesh& mesh = fMeshes.push_back();
     mesh.fColor = color;
@@ -97,7 +91,6 @@ GrDrawOp::RequiresDstTexture GrDrawVerticesOp::finalize(const GrCaps& caps,
         fMeshes.front().fIgnoreColors = true;
         fFlags &= ~kRequiresPerVertexColors_Flag;
         fColorArrayType = ColorArrayType::kPremulGrColor;
-        fLinearizeColors = false;
     }
     if (!fHelper.usesLocalCoords()) {
         fMeshes[0].fIgnoreTexCoords = true;
@@ -127,11 +120,12 @@ sk_sp<GrGeometryProcessor> GrDrawVerticesOp::makeGP(bool* hasColorAttribute,
 
     Color color(fMeshes[0].fColor);
     if (this->requiresPerVertexColors()) {
-        color.fType = (fColorArrayType == ColorArrayType::kPremulGrColor)
-                              ? Color::kPremulGrColorAttribute_Type
-                              : Color::kUnpremulSkColorAttribute_Type;
-        color.fLinearize = fLinearizeColors;
-        color.fColorSpaceXform = fColorSpaceXform;
+        if (fColorArrayType == ColorArrayType::kPremulGrColor) {
+            color.fType = Color::kPremulGrColorAttribute_Type;
+        } else {
+            color.fType = Color::kUnpremulSkColorAttribute_Type;
+            color.fColorSpaceXform = fColorSpaceXform;
+        }
         *hasColorAttribute = true;
     } else {
         *hasColorAttribute = false;
@@ -270,10 +264,6 @@ bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         return false;
     }
 
-    if (fLinearizeColors != that->fLinearizeColors) {
-        return false;
-    }
-
     if (fVertexCount + that->fVertexCount > SK_MaxU16) {
         return false;
     }
@@ -388,7 +378,6 @@ GR_DRAW_OP_TEST_DEFINE(GrDrawVerticesOp) {
     bool hasTexCoords = random->nextBool();
     bool hasIndices = random->nextBool();
     bool hasColors = random->nextBool();
-    bool linearizeColors = random->nextBool();
 
     uint32_t vertexCount = seed_vertices(type) + (primitiveCount - 1) * primitive_vertices(type);
 
@@ -418,7 +407,7 @@ GR_DRAW_OP_TEST_DEFINE(GrDrawVerticesOp) {
         aaType = GrAAType::kMSAA;
     }
     return GrDrawVerticesOp::Make(std::move(paint), std::move(vertices), viewMatrix, aaType,
-                                  linearizeColors, std::move(colorSpaceXform), &type);
+                                  std::move(colorSpaceXform), &type);
 }
 
 #endif
