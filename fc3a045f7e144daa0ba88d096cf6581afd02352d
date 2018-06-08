@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "17fe3908_2c3a0cf7",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:58:35Z",
+      "side": 1,
+      "message": "this-\u003e",
+      "revId": "fc3a045f7e144daa0ba88d096cf6581afd02352d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "804699da_9251f84a",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:58:35Z",
+      "side": 1,
+      "message": "this-\u003e",
+      "revId": "fc3a045f7e144daa0ba88d096cf6581afd02352d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "261274a1_9fe6a6d7",
+        "filename": "src/gpu/text/GrTextContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:58:35Z",
+      "side": 1,
+      "message": "Maybe just inline the lambda so you don\u0027t have to name it?",
+      "range": {
+        "startLine": 218,
+        "startChar": 32,
+        "endLine": 218,
+        "endChar": 39
+      },
+      "revId": "fc3a045f7e144daa0ba88d096cf6581afd02352d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cfacd964_7f8842db",
+        "filename": "src/gpu/text/GrTextContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:58:35Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "fc3a045f7e144daa0ba88d096cf6581afd02352d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6276dc33_abae58f1",
+        "filename": "src/gpu/text/GrTextContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 784,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-08T15:58:35Z",
+      "side": 1,
+      "message": "this one too?",
+      "revId": "fc3a045f7e144daa0ba88d096cf6581afd02352d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
