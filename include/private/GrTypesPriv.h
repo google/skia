@@ -696,7 +696,7 @@ static const int kGrVertexAttribTypeCount = kLast_GrVertexAttribType + 1;
 /**
  * Returns the size of the attrib type in bytes.
  */
-static inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
+static constexpr inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
     switch (type) {
         case kFloat_GrVertexAttribType:
             return sizeof(float);
