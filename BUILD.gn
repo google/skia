@@ -1391,6 +1391,7 @@ if (skia_enable_tools) {
     ]
     public_deps = [
       ":gpu_tool_utils",  # Test.h #includes headers from this target.
+      "modules/skjson:tests",
     ]
   }
 
@@ -1404,6 +1405,7 @@ if (skia_enable_tools) {
       ":gpu_tool_utils",
       ":skia",
       ":tool_utils",
+      "modules/skjson:bench",
     ]
   }
 
@@ -1745,6 +1747,7 @@ if (skia_enable_tools) {
       ":flags",
       ":gpu_tool_utils",
       ":skia",
+      "modules/skjson:fuzz",
       "modules/skottie:fuzz",
       "//third_party/jsoncpp",
       "//third_party/libpng",
