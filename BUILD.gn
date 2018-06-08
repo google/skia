@@ -1385,6 +1385,7 @@ if (skia_enable_tools) {
       ":flags",
       ":skia",
       ":tool_utils",
+      "modules/skjson:tests",
       "modules/sksg:tests",
       "//third_party/libpng",
       "//third_party/zlib",
@@ -1404,6 +1405,7 @@ if (skia_enable_tools) {
       ":gpu_tool_utils",
       ":skia",
       ":tool_utils",
+      "modules/skjson:bench",
     ]
   }
 
@@ -1745,6 +1747,7 @@ if (skia_enable_tools) {
       ":flags",
       ":gpu_tool_utils",
       ":skia",
+      "modules/skjson:fuzz",
       "modules/skottie:fuzz",
       "//third_party/jsoncpp",
       "//third_party/libpng",
