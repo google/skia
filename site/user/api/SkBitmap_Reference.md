@@ -434,30 +434,26 @@ SkBitmap member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>exchanges <a href='#Bitmap'>Bitmap</a> pair</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_toString'>toString</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>converts <a href='#Bitmap'>Bitmap</a> to machine readable form</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_tryAllocN32Pixels'>tryAllocN32Pixels</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates compatible ARGB pixels if possible</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_tryAllocPixels'>tryAllocPixels</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates pixels from <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> if possible</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_tryAllocPixelsFlags'>tryAllocPixelsFlags</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates pixels from <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> with options if possible</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_validate'>validate</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>asserts if <a href='#Bitmap'>Bitmap</a> is invalid (debug only)</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_width'>width</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns pixel column count</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_writePixels'>writePixels</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>copies and converts pixels</td>
   </tr>
@@ -4301,10 +4297,6 @@ x---x-
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>exchanges <a href='#Bitmap'>Bitmap</a> pair</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_toString'>toString</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>converts <a href='#Bitmap'>Bitmap</a> to machine readable form</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_validate'>validate</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>asserts if <a href='#Bitmap'>Bitmap</a> is invalid (debug only)</td>
   </tr>
@@ -4324,41 +4316,6 @@ SK_DEBUG is defined at compile time.
 ### See Also
 
 <a href='SkImageInfo_Reference#SkImageInfo_validate'>SkImageInfo::validate</a>
-
----
-
-<a name='SkBitmap_toString'></a>
-## toString
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkBitmap_toString'>toString</a>(<a href='undocumented#SkString'>SkString</a>* str) const;
-</pre>
-
-Creates string representation of <a href='#Bitmap'>Bitmap</a>. The representation is read by
-internal debugging tools.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkBitmap_toString_str'><code><strong>str</strong></code></a></td>
-    <td>storage for string representation</td>
-  </tr>
-</table>
-
-### Example
-
-<div><fiddle-embed name="6018d98695245510839a318caabba9c9">
-
-#### Example Output
-
-~~~~
-bitmap dimensions (6, 11)
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href='SkPaint_Reference#SkPaint_toString'>SkPaint::toString</a>
 
 ---
 

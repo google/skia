@@ -453,14 +453,10 @@ SkImage member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>scales and converts one <a href='#Image'>Image</a> to another</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_toString'>toString</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>converts <a href='#Image'>Image</a> to machine readable form</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_uniqueID'>uniqueID</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns identifier for <a href='#Image'>Image</a></td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_width'>width</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns pixel column count</td>
   </tr>
@@ -2281,43 +2277,8 @@ encoded <a href='#Image'>Image</a>, or nullptr
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_refEncodedData'>refEncodedData</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#Image'>Image</a> encoded in <a href='undocumented#SkData'>SkData</a> if present</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_toString'>toString</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>converts <a href='#Image'>Image</a> to machine readable form</td>
-  </tr>
 </table>
 
-
-<a name='SkImage_toString'></a>
-## toString
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const char* <a href='#SkImage_toString'>toString</a>(<a href='undocumented#SkString'>SkString</a>* string) const
-</pre>
-
-Appends <a href='#Image'>Image</a> description to <a href='#SkImage_toString_string'>string</a>, including unique ID, width, height, and
-whether the image is opaque.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkImage_toString_string'><code><strong>string</strong></code></a></td>
-    <td>storage for description; existing content is preserved</td>
-  </tr>
-</table>
-
-### Return Value
-
-<a href='#SkImage_toString_string'>string</a> appended with <a href='#Image'>Image</a> description
-
-### Example
-
-<div><fiddle-embed name="b112d69ab4eb00ea38a2e01a7d7e740b"></fiddle-embed></div>
-
-### See Also
-
-<a href='SkPaint_Reference#SkPaint_toString'>SkPaint::toString</a>
-
----
 
 <a name='SkImage_makeSubset'></a>
 ## makeSubset

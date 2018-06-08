@@ -73,15 +73,6 @@ undocumented
 
 # <a name='SkColorFilter'>Class SkColorFilter</a>
 
-<a name='SkColorFilter_toString'></a>
-## toString
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkColorFilter_toString'>toString</a>(<a href='#SkString'>SkString</a>* str) const
-</pre>
-
----
-
 # <a name='Color_Space'>Color Space</a>
 
 # <a name='SkColorSpace'>Class SkColorSpace</a>
@@ -311,15 +302,6 @@ void <a href='#GrContext_flush'>flush</a>()
 
 # <a name='SkImageFilter'>Class SkImageFilter</a>
 
-<a name='SkImageFilter_toString'></a>
-## toString
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkImageFilter_toString'>toString</a>(<a href='#SkString'>SkString</a>* str) const
-</pre>
-
----
-
 # <a name='Image_Scaling'>Image Scaling</a>
 
 # <a name='Kerning'>Kerning</a>
@@ -333,15 +315,6 @@ void <a href='#SkImageFilter_toString'>toString</a>(<a href='#SkString'>SkString
 # <a name='Mask_Filter'>Mask Filter</a>
 
 # <a name='SkMaskFilter'>Class SkMaskFilter</a>
-
-<a name='SkMaskFilter_toString'></a>
-## toString
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkMaskFilter_toString'>toString</a>(<a href='#SkString'>SkString</a>* str) const
-</pre>
-
----
 
 # <a name='Meta_Data'>Meta Data</a>
 
@@ -409,15 +382,6 @@ bool SK_API <a href='#Op'>Op</a>(const <a href='SkPath_Reference#SkPath'>SkPath<
 # <a name='Path_Effect'>Path Effect</a>
 
 # <a name='SkPathEffect'>Class SkPathEffect</a>
-
-<a name='SkPathEffect_toString'></a>
-## toString
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPathEffect_toString'>toString</a>(<a href='#SkString'>SkString</a>* str) const
-</pre>
-
----
 
 # <a name='Picture'>Picture</a>
 

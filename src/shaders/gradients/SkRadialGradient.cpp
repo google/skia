@@ -185,19 +185,3 @@ void SkRadialGradient::appendGradientStages(SkArenaAlloc*, SkRasterPipeline* p,
                                             SkRasterPipeline*) const {
     p->append(SkRasterPipeline::xy_to_radius);
 }
-
-void SkRadialGradient::toString(SkString* str) const {
-    str->append("SkRadialGradient: (");
-
-    str->append("center: (");
-    str->appendScalar(fCenter.fX);
-    str->append(", ");
-    str->appendScalar(fCenter.fY);
-    str->append(") radius: ");
-    str->appendScalar(fRadius);
-    str->append(" ");
-
-    this->INHERITED::toString(str);
-
-    str->append(")");
-}

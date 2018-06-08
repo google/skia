@@ -59,8 +59,6 @@ public:
      */
     sk_sp<SkMaskFilter> makeWithMatrix(const SkMatrix&) const;
 
-    virtual void toString(SkString* str) const = 0;
-
     static SkFlattenable::Type GetFlattenableType() {
         return kSkMaskFilter_Type;
     }

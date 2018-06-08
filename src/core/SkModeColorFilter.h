@@ -23,8 +23,6 @@ public:
     bool asColorMode(SkColor*, SkBlendMode*) const override;
     uint32_t getFlags() const override;
 
-    void toString(SkString* str) const override;
-
     Factory getFactory() const override { return CreateProc; }
 
 #if SK_SUPPORT_GPU
