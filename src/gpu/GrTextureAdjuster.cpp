@@ -92,15 +92,29 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::onRefTextureProxyForParams(
     SkASSERT(this->width() <= fContext->contextPriv().caps()->maxTextureSize() &&
              this->height() <= fContext->contextPriv().caps()->maxTextureSize());
 
-    if (!GrGpu::IsACopyNeededForTextureParams(fContext->contextPriv().caps(), proxy.get(),
-                                              proxy->width(), proxy->height(), params, &copyParams,
-                                              scaleAdjust)) {
-        return proxy;
+    bool needsCopyForMipsOnly = false;
+    if (!params.isRepeated() ||
+        !GrGpu::IsACopyNeededForRepeatWrapMode(fContext->contextPriv().caps(), proxy.get(),
+                                               proxy->width(), proxy->height(), params.filter(),
+                                               &copyParams, scaleAdjust)) {
+        needsCopyForMipsOnly = GrGpu::IsACopyNeededForMips(fContext->contextPriv().caps(),
+                                                           proxy.get(), params.filter(),
+                                                           &copyParams);
+        if (!needsCopyForMipsOnly) {
+            return proxy;
+        }
     }
 
     bool willBeMipped = GrSamplerState::Filter::kMipMap == params.filter() &&
                         fContext->contextPriv().caps()->mipMapSupport();
-    return this->refTextureProxyCopy(copyParams, willBeMipped);
+    sk_sp<GrTextureProxy> result = this->refTextureProxyCopy(copyParams, willBeMipped);
+    if (!result && needsCopyForMipsOnly) {
+        // If we were unable to make a copy and we only needed a copy for mips, then we will return
+        // the source texture here and require that the GPU backend is able to fall back to using
+        // bilerp if mips are required.
+        return this->originalProxyRef();
+    }
+    return result;
 }
 
 std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
