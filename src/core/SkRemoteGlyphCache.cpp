@@ -192,6 +192,7 @@ void add_fallback_text_to_cache(const GrTextContext::FallbackTextHelper& helper,
                                 SkStrikeServer* server) {
     if (!helper.fallbackText().count()) return;
 
+    TRACE_EVENT0("skia", "add_fallback_text_to_cache");
     SkPaint fallbackPaint{origPaint};
     SkScalar textRatio;
     SkMatrix fallbackMatrix = matrix;
@@ -213,22 +214,242 @@ void add_fallback_text_to_cache(const GrTextContext::FallbackTextHelper& helper,
 
 size_t SkDescriptorMapOperators::operator()(const SkDescriptor* key) const {
     return key->getChecksum();
-    }
+}
 
-    bool SkDescriptorMapOperators::operator()(const SkDescriptor* lhs,
-                                              const SkDescriptor* rhs) const {
-        return *lhs == *rhs;
-    }
+bool SkDescriptorMapOperators::operator()(const SkDescriptor* lhs, const SkDescriptor* rhs) const {
+    return *lhs == *rhs;
+}
 
 // -- TrackLayerDevice -----------------------------------------------------------------------------
-class TrackLayerDevice : public SkNoPixelsDevice {
+#define FAIL_AND_RETURN                         \
+    SkDEBUGFAIL("Failed to process glyph run"); \
+    return;
+
+class SkTextBlobCacheDiffCanvas::TrackLayerDevice : public SkNoPixelsDevice {
 public:
-    TrackLayerDevice(const SkIRect& bounds, const SkSurfaceProps& props)
-            : SkNoPixelsDevice(bounds, props) { }
+    TrackLayerDevice(const SkIRect& bounds, const SkSurfaceProps& props, SkStrikeServer* server,
+                     const SkTextBlobCacheDiffCanvas::Settings& settings)
+            : SkNoPixelsDevice(bounds, props), fStrikeServer(server), fSettings(settings) {
+        SkASSERT(fStrikeServer);
+    }
     SkBaseDevice* onCreateDevice(const CreateInfo& cinfo, const SkPaint*) override {
         const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
-        return new TrackLayerDevice(this->getGlobalBounds(), surfaceProps);
+        return new TrackLayerDevice(this->getGlobalBounds(), surfaceProps, fStrikeServer,
+                                    fSettings);
     }
+
+protected:
+    void drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint,
+                      SkDrawFilter* drawFilter) override {
+        // The looper should be applied by the SkCanvas.
+        SkASSERT(paint.getDrawLooper() == nullptr);
+        // We don't support SkDrawFilter.
+        SkASSERT(drawFilter == nullptr);
+
+        SkPoint position{x, y};
+        SkPaint runPaint{paint};
+        SkTextBlobRunIterator it(blob);
+        for (; !it.done(); it.next()) {
+            // applyFontToPaint() always overwrites the exact same attributes,
+            // so it is safe to not re-seed the paint for this reason.
+            it.applyFontToPaint(&runPaint);
+            this->processGlyphRun(position, it, runPaint);
+        }
+    }
+
+private:
+    void processGlyphRun(const SkPoint& position,
+                         const SkTextBlobRunIterator& it,
+                         const SkPaint& runPaint) {
+        TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRun");
+
+        if (runPaint.getTextEncoding() != SkPaint::TextEncoding::kGlyphID_TextEncoding) {
+            TRACE_EVENT0("skia", "kGlyphID_TextEncoding");
+            FAIL_AND_RETURN
+        }
+
+        // All other alignment modes need the glyph advances. Use the slow drawing mode.
+        if (runPaint.getTextAlign() != SkPaint::kLeft_Align) {
+            TRACE_EVENT0("skia", "kLeft_Align");
+            FAIL_AND_RETURN
+        }
+
+        if (it.positioning() == SkTextBlob::kDefault_Positioning) {
+            // Default positioning needs advances. Can't do that.
+            TRACE_EVENT0("skia", "kDefault_Positioning");
+            FAIL_AND_RETURN
+        }
+
+        const SkMatrix& runMatrix = this->ctm();
+#if SK_SUPPORT_GPU
+        if (this->processGlyphRunForDFT(it, runPaint, runMatrix)) {
+            return;
+        }
+#endif
+
+        // If the matrix has perspective, we fall back to using distance field text or paths.
+        if (SkDraw::ShouldDrawTextAsPaths(runPaint, runMatrix)) {
+            this->processGlyphRunForPaths(it, runPaint, runMatrix);
+            return;
+        }
+
+        using PosFn = SkPoint (*)(int index, const SkScalar* pos);
+        PosFn posFn;
+        SkSTArenaAlloc<120> arena;
+        SkFindAndPlaceGlyph::MapperInterface* mapper = nullptr;
+        switch (it.positioning()) {
+            case SkTextBlob::kHorizontal_Positioning:
+                posFn = [](int index, const SkScalar* pos) { return SkPoint{pos[index], 0}; };
+                mapper = SkFindAndPlaceGlyph::CreateMapper(
+                        runMatrix, SkPoint::Make(position.x(), position.y() + it.offset().y()), 1,
+                        &arena);
+                break;
+            case SkTextBlob::kFull_Positioning:
+                posFn = [](int index, const SkScalar* pos) {
+                    return SkPoint{pos[2 * index], pos[2 * index + 1]};
+                };
+                mapper = SkFindAndPlaceGlyph::CreateMapper(runMatrix, position, 2, &arena);
+                break;
+            default:
+                posFn = nullptr;
+                SK_ABORT("unhandled positioning mode");
+        }
+
+        SkScalerContextRec deviceSpecificRec;
+        SkScalerContextEffects effects;
+        auto* glyphCacheState = fStrikeServer->getOrCreateCache(
+                runPaint, &this->surfaceProps(), &runMatrix,
+                SkScalerContextFlags::kFakeGammaAndBoostContrast, &deviceSpecificRec, &effects);
+        SkASSERT(glyphCacheState);
+
+        const bool asPath = false;
+        bool isSubpixel =
+                SkToBool(deviceSpecificRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag);
+        SkAxisAlignment axisAlignment = deviceSpecificRec.computeAxisAlignmentForHText();
+        auto pos = it.pos();
+        const uint16_t* glyphs = it.glyphs();
+        for (uint32_t index = 0; index < it.glyphCount(); index++) {
+            SkIPoint subPixelPos{0, 0};
+            if (isSubpixel) {
+                SkPoint glyphPos = mapper->map(posFn(index, pos));
+                subPixelPos = SkFindAndPlaceGlyph::SubpixelAlignment(axisAlignment, glyphPos);
+            }
+
+            glyphCacheState->addGlyph(
+                    runPaint.getTypeface(),
+                    effects,
+                    SkPackedGlyphID(glyphs[index], subPixelPos.x(), subPixelPos.y()),
+                    asPath);
+        }
+    }
+
+    void processGlyphRunForPaths(const SkTextBlobRunIterator& it,
+                                 const SkPaint& runPaint,
+                                 const SkMatrix& runMatrix) {
+        TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRunForPaths");
+
+        // The code below borrowed from GrTextContext::DrawBmpPosTextAsPaths.
+        SkPaint pathPaint(runPaint);
+#if SK_SUPPORT_GPU
+        SkScalar matrixScale = pathPaint.setupForAsPaths();
+        GrTextContext::FallbackTextHelper fallbackTextHelper(
+                runMatrix, runPaint, glyph_size_limit(fSettings), matrixScale);
+        const SkPoint emptyPosition{0, 0};
+#else
+        pathPaint.setupForAsPaths();
+#endif
+
+        pathPaint.setStyle(SkPaint::kFill_Style);
+        pathPaint.setPathEffect(nullptr);
+
+        SkScalerContextRec deviceSpecificRec;
+        SkScalerContextEffects effects;
+        auto* glyphCacheState = fStrikeServer->getOrCreateCache(
+                pathPaint, &this->surfaceProps(), nullptr,
+                SkScalerContextFlags::kFakeGammaAndBoostContrast, &deviceSpecificRec, &effects);
+
+        const bool asPath = true;
+        const SkIPoint subPixelPos{0, 0};
+        const uint16_t* glyphs = it.glyphs();
+        for (uint32_t index = 0; index < it.glyphCount(); index++) {
+            auto glyphID = SkPackedGlyphID(glyphs[index], subPixelPos.x(), subPixelPos.y());
+#if SK_SUPPORT_GPU
+            const auto& glyph =
+                    glyphCacheState->findGlyph(runPaint.getTypeface(), effects, glyphID);
+            if (SkMask::kARGB32_Format == glyph.fMaskFormat) {
+                // Note that we send data for the original glyph even in the case of fallback
+                // since its glyph metrics will still be used on the client.
+                fallbackTextHelper.appendText(glyph, sizeof(uint16_t), (const char*)&glyphs[index],
+                                              emptyPosition);
+            }
+#endif
+            glyphCacheState->addGlyph(runPaint.getTypeface(), effects, glyphID, asPath);
+        }
+
+#if SK_SUPPORT_GPU
+        add_fallback_text_to_cache(fallbackTextHelper, this->surfaceProps(), runMatrix, runPaint,
+                                   fStrikeServer);
+#endif
+    }
+
+#if SK_SUPPORT_GPU
+    bool processGlyphRunForDFT(const SkTextBlobRunIterator& it,
+                               const SkPaint& runPaint,
+                               const SkMatrix& runMatrix) {
+        TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRunForDFT");
+
+        GrTextContext::Options options;
+        options.fMinDistanceFieldFontSize = fSettings.fMinDistanceFieldFontSize;
+        options.fMaxDistanceFieldFontSize = fSettings.fMaxDistanceFieldFontSize;
+        GrTextContext::SanitizeOptions(&options);
+        if (!GrTextContext::CanDrawAsDistanceFields(runPaint, runMatrix, this->surfaceProps(),
+                                                    fSettings.fContextSupportsDistanceFieldText,
+                                                    options)) {
+            return false;
+        }
+
+        SkScalar textRatio;
+        SkPaint dfPaint(runPaint);
+        SkScalerContextFlags flags;
+        GrTextContext::InitDistanceFieldPaint(nullptr, &dfPaint, runMatrix, options, &textRatio,
+                                              &flags);
+        SkScalerContextRec deviceSpecificRec;
+        SkScalerContextEffects effects;
+        auto* glyphCacheState = fStrikeServer->getOrCreateCache(
+                dfPaint, &this->surfaceProps(), nullptr, flags, &deviceSpecificRec, &effects);
+
+        GrTextContext::FallbackTextHelper fallbackTextHelper(
+                runMatrix, runPaint, glyph_size_limit(fSettings), textRatio);
+        const bool asPath = false;
+        const SkIPoint subPixelPos{0, 0};
+        const SkPoint emptyPosition{0, 0};
+        const uint16_t* glyphs = it.glyphs();
+        for (uint32_t index = 0; index < it.glyphCount(); index++) {
+            auto glyphID = SkPackedGlyphID(glyphs[index], subPixelPos.x(), subPixelPos.y());
+            const auto& glyph =
+                    glyphCacheState->findGlyph(runPaint.getTypeface(), effects, glyphID);
+            if (glyph.fMaskFormat != SkMask::kSDF_Format) {
+                // Note that we send data for the original glyph even in the case of fallback
+                // since its glyph metrics will still be used on the client.
+                fallbackTextHelper.appendText(glyph, sizeof(uint16_t), (const char*)&glyphs[index],
+                                              emptyPosition);
+            }
+
+            glyphCacheState->addGlyph(
+                    runPaint.getTypeface(),
+                    effects,
+                    SkPackedGlyphID(glyphs[index], subPixelPos.x(), subPixelPos.y()),
+                    asPath);
+        }
+
+        add_fallback_text_to_cache(fallbackTextHelper, this->surfaceProps(), runMatrix, runPaint,
+                                   fStrikeServer);
+        return true;
+    }
+#endif
+
+    SkStrikeServer* const fStrikeServer;
+    const SkTextBlobCacheDiffCanvas::Settings fSettings;
 };
 
 // -- SkTextBlobCacheDiffCanvas -------------------------------------------------------------------
@@ -238,257 +459,21 @@ SkTextBlobCacheDiffCanvas::Settings::~Settings() = default;
 SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
                                                      const SkMatrix& deviceMatrix,
                                                      const SkSurfaceProps& props,
-                                                     SkStrikeServer* strikeSever, Settings settings)
-        : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(SkIRect::MakeWH(width, height), props)}
-        , fDeviceMatrix{deviceMatrix}
-        , fStrikeServer{strikeSever}
-        , fSettings{settings} {
-    SkASSERT(fStrikeServer);
-}
+                                                     SkStrikeServer* strikeServer,
+                                                     Settings settings)
+        : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(SkIRect::MakeWH(width, height), props,
+                                                      strikeServer, settings)} {}
 
 SkTextBlobCacheDiffCanvas::~SkTextBlobCacheDiffCanvas() = default;
 
 SkCanvas::SaveLayerStrategy SkTextBlobCacheDiffCanvas::getSaveLayerStrategy(
-    const SaveLayerRec&rec)
-{
+        const SaveLayerRec& rec) {
     return kFullLayer_SaveLayerStrategy;
 }
 
-void SkTextBlobCacheDiffCanvas::onDrawTextBlob(
-        const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint) {
-    SkPoint position{x, y};
-
-    SkPaint runPaint{paint};
-    SkTextBlobRunIterator it(blob);
-        for (;!it.done(); it.next()) {
-        // applyFontToPaint() always overwrites the exact same attributes,
-        // so it is safe to not re-seed the paint for this reason.
-        it.applyFontToPaint(&runPaint);
-        if (auto looper = runPaint.getLooper()) {
-            this->processLooper(position, it, runPaint, looper);
-        } else {
-            this->processGlyphRun(position, it, runPaint);
-        }
-    }
-}
-
-void SkTextBlobCacheDiffCanvas::processLooper(
-        const SkPoint& position,
-        const SkTextBlobRunIterator& it,
-        const SkPaint& origPaint,
-        SkDrawLooper* looper)
-{
-    SkSTArenaAlloc<48> alloc;
-    auto context = looper->makeContext(this, &alloc);
-    SkPaint runPaint = origPaint;
-    while (context->next(this, &runPaint)) {
-        this->save();
-        this->processGlyphRun(position, it, runPaint);
-        this->restore();
-        runPaint = origPaint;
-    }
-}
-
-#define FAIL_AND_RETURN                         \
-    SkDEBUGFAIL("Failed to process glyph run"); \
-    return;
-
-void SkTextBlobCacheDiffCanvas::processGlyphRun(
-        const SkPoint& position,
-        const SkTextBlobRunIterator& it,
-        const SkPaint& runPaint)
-{
-
-    if (runPaint.getTextEncoding() != SkPaint::TextEncoding::kGlyphID_TextEncoding) {
-        TRACE_EVENT0("skia", "kGlyphID_TextEncoding");
-        FAIL_AND_RETURN
-    }
-
-    // All other alignment modes need the glyph advances. Use the slow drawing mode.
-    if (runPaint.getTextAlign() != SkPaint::kLeft_Align) {
-        TRACE_EVENT0("skia", "kLeft_Align");
-        FAIL_AND_RETURN
-    }
-
-    if (it.positioning() == SkTextBlob::kDefault_Positioning) {
-        // Default positioning needs advances. Can't do that.
-        TRACE_EVENT0("skia", "kDefault_Positioning");
-        FAIL_AND_RETURN
-    }
-
-    SkMatrix runMatrix{fDeviceMatrix};
-    runMatrix.preConcat(this->getTotalMatrix());
-
-#if SK_SUPPORT_GPU
-    if (this->processGlyphRunForDFT(it, runPaint, runMatrix)) {
-        return;
-    }
-#endif
-
-    // If the matrix has perspective, we fall back to using distance field text or paths.
-    if (SkDraw::ShouldDrawTextAsPaths(runPaint, runMatrix)) {
-        this->processGlyphRunForPaths(it, runPaint, runMatrix);
-        return;
-    }
-
-    using PosFn = SkPoint(*)(int index, const SkScalar* pos);
-    PosFn posFn;
-    SkSTArenaAlloc<120> arena;
-    SkFindAndPlaceGlyph::MapperInterface* mapper = nullptr;
-    switch (it.positioning()) {
-        case SkTextBlob::kHorizontal_Positioning:
-            posFn = [](int index, const SkScalar* pos) {
-                return SkPoint{pos[index], 0};
-            };
-            mapper = SkFindAndPlaceGlyph::CreateMapper(
-                    runMatrix, SkPoint::Make(position.x(), position.y() + it.offset().y()), 1,
-                    &arena);
-            break;
-        case SkTextBlob::kFull_Positioning:
-            posFn = [](int index, const SkScalar* pos) {
-                return SkPoint{pos[2 * index], pos[2 * index + 1]};
-            };
-            mapper = SkFindAndPlaceGlyph::CreateMapper(runMatrix, position, 2, &arena);
-            break;
-        default:
-            posFn = nullptr;
-            SK_ABORT("unhandled positioning mode");
-    }
-
-    SkScalerContextRec deviceSpecificRec;
-    SkScalerContextEffects effects;
-    auto* glyphCacheState = fStrikeServer->getOrCreateCache(
-            runPaint, &this->surfaceProps(), &runMatrix,
-            SkScalerContextFlags::kFakeGammaAndBoostContrast, &deviceSpecificRec, &effects);
-    SkASSERT(glyphCacheState);
-
-    const bool asPath = false;
-    bool isSubpixel =
-            SkToBool(deviceSpecificRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag);
-    SkAxisAlignment axisAlignment = deviceSpecificRec.computeAxisAlignmentForHText();
-    auto pos = it.pos();
-    const uint16_t* glyphs = it.glyphs();
-    for (uint32_t index = 0; index < it.glyphCount(); index++) {
-        SkIPoint subPixelPos{0, 0};
-        if (isSubpixel) {
-            SkPoint glyphPos = mapper->map(posFn(index, pos));
-            subPixelPos = SkFindAndPlaceGlyph::SubpixelAlignment(axisAlignment, glyphPos);
-        }
-
-        glyphCacheState->addGlyph(runPaint.getTypeface(),
-                                  effects,
-                                  SkPackedGlyphID(glyphs[index], subPixelPos.x(), subPixelPos.y()),
-                                  asPath);
-    }
-}
-
-void SkTextBlobCacheDiffCanvas::processGlyphRunForPaths(const SkTextBlobRunIterator& it,
-                                                        const SkPaint& runPaint,
-                                                        const SkMatrix& runMatrix) {
-    TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRunForPaths");
-
-    // The code below borrowed from GrTextContext::DrawBmpPosTextAsPaths.
-    SkPaint pathPaint(runPaint);
-#if SK_SUPPORT_GPU
-    SkScalar matrixScale = pathPaint.setupForAsPaths();
-    GrTextContext::FallbackTextHelper fallbackTextHelper(runMatrix, runPaint,
-                                                         glyph_size_limit(fSettings), matrixScale);
-    const SkPoint emptyPosition{0, 0};
-#else
-    pathPaint.setupForAsPaths();
-#endif
-
-    pathPaint.setStyle(SkPaint::kFill_Style);
-    pathPaint.setPathEffect(nullptr);
-
-    SkScalerContextRec deviceSpecificRec;
-    SkScalerContextEffects effects;
-    auto* glyphCacheState = fStrikeServer->getOrCreateCache(
-            pathPaint, &this->surfaceProps(), nullptr,
-            SkScalerContextFlags::kFakeGammaAndBoostContrast, &deviceSpecificRec, &effects);
-
-    const bool asPath = true;
-    const SkIPoint subPixelPos{0, 0};
-    const uint16_t* glyphs = it.glyphs();
-    for (uint32_t index = 0; index < it.glyphCount(); index++) {
-        auto glyphID = SkPackedGlyphID(glyphs[index], subPixelPos.x(), subPixelPos.y());
-#if SK_SUPPORT_GPU
-        const auto& glyph = glyphCacheState->findGlyph(runPaint.getTypeface(), effects, glyphID);
-        if (SkMask::kARGB32_Format == glyph.fMaskFormat) {
-            // Note that we send data for the original glyph even in the case of fallback since its
-            // glyph metrics will still be used on the client.
-            fallbackTextHelper.appendText(glyph, sizeof(uint16_t), (const char*)&glyphs[index],
-                                          emptyPosition);
-        }
-#endif
-        glyphCacheState->addGlyph(runPaint.getTypeface(), effects, glyphID, asPath);
-    }
-
-#if SK_SUPPORT_GPU
-    add_fallback_text_to_cache(fallbackTextHelper, this->surfaceProps(), runMatrix, runPaint,
-                               fStrikeServer);
-#endif
-}
-
-#if SK_SUPPORT_GPU
-bool SkTextBlobCacheDiffCanvas::processGlyphRunForDFT(const SkTextBlobRunIterator& it,
-                                                      const SkPaint& runPaint,
-                                                      const SkMatrix& runMatrix) {
-    GrTextContext::Options options;
-    options.fMinDistanceFieldFontSize = fSettings.fMinDistanceFieldFontSize;
-    options.fMaxDistanceFieldFontSize = fSettings.fMaxDistanceFieldFontSize;
-    GrTextContext::SanitizeOptions(&options);
-    if (!GrTextContext::CanDrawAsDistanceFields(runPaint, runMatrix, this->surfaceProps(),
-                                                fSettings.fContextSupportsDistanceFieldText,
-                                                options)) {
-        return false;
-    }
-
-    SkScalar textRatio;
-    SkPaint dfPaint(runPaint);
-    SkScalerContextFlags flags;
-    GrTextContext::InitDistanceFieldPaint(nullptr, &dfPaint, runMatrix, options, &textRatio,
-                                          &flags);
-    SkScalerContextRec deviceSpecificRec;
-    SkScalerContextEffects effects;
-    auto* glyphCacheState = fStrikeServer->getOrCreateCache(dfPaint, &this->surfaceProps(), nullptr,
-                                                            flags, &deviceSpecificRec, &effects);
-
-    GrTextContext::FallbackTextHelper fallbackTextHelper(runMatrix, runPaint,
-                                                         glyph_size_limit(fSettings), textRatio);
-    const bool asPath = false;
-    const SkIPoint subPixelPos{0, 0};
-    const SkPoint emptyPosition{0, 0};
-    const uint16_t* glyphs = it.glyphs();
-    for (uint32_t index = 0; index < it.glyphCount(); index++) {
-        auto glyphID = SkPackedGlyphID(glyphs[index], subPixelPos.x(), subPixelPos.y());
-        const auto& glyph = glyphCacheState->findGlyph(runPaint.getTypeface(), effects, glyphID);
-        if (glyph.fMaskFormat != SkMask::kSDF_Format) {
-            // Note that we send data for the original glyph even in the case of fallback since its
-            // glyph metrics will still be used on the client.
-            fallbackTextHelper.appendText(glyph, sizeof(uint16_t), (const char*)&glyphs[index],
-                                          emptyPosition);
-        }
-
-        glyphCacheState->addGlyph(runPaint.getTypeface(),
-                                  effects,
-                                  SkPackedGlyphID(glyphs[index], subPixelPos.x(), subPixelPos.y()),
-                                  asPath);
-    }
-
-    add_fallback_text_to_cache(fallbackTextHelper, this->surfaceProps(), runMatrix, runPaint,
-                               fStrikeServer);
-    return true;
-}
-#endif
-
-const SkSurfaceProps& SkTextBlobCacheDiffCanvas::surfaceProps() const {
-    // SaveLayers can change the SurfaceProps used, and we ensure that the props used by the top
-    // device for the layer is correct. This is done by ensuring that TrackLayerDevice used by this
-    // canvas propagates them correctly when a new device is created for a layer.
-    const auto* device = this->getTopDevice();
-    SkASSERT(device);
-    return device->surfaceProps();
+void SkTextBlobCacheDiffCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
+                                               const SkPaint& paint) {
+    SkCanvas::onDrawTextBlob(blob, x, y, paint);
 }
 
 struct StrikeSpec {

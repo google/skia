@@ -62,6 +62,10 @@ public:
         int fMaxTextureSize = 0;
         size_t fMaxTextureBytes = 0u;
     };
+    SkTextBlobCacheDiffCanvas(int width, int height, const SkSurfaceProps& props,
+                              SkStrikeServer* strikeserver, Settings settings = Settings());
+
+    // TODO(khushalsagar): Remove once removed from chromium.
     SkTextBlobCacheDiffCanvas(int width, int height, const SkMatrix& deviceMatrix,
                               const SkSurfaceProps& props, SkStrikeServer* strikeserver,
                               Settings settings = Settings());
@@ -69,29 +73,11 @@ public:
 
 protected:
     SkCanvas::SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override;
-
     void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                         const SkPaint& paint) override;
 
 private:
-    void processLooper(const SkPoint& position,
-                       const SkTextBlobRunIterator& it,
-                       const SkPaint& origPaint,
-                       SkDrawLooper* looper);
-    void processGlyphRun(const SkPoint& position,
-                         const SkTextBlobRunIterator& it,
-                         const SkPaint& runPaint);
-    void processGlyphRunForPaths(const SkTextBlobRunIterator& it, const SkPaint& runPaint,
-                                 const SkMatrix& runMatrix);
-#if SK_SUPPORT_GPU
-    bool processGlyphRunForDFT(const SkTextBlobRunIterator& it, const SkPaint& runPaint,
-                               const SkMatrix& runMatrix);
-#endif
-    const SkSurfaceProps& surfaceProps() const;
-
-    const SkMatrix fDeviceMatrix;
-    SkStrikeServer* const fStrikeServer;
-    const Settings fSettings;
+    class TrackLayerDevice;
 };
 
 using SkDiscardableHandleId = uint32_t;
