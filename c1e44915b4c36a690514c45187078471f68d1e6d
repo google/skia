@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "11c90501_b029ff01",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-08T17:45:32Z",
+      "side": 1,
+      "message": "Since we\u0027re not using either of these values anywhere else\n\nif (fDWriteFontFace-\u003eGetIndex() !\u003d args.getCollectionIndex()) {",
+      "range": {
+        "startLine": 225,
+        "startChar": 8,
+        "endLine": 225,
+        "endChar": 29
+      },
+      "revId": "c1e44915b4c36a690514c45187078471f68d1e6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
