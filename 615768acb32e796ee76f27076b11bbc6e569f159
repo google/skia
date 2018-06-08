@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f0381b2_780388b3",
+        "filename": "include/core/SkTo.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-06-08T20:59:20Z",
+      "side": 1,
+      "message": "This can probably go into include/private too?",
+      "range": {
+        "startLine": 11,
+        "startChar": 12,
+        "endLine": 11,
+        "endChar": 20
+      },
+      "revId": "615768acb32e796ee76f27076b11bbc6e569f159",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
