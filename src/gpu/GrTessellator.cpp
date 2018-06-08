@@ -1074,10 +1074,10 @@ void merge_collinear_edges(Edge* edge, EdgeList* activeEdges, Vertex** current, 
     SkASSERT(!edge->fNextEdgeBelow || edge->fNextEdgeBelow->isRightOf(edge->fBottom));
 }
 
-void split_edge(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, Comparator& c,
+bool split_edge(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, Comparator& c,
                 SkArenaAlloc& alloc) {
     if (!edge->fTop || !edge->fBottom || v == edge->fTop || v == edge->fBottom) {
-        return;
+        return false;
     }
     LOG("splitting edge (%g -> %g) at vertex %g (%g, %g)\n",
         edge->fTop->fID, edge->fBottom->fID,
@@ -1102,6 +1102,32 @@ void split_edge(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, 
     insert_edge_below(newEdge, top, c);
     insert_edge_above(newEdge, bottom, c);
     merge_collinear_edges(newEdge, activeEdges, current, c);
+    return true;
+}
+
+bool intersect_edge_pair(Edge* left, Edge* right, EdgeList* activeEdges, Vertex** current, Comparator& c, SkArenaAlloc& alloc) {
+    if (!left->fTop || !left->fBottom || !right->fTop || !right->fBottom) {
+        return false;
+    }
+    if (c.sweep_lt(left->fTop->fPoint, right->fTop->fPoint)) {
+        if (!left->isLeftOf(right->fTop)) {
+            return split_edge(left, right->fTop, activeEdges, current, c, alloc);
+        }
+    } else {
+        if (!right->isRightOf(left->fTop)) {
+            return split_edge(right, left->fTop, activeEdges, current, c, alloc);
+        }
+    }
+    if (c.sweep_lt(right->fBottom->fPoint, left->fBottom->fPoint)) {
+        if (!left->isLeftOf(right->fBottom)) {
+            return split_edge(left, right->fBottom, activeEdges, current, c, alloc);
+        }
+    } else {
+        if (!right->isRightOf(left->fBottom)) {
+            return split_edge(right, left->fBottom, activeEdges, current, c, alloc);
+        }
+    }
+    return false;
 }
 
 Edge* connect(Vertex* prev, Vertex* next, Edge::Type type, Comparator& c, SkArenaAlloc& alloc,
@@ -1237,7 +1263,7 @@ bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vert
         v->fAlpha = SkTMax(v->fAlpha, alpha);
         return true;
     }
-    return false;
+    return intersect_edge_pair(edge, other, activeEdges, current, c, alloc);
 }
 
 void sanitize_contours(VertexList* contours, int contourCnt, bool approximate) {
@@ -1400,6 +1426,41 @@ void dump_mesh(const VertexList& mesh) {
 #endif
 }
 
+#ifdef SK_DEBUG
+void validate_edge_pair(Edge* left, Edge* right, Comparator& c) {
+    if (!left || !right) {
+        return;
+    }
+    if (left->fTop == right->fTop) {
+        SkASSERT(left->isLeftOf(right->fBottom));
+        SkASSERT(right->isRightOf(left->fBottom));
+    } else if (c.sweep_lt(left->fTop->fPoint, right->fTop->fPoint)) {
+        SkASSERT(left->isLeftOf(right->fTop));
+    } else {
+        SkASSERT(right->isRightOf(left->fTop));
+    }
+    if (left->fBottom == right->fBottom) {
+        SkASSERT(left->isLeftOf(right->fTop));
+        SkASSERT(right->isRightOf(left->fTop));
+    } else if (c.sweep_lt(right->fBottom->fPoint, left->fBottom->fPoint)) {
+        SkASSERT(left->isLeftOf(right->fBottom));
+    } else {
+        SkASSERT(right->isRightOf(left->fBottom));
+    }
+}
+
+void validate_edge_list(EdgeList* edges, Comparator& c) {
+    Edge* left = edges->fHead;
+    if (!left) {
+        return;
+    }
+    for (Edge* right = left->fRight; right; right = right->fRight) {
+        validate_edge_pair(left, right, c);
+        left = right;
+    }
+}
+#endif
+
 // Stage 4: Simplify the mesh by inserting new vertices at intersecting edges.
 
 bool simplify(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
@@ -1421,7 +1482,7 @@ bool simplify(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
             v->fRightEnclosingEdge = rightEnclosingEdge;
             if (v->fFirstEdgeBelow) {
                 for (Edge* edge = v->fFirstEdgeBelow; edge; edge = edge->fNextEdgeBelow) {
-                    if (check_for_intersection(edge, leftEnclosingEdge, &activeEdges, &v, mesh, c,
+                    if (check_for_intersection(leftEnclosingEdge, edge, &activeEdges, &v, mesh, c,
                                                alloc)) {
                         restartChecks = true;
                         break;
@@ -1441,6 +1502,9 @@ bool simplify(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
             }
             found = found || restartChecks;
         } while (restartChecks);
+#ifdef SK_DEBUG
+        validate_edge_list(&activeEdges, c);
+#endif
         for (Edge* e = v->fFirstEdgeAbove; e; e = e->fNextEdgeAbove) {
             remove_edge(e, &activeEdges);
         }

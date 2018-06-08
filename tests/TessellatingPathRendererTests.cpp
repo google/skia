@@ -535,6 +535,17 @@ static SkPath create_path_36() {
     return path;
 }
 
+// Reduction from crbug.com/843135. Exercises a case where an intersection is missed.
+// This causes bad ordering in the active edge list.
+static SkPath create_path_37() {
+    SkPath path;
+    path.moveTo(-1.0662557646016024569e+23, 9.9621425197286319718e+22);
+    path.lineTo(                -121806400,                 113805032);
+    path.lineTo(                -120098872,                 112209680);
+    path.lineTo( 6.2832999862817380468e-36,     2.9885697364807128906);
+    return path;
+}
+
 static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
 
     SkPoint pts[2] = { {0, 0}, {1, 1} };
@@ -631,4 +642,5 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_34());
     test_path(ctx, rtc.get(), create_path_35());
     test_path(ctx, rtc.get(), create_path_36());
+    test_path(ctx, rtc.get(), create_path_37());
 }
