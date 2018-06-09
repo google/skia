@@ -46,6 +46,16 @@ void GrCCClipPath::init(GrProxyProvider* proxyProvider,
     fDeviceSpacePath = deviceSpacePath;
     fDeviceSpacePath.getBounds().roundOut(&fPathDevIBounds);
     fAccessRect = accessRect;
+    SkASSERT(SkIRect::Intersects(fPathDevIBounds, fAccessRect));
+}
+
+void GrCCClipPath::countPath(GrCCPathParser::PathStats* pathStats,
+                             GrCCAtlas::Specs* atlasSpecs) const {
+    SkASSERT(this->isInitialized());
+    SkIRect ibounds;
+    SkAssertResult(ibounds.intersect(fAccessRect, fPathDevIBounds));
+    pathStats->statPath(fDeviceSpacePath);
+    atlasSpecs->countRect(ibounds.width(), ibounds.height());
 }
 
 void GrCCClipPath::renderPathInAtlas(GrCCPerFlushResources* resources,

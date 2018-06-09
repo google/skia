@@ -22,7 +22,7 @@
 class GrCCPerFlushResources : public GrNonAtomicRef<GrCCPerFlushResources> {
 public:
     GrCCPerFlushResources(GrOnFlushResourceProvider*, int numPathDraws, int numClipPaths,
-                          const GrCCPathParser::PathStats&);
+                          const GrCCPathParser::PathStats&, const GrCCAtlas::Specs&);
 
     bool isMapped() const { return SkToBool(fPathInstanceData); }
 
@@ -52,6 +52,7 @@ private:
                                       int16_t* atlasOffsetY);
 
     const sk_sp<GrCCPathParser> fPathParser;
+    const GrCCAtlas::Specs fAtlasSpecs;
 
     sk_sp<const GrBuffer> fIndexBuffer;
     sk_sp<const GrBuffer> fVertexBuffer;

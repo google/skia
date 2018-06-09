@@ -27,8 +27,19 @@ struct SkIPoint16;
 class GrCCAtlas {
 public:
     using CoverageCountBatchID = int;
+    static constexpr int kPadding = 1;
 
-    GrCCAtlas(const GrCaps&, int minSize);
+    struct Specs {
+        int fMaxPreferredTextureSize = 0;
+        int fMinTextureSize = 0;
+        int fApproxNumPixels = 0;
+        int fMinWidth = 0;
+        int fMinHeight = 0;
+
+        void countRect(int w, int h);
+    };
+
+    GrCCAtlas(const Specs&);
     ~GrCCAtlas();
 
     bool addRect(int devWidth, int devHeight, SkIPoint16* loc);
@@ -51,8 +62,7 @@ private:
 
     bool internalPlaceRect(int w, int h, SkIPoint16* loc);
 
-    const int fMaxAtlasSize;
-
+    const int fMaxTextureSize;
     int fWidth, fHeight;
     std::unique_ptr<Node> fTopNode;
     SkISize fDrawBounds = {0, 0};
@@ -60,5 +70,11 @@ private:
     CoverageCountBatchID fCoverageCountBatchID SkDEBUGCODE(= 0);
     sk_sp<GrTextureProxy> fTextureProxy;
 };
+
+inline void GrCCAtlas::Specs::countRect(int w, int h) {
+    fApproxNumPixels += (w + kPadding) * (h + kPadding);
+    fMinWidth = SkTMax(w, fMinWidth);
+    fMinHeight = SkTMax(h, fMinHeight);
+}
 
 #endif
