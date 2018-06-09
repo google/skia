@@ -15,8 +15,10 @@ using PathInstance = GrCCPathProcessor::Instance;
 
 GrCCPerFlushResources::GrCCPerFlushResources(GrOnFlushResourceProvider* onFlushRP,
                                              int numPathDraws, int numClipPaths,
-                                             const GrCCPathParser::PathStats& pathStats)
+                                             const GrCCPathParser::PathStats& pathStats,
+                                             const GrCCAtlas::Specs& atlasSpecs)
         : fPathParser(sk_make_sp<GrCCPathParser>(numPathDraws + numClipPaths, pathStats))
+        , fAtlasSpecs(atlasSpecs)
         , fIndexBuffer(GrCCPathProcessor::FindIndexBuffer(onFlushRP))
         , fVertexBuffer(GrCCPathProcessor::FindVertexBuffer(onFlushRP))
         , fInstanceBuffer(onFlushRP->makeBuffer(kVertex_GrBufferType,
@@ -87,7 +89,7 @@ GrCCAtlas* GrCCPerFlushResources::placeParsedPathInAtlas(const GrCaps& caps,
             auto coverageCountBatchID = fPathParser->closeCurrentBatch();
             fAtlases.back().setCoverageCountBatchID(coverageCountBatchID);
         }
-        fAtlases.emplace_back(caps, SkTMax(w, h));
+        fAtlases.emplace_back(fAtlasSpecs);
         SkAssertResult(fAtlases.back().addRect(w, h, &atlasLocation));
     }
 
