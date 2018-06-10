@@ -43,12 +43,9 @@ source_set("tests") {
     ]
 
     deps = [
+      ":skjson",
       "../..:gpu_tool_utils",
       "../..:skia",
-    ]
-
-    public_deps = [
-      ":skjson",
     ]
   }
 }
@@ -66,12 +63,9 @@ source_set("bench") {
     ]
 
     deps = [
+      ":skjson",
       "../..:skia",
       "../../third_party/rapidjson",
-    ]
-
-    public_deps = [
-      ":skjson",
     ]
   }
 }
@@ -86,11 +80,8 @@ source_set("fuzz") {
     ]
 
     deps = [
-      "../..:skia",
-    ]
-
-    public_deps = [
       ":skjson",
+      "../..:skia",
     ]
   }
 }

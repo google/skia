@@ -33,6 +33,8 @@ def GrabDependentValues(js, name, value_type, list_to_extend, exclude):
   # Grab the values from other targets that $name depends on (e.g. optional
   # Skia components, gms, tests, etc).
   for dep in js['targets'][name]['deps']:
+    if 'modules' in dep:
+      continue   # Modules require special handling -- skip for now.
     if 'third_party' in dep:
       continue   # We've handled all third-party DEPS as static or shared_libs.
     if 'none' in dep:
