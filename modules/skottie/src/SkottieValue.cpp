@@ -59,10 +59,10 @@ SkColor ValueTraits<VectorValue>::As<SkColor>(const VectorValue& v) {
                b = v.size() > 2 ? v[2] : 0,
                a = v.size() > 3 ? v[3] : 1;
 
-    return SkColorSetARGB(SkTPin<SkScalar>(a, 0, 1) * 255,
-                          SkTPin<SkScalar>(r, 0, 1) * 255,
-                          SkTPin<SkScalar>(g, 0, 1) * 255,
-                          SkTPin<SkScalar>(b, 0, 1) * 255);
+    return SkColorSetARGB(SkScalarRoundToInt(SkTPin(a, 0.0f, 1.0f) * 255),
+                          SkScalarRoundToInt(SkTPin(r, 0.0f, 1.0f) * 255),
+                          SkScalarRoundToInt(SkTPin(g, 0.0f, 1.0f) * 255),
+                          SkScalarRoundToInt(SkTPin(b, 0.0f, 1.0f) * 255));
 }
 
 template <>
