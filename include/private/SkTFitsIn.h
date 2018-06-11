@@ -8,10 +8,6 @@
 #ifndef SkTFitsIn_DEFINED
 #define SkTFitsIn_DEFINED
 
-#include "../private/SkTLogic.h"
-#include <limits>
-#include <type_traits>
-
 /**
  * In C++ an unsigned to signed cast where the source value cannot be represented in the destination
  * type results in an implementation defined destination value. Unlike C, C++ does not allow a trap.
@@ -47,164 +43,26 @@
  * The two remaining checks uX -> sx [uX < max(sx)] and sx -> uX [sx > 0] can be done with one op.
  */
 
-namespace sktfitsin {
-namespace Private {
+template <typename D, typename S>
+constexpr inline bool SkTFitsIn(S src) {
+    bool S_is_signed = (S)-1 < 0,
+         D_is_signed = (D)-1 < 0;
 
-/** SkTMux::type = (a && b) ? Both : (a) ? A : (b) ? B : Neither; */
-template <bool a, bool b, typename Both, typename A, typename B, typename Neither>
-struct SkTMux {
-    using type = skstd::conditional_t<a, skstd::conditional_t<b, Both, A>,
-                                         skstd::conditional_t<b, B, Neither>>;
-};
-
-/** SkTHasMoreDigits = (digits(A) >= digits(B)) ? true_type : false_type. */
-template <typename A, typename B> struct SkTHasMoreDigits
-    : skstd::bool_constant<std::numeric_limits<A>::digits >= std::numeric_limits<B>::digits>
-{ };
-
-/** Returns true.
- *  Used when it is statically known that source values are in the range of the Destination.
- */
-template <typename S> struct SkTInRange_True {
-    static constexpr bool fits(S) {
-        return true;
+    // E.g. (int8_t)(uint8_t) int8_t(-1) == -1, but the uint8_t == 255, not -1.
+    if (S_is_signed && !D_is_signed && sizeof(S) <= sizeof(D)) {
+        if (src < 0) {
+            return false;
+        }
     }
-};
 
-/** Tests that (S)(D)s == s.
- *  This is not valid for uX -> sx and sx -> uX conversions.
- */
-template <typename D, typename S> struct SkTInRange_Cast {
-    static constexpr bool fits(S s) {
-        using S_is_bigger = SkTHasMoreDigits<S, D>;
-        using D_is_bigger = SkTHasMoreDigits<D, S>;
-
-        using S_is_signed = skstd::bool_constant<std::numeric_limits<S>::is_signed>;
-        using D_is_signed = skstd::bool_constant<std::numeric_limits<D>::is_signed>;
-
-        using precondition = skstd::bool_constant<
-            !((!S_is_signed::value &&  D_is_signed::value && S_is_bigger::value) ||
-              ( S_is_signed::value && !D_is_signed::value && D_is_bigger::value)   )>;
-        static_assert(precondition::value, "not valid for uX -> sx and sx -> uX conversions");
-
-        return static_cast<S>(static_cast<D>(s)) == s;
+    // As above in reverse: (uint8_t)(int8_t) uint8_t(255) == 255, but the int8_t == -1.
+    if (!S_is_signed && D_is_signed && sizeof(S) >= sizeof(D)) {
+        if ((D)src < 0) {
+            return false;
+        }
     }
-};
 
-/** Tests if the source value <= Max(D).
- *  Assumes that Max(S) >= Max(D).
- */
-template <typename D, typename S> struct SkTInRange_LE_MaxD {
-    static constexpr bool fits(S s) {
-        using precondition = SkTHasMoreDigits<S, D>;
-        static_assert(precondition::value, "maxS < maxD");
-
-        return s <= static_cast<S>((std::numeric_limits<D>::max)());
-
-    }
-};
-
-/** Tests if the source value >= 0. */
-template <typename D, typename S> struct SkTInRange_GE_Zero {
-    static constexpr bool fits(S s) {
-        return static_cast<S>(0) <= s;
-    }
-};
-
-/** SkTFitsIn_Unsigned2Unsiged::type is an SkTInRange with an fits(S s) method
- *  the implementation of which is tailored for the source and destination types.
- *  Assumes that S and D are unsigned integer types.
- */
-template <typename D, typename S> struct SkTFitsIn_Unsigned2Unsiged {
-    using CastCheck = SkTInRange_Cast<D, S>;
-    using NoCheck = SkTInRange_True<S>;
-
-    // If std::numeric_limits<D>::digits >= std::numeric_limits<S>::digits, nothing to check.
-    using sourceFitsInDesitination = SkTHasMoreDigits<D, S>;
-    using type = skstd::conditional_t<sourceFitsInDesitination::value, NoCheck, CastCheck>;
-};
-
-/** SkTFitsIn_Signed2Signed::type is an SkTInRange with an fits(S s) method
- *  the implementation of which is tailored for the source and destination types.
- *  Assumes that S and D are signed integer types.
- */
-template <typename D, typename S> struct SkTFitsIn_Signed2Signed {
-    using CastCheck = SkTInRange_Cast<D, S>;
-    using NoCheck = SkTInRange_True<S>;
-
-    // If std::numeric_limits<D>::digits >= std::numeric_limits<S>::digits, nothing to check.
-    using sourceFitsInDesitination = SkTHasMoreDigits<D, S>;
-    using type = skstd::conditional_t<sourceFitsInDesitination::value, NoCheck, CastCheck>;
-};
-
-/** SkTFitsIn_Signed2Unsigned::type is an SkTInRange with an fits(S s) method
- *  the implementation of which is tailored for the source and destination types.
- *  Assumes that S is a signed integer type and D is an unsigned integer type.
- */
-template <typename D, typename S> struct SkTFitsIn_Signed2Unsigned {
-    using CastCheck = SkTInRange_Cast<D, S>;
-    using LowSideOnlyCheck = SkTInRange_GE_Zero<D, S>;
-
-    // If std::numeric_limits<D>::max() >= std::numeric_limits<S>::max(),
-    // no need to check the high side. (Until C++11, assume more digits means greater max.)
-    // This also protects the precondition of SkTInRange_Cast.
-    using sourceCannotExceedDest = SkTHasMoreDigits<D, S>;
-    using type = skstd::conditional_t<sourceCannotExceedDest::value, LowSideOnlyCheck, CastCheck>;
-};
-
-/** SkTFitsIn_Unsigned2Signed::type is an SkTInRange with an fits(S s) method
- *  the implementation of which is tailored for the source and destination types.
- *  Assumes that S is an usigned integer type and D is a signed integer type.
- */
-template <typename D, typename S> struct SkTFitsIn_Unsigned2Signed {
-    using HighSideCheck = SkTInRange_LE_MaxD<D, S>;
-    using NoCheck = SkTInRange_True<S>;
-
-    // If std::numeric_limits<D>::max() >= std::numeric_limits<S>::max(), nothing to check.
-    // (Until C++11, assume more digits means greater max.)
-    using sourceCannotExceedDest = SkTHasMoreDigits<D, S>;
-    using type = skstd::conditional_t<sourceCannotExceedDest::value, NoCheck, HighSideCheck>;
-};
-
-/** SkTFitsIn::type is an SkTInRange with an fits(S s) method
- *  the implementation of which is tailored for the source and destination types.
- *  Assumes that S and D are integer types.
- */
-template <typename D, typename S> struct SkTFitsIn {
-    // One of the following will be the 'selector' type.
-    using S2S = SkTFitsIn_Signed2Signed<D, S>;
-    using S2U = SkTFitsIn_Signed2Unsigned<D, S>;
-    using U2S = SkTFitsIn_Unsigned2Signed<D, S>;
-    using U2U = SkTFitsIn_Unsigned2Unsiged<D, S>;
-
-    using S_is_signed = skstd::bool_constant<std::numeric_limits<S>::is_signed>;
-    using D_is_signed = skstd::bool_constant<std::numeric_limits<D>::is_signed>;
-
-    using selector = typename SkTMux<S_is_signed::value, D_is_signed::value,
-                                     S2S, S2U, U2S, U2U>::type;
-    // This type is an SkTInRange.
-    using type = typename selector::type;
-};
-
-template <typename T, bool = std::is_enum<T>::value> struct underlying_type {
-    using type = skstd::underlying_type_t<T>;
-};
-template <typename T> struct underlying_type<T, false> {
-    using type = T;
-};
-
-} // namespace Private
-} // namespace sktfitsin
-
-/** Returns true if the integer source value 's' will fit in the integer destination type 'D'. */
-template <typename D, typename S> constexpr inline bool SkTFitsIn(S s) {
-    static_assert(std::is_integral<S>::value || std::is_enum<S>::value, "S must be integral.");
-    static_assert(std::is_integral<D>::value || std::is_enum<D>::value, "D must be integral.");
-
-    using RealS = typename sktfitsin::Private::underlying_type<S>::type;
-    using RealD = typename sktfitsin::Private::underlying_type<D>::type;
-
-    return sktfitsin::Private::SkTFitsIn<RealD, RealS>::type::fits(static_cast<RealS>(s));
+    return (S)(D)src == src;
 }
 
 #endif
