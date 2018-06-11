@@ -618,9 +618,6 @@ def dm_flags(api, bot):
     match.append('~SpecialImage') # skia:6338
     match.append('~skbug6653') # skia:6653
 
-  if 'GalaxyS7_G930A' in bot:
-    match.append('~WritePixels') # skia:6427
-
   if 'MSAN' in bot:
     match.extend(['~Once', '~Shared'])  # Not sure what's up with these tests.
 
@@ -988,7 +985,6 @@ def RunSteps(api):
 TEST_BUILDERS = [
   'Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All-Android',
   'Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-All-Android',
-  'Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-All-Android',
   'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android_CCPR',
   'Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-All-Android',
   'Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_ASAN',
