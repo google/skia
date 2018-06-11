@@ -185,11 +185,17 @@ private:
 class SK_API SkStrikeClient {
 public:
     enum CacheMissType : uint32_t {
+        // Hard failures where no fallback could be found.
         kFontMetrics,
         kGlyphMetrics,
         kGlyphImage,
         kGlyphPath,
-        kLast = kGlyphPath
+
+        // The original glyph could not be found and a fallback was used.
+        kGlyphMetricsFallback,
+        kGlyphPathFallback,
+
+        kLast = kGlyphPathFallback
     };
 
     // An interface to delete handles that may be pinned by the remote server.
