@@ -12,6 +12,7 @@
 #include "GrTypes.h"
 #include "SkTArray.h"
 #include "SkTypes.h"
+#include <new>
 
 class GrAllocator : SkNoncopyable {
 public:

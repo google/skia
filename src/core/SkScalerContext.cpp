@@ -30,6 +30,7 @@
 #include "SkSurfacePriv.h"
 #include "SkTextFormatParams.h"
 #include "SkWriteBuffer.h"
+#include <new>
 
 ///////////////////////////////////////////////////////////////////////////////
 

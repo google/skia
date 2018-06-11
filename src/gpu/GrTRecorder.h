@@ -9,6 +9,7 @@
 #define GrTRecorder_DEFINED
 
 #include "SkTypes.h"
+#include <new>
 
 template<typename TBase, typename TAlign> class GrTRecorder;
 template<typename TItem> struct GrTRecorderAllocWrapper;

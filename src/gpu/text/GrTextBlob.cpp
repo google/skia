@@ -18,6 +18,7 @@
 #include "SkTextBlobRunIterator.h"
 #include "SkTextToPathIter.h"
 #include "ops/GrAtlasTextOp.h"
+#include <new>
 
 sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount, int runCount) {
     // We allocate size for the GrTextBlob itself, plus size for the vertices array,

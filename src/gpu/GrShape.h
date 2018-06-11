@@ -14,6 +14,7 @@
 #include "SkRRect.h"
 #include "SkTemplates.h"
 #include "SkTLazy.h"
+#include <new>
 
 /**
  * Represents a geometric shape (rrect or path) and the GrStyle that it should be rendered with.

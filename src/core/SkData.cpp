@@ -11,6 +11,7 @@
 #include "SkReadBuffer.h"
 #include "SkStream.h"
 #include "SkWriteBuffer.h"
+#include <new>
 
 SkData::SkData(const void* ptr, size_t size, ReleaseProc proc, void* context) {
     fPtr = const_cast<void*>(ptr);

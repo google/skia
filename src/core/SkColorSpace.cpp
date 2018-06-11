@@ -9,6 +9,7 @@
 #include "SkColorSpace_XYZ.h"
 #include "SkColorSpacePriv.h"
 #include "SkPoint3.h"
+#include <new>
 
 bool SkColorSpacePrimaries::toXYZD50(SkMatrix44* toXYZ_D50) const {
     if (!is_zero_to_one(fRX) || !is_zero_to_one(fRY) ||

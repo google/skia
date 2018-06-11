@@ -7,6 +7,7 @@
 
 #include "SkArenaAlloc.h"
 #include <algorithm>
+#include <new>
 
 static char* end_chain(char*) { return nullptr; }
 
