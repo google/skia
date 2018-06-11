@@ -135,12 +135,14 @@ var (
 		},
 	}
 
+	// versions of the following copied from
+	// https://chrome-internal.googlesource.com/infradata/config/+/master/configs/cr-buildbucket/swarming_task_template.json#42
 	// TODO(borenet): Roll these versions automatically!
 	CIPD_PKGS_PYTHON = []*specs.CipdPackage{
 		&specs.CipdPackage{
 			Name:    "infra/tools/luci/vpython/${platform}",
 			Path:    "cipd_bin_packages",
-			Version: "git_revision:d0130097bd6364a8d834cb9efd4554c1f6192c82",
+			Version: "git_revision:ad60019cb66a75b59991d43b95a43f68e3fff81b",
 		},
 	}
 
@@ -148,12 +150,12 @@ var (
 		&specs.CipdPackage{
 			Name:    "infra/tools/luci/kitchen/${platform}",
 			Path:    ".",
-			Version: "git_revision:206b4474cb712bdad8b7b3f213880cfbf03f120c",
+			Version: "git_revision:70be31c3bdd7641a2648ad4a495612e923158b4b",
 		},
 		&specs.CipdPackage{
-			Name:    "infra/tools/authutil/${platform}",
+			Name:    "infra/tools/luci-auth/${platform}",
 			Path:    "cipd_bin_packages",
-			Version: "git_revision:9c63809842a277ce10a86afd51b61c639a665d11",
+			Version: "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c",
 		},
 	}, CIPD_PKGS_PYTHON...)
 
@@ -161,17 +163,17 @@ var (
 		&specs.CipdPackage{
 			Name:    "infra/git/${platform}",
 			Path:    "cipd_bin_packages",
-			Version: "version:2.15.0.chromium12",
+			Version: "version:2.17.0.chromium15",
 		},
 		&specs.CipdPackage{
 			Name:    "infra/tools/git/${platform}",
 			Path:    "cipd_bin_packages",
-			Version: "git_revision:fa7a52f4741f5e04bba0dfccc9b8456dc572c60b",
+			Version: "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c",
 		},
 		&specs.CipdPackage{
 			Name:    "infra/tools/luci/git-credential-luci/${platform}",
 			Path:    "cipd_bin_packages",
-			Version: "git_revision:d0130097bd6364a8d834cb9efd4554c1f6192c82",
+			Version: "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c",
 		},
 	}
 
