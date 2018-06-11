@@ -25068,6 +25068,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -25181,6 +25186,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -25530,6 +25540,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -25643,6 +25658,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -26213,6 +26233,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -26439,6 +26464,11 @@
           "version": "version:9"
         },
         {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
+        },
+        {
           "name": "skia/bots/linux_vulkan_intel_driver_debug",
           "path": "linux_vulkan_intel_driver_debug",
           "version": "version:4"
@@ -26554,6 +26584,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         },
         {
           "name": "skia/bots/linux_vulkan_sdk",
@@ -26917,6 +26952,11 @@
           "version": "version:9"
         },
         {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
+        },
+        {
           "name": "skia/bots/linux_vulkan_intel_driver_debug",
           "path": "linux_vulkan_intel_driver_debug",
           "version": "version:4"
@@ -27032,6 +27072,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         },
         {
           "name": "skia/bots/linux_vulkan_sdk",
@@ -27395,6 +27440,11 @@
           "version": "version:9"
         },
         {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
+        },
+        {
           "name": "skia/bots/linux_vulkan_intel_driver_debug",
           "path": "linux_vulkan_intel_driver_debug",
           "version": "version:4"
@@ -27629,6 +27679,11 @@
           "version": "version:9"
         },
         {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
+        },
+        {
           "name": "skia/bots/linux_vulkan_intel_driver_debug",
           "path": "linux_vulkan_intel_driver_debug",
           "version": "version:4"
@@ -27861,6 +27916,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -27974,6 +28034,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -30357,6 +30422,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -30586,6 +30656,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         },
         {
           "name": "skia/bots/linux_vulkan_sdk",
@@ -48321,6 +48396,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -48434,6 +48514,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -48783,6 +48868,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -48896,6 +48986,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -49009,6 +49104,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -49122,6 +49222,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -49235,6 +49340,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -49348,6 +49458,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -49461,6 +49576,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -49574,6 +49694,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -49687,6 +49812,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -49800,6 +49930,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -49913,6 +50048,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -50026,6 +50166,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -50139,6 +50284,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -50252,6 +50402,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -50365,6 +50520,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -50478,6 +50638,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -51505,6 +51670,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -51729,6 +51899,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -51957,6 +52132,11 @@
           "version": "version:9"
         },
         {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
+        },
+        {
           "name": "skia/bots/linux_vulkan_intel_driver_debug",
           "path": "linux_vulkan_intel_driver_debug",
           "version": "version:4"
@@ -52072,6 +52252,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         },
         {
           "name": "skia/bots/linux_vulkan_sdk",
@@ -52435,6 +52620,11 @@
           "version": "version:9"
         },
         {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
+        },
+        {
           "name": "skia/bots/linux_vulkan_intel_driver_debug",
           "path": "linux_vulkan_intel_driver_debug",
           "version": "version:4"
@@ -52550,6 +52740,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         },
         {
           "name": "skia/bots/linux_vulkan_sdk",
@@ -52913,6 +53108,11 @@
           "version": "version:9"
         },
         {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
+        },
+        {
           "name": "skia/bots/linux_vulkan_intel_driver_debug",
           "path": "linux_vulkan_intel_driver_debug",
           "version": "version:4"
@@ -53147,6 +53347,11 @@
           "version": "version:9"
         },
         {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
+        },
+        {
           "name": "skia/bots/linux_vulkan_intel_driver_debug",
           "path": "linux_vulkan_intel_driver_debug",
           "version": "version:4"
@@ -53379,6 +53584,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -53492,6 +53702,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -56449,6 +56664,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -56678,6 +56898,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -56790,6 +57015,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         },
         {
           "name": "skia/bots/linux_vulkan_sdk",
@@ -56907,6 +57137,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -57260,6 +57495,11 @@
           "version": "version:9"
         },
         {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
+        },
+        {
           "name": "skia/bots/linux_vulkan_sdk",
           "path": "linux_vulkan_sdk",
           "version": "version:0"
@@ -57377,6 +57617,11 @@
           "version": "version:9"
         },
         {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
+        },
+        {
           "name": "skia/bots/linux_vulkan_sdk",
           "path": "linux_vulkan_sdk",
           "version": "version:0"
@@ -57492,6 +57737,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -57604,6 +57854,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         },
         {
           "name": "skia/bots/linux_vulkan_sdk",
@@ -88461,6 +88716,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -93020,6 +93280,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         }
       ],
       "command": [
@@ -93668,6 +93933,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:11"
         },
         {
           "name": "skia/bots/linux_vulkan_sdk",
