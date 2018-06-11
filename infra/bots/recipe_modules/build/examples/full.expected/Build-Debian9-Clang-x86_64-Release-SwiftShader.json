@@ -32,6 +32,7 @@
     "cmd": [
       "cmake",
       "-DBUILD_TESTS=OFF",
+      "-DCMAKE_BUILD_TYPE=Release",
       "[START_DIR]/cache/work/skia/third_party/externals/swiftshader",
       "-GNinja"
     ],
