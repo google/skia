@@ -18465,7 +18465,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:NRD90M_G930FXXU1DQAS",
+        "device_os:R16NW_G930FXXU2EREM",
         "device_type:herolte",
         "os:Android",
         "pool:Skia"
@@ -18566,7 +18566,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:NRD90M_G930FXXU1DQAS",
+        "device_os:R16NW_G930FXXU2EREM",
         "device_type:herolte",
         "os:Android",
         "pool:Skia"
@@ -40583,7 +40583,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:NRD90M_G930FXXU1DQAS",
+        "device_os:R16NW_G930FXXU2EREM",
         "device_type:herolte",
         "os:Android",
         "pool:Skia"
@@ -40684,7 +40684,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:NRD90M_G930FXXU1DQAS",
+        "device_os:R16NW_G930FXXU2EREM",
         "device_type:herolte",
         "os:Android",
         "pool:Skia"
