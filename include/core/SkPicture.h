@@ -12,20 +12,13 @@
 #include "SkRect.h"
 #include "SkTypes.h"
 
-class SkBigPicture;
 class SkCanvas;
 class SkData;
 struct SkDeserialProcs;
 class SkImage;
-class SkPictureData;
-class SkReadBuffer;
-class SkRefCntSet;
 struct SkSerialProcs;
 class SkStream;
-class SkTypefacePlayback;
 class SkWStream;
-class SkWriteBuffer;
-struct SkPictInfo;
 
 /** \class SkPicture
 
@@ -38,20 +31,12 @@ public:
      *  Recreate a picture that was serialized into a stream or data.
      */
 
-    static sk_sp<SkPicture> MakeFromStream(SkStream*, const SkDeserialProcs* = nullptr);
-    static sk_sp<SkPicture> MakeFromData(const SkData* data, const SkDeserialProcs* = nullptr);
+    static sk_sp<SkPicture> MakeFromStream(SkStream* stream,
+                                           const SkDeserialProcs* procs = nullptr);
+    static sk_sp<SkPicture> MakeFromData(const SkData* data,
+                                         const SkDeserialProcs* procs = nullptr);
     static sk_sp<SkPicture> MakeFromData(const void* data, size_t size,
-                                         const SkDeserialProcs* = nullptr);
-
-    /**
-     *  Recreate a picture that was serialized into a buffer. If the creation requires bitmap
-     *  decoding, the decoder must be set on the SkReadBuffer parameter by calling
-     *  SkReadBuffer::setBitmapDecoder() before calling SkPicture::MakeFromBuffer().
-     *  @param SkReadBuffer Serialized picture data.
-     *  @return A new SkPicture representing the serialized data, or NULL if the buffer is
-     *          invalid.
-     */
-    static sk_sp<SkPicture> MakeFromBuffer(SkReadBuffer&);
+                                         const SkDeserialProcs* procs = nullptr);
 
     /**
     *  Subclasses of this can be passed to playback(). During the playback
@@ -77,7 +62,7 @@ public:
         @param canvas the canvas receiving the drawing commands.
         @param callback a callback that allows interruption of playback
     */
-    virtual void playback(SkCanvas*, AbortCallback* = nullptr) const = 0;
+    virtual void playback(SkCanvas* canvas, AbortCallback* callback = nullptr) const = 0;
 
     /** Return a cull rect for this picture.
         Ops recorded into this picture that attempt to draw outside the cull might not be drawn.
@@ -87,8 +72,8 @@ public:
     /** Returns a non-zero value unique among all pictures. */
     uint32_t uniqueID() const;
 
-    sk_sp<SkData> serialize(const SkSerialProcs* = nullptr) const;
-    void serialize(SkWStream*, const SkSerialProcs* = nullptr) const;
+    sk_sp<SkData> serialize(const SkSerialProcs* procs = nullptr) const;
+    void serialize(SkWStream* stream, const SkSerialProcs* procs = nullptr) const;
 
     /**
      * Return a placeholder SkPicture.
@@ -97,11 +82,6 @@ public:
      * @param cull the placeholder's dimensions
      */
     static sk_sp<SkPicture> MakePlaceholder(SkRect cull);
-
-    /**
-     *  Serialize to a buffer.
-     */
-    void flatten(SkWriteBuffer&) const;
 
     /** Return the approximate number of operations in this picture.  This
      *  number may be greater or less than the number of SkCanvas calls
@@ -113,18 +93,17 @@ public:
     /** Returns the approximate byte size of this picture, not including large ref'd objects. */
     virtual size_t approximateBytesUsed() const = 0;
 
-    // Returns NULL if this is not an SkBigPicture.
-    virtual const SkBigPicture* asSkBigPicture() const { return nullptr; }
-
 private:
     // Subclass whitelist.
     SkPicture();
     friend class SkBigPicture;
     friend class SkEmptyPicture;
+    friend class SkPicturePriv;
     template <typename> friend class SkMiniPicture;
 
-    void serialize(SkWStream*, const SkSerialProcs*, SkRefCntSet* typefaces) const;
-    static sk_sp<SkPicture> MakeFromStream(SkStream*, const SkDeserialProcs*, SkTypefacePlayback*);
+    void serialize(SkWStream*, const SkSerialProcs*, class SkRefCntSet* typefaces) const;
+    static sk_sp<SkPicture> MakeFromStream(SkStream*, const SkDeserialProcs*,
+                                           class SkTypefacePlayback*);
     friend class SkPictureData;
 
     /** Return true if the SkStream/Buffer represents a serialized picture, and
@@ -135,9 +114,12 @@ private:
      intended for stand alone tools.
      If false is returned, SkPictInfo is unmodified.
      */
-    static bool StreamIsSKP(SkStream*, SkPictInfo*);
-    static bool BufferIsSKP(SkReadBuffer*, SkPictInfo*);
-    friend bool SkPicture_StreamIsSKP(SkStream*, SkPictInfo*);
+    static bool StreamIsSKP(SkStream*, struct SkPictInfo*);
+    static bool BufferIsSKP(class SkReadBuffer*, struct SkPictInfo*);
+    friend bool SkPicture_StreamIsSKP(SkStream*, struct SkPictInfo*);
+
+    // Returns NULL if this is not an SkBigPicture.
+    virtual const class SkBigPicture* asSkBigPicture() const { return nullptr; }
 
     friend struct SkPathCounter;
 
@@ -177,13 +159,13 @@ private:
 
     static_assert(MIN_PICTURE_VERSION <= 62, "Remove kFontAxes_bad from SkFontDescriptor.cpp");
 
-    static bool IsValidPictInfo(const SkPictInfo& info);
-    static sk_sp<SkPicture> Forwardport(const SkPictInfo&,
-                                        const SkPictureData*,
-                                        SkReadBuffer* buffer);
+    static bool IsValidPictInfo(const struct SkPictInfo& info);
+    static sk_sp<SkPicture> Forwardport(const struct SkPictInfo&,
+                                        const class SkPictureData*,
+                                        class SkReadBuffer* buffer);
 
-    SkPictInfo createHeader() const;
-    SkPictureData* backport() const;
+    struct SkPictInfo createHeader() const;
+    class SkPictureData* backport() const;
 
     mutable uint32_t fUniqueID;
 };
