@@ -1577,10 +1577,12 @@ public:
     Definition* findIncludeObject(const Definition& includeDef, MarkType markType,
                                   string typeName);
     static KeyWord FindKey(const char* start, const char* end);
+    Bracket grandParentBracket() const;
     bool isClone(const Definition& token);
     bool isConstructor(const Definition& token, string className);
     bool isInternalName(const Definition& token);
     bool isOperator(const Definition& token);
+    Definition* parentBracket(Definition* parent) const;
     bool parseChar();
     bool parseComment(string filename, const char* start, const char* end, int lineCount,
             Definition* markupDef);
@@ -1608,6 +1610,10 @@ public:
     bool parseUnion();
 
     void popBracket() {
+        if (Definition::Type::kKeyWord == fParent->fType
+                && KeyWord::kTypename == fParent->fKeyWord) {
+            this->popObject();
+        }
         SkASSERT(Definition::Type::kBracket == fParent->fType);
         this->popObject();
         Bracket bracket = this->topBracket();
@@ -1654,13 +1660,7 @@ public:
         fInCharCommentString = fInChar || fInComment || fInString;
     }
 
-    Bracket topBracket() const {
-        Definition* parent = fParent;
-        while (parent && Definition::Type::kBracket != parent->fType) {
-            parent = parent->fParent;
-        }
-        return parent ? parent->fBracket : Bracket::kNone;
-    }
+    Bracket topBracket() const;
 
     template <typename T>
     string uniqueName(const unordered_map<string, T>& m, string typeName) {
@@ -1798,6 +1798,16 @@ public:
 
     void writeTag(const char* tagType, string tagID) {
         this->writeTag(tagType, tagID.c_str());
+    }
+
+    void writeTagTable(string tagType, string body) {
+        this->writeTag(tagType.c_str());
+        this->writeSpace(1);
+        this->writeString("#");
+        this->writeSpace(1);
+        this->writeString(body);
+        this->writeSpace(1);
+        this->writeString("##");
     }
 
 protected:

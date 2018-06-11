@@ -1758,6 +1758,17 @@ string BmhParser::methodName() {
     if (!paren) {
         return this->reportError<string>("missing method name and reference");
     }
+    { 
+        TextParserSave endCheck(this);
+        while (end < fEnd && !this->strnchr(')', end)) {
+            fChar = end + 1;
+            end = this->lineEnd();
+        }
+        if (end >= fEnd) {
+            return this->reportError<string>("missing method end paren");
+        }
+        endCheck.restore();
+    }
     const char* nameStart = paren;
     char ch;
     bool expectOperator = false;
@@ -1800,10 +1811,13 @@ string BmhParser::methodName() {
     }
     const Definition* parent = this->parentSpace();
     if (parent && parent->fName.length() > 0) {
-        if (parent->fName == name) {
+        size_t parentNameIndex = parent->fName.rfind(':');
+        parentNameIndex = string::npos == parentNameIndex ? 0 : parentNameIndex + 1;
+        string parentName = parent->fName.substr(parentNameIndex);
+        if (parentName == name) {
             isConstructor = true;
         } else if ('~' == name[0]) {
-            if (parent->fName != name.substr(1)) {
+            if (parentName != name.substr(1)) {
                  return this->reportError<string>("expected destructor");
             }
             isConstructor = true;

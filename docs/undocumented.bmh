@@ -188,6 +188,11 @@ FT_Load_Glyph
 ##
 ##
 
+#Topic Deserial_Procs
+#Struct SkDeserialProcs
+##
+##
+
 #Topic Device
 #Class SkBaseDevice
 ##
@@ -482,19 +487,13 @@ FT_Load_Glyph
     ##
 #Topic ##
 
-#Topic Picture
-#Class SkPicture
-#Method virtual void playback(SkCanvas*, AbortCallback* = nullptr) const = 0
-##
-##
-#Subtopic Recorder
+#Topic Picture_Recorder
     #Class SkPictureRecorder
         #Method SkCanvas* beginRecording(const SkRect& bounds,
                              SkBBHFactory* bbhFactory = NULL,
                              uint32_t recordFlags = 0)
         ##
     ##
-##
 ##
 
 #Topic Pixel
@@ -594,6 +593,11 @@ FT_Load_Glyph
 ##
 ##
 
+#Topic Serial_Procs
+#Struct SkSerialProcs
+##
+##
+
 #Topic Shader
 #Class SkShader
     #Enum TileMode
@@ -620,6 +624,8 @@ FT_Load_Glyph
 #Topic ##
 
 #Topic Stream
+#Class SkStream
+##
 #Class SkWStream
 ##
 #Topic ##
