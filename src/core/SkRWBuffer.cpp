@@ -13,6 +13,7 @@
 #include "SkStream.h"
 
 #include <atomic>
+#include <new>
 
 // Force small chunks to be a page's worth
 static const size_t kMinAllocSize = 4096;

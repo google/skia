@@ -12,6 +12,7 @@
 #include "SkRandom.h"
 #include "SkTDArray.h"
 #include "SkTemplates.h"
+#include <new>
 
 // change this to 0 to compare GrMemoryPool to default new / delete
 #define OVERRIDE_NEW    1

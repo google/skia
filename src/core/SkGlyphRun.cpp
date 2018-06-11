@@ -8,6 +8,7 @@
 #include "SkGlyphRun.h"
 
 #include <algorithm>
+#include <new>
 #include <tuple>
 
 #include "SkDevice.h"

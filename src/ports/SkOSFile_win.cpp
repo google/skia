@@ -15,6 +15,7 @@
 #include "SkTFitsIn.h"
 
 #include <io.h>
+#include <new>
 #include <stdio.h>
 #include <sys/stat.h>
 

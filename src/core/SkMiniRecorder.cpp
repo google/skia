@@ -14,6 +14,7 @@
 #include "SkRecordDraw.h"
 #include "SkRectPriv.h"
 #include "SkTextBlob.h"
+#include <new>
 
 using namespace SkRecords;
 

@@ -11,6 +11,7 @@
 #include "SkChecksum.h"
 #include "SkTypes.h"
 #include "SkTemplates.h"
+#include <new>
 
 // Before trying to use SkTHashTable, look below to see if SkTHashMap or SkTHashSet works for you.
 // They're easier to use, usually perform the same, and have fewer sharp edges.

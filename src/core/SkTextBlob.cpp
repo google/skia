@@ -14,6 +14,7 @@
 #include "SkWriteBuffer.h"
 
 #include <limits>
+#include <new>
 
 #if SK_SUPPORT_GPU
 #include "text/GrTextBlobCache.h"

@@ -12,6 +12,7 @@
 #include "SkSafeMath.h"
 #include "SkSafeRange.h"
 #include "SkWriter32.h"
+#include <new>
 
 static int32_t gNextID = 1;
 static int32_t next_id() {

@@ -28,6 +28,7 @@
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLVarying.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
+#include <new>
 
 namespace {
 

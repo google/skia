@@ -31,6 +31,7 @@
 #include "SkSurface.h"
 #include "SkTextBlob.h"
 #include "SkTypeface.h"
+#include <new>
 
 extern "C" {
     #include "lua.h"

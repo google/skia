@@ -5,12 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkString.h"
-#include <stdarg.h>
-#include <cstdio>
 #include "SkAtomics.h"
 #include "SkSafeMath.h"
+#include "SkString.h"
 #include "SkUtils.h"
+#include <cstdio>
+#include <new>
+#include <stdarg.h>
 
 // number of bytes (on the stack) to receive the printf result
 static const size_t kBufferSize = 1024;

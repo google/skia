@@ -12,6 +12,7 @@
 #include "SkOpts.h"
 #include "SkTypes.h"
 #include <memory>
+#include <new>
 
 class SkDescriptor : SkNoncopyable {
 public:

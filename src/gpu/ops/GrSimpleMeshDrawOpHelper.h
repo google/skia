@@ -11,6 +11,7 @@
 #include "GrMeshDrawOp.h"
 #include "GrOpFlushState.h"
 #include "GrPipeline.h"
+#include <new>
 
 struct SkRect;
 

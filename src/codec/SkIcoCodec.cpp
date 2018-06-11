@@ -110,7 +110,7 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
     // Now will construct a candidate codec for each of the embedded images
     uint32_t bytesRead = kIcoDirectoryBytes + numImages * kIcoDirEntryBytes;
     std::unique_ptr<SkTArray<std::unique_ptr<SkCodec>, true>> codecs(
-            new (SkTArray<std::unique_ptr<SkCodec>, true>)(numImages));
+            new SkTArray<std::unique_ptr<SkCodec>, true>(numImages));
     for (uint32_t i = 0; i < numImages; i++) {
         uint32_t offset = directoryEntries[i].offset;
         uint32_t size = directoryEntries[i].size;

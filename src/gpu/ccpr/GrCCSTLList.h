@@ -9,6 +9,7 @@
 #define GrCCSTLList_DEFINED
 
 #include "SkArenaAlloc.h"
+#include <new>
 
 /**
  * A singly-linked list whose head element is a local class member. This is required by

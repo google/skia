@@ -12,6 +12,7 @@
 
 #include "SkMalloc.h"
 #include "SkTypes.h"
+#include <new>
 #include <utility>
 
 /** Doubly-linked list of objects. The objects' lifetimes are controlled by the list. I.e. the

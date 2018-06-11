@@ -15,6 +15,7 @@
 #include "SkPM4fPriv.h"
 #include "SkSRGB.h"
 #include "SkTypes.h"
+#include <new>
 
 //
 // ColorTypeFilter is the "Type" we pass to some downsample template functions.

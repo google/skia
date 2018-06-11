@@ -12,6 +12,7 @@
 #include "SkPicture.h"
 #include "SkRecorder.h"
 #include "SkSurface.h"
+#include <new>
 
 SkDrawableList::~SkDrawableList() {
     fArray.unrefAll();
