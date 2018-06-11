@@ -670,6 +670,9 @@ def dm_flags(api, bot):
     # skia:7837
     match.append('~BlurMaskBiggerThanDest')
 
+  if 'Vulkan' in bot and 'GalaxyS7_G930FD' in bot:
+    match.append('~^GalaxyS7_G930FD$')
+
   if 'Vulkan' in bot and api.vars.is_linux and 'IntelIris640' in bot:
     match.extend(['~VkHeapTests']) # skia:6245
 
@@ -989,6 +992,8 @@ TEST_BUILDERS = [
   'Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All-Android',
   'Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-All-Android',
   'Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-All-Android',
+  ('Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-All'
+   '-Android_Vulkan'),
   'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android_CCPR',
   'Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-All-Android',
   'Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_ASAN',
