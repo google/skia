@@ -67,7 +67,7 @@ protected:
     SkDeduper*      fDeduper = nullptr;
     SkSerialProcs   fProcs;
 
-    friend class SkPicture; // fProcs
+    friend class SkPicturePriv; // fProcs
 };
 
 /**
