@@ -14,13 +14,14 @@
 using PathInstance = GrCCPathProcessor::Instance;
 
 GrCCPerFlushResources::GrCCPerFlushResources(GrOnFlushResourceProvider* onFlushRP,
-                                             int numPathDraws, int numClipPaths,
-                                             const GrCCPathParser::PathStats& pathStats)
-        : fPathParser(sk_make_sp<GrCCPathParser>(numPathDraws + numClipPaths, pathStats))
+                                             const GrCCResourceInitCounts& counts)
+        : fPathParser(sk_make_sp<GrCCPathParser>(counts.fNumRenderedPaths + counts.fNumClipPaths,
+                                                 counts.fParsingPathStats))
+        , fAtlasSpecs(counts.fAtlasSpecs)
         , fIndexBuffer(GrCCPathProcessor::FindIndexBuffer(onFlushRP))
         , fVertexBuffer(GrCCPathProcessor::FindVertexBuffer(onFlushRP))
         , fInstanceBuffer(onFlushRP->makeBuffer(kVertex_GrBufferType,
-                                                numPathDraws * sizeof(PathInstance))) {
+                                                counts.fNumRenderedPaths * sizeof(PathInstance))) {
     if (!fIndexBuffer) {
         SkDebugf("WARNING: failed to allocate CCPR index buffer. No paths will be drawn.\n");
         return;
@@ -35,7 +36,7 @@ GrCCPerFlushResources::GrCCPerFlushResources(GrOnFlushResourceProvider* onFlushR
     }
     fPathInstanceData = static_cast<PathInstance*>(fInstanceBuffer->map());
     SkASSERT(fPathInstanceData);
-    SkDEBUGCODE(fPathInstanceBufferCount = numPathDraws);
+    SkDEBUGCODE(fPathInstanceBufferCount = counts.fNumRenderedPaths);
 }
 
 GrCCAtlas* GrCCPerFlushResources::renderPathInAtlas(const GrCaps& caps, const SkIRect& clipIBounds,
@@ -87,7 +88,7 @@ GrCCAtlas* GrCCPerFlushResources::placeParsedPathInAtlas(const GrCaps& caps,
             auto coverageCountBatchID = fPathParser->closeCurrentBatch();
             fAtlases.back().setCoverageCountBatchID(coverageCountBatchID);
         }
-        fAtlases.emplace_back(caps, SkTMax(w, h));
+        fAtlases.emplace_back(fAtlasSpecs);
         SkAssertResult(fAtlases.back().addRect(w, h, &atlasLocation));
     }
 

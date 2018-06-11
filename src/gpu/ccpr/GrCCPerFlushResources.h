@@ -14,6 +14,15 @@
 #include "ccpr/GrCCPathParser.h"
 #include "ccpr/GrCCPathProcessor.h"
 
+struct GrCCResourceInitCounts {
+    int fNumRenderedPaths = 0;
+    int fNumClipPaths = 0;
+    GrCCPathParser::PathStats fParsingPathStats;
+    GrCCAtlas::Specs fAtlasSpecs;
+
+    bool isEmpty() const { return 0 == fNumRenderedPaths + fNumClipPaths; }
+};
+
 /**
  * This class wraps all the GPU resources that CCPR builds at flush time. It is allocated in CCPR's
  * preFlush() method, and referenced by all the GrCCPerOpListPaths objects that are being flushed.
@@ -21,8 +30,7 @@
  */
 class GrCCPerFlushResources : public GrNonAtomicRef<GrCCPerFlushResources> {
 public:
-    GrCCPerFlushResources(GrOnFlushResourceProvider*, int numPathDraws, int numClipPaths,
-                          const GrCCPathParser::PathStats&);
+    GrCCPerFlushResources(GrOnFlushResourceProvider*, const GrCCResourceInitCounts&);
 
     bool isMapped() const { return SkToBool(fPathInstanceData); }
 
@@ -52,6 +60,7 @@ private:
                                       int16_t* atlasOffsetY);
 
     const sk_sp<GrCCPathParser> fPathParser;
+    const GrCCAtlas::Specs fAtlasSpecs;
 
     sk_sp<const GrBuffer> fIndexBuffer;
     sk_sp<const GrBuffer> fVertexBuffer;
