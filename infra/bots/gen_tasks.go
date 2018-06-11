@@ -146,9 +146,11 @@ var (
 
 	CIPD_PKGS_KITCHEN = append([]*specs.CipdPackage{
 		&specs.CipdPackage{
-			Name:    "infra/tools/luci/kitchen/${platform}",
-			Path:    ".",
-			Version: "git_revision:206b4474cb712bdad8b7b3f213880cfbf03f120c",
+			Name: "infra/tools/luci/kitchen/${platform}",
+			Path: ".",
+			// Copied from
+			// https://chromium.googlesource.com/chromium/tools/build/+/master/scripts/slave/remote_run.py#122
+			Version: "git_revision:c9c1865b81113f02fd618259624170f59e2c832e",
 		},
 		&specs.CipdPackage{
 			Name:    "infra/tools/authutil/${platform}",
