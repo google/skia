@@ -17,6 +17,7 @@
 #include "SkRect.h"
 #include "SkRefCnt.h"
 #include "SkTemplates.h"
+#include <limits>
 
 class SkRBuffer;
 class SkWBuffer;
