@@ -152,8 +152,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
+      "LD_LIBRARY_PATH": "[START_DIR]/clang_linux/lib",
       "LLVM_PROFILE_FILE": "[START_DIR]/[SWARM_OUT_DIR]/All.profraw",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]:[START_DIR]/clang_linux/bin",
+      "SCUDO_OPTIONS": "abort_on_error=1 symbolize=1 allocator_may_return_null=1 "
     },
     "name": "symbolized dm"
   },

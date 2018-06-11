@@ -221,6 +221,19 @@ class DefaultFlavor(object):
       # If we're in a signal handler, we're already crashing...
       env['TSAN_OPTIONS'] = 'report_signal_unsafe=0'
 
+    if (self.m.vars.builder_cfg.get('configuration', '') == 'Debug' and
+        self.m.vars.is_linux):
+      env['SCUDO_OPTIONS'] = ('abort_on_error=1 '
+                              'symbolize=1 '
+                              'allocator_may_return_null=1 ')
+      # Sanitized binaries may want to run clang_linux/bin/llvm-symbolizer.
+      path.append(clang_linux + '/bin')
+      # We find that testing sanitizer builds with libc++ uncovers more issues
+      # than with the system-provided C++ standard library, which is usually
+      # libstdc++. libc++ proactively hooks into sanitizers to help their
+      # analyses. We ship a copy of libc++ with our Linux toolchain in /lib.
+      ld_library_path.append(clang_linux + '/lib')
+
     if 'Coverage' in extra_tokens:
       # This is the output file for the coverage data. Just running the binary
       # will produce the output. The output_file is in the swarming_out_dir and
