@@ -14,6 +14,15 @@
 #include "ccpr/GrCCPathParser.h"
 #include "ccpr/GrCCPathProcessor.h"
 
+struct GrCCResourceInitCounts {
+    int fNumRenderedPaths = 0;
+    int fNumClipPaths = 0;
+    GrCCPathParser::PathStats fParsingPathStats;
+    GrCCAtlas::Specs fAtlasSpecs;
+
+    bool isEmpty() const { return 0 == fNumRenderedPaths + fNumClipPaths; }
+};
+
 /**
  * This class wraps all the GPU resources that CCPR builds at flush time. It is allocated in CCPR's
  * preFlush() method, and referenced by all the GrCCPerOpListPaths objects that are being flushed.
@@ -21,17 +30,16 @@
  */
 class GrCCPerFlushResources : public GrNonAtomicRef<GrCCPerFlushResources> {
 public:
-    GrCCPerFlushResources(GrOnFlushResourceProvider*, int numPathDraws, int numClipPaths,
-                          const GrCCPathParser::PathStats&);
+    GrCCPerFlushResources(GrOnFlushResourceProvider*, const GrCCResourceInitCounts&);
 
     bool isMapped() const { return SkToBool(fPathInstanceData); }
 
-    GrCCAtlas* renderPathInAtlas(const GrCaps&, const SkIRect& clipIBounds, const SkMatrix&,
-                                 const SkPath&, SkRect* devBounds, SkRect* devBounds45,
-                                 int16_t* offsetX, int16_t* offsetY);
-    GrCCAtlas* renderDeviceSpacePathInAtlas(const GrCaps&, const SkIRect& clipIBounds,
-                                            const SkPath& devPath, const SkIRect& devPathIBounds,
-                                            int16_t* atlasOffsetX, int16_t* atlasOffsetY);
+    GrCCAtlas* renderPathInAtlas(const SkIRect& clipIBounds, const SkMatrix&, const SkPath&,
+                                 SkRect* devBounds, SkRect* devBounds45, int16_t* offsetX,
+                                 int16_t* offsetY);
+    GrCCAtlas* renderDeviceSpacePathInAtlas(const SkIRect& clipIBounds, const SkPath& devPath,
+                                            const SkIRect& devPathIBounds, int16_t* atlasOffsetX,
+                                            int16_t* atlasOffsetY);
 
     GrCCPathProcessor::Instance& appendDrawPathInstance() {
         SkASSERT(this->isMapped());
@@ -47,11 +55,11 @@ public:
     GrBuffer* instanceBuffer() const { SkASSERT(!this->isMapped()); return fInstanceBuffer.get(); }
 
 private:
-    GrCCAtlas* placeParsedPathInAtlas(const GrCaps&, const SkIRect& clipIBounds,
-                                      const SkIRect& pathIBounds, int16_t* atlasOffsetX,
-                                      int16_t* atlasOffsetY);
+    GrCCAtlas* placeParsedPathInAtlas(const SkIRect& clipIBounds, const SkIRect& pathIBounds,
+                                      int16_t* atlasOffsetX, int16_t* atlasOffsetY);
 
     const sk_sp<GrCCPathParser> fPathParser;
+    const GrCCAtlas::Specs fAtlasSpecs;
 
     sk_sp<const GrBuffer> fIndexBuffer;
     sk_sp<const GrBuffer> fVertexBuffer;

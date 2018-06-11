@@ -75,7 +75,7 @@ private:
             : fDrawCachablePaths(drawCachablePaths) {}
 
     GrCCPerOpListPaths* lookupPendingPaths(uint32_t opListID);
-    void adoptAndRecordOp(GrCCDrawPathsOp*, const DrawPathArgs&);
+    void recordOp(std::unique_ptr<GrCCDrawPathsOp>, const DrawPathArgs&);
 
     // fPendingPaths holds the GrCCPerOpListPaths objects that have already been created, but not
     // flushed, and those that are still being created. All GrCCPerOpListPaths objects will first
