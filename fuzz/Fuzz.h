@@ -15,6 +15,7 @@
 
 #include <cmath>
 #include <signal.h>
+#include <limits>
 
 class Fuzz : SkNoncopyable {
 public:
