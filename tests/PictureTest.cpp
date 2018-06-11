@@ -20,7 +20,7 @@
 #include "SkMiniRecorder.h"
 #include "SkPaint.h"
 #include "SkPath.h"
-#include "SkPicture.h"
+#include "SkPicturePriv.h"
 #include "SkPictureRecorder.h"
 #include "SkPixelRef.h"
 #include "SkRandom.h"
@@ -452,7 +452,7 @@ static void test_cull_rect_reset(skiatest::Reporter* reporter) {
     canvas->drawRect(bounds, paint);
     canvas->drawRect(bounds, paint);
     sk_sp<SkPicture> p(recorder.finishRecordingAsPictureWithCull(bounds));
-    const SkBigPicture* picture = p->asSkBigPicture();
+    const SkBigPicture* picture = SkPicturePriv::AsSkBigPicture(p);
     REPORTER_ASSERT(reporter, picture);
 
     SkRect finalCullRect = picture->cullRect();

@@ -12,6 +12,7 @@
 #include "SkColorSpaceXformer.h"
 #include "SkFlattenablePriv.h"
 #include "SkImageSource.h"
+#include "SkPicturePriv.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
@@ -58,7 +59,7 @@ sk_sp<SkFlattenable> SkPictureImageFilter::CreateProc(SkReadBuffer& buffer) {
     SkRect cropRect;
 
     if (buffer.readBool()) {
-        picture = SkPicture::MakeFromBuffer(buffer);
+        picture = SkPicturePriv::MakeFromBuffer(buffer);
     }
     buffer.readRect(&cropRect);
 
@@ -77,7 +78,7 @@ void SkPictureImageFilter::flatten(SkWriteBuffer& buffer) const {
     bool hasPicture = (fPicture != nullptr);
     buffer.writeBool(hasPicture);
     if (hasPicture) {
-        fPicture->flatten(buffer);
+        SkPicturePriv::Flatten(fPicture, buffer);
     }
     buffer.writeRect(fCropRect);
 }

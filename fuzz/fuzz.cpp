@@ -17,7 +17,7 @@
 #include "SkOSPath.h"
 #include "SkPaint.h"
 #include "SkPath.h"
-#include "SkPicture.h"
+#include "SkPicturePriv.h"
 #include "SkPipe.h"
 #include "SkReadBuffer.h"
 #include "SkStream.h"
@@ -604,7 +604,7 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
 static void fuzz_skp(sk_sp<SkData> bytes) {
     SkReadBuffer buf(bytes->data(), bytes->size());
     SkDebugf("Decoding\n");
-    sk_sp<SkPicture> pic(SkPicture::MakeFromBuffer(buf));
+    sk_sp<SkPicture> pic(SkPicturePriv::MakeFromBuffer(buf));
     if (!pic) {
         SkDebugf("[terminated] Couldn't decode as a picture.\n");
         return;
