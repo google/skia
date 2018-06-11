@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4cd6806c_baf9ebde",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 895,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-11T03:29:09Z",
+      "side": 1,
+      "message": "not",
+      "range": {
+        "startLine": 895,
+        "startChar": 49,
+        "endLine": 895,
+        "endChar": 51
+      },
+      "revId": "cd39fb41118cc338de56d4492b4b31516876152a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
