@@ -23,6 +23,7 @@
 #include "SkString.h"
 #include "SkTLazy.h"
 #include "SkVertices.h"
+#include <new>
 #if SK_SUPPORT_GPU
 #include "GrShape.h"
 #include "effects/GrBlurredEdgeFragmentProcessor.h"

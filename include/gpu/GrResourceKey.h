@@ -14,6 +14,7 @@
 #include "GrTypes.h"
 #include "SkData.h"
 #include "SkString.h"
+#include <new>
 
 uint32_t GrResourceKeyHash(const uint32_t* data, size_t size);
 

@@ -18,6 +18,7 @@
 #include "SkRect.h"
 #include "SkPointPriv.h"
 #include "ops/GrSimpleMeshDrawOpHelper.h"
+#include <new>
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gAAFillRectIndexBufferKey);
 

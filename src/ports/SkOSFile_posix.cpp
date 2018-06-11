@@ -12,6 +12,7 @@
 #include "SkTypes.h"
 
 #include <dirent.h>
+#include <new>
 #include <stdio.h>
 #include <string.h>
 #include <sys/mman.h>

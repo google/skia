@@ -11,6 +11,7 @@
 #include "SkClipOp.h"
 #include "SkDeque.h"
 #include "SkRasterClip.h"
+#include <new>
 
 template <typename T> class SkTStack {
 public:

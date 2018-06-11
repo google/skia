@@ -17,6 +17,7 @@
 #include "SkTypeface.h"
 #include "SkTypefaceCache.h"
 #include "SkResourceCache.h"
+#include <new>
 
 SkStreamAsset* SkTypeface_FCI::onOpenStream(int* ttcIndex) const {
     *ttcIndex =  this->getIdentity().fTTCIndex;

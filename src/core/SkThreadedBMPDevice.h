@@ -12,6 +12,7 @@
 #include "SkDraw.h"
 #include "SkRectPriv.h"
 #include "SkTaskGroup2D.h"
+#include <new>
 
 class SkThreadedBMPDevice : public SkBitmapDevice {
 public:
