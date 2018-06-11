@@ -267,7 +267,7 @@ public:
         return vminvq_f32(fVec);
     #else
         SkNx min = Min(*this, vrev64q_f32(fVec));
-        return std::min(min[0], min[2]);
+        return SkTMin(min[0], min[2]);
     #endif
     }
 
@@ -276,7 +276,7 @@ public:
         return vmaxvq_f32(fVec);
     #else
         SkNx max = Max(*this, vrev64q_f32(fVec));
-        return std::max(max[0], max[2]);
+        return SkTMax(max[0], max[2]);
     #endif
     }
 

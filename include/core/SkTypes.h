@@ -248,6 +248,8 @@ typedef uint32_t SkMSec;
 */
 #ifdef __cplusplus
 
+#include <utility>
+
 /** Generic swap function. Classes with efficient swaps should specialize this function to take
     their fast path. This function is used by SkTSort. */
 template <typename T> static inline void SkTSwap(T& a, T& b) {
