@@ -740,17 +740,21 @@ public:
     sk_sp<SkImage> makeSubset(const SkIRect& subset) const;
 
     /** Returns SkImage backed by GPU texture associated with context. Returned SkImage is
-        compatible with SkSurface created with dstColorSpace. Returns original
-        SkImage if context and dstColorSpace match.
+        compatible with SkSurface created with dstColorSpace. The returned SkImage will also
+        support the request GrMipMapped status. In otherwords if mipMapped is GrMipMapped::kYes,
+        then the backing texture will have mips allocated. Returns original SkImage if context and
+        dstColorSpace match and the mip mapped state is compatible.
 
         Returns nullptr if context is nullptr, or if SkImage was created with another
         GrContext.
 
         @param context        GPU context
         @param dstColorSpace  range of colors of matching SkSurface on GPU
+        @param mipMapped      whether the returned SkImage's texture must be mip mapped.
         @return               created SkImage, or nullptr
     */
-    sk_sp<SkImage> makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace) const;
+    sk_sp<SkImage> makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace,
+                                    GrMipMapped mipMapped = GrMipMapped::kNo) const;
 
     /** Returns raster image or lazy image. Copies SkImage backed by GPU texture into
         CPU memory if needed. Returns original SkImage if decoded in raster bitmap,
