@@ -64,19 +64,19 @@ public:
                                                 latticeGP.fColorSpaceXform.get());
 
                 args.fVaryingHandler->emitAttributes(latticeGP);
-                this->writeOutputPosition(args.fVertBuilder, gpArgs, latticeGP.fPositions.name());
+                this->writeOutputPosition(args.fVertBuilder, gpArgs, latticeGP.kPositions.name());
                 this->emitTransforms(args.fVertBuilder,
                                      args.fVaryingHandler,
                                      args.fUniformHandler,
-                                     latticeGP.fTextureCoords.asShaderVar(),
+                                     latticeGP.kTextureCoords.asShaderVar(),
                                      args.fFPCoordTransformHandler);
                 args.fFragBuilder->codeAppend("float2 textureCoords;");
-                args.fVaryingHandler->addPassThroughAttribute(&latticeGP.fTextureCoords,
+                args.fVaryingHandler->addPassThroughAttribute(latticeGP.kTextureCoords,
                                                               "textureCoords");
                 args.fFragBuilder->codeAppend("float4 textureDomain;");
                 args.fVaryingHandler->addPassThroughAttribute(
-                        &latticeGP.fTextureDomain, "textureDomain", Interpolation::kCanBeFlat);
-                args.fVaryingHandler->addPassThroughAttribute(&latticeGP.fColors, args.fOutputColor,
+                        latticeGP.kTextureDomain, "textureDomain", Interpolation::kCanBeFlat);
+                args.fVaryingHandler->addPassThroughAttribute(latticeGP.kColors, args.fOutputColor,
                                                               Interpolation::kCanBeFlat);
                 args.fFragBuilder->codeAppendf("%s = ", args.fOutputColor);
                 args.fFragBuilder->appendTextureLookupAndModulate(
@@ -97,23 +97,32 @@ private:
     LatticeGP(sk_sp<GrTextureProxy> proxy, sk_sp<GrColorSpaceXform> csxf,
               GrSamplerState::Filter filter)
             : INHERITED(kLatticeGP_ClassID), fColorSpaceXform(std::move(csxf)) {
-        fPositions = this->addVertexAttrib("position", kFloat2_GrVertexAttribType);
         fSampler.reset(std::move(proxy), filter);
         this->addTextureSampler(&fSampler);
-        fTextureCoords = this->addVertexAttrib("textureCoords", kFloat2_GrVertexAttribType);
-        fTextureDomain = this->addVertexAttrib("textureDomain", kFloat4_GrVertexAttribType);
-        fColors = this->addVertexAttrib("color", kUByte4_norm_GrVertexAttribType);
+        this->setVertexAttributeInfo(4, kColors.nextOffsetInRecord());
     }
 
-    Attribute fPositions;
-    Attribute fTextureCoords;
-    Attribute fTextureDomain;
-    Attribute fColors;
+    const Attribute& onVertexAttribute(int i) const override {
+        return IthAttribute(i, kPositions, kTextureCoords, kTextureDomain, kColors);
+    }
+
+    static constexpr Attribute kPositions = {"position", kFloat2_GrVertexAttribType};
+    static constexpr Attribute kTextureCoords = {"textureCoords", kFloat2_GrVertexAttribType,
+                                                 kPositions};
+    static constexpr Attribute kTextureDomain = {"textureDomain", kFloat4_GrVertexAttribType,
+                                                 kTextureCoords};
+    static constexpr Attribute kColors = {"color", kUByte4_norm_GrVertexAttribType, kTextureDomain};
+
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
     TextureSampler fSampler;
 
     typedef GrGeometryProcessor INHERITED;
 };
+
+constexpr GrPrimitiveProcessor::Attribute LatticeGP::kPositions;
+constexpr GrPrimitiveProcessor::Attribute LatticeGP::kTextureCoords;
+constexpr GrPrimitiveProcessor::Attribute LatticeGP::kTextureDomain;
+constexpr GrPrimitiveProcessor::Attribute LatticeGP::kColors;
 
 class NonAALatticeOp final : public GrMeshDrawOp {
 private:
