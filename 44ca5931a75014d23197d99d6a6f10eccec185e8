@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f1c7c6ba_0524250e",
+        "filename": "src/core/SkGlyphCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-06-12T18:26:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d441a81d_a85a4ce4",
+      "revId": "44ca5931a75014d23197d99d6a6f10eccec185e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "184b9644_80b5b5dc",
         "filename": "src/core/SkStrikeCache.cpp",
         "patchSetId": 6
@@ -39,6 +57,30 @@
       "revId": "44ca5931a75014d23197d99d6a6f10eccec185e8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35f59f3b_55cf3f20",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-06-12T18:26:35Z",
+      "side": 1,
+      "message": "A default param makes sense here. Done.",
+      "parentUuid": "184b9644_80b5b5dc",
+      "range": {
+        "startLine": 316,
+        "startChar": 70,
+        "endLine": 316,
+        "endChar": 87
+      },
+      "revId": "44ca5931a75014d23197d99d6a6f10eccec185e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
