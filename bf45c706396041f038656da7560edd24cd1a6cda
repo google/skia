@@ -22,6 +22,30 @@
       "revId": "bf45c706396041f038656da7560edd24cd1a6cda",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09b11c96_82bcfb46",
+        "filename": "include/core/SkPicture.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-06-12T13:53:39Z",
+      "side": 0,
+      "message": "My thought is that things in the header at the top ought to be public includes to the extent that it is possible. The ones that use class and struct in the param type are in private: and are implementation details.\n\nI\u0027m not crazy about this, and wish there was a better way to defer implementation forward declarations, but I couldn\u0027t find it. If you know of something better, I\u0027ll happily adopt it.\n\nOne idea would be, where possible, to move methods out of private: and into SkXXXPriv.h to minimize future edits to include/core, but I don\u0027t know if that\u0027s realistic.",
+      "parentUuid": "9eb1a35e_084d30fc",
+      "range": {
+        "startLine": 20,
+        "startChar": 6,
+        "endLine": 20,
+        "endChar": 19
+      },
+      "revId": "bf45c706396041f038656da7560edd24cd1a6cda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
