@@ -9,6 +9,7 @@
 #define SkSharedLock_DEFINED
 
 #include "SkAtomics.h"
+#include "SkMacros.h"
 #include "SkSemaphore.h"
 #include "SkTypes.h"
 

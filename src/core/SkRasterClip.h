@@ -8,8 +8,9 @@
 #ifndef SkRasterClip_DEFINED
 #define SkRasterClip_DEFINED
 
-#include "SkRegion.h"
 #include "SkAAClip.h"
+#include "SkMacros.h"
+#include "SkRegion.h"
 
 class SkRRect;
 

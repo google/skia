@@ -18,6 +18,7 @@
 #ifndef SkCanvas_DEFINED
 #define SkCanvas_DEFINED
 
+#include "../private/SkMacros.h"
 #include "SkBlendMode.h"
 #include "SkClipOp.h"
 #include "SkDeque.h"
