@@ -13,8 +13,6 @@
 
 class SkPath;
 class SkMatrix;
-class SkRBuffer;
-class SkWBuffer;
 
 // Path forward:
 //   core work
@@ -51,8 +49,8 @@ public:
     /** Default initialized to a rrect at the origin with zero width and height. */
     SkRRect() = default;
 
-    SkRRect(const SkRRect&) = default;
-    SkRRect& operator=(const SkRRect&) = default;
+    SkRRect(const SkRRect& rrect) = default;
+    SkRRect& operator=(const SkRRect& rrect) = default;
 
     /**
      * Enum to capture the various possible subtypes of RR. Accessed
@@ -201,7 +199,7 @@ public:
         kUpperLeft_Corner,
         kUpperRight_Corner,
         kLowerRight_Corner,
-        kLowerLeft_Corner
+        kLowerLeft_Corner,
     };
 
     const SkRect& rect() const { return fRect; }
@@ -278,7 +276,6 @@ public:
      *  a multiple of 4. Return kSizeInMemory.
      */
     size_t writeToMemory(void* buffer) const;
-    void writeToBuffer(SkWBuffer*) const;
 
     /**
      * Reads the rrect from the specified buffer
@@ -292,7 +289,6 @@ public:
      *         0 if there was not enough memory available
      */
     size_t readFromMemory(const void* buffer, size_t length);
-    bool readFromBuffer(SkRBuffer*);
 
     /**
      *  Transform by the specified matrix, and put the result in dst.

@@ -501,9 +501,9 @@ size_t SkRRect::writeToMemory(void* buffer) const {
     return kSizeInMemory;
 }
 
-void SkRRect::writeToBuffer(SkWBuffer* buffer) const {
+void SkRRectPriv::WriteToBuffer(const SkRRect& rr, SkWBuffer* buffer) {
     // Serialize only the rect and corners, but not the derived type tag.
-    buffer->write(this, kSizeInMemory);
+    buffer->write(&rr, SkRRect::kSizeInMemory);
 }
 
 size_t SkRRect::readFromMemory(const void* buffer, size_t length) {
@@ -517,13 +517,13 @@ size_t SkRRect::readFromMemory(const void* buffer, size_t length) {
     return kSizeInMemory;
 }
 
-bool SkRRect::readFromBuffer(SkRBuffer* buffer) {
-    if (buffer->available() < kSizeInMemory) {
+bool SkRRectPriv::ReadFromBuffer(SkRBuffer* buffer, SkRRect* rr) {
+    if (buffer->available() < SkRRect::kSizeInMemory) {
         return false;
     }
     SkRRect storage;
-    return buffer->read(&storage, kSizeInMemory) &&
-           (this->readFromMemory(&storage, kSizeInMemory) == kSizeInMemory);
+    return buffer->read(&storage, SkRRect::kSizeInMemory) &&
+           (rr->readFromMemory(&storage, SkRRect::kSizeInMemory) == SkRRect::kSizeInMemory);
 }
 
 #include "SkString.h"
