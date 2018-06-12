@@ -668,6 +668,8 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
         SkGlyph stationaryGlyph = *glyph;
         stationaryGlyph.fImage = serializer->allocate(imageSize, stationaryGlyph.formatAlignment());
         fContext->getImage(stationaryGlyph);
+        // TODO: Generating the image can change the mask format, do we need to update it in the
+        // serialized glyph?
     }
     fPendingGlyphImages.clear();
 
@@ -811,10 +813,15 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
             if (!deserializer.read<SkGlyph>(&glyph)) READ_FAILURE
 
             SkGlyph* allocatedGlyph = strike->getRawGlyphByID(glyph.getPackedID());
-            // Don't override the path, if the glyph has one.
-            auto* glyphPath = allocatedGlyph->fPathData;
-            *allocatedGlyph = glyph;
-            allocatedGlyph->fPathData = glyphPath;
+
+            // Don't override the glyph data if it has already been initialized, we might have
+            // used a fallback earlier.
+            if (allocatedGlyph->fImage == nullptr) {
+                // Don't override the path, if the glyph has one.
+                auto* glyphPath = allocatedGlyph->fPathData;
+                *allocatedGlyph = glyph;
+                allocatedGlyph->fPathData = glyphPath;
+            }
 
             bool tooLargeForAtlas = false;
 #if SK_SUPPORT_GPU
@@ -828,9 +835,8 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
             if (imageSize == 0u) continue;
 
             auto* image = deserializer.read(imageSize, allocatedGlyph->formatAlignment());
-            if (!image ||
-                !strike->initializeImage(image, imageSize, allocatedGlyph))
-                READ_FAILURE
+            if (!image) READ_FAILURE
+            strike->initializeImage(image, imageSize, allocatedGlyph);
         }
 
         size_t glyphPathsCount = 0u;
@@ -840,10 +846,15 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
             if (!deserializer.read<SkGlyph>(&glyph)) READ_FAILURE
 
             SkGlyph* allocatedGlyph = strike->getRawGlyphByID(glyph.getPackedID());
-            // Don't override the image, if the glyph has one.
-            auto* glyphImage = allocatedGlyph->fImage;
-            *allocatedGlyph = glyph;
-            allocatedGlyph->fImage = glyphImage;
+
+            // Don't override the glyph data if it has already been initialized, we might have
+            // used a fallback earlier.
+            if (allocatedGlyph->fPathData == nullptr) {
+                // Don't override the image, if the glyph has one.
+                auto* glyphImage = allocatedGlyph->fImage;
+                *allocatedGlyph = glyph;
+                allocatedGlyph->fImage = glyphImage;
+            }
 
             if (!read_path(&deserializer, allocatedGlyph, strike.get())) READ_FAILURE
         }
