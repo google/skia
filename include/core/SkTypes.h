@@ -35,8 +35,6 @@
 */
 SK_API extern void sk_abort_no_print(void);
 
-#define SK_INIT_TO_AVOID_WARNING    = 0
-
 #ifndef SkDebugf
     SK_API void SkDebugf(const char format[], ...);
 #endif
@@ -139,16 +137,6 @@ inline constexpr int64_t SkLeftShift(int64_t value, int32_t shift) {
 /** Returns the number of entries in an array (not a pointer) */
 template <typename T, size_t N> char (&SkArrayCountHelper(T (&array)[N]))[N];
 #define SK_ARRAY_COUNT(array) (sizeof(SkArrayCountHelper(array)))
-
-// Can be used to bracket data types that must be dense, e.g. hash keys.
-#if defined(__clang__)  // This should work on GCC too, but GCC diagnostic pop didn't seem to work!
-    #define SK_BEGIN_REQUIRE_DENSE _Pragma("GCC diagnostic push") \
-                                   _Pragma("GCC diagnostic error \"-Wpadded\"")
-    #define SK_END_REQUIRE_DENSE   _Pragma("GCC diagnostic pop")
-#else
-    #define SK_BEGIN_REQUIRE_DENSE
-    #define SK_END_REQUIRE_DENSE
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 

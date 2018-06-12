@@ -8,6 +8,7 @@
 #include "SkRegion.h"
 
 #include "SkAtomics.h"
+#include "SkMacros.h"
 #include "SkRegionPriv.h"
 #include "SkSafeMath.h"
 #include "SkTemplates.h"

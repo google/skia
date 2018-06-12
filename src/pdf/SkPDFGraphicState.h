@@ -9,8 +9,9 @@
 #ifndef SkPDFGraphicState_DEFINED
 #define SkPDFGraphicState_DEFINED
 
-#include "SkPDFTypes.h"
+#include "SkMacros.h"
 #include "SkOpts.h"
+#include "SkPDFTypes.h"
 
 class SkPaint;
 class SkPDFCanon;
