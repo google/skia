@@ -50,7 +50,7 @@ const Symbol* SymbolTable::operator[](StringFragment name) {
                     }
                 }
                 if (modified) {
-                    ASSERT(functions.size() > 1);
+                    SkASSERT(functions.size() > 1);
                     return this->takeOwnership(new UnresolvedFunction(functions));
                 }
             }

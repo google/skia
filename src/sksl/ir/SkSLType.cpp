@@ -47,7 +47,7 @@ int Type::coercionCost(const Type& other) const {
 }
 
 const Type& Type::toCompound(const Context& context, int columns, int rows) const {
-    ASSERT(this->kind() == Type::kScalar_Kind);
+    SkASSERT(this->kind() == Type::kScalar_Kind);
     if (columns == 1 && rows == 1) {
         return *this;
     }

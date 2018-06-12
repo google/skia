@@ -23,7 +23,7 @@ struct TernaryExpression : public Expression {
     , fTest(std::move(test))
     , fIfTrue(std::move(ifTrue))
     , fIfFalse(std::move(ifFalse)) {
-        ASSERT(fIfTrue->fType == fIfFalse->fType);
+        SkASSERT(fIfTrue->fType == fIfFalse->fType);
     }
 
     bool hasSideEffects() const override {
