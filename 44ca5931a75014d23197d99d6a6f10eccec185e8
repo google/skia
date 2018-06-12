@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d441a81d_a85a4ce4",
+        "filename": "src/core/SkGlyphCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-12T14:10:30Z",
+      "side": 1,
+      "message": "Let\u0027s comment this one too?\n\n// Find any glyph in this cache with the given ID, regardless of subpixel positioning.\n// If set and present, skip over the glyph with vetoID.",
+      "revId": "44ca5931a75014d23197d99d6a6f10eccec185e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "184b9644_80b5b5dc",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-12T14:10:30Z",
+      "side": 1,
+      "message": "Might make things more clear to somehow note that we\u0027re not excluding anything here?\n\nE.g.\n\n  auto no_veto \u003d SkPackedGlyphID();\n  if (const auto* fallback \u003d node-\u003efCache.getCachedGlyphAnySubPix(glyphID, no_veto)) {\n     ...\n  }\n\nor maybe make that parameter default to SkPackedGlyphID() / kImpossibleID?  That way calls with a single parameter really are searching for \"AnySubPix\"?",
+      "range": {
+        "startLine": 316,
+        "startChar": 70,
+        "endLine": 316,
+        "endChar": 87
+      },
+      "revId": "44ca5931a75014d23197d99d6a6f10eccec185e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
