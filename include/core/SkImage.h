@@ -748,9 +748,11 @@ public:
 
         @param context        GPU context
         @param dstColorSpace  range of colors of matching SkSurface on GPU
+        @param mipMapped      whether the returned SkImage's texture should be mip mapped.
         @return               created SkImage, or nullptr
     */
-    sk_sp<SkImage> makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace) const;
+    sk_sp<SkImage> makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace,
+                                    GrMipMapped mipMapped = GrMipMapped::kNo) const;
 
     /** Returns raster image or lazy image. Copies SkImage backed by GPU texture into
         CPU memory if needed. Returns original SkImage if decoded in raster bitmap,

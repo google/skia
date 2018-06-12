@@ -98,6 +98,14 @@ public:
                 proxyColorSpace, scaleAdjust);
     }
 
+    // TODO: Once we remove support for npot textures, we should add a flag for must support repeat
+    // wrap mode. To support that flag now would require us to support scaleAdjust array like in
+    // refTextureProxyForParams, however the current public API that uses this call does not expose
+    // that array.
+    sk_sp<GrTextureProxy> refTextureProxy(GrMipMapped willNeedMips,
+                                          SkColorSpace* dstColorSpace,
+                                          sk_sp<SkColorSpace>* proxyColorSpace);
+
     virtual ~GrTextureProducer() {}
 
     int width() const { return fWidth; }
