@@ -10,9 +10,9 @@
 
 #undef GetGlyphIndices
 
-#include "SkDraw.h"
 #include "SkDWrite.h"
 #include "SkDWriteGeometrySink.h"
+#include "SkDraw.h"
 #include "SkEndian.h"
 #include "SkGlyph.h"
 #include "SkHRESULT.h"
@@ -29,6 +29,7 @@
 #include "SkScalerContext_win_dw.h"
 #include "SkSharedMutex.h"
 #include "SkTScopedComPtr.h"
+#include "SkTo.h"
 #include "SkTypeface_win_dw.h"
 
 #include <dwrite.h>

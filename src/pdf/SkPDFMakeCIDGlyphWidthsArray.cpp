@@ -5,10 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitSet.h"
 #include "SkPDFMakeCIDGlyphWidthsArray.h"
-#include "SkPaint.h"
+
+#include "SkBitSet.h"
 #include "SkGlyphCache.h"
+#include "SkPaint.h"
+#include "SkTo.h"
 
 // TODO(halcanary): Write unit tests for SkPDFMakeCIDGlyphWidthsArray().
 

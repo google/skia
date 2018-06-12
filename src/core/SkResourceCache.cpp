@@ -5,12 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "SkResourceCache.h"
+
 #include "SkDiscardableMemory.h"
 #include "SkMessageBus.h"
 #include "SkMipMap.h"
 #include "SkMutex.h"
 #include "SkOpts.h"
-#include "SkResourceCache.h"
+#include "SkTo.h"
 #include "SkTraceMemoryDump.h"
 
 #include <stddef.h>

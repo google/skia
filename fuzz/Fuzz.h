@@ -8,11 +8,12 @@
 #ifndef Fuzz_DEFINED
 #define Fuzz_DEFINED
 
-#include "SkData.h"
 #include "../tools/Registry.h"
+#include "SkData.h"
 #include "SkMalloc.h"
 #include "SkTypes.h"
 
+#include <limits>
 #include <cmath>
 #include <signal.h>
 #include <limits>

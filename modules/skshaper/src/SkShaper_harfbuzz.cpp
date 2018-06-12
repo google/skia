@@ -23,6 +23,7 @@
 #include "SkTLazy.h"
 #include "SkTemplates.h"
 #include "SkTextBlob.h"
+#include "SkTo.h"
 #include "SkTypeface.h"
 #include "SkUtils.h"
 

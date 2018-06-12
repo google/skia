@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -9,14 +8,16 @@
 #ifndef SkPathRef_DEFINED
 #define SkPathRef_DEFINED
 
-#include "../private/SkAtomics.h"
-#include "../private/SkTDArray.h"
+#include "SkAtomics.h"
 #include "SkMatrix.h"
 #include "SkPoint.h"
 #include "SkRRect.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
+#include "SkTDArray.h"
 #include "SkTemplates.h"
+#include "SkTo.h"
+
 #include <limits>
 
 class SkRBuffer;

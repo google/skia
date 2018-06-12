@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkData.h"
@@ -14,6 +13,7 @@
 #include "SkParse.h"
 #include "SkShader.h"
 #include "SkStream.h"
+#include "SkTo.h"
 #include "Test.h"
 
 #include <string.h>

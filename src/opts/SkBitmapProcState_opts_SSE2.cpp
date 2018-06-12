@@ -5,12 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include <emmintrin.h>
 #include "SkBitmapProcState_opts_SSE2.h"
 #include "SkBitmapProcState_utils.h"
 #include "SkColorData.h"
 #include "SkPaint.h"
+#include "SkTo.h"
 #include "SkUtils.h"
+
+#include <emmintrin.h>
 
 void S32_opaque_D32_filter_DX_SSE2(const SkBitmapProcState& s,
                                    const uint32_t* xy,

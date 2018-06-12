@@ -18,6 +18,7 @@
 #include "ProxyUtils.h"
 #include "SkCanvas.h"
 #include "SkSurface.h"
+#include "SkTo.h"
 
 // This was made indivisible by 4 to ensure we test setting GL_PACK_ALIGNMENT properly.
 static const int X_SIZE = 13;

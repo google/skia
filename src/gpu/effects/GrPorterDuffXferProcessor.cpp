@@ -14,6 +14,7 @@
 #include "GrProcessorAnalysis.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
+#include "SkTo.h"
 #include "glsl/GrGLSLBlend.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"

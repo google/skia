@@ -5,15 +5,16 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkScanPriv.h"
+
+#include "SkAntiRun.h"
+#include "SkBlitter.h"
+#include "SkCoverageDelta.h"
+#include "SkMatrix.h"
 #include "SkPath.h"
 #include "SkPathPriv.h"
-#include "SkMatrix.h"
-#include "SkBlitter.h"
 #include "SkRegion.h"
-#include "SkAntiRun.h"
-#include "SkCoverageDelta.h"
+#include "SkTo.h"
 
 #define SHIFT   SK_SUPERSAMPLE_SHIFT
 #define SCALE   (1 << SHIFT)
