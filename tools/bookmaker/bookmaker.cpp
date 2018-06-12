@@ -6,6 +6,7 @@
  */
 
 #include "bookmaker.h"
+#include "SkMacros.h"
 #include "SkOSPath.h"
 
 #ifdef SK_BUILD_FOR_WIN

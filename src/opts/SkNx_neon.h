@@ -8,6 +8,8 @@
 #ifndef SkNx_neon_DEFINED
 #define SkNx_neon_DEFINED
 
+#include "SkNumbers.h"
+
 #include <arm_neon.h>
 
 namespace {

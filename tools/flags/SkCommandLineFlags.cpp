@@ -6,6 +6,8 @@
  */
 
 #include "SkCommandLineFlags.h"
+
+#include "SkMacros.h"
 #include "SkTDArray.h"
 #include "SkTSort.h"
 

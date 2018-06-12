@@ -7,6 +7,16 @@
 #ifndef SkMacros_DEFINED
 #define SkMacros_DEFINED
 
+#include <cstddef>
+
+/** @return the number of entries in an array (not a pointer)
+*/
+template <typename T, size_t N>
+char (&SkArrayCountHelper(T (&array)[N]))[N];
+#define SK_ARRAY_COUNT(array) (sizeof(SkArrayCountHelper(array)))
+
+////////////////////////////////////////////////////////////////////////////////
+
 /*
  *  Usage:  SK_MACRO_CONCAT(a, b)   to construct the symbol ab
  *
