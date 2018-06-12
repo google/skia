@@ -11,7 +11,6 @@
 #include "GrColor.h"
 #include "GrDrawOpAtlas.h"
 #include "GrGlyphCache.h"
-#include "GrMemoryPool.h"
 #include "GrTextUtils.h"
 #include "SkDescriptor.h"
 #include "SkMaskFilterBase.h"
@@ -25,7 +24,6 @@
 class GrAtlasManager;
 struct GrDistanceFieldAdjustTable;
 struct GrGlyph;
-class GrMemoryPool;
 
 class SkDrawFilter;
 class SkTextBlob;

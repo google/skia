@@ -58,11 +58,14 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix,
-                                          const SkRegion& region, GrAAType aaType,
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          GrPaint&& paint,
+                                          const SkMatrix& viewMatrix,
+                                          const SkRegion& region,
+                                          GrAAType aaType,
                                           const GrUserStencilSettings* stencilSettings = nullptr) {
-        return Helper::FactoryHelper<RegionOp>(std::move(paint), viewMatrix, region, aaType,
-                                               stencilSettings);
+        return Helper::FactoryHelper<RegionOp>(context, std::move(paint), viewMatrix, region,
+                                               aaType, stencilSettings);
     }
 
     RegionOp(const Helper::MakeArgs& helperArgs, GrColor color, const SkMatrix& viewMatrix,
@@ -174,12 +177,16 @@ private:
 
 namespace GrRegionOp {
 
-std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix, const SkRegion& region,
-                               GrAAType aaType, const GrUserStencilSettings* stencilSettings) {
+std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                               GrPaint&& paint,
+                               const SkMatrix& viewMatrix,
+                               const SkRegion& region,
+                               GrAAType aaType,
+                               const GrUserStencilSettings* stencilSettings) {
     if (aaType != GrAAType::kNone && aaType != GrAAType::kMSAA) {
         return nullptr;
     }
-    return RegionOp::Make(std::move(paint), viewMatrix, region, aaType, stencilSettings);
+    return RegionOp::Make(context, std::move(paint), viewMatrix, region, aaType, stencilSettings);
 }
 }
 
@@ -210,7 +217,7 @@ GR_DRAW_OP_TEST_DEFINE(RegionOp) {
     if (GrFSAAType::kUnifiedMSAA == fsaaType && random->nextBool()) {
         aaType = GrAAType::kMSAA;
     }
-    return RegionOp::Make(std::move(paint), viewMatrix, region, aaType,
+    return RegionOp::Make(context, std::move(paint), viewMatrix, region, aaType,
                           GrGetRandomStencil(random, context));
 }
 

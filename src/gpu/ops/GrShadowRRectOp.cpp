@@ -6,7 +6,11 @@
  */
 
 #include "GrShadowRRectOp.h"
+
+#include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrDrawOpTest.h"
+#include "GrMemoryPool.h"
 #include "GrOpFlushState.h"
 #include "SkRRectPriv.h"
 #include "effects/GrShadowGeoProc.h"
@@ -653,7 +657,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace GrShadowRRectOp {
-std::unique_ptr<GrDrawOp> Make(GrColor color,
+std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                               GrColor color,
                                const SkMatrix& viewMatrix,
                                const SkRRect& rrect,
                                SkScalar blurWidth,
@@ -708,14 +713,16 @@ GR_DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
     if (isCircle) {
         SkRect circle = GrTest::TestSquare(random);
         SkRRect rrect = SkRRect::MakeOval(circle);
-        return GrShadowRRectOp::Make(color, viewMatrix, rrect, blurWidth, insetWidth, blurClamp);
+        return GrShadowRRectOp::Make(context, color, viewMatrix, rrect, blurWidth,
+                                     insetWidth, blurClamp);
     } else {
         SkRRect rrect;
         do {
             // This may return a rrect with elliptical corners, which we don't support.
             rrect = GrTest::TestRRectSimple(random);
         } while (!SkRRectPriv::IsSimpleCircular(rrect));
-        return GrShadowRRectOp::Make(color, viewMatrix, rrect, blurWidth, insetWidth, blurClamp);
+        return GrShadowRRectOp::Make(context, color, viewMatrix, rrect, blurWidth,
+                                     insetWidth, blurClamp);
     }
 }
 

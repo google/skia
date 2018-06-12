@@ -50,8 +50,8 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPoint pts[2];
     SkAssertResult(args.fShape->asLine(pts, nullptr));
     std::unique_ptr<GrDrawOp> op =
-            GrDashOp::MakeDashLineOp(std::move(args.fPaint), *args.fViewMatrix, pts, aaMode,
-                                     args.fShape->style(), args.fUserStencilSettings);
+            GrDashOp::MakeDashLineOp(args.fContext, std::move(args.fPaint), *args.fViewMatrix, pts,
+                                     aaMode, args.fShape->style(), args.fUserStencilSettings);
     if (!op) {
         return false;
     }

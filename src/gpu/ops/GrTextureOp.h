@@ -25,8 +25,14 @@ namespace GrTextureOp {
  * the rectangle to draw in local coords which will be transformed by 'viewMatrix' to be in device
  * space. 'viewMatrix' must be affine.
  */
-std::unique_ptr<GrDrawOp> Make(sk_sp<GrTextureProxy>, GrSamplerState::Filter, GrColor,
-                               const SkRect& srcRect, const SkRect& dstRect, GrAAType,
-                               SkCanvas::SrcRectConstraint, const SkMatrix& viewMatrix,
+std::unique_ptr<GrDrawOp> Make(GrContext*,
+                               sk_sp<GrTextureProxy>,
+                               GrSamplerState::Filter,
+                               GrColor,
+                               const SkRect& srcRect,
+                               const SkRect& dstRect,
+                               GrAAType,
+                               SkCanvas::SrcRectConstraint,
+                               const SkMatrix& viewMatrix,
                                sk_sp<GrColorSpaceXform>);
 }

@@ -13,6 +13,7 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpuResource.h"
+#include "GrMemoryPool.h"
 #include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
@@ -26,7 +27,8 @@ namespace {
 class TestOp : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
-    static std::unique_ptr<GrDrawOp> Make(std::unique_ptr<GrFragmentProcessor> fp) {
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          std::unique_ptr<GrFragmentProcessor> fp) {
         return std::unique_ptr<GrDrawOp>(new TestOp(std::move(fp)));
     }
 
@@ -48,6 +50,8 @@ public:
     }
 
 private:
+    friend class ::GrOpMemoryPool; // for ctor
+
     TestOp(std::unique_ptr<GrFragmentProcessor> fp)
             : INHERITED(ClassID()), fProcessors(std::move(fp)) {
         this->setBounds(SkRect::MakeWH(100, 100), HasAABloat::kNo, IsZeroArea::kNo);
@@ -201,10 +205,10 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                     if (makeClone) {
                         clone = fp->clone();
                     }
-                    std::unique_ptr<GrDrawOp> op(TestOp::Make(std::move(fp)));
+                    std::unique_ptr<GrDrawOp> op(TestOp::Make(context, std::move(fp)));
                     renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
                     if (clone) {
-                        op = TestOp::Make(std::move(clone));
+                        op = TestOp::Make(context, std::move(clone));
                         renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
                     }
                 }
@@ -276,14 +280,16 @@ static GrColor4f input_texel_color4f(int i, int j) {
     return GrColor4f::FromGrColor(input_texel_color(i, j));
 }
 
-void test_draw_op(GrRenderTargetContext* rtc, std::unique_ptr<GrFragmentProcessor> fp,
+void test_draw_op(GrContext* context,
+                  GrRenderTargetContext* rtc,
+                  std::unique_ptr<GrFragmentProcessor> fp,
                   sk_sp<GrTextureProxy> inputDataProxy) {
     GrPaint paint;
     paint.addColorTextureProcessor(std::move(inputDataProxy), SkMatrix::I());
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    auto op = GrRectOpFactory::MakeNonAAFill(std::move(paint), SkMatrix::I(),
+    auto op = GrRectOpFactory::MakeNonAAFill(context, std::move(paint), SkMatrix::I(),
                                              SkRect::MakeWH(rtc->width(), rtc->height()),
                                              GrAAType::kNone);
     rtc->addDrawOp(GrNoClip(), std::move(op));
@@ -402,7 +408,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
             // Since we transfer away ownership of the original FP, we make a clone.
             auto clone = fp->clone();
 
-            test_draw_op(rtc.get(), std::move(fp), inputTexture);
+            test_draw_op(context, rtc.get(), std::move(fp), inputTexture);
             memset(readData.get(), 0x0, sizeof(GrColor) * kRenderSize * kRenderSize);
             rtc->readPixels(SkImageInfo::Make(kRenderSize, kRenderSize, kRGBA_8888_SkColorType,
                                               kPremul_SkAlphaType),
@@ -536,12 +542,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
             REPORTER_ASSERT(reporter, fp->numChildProcessors() == clone->numChildProcessors());
             REPORTER_ASSERT(reporter, fp->usesLocalCoords() == clone->usesLocalCoords());
             // Draw with original and read back the results.
-            test_draw_op(rtc.get(), std::move(fp), inputTexture);
+            test_draw_op(context, rtc.get(), std::move(fp), inputTexture);
             memset(readData1.get(), 0x0, sizeof(GrColor) * kRenderSize * kRenderSize);
             rtc->readPixels(readInfo, readData1.get(), 0, 0, 0);
 
             // Draw with clone and read back the results.
-            test_draw_op(rtc.get(), std::move(clone), inputTexture);
+            test_draw_op(context, rtc.get(), std::move(clone), inputTexture);
             memset(readData2.get(), 0x0, sizeof(GrColor) * kRenderSize * kRenderSize);
             rtc->readPixels(readInfo, readData2.get(), 0, 0, 0);
 

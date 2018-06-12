@@ -155,15 +155,17 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
             if (GrAAType::kMixedSamples == coverAAType) {
                 coverAAType = GrAAType::kNone;
             }
-            args.fRenderTargetContext->addDrawOp(*args.fClip,
-                                                 GrRectOpFactory::MakeNonAAFillWithLocalMatrix(
-                                                         std::move(args.fPaint), coverMatrix,
-                                                         localMatrix, coverBounds, coverAAType,
-                                                         &kInvertedCoverPass));
+            std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeNonAAFillWithLocalMatrix(
+                                                         args.fContext, std::move(args.fPaint),
+                                                         coverMatrix, localMatrix, coverBounds,
+                                                         coverAAType, &kInvertedCoverPass);
+
+            args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
         }
     } else {
         std::unique_ptr<GrDrawOp> op =
-                GrDrawPathOp::Make(viewMatrix, std::move(args.fPaint), args.fAAType, path.get());
+                GrDrawPathOp::Make(args.fContext, viewMatrix, std::move(args.fPaint),
+                                   args.fAAType, path.get());
         args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
     }
 

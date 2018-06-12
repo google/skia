@@ -9,6 +9,9 @@
 #define GrMemoryPool_DEFINED
 
 #include "GrTypes.h"
+
+#include "SkRefCnt.h"
+
 #ifdef SK_DEBUG
 #include "SkTHash.h"
 #endif
@@ -119,6 +122,32 @@ protected:
         kHeaderSize   = GR_CT_ALIGN_UP(sizeof(BlockHeader), kAlignment),
         kPerAllocPad  = GR_CT_ALIGN_UP(sizeof(AllocHeader), kAlignment),
     };
+};
+
+class GrOp;
+
+// DDL TODO: for the DLL use case this could probably be the non-intrinsic-based style of
+// ref counting
+class GrOpMemoryPool : public SkRefCnt {
+public:
+    GrOpMemoryPool(size_t preallocSize, size_t minAllocSize)
+            : fMemoryPool(preallocSize, minAllocSize) {
+    }
+
+    template <typename Op, typename... OpArgs>
+    std::unique_ptr<Op> allocate(OpArgs&&... opArgs) {
+        char* mem = (char*) fMemoryPool.allocate(sizeof(Op));
+        return std::unique_ptr<Op>(new (mem) Op(std::forward<OpArgs>(opArgs)...));
+    }
+
+    void* allocate(size_t size) {
+        return fMemoryPool.allocate(size);
+    }
+
+    void release(std::unique_ptr<GrOp> op);
+
+private:
+    GrMemoryPool fMemoryPool;
 };
 
 #endif

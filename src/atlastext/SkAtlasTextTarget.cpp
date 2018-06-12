@@ -6,9 +6,11 @@
  */
 
 #include "SkAtlasTextTarget.h"
+
 #include "GrClip.h"
 #include "GrContextPriv.h"
 #include "GrDrawingManager.h"
+#include "GrMemoryPool.h"
 #include "SkAtlasTextContext.h"
 #include "SkAtlasTextFont.h"
 #include "SkAtlasTextRenderer.h"
@@ -76,10 +78,12 @@ static const GrColorSpaceInfo kColorSpaceInfo(nullptr, kRGBA_8888_GrPixelConfig)
 
 class SkInternalAtlasTextTarget : public GrTextUtils::Target, public SkAtlasTextTarget {
 public:
-    SkInternalAtlasTextTarget(sk_sp<SkAtlasTextContext> context, int width, int height,
+    SkInternalAtlasTextTarget(sk_sp<SkAtlasTextContext> context,
+                              int width, int height,
                               void* handle)
             : GrTextUtils::Target(width, height, kColorSpaceInfo)
-            , SkAtlasTextTarget(std::move(context), width, height, handle) {}
+            , SkAtlasTextTarget(std::move(context), width, height, handle) {
+    }
 
     /** GrTextUtils::Target overrides */
 
@@ -93,6 +97,10 @@ public:
     void makeGrPaint(GrMaskFormat, const SkPaint& skPaint, const SkMatrix&,
                      GrPaint* grPaint) override {
         grPaint->setColor4f(SkColorToPremulGrColor4fLegacy(skPaint.getColor()));
+    }
+
+    GrContext* getContext() override {
+        return this->context()->internal().grContext();
     }
 
     /** SkAtlasTextTarget overrides */

@@ -15,7 +15,9 @@ class GrCopySurfaceOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrOp> Make(GrSurfaceProxy* dst, GrSurfaceProxy* src,
+    static std::unique_ptr<GrOp> Make(GrContext*,
+                                      GrSurfaceProxy* dst,
+                                      GrSurfaceProxy* src,
                                       const SkIRect& srcRect,
                                       const SkIPoint& dstPoint);
 
@@ -37,6 +39,8 @@ public:
     }
 
 private:
+    friend class GrOpMemoryPool; // for ctor
+
     GrCopySurfaceOp(GrSurfaceProxy* dst, GrSurfaceProxy* src,
                     const SkIRect& srcRect, const SkIPoint& dstPoint)
             : INHERITED(ClassID())

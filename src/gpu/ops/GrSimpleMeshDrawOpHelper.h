@@ -8,6 +8,9 @@
 #ifndef GrSimpleMeshDrawOpHelper_DEFINED
 #define GrSimpleMeshDrawOpHelper_DEFINED
 
+#include "GrContext.h"
+#include "GrContextPriv.h"
+#include "GrMemoryPool.h" // only here bc of the templated FactoryHelper
 #include "GrMeshDrawOp.h"
 #include "GrOpFlushState.h"
 #include "GrPipeline.h"
@@ -33,7 +36,7 @@ public:
      * which is public or made accessible via 'friend'.
      */
     template <typename Op, typename... OpArgs>
-    static std::unique_ptr<GrDrawOp> FactoryHelper(GrPaint&& paint, OpArgs... opArgs);
+    static std::unique_ptr<GrDrawOp> FactoryHelper(GrContext*, GrPaint&& paint, OpArgs... opArgs);
 
     enum class Flags : uint32_t {
         kNone = 0x0,
@@ -140,9 +143,10 @@ public:
 
     // using declarations can't be templated, so this is a pass through function instead.
     template <typename Op, typename... OpArgs>
-    static std::unique_ptr<GrDrawOp> FactoryHelper(GrPaint&& paint, OpArgs... opArgs) {
+    static std::unique_ptr<GrDrawOp> FactoryHelper(GrContext* context, GrPaint&& paint,
+                                                   OpArgs... opArgs) {
         return GrSimpleMeshDrawOpHelper::FactoryHelper<Op, OpArgs...>(
-                std::move(paint), std::forward<OpArgs>(opArgs)...);
+                context, std::move(paint), std::forward<OpArgs>(opArgs)...);
     }
 
     GrSimpleMeshDrawOpHelperWithStencil(const MakeArgs&, GrAAType, const GrUserStencilSettings*,
@@ -167,11 +171,13 @@ private:
 };
 
 template <typename Op, typename... OpArgs>
-std::unique_ptr<GrDrawOp> GrSimpleMeshDrawOpHelper::FactoryHelper(GrPaint&& paint,
+std::unique_ptr<GrDrawOp> GrSimpleMeshDrawOpHelper::FactoryHelper(GrContext* context,
+                                                                  GrPaint&& paint,
                                                                   OpArgs... opArgs) {
     MakeArgs makeArgs;
     makeArgs.fSRGBFlags = GrPipeline::SRGBFlagsFromPaint(paint);
     GrColor color = paint.getColor();
+
     if (paint.isTrivial()) {
         makeArgs.fProcessorSet = nullptr;
         return std::unique_ptr<GrDrawOp>(new Op(makeArgs, color, std::forward<OpArgs>(opArgs)...));

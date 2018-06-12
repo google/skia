@@ -407,7 +407,9 @@ private:
     friend class GrCCAtlas;                          // for access to addDrawOp
     friend class GrCoverageCountingPathRenderer;     // for access to addDrawOp
     // for a unit test
-    friend void test_draw_op(GrRenderTargetContext*, std::unique_ptr<GrFragmentProcessor>,
+    friend void test_draw_op(GrContext*,
+                             GrRenderTargetContext*,
+                             std::unique_ptr<GrFragmentProcessor>,
                              sk_sp<GrTextureProxy>);
 
     void internalClear(const GrFixedClip&, const GrColor, CanClearFullscreen);

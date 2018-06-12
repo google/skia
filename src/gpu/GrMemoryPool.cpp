@@ -10,12 +10,20 @@
 #ifdef SK_DEBUG
 #include "SkAtomics.h"
 #endif
+#include "ops/GrOp.h"
 
 #ifdef SK_DEBUG
     #define VALIDATE this->validate()
 #else
     #define VALIDATE
 #endif
+
+void GrOpMemoryPool::release(std::unique_ptr<GrOp> op) {
+    GrOp* tmp = op.release();
+    SkASSERT(tmp);
+    tmp->~GrOp();
+    fMemoryPool.release(tmp);
+}
 
 constexpr size_t GrMemoryPool::kSmallestMinAllocSize;
 

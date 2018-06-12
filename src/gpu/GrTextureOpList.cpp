@@ -8,6 +8,8 @@
 #include "GrTextureOpList.h"
 
 #include "GrAuditTrail.h"
+#include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrResourceAllocator.h"
 #include "GrTextureProxy.h"
@@ -113,20 +115,21 @@ void GrTextureOpList::endFlush() {
 
 // This closely parallels GrRenderTargetOpList::copySurface but renderTargetOpList
 // stores extra data with the op
-bool GrTextureOpList::copySurface(const GrCaps& caps,
+bool GrTextureOpList::copySurface(GrContext* context,
                                   GrSurfaceProxy* dst,
                                   GrSurfaceProxy* src,
                                   const SkIRect& srcRect,
                                   const SkIPoint& dstPoint) {
     SkASSERT(dst == fTarget.get());
 
-    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(dst, src, srcRect, dstPoint);
+    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(context, dst, src, srcRect, dstPoint);
     if (!op) {
         return false;
     }
 
-    auto addDependency = [ &caps, this ] (GrSurfaceProxy* p) {
-        this->addDependency(p, caps);
+    const GrCaps* caps = context->contextPriv().caps();
+    auto addDependency = [ caps, this ] (GrSurfaceProxy* p) {
+        this->addDependency(p, *caps);
     };
     op->visitProxies(addDependency);
 

@@ -57,6 +57,8 @@ public:
         virtual void makeGrPaint(GrMaskFormat, const SkPaint&, const SkMatrix& viewMatrix,
                                  GrPaint*) = 0;
 
+        virtual GrContext* getContext() = 0;
+
     protected:
         Target(int width, int height, const GrColorSpaceInfo& colorSpaceInfo)
                 : fWidth(width), fHeight(height), fColorSpaceInfo(colorSpaceInfo) {}

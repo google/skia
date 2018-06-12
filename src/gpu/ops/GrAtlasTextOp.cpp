@@ -8,6 +8,7 @@
 #include "GrAtlasTextOp.h"
 
 #include "GrContext.h"
+#include "GrMemoryPool.h"
 #include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
 #include "SkMathPriv.h"
@@ -20,6 +21,57 @@
 #include "text/GrGlyphCache.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeBitmap(GrContext* context,
+                                                         GrPaint&& paint,
+                                                         GrMaskFormat maskFormat,
+                                                         int glyphCount,
+                                                         bool needsTransform) {
+        std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(std::move(paint)));
+
+        switch (maskFormat) {
+            case kA8_GrMaskFormat:
+                op->fMaskType = kGrayscaleCoverageMask_MaskType;
+                break;
+            case kA565_GrMaskFormat:
+                op->fMaskType = kLCDCoverageMask_MaskType;
+                break;
+            case kARGB_GrMaskFormat:
+                op->fMaskType = kColorBitmapMask_MaskType;
+                break;
+        }
+        op->fNumGlyphs = glyphCount;
+        op->fGeoCount = 1;
+        op->fLuminanceColor = 0;
+        op->fNeedsGlyphTransform = needsTransform;
+        return op;
+    }
+
+std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeDistanceField(
+                                            GrContext* context,
+                                            GrPaint&& paint,
+                                            int glyphCount,
+                                            const GrDistanceFieldAdjustTable* distanceAdjustTable,
+                                            bool useGammaCorrectDistanceTable,
+                                            SkColor luminanceColor,
+                                            const SkSurfaceProps& props,
+                                            bool isAntiAliased,
+                                            bool useLCD) {
+        std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(std::move(paint)));
+
+        bool isBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
+        bool isLCD = useLCD && SkPixelGeometryIsH(props.pixelGeometry());
+        op->fMaskType = !isAntiAliased ? kAliasedDistanceField_MaskType
+                                       : isLCD ? (isBGR ? kLCDBGRDistanceField_MaskType
+                                                        : kLCDDistanceField_MaskType)
+                                               : kGrayscaleDistanceField_MaskType;
+        op->fDistanceAdjustTable.reset(SkRef(distanceAdjustTable));
+        op->fUseGammaCorrectDistanceTable = useGammaCorrectDistanceTable;
+        op->fLuminanceColor = luminanceColor;
+        op->fNumGlyphs = glyphCount;
+        op->fGeoCount = 1;
+        return op;
+    }
 
 static const int kDistanceAdjustLumShift = 5;
 

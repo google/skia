@@ -12,6 +12,7 @@
 #include "GrColor.h"
 #include "GrGeometryProcessor.h"
 #include "GrGpuCommandBuffer.h"
+#include "GrMemoryPool.h"
 #include "GrOpFlushState.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
@@ -113,6 +114,8 @@ public:
     }
 
 private:
+    friend class GrOpMemoryPool;
+
     GrPipelineDynamicStateTestOp(ScissorState scissorState, sk_sp<const GrBuffer> vbuff)
         : INHERITED(ClassID())
         , fScissorState(scissorState)

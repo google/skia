@@ -7,9 +7,23 @@
 
 #include "GrStencilPathOp.h"
 
+#include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "GrMemoryPool.h"
 #include "GrOpFlushState.h"
 #include "GrRenderTargetPriv.h"
+
+std::unique_ptr<GrOp> GrStencilPathOp::Make(GrContext* context,
+                                            const SkMatrix& viewMatrix,
+                                            bool useHWAA,
+                                            GrPathRendering::FillType fillType,
+                                            bool hasStencilClip,
+                                            const GrScissorState& scissor,
+                                            const GrPath* path) {
+    return std::unique_ptr<GrOp>(new GrStencilPathOp(viewMatrix, useHWAA, fillType,
+                                                     hasStencilClip, scissor, path));
+}
 
 void GrStencilPathOp::onExecute(GrOpFlushState* state) {
     GrRenderTarget* rt = state->drawOpArgs().renderTarget();

@@ -14,6 +14,7 @@
 #include "GrOpFlushState.h"
 #include "GrOpList.h"
 #include "GrProxyProvider.h"
+#include "GrSurfaceContextPriv.h"
 #include "GrSWMaskHelper.h"
 #include "SkMakeUnique.h"
 #include "SkSemaphore.h"
@@ -94,9 +95,10 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetCo
                                            const SkMatrix& viewMatrix,
                                            const SkRect& rect,
                                            const SkMatrix& localMatrix) {
+    GrContext* context = renderTargetContext->surfPriv().getContext();
     renderTargetContext->addDrawOp(clip,
                                    GrRectOpFactory::MakeNonAAFillWithLocalMatrix(
-                                           std::move(paint), viewMatrix, localMatrix, rect,
+                                           context, std::move(paint), viewMatrix, localMatrix, rect,
                                            GrAAType::kNone, &userStencilSettings));
 }
 

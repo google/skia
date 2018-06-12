@@ -7,6 +7,7 @@
 
 #include "GrDrawPathOp.h"
 #include "GrAppliedClip.h"
+#include "GrMemoryPool.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetPriv.h"
 #include "SkTemplates.h"
@@ -62,6 +63,15 @@ void init_stencil_pass_settings(const GrOpFlushState& flushState,
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+std::unique_ptr<GrDrawOp> GrDrawPathOp::Make(GrContext* context,
+                                             const SkMatrix& viewMatrix,
+                                             GrPaint&& paint,
+                                             GrAAType aaType,
+                                             GrPath* path) {
+    return std::unique_ptr<GrDrawOp>(
+                new GrDrawPathOp(viewMatrix, std::move(paint), aaType, path));
+}
 
 void GrDrawPathOp::onExecute(GrOpFlushState* state) {
     GrPipeline pipeline(this->pipelineInitArgs(*state), this->detachProcessors(),
