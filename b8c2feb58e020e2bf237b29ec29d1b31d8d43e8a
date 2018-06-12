@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3dc6eb41_50039cc1",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-12T17:50:05Z",
+      "side": 1,
+      "message": "is there a bug for this/can we add a comment with to bug",
+      "range": {
+        "startLine": 670,
+        "startChar": 0,
+        "endLine": 671,
+        "endChar": 48
+      },
+      "revId": "b8c2feb58e020e2bf237b29ec29d1b31d8d43e8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
