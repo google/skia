@@ -147,9 +147,10 @@ static sk_sp<SkImage> create_codec_image() {
     sk_sp<SkData> src(sk_tool_utils::EncodeImageToData(bitmap, SkEncodedImageFormat::kPNG, 100));
     return SkImage::MakeFromEncoded(std::move(src));
 }
-static sk_sp<SkImage> create_gpu_image(GrContext* context) {
+static sk_sp<SkImage> create_gpu_image(GrContext* context, bool withMips = false) {
     const SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
-    auto surface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));
+    auto surface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0,
+                                             kBottomLeft_GrSurfaceOrigin, nullptr, withMips));
     draw_image_test_pattern(surface->getCanvas());
     return surface->makeImageSnapshot();
 }
@@ -385,6 +386,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
         create_picture_image,
         // Create a texture image.
         [context] { return create_gpu_image(context); },
+        // Create a texture image with mips
+        //[context] { return create_gpu_image(context, true); },
         // Create a texture image in a another GrContext.
         [otherContextInfo] {
             auto restore = otherContextInfo.testContext()->makeCurrentAndAutoRestore();
@@ -400,43 +403,54 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
     };
 
     for (auto& dstColorSpace : dstColorSpaces) {
-        for (auto factory : imageFactories) {
-            sk_sp<SkImage> image(factory());
-            if (!image) {
-                ERRORF(reporter, "Error creating image.");
-                continue;
-            }
-
-            sk_sp<SkImage> texImage(image->makeTextureImage(context, dstColorSpace.get()));
-            if (!texImage) {
-                GrContext* imageContext = as_IB(image)->context();
-
-                // We expect to fail if image comes from a different GrContext.
-                if (!image->isTextureBacked() || imageContext == context) {
-                    ERRORF(reporter, "makeTextureImage failed.");
+        for (auto mipMapped : {GrMipMapped::kNo, GrMipMapped::kYes}) {
+            for (auto factory : imageFactories) {
+                sk_sp<SkImage> image(factory());
+                if (!image) {
+                    ERRORF(reporter, "Error creating image.");
+                    continue;
                 }
-                continue;
-            }
-            if (!texImage->isTextureBacked()) {
-                ERRORF(reporter, "makeTextureImage returned non-texture image.");
-                continue;
-            }
-            if (image->isTextureBacked()) {
-                GrSurfaceProxy* origProxy = as_IB(image)->peekProxy();
-                GrSurfaceProxy* copyProxy = as_IB(texImage)->peekProxy();
 
-                if (origProxy->underlyingUniqueID() != copyProxy->underlyingUniqueID()) {
-                    ERRORF(reporter, "makeTextureImage made unnecessary texture copy.");
+                sk_sp<SkImage> texImage(image->makeTextureImage(context, dstColorSpace.get(),
+                                                                mipMapped));
+                if (!texImage) {
+                    GrContext* imageContext = as_IB(image)->context();
+
+                    // We expect to fail if image comes from a different GrContext.
+                    if (!image->isTextureBacked() || imageContext == context) {
+                        ERRORF(reporter, "makeTextureImage failed.");
+                    }
+                    continue;
                 }
-            }
-            if (image->width() != texImage->width() || image->height() != texImage->height()) {
-                ERRORF(reporter, "makeTextureImage changed the image size.");
-            }
-            if (image->alphaType() != texImage->alphaType()) {
-                ERRORF(reporter, "makeTextureImage changed image alpha type.");
+                if (!texImage->isTextureBacked()) {
+                    ERRORF(reporter, "makeTextureImage returned non-texture image.");
+                    continue;
+                }
+                if (GrMipMapped::kYes == mipMapped &&
+                    as_IB(texImage)->peekProxy()->mipMapped() != mipMapped) {
+                    ERRORF(reporter, "makeTextureImage returned non-mipmapped texture.");
+                    continue;
+                }
+                if (image->isTextureBacked()) {
+                    GrSurfaceProxy* origProxy = as_IB(image)->peekProxy();
+                    GrSurfaceProxy* copyProxy = as_IB(texImage)->peekProxy();
+
+                    if (origProxy->underlyingUniqueID() != copyProxy->underlyingUniqueID()) {
+                        SkASSERT(origProxy->asTextureProxy());
+                        if (GrMipMapped::kNo == mipMapped ||
+                            GrMipMapped::kYes == origProxy->asTextureProxy()->mipMapped()) {
+                            ERRORF(reporter, "makeTextureImage made unnecessary texture copy.");
+                        }
+                    }
+                }
+                if (image->width() != texImage->width() || image->height() != texImage->height()) {
+                    ERRORF(reporter, "makeTextureImage changed the image size.");
+                }
+                if (image->alphaType() != texImage->alphaType()) {
+                    ERRORF(reporter, "makeTextureImage changed image alpha type.");
+                }
             }
         }
-
         context->flush();
     }
 }
