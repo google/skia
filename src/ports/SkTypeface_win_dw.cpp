@@ -185,6 +185,53 @@ SkTypeface::LocalizedStrings* DWriteFontTypeface::onCreateFamilyNameIterator() c
     return nameIter;
 }
 
+int DWriteFontTypeface::onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
+    int coordinateCount) const {
+
+#if defined(NTDDI_WIN10_RS3) && NTDDI_VERSION >= NTDDI_WIN10_RS3
+
+    SkTScopedComPtr<IDWriteFontFace5> fontFace5;
+    if (SUCCEEDED(fDWriteFontFace->QueryInterface(&fontFace5))) {
+        // Return 0 if the font is not variable font.
+        if (!fontFace5->HasVariations()) {
+            return 0;
+        }
+
+        UINT32 fontAxisCount = fontFace5->GetFontAxisValueCount();
+        SkTScopedComPtr<IDWriteFontResource> fontResource;
+        HR(fontFace5->GetFontResource(&fontResource));
+        int variableAxisCount = 0;
+        for (UINT32 i = 0; i < fontAxisCount; ++i) {
+            if (fontResource->GetFontAxisAttributes(i) & DWRITE_FONT_AXIS_ATTRIBUTES_VARIABLE) {
+                variableAxisCount++;
+            }
+        }
+
+        if (!coordinates || !coordinateCount || !variableAxisCount) {
+            return variableAxisCount;
+        }
+
+        SkAutoSTMalloc<8, DWRITE_FONT_AXIS_VALUE> fontAxisValue(fontAxisCount);
+        HR(fontFace5->GetFontAxisValues(fontAxisValue.get(), fontAxisCount));
+        UINT32 minCount = SkMin32(variableAxisCount, SkTo<UINT32>(coordinateCount));
+        UINT32 coordinatesIndex = 0;
+
+        for (UINT32 i = 0; i < fontAxisCount; ++i) {
+            if (fontResource->GetFontAxisAttributes(i) & DWRITE_FONT_AXIS_ATTRIBUTES_VARIABLE) {
+                coordinates[coordinatesIndex].axis = SkEndian_SwapBE32(fontAxisValue[i].axisTag);
+                coordinates[coordinatesIndex].value = fontAxisValue[i].value;
+                if (++coordinatesIndex == minCount) break;
+            }
+        }
+
+        return variableAxisCount;
+    }
+
+#endif
+
+    return -1;
+}
+
 int DWriteFontTypeface::onGetTableTags(SkFontTableTag tags[]) const {
     DWRITE_FONT_FACE_TYPE type = fDWriteFontFace->GetType();
     if (type != DWRITE_FONT_FACE_TYPE_CFF &&
