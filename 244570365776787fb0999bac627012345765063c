@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e019bd8_da3e6d0e",
+        "filename": "src/gpu/GrMemoryPool.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-12T13:48:55Z",
+      "side": 1,
+      "message": "should we assert the ptr is non-null here?",
+      "range": {
+        "startLine": 23,
+        "startChar": 4,
+        "endLine": 23,
+        "endChar": 17
+      },
+      "revId": "244570365776787fb0999bac627012345765063c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8c8d164_1c08734f",
+        "filename": "src/gpu/GrMemoryPool.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-12T13:48:55Z",
+      "side": 1,
+      "message": "missing a word somewhere?",
+      "range": {
+        "startLine": 129,
+        "startChar": 3,
+        "endLine": 129,
+        "endChar": 86
+      },
+      "revId": "244570365776787fb0999bac627012345765063c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6613018_fb57a929",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-12T13:48:55Z",
+      "side": 1,
+      "message": "since we\u0027re trending that way, can we just make this the double indent alignment?",
+      "range": {
+        "startLine": 597,
+        "startChar": 49,
+        "endLine": 600,
+        "endChar": 98
+      },
+      "revId": "244570365776787fb0999bac627012345765063c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
