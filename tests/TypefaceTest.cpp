@@ -174,7 +174,7 @@ DEF_TEST(TypefaceAxes, reporter) {
     // Convert to fixed for "almost equal".
     SkFixed fixedRead = SkScalarToFixed(positionRead[0].value);
     SkFixed fixedOriginal = SkScalarToFixed(position[1].value);
-    REPORTER_ASSERT(reporter, fixedRead == fixedOriginal);
+    REPORTER_ASSERT(reporter, SkTAbs(fixedRead - fixedOriginal) < 2);
 }
 
 DEF_TEST(TypefaceVariationIndex, reporter) {
