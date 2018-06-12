@@ -16,6 +16,7 @@
 #include "SkPDFTypes.h"
 #include "SkPDFUtils.h"
 #include "SkStream.h"
+#include "SkTo.h"
 #include "SkUnPreMultiply.h"
 
 bool image_compute_is_opaque(const SkImage* image) {

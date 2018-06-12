@@ -30,6 +30,7 @@
 #include "SkString.h"
 #include "SkSurface.h"
 #include "SkTextBlob.h"
+#include "SkTo.h"
 #include "SkTypeface.h"
 #include <new>
 

@@ -6,6 +6,7 @@
  */
 
 #include "SkLineClipper.h"
+#include "SkTo.h"
 
 template <typename T> T pin_unsorted(T value, T limit0, T limit1) {
     if (limit1 < limit0) {

@@ -8,6 +8,7 @@
 #ifndef SkStream_DEFINED
 #define SkStream_DEFINED
 
+#include "../private/SkTo.h"
 #include "SkData.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
