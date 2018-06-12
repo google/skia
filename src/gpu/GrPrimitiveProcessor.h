@@ -40,23 +40,30 @@ class GrGLSLPrimitiveProcessor;
  */
 class GrPrimitiveProcessor : public GrResourceIOProcessor, public GrProgramElement {
 public:
+    /** Describes a vertex or instance attribute. */
     class Attribute {
     public:
-        enum class InputRate : bool {
-            kPerVertex,
-            kPerInstance
-        };
-
         constexpr Attribute() = default;
-        constexpr Attribute(const char* name, GrVertexAttribType type, int offset, InputRate rate)
-                : fName(name), fType(type), fOffsetInRecord(offset), fInputRate(rate) {}
+        constexpr Attribute(const char* name, GrVertexAttribType type, size_t offset = 0)
+                : fName(name), fType(type), fOffset(offset) {}
+        /** Initialized to be at the next 4 byte offset after 'prev'. */
+        constexpr Attribute(const char* name, GrVertexAttribType type, const Attribute& prev)
+                : fName(name), fType(type), fOffset(prev.nextOffsetInRecord()) {
+            SkASSERT(prev.isInitialized());
+        }
+        constexpr Attribute(const Attribute&) = default;
 
-        bool isInitialized() const { return SkToBool(fName); }
+        Attribute& operator=(const Attribute&) = default;
 
-        const char* name() const { return fName; }
-        GrVertexAttribType type() const { return fType; }
-        int offsetInRecord() const { return fOffsetInRecord; }
-        InputRate inputRate() const { return fInputRate; }
+        constexpr bool isInitialized() const { return SkToBool(fName); }
+
+        constexpr const char* name() const { return fName; }
+        constexpr GrVertexAttribType type() const { return fType; }
+        constexpr size_t offset() const { return fOffset; }
+
+        constexpr size_t size() const { return GrVertexAttribTypeSize(fType); }
+        constexpr size_t sizeAlign4() const { return SkAlign4(this->size()); }
+        constexpr size_t nextOffsetInRecord() const { return fOffset + this->sizeAlign4(); }
 
         GrShaderVar asShaderVar() const {
             return {fName, GrVertexAttribTypeToSLType(fType), GrShaderVar::kIn_TypeModifier};
@@ -65,18 +72,18 @@ public:
     private:
         const char* fName = nullptr;
         GrVertexAttribType fType = kFloat_GrVertexAttribType;
-        int fOffsetInRecord = 0;
-        InputRate fInputRate = InputRate::kPerVertex;
+        size_t fOffset = 0;
     };
 
-    GrPrimitiveProcessor(ClassID classID)
-    : GrResourceIOProcessor(classID) {}
+    GrPrimitiveProcessor(ClassID);
 
-    int numAttribs() const { return fAttribs.count(); }
-    const Attribute& getAttrib(int index) const { return fAttribs[index]; }
+    int numVertexAttributes() const { return fVertexAttributeCnt; }
+    const Attribute& vertexAttribute(int i) const;
+    int numInstanceAttributes() const { return fInstanceAttributeCnt; }
+    const Attribute& instanceAttribute(int i) const;
 
-    bool hasVertexAttribs() const { return SkToBool(fVertexStride); }
-    bool hasInstanceAttribs() const { return SkToBool(fInstanceStride); }
+    bool hasVertexAttributes() const { return SkToBool(fVertexAttributeCnt); }
+    bool hasInstanceAttributes() const { return SkToBool(fInstanceAttributeCnt); }
 
     /**
      * These return the strides of the vertex and instance buffers. Attributes are expected to be
@@ -134,19 +141,8 @@ public:
     }
 
 protected:
-    /**
-     * Subclasses call these from their constructor to register vertex and instance attributes.
-     */
-    const Attribute& addVertexAttrib(const char* name, GrVertexAttribType type) {
-        fAttribs.push_back() = {name, type, fVertexStride, Attribute::InputRate::kPerVertex};
-        fVertexStride += static_cast<int>(SkAlign4(GrVertexAttribTypeSize(type)));
-        return fAttribs.back();
-    }
-    const Attribute& addInstanceAttrib(const char* name, GrVertexAttribType type) {
-        fAttribs.push_back() = {name, type, fInstanceStride, Attribute::InputRate::kPerInstance};
-        fInstanceStride += static_cast<int>(SkAlign4(GrVertexAttribTypeSize(type)));
-        return fAttribs.back();
-    }
+    void setVertexAttributeInfo(int attributeCnt, size_t vertexStride);
+    void setInstanceAttributeInfo(int attributeCnt, size_t instanceStride);
 
 private:
     void addPendingIOs() const override { GrResourceIOProcessor::addPendingIOs(); }
@@ -154,10 +150,13 @@ private:
     void pendingIOComplete() const override { GrResourceIOProcessor::pendingIOComplete(); }
     void notifyRefCntIsZero() const final {}
 
-    SkSTArray<8, Attribute> fAttribs;
-    int fVertexStride = 0;
-    int fInstanceStride = 0;
+    virtual const Attribute& onVertexAttribute(int) const = 0;
+    virtual const Attribute& onInstanceAttribute(int) const = 0;
 
+    size_t fVertexStride = 0;
+    size_t fInstanceStride = 0;
+    int fVertexAttributeCnt = 0;
+    int fInstanceAttributeCnt = 0;
     typedef GrProcessor INHERITED;
 };
 

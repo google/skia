@@ -81,7 +81,8 @@ private:
     GrGLUniformHandler    fUniformHandler;
 
     std::unique_ptr<GrGLProgram::Attribute[]> fAttributes;
-    int fAttributeCnt;
+    int fVertexAttributeCnt;
+    int fInstanceAttributeCnt;
     int fVertexStride;
     int fInstanceStride;
 
