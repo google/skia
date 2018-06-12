@@ -8,14 +8,15 @@
 #ifndef skiagm_DEFINED
 #define skiagm_DEFINED
 
+#include "../tools/Registry.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkClipOpPriv.h"
+#include "SkMacros.h"
 #include "SkMetaData.h"
 #include "SkPaint.h"
 #include "SkSize.h"
 #include "SkString.h"
-#include "../tools/Registry.h"
-#include "SkClipOpPriv.h"
 
 class SkAnimTimer;
 struct GrContextOptions;

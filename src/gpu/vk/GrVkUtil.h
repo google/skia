@@ -10,9 +10,10 @@
 
 #include "GrColor.h"
 #include "GrTypes.h"
+#include "SkMacros.h"
+#include "ir/SkSLProgram.h"
 #include "vk/GrVkDefines.h"
 #include "vk/GrVkInterface.h"
-#include "ir/SkSLProgram.h"
 
 class GrVkGpu;
 

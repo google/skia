@@ -11,6 +11,7 @@
 #include "SkArenaAlloc.h"
 #include "SkBlitter.h"
 #include "SkDraw.h"
+#include "SkMacros.h"
 
 class SkMatrix;
 class SkPaint;

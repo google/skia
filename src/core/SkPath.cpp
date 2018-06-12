@@ -11,6 +11,7 @@
 #include "SkCubicClipper.h"
 #include "SkData.h"
 #include "SkGeometry.h"
+#include "SkMacros.h"
 #include "SkMath.h"
 #include "SkMatrixPriv.h"
 #include "SkPathPriv.h"

@@ -11,6 +11,7 @@
 #include "SkColorSpace.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorTable.h"
+#include "SkMacros.h"
 #include "SkMath.h"
 #include "SkOpts.h"
 #include "SkPngCodec.h"

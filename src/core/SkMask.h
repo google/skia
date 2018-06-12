@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkMask_DEFINED
 #define SkMask_DEFINED
 
 #include "SkColorPriv.h"
+#include "SkMacros.h"
 #include "SkRect.h"
 #include "SkTemplates.h"
 

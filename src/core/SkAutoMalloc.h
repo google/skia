@@ -8,8 +8,9 @@
 #ifndef SkAutoMalloc_DEFINED
 #define SkAutoMalloc_DEFINED
 
-#include "SkTypes.h"
+#include "SkMacros.h"
 #include "SkMalloc.h"
+#include "SkTypes.h"
 
 #include <memory>
 
