@@ -184,12 +184,20 @@ private:
 
 class SK_API SkStrikeClient {
 public:
+    // This enum is used in histogram reporting in chromium. Please don't re-order the list of
+    // entries, and consider it to be append-only.
     enum CacheMissType : uint32_t {
-        kFontMetrics,
-        kGlyphMetrics,
-        kGlyphImage,
-        kGlyphPath,
-        kLast = kGlyphPath
+        // Hard failures where no fallback could be found.
+        kFontMetrics = 0,
+        kGlyphMetrics = 1,
+        kGlyphImage = 2,
+        kGlyphPath = 3,
+
+        // The original glyph could not be found and a fallback was used.
+        kGlyphMetricsFallback = 4,
+        kGlyphPathFallback = 5,
+
+        kLast = kGlyphPathFallback
     };
 
     // An interface to delete handles that may be pinned by the remote server.

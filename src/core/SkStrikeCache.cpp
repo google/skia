@@ -101,9 +101,9 @@ SkExclusiveStrikePtr SkStrikeCache::FindStrikeExclusive(const SkDescriptor& desc
     return get_globals().findStrikeExclusive(desc);
 }
 
-bool SkStrikeCache::DesperationSearchForImage(
-        const SkDescriptor& desc, SkGlyph* glyph, SkArenaAlloc* arena) {
-    return get_globals().desperationSearchForImage(desc, glyph, arena);
+bool SkStrikeCache::DesperationSearchForImage(const SkDescriptor& desc, SkGlyph* glyph,
+                                              SkGlyphCache* targetCache) {
+    return get_globals().desperationSearchForImage(desc, glyph, targetCache);
 }
 
 bool SkStrikeCache::DesperationSearchForPath(
@@ -288,46 +288,35 @@ static bool loose_compare (const SkDescriptor& lhs, const SkDescriptor& rhs) {
         lhsRec.fPost2x2[1][1] == rhsRec.fPost2x2[1][1];
 }
 
-bool SkStrikeCache::desperationSearchForImage(
-        const SkDescriptor& desc, SkGlyph* glyph, SkArenaAlloc* alloc) {
+bool SkStrikeCache::desperationSearchForImage(const SkDescriptor& desc, SkGlyph* glyph,
+                                              SkGlyphCache* targetCache) {
     SkAutoExclusive ac(fLock);
 
     SkGlyphID glyphID = glyph->getGlyphID();
     SkFixed targetSubX = glyph->getSubXFixed(),
             targetSubY = glyph->getSubYFixed();
 
-    // We don't have this glyph with the exact subpixel positioning,
-    // but we might have this glyph with another subpixel position... search them all.
     for (Node* node = internalGetHead(); node != nullptr; node = node->fNext) {
         if (loose_compare(node->fCache.getDescriptor(), desc)) {
             auto targetGlyphID = SkPackedGlyphID(glyphID, targetSubX, targetSubY);
             if (node->fCache.isGlyphCached(glyphID, targetSubX, targetSubY)) {
-                SkGlyph* from = node->fCache.getRawGlyphByID(targetGlyphID);
-                if (from->fImage != nullptr) {
-                    // This desperate-match node may disappear as soon as we drop fLock, so we
-                    // need to copy the glyph from node into this strike, including a
-                    // deep copy of the mask.
-                    glyph->copyImageData(*from, alloc);
-                    return true;
-                }
+                SkGlyph* fallback = node->fCache.getRawGlyphByID(targetGlyphID);
+                // This desperate-match node may disappear as soon as we drop fLock, so we
+                // need to copy the glyph from node into this strike, including a
+                // deep copy of the mask.
+                targetCache->initializeGlyphFromFallback(glyph, *fallback);
+                return true;
             }
 
-            // We don't have this glyph with the exact subpixel positioning,
-            // but we might have this glyph with another subpixel position... search them all.
-            for (SkFixed subY = 0; subY < SK_Fixed1; subY += SK_FixedQuarter) {
-                for (SkFixed subX = 0; subX < SK_Fixed1; subX += SK_FixedQuarter) {
-                    if (node->fCache.isGlyphCached(glyphID, subX, subY)) {
-                        SkGlyph* from =
-                                node->fCache.getRawGlyphByID(SkPackedGlyphID(glyphID, subX, subY));
-                        if (from->fImage != nullptr) {
-                            glyph->copyImageData(*from, alloc);
-                            return true;
-                        }
-                    }
-                }
+            // Look for any sub-pixel pos for this glyph, in case there is a pos mismatch.
+            if (const auto* fallback =
+                        node->fCache.getCachedGlyphAnySubPix(glyphID, SkPackedGlyphID())) {
+                targetCache->initializeGlyphFromFallback(glyph, *fallback);
+                return true;
             }
         }
     }
+
     return false;
 }
 
