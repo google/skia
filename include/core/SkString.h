@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkString_DEFINED
 #define SkString_DEFINED
 
+#include "../private/SkNumbers.h"
 #include "../private/SkTArray.h"
 #include "../private/SkTo.h"
 #include "SkRefCnt.h"

@@ -9,6 +9,7 @@
 #define SkTSort_DEFINED
 
 #include "SkMathPriv.h"
+#include "SkNumbers.h"
 #include "SkTo.h"
 #include "SkTypes.h"
 

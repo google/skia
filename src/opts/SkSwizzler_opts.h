@@ -9,6 +9,7 @@
 #define SkSwizzler_opts_DEFINED
 
 #include "SkColorData.h"
+#include "SkNumbers.h"
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
     #include <immintrin.h>
