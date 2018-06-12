@@ -119,11 +119,11 @@ typedef unsigned U16CPU;
 static constexpr int64_t SK_MaxS64 = 0x7FFFFFFFFFFFFFFF;
 static constexpr int64_t SK_MinS64 = -SK_MaxS64;
 
-inline constexpr int32_t SkLeftShift(int32_t value, int32_t shift) {
+static inline constexpr int32_t SkLeftShift(int32_t value, int32_t shift) {
     return (int32_t) ((uint32_t) value << shift);
 }
 
-inline constexpr int64_t SkLeftShift(int64_t value, int32_t shift) {
+static inline constexpr int64_t SkLeftShift(int64_t value, int32_t shift) {
     return (int64_t) ((uint64_t) value << shift);
 }
 
@@ -135,23 +135,23 @@ template <typename T, size_t N> char (&SkArrayCountHelper(T (&array)[N]))[N];
 
 ////////////////////////////////////////////////////////////////////////////////
 
-template <typename T> inline constexpr T SkAlign2(T x) { return (x + 1) >> 1 << 1; }
-template <typename T> inline constexpr T SkAlign4(T x) { return (x + 3) >> 2 << 2; }
-template <typename T> inline constexpr T SkAlign8(T x) { return (x + 7) >> 3 << 3; }
+template <typename T> static constexpr T SkAlign2(T x) { return (x + 1) >> 1 << 1; }
+template <typename T> static constexpr T SkAlign4(T x) { return (x + 3) >> 2 << 2; }
+template <typename T> static constexpr T SkAlign8(T x) { return (x + 7) >> 3 << 3; }
 
-template <typename T> inline constexpr bool SkIsAlign2(T x) { return 0 == (x & 1); }
-template <typename T> inline constexpr bool SkIsAlign4(T x) { return 0 == (x & 3); }
-template <typename T> inline constexpr bool SkIsAlign8(T x) { return 0 == (x & 7); }
+template <typename T> static constexpr bool SkIsAlign2(T x) { return 0 == (x & 1); }
+template <typename T> static constexpr bool SkIsAlign4(T x) { return 0 == (x & 3); }
+template <typename T> static constexpr bool SkIsAlign8(T x) { return 0 == (x & 7); }
 
-template <typename T> inline constexpr T SkAlignPtr(T x) {
+template <typename T> static constexpr T SkAlignPtr(T x) {
     return sizeof(void*) == 8 ? SkAlign8(x) : SkAlign4(x);
 }
-template <typename T> inline constexpr bool SkIsAlignPtr(T x) {
+template <typename T> static constexpr bool SkIsAlignPtr(T x) {
     return sizeof(void*) == 8 ? SkIsAlign8(x) : SkIsAlign4(x);
 }
 
 typedef uint32_t SkFourByteTag;
-inline constexpr SkFourByteTag SkSetFourByteTag(char a, char b, char c, char d) {
+static inline constexpr SkFourByteTag SkSetFourByteTag(char a, char b, char c, char d) {
     return (((uint8_t)a << 24) | ((uint8_t)b << 16) | ((uint8_t)c << 8) | (uint8_t)d);
 }
 
