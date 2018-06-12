@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "97513c61_ecb11bd7",
+        "filename": "src/core/SkColorSpaceXformSteps.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-12T18:18:58Z",
+      "side": 1,
+      "message": "I had tried it like that originally, but then the gamut xform loop gets trickier - have to use the temp as destination for indexing, then copy back.",
+      "parentUuid": "7e5c252e_0c597788",
+      "revId": "b92729978a974484258420f4eb3f073df8a98915",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1924874b_50562780",
         "filename": "src/core/SkColorSpaceXformSteps.cpp",
         "patchSetId": 12
@@ -33,6 +51,24 @@
       "revId": "b92729978a974484258420f4eb3f073df8a98915",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05611f26_99b57bda",
+        "filename": "src/core/SkColorSpaceXformSteps.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-12T18:18:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1924874b_50562780",
+      "revId": "b92729978a974484258420f4eb3f073df8a98915",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "110bd179_9ee0cdaf",
+        "filename": "src/core/SkColorSpaceXformSteps.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-12T18:18:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1aa2e6f0_48acabb9",
+      "range": {
+        "startLine": 24,
+        "startChar": 17,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "b92729978a974484258420f4eb3f073df8a98915",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6d012d26_fcde0c81",
         "filename": "src/core/SkColorSpaceXformSteps.h",
         "patchSetId": 12
@@ -82,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "1ee6da89_79ebaebd",
+        "filename": "src/core/SkColorSpaceXformSteps.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-12T18:18:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d012d26_fcde0c81",
+      "range": {
+        "startLine": 31,
+        "startChar": 27,
+        "endLine": 31,
+        "endChar": 46
+      },
+      "revId": "b92729978a974484258420f4eb3f073df8a98915",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6ab9cdbb_7423dd83",
         "filename": "src/core/SkColorSpaceXformSteps.h",
         "patchSetId": 12
@@ -102,6 +186,30 @@
       "revId": "b92729978a974484258420f4eb3f073df8a98915",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2c688ad_4c812058",
+        "filename": "src/core/SkColorSpaceXformSteps.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-12T18:18:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6ab9cdbb_7423dd83",
+      "range": {
+        "startLine": 42,
+        "startChar": 15,
+        "endLine": 42,
+        "endChar": 26
+      },
+      "revId": "b92729978a974484258420f4eb3f073df8a98915",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -145,6 +253,24 @@
     },
     {
       "key": {
+        "uuid": "0cb3e849_78ff7973",
+        "filename": "src/gpu/GrColorSpaceXform.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-12T18:18:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "585b9c1e_ef1c5e86",
+      "revId": "b92729978a974484258420f4eb3f073df8a98915",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d6910179_3b15fda9",
         "filename": "src/gpu/GrColorSpaceXform.cpp",
         "patchSetId": 12
@@ -159,6 +285,24 @@
       "revId": "b92729978a974484258420f4eb3f073df8a98915",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "557c8139_95676039",
+        "filename": "src/gpu/GrColorSpaceXform.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-12T18:18:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d6910179_3b15fda9",
+      "revId": "b92729978a974484258420f4eb3f073df8a98915",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -185,6 +329,30 @@
     },
     {
       "key": {
+        "uuid": "d6cb6d09_c781352b",
+        "filename": "src/gpu/GrColorSpaceXform.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-12T18:18:58Z",
+      "side": 1,
+      "message": "My thinking is that the things being compared will have been generated in the same way (so two xforms to a linear destination will both have created the same negative 0s, etc). The long version might read nicer anyway? OF course, we memset the steps objects when we construct them, so I could replace this entire function with one memcmp()?",
+      "parentUuid": "5b50b9b7_5daf0f9d",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 74,
+        "endChar": 5
+      },
+      "revId": "b92729978a974484258420f4eb3f073df8a98915",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "eea1aace_f86d2223",
         "filename": "src/gpu/GrColorSpaceXform.h",
         "patchSetId": 12
@@ -196,6 +364,30 @@
       "writtenOn": "2018-06-12T15:46:01Z",
       "side": 1,
       "message": "does this feel error prone?  I\u0027m wondering if something super explicitly impossible is a better default, like ~0?",
+      "range": {
+        "startLine": 38,
+        "startChar": 23,
+        "endLine": 38,
+        "endChar": 54
+      },
+      "revId": "b92729978a974484258420f4eb3f073df8a98915",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af06cfec_8dfd0368",
+        "filename": "src/gpu/GrColorSpaceXform.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-12T18:18:58Z",
+      "side": 1,
+      "message": "The effect on the shader from having an xform with no bits set is the same as not having one, so from a shader caching standpoint, this is correct.",
+      "parentUuid": "eea1aace_f86d2223",
       "range": {
         "startLine": 38,
         "startChar": 23,
@@ -251,6 +443,30 @@
       "revId": "b92729978a974484258420f4eb3f073df8a98915",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cdc29c36_079ef0db",
+        "filename": "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-12T18:18:58Z",
+      "side": 1,
+      "message": "I went ahead and switched it to column-major.",
+      "parentUuid": "b761c04d_0c36bbfc",
+      "range": {
+        "startLine": 52,
+        "startChar": 15,
+        "endLine": 61,
+        "endChar": 14
+      },
+      "revId": "b92729978a974484258420f4eb3f073df8a98915",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
