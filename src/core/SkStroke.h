@@ -71,7 +71,7 @@ private:
     SkScalar    fWidth, fMiterLimit;
     SkScalar    fResScale;
     uint8_t     fCap, fJoin;
-    SkBool8     fDoFill;
+    bool        fDoFill;
 
     friend class SkPaint;
 };
