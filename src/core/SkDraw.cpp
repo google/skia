@@ -17,6 +17,7 @@
 #include "SkDrawProcs.h"
 #include "SkFindAndPlaceGlyph.h"
 #include "SkMaskFilterBase.h"
+#include "SkMacros.h"
 #include "SkMatrix.h"
 #include "SkMatrixUtils.h"
 #include "SkPaint.h"

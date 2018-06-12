@@ -10,13 +10,14 @@
 #include <vector>
 
 #include "SkBitmapKey.h"
+#include "SkMacros.h"
 #include "SkPDFGradientShader.h"
 #include "SkPDFGraphicState.h"
 #include "SkPDFShader.h"
+#include "SkString.h"
 #include "SkTDArray.h"
 #include "SkTHash.h"
 #include "SkTypeface.h"
-#include "SkString.h"
 
 class SkPDFFont;
 struct SkAdvancedTypefaceMetrics;

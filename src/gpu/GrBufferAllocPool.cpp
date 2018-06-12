@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-
 #include "GrBufferAllocPool.h"
+
 #include "GrBuffer.h"
 #include "GrCaps.h"
 #include "GrContext.h"
@@ -14,6 +14,7 @@
 #include "GrGpu.h"
 #include "GrResourceProvider.h"
 #include "GrTypes.h"
+#include "SkMacros.h"
 #include "SkSafeMath.h"
 #include "SkTraceEvent.h"
 

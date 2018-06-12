@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkEdgeClipper.h"
 #include "SkGeometry.h"
 #include "SkLineClipper.h"
+#include "SkMacros.h"
 
 static bool quick_reject(const SkRect& bounds, const SkRect& clip) {
     return bounds.fTop >= clip.fBottom || bounds.fBottom <= clip.fTop;
