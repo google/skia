@@ -10,8 +10,9 @@
 #ifndef SkTDArray_DEFINED
 #define SkTDArray_DEFINED
 
-#include "SkTypes.h"
 #include "SkMalloc.h"
+#include "SkNumbers.h"
+#include "SkTypes.h"
 
 template <typename T> class SkTDArray {
 public:
