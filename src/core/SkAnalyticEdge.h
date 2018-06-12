@@ -9,6 +9,7 @@
 #define SkAnalyticEdge_DEFINED
 
 #include "SkEdge.h"
+#include "SkNumbers.h"
 #include "SkTo.h"
 
 struct SkAnalyticEdge {

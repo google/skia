@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkTDArray_DEFINED
 #define SkTDArray_DEFINED
 
 #include "SkMalloc.h"
+#include "SkNumbers.h"
 #include "SkTo.h"
 #include "SkTypes.h"
 

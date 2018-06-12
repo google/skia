@@ -9,6 +9,8 @@
 #define SkScaleToSides_DEFINED
 
 #include <cmath>
+
+#include "SkNumbers.h"
 #include "SkScalar.h"
 #include "SkTypes.h"
 

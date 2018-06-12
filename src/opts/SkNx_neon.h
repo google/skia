@@ -10,6 +10,8 @@
 
 #include <arm_neon.h>
 
+#include "SkNumbers.h"
+
 namespace {
 
 // ARMv8 has vrndm(q)_f32 to floor floats.  Here we emulate it:

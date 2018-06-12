@@ -8,6 +8,7 @@
 #ifndef GrGLExtensions_DEFINED
 #define GrGLExtensions_DEFINED
 
+#include "../../private/SkNumbers.h"
 #include "../../private/SkTArray.h"
 #include "GrGLFunctions.h"
 #include "SkString.h"
