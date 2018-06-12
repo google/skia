@@ -461,6 +461,7 @@ public:
                 0 == subset->fLeft && 0 == subset->fTop &&
                 fTextureProxy->width() == subset->width() &&
                 fTextureProxy->height() == subset->height()) {
+                fTextureProxy->priv().exactify();
                 // The existing GrTexture is already tight so reuse it in the SkImage
                 return wrap_proxy_in_image(fContext, fTextureProxy, fAlphaType, fColorSpace);
             }
