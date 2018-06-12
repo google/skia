@@ -2,6 +2,63 @@
   "comments": [
     {
       "key": {
+        "uuid": "4e583dde_c650138f",
+        "filename": "src/gpu/GrPrimitiveProcessor.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-12T18:36:03Z",
+      "side": 1,
+      "message": "Are they not just laid out contiguously? Would be nice if we could just assert nextOffset[i] \u003d\u003d offset[i+1].",
+      "revId": "953b13c5bd6780cb046a77993c3bf2da5068e412",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28ce1f09_e7a3aff4",
+        "filename": "src/gpu/ccpr/GrCCCoverageProcessor.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-12T18:36:03Z",
+      "side": 1,
+      "message": "SkASSERT(0 \u003d\u003d i)?",
+      "revId": "953b13c5bd6780cb046a77993c3bf2da5068e412",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7539173_260fea60",
+        "filename": "src/gpu/ccpr/GrCCCoverageProcessor.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-12T18:36:03Z",
+      "side": 1,
+      "message": "I think this goes under the \"// Used by VSImpl\" comment",
+      "range": {
+        "startLine": 271,
+        "startChar": 4,
+        "endLine": 271,
+        "endChar": 37
+      },
+      "revId": "953b13c5bd6780cb046a77993c3bf2da5068e412",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9faf690f_faf01182",
         "filename": "src/gpu/ccpr/GrCCPathProcessor.cpp",
         "patchSetId": 13
@@ -18,6 +75,104 @@
         "startChar": 0,
         "endLine": 69,
         "endChar": 0
+      },
+      "revId": "953b13c5bd6780cb046a77993c3bf2da5068e412",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7047f2da_d981d7d7",
+        "filename": "src/gpu/ccpr/GrCCPathProcessor.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-12T18:36:03Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "9faf690f_faf01182",
+      "range": {
+        "startLine": 66,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 0
+      },
+      "revId": "953b13c5bd6780cb046a77993c3bf2da5068e412",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "19558b19_22552ac0",
+        "filename": "src/gpu/ccpr/GrCCPathProcessor.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-12T18:36:03Z",
+      "side": 1,
+      "message": "nit: Any reason to not access kInstanceAttribs directly here?",
+      "revId": "953b13c5bd6780cb046a77993c3bf2da5068e412",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4da14985_6c026aa2",
+        "filename": "src/gpu/effects/GrBezierEffect.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-12T18:36:03Z",
+      "side": 1,
+      "message": "Can we check nextOffsetInRecord here? I wonder if this method can have a version that takes the array itself, then checks nextOffsetInRecord() on the final element?",
+      "revId": "953b13c5bd6780cb046a77993c3bf2da5068e412",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44d2786b_fc26943d",
+        "filename": "src/gpu/effects/GrBezierEffect.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-12T18:36:03Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "953b13c5bd6780cb046a77993c3bf2da5068e412",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e2b7932_3087b864",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1781,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-12T18:36:03Z",
+      "side": 1,
+      "message": "Just curious why we would prefer \"auto\" over \"size_t\" in this case?",
+      "range": {
+        "startLine": 1781,
+        "startChar": 8,
+        "endLine": 1781,
+        "endChar": 12
       },
       "revId": "953b13c5bd6780cb046a77993c3bf2da5068e412",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
