@@ -210,8 +210,8 @@ String to_string(double value) {
 #endif
 #define MAX_DOUBLE_CHARS 25
     char buffer[MAX_DOUBLE_CHARS];
-    SKSL_DEBUGCODE(int len = )SNPRINTF(buffer, sizeof(buffer), "%.17g", value);
-    ASSERT(len < MAX_DOUBLE_CHARS);
+    SkDEBUGCODE(int len = )SNPRINTF(buffer, sizeof(buffer), "%.17g", value);
+    SkASSERT(len < MAX_DOUBLE_CHARS);
     String result(buffer);
     if (!strchr(buffer, '.') && !strchr(buffer, 'e')) {
         result += ".0";
@@ -223,10 +223,10 @@ String to_string(double value) {
 
 int stoi(const String& s) {
     char* p;
-    SKSL_DEBUGCODE(errno = 0;)
+    SkDEBUGCODE(errno = 0;)
     long result = strtoul(s.c_str(), &p, 0);
-    ASSERT(*p == 0);
-    ASSERT(!errno);
+    SkASSERT(*p == 0);
+    SkASSERT(!errno);
     return (int) result;
 }
 
@@ -236,16 +236,16 @@ double stod(const String& s) {
     std::stringstream buffer(str);
     buffer.imbue(std::locale::classic());
     buffer >> result;
-    ASSERT(!buffer.fail());
+    SkASSERT(!buffer.fail());
     return result;
 }
 
 long stol(const String& s) {
     char* p;
-    SKSL_DEBUGCODE(errno = 0;)
+    SkDEBUGCODE(errno = 0;)
     long result = strtoul(s.c_str(), &p, 0);
-    ASSERT(*p == 0);
-    ASSERT(!errno);
+    SkASSERT(*p == 0);
+    SkASSERT(!errno);
     return result;
 }
 

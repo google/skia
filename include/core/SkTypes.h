@@ -35,8 +35,6 @@
 */
 SK_API extern void sk_abort_no_print(void);
 
-#define SK_INIT_TO_AVOID_WARNING    = 0
-
 #ifndef SkDebugf
     SK_API void SkDebugf(const char format[], ...);
 #endif
@@ -77,6 +75,8 @@ SK_API extern void sk_abort_no_print(void);
     // The if is present so that this can be used with functions marked SK_WARN_UNUSED_RESULT.
     #define SkAssertResult(cond)         if (cond) {} do {} while(false)
 #endif
+
+////////////////////////////////////////////////////////////////////////////////
 
 // some clients (e.g. third_party/WebKit/Source/platform/fonts/FontCustomPlatformData.h)
 // depend on SkString forward declaration below. Remove this once dependencies are fixed.
@@ -124,11 +124,11 @@ typedef uint8_t SkBool8;
 static constexpr int64_t SK_MaxS64 = 0x7FFFFFFFFFFFFFFF;
 static constexpr int64_t SK_MinS64 = -SK_MaxS64;
 
-static inline int32_t SkLeftShift(int32_t value, int32_t shift) {
+inline constexpr int32_t SkLeftShift(int32_t value, int32_t shift) {
     return (int32_t) ((uint32_t) value << shift);
 }
 
-static inline int64_t SkLeftShift(int64_t value, int32_t shift) {
+inline constexpr int64_t SkLeftShift(int64_t value, int32_t shift) {
     return (int64_t) ((uint64_t) value << shift);
 }
 
@@ -138,30 +138,29 @@ static inline int64_t SkLeftShift(int64_t value, int32_t shift) {
 template <typename T, size_t N> char (&SkArrayCountHelper(T (&array)[N]))[N];
 #define SK_ARRAY_COUNT(array) (sizeof(SkArrayCountHelper(array)))
 
-// Can be used to bracket data types that must be dense, e.g. hash keys.
-#if defined(__clang__)  // This should work on GCC too, but GCC diagnostic pop didn't seem to work!
-    #define SK_BEGIN_REQUIRE_DENSE _Pragma("GCC diagnostic push") \
-                                   _Pragma("GCC diagnostic error \"-Wpadded\"")
-    #define SK_END_REQUIRE_DENSE   _Pragma("GCC diagnostic pop")
-#else
-    #define SK_BEGIN_REQUIRE_DENSE
-    #define SK_END_REQUIRE_DENSE
-#endif
+////////////////////////////////////////////////////////////////////////////////
 
-#define SkAlign2(x)     (((x) + 1) >> 1 << 1)
-#define SkIsAlign2(x)   (0 == ((x) & 1))
+template <typename T> inline constexpr T SkAlign2(T x) { return (x + 1) >> 1 << 1; }
+template <typename T> inline constexpr T SkAlign4(T x) { return (x + 3) >> 2 << 2; }
+template <typename T> inline constexpr T SkAlign8(T x) { return (x + 7) >> 3 << 3; }
 
-#define SkAlign4(x)     (((x) + 3) >> 2 << 2)
-#define SkIsAlign4(x)   (0 == ((x) & 3))
+template <typename T> inline constexpr bool SkIsAlign2(T x) { return 0 == (x & 1); }
+template <typename T> inline constexpr bool SkIsAlign4(T x) { return 0 == (x & 3); }
+template <typename T> inline constexpr bool SkIsAlign8(T x) { return 0 == (x & 7); }
 
-#define SkAlign8(x)     (((x) + 7) >> 3 << 3)
-#define SkIsAlign8(x)   (0 == ((x) & 7))
-
-#define SkAlignPtr(x)   (sizeof(void*) == 8 ?   SkAlign8(x) :   SkAlign4(x))
-#define SkIsAlignPtr(x) (sizeof(void*) == 8 ? SkIsAlign8(x) : SkIsAlign4(x))
+template <typename T> inline constexpr T SkAlignPtr(T x) {
+    return sizeof(void*) == 8 ? SkAlign8(x) : SkAlign4(x);
+}
+template <typename T> inline constexpr bool SkIsAlignPtr(T x) {
+    return sizeof(void*) == 8 ? SkIsAlign8(x) : SkIsAlign4(x);
+}
 
 typedef uint32_t SkFourByteTag;
-#define SkSetFourByteTag(a, b, c, d)    (((a) << 24) | ((b) << 16) | ((c) << 8) | (d))
+inline constexpr SkFourByteTag SkSetFourByteTag(char a, char b, char c, char d) {
+    return (((uint8_t)a << 24) | ((uint8_t)b << 16) | ((uint8_t)c << 8) | (uint8_t)d);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 /** 32 bit integer to hold a unicode value
 */

@@ -16,6 +16,7 @@
 #include "GrColor.h"
 #include "GrFPArgs.h"
 #include "GrSamplerState.h"
+#include "SkMacros.h"
 #include "SkPathEffect.h"
 #include "SkRandom.h"
 #include "SkShaderBase.h"

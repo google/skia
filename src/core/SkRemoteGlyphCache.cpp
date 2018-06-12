@@ -801,6 +801,7 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
                     *client_desc, std::move(scaler), &fontMetrics,
                     skstd::make_unique<DiscardableStrikePinner>(spec.discardableHandleId,
                                                                 fDiscardableHandleManager));
+            static_cast<SkScalerContextProxy*>(strike->getScalerContext())->initCache(strike.get());
         }
 
         size_t glyphImagesCount = 0u;

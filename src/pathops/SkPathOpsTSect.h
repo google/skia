@@ -8,9 +8,10 @@
 #define SkPathOpsTSect_DEFINED
 
 #include "SkArenaAlloc.h"
+#include "SkIntersections.h"
+#include "SkMacros.h"
 #include "SkPathOpsBounds.h"
 #include "SkPathOpsRect.h"
-#include "SkIntersections.h"
 #include "SkTSort.h"
 
 #ifdef SK_DEBUG

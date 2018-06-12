@@ -11,6 +11,7 @@
 #include <memory>
 
 #include "SkGlyph.h"
+#include "SkMacros.h"
 #include "SkMask.h"
 #include "SkMaskFilter.h"
 #include "SkMaskGamma.h"
