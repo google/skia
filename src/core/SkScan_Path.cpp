@@ -5,19 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "SkScanPriv.h"
 #include "SkBlitter.h"
 #include "SkEdge.h"
 #include "SkEdgeBuilder.h"
 #include "SkGeometry.h"
+#include "SkMacros.h"
 #include "SkPath.h"
 #include "SkQuadClipper.h"
 #include "SkRasterClip.h"
 #include "SkRectPriv.h"
 #include "SkRegion.h"
 #include "SkSafe32.h"
-#include "SkTemplates.h"
+#include "SkScanPriv.h"
 #include "SkTSort.h"
+#include "SkTemplates.h"
 
 #define kEDGE_HEAD_Y    SK_MinS32
 #define kEDGE_TAIL_Y    SK_MaxS32
