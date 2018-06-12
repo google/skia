@@ -7,6 +7,7 @@
 #ifndef SkPathOpsPoint_DEFINED
 #define SkPathOpsPoint_DEFINED
 
+#include "SkNumbers.h"
 #include "SkPathOpsTypes.h"
 #include "SkPoint.h"
 
