@@ -9,6 +9,7 @@
 #define GrMockCaps_DEFINED
 
 #include "GrCaps.h"
+#include "SkNumbers.h"
 #include "mock/GrMockTypes.h"
 
 class GrMockCaps : public GrCaps {

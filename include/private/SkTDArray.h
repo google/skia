@@ -10,6 +10,7 @@
 #define SkTDArray_DEFINED
 
 #include "SkMalloc.h"
+#include "SkNumbers.h"
 #include "SkTo.h"
 #include "SkTypes.h"
 
