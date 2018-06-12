@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ef6905f_35d1a911",
+        "filename": "docs/SkImage_Reference.bmh",
+        "patchSetId": 2
+      },
+      "lineNbr": 1783,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-06-12T16:07:36Z",
+      "side": 1,
+      "message": "sp",
+      "range": {
+        "startLine": 1783,
+        "startChar": 43,
+        "endLine": 1783,
+        "endChar": 54
+      },
+      "revId": "8893945b55340bcd399d6114526d7365d0e861c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3f52cb7_67be59d4",
+        "filename": "docs/SkImage_Reference.bmh",
+        "patchSetId": 2
+      },
+      "lineNbr": 1784,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-06-12T16:07:36Z",
+      "side": 1,
+      "message": "Image is fine, bookmaker will add the \u0027Sk\u0027 where it needs to.",
+      "range": {
+        "startLine": 1784,
+        "startChar": 68,
+        "endLine": 1784,
+        "endChar": 76
+      },
+      "revId": "8893945b55340bcd399d6114526d7365d0e861c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "facb180f_2d744fa8",
+        "filename": "docs/SkImage_Reference.bmh",
+        "patchSetId": 2
+      },
+      "lineNbr": 1785,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-06-12T16:07:36Z",
+      "side": 1,
+      "message": "\"mip mapped\" is jargon that is hard to find in a dictionary or even a Google search. Use \"Mip_Map\" to create a link in the online doc that will eventually get documentation. Or, use mipMapped in place of \"the mip mapped\" if you\u0027re referring to the parameter. If you\u0027re referring to another internal instance of GrMipMapped, use \"GrMipMapped\" in place of \"the mip mapped\" if you think that is clearer.",
+      "revId": "8893945b55340bcd399d6114526d7365d0e861c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2f67079_1614f6d4",
+        "filename": "docs/SkImage_Reference.bmh",
+        "patchSetId": 2
+      },
+      "lineNbr": 1792,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-06-12T16:07:36Z",
+      "side": 1,
+      "message": "Can we get away with a noun or adjective instead of a verb here? e.g.\n#Param mipMapped enables return of Mip_Map Image ##",
+      "revId": "8893945b55340bcd399d6114526d7365d0e861c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
