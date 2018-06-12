@@ -625,7 +625,15 @@ sk_sp<GrTextureProxy> GrProxyProvider::createFullyLazyProxy(LazyInstantiateCallb
 }
 
 bool GrProxyProvider::IsFunctionallyExact(GrSurfaceProxy* proxy) {
-    return proxy->priv().isExact() || (SkIsPow2(proxy->width()) && SkIsPow2(proxy->height()));
+    const bool isInstantiated = proxy->priv().isInstantiated();
+    // A proxy is functionally exact if:
+    //   it is exact (obvs)
+    //   when it is instantiated it will be exact (i.e., power of two dimensions)
+    //   it is already instantiated and the proxy covers the entire backing surface
+    return proxy->priv().isExact() ||
+           (!isInstantiated && SkIsPow2(proxy->width()) && SkIsPow2(proxy->height())) ||
+           (isInstantiated && proxy->worstCaseWidth() == proxy->width() &&
+                              proxy->worstCaseHeight() == proxy->height());
 }
 
 void GrProxyProvider::processInvalidProxyUniqueKey(const GrUniqueKey& key) {
