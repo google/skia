@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "51932764_2001cb2c",
+        "filename": "src/gpu/ops/GrDashOp.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 836,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-12T17:22:54Z",
+      "side": 0,
+      "message": "At first I made these constexpr member fns. However, older GCC doesn\u0027t allow a constexpr member function on a class that isn\u0027t a literal type. So, I went with friending instead.",
+      "range": {
+        "startLine": 832,
+        "startChar": 2,
+        "endLine": 836,
+        "endChar": 71
+      },
+      "revId": "e73d7d84d7702d4b3d4a938f8b18d12924889d7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
