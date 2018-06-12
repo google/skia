@@ -112,6 +112,12 @@ public:
      */
     bool initializePath(SkGlyph*, const volatile void* data, size_t size);
 
+    /** Fallback glyphs used during font remoting if the original glyph can't be found.
+     */
+    bool belongsToCache(const SkGlyph* glyph) const;
+    const SkGlyph* getCachedGlyphAnySubPix(SkGlyphID, SkPackedGlyphID vetoID) const;
+    void initializeGlyphFromFallback(SkGlyph* glyph, const SkGlyph&);
+
     /** Return the vertical metrics for this strike.
     */
     const SkPaint::FontMetrics& getFontMetrics() const {
