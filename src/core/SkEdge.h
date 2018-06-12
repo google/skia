@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkEdge_DEFINED
 #define SkEdge_DEFINED
 
-#include "SkRect.h"
 #include "SkFDot6.h"
 #include "SkMath.h"
+#include "SkRect.h"
+#include "SkTo.h"
 
 // This correctly favors the lower-pixel when y0 is on a 1/2 pixel boundary
 #define SkEdge_Compute_DY(top, y0)  (SkLeftShift(top, 6) + 32 - (y0))

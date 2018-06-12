@@ -4,7 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "GrTextContext.h"
+
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
@@ -15,14 +17,14 @@
 #include "SkDrawFilter.h"
 #include "SkDrawProcs.h"
 #include "SkFindAndPlaceGlyph.h"
+#include "SkGlyphRun.h"
 #include "SkGr.h"
 #include "SkGraphics.h"
-#include "SkGlyphRun.h"
 #include "SkMakeUnique.h"
 #include "SkMaskFilterBase.h"
 #include "SkPaintPriv.h"
 #include "SkTextMapStateProc.h"
-
+#include "SkTo.h"
 #include "ops/GrMeshDrawOp.h"
 
 // DF sizes and thresholds for usage of the small and medium sizes. For example, above

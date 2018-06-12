@@ -6,10 +6,13 @@
  */
 
 #include "SkString.h"
+
 #include <stdarg.h>
 #include <cstdio>
+
 #include "SkAtomics.h"
 #include "SkSafeMath.h"
+#include "SkTo.h"
 #include "SkUtils.h"
 
 // number of bytes (on the stack) to receive the printf result

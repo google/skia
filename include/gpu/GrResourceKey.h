@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2014 Google Inc.
  *
@@ -11,6 +10,7 @@
 
 #include "../private/SkOnce.h"
 #include "../private/SkTemplates.h"
+#include "../private/SkTo.h"
 #include "GrTypes.h"
 #include "SkData.h"
 #include "SkString.h"

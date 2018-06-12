@@ -5,21 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
 #include "SkBlitter.h"
+
 #include "SkAntiRun.h"
+#include "SkArenaAlloc.h"
 #include "SkColor.h"
 #include "SkColorFilter.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
 #include "SkMask.h"
 #include "SkMaskFilterBase.h"
 #include "SkPaintPriv.h"
+#include "SkReadBuffer.h"
 #include "SkRegionPriv.h"
 #include "SkShaderBase.h"
 #include "SkString.h"
 #include "SkTLazy.h"
+#include "SkTo.h"
 #include "SkUtils.h"
+#include "SkWriteBuffer.h"
 #include "SkXfermodeInterpretation.h"
 
 SkBlitter::~SkBlitter() {}

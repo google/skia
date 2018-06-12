@@ -6,8 +6,10 @@
  */
 
 #include "SkMask.h"
+
 #include "SkMalloc.h"
 #include "SkSafeMath.h"
+#include "SkTo.h"
 
 /** returns the product if it is positive and fits in 31 bits. Otherwise this
     returns 0.
