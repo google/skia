@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkGeometry.h"
 #include "SkIntersections.h"
+#include "SkMacros.h"
 #include "SkOpEdgeBuilder.h"
 // #include "SkPathOpsSimplifyAA.h"
 // #include "SkPathStroker.h"

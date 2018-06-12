@@ -133,7 +133,7 @@ Token Parser::nextToken() {
 }
 
 void Parser::pushback(Token t) {
-    ASSERT(fPushback.fKind == Token::INVALID);
+    SkASSERT(fPushback.fKind == Token::INVALID);
     fPushback = std::move(t);
 }
 
@@ -1198,7 +1198,7 @@ std::unique_ptr<ASTStatement> Parser::switchStatement() {
     // parts of the compiler may rely upon this assumption.
     if (this->peek().fKind == Token::DEFAULT) {
         Token defaultStart;
-        ASSERT_RESULT(this->expect(Token::DEFAULT, "'default'", &defaultStart));
+        SkAssertResult(this->expect(Token::DEFAULT, "'default'", &defaultStart));
         if (!this->expect(Token::COLON, "':'")) {
             return nullptr;
         }

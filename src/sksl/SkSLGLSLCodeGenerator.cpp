@@ -233,7 +233,7 @@ static bool is_abs(Expression& expr) {
 // turns min(abs(x), y) into ((tmpVar1 = abs(x)) < (tmpVar2 = y) ? tmpVar1 : tmpVar2) to avoid a
 // Tegra3 compiler bug.
 void GLSLCodeGenerator::writeMinAbsHack(Expression& absExpr, Expression& otherExpr) {
-    ASSERT(!fProgram.fSettings.fCaps->canUseMinAndAbsTogether());
+    SkASSERT(!fProgram.fSettings.fCaps->canUseMinAndAbsTogether());
     String tmpVar1 = "minAbsHackVar" + to_string(fVarCount++);
     String tmpVar2 = "minAbsHackVar" + to_string(fVarCount++);
     this->fFunctionHeader += String("    ") + this->getTypePrecision(absExpr.fType) +
@@ -311,7 +311,7 @@ void GLSLCodeGenerator::writeDeterminantHack(const Expression& mat) {
         }
     }
     else {
-        ASSERT(false);
+        SkASSERT(false);
     }
     this->write(name + "(");
     this->writeExpression(mat, kTopLevel_Precedence);
@@ -398,7 +398,7 @@ void GLSLCodeGenerator::writeInverseHack(const Expression& mat) {
         }
     }
     else {
-        ASSERT(false);
+        SkASSERT(false);
     }
     this->write(name + "(");
     this->writeExpression(mat, kTopLevel_Precedence);
@@ -435,7 +435,7 @@ void GLSLCodeGenerator::writeTransposeHack(const Expression& mat) {
 void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     if (!fProgram.fSettings.fCaps->canUseMinAndAbsTogether() && c.fFunction.fName == "min" &&
         c.fFunction.fBuiltin) {
-        ASSERT(c.fArguments.size() == 2);
+        SkASSERT(c.fArguments.size() == 2);
         if (is_abs(*c.fArguments[0])) {
             this->writeMinAbsHack(*c.fArguments[0], *c.fArguments[1]);
             return;
@@ -449,7 +449,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     }
     if (!fProgram.fSettings.fCaps->canUseFractForNegativeValues() && c.fFunction.fName == "fract" &&
         c.fFunction.fBuiltin) {
-        ASSERT(c.fArguments.size() == 1);
+        SkASSERT(c.fArguments.size() == 1);
 
         this->write("(0.5 - sign(");
         this->writeExpression(*c.fArguments[0], kSequence_Precedence);
@@ -475,31 +475,31 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     }
     if (c.fFunction.fBuiltin && c.fFunction.fName == "determinant" &&
         fProgram.fSettings.fCaps->generation() < k150_GrGLSLGeneration) {
-        ASSERT(c.fArguments.size() == 1);
+        SkASSERT(c.fArguments.size() == 1);
         this->writeDeterminantHack(*c.fArguments[0]);
         return;
     }
     if (c.fFunction.fBuiltin && c.fFunction.fName == "inverse" &&
         fProgram.fSettings.fCaps->generation() < k140_GrGLSLGeneration) {
-        ASSERT(c.fArguments.size() == 1);
+        SkASSERT(c.fArguments.size() == 1);
         this->writeInverseHack(*c.fArguments[0]);
         return;
     }
     if (c.fFunction.fBuiltin && c.fFunction.fName == "inverseSqrt" &&
         fProgram.fSettings.fCaps->generation() < k130_GrGLSLGeneration) {
-        ASSERT(c.fArguments.size() == 1);
+        SkASSERT(c.fArguments.size() == 1);
         this->writeInverseSqrtHack(*c.fArguments[0]);
         return;
     }
     if (c.fFunction.fBuiltin && c.fFunction.fName == "transpose" &&
         fProgram.fSettings.fCaps->generation() < k130_GrGLSLGeneration) {
-        ASSERT(c.fArguments.size() == 1);
+        SkASSERT(c.fArguments.size() == 1);
         this->writeTransposeHack(*c.fArguments[0]);
         return;
     }
     if (!fFoundDerivatives && (c.fFunction.fName == "dFdx" || c.fFunction.fName == "dFdy") &&
         c.fFunction.fBuiltin && fProgram.fSettings.fCaps->shaderDerivativeExtensionString()) {
-        ASSERT(fProgram.fSettings.fCaps->shaderDerivativeSupport());
+        SkASSERT(fProgram.fSettings.fCaps->shaderDerivativeSupport());
         fHeader.writeText("#extension ");
         fHeader.writeText(fProgram.fSettings.fCaps->shaderDerivativeExtensionString());
         fHeader.writeText(" : require\n");
@@ -516,7 +516,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 if (c.fArguments[1]->fType == *fContext.fFloat_Type) {
                     proj = false;
                 } else {
-                    ASSERT(c.fArguments[1]->fType == *fContext.fFloat2_Type);
+                    SkASSERT(c.fArguments[1]->fType == *fContext.fFloat2_Type);
                     proj = true;
                 }
                 break;
@@ -528,7 +528,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 if (c.fArguments[1]->fType == *fContext.fFloat2_Type) {
                     proj = false;
                 } else {
-                    ASSERT(c.fArguments[1]->fType == *fContext.fFloat3_Type);
+                    SkASSERT(c.fArguments[1]->fType == *fContext.fFloat3_Type);
                     proj = true;
                 }
                 break;
@@ -538,7 +538,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 if (c.fArguments[1]->fType == *fContext.fFloat3_Type) {
                     proj = false;
                 } else {
-                    ASSERT(c.fArguments[1]->fType == *fContext.fFloat4_Type);
+                    SkASSERT(c.fArguments[1]->fType == *fContext.fFloat4_Type);
                     proj = true;
                 }
                 break;
@@ -552,12 +552,12 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 proj = false;
                 break;
             case SpvDimBuffer:
-                ASSERT(false); // doesn't exist
+                SkASSERT(false); // doesn't exist
                 dim = "Buffer";
                 proj = false;
                 break;
             case SpvDimSubpassData:
-                ASSERT(false); // doesn't exist
+                SkASSERT(false); // doesn't exist
                 dim = "SubpassData";
                 proj = false;
                 break;
