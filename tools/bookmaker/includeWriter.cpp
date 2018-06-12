@@ -1170,7 +1170,6 @@ bool IncludeWriter::defineOut(const Definition& def) {
     }
     const Definition& bmhDef = defIter->second;
     this->constOut(&def, &bmhDef);
-    SkDebugf("");
     return true;
 }
 
@@ -1346,9 +1345,6 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
     const Definition* requireDense = nullptr;
     const Definition* startDef = nullptr;
     for (auto& child : def->fTokens) {
-        if (39 == child.fLineCount) {
-            SkDebugf("");
-        }
         if (KeyWord::kInline == child.fKeyWord) {
             continue;
         }
@@ -1441,7 +1437,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                         }
                         ++alternate;
                         string alternateMethod = methodName + '_' + to_string(alternate);
-                        clonedMethod = this->findMethod(alternateMethod, root);
+                       clonedMethod = this->findMethod(alternateMethod, root);
                     } while (clonedMethod);
                     if (!clonedMethod) {
                         return child.reportError<bool>("cloned method not found");
@@ -1551,7 +1547,9 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 methodName = child.fName;
             } else {
                 methodName = root->fName + "::" + child.fName;
-                inConstructor = root->fName == child.fName;
+                size_t lastName = root->fName.rfind(':');
+                lastName = string::npos == lastName ? 0 : lastName + 1;
+                inConstructor = root->fName.substr(lastName) == child.fName;
                 method = root->find(methodName, RootDefinition::AllowParens::kNo);
             }
             fContinuation = child.fContentEnd;
