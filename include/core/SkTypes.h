@@ -17,6 +17,7 @@
 // IWYU pragma: end_exports
 
 #include <string.h>
+#include <utility>
 
 /** \file SkTypes.h
 */
@@ -228,13 +229,6 @@ typedef uint32_t SkMSec;
  */
 #define SK_InvalidUniqueID  0
 
-/****************************************************************************
-    The rest of these only build with C++
-*/
-#ifdef __cplusplus
-
-#include <utility>
-
 /** Generic swap function. Classes with efficient swaps should specialize this function to take
     their fast path. This function is used by SkTSort. */
 template <typename T> static inline void SkTSwap(T& a, T& b) {
@@ -341,7 +335,5 @@ public:
     SkNoncopyable(const SkNoncopyable&) = delete;
     SkNoncopyable& operator=(const SkNoncopyable&) = delete;
 };
-
-#endif /* C++ */
 
 #endif
