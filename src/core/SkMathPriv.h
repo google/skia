@@ -9,6 +9,7 @@
 #define SkMathPriv_DEFINED
 
 #include "SkMath.h"
+#include "SkNumbers.h"
 
 #if defined(SK_BUILD_FOR_IOS) && (defined(SK_BUILD_FOR_ARM32) || defined(SK_BUILD_FOR_ARM64))
 // iOS on ARM starts processes with the Flush-To-Zero (FTZ) and

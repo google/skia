@@ -7,6 +7,7 @@
 
 #include "Benchmark.h"
 #include "SkColor.h"
+#include "SkMacros.h"
 #include "SkNx.h"
 
 // Writing into this array prevents the loops from being compiled away.

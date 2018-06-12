@@ -10,6 +10,7 @@
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkData.h"
 #include "SkEndian.h"
+#include "SkMacros.h"
 #include "SkOTTableTypes.h"
 #include "SkOTTable_head.h"
 #include "SkOTTable_name.h"

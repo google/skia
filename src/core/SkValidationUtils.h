@@ -10,6 +10,7 @@
 
 #include "SkBitmap.h"
 #include "SkBlendMode.h"
+#include "SkNumbers.h"
 #include "SkXfermodePriv.h"
 
 /** Returns true if mode's value is in the SkBlendMode enum.

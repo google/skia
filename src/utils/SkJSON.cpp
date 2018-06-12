@@ -7,6 +7,7 @@
 
 #include "SkJSON.h"
 
+#include "SkMacros.h"
 #include "SkMalloc.h"
 #include "SkStream.h"
 #include "SkString.h"

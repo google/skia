@@ -10,6 +10,7 @@
 
 #include "SkWGL.h"
 
+#include "SkMacros.h"
 #include "SkOnce.h"
 #include "SkTDArray.h"
 #include "SkTSearch.h"

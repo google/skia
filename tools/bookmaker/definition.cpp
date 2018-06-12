@@ -6,6 +6,8 @@
  */
 
 #include "bookmaker.h"
+
+#include "SkMacros.h"
 #include "SkOSPath.h"
 
 #ifdef CONST
