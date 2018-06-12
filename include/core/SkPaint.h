@@ -18,7 +18,6 @@
 #ifndef SkPaint_DEFINED
 #define SkPaint_DEFINED
 
-#include "../private/SkTo.h"
 #include "SkBlendMode.h"
 #include "SkColor.h"
 #include "SkFilterQuality.h"
@@ -504,7 +503,7 @@ public:
 
         @return  alpha ranging from zero, fully transparent, to 255, fully opaque
     */
-    uint8_t getAlpha() const { return SkToU8(SkColorGetA(fColor)); }
+    uint8_t getAlpha() const { return SkColorGetA(fColor); }
 
     /** Replaces alpha, leaving RGB
         unchanged. An out of range value triggers an assert in the debug
