@@ -46,6 +46,30 @@
       "revId": "bf45c706396041f038656da7560edd24cd1a6cda",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "456b1d01_d4f75314",
+        "filename": "include/core/SkPicture.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-12T13:56:25Z",
+      "side": 0,
+      "message": "Ok, that was my guess. I don\u0027t have any better way. Making SkXXXPriv headers seems overwrought. The only other thing I can think of is moving all or most of the public types to pImpl pattern and keeping all the interfaces that interact with private types off of the public type.",
+      "parentUuid": "09b11c96_82bcfb46",
+      "range": {
+        "startLine": 20,
+        "startChar": 6,
+        "endLine": 20,
+        "endChar": 19
+      },
+      "revId": "bf45c706396041f038656da7560edd24cd1a6cda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
