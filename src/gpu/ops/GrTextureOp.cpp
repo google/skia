@@ -160,16 +160,14 @@ public:
                                      args.fUniformHandler,
                                      textureGP.fTextureCoords.asShaderVar(),
                                      args.fFPCoordTransformHandler);
-                args.fVaryingHandler->addPassThroughAttribute(&textureGP.fColors,
-                                                              args.fOutputColor,
-                                                              Interpolation::kCanBeFlat);
+                args.fVaryingHandler->addPassThroughAttribute(
+                        textureGP.fColors, args.fOutputColor, Interpolation::kCanBeFlat);
                 args.fFragBuilder->codeAppend("float2 texCoord;");
-                args.fVaryingHandler->addPassThroughAttribute(&textureGP.fTextureCoords,
-                                                              "texCoord");
+                args.fVaryingHandler->addPassThroughAttribute(textureGP.fTextureCoords, "texCoord");
                 if (textureGP.fDomain.isInitialized()) {
                     args.fFragBuilder->codeAppend("float4 domain;");
                     args.fVaryingHandler->addPassThroughAttribute(
-                            &textureGP.fDomain, "domain",
+                            textureGP.fDomain, "domain",
                             GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
                     args.fFragBuilder->codeAppend(
                             "texCoord = clamp(texCoord, domain.xy, domain.zw);");
@@ -179,7 +177,7 @@ public:
                     SkASSERT(kInt_GrVertexAttribType == textureGP.fTextureIdx.type());
                     SkASSERT(args.fShaderCaps->integerSupport());
                     args.fFragBuilder->codeAppend("int texIdx;");
-                    args.fVaryingHandler->addPassThroughAttribute(&textureGP.fTextureIdx, "texIdx",
+                    args.fVaryingHandler->addPassThroughAttribute(textureGP.fTextureIdx, "texIdx",
                                                                   Interpolation::kMustBeFlat);
                     args.fFragBuilder->codeAppend("switch (texIdx) {");
                     for (int i = 0; i < textureGP.numTextureSamplers(); ++i) {
@@ -313,12 +311,14 @@ private:
         }
 
         if (perspective) {
-            fPositions = this->addVertexAttrib("position", kFloat3_GrVertexAttribType);
+            fPositions = {"position", kFloat3_GrVertexAttribType};
         } else {
-            fPositions = this->addVertexAttrib("position", kFloat2_GrVertexAttribType);
+            fPositions = {"position", kFloat2_GrVertexAttribType};
         }
-        fColors = this->addVertexAttrib("color", kUByte4_norm_GrVertexAttribType);
-        fTextureCoords = this->addVertexAttrib("textureCoords", kFloat2_GrVertexAttribType);
+        fColors = {"color", kUByte4_norm_GrVertexAttribType, fPositions};
+        fTextureCoords = {"textureCoords", kFloat2_GrVertexAttribType, fColors};
+        const Attribute* prevVertexAttribute = &fTextureCoords;
+        int vertexAttributeCnt = 3;
 
         if (samplerCnt > 1) {
             // Here we initialize any extra samplers by repeating the last one samplerCnt - proxyCnt
@@ -329,17 +329,29 @@ private:
                 this->addTextureSampler(&fSamplers[i]);
             }
             SkASSERT(caps.integerSupport());
-            fTextureIdx = this->addVertexAttrib("textureIdx", kInt_GrVertexAttribType);
+            fTextureIdx = {"textureIdx", kInt_GrVertexAttribType, *prevVertexAttribute};
+            prevVertexAttribute = &fTextureIdx;
+            ++vertexAttributeCnt;
         }
         if (domain == Domain::kYes) {
-            fDomain = this->addVertexAttrib("domain", kFloat4_GrVertexAttribType);
+            fDomain = {"domain", kFloat4_GrVertexAttribType, *prevVertexAttribute};
+            prevVertexAttribute = &fDomain;
+            ++vertexAttributeCnt;
         }
         if (coverageAA) {
-            fAAEdges[0] = this->addVertexAttrib("aaEdge0", kFloat3_GrVertexAttribType);
-            fAAEdges[1] = this->addVertexAttrib("aaEdge1", kFloat3_GrVertexAttribType);
-            fAAEdges[2] = this->addVertexAttrib("aaEdge2", kFloat3_GrVertexAttribType);
-            fAAEdges[3] = this->addVertexAttrib("aaEdge3", kFloat3_GrVertexAttribType);
+            fAAEdges[0] = {"aaEdge0", kFloat3_GrVertexAttribType, *prevVertexAttribute};
+            fAAEdges[1] = {"aaEdge1", kFloat3_GrVertexAttribType, fAAEdges[0]};
+            fAAEdges[2] = {"aaEdge2", kFloat3_GrVertexAttribType, fAAEdges[1]};
+            fAAEdges[3] = {"aaEdge3", kFloat3_GrVertexAttribType, fAAEdges[2]};
+            prevVertexAttribute = &fAAEdges[3];
+            vertexAttributeCnt += 4;
         }
+        this->setVertexAttributeInfo(vertexAttributeCnt, prevVertexAttribute->nextOffsetInRecord());
+    }
+
+    const Attribute& onVertexAttribute(int i) const override {
+        return IthInitializedAttribute(i, fPositions, fColors, fTextureCoords, fTextureIdx, fDomain,
+                                       fAAEdges[0], fAAEdges[1], fAAEdges[2], fAAEdges[3]);
     }
 
     Attribute fPositions;
