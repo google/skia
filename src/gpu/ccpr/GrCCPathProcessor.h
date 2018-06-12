@@ -61,16 +61,12 @@ public:
     const GrTexture* atlas() const { return fAtlasAccess.peekTexture(); }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
     const Attribute& getInstanceAttrib(InstanceAttribs attribID) const {
-        const Attribute& attrib = this->getAttrib((int)attribID);
-        SkASSERT(Attribute::InputRate::kPerInstance == attrib.inputRate());
+        int idx = static_cast<int>(attribID);
+        SkASSERT(idx >= 0 && idx < static_cast<int>(SK_ARRAY_COUNT(kInstanceAttribs)));
+        const Attribute& attrib = this->onInstanceAttribute(idx);
         return attrib;
     }
-    const Attribute& getEdgeNormsAttrib() const {
-        SkASSERT(1 + kNumInstanceAttribs == this->numAttribs());
-        const Attribute& attrib = this->getAttrib(kNumInstanceAttribs);
-        SkASSERT(Attribute::InputRate::kPerVertex == attrib.inputRate());
-        return attrib;
-    }
+    const Attribute& getEdgeNormsAttrib() const { return kEdgeNormsAttrib; }
 
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
@@ -80,8 +76,18 @@ public:
                    int endInstance, const SkRect& bounds) const;
 
 private:
+    const Attribute& onVertexAttribute(int i) const override { return kEdgeNormsAttrib; }
+    const Attribute& onInstanceAttribute(int i) const override { return kInstanceAttribs[i]; }
+
     const TextureSampler fAtlasAccess;
     SkMatrix fLocalMatrix;
+    static constexpr Attribute kInstanceAttribs[kNumInstanceAttribs] = {
+            {"devbounds", kFloat4_GrVertexAttribType, offsetof(Instance, fDevBounds)},
+            {"devbounds45", kFloat4_GrVertexAttribType, offsetof(Instance, fDevBounds45)},
+            {"atlas_offset", kShort2_GrVertexAttribType, offsetof(Instance, fAtlasOffset)},
+            {"color", kUByte4_norm_GrVertexAttribType, offsetof(Instance, fColor)},
+    };
+    static constexpr Attribute kEdgeNormsAttrib = {"edge_norms", kFloat4_GrVertexAttribType};
 
     typedef GrGeometryProcessor INHERITED;
 };
