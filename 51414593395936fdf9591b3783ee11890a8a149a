@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9c380b9_f512cf30",
+        "filename": "include/core/SkFontTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-12T18:21:39Z",
+      "side": 1,
+      "message": "These would probably be better in either SkPaint.h or SkTypeface.h. I lean toward SkTypeface.h since which SkPaint.h uses these types they are never used without needing a typeface to use them with.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 27
+      },
+      "revId": "51414593395936fdf9591b3783ee11890a8a149a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

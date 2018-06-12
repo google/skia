@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "54d627c3_b8ca87cf",
+        "filename": "include/core/SkFont.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-12T18:21:39Z",
+      "side": 0,
+      "message": "I\u0027d leave this here until we decide what to do with this file. Nothing but this header, corresponding implementation and one test use this. We actually want this to go away, not be better seen,",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 2
+      },
+      "revId": "22ce79400dcce8571c56f97d717f8d21675ee000",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
