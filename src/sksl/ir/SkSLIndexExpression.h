@@ -24,22 +24,22 @@ static const Type& index_type(const Context& context, const Type& type) {
                 case 2: return *context.fFloat2_Type;
                 case 3: return *context.fFloat3_Type;
                 case 4: return *context.fFloat4_Type;
-                default: ASSERT(false);
+                default: SkASSERT(false);
             }
         } else if (type.componentType() == *context.fHalf_Type) {
             switch (type.rows()) {
                 case 2: return *context.fHalf2_Type;
                 case 3: return *context.fHalf3_Type;
                 case 4: return *context.fHalf4_Type;
-                default: ASSERT(false);
+                default: SkASSERT(false);
             }
         } else {
-           ASSERT(type.componentType() == *context.fDouble_Type);
+           SkASSERT(type.componentType() == *context.fDouble_Type);
             switch (type.rows()) {
                 case 2: return *context.fDouble2_Type;
                 case 3: return *context.fDouble3_Type;
                 case 4: return *context.fDouble4_Type;
-                default: ASSERT(false);
+                default: SkASSERT(false);
             }
         }
     }
@@ -55,7 +55,7 @@ struct IndexExpression : public Expression {
     : INHERITED(base->fOffset, kIndex_Kind, index_type(context, base->fType))
     , fBase(std::move(base))
     , fIndex(std::move(index)) {
-        ASSERT(fIndex->fType == *context.fInt_Type || fIndex->fType == *context.fUInt_Type);
+        SkASSERT(fIndex->fType == *context.fInt_Type || fIndex->fType == *context.fUInt_Type);
     }
 
     bool hasSideEffects() const override {

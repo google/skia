@@ -44,7 +44,7 @@ struct Variable : public Symbol {
         if (fInitialValue) {
             --fWriteCount;
         }
-        ASSERT(!fReadCount && !fWriteCount);
+        SkASSERT(!fReadCount && !fWriteCount);
     }
 
     virtual String description() const override {
