@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eebe9dd5_a4ec1ffe",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-12T19:40:48Z",
+      "side": 1,
+      "message": "Let\u0027s invert this so we can do...\n\nif (FAILED(fDWriteFontFace-\u003eQueryInterface(\u0026fontFace5))) {\n    // Return -1 if it is not known if the font is a variation font.\n    return -1;\n}",
+      "range": {
+        "startLine": 194,
+        "startChar": 4,
+        "endLine": 194,
+        "endChar": 65
+      },
+      "revId": "7514db38bce0aa9e1affc5b6690539d84c8e65f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e6dad70_4c9c3717",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-12T19:40:48Z",
+      "side": 1,
+      "message": "This will return the HRESULT value on failure, when we actually want to return -1. I think for now we want\n\nHR_GENERAL(..., nullptr, -1);",
+      "range": {
+        "startLine": 202,
+        "startChar": 8,
+        "endLine": 202,
+        "endChar": 10
+      },
+      "revId": "7514db38bce0aa9e1affc5b6690539d84c8e65f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e56ecde3_831b78c2",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-12T19:40:48Z",
+      "side": 1,
+      "message": "Same here,\n\nHR_GENERAL(..., nullptr, -1);",
+      "range": {
+        "startLine": 215,
+        "startChar": 8,
+        "endLine": 215,
+        "endChar": 10
+      },
+      "revId": "7514db38bce0aa9e1affc5b6690539d84c8e65f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
