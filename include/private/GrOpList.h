@@ -38,7 +38,7 @@ public:
     void prepare(GrOpFlushState* flushState);
     bool execute(GrOpFlushState* flushState) { return this->onExecute(flushState); }
 
-    virtual bool copySurface(const GrCaps& caps,
+    virtual bool copySurface(GrContext*,
                              GrSurfaceProxy* dst,
                              GrSurfaceProxy* src,
                              const SkIRect& srcRect,

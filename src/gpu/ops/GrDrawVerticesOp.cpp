@@ -11,7 +11,8 @@
 #include "GrOpFlushState.h"
 #include "SkGr.h"
 
-std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrPaint&& paint,
+std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrContext* context,
+                                                 GrPaint&& paint,
                                                  sk_sp<SkVertices> vertices,
                                                  const SkMatrix& viewMatrix,
                                                  GrAAType aaType,
@@ -21,9 +22,9 @@ std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrPaint&& paint,
     SkASSERT(vertices);
     GrPrimitiveType primType = overridePrimType ? *overridePrimType
                                                 : SkVertexModeToGrPrimitiveType(vertices->mode());
-    return Helper::FactoryHelper<GrDrawVerticesOp>(std::move(paint), std::move(vertices), primType,
-                                                   aaType, gammaCorrect, std::move(colorSpaceXform),
-                                                   viewMatrix);
+    return Helper::FactoryHelper<GrDrawVerticesOp>(context, std::move(paint), std::move(vertices),
+                                                   primType, aaType, gammaCorrect,
+                                                   std::move(colorSpaceXform), viewMatrix);
 }
 
 GrDrawVerticesOp::GrDrawVerticesOp(const Helper::MakeArgs& helperArgs, GrColor color,
@@ -418,8 +419,8 @@ GR_DRAW_OP_TEST_DEFINE(GrDrawVerticesOp) {
     if (GrFSAAType::kUnifiedMSAA == fsaaType && random->nextBool()) {
         aaType = GrAAType::kMSAA;
     }
-    return GrDrawVerticesOp::Make(std::move(paint), std::move(vertices), viewMatrix, aaType,
-                                  linearizeColors, std::move(colorSpaceXform), &type);
+    return GrDrawVerticesOp::Make(context, std::move(paint), std::move(vertices), viewMatrix,
+                                  aaType, linearizeColors, std::move(colorSpaceXform), &type);
 }
 
 #endif

@@ -169,14 +169,16 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint,
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          GrPaint&& paint,
                                           const GrShape& shape,
                                           const SkMatrix& viewMatrix,
                                           SkIRect devClipBounds,
                                           GrAAType aaType,
                                           const GrUserStencilSettings* stencilSettings) {
-        return Helper::FactoryHelper<TessellatingPathOp>(std::move(paint), shape, viewMatrix,
-                                                         devClipBounds, aaType, stencilSettings);
+        return Helper::FactoryHelper<TessellatingPathOp>(context, std::move(paint), shape,
+                                                         viewMatrix, devClipBounds,
+                                                         aaType, stencilSettings);
     }
 
     const char* name() const override { return "TessellatingPathOp"; }
@@ -374,7 +376,8 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     args.fClip->getConservativeBounds(args.fRenderTargetContext->width(),
                                       args.fRenderTargetContext->height(),
                                       &clipBoundsI);
-    std::unique_ptr<GrDrawOp> op = TessellatingPathOp::Make(std::move(args.fPaint),
+    std::unique_ptr<GrDrawOp> op = TessellatingPathOp::Make(args.fContext,
+                                                            std::move(args.fPaint),
                                                             *args.fShape,
                                                             *args.fViewMatrix,
                                                             clipBoundsI,
@@ -404,8 +407,8 @@ GR_DRAW_OP_TEST_DEFINE(TesselatingPathOp) {
         GrTest::TestStyle(random, &style);
     } while (!style.isSimpleFill());
     GrShape shape(path, style);
-    return TessellatingPathOp::Make(std::move(paint), shape, viewMatrix, devClipBounds, aaType,
-                                    GrGetRandomStencil(random, context));
+    return TessellatingPathOp::Make(context, std::move(paint), shape, viewMatrix, devClipBounds,
+                                    aaType, GrGetRandomStencil(random, context));
 }
 
 #endif

@@ -80,17 +80,19 @@ class GrDrawPathOp final : public GrDrawPathOpBase {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(const SkMatrix& viewMatrix, GrPaint&& paint,
-                                          GrAAType aaType, GrPath* path) {
-        return std::unique_ptr<GrDrawOp>(
-                new GrDrawPathOp(viewMatrix, std::move(paint), aaType, path));
-    }
+    static std::unique_ptr<GrDrawOp> Make(GrContext*,
+                                          const SkMatrix& viewMatrix,
+                                          GrPaint&&,
+                                          GrAAType,
+                                          GrPath*);
 
     const char* name() const override { return "DrawPath"; }
 
     SkString dumpInfo() const override;
 
 private:
+    friend class GrOpMemoryPool; // for ctor
+
     GrDrawPathOp(const SkMatrix& viewMatrix, GrPaint&& paint, GrAAType aaType, const GrPath* path)
             : GrDrawPathOpBase(ClassID(), viewMatrix, std::move(paint), path->getFillType(), aaType)
             , fPath(path) {

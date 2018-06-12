@@ -761,7 +761,9 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrContext* context
                                                               GrRenderTargetContext* rtc,
                                                               const SkPaint& skPaint,
                                                               const SkMatrix& viewMatrix,
-                                                              const char* text, int x, int y) {
+                                                              const char* text,
+                                                              int x,
+                                                              int y) {
     auto glyphCache = context->contextPriv().getGlyphCache();
 
     static SkSurfaceProps surfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);

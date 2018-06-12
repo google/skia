@@ -53,6 +53,8 @@ public:
     void onExecute(GrOpFlushState*) override;
 
 private:
+    friend class GrOpMemoryPool;
+
     GrCCDrawPathsOp(GrPaint&&, const SkIRect& clipIBounds, const SkMatrix&, const SkPath&,
                     const SkRect& devBounds);
 

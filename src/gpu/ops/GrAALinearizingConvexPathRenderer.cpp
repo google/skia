@@ -135,7 +135,8 @@ private:
 
 public:
     DEFINE_OP_CLASS_ID
-    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint,
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          GrPaint&& paint,
                                           const SkMatrix& viewMatrix,
                                           const SkPath& path,
                                           SkScalar strokeWidth,
@@ -143,7 +144,8 @@ public:
                                           SkPaint::Join join,
                                           SkScalar miterLimit,
                                           const GrUserStencilSettings* stencilSettings) {
-        return Helper::FactoryHelper<AAFlatteningConvexPathOp>(std::move(paint), viewMatrix, path,
+        return Helper::FactoryHelper<AAFlatteningConvexPathOp>(context, std::move(paint),
+                                                               viewMatrix, path,
                                                                strokeWidth, style, join, miterLimit,
                                                                stencilSettings);
     }
@@ -361,8 +363,8 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkScalar miterLimit = stroke.getMiter();
 
     std::unique_ptr<GrDrawOp> op = AAFlatteningConvexPathOp::Make(
-            std::move(args.fPaint), *args.fViewMatrix, path, strokeWidth, stroke.getStyle(), join,
-            miterLimit, args.fUserStencilSettings);
+            args.fContext, std::move(args.fPaint), *args.fViewMatrix, path, strokeWidth,
+            stroke.getStyle(), join, miterLimit, args.fUserStencilSettings);
     args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
     return true;
 }
@@ -395,8 +397,8 @@ GR_DRAW_OP_TEST_DEFINE(AAFlatteningConvexPathOp) {
         miterLimit = random->nextRangeF(0.5f, 2.0f);
     }
     const GrUserStencilSettings* stencilSettings = GrGetRandomStencil(random, context);
-    return AAFlatteningConvexPathOp::Make(std::move(paint), viewMatrix, path, strokeWidth, style,
-                                          join, miterLimit, stencilSettings);
+    return AAFlatteningConvexPathOp::Make(context, std::move(paint), viewMatrix, path, strokeWidth,
+                                          style, join, miterLimit, stencilSettings);
 }
 
 #endif
