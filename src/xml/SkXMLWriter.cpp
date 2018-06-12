@@ -7,6 +7,7 @@
 
 #include "SkXMLWriter.h"
 
+#include "SkMacros.h"
 #include "SkStream.h"
 #include "SkTo.h"
 

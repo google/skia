@@ -9,6 +9,7 @@
 
 #include "expat.h"
 
+#include "SkMacros.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTo.h"

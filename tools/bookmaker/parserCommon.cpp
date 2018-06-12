@@ -6,6 +6,7 @@
  */
 
 #include "bookmaker.h"
+#include "SkMacros.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 

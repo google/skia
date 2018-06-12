@@ -6,6 +6,8 @@
  */
 
 #include "SkPDFResourceDict.h"
+
+#include "SkMacros.h"
 #include "SkPDFTypes.h"
 #include "SkPostConfig.h"
 

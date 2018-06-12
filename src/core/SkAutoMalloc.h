@@ -10,6 +10,7 @@
 
 #include "SkMacros.h"
 #include "SkMalloc.h"
+#include "SkNumbers.h"
 #include "SkTypes.h"
 
 #include <memory>
