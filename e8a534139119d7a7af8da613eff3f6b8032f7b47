@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "60f64008_7be5b561",
+        "filename": "include/private/GrCCClipPath.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-12T19:26:20Z",
+      "side": 1,
+      "message": "I put it above because it\u0027s a struct instead of a class. Do you think it should get sorted in anyway? Or go below?",
+      "parentUuid": "91a2ba87_21170a7f",
+      "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9e5ab926_19f13fef",
         "filename": "src/gpu/ccpr/GrCCAtlas.h",
         "patchSetId": 7
@@ -33,6 +51,24 @@
       "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b94b05a_9dc6d3a4",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-12T19:26:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e5ab926_19f13fef",
+      "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "3ceceb26_60236f5a",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-12T19:26:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3c7d46e9_1ac93304",
+      "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "57fbe2bf_d79f056f",
         "filename": "src/gpu/ccpr/GrCCAtlas.h",
         "patchSetId": 7
@@ -64,6 +118,24 @@
       "writtenOn": "2018-06-12T12:28:41Z",
       "side": 1,
       "message": "wdyt about making fMaxPreferredTextureSize and fMinTextureSize const and just initializing them in the ctor ? Maybe add a comment to fMaxPreferredTextureSize like \"// straight out of the caps\" ?",
+      "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "557a55f8_19178bd9",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-12T19:26:20Z",
+      "side": 1,
+      "message": "The trouble is this lives in GrCCResourceInitCounts, so then that needs a constructor.\n\nFurthermore, once caching is a thing, there will be more than one Atlas::Specs field inside GrCCResourceInitCounts. Also, the max preferred tex size doesn\u0027t come straight out of the caps anymore for cached atlases.",
+      "parentUuid": "57fbe2bf_d79f056f",
       "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "1fd0e7e0_ee24b00a",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-12T19:26:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "10c1257d_44336755",
+      "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d743954c_f5c9362a",
         "filename": "src/gpu/ccpr/GrCCAtlas.h",
         "patchSetId": 7
@@ -101,6 +191,24 @@
       "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30d6374c_a2b156a1",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-12T19:26:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d743954c_f5c9362a",
+      "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "c8d2ea30_a6079644",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-12T19:26:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8df26196_3a9dd80c",
+      "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0d9f2431_98b12e7a",
         "filename": "src/gpu/ccpr/GrCCAtlas.h",
         "patchSetId": 7
@@ -135,6 +261,24 @@
       "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4bd58a4d_a9d7cbc3",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-12T19:26:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d9f2431_98b12e7a",
+      "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "18c3c140_1341af73",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-12T19:26:20Z",
+      "side": 1,
+      "message": "Right. Updated the comment above.",
+      "parentUuid": "e0067b8d_cfab0d0d",
+      "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "53140ee5_9136b147",
         "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
         "patchSetId": 7
@@ -172,6 +334,24 @@
     },
     {
       "key": {
+        "uuid": "903b5709_4ca5f4ba",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-12T19:26:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "53140ee5_9136b147",
+      "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eb4d6522_1245126b",
         "filename": "src/gpu/ccpr/GrCCPerFlushResources.h",
         "patchSetId": 7
@@ -186,6 +366,24 @@
       "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5509a3b_ad80657c",
+        "filename": "src/gpu/ccpr/GrCCPerFlushResources.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-12T19:26:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb4d6522_1245126b",
+      "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
