@@ -203,8 +203,8 @@ protected:
                          0.0002352f, -0.0003844f, 1);
             canvas->concat(persp);
             canvas->translate(1075, -245);
-            canvas->scale(375, 375);
-            paint.setTextSize(0.1f);
+            canvas->scale(0.5f, 0.5f);
+            paint.setTextSize(75);
             canvas->drawText(text, textLen, 0, 0, paint);
         }
 
