@@ -255,7 +255,7 @@ struct EdgeData {
 // Note: the assumption is that inputPolygon is convex and has no coincident points.
 //
 bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize,
-                          std::function<SkScalar(int index)> insetDistanceFunc,
+                          std::function<SkScalar(const SkPoint&)> insetDistanceFunc,
                           SkTDArray<SkPoint>* insetPolygon) {
     if (inputPolygonSize < 3) {
         return false;
@@ -277,7 +277,8 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
             return false;
         }
         if (!SkOffsetSegment(inputPolygonVerts[i], inputPolygonVerts[j],
-                             insetDistanceFunc(i), insetDistanceFunc(j),
+                             insetDistanceFunc(inputPolygonVerts[i]),
+                             insetDistanceFunc(inputPolygonVerts[j]),
                              winding,
                              &edgeData[i].fInset.fP0, &edgeData[i].fInset.fP1)) {
             return false;
@@ -588,8 +589,8 @@ static bool is_simple_polygon(const SkPoint* polygon, int polygonSize) {
 
 // TODO: assuming a constant offset here -- do we want to support variable offset?
 bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize,
-                           SkScalar offset, SkTDArray<SkPoint>* offsetPolygon,
-                           SkTDArray<int>* polygonIndices) {
+                           std::function<SkScalar(const SkPoint&)> offsetDistanceFunc,
+                           SkTDArray<SkPoint>* offsetPolygon, SkTDArray<int>* polygonIndices) {
     if (inputPolygonSize < 3) {
         return false;
     }
@@ -616,8 +617,14 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     }
 
     // resize normals to match offset
+    SkAutoSTMalloc<64, SkVector> normal0(inputPolygonSize);
+    SkAutoSTMalloc<64, SkVector> normal1(inputPolygonSize);
     for (int curr = 0; curr < inputPolygonSize; ++curr) {
-        normals[curr].setLength(winding*offset);
+        SkScalar offset = offsetDistanceFunc(inputPolygonVerts[curr]);
+        normal0[curr] = normals[curr];
+        normal0[curr].setLength(winding*offset);
+        normal1[curr] = normals[(curr + inputPolygonSize - 1) % inputPolygonSize];
+        normal1[curr].setLength(winding*offset);
     }
 
     // build initial offset edge list
@@ -625,17 +632,19 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     int prevIndex = inputPolygonSize - 1;
     int currIndex = 0;
     int nextIndex = 1;
+    SkScalar offsetSign = offsetDistanceFunc(inputPolygonVerts[0]);
     while (currIndex < inputPolygonSize) {
         int side = compute_side(inputPolygonVerts[prevIndex],
                                 inputPolygonVerts[currIndex],
                                 inputPolygonVerts[nextIndex]);
 
         // if reflex point, fill in curve
-        if (side*winding*offset < 0) {
+        if (side*winding*offsetSign < 0) {
             SkScalar rotSin, rotCos;
             int numSteps;
-            SkVector prevNormal = normals[prevIndex];
-            compute_radial_steps(prevNormal, normals[currIndex], SkScalarAbs(offset),
+            SkVector prevNormal = normal1[currIndex];
+            SkScalar offset = offsetDistanceFunc(inputPolygonVerts[currIndex]);
+            compute_radial_steps(prevNormal, normal0[currIndex], SkScalarAbs(offset),
                                  &rotSin, &rotCos, &numSteps);
             for (int i = 0; i < numSteps - 1; ++i) {
                 SkVector currNormal = SkVector::Make(prevNormal.fX*rotCos - prevNormal.fY*rotSin,
@@ -648,14 +657,14 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
             }
             EdgeData& edge = edgeData.push_back();
             edge.fInset.fP0 = inputPolygonVerts[currIndex] + prevNormal;
-            edge.fInset.fP1 = inputPolygonVerts[currIndex] + normals[currIndex];
+            edge.fInset.fP1 = inputPolygonVerts[currIndex] + normal0[currIndex];
             edge.init(currIndex, currIndex);
         }
 
         // Add the edge
         EdgeData& edge = edgeData.push_back();
-        edge.fInset.fP0 = inputPolygonVerts[currIndex] + normals[currIndex];
-        edge.fInset.fP1 = inputPolygonVerts[nextIndex] + normals[currIndex];
+        edge.fInset.fP0 = inputPolygonVerts[currIndex] + normal0[currIndex];
+        edge.fInset.fP1 = inputPolygonVerts[nextIndex] + normal1[nextIndex];
         edge.init(currIndex, nextIndex);
 
         prevIndex = currIndex;
