@@ -9,6 +9,7 @@
 #define Window_DEFINED
 
 #include "DisplayParams.h"
+#include "SkFontTypes.h"
 #include "SkRect.h"
 #include "SkTouchGesture.h"
 #include "SkTypes.h"

@@ -10,6 +10,7 @@
 
 #include "../private/SkTemplates.h"
 #include "SkFontStyle.h"
+#include "SkFontTypes.h"
 #include "SkRefCnt.h"
 #include "SkTypes.h"
 

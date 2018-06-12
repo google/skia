@@ -10,6 +10,7 @@
 
 #include "SkColor.h"
 #include "SkEvent.h"
+#include "SkFontTypes.h"
 #include "SkView.h"
 
 class SkAnimTimer;

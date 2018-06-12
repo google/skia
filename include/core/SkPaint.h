@@ -22,6 +22,7 @@
 #include "SkBlendMode.h"
 #include "SkColor.h"
 #include "SkFilterQuality.h"
+#include "SkFontTypes.h"
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
 

@@ -12,6 +12,7 @@
 #include "../private/SkWeakRefCnt.h"
 #include "SkFontArguments.h"
 #include "SkFontStyle.h"
+#include "SkFontTypes.h"
 #include "SkRect.h"
 #include "SkString.h"
 

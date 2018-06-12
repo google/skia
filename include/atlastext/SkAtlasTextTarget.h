@@ -9,7 +9,9 @@
 #define SkAtlasTextTarget_DEFINED
 
 #include <memory>
+
 #include "SkDeque.h"
+#include "SkFontTypes.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 

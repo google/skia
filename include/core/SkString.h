@@ -11,6 +11,7 @@
 
 #include "../private/SkTArray.h"
 #include "../private/SkTo.h"
+#include "SkFontTypes.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 
