@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "91a2ba87_21170a7f",
+        "filename": "include/private/GrCCClipPath.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-12T12:28:41Z",
+      "side": 1,
+      "message": "Does/should this get sorted w/ the others ?\n\nGrCCResourceRequirements ?",
+      "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e5ab926_19f13fef",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-12T12:28:41Z",
+      "side": 1,
+      "message": "// amount of padding around each path in atlas\n\n?",
+      "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c7d46e9_1ac93304",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-12T12:28:41Z",
+      "side": 1,
+      "message": "// This struct encapsulates the minimum and desired requirements of the atlas. In general, the created atlas will always ...\n\n?",
+      "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57fbe2bf_d79f056f",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-12T12:28:41Z",
+      "side": 1,
+      "message": "wdyt about making fMaxPreferredTextureSize and fMinTextureSize const and just initializing them in the ctor ? Maybe add a comment to fMaxPreferredTextureSize like \"// straight out of the caps\" ?",
+      "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10c1257d_44336755",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-12T12:28:41Z",
+      "side": 1,
+      "message": "// If there were 100 20x10 paths this would be 20.\n\n?",
+      "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d743954c_f5c9362a",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-12T12:28:41Z",
+      "side": 1,
+      "message": "// If there were 100 20x10 paths this would be 10.\n\n?",
+      "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8df26196_3a9dd80c",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-12T12:28:41Z",
+      "side": 1,
+      "message": "// Add space for a w x h rect to the desired specifications of an atlas\n\n?",
+      "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d9f2431_98b12e7a",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-12T12:28:41Z",
+      "side": 1,
+      "message": "addPathBoundsToAtlasRequirements ?\naccountForPathBounds ?\ngrowToInclude ?",
+      "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0067b8d_cfab0d0d",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-12T12:28:41Z",
+      "side": 1,
+      "message": "So we only attribute the padding on the right and bottom edges to a given cell?",
+      "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53140ee5_9136b147",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-12T12:28:41Z",
+      "side": 1,
+      "message": "countPathsAndDetermineAtlasSize ?",
+      "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb4d6522_1245126b",
+        "filename": "src/gpu/ccpr/GrCCPerFlushResources.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-12T12:28:41Z",
+      "side": 1,
+      "message": "// This struct is used to collect all the information about what needs to be drawn\n\n?",
+      "revId": "e8a534139119d7a7af8da613eff3f6b8032f7b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
