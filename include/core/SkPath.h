@@ -1414,10 +1414,18 @@ public:
         const SkScalar* fConicWeights;
         SkPoint         fMoveTo;
         SkPoint         fLastPt;
-        SkBool8         fForceClose;
-        SkBool8         fNeedClose;
-        SkBool8         fCloseLine;
-        SkBool8         fSegmentState;
+        bool            fForceClose;
+        bool            fNeedClose;
+        bool            fCloseLine;
+        enum SegmentState : uint8_t {
+            /** The current contour is empty. Starting processing or have just closed a contour. */
+            kEmptyContour_SegmentState,
+            /** Have seen a move, but nothing else. */
+            kAfterMove_SegmentState,
+            /** Have seen a primitive but not yet closed the path. Also the initial state. */
+            kAfterPrimitive_SegmentState
+        };
+        SegmentState    fSegmentState;
 
         inline const SkPoint& cons_moveTo();
         Verb autoClose(SkPoint pts[2]);
@@ -1602,8 +1610,8 @@ private:
     uint8_t                                              fFillType;
     mutable SkAtomic<Convexity, sk_memory_order_relaxed> fConvexity;
     mutable SkAtomic<uint8_t, sk_memory_order_relaxed>   fFirstDirection;// SkPathPriv::FirstDirection
-    SkBool8                                              fIsVolatile;
-    SkBool8                                              fIsBadForDAA = false;
+    bool                                                 fIsVolatile;
+    bool                                                 fIsBadForDAA = false;
 
     /** Resets all fields other than fPathRef to their initial 'empty' values.
      *  Assumes the caller has already emptied fPathRef.

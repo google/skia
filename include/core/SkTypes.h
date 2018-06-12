@@ -102,11 +102,6 @@ typedef int S16CPU;
  */
 typedef unsigned U16CPU;
 
-/**
- *  Meant to be a small version of bool, for storage purposes. Will be 0 or 1
- */
-typedef uint8_t SkBool8;
-
 /** Returns 0 or 1 based on the condition
 */
 #define SkToBool(cond)  ((cond) != 0)
