@@ -196,7 +196,9 @@ public:
 
     void toMask(SkMask* mask) const;
 
-    void copyImageData(const SkGlyph& from, SkArenaAlloc* alloc) {
+    /** Returns the size allocated on the arena.
+     */
+    size_t copyImageData(const SkGlyph& from, SkArenaAlloc* alloc) {
         fMaskFormat = from.fMaskFormat;
         fWidth = from.fWidth;
         fHeight = from.fHeight;
@@ -206,8 +208,13 @@ public:
 
         if (from.fImage != nullptr) {
             auto imageSize = this->allocImage(alloc);
+            SkASSERT(imageSize == from.computeImageSize());
+
             memcpy(fImage, from.fImage, imageSize);
+            return imageSize;
         }
+
+        return 0u;
     }
 
     class HashTraits {

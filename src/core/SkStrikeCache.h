@@ -70,8 +70,9 @@ public:
 
     static ExclusiveStrikePtr FindStrikeExclusive(const SkDescriptor&);
 
-    static bool DesperationSearchForImage(
-            const SkDescriptor& desc, SkGlyph* glyph, SkArenaAlloc* arena);
+    static bool DesperationSearchForImage(const SkDescriptor& desc,
+                                          SkGlyph* glyph,
+                                          SkGlyphCache* targetCache);
 
     static bool DesperationSearchForPath(
             const SkDescriptor& desc, SkGlyphID glyphID, SkPath* path);
@@ -112,7 +113,9 @@ public:
 
     // Routines to find suitable data when working in a remote cache situation. These are
     // suitable as substitutes for similar calls in SkScalerContext.
-    bool desperationSearchForImage(const SkDescriptor& desc, SkGlyph* glyph, SkArenaAlloc* alloc);
+    bool desperationSearchForImage(const SkDescriptor& desc,
+                                   SkGlyph* glyph,
+                                   SkGlyphCache* targetCache);
     bool desperationSearchForPath(const SkDescriptor& desc, SkGlyphID glyphID, SkPath* path);
 
     void purgeAll(); // does not change budget
