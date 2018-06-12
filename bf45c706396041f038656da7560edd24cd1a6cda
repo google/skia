@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9eb1a35e_084d30fc",
+        "filename": "include/core/SkPicture.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-12T13:26:25Z",
+      "side": 0,
+      "message": "Curious why some of the classes are forward declared and others use class in the param type. Public API vs. private?",
+      "range": {
+        "startLine": 20,
+        "startChar": 6,
+        "endLine": 20,
+        "endChar": 19
+      },
+      "revId": "bf45c706396041f038656da7560edd24cd1a6cda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
