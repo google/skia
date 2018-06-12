@@ -54,7 +54,7 @@ String HCodeGenerator::FieldType(const Context& context, const Type& type,
     } else if (type == *context.fFragmentProcessor_Type) {
         // we don't store fragment processors in fields, they get registered via
         // registerChildProcessor instead
-        ASSERT(false);
+        SkASSERT(false);
         return "<error>";
     }
     return ParameterType(context, type, layout);
@@ -111,13 +111,13 @@ void HCodeGenerator::writeExtraConstructorParams(const char* separator) {
                     lastIdentifierLength = 0;
                     foundBreak = false;
                 }
-                ASSERT(lastIdentifierLength < BUFFER_SIZE);
+                SkASSERT(lastIdentifierLength < BUFFER_SIZE);
                 lastIdentifier[lastIdentifierLength] = c;
                 ++lastIdentifierLength;
             } else {
                 foundBreak = true;
                 if (c == ',') {
-                    ASSERT(lastIdentifierLength < BUFFER_SIZE);
+                    SkASSERT(lastIdentifierLength < BUFFER_SIZE);
                     lastIdentifier[lastIdentifierLength] = 0;
                     this->writef("%s%s", separator, lastIdentifier);
                     separator = ", ";
@@ -127,7 +127,7 @@ void HCodeGenerator::writeExtraConstructorParams(const char* separator) {
             }
         }
         if (lastIdentifierLength) {
-            ASSERT(lastIdentifierLength < BUFFER_SIZE);
+            SkASSERT(lastIdentifierLength < BUFFER_SIZE);
             lastIdentifier[lastIdentifierLength] = 0;
             this->writef("%s%s", separator, lastIdentifier);
         }

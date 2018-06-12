@@ -50,7 +50,7 @@ struct Program {
                                                                           offset,
                                                                           fValue));
                     default:
-                        ASSERT(false);
+                        SkASSERT(false);
                         return nullptr;
                 }
             }

@@ -163,7 +163,7 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
 
 void MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
     auto i = fIntrinsicMap.find(c.fFunction.fName);
-    ASSERT(i != fIntrinsicMap.end());
+    SkASSERT(i != fIntrinsicMap.end());
     Intrinsic intrinsic = i->second;
     int32_t intrinsicId = intrinsic.second;
     switch (intrinsic.first) {
@@ -257,7 +257,7 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
             if (c.fArguments[1]->fType == *fContext.fFloat3_Type) {
                 this->write(".xy)"); // FIXME - add projection functionality
             } else {
-                ASSERT(c.fArguments[1]->fType == *fContext.fFloat2_Type);
+                SkASSERT(c.fArguments[1]->fType == *fContext.fFloat2_Type);
                 this->write(")");
             }
             break;
@@ -443,7 +443,7 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         this->writeExpression(*b.fLeft, kAssignment_Precedence);
         this->write(" ");
         String op = Compiler::OperatorName(b.fOperator);
-        ASSERT(op.endsWith("="));
+        SkASSERT(op.endsWith("="));
         this->write(op.substr(0, op.size() - 1).c_str());
         this->write(" ");
     } else {
@@ -525,7 +525,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                 this->write("vertex Outputs main0");
                 break;
             default:
-                ASSERT(false);
+                SkASSERT(false);
         }
         this->write("(Inputs _in [[stage_in]]");
         if (-1 != fUniformBuffer) {
@@ -627,7 +627,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     }
     this->writeLine(") {");
 
-    ASSERT(!fProgram.fSettings.fFragColorIsInOut);
+    SkASSERT(!fProgram.fSettings.fFragColorIsInOut);
 
     if ("main" == f.fDeclaration.fName) {
         if (fNeedsGlobalStructInit) {
@@ -682,7 +682,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                 this->writeLine("return *_out;"); // FIXME - detect if function already has return
                 break;
             default:
-                ASSERT(false);
+                SkASSERT(false);
         }
     }
     fIndentation--;
@@ -793,7 +793,7 @@ void MetalCodeGenerator::writeName(const String& name) {
 }
 
 void MetalCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool global) {
-    ASSERT(decl.fVars.size() > 0);
+    SkASSERT(decl.fVars.size() > 0);
     bool wroteType = false;
     for (const auto& stmt : decl.fVars) {
         VarDeclaration& var = (VarDeclaration&) *stmt;

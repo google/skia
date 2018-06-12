@@ -213,7 +213,7 @@ Compiler::Compiler(Flags flags)
     if (fErrorCount) {
         printf("Unexpected errors: %s\n", fErrorText.c_str());
     }
-    ASSERT(!fErrorCount);
+    SkASSERT(!fErrorCount);
 
     Program::Settings settings;
     fIRGenerator->start(&settings, nullptr);
@@ -289,7 +289,7 @@ void Compiler::addDefinition(const Expression* lvalue, std::unique_ptr<Expressio
             break;
         default:
             // not an lvalue, can't happen
-            ASSERT(false);
+            SkASSERT(false);
     }
 }
 
@@ -298,7 +298,7 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
                               DefinitionMap* definitions) {
     switch (node.fKind) {
         case BasicBlock::Node::kExpression_Kind: {
-            ASSERT(node.expression());
+            SkASSERT(node.expression());
             const Expression* expr = (Expression*) node.expression()->get();
             switch (expr->fKind) {
                 case Expression::kBinary_Kind: {
@@ -420,7 +420,7 @@ static DefinitionMap compute_start_state(const CFG& cfg) {
     for (const auto& block : cfg.fBlocks) {
         for (const auto& node : block.fNodes) {
             if (node.fKind == BasicBlock::Node::kStatement_Kind) {
-                ASSERT(node.statement());
+                SkASSERT(node.statement());
                 const Statement* s = node.statement()->get();
                 if (s->fKind == Statement::kVarDeclarations_Kind) {
                     const VarDeclarationsStatement* vd = (const VarDeclarationsStatement*) s;
@@ -539,9 +539,9 @@ void delete_left(BasicBlock* b,
                  bool* outNeedsRescan) {
     *outUpdated = true;
     std::unique_ptr<Expression>* target = (*iter)->expression();
-    ASSERT((*target)->fKind == Expression::kBinary_Kind);
+    SkASSERT((*target)->fKind == Expression::kBinary_Kind);
     BinaryExpression& bin = (BinaryExpression&) **target;
-    ASSERT(!bin.fLeft->hasSideEffects());
+    SkASSERT(!bin.fLeft->hasSideEffects());
     bool result;
     if (bin.fOperator == Token::EQ) {
         result = b->tryRemoveLValueBefore(iter, bin.fLeft.get());
@@ -564,7 +564,7 @@ void delete_left(BasicBlock* b,
         return;
     }
     *iter = b->fNodes.erase(*iter);
-    ASSERT((*iter)->expression() == target);
+    SkASSERT((*iter)->expression() == target);
 }
 
 /**
@@ -577,9 +577,9 @@ void delete_right(BasicBlock* b,
                   bool* outNeedsRescan) {
     *outUpdated = true;
     std::unique_ptr<Expression>* target = (*iter)->expression();
-    ASSERT((*target)->fKind == Expression::kBinary_Kind);
+    SkASSERT((*target)->fKind == Expression::kBinary_Kind);
     BinaryExpression& bin = (BinaryExpression&) **target;
-    ASSERT(!bin.fRight->hasSideEffects());
+    SkASSERT(!bin.fRight->hasSideEffects());
     if (!b->tryRemoveExpressionBefore(iter, bin.fRight.get())) {
         *target = std::move(bin.fLeft);
         *outNeedsRescan = true;
@@ -597,7 +597,7 @@ void delete_right(BasicBlock* b,
         return;
     }
     *iter = b->fNodes.erase(*iter);
-    ASSERT((*iter)->expression() == target);
+    SkASSERT((*iter)->expression() == target);
 }
 
 /**
@@ -620,9 +620,9 @@ static void vectorize(BasicBlock* b,
                       std::unique_ptr<Expression>* otherExpression,
                       bool* outUpdated,
                       bool* outNeedsRescan) {
-    ASSERT((*(*iter)->expression())->fKind == Expression::kBinary_Kind);
-    ASSERT(type.kind() == Type::kVector_Kind);
-    ASSERT((*otherExpression)->fType.kind() == Type::kScalar_Kind);
+    SkASSERT((*(*iter)->expression())->fKind == Expression::kBinary_Kind);
+    SkASSERT(type.kind() == Type::kVector_Kind);
+    SkASSERT((*otherExpression)->fType.kind() == Type::kScalar_Kind);
     *outUpdated = true;
     std::unique_ptr<Expression>* target = (*iter)->expression();
     if (!b->tryRemoveExpression(iter)) {
@@ -689,7 +689,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                                   bool* outUpdated,
                                   bool* outNeedsRescan) {
     Expression* expr = (*iter)->expression()->get();
-    ASSERT(expr);
+    SkASSERT(expr);
     if ((*iter)->fConstantPropagation) {
         std::unique_ptr<Expression> optimized = expr->constantPropagate(*fIRGenerator, definitions);
         if (optimized) {
@@ -698,7 +698,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                 *outNeedsRescan = true;
                 return;
             }
-            ASSERT((*iter)->fKind == BasicBlock::Node::kExpression_Kind);
+            SkASSERT((*iter)->fKind == BasicBlock::Node::kExpression_Kind);
             expr = (*iter)->expression()->get();
         }
     }
@@ -972,7 +972,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                 (!varDecl.fValue ||
                  !varDecl.fValue->hasSideEffects())) {
                 if (varDecl.fValue) {
-                    ASSERT((*iter)->statement()->get() == stmt);
+                    SkASSERT((*iter)->statement()->get() == stmt);
                     if (!b.tryRemoveExpressionBefore(iter, varDecl.fValue.get())) {
                         *outNeedsRescan = true;
                     }
@@ -987,7 +987,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
             if (i.fTest->fKind == Expression::kBoolLiteral_Kind) {
                 // constant if, collapse down to a single branch
                 if (((BoolLiteral&) *i.fTest).fValue) {
-                    ASSERT(i.fIfTrue);
+                    SkASSERT(i.fIfTrue);
                     (*iter)->setStatement(std::move(i.fIfTrue));
                 } else {
                     if (i.fIfFalse) {
@@ -1033,7 +1033,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                         defaultCase = c.get();
                         continue;
                     }
-                    ASSERT(c->fValue->fKind == s.fValue->fKind);
+                    SkASSERT(c->fValue->fKind == s.fValue->fKind);
                     found = c->fValue->compareConstant(*fContext, *s.fValue);
                     if (found) {
                         std::unique_ptr<Statement> newBlock = block_for_case(&s, c.get());
@@ -1075,13 +1075,13 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
         }
         case Statement::kExpression_Kind: {
             ExpressionStatement& e = (ExpressionStatement&) *stmt;
-            ASSERT((*iter)->statement()->get() == &e);
+            SkASSERT((*iter)->statement()->get() == &e);
             if (!e.fExpression->hasSideEffects()) {
                 // Expression statement with no side effects, kill it
                 if (!b.tryRemoveExpressionBefore(iter, e.fExpression.get())) {
                     *outNeedsRescan = true;
                 }
-                ASSERT((*iter)->statement()->get() == stmt);
+                SkASSERT((*iter)->statement()->get() == stmt);
                 (*iter)->setStatement(std::unique_ptr<Statement>(new Nop()));
                 *outUpdated = true;
             }
@@ -1146,7 +1146,7 @@ void Compiler::scanCFG(FunctionDefinition& f) {
             }
         }
     } while (updated);
-    ASSERT(!needsRescan);
+    SkASSERT(!needsRescan);
 
     // verify static ifs & switches, clean up dead variable decls
     for (BasicBlock& b : cfg.fBlocks) {
@@ -1283,14 +1283,14 @@ bool Compiler::toSPIRV(const Program& program, OutputStream& out) {
     if (result) {
         spvtools::SpirvTools tools(SPV_ENV_VULKAN_1_0);
         const String& data = buffer.str();
-        ASSERT(0 == data.size() % 4);
+        SkASSERT(0 == data.size() % 4);
         auto dumpmsg = [](spv_message_level_t, const char*, const spv_position_t&, const char* m) {
             SkDebugf("SPIR-V validation error: %s\n", m);
         };
         tools.SetMessageConsumer(dumpmsg);
-        // Verify that the SPIR-V we produced is valid. If this assert fails, check the logs prior
+        // Verify that the SPIR-V we produced is valid. If this SkASSERT fails, check the logs prior
         // to the failure to see the validation errors.
-        ASSERT_RESULT(tools.Validate((const uint32_t*) data.c_str(), data.size() / 4));
+        SkAssertResult(tools.Validate((const uint32_t*) data.c_str(), data.size() / 4));
         out.write(data.c_str(), data.size());
     }
 #else
@@ -1424,7 +1424,7 @@ bool Compiler::IsAssignment(Token::Kind op) {
 }
 
 Position Compiler::position(int offset) {
-    ASSERT(fSource);
+    SkASSERT(fSource);
     int line = 1;
     int column = 1;
     for (int i = 0; i < offset; i++) {

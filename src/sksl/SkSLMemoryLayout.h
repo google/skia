@@ -107,11 +107,11 @@ public:
                     if (total % alignment != 0) {
                         total += alignment - total % alignment;
                     }
-                    ASSERT(total % alignment == 0);
+                    SkASSERT(total % alignment == 0);
                     total += this->size(*f.fType);
                 }
                 size_t alignment = this->alignment(type);
-                ASSERT(!type.fields().size() ||
+                SkASSERT(!type.fields().size() ||
                        (0 == alignment % this->alignment(*type.fields()[0].fType)));
                 return (total + alignment - 1) & ~(alignment - 1);
             }

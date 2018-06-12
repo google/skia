@@ -33,7 +33,7 @@ static constexpr const char* HEADER =
 void writeH(const DFA& dfa, const char* lexer, const char* token,
             const std::vector<std::string>& tokens, const char* hPath) {
     std::ofstream out(hPath);
-    ASSERT(out.good());
+    SkASSERT(out.good());
     out << HEADER;
     out << "#ifndef SKSL_" << lexer << "\n";
     out << "#define SKSL_" << lexer << "\n";
@@ -87,7 +87,7 @@ void writeH(const DFA& dfa, const char* lexer, const char* token,
 void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* include,
               const char* cppPath) {
     std::ofstream out(cppPath);
-    ASSERT(out.good());
+    SkASSERT(out.good());
     out << HEADER;
     out << "#include \"" << include << "\"\n";
     out << "\n";
@@ -172,13 +172,13 @@ void process(const char* inPath, const char* lexer, const char* token, const cha
         std::istringstream split(line);
         std::string name, delimiter, pattern;
         if (split >> name >> delimiter >> pattern) {
-            ASSERT(split.eof());
-            ASSERT(name != "");
-            ASSERT(delimiter == "=");
-            ASSERT(pattern != "");
+            SkASSERT(split.eof());
+            SkASSERT(name != "");
+            SkASSERT(delimiter == "=");
+            SkASSERT(pattern != "");
             tokens.push_back(name);
             if (pattern[0] == '"') {
-                ASSERT(pattern.size() > 2 && pattern[pattern.size() - 1] == '"');
+                SkASSERT(pattern.size() > 2 && pattern[pattern.size() - 1] == '"');
                 RegexNode node = RegexNode(RegexNode::kChar_Kind, pattern[1]);
                 for (size_t i = 2; i < pattern.size() - 1; ++i) {
                     node = RegexNode(RegexNode::kConcat_Kind, node,

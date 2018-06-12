@@ -67,7 +67,7 @@ public:
 
     ~AutoSymbolTable() {
         fIR->popSymbolTable();
-        ASSERT(fPrevious == fIR->fSymbolTable);
+        SkASSERT(fPrevious == fIR->fSymbolTable);
     }
 
     IRGenerator* fIR;
@@ -160,7 +160,7 @@ void IRGenerator::start(const Program::Settings* settings,
             if (e->fKind == ProgramElement::kInterfaceBlock_Kind) {
                 InterfaceBlock& intf = (InterfaceBlock&) *e;
                 if (intf.fVariable.fName == Compiler::PERVERTEX_NAME) {
-                    ASSERT(!fSkPerVertex);
+                    SkASSERT(!fSkPerVertex);
                     fSkPerVertex = &intf.fVariable;
                 }
             }
@@ -187,7 +187,7 @@ std::unique_ptr<Statement> IRGenerator::convertStatement(const ASTStatement& sta
             std::unique_ptr<Statement> result =
                               this->convertExpressionStatement((ASTExpressionStatement&) statement);
             if (fRTAdjust && Program::kGeometry_Kind == fKind) {
-                ASSERT(result->fKind == Statement::kExpression_Kind);
+                SkASSERT(result->fKind == Statement::kExpression_Kind);
                 Expression& expr = *((ExpressionStatement&) *result).fExpression;
                 if (expr.fKind == Expression::kFunctionCall_Kind) {
                     FunctionCall& fc = (FunctionCall&) expr;
@@ -294,8 +294,8 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
         auto var = std::unique_ptr<Variable>(new Variable(decl.fOffset, decl.fModifiers,
                                                           varDecl.fName, *type, storage));
         if (var->fName == Compiler::RTADJUST_NAME) {
-            ASSERT(!fRTAdjust);
-            ASSERT(var->fType == *fContext.fFloat4_Type);
+            SkASSERT(!fRTAdjust);
+            SkASSERT(var->fType == *fContext.fFloat4_Type);
             fRTAdjust = var.get();
         }
         std::unique_ptr<Expression> value;
@@ -339,7 +339,7 @@ std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(
         if (fSettings->fCaps && !fSettings->fCaps->gsInvocationsSupport()) {
             modifiers.fLayout.fInvocations = -1;
             Variable* invocationId = (Variable*) (*fSymbolTable)["sk_InvocationID"];
-            ASSERT(invocationId);
+            SkASSERT(invocationId);
             invocationId->fModifiers.fFlags = 0;
             invocationId->fModifiers.fLayout.fBuiltin = -1;
             if (modifiers.fLayout.description() == "") {
@@ -516,11 +516,11 @@ std::unique_ptr<Statement> IRGenerator::convertExpressionStatement(
 }
 
 std::unique_ptr<Statement> IRGenerator::convertReturn(const ASTReturnStatement& r) {
-    ASSERT(fCurrentFunction);
+    SkASSERT(fCurrentFunction);
     // early returns from a vertex main function will bypass the sk_Position normalization, so
-    // assert that we aren't doing that. It is of course possible to fix this by adding a
+    // SkASSERT that we aren't doing that. It is of course possible to fix this by adding a
     // normalization before each return, but it will probably never actually be necessary.
-    ASSERT(Program::kVertex_Kind != fKind || !fRTAdjust || "main" != fCurrentFunction->fName);
+    SkASSERT(Program::kVertex_Kind != fKind || !fRTAdjust || "main" != fCurrentFunction->fName);
     if (r.fExpression) {
         std::unique_ptr<Expression> result = this->convertExpression(*r.fExpression);
         if (!result) {
@@ -580,7 +580,7 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
 
     std::vector<std::unique_ptr<VarDeclaration>> variables;
     Variable* loopIdx = (Variable*) (*fSymbolTable)["sk_InvocationID"];
-    ASSERT(loopIdx);
+    SkASSERT(loopIdx);
     std::unique_ptr<Expression> test(new BinaryExpression(-1,
                     std::unique_ptr<Expression>(new VariableReference(-1, *loopIdx)),
                     Token::LT,
@@ -594,7 +594,7 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
                 Token::PLUSPLUS));
     ASTIdentifier endPrimitiveID = ASTIdentifier(-1, "EndPrimitive");
     std::unique_ptr<Expression> endPrimitive = this->convertExpression(endPrimitiveID);
-    ASSERT(endPrimitive);
+    SkASSERT(endPrimitive);
 
     std::vector<std::unique_ptr<Statement>> loopBody;
     std::vector<std::unique_ptr<Expression>> invokeArgs;
@@ -628,7 +628,7 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     // sk_Position = float4(sk_Position.xy * rtAdjust.xz + sk_Position.ww * rtAdjust.yw,
     //                      0,
     //                      sk_Position.w);
-    ASSERT(fSkPerVertex && fRTAdjust);
+    SkASSERT(fSkPerVertex && fRTAdjust);
     #define REF(var) std::unique_ptr<Expression>(\
                                   new VariableReference(-1, *var, VariableReference::kRead_RefKind))
     #define FIELD(var, idx) std::unique_ptr<Expression>(\
@@ -699,7 +699,7 @@ void IRGenerator::convertFunction(const ASTFunction& f) {
                 return;
         }
         for (const auto& other : functions) {
-            ASSERT(other->fName == f.fName);
+            SkASSERT(other->fName == f.fName);
             if (parameters.size() == other->fParameters.size()) {
                 bool match = true;
                 for (size_t i = 0; i < parameters.size(); i++) {
@@ -747,7 +747,7 @@ void IRGenerator::convertFunction(const ASTFunction& f) {
         fSymbolTable->add(decl->fName, std::move(newDecl));
     }
     if (f.fBody) {
-        ASSERT(!fCurrentFunction);
+        SkASSERT(!fCurrentFunction);
         fCurrentFunction = decl;
         decl->fDefined = true;
         std::shared_ptr<SymbolTable> old = fSymbolTable;
@@ -758,7 +758,7 @@ void IRGenerator::convertFunction(const ASTFunction& f) {
         bool needInvocationIDWorkaround = fInvocations != -1 && f.fName == "main" &&
                                           fSettings->fCaps &&
                                           !fSettings->fCaps->gsInvocationsSupport();
-        ASSERT(!fExtraVars.size());
+        SkASSERT(!fExtraVars.size());
         std::unique_ptr<Block> body = this->convertBlock(*f.fBody);
         for (auto& v : fExtraVars) {
             body->fStatements.insert(body->fStatements.begin(), std::move(v));
@@ -804,7 +804,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
             }
             if (vd.fVar == fRTAdjust) {
                 foundRTAdjust = true;
-                ASSERT(vd.fVar->fType == *fContext.fFloat4_Type);
+                SkASSERT(vd.fVar->fType == *fContext.fFloat4_Type);
                 fRTAdjustFieldIndex = fields.size();
             }
             fields.push_back(Type::Field(vd.fVar->fModifiers, vd.fVar->fName,
@@ -1062,7 +1062,7 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
         args.push_back(std::move(expr));
         ASTIdentifier id(-1, type.fName);
         std::unique_ptr<Expression> ctor = this->convertIdentifier(id);
-        ASSERT(ctor);
+        SkASSERT(ctor);
         return this->call(-1, std::move(ctor), std::move(args));
     }
     std::vector<std::unique_ptr<Expression>> args;
@@ -1156,7 +1156,7 @@ static bool determine_binary_type(const Context& context,
                         // transpose it
                         rightColumns = right.rows();
                         rightRows = right.columns();
-                        ASSERT(rightColumns == 1);
+                        SkASSERT(rightColumns == 1);
                     } else {
                         rightColumns = right.columns();
                         rightRows = right.rows();
@@ -1336,8 +1336,8 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
     if (left.fType.kind() == Type::kVector_Kind &&
         left.fType.componentType() == *fContext.fFloat_Type &&
         left.fType == right.fType) {
-        ASSERT(left.fKind  == Expression::kConstructor_Kind);
-        ASSERT(right.fKind == Expression::kConstructor_Kind);
+        SkASSERT(left.fKind  == Expression::kConstructor_Kind);
+        SkASSERT(right.fKind == Expression::kConstructor_Kind);
         std::vector<std::unique_ptr<Expression>> args;
         #define RETURN_VEC_COMPONENTWISE_RESULT(op)                                    \
             for (int i = 0; i < left.fType.columns(); i++) {                           \
@@ -1488,12 +1488,12 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(
 // For float3coordinates, implements the transformation:
 //     texture(sampler, coord) -> texture(sampler, float3textureSize(sampler), 1.0) * coord))
 void IRGenerator::fixRectSampling(std::vector<std::unique_ptr<Expression>>& arguments) {
-    ASSERT(arguments.size() == 2);
-    ASSERT(arguments[0]->fType == *fContext.fSampler2DRect_Type);
-    ASSERT(arguments[0]->fKind == Expression::kVariableReference_Kind);
+    SkASSERT(arguments.size() == 2);
+    SkASSERT(arguments[0]->fType == *fContext.fSampler2DRect_Type);
+    SkASSERT(arguments[0]->fKind == Expression::kVariableReference_Kind);
     const Variable& sampler = ((VariableReference&) *arguments[0]).fVariable;
     const Symbol* textureSizeSymbol = (*fSymbolTable)["textureSize"];
-    ASSERT(textureSizeSymbol->fKind == Symbol::kFunctionDeclaration_Kind);
+    SkASSERT(textureSizeSymbol->fKind == Symbol::kFunctionDeclaration_Kind);
     const FunctionDeclaration& textureSize = (FunctionDeclaration&) *textureSizeSymbol;
     std::vector<std::unique_ptr<Expression>> sizeArguments;
     sizeArguments.emplace_back(new VariableReference(-1, sampler));
@@ -1503,7 +1503,7 @@ void IRGenerator::fixRectSampling(std::vector<std::unique_ptr<Expression>>& argu
     if (type == *fContext.fFloat2_Type) {
         scale = std::move(float2ize);
     } else {
-        ASSERT(type == *fContext.fFloat3_Type);
+        SkASSERT(type == *fContext.fFloat3_Type);
         std::vector<std::unique_ptr<Expression>> float3rguments;
         float3rguments.push_back(std::move(float2ize));
         float3rguments.emplace_back(new FloatLiteral(fContext, -1, 1.0));
@@ -1632,7 +1632,7 @@ std::unique_ptr<Expression> IRGenerator::convertNumberConstructor(
                                                     int offset,
                                                     const Type& type,
                                                     std::vector<std::unique_ptr<Expression>> args) {
-    ASSERT(type.isNumber());
+    SkASSERT(type.isNumber());
     if (args.size() != 1) {
         fErrors.error(offset, "invalid arguments to '" + type.description() +
                               "' constructor, (expected exactly 1 argument, but found " +
@@ -1691,7 +1691,7 @@ std::unique_ptr<Expression> IRGenerator::convertCompoundConstructor(
                                                     int offset,
                                                     const Type& type,
                                                     std::vector<std::unique_ptr<Expression>> args) {
-    ASSERT(type.kind() == Type::kVector_Kind || type.kind() == Type::kMatrix_Kind);
+    SkASSERT(type.kind() == Type::kVector_Kind || type.kind() == Type::kMatrix_Kind);
     if (type.kind() == Type::kMatrix_Kind && args.size() == 1 &&
         args[0]->fType.kind() == Type::kMatrix_Kind) {
         // matrix from matrix is always legal
@@ -1933,7 +1933,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
                 return nullptr;
         }
     }
-    ASSERT(swizzleComponents.size() > 0);
+    SkASSERT(swizzleComponents.size() > 0);
     if (swizzleComponents.size() > 4) {
         fErrors.error(base->fOffset, "too many components in swizzle mask '" + fields + "'");
         return nullptr;
@@ -2062,7 +2062,7 @@ std::unique_ptr<Expression> IRGenerator::convertAppend(int offset,
     return std::unique_ptr<Expression>(new AppendStage(fContext, offset, stage,
                                                        std::move(stageArgs)));
 #else
-    ASSERT(false);
+    SkASSERT(false);
     return nullptr;
 #endif
 }
@@ -2171,7 +2171,7 @@ void IRGenerator::checkValid(const Expression& expr) {
 static bool has_duplicates(const Swizzle& swizzle) {
     int bits = 0;
     for (int idx : swizzle.fComponents) {
-        ASSERT(idx >= 0 && idx <= 3);
+        SkASSERT(idx >= 0 && idx <= 3);
         int bit = 1 << idx;
         if (bits & bit) {
             return true;

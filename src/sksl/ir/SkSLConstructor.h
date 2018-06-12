@@ -83,7 +83,7 @@ struct Constructor : public Expression {
     }
 
     bool compareConstant(const Context& context, const Expression& other) const override {
-        ASSERT(other.fKind == Expression::kConstructor_Kind && other.fType == fType);
+        SkASSERT(other.fKind == Expression::kConstructor_Kind && other.fType == fType);
         Constructor& c = (Constructor&) other;
         if (c.fType.kind() == Type::kVector_Kind) {
             for (int i = 0; i < fType.columns(); i++) {
@@ -96,14 +96,14 @@ struct Constructor : public Expression {
         // shouldn't be possible to have a constant constructor that isn't a vector or matrix;
         // a constant scalar constructor should have been collapsed down to the appropriate
         // literal
-        ASSERT(fType.kind() == Type::kMatrix_Kind);
+        SkASSERT(fType.kind() == Type::kMatrix_Kind);
         const FloatLiteral fzero(context, -1, 0);
         const IntLiteral izero(context, -1, 0);
         const Expression* zero;
         if (fType.componentType() == *context.fFloat_Type) {
             zero = &fzero;
         } else {
-            ASSERT(fType.componentType() == *context.fInt_Type);
+            SkASSERT(fType.componentType() == *context.fInt_Type);
             zero = &izero;
         }
         for (int col = 0; col < fType.columns(); col++) {
@@ -121,21 +121,21 @@ struct Constructor : public Expression {
     }
 
     const Expression& getVecComponent(int index) const {
-        ASSERT(fType.kind() == Type::kVector_Kind);
+        SkASSERT(fType.kind() == Type::kVector_Kind);
         if (fArguments.size() == 1 && fArguments[0]->fType.kind() == Type::kScalar_Kind) {
             return *fArguments[0];
         }
         int current = 0;
         for (const auto& arg : fArguments) {
-            ASSERT(current <= index);
+            SkASSERT(current <= index);
             if (arg->fType.kind() == Type::kScalar_Kind) {
                 if (index == current) {
                     return *arg;
                 }
                 current++;
             } else {
-                ASSERT(arg->fType.kind() == Type::kVector_Kind);
-                ASSERT(arg->fKind == Expression::kConstructor_Kind);
+                SkASSERT(arg->fType.kind() == Type::kVector_Kind);
+                SkASSERT(arg->fKind == Expression::kConstructor_Kind);
                 if (current + arg->fType.columns() > index) {
                     return ((const Constructor&) *arg).getVecComponent(index - current);
                 }
@@ -155,9 +155,9 @@ struct Constructor : public Expression {
 
     // null return should be interpreted as zero
     const Expression* getMatComponent(int col, int row) const {
-        ASSERT(this->isConstant());
-        ASSERT(fType.kind() == Type::kMatrix_Kind);
-        ASSERT(col < fType.columns() && row < fType.rows());
+        SkASSERT(this->isConstant());
+        SkASSERT(fType.kind() == Type::kMatrix_Kind);
+        SkASSERT(col < fType.columns() && row < fType.rows());
         if (fArguments.size() == 1) {
             if (fArguments[0]->fType.kind() == Type::kScalar_Kind) {
                 // single scalar argument, so matrix is of the form:
@@ -168,7 +168,7 @@ struct Constructor : public Expression {
                 return col == row ? fArguments[0].get() : nullptr;
             }
             if (fArguments[0]->fType.kind() == Type::kMatrix_Kind) {
-                ASSERT(fArguments[0]->fKind == Expression::kConstructor_Kind);
+                SkASSERT(fArguments[0]->fKind == Expression::kConstructor_Kind);
                 // single matrix argument. make sure we're within the argument's bounds.
                 const Type& argType = ((Constructor&) *fArguments[0]).fType;
                 if (col < argType.columns() && row < argType.rows()) {
@@ -182,14 +182,14 @@ struct Constructor : public Expression {
         int currentIndex = 0;
         int targetIndex = col * fType.rows() + row;
         for (const auto& arg : fArguments) {
-            ASSERT(targetIndex >= currentIndex);
-            ASSERT(arg->fType.rows() == 1);
+            SkASSERT(targetIndex >= currentIndex);
+            SkASSERT(arg->fType.rows() == 1);
             if (currentIndex + arg->fType.columns() > targetIndex) {
                 if (arg->fType.columns() == 1) {
                     return arg.get();
                 } else {
-                    ASSERT(arg->fType.kind() == Type::kVector_Kind);
-                    ASSERT(arg->fKind == Expression::kConstructor_Kind);
+                    SkASSERT(arg->fType.kind() == Type::kVector_Kind);
+                    SkASSERT(arg->fKind == Expression::kConstructor_Kind);
                     return &((Constructor&) *arg).getVecComponent(targetIndex - currentIndex);
                 }
             }

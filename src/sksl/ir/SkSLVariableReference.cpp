@@ -53,7 +53,7 @@ void VariableReference::setRefKind(RefKind refKind) {
 
 std::unique_ptr<Expression> VariableReference::copy_constant(const IRGenerator& irGenerator,
                                                              const Expression* expr) {
-    ASSERT(expr->isConstant());
+    SkASSERT(expr->isConstant());
     switch (expr->fKind) {
         case Expression::kIntLiteral_Kind:
             return std::unique_ptr<Expression>(new IntLiteral(irGenerator.fContext,

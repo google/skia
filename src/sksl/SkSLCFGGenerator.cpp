@@ -89,7 +89,7 @@ bool BasicBlock::tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterat
     }
     bool result;
     if ((*iter)->fKind == BasicBlock::Node::kExpression_Kind) {
-        ASSERT((*iter)->expression()->get() != e);
+        SkASSERT((*iter)->expression()->get() != e);
         Expression* old = (*iter)->expression()->get();
         do {
             if ((*iter) == fNodes.begin()) {
@@ -101,7 +101,7 @@ bool BasicBlock::tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterat
         result = this->tryRemoveExpression(iter);
         while ((*iter)->fKind != BasicBlock::Node::kExpression_Kind ||
                (*iter)->expression()->get() != old) {
-            ASSERT(*iter != fNodes.end());
+            SkASSERT(*iter != fNodes.end());
             ++(*iter);
         }
     } else {
@@ -116,7 +116,7 @@ bool BasicBlock::tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterat
         result = this->tryRemoveExpression(iter);
         while ((*iter)->fKind != BasicBlock::Node::kStatement_Kind ||
                (*iter)->statement()->get() != old) {
-            ASSERT(*iter != fNodes.end());
+            SkASSERT(*iter != fNodes.end());
             ++(*iter);
         }
     }
@@ -166,7 +166,7 @@ bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* it
             if (!this->tryRemoveExpressionBefore(iter, b->fRight.get())) {
                 return false;
             }
-            ASSERT((*iter)->expression()->get() == expr);
+            SkASSERT((*iter)->expression()->get() == expr);
             *iter = fNodes.erase(*iter);
             return true;
         }
@@ -207,7 +207,7 @@ bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* it
                 if (!this->tryRemoveExpressionBefore(iter, arg.get())) {
                     return false;
                 }
-                ASSERT((*iter)->expression()->get() == expr);
+                SkASSERT((*iter)->expression()->get() == expr);
             }
             *iter = fNodes.erase(*iter);
             return true;
@@ -218,7 +218,7 @@ bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* it
                 if (!this->tryRemoveExpressionBefore(iter, arg.get())) {
                     return false;
                 }
-                ASSERT((*iter)->expression()->get() == expr);
+                SkASSERT((*iter)->expression()->get() == expr);
             }
             *iter = fNodes.erase(*iter);
             return true;
@@ -292,7 +292,7 @@ bool BasicBlock::tryInsertExpression(std::vector<BasicBlock::Node>::iterator* it
 }
 
 void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool constantPropagate) {
-    ASSERT(e);
+    SkASSERT(e);
     switch ((*e)->fKind) {
         case Expression::kBinary_Kind: {
             BinaryExpression* b = (BinaryExpression*) e->get();
@@ -415,7 +415,7 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
         case Expression::kFunctionReference_Kind: // fall through
         case Expression::kTypeReference_Kind:     // fall through
         case Expression::kDefined_Kind:
-            ASSERT(false);
+            SkASSERT(false);
             break;
     }
 }
@@ -445,7 +445,7 @@ void CFGGenerator::addLValue(CFG& cfg, std::unique_ptr<Expression>* e) {
             break;
         default:
             // not an lvalue, can't happen
-            ASSERT(false);
+            SkASSERT(false);
             break;
     }
 }

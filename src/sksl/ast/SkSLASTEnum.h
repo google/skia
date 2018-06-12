@@ -18,7 +18,7 @@ struct ASTEnum : public ASTDeclaration {
     , fTypeName(typeName)
     , fNames(std::move(names))
     , fValues(std::move(values)) {
-        ASSERT(fNames.size() == fValues.size());
+        SkASSERT(fNames.size() == fValues.size());
     }
 
     String description() const override {

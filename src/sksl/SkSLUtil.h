@@ -341,13 +341,9 @@ NORETURN void sksl_abort();
 } // namespace
 
 #ifdef SKSL_STANDALONE
-#define ASSERT(x) (void)((x) || (ABORT("failed assert(%s): %s:%d\n", #x, __FILE__, __LINE__), 0))
-#define ASSERT_RESULT(x) ASSERT(x)
-#define SKSL_DEBUGCODE(x) x
-#else
-#define ASSERT SkASSERT
-#define ASSERT_RESULT(x) SkAssertResult(x)
-#define SKSL_DEBUGCODE(x) SkDEBUGCODE(x)
+#define SkASSERT(x)
+#define SkAssertResult(x) x
+#define SkDEBUGCODE(x)
 #endif
 
 #define SKSL_WARN_UNUSED_RESULT __attribute__((warn_unused_result))

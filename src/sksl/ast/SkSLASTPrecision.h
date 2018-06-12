@@ -28,10 +28,10 @@ struct ASTPrecision : public ASTDeclaration {
             case Modifiers::kMediump_Flag: return String("precision mediump float;");
             case Modifiers::kHighp_Flag: return String("precision highp float;");
             default:
-                ASSERT(false);
+                SkASSERT(false);
                 return String("<error>");
         }
-        ASSERT(false);
+        SkASSERT(false);
         return String("<error>");
     }
 

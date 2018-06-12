@@ -64,7 +64,7 @@ JIT::JIT(Compiler* compiler)
     LLVMInitializeNativeTarget();
     LLVMInitializeNativeAsmPrinter();
     LLVMLinkInMCJIT();
-    ASSERT(!SkCpu::Supports(SkCpu::SKX)); // not yet supported
+    SkASSERT(!SkCpu::Supports(SkCpu::SKX)); // not yet supported
     if (SkCpu::Supports(SkCpu::HSW)) {
         fVectorCount = 8;
         fCPU = "haswell";
@@ -144,13 +144,13 @@ uint64_t JIT::resolveSymbol(const char* name, JIT* jit) {
             result = llvm::RTDyldMemoryManager::getSymbolAddressInProcess(name);
         }
     }
-    ASSERT(result);
+    SkASSERT(result);
     return result;
 }
 
 LLVMValueRef JIT::compileFunctionCall(LLVMBuilderRef builder, const FunctionCall& fc) {
     LLVMValueRef func = fFunctions[&fc.fFunction];
-    ASSERT(func);
+    SkASSERT(func);
     std::vector<LLVMValueRef> parameters;
     for (const auto& a : fc.fArguments) {
         parameters.push_back(this->compileExpression(builder, *a));
@@ -164,7 +164,7 @@ LLVMTypeRef JIT::getType(const Type& type) {
             if (type.name() == "void") {
                 return fVoidType;
             }
-            ASSERT(type.name() == "SkRasterPipeline");
+            SkASSERT(type.name() == "SkRasterPipeline");
             return fInt8PtrType;
         case Type::kScalar_Kind:
             if (type.isSigned() || type.isUnsigned()) {
@@ -176,7 +176,7 @@ LLVMTypeRef JIT::getType(const Type& type) {
             if (type.isFloat()) {
                 return fFloat32Type;
             }
-            ASSERT(type.name() == "bool");
+            SkASSERT(type.name() == "bool");
             return fInt1Type;
         case Type::kArray_Kind:
             return LLVMPointerType(this->getType(type.componentType()), 0);
@@ -348,7 +348,7 @@ std::unique_ptr<JIT::LValue> JIT::getLValue(LLVMBuilderRef builder, const Expres
                         }
                         return result;
                     }
-                    ASSERT(fComponents.size() == 1);
+                    SkASSERT(fComponents.size() == 1);
                     return LLVMBuildExtractElement(builder, base,
                                                             LLVMConstInt(fJIT.fInt32Type,
                                                                          fComponents[0],
@@ -691,14 +691,14 @@ LLVMValueRef JIT::compileVariableReference(LLVMBuilderRef builder, const Variabl
 }
 
 void JIT::appendStage(LLVMBuilderRef builder, const AppendStage& a) {
-    ASSERT(a.fArguments.size() >= 1);
-    ASSERT(a.fArguments[0]->fType == *fCompiler.context().fSkRasterPipeline_Type);
+    SkASSERT(a.fArguments.size() >= 1);
+    SkASSERT(a.fArguments[0]->fType == *fCompiler.context().fSkRasterPipeline_Type);
     LLVMValueRef pipeline = this->compileExpression(builder, *a.fArguments[0]);
     LLVMValueRef stage = LLVMConstInt(fInt32Type, a.fStage, 0);
     switch (a.fStage) {
         case SkRasterPipeline::callback: {
-            ASSERT(a.fArguments.size() == 2);
-            ASSERT(a.fArguments[1]->fKind == Expression::kFunctionReference_Kind);
+            SkASSERT(a.fArguments.size() == 2);
+            SkASSERT(a.fArguments[1]->fKind == Expression::kFunctionReference_Kind);
             const FunctionDeclaration& functionDecl =
                                              *((FunctionReference&) *a.fArguments[1]).fFunctions[0];
             bool found = false;
@@ -717,7 +717,7 @@ void JIT::appendStage(LLVMBuilderRef builder, const AppendStage& a) {
                     }
                 }
             }
-            ASSERT(found);
+            SkASSERT(found);
             break;
         }
         default: {
@@ -726,7 +726,7 @@ void JIT::appendStage(LLVMBuilderRef builder, const AppendStage& a) {
                 ctx = this->compileExpression(builder, *a.fArguments[1]);
                 ctx = LLVMBuildBitCast(builder, ctx, fInt8PtrType, "context cast");
             } else {
-                ASSERT(a.fArguments.size() == 1);
+                SkASSERT(a.fArguments.size() == 1);
                 ctx = LLVMConstNull(fInt8PtrType);
             }
             LLVMValueRef args[3] = {
@@ -743,7 +743,7 @@ void JIT::appendStage(LLVMBuilderRef builder, const AppendStage& a) {
 LLVMValueRef JIT::compileConstructor(LLVMBuilderRef builder, const Constructor& c) {
     switch (c.fType.kind()) {
         case Type::kScalar_Kind: {
-            ASSERT(c.fArguments.size() == 1);
+            SkASSERT(c.fArguments.size() == 1);
             TypeKind from = this->typeKind(c.fArguments[0]->fType);
             TypeKind to = this->typeKind(c.fType);
             LLVMValueRef base = this->compileExpression(builder, *c.fArguments[0]);
@@ -783,7 +783,7 @@ LLVMValueRef JIT::compileConstructor(LLVMBuilderRef builder, const Constructor& 
                                                  "vec build");
                 }
             } else {
-                ASSERT(c.fArguments.size() == (size_t) c.fType.columns());
+                SkASSERT(c.fArguments.size() == (size_t) c.fType.columns());
                 for (int i = 0; i < c.fType.columns(); ++i) {
                     vec = LLVMBuildInsertElement(builder, vec,
                                                  this->compileExpression(builder,
@@ -818,7 +818,7 @@ LLVMValueRef JIT::compileSwizzle(LLVMBuilderRef builder, const Swizzle& s) {
         }
         return result;
     }
-    ASSERT(s.fComponents.size() == 1);
+    SkASSERT(s.fComponents.size() == 1);
     return LLVMBuildExtractElement(builder, base,
                                             LLVMConstInt(fInt32Type,
                                                          s.fComponents[0],
@@ -1292,7 +1292,7 @@ bool JIT::compileVectorBinary(LLVMBuilderRef builder, const BinaryExpression& b,
                     out[i] = floatOp(builder, left[i], right[i], "binary");              \
                     break;                                                               \
                 case kBool_TypeKind:                                                     \
-                    ASSERT(false);                                                       \
+                    SkASSERT(false);                                                       \
                     break;                                                               \
             }                                                                            \
         }                                                                                \
@@ -1336,7 +1336,7 @@ bool JIT::compileVectorConstructor(LLVMBuilderRef builder, const Constructor& c,
                                    LLVMValueRef out[CHANNELS]) {
     switch (c.fType.kind()) {
         case Type::kScalar_Kind: {
-            ASSERT(c.fArguments.size() == 1);
+            SkASSERT(c.fArguments.size() == 1);
             TypeKind from = this->typeKind(c.fArguments[0]->fType);
             TypeKind to = this->typeKind(c.fType);
             LLVMValueRef base[CHANNELS];
@@ -1392,7 +1392,7 @@ bool JIT::compileVectorConstructor(LLVMBuilderRef builder, const Constructor& c,
                     out[i] = base[0];
                 }
             } else {
-                ASSERT(c.fArguments.size() == (size_t) c.fType.columns());
+                SkASSERT(c.fArguments.size() == (size_t) c.fType.columns());
                 for (int i = 0; i < c.fType.columns(); ++i) {
                     LLVMValueRef base[CHANNELS];
                     if (!this->compileVectorExpression(builder, *c.fArguments[i], base)) {
@@ -1657,7 +1657,7 @@ void JIT::createModule() {
                                                                                false));
 
     for (const auto& e : fProgram->fElements) {
-        ASSERT(e->fKind == ProgramElement::kFunction_Kind);
+        SkASSERT(e->fKind == ProgramElement::kFunction_Kind);
         this->compileFunction((FunctionDefinition&) *e);
     }
 }

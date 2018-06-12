@@ -83,12 +83,12 @@ public:
     }
 
     const Section* getSection(const char* name) {
-        ASSERT(!SectionPermitsDuplicates(name));
+        SkASSERT(!SectionPermitsDuplicates(name));
         auto found = fSections.find(name);
         if (found == fSections.end()) {
             return nullptr;
         }
-        ASSERT(found->second.size() == 1);
+        SkASSERT(found->second.size() == 1);
         return found->second[0];
     }
 
