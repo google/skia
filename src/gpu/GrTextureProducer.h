@@ -98,6 +98,21 @@ public:
                 proxyColorSpace, scaleAdjust);
     }
 
+    /**
+     * Returns a texture that is safe for use with the dstColorSpace. If willNeedMips is true then
+     * the returned texture is guaranteed to have allocated mip map levels. This can be a
+     * performance win if future draws with the texture require mip maps.
+     *
+     * Places the color space of the texture in (*proxyColorSpace).
+     */
+    // TODO: Once we remove support for npot textures, we should add a flag for must support repeat
+    // wrap mode. To support that flag now would require us to support scaleAdjust array like in
+    // refTextureProxyForParams, however the current public API that uses this call does not expose
+    // that array.
+    sk_sp<GrTextureProxy> refTextureProxy(GrMipMapped willNeedMips,
+                                          SkColorSpace* dstColorSpace,
+                                          sk_sp<SkColorSpace>* proxyColorSpace);
+
     virtual ~GrTextureProducer() {}
 
     int width() const { return fWidth; }
