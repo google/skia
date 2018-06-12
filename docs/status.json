@@ -40,9 +40,11 @@
     "InProgress": {
         "include": {
             "core": [
+                "SkPicture.h"
             ]
         },
         "docs": [
+            "SkPicture_Reference.bmh",
             "overview.bmh",
             "usingBookmaker.bmh"
         ]

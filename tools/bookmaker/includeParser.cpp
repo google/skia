@@ -136,6 +136,12 @@ bool IncludeParser::checkForWord() {
         return true;
     }
     KeyWord keyWord = FindKey(fIncludeWord, fChar);
+    if (KeyWord::kClass == keyWord || KeyWord::kStruct == keyWord) {
+        Bracket bracket = this->topBracket();
+        if (Bracket::kParen == bracket) {
+            return true;
+        }
+    }
     if (KeyWord::kNone != keyWord) {
         if (KeyProperty::kPreprocessor != kKeyWords[(int) keyWord].fProperty) {
             this->addKeyword(keyWord);
@@ -556,6 +562,10 @@ void IncludeParser::dumpClassTokens(IClassDefinition& classDef) {
             this->writeBlockSeparator();
         }
         switch (token.fMarkType) {
+            case MarkType::kConst:
+                // TODO fix: create dumpConst
+                this->dumpMethod(token, classDef.fName);
+            break;
             case MarkType::kEnum:
             case MarkType::kEnumClass:
                 this->dumpEnum(token, token.fName);
@@ -859,6 +869,10 @@ void IncludeParser::dumpEnum(const Definition& token, string name) {
 }
 
 bool IncludeParser::dumpGlobals() {
+    if (fIDefineMap.empty() && fIFunctionMap.empty() && fIEnumMap.empty() && fITemplateMap.empty()
+            && fITypedefMap.empty() && fIUnionMap.empty()) {
+        return true;
+    }
     size_t lastBSlash = fFileName.rfind('\\');
     size_t lastSlash = fFileName.rfind('/');
     size_t lastDotH = fFileName.rfind(".h");
@@ -881,16 +895,10 @@ bool IncludeParser::dumpGlobals() {
     string topicName = globalsName.length() > 2 && isupper(globalsName[2]) &&
         ("Sk" == prefixName || "Gr" == prefixName) ? globalsName.substr(2) : globalsName;
     this->writeTagNoLF("Topic", topicName);
-    this->writeTag("Alias", topicName + "_Reference");
+    this->writeEndTag("Alias", topicName + "_Reference");
     this->lf(2);
     this->writeTag("Subtopic", "Overview");
-    fIndent += 4;
-    this->writeTag("Subtopic", "Subtopic");
-    fIndent += 4;
     this->writeTag("Populate");
-    fIndent -= 4;
-    this->writeEndTag();
-    fIndent -= 4;
     this->writeEndTag();
     this->lf(2);
     if (!fIDefineMap.empty()) {
@@ -1037,7 +1045,7 @@ void IncludeParser::dumpMethod(const Definition& token, string className) {
             name = name.substr(0, constPos) + "_const";
         }
     }
-    this->writeString(name);
+    this->writeBlock((int) name.size(), name.c_str());
     string inType;
     if (this->isConstructor(token, className)) {
         inType = "Constructor";
@@ -1047,13 +1055,7 @@ void IncludeParser::dumpMethod(const Definition& token, string className) {
         inType = "incomplete";
     }
     this->writeTag("In", inType);
-    this->writeTag("Line");
-    this->writeSpace(1);
-    this->writeString("#");
-    this->writeSpace(1);
-    this->writeString("incomplete");
-    this->writeSpace(1);
-    this->writeString("##");
+    this->writeTagTable("Line", "incomplete");
     this->lf(2);
     this->dumpComment(token);
 }
@@ -1097,7 +1099,7 @@ bool IncludeParser::dumpTokens(string skClassName) {
     string topicName = skClassName.length() > 2 && isupper(skClassName[2]) &&
         ("Sk" == prefixName || "Gr" == prefixName) ? skClassName.substr(2) : skClassName;
     this->writeTagNoLF("Topic", topicName);
-    this->writeTag("Alias", topicName + "_Reference");
+    this->writeEndTag("Alias", topicName + "_Reference");
     this->lf(2);
     auto& classMap = fIClassMap[skClassName];
     SkASSERT(KeyWord::kClass == classMap.fKeyWord || KeyWord::kStruct == classMap.fKeyWord);
@@ -1118,11 +1120,19 @@ bool IncludeParser::dumpTokens(string skClassName) {
     bool hasConstructor = false;
     bool hasMember = false;
     bool hasOperator = false;
+    bool hasStruct = false;
     for (const auto& oneClass : fIClassMap) {
         if (skClassName + "::" != oneClass.first.substr(0, skClassName.length() + 2)) {
             continue;
         }
         hasClass = true;
+        break;
+    }
+    for (const auto& oneStruct : fIStructMap) {
+        if (skClassName + "::" != oneStruct.first.substr(0, skClassName.length() + 2)) {
+            continue;
+        }
+        hasStruct = true;
         break;
     }
     for (const auto& token : classMap.fTokens) {
@@ -1146,18 +1156,12 @@ bool IncludeParser::dumpTokens(string skClassName) {
         hasMember = true;
     }
     this->writeTag("Subtopic", "Overview");
-    fIndent += 4;
-    this->writeTag("Subtopic", "Subtopic");
-    fIndent += 4;
     this->writeTag("Populate");
-    fIndent -= 4;
-    this->writeEndTag();
-    fIndent -= 4;
     this->writeEndTag();
     this->lf(2);
 
     if (hasClass) {
-        this->writeTag("Subtopic", "Class_or_Struct");
+        this->writeTag("Subtopic", "Class");
         this->writeTag("Populate");
         this->writeEndTag();
         this->lf(2);
@@ -1186,6 +1190,12 @@ bool IncludeParser::dumpTokens(string skClassName) {
         this->writeEndTag();
         this->lf(2);
     }
+    if (hasStruct) {
+        this->writeTag("Subtopic", "Struct");
+        this->writeTag("Populate");
+        this->writeEndTag();
+        this->lf(2);
+    }
     for (auto& oneEnum : fIEnumMap) {
         this->writeBlockSeparator();
         this->dumpEnum(*oneEnum.second, oneEnum.first);
@@ -1210,6 +1220,7 @@ bool IncludeParser::dumpTokens(string skClassName) {
         SkASSERT(KeyWord::kClass == keyword || KeyWord::kStruct == keyword);
         const char* containerType = KeyWord::kClass == keyword ? "Class" : "Struct";
         this->writeTag(containerType, innerName);
+        this->writeTagTable("Line", "incomplete");
         this->lf(2);
         this->writeTag("Code");
         this->writeEndTag("ToDo", "fill this in manually");
@@ -1305,6 +1316,19 @@ Definition* IncludeParser::findIncludeObject(const Definition& includeDef, MarkT
     markupDef.fKeyWord = includeDef.fKeyWord;
     markupDef.fType = Definition::Type::kMark;
     return &markupDef;
+}
+
+Definition* IncludeParser::parentBracket(Definition* parent) const {
+    while (parent && Definition::Type::kBracket != parent->fType) {
+        parent = parent->fParent;
+    }
+    return parent;
+}
+
+Bracket IncludeParser::grandParentBracket() const {
+    Definition* parent = parentBracket(fParent);
+    parent = parentBracket(parent ? parent->fParent : nullptr);
+    return parent ? parent->fBracket : Bracket::kNone;
 }
 
 // caller just returns, so report error here
@@ -1865,7 +1889,7 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
         }
         break;
     }
-    tokenIter->fName = nameStr;
+    tokenIter->fName = nameStr;     // simple token stream, OK if name is duplicate
     tokenIter->fMarkType = MarkType::kMethod;
     tokenIter->fPrivate = string::npos != nameStr.find("::");
     auto testIter = child->fParent->fTokens.begin();
@@ -1932,15 +1956,19 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
     markupDef->fTokens.emplace_back(MarkType::kMethod, start, end, tokenIter->fLineCount,
             markupDef, '\0');
     Definition* markupChild = &markupDef->fTokens.back();
-    // do find instead -- I wonder if there is a way to prevent this in c++
-    IClassDefinition& classDef = fIClassMap[markupDef->fName];
-    SkASSERT(classDef.fStart);
-    string uniqueName = this->uniqueName(classDef.fMethods, nameStr);
-    markupChild->fName = uniqueName;
-    if (!this->findComments(*child, markupChild)) {
-        return false;
+    // TODO: I wonder if there is a way to prevent looking up by operator[] (creating empty) ?
+    {
+        auto mapIter = fIClassMap.find(markupDef->fName);
+        SkASSERT(fIClassMap.end() != mapIter);
+        IClassDefinition& classDef = mapIter->second;
+        SkASSERT(classDef.fStart);
+        string uniqueName = this->uniqueName(classDef.fMethods, nameStr);
+        markupChild->fName = uniqueName;
+        if (!this->findComments(*child, markupChild)) {
+            return false;
+        }
+        classDef.fMethods[uniqueName] = markupChild;
     }
-    classDef.fMethods[uniqueName] = markupChild;
     return true;
 }
 
@@ -2319,6 +2347,8 @@ bool IncludeParser::parseChar() {
                 break;
             }
             this->pushBracket(Bracket::kAngle);
+            // this angle bracket may be an operator or may be a bracket
+            // wait for balancing close angle, if any, to decide
             break;
         case ')':
         case ']':
@@ -2335,8 +2365,9 @@ bool IncludeParser::parseChar() {
                 }
             }
             bool popBraceParent = fInBrace == fParent;
-            if ((')' == test ? Bracket::kParen :
-                    ']' == test ? Bracket::kSquare : Bracket::kBrace) == this->topBracket()) {
+            Bracket match = ')' == test ? Bracket::kParen :
+                    ']' == test ? Bracket::kSquare : Bracket::kBrace;
+            if (match == this->topBracket()) {
                 this->popBracket();
                 if (!fInFunction) {
                     fInFunction = ')' == test;
@@ -2344,6 +2375,10 @@ bool IncludeParser::parseChar() {
                     fInFunction = '}' != test;
                 }
             } else if (')' == test && Bracket::kDebugCode == this->topBracket()) {
+                this->popBracket();
+            } else if (Bracket::kAngle == this->topBracket()
+                    && match == this->grandParentBracket()) {
+                this->popBracket();
                 this->popBracket();
             } else {
                 return reportError<bool>("malformed close bracket");
@@ -2369,6 +2404,7 @@ bool IncludeParser::parseChar() {
                 break;
             }
             if (Bracket::kAngle == this->topBracket()) {
+                // looks like angle pair are braces, not operators
                 this->popBracket();
             } else {
                 return reportError<bool>("malformed close angle bracket");
@@ -2737,4 +2773,9 @@ void IncludeParser::RemoveOneFile(const char* docs, const char* includesFile) {
     baseName.append("_Reference.bmh");
     SkString fullName = SkOSPath::Join(docs, baseName.c_str());
     remove(fullName.c_str());
+}
+
+Bracket IncludeParser::topBracket() const {
+    Definition* parent = this->parentBracket(fParent);
+    return parent ? parent->fBracket : Bracket::kNone;
 }
