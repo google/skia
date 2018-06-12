@@ -26,6 +26,8 @@ public:
                          const SkDescriptor* desc,
                          sk_sp<SkStrikeClient::DiscardableHandleManager> manager);
 
+    void initCache(SkGlyphCache*);
+
 protected:
     unsigned generateGlyphCount() override;
     uint16_t generateCharToGlyph(SkUnichar) override;
@@ -37,14 +39,8 @@ protected:
     SkTypefaceProxy* getProxyTypeface() const;
 
 private:
-    // Copied from SkGlyphCache
-    // so we don't grow our arrays a lot
-    static constexpr size_t kMinGlyphCount = 8;
-    static constexpr size_t kMinGlyphImageSize = 16 /* height */ * 8 /* width */;
-    static constexpr size_t kMinAllocAmount = kMinGlyphImageSize * kMinGlyphCount;
-
-    SkArenaAlloc                                    fAlloc{kMinAllocAmount};
     sk_sp<SkStrikeClient::DiscardableHandleManager> fDiscardableManager;
+    SkGlyphCache* fCache = nullptr;
     typedef SkScalerContext INHERITED;
 };
 
