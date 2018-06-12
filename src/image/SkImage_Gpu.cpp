@@ -498,12 +498,13 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace
                                                      size, origin, std::move(imageColorSpace));
 }
 
-static sk_sp<SkImage> create_image_from_maker(GrContext* context, GrTextureMaker* maker,
-                                              SkAlphaType at, uint32_t id,
-                                              SkColorSpace* dstColorSpace) {
+static sk_sp<SkImage> create_image_from_producer(GrContext* context, GrTextureProducer* producer,
+                                                 SkAlphaType at, uint32_t id,
+                                                 SkColorSpace* dstColorSpace,
+                                                 GrMipMapped mipMapped) {
     sk_sp<SkColorSpace> texColorSpace;
-    sk_sp<GrTextureProxy> proxy(maker->refTextureProxyForParams(
-            GrSamplerState::ClampNearest(), dstColorSpace, &texColorSpace, nullptr));
+    sk_sp<GrTextureProxy> proxy(producer->refTextureProxy(mipMapped, dstColorSpace,
+                                                          &texColorSpace));
     if (!proxy) {
         return nullptr;
     }
@@ -511,24 +512,36 @@ static sk_sp<SkImage> create_image_from_maker(GrContext* context, GrTextureMaker
                                    std::move(texColorSpace), SkBudgeted::kNo);
 }
 
-sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace) const {
+sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace,
+                                         GrMipMapped mipMapped) const {
     if (!context) {
         return nullptr;
     }
     if (GrContext* incumbent = as_IB(this)->context()) {
-        return incumbent == context ? sk_ref_sp(const_cast<SkImage*>(this)) : nullptr;
+        if (incumbent != context) {
+            return nullptr;
+        }
+        sk_sp<GrTextureProxy> proxy = as_IB(this)->asTextureProxyRef();
+        SkASSERT(proxy);
+        if (GrMipMapped::kNo == mipMapped || proxy->mipMapped() == mipMapped) {
+            return sk_ref_sp(const_cast<SkImage*>(this));
+        }
+        GrTextureAdjuster adjuster(context, std::move(proxy), this->alphaType(),
+                                   this->uniqueID(), this->colorSpace());
+        return create_image_from_producer(context, &adjuster, this->alphaType(),
+                                          this->uniqueID(), dstColorSpace, mipMapped);
     }
 
     if (this->isLazyGenerated()) {
         GrImageTextureMaker maker(context, this, kDisallow_CachingHint);
-        return create_image_from_maker(context, &maker, this->alphaType(),
-                                       this->uniqueID(), dstColorSpace);
+        return create_image_from_producer(context, &maker, this->alphaType(),
+                                          this->uniqueID(), dstColorSpace, mipMapped);
     }
 
     if (const SkBitmap* bmp = as_IB(this)->onPeekBitmap()) {
         GrBitmapTextureMaker maker(context, *bmp);
-        return create_image_from_maker(context, &maker, this->alphaType(),
-                                       this->uniqueID(), dstColorSpace);
+        return create_image_from_producer(context, &maker, this->alphaType(),
+                                          this->uniqueID(), dstColorSpace, mipMapped);
     }
     return nullptr;
 }

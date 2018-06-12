@@ -235,3 +235,18 @@ sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxyForParams(
              (result->width() == this->width() && result->height() == this->height()));
     return result;
 }
+
+sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxy(GrMipMapped willNeedMips,
+                                                         SkColorSpace* dstColorSpace,
+                                                         sk_sp<SkColorSpace>* proxyColorSpace) {
+    GrSamplerState::Filter filter =
+            GrMipMapped::kNo == willNeedMips ? GrSamplerState::Filter::kNearest
+                                             : GrSamplerState::Filter::kMipMap;
+    GrSamplerState sampler(GrSamplerState::WrapMode::kClamp, filter);
+    auto result =
+            this->onRefTextureProxyForParams(sampler, dstColorSpace, proxyColorSpace, nullptr);
+
+    // Check that no scaling occured and we returned a proxy of the same size as the producer.
+    SkASSERT(!result || (result->width() == this->width() && result->height() == this->height()));
+    return result;
+}
