@@ -100,22 +100,6 @@ typedef unsigned U16CPU;
 */
 #define SkToBool(cond)  ((cond) != 0)
 
-#define SK_MaxS16   INT16_MAX
-#define SK_MinS16   -SK_MaxS16
-#define SK_MaxS32   INT32_MAX
-#define SK_MinS32   -SK_MaxS32
-#define SK_NaN32    INT32_MIN
-static constexpr int64_t SK_MaxS64 = INT64_MAX;
-static constexpr int64_t SK_MinS64 = -SK_MaxS64;
-
-static inline constexpr int32_t SkLeftShift(int32_t value, int32_t shift) {
-    return (int32_t) ((uint32_t) value << shift);
-}
-
-static inline constexpr int64_t SkLeftShift(int64_t value, int32_t shift) {
-    return (int64_t) ((uint64_t) value << shift);
-}
-
 //////////////////////////////////////////////////////////////////////////////
 
 /** Returns the number of entries in an array (not a pointer) */
@@ -177,6 +161,7 @@ template <typename T> static inline void SkTSwap(T& a, T& b) {
     b = std::move(c);
 }
 
+<<<<<<< HEAD
 static inline int32_t SkAbs32(int32_t value) {
     SkASSERT(value != SK_NaN32);  // The most negative int32_t can't be negated.
     if (value < 0) {
@@ -229,6 +214,8 @@ template <typename T> static constexpr const T& SkTPin(const T& value, const T& 
 }
 
 
+=======
+>>>>>>> SkNumbers split from SkTypes
 ///////////////////////////////////////////////////////////////////////////////
 
 /**

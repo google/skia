@@ -12,6 +12,7 @@
 
 #include "SkAtomics.h"
 #include "SkMalloc.h"
+#include "SkNumbers.h"
 #include "SkTo.h"
 
 inline bool SkRegionValueIsSentinel(int32_t value) {
