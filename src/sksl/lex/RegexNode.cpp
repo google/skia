@@ -24,7 +24,7 @@ std::vector<int> RegexNode::createStates(NFA* nfa, const std::vector<int>& accep
                     }
                     chars[child.fPayload.fChar] = true;
                 } else {
-                    ASSERT(child.fKind == kRange_Kind);
+                    SkASSERT(child.fKind == kRange_Kind);
                     while (chars.size() <= (size_t) child.fChildren[1].fPayload.fChar) {
                         chars.push_back(false);
                     }

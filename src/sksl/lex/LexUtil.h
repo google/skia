@@ -13,6 +13,6 @@
 #define INVALID -1
 
 #define ABORT(...) (fprintf(stderr, __VA_ARGS__), abort())
-#define ASSERT(x) (void)((x) || (ABORT("failed assert(%s): %s:%d\n", #x, __FILE__, __LINE__), 0))
+#define SkASSERT(x) (void)((x) || (ABORT("failed SkASSERT(%s): %s:%d\n", #x, __FILE__, __LINE__), 0))
 
 #endif
