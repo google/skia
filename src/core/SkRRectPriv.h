@@ -10,6 +10,9 @@
 
 #include "SkRRect.h"
 
+class SkRBuffer;
+class SkWBuffer;
+
 class SkRRectPriv {
 public:
     static bool IsCircle(const SkRRect& rr) {
@@ -30,6 +33,10 @@ public:
     }
 
     static bool AllCornersCircular(const SkRRect& rr, SkScalar tolerance = SK_ScalarNearlyZero);
+
+    static bool ReadFromBuffer(SkRBuffer* buffer, SkRRect* rr);
+
+    static void WriteToBuffer(const SkRRect& rr, SkWBuffer* buffer);
 };
 
 #endif

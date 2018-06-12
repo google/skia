@@ -11,7 +11,7 @@
 #include "SkMath.h"
 #include "SkPathPriv.h"
 #include "SkPathRef.h"
-#include "SkRRect.h"
+#include "SkRRectPriv.h"
 #include "SkSafeMath.h"
 
 enum SerializationOffsets {
@@ -77,7 +77,7 @@ size_t SkPath::writeToMemoryAsRRect(void* storage) const {
 
     SkWBuffer buffer(storage);
     buffer.write32(packed);
-    rrect.writeToBuffer(&buffer);
+    SkRRectPriv::WriteToBuffer(rrect, &buffer);
     buffer.write32(SkToS32(start));
     buffer.padToAlign4();
     SkASSERT(sizeNeeded == buffer.pos());
@@ -177,7 +177,7 @@ size_t SkPath::readAsRRect(const void* storage, size_t length) {
         default:
             return 0;
     }
-    if (!rrect.readFromBuffer(&buffer)) {
+    if (!SkRRectPriv::ReadFromBuffer(&buffer, &rrect)) {
         return 0;
     }
     if (!buffer.readS32(&start) || start != SkTPin(start, 0, 7)) {
