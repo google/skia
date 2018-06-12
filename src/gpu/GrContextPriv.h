@@ -11,6 +11,7 @@
 #include "GrContext.h"
 #include "GrSurfaceContext.h"
 #include "text/GrAtlasManager.h"
+#include "effects/GrSkSLFP.h"
 
 class GrBackendRenderTarget;
 class GrOnFlushCallbackObject;
@@ -276,6 +277,26 @@ public:
     GrAuditTrail* getAuditTrail() { return &fContext->fAuditTrail; }
 
     GrContextOptions::PersistentCache* getPersistentCache() { return fContext->fPersistentCache; }
+
+    GrSkSLFPFactory* getFPFactory(size_t index) {
+        auto factories = (std::vector<std::unique_ptr<GrSkSLFPFactory>>*) fContext->fFPFactories;
+        if (!factories || index >= factories->size()) {
+            return nullptr;
+        }
+        return (*factories)[index].get();
+    }
+
+    void setFPFactory(size_t index, std::unique_ptr<GrSkSLFPFactory> factory) {
+        auto factories = (std::vector<std::unique_ptr<GrSkSLFPFactory>>*) fContext->fFPFactories;
+        if (!factories) {
+            factories = new std::vector<std::unique_ptr<GrSkSLFPFactory>>();
+            fContext->fFPFactories = factories;
+        }
+        while (index >= factories->size()) {
+            factories->emplace_back();
+        }
+        (*factories)[index] = std::move(factory);
+    }
 
     /** This is only useful for debug purposes */
     SkDEBUGCODE(GrSingleOwner* debugSingleOwner() const { return &fContext->fSingleOwner; } )
