@@ -10,6 +10,7 @@
 // ./tools/fonts/sk_tool_utils_font.cpp
 
 #include "SkFontStyle.h"
+#include "SkNumbers.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPaint.h"
@@ -19,6 +20,7 @@
 #include "SkTSort.h"
 #include "SkTypeface.h"
 #include "SkUtils.h"
+
 #include <stdio.h>
 
 #define DEFAULT_FONT_NAME "sans-serif"

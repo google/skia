@@ -8,6 +8,7 @@
 #ifndef SkFontStyle_DEFINED
 #define SkFontStyle_DEFINED
 
+#include "../private/SkNumbers.h"
 #include "SkTypes.h"
 
 class SK_API SkFontStyle {
