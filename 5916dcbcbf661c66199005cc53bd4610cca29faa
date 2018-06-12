@@ -22,6 +22,30 @@
       "revId": "5916dcbcbf661c66199005cc53bd4610cca29faa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63ec55d1_327844ac",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-12T18:54:39Z",
+      "side": 1,
+      "message": "So I guess one bit of confusion here is that the sampling that is used in the actual draw isn\u0027t actually baked into the GrTextureProxy that is returned by refTextureProxy[ForParams]. Instead the sampler being passed in is just saying what sort of sampling the returned texture needs to be compatible with. In the old world where we allowed late mip allocation, this call just passed in ClampNearest() as a default value. However that returned texture could be used with nearest, linear, or mipped. The same would all be true if we passed in Linear or Mipped as the GrSamplerState.\n\nSince we now don\u0027t allow late mips, the only thing we really care about here is if we should create a texture with or without mips allocated. Again this is technically independent of what actually sample type you will use in a draw (though you\u0027ll get a perf gain by saying you need mips here if you are going to use mip sampling).\n\nI\u0027ve updated the comment on the header to says what the GrMipMapped argument actually means.",
+      "parentUuid": "1296f618_f4bf616e",
+      "range": {
+        "startLine": 506,
+        "startChar": 42,
+        "endLine": 506,
+        "endChar": 57
+      },
+      "revId": "5916dcbcbf661c66199005cc53bd4610cca29faa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
