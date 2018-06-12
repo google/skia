@@ -59,23 +59,33 @@ static constexpr inline SkColor SkColorSetARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU 
 /** Returns color value from 8-bit component values, with alpha set
     fully opaque to 255.
 */
-#define SkColorSetRGB(r, g, b)  SkColorSetARGB(0xFF, r, g, b)
+static constexpr inline SkColor SkColorSetRGB(U8CPU r, U8CPU g, U8CPU b) {
+    return SkColorSetARGB(0xFF, r, g, b);
+}
 
 /** Returns alpha byte from color value.
 */
-#define SkColorGetA(color)      (((color) >> 24) & 0xFF)
+static constexpr inline uint8_t SkColorGetA(SkColor color) {
+    return (uint8_t)((color >> 24) & 0xFF);
+}
 
 /** Returns red component of color, from zero to 255.
 */
-#define SkColorGetR(color)      (((color) >> 16) & 0xFF)
+static constexpr inline uint8_t SkColorGetR(SkColor color) {
+    return (uint8_t)((color >> 16) & 0xFF);
+}
 
 /** Returns green component of color, from zero to 255.
 */
-#define SkColorGetG(color)      (((color) >>  8) & 0xFF)
+static constexpr inline uint8_t SkColorGetG(SkColor color) {
+    return (uint8_t)((color >> 8) & 0xFF);
+}
 
 /** Returns blue component of color, from zero to 255.
 */
-#define SkColorGetB(color)      (((color) >>  0) & 0xFF)
+static constexpr inline uint8_t SkColorGetB(SkColor color) {
+    return (uint8_t)((color >> 0) & 0xFF);
+}
 
 /** Returns unpremultiplied color with red, blue, and green set from c; and alpha set
     from a. Alpha component of c is ignored and is replaced by a in result.
