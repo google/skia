@@ -48,6 +48,10 @@ protected:
     bool accumulateCentroid(const SkPoint& c, const SkPoint& n);
     bool checkConvexity(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2);
     void finishPathPolygon();
+    void stitchConcaveRings(const SkTDArray<SkPoint>& umbraPolygon,
+                            SkTDArray<int>* umbraIndices,
+                            const SkTDArray<SkPoint>& penumbraPolygon,
+                            SkTDArray<int>* penumbraIndices);
 
     void handleLine(const SkPoint& p);
     void handleLine(const SkMatrix& m, SkPoint* p);
@@ -262,6 +266,132 @@ void SkBaseShadowTessellator::finishPathPolygon() {
     // if area is positive, winding is ccw
     fDirection = fArea > 0 ? -1 : 1;
 }
+
+void SkBaseShadowTessellator::stitchConcaveRings(const SkTDArray<SkPoint>& umbraPolygon,
+                                                 SkTDArray<int>* umbraIndices,
+                                                 const SkTDArray<SkPoint>& penumbraPolygon,
+                                                 SkTDArray<int>* penumbraIndices) {
+    // find minimum indices
+    int minIndex = 0;
+    int min = (*penumbraIndices)[0];
+    for (int i = 1; i < (*penumbraIndices).count(); ++i) {
+        if ((*penumbraIndices)[i] < min) {
+            min = (*penumbraIndices)[i];
+            minIndex = i;
+        }
+    }
+    int currPenumbra = minIndex;
+
+    minIndex = 0;
+    min = (*umbraIndices)[0];
+    for (int i = 1; i < (*umbraIndices).count(); ++i) {
+        if ((*umbraIndices)[i] < min) {
+            min = (*umbraIndices)[i];
+            minIndex = i;
+        }
+    }
+    int currUmbra = minIndex;
+
+    // now find a case where the indices are equal (there should be at least one)
+    int maxPenumbraIndex = fPathPolygon.count() - 1;
+    int maxUmbraIndex = fPathPolygon.count() - 1;
+    while ((*penumbraIndices)[currPenumbra] != (*umbraIndices)[currUmbra]) {
+        if ((*penumbraIndices)[currPenumbra] < (*umbraIndices)[currUmbra]) {
+            (*penumbraIndices)[currPenumbra] += fPathPolygon.count();
+            maxPenumbraIndex = (*penumbraIndices)[currPenumbra];
+            currPenumbra = (currPenumbra + 1) % penumbraPolygon.count();
+        } else {
+            (*umbraIndices)[currUmbra] += fPathPolygon.count();
+            maxUmbraIndex = (*umbraIndices)[currUmbra];
+            currUmbra = (currUmbra + 1) % umbraPolygon.count();
+        }
+    }
+
+    *fPositions.push() = penumbraPolygon[currPenumbra];
+    *fColors.push() = fPenumbraColor;
+    int prevPenumbraIndex = 0;
+    *fPositions.push() = umbraPolygon[currUmbra];
+    *fColors.push() = fUmbraColor;
+    fPrevUmbraIndex = 1;
+
+    int nextPenumbra = (currPenumbra + 1) % penumbraPolygon.count();
+    int nextUmbra = (currUmbra + 1) % umbraPolygon.count();
+    while ((*penumbraIndices)[nextPenumbra] <= maxPenumbraIndex ||
+           (*umbraIndices)[nextUmbra] <= maxUmbraIndex) {
+
+        if ((*umbraIndices)[nextUmbra] == (*penumbraIndices)[nextPenumbra]) {
+            // advance both one step
+            *fPositions.push() = penumbraPolygon[nextPenumbra];
+            *fColors.push() = fPenumbraColor;
+            int currPenumbraIndex = fPositions.count() - 1;
+
+            *fPositions.push() = umbraPolygon[nextUmbra];
+            *fColors.push() = fUmbraColor;
+            int currUmbraIndex = fPositions.count() - 1;
+
+            this->appendQuad(prevPenumbraIndex, currPenumbraIndex,
+                             fPrevUmbraIndex, currUmbraIndex);
+
+            prevPenumbraIndex = currPenumbraIndex;
+            (*penumbraIndices)[currPenumbra] += fPathPolygon.count();
+            currPenumbra = nextPenumbra;
+            nextPenumbra = (currPenumbra + 1) % penumbraPolygon.count();
+
+            fPrevUmbraIndex = currUmbraIndex;
+            (*umbraIndices)[currUmbra] += fPathPolygon.count();
+            currUmbra = nextUmbra;
+            nextUmbra = (currUmbra + 1) % umbraPolygon.count();
+        }
+
+        while ((*penumbraIndices)[nextPenumbra] < (*umbraIndices)[nextUmbra] &&
+               (*penumbraIndices)[nextPenumbra] <= maxPenumbraIndex) {
+            // fill out penumbra arc
+            *fPositions.push() = penumbraPolygon[nextPenumbra];
+            *fColors.push() = fPenumbraColor;
+            int currPenumbraIndex = fPositions.count() - 1;
+
+            this->appendTriangle(prevPenumbraIndex, currPenumbraIndex, fPrevUmbraIndex);
+
+            prevPenumbraIndex = currPenumbraIndex;
+            // this ensures the ordering when we wrap around
+            (*penumbraIndices)[currPenumbra] += fPathPolygon.count();
+            currPenumbra = nextPenumbra;
+            nextPenumbra = (currPenumbra + 1) % penumbraPolygon.count();
+        }
+
+        while ((*umbraIndices)[nextUmbra] < (*penumbraIndices)[nextPenumbra] &&
+               (*umbraIndices)[nextUmbra] <= maxUmbraIndex) {
+            // fill out umbra arc
+            *fPositions.push() = umbraPolygon[nextUmbra];
+            *fColors.push() = fUmbraColor;
+            int currUmbraIndex = fPositions.count() - 1;
+
+            this->appendTriangle(fPrevUmbraIndex, prevPenumbraIndex, currUmbraIndex);
+
+            fPrevUmbraIndex = currUmbraIndex;
+            // this ensures the ordering when we wrap around
+            (*umbraIndices)[currUmbra] += fPathPolygon.count();
+            currUmbra = nextUmbra;
+            nextUmbra = (currUmbra + 1) % umbraPolygon.count();
+        }
+    }
+    // finish up by advancing both one step
+    *fPositions.push() = penumbraPolygon[nextPenumbra];
+    *fColors.push() = fPenumbraColor;
+    int currPenumbraIndex = fPositions.count() - 1;
+
+    *fPositions.push() = umbraPolygon[nextUmbra];
+    *fColors.push() = fUmbraColor;
+    int currUmbraIndex = fPositions.count() - 1;
+
+    this->appendQuad(prevPenumbraIndex, currPenumbraIndex,
+                     fPrevUmbraIndex, currUmbraIndex);
+
+    if (fTransparent) {
+        // TODO: fill penumbra
+    }
+}
+
 
 // tesselation tolerance values, in device space pixels
 #if SK_SUPPORT_GPU
@@ -489,6 +619,9 @@ public:
 
 private:
     void computePathPolygon(const SkPath& path, const SkMatrix& ctm);
+    bool computeConvexShadow();
+    bool computeConcaveShadow();
+
     void handlePolyPoint(const SkPoint& p, bool finalPoint);
     void addEdge(const SkPoint& nextPoint, const SkVector& nextNormal, bool finalEdge);
     void splitEdge(const SkPoint& nextPoint, const SkVector& insetNormal,
@@ -543,13 +676,49 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
     fIndices.setReserve(12 * path.countPoints());
 
     this->computePathPolygon(path, ctm);
+    if (fIsConvex) {
+        fSucceeded = this->computeConvexShadow();
+    } else {
+        fSucceeded = this->computeConcaveShadow();
+    }
+}
+
+void SkAmbientShadowTessellator::computePathPolygon(const SkPath& path, const SkMatrix& ctm) {
+    fPathPolygon.setReserve(path.countPoints());
+
+    // walk around the path, tessellate and generate outer ring
+    // if original path is transparent, will accumulate sum of points for centroid
+    SkPath::Iter iter(path, true);
+    SkPoint pts[4];
+    SkPath::Verb verb;
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+        switch (verb) {
+        case SkPath::kLine_Verb:
+            this->handleLine(ctm, &pts[1]);
+            break;
+        case SkPath::kQuad_Verb:
+            this->handleQuad(ctm, pts);
+            break;
+        case SkPath::kCubic_Verb:
+            this->handleCubic(ctm, pts);
+            break;
+        case SkPath::kConic_Verb:
+            this->handleConic(ctm, pts, iter.conicWeight());
+            break;
+        case SkPath::kMove_Verb:
+        case SkPath::kClose_Verb:
+        case SkPath::kDone_Verb:
+            break;
+        }
+    }
+
+    this->finishPathPolygon();
+}
+
+bool SkAmbientShadowTessellator::computeConvexShadow() {
     int polyCount = fPathPolygon.count();
     if (polyCount < 3) {
-        return;
-    }
-    // TODO: add support for concave paths
-    if (!fIsConvex) {
-        return;
+        return false;
     }
 
     // Add center point for fan if needed
@@ -562,7 +731,7 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
     SkVector normal;
     if (!compute_normal(fPathPolygon[polyCount-1], fPathPolygon[0], fDirection, &normal)) {
         // the polygon should be sanitized, so any issues at this point are unrecoverable
-        return;
+        return false;
     }
     fFirstPoint = fPathPolygon[polyCount - 1];
     fFirstVertexIndex = fPositions.count();
@@ -601,39 +770,46 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
         fPositions[fFirstVertexIndex + 1] = fPositions[fPositions.count() - 1];
     }
 
-    fSucceeded = true;
+    return true;
 }
 
-void SkAmbientShadowTessellator::computePathPolygon(const SkPath& path, const SkMatrix& ctm) {
-    fPathPolygon.setReserve(path.countPoints());
-
-    // walk around the path, tessellate and generate outer ring
-    // if original path is transparent, will accumulate sum of points for centroid
-    SkPath::Iter iter(path, true);
-    SkPoint pts[4];
-    SkPath::Verb verb;
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-        switch (verb) {
-        case SkPath::kLine_Verb:
-            this->handleLine(ctm, &pts[1]);
-            break;
-        case SkPath::kQuad_Verb:
-            this->handleQuad(ctm, pts);
-            break;
-        case SkPath::kCubic_Verb:
-            this->handleCubic(ctm, pts);
-            break;
-        case SkPath::kConic_Verb:
-            this->handleConic(ctm, pts, iter.conicWeight());
-            break;
-        case SkPath::kMove_Verb:
-        case SkPath::kClose_Verb:
-        case SkPath::kDone_Verb:
-            break;
-        }
+bool SkAmbientShadowTessellator::computeConcaveShadow() {
+    // TODO: remove when we support filling the penumbra
+    if (fTransparent) {
+        return false;
     }
 
-    this->finishPathPolygon();
+    // generate inner ring
+    SkTDArray<SkPoint> umbraPolygon;
+    SkTDArray<int> umbraIndices;
+    umbraIndices.setReserve(fPathPolygon.count());
+    if (!SkOffsetSimplePolygon(&fPathPolygon[0], fPathPolygon.count(), 0.5f,
+                               &umbraPolygon, &umbraIndices)) {
+        // TODO: figure out how to handle this case
+        return false;
+    }
+
+    // generate outer ring
+    SkTDArray<SkPoint> penumbraPolygon;
+    SkTDArray<int> penumbraIndices;
+    penumbraPolygon.setReserve(umbraPolygon.count());
+    penumbraIndices.setReserve(umbraPolygon.count());
+    // TODO: handle tilt
+    SkScalar radius = this->offset(fTransformedHeightFunc(fPathPolygon[0]));
+    if (!SkOffsetSimplePolygon(&fPathPolygon[0], fPathPolygon.count(), -radius,
+                               &penumbraPolygon, &penumbraIndices)) {
+        // TODO: figure out how to handle this case
+        return false;
+    }
+
+    if (!umbraPolygon.count() || !penumbraPolygon.count()) {
+        return false;
+    }
+
+    // attach the rings together
+    this->stitchConcaveRings(umbraPolygon, &umbraIndices, penumbraPolygon, &penumbraIndices);
+
+    return true;
 }
 
 void SkAmbientShadowTessellator::handlePolyPoint(const SkPoint& p, bool finalPoint)  {
@@ -912,15 +1088,13 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
     }
 
     if (fIsConvex) {
-        if (!this->computeConvexShadow(radius)) {
-            return;
-        }
+        fSucceeded = this->computeConvexShadow(radius);
     } else {
-        // For now
+        fSucceeded = this->computeConcaveShadow(radius);
+    }
+
+    if (!fSucceeded) {
         return;
-        //if (!this->computeConcaveShadow(radius)) {
-        //    return;
-        //}
     }
 
     if (ctm.hasPerspective()) {
@@ -1233,126 +1407,7 @@ bool SkSpotShadowTessellator::computeConcaveShadow(SkScalar radius) {
     }
 
     // attach the rings together
-
-    // find minimum indices
-    int minIndex = 0;
-    int min = penumbraIndices[0];
-    for (int i = 1; i < penumbraIndices.count(); ++i) {
-        if (penumbraIndices[i] < min) {
-            min = penumbraIndices[i];
-            minIndex = i;
-        }
-    }
-    int currPenumbra = minIndex;
-
-    minIndex = 0;
-    min = umbraIndices[0];
-    for (int i = 1; i < umbraIndices.count(); ++i) {
-        if (umbraIndices[i] < min) {
-            min = umbraIndices[i];
-            minIndex = i;
-        }
-    }
-    int currUmbra = minIndex;
-
-    // now find a case where the indices are equal (there should be at least one)
-    int maxPenumbraIndex = fPathPolygon.count()-1;
-    int maxUmbraIndex = fPathPolygon.count()-1;
-    while (penumbraIndices[currPenumbra] != umbraIndices[currUmbra]) {
-        if (penumbraIndices[currPenumbra] < umbraIndices[currUmbra]) {
-            penumbraIndices[currPenumbra] += fPathPolygon.count();
-            maxPenumbraIndex = penumbraIndices[currPenumbra];
-            currPenumbra = (currPenumbra + 1) % penumbraPolygon.count();
-        } else {
-            umbraIndices[currUmbra] += fPathPolygon.count();
-            maxUmbraIndex = umbraIndices[currUmbra];
-            currUmbra = (currUmbra + 1) % fUmbraPolygon.count();
-        }
-    }
-
-    *fPositions.push() = penumbraPolygon[currPenumbra];
-    *fColors.push() = fPenumbraColor;
-    int prevPenumbraIndex = 0;
-    *fPositions.push() = fUmbraPolygon[currUmbra];
-    *fColors.push() = fUmbraColor;
-    fPrevUmbraIndex = 1;
-
-    int nextPenumbra = (currPenumbra + 1) % penumbraPolygon.count();
-    int nextUmbra = (currUmbra + 1) % fUmbraPolygon.count();
-    while (penumbraIndices[nextPenumbra] <= maxPenumbraIndex ||
-           umbraIndices[nextUmbra] <= maxUmbraIndex) {
-
-        if (umbraIndices[nextUmbra] == penumbraIndices[nextPenumbra]) {
-            // advance both one step
-            *fPositions.push() = penumbraPolygon[nextPenumbra];
-            *fColors.push() = fPenumbraColor;
-            int currPenumbraIndex = fPositions.count() - 1;
-
-            *fPositions.push() = fUmbraPolygon[nextUmbra];
-            *fColors.push() = fUmbraColor;
-            int currUmbraIndex = fPositions.count() - 1;
-
-            this->appendQuad(prevPenumbraIndex, currPenumbraIndex,
-                             fPrevUmbraIndex, currUmbraIndex);
-
-            prevPenumbraIndex = currPenumbraIndex;
-            penumbraIndices[currPenumbra] += fPathPolygon.count();
-            currPenumbra = nextPenumbra;
-            nextPenumbra = (currPenumbra + 1) % penumbraPolygon.count();
-
-            fPrevUmbraIndex = currUmbraIndex;
-            umbraIndices[currUmbra] += fPathPolygon.count();
-            currUmbra = nextUmbra;
-            nextUmbra = (currUmbra + 1) % fUmbraPolygon.count();
-        }
-
-        while (penumbraIndices[nextPenumbra] < umbraIndices[nextUmbra] &&
-               penumbraIndices[nextPenumbra] <= maxPenumbraIndex) {
-            // fill out penumbra arc
-            *fPositions.push() = penumbraPolygon[nextPenumbra];
-            *fColors.push() = fPenumbraColor;
-            int currPenumbraIndex = fPositions.count() - 1;
-
-            this->appendTriangle(prevPenumbraIndex, currPenumbraIndex, fPrevUmbraIndex);
-
-            prevPenumbraIndex = currPenumbraIndex;
-            // this ensures the ordering when we wrap around
-            penumbraIndices[currPenumbra] += fPathPolygon.count();
-            currPenumbra = nextPenumbra;
-            nextPenumbra = (currPenumbra + 1) % penumbraPolygon.count();
-        }
-
-        while (umbraIndices[nextUmbra] < penumbraIndices[nextPenumbra] &&
-               umbraIndices[nextUmbra] <= maxUmbraIndex) {
-            // fill out umbra arc
-            *fPositions.push() = fUmbraPolygon[nextUmbra];
-            *fColors.push() = fUmbraColor;
-            int currUmbraIndex = fPositions.count() - 1;
-
-            this->appendTriangle(fPrevUmbraIndex, prevPenumbraIndex, currUmbraIndex);
-
-            fPrevUmbraIndex = currUmbraIndex;
-            // this ensures the ordering when we wrap around
-            umbraIndices[currUmbra] += fPathPolygon.count();
-            currUmbra = nextUmbra;
-            nextUmbra = (currUmbra + 1) % fUmbraPolygon.count();
-        }
-    }
-    // finish up by advancing both one step
-    *fPositions.push() = penumbraPolygon[nextPenumbra];
-    *fColors.push() = fPenumbraColor;
-    int currPenumbraIndex = fPositions.count() - 1;
-
-    *fPositions.push() = fUmbraPolygon[nextUmbra];
-    *fColors.push() = fUmbraColor;
-    int currUmbraIndex = fPositions.count() - 1;
-
-    this->appendQuad(prevPenumbraIndex, currPenumbraIndex,
-                     fPrevUmbraIndex, currUmbraIndex);
-
-    if (fTransparent) {
-        // TODO: fill penumbra
-    }
+    this->stitchConcaveRings(fUmbraPolygon, &umbraIndices, penumbraPolygon, &penumbraIndices);
 
     return true;
 }

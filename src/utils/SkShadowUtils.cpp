@@ -688,8 +688,10 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
             } else if (factory.fOffset.length()*scale + scale < radius) {
                 // if we don't translate more than the blur distance, can assume umbra is covered
                 factory.fOccluderType = SpotVerticesFactory::OccluderType::kOpaqueNoUmbra;
-            } else {
+            } else if (path.isConvex()) {
                 factory.fOccluderType = SpotVerticesFactory::OccluderType::kOpaquePartialUmbra;
+            } else {
+                factory.fOccluderType = SpotVerticesFactory::OccluderType::kTransparent;
             }
             // need to add this after we classify the shadow
             factory.fOffset.fX += viewMatrix.getTranslateX();
