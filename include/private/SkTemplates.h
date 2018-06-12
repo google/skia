@@ -10,10 +10,12 @@
 #ifndef SkTemplates_DEFINED
 #define SkTemplates_DEFINED
 
-#include "SkMath.h"
 #include "SkMalloc.h"
+#include "SkMath.h"
+#include "SkNumbers.h"
 #include "SkTLogic.h"
 #include "SkTypes.h"
+
 #include <limits.h>
 #include <memory>
 #include <new>
