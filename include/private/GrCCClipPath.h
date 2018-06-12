@@ -11,6 +11,7 @@
 #include "GrTextureProxy.h"
 #include "SkPath.h"
 
+struct GrCCPerFlushResourceSpecs;
 class GrCCAtlas;
 class GrCCPerFlushResources;
 class GrOnFlushResourceProvider;
@@ -55,6 +56,7 @@ public:
         return fPathDevIBounds;
     }
 
+    void accountForOwnPath(GrCCPerFlushResourceSpecs*) const;
     void renderPathInAtlas(GrCCPerFlushResources*, GrOnFlushResourceProvider*);
 
     const SkVector& atlasScale() const { SkASSERT(fHasAtlasTransform); return fAtlasScale; }

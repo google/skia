@@ -48,12 +48,23 @@ void GrCCClipPath::init(GrProxyProvider* proxyProvider,
     fAccessRect = accessRect;
 }
 
+void GrCCClipPath::accountForOwnPath(GrCCPerFlushResourceSpecs* resourceSpecs) const {
+    SkASSERT(this->isInitialized());
+
+    ++resourceSpecs->fNumClipPaths;
+    resourceSpecs->fParsingPathStats.statPath(fDeviceSpacePath);
+
+    SkIRect ibounds;
+    if (ibounds.intersect(fAccessRect, fPathDevIBounds)) {
+        resourceSpecs->fAtlasSpecs.accountForSpace(ibounds.width(), ibounds.height());
+    }
+}
+
 void GrCCClipPath::renderPathInAtlas(GrCCPerFlushResources* resources,
                                      GrOnFlushResourceProvider* onFlushRP) {
     SkASSERT(this->isInitialized());
     SkASSERT(!fHasAtlas);
-    fAtlas = resources->renderDeviceSpacePathInAtlas(*onFlushRP->caps(), fAccessRect,
-                                                     fDeviceSpacePath, fPathDevIBounds,
+    fAtlas = resources->renderDeviceSpacePathInAtlas(fAccessRect, fDeviceSpacePath, fPathDevIBounds,
                                                      &fAtlasOffsetX, &fAtlasOffsetY);
     SkDEBUGCODE(fHasAtlas = true);
 }
