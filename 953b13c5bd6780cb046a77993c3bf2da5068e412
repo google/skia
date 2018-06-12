@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "35cb65ea_79b04090",
+        "filename": "src/gpu/GrPrimitiveProcessor.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-12T19:11:22Z",
+      "side": 1,
+      "message": "In practice they all are currently contiguous. I thought about requiring that and still could. I didn\u0027t see anything that got simplified (other than this debug code) by imposing that requirement, though. There\u0027s a slightly looser possible requirement: making them be sorted by offset and non-overlapping.\n\nAnother option I thought about but didn\u0027t attempt was to make the attributes a linked list and to make the offset implicit. There is a small downside that a GP could only have static constexpr attributes if all its attributes are known at compile time (or I suppose it could have separate static constexpr attribute sets for each runtime possibility).",
+      "parentUuid": "4e583dde_c650138f",
+      "revId": "953b13c5bd6780cb046a77993c3bf2da5068e412",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "28ce1f09_e7a3aff4",
         "filename": "src/gpu/ccpr/GrCCCoverageProcessor.h",
         "patchSetId": 13
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "232225f8_2f734ecd",
+        "filename": "src/gpu/ccpr/GrCCCoverageProcessor.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-12T19:11:22Z",
+      "side": 1,
+      "message": "The base class asserts that i is in range.",
+      "parentUuid": "28ce1f09_e7a3aff4",
+      "revId": "953b13c5bd6780cb046a77993c3bf2da5068e412",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a7539173_260fea60",
         "filename": "src/gpu/ccpr/GrCCCoverageProcessor.h",
         "patchSetId": 13
@@ -47,6 +83,30 @@
       "writtenOn": "2018-06-12T18:36:03Z",
       "side": 1,
       "message": "I think this goes under the \"// Used by VSImpl\" comment",
+      "range": {
+        "startLine": 271,
+        "startChar": 4,
+        "endLine": 271,
+        "endChar": 37
+      },
+      "revId": "953b13c5bd6780cb046a77993c3bf2da5068e412",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3493f0a9_f03aff8f",
+        "filename": "src/gpu/ccpr/GrCCCoverageProcessor.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-12T19:11:22Z",
+      "side": 1,
+      "message": "Oh yeah, oops",
+      "parentUuid": "a7539173_260fea60",
       "range": {
         "startLine": 271,
         "startChar": 4,
@@ -123,6 +183,24 @@
     },
     {
       "key": {
+        "uuid": "14eaedf9_aa64a6d3",
+        "filename": "src/gpu/ccpr/GrCCPathProcessor.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-12T19:11:22Z",
+      "side": 1,
+      "message": "nope, Done.",
+      "parentUuid": "19558b19_22552ac0",
+      "revId": "953b13c5bd6780cb046a77993c3bf2da5068e412",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4da14985_6c026aa2",
         "filename": "src/gpu/effects/GrBezierEffect.cpp",
         "patchSetId": 13
@@ -137,6 +215,24 @@
       "revId": "953b13c5bd6780cb046a77993c3bf2da5068e412",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce4b6282_d51063d0",
+        "filename": "src/gpu/effects/GrBezierEffect.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-12T19:11:22Z",
+      "side": 1,
+      "message": "Done.\n\nAdding the helper seems contingent on requiring that the attributes be sorted. So I guess this is something that would get slightly simpler if we required that, but it\u0027d just become\n\nthis-\u003esetVertexAttributeInfo(\u003cn\u003e, \u003cattrs array\u003e);\n\nwhich isn\u0027t that much simpler.",
+      "parentUuid": "4da14985_6c026aa2",
+      "revId": "953b13c5bd6780cb046a77993c3bf2da5068e412",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -157,6 +253,24 @@
     },
     {
       "key": {
+        "uuid": "19305978_1a152a40",
+        "filename": "src/gpu/effects/GrBezierEffect.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-12T19:11:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "44d2786b_fc26943d",
+      "revId": "953b13c5bd6780cb046a77993c3bf2da5068e412",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3e2b7932_3087b864",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 13
@@ -168,6 +282,30 @@
       "writtenOn": "2018-06-12T18:36:03Z",
       "side": 1,
       "message": "Just curious why we would prefer \"auto\" over \"size_t\" in this case?",
+      "range": {
+        "startLine": 1781,
+        "startChar": 8,
+        "endLine": 1781,
+        "endChar": 12
+      },
+      "revId": "953b13c5bd6780cb046a77993c3bf2da5068e412",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8cf01851_4b827aad",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1781,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-12T19:11:22Z",
+      "side": 1,
+      "message": "no particular reason. It can be size_t. I think I might have been using unsigneds for offsets in an earlier version. Done.",
+      "parentUuid": "3e2b7932_3087b864",
       "range": {
         "startLine": 1781,
         "startChar": 8,
