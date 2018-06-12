@@ -1774,18 +1774,22 @@ pixels in Image could not be read or copied.
 
 # ------------------------------------------------------------------------------
 
-#Method sk_sp<SkImage> makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace) const
+#Method sk_sp<SkImage> makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace,
+                                        GrMipMapped mipMapped = GrMipMapped::kNo) const
 #In Constructor
 #Line # creates Image matching Color_Space if possible ##
 Returns Image backed by GPU_Texture associated with context. Returned Image is
-compatible with Surface created with dstColorSpace. Returns original
-Image if context and dstColorSpace match.
+compatible with Surface created with dstColorSpace. The returned Image will also
+support the request GrMipMapped status. In other words if mipMapped is GrMipMapped::kYes,
+then the backing texture will have Mip_Map levels allocated. Returns original Image if context
+and dstColorSpace match and mipMapped is compatible with the backing GPU_Texture.
 
 Returns nullptr if context is nullptr, or if Image was created with another
 GrContext.
 
 #Param context  GPU_Context ##
 #Param dstColorSpace  range of colors of matching Surface on GPU ##
+#Param mipMapped  whether the returned SkImage's texture must have allocated Mip_Map levels ##
 
 #Return created Image, or nullptr ##
 
