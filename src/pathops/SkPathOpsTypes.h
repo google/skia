@@ -43,7 +43,7 @@ public:
                     SkDEBUGPARAMS(const char* testName));
 
     enum {
-        kMaxWindingTries = 10
+        kMaxWindingTries = 10,
     };
 
     bool allocatedOpSpan() const {

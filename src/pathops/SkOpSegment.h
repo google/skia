@@ -104,7 +104,7 @@ public:
     }
 
     void calcAngles();
-    bool collapsed(double startT, double endT) const;
+    SkOpSpanBase::Collapsed collapsed(double startT, double endT) const;
     static void ComputeOneSum(const SkOpAngle* baseAngle, SkOpAngle* nextAngle,
                               SkOpAngle::IncludeType );
     static void ComputeOneSumReverse(SkOpAngle* baseAngle, SkOpAngle* nextAngle,
