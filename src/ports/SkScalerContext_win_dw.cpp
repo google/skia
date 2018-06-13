@@ -549,6 +549,46 @@ bool SkScalerContext_DW::getColorGlyphRun(const SkGlyph& glyph,
     return true;
 }
 
+void SkScalerContext_DW::generateColorMetrics(SkGlyph* glyph) {
+    SkTScopedComPtr<IDWriteColorGlyphRunEnumerator> colorLayers;
+    HRVM(getColorGlyphRun(*glyph, &colorLayers), "Could not get color glyph run");
+    SkASSERT(colorLayers.get());
+
+    SkRect bounds = SkRect::MakeEmpty();
+    BOOL hasNextRun = FALSE;
+    while (SUCCEEDED(colorLayers->MoveNext(&hasNextRun)) && hasNextRun) {
+        const DWRITE_COLOR_GLYPH_RUN* colorGlyph;
+        HRVM(colorLayers->GetCurrentRun(&colorGlyph), "Could not get current color glyph run");
+
+        SkPath path;
+        SkTScopedComPtr<IDWriteGeometrySink> geometryToPath;
+        HRVM(SkDWriteGeometrySink::Create(&path, &geometryToPath),
+            "Could not create geometry to path converter.");
+        {
+            SkAutoExclusive l(DWriteFactoryMutex);
+            HRVM(colorGlyph->glyphRun.fontFace->GetGlyphRunOutline(
+                    colorGlyph->glyphRun.fontEmSize,
+                    colorGlyph->glyphRun.glyphIndices,
+                    colorGlyph->glyphRun.glyphAdvances,
+                    colorGlyph->glyphRun.glyphOffsets,
+                    colorGlyph->glyphRun.glyphCount,
+                    colorGlyph->glyphRun.isSideways,
+                    colorGlyph->glyphRun.bidiLevel % 2, //rtl
+                    geometryToPath.get()),
+                "Could not create glyph outline.");
+        }
+        bounds.join(path.getBounds());
+    }
+    HRV(fSkXform.mapRect(&bounds));
+    // Round float bound values into integer.
+    SkIRect ibounds = bounds.roundOut();
+
+    glyph->fWidth = ibounds.fRight - ibounds.fLeft;
+    glyph->fHeight = ibounds.fBottom - ibounds.fTop;
+    glyph->fLeft = ibounds.fLeft;
+    glyph->fTop = ibounds.fTop;
+}
+
 void SkScalerContext_DW::generateMetrics(SkGlyph* glyph) {
     glyph->fWidth = 0;
     glyph->fHeight = 0;
@@ -559,6 +599,14 @@ void SkScalerContext_DW::generateMetrics(SkGlyph* glyph) {
 
     if (fIsColorFont && isColorGlyph(*glyph)) {
         glyph->fMaskFormat = SkMask::kARGB32_Format;
+
+#ifndef SK_IGNORE_WIN_EMOJI_FIX
+
+        generateColorMetrics(glyph);
+        return;
+
+#endif
+
     }
 
     RECT bbox;
