@@ -17,356 +17,146 @@ namespace skjson {
 
 //#define SK_JSON_REPORT_ERRORS
 
-namespace {
 
-/*
-  Value's impl side:
-
-    -- fixed 64-bit size
-
-    -- 8-byte aligned
-
-    -- union of:
-
-         bool
-         int32
-         float
-         char[8] (short string storage)
-         external payload pointer
-
-     -- highest 3 bits reserved for type storage
-
- */
 static_assert( sizeof(Value) == 8, "");
 static_assert(alignof(Value) == 8, "");
 
 static constexpr size_t kRecAlign = alignof(Value);
 
-// The current record layout assumes LE and will take some tweaking for BE.
-#if defined(SK_CPU_BENDIAN)
-static_assert(false, "Big-endian builds are not supported.");
-#endif
+static inline const Value& Null() {
+    static const Value g_null = NullValue::Make();
+    return g_null;
+}
 
-class ValueRec : public Value {
-public:
-    static constexpr uint64_t kTypeBits  = 3,
-                              kTypeShift = 64 - kTypeBits,
-                              kTypeMask  = ((1ULL << kTypeBits) - 1) << kTypeShift;
+Value::Value(Tag t) {
+    memset(fData8, 0, sizeof(fData8));
+    fData8[Value::kTagOffset] = SkTo<uint8_t>(t);
+    SkASSERT(this->getTag() == t);
+}
 
-    enum RecType : uint64_t {
-        // We picked kShortString == 0 so that tag 0b000 and stored max_size-size (7-7=0)
-        // conveniently overlap the '\0' terminator, allowing us to store a 7 character
-        // C string inline.
-        kShortString = 0b000ULL << kTypeShift,  // inline payload
-        kNull        = 0b001ULL << kTypeShift,  // no payload
-        kBool        = 0b010ULL << kTypeShift,  // inline payload
-        kInt         = 0b011ULL << kTypeShift,  // inline payload
-        kFloat       = 0b100ULL << kTypeShift,  // inline payload
-        kString      = 0b101ULL << kTypeShift,  // ptr to external storage
-        kArray       = 0b110ULL << kTypeShift,  // ptr to external storage
-        kObject      = 0b111ULL << kTypeShift,  // ptr to external storage
-    };
+// Pointer values store a type (in the upper kTagBits bits) and a pointer.
+Value::Value(Tag t, void* p) {
+    *this->cast<uintptr_t>() = reinterpret_cast<uintptr_t>(p);
 
-    RecType getRecType() const {
-        return static_cast<RecType>(*this->cast<uint64_t>() & kTypeMask);
+    if (sizeof(Value) == sizeof(uintptr_t)) {
+        // For 64-bit, we rely on the pointer upper bits being unused/zero.
+        SkASSERT(!(fData8[kTagOffset] & kTagMask));
+        fData8[kTagOffset] |= SkTo<uint8_t>(t);
+    } else {
+        // For 32-bit, we need to zero-initialize the upper 32 bits
+        SkASSERT(sizeof(Value) == sizeof(uintptr_t) * 2);
+        this->cast<uintptr_t>()[kTagOffset >> 2] = 0;
+        fData8[kTagOffset] = SkTo<uint8_t>(t);
     }
 
-    // Access the record data as T.
-    //
-    // This is also used to access the payload for inline records.  Since the record type lives in
-    // the high bits, sizeof(T) must be less than sizeof(Value) when accessing inline payloads.
-    //
-    // E.g.
-    //
-    //   uint8_t
-    //    -----------------------------------------------------------------------
-    //   |  val8  |  val8  |  val8  |  val8  |  val8  |  val8  |  val8  |    TYPE|
-    //    -----------------------------------------------------------------------
-    //
-    //   uint32_t
-    //    -----------------------------------------------------------------------
-    //   |               val32               |          unused          |    TYPE|
-    //    -----------------------------------------------------------------------
-    //
-    //   T* (64b)
-    //    -----------------------------------------------------------------------
-    //   |                        T* (kTypeShift bits)                      |TYPE|
-    //    -----------------------------------------------------------------------
-    //
-    template <typename T>
-    const T* cast() const {
-        static_assert(sizeof (T) <=  sizeof(ValueRec), "");
-        static_assert(alignof(T) <= alignof(ValueRec), "");
-        return reinterpret_cast<const T*>(this);
-    }
+    SkASSERT(this->getTag()    == t);
+    SkASSERT(this->ptr<void>() == p);
+}
 
-    template <typename T>
-    T* cast() { return const_cast<T*>(const_cast<const ValueRec*>(this)->cast<T>()); }
+NullValue::NullValue()
+    : INHERITED(Tag::kNull) {
+    SkASSERT(this->getTag() == Tag::kNull);
+}
 
-    // Access the pointer payload.
-    template <typename T>
-    const T* ptr() const {
-        static_assert(sizeof(uintptr_t)     == sizeof(Value) ||
-                      sizeof(uintptr_t) * 2 == sizeof(Value), "");
+BoolValue::BoolValue(bool b)
+    : INHERITED(Tag::kBool) {
+    *this->cast<bool>() = b;
+    SkASSERT(this->getTag() == Tag::kBool);
+}
 
-        return (sizeof(uintptr_t) < sizeof(Value))
-            // For 32-bit, pointers are stored unmodified.
-            ? *this->cast<const T*>()
-            // For 64-bit, we use the high bits of the pointer as type storage.
-            : reinterpret_cast<T*>(*this->cast<uintptr_t>() & ~kTypeMask);
-    }
+NumberValue::NumberValue(int32_t i)
+    : INHERITED(Tag::kInt) {
+    *this->cast<int32_t>() = i;
+    SkASSERT(this->getTag() == Tag::kInt);
+}
 
-    // Type-bound recs only store their type.
-    static ValueRec MakeTypeBound(RecType t) {
-        ValueRec v;
-        *v.cast<uint64_t>() = t;
-        SkASSERT(v.getRecType() == t);
-        return v;
-    }
+NumberValue::NumberValue(float f)
+    : INHERITED(Tag::kFloat) {
+    *this->cast<float>() = f;
+    SkASSERT(this->getTag() == Tag::kFloat);
+}
 
-    // Primitive recs store a type and inline primitive payload.
-    template <typename T>
-    static ValueRec MakePrimitive(RecType t, T src) {
-        ValueRec v = MakeTypeBound(t);
-        *v.cast<T>() = src;
-        SkASSERT(v.getRecType() == t);
-        return v;
-    }
+// Vector recs point to externally allocated slabs with the following layout:
+//
+//   [size_t n] [REC_0] ... [REC_n-1] [optional extra trailing storage]
+//
+// Long strings use extra_alloc_size == 1 to store the \0 terminator.
+//
+template <typename T, size_t extra_alloc_size = 0>
+static void* MakeVector(const void* src, size_t size, SkArenaAlloc& alloc) {
+    // The Ts are already in memory, so their size should be safe.
+    const auto total_size = sizeof(size_t) + size * sizeof(T) + extra_alloc_size;
+    auto* size_ptr = reinterpret_cast<size_t*>(alloc.makeBytesAlignedTo(total_size, kRecAlign));
+    auto* data_ptr = reinterpret_cast<void*>(size_ptr + 1);
+    *size_ptr = size;
+    memcpy(data_ptr, src, size * sizeof(T));
 
-    // Pointer recs store a type (in the upper kTypeBits bits) and a pointer.
-    template <typename T>
-    static ValueRec MakePtr(RecType t, const T* p) {
-        SkASSERT((t & kTypeMask) == t);
-        if (sizeof(uintptr_t) == sizeof(Value)) {
-            // For 64-bit, we rely on the pointer hi bits being unused.
-            SkASSERT(!(reinterpret_cast<uintptr_t>(p) & kTypeMask));
-        }
+    return size_ptr;
+}
 
-        ValueRec v = MakeTypeBound(t);
-        *v.cast<uintptr_t>() |= reinterpret_cast<uintptr_t>(p);
+ArrayValue::ArrayValue(const Value* src, size_t size, SkArenaAlloc& alloc)
+    : INHERITED(Tag::kArray, MakeVector<Value>(src, size, alloc)) {
+    SkASSERT(this->getTag() == Tag::kArray);
+}
 
-        SkASSERT(v.getRecType() == t);
-        SkASSERT(v.ptr<T>() == p);
+// Strings have two flavors:
+//
+// -- short strings (len <= 7) -> these are stored inline, in the record
+//    (one byte reserved for null terminator/type):
+//
+//        [str] [\0]|[max_len - actual_len]
+//
+//    Storing [max_len - actual_len] allows the 'len' field to double-up as a
+//    null terminator when size == max_len (this works 'cause kShortString == 0).
+//
+// -- long strings (len > 7) -> these are externally allocated vectors (VectorRec<char>).
+//
+// The string data plus a null-char terminator are copied over.
+//
+StringValue StringValue::Make(const char* src, size_t size, SkArenaAlloc& alloc) {
+    return size <= kMaxInlineStringSize
+        ? StringValue(src, size)
+        : StringValue(src, size, alloc);
+}
 
-        return v;
-    }
+StringValue StringValue::MakeEmpty() {
+    return StringValue(nullptr, 0);
+}
 
-    // Vector recs point to externally allocated slabs with the following layout:
-    //
-    //   [size_t n] [REC_0] ... [REC_n-1] [optional extra trailing storage]
-    //
-    // Long strings use extra_alloc_size == 1 to store the \0 terminator.
-    template <typename T, size_t extra_alloc_size = 0>
-    static ValueRec MakeVector(RecType t, const T* src, size_t size, SkArenaAlloc& alloc) {
-        // For zero-size arrays, we just store a nullptr.
-        size_t* size_ptr = nullptr;
+StringValue::StringValue(const char* src, size_t size)
+    : INHERITED(Tag::kShortString) {
+    SkASSERT(size <= kMaxInlineStringSize);
 
-        if (size) {
-            // The Ts are already in memory, so their size should be safeish.
-            const auto total_size = sizeof(size_t) + sizeof(T) * size + extra_alloc_size;
-            size_ptr = reinterpret_cast<size_t*>(alloc.makeBytesAlignedTo(total_size, kRecAlign));
-            auto* data_ptr = reinterpret_cast<T*>(size_ptr + 1);
-            *size_ptr = size;
-            memcpy(data_ptr, src, sizeof(T) * size);
-        }
+    auto* payload = this->cast<char>();
+    memcpy(payload, src, size);
+    payload[size] = '\0';
 
-        return MakePtr(t, size_ptr);
-    }
+    const auto len_tag = SkTo<char>(kMaxInlineStringSize - size);
+    // This technically overwrites the tag, but is safe because
+    //   1) kShortString == 0
+    //   2) 0 <= len_tag <= 7
+    static_assert(static_cast<uint8_t>(Tag::kShortString) == 0, "please don't break this");
+    payload[kMaxInlineStringSize] = len_tag;
 
-    size_t vectorSize(RecType t) const {
-        if (this->is<NullValue>()) return 0;
-        SkASSERT(this->getRecType() == t);
+    SkASSERT(this->getTag() == Tag::kShortString);
+}
 
-        const auto* size_ptr = this->ptr<const size_t>();
-        return size_ptr ? *size_ptr : 0;
-    }
+StringValue::StringValue(const char* src, size_t size, SkArenaAlloc& alloc)
+    : INHERITED(Tag::kString, MakeVector<char, 1>(src, size, alloc)) {
 
-    template <typename T>
-    const T* vectorBegin(RecType t) const {
-        if (this->is<NullValue>()) return nullptr;
-        SkASSERT(this->getRecType() == t);
+    auto* data = this->cast<VectorValue<char, Value::Type::kString>>()->begin();
+    const_cast<char*>(data)[size] = '\0';
 
-        const auto* size_ptr = this->ptr<const size_t>();
-        return size_ptr ? reinterpret_cast<const T*>(size_ptr + 1) : nullptr;
-    }
+    SkASSERT(this->getTag() == Tag::kString);
+}
 
-    template <typename T>
-    const T* vectorEnd(RecType t) const {
-        if (this->is<NullValue>()) return nullptr;
-        SkASSERT(this->getRecType() == t);
-
-        const auto* size_ptr = this->ptr<const size_t>();
-        return size_ptr ? reinterpret_cast<const T*>(size_ptr + 1) + *size_ptr : nullptr;
-    }
-
-    // Strings have two flavors:
-    //
-    // -- short strings (len <= 7) -> these are stored inline, in the record
-    //    (one byte reserved for null terminator/type):
-    //
-    //        [str] [\0]|[max_len - actual_len]
-    //
-    //    Storing [max_len - actual_len] allows the 'len' field to double-up as a
-    //    null terminator when size == max_len (this works 'cause kShortString == 0).
-    //
-    // -- long strings (len > 7) -> these are externally allocated vectors (VectorRec<char>).
-    //
-    // The string data plus a null-char terminator are copied over.
-    static constexpr size_t kMaxInlineStringSize = sizeof(Value) - 1;
-
-    static ValueRec MakeString(const char* src, size_t size, SkArenaAlloc& alloc) {
-        ValueRec v;
-
-        if (size > kMaxInlineStringSize) {
-            v = MakeVector<char, 1>(kString, src, size, alloc);
-            const_cast<char *>(v.vectorBegin<char>(ValueRec::kString))[size] = '\0';
-        } else {
-            v = MakeTypeBound(kShortString);
-            auto* payload = v.cast<char>();
-            memcpy(payload, src, size);
-            payload[size] = '\0';
-
-            const auto len_tag = SkTo<char>(kMaxInlineStringSize - size);
-            // This technically overwrites the type hi bits, but is safe because
-            //   1) kShortString == 0
-            //   2) 0 <= len_tag <= 7
-            static_assert(kShortString == 0, "please don't break this");
-            payload[kMaxInlineStringSize] = len_tag;
-            SkASSERT(v.getRecType() == kShortString);
-        }
-        return v;
-    }
-
-    size_t stringSize() const {
-        if (this->getRecType() == ValueRec::kShortString) {
-            const auto* payload = this->cast<char>();
-            return kMaxInlineStringSize - SkToSizeT(payload[kMaxInlineStringSize]);
-        }
-
-        return this->vectorSize(ValueRec::kString);
-    }
-
-    const char* stringBegin() const {
-        if (this->getRecType() == ValueRec::kShortString) {
-            return this->cast<char>();
-        }
-
-        return this->vectorBegin<char>(ValueRec::kString);
-    }
-
-    const char* stringEnd() const {
-        if (this->getRecType() == ValueRec::kShortString) {
-            const auto* payload = this->cast<char>();
-            return payload + kMaxInlineStringSize - SkToSizeT(payload[kMaxInlineStringSize]);
-        }
-
-        return this->vectorEnd<char>(ValueRec::kString);
-    }
-};
-
-} // namespace
+ObjectValue::ObjectValue(const Member* src, size_t size, SkArenaAlloc& alloc)
+    : INHERITED(Tag::kObject, MakeVector<Member>(src, size, alloc)) {
+    SkASSERT(this->getTag() == Tag::kObject);
+}
 
 
 // Boring public Value glue.
-
-const Value& Value::Null() {
-    static const Value g_null = ValueRec::MakeTypeBound(ValueRec::kNull);
-    return g_null;
-}
-
-const Member& Member::Null() {
-    static const Member g_null = { Value::Null().as<StringValue>(), Value::Null() };
-    return g_null;
-}
-
-Value::Type Value::getType() const {
-    static constexpr Value::Type kTypeMap[] = {
-        Value::Type::kString, // kShortString
-        Value::Type::kNull,   // kNull
-        Value::Type::kBool,   // kBool
-        Value::Type::kNumber, // kInt
-        Value::Type::kNumber, // kFloat
-        Value::Type::kString, // kString
-        Value::Type::kArray,  // kArray
-        Value::Type::kObject, // kObject
-    };
-
-    const auto& rec = *reinterpret_cast<const ValueRec*>(this);
-    const auto type_index = static_cast<size_t>(rec.getRecType() >> ValueRec::kTypeShift);
-    SkASSERT(type_index < SK_ARRAY_COUNT(kTypeMap));
-
-    return kTypeMap[type_index];
-}
-
-template <>
-bool PrimitiveValue<bool, Value::Type::kBool>::operator*() const {
-    const auto& rec = *reinterpret_cast<const ValueRec*>(this);
-
-    if (rec.is<NullValue>()) return false;
-
-    SkASSERT(rec.getRecType() == ValueRec::kBool);
-
-    return *rec.cast<bool>();
-}
-
-template <>
-double PrimitiveValue<double, Value::Type::kNumber>::operator*() const {
-    const auto& rec = *reinterpret_cast<const ValueRec*>(this);
-
-    if (rec.is<NullValue>()) return 0;
-
-    SkASSERT(rec.getRecType() == ValueRec::kInt ||
-             rec.getRecType() == ValueRec::kFloat);
-
-    return rec.getRecType() == ValueRec::kInt
-        ? static_cast<double>(*rec.cast<int32_t>())
-        : static_cast<double>(*rec.cast<float>());
-}
-
-template <>
-size_t VectorValue<Value, Value::Type::kArray>::size() const {
-    return reinterpret_cast<const ValueRec*>(this)->vectorSize(ValueRec::kArray);
-}
-
-template <>
-const Value* VectorValue<Value, Value::Type::kArray>::begin() const {
-    return reinterpret_cast<const ValueRec*>(this)->vectorBegin<Value>(ValueRec::kArray);
-}
-
-template <>
-const Value* VectorValue<Value, Value::Type::kArray>::end() const {
-    return reinterpret_cast<const ValueRec*>(this)->vectorEnd<Value>(ValueRec::kArray);
-}
-
-template <>
-size_t VectorValue<Member, Value::Type::kObject>::size() const {
-    return reinterpret_cast<const ValueRec*>(this)->vectorSize(ValueRec::kObject);
-}
-
-template <>
-const Member* VectorValue<Member, Value::Type::kObject>::begin() const {
-    return reinterpret_cast<const ValueRec*>(this)->vectorBegin<Member>(ValueRec::kObject);
-}
-
-template <>
-const Member* VectorValue<Member, Value::Type::kObject>::end() const {
-    return reinterpret_cast<const ValueRec*>(this)->vectorEnd<Member>(ValueRec::kObject);
-}
-
-template <>
-size_t VectorValue<char, Value::Type::kString>::size() const {
-    return reinterpret_cast<const ValueRec*>(this)->stringSize();
-}
-
-template <>
-const char* VectorValue<char, Value::Type::kString>::begin() const {
-    return reinterpret_cast<const ValueRec*>(this)->stringBegin();
-}
-
-template <>
-const char* VectorValue<char, Value::Type::kString>::end() const {
-    return reinterpret_cast<const ValueRec*>(this)->stringEnd();
-}
 
 const Value& ObjectValue::operator[](const char* key) const {
     // Reverse search for duplicates resolution (policy: return last).
@@ -380,7 +170,7 @@ const Value& ObjectValue::operator[](const char* key) const {
         }
     }
 
-    return Value::Null();
+    return Null();
 }
 
 namespace {
@@ -465,7 +255,7 @@ public:
         case '[':
             goto match_array;
         default:
-            return this->error(Value::Null(), p, "invalid top-level value");
+            return this->error(Null(), p, "invalid top-level value");
         }
 
     match_object:
@@ -479,15 +269,15 @@ public:
         // goto match_object_key;
     match_object_key:
         p = skip_ws(p);
-        if (*p != '"') return this->error(Value::Null(), p, "expected object key");
+        if (*p != '"') return this->error(Null(), p, "expected object key");
 
         p = this->matchString(p, [this](const char* key, size_t size) {
             this->pushObjectKey(key, size);
         });
-        if (!p) return Value::Null();
+        if (!p) return Null();
 
         p = skip_ws(p);
-        if (*p != ':') return this->error(Value::Null(), p, "expected ':' separator");
+        if (*p != ':') return this->error(Null(), p, "expected ':' separator");
 
         ++p;
 
@@ -497,7 +287,7 @@ public:
 
         switch (*p) {
         case '\0':
-            return this->error(Value::Null(), p, "unexpected input end");
+            return this->error(Null(), p, "unexpected input end");
         case '"':
             p = this->matchString(p, [this](const char* str, size_t size) {
                 this->pushString(str, size);
@@ -521,7 +311,7 @@ public:
             break;
         }
 
-        if (!p) return Value::Null();
+        if (!p) return Null();
 
         // goto match_post_value;
     match_post_value:
@@ -541,7 +331,7 @@ public:
         case '}':
             goto pop_object;
         default:
-            return this->error(Value::Null(), p - 1, "unexpected value-trailing token");
+            return this->error(Null(), p - 1, "unexpected value-trailing token");
         }
 
         // unreachable
@@ -551,7 +341,7 @@ public:
         SkASSERT(*p == '}');
 
         if (fScopeStack.back() < 0) {
-            return this->error(Value::Null(), p, "unexpected object terminator");
+            return this->error(Null(), p, "unexpected object terminator");
         }
 
         this->popObjectScope();
@@ -570,7 +360,7 @@ public:
             // Stop condition: parsed the top level element and there is no trailing garbage.
             return *skip_ws(p) == '\0'
                 ? *root
-                : this->error(Value::Null(), p, "trailing root garbage");
+                : this->error(Null(), p, "trailing root garbage");
         }
 
         goto match_post_value;
@@ -588,7 +378,7 @@ public:
         SkASSERT(*p == ']');
 
         if (fScopeStack.back() >= 0) {
-            return this->error(Value::Null(), p, "unexpected array terminator");
+            return this->error(Null(), p, "unexpected array terminator");
         }
 
         this->popArrayScope();
@@ -596,7 +386,7 @@ public:
         goto pop_common;
 
         SkASSERT(false);
-        return Value::Null();
+        return Null();
     }
 
     const SkString& getError() const {
@@ -613,11 +403,12 @@ private:
 
     SkString             fError;
 
-    template <typename T>
-    void popScopeAsVec(ValueRec::RecType type, size_t scope_start) {
+    template <typename VectorT>
+    void popScopeAsVec(size_t scope_start) {
         SkASSERT(scope_start > 0);
         SkASSERT(scope_start <= fValueStack.size());
 
+        using T = typename VectorT::ValueT;
         static_assert( sizeof(T) >=  sizeof(Value), "");
         static_assert( sizeof(T)  %  sizeof(Value) == 0, "");
         static_assert(alignof(T) == alignof(Value), "");
@@ -629,7 +420,7 @@ private:
         const auto* begin = reinterpret_cast<const T*>(fValueStack.data() + scope_start);
 
         // Instantiate the placeholder value added in onPush{Object/Array}.
-        fValueStack[scope_start - 1] = ValueRec::MakeVector<T>(type, begin, count, fAlloc);
+        fValueStack[scope_start - 1] = VectorT::Make(begin, count, fAlloc);
 
         // Drop the current scope.
         fScopeStack.pop_back();
@@ -647,7 +438,7 @@ private:
     void popObjectScope() {
         const auto scope_start = fScopeStack.back();
         SkASSERT(scope_start > 0);
-        this->popScopeAsVec<Member>(ValueRec::kObject, SkTo<size_t>(scope_start));
+        this->popScopeAsVec<ObjectValue>(SkTo<size_t>(scope_start));
 
         SkDEBUGCODE(
             const auto& obj = fValueStack.back().as<ObjectValue>();
@@ -669,7 +460,7 @@ private:
     void popArrayScope() {
         const auto scope_start = -fScopeStack.back();
         SkASSERT(scope_start > 0);
-        this->popScopeAsVec<Value>(ValueRec::kArray, SkTo<size_t>(scope_start));
+        this->popScopeAsVec<ArrayValue>(SkTo<size_t>(scope_start));
 
         SkDEBUGCODE(
             const auto& arr = fValueStack.back().as<ArrayValue>();
@@ -685,27 +476,27 @@ private:
     }
 
     void pushTrue() {
-        fValueStack.push_back(ValueRec::MakePrimitive<bool>(ValueRec::kBool, true));
+        fValueStack.push_back(BoolValue::Make(true));
     }
 
     void pushFalse() {
-        fValueStack.push_back(ValueRec::MakePrimitive<bool>(ValueRec::kBool, false));
+        fValueStack.push_back(BoolValue::Make(false));
     }
 
     void pushNull() {
-        fValueStack.push_back(ValueRec::MakeTypeBound(ValueRec::kNull));
+        fValueStack.push_back(NullValue::Make());
     }
 
     void pushString(const char* s, size_t size) {
-        fValueStack.push_back(ValueRec::MakeString(s, size, fAlloc));
+        fValueStack.push_back(StringValue::Make(s, size, fAlloc));
     }
 
     void pushInt32(int32_t i) {
-        fValueStack.push_back(ValueRec::MakePrimitive<int32_t>(ValueRec::kInt, i));
+        fValueStack.push_back(NumberValue::Make(i));
     }
 
     void pushFloat(float f) {
-        fValueStack.push_back(ValueRec::MakePrimitive<float>(ValueRec::kFloat, f));
+        fValueStack.push_back(NumberValue::Make(f));
     }
 
     template <typename T>
@@ -929,13 +720,45 @@ void Write(const Value& v, SkWStream* stream) {
 
 } // namespace
 
+SkString Value::toString() const {
+    SkDynamicMemoryWStream wstream;
+    Write(*this, &wstream);
+    const auto data = wstream.detachAsData();
+    // TODO: is there a better way to pass data around without copying?
+    return SkString(static_cast<const char*>(data->data()), data->size());
+}
+
 static constexpr size_t kMinChunkSize = 4096;
 
-DOM::DOM(const char* cstr)
+DOM::DOM(const char* c_str)
     : fAlloc(kMinChunkSize) {
     DOMParser parser(fAlloc);
 
-    fRoot = &parser.parse(cstr);
+    fRoot = &parser.parse(c_str);
+}
+
+DOM::DOM(SkStream* stream)
+    : fAlloc(kMinChunkSize)
+    , fRoot(&Null()) {
+
+    if (!stream->hasLength()) {
+        SkDebugf("!! unsupported unseekable json stream\n");
+        return;
+    }
+
+    // The buffer needs to be C-string.
+    const auto size = stream->getLength();
+    auto data = SkData::MakeUninitialized(size + 1);
+    if (stream->read(data->writable_data(), size) < size) {
+        SkDebugf("!! could not read JSON stream\n");
+        return;
+    }
+
+    auto c_str = static_cast<char*>(data->writable_data());
+    c_str[size] = '\0';
+
+    DOMParser parser(fAlloc);
+    fRoot = &parser.parse(c_str);
 }
 
 void DOM::write(SkWStream* stream) const {
