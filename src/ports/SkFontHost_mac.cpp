@@ -42,6 +42,7 @@
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTemplates.h"
+#include "SkTo.h"
 #include "SkTypefaceCache.h"
 #include "SkTypeface_mac.h"
 #include "SkUtils.h"

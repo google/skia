@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkUtils.h"
+
+#include "SkTo.h"
 
 /*  0xxxxxxx    1 total
     10xxxxxx    // never a leading byte

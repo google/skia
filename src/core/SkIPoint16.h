@@ -8,6 +8,7 @@
 #ifndef SkIPoint16_DEFINED
 #define SkIPoint16_DEFINED
 
+#include "SkTo.h"
 #include "SkTypes.h"
 
 /** \struct SkIPoint16

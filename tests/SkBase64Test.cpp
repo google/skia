@@ -6,6 +6,7 @@
  */
 
 #include "SkBase64.h"
+#include "SkTo.h"
 
 #include "Test.h"
 

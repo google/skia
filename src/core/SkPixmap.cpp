@@ -5,14 +5,16 @@
  * found in the LICENSE file.
  */
 
+#include "SkPixmap.h"
+
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColorData.h"
 #include "SkConvertPixels.h"
 #include "SkData.h"
+#include "SkHalf.h"
 #include "SkImageInfoPriv.h"
 #include "SkImageShader.h"
-#include "SkHalf.h"
 #include "SkMask.h"
 #include "SkNx.h"
 #include "SkPM4f.h"
@@ -20,6 +22,7 @@
 #include "SkReadPixelsRec.h"
 #include "SkSurface.h"
 #include "SkTemplates.h"
+#include "SkTo.h"
 #include "SkUnPreMultiply.h"
 #include "SkUtils.h"
 
