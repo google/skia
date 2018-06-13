@@ -109,8 +109,9 @@ public:
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           ScissorState scissorState,
                                           sk_sp<const GrBuffer> vbuff) {
-        return std::unique_ptr<GrDrawOp>(new GrPipelineDynamicStateTestOp(scissorState,
-                                                                          std::move(vbuff)));
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        return pool->allocate<GrPipelineDynamicStateTestOp>(scissorState, std::move(vbuff));
     }
 
 private:

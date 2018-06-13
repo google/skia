@@ -110,11 +110,11 @@ public:
         // We use placement new to avoid always allocating space for kMaxTextures TextureSampler
         // instances.
         int samplerCnt = NumSamplersToUse(proxyCnt, caps);
-        size_t size = sizeof(TextureGeometryProcessor) + sizeof(TextureSampler) * (samplerCnt - 1);
-        void* mem = GrGeometryProcessor::operator new(size);
+//        size_t size = sizeof(TextureGeometryProcessor) + sizeof(TextureSampler) * (samplerCnt - 1);
+//        void* mem = GrGeometryProcessor::operator new(size);
         return sk_sp<TextureGeometryProcessor>(
-                new (mem) TextureGeometryProcessor(proxies, proxyCnt, samplerCnt, std::move(csxf),
-                                                   coverageAA, perspective, domain, filters, caps));
+                new TextureGeometryProcessor(proxies, proxyCnt, samplerCnt, std::move(csxf),
+                                             coverageAA, perspective, domain, filters, caps));
     }
 
     ~TextureGeometryProcessor() override {
@@ -352,7 +352,7 @@ private:
     Attribute fDomain;
     Attribute fAAEdges[4];
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
-    TextureSampler fSamplers[1];
+    TextureSampler fSamplers[kMaxTextures];
 
     typedef GrGeometryProcessor INHERITED;
 };
@@ -621,9 +621,11 @@ public:
                                           SkCanvas::SrcRectConstraint constraint,
                                           const SkMatrix& viewMatrix,
                                           sk_sp<GrColorSpaceXform> csxf) {
-        return std::unique_ptr<GrDrawOp>(new TextureOp(std::move(proxy), filter, color, srcRect,
-                                                       dstRect, aaType, constraint, viewMatrix,
-                                                       std::move(csxf)));
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        return pool->allocate<TextureOp>(std::move(proxy), filter, color,
+                                         srcRect, dstRect, aaType, constraint,
+                                         viewMatrix, std::move(csxf));
     }
 
     ~TextureOp() override {
