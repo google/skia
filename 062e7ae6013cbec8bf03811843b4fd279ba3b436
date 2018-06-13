@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8dd23327_44b1b98c",
+        "filename": "modules/skjson/include/SkJSON.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-13T21:22:49Z",
+      "side": 1,
+      "message": "This is probably a good spot for some examples?",
+      "range": {
+        "startLine": 32,
+        "startChar": 29,
+        "endLine": 32,
+        "endChar": 41
+      },
+      "revId": "062e7ae6013cbec8bf03811843b4fd279ba3b436",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63a5a991_abe4549b",
+        "filename": "modules/skjson/include/SkJSON.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-13T21:22:49Z",
+      "side": 1,
+      "message": "Remind me, what\u0027s the benefit of this pattern?  Isn\u0027t this just a long way to write constructors?",
+      "range": {
+        "startLine": 191,
+        "startChar": 0,
+        "endLine": 194,
+        "endChar": 16
+      },
+      "revId": "062e7ae6013cbec8bf03811843b4fd279ba3b436",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7ea88df_4c4ee5ce",
+        "filename": "modules/skjson/include/SkJSON.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-13T21:22:49Z",
+      "side": 1,
+      "message": "It might simplify things to store this as\n\n   Value fRoot;\n\n?  That way you don\u0027t have to do anything weird to set it to null, and we\u0027ll do fewer scary looking things like fRoot \u003d \u0026parser.parse(...).",
+      "range": {
+        "startLine": 360,
+        "startChar": 3,
+        "endLine": 360,
+        "endChar": 16
+      },
+      "revId": "062e7ae6013cbec8bf03811843b4fd279ba3b436",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8dd855b_bb63e443",
+        "filename": "modules/skjson/include/SkJSON.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-13T21:22:49Z",
+      "side": 1,
+      "message": "Might want to try having the returns on the same line as the case, so the fall throughs stand out more?\n\n  case Tag::kNull:        return Type::kNull;\n  case Tag::kBool:        return Type::kBool;\n  case Tag::kInt:                                // fall through\n  case Tag::kFloat:       return Type::kNumber;\n  case Tag::kShortString:                        // fall through\n  case Tag::kString:      return Type::kString;\n  case Tag::kArray:       return Type::kArray;\n  case Tag::kObject:      return Type::kObject;\n\nOr just repeat them?\n\n  case Tag::kNull:        return Type::kNull;\n  case Tag::kBool:        return Type::kBool;\n  case Tag::kInt:         return Type::kNumber;\n  case Tag::kFloat:       return Type::kNumber;\n  case Tag::kShortString: return Type::kString;\n  case Tag::kString:      return Type::kString;\n  case Tag::kArray:       return Type::kArray;\n  case Tag::kObject:      return Type::kObject;",
+      "range": {
+        "startLine": 369,
+        "startChar": 4,
+        "endLine": 372,
+        "endChar": 29
+      },
+      "revId": "062e7ae6013cbec8bf03811843b4fd279ba3b436",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9dee47f_9ee5c8ac",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-13T21:22:49Z",
+      "side": 1,
+      "message": "Was this meant to be Null() too?  Or couldn\u0027t most of the others stay NullValue::Make()?  The only reason we have Null() is so that we can take the address of the return value, right?",
+      "revId": "062e7ae6013cbec8bf03811843b4fd279ba3b436",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef3b272a_59d2247e",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 755,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-13T21:22:49Z",
+      "side": 1,
+      "message": "Reading the new API, I was kind of expecting the const char* constructor to be implemented in terms of the stream constructor, which had now become more fundamental.  Given that we need a length, and we\u0027re going to read the whole thing, and make a copy... doesn\u0027t this constructor seem pointless?  Might be more honest to make any stream-based users do all this buffering for us?",
+      "range": {
+        "startLine": 749,
+        "startChar": 4,
+        "endLine": 755,
+        "endChar": 5
+      },
+      "revId": "062e7ae6013cbec8bf03811843b4fd279ba3b436",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
