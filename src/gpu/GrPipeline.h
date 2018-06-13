@@ -234,8 +234,6 @@ private:
 
     // This value is also the index in fFragmentProcessors where coverage processors begin.
     int fNumColorProcessors;
-
-    typedef SkRefCnt INHERITED;
 };
 
 #endif

@@ -215,8 +215,7 @@ public:
     bool instantiate(GrResourceProvider* resourceProvider) const;
 
 protected:
-    GrResourceIOProcessor(ClassID classID)
-    : INHERITED(classID) {}
+    GrResourceIOProcessor(ClassID classID) : INHERITED(classID) {}
 
     /**
      * Subclasses call these from their constructor to register sampler sources. The processor

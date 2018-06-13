@@ -128,9 +128,8 @@ void DDLTileHelper::createSKPPerTile(SkData* compressedPictureData,
 
 void DDLTileHelper::createDDLsInParallel() {
 #if 1
-    SkTaskGroup().batch(fTiles.count(), [&](int i) {
-        fTiles[i].createDDL();
-    });
+    SkTaskGroup().batch(fTiles.count(), [&](int i) { fTiles[i].createDDL(); });
+    SkTaskGroup().wait();
 #else
     // Use this code path to debug w/o threads
     for (int i = 0; i < fTiles.count(); ++i) {
