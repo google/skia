@@ -104,7 +104,7 @@ public:
         return SkToBool(fBoundsFlags & kZeroArea_BoundsFlag);
     }
 
-    void* operator new(size_t size);
+    void* operator new(size_t size) noexcept;
     void operator delete(void* target);
 
     void* operator new(size_t size, void* placement) {
