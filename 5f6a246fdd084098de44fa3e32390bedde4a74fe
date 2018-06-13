@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5108b174_3272d022",
+        "filename": "src/gpu/text/GrAtlasManager.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-06-13T20:55:21Z",
+      "side": 1,
+      "message": "Nit: change to \u0027this-\u003eresolveMaskFormat(format)\u0027.",
+      "range": {
+        "startLine": 49,
+        "startChar": 17,
+        "endLine": 49,
+        "endChar": 34
+      },
+      "revId": "5f6a246fdd084098de44fa3e32390bedde4a74fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba4aace8_c3ed803d",
+        "filename": "src/gpu/text/GrAtlasManager.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-06-13T20:55:21Z",
+      "side": 1,
+      "message": "this-\u003eresolveMaskFormat",
+      "range": {
+        "startLine": 144,
+        "startChar": 17,
+        "endLine": 144,
+        "endChar": 34
+      },
+      "revId": "5f6a246fdd084098de44fa3e32390bedde4a74fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
