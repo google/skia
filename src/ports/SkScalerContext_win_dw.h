@@ -52,7 +52,9 @@ private:
     }
 
     bool getColorGlyphRun(const SkGlyph& glyph, IDWriteColorGlyphRunEnumerator** colorGlyph);
-
+    
+    void generateColorMetrics(SkGlyph* glyph);
+    
     void generateColorGlyphImage(const SkGlyph& glyph);
 
     SkTDArray<uint8_t> fBits;
