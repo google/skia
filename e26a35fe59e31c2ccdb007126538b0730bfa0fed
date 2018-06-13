@@ -45,6 +45,74 @@
       "revId": "e26a35fe59e31c2ccdb007126538b0730bfa0fed",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8828106a_bf20cd63",
+        "filename": "include/utils/Sk3D.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-13T18:47:54Z",
+      "side": 1,
+      "message": "why is this header in both include/ and src/ ?",
+      "revId": "e26a35fe59e31c2ccdb007126538b0730bfa0fed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "533f45dd_9ccc8fc7",
+        "filename": "platform_tools/android/apps/build.gradle",
+        "patchSetId": 23
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-13T18:47:54Z",
+      "side": 1,
+      "message": "do you need to update gradle?",
+      "revId": "e26a35fe59e31c2ccdb007126538b0730bfa0fed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf0ed986_7e867ff5",
+        "filename": "platform_tools/android/apps/build.gradle",
+        "patchSetId": 23
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-13T18:47:54Z",
+      "side": 1,
+      "message": "what is maven used for?",
+      "revId": "e26a35fe59e31c2ccdb007126538b0730bfa0fed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "472492e4_ec643bb1",
+        "filename": "platform_tools/android/apps/settings.gradle",
+        "patchSetId": 23
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-13T18:47:54Z",
+      "side": 1,
+      "message": "remove the comments before the two existing projects.",
+      "revId": "e26a35fe59e31c2ccdb007126538b0730bfa0fed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
