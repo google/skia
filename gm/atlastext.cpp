@@ -8,6 +8,9 @@
 #include "gm.h"
 
 #if SK_SUPPORT_ATLAS_TEXT
+#include "GrContext.h"
+#include "GrContextPriv.h"
+#include "GrMemoryPool.h"
 
 #include "SkAtlasTextContext.h"
 #include "SkAtlasTextFont.h"
@@ -19,7 +22,9 @@
 #include "gpu/TestContext.h"
 #include "gpu/atlastext/GLTestAtlasTextRenderer.h"
 #include "gpu/atlastext/TestAtlasTextRenderer.h"
+#include "../src/atlastext/SkInternalAtlasTextContext.h"
 #include "sk_tool_utils.h"
+
 
 // GM that draws text using the Atlas Text interface offscreen and then blits that to the canvas.
 
@@ -72,7 +77,11 @@ protected:
         if (!targetHandle) {
             return;
         }
-        fTarget = SkAtlasTextTarget::Make(fContext, kSize, kSize, targetHandle);
+
+        GrContext* context = fContext->internal().grContext();
+        sk_sp<GrOpMemoryPool> opMemoryPool = context->contextPriv().refOpMemoryPool();
+        fTarget = SkAtlasTextTarget::Make(fContext, std::move(opMemoryPool),
+                                          kSize, kSize, targetHandle);
 
         fTypefaces[0] = sk_tool_utils::create_portable_typeface("serif", SkFontStyle::Italic());
         fTypefaces[1] =

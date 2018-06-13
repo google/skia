@@ -61,8 +61,9 @@ public:
                                           sk_sp<const GrCCPathParser> parser,
                                           CoverageCountBatchID batchID,
                                           const SkISize& drawBounds) {
-        return std::unique_ptr<GrDrawOp>(new DrawCoverageCountOp(std::move(parser),
-                                                                 batchID, drawBounds));
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        return pool->allocate<DrawCoverageCountOp>(std::move(parser), batchID, drawBounds);
     }
 
     // GrDrawOp interface.
