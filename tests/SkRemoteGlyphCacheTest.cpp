@@ -509,3 +509,104 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
 }
+
+DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
+    // Build proxy typeface on the client for initializing the cache.
+    sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
+    SkStrikeServer server(discardableManager.get());
+    SkStrikeClient client(discardableManager, false);
+
+    auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    auto tfData = server.serializeTypeface(serverTf.get());
+    auto clientTf = client.deserializeTypeface(tfData->data(), tfData->size());
+    REPORTER_ASSERT(reporter, clientTf);
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setColor(SK_ColorRED);
+
+    auto lostGlyphID = SkPackedGlyphID(1, SK_FixedHalf, SK_FixedHalf);
+    const uint8_t glyphImage[] = {0xFF, 0xFF};
+    uint32_t realMask;
+    uint32_t fakeMask;
+
+    {
+        SkAutoDescriptor ad;
+        SkScalerContextRec rec;
+        SkScalerContextEffects effects;
+        SkScalerContextFlags flags = SkScalerContextFlags::kFakeGammaAndBoostContrast;
+        paint.setTypeface(serverTf);
+        SkScalerContext::MakeRecAndEffects(paint, nullptr, nullptr, flags, &rec, &effects, false);
+        auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
+
+        auto context = serverTf->createScalerContext(effects, desc, false);
+        SkGlyph glyph;
+        glyph.initWithGlyphID(lostGlyphID);
+        context->getMetrics(&glyph);
+        realMask = glyph.fMaskFormat;
+        REPORTER_ASSERT(reporter, realMask != MASK_FORMAT_UNKNOWN);
+    }
+
+    // Build a fallback cache.
+    {
+        SkAutoDescriptor ad;
+        SkScalerContextRec rec;
+        SkScalerContextEffects effects;
+        SkScalerContextFlags flags = SkScalerContextFlags::kFakeGammaAndBoostContrast;
+        paint.setTypeface(clientTf);
+        SkScalerContext::MakeRecAndEffects(paint, nullptr, nullptr, flags, &rec, &effects, false);
+        auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
+
+        auto fallbackCache = SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *clientTf);
+        auto glyph = fallbackCache->getRawGlyphByID(lostGlyphID);
+        fakeMask = (realMask == SkMask::kA8_Format) ? SkMask::kBW_Format : SkMask::kA8_Format;
+        glyph->fMaskFormat = fakeMask;
+        glyph->fHeight = 1;
+        glyph->fWidth = 2;
+        fallbackCache->initializeImage(glyphImage, glyph->computeImageSize(), glyph);
+    }
+
+    // Send over the real glyph and make sure the client cache stays intact.
+    {
+        SkAutoDescriptor ad;
+        SkScalerContextRec rec;
+        SkScalerContextEffects effects;
+        SkScalerContextFlags flags = SkScalerContextFlags::kFakeGammaAndBoostContrast;
+        paint.setTypeface(serverTf);
+        auto* cacheState = server.getOrCreateCache(paint, nullptr, nullptr, flags, &rec, &effects);
+        cacheState->addGlyph(serverTf.get(), effects, lostGlyphID, false);
+
+        std::vector<uint8_t> serverStrikeData;
+        server.writeStrikeData(&serverStrikeData);
+        REPORTER_ASSERT(reporter,
+                        client.readStrikeData(serverStrikeData.data(), serverStrikeData.size()));
+    }
+
+    {
+        SkAutoDescriptor ad;
+        SkScalerContextRec rec;
+        SkScalerContextEffects effects;
+        SkScalerContextFlags flags = SkScalerContextFlags::kFakeGammaAndBoostContrast;
+        paint.setTypeface(clientTf);
+        SkScalerContext::MakeRecAndEffects(paint, nullptr, nullptr, flags, &rec, &effects, false);
+        auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
+
+        auto fallbackCache = SkStrikeCache::FindStrikeExclusive(*desc);
+        REPORTER_ASSERT(reporter, fallbackCache.get() != nullptr);
+        auto glyph = fallbackCache->getRawGlyphByID(lostGlyphID);
+        REPORTER_ASSERT(reporter, glyph->fMaskFormat == fakeMask);
+
+        // Try overriding the image, it should stay the same.
+        REPORTER_ASSERT(reporter,
+                        memcmp(glyph->fImage, glyphImage, glyph->computeImageSize()) == 0);
+        const uint8_t newGlyphImage[] = {0, 0};
+        fallbackCache->initializeImage(newGlyphImage, glyph->computeImageSize(), glyph);
+        REPORTER_ASSERT(reporter,
+                        memcmp(glyph->fImage, glyphImage, glyph->computeImageSize()) == 0);
+    }
+
+    SkStrikeCache::Validate();
+
+    // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
+    discardableManager->unlockAndDeleteAll();
+}
