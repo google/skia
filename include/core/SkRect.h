@@ -776,14 +776,9 @@ struct SK_API SkRect {
 
     /** Deprecated.
     */
-    SK_ATTR_DEPRECATED("use Make()")
+    [[deprecated("use Make()")]]
     static SkRect SK_WARN_UNUSED_RESULT MakeFromIRect(const SkIRect& irect) {
-        SkRect r;
-        r.set(SkIntToScalar(irect.fLeft),
-              SkIntToScalar(irect.fTop),
-              SkIntToScalar(irect.fRight),
-              SkIntToScalar(irect.fBottom));
-        return r;
+        return SkRect::Make(irect);
     }
 
     /** Returns constructed SkIRect set to (0, 0, size.width(), size.height()).

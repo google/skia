@@ -203,11 +203,6 @@
 #  endif
 #endif
 
-#if !defined(SK_ATTR_DEPRECATED)
-   // FIXME: we ignore msg for now...
-#  define SK_ATTR_DEPRECATED(msg) SK_ATTRIBUTE(deprecated)
-#endif
-
 /**
  * If your judgment is better than the compiler's (i.e. you've profiled it),
  * you can use SK_ALWAYS_INLINE to force inlining. E.g.

@@ -154,7 +154,7 @@ public:
         , fTypeMask(kIdentity_Mask)
     {}
 
-    SK_ATTR_DEPRECATED("use the constructors that take an enum")
+    [[deprecated("use the constructors that take an enum")]]
     SkMatrix44() { this->setIdentity(); }
 
     SkMatrix44(const SkMatrix44& src) {
@@ -400,12 +400,12 @@ public:
         this->mapScalars(vec, vec);
     }
 
-    SK_ATTR_DEPRECATED("use mapScalars")
+    [[deprecated("use mapScalars")]]
     void map(const SkScalar src[4], SkScalar dst[4]) const {
         this->mapScalars(src, dst);
     }
 
-    SK_ATTR_DEPRECATED("use mapScalars")
+    [[deprecated("use mapScalars")]]
     void map(SkScalar vec[4]) const {
         this->mapScalars(vec, vec);
     }

@@ -9,6 +9,7 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 
+// How do I update this for [[deprecated]]?
 const char IncludeParser::gAttrDeprecated[] = "SK_ATTR_DEPRECATED";
 const size_t IncludeParser::kAttrDeprecatedLen = sizeof(gAttrDeprecated) - 1;
 

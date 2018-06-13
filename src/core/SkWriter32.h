@@ -43,7 +43,7 @@ public:
     // buffer provided in the constructor or the most recent call to reset.
     bool usingInitialStorage() const { return fData == fExternal; }
 
-    SK_ATTR_DEPRECATED("use bytesWritten")
+    [[deprecated("use bytesWritten")]]
     size_t size() const { return this->bytesWritten(); }
 
     void reset(void* external = nullptr, size_t externalBytes = 0) {
