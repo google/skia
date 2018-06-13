@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "73861201_6cdc9a5c",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 821,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-13T15:24:35Z",
+      "side": 1,
+      "message": "Do we have to worry about (FT_LOAD_TARGET_LIGHT | FT_LOAD_NO_AUTOHINT) on Android?",
+      "range": {
+        "startLine": 821,
+        "startChar": 12,
+        "endLine": 821,
+        "endChar": 45
+      },
+      "revId": "9d75dff532c9c25153b9193e16bf1ff26667584a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
