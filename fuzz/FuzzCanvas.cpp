@@ -17,7 +17,6 @@
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
 #include "SkNullCanvas.h"
-#include "SkOSFile.h"
 #include "SkPathEffect.h"
 #include "SkPicturePriv.h"
 #include "SkPictureRecorder.h"
@@ -25,8 +24,8 @@
 #include "SkRSXform.h"
 #include "SkRegion.h"
 #include "SkSurface.h"
-#include "SkTo.h"
 #include "SkTypeface.h"
+#include "SkOSFile.h"
 
 // EFFECTS
 #include "Sk1DPathEffect.h"

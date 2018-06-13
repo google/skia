@@ -9,7 +9,6 @@
 
 #include "SkStream.h"
 #include "SkString.h"
-#include "SkTo.h"
 
 #include <cmath>
 #include <vector>

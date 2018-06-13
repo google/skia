@@ -13,7 +13,6 @@
 #include "SkData.h"
 #include "SkPDFMakeToUnicodeCmap.h"
 #include "SkStream.h"
-#include "SkTo.h"
 
 static const int kMaximumGlyphCount = SK_MaxU16 + 1;
 

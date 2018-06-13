@@ -5,10 +5,9 @@
  * found in the LICENSE file.
  */
 
+
 #ifndef SkBuffer_DEFINED
 #define SkBuffer_DEFINED
-
-#include <limits>
 
 #include "SkSafeMath.h"
 #include "SkScalar.h"

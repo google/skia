@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -9,9 +10,8 @@
 #ifndef SkTDArray_DEFINED
 #define SkTDArray_DEFINED
 
-#include "SkMalloc.h"
-#include "SkTo.h"
 #include "SkTypes.h"
+#include "SkMalloc.h"
 
 template <typename T> class SkTDArray {
 public:

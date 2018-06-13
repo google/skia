@@ -13,7 +13,6 @@
 #include "SkMathPriv.h"
 #include "SkPoint.h"
 #include "SkRandom.h"
-#include "SkTo.h"
 #include "Test.h"
 
 static void test_clz(skiatest::Reporter* reporter) {

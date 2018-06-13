@@ -11,7 +11,6 @@
 
 #include "SkDeflate.h"
 #include "SkRandom.h"
-#include "SkTo.h"
 
 namespace {
 
