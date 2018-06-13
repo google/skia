@@ -5,15 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkMaskBlurFilter.h"
-
 #include "SkArenaAlloc.h"
 #include "SkColorPriv.h"
 #include "SkGaussFilter.h"
 #include "SkMalloc.h"
+#include "SkMaskBlurFilter.h"
 #include "SkNx.h"
 #include "SkTemplates.h"
-#include "SkTo.h"
 
 #include <cmath>
 #include <climits>

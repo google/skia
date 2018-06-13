@@ -5,14 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkOverdrawCanvas.h"
-
 #include "SkColorFilter.h"
-#include "SkDrawShadowInfo.h"
 #include "SkDrawable.h"
+#include "SkDrawShadowInfo.h"
 #include "SkFindAndPlaceGlyph.h"
 #include "SkImagePriv.h"
 #include "SkLatticeIter.h"
+#include "SkOverdrawCanvas.h"
 #include "SkPatchUtils.h"
 #include "SkPath.h"
 #include "SkRRect.h"
@@ -20,7 +19,6 @@
 #include "SkStrikeCache.h"
 #include "SkTextBlob.h"
 #include "SkTextBlobRunIterator.h"
-#include "SkTo.h"
 
 namespace {
 class ProcessOneGlyphBounds {

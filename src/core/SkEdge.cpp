@@ -5,11 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkEdge.h"
 
+#include "SkEdge.h"
 #include "SkFDot6.h"
 #include "SkMathPriv.h"
-#include "SkTo.h"
 
 /*
     In setLine, setQuadratic, setCubic, the first thing we do is to convert

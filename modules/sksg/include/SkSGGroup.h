@@ -9,8 +9,8 @@
 #define SkSGGroup_DEFINED
 
 #include "SkSGRenderNode.h"
+
 #include "SkTArray.h"
-#include "SkTo.h"
 
 namespace sksg {
 

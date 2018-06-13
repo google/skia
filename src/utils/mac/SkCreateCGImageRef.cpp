@@ -12,7 +12,6 @@
 #include "SkCGUtils.h"
 #include "SkColorData.h"
 #include "SkMacros.h"
-#include "SkTo.h"
 
 static CGBitmapInfo ComputeCGAlphaInfo_RGBA(SkAlphaType at) {
     CGBitmapInfo info = kCGBitmapByteOrder32Big;

@@ -6,9 +6,7 @@
  */
 
 #include "SkPDFConvertType1FontStream.h"
-
 #include "SkTemplates.h"
-#include "SkTo.h"
 
 #include <ctype.h>
 

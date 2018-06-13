@@ -8,7 +8,6 @@
 #include "SkPaint.h"
 #include "SkPoint.h"
 #include "SkTextBlobRunIterator.h"
-#include "SkTo.h"
 #include "SkTypeface.h"
 
 #include "Test.h"

@@ -6,17 +6,15 @@
  */
 
 #include "SkStream.h"
-
+#include "SkStreamPriv.h"
 #include "SkData.h"
 #include "SkFixed.h"
 #include "SkMakeUnique.h"
-#include "SkOSFile.h"
 #include "SkSafeMath.h"
-#include "SkStreamPriv.h"
 #include "SkString.h"
-#include "SkTFitsIn.h"
-#include "SkTo.h"
+#include "SkOSFile.h"
 #include "SkTypes.h"
+#include "SkTFitsIn.h"
 
 #include <limits>
 

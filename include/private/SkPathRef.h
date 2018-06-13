@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2012 Google Inc.
  *
@@ -8,16 +9,14 @@
 #ifndef SkPathRef_DEFINED
 #define SkPathRef_DEFINED
 
-#include "SkAtomics.h"
+#include "../private/SkAtomics.h"
+#include "../private/SkTDArray.h"
 #include "SkMatrix.h"
 #include "SkPoint.h"
 #include "SkRRect.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
-#include "SkTDArray.h"
 #include "SkTemplates.h"
-#include "SkTo.h"
-
 #include <limits>
 
 class SkRBuffer;
@@ -543,13 +542,13 @@ private:
     SkTDArray<GenIDChangeListener*> fGenIDChangeListeners;  // pointers are reffed
 
     mutable uint8_t  fBoundsIsDirty;
-    mutable SkBool8  fIsFinite;    // only meaningful if bounds are valid
+    mutable bool     fIsFinite;    // only meaningful if bounds are valid
 
-    SkBool8  fIsOval;
-    SkBool8  fIsRRect;
+    bool     fIsOval;
+    bool     fIsRRect;
     // Both the circle and rrect special cases have a notion of direction and starting point
     // The next two variables store that information for either.
-    SkBool8  fRRectOrOvalIsCCW;
+    bool     fRRectOrOvalIsCCW;
     uint8_t  fRRectOrOvalStartIdx;
     uint8_t  fSegmentMask;
 

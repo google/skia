@@ -8,7 +8,6 @@
 #ifndef SkColorPriv_DEFINED
 #define SkColorPriv_DEFINED
 
-#include "../private/SkTo.h"
 #include "SkColor.h"
 #include "SkMath.h"
 

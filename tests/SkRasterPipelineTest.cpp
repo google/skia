@@ -5,11 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "../src/jumper/SkJumper.h"
+#include "Test.h"
 #include "SkHalf.h"
 #include "SkRasterPipeline.h"
-#include "SkTo.h"
-#include "Test.h"
+#include "../src/jumper/SkJumper.h"
 
 DEF_TEST(SkRasterPipeline, r) {
     // Build and run a simple pipeline to exercise SkRasterPipeline,
