@@ -80,7 +80,7 @@ public:
     MetalCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
                       OutputStream* out)
     : INHERITED(program, errors, out)
-    , fReservedWords({"atan2", "rsqrt", "dfdx", "dfdy"})
+    , fReservedWords({"atan2", "rsqrt", "dfdx", "dfdy", "vertex", "fragment"})
     , fLineEnding("\n")
     , fContext(*context) {
         this->setupIntrinsics();
@@ -135,6 +135,9 @@ protected:
     void writeOutputStruct();
 
     void writeInterfaceBlocks();
+
+    void writeFields(const std::vector<Type::Field>& fields, int parentOffset,
+                     const InterfaceBlock* parentIntf = nullptr);
 
     int size(const Type* type, bool isPacked) const;
 
