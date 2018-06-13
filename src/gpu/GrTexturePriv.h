@@ -36,10 +36,6 @@ public:
         return GrMipMapped::kNo;
     }
 
-    void setMaxMipMapLevel(int maxMipMapLevel) const {
-        fTexture->fMaxMipMapLevel = maxMipMapLevel;
-    }
-
     int maxMipMapLevel() const {
         return fTexture->fMaxMipMapLevel;
     }

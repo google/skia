@@ -413,29 +413,6 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
     this->validate();
 }
 
-void GrResourceCache::didChangeGpuMemorySize(const GrGpuResource* resource, size_t oldSize) {
-    SkASSERT(resource);
-    SkASSERT(this->isInCache(resource));
-
-    ptrdiff_t delta = resource->gpuMemorySize() - oldSize;
-
-    fBytes += delta;
-#if GR_CACHE_STATS
-    fHighWaterBytes = SkTMax(fBytes, fHighWaterBytes);
-#endif
-    if (SkBudgeted::kYes == resource->resourcePriv().isBudgeted()) {
-        fBudgetedBytes += delta;
-        TRACE_COUNTER2("skia.gpu.cache", "skia budget", "used",
-                       fBudgetedBytes, "free", fMaxBytes - fBudgetedBytes);
-#if GR_CACHE_STATS
-        fBudgetedHighWaterBytes = SkTMax(fBudgetedBytes, fBudgetedHighWaterBytes);
-#endif
-    }
-
-    this->purgeAsNeeded();
-    this->validate();
-}
-
 void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
     SkASSERT(resource);
     SkASSERT(this->isInCache(resource));

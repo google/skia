@@ -118,17 +118,6 @@ GrContext* GrGpuResource::getContext() {
     }
 }
 
-void GrGpuResource::didChangeGpuMemorySize() const {
-    if (this->wasDestroyed()) {
-        return;
-    }
-
-    size_t oldSize = fGpuMemorySize;
-    SkASSERT(kInvalidGpuMemorySize != oldSize);
-    fGpuMemorySize = kInvalidGpuMemorySize;
-    get_resource_cache(fGpu)->resourceAccess().didChangeGpuMemorySize(this, oldSize);
-}
-
 void GrGpuResource::removeUniqueKey() {
     if (this->wasDestroyed()) {
         return;
