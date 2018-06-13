@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "0210e1a3_aa8d5531",
+        "filename": "BUILD.gn",
+        "patchSetId": 23
+      },
+      "lineNbr": 2039,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-13T18:58:05Z",
+      "side": 1,
+      "message": "What I\u0027m building is a shared library used by the arcore app. The arcore app has its own separate CMake that includes specific sources files outside of these. So basically, this is building the Skia part of the ARCore app",
+      "parentUuid": "7075608d_c76fc8e5",
+      "range": {
+        "startLine": 2005,
+        "startChar": 0,
+        "endLine": 2039,
+        "endChar": 7
+      },
+      "revId": "e26a35fe59e31c2ccdb007126538b0730bfa0fed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8828106a_bf20cd63",
         "filename": "include/utils/Sk3D.h",
         "patchSetId": 23
@@ -82,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "8a24cc93_1cd8a25f",
+        "filename": "platform_tools/android/apps/build.gradle",
+        "patchSetId": 23
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-13T18:58:05Z",
+      "side": 1,
+      "message": "Using the ARCore library requires this",
+      "parentUuid": "533f45dd_9ccc8fc7",
+      "revId": "e26a35fe59e31c2ccdb007126538b0730bfa0fed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bf0ed986_7e867ff5",
         "filename": "platform_tools/android/apps/build.gradle",
         "patchSetId": 23
@@ -93,6 +135,24 @@
       "writtenOn": "2018-06-13T18:47:54Z",
       "side": 1,
       "message": "what is maven used for?",
+      "revId": "e26a35fe59e31c2ccdb007126538b0730bfa0fed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe91ed32_09dffd32",
+        "filename": "platform_tools/android/apps/build.gradle",
+        "patchSetId": 23
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-13T18:58:05Z",
+      "side": 1,
+      "message": "You\u0027re right, this is not needed",
+      "parentUuid": "bf0ed986_7e867ff5",
       "revId": "e26a35fe59e31c2ccdb007126538b0730bfa0fed",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
