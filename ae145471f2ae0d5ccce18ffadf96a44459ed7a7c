@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d82b6d9_7737f875",
+        "filename": "src/gpu/text/GrAtlasManager.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-06-13T19:05:20Z",
+      "side": 1,
+      "message": "This code is basically repeated in three places -- here and in GrGlyphCache.cpp. I suggest pulling it out into a separate function in GrAtlasManager.h and adding a comment above it explaining why we\u0027re doing this (similar to what you have below).",
+      "range": {
+        "startLine": 38,
+        "startChar": 8,
+        "endLine": 41,
+        "endChar": 9
+      },
+      "revId": "ae145471f2ae0d5ccce18ffadf96a44459ed7a7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
