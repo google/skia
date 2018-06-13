@@ -7,6 +7,8 @@
 
 #include "SkJpegInfo.h"
 
+#include "SkTo.h"
+
 #ifndef SK_HAS_JPEG_LIBRARY
 
 namespace {

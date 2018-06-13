@@ -6,6 +6,7 @@
  */
 
 #include "SkAAClip.h"
+
 #include "SkAtomics.h"
 #include "SkBlitter.h"
 #include "SkColorData.h"
@@ -13,6 +14,7 @@
 #include "SkPath.h"
 #include "SkRectPriv.h"
 #include "SkScan.h"
+#include "SkTo.h"
 #include "SkUtils.h"
 
 class AutoAAClipValidate {

@@ -8,10 +8,6 @@
 #include "Skottie.h"
 
 #include "SkCanvas.h"
-#include "SkottieAdapter.h"
-#include "SkottieAnimator.h"
-#include "SkottieJson.h"
-#include "SkottieValue.h"
 #include "SkData.h"
 #include "SkImage.h"
 #include "SkMakeUnique.h"
@@ -38,8 +34,13 @@
 #include "SkSGTrimEffect.h"
 #include "SkStream.h"
 #include "SkTArray.h"
-#include "SkTime.h"
 #include "SkTHash.h"
+#include "SkTime.h"
+#include "SkTo.h"
+#include "SkottieAdapter.h"
+#include "SkottieAnimator.h"
+#include "SkottieJson.h"
+#include "SkottieValue.h"
 
 #include <cmath>
 #include <vector>
