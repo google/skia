@@ -8,6 +8,7 @@
 #ifndef SkTFitsIn_DEFINED
 #define SkTFitsIn_DEFINED
 
+#include <cassert>
 #include <limits>
 #include <type_traits>
 
@@ -52,12 +53,10 @@
  */
 
 template <typename D, typename S>
-static constexpr inline
-typename std::enable_if<(std::is_integral<S>::value || std::is_enum<S>::value) &&
-                        (std::is_integral<D>::value || std::is_enum<D>::value), bool>::type
-/*bool*/ SkTFitsIn(S src) {
+static constexpr inline bool SkTFitsIn(S src) {
     // SkTFitsIn() is used in public headers, so needs to be written targeting at most C++11.
-    return
+    return assert(std::is_integral<S>::value || std::is_enum<S>::value),
+           assert(std::is_integral<D>::value || std::is_enum<D>::value),
 
     // E.g. (int8_t)(uint8_t) int8_t(-1) == -1, but the uint8_t == 255, not -1.
     (std::is_signed<S>::value && std::is_unsigned<D>::value && sizeof(S) <= sizeof(D)) ?
