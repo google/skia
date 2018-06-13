@@ -35,7 +35,8 @@ source_set("skottie") {
     deps = [
       "../..:skia",
       "../../third_party/rapidjson",
-      "../sksg:sksg",
+      "../skjson",
+      "../sksg",
     ]
   }
 }
