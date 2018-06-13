@@ -6,7 +6,9 @@
  */
 
 #include "SkPDFMakeToUnicodeCmap.h"
+
 #include "SkPDFUtils.h"
+#include "SkTo.h"
 #include "SkUtils.h"
 
 static void append_tounicode_header(SkDynamicMemoryWStream* cmap,

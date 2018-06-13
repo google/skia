@@ -5,12 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "SkRegion.h"
 
 #include "SkAtomics.h"
 #include "SkMacros.h"
 #include "SkRegionPriv.h"
 #include "SkSafeMath.h"
 #include "SkTemplates.h"
+#include "SkTo.h"
 #include "SkUtils.h"
 
 /* Region Layout

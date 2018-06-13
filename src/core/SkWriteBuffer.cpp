@@ -6,6 +6,7 @@
  */
 
 #include "SkWriteBuffer.h"
+
 #include "SkBitmap.h"
 #include "SkData.h"
 #include "SkDeduper.h"
@@ -14,6 +15,7 @@
 #include "SkPixelRef.h"
 #include "SkPtrRecorder.h"
 #include "SkStream.h"
+#include "SkTo.h"
 #include "SkTypeface.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
