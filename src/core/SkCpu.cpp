@@ -8,10 +8,6 @@
 #include "SkCpu.h"
 #include "SkOnce.h"
 
-#if !defined(__has_include)
-    #define __has_include(x) 0
-#endif
-
 #if defined(SK_CPU_X86)
     #if defined(SK_BUILD_FOR_WIN)
         #include <intrin.h>

@@ -16,10 +16,6 @@
 #include "SkSwizzler.h"
 #include "SkStream.h"
 
-#if !defined(__has_include)
-    #define __has_include(x) 0
-#endif
-
 #if __has_include("HeifDecoderAPI.h")
     #include "HeifDecoderAPI.h"
 #else
