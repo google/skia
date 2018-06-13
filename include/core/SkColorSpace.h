@@ -71,7 +71,7 @@ struct SK_API SkColorSpaceTransferFn {
      * Transform a single float by this transfer function.
      * For negative inputs, returns sign(x) * f(abs(x)).
      */
-    float operator()(float x) {
+    float operator()(float x) const {
         SkScalar s = SkScalarSignAsScalar(x);
         x = sk_float_abs(x);
         if (x >= fD) {
