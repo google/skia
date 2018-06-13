@@ -427,7 +427,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
                     continue;
                 }
                 if (GrMipMapped::kYes == mipMapped &&
-                    as_IB(texImage)->peekProxy()->mipMapped() != mipMapped) {
+                    as_IB(texImage)->peekProxy()->mipMapped() != mipMapped &&
+                    context->contextPriv().caps()->mipMapSupport()) {
                     ERRORF(reporter, "makeTextureImage returned non-mipmapped texture.");
                     continue;
                 }
