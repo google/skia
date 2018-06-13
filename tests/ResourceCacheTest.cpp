@@ -1094,7 +1094,7 @@ static void test_timestamp_wrap(skiatest::Reporter* reporter) {
         GrGpu* gpu = context->contextPriv().getGpu();
 
         // Pick a random number of resources to add before the timestamp will wrap.
-        cache->changeTimestamp(SK_MaxU32 - random.nextULessThan(kCount + 1));
+        cache->changeTimestamp(UINT32_MAX - random.nextULessThan(kCount + 1));
 
         static const int kNumToPurge = kCount - kBudgetCnt;
 

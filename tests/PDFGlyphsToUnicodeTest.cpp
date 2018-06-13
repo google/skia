@@ -14,7 +14,7 @@
 #include "SkPDFMakeToUnicodeCmap.h"
 #include "SkStream.h"
 
-static const int kMaximumGlyphCount = SK_MaxU16 + 1;
+static const int kMaximumGlyphCount = UINT16_MAX + 1;
 
 static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
                           const char* buffer, size_t len) {

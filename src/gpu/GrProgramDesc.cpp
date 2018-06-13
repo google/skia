@@ -99,7 +99,7 @@ static bool gen_meta_key(const GrResourceIOProcessor& proc,
     uint32_t classID = proc.classID();
 
     // Currently we allow 16 bits for the class id and the overall processor key size.
-    static const uint32_t kMetaKeyInvalidMask = ~((uint32_t)SK_MaxU16);
+    static const uint32_t kMetaKeyInvalidMask = ~((uint32_t)UINT16_MAX);
     if ((processorKeySize | classID) & kMetaKeyInvalidMask) {
         return false;
     }
@@ -119,7 +119,7 @@ static bool gen_meta_key(const GrXferProcessor& xp,
     uint32_t classID = xp.classID();
 
     // Currently we allow 16 bits for the class id and the overall processor key size.
-    static const uint32_t kMetaKeyInvalidMask = ~((uint32_t)SK_MaxU16);
+    static const uint32_t kMetaKeyInvalidMask = ~((uint32_t)UINT16_MAX);
     if ((processorKeySize | classID) & kMetaKeyInvalidMask) {
         return false;
     }
