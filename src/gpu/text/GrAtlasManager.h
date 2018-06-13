@@ -33,6 +33,13 @@ public:
     // functions which use the atlas. Note that we can have proxies available but none active
     // (i.e., none instantiated).
     const sk_sp<GrTextureProxy>* getProxies(GrMaskFormat format, unsigned int* numActiveProxies) {
+#if defined(SK_BUILD_FOR_MAC)
+        // macOS doesn't support 565 pixel formats, so we will change it to 8888 and need the
+        // corresponding atlas.
+        if (format == kA565_GrMaskFormat) {
+            format = kARGB_GrMaskFormat;
+        }
+#endif
         if (this->initAtlas(format)) {
             *numActiveProxies = this->getAtlas(format)->numActivePages();
             return this->getAtlas(format)->getProxies();
@@ -127,6 +134,11 @@ private:
     }
 
     GrDrawOpAtlas* getAtlas(GrMaskFormat format) const {
+#if defined(SK_BUILD_FOR_MAC)
+        if (format == kA565_GrMaskFormat) {
+            format = kARGB_GrMaskFormat;
+        }
+#endif
         int atlasIndex = MaskFormatToAtlasIndex(format);
         SkASSERT(fAtlases[atlasIndex]);
         return fAtlases[atlasIndex].get();

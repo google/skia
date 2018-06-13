@@ -80,14 +80,7 @@ void MetalCodeGenerator::writeType(const Type& type) {
             fWrittenStructs.push_back(&type);
             this->writeLine("struct " + type.name() + " {");
             fIndentation++;
-            for (const auto& f : type.fields()) {
-                this->writeModifiers(f.fModifiers, false);
-                // sizes (which must be static in structs) are part of the type name here
-                this->writeType(*f.fType);
-                this->write(" ");
-                this->writeName(f.fName);
-                this->writeLine(";");
-            }
+            this->writeFields(type.fields(), type.fOffset);
             fIndentation--;
             this->write("}");
             break;
@@ -316,6 +309,12 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
             break;
         case SK_FRAGCOORD_BUILTIN:
             this->writeFragCoord();
+            break;
+        case SK_VERTEXID_BUILTIN:
+            this->write("sk_VertexID");
+            break;
+        case SK_INSTANCEID_BUILTIN:
+            this->write("sk_InstanceID");
             break;
         default:
             if (Variable::kGlobal_Storage == ref.fVariable.fStorage) {
@@ -574,6 +573,8 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
         }
         if (fProgram.fKind == Program::kFragment_Kind) {
             this->write(", float4 _fragCoord [[position]]");
+        } else if (fProgram.fKind == Program::kVertex_Kind) {
+            this->write(", uint sk_VertexID [[vertex_id]], uint sk_InstanceID [[instance_id]]");
         }
         separator = ", ";
     } else {
@@ -707,58 +708,16 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     if ("sk_PerVertex" == intf.fTypeName) {
         return;
     }
-    MemoryLayout memoryLayout(MemoryLayout::k140_Standard);
-    this->write("struct ");
     this->writeModifiers(intf.fVariable.fModifiers, true);
+    this->write("struct ");
     this->writeLine(intf.fTypeName + " {");
-    fIndentation++;
     const Type* structType = &intf.fVariable.fType;
     fWrittenStructs.push_back(structType);
     while (Type::kArray_Kind == structType->kind()) {
         structType = &structType->componentType();
     }
-    int currentOffset = 0;
-    for (const auto& field: structType->fields()) {
-        int fieldOffset = field.fModifiers.fLayout.fOffset;
-        if (fieldOffset != -1) {
-            if (currentOffset > fieldOffset) {
-                ABORT("Original interface offsets are too close for MoltenVK");
-            } else if (currentOffset < fieldOffset) {
-                this->write("char pad");
-                this->write(to_string(fPaddingCount++));
-                this->write("[");
-                this->write(to_string(fieldOffset - currentOffset));
-                this->writeLine("];");
-                currentOffset = fieldOffset;
-            }
-        }
-        const Type* fieldType = field.fType;
-        if (fieldType->kind() == Type::kVector_Kind &&
-            fieldType->columns() == 3) {
-            // Pack all vec3 types so that their size in bytes will match what was expected in the
-            // original SkSL code since MSL has vec3 sizes equal to 4 * component type, while SkSL
-            // has vec3 equal to 3 * component type.
-            this->write(PACKED_PREFIX);
-        }
-        currentOffset += memoryLayout.size(*fieldType);
-        std::vector<int> sizes;
-        while (fieldType->kind() == Type::kArray_Kind) {
-            sizes.push_back(fieldType->columns());
-            fieldType = &fieldType->componentType();
-        }
-        this->writeType(*fieldType);
-        this->write(" ");
-        this->writeName(field.fName);
-        for (int s : sizes) {
-            if (s <= 0) {
-                this->write("[]");
-            } else {
-                this->write("[" + to_string(s) + "]");
-            }
-        }
-        this->writeLine(";");
-        fInterfaceBlockMap[&field] = &intf;
-    }
+    fIndentation++;
+    writeFields(structType->fields(), structType->fOffset, &intf);
     if (fProgram.fKind == Program::kFragment_Kind) {
         this->writeLine("float u_skRTHeight;");
     }
@@ -779,6 +738,64 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
         fInterfaceBlockNameMap[&intf] = "_anonInterface" +  to_string(fAnonInterfaceCount++);
     }
     this->writeLine(";");
+}
+
+void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int parentOffset,
+                                     const InterfaceBlock* parentIntf) {
+    MemoryLayout memoryLayout(MemoryLayout::k140_Standard);
+    int currentOffset = 0;
+    for (const auto& field: fields) {
+        int fieldOffset = field.fModifiers.fLayout.fOffset;
+        const Type* fieldType = field.fType;
+        if (fieldOffset != -1) {
+            if (currentOffset > fieldOffset) {
+                fErrors.error(parentOffset,
+                                "offset of field '" + field.fName + "' must be at least " +
+                                to_string((int) currentOffset));
+            } else if (currentOffset < fieldOffset) {
+                this->write("char pad");
+                this->write(to_string(fPaddingCount++));
+                this->write("[");
+                this->write(to_string(fieldOffset - currentOffset));
+                this->writeLine("];");
+                currentOffset = fieldOffset;
+            }
+            int alignment = memoryLayout.alignment(*fieldType);
+            if (fieldOffset % alignment) {
+                fErrors.error(parentOffset,
+                              "offset of field '" + field.fName + "' must be a multiple of " +
+                              to_string((int) alignment));
+            }
+        }
+        if (fieldType->kind() == Type::kVector_Kind &&
+            fieldType->columns() == 3) {
+            // Pack all vec3 types so that their size in bytes will match what was expected in the
+            // original SkSL code since MSL has vec3 sizes equal to 4 * component type, while SkSL
+            // has vec3 equal to 3 * component type.
+            this->write(PACKED_PREFIX);
+        }
+        currentOffset += memoryLayout.size(*fieldType);
+        std::vector<int> sizes;
+        while (fieldType->kind() == Type::kArray_Kind) {
+            sizes.push_back(fieldType->columns());
+            fieldType = &fieldType->componentType();
+        }
+        this->writeModifiers(field.fModifiers, false);
+        this->writeType(*fieldType);
+        this->write(" ");
+        this->writeName(field.fName);
+        for (int s : sizes) {
+            if (s <= 0) {
+                this->write("[]");
+            } else {
+                this->write("[" + to_string(s) + "]");
+            }
+        }
+        this->writeLine(";");
+        if (parentIntf) {
+            fInterfaceBlockMap[&field] = parentIntf;
+        }
+    }
 }
 
 void MetalCodeGenerator::writeVarInitializer(const Variable& var, const Expression& value) {
