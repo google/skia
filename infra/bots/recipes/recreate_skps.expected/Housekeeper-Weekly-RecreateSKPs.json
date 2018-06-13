@@ -107,8 +107,12 @@
     "env": {
       "CPPFLAGS": "-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1",
       "DEPOT_TOOLS_UPDATE": "0",
-      "GYP_CHROMIUM_NO_ACTION": "0",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "GYP_CHROMIUM_NO_ACTION": "0"
+    },
+    "env_suffixes": {
+      "PATH": [
+        "RECIPE_PACKAGE_REPO[depot_tools]"
+      ]
     },
     "name": "gclient runhooks"
   },
