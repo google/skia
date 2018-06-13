@@ -85,6 +85,12 @@ struct SkPackedID {
         return SkChecksum::CheapMix(fID);
     }
 
+    SkString dump() const {
+        SkString str;
+        str.appendf("code: %d, x: %d, y:%d", code(), getSubXFixed(), getSubYFixed());
+        return str;
+    }
+
 private:
     static unsigned ID2SubX(uint32_t id) {
         return id >> (kSubShift + kSubShiftX);
@@ -143,8 +149,8 @@ class SkGlyph {
 
 public:
     static const SkFixed kSubpixelRound = SK_FixedHalf >> SkPackedID::kSubBits;
-    void*       fImage;
-    PathData*   fPathData;
+    void* fImage;
+    PathData* fPathData;
     float       fAdvanceX, fAdvanceY;
 
     uint16_t    fWidth, fHeight;

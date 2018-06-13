@@ -201,8 +201,10 @@ const void* SkGlyphCache::findImage(const SkGlyph& glyph) {
     return glyph.fImage;
 }
 
-bool SkGlyphCache::initializeImage(const volatile void* data, size_t size, SkGlyph* glyph) {
-    if (glyph->fImage) return false;
+void SkGlyphCache::initializeImage(const volatile void* data, size_t size, SkGlyph* glyph) {
+    // Don't overwrite the image if we already have one. We could have used a fallback if the
+    // glyph was missing earlier.
+    if (glyph->fImage) return;
 
     if (glyph->fWidth > 0 && glyph->fWidth < kMaxGlyphWidth) {
         size_t allocSize = glyph->allocImage(&fAlloc);
@@ -213,8 +215,6 @@ bool SkGlyphCache::initializeImage(const volatile void* data, size_t size, SkGly
             fMemoryUsed += size;
         }
     }
-
-    return true;
 }
 
 const SkPath* SkGlyphCache::findPath(const SkGlyph& glyph) {
@@ -237,7 +237,9 @@ const SkPath* SkGlyphCache::findPath(const SkGlyph& glyph) {
 }
 
 bool SkGlyphCache::initializePath(SkGlyph* glyph, const volatile void* data, size_t size) {
-    if (glyph->fPathData) return false;
+    // Don't overwrite the path if we already have one. We could have used a fallback if the
+    // glyph was missing earlier.
+    if (glyph->fPathData) return true;
 
     if (glyph->fWidth) {
         SkGlyph::PathData* pathData = fAlloc.make<SkGlyph::PathData>();

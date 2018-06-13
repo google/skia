@@ -91,10 +91,9 @@ public:
     */
     const void* findImage(const SkGlyph&);
 
-    /** Initializes the image associated with the glyph with |data|. Returns false if an image
-     * already exists.
+    /** Initializes the image associated with the glyph with |data|.
      */
-    bool initializeImage(const volatile void* data, size_t size, SkGlyph*);
+    void initializeImage(const volatile void* data, size_t size, SkGlyph*);
 
     /** If the advance axis intersects the glyph's path, append the positions scaled and offset
         to the array (if non-null), and set the count to the updated array length.
@@ -107,8 +106,8 @@ public:
     */
     const SkPath* findPath(const SkGlyph&);
 
-    /** Initializes the path associated with the glyph with |data|. Returns false if a path
-     * already exits or data is invalid.
+    /** Initializes the path associated with the glyph with |data|. Returns false if
+     *  data is invalid.
      */
     bool initializePath(SkGlyph*, const volatile void* data, size_t size);
 
