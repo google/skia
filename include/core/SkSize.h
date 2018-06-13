@@ -20,7 +20,7 @@ struct SkISize {
 
     void set(int32_t w, int32_t h) { *this = SkISize{w, h}; }
 
-    /** Returns true iff fWidth == 0 && fHeight == 0
+    /** Returns true if fWidth == 0 && fHeight == 0
      */
     bool isZero() const { return 0 == fWidth && 0 == fHeight; }
 
@@ -62,7 +62,7 @@ struct SkSize {
 
     void set(SkScalar w, SkScalar h) { *this = SkSize{w, h}; }
 
-    /** Returns true iff fWidth == 0 && fHeight == 0
+    /** Returns true if fWidth == 0 && fHeight == 0
      */
     bool isZero() const { return 0 == fWidth && 0 == fHeight; }
 

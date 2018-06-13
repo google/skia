@@ -61,7 +61,7 @@ static double pow10(int e) {
 /** Write a string into result, includeing a terminating '\0' (for
     unit testing).  Return strlen(result) (for SkWStream::write) The
     resulting string will be in the form /[-]?([0-9]*.)?[0-9]+/ and
-    sscanf(result, "%f", &x) will return the original value iff the
+    sscanf(result, "%f", &x) will return the original value if the
     value is finite. This function accepts all possible input values.
 
     Motivation: "PDF does not support [numbers] in exponential format

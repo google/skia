@@ -404,7 +404,7 @@ static void test_write_pixels(skiatest::Reporter* reporter, SkSurface* surface,
                 REPORTER_ASSERT(reporter, check_write(reporter, surface, surfaceInfo.alphaType(),
                                                       bmp, rect.fLeft, rect.fTop));
 
-                // we should change the genID iff pixels were actually written.
+                // we should change the genID if pixels were actually written.
                 SkIRect canvasRect = SkIRect::MakeSize(canvas->getBaseLayerSize());
                 SkIRect writeRect = SkIRect::MakeXYWH(rect.fLeft, rect.fTop,
                                                       bmp.width(), bmp.height());

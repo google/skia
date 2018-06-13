@@ -25,7 +25,7 @@ public:
         speed; 9 is best compression.  The default, -1, is to use
         zlib's Z_DEFAULT_COMPRESSION level.
 
-        @param gzip iff true, output a gzip file. "The gzip format is
+        @param gzip if true, output a gzip file. "The gzip format is
         a wrapper, documented in RFC 1952, around a deflate stream."
         gzip adds a header with a magic number to the beginning of the
         stream, alowing a client to identify a gzip file.

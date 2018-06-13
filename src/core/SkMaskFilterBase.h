@@ -67,7 +67,7 @@ public:
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs& args) const;
 
     /**
-     *  Returns true iff asFragmentProcessor() will return a processor
+     *  Returns true if asFragmentProcessor() will return a processor
      */
     bool hasFragmentProcessor() const;
 

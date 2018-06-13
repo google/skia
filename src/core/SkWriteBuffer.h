@@ -92,7 +92,7 @@ public:
 
     size_t bytesWritten() const { return fWriter.bytesWritten(); }
 
-    // Returns true iff all of the bytes written so far are stored in the initial storage
+    // Returns true if all of the bytes written so far are stored in the initial storage
     // buffer provided in the constructor or the most recent call to reset.
     bool usingInitialStorage() const;
 

@@ -21,7 +21,7 @@ static bool changes_alpha(const SkPaint& paint) {
 
 bool SkPaintPriv::Overwrites(const SkPaint* paint, ShaderOverrideOpacity overrideOpacity) {
     if (!paint) {
-        // No paint means we default to SRC_OVER, so we overwrite iff our shader-override
+        // No paint means we default to SRC_OVER, so we overwrite if our shader-override
         // is opaque, or we don't have one.
         return overrideOpacity != kNotOpaque_ShaderOverrideOpacity;
     }

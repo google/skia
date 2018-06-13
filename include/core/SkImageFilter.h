@@ -236,7 +236,7 @@ public:
 
     /**
      *  ImageFilters can natively handle scaling and translate components in the CTM. Only some of
-     *  them can handle affine (or more complex) matrices. This call returns true iff the filter
+     *  them can handle affine (or more complex) matrices. This call returns true if the filter
      *  and all of its (non-null) inputs can handle these more complex matrices.
      */
     bool canHandleComplexCTM() const;

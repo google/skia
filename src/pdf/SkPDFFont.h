@@ -104,7 +104,7 @@ public:
     virtual void getFontSubset(SkPDFCanon*) = 0;
 
     /**
-     *  Return false iff the typeface has its NotEmbeddable flag set.
+     *  Return false if the typeface has its NotEmbeddable flag set.
      *  typeface is not nullptr
      */
     static bool CanEmbedTypeface(SkTypeface*, SkPDFCanon*);

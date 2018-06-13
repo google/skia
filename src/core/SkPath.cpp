@@ -444,8 +444,8 @@ FIXME: If the API passes fill-only, return true if the filled stroke
     0x1 is set if the segment is horizontal
     0x2 is set if the segment is moving to the right or down
  thus:
-    two directions are opposites iff (dirA ^ dirB) == 0x2
-    two directions are perpendicular iff (dirA ^ dirB) == 0x1
+    two directions are opposites if (dirA ^ dirB) == 0x2
+    two directions are perpendicular if (dirA ^ dirB) == 0x1
 
  */
 static int rect_make_dir(SkScalar dx, SkScalar dy) {

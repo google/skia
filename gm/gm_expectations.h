@@ -121,7 +121,7 @@ namespace skiagm {
         explicit Expectations(Json::Value jsonElement);
 
         /**
-         * Returns true iff we want to ignore failed expectations.
+         * Returns true if we want to ignore failed expectations.
          */
         bool ignoreFailure() const { return this->fIgnoreFailure; }
 
@@ -131,12 +131,12 @@ namespace skiagm {
         void setIgnoreFailure(bool val) { this->fIgnoreFailure = val; }
 
         /**
-         * Returns true iff there are no allowed results.
+         * Returns true if there are no allowed results.
          */
         bool empty() const { return this->fAllowedResultDigests.empty(); }
 
         /**
-         * Returns true iff resultDigest matches any allowed result,
+         * Returns true if resultDigest matches any allowed result,
          * regardless of fIgnoreFailure.  (The caller can check
          * that separately.)
          */

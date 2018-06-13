@@ -38,7 +38,7 @@ public:
     // return the current offset (will always be a multiple of 4)
     size_t bytesWritten() const { return fUsed; }
 
-    // Returns true iff all of the bytes written so far are stored in the initial storage
+    // Returns true if all of the bytes written so far are stored in the initial storage
     // buffer provided in the constructor or the most recent call to reset.
     bool usingInitialStorage() const { return fData == fExternal; }
 

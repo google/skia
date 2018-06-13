@@ -148,10 +148,10 @@ bool SkEncodeImageWithWIC(SkWStream* stream, const SkPixmap& pixmap,
         value.vt = VT_R4;
         value.fltVal = (FLOAT)(quality / 100.0);
 
-        //Ignore result code.
+        // Ignore result code.
         //  This returns E_FAIL if the named property is not in the bag.
-        //TODO(bungeman) enumerate the properties,
-        //  write and set hr iff property exists.
+        // TODO(bungeman) enumerate the properties,
+        //  write and set hr if property exists.
         piPropertybag->Write(1, &name, &value);
     }
     if (SUCCEEDED(hr)) {

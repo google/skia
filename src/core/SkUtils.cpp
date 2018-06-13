@@ -43,26 +43,27 @@ static bool utf8_byte_is_leading_byte(uint8_t c) {
     #define assert_utf8_leadingbyte(c)
 #endif
 
-/**
- * @returns -1  iff invalid UTF8 byte,
- *           0  iff UTF8 continuation byte,
- *           1  iff ASCII byte,
- *           2  iff leading byte of 2-byte sequence,
- *           3  iff leading byte of 3-byte sequence, and
- *           4  iff leading byte of 4-byte sequence.
- *
- * I.e.: if return value > 0, then gives length of sequence.
-*/
-static int utf8_byte_type(uint8_t c) {
-    if (c < 0x80) {
-        return 1;
-    } else if (c < 0xC0) {
-        return 0;
-    } else if (c < 0xF5 && (c & 0xFE) != 0xC0) { // "octet values C0, C1, F5 to FF never appear"
-        return (((0xE5 << 24) >> ((unsigned)c >> 4 << 1)) & 3) + 1;
-    } else {
-        return -1;
-    }
+    /**
+     * @returns -1  if invalid UTF8 byte,
+     *           0  if UTF8 continuation byte,
+     *           1  if ASCII byte,
+     *           2  if leading byte of 2-byte sequence,
+     *           3  if leading byte of 3-byte sequence, and
+     *           4  if leading byte of 4-byte sequence.
+     *
+     * I.e.: if return value > 0, then gives length of sequence.
+     */
+    static int utf8_byte_type(uint8_t c) {
+        if (c < 0x80) {
+            return 1;
+        } else if (c < 0xC0) {
+            return 0;
+        } else if (c < 0xF5 &&
+                   (c & 0xFE) != 0xC0) {  // "octet values C0, C1, F5 to FF never appear"
+            return (((0xE5 << 24) >> ((unsigned)c >> 4 << 1)) & 3) + 1;
+        } else {
+            return -1;
+        }
 }
 static bool utf8_type_is_valid_leading_byte(int type) { return type > 0; }
 

@@ -258,7 +258,7 @@ static inline SkFixed fastfixdiv(SkFDot6 a, SkFDot6 b) {
 #define SkBITCOUNT(x)   (sizeof(x) << 3)
 
 #if 1
-// returns high-bit set iff x==0x8000...
+// returns high-bit set if x==0x8000...
 static inline int bad_int(int x) {
     return x & -x;
 }

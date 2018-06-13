@@ -50,9 +50,9 @@ struct GrVkAlloc {
             , fBackendMemory(0)
             , fUsesSystemHeap(false) {}
 
-    VkDeviceMemory    fMemory;  // can be VK_NULL_HANDLE iff is an RT and is borrowed
+    VkDeviceMemory fMemory;  // can be VK_NULL_HANDLE if is an RT and is borrowed
     VkDeviceSize      fOffset;
-    VkDeviceSize      fSize;    // this can be indeterminate iff Tex uses borrow semantics
+    VkDeviceSize fSize;  // this can be indeterminate if Tex uses borrow semantics
     uint32_t          fFlags;
     GrVkBackendMemory fBackendMemory; // handle to memory allocated via GrVkMemoryAllocator.
 

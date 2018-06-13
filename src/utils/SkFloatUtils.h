@@ -95,7 +95,7 @@ public:
     /** Returns the fraction bits of this number. */
     Bits fraction_bits() const { return kFractionBitMask & fU.bits; }
 
-    /** Returns true iff this is NAN (not a number). */
+    /** Returns true if this is NAN (not a number). */
     bool is_nan() const {
         // It's a NAN if both of the folloowing are true:
         // * the exponent bits are all ones
@@ -104,7 +104,7 @@ public:
     }
 
     /**
-     *  Returns true iff this number is at most kMaxUlps ULP's away from ths.
+     *  Returns true if this number is at most kMaxUlps ULP's away from ths.
      *  In particular, this function:
      *   - returns false if either number is (or both are) NAN.
      *   - treats really large numbers as almost equal to infinity.

@@ -43,7 +43,7 @@ SkBitmapProcInfo::~SkBitmapProcInfo() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// true iff the matrix has a scale and no more than an optional translate.
+// true if the matrix has a scale and no more than an optional translate.
 static bool matrix_only_scale_translate(const SkMatrix& m) {
     return (m.getType() & ~SkMatrix::kTranslate_Mask) == SkMatrix::kScale_Mask;
 }

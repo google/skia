@@ -246,7 +246,7 @@ private:
     virtual CanDrawPath onCanDrawPath(const CanDrawPathArgs& args) const = 0;
 
     /**
-     * Subclass implementation of stencilPath(). Subclass must override iff it ever returns
+     * Subclass implementation of stencilPath(). Subclass must override if it ever returns
      * kStencilOnly in onGetStencilSupport().
      */
     virtual void onStencilPath(const StencilPathArgs& args) {

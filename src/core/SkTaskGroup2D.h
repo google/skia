@@ -16,7 +16,7 @@
 // The interface for doing work on a 2D grid with possible initialization on columns.
 class SkWorkKernel2D {
 public:
-    // Return false iff the column needs initialization and such initialization is not finished yet.
+    // Return false if the column needs initialization and such initialization is not finished yet.
     virtual bool work2D(int row, int column, int thread) = 0;
 
     // Return false if no initialization is done for this colum (e.g., it's already initialized; or

@@ -234,7 +234,7 @@ public:
     }
 
     /**
-     * Returns true iff the array contains this element.
+     * Returns true if the array contains this element.
      */
     bool contains(const T& elem) const {
         return (this->find(elem) >= 0);

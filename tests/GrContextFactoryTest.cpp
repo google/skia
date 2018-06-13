@@ -116,7 +116,7 @@ DEF_GPUTEST(GrContextFactory_sharedContexts, reporter, options) {
 
 DEF_GPUTEST(GrContextFactory_executorAndTaskGroup, reporter, options) {
     for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
-        // Verify that contexts have a task group iff we supply an executor with context options
+        // Verify that contexts have a task group if we supply an executor with context options
         GrContextOptions contextOptions = options;
         contextOptions.fExecutor = nullptr;
         GrContextFactory serialFactory(contextOptions);

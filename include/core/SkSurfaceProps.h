@@ -23,22 +23,22 @@ enum SkPixelGeometry {
     kBGR_V_SkPixelGeometry,
 };
 
-// Returns true iff geo is a known geometry and is RGB.
+// Returns true if geo is a known geometry and is RGB.
 static inline bool SkPixelGeometryIsRGB(SkPixelGeometry geo) {
     return kRGB_H_SkPixelGeometry == geo || kRGB_V_SkPixelGeometry == geo;
 }
 
-// Returns true iff geo is a known geometry and is BGR.
+// Returns true if geo is a known geometry and is BGR.
 static inline bool SkPixelGeometryIsBGR(SkPixelGeometry geo) {
     return kBGR_H_SkPixelGeometry == geo || kBGR_V_SkPixelGeometry == geo;
 }
 
-// Returns true iff geo is a known geometry and is horizontal.
+// Returns true if geo is a known geometry and is horizontal.
 static inline bool SkPixelGeometryIsH(SkPixelGeometry geo) {
     return kRGB_H_SkPixelGeometry == geo || kBGR_H_SkPixelGeometry == geo;
 }
 
-// Returns true iff geo is a known geometry and is vertical.
+// Returns true if geo is a known geometry and is vertical.
 static inline bool SkPixelGeometryIsV(SkPixelGeometry geo) {
     return kRGB_V_SkPixelGeometry == geo || kBGR_V_SkPixelGeometry == geo;
 }

@@ -22,7 +22,7 @@
  * @param  quality range from 0-100, this is supported by jpeg and webp.
  *                 higher values correspond to improved visual quality, but less compression.
  *
- * @return false iff input is bad or format is unsupported.
+ * @return false if input is bad or format is unsupported.
  *
  * Will always return false if Skia is compiled without image
  * encoders.

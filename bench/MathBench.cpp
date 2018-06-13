@@ -242,12 +242,12 @@ static const struct {
 #undef MAKEREC
 
 static bool isFinite(const SkRect& r) {
-    // x * 0 will be NaN iff x is infinity or NaN.
-    // a + b will be NaN iff either a or b is NaN.
+    // x * 0 will be NaN if x is infinity or NaN.
+    // a + b will be NaN if either a or b is NaN.
     float value = r.fLeft * 0 + r.fTop * 0 + r.fRight * 0 + r.fBottom * 0;
 
     // value is either NaN or it is finite (zero).
-    // value==value will be true iff value is not NaN
+    // value==value will be true if value is not NaN
     return value == value;
 }
 

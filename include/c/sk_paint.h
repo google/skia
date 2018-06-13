@@ -36,7 +36,7 @@ SK_API sk_paint_t* sk_paint_new(void);
 SK_API void sk_paint_delete(sk_paint_t*);
 
 /**
-    Return true iff the paint has antialiasing enabled.
+    Return true if the paint has antialiasing enabled.
 */
 SK_API bool sk_paint_is_antialias(const sk_paint_t*);
 /**
@@ -57,7 +57,7 @@ SK_API void sk_paint_set_color(sk_paint_t*, sk_color_t);
 /* stroke settings */
 
 /**
-    Return true iff stroking is enabled rather than filling on this
+    Return true if stroking is enabled rather than filling on this
     sk_paint_t.
 */
 SK_API bool sk_paint_is_stroke(const sk_paint_t*);

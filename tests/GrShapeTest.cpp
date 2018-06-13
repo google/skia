@@ -1327,7 +1327,7 @@ void test_volatile_path(skiatest::Reporter* reporter, const Geo& geo) {
     dashAndStroke.setStrokeWidth(2.f);
     dashAndStroke.setStyle(SkPaint::kStroke_Style);
     TestCase volatileCase(reporter, vPath, dashAndStroke);
-    // We expect a shape made from a volatile path to have a key iff the shape is recognized
+    // We expect a shape made from a volatile path to have a key if the shape is recognized
     // as a specialized geometry.
     if (geo.isNonPath(dashAndStroke)) {
         REPORTER_ASSERT(reporter, SkToBool(volatileCase.baseKey().count()));
@@ -1830,7 +1830,7 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
                         REPORTER_ASSERT(r, queryStart == expectedStart);
                         REPORTER_ASSERT(r, !queryInverted);
 
-                        // The pre-style case for the dash will match the non-dash example iff the
+                        // The pre-style case for the dash will match the non-dash example if the
                         // dir and start match (dir=cw, start=0).
                         if (0 == expectedStart && SkPath::kCW_Direction == dir) {
                             e.compare(r, f, TestCase::kSameUpToPE_ComparisonExpecation);
