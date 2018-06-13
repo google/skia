@@ -283,12 +283,6 @@ protected:
     virtual void onAbandon() { }
 
     /**
-     * This entry point should be called whenever gpuMemorySize() should report a different size.
-     * The cache will call gpuMemorySize() to update the current size of the resource.
-     */
-    void didChangeGpuMemorySize() const;
-
-    /**
      * Allows subclasses to add additional backing information to the SkTraceMemoryDump.
      **/
     virtual void setMemoryBacking(SkTraceMemoryDump*, const SkString&) const {}

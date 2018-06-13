@@ -2905,8 +2905,6 @@ void GrGLGpu::generateMipmaps(const GrSamplerState& params, GrGLTexture* texture
     }
 
     texture->texturePriv().markMipMapsClean();
-    texture->texturePriv().setMaxMipMapLevel(SkMipMap::ComputeLevelCount(
-        texture->width(), texture->height()));
 
     // We have potentially set lots of state on the texture. Easiest to dirty it all:
     texture->textureParamsModified();
@@ -3849,28 +3847,7 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, GrSurfaceOrigin textureOrigin
     int width = texture->width();
     int height = texture->height();
     int levelCount = SkMipMap::ComputeLevelCount(width, height) + 1;
-
-    // Define all mips, if we haven't previously done so:
-    if (0 == texture->texturePriv().maxMipMapLevel()) {
-        GrGLenum internalFormat;
-        GrGLenum externalFormat;
-        GrGLenum externalType;
-        if (!this->glCaps().getTexImageFormats(texture->config(), texture->config(),
-                                               &internalFormat, &externalFormat, &externalType)) {
-            return false;
-        }
-
-        this->unbindCpuToGpuXferBuffer();
-
-        for (GrGLint level = 1; level < levelCount; ++level) {
-            // Define the next mip:
-            width = SkTMax(1, width / 2);
-            height = SkTMax(1, height / 2);
-            GL_ALLOC_CALL(this->glInterface(), TexImage2D(GR_GL_TEXTURE_2D, level, internalFormat,
-                                                          width, height, 0,
-                                                          externalFormat, externalType, nullptr));
-        }
-    }
+    SkASSERT(levelCount == texture->texturePriv().maxMipMapLevel() + 1);
 
     // Create (if necessary), then bind temporary FBO:
     if (0 == fTempDstFBOID) {

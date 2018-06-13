@@ -265,7 +265,6 @@ private:
     void insertResource(GrGpuResource*);
     void removeResource(GrGpuResource*);
     void notifyCntReachedZero(GrGpuResource*, uint32_t flags);
-    void didChangeGpuMemorySize(const GrGpuResource*, size_t oldSize);
     void changeUniqueKey(GrGpuResource*, const GrUniqueKey&);
     void removeUniqueKey(GrGpuResource*);
     void willRemoveScratchKey(const GrGpuResource*);
@@ -410,13 +409,6 @@ private:
      */
     void notifyCntReachedZero(GrGpuResource* resource, uint32_t flags) {
         fCache->notifyCntReachedZero(resource, flags);
-    }
-
-    /**
-     * Called by GrGpuResources when their sizes change.
-     */
-    void didChangeGpuMemorySize(const GrGpuResource* resource, size_t oldSize) {
-        fCache->didChangeGpuMemorySize(resource, oldSize);
     }
 
     /**
