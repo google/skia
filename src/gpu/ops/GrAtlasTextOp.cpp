@@ -27,7 +27,9 @@ std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeBitmap(GrContext* context,
                                                          GrMaskFormat maskFormat,
                                                          int glyphCount,
                                                          bool needsTransform) {
-        std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(std::move(paint)));
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        std::unique_ptr<GrAtlasTextOp> op = pool->allocate<GrAtlasTextOp>(std::move(paint));
 
         switch (maskFormat) {
             case kA8_GrMaskFormat:
@@ -57,7 +59,9 @@ std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeDistanceField(
                                             const SkSurfaceProps& props,
                                             bool isAntiAliased,
                                             bool useLCD) {
-        std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(std::move(paint)));
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        std::unique_ptr<GrAtlasTextOp> op = pool->allocate<GrAtlasTextOp>(std::move(paint));
 
         bool isBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
         bool isLCD = useLCD && SkPixelGeometryIsH(props.pixelGeometry());

@@ -169,6 +169,7 @@ public:
         return str;
     }
 
+#if 0
     void* operator new(size_t size);
     void operator delete(void* target);
 
@@ -178,6 +179,7 @@ public:
     void operator delete(void* target, void* placement) {
         ::operator delete(target, placement);
     }
+#endif
 
     /** Helper for down-casting to a GrProcessor subclass */
     template <typename T> const T& cast() const { return *static_cast<const T*>(this); }
@@ -215,8 +217,7 @@ public:
     bool instantiate(GrResourceProvider* resourceProvider) const;
 
 protected:
-    GrResourceIOProcessor(ClassID classID)
-    : INHERITED(classID) {}
+    GrResourceIOProcessor(ClassID classID) : INHERITED(classID) {}
 
     /**
      * Subclasses call these from their constructor to register sampler sources. The processor

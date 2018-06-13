@@ -91,6 +91,8 @@ void GrXPFactoryTestFactory::VerifyFactoryCount() {
 #endif
 
 
+#if 0
+
 // We use a global pool protected by a mutex(spinlock). Chrome may use the same GrContext on
 // different threads. The GrContext is not used concurrently on different threads and there is a
 // memory barrier between accesses of a context on different threads. Also, there may be multiple
@@ -120,11 +122,14 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void* GrProcessor::operator new(size_t size) { return MemoryPoolAccessor().pool()->allocate(size); }
+void* GrProcessor::operator new(size_t size) {
+    return MemoryPoolAccessor().pool()->allocate(size);
+}
 
 void GrProcessor::operator delete(void* target) {
     return MemoryPoolAccessor().pool()->release(target);
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

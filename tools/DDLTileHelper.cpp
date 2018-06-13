@@ -16,6 +16,9 @@
 #include "SkSurfaceCharacterization.h"
 #include "SkTaskGroup.h"
 
+#include <chrono>
+#include <thread>
+
 DDLTileHelper::TileData::TileData(sk_sp<SkSurface> s, const SkIRect& clip)
         : fSurface(std::move(s))
         , fClip(clip) {
@@ -34,6 +37,10 @@ void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureDat
 }
 
 void DDLTileHelper::TileData::createDDL() {
+//    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+//    return;
+
+
     SkASSERT(fReconstitutedPicture);
     SkASSERT(!fDisplayList);
 
@@ -128,9 +135,8 @@ void DDLTileHelper::createSKPPerTile(SkData* compressedPictureData,
 
 void DDLTileHelper::createDDLsInParallel() {
 #if 1
-    SkTaskGroup().batch(fTiles.count(), [&](int i) {
-        fTiles[i].createDDL();
-    });
+    SkTaskGroup().batch(fTiles.count(), [&](int i) { fTiles[i].createDDL(); });
+    SkTaskGroup().wait();
 #else
     // Use this code path to debug w/o threads
     for (int i = 0; i < fTiles.count(); ++i) {
