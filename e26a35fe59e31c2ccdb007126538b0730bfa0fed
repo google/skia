@@ -173,6 +173,24 @@
       "revId": "e26a35fe59e31c2ccdb007126538b0730bfa0fed",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a4b8b46_44f5bab7",
+        "filename": "platform_tools/android/apps/settings.gradle",
+        "patchSetId": 23
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-13T18:59:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "472492e4_ec643bb1",
+      "revId": "e26a35fe59e31c2ccdb007126538b0730bfa0fed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
