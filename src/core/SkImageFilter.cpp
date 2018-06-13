@@ -316,11 +316,7 @@ sk_sp<SkSpecialImage> SkImageFilter::ImageToColorSpace(SkSpecialImage* src,
     // object. If that produces something, then both are tagged, and the source is in a different
     // gamut than the dest. There is some overhead to making the xform, but those are cached, and
     // if we get one back, that means we're about to use it during the conversion anyway.
-    //
-    // TODO: Fix this check, to handle wider support of transfer functions, config mismatch, etc.
-    // For now, continue to just check if gamut is different, which may not be sufficient.
-    auto colorSpaceXform = GrColorSpaceXform::MakeGamutXform(src->getColorSpace(),
-                                                             outProps.colorSpace());
+    auto colorSpaceXform = GrColorSpaceXform::Make(src->getColorSpace(), outProps.colorSpace());
 
     if (!colorSpaceXform) {
         // No xform needed, just return the original image

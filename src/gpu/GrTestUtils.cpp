@@ -317,6 +317,7 @@ sk_sp<SkColorSpace> TestColorSpace(SkRandom* random) {
 }
 
 sk_sp<GrColorSpaceXform> TestColorXform(SkRandom* random) {
+    // TODO: Add many more kinds of xforms here
     static sk_sp<GrColorSpaceXform> gXforms[3];
     static bool gOnce;
     if (!gOnce) {
@@ -325,10 +326,8 @@ sk_sp<GrColorSpaceXform> TestColorXform(SkRandom* random) {
         sk_sp<SkColorSpace> spin = SkColorSpace::MakeSRGB()->makeColorSpin();
         // No gamut change
         gXforms[0] = nullptr;
-        // To different gamut (with automatic transfer function)
-        gXforms[1] = GrColorSpaceXform::Make(srgb.get(), kSRGBA_8888_GrPixelConfig, spin.get());
-        // To different gamut (with manual transfer function)
-        gXforms[2] = GrColorSpaceXform::Make(spin.get(), kRGBA_8888_GrPixelConfig, srgb.get());
+        gXforms[1] = GrColorSpaceXform::Make(srgb.get(), spin.get());
+        gXforms[2] = GrColorSpaceXform::Make(spin.get(), srgb.get());
     }
     return gXforms[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gXforms)))];
 }
