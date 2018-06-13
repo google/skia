@@ -5,12 +5,11 @@
 * found in the LICENSE file.
 */
 
+#include "gm.h"
 #include "SkBlurMask.h"
 #include "SkCanvas.h"
 #include "SkMaskFilter.h"
 #include "SkPath.h"
-#include "SkTo.h"
-#include "gm.h"
 
 #define STROKE_WIDTH    SkIntToScalar(10)
 

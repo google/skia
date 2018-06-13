@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkPDFFont.h"
-
 #include "SkData.h"
 #include "SkGlyphCache.h"
 #include "SkMacros.h"
@@ -14,6 +12,7 @@
 #include "SkPDFCanon.h"
 #include "SkPDFConvertType1FontStream.h"
 #include "SkPDFDevice.h"
+#include "SkPDFFont.h"
 #include "SkPDFMakeCIDGlyphWidthsArray.h"
 #include "SkPDFMakeToUnicodeCmap.h"
 #include "SkPDFUtils.h"
@@ -21,7 +20,6 @@
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 #include "SkStream.h"
-#include "SkTo.h"
 #include "SkTypes.h"
 #include "SkUtils.h"
 

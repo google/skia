@@ -5,11 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkEmbossMask.h"
 
+#include "SkEmbossMask.h"
 #include "SkFixed.h"
 #include "SkMath.h"
-#include "SkTo.h"
 
 static inline int nonzero_to_one(int x) {
 #if 0

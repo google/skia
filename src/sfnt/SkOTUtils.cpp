@@ -15,7 +15,6 @@
 #include "SkOTTable_name.h"
 #include "SkSFNTHeader.h"
 #include "SkStream.h"
-#include "SkTo.h"
 
 extern const uint8_t SK_OT_GlyphData_NoOutline[] = {
     0x0,0x0, //SkOTTableGlyphData::numberOfContours

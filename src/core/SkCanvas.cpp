@@ -5,55 +5,53 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-
 #include "SkArenaAlloc.h"
 #include "SkBitmapDevice.h"
+#include "SkCanvas.h"
 #include "SkCanvasPriv.h"
-#include "SkClipOpPriv.h"
 #include "SkClipStack.h"
 #include "SkColorFilter.h"
 #include "SkDraw.h"
+#include "SkDrawable.h"
 #include "SkDrawFilter.h"
 #include "SkDrawLooper.h"
-#include "SkDrawable.h"
 #include "SkGlyphCache.h"
 #include "SkGlyphRun.h"
 #include "SkImage.h"
+#include "SkImage_Base.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
-#include "SkImage_Base.h"
 #include "SkLatticeIter.h"
-#include "SkMSAN.h"
 #include "SkMakeUnique.h"
 #include "SkMatrixUtils.h"
 #include "SkMetaData.h"
+#include "SkMSAN.h"
 #include "SkNoDrawCanvas.h"
 #include "SkNx.h"
 #include "SkPaintPriv.h"
 #include "SkPatchUtils.h"
 #include "SkPathEffect.h"
 #include "SkPicture.h"
-#include "SkRRect.h"
 #include "SkRasterClip.h"
 #include "SkRasterHandleAllocator.h"
+#include "SkRRect.h"
 #include "SkSpecialImage.h"
 #include "SkStrikeCache.h"
 #include "SkString.h"
 #include "SkSurface_Base.h"
-#include "SkTLazy.h"
 #include "SkTextBlob.h"
 #include "SkTextFormatParams.h"
-#include "SkTo.h"
+#include "SkTLazy.h"
 #include "SkTraceEvent.h"
-#include "SkVertices.h"
-
 #include <new>
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "SkGr.h"
+
 #endif
+#include "SkClipOpPriv.h"
+#include "SkVertices.h"
 
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
 #define RETURN_ON_FALSE(pred)   do { if (!(pred)) return; } while (0)

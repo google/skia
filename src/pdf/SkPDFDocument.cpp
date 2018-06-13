@@ -13,7 +13,6 @@
 #include "SkPDFDevice.h"
 #include "SkPDFUtils.h"
 #include "SkStream.h"
-#include "SkTo.h"
 
 SkPDFObjectSerializer::SkPDFObjectSerializer() : fBaseOffset(0), fNextToBeSerialized(0) {}
 

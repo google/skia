@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2012 Google Inc.
  *
@@ -15,9 +16,9 @@
 #include "GrTextureObj.h"
 #include "GrTextureUnitObj.h"
 #include "GrVertexArrayObj.h"
-#include "SkMutex.h"
-#include "SkTo.h"
 #include "gl/GrGLTestInterface.h"
+
+#include "SkMutex.h"
 
 namespace {
 

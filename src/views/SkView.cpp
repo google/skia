@@ -6,9 +6,7 @@
  */
 
 #include "SkView.h"
-
 #include "SkCanvas.h"
-#include "SkTo.h"
 
 static inline uint32_t SkSetClearShift(uint32_t bits, bool cond, unsigned shift) {
     SkASSERT((int)cond == 0 || (int)cond == 1);

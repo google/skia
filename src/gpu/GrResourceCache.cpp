@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+
 #include "GrResourceCache.h"
 
 #include "GrCaps.h"
@@ -17,7 +18,6 @@
 #include "SkMessageBus.h"
 #include "SkOpts.h"
 #include "SkTSort.h"
-#include "SkTo.h"
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrUniqueKeyInvalidatedMessage);
 

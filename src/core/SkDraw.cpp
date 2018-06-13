@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkDraw.h"
+#define __STDC_LIMIT_MACROS
 
 #include "SkArenaAlloc.h"
 #include "SkAutoBlitterChoose.h"
@@ -14,6 +14,7 @@
 #include "SkCanvas.h"
 #include "SkColorData.h"
 #include "SkDevice.h"
+#include "SkDraw.h"
 #include "SkDrawProcs.h"
 #include "SkFindAndPlaceGlyph.h"
 #include "SkMaskFilterBase.h"
@@ -23,20 +24,19 @@
 #include "SkPaint.h"
 #include "SkPathEffect.h"
 #include "SkPathPriv.h"
-#include "SkRRect.h"
 #include "SkRasterClip.h"
 #include "SkRectPriv.h"
+#include "SkRRect.h"
 #include "SkScalerContext.h"
 #include "SkScan.h"
 #include "SkShader.h"
 #include "SkString.h"
 #include "SkStroke.h"
 #include "SkStrokeRec.h"
-#include "SkTLazy.h"
 #include "SkTemplates.h"
 #include "SkTextMapStateProc.h"
 #include "SkThreadedBMPDevice.h"
-#include "SkTo.h"
+#include "SkTLazy.h"
 #include "SkUtils.h"
 
 static SkPaint make_paint_with_image(

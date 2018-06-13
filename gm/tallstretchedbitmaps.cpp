@@ -6,12 +6,10 @@
  */
 
 #include "gm.h"
-
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkPath.h"
 #include "SkRandom.h"
-#include "SkTo.h"
 
 int make_bm(SkBitmap* bm, int height) {
     constexpr int kRadius = 22;

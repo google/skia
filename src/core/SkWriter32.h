@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2008 The Android Open Source Project
  *
@@ -5,9 +6,11 @@
  * found in the LICENSE file.
  */
 
+
 #ifndef SkWriter32_DEFINED
 #define SkWriter32_DEFINED
 
+#include "../private/SkTemplates.h"
 #include "SkData.h"
 #include "SkMatrix.h"
 #include "SkPath.h"
@@ -18,8 +21,6 @@
 #include "SkRegion.h"
 #include "SkScalar.h"
 #include "SkStream.h"
-#include "SkTemplates.h"
-#include "SkTo.h"
 #include "SkTypes.h"
 
 class SK_API SkWriter32 : SkNoncopyable {
