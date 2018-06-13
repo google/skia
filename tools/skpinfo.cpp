@@ -6,12 +6,11 @@
  */
 
 #include "SkCommandLineFlags.h"
-#include "SkFontDescriptor.h"
 #include "SkPicture.h"
-#include "SkPictureCommon.h"
 #include "SkPictureData.h"
+#include "SkPictureCommon.h"
 #include "SkStream.h"
-#include "SkTo.h"
+#include "SkFontDescriptor.h"
 
 DEFINE_string2(input, i, "", "skp on which to report");
 DEFINE_bool2(version, v, true, "version");

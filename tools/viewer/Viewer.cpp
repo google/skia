@@ -5,6 +5,9 @@
 * found in the LICENSE file.
 */
 
+#include "Viewer.h"
+#include <stdlib.h>
+#include <map>
 #include "BisectSlide.h"
 #include "GMSlide.h"
 #include "GrContext.h"
@@ -34,14 +37,9 @@
 #include "SkTaskGroup.h"
 #include "SkTestFontMgr.h"
 #include "SkThreadedBMPDevice.h"
-#include "SkTo.h"
 #include "SvgSlide.h"
-#include "Viewer.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
 #include "imgui.h"
-
-#include <stdlib.h>
-#include <map>
 
 #if defined(SK_HAS_SKSG)
     #include "SlideDir.h"

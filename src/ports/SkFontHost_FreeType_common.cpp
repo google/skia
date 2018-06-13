@@ -13,7 +13,6 @@
 #include "SkFDot6.h"
 #include "SkFontHost_FreeType_common.h"
 #include "SkPath.h"
-#include "SkTo.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H

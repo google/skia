@@ -4,21 +4,19 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "SampleCode.h"
+#include "SkView.h"
 #include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkColorPriv.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
 #include "SkPath.h"
 #include "SkRegion.h"
 #include "SkShader.h"
-#include "SkTime.h"
-#include "SkTo.h"
-#include "SkTypeface.h"
 #include "SkUtils.h"
-#include "SkView.h"
+#include "SkColorPriv.h"
+#include "SkColorFilter.h"
+#include "SkTime.h"
+#include "SkTypeface.h"
 
 class PathClipView : public SampleView {
 public:

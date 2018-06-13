@@ -4,15 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
+#include "gm.h"
+#include "sk_tool_utils.h"
 #include "Resources.h"
 #include "SkCanvas.h"
 #include "SkStream.h"
 #include "SkSurface.h"
-#include "SkTo.h"
 #include "SkTypeface.h"
-#include "gm.h"
-#include "sk_tool_utils.h"
 
 class DFTextGM : public skiagm::GM {
 public:

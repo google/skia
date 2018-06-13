@@ -9,7 +9,6 @@
 
 #if defined(SK_XML)
 #include "SkPEG.h"
-#include "SkTo.h"
 
 using namespace skpeg;
 

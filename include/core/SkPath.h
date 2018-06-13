@@ -20,7 +20,6 @@
 
 #include "SkMatrix.h"
 #include "../private/SkPathRef.h"
-#include "../private/SkTo.h"
 
 class SkAutoPathBoundsUpdate;
 class SkData;

@@ -5,19 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "SkRect.h"
+#include "SkRectPriv.h"
 
 #if !defined(SK_BUILD_FOR_GOOGLE3)
 
-#include "SkRect.h"
-#include "SkRectPriv.h"
 #include "SkSGColor.h"
 #include "SkSGDraw.h"
 #include "SkSGGroup.h"
 #include "SkSGInvalidationController.h"
 #include "SkSGRect.h"
 #include "SkSGTransform.h"
-#include "SkTo.h"
 
 #include "Test.h"
 

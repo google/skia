@@ -9,7 +9,6 @@
 #define SkAnalyticEdge_DEFINED
 
 #include "SkEdge.h"
-#include "SkTo.h"
 
 struct SkAnalyticEdge {
     // Similar to SkEdge, the conic edges will be converted to quadratic edges

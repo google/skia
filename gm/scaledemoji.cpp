@@ -11,7 +11,6 @@
 #include "Resources.h"
 #include "SkCanvas.h"
 #include "SkStream.h"
-#include "SkTo.h"
 #include "SkTypeface.h"
 
 namespace skiagm {

@@ -8,8 +8,6 @@
 #include "SkMatrixPriv.h"
 #include "SkReader32.h"
 #include "SkString.h"
-#include "SkTo.h"
-
 #include "SkWriter32.h"
 
 void SkWriter32::writeMatrix(const SkMatrix& matrix) {

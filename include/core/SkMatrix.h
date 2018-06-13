@@ -19,7 +19,6 @@
 #define SkMatrix_DEFINED
 
 #include "../private/SkMacros.h"
-#include "../private/SkTo.h"
 #include "SkRect.h"
 
 struct SkRSXform;

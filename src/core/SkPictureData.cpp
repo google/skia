@@ -5,20 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkPictureData.h"
+#include <new>
 
 #include "SkAutoMalloc.h"
 #include "SkImageGenerator.h"
 #include "SkMakeUnique.h"
+#include "SkPictureData.h"
 #include "SkPictureRecord.h"
 #include "SkPicturePriv.h"
 #include "SkReadBuffer.h"
 #include "SkTextBlob.h"
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
-#include "SkTo.h"
-
-#include <new>
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"

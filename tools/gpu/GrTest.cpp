@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "GrTest.h"
+#include <algorithm>
 #include "GrBackendSurface.h"
 #include "GrContextOptions.h"
 #include "GrContextPriv.h"
@@ -18,17 +20,14 @@
 #include "GrResourceCache.h"
 #include "GrSemaphore.h"
 #include "GrSurfaceContextPriv.h"
-#include "GrTest.h"
 #include "GrTexture.h"
 #include "SkGr.h"
 #include "SkImage_Gpu.h"
 #include "SkMathPriv.h"
 #include "SkString.h"
-#include "SkTo.h"
 #include "ops/GrMeshDrawOp.h"
 #include "text/GrGlyphCache.h"
 #include "text/GrTextBlobCache.h"
-#include <algorithm>
 
 namespace GrTest {
 

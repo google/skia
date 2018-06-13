@@ -16,7 +16,6 @@
 #include "SkPixmap.h"
 #include "SkRandom.h"
 #include "SkStream.h"
-#include "SkTo.h"
 
 namespace {
 struct WStreamWriteTextBenchmark : public Benchmark {
