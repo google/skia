@@ -12,7 +12,6 @@
 #include "SkChecksum.h"
 #include "SkFixed.h"
 #include "SkMask.h"
-#include "SkTo.h"
 #include "SkTypes.h"
 
 class SkPath;

@@ -8,10 +8,9 @@
 #include "SkRWBuffer.h"
 
 #include "SkAtomics.h"
-#include "SkMakeUnique.h"
 #include "SkMalloc.h"
+#include "SkMakeUnique.h"
 #include "SkStream.h"
-#include "SkTo.h"
 
 #include <atomic>
 #include <new>

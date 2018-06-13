@@ -5,11 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkAnalyticEdge.h"
 
+#include "SkAnalyticEdge.h"
 #include "SkFDot6.h"
 #include "SkMathPriv.h"
-#include "SkTo.h"
 
 // This will become a bottleneck for small ovals rendering if we call SkFixedDiv twice here.
 // Therefore, we'll let the outter function compute the slope once and send in the value.

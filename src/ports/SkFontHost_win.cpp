@@ -20,21 +20,21 @@
 #include "SkMakeUnique.h"
 #include "SkMaskGamma.h"
 #include "SkMatrix22.h"
+#include "SkOnce.h"
 #include "SkOTTable_OS_2.h"
 #include "SkOTTable_maxp.h"
 #include "SkOTTable_name.h"
 #include "SkOTUtils.h"
-#include "SkOnce.h"
 #include "SkPath.h"
 #include "SkSFNTHeader.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTemplates.h"
-#include "SkTo.h"
-#include "SkTypefaceCache.h"
 #include "SkTypeface_win.h"
+#include "SkTypefaceCache.h"
 #include "SkUtils.h"
 
+#include "SkTypes.h"
 #include <tchar.h>
 #include <usp10.h>
 #include <objbase.h>

@@ -14,12 +14,11 @@
 #include "SkDevice.h"
 #include "SkDraw.h"
 #include "SkGlyphCache.h"
-#include "SkMSAN.h"
 #include "SkMakeUnique.h"
+#include "SkMSAN.h"
 #include "SkPaint.h"
 #include "SkPaintPriv.h"
 #include "SkStrikeCache.h"
-#include "SkTo.h"
 #include "SkUtils.h"
 
 static SkTypeface::Encoding convert_encoding(SkPaint::TextEncoding encoding) {

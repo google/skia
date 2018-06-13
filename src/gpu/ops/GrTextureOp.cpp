@@ -6,7 +6,6 @@
  */
 
 #include "GrTextureOp.h"
-
 #include "GrAppliedClip.h"
 #include "GrCaps.h"
 #include "GrContext.h"
@@ -27,7 +26,6 @@
 #include "SkMatrixPriv.h"
 #include "SkPoint.h"
 #include "SkPoint3.h"
-#include "SkTo.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"

@@ -8,10 +8,9 @@
 #include "SkInterpolator.h"
 
 #include "SkFixed.h"
-#include "SkMalloc.h"
 #include "SkMath.h"
+#include "SkMalloc.h"
 #include "SkTSearch.h"
-#include "SkTo.h"
 
 SkInterpolatorBase::SkInterpolatorBase() {
     fStorage    = nullptr;

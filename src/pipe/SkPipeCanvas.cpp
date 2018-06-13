@@ -5,23 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "SkPipeCanvas.h"
-
 #include "SkAutoMalloc.h"
 #include "SkCanvasPriv.h"
 #include "SkColorFilter.h"
+#include "SkDrawable.h"
 #include "SkDrawLooper.h"
 #include "SkDrawShadowInfo.h"
-#include "SkDrawable.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
 #include "SkPathEffect.h"
+#include "SkPipeCanvas.h"
 #include "SkPipeFormat.h"
 #include "SkRSXform.h"
 #include "SkShader.h"
 #include "SkStream.h"
 #include "SkTextBlob.h"
-#include "SkTo.h"
 #include "SkTypeface.h"
 
 template <typename T> void write_rrect(T* writer, const SkRRect& rrect) {

@@ -5,12 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkPDFMetadata.h"
-
 #include "SkMD5.h"
 #include "SkMilestone.h"
+#include "SkPDFMetadata.h"
 #include "SkPDFTypes.h"
-#include "SkTo.h"
 #include "SkUtils.h"
 
 #include <utility>

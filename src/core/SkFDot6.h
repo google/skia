@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
+
 #ifndef SkFDot6_DEFINED
 #define SkFDot6_DEFINED
 
 #include "SkFixed.h"
-#include "SkMath.h"
 #include "SkScalar.h"
-#include "SkTo.h"
+#include "SkMath.h"
 
 typedef int32_t SkFDot6;
 

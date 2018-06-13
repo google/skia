@@ -14,11 +14,10 @@
  */
 
 #include "SkBitmapProcState.h"
-#include "SkBitmapProcState_utils.h"
 #include "SkShader.h"
-#include "SkTo.h"
 #include "SkUtils.h"
 #include "SkUtilsArm.h"
+#include "SkBitmapProcState_utils.h"
 
 /*  returns 0...(n-1) given any x (positive or negative).
 

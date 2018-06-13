@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -10,9 +11,8 @@
 #define SkString_DEFINED
 
 #include "../private/SkTArray.h"
-#include "../private/SkTo.h"
-#include "SkRefCnt.h"
 #include "SkScalar.h"
+#include "SkRefCnt.h"
 
 #include <atomic>
 #include <stdarg.h>

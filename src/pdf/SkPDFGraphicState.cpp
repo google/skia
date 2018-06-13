@@ -5,14 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkPDFGraphicState.h"
-
 #include "SkData.h"
+#include "SkPaint.h"
 #include "SkPDFCanon.h"
 #include "SkPDFFormXObject.h"
+#include "SkPDFGraphicState.h"
 #include "SkPDFUtils.h"
-#include "SkPaint.h"
-#include "SkTo.h"
 
 static const char* as_pdf_blend_mode_name(SkBlendMode mode) {
     // PDF32000.book section 11.3.5 "Blend Mode"

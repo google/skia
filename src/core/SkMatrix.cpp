@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkMatrix.h"
-
 #include "SkFloatBits.h"
 #include "SkMathPriv.h"
 #include "SkMatrixPriv.h"
@@ -15,7 +13,6 @@
 #include "SkPoint3.h"
 #include "SkRSXform.h"
 #include "SkString.h"
-#include "SkTo.h"
 #include <stddef.h>
 
 static void normalize_perspective(SkScalar mat[9]) {

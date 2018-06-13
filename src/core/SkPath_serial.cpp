@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include <cmath>
 #include "SkBuffer.h"
 #include "SkData.h"
 #include "SkMath.h"
@@ -12,9 +13,6 @@
 #include "SkPathRef.h"
 #include "SkRRect.h"
 #include "SkSafeMath.h"
-#include "SkTo.h"
-
-#include <cmath>
 
 enum SerializationOffsets {
     kType_SerializationShift = 28,       // requires 4 bits

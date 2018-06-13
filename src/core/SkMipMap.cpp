@@ -6,7 +6,6 @@
  */
 
 #include "SkMipMap.h"
-
 #include "SkBitmap.h"
 #include "SkColorData.h"
 #include "SkHalf.h"
@@ -15,7 +14,6 @@
 #include "SkNx.h"
 #include "SkPM4fPriv.h"
 #include "SkSRGB.h"
-#include "SkTo.h"
 #include "SkTypes.h"
 #include <new>
 

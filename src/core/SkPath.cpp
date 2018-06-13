@@ -5,8 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkPath.h"
-
+#include <cmath>
 #include "SkBuffer.h"
 #include "SkCubicClipper.h"
 #include "SkData.h"
@@ -19,9 +18,6 @@
 #include "SkPointPriv.h"
 #include "SkRRect.h"
 #include "SkSafeMath.h"
-#include "SkTo.h"
-
-#include <cmath>
 
 static float poly_eval(float A, float B, float C, float t) {
     return (A * t + B) * t + C;

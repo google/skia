@@ -18,7 +18,6 @@
 #ifndef SkPaint_DEFINED
 #define SkPaint_DEFINED
 
-#include "../private/SkTo.h"
 #include "SkBlendMode.h"
 #include "SkColor.h"
 #include "SkFilterQuality.h"

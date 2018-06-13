@@ -15,10 +15,10 @@
 #include "SkFontHost_FreeType_common.h"
 #include "SkGlyph.h"
 #include "SkMakeUnique.h"
-#include "SkMalloc.h"
 #include "SkMask.h"
 #include "SkMaskGamma.h"
 #include "SkMatrix22.h"
+#include "SkMalloc.h"
 #include "SkMutex.h"
 #include "SkOTUtils.h"
 #include "SkPath.h"
@@ -26,8 +26,6 @@
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTemplates.h"
-#include "SkTo.h"
-
 #include <memory>
 
 #include <ft2build.h>

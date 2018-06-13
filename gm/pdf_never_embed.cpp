@@ -6,7 +6,6 @@
  */
 
 #include "Resources.h"
-#include "SkTo.h"
 #include "SkTypeface.h"
 #include "gm.h"
 

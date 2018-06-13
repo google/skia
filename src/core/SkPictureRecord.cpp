@@ -6,9 +6,7 @@
  */
 
 #include "SkPictureRecord.h"
-
 #include "SkCanvasPriv.h"
-#include "SkClipOpPriv.h"
 #include "SkDrawShadowInfo.h"
 #include "SkImage_Base.h"
 #include "SkMatrixPriv.h"
@@ -16,9 +14,9 @@
 #include "SkPixelRef.h"
 #include "SkRRect.h"
 #include "SkRSXform.h"
-#include "SkTSearch.h"
 #include "SkTextBlob.h"
-#include "SkTo.h"
+#include "SkTSearch.h"
+#include "SkClipOpPriv.h"
 
 #define HEAP_BLOCK_SIZE 4096
 

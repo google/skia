@@ -4,7 +4,6 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "Benchmark.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
@@ -12,7 +11,6 @@
 #include "SkPaint.h"
 #include "SkRandom.h"
 #include "SkString.h"
-#include "SkTo.h"
 
 static void draw_into_bitmap(const SkBitmap& bm) {
     const int w = bm.width();

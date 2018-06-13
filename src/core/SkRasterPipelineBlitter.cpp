@@ -5,10 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "../jumper/SkJumper.h"
 #include "SkArenaAlloc.h"
-#include "SkBlendModePriv.h"
 #include "SkBlitter.h"
+#include "SkBlendModePriv.h"
 #include "SkColor.h"
 #include "SkColorFilter.h"
 #include "SkColorSpaceXformer.h"
@@ -18,8 +17,8 @@
 #include "SkRasterPipeline.h"
 #include "SkShader.h"
 #include "SkShaderBase.h"
-#include "SkTo.h"
 #include "SkUtils.h"
+#include "../jumper/SkJumper.h"
 
 class SkRasterPipelineBlitter final : public SkBlitter {
 public:

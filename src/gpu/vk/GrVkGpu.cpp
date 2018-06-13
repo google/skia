@@ -16,6 +16,7 @@
 #include "GrPipeline.h"
 #include "GrRenderTargetPriv.h"
 #include "GrTexturePriv.h"
+
 #include "GrVkAMDMemoryAllocator.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkGpuCommandBuffer.h"
@@ -32,12 +33,14 @@
 #include "GrVkTextureRenderTarget.h"
 #include "GrVkTransferBuffer.h"
 #include "GrVkVertexBuffer.h"
+
 #include "SkConvertPixels.h"
 #include "SkMipMap.h"
-#include "SkSLCompiler.h"
-#include "SkTo.h"
+
 #include "vk/GrVkInterface.h"
 #include "vk/GrVkTypes.h"
+
+#include "SkSLCompiler.h"
 
 #if !defined(SK_BUILD_FOR_WIN)
 #include <unistd.h>

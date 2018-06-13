@@ -14,7 +14,6 @@
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 #include "SkTHash.h"
-#include "SkTo.h"
 #include "SkTypes.h"
 
 class SkData;

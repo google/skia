@@ -6,12 +6,10 @@
  */
 
 #include "SkStrokerPriv.h"
-
 #include "SkGeometry.h"
 #include "SkMacros.h"
 #include "SkPathPriv.h"
 #include "SkPointPriv.h"
-#include "SkTo.h"
 
 enum {
     kTangent_RecursiveLimit,

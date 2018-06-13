@@ -5,12 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkMaskGamma.h"
+#include "SkTypes.h"
 
 #include "SkColor.h"
 #include "SkFloatingPoint.h"
-#include "SkTo.h"
-#include "SkTypes.h"
+#include "SkMaskGamma.h"
 
 class SkLinearColorSpaceLuminance : public SkColorSpaceLuminance {
     SkScalar toLuma(SkScalar SkDEBUGCODE(gamma), SkScalar luminance) const override {

@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
+
 #ifndef SkTSort_DEFINED
 #define SkTSort_DEFINED
 
-#include "SkMathPriv.h"
-#include "SkTo.h"
 #include "SkTypes.h"
+#include "SkMathPriv.h"
 
 /* A comparison functor which performs the comparison 'a < b'. */
 template <typename T> struct SkTCompareLT {

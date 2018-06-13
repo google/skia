@@ -16,7 +16,6 @@
 #include "SkTArray.h"
 #include "SkTDArray.h"
 #include "SkTHash.h"
-#include "SkTo.h"
 #include "SkVertices.h"
 #include "SkWriter32.h"
 

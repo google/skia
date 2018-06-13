@@ -6,7 +6,6 @@
  */
 
 #include "SkDevice.h"
-
 #include "SkColorFilter.h"
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
@@ -29,7 +28,6 @@
 #include "SkTLazy.h"
 #include "SkTextBlobRunIterator.h"
 #include "SkTextToPathIter.h"
-#include "SkTo.h"
 #include "SkUtils.h"
 #include "SkVertices.h"
 

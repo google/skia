@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -9,7 +10,6 @@
 #ifndef SkMath_DEFINED
 #define SkMath_DEFINED
 
-#include "../private/SkTo.h"
 #include "SkTypes.h"
 
 // 64bit -> 32bit utilities

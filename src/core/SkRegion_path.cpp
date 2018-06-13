@@ -5,14 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlitter.h"
-#include "SkPath.h"
 #include "SkRegionPriv.h"
+#include "SkBlitter.h"
 #include "SkSafeMath.h"
 #include "SkScan.h"
-#include "SkTDArray.h"
 #include "SkTSort.h"
-#include "SkTo.h"
+#include "SkTDArray.h"
+#include "SkPath.h"
 
 // The rgnbuilder caller *seems* to pass short counts, possible often seens early failure, so
 // we may not want to promote this to a "std" routine just yet.

@@ -5,13 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkTime.h"
-
 #include "SkLeanWindows.h"
 #include "SkString.h"
-#include "SkTo.h"
+#include "SkTime.h"
 #include "SkTypes.h"
-
 #include <chrono>
 
 void SkTime::DateTime::toISO8601(SkString* dst) const {

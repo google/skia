@@ -12,7 +12,6 @@
 #include "GrTypesPriv.h"
 #include "SkOpts.h"
 #include "SkTArray.h"
-#include "SkTo.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
 class GrShaderCaps;

@@ -5,9 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkWebpCodec.h"
-
-#include "../jumper/SkJumper.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkCodecAnimation.h"
@@ -19,7 +16,8 @@
 #include "SkSampler.h"
 #include "SkStreamPriv.h"
 #include "SkTemplates.h"
-#include "SkTo.h"
+#include "SkWebpCodec.h"
+#include "../jumper/SkJumper.h"
 
 // A WebP decoder on top of (subset of) libwebp
 // For more information on WebP image format, and libwebp library, see:

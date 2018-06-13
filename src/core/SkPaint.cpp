@@ -6,22 +6,22 @@
  */
 
 #include "SkPaint.h"
-
+#include "SkPaintPriv.h"
 #include "SkColorFilter.h"
 #include "SkData.h"
 #include "SkDraw.h"
 #include "SkFontDescriptor.h"
-#include "SkGlyphCache.h"
 #include "SkGraphics.h"
+#include "SkGlyphCache.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
 #include "SkMaskGamma.h"
 #include "SkMutex.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkOpts.h"
 #include "SkPaintDefaults.h"
-#include "SkPaintPriv.h"
 #include "SkPathEffect.h"
-#include "SkReadBuffer.h"
 #include "SkSafeRange.h"
 #include "SkScalar.h"
 #include "SkScalerContext.h"
@@ -31,14 +31,12 @@
 #include "SkStroke.h"
 #include "SkStrokeRec.h"
 #include "SkSurfacePriv.h"
-#include "SkTLazy.h"
 #include "SkTextBlob.h"
 #include "SkTextBlobRunIterator.h"
 #include "SkTextFormatParams.h"
 #include "SkTextToPathIter.h"
-#include "SkTo.h"
+#include "SkTLazy.h"
 #include "SkTypeface.h"
-#include "SkWriteBuffer.h"
 
 static inline uint32_t set_clear_mask(uint32_t bits, bool cond, uint32_t mask) {
     return cond ? bits | mask : bits & ~mask;

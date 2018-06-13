@@ -16,7 +16,6 @@
 #include "SkBitmap.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
-#include "SkTo.h"
 
 namespace skiagm {
 class ImageFromYUVTextures : public GM {

@@ -6,14 +6,12 @@
  */
 
 #include "SkDashPathEffect.h"
-
 #include "SkDashImpl.h"
 #include "SkDashPathPriv.h"
 #include "SkFlattenablePriv.h"
 #include "SkReadBuffer.h"
-#include "SkStrokeRec.h"
-#include "SkTo.h"
 #include "SkWriteBuffer.h"
+#include "SkStrokeRec.h"
 
 SkDashImpl::SkDashImpl(const SkScalar intervals[], int count, SkScalar phase)
         : fPhase(0)

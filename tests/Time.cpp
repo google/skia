@@ -6,7 +6,6 @@
  */
 
 #include "SkTime.h"
-#include "SkTo.h"
 #include "Test.h"
 
 // Sanity checks for the GetDateTime function.

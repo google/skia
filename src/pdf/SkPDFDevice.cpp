@@ -45,7 +45,6 @@
 #include "SkTemplates.h"
 #include "SkTextBlobRunIterator.h"
 #include "SkTextFormatParams.h"
-#include "SkTo.h"
 #include "SkUtils.h"
 #include "SkXfermodeInterpretation.h"
 
