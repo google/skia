@@ -64,7 +64,6 @@ ImagePeek_Gpu
 ImageReadPixels_Gpu
 ImageScalePixels_Gpu
 InitialTextureClear
-IntTexture
 LazyProxyReleaseTest
 LazyProxyTest
 OnFlushCallbackTest
