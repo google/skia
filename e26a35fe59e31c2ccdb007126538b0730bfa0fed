@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "561d7d2e_7824981e",
+        "filename": "BUILD.gn",
+        "patchSetId": 23
+      },
+      "lineNbr": 2001,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-13T18:46:37Z",
+      "side": 1,
+      "message": "nit: blank line before this line",
+      "range": {
+        "startLine": 2001,
+        "startChar": 0,
+        "endLine": 2001,
+        "endChar": 2
+      },
+      "revId": "e26a35fe59e31c2ccdb007126538b0730bfa0fed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7075608d_c76fc8e5",
+        "filename": "BUILD.gn",
+        "patchSetId": 23
+      },
+      "lineNbr": 2039,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-13T18:46:37Z",
+      "side": 1,
+      "message": "Isn\u0027t this just all of Skia? Shouldn\u0027t most of this come from the :skia deps? There doesn\u0027t appear to be anything arcore specific here?",
+      "range": {
+        "startLine": 2005,
+        "startChar": 0,
+        "endLine": 2039,
+        "endChar": 7
+      },
+      "revId": "e26a35fe59e31c2ccdb007126538b0730bfa0fed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
