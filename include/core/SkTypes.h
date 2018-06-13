@@ -78,12 +78,6 @@ SK_API extern void sk_abort_no_print(void);
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// some clients (e.g. third_party/WebKit/Source/platform/fonts/FontCustomPlatformData.h)
-// depend on SkString forward declaration below. Remove this once dependencies are fixed.
-class SkString;
-
-///////////////////////////////////////////////////////////////////////
-
 /**
  *  Fast type for unsigned 8 bits. Use for parameter passing and local
  *  variables, not for storage
