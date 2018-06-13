@@ -6,7 +6,9 @@
  */
 
 #include "SkPaintFlagsDrawFilter.h"
+
 #include "SkPaint.h"
+#include "SkTo.h"
 
 SkPaintFlagsDrawFilter::SkPaintFlagsDrawFilter(uint32_t clearFlags,
                                                uint32_t setFlags) {

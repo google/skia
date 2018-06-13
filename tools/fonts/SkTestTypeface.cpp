@@ -19,8 +19,9 @@
 #include "SkRect.h"
 #include "SkScalerContext.h"
 #include "SkString.h"
-#include "SkTestTypeface.h"
 #include "SkTDArray.h"
+#include "SkTestTypeface.h"
+#include "SkTo.h"
 #include "SkUtils.h"
 
 #include <utility>

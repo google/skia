@@ -4,14 +4,17 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SkEdgeBuilder.h"
-#include "SkEdge.h"
+
 #include "SkAnalyticEdge.h"
+#include "SkEdge.h"
 #include "SkEdgeClipper.h"
-#include "SkLineClipper.h"
 #include "SkGeometry.h"
+#include "SkLineClipper.h"
 #include "SkPath.h"
 #include "SkPathPriv.h"
+#include "SkTo.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 

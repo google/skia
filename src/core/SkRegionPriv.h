@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkRegionPriv_DEFINED
 #define SkRegionPriv_DEFINED
 
@@ -13,6 +12,7 @@
 
 #include "SkAtomics.h"
 #include "SkMalloc.h"
+#include "SkTo.h"
 
 inline bool SkRegionValueIsSentinel(int32_t value) {
     return value == (int32_t)SkRegion::kRunTypeSentinel;
