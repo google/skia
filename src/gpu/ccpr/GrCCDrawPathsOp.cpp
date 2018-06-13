@@ -114,10 +114,10 @@ void GrCCDrawPathsOp::setupResources(GrCCPerFlushResources* resources,
         // second one rotated an additional 45 degrees. The path vertex shader uses these two
         // bounding boxes to generate an octagon that circumscribes the path.
         SkRect devBounds, devBounds45;
-        int16_t atlasOffsetX, atlasOffsetY;
-        GrCCAtlas* atlas = resources->renderPathInAtlas(draw.fLooseClippedIBounds, draw.fMatrix,
-                                                        draw.fPath, &devBounds, &devBounds45,
-                                                        &atlasOffsetX, &atlasOffsetY);
+        SkIVector atlasOffset;
+        const GrCCAtlas* atlas = resources->renderPathInAtlas(draw.fLooseClippedIBounds,
+                                                              draw.fMatrix, draw.fPath, &devBounds,
+                                                              &devBounds45, &atlasOffset);
         if (!atlas) {
             SkDEBUGCODE(++fNumSkippedInstances);
             continue;
@@ -130,7 +130,7 @@ void GrCCDrawPathsOp::setupResources(GrCCPerFlushResources* resources,
         }
 
         resources->appendDrawPathInstance().set(draw.fPath.getFillType(), devBounds, devBounds45,
-                                                atlasOffsetX, atlasOffsetY, draw.fColor);
+                                                atlasOffset, draw.fColor);
     }
 
     SkASSERT(resources->nextPathInstanceIdx() == fBaseInstance + fNumDraws - fNumSkippedInstances);
