@@ -628,19 +628,22 @@ bool SkOpCoincidence::addIfMissing(const SkOpPtT* over1s, const SkOpPtT* over2s,
     double coinTs, coinTe, oppTs, oppTe;
     coinTs = TRange(over1s, tStart, coinSeg  SkDEBUGPARAMS(over1e));
     coinTe = TRange(over1s, tEnd, coinSeg  SkDEBUGPARAMS(over1e));
-    if (coinSeg->collapsed(coinTs, coinTe)) {
-        return true;
+    SkOpSpanBase::Collapsed result = coinSeg->collapsed(coinTs, coinTe);
+    if (SkOpSpanBase::Collapsed::kNo != result) {
+        return SkOpSpanBase::Collapsed::kYes == result;
     }
     oppTs = TRange(over2s, tStart, oppSeg  SkDEBUGPARAMS(over2e));
     oppTe = TRange(over2s, tEnd, oppSeg  SkDEBUGPARAMS(over2e));
-    if (oppSeg->collapsed(oppTs, oppTe)) {
-        return true;
+    result = oppSeg->collapsed(oppTs, oppTe);
+    if (SkOpSpanBase::Collapsed::kNo != result) {
+        return SkOpSpanBase::Collapsed::kYes == result;
     }
     if (coinTs > coinTe) {
         SkTSwap(coinTs, coinTe);
         SkTSwap(oppTs, oppTe);
     }
-    return this->addOrOverlap(coinSeg, oppSeg, coinTs, coinTe, oppTs, oppTe, added);
+    (void) this->addOrOverlap(coinSeg, oppSeg, coinTs, coinTe, oppTs, oppTe, added);
+    return true;
 }
 
 /* Please keep this in sync with debugAddOrOverlap() */
@@ -820,10 +823,10 @@ bool SkOpCoincidence::addMissing(bool* added  DEBUG_COIN_DECLARE_PARAMS()) {
                 const SkOpPtT* ice = inner->coinPtTEnd();
                 FAIL_IF(ice->deleted());
                 if (outerOpp != innerOpp && this->overlap(ocs, oce, ics, ice, &overS, &overE)) {
-                    (void) this->addIfMissing(ocs->starter(oce), ics->starter(ice),
+                    FAIL_IF(!this->addIfMissing(ocs->starter(oce), ics->starter(ice),
                             overS, overE, outerOppWritable, innerOppWritable, added
                             SkDEBUGPARAMS(ocs->debugEnder(oce))
-                            SkDEBUGPARAMS(ics->debugEnder(ice)));
+                            SkDEBUGPARAMS(ics->debugEnder(ice))));
                 }
             } else if (outerCoin == innerOpp) {
                 const SkOpPtT* oce = outer->coinPtTEnd();
@@ -831,10 +834,10 @@ bool SkOpCoincidence::addMissing(bool* added  DEBUG_COIN_DECLARE_PARAMS()) {
                 const SkOpPtT* ioe = inner->oppPtTEnd();
                 SkASSERT(!ioe->deleted());
                 if (outerOpp != innerCoin && this->overlap(ocs, oce, ios, ioe, &overS, &overE)) {
-                    (void) this->addIfMissing(ocs->starter(oce), ios->starter(ioe),
+                    FAIL_IF(!this->addIfMissing(ocs->starter(oce), ios->starter(ioe),
                             overS, overE, outerOppWritable, innerCoinWritable, added
                             SkDEBUGPARAMS(ocs->debugEnder(oce))
-                            SkDEBUGPARAMS(ios->debugEnder(ioe)));
+                            SkDEBUGPARAMS(ios->debugEnder(ioe))));
                 }
             } else if (outerOpp == innerCoin) {
                 const SkOpPtT* ooe = outer->oppPtTEnd();
@@ -843,10 +846,10 @@ bool SkOpCoincidence::addMissing(bool* added  DEBUG_COIN_DECLARE_PARAMS()) {
                 SkASSERT(!ice->deleted());
                 SkASSERT(outerCoin != innerOpp);
                 if (this->overlap(oos, ooe, ics, ice, &overS, &overE)) {
-                    (void) this->addIfMissing(oos->starter(ooe), ics->starter(ice),
+                    FAIL_IF(!this->addIfMissing(oos->starter(ooe), ics->starter(ice),
                             overS, overE, outerCoinWritable, innerOppWritable, added
                             SkDEBUGPARAMS(oos->debugEnder(ooe))
-                            SkDEBUGPARAMS(ics->debugEnder(ice)));
+                            SkDEBUGPARAMS(ics->debugEnder(ice))));
                 }
             } else if (outerOpp == innerOpp) {
                 const SkOpPtT* ooe = outer->oppPtTEnd();
@@ -857,10 +860,10 @@ bool SkOpCoincidence::addMissing(bool* added  DEBUG_COIN_DECLARE_PARAMS()) {
                 }
                 SkASSERT(outerCoin != innerCoin);
                 if (this->overlap(oos, ooe, ios, ioe, &overS, &overE)) {
-                    (void) this->addIfMissing(oos->starter(ooe), ios->starter(ioe),
+                    FAIL_IF(!this->addIfMissing(oos->starter(ooe), ios->starter(ioe),
                             overS, overE, outerCoinWritable, innerCoinWritable, added
                             SkDEBUGPARAMS(oos->debugEnder(ooe))
-                            SkDEBUGPARAMS(ios->debugEnder(ioe)));
+                            SkDEBUGPARAMS(ios->debugEnder(ioe))));
                 }
             }
             this->debugValidate();

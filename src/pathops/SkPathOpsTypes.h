@@ -43,7 +43,8 @@ public:
                     SkDEBUGPARAMS(const char* testName));
 
     enum {
-        kMaxWindingTries = 10
+        kMaxWindingTries = 10,
+        kMaxCollapsedTries = 1000000,
     };
 
     bool allocatedOpSpan() const {
@@ -52,6 +53,10 @@ public:
 
     SkArenaAlloc* allocator() {
         return fAllocator;
+    }
+
+    bool bumpCollapsedTries() {
+        return ++fCollapsedTries < kMaxCollapsedTries;
     }
 
     void bumpNested() {
@@ -185,6 +190,7 @@ private:
     SkOpCoincidence* fCoincidence;
     SkOpContourHead* fContourHead;
     int fNested;
+    int fCollapsedTries;
     bool fAllocatedOpSpan;
     bool fWindingFailed;
     SkOpPhase fPhase;
