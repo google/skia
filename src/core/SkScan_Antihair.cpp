@@ -5,13 +5,14 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkScan.h"
+
 #include "SkBlitter.h"
 #include "SkColorData.h"
+#include "SkFDot6.h"
 #include "SkLineClipper.h"
 #include "SkRasterClip.h"
-#include "SkFDot6.h"
+#include "SkTo.h"
 
 /*  Our attempt to compute the worst case "bounds" for the horizontal and
     vertical cases has some numerical bug in it, and we sometimes undervalue

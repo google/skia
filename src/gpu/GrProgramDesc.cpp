@@ -4,7 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "GrProgramDesc.h"
+
 #include "GrPipeline.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrProcessor.h"
@@ -12,6 +14,7 @@
 #include "GrShaderCaps.h"
 #include "GrTexturePriv.h"
 #include "SkChecksum.h"
+#include "SkTo.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 

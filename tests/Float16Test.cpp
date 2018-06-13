@@ -5,14 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkAutoPixmapStorage.h"
 #include "SkColor.h"
 #include "SkHalf.h"
 #include "SkOpts.h"
-#include "SkPixmap.h"
 #include "SkPM4f.h"
+#include "SkPixmap.h"
 #include "SkRandom.h"
+#include "SkTo.h"
+#include "Test.h"
 
 #include <cmath>
 

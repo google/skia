@@ -8,6 +8,7 @@
 #ifndef GrRect_DEFINED
 #define GrRect_DEFINED
 
+#include "SkTo.h"
 #include "SkTypes.h"
 #include "SkRect.h"
 

@@ -14,8 +14,8 @@
 #include "SkCanvas.h"
 #include "SkClusterator.h"
 #include "SkData.h"
-#include "SkDocument.h"
 #include "SkDeflate.h"
+#include "SkDocument.h"
 #include "SkImageEncoder.h"
 #include "SkImageFilterPriv.h"
 #include "SkMakeUnique.h"
@@ -29,6 +29,7 @@
 #include "SkScalar.h"
 #include "SkSpecialImage.h"
 #include "SkStream.h"
+#include "SkTo.h"
 #include "SkTypes.h"
 #include "sk_tool_utils.h"
 

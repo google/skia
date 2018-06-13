@@ -25,6 +25,7 @@
 #include "SkShader.h"
 #include "SkStream.h"
 #include "SkTHash.h"
+#include "SkTo.h"
 #include "SkTypeface.h"
 #include "SkUtils.h"
 #include "SkXMLWriter.h"

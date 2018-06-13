@@ -8,6 +8,7 @@
 #ifndef SkSafeMath_DEFINED
 #define SkSafeMath_DEFINED
 
+#include "SkTFitsIn.h"
 #include "SkTypes.h"
 #include <limits>
 

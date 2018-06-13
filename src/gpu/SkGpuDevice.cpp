@@ -6,6 +6,7 @@
  */
 
 #include "SkGpuDevice.h"
+
 #include "../private/SkShadowFlags.h"
 #include "GrBitmapTextureMaker.h"
 #include "GrBlurUtils.h"
@@ -43,6 +44,7 @@
 #include "SkSurface.h"
 #include "SkSurface_Gpu.h"
 #include "SkTLazy.h"
+#include "SkTo.h"
 #include "SkUtils.h"
 #include "SkVertState.h"
 #include "SkVertices.h"

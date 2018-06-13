@@ -7,10 +7,12 @@
 
 #include "gm.h"
 #include "sk_tool_utils.h"
+
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkReadBuffer.h"
 #include "SkTextBlob.h"
+#include "SkTo.h"
 #include "SkWriteBuffer.h"
 
 #include "Sk2DPathEffect.h"

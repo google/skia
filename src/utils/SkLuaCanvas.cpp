@@ -9,6 +9,7 @@
 
 #include "SkLua.h"
 #include "SkStringUtils.h"
+#include "SkTo.h"
 
 extern "C" {
     #include "lua.h"

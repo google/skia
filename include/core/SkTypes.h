@@ -96,21 +96,6 @@ typedef int S16CPU;
  */
 typedef unsigned U16CPU;
 
-#include "../private/SkTFitsIn.h"
-template <typename D, typename S> constexpr D SkTo(S s) {
-    return SkASSERT(SkTFitsIn<D>(s)),
-           static_cast<D>(s);
-}
-#define SkToS8(x)    SkTo<int8_t>(x)
-#define SkToU8(x)    SkTo<uint8_t>(x)
-#define SkToS16(x)   SkTo<int16_t>(x)
-#define SkToU16(x)   SkTo<uint16_t>(x)
-#define SkToS32(x)   SkTo<int32_t>(x)
-#define SkToU32(x)   SkTo<uint32_t>(x)
-#define SkToInt(x)   SkTo<int>(x)
-#define SkToUInt(x)  SkTo<unsigned>(x)
-#define SkToSizeT(x) SkTo<size_t>(x)
-
 /** Returns 0 or 1 based on the condition
 */
 #define SkToBool(cond)  ((cond) != 0)

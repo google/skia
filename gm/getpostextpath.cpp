@@ -7,11 +7,13 @@
 
 #include "gm.h"
 #include "sk_tool_utils.h"
+
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkTemplates.h"
+#include "SkTo.h"
 
 static void strokePath(SkCanvas* canvas, const SkPath& path) {
         SkPaint paint;

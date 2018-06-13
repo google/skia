@@ -11,6 +11,8 @@
 #include "SkSafe_math.h"
 #include "SkScalar.h"
 #include "SkTypes.h"
+
+#include <algorithm>
 #include <limits>
 #include <type_traits>
 

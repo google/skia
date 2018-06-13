@@ -15,6 +15,7 @@
 #include "SkRect.h"
 #include "SkRegion.h"
 #include "SkShaderBase.h"
+#include "SkTo.h"
 
 class SkArenaAlloc;
 class SkMatrix;
