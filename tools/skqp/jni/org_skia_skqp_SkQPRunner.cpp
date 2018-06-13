@@ -16,6 +16,7 @@
 #include "ResourceFactory.h"
 #include "SkOSPath.h"
 #include "SkStream.h"
+#include "SkTo.h"
 #include "gm_knowledge.h"
 #include "gm_runner.h"
 #include "skqp_asset_manager.h"

@@ -6,13 +6,15 @@
  */
 
 #include "SkTableColorFilter.h"
-#include "SkPM4f.h"
+
 #include "SkArenaAlloc.h"
 #include "SkBitmap.h"
 #include "SkColorData.h"
+#include "SkPM4f.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkString.h"
+#include "SkTo.h"
 #include "SkUnPreMultiply.h"
 #include "SkWriteBuffer.h"
 

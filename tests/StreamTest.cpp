@@ -14,6 +14,7 @@
 #include "SkRandom.h"
 #include "SkStream.h"
 #include "SkStreamPriv.h"
+#include "SkTo.h"
 #include "Test.h"
 
 #include <functional>
