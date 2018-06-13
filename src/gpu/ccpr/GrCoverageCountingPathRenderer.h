@@ -11,6 +11,7 @@
 #include "GrCCPerOpListPaths.h"
 #include "GrPathRenderer.h"
 #include "GrRenderTargetOpList.h"
+#include "ccpr/GrCCPathCache.h"
 #include "ccpr/GrCCPerFlushResources.h"
 #include <map>
 
@@ -85,6 +86,10 @@ private:
     // fFlushingPaths holds the GrCCPerOpListPaths objects that are currently being flushed.
     // (It will only contain elements when fFlushing is true.)
     SkSTArray<4, sk_sp<GrCCPerOpListPaths>> fFlushingPaths;
+
+    GrCCPathCache fPathCache;
+    GrUniqueKey fStashedAtlasKey;
+
     SkDEBUGCODE(bool fFlushing = false);
 
     const bool fDrawCachablePaths;
