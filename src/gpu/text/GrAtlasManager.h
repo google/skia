@@ -8,8 +8,10 @@
 #ifndef GrAtlasManager_DEFINED
 #define GrAtlasManager_DEFINED
 
+#include "GrCaps.h"
 #include "GrDrawOpAtlas.h"
 #include "GrOnFlushResourceProvider.h"
+#include "GrProxyProvider.h"
 
 class GrAtlasGlypCache;
 class GrTextStrike;
@@ -33,6 +35,10 @@ public:
     // functions which use the atlas. Note that we can have proxies available but none active
     // (i.e., none instantiated).
     const sk_sp<GrTextureProxy>* getProxies(GrMaskFormat format, unsigned int* numActiveProxies) {
+        if (kA565_GrMaskFormat == format &&
+            !fProxyProvider->caps()->isConfigTexturable(kRGB_565_GrPixelConfig)) {
+            format = kARGB_GrMaskFormat;
+        }
         if (this->initAtlas(format)) {
             *numActiveProxies = this->getAtlas(format)->numActivePages();
             return this->getAtlas(format)->getProxies();
@@ -127,6 +133,10 @@ private:
     }
 
     GrDrawOpAtlas* getAtlas(GrMaskFormat format) const {
+        if (kA565_GrMaskFormat == format &&
+            !fProxyProvider->caps()->isConfigTexturable(kRGB_565_GrPixelConfig)) {
+            format = kARGB_GrMaskFormat;
+        }
         int atlasIndex = MaskFormatToAtlasIndex(format);
         SkASSERT(fAtlases[atlasIndex]);
         return fAtlases[atlasIndex].get();
