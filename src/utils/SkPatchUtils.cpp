@@ -10,7 +10,6 @@
 #include "SkColorData.h"
 #include "SkGeometry.h"
 #include "SkPM4f.h"
-#include "SkTo.h"
 
 namespace {
     enum CubicCtrlPts {

@@ -6,8 +6,6 @@
  */
 
 #include "SkFont.h"
-
-#include "SkTo.h"
 #include "SkTypeface.h"
 #include "SkUtils.h"
 

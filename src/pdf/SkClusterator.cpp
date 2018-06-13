@@ -7,7 +7,6 @@
 
 #include "SkClusterator.h"
 
-#include "SkTo.h"
 #include "SkUtils.h"
 
 static bool is_reversed(const uint32_t* clusters, uint32_t count) {

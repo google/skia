@@ -5,13 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkString.h"
-
 #include "SkAtomics.h"
 #include "SkSafeMath.h"
-#include "SkTo.h"
+#include "SkString.h"
 #include "SkUtils.h"
-
 #include <cstdio>
 #include <new>
 #include <stdarg.h>

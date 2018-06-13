@@ -8,6 +8,7 @@
 #include "SkottieAdapter.h"
 
 #include "SkMatrix.h"
+#include "SkottieValue.h"
 #include "SkPath.h"
 #include "SkRRect.h"
 #include "SkSGGradient.h"
@@ -15,8 +16,6 @@
 #include "SkSGRect.h"
 #include "SkSGTransform.h"
 #include "SkSGTrimEffect.h"
-#include "SkTo.h"
-#include "SkottieValue.h"
 
 #include <cmath>
 
