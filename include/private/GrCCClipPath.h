@@ -69,8 +69,7 @@ private:
     SkIRect fAccessRect;
 
     const GrCCAtlas* fAtlas = nullptr;
-    int16_t fAtlasOffsetX;
-    int16_t fAtlasOffsetY;
+    SkIVector fAtlasOffset;
     SkDEBUGCODE(bool fHasAtlas = false);
 
     SkVector fAtlasScale;

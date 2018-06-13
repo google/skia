@@ -83,7 +83,7 @@ GrCCPathProcessor::GrCCPathProcessor(GrResourceProvider* resourceProvider,
                        GrSamplerState::WrapMode::kClamp, kFragment_GrShaderFlag) {
     this->addInstanceAttrib("devbounds", kFloat4_GrVertexAttribType);
     this->addInstanceAttrib("devbounds45", kFloat4_GrVertexAttribType);
-    this->addInstanceAttrib("atlas_offset", kShort2_GrVertexAttribType);
+    this->addInstanceAttrib("atlas_offset", kInt2_GrVertexAttribType);
     this->addInstanceAttrib("color", kUByte4_norm_GrVertexAttribType);
 
     SkASSERT(offsetof(Instance, fDevBounds) ==

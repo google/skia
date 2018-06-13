@@ -67,7 +67,7 @@ public:
 
     // GrOnFlushCallbackObject overrides.
     void preFlush(GrOnFlushResourceProvider*, const uint32_t* opListIDs, int numOpListIDs,
-                  SkTArray<sk_sp<GrRenderTargetContext>>* atlasDraws) override;
+                  SkTArray<sk_sp<GrRenderTargetContext>>* out) override;
     void postFlush(GrDeferredUploadToken, const uint32_t* opListIDs, int numOpListIDs) override;
 
 private:
