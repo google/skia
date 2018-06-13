@@ -8,10 +8,15 @@
 #include "GrGlyphCache.h"
 #include "GrAtlasManager.h"
 #include "GrCaps.h"
+#include "GrColor.h"
 #include "GrDistanceFieldGenFromVector.h"
 
 #include "SkAutoMalloc.h"
 #include "SkDistanceFieldGen.h"
+#include "SkMasks.h"
+
+static std::unique_ptr<const SkMasks> k565Masks(SkMasks::CreateMasks({0xF800, 0x07E0, 0x001F, 0},
+                                                GrMaskFormatBytesPerPixel(kA565_GrMaskFormat) * 8));
 
 GrGlyphCache::GrGlyphCache(const GrCaps* caps, size_t maxTextureBytes)
         : fPreserveStrike(nullptr), fGlyphSizeLimit(0) {
@@ -128,6 +133,29 @@ static bool get_packed_glyph_image(SkGlyphCache* cache, const SkGlyph& glyph, in
         return false;
     }
 
+    // Convert if the glyph uses a 565 mask format since it is using LCD text rendering but the
+    // expected format is 8888 (will happen on macOS with Metal since that combination does not
+    // support 565).
+    if (kA565_GrMaskFormat == get_packed_glyph_mask_format(glyph) &&
+        kARGB_GrMaskFormat == expectedMaskFormat) {
+        const int a565Bpp = GrMaskFormatBytesPerPixel(kA565_GrMaskFormat);
+        const int argbBpp = GrMaskFormatBytesPerPixel(kARGB_GrMaskFormat);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                uint16_t color565 = 0;
+                memcpy(&color565, src, a565Bpp);
+                uint32_t colorRGBA = GrColorPackRGBA(k565Masks->getRed(color565),
+                                                     k565Masks->getGreen(color565),
+                                                     k565Masks->getBlue(color565),
+                                                     0xFF);
+                memcpy(dst, &colorRGBA, argbBpp);
+                src = (char*)src + a565Bpp;
+                dst = (char*)dst + argbBpp;
+            }
+        }
+        return true;
+    }
+
     // crbug:510931
     // Retrieving the image from the cache can actually change the mask format.  This case is very
     // uncommon so for now we just draw a clear box for these glyphs.
@@ -237,6 +265,7 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
     SkASSERT(cache);
     SkASSERT(fCache.find(glyph->fPackedID));
 
+    expectedMaskFormat = fullAtlasManager->resolveMaskFormat(expectedMaskFormat);
     int bytesPerPixel = GrMaskFormatBytesPerPixel(expectedMaskFormat);
     int width = glyph->width();
     int height = glyph->height();
