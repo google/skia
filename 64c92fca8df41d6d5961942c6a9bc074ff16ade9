@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b382b857_09f2442c",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-06-13T16:46:00Z",
+      "side": 1,
+      "message": "This is not necessary for this change, I probably added this during debugging locally. initWithGlyphID is the routine we use for initialization and it already sets them to nullptr.\n\nBut the pattern seems very odd to me. We always use the default ctor that leaves everything uninitialized and immediately call initWithGlyphID (example: https://cs.chromium.org/chromium/src/third_party/skia/src/core/SkGlyphCache.cpp?dr\u003dCSs\u0026g\u003d0\u0026l\u003d175). Why not just have a ctor with a glyphID param and remove the default ctor? I kept forgetting to call init and hitting random asserts later.",
+      "parentUuid": "a469b44d_7d2a6f78",
+      "revId": "64c92fca8df41d6d5961942c6a9bc074ff16ade9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3c8c2251_1e214107",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 5
@@ -39,6 +57,30 @@
       "revId": "64c92fca8df41d6d5961942c6a9bc074ff16ade9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05ccf85d_16114799",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 820,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-06-13T16:46:00Z",
+      "side": 1,
+      "message": "Sure, this sounds clearer. Done.",
+      "parentUuid": "3c8c2251_1e214107",
+      "range": {
+        "startLine": 817,
+        "startChar": 0,
+        "endLine": 820,
+        "endChar": 65
+      },
+      "revId": "64c92fca8df41d6d5961942c6a9bc074ff16ade9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
