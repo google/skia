@@ -493,6 +493,30 @@
     },
     {
       "key": {
+        "uuid": "af7d6d9c_e4c90838",
+        "filename": "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-13T17:08:20Z",
+      "side": 1,
+      "message": "Actually cleaned up a bunch of code so that only one place refers to this, and it made sense to invert the sense, so it\u0027s now isNoop().",
+      "parentUuid": "c86581b1_adfa5664",
+      "range": {
+        "startLine": 69,
+        "startChar": 7,
+        "endLine": 69,
+        "endChar": 57
+      },
+      "revId": "b92729978a974484258420f4eb3f073df8a98915",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "82f660f3_0620f206",
         "filename": "src/gpu/glsl/GrGLSLShaderBuilder.cpp",
         "patchSetId": 12
@@ -513,6 +537,30 @@
       "revId": "b92729978a974484258420f4eb3f073df8a98915",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3fd0c524_1b162d5d",
+        "filename": "src/gpu/glsl/GrGLSLShaderBuilder.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-13T17:08:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "82f660f3_0620f206",
+      "range": {
+        "startLine": 127,
+        "startChar": 1,
+        "endLine": 166,
+        "endChar": 0
+      },
+      "revId": "b92729978a974484258420f4eb3f073df8a98915",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
