@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a469b44d_7d2a6f78",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-13T13:20:58Z",
+      "side": 1,
+      "message": "I\u0027m ok with this, but adding a constructor to a type that didn\u0027t have one before can sometimes be a dicey thing.  If we\u0027ve been allocating these in ways that don\u0027t call the constructor, these fImage and fPathData pointers may still be uninitialized.\n\nIt may be safer and a stronger guarantee about initialization if you set these to nullptr in the existing init routines... is that just initWithGlyphID() now?",
+      "revId": "64c92fca8df41d6d5961942c6a9bc074ff16ade9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c8c2251_1e214107",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 820,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-13T13:20:58Z",
+      "side": 1,
+      "message": "Maybe let\u0027s unify these comments?  As they stand alone they\u0027re kind of confusing.  Is it,\n\n// Update the glyph unless it\u0027s already got an image (from fallback), \n// preserving any path that might be present.\n\nand then below the opposite?\n\n// Update the glyph unless it\u0027s already got an path (from fallback), \n// preserving any image that might be present.",
+      "range": {
+        "startLine": 817,
+        "startChar": 0,
+        "endLine": 820,
+        "endChar": 65
+      },
+      "revId": "64c92fca8df41d6d5961942c6a9bc074ff16ade9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
