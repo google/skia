@@ -22,6 +22,30 @@
       "revId": "ae145471f2ae0d5ccce18ffadf96a44459ed7a7c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7d048e9_382a0e03",
+        "filename": "src/gpu/text/GrAtlasManager.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-06-13T20:44:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1d82b6d9_7737f875",
+      "range": {
+        "startLine": 38,
+        "startChar": 8,
+        "endLine": 41,
+        "endChar": 9
+      },
+      "revId": "ae145471f2ae0d5ccce18ffadf96a44459ed7a7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
