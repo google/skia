@@ -106,8 +106,12 @@
     "cwd": "[START_DIR]/cache/work",
     "env": {
       "DEPOT_TOOLS_UPDATE": "0",
-      "GYP_CHROMIUM_NO_ACTION": "0",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "GYP_CHROMIUM_NO_ACTION": "0"
+    },
+    "env_suffixes": {
+      "PATH": [
+        "RECIPE_PACKAGE_REPO[depot_tools]"
+      ]
     },
     "name": "gclient runhooks"
   },
