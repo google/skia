@@ -22,6 +22,30 @@
       "revId": "9d75dff532c9c25153b9193e16bf1ff26667584a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de3713bb_1d4683d7",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 821,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-13T15:35:01Z",
+      "side": 1,
+      "message": "Looks like Android doesn\u0027t use kSlight_Hinting.",
+      "parentUuid": "73861201_6cdc9a5c",
+      "range": {
+        "startLine": 821,
+        "startChar": 12,
+        "endLine": 821,
+        "endChar": 45
+      },
+      "revId": "9d75dff532c9c25153b9193e16bf1ff26667584a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
