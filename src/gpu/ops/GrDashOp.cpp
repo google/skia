@@ -271,8 +271,10 @@ public:
                                           SkPaint::Cap cap,
                                           AAMode aaMode, bool fullDash,
                                           const GrUserStencilSettings* stencilSettings) {
-        return std::unique_ptr<GrDrawOp>(
-                new DashOp(std::move(paint), geometry, cap, aaMode, fullDash, stencilSettings));
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        return pool->allocate<DashOp>(std::move(paint), geometry, cap,
+                                      aaMode, fullDash, stencilSettings);
     }
 
     const char* name() const override { return "DashOp"; }
