@@ -13,15 +13,6 @@
 #include "ccpr/GrCCPerFlushResources.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
 
-GrCCDrawPathsOp* GrCCDrawPathsOp::Make(GrContext* context,
-                                       GrPaint&& paint,
-                                       const SkIRect& clipIBounds,
-                                       const SkMatrix& m,
-                                       const SkPath& path,
-                                       const SkRect& devBounds) {
-    return new GrCCDrawPathsOp(std::move(paint), clipIBounds, m, path, devBounds);
-}
-
 static bool has_coord_transforms(const GrPaint& paint) {
     GrFragmentProcessor::Iter iter(paint);
     while (const GrFragmentProcessor* fp = iter.next()) {
@@ -32,13 +23,25 @@ static bool has_coord_transforms(const GrPaint& paint) {
     return false;
 }
 
-GrCCDrawPathsOp::GrCCDrawPathsOp(GrPaint&& paint, const SkIRect& clipIBounds, const SkMatrix& m,
-                                 const SkPath& path, const SkRect& devBounds)
+std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::Make(GrContext*, const SkIRect& clipIBounds,
+                                                       const SkMatrix& m, const SkPath& path,
+                                                       const SkRect& devBounds, GrPaint&& paint) {
+    SkIRect looseClippedIBounds;
+    devBounds.roundOut(&looseClippedIBounds);  // GrCCPathParser might find slightly tighter bounds.
+    if (!looseClippedIBounds.intersect(clipIBounds)) {
+        return nullptr;
+    }
+    return std::unique_ptr<GrCCDrawPathsOp>(
+                   new GrCCDrawPathsOp(looseClippedIBounds, m, path, devBounds, std::move(paint)));
+}
+
+GrCCDrawPathsOp::GrCCDrawPathsOp(const SkIRect& looseClippedIBounds, const SkMatrix& m,
+                                 const SkPath& path, const SkRect& devBounds, GrPaint&& paint)
         : GrDrawOp(ClassID())
-        , fSRGBFlags(GrPipeline::SRGBFlagsFromPaint(paint))
         , fViewMatrixIfUsingLocalCoords(has_coord_transforms(paint) ? m : SkMatrix::I())
-        , fDraws({clipIBounds, m, path, paint.getColor(), nullptr})
-        , fProcessors(std::move(paint)) {
+        , fSRGBFlags(GrPipeline::SRGBFlagsFromPaint(paint))
+        , fDraws({looseClippedIBounds, m, path, paint.getColor(), nullptr})
+        , fProcessors(std::move(paint)) {  // Paint must be moved after fetching its color above.
     SkDEBUGCODE(fBaseInstance = -1);
     // FIXME: intersect with clip bounds to (hopefully) improve batching.
     // (This is nontrivial due to assumptions in generating the octagon cover geometry.)
@@ -90,13 +93,13 @@ void GrCCDrawPathsOp::wasRecorded(GrCCPerOpListPaths* owningPerOpListPaths) {
     fOwningPerOpListPaths = owningPerOpListPaths;
 }
 
-int GrCCDrawPathsOp::countPaths(GrCCPathParser::PathStats* stats) const {
-    int numPaths = 0;
+void GrCCDrawPathsOp::accountForOwnPaths(GrCCPerFlushResourceSpecs* resourceSpecs) const {
     for (const GrCCDrawPathsOp::SingleDraw& draw : fDraws) {
-        stats->statPath(draw.fPath);
-        ++numPaths;
+        ++resourceSpecs->fNumRenderedPaths;
+        resourceSpecs->fParsingPathStats.statPath(draw.fPath);
+        resourceSpecs->fAtlasSpecs.accountForSpace(draw.fLooseClippedIBounds.width(),
+                                                   draw.fLooseClippedIBounds.height());
     }
-    return numPaths;
 }
 
 void GrCCDrawPathsOp::setupResources(GrCCPerFlushResources* resources,
@@ -112,9 +115,9 @@ void GrCCDrawPathsOp::setupResources(GrCCPerFlushResources* resources,
         // bounding boxes to generate an octagon that circumscribes the path.
         SkRect devBounds, devBounds45;
         int16_t atlasOffsetX, atlasOffsetY;
-        GrCCAtlas* atlas = resources->renderPathInAtlas(*onFlushRP->caps(), draw.fClipIBounds,
-                                                        draw.fMatrix, draw.fPath, &devBounds,
-                                                        &devBounds45, &atlasOffsetX, &atlasOffsetY);
+        GrCCAtlas* atlas = resources->renderPathInAtlas(draw.fLooseClippedIBounds, draw.fMatrix,
+                                                        draw.fPath, &devBounds, &devBounds45,
+                                                        &atlasOffsetX, &atlasOffsetY);
         if (!atlas) {
             SkDEBUGCODE(++fNumSkippedInstances);
             continue;

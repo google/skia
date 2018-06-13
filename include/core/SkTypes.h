@@ -237,6 +237,10 @@ template <typename T> constexpr const T& SkTMax(const T& a, const T& b) {
     return (b < a) ? a : b;
 }
 
+template <typename T> constexpr const T& SkTClamp(const T& x, const T& lo, const T& hi) {
+    return (x < lo) ? lo : SkTMin(x, hi);
+}
+
 static inline int32_t SkFastMin32(int32_t value, int32_t max) {
     if (value > max) {
         value = max;
