@@ -43,8 +43,9 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        auto stream = GetResourceAsStream("skotty/skotty_sample_2.json");
-        fAnim = skottie::Animation::Make(stream.get());
+        if (auto stream = GetResourceAsStream("skotty/skotty_sample_2.json")) {
+            fAnim = skottie::Animation::Make(stream.get());
+        }
 
         int index = 0;
         for (float x = 0; x <= 1; ++x) {
@@ -99,6 +100,9 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        if (!fAnim) {
+            return;
+        }
         SkMatrix44  camera(SkMatrix44::kIdentity_Constructor),
                     perspective(SkMatrix44::kIdentity_Constructor),
                     mv(SkMatrix44::kIdentity_Constructor);
