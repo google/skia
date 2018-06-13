@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce154122_5296cac4",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 552,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-13T17:59:59Z",
+      "side": 1,
+      "message": "Need to remove this (this hasn\u0027t even been allocated yet).",
+      "range": {
+        "startLine": 552,
+        "startChar": 4,
+        "endLine": 552,
+        "endChar": 56
+      },
+      "revId": "940fd5393b3de7099f4f4411a603bf10aeb59d87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90ae49ee_2af534f0",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 601,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-13T17:59:59Z",
+      "side": 1,
+      "message": "can remove this comment",
+      "range": {
+        "startLine": 601,
+        "startChar": 8,
+        "endLine": 601,
+        "endChar": 43
+      },
+      "revId": "940fd5393b3de7099f4f4411a603bf10aeb59d87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
