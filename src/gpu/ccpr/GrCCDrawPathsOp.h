@@ -9,11 +9,11 @@
 #define GrCCDrawPathsOp_DEFINED
 
 #include "SkTInternalLList.h"
-#include "ccpr/GrCCPathParser.h"
 #include "ccpr/GrCCPathProcessor.h"
 #include "ccpr/GrCCSTLList.h"
 #include "ops/GrDrawOp.h"
 
+struct GrCCPerFlushResourceSpecs;
 class GrCCAtlas;
 class GrCCPerFlushResources;
 class GrCCPerOpListPaths;
@@ -26,13 +26,9 @@ public:
     DEFINE_OP_CLASS_ID
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrCCDrawPathsOp);
 
-    static GrCCDrawPathsOp* Make(GrContext*,
-                                 GrPaint&&,
-                                 const SkIRect& clipIBounds,
-                                 const SkMatrix&,
-                                 const SkPath&,
-                                 const SkRect& devBounds);
-
+    static std::unique_ptr<GrCCDrawPathsOp> Make(GrContext*, const SkIRect& clipIBounds,
+                                                 const SkMatrix&, const SkPath&,
+                                                 const SkRect& devBounds, GrPaint&&);
     ~GrCCDrawPathsOp() override;
 
     const char* name() const override { return "GrCCDrawOp"; }
@@ -46,7 +42,7 @@ public:
     void onPrepare(GrOpFlushState*) override {}
 
     void wasRecorded(GrCCPerOpListPaths* owningPerOpListPaths);
-    int countPaths(GrCCPathParser::PathStats*) const;
+    void accountForOwnPaths(GrCCPerFlushResourceSpecs*) const;
     void setupResources(GrCCPerFlushResources*, GrOnFlushResourceProvider*);
     SkDEBUGCODE(int numSkippedInstances_debugOnly() const { return fNumSkippedInstances; })
 
@@ -55,8 +51,8 @@ public:
 private:
     friend class GrOpMemoryPool;
 
-    GrCCDrawPathsOp(GrPaint&&, const SkIRect& clipIBounds, const SkMatrix&, const SkPath&,
-                    const SkRect& devBounds);
+    GrCCDrawPathsOp(const SkIRect& clippedDevIBounds, const SkMatrix&, const SkPath&,
+                    const SkRect& devBounds, GrPaint&&);
 
     struct AtlasBatch {
         const GrCCAtlas* fAtlas;
@@ -70,11 +66,11 @@ private:
         fAtlasBatches.push_back() = {atlas, endInstanceIdx};
     }
 
-    const uint32_t fSRGBFlags;
     const SkMatrix fViewMatrixIfUsingLocalCoords;
+    const uint32_t fSRGBFlags;
 
     struct SingleDraw {
-        SkIRect fClipIBounds;
+        SkIRect fLooseClippedIBounds;
         SkMatrix fMatrix;
         SkPath fPath;
         GrColor fColor;
@@ -84,8 +80,8 @@ private:
     GrCCSTLList<SingleDraw> fDraws;
     SkDEBUGCODE(int fNumDraws = 1);
 
-    GrProcessorSet fProcessors;
     GrCCPerOpListPaths* fOwningPerOpListPaths = nullptr;
+    GrProcessorSet fProcessors;
 
     int fBaseInstance;
     SkSTArray<1, AtlasBatch, true> fAtlasBatches;

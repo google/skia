@@ -21,9 +21,6 @@
 #include "ccpr/GrCCPathParser.h"
 #include "ops/GrDrawOp.h"
 
-static constexpr int kAtlasMinSize = 1024;
-static constexpr int kPadding = 1;
-
 class GrCCAtlas::Node {
 public:
     Node(std::unique_ptr<Node> previous, int l, int t, int r, int b)
@@ -97,15 +94,27 @@ private:
     typedef GrDrawOp INHERITED;
 };
 
-GrCCAtlas::GrCCAtlas(const GrCaps& caps, int minSize)
-        : fMaxAtlasSize(SkTMax(minSize, caps.maxPreferredRenderTargetSize())) {
-    // Caller should have cropped any paths to the destination render target instead of asking for
-    // an atlas larger than maxRenderTargetSize.
-    SkASSERT(fMaxAtlasSize <= caps.maxRenderTargetSize());
-    int initialSize = GrNextPow2(minSize + kPadding);
-    initialSize = SkTMax(kAtlasMinSize, initialSize);
-    initialSize = SkTMin(initialSize, fMaxAtlasSize);
-    fHeight = fWidth = initialSize;
+GrCCAtlas::GrCCAtlas(const Specs& specs)
+        : fMaxTextureSize(SkTMax(SkTMax(specs.fMinHeight, specs.fMinWidth),
+                                 specs.fMaxPreferredTextureSize)) {
+    SkASSERT(specs.fMaxPreferredTextureSize > 0);
+
+    // Begin with the first pow2 dimensions whose area is theoretically large enough to contain the
+    // pending paths, favoring height over width if necessary.
+    int log2area = SkNextLog2(SkTMax(specs.fApproxNumPixels, 1));
+    fHeight = 1 << ((log2area + 1) / 2);
+    fWidth = 1 << (log2area / 2);
+
+    fWidth = SkTClamp(fWidth, specs.fMinTextureSize, specs.fMaxPreferredTextureSize);
+    fHeight = SkTClamp(fHeight, specs.fMinTextureSize, specs.fMaxPreferredTextureSize);
+
+    if (fWidth < specs.fMinWidth || fHeight < specs.fMinHeight) {
+        // They want to stuff a particularly large path into the atlas. Just punt and go with their
+        // min width and height. The atlas will grow as needed.
+        fWidth = SkTMin(specs.fMinWidth + kPadding, fMaxTextureSize);
+        fHeight = SkTMin(specs.fMinHeight + kPadding, fMaxTextureSize);
+    }
+
     fTopNode = skstd::make_unique<Node>(nullptr, 0, 0, fWidth, fHeight);
 }
 
@@ -128,26 +137,26 @@ bool GrCCAtlas::addRect(int w, int h, SkIPoint16* loc) {
 
 bool GrCCAtlas::internalPlaceRect(int w, int h, SkIPoint16* loc) {
     for (Node* node = fTopNode.get(); node; node = node->previous()) {
-        if (node->addRect(w, h, loc, fMaxAtlasSize)) {
+        if (node->addRect(w, h, loc, fMaxTextureSize)) {
             return true;
         }
     }
 
     // The rect didn't fit. Grow the atlas and try again.
     do {
-        if (fWidth == fMaxAtlasSize && fHeight == fMaxAtlasSize) {
+        if (fWidth == fMaxTextureSize && fHeight == fMaxTextureSize) {
             return false;
         }
         if (fHeight <= fWidth) {
             int top = fHeight;
-            fHeight = SkTMin(fHeight * 2, fMaxAtlasSize);
+            fHeight = SkTMin(fHeight * 2, fMaxTextureSize);
             fTopNode = skstd::make_unique<Node>(std::move(fTopNode), 0, top, fWidth, fHeight);
         } else {
             int left = fWidth;
-            fWidth = SkTMin(fWidth * 2, fMaxAtlasSize);
+            fWidth = SkTMin(fWidth * 2, fMaxTextureSize);
             fTopNode = skstd::make_unique<Node>(std::move(fTopNode), left, 0, fWidth, fHeight);
         }
-    } while (!fTopNode->addRect(w, h, loc, fMaxAtlasSize));
+    } while (!fTopNode->addRect(w, h, loc, fMaxTextureSize));
 
     return true;
 }
@@ -156,6 +165,9 @@ sk_sp<GrRenderTargetContext> GrCCAtlas::finalize(GrOnFlushResourceProvider* onFl
                                                  sk_sp<const GrCCPathParser> parser) {
     SkASSERT(fCoverageCountBatchID);
     SkASSERT(!fTextureProxy);
+    // Caller should have cropped any paths to the destination render target instead of asking for
+    // an atlas larger than maxRenderTargetSize.
+    SkASSERT(fMaxTextureSize <= onFlushRP->caps()->maxRenderTargetSize());
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;

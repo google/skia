@@ -27,8 +27,22 @@ struct SkIPoint16;
 class GrCCAtlas {
 public:
     using CoverageCountBatchID = int;
+    static constexpr int kPadding = 1;  // Amount of padding below and to the right of each path.
 
-    GrCCAtlas(const GrCaps&, int minSize);
+    // This struct encapsulates the minimum and desired requirements for an atlas, as well as an
+    // approximate number of pixels to help select a good initial size.
+    struct Specs {
+        int fMaxPreferredTextureSize = 0;
+        int fMinTextureSize = 0;
+        int fMinWidth = 0;  // If there are 100 20x10 paths, this should be 20.
+        int fMinHeight = 0;  // If there are 100 20x10 paths, this should be 10.
+        int fApproxNumPixels = 0;
+
+        // Add space for a rect in the desired atlas specs.
+        void accountForSpace(int width, int height);
+    };
+
+    GrCCAtlas(const Specs&);
     ~GrCCAtlas();
 
     bool addRect(int devWidth, int devHeight, SkIPoint16* loc);
@@ -51,8 +65,7 @@ private:
 
     bool internalPlaceRect(int w, int h, SkIPoint16* loc);
 
-    const int fMaxAtlasSize;
-
+    const int fMaxTextureSize;
     int fWidth, fHeight;
     std::unique_ptr<Node> fTopNode;
     SkISize fDrawBounds = {0, 0};
@@ -60,5 +73,11 @@ private:
     CoverageCountBatchID fCoverageCountBatchID SkDEBUGCODE(= 0);
     sk_sp<GrTextureProxy> fTextureProxy;
 };
+
+inline void GrCCAtlas::Specs::accountForSpace(int width, int height) {
+    fMinWidth = SkTMax(width, fMinWidth);
+    fMinHeight = SkTMax(height, fMinHeight);
+    fApproxNumPixels += (width + kPadding) * (height + kPadding);
+}
 
 #endif
