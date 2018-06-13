@@ -236,6 +236,7 @@ SkOpGlobalState::SkOpGlobalState(SkOpContourHead* head,
     , fCoincidence(nullptr)
     , fContourHead(head)
     , fNested(0)
+    , fAllocatedOpSpan(0)
     , fWindingFailed(false)
     , fPhase(SkOpPhase::kIntersecting)
     SkDEBUGPARAMS(fDebugTestName(testName))
