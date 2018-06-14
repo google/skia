@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ceae0c3e_e803acb9",
+        "filename": "third_party/third_party.gni",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-14T20:18:20Z",
+      "side": 1,
+      "message": "Looks like I was wrong about Clang-on-Windows accepting -isystem... we\u0027d better switch this to \n\n   if (is_win)",
+      "revId": "2f4ef6b37ef9f4165babdf0e4859a696d0031c7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
