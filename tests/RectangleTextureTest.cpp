@@ -55,7 +55,7 @@ static void test_clear(skiatest::Reporter* reporter, GrSurfaceContext* rectConte
 
         // The clear color is a GrColor, our readback is to kRGBA_8888, which may be different.
         uint32_t expectedColor0 = 0;
-        uint8_t* expectedBytes0 = SkTCast<uint8_t*>(&expectedColor0);
+        uint8_t* expectedBytes0 = reinterpret_cast<uint8_t*>(&expectedColor0);
         expectedBytes0[0] = GrColorUnpackR(color0);
         expectedBytes0[1] = GrColorUnpackG(color0);
         expectedBytes0[2] = GrColorUnpackB(color0);
@@ -70,7 +70,7 @@ static void test_clear(skiatest::Reporter* reporter, GrSurfaceContext* rectConte
         rtc->clear(&rect, color1, GrRenderTargetContext::CanClearFullscreen::kNo);
 
         uint32_t expectedColor1 = 0;
-        uint8_t* expectedBytes1 = SkTCast<uint8_t*>(&expectedColor1);
+        uint8_t* expectedBytes1 = reinterpret_cast<uint8_t*>(&expectedColor1);
         expectedBytes1[0] = GrColorUnpackR(color1);
         expectedBytes1[1] = GrColorUnpackG(color1);
         expectedBytes1[2] = GrColorUnpackB(color1);
