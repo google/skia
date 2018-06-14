@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd5696b8_9761c9c7",
+        "filename": "src/gpu/text/GrGlyphCache.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-06-14T18:31:33Z",
+      "side": 1,
+      "message": "I don\u0027t think you want to put this in the GrTextStrike -- there could be many of them (there\u0027s a different strike for every typeface, size and style) and so lots of copies of the same thing. Better to put it in the GrGlyphCache.",
+      "range": {
+        "startLine": 94,
+        "startChar": 35,
+        "endLine": 94,
+        "endChar": 44
+      },
+      "revId": "52bdcce5af809ba3f89382ad4dd29745f77638dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
