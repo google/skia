@@ -45,6 +45,30 @@
       "revId": "bc1e0e71d265e47308d1420db82ae55be326fd3b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e598c97d_c6bf4cb7",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-14T14:47:00Z",
+      "side": 1,
+      "message": "Ack, removed the comment.",
+      "parentUuid": "e4734daa_fae5c85a",
+      "range": {
+        "startLine": 27,
+        "startChar": 4,
+        "endLine": 28,
+        "endChar": 38
+      },
+      "revId": "bc1e0e71d265e47308d1420db82ae55be326fd3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

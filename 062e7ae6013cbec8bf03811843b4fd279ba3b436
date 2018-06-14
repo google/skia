@@ -293,6 +293,30 @@
       "revId": "062e7ae6013cbec8bf03811843b4fd279ba3b436",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3014e0b6_e43f62f9",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 755,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-14T14:47:00Z",
+      "side": 1,
+      "message": "The current lexer impl is relying heavily on a \\0 terminator (as it folds naturally into the token tests, for free).  If we switch to a length-constrained input, we\u0027ll have to test for EOS on every token read.\n\nSo I\u0027m mostly concerned about perf, but we could give it a shot.  One of the other parser authors estimates ~10% overhead, so maybe not horrible.",
+      "parentUuid": "b3c277cd_e1891bbc",
+      "range": {
+        "startLine": 749,
+        "startChar": 4,
+        "endLine": 755,
+        "endChar": 5
+      },
+      "revId": "062e7ae6013cbec8bf03811843b4fd279ba3b436",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
