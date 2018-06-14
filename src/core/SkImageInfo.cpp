@@ -55,18 +55,18 @@ int SkImageInfo::bytesPerPixel() const { return SkColorTypeBytesPerPixel(fColorT
 int SkImageInfo::shiftPerPixel() const { return SkColorTypeShiftPerPixel(fColorType); }
 
 size_t SkImageInfo::computeOffset(int x, int y, size_t rowBytes) const {
-    SkASSERT((unsigned)x < (unsigned)fWidth);
-    SkASSERT((unsigned)y < (unsigned)fHeight);
-    return SkColorTypeComputeOffset(fColorType, x, y, rowBytes);
+    SkASSERT((unsigned)x < (unsigned)this->width());
+    SkASSERT((unsigned)y < (unsigned)this->height());
+    return SkColorTypeComputeOffset(this->colorType(), x, y, rowBytes);
 }
 
 size_t SkImageInfo::computeByteSize(size_t rowBytes) const {
-    if (0 == fHeight) {
+    if (0 == this->height()) {
         return 0;
     }
     SkSafeMath safe;
-    size_t bytes = safe.add(safe.mul(safe.addInt(fHeight, -1), rowBytes),
-                            safe.mul(fWidth, this->bytesPerPixel()));
+    size_t bytes = safe.add(safe.mul(safe.addInt(this->height(), -1), rowBytes),
+                            safe.mul(this->width(), this->bytesPerPixel()));
     return safe ? bytes : SK_MaxSizeT;
 }
 

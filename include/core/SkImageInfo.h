@@ -198,8 +198,7 @@ public:
     */
     SkImageInfo()
         : fColorSpace(nullptr)
-        , fWidth(0)
-        , fHeight(0)
+        , fDimensions{0, 0}
         , fColorType(kUnknown_SkColorType)
         , fAlphaType(kUnknown_SkAlphaType)
     {}
@@ -344,13 +343,13 @@ public:
 
         @return  pixel width
     */
-    int width() const { return fWidth; }
+    int width() const { return fDimensions.width(); }
 
     /** Returns pixel row count.
 
         @return  pixel height
     */
-    int height() const { return fHeight; }
+    int height() const { return fDimensions.height(); }
 
     /** Returns SkColorType, one of:
         kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
@@ -392,7 +391,7 @@ public:
 
         @return  true if either dimension is zero or smaller
     */
-    bool isEmpty() const { return fWidth <= 0 || fHeight <= 0; }
+    bool isEmpty() const { return fDimensions.isEmpty(); }
 
     /** Returns true if SkAlphaType is set to hint that all pixels are opaque; their
         alpha value is implicitly or explicitly 1.0. If true, and all pixels are
@@ -411,13 +410,13 @@ public:
 
         @return  integral size of width() and height()
     */
-    SkISize dimensions() const { return SkISize::Make(fWidth, fHeight); }
+    SkISize dimensions() const { return fDimensions; }
 
     /** Returns SkIRect { 0, 0, width(), height() }.
 
         @return  integral rectangle from origin to width() and height()
     */
-    SkIRect bounds() const { return SkIRect::MakeWH(fWidth, fHeight); }
+    SkIRect bounds() const { return SkIRect::MakeSize(fDimensions); }
 
     /** Returns true if associated SkColorSpace is not nullptr, and SkColorSpace gamma
         is approximately the same as sRGB.
@@ -452,7 +451,7 @@ public:
         @return              created SkImageInfo
     */
     SkImageInfo makeAlphaType(SkAlphaType newAlphaType) const {
-        return Make(fWidth, fHeight, fColorType, newAlphaType, fColorSpace);
+        return Make(this->width(), this->height(), fColorType, newAlphaType, fColorSpace);
     }
 
     /** Creates SkImageInfo with same SkAlphaType, SkColorSpace, width, and height,
@@ -466,7 +465,7 @@ public:
         @return              created SkImageInfo
     */
     SkImageInfo makeColorType(SkColorType newColorType) const {
-        return Make(fWidth, fHeight, newColorType, fAlphaType, fColorSpace);
+        return Make(this->width(), this->height(), newColorType, fAlphaType, fColorSpace);
     }
 
     /** Creates SkImageInfo with same SkAlphaType, SkColorType, width, and height,
@@ -476,7 +475,7 @@ public:
         @return    created SkImageInfo
     */
     SkImageInfo makeColorSpace(sk_sp<SkColorSpace> cs) const {
-        return Make(fWidth, fHeight, fColorType, fAlphaType, std::move(cs));
+        return Make(this->width(), this->height(), fColorType, fAlphaType, std::move(cs));
     }
 
     /** Returns number of bytes per pixel required by SkColorType.
@@ -499,9 +498,7 @@ public:
 
         @return  width() times bytesPerPixel() as unsigned 64-bit integer
     */
-    uint64_t minRowBytes64() const {
-        return sk_64_mul(fWidth, this->bytesPerPixel());
-    }
+    uint64_t minRowBytes64() const { return sk_64_mul(this->width(), this->bytesPerPixel()); }
 
     /** Returns minimum bytes per row, computed from pixel width() and SkColorType, which
         specifies bytesPerPixel(). SkBitmap maximum value for row bytes must fit
@@ -536,7 +533,7 @@ public:
         @return       true if SkImageInfo equals other
     */
     bool operator==(const SkImageInfo& other) const {
-        return fWidth == other.fWidth && fHeight == other.fHeight &&
+        return fDimensions == other.fDimensions &&
                fColorType == other.fColorType && fAlphaType == other.fAlphaType &&
                SkColorSpace::Equals(fColorSpace.get(), other.fColorSpace.get());
     }
@@ -590,8 +587,7 @@ public:
         @return          true if rowBytes is large enough to contain pixel row
     */
     bool validRowBytes(size_t rowBytes) const {
-        uint64_t minRB = sk_64_mul(fWidth, this->bytesPerPixel());
-        return rowBytes >= minRB;
+        return rowBytes >= this->minRowBytes64();
     }
 
     /** Creates an empty SkImageInfo with kUnknown_SkColorType, kUnknown_SkAlphaType,
@@ -599,8 +595,7 @@ public:
     */
     void reset() {
         fColorSpace = nullptr;
-        fWidth = 0;
-        fHeight = 0;
+        fDimensions = {0, 0};
         fColorType = kUnknown_SkColorType;
         fAlphaType = kUnknown_SkAlphaType;
     }
@@ -612,15 +607,13 @@ public:
 
 private:
     sk_sp<SkColorSpace> fColorSpace;
-    int                 fWidth;
-    int                 fHeight;
+    SkISize             fDimensions;
     SkColorType         fColorType;
     SkAlphaType         fAlphaType;
 
     SkImageInfo(int width, int height, SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs)
         : fColorSpace(std::move(cs))
-        , fWidth(width)
-        , fHeight(height)
+        , fDimensions{width, height}
         , fColorType(ct)
         , fAlphaType(at)
     {}
