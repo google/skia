@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1549dc4d_5e099c2f",
+        "filename": "src/gpu/GrDirectContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-14T13:42:42Z",
+      "side": 1,
+      "message": "Should we have an assignment operator or copy constructor?",
+      "range": {
+        "startLine": 160,
+        "startChar": 0,
+        "endLine": 169,
+        "endChar": 74
+      },
+      "revId": "744f2604654717aa85519417dc711d1405be3e3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
