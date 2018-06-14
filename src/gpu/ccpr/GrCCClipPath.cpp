@@ -35,8 +35,8 @@ void GrCCClipPath::init(GrProxyProvider* proxyProvider,
                 SkASSERT(kTopLeft_GrSurfaceOrigin == textureProxy->origin());
 
                 fAtlasScale = {1.f / textureProxy->width(), 1.f / textureProxy->height()};
-                fAtlasTranslate = {fAtlasOffsetX * fAtlasScale.x(),
-                                   fAtlasOffsetY * fAtlasScale.y()};
+                fAtlasTranslate.set(fDevToAtlasOffset.fX * fAtlasScale.x(),
+                                    fDevToAtlasOffset.fY * fAtlasScale.y());
                 SkDEBUGCODE(fHasAtlasTransform = true);
 
                 return sk_ref_sp(textureProxy->priv().peekTexture());
@@ -65,6 +65,6 @@ void GrCCClipPath::renderPathInAtlas(GrCCPerFlushResources* resources,
     SkASSERT(this->isInitialized());
     SkASSERT(!fHasAtlas);
     fAtlas = resources->renderDeviceSpacePathInAtlas(fAccessRect, fDeviceSpacePath, fPathDevIBounds,
-                                                     &fAtlasOffsetX, &fAtlasOffsetY);
+                                                     &fDevToAtlasOffset);
     SkDEBUGCODE(fHasAtlas = true);
 }

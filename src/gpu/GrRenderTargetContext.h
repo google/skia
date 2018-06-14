@@ -404,7 +404,7 @@ private:
     friend class GrDefaultPathRenderer;              // for access to add[Mesh]DrawOp
     friend class GrStencilAndCoverPathRenderer;      // for access to add[Mesh]DrawOp
     friend class GrTessellatingPathRenderer;         // for access to add[Mesh]DrawOp
-    friend class GrCCAtlas;                          // for access to addDrawOp
+    friend class GrCCPerFlushResources;              // for access to addDrawOp
     friend class GrCoverageCountingPathRenderer;     // for access to addDrawOp
     // for a unit test
     friend void test_draw_op(GrContext*,

@@ -83,15 +83,15 @@ GrCCPathProcessor::GrCCPathProcessor(GrResourceProvider* resourceProvider,
                        GrSamplerState::WrapMode::kClamp, kFragment_GrShaderFlag) {
     this->addInstanceAttrib("devbounds", kFloat4_GrVertexAttribType);
     this->addInstanceAttrib("devbounds45", kFloat4_GrVertexAttribType);
-    this->addInstanceAttrib("atlas_offset", kShort2_GrVertexAttribType);
+    this->addInstanceAttrib("dev_to_atlas_offset", kInt2_GrVertexAttribType);
     this->addInstanceAttrib("color", kUByte4_norm_GrVertexAttribType);
 
     SkASSERT(offsetof(Instance, fDevBounds) ==
              this->getInstanceAttrib(InstanceAttribs::kDevBounds).offsetInRecord());
     SkASSERT(offsetof(Instance, fDevBounds45) ==
              this->getInstanceAttrib(InstanceAttribs::kDevBounds45).offsetInRecord());
-    SkASSERT(offsetof(Instance, fAtlasOffset) ==
-             this->getInstanceAttrib(InstanceAttribs::kAtlasOffset).offsetInRecord());
+    SkASSERT(offsetof(Instance, fDevToAtlasOffset) ==
+             this->getInstanceAttrib(InstanceAttribs::kDevToAtlasOffset).offsetInRecord());
     SkASSERT(offsetof(Instance, fColor) ==
              this->getInstanceAttrib(InstanceAttribs::kColor).offsetInRecord());
     SkASSERT(sizeof(Instance) == this->getInstanceStride());
@@ -208,7 +208,7 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     // Convert to atlas coordinates in order to do our texture lookup.
     v->codeAppendf("float2 atlascoord = octocoord + float2(%s);",
-                   proc.getInstanceAttrib(InstanceAttribs::kAtlasOffset).name());
+                   proc.getInstanceAttrib(InstanceAttribs::kDevToAtlasOffset).name());
     if (kTopLeft_GrSurfaceOrigin == proc.atlasProxy()->origin()) {
         v->codeAppendf("%s.xy = atlascoord * %s;", texcoord.vsOut(), atlasAdjust);
     } else {

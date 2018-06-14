@@ -51,7 +51,7 @@ public:
 private:
     friend class GrOpMemoryPool;
 
-    GrCCDrawPathsOp(const SkIRect& clippedDevIBounds, const SkMatrix&, const SkPath&,
+    GrCCDrawPathsOp(const SkIRect& looseClippedIBounds, const SkMatrix&, const SkPath&,
                     const SkRect& devBounds, GrPaint&&);
 
     struct AtlasBatch {
