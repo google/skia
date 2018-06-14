@@ -165,10 +165,10 @@ void GrCCPathParser::endContourIfNeeded(bool insideContour) {
 }
 
 void GrCCPathParser::saveParsedPath(ScissorMode scissorMode, const SkIRect& clippedDevIBounds,
-                                    int16_t atlasOffsetX, int16_t atlasOffsetY) {
+                                    const SkIVector& devToAtlasOffset) {
     SkASSERT(fParsingPath);
 
-    fPathsInfo.emplace_back(scissorMode, atlasOffsetX, atlasOffsetY);
+    fPathsInfo.emplace_back(scissorMode, devToAtlasOffset);
 
     // Tessellate fans from very large and/or simple paths, in order to reduce overdraw.
     int numVerbs = fGeometry.verbs().count() - fCurrPathVerbsIdx - 1;
@@ -254,7 +254,8 @@ void GrCCPathParser::saveParsedPath(ScissorMode scissorMode, const SkIRect& clip
 
     if (ScissorMode::kScissored == scissorMode) {
         fScissorSubBatches.push_back() = {fTotalPrimitiveCounts[(int)ScissorMode::kScissored],
-                                          clippedDevIBounds.makeOffset(atlasOffsetX, atlasOffsetY)};
+                                          clippedDevIBounds.makeOffset(devToAtlasOffset.fX,
+                                                                       devToAtlasOffset.fY)};
     }
 
     SkDEBUGCODE(fParsingPath = false);
@@ -304,7 +305,7 @@ GrCCPathParser::CoverageCountBatchID GrCCPathParser::closeCurrentBatch() {
 // Returns the next triangle instance after the final one emitted.
 static TriPointInstance* emit_recursive_fan(const SkTArray<SkPoint, true>& pts,
                                             SkTArray<int32_t, true>& indices, int firstIndex,
-                                            int indexCount, const Sk2f& atlasOffset,
+                                            int indexCount, const Sk2f& devToAtlasOffset,
                                             TriPointInstance out[]) {
     if (indexCount < 3) {
         return out;
@@ -313,33 +314,34 @@ static TriPointInstance* emit_recursive_fan(const SkTArray<SkPoint, true>& pts,
     int32_t oneThirdCount = indexCount / 3;
     int32_t twoThirdsCount = (2 * indexCount) / 3;
     out++->set(pts[indices[firstIndex]], pts[indices[firstIndex + oneThirdCount]],
-               pts[indices[firstIndex + twoThirdsCount]], atlasOffset);
+               pts[indices[firstIndex + twoThirdsCount]], devToAtlasOffset);
 
-    out = emit_recursive_fan(pts, indices, firstIndex, oneThirdCount + 1, atlasOffset, out);
+    out = emit_recursive_fan(pts, indices, firstIndex, oneThirdCount + 1, devToAtlasOffset, out);
     out = emit_recursive_fan(pts, indices, firstIndex + oneThirdCount,
-                             twoThirdsCount - oneThirdCount + 1, atlasOffset, out);
+                             twoThirdsCount - oneThirdCount + 1, devToAtlasOffset, out);
 
     int endIndex = firstIndex + indexCount;
     int32_t oldValue = indices[endIndex];
     indices[endIndex] = indices[firstIndex];
     out = emit_recursive_fan(pts, indices, firstIndex + twoThirdsCount,
-                             indexCount - twoThirdsCount + 1, atlasOffset, out);
+                             indexCount - twoThirdsCount + 1, devToAtlasOffset, out);
     indices[endIndex] = oldValue;
 
     return out;
 }
 
 static void emit_tessellated_fan(const GrTessellator::WindingVertex* vertices, int numVertices,
-                                 const Sk2f& atlasOffset, TriPointInstance* triPointInstanceData,
+                                 const Sk2f& devToAtlasOffset,
+                                 TriPointInstance* triPointInstanceData,
                                  QuadPointInstance* quadPointInstanceData,
                                  GrCCGeometry::PrimitiveTallies* indices) {
     for (int i = 0; i < numVertices; i += 3) {
         if (1 == abs(vertices[i].fWinding)) {
             triPointInstanceData[indices->fTriangles++].set(vertices[i].fPos, vertices[i + 1].fPos,
-                                                            vertices[i + 2].fPos, atlasOffset);
+                                                            vertices[i + 2].fPos, devToAtlasOffset);
         } else {
             quadPointInstanceData[indices->fWeightedTriangles++].setW(
-                    vertices[i].fPos, vertices[i+1].fPos, vertices[i + 2].fPos, atlasOffset,
+                    vertices[i].fPos, vertices[i+1].fPos, vertices[i + 2].fPos, devToAtlasOffset,
                     static_cast<float>(abs(vertices[i].fWinding)));
         }
     }
@@ -400,8 +402,7 @@ bool GrCCPathParser::finalize(GrOnFlushResourceProvider* onFlushRP) {
     SkASSERT(quadPointInstanceData);
 
     PathInfo* nextPathInfo = fPathsInfo.begin();
-    float atlasOffsetX = 0.0, atlasOffsetY = 0.0;
-    Sk2f atlasOffset;
+    Sk2f devToAtlasOffset;
     PrimitiveTallies instanceIndices[2] = {fBaseInstances[0], fBaseInstances[1]};
     PrimitiveTallies* currIndices = nullptr;
     SkSTArray<256, int32_t, true> currFan;
@@ -417,13 +418,12 @@ bool GrCCPathParser::finalize(GrOnFlushResourceProvider* onFlushRP) {
             case GrCCGeometry::Verb::kBeginPath:
                 SkASSERT(currFan.empty());
                 currIndices = &instanceIndices[(int)nextPathInfo->scissorMode()];
-                atlasOffsetX = static_cast<float>(nextPathInfo->atlasOffsetX());
-                atlasOffsetY = static_cast<float>(nextPathInfo->atlasOffsetY());
-                atlasOffset = {atlasOffsetX, atlasOffsetY};
+                devToAtlasOffset = Sk2f(static_cast<float>(nextPathInfo->devToAtlasOffset().fX),
+                                        static_cast<float>(nextPathInfo->devToAtlasOffset().fY));
                 currFanIsTessellated = nextPathInfo->hasFanTessellation();
                 if (currFanIsTessellated) {
                     emit_tessellated_fan(nextPathInfo->fanTessellation(),
-                                         nextPathInfo->fanTessellationCount(), atlasOffset,
+                                         nextPathInfo->fanTessellationCount(), devToAtlasOffset,
                                          triPointInstanceData, quadPointInstanceData, currIndices);
                 }
                 ++nextPathInfo;
@@ -446,7 +446,8 @@ bool GrCCPathParser::finalize(GrOnFlushResourceProvider* onFlushRP) {
                 continue;
 
             case GrCCGeometry::Verb::kMonotonicQuadraticTo:
-                triPointInstanceData[currIndices->fQuadratics++].set(&pts[ptsIdx], atlasOffset);
+                triPointInstanceData[currIndices->fQuadratics++].set(&pts[ptsIdx],
+                                                                     devToAtlasOffset);
                 ptsIdx += 2;
                 if (!currFanIsTessellated) {
                     SkASSERT(!currFan.empty());
@@ -455,8 +456,8 @@ bool GrCCPathParser::finalize(GrOnFlushResourceProvider* onFlushRP) {
                 continue;
 
             case GrCCGeometry::Verb::kMonotonicCubicTo:
-                quadPointInstanceData[currIndices->fCubics++].set(&pts[ptsIdx], atlasOffsetX,
-                                                                  atlasOffsetY);
+                quadPointInstanceData[currIndices->fCubics++].set(&pts[ptsIdx], devToAtlasOffset[0],
+                                                                  devToAtlasOffset[1]);
                 ptsIdx += 3;
                 if (!currFanIsTessellated) {
                     SkASSERT(!currFan.empty());
@@ -466,7 +467,8 @@ bool GrCCPathParser::finalize(GrOnFlushResourceProvider* onFlushRP) {
 
             case GrCCGeometry::Verb::kMonotonicConicTo:
                 quadPointInstanceData[currIndices->fConics++].setW(
-                        &pts[ptsIdx], atlasOffset, fGeometry.getConicWeight(nextConicWeightIdx));
+                        &pts[ptsIdx], devToAtlasOffset,
+                        fGeometry.getConicWeight(nextConicWeightIdx));
                 ptsIdx += 2;
                 ++nextConicWeightIdx;
                 if (!currFanIsTessellated) {
@@ -489,7 +491,7 @@ bool GrCCPathParser::finalize(GrOnFlushResourceProvider* onFlushRP) {
                     // fanSize + log3(fanSize), but we approximate with log2.
                     currFan.push_back_n(SkNextLog2(fanSize));
                     SkDEBUGCODE(TriPointInstance* end =)
-                            emit_recursive_fan(pts, currFan, 0, fanSize, atlasOffset,
+                            emit_recursive_fan(pts, currFan, 0, fanSize, devToAtlasOffset,
                                                triPointInstanceData + currIndices->fTriangles);
                     currIndices->fTriangles += fanSize - 2;
                     SkASSERT(triPointInstanceData + currIndices->fTriangles == end);
