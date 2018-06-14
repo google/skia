@@ -52,44 +52,63 @@ static int get_winding(const SkPoint* polygonVerts, int polygonSize) {
     return 0;
 }
 
-// Offset line segment p0-p1 'd0' and 'd1' units in the direction specified by 'side'
-bool SkOffsetSegment(const SkPoint& p0, const SkPoint& p1, SkScalar d0, SkScalar d1,
-                     int side, SkPoint* offset0, SkPoint* offset1) {
+// Helper function to compute the individual vector for non-equal offsets
+inline void compute_offset(SkScalar d, const SkPoint& polyPoint, int side,
+                           const SkPoint& outerTangentIntersect, SkVector* v) {
+    SkScalar dsq = d * d;
+    SkVector dP = outerTangentIntersect - polyPoint;
+    SkScalar dPlenSq = SkPointPriv::LengthSqd(dP);
+    if (SkScalarNearlyZero(dPlenSq)) {
+        v->set(0, 0);
+    } else {
+        SkScalar discrim = SkScalarSqrt(dPlenSq - dsq);
+        v->fX = (dsq*dP.fX - side * d*dP.fY*discrim) / dPlenSq;
+        v->fY = (dsq*dP.fY + side * d*dP.fX*discrim) / dPlenSq;
+    }
+}
+
+// Compute difference vector to offset p0-p1 'd0' and 'd1' units in direction specified by 'side'
+bool compute_offset_vectors(const SkPoint& p0, const SkPoint& p1, SkScalar d0, SkScalar d1,
+                            int side, SkPoint* vector0, SkPoint* vector1) {
     SkASSERT(side == -1 || side == 1);
-    SkVector perp = SkVector::Make(p0.fY - p1.fY, p1.fX - p0.fX);
     if (SkScalarNearlyEqual(d0, d1)) {
         // if distances are equal, can just outset by the perpendicular
+        SkVector perp = SkVector::Make(p0.fY - p1.fY, p1.fX - p0.fX);
         perp.setLength(d0*side);
-        *offset0 = p0 + perp;
-        *offset1 = p1 + perp;
+        *vector0 = perp;
+        *vector1 = perp;
     } else {
+        SkScalar d0abs = SkTAbs(d0);
+        SkScalar d1abs = SkTAbs(d1);
         // Otherwise we need to compute the outer tangent.
         // See: http://www.ambrsoft.com/TrigoCalc/Circles2/Circles2Tangent_.htm
-        if (d0 < d1) {
+        if (d0abs < d1abs) {
             side = -side;
         }
-        SkScalar dD = d0 - d1;
+        SkScalar dD = d0abs - d1abs;
         // if one circle is inside another, we can't compute an offset
         if (dD*dD >= SkPointPriv::DistanceToSqd(p0, p1)) {
             return false;
         }
-        SkPoint outerTangentIntersect = SkPoint::Make((p1.fX*d0 - p0.fX*d1) / dD,
-                                                      (p1.fY*d0 - p0.fY*d1) / dD);
+        SkPoint outerTangentIntersect = SkPoint::Make((p1.fX*d0abs - p0.fX*d1abs) / dD,
+                                                      (p1.fY*d0abs - p0.fY*d1abs) / dD);
 
-        SkScalar d0sq = d0*d0;
-        SkVector dP = outerTangentIntersect - p0;
-        SkScalar dPlenSq = SkPointPriv::LengthSqd(dP);
-        SkScalar discrim = SkScalarSqrt(dPlenSq - d0sq);
-        offset0->fX = p0.fX + (d0sq*dP.fX - side*d0*dP.fY*discrim) / dPlenSq;
-        offset0->fY = p0.fY + (d0sq*dP.fY + side*d0*dP.fX*discrim) / dPlenSq;
-
-        SkScalar d1sq = d1*d1;
-        dP = outerTangentIntersect - p1;
-        dPlenSq = SkPointPriv::LengthSqd(dP);
-        discrim = SkScalarSqrt(dPlenSq - d1sq);
-        offset1->fX = p1.fX + (d1sq*dP.fX - side*d1*dP.fY*discrim) / dPlenSq;
-        offset1->fY = p1.fY + (d1sq*dP.fY + side*d1*dP.fX*discrim) / dPlenSq;
+        compute_offset(d0, p0, side, outerTangentIntersect, vector0);
+        compute_offset(d1, p1, side, outerTangentIntersect, vector1);
     }
+
+    return true;
+}
+
+// Offset line segment p0-p1 'd0' and 'd1' units in the direction specified by 'side'
+bool SkOffsetSegment(const SkPoint& p0, const SkPoint& p1, SkScalar d0, SkScalar d1,
+                     int side, SkPoint* offset0, SkPoint* offset1) {
+    SkVector v0, v1;
+    if (!compute_offset_vectors(p0, p1, d0, d1, side, &v0, &v1)) {
+        return false;
+    }
+    *offset0 = p0 + v0;
+    *offset1 = p1 + v1;
 
     return true;
 }
@@ -255,7 +274,7 @@ struct EdgeData {
 // Note: the assumption is that inputPolygon is convex and has no coincident points.
 //
 bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize,
-                          std::function<SkScalar(int index)> insetDistanceFunc,
+                          std::function<SkScalar(const SkPoint&)> insetDistanceFunc,
                           SkTDArray<SkPoint>* insetPolygon) {
     if (inputPolygonSize < 3) {
         return false;
@@ -277,7 +296,8 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
             return false;
         }
         if (!SkOffsetSegment(inputPolygonVerts[i], inputPolygonVerts[j],
-                             insetDistanceFunc(i), insetDistanceFunc(j),
+                             insetDistanceFunc(inputPolygonVerts[i]),
+                             insetDistanceFunc(inputPolygonVerts[j]),
                              winding,
                              &edgeData[i].fInset.fP0, &edgeData[i].fInset.fP1)) {
             return false;
@@ -588,8 +608,8 @@ static bool is_simple_polygon(const SkPoint* polygon, int polygonSize) {
 
 // TODO: assuming a constant offset here -- do we want to support variable offset?
 bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize,
-                           SkScalar offset, SkTDArray<SkPoint>* offsetPolygon,
-                           SkTDArray<int>* polygonIndices) {
+                           std::function<SkScalar(const SkPoint&)> offsetDistanceFunc,
+                           SkTDArray<SkPoint>* offsetPolygon, SkTDArray<int>* polygonIndices) {
     if (inputPolygonSize < 3) {
         return false;
     }
@@ -599,25 +619,30 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     }
 
     // compute area and use sign to determine winding
-    // do initial pass to build normals
-    SkAutoSTMalloc<64, SkVector> normals(inputPolygonSize);
     SkScalar quadArea = 0;
     for (int curr = 0; curr < inputPolygonSize; ++curr) {
         int next = (curr + 1) % inputPolygonSize;
-        SkVector tangent = inputPolygonVerts[next] - inputPolygonVerts[curr];
-        SkVector normal = SkVector::Make(-tangent.fY, tangent.fX);
-        normals[curr] = normal;
         quadArea += inputPolygonVerts[curr].cross(inputPolygonVerts[next]);
+    }
+    if (SkScalarNearlyZero(quadArea)) {
+        return false;
     }
     // 1 == ccw, -1 == cw
     int winding = (quadArea > 0) ? 1 : -1;
-    if (0 == winding) {
-        return false;
-    }
 
-    // resize normals to match offset
+    // build normals
+    SkAutoSTMalloc<64, SkVector> normal0(inputPolygonSize);
+    SkAutoSTMalloc<64, SkVector> normal1(inputPolygonSize);
+    SkScalar currOffset = offsetDistanceFunc(inputPolygonVerts[0]);
     for (int curr = 0; curr < inputPolygonSize; ++curr) {
-        normals[curr].setLength(winding*offset);
+        int next = (curr + 1) % inputPolygonSize;
+        SkScalar nextOffset = offsetDistanceFunc(inputPolygonVerts[next]);
+        if (!compute_offset_vectors(inputPolygonVerts[curr], inputPolygonVerts[next],
+                                    currOffset, nextOffset, winding,
+                                    &normal0[curr], &normal1[next])) {
+            return false;
+        }
+        currOffset = nextOffset;
     }
 
     // build initial offset edge list
@@ -629,13 +654,13 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
         int side = compute_side(inputPolygonVerts[prevIndex],
                                 inputPolygonVerts[currIndex],
                                 inputPolygonVerts[nextIndex]);
-
+        SkScalar offset = offsetDistanceFunc(inputPolygonVerts[currIndex]);
         // if reflex point, fill in curve
         if (side*winding*offset < 0) {
             SkScalar rotSin, rotCos;
             int numSteps;
-            SkVector prevNormal = normals[prevIndex];
-            compute_radial_steps(prevNormal, normals[currIndex], SkScalarAbs(offset),
+            SkVector prevNormal = normal1[currIndex];
+            compute_radial_steps(prevNormal, normal0[currIndex], SkScalarAbs(offset),
                                  &rotSin, &rotCos, &numSteps);
             for (int i = 0; i < numSteps - 1; ++i) {
                 SkVector currNormal = SkVector::Make(prevNormal.fX*rotCos - prevNormal.fY*rotSin,
@@ -648,14 +673,14 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
             }
             EdgeData& edge = edgeData.push_back();
             edge.fInset.fP0 = inputPolygonVerts[currIndex] + prevNormal;
-            edge.fInset.fP1 = inputPolygonVerts[currIndex] + normals[currIndex];
+            edge.fInset.fP1 = inputPolygonVerts[currIndex] + normal0[currIndex];
             edge.init(currIndex, currIndex);
         }
 
         // Add the edge
         EdgeData& edge = edgeData.push_back();
-        edge.fInset.fP0 = inputPolygonVerts[currIndex] + normals[currIndex];
-        edge.fInset.fP1 = inputPolygonVerts[nextIndex] + normals[currIndex];
+        edge.fInset.fP0 = inputPolygonVerts[currIndex] + normal0[currIndex];
+        edge.fInset.fP1 = inputPolygonVerts[nextIndex] + normal1[nextIndex];
         edge.init(currIndex, nextIndex);
 
         prevIndex = currIndex;
