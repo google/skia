@@ -315,6 +315,7 @@ protected:
                               fWideOvalPath.getBounds().height() / 2);
         translate = SkPoint::Make(100, 600);
         view.restore();
+        view.save();
         view.rotateY(fAnimAngle);
         view.getMatrix(&persp);
         persp.preTranslate(-pivot.fX, -pivot.fY);
@@ -324,6 +325,21 @@ protected:
                                       0,
                                       SkTMax(1.0f, 32 + fZDelta) + SkScalarSin(radians)*pivot.fX);
         this->drawShadowedPath(canvas, fWideOvalPath, zPlaneParams, paint, .1f,
+                               lightPos, kLightWidth, .5f);
+
+        pivot = SkPoint::Make(fStarPath.getBounds().width() / 2,
+                              fStarPath.getBounds().height() / 2);
+        translate = SkPoint::Make(700, 250);
+        view.restore();
+        view.rotateY(fAnimAngle);
+        view.getMatrix(&persp);
+        persp.preTranslate(-pivot.fX, -pivot.fY);
+        persp.postTranslate(pivot.fX + translate.fX, pivot.fY + translate.fY);
+        canvas->setMatrix(persp);
+        zPlaneParams = SkPoint3::Make(-SkScalarSin(radians),
+                                      0,
+                                      SkTMax(1.0f, 8 + fZDelta) + SkScalarSin(radians)*pivot.fX);
+        this->drawShadowedPath(canvas, fStarPath, zPlaneParams, paint, .1f,
                                lightPos, kLightWidth, .5f);
     }
 
