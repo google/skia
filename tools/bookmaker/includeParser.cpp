@@ -2027,6 +2027,9 @@ bool IncludeParser::parseObject(Definition* child, Definition* markupDef) {
                             fAttrDeprecated = &*tokenIter;
                             break;
                         }
+                        if ('f' == previousToken.fStart[0] && isupper(previousToken.fStart[1])) {
+                            break;
+                        }
                         if (Bracket::kPound == child->fParent->fBracket &&
                                 KeyWord::kIf == child->fParent->fKeyWord) {
                             // TODO: this will skip methods named defined() -- for the
