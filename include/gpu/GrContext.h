@@ -33,6 +33,7 @@ class GrGlyphCache;
 class GrGpu;
 class GrIndexBuffer;
 struct GrMockOptions;
+class GrOpMemoryPool;
 class GrOvalRenderer;
 class GrPath;
 class GrProxyProvider;
@@ -307,6 +308,8 @@ private:
     GrProxyProvider*                        fProxyProvider;
     std::unique_ptr<GrTextureStripAtlasManager> fTextureStripAtlasManager;
 
+    // All the GrOp-derived classes use this pool.
+    sk_sp<GrOpMemoryPool>                   fOpMemoryPool;
 
     GrGlyphCache*                           fGlyphCache;
     std::unique_ptr<GrTextBlobCache>        fTextBlobCache;
