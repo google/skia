@@ -643,7 +643,7 @@ Represents fully opaque black.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Represents fully opaque dark gray.
-Note that SVG_darkgray is equivalent to 0xFFA9A9A9.
+Note that <a href='undocumented#SVG_darkgray'>SVG darkgray</a> is equivalent to 0xFFA9A9A9.
 </td>
   </tr>
   <tr>
@@ -652,7 +652,7 @@ Note that SVG_darkgray is equivalent to 0xFFA9A9A9.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Represents fully opaque gray.
-Note that HTML_Gray is equivalent to 0xFF808080.
+Note that <a href='undocumented#HTML_Gray'>HTML Gray</a> is equivalent to 0xFF808080.
 </td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
@@ -660,8 +660,8 @@ Note that HTML_Gray is equivalent to 0xFF808080.
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFFCCCCCC</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Represents fully opaque light gray. HTML_Silver is equivalent to 0xFFC0C0C0.
-Note that SVG_lightgray is equivalent to 0xFFD3D3D3.
+Represents fully opaque light gray. <a href='undocumented#HTML_Silver'>HTML Silver</a> is equivalent to 0xFFC0C0C0.
+Note that <a href='undocumented#SVG_lightgray'>SVG lightgray</a> is equivalent to 0xFFD3D3D3.
 </td>
   </tr>
   <tr>
@@ -685,8 +685,8 @@ Represents fully opaque red.
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF00FF00</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Represents fully opaque green. HTML_Lime is equivalent.
-Note that HTML_Green is equivalent to 0xFF008000.
+Represents fully opaque green. <a href='undocumented#HTML_Lime'>HTML Lime</a> is equivalent.
+Note that <a href='undocumented#HTML_Green'>HTML Green</a> is equivalent to 0xFF008000.
 </td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
@@ -710,7 +710,7 @@ Represents fully opaque yellow.
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF00FFFF</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Represents fully opaque cyan. HTML_Aqua is equivalent.
+Represents fully opaque cyan. <a href='undocumented#HTML_Aqua'>HTML Aqua</a> is equivalent.
 </td>
   </tr>
   <tr>
@@ -718,7 +718,7 @@ Represents fully opaque cyan. HTML_Aqua is equivalent.
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFFFF00FF</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Represents fully opaque magenta. HTML_Fuchsia is equivalent.
+Represents fully opaque magenta. <a href='undocumented#HTML_Fuchsia'>HTML Fuchsia</a> is equivalent.
 </td>
   </tr>
 </table>

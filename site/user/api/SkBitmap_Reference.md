@@ -323,7 +323,7 @@ SkBitmap member functions read and modify the structure properties.
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_hasHardwareMipMap'>hasHardwareMipMap</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns Mip_Map support present; Android only</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='undocumented#Mip_Map'>Mip Map</a> support present; Android only</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_height'>height</a></td>
@@ -403,7 +403,7 @@ SkBitmap member functions read and modify the structure properties.
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_setHasHardwareMipMap'>setHasHardwareMipMap</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets Mip_Map support present; Android only</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='undocumented#Mip_Map'>Mip Map</a> support present; Android only</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_setImmutable'>setImmutable</a></td>
@@ -907,7 +907,7 @@ two width:1 height:1 colorType:kRGBA_8888_SkColorType alphaType:kOpaque_SkAlphaT
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_hasHardwareMipMap'>hasHardwareMipMap</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns Mip_Map support present; Android only</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='undocumented#Mip_Map'>Mip Map</a> support present; Android only</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_height'>height</a></td>
@@ -2994,7 +2994,7 @@ subset origin: 32, 64
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_setHasHardwareMipMap'>setHasHardwareMipMap</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets Mip_Map support present; Android only</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='undocumented#Mip_Map'>Mip Map</a> support present; Android only</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_setImmutable'>setImmutable</a></td>

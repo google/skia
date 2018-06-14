@@ -3,20 +3,17 @@
  DirectWrite TrueType Windows Linux Android iOS __ANDROID_API__ AHardwareBuffer
  FreeType FreeType-based Harfbuzz
  LCD RGB sRGB ARGB BGR YUV SDTV HDTV
- YUV_Component_Y YUV_Component_U YUV_Component_V
  Unicode Unicode5 UTF-8 UTF-16 UTF-32 ASCII Unichar
  API
  BMP GIF HEIF ICO JPEG PNG WBMP WebP
- CPU Little_Endian Big_Endian
- GPU GPU-backed OpenGL Vulkan I/O MSAA UV_Mapping Multi_Sample_Anti_Aliasing GPU_Share_Group
+ CPU
+ GPU GPU-backed OpenGL Vulkan I/O MSAA 
  PDF XPS
  RFC
  NaN NaNs
- Bezier_Curve Coons_Patch Cartesian_Coordinate Euclidean_Distance Euclidean_Space Mip_Map
+ 
  C C++ 
  CSS HTML
- HTML_Gray HTML_DarkGray HTML_LightGray HTML_Silver HTML_Lime HTML_Green HTML_Aqua HTML_Fuchsia
- SVG_lightgray SVG_darkgray
  SkUserConfig  # not external, but still thinking about how markup refers to this
  SkXXX.h        # ditto
  SkXXX_Reference # ditto
@@ -79,6 +76,101 @@ FT_Load_Glyph
 #Topic Unhinted
 #Substitute unhinted
 ##
+
+# this jargon requires a substitute to space the phrase. 
+#Topic Little_Endian 
+#Substitute little endian
+##
+
+#Topic Big_Endian
+#Substitute big endian
+##
+
+#Topic YUV_Component_Y 
+#Substitute YUV component y
+##
+
+#Topic YUV_Component_U 
+#Substitute YUV component u
+##
+
+#Topic YUV_Component_V
+#Substitute YUV component v
+##
+
+#Topic UV_Mapping
+#Substitute UV mapping
+##
+
+#Topic Multi_Sample_Anti_Aliasing 
+#Substitute multi-sample anti-aliasing
+##
+
+#Topic GPU_Share_Group
+#Substitute GPU share group
+##
+
+#Topic Bezier_Curve 
+#Substitute Bezier cruve
+##
+
+#Topic Coons_Patch 
+#Substitute Coons patch
+##
+
+#Topic Cartesian_Coordinate 
+#Substitute Cartesian coordinate
+##
+
+#Topic Euclidean_Distance 
+#Substitute Euclidean distance
+##
+
+#Topic Euclidean_Space 
+#Substitute Euclidean space
+##
+
+#Topic HTML_Gray 
+#Substitute HTML gray
+##
+
+#Topic HTML_DarkGray 
+#Substitute HTML dark gray
+##
+
+#Topic HTML_LightGray 
+#Substitute HTML light gray
+##
+
+#Topic HTML_Silver 
+#Substitute HTML silver
+##
+
+#Topic HTML_Lime 
+#Substitute HTML lime
+##
+
+#Topic HTML_Green 
+#Substitute HTML green
+##
+
+#Topic HTML_Aqua 
+#Substitute HTML aqua
+##
+
+#Topic HTML_Fuchsia
+#Substitute HTML fuchsia
+##
+
+#Topic SVG_lightgray 
+#Substitute SVG light gray
+##
+
+#Topic SVG_darkgray
+#Substitute SVG dark gray
+##
+
+# start of topics to be documented in the future
 
 #Topic Alias
 #Alias Aliased ##
@@ -388,6 +480,7 @@ FT_Load_Glyph
 ##
 
 #Topic Mip_Map
+#Substitute mip map
 ##
 
 #Topic Nine_Patch
@@ -688,6 +781,13 @@ FT_Load_Glyph
 # to be defined in types
     #Typedef intptr_t GrBackendObject
     #Typedef ##
+
+    #EnumClass GrMipMapped
+    #Const kNo 0
+    ##
+    #Const kYes 1
+    ##
+    #EnumClass ##
 
     #Enum GrSurfaceOrigin
     #Const kBottomLeft_GrSurfaceOrigin 0

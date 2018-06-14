@@ -1461,7 +1461,7 @@ If <a href='#SkIRect_makeOffset_dy'>dy</a> is positive, <a href='#IRect'>IRect</
 
 ### Return Value
 
-<a href='#IRect'>IRect</a> offset in x or y, with original width and height
+<a href='#IRect'>IRect</a> offset by <a href='#SkIRect_makeOffset_dx'>dx</a> and <a href='#SkIRect_makeOffset_dy'>dy</a>, with original width and height
 
 ### Example
 
@@ -1953,16 +1953,16 @@ Returns false if <a href='#IRect'>IRect</a> is empty or construction is empty.
 ### Parameters
 
 <table>  <tr>    <td><a name='SkIRect_contains_2_left'><code><strong>left</strong></code></a></td>
-    <td>x minimum of constructed <a href='#IRect'>IRect</a></td>
+    <td>x-axis minimum of constructed <a href='#IRect'>IRect</a></td>
   </tr>
   <tr>    <td><a name='SkIRect_contains_2_top'><code><strong>top</strong></code></a></td>
-    <td>y minimum of constructed <a href='#IRect'>IRect</a></td>
+    <td>y-axis minimum of constructed <a href='#IRect'>IRect</a></td>
   </tr>
   <tr>    <td><a name='SkIRect_contains_2_right'><code><strong>right</strong></code></a></td>
-    <td>x maximum of constructed <a href='#IRect'>IRect</a></td>
+    <td>x-axis maximum of constructed <a href='#IRect'>IRect</a></td>
   </tr>
   <tr>    <td><a name='SkIRect_contains_2_bottom'><code><strong>bottom</strong></code></a></td>
-    <td>y maximum of constructed <a href='#IRect'>IRect</a></td>
+    <td>y-axis maximum of constructed <a href='#IRect'>IRect</a></td>
   </tr>
 </table>
 
@@ -2092,16 +2092,16 @@ Return is undefined if <a href='#IRect'>IRect</a> is empty or construction is em
 ### Parameters
 
 <table>  <tr>    <td><a name='SkIRect_containsNoEmptyCheck_left'><code><strong>left</strong></code></a></td>
-    <td>x minimum of constructed <a href='#IRect'>IRect</a></td>
+    <td>x-axis minimum of constructed <a href='#IRect'>IRect</a></td>
   </tr>
   <tr>    <td><a name='SkIRect_containsNoEmptyCheck_top'><code><strong>top</strong></code></a></td>
-    <td>y minimum of constructed <a href='#IRect'>IRect</a></td>
+    <td>y-axis minimum of constructed <a href='#IRect'>IRect</a></td>
   </tr>
   <tr>    <td><a name='SkIRect_containsNoEmptyCheck_right'><code><strong>right</strong></code></a></td>
-    <td>x maximum of constructed <a href='#IRect'>IRect</a></td>
+    <td>x-axis maximum of constructed <a href='#IRect'>IRect</a></td>
   </tr>
   <tr>    <td><a name='SkIRect_containsNoEmptyCheck_bottom'><code><strong>bottom</strong></code></a></td>
-    <td>y maximum of constructed <a href='#IRect'>IRect</a></td>
+    <td>y-axis maximum of constructed <a href='#IRect'>IRect</a></td>
   </tr>
 </table>
 
@@ -2319,16 +2319,16 @@ Returns false if either construction or <a href='#IRect'>IRect</a> is empty, lea
 ### Parameters
 
 <table>  <tr>    <td><a name='SkIRect_intersect_3_left'><code><strong>left</strong></code></a></td>
-    <td>x minimum of constructed <a href='#IRect'>IRect</a></td>
+    <td>x-axis minimum of constructed <a href='#IRect'>IRect</a></td>
   </tr>
   <tr>    <td><a name='SkIRect_intersect_3_top'><code><strong>top</strong></code></a></td>
-    <td>y minimum of constructed <a href='#IRect'>IRect</a></td>
+    <td>y-axis minimum of constructed <a href='#IRect'>IRect</a></td>
   </tr>
   <tr>    <td><a name='SkIRect_intersect_3_right'><code><strong>right</strong></code></a></td>
-    <td>x maximum of constructed <a href='#IRect'>IRect</a></td>
+    <td>x-axis maximum of constructed <a href='#IRect'>IRect</a></td>
   </tr>
   <tr>    <td><a name='SkIRect_intersect_3_bottom'><code><strong>bottom</strong></code></a></td>
-    <td>y maximum of constructed <a href='#IRect'>IRect</a></td>
+    <td>y-axis maximum of constructed <a href='#IRect'>IRect</a></td>
   </tr>
 </table>
 
@@ -2480,16 +2480,16 @@ Has no effect if construction is empty. Otherwise, if <a href='#IRect'>IRect</a>
 ### Parameters
 
 <table>  <tr>    <td><a name='SkIRect_join_left'><code><strong>left</strong></code></a></td>
-    <td>x minimum of constructed <a href='#IRect'>IRect</a></td>
+    <td>x-axis minimum of constructed <a href='#IRect'>IRect</a></td>
   </tr>
   <tr>    <td><a name='SkIRect_join_top'><code><strong>top</strong></code></a></td>
-    <td>y minimum of constructed <a href='#IRect'>IRect</a></td>
+    <td>y-axis minimum of constructed <a href='#IRect'>IRect</a></td>
   </tr>
   <tr>    <td><a name='SkIRect_join_right'><code><strong>right</strong></code></a></td>
-    <td>x maximum of constructed <a href='#IRect'>IRect</a></td>
+    <td>x-axis maximum of constructed <a href='#IRect'>IRect</a></td>
   </tr>
   <tr>    <td><a name='SkIRect_join_bottom'><code><strong>bottom</strong></code></a></td>
-    <td>y maximum of constructed <a href='#IRect'>IRect</a></td>
+    <td>y-axis maximum of constructed <a href='#IRect'>IRect</a></td>
   </tr>
 </table>
 
