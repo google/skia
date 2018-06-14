@@ -89,6 +89,9 @@ void IncludeWriter::constOut(const Definition* memberStart, const Definition* bm
 
 bool IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirstLine,
             Phrase phrase) {
+    if (string::npos != def->fName.find("makeTextureImage")) {
+        SkDebugf("");
+    }
     bool wroteSomething = false;
     const char* commentStart = def->fContentStart;
     if (SkipFirstLine::kYes == skipFirstLine) {
@@ -2402,6 +2405,9 @@ int IncludeWriter::lookupReference(const PunctuationState punctuation, const Wor
             PunctuationState::kPeriod == punctuation ? run - 1 : run;
     RefType refType = RefType::kUndefined;
     string resolved = string(&data[start], (size_t) (end - start));
+    if ("Mip_Map" == resolved) {
+        SkDebugf("");
+    }
     string temp = this->resolveRef(&data[start], &data[end], Word::kFirst == word, &refType);
     if (!temp.length()) {
         if (Word::kFirst != word && '_' != last) {

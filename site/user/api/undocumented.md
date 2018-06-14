@@ -13,6 +13,10 @@ undocumented
 
 # <a name='GrBackendSemaphore'>Class GrBackendSemaphore</a>
 
+# <a name='Bezier_Curve'>Bezier Curve</a>
+
+# <a name='Big_Endian'>Big Endian</a>
+
 # <a name='Blend_Mode'>Blend Mode</a>
 
 ## <a name='SkBlendMode'>Enum SkBlendMode</a>
@@ -42,6 +46,8 @@ undocumented
 </td>
   </tr>
 </table>
+
+# <a name='Cartesian_Coordinate'>Cartesian Coordinate</a>
 
 # <a name='Circle'>Circle</a>
 
@@ -125,6 +131,8 @@ static bool <a href='#SkColorSpace_Equals'>Equals</a>(const <a href='#SkColorSpa
 </td>
   </tr>
 </table>
+
+# <a name='Coons_Patch'>Coons Patch</a>
 
 # <a name='Core_Graphics'>Core Graphics</a>
 
@@ -217,6 +225,10 @@ void <a href='#SkDrawable_draw'>draw</a>(<a href='SkCanvas_Reference#SkCanvas'>S
 
 ---
 
+# <a name='Euclidean_Distance'>Euclidean Distance</a>
+
+# <a name='Euclidean_Space'>Euclidean Space</a>
+
 # <a name='Filter_Quality'>Filter Quality</a>
 
 ## <a name='SkFilterQuality'>Enum SkFilterQuality</a>
@@ -282,6 +294,8 @@ void <a href='#GrContext_flush'>flush</a>()
 
 ---
 
+# <a name='GPU_Share_Group'>GPU Share Group</a>
+
 # <a name='GPU_Surface'>GPU Surface</a>
 
 # <a name='GPU_Texture'>GPU Texture</a>
@@ -290,9 +304,25 @@ void <a href='#GrContext_flush'>flush</a>()
 
 # <a name='Grayscale'>Grayscale</a>
 
+# <a name='HTML_Aqua'>HTML Aqua</a>
+
 # <a name='HTML_Canvas'>HTML Canvas</a>
 
 ## <a name='ArcTo'>ArcTo</a>
+
+# <a name='HTML_DarkGray'>HTML DarkGray</a>
+
+# <a name='HTML_Fuchsia'>HTML Fuchsia</a>
+
+# <a name='HTML_Gray'>HTML Gray</a>
+
+# <a name='HTML_Green'>HTML Green</a>
+
+# <a name='HTML_LightGray'>HTML LightGray</a>
+
+# <a name='HTML_Lime'>HTML Lime</a>
+
+# <a name='HTML_Silver'>HTML Silver</a>
 
 # <a name='ISize'>ISize</a>
 
@@ -310,6 +340,8 @@ void <a href='#GrContext_flush'>flush</a>()
 
 # <a name='Line'>Line</a>
 
+# <a name='Little_Endian'>Little Endian</a>
+
 # <a name='Mask_Alpha'>Mask Alpha</a>
 
 # <a name='Mask_Filter'>Mask Filter</a>
@@ -321,6 +353,8 @@ void <a href='#GrContext_flush'>flush</a>()
 # <a name='SkMetaData'>Class SkMetaData</a>
 
 # <a name='Mip_Map'>Mip Map</a>
+
+# <a name='Multi_Sample_Anti_Aliasing'>Multi Sample Anti Aliasing</a>
 
 # <a name='Nine_Patch'>Nine Patch</a>
 
@@ -549,6 +583,10 @@ void <a href='#SkRRect_dumpHex'>dumpHex</a>() const
 
 ## <a name='Arc'>Arc</a>
 
+# <a name='SVG_darkgray'>SVG darkgray</a>
+
+# <a name='SVG_lightgray'>SVG lightgray</a>
+
 # <a name='Scalar'>Scalar</a>
 
 ## <a name='SkScalar'>Typedef SkScalar</a>
@@ -667,6 +705,8 @@ bool <a href='#GrBackendTexture_isValid'>isValid</a>() const
 
 # <a name='SkTypeface'>Class SkTypeface</a>
 
+# <a name='UV_Mapping'>UV Mapping</a>
+
 # <a name='Unhinted'>Unhinted</a>
 
 # <a name='Unpremultiply'>Unpremultiply</a>
@@ -679,3 +719,8 @@ bool <a href='#GrBackendTexture_isValid'>isValid</a>() const
 
 ## <a name='Texs'>Texs</a>
 
+# <a name='YUV_Component_U'>YUV Component U</a>
+
+# <a name='YUV_Component_V'>YUV Component V</a>
+
+# <a name='YUV_Component_Y'>YUV Component Y</a>

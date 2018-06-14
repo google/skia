@@ -78,7 +78,7 @@ makes them visible.
 
 # <a name='SkPath'>Class SkPath</a>
 <a href='#Path'>Paths</a> contain geometry. <a href='#Path'>Paths</a> may be empty, or contain one or more <a href='#Verb'>Verbs</a> that
-outline a figure. <a href='#Path'>Path</a> always starts with a move verb to a Cartesian_Coordinate,
+outline a figure. <a href='#Path'>Path</a> always starts with a move verb to a <a href='undocumented#Cartesian_Coordinate'>Cartesian Coordinate</a>,
 and may be followed by additional verbs that add lines or curves.
 Adding a close verb makes the geometry into a continuous loop, a closed contour.
 <a href='#Path'>Paths</a> may contain any number of contours, each beginning with a move verb.
@@ -805,7 +805,7 @@ parabolic (and identical to <a href='#Quad'>Quad</a>); greater than one hyperbol
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>4</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Adds <a href='#Cubic'>Cubic</a> from <a href='#Last_Point'>Last Point</a>, using two control <a href='SkPoint_Reference#Point'>Points</a>, and end <a href='SkPoint_Reference#Point'>Point</a>.
-<a href='#Cubic'>Cubic</a> is a third-order Bezier_Curve section within tangents from <a href='#Last_Point'>Last Point</a>
+<a href='#Cubic'>Cubic</a> is a third-order <a href='undocumented#Bezier_Curve'>Bezier Curve</a> section within tangents from <a href='#Last_Point'>Last Point</a>
 to first control <a href='SkPoint_Reference#Point'>Point</a>, and from second control <a href='SkPoint_Reference#Point'>Point</a> to end <a href='SkPoint_Reference#Point'>Point</a>.
 </td>
   </tr>
@@ -2485,7 +2485,7 @@ path2 bounds = 10, 20, 30, 40
 const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkPath_getBounds'>getBounds</a>() const
 </pre>
 
-Returns minimum and maximum x and y values of <a href='#Point_Array'>Point Array</a>.
+Returns minimum and maximum axes values of <a href='#Point_Array'>Point Array</a>.
 Returns (0, 0, 0, 0) if <a href='#Path'>Path</a> contains no points. Returned bounds width and height may
 be larger or smaller than area affected when <a href='#Path'>Path</a> is drawn.
 
@@ -2625,7 +2625,7 @@ cached avg: 0.182784 ms
 <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPath_computeTightBounds'>computeTightBounds</a>() const
 </pre>
 
-Returns minimum and maximum x and y values of the lines and curves in <a href='#Path'>Path</a>.
+Returns minimum and maximum axes values of the lines and curves in <a href='#Path'>Path</a>.
 Returns (0, 0, 0, 0) if <a href='#Path'>Path</a> contains no points.
 Returned bounds width and height may be larger or smaller than area affected
 when <a href='#Path'>Path</a> is drawn.
@@ -2957,10 +2957,10 @@ Function name stands for "relative move to".
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_rMoveTo_dx'><code><strong>dx</strong></code></a></td>
-    <td>offset from <a href='#Last_Point'>Last Point</a> x to <a href='#Contour'>Contour</a> start x</td>
+    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Contour'>Contour</a> start on x-axis</td>
   </tr>
   <tr>    <td><a name='SkPath_rMoveTo_dy'><code><strong>dy</strong></code></a></td>
-    <td>offset from <a href='#Last_Point'>Last Point</a> y to <a href='#Contour'>Contour</a> start y</td>
+    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Contour'>Contour</a> start on y-axis</td>
   </tr>
 </table>
 
@@ -3054,10 +3054,10 @@ Function name stands for "relative line to".
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_rLineTo_dx'><code><strong>dx</strong></code></a></td>
-    <td>offset from <a href='#Last_Point'>Last Point</a> x to <a href='undocumented#Line'>Line</a> end x</td>
+    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='undocumented#Line'>Line</a> end on x-axis</td>
   </tr>
   <tr>    <td><a name='SkPath_rLineTo_dy'><code><strong>dy</strong></code></a></td>
-    <td>offset from <a href='#Last_Point'>Last Point</a> y to <a href='undocumented#Line'>Line</a> end y</td>
+    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='undocumented#Line'>Line</a> end on y-axis</td>
   </tr>
 </table>
 
@@ -3438,7 +3438,7 @@ Function name stands for "relative conic to".
 
 ## <a name='Cubic'>Cubic</a>
 
-<a href='#Cubic'>Cubic</a> describes a Bezier_Curve segment described by a third-order polynomial.
+<a href='#Cubic'>Cubic</a> describes a <a href='undocumented#Bezier_Curve'>Bezier Curve</a> segment described by a third-order polynomial.
 <a href='#Cubic'>Cubic</a> begins at a start <a href='SkPoint_Reference#Point'>Point</a>, curving towards the first control <a href='SkPoint_Reference#Point'>Point</a>;
 and curves from the end <a href='SkPoint_Reference#Point'>Point</a> towards the second control <a href='SkPoint_Reference#Point'>Point</a>.
 
@@ -3716,16 +3716,16 @@ tangents are nearly parallel, <a href='#SkPath_arcTo'>arcTo</a> appends <a href=
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_arcTo_2_x1'><code><strong>x1</strong></code></a></td>
-    <td>x common to pair of tangents</td>
+    <td>x-axis value common to pair of tangents</td>
   </tr>
   <tr>    <td><a name='SkPath_arcTo_2_y1'><code><strong>y1</strong></code></a></td>
-    <td>y common to pair of tangents</td>
+    <td>y-axis value common to pair of tangents</td>
   </tr>
   <tr>    <td><a name='SkPath_arcTo_2_x2'><code><strong>x2</strong></code></a></td>
-    <td>x end of second tangent</td>
+    <td>x-axis value end of second tangent</td>
   </tr>
   <tr>    <td><a name='SkPath_arcTo_2_y2'><code><strong>y2</strong></code></a></td>
-    <td>y end of second tangent</td>
+    <td>y-axis value end of second tangent</td>
   </tr>
   <tr>    <td><a name='SkPath_arcTo_2_radius'><code><strong>radius</strong></code></a></td>
     <td>distance from <a href='#Arc'>Arc</a> to <a href='undocumented#Circle'>Circle</a> center</td>
@@ -3930,7 +3930,7 @@ opposite the integer value of <a href='#SkPath_arcTo_5_sweep'>sweep</a>; <a href
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_arcTo_5_r'><code><strong>r</strong></code></a></td>
-    <td>radii in x and y before x-axis rotation</td>
+    <td>radii on axes before x-axis rotation</td>
   </tr>
   <tr>    <td><a name='SkPath_arcTo_5_xAxisRotate'><code><strong>xAxisRotate</strong></code></a></td>
     <td>x-axis rotation in degrees; positive values are clockwise</td>
@@ -3987,10 +3987,10 @@ opposite the integer value of <a href='#SkPath_rArcTo_sweep'>sweep</a>; <a href=
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_rArcTo_rx'><code><strong>rx</strong></code></a></td>
-    <td>radius in x before x-axis rotation</td>
+    <td>radius before x-axis rotation</td>
   </tr>
   <tr>    <td><a name='SkPath_rArcTo_ry'><code><strong>ry</strong></code></a></td>
-    <td>radius in y before x-axis rotation</td>
+    <td>radius before x-axis rotation</td>
   </tr>
   <tr>    <td><a name='SkPath_rArcTo_xAxisRotate'><code><strong>xAxisRotate</strong></code></a></td>
     <td>x-axis rotation in degrees; positive values are clockwise</td>
@@ -4002,10 +4002,10 @@ opposite the integer value of <a href='#SkPath_rArcTo_sweep'>sweep</a>; <a href=
     <td>chooses clockwise or counterclockwise <a href='#Arc'>Arc</a></td>
   </tr>
   <tr>    <td><a name='SkPath_rArcTo_dx'><code><strong>dx</strong></code></a></td>
-    <td>x offset end of <a href='#Arc'>Arc</a> from last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a></td>
+    <td>x-axis offset end of <a href='#Arc'>Arc</a> from last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a></td>
   </tr>
   <tr>    <td><a name='SkPath_rArcTo_dy'><code><strong>dy</strong></code></a></td>
-    <td>y offset end of <a href='#Arc'>Arc</a> from last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a></td>
+    <td>y-axis offset end of <a href='#Arc'>Arc</a> from last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a></td>
   </tr>
 </table>
 
@@ -4403,16 +4403,16 @@ and <a href='#SkPath_addRect_3_bottom'>bottom</a>-<a href='#SkPath_addRect_3_lef
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_addRect_3_left'><code><strong>left</strong></code></a></td>
-    <td>smaller x of <a href='SkRect_Reference#Rect'>Rect</a></td>
+    <td>smaller x-axis value of <a href='SkRect_Reference#Rect'>Rect</a></td>
   </tr>
   <tr>    <td><a name='SkPath_addRect_3_top'><code><strong>top</strong></code></a></td>
-    <td>smaller y of <a href='SkRect_Reference#Rect'>Rect</a></td>
+    <td>smaller y-axis value of <a href='SkRect_Reference#Rect'>Rect</a></td>
   </tr>
   <tr>    <td><a name='SkPath_addRect_3_right'><code><strong>right</strong></code></a></td>
-    <td>larger x of <a href='SkRect_Reference#Rect'>Rect</a></td>
+    <td>larger x-axis value of <a href='SkRect_Reference#Rect'>Rect</a></td>
   </tr>
   <tr>    <td><a name='SkPath_addRect_3_bottom'><code><strong>bottom</strong></code></a></td>
-    <td>larger y of <a href='SkRect_Reference#Rect'>Rect</a></td>
+    <td>larger y-axis value of <a href='SkRect_Reference#Rect'>Rect</a></td>
   </tr>
   <tr>    <td><a name='SkPath_addRect_3_dir'><code><strong>dir</strong></code></a></td>
     <td><a href='#SkPath_Direction'>Direction</a> to wind added contour</td>
@@ -4878,10 +4878,10 @@ added unaltered. If <a href='#SkPath_addPath_mode'>mode</a> is <a href='#SkPath_
     <td><a href='#Path'>Path</a> <a href='#Verb'>Verbs</a>, <a href='SkPoint_Reference#Point'>Points</a>, and <a href='#Conic_Weight'>Conic Weights</a> to add</td>
   </tr>
   <tr>    <td><a name='SkPath_addPath_dx'><code><strong>dx</strong></code></a></td>
-    <td>offset added to <a href='#SkPath_addPath_src'>src</a> <a href='#Point_Array'>Point Array</a> x coordinates</td>
+    <td>offset added to <a href='#SkPath_addPath_src'>src</a> <a href='#Point_Array'>Point Array</a> x-axis coordinates</td>
   </tr>
   <tr>    <td><a name='SkPath_addPath_dy'><code><strong>dy</strong></code></a></td>
-    <td>offset added to <a href='#SkPath_addPath_src'>src</a> <a href='#Point_Array'>Point Array</a> y coordinates</td>
+    <td>offset added to <a href='#SkPath_addPath_src'>src</a> <a href='#Point_Array'>Point Array</a> y-axis coordinates</td>
   </tr>
   <tr>    <td><a name='SkPath_addPath_mode'><code><strong>mode</strong></code></a></td>
     <td><a href='#SkPath_kAppend_AddPathMode'>kAppend AddPathMode</a> or <a href='#SkPath_kExtend_AddPathMode'>kExtend AddPathMode</a></td>
@@ -5006,10 +5006,10 @@ If <a href='#SkPath_offset_dst'>dst</a> is nullptr, <a href='#Path'>Path</a> is 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_offset_dx'><code><strong>dx</strong></code></a></td>
-    <td>offset added to <a href='#Point_Array'>Point Array</a> x coordinates</td>
+    <td>offset added to <a href='#Point_Array'>Point Array</a> x-axis coordinates</td>
   </tr>
   <tr>    <td><a name='SkPath_offset_dy'><code><strong>dy</strong></code></a></td>
-    <td>offset added to <a href='#Point_Array'>Point Array</a> y coordinates</td>
+    <td>offset added to <a href='#Point_Array'>Point Array</a> y-axis coordinates</td>
   </tr>
   <tr>    <td><a name='SkPath_offset_dst'><code><strong>dst</strong></code></a></td>
     <td>overwritten, translated copy of <a href='#Path'>Path</a>; may be nullptr</td>
@@ -5070,10 +5070,10 @@ Offset <a href='#Point_Array'>Point Array</a> by (<a href='#SkPath_offset_2_dx'>
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_offset_2_dx'><code><strong>dx</strong></code></a></td>
-    <td>offset added to <a href='#Point_Array'>Point Array</a> x coordinates</td>
+    <td>offset added to <a href='#Point_Array'>Point Array</a> x-axis coordinates</td>
   </tr>
   <tr>    <td><a name='SkPath_offset_2_dy'><code><strong>dy</strong></code></a></td>
-    <td>offset added to <a href='#Point_Array'>Point Array</a> y coordinates</td>
+    <td>offset added to <a href='#Point_Array'>Point Array</a> y-axis coordinates</td>
   </tr>
 </table>
 

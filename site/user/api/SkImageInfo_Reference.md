@@ -348,9 +348,9 @@ true if <a href='#SkAlphaTypeIsOpaque_at'>at</a> equals <a href='#kOpaque_SkAlph
 Describes how pixel bits encode color. A pixel may be an alpha mask, a
 <a href='undocumented#Grayscale'>Grayscale</a>, RGB, or ARGB.
 
-<a href='#kN32_SkColorType'>kN32_SkColorType</a> selects the native 32-bit ARGB format. On Little_Endian
+<a href='#kN32_SkColorType'>kN32_SkColorType</a> selects the native 32-bit ARGB format. On <a href='undocumented#Little_Endian'>Little Endian</a>
 processors, pixels containing 8-bit ARGB components pack into 32-bit
-<a href='#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a>. On Big_Endian processors, pixels pack into 32-bit
+<a href='#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a>. On <a href='undocumented#Big_Endian'>Big Endian</a> processors, pixels pack into 32-bit
 <a href='#kRGBA_8888_SkColorType'>kRGBA_8888_SkColorType</a>.
 
 ### Constants
@@ -567,7 +567,7 @@ If paired with <a href='#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>: all alpha
 red, green, and blue components are fully opaque. If any alpha component is
 less than 255, the drawn result is undefined.
 
-On Big_Endian platforms, <a href='#kRGBA_8888_SkColorType'>kRGBA_8888_SkColorType</a> is the native <a href='#Color_Type'>Color Type</a>, and
+On <a href='undocumented#Big_Endian'>Big Endian</a> platforms, <a href='#kRGBA_8888_SkColorType'>kRGBA_8888_SkColorType</a> is the native <a href='#Color_Type'>Color Type</a>, and
 will have the best performance. Use <a href='#kN32_SkColorType'>kN32_SkColorType</a> to choose the best
 <a href='#Color_Type'>Color Type</a> for the platform at compile time.
 
@@ -616,7 +616,7 @@ If paired with <a href='#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>: all alpha
 blue, green, and red components are fully opaque. If any alpha component is
 less than 255, the drawn result is undefined.
 
-On Little_Endian platforms, <a href='#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a> is the native <a href='#Color_Type'>Color Type</a>,
+On <a href='undocumented#Little_Endian'>Little Endian</a> platforms, <a href='#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a> is the native <a href='#Color_Type'>Color Type</a>,
 and will have the best performance. Use <a href='#kN32_SkColorType'>kN32_SkColorType</a> to choose the best
 <a href='#Color_Type'>Color Type</a> for the platform at compile time.
 
@@ -1142,7 +1142,7 @@ SkImageInfo global, <code>struct</code>, and <code>class</code> related member f
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_BGRA_8888'>Color Type BGRA 8888</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes ARGB Little_Endian in 32 bits</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes ARGB <a href='undocumented#Little_Endian'>Little Endian</a> in 32 bits</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_Gray_8'>Color Type Gray 8</a></td>
@@ -1154,7 +1154,7 @@ SkImageInfo global, <code>struct</code>, and <code>class</code> related member f
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_RGBA_8888'>Color Type RGBA 8888</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes ARGB Big_Endian in 32 bits</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes ARGB <a href='undocumented#Big_Endian'>Big Endian</a> in 32 bits</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_RGBA_F16'>Color Type RGBA F16</a></td>

@@ -1270,7 +1270,7 @@ If dy is positive, Rect returned is moved downward.
 #Param dx  added to fLeft and fRight ##
 #Param dy  added to fTop and fBottom ##
 
-#Return Rect offset in x or y, with original width and height ##
+#Return Rect offset on axes, with original width and height ##
 
 #Example
     SkRect rect = { 10, 50, 20, 60 };
@@ -1669,10 +1669,10 @@ Returns false if Rect does not intersect construction, and leaves Rect unchanged
 
 Returns false if either construction or Rect is empty, leaving Rect unchanged.
 
-#Param left  x minimum of constructed Rect ##
-#Param top  y minimum of constructed Rect ##
-#Param right  x maximum of constructed Rect ##
-#Param bottom  y maximum of constructed Rect ##
+#Param left  x-axis minimum of constructed Rect ##
+#Param top  y-axis minimum of constructed Rect ##
+#Param right  x-axis maximum of constructed Rect ##
+#Param bottom  y-axis maximum of constructed Rect ##
 
 #Return true if construction and Rect have area in common ##
 
@@ -1736,10 +1736,10 @@ construction.
 Returns true if Rect intersects construction.
 Returns false if either construction or Rect is empty, or do not intersect.
 
-#Param left  x minimum of constructed Rect ##
-#Param top  y minimum of constructed Rect ##
-#Param right  x maximum of constructed Rect ##
-#Param bottom  y maximum of constructed Rect ##
+#Param left  x-axis minimum of constructed Rect ##
+#Param top  y-axis minimum of constructed Rect ##
+#Param right  x-axis maximum of constructed Rect ##
+#Param bottom  y-axis maximum of constructed Rect ##
 
 #Return true if construction and Rect have area in common ##
 
@@ -1825,10 +1825,10 @@ Sets Rect to the union of itself and the construction.
 Has no effect if construction is empty. Otherwise, if Rect is empty, sets
 Rect to construction.
 
-#Param left  x minimum of constructed Rect ##
-#Param top  y minimum of constructed Rect ##
-#Param right  x maximum of constructed Rect ##
-#Param bottom  y maximum of constructed Rect ##
+#Param left  x-axis minimum of constructed Rect ##
+#Param top  y-axis minimum of constructed Rect ##
+#Param right  x-axis maximum of constructed Rect ##
+#Param bottom  y-axis maximum of constructed Rect ##
 
 #Example
     SkRect rect = { 10, 20, 15, 25};
