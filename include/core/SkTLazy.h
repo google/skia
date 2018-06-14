@@ -61,7 +61,7 @@ public:
         if (this->isValid()) {
             fPtr->~T();
         }
-        fPtr = new (SkTCast<T*>(fStorage.get())) T(std::forward<Args>(args)...);
+        fPtr = new (reinterpret_cast<T*>(fStorage.get())) T(std::forward<Args>(args)...);
         return fPtr;
     }
 
@@ -75,7 +75,7 @@ public:
         if (this->isValid()) {
             *fPtr = src;
         } else {
-            fPtr = new (SkTCast<T*>(fStorage.get())) T(src);
+            fPtr = new (reinterpret_cast<T*>(fStorage.get())) T(src);
         }
         return fPtr;
     }
@@ -84,7 +84,7 @@ public:
         if (this->isValid()) {
             *fPtr = std::move(src);
         } else {
-            fPtr = new (SkTCast<T*>(fStorage.get())) T(std::move(src));
+            fPtr = new (reinterpret_cast<T*>(fStorage.get())) T(std::move(src));
         }
         return fPtr;
     }

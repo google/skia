@@ -27,6 +27,12 @@ static bool nearly_equal(const SkMatrix& a, const SkMatrix& b) {
     return true;
 }
 
+static int float_bits(float f) {
+    int result;
+    memcpy(&result, &f, 4);
+    return result;
+}
+
 static bool are_equal(skiatest::Reporter* reporter,
                       const SkMatrix& a,
                       const SkMatrix& b) {
@@ -38,8 +44,8 @@ static bool are_equal(skiatest::Reporter* reporter,
             for (int i = 0; i < 9; ++i) {
                 float aVal = a.get(i);
                 float bVal = b.get(i);
-                int aValI = *SkTCast<int*>(&aVal);
-                int bValI = *SkTCast<int*>(&bVal);
+                int aValI = float_bits(aVal);
+                int bValI = float_bits(bVal);
                 if (0 == aVal && 0 == bVal && aValI != bValI) {
                     foundZeroSignDiff = true;
                 } else {
@@ -52,8 +58,8 @@ static bool are_equal(skiatest::Reporter* reporter,
             for (int i = 0; i < 9; ++i) {
                 float aVal = a.get(i);
                 float bVal = b.get(i);
-                int aValI = *SkTCast<int*>(&aVal);
-                int bValI = *SkTCast<int*>(&bVal);
+                int aValI = float_bits(aVal);
+                int bValI = float_bits(bVal);
                 if (sk_float_isnan(aVal) && aValI == bValI) {
                     foundNaN = true;
                 } else {

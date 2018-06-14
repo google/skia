@@ -497,7 +497,7 @@ static void add_aa_span(uint8_t* alpha, U8CPU startAlpha, int middleCount,
 
     if (middleCount >= MIN_COUNT_FOR_QUAD_LOOP) {
         // loop until we're quad-byte aligned
-        while (SkTCast<intptr_t>(alpha) & 0x3) {
+        while (reinterpret_cast<intptr_t>(alpha) & 0x3) {
             alpha[0] = SkToU8(alpha[0] + maxValue);
             alpha += 1;
             middleCount -= 1;

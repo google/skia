@@ -38,8 +38,12 @@ private:
         , fKey((CToI(c[0]) << 0) | (CToI(c[1]) << 2) | (CToI(c[2]) << 4) | (CToI(c[3]) << 6)) {}
 
     GR_STATIC_ASSERT(sizeof(char[4]) == sizeof(uint32_t));
-    uint32_t* asUIntPtr() { return SkTCast<uint32_t*>(fSwiz); }
-    uint32_t asUInt() const { return *SkTCast<const uint32_t*>(fSwiz); }
+    uint32_t* asUIntPtr() { return reinterpret_cast<uint32_t*>(fSwiz); }
+    uint32_t asUInt() const {
+        uint32_t v;
+        memcpy(&v, fSwiz, 4);
+        return v;
+    }
 
 public:
     GrSwizzle() { *this = RGBA(); }

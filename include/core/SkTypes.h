@@ -247,20 +247,6 @@ enum class SkBackingFit {
     kExact
 };
 
-///////////////////////////////////////////////////////////////////////////////
-
-/**
- *  Use to cast a pointer to a different type, and maintaining strict-aliasing
- */
-template <typename Dst> Dst SkTCast(const void* ptr) {
-    union {
-        const void* src;
-        Dst dst;
-    } data;
-    data.src = ptr;
-    return data.dst;
-}
-
 //////////////////////////////////////////////////////////////////////////////
 
 /** \class SkNoncopyable

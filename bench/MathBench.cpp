@@ -76,8 +76,8 @@ protected:
                               int count) = 0;
 
     void performTest(float* SK_RESTRICT dst, const float* SK_RESTRICT src, int count) override {
-        uint32_t* d = SkTCast<uint32_t*>(dst);
-        const uint32_t* s = SkTCast<const uint32_t*>(src);
+        uint32_t* d = reinterpret_cast<uint32_t*>(dst);
+        const uint32_t* s = reinterpret_cast<const uint32_t*>(src);
         this->performITest(d, s, count);
     }
 private:

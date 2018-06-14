@@ -218,13 +218,13 @@ void SkCamera3D::doUpdate() const {
     fAxis.normalize(&axis);
 
     {
-        SkScalar dot = SkUnit3D::Dot(*SkTCast<const SkUnit3D*>(&fZenith), axis);
+        SkScalar dot = SkUnit3D::Dot(SkUnit3D{fZenith.fX, fZenith.fY, fZenith.fZ}, axis);
 
         zenith.fX = fZenith.fX - dot * axis.fX;
         zenith.fY = fZenith.fY - dot * axis.fY;
         zenith.fZ = fZenith.fZ - dot * axis.fZ;
 
-        SkTCast<SkPoint3D*>(&zenith)->normalize(&zenith);
+        SkPoint3D{zenith.fX, zenith.fY, zenith.fZ}.normalize(&zenith);
     }
 
     SkUnit3D::Cross(axis, zenith, &cross);
@@ -276,8 +276,8 @@ void SkCamera3D::patchToMatrix(const SkPatch3D& quilt, SkMatrix* matrix) const {
     diff.fY = quilt.fOrigin.fY - fLocation.fY;
     diff.fZ = quilt.fOrigin.fZ - fLocation.fZ;
 
-    dot = SkUnit3D::Dot(*SkTCast<const SkUnit3D*>(&diff),
-                        *SkTCast<const SkUnit3D*>(SkTCast<const SkScalar*>(&fOrientation) + 6));
+    dot = SkUnit3D::Dot(SkUnit3D{diff.fX,   diff.fY,   diff.fZ},
+                        SkUnit3D{mapPtr[6], mapPtr[7], mapPtr[8]});
 
     // This multiplies fOrientation by the matrix [quilt.fU quilt.fV diff] -- U, V, and diff are
     // column vectors in the matrix -- then divides by the length of the projection of diff onto
