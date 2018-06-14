@@ -25,6 +25,7 @@ struct CheckEntry {
     string fFile;
     int fLine;
     int fCount;
+    bool fOverride;
 };
 
 class SpellCheck : public ParserCommon {
@@ -63,6 +64,7 @@ private:
         fInFormula = false;
         fInDescription = false;
         fInStdOut = false;
+        fOverride = false;
     }
 
     void wordCheck(string str);
@@ -84,6 +86,7 @@ private:
     bool fInDescription;
     bool fInFormula;
     bool fInStdOut;
+    bool fOverride;
     typedef ParserCommon INHERITED;
 };
 
@@ -121,7 +124,10 @@ bool SpellCheck::check(const char* match) {
         if (string::npos == fRoot->fFileName.rfind(match)) {
             continue;
         }
-       this->check(topicDef);
+        fOverride = string::npos != fRoot->fFileName.rfind("undocumented.bmh")
+                || string::npos != fRoot->fFileName.rfind("markup.bmh")
+                || string::npos != fRoot->fFileName.rfind("usingBookmaker.bmh");
+        this->check(topicDef);
     }
     return true;
 }
@@ -660,14 +666,23 @@ void SpellCheck::wordCheck(string str) {
                   hasUnderscore ? fUnderscores :
                   fInStdOut || fInFormula || inCode || fInConst || methodParam ? fCode :
                   sawDigit ? fDigits : fWords;
+    if (&fWords == &mappy && "x" == str && !fOverride) {
+        SkDebugf("");
+    }
     auto iter = mappy.find(str);
     if (mappy.end() != iter) {
+        if (iter->second.fOverride && !fOverride) {
+            iter->second.fFile = fFileName;
+            iter->second.fLine = fLineCount + fLocalLine;
+            iter->second.fOverride = false;
+        }
         iter->second.fCount += 1;
     } else {
         CheckEntry* entry = &mappy[str];
         entry->fFile = fFileName;
         entry->fLine = fLineCount + fLocalLine;
         entry->fCount = 1;
+        entry->fOverride = fOverride;
     }
 }
 

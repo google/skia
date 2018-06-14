@@ -4940,9 +4940,9 @@ SkPaint members may be read and written directly without using a member function
 computed by <a href='undocumented#Font_Manager'>Font Manager</a> using <a href='undocumented#Typeface'>Typeface</a>. Values are set to zero if they are
 not available.
 
-All vertical values relative to the baseline are given y-down. As such, zero is on the
-baseline, negative values are above the baseline, and positive values are below the
-baseline.
+All vertical values are relative to the baseline, on a y-axis pointing down.
+Zero is on the baseline, negative values are above the baseline, and positive
+values are below the baseline.
 
 <a href='#SkPaint_FontMetrics_fUnderlineThickness'>fUnderlineThickness</a> and <a href='#SkPaint_FontMetrics_fUnderlinePosition'>fUnderlinePosition</a> have a bit set in <a href='#SkPaint_FontMetrics_fFlags'>fFlags</a> if their values
 are valid, since their value may be zero.
@@ -5067,7 +5067,7 @@ maximum character width</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkScalar</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_FontMetrics_fXMin'><code>fXMin</code></a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Minimum bounding box x-value for all <a href='undocumented#Glyph'>Glyphs</a>.
+Minimum bounding box x-axis value for all <a href='undocumented#Glyph'>Glyphs</a>.
 Typically less than zero.
 </td>
   </tr>
@@ -5075,7 +5075,7 @@ Typically less than zero.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkScalar</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_FontMetrics_fXMax'><code>fXMax</code></a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Maximum bounding box x value for all <a href='undocumented#Glyph'>Glyphs</a>.
+Maximum bounding box x-axis value for all <a href='undocumented#Glyph'>Glyphs</a>.
 Typically greater than zero.
 </td>
   </tr>
@@ -5726,10 +5726,10 @@ Uses <a href='#SkPaint_getTextPath_x'>x</a>, <a href='#SkPaint_getTextPath_y'>y<
     <td>number of bytes of <a href='#SkPaint_getTextPath_text'>text</a></td>
   </tr>
   <tr>    <td><a name='SkPaint_getTextPath_x'><code><strong>x</strong></code></a></td>
-    <td><a href='#SkPaint_getTextPath_x'>x</a>-coordinate of the origin of the <a href='#SkPaint_getTextPath_text'>text</a></td>
+    <td><a href='#SkPaint_getTextPath_x'>x</a>-axis value of the origin of the <a href='#SkPaint_getTextPath_text'>text</a></td>
   </tr>
   <tr>    <td><a name='SkPaint_getTextPath_y'><code><strong>y</strong></code></a></td>
-    <td><a href='#SkPaint_getTextPath_y'>y</a>-coordinate of the origin of the <a href='#SkPaint_getTextPath_text'>text</a></td>
+    <td><a href='#SkPaint_getTextPath_y'>y</a>-axis value of the origin of the <a href='#SkPaint_getTextPath_text'>text</a></td>
   </tr>
   <tr>    <td><a name='SkPaint_getTextPath_path'><code><strong>path</strong></code></a></td>
     <td>geometry of the <a href='undocumented#Glyph'>Glyphs</a></td>
@@ -5816,10 +5816,10 @@ Pass nullptr for <a href='#SkPaint_getTextIntercepts_intervals'>intervals</a> to
     <td>number of bytes of <a href='#SkPaint_getTextIntercepts_text'>text</a></td>
   </tr>
   <tr>    <td><a name='SkPaint_getTextIntercepts_x'><code><strong>x</strong></code></a></td>
-    <td><a href='#SkPaint_getTextIntercepts_x'>x</a>-coordinate of the origin of the <a href='#SkPaint_getTextIntercepts_text'>text</a></td>
+    <td><a href='#SkPaint_getTextIntercepts_x'>x</a>-axis value of the origin of the <a href='#SkPaint_getTextIntercepts_text'>text</a></td>
   </tr>
   <tr>    <td><a name='SkPaint_getTextIntercepts_y'><code><strong>y</strong></code></a></td>
-    <td><a href='#SkPaint_getTextIntercepts_y'>y</a>-coordinate of the origin of the <a href='#SkPaint_getTextIntercepts_text'>text</a></td>
+    <td><a href='#SkPaint_getTextIntercepts_y'>y</a>-axis value of the origin of the <a href='#SkPaint_getTextIntercepts_text'>text</a></td>
   </tr>
   <tr>    <td><a name='SkPaint_getTextIntercepts_bounds'><code><strong>bounds</strong></code></a></td>
     <td>lower and upper line parallel to the advance</td>

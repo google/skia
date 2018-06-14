@@ -143,8 +143,8 @@ Sets Matrix to:
 #Param skewY   vertical skew factor ##
 #Param scaleY  vertical scale factor ##
 #Param transY  vertical translation ##
-#Param pers0   input x perspective factor ##
-#Param pers1   input y perspective factor ##
+#Param pers0   input x-axis perspective factor ##
+#Param pers1   input y-axis perspective factor ##
 #Param pers2   perspective scale factor ##
 
 #Return  Matrix constructed from parameters ##
@@ -386,7 +386,7 @@ is translate: false
 #In Property
 #Line # returns if mapped Rect can be represented by another Rect ##
 Returns true Matrix maps Rect to another Rect. If true, Matrix is identity,
-or scales, or rotates a multiple of 90 degrees, or mirrors in x or y. In all
+or scales, or rotates a multiple of 90 degrees, or mirrors on axes. In all
 cases, Matrix may also have translation. Matrix form is either:
 
 #Code
@@ -437,7 +437,7 @@ rectStaysRect: true
 #Line # returns if mapping restricts to 90 degree multiples and mirroring ##
 
 Returns true Matrix maps Rect to another Rect. If true, Matrix is identity,
-or scales, or rotates a multiple of 90 degrees, or mirrors in x or y. In all
+or scales, or rotates a multiple of 90 degrees, or mirrors on axes. In all
 cases, Matrix may also have translation. Matrix form is either:
 
 #Code
@@ -806,7 +806,7 @@ matrix.get(SkMatrix::kMSkewY) == 24
 #Method SkScalar getScaleX() const
 #In Property
 #Line # returns horizontal scale factor ##
-Returns scale factor multiplied by x input, contributing to x output.
+Returns scale factor multiplied by x-axis input, contributing to x-axis output.
 With mapPoints, scales Points along the x-axis.
 
 #Return  horizontal scale factor ##
@@ -829,7 +829,7 @@ matrix.getScaleX() == 42
 #Method SkScalar getScaleY() const
 #In Property
 #Line # returns vertical scale factor ##
-Returns scale factor multiplied by y input, contributing to y output.
+Returns scale factor multiplied by y-axis input, contributing to y-axis output.
 With mapPoints, scales Points along the y-axis.
 
 #Return  vertical scale factor ##
@@ -852,9 +852,9 @@ matrix.getScaleY() == 24
 #Method SkScalar getSkewY() const
 #In Property
 #Line # returns vertical skew factor ##
-Returns scale factor multiplied by x input, contributing to y output.
+Returns scale factor multiplied by x-axis input, contributing to y-axis output.
 With mapPoints, skews Points along the y-axis.
-Skew x and y together can rotate Points.
+Skewing both axes can rotate Points.
 
 #Return  vertical skew factor ##
 
@@ -876,9 +876,9 @@ matrix.getSkewY() == 24
 #Method SkScalar getSkewX() const
 #In Property
 #Line # returns horizontal skew factor ##
-Returns scale factor multiplied by y input, contributing to x output.
+Returns scale factor multiplied by y-axis input, contributing to x-axis output.
 With mapPoints, skews Points along the x-axis.
-Skew x and y together can rotate Points.
+Skewing both axes can rotate Points.
 
 #Return  horizontal scale factor ##
 
@@ -900,7 +900,7 @@ matrix.getSkewX() == 42
 #Method SkScalar getTranslateX() const
 #In Property
 #Line # returns horizontal translation ##
-Returns translation contributing to x output.
+Returns translation contributing to x-axis output.
 With mapPoints, moves Points along the x-axis.
 
 #Return  horizontal translation factor ##
@@ -923,7 +923,7 @@ matrix.getTranslateX() == 42
 #Method SkScalar getTranslateY() const
 #In Property
 #Line # returns vertical translation ##
-Returns translation contributing to y output.
+Returns translation contributing to y-axis output.
 With mapPoints, moves Points along the y-axis.
 
 #Return  vertical translation factor ##
@@ -946,9 +946,9 @@ matrix.getTranslateY() == 24
 #Method SkScalar getPerspX() const
 #In Property
 #Line # returns input x perspective factor ##
-Returns factor scaling input x relative to input y.
+Returns factor scaling input x-axis relative to input y-axis.
 
-#Return  input x perspective factor ##
+#Return  input x-axis perspective factor ##
 
 #Example
     SkMatrix m;
@@ -978,9 +978,9 @@ Returns factor scaling input x relative to input y.
 #In Property
 #Line # returns input y perspective factor ##
 
-Returns factor scaling input y relative to input x.
+Returns factor scaling input y-axis relative to input x-axis.
 
-#Return  input y perspective factor ##
+#Return  input y-axis perspective factor ##
 
 #Example
     SkMatrix m;
@@ -1241,8 +1241,8 @@ canvas->drawString("y translate", 8, 24, paint);
 #Method void setPerspX(SkScalar v)
 #In Set
 #Line # sets input x perspective factor ##
-Sets input x perspective factor, which causes mapXY to vary input x inversely
-proportional to input y.
+Sets input x-axis perspective factor, which causes mapXY to vary input x-axis values
+inversely proportional to input y-axis values.
 
 #Param v  perspective factor ##
 
@@ -1269,8 +1269,8 @@ for (SkScalar perspX : { -.003f, 0.f, .003f, .012f } ) {
 #Method void setPerspY(SkScalar v)
 #In Set
 #Line # sets input y perspective factor ##
-Sets input y perspective factor, which causes mapXY to vary input y inversely
-proportional to input x.
+Sets input y-axis perspective factor, which causes mapXY to vary input y-axis values
+inversely proportional to input x-axis values.
 
 #Param v  perspective factor ##
 
@@ -1315,8 +1315,8 @@ Sets all values from parameters. Sets matrix to:
 #Param skewY  vertical skew factor to store ##
 #Param scaleY  vertical scale factor to store ##
 #Param transY  vertical translation to store ##
-#Param persp0  input x perspective factor to store ##
-#Param persp1  input y perspective factor to store ##
+#Param persp0  input x-axis values perspective factor to store ##
+#Param persp1  input y-axis values perspective factor to store ##
 #Param persp2  perspective scale factor to store ##
 
 #Example
@@ -1659,10 +1659,10 @@ The pivot point is unchanged when mapped with Matrix.
 Vector (sinValue, cosValue) describes the angle of rotation relative to (0, 1).
 Vector length specifies scale.
 
-#Param sinValue  rotation vector x component ##
-#Param cosValue  rotation vector y component ##
-#Param px  pivot x ##
-#Param py  pivot y ##
+#Param sinValue  rotation vector x-axis component ##
+#Param cosValue  rotation vector y-axis component ##
+#Param px  pivot x-axis ##
+#Param py  pivot y-axis ##
 
 #Example
 #Height 128
@@ -1691,8 +1691,8 @@ Sets Matrix to rotate by sinValue and cosValue, about a pivot point at (0, 0).
 Vector (sinValue, cosValue) describes the angle of rotation relative to (0, 1).
 Vector length specifies scale.
 
-#Param sinValue  rotation vector x component ##
-#Param cosValue  rotation vector y component ##
+#Param sinValue  rotation vector x-axis component ##
+#Param cosValue  rotation vector y-axis component ##
 
 #Example
 #Description
@@ -1893,8 +1893,8 @@ Matrix * T(dx, dy) = | D E F | | 0 1 dy | = | D E D*dx+E*dy+F |
                      | G H I | | 0 0  1 |   | G H G*dx+H*dy+I |
 ##
 
-#Param dx  x translation before applying Matrix ##
-#Param dy  y translation before applying Matrix ##
+#Param dx  x-axis translation before applying Matrix ##
+#Param dy  y-axis translation before applying Matrix ##
 
 #Example
 #Height 160
@@ -2313,8 +2313,8 @@ T(dx, dy) * Matrix = | 0 1 dy | | M N O | = | M+dy*P N+dy*Q O+dy*R |
                      | 0 0  1 | | P Q R |   |      P      Q      R |
 ##
 
-#Param dx  x translation after applying Matrix ##
-#Param dy  y translation after applying Matrix ##
+#Param dx  x-axis translation after applying Matrix ##
+#Param dy  y-axis translation after applying Matrix ##
 
 #Example
 #Height 160
@@ -3355,8 +3355,8 @@ Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
               |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
 ##
 
-#Param x  x-coordinate of Point to map ##
-#Param y  y-coordinate of Point to map ##
+#Param x  x-axis value of Point to map ##
+#Param y  y-axis value of Point to map ##
 #Param result  storage for mapped Point ##
 
 #Example
@@ -3400,8 +3400,8 @@ Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
               |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
 ##
 
-#Param x  x-coordinate of Point to map ##
-#Param y  y-coordinate of Point to map ##
+#Param x  x-axis value of Point to map ##
+#Param y  y-axis value of Point to map ##
 
 #Return  mapped Point ##
 
@@ -3571,8 +3571,8 @@ Matrix * vec = |D E 0| |dy| = |A*dx+B*dy D*dx+E*dy G*dx+H*dy+I| = ----------- , 
                |G H I| | 1|                                       G*dx+H*dy+I   G*dx+*dHy+I
 ##
 
-#Param dx  x-coordinate of Vector to map ##
-#Param dy  y-coordinate of Vector to map ##
+#Param dx  x-axis value of Vector to map ##
+#Param dy  y-axis value of Vector to map ##
 #Param result  storage for mapped Vector ##
 
 #Example
@@ -3620,8 +3620,8 @@ Matrix * vec = |D E 0| |dy| = |A*dx+B*dy D*dx+E*dy G*dx+H*dy+I| = ----------- , 
                |G H I| | 1|                                       G*dx+H*dy+I   G*dx+*dHy+I
 ##
 
-#Param dx  x-coordinate of Vector to map ##
-#Param dy  y-coordinate of Vector to map ##
+#Param dx  x-axis value of Vector to map ##
+#Param dy  y-axis value of Vector to map ##
 
 #Return  mapped Vector ##
 
@@ -3882,9 +3882,9 @@ the area enclosed by the ellipse major and minor axes.
 #Method bool isFixedStepInX() const
 #In Property
 #Line # returns if transformation supports fixed step in x ##
-Returns true if a unit step in x at some y mapped through Matrix can be
-represented by a constant Vector. Returns true if getType returns kIdentity_Mask,
-or combinations of: kTranslate_Mask, kScale_Mask, and kAffine_Mask.
+Returns true if a unit step on x-axis at some y-axis value mapped through Matrix
+can be represented by a constant Vector. Returns true if getType returns
+kIdentity_Mask, or combinations of: kTranslate_Mask, kScale_Mask, and kAffine_Mask.
 
 May return true if getType returns kPerspective_Mask, but only when Matrix
 does not include rotation or skewing along the y-axis.
@@ -3931,12 +3931,12 @@ isFixedStepInX: false
 #Method SkVector fixedStepInX(SkScalar y) const
 #In Property
 #Line # returns step in x for a position in y ##
-Returns Vector representing a unit step in x at y mapped through Matrix.
+Returns Vector representing a unit step on x-axis at y mapped through Matrix.
 If isFixedStepInX is false, returned value is undefined.
 
 #Param y  position of line parallel to x-axis ##
 
-#Return  Vector advance of mapped unit step in x ##
+#Return  Vector advance of mapped unit step on x-axis ##
 
 #Example
 #Image 3
@@ -4199,8 +4199,8 @@ matrix.getMinMaxScales() false 2 2
 Decomposes Matrix into scale components and whatever remains. Returns false if
 Matrix could not be decomposed.
 
-Sets scale to portion of Matrix that scales in x and y. Sets remaining to Matrix
-with x and y scaling factored out. remaining may be passed as nullptr
+Sets scale to portion of Matrix that scale axes. Sets remaining to Matrix
+with scaling factored out. remaining may be passed as nullptr
 to determine if Matrix can be decomposed without computing remainder.
 
 Returns true if scale components are found. scale and remaining are
@@ -4213,7 +4213,7 @@ On success
 Matrix = scale * Remaining
 ##
 
-#Param scale  x and y scaling factors; may be nullptr  ##
+#Param scale  axes scaling factors; may be nullptr  ##
 #Param remaining  Matrix without scaling; may be nullptr ##
 
 #Return  true if scale can be computed ##
