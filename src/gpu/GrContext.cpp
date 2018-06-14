@@ -36,6 +36,7 @@
 #include "SkTaskGroup.h"
 #include "SkUnPreMultiplyPriv.h"
 #include "effects/GrConfigConversionEffect.h"
+#include "text/GrGlyphCache.h"
 #include "text/GrTextBlobCache.h"
 
 #define ASSERT_OWNED_PROXY(P) \
@@ -132,6 +133,11 @@ bool GrContext::initCommon(const GrContextOptions& options) {
                                                options.fSortRenderTargets));
 
     fGlyphCache = new GrGlyphCache(fCaps.get(), options.fGlyphCacheTextureMaximumBytes);
+    static SkOnce once;
+    once([] {
+        GrGlyphCache::k565Masks.reset(SkMasks::CreateMasks({0xF800, 0x07E0, 0x001F, 0},
+                                      GrMaskFormatBytesPerPixel(kA565_GrMaskFormat) * 8));
+    });
 
     fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB,
                                              this, this->uniqueID()));
