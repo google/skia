@@ -12,6 +12,8 @@
 #include "SkTo.h"
 #include "SkTypes.h"
 
+#include <string.h>
+
 class SkString;
 class SkWStream;
 
@@ -282,7 +284,7 @@ public:
     size_t size() const {
         switch (this->getTag()) {
         case Tag::kShortString:
-            return kMaxInlineStringSize - SkToSizeT(this->cast<char>()[kMaxInlineStringSize]);
+            return strlen(this->cast<char>());
         case Tag::kString:
             return this->cast<VectorValue<char, Value::Type::kString>>()->size();
         default:
@@ -298,8 +300,8 @@ public:
 
     const char* end() const {
         if (this->getTag() == Tag::kShortString) {
-            const auto* payload = this->cast<char>();
-            return payload + kMaxInlineStringSize - SkToSizeT(payload[kMaxInlineStringSize]);
+            const auto* chars = this->cast<char>();
+            return chars + strlen(chars);
         }
         return this->cast<VectorValue<char, Value::Type::kString>>()->end();
     }
