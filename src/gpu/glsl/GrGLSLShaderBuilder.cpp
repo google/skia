@@ -80,14 +80,9 @@ void GrGLSLShaderBuilder::appendTextureLookup(SamplerHandle samplerHandle,
                                               const char* coordName,
                                               GrSLType varyingType,
                                               GrGLSLColorSpaceXformHelper* colorXformHelper) {
-    if (colorXformHelper && colorXformHelper->isValid()) {
-        // With a color gamut transform, we need to wrap the lookup in another function call
-        SkString lookup;
-        this->appendTextureLookup(&lookup, samplerHandle, coordName, varyingType);
-        this->appendColorGamutXform(lookup.c_str(), colorXformHelper);
-    } else {
-        this->appendTextureLookup(&this->code(), samplerHandle, coordName, varyingType);
-    }
+    SkString lookup;
+    this->appendTextureLookup(&lookup, samplerHandle, coordName, varyingType);
+    this->appendColorGamutXform(lookup.c_str(), colorXformHelper);
 }
 
 void GrGLSLShaderBuilder::appendTextureLookupAndModulate(
@@ -98,26 +93,20 @@ void GrGLSLShaderBuilder::appendTextureLookupAndModulate(
                                                     GrGLSLColorSpaceXformHelper* colorXformHelper) {
     SkString lookup;
     this->appendTextureLookup(&lookup, samplerHandle, coordName, varyingType);
-    if (colorXformHelper && colorXformHelper->isValid()) {
-        SkString xform;
-        this->appendColorGamutXform(&xform, lookup.c_str(), colorXformHelper);
-        if (modulation) {
-            this->codeAppendf("%s * %s", modulation, xform.c_str());
-        } else {
-            this->codeAppendf("%s", xform.c_str());
-        }
-    } else {
-        if (modulation) {
-            this->codeAppendf("%s * %s", modulation, lookup.c_str());
-        } else {
-            this->codeAppendf("%s", lookup.c_str());
-        }
+    this->appendColorGamutXform(lookup.c_str(), colorXformHelper);
+    if (modulation) {
+        this->codeAppendf(" * %s", modulation);
     }
 }
 
 void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
                                                 const char* srcColor,
                                                 GrGLSLColorSpaceXformHelper* colorXformHelper) {
+    if (!colorXformHelper || colorXformHelper->isNoop()) {
+        *out = srcColor;
+        return;
+    }
+
     GrGLSLUniformHandler* uniformHandler = fProgramBuilder->uniformHandler();
 
     // We define up to three helper functions, to keep things clearer. One does inverse sRGB,

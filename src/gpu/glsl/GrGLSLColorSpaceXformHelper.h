@@ -48,7 +48,7 @@ public:
         }
     }
 
-    bool isValid() const { return (0 != fFlags); }
+    bool isNoop() const { return (0 == fFlags); }
     bool applyInverseSRGB() const {
         return SkToBool(fFlags & GrColorSpaceXform::kApplyInverseSRGB_Flag);
     }

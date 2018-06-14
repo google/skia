@@ -51,9 +51,7 @@ public:
                          FPCoordTransformIter&& transformIter) override {
                 const auto& latticeGP = proc.cast<LatticeGP>();
                 this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
-                if (fColorSpaceXformHelper.isValid()) {
-                    fColorSpaceXformHelper.setData(pdman, latticeGP.fColorSpaceXform.get());
-                }
+                fColorSpaceXformHelper.setData(pdman, latticeGP.fColorSpaceXform.get());
             }
 
         private:
