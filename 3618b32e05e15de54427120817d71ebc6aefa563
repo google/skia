@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "dc769f14_38cd5224",
+        "filename": "src/gpu/ccpr/GrCCAtlas.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-14T19:39:07Z",
+      "side": 1,
+      "message": "So not every atlas will have a unique key -- a mainline CCPR one won\u0027t if we don\u0027t stash any paths, and no atlas in the \"rendered\" stack will have one besides the front() atlas.  What would be the rationale for the assert?",
+      "parentUuid": "c93d86c8_59be5217",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d5fc3094_e2615681",
         "filename": "src/gpu/ccpr/GrCCAtlas.h",
         "patchSetId": 6
@@ -100,6 +118,24 @@
       "side": 1,
       "message": "kCoverageCount\nkResolvedCoverage\n? (I don\u0027t love kResolvedCoverage).",
       "parentUuid": "9a0e3a29_8c4cf54f",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7dc2c706_2f06e571",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-14T19:39:07Z",
+      "side": 1,
+      "message": "So right now these say what the const void* atlas should be casted to: GrCCAtlas or GrTextureProxy.\n\nkGrCCAtlas\nkGrTextureProxy\n\n?",
+      "parentUuid": "a57ba8b4_09d5dd85",
       "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -174,6 +210,24 @@
       "writtenOn": "2018-06-14T19:26:46Z",
       "side": 1,
       "message": "Don\u0027t we just know the size here (i.e., keyLength) ?",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb6f51c9_71b007da",
+        "filename": "src/gpu/ccpr/GrCCPathCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-14T19:39:07Z",
+      "side": 1,
+      "message": "Right, so we reserve \"GrShape::kMaxKeyFromDataVerbCnt * 4\" ints on the stack and SkAutoSTMalloc then ensures \"keyLength\" of them, possibly going to the heap if needed. Is that right? Or am I missing something?",
+      "parentUuid": "1e7b1ed3_219b969a",
       "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
