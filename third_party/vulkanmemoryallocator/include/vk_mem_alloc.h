@@ -1071,7 +1071,10 @@ Features deliberately excluded from the scope of this library:
 
 */
 
-#include <vulkan/vulkan.h>
+// For skia we don't include vulkan.h here. Before including this header we always include
+// GrVkDefines which has a user defined header. Additionally we don't require vulkan/vulkan.h to be
+// on the include path.
+// #include <vulkan/vulkan.h>
 
 /** \struct VmaAllocator
 \brief Represents main object of this library initialized.
