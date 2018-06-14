@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "53423a2e_13c22de4",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T19:26:46Z",
+      "side": 1,
+      "message": "// If the percentage of useful pixels drops below 50% the entire cached atlas will be dropped\n\n?",
+      "parentUuid": "d5fc3094_e2615681",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9a0e3a29_8c4cf54f",
         "filename": "src/gpu/ccpr/GrCCDrawPathsOp.h",
         "patchSetId": 6
@@ -128,6 +146,40 @@
     },
     {
       "key": {
+        "uuid": "99513344_d98be7c8",
+        "filename": "src/gpu/ccpr/GrCCPathCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T19:26:46Z",
+      "side": 1,
+      "message": "// The maximum number of GrShapes we allowed to be cached in static 8-bit atlases\n\n?",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e7b1ed3_219b969a",
+        "filename": "src/gpu/ccpr/GrCCPathCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T19:26:46Z",
+      "side": 1,
+      "message": "Don\u0027t we just know the size here (i.e., keyLength) ?",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a6ecf601_4c6146cb",
         "filename": "src/gpu/ccpr/GrCCPathCache.h",
         "patchSetId": 6
@@ -168,6 +220,91 @@
         "endLine": 37,
         "endChar": 81
       },
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da5bd2cc_8e5f7934",
+        "filename": "src/gpu/ccpr/GrCCPathCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T19:26:46Z",
+      "side": 1,
+      "message": "// The GrShape\u0027s unstyled key is stored after the GrCCPathCacheEntry in \u0027fEntry\u0027. GetKey provides access to it.\n\n?",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "baefb89a_bacc2cfd",
+        "filename": "src/gpu/ccpr/GrCCPathCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T19:26:46Z",
+      "side": 1,
+      "message": "This _is_ a ...",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0116e6b2_b5e4e4bd",
+        "filename": "src/gpu/ccpr/GrCCPathCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T19:26:46Z",
+      "side": 1,
+      "message": "responsible -\u003e required ?",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7aa44b42_f0837adb",
+        "filename": "src/gpu/ccpr/GrCCPathCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T19:26:46Z",
+      "side": 1,
+      "message": "// comment on how its weak-ptr-ness is implement w/o using a weakptr ?",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "737dfbba_2de85883",
+        "filename": "src/gpu/ccpr/GrCCPathProcessor.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T19:26:46Z",
+      "side": 1,
+      "message": "Is this an SkColor, a GrColor ?",
       "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
