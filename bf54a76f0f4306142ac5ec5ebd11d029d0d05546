@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc70020f_a4a60230",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-14T16:34:19Z",
+      "side": 0,
+      "message": "This switch was intentional?",
+      "revId": "bf54a76f0f4306142ac5ec5ebd11d029d0d05546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
