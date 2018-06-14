@@ -406,18 +406,30 @@ static_assert(SK_ARRAY_COUNT(gSimpleSizes) == SK_ARRAY_COUNT(gSimplePoints), "ar
 namespace skiagm {
 
 // This GM is intended to exercise the offsetting of polygons
+// When fVariableOffset is true it will skew the offset by x,
+// to test perspective and other variable offset functions
 class PolygonOffsetGM : public GM {
 public:
-    PolygonOffsetGM(bool convexOnly) : fConvexOnly(convexOnly) {
+    PolygonOffsetGM(bool convexOnly, bool variableOffset)
+        : fConvexOnly(convexOnly)
+        , fVariableOffset(variableOffset) {
         this->setBGColor(0xFFFFFFFF);
     }
 
 protected:
     SkString onShortName() override {
         if (fConvexOnly) {
-            return SkString("convex-polygon-inset");
+            if (fVariableOffset) {
+                return SkString("convex-polygon-inset-v");
+            } else {
+                return SkString("convex-polygon-inset");
+            }
         } else {
-            return SkString("simple-polygon-offset");
+            if (fVariableOffset) {
+                return SkString("simple-polygon-offset-v");
+            } else {
+                return SkString("simple-polygon-offset");
+            }
         }
     }
     SkISize onISize() override { return SkISize::Make(kGMWidth, kGMHeight); }
@@ -495,6 +507,7 @@ protected:
     void drawPolygon(SkCanvas* canvas, int index, SkPoint* offset) {
 
         SkPoint center;
+        SkRect bounds;
         {
             std::unique_ptr<SkPoint[]> data(nullptr);
             int numPts;
@@ -503,7 +516,6 @@ protected:
             } else {
                 GetSimplePolygon(index, SkPath::kCW_Direction, &data, &numPts);
             }
-            SkRect bounds;
             bounds.set(data.get(), numPts);
             if (!fConvexOnly) {
                 bounds.outset(kMaxOutset, kMaxOutset);
@@ -551,12 +563,25 @@ protected:
 
         SkTDArray<SkPoint> offsetPoly;
         size_t count = fConvexOnly ? SK_ARRAY_COUNT(insets) : SK_ARRAY_COUNT(offsets);
+        SkScalar localCenterX = bounds.centerX();
         for (size_t i = 0; i < count; ++i) {
+            SkScalar offset = fConvexOnly ? insets[i] : offsets[i];
+            std::function<SkScalar(const SkPoint&)> offsetFunc;
+            if (fVariableOffset) {
+                offsetFunc = [offset, localCenterX](const SkPoint& p) {
+                    return offset + 0.04f*(p.fX - localCenterX);
+                };
+            } else {
+                offsetFunc = [offset](const SkPoint& p) {
+                    return offset;
+                };
+            }
+
             bool result;
             if (fConvexOnly) {
-                result = SkInsetConvexPolygon(data.get(), numPts, insets[i], &offsetPoly);
+                result = SkInsetConvexPolygon(data.get(), numPts, offsetFunc, &offsetPoly);
             } else {
-                result = SkOffsetSimplePolygon(data.get(), numPts, offsets[i], &offsetPoly);
+                result = SkOffsetSimplePolygon(data.get(), numPts, offsetFunc, &offsetPoly);
             }
             if (result) {
                 SkPath path;
@@ -595,12 +620,15 @@ private:
     static constexpr int kGMHeight = 512;
 
     bool fConvexOnly;
+    bool fVariableOffset;
 
     typedef GM INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new PolygonOffsetGM(true);)
-DEF_GM(return new PolygonOffsetGM(false);)
+DEF_GM(return new PolygonOffsetGM(true, false);)
+DEF_GM(return new PolygonOffsetGM(true, true);)
+DEF_GM(return new PolygonOffsetGM(false, false);)
+DEF_GM(return new PolygonOffsetGM(false, true);)
 }
