@@ -65,7 +65,6 @@ source_set("bench") {
     deps = [
       ":skjson",
       "../..:skia",
-      "../../third_party/rapidjson",
     ]
   }
 }

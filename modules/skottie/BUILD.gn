@@ -34,8 +34,8 @@ source_set("skottie") {
     configs += [ "../../:skia_private" ]
     deps = [
       "../..:skia",
-      "../../third_party/rapidjson",
-      "../sksg:sksg",
+      "../skjson",
+      "../sksg",
     ]
   }
 }

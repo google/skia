@@ -14,45 +14,37 @@
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkottieValue.h"
-
-#include "rapidjson/error/en.h"
-#include "rapidjson/prettywriter.h"
-#include "rapidjson/stringbuffer.h"
-
 #include <vector>
 
 namespace skottie {
 
-namespace json {
+using namespace skjson;
 
 template <>
-bool ValueRef::to<SkScalar>(SkScalar* v) const {
-    if (!fValue) return false;
-
+bool Parse<SkScalar>(const Value& v, SkScalar* s) {
     // Some versions wrap values as single-element arrays.
-    if (fValue->IsArray() && fValue->Size() == 1) {
-        return ValueRef(fValue->operator[](0)).to(v);
+    if (const skjson::ArrayValue* array = v) {
+        if (array->size() == 1) {
+            return Parse((*array)[0], s);
+        }
     }
 
-    if (!fValue->IsNumber())
-        return false;
+    if (const skjson::NumberValue* num = v) {
+        *s = static_cast<SkScalar>(**num);
+        return true;
+    }
 
-    *v = static_cast<SkScalar>(fValue->GetDouble());
-
-    return true;
+    return false;
 }
 
 template <>
-bool ValueRef::to<bool>(bool* v) const {
-    if (!fValue) return false;
-
-    switch(fValue->GetType()) {
-    case rapidjson::kNumberType:
-        *v = SkToBool(fValue->GetDouble());
+bool Parse<bool>(const Value& v, bool* b) {
+    switch(v.getType()) {
+    case Value::Type::kNumber:
+        *b = SkToBool(*v.as<NumberValue>());
         return true;
-    case rapidjson::kFalseType:
-    case rapidjson::kTrueType:
-        *v = fValue->GetBool();
+    case Value::Type::kBool:
+        *b = *v.as<BoolValue>();
         return true;
     default:
         break;
@@ -62,46 +54,49 @@ bool ValueRef::to<bool>(bool* v) const {
 }
 
 template <>
-bool ValueRef::to<int>(int* v) const {
-    if (!fValue || !fValue->IsInt())
-        return false;
+bool Parse<int>(const Value& v, int* i) {
+    if (const skjson::NumberValue* num = v) {
+        const auto dbl = **num;
+        *i = dbl;
+        return *i == dbl;
+    }
 
-    *v = fValue->GetInt();
-
-    return true;
+    return false;
 }
 
 template <>
-bool ValueRef::to<SkString>(SkString* v) const {
-    if (!fValue || !fValue->IsString())
-        return false;
+bool Parse<SkString>(const Value& v, SkString* s) {
+    if (const skjson::StringValue* sv = v) {
+        s->set(sv->begin(), sv->size());
+        return true;
+    }
 
-    v->set(fValue->GetString());
-
-    return true;
+    return false;
 }
 
 template <>
-bool ValueRef::to<SkPoint>(SkPoint* v) const {
-    if (!fValue || !fValue->IsObject())
+bool Parse<SkPoint>(const Value& v, SkPoint* pt) {
+    if (!v.is<ObjectValue>())
         return false;
+    const auto& ov = v.as<ObjectValue>();
 
-    const auto jvx = ValueRef(this->operator[]("x")),
-               jvy = ValueRef(this->operator[]("y"));
+    const auto& jvx = ov["x"];
+    const auto& jvy = ov["y"];
 
     // Some BM versions seem to store x/y as single-element arrays.
-    return ValueRef(jvx.isArray() ? jvx.operator[](size_t(0)) : jvx).to(&v->fX)
-        && ValueRef(jvy.isArray() ? jvy.operator[](size_t(0)) : jvy).to(&v->fY);
+    return Parse<SkScalar>(jvx.is<ArrayValue>() ? jvx.as<ArrayValue>()[0] : jvx, &pt->fX)
+        && Parse<SkScalar>(jvy.is<ArrayValue>() ? jvy.as<ArrayValue>()[0] : jvy, &pt->fY);
 }
 
 template <>
-bool ValueRef::to<std::vector<float>>(std::vector<float>* v) const {
-    if (!fValue || !fValue->IsArray())
+bool Parse<std::vector<float>>(const Value& v, std::vector<float>* vec) {
+    if (!v.is<ArrayValue>())
         return false;
+    const auto& av = v.as<ArrayValue>();
 
-    v->resize(fValue->Size());
-    for (size_t i = 0; i < fValue->Size(); ++i) {
-        if (!ValueRef(fValue->operator[](i)).to(v->data() + i)) {
+    vec->resize(av.size());
+    for (size_t i = 0; i < av.size(); ++i) {
+        if (!Parse(av[i], vec->data() + i)) {
             return false;
         }
     }
@@ -111,16 +106,17 @@ bool ValueRef::to<std::vector<float>>(std::vector<float>* v) const {
 
 namespace {
 
-bool ParsePointVec(const ValueRef& jv, std::vector<SkPoint>* pts) {
-    if (!jv.isArray())
+bool ParsePointVec(const Value& v, std::vector<SkPoint>* pts) {
+    if (!v.is<ArrayValue>())
         return false;
+    const auto& av = v.as<ArrayValue>();
 
     pts->clear();
-    pts->reserve(jv.size());
+    pts->reserve(av.size());
 
     std::vector<float> vec;
-    for (size_t i = 0; i < jv.size(); ++i) {
-        if (!jv[i].to(&vec) || vec.size() != 2)
+    for (size_t i = 0; i < av.size(); ++i) {
+        if (!Parse(av[i], &vec) || vec.size() != 2)
             return false;
         pts->push_back(SkPoint::Make(vec[0], vec[1]));
     }
@@ -131,113 +127,40 @@ bool ParsePointVec(const ValueRef& jv, std::vector<SkPoint>* pts) {
 } // namespace
 
 template <>
-bool ValueRef::to<ShapeValue>(ShapeValue* v) const {
-    SkASSERT(v->fVertices.empty());
-
-    if (!fValue)
-        return false;
+bool Parse<ShapeValue>(const Value& v, ShapeValue* sh) {
+    SkASSERT(sh->fVertices.empty());
 
     // Some versions wrap values as single-element arrays.
-    if (fValue->IsArray() && fValue->Size() == 1) {
-        return ValueRef(fValue->operator[](0)).to(v);
+    if (const skjson::ArrayValue* av = v) {
+        if (av->size() == 1) {
+            return Parse((*av)[0], sh);
+        }
     }
+
+    if (!v.is<skjson::ObjectValue>())
+        return false;
+    const auto& ov = v.as<ObjectValue>();
 
     std::vector<SkPoint> inPts,  // Cubic Bezier "in" control points, relative to vertices.
                          outPts, // Cubic Bezier "out" control points, relative to vertices.
                          verts;  // Cubic Bezier vertices.
 
-    if (!fValue->IsObject() ||
-        !ParsePointVec(this->operator[]("i"), &inPts) ||
-        !ParsePointVec(this->operator[]("o"), &outPts) ||
-        !ParsePointVec(this->operator[]("v"), &verts) ||
+    if (!ParsePointVec(ov["i"], &inPts) ||
+        !ParsePointVec(ov["o"], &outPts) ||
+        !ParsePointVec(ov["v"], &verts) ||
         inPts.size() != outPts.size() ||
         inPts.size() != verts.size()) {
 
         return false;
     }
 
-    v->fVertices.reserve(inPts.size());
+    sh->fVertices.reserve(inPts.size());
     for (size_t i = 0; i < inPts.size(); ++i) {
-        v->fVertices.push_back(BezierVertex({inPts[i], outPts[i], verts[i]}));
+        sh->fVertices.push_back(BezierVertex({inPts[i], outPts[i], verts[i]}));
     }
-    v->fClosed = this->operator[]("c").toDefault<bool>(false);
+    sh->fClosed = ParseDefault<bool>(ov["c"], false);
 
     return true;
 }
-
-size_t ValueRef::size() const {
-    return this->isArray() ? fValue->Size() : 0;
-}
-
-ValueRef ValueRef::operator[](size_t i) const {
-    return i < this->size() ? ValueRef(fValue->operator[](i)) : ValueRef();
-}
-
-ValueRef ValueRef::operator[](const char* key) const {
-    if (!this->isObject())
-        return ValueRef();
-
-    const auto m = fValue->FindMember(key);
-    return m == fValue->MemberEnd() ? ValueRef() : ValueRef(m->value);
-}
-
-const rapidjson::Value* ValueRef::begin() const {
-    return this->isArray() ? fValue->Begin() : nullptr;
-}
-
-const rapidjson::Value* ValueRef::end() const {
-    return this->isArray() ? fValue->End() : nullptr;
-}
-
-SkString ValueRef::toString() const {
-#ifdef SK_DEBUG
-    rapidjson::StringBuffer buf;
-    if (fValue) {
-        rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buf);
-        fValue->Accept(writer);
-    }
-
-    return SkString(buf.GetString());
-#else
-    return SkString();
-#endif // SK_DEBUG
-}
-
-Document::Document(SkStream* stream) {
-    if (!stream->hasLength()) {
-        SkDebugf("!! unsupported unseekable json stream\n");
-        return;
-    }
-
-    // RapidJSON provides three DOM-builder approaches:
-    //
-    //   1) in-place   : all data buffered, constructs the DOM in-place -- this is the fastest
-    //   2) from buffer: all data buffered, copies to DOM -- this is slightly slower
-    //   3) from stream: streamed data, reads/copies to DOM -- this is *significantly* slower
-    //
-    // We like fast, so #1 it is.
-
-    // The buffer needs to be C-string.
-    const auto size = stream->getLength();
-    fData = SkData::MakeUninitialized(size + 1);
-    if (stream->read(fData->writable_data(), size) < size) {
-        SkDebugf("!! could not read JSON stream\n");
-        return;
-    }
-
-    auto data = static_cast<char*>(fData->writable_data());
-    data[size] = '\0';
-
-    fDocument.ParseInsitu(data);
-
-#ifdef SK_DEBUG
-        if (fDocument.HasParseError()) {
-            SkDebugf("!! failed to parse json: %s\n",
-                     rapidjson::GetParseError_En(fDocument.GetParseError()));
-        }
-#endif
-}
-
-} // namespace json
 
 } // namespace skottie

@@ -21,7 +21,7 @@ namespace {
 
 #define LOG SkDebugf
 
-bool LogFail(const json::ValueRef& json, const char* msg) {
+bool LogFail(const skjson::Value& json, const char* msg) {
     const auto dump = json.toString();
     LOG("!! %s: %s\n", msg, dump.c_str());
     return false;
@@ -67,15 +67,14 @@ protected:
             : SkTPin(fCubicMaps[rec.cmidx].computeYFromX(lt), 0.0f, 1.0f);
     }
 
-    virtual int parseValue(const json::ValueRef&) = 0;
+    virtual int parseValue(const skjson::Value&) = 0;
 
-    void parseKeyFrames(const json::ValueRef& jframes) {
-        if (!jframes.isArray())
-            return;
+    void parseKeyFrames(const skjson::ArrayValue& jframes) {
+        for (const skjson::ObjectValue* jframe : jframes) {
+            if (!jframe) continue;
 
-        for (const json::ValueRef jframe : jframes) {
             float t0;
-            if (!jframe["t"].to(&t0))
+            if (!Parse<float>((*jframe)["t"], &t0))
                 continue;
 
             if (!fRecs.empty()) {
@@ -88,24 +87,24 @@ protected:
                 fRecs.back().t1 = t0;
             }
 
-            const auto vidx0 = this->parseValue(jframe["s"]);
+            const auto vidx0 = this->parseValue((*jframe)["s"]);
             if (vidx0 < 0)
                 continue;
 
             // Defaults for constant frames.
             int vidx1 = vidx0, cmidx = -1;
 
-            if (!jframe["h"].toDefault(false)) {
+            if (!ParseDefault<bool>((*jframe)["h"], false)) {
                 // Regular frame, requires an end value.
-                vidx1 = this->parseValue(jframe["e"]);
+                vidx1 = this->parseValue((*jframe)["e"]);
                 if (vidx1 < 0)
                     continue;
 
                 // default is linear lerp
                 static constexpr SkPoint kDefaultC0 = { 0, 0 },
                                          kDefaultC1 = { 1, 1 };
-                const auto c0 = jframe["i"].toDefault(kDefaultC0),
-                           c1 = jframe["o"].toDefault(kDefaultC1);
+                const auto c0 = ParseDefault<SkPoint>((*jframe)["i"], kDefaultC0),
+                           c1 = ParseDefault<SkPoint>((*jframe)["o"], kDefaultC1);
 
                 if (c0 != kDefaultC0 || c1 != kDefaultC1) {
                     // TODO: is it worth de-duping these?
@@ -175,9 +174,11 @@ private:
 template <typename T>
 class KeyframeAnimator final : public KeyframeAnimatorBase {
 public:
-    static std::unique_ptr<KeyframeAnimator> Make(const json::ValueRef& jframes,
+    static std::unique_ptr<KeyframeAnimator> Make(const skjson::ArrayValue* jv,
                                                   std::function<void(const T&)>&& apply) {
-        std::unique_ptr<KeyframeAnimator> animator(new KeyframeAnimator(jframes, std::move(apply)));
+        if (!jv) return nullptr;
+
+        std::unique_ptr<KeyframeAnimator> animator(new KeyframeAnimator(*jv, std::move(apply)));
         if (!animator->count())
             return nullptr;
 
@@ -193,15 +194,15 @@ protected:
     }
 
 private:
-    KeyframeAnimator(const json::ValueRef& jframes,
+    KeyframeAnimator(const skjson::ArrayValue& jframes,
                      std::function<void(const T&)>&& apply)
         : fApplyFunc(std::move(apply)) {
         this->parseKeyFrames(jframes);
     }
 
-    int parseValue(const json::ValueRef& jv) override {
+    int parseValue(const skjson::Value& jv) override {
         T val;
-        if (!jv.to(&val) || (!fVs.empty() &&
+        if (!Parse<T>(jv, &val) || (!fVs.empty() &&
                 ValueTraits<T>::Cardinality(val) != ValueTraits<T>::Cardinality(fVs.back()))) {
             return -1;
         }
@@ -235,21 +236,20 @@ private:
 };
 
 template <typename T>
-static inline bool BindPropertyImpl(const json::ValueRef& jprop,
+static inline bool BindPropertyImpl(const skjson::ObjectValue* jprop,
                                     sksg::AnimatorList* animators,
                                     std::function<void(const T&)>&& apply,
                                     const T* noop = nullptr) {
-    if (!jprop.isObject())
-        return false;
+    if (!jprop) return false;
 
-    const auto jpropA = jprop["a"];
-    const auto jpropK = jprop["k"];
+    const auto& jpropA = (*jprop)["a"];
+    const auto& jpropK = (*jprop)["k"];
 
     // Older Json versions don't have an "a" animation marker.
     // For those, we attempt to parse both ways.
-    if (!jpropA.toDefault(false)) {
+    if (!ParseDefault<bool>(jpropA, false)) {
         T val;
-        if (jpropK.to<T>(&val)) {
+        if (Parse<T>(jpropK, &val)) {
             // Static property.
             if (noop && val == *noop)
                 return false;
@@ -258,8 +258,8 @@ static inline bool BindPropertyImpl(const json::ValueRef& jprop,
             return true;
         }
 
-        if (!jpropA.isNull()) {
-            return LogFail(jprop, "Could not parse (explicit) static property");
+        if (!jpropA.is<skjson::NullValue>()) {
+            return LogFail(*jprop, "Could not parse (explicit) static property");
         }
     }
 
@@ -267,7 +267,7 @@ static inline bool BindPropertyImpl(const json::ValueRef& jprop,
     auto animator = KeyframeAnimator<T>::Make(jpropK, std::move(apply));
 
     if (!animator) {
-        return LogFail(jprop, "Could not parse keyframed property");
+        return LogFail(*jprop, "Could not parse keyframed property");
     }
 
     animators->push_back(std::move(animator));
@@ -277,11 +277,10 @@ static inline bool BindPropertyImpl(const json::ValueRef& jprop,
 
 class SplitPointAnimator final : public sksg::Animator {
 public:
-    static std::unique_ptr<SplitPointAnimator> Make(const json::ValueRef& jprop,
+    static std::unique_ptr<SplitPointAnimator> Make(const skjson::ObjectValue* jprop,
                                                     std::function<void(const VectorValue&)>&& apply,
                                                     const VectorValue*) {
-        if (!jprop.isObject())
-            return nullptr;
+        if (!jprop) return nullptr;
 
         std::unique_ptr<SplitPointAnimator> split_animator(
             new SplitPointAnimator(std::move(apply)));
@@ -290,11 +289,11 @@ public:
         // the object itself, so the scope is bound to the life time of the object.
         auto* split_animator_ptr = split_animator.get();
 
-        if (!BindPropertyImpl<ScalarValue>(jprop["x"], &split_animator->fAnimators,
+        if (!BindPropertyImpl<ScalarValue>((*jprop)["x"], &split_animator->fAnimators,
                 [split_animator_ptr](const ScalarValue& x) { split_animator_ptr->setX(x); }) ||
-            !BindPropertyImpl<ScalarValue>(jprop["y"], &split_animator->fAnimators,
+            !BindPropertyImpl<ScalarValue>((*jprop)["y"], &split_animator->fAnimators,
                 [split_animator_ptr](const ScalarValue& y) { split_animator_ptr->setY(y); })) {
-            LogFail(jprop, "Could not parse split property");
+            LogFail(*jprop, "Could not parse split property");
             return nullptr;
         }
 
@@ -331,11 +330,11 @@ private:
     using INHERITED = sksg::Animator;
 };
 
-bool BindSplitPositionProperty(const json::ValueRef& jprop,
+bool BindSplitPositionProperty(const skjson::Value& jv,
                                sksg::AnimatorList* animators,
                                std::function<void(const VectorValue&)>&& apply,
                                const VectorValue* noop) {
-    if (auto split_animator = SplitPointAnimator::Make(jprop, std::move(apply), noop)) {
+    if (auto split_animator = SplitPointAnimator::Make(jv, std::move(apply), noop)) {
         animators->push_back(std::unique_ptr<sksg::Animator>(split_animator.release()));
         return true;
     }
@@ -346,29 +345,32 @@ bool BindSplitPositionProperty(const json::ValueRef& jprop,
 } // namespace
 
 template <>
-bool BindProperty(const json::ValueRef& jprop,
+bool BindProperty(const skjson::Value& jv,
                   sksg::AnimatorList* animators,
                   std::function<void(const ScalarValue&)>&& apply,
                   const ScalarValue* noop) {
-    return BindPropertyImpl(jprop, animators, std::move(apply), noop);
+    return BindPropertyImpl(jv, animators, std::move(apply), noop);
 }
 
 template <>
-bool BindProperty(const json::ValueRef& jprop,
+bool BindProperty(const skjson::Value& jv,
                   sksg::AnimatorList* animators,
                   std::function<void(const VectorValue&)>&& apply,
                   const VectorValue* noop) {
-    return jprop["s"].toDefault<bool>(false)
-        ? BindSplitPositionProperty(jprop, animators, std::move(apply), noop)
-        : BindPropertyImpl(jprop, animators, std::move(apply), noop);
+    if (!jv.is<skjson::ObjectValue>())
+        return false;
+
+    return ParseDefault<bool>(jv.as<skjson::ObjectValue>()["s"], false)
+        ? BindSplitPositionProperty(jv, animators, std::move(apply), noop)
+        : BindPropertyImpl(jv, animators, std::move(apply), noop);
 }
 
 template <>
-bool BindProperty(const json::ValueRef& jprop,
+bool BindProperty(const skjson::Value& jv,
                   sksg::AnimatorList* animators,
                   std::function<void(const ShapeValue&)>&& apply,
                   const ShapeValue* noop) {
-    return BindPropertyImpl(jprop, animators, std::move(apply), noop);
+    return BindPropertyImpl(jv, animators, std::move(apply), noop);
 }
 
 } // namespace skottie
