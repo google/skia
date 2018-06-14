@@ -62,9 +62,8 @@ GrColorSpaceXform::GrColorSpaceXform(const SkColorSpaceTransferFn& srcTransferFn
 
 static SkSpinlock gColorSpaceXformCacheSpinlock;
 
-sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(const SkColorSpace* src,
-                                                 GrPixelConfig srcConfig,
-                                                 const SkColorSpace* dst) {
+sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, GrPixelConfig srcConfig,
+                                                 SkColorSpace* dst) {
     if (!dst) {
         // No transformation is performed in legacy mode
         return nullptr;
@@ -291,9 +290,8 @@ GrFragmentProcessor::OptimizationFlags GrColorSpaceXformEffect::OptFlags(
 
 std::unique_ptr<GrFragmentProcessor> GrColorSpaceXformEffect::Make(
         std::unique_ptr<GrFragmentProcessor> child,
-        const SkColorSpace* src,
-        GrPixelConfig srcConfig,
-        const SkColorSpace* dst) {
+        SkColorSpace* src, GrPixelConfig srcConfig,
+        SkColorSpace* dst) {
     if (!child) {
         return nullptr;
     }

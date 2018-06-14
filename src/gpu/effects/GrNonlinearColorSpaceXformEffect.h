@@ -27,8 +27,7 @@ public:
      * This will return nullptr if either space is nullptr, if both spaces are equal, or if either
      * space has a non-parametric transfer funcion (e.g. lookup table or A2B).
      */
-    static std::unique_ptr<GrFragmentProcessor> Make(const SkColorSpace* src,
-                                                     const SkColorSpace* dst);
+    static std::unique_ptr<GrFragmentProcessor> Make(SkColorSpace* src, SkColorSpace* dst);
 
     const char* name() const override { return "NonlinearColorSpaceXform"; }
 

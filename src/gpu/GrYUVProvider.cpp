@@ -68,8 +68,8 @@ void GrYUVProvider::YUVGen_DataReleaseProc(const void*, void* data) {
 }
 
 sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrSurfaceDesc& desc,
-                                                       const SkColorSpace* srcColorSpace,
-                                                       const SkColorSpace* dstColorSpace) {
+                                                       SkColorSpace* srcColorSpace,
+                                                       SkColorSpace* dstColorSpace) {
     SkYUVPlanesCache::Info yuvInfo;
     void* planes[3];
 
