@@ -5,12 +5,20 @@
  * found in the LICENSE file.
  */
 
+#include "SkAutoMalloc.h"
 #include "SkData.h"
 #include "SkJSON.h"
 #include "SkStream.h"
 
 void FuzzSkJSON(sk_sp<SkData> bytes) {
-    skjson::DOM dom(static_cast<const char*>(bytes->data()), bytes->size());
+    // TODO: add a size + len skjson::DOM factory?
+    SkAutoMalloc data(bytes->size() + 1);
+    auto* c_str = static_cast<char*>(data.get());
+
+    memcpy(c_str, bytes->data(), bytes->size());
+    c_str[bytes->size()] = '\0';
+
+    skjson::DOM dom(c_str);
     SkDynamicMemoryWStream wstream;
     dom.write(&wstream);
 }
