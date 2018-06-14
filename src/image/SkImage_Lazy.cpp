@@ -820,9 +820,8 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
         // has been called then this will not match this image's color space. To correct this, apply
         // a color space conversion from the generator's color space to this image's color space.
         // Note that we can only do this conversion (on the GPU) if both color spaces are XYZ type.
-        const SkColorSpace* generatorColorSpace =
-                fSharedGenerator->fGenerator->getInfo().colorSpace();
-        const SkColorSpace* thisColorSpace = fInfo.colorSpace();
+        SkColorSpace* generatorColorSpace = fSharedGenerator->fGenerator->getInfo().colorSpace();
+        SkColorSpace* thisColorSpace = fInfo.colorSpace();
 
         if ((!generatorColorSpace || generatorColorSpace->toXYZD50()) &&
              (!thisColorSpace || thisColorSpace->toXYZD50())) {
