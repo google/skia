@@ -341,6 +341,30 @@
       "revId": "062e7ae6013cbec8bf03811843b4fd279ba3b436",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2402bc_1772797a",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 755,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-14T15:32:59Z",
+      "side": 1,
+      "message": "Awesome idea!  Maybe a bit more involved than that, because trailing white space is also valid, but I think some variation of that should work.  I\u0027ll definitely give it a shot.",
+      "parentUuid": "0a5ad764_756e4e32",
+      "range": {
+        "startLine": 749,
+        "startChar": 4,
+        "endLine": 755,
+        "endChar": 5
+      },
+      "revId": "062e7ae6013cbec8bf03811843b4fd279ba3b436",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
