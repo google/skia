@@ -8,10 +8,8 @@
 #ifndef GrAtlasManager_DEFINED
 #define GrAtlasManager_DEFINED
 
-#include "GrCaps.h"
 #include "GrDrawOpAtlas.h"
 #include "GrOnFlushResourceProvider.h"
-#include "GrProxyProvider.h"
 
 class GrAtlasGlypCache;
 class GrTextStrike;
@@ -30,23 +28,11 @@ public:
                    float maxTextureBytes, GrDrawOpAtlas::AllowMultitexturing);
     ~GrAtlasManager() override;
 
-    // Change an expected 565 mask format to 8888 if 565 is not supported (will happen when using
-    // Metal on macOS). The actual conversion of the data is handled in get_packed_glyph_image() in
-    // GrGlyphCache.cpp
-    GrMaskFormat resolveMaskFormat(GrMaskFormat format) const {
-        if (kA565_GrMaskFormat == format &&
-            !fProxyProvider->caps()->isConfigTexturable(kRGB_565_GrPixelConfig)) {
-            format = kARGB_GrMaskFormat;
-        }
-        return format;
-    }
-
     // if getProxies returns nullptr, the client must not try to use other functions on the
     // GrGlyphCache which use the atlas.  This function *must* be called first, before other
     // functions which use the atlas. Note that we can have proxies available but none active
     // (i.e., none instantiated).
     const sk_sp<GrTextureProxy>* getProxies(GrMaskFormat format, unsigned int* numActiveProxies) {
-        format = this->resolveMaskFormat(format);
         if (this->initAtlas(format)) {
             *numActiveProxies = this->getAtlas(format)->numActivePages();
             return this->getAtlas(format)->getProxies();
@@ -141,7 +127,6 @@ private:
     }
 
     GrDrawOpAtlas* getAtlas(GrMaskFormat format) const {
-        format = this->resolveMaskFormat(format);
         int atlasIndex = MaskFormatToAtlasIndex(format);
         SkASSERT(fAtlases[atlasIndex]);
         return fAtlases[atlasIndex].get();
