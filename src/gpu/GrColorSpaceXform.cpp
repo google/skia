@@ -62,8 +62,7 @@ GrColorSpaceXform::GrColorSpaceXform(const SkColorSpaceTransferFn& srcTransferFn
 
 static SkSpinlock gColorSpaceXformCacheSpinlock;
 
-sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, GrPixelConfig srcConfig,
-                                                 SkColorSpace* dst) {
+sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkColorSpace* dst) {
     if (!dst) {
         // No transformation is performed in legacy mode
         return nullptr;
@@ -71,47 +70,22 @@ sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, GrPixelConfi
 
     // Treat null sources as sRGB
     if (!src) {
-        if (GrPixelConfigIsFloatingPoint(srcConfig)) {
-            src = SkColorSpace::MakeSRGBLinear().get();
-        } else {
-            src = SkColorSpace::MakeSRGB().get();
-        }
+        src = SkColorSpace::MakeSRGB().get();
     }
 
     uint32_t flags = 0;
     SkColorSpaceTransferFn srcTransferFn;
 
-    // kUnknown_GrPixelConfig is a sentinel that means we don't care about transfer functions,
-    // just the gamut xform.
-    if (kUnknown_GrPixelConfig != srcConfig) {
-        // Determine if src transfer function is needed, based on src config and color space
-        if (GrPixelConfigIsSRGB(srcConfig)) {
-            // Source texture is sRGB, will be converted to linear when we sample
-            if (src->gammaCloseToSRGB()) {
-                // Hardware linearize does the right thing
-            } else if (src->gammaIsLinear()) {
-                // Oops, need to undo the (extra) linearize
-                flags |= kApplyInverseSRGB_Flag;
-            } else if (src->isNumericalTransferFn(&srcTransferFn)) {
-                // Need to undo the (extra) linearize, then apply the correct transfer function
-                flags |= (kApplyInverseSRGB_Flag | kApplyTransferFn_Flag);
-            } else {
-                // We don't (yet) support more complex transfer functions
-                return nullptr;
-            }
-        } else {
-            // Source texture is some non-sRGB format, we consider it linearly encoded
-            if (src->gammaIsLinear()) {
-                // Linear sampling does the right thing
-            } else if (src->isNumericalTransferFn(&srcTransferFn)) {
-                // Need to manually apply some transfer function (including sRGB)
-                flags |= kApplyTransferFn_Flag;
-            } else {
-                // We don't (yet) support more complex transfer functions
-                return nullptr;
-            }
-        }
+    if (src->gammaIsLinear()) {
+        // Linear sampling does the right thing
+    } else if (src->isNumericalTransferFn(&srcTransferFn)) {
+        // Need to manually apply some transfer function
+        flags |= kApplyTransferFn_Flag;
+    } else {
+        // We don't (yet) support more complex transfer functions
+        return nullptr;
     }
+
     if (src == dst && (0 == flags)) {
         // Quick equality check - no conversion (or transfer function) needed in this case
         return nullptr;
@@ -290,13 +264,12 @@ GrFragmentProcessor::OptimizationFlags GrColorSpaceXformEffect::OptFlags(
 
 std::unique_ptr<GrFragmentProcessor> GrColorSpaceXformEffect::Make(
         std::unique_ptr<GrFragmentProcessor> child,
-        SkColorSpace* src, GrPixelConfig srcConfig,
-        SkColorSpace* dst) {
+        SkColorSpace* src, SkColorSpace* dst) {
     if (!child) {
         return nullptr;
     }
 
-    auto colorXform = GrColorSpaceXform::Make(src, srcConfig, dst);
+    auto colorXform = GrColorSpaceXform::Make(src, dst);
     if (colorXform) {
         return std::unique_ptr<GrFragmentProcessor>(
                 new GrColorSpaceXformEffect(std::move(child), std::move(colorXform)));
