@@ -276,7 +276,7 @@ bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         return false;
     }
 
-    if (fVertexCount + that->fVertexCount > UINT16_MAX) {
+    if (fVertexCount + that->fVertexCount > SK_MaxU16) {
         return false;
     }
 
@@ -366,7 +366,7 @@ static void randomize_params(size_t count, size_t maxVertex, SkScalar min, SkSca
             colors->push_back(GrRandomColor(random));
         }
         if (hasIndices) {
-            SkASSERT(maxVertex <= UINT16_MAX);
+            SkASSERT(maxVertex <= SK_MaxU16);
             indices->push_back(random->nextULessThan((uint16_t)maxVertex));
         }
     }

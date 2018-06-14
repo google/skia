@@ -89,11 +89,11 @@ float SkScalarSinCos(float radians, float* cosValue) {
 size_t SkSafeMath::Add(size_t x, size_t y) {
     SkSafeMath tmp;
     size_t sum = tmp.add(x, y);
-    return tmp.ok() ? sum : SIZE_MAX;
+    return tmp.ok() ? sum : SK_MaxSizeT;
 }
 
 size_t SkSafeMath::Mul(size_t x, size_t y) {
     SkSafeMath tmp;
     size_t prod = tmp.mul(x, y);
-    return tmp.ok() ? prod : SIZE_MAX;
+    return tmp.ok() ? prod : SK_MaxSizeT;
 }
