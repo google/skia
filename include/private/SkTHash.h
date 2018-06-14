@@ -23,15 +23,27 @@
 // If the key is large and stored inside T, you may want to make K a const&.
 // Similarly, if T is large you might want it to be a pointer.
 template <typename T, typename K, typename Traits = T>
-class SkTHashTable : SkNoncopyable {
+class SkTHashTable {
 public:
     SkTHashTable() : fCount(0), fCapacity(0) {}
+    SkTHashTable(SkTHashTable&& other)
+        : fCount(other.fCount)
+        , fCapacity(other.fCapacity)
+        , fSlots(std::move(other.fSlots)) { other.fCount = other.fCapacity = 0; }
+
+    SkTHashTable& operator=(SkTHashTable&& other) {
+        if (this != &other) {
+            this->~SkTHashTable();
+            new (this) SkTHashTable(std::move(other));
+        }
+        return *this;
+    }
+
+    SkTHashTable(const SkTHashTable&) = delete;
+    SkTHashTable& operator=(const SkTHashTable&) = delete;
 
     // Clear the table.
-    void reset() {
-        this->~SkTHashTable();
-        new (this) SkTHashTable;
-    }
+    void reset() { *this = SkTHashTable(); }
 
     // How many entries are in the table?
     int count() const { return fCount; }
@@ -220,9 +232,13 @@ private:
 // Maps K->V.  A more user-friendly wrapper around SkTHashTable, suitable for most use cases.
 // K and V are treated as ordinary copyable C++ types, with no assumed relationship between the two.
 template <typename K, typename V, typename HashK = SkGoodHash>
-class SkTHashMap : SkNoncopyable {
+class SkTHashMap {
 public:
     SkTHashMap() {}
+    SkTHashMap(SkTHashMap&&) = default;
+    SkTHashMap(const SkTHashMap&) = delete;
+    SkTHashMap& operator=(SkTHashMap&&) = default;
+    SkTHashMap& operator=(const SkTHashMap&) = delete;
 
     // Clear the map.
     void reset() { fTable.reset(); }
@@ -282,9 +298,13 @@ private:
 
 // A set of T.  T is treated as an ordinary copyable C++ type.
 template <typename T, typename HashT = SkGoodHash>
-class SkTHashSet : SkNoncopyable {
+class SkTHashSet {
 public:
     SkTHashSet() {}
+    SkTHashSet(SkTHashSet&&) = default;
+    SkTHashSet(const SkTHashSet&) = delete;
+    SkTHashSet& operator=(SkTHashSet&&) = default;
+    SkTHashSet& operator=(const SkTHashSet&) = delete;
 
     // Clear the set.
     void reset() { fTable.reset(); }
