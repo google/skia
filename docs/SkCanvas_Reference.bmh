@@ -1865,8 +1865,7 @@ Sets fBounds, fPaint, and fBackdrop to nullptr. Clears fSaveLayerFlags.
 
 ##
 
-#Method SaveLayerRec(const SkRect* bounds, const SkPaint* paint,
-        SaveLayerFlags saveLayerFlags = 0)
+#Method SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0)
 
 Sets fBounds, fPaint, and fSaveLayerFlags; sets fBackdrop to nullptr.
 

@@ -1,0 +1,219 @@
+#Topic Blend_Mode
+#Alias BlendMode_Reference ##
+
+#Subtopic Overview
+#Populate
+##
+
+#Subtopic Function
+#Populate
+##
+
+#Subtopic Enum
+#Populate
+##
+
+# ------------------------------------------------------------------------------
+
+#EnumClass SkBlendMode
+#Line # incomplete ##
+
+#Code
+    enum class SkBlendMode {
+        kClear,
+        kSrc,
+        kDst,
+        kSrcOver,
+        kDstOver,
+        kSrcIn,
+        kDstIn,
+        kSrcOut,
+        kDstOut,
+        kSrcATop,
+        kDstATop,
+        kXor,
+        kPlus,
+        kModulate,
+        kScreen,
+        kLastCoeffMode = kScreen,
+        kOverlay,
+        kDarken,
+        kLighten,
+        kColorDodge,
+        kColorBurn,
+        kHardLight,
+        kSoftLight,
+        kDifference,
+        kExclusion,
+        kMultiply,
+        kLastSeparableMode = kMultiply,
+        kHue,
+        kSaturation,
+        kColor,
+        kLuminosity,
+        kLastMode = kLuminosity,
+    };
+##
+
+Describes
+###$
+$A screen through luminosity $ https://dvcs.w3.org/hg/FXTF/rawfile/tip/compositing/index.html#blending $$
+$$$#
+.
+
+#Const kClear 0
+#Line # incomplete ##
+[0, 0]
+##
+#Const kSrc 1
+#Line # incomplete ##
+[Sa, Sc]
+##
+#Const kDst 2
+#Line # incomplete ##
+[Da, Dc]
+##
+#Const kSrcOver 3
+#Line # incomplete ##
+[Sa + Da * (1 - Sa), Sc + Dc * (1 - Sa)]
+##
+#Const kDstOver 4
+#Line # incomplete ##
+[Da + Sa * (1 - Da), Dc + Sc * (1 - Da)]
+##
+#Const kSrcIn 5
+#Line # incomplete ##
+[Sa * Da, Sc * Da]
+##
+#Const kDstIn 6
+#Line # incomplete ##
+[Da * Sa, Dc * Sa]
+##
+#Const kSrcOut 7
+#Line # incomplete ##
+[Sa * (1 - Da), Sc * (1 - Da)]
+##
+#Const kDstOut 8
+#Line # incomplete ##
+[Da * (1 - Sa), Dc * (1 - Sa)]
+##
+#Const kSrcATop 9
+#Line # incomplete ##
+[Da, Sc * Da + Dc * (1 - Sa)]
+##
+#Const kDstATop 10
+#Line # incomplete ##
+[Sa, Dc * Sa + Sc * (1 - Da)]
+##
+#Const kXor 11
+#Line # incomplete ##
+[Sa + Da - 2 * Sa * Da, Sc * (1 - Da) + Dc * (1 - Sa)]
+##
+#Const kPlus 12
+#Line # incomplete ##
+[Sa + Da, Sc + Dc]
+##
+#Const kModulate 13
+#Line # incomplete ##
+[Sa * Da, Sc * Dc]
+##
+#Const kScreen 14
+#Line # multiply inverse of pixels, inverting result ##
+[Sa + Da - Sa * Da, Sc + Dc - Sc * Dc]
+##
+#Const kLastCoeffMode 14
+#Line # incomplete ##
+##
+#Const kOverlay 15
+#Line # incomplete ##
+[Sa + Da * (1 - Sa),  2 * Dc <= Da ? 2 * Sc * Dc, Sa * Da - 2 * (Da - Dc) * (Sa - Sc)]
+##
+#Const kDarken 16
+#Line # incomplete ##
+[Sa + Da * (1 - Sa),  Sc + Dc - max(Sc * Da, Dc * Sa)]
+##
+#Const kLighten 17
+#Line # incomplete ##
+[Sa + Da * (1 - Sa),  Sc + Dc - min(Sc * Da, Dc * Sa)]
+##
+#Const kColorDodge 18
+#Line # incomplete ##
+[Sa + Da * (1 - Sa), Dc == 0 ? Sc * (1 - Da) : Sc == Sa ? Sc + Da * (1 - Sa) :
+            Sa * min(Da, Dc * Sa / (Sa - Sc)) + Sc * (1 - Da) + Da * (1 - Sa)]
+##
+#Const kColorBurn 19
+#Line # incomplete ##
+[Sa + Da * (1 - Sa), Dc == Da ? Dc + Sc * (1 - Da) : Sc == 0 ? Da * (1 - Sa) :
+            Sa * (Da - min(Da, (Da - Dc) * Sa / Sc)) + Sc * (1 - Da) + Da * (1 - Sa)]
+##
+#Const kHardLight 20
+#Line # incomplete ##
+[Sa + Da * (1 - Sa),  2 * Sc <= Sa ? 2 * Sc * Dc, Sa * Da - 2 * (Da - Dc) * (Sa - Sc)]
+##
+#Const kSoftLight 21
+#Line # incomplete ##
+where m = Da > 0 ? Dc / Da : 0 :
+[Sa + Da * (1 - Sa), Sc / Da + Dc / Sa +
+    (2 * Sc <= Sa ? Dc * (Sa + (2 * Sc - Sa) * (1 - m)) : Dc * Sa + Da * (2 * Sc - Sa) *
+    (4 * Dc <= Da ? (16 * m * m  + 4 * m) * (m - 1) + 7 * m : sqrt(m) - m))]
+##
+#Const kDifference 22
+#Line # incomplete ##
+[Sa + Da * (1 - Sa),  Sc + Dc - 2 * min(Sc * Da, Dc * Sa)]
+##
+#Const kExclusion 23
+#Line # incomplete ##
+[Sa + Da * (1 - Sa),  Sc + Dc - 2 * Sc * Dc]
+##
+#Const kMultiply 24
+#Line # multiply pixels, darkening image ##
+[Sa * (1 - Da) + Da * (1 - Sa) - Sa * Da, Sc * (1 - Da) + Dc * (1 - Sa) - Sc * Dc]
+##
+#Const kLastSeparableMode 24
+#Line # incomplete ##
+##
+#Const kHue 25
+#Line # incomplete ##
+##
+#Const kSaturation 26
+#Line # incomplete ##
+##
+#Const kColor 27
+#Line # incomplete ##
+##
+#Const kLuminosity 28
+#Line # incomplete ##
+##
+#Const kLastMode 28
+#Line # incomplete ##
+##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#EnumClass ##
+
+# ------------------------------------------------------------------------------
+
+#Method SK_API const char* SkBlendMode_Name(SkBlendMode)
+#In Constructor
+#Line # incomplete ##
+
+Return the (c-string) name of the blendmode.
+
+#Param SkBlendMode  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Topic Blend_Mode ##
