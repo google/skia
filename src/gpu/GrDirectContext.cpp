@@ -147,6 +147,42 @@ sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
 }
 
 #ifdef SK_VULKAN
+sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext) {
+    GrContextOptions defaultOptions;
+    return MakeVulkan(backendContext, defaultOptions);
+}
+
+sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext,
+                                       const GrContextOptions& options) {
+    sk_sp<GrContext> context(new GrDirectContext(kVulkan_GrBackend));
+
+    sk_sp<GrVkBackendContext> backendContextRef(new GrVkBackendContext());
+    backendContextRef->fInstance = backendContext.fInstance;
+    backendContextRef->fPhysicalDevice = backendContext.fPhysicalDevice;
+    backendContextRef->fDevice = backendContext.fDevice;
+    backendContextRef->fQueue = backendContext.fQueue;
+    backendContextRef->fGraphicsQueueIndex = backendContext.fGraphicsQueueIndex;
+    backendContextRef->fMinAPIVersion = backendContext.fMinAPIVersion;
+    backendContextRef->fExtensions = backendContext.fExtensions;
+    backendContextRef->fFeatures = backendContext.fFeatures;
+    backendContextRef->fInterface = backendContext.fInterface;
+    backendContextRef->fMemoryAllocator = backendContext.fMemoryAllocator;
+
+    SkASSERT(!backendContext.fOwnsInstanceAndDevice);
+    backendContextRef->fOwnsInstanceAndDevice = false;
+
+    context->fGpu = GrVkGpu::Make(std::move(backendContextRef), options, context.get());
+    if (!context->fGpu) {
+        return nullptr;
+    }
+
+    context->fCaps = context->fGpu->refCaps();
+    if (!context->init(options)) {
+        return nullptr;
+    }
+    return context;
+}
+
 sk_sp<GrContext> GrContext::MakeVulkan(sk_sp<const GrVkBackendContext> backendContext) {
     GrContextOptions defaultOptions;
     return MakeVulkan(std::move(backendContext), defaultOptions);

@@ -68,6 +68,10 @@ public:
     static sk_sp<GrContext> MakeGL();
 
 #ifdef SK_VULKAN
+    static sk_sp<GrContext> MakeVulkan(const GrVkBackendContext&, const GrContextOptions&);
+    static sk_sp<GrContext> MakeVulkan(const GrVkBackendContext&);
+    // These calls that take an sk_sp GrVkBackendContext are deprecated. Use the previous calls and
+    // set fOwnsInstanceAndDevice to false on the GrVkBackendContext.
     static sk_sp<GrContext> MakeVulkan(sk_sp<const GrVkBackendContext>, const GrContextOptions&);
     static sk_sp<GrContext> MakeVulkan(sk_sp<const GrVkBackendContext>);
 #endif
