@@ -218,8 +218,8 @@ GrGLSLFragmentProcessor* GrNonlinearColorSpaceXformEffect::onCreateGLSLInstance(
     return new GrGLNonlinearColorSpaceXformEffect();
 }
 
-std::unique_ptr<GrFragmentProcessor> GrNonlinearColorSpaceXformEffect::Make(
-        const SkColorSpace* src, const SkColorSpace* dst) {
+std::unique_ptr<GrFragmentProcessor> GrNonlinearColorSpaceXformEffect::Make(SkColorSpace* src,
+                                                                            SkColorSpace* dst) {
     if (!src || !dst || SkColorSpace::Equals(src, dst)) {
         // No conversion possible (or necessary)
         return nullptr;

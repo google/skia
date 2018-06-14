@@ -21,11 +21,9 @@ class GrColorSpaceXform : public SkRefCnt {
 public:
     GrColorSpaceXform(const SkColorSpaceTransferFn&, const SkMatrix44&, uint32_t);
 
-    static sk_sp<GrColorSpaceXform> Make(const SkColorSpace* src,
-                                         GrPixelConfig srcConfig,
-                                         const SkColorSpace* dst);
-    static sk_sp<GrColorSpaceXform> MakeGamutXform(const SkColorSpace* src,
-                                                   const SkColorSpace* dst) {
+    static sk_sp<GrColorSpaceXform> Make(SkColorSpace* src, GrPixelConfig srcConfig,
+                                         SkColorSpace* dst);
+    static sk_sp<GrColorSpaceXform> MakeGamutXform(SkColorSpace* src, SkColorSpace* dst) {
         auto result = Make(src, kUnknown_GrPixelConfig, dst);
         SkASSERT(!result || 0 == (result->fFlags & ~kApplyGamutXform_Flag));
         return result;
@@ -78,9 +76,8 @@ public:
      *  the color space of the output from src to dst.
      */
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> child,
-                                                     const SkColorSpace* src,
-                                                     GrPixelConfig srcConfig,
-                                                     const SkColorSpace* dst);
+                                                     SkColorSpace* src, GrPixelConfig srcConfig,
+                                                     SkColorSpace* dst);
 
     const char* name() const override { return "ColorSpaceXform"; }
     std::unique_ptr<GrFragmentProcessor> clone() const override;
