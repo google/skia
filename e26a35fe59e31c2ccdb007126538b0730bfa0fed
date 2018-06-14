@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5039da81_f25f33c8",
+        "filename": ".gitignore",
+        "patchSetId": 23
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-14T18:25:19Z",
+      "side": 1,
+      "message": "I do need some assets there, mainly for rendering planes. This can be fixed later in a better way, I just didn\u0027t want this to hang for too long else the CL would be too large",
+      "parentUuid": "49d051c8_e79f3562",
+      "range": {
+        "startLine": 34,
+        "startChar": 51,
+        "endLine": 34,
+        "endChar": 57
+      },
+      "revId": "e26a35fe59e31c2ccdb007126538b0730bfa0fed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0f60a8db_931b0053",
         "filename": ".gitignore",
         "patchSetId": 23
@@ -39,6 +63,24 @@
       "revId": "e26a35fe59e31c2ccdb007126538b0730bfa0fed",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "929afdd7_64f3c90c",
+        "filename": ".gitignore",
+        "patchSetId": 23
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-14T18:25:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0f60a8db_931b0053",
+      "revId": "e26a35fe59e31c2ccdb007126538b0730bfa0fed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -62,6 +104,30 @@
       "revId": "e26a35fe59e31c2ccdb007126538b0730bfa0fed",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f8cecc1_98f820c3",
+        "filename": "BUILD.gn",
+        "patchSetId": 23
+      },
+      "lineNbr": 2001,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-14T18:25:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "561d7d2e_7824981e",
+      "range": {
+        "startLine": 2001,
+        "startChar": 0,
+        "endLine": 2001,
+        "endChar": 2
+      },
+      "revId": "e26a35fe59e31c2ccdb007126538b0730bfa0fed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -100,6 +166,30 @@
       "side": 1,
       "message": "What I\u0027m building is a shared library used by the arcore app. The arcore app has its own separate CMake that includes specific sources files outside of these. So basically, this is building the Skia part of the ARCore app",
       "parentUuid": "7075608d_c76fc8e5",
+      "range": {
+        "startLine": 2005,
+        "startChar": 0,
+        "endLine": 2039,
+        "endChar": 7
+      },
+      "revId": "e26a35fe59e31c2ccdb007126538b0730bfa0fed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "706a6819_0485e865",
+        "filename": "BUILD.gn",
+        "patchSetId": 23
+      },
+      "lineNbr": 2039,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-14T18:25:19Z",
+      "side": 1,
+      "message": "After talking with Mike Klein, it turns out that this is way too complicated and would require the Skia team to discuss more things such as how these modules are implemented. SkShaper seems to use private Skia, so I cannot export Skia as an .so. The same applies for skottie. So I need private skia + these modules together. This is a hack for now, and I can worry about it later.",
+      "parentUuid": "0210e1a3_aa8d5531",
       "range": {
         "startLine": 2005,
         "startChar": 0,
