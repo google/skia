@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a29e26a2_30c08c19",
+        "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-14T16:08:23Z",
+      "side": 1,
+      "message": "I would make this thread more advanced in that it responds to messages posted instead of needing to be created for each running animation.",
+      "revId": "090e6c7cedd85dfb892daa13eca394bdbf9af82e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b2594cf_6879ff3d",
+        "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-14T16:08:23Z",
+      "side": 1,
+      "message": "you should be able to hold onto the EGLSurface between frames and avoid this extra conversion cost on each frame.",
+      "revId": "090e6c7cedd85dfb892daa13eca394bdbf9af82e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "726e446e_6931114f",
+        "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-14T16:08:23Z",
+      "side": 1,
+      "message": "Can we show that this will work if this is a singleton?  It would be ideal if there was only one additional thread that all animations used.  That way we don\u0027t have a bunch of GrContexts each with a single surface, but rather one GrContext with a bunch of surfaces.",
+      "revId": "090e6c7cedd85dfb892daa13eca394bdbf9af82e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
