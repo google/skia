@@ -317,6 +317,30 @@
       "revId": "062e7ae6013cbec8bf03811843b4fd279ba3b436",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0a5ad764_756e4e32",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 755,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-14T15:16:20Z",
+      "side": 1,
+      "message": "Makes sense.\n\nWhat do you think the cost would be to check for termination only at each \u0027}\u0027, and then up at the beginning return NullValue() if buf[len-1] !\u003d \u0027}\u0027?  Is that sound?",
+      "parentUuid": "3014e0b6_e43f62f9",
+      "range": {
+        "startLine": 749,
+        "startChar": 4,
+        "endLine": 755,
+        "endChar": 5
+      },
+      "revId": "062e7ae6013cbec8bf03811843b4fd279ba3b436",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
