@@ -146,6 +146,8 @@ public:
 
     void release(std::unique_ptr<GrOp> op);
 
+    bool isEmpty() const { return fMemoryPool.isEmpty(); }
+
 private:
     GrMemoryPool fMemoryPool;
 };
