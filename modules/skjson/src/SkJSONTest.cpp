@@ -7,7 +7,9 @@
 
 #include "Test.h"
 
+#include "SkArenaAlloc.h"
 #include "SkJSON.h"
+#include "SkString.h"
 #include "SkStream.h"
 
 using namespace skjson;
@@ -107,18 +109,29 @@ static void check_primitive(skiatest::Reporter* reporter, const Value& v, T pv,
                             bool is_type) {
 
     REPORTER_ASSERT(reporter,  v.is<VT>() == is_type);
-    REPORTER_ASSERT(reporter, *v.as<VT>() == pv);
+    const VT* cast_t = v;
+    REPORTER_ASSERT(reporter, (cast_t != nullptr) == is_type);
+
+    if (is_type) {
+        REPORTER_ASSERT(reporter, &v.as<VT>() == cast_t);
+        REPORTER_ASSERT(reporter, *v.as<VT>() == pv);
+    }
 }
 
 template <typename T>
 static void check_vector(skiatest::Reporter* reporter, const Value& v, size_t expected_size,
                          bool is_vector) {
     REPORTER_ASSERT(reporter, v.is<T>() == is_vector);
+    const T* cast_t = v;
+    REPORTER_ASSERT(reporter, (cast_t != nullptr) == is_vector);
 
-    const auto& vec = v.as<T>();
-    REPORTER_ASSERT(reporter, vec.size() == expected_size);
-    REPORTER_ASSERT(reporter, (vec.begin() != nullptr) == is_vector);
-    REPORTER_ASSERT(reporter, vec.end()   == vec.begin() + expected_size);
+    if (is_vector) {
+        const auto& vec = v.as<T>();
+        REPORTER_ASSERT(reporter, &vec == cast_t);
+        REPORTER_ASSERT(reporter, vec.size()  == expected_size);
+        REPORTER_ASSERT(reporter, vec.begin() != nullptr);
+        REPORTER_ASSERT(reporter, vec.end()   == vec.begin() + expected_size);
+    }
 }
 
 static void check_string(skiatest::Reporter* reporter, const Value& v, const char* s) {
@@ -128,7 +141,7 @@ static void check_string(skiatest::Reporter* reporter, const Value& v, const cha
     }
 }
 
-DEF_TEST(SkJSON_DOM, reporter) {
+DEF_TEST(SkJSON_DOM_visit, reporter) {
     static constexpr char json[] = "{ \n\
         \"k1\": null,                \n\
         \"k2\": false,               \n\
@@ -231,7 +244,6 @@ DEF_TEST(SkJSON_DOM, reporter) {
         check_primitive<float, NumberValue>(reporter, v.as<ArrayValue>()[0], 1, true);
         check_primitive<bool, BoolValue>(reporter, v.as<ArrayValue>()[1], true, true);
         check_vector<StringValue>(reporter, v.as<ArrayValue>()[2], 3, true);
-        REPORTER_ASSERT(reporter, v.as<ArrayValue>()[3].is<NullValue>());
     }
 
     {
@@ -263,10 +275,100 @@ DEF_TEST(SkJSON_DOM, reporter) {
         check_string(reporter, v.as<ObjectValue>()["kk1"], "baz");
         check_primitive<bool, BoolValue>(reporter, v.as<ObjectValue>()["kk2"], false, true);
     }
+}
 
-    {
-        const auto& v =
-            jroot["foo"].as<ObjectValue>()["bar"].as<ObjectValue>()["baz"];
-        REPORTER_ASSERT(reporter, v.is<NullValue>());
-    }
+template <typename T>
+void check_value(skiatest::Reporter* reporter, const Value& v, const char* expected_string) {
+    REPORTER_ASSERT(reporter, v.is<T>());
+
+    const T* cast_t = v;
+    REPORTER_ASSERT(reporter, cast_t == &v.as<T>());
+
+    const auto vstr = v.toString();
+    REPORTER_ASSERT(reporter, 0 == strcmp(expected_string, vstr.c_str()));
+}
+
+DEF_TEST(SkJSON_DOM_build, reporter) {
+    SkArenaAlloc alloc(4096);
+
+    const auto v0  = NullValue();
+    check_value<NullValue>(reporter, v0, "null");
+
+    const auto v1  = BoolValue(true);
+    check_value<BoolValue>(reporter, v1, "true");
+
+    const auto v2  = BoolValue(false);
+    check_value<BoolValue>(reporter, v2, "false");
+
+    const auto v3  = NumberValue(0);
+    check_value<NumberValue>(reporter, v3, "0");
+
+    const auto v4  = NumberValue(42);
+    check_value<NumberValue>(reporter, v4, "42");
+
+    const auto v5  = NumberValue(42.75f);
+    check_value<NumberValue>(reporter, v5, "42.75");
+
+    const auto v6  = StringValue(nullptr, 0, alloc);
+    check_value<StringValue>(reporter, v6, "\"\"");
+
+    const auto v7  = StringValue(" foo ", 5, alloc);
+    check_value<StringValue>(reporter, v7, "\" foo \"");
+
+    const auto v8  = StringValue(" foo bar baz ", 13, alloc);
+    check_value<StringValue>(reporter, v8, "\" foo bar baz \"");
+
+    const auto v9  = ArrayValue(nullptr, 0, alloc);
+    check_value<ArrayValue>(reporter, v9, "[]");
+
+    const Value values0[] = { v0, v3, v9 };
+    const auto v10 = ArrayValue(values0, SK_ARRAY_COUNT(values0), alloc);
+    check_value<ArrayValue>(reporter, v10, "[null,0,[]]");
+
+    const auto v11 = ObjectValue(nullptr, 0, alloc);
+    check_value<ObjectValue>(reporter, v11, "{}");
+
+    const Member members0[] = {
+        { StringValue("key_0", 5, alloc), v1  },
+        { StringValue("key_1", 5, alloc), v4  },
+        { StringValue("key_2", 5, alloc), v11 },
+    };
+    const auto v12 = ObjectValue(members0, SK_ARRAY_COUNT(members0), alloc);
+    check_value<ObjectValue>(reporter, v12, "{"
+                                                "\"key_0\":true,"
+                                                "\"key_1\":42,"
+                                                "\"key_2\":{}"
+                                            "}");
+
+    const Value values1[] = { v2, v6, v12 };
+    const auto v13 = ArrayValue(values1, SK_ARRAY_COUNT(values1), alloc);
+    check_value<ArrayValue>(reporter, v13, "["
+                                               "false,"
+                                               "\"\","
+                                               "{"
+                                                   "\"key_0\":true,"
+                                                   "\"key_1\":42,"
+                                                   "\"key_2\":{}"
+                                               "}"
+                                           "]");
+
+    const Member members1[] = {
+        { StringValue("key_00", 6, alloc), v5  },
+        { StringValue("key_01", 6, alloc), v7  },
+        { StringValue("key_02", 6, alloc), v13 },
+    };
+    const auto v14 = ObjectValue(members1, SK_ARRAY_COUNT(members1), alloc);
+    check_value<ObjectValue>(reporter, v14, "{"
+                                                "\"key_00\":42.75,"
+                                                "\"key_01\":\" foo \","
+                                                "\"key_02\":["
+                                                                "false,"
+                                                                "\"\","
+                                                                "{"
+                                                                    "\"key_0\":true,"
+                                                                    "\"key_1\":42,"
+                                                                    "\"key_2\":{}"
+                                                                "}"
+                                                            "]"
+                                            "}");
 }
