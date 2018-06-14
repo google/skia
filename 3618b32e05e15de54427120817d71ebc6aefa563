@@ -53,6 +53,86 @@
     },
     {
       "key": {
+        "uuid": "9a0e3a29_8c4cf54f",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T19:00:53Z",
+      "side": 1,
+      "message": "Maybe: kLiveCCAtlas vs. kCachedStaticCoverageAtlas ?\n\nMainly, I don\u0027t think kTextureProxy is a very descriptive name.",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28879230_b22b5282",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T19:00:53Z",
+      "side": 1,
+      "message": "A \u0027const void*\u0027, eh?\n\nMaybe a comment?",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6ecf601_4c6146cb",
+        "filename": "src/gpu/ccpr/GrCCPathCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T19:00:53Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 21,
+        "startChar": 64,
+        "endLine": 21,
+        "endChar": 81
+      },
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33a2b6b7_6428a003",
+        "filename": "src/gpu/ccpr/GrCCPathCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T19:00:53Z",
+      "side": 1,
+      "message": "those ?",
+      "range": {
+        "startLine": 37,
+        "startChar": 76,
+        "endLine": 37,
+        "endChar": 81
+      },
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c9e740e6_fa1e895b",
         "filename": "src/gpu/ccpr/GrCCPerFlushResources.cpp",
         "patchSetId": 6
