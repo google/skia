@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae9c319e_a210ab62",
+        "filename": "include/private/GrCCClipPath.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T13:46:58Z",
+      "side": 1,
+      "message": "// translation from device space to location in atlas ?",
+      "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa3079c4_0c32b87f",
+        "filename": "src/gpu/ccpr/GrCCAtlas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T13:46:58Z",
+      "side": 1,
+      "message": "this-\u003eaddNewAtlas() ?\ndunno",
+      "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69bfbcfb_1508d777",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T13:46:58Z",
+      "side": 1,
+      "message": "kCCAtlasOrigin ?\n\n// The CCAtlas\u0027 origin is _always_ TopLeft ?",
+      "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b52923c_5ca0914f",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T13:46:58Z",
+      "side": 1,
+      "message": "Isn\u0027t \u0027atlasOffset\u0027 more \u0027devSpaceToAtlasOffset\u0027 ?",
+      "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14f43aa6_8c98990e",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T13:46:58Z",
+      "side": 1,
+      "message": "Could this be a enum class instead of a raw int?\n\nWhat about \"setRenderingMethod\" ?",
+      "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e937ff49_69906f71",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T13:46:58Z",
+      "side": 1,
+      "message": "makeClearedRenderTargetContext ?\n\n// Helper function to create a pre-cleared RTC for atlas generation \n\n?",
+      "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a314cd9f_6456bcaa",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T13:46:58Z",
+      "side": 1,
+      "message": "This seems like an odd contract. Wdyt about just always returning the GrCCAtlas to which the rect was added (so the caller doesn\u0027t have to call current). Can the rendering method not be set in the ctor?",
+      "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60cdfa39_8579c8e9",
+        "filename": "src/gpu/ccpr/GrCCPathParser.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T13:46:58Z",
+      "side": 1,
+      "message": "\\n ?",
+      "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c09b3eaa_0c47a211",
+        "filename": "src/gpu/ccpr/GrCCPerFlushResources.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T13:46:58Z",
+      "side": 1,
+      "message": "Depending on who lands first this might have to be updated to use the memory pool.",
+      "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79f3738e_347aeee1",
+        "filename": "src/gpu/ccpr/GrCCPerFlushResources.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T13:46:58Z",
+      "side": 1,
+      "message": "Hmmm, does this have any negative consequences for the draw count ?",
+      "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
