@@ -1866,6 +1866,9 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
         break;
     }
     tokenIter->fName = nameStr;
+    if (string::npos != nameStr.find("fColorType")) {
+        SkDebugf("");
+    }
     tokenIter->fMarkType = MarkType::kMethod;
     tokenIter->fPrivate = string::npos != nameStr.find("::");
     auto testIter = child->fParent->fTokens.begin();
@@ -2025,6 +2028,9 @@ bool IncludeParser::parseObject(Definition* child, Definition* markupDef) {
                         TextParser previousToken(&*tokenIter);
                         if (previousToken.startsWith(gAttrDeprecated)) {
                             fAttrDeprecated = &*tokenIter;
+                            break;
+                        }
+                        if ('f' == previousToken.fStart[0] && isupper(previousToken.fStart[1])) {
                             break;
                         }
                         if (Bracket::kPound == child->fParent->fBracket &&
