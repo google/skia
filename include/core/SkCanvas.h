@@ -75,7 +75,12 @@ class SkVertices;
     SkCanvas can be constructed to draw to SkBitmap without first creating raster surface.
     This approach may be deprecated in the future.
 */
-class SK_API SkCanvas : SkNoncopyable {
+class SK_API SkCanvas {
+    SkCanvas(SkCanvas&&) = delete;
+    SkCanvas(const SkCanvas&) = delete;
+    SkCanvas& operator=(SkCanvas&&) = delete;
+    SkCanvas& operator=(const SkCanvas&) = delete;
+
     enum PrivateSaveLayerFlags {
         kDontClipToLayer_PrivateSaveLayerFlag   = 1U << 31,
     };
@@ -2703,8 +2708,12 @@ private:
     bool fAllowSoftClip;
     bool fAllowSimplifyClip;
 
-    class AutoValidateClip : ::SkNoncopyable {
+    class AutoValidateClip {
     public:
+        AutoValidateClip(AutoValidateClip&&) = delete;
+        AutoValidateClip(const AutoValidateClip&) = delete;
+        AutoValidateClip& operator=(AutoValidateClip&&) = delete;
+        AutoValidateClip& operator=(const AutoValidateClip&) = delete;
         explicit AutoValidateClip(SkCanvas* canvas) : fCanvas(canvas) {
             fCanvas->validateClip();
         }
@@ -2730,8 +2739,12 @@ private:
     goes out of scope. Use this to guarantee that the canvas is restored to a known
     state.
 */
-class SkAutoCanvasRestore : SkNoncopyable {
+class SkAutoCanvasRestore {
 public:
+    SkAutoCanvasRestore(SkAutoCanvasRestore&&) = delete;
+    SkAutoCanvasRestore(const SkAutoCanvasRestore&) = delete;
+    SkAutoCanvasRestore& operator=(SkAutoCanvasRestore&&) = delete;
+    SkAutoCanvasRestore& operator=(const SkAutoCanvasRestore&) = delete;
 
     /** Preserves SkCanvas save count. Optionally saves SkCanvas clip and SkCanvas matrix.
 
