@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cffbb6f5_84c60278",
+        "filename": "src/gpu/ccpr/GrCCAtlas.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T14:15:25Z",
+      "side": 1,
+      "message": "This should probably use the static method convention for unique ids (as in GrGpuResource::CreateUniqueID)",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c93d86c8_59be5217",
+        "filename": "src/gpu/ccpr/GrCCAtlas.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T14:15:25Z",
+      "side": 1,
+      "message": "Maybe this is later but, can there be an assert at flush time that all the atlases have a unique  key?",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5fc3094_e2615681",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T14:15:25Z",
+      "side": 1,
+      "message": "// In general, it tracks the percentage of the atlas pixels that could still ever potentially be reused (i.e., those which still represent an extant path)\n\n?",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
