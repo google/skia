@@ -1211,14 +1211,14 @@ SkPoint clamp(SkPoint p, SkPoint min, SkPoint max, Comparator& c) {
     }
 }
 
-bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vertex** current,
+bool check_for_intersection(Edge* left, Edge* right, EdgeList* activeEdges, Vertex** current,
                             VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
-    if (!edge || !other) {
+    if (!left || !right) {
         return false;
     }
     SkPoint p;
     uint8_t alpha;
-    if (edge->intersect(*other, &p, &alpha) && p.isFinite()) {
+    if (left->intersect(*right, &p, &alpha) && p.isFinite()) {
         Vertex* v;
         LOG("found intersection, pt is %g, %g\n", p.fX, p.fY);
         Vertex* top = *current;
@@ -1227,28 +1227,28 @@ bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vert
         while (top && c.sweep_lt(p, top->fPoint)) {
             top = top->fPrev;
         }
-        if (!nearly_flat(c, edge)) {
-            p = clamp(p, edge->fTop->fPoint, edge->fBottom->fPoint, c);
+        if (!nearly_flat(c, left)) {
+            p = clamp(p, left->fTop->fPoint, left->fBottom->fPoint, c);
         }
-        if (!nearly_flat(c, other)) {
-            p = clamp(p, other->fTop->fPoint, other->fBottom->fPoint, c);
+        if (!nearly_flat(c, right)) {
+            p = clamp(p, right->fTop->fPoint, right->fBottom->fPoint, c);
         }
-        if (p == edge->fTop->fPoint) {
-            v = edge->fTop;
-        } else if (p == edge->fBottom->fPoint) {
-            v = edge->fBottom;
-        } else if (p == other->fTop->fPoint) {
-            v = other->fTop;
-        } else if (p == other->fBottom->fPoint) {
-            v = other->fBottom;
+        if (p == left->fTop->fPoint) {
+            v = left->fTop;
+        } else if (p == left->fBottom->fPoint) {
+            v = left->fBottom;
+        } else if (p == right->fTop->fPoint) {
+            v = right->fTop;
+        } else if (p == right->fBottom->fPoint) {
+            v = right->fBottom;
         } else {
             v = create_sorted_vertex(p, alpha, mesh, top, c, alloc);
-            if (edge->fTop->fPartner) {
-                Line line1 = edge->fLine;
-                Line line2 = other->fLine;
-                int dir = edge->fType == Edge::Type::kOuter ? -1 : 1;
-                line1.fC += sqrt(edge->fLine.magSq()) * (edge->fWinding > 0 ? 1 : -1) * dir;
-                line2.fC += sqrt(other->fLine.magSq()) * (other->fWinding > 0 ? 1 : -1) * dir;
+            if (left->fTop->fPartner) {
+                Line line1 = left->fLine;
+                Line line2 = right->fLine;
+                int dir = left->fType == Edge::Type::kOuter ? -1 : 1;
+                line1.fC += sqrt(left->fLine.magSq()) * (left->fWinding > 0 ? 1 : -1) * dir;
+                line2.fC += sqrt(right->fLine.magSq()) * (right->fWinding > 0 ? 1 : -1) * dir;
                 SkPoint p;
                 if (line1.intersect(line2, &p)) {
                     LOG("synthesizing partner (%g,%g) for intersection vertex %g\n",
@@ -1258,12 +1258,12 @@ bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vert
             }
         }
         rewind(activeEdges, current, top ? top : v, c);
-        split_edge(edge, v, activeEdges, current, c, alloc);
-        split_edge(other, v, activeEdges, current, c, alloc);
+        split_edge(left, v, activeEdges, current, c, alloc);
+        split_edge(right, v, activeEdges, current, c, alloc);
         v->fAlpha = SkTMax(v->fAlpha, alpha);
         return true;
     }
-    return intersect_edge_pair(edge, other, activeEdges, current, c, alloc);
+    return intersect_edge_pair(left, right, activeEdges, current, c, alloc);
 }
 
 void sanitize_contours(VertexList* contours, int contourCnt, bool approximate) {
