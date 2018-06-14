@@ -271,9 +271,9 @@ protected:
             // Create our xform assuming float inputs, which will suppress any extra sRGB work.
             // We do support having a transfer function on the color space of the stops, so
             // this FP may include that transformation.
+            // TODO: Fix all of this!
             fp = GrColorSpaceXformEffect::Make(std::move(gradientFP),
                                                args.fShader->fColorSpace.get(),
-                                               kRGBA_float_GrPixelConfig,
                                                args.fDstColorSpace);
         } else {
             fp = std::move(gradientFP);
