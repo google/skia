@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "37febefb_e3cdaff1",
+        "filename": "modules/skjson/include/SkJSON.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-14T02:42:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8dd23327_44b1b98c",
+      "range": {
+        "startLine": 32,
+        "startChar": 29,
+        "endLine": 32,
+        "endChar": 41
+      },
+      "revId": "062e7ae6013cbec8bf03811843b4fd279ba3b436",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "63a5a991_abe4549b",
         "filename": "modules/skjson/include/SkJSON.h",
         "patchSetId": 8
@@ -45,6 +69,30 @@
       "revId": "062e7ae6013cbec8bf03811843b4fd279ba3b436",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a651a003_b65117f1",
+        "filename": "modules/skjson/include/SkJSON.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-14T02:42:27Z",
+      "side": 1,
+      "message": "Most of them are pass-through, but StringValue does something mildly interesting in its factory.  Depending on the string type, it has to invoke different constructors.  Hmm, let me see if I can refactor to avoid that and make all ctors public...\n\n... done.",
+      "parentUuid": "63a5a991_abe4549b",
+      "range": {
+        "startLine": 191,
+        "startChar": 0,
+        "endLine": 194,
+        "endChar": 16
+      },
+      "revId": "062e7ae6013cbec8bf03811843b4fd279ba3b436",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "9e9c7ce2_806b8adc",
+        "filename": "modules/skjson/include/SkJSON.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-14T02:42:27Z",
+      "side": 1,
+      "message": "Good idea, done.",
+      "parentUuid": "a7ea88df_4c4ee5ce",
+      "range": {
+        "startLine": 360,
+        "startChar": 3,
+        "endLine": 360,
+        "endChar": 16
+      },
+      "revId": "062e7ae6013cbec8bf03811843b4fd279ba3b436",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d8dd855b_bb63e443",
         "filename": "modules/skjson/include/SkJSON.h",
         "patchSetId": 8
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "8711a3be_2ad2ddac",
+        "filename": "modules/skjson/include/SkJSON.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-14T02:42:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d8dd855b_bb63e443",
+      "range": {
+        "startLine": 369,
+        "startChar": 4,
+        "endLine": 372,
+        "endChar": 29
+      },
+      "revId": "062e7ae6013cbec8bf03811843b4fd279ba3b436",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d9dee47f_9ee5c8ac",
         "filename": "modules/skjson/src/SkJSON.cpp",
         "patchSetId": 8
@@ -108,6 +204,24 @@
       "revId": "062e7ae6013cbec8bf03811843b4fd279ba3b436",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17a38b21_c75b7763",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-14T02:42:27Z",
+      "side": 1,
+      "message": "Yeah, pretty much.  After refactoring, the only method still returning a reference is ObjectValue::operator[].  So we can get rid of Null and fold the static in there.  Done.",
+      "parentUuid": "d9dee47f_9ee5c8ac",
+      "revId": "062e7ae6013cbec8bf03811843b4fd279ba3b436",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -131,6 +245,30 @@
       "revId": "062e7ae6013cbec8bf03811843b4fd279ba3b436",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4861a51_29445010",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 755,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-14T02:42:27Z",
+      "side": 1,
+      "message": "Possibly, I\u0027m just afraid this will become very repetitive in clients, as pretty much all of them would start off with a stream.  Maybe we can add a CStringBuffer helper class to make the buffering operation more transparent?\n\nAnyway, I\u0027m fine with deferring for now, we can deal with this later.\n\nRemoved.",
+      "parentUuid": "ef3b272a_59d2247e",
+      "range": {
+        "startLine": 749,
+        "startChar": 4,
+        "endLine": 755,
+        "endChar": 5
+      },
+      "revId": "062e7ae6013cbec8bf03811843b4fd279ba3b436",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
