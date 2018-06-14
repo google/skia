@@ -104,8 +104,9 @@ public:
         return SkToBool(fBoundsFlags & kZeroArea_BoundsFlag);
     }
 
-    void* operator new(size_t size);
-    void operator delete(void* target);
+    // All GrOp-derived classes should be allocated in and deleted from a GrMemoryPool
+    void* operator new(size_t size) = delete;
+    void operator delete(void* target) = delete;
 
     void* operator new(size_t size, void* placement) {
         return ::operator new(size, placement);
