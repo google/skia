@@ -70,6 +70,24 @@
     },
     {
       "key": {
+        "uuid": "a57ba8b4_09d5dd85",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-14T19:05:08Z",
+      "side": 1,
+      "message": "kCoverageCount\nkResolvedCoverage\n? (I don\u0027t love kResolvedCoverage).",
+      "parentUuid": "9a0e3a29_8c4cf54f",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "28879230_b22b5282",
         "filename": "src/gpu/ccpr/GrCCDrawPathsOp.h",
         "patchSetId": 6
@@ -81,6 +99,29 @@
       "writtenOn": "2018-06-14T19:00:53Z",
       "side": 1,
       "message": "A \u0027const void*\u0027, eh?\n\nMaybe a comment?",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d07ae0b9_ee5a8dfe",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-14T19:05:08Z",
+      "side": 1,
+      "message": "I think we generally do methods before data",
+      "range": {
+        "startLine": 101,
+        "startChar": 8,
+        "endLine": 101,
+        "endChar": 22
+      },
       "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
