@@ -82,9 +82,12 @@ static void* MakeVector(const void* src, size_t size, SkArenaAlloc& alloc) {
     // The Ts are already in memory, so their size should be safe.
     const auto total_size = sizeof(size_t) + size * sizeof(T) + extra_alloc_size;
     auto* size_ptr = reinterpret_cast<size_t*>(alloc.makeBytesAlignedTo(total_size, kRecAlign));
-    auto* data_ptr = reinterpret_cast<void*>(size_ptr + 1);
     *size_ptr = size;
-    memcpy(data_ptr, src, size * sizeof(T));
+
+    if (size) {
+        auto* data_ptr = reinterpret_cast<void*>(size_ptr + 1);
+        memcpy(data_ptr, src, size * sizeof(T));
+    }
 
     return size_ptr;
 }
@@ -121,8 +124,10 @@ StringValue::StringValue(const char* src, size_t size, SkArenaAlloc& alloc) {
     this->init_tagged(Tag::kShortString);
 
     auto* payload = this->cast<char>();
-    memcpy(payload, src, size);
-    payload[size] = '\0';
+    if (size) {
+        memcpy(payload, src, size);
+        payload[size] = '\0';
+    }
 
     const auto len_tag = SkTo<char>(kMaxInlineStringSize - size);
     // This technically overwrites the tag, but is safe because
