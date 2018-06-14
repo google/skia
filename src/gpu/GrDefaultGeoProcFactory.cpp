@@ -117,12 +117,9 @@ public:
                 if (gp.linearizeColor()) {
                     fColorSpaceHelper.emitCode(uniformHandler, gp.fColorSpaceXform.get(),
                                                kVertex_GrShaderFlag);
-                    if (fColorSpaceHelper.isValid()) {
-                        SkString xformedColor;
-                        vertBuilder->appendColorGamutXform(&xformedColor, "color",
-                                                           &fColorSpaceHelper);
-                        vertBuilder->codeAppendf("color = %s;", xformedColor.c_str());
-                    }
+                    SkString xformedColor;
+                    vertBuilder->appendColorGamutXform(&xformedColor, "color", &fColorSpaceHelper);
+                    vertBuilder->codeAppendf("color = %s;", xformedColor.c_str());
                 }
                 vertBuilder->codeAppendf("%s = color;\n", varying.vsOut());
                 fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, varying.fsIn());

@@ -211,9 +211,7 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& processor) override {
         const GrColorSpaceXformEffect& csxe = processor.cast<GrColorSpaceXformEffect>();
-        if (fColorSpaceHelper.isValid()) {
-            fColorSpaceHelper.setData(pdman, csxe.colorXform());
-        }
+        fColorSpaceHelper.setData(pdman, csxe.colorXform());
     }
 
     GrGLSLColorSpaceXformHelper fColorSpaceHelper;

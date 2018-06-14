@@ -143,9 +143,7 @@ public:
                          FPCoordTransformIter&& transformIter) override {
                 const auto& textureGP = proc.cast<TextureGeometryProcessor>();
                 this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
-                if (fColorSpaceXformHelper.isValid()) {
-                    fColorSpaceXformHelper.setData(pdman, textureGP.fColorSpaceXform.get());
-                }
+                fColorSpaceXformHelper.setData(pdman, textureGP.fColorSpaceXform.get());
             }
 
         private:
