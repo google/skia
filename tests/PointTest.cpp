@@ -14,8 +14,8 @@ static void test_casts(skiatest::Reporter* reporter) {
     SkPoint p = { 0, 0 };
     SkRect  r = { 0, 0, 0, 0 };
 
-    const SkScalar* pPtr = SkTCast<const SkScalar*>(&p);
-    const SkScalar* rPtr = SkTCast<const SkScalar*>(&r);
+    const SkScalar* pPtr = reinterpret_cast<const SkScalar*>(&p);
+    const SkScalar* rPtr = reinterpret_cast<const SkScalar*>(&r);
 
     REPORTER_ASSERT(reporter, SkPointPriv::AsScalars(p) == pPtr);
     REPORTER_ASSERT(reporter, r.asScalars() == rPtr);
