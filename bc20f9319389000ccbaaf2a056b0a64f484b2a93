@@ -93,6 +93,30 @@
       "revId": "bc20f9319389000ccbaaf2a056b0a64f484b2a93",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "225726db_0d22193e",
+        "filename": "src/gpu/ops/GrOp.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T15:04:12Z",
+      "side": 1,
+      "message": "clang disagreed - I\u0027ve switched to wrapping them in SK_DEBUG",
+      "parentUuid": "bfef14ff_79c30db1",
+      "range": {
+        "startLine": 14,
+        "startChar": 1,
+        "endLine": 25,
+        "endChar": 0
+      },
+      "revId": "bc20f9319389000ccbaaf2a056b0a64f484b2a93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
