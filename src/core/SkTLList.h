@@ -51,7 +51,7 @@ public:
         typename NodeList::Iter iter;
         Node* node = iter.init(fList, Iter::kHead_IterStart);
         while (node) {
-            SkTCast<T*>(node->fObj)->~T();
+            reinterpret_cast<T*>(node->fObj)->~T();
             Block* block = node->fBlock;
             node = iter.next();
             if (0 == --block->fNodesInUse) {
@@ -264,7 +264,7 @@ private:
     void removeNode(Node* node) {
         SkASSERT(node);
         fList.remove(node);
-        SkTCast<T*>(node->fObj)->~T();
+        reinterpret_cast<T*>(node->fObj)->~T();
         Block* block = node->fBlock;
         // Don't ever elease the first block, just add its nodes to the free list
         if (0 == --block->fNodesInUse && block != &fFirstBlock) {
