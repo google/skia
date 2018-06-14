@@ -12,6 +12,7 @@
 #include "GrGlyph.h"
 #include "SkArenaAlloc.h"
 #include "SkGlyphCache.h"
+#include "SkMasks.h"
 #include "SkTDynamicHash.h"
 
 class GrGlyphCache;
@@ -108,6 +109,8 @@ private:
  */
 class GrGlyphCache {
 public:
+    static std::unique_ptr<const SkMasks> k565Masks;
+
     GrGlyphCache(const GrCaps* caps, size_t maxTextureBytes);
     ~GrGlyphCache();
 
