@@ -227,3 +227,17 @@ def GenTests(api):
     api.step_data('Scale CPU 4 to 0.600000 (attempt 2)', retcode=1)+
     api.step_data('Scale CPU 4 to 0.600000 (attempt 3)', retcode=1)
   )
+
+  builder = 'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release-All'
+  yield (
+      api.test('failed_chromecast_ssh') +
+      api.properties(buildername=builder,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.step_data(
+          'read chromecast ip',
+          stdout=api.raw_io.output('192.168.1.2:5555')) +
+      api.step_data('nanobench', retcode=255)
+  )
