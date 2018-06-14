@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "80eae7c7_a0afb824",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-14T22:17:21Z",
+      "side": 1,
+      "message": "I also tried something along these lines instead:\n\n   uint64_t m64 \u003d 0x00ffffffffffffffULL \u003e\u003e (kMaxInlineStringSize  - size),\n            s64 \u003d *reinterpret_cast\u003cconst uint64_t*\u003e(src) \u0026 m64;\n\n   *this-\u003ecast\u003cuint64_t\u003e() \u003d s64;\n\nThat runs significantly faster on x86_64 (~20%), but segfaults on ARM32 due to unaligned access.\n\nSwitching to alignment-safe SkNx\u003c8, char\u003e works, but is actually slower than the current impl.\n\nAnd that\u0027s not even trying to deal with checking to see if it\u0027s safe to read 8 bytes.\n\nSo I don\u0027t think I can pull an efficient/safe mask off, maybe you have better ideas.",
+      "range": {
+        "startLine": 123,
+        "startChar": 0,
+        "endLine": 124,
+        "endChar": 53
+      },
+      "revId": "1d0388b390b2922a365b8b88caeab429ffcd69dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
