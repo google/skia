@@ -12,6 +12,8 @@
 #include "SkTo.h"
 #include "SkTypes.h"
 
+#include <cstring>
+
 class SkString;
 class SkWStream;
 
@@ -282,7 +284,11 @@ public:
     size_t size() const {
         switch (this->getTag()) {
         case Tag::kShortString:
-            return kMaxInlineStringSize - SkToSizeT(this->cast<char>()[kMaxInlineStringSize]);
+            // We don't bother storing a length for short strings on the assumption
+            // that strlen is fast in this case.  If this becomes problematic, we
+            // can either go back to storing (7-len) in the tag byte or write a fast
+            // short_strlen.
+            return strlen(this->cast<char>());
         case Tag::kString:
             return this->cast<VectorValue<char, Value::Type::kString>>()->size();
         default:
@@ -297,15 +303,10 @@ public:
     }
 
     const char* end() const {
-        if (this->getTag() == Tag::kShortString) {
-            const auto* payload = this->cast<char>();
-            return payload + kMaxInlineStringSize - SkToSizeT(payload[kMaxInlineStringSize]);
-        }
-        return this->cast<VectorValue<char, Value::Type::kString>>()->end();
+        return this->getTag() == Tag::kShortString
+            ? strchr(this->cast<char>(), '\0')
+            : this->cast<VectorValue<char, Value::Type::kString>>()->end();
     }
-
-private:
-    static constexpr size_t kMaxInlineStringSize = sizeof(Value) - 1;
 };
 
 struct Member {

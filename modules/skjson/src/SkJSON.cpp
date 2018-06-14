@@ -7,6 +7,7 @@
 
 #include "SkJSON.h"
 
+#include "SkMalloc.h"
 #include "SkStream.h"
 #include "SkString.h"
 
@@ -82,12 +83,9 @@ static void* MakeVector(const void* src, size_t size, SkArenaAlloc& alloc) {
     // The Ts are already in memory, so their size should be safe.
     const auto total_size = sizeof(size_t) + size * sizeof(T) + extra_alloc_size;
     auto* size_ptr = reinterpret_cast<size_t*>(alloc.makeBytesAlignedTo(total_size, kRecAlign));
-    *size_ptr = size;
 
-    if (size) {
-        auto* data_ptr = reinterpret_cast<void*>(size_ptr + 1);
-        memcpy(data_ptr, src, size * sizeof(T));
-    }
+    *size_ptr = size;
+    sk_careful_memcpy(size_ptr + 1, src, size * sizeof(T));
 
     return size_ptr;
 }
@@ -112,6 +110,7 @@ ArrayValue::ArrayValue(const Value* src, size_t size, SkArenaAlloc& alloc) {
 // The string data plus a null-char terminator are copied over.
 //
 StringValue::StringValue(const char* src, size_t size, SkArenaAlloc& alloc) {
+    static constexpr size_t kMaxInlineStringSize = sizeof(Value) - 1;
     if (size > kMaxInlineStringSize) {
         this->init_tagged_pointer(Tag::kString, MakeVector<char, 1>(src, size, alloc));
 
@@ -122,19 +121,11 @@ StringValue::StringValue(const char* src, size_t size, SkArenaAlloc& alloc) {
     }
 
     this->init_tagged(Tag::kShortString);
+    sk_careful_memcpy(this->cast<char>(), src, size);
 
-    auto* payload = this->cast<char>();
-    if (size) {
-        memcpy(payload, src, size);
-        payload[size] = '\0';
-    }
-
-    const auto len_tag = SkTo<char>(kMaxInlineStringSize - size);
-    // This technically overwrites the tag, but is safe because
-    //   1) kShortString == 0
-    //   2) 0 <= len_tag <= 7
+    // Null terminator provided by init_tagged() above (fData8 is zero-initialized).
+    // This is safe because kShortString is also 0 and can act as a terminator when size == 7.
     static_assert(static_cast<uint8_t>(Tag::kShortString) == 0, "please don't break this");
-    payload[kMaxInlineStringSize] = len_tag;
 
     SkASSERT(this->getTag() == Tag::kShortString);
 }
