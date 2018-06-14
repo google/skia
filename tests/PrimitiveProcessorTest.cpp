@@ -33,7 +33,9 @@ public:
     const char* name() const override { return "Dummy Op"; }
 
     static std::unique_ptr<GrDrawOp> Make(GrContext* context, int numAttribs) {
-        return std::unique_ptr<GrDrawOp>(new Op(numAttribs));
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        return pool->allocate<Op>(numAttribs);
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override {

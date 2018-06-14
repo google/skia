@@ -45,7 +45,9 @@ public:
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           GrPaint&& paint,
                                           const SkRect& rect) {
-        return std::unique_ptr<GrDrawOp>(new PolyBoundsOp(std::move(paint), rect));
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        return pool->allocate<PolyBoundsOp>(std::move(paint), rect);
     }
 
     const char* name() const override { return "PolyBoundsOp"; }

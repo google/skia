@@ -623,9 +623,11 @@ public:
                                           SkCanvas::SrcRectConstraint constraint,
                                           const SkMatrix& viewMatrix,
                                           sk_sp<GrColorSpaceXform> csxf) {
-        return std::unique_ptr<GrDrawOp>(new TextureOp(std::move(proxy), filter, color, srcRect,
-                                                       dstRect, aaType, constraint, viewMatrix,
-                                                       std::move(csxf)));
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        return pool->allocate<TextureOp>(std::move(proxy), filter, color,
+                                         srcRect, dstRect, aaType, constraint,
+                                         viewMatrix, std::move(csxf));
     }
 
     ~TextureOp() override {
