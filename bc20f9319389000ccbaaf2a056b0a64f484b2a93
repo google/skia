@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fc5f3197_1a817607",
+        "filename": "src/gpu/GrTextureOpList.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T14:50:02Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d8e889b0_a2f0d2cb",
+      "range": {
+        "startLine": 37,
+        "startChar": 8,
+        "endLine": 37,
+        "endChar": 59
+      },
+      "revId": "bc20f9319389000ccbaaf2a056b0a64f484b2a93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0ea3ebe5_e8d8d08d",
         "filename": "src/gpu/ops/GrOp.cpp",
         "patchSetId": 26
@@ -36,6 +60,30 @@
       "writtenOn": "2018-06-14T14:36:48Z",
       "side": 1,
       "message": "Should we delete this calls or if you want the safety to make sure no one acccidently calls them, just wrap them in SK_DEBUG?",
+      "range": {
+        "startLine": 14,
+        "startChar": 1,
+        "endLine": 25,
+        "endChar": 0
+      },
+      "revId": "bc20f9319389000ccbaaf2a056b0a64f484b2a93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfef14ff_79c30db1",
+        "filename": "src/gpu/ops/GrOp.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T14:50:02Z",
+      "side": 1,
+      "message": "Used \"\u003d delete\"",
+      "parentUuid": "0ea3ebe5_e8d8d08d",
       "range": {
         "startLine": 14,
         "startChar": 1,
