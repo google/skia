@@ -326,7 +326,7 @@ private:
 
 class DOM final : public SkNoncopyable {
 public:
-    explicit DOM(const char*);
+    DOM(const char*, size_t);
 
     const Value& root() const { return fRoot; }
 
