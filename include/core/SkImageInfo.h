@@ -249,7 +249,7 @@ public:
     */
     static SkImageInfo MakeN32(int width, int height, SkAlphaType at,
                                sk_sp<SkColorSpace> cs = nullptr) {
-        return Make(width, height, kN32_SkColorType, at, cs);
+        return Make(width, height, kN32_SkColorType, at, std::move(cs));
     }
 
     /** Creates SkImageInfo from integral dimensions width and height, kN32_SkColorType,
@@ -282,7 +282,7 @@ public:
         @return        created SkImageInfo
     */
     static SkImageInfo MakeN32Premul(int width, int height, sk_sp<SkColorSpace> cs = nullptr) {
-        return Make(width, height, kN32_SkColorType, kPremul_SkAlphaType, cs);
+        return Make(width, height, kN32_SkColorType, kPremul_SkAlphaType, std::move(cs));
     }
 
     /** Creates SkImageInfo from integral dimensions width and height, kN32_SkColorType,
