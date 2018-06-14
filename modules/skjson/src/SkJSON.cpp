@@ -11,12 +11,12 @@
 #include "SkString.h"
 
 #include <cmath>
+#include <tuple>
 #include <vector>
 
 namespace skjson {
 
-//#define SK_JSON_REPORT_ERRORS
-
+// #define SK_JSON_REPORT_ERRORS
 
 static_assert( sizeof(Value) == 8, "");
 static_assert(alignof(Value) == 8, "");
@@ -236,7 +236,22 @@ public:
         fScopeStack.reserve(kScopeStackReserve);
     }
 
-    const Value parse(const char* p) {
+    const Value parse(const char* p, size_t size) {
+        if (!size) {
+            return this->error(NullValue(), p, "invalid empty input");
+        }
+
+        const char* p_stop = p + size - 1;
+
+        // We're only checking for end-of-stream on object/array close('}',']'),
+        // so we must trim any whitespace from the buffer tail.
+        while (p_stop > p && is_ws(*p_stop)) --p_stop;
+
+        SkASSERT(p_stop >= p && p_stop < p + size);
+        if (*p_stop != '}' && *p_stop != ']') {
+            return this->error(NullValue(), p_stop, "invalid top-level value");
+        }
+
         p = skip_ws(p);
 
         switch (*p) {
@@ -340,16 +355,16 @@ public:
     pop_common:
         SkASSERT(*p == '}' || *p == ']');
 
-        ++p;
-
         if (fScopeStack.empty()) {
             SkASSERT(fValueStack.size() == 1);
 
-            // Stop condition: parsed the top level element and there is no trailing garbage.
-            return *skip_ws(p) == '\0'
+            // Success condition: parsed the top level element and reached the stop token.
+            return p == p_stop
                 ? fValueStack.front()
-                : this->error(NullValue(), p, "trailing root garbage");
+                : this->error(NullValue(), p + 1, "trailing root garbage");
         }
+
+        ++p;
 
         goto match_post_value;
 
@@ -377,19 +392,20 @@ public:
         return NullValue();
     }
 
-    const SkString& getError() const {
-        return fError;
+    std::tuple<const char*, const SkString> getError() const {
+        return std::make_tuple(fErrorToken, fErrorMessage);
     }
 
 private:
-    SkArenaAlloc&                 fAlloc;
+    SkArenaAlloc&         fAlloc;
 
     static constexpr size_t kValueStackReserve = 256;
     static constexpr size_t kScopeStackReserve = 128;
     std::vector<Value   > fValueStack;
     std::vector<intptr_t> fScopeStack;
 
-    SkString             fError;
+    const char*           fErrorToken = nullptr;
+    SkString              fErrorMessage;
 
     template <typename VectorT>
     void popScopeAsVec(size_t scope_start) {
@@ -490,9 +506,8 @@ private:
     template <typename T>
     T error(T&& ret_val, const char* p, const char* msg) {
 #if defined(SK_JSON_REPORT_ERRORS)
-        static constexpr size_t kMaxContext = 128;
-        fError = SkStringPrintf("%s: >", msg);
-        fError.append(p, std::min(strlen(p), kMaxContext));
+        fErrorToken = p;
+        fErrorMessage.set(msg);
 #endif
         return ret_val;
     }
@@ -718,11 +733,11 @@ SkString Value::toString() const {
 
 static constexpr size_t kMinChunkSize = 4096;
 
-DOM::DOM(const char* c_str)
+DOM::DOM(const char* data, size_t size)
     : fAlloc(kMinChunkSize) {
     DOMParser parser(fAlloc);
 
-    fRoot = parser.parse(c_str);
+    fRoot = parser.parse(data, size);
 }
 
 void DOM::write(SkWStream* stream) const {

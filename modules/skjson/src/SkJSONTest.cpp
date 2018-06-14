@@ -22,8 +22,14 @@ DEF_TEST(SkJSON_Parse, reporter) {
         { ""     , nullptr },
         { "["    , nullptr },
         { "]"    , nullptr },
+        { "[[]"  , nullptr },
+        { "[]]"  , nullptr },
+        { "[]f"  , nullptr },
         { "{"    , nullptr },
         { "}"    , nullptr },
+        { "{{}"  , nullptr },
+        { "{}}"  , nullptr },
+        { "{}f"  , nullptr },
         { "{]"   , nullptr },
         { "[}"   , nullptr },
         { "1"    , nullptr },
@@ -51,7 +57,9 @@ DEF_TEST(SkJSON_Parse, reporter) {
         { "{ \"k\" : null \"k\" : 1 }", nullptr },
 
 
+        { "[]"                           , "[]" },
         { " \n\r\t [ \n\r\t ] \n\r\t "   , "[]" },
+        { "[[]]"                         , "[[]]" },
         { "[ null ]"                     , "[null]" },
         { "[ true ]"                     , "[true]" },
         { "[ false ]"                    , "[false]" },
@@ -66,6 +74,7 @@ DEF_TEST(SkJSON_Parse, reporter) {
         { "[ \"123456789\" ]"            , "[\"123456789\"]" },
         { "[ null , true, false,0,12.8 ]", "[null,true,false,0,12.8]" },
 
+        { "{}"                          , "{}" },
         { " \n\r\t { \n\r\t } \n\r\t "  , "{}" },
         { "{ \"k\" : null }"            , "{\"k\":null}" },
         { "{ \"k1\" : null, \"k2 \":0 }", "{\"k1\":null,\"k2 \":0}" },
@@ -89,7 +98,7 @@ DEF_TEST(SkJSON_Parse, reporter) {
     };
 
     for (const auto& tst : g_tests) {
-        DOM dom(tst.in);
+        DOM dom(tst.in, strlen(tst.in));
         const auto success = !dom.root().is<NullValue>();
         REPORTER_ASSERT(reporter, success == (tst.out != nullptr));
         if (!success) continue;
@@ -153,7 +162,7 @@ DEF_TEST(SkJSON_DOM_visit, reporter) {
         \"k8\": { \"kk1\": 2, \"kk2\": false, \"kk1\": \"baz\" } \n\
     }";
 
-    DOM dom(json);
+    DOM dom(json, strlen(json));
 
     const auto& jroot = dom.root().as<ObjectValue>();
     REPORTER_ASSERT(reporter, jroot.is<ObjectValue>());
