@@ -8,9 +8,8 @@
 #ifndef SkottieJson_DEFINED
 #define SkottieJson_DEFINED
 
+#include "SkJSON.h"
 #include "SkRefCnt.h"
-
-#include "rapidjson/document.h"
 
 class SkData;
 class SkStream;
@@ -18,58 +17,17 @@ class SkString;
 
 namespace skottie {
 
-namespace json {
+template <typename T>
+bool Parse(const skjson::Value&, T*);
 
-class ValueRef {
-public:
-    ValueRef() : fValue(nullptr) {}
-    ValueRef(const rapidjson::Value& v) : fValue(v.IsNull() ? nullptr : &v) {}
-
-    bool isNull()   const { return !fValue;   }
-    bool isObject() const { return fValue && fValue->IsObject(); }
-    bool isArray()  const { return fValue && fValue->IsArray();  }
-
-    template <typename T>
-    bool to(T*) const;
-
-    template <typename T>
-    T toDefault(const T& defaultValue) const {
-        T v;
-        if (!this->to<T>(&v)) {
-            v = defaultValue;
-        }
-        return v;
+template <typename T>
+T ParseDefault(const skjson::Value& v, const T& defaultValue) {
+    T res;
+    if (!Parse<T>(v, &res)) {
+        res = defaultValue;
     }
-
-    size_t size() const;
-    ValueRef operator[](size_t i) const;
-    ValueRef operator[](const char* key) const;
-
-    bool operator==(const ValueRef& other) const { return fValue == other.fValue; }
-    bool operator!=(const ValueRef& other) const { return !(*this == other); }
-
-    const rapidjson::Value* begin() const;
-    const rapidjson::Value* end() const;
-
-    SkString toString() const;
-
-private:
-    const rapidjson::Value*       fValue;
-};
-
-// Container for the json DOM
-class Document {
-public:
-    explicit Document(SkStream*);
-
-    ValueRef root() const { return fDocument; }
-
-private:
-    sk_sp<SkData>       fData;     // raw data
-    rapidjson::Document fDocument; // in-place json DOM
-};
-
-} // namespace json
+    return res;
+}
 
 } // namespace skottie
 

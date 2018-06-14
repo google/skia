@@ -12,14 +12,14 @@
 
 #include <functional>
 
-namespace skottie {
+namespace skjson { class Value; }
 
-namespace json { class ValueRef; }
+namespace skottie {
 
 // This is the workhorse for property binding: depending on whether the property is animated,
 // it will either apply immediately or instantiate and attach a keyframe animator.
 template <typename T>
-bool BindProperty(const json::ValueRef&,
+bool BindProperty(const skjson::Value&,
                   sksg::AnimatorList*,
                   std::function<void(const T&)>&&,
                   const T* noop = nullptr);
