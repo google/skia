@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "002ba1d6_0960a6bb",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-14T18:03:32Z",
+      "side": 1,
+      "message": "Btw, I noticed this is redundant (init_tagged above zero-initialized everything).  I\u0027ll remove in a separate CL.",
+      "range": {
+        "startLine": 129,
+        "startChar": 8,
+        "endLine": 129,
+        "endChar": 29
+      },
+      "revId": "e4bf855c0cb4a9ac314dec63cc406ddcf634006b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
