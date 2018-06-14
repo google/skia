@@ -112,6 +112,29 @@ bool GrCCAtlas::internalPlaceRect(int w, int h, SkIPoint16* loc) {
     return true;
 }
 
+const GrUniqueKey& GrCCAtlas::getOrAssignUniqueKey(GrOnFlushResourceProvider* onFlushRP) {
+    static const GrUniqueKey::Domain kAtlasDomain = GrUniqueKey::GenerateDomain();
+    static int32_t nextAtlasID;
+
+    if (!fUniqueKey.isValid()) {
+        GrUniqueKey::Builder builder(&fUniqueKey, kAtlasDomain, 1, "CCPR Atlas");
+        builder[0] = sk_atomic_inc(&nextAtlasID);
+        builder.finish();
+
+        if (fTextureProxy) {
+            onFlushRP->assignUniqueKeyToProxy(fUniqueKey, fTextureProxy.get());
+        }
+    }
+    return fUniqueKey;
+}
+
+sk_sp<GrCCAtlas::CachedAtlasInfo> GrCCAtlas::refOrMakeCachedAtlasInfo() {
+    if (!fCachedAtlasInfo) {
+        fCachedAtlasInfo = sk_make_sp<CachedAtlasInfo>();
+    }
+    return fCachedAtlasInfo;
+}
+
 sk_sp<GrRenderTargetContext> GrCCAtlas::initInternalTextureProxy(
         GrOnFlushResourceProvider* onFlushRP, GrPixelConfig config) {
     SkASSERT(!fTextureProxy);
@@ -137,6 +160,9 @@ sk_sp<GrRenderTargetContext> GrCCAtlas::initInternalTextureProxy(
     rtc->clear(&clearRect, 0, GrRenderTargetContext::CanClearFullscreen::kYes);
 
     fTextureProxy = sk_ref_sp(rtc->asTextureProxy());
+    if (fUniqueKey.isValid()) {
+        onFlushRP->assignUniqueKeyToProxy(fUniqueKey, fTextureProxy.get());
+    }
     return rtc;
 }
 

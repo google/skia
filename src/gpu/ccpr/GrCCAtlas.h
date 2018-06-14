@@ -9,6 +9,8 @@
 #define GrCCAtlas_DEFINED
 
 #include "GrAllocator.h"
+#include "GrNonAtomicRef.h"
+#include "GrResourceKey.h"
 #include "GrTypes.h"
 #include "GrTypesPriv.h"
 #include "SkRefCnt.h"
@@ -18,6 +20,7 @@ class GrOnFlushResourceProvider;
 class GrRenderTargetContext;
 class GrTextureProxy;
 struct SkIPoint16;
+struct SkIRect;
 
 /**
  * This class implements a dynamic size GrRectanizer that grows until it reaches the implementation-
@@ -56,6 +59,19 @@ public:
     void setUserBatchID(int id) { SkASSERT(!fTextureProxy); fUserBatchID = id; }
     int getUserBatchID() const { return fUserBatchID; }
 
+    // Manages a unique resource cache key that gets assigned to the atlas texture.
+    const GrUniqueKey& getOrAssignUniqueKey(GrOnFlushResourceProvider*);
+    const GrUniqueKey& uniqueKey() const { return fUniqueKey; }
+
+    // An object for simple bookkeeping on the atlas texture once it has a unique key. A client may
+    // use this object to track when to purge the texture from the resource cache.
+    struct CachedAtlasInfo : public GrNonAtomicRef<CachedAtlasInfo> {
+        int fNumPathPixels = 0;
+        int fNumInvalidatedPathPixels = 0;
+        bool fIsPurgedFromResourceCache = false;
+    };
+    sk_sp<CachedAtlasInfo> refOrMakeCachedAtlasInfo();
+
     // Creates our texture proxy for the atlas and returns a pre-cleared GrRenderTargetContext that
     // the caller may use to render the content. After this call, it is no longer valid to call
     // addRect() or setUserBatchID().
@@ -74,6 +90,8 @@ private:
     SkISize fDrawBounds = {0, 0};
 
     int fUserBatchID;
+    GrUniqueKey fUniqueKey;
+    sk_sp<CachedAtlasInfo> fCachedAtlasInfo;
     sk_sp<GrTextureProxy> fTextureProxy;
 };
 
