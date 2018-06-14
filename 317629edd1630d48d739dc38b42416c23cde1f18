@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a5d248c5_7d6a534e",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 602,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-14T13:36:30Z",
+      "side": 1,
+      "message": "The win10_blink_rel diffs look great, the new images no longer cut off bits of the emojis. However, in order to land this we\u0027ll need to stage the change. That means wrapping this bit in an ifdef like\n\n#ifndef SK_IGNORE_WIN_EMOJI_FIX\n        generateColorMetrics(glyph);\n        return;\n#endif\n\nthen landing a chromium change to add SK_IGNORE_WIN_EMOJI_FIX to their build of Skia, then landing this, then doing a rebaseline in chromium. I\u0027ll show you how to do all that when I\u0027m back in.",
+      "range": {
+        "startLine": 601,
+        "startChar": 0,
+        "endLine": 602,
+        "endChar": 15
+      },
+      "revId": "317629edd1630d48d739dc38b42416c23cde1f18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
