@@ -19,11 +19,10 @@ class SkCanvas;
 struct SkRect;
 class SkStream;
 
+namespace skjson { class ObjectValue; }
 namespace sksg { class Scene;  }
 
 namespace skottie {
-
-namespace json { class ValueRef; }
 
 class SK_API ResourceProvider : public SkNoncopyable {
 public:
@@ -78,7 +77,7 @@ public:
 
 private:
     Animation(const ResourceProvider&, SkString ver, const SkSize& size, SkScalar fps,
-              const json::ValueRef&, Stats*);
+              const skjson::ObjectValue&, Stats*);
 
     SkString                     fVersion;
     SkSize                       fSize;
