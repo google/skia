@@ -45,6 +45,30 @@
       "revId": "f984c7b94df1752617301bb96f1548788bda52a1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e811178a_8e33e9c6",
+        "filename": "src/gpu/ops/GrOp.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T18:58:13Z",
+      "side": 1,
+      "message": "That was my first pass but clang was displeased.",
+      "parentUuid": "77a2ba7c_af00d534",
+      "range": {
+        "startLine": 18,
+        "startChar": 3,
+        "endLine": 18,
+        "endChar": 32
+      },
+      "revId": "f984c7b94df1752617301bb96f1548788bda52a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
