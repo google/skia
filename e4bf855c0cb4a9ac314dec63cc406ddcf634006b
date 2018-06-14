@@ -22,6 +22,30 @@
       "revId": "e4bf855c0cb4a9ac314dec63cc406ddcf634006b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "071fa280_f0d605ce",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-14T18:06:52Z",
+      "side": 1,
+      "message": "Nice.  I was just toying around with ways to make this little section of code faster.  I notice it\u0027s the profile hot spot when I load up \"The Machine\".json.\n\nIdeas:\n   1) can we know when it\u0027s safe to load 8 bytes and mask in a \\0, or when we need to carefully memcpy exactly size bytes?\n   2) can we avoid storing len_tag for short strings?",
+      "parentUuid": "002ba1d6_0960a6bb",
+      "range": {
+        "startLine": 129,
+        "startChar": 8,
+        "endLine": 129,
+        "endChar": 29
+      },
+      "revId": "e4bf855c0cb4a9ac314dec63cc406ddcf634006b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
