@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "10fbc864_46608a42",
+        "filename": "include/private/GrCCClipPath.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-14T16:15:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae9c319e_a210ab62",
+      "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa3079c4_0c32b87f",
         "filename": "src/gpu/ccpr/GrCCAtlas.cpp",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2018-06-14T13:46:58Z",
       "side": 1,
       "message": "this-\u003eaddNewAtlas() ?\ndunno",
+      "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6bd66e8b_12ebecbd",
+        "filename": "src/gpu/ccpr/GrCCAtlas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-14T16:15:41Z",
+      "side": 1,
+      "message": "Is the new name better?",
+      "parentUuid": "fa3079c4_0c32b87f",
       "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "d2e58abc_6f200780",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-14T16:15:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "69bfbcfb_1508d777",
+      "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6b52923c_5ca0914f",
         "filename": "src/gpu/ccpr/GrCCAtlas.h",
         "patchSetId": 2
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "9c68a077_f9e06f5b",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-14T16:15:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b52923c_5ca0914f",
+      "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "14f43aa6_8c98990e",
         "filename": "src/gpu/ccpr/GrCCAtlas.h",
         "patchSetId": 2
@@ -81,6 +153,24 @@
       "writtenOn": "2018-06-14T13:46:58Z",
       "side": 1,
       "message": "Could this be a enum class instead of a raw int?\n\nWhat about \"setRenderingMethod\" ?",
+      "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2edccef6_314d9de6",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-14T16:15:41Z",
+      "side": 1,
+      "message": "Terrible comment and worse name. Is it more clear now?",
+      "parentUuid": "14f43aa6_8c98990e",
       "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "c0ffb747_b28b0ccb",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-14T16:15:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e937ff49_69906f71",
+      "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a314cd9f_6456bcaa",
         "filename": "src/gpu/ccpr/GrCCAtlas.h",
         "patchSetId": 2
@@ -115,6 +223,24 @@
       "writtenOn": "2018-06-14T13:46:58Z",
       "side": 1,
       "message": "This seems like an odd contract. Wdyt about just always returning the GrCCAtlas to which the rect was added (so the caller doesn\u0027t have to call current). Can the rendering method not be set in the ctor?",
+      "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ce5d6da_1f6764c7",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-14T16:15:41Z",
+      "side": 1,
+      "message": "Now that the renderToken confusion is (hopefully) cleared up, do we want to readdress this?",
+      "parentUuid": "a314cd9f_6456bcaa",
       "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -138,6 +264,24 @@
     },
     {
       "key": {
+        "uuid": "d6ed6522_0c54ba78",
+        "filename": "src/gpu/ccpr/GrCCPathParser.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-14T16:15:41Z",
+      "side": 1,
+      "message": "D\u0027oh",
+      "parentUuid": "60cdfa39_8579c8e9",
+      "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c09b3eaa_0c47a211",
         "filename": "src/gpu/ccpr/GrCCPerFlushResources.cpp",
         "patchSetId": 2
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "826a8f46_5c144119",
+        "filename": "src/gpu/ccpr/GrCCPerFlushResources.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-14T16:15:41Z",
+      "side": 1,
+      "message": "Sure, I have a perf regression to look at for a bit if you think you\u0027re close.",
+      "parentUuid": "c09b3eaa_0c47a211",
+      "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "79f3738e_347aeee1",
         "filename": "src/gpu/ccpr/GrCCPerFlushResources.cpp",
         "patchSetId": 2
@@ -169,6 +331,24 @@
       "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "916ca706_fa35662a",
+        "filename": "src/gpu/ccpr/GrCCPerFlushResources.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-14T16:15:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "79f3738e_347aeee1",
+      "revId": "300d9af73eec30eb87169b4fddbf847bfa800d6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
