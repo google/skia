@@ -17,9 +17,11 @@
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrShape.h"
+#include "GrTexture.h"
 #include "SkMatrix.h"
 #include "SkPathPriv.h"
 #include "SkRect.h"
+#include "sk_tool_utils.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
 #include "mock/GrMockTypes.h"
 #include <cmath>
@@ -69,26 +71,26 @@ public:
         }
     }
 
+    GrContext* ctx() const { return fCtx; }
+    GrCoverageCountingPathRenderer* ccpr() const { return fCCPR; }
+
     bool valid() const { return fCCPR && fRTC; }
     void clear() const { fRTC->clear(nullptr, 0, GrRenderTargetContext::CanClearFullscreen::kYes); }
     void abandonGrContext() { fCtx = nullptr; fCCPR = nullptr; fRTC = nullptr; }
 
-    void drawPath(SkPath path, GrColor4f color = GrColor4f(0, 1, 0, 1)) const {
+    void drawPath(const SkPath& path, const SkMatrix& m = SkMatrix::I()) const {
         SkASSERT(this->valid());
 
         GrPaint paint;
-        paint.setColor4f(color);
+        paint.setColor4f(GrColor4f(0, 1, 0, 1));
 
         GrNoClip noClip;
         SkIRect clipBounds = SkIRect::MakeWH(kCanvasSize, kCanvasSize);
 
-        SkMatrix matrix = SkMatrix::I();
-
-        path.setIsVolatile(true);
         GrShape shape(path);
 
         fCCPR->drawPath({fCtx, std::move(paint), &GrUserStencilSettings::kUnused, fRTC.get(),
-                         &noClip, &clipBounds, &matrix, &shape, GrAAType::kCoverage, false});
+                         &noClip, &clipBounds, &m, &shape, GrAAType::kCoverage, false});
     }
 
     void clipFullscreenRect(SkPath clipPath, GrColor4f color = GrColor4f(0, 1, 0, 1)) {
@@ -107,9 +109,9 @@ public:
     }
 
 private:
-    GrContext*                        fCtx;
-    GrCoverageCountingPathRenderer*   fCCPR;
-    sk_sp<GrRenderTargetContext>      fRTC;
+    GrContext* fCtx;
+    GrCoverageCountingPathRenderer* fCCPR;
+    sk_sp<GrRenderTargetContext> fRTC;
 };
 
 class CCPRTest {
@@ -121,6 +123,9 @@ public:
         mockOptions.fConfigOptions[kAlpha_half_GrPixelConfig].fRenderability =
                 GrMockOptions::ConfigOptions::Renderability::kNonMSAA;
         mockOptions.fConfigOptions[kAlpha_half_GrPixelConfig].fTexturable = true;
+        mockOptions.fConfigOptions[kAlpha_8_GrPixelConfig].fRenderability =
+                GrMockOptions::ConfigOptions::Renderability::kNonMSAA;
+        mockOptions.fConfigOptions[kAlpha_8_GrPixelConfig].fTexturable = true;
         mockOptions.fGeometryShaderSupport = true;
         mockOptions.fIntegerSupport = true;
         mockOptions.fFlatInterpolationSupport = true;
@@ -264,6 +269,99 @@ class GrCCPRTest_parseEmptyPath : public CCPRTest {
 };
 DEF_CCPR_TEST(GrCCPRTest_parseEmptyPath)
 
+class GrCCPRTest_cache : public CCPRTest {
+    void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) override {
+        static constexpr int kPathSize = 20;
+        SkRandom rand;
+
+        SkPath paths[200];
+        int primes[11] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
+        for (size_t i = 0; i < SK_ARRAY_COUNT(paths); ++i) {
+            int numPts = rand.nextRangeU(GrShape::kMaxKeyFromDataVerbCnt + 1,
+                                         GrShape::kMaxKeyFromDataVerbCnt * 2);
+            paths[i] = sk_tool_utils::make_star(SkRect::MakeIWH(kPathSize, kPathSize), numPts,
+                                                primes[rand.nextU() % SK_ARRAY_COUNT(primes)]);
+        }
+
+        SkMatrix matrices[2] = {
+            SkMatrix::MakeTrans(5, 5),
+            SkMatrix::MakeTrans(kCanvasSize - kPathSize - 5, kCanvasSize - kPathSize - 5)
+        };
+
+        int firstAtlasID = -1;
+
+        for (int flushIdx = 0; flushIdx < 10; ++flushIdx) {
+            // Draw all the paths and flush.
+            for (size_t i = 0; i < SK_ARRAY_COUNT(paths); ++i) {
+                ccpr.drawPath(paths[i], matrices[i % 2]);
+            }
+            ccpr.flush();
+
+            // Figure out the mock backend ID of the atlas texture stashed away by CCPR.
+            GrMockTextureInfo stashedAtlasInfo;
+            stashedAtlasInfo.fID = -1;
+            const GrUniqueKey& stashedAtlasKey = ccpr.ccpr()->testingOnly_getStashedAtlasKey();
+            if (stashedAtlasKey.isValid()) {
+                GrResourceProvider* rp = ccpr.ctx()->contextPriv().resourceProvider();
+                sk_sp<GrSurface> stashedAtlas = rp->findByUniqueKey<GrSurface>(stashedAtlasKey);
+                REPORTER_ASSERT(reporter, stashedAtlas);
+                if (stashedAtlas) {
+                    const auto& backendTexture = stashedAtlas->asTexture()->getBackendTexture();
+                    backendTexture.getMockTextureInfo(&stashedAtlasInfo);
+                }
+            }
+
+            if (0 == flushIdx) {
+                // First flush: just note the ID of the stashed atlas and continue.
+                REPORTER_ASSERT(reporter, stashedAtlasKey.isValid());
+                firstAtlasID = stashedAtlasInfo.fID;
+                continue;
+            }
+
+            switch (flushIdx % 3) {
+                case 1:
+                    // This draw should have gotten 100% cash hits; we only did integer translates
+                    // last time (or none if it was the first flush). Therefore, no atlas should
+                    // have been stashed away.
+                    REPORTER_ASSERT(reporter, !stashedAtlasKey.isValid());
+
+                    // Invalidate even path masks.
+                    matrices[0].preTranslate(1.6, 1.4);
+                    break;
+
+                case 2:
+                    // Even path masks were invalidated last iteration by a subpixel translate. They
+                    // should have been re-rendered this time and stashed away in the CCPR atlas.
+                    REPORTER_ASSERT(reporter, stashedAtlasKey.isValid());
+
+                    // 'firstAtlasID' should be kept as a scratch texture in the resource cache.
+                    REPORTER_ASSERT(reporter, stashedAtlasInfo.fID == firstAtlasID);
+
+                    // Invalidate odd path masks.
+                    matrices[1].preTranslate(-1.4, -1.6);
+                    break;
+
+                case 0:
+                    // Odd path masks were invalidated last iteration by a subpixel translate. They
+                    // should have been re-rendered this time and stashed away in the CCPR atlas.
+                    REPORTER_ASSERT(reporter, stashedAtlasKey.isValid());
+
+                    // 'firstAtlasID' is the same texture that got stashed away last time (assuming
+                    // no assertion failures). So if it also got stashed this time, it means we
+                    // first copied the even paths out of it, then recycled the exact same texture
+                    // to render the odd paths. This is the expected behavior.
+                    REPORTER_ASSERT(reporter, stashedAtlasInfo.fID == firstAtlasID);
+
+                    // Integer translates: all path masks stay valid.
+                    matrices[0].preTranslate(-1, -1);
+                    matrices[1].preTranslate(1, 1);
+                    break;
+            }
+        }
+    }
+};
+DEF_CCPR_TEST(GrCCPRTest_cache)
+
 class CCPRRenderingTest {
 public:
     void run(skiatest::Reporter* reporter, GrContext* ctx) const {
@@ -300,6 +398,7 @@ class GrCCPRTest_busyPath : public CCPRRenderingTest {
             float offset = i * ((float)kCanvasSize / kNumBusyVerbs);
             busyPath.lineTo(kCanvasSize - offset, kCanvasSize + offset); // offscreen
         }
+        busyPath.setIsVolatile(true);
         ccpr.drawPath(busyPath);
 
         ccpr.flush(); // If this doesn't crash, the test passed.
