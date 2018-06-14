@@ -27,11 +27,15 @@
     destructor to be called explicitly (or via the object going out of scope on
     the stack or calling delete) if getRefCnt() > 1.
 */
-class SK_API SkRefCntBase : SkNoncopyable {
+class SK_API SkRefCntBase {
 public:
     /** Default construct, initializing the reference count to 1.
     */
     SkRefCntBase() : fRefCnt(1) {}
+    SkRefCntBase(SkRefCntBase&&) = delete;
+    SkRefCntBase(const SkRefCntBase&) = delete;
+    SkRefCntBase& operator=(SkRefCntBase&&) = delete;
+    SkRefCntBase& operator=(const SkRefCntBase&) = delete;
 
     /** Destruct, asserting that the reference count is 1.
     */
@@ -114,8 +118,6 @@ private:
     friend class SkWeakRefCnt;
 
     mutable std::atomic<int32_t> fRefCnt;
-
-    typedef SkNoncopyable INHERITED;
 };
 
 #ifdef SK_REF_CNT_MIXIN_INCLUDE
@@ -207,10 +209,14 @@ template<typename T> static inline void SkSafeSetNull(T*& obj) {
 // This is a variant of SkRefCnt that's Not Virtual, so weighs 4 bytes instead of 8 or 16.
 // There's only benefit to using this if the deriving class does not otherwise need a vtable.
 template <typename Derived>
-class SkNVRefCnt : SkNoncopyable {
+class SkNVRefCnt {
 public:
     SkNVRefCnt() : fRefCnt(1) {}
     ~SkNVRefCnt() { SkASSERTF(1 == getRefCnt(), "NVRefCnt was %d", getRefCnt()); }
+    SkNVRefCnt(SkNVRefCnt&&) = delete;
+    SkNVRefCnt(const SkNVRefCnt&) = delete;
+    SkNVRefCnt& operator=(SkNVRefCnt&&) = delete;
+    SkNVRefCnt& operator=(const SkNVRefCnt&) = delete;
 
     // Implementation is pretty much the same as SkRefCntBase. All required barriers are the same:
     //   - unique() needs acquire when it returns true, and no barrier if it returns false;
