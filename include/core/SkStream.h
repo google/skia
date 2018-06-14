@@ -38,9 +38,14 @@ class SkStreamMemory;
  *  no more data (at EOF or hit an error). The caller should *not* call again
  *  in hopes of fulfilling more of the request.
  */
-class SK_API SkStream : public SkNoncopyable {
+class SK_API SkStream {
 public:
     virtual ~SkStream() {}
+    SkStream() {}
+    SkStream(SkStream&&) = delete;
+    SkStream(const SkStream&) = delete;
+    SkStream& operator=(SkStream&&) = delete;
+    SkStream& operator=(const SkStream&) = delete;
 
     /**
      *  Attempts to open the specified file as a stream, returns nullptr on failure.
@@ -218,9 +223,14 @@ private:
     SkStreamMemory* onFork() const override = 0;
 };
 
-class SK_API SkWStream : SkNoncopyable {
+class SK_API SkWStream {
 public:
     virtual ~SkWStream();
+    SkWStream() {}
+    SkWStream(SkWStream&&) = delete;
+    SkWStream(const SkWStream&) = delete;
+    SkWStream& operator=(SkWStream&&) = delete;
+    SkWStream& operator=(const SkWStream&) = delete;
 
     /** Called to write bytes to a SkWStream. Returns true on success
         @param buffer the address of at least size bytes to be written to the stream

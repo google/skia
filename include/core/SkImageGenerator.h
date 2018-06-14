@@ -24,8 +24,13 @@ class SkMatrix;
 class SkPaint;
 class SkPicture;
 
-class SK_API SkImageGenerator : public SkNoncopyable {
+class SK_API SkImageGenerator {
 public:
+    SkImageGenerator(SkImageGenerator&&) = delete;
+    SkImageGenerator(const SkImageGenerator&) = delete;
+    SkImageGenerator& operator=(SkImageGenerator&&) = delete;
+    SkImageGenerator& operator=(const SkImageGenerator&) = delete;
+
     /**
      *  The PixelRef which takes ownership of this SkImageGenerator
      *  will call the image generator's destructor.
