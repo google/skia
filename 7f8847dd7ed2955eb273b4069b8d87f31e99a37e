@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9bdd40ce_64247c6e",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 798,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-14T18:38:30Z",
+      "side": 1,
+      "message": "up to you, but I think this could just be:\n\nauto offsetFunc \u003d [this](const SkPoint\u0026 p) { return -this-\u003eoffset(fTransformedHeightFunc(p)); };",
+      "range": {
+        "startLine": 798,
+        "startChar": 3,
+        "endLine": 798,
+        "endChar": 54
+      },
+      "revId": "7f8847dd7ed2955eb273b4069b8d87f31e99a37e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
