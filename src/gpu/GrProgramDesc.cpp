@@ -65,7 +65,7 @@ static void add_sampler_and_image_keys(GrProcessorKeyBuilder* b, const GrResourc
     if (0 == word32Count) {
         return;
     }
-    uint16_t* k16 = SkTCast<uint16_t*>(b->add32n(word32Count));
+    uint16_t* k16 = reinterpret_cast<uint16_t*>(b->add32n(word32Count));
     int j = 0;
     for (int i = 0; i < numTextureSamplers; ++i, ++j) {
         const GrResourceIOProcessor::TextureSampler& sampler = proc.textureSampler(i);
