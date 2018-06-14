@@ -202,6 +202,30 @@
     },
     {
       "key": {
+        "uuid": "6c1a30e5_8341f0bd",
+        "filename": "BUILD.gn",
+        "patchSetId": 23
+      },
+      "lineNbr": 2039,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-14T18:42:04Z",
+      "side": 1,
+      "message": "If that\u0027s the case then this shouldn\u0027t depend on \":skia\" below, since this is building skia.",
+      "parentUuid": "706a6819_0485e865",
+      "range": {
+        "startLine": 2005,
+        "startChar": 0,
+        "endLine": 2039,
+        "endChar": 7
+      },
+      "revId": "e26a35fe59e31c2ccdb007126538b0730bfa0fed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8828106a_bf20cd63",
         "filename": "include/utils/Sk3D.h",
         "patchSetId": 23
