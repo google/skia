@@ -269,6 +269,30 @@
       "revId": "062e7ae6013cbec8bf03811843b4fd279ba3b436",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b3c277cd_e1891bbc",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 755,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-14T14:09:51Z",
+      "side": 1,
+      "message": "Yeah, I figure most people will also have a stream, but I wonder whether they really have an mmap\u0027d piece of data, or something that\u0027s actually streaming in.  If it\u0027s actually streaming in, we probably want to rewrite this to work first-class with streams?  If it\u0027s just a full blob anyway, might as well stick with a full blob passed to the parser.\n\nDoes it simplify things at all to make this take a byte string and a length rather than require a c string null terminator?",
+      "parentUuid": "d4861a51_29445010",
+      "range": {
+        "startLine": 749,
+        "startChar": 4,
+        "endLine": 755,
+        "endChar": 5
+      },
+      "revId": "062e7ae6013cbec8bf03811843b4fd279ba3b436",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

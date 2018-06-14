@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "acfe6272_a90a4795",
+        "filename": "modules/skjson/include/SkJSON.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-14T14:09:51Z",
+      "side": 1,
+      "message": "very pretty",
+      "range": {
+        "startLine": 37,
+        "startChar": 15,
+        "endLine": 37,
+        "endChar": 49
+      },
+      "revId": "bc1e0e71d265e47308d1420db82ae55be326fd3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4734daa_fae5c85a",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-14T14:09:51Z",
+      "side": 1,
+      "message": "If the compiler can see this, lots of times it\u0027ll just skip it if you\u0027re overwriting all the bytes.  Sometimes it\u0027ll even just zero the bytes you don\u0027t later overwrite.  I stand by this memset as a good idea that delivers more safety than runtime expense.  It\u0027s usually cheaper than it looks. :)  (I mean, most of the time this will be a register xor\u0027d with itself... there\u0027s literally no cheaper instruction.)",
+      "range": {
+        "startLine": 27,
+        "startChar": 4,
+        "endLine": 28,
+        "endChar": 38
+      },
+      "revId": "bc1e0e71d265e47308d1420db82ae55be326fd3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
