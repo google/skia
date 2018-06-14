@@ -174,10 +174,9 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
         }
 
         const OutputProperties& outProps = ctx.outputProperties();
-        GrPixelConfig inputConfig = inputProxy->config();
         auto textureFP = GrSimpleTextureEffect::Make(std::move(inputProxy), SkMatrix::I());
         textureFP = GrColorSpaceXformEffect::Make(std::move(textureFP), input->getColorSpace(),
-                                                  inputConfig, outProps.colorSpace());
+                                                  outProps.colorSpace());
         if (!textureFP) {
             return nullptr;
         }

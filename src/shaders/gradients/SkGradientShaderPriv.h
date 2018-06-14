@@ -273,7 +273,6 @@ protected:
             // this FP may include that transformation.
             fp = GrColorSpaceXformEffect::Make(std::move(gradientFP),
                                                args.fShader->fColorSpace.get(),
-                                               kRGBA_float_GrPixelConfig,
                                                args.fDstColorSpace);
         } else {
             fp = std::move(gradientFP);
