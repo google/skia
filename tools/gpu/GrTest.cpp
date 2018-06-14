@@ -25,6 +25,7 @@
 #include "SkImage_Gpu.h"
 #include "SkMathPriv.h"
 #include "SkString.h"
+#include "ccpr/GrCoverageCountingPathRenderer.h"
 #include "ops/GrMeshDrawOp.h"
 #include "text/GrGlyphCache.h"
 #include "text/GrTextBlobCache.h"
@@ -296,6 +297,12 @@ GrPixelConfig GrBackendTexture::testingOnly_getPixelConfig() const {
 
 GrPixelConfig GrBackendRenderTarget::testingOnly_getPixelConfig() const {
     return fConfig;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+const GrUniqueKey& GrCoverageCountingPathRenderer::testingOnly_getStashedAtlasKey() const {
+    return fStashedAtlasKey;
 }
 
 //////////////////////////////////////////////////////////////////////////////

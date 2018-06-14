@@ -8,13 +8,16 @@
 #ifndef GrCCDrawPathsOp_DEFINED
 #define GrCCDrawPathsOp_DEFINED
 
+#include "GrShape.h"
 #include "SkTInternalLList.h"
-#include "ccpr/GrCCPathProcessor.h"
 #include "ccpr/GrCCSTLList.h"
 #include "ops/GrDrawOp.h"
 
 struct GrCCPerFlushResourceSpecs;
 class GrCCAtlas;
+class GrOnFlushResourceProvider;
+class GrCCPathCache;
+class GrCCPathCacheEntry;
 class GrCCPerFlushResources;
 class GrCCPerOpListPaths;
 
@@ -27,44 +30,51 @@ public:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrCCDrawPathsOp);
 
     static std::unique_ptr<GrCCDrawPathsOp> Make(GrContext*, const SkIRect& clipIBounds,
-                                                 const SkMatrix&, const SkPath&,
+                                                 const SkMatrix&, const GrShape&,
                                                  const SkRect& devBounds, GrPaint&&);
     ~GrCCDrawPathsOp() override;
 
-    const char* name() const override { return "GrCCDrawOp"; }
+    const char* name() const override { return "GrCCDrawPathsOp"; }
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
     RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*,
                                 GrPixelConfigIsClamped) override;
-    bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override;
-    void visitProxies(const VisitProxyFunc& func) const override {
-        fProcessors.visitProxies(func);
-    }
+    bool onCombineIfPossible(GrOp*, const GrCaps&) override;
+    void visitProxies(const VisitProxyFunc& fn) const override { fProcessors.visitProxies(fn); }
     void onPrepare(GrOpFlushState*) override {}
 
     void wasRecorded(GrCCPerOpListPaths* owningPerOpListPaths);
-    void accountForOwnPaths(GrCCPerFlushResourceSpecs*) const;
-    void setupResources(GrCCPerFlushResources*, GrOnFlushResourceProvider*);
-    SkDEBUGCODE(int numSkippedInstances_debugOnly() const { return fNumSkippedInstances; })
+
+    // Makes determinations about how to draw each path (cached, copied, rendered, etc.), and
+    // increments/fills out the corresponding GrCCPerFlushResourceSpecs. 'stashedAtlasKey', if
+    // valid, references the mainline coverage count atlas from the previous flush. Paths found in
+    // this atlas will be copied to more permanent atlases in the resource cache.
+    void accountForOwnPaths(GrCCPathCache*, GrOnFlushResourceProvider*,
+                            const GrUniqueKey& stashedAtlasKey, GrCCPerFlushResourceSpecs*);
+
+    enum class DoCopiesToCache : bool {
+        kNo = false,
+        kYes = true
+    };
+
+    // Allocates the GPU resources indicated by accountForOwnPaths(), in preparation for drawing. If
+    // DoCopiesToCache is kNo (e.g. if the caller didn't feel there were enough copies to justify
+    // the fixed cost), then the paths slated for copy will instead be re-rendered from scratch.
+    void setupResources(GrOnFlushResourceProvider*, GrCCPerFlushResources*, DoCopiesToCache);
 
     void onExecute(GrOpFlushState*) override;
 
 private:
     friend class GrOpMemoryPool;
 
-    GrCCDrawPathsOp(const SkIRect& looseClippedIBounds, const SkMatrix&, const SkPath&,
-                    const SkRect& devBounds, GrPaint&&);
+    GrCCDrawPathsOp(const SkIRect& clippedDevIBounds, const SkMatrix&, const GrShape&,
+                    bool canStashPathMask, const SkRect& devBounds, GrPaint&&);
 
-    struct AtlasBatch {
-        const GrCCAtlas* fAtlas;
-        int fEndInstanceIdx;
+    enum class AtlasType : bool {
+        kCCAtlas,
+        kTextureProxy
     };
 
-    void addAtlasBatch(const GrCCAtlas* atlas, int endInstanceIdx) {
-        SkASSERT(endInstanceIdx > fBaseInstance);
-        SkASSERT(fAtlasBatches.empty() ||
-                 endInstanceIdx > fAtlasBatches.back().fEndInstanceIdx);
-        fAtlasBatches.push_back() = {atlas, endInstanceIdx};
-    }
+    void recordInstance(const void* atlas, AtlasType, int instanceIdx);
 
     const SkMatrix fViewMatrixIfUsingLocalCoords;
     const uint32_t fSRGBFlags;
@@ -72,9 +82,18 @@ private:
     struct SingleDraw {
         SkIRect fLooseClippedIBounds;
         SkMatrix fMatrix;
-        SkPath fPath;
+        GrShape fShape;
         GrColor fColor;
+
+        sk_sp<GrCCPathCacheEntry> fCacheEntry;
+        sk_sp<GrTextureProxy> fCachedAtlasProxy;
+        SkIVector fCachedMaskShift;
+
+        // If we render the path mask, can we stash it away to be copied to the cache next flush?
+        bool fCanStashPathMask;
+
         SingleDraw* fNext;
+        ~SingleDraw();
     };
 
     GrCCSTLList<SingleDraw> fDraws;
@@ -83,9 +102,14 @@ private:
     GrCCPerOpListPaths* fOwningPerOpListPaths = nullptr;
     GrProcessorSet fProcessors;
 
-    int fBaseInstance;
-    SkSTArray<1, AtlasBatch, true> fAtlasBatches;
-    SkDEBUGCODE(int fNumSkippedInstances = 0);
+    struct InstanceRange {
+        const void* fAtlas;
+        AtlasType fAtlasType;
+        int fEndInstance;
+    };
+
+    SkSTArray<1, InstanceRange, true> fInstanceRanges;
+    int fBaseInstance SkDEBUGCODE(= -1);
 };
 
 #endif

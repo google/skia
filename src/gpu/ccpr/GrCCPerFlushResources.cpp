@@ -12,14 +12,78 @@
 #include "GrSurfaceContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "SkMakeUnique.h"
+#include "ccpr/GrCCPathCache.h"
 
 using CoverageCountBatchID = GrCCPathParser::CoverageCountBatchID;
 using PathInstance = GrCCPathProcessor::Instance;
 
 namespace {
 
+// Bass class for an Op that renders a CCPR atlas.
+class AtlasOp : public GrDrawOp {
+public:
+    AtlasOp(uint32_t classID, sk_sp<const GrCCPerFlushResources> resources,
+            const SkISize& drawBounds)
+            : GrDrawOp(classID)
+            , fResources(std::move(resources)) {
+        this->setBounds(SkRect::MakeIWH(drawBounds.width(), drawBounds.height()),
+                        GrOp::HasAABloat::kNo, GrOp::IsZeroArea::kNo);
+    }
+
+    FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
+    RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*,
+                                GrPixelConfigIsClamped) override { return RequiresDstTexture::kNo; }
+    bool onCombineIfPossible(GrOp* other, const GrCaps&) override { return false; }
+    void onPrepare(GrOpFlushState*) override {}
+
+protected:
+    const sk_sp<const GrCCPerFlushResources> fResources;
+};
+
+// Copies paths from a stashed coverage count atlas into an 8-bit literal-coverage atlas.
+class CopyAtlasOp : public AtlasOp {
+public:
+    DEFINE_OP_CLASS_ID
+
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          sk_sp<const GrCCPerFlushResources> resources,
+                                          sk_sp<GrTextureProxy> copyProxy, int baseInstance,
+                                          int endInstance, const SkISize& drawBounds) {
+        return std::unique_ptr<GrDrawOp>(new CopyAtlasOp(std::move(resources), std::move(copyProxy),
+                                                         baseInstance, endInstance, drawBounds));
+    }
+
+    const char* name() const override { return "CopyAtlasOp (CCPR)"; }
+    void visitProxies(const VisitProxyFunc& fn) const override { fn(fStashedAtlasProxy.get()); }
+
+    void onExecute(GrOpFlushState* flushState) override {
+        SkASSERT(fStashedAtlasProxy);
+        GrPipeline pipeline(flushState->proxy(), GrPipeline::ScissorState::kDisabled,
+                            SkBlendMode::kSrc);
+        GrCCPathProcessor pathProc(flushState->resourceProvider(), std::move(fStashedAtlasProxy));
+        pathProc.drawPaths(flushState, pipeline, *fResources, fBaseInstance, fEndInstance,
+                           this->bounds());
+        // Ensure we released the stashed atlas proxy. This allows its underlying texture to be
+        // reused as the current flush's mainline CCPR atlas if needed.
+        SkASSERT(!fStashedAtlasProxy);
+    }
+
+private:
+    CopyAtlasOp(sk_sp<const GrCCPerFlushResources> resources, sk_sp<GrTextureProxy> copyProxy,
+                int baseInstance, int endInstance, const SkISize& drawBounds)
+            : AtlasOp(ClassID(), std::move(resources), drawBounds)
+            , fStashedAtlasProxy(copyProxy)
+            , fBaseInstance(baseInstance)
+            , fEndInstance(endInstance) {
+    }
+
+    sk_sp<GrTextureProxy> fStashedAtlasProxy;
+    const int fBaseInstance;
+    const int fEndInstance;
+};
+
 // Renders coverage counts to a CCPR atlas using the resources' pre-filled GrCCPathParser.
-class RenderAtlasOp : public GrDrawOp {
+class RenderAtlasOp : public AtlasOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -32,11 +96,6 @@ public:
 
     // GrDrawOp interface.
     const char* name() const override { return "RenderAtlasOp (CCPR)"; }
-    FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
-    RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*,
-                                GrPixelConfigIsClamped) override { return RequiresDstTexture::kNo; }
-    bool onCombineIfPossible(GrOp* other, const GrCaps&) override { return false; }
-    void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState* flushState) override {
         fResources->pathParser().drawCoverageCount(flushState, fBatchID, fDrawBounds);
@@ -47,19 +106,21 @@ private:
 
     RenderAtlasOp(sk_sp<const GrCCPerFlushResources> resources, CoverageCountBatchID batchID,
                   const SkISize& drawBounds)
-            : GrDrawOp(ClassID())
-            , fResources(std::move(resources))
+            : AtlasOp(ClassID(), std::move(resources), drawBounds)
             , fBatchID(batchID)
             , fDrawBounds(SkIRect::MakeWH(drawBounds.width(), drawBounds.height())) {
-        this->setBounds(SkRect::MakeIWH(fDrawBounds.width(), fDrawBounds.height()),
-                        GrOp::HasAABloat::kNo, GrOp::IsZeroArea::kNo);
     }
 
-    const sk_sp<const GrCCPerFlushResources> fResources;
     const CoverageCountBatchID fBatchID;
     const SkIRect fDrawBounds;
 };
 
+}
+
+static int instance_buffer_count(const GrCCPerFlushResourceSpecs& specs) {
+    return specs.fNumCachedPaths +
+           specs.fNumCopiedPaths*2 +  // 1 copy + 1 draw.
+           specs.fNumRenderedPaths;
 }
 
 GrCCPerFlushResources::GrCCPerFlushResources(GrOnFlushResourceProvider* onFlushRP,
@@ -67,9 +128,13 @@ GrCCPerFlushResources::GrCCPerFlushResources(GrOnFlushResourceProvider* onFlushR
         : fIndexBuffer(GrCCPathProcessor::FindIndexBuffer(onFlushRP))
         , fVertexBuffer(GrCCPathProcessor::FindVertexBuffer(onFlushRP))
         , fInstanceBuffer(onFlushRP->makeBuffer(kVertex_GrBufferType,
-                                                specs.fNumRenderedPaths * sizeof(PathInstance)))
-        , fPathParser(specs.fNumRenderedPaths + specs.fNumClipPaths, specs.fParsingPathStats)
-        , fAtlasStack(specs.fAtlasSpecs) {
+                                                instance_buffer_count(specs) *
+                                                sizeof(PathInstance)))
+        , fNextCopyInstanceIdx(0)
+        , fNextPathInstanceIdx(specs.fNumCopiedPaths)
+        , fPathParser(specs.fNumRenderedPaths + specs.fNumClipPaths, specs.fRenderedPathStats)
+        , fCopyAtlasStack(specs.fCopyAtlasSpecs)
+        , fRenderedAtlasStack(specs.fRenderedAtlasSpecs) {
     if (!fIndexBuffer) {
         SkDebugf("WARNING: failed to allocate CCPR index buffer. No paths will be drawn.\n");
         return;
@@ -84,26 +149,44 @@ GrCCPerFlushResources::GrCCPerFlushResources(GrOnFlushResourceProvider* onFlushR
     }
     fPathInstanceData = static_cast<PathInstance*>(fInstanceBuffer->map());
     SkASSERT(fPathInstanceData);
-    SkDEBUGCODE(fEndPathInstance = specs.fNumRenderedPaths);
+    SkDEBUGCODE(fEndCopyInstance = specs.fNumCopiedPaths);
+    SkDEBUGCODE(fEndPathInstance = instance_buffer_count(specs));
+}
+
+GrCCAtlas* GrCCPerFlushResources::copyPathToCachedAtlas(const GrCCPathCacheEntry& entry,
+                                                        GrCCPathProcessor::DoEvenOddFill evenOdd,
+                                                        SkIVector* newAtlasOffset) {
+    SkASSERT(this->isMapped());
+    SkASSERT(fNextCopyInstanceIdx < fEndCopyInstance);
+    SkASSERT(!entry.hasCachedAtlas());  // Not a problem if we ever actually want to do this.
+
+    if (GrCCAtlas* retiredAtlas = fCopyAtlasStack.addRect(entry.devIBounds(), newAtlasOffset)) {
+        // We did not fit in the previous copy atlas, so it was retired. It will render the copy
+        // instances up until fNextCopyInstanceIdx.
+        retiredAtlas->setRenderToken(fNextCopyInstanceIdx);
+    }
+
+    fPathInstanceData[fNextCopyInstanceIdx++].set(entry, *newAtlasOffset, GrColorPackA4(255),
+                                                  evenOdd);
+    return &fCopyAtlasStack.current();
 }
 
 const GrCCAtlas* GrCCPerFlushResources::renderPathInAtlas(const SkIRect& clipIBounds,
                                                           const SkMatrix& m, const SkPath& path,
                                                           SkRect* devBounds, SkRect* devBounds45,
+                                                          SkIRect* devIBounds,
                                                           SkIVector* atlasOffset) {
     SkASSERT(this->isMapped());
     SkASSERT(fNextPathInstanceIdx < fEndPathInstance);
 
     fPathParser.parsePath(m, path, devBounds, devBounds45);
+    devBounds->roundOut(devIBounds);
 
-    SkIRect devIBounds;
-    devBounds->roundOut(&devIBounds);
-
-    if (!this->placeParsedPathInAtlas(clipIBounds, devIBounds, atlasOffset)) {
+    if (!this->placeParsedPathInAtlas(clipIBounds, *devIBounds, atlasOffset)) {
         SkDEBUGCODE(--fEndPathInstance);
         return nullptr;  // Path was degenerate or clipped away.
     }
-    return &fAtlasStack.current();
+    return &fRenderedAtlasStack.current();
 }
 
 const GrCCAtlas* GrCCPerFlushResources::renderDeviceSpacePathInAtlas(
@@ -114,7 +197,7 @@ const GrCCAtlas* GrCCPerFlushResources::renderDeviceSpacePathInAtlas(
     if (!this->placeParsedPathInAtlas(clipIBounds, devPathIBounds, atlasOffset)) {
         return nullptr;
     }
-    return &fAtlasStack.current();
+    return &fRenderedAtlasStack.current();
 }
 
 bool GrCCPerFlushResources::placeParsedPathInAtlas(const SkIRect& clipIBounds,
@@ -133,7 +216,7 @@ bool GrCCPerFlushResources::placeParsedPathInAtlas(const SkIRect& clipIBounds,
         return false;
     }
 
-    if (GrCCAtlas* retiredAtlas = fAtlasStack.addRect(clippedPathIBounds, atlasOffset)) {
+    if (GrCCAtlas* retiredAtlas = fRenderedAtlasStack.addRect(clippedPathIBounds, atlasOffset)) {
         // We did not fit in the previous coverage count atlas, so it was retired. Close off of the
         // path parser's current batch and the retired atlas will render it.
         retiredAtlas->setRenderToken(fPathParser.closeCurrentBatch());
@@ -143,15 +226,20 @@ bool GrCCPerFlushResources::placeParsedPathInAtlas(const SkIRect& clipIBounds,
 }
 
 bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP,
+                                     sk_sp<GrTextureProxy> stashedAtlasProxy,
                                      SkTArray<sk_sp<GrRenderTargetContext>>* out) {
     SkASSERT(this->isMapped());
     SkASSERT(fNextPathInstanceIdx == fEndPathInstance);
+    // No assert for fEndCopyInstance because the caller may have detected and skipped duplicates.
 
     fInstanceBuffer->unmap();
     fPathInstanceData = nullptr;
 
-    if (!fAtlasStack.empty()) {
-        fAtlasStack.current().setRenderToken(fPathParser.closeCurrentBatch());
+    if (!fCopyAtlasStack.empty()) {
+        fCopyAtlasStack.current().setRenderToken(fNextCopyInstanceIdx);
+    }
+    if (!fRenderedAtlasStack.empty()) {
+        fRenderedAtlasStack.current().setRenderToken(fPathParser.closeCurrentBatch());
     }
 
     // Build the GPU buffers to render path coverage counts. (This must not happen until after the
@@ -161,8 +249,30 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP,
         return false;
     }
 
-    // Render the atlas(es).
-    for (GrCCAtlasStack::Iter atlas(fAtlasStack); atlas.next();) {
+    // Draw the copies from the stashed atlas into 8-bit cached atlas(es).
+    int baseCopyInstance = 0;
+    for (GrCCAtlasStack::Iter atlas(fCopyAtlasStack); atlas.next();) {
+        int endCopyInstance = atlas->renderToken();
+        if (endCopyInstance <= baseCopyInstance) {
+            SkASSERT(endCopyInstance == baseCopyInstance);
+            continue;
+        }
+        if (auto rtc = atlas->makeClearedTextureProxy(onFlushRP, kAlpha_8_GrPixelConfig)) {
+            GrContext* ctx = rtc->surfPriv().getContext();
+            auto op = CopyAtlasOp::Make(ctx, sk_ref_sp(this), stashedAtlasProxy, baseCopyInstance,
+                                        endCopyInstance, atlas->drawBounds());
+            rtc->addDrawOp(GrNoClip(), std::move(op));
+            out->push_back(std::move(rtc));
+        }
+        baseCopyInstance = endCopyInstance;
+    }
+
+    // Release the stashed atlas before creating new one(s). This allows us to recycle the same
+    // underlying texture with the upcoming rendered atlases.
+    stashedAtlasProxy = nullptr;
+
+    // Render the coverage count atlas(es).
+    for (GrCCAtlasStack::Iter atlas(fRenderedAtlasStack); atlas.next();) {
         if (auto rtc = atlas->makeClearedTextureProxy(onFlushRP, kAlpha_half_GrPixelConfig)) {
             auto op = RenderAtlasOp::Make(rtc->surfPriv().getContext(), sk_ref_sp(this),
                                           atlas->renderToken(), atlas->drawBounds());
@@ -172,4 +282,23 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP,
     }
 
     return true;
+}
+
+void GrCCPerFlushResourceSpecs::convertCopiesToRenders() {
+    fNumRenderedPaths += fNumCopiedPaths;
+    fNumCopiedPaths = 0;
+
+    fRenderedAtlasSpecs.fApproxNumPixels += fCopyAtlasSpecs.fApproxNumPixels;
+    fRenderedAtlasSpecs.fMinWidth =
+            SkTMax(fRenderedAtlasSpecs.fMinWidth, fCopyAtlasSpecs.fMinWidth);
+    fRenderedAtlasSpecs.fMinHeight =
+            SkTMax(fRenderedAtlasSpecs.fMinHeight, fCopyAtlasSpecs.fMinHeight);
+    fCopyAtlasSpecs = GrCCAtlas::Specs();
+
+    fRenderedPathStats.fMaxPointsPerPath =
+            SkTMax(fRenderedPathStats.fMaxPointsPerPath, fCopyPathStats.fMaxPointsPerPath);
+    fRenderedPathStats.fNumTotalSkPoints += fCopyPathStats.fNumTotalSkPoints;
+    fRenderedPathStats.fNumTotalSkVerbs += fCopyPathStats.fNumTotalSkVerbs;
+    fRenderedPathStats.fNumTotalConicWeights += fCopyPathStats.fNumTotalConicWeights;
+    fCopyPathStats = GrCCPathParser::PathStats();
 }
