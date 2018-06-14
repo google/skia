@@ -794,9 +794,9 @@ bool SkAmbientShadowTessellator::computeConcaveShadow() {
     SkTDArray<int> penumbraIndices;
     penumbraPolygon.setReserve(umbraPolygon.count());
     penumbraIndices.setReserve(umbraPolygon.count());
-    // TODO: handle tilt
-    SkScalar radius = this->offset(fTransformedHeightFunc(fPathPolygon[0]));
-    if (!SkOffsetSimplePolygon(&fPathPolygon[0], fPathPolygon.count(), -radius,
+
+    auto offsetFunc = [this](const SkPoint& p) { return -this->offset(fTransformedHeightFunc(p)); };
+    if (!SkOffsetSimplePolygon(&fPathPolygon[0], fPathPolygon.count(), offsetFunc,
                                &penumbraPolygon, &penumbraIndices)) {
         // TODO: figure out how to handle this case
         return false;
