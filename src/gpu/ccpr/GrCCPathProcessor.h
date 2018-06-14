@@ -41,14 +41,14 @@ public:
         SkRect fDevBounds; // "right < left" indicates even-odd fill type.
         SkRect fDevBounds45; // Bounding box in "| 1  -1 | * devCoords" space.
                              //                  | 1   1 |
-        std::array<int16_t, 2> fAtlasOffset;
+        SkIVector fAtlasOffset;
         uint32_t fColor;
 
         void set(SkPath::FillType, const SkRect& devBounds, const SkRect& devBounds45,
-                 int16_t atlasOffsetX, int16_t atlasOffsetY, uint32_t color);
+                 const SkIVector& atlasOffset, uint32_t color);
     };
 
-    GR_STATIC_ASSERT(4 * 10 == sizeof(Instance));
+    GR_STATIC_ASSERT(4 * 11 == sizeof(Instance));
 
     static sk_sp<const GrBuffer> FindVertexBuffer(GrOnFlushResourceProvider*);
     static sk_sp<const GrBuffer> FindIndexBuffer(GrOnFlushResourceProvider*);
@@ -87,8 +87,8 @@ private:
 };
 
 inline void GrCCPathProcessor::Instance::set(SkPath::FillType fillType, const SkRect& devBounds,
-                                             const SkRect& devBounds45, int16_t atlasOffsetX,
-                                             int16_t atlasOffsetY, uint32_t color) {
+                                             const SkRect& devBounds45,
+                                             const SkIVector& atlasOffset, uint32_t color) {
     if (SkPath::kEvenOdd_FillType == fillType) {
         // "right < left" indicates even-odd fill type.
         fDevBounds.setLTRB(devBounds.fRight, devBounds.fTop, devBounds.fLeft, devBounds.fBottom);
@@ -97,7 +97,7 @@ inline void GrCCPathProcessor::Instance::set(SkPath::FillType fillType, const Sk
         fDevBounds = devBounds;
     }
     fDevBounds45 = devBounds45;
-    fAtlasOffset = {{atlasOffsetX, atlasOffsetY}};
+    fAtlasOffset = atlasOffset;
     fColor = color;
 }
 

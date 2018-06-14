@@ -165,10 +165,10 @@ void GrCCPathParser::endContourIfNeeded(bool insideContour) {
 }
 
 void GrCCPathParser::saveParsedPath(ScissorMode scissorMode, const SkIRect& clippedDevIBounds,
-                                    int16_t atlasOffsetX, int16_t atlasOffsetY) {
+                                    const SkIVector& atlasOffset) {
     SkASSERT(fParsingPath);
 
-    fPathsInfo.emplace_back(scissorMode, atlasOffsetX, atlasOffsetY);
+    fPathsInfo.emplace_back(scissorMode, atlasOffset);
 
     // Tessellate fans from very large and/or simple paths, in order to reduce overdraw.
     int numVerbs = fGeometry.verbs().count() - fCurrPathVerbsIdx - 1;
@@ -254,7 +254,8 @@ void GrCCPathParser::saveParsedPath(ScissorMode scissorMode, const SkIRect& clip
 
     if (ScissorMode::kScissored == scissorMode) {
         fScissorSubBatches.push_back() = {fTotalPrimitiveCounts[(int)ScissorMode::kScissored],
-                                          clippedDevIBounds.makeOffset(atlasOffsetX, atlasOffsetY)};
+                                          clippedDevIBounds.makeOffset(atlasOffset.fX,
+                                                                       atlasOffset.fY)};
     }
 
     SkDEBUGCODE(fParsingPath = false);
@@ -400,7 +401,6 @@ bool GrCCPathParser::finalize(GrOnFlushResourceProvider* onFlushRP) {
     SkASSERT(quadPointInstanceData);
 
     PathInfo* nextPathInfo = fPathsInfo.begin();
-    float atlasOffsetX = 0.0, atlasOffsetY = 0.0;
     Sk2f atlasOffset;
     PrimitiveTallies instanceIndices[2] = {fBaseInstances[0], fBaseInstances[1]};
     PrimitiveTallies* currIndices = nullptr;
@@ -417,9 +417,8 @@ bool GrCCPathParser::finalize(GrOnFlushResourceProvider* onFlushRP) {
             case GrCCGeometry::Verb::kBeginPath:
                 SkASSERT(currFan.empty());
                 currIndices = &instanceIndices[(int)nextPathInfo->scissorMode()];
-                atlasOffsetX = static_cast<float>(nextPathInfo->atlasOffsetX());
-                atlasOffsetY = static_cast<float>(nextPathInfo->atlasOffsetY());
-                atlasOffset = {atlasOffsetX, atlasOffsetY};
+                atlasOffset = Sk2f(static_cast<float>(nextPathInfo->atlasOffset().fX),
+                                   static_cast<float>(nextPathInfo->atlasOffset().fY));
                 currFanIsTessellated = nextPathInfo->hasFanTessellation();
                 if (currFanIsTessellated) {
                     emit_tessellated_fan(nextPathInfo->fanTessellation(),
@@ -455,8 +454,8 @@ bool GrCCPathParser::finalize(GrOnFlushResourceProvider* onFlushRP) {
                 continue;
 
             case GrCCGeometry::Verb::kMonotonicCubicTo:
-                quadPointInstanceData[currIndices->fCubics++].set(&pts[ptsIdx], atlasOffsetX,
-                                                                  atlasOffsetY);
+                quadPointInstanceData[currIndices->fCubics++].set(&pts[ptsIdx], atlasOffset[0],
+                                                                  atlasOffset[1]);
                 ptsIdx += 3;
                 if (!currFanIsTessellated) {
                     SkASSERT(!currFan.empty());
