@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dbb18993_1f30ad18",
+        "filename": "gm/polygonoffset.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T12:20:13Z",
+      "side": 1,
+      "message": "// When a variable offset is specified, ...\n\n?",
+      "revId": "4d79665cfcfc731dbb5f9fe0f3038c8f3b3fdf13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b97fa6ab_aee366d2",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T12:20:13Z",
+      "side": 1,
+      "message": "Can this block and the next be some inlined helper function?",
+      "revId": "4d79665cfcfc731dbb5f9fe0f3038c8f3b3fdf13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b557e74_587ba728",
+        "filename": "src/utils/SkOffsetPolygon.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T12:20:13Z",
+      "side": 1,
+      "message": "Would it make sense for \"std::function\u003cSkScalar(const SkPoint\u0026)\u003e\" to be its own type e.g., JimsAwesomeOffsetFunction\n\n?",
+      "revId": "4d79665cfcfc731dbb5f9fe0f3038c8f3b3fdf13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "467bbc40_bd7564dd",
+        "filename": "src/utils/SkOffsetPolygon.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T12:20:13Z",
+      "side": 1,
+      "message": "* Note: to achieve a perspective shadow the offsetDistanceFunc will return a different offset at each point. For orthographically projected shadows, the below version of SkOffsetSimplePolygon should be used.\n\n?",
+      "revId": "4d79665cfcfc731dbb5f9fe0f3038c8f3b3fdf13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a7df241_9199f0a3",
+        "filename": "src/utils/SkOffsetPolygon.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-14T12:20:13Z",
+      "side": 1,
+      "message": "// Simplified version of the above. A positive \u0027offset\u0027 value creates an inset polygon, while a negative value yields and outset polygon.\n\n?",
+      "revId": "4d79665cfcfc731dbb5f9fe0f3038c8f3b3fdf13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
