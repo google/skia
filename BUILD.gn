@@ -804,6 +804,13 @@ if (skia_enable_gpu && skia_generate_workarounds) {
   }
 }
 
+component("arcore") {
+  deps = [
+    "modules/skottie",
+    "modules/skshaper",
+  ]
+}
+
 component("skia") {
   public_configs = [ ":skia_public" ]
   configs += skia_library_configs
@@ -973,6 +980,11 @@ component("skia") {
 
   if (is_fuchsia) {
     sources += [ "src/ports/SkDebug_stdio.cpp" ]
+  }
+
+  defines = []
+  if (skia_tools_require_resources) {
+    defines += [ "SK_TOOLS_REQUIRE_RESOURCES" ]
   }
 }
 
@@ -1992,6 +2004,20 @@ if (skia_enable_tools) {
       "//third_party/imgui",
       "//third_party/jsoncpp",
     ]
+  }
+
+  if (is_android) {
+    test_app("arcore") {
+      is_shared_library = is_android
+      sources = []
+      deps = [
+        ":skia",
+        ":tool_utils",
+        "modules/skottie",
+        "modules/skshaper",
+      ]
+      ldflags = [ "-Wl,--whole-archive" ]
+    }
   }
 
   if (!skia_use_angle && (is_linux || is_win || is_mac)) {

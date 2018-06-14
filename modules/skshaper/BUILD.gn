@@ -13,10 +13,12 @@ config("public_config") {
   }
 }
 
-source_set("skshaper") {
+component("skshaper") {
   if (skia_enable_skshaper) {
     public_configs = [ ":public_config" ]
-    public = [ "include/SkShaper.h" ]
+    public = [
+      "include/SkShaper.h",
+    ]
     deps = [
       "../..:skia",
     ]
@@ -34,7 +36,5 @@ source_set("skshaper") {
       ]
     }
     configs += [ "../../:skia_private" ]
-
   }
 }
-

@@ -3,10 +3,11 @@
 
 buildscript {
     repositories {
+        google()
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.android.tools.build:gradle:3.0.1'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -15,6 +16,7 @@ buildscript {
 
 allprojects {
     repositories {
+        google()
         jcenter()
     }
 }
@@ -42,6 +44,35 @@ def setupSkiaLibraryBuild(project, appVariants, appName) {
         }
         compileTask.findAll()*.dependsOn copyNativeLib
         copyNativeLib.dependsOn buildNativeLib
+    }
+}
+
+def setupSkiaComponentLibraryBuild(project, appVariants, appNames) {
+    print("Initiating skia component build")
+    appVariants.all{ variant ->
+        def buildNativeLib = project.task("${variant.name}_BuildSkiaComponentLib", type:Exec) {
+            workingDir '../../../..' // top-level skia directory
+            commandLine constructComponentBuildCommand(project, variant, appNames).split()
+        }
+        buildNativeLib.onlyIf { !project.hasProperty("suppressNativeBuild") }
+
+        appNames.collect {
+            appName ->
+                def copyNativeLib = project.task("${variant.name}_${appName}_CopySkiaLib", type:Copy) {
+                    def fromDir = getVariantOutDir(project, variant).skiaOut
+                    def intoDir = getVariantOutDir(project, variant).androidOut
+                    from fromDir
+                    into intoDir
+                    include "lib${appName}.so"
+                }
+                TaskCollection<Task> compileTask = project.tasks.matching {
+                    //  println(it.name)
+                    it.name.toLowerCase().contains("compile" + variant.name.toLowerCase()) &&
+                            it.name.toLowerCase().endsWith("ndk")
+                }
+                compileTask.findAll()*.dependsOn copyNativeLib
+                copyNativeLib.dependsOn buildNativeLib
+        }
     }
 }
 
@@ -105,5 +136,34 @@ def constructBuildCommand(project, variant, appName) {
     }
 
     String out_dir = getVariantOutDir(project, variant).skiaOut
+
     return "${depotToolsDir}/ninja -C $out_dir $appName"
+}
+
+def constructComponentBuildCommand(project, variant, appNames) {
+    print("Constructing Component Build Command")
+    String depotToolsDir = null
+    for (String entry : System.getenv("PATH").split(":")) {
+        if (entry.contains("depot_tools")) {
+            depotToolsDir = entry;
+            break;
+        }
+    }
+    if (depotToolsDir == null) {
+        depotToolsDir = getLocalProperties().getProperty('depot_tools.dir', null)
+    }
+
+    if (depotToolsDir == null) {
+        throw GradleScriptException("Depot Tools not found! Please update your path to include" +
+                " depot_tools or define depot_tools.dir in local.properties")
+    }
+
+    String out_dir = getVariantOutDir(project, variant).skiaOut
+    String concatApps = ""
+    for (int i = 0; i < appNames.size(); i++) {
+        concatApps = concatApps + appNames.get(i) + " "
+    }
+    print(concatApps)
+
+    return "${depotToolsDir}/ninja -C $out_dir $concatApps"
 }

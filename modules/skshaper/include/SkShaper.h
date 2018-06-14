@@ -22,7 +22,7 @@ class SkTextBlobBuilder;
 
    If compiled without HarfBuzz, fall back on SkPaint::textToGlyphs.
  */
-class SkShaper {
+class SK_API SkShaper {
 public:
     SkShaper(sk_sp<SkTypeface> face);
     ~SkShaper();

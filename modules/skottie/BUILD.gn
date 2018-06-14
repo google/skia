@@ -14,7 +14,7 @@ config("public_config") {
   }
 }
 
-source_set("skottie") {
+component("skottie") {
   if (skia_enable_skottie) {
     public_configs = [ ":public_config" ]
     public = [
@@ -38,41 +38,4 @@ source_set("skottie") {
       "../sksg:sksg",
     ]
   }
-}
-
-source_set("fuzz") {
-  if (skia_enable_skottie) {
-    testonly = true
-
-    configs += [ "../..:skia_private" ]
-    sources = [
-      "fuzz/FuzzSkottieJSON.cpp",
-    ]
-
-    deps = [
-      "../..:skia",
-    ]
-
-    public_deps = [
-      ":skottie",
-    ]
-  }
-}
-
-source_set("tool") {
-  testonly = true
-
-  configs += [ "../..:skia_private" ]
-  sources = [
-    "src/SkottieTool.cpp",
-  ]
-
-  deps = [
-    "../..:flags",
-    "../..:skia",
-  ]
-
-  public_deps = [
-    ":skottie",
-  ]
 }
