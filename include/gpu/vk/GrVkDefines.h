@@ -9,6 +9,8 @@
 #ifndef GrVkDefines_DEFINED
 #define GrVkDefines_DEFINED
 
+#include "SkTypes.h"
+
 #ifdef SK_VULKAN
 
 #ifdef SK_VULKAN_HEADER
