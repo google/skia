@@ -1269,7 +1269,7 @@ Returns the dot product of Vector and Vector vec.
     typedef SkPoint SkVector;
     ##
     SkVector provides an alternative name for SkPoint. SkVector and SkPoint can
-    be used interchangably for all purposes.
+    be used interchangeably for all purposes.
     #Typedef ##
 ##
 

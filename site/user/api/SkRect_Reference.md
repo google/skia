@@ -2138,7 +2138,7 @@ If <a href='#SkRect_makeOffset_dy'>dy</a> is positive, <a href='#Rect'>Rect</a> 
 
 ### Return Value
 
-<a href='#Rect'>Rect</a> offset in x or y, with original width and height
+<a href='#Rect'>Rect</a> offset on axes, with original width and height
 
 ### Example
 
@@ -2693,16 +2693,16 @@ Returns false if either construction or <a href='#Rect'>Rect</a> is empty, leavi
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRect_intersect_2_left'><code><strong>left</strong></code></a></td>
-    <td>x minimum of constructed <a href='#Rect'>Rect</a></td>
+    <td>x-axis minimum of constructed <a href='#Rect'>Rect</a></td>
   </tr>
   <tr>    <td><a name='SkRect_intersect_2_top'><code><strong>top</strong></code></a></td>
-    <td>y minimum of constructed <a href='#Rect'>Rect</a></td>
+    <td>y-axis minimum of constructed <a href='#Rect'>Rect</a></td>
   </tr>
   <tr>    <td><a name='SkRect_intersect_2_right'><code><strong>right</strong></code></a></td>
-    <td>x maximum of constructed <a href='#Rect'>Rect</a></td>
+    <td>x-axis maximum of constructed <a href='#Rect'>Rect</a></td>
   </tr>
   <tr>    <td><a name='SkRect_intersect_2_bottom'><code><strong>bottom</strong></code></a></td>
-    <td>y maximum of constructed <a href='#Rect'>Rect</a></td>
+    <td>y-axis maximum of constructed <a href='#Rect'>Rect</a></td>
   </tr>
 </table>
 
@@ -2790,16 +2790,16 @@ Returns false if either construction or <a href='#Rect'>Rect</a> is empty, or do
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRect_intersects_left'><code><strong>left</strong></code></a></td>
-    <td>x minimum of constructed <a href='#Rect'>Rect</a></td>
+    <td>x-axis minimum of constructed <a href='#Rect'>Rect</a></td>
   </tr>
   <tr>    <td><a name='SkRect_intersects_top'><code><strong>top</strong></code></a></td>
-    <td>y minimum of constructed <a href='#Rect'>Rect</a></td>
+    <td>y-axis minimum of constructed <a href='#Rect'>Rect</a></td>
   </tr>
   <tr>    <td><a name='SkRect_intersects_right'><code><strong>right</strong></code></a></td>
-    <td>x maximum of constructed <a href='#Rect'>Rect</a></td>
+    <td>x-axis maximum of constructed <a href='#Rect'>Rect</a></td>
   </tr>
   <tr>    <td><a name='SkRect_intersects_bottom'><code><strong>bottom</strong></code></a></td>
-    <td>y maximum of constructed <a href='#Rect'>Rect</a></td>
+    <td>y-axis maximum of constructed <a href='#Rect'>Rect</a></td>
   </tr>
 </table>
 
@@ -2948,16 +2948,16 @@ Has no effect if construction is empty. Otherwise, if <a href='#Rect'>Rect</a> i
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRect_join_left'><code><strong>left</strong></code></a></td>
-    <td>x minimum of constructed <a href='#Rect'>Rect</a></td>
+    <td>x-axis minimum of constructed <a href='#Rect'>Rect</a></td>
   </tr>
   <tr>    <td><a name='SkRect_join_top'><code><strong>top</strong></code></a></td>
-    <td>y minimum of constructed <a href='#Rect'>Rect</a></td>
+    <td>y-axis minimum of constructed <a href='#Rect'>Rect</a></td>
   </tr>
   <tr>    <td><a name='SkRect_join_right'><code><strong>right</strong></code></a></td>
-    <td>x maximum of constructed <a href='#Rect'>Rect</a></td>
+    <td>x-axis maximum of constructed <a href='#Rect'>Rect</a></td>
   </tr>
   <tr>    <td><a name='SkRect_join_bottom'><code><strong>bottom</strong></code></a></td>
-    <td>y maximum of constructed <a href='#Rect'>Rect</a></td>
+    <td>y-axis maximum of constructed <a href='#Rect'>Rect</a></td>
   </tr>
 </table>
 

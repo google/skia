@@ -1252,8 +1252,8 @@ Does not copy, and returns false if:
 ##
 
 #Param dst  storage for pixels copied from Surface ##
-#Param srcX  offset into readable pixels in x; may be negative ##
-#Param srcY  offset into readable pixels in y; may be negative ##
+#Param srcX  offset into readable pixels on x-axis; may be negative ##
+#Param srcY  offset into readable pixels on y-axis; may be negative ##
 
 #Return true if pixels were copied ##
 
@@ -1313,8 +1313,8 @@ Does not copy, and returns false if:
 #Param dstInfo  width, height, Color_Type, and Alpha_Type of dstPixels ##
 #Param dstPixels  storage for pixels; dstInfo.height() times dstRowBytes, or larger ##
 #Param dstRowBytes  size of one destination row; dstInfo.width() times pixel size, or larger ##
-#Param srcX  offset into readable pixels in x; may be negative ##
-#Param srcY  offset into readable pixels in y; may be negative ##
+#Param srcX  offset into readable pixels on x-axis; may be negative ##
+#Param srcY  offset into readable pixels on y-axis; may be negative ##
 
 #Return true if pixels were copied ##
 
@@ -1377,8 +1377,8 @@ Does not copy, and returns false if:
 ##
 
 #Param dst  storage for pixels copied from Surface ##
-#Param srcX  offset into readable pixels in x; may be negative ##
-#Param srcY  offset into readable pixels in y; may be negative ##
+#Param srcX  offset into readable pixels on x-axis; may be negative ##
+#Param srcY  offset into readable pixels on y-axis; may be negative ##
 
 #Return true if pixels were copied ##
 
@@ -1421,8 +1421,8 @@ Copies each readable pixel intersecting both rectangles, without scaling,
 converting to Surface colorType() and Surface alphaType() if required.
 
 #Param src  storage for pixels to copy to Surface ##
-#Param dstX x position relative to Surface to begin copy; may be negative ##
-#Param dstY x position relative to Surface to begin copy; may be negative ##
+#Param dstX x-axis position relative to Surface to begin copy; may be negative ##
+#Param dstY y-axis position relative to Surface to begin copy; may be negative ##
 
 #Example
 #Image 4
@@ -1461,8 +1461,8 @@ Copies each readable pixel intersecting both rectangles, without scaling,
 converting to Surface colorType() and Surface alphaType() if required.
 
 #Param src  storage for pixels to copy to Surface ##
-#Param dstX x position relative to Surface to begin copy; may be negative ##
-#Param dstY x position relative to Surface to begin copy; may be negative ##
+#Param dstX x-axis position relative to Surface to begin copy; may be negative ##
+#Param dstY y-axis position relative to Surface to begin copy; may be negative ##
 
 #Example
 #Image 4

@@ -387,7 +387,7 @@ SkCanvas member functions read and modify the structure properties.
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawPatch'>drawPatch</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>draws Coons_Patch</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>draws <a href='undocumented#Coons_Patch'>Coons Patch</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawPath'>drawPath</a></td>
@@ -1521,10 +1521,10 @@ Does not copy, and returns false if:
     <td>size of one destination row; <a href='#SkCanvas_readPixels_dstInfo'>dstInfo</a>.width() times pixel size, or larger</td>
   </tr>
   <tr>    <td><a name='SkCanvas_readPixels_srcX'><code><strong>srcX</strong></code></a></td>
-    <td>offset into readable pixels in x; may be negative</td>
+    <td>offset into readable pixels on x-axis; may be negative</td>
   </tr>
   <tr>    <td><a name='SkCanvas_readPixels_srcY'><code><strong>srcY</strong></code></a></td>
-    <td>offset into readable pixels in y; may be negative</td>
+    <td>offset into readable pixels on y-axis; may be negative</td>
   </tr>
 </table>
 
@@ -1611,10 +1611,10 @@ Does not copy, and returns false if:
     <td>storage for pixels copied from <a href='#Canvas'>Canvas</a></td>
   </tr>
   <tr>    <td><a name='SkCanvas_readPixels_2_srcX'><code><strong>srcX</strong></code></a></td>
-    <td>offset into readable pixels in x; may be negative</td>
+    <td>offset into readable pixels on x-axis; may be negative</td>
   </tr>
   <tr>    <td><a name='SkCanvas_readPixels_2_srcY'><code><strong>srcY</strong></code></a></td>
-    <td>offset into readable pixels in y; may be negative</td>
+    <td>offset into readable pixels on y-axis; may be negative</td>
   </tr>
 </table>
 
@@ -1691,10 +1691,10 @@ Does not copy, and returns false if:
     <td>storage for pixels copied from <a href='#Canvas'>Canvas</a></td>
   </tr>
   <tr>    <td><a name='SkCanvas_readPixels_3_srcX'><code><strong>srcX</strong></code></a></td>
-    <td>offset into readable pixels in x; may be negative</td>
+    <td>offset into readable pixels on x-axis; may be negative</td>
   </tr>
   <tr>    <td><a name='SkCanvas_readPixels_3_srcY'><code><strong>srcY</strong></code></a></td>
-    <td>offset into readable pixels in y; may be negative</td>
+    <td>offset into readable pixels on y-axis; may be negative</td>
   </tr>
 </table>
 
@@ -1776,10 +1776,10 @@ Does not copy, and returns false if:
     <td>size of one row of <a href='#SkCanvas_writePixels_pixels'>pixels</a>; <a href='#SkCanvas_writePixels_info'>info</a>.width() times pixel size, or larger</td>
   </tr>
   <tr>    <td><a name='SkCanvas_writePixels_x'><code><strong>x</strong></code></a></td>
-    <td>offset into <a href='#Canvas'>Canvas</a> writable <a href='#SkCanvas_writePixels_pixels'>pixels</a> in <a href='#SkCanvas_writePixels_x'>x</a>; may be negative</td>
+    <td>offset into <a href='#Canvas'>Canvas</a> writable <a href='#SkCanvas_writePixels_pixels'>pixels</a> on <a href='#SkCanvas_writePixels_x'>x</a>-axis; may be negative</td>
   </tr>
   <tr>    <td><a name='SkCanvas_writePixels_y'><code><strong>y</strong></code></a></td>
-    <td>offset into <a href='#Canvas'>Canvas</a> writable <a href='#SkCanvas_writePixels_pixels'>pixels</a> in <a href='#SkCanvas_writePixels_y'>y</a>; may be negative</td>
+    <td>offset into <a href='#Canvas'>Canvas</a> writable <a href='#SkCanvas_writePixels_pixels'>pixels</a> on <a href='#SkCanvas_writePixels_y'>y</a>-axis; may be negative</td>
   </tr>
 </table>
 
@@ -2800,10 +2800,10 @@ transforming the result with <a href='#Matrix'>Matrix</a>.
     <td>amount to rotate, in <a href='#SkCanvas_rotate_2_degrees'>degrees</a></td>
   </tr>
   <tr>    <td><a name='SkCanvas_rotate_2_px'><code><strong>px</strong></code></a></td>
-    <td>x-coordinate of the point to rotate about</td>
+    <td>x-axis value of the point to rotate about</td>
   </tr>
   <tr>    <td><a name='SkCanvas_rotate_2_py'><code><strong>py</strong></code></a></td>
-    <td>y-coordinate of the point to rotate about</td>
+    <td>y-axis value of the point to rotate about</td>
   </tr>
 </table>
 
@@ -2825,8 +2825,8 @@ void <a href='#SkCanvas_skew'>skew</a>(<a href='undocumented#SkScalar'>SkScalar<
 </pre>
 
 Skew <a href='#Matrix'>Matrix</a> by <a href='#SkCanvas_skew_sx'>sx</a> on the x-axis and <a href='#SkCanvas_skew_sy'>sy</a> on the y-axis. A positive value of <a href='#SkCanvas_skew_sx'>sx</a>
-skews the drawing right as y increases; a positive value of <a href='#SkCanvas_skew_sy'>sy</a> skews the drawing
-down as x increases.
+skews the drawing right as y-axis values increase; a positive value of <a href='#SkCanvas_skew_sy'>sy</a> skews
+the drawing down as x-axis values increase.
 
 Mathematically, replace <a href='#Matrix'>Matrix</a> with a skew matrix <a href='undocumented#Premultiply'>Premultiplied</a> with <a href='#Matrix'>Matrix</a>.
 
@@ -2836,20 +2836,20 @@ the result with <a href='#Matrix'>Matrix</a>.
 ### Parameters
 
 <table>  <tr>    <td><a name='SkCanvas_skew_sx'><code><strong>sx</strong></code></a></td>
-    <td>amount to skew in x</td>
+    <td>amount to skew on x-axis</td>
   </tr>
   <tr>    <td><a name='SkCanvas_skew_sy'><code><strong>sy</strong></code></a></td>
-    <td>amount to skew in y</td>
+    <td>amount to skew on y-axis</td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="2e2acc21d7774df7e0940a30ad2ca99e"><div>Black text mimics an oblique text style by using a negative skew in x that
-shifts the geometry to the right as the y values decrease.
-Red text uses a positive skew in y to shift the geometry down as the x values
-increase.
-Blue text combines x and y skew to rotate and scale.
+<div><fiddle-embed name="2e2acc21d7774df7e0940a30ad2ca99e"><div>Black text mimics an oblique text style by using a negative skew on x-axis
+that shifts the geometry to the right as the y-axis values decrease.
+Red text uses a positive skew on y-axis to shift the geometry down
+as the x-axis values increase.
+Blue text combines <a href='#SkCanvas_skew_sx'>sx</a> and <a href='#SkCanvas_skew_sy'>sy</a> skew to rotate and scale.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -3486,7 +3486,8 @@ bounds of <a href='#Clip'>Clip</a> in local coordinates
 
 <div><fiddle-embed name="7f60cb030d3f9b2473adbe3e34b19d91"><div>Initial bounds is device bounds outset by 1 on all sides.
 Clipped bounds is <a href='#SkCanvas_clipPath'>clipPath</a> bounds outset by 1 on all sides.
-Scaling the canvas by two in x and y scales the local bounds by 1/2 in x and y.
+Scaling the canvas by two on both axes scales the local bounds by 1/2
+on both axes.
 </div>
 
 #### Example Output
@@ -3567,7 +3568,8 @@ bounds of <a href='#Clip'>Clip</a> in <a href='undocumented#Device'>Device</a> c
 
 <div><fiddle-embed name="556832ac5711af662a98c21c547185e9"><div>Initial bounds is device bounds, not outset.
 Clipped bounds is <a href='#SkCanvas_clipPath'>clipPath</a> bounds, not outset.
-Scaling the canvas by 1/2 in x and y scales the device bounds by 1/2 in x and y.
+Scaling the canvas by 1/2 on both axes scales the device bounds by 1/2
+on both axes.
 </div>
 
 #### Example Output
@@ -3731,7 +3733,7 @@ device bounds empty = true
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawPatch'>drawPatch</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>draws Coons_Patch</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>draws <a href='undocumented#Coons_Patch'>Coons Patch</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
@@ -4558,10 +4560,10 @@ If <a href='#SkCanvas_drawRoundRect_rx'>rx</a> and <a href='#SkCanvas_drawRoundR
     <td><a href='SkRect_Reference#Rect'>Rect</a> bounds of <a href='undocumented#Round_Rect'>Round Rect</a> to draw</td>
   </tr>
   <tr>    <td><a name='SkCanvas_drawRoundRect_rx'><code><strong>rx</strong></code></a></td>
-    <td>axis length in x of oval describing rounded corners</td>
+    <td>axis length on x-axis of oval describing rounded corners</td>
   </tr>
   <tr>    <td><a name='SkCanvas_drawRoundRect_ry'><code><strong>ry</strong></code></a></td>
-    <td>axis length in y of oval describing rounded corners</td>
+    <td>axis length on y-axis of oval describing rounded corners</td>
   </tr>
   <tr>    <td><a name='SkCanvas_drawRoundRect_paint'><code><strong>paint</strong></code></a></td>
     <td>stroke, blend, color, and so on, used to draw</td>
@@ -5574,7 +5576,7 @@ draws one of fColors into lattice rectangle</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>const&nbsp;int*</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_Lattice_fXDivs'><code>fXDivs</code></a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Array of x-coordinates that divide the bitmap vertically.
+Array of x-axis values that divide the bitmap vertically.
 Array entries must be unique, increasing, greater than or equal to
 <a href='#SkCanvas_Lattice_fBounds'>fBounds</a> left edge, and less than <a href='#SkCanvas_Lattice_fBounds'>fBounds</a> right edge.
 Set the first element to <a href='#SkCanvas_Lattice_fBounds'>fBounds</a> left to collapse the left column of
@@ -5585,7 +5587,7 @@ fixed grid entries.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>const&nbsp;int*</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_Lattice_fYDivs'><code>fYDivs</code></a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Array of y-coordinates that divide the bitmap horizontally.
+Array of y-axis values that divide the bitmap horizontally.
 Array entries must be unique, increasing, greater than or equal to
 <a href='#SkCanvas_Lattice_fBounds'>fBounds</a> top edge, and less than <a href='#SkCanvas_Lattice_fBounds'>fBounds</a> bottom edge.
 Set the first element to <a href='#SkCanvas_Lattice_fBounds'>fBounds</a> top to collapse the top row of fixed
@@ -5981,10 +5983,9 @@ void <a href='#SkCanvas_drawPosText'>drawPosText</a>(const void* text, size_t by
 described by <a href='#SkCanvas_drawPosText_byteLength'>byteLength</a> of <a href='#SkCanvas_drawPosText_text'>text</a>.
 
 <a href='#SkCanvas_drawPosText_text'>text</a> meaning depends on <a href='SkPaint_Reference#Text_Encoding'>Paint Text Encoding</a>; by default, <a href='#SkCanvas_drawPosText_text'>text</a> is encoded as
-UTF-8. <a href='#SkCanvas_drawPosText_pos'>pos</a> elements meaning depends on <a href='SkPaint_Reference#Vertical_Text'>Paint Vertical Text</a>;
-by default each glyph left side bearing is positioned at x and its
-baseline is positioned at y. <a href='undocumented#Text'>Text</a> size is affected by <a href='#Matrix'>Matrix</a> and
-<a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>.
+UTF-8. <a href='#SkCanvas_drawPosText_pos'>pos</a> elements meaning depends on <a href='SkPaint_Reference#Vertical_Text'>Paint Vertical Text</a>; by default
+glyph left side bearing and baseline are relative to <a href='SkPoint_Reference#Point'>Point</a> in <a href='#SkCanvas_drawPosText_pos'>pos</a> array.
+<a href='undocumented#Text'>Text</a> size is affected by <a href='#Matrix'>Matrix</a> and <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>.
 
 All elements of <a href='#SkCanvas_drawPosText_paint'>paint</a>: <a href='undocumented#Path_Effect'>Path Effect</a>, <a href='undocumented#Mask_Filter'>Mask Filter</a>, <a href='undocumented#Shader'>Shader</a>,
 <a href='undocumented#Color_Filter'>Color Filter</a>, <a href='undocumented#Image_Filter'>Image Filter</a>, and <a href='undocumented#Draw_Looper'>Draw Looper</a>; apply to <a href='#SkCanvas_drawPosText_text'>text</a>. By default, draws
@@ -6054,10 +6055,10 @@ baseline.
     <td>byte length of <a href='#SkCanvas_drawPosTextH_text'>text</a> array</td>
   </tr>
   <tr>    <td><a name='SkCanvas_drawPosTextH_xpos'><code><strong>xpos</strong></code></a></td>
-    <td>array of x positions, used to position each glyph</td>
+    <td>array of x-axis positions, used to position each glyph</td>
   </tr>
   <tr>    <td><a name='SkCanvas_drawPosTextH_constY'><code><strong>constY</strong></code></a></td>
-    <td>shared y coordinate for all of x positions</td>
+    <td>shared y-axis value for all of x-axis positions</td>
   </tr>
   <tr>    <td><a name='SkCanvas_drawPosTextH_paint'><code><strong>paint</strong></code></a></td>
     <td><a href='#SkCanvas_drawPosTextH_text'>text</a> size, blend, color, and so on, used to draw</td>
@@ -6092,8 +6093,8 @@ than the <a href='#SkCanvas_drawTextOnPathHV_path'>path</a> length, the excess <
 
 <a href='#SkCanvas_drawTextOnPathHV_text'>text</a> meaning depends on <a href='SkPaint_Reference#Text_Encoding'>Paint Text Encoding</a>; by default, <a href='#SkCanvas_drawTextOnPathHV_text'>text</a> is encoded as
 UTF-8. Origin meaning depends on <a href='SkPaint_Reference#Text_Align'>Paint Text Align</a> and <a href='SkPaint_Reference#Vertical_Text'>Paint Vertical Text</a>; by
-default <a href='#SkCanvas_drawTextOnPathHV_text'>text</a> positions the first glyph left side bearing at origin x and its
-baseline at origin y. <a href='undocumented#Text'>Text</a> size is affected by <a href='#Matrix'>Matrix</a> and <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>.
+default <a href='#SkCanvas_drawTextOnPathHV_text'>text</a> positions the first glyph left side bearing and baseline relative
+to origin. <a href='undocumented#Text'>Text</a> size is affected by <a href='#Matrix'>Matrix</a> and <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>.
 
 All elements of <a href='#SkCanvas_drawTextOnPathHV_paint'>paint</a>: <a href='undocumented#Path_Effect'>Path Effect</a>, <a href='undocumented#Mask_Filter'>Mask Filter</a>, <a href='undocumented#Shader'>Shader</a>,
 <a href='undocumented#Color_Filter'>Color Filter</a>, <a href='undocumented#Image_Filter'>Image Filter</a>, and <a href='undocumented#Draw_Looper'>Draw Looper</a>; apply to <a href='#SkCanvas_drawTextOnPathHV_text'>text</a>. By default, draws
@@ -6151,8 +6152,8 @@ If the <a href='#SkCanvas_drawTextOnPath_text'>text</a> advance is larger than t
 
 <a href='#SkCanvas_drawTextOnPath_text'>text</a> meaning depends on <a href='SkPaint_Reference#Text_Encoding'>Paint Text Encoding</a>; by default, <a href='#SkCanvas_drawTextOnPath_text'>text</a> is encoded as
 UTF-8. Origin meaning depends on <a href='SkPaint_Reference#Text_Align'>Paint Text Align</a> and <a href='SkPaint_Reference#Vertical_Text'>Paint Vertical Text</a>; by
-default <a href='#SkCanvas_drawTextOnPath_text'>text</a> positions the first glyph left side bearing at origin x and its
-baseline at origin y. <a href='undocumented#Text'>Text</a> size is affected by <a href='#SkCanvas_drawTextOnPath_matrix'>matrix</a> parameter, <a href='#Canvas'>Canvas</a> <a href='#Matrix'>Matrix</a>,
+default <a href='#SkCanvas_drawTextOnPath_text'>text</a> positions the first glyph left side bearing and baseline relative
+to origin. <a href='undocumented#Text'>Text</a> size is affected by <a href='#SkCanvas_drawTextOnPath_matrix'>matrix</a> parameter, <a href='#Canvas'>Canvas</a> <a href='#Matrix'>Matrix</a>,
 and <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>.
 
 All elements of <a href='#SkCanvas_drawTextOnPath_paint'>paint</a>: <a href='undocumented#Path_Effect'>Path Effect</a>, <a href='undocumented#Mask_Filter'>Mask Filter</a>, <a href='undocumented#Shader'>Shader</a>,
@@ -6538,12 +6539,12 @@ void <a href='#SkCanvas_drawPatch'>drawPatch</a>(const <a href='SkPoint_Referenc
                <a href='undocumented#SkBlendMode'>SkBlendMode</a> mode, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
 </pre>
 
-Draws a Coons_Patch: the interpolation of four <a href='#SkCanvas_drawPatch_cubics'>cubics</a> with shared corners,
-associating a color, and optionally a texture coordinate, with each corner.
+Draws a <a href='undocumented#Coons_Patch'>Coons Patch</a>: the interpolation of four <a href='#SkCanvas_drawPatch_cubics'>cubics</a> with shared corners,
+associating a color, and optionally a texture <a href='SkPoint_Reference#Point'>Point</a>, with each corner.
 
-Coons_Patch uses <a href='#Clip'>Clip</a> and <a href='#Matrix'>Matrix</a>, <a href='#SkCanvas_drawPatch_paint'>paint</a> <a href='undocumented#Shader'>Shader</a>, <a href='undocumented#Color_Filter'>Color Filter</a>,
+<a href='undocumented#Coons_Patch'>Coons Patch</a> uses <a href='#Clip'>Clip</a> and <a href='#Matrix'>Matrix</a>, <a href='#SkCanvas_drawPatch_paint'>paint</a> <a href='undocumented#Shader'>Shader</a>, <a href='undocumented#Color_Filter'>Color Filter</a>,
 <a href='SkColor_Reference#Alpha'>Color Alpha</a>, <a href='undocumented#Image_Filter'>Image Filter</a>, and <a href='undocumented#Blend_Mode'>Blend Mode</a>. If <a href='undocumented#Shader'>Shader</a> is provided it is treated
-as Coons_Patch texture; <a href='undocumented#Blend_Mode'>Blend Mode</a> <a href='#SkCanvas_drawPatch_mode'>mode</a> combines <a href='SkColor_Reference#Color'>Color</a> <a href='#SkCanvas_drawPatch_colors'>colors</a> and <a href='undocumented#Shader'>Shader</a> if
+as <a href='undocumented#Coons_Patch'>Coons Patch</a> texture; <a href='undocumented#Blend_Mode'>Blend Mode</a> <a href='#SkCanvas_drawPatch_mode'>mode</a> combines <a href='SkColor_Reference#Color'>Color</a> <a href='#SkCanvas_drawPatch_colors'>colors</a> and <a href='undocumented#Shader'>Shader</a> if
 both are provided.
 
 <a href='SkPoint_Reference#Point'>Point</a> array <a href='#SkCanvas_drawPatch_cubics'>cubics</a> specifies four <a href='SkPath_Reference#Cubic'>Cubics</a> starting at the top-left corner,
@@ -6593,12 +6594,12 @@ void <a href='#SkCanvas_drawPatch'>drawPatch</a>(const <a href='SkPoint_Referenc
                const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
 </pre>
 
-Draws <a href='SkPath_Reference#Cubic'>Cubic</a> Coons_Patch: the interpolation of four <a href='#SkCanvas_drawPatch_2_cubics'>cubics</a> with shared corners,
-associating a color, and optionally a texture coordinate, with each corner.
+Draws <a href='SkPath_Reference#Cubic'>Cubic</a> <a href='undocumented#Coons_Patch'>Coons Patch</a>: the interpolation of four <a href='#SkCanvas_drawPatch_2_cubics'>cubics</a> with shared corners,
+associating a color, and optionally a texture <a href='SkPoint_Reference#Point'>Point</a>, with each corner.
 
-Coons_Patch uses <a href='#Clip'>Clip</a> and <a href='#Matrix'>Matrix</a>, <a href='#SkCanvas_drawPatch_2_paint'>paint</a> <a href='undocumented#Shader'>Shader</a>, <a href='undocumented#Color_Filter'>Color Filter</a>,
+<a href='undocumented#Coons_Patch'>Coons Patch</a> uses <a href='#Clip'>Clip</a> and <a href='#Matrix'>Matrix</a>, <a href='#SkCanvas_drawPatch_2_paint'>paint</a> <a href='undocumented#Shader'>Shader</a>, <a href='undocumented#Color_Filter'>Color Filter</a>,
 <a href='SkColor_Reference#Alpha'>Color Alpha</a>, <a href='undocumented#Image_Filter'>Image Filter</a>, and <a href='undocumented#Blend_Mode'>Blend Mode</a>. If <a href='undocumented#Shader'>Shader</a> is provided it is treated
-as Coons_Patch texture; <a href='undocumented#Blend_Mode'>Blend Mode</a> mode combines <a href='SkColor_Reference#Color'>Color</a> <a href='#SkCanvas_drawPatch_2_colors'>colors</a> and <a href='undocumented#Shader'>Shader</a> if
+as <a href='undocumented#Coons_Patch'>Coons Patch</a> texture; <a href='undocumented#Blend_Mode'>Blend Mode</a> mode combines <a href='SkColor_Reference#Color'>Color</a> <a href='#SkCanvas_drawPatch_2_colors'>colors</a> and <a href='undocumented#Shader'>Shader</a> if
 both are provided.
 
 <a href='SkPoint_Reference#Point'>Point</a> array <a href='#SkCanvas_drawPatch_2_cubics'>cubics</a> specifies four <a href='SkPath_Reference#Cubic'>Cubics</a> starting at the top-left corner,
@@ -6905,10 +6906,10 @@ immediate drawing, call <a href='undocumented#SkDrawable_draw'>SkDrawable::draw(
     <td>custom struct encapsulating drawing commands</td>
   </tr>
   <tr>    <td><a name='SkCanvas_drawDrawable_2_x'><code><strong>x</strong></code></a></td>
-    <td>offset into <a href='#Canvas'>Canvas</a> writable pixels in <a href='#SkCanvas_drawDrawable_2_x'>x</a></td>
+    <td>offset into <a href='#Canvas'>Canvas</a> writable pixels on <a href='#SkCanvas_drawDrawable_2_x'>x</a>-axis</td>
   </tr>
   <tr>    <td><a name='SkCanvas_drawDrawable_2_y'><code><strong>y</strong></code></a></td>
-    <td>offset into <a href='#Canvas'>Canvas</a> writable pixels in <a href='#SkCanvas_drawDrawable_2_y'>y</a></td>
+    <td>offset into <a href='#Canvas'>Canvas</a> writable pixels on <a href='#SkCanvas_drawDrawable_2_y'>y</a>-axis</td>
   </tr>
 </table>
 

@@ -1132,11 +1132,11 @@ Creates Shader from Image. Shader dimensions are taken from Image. Shader uses
 SkShader::TileMode rules to fill drawn area outside Image. localMatrix permits
 transforming Image before Canvas_Matrix is applied.
 
-#Param tileMode1  tiling in x, one of: SkShader::kClamp_TileMode, SkShader::kRepeat_TileMode,
-                  SkShader::kMirror_TileMode
+#Param tileMode1  tiling on x-axis, one of: SkShader::kClamp_TileMode,
+                  SkShader::kRepeat_TileMode, SkShader::kMirror_TileMode
 ##
-#Param tileMode2  tiling in y, one of: SkShader::kClamp_TileMode, SkShader::kRepeat_TileMode,
-                  SkShader::kMirror_TileMode
+#Param tileMode2  tiling on y-axis, one of: SkShader::kClamp_TileMode,
+                  SkShader::kRepeat_TileMode, SkShader::kMirror_TileMode
 ##
 #Param localMatrix  Image transformation, or nullptr ##
 
@@ -1779,17 +1779,17 @@ pixels in Image could not be read or copied.
 #In Constructor
 #Line # creates Image matching Color_Space if possible ##
 Returns Image backed by GPU_Texture associated with context. Returned Image is
-compatible with Surface created with dstColorSpace. The returned Image will also
-support the request GrMipMapped status. In other words if mipMapped is GrMipMapped::kYes,
-then the backing texture will have Mip_Map levels allocated. Returns original Image if context
-and dstColorSpace match and mipMapped is compatible with the backing GPU_Texture.
+compatible with Surface created with dstColorSpace. The returned Image respects
+mipMapped setting; if mipMapped equals GrMipMapped::kYes, the backing texture
+allocates Mip_Map levels. Returns original Image if context
+and dstColorSpace match and mipMapped is compatible with backing GPU_Texture.
 
 Returns nullptr if context is nullptr, or if Image was created with another
 GrContext.
 
 #Param context  GPU_Context ##
 #Param dstColorSpace  range of colors of matching Surface on GPU ##
-#Param mipMapped  whether the returned SkImage's texture must have allocated Mip_Map levels ##
+#Param mipMapped  whether created Image texture must allocate Mip_Map levels ##
 
 #Return created Image, or nullptr ##
 

@@ -1892,7 +1892,7 @@ path2 bounds = 10, 20, 30, 40
 #Method const SkRect& getBounds() const
 #In Property
 #Line # returns maximum and minimum of Point_Array ##
-Returns minimum and maximum x and y values of Point_Array.
+Returns minimum and maximum axes values of Point_Array.
 Returns (0, 0, 0, 0) if Path contains no points. Returned bounds width and height may
 be larger or smaller than area affected when Path is drawn.
 
@@ -1980,7 +1980,7 @@ cached avg: 0.182784 ms
 #Method SkRect computeTightBounds() const
 #In Property
 #Line # returns extent of geometry ##
-Returns minimum and maximum x and y values of the lines and curves in Path.
+Returns minimum and maximum axes values of the lines and curves in Path.
 Returns (0, 0, 0, 0) if Path contains no points.
 Returned bounds width and height may be larger or smaller than area affected
 when Path is drawn.
@@ -2118,8 +2118,8 @@ void draw(SkCanvas* canvas) {
 #Line # starts Contour ##
 Adds beginning of Contour at Point (x, y).
 
-#Param x  x-coordinate of Contour start ##
-#Param y  y-coordinate of Contour start ##
+#Param x  x-axis value of Contour start ##
+#Param y  y-axis value of Contour start ##
 
 #Example
     #Width 140
@@ -2178,8 +2178,8 @@ If Path is empty, starts Contour at (dx, dy).
 Otherwise, start Contour at Last_Point offset by (dx, dy).
 Function name stands for "relative move to".
 
-#Param dx  offset from Last_Point x to Contour start x ##
-#Param dy  offset from Last_Point y to Contour start y ##
+#Param dx  offset from Last_Point to Contour start on x-axis ##
+#Param dy  offset from Last_Point to Contour start on y-axis ##
 
 #Example
     #Height 100
@@ -2288,8 +2288,8 @@ then appends kLine_Verb to Verb_Array and Line end to Point_Array.
 Line end is Last_Point plus Vector (dx, dy).
 Function name stands for "relative line to".
 
-#Param dx  offset from Last_Point x to Line end x ##
-#Param dy  offset from Last_Point y to Line end y ##
+#Param dx  offset from Last_Point to Line end on x-axis ##
+#Param dy  offset from Last_Point to Line end on y-axis ##
 
 #Example
 #Height 128
@@ -2460,10 +2460,10 @@ void draw(SkCanvas* canvas) {
     Quad end is Last_Point plus Vector (dx2, dy2).
     Function name stands for "relative quad to".
 
-    #Param dx1  offset from Last_Point x to Quad control x ##
-    #Param dy1  offset from Last_Point x to Quad control y ##
-    #Param dx2  offset from Last_Point x to Quad end x ##
-    #Param dy2  offset from Last_Point x to Quad end y ##
+    #Param dx1  offset from Last_Point to Quad control on x-axis ##
+    #Param dy1  offset from Last_Point to Quad control on y-axis ##
+    #Param dx2  offset from Last_Point to Quad end on x-axis ##
+    #Param dy2  offset from Last_Point to Quad end on y-axis ##
 
     #Example
     void draw(SkCanvas* canvas) {
@@ -2758,10 +2758,10 @@ void draw(SkCanvas* canvas) {
 
     Function name stands for "relative conic to".
 
-    #Param dx1  offset from Last_Point x to Conic control x ##
-    #Param dy1  offset from Last_Point x to Conic control y ##
-    #Param dx2  offset from Last_Point x to Conic end x  ##
-    #Param dy2  offset from Last_Point x to Conic end y  ##
+    #Param dx1  offset from Last_Point to Conic control on x-axis ##
+    #Param dy1  offset from Last_Point to Conic control on y-axis ##
+    #Param dx2  offset from Last_Point to Conic end on x-axis ##
+    #Param dy2  offset from Last_Point to Conic end on y-axis ##
     #Param w    weight of added Conic ##
 
     #Example
@@ -2922,12 +2922,12 @@ to Point_Array.
     Cubic end is Last_Point plus Vector (dx2, dy2).
     Function name stands for "relative cubic to".
 
-    #Param x1  offset from Last_Point x to first Cubic control x ##
-    #Param y1  offset from Last_Point x to first Cubic control y ##
-    #Param x2  offset from Last_Point x to second Cubic control x ##
-    #Param y2  offset from Last_Point x to second Cubic control y ##
-    #Param x3  offset from Last_Point x to Cubic end x ##
-    #Param y3  offset from Last_Point x to Cubic end y ##
+    #Param x1  offset from Last_Point to first Cubic control on x-axis ##
+    #Param y1  offset from Last_Point to first Cubic control on y-axis ##
+    #Param x2  offset from Last_Point to second Cubic control on x-axis ##
+    #Param y2  offset from Last_Point to second Cubic control on y-axis ##
+    #Param x3  offset from Last_Point to Cubic end on x-axis ##
+    #Param y3  offset from Last_Point to Cubic end on y-axis ##
 
 #Example
     void draw(SkCanvas* canvas) {
@@ -3291,10 +3291,10 @@ tangents are nearly parallel, arcTo appends Line from last Path Point to (x1, y1
 arcTo appends at most one Line and one Conic.
 arcTo implements the functionality of PostScript_Arct and HTML_Canvas_ArcTo.
 
-#Param x1      x common to pair of tangents ##
-#Param y1      y common to pair of tangents ##
-#Param x2      x end of second tangent ##
-#Param y2      y end of second tangent ##
+#Param x1      x-axis value common to pair of tangents ##
+#Param y1      y-axis value common to pair of tangents ##
+#Param x2      x-axis value end of second tangent ##
+#Param y2      y-axis value end of second tangent ##
 #Param radius  distance from Arc to Circle center ##
 
 #Example
@@ -3526,7 +3526,7 @@ arcTo implements the functionality of SVG_Arc, although SVG "sweep-flag" value i
 opposite the integer value of sweep; SVG "sweep-flag" uses 1 for clockwise, while
 kCW_Direction cast to int is zero.
 
-#Param r            radii in x and y before x-axis rotation ##
+#Param r            radii on axes before x-axis rotation ##
 #Param xAxisRotate  x-axis rotation in degrees; positive values are clockwise ##
 #Param largeArc     chooses smaller or larger Arc ##
 #Param sweep        chooses clockwise or counterclockwise Arc ##
@@ -3579,13 +3579,13 @@ arcTo implements the functionality of SVG_Arc, although SVG "sweep-flag" value i
 opposite the integer value of sweep; SVG "sweep-flag" uses 1 for clockwise, while
 kCW_Direction cast to int is zero.
 
-#Param rx           radius in x before x-axis rotation ##
-#Param ry           radius in y before x-axis rotation ##
+#Param rx           radius before x-axis rotation ##
+#Param ry           radius before x-axis rotation ##
 #Param xAxisRotate  x-axis rotation in degrees; positive values are clockwise ##
 #Param largeArc     chooses smaller or larger Arc ##
 #Param sweep        chooses clockwise or counterclockwise Arc ##
-#Param dx           x offset end of Arc from last Path Point ##
-#Param dy           y offset end of Arc from last Path Point ##
+#Param dx           x-axis offset end of Arc from last Path Point ##
+#Param dy           y-axis offset end of Arc from last Path Point ##
 
 #Example
 #Height 108
@@ -4051,10 +4051,10 @@ starting with top-left corner of Rect; followed by top-right, bottom-right,
 and bottom-left if dir is kCW_Direction; or followed by bottom-left,
 bottom-right, and top-right if dir is kCCW_Direction.
 
-#Param left    smaller x of Rect ##
-#Param top     smaller y of Rect ##
-#Param right   larger x of Rect ##
-#Param bottom  larger y of Rect ##
+#Param left    smaller x-axis value of Rect ##
+#Param top     smaller y-axis value of Rect ##
+#Param right   larger x-axis value of Rect ##
+#Param bottom  larger y-axis value of Rect ##
 #Param dir     Direction to wind added contour ##
 
 #Example
@@ -4268,8 +4268,8 @@ Rect rect to Path.
 After appending, Path may be empty, or may contain: Rect, Oval, or RoundRect.
 
 #Param rect  bounds of Round_Rect ##
-#Param rx    x-radius of rounded corners on the Round_Rect ##
-#Param ry    y-radius of rounded corners on the Round_Rect ##
+#Param rx    x-axis radius of rounded corners on the Round_Rect ##
+#Param ry    y-axis radius of rounded corners on the Round_Rect ##
 #Param dir   Direction to wind Round_Rect ##
 
 #Example
@@ -4314,14 +4314,14 @@ array.
 #Legend
 # radii index # location                        ##
 #Legend ##
-# 0           # x-radius of top-left corner     ##
-# 1           # y-radius of top-left corner     ##
-# 2           # x-radius of top-right corner    ##
-# 3           # y-radius of top-right corner    ##
-# 4           # x-radius of bottom-right corner ##
-# 5           # y-radius of bottom-right corner ##
-# 6           # x-radius of bottom-left corner  ##
-# 7           # y-radius of bottom-left corner  ##
+# 0           # x-axis radius of top-left corner     ##
+# 1           # y-axis radius of top-left corner     ##
+# 2           # x-axis radius of top-right corner    ##
+# 3           # y-axis radius of top-right corner    ##
+# 4           # x-axis radius of bottom-right corner ##
+# 5           # y-axis radius of bottom-right corner ##
+# 6           # x-axis radius of bottom-left corner  ##
+# 7           # y-axis radius of bottom-left corner  ##
 #Table ##
 
 If dir is kCW_Direction, Round_Rect starts at top-left of the lower-left corner
@@ -4559,8 +4559,8 @@ added unaltered. If mode is kExtend_AddPathMode, add Line before appending
 Verbs, Points, and Conic_Weights.
 
 #Param src  Path Verbs, Points, and Conic_Weights to add ##
-#Param dx   offset added to src Point_Array x coordinates ##
-#Param dy   offset added to src Point_Array y coordinates ##
+#Param dx   offset added to src Point_Array x-axis coordinates ##
+#Param dy   offset added to src Point_Array y-axis coordinates ##
 #Param mode kAppend_AddPathMode or kExtend_AddPathMode ##
 
 #Example
@@ -4694,8 +4694,8 @@ Reversed src always appends a new Contour to Path.
 Offset Point_Array by (dx, dy). Offset Path replaces dst.
 If dst is nullptr, Path is replaced by offset data.
 
-#Param dx   offset added to Point_Array x coordinates ##
-#Param dy   offset added to Point_Array y coordinates ##
+#Param dx   offset added to Point_Array x-axis coordinates ##
+#Param dy   offset added to Point_Array y-axis coordinates ##
 #Param dst  overwritten, translated copy of Path; may be nullptr ##
 
 #Example
@@ -4727,8 +4727,8 @@ If dst is nullptr, Path is replaced by offset data.
 #In Transform
 Offset Point_Array by (dx, dy). Path is replaced by offset data.
 
-#Param dx  offset added to Point_Array x coordinates ##
-#Param dy  offset added to Point_Array y coordinates ##
+#Param dx  offset added to Point_Array x-axis coordinates ##
+#Param dy  offset added to Point_Array y-axis coordinates ##
 
 #Example
 #Height 60
@@ -4857,8 +4857,8 @@ Last_Point can be read and written directly with getLastPt and setLastPt.
     Set Last_Point to (x, y). If Point_Array is empty, append kMove_Verb to
     Verb_Array and append (x, y) to Point_Array.
 
-    #Param x  set x-coordinate of Last_Point ##
-    #Param y  set y-coordinate of Last_Point ##
+    #Param x  set x-axis value of Last_Point ##
+    #Param y  set y-axis value of Last_Point ##
 
     #Example
     #Height 128
@@ -5012,8 +5012,8 @@ account FillType.
 # kInverseEvenOdd_FillType # and even number of Contours.          ##
 ##
 
-#Param x  x-coordinate of containment test ##
-#Param y  y-coordinate of containment test ##
+#Param x  x-axis value of containment test ##
+#Param y  y-axis value of containment test ##
 
 #Return  true if Point is in Path ##
 

@@ -768,7 +768,7 @@ Adds offset (<a href='#SkPoint_offset_dx'>dx</a>, <a href='#SkPoint_offset_dy'>d
 <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPoint_length'>length</a>() const
 </pre>
 
-Returns the Euclidean_Distance from origin, computed as:
+Returns the <a href='undocumented#Euclidean_Distance'>Euclidean Distance</a> from origin, computed as:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 sqrt(fX * fX + fY * fY)
@@ -797,7 +797,7 @@ straight-line distance to origin
 <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPoint_distanceToOrigin'>distanceToOrigin</a>() const
 </pre>
 
-Returns the Euclidean_Distance from origin, computed as:
+Returns the <a href='undocumented#Euclidean_Distance'>Euclidean Distance</a> from origin, computed as:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 sqrt(fX * fX + fY * fY)
@@ -1501,7 +1501,7 @@ Can also be used to add <a href='#Vector'>Vector</a> to <a href='#Vector'>Vector
 static <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPoint_Length'>Length</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y)
 </pre>
 
-Returns the Euclidean_Distance from origin, computed as:
+Returns the <a href='undocumented#Euclidean_Distance'>Euclidean Distance</a> from origin, computed as:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 sqrt(x * x + y * y)
@@ -1576,7 +1576,7 @@ original <a href='#SkPoint_Normalize_vec'>vec</a> length
 static <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPoint_Distance'>Distance</a>(const <a href='#SkPoint'>SkPoint</a>& a, const <a href='#SkPoint'>SkPoint</a>& b)
 </pre>
 
-Returns the Euclidean_Distance between <a href='#SkPoint_Distance_a'>a</a> and <a href='#SkPoint_Distance_b'>b</a>.
+Returns the <a href='undocumented#Euclidean_Distance'>Euclidean Distance</a> between <a href='#SkPoint_Distance_a'>a</a> and <a href='#SkPoint_Distance_b'>b</a>.
 
 ### Parameters
 
@@ -1745,4 +1745,4 @@ product of input magnitudes and cosine of the angle between them
 </pre>
 
 <a href='#SkVector'>SkVector</a> provides an alternative name for <a href='#SkPoint'>SkPoint</a>. <a href='#SkVector'>SkVector</a> and <a href='#SkPoint'>SkPoint</a> can
-be used interchangably for all purposes.
+be used interchangeably for all purposes.
