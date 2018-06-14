@@ -899,7 +899,7 @@ static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&
 Creates <a href='#Image'>Image</a> from encoded <a href='#SkImage_MakeCrossContextFromEncoded_data'>data</a>. <a href='#Image'>Image</a> is uploaded to GPU back-end using <a href='#SkImage_MakeCrossContextFromEncoded_context'>context</a>.
 
 Created <a href='#Image'>Image</a> is available to other GPU contexts, and is available across thread
-boundaries. All contexts must be in the same GPU_Share_Group, or otherwise
+boundaries. All contexts must be in the same <a href='undocumented#GPU_Share_Group'>GPU Share Group</a>, or otherwise
 share resources.
 
 When <a href='#Image'>Image</a> is no longer referenced, <a href='#SkImage_MakeCrossContextFromEncoded_context'>context</a> releases texture memory
@@ -923,7 +923,7 @@ moving resources between contexts.
     <td><a href='#Image'>Image</a> to decode</td>
   </tr>
   <tr>    <td><a name='SkImage_MakeCrossContextFromEncoded_buildMips'><code><strong>buildMips</strong></code></a></td>
-    <td>create <a href='#Image'>Image</a> as Mip_Map if true</td>
+    <td>create <a href='#Image'>Image</a> as <a href='undocumented#Mip_Map'>Mip Map</a> if true</td>
   </tr>
   <tr>    <td><a name='SkImage_MakeCrossContextFromEncoded_dstColorSpace'><code><strong>dstColorSpace</strong></code></a></td>
     <td>range of colors of matching <a href='SkSurface_Reference#Surface'>Surface</a> on GPU</td>
@@ -959,7 +959,7 @@ static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&
 Creates <a href='#Image'>Image</a> from <a href='#SkImage_MakeCrossContextFromPixmap_pixmap'>pixmap</a>. <a href='#Image'>Image</a> is uploaded to GPU back-end using <a href='#SkImage_MakeCrossContextFromPixmap_context'>context</a>.
 
 Created <a href='#Image'>Image</a> is available to other GPU contexts, and is available across thread
-boundaries. All contexts must be in the same GPU_Share_Group, or otherwise
+boundaries. All contexts must be in the same <a href='undocumented#GPU_Share_Group'>GPU Share Group</a>, or otherwise
 share resources.
 
 When <a href='#Image'>Image</a> is no longer referenced, <a href='#SkImage_MakeCrossContextFromPixmap_context'>context</a> releases texture memory
@@ -983,7 +983,7 @@ Recognized GPU formats vary by platform and GPU back-end.
     <td><a href='SkImageInfo_Reference#Image_Info'>Image Info</a>, pixel address, and row bytes</td>
   </tr>
   <tr>    <td><a name='SkImage_MakeCrossContextFromPixmap_buildMips'><code><strong>buildMips</strong></code></a></td>
-    <td>create <a href='#Image'>Image</a> as Mip_Map if true</td>
+    <td>create <a href='#Image'>Image</a> as <a href='undocumented#Mip_Map'>Mip Map</a> if true</td>
   </tr>
   <tr>    <td><a name='SkImage_MakeCrossContextFromPixmap_dstColorSpace'><code><strong>dstColorSpace</strong></code></a></td>
     <td>range of colors of matching <a href='SkSurface_Reference#Surface'>Surface</a> on GPU</td>
@@ -1119,9 +1119,9 @@ static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&
 </pre>
 
 Creates <a href='#Image'>Image</a> from copy of <a href='#SkImage_MakeFromNV12TexturesCopy_nv12Textures'>nv12Textures</a>, an array of textures on GPU.
-<a href='#SkImage_MakeFromNV12TexturesCopy_nv12Textures'>nv12Textures</a>[0] contains pixels for YUV_Component_Y plane.
-<a href='#SkImage_MakeFromNV12TexturesCopy_nv12Textures'>nv12Textures</a>[1] contains pixels for YUV_Component_U plane,
-followed by pixels for YUV_Component_V plane.
+<a href='#SkImage_MakeFromNV12TexturesCopy_nv12Textures'>nv12Textures</a>[0] contains pixels for <a href='undocumented#YUV_Component_Y'>YUV Component Y</a> plane.
+<a href='#SkImage_MakeFromNV12TexturesCopy_nv12Textures'>nv12Textures</a>[1] contains pixels for <a href='undocumented#YUV_Component_U'>YUV Component U</a> plane,
+followed by pixels for <a href='undocumented#YUV_Component_V'>YUV Component V</a> plane.
 Returned <a href='#Image'>Image</a> has the dimensions <a href='#SkImage_MakeFromNV12TexturesCopy_nv12Textures'>nv12Textures</a>[2].
 <a href='#SkImage_MakeFromNV12TexturesCopy_yuvColorSpace'>yuvColorSpace</a> describes how YUV colors convert to RGB colors.
 
@@ -1662,12 +1662,12 @@ transforming <a href='#Image'>Image</a> before <a href='SkCanvas_Reference#Matri
 ### Parameters
 
 <table>  <tr>    <td><a name='SkImage_makeShader_tileMode1'><code><strong>tileMode1</strong></code></a></td>
-    <td>tiling in x, one of: <a href='undocumented#SkShader_kClamp_TileMode'>SkShader::kClamp TileMode</a>, <a href='undocumented#SkShader_kRepeat_TileMode'>SkShader::kRepeat TileMode</a>,
-<a href='undocumented#SkShader_kMirror_TileMode'>SkShader::kMirror TileMode</a></td>
+    <td>tiling on x-axis, one of: <a href='undocumented#SkShader_kClamp_TileMode'>SkShader::kClamp TileMode</a>,
+<a href='undocumented#SkShader_kRepeat_TileMode'>SkShader::kRepeat TileMode</a>, <a href='undocumented#SkShader_kMirror_TileMode'>SkShader::kMirror TileMode</a></td>
   </tr>
   <tr>    <td><a name='SkImage_makeShader_tileMode2'><code><strong>tileMode2</strong></code></a></td>
-    <td>tiling in y, one of: <a href='undocumented#SkShader_kClamp_TileMode'>SkShader::kClamp TileMode</a>, <a href='undocumented#SkShader_kRepeat_TileMode'>SkShader::kRepeat TileMode</a>,
-<a href='undocumented#SkShader_kMirror_TileMode'>SkShader::kMirror TileMode</a></td>
+    <td>tiling on y-axis, one of: <a href='undocumented#SkShader_kClamp_TileMode'>SkShader::kClamp TileMode</a>,
+<a href='undocumented#SkShader_kRepeat_TileMode'>SkShader::kRepeat TileMode</a>, <a href='undocumented#SkShader_kMirror_TileMode'>SkShader::kMirror TileMode</a></td>
   </tr>
   <tr>    <td><a name='SkImage_makeShader_localMatrix'><code><strong>localMatrix</strong></code></a></td>
     <td><a href='#Image'>Image</a> transformation, or nullptr</td>
@@ -2319,14 +2319,14 @@ partial or full <a href='#Image'>Image</a>, or nullptr
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_makeTextureImage'>makeTextureImage</a>(<a href='undocumented#GrContext'>GrContext</a>* context, <a href='undocumented#SkColorSpace'>SkColorSpace</a>* dstColorSpace,
-                                 mipMapped = GrMipMapped::kNo) const
+                                <a href='undocumented#GrMipMapped'>GrMipMapped</a> mipMapped = <a href='undocumented#GrMipMapped_kNo'>GrMipMapped::kNo</a>) const
 </pre>
 
 Returns <a href='#Image'>Image</a> backed by <a href='undocumented#GPU_Texture'>GPU Texture</a> associated with <a href='#SkImage_makeTextureImage_context'>context</a>. Returned <a href='#Image'>Image</a> is
-compatible with <a href='SkSurface_Reference#Surface'>Surface</a> created with <a href='#SkImage_makeTextureImage_dstColorSpace'>dstColorSpace</a>. The returned <a href='#Image'>Image</a> will also
-support the request status. In other words if <a href='#SkImage_makeTextureImage_mipMapped'>mipMapped</a> is GrMipMapped::kYes,
-then the backing texture will have Mip_Map levels allocated. Returns original <a href='#Image'>Image</a> if <a href='#SkImage_makeTextureImage_context'>context</a>
-and <a href='#SkImage_makeTextureImage_dstColorSpace'>dstColorSpace</a> match and <a href='#SkImage_makeTextureImage_mipMapped'>mipMapped</a> is compatible with the backing <a href='undocumented#GPU_Texture'>GPU Texture</a>.
+compatible with <a href='SkSurface_Reference#Surface'>Surface</a> created with <a href='#SkImage_makeTextureImage_dstColorSpace'>dstColorSpace</a>. The returned <a href='#Image'>Image</a> respects
+<a href='#SkImage_makeTextureImage_mipMapped'>mipMapped</a> setting; if <a href='#SkImage_makeTextureImage_mipMapped'>mipMapped</a> equals <a href='undocumented#GrMipMapped_kYes'>GrMipMapped::kYes</a>, the backing texture
+allocates <a href='undocumented#Mip_Map'>Mip Map</a> levels. Returns original <a href='#Image'>Image</a> if <a href='#SkImage_makeTextureImage_context'>context</a>
+and <a href='#SkImage_makeTextureImage_dstColorSpace'>dstColorSpace</a> match and <a href='#SkImage_makeTextureImage_mipMapped'>mipMapped</a> is compatible with backing <a href='undocumented#GPU_Texture'>GPU Texture</a>.
 
 Returns nullptr if <a href='#SkImage_makeTextureImage_context'>context</a> is nullptr, or if <a href='#Image'>Image</a> was created with another
 <a href='undocumented#GrContext'>GrContext</a>.
@@ -2340,7 +2340,7 @@ Returns nullptr if <a href='#SkImage_makeTextureImage_context'>context</a> is nu
     <td>range of colors of matching <a href='SkSurface_Reference#Surface'>Surface</a> on GPU</td>
   </tr>
   <tr>    <td><a name='SkImage_makeTextureImage_mipMapped'><code><strong>mipMapped</strong></code></a></td>
-    <td>whether the returned <a href='#SkImage'>SkImage</a>'s texture must have allocated Mip_Map levels</td>
+    <td>whether created <a href='#Image'>Image</a> texture must allocate <a href='undocumented#Mip_Map'>Mip Map</a> levels</td>
   </tr>
 </table>
 

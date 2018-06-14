@@ -3996,9 +3996,9 @@ void draw(SkCanvas* canvas) {
     computed by Font_Manager using Typeface. Values are set to zero if they are
     not available.
 
-    All vertical values relative to the baseline are given y-down. As such, zero is on the
-    baseline, negative values are above the baseline, and positive values are below the
-    baseline.
+    All vertical values are relative to the baseline, on a y-axis pointing down.
+    Zero is on the baseline, negative values are above the baseline, and positive
+    values are below the baseline.
 
     fUnderlineThickness and fUnderlinePosition have a bit set in fFlags if their values
     are valid, since their value may be zero.
@@ -4083,13 +4083,13 @@ void draw(SkCanvas* canvas) {
 
     #Member SkScalar    fXMin
     #Line # minimum x ##
-        Minimum bounding box x-value for all Glyphs.
+        Minimum bounding box x-axis value for all Glyphs.
         Typically less than zero.
     ##
 
     #Member SkScalar    fXMax
     #Line # maximum x ##
-        Maximum bounding box x value for all Glyphs.
+        Maximum bounding box x-axis value for all Glyphs.
         Typically greater than zero.
     ##
 
@@ -4672,8 +4672,8 @@ Uses x, y, and Text_Align to position path.
 
     #Param text          character codes or glyph indices ##
     #Param length        number of bytes of text ##
-    #Param x             x-coordinate of the origin of the text ##
-    #Param y             y-coordinate of the origin of the text ##
+    #Param x             x-axis value of the origin of the text ##
+    #Param y             y-axis value of the origin of the text ##
     #Param path          geometry of the Glyphs ##
 
     #Example
@@ -4761,8 +4761,8 @@ underline that skips Descenders.
 
     #Param text          character codes or glyph indices ##
     #Param length        number of bytes of text ##
-    #Param x             x-coordinate of the origin of the text ##
-    #Param y             y-coordinate of the origin of the text ##
+    #Param x             x-axis value of the origin of the text ##
+    #Param y             y-axis value of the origin of the text ##
     #Param bounds        lower and upper line parallel to the advance ##
     #Param intervals     returned intersections; may be nullptr ##
 

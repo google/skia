@@ -25,6 +25,7 @@ struct CheckEntry {
     string fFile;
     int fLine;
     int fCount;
+    bool fOverride;
 };
 
 class SpellCheck : public ParserCommon {
@@ -63,6 +64,7 @@ private:
         fInFormula = false;
         fInDescription = false;
         fInStdOut = false;
+        fOverride = false;
     }
 
     void wordCheck(string str);
@@ -84,6 +86,7 @@ private:
     bool fInDescription;
     bool fInFormula;
     bool fInStdOut;
+    bool fOverride;
     typedef ParserCommon INHERITED;
 };
 
@@ -121,7 +124,10 @@ bool SpellCheck::check(const char* match) {
         if (string::npos == fRoot->fFileName.rfind(match)) {
             continue;
         }
-       this->check(topicDef);
+        fOverride = string::npos != fRoot->fFileName.rfind("undocumented.bmh")
+                || string::npos != fRoot->fFileName.rfind("markup.bmh")
+                || string::npos != fRoot->fFileName.rfind("usingBookmaker.bmh");
+        this->check(topicDef);
     }
     return true;
 }
@@ -493,13 +499,7 @@ void SpellCheck::report(SkCommandLineFlags::StringArray report) {
     std::sort(elems.begin(), elems.end(), stringCompare);
     if (report.contains("once")) {
         for (auto iter : elems) {
-            if (string::npos != iter.second.fFile.find("undocumented.bmh")) {
-                continue;
-            }
-            if (string::npos != iter.second.fFile.find("markup.bmh")) {
-                continue;
-            }
-            if (string::npos != iter.second.fFile.find("usingBookmaker.bmh")) {
+            if (iter.second.fOverride) {
                 continue;
             }
             if (iter.second.fCount == 1) {
@@ -516,13 +516,7 @@ void SpellCheck::report(SkCommandLineFlags::StringArray report) {
         char lastInitial = 'a';
         int count = 0;
         for (auto iter : elems) {
-            if (string::npos != iter.second.fFile.find("undocumented.bmh")) {
-                continue;
-            }
-            if (string::npos != iter.second.fFile.find("markup.bmh")) {
-                continue;
-            }
-            if (string::npos != iter.second.fFile.find("usingBookmaker.bmh")) {
+            if (iter.second.fOverride) {
                 continue;
             }
             string check = iter.first.c_str();
@@ -554,13 +548,7 @@ void SpellCheck::report(SkCommandLineFlags::StringArray report) {
     int index = 0;
     const char* mispelled = report[0];
     for (auto iter : elems) {
-        if (string::npos != iter.second.fFile.find("undocumented.bmh")) {
-            continue;
-        }
-        if (string::npos != iter.second.fFile.find("markup.bmh")) {
-            continue;
-        }
-        if (string::npos != iter.second.fFile.find("usingBookmaker.bmh")) {
+        if (iter.second.fOverride) {
             continue;
         }
         string check = iter.first.c_str();
@@ -662,12 +650,18 @@ void SpellCheck::wordCheck(string str) {
                   sawDigit ? fDigits : fWords;
     auto iter = mappy.find(str);
     if (mappy.end() != iter) {
+        if (iter->second.fOverride && !fOverride) {
+            iter->second.fFile = fFileName;
+            iter->second.fLine = fLineCount + fLocalLine;
+            iter->second.fOverride = false;
+        }
         iter->second.fCount += 1;
     } else {
         CheckEntry* entry = &mappy[str];
         entry->fFile = fFileName;
         entry->fLine = fLineCount + fLocalLine;
         entry->fCount = 1;
+        entry->fOverride = fOverride;
     }
 }
 

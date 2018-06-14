@@ -790,7 +790,7 @@ If dy is positive, IRect returned is moved downward.
 #Param dx  offset added to fLeft and fRight ##
 #Param dy  offset added to fTop and fBottom ##
 
-#Return IRect offset in x or y, with original width and height ##
+#Return IRect offset by dx and dy, with original width and height ##
 
 #Example
     SkIRect rect = { 10, 50, 20, 60 };
@@ -1129,10 +1129,10 @@ construction.
 Returns true if IRect contains construction.
 Returns false if IRect is empty or construction is empty.
 
-#Param left  x minimum of constructed IRect ##
-#Param top  y minimum of constructed IRect ##
-#Param right  x maximum of constructed IRect ##
-#Param bottom  y maximum of constructed IRect ##
+#Param left  x-axis minimum of constructed IRect ##
+#Param top  y-axis minimum of constructed IRect ##
+#Param right  x-axis maximum of constructed IRect ##
+#Param bottom  y-axis maximum of constructed IRect ##
 
 #Return true if all sides of IRect are outside construction ##
 
@@ -1241,10 +1241,10 @@ Asserts if IRect is empty or construction is empty, and if SK_DEBUG is defined.
 
 Return is undefined if IRect is empty or construction is empty.
 
-#Param left  x minimum of constructed IRect ##
-#Param top  y minimum of constructed IRect ##
-#Param right  x maximum of constructed IRect ##
-#Param bottom  y maximum of constructed IRect ##
+#Param left  x-axis minimum of constructed IRect ##
+#Param top  y-axis minimum of constructed IRect ##
+#Param right  x-axis maximum of constructed IRect ##
+#Param bottom  y-axis maximum of constructed IRect ##
 
 #Return true if all sides of IRect are outside construction ##
 
@@ -1412,10 +1412,10 @@ Returns false if IRect does not intersect construction, and leaves IRect unchang
 
 Returns false if either construction or IRect is empty, leaving IRect unchanged.
 
-#Param left  x minimum of constructed IRect ##
-#Param top  y minimum of constructed IRect ##
-#Param right  x maximum of constructed IRect ##
-#Param bottom  y maximum of constructed IRect ##
+#Param left  x-axis minimum of constructed IRect ##
+#Param top  y-axis minimum of constructed IRect ##
+#Param right  x-axis maximum of constructed IRect ##
+#Param bottom  y-axis maximum of constructed IRect ##
 
 #Return true if construction and IRect have area in common ##
 
@@ -1510,10 +1510,10 @@ Sets IRect to the union of itself and the construction.
 Has no effect if construction is empty. Otherwise, if IRect is empty, sets
 IRect to construction.
 
-#Param left  x minimum of constructed IRect ##
-#Param top  y minimum of constructed IRect ##
-#Param right  x maximum of constructed IRect ##
-#Param bottom  y maximum of constructed IRect ##
+#Param left  x-axis minimum of constructed IRect ##
+#Param top  y-axis minimum of constructed IRect ##
+#Param right  x-axis maximum of constructed IRect ##
+#Param bottom  y-axis maximum of constructed IRect ##
 
 #Example
     SkIRect rect = { 10, 20, 15, 25};

@@ -1170,7 +1170,6 @@ bool IncludeWriter::defineOut(const Definition& def) {
     }
     const Definition& bmhDef = defIter->second;
     this->constOut(&def, &bmhDef);
-    SkDebugf("");
     return true;
 }
 
@@ -1346,9 +1345,6 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
     const Definition* requireDense = nullptr;
     const Definition* startDef = nullptr;
     for (auto& child : def->fTokens) {
-        if (39 == child.fLineCount) {
-            SkDebugf("");
-        }
         if (KeyWord::kInline == child.fKeyWord) {
             continue;
         }

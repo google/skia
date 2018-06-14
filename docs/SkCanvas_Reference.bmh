@@ -948,8 +948,8 @@ Does not copy, and returns false if:
 #Param dstInfo  width, height, Color_Type, and Alpha_Type of dstPixels ##
 #Param dstPixels  storage for pixels; dstInfo.height() times dstRowBytes, or larger ##
 #Param dstRowBytes  size of one destination row; dstInfo.width() times pixel size, or larger ##
-#Param srcX  offset into readable pixels in x; may be negative ##
-#Param srcY  offset into readable pixels in y; may be negative ##
+#Param srcX  offset into readable pixels on x-axis; may be negative ##
+#Param srcY  offset into readable pixels on y-axis; may be negative ##
 
 #Return  true if pixels were copied ##
 
@@ -1039,8 +1039,8 @@ Does not copy, and returns false if:
 ##
 
 #Param pixmap  storage for pixels copied from Canvas ##
-#Param srcX    offset into readable pixels in x; may be negative ##
-#Param srcY    offset into readable pixels in y; may be negative ##
+#Param srcX    offset into readable pixels on x-axis; may be negative ##
+#Param srcY    offset into readable pixels on y-axis; may be negative ##
 
 #Return  true if pixels were copied ##
 
@@ -1102,8 +1102,8 @@ Does not copy, and returns false if:
 ##
 
 #Param bitmap  storage for pixels copied from Canvas ##
-#Param srcX    offset into readable pixels in x; may be negative ##
-#Param srcY    offset into readable pixels in y; may be negative ##
+#Param srcX    offset into readable pixels on x-axis; may be negative ##
+#Param srcY    offset into readable pixels on y-axis; may be negative ##
 
 #Return  true if pixels were copied ##
 
@@ -1167,8 +1167,8 @@ Does not copy, and returns false if:
 #Param info  width, height, Color_Type, and Alpha_Type of pixels ##
 #Param pixels  pixels to copy, of size info.height() times rowBytes, or larger ##
 #Param rowBytes  size of one row of pixels; info.width() times pixel size, or larger ##
-#Param x  offset into Canvas writable pixels in x; may be negative ##
-#Param y  offset into Canvas writable pixels in y; may be negative ##
+#Param x  offset into Canvas writable pixels on x-axis; may be negative ##
+#Param y  offset into Canvas writable pixels on y-axis; may be negative ##
 
 #Return  true if pixels were written to Canvas ##
 
@@ -2151,8 +2151,8 @@ This has the effect of rotating the drawing about a given point before
 transforming the result with Matrix.
 
 #Param  degrees  amount to rotate, in degrees ##
-#Param  px  x-coordinate of the point to rotate about ##
-#Param  py  y-coordinate of the point to rotate about ##
+#Param  px  x-axis value of the point to rotate about ##
+#Param  py  y-axis value of the point to rotate about ##
 
 #Example
 #Height 192
@@ -2176,24 +2176,24 @@ void draw(SkCanvas* canvas) {
 #In Matrix
 #Line # skews Matrix ##
 Skew Matrix by sx on the x-axis and sy on the y-axis. A positive value of sx
-skews the drawing right as y increases; a positive value of sy skews the drawing
-down as x increases.
+skews the drawing right as y-axis values increase; a positive value of sy skews
+the drawing down as x-axis values increase.
 
 Mathematically, replace Matrix with a skew matrix Premultiplied with Matrix.
 
 This has the effect of skewing the drawing by (sx, sy) before transforming
 the result with Matrix.
 
-#Param  sx   amount to skew in x ##
-#Param  sy   amount to skew in y ##
+#Param  sx   amount to skew on x-axis ##
+#Param  sy   amount to skew on y-axis ##
 
 #Example
     #Description
-        Black text mimics an oblique text style by using a negative skew in x that
-        shifts the geometry to the right as the y values decrease.
-        Red text uses a positive skew in y to shift the geometry down as the x values
-        increase.
-        Blue text combines x and y skew to rotate and scale.
+        Black text mimics an oblique text style by using a negative skew on x-axis
+        that shifts the geometry to the right as the y-axis values decrease.
+        Red text uses a positive skew on y-axis to shift the geometry down
+        as the x-axis values increase.
+        Blue text combines sx and sy skew to rotate and scale.
     ##
     SkPaint paint;
     paint.setTextSize(128);
@@ -2858,7 +2858,8 @@ is Anti_Aliased.
     #Description
         Initial bounds is device bounds outset by 1 on all sides.
         Clipped bounds is clipPath bounds outset by 1 on all sides.
-        Scaling the canvas by two in x and y scales the local bounds by 1/2 in x and y.
+        Scaling the canvas by two on both axes scales the local bounds by 1/2
+        on both axes.
     ##
     SkCanvas local(256, 256);
     canvas = &local;
@@ -2942,7 +2943,8 @@ void draw(SkCanvas* canvas) {
     #Description
         Initial bounds is device bounds, not outset.
         Clipped bounds is clipPath bounds, not outset.
-        Scaling the canvas by 1/2 in x and y scales the device bounds by 1/2 in x and y.
+        Scaling the canvas by 1/2 on both axes scales the device bounds by 1/2
+        on both axes.
     ##
     SkCanvas device(256, 256);
     canvas = &device;
@@ -3751,8 +3753,8 @@ If rx and ry are zero, Round_Rect is drawn as Rect and if stroked is affected by
 Paint_Stroke_Join.
 
 #Param  rect     Rect bounds of Round_Rect to draw ##
-#Param  rx       axis length in x of oval describing rounded corners ##
-#Param  ry       axis length in y of oval describing rounded corners ##
+#Param  rx       axis length on x-axis of oval describing rounded corners ##
+#Param  ry       axis length on y-axis of oval describing rounded corners ##
 #Param  paint    stroke, blend, color, and so on, used to draw ##
 
 #Example
@@ -4827,8 +4829,8 @@ remaining space, if any.
 ##
 
     #Member const int*   fXDivs
-    #Line # x-coordinates dividing bitmap ##
-        Array of x-coordinates that divide the bitmap vertically.
+    #Line # x-axis values dividing bitmap ##
+        Array of x-axis values that divide the bitmap vertically.
         Array entries must be unique, increasing, greater than or equal to
         fBounds left edge, and less than fBounds right edge.
         Set the first element to fBounds left to collapse the left column of
@@ -4836,8 +4838,8 @@ remaining space, if any.
     ##
 
     #Member const int*   fYDivs
-    #Line # y-coordinates dividing bitmap ##
-        Array of y-coordinates that divide the bitmap horizontally.
+    #Line # y-axis values dividing bitmap ##
+        Array of y-axis values that divide the bitmap horizontally.
         Array entries must be unique, increasing, greater than or equal to
         fBounds top edge, and less than fBounds bottom edge.
         Set the first element to fBounds top to collapse the top row of fixed
@@ -5191,10 +5193,9 @@ Paint paint. The number of entries in pos array must match the number of Glyphs
 described by byteLength of text.
 
 text meaning depends on Paint_Text_Encoding; by default, text is encoded as
-UTF-8. pos elements meaning depends on Paint_Vertical_Text;
-by default each glyph left side bearing is positioned at x and its
-baseline is positioned at y. Text size is affected by Matrix and
-Paint_Text_Size.
+UTF-8. pos elements meaning depends on Paint_Vertical_Text; by default
+glyph left side bearing and baseline are relative to Point in pos array.
+Text size is affected by Matrix and Paint_Text_Size.
 
 All elements of paint: Path_Effect, Mask_Filter, Shader,
 Color_Filter, Image_Filter, and Draw_Looper; apply to text. By default, draws
@@ -5252,8 +5253,8 @@ baseline.
 
 #Param  text     character code points or Glyphs drawn ##
 #Param  byteLength   byte length of text array ##
-#Param  xpos     array of x positions, used to position each glyph ##
-#Param  constY   shared y coordinate for all of x positions ##
+#Param  xpos     array of x-axis positions, used to position each glyph ##
+#Param  constY   shared y-axis value for all of x-axis positions ##
 #Param  paint    text size, blend, color, and so on, used to draw ##
 
 #Example
@@ -5287,8 +5288,8 @@ than the path length, the excess text is clipped.
 
 text meaning depends on Paint_Text_Encoding; by default, text is encoded as
 UTF-8. Origin meaning depends on Paint_Text_Align and Paint_Vertical_Text; by
-default text positions the first glyph left side bearing at origin x and its
-baseline at origin y. Text size is affected by Matrix and Paint_Text_Size.
+default text positions the first glyph left side bearing and baseline relative
+to origin. Text size is affected by Matrix and Paint_Text_Size.
 
 All elements of paint: Path_Effect, Mask_Filter, Shader,
 Color_Filter, Image_Filter, and Draw_Looper; apply to text. By default, draws
@@ -5340,8 +5341,8 @@ matrix does not effect paint Shader.
 
 text meaning depends on Paint_Text_Encoding; by default, text is encoded as
 UTF-8. Origin meaning depends on Paint_Text_Align and Paint_Vertical_Text; by
-default text positions the first glyph left side bearing at origin x and its
-baseline at origin y. Text size is affected by matrix parameter, Canvas Matrix,
+default text positions the first glyph left side bearing and baseline relative
+to origin. Text size is affected by matrix parameter, Canvas Matrix,
 and Paint_Text_Size.
 
 All elements of paint: Path_Effect, Mask_Filter, Shader,
@@ -5756,7 +5757,7 @@ void draw(SkCanvas* canvas) {
 #Line # draws Coons_Patch ##
 
 Draws a Coons_Patch: the interpolation of four cubics with shared corners,
-associating a color, and optionally a texture coordinate, with each corner.
+associating a color, and optionally a texture Point, with each corner.
 
 Coons_Patch uses Clip and Matrix, paint Shader, Color_Filter,
 Color_Alpha, Image_Filter, and Blend_Mode. If Shader is provided it is treated
@@ -5815,7 +5816,7 @@ void draw(SkCanvas* canvas) {
                    const SkPoint texCoords[4], const SkPaint& paint)
 
 Draws Cubic Coons_Patch: the interpolation of four cubics with shared corners,
-associating a color, and optionally a texture coordinate, with each corner.
+associating a color, and optionally a texture Point, with each corner.
 
 Coons_Patch uses Clip and Matrix, paint Shader, Color_Filter,
 Color_Alpha, Image_Filter, and Blend_Mode. If Shader is provided it is treated
@@ -6108,8 +6109,8 @@ so that SkDrawable::draw() can be called when the operation is finalized. To for
 immediate drawing, call SkDrawable::draw() instead.
 
 #Param drawable  custom struct encapsulating drawing commands ##
-#Param x  offset into Canvas writable pixels in x ##
-#Param y  offset into Canvas writable pixels in y ##
+#Param x  offset into Canvas writable pixels on x-axis ##
+#Param y  offset into Canvas writable pixels on y-axis ##
 
 #Example
 #Height 100

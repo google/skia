@@ -420,8 +420,8 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
         // see if this should have been a findable reference
 
             // look for Sk / sk / SK ..
-        if (!ref.compare(0, 2, "Sk") && ref != "Skew" && ref != "Skews" &&
-              ref != "Skip" && ref != "Skips") {
+        if (!ref.compare(0, 2, "Sk") && ref != "Skew" && ref != "Skews" && ref != "Skewing"
+              && ref != "Skip" && ref != "Skips") {
             if (BmhParser::Resolvable::kOut != resolvable &&
                     BmhParser::Resolvable::kFormula != resolvable) {
                 t.reportError("missed Sk prefixed");
