@@ -2318,12 +2318,15 @@ partial or full <a href='#Image'>Image</a>, or nullptr
 ## makeTextureImage
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_makeTextureImage'>makeTextureImage</a>(<a href='undocumented#GrContext'>GrContext</a>* context, <a href='undocumented#SkColorSpace'>SkColorSpace</a>* dstColorSpace) const
+<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_makeTextureImage'>makeTextureImage</a>(<a href='undocumented#GrContext'>GrContext</a>* context, <a href='undocumented#SkColorSpace'>SkColorSpace</a>* dstColorSpace,
+                                 mipMapped = GrMipMapped::kNo) const
 </pre>
 
 Returns <a href='#Image'>Image</a> backed by <a href='undocumented#GPU_Texture'>GPU Texture</a> associated with <a href='#SkImage_makeTextureImage_context'>context</a>. Returned <a href='#Image'>Image</a> is
-compatible with <a href='SkSurface_Reference#Surface'>Surface</a> created with <a href='#SkImage_makeTextureImage_dstColorSpace'>dstColorSpace</a>. Returns original
-<a href='#Image'>Image</a> if <a href='#SkImage_makeTextureImage_context'>context</a> and <a href='#SkImage_makeTextureImage_dstColorSpace'>dstColorSpace</a> match.
+compatible with <a href='SkSurface_Reference#Surface'>Surface</a> created with <a href='#SkImage_makeTextureImage_dstColorSpace'>dstColorSpace</a>. The returned <a href='#Image'>Image</a> will also
+support the request status. In other words if <a href='#SkImage_makeTextureImage_mipMapped'>mipMapped</a> is GrMipMapped::kYes,
+then the backing texture will have Mip_Map levels allocated. Returns original <a href='#Image'>Image</a> if <a href='#SkImage_makeTextureImage_context'>context</a>
+and <a href='#SkImage_makeTextureImage_dstColorSpace'>dstColorSpace</a> match and <a href='#SkImage_makeTextureImage_mipMapped'>mipMapped</a> is compatible with the backing <a href='undocumented#GPU_Texture'>GPU Texture</a>.
 
 Returns nullptr if <a href='#SkImage_makeTextureImage_context'>context</a> is nullptr, or if <a href='#Image'>Image</a> was created with another
 <a href='undocumented#GrContext'>GrContext</a>.
@@ -2335,6 +2338,9 @@ Returns nullptr if <a href='#SkImage_makeTextureImage_context'>context</a> is nu
   </tr>
   <tr>    <td><a name='SkImage_makeTextureImage_dstColorSpace'><code><strong>dstColorSpace</strong></code></a></td>
     <td>range of colors of matching <a href='SkSurface_Reference#Surface'>Surface</a> on GPU</td>
+  </tr>
+  <tr>    <td><a name='SkImage_makeTextureImage_mipMapped'><code><strong>mipMapped</strong></code></a></td>
+    <td>whether the returned <a href='#SkImage'>SkImage</a>'s texture must have allocated Mip_Map levels</td>
   </tr>
 </table>
 
