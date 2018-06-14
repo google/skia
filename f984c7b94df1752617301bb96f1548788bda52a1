@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d180e21_a94833a9",
+        "filename": "src/gpu/ops/GrOp.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-14T18:25:40Z",
+      "side": 1,
+      "message": "SK_ABORT(\"All GrOp-derived class should be allocated in a GrMemoryPool\");\n?",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 16
+      },
+      "revId": "f984c7b94df1752617301bb96f1548788bda52a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77a2ba7c_af00d534",
+        "filename": "src/gpu/ops/GrOp.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-14T18:25:40Z",
+      "side": 1,
+      "message": "return nullptr?",
+      "range": {
+        "startLine": 18,
+        "startChar": 3,
+        "endLine": 18,
+        "endChar": 32
+      },
+      "revId": "f984c7b94df1752617301bb96f1548788bda52a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
