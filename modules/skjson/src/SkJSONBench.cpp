@@ -55,7 +55,7 @@ private:
 
 DEF_BENCH( return new JsonBench; )
 
-#if !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+#if (0)
 
 #include "rapidjson/document.h"
 
