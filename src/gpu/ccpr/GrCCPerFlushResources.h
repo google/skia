@@ -8,7 +8,6 @@
 #ifndef GrCCPerFlushResources_DEFINED
 #define GrCCPerFlushResources_DEFINED
 
-#include "GrAllocator.h"
 #include "GrNonAtomicRef.h"
 #include "ccpr/GrCCAtlas.h"
 #include "ccpr/GrCCPathParser.h"
@@ -38,42 +37,50 @@ public:
 
     bool isMapped() const { return SkToBool(fPathInstanceData); }
 
-    GrCCAtlas* renderPathInAtlas(const SkIRect& clipIBounds, const SkMatrix&, const SkPath&,
-                                 SkRect* devBounds, SkRect* devBounds45, int16_t* offsetX,
-                                 int16_t* offsetY);
-    GrCCAtlas* renderDeviceSpacePathInAtlas(const SkIRect& clipIBounds, const SkPath& devPath,
-                                            const SkIRect& devPathIBounds, int16_t* atlasOffsetX,
-                                            int16_t* atlasOffsetY);
+    // Renders a path into a temporary atlas. See GrCCPathParser for a description of the arguments.
+    const GrCCAtlas* renderPathInAtlas(const SkIRect& clipIBounds, const SkMatrix&, const SkPath&,
+                                       SkRect* devBounds, SkRect* devBounds45,
+                                       SkIVector* devToAtlasOffset);
+    const GrCCAtlas* renderDeviceSpacePathInAtlas(const SkIRect& clipIBounds, const SkPath& devPath,
+                                                  const SkIRect& devPathIBounds,
+                                                  SkIVector* devToAtlasOffset);
 
-    GrCCPathProcessor::Instance& appendDrawPathInstance() {
-        SkASSERT(this->isMapped());
-        SkASSERT(fNextPathInstanceIdx < fPathInstanceBufferCount);
-        return fPathInstanceData[fNextPathInstanceIdx++];
-    }
+    // Returns the index in instanceBuffer() of the next instance that will be added by
+    // appendDrawPathInstance().
     int nextPathInstanceIdx() const { return fNextPathInstanceIdx; }
 
-    bool finalize(GrOnFlushResourceProvider*, SkTArray<sk_sp<GrRenderTargetContext>>* atlasDraws);
+    // Appends an instance to instanceBuffer() that will draw a path to the destination render
+    // target. The caller is responsible to call set() on the returned instance, to keep track of
+    // its atlas and index (see nextPathInstanceIdx()), and to issue the actual draw call.
+    GrCCPathProcessor::Instance& appendDrawPathInstance() {
+        SkASSERT(this->isMapped());
+        SkASSERT(fNextPathInstanceIdx < fEndPathInstance);
+        return fPathInstanceData[fNextPathInstanceIdx++];
+    }
 
+    // Finishes off the GPU buffers and renders the atlas(es).
+    bool finalize(GrOnFlushResourceProvider*, SkTArray<sk_sp<GrRenderTargetContext>>* out);
+
+    // Accessors used by draw calls, once the resources have been finalized.
+    const GrCCPathParser& pathParser() const { SkASSERT(!this->isMapped()); return fPathParser; }
     const GrBuffer* indexBuffer() const { SkASSERT(!this->isMapped()); return fIndexBuffer.get(); }
     const GrBuffer* vertexBuffer() const { SkASSERT(!this->isMapped()); return fVertexBuffer.get();}
     GrBuffer* instanceBuffer() const { SkASSERT(!this->isMapped()); return fInstanceBuffer.get(); }
 
 private:
-    GrCCAtlas* placeParsedPathInAtlas(const SkIRect& clipIBounds, const SkIRect& pathIBounds,
-                                      int16_t* atlasOffsetX, int16_t* atlasOffsetY);
+    bool placeParsedPathInAtlas(const SkIRect& clipIBounds, const SkIRect& pathIBounds,
+                                SkIVector* devToAtlasOffset);
 
-    const sk_sp<GrCCPathParser> fPathParser;
-    const GrCCAtlas::Specs fAtlasSpecs;
+    GrCCPathParser fPathParser;
+    GrCCAtlasStack fAtlasStack;
 
-    sk_sp<const GrBuffer> fIndexBuffer;
-    sk_sp<const GrBuffer> fVertexBuffer;
-    sk_sp<GrBuffer> fInstanceBuffer;
+    const sk_sp<const GrBuffer> fIndexBuffer;
+    const sk_sp<const GrBuffer> fVertexBuffer;
+    const sk_sp<GrBuffer> fInstanceBuffer;
 
     GrCCPathProcessor::Instance* fPathInstanceData = nullptr;
     int fNextPathInstanceIdx = 0;
-    SkDEBUGCODE(int fPathInstanceBufferCount);
-
-    GrSTAllocator<4, GrCCAtlas> fAtlases;
+    SkDEBUGCODE(int fEndPathInstance);
 };
 
 #endif

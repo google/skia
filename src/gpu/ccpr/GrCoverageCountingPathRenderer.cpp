@@ -179,7 +179,7 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
 
 void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP,
                                               const uint32_t* opListIDs, int numOpListIDs,
-                                              SkTArray<sk_sp<GrRenderTargetContext>>* atlasDraws) {
+                                              SkTArray<sk_sp<GrRenderTargetContext>>* out) {
     SkASSERT(!fFlushing);
     SkASSERT(fFlushingPaths.empty());
     SkDEBUGCODE(fFlushing = true);
@@ -236,7 +236,7 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
     SkASSERT(resources->nextPathInstanceIdx() == resourceSpecs.fNumRenderedPaths - numSkippedPaths);
 
     // Allocate the atlases and create instance buffers to draw them.
-    if (!resources->finalize(onFlushRP, atlasDraws)) {
+    if (!resources->finalize(onFlushRP, out)) {
         return;
     }
 

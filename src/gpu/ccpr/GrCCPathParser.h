@@ -9,7 +9,6 @@
 #define GrCCPathParser_DEFINED
 
 #include "GrMesh.h"
-#include "GrNonAtomicRef.h"
 #include "SkPath.h"
 #include "SkPathPriv.h"
 #include "SkRect.h"
@@ -27,7 +26,7 @@ class SkPath;
  * This class parses SkPaths into CCPR primitives in GPU buffers, then issues calls to draw their
  * coverage counts.
  */
-class GrCCPathParser : public GrNonAtomicRef<GrCCPathParser> {
+class GrCCPathParser {
 public:
     // Indicates whether a path should enforce a scissor clip when rendering its mask. (Specified
     // as an int because these values get used directly as indices into arrays.)
@@ -68,8 +67,8 @@ public:
     // Commits the currently-parsed path from staging to the current batch, and specifies whether
     // the mask should be rendered with a scissor in effect. Accepts an optional post-device-space
     // translate for placement in an atlas.
-    void saveParsedPath(ScissorMode, const SkIRect& clippedDevIBounds, int16_t atlasOffsetX,
-                        int16_t atlasOffsetY);
+    void saveParsedPath(ScissorMode, const SkIRect& clippedDevIBounds,
+                        const SkIVector& devToAtlasOffset);
     void discardParsedPath();
 
     // Compiles the outstanding saved paths into a batch, and returns an ID that can be used to draw
@@ -89,12 +88,11 @@ private:
     // Every kBeginPath verb has a corresponding PathInfo entry.
     class PathInfo {
     public:
-        PathInfo(ScissorMode scissorMode, int16_t offsetX, int16_t offsetY)
-                : fScissorMode(scissorMode), fAtlasOffsetX(offsetX), fAtlasOffsetY(offsetY) {}
+        PathInfo(ScissorMode scissorMode, const SkIVector& devToAtlasOffset)
+                : fScissorMode(scissorMode), fDevToAtlasOffset(devToAtlasOffset) {}
 
         ScissorMode scissorMode() const { return fScissorMode; }
-        int16_t atlasOffsetX() const { return fAtlasOffsetX; }
-        int16_t atlasOffsetY() const { return fAtlasOffsetY; }
+        const SkIVector& devToAtlasOffset() const { return fDevToAtlasOffset; }
 
         // An empty tessellation fan is also valid; we use negative count to denote not tessellated.
         bool hasFanTessellation() const { return fFanTessellationCount >= 0; }
@@ -115,7 +113,7 @@ private:
 
     private:
         ScissorMode fScissorMode;
-        int16_t fAtlasOffsetX, fAtlasOffsetY;
+        SkIVector fDevToAtlasOffset;  // Translation from device space to location in atlas.
         int fFanTessellationCount = -1;
         std::unique_ptr<const GrTessellator::WindingVertex[]> fFanTessellation;
     };
