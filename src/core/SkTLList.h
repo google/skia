@@ -30,6 +30,20 @@
 */
 template <typename T, unsigned int N> class SkTLList : SkNoncopyable {
 private:
+
+    // Like std::launder(), before C++17, only on platforms that complain.
+    static T* Launder(T* ptr) {
+    #if !defined(__has_builtin)
+        #define  __has_builtin(x) 0
+    #endif
+
+    #if __GNUC__ >= 7 || __has_builtin(__builtin_launder)
+        return __builtin_launder(ptr);
+    #else
+        return ptr;
+    #endif
+    }
+
     struct Block;
     struct Node {
         char fObj[sizeof(T)];
@@ -51,7 +65,7 @@ public:
         typename NodeList::Iter iter;
         Node* node = iter.init(fList, Iter::kHead_IterStart);
         while (node) {
-            SkTCast<T*>(node->fObj)->~T();
+            Launder(reinterpret_cast<T*>(node->fObj))->~T();
             Block* block = node->fBlock;
             node = iter.next();
             if (0 == --block->fNodesInUse) {
@@ -264,7 +278,7 @@ private:
     void removeNode(Node* node) {
         SkASSERT(node);
         fList.remove(node);
-        SkTCast<T*>(node->fObj)->~T();
+        Launder(reinterpret_cast<T*>(node->fObj))->~T();
         Block* block = node->fBlock;
         // Don't ever elease the first block, just add its nodes to the free list
         if (0 == --block->fNodesInUse && block != &fFirstBlock) {
