@@ -22,6 +22,30 @@
       "revId": "2a5d084f816c125b565a048d91554bb847221e43",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e07482aa_b09229d9",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-06-14T20:02:35Z",
+      "side": 1,
+      "message": "Only works when you have a move assignment operator, which is why it\u0027s not something we think about.  Too many years writing C++98.",
+      "parentUuid": "ec53cde0_60cf2878",
+      "range": {
+        "startLine": 46,
+        "startChar": 4,
+        "endLine": 46,
+        "endChar": 40
+      },
+      "revId": "2a5d084f816c125b565a048d91554bb847221e43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
