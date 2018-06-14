@@ -70,6 +70,30 @@
       "revId": "e4bf855c0cb4a9ac314dec63cc406ddcf634006b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3aa99c0b_92ed878c",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-14T18:16:00Z",
+      "side": 1,
+      "message": "Yeah, maybe this is obvious, but strlen() is a constant time operation for short strings.  If we need it, I\u0027m sure we can write a fast shortstrlen(uint8_t[8]).",
+      "parentUuid": "9664ea12_369fb39a",
+      "range": {
+        "startLine": 129,
+        "startChar": 8,
+        "endLine": 129,
+        "endChar": 29
+      },
+      "revId": "e4bf855c0cb4a9ac314dec63cc406ddcf634006b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
