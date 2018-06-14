@@ -555,7 +555,7 @@ public:
         and rowBytes. rowBytes is assumed to be at least as large as minRowBytes().
 
         Returns zero if height is zero.
-        Returns SIZE_MAX if answer exceeds the range of size_t.
+        Returns SK_MaxSizeT if answer exceeds the range of size_t.
 
         @param rowBytes  size of pixel row or larger
         @return          memory required by pixel buffer
@@ -566,7 +566,7 @@ public:
         SkColorType. Uses minRowBytes() to compute bytes for pixel row.
 
         Returns zero if height is zero.
-        Returns SIZE_MAX if answer exceeds the range of size_t.
+        Returns SK_MaxSizeT if answer exceeds the range of size_t.
 
         @return  least memory required by pixel buffer
     */
@@ -574,14 +574,14 @@ public:
         return this->computeByteSize(this->minRowBytes());
     }
 
-    /** Returns true if byteSize equals SIZE_MAX. computeByteSize() and
-        computeMinByteSize() return SIZE_MAX if size_t can not hold buffer size.
+    /** Returns true if byteSize equals SK_MaxSizeT. computeByteSize() and
+        computeMinByteSize() return SK_MaxSizeT if size_t can not hold buffer size.
 
         @param byteSize  result of computeByteSize() or computeMinByteSize()
         @return          true if computeByteSize() or computeMinByteSize() result exceeds size_t
     */
     static bool ByteSizeOverflowed(size_t byteSize) {
-        return SIZE_MAX == byteSize;
+        return SK_MaxSizeT == byteSize;
     }
 
     /** Returns true if rowBytes is smaller than width times pixel size.

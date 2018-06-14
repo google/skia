@@ -45,7 +45,7 @@ struct SkVertices::Sizes {
                 numFanTris = vertexCount - 2;
                 // By forcing this to become indexed we are adding a constraint to the maximum
                 // number of vertices.
-                if (vertexCount > (UINT16_MAX + 1)) {
+                if (vertexCount > (SK_MaxU16 + 1)) {
                     sk_bzero(this, sizeof(*this));
                     return;
                 }

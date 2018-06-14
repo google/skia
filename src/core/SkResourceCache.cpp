@@ -197,7 +197,7 @@ void SkResourceCache::purgeAsNeeded(bool forcePurge) {
 
     if (fDiscardableFactory) {
         countLimit = SK_DISCARDABLEMEMORY_SCALEDIMAGECACHE_COUNT_LIMIT;
-        byteLimit = UINT32_MAX;  // no limit based on bytes
+        byteLimit = SK_MaxU32;  // no limit based on bytes
     } else {
         countLimit = SK_MaxS32; // no limit based on count
         byteLimit = fTotalByteLimit;
