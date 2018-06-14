@@ -46,6 +46,30 @@
       "revId": "e4bf855c0cb4a9ac314dec63cc406ddcf634006b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9664ea12_369fb39a",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-14T18:14:03Z",
+      "side": 1,
+      "message": "\u003e Nice.  I was just toying around with ways to make this little section of code faster.  I notice it\u0027s the profile hot spot when I load up \"The Machine\".json.\n\nYup, I expect short strings to be hot for Skottie as the vast majority of Lottie strings are 1-2 chars.\n\n\n\u003e Ideas:\n\u003e    1) can we know when it\u0027s safe to load 8 bytes and mask in a \\0, or when we need to carefully memcpy exactly size bytes?\n\u003e    2) can we avoid storing len_tag for short strings?\n\n#2 may be an obvious win: at least for now, nobody cares about string lengths.  And if that happens in the future, strlen should be okish for short strings.",
+      "parentUuid": "071fa280_f0d605ce",
+      "range": {
+        "startLine": 129,
+        "startChar": 8,
+        "endLine": 129,
+        "endChar": 29
+      },
+      "revId": "e4bf855c0cb4a9ac314dec63cc406ddcf634006b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
