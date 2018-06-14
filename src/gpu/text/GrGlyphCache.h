@@ -12,6 +12,7 @@
 #include "GrGlyph.h"
 #include "SkArenaAlloc.h"
 #include "SkGlyphCache.h"
+#include "SkMasks.h"
 #include "SkTDynamicHash.h"
 
 class GrGlyphCache;
@@ -90,6 +91,7 @@ private:
 
     int fAtlasedGlyphs;
     bool fIsAbandoned;
+    std::unique_ptr<const SkMasks> f565Masks;
 
     static const SkGlyph& GrToSkGlyph(SkGlyphCache* cache, GrGlyph::PackedID id) {
         return cache->getGlyphIDMetrics(GrGlyph::UnpackID(id),

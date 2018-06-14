@@ -8,6 +8,7 @@
 #include "GrGlyphCache.h"
 #include "GrAtlasManager.h"
 #include "GrCaps.h"
+#include "GrColor.h"
 #include "GrDistanceFieldGenFromVector.h"
 
 #include "SkAutoMalloc.h"
@@ -120,12 +121,35 @@ static void expand_bits(INT_TYPE* dst,
 
 static bool get_packed_glyph_image(SkGlyphCache* cache, const SkGlyph& glyph, int width,
                                    int height, int dstRB, GrMaskFormat expectedMaskFormat,
-                                   void* dst) {
+                                   void* dst, const SkMasks& masks) {
     SkASSERT(glyph.fWidth == width);
     SkASSERT(glyph.fHeight == height);
     const void* src = cache->findImage(glyph);
     if (nullptr == src) {
         return false;
+    }
+
+    // Convert if the glyph uses a 565 mask format since it is using LCD text rendering but the
+    // expected format is 8888 (will happen on macOS with Metal since that combination does not
+    // support 565).
+    if (kA565_GrMaskFormat == get_packed_glyph_mask_format(glyph) &&
+        kARGB_GrMaskFormat == expectedMaskFormat) {
+        const int a565Bpp = GrMaskFormatBytesPerPixel(kA565_GrMaskFormat);
+        const int argbBpp = GrMaskFormatBytesPerPixel(kARGB_GrMaskFormat);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                uint16_t color565 = 0;
+                memcpy(&color565, src, a565Bpp);
+                uint32_t colorRGBA = GrColorPackRGBA(masks.getRed(color565),
+                                                     masks.getGreen(color565),
+                                                     masks.getBlue(color565),
+                                                     0xFF);
+                memcpy(dst, &colorRGBA, argbBpp);
+                src = (char*)src + a565Bpp;
+                dst = (char*)dst + argbBpp;
+            }
+        }
+        return true;
     }
 
     // crbug:510931
@@ -188,7 +212,9 @@ GrTextStrike::GrTextStrike(const SkDescriptor& key)
     : fFontScalerKey(key)
     , fPool(9/*start allocations at 512 bytes*/)
     , fAtlasedGlyphs(0)
-    , fIsAbandoned(false) {}
+    , fIsAbandoned(false)
+    , f565Masks(SkMasks::CreateMasks({0xF800, 0x07E0, 0x001F, 0},
+                GrMaskFormatBytesPerPixel(kA565_GrMaskFormat) * 8)) {}
 
 GrTextStrike::~GrTextStrike() {
     SkTDynamicHash<GrGlyph, GrGlyph::PackedID>::Iter iter(&fCache);
@@ -237,6 +263,7 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
     SkASSERT(cache);
     SkASSERT(fCache.find(glyph->fPackedID));
 
+    expectedMaskFormat = fullAtlasManager->resolveMaskFormat(expectedMaskFormat);
     int bytesPerPixel = GrMaskFormatBytesPerPixel(expectedMaskFormat);
     int width = glyph->width();
     int height = glyph->height();
@@ -262,7 +289,7 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
     }
     if (!get_packed_glyph_image(cache, skGlyph, glyph->width(), glyph->height(),
                                 rowBytes, expectedMaskFormat,
-                                dataPtr)) {
+                                dataPtr, *f565Masks)) {
         return GrDrawOpAtlas::ErrorCode::kError;
     }
 
