@@ -104,8 +104,7 @@ bool GrVkMemory::AllocAndBindImageMemory(const GrVkGpu* gpu,
         propFlags = AllocationPropertyFlags::kDedicatedAllocation;
     }
 
-    if (!allocator->allocateMemoryForImage(image, AllocationPropertyFlags::kDedicatedAllocation,
-                                           &memory)) {
+    if (!allocator->allocateMemoryForImage(image, propFlags, &memory)) {
         return false;
     }
     allocator->getAllocInfo(memory, alloc);
