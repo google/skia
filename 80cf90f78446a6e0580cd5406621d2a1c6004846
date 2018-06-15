@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dbfc3990_971350a5",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-15T16:14:38Z",
+      "side": 1,
+      "message": "Appears to have a ~3% perf impact -- which I find kinda surprising/frustrating: scope-terminating chars are very uncommon in strings, so we should just take the previous valid string exit in practice, just like before.\n\nI\u0027m guessing the extra logic/arg force the compiler to interact differently with callers and emit somewhat slower code?  Or maybe I\u0027m missing something?\n\nAnyway, I don\u0027t think we should revert the input size approach over this.  Plus, plumbing p_stop down to this level might come in handy if we pursue the short-string load optimization we were talking about.",
+      "range": {
+        "startLine": 565,
+        "startChar": 0,
+        "endLine": 570,
+        "endChar": 9
+      },
+      "revId": "80cf90f78446a6e0580cd5406621d2a1c6004846",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
