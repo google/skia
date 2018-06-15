@@ -46,6 +46,30 @@
       "revId": "80cf90f78446a6e0580cd5406621d2a1c6004846",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "578fcac2_cbb08d03",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-15T16:22:18Z",
+      "side": 1,
+      "message": "It\u0027s more about the previous conditional being very-very-super likely, but yeah, we could try using branch prediction hints (builtin_expect).  Mike has been steering me away from those so far, but I\u0027ll give it a shot :)",
+      "parentUuid": "cf91e7e2_3048cbe0",
+      "range": {
+        "startLine": 565,
+        "startChar": 0,
+        "endLine": 570,
+        "endChar": 9
+      },
+      "revId": "80cf90f78446a6e0580cd5406621d2a1c6004846",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
