@@ -649,6 +649,28 @@ SkScalerContext* SkTypeface_FreeType::onCreateScalerContext(const SkScalerContex
     return c.release();
 }
 
+sk_sp<SkTypeface> SkTypeface_FreeType::onMakeClone(const SkFontArguments& args) const {
+    using Scanner = SkTypeface_FreeType::Scanner;
+    SkTypeface_FreeType::Scanner fScanner;
+    bool isFixedPitch;
+    SkFontStyle style;
+    SkString name;
+    Scanner::AxisDefinitions axisDefinitions;
+    int ttcIndex = args.getCollectionIndex();
+    if (!fScanner.scanFont(openStream(&ttcIndex)->duplicate().get(), args.getCollectionIndex(),
+                           &name, &style, &isFixedPitch, &axisDefinitions)) {
+        return sk_ref_sp(this);
+    }
+    SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
+    Scanner::computeAxisValues(axisDefinitions, args.getVariationDesignPosition(),
+                               axisValues, name);
+
+    auto data = skstd::make_unique<SkFontData>(openStream(&ttcIndex)->duplicate(), args.getCollectionIndex(),
+                                               axisValues.get(), axisDefinitions.count());
+    
+    return MakeFromFontData(std::move(data));
+}
+
 void SkTypeface_FreeType::onFilterRec(SkScalerContextRec* rec) const {
     //BOGUS: http://code.google.com/p/chromium/issues/detail?id=121119
     //Cap the requested size as larger sizes give bogus values.
