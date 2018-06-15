@@ -1,0 +1,232 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afb3a04_1c9f9fb7",
+        "filename": "src/gpu/ccpr/GrCCPerFlushResources.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-15T14:05:55Z",
+      "side": 1,
+      "message": "Can you make the ctor protected?",
+      "revId": "c2127febeab5027135304be51c369d89c09a2e64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b47bec53_07181cb8",
+        "filename": "src/gpu/ccpr/GrCCPerFlushResources.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-15T14:05:55Z",
+      "side": 1,
+      "message": "Please allocate this from the op memory pool.",
+      "revId": "c2127febeab5027135304be51c369d89c09a2e64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34531748_b5d8c257",
+        "filename": "src/gpu/ccpr/GrCCPerFlushResources.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-15T14:05:55Z",
+      "side": 1,
+      "message": "This would be a meta-task but, is there some way to double check that we are getting the reuse of the atlas that we expect?",
+      "revId": "c2127febeab5027135304be51c369d89c09a2e64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c53ae229_2d2eef3d",
+        "filename": "src/gpu/ccpr/GrCCPerFlushResources.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-15T14:05:55Z",
+      "side": 1,
+      "message": "Please allocate from the GrOpMemoryPool.",
+      "revId": "c2127febeab5027135304be51c369d89c09a2e64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8bc8d9d1_0a58eb63",
+        "filename": "src/gpu/ccpr/GrCCPerFlushResources.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-15T14:05:55Z",
+      "side": 1,
+      "message": "Maybe GrColor_WHITE ?",
+      "range": {
+        "startLine": 174,
+        "startChar": 75,
+        "endLine": 174,
+        "endChar": 92
+      },
+      "revId": "c2127febeab5027135304be51c369d89c09a2e64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "017e5b12_b901bfc4",
+        "filename": "src/gpu/ccpr/GrCCPerFlushResources.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-15T14:05:55Z",
+      "side": 1,
+      "message": "type",
+      "range": {
+        "startLine": 100,
+        "startChar": 6,
+        "endLine": 100,
+        "endChar": 13
+      },
+      "revId": "c2127febeab5027135304be51c369d89c09a2e64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8a1ade3_3a683577",
+        "filename": "src/gpu/ccpr/GrCCPerFlushResources.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-15T14:05:55Z",
+      "side": 1,
+      "message": "add \\n ?",
+      "range": {
+        "startLine": 103,
+        "startChar": 3,
+        "endLine": 103,
+        "endChar": 5
+      },
+      "revId": "c2127febeab5027135304be51c369d89c09a2e64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00a79f50_e54ff471",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-15T14:05:55Z",
+      "side": 1,
+      "message": "This might be a later CL but couldn\u0027t we just disable caching is A8 isn\u0027t fully supported (don\u0027t know how likely that would be though if f16 is)",
+      "revId": "c2127febeab5027135304be51c369d89c09a2e64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4900adde_e22eba87",
+        "filename": "tests/GrCCPRTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-15T14:05:55Z",
+      "side": 1,
+      "message": ":(",
+      "revId": "c2127febeab5027135304be51c369d89c09a2e64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "133a98cc_05e1781c",
+        "filename": "tests/GrCCPRTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-15T14:05:55Z",
+      "side": 1,
+      "message": "// This test exercises CCPR\u0027s cache capabilities by:\n// ...\n\n?",
+      "revId": "c2127febeab5027135304be51c369d89c09a2e64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33964bcf_a910278a",
+        "filename": "tests/GrCCPRTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-15T14:05:55Z",
+      "side": 1,
+      "message": "Only 11 primes!",
+      "revId": "c2127febeab5027135304be51c369d89c09a2e64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a3008e1_50c8f786",
+        "filename": "tests/GrCCPRTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-15T14:05:55Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 332,
+        "startChar": 57,
+        "endLine": 332,
+        "endChar": 61
+      },
+      "revId": "c2127febeab5027135304be51c369d89c09a2e64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
