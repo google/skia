@@ -38,6 +38,11 @@ struct BinaryExpression : public Expression {
                fRight->hasSideEffects();
     }
 
+    std::unique_ptr<Expression> clone() const override {
+        return std::unique_ptr<Expression>(new BinaryExpression(fOffset, fLeft->clone(), fOperator,
+                                                                fRight->clone(), fType));
+    }
+
     String description() const override {
         return "(" + fLeft->description() + " " + Compiler::OperatorName(fOperator) + " " +
                fRight->description() + ")";
