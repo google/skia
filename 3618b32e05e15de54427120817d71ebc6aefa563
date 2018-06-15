@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "238b8d0e_b2282bd0",
+        "filename": "src/gpu/ccpr/GrCCAtlas.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-15T00:56:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cffbb6f5_84c60278",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c93d86c8_59be5217",
         "filename": "src/gpu/ccpr/GrCCAtlas.cpp",
         "patchSetId": 6
@@ -86,6 +104,24 @@
       "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ac49acb_4678ebc5",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-15T00:56:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "53423a2e_13c22de4",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -159,6 +195,24 @@
     },
     {
       "key": {
+        "uuid": "ca12422a_37f7882f",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-15T00:56:26Z",
+      "side": 1,
+      "message": "Ok, now that I think about this more, the correct solution is to require a GrTextureProxy here. The problem is GrCCAtlas doesn\u0027t know its width and height yet, but we can fix that with a *Lazy* texture proxy.\n\nHowever, making a lazy proxy requires a GrProxyProvider. Why? The GrCCAtlas constructor shouldn\u0027t require a proxyProvider. Let\u0027s talk about this tomorrow.",
+      "parentUuid": "28879230_b22b5282",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d07ae0b9_ee5a8dfe",
         "filename": "src/gpu/ccpr/GrCCDrawPathsOp.h",
         "patchSetId": 6
@@ -182,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "60e0d45e_2aafcaa5",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-15T00:56:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d07ae0b9_ee5a8dfe",
+      "range": {
+        "startLine": 101,
+        "startChar": 8,
+        "endLine": 101,
+        "endChar": 22
+      },
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "99513344_d98be7c8",
         "filename": "src/gpu/ccpr/GrCCPathCache.cpp",
         "patchSetId": 6
@@ -196,6 +274,24 @@
       "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee4eb5bc_40e42243",
+        "filename": "src/gpu/ccpr/GrCCPathCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-15T00:56:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99513344_d98be7c8",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -257,6 +353,30 @@
     },
     {
       "key": {
+        "uuid": "1ee403ee_bd6d6aa3",
+        "filename": "src/gpu/ccpr/GrCCPathCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-15T00:56:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a6ecf601_4c6146cb",
+      "range": {
+        "startLine": 21,
+        "startChar": 64,
+        "endLine": 21,
+        "endChar": 81
+      },
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "33a2b6b7_6428a003",
         "filename": "src/gpu/ccpr/GrCCPathCache.h",
         "patchSetId": 6
@@ -280,6 +400,30 @@
     },
     {
       "key": {
+        "uuid": "e3bda79c_f892fb1a",
+        "filename": "src/gpu/ccpr/GrCCPathCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-15T00:56:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "33a2b6b7_6428a003",
+      "range": {
+        "startLine": 37,
+        "startChar": 76,
+        "endLine": 37,
+        "endChar": 81
+      },
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da5bd2cc_8e5f7934",
         "filename": "src/gpu/ccpr/GrCCPathCache.h",
         "patchSetId": 6
@@ -294,6 +438,24 @@
       "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03c26989_0bb9f0f2",
+        "filename": "src/gpu/ccpr/GrCCPathCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-15T00:56:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da5bd2cc_8e5f7934",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -314,6 +476,24 @@
     },
     {
       "key": {
+        "uuid": "c5c07a0d_f5356108",
+        "filename": "src/gpu/ccpr/GrCCPathCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-15T00:56:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "baefb89a_bacc2cfd",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0116e6b2_b5e4e4bd",
         "filename": "src/gpu/ccpr/GrCCPathCache.h",
         "patchSetId": 6
@@ -328,6 +508,24 @@
       "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66cfcb73_261de132",
+        "filename": "src/gpu/ccpr/GrCCPathCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-15T00:56:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0116e6b2_b5e4e4bd",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -348,6 +546,24 @@
     },
     {
       "key": {
+        "uuid": "cee498b1_14a47cb8",
+        "filename": "src/gpu/ccpr/GrCCPathCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-15T00:56:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7aa44b42_f0837adb",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "737dfbba_2de85883",
         "filename": "src/gpu/ccpr/GrCCPathProcessor.h",
         "patchSetId": 6
@@ -362,6 +578,24 @@
       "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abf792fe_7cb297d4",
+        "filename": "src/gpu/ccpr/GrCCPathProcessor.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-15T00:56:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "737dfbba_2de85883",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -385,6 +619,30 @@
       "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73641680_88c9e114",
+        "filename": "src/gpu/ccpr/GrCCPerFlushResources.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-15T00:56:26Z",
+      "side": 1,
+      "message": "Joys of voice typing :-)",
+      "parentUuid": "c9e740e6_fa1e895b",
+      "range": {
+        "startLine": 23,
+        "startChar": 2,
+        "endLine": 23,
+        "endChar": 7
+      },
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
