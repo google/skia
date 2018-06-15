@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ee2d9894_9d633b79",
+        "filename": "src/gpu/text/GrGlyphCache.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-15T16:55:33Z",
+      "side": 1,
+      "message": "This will create a static initializer to register the call to the destructor at shutdown. (The initialization is fine, it\u0027s the destructor call that\u0027s the issue.)",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 55
+      },
+      "revId": "0513dd8675534afdd605cea32778a4b4671b2c3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
