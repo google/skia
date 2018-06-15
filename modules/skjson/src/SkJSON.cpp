@@ -165,9 +165,10 @@ namespace {
 
 // bit 0 (0x01) - plain ASCII string character
 // bit 1 (0x02) - whitespace
-// bit 2 (0x04) - string terminator (" \0 [control chars])
+// bit 2 (0x04) - string terminator (" \0 [control chars] **AND } ]** <- see matchString notes)
 // bit 3 (0x08) - 0-9
 // bit 4 (0x10) - 0-9 e E .
+// bit 5 (0x20) - scope terminator (} ])
 static constexpr uint8_t g_token_flags[256] = {
  // 0    1    2    3    4    5    6    7      8    9    A    B    C    D    E    F
     4,   4,   4,   4,   4,   4,   4,   4,     4,   6,   6,   4,   4,   6,   4,   4, // 0
@@ -175,9 +176,9 @@ static constexpr uint8_t g_token_flags[256] = {
     3,   1,   4,   1,   1,   1,   1,   1,     1,   1,   1,   1,   1,   1,   0x11,1, // 2
  0x19,0x19,0x19,0x19,0x19,0x19,0x19,0x19,  0x19,0x19,   1,   1,   1,   1,   1,   1, // 3
     1,   1,   1,   1,   1,   0x11,1,   1,     1,   1,   1,   1,   1,   1,   1,   1, // 4
-    1,   1,   1,   1,   1,   1,   1,   1,     1,   1,   1,   1,   0,   1,   1,   1, // 5
+    1,   1,   1,   1,   1,   1,   1,   1,     1,   1,   1,   1,   0,0x25,   1,   1, // 5
     1,   1,   1,   1,   1,   0x11,1,   1,     1,   1,   1,   1,   1,   1,   1,   1, // 6
-    1,   1,   1,   1,   1,   1,   1,   1,     1,   1,   1,   1,   1,   1,   1,   1, // 7
+    1,   1,   1,   1,   1,   1,   1,   1,     1,   1,   1,   1,   1,0x25,   1,   1, // 7
 
  // 128-255
     0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,
@@ -186,10 +187,11 @@ static constexpr uint8_t g_token_flags[256] = {
     0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0
 };
 
-static inline bool is_ws(char c)          { return g_token_flags[static_cast<uint8_t>(c)] & 0x02; }
-static inline bool is_sterminator(char c) { return g_token_flags[static_cast<uint8_t>(c)] & 0x04; }
-static inline bool is_digit(char c)       { return g_token_flags[static_cast<uint8_t>(c)] & 0x08; }
-static inline bool is_numeric(char c)     { return g_token_flags[static_cast<uint8_t>(c)] & 0x10; }
+static inline bool is_ws(char c)       { return g_token_flags[static_cast<uint8_t>(c)] & 0x02; }
+static inline bool is_eostring(char c) { return g_token_flags[static_cast<uint8_t>(c)] & 0x04; }
+static inline bool is_digit(char c)    { return g_token_flags[static_cast<uint8_t>(c)] & 0x08; }
+static inline bool is_numeric(char c)  { return g_token_flags[static_cast<uint8_t>(c)] & 0x10; }
+static inline bool is_eoscope(char c)  { return g_token_flags[static_cast<uint8_t>(c)] & 0x20; }
 
 static inline const char* skip_ws(const char* p) {
     while (is_ws(*p)) ++p;
@@ -239,7 +241,7 @@ public:
         while (p_stop > p && is_ws(*p_stop)) --p_stop;
 
         SkASSERT(p_stop >= p && p_stop < p + size);
-        if (*p_stop != '}' && *p_stop != ']') {
+        if (!is_eoscope(*p_stop)) {
             return this->error(NullValue(), p_stop, "invalid top-level value");
         }
 
@@ -267,7 +269,7 @@ public:
         p = skip_ws(p);
         if (*p != '"') return this->error(NullValue(), p, "expected object key");
 
-        p = this->matchString(p, [this](const char* key, size_t size) {
+        p = this->matchString(p, p_stop, [this](const char* key, size_t size) {
             this->pushObjectKey(key, size);
         });
         if (!p) return NullValue();
@@ -285,7 +287,7 @@ public:
         case '\0':
             return this->error(NullValue(), p, "unexpected input end");
         case '"':
-            p = this->matchString(p, [this](const char* str, size_t size) {
+            p = this->matchString(p, p_stop, [this](const char* str, size_t size) {
                 this->pushString(str, size);
             });
             break;
@@ -344,7 +346,7 @@ public:
 
         // goto pop_common
     pop_common:
-        SkASSERT(*p == '}' || *p == ']');
+        SkASSERT(is_eoscope(*p));
 
         if (fScopeStack.empty()) {
             SkASSERT(fValueStack.size() == 1);
@@ -541,18 +543,29 @@ private:
     }
 
     template <typename MatchFunc>
-    const char* matchString(const char* p, MatchFunc&& func) {
+    const char* matchString(const char* p, const char* p_stop, MatchFunc&& func) {
         SkASSERT(*p == '"');
         const auto* s_begin = p + 1;
 
         // TODO: unescape
-        for (p = s_begin; !is_sterminator(*p); ++p) {}
 
-        if (*p == '"') {
-            func(s_begin, p - s_begin);
-            return p + 1;
-        }
+        do {
+            // Consume string chars.
+            for (p = p + 1; !is_eostring(*p); ++p);
 
+            if (*p == '"') {
+                // Valid string found.
+                func(s_begin, p - s_begin);
+                return p + 1;
+            }
+
+            // End-of-scope chars are special: we use them to tag the end of the input.
+            // Thus they cannot be consumed indiscriminately -- we need to check if we hit the
+            // end of the input.  To that effect, we treat them as string terminators above,
+            // then we catch them here.
+        } while (is_eoscope(*p) && (p != p_stop)); // Safe scope terminator char, keep going.
+
+        // Premature end-of-input, or illegal string char.
         return this->error(nullptr, s_begin - 1, "invalid string");
     }
 
