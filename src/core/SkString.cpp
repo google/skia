@@ -181,18 +181,18 @@ const SkString::Rec SkString::gEmptyRec(0, 0);
 
 static uint32_t trim_size_t_to_u32(size_t value) {
     if (sizeof(size_t) > sizeof(uint32_t)) {
-        if (value > SK_MaxU32) {
-            value = SK_MaxU32;
+        if (value > UINT32_MAX) {
+            value = UINT32_MAX;
         }
     }
     return (uint32_t)value;
 }
 
 static size_t check_add32(size_t base, size_t extra) {
-    SkASSERT(base <= SK_MaxU32);
+    SkASSERT(base <= UINT32_MAX);
     if (sizeof(size_t) > sizeof(uint32_t)) {
-        if (base + extra > SK_MaxU32) {
-            extra = SK_MaxU32 - base;
+        if (base + extra > UINT32_MAX) {
+            extra = UINT32_MAX - base;
         }
     }
     return extra;

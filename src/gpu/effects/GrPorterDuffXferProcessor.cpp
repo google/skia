@@ -619,7 +619,7 @@ private:
 
 class GLPDLCDXferProcessor : public GrGLSLXferProcessor {
 public:
-    GLPDLCDXferProcessor(const GrProcessor&) : fLastAlpha(SK_MaxU32) {}
+    GLPDLCDXferProcessor(const GrProcessor&) : fLastAlpha(UINT32_MAX) {}
 
     ~GLPDLCDXferProcessor() override {}
 
