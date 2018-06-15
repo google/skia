@@ -104,8 +104,6 @@ public:
         return SkToBool(fBoundsFlags & kZeroArea_BoundsFlag);
     }
 
-#ifdef SK_DEBUG
-    // All GrOp-derived classes should be allocated in and deleted from a GrMemoryPool
     void* operator new(size_t size);
     void operator delete(void* target);
 
@@ -115,7 +113,6 @@ public:
     void operator delete(void* target, void* placement) {
         ::operator delete(target, placement);
     }
-#endif
 
     /**
      * Helper for safely down-casting to a GrOp subclass

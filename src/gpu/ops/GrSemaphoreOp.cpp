@@ -21,9 +21,9 @@ public:
                                       sk_sp<GrSemaphore> semaphore,
                                       GrRenderTargetProxy* proxy,
                                       bool forceFlush) {
-        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
-
-        return pool->allocate<GrSignalSemaphoreOp>(std::move(semaphore), proxy, forceFlush);
+        return std::unique_ptr<GrSignalSemaphoreOp>(new GrSignalSemaphoreOp(std::move(semaphore),
+                                                                            proxy,
+                                                                            forceFlush));
     }
 
     const char* name() const override { return "SignalSemaphore"; }
@@ -51,9 +51,8 @@ public:
     static std::unique_ptr<GrOp> Make(GrContext* context,
                                       sk_sp<GrSemaphore> semaphore,
                                       GrRenderTargetProxy* proxy) {
-        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
-
-        return pool->allocate<GrWaitSemaphoreOp>(std::move(semaphore), proxy);
+        return std::unique_ptr<GrWaitSemaphoreOp>(new GrWaitSemaphoreOp(std::move(semaphore),
+                                                                        proxy));
     }
 
     const char* name() const override { return "WaitSemaphore"; }

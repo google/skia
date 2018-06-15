@@ -258,9 +258,7 @@ public:
 
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           std::function<void(DrawMeshHelper*)> testFn) {
-        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
-
-        return pool->allocate<GrMeshTestOp>(testFn);
+        return std::unique_ptr<GrDrawOp>(new GrMeshTestOp(testFn));
     }
 
 private:

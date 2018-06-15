@@ -13,7 +13,6 @@
 #include "text/GrAtlasManager.h"
 
 class GrBackendRenderTarget;
-class GrOpMemoryPool;
 class GrOnFlushCallbackObject;
 class GrSemaphore;
 class GrSurfaceProxy;
@@ -32,9 +31,6 @@ public:
     static sk_sp<GrContext> MakeDDL(const sk_sp<GrContextThreadSafeProxy>&);
 
     const GrCaps* caps() const { return fContext->fCaps.get(); }
-
-    sk_sp<GrOpMemoryPool> refOpMemoryPool();
-    GrOpMemoryPool* opMemoryPool();
 
     GrDrawingManager* drawingManager() { return fContext->fDrawingManager.get(); }
 

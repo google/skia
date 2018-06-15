@@ -678,14 +678,12 @@ std::unique_ptr<GrDrawOp> Make(GrContext* context,
     SkScalar scaledRadius = SkScalarAbs(radius*matrixFactor);
     SkScalar scaledInsetWidth = SkScalarAbs(insetWidth*matrixFactor);
 
-    GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
-
-    return pool->allocate<ShadowCircularRRectOp>(color, bounds,
-                                                 scaledRadius,
-                                                 rrect.isOval(),
-                                                 blurWidth,
-                                                 scaledInsetWidth,
-                                                 blurClamp);
+    return std::unique_ptr<GrDrawOp>(new ShadowCircularRRectOp(color, bounds,
+                                                               scaledRadius,
+                                                               rrect.isOval(),
+                                                               blurWidth,
+                                                               scaledInsetWidth,
+                                                               blurClamp));
 }
 }
 

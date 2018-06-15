@@ -17,7 +17,6 @@
 class GrAuditTrail;
 class GrCaps;
 class GrOpFlushState;
-class GrOpMemoryPool;
 class GrRenderTargetOpList;
 class GrResourceAllocator;
 class GrResourceProvider;
@@ -29,7 +28,7 @@ struct SkIRect;
 
 class GrOpList : public SkRefCnt {
 public:
-    GrOpList(GrResourceProvider*, sk_sp<GrOpMemoryPool>, GrSurfaceProxy*, GrAuditTrail*);
+    GrOpList(GrResourceProvider*, GrSurfaceProxy*, GrAuditTrail*);
     ~GrOpList() override;
 
     // These four methods are invoked at flush time
@@ -103,16 +102,12 @@ public:
 protected:
     bool isInstantiated() const;
 
-    // This is a backpointer to the GrOpMemoryPool that holds the memory for this opLists' ops.
-    // In the DDL case, these back pointers keep the DDL's GrOpMemoryPool alive as long as its
-    // constituent opLists survive.
-    sk_sp<GrOpMemoryPool> fOpMemoryPool;
-    GrSurfaceProxyRef     fTarget;
-    GrAuditTrail*         fAuditTrail;
+    GrSurfaceProxyRef fTarget;
+    GrAuditTrail*     fAuditTrail;
 
-    GrLoadOp              fColorLoadOp    = GrLoadOp::kLoad;
-    GrColor               fLoadClearColor = 0x0;
-    GrLoadOp              fStencilLoadOp  = GrLoadOp::kLoad;
+    GrLoadOp          fColorLoadOp    = GrLoadOp::kLoad;
+    GrColor           fLoadClearColor = 0x0;
+    GrLoadOp          fStencilLoadOp  = GrLoadOp::kLoad;
 
     // List of texture proxies whose contents are being prepared on a worker thread
     SkTArray<GrTextureProxy*, true> fDeferredProxies;

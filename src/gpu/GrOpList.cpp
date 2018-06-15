@@ -9,7 +9,6 @@
 
 #include "GrContext.h"
 #include "GrDeferredProxyUploader.h"
-#include "GrMemoryPool.h"
 #include "GrSurfaceProxy.h"
 #include "GrTextureProxyPriv.h"
 
@@ -25,13 +24,11 @@ uint32_t GrOpList::CreateUniqueID() {
     return id;
 }
 
-GrOpList::GrOpList(GrResourceProvider* resourceProvider, sk_sp<GrOpMemoryPool> opMemoryPool,
+GrOpList::GrOpList(GrResourceProvider* resourceProvider,
                    GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail)
-        : fOpMemoryPool(std::move(opMemoryPool))
-        , fAuditTrail(auditTrail)
-        , fUniqueID(CreateUniqueID())
-        , fFlags(0) {
-    SkASSERT(fOpMemoryPool);
+    : fAuditTrail(auditTrail)
+    , fUniqueID(CreateUniqueID())
+    , fFlags(0) {
     fTarget.setProxy(sk_ref_sp(surfaceProxy), kWrite_GrIOType);
     fTarget.get()->setLastOpList(this);
 

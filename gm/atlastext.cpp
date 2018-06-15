@@ -8,7 +8,6 @@
 #include "gm.h"
 
 #if SK_SUPPORT_ATLAS_TEXT
-#include "GrContext.h"
 
 #include "SkAtlasTextContext.h"
 #include "SkAtlasTextFont.h"
@@ -73,7 +72,6 @@ protected:
         if (!targetHandle) {
             return;
         }
-
         fTarget = SkAtlasTextTarget::Make(fContext, kSize, kSize, targetHandle);
 
         fTypefaces[0] = sk_tool_utils::create_portable_typeface("serif", SkFontStyle::Italic());

@@ -11,7 +11,6 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
-#include "GrMemoryPool.h"
 #include "GrResourceAllocator.h"
 #include "GrTextureProxy.h"
 #include "SkStringUtils.h"
@@ -20,28 +19,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 GrTextureOpList::GrTextureOpList(GrResourceProvider* resourceProvider,
-                                 sk_sp<GrOpMemoryPool> opMemoryPool,
                                  GrTextureProxy* proxy,
                                  GrAuditTrail* auditTrail)
-        : INHERITED(resourceProvider, std::move(opMemoryPool), proxy, auditTrail) {
-    SkASSERT(fOpMemoryPool);
-}
-
-void GrTextureOpList::deleteOp(int index) {
-    SkASSERT(index >= 0 && index < fRecordedOps.count());
-    fOpMemoryPool->release(std::move(fRecordedOps[index]));
-}
-
-void GrTextureOpList::deleteOps() {
-    for (int i = 0; i < fRecordedOps.count(); ++i) {
-        fOpMemoryPool->release(std::move(fRecordedOps[i]));
-    }
-    fRecordedOps.reset();
-    fOpMemoryPool = nullptr;
+    : INHERITED(resourceProvider, proxy, auditTrail) {
 }
 
 GrTextureOpList::~GrTextureOpList() {
-    this->deleteOps();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -124,7 +107,7 @@ bool GrTextureOpList::onExecute(GrOpFlushState* flushState) {
 }
 
 void GrTextureOpList::endFlush() {
-    this->deleteOps();
+    fRecordedOps.reset();
     INHERITED::endFlush();
 }
 
@@ -169,7 +152,7 @@ void GrTextureOpList::purgeOpsWithUninstantiatedProxies() {
         }
         if (hasUninstantiatedProxy) {
             // When instantiation of the proxy fails we drop the Op
-            this->deleteOp(i);
+            fRecordedOps[i] = nullptr;
         }
     }
 }

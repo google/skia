@@ -174,22 +174,19 @@ template <typename Op, typename... OpArgs>
 std::unique_ptr<GrDrawOp> GrSimpleMeshDrawOpHelper::FactoryHelper(GrContext* context,
                                                                   GrPaint&& paint,
                                                                   OpArgs... opArgs) {
-    GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
-
     MakeArgs makeArgs;
     makeArgs.fSRGBFlags = GrPipeline::SRGBFlagsFromPaint(paint);
     GrColor color = paint.getColor();
 
     if (paint.isTrivial()) {
         makeArgs.fProcessorSet = nullptr;
-        return pool->allocate<Op>(makeArgs, color, std::forward<OpArgs>(opArgs)...);
+        return std::unique_ptr<GrDrawOp>(new Op(makeArgs, color, std::forward<OpArgs>(opArgs)...));
     } else {
-        char* mem = (char*) pool->allocate(sizeof(Op) + sizeof(GrProcessorSet));
+        char* mem = (char*)GrOp::operator new(sizeof(Op) + sizeof(GrProcessorSet));
         char* setMem = mem + sizeof(Op);
         makeArgs.fProcessorSet = new (setMem) GrProcessorSet(std::move(paint));
-
-        return std::unique_ptr<GrDrawOp>(new (mem) Op(makeArgs, color,
-                                                      std::forward<OpArgs>(opArgs)...));
+        return std::unique_ptr<GrDrawOp>(
+                new (mem) Op(makeArgs, color, std::forward<OpArgs>(opArgs)...));
     }
 }
 

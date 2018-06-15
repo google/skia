@@ -27,9 +27,8 @@ public:
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           sk_sp<const GrCCPerFlushResources> resources,
                                           CoverageCountBatchID batchID, const SkISize& drawBounds) {
-        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
-
-        return pool->allocate<RenderAtlasOp>(std::move(resources), batchID, drawBounds);
+        return std::unique_ptr<GrDrawOp>(new RenderAtlasOp(std::move(resources), batchID,
+                                                           drawBounds));
     }
 
     // GrDrawOp interface.
