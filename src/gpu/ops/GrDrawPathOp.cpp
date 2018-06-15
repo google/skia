@@ -69,9 +69,8 @@ std::unique_ptr<GrDrawOp> GrDrawPathOp::Make(GrContext* context,
                                              GrPaint&& paint,
                                              GrAAType aaType,
                                              GrPath* path) {
-    GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
-
-    return pool->allocate<GrDrawPathOp>(viewMatrix, std::move(paint), aaType, path);
+    return std::unique_ptr<GrDrawOp>(
+                new GrDrawPathOp(viewMatrix, std::move(paint), aaType, path));
 }
 
 void GrDrawPathOp::onExecute(GrOpFlushState* state) {

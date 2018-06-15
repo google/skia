@@ -32,8 +32,7 @@ private:
     using DstProxy = GrXferProcessor::DstProxy;
 
 public:
-    GrRenderTargetOpList(GrResourceProvider*, sk_sp<GrOpMemoryPool>,
-                         GrRenderTargetProxy*, GrAuditTrail*);
+    GrRenderTargetOpList(GrResourceProvider*, GrRenderTargetProxy*, GrAuditTrail*);
 
     ~GrRenderTargetOpList() override;
 
@@ -123,8 +122,6 @@ public:
 private:
     friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive
 
-    void deleteOps();
-
     struct RecordedOp {
         RecordedOp(std::unique_ptr<GrOp> op, GrAppliedClip* appliedClip, const DstProxy* dstProxy)
                 : fOp(std::move(op)), fAppliedClip(appliedClip) {
@@ -133,12 +130,7 @@ private:
             }
         }
 
-        ~RecordedOp() {
-            // The ops are stored in a GrMemoryPool so had better have been handled separately
-            SkASSERT(!fOp);
-        }
-
-        void deleteOp(GrOpMemoryPool* opMemoryPool);
+        ~RecordedOp() { }
 
         void visitProxies(const GrOp::VisitProxyFunc& func) const {
             if (fOp) {

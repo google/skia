@@ -14,9 +14,7 @@ std::unique_ptr<GrOp> GrClearStencilClipOp::Make(GrContext* context,
                                                  const GrFixedClip& clip,
                                                  bool insideStencilMask,
                                                  GrRenderTargetProxy* proxy) {
-    GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
-
-    return pool->allocate<GrClearStencilClipOp>(clip, insideStencilMask, proxy);
+    return std::unique_ptr<GrOp>(new GrClearStencilClipOp(clip, insideStencilMask, proxy));
 }
 
 void GrClearStencilClipOp::onExecute(GrOpFlushState* state) {

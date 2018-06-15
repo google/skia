@@ -10,7 +10,6 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
-#include "GrMemoryPool.h"
 #include "GrOnFlushResourceProvider.h"
 #include "GrOpList.h"
 #include "GrRenderTargetContext.h"
@@ -237,15 +236,6 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
 #endif
     fOpLists.reset();
 
-#ifdef SK_DEBUG
-    // In non-DDL mode this checks that all the flushed ops have been freed from the memory pool.
-    // When we move to partial flushes this assert will no longer be valid.
-    // In DDL mode this check is somewhat superfluous since the memory for most of the ops/opLists
-    // will be stored in the DDL's GrOpMemoryPools.
-    GrOpMemoryPool* opMemoryPool = fContext->contextPriv().opMemoryPool();
-    opMemoryPool->isEmpty();
-#endif
-
     GrSemaphoresSubmitted result = gpu->finishFlush(numSemaphores, backendSemaphores);
 
     flushState.uninstantiateProxyTracker()->uninstantiateAllProxies();
@@ -430,7 +420,6 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* r
 
     sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(
                                                         resourceProvider,
-                                                        fContext->contextPriv().refOpMemoryPool(),
                                                         rtp,
                                                         fContext->contextPriv().getAuditTrail()));
     SkASSERT(rtp->getLastOpList() == opList.get());
@@ -453,7 +442,6 @@ sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(GrTextureProxy* textur
     }
 
     sk_sp<GrTextureOpList> opList(new GrTextureOpList(fContext->contextPriv().resourceProvider(),
-                                                      fContext->contextPriv().refOpMemoryPool(),
                                                       textureProxy,
                                                       fContext->contextPriv().getAuditTrail()));
 

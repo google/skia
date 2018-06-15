@@ -21,9 +21,7 @@ std::unique_ptr<GrClearOp> GrClearOp::Make(GrContext* context,
         return nullptr;
     }
 
-    GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
-
-    return pool->allocate<GrClearOp>(clip, color, dstProxy);
+    return std::unique_ptr<GrClearOp>(new GrClearOp(clip, color, dstProxy));
 }
 
 std::unique_ptr<GrClearOp> GrClearOp::Make(GrContext* context,
@@ -32,9 +30,7 @@ std::unique_ptr<GrClearOp> GrClearOp::Make(GrContext* context,
                                            bool fullScreen) {
     SkASSERT(fullScreen || !rect.isEmpty());
 
-    GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
-
-    return pool->allocate<GrClearOp>(rect, color, fullScreen);
+    return std::unique_ptr<GrClearOp>(new GrClearOp(rect, color, fullScreen));
 }
 
 GrClearOp::GrClearOp(const GrFixedClip& clip, GrColor color, GrSurfaceProxy* proxy)
