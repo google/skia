@@ -6,8 +6,9 @@
  */
 
 #include "SkPackBits.h"
-
 #include "SkTo.h"
+
+#include <cstring>
 
 size_t SkPackBits::ComputeMaxSize8(size_t srcSize) {
     // worst case is the number of 8bit values + 1 byte per (up to) 128 entries.
