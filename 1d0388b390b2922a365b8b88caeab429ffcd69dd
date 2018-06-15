@@ -22,6 +22,30 @@
       "revId": "1d0388b390b2922a365b8b88caeab429ffcd69dd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "380f011f_ff8da4dd",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-15T00:37:14Z",
+      "side": 1,
+      "message": "The safe way to load 8 bytes is always just\n  memcpy(dst, src, 8);\n\nI was thinking we could memcpy(...,8), then put a \\0 at the right place?",
+      "parentUuid": "80eae7c7_a0afb824",
+      "range": {
+        "startLine": 123,
+        "startChar": 0,
+        "endLine": 124,
+        "endChar": 53
+      },
+      "revId": "1d0388b390b2922a365b8b88caeab429ffcd69dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
