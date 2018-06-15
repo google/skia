@@ -221,7 +221,7 @@ GrColor4f SkColorToPremulGrColor4fLegacy(SkColor c) {
 GrColor4f SkColorToUnpremulGrColor4f(SkColor c, const GrColorSpaceInfo& colorSpaceInfo) {
     GrColor4f color = GrColor4f::FromGrColor(SkColorToUnpremulGrColor(c));
     if (auto* xform = colorSpaceInfo.colorSpaceXformFromSRGB()) {
-        color = xform->clampedXform(color);
+        color = xform->apply(color);
     }
     return color;
 }
