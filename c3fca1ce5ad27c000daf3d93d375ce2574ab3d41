@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "f720b760_55cec9d5",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-06-15T20:47:25Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "92761481_e592a7e1",
+      "revId": "c3fca1ce5ad27c000daf3d93d375ce2574ab3d41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "62fc81ff_a0a56cba",
         "filename": "src/gpu/effects/GrSkSLFP.cpp",
         "patchSetId": 14
@@ -88,6 +106,30 @@
     },
     {
       "key": {
+        "uuid": "635a0180_5bdbb84d",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-06-15T20:47:25Z",
+      "side": 1,
+      "message": "Same, it\u0027s the GLSL format string. I\u0027ve added a comment to clarify.",
+      "parentUuid": "23c92904_0fc0f500",
+      "range": {
+        "startLine": 125,
+        "startChar": 23,
+        "endLine": 125,
+        "endChar": 28
+      },
+      "revId": "c3fca1ce5ad27c000daf3d93d375ce2574ab3d41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "91aeeeb1_9aa85bfe",
         "filename": "src/gpu/effects/GrSkSLFP.cpp",
         "patchSetId": 14
@@ -105,6 +147,24 @@
     },
     {
       "key": {
+        "uuid": "eaf6b2c4_7b60a37c",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-06-15T20:47:25Z",
+      "side": 1,
+      "message": "I\u0027ve fixed it to compare on numeric keys rather than the string. The format args are the inputs - that\u0027s what gets substituted in to the near-finished GLSL - so I believe this is already semantically correct.",
+      "parentUuid": "91aeeeb1_9aa85bfe",
+      "revId": "c3fca1ce5ad27c000daf3d93d375ce2574ab3d41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "97332851_1ebbcdc7",
         "filename": "src/gpu/effects/GrSkSLFP.h",
         "patchSetId": 14
@@ -119,6 +179,24 @@
       "revId": "c3fca1ce5ad27c000daf3d93d375ce2574ab3d41",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "059d7a74_723d743f",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-06-15T20:47:25Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "97332851_1ebbcdc7",
+      "revId": "c3fca1ce5ad27c000daf3d93d375ce2574ab3d41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -142,6 +220,30 @@
       "revId": "c3fca1ce5ad27c000daf3d93d375ce2574ab3d41",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03d8bcfa_817d69c8",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-06-15T20:47:25Z",
+      "side": 1,
+      "message": "It was nearly-finished GLSL with printf-style replacement tokens in it, but it\u0027s a moot point now.",
+      "parentUuid": "cc0e66e5_8ad6d085",
+      "range": {
+        "startLine": 108,
+        "startChar": 17,
+        "endLine": 108,
+        "endChar": 22
+      },
+      "revId": "c3fca1ce5ad27c000daf3d93d375ce2574ab3d41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
