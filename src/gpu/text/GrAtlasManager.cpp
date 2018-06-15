@@ -7,8 +7,10 @@
 
 #include "GrAtlasManager.h"
 
+#include "GrCaps.h"
 #include "GrGlyph.h"
 #include "GrGlyphCache.h"
+#include "GrProxyProvider.h"
 
 void GrAtlasManager::ComputeAtlasLimits(int maxTextureSize, size_t maxTextureBytes, int* maxDim,
                                         int* minDim, int* maxPlot, int* minPlot) {
