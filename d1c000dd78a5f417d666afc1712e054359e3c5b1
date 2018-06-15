@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac0938f4_17d2910b",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-06-15T12:51:45Z",
+      "side": 1,
+      "message": "Suggestion: it\u0027d be a little cleaner to put all of this in a static function in GrGlyphCache.",
+      "range": {
+        "startLine": 136,
+        "startChar": 4,
+        "endLine": 141,
+        "endChar": 0
+      },
+      "revId": "d1c000dd78a5f417d666afc1712e054359e3c5b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
