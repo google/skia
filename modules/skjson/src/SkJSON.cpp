@@ -355,6 +355,10 @@ public:
                 : this->error(NullValue(), p + 1, "trailing root garbage");
         }
 
+        if (p == p_stop) {
+            return this->error(NullValue(), p, "unexpected end-of-input");
+        }
+
         ++p;
 
         goto match_post_value;

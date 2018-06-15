@@ -47,8 +47,10 @@ DEF_TEST(SkJSON_Parse, reporter) {
         { "[,1,2]"  , nullptr },
 
         { "[ \"foo"       , nullptr },
+        { "[\"\":[]"      , nullptr },
         { "[ \"fo\0o\" ]" , nullptr },
 
+        { "{\"\":{}"                  , nullptr },
         { "{ null }"                  , nullptr },
         { "{ \"k\" : }"               , nullptr },
         { "{ : null }"                , nullptr },
