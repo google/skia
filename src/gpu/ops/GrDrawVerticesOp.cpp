@@ -276,7 +276,7 @@ bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         return false;
     }
 
-    if (fVertexCount + that->fVertexCount > UINT16_MAX) {
+    if (fVertexCount + that->fVertexCount > SkTo<int>(UINT16_MAX)) {
         return false;
     }
 
