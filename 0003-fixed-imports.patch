@@ -1,0 +1,101 @@
+From e382d0b4a14e61d5b759ec4b15d3682db4006e3e Mon Sep 17 00:00:00 2001
+From: Ethan Nicholas <ethannicholas@google.com>
+Date: Fri, 15 Jun 2018 11:51:13 -0400
+Subject: [PATCH 3/3] fixed imports
+
+---
+ include/gpu/GrContext.h    |  7 +++----
+ src/gpu/GrContextPriv.h    | 16 +++++-----------
+ src/gpu/effects/GrSkSLFP.h | 20 ++++++++++++++++++++
+ 3 files changed, 28 insertions(+), 15 deletions(-)
+
+diff --git a/include/gpu/GrContext.h b/include/gpu/GrContext.h
+index 5c06df9614..553242cf2e 100644
+--- a/include/gpu/GrContext.h
++++ b/include/gpu/GrContext.h
+@@ -49,6 +49,7 @@ class GrTextureProxy;
+ class GrTextureStripAtlasManager;
+ class GrVertexBuffer;
+ struct GrVkBackendContext;
++class GrSkSLFPFactoryCache;
+ 
+ class SkImage;
+ class SkSurfaceCharacterization;
+@@ -331,10 +332,8 @@ private:
+     GrAuditTrail                            fAuditTrail;
+ 
+     GrContextOptions::PersistentCache*      fPersistentCache;
+-
+-    // points to a (possibly null) std::vector<std::unique_ptr<GrSkSLFPFactory>>, but we can't
+-    // import GrSkSLFP.h from here so we can't define it with the correct type
+-    void* fFPFactories = nullptr;
++ 
++    GrSkSLFPFactoryCache* fFPFactories = nullptr;
+ 
+     // TODO: have the GrClipStackClip use renderTargetContexts and rm this friending
+     friend class GrContextPriv;
+diff --git a/src/gpu/GrContextPriv.h b/src/gpu/GrContextPriv.h
+index 48879c1243..1c2aad0ff1 100644
+--- a/src/gpu/GrContextPriv.h
++++ b/src/gpu/GrContextPriv.h
+@@ -279,23 +279,17 @@ public:
+     GrContextOptions::PersistentCache* getPersistentCache() { return fContext->fPersistentCache; }
+ 
+     GrSkSLFPFactory* getFPFactory(size_t index) {
+-        auto factories = (std::vector<std::unique_ptr<GrSkSLFPFactory>>*) fContext->fFPFactories;
+-        if (!factories || index >= factories->size()) {
++        if (!fContext->fFPFactories) {
+             return nullptr;
+         }
+-        return (*factories)[index].get();
++        return fContext->fFPFactories->get(index);
+     }
+ 
+     void setFPFactory(size_t index, std::unique_ptr<GrSkSLFPFactory> factory) {
+-        auto factories = (std::vector<std::unique_ptr<GrSkSLFPFactory>>*) fContext->fFPFactories;
+-        if (!factories) {
+-            factories = new std::vector<std::unique_ptr<GrSkSLFPFactory>>();
+-            fContext->fFPFactories = factories;
++        if (!fContext->fFPFactories) {
++            fContext->fFPFactories = new GrSkSLFPFactoryCache();
+         }
+-        while (index >= factories->size()) {
+-            factories->emplace_back();
+-        }
+-        (*factories)[index] = std::move(factory);
++        fContext->fFPFactories->set(index, std::move(factory));
+     }
+ 
+     /** This is only useful for debug purposes */
+diff --git a/src/gpu/effects/GrSkSLFP.h b/src/gpu/effects/GrSkSLFP.h
+index a4aca4960a..20cff19465 100644
+--- a/src/gpu/effects/GrSkSLFP.h
++++ b/src/gpu/effects/GrSkSLFP.h
+@@ -145,4 +145,24 @@ class GrSkSLFPFactory {
+     friend class GrSkSLFP;
+ };
+ 
++class GrSkSLFPFactoryCache {
++public:
++    GrSkSLFPFactory* get(int index) {
++        if (index >= (int) fFactories.size()) {
++            return nullptr;
++        }
++        return fFactories[index].get();
++    }
++
++    void set(int index, std::unique_ptr<GrSkSLFPFactory> factory) {
++        while (index >= (int) fFactories.size()) {
++            fFactories.emplace_back();
++        }
++        fFactories[index] = std::move(factory);
++    }
++
++private:
++    std::vector<std::unique_ptr<GrSkSLFPFactory>> fFactories;
++};
++
+ #endif
+-- 
+2.17.0.441.gb46fe60e1d-goog
+

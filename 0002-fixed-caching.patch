@@ -1,0 +1,323 @@
+From 63c9a5eb10bffe27d459e4db0559a8e53d1c5b02 Mon Sep 17 00:00:00 2001
+From: Ethan Nicholas <ethannicholas@google.com>
+Date: Thu, 14 Jun 2018 16:16:20 -0400
+Subject: [PATCH 2/3] fixed caching
+
+---
+ src/gpu/SkGr.cpp             |  2 +-
+ src/gpu/effects/GrSkSLFP.cpp | 92 +++++++++++++++++++++++-------------
+ src/gpu/effects/GrSkSLFP.h   | 62 ++++++++++++------------
+ src/sksl/SkSLCompiler.cpp    |  6 +--
+ src/sksl/SkSLCompiler.h      |  2 +-
+ 5 files changed, 95 insertions(+), 69 deletions(-)
+
+diff --git a/src/gpu/SkGr.cpp b/src/gpu/SkGr.cpp
+index 5f9273a547..fad888d1ab 100644
+--- a/src/gpu/SkGr.cpp
++++ b/src/gpu/SkGr.cpp
+@@ -504,7 +504,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
+         if (ditherRange >= 0) {
+             static int ditherIndex = GrSkSLFP::NewIndex();
+             auto ditherFP = GrSkSLFP::Make(context, ditherIndex, "Dither", SKSL_DITHER_SRC,
+-                                           &ditherRange);
++                                           &ditherRange, sizeof(ditherRange));
+             if (ditherFP) {
+                 grPaint->addColorFragmentProcessor(std::move(ditherFP));
+             }
+diff --git a/src/gpu/effects/GrSkSLFP.cpp b/src/gpu/effects/GrSkSLFP.cpp
+index 8942b66b4a..79237bd9c8 100644
+--- a/src/gpu/effects/GrSkSLFP.cpp
++++ b/src/gpu/effects/GrSkSLFP.cpp
+@@ -42,45 +42,56 @@ GrSkSLFPFactory::GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCap
+     }
+ }
+ 
+-static size_t align(size_t offset, size_t alignment) {
+-    size_t delta = offset % alignment;
+-    if (delta) {
+-        return offset + alignment - delta;
++std::unique_ptr<GrFragmentProcessor> GrSkSLFPFactory::make(const void* inputs, size_t inputSize) {
++    SkASSERT(!fCompiler.errorCount());
++    SkSL::String key;
++    size_t offset = 0;
++    for (const auto& v : fInputVars) {
++        if (&v->fType == fCompiler.context().fInt_Type.get()) {
++            offset = SkAlign4(offset);
++            if (v->fModifiers.fLayout.fKey) {
++                key += ((char*) inputs)[offset + 0];
++                key += ((char*) inputs)[offset + 1];
++                key += ((char*) inputs)[offset + 2];
++                key += ((char*) inputs)[offset + 3];
++            }
++            offset += sizeof(int32_t);
++        }
++        else {
++            // unsupported input var type
++            SkASSERT(false);
++        }
+     }
+-    return offset;
++    SkASSERT(offset == inputSize);
++    return std::unique_ptr<GrFragmentProcessor>(new GrSkSLFP(this, inputs, inputSize,
++                                                             std::move(key)));
+ }
+ 
+-std::unique_ptr<GrFragmentProcessor> GrSkSLFPFactory::make(const void* inputs) {
+-    SkASSERT(!fCompiler.errorCount());
++const SkSL::Program* GrSkSLFPFactory::getSpecialization(const SkSL::String& key, const void* inputs,
++                                                  size_t inputSize) {
++    const auto& found = fSpecializations.find(key);
++    if (found != fSpecializations.end()) {
++        return found->second.get();
++    }
++
+     std::unordered_map<SkSL::String, SkSL::Program::Settings::Value> inputMap;
+-    size_t index = 0;
++    size_t offset = 0;
+     for (const auto& v : fInputVars) {
+         SkSL::String name(v->fName);
+         if (&v->fType == fCompiler.context().fInt_Type.get()) {
+-            index = align(index, sizeof(int32_t));
+-            int32_t v = *(int32_t*) (((int8_t*) inputs) + index);
++            offset = SkAlign4(offset);
++            int32_t v = *(int32_t*) (((uint8_t*) inputs) + offset);
+             inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(v)));
+-            index += sizeof(int32_t);
++            offset += sizeof(int32_t);
+         }
+     }
++    SkASSERT(offset == inputSize);
++
+     std::unique_ptr<SkSL::Program> specialized = fCompiler.specialize(*fBaseProgram, inputMap);
+-    SkSL::String key;
+-    for (const auto& v : fKeyVars) {
+-        const auto& found = inputMap.find(SkSL::String(v->fName));
+-        SkASSERT(found != inputMap.end());
+-        switch (found->second.fKind) {
+-            case SkSL::Program::Settings::Value::kBool_Kind:
+-                key += (char) found->second.fValue;
+-                break;
+-            case SkSL::Program::Settings::Value::kInt_Kind:
+-                key += (char) ((found->second.fValue >> 24) & 0xFF);
+-                key += (char) ((found->second.fValue >> 16) & 0xFF);
+-                key += (char) ((found->second.fValue >>  8) & 0xFF);
+-                key += (char) ((found->second.fValue)       & 0xFF);
+-                break;
+-        }
+-    }
+-    return GrSkSLFP::Make(fName, &fCompiler, std::move(specialized), std::move(key));
++    SkAssertResult(fCompiler.optimize(*specialized));
++    const SkSL::Program* result = specialized.get();
++    fSpecializations.insert(std::make_pair(key, std::move(specialized)));
++    return result;
+ }
+ 
+ class GrGLSLSkSLFP : public GrGLSLFragmentProcessor {
+@@ -127,17 +138,29 @@ public:
+ };
+ 
+ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::Make(GrContext* context, int index, const char* name,
+-                                                    const char* sksl, const void* inputs) {
++                                                    const char* sksl, const void* inputs,
++                                                    size_t inputSize) {
+     GrSkSLFPFactory* factory = context->contextPriv().getFPFactory(index);
+     if (!factory) {
+         factory = new GrSkSLFPFactory(name, context->contextPriv().caps()->shaderCaps(), sksl);
+         context->contextPriv().setFPFactory(index, std::unique_ptr<GrSkSLFPFactory>(factory));
+     }
+-    return factory->make(inputs);
++    return factory->make(inputs, inputSize);
++}
++
++const char* GrSkSLFP::name() const {
++    return fFactory.fName;
+ }
+ 
+ GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {
+-    return new GrGLSLSkSLFP(fGLSL, fFormatArgs);
++    const SkSL::Program* specialized = fFactory.getSpecialization(fKey, fInputs.get(), fInputSize);
++    SkSL::String glsl;
++    std::vector<SkSL::Compiler::FormatArg> formatArgs;
++     if (!fFactory.fCompiler.toPipelineStage(*specialized, &glsl, &formatArgs)) {
++        printf("%s\n", fFactory.fCompiler.errorText().c_str());
++        abort();
++    }
++    return new GrGLSLSkSLFP(glsl, formatArgs);
+ }
+ 
+ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
+@@ -162,7 +185,9 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
+ 
+ bool GrSkSLFP::onIsEqual(const GrFragmentProcessor& other) const {
+     const GrSkSLFP& sk = other.cast<GrSkSLFP>();
+-    return fGLSL == sk.fGLSL && fFormatArgs == sk.fFormatArgs;
++    SkASSERT(fFactory.fBaseProgram != sk.fFactory.fBaseProgram || fInputSize == sk.fInputSize);
++    return fFactory.fBaseProgram == sk.fFactory.fBaseProgram &&
++            !memcmp(fInputs.get(), sk.fInputs.get(), fInputSize);
+ }
+ 
+ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::clone() const {
+@@ -183,7 +208,8 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d
+         case 0: {
+             static int ditherIndex = NewIndex();
+             int rangeType = d->fRandom->nextULessThan(3);
+-            return GrSkSLFP::Make(d->context(), ditherIndex, "Dither", SKSL_DITHER_SRC, &rangeType);
++            return GrSkSLFP::Make(d->context(), ditherIndex, "Dither", SKSL_DITHER_SRC, &rangeType,
++                                  sizeof(rangeType));
+         }
+     }
+     SK_ABORT("unreachable");
+diff --git a/src/gpu/effects/GrSkSLFP.h b/src/gpu/effects/GrSkSLFP.h
+index ce98a0ea1d..a4aca4960a 100644
+--- a/src/gpu/effects/GrSkSLFP.h
++++ b/src/gpu/effects/GrSkSLFP.h
+@@ -17,6 +17,7 @@
+ #include "SkSLPipelineStageCodeGenerator.h"
+ 
+ class GrContext;
++class GrSkSLFPFactory;
+ 
+ class GrSkSLFP : public GrFragmentProcessor {
+ public:
+@@ -26,7 +27,7 @@ public:
+      */
+     static int NewIndex() {
+         static int index = 0;
+-        return index++;
++        return sk_atomic_inc(&index);
+     }
+ 
+     /**
+@@ -63,39 +64,31 @@ public:
+                    int index,
+                    const char* name,
+                    const char* sksl,
+-                   const void* inputs);
++                   const void* inputs,
++                   size_t inputSize);
+ 
+-    const char* name() const override { return fName.c_str(); }
++    const char* name() const override;
+ 
+     std::unique_ptr<GrFragmentProcessor> clone() const override;
+ 
+ private:
+-    static std::unique_ptr<GrFragmentProcessor> Make(
+-                   const char* name,
+-                   SkSL::Compiler* compiler,
+-                   std::unique_ptr<SkSL::Program> program,
+-                   SkSL::String key) {
+-        return std::unique_ptr<GrFragmentProcessor>(new GrSkSLFP(std::move(name), compiler,
+-                                                                 std::move(program), key));
+-    }
+-
+-    GrSkSLFP(SkSL::String name, SkSL::Compiler* compiler, std::unique_ptr<SkSL::Program> program,
+-             SkSL::String key)
++    GrSkSLFP(GrSkSLFPFactory* factory, const void* inputs, size_t inputSize, SkSL::String key)
+     : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
+-    , fName(std::move(name))
+-    , fKey(std::move(key)) {
+-        if (!compiler->toPipelineStage(*program, &fGLSL, &fFormatArgs)) {
+-            printf("%s\n", compiler->errorText().c_str());
+-            abort();
+-        }
++    , fFactory(*factory)
++    , fInputs((int8_t*) malloc(inputSize))
++    , fInputSize(inputSize)
++    , fKey(key) {
++        memcpy(fInputs.get(), inputs, inputSize);
+     }
+ 
+     GrSkSLFP(const GrSkSLFP& other)
+     : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
+-    , fName(other.fName)
+-    , fGLSL(other.fGLSL)
+-    , fKey(other.fKey)
+-    , fFormatArgs(other.fFormatArgs) {}
++    , fFactory(other.fFactory)
++    , fInputs((int8_t*) malloc(other.fInputSize))
++    , fInputSize(other.fInputSize)
++    , fKey(other.fKey) {
++        memcpy(fInputs.get(), other.fInputs.get(), fInputSize);
++    }
+ 
+     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+ 
+@@ -103,13 +96,13 @@ private:
+ 
+     bool onIsEqual(const GrFragmentProcessor&) const override;
+ 
+-    SkSL::String fName;
++    GrSkSLFPFactory& fFactory;
+ 
+-    SkSL::String fGLSL;
++    const std::unique_ptr<int8_t> fInputs;
+ 
+-    SkSL::String fKey;
++    size_t fInputSize;
+ 
+-    std::vector<SkSL::Compiler::FormatArg> fFormatArgs;
++    SkSL::String fKey;
+ 
+     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
+ 
+@@ -132,14 +125,23 @@ class GrSkSLFPFactory {
+      */
+     GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCaps, const char* sksl);
+ 
+-    std::unique_ptr<GrFragmentProcessor> make(const void* inputs);
++    std::unique_ptr<GrFragmentProcessor> make(const void* inputs, size_t inputSize);
++
++    const SkSL::Program* getSpecialization(const SkSL::String& key, const void* inputs,
++                                           size_t inputSize);
+ 
+     const char* fName;
++
+     SkSL::Compiler fCompiler;
+-    std::unique_ptr<SkSL::Program> fBaseProgram;
++
++    std::shared_ptr<SkSL::Program> fBaseProgram;
++
+     std::vector<const SkSL::Variable*> fInputVars;
++
+     std::vector<const SkSL::Variable*> fKeyVars;
+ 
++    std::unordered_map<SkSL::String, std::unique_ptr<const SkSL::Program>> fSpecializations;
++
+     friend class GrSkSLFP;
+ };
+ 
+diff --git a/src/sksl/SkSLCompiler.cpp b/src/sksl/SkSLCompiler.cpp
+index d8caddf638..b1006e8dd5 100644
+--- a/src/sksl/SkSLCompiler.cpp
++++ b/src/sksl/SkSLCompiler.cpp
+@@ -1392,11 +1392,9 @@ bool Compiler::toH(Program& program, String name, OutputStream& out) {
+     return result;
+ }
+ 
+-bool Compiler::toPipelineStage(Program& program, String* out,
++bool Compiler::toPipelineStage(const Program& program, String* out,
+                                std::vector<FormatArg>* outFormatArgs) {
+-    if (!this->optimize(program)) {
+-        return false;
+-    }
++    SkASSERT(program.fIsOptimized);
+     fSource = program.fSource.get();
+     StringStream buffer;
+     PipelineStageCodeGenerator cg(fContext.get(), &program, this, &buffer, outFormatArgs);
+diff --git a/src/sksl/SkSLCompiler.h b/src/sksl/SkSLCompiler.h
+index cda388aa50..b054eed4d5 100644
+--- a/src/sksl/SkSLCompiler.h
++++ b/src/sksl/SkSLCompiler.h
+@@ -91,7 +91,7 @@ public:
+ 
+     bool toH(Program& program, String name, OutputStream& out);
+ 
+-    bool toPipelineStage(Program& program, String* out,
++    bool toPipelineStage(const Program& program, String* out,
+                          std::vector<FormatArg>* outFormatArgs);
+ 
+     void error(int offset, String msg) override;
+-- 
+2.17.0.441.gb46fe60e1d-goog
+

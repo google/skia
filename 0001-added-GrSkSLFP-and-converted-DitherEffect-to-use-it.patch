@@ -1,0 +1,3428 @@
+From f5920663a7207188bc3685cecb6dc88465b04076 Mon Sep 17 00:00:00 2001
+From: Ethan Nicholas <ethannicholas@google.com>
+Date: Tue, 12 Jun 2018 11:11:07 -0400
+Subject: [PATCH 1/3] added GrSkSLFP and converted DitherEffect to use it
+
+Bug: skia:
+Change-Id: I84b71165eab1712355f3c7669cee2d33d259f3df
+---
+ gn/gpu.gni                                  |   4 +-
+ gn/sksl.gni                                 |   2 +-
+ include/gpu/GrContext.h                     |   4 +
+ src/gpu/GrContext.cpp                       |   4 +
+ src/gpu/GrContextPriv.h                     |  21 ++
+ src/gpu/GrProcessor.h                       |   1 +
+ src/gpu/SkGr.cpp                            |  84 +++++-
+ src/gpu/SkGr.h                              |   2 +
+ src/gpu/effects/GrDitherEffect.cpp          |  75 -----
+ src/gpu/effects/GrDitherEffect.fp           |  85 ------
+ src/gpu/effects/GrDitherEffect.h            |  67 -----
+ src/gpu/effects/GrRectBlurEffect.cpp        |  34 +--
+ src/gpu/effects/GrSkSLFP.cpp                | 193 +++++++++++++
+ src/gpu/effects/GrSkSLFP.h                  | 146 ++++++++++
+ src/gpu/glsl/GrGLSLShaderBuilder.h          |   2 +
+ src/sksl/SkSLCodeGenerator.h                |   4 +-
+ src/sksl/SkSLCompiler.cpp                   | 115 ++++++--
+ src/sksl/SkSLCompiler.h                     |  29 +-
+ src/sksl/SkSLContext.h                      |   4 +
+ src/sksl/SkSLGLSLCodeGenerator.cpp          |  61 +++--
+ src/sksl/SkSLIRGenerator.cpp                |  46 +++-
+ src/sksl/SkSLIRGenerator.h                  |   7 +-
+ src/sksl/SkSLJIT.cpp                        | 287 ++++++++++++++++----
+ src/sksl/SkSLJIT.h                          |  16 +-
+ src/sksl/SkSLMain.cpp                       |   4 +-
+ src/sksl/SkSLPipelineStageCodeGenerator.cpp | 167 ++++++++++++
+ src/sksl/SkSLPipelineStageCodeGenerator.h   |  65 +++++
+ src/sksl/SkSLSPIRVCodeGenerator.cpp         |   4 +-
+ src/sksl/SkSLString.cpp                     |  16 +-
+ src/sksl/ir/SkSLAppendStage.h               |  21 +-
+ src/sksl/ir/SkSLBinaryExpression.h          |   5 +
+ src/sksl/ir/SkSLBlock.h                     |   8 +
+ src/sksl/ir/SkSLBoolLiteral.h               |   9 +
+ src/sksl/ir/SkSLBreakStatement.h            |   4 +
+ src/sksl/ir/SkSLConstructor.h               |  11 +-
+ src/sksl/ir/SkSLContinueStatement.h         |   4 +
+ src/sksl/ir/SkSLDiscardStatement.h          |   4 +
+ src/sksl/ir/SkSLDoStatement.h               |   5 +
+ src/sksl/ir/SkSLEnum.h                      |   4 +
+ src/sksl/ir/SkSLExpression.h                |   2 +
+ src/sksl/ir/SkSLExpressionStatement.h       |   4 +
+ src/sksl/ir/SkSLExtension.h                 |   4 +
+ src/sksl/ir/SkSLFieldAccess.h               |   5 +
+ src/sksl/ir/SkSLFloatLiteral.h              |  13 +-
+ src/sksl/ir/SkSLForStatement.h              |   6 +
+ src/sksl/ir/SkSLFunctionCall.h              |   9 +
+ src/sksl/ir/SkSLFunctionDefinition.h        |   5 +
+ src/sksl/ir/SkSLFunctionReference.h         |  11 +-
+ src/sksl/ir/SkSLIfStatement.h               |   5 +
+ src/sksl/ir/SkSLIndexExpression.h           |  12 +
+ src/sksl/ir/SkSLIntLiteral.h                |  12 +-
+ src/sksl/ir/SkSLInterfaceBlock.h            |  11 +
+ src/sksl/ir/SkSLLayout.h                    |   3 +
+ src/sksl/ir/SkSLModifiersDeclaration.h      |   6 +-
+ src/sksl/ir/SkSLNop.h                       |   4 +
+ src/sksl/ir/SkSLPostfixExpression.h         |   4 +
+ src/sksl/ir/SkSLPrefixExpression.h          |   4 +
+ src/sksl/ir/SkSLProgram.h                   |   9 +-
+ src/sksl/ir/SkSLProgramElement.h            |   2 +
+ src/sksl/ir/SkSLReturnStatement.h           |   7 +
+ src/sksl/ir/SkSLSection.h                   |   4 +
+ src/sksl/ir/SkSLSetting.cpp                 |  10 +-
+ src/sksl/ir/SkSLSetting.h                   |   4 +
+ src/sksl/ir/SkSLStatement.h                 |   2 +
+ src/sksl/ir/SkSLSwitchCase.h                |  10 +
+ src/sksl/ir/SkSLSwitchStatement.h           |   9 +
+ src/sksl/ir/SkSLSwizzle.h                   |  14 +
+ src/sksl/ir/SkSLTernaryExpression.h         |   6 +
+ src/sksl/ir/SkSLTypeReference.h             |  13 +-
+ src/sksl/ir/SkSLVarDeclarations.h           |  25 +-
+ src/sksl/ir/SkSLVarDeclarationsStatement.h  |   7 +-
+ src/sksl/ir/SkSLVariableReference.cpp       |   5 +
+ src/sksl/ir/SkSLVariableReference.h         |   4 +
+ src/sksl/ir/SkSLWhileStatement.h            |   5 +
+ src/sksl/sksl_cpu.inc                       |  12 -
+ src/sksl/sksl_pipeline.inc                  |  19 ++
+ tests/PaintTest.cpp                         |   1 +
+ tests/SkSLErrorTest.cpp                     |   6 +-
+ tests/SkSLJITTest.cpp                       |   5 +-
+ 79 files changed, 1504 insertions(+), 419 deletions(-)
+ delete mode 100644 src/gpu/effects/GrDitherEffect.cpp
+ delete mode 100644 src/gpu/effects/GrDitherEffect.fp
+ delete mode 100644 src/gpu/effects/GrDitherEffect.h
+ create mode 100644 src/gpu/effects/GrSkSLFP.cpp
+ create mode 100644 src/gpu/effects/GrSkSLFP.h
+ create mode 100644 src/sksl/SkSLPipelineStageCodeGenerator.cpp
+ create mode 100644 src/sksl/SkSLPipelineStageCodeGenerator.h
+ delete mode 100644 src/sksl/sksl_cpu.inc
+ create mode 100644 src/sksl/sksl_pipeline.inc
+
+diff --git a/gn/gpu.gni b/gn/gpu.gni
+index 8cb6447bad..2799f5af07 100644
+--- a/gn/gpu.gni
++++ b/gn/gpu.gni
+@@ -363,8 +363,6 @@ skia_gpu_sources = [
+   "$_src/gpu/effects/GrDisableColorXP.h",
+   "$_src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+   "$_src/gpu/effects/GrDistanceFieldGeoProc.h",
+-  "$_src/gpu/effects/GrDitherEffect.cpp",
+-  "$_src/gpu/effects/GrDitherEffect.h",
+   "$_src/gpu/effects/GrEllipseEffect.cpp",
+   "$_src/gpu/effects/GrEllipseEffect.h",
+   "$_src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+@@ -395,6 +393,8 @@ skia_gpu_sources = [
+   "$_src/gpu/effects/GrShadowGeoProc.h",
+   "$_src/gpu/effects/GrSimpleTextureEffect.cpp",
+   "$_src/gpu/effects/GrSimpleTextureEffect.h",
++  "$_src/gpu/effects/GrSkSLFP.cpp",
++  "$_src/gpu/effects/GrSkSLFP.h",
+   "$_src/gpu/effects/GrSRGBEffect.cpp",
+   "$_src/gpu/effects/GrSRGBEffect.h",
+   "$_src/gpu/effects/GrTextureDomain.cpp",
+diff --git a/gn/sksl.gni b/gn/sksl.gni
+index bce75c8599..61c9250090 100644
+--- a/gn/sksl.gni
++++ b/gn/sksl.gni
+@@ -19,6 +19,7 @@ skia_sksl_sources = [
+   "$_src/sksl/SkSLLayoutLexer.cpp",
+   "$_src/sksl/SkSLMetalCodeGenerator.cpp",
+   "$_src/sksl/SkSLParser.cpp",
++  "$_src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+   "$_src/sksl/SkSLSPIRVCodeGenerator.cpp",
+   "$_src/sksl/SkSLString.cpp",
+   "$_src/sksl/SkSLUtil.cpp",
+@@ -37,7 +38,6 @@ skia_gpu_processor_sources = [
+   "$_src/gpu/effects/GrCircleEffect.fp",
+   "$_src/gpu/effects/GrConfigConversionEffect.fp",
+   "$_src/gpu/effects/GrConstColorProcessor.fp",
+-  "$_src/gpu/effects/GrDitherEffect.fp",
+   "$_src/gpu/effects/GrEllipseEffect.fp",
+   "$_src/gpu/effects/GrLumaColorFilterEffect.fp",
+   "$_src/gpu/effects/GrMagnifierEffect.fp",
+diff --git a/include/gpu/GrContext.h b/include/gpu/GrContext.h
+index 5a2ba4780f..5c06df9614 100644
+--- a/include/gpu/GrContext.h
++++ b/include/gpu/GrContext.h
+@@ -332,6 +332,10 @@ private:
+ 
+     GrContextOptions::PersistentCache*      fPersistentCache;
+ 
++    // points to a (possibly null) std::vector<std::unique_ptr<GrSkSLFPFactory>>, but we can't
++    // import GrSkSLFP.h from here so we can't define it with the correct type
++    void* fFPFactories = nullptr;
++
+     // TODO: have the GrClipStackClip use renderTargetContexts and rm this friending
+     friend class GrContextPriv;
+ 
+diff --git a/src/gpu/GrContext.cpp b/src/gpu/GrContext.cpp
+index 1697c07938..93585cbb8b 100644
+--- a/src/gpu/GrContext.cpp
++++ b/src/gpu/GrContext.cpp
+@@ -37,6 +37,7 @@
+ #include "SkUnPreMultiplyPriv.h"
+ #include "effects/GrConfigConversionEffect.h"
+ #include "text/GrTextBlobCache.h"
++#include <unordered_map>
+ 
+ #define ASSERT_OWNED_PROXY(P) \
+ SkASSERT(!(P) || !((P)->priv().peekTexture()) || (P)->priv().peekTexture()->getContext() == this)
+@@ -154,6 +155,9 @@ GrContext::~GrContext() {
+     if (fDrawingManager) {
+         fDrawingManager->cleanup();
+     }
++    if (fFPFactories != nullptr) {
++        delete (std::vector<std::unique_ptr<GrSkSLFPFactory>>*) fFPFactories;
++    }
+ 
+     fTextureStripAtlasManager = nullptr;
+     delete fResourceProvider;
+diff --git a/src/gpu/GrContextPriv.h b/src/gpu/GrContextPriv.h
+index 84de0560fa..48879c1243 100644
+--- a/src/gpu/GrContextPriv.h
++++ b/src/gpu/GrContextPriv.h
+@@ -11,6 +11,7 @@
+ #include "GrContext.h"
+ #include "GrSurfaceContext.h"
+ #include "text/GrAtlasManager.h"
++#include "effects/GrSkSLFP.h"
+ 
+ class GrBackendRenderTarget;
+ class GrOnFlushCallbackObject;
+@@ -277,6 +278,26 @@ public:
+ 
+     GrContextOptions::PersistentCache* getPersistentCache() { return fContext->fPersistentCache; }
+ 
++    GrSkSLFPFactory* getFPFactory(size_t index) {
++        auto factories = (std::vector<std::unique_ptr<GrSkSLFPFactory>>*) fContext->fFPFactories;
++        if (!factories || index >= factories->size()) {
++            return nullptr;
++        }
++        return (*factories)[index].get();
++    }
++
++    void setFPFactory(size_t index, std::unique_ptr<GrSkSLFPFactory> factory) {
++        auto factories = (std::vector<std::unique_ptr<GrSkSLFPFactory>>*) fContext->fFPFactories;
++        if (!factories) {
++            factories = new std::vector<std::unique_ptr<GrSkSLFPFactory>>();
++            fContext->fFPFactories = factories;
++        }
++        while (index >= factories->size()) {
++            factories->emplace_back();
++        }
++        (*factories)[index] = std::move(factory);
++    }
++
+     /** This is only useful for debug purposes */
+     SkDEBUGCODE(GrSingleOwner* debugSingleOwner() const { return &fContext->fSingleOwner; } )
+ 
+diff --git a/src/gpu/GrProcessor.h b/src/gpu/GrProcessor.h
+index 5d7fbd7a62..5e0eb35da0 100644
+--- a/src/gpu/GrProcessor.h
++++ b/src/gpu/GrProcessor.h
+@@ -132,6 +132,7 @@ public:
+         kGrRRectBlurEffect_ClassID,
+         kGrRRectShadowGeoProc_ClassID,
+         kGrSimpleTextureEffect_ClassID,
++        kGrSkSLFP_ClassID,
+         kGrSpecularLightingEffect_ClassID,
+         kGrSRGBEffect_ClassID,
+         kGrSweepGradient_ClassID,
+diff --git a/src/gpu/SkGr.cpp b/src/gpu/SkGr.cpp
+index 69df337dfc..5f9273a547 100644
+--- a/src/gpu/SkGr.cpp
++++ b/src/gpu/SkGr.cpp
+@@ -37,9 +37,49 @@
+ #include "SkTraceEvent.h"
+ #include "effects/GrBicubicEffect.h"
+ #include "effects/GrConstColorProcessor.h"
+-#include "effects/GrDitherEffect.h"
+ #include "effects/GrPorterDuffXferProcessor.h"
+ #include "effects/GrXfermodeFragmentProcessor.h"
++#include "effects/GrSkSLFP.h"
++
++const char* SKSL_DITHER_SRC = R"(
++// This controls the range of values added to color channels
++layout(key) in int rangeType;
++
++void main(int x, int y, inout half4 color) {
++    half value;
++    half range;
++    @switch (rangeType) {
++        case 0:
++            range = 1.0 / 255.0;
++            break;
++        case 1:
++            range = 1.0 / 63.0;
++            break;
++        default:
++            // Experimentally this looks better than the expected value of 1/15.
++            range = 1.0 / 15.0;
++            break;
++    }
++    @if (sk_Caps.integerSupport) {
++        // This ordered-dither code is lifted from the cpu backend.
++        uint x = uint(x);
++        uint y = uint(y);
++        uint m = (y & 1) << 5 | (x & 1) << 4 |
++                 (y & 2) << 2 | (x & 2) << 1 |
++                 (y & 4) >> 1 | (x & 4) >> 2;
++        value = half(m) * 1.0 / 64.0 - 63.0 / 128.0;
++    } else {
++        // Simulate the integer effect used above using step/mod. For speed, simulates a 4x4
++        // dither pattern rather than an 8x8 one.
++        half4 modValues = mod(float4(x, y, x, y), half4(2.0, 2.0, 4.0, 4.0));
++        half4 stepValues = step(modValues, half4(1.0, 1.0, 2.0, 2.0));
++        value = dot(stepValues, half4(8.0 / 16.0, 4.0 / 16.0, 2.0 / 16.0, 1.0 / 16.0)) - 15.0 / 32.0;
++    }
++    // For each color channel, add the random offset to the channel value and then clamp
++    // between 0 and alpha to keep the color premultiplied.
++    color = half4(clamp(color.rgb + value * range, 0.0, color.a), color.a);
++}
++)";
+ 
+ GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info) {
+     GrSurfaceDesc desc;
+@@ -301,6 +341,37 @@ static inline bool blend_requires_shader(const SkBlendMode mode) {
+     return SkBlendMode::kDst != mode;
+ }
+ 
++static inline int32_t dither_range_type_for_config(GrPixelConfig dstConfig) {
++    switch (dstConfig) {
++        case kGray_8_GrPixelConfig:
++        case kGray_8_as_Lum_GrPixelConfig:
++        case kGray_8_as_Red_GrPixelConfig:
++        case kRGBA_8888_GrPixelConfig:
++        case kRGB_888_GrPixelConfig:
++        case kBGRA_8888_GrPixelConfig:
++        case kSRGBA_8888_GrPixelConfig:
++        case kSBGRA_8888_GrPixelConfig:
++            return 0;
++        case kRGB_565_GrPixelConfig:
++            return 1;
++        case kRGBA_4444_GrPixelConfig:
++            return 2;
++        case kUnknown_GrPixelConfig:
++        case kRGBA_1010102_GrPixelConfig:
++        case kAlpha_half_GrPixelConfig:
++        case kAlpha_half_as_Red_GrPixelConfig:
++        case kRGBA_float_GrPixelConfig:
++        case kRG_float_GrPixelConfig:
++        case kRGBA_half_GrPixelConfig:
++        case kAlpha_8_GrPixelConfig:
++        case kAlpha_8_as_Alpha_GrPixelConfig:
++        case kAlpha_8_as_Red_GrPixelConfig:
++            return -1;
++    }
++    SkASSERT(false);
++    return 0;
++}
++
+ static inline bool skpaint_to_grpaint_impl(GrContext* context,
+                                            const GrColorSpaceInfo& colorSpaceInfo,
+                                            const SkPaint& skPaint,
+@@ -429,9 +500,14 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
+     GrPixelConfigToColorType(colorSpaceInfo.config(), &ct);
+     if (SkPaintPriv::ShouldDither(skPaint, ct) && grPaint->numColorFragmentProcessors() > 0 &&
+         !colorSpaceInfo.isGammaCorrect()) {
+-        auto ditherFP = GrDitherEffect::Make(colorSpaceInfo.config());
+-        if (ditherFP) {
+-            grPaint->addColorFragmentProcessor(std::move(ditherFP));
++        int32_t ditherRange = dither_range_type_for_config(colorSpaceInfo.config());
++        if (ditherRange >= 0) {
++            static int ditherIndex = GrSkSLFP::NewIndex();
++            auto ditherFP = GrSkSLFP::Make(context, ditherIndex, "Dither", SKSL_DITHER_SRC,
++                                           &ditherRange);
++            if (ditherFP) {
++                grPaint->addColorFragmentProcessor(std::move(ditherFP));
++            }
+         }
+     }
+ #endif
+diff --git a/src/gpu/SkGr.h b/src/gpu/SkGr.h
+index b766105613..55d7541244 100644
+--- a/src/gpu/SkGr.h
++++ b/src/gpu/SkGr.h
+@@ -38,6 +38,8 @@ class SkPixelRef;
+ class SkPixmap;
+ struct SkIRect;
+ 
++extern const char* SKSL_DITHER_SRC;
++
+ ////////////////////////////////////////////////////////////////////////////////
+ // Color type conversions
+ 
+diff --git a/src/gpu/effects/GrDitherEffect.cpp b/src/gpu/effects/GrDitherEffect.cpp
+deleted file mode 100644
+index 17c8776524..0000000000
+--- a/src/gpu/effects/GrDitherEffect.cpp
++++ /dev/null
+@@ -1,75 +0,0 @@
+-/*
+- * Copyright 2018 Google Inc.
+- *
+- * Use of this source code is governed by a BSD-style license that can be
+- * found in the LICENSE file.
+- */
+-
+-/**************************************************************************************************
+- *** This file was autogenerated from GrDitherEffect.fp; do not modify.
+- **************************************************************************************************/
+-#include "GrDitherEffect.h"
+-#include "glsl/GrGLSLFragmentProcessor.h"
+-#include "glsl/GrGLSLFragmentShaderBuilder.h"
+-#include "glsl/GrGLSLProgramBuilder.h"
+-#include "GrTexture.h"
+-#include "SkSLCPP.h"
+-#include "SkSLUtil.h"
+-class GrGLSLDitherEffect : public GrGLSLFragmentProcessor {
+-public:
+-    GrGLSLDitherEffect() {}
+-    void emitCode(EmitArgs& args) override {
+-        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+-        const GrDitherEffect& _outer = args.fFp.cast<GrDitherEffect>();
+-        (void)_outer;
+-        auto rangeType = _outer.rangeType();
+-        (void)rangeType;
+-        fragBuilder->codeAppendf(
+-                "half value;\nhalf range;\n@switch (%d) {\n    case 0:\n        range = "
+-                "0.0039215686274509803;\n        break;\n    case 1:\n        range = "
+-                "0.015873015873015872;\n        break;\n    default:\n        range = "
+-                "0.066666666666666666;\n        break;\n}\n@if (sk_Caps.integerSupport) {\n    "
+-                "uint x = uint(sk_FragCoord.x);\n    uint y = uint(sk_FragCoord.y);\n    uint m = "
+-                "(((((y & 1) << 5 | (x & 1) << 4) | (y & 2) << 2) | (x & 2) << 1) | (y & 4) >> 1) "
+-                "| (x & 4) >> 2;\n    value = float(float(half(m)) / 64.0) - 0.4",
+-                _outer.rangeType());
+-        fragBuilder->codeAppendf(
+-                "921875;\n} else {\n    half4 modValues = half4(mod(sk_FragCoord.xyxy, "
+-                "float4(half4(2.0, 2.0, 4.0, 4.0))));\n    half4 stepValues = "
+-                "half4(step(float4(modValues), float4(half4(1.0, 1.0, 2.0, 2.0))));\n    value = "
+-                "float(dot(stepValues, half4(0.5, 0.25, 0.125, 0.0625))) - 0.46875;\n}\n%s = "
+-                "half4(clamp(float3(%s.xyz + value * range), 0.0, float(%s.w)), %s.w);\n",
+-                args.fOutputColor, args.fInputColor ? args.fInputColor : "half4(1)",
+-                args.fInputColor ? args.fInputColor : "half4(1)",
+-                args.fInputColor ? args.fInputColor : "half4(1)");
+-    }
+-
+-private:
+-    void onSetData(const GrGLSLProgramDataManager& pdman,
+-                   const GrFragmentProcessor& _proc) override {}
+-};
+-GrGLSLFragmentProcessor* GrDitherEffect::onCreateGLSLInstance() const {
+-    return new GrGLSLDitherEffect();
+-}
+-void GrDitherEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
+-                                           GrProcessorKeyBuilder* b) const {
+-    b->add32((int32_t)fRangeType);
+-}
+-bool GrDitherEffect::onIsEqual(const GrFragmentProcessor& other) const {
+-    const GrDitherEffect& that = other.cast<GrDitherEffect>();
+-    (void)that;
+-    if (fRangeType != that.fRangeType) return false;
+-    return true;
+-}
+-GrDitherEffect::GrDitherEffect(const GrDitherEffect& src)
+-        : INHERITED(kGrDitherEffect_ClassID, src.optimizationFlags()), fRangeType(src.fRangeType) {}
+-std::unique_ptr<GrFragmentProcessor> GrDitherEffect::clone() const {
+-    return std::unique_ptr<GrFragmentProcessor>(new GrDitherEffect(*this));
+-}
+-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDitherEffect);
+-#if GR_TEST_UTILS
+-std::unique_ptr<GrFragmentProcessor> GrDitherEffect::TestCreate(GrProcessorTestData* testData) {
+-    float range = testData->fRandom->nextRangeF(0.001f, 0.05f);
+-    return std::unique_ptr<GrFragmentProcessor>(new GrDitherEffect(range));
+-}
+-#endif
+diff --git a/src/gpu/effects/GrDitherEffect.fp b/src/gpu/effects/GrDitherEffect.fp
+deleted file mode 100644
+index c51865e38b..0000000000
+--- a/src/gpu/effects/GrDitherEffect.fp
++++ /dev/null
+@@ -1,85 +0,0 @@
+-/*
+- * Copyright 2018 Google Inc.
+- *
+- * Use of this source code is governed by a BSD-style license that can be
+- * found in the LICENSE file.
+- */
+-
+-// This controls the range of values added to color channels
+-layout(key) in int rangeType;
+-
+-@make {
+-    static std::unique_ptr<GrFragmentProcessor> Make(GrPixelConfig dstConfig) {
+-        int rangeType;
+-        switch (dstConfig) {
+-            case kGray_8_GrPixelConfig:
+-            case kGray_8_as_Lum_GrPixelConfig:
+-            case kGray_8_as_Red_GrPixelConfig:
+-            case kRGBA_8888_GrPixelConfig:
+-            case kRGB_888_GrPixelConfig:
+-            case kBGRA_8888_GrPixelConfig:
+-            case kSRGBA_8888_GrPixelConfig:
+-            case kSBGRA_8888_GrPixelConfig:
+-                rangeType = 0;
+-                break;
+-            case kRGB_565_GrPixelConfig:
+-                rangeType = 1;
+-                break;
+-            case kRGBA_4444_GrPixelConfig:
+-                rangeType = 2;
+-                break;
+-            case kUnknown_GrPixelConfig:
+-            case kRGBA_1010102_GrPixelConfig:
+-            case kAlpha_half_GrPixelConfig:
+-            case kAlpha_half_as_Red_GrPixelConfig:
+-            case kRGBA_float_GrPixelConfig:
+-            case kRG_float_GrPixelConfig:
+-            case kRGBA_half_GrPixelConfig:
+-            case kAlpha_8_GrPixelConfig:
+-            case kAlpha_8_as_Alpha_GrPixelConfig:
+-            case kAlpha_8_as_Red_GrPixelConfig:
+-                return nullptr;
+-        }
+-        return std::unique_ptr<GrFragmentProcessor>(new GrDitherEffect(rangeType));
+-    }
+-}
+-
+-void main() {
+-    half value;
+-    half range;
+-    @switch (rangeType) {
+-        case 0:
+-            range = 1.0 / 255.0;
+-            break;
+-        case 1:
+-            range = 1.0 / 63.0;
+-            break;
+-        default:
+-            // Experimentally this looks better than the expected value of 1/15.
+-            range = 1.0 / 15.0;
+-            break;
+-    }
+-    @if (sk_Caps.integerSupport) {
+-        // This ordered-dither code is lifted from the cpu backend.
+-        uint x = uint(sk_FragCoord.x);
+-        uint y = uint(sk_FragCoord.y);
+-        uint m = (y & 1) << 5 | (x & 1) << 4 |
+-                 (y & 2) << 2 | (x & 2) << 1 |
+-                 (y & 4) >> 1 | (x & 4) >> 2;
+-        value = half(m) * 1.0 / 64.0 - 63.0 / 128.0;
+-    } else {
+-        // Simulate the integer effect used above using step/mod. For speed, simulates a 4x4
+-        // dither pattern rather than an 8x8 one.
+-        half4 modValues = mod(sk_FragCoord.xyxy, half4(2.0, 2.0, 4.0, 4.0));
+-        half4 stepValues = step(modValues, half4(1.0, 1.0, 2.0, 2.0));
+-        value = dot(stepValues, half4(8.0 / 16.0, 4.0 / 16.0, 2.0 / 16.0, 1.0 / 16.0)) - 15.0 / 32.0;
+-    }
+-    // For each color channel, add the random offset to the channel value and then clamp
+-    // between 0 and alpha to keep the color premultiplied.
+-    sk_OutColor = half4(clamp(sk_InColor.rgb + value * range, 0, sk_InColor.a), sk_InColor.a);
+-}
+-
+-@test(testData) {
+-    float range = testData->fRandom->nextRangeF(0.001f, 0.05f);
+-    return std::unique_ptr<GrFragmentProcessor>(new GrDitherEffect(range));
+-}
+diff --git a/src/gpu/effects/GrDitherEffect.h b/src/gpu/effects/GrDitherEffect.h
+deleted file mode 100644
+index 9355a5907c..0000000000
+--- a/src/gpu/effects/GrDitherEffect.h
++++ /dev/null
+@@ -1,67 +0,0 @@
+-/*
+- * Copyright 2018 Google Inc.
+- *
+- * Use of this source code is governed by a BSD-style license that can be
+- * found in the LICENSE file.
+- */
+-
+-/**************************************************************************************************
+- *** This file was autogenerated from GrDitherEffect.fp; do not modify.
+- **************************************************************************************************/
+-#ifndef GrDitherEffect_DEFINED
+-#define GrDitherEffect_DEFINED
+-#include "SkTypes.h"
+-#include "GrFragmentProcessor.h"
+-#include "GrCoordTransform.h"
+-class GrDitherEffect : public GrFragmentProcessor {
+-public:
+-    int rangeType() const { return fRangeType; }
+-
+-    static std::unique_ptr<GrFragmentProcessor> Make(GrPixelConfig dstConfig) {
+-        int rangeType;
+-        switch (dstConfig) {
+-            case kGray_8_GrPixelConfig:
+-            case kGray_8_as_Lum_GrPixelConfig:
+-            case kGray_8_as_Red_GrPixelConfig:
+-            case kRGBA_8888_GrPixelConfig:
+-            case kRGB_888_GrPixelConfig:
+-            case kBGRA_8888_GrPixelConfig:
+-            case kSRGBA_8888_GrPixelConfig:
+-            case kSBGRA_8888_GrPixelConfig:
+-                rangeType = 0;
+-                break;
+-            case kRGB_565_GrPixelConfig:
+-                rangeType = 1;
+-                break;
+-            case kRGBA_4444_GrPixelConfig:
+-                rangeType = 2;
+-                break;
+-            case kUnknown_GrPixelConfig:
+-            case kRGBA_1010102_GrPixelConfig:
+-            case kAlpha_half_GrPixelConfig:
+-            case kAlpha_half_as_Red_GrPixelConfig:
+-            case kRGBA_float_GrPixelConfig:
+-            case kRG_float_GrPixelConfig:
+-            case kRGBA_half_GrPixelConfig:
+-            case kAlpha_8_GrPixelConfig:
+-            case kAlpha_8_as_Alpha_GrPixelConfig:
+-            case kAlpha_8_as_Red_GrPixelConfig:
+-                return nullptr;
+-        }
+-        return std::unique_ptr<GrFragmentProcessor>(new GrDitherEffect(rangeType));
+-    }
+-    GrDitherEffect(const GrDitherEffect& src);
+-    std::unique_ptr<GrFragmentProcessor> clone() const override;
+-    const char* name() const override { return "DitherEffect"; }
+-
+-private:
+-    GrDitherEffect(int rangeType)
+-            : INHERITED(kGrDitherEffect_ClassID, kNone_OptimizationFlags), fRangeType(rangeType) {}
+-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
+-    bool onIsEqual(const GrFragmentProcessor&) const override;
+-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
+-    int fRangeType;
+-    typedef GrFragmentProcessor INHERITED;
+-};
+-#endif
+diff --git a/src/gpu/effects/GrRectBlurEffect.cpp b/src/gpu/effects/GrRectBlurEffect.cpp
+index 219fefa713..d423b786ce 100644
+--- a/src/gpu/effects/GrRectBlurEffect.cpp
++++ b/src/gpu/effects/GrRectBlurEffect.cpp
+@@ -46,13 +46,13 @@ public:
+         fProfileSizeVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
+                                                            kDefault_GrSLPrecision, "profileSize");
+         fragBuilder->codeAppendf(
+-                "bool highPrecision = %s;\n@if (highPrecision) {\n    float2 translatedPos = "
+-                "sk_FragCoord.xy - %s.xy;\n    float width = %s.z - %s.x;\n    float height = %s.w "
+-                "- %s.y;\n    float2 smallDims = float2(width - float(%s), height - float(%s));\n  "
+-                "  float center = 2.0 * floor(float(float(%s / 2.0) + 0.25)) - 1.0;\n    float2 wh "
+-                "= smallDims - float2(center, center);\n    half hcoord = "
+-                "half((abs(translatedPos.x - 0.5 * width) - 0.5 * wh.x) / float(%s));\n    half "
+-                "hlookup = texture(%s, float2(float(hcoord), 0.5)).%s.w",
++                "/* key */ bool highPrecision = %s;\n@if (highPrecision) {\n    float2 "
++                "translatedPos = sk_FragCoord.xy - %s.xy;\n    float width = %s.z - %s.x;\n    "
++                "float height = %s.w - %s.y;\n    float2 smallDims = float2(width - float(%s), "
++                "height - float(%s));\n    float center = 2.0 * floor(float(float(%s / 2.0) + "
++                "0.25)) - 1.0;\n    float2 wh = smallDims - float2(center, center);\n    half "
++                "hcoord = half((abs(translatedPos.x - 0.5 * width) - 0.5 * wh.x) / float(%s));\n   "
++                " half hlookup = texture(%s, float2(float(hcoord), ",
+                 (highPrecision ? "true" : "false"), args.fUniformHandler->getUniformCStr(fRectVar),
+                 args.fUniformHandler->getUniformCStr(fRectVar),
+                 args.fUniformHandler->getUniformCStr(fRectVar),
+@@ -62,16 +62,16 @@ public:
+                 args.fUniformHandler->getUniformCStr(fProfileSizeVar),
+                 args.fUniformHandler->getUniformCStr(fProfileSizeVar),
+                 args.fUniformHandler->getUniformCStr(fProfileSizeVar),
+-                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
+-                fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str());
++                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str());
+         fragBuilder->codeAppendf(
+-                ";\n    half vcoord = half((abs(translatedPos.y - 0.5 * height) - 0.5 * wh.y) / "
+-                "float(%s));\n    half vlookup = texture(%s, float2(float(vcoord), 0.5)).%s.w;\n   "
+-                " %s = (%s * hlookup) * vlookup;\n} else {\n    half2 translatedPos = "
+-                "half2(sk_FragCoord.xy - %s.xy);\n    half width = half(%s.z - %s.x);\n    half "
+-                "height = half(%s.w - %s.y);\n    half2 smallDims = half2(width - %s, height - "
+-                "%s);\n    half center = half(2.0 * floor(float(float(%s / 2.0) + 0.25)) - 1.0);\n "
+-                "   half2 wh = smallDims - half2(float2(floa",
++                "0.5)).%s.w;\n    half vcoord = half((abs(translatedPos.y - 0.5 * height) - 0.5 * "
++                "wh.y) / float(%s));\n    half vlookup = texture(%s, float2(float(vcoord), "
++                "0.5)).%s.w;\n    %s = (%s * hlookup) * vlookup;\n} else {\n    half2 "
++                "translatedPos = half2(sk_FragCoord.xy - %s.xy);\n    half width = half(%s.z - "
++                "%s.x);\n    half height = half(%s.w - %s.y);\n    half2 smallDims = half2(width - "
++                "%s, height - %s);\n    half center = half(2.0 * floor(float(float(%s / 2.0) + "
++                "0.25)) - 1.0);\n    half2 wh = smallDims - half2(f",
++                fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
+                 args.fUniformHandler->getUniformCStr(fProfileSizeVar),
+                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
+                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
+@@ -85,7 +85,7 @@ public:
+                 args.fUniformHandler->getUniformCStr(fProfileSizeVar),
+                 args.fUniformHandler->getUniformCStr(fProfileSizeVar));
+         fragBuilder->codeAppendf(
+-                "t(center), float(center)));\n    half hcoord = "
++                "loat2(float(center), float(center)));\n    half hcoord = "
+                 "half((abs(float(float(translatedPos.x) - 0.5 * float(width))) - 0.5 * "
+                 "float(wh.x)) / float(%s));\n    half hlookup = texture(%s, float2(float(hcoord), "
+                 "0.5)).%s.w;\n    half vcoord = half((abs(float(float(translatedPos.y) - 0.5 * "
+diff --git a/src/gpu/effects/GrSkSLFP.cpp b/src/gpu/effects/GrSkSLFP.cpp
+new file mode 100644
+index 0000000000..8942b66b4a
+--- /dev/null
++++ b/src/gpu/effects/GrSkSLFP.cpp
+@@ -0,0 +1,193 @@
++/*
++ * Copyright 2018 Google Inc.
++ *
++ * Use of this source code is governed by a BSD-style license that can be
++ * found in the LICENSE file.
++ */
++
++#include "GrSkSLFP.h"
++#include "glsl/GrGLSLFragmentProcessor.h"
++#include "glsl/GrGLSLFragmentShaderBuilder.h"
++#include "glsl/GrGLSLProgramBuilder.h"
++#include "GrContext.h"
++#include "GrContextPriv.h"
++#include "GrTexture.h"
++#include "SkSLUtil.h"
++
++GrSkSLFPFactory::GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCaps, const char* sksl)
++: fName(name) {
++    SkSL::Program::Settings settings;
++    settings.fCaps = shaderCaps;
++    fBaseProgram = fCompiler.convertProgram(SkSL::Program::kPipelineStage_Kind,
++                                            SkSL::String(sksl),
++                                            settings);
++    if (fCompiler.errorCount()) {
++        SkDebugf("%s\n", fCompiler.errorText().c_str());
++    }
++    SkASSERT(fBaseProgram);
++    SkASSERT(!fCompiler.errorCount());
++    for (const auto& e : *fBaseProgram) {
++        if (e.fKind == SkSL::ProgramElement::kVar_Kind) {
++            SkSL::VarDeclarations& v = (SkSL::VarDeclarations&) e;
++            for (const auto& varStatement : v.fVars) {
++                const SkSL::Variable& var = *((SkSL::VarDeclaration&) *varStatement).fVar;
++                if (var.fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
++                    fInputVars.push_back(&var);
++                }
++                if (var.fModifiers.fLayout.fKey) {
++                    fKeyVars.push_back(&var);
++                }
++            }
++        }
++    }
++}
++
++static size_t align(size_t offset, size_t alignment) {
++    size_t delta = offset % alignment;
++    if (delta) {
++        return offset + alignment - delta;
++    }
++    return offset;
++}
++
++std::unique_ptr<GrFragmentProcessor> GrSkSLFPFactory::make(const void* inputs) {
++    SkASSERT(!fCompiler.errorCount());
++    std::unordered_map<SkSL::String, SkSL::Program::Settings::Value> inputMap;
++    size_t index = 0;
++    for (const auto& v : fInputVars) {
++        SkSL::String name(v->fName);
++        if (&v->fType == fCompiler.context().fInt_Type.get()) {
++            index = align(index, sizeof(int32_t));
++            int32_t v = *(int32_t*) (((int8_t*) inputs) + index);
++            inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(v)));
++            index += sizeof(int32_t);
++        }
++    }
++    std::unique_ptr<SkSL::Program> specialized = fCompiler.specialize(*fBaseProgram, inputMap);
++    SkSL::String key;
++    for (const auto& v : fKeyVars) {
++        const auto& found = inputMap.find(SkSL::String(v->fName));
++        SkASSERT(found != inputMap.end());
++        switch (found->second.fKind) {
++            case SkSL::Program::Settings::Value::kBool_Kind:
++                key += (char) found->second.fValue;
++                break;
++            case SkSL::Program::Settings::Value::kInt_Kind:
++                key += (char) ((found->second.fValue >> 24) & 0xFF);
++                key += (char) ((found->second.fValue >> 16) & 0xFF);
++                key += (char) ((found->second.fValue >>  8) & 0xFF);
++                key += (char) ((found->second.fValue)       & 0xFF);
++                break;
++        }
++    }
++    return GrSkSLFP::Make(fName, &fCompiler, std::move(specialized), std::move(key));
++}
++
++class GrGLSLSkSLFP : public GrGLSLFragmentProcessor {
++public:
++    GrGLSLSkSLFP(SkSL::String glsl, std::vector<SkSL::Compiler::FormatArg> formatArgs)
++    : fGLSL(glsl)
++    , fFormatArgs(formatArgs) {}
++
++    void emitCode(EmitArgs& args) override {
++        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
++        int substringStartIndex = 0;
++        int formatArgIndex = 0;
++        for (size_t i = 0; i < fGLSL.length(); ++i) {
++            char c = fGLSL[i];
++            if (c == '%') {
++                fragBuilder->codeAppend(fGLSL.c_str() + substringStartIndex,
++                                        i - substringStartIndex);
++                ++i;
++                c = fGLSL[i];
++                switch (c) {
++                    case 's':
++                        switch (fFormatArgs[formatArgIndex++]) {
++                            case SkSL::Compiler::FormatArg::kInput:
++                                fragBuilder->codeAppend(args.fInputColor ? args.fInputColor
++                                                                         : "half4(1)");
++                                break;
++                            case SkSL::Compiler::FormatArg::kOutput:
++                                fragBuilder->codeAppend(args.fOutputColor);
++                                break;
++                        }
++                        break;
++                    default:
++                        fragBuilder->codeAppendf("%c", c);
++                }
++                substringStartIndex = i + 1;
++            }
++        }
++        fragBuilder->codeAppend(fGLSL.c_str() + substringStartIndex,
++                                fGLSL.length() - substringStartIndex);
++    }
++
++    const SkSL::String fGLSL;
++    std::vector<SkSL::Compiler::FormatArg> fFormatArgs;
++};
++
++std::unique_ptr<GrFragmentProcessor> GrSkSLFP::Make(GrContext* context, int index, const char* name,
++                                                    const char* sksl, const void* inputs) {
++    GrSkSLFPFactory* factory = context->contextPriv().getFPFactory(index);
++    if (!factory) {
++        factory = new GrSkSLFPFactory(name, context->contextPriv().caps()->shaderCaps(), sksl);
++        context->contextPriv().setFPFactory(index, std::unique_ptr<GrSkSLFPFactory>(factory));
++    }
++    return factory->make(inputs);
++}
++
++GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {
++    return new GrGLSLSkSLFP(fGLSL, fFormatArgs);
++}
++
++void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
++                                     GrProcessorKeyBuilder* b) const {
++    const char* current = fKey.data();
++    size_t length = fKey.length();
++    for (size_t i = 0; i < length / 4; ++i) {
++        b->add32(*(int32_t*) current);
++        current += 4;
++    }
++    size_t excessCount = length % 4;
++    if (excessCount) {
++        int32_t excess = 0;
++        for (size_t i = 0; i < excessCount; ++i) {
++            excess <<= 8;
++            excess += *current;
++            ++current;
++        }
++        b->add32(excess);
++    }
++}
++
++bool GrSkSLFP::onIsEqual(const GrFragmentProcessor& other) const {
++    const GrSkSLFP& sk = other.cast<GrSkSLFP>();
++    return fGLSL == sk.fGLSL && fFormatArgs == sk.fFormatArgs;
++}
++
++std::unique_ptr<GrFragmentProcessor> GrSkSLFP::clone() const {
++    return std::unique_ptr<GrFragmentProcessor>(new GrSkSLFP(*this));
++}
++
++GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSkSLFP);
++
++#if GR_TEST_UTILS
++
++#include "SkGr.h"
++
++using Value = SkSL::Program::Settings::Value;
++
++std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d) {
++    int type = d->fRandom->nextULessThan(1);
++    switch (type) {
++        case 0: {
++            static int ditherIndex = NewIndex();
++            int rangeType = d->fRandom->nextULessThan(3);
++            return GrSkSLFP::Make(d->context(), ditherIndex, "Dither", SKSL_DITHER_SRC, &rangeType);
++        }
++    }
++    SK_ABORT("unreachable");
++    return nullptr;
++}
++
++#endif
+diff --git a/src/gpu/effects/GrSkSLFP.h b/src/gpu/effects/GrSkSLFP.h
+new file mode 100644
+index 0000000000..ce98a0ea1d
+--- /dev/null
++++ b/src/gpu/effects/GrSkSLFP.h
+@@ -0,0 +1,146 @@
++/*
++ * Copyright 2018 Google Inc.
++ *
++ * Use of this source code is governed by a BSD-style license that can be
++ * found in the LICENSE file.
++ */
++
++#ifndef GrSkSLFP_DEFINED
++#define GrSkSLFP_DEFINED
++
++#include "SkTypes.h"
++#include "GrCaps.h"
++#include "GrFragmentProcessor.h"
++#include "GrCoordTransform.h"
++#include "GrShaderCaps.h"
++#include "SkSLCompiler.h"
++#include "SkSLPipelineStageCodeGenerator.h"
++
++class GrContext;
++
++class GrSkSLFP : public GrFragmentProcessor {
++public:
++    /**
++     * Returns a new unique identifier. Each different SkSL fragment processor should call
++     * NewIndex once, statically, and use this index for all calls to Make.
++     */
++    static int NewIndex() {
++        static int index = 0;
++        return index++;
++    }
++
++    /**
++     * Creates a new fragment processor from an SkSL source string and a struct of inputs to the
++     * program. The input struct's type is derived from the 'in' variables in the SkSL source, so
++     * e.g. the shader:
++     *
++     *    in bool dither;
++     *    in float x;
++     *    in float y;
++     *    ....
++     *
++     * would expect a pointer to a struct set up like:
++     *
++     * struct {
++     *     bool dither;
++     *     float x;
++     *     float y;
++     * };
++     *
++     * As turning SkSL into GLSL / SPIR-V / etc. is fairly expensive, and the output may differ
++     * based on the inputs, internally the process is divided into two steps: we first parse and
++     * semantically analyze the SkSL into an internal representation, and then "specialize" this
++     * internal representation based on the inputs. The unspecialized internal representation of
++     * the program is cached, so further specializations of the same code are much faster than the
++     * first call.
++     *
++     * This caching is based on the 'index' parameter, which should be derived by statically calling
++     * 'newIndex()'. Each given SkSL string should have a single, statically defined index
++     * associated with it.
++     */
++    static std::unique_ptr<GrFragmentProcessor> Make(
++                   GrContext* context,
++                   int index,
++                   const char* name,
++                   const char* sksl,
++                   const void* inputs);
++
++    const char* name() const override { return fName.c_str(); }
++
++    std::unique_ptr<GrFragmentProcessor> clone() const override;
++
++private:
++    static std::unique_ptr<GrFragmentProcessor> Make(
++                   const char* name,
++                   SkSL::Compiler* compiler,
++                   std::unique_ptr<SkSL::Program> program,
++                   SkSL::String key) {
++        return std::unique_ptr<GrFragmentProcessor>(new GrSkSLFP(std::move(name), compiler,
++                                                                 std::move(program), key));
++    }
++
++    GrSkSLFP(SkSL::String name, SkSL::Compiler* compiler, std::unique_ptr<SkSL::Program> program,
++             SkSL::String key)
++    : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
++    , fName(std::move(name))
++    , fKey(std::move(key)) {
++        if (!compiler->toPipelineStage(*program, &fGLSL, &fFormatArgs)) {
++            printf("%s\n", compiler->errorText().c_str());
++            abort();
++        }
++    }
++
++    GrSkSLFP(const GrSkSLFP& other)
++    : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
++    , fName(other.fName)
++    , fGLSL(other.fGLSL)
++    , fKey(other.fKey)
++    , fFormatArgs(other.fFormatArgs) {}
++
++    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
++
++    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
++
++    bool onIsEqual(const GrFragmentProcessor&) const override;
++
++    SkSL::String fName;
++
++    SkSL::String fGLSL;
++
++    SkSL::String fKey;
++
++    std::vector<SkSL::Compiler::FormatArg> fFormatArgs;
++
++    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
++
++    typedef GrFragmentProcessor INHERITED;
++
++    friend class GrSkSLFPFactory;
++};
++
++/**
++ * Produces GrFragmentProcessors from SkSL code. As the shader code produced from the SkSL depends
++ * upon the inputs to the SkSL (static if's, etc.) we first create a factory for a given SkSL
++ * string, then use that to create the actual GrFragmentProcessor.
++ */
++class GrSkSLFPFactory {
++    /**
++     * Constructs a GrSkSLFPFactory for a given SkSL source string. Creating a factory will
++     * preprocess the SkSL and determine which of its inputs are declared "key" (meaning they cause
++     * the produced shaders to differ), so it is important to reuse the same factory instance for
++     * the same shader in order to avoid repeatedly re-parsing the SkSL.
++     */
++    GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCaps, const char* sksl);
++
++    std::unique_ptr<GrFragmentProcessor> make(const void* inputs);
++
++    const char* fName;
++    SkSL::Compiler fCompiler;
++    std::unique_ptr<SkSL::Program> fBaseProgram;
++    std::vector<const SkSL::Variable*> fInputVars;
++    std::vector<const SkSL::Variable*> fKeyVars;
++
++    friend class GrSkSLFP;
++};
++
++#endif
+diff --git a/src/gpu/glsl/GrGLSLShaderBuilder.h b/src/gpu/glsl/GrGLSLShaderBuilder.h
+index b13773b8a9..6326913e4c 100644
+--- a/src/gpu/glsl/GrGLSLShaderBuilder.h
++++ b/src/gpu/glsl/GrGLSLShaderBuilder.h
+@@ -111,6 +111,8 @@ public:
+ 
+     void codeAppend(const char* str) { this->code().append(str); }
+ 
++    void codeAppend(const char* str, size_t length) { this->code().append(str, length); }
++
+     void codePrependf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
+        va_list args;
+        va_start(args, format);
+diff --git a/src/sksl/SkSLCodeGenerator.h b/src/sksl/SkSLCodeGenerator.h
+index 1f577b58b1..737b5dd6aa 100644
+--- a/src/sksl/SkSLCodeGenerator.h
++++ b/src/sksl/SkSLCodeGenerator.h
+@@ -22,7 +22,9 @@ public:
+     CodeGenerator(const Program* program, ErrorReporter* errors, OutputStream* out)
+     : fProgram(*program)
+     , fErrors(*errors)
+-    , fOut(out) {}
++    , fOut(out) {
++        SkASSERT(program->fIsOptimized);
++    }
+ 
+     virtual ~CodeGenerator() {}
+ 
+diff --git a/src/sksl/SkSLCompiler.cpp b/src/sksl/SkSLCompiler.cpp
+index 0cf55c26d0..d8caddf638 100644
+--- a/src/sksl/SkSLCompiler.cpp
++++ b/src/sksl/SkSLCompiler.cpp
+@@ -13,6 +13,7 @@
+ #include "SkSLHCodeGenerator.h"
+ #include "SkSLIRGenerator.h"
+ #include "SkSLMetalCodeGenerator.h"
++#include "SkSLPipelineStageCodeGenerator.h"
+ #include "SkSLSPIRVCodeGenerator.h"
+ #include "ir/SkSLEnum.h"
+ #include "ir/SkSLExpression.h"
+@@ -55,8 +56,8 @@ static const char* SKSL_FP_INCLUDE =
+ #include "sksl_fp.inc"
+ ;
+ 
+-static const char* SKSL_CPU_INCLUDE =
+-#include "sksl_cpu.inc"
++static const char* SKSL_PIPELINE_STAGE_INCLUDE =
++#include "sksl_pipeline.inc"
+ ;
+ 
+ namespace SkSL {
+@@ -221,21 +222,18 @@ Compiler::Compiler(Flags flags)
+                                  strlen(SKSL_VERT_INCLUDE), *fTypes, &fVertexInclude);
+     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
+     fVertexSymbolTable = fIRGenerator->fSymbolTable;
+-    fIRGenerator->finish();
+ 
+     fIRGenerator->start(&settings, nullptr);
+     fIRGenerator->convertProgram(Program::kVertex_Kind, SKSL_FRAG_INCLUDE,
+                                  strlen(SKSL_FRAG_INCLUDE), *fTypes, &fFragmentInclude);
+     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
+     fFragmentSymbolTable = fIRGenerator->fSymbolTable;
+-    fIRGenerator->finish();
+ 
+     fIRGenerator->start(&settings, nullptr);
+     fIRGenerator->convertProgram(Program::kGeometry_Kind, SKSL_GEOM_INCLUDE,
+                                  strlen(SKSL_GEOM_INCLUDE), *fTypes, &fGeometryInclude);
+     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
+     fGeometrySymbolTable = fIRGenerator->fSymbolTable;
+-    fIRGenerator->finish();
+ }
+ 
+ Compiler::~Compiler() {
+@@ -1233,11 +1231,11 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
+                                          &elements);
+             fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
+             break;
+-        case Program::kCPU_Kind:
++        case Program::kPipelineStage_Kind:
+             inherited = nullptr;
+             fIRGenerator->start(&settings, nullptr);
+-            fIRGenerator->convertProgram(kind, SKSL_CPU_INCLUDE, strlen(SKSL_CPU_INCLUDE),
+-                                         *fTypes, &elements);
++            fIRGenerator->convertProgram(kind, SKSL_PIPELINE_STAGE_INCLUDE,
++                                         strlen(SKSL_PIPELINE_STAGE_INCLUDE), *fTypes, &elements);
+             fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
+             break;
+     }
+@@ -1249,13 +1247,6 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
+     std::unique_ptr<String> textPtr(new String(std::move(text)));
+     fSource = textPtr.get();
+     fIRGenerator->convertProgram(kind, textPtr->c_str(), textPtr->size(), *fTypes, &elements);
+-    if (!fErrorCount) {
+-        for (auto& element : elements) {
+-            if (element->fKind == ProgramElement::kFunction_Kind) {
+-                this->scanCFG((FunctionDefinition&) *element);
+-            }
+-        }
+-    }
+     auto result = std::unique_ptr<Program>(new Program(kind,
+                                                        std::move(textPtr),
+                                                        settings,
+@@ -1264,16 +1255,55 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
+                                                        std::move(elements),
+                                                        fIRGenerator->fSymbolTable,
+                                                        fIRGenerator->fInputs));
+-    fIRGenerator->finish();
+-    fSource = nullptr;
+-    this->writeErrorCount();
+     if (fErrorCount) {
+         return nullptr;
+     }
+     return result;
+ }
+ 
+-bool Compiler::toSPIRV(const Program& program, OutputStream& out) {
++bool Compiler::optimize(Program& program) {
++    SkASSERT(!fErrorCount);
++    if (!program.fIsOptimized) {
++        program.fIsOptimized = true;
++        fIRGenerator->fKind = program.fKind;
++        fIRGenerator->fSettings = &program.fSettings;
++        for (auto& element : program) {
++            if (element.fKind == ProgramElement::kFunction_Kind) {
++                this->scanCFG((FunctionDefinition&) element);
++            }
++        }
++        fSource = nullptr;
++    }
++    return fErrorCount == 0;
++}
++
++std::unique_ptr<Program> Compiler::specialize(
++                   Program& program,
++                   const std::unordered_map<SkSL::String, SkSL::Program::Settings::Value>& inputs) {
++    std::vector<std::unique_ptr<ProgramElement>> elements;
++    for (const auto& e : program) {
++        elements.push_back(e.clone());
++    }
++    Program::Settings settings;
++    settings.fCaps = program.fSettings.fCaps;
++    for (auto iter = inputs.begin(); iter != inputs.end(); ++iter) {
++        settings.fArgs.insert(*iter);
++    }
++    std::unique_ptr<Program> result(new Program(program.fKind,
++                                                nullptr,
++                                                settings,
++                                                program.fContext,
++                                                program.fInheritedElements,
++                                                std::move(elements),
++                                                program.fSymbols,
++                                                program.fInputs));
++    return result;
++}
++
++bool Compiler::toSPIRV(Program& program, OutputStream& out) {
++    if (!this->optimize(program)) {
++        return false;
++    }
+ #ifdef SK_ENABLE_SPIRV_VALIDATION
+     StringStream buffer;
+     fSource = program.fSource.get();
+@@ -1299,11 +1329,10 @@ bool Compiler::toSPIRV(const Program& program, OutputStream& out) {
+     bool result = cg.generateCode();
+     fSource = nullptr;
+ #endif
+-    this->writeErrorCount();
+     return result;
+ }
+ 
+-bool Compiler::toSPIRV(const Program& program, String* out) {
++bool Compiler::toSPIRV(Program& program, String* out) {
+     StringStream buffer;
+     bool result = this->toSPIRV(program, buffer);
+     if (result) {
+@@ -1312,16 +1341,18 @@ bool Compiler::toSPIRV(const Program& program, String* out) {
+     return result;
+ }
+ 
+-bool Compiler::toGLSL(const Program& program, OutputStream& out) {
++bool Compiler::toGLSL(Program& program, OutputStream& out) {
++    if (!this->optimize(program)) {
++        return false;
++    }
+     fSource = program.fSource.get();
+     GLSLCodeGenerator cg(fContext.get(), &program, this, &out);
+     bool result = cg.generateCode();
+     fSource = nullptr;
+-    this->writeErrorCount();
+     return result;
+ }
+ 
+-bool Compiler::toGLSL(const Program& program, String* out) {
++bool Compiler::toGLSL(Program& program, String* out) {
+     StringStream buffer;
+     bool result = this->toGLSL(program, buffer);
+     if (result) {
+@@ -1330,28 +1361,50 @@ bool Compiler::toGLSL(const Program& program, String* out) {
+     return result;
+ }
+ 
+-bool Compiler::toMetal(const Program& program, OutputStream& out) {
++bool Compiler::toMetal(Program& program, OutputStream& out) {
++    if (!this->optimize(program)) {
++        return false;
++    }
+     MetalCodeGenerator cg(fContext.get(), &program, this, &out);
+     bool result = cg.generateCode();
+-    this->writeErrorCount();
+     return result;
+ }
+ 
+-bool Compiler::toCPP(const Program& program, String name, OutputStream& out) {
++bool Compiler::toCPP(Program& program, String name, OutputStream& out) {
++    if (!this->optimize(program)) {
++        return false;
++    }
+     fSource = program.fSource.get();
+     CPPCodeGenerator cg(fContext.get(), &program, this, name, &out);
+     bool result = cg.generateCode();
+     fSource = nullptr;
+-    this->writeErrorCount();
+     return result;
+ }
+ 
+-bool Compiler::toH(const Program& program, String name, OutputStream& out) {
++bool Compiler::toH(Program& program, String name, OutputStream& out) {
++    if (!this->optimize(program)) {
++        return false;
++    }
+     fSource = program.fSource.get();
+     HCodeGenerator cg(fContext.get(), &program, this, name, &out);
+     bool result = cg.generateCode();
+     fSource = nullptr;
+-    this->writeErrorCount();
++    return result;
++}
++
++bool Compiler::toPipelineStage(Program& program, String* out,
++                               std::vector<FormatArg>* outFormatArgs) {
++    if (!this->optimize(program)) {
++        return false;
++    }
++    fSource = program.fSource.get();
++    StringStream buffer;
++    PipelineStageCodeGenerator cg(fContext.get(), &program, this, &buffer, outFormatArgs);
++    bool result = cg.generateCode();
++    fSource = nullptr;
++    if (result) {
++        *out = buffer.str();
++    }
+     return result;
+ }
+ 
+@@ -1446,6 +1499,8 @@ void Compiler::error(int offset, String msg) {
+ }
+ 
+ String Compiler::errorText() {
++    this->writeErrorCount();
++    fErrorCount = 0;
+     String result = fErrorText;
+     return result;
+ }
+diff --git a/src/sksl/SkSLCompiler.h b/src/sksl/SkSLCompiler.h
+index 2c8c78687a..cda388aa50 100644
+--- a/src/sksl/SkSLCompiler.h
++++ b/src/sksl/SkSLCompiler.h
+@@ -26,6 +26,8 @@
+ #define SK_TEXTURESAMPLERS_BUILTIN     10006
+ #define SK_OUT_BUILTIN                 10007
+ #define SK_LASTFRAGCOLOR_BUILTIN       10008
++#define SK_MAIN_X_BUILTIN              10009
++#define SK_MAIN_Y_BUILTIN              10010
+ #define SK_FRAGCOORD_BUILTIN              15
+ #define SK_VERTEXID_BUILTIN               42
+ #define SK_INSTANCEID_BUILTIN             43
+@@ -58,6 +60,11 @@ public:
+         kPermitInvalidStaticTests_Flag = 1,
+     };
+ 
++    enum class FormatArg {
++        kInput,
++        kOutput
++    };
++
+     Compiler(Flags flags = kNone_Flags);
+ 
+     ~Compiler() override;
+@@ -65,19 +72,27 @@ public:
+     std::unique_ptr<Program> convertProgram(Program::Kind kind, String text,
+                                             const Program::Settings& settings);
+ 
+-    bool toSPIRV(const Program& program, OutputStream& out);
++    bool optimize(Program& program);
++
++    std::unique_ptr<Program> specialize(Program& program,
++                    const std::unordered_map<SkSL::String, SkSL::Program::Settings::Value>& inputs);
++
++    bool toSPIRV(Program& program, OutputStream& out);
++
++    bool toSPIRV(Program& program, String* out);
+ 
+-    bool toSPIRV(const Program& program, String* out);
++    bool toGLSL(Program& program, OutputStream& out);
+ 
+-    bool toGLSL(const Program& program, OutputStream& out);
++    bool toGLSL(Program& program, String* out);
+ 
+-    bool toGLSL(const Program& program, String* out);
++    bool toMetal(Program& program, OutputStream& out);
+ 
+-    bool toMetal(const Program& program, OutputStream& out);
++    bool toCPP(Program& program, String name, OutputStream& out);
+ 
+-    bool toCPP(const Program& program, String name, OutputStream& out);
++    bool toH(Program& program, String name, OutputStream& out);
+ 
+-    bool toH(const Program& program, String name, OutputStream& out);
++    bool toPipelineStage(Program& program, String* out,
++                         std::vector<FormatArg>* outFormatArgs);
+ 
+     void error(int offset, String msg) override;
+ 
+diff --git a/src/sksl/SkSLContext.h b/src/sksl/SkSLContext.h
+index 61dd8042e4..e42890eeda 100644
+--- a/src/sksl/SkSLContext.h
++++ b/src/sksl/SkSLContext.h
+@@ -355,6 +355,10 @@ private:
+             return "<defined>";
+         }
+ 
++        std::unique_ptr<Expression> clone() const override {
++            return std::unique_ptr<Expression>(new Defined(fType));
++        }
++
+         typedef Expression INHERITED;
+     };
+ };
+diff --git a/src/sksl/SkSLGLSLCodeGenerator.cpp b/src/sksl/SkSLGLSLCodeGenerator.cpp
+index aa4f8252d0..82178d948d 100644
+--- a/src/sksl/SkSLGLSLCodeGenerator.cpp
++++ b/src/sksl/SkSLGLSLCodeGenerator.cpp
+@@ -871,41 +871,44 @@ void GLSLCodeGenerator::writeSetting(const Setting& s) {
+ }
+ 
+ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
+-    this->writeTypePrecision(f.fDeclaration.fReturnType);
+-    this->writeType(f.fDeclaration.fReturnType);
+-    this->write(" " + f.fDeclaration.fName + "(");
+-    const char* separator = "";
+-    for (const auto& param : f.fDeclaration.fParameters) {
+-        this->write(separator);
+-        separator = ", ";
+-        this->writeModifiers(param->fModifiers, false);
+-        std::vector<int> sizes;
+-        const Type* type = &param->fType;
+-        while (type->kind() == Type::kArray_Kind) {
+-            sizes.push_back(type->columns());
+-            type = &type->componentType();
+-        }
+-        this->writeTypePrecision(*type);
+-        this->writeType(*type);
+-        this->write(" " + param->fName);
+-        for (int s : sizes) {
+-            if (s <= 0) {
+-                this->write("[]");
+-            } else {
+-                this->write("[" + to_string(s) + "]");
++    if (fProgramKind != Program::kPipelineStage_Kind) {
++        this->writeTypePrecision(f.fDeclaration.fReturnType);
++        this->writeType(f.fDeclaration.fReturnType);
++        this->write(" " + f.fDeclaration.fName + "(");
++        const char* separator = "";
++        for (const auto& param : f.fDeclaration.fParameters) {
++            this->write(separator);
++            separator = ", ";
++            this->writeModifiers(param->fModifiers, false);
++            std::vector<int> sizes;
++            const Type* type = &param->fType;
++            while (type->kind() == Type::kArray_Kind) {
++                sizes.push_back(type->columns());
++                type = &type->componentType();
++            }
++            this->writeTypePrecision(*type);
++            this->writeType(*type);
++            this->write(" " + param->fName);
++            for (int s : sizes) {
++                if (s <= 0) {
++                    this->write("[]");
++                } else {
++                    this->write("[" + to_string(s) + "]");
++                }
+             }
+         }
++        this->writeLine(") {");
++        fIndentation++;
+     }
+-    this->writeLine(") {");
+-
+     fFunctionHeader = "";
+     OutputStream* oldOut = fOut;
+     StringStream buffer;
+     fOut = &buffer;
+-    fIndentation++;
+     this->writeStatements(((Block&) *f.fBody).fStatements);
+-    fIndentation--;
+-    this->writeLine("}");
++    if (fProgramKind != Program::kPipelineStage_Kind) {
++        fIndentation--;
++        this->writeLine("}");
++    }
+ 
+     fOut = oldOut;
+     this->write(fFunctionHeader);
+@@ -1331,7 +1334,9 @@ bool GLSLCodeGenerator::generateCode() {
+     OutputStream* rawOut = fOut;
+     fOut = &fHeader;
+     fProgramKind = fProgram.fKind;
+-    this->writeHeader();
++    if (fProgramKind != Program::kPipelineStage_Kind) {
++        this->writeHeader();
++    }
+     if (Program::kGeometry_Kind == fProgramKind &&
+         fProgram.fSettings.fCaps->geometryShaderExtensionString()) {
+         fHeader.writeText("#extension ");
+diff --git a/src/sksl/SkSLIRGenerator.cpp b/src/sksl/SkSLIRGenerator.cpp
+index 5a54b07333..144708bbae 100644
+--- a/src/sksl/SkSLIRGenerator.cpp
++++ b/src/sksl/SkSLIRGenerator.cpp
+@@ -144,10 +144,16 @@ static void fill_caps(const SKSL_CAPS_CLASS& caps,
+ 
+ void IRGenerator::start(const Program::Settings* settings,
+                         std::vector<std::unique_ptr<ProgramElement>>* inherited) {
++    if (fStarted) {
++        this->popSymbolTable();
++    }
+     fSettings = settings;
+     fCapsMap.clear();
+     if (settings->fCaps) {
+         fill_caps(*settings->fCaps, &fCapsMap);
++    } else {
++        fCapsMap.insert(std::make_pair(String("integerSupport"),
++                                       Program::Settings::Value(true)));
+     }
+     this->pushSymbolTable();
+     fInvocations = -1;
+@@ -168,11 +174,6 @@ void IRGenerator::start(const Program::Settings* settings,
+     }
+ }
+ 
+-void IRGenerator::finish() {
+-    this->popSymbolTable();
+-    fSettings = nullptr;
+-}
+-
+ std::unique_ptr<Extension> IRGenerator::convertExtension(const ASTExtension& extension) {
+     return std::unique_ptr<Extension>(new Extension(extension.fOffset, extension.fName));
+ }
+@@ -682,6 +683,26 @@ void IRGenerator::convertFunction(const ASTFunction& f) {
+         parameters.push_back(var);
+     }
+ 
++    if (f.fName == "main") {
++        if (fKind == Program::kPipelineStage_Kind) {
++            bool valid = parameters.size() == 3 &&
++                         parameters[0]->fType == *fContext.fInt_Type &&
++                         parameters[0]->fModifiers.fFlags == 0 &&
++                         parameters[1]->fType == *fContext.fInt_Type &&
++                         parameters[1]->fModifiers.fFlags == 0 &&
++                         parameters[2]->fType == *fContext.fHalf4_Type &&
++                         parameters[2]->fModifiers.fFlags == (Modifiers::kIn_Flag |
++                                                              Modifiers::kOut_Flag);
++            if (!valid) {
++                fErrors.error(f.fOffset, "pipeline stage 'main' must be declared main(int, "
++                                         "int, inout half4)");
++                return;
++            }
++        } else if (parameters.size()) {
++            fErrors.error(f.fOffset, "shader 'main' must have zero parameters");
++        }
++    }
++
+     // find existing declaration
+     const FunctionDeclaration* decl = nullptr;
+     auto entry = (*fSymbolTable)[f.fName];
+@@ -752,6 +773,11 @@ void IRGenerator::convertFunction(const ASTFunction& f) {
+         decl->fDefined = true;
+         std::shared_ptr<SymbolTable> old = fSymbolTable;
+         AutoSymbolTable table(this);
++        if (f.fName == "main" && fKind == Program::kPipelineStage_Kind) {
++            parameters[0]->fModifiers.fLayout.fBuiltin = SK_MAIN_X_BUILTIN;
++            parameters[1]->fModifiers.fLayout.fBuiltin = SK_MAIN_Y_BUILTIN;
++            parameters[2]->fModifiers.fLayout.fBuiltin = SK_OUTCOLOR_BUILTIN;
++        }
+         for (size_t i = 0; i < parameters.size(); i++) {
+             fSymbolTable->addWithoutOwnership(parameters[i]->fName, decl->fParameters[i]);
+         }
+@@ -1644,17 +1670,15 @@ std::unique_ptr<Expression> IRGenerator::convertNumberConstructor(
+     }
+     if (type.isFloat() && args.size() == 1 && args[0]->fKind == Expression::kFloatLiteral_Kind) {
+         double value = ((FloatLiteral&) *args[0]).fValue;
+-        return std::unique_ptr<Expression>(new FloatLiteral(fContext, offset, value, &type));
++        return std::unique_ptr<Expression>(new FloatLiteral(offset, value, &type));
+     }
+     if (type.isFloat() && args.size() == 1 && args[0]->fKind == Expression::kIntLiteral_Kind) {
+         int64_t value = ((IntLiteral&) *args[0]).fValue;
+-        return std::unique_ptr<Expression>(new FloatLiteral(fContext, offset, (double) value,
+-                                                            &type));
++        return std::unique_ptr<Expression>(new FloatLiteral(offset, (double) value, &type));
+     }
+     if (args[0]->fKind == Expression::kIntLiteral_Kind && (type == *fContext.fInt_Type ||
+         type == *fContext.fUInt_Type)) {
+-        return std::unique_ptr<Expression>(new IntLiteral(fContext,
+-                                                          offset,
++        return std::unique_ptr<Expression>(new IntLiteral(offset,
+                                                           ((IntLiteral&) *args[0]).fValue,
+                                                           &type));
+     }
+@@ -1952,7 +1976,7 @@ std::unique_ptr<Expression> IRGenerator::getCap(int offset, String name) {
+                                                    found->second.literal(fContext, offset)));
+ }
+ 
+-std::unique_ptr<Expression> IRGenerator::getArg(int offset, String name) {
++std::unique_ptr<Expression> IRGenerator::getArg(int offset, String name) const {
+     auto found = fSettings->fArgs.find(name);
+     if (found == fSettings->fArgs.end()) {
+         fErrors.error(offset, "unknown argument '" + name + "'");
+diff --git a/src/sksl/SkSLIRGenerator.h b/src/sksl/SkSLIRGenerator.h
+index 2a52e04b54..f456915877 100644
+--- a/src/sksl/SkSLIRGenerator.h
++++ b/src/sksl/SkSLIRGenerator.h
+@@ -77,9 +77,13 @@ public:
+     std::unique_ptr<Expression> constantFold(const Expression& left,
+                                              Token::Kind op,
+                                              const Expression& right) const;
++
++    std::unique_ptr<Expression> getArg(int offset, String name) const;
++
+     Program::Inputs fInputs;
+     const Program::Settings* fSettings;
+     const Context& fContext;
++    Program::Kind fKind;
+ 
+ private:
+     /**
+@@ -148,7 +152,6 @@ private:
+     std::unique_ptr<Statement> convertReturn(const ASTReturnStatement& r);
+     std::unique_ptr<Section> convertSection(const ASTSection& e);
+     std::unique_ptr<Expression> getCap(int offset, String name);
+-    std::unique_ptr<Expression> getArg(int offset, String name);
+     std::unique_ptr<Expression> convertSuffixExpression(const ASTSuffixExpression& expression);
+     std::unique_ptr<Expression> convertTypeField(int offset, const Type& type,
+                                                  StringFragment field);
+@@ -169,7 +172,6 @@ private:
+     void setRefKind(const Expression& expr, VariableReference::RefKind kind);
+     void getConstantInt(const Expression& value, int64_t* out);
+ 
+-    Program::Kind fKind;
+     const FunctionDeclaration* fCurrentFunction;
+     std::unordered_map<String, Program::Settings::Value> fCapsMap;
+     std::shared_ptr<SymbolTable> fRootSymbolTable;
+@@ -187,6 +189,7 @@ private:
+     Variable* fRTAdjust;
+     Variable* fRTAdjustInterfaceBlock;
+     int fRTAdjustFieldIndex;
++    bool fStarted = false;
+ 
+     friend class AutoSymbolTable;
+     friend class AutoLoopLevel;
+diff --git a/src/sksl/SkSLJIT.cpp b/src/sksl/SkSLJIT.cpp
+index 57286b53fb..c6218054ed 100644
+--- a/src/sksl/SkSLJIT.cpp
++++ b/src/sksl/SkSLJIT.cpp
+@@ -14,11 +14,13 @@
+ #include "SkCpu.h"
+ #include "SkRasterPipeline.h"
+ #include "../jumper/SkJumper.h"
++#include "ir/SkSLAppendStage.h"
+ #include "ir/SkSLExpressionStatement.h"
+ #include "ir/SkSLFunctionCall.h"
+ #include "ir/SkSLFunctionReference.h"
+ #include "ir/SkSLIndexExpression.h"
+ #include "ir/SkSLProgram.h"
++#include "ir/SkSLUnresolvedFunction.h"
+ #include "llvm/ExecutionEngine/RTDyldMemoryManager.h"
+ 
+ static constexpr int MAX_VECTOR_COUNT = 16;
+@@ -37,6 +39,27 @@ extern "C" void sksl_debug_print(float f) {
+     printf("Debug: %f\n", f);
+ }
+ 
++extern "C" float sksl_clamp1(float f, float min, float max) {
++    return SkTPin(f, min, max);
++}
++
++using float2 = __attribute__((vector_size(8))) float;
++using float3 = __attribute__((vector_size(16))) float;
++using float4 = __attribute__((vector_size(16))) float;
++
++extern "C" float2 sksl_clamp2(float2 f, float min, float max) {
++    return float2 { SkTPin(f[0], min, max), SkTPin(f[1], min, max) };
++}
++
++extern "C" float3 sksl_clamp3(float3 f, float min, float max) {
++    return float3 { SkTPin(f[0], min, max), SkTPin(f[1], min, max), SkTPin(f[2], min, max) };
++}
++
++extern "C" float4 sksl_clamp4(float4 f, float min, float max) {
++    return float4 { SkTPin(f[0], min, max), SkTPin(f[1], min, max), SkTPin(f[2], min, max),
++                    SkTPin(f[3], min, max) };
++}
++
+ namespace SkSL {
+ 
+ static constexpr int STAGE_PARAM_COUNT = 12;
+@@ -78,6 +101,10 @@ JIT::JIT(Compiler* compiler)
+     fContext = LLVMContextCreate();
+     fVoidType = LLVMVoidTypeInContext(fContext);
+     fInt1Type = LLVMInt1TypeInContext(fContext);
++    fInt1VectorType = LLVMVectorType(fInt1Type, fVectorCount);
++    fInt1Vector2Type = LLVMVectorType(fInt1Type, 2);
++    fInt1Vector3Type = LLVMVectorType(fInt1Type, 3);
++    fInt1Vector4Type = LLVMVectorType(fInt1Type, 4);
+     fInt8Type = LLVMInt8TypeInContext(fContext);
+     fInt8PtrType = LLVMPointerType(fInt8Type, 0);
+     fInt32Type = LLVMInt32TypeInContext(fContext);
+@@ -101,6 +128,7 @@ JIT::~JIT() {
+ 
+ void JIT::addBuiltinFunction(const char* ourName, const char* realName, LLVMTypeRef returnType,
+                              std::vector<LLVMTypeRef> parameters) {
++    bool found = false;
+     for (const auto& pair : *fProgram->fSymbols) {
+         if (Symbol::kFunctionDeclaration_Kind == pair.second->fKind) {
+             const FunctionDeclaration& f = (const FunctionDeclaration&) *pair.second;
+@@ -117,9 +145,31 @@ void JIT::addBuiltinFunction(const char* ourName, const char* realName, LLVMType
+                                                                                  parameters.data(),
+                                                                                  parameters.size(),
+                                                                                  false));
++            found = true;
++        }
++        if (Symbol::kUnresolvedFunction_Kind == pair.second->fKind) {
++            // FIXME consolidate this with the code above
++            for (const auto& f : ((const UnresolvedFunction&) *pair.second).fFunctions) {
++                if (pair.first != ourName || returnType != this->getType(f->fReturnType) ||
++                    parameters.size() != f->fParameters.size()) {
++                    continue;
++                }
++                for (size_t i = 0; i < parameters.size(); ++i) {
++                    if (parameters[i] != this->getType(f->fParameters[i]->fType)) {
++                        goto next;
++                    }
++                }
++                fFunctions[f] = LLVMAddFunction(fModule, realName, LLVMFunctionType(
++                                                                                  returnType,
++                                                                                  parameters.data(),
++                                                                                  parameters.size(),
++                                                                                  false));
++                found = true;
++            }
+         }
+         next:;
+     }
++    ASSERT(found);
+ }
+ 
+ void JIT::loadBuiltinFunctions() {
+@@ -128,6 +178,18 @@ void JIT::loadBuiltinFunctions() {
+     this->addBuiltinFunction("cos", "cosf", fFloat32Type, { fFloat32Type });
+     this->addBuiltinFunction("tan", "tanf", fFloat32Type, { fFloat32Type });
+     this->addBuiltinFunction("sqrt", "sqrtf", fFloat32Type, { fFloat32Type });
++    this->addBuiltinFunction("clamp", "sksl_clamp1", fFloat32Type, { fFloat32Type,
++                                                                     fFloat32Type,
++                                                                     fFloat32Type });
++    this->addBuiltinFunction("clamp", "sksl_clamp2", fFloat32Vector2Type, { fFloat32Vector2Type,
++                                                                            fFloat32Type,
++                                                                            fFloat32Type });
++    this->addBuiltinFunction("clamp", "sksl_clamp3", fFloat32Vector3Type, { fFloat32Vector3Type,
++                                                                            fFloat32Type,
++                                                                            fFloat32Type });
++    this->addBuiltinFunction("clamp", "sksl_clamp4", fFloat32Vector4Type, { fFloat32Vector4Type,
++                                                                            fFloat32Type,
++                                                                            fFloat32Type });
+     this->addBuiltinFunction("print", "sksl_debug_print", fVoidType, { fFloat32Type });
+ }
+ 
+@@ -138,6 +200,14 @@ uint64_t JIT::resolveSymbol(const char* name, JIT* jit) {
+             result = (uint64_t) &sksl_pipeline_append;
+         } else if (!strcmp(name, "_sksl_pipeline_append_callback")) {
+             result = (uint64_t) &sksl_pipeline_append_callback;
++        } else if (!strcmp(name, "_sksl_clamp1")) {
++            result = (uint64_t) &sksl_clamp1;
++        } else if (!strcmp(name, "_sksl_clamp2")) {
++            result = (uint64_t) &sksl_clamp2;
++        } else if (!strcmp(name, "_sksl_clamp3")) {
++            result = (uint64_t) &sksl_clamp3;
++        } else if (!strcmp(name, "_sksl_clamp4")) {
++            result = (uint64_t) &sksl_clamp4;
+         } else if (!strcmp(name, "_sksl_debug_print")) {
+             result = (uint64_t) &sksl_debug_print;
+         } else {
+@@ -406,7 +476,7 @@ JIT::TypeKind JIT::typeKind(const Type& type) {
+         return JIT::kInt_TypeKind;
+     } else if (type.fName == "uint" || type.fName == "ushort") {
+         return JIT::kUInt_TypeKind;
+-    } else if (type.fName == "float" || type.fName == "double") {
++    } else if (type.fName == "float" || type.fName == "double" || type.fName == "half") {
+         return JIT::kFloat_TypeKind;
+     }
+     ABORT("unsupported type: %s\n", type.description().c_str());
+@@ -441,7 +511,7 @@ LLVMValueRef JIT::compileBinary(LLVMBuilderRef builder, const BinaryExpression&
+         LLVMValueRef left = this->compileExpression(builder, *b.fLeft);      \
+         LLVMValueRef right = this->compileExpression(builder, *b.fRight);    \
+         this->vectorize(builder, b, &left, &right);                          \
+-        switch (this->typeKind(b.fLeft->fType)) {                                 \
++        switch (this->typeKind(b.fLeft->fType)) {                            \
+             case kInt_TypeKind:                                              \
+                 return SFunc(builder, left, right, "binary");                \
+             case kUInt_TypeKind:                                             \
+@@ -449,7 +519,7 @@ LLVMValueRef JIT::compileBinary(LLVMBuilderRef builder, const BinaryExpression&
+             case kFloat_TypeKind:                                            \
+                 return FFunc(builder, left, right, "binary");                \
+             default:                                                         \
+-                ABORT("unsupported typeKind");                              \
++                ABORT("unsupported typeKind");                               \
+         }                                                                    \
+     }
+     #define COMPOUND(SFunc, UFunc, FFunc) {                                  \
+@@ -458,7 +528,7 @@ LLVMValueRef JIT::compileBinary(LLVMBuilderRef builder, const BinaryExpression&
+         LLVMValueRef right = this->compileExpression(builder, *b.fRight);    \
+         this->vectorize(builder, b, &left, &right);                          \
+         LLVMValueRef result;                                                 \
+-        switch (this->typeKind(b.fLeft->fType)) {                                 \
++        switch (this->typeKind(b.fLeft->fType)) {                            \
+             case kInt_TypeKind:                                              \
+                 result = SFunc(builder, left, right, "binary");              \
+                 break;                                                       \
+@@ -469,7 +539,7 @@ LLVMValueRef JIT::compileBinary(LLVMBuilderRef builder, const BinaryExpression&
+                 result = FFunc(builder, left, right, "binary");              \
+                 break;                                                       \
+             default:                                                         \
+-                ABORT("unsupported typeKind");                              \
++                ABORT("unsupported typeKind");                               \
+         }                                                                    \
+         lvalue->store(builder, result);                                      \
+         return result;                                                       \
+@@ -510,6 +580,10 @@ LLVMValueRef JIT::compileBinary(LLVMBuilderRef builder, const BinaryExpression&
+             BINARY(LLVMBuildAnd, LLVMBuildAnd, LLVMBuildAnd);
+         case Token::BITWISEOR:
+             BINARY(LLVMBuildOr, LLVMBuildOr, LLVMBuildOr);
++        case Token::SHL:
++            BINARY(LLVMBuildShl, LLVMBuildShl, LLVMBuildShl);
++        case Token::SHR:
++            BINARY(LLVMBuildAShr, LLVMBuildLShr, LLVMBuildAShr);
+         case Token::PLUSEQ:
+             COMPOUND(LLVMBuildAdd, LLVMBuildAdd, LLVMBuildFAdd);
+         case Token::MINUSEQ:
+@@ -523,13 +597,83 @@ LLVMValueRef JIT::compileBinary(LLVMBuilderRef builder, const BinaryExpression&
+         case Token::BITWISEOREQ:
+             COMPOUND(LLVMBuildOr, LLVMBuildOr, LLVMBuildOr);
+         case Token::EQEQ:
+-            COMPARE(LLVMBuildICmp, LLVMIntEQ,
+-                    LLVMBuildICmp, LLVMIntEQ,
+-                    LLVMBuildFCmp, LLVMRealOEQ);
++            switch (b.fLeft->fType.kind()) {
++                case Type::kScalar_Kind:
++                    COMPARE(LLVMBuildICmp, LLVMIntEQ,
++                            LLVMBuildICmp, LLVMIntEQ,
++                            LLVMBuildFCmp, LLVMRealOEQ);
++                case Type::kVector_Kind: {
++                    LLVMValueRef left = this->compileExpression(builder, *b.fLeft);
++                    LLVMValueRef right = this->compileExpression(builder, *b.fRight);
++                    this->vectorize(builder, b, &left, &right);
++                    LLVMValueRef value;
++                    switch (this->typeKind(b.fLeft->fType)) {
++                        case kInt_TypeKind:
++                            value = LLVMBuildICmp(builder, LLVMIntEQ, left, right, "binary");
++                            break;
++                        case kUInt_TypeKind:
++                            value = LLVMBuildICmp(builder, LLVMIntEQ, left, right, "binary");
++                            break;
++                        case kFloat_TypeKind:
++                            value = LLVMBuildFCmp(builder, LLVMRealOEQ, left, right, "binary");
++                            break;
++                        default:
++                            ABORT("unsupported typeKind");
++                    }
++                    LLVMValueRef args[1] = { value };
++                    LLVMValueRef func;
++                    switch (b.fLeft->fType.columns()) {
++                        case 2: func = fFoldAnd2Func; break;
++                        case 3: func = fFoldAnd3Func; break;
++                        case 4: func = fFoldAnd4Func; break;
++                        default:
++                            ASSERT(false);
++                            func = fFoldAnd2Func;
++                    }
++                    return LLVMBuildCall(builder, func, args, 1, "all");
++                }
++                default:
++                    ASSERT(false);
++            }
+         case Token::NEQ:
+-            COMPARE(LLVMBuildICmp, LLVMIntNE,
+-                    LLVMBuildICmp, LLVMIntNE,
+-                    LLVMBuildFCmp, LLVMRealONE);
++            switch (b.fLeft->fType.kind()) {
++                case Type::kScalar_Kind:
++                    COMPARE(LLVMBuildICmp, LLVMIntNE,
++                            LLVMBuildICmp, LLVMIntNE,
++                            LLVMBuildFCmp, LLVMRealONE);
++                case Type::kVector_Kind: {
++                    LLVMValueRef left = this->compileExpression(builder, *b.fLeft);
++                    LLVMValueRef right = this->compileExpression(builder, *b.fRight);
++                    this->vectorize(builder, b, &left, &right);
++                    LLVMValueRef value;
++                    switch (this->typeKind(b.fLeft->fType)) {
++                        case kInt_TypeKind:
++                            value = LLVMBuildICmp(builder, LLVMIntNE, left, right, "binary");
++                            break;
++                        case kUInt_TypeKind:
++                            value = LLVMBuildICmp(builder, LLVMIntNE, left, right, "binary");
++                            break;
++                        case kFloat_TypeKind:
++                            value = LLVMBuildFCmp(builder, LLVMRealONE, left, right, "binary");
++                            break;
++                        default:
++                            ABORT("unsupported typeKind");
++                    }
++                    LLVMValueRef args[1] = { value };
++                    LLVMValueRef func;
++                    switch (b.fLeft->fType.columns()) {
++                        case 2: func = fFoldOr2Func; break;
++                        case 3: func = fFoldOr3Func; break;
++                        case 4: func = fFoldOr4Func; break;
++                        default:
++                            ASSERT(false);
++                            func = fFoldOr2Func;
++                    }
++                    return LLVMBuildCall(builder, func, args, 1, "all");
++                }
++                default:
++                    ASSERT(false);
++            }
+         case Token::LT:
+             COMPARE(LLVMBuildICmp, LLVMIntSLT,
+                     LLVMBuildICmp, LLVMIntULT,
+@@ -583,6 +727,7 @@ LLVMValueRef JIT::compileBinary(LLVMBuilderRef builder, const BinaryExpression&
+             return phi;
+         }
+         default:
++            printf("%s\n", b.description().c_str());
+             ABORT("unsupported binary operator");
+     }
+ }
+@@ -702,9 +847,9 @@ void JIT::appendStage(LLVMBuilderRef builder, const AppendStage& a) {
+             const FunctionDeclaration& functionDecl =
+                                              *((FunctionReference&) *a.fArguments[1]).fFunctions[0];
+             bool found = false;
+-            for (const auto& pe : fProgram->fElements) {
+-                if (ProgramElement::kFunction_Kind == pe->fKind) {
+-                    const FunctionDefinition& def = (const FunctionDefinition&) *pe;
++            for (const auto& pe : *fProgram) {
++                if (ProgramElement::kFunction_Kind == pe.fKind) {
++                    const FunctionDefinition& def = (const FunctionDefinition&) pe;
+                     if (&def.fDeclaration == &functionDecl) {
+                         LLVMValueRef fn = this->compileStageFunction(def);
+                         LLVMValueRef args[2] = {
+@@ -747,42 +892,55 @@ LLVMValueRef JIT::compileConstructor(LLVMBuilderRef builder, const Constructor&
+             TypeKind from = this->typeKind(c.fArguments[0]->fType);
+             TypeKind to = this->typeKind(c.fType);
+             LLVMValueRef base = this->compileExpression(builder, *c.fArguments[0]);
+-            if (kFloat_TypeKind == to) {
+-                if (kInt_TypeKind == from) {
+-                    return LLVMBuildSIToFP(builder, base, this->getType(c.fType), "cast");
+-                }
+-                if (kUInt_TypeKind == from) {
+-                    return LLVMBuildUIToFP(builder, base, this->getType(c.fType), "cast");
+-                }
+-            }
+-            if (kInt_TypeKind == to) {
+-                if (kFloat_TypeKind == from) {
+-                    return LLVMBuildFPToSI(builder, base, this->getType(c.fType), "cast");
+-                }
+-                if (kUInt_TypeKind == from) {
+-                    return base;
+-                }
+-            }
+-            if (kUInt_TypeKind == to) {
+-                if (kFloat_TypeKind == from) {
+-                    return LLVMBuildFPToUI(builder, base, this->getType(c.fType), "cast");
+-                }
+-                if (kInt_TypeKind == from) {
+-                    return base;
+-                }
++            switch (to) {
++                case kFloat_TypeKind:
++                    switch (from) {
++                        case kInt_TypeKind:
++                            return LLVMBuildSIToFP(builder, base, this->getType(c.fType), "cast");
++                        case kUInt_TypeKind:
++                            return LLVMBuildUIToFP(builder, base, this->getType(c.fType), "cast");
++                        case kFloat_TypeKind:
++                            return base;
++                        case kBool_TypeKind:
++                            ASSERT(false);
++                    }
++                case kInt_TypeKind:
++                    switch (from) {
++                        case kInt_TypeKind:
++                            return base;
++                        case kUInt_TypeKind:
++                            return base;
++                        case kFloat_TypeKind:
++                            return LLVMBuildFPToSI(builder, base, this->getType(c.fType), "cast");
++                        case kBool_TypeKind:
++                            ASSERT(false);
++                    }
++                case kUInt_TypeKind:
++                    switch (from) {
++                        case kInt_TypeKind:
++                            return base;
++                        case kUInt_TypeKind:
++                            return base;
++                        case kFloat_TypeKind:
++                            return LLVMBuildFPToUI(builder, base, this->getType(c.fType), "cast");
++                        case kBool_TypeKind:
++                            ASSERT(false);
++                    }
++                case kBool_TypeKind:
++                    ASSERT(false);
+             }
+-            ABORT("unsupported constructor");
+         }
+         case Type::kVector_Kind: {
+             LLVMValueRef vec = LLVMGetUndef(this->getType(c.fType));
+-            if (c.fArguments.size() == 1) {
++            if (c.fArguments.size() == 1 && c.fArguments[0]->fType.kind() == Type::kScalar_Kind) {
+                 LLVMValueRef value = this->compileExpression(builder, *c.fArguments[0]);
+                 for (int i = 0; i < c.fType.columns(); ++i) {
+                     vec = LLVMBuildInsertElement(builder, vec, value,
+                                                  LLVMConstInt(fInt32Type, i, false),
+-                                                 "vec build");
++                                                 "vec build 1");
+                 }
+             } else {
++<<<<<<< HEAD
+                 SkASSERT(c.fArguments.size() == (size_t) c.fType.columns());
+                 for (int i = 0; i < c.fType.columns(); ++i) {
+                     vec = LLVMBuildInsertElement(builder, vec,
+@@ -790,6 +948,28 @@ LLVMValueRef JIT::compileConstructor(LLVMBuilderRef builder, const Constructor&
+                                                                          *c.fArguments[i]),
+                                                  LLVMConstInt(fInt32Type, i, false),
+                                                  "vec build");
++=======
++                int index = 0;
++                for (const auto& arg : c.fArguments) {
++                    LLVMValueRef value = this->compileExpression(builder, *arg);
++                    if (arg->fType.kind() == Type::kVector_Kind) {
++                        for (int i = 0; i < arg->fType.columns(); ++i) {
++                            LLVMValueRef column = LLVMBuildExtractElement(builder,
++                                                                          vec,
++                                                                          LLVMConstInt(fInt32Type,
++                                                                                       i,
++                                                                                       false),
++                                                                          "construct extract");
++                            vec = LLVMBuildInsertElement(builder, vec, column,
++                                                         LLVMConstInt(fInt32Type, index++, false),
++                                                         "vec build 2");
++                        }
++                    } else {
++                        vec = LLVMBuildInsertElement(builder, vec, value,
++                                                     LLVMConstInt(fInt32Type, index++, false),
++                                                     "vec build 3");
++                    }
++>>>>>>> eab6004c28... added GrSkSLFP and converted DitherEffect to use it
+                 }
+             }
+             return vec;
+@@ -1460,7 +1640,6 @@ bool JIT::compileVectorExpression(LLVMBuilderRef builder, const Expression& expr
+             return this->compileVectorVariableReference(builder, (const VariableReference&) expr,
+                                                         out);
+         default:
+-            printf("failed expression: %s\n", expr.description().c_str());
+             return false;
+     }
+ }
+@@ -1480,7 +1659,6 @@ bool JIT::compileVectorStatement(LLVMBuilderRef builder, const Statement& stmt)
+                                                  *((const ExpressionStatement&) stmt).fExpression,
+                                                  &result);
+         default:
+-            printf("failed statement: %s\n", stmt.description().c_str());
+             return false;
+     }
+ }
+@@ -1582,7 +1760,7 @@ bool JIT::hasStageSignature(const FunctionDeclaration& f) {
+            f.fParameters[0]->fModifiers.fFlags == 0 &&
+            f.fParameters[1]->fType == *fProgram->fContext->fInt_Type &&
+            f.fParameters[1]->fModifiers.fFlags == 0 &&
+-           f.fParameters[2]->fType == *fProgram->fContext->fFloat4_Type &&
++           f.fParameters[2]->fType == *fProgram->fContext->fHalf4_Type &&
+            f.fParameters[2]->fModifiers.fFlags == (Modifiers::kIn_Flag | Modifiers::kOut_Flag);
+ }
+ 
+@@ -1639,6 +1817,21 @@ void JIT::createModule() {
+     fPromotedParameters.clear();
+     fModule = LLVMModuleCreateWithNameInContext("skslmodule", fContext);
+     this->loadBuiltinFunctions();
++    LLVMTypeRef fold2Params[1] = { fInt1Vector2Type };
++    fFoldAnd2Func = LLVMAddFunction(fModule, "llvm.experimental.vector.reduce.and.i1.v2i1",
++                                    LLVMFunctionType(fInt1Type, fold2Params, 1, false));
++    fFoldOr2Func = LLVMAddFunction(fModule, "llvm.experimental.vector.reduce.or.i1.v2i1",
++                                   LLVMFunctionType(fInt1Type, fold2Params, 1, false));
++    LLVMTypeRef fold3Params[1] = { fInt1Vector3Type };
++    fFoldAnd3Func = LLVMAddFunction(fModule, "llvm.experimental.vector.reduce.and.i1.v3i1",
++                                    LLVMFunctionType(fInt1Type, fold3Params, 1, false));
++    fFoldOr3Func = LLVMAddFunction(fModule, "llvm.experimental.vector.reduce.or.i1.v3i1",
++                                   LLVMFunctionType(fInt1Type, fold3Params, 1, false));
++    LLVMTypeRef fold4Params[1] = { fInt1Vector4Type };
++    fFoldAnd4Func = LLVMAddFunction(fModule, "llvm.experimental.vector.reduce.and.i1.v4i1",
++                                    LLVMFunctionType(fInt1Type, fold4Params, 1, false));
++    fFoldOr4Func = LLVMAddFunction(fModule, "llvm.experimental.vector.reduce.or.i1.v4i1",
++                                   LLVMFunctionType(fInt1Type, fold4Params, 1, false));
+     // LLVM doesn't do void*, have to declare it as int8*
+     LLVMTypeRef appendParams[3] = { fInt8PtrType, fInt32Type, fInt8PtrType };
+     fAppendFunc = LLVMAddFunction(fModule, "sksl_pipeline_append", LLVMFunctionType(fVoidType,
+@@ -1656,13 +1849,15 @@ void JIT::createModule() {
+                                                                                1,
+                                                                                false));
+ 
+-    for (const auto& e : fProgram->fElements) {
+-        SkASSERT(e->fKind == ProgramElement::kFunction_Kind);
+-        this->compileFunction((FunctionDefinition&) *e);
++    for (const auto& e : *fProgram) {
++        if (e.fKind == ProgramElement::kFunction_Kind) {
++            this->compileFunction((FunctionDefinition&) e);
++        }
+     }
+ }
+ 
+ std::unique_ptr<JIT::Module> JIT::compile(std::unique_ptr<Program> program) {
++    fCompiler.optimize(*program);
+     fProgram = std::move(program);
+     this->createModule();
+     this->optimize();
+diff --git a/src/sksl/SkSLJIT.h b/src/sksl/SkSLJIT.h
+index b23e31237f..54f6254e9c 100644
+--- a/src/sksl/SkSLJIT.h
++++ b/src/sksl/SkSLJIT.h
+@@ -10,7 +10,6 @@
+ 
+ #ifdef SK_LLVM_AVAILABLE
+ 
+-#include "ir/SkSLAppendStage.h"
+ #include "ir/SkSLBinaryExpression.h"
+ #include "ir/SkSLBreakStatement.h"
+ #include "ir/SkSLContinueStatement.h"
+@@ -45,6 +44,8 @@ class SkRasterPipeline;
+ 
+ namespace SkSL {
+ 
++struct AppendStage;
++
+ /**
+  * A just-in-time compiler for SkSL code which uses an LLVM backend. Only available when the
+  * skia_llvm_path gn arg is set.
+@@ -54,7 +55,8 @@ namespace SkSL {
+  * #ifdef SK_LLVM_AVAILABLE
+  *   SkSL::Compiler compiler;
+  *   SkSL::Program::Settings settings;
+- *   std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kCPU_Kind,
++ *   std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
++         SkSL::Program::kPipelineStage_Kind,
+  *       "void swap(int x, int y, inout float4 color) {"
+  *       "    color.rb = color.br;"
+  *       "}",
+@@ -304,6 +306,10 @@ private:
+     LLVMBasicBlockRef fCurrentBlock;
+     LLVMTypeRef fVoidType;
+     LLVMTypeRef fInt1Type;
++    LLVMTypeRef fInt1VectorType;
++    LLVMTypeRef fInt1Vector2Type;
++    LLVMTypeRef fInt1Vector3Type;
++    LLVMTypeRef fInt1Vector4Type;
+     LLVMTypeRef fInt8Type;
+     LLVMTypeRef fInt8PtrType;
+     LLVMTypeRef fInt32Type;
+@@ -332,6 +338,12 @@ private:
+     std::vector<LLVMBasicBlockRef> fBreakTarget;
+     std::vector<LLVMBasicBlockRef> fContinueTarget;
+ 
++    LLVMValueRef fFoldAnd2Func;
++    LLVMValueRef fFoldOr2Func;
++    LLVMValueRef fFoldAnd3Func;
++    LLVMValueRef fFoldOr3Func;
++    LLVMValueRef fFoldAnd4Func;
++    LLVMValueRef fFoldOr4Func;
+     LLVMValueRef fAppendFunc;
+     LLVMValueRef fAppendCallbackFunc;
+     LLVMValueRef fDebugFunc;
+diff --git a/src/sksl/SkSLMain.cpp b/src/sksl/SkSLMain.cpp
+index 8ba0933f8c..3da90dfbe2 100644
+--- a/src/sksl/SkSLMain.cpp
++++ b/src/sksl/SkSLMain.cpp
+@@ -45,8 +45,10 @@ int main(int argc, const char** argv) {
+         kind = SkSL::Program::kGeometry_Kind;
+     } else if (input.endsWith(".fp")) {
+         kind = SkSL::Program::kFragmentProcessor_Kind;
++    } else if (input.endsWith(".stage")) {
++        kind = SkSL::Program::kPipelineStage_Kind;
+     } else {
+-        printf("input filename must end in '.vert', '.frag', '.geom', or '.fp'\n");
++        printf("input filename must end in '.vert', '.frag', '.geom', '.fp', or '.stage'\n");
+         exit(1);
+     }
+ 
+diff --git a/src/sksl/SkSLPipelineStageCodeGenerator.cpp b/src/sksl/SkSLPipelineStageCodeGenerator.cpp
+new file mode 100644
+index 0000000000..aceb75e3ee
+--- /dev/null
++++ b/src/sksl/SkSLPipelineStageCodeGenerator.cpp
+@@ -0,0 +1,167 @@
++/*
++ * Copyright 2018 Google Inc.
++ *
++ * Use of this source code is governed by a BSD-style license that can be
++ * found in the LICENSE file.
++ */
++
++#include "SkSLPipelineStageCodeGenerator.h"
++
++#include "SkSLCompiler.h"
++#include "SkSLHCodeGenerator.h"
++
++namespace SkSL {
++
++PipelineStageCodeGenerator::PipelineStageCodeGenerator(
++                                                    const Context* context,
++                                                    const Program* program,
++                                                    ErrorReporter* errors,
++                                                    OutputStream* out,
++                                                    std::vector<Compiler::FormatArg>* outFormatArgs)
++: INHERITED(context, program, errors, out)
++, fName("Temp")
++, fFullName(String::printf("Gr%s", fName.c_str()))
++, fSectionAndParameterHelper(*program, *errors)
++, fFormatArgs(outFormatArgs) {}
++
++void PipelineStageCodeGenerator::writef(const char* s, va_list va) {
++    static constexpr int BUFFER_SIZE = 1024;
++    va_list copy;
++    va_copy(copy, va);
++    char buffer[BUFFER_SIZE];
++    int length = vsnprintf(buffer, BUFFER_SIZE, s, va);
++    if (length < BUFFER_SIZE) {
++        fOut->write(buffer, length);
++    } else {
++        std::unique_ptr<char[]> heap(new char[length + 1]);
++        vsprintf(heap.get(), s, copy);
++        fOut->write(heap.get(), length);
++    }
++}
++
++void PipelineStageCodeGenerator::writef(const char* s, ...) {
++    va_list va;
++    va_start(va, s);
++    this->writef(s, va);
++    va_end(va);
++}
++
++void PipelineStageCodeGenerator::writeHeader() {
++}
++
++bool PipelineStageCodeGenerator::usesPrecisionModifiers() const {
++    return false;
++}
++
++String PipelineStageCodeGenerator::getTypeName(const Type& type) {
++    return type.name();
++}
++
++void PipelineStageCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
++                                             Precedence parentPrecedence) {
++    if (b.fOperator == Token::PERCENT) {
++        // need to use "%%" instead of "%" b/c the code will be inside of a printf
++        Precedence precedence = GetBinaryPrecedence(b.fOperator);
++        if (precedence >= parentPrecedence) {
++            this->write("(");
++        }
++        this->writeExpression(*b.fLeft, precedence);
++        this->write(" %% ");
++        this->writeExpression(*b.fRight, precedence);
++        if (precedence >= parentPrecedence) {
++            this->write(")");
++        }
++    } else {
++        INHERITED::writeBinaryExpression(b, parentPrecedence);
++    }
++}
++
++void PipelineStageCodeGenerator::writeIntLiteral(const IntLiteral& i) {
++    this->write(to_string((int32_t) i.fValue));
++}
++
++void PipelineStageCodeGenerator::writeVariableReference(const VariableReference& ref) {
++    switch (ref.fVariable.fModifiers.fLayout.fBuiltin) {
++        case SK_INCOLOR_BUILTIN:
++            this->write("%s");
++            fFormatArgs->push_back(Compiler::FormatArg::kInput);
++            break;
++        case SK_OUTCOLOR_BUILTIN:
++            this->write("%s");
++            fFormatArgs->push_back(Compiler::FormatArg::kOutput);
++            break;
++        case SK_MAIN_X_BUILTIN:
++            this->write("sk_FragCoord.x");
++            break;
++        case SK_MAIN_Y_BUILTIN:
++            this->write("sk_FragCoord.y");
++            break;
++        default:
++            this->write(ref.fVariable.fName);
++    }
++}
++
++void PipelineStageCodeGenerator::writeIfStatement(const IfStatement& s) {
++    if (s.fIsStatic) {
++        this->write("@");
++    }
++    INHERITED::writeIfStatement(s);
++}
++
++void PipelineStageCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
++    if (s.fIsStatic) {
++        this->write("@");
++    }
++    INHERITED::writeSwitchStatement(s);
++}
++
++void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
++    if (f.fDeclaration.fName == "main") {
++        fFunctionHeader = "";
++        OutputStream* oldOut = fOut;
++        StringStream buffer;
++        fOut = &buffer;
++        this->write("%s = %s;\n");
++        fFormatArgs->push_back(Compiler::FormatArg::kOutput);
++        fFormatArgs->push_back(Compiler::FormatArg::kInput);
++        for (const auto& s : ((Block&) *f.fBody).fStatements) {
++            this->writeStatement(*s);
++            this->writeLine();
++        }
++
++        fOut = oldOut;
++        this->write(fFunctionHeader);
++        this->writef("%s", buffer.str().c_str());
++    } else {
++        INHERITED::writeFunction(f);
++    }
++}
++
++bool PipelineStageCodeGenerator::writeSection(const char* name, const char* prefix) {
++    const Section* s = fSectionAndParameterHelper.getSection(name);
++    if (s) {
++        this->writef("%s%s", prefix, s->fText.c_str());
++        return true;
++    }
++    return false;
++}
++
++void PipelineStageCodeGenerator::writeProgramElement(const ProgramElement& p) {
++    if (p.fKind == ProgramElement::kSection_Kind) {
++        return;
++    }
++    if (p.fKind == ProgramElement::kVar_Kind) {
++        const VarDeclarations& decls = (const VarDeclarations&) p;
++        if (!decls.fVars.size()) {
++            return;
++        }
++        const Variable& var = *((VarDeclaration&) *decls.fVars[0]).fVar;
++        if (var.fModifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kUniform_Flag) ||
++            -1 != var.fModifiers.fLayout.fBuiltin) {
++            return;
++        }
++    }
++    INHERITED::writeProgramElement(p);
++}
++
++} // namespace
+diff --git a/src/sksl/SkSLPipelineStageCodeGenerator.h b/src/sksl/SkSLPipelineStageCodeGenerator.h
+new file mode 100644
+index 0000000000..09b40ce731
+--- /dev/null
++++ b/src/sksl/SkSLPipelineStageCodeGenerator.h
+@@ -0,0 +1,65 @@
++/*
++ * Copyright 2017 Google Inc.
++ *
++ * Use of this source code is governed by a BSD-style license that can be
++ * found in the LICENSE file.
++ */
++
++#ifndef SKSL_PIPELINESTAGECODEGENERATOR
++#define SKSL_PIPELINESTAGECODEGENERATOR
++
++#include "SkSLGLSLCodeGenerator.h"
++#include "SkSLSectionAndParameterHelper.h"
++
++#include <set>
++
++namespace SkSL {
++
++class PipelineStageCodeGenerator : public GLSLCodeGenerator {
++public:
++    PipelineStageCodeGenerator(const Context* context, const Program* program,
++                               ErrorReporter* errors, OutputStream* out,
++                               std::vector<Compiler::FormatArg>* outFormatArgs);
++
++private:
++    void writef(const char* s, va_list va) SKSL_PRINTF_LIKE(2, 0);
++
++    void writef(const char* s, ...) SKSL_PRINTF_LIKE(2, 3);
++
++    bool writeSection(const char* name, const char* prefix = "");
++
++    void writeHeader() override;
++
++    bool usesPrecisionModifiers() const override;
++
++    String getTypeName(const Type& type) override;
++
++    void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence) override;
++
++    void writeIntLiteral(const IntLiteral& i) override;
++
++    void writeVariableReference(const VariableReference& ref) override;
++
++    void writeIfStatement(const IfStatement& s) override;
++
++    void writeSwitchStatement(const SwitchStatement& s) override;
++
++    void writeFunction(const FunctionDefinition& f) override;
++
++    void writeProgramElement(const ProgramElement& p) override;
++
++    bool writeEmitCode(std::vector<const Variable*>& uniforms);
++
++    String fName;
++    String fFullName;
++    SectionAndParameterHelper fSectionAndParameterHelper;
++    String fExtraEmitCodeCode;
++    std::set<int> fWrittenTransformedCoords;
++    std::vector<Compiler::FormatArg>* fFormatArgs;
++
++    typedef GLSLCodeGenerator INHERITED;
++};
++
++}
++
++#endif
+diff --git a/src/sksl/SkSLSPIRVCodeGenerator.cpp b/src/sksl/SkSLSPIRVCodeGenerator.cpp
+index fcee9aeee0..237a226029 100644
+--- a/src/sksl/SkSLSPIRVCodeGenerator.cpp
++++ b/src/sksl/SkSLSPIRVCodeGenerator.cpp
+@@ -2242,10 +2242,10 @@ SpvId SPIRVCodeGenerator::writeTernaryExpression(const TernaryExpression& t, Out
+ 
+ std::unique_ptr<Expression> create_literal_1(const Context& context, const Type& type) {
+     if (type.isInteger()) {
+-        return std::unique_ptr<Expression>(new IntLiteral(context, -1, 1, &type));
++        return std::unique_ptr<Expression>(new IntLiteral(-1, 1, &type));
+     }
+     else if (type.isFloat()) {
+-        return std::unique_ptr<Expression>(new FloatLiteral(context, -1, 1.0, &type));
++        return std::unique_ptr<Expression>(new FloatLiteral(-1, 1.0, &type));
+     } else {
+         ABORT("math is unsupported on type '%s'", type.name().c_str());
+     }
+diff --git a/src/sksl/SkSLString.cpp b/src/sksl/SkSLString.cpp
+index 125dabb335..292cef5159 100644
+--- a/src/sksl/SkSLString.cpp
++++ b/src/sksl/SkSLString.cpp
+@@ -210,10 +210,22 @@ String to_string(double value) {
+ #endif
+ #define MAX_DOUBLE_CHARS 25
+     char buffer[MAX_DOUBLE_CHARS];
+-    SkDEBUGCODE(int len = )SNPRINTF(buffer, sizeof(buffer), "%.17g", value);
++    int len = SNPRINTF(buffer, sizeof(buffer), "%.17g", value);
+     SkASSERT(len < MAX_DOUBLE_CHARS);
++    bool needsDotZero = true;
++    for (int i = 0; i < len; ++i) {
++        char c = buffer[i];
++        if (c == ',') {
++            buffer[i] = '.';
++            needsDotZero = false;
++            break;
++        } else if (c == '.' || c == 'e') {
++            needsDotZero = false;
++            break;
++        }
++    }
+     String result(buffer);
+-    if (!strchr(buffer, '.') && !strchr(buffer, 'e')) {
++    if (needsDotZero) {
+         result += ".0";
+     }
+     return result;
+diff --git a/src/sksl/ir/SkSLAppendStage.h b/src/sksl/ir/SkSLAppendStage.h
+index 87a8210a83..268ae979d2 100644
+--- a/src/sksl/ir/SkSLAppendStage.h
++++ b/src/sksl/ir/SkSLAppendStage.h
+@@ -23,7 +23,16 @@ struct AppendStage : public Expression {
+     , fStage(stage)
+     , fArguments(std::move(arguments)) {}
+ 
+-    String description() const {
++    std::unique_ptr<Expression> clone() const override {
++        std::vector<std::unique_ptr<Expression>> cloned;
++        for (const auto& arg : fArguments) {
++            cloned.push_back(arg->clone());
++        }
++        return std::unique_ptr<Expression>(new AppendStage(fOffset, fStage, std::move(cloned),
++                                                           &fType));
++    }
++
++    String description() const override {
+         String result = "append(";
+         const char* separator = "";
+         for (const auto& a : fArguments) {
+@@ -35,7 +44,7 @@ struct AppendStage : public Expression {
+         return result;
+     }
+ 
+-    bool hasSideEffects() const {
++    bool hasSideEffects() const override {
+         return true;
+     }
+ 
+@@ -44,6 +53,14 @@ struct AppendStage : public Expression {
+     std::vector<std::unique_ptr<Expression>> fArguments;
+ 
+     typedef Expression INHERITED;
++
++private:
++    AppendStage(int offset, SkRasterPipeline::StockStage stage,
++                std::vector<std::unique_ptr<Expression>> arguments, const Type* type)
++    : INHERITED(offset, kAppendStage_Kind, *type)
++    , fStage(stage)
++    , fArguments(std::move(arguments)) {}
++
+ };
+ 
+ } // namespace
+diff --git a/src/sksl/ir/SkSLBinaryExpression.h b/src/sksl/ir/SkSLBinaryExpression.h
+index c26994edf2..ed1a5cc181 100644
+--- a/src/sksl/ir/SkSLBinaryExpression.h
++++ b/src/sksl/ir/SkSLBinaryExpression.h
+@@ -38,6 +38,11 @@ struct BinaryExpression : public Expression {
+                fRight->hasSideEffects();
+     }
+ 
++    std::unique_ptr<Expression> clone() const override {
++        return std::unique_ptr<Expression>(new BinaryExpression(fOffset, fLeft->clone(), fOperator,
++                                                                fRight->clone(), fType));
++    }
++
+     String description() const override {
+         return "(" + fLeft->description() + " " + Compiler::OperatorName(fOperator) + " " +
+                fRight->description() + ")";
+diff --git a/src/sksl/ir/SkSLBlock.h b/src/sksl/ir/SkSLBlock.h
+index af1975396e..0a03654488 100644
+--- a/src/sksl/ir/SkSLBlock.h
++++ b/src/sksl/ir/SkSLBlock.h
+@@ -32,6 +32,14 @@ struct Block : public Statement {
+         return true;
+     }
+ 
++    std::unique_ptr<Statement> clone() const override {
++        std::vector<std::unique_ptr<Statement>> cloned;
++        for (const auto& s : fStatements) {
++            cloned.push_back(s->clone());
++        }
++        return std::unique_ptr<Statement>(new Block(fOffset, std::move(cloned), fSymbols));
++    }
++
+     String description() const override {
+         String result("{");
+         for (size_t i = 0; i < fStatements.size(); i++) {
+diff --git a/src/sksl/ir/SkSLBoolLiteral.h b/src/sksl/ir/SkSLBoolLiteral.h
+index 9a69f0f138..d979ed3939 100644
+--- a/src/sksl/ir/SkSLBoolLiteral.h
++++ b/src/sksl/ir/SkSLBoolLiteral.h
+@@ -38,9 +38,18 @@ struct BoolLiteral : public Expression {
+         return fValue == b.fValue;
+     }
+ 
++    std::unique_ptr<Expression> clone() const override {
++        return std::unique_ptr<Expression>(new BoolLiteral(fOffset, fValue, &fType));
++    }
++
+     const bool fValue;
+ 
+     typedef Expression INHERITED;
++
++private:
++    BoolLiteral(int offset, bool value, const Type* type)
++    : INHERITED(offset, kBoolLiteral_Kind, *type)
++    , fValue(value) {}
+ };
+ 
+ } // namespace
+diff --git a/src/sksl/ir/SkSLBreakStatement.h b/src/sksl/ir/SkSLBreakStatement.h
+index da392f5960..272deb65cd 100644
+--- a/src/sksl/ir/SkSLBreakStatement.h
++++ b/src/sksl/ir/SkSLBreakStatement.h
+@@ -20,6 +20,10 @@ struct BreakStatement : public Statement {
+     BreakStatement(int offset)
+     : INHERITED(offset, kBreak_Kind) {}
+ 
++    std::unique_ptr<Statement> clone() const override {
++        return std::unique_ptr<Statement>(new BreakStatement(fOffset));
++    }
++
+     String description() const override {
+         return String("break;");
+     }
+diff --git a/src/sksl/ir/SkSLConstructor.h b/src/sksl/ir/SkSLConstructor.h
+index 5e7c3d0d79..145e117453 100644
+--- a/src/sksl/ir/SkSLConstructor.h
++++ b/src/sksl/ir/SkSLConstructor.h
+@@ -43,8 +43,7 @@ struct Constructor : public Expression {
+                        fType == *irGenerator.fContext.fUShort_Type) {
+                 // promote uint(1) to 1u
+                 int64_t intValue = ((IntLiteral&) *fArguments[0]).fValue;
+-                return std::unique_ptr<Expression>(new IntLiteral(irGenerator.fContext,
+-                                                                  fOffset,
++                return std::unique_ptr<Expression>(new IntLiteral(fOffset,
+                                                                   intValue,
+                                                                   &fType));
+             }
+@@ -61,6 +60,14 @@ struct Constructor : public Expression {
+         return false;
+     }
+ 
++    std::unique_ptr<Expression> clone() const override {
++        std::vector<std::unique_ptr<Expression>> cloned;
++        for (const auto& arg : fArguments) {
++            cloned.push_back(arg->clone());
++        }
++        return std::unique_ptr<Expression>(new Constructor(fOffset, fType, std::move(cloned)));
++    }
++
+     String description() const override {
+         String result = fType.description() + "(";
+         String separator;
+diff --git a/src/sksl/ir/SkSLContinueStatement.h b/src/sksl/ir/SkSLContinueStatement.h
+index 6ed40c404f..9977fbecaf 100644
+--- a/src/sksl/ir/SkSLContinueStatement.h
++++ b/src/sksl/ir/SkSLContinueStatement.h
+@@ -20,6 +20,10 @@ struct ContinueStatement : public Statement {
+     ContinueStatement(int offset)
+     : INHERITED(offset, kContinue_Kind) {}
+ 
++    std::unique_ptr<Statement> clone() const override {
++        return std::unique_ptr<Statement>(new ContinueStatement(fOffset));
++    }
++
+     String description() const override {
+         return String("continue;");
+     }
+diff --git a/src/sksl/ir/SkSLDiscardStatement.h b/src/sksl/ir/SkSLDiscardStatement.h
+index b62530e6f3..8c406e9353 100644
+--- a/src/sksl/ir/SkSLDiscardStatement.h
++++ b/src/sksl/ir/SkSLDiscardStatement.h
+@@ -20,6 +20,10 @@ struct DiscardStatement : public Statement {
+     DiscardStatement(int offset)
+     : INHERITED(offset, kDiscard_Kind) {}
+ 
++    std::unique_ptr<Statement> clone() const override {
++        return std::unique_ptr<Statement>(new DiscardStatement(fOffset));
++    }
++
+     String description() const override {
+         return String("discard;");
+     }
+diff --git a/src/sksl/ir/SkSLDoStatement.h b/src/sksl/ir/SkSLDoStatement.h
+index 3abec550eb..af0fc5951b 100644
+--- a/src/sksl/ir/SkSLDoStatement.h
++++ b/src/sksl/ir/SkSLDoStatement.h
+@@ -23,6 +23,11 @@ struct DoStatement : public Statement {
+     , fStatement(std::move(statement))
+     , fTest(std::move(test)) {}
+ 
++    std::unique_ptr<Statement> clone() const override {
++        return std::unique_ptr<Statement>(new DoStatement(fOffset, fStatement->clone(),
++                                                          fTest->clone()));
++    }
++
+     String description() const override {
+         return "do " + fStatement->description() + " while (" + fTest->description() + ");";
+     }
+diff --git a/src/sksl/ir/SkSLEnum.h b/src/sksl/ir/SkSLEnum.h
+index 6c44a67678..eea7e5c3a5 100644
+--- a/src/sksl/ir/SkSLEnum.h
++++ b/src/sksl/ir/SkSLEnum.h
+@@ -17,6 +17,10 @@ struct Enum : public ProgramElement {
+     , fTypeName(typeName)
+     , fSymbols(std::move(symbols)) {}
+ 
++    std::unique_ptr<ProgramElement> clone() const override {
++        return std::unique_ptr<ProgramElement>(new Enum(fOffset, fTypeName, fSymbols));
++    }
++
+     String description() const override {
+         String result = "enum class " + fTypeName + " {\n";
+         String separator;
+diff --git a/src/sksl/ir/SkSLExpression.h b/src/sksl/ir/SkSLExpression.h
+index c8ad1380e7..ddeed448a2 100644
+--- a/src/sksl/ir/SkSLExpression.h
++++ b/src/sksl/ir/SkSLExpression.h
+@@ -106,6 +106,8 @@ struct Expression : public IRNode {
+         return fType.coercionCost(target);
+     }
+ 
++    virtual std::unique_ptr<Expression> clone() const = 0;
++
+     const Kind fKind;
+     const Type& fType;
+ 
+diff --git a/src/sksl/ir/SkSLExpressionStatement.h b/src/sksl/ir/SkSLExpressionStatement.h
+index 215763b8fd..90aa5415cc 100644
+--- a/src/sksl/ir/SkSLExpressionStatement.h
++++ b/src/sksl/ir/SkSLExpressionStatement.h
+@@ -21,6 +21,10 @@ struct ExpressionStatement : public Statement {
+     : INHERITED(expression->fOffset, kExpression_Kind)
+     , fExpression(std::move(expression)) {}
+ 
++    std::unique_ptr<Statement> clone() const override {
++        return std::unique_ptr<Statement>(new ExpressionStatement(fExpression->clone()));
++    }
++
+     String description() const override {
+         return fExpression->description() + ";";
+     }
+diff --git a/src/sksl/ir/SkSLExtension.h b/src/sksl/ir/SkSLExtension.h
+index b5a48b94ab..3a103a63c6 100644
+--- a/src/sksl/ir/SkSLExtension.h
++++ b/src/sksl/ir/SkSLExtension.h
+@@ -20,6 +20,10 @@ struct Extension : public ProgramElement {
+     : INHERITED(offset, kExtension_Kind)
+     , fName(std::move(name)) {}
+ 
++    std::unique_ptr<ProgramElement> clone() const override {
++        return std::unique_ptr<ProgramElement>(new Extension(fOffset, fName));
++    }
++
+     String description() const override {
+         return "#extension " + fName + " : enable";
+     }
+diff --git a/src/sksl/ir/SkSLFieldAccess.h b/src/sksl/ir/SkSLFieldAccess.h
+index 0f66dec5a4..b3bd05096e 100644
+--- a/src/sksl/ir/SkSLFieldAccess.h
++++ b/src/sksl/ir/SkSLFieldAccess.h
+@@ -35,6 +35,11 @@ struct FieldAccess : public Expression {
+         return fBase->hasSideEffects();
+     }
+ 
++    std::unique_ptr<Expression> clone() const override {
++        return std::unique_ptr<Expression>(new FieldAccess(fBase->clone(), fFieldIndex,
++                                                           fOwnerKind));
++    }
++
+     String description() const override {
+         return fBase->description() + "." + fBase->fType.fields()[fFieldIndex].fName;
+     }
+diff --git a/src/sksl/ir/SkSLFloatLiteral.h b/src/sksl/ir/SkSLFloatLiteral.h
+index 82c15c032b..e995e4c6e1 100644
+--- a/src/sksl/ir/SkSLFloatLiteral.h
++++ b/src/sksl/ir/SkSLFloatLiteral.h
+@@ -17,9 +17,12 @@ namespace SkSL {
+  * A literal floating point number.
+  */
+ struct FloatLiteral : public Expression {
+-    FloatLiteral(const Context& context, int offset, double value,
+-                 const Type* type = nullptr)
+-    : INHERITED(offset, kFloatLiteral_Kind, type ? *type : *context.fFloat_Type)
++    FloatLiteral(const Context& context, int offset, double value)
++    : INHERITED(offset, kFloatLiteral_Kind, *context.fFloat_Type)
++    , fValue(value) {}
++
++    FloatLiteral(int offset, double value, const Type* type)
++    : INHERITED(offset, kFloatLiteral_Kind, *type)
+     , fValue(value) {}
+ 
+     String description() const override {
+@@ -43,6 +46,10 @@ struct FloatLiteral : public Expression {
+         return fValue;
+     }
+ 
++    std::unique_ptr<Expression> clone() const override {
++        return std::unique_ptr<Expression>(new FloatLiteral(fOffset, fValue, &fType));
++    }
++
+     const double fValue;
+ 
+     typedef Expression INHERITED;
+diff --git a/src/sksl/ir/SkSLForStatement.h b/src/sksl/ir/SkSLForStatement.h
+index 6896ceb902..220be9855b 100644
+--- a/src/sksl/ir/SkSLForStatement.h
++++ b/src/sksl/ir/SkSLForStatement.h
+@@ -28,6 +28,12 @@ struct ForStatement : public Statement {
+     , fNext(std::move(next))
+     , fStatement(std::move(statement)) {}
+ 
++    std::unique_ptr<Statement> clone() const override {
++        return std::unique_ptr<Statement>(new ForStatement(fOffset, fInitializer->clone(),
++                                                           fTest->clone(), fNext->clone(),
++                                                           fStatement->clone(), fSymbols));
++    }
++
+     String description() const override {
+         String result("for (");
+         if (fInitializer) {
+diff --git a/src/sksl/ir/SkSLFunctionCall.h b/src/sksl/ir/SkSLFunctionCall.h
+index 115281d63d..7047c37067 100644
+--- a/src/sksl/ir/SkSLFunctionCall.h
++++ b/src/sksl/ir/SkSLFunctionCall.h
+@@ -32,6 +32,15 @@ struct FunctionCall : public Expression {
+         return fFunction.fModifiers.fFlags & Modifiers::kHasSideEffects_Flag;
+     }
+ 
++    std::unique_ptr<Expression> clone() const override {
++        std::vector<std::unique_ptr<Expression>> cloned;
++        for (const auto& arg : fArguments) {
++            cloned.push_back(arg->clone());
++        }
++        return std::unique_ptr<Expression>(new FunctionCall(fOffset, fType, fFunction,
++                                                            std::move(cloned)));
++    }
++
+     String description() const override {
+         String result = String(fFunction.fName) + "(";
+         String separator;
+diff --git a/src/sksl/ir/SkSLFunctionDefinition.h b/src/sksl/ir/SkSLFunctionDefinition.h
+index e0dabc5791..4ec559756c 100644
+--- a/src/sksl/ir/SkSLFunctionDefinition.h
++++ b/src/sksl/ir/SkSLFunctionDefinition.h
+@@ -24,6 +24,11 @@ struct FunctionDefinition : public ProgramElement {
+     , fDeclaration(declaration)
+     , fBody(std::move(body)) {}
+ 
++    std::unique_ptr<ProgramElement> clone() const override {
++        return std::unique_ptr<ProgramElement>(new FunctionDefinition(fOffset, fDeclaration,
++                                                                      fBody->clone()));
++    }
++
+     String description() const override {
+         return fDeclaration.description() + " " + fBody->description();
+     }
+diff --git a/src/sksl/ir/SkSLFunctionReference.h b/src/sksl/ir/SkSLFunctionReference.h
+index 58fefce801..4c7f7670d0 100644
+--- a/src/sksl/ir/SkSLFunctionReference.h
++++ b/src/sksl/ir/SkSLFunctionReference.h
+@@ -28,6 +28,10 @@ struct FunctionReference : public Expression {
+         return false;
+     }
+ 
++    std::unique_ptr<Expression> clone() const override {
++        return std::unique_ptr<Expression>(new FunctionReference(fOffset, fFunctions, &fType));
++    }
++
+     String description() const override {
+         return String("<function>");
+     }
+@@ -35,7 +39,12 @@ struct FunctionReference : public Expression {
+     const std::vector<const FunctionDeclaration*> fFunctions;
+ 
+     typedef Expression INHERITED;
+-};
++
++private:
++    FunctionReference(int offset, std::vector<const FunctionDeclaration*> function,
++                      const Type* type)
++    : INHERITED(offset, kFunctionReference_Kind, *type)
++    , fFunctions(function) {}};
+ 
+ } // namespace
+ 
+diff --git a/src/sksl/ir/SkSLIfStatement.h b/src/sksl/ir/SkSLIfStatement.h
+index 4c2ca0b1fa..9d35fe8f7d 100644
+--- a/src/sksl/ir/SkSLIfStatement.h
++++ b/src/sksl/ir/SkSLIfStatement.h
+@@ -25,6 +25,11 @@ struct IfStatement : public Statement {
+     , fIfTrue(std::move(ifTrue))
+     , fIfFalse(std::move(ifFalse)) {}
+ 
++    std::unique_ptr<Statement> clone() const override {
++        return std::unique_ptr<Statement>(new IfStatement(fOffset, fIsStatic, fTest->clone(),
++                fIfTrue->clone(), fIfFalse ? fIfFalse->clone() : nullptr));
++    }
++
+     String description() const override {
+         String result;
+         if (fIsStatic) {
+diff --git a/src/sksl/ir/SkSLIndexExpression.h b/src/sksl/ir/SkSLIndexExpression.h
+index de44b1adb2..74288e5171 100644
+--- a/src/sksl/ir/SkSLIndexExpression.h
++++ b/src/sksl/ir/SkSLIndexExpression.h
+@@ -62,6 +62,11 @@ struct IndexExpression : public Expression {
+         return fBase->hasSideEffects() || fIndex->hasSideEffects();
+     }
+ 
++    std::unique_ptr<Expression> clone() const override {
++        return std::unique_ptr<Expression>(new IndexExpression(fBase->clone(), fIndex->clone(),
++                                                               &fType));
++    }
++
+     String description() const override {
+         return fBase->description() + "[" + fIndex->description() + "]";
+     }
+@@ -70,6 +75,13 @@ struct IndexExpression : public Expression {
+     std::unique_ptr<Expression> fIndex;
+ 
+     typedef Expression INHERITED;
++
++private:
++    IndexExpression(std::unique_ptr<Expression> base, std::unique_ptr<Expression> index,
++                    const Type* type)
++    : INHERITED(base->fOffset, kIndex_Kind, *type)
++    , fBase(std::move(base))
++    , fIndex(std::move(index)) {}
+ };
+ 
+ } // namespace
+diff --git a/src/sksl/ir/SkSLIntLiteral.h b/src/sksl/ir/SkSLIntLiteral.h
+index 50337bfe6f..116796c16d 100644
+--- a/src/sksl/ir/SkSLIntLiteral.h
++++ b/src/sksl/ir/SkSLIntLiteral.h
+@@ -19,8 +19,12 @@ namespace SkSL {
+ struct IntLiteral : public Expression {
+     // FIXME: we will need to revisit this if/when we add full support for both signed and unsigned
+     // 64-bit integers, but for right now an int64_t will hold every value we care about
+-    IntLiteral(const Context& context, int offset, int64_t value, const Type* type = nullptr)
+-    : INHERITED(offset, kIntLiteral_Kind, type ? *type : *context.fInt_Type)
++    IntLiteral(const Context& context, int offset, int64_t value)
++    : INHERITED(offset, kIntLiteral_Kind, *context.fInt_Type)
++    , fValue(value) {}
++
++    IntLiteral(int offset, int64_t value, const Type* type = nullptr)
++    : INHERITED(offset, kIntLiteral_Kind, *type)
+     , fValue(value) {}
+ 
+     String description() const override {
+@@ -51,6 +55,10 @@ struct IntLiteral : public Expression {
+         return fValue;
+     }
+ 
++    std::unique_ptr<Expression> clone() const override {
++        return std::unique_ptr<Expression>(new IntLiteral(fOffset, fValue, &fType));
++    }
++
+     const int64_t fValue;
+ 
+     typedef Expression INHERITED;
+diff --git a/src/sksl/ir/SkSLInterfaceBlock.h b/src/sksl/ir/SkSLInterfaceBlock.h
+index 4a7bf9307b..08bf9d0f75 100644
+--- a/src/sksl/ir/SkSLInterfaceBlock.h
++++ b/src/sksl/ir/SkSLInterfaceBlock.h
+@@ -35,6 +35,17 @@ struct InterfaceBlock : public ProgramElement {
+     , fSizes(std::move(sizes))
+     , fTypeOwner(typeOwner) {}
+ 
++    std::unique_ptr<ProgramElement> clone() const override {
++        std::vector<std::unique_ptr<Expression>> sizesClone;
++        for (const auto& s : fSizes) {
++            sizesClone.push_back(s->clone());
++        }
++        return std::unique_ptr<ProgramElement>(new InterfaceBlock(fOffset, &fVariable, fTypeName,
++                                                                  fInstanceName,
++                                                                  std::move(sizesClone),
++                                                                  fTypeOwner));
++    }
++
+     String description() const override {
+         String result = fVariable.fModifiers.description() + fTypeName + " {\n";
+         const Type* structType = &fVariable.fType;
+diff --git a/src/sksl/ir/SkSLLayout.h b/src/sksl/ir/SkSLLayout.h
+index 3082b34133..5c99807ab5 100644
+--- a/src/sksl/ir/SkSLLayout.h
++++ b/src/sksl/ir/SkSLLayout.h
+@@ -311,6 +311,9 @@ struct Layout {
+         if (result.size() > 0) {
+             result = "layout (" + result + ")";
+         }
++        if (fKey) {
++            result += "/* key */";
++        }
+         return result;
+     }
+ 
+diff --git a/src/sksl/ir/SkSLModifiersDeclaration.h b/src/sksl/ir/SkSLModifiersDeclaration.h
+index 5c9608f02f..1f31926a30 100644
+--- a/src/sksl/ir/SkSLModifiersDeclaration.h
++++ b/src/sksl/ir/SkSLModifiersDeclaration.h
+@@ -23,7 +23,11 @@ struct ModifiersDeclaration : public ProgramElement {
+     : INHERITED(-1, kModifiers_Kind)
+     , fModifiers(modifiers) {}
+ 
+-    String description() const {
++    std::unique_ptr<ProgramElement> clone() const override {
++        return std::unique_ptr<ProgramElement>(new ModifiersDeclaration(fModifiers));
++    }
++
++    String description() const override {
+         return fModifiers.description() + ";";
+     }
+ 
+diff --git a/src/sksl/ir/SkSLNop.h b/src/sksl/ir/SkSLNop.h
+index e7aae9b7b8..954fedb13b 100644
+--- a/src/sksl/ir/SkSLNop.h
++++ b/src/sksl/ir/SkSLNop.h
+@@ -28,6 +28,10 @@ struct Nop : public Statement {
+         return String(";");
+     }
+ 
++    std::unique_ptr<Statement> clone() const override {
++        return std::unique_ptr<Statement>(new Nop());
++    }
++
+     typedef Statement INHERITED;
+ };
+ 
+diff --git a/src/sksl/ir/SkSLPostfixExpression.h b/src/sksl/ir/SkSLPostfixExpression.h
+index c53f1de507..dd20efd3e7 100644
+--- a/src/sksl/ir/SkSLPostfixExpression.h
++++ b/src/sksl/ir/SkSLPostfixExpression.h
+@@ -26,6 +26,10 @@ struct PostfixExpression : public Expression {
+         return true;
+     }
+ 
++    std::unique_ptr<Expression> clone() const override {
++        return std::unique_ptr<Expression>(new PostfixExpression(fOperand->clone(), fOperator));
++    }
++
+     String description() const override {
+         return fOperand->description() + Compiler::OperatorName(fOperator);
+     }
+diff --git a/src/sksl/ir/SkSLPrefixExpression.h b/src/sksl/ir/SkSLPrefixExpression.h
+index d5d97b2517..366f714fa3 100644
+--- a/src/sksl/ir/SkSLPrefixExpression.h
++++ b/src/sksl/ir/SkSLPrefixExpression.h
+@@ -45,6 +45,10 @@ struct PrefixExpression : public Expression {
+         return nullptr;
+     }
+ 
++    std::unique_ptr<Expression> clone() const override {
++        return std::unique_ptr<Expression>(new PrefixExpression(fOperator, fOperand->clone()));
++    }
++
+     String description() const override {
+         return Compiler::OperatorName(fOperator) + fOperand->description();
+     }
+diff --git a/src/sksl/ir/SkSLProgram.h b/src/sksl/ir/SkSLProgram.h
+index 9f140877b7..59c91229f8 100644
+--- a/src/sksl/ir/SkSLProgram.h
++++ b/src/sksl/ir/SkSLProgram.h
+@@ -39,6 +39,10 @@ struct Program {
+             : fKind(kInt_Kind)
+             , fValue(i) {}
+ 
++            Value(unsigned int i)
++            : fKind(kInt_Kind)
++            , fValue(i) {}
++
+             std::unique_ptr<Expression> literal(const Context& context, int offset) const {
+                 switch (fKind) {
+                     case Program::Settings::Value::kBool_Kind:
+@@ -192,7 +196,7 @@ struct Program {
+         kVertex_Kind,
+         kGeometry_Kind,
+         kFragmentProcessor_Kind,
+-        kCPU_Kind
++        kPipelineStage_Kind
+     };
+ 
+     Program(Kind kind,
+@@ -252,10 +256,13 @@ struct Program {
+     // because destroying elements can modify reference counts in symbols
+     std::shared_ptr<SymbolTable> fSymbols;
+     Inputs fInputs;
++    bool fIsOptimized = false;
+ 
+ private:
+     std::vector<std::unique_ptr<ProgramElement>>* fInheritedElements;
+     std::vector<std::unique_ptr<ProgramElement>> fElements;
++
++    friend class Compiler;
+ };
+ 
+ } // namespace
+diff --git a/src/sksl/ir/SkSLProgramElement.h b/src/sksl/ir/SkSLProgramElement.h
+index 9d1bdfe885..b14836ffb1 100644
+--- a/src/sksl/ir/SkSLProgramElement.h
++++ b/src/sksl/ir/SkSLProgramElement.h
+@@ -32,6 +32,8 @@ struct ProgramElement : public IRNode {
+ 
+     Kind fKind;
+ 
++    virtual std::unique_ptr<ProgramElement> clone() const = 0;
++
+     typedef IRNode INHERITED;
+ };
+ 
+diff --git a/src/sksl/ir/SkSLReturnStatement.h b/src/sksl/ir/SkSLReturnStatement.h
+index 1b479b8097..774d803011 100644
+--- a/src/sksl/ir/SkSLReturnStatement.h
++++ b/src/sksl/ir/SkSLReturnStatement.h
+@@ -24,6 +24,13 @@ struct ReturnStatement : public Statement {
+     : INHERITED(expression->fOffset, kReturn_Kind)
+     , fExpression(std::move(expression)) {}
+ 
++    std::unique_ptr<Statement> clone() const override {
++        if (fExpression) {
++            return std::unique_ptr<Statement>(new ReturnStatement(fExpression->clone()));
++        }
++        return std::unique_ptr<Statement>(new ReturnStatement(fOffset));
++    }
++
+     String description() const override {
+         if (fExpression) {
+             return "return " + fExpression->description() + ";";
+diff --git a/src/sksl/ir/SkSLSection.h b/src/sksl/ir/SkSLSection.h
+index 96c257b1f8..d06b979c17 100644
+--- a/src/sksl/ir/SkSLSection.h
++++ b/src/sksl/ir/SkSLSection.h
+@@ -22,6 +22,10 @@ struct Section : public ProgramElement {
+     , fArgument(std::move(arg))
+     , fText(std::move(text)) {}
+ 
++    std::unique_ptr<ProgramElement> clone() const override {
++        return std::unique_ptr<ProgramElement>(new Section(fOffset, fName, fArgument, fText));
++    }
++
+     String description() const override {
+         String result = "@" + fName;
+         if (fArgument.size()) {
+diff --git a/src/sksl/ir/SkSLSetting.cpp b/src/sksl/ir/SkSLSetting.cpp
+index 2d4a8ba151..9885a2873f 100644
+--- a/src/sksl/ir/SkSLSetting.cpp
++++ b/src/sksl/ir/SkSLSetting.cpp
+@@ -13,10 +13,10 @@ namespace SkSL {
+ 
+ std::unique_ptr<Expression> Setting::constantPropagate(const IRGenerator& irGenerator,
+                                                        const DefinitionMap& definitions) {
+-        if (irGenerator.fSettings->fReplaceSettings) {
+-            return VariableReference::copy_constant(irGenerator, fValue.get());
+-        }
+-        return nullptr;
++    if (irGenerator.fSettings->fReplaceSettings) {
++        return VariableReference::copy_constant(irGenerator, fValue.get());
+     }
+-} // namespace
++    return nullptr;
++}
+ 
++} // namespace
+diff --git a/src/sksl/ir/SkSLSetting.h b/src/sksl/ir/SkSLSetting.h
+index 1396099102..cc1c551077 100644
+--- a/src/sksl/ir/SkSLSetting.h
++++ b/src/sksl/ir/SkSLSetting.h
+@@ -28,6 +28,10 @@ struct Setting : public Expression {
+     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
+                                                   const DefinitionMap& definitions) override;
+ 
++    std::unique_ptr<Expression> clone() const override {
++        return std::unique_ptr<Expression>(new Setting(fOffset, fName, fValue->clone()));
++    }
++
+     String description() const override {
+         return fName;
+     }
+diff --git a/src/sksl/ir/SkSLStatement.h b/src/sksl/ir/SkSLStatement.h
+index a116cc1c4c..99aab19208 100644
+--- a/src/sksl/ir/SkSLStatement.h
++++ b/src/sksl/ir/SkSLStatement.h
+@@ -43,6 +43,8 @@ struct Statement : public IRNode {
+         return false;
+     }
+ 
++    virtual std::unique_ptr<Statement> clone() const = 0;
++
+     const Kind fKind;
+ 
+     typedef IRNode INHERITED;
+diff --git a/src/sksl/ir/SkSLSwitchCase.h b/src/sksl/ir/SkSLSwitchCase.h
+index c33224bdbb..b9e52180f3 100644
+--- a/src/sksl/ir/SkSLSwitchCase.h
++++ b/src/sksl/ir/SkSLSwitchCase.h
+@@ -23,6 +23,16 @@ struct SwitchCase : public Statement {
+     , fValue(std::move(value))
+     , fStatements(std::move(statements)) {}
+ 
++    std::unique_ptr<Statement> clone() const override {
++        std::vector<std::unique_ptr<Statement>> cloned;
++        for (const auto& s : fStatements) {
++            cloned.push_back(s->clone());
++        }
++        return std::unique_ptr<Statement>(new SwitchCase(fOffset,
++                                                         fValue ? fValue->clone() : nullptr,
++                                                         std::move(cloned)));
++    }
++
+     String description() const override {
+         String result;
+         if (fValue) {
+diff --git a/src/sksl/ir/SkSLSwitchStatement.h b/src/sksl/ir/SkSLSwitchStatement.h
+index 68d0ef02df..2c48bad1ba 100644
+--- a/src/sksl/ir/SkSLSwitchStatement.h
++++ b/src/sksl/ir/SkSLSwitchStatement.h
+@@ -26,6 +26,15 @@ struct SwitchStatement : public Statement {
+     , fSymbols(std::move(symbols))
+     , fCases(std::move(cases)) {}
+ 
++    std::unique_ptr<Statement> clone() const override {
++        std::vector<std::unique_ptr<SwitchCase>> cloned;
++        for (const auto& s : fCases) {
++            cloned.push_back(std::unique_ptr<SwitchCase>((SwitchCase*) s->clone().release()));
++        }
++        return std::unique_ptr<Statement>(new SwitchStatement(fOffset, fIsStatic, fValue->clone(),
++                                                              std::move(cloned), fSymbols));
++    }
++
+     String description() const override {
+         String result;
+         if (fIsStatic) {
+diff --git a/src/sksl/ir/SkSLSwizzle.h b/src/sksl/ir/SkSLSwizzle.h
+index b90b78d916..6ed29cfcc0 100644
+--- a/src/sksl/ir/SkSLSwizzle.h
++++ b/src/sksl/ir/SkSLSwizzle.h
+@@ -115,6 +115,10 @@ struct Swizzle : public Expression {
+         return fBase->hasSideEffects();
+     }
+ 
++    std::unique_ptr<Expression> clone() const override {
++        return std::unique_ptr<Expression>(new Swizzle(fType, fBase->clone(), fComponents));
++    }
++
+     String description() const override {
+         String result = fBase->description() + ".";
+         for (int x : fComponents) {
+@@ -127,6 +131,16 @@ struct Swizzle : public Expression {
+     const std::vector<int> fComponents;
+ 
+     typedef Expression INHERITED;
++
++private:
++    Swizzle(const Type& type, std::unique_ptr<Expression> base, std::vector<int> components)
++    : INHERITED(base->fOffset, kSwizzle_Kind, type)
++    , fBase(std::move(base))
++    , fComponents(std::move(components)) {
++        SkASSERT(fComponents.size() >= 1 && fComponents.size() <= 4);
++    }
++
++
+ };
+ 
+ } // namespace
+diff --git a/src/sksl/ir/SkSLTernaryExpression.h b/src/sksl/ir/SkSLTernaryExpression.h
+index b77e0e07f2..f7e4ea0be6 100644
+--- a/src/sksl/ir/SkSLTernaryExpression.h
++++ b/src/sksl/ir/SkSLTernaryExpression.h
+@@ -30,6 +30,12 @@ struct TernaryExpression : public Expression {
+         return fTest->hasSideEffects() || fIfTrue->hasSideEffects() || fIfFalse->hasSideEffects();
+     }
+ 
++    std::unique_ptr<Expression> clone() const override {
++        return std::unique_ptr<Expression>(new TernaryExpression(fOffset, fTest->clone(),
++                                                                 fIfTrue->clone(),
++                                                                 fIfFalse->clone()));
++    }
++
+     String description() const override {
+         return "(" + fTest->description() + " ? " + fIfTrue->description() + " : " +
+                fIfFalse->description() + ")";
+diff --git a/src/sksl/ir/SkSLTypeReference.h b/src/sksl/ir/SkSLTypeReference.h
+index f7065b7c3f..df3dc15abd 100644
+--- a/src/sksl/ir/SkSLTypeReference.h
++++ b/src/sksl/ir/SkSLTypeReference.h
+@@ -18,9 +18,9 @@ namespace SkSL {
+  * always eventually replaced by Constructors in valid programs.
+  */
+ struct TypeReference : public Expression {
+-    TypeReference(const Context& context, int offset, const Type& type)
++    TypeReference(const Context& context, int offset, const Type& value)
+     : INHERITED(offset, kTypeReference_Kind, *context.fInvalid_Type)
+-    , fValue(type) {}
++    , fValue(value) {}
+ 
+     bool hasSideEffects() const override {
+         return false;
+@@ -30,9 +30,18 @@ struct TypeReference : public Expression {
+         return String(fValue.fName);
+     }
+ 
++    std::unique_ptr<Expression> clone() const override {
++        return std::unique_ptr<Expression>(new TypeReference(fOffset, fValue, &fType));
++    }
++
+     const Type& fValue;
+ 
+     typedef Expression INHERITED;
++
++private:
++    TypeReference(int offset, const Type& value, const Type* type)
++    : INHERITED(offset, kTypeReference_Kind, *type)
++    , fValue(value) {}
+ };
+ 
+ } // namespace
+diff --git a/src/sksl/ir/SkSLVarDeclarations.h b/src/sksl/ir/SkSLVarDeclarations.h
+index 707715f6dc..b98e959ff0 100644
+--- a/src/sksl/ir/SkSLVarDeclarations.h
++++ b/src/sksl/ir/SkSLVarDeclarations.h
+@@ -29,7 +29,20 @@ struct VarDeclaration : public Statement {
+     , fSizes(std::move(sizes))
+     , fValue(std::move(value)) {}
+ 
+-    String description() const {
++    std::unique_ptr<Statement> clone() const override {
++        std::vector<std::unique_ptr<Expression>> sizesClone;
++        for (const auto& s : fSizes) {
++            if (s) {
++                sizesClone.push_back(s->clone());
++            } else {
++                sizesClone.push_back(nullptr);
++            }
++        }
++        return std::unique_ptr<Statement>(new VarDeclaration(fVar, std::move(sizesClone),
++                                                             fValue ? fValue->clone() : nullptr));
++    }
++
++    String description() const override {
+         String result = fVar->fName;
+         for (const auto& size : fSizes) {
+             if (size) {
+@@ -64,6 +77,16 @@ struct VarDeclarations : public ProgramElement {
+         }
+     }
+ 
++    std::unique_ptr<ProgramElement> clone() const override {
++        std::vector<std::unique_ptr<VarDeclaration>> cloned;
++        for (const auto& v : fVars) {
++            cloned.push_back(std::unique_ptr<VarDeclaration>(
++                                                           (VarDeclaration*) v->clone().release()));
++        }
++        return std::unique_ptr<ProgramElement>(new VarDeclarations(fOffset, &fBaseType,
++                                                                     std::move(cloned)));
++    }
++
+     String description() const override {
+         if (!fVars.size()) {
+             return String();
+diff --git a/src/sksl/ir/SkSLVarDeclarationsStatement.h b/src/sksl/ir/SkSLVarDeclarationsStatement.h
+index 0258e66c6e..c9c1df175b 100644
+--- a/src/sksl/ir/SkSLVarDeclarationsStatement.h
++++ b/src/sksl/ir/SkSLVarDeclarationsStatement.h
+@@ -30,11 +30,16 @@ struct VarDeclarationsStatement : public Statement {
+         return true;
+     }
+ 
++    std::unique_ptr<Statement> clone() const override {
++        std::unique_ptr<VarDeclarations> cloned((VarDeclarations*) fDeclaration->clone().release());
++        return std::unique_ptr<Statement>(new VarDeclarationsStatement(std::move(cloned)));
++    }
++
+     String description() const override {
+         return fDeclaration->description() + ";";
+     }
+ 
+-    std::shared_ptr<VarDeclarations> fDeclaration;
++    std::unique_ptr<VarDeclarations> fDeclaration;
+ 
+     typedef Statement INHERITED;
+ };
+diff --git a/src/sksl/ir/SkSLVariableReference.cpp b/src/sksl/ir/SkSLVariableReference.cpp
+index fa23e4749b..e6092c940c 100644
+--- a/src/sksl/ir/SkSLVariableReference.cpp
++++ b/src/sksl/ir/SkSLVariableReference.cpp
+@@ -93,6 +93,11 @@ std::unique_ptr<Expression> VariableReference::constantPropagate(const IRGenerat
+     if (fRefKind != kRead_RefKind) {
+         return nullptr;
+     }
++    if (irGenerator.fKind == Program::kPipelineStage_Kind &&
++        fVariable.fStorage == Variable::kGlobal_Storage &&
++        (fVariable.fModifiers.fFlags & Modifiers::kIn_Flag)) {
++        return irGenerator.getArg(fOffset, fVariable.fName);
++    }
+     if ((fVariable.fModifiers.fFlags & Modifiers::kConst_Flag) && fVariable.fInitialValue &&
+         fVariable.fInitialValue->isConstant()) {
+         return copy_constant(irGenerator, fVariable.fInitialValue);
+diff --git a/src/sksl/ir/SkSLVariableReference.h b/src/sksl/ir/SkSLVariableReference.h
+index 14ddf796ff..405a5d1f55 100644
+--- a/src/sksl/ir/SkSLVariableReference.h
++++ b/src/sksl/ir/SkSLVariableReference.h
+@@ -49,6 +49,10 @@ struct VariableReference : public Expression {
+         return 0 != (fVariable.fModifiers.fFlags & Modifiers::kConst_Flag);
+     }
+ 
++    std::unique_ptr<Expression> clone() const override {
++        return std::unique_ptr<Expression>(new VariableReference(fOffset, fVariable, fRefKind));
++    }
++
+     String description() const override {
+         return fVariable.fName;
+     }
+diff --git a/src/sksl/ir/SkSLWhileStatement.h b/src/sksl/ir/SkSLWhileStatement.h
+index aed6494999..6695875c03 100644
+--- a/src/sksl/ir/SkSLWhileStatement.h
++++ b/src/sksl/ir/SkSLWhileStatement.h
+@@ -23,6 +23,11 @@ struct WhileStatement : public Statement {
+     , fTest(std::move(test))
+     , fStatement(std::move(statement)) {}
+ 
++    std::unique_ptr<Statement> clone() const override {
++        return std::unique_ptr<Statement>(new WhileStatement(fOffset, fTest->clone(),
++                                                             fStatement->clone()));
++    }
++
+     String description() const override {
+         return "while (" + fTest->description() + ") " + fStatement->description();
+     }
+diff --git a/src/sksl/sksl_cpu.inc b/src/sksl/sksl_cpu.inc
+deleted file mode 100644
+index 479450bd33..0000000000
+--- a/src/sksl/sksl_cpu.inc
++++ /dev/null
+@@ -1,12 +0,0 @@
+-STRINGIFY(
+-    // special-cased within the compiler - append takes various arguments depending on what kind of
+-    // stage is being appended
+-    sk_has_side_effects void append();
+-
+-    float abs(float x);
+-    float sin(float x);
+-    float cos(float x);
+-    float tan(float x);
+-    float sqrt(float x);
+-    sk_has_side_effects void print(float x);
+-)
+diff --git a/src/sksl/sksl_pipeline.inc b/src/sksl/sksl_pipeline.inc
+new file mode 100644
+index 0000000000..f0a2221607
+--- /dev/null
++++ b/src/sksl/sksl_pipeline.inc
+@@ -0,0 +1,19 @@
++STRINGIFY(
++    // special-cased within the compiler - append takes various arguments depending on what kind of
++    // stage is being appended
++    sk_has_side_effects void append();
++
++    float abs(float x);
++    float sin(float x);
++    float cos(float y);
++    float tan(float x);
++    float sqrt(float x);
++    float clamp(float x, float min, float max);
++    float2 clamp(float2 x, float min, float max);
++    float3 clamp(float3 x, float min, float max);
++    float4 clamp(float4 x, float min, float max);
++    sk_has_side_effects void print(float x);
++    layout(builtin=10009) int sk_x;
++    layout(builtin=10010) int sk_y;
++    layout(builtin=10004) out half4 sk_OutColor;
++)
+diff --git a/tests/PaintTest.cpp b/tests/PaintTest.cpp
+index 2794058ceb..647f8e2f23 100644
+--- a/tests/PaintTest.cpp
++++ b/tests/PaintTest.cpp
+@@ -18,6 +18,7 @@
+ #include "SkUtils.h"
+ #include "SkWriteBuffer.h"
+ #include "Test.h"
++#undef ASSERT
+ 
+ static size_t uni_to_utf8(const SkUnichar src[], void* dst, int count) {
+     char* u8 = (char*)dst;
+diff --git a/tests/SkSLErrorTest.cpp b/tests/SkSLErrorTest.cpp
+index 432f35bff5..b84b1f3d8c 100644
+--- a/tests/SkSLErrorTest.cpp
++++ b/tests/SkSLErrorTest.cpp
+@@ -14,7 +14,11 @@ static void test_failure(skiatest::Reporter* r, const char* src, const char* err
+     SkSL::Program::Settings settings;
+     sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
+     settings.fCaps = caps.get();
+-    compiler.convertProgram(SkSL::Program::kFragment_Kind, SkSL::String(src), settings);
++    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kFragment_Kind,
++                                                                     SkSL::String(src), settings);
++    if (!compiler.errorCount()) {
++        compiler.optimize(*program);
++    }
+     SkSL::String skError(error);
+     if (compiler.errorText() != skError) {
+         SkDebugf("SKSL ERROR:\n    source: %s\n    expected: %s    received: %s", src, error,
+diff --git a/tests/SkSLJITTest.cpp b/tests/SkSLJITTest.cpp
+index 9f0c9a3b1b..7561e13af7 100644
+--- a/tests/SkSLJITTest.cpp
++++ b/tests/SkSLJITTest.cpp
+@@ -15,8 +15,9 @@ template<typename type>
+ void test(skiatest::Reporter* r, const char* src, type x, type y, type result) {
+     SkSL::Compiler compiler;
+     SkSL::Program::Settings settings;
+-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kCPU_Kind,
+-                                                                     SkSL::String(src), settings);
++    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
++                                                                 SkSL::Program::kPipelineStage_Kind,
++                                                                 SkSL::String(src), settings);
+     REPORTER_ASSERT(r, program);
+     if (program) {
+        SkSL::JIT jit(&compiler);
+-- 
+2.17.0.441.gb46fe60e1d-goog
+
