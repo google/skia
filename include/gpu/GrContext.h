@@ -49,6 +49,7 @@ class GrTextureProxy;
 class GrTextureStripAtlasManager;
 class GrVertexBuffer;
 struct GrVkBackendContext;
+class GrSkSLFPFactoryCache;
 
 class SkImage;
 class SkSurfaceCharacterization;
@@ -331,6 +332,8 @@ private:
     GrAuditTrail                            fAuditTrail;
 
     GrContextOptions::PersistentCache*      fPersistentCache;
+
+    GrSkSLFPFactoryCache* fFPFactories = nullptr;
 
     // TODO: have the GrClipStackClip use renderTargetContexts and rm this friending
     friend class GrContextPriv;
