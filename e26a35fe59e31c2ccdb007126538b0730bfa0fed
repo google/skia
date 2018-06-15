@@ -101,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "b65a02ff_95139691",
+        "filename": "BUILD.gn",
+        "patchSetId": 23
+      },
+      "lineNbr": 809,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-15T14:32:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1f0baa25_3f94ddcb",
+      "revId": "e26a35fe59e31c2ccdb007126538b0730bfa0fed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "561d7d2e_7824981e",
         "filename": "BUILD.gn",
         "patchSetId": 23
@@ -279,6 +297,30 @@
       "side": 1,
       "message": "Sure, you don\u0027t have the include directories setup along with a number of other things.\n\nAt this point I do not recommend allowing this in as it is an huge odr violation.",
       "parentUuid": "f0693925_11b6d3d9",
+      "range": {
+        "startLine": 2005,
+        "startChar": 0,
+        "endLine": 2039,
+        "endChar": 7
+      },
+      "revId": "e26a35fe59e31c2ccdb007126538b0730bfa0fed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f755634_ae49cc84",
+        "filename": "BUILD.gn",
+        "patchSetId": 23
+      },
+      "lineNbr": 2039,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-15T14:32:00Z",
+      "side": 1,
+      "message": "In the most recent build structure, we are avoiding this problem as we\u0027re not depending on skia anymore",
+      "parentUuid": "c53f3dd4_cfe98673",
       "range": {
         "startLine": 2005,
         "startChar": 0,
