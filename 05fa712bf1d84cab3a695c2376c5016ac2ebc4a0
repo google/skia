@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "34ce2fce_4e7aabfc",
+        "filename": "tools/gpu/GrTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-15T15:54:13Z",
+      "side": 1,
+      "message": "Interesting. I wonder if ops can get wrapped in some other smart object that asserts when they go out of scope rather than trying to deleting with the default allocator?",
+      "revId": "05fa712bf1d84cab3a695c2376c5016ac2ebc4a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
