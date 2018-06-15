@@ -135,8 +135,11 @@ var (
 		},
 	}
 
-	// versions of the following copied from
-	// https://chrome-internal.googlesource.com/infradata/config/+/master/configs/cr-buildbucket/swarming_task_template.json#42
+	// Versions of the following copied from
+	// https://chrome-internal.googlesource.com/infradata/config/+/master/configs/cr-buildbucket/swarming_task_template_canary.json#42
+	// to test the fix for chromium:836196.
+	// (In the future we may want to use versions from
+	// https://chrome-internal.googlesource.com/infradata/config/+/master/configs/cr-buildbucket/swarming_task_template.json#42)
 	// TODO(borenet): Roll these versions automatically!
 	CIPD_PKGS_PYTHON = []*specs.CipdPackage{
 		&specs.CipdPackage{
@@ -150,7 +153,7 @@ var (
 		&specs.CipdPackage{
 			Name:    "infra/tools/luci/kitchen/${platform}",
 			Path:    ".",
-			Version: "git_revision:70be31c3bdd7641a2648ad4a495612e923158b4b",
+			Version: "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd",
 		},
 		&specs.CipdPackage{
 			Name:    "infra/tools/luci-auth/${platform}",
