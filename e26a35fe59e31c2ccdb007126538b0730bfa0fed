@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "f3a0cb39_aeae2407",
+        "filename": ".gitignore",
+        "patchSetId": 23
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-15T14:44:44Z",
+      "side": 1,
+      "message": "Done. Updated gitignore as requested. I will keep these files locally",
+      "parentUuid": "5039da81_f25f33c8",
+      "range": {
+        "startLine": 34,
+        "startChar": 51,
+        "endLine": 34,
+        "endChar": 57
+      },
+      "revId": "e26a35fe59e31c2ccdb007126538b0730bfa0fed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0f60a8db_931b0053",
         "filename": ".gitignore",
         "patchSetId": 23
