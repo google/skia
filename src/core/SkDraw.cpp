@@ -1426,9 +1426,9 @@ public:
         // Comparisons written a little weirdly so that NaN coordinates are treated safely.
         auto gt = [](float a, int b) { return !(a <= (float)b); };
         auto lt = [](float a, int b) { return !(a >= (float)b); };
-        if (gt(position.fX, INT_MAX - (INT16_MAX + UINT16_MAX)) ||
+        if (gt(position.fX, INT_MAX - (INT16_MAX + SkTo<int>(UINT16_MAX))) ||
             lt(position.fX, INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/)) ||
-            gt(position.fY, INT_MAX - (INT16_MAX + UINT16_MAX)) ||
+            gt(position.fY, INT_MAX - (INT16_MAX + SkTo<int>(UINT16_MAX))) ||
             lt(position.fY, INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/))) {
             return;
         }

@@ -149,7 +149,7 @@ const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(SkTypeface* typeface,
         return ptr->get();  // canon retains ownership.
     }
     int count = typeface->countGlyphs();
-    if (count <= 0 || count > 1 + UINT16_MAX) {
+    if (count <= 0 || count > 1 + SkTo<int>(UINT16_MAX)) {
         // Cache nullptr to skip this check.  Use SkSafeUnref().
         canon->fTypefaceMetrics.set(id, nullptr);
         return nullptr;
