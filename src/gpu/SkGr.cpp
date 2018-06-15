@@ -210,7 +210,7 @@ sk_sp<GrTextureProxy> GrMakeCachedImageProxy(GrProxyProvider* proxyProvider,
 ///////////////////////////////////////////////////////////////////////////////
 
 GrColor4f SkColorToPremulGrColor4f(SkColor c, const GrColorSpaceInfo& colorSpaceInfo) {
-    // We want to premultiply after linearizing, so this is easy:
+    // We want to premultiply after color space conversion, so this is easy:
     return SkColorToUnpremulGrColor4f(c, colorSpaceInfo).premul();
 }
 
@@ -219,19 +219,10 @@ GrColor4f SkColorToPremulGrColor4fLegacy(SkColor c) {
 }
 
 GrColor4f SkColorToUnpremulGrColor4f(SkColor c, const GrColorSpaceInfo& colorSpaceInfo) {
-    GrColor4f color;
-    if (colorSpaceInfo.colorSpace()) {
-        // SkColor4f::FromColor does sRGB -> Linear
-        color = GrColor4f::FromSkColor4f(SkColor4f::FromColor(c));
-    } else {
-        // GrColor4f::FromGrColor just multiplies by 1/255
-        color = GrColor4f::FromGrColor(SkColorToUnpremulGrColor(c));
-    }
-
+    GrColor4f color = GrColor4f::FromGrColor(SkColorToUnpremulGrColor(c));
     if (auto* xform = colorSpaceInfo.colorSpaceXformFromSRGB()) {
         color = xform->clampedXform(color);
     }
-
     return color;
 }
 
@@ -308,7 +299,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
                                            std::unique_ptr<GrFragmentProcessor>* shaderProcessor,
                                            SkBlendMode* primColorMode,
                                            GrPaint* grPaint) {
-    // Convert SkPaint color to 4f format, including optional linearizing and gamut conversion.
+    // Convert SkPaint color to 4f format in the destination color space
     GrColor4f origColor = SkColorToUnpremulGrColor4f(skPaint.getColor(), colorSpaceInfo);
 
     const GrFPArgs fpArgs(context, &viewM, skPaint.getFilterQuality(), &colorSpaceInfo);
