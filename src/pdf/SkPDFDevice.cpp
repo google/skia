@@ -1655,12 +1655,12 @@ void SkPDFDevice::appendAnnotations(SkPDFArray* array) const {
     for (const RectWithData& rectWithURL : fLinkToURLs) {
         SkRect r;
         fInitialTransform.mapRect(&r, rectWithURL.rect);
-        array->appendObject(create_link_to_url(rectWithURL.data.get(), r));
+        array->appendObjRef(create_link_to_url(rectWithURL.data.get(), r));
     }
     for (const RectWithData& linkToDestination : fLinkToDestinations) {
         SkRect r;
         fInitialTransform.mapRect(&r, linkToDestination.rect);
-        array->appendObject(
+        array->appendObjRef(
                 create_link_named_dest(linkToDestination.data.get(), r));
     }
 }
