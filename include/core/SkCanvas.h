@@ -2740,11 +2740,11 @@ private:
     state.
 */
 class SkAutoCanvasRestore {
-public:
     SkAutoCanvasRestore(SkAutoCanvasRestore&&) = delete;
     SkAutoCanvasRestore(const SkAutoCanvasRestore&) = delete;
     SkAutoCanvasRestore& operator=(SkAutoCanvasRestore&&) = delete;
     SkAutoCanvasRestore& operator=(const SkAutoCanvasRestore&) = delete;
+public:
 
     /** Preserves SkCanvas save count. Optionally saves SkCanvas clip and SkCanvas matrix.
 
