@@ -70,6 +70,30 @@
       "revId": "80cf90f78446a6e0580cd5406621d2a1c6004846",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96180e77_fc38f1b9",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-15T16:38:48Z",
+      "side": 1,
+      "message": "Good news: hinting does seem to help (guess the extra logic changed the prediction weight for the existing branch?).  Doesn\u0027t completely wipe out the delta, but brings it down to ~1.5%.  Numbers for a random Lottie file on my machine:\n\nmaster (no  hints): 1178 us\nmaster (yes hints): 1170 us\nCL     (no  hints): 1209 us\nCL     (yes hints): 1187 us\n\nMike, time to bring SK_LIKELY out?  I bet we can shave a couple more % if we sprinkle magic LIKELY dust all over SkJSON :)\n\nThis is what I tried:\n\n--- a/modules/skjson/src/SkJSON.cpp\n+++ b/modules/skjson/src/SkJSON.cpp\n@@ -552,7 +552,7 @@ private:\n     consume_string:\n         while (!is_eostring(*p)) ++p;\n \n-        if (*p \u003d\u003d \u0027\"\u0027) {\n+        if (__builtin_expect(*p \u003d\u003d \u0027\"\u0027, 1)) {\n             // Valid string found.\n             func(s_begin, p - s_begin);\n             return p + 1;\n\nI think we can land this as-is and then circle back to squeeze more perf with hinting.",
+      "parentUuid": "578fcac2_cbb08d03",
+      "range": {
+        "startLine": 565,
+        "startChar": 0,
+        "endLine": 570,
+        "endChar": 9
+      },
+      "revId": "80cf90f78446a6e0580cd5406621d2a1c6004846",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
