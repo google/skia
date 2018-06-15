@@ -9,7 +9,7 @@
 #include "SkColorData.h"
 #include "SkDrawShadowInfo.h"
 #include "SkGeometry.h"
-#include "SkOffsetPolygon.h"
+#include "SkPolyUtils.h"
 #include "SkPath.h"
 #include "SkPoint3.h"
 #include "SkPointPriv.h"
@@ -125,21 +125,6 @@ static bool compute_normal(const SkPoint& p0, const SkPoint& p1, SkScalar dir,
     }
     *newNormal = normal;
     return true;
-}
-
-static void compute_radial_steps(const SkVector& v1, const SkVector& v2, SkScalar r,
-                                 SkScalar* rotSin, SkScalar* rotCos, int* n) {
-    const SkScalar kRecipPixelsPerArcSegment = 0.125f;
-
-    SkScalar rCos = v1.dot(v2);
-    SkScalar rSin = v1.cross(v2);
-    SkScalar theta = SkScalarATan2(rSin, rCos);
-
-    int steps = SkScalarRoundToInt(SkScalarAbs(r*theta*kRecipPixelsPerArcSegment));
-
-    SkScalar dTheta = theta / steps;
-    *rotSin = SkScalarSinCos(dTheta, rotCos);
-    *n = steps;
 }
 
 static bool duplicate_pt(const SkPoint& p0, const SkPoint& p1) {
@@ -501,7 +486,7 @@ bool SkBaseShadowTessellator::addArc(const SkVector& nextNormal, bool finishArc)
     // fill in fan from previous quad
     SkScalar rotSin, rotCos;
     int numSteps;
-    compute_radial_steps(fPrevOutset, nextNormal, fRadius, &rotSin, &rotCos, &numSteps);
+    SkComputeRadialSteps(fPrevOutset, nextNormal, fRadius, &rotSin, &rotCos, &numSteps);
     SkVector prevNormal = fPrevOutset;
     for (int i = 0; i < numSteps-1; ++i) {
         SkVector currNormal;

@@ -100,4 +100,38 @@ inline bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPol
 bool SkOffsetSegment(const SkPoint& p0, const SkPoint& p1, SkScalar d0, SkScalar d1,
                      int side, SkPoint* offset0, SkPoint* offset1);
 
+/**
+ * Compute the number of points needed for a circular join when offsetting a vertex.
+ * The lengths of offset0 and offset1 don't have to equal r -- only the direction matters.
+ *
+ * @param offset0  Starting offset vector direction.
+ * @param offset1  Ending offset vector direction.
+ * @param r  Length of offset.
+ * @param rotSin  Sine of rotation delta per step.
+ * @param rotCos  Cosine of rotation delta per step.
+ * @param n  Number of steps to fill out the arc.
+ */
+void SkComputeRadialSteps(const SkVector& offset0, const SkVector& offset1, SkScalar r,
+                          SkScalar* rotSin, SkScalar* rotCos, int* n);
+
+/**
+ * Determine whether a polygon is simple (i.e., not self-intersecting) or not.
+ *
+ * @param polygonVerts  Array of points representing the vertices of the polygon.
+ * @param polygonSize  Number of vertices in the polygon.
+ * @return true if the polygon is simple, false otherwise.
+ */
+ bool SkIsSimplePolygon(const SkPoint* polygonVerts, int polygonSize);
+
+ /**
+  * Compute indices to triangulate the given polygon. The polygon must not be self-intersecting.
+  *
+  * @param polygonVerts  Array of points representing the vertices of the polygon.
+  * @param polygonSize  Number of vertices in the polygon.
+  * @param triangleIndices  Indices of the resulting triangulation.
+  * @return true if successful, false otherwise.
+  */
+ inline bool SkTriangulateSimplePolygon(const SkPoint* polygonVerts, int polygonSize,
+                                        SkTDArray<int>* triangleIndices);
+
 #endif
