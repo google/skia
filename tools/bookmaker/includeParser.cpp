@@ -1368,7 +1368,9 @@ bool IncludeParser::parseClass(Definition* includeDef, IsStruct isStruct) {
     const char* privateName = kKeyWords[(int) KeyWord::kPrivate].fName;
     size_t privateLen = strlen(privateName);
     auto childIter = includeDef->fChildren.begin();
-    std::advance(childIter, publicIndex);
+    while ((*childIter)->fPrivate) {
+        std::advance(childIter, 1);
+    }
     while (childIter != includeDef->fChildren.end()) {
         Definition* child = *childIter;
         while (child->fParentIndex > keyIndex && iter != includeDef->fTokens.end()) {
