@@ -8,10 +8,11 @@
 #ifndef SkMatrix44_DEFINED
 #define SkMatrix44_DEFINED
 
-#include <atomic>
-
 #include "SkMatrix.h"
 #include "SkScalar.h"
+
+#include <atomic>
+#include <cstring>
 
 #ifdef SK_MSCALAR_IS_DOUBLE
 #ifdef SK_MSCALAR_IS_FLOAT

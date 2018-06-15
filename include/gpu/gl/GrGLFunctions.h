@@ -12,6 +12,8 @@
 #include "GrGLTypes.h"
 #include "../private/SkTLogic.h"
 
+#include <cstring>
+
 extern "C" {
 
 ///////////////////////////////////////////////////////////////////////////////
