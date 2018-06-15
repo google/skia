@@ -63,7 +63,7 @@ SkString SkStringFromUTF16(const uint16_t* src, size_t count) {
             const uint16_t* last = ptr;
             SkUnichar u = SkUTF16_NextUnichar(&ptr);
             size_t s = SkUTF8_FromUnichar(u);
-            if (n > SK_MaxU32 - s) {
+            if (n > UINT32_MAX - s) {
                 end = last;  // truncate input string
                 break;
             }
