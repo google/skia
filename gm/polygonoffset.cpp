@@ -7,7 +7,7 @@
 
 #include "gm.h"
 #include "sk_tool_utils.h"
-#include "SkOffsetPolygon.h"
+#include "SkPolyUtils.h"
 #include "SkPathPriv.h"
 
 static void create_ngon(int n, SkPoint* pts, SkScalar w, SkScalar h, SkPath::Direction dir) {
