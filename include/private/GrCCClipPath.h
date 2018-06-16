@@ -35,9 +35,8 @@ public:
     }
 
     bool isInitialized() const { return fAtlasLazyProxy != nullptr; }
-    void init(GrProxyProvider* proxyProvider,
-              const SkPath& deviceSpacePath, const SkIRect& accessRect,
-              int rtWidth, int rtHeight);
+    void init(const SkPath& deviceSpacePath, const SkIRect& accessRect, int rtWidth, int rtHeight,
+              const GrCaps&);
 
     void addAccess(const SkIRect& accessRect) {
         SkASSERT(this->isInitialized());

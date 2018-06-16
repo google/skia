@@ -192,8 +192,6 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         return true;
     }
 
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-    const auto* caps = context->contextPriv().caps()->shaderCaps();
     int maxWindowRectangles = renderTargetContext->priv().maxWindowRectangles();
     int maxAnalyticFPs = context->contextPriv().caps()->maxClipAnalyticFPs();
     if (GrFSAAType::kNone != renderTargetContext->fsaaType()) {
@@ -208,8 +206,8 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     }
     auto* ccpr = context->contextPriv().drawingManager()->getCoverageCountingPathRenderer();
 
-    GrReducedClip reducedClip(*fStack, devBounds, caps, maxWindowRectangles, maxAnalyticFPs,
-                              ccpr ? maxAnalyticFPs : 0);
+    GrReducedClip reducedClip(*fStack, devBounds, context->contextPriv().caps(),
+                              maxWindowRectangles, maxAnalyticFPs, ccpr ? maxAnalyticFPs : 0);
     if (InitialState::kAllOut == reducedClip.initialState() &&
         reducedClip.maskElements().isEmpty()) {
         return false;
@@ -235,8 +233,7 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     // can cause a flush or otherwise change which opList our draw is going into.
     uint32_t opListID = renderTargetContext->getOpList()->uniqueID();
     int rtWidth = renderTargetContext->width(), rtHeight = renderTargetContext->height();
-    if (auto clipFPs = reducedClip.finishAndDetachAnalyticFPs(ccpr, proxyProvider, opListID,
-                                                              rtWidth, rtHeight)) {
+    if (auto clipFPs = reducedClip.finishAndDetachAnalyticFPs(ccpr, opListID, rtWidth, rtHeight)) {
         out->addCoverageFP(std::move(clipFPs));
     }
 

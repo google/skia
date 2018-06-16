@@ -124,7 +124,8 @@ void GrCCDrawPathsOp::setupResources(GrCCPerFlushResources* resources,
         }
         if (currentAtlas != atlas) {
             if (currentAtlas) {
-                this->addAtlasBatch(currentAtlas, resources->nextPathInstanceIdx());
+                this->recordInstanceRange(currentAtlas->textureProxy(),
+                                          resources->nextPathInstanceIdx());
             }
             currentAtlas = atlas;
         }
@@ -135,7 +136,7 @@ void GrCCDrawPathsOp::setupResources(GrCCPerFlushResources* resources,
 
     SkASSERT(resources->nextPathInstanceIdx() == fBaseInstance + fNumDraws - fNumSkippedInstances);
     if (currentAtlas) {
-        this->addAtlasBatch(currentAtlas, resources->nextPathInstanceIdx());
+        this->recordInstanceRange(currentAtlas->textureProxy(), resources->nextPathInstanceIdx());
     }
 }
 
@@ -159,20 +160,16 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState) {
 
     int baseInstance = fBaseInstance;
 
-    for (int i = 0; i < fAtlasBatches.count(); baseInstance = fAtlasBatches[i++].fEndInstanceIdx) {
-        const AtlasBatch& batch = fAtlasBatches[i];
-        SkASSERT(batch.fEndInstanceIdx > baseInstance);
+    for (const InstanceRange& range : fInstanceRanges) {
+        SkASSERT(range.fEndInstanceIdx > baseInstance);
 
-        if (!batch.fAtlas->textureProxy()) {
-            continue;  // Atlas failed to allocate.
-        }
-
-        GrCCPathProcessor pathProc(flushState->resourceProvider(),
-                                   sk_ref_sp(batch.fAtlas->textureProxy()),
+        GrCCPathProcessor pathProc(flushState->resourceProvider(), sk_ref_sp(range.fAtlasProxy),
                                    fViewMatrixIfUsingLocalCoords);
         pathProc.drawPaths(flushState, pipeline, resources->indexBuffer(),
                            resources->vertexBuffer(), resources->instanceBuffer(),
-                           baseInstance, batch.fEndInstanceIdx, this->bounds());
+                           baseInstance, range.fEndInstanceIdx, this->bounds());
+
+        baseInstance = range.fEndInstanceIdx;
     }
 
     SkASSERT(baseInstance == fBaseInstance + fNumDraws - fNumSkippedInstances);

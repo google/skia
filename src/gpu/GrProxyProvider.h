@@ -178,19 +178,18 @@ public:
 
     sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&, const GrSurfaceDesc&,
                                           GrSurfaceOrigin, GrMipMapped, SkBackingFit, SkBudgeted);
-
-    /**
-     * Fully lazy proxies have unspecified width and height. Methods that rely on those values
-     * (e.g., width, height, getBoundsRect) should be avoided.
-     */
-    sk_sp<GrTextureProxy> createFullyLazyProxy(LazyInstantiateCallback&&,
-                                               Renderable, GrSurfaceOrigin, GrPixelConfig);
-
     sk_sp<GrRenderTargetProxy> createLazyRenderTargetProxy(LazyInstantiateCallback&&,
                                                            const GrSurfaceDesc&,
                                                            GrSurfaceOrigin origin,
                                                            GrInternalSurfaceFlags, Textureable,
                                                            GrMipMapped, SkBackingFit, SkBudgeted);
+
+    /**
+     * Fully lazy proxies have unspecified width and height. Methods that rely on those values
+     * (e.g., width, height, getBoundsRect) should be avoided.
+     */
+    static sk_sp<GrTextureProxy> MakeFullyLazyProxy(LazyInstantiateCallback&&, Renderable,
+                                                    GrSurfaceOrigin, GrPixelConfig, const GrCaps&);
 
     // 'proxy' is about to be used as a texture src or drawn to. This query can be used to
     // determine if it is going to need a texture domain or a full clear.

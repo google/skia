@@ -34,7 +34,7 @@
  * take a rect in case the caller knows a bound on what is to be drawn through this clip.
  */
 GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds,
-                             const GrShaderCaps* caps, int maxWindowRectangles, int maxAnalyticFPs,
+                             const GrCaps* caps, int maxWindowRectangles, int maxAnalyticFPs,
                              int maxCCPRClipPaths)
         : fCaps(caps)
         , fMaxWindowRectangles(maxWindowRectangles)
@@ -630,7 +630,8 @@ GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkRRect& deviceSpac
         return ClipResult::kNotClipped;
     }
 
-    if (auto fp = GrRRectEffect::Make(GetClipEdgeType(invert, aa), deviceSpaceRRect, *fCaps)) {
+    if (auto fp = GrRRectEffect::Make(GetClipEdgeType(invert, aa), deviceSpaceRRect,
+                                      *fCaps->shaderCaps())) {
         fAnalyticFPs.push_back(std::move(fp));
         return ClipResult::kClipped;
     }
@@ -956,8 +957,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
 }
 
 std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticFPs(
-        GrCoverageCountingPathRenderer* ccpr, GrProxyProvider* proxyProvider, uint32_t opListID,
-        int rtWidth, int rtHeight) {
+        GrCoverageCountingPathRenderer* ccpr, uint32_t opListID, int rtWidth, int rtHeight) {
     // Make sure finishAndDetachAnalyticFPs hasn't been called already.
     SkDEBUGCODE(for (const auto& fp : fAnalyticFPs) { SkASSERT(fp); })
 
@@ -966,8 +966,8 @@ std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticFPs(
         for (const SkPath& ccprClipPath : fCCPRClipPaths) {
             SkASSERT(ccpr);
             SkASSERT(fHasScissor);
-            auto fp = ccpr->makeClipProcessor(proxyProvider, opListID, ccprClipPath, fScissor,
-                                              rtWidth, rtHeight);
+            auto fp = ccpr->makeClipProcessor(opListID, ccprClipPath, fScissor, rtWidth, rtHeight,
+                                              *fCaps);
             fAnalyticFPs.push_back(std::move(fp));
         }
         fCCPRClipPaths.reset();

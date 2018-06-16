@@ -43,8 +43,10 @@ public:
         void accountForSpace(int width, int height);
     };
 
-    GrCCAtlas(const Specs&);
+    GrCCAtlas(GrPixelConfig, const Specs&, const GrCaps&);
     ~GrCCAtlas();
+
+    GrTextureProxy* textureProxy() const { return fTextureProxy.get(); }
 
     // Attempts to add a rect to the atlas. If successful, returns the integer offset from
     // device-space pixels where the path will be drawn, to atlas pixels where its mask resides.
@@ -53,15 +55,13 @@ public:
 
     // This is an optional space for the caller to jot down which user-defined batch to use when
     // they render the content of this atlas.
-    void setUserBatchID(int id) { SkASSERT(!fTextureProxy); fUserBatchID = id; }
+    void setUserBatchID(int id);
     int getUserBatchID() const { return fUserBatchID; }
 
-    // Creates our texture proxy for the atlas and returns a pre-cleared GrRenderTargetContext that
-    // the caller may use to render the content. After this call, it is no longer valid to call
-    // addRect() or setUserBatchID().
-    sk_sp<GrRenderTargetContext> initInternalTextureProxy(GrOnFlushResourceProvider*,
-                                                          GrPixelConfig);
-    GrTextureProxy* textureProxy() const { return fTextureProxy.get(); }
+    // Instantiates our texture proxy for the atlas and returns a pre-cleared GrRenderTargetContext
+    // that the caller may use to render the content. After this call, it is no longer valid to call
+    // addRect(), setUserBatchID(), or this method again.
+    sk_sp<GrRenderTargetContext> makeRenderTargetContext(GrOnFlushResourceProvider*);
 
 private:
     class Node;
@@ -83,7 +83,8 @@ private:
  */
 class GrCCAtlasStack {
 public:
-    GrCCAtlasStack(const GrCCAtlas::Specs& specs) : fSpecs(specs) {}
+    GrCCAtlasStack(GrPixelConfig pixelConfig, const GrCCAtlas::Specs& specs, const GrCaps* caps)
+            : fPixelConfig(pixelConfig), fSpecs(specs), fCaps(caps) {}
 
     bool empty() const { return fAtlases.empty(); }
     const GrCCAtlas& front() const { SkASSERT(!this->empty()); return fAtlases.front(); }
@@ -106,10 +107,12 @@ public:
     // atlas, so it was retired and a new one was added to the stack. The return value is the
     // newly-retired atlas. The caller should call setUserBatchID() on the retired atlas before
     // moving on.
-    GrCCAtlas* addRect(const SkIRect& devIBounds, SkIVector* offset);
+    GrCCAtlas* addRect(const SkIRect& devIBounds, SkIVector* devToAtlasOffset);
 
 private:
+    const GrPixelConfig fPixelConfig;
     const GrCCAtlas::Specs fSpecs;
+    const GrCaps* const fCaps;
     GrSTAllocator<4, GrCCAtlas> fAtlases;
 };
 

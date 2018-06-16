@@ -76,26 +76,30 @@ public:
 
         Op(GrProxyProvider* proxyProvider, LazyProxyTest* test, bool nullTexture)
                     : GrDrawOp(ClassID()), fTest(test) {
-            fProxy = proxyProvider->createFullyLazyProxy([this, nullTexture](
-                                        GrResourceProvider* rp) {
-                if (!rp) {
-                    return sk_sp<GrTexture>();
-                }
-                REPORTER_ASSERT(fTest->fReporter, !fTest->fHasOpTexture);
-                fTest->fHasOpTexture = true;
-                if (nullTexture) {
-                    return sk_sp<GrTexture>();
-                } else {
-                    GrSurfaceDesc desc;
-                    desc.fWidth = 1234;
-                    desc.fHeight = 567;
-                    desc.fConfig = kRGB_565_GrPixelConfig;
-                    sk_sp<GrTexture> texture = rp->createTexture(desc, SkBudgeted::kYes);
-                    REPORTER_ASSERT(fTest->fReporter, texture);
-                    return texture;
-                }
-            }, GrProxyProvider::Renderable::kNo, kTopLeft_GrSurfaceOrigin, kRGB_565_GrPixelConfig);
-            this->setBounds(SkRectPriv::MakeLargest(), GrOp::HasAABloat::kNo, GrOp::IsZeroArea::kNo);
+            fProxy = GrProxyProvider::MakeFullyLazyProxy(
+                    [this, nullTexture](GrResourceProvider* rp) {
+                        if (!rp) {
+                            return sk_sp<GrTexture>();
+                        }
+                        REPORTER_ASSERT(fTest->fReporter, !fTest->fHasOpTexture);
+                        fTest->fHasOpTexture = true;
+                        if (nullTexture) {
+                            return sk_sp<GrTexture>();
+                        } else {
+                            GrSurfaceDesc desc;
+                            desc.fWidth = 1234;
+                            desc.fHeight = 567;
+                            desc.fConfig = kRGB_565_GrPixelConfig;
+                            sk_sp<GrTexture> texture = rp->createTexture(desc, SkBudgeted::kYes);
+                            REPORTER_ASSERT(fTest->fReporter, texture);
+                            return texture;
+                        }
+                    },
+                    GrProxyProvider::Renderable::kNo, kTopLeft_GrSurfaceOrigin,
+                    kRGB_565_GrPixelConfig, *proxyProvider->caps());
+
+            this->setBounds(SkRectPriv::MakeLargest(), GrOp::HasAABloat::kNo,
+                            GrOp::IsZeroArea::kNo);
         }
 
         const char* name() const override { return "LazyProxyTest::Op"; }
@@ -118,7 +122,7 @@ public:
                 , fProxyProvider(proxyProvider)
                 , fTest(test)
                 , fAtlas(atlas) {
-            fLazyProxy = proxyProvider->createFullyLazyProxy(
+            fLazyProxy = GrProxyProvider::MakeFullyLazyProxy(
                                 [this](GrResourceProvider* rp) {
                                     if (!rp) {
                                         return sk_sp<GrTexture>();
@@ -130,7 +134,7 @@ public:
                                 },
                                 GrProxyProvider::Renderable::kYes,
                                 kBottomLeft_GrSurfaceOrigin,
-                                kAlpha_half_GrPixelConfig);
+                                kAlpha_half_GrPixelConfig, *proxyProvider->caps());
             fAccess.reset(fLazyProxy, GrSamplerState::Filter::kNearest,
                           GrSamplerState::WrapMode::kClamp, kFragment_GrShaderFlag);
             this->addTextureSampler(&fAccess);
