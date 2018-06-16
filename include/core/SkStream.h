@@ -42,10 +42,6 @@ class SK_API SkStream {
 public:
     virtual ~SkStream() {}
     SkStream() {}
-    SkStream(SkStream&&) = delete;
-    SkStream(const SkStream&) = delete;
-    SkStream& operator=(SkStream&&) = delete;
-    SkStream& operator=(const SkStream&) = delete;
 
     /**
      *  Attempts to open the specified file as a stream, returns nullptr on failure.
@@ -157,6 +153,11 @@ public:
 private:
     virtual SkStream* onDuplicate() const { return nullptr; }
     virtual SkStream* onFork() const { return nullptr; }
+
+    SkStream(SkStream&&) = delete;
+    SkStream(const SkStream&) = delete;
+    SkStream& operator=(SkStream&&) = delete;
+    SkStream& operator=(const SkStream&) = delete;
 };
 
 /** SkStreamRewindable is a SkStream for which rewind and duplicate are required. */
@@ -227,10 +228,6 @@ class SK_API SkWStream {
 public:
     virtual ~SkWStream();
     SkWStream() {}
-    SkWStream(SkWStream&&) = delete;
-    SkWStream(const SkWStream&) = delete;
-    SkWStream& operator=(SkWStream&&) = delete;
-    SkWStream& operator=(const SkWStream&) = delete;
 
     /** Called to write bytes to a SkWStream. Returns true on success
         @param buffer the address of at least size bytes to be written to the stream
@@ -279,6 +276,12 @@ public:
      * 'value'.
      */
     static int SizeOfPackedUInt(size_t value);
+
+private:
+    SkWStream(SkWStream&&) = delete;
+    SkWStream(const SkWStream&) = delete;
+    SkWStream& operator=(SkWStream&&) = delete;
+    SkWStream& operator=(const SkWStream&) = delete;
 };
 
 class SK_API SkNullWStream : public SkWStream {

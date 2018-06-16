@@ -76,11 +76,6 @@ class SkVertices;
     This approach may be deprecated in the future.
 */
 class SK_API SkCanvas {
-    SkCanvas(SkCanvas&&) = delete;
-    SkCanvas(const SkCanvas&) = delete;
-    SkCanvas& operator=(SkCanvas&&) = delete;
-    SkCanvas& operator=(const SkCanvas&) = delete;
-
     enum PrivateSaveLayerFlags {
         kDontClipToLayer_PrivateSaveLayerFlag   = 1U << 31,
     };
@@ -2650,6 +2645,11 @@ private:
     SkCanvas(const SkBitmap&, std::unique_ptr<SkRasterHandleAllocator>,
              SkRasterHandleAllocator::Handle);
 
+    SkCanvas(SkCanvas&&) = delete;
+    SkCanvas(const SkCanvas&) = delete;
+    SkCanvas& operator=(SkCanvas&&) = delete;
+    SkCanvas& operator=(const SkCanvas&) = delete;
+
     void resetForNextPicture(const SkIRect& bounds);
 
     // needs gettotalclip()
@@ -2710,10 +2710,6 @@ private:
 
     class AutoValidateClip {
     public:
-        AutoValidateClip(AutoValidateClip&&) = delete;
-        AutoValidateClip(const AutoValidateClip&) = delete;
-        AutoValidateClip& operator=(AutoValidateClip&&) = delete;
-        AutoValidateClip& operator=(const AutoValidateClip&) = delete;
         explicit AutoValidateClip(SkCanvas* canvas) : fCanvas(canvas) {
             fCanvas->validateClip();
         }
@@ -2721,6 +2717,11 @@ private:
 
     private:
         const SkCanvas* fCanvas;
+
+        AutoValidateClip(AutoValidateClip&&) = delete;
+        AutoValidateClip(const AutoValidateClip&) = delete;
+        AutoValidateClip& operator=(AutoValidateClip&&) = delete;
+        AutoValidateClip& operator=(const AutoValidateClip&) = delete;
     };
 
 #ifdef SK_DEBUG
@@ -2740,12 +2741,7 @@ private:
     state.
 */
 class SkAutoCanvasRestore {
-    SkAutoCanvasRestore(SkAutoCanvasRestore&&) = delete;
-    SkAutoCanvasRestore(const SkAutoCanvasRestore&) = delete;
-    SkAutoCanvasRestore& operator=(SkAutoCanvasRestore&&) = delete;
-    SkAutoCanvasRestore& operator=(const SkAutoCanvasRestore&) = delete;
 public:
-
     /** Preserves SkCanvas save count. Optionally saves SkCanvas clip and SkCanvas matrix.
 
         @param canvas  SkCanvas to guard
@@ -2783,6 +2779,11 @@ public:
 private:
     SkCanvas*   fCanvas;
     int         fSaveCount;
+
+    SkAutoCanvasRestore(SkAutoCanvasRestore&&) = delete;
+    SkAutoCanvasRestore(const SkAutoCanvasRestore&) = delete;
+    SkAutoCanvasRestore& operator=(SkAutoCanvasRestore&&) = delete;
+    SkAutoCanvasRestore& operator=(const SkAutoCanvasRestore&) = delete;
 };
 #define SkAutoCanvasRestore(...) SK_REQUIRE_LOCAL_VAR(SkAutoCanvasRestore)
 

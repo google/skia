@@ -26,11 +26,6 @@ class SkPicture;
 
 class SK_API SkImageGenerator {
 public:
-    SkImageGenerator(SkImageGenerator&&) = delete;
-    SkImageGenerator(const SkImageGenerator&) = delete;
-    SkImageGenerator& operator=(SkImageGenerator&&) = delete;
-    SkImageGenerator& operator=(const SkImageGenerator&) = delete;
-
     /**
      *  The PixelRef which takes ownership of this SkImageGenerator
      *  will call the image generator's destructor.
@@ -208,6 +203,11 @@ private:
     // It is called from NewFromEncoded() after it has checked for any runtime factory.
     // The SkData will never be NULL, as that will have been checked by NewFromEncoded.
     static std::unique_ptr<SkImageGenerator> MakeFromEncodedImpl(sk_sp<SkData>);
+
+    SkImageGenerator(SkImageGenerator&&) = delete;
+    SkImageGenerator(const SkImageGenerator&) = delete;
+    SkImageGenerator& operator=(SkImageGenerator&&) = delete;
+    SkImageGenerator& operator=(const SkImageGenerator&) = delete;
 };
 
 #endif  // SkImageGenerator_DEFINED

@@ -39,9 +39,6 @@ public:
         return *this;
     }
 
-    SkTHashTable(const SkTHashTable&) = delete;
-    SkTHashTable& operator=(const SkTHashTable&) = delete;
-
     // Clear the table.
     void reset() { *this = SkTHashTable(); }
 
@@ -227,6 +224,9 @@ private:
 
     int fCount, fCapacity;
     SkAutoTArray<Slot> fSlots;
+
+    SkTHashTable(const SkTHashTable&) = delete;
+    SkTHashTable& operator=(const SkTHashTable&) = delete;
 };
 
 // Maps K->V.  A more user-friendly wrapper around SkTHashTable, suitable for most use cases.
@@ -236,9 +236,7 @@ class SkTHashMap {
 public:
     SkTHashMap() {}
     SkTHashMap(SkTHashMap&&) = default;
-    SkTHashMap(const SkTHashMap&) = delete;
     SkTHashMap& operator=(SkTHashMap&&) = default;
-    SkTHashMap& operator=(const SkTHashMap&) = delete;
 
     // Clear the map.
     void reset() { fTable.reset(); }
@@ -294,6 +292,9 @@ private:
     };
 
     SkTHashTable<Pair, K> fTable;
+
+    SkTHashMap(const SkTHashMap&) = delete;
+    SkTHashMap& operator=(const SkTHashMap&) = delete;
 };
 
 // A set of T.  T is treated as an ordinary copyable C++ type.
@@ -302,9 +303,7 @@ class SkTHashSet {
 public:
     SkTHashSet() {}
     SkTHashSet(SkTHashSet&&) = default;
-    SkTHashSet(const SkTHashSet&) = delete;
     SkTHashSet& operator=(SkTHashSet&&) = default;
-    SkTHashSet& operator=(const SkTHashSet&) = delete;
 
     // Clear the set.
     void reset() { fTable.reset(); }
@@ -343,6 +342,9 @@ private:
         static uint32_t Hash(const T& item) { return HashT()(item); }
     };
     SkTHashTable<T, T, Traits> fTable;
+
+    SkTHashSet(const SkTHashSet&) = delete;
+    SkTHashSet& operator=(const SkTHashSet&) = delete;
 };
 
 #endif//SkTHash_DEFINED
