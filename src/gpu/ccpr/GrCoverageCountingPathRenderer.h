@@ -60,10 +60,10 @@ public:
     CanDrawPath onCanDrawPath(const CanDrawPathArgs& args) const override;
     bool onDrawPath(const DrawPathArgs&) override;
 
-    std::unique_ptr<GrFragmentProcessor> makeClipProcessor(GrProxyProvider*, uint32_t oplistID,
+    std::unique_ptr<GrFragmentProcessor> makeClipProcessor(uint32_t oplistID,
                                                            const SkPath& deviceSpacePath,
-                                                           const SkIRect& accessRect,
-                                                           int rtWidth, int rtHeight);
+                                                           const SkIRect& accessRect, int rtWidth,
+                                                           int rtHeight, const GrCaps&);
 
     // GrOnFlushCallbackObject overrides.
     void preFlush(GrOnFlushResourceProvider*, const uint32_t* opListIDs, int numOpListIDs,

@@ -33,11 +33,10 @@ public:
 private:
     bool apply(GrContext* context, GrRenderTargetContext* rtc, bool, bool, GrAppliedClip* out,
                SkRect* bounds) const override {
-        GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-        out->addCoverageFP(fCCPR->makeClipProcessor(proxyProvider,
-                                                    rtc->priv().testingOnly_getOpListID(), fPath,
+        out->addCoverageFP(fCCPR->makeClipProcessor(rtc->priv().testingOnly_getOpListID(), fPath,
                                                     SkIRect::MakeWH(rtc->width(), rtc->height()),
-                                                    rtc->width(), rtc->height()));
+                                                    rtc->width(), rtc->height(),
+                                                    *context->contextPriv().caps()));
         return true;
     }
     bool quickContains(const SkRect&) const final { return false; }

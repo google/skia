@@ -54,16 +54,16 @@ private:
     GrCCDrawPathsOp(const SkIRect& looseClippedIBounds, const SkMatrix&, const SkPath&,
                     const SkRect& devBounds, GrPaint&&);
 
-    struct AtlasBatch {
-        const GrCCAtlas* fAtlas;
+    struct InstanceRange {
+        const GrTextureProxy* fAtlasProxy;
         int fEndInstanceIdx;
     };
 
-    void addAtlasBatch(const GrCCAtlas* atlas, int endInstanceIdx) {
+    void recordInstanceRange(const GrTextureProxy* atlasProxy, int endInstanceIdx) {
         SkASSERT(endInstanceIdx > fBaseInstance);
-        SkASSERT(fAtlasBatches.empty() ||
-                 endInstanceIdx > fAtlasBatches.back().fEndInstanceIdx);
-        fAtlasBatches.push_back() = {atlas, endInstanceIdx};
+        SkASSERT(fInstanceRanges.empty() ||
+                 endInstanceIdx > fInstanceRanges.back().fEndInstanceIdx);
+        fInstanceRanges.push_back() = {atlasProxy, endInstanceIdx};
     }
 
     const SkMatrix fViewMatrixIfUsingLocalCoords;
@@ -84,7 +84,7 @@ private:
     GrProcessorSet fProcessors;
 
     int fBaseInstance;
-    SkSTArray<1, AtlasBatch, true> fAtlasBatches;
+    SkSTArray<1, InstanceRange, true> fInstanceRanges;
     SkDEBUGCODE(int fNumSkippedInstances = 0);
 };
 

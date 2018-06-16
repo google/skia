@@ -603,15 +603,16 @@ sk_sp<GrRenderTargetProxy> GrProxyProvider::createLazyRenderTargetProxy(
             std::move(callback), lazyType, desc, origin, fit, budgeted, surfaceFlags));
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::createFullyLazyProxy(LazyInstantiateCallback&& callback,
-                                                            Renderable renderable,
-                                                            GrSurfaceOrigin origin,
-                                                            GrPixelConfig config) {
+sk_sp<GrTextureProxy> GrProxyProvider::MakeFullyLazyProxy(LazyInstantiateCallback&& callback,
+                                                          Renderable renderable,
+                                                          GrSurfaceOrigin origin,
+                                                          GrPixelConfig config,
+                                                          const GrCaps& caps) {
     GrSurfaceDesc desc;
     GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNoPendingIO;
     if (Renderable::kYes == renderable) {
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
-        if (fCaps->maxWindowRectangles() > 0) {
+        if (caps.maxWindowRectangles() > 0) {
             surfaceFlags |= GrInternalSurfaceFlags::kWindowRectsSupport;
         }
     }
@@ -620,8 +621,16 @@ sk_sp<GrTextureProxy> GrProxyProvider::createFullyLazyProxy(LazyInstantiateCallb
     desc.fConfig = config;
     desc.fSampleCnt = 1;
 
-    return this->createLazyProxy(std::move(callback), desc, origin, GrMipMapped::kNo,
-                                 surfaceFlags, SkBackingFit::kApprox, SkBudgeted::kYes);
+    return sk_sp<GrTextureProxy>(
+            (Renderable::kYes == renderable)
+                    ? new GrTextureRenderTargetProxy(std::move(callback),
+                                                     LazyInstantiationType::kSingleUse, desc,
+                                                     origin, GrMipMapped::kNo,
+                                                     SkBackingFit::kApprox, SkBudgeted::kYes,
+                                                     surfaceFlags)
+                    : new GrTextureProxy(std::move(callback), LazyInstantiationType::kSingleUse,
+                                         desc, origin, GrMipMapped::kNo, SkBackingFit::kApprox,
+                                         SkBudgeted::kYes, surfaceFlags));
 }
 
 bool GrProxyProvider::IsFunctionallyExact(GrSurfaceProxy* proxy) {
