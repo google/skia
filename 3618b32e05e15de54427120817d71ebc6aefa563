@@ -125,6 +125,23 @@
     },
     {
       "key": {
+        "uuid": "17216e7f_b5bb36cd",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-16T00:06:50Z",
+      "side": 1,
+      "message": "// So not every atlas will have a unique key -- a mainline CCPR one won\u0027t if we don\u0027t stash any paths, and no atlas in the \"rendered\" stack will have one besides the front() atlas.",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9a0e3a29_8c4cf54f",
         "filename": "src/gpu/ccpr/GrCCDrawPathsOp.h",
         "patchSetId": 6
@@ -327,6 +344,24 @@
       "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1531f061_abd05924",
+        "filename": "src/gpu/ccpr/GrCCPathCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-16T00:06:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fb6f51c9_71b007da",
+      "revId": "3618b32e05e15de54427120817d71ebc6aefa563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
