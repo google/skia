@@ -58,21 +58,19 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
                                                         sk_sp<GrSurfaceProxy> proxy,
                                                         sk_sp<SkColorSpace> colorSpace,
                                                         const SkSurfaceProps* props) {
+    // Since this is at flush time and these won't be allocated for us by the GrResourceAllocator
+    // we have to manually ensure it is allocated here. The proxy had best have been created
+    // with the kNoPendingIO flag!
+    if (!this->instatiateProxy(proxy.get())) {
+        return nullptr;
+    }
+
     sk_sp<GrRenderTargetContext> renderTargetContext(
         fDrawingMgr->makeRenderTargetContext(std::move(proxy),
                                              std::move(colorSpace),
                                              props, false));
 
     if (!renderTargetContext) {
-        return nullptr;
-    }
-
-    auto resourceProvider = fDrawingMgr->getContext()->contextPriv().resourceProvider();
-
-    // Since this is at flush time and these won't be allocated for us by the GrResourceAllocator
-    // we have to manually ensure it is allocated here. The proxy had best have been created
-    // with the kNoPendingIO flag!
-    if (!renderTargetContext->asSurfaceProxy()->instantiate(resourceProvider)) {
         return nullptr;
     }
 

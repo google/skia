@@ -300,7 +300,7 @@ public:
             return fAtlasProxy;
         }
 
-        fAtlasProxy = proxyProvider->createFullyLazyProxy(
+        fAtlasProxy = GrProxyProvider::MakeFullyLazyProxy(
                 [](GrResourceProvider* resourceProvider) {
                     if (!resourceProvider) {
                         return sk_sp<GrTexture>();
@@ -319,7 +319,8 @@ public:
                 },
                 GrProxyProvider::Renderable::kYes,
                 kBottomLeft_GrSurfaceOrigin,
-                kRGBA_8888_GrPixelConfig);
+                kRGBA_8888_GrPixelConfig,
+                *proxyProvider->caps());
         return fAtlasProxy;
     }
 

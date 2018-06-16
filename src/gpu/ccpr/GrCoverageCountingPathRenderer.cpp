@@ -147,9 +147,8 @@ void GrCoverageCountingPathRenderer::recordOp(std::unique_ptr<GrCCDrawPathsOp> o
 }
 
 std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipProcessor(
-        GrProxyProvider* proxyProvider,
-        uint32_t opListID, const SkPath& deviceSpacePath, const SkIRect& accessRect,
-        int rtWidth, int rtHeight) {
+        uint32_t opListID, const SkPath& deviceSpacePath, const SkIRect& accessRect, int rtWidth,
+        int rtHeight, const GrCaps& caps) {
     using MustCheckBounds = GrCCClipProcessor::MustCheckBounds;
 
     SkASSERT(!fFlushing);
@@ -162,11 +161,11 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
         if (SkTMax(pathDevBounds.height(), pathDevBounds.width()) > kPathCropThreshold) {
             // The path is too large. Crop it or analytic AA can run out of fp32 precision.
             SkPath croppedPath;
-            int maxRTSize = proxyProvider->caps()->maxRenderTargetSize();
+            int maxRTSize = caps.maxRenderTargetSize();
             crop_path(deviceSpacePath, SkIRect::MakeWH(maxRTSize, maxRTSize), &croppedPath);
-            clipPath.init(proxyProvider, croppedPath, accessRect, rtWidth, rtHeight);
+            clipPath.init(croppedPath, accessRect, rtWidth, rtHeight, caps);
         } else {
-            clipPath.init(proxyProvider, deviceSpacePath, accessRect, rtWidth, rtHeight);
+            clipPath.init(deviceSpacePath, accessRect, rtWidth, rtHeight, caps);
         }
     } else {
         clipPath.addAccess(accessRect);
