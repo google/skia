@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aca701c5_13ecd42e",
+        "filename": "src/gpu/effects/GrNonlinearColorSpaceXformEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-16T14:28:52Z",
+      "side": 1,
+      "message": "The mechanism this was using no longer exists, but the code to directly compute the matrix is just as easy, and probably clearer. (Also, this file is going to be deleted in short order).",
+      "revId": "34e759a3ec8b0c4a5ba692cd066b685d650bf0a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
