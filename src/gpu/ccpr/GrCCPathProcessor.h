@@ -13,6 +13,8 @@
 #include "SkPath.h"
 #include <array>
 
+class GrCCPathCacheEntry;
+class GrCCPerFlushResources;
 class GrOnFlushResourceProvider;
 class GrOpFlushState;
 class GrPipeline;
@@ -37,15 +39,29 @@ public:
     };
     static constexpr int kNumInstanceAttribs = 1 + (int)InstanceAttribs::kColor;
 
+    // Helper to offset the 45-degree bounding box returned by GrCCPathParser::parsePath().
+    static SkRect MakeOffset45(const SkRect& devBounds45, float dx, float dy) {
+        // devBounds45 is in "| 1  -1 | * devCoords" space.
+        //                    | 1   1 |
+        return devBounds45.makeOffset(dx - dy, dx + dy);
+    }
+
+    enum class DoEvenOddFill : bool {
+        kNo = false,
+        kYes = true
+    };
+
     struct Instance {
         SkRect fDevBounds;  // "right < left" indicates even-odd fill type.
         SkRect fDevBounds45;  // Bounding box in "| 1  -1 | * devCoords" space.
                               //                  | 1   1 |
         SkIVector fDevToAtlasOffset;  // Translation from device space to location in atlas.
-        uint32_t fColor;
+        GrColor fColor;
 
-        void set(SkPath::FillType, const SkRect& devBounds, const SkRect& devBounds45,
-                 const SkIVector& devToAtlasOffset, uint32_t color);
+        void set(const SkRect& devBounds, const SkRect& devBounds45,
+                 const SkIVector& devToAtlasOffset, GrColor, DoEvenOddFill = DoEvenOddFill::kNo);
+        void set(const GrCCPathCacheEntry&, const SkIVector& shift, GrColor,
+                 DoEvenOddFill = DoEvenOddFill::kNo);
     };
 
     GR_STATIC_ASSERT(4 * 11 == sizeof(Instance));
@@ -75,9 +91,8 @@ public:
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
-    void drawPaths(GrOpFlushState*, const GrPipeline&, const GrBuffer* indexBuffer,
-                   const GrBuffer* vertexBuffer, GrBuffer* instanceBuffer, int baseInstance,
-                   int endInstance, const SkRect& bounds) const;
+    void drawPaths(GrOpFlushState*, const GrPipeline&, const GrCCPerFlushResources&,
+                   int baseInstance, int endInstance, const SkRect& bounds) const;
 
 private:
     const TextureSampler fAtlasAccess;
@@ -86,14 +101,13 @@ private:
     typedef GrGeometryProcessor INHERITED;
 };
 
-inline void GrCCPathProcessor::Instance::set(SkPath::FillType fillType, const SkRect& devBounds,
-                                             const SkRect& devBounds45,
-                                             const SkIVector& devToAtlasOffset, uint32_t color) {
-    if (SkPath::kEvenOdd_FillType == fillType) {
+inline void GrCCPathProcessor::Instance::set(const SkRect& devBounds, const SkRect& devBounds45,
+                                             const SkIVector& devToAtlasOffset, GrColor color,
+                                             DoEvenOddFill doEvenOddFill) {
+    if (DoEvenOddFill::kYes == doEvenOddFill) {
         // "right < left" indicates even-odd fill type.
         fDevBounds.setLTRB(devBounds.fRight, devBounds.fTop, devBounds.fLeft, devBounds.fBottom);
     } else {
-        SkASSERT(SkPath::kWinding_FillType == fillType);
         fDevBounds = devBounds;
     }
     fDevBounds45 = devBounds45;
