@@ -50,6 +50,8 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
            caps.instanceAttribSupport() && GrCaps::kNone_MapFlags != caps.mapBufferFlags() &&
            caps.isConfigTexturable(kAlpha_half_GrPixelConfig) &&
            caps.isConfigRenderable(kAlpha_half_GrPixelConfig) &&
+           caps.isConfigTexturable(kAlpha_8_GrPixelConfig) &&
+           caps.isConfigRenderable(kAlpha_8_GrPixelConfig) &&
            !caps.blacklistCoverageCounting();
 }
 
@@ -112,24 +114,22 @@ bool GrCoverageCountingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GrRenderTargetContext* rtc = args.fRenderTargetContext;
     args.fClip->getConservativeBounds(rtc->width(), rtc->height(), &clipIBounds, nullptr);
 
-    SkPath path;
-    args.fShape->asPath(&path);
-
     SkRect devBounds;
-    args.fViewMatrix->mapRect(&devBounds, path.getBounds());
+    args.fViewMatrix->mapRect(&devBounds, args.fShape->bounds());
 
     std::unique_ptr<GrCCDrawPathsOp> op;
     if (SkTMax(devBounds.height(), devBounds.width()) > kPathCropThreshold) {
         // The path is too large. Crop it or analytic AA can run out of fp32 precision.
         SkPath croppedPath;
-        path.transform(*args.fViewMatrix, &croppedPath);
+        args.fShape->asPath(&croppedPath);
+        croppedPath.transform(*args.fViewMatrix, &croppedPath);
         crop_path(croppedPath, clipIBounds, &croppedPath);
         // FIXME: This breaks local coords: http://skbug.com/8003
-        op = GrCCDrawPathsOp::Make(args.fContext, clipIBounds, SkMatrix::I(), croppedPath,
+        op = GrCCDrawPathsOp::Make(args.fContext, clipIBounds, SkMatrix::I(), GrShape(croppedPath),
                                    croppedPath.getBounds(), std::move(args.fPaint));
     } else {
-        op = GrCCDrawPathsOp::Make(args.fContext, clipIBounds, *args.fViewMatrix, path, devBounds,
-                                   std::move(args.fPaint));
+        op = GrCCDrawPathsOp::Make(args.fContext, clipIBounds, *args.fViewMatrix, *args.fShape,
+                                   devBounds, std::move(args.fPaint));
     }
 
     this->recordOp(std::move(op), args);
@@ -179,18 +179,37 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
 void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP,
                                               const uint32_t* opListIDs, int numOpListIDs,
                                               SkTArray<sk_sp<GrRenderTargetContext>>* out) {
+    using DoCopiesToCache = GrCCDrawPathsOp::DoCopiesToCache;
     SkASSERT(!fFlushing);
     SkASSERT(fFlushingPaths.empty());
     SkDEBUGCODE(fFlushing = true);
 
+    // Dig up the stashed atlas from the previous flush (if any) so we can attempt to copy any
+    // reusable paths out of it and into the resource cache. We also need to clear its unique key.
+    sk_sp<GrTextureProxy> stashedAtlasProxy;
+    if (fStashedAtlasKey.isValid()) {
+        stashedAtlasProxy = onFlushRP->findOrCreateProxyByUniqueKey(fStashedAtlasKey,
+                                                                    GrCCAtlas::kTextureOrigin);
+        if (stashedAtlasProxy) {
+            // Instantiate the proxy so we can clear the underlying texture's unique key.
+            onFlushRP->instatiateProxy(stashedAtlasProxy.get());
+            onFlushRP->removeUniqueKeyFromProxy(fStashedAtlasKey, stashedAtlasProxy.get());
+        } else {
+            fStashedAtlasKey.reset();  // Indicate there is no stashed atlas to copy from.
+        }
+    }
+
     if (fPendingPaths.empty()) {
+        fStashedAtlasKey.reset();
         return;  // Nothing to draw.
     }
 
-    GrCCPerFlushResourceSpecs resourceSpecs;
+    GrCCPerFlushResourceSpecs specs;
     int maxPreferredRTSize = onFlushRP->caps()->maxPreferredRenderTargetSize();
-    resourceSpecs.fAtlasSpecs.fMaxPreferredTextureSize = maxPreferredRTSize;
-    resourceSpecs.fAtlasSpecs.fMinTextureSize = SkTMin(1024, maxPreferredRTSize);
+    specs.fCopyAtlasSpecs.fMaxPreferredTextureSize = SkTMin(2048, maxPreferredRTSize);
+    SkASSERT(0 == specs.fCopyAtlasSpecs.fMinTextureSize);
+    specs.fRenderedAtlasSpecs.fMaxPreferredTextureSize = maxPreferredRTSize;
+    specs.fRenderedAtlasSpecs.fMinTextureSize = SkTMin(1024, maxPreferredRTSize);
 
     // Move the per-opList paths that are about to be flushed from fPendingPaths to fFlushingPaths,
     // and count them up so we can preallocate buffers.
@@ -204,40 +223,49 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
         fFlushingPaths.push_back(std::move(iter->second));
         fPendingPaths.erase(iter);
 
-        for (const GrCCDrawPathsOp* op : fFlushingPaths.back()->fDrawOps) {
-            op->accountForOwnPaths(&resourceSpecs);
+        for (GrCCDrawPathsOp* op : fFlushingPaths.back()->fDrawOps) {
+            op->accountForOwnPaths(&fPathCache, onFlushRP, fStashedAtlasKey, &specs);
         }
         for (const auto& clipsIter : fFlushingPaths.back()->fClipPaths) {
-            clipsIter.second.accountForOwnPath(&resourceSpecs);
+            clipsIter.second.accountForOwnPath(&specs);
         }
     }
+    fStashedAtlasKey.reset();
 
-    if (resourceSpecs.isEmpty()) {
+    if (specs.isEmpty()) {
         return;  // Nothing to draw.
     }
 
-    auto resources = sk_make_sp<GrCCPerFlushResources>(onFlushRP, resourceSpecs);
+    // Determine if there are enough reusable paths from last flush for it to be worth our time to
+    // copy them to cached atlas(es).
+    DoCopiesToCache doCopies = DoCopiesToCache(specs.fNumCopiedPaths > 100 ||
+                                               specs.fCopyAtlasSpecs.fApproxNumPixels > 512 * 256);
+    if (specs.fNumCopiedPaths && DoCopiesToCache::kNo == doCopies) {
+        specs.convertCopiesToRenders();
+        SkASSERT(!specs.fNumCopiedPaths);
+    }
+
+    auto resources = sk_make_sp<GrCCPerFlushResources>(onFlushRP, specs);
     if (!resources->isMapped()) {
         return;  // Some allocation failed.
     }
 
-    // Layout atlas(es) and parse paths.
-    SkDEBUGCODE(int numSkippedPaths = 0);
+    // Layout the atlas(es) and parse paths.
     for (const auto& flushingPaths : fFlushingPaths) {
         for (GrCCDrawPathsOp* op : flushingPaths->fDrawOps) {
-            op->setupResources(resources.get(), onFlushRP);
-            SkDEBUGCODE(numSkippedPaths += op->numSkippedInstances_debugOnly());
+            op->setupResources(onFlushRP, resources.get(), doCopies);
         }
         for (auto& clipsIter : flushingPaths->fClipPaths) {
             clipsIter.second.renderPathInAtlas(resources.get(), onFlushRP);
         }
     }
-    SkASSERT(resources->nextPathInstanceIdx() == resourceSpecs.fNumRenderedPaths - numSkippedPaths);
 
-    // Allocate the atlases and create instance buffers to draw them.
-    if (!resources->finalize(onFlushRP, out)) {
+    // Allocate resources and then render the atlas(es).
+    if (!resources->finalize(onFlushRP, std::move(stashedAtlasProxy), out)) {
         return;
     }
+    // Verify the stashed atlas got released so its texture could be recycled.
+    SkASSERT(!stashedAtlasProxy);
 
     // Commit flushing paths to the resources once they are successfully completed.
     for (auto& flushingPaths : fFlushingPaths) {
@@ -249,14 +277,24 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
 void GrCoverageCountingPathRenderer::postFlush(GrDeferredUploadToken, const uint32_t* opListIDs,
                                                int numOpListIDs) {
     SkASSERT(fFlushing);
+    SkASSERT(!fStashedAtlasKey.isValid());  // Should have been cleared in preFlush().
 
-    // In DDL mode these aren't guaranteed to be deleted so we must clear out the perFlush
-    // resources manually.
-    for (auto& flushingPaths : fFlushingPaths) {
-        flushingPaths->fFlushResources = nullptr;
+    if (!fFlushingPaths.empty()) {
+        // Note the stashed atlas's key for next flush, if any.
+        auto resources = fFlushingPaths.front()->fFlushResources.get();
+        if (resources && resources->hasStashedAtlas()) {
+            fStashedAtlasKey = resources->stashedAtlasKey();
+        }
+
+        // In DDL mode these aren't guaranteed to be deleted so we must clear out the perFlush
+        // resources manually.
+        for (auto& flushingPaths : fFlushingPaths) {
+            flushingPaths->fFlushResources = nullptr;
+        }
+
+        // We wait to erase these until after flush, once Ops and FPs are done accessing their data.
+        fFlushingPaths.reset();
     }
 
-    // We wait to erase these until after flush, once Ops and FPs are done accessing their data.
-    fFlushingPaths.reset();
     SkDEBUGCODE(fFlushing = false);
 }
