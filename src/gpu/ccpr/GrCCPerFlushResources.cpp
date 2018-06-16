@@ -69,7 +69,7 @@ private:
 GrCCPerFlushResources::GrCCPerFlushResources(GrOnFlushResourceProvider* onFlushRP,
                                              const GrCCPerFlushResourceSpecs& specs)
         : fPathParser(specs.fNumRenderedPaths + specs.fNumClipPaths, specs.fParsingPathStats)
-        , fAtlasStack(specs.fAtlasSpecs)
+        , fAtlasStack(kAlpha_half_GrPixelConfig, specs.fAtlasSpecs, onFlushRP->caps())
         , fIndexBuffer(GrCCPathProcessor::FindIndexBuffer(onFlushRP))
         , fVertexBuffer(GrCCPathProcessor::FindVertexBuffer(onFlushRP))
         , fInstanceBuffer(onFlushRP->makeBuffer(kVertex_GrBufferType,
@@ -170,7 +170,7 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP,
 
     // Render the atlas(es).
     for (GrCCAtlasStack::Iter atlas(fAtlasStack); atlas.next();) {
-        if (auto rtc = atlas->initInternalTextureProxy(onFlushRP, kAlpha_half_GrPixelConfig)) {
+        if (auto rtc = atlas->makeRenderTargetContext(onFlushRP)) {
             auto op = RenderAtlasOp::Make(rtc->surfPriv().getContext(), sk_ref_sp(this),
                                           atlas->getUserBatchID(), atlas->drawBounds());
             rtc->addDrawOp(GrNoClip(), std::move(op));
