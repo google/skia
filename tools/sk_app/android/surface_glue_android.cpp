@@ -24,7 +24,7 @@
 #include "ResourceFactory.h"
 #include "SkTo.h"
 #include "SkTypes.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include "Window_android.h"
 
 

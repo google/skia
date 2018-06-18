@@ -393,7 +393,7 @@ SkScalar SkPaint::MaxCacheSize2(SkScalar maxLimit) {
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkGlyphCache.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 
 int SkPaint::countText(const void* text, size_t byteLength) const {
     SkASSERT(text != nullptr);

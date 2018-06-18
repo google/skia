@@ -21,7 +21,7 @@
 #include "SkShader.h"
 #include "SkTime.h"
 #include "SkTypeface.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include "SkClipOpPriv.h"
 
 static void make_paint(SkPaint* paint, const SkMatrix& localMatrix) {
