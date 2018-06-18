@@ -2194,7 +2194,7 @@ Returns storage required by pixel array, given Image_Info dimensions, Color_Type
 and rowBytes. rowBytes is assumed to be at least as large as minRowBytes().
 
 Returns zero if height is zero.
-Returns SK_MaxSizeT if answer exceeds the range of size_t.
+Returns SIZE_MAX if answer exceeds the range of size_t.
 
 #Param rowBytes  size of pixel row or larger ##
 
@@ -2228,7 +2228,7 @@ Returns storage required by pixel array, given Image_Info dimensions, and
 Color_Type. Uses minRowBytes() to compute bytes for pixel row.
 
 Returns zero if height is zero.
-Returns SK_MaxSizeT if answer exceeds the range of size_t.
+Returns SIZE_MAX if answer exceeds the range of size_t.
 
 #Return least memory required by pixel buffer ##
 
@@ -2256,8 +2256,8 @@ Returns SK_MaxSizeT if answer exceeds the range of size_t.
 #Method static bool ByteSizeOverflowed(size_t byteSize)
 #In Utility
 #Line # checks result of computeByteSize and computeMinByteSize ##
-Returns true if byteSize equals SK_MaxSizeT. computeByteSize and
-computeMinByteSize return SK_MaxSizeT if size_t can not hold buffer size.
+Returns true if byteSize equals SIZE_MAX. computeByteSize and
+computeMinByteSize return SIZE_MAX if size_t can not hold buffer size.
 
 #Param byteSize  result of computeByteSize or computeMinByteSize ##
 
