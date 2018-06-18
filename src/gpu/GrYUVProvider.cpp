@@ -7,6 +7,7 @@
 
 #include "GrYUVProvider.h"
 #include "GrClip.h"
+#include "GrColorSpaceXform.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrProxyProvider.h"
@@ -17,7 +18,6 @@
 #include "SkRefCnt.h"
 #include "SkResourceCache.h"
 #include "SkYUVPlanesCache.h"
-#include "effects/GrNonlinearColorSpaceXformEffect.h"
 #include "effects/GrSRGBEffect.h"
 #include "effects/GrYUVtoRGBEffect.h"
 
@@ -143,7 +143,7 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
     // If the caller expects the pixels in a different color space than the one from the image,
     // apply a color conversion to do this.
     std::unique_ptr<GrFragmentProcessor> colorConversionProcessor =
-            GrNonlinearColorSpaceXformEffect::Make(srcColorSpace, dstColorSpace);
+            GrColorSpaceXformEffect::Make(srcColorSpace, dstColorSpace);
     if (colorConversionProcessor) {
         paint.addColorFragmentProcessor(std::move(colorConversionProcessor));
     }
