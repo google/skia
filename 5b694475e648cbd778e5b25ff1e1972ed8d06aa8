@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29897725_331dbb51",
+        "filename": "BUILD.gn",
+        "patchSetId": 35
+      },
+      "lineNbr": 981,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-18T14:22:30Z",
+      "side": 1,
+      "message": "Double check you need this?  It feels like an odd spot to mention anything related to our tools.",
+      "range": {
+        "startLine": 978,
+        "startChar": 0,
+        "endLine": 981,
+        "endChar": 3
+      },
+      "revId": "5b694475e648cbd778e5b25ff1e1972ed8d06aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e58cd881_cbe6c896",
+        "filename": "BUILD.gn",
+        "patchSetId": 35
+      },
+      "lineNbr": 2004,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-18T14:22:30Z",
+      "side": 1,
+      "message": "so, true?",
+      "range": {
+        "startLine": 2004,
+        "startChar": 26,
+        "endLine": 2004,
+        "endChar": 36
+      },
+      "revId": "5b694475e648cbd778e5b25ff1e1972ed8d06aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "224f2fad_42a3c395",
+        "filename": "BUILD.gn",
+        "patchSetId": 35
+      },
+      "lineNbr": 2007,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-18T14:22:30Z",
+      "side": 1,
+      "message": "Is this not there by default?",
+      "range": {
+        "startLine": 2007,
+        "startChar": 8,
+        "endLine": 2007,
+        "endChar": 21
+      },
+      "revId": "5b694475e648cbd778e5b25ff1e1972ed8d06aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8125a2f7_7a7c55f0",
+        "filename": "BUILD.gn",
+        "patchSetId": 35
+      },
+      "lineNbr": 2009,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-18T14:22:30Z",
+      "side": 1,
+      "message": "Let\u0027s add a note?\n\n# For internship expedience, yes, we\u0027re rebuilding Skia rather than depending on :skia.\n# At the moment there\u0027s no way to use Skia and Skottie/SkShaper unless they\u0027re in the same .so.",
+      "revId": "5b694475e648cbd778e5b25ff1e1972ed8d06aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "acb51a01_4649fd19",
+        "filename": "modules/skshaper/include/SkShaper.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-18T14:22:30Z",
+      "side": 1,
+      "message": "Some of this may not be strictly relevant anymore?\n\nStill seems like a good idea, just not the sort of thing that you\u0027d want to be reverted if this SkAR CL gets reverted.  Maybe spin this off as another CL that we can land separately?",
+      "revId": "5b694475e648cbd778e5b25ff1e1972ed8d06aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b4c5bd8_1a968b82",
+        "filename": "platform_tools/android/apps/arcore/build.gradle",
+        "patchSetId": 35
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-18T14:22:30Z",
+      "side": 1,
+      "message": "I\u0027m not really familiar with building Android apps... seems like Gradle is the boss here, and it\u0027s calling out to CMake?  Is there any way we can streamline that to just Gradle?  Or any way to use only CMake?",
+      "revId": "5b694475e648cbd778e5b25ff1e1972ed8d06aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
