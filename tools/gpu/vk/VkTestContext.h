@@ -19,16 +19,29 @@ class VkTestContext : public TestContext {
 public:
     virtual GrBackend backend() override { return kVulkan_GrBackend; }
 
-    sk_sp<const GrVkBackendContext> getVkBackendContext() {
+    const GrVkBackendContext& getVkBackendContext() {
         return fVk;
     }
 
-    const GrVkInterface* vk() const { return fVk->fInterface.get(); }
+    const GrVkInterface* vk() const { return fVk.fInterface.get(); }
 
 protected:
-    VkTestContext(sk_sp<const GrVkBackendContext> vk) : fVk(std::move(vk)) {}
+    VkTestContext(const GrVkBackendContext& vk, bool ownsContext) : fOwnsContext(ownsContext) {
+        fVk.fInstance = vk.fInstance;
+        fVk.fPhysicalDevice = vk.fPhysicalDevice;
+        fVk.fDevice = vk.fDevice;
+        fVk.fQueue = vk.fQueue;
+        fVk.fGraphicsQueueIndex = vk.fGraphicsQueueIndex;
+        fVk.fMinAPIVersion = vk.fMinAPIVersion;
+        fVk.fExtensions = vk.fExtensions;
+        fVk.fFeatures = vk.fFeatures;
+        fVk.fInterface = vk.fInterface;
+        fVk.fMemoryAllocator = vk.fMemoryAllocator;
+        fVk.fOwnsInstanceAndDevice = vk.fOwnsInstanceAndDevice;
+    }
 
-    sk_sp<const GrVkBackendContext> fVk;
+    GrVkBackendContext fVk;
+    bool fOwnsContext;
 
 private:
     typedef TestContext INHERITED;
