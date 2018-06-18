@@ -22,7 +22,7 @@
 */
 
 /** See SkGraphics::GetVersion() to retrieve these at runtime
- */
+*/
 #define SKIA_VERSION_MAJOR  1
 #define SKIA_VERSION_MINOR  0
 #define SKIA_VERSION_PATCH  0
@@ -70,40 +70,39 @@ SK_API extern void sk_abort_no_print(void);
     #define SkDEBUGCODE(...)
     #define SkDEBUGF(args)
 
-    // unlike SkASSERT, this guy executes its condition in the non-debug build.
+    // unlike SkASSERT, this macro executes its condition in the non-debug build.
     // The if is present so that this can be used with functions marked SK_WARN_UNUSED_RESULT.
     #define SkAssertResult(cond)         if (cond) {} do {} while(false)
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/**
- *  Fast type for unsigned 8 bits. Use for parameter passing and local
- *  variables, not for storage
- */
+/** Fast type for unsigned 8 bits. Use for parameter passing and local
+    variables, not for storage
+*/
 typedef unsigned U8CPU;
 
-/**
- *  Fast type for signed 16 bits. Use for parameter passing and local variables,
- *  not for storage
- */
+/** Fast type for signed 16 bits. Use for parameter passing and local variables,
+    not for storage
+*/
 typedef int S16CPU;
 
-/**
- *  Fast type for unsigned 16 bits. Use for parameter passing and local
- *  variables, not for storage
- */
+/** Fast type for unsigned 16 bits. Use for parameter passing and local
+    variables, not for storage
+*/
 typedef unsigned U16CPU;
 
-/** Returns 0 or 1 based on the condition
+/** @return false or true based on the condition
 */
-#define SkToBool(cond)  ((cond) != 0)
+template <typename T> static constexpr bool SkToBool(const T& x) { return 0 != x; }
 
-#define SK_MaxS16   INT16_MAX
-#define SK_MinS16   -SK_MaxS16
-#define SK_MaxS32   INT32_MAX
-#define SK_MinS32   -SK_MaxS32
-#define SK_NaN32    INT32_MIN
+static constexpr int16_t SK_MaxS16 = INT16_MAX;
+static constexpr int16_t SK_MinS16 = -SK_MaxS16;
+
+static constexpr int32_t SK_MaxS32 = INT32_MAX;
+static constexpr int32_t SK_MinS32 = -SK_MaxS32;
+static constexpr int32_t SK_NaN32  = INT32_MIN;
+
 static constexpr int64_t SK_MaxS64 = INT64_MAX;
 static constexpr int64_t SK_MinS64 = -SK_MaxS64;
 
@@ -115,9 +114,10 @@ static inline constexpr int64_t SkLeftShift(int64_t value, int32_t shift) {
     return (int64_t) ((uint64_t) value << shift);
 }
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
-/** Returns the number of entries in an array (not a pointer) */
+/** @return the number of entries in an array (not a pointer)
+*/
 template <typename T, size_t N> char (&SkArrayCountHelper(T (&array)[N]))[N];
 #define SK_ARRAY_COUNT(array) (sizeof(SkArrayCountHelper(array)))
 
@@ -154,22 +154,25 @@ typedef int32_t SkUnichar;
 typedef uint16_t SkGlyphID;
 
 /** 32 bit value to hold a millisecond duration
- *  Note that SK_MSecMax is about 25 days.
- */
-typedef uint32_t SkMSec;
-/** maximum representable milliseconds; 24d 20h 31m 23.647s.
+    Note that SK_MSecMax is about 25 days.
 */
-#define SK_MSecMax 0x7FFFFFFF
+typedef uint32_t SkMSec;
+
+/** Maximum representable milliseconds; 24d 20h 31m 23.647s.
+*/
+static constexpr SkMSec SK_MSecMax = INT32_MAX;
 
 /** The generation IDs in Skia reserve 0 has an invalid marker.
- */
-#define SK_InvalidGenID     0
+*/
+static constexpr uint32_t SK_InvalidGenID = 0;
+
 /** The unique IDs in Skia reserve 0 has an invalid marker.
- */
-#define SK_InvalidUniqueID  0
+*/
+static constexpr uint32_t SK_InvalidUniqueID = 0;
 
 /** Generic swap function. Classes with efficient swaps should specialize this function to take
-    their fast path. This function is used by SkTSort. */
+    their fast path. This function is used by SkTSort.
+*/
 template <typename T> static inline void SkTSwap(T& a, T& b) {
     T c(std::move(a));
     a = std::move(b);
@@ -222,37 +225,35 @@ static inline int32_t SkFastMin32(int32_t value, int32_t max) {
     return value;
 }
 
-/** Returns value pinned between min and max, inclusively. */
+/** @return value pinned (clamped) between min and max, inclusively.
+*/
 template <typename T> static constexpr const T& SkTPin(const T& value, const T& min, const T& max) {
     return SkTMax(SkTMin(value, max), min);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////
-
-/**
- *  Indicates whether an allocation should count against a cache budget.
- */
+/** Indicates whether an allocation should count against a cache budget.
+*/
 enum class SkBudgeted : bool {
     kNo  = false,
     kYes = true
 };
 
-/**
- * Indicates whether a backing store needs to be an exact match or can be larger
- * than is strictly necessary
- */
+/** Indicates whether a backing store needs to be an exact match or can be
+    larger than is strictly necessary
+*/
 enum class SkBackingFit {
     kApprox,
     kExact
 };
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 /** \class SkNoncopyable
 
-SkNoncopyable is the base class for objects that do not want to
-be copied. It hides its copy-constructor and its assignment-operator.
+    SkNoncopyable is the base class for objects that do not want to
+    be copied. It hides its copy-constructor and its assignment-operator.
 */
 class SK_API SkNoncopyable {
 public:
@@ -261,6 +262,7 @@ public:
     SkNoncopyable(SkNoncopyable&&) = default;
     SkNoncopyable& operator =(SkNoncopyable&&) = default;
 
+private:
     SkNoncopyable(const SkNoncopyable&) = delete;
     SkNoncopyable& operator=(const SkNoncopyable&) = delete;
 };
