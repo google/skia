@@ -51,7 +51,7 @@
 #include "SkTTCFHeader.h"
 #include "SkTo.h"
 #include "SkTypefacePriv.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include "SkVertices.h"
 #include "SkXPSDevice.h"
 

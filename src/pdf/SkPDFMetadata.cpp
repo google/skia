@@ -11,6 +11,7 @@
 #include "SkMilestone.h"
 #include "SkPDFTypes.h"
 #include "SkTo.h"
+#include "SkUnicodeUtils.h"
 #include "SkUtils.h"
 
 #include <utility>
