@@ -9,7 +9,7 @@
 #include "SkRefCnt.h"
 #include "SkTSearch.h"
 #include "SkTSort.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include "Test.h"
 
 class RefClass : public SkRefCnt {
@@ -183,6 +183,12 @@ static void test_utf16(skiatest::Reporter* reporter) {
     }
 }
 
+static SkUnichar to_unichar(const char* text) {
+    const char* ptr = text;
+    size_t len = strlen(text);
+    return SkUTF8_NextUnicharWithError(&ptr, text + len);
+}
+
 DEF_TEST(Utils, reporter) {
     static const struct {
         const char* fUtf8;
@@ -203,9 +209,9 @@ DEF_TEST(Utils, reporter) {
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gTest); i++) {
         const char* p = gTest[i].fUtf8;
-        int         n = SkUTF8_CountUnichars(p);
-        SkUnichar   u0 = SkUTF8_ToUnichar(gTest[i].fUtf8);
-        SkUnichar   u1 = SkUTF8_NextUnichar(&p);
+        int         n = SkUTF8_CountUnichars(p, strlen(p));
+        SkUnichar   u0 = to_unichar(gTest[i].fUtf8);
+        SkUnichar   u1 = SkUTF8_NextUnichar(&p, p + strlen(p));
 
         REPORTER_ASSERT(reporter, n == 1);
         REPORTER_ASSERT(reporter, u0 == u1);

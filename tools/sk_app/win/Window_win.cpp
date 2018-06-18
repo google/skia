@@ -11,7 +11,7 @@
 #include <windows.h>
 #include <windowsx.h>
 
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include "../WindowContext.h"
 #include "WindowContextFactory_win.h"
 #ifdef SK_VULKAN

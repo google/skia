@@ -45,7 +45,7 @@
 #include "SkTextBlobRunIterator.h"
 #include "SkTextFormatParams.h"
 #include "SkTo.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include "SkXfermodeInterpretation.h"
 
 #ifndef SK_PDF_MASK_QUALITY

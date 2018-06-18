@@ -5,7 +5,7 @@
 * found in the LICENSE file.
 */
 
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include "Timer.h"
 #include "WindowContextFactory_mac.h"
 #include "Window_mac.h"

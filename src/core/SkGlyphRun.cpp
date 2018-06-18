@@ -22,16 +22,35 @@
 #include "SkTextBlob.h"
 #include "SkTextBlobRunIterator.h"
 #include "SkTo.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
+
+static_assert((unsigned)SkPaint::kUTF8_TextEncoding  == (unsigned)SkTypeface::kUTF8_Encoding, "");
+static_assert((unsigned)SkPaint::kUTF16_TextEncoding == (unsigned)SkTypeface::kUTF16_Encoding, "");
+static_assert((unsigned)SkPaint::kUTF32_TextEncoding == (unsigned)SkTypeface::kUTF32_Encoding, "");
+
+static_assert((unsigned)SkPaint::kUTF8_TextEncoding  == 0, "");
+static_assert((unsigned)SkPaint::kUTF16_TextEncoding == 1, "");
+static_assert((unsigned)SkPaint::kUTF32_TextEncoding == 2, "");
 
 namespace {
 static SkTypeface::Encoding convert_encoding(SkPaint::TextEncoding encoding) {
+    return SkASSERT((unsigned)encoding < 3), (SkTypeface::Encoding)encoding;
+}
+
+static int count_unichars(SkTypeface::Encoding encoding, const void* utfN, size_t byteLength) {
+    SkASSERT(utfN != nullptr);
+    SkASSERT((unsigned)encoding < 3);
     switch (encoding) {
-        case  SkPaint::kUTF8_TextEncoding: return SkTypeface::kUTF8_Encoding;
-        case SkPaint::kUTF16_TextEncoding: return SkTypeface::kUTF16_Encoding;
-        case SkPaint::kUTF32_TextEncoding: return SkTypeface::kUTF32_Encoding;
-        default: return SkTypeface::kUTF32_Encoding;
+        case SkTypeface::kUTF8_Encoding:
+            return SkUTF8_CountUnichars(utfN, byteLength);
+        case SkTypeface::kUTF16_Encoding:
+            return SkUTF16_CountUnichars(utfN, byteLength);
+        case SkTypeface::kUTF32_Encoding:
+            return SkUTF32_CountUnichars(utfN, byteLength);
+        default:
+            SkDEBUGFAIL("unknown text encoding");
     }
+    return -1;
 }
 }  // namespace
 
@@ -343,7 +362,7 @@ SkSpan<const SkGlyphID> SkGlyphRunBuilder::textToGlyphIDs(
     auto encoding = paint.getTextEncoding();
     if (encoding != SkPaint::kGlyphID_TextEncoding) {
         auto tfEncoding = convert_encoding(encoding);
-        int utfSize = SkUTFN_CountUnichars(tfEncoding, bytes, byteLength);
+        int utfSize = count_unichars(tfEncoding, bytes, byteLength);
         if (utfSize > 0) {
             size_t runSize = SkTo<size_t>(utfSize);
             fScratchGlyphIDs.resize(runSize);

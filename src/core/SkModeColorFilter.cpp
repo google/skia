@@ -18,7 +18,7 @@
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkString.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include "SkValidationUtils.h"
 #include "SkWriteBuffer.h"
 
