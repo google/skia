@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9fa1eda7_c50ee65b",
+        "filename": "gn/effects_imagefilters.gni",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-18T19:27:08Z",
+      "side": 1,
+      "message": "We\u0027ll need to put some of this in as dummy entries first, so that our Chromium GN files can use this?",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 32
+      },
+      "revId": "ed5070e0ac8597ea0b8a4989f284860882890cb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
