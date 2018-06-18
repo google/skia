@@ -149,6 +149,14 @@ var (
 		},
 	}
 
+	CIPD_PKGS_CPYTHON = []*specs.CipdPackage{
+		&specs.CipdPackage{
+			Name:    "infra/python/cpython/${platform}",
+			Path:    "cipd_bin_packages",
+			Version: "version:2.7.14.chromium14",
+		},
+	}
+
 	CIPD_PKGS_KITCHEN = append([]*specs.CipdPackage{
 		&specs.CipdPackage{
 			Name:    "infra/tools/luci/kitchen/${platform}",
@@ -235,6 +243,9 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 		serviceAccount = alternateServiceAccount(serviceAccount)
 	}
 	cipd := append([]*specs.CipdPackage{}, CIPD_PKGS_KITCHEN...)
+	if strings.Contains(name, "Win") {
+		cipd = append(cipd, CIPD_PKGS_CPYTHON...)
+	}
 	properties := map[string]string{
 		"buildbucket_build_id": specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID,
 		"buildername":          name,
