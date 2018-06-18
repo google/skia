@@ -104,3 +104,6 @@ skia_effects_sources = [
   "$_include/effects/SkToSRGBColorFilter.h",
   "$_include/effects/SkXfermodeImageFilter.h",
 ]
+
+# this will move to a real file after we land a reference to this in chrome
+skia_effects_imagefilter_sources = []
