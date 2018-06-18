@@ -41,7 +41,7 @@ void SkToSRGBColorFilter::onAppendStages(SkRasterPipeline* p,
     append_gamut_transform(p,
                            alloc,
                            fSrcColorSpace.get(),
-                           SkColorSpace::MakeSRGB().get(),
+                           srgb_singleton(),
                            kPremul_SkAlphaType);
 
     // Step 3: Back to sRGB encoding.
@@ -74,6 +74,6 @@ void SkToSRGBColorFilter::flatten(SkWriteBuffer& buffer) const {
 std::unique_ptr<GrFragmentProcessor> SkToSRGBColorFilter::asFragmentProcessor(
         GrContext*, const GrColorSpaceInfo&) const {
     return GrNonlinearColorSpaceXformEffect::Make(fSrcColorSpace.get(),
-                                                  SkColorSpace::MakeSRGB().get());
+                                                  srgb_singleton());
 }
 #endif

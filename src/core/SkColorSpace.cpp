@@ -185,28 +185,12 @@ sk_sp<SkColorSpace> SkColorSpace::MakeRGB(const SkColorSpaceTransferFn& coeffs, 
     return SkColorSpace::MakeRGB(coeffs, toXYZD50);
 }
 
-static SkColorSpace* singleton_colorspace(SkGammaNamed gamma, const float to_xyz[9]) {
-    SkMatrix44 m44(SkMatrix44::kUninitialized_Constructor);
-    m44.set3x3RowMajorf(to_xyz);
-    (void)m44.getType();  // Force typemask to be computed to avoid races.
-    return new SkColorSpace_XYZ(gamma, m44);
-}
-
-static SkColorSpace* srgb() {
-    static SkColorSpace* cs = singleton_colorspace(kSRGB_SkGammaNamed, gSRGB_toXYZD50);
-    return cs;
-}
-static SkColorSpace* srgb_linear() {
-    static SkColorSpace* cs = singleton_colorspace(kLinear_SkGammaNamed, gSRGB_toXYZD50);
-    return cs;
-}
-
 sk_sp<SkColorSpace> SkColorSpace::MakeSRGB() {
-    return sk_ref_sp(srgb());
+    return sk_ref_sp(srgb_singleton());
 }
 
 sk_sp<SkColorSpace> SkColorSpace::MakeSRGBLinear() {
-    return sk_ref_sp(srgb_linear());
+    return sk_ref_sp(srgb_linear_singleton());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -258,7 +242,7 @@ uint32_t SkColorSpace::toXYZD50Hash() const {
 }
 
 bool SkColorSpace::isSRGB() const {
-    return srgb() == this;
+    return srgb_singleton() == this;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -331,13 +315,13 @@ size_t SkColorSpace::writeToMemory(void* memory) const {
         SkASSERT(this->toXYZD50());
         // If we have a named profile, only write the enum.
         const SkGammaNamed gammaNamed = this->gammaNamed();
-        if (this == srgb()) {
+        if (this == srgb_singleton()) {
             if (memory) {
                 *((ColorSpaceHeader*) memory) = ColorSpaceHeader::Pack(
                         k0_Version, kSRGB_NamedColorSpace, gammaNamed, 0);
             }
             return sizeof(ColorSpaceHeader);
-        } else if (this == srgb_linear()) {
+        } else if (this == srgb_linear_singleton()) {
             if (memory) {
                 *((ColorSpaceHeader*) memory) = ColorSpaceHeader::Pack(
                         k0_Version, kSRGBLinear_NamedColorSpace, gammaNamed, 0);

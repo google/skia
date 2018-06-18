@@ -10,6 +10,7 @@
 #include <math.h>
 
 #include "SkColorSpace.h"
+#include "SkColorSpace_XYZ.h"
 #include "SkFixed.h"
 
 #define SkColorSpacePrintf(...)
@@ -209,4 +210,22 @@ static inline bool named_to_parametric(SkColorSpaceTransferFn* coeffs,
             return false;
     }
 }
+
+static SkColorSpace* singleton_colorspace(SkGammaNamed gamma, const float to_xyz[9]) {
+    SkMatrix44 m44(SkMatrix44::kUninitialized_Constructor);
+    m44.set3x3RowMajorf(to_xyz);
+    (void)m44.getType();  // Force typemask to be computed to avoid races.
+    return new SkColorSpace_XYZ(gamma, m44);
+}
+
+static inline SkColorSpace* srgb_singleton() {
+    static SkColorSpace* cs = singleton_colorspace(kSRGB_SkGammaNamed, gSRGB_toXYZD50);
+    return cs;
+}
+
+static inline SkColorSpace* srgb_linear_singleton() {
+    static SkColorSpace* cs = singleton_colorspace(kLinear_SkGammaNamed, gSRGB_toXYZD50);
+    return cs;
+}
+
 #endif  // SkColorSpacePriv_DEFINED

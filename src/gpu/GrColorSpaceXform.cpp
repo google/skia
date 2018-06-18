@@ -70,7 +70,7 @@ sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkColorSpace
 
     // Treat null sources as sRGB
     if (!src) {
-        src = SkColorSpace::MakeSRGB().get();
+        src = srgb_singleton();
     }
 
     uint32_t flags = 0;

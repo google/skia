@@ -10,6 +10,7 @@
 
 #include "SkColorData.h"
 #include "SkColorSpace.h"
+#include "SkColorSpacePriv.h"
 #include "SkArenaAlloc.h"
 #include "SkPM4f.h"
 #include "SkRasterPipeline.h"
@@ -93,8 +94,7 @@ static inline SkColor4f SkColor4f_from_SkColor(SkColor color, SkColorSpace* dst)
     SkColor4f color4f;
     if (dst) {
         // sRGB gamma, sRGB gamut.
-        color4f = to_colorspace(SkColor4f::FromColor(color),
-                                SkColorSpace::MakeSRGB().get(), dst);
+        color4f = to_colorspace(SkColor4f::FromColor(color), srgb_singleton(), dst);
     } else {
         // Linear gamma, dst gamut.
         swizzle_rb(SkNx_cast<float>(Sk4b::Load(&color)) * (1/255.0f)).store(&color4f);
