@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7936c88_85ec8af0",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-18T20:01:59Z",
+      "side": 1,
+      "message": "I don\u0027t think this line is needed.",
+      "range": {
+        "startLine": 653,
+        "startChar": 4,
+        "endLine": 653,
+        "endChar": 49
+      },
+      "revId": "575870382093085f6fe8155011c2b85539f7d34d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a640fb99_858129d7",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 654,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-18T20:01:59Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 654,
+        "startChar": 4,
+        "endLine": 654,
+        "endChar": 25
+      },
+      "revId": "575870382093085f6fe8155011c2b85539f7d34d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5524e6a1_b70af173",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 654,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-18T20:01:59Z",
+      "side": 1,
+      "message": "Just scanner (no \u0027f\u0027 since this isn\u0027t a field).",
+      "range": {
+        "startLine": 654,
+        "startChar": 33,
+        "endLine": 654,
+        "endChar": 41
+      },
+      "revId": "575870382093085f6fe8155011c2b85539f7d34d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "215fe018_1950a670",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-18T20:01:59Z",
+      "side": 1,
+      "message": "I think we want to return nullptr in this case (and make the onMakeClone which call this return nullptr in that case as well). If the scanner returns false here, that means something failed.",
+      "range": {
+        "startLine": 661,
+        "startChar": 15,
+        "endLine": 661,
+        "endChar": 35
+      },
+      "revId": "575870382093085f6fe8155011c2b85539f7d34d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f63ee0e3_e56902e4",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 667,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-18T20:01:59Z",
+      "side": 1,
+      "message": "Should be written this-\u003eopenStream",
+      "range": {
+        "startLine": 667,
+        "startChar": 42,
+        "endLine": 667,
+        "endChar": 52
+      },
+      "revId": "575870382093085f6fe8155011c2b85539f7d34d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a07f39d4_5346f97d",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 667,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-18T20:01:59Z",
+      "side": 1,
+      "message": "Don\u0027t need this duplicate.",
+      "range": {
+        "startLine": 667,
+        "startChar": 63,
+        "endLine": 667,
+        "endChar": 76
+      },
+      "revId": "575870382093085f6fe8155011c2b85539f7d34d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc25d5aa_8431a4e4",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1804,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-18T20:01:59Z",
+      "side": 1,
+      "message": "bool ret \u003d this-\u003egetAxes(face, axes);\nFT_Done_Face(face);\nreturn ret;\n\nI\u0027ll fix up the troublesome lack of automatically calling FT_Done_Face later.",
+      "range": {
+        "startLine": 1799,
+        "startChar": 0,
+        "endLine": 1804,
+        "endChar": 16
+      },
+      "revId": "575870382093085f6fe8155011c2b85539f7d34d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
