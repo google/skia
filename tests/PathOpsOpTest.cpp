@@ -5729,6 +5729,28 @@ static void halbug(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path, path2, kIntersect_SkPathOp, filename);
 }
 
+static void testRect1_u(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0, 0);
+    path.lineTo(0, 60);
+    path.lineTo(60, 60);
+    path.lineTo(60, 0);
+    path.close();
+    path.moveTo(30, 20);
+    path.lineTo(30, 50);
+    path.lineTo(50, 50);
+    path.lineTo(50, 20);
+    path.close();
+    path.moveTo(24, 20);
+    path.lineTo(24, 30);
+    path.lineTo(36, 30);
+    path.lineTo(36, 20);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    testPathOp(reporter, path, pathB, kUnion_SkPathOp, filename);
+}
+
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
@@ -5736,6 +5758,7 @@ static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 #define TEST(name) { name, #name }
 
 static struct TestDesc tests[] = {
+    TEST(testRect1_u),
     TEST(halbug),
     TEST(seanbug),
     TEST(android1),
