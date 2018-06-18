@@ -1068,7 +1068,7 @@ public:
             SkPoint position = xy - fCurrentMatrixOrigin;
             if (position != SkPoint{fXAdvance, 0}) {
                 this->flush();
-                SkPDFUtils::AppendScalar(position.x(), fContent);
+                SkPDFUtils::AppendScalar(position.x() - position.y() * fTextSkewX, fContent);
                 fContent->writeText(" ");
                 SkPDFUtils::AppendScalar(-position.y(), fContent);
                 fContent->writeText(" Td ");
