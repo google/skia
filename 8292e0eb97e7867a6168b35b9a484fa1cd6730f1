@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "91481967_743ba67f",
+        "filename": "src/gpu/ccpr/GrCCPathCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-18T16:23:07Z",
+      "side": 1,
+      "message": "This scheme just takes whatever subpixel translate we see first an sticks with it. The alternative would be to always round the matrix translates and enforce no subpixel translates ever. Thoughts on which is better?",
+      "revId": "8292e0eb97e7867a6168b35b9a484fa1cd6730f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
