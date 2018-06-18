@@ -130,7 +130,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Housekeeper-PerCommit/data"
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"
@@ -144,7 +144,7 @@
       "--githash",
       "abc123",
       "--dest",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Housekeeper-PerCommit/data/nanobench_9046e2e693bb92a76e972b694580e5d17ad10748_1337000001.json"
+      "[START_DIR]/[SWARM_OUT_DIR]/nanobench_9046e2e693bb92a76e972b694580e5d17ad10748_1337000001.json"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
