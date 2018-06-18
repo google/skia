@@ -7,6 +7,8 @@
 
 #include "SkCoverageDelta.h"
 
+#include "SkNx.h"
+
 SkCoverageDeltaList::SkCoverageDeltaList(SkArenaAlloc* alloc, const SkIRect& bounds, bool forceRLE) {
     fAlloc              = alloc;
     fBounds             = bounds;

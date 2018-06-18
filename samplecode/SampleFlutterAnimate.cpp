@@ -9,7 +9,7 @@
 #include "SkAnimTimer.h"
 #include "SkView.h"
 #include "SkCanvas.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
 #include "SkImage.h"

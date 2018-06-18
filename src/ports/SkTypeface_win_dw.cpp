@@ -28,7 +28,7 @@
 #include "SkScalerContext_win_dw.h"
 #include "SkTo.h"
 #include "SkTypeface_win_dw.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 
 void DWriteFontTypeface::onGetFamilyName(SkString* familyName) const {
     SkTScopedComPtr<IDWriteLocalizedStrings> familyNames;

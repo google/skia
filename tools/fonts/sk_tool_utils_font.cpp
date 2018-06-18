@@ -12,7 +12,7 @@
 #include "SkMutex.h"
 #include "SkOSFile.h"
 #include "SkTestTypeface.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include "sk_tool_utils.h"
 
 namespace sk_tool_utils {

@@ -25,7 +25,7 @@
 #include "SkTextBlob.h"
 #include "SkTo.h"
 #include "SkTypeface.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 
 namespace {
 template <class T, void(*P)(T*)> using resource = std::unique_ptr<T, SkFunctionWrapper<void, T, P>>;
