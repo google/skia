@@ -618,8 +618,8 @@
     "cmd": [
       "adb",
       "pull",
-      "/dev/shm/skia/dm_out",
-      "[START_DIR]/[SWARM_OUT_DIR]/dm"
+      "/dev/shm/skia/dm_out/*",
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -627,7 +627,7 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "pull /dev/shm/skia/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm"
+    "name": "pull /dev/shm/skia/dm_out/* [START_DIR]/[SWARM_OUT_DIR]"
   },
   {
     "cmd": [
