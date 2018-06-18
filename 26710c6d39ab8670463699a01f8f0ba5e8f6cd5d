@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae8c0c05_eea1f21d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-18T19:11:36Z",
+      "side": 1,
+      "message": "Going to want to edit the commit message (especially the first line) to be about NIMA.",
+      "revId": "26710c6d39ab8670463699a01f8f0ba5e8f6cd5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15767313_5076cbd6",
+        "filename": "BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 1545,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-18T19:11:36Z",
+      "side": 1,
+      "message": "I don\u0027t think our third_party template has any kind of optional behavior (eg enabled \u003d !is_win), although that would be nice, because then this wouldn\u0027t need an explicit check in each deps list.",
+      "revId": "26710c6d39ab8670463699a01f8f0ba5e8f6cd5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2e50621_dc8d2a88",
+        "filename": "third_party/third_party.gni",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-18T19:11:36Z",
+      "side": 1,
+      "message": "I just found https://blogs.msdn.microsoft.com/vcblog/2017/12/13/broken-warnings-theory/, which documents a feature added to MSVC last year (/external:I), which looks like it will solve this? We can look at adopting that in a separate CL, because this code still won\u0027t build on Windows, anyway.",
+      "revId": "26710c6d39ab8670463699a01f8f0ba5e8f6cd5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
