@@ -3180,70 +3180,6 @@ STAGE_PP(srcover_bgra_8888, const SkJumper_MemoryCtx* ctx) {
     store_8888_(ptr, tail, b,g,r,a);
 }
 
-#if defined(SK_DISABLE_LOWP_BILERP_CLAMP_CLAMP_STAGE)
-    static void(*bilerp_clamp_8888)(void) = nullptr;
-#else
-STAGE_GP(bilerp_clamp_8888, const SkJumper_GatherCtx* ctx) {
-    // (cx,cy) are the center of our sample.
-    F cx = x,
-      cy = y;
-
-    // All sample points are at the same fractional offset (fx,fy).
-    // They're the 4 corners of a logical 1x1 pixel surrounding (x,y) at (0.5,0.5) offsets.
-    F fx = fract(cx + 0.5f),
-      fy = fract(cy + 0.5f);
-
-    // We'll accumulate the color of all four samples into {r,g,b,a} directly.
-    r = g = b = a = 0;
-
-    // The first three sample points will calculate their area using math
-    // just like in the float code above, but the fourth will take up all the rest.
-    //
-    // Logically this is the same as doing the math for the fourth pixel too,
-    // but rounding error makes this a better strategy, keeping opaque opaque, etc.
-    //
-    // We can keep up to 8 bits of fractional precision without overflowing 16-bit,
-    // so our "1.0" area is 256.
-    const uint16_t bias = 256;
-    U16 remaining = bias;
-
-    for (float dy = -0.5f; dy <= +0.5f; dy += 1.0f)
-    for (float dx = -0.5f; dx <= +0.5f; dx += 1.0f) {
-        // (x,y) are the coordinates of this sample point.
-        F x = cx + dx,
-          y = cy + dy;
-
-        // ix_and_ptr() will clamp to the image's bounds for us.
-        const uint32_t* ptr;
-        U32 ix = ix_and_ptr(&ptr, ctx, x,y);
-
-        U16 sr,sg,sb,sa;
-        from_8888(gather<U32>(ptr, ix), &sr,&sg,&sb,&sa);
-
-        // In bilinear interpolation, the 4 pixels at +/- 0.5 offsets from the sample pixel center
-        // are combined in direct proportion to their area overlapping that logical query pixel.
-        // At positive offsets, the x-axis contribution to that rectangle is fx,
-        // or (1-fx) at negative x.  Same deal for y.
-        F sx = (dx > 0) ? fx : 1.0f - fx,
-          sy = (dy > 0) ? fy : 1.0f - fy;
-
-        U16 area = (dy == 0.5f && dx == 0.5f) ? remaining
-                                              : cast<U16>(sx * sy * bias);
-        remaining -= area;
-
-        r += sr * area;
-        g += sg * area;
-        b += sb * area;
-        a += sa * area;
-    }
-
-    r /= bias;
-    g /= bias;
-    b /= bias;
-    a /= bias;
-}
-#endif
-
 // Now we'll add null stand-ins for stages we haven't implemented in lowp.
 // If a pipeline uses these stages, it'll boot it out of lowp into highp.
 
@@ -3268,6 +3204,7 @@ static NotImplemented
         mirror_x, repeat_x,
         mirror_y, repeat_y,
         negate_x,
+        bilerp_clamp_8888,
         bilinear_nx, bilinear_ny, bilinear_px, bilinear_py,
         bicubic_n3x, bicubic_n1x, bicubic_p1x, bicubic_p3x,
         bicubic_n3y, bicubic_n1y, bicubic_p1y, bicubic_p3y,
