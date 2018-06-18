@@ -45,9 +45,10 @@ Test code is located under the 'tests' directory.
 See [Writing Unit and Rendering Tests](../testing/tests) for details.
 
 Unit tests are best, but if your change touches rendering and you can't think of
-an automated way to verify the results, consider writing a GM test. Also, if your
-change is in the GPU code, you may not be able to write it as part of the standard
-unit test suite, but there are GPU-specific testing paths you can extend.
+an automated way to verify the results, consider writing a GM test or a new page
+of SampleApp. Also, if your change is the GPU code, you may not be able to write
+it as part of the standard unit test suite, but there are GPU-specific testing
+paths you can extend.
 
 Submitting a patch
 ------------------

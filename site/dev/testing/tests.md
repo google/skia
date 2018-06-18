@@ -78,12 +78,12 @@ Writing a Rendering Test
         ninja -C out/Debug dm
         out/Debug/dm --match newgmtest
 
-4.  Run the GM inside Viewer:
+4.  Run the GM inside SampleApp:
 
     <!--?prettify lang=sh?-->
 
-        ninja -C out/Debug viewer
-        out/Debug/viewer --slide GM_newgmtest
+        ninja -C out/Debug SampleApp
+        out/Debug/SampleApp --slide GM:newgmtest
 
 <span id="bench"></span>
 
