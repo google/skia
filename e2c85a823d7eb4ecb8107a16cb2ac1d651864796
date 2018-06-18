@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b293b69c_80e2a29f",
+        "filename": "src/gpu/GrPrimitiveProcessor.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-18T15:42:38Z",
+      "side": 1,
+      "message": "nit: define these in the header to encourage inlining?",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 1
+      },
+      "revId": "e2c85a823d7eb4ecb8107a16cb2ac1d651864796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
