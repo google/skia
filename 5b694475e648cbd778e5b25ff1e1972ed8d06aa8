@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "de880115_ae1089cd",
+        "filename": "BUILD.gn",
+        "patchSetId": 35
+      },
+      "lineNbr": 981,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-18T15:02:40Z",
+      "side": 1,
+      "message": "You\u0027re right, don\u0027t need this. I had this once to test something. Thanks!",
+      "parentUuid": "29897725_331dbb51",
+      "range": {
+        "startLine": 978,
+        "startChar": 0,
+        "endLine": 981,
+        "endChar": 3
+      },
+      "revId": "5b694475e648cbd778e5b25ff1e1972ed8d06aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e58cd881_cbe6c896",
         "filename": "BUILD.gn",
         "patchSetId": 35
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "04ea9771_eade62ed",
+        "filename": "BUILD.gn",
+        "patchSetId": 35
+      },
+      "lineNbr": 2004,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-18T15:02:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e58cd881_cbe6c896",
+      "range": {
+        "startLine": 2004,
+        "startChar": 26,
+        "endLine": 2004,
+        "endChar": 36
+      },
+      "revId": "5b694475e648cbd778e5b25ff1e1972ed8d06aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "224f2fad_42a3c395",
         "filename": "BUILD.gn",
         "patchSetId": 35
@@ -59,6 +107,30 @@
       "writtenOn": "2018-06-18T14:22:30Z",
       "side": 1,
       "message": "Is this not there by default?",
+      "range": {
+        "startLine": 2007,
+        "startChar": 8,
+        "endLine": 2007,
+        "endChar": 21
+      },
+      "revId": "5b694475e648cbd778e5b25ff1e1972ed8d06aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c46e90c_2c70b96e",
+        "filename": "BUILD.gn",
+        "patchSetId": 35
+      },
+      "lineNbr": 2007,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-18T15:02:40Z",
+      "side": 1,
+      "message": "Nope, it\u0027s an oddity I had to solve with Ben",
+      "parentUuid": "224f2fad_42a3c395",
       "range": {
         "startLine": 2007,
         "startChar": 8,
@@ -88,6 +160,24 @@
     },
     {
       "key": {
+        "uuid": "bb7b5f78_c10ad6b3",
+        "filename": "BUILD.gn",
+        "patchSetId": 35
+      },
+      "lineNbr": 2009,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-18T15:02:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8125a2f7_7a7c55f0",
+      "revId": "5b694475e648cbd778e5b25ff1e1972ed8d06aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "acb51a01_4649fd19",
         "filename": "modules/skshaper/include/SkShaper.h",
         "patchSetId": 35
@@ -105,6 +195,24 @@
     },
     {
       "key": {
+        "uuid": "118afcd2_18a81e2d",
+        "filename": "modules/skshaper/include/SkShaper.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-18T15:02:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "acb51a01_4649fd19",
+      "revId": "5b694475e648cbd778e5b25ff1e1972ed8d06aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8b4c5bd8_1a968b82",
         "filename": "platform_tools/android/apps/arcore/build.gradle",
         "patchSetId": 35
@@ -116,6 +224,24 @@
       "writtenOn": "2018-06-18T14:22:30Z",
       "side": 1,
       "message": "I\u0027m not really familiar with building Android apps... seems like Gradle is the boss here, and it\u0027s calling out to CMake?  Is there any way we can streamline that to just Gradle?  Or any way to use only CMake?",
+      "revId": "5b694475e648cbd778e5b25ff1e1972ed8d06aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cccea43b_c5359d84",
+        "filename": "platform_tools/android/apps/arcore/build.gradle",
+        "patchSetId": 35
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-18T15:02:40Z",
+      "side": 1,
+      "message": "To make this app self-contained, it was advised that it shares the same build process for building skia-related tools/so., but to have the app itself build anything else it needs. Since I have some native code that is only app-related (AR only), I must run CMake. It also makes it easier to link with the skia .so",
+      "parentUuid": "8b4c5bd8_1a968b82",
       "revId": "5b694475e648cbd778e5b25ff1e1972ed8d06aa8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
