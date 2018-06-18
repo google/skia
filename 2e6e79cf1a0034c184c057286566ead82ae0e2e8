@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "efdbdf64_d72684c6",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1823,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-18T21:02:24Z",
+      "side": 1,
+      "message": "remove this",
+      "range": {
+        "startLine": 1823,
+        "startChar": 8,
+        "endLine": 1823,
+        "endChar": 20
+      },
+      "revId": "2e6e79cf1a0034c184c057286566ead82ae0e2e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6a4b72c_9325096e",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1825,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-18T21:02:24Z",
+      "side": 1,
+      "message": "true",
+      "range": {
+        "startLine": 1825,
+        "startChar": 11,
+        "endLine": 1825,
+        "endChar": 17
+      },
+      "revId": "2e6e79cf1a0034c184c057286566ead82ae0e2e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
