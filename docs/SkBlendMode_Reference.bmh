@@ -1,0 +1,367 @@
+#Topic Blend_Mode
+#Alias BlendMode_Reference ##
+
+#Subtopic Overview
+#Populate
+##
+
+#Subtopic Function
+#Populate
+##
+
+#Subtopic Enum
+#Populate
+##
+
+# ------------------------------------------------------------------------------
+
+#EnumClass SkBlendMode
+#Line # incomplete ##
+
+#Code
+    enum class SkBlendMode {
+        kClear,
+        kSrc,
+        kDst,
+        kSrcOver,
+        kDstOver,
+        kSrcIn,
+        kDstIn,
+        kSrcOut,
+        kDstOut,
+        kSrcATop,
+        kDstATop,
+        kXor,
+        kPlus,
+        kModulate,
+        kScreen,
+        kLastCoeffMode = kScreen,
+        kOverlay,
+        kDarken,
+        kLighten,
+        kColorDodge,
+        kColorBurn,
+        kHardLight,
+        kSoftLight,
+        kDifference,
+        kExclusion,
+        kMultiply,
+        kLastSeparableMode = kMultiply,
+        kHue,
+        kSaturation,
+        kColor,
+        kLuminosity,
+        kLastMode = kLuminosity,
+    };
+##
+
+Describes
+###$
+$A screen through luminosity $ https://dvcs.w3.org/hg/FXTF/rawfile/tip/compositing/index.html#blending $$
+$$$#
+.
+
+#Const kClear 0
+#Line # replaces destination with zero: fully transparent ##
+Replaces destination with Alpha and Color components set to:
+#Formula
+[0, 0]
+##
+.
+#Example
+
+##
+##
+
+#Const kSrc 1
+#Line # replaces destination ##
+Given:
+#Formula
+Sa as source Alpha, Sc as source Color
+##
+; replaces destination set to:
+#Formula
+[Sa, Sc]
+##
+.
+#Example
+incomplete;
+##
+##
+
+#Const kDst 2
+#Line # preserves destination ##
+Given:
+#Formula
+Da as destination Alpha, Dc as destination Color
+##
+##
+; preserves destination set to:
+#Formula
+[Da, Dc]
+##
+. Setting Paint Blend_Mode to kDst causes drawing with
+Paint to have no effect. As a parameter to SkCanvas::drawAtlas,
+selects sprites and ignores colors.
+#Example
+incomplete;
+##
+##
+
+#Const kSrcOver 3
+#Line # source over destination ##
+Given:
+#Formula
+Sa as source Alpha, Sc as source Color,
+Da as destination Alpha, Dc as destination Color
+##
+; replaces destination with:
+#Formula
+[Sa + Da * (1 - Sa), Sc + Dc * (1 - Sa)]
+##
+, drawing source over destination. kSrcOver is the default
+for Paint.
+#Example
+incomplete;
+##
+##
+
+#Const kDstOver 4
+#Line # destination over source ##
+Given:
+#Formula
+Sa as source Alpha, Sc as source Color,
+Da as destination Alpha, Dc as destination Color
+##
+; replaces destination with:
+#Formula
+[Da + Sa * (1 - Da), Dc + Sc * (1 - Da)]
+##
+, drawing destination over source. If destination is opaque,
+has no effect.
+#Example
+incomplete;
+##
+##
+
+#Const kSrcIn 5
+#Line # source trimmed inside destination ##
+Given:
+#Formula
+Sa as source Alpha, Sc as source Color, Da as destination Alpha
+##
+; replaces destination with:
+#Formula
+[Sa * Da, Sc * Da]
+##
+, drawing source with destination opacity. If destination
+Alpha is zero, has no effect.
+#Example
+incomplete;
+##
+##
+
+#Const kDstIn 6
+#Line # destination trimmed by source ##
+Given:
+#Formula
+Sa as source Alpha, Da as destination Alpha, Dc as destination Color
+##
+; replaces destination with:
+#Formula
+[Da * Sa, Dc * Sa]
+##
+, scaling destination Alpha by source Alpha. Resulting
+destination is visible where source is visible. If source
+is opaque, has no effect.
+#Example
+incomplete;
+##
+##
+
+#Const kSrcOut 7
+#Line # source trimmed outside destination ##
+Given:
+#Formula
+Sa as source Alpha, Sc as source Color, Da as destination Alpha
+##
+; replaces destination with:
+#Formula
+[Sa * (1 - Da), Sc * (1 - Da)]
+##
+, drawing source fully where destination Alpha is zero. Is destination
+is opaque, has no effect.
+#Example
+incomplete;
+##
+##
+
+#Const kDstOut 8
+#Line # destination trimmed outside source ##
+Given:
+#Formula
+Sa as source Alpha, Da as destination Alpha, Dc as destination Color
+##
+; replaces destination with:
+#Formula
+[Da * (1 - Sa), Dc * (1 - Sa)]
+##
+, scaling destination Alpha by source transparency. Resulting
+destination is visible where source is transparent. If source is transparent,
+has no effect.
+#Example
+incomplete;
+##
+##
+
+#Const kSrcATop 9
+#Line # source inside destination over destination ##
+Given:
+#Formula
+Sa as source Alpha, Sc as source Color,
+Da as destination Alpha, Dc as destination Color
+##
+; replaces destination with:
+#Formula
+[Da, Sc * Da + Dc * (1 - Sa)]
+##
+, replacing opaque destination with opaque source. If source or destination
+is transparent, has no effect.
+#Example
+incomplete;
+##
+##
+
+#Const kDstATop 10
+#Line # destination inside source over source ##
+Given:
+#Formula
+Sa as source Alpha, Sc as source Color,
+Da as destination Alpha, Dc as destination Color
+##
+; replaces destination with:
+#Formula
+[Sa, Dc * Sa + Sc * (1 - Da)]
+##
+, making destination transparent where source is transparent.
+#Example
+incomplete;
+##
+##
+
+#Const kXor 11
+#Line # each of source and destination trimmed outside the other ##
+[Sa + Da - 2 * Sa * Da, Sc * (1 - Da) + Dc * (1 - Sa)]
+##
+#Const kPlus 12
+#Line # sum of colors ##
+[Sa + Da, Sc + Dc]
+##
+#Const kModulate 13
+#Line # product of Premultiplied colors ##
+[Sa * Da, Sc * Dc]
+##
+#Const kScreen 14
+#Line # multiply inverse of pixels, inverting result ##
+[Sa + Da - Sa * Da, Sc + Dc - Sc * Dc]
+##
+#Const kLastCoeffMode 14
+#Line # last Porter Duff blend mode ##
+##
+#Const kOverlay 15
+#Line # multiply or screen, depending on destination ##
+[Sa + Da * (1 - Sa),  2 * Dc <= Da ? 2 * Sc * Dc, Sa * Da - 2 * (Da - Dc) * (Sa - Sc)]
+##
+#Const kDarken 16
+#Line # darker of source and destination ##
+[Sa + Da * (1 - Sa),  Sc + Dc - max(Sc * Da, Dc * Sa)]
+##
+#Const kLighten 17
+#Line # lighter of source and destination ##
+[Sa + Da * (1 - Sa),  Sc + Dc - min(Sc * Da, Dc * Sa)]
+##
+#Const kColorDodge 18
+#Line # brighten destination to reflect source ##
+[Sa + Da * (1 - Sa), Dc == 0 ? Sc * (1 - Da) : Sc == Sa ? Sc + Da * (1 - Sa) :
+            Sa * min(Da, Dc * Sa / (Sa - Sc)) + Sc * (1 - Da) + Da * (1 - Sa)]
+##
+#Const kColorBurn 19
+#Line # darken destination to reflect source ##
+[Sa + Da * (1 - Sa), Dc == Da ? Dc + Sc * (1 - Da) : Sc == 0 ? Da * (1 - Sa) :
+            Sa * (Da - min(Da, (Da - Dc) * Sa / Sc)) + Sc * (1 - Da) + Da * (1 - Sa)]
+##
+#Const kHardLight 20
+#Line # multiply or screen, depending on source ##
+[Sa + Da * (1 - Sa),  2 * Sc <= Sa ? 2 * Sc * Dc, Sa * Da - 2 * (Da - Dc) * (Sa - Sc)]
+##
+#Const kSoftLight 21
+#Line # lighten or darken, depending on source ##
+where m = Da > 0 ? Dc / Da : 0
+[Sa + Da * (1 - Sa), Sc / Da + Dc / Sa +
+    (2 * Sc <= Sa ? Dc * (Sa + (2 * Sc - Sa) * (1 - m)) : Dc * Sa + Da * (2 * Sc - Sa) *
+    (4 * Dc <= Da ? (16 * m * m  + 4 * m) * (m - 1) + 7 * m : sqrt(m) - m))]
+##
+#Const kDifference 22
+#Line # subtract darker from lighter with higher contrast ##
+[Sa + Da * (1 - Sa),  Sc + Dc - 2 * min(Sc * Da, Dc * Sa)]
+##
+#Const kExclusion 23
+#Line # subtract darker from lighter with lower contrast ##
+[Sa + Da * (1 - Sa),  Sc + Dc - 2 * Sc * Dc]
+##
+#Const kMultiply 24
+#Line # multiply source with destination, darkening image ##
+[Sa * (1 - Da) + Da * (1 - Sa) - Sa * Da, Sc * (1 - Da) + Dc * (1 - Sa) - Sc * Dc]
+##
+#Const kLastSeparableMode 24
+#Line # last blend mode operating separately on components ##
+##
+#Const kHue 25
+#Line # hue of source with saturation and luminosity of destination ##
+[Sa + Da * (1 - Sa), SetLum(SetSat(S, Sat(D)), Lum(D))]
+##
+#Const kSaturation 26
+#Line # saturation of source with hue and luminosity of destination ##
+[Sa + Da * (1 - Sa), SetLum(SetSat(D, Sat(S)), Lum(D))]
+##
+#Const kColor 27
+#Line # hue and saturation of source with luminosity of destination ##
+[Sa + Da * (1 - Sa), SetLum(S, Lum(D))]
+##
+#Const kLuminosity 28
+#Line # luminosity of source with hue and saturation of destination ##
+[Sa + Da * (1 - Sa), SetLum(D, Lum(S))]
+##
+#Const kLastMode 28
+#Line # incomplete ##
+##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#EnumClass ##
+
+# ------------------------------------------------------------------------------
+
+#Method SK_API const char* SkBlendMode_Name(SkBlendMode)
+#In Constructor
+#Line # incomplete ##
+
+Return the (c-string) name of the blendmode.
+
+#Param SkBlendMode  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Topic Blend_Mode ##

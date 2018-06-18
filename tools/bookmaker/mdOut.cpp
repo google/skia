@@ -835,7 +835,8 @@ Definition* MdOut::csParent() {
                 break;
             }
         }
-        SkASSERT(csParent || string::npos == fRoot->fFileName.find("Sk"));
+        SkASSERT(csParent || string::npos == fRoot->fFileName.find("Sk")
+                || string::npos != fRoot->fFileName.find("SkBlendMode_Reference.bmh"));
     }
     return csParent;
 }
@@ -2117,9 +2118,16 @@ void MdOut::subtopicsOut(Definition* def) {
 }
 
 void MdOut::subtopicOut(string name) {
-    Definition* csParent = this->csParent();
-    SkASSERT(csParent);
     const Definition* topicParent = fSubtopic ? fSubtopic->topicParent() : nullptr;
+    Definition* csParent = this->csParent();
+    if (!csParent) {
+        auto csIter = std::find_if(topicParent->fChildren.begin(), topicParent->fChildren.end(),
+                [](const Definition* def){ return MarkType::kEnum == def->fMarkType
+                || MarkType::kEnumClass == def->fMarkType; } );
+        SkASSERT(topicParent->fChildren.end() != csIter);
+        csParent = *csIter;
+    }
+    SkASSERT(csParent);
     this->lfAlways(1);
     if (fPopulators.end() != fPopulators.find(name)) {
         const SubtopicDescriptions& tableDescriptions = this->populator(name);
