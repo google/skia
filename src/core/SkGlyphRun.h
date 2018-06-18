@@ -29,6 +29,7 @@ public:
     const T& operator [] (ptrdiff_t i) const { return fPtr[i]; }
     const T* begin() const { return fPtr; }
     const T* end() const { return fPtr + fSize; }
+    const T* data() const { return fPtr; }
     ptrdiff_t size() const { return fSize; }
 
 private:
@@ -39,19 +40,36 @@ private:
 class SkGlyphRun {
 public:
     SkGlyphRun() = default;
-    SkGlyphRun(SkSpan<uint16_t> denseIndex, SkSpan<SkPoint> positions,
+    SkGlyphRun(SkSpan<uint16_t>  denseIndex,
+               SkSpan<SkPoint>   positions,
+               SkSpan<SkGlyphID> scratchGlyphs,
                SkSpan<SkGlyphID> uniqueGlyphIDs)
             : fDenseIndex{denseIndex}
             , fPositions{positions}
-            , fUniqueGlyphIDs{uniqueGlyphIDs} {}
+            , fTemporaryShuntGlyphIDs{scratchGlyphs}
+            , fUniqueGlyphIDs{uniqueGlyphIDs} {
+        SkASSERT(denseIndex.size() == positions.size());
+        SkASSERT(denseIndex.size() == scratchGlyphs.size());
+    }
+
+    // The temporaryShunt calls are to allow inter-operating with existing code while glyph runs
+    // are developed.
+    void temporaryShuntToDrawPosText(const SkPaint& paint, SkBaseDevice* device);
+    using TemporaryShuntCallback = std::function<void(size_t, const char*, const SkScalar*)>;
+    void temporaryShuntToCallback(TemporaryShuntCallback callback);
 
     size_t runSize() const { return fDenseIndex.size(); }
     uint16_t uniqueSize() const { return fUniqueGlyphIDs.size(); }
     SkSpan<SkPoint> positions() const { return SkSpan<SkPoint>(fPositions); }
 
 private:
+    // Indices into the unique glyph IDs. On for each original glyph.
     SkSpan<uint16_t>  fDenseIndex;
+    // The base line position of all the glyphs in source space.
     SkSpan<SkPoint>   fPositions;
+    // This is temporary while converting from the old per glyph code to the bulk code.
+    SkSpan<SkGlyphID> fTemporaryShuntGlyphIDs;
+    // The set of unique glyphs in the run.
     SkSpan<SkGlyphID> fUniqueGlyphIDs;
 };
 
@@ -89,13 +107,7 @@ public:
     size_t runSize() const {return fDenseIndex.size();}
     size_t uniqueSize() const {return fUniqueGlyphs.size();}
 
-    const SkGlyphRun& useGlyphRun() const;
-
-    // The temporaryShunt calls are to allow inter-operating with existing code while glyph runs
-    // are developed.
-    void temporaryShuntToDrawPosText(const SkPaint& paint, SkBaseDevice* device);
-    using TemporaryShuntCallback = std::function<void(size_t, const char*, const SkScalar*)>;
-    void temporaryShuntToCallback(TemporaryShuntCallback callback);
+    SkGlyphRun* useGlyphRun();
 
 private:
     void initializeDenseAndUnique(const SkPaint& paint, const void* bytes, size_t byteLength);
@@ -119,7 +131,7 @@ private:
     const SkGlyphID*       fTemporaryShuntGlyphIDs{nullptr};
 
     // Used for collecting the set of unique glyphs.
-    SkGlyphSet            fGlyphSet;
+    SkGlyphSet             fGlyphSet;
 };
 
 #endif  // SkGlyphRunInfo_DEFINED
