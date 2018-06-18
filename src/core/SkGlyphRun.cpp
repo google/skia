@@ -76,6 +76,24 @@ void SkGlyphSet::reuse(uint32_t glyphUniverseSize, std::vector<SkGlyphID>* uniqu
     // correctly even when the fIndexes buffer is uninitialized!
 }
 
+// -- SkGlyphRun -----------------------------------------------------------------------------------
+
+void SkGlyphRun::temporaryShuntToDrawPosText(const SkPaint& paint, SkBaseDevice* device) {
+
+    auto pos = (const SkScalar*) fPositions.data();
+
+    device->drawPosText(
+            fTemporaryShuntGlyphIDs.data(), fDenseIndex.size() * sizeof(SkGlyphID),
+            pos, 2, SkPoint::Make(0, 0), paint);
+}
+
+void SkGlyphRun::temporaryShuntToCallback(TemporaryShuntCallback callback) {
+    auto bytes = (const char *)fTemporaryShuntGlyphIDs.data();
+    auto pos = (const SkScalar*)fPositions.data();
+    callback(this->runSize(), bytes, pos);
+}
+
+
 // -- SkGlyphRunBuilder ----------------------------------------------------------------------------
 void SkGlyphRunBuilder::prepareDrawText(
         const SkPaint& paint, const void* bytes, size_t byteLength, SkPoint origin) {
@@ -127,26 +145,14 @@ void SkGlyphRunBuilder::prepareDrawPosText(const SkPaint& paint, const void* byt
     }
 }
 
-const SkGlyphRun& SkGlyphRunBuilder::useGlyphRun() const {
+SkGlyphRun* SkGlyphRunBuilder::useGlyphRun() {
+    fScratchGlyphRun.~SkGlyphRun();
     new ((void*)&fScratchGlyphRun) SkGlyphRun{SkSpan<uint16_t>(fDenseIndex),
-                                       SkSpan<SkPoint>(fPositions),
-                                       SkSpan<SkGlyphID>(fUniqueGlyphs)};
-    return fScratchGlyphRun;
-}
-
-void SkGlyphRunBuilder::temporaryShuntToDrawPosText(const SkPaint& paint, SkBaseDevice* device) {
-
-    auto pos = (const SkScalar*) fPositions.data();
-
-    device->drawPosText(
-            fTemporaryShuntGlyphIDs, fDenseIndex.size() * 2,
-            pos, 2, SkPoint::Make(0, 0), paint);
-}
-
-void SkGlyphRunBuilder::temporaryShuntToCallback(TemporaryShuntCallback callback) {
-    auto bytes = (const char *)fTemporaryShuntGlyphIDs;
-    auto pos = (const SkScalar*)fPositions.data();
-    callback(this->runSize(), bytes, pos);
+                                              SkSpan<SkPoint>(fPositions),
+                                              SkSpan<SkGlyphID>(
+                                                      fTemporaryShuntGlyphIDs, fDenseIndex.size()),
+                                              SkSpan<SkGlyphID>(fUniqueGlyphs)};
+    return &fScratchGlyphRun;
 }
 
 void SkGlyphRunBuilder::initializeDenseAndUnique(
@@ -174,6 +180,8 @@ void SkGlyphRunBuilder::initializeDenseAndUnique(
         runSize = byteLength / 2;
         glyphIDs = (const SkGlyphID*)bytes;
     }
+
+    SkASSERT(glyphIDs != nullptr);
 
     if (runSize == 0) { return; }
     fTemporaryShuntGlyphIDs = glyphIDs;
