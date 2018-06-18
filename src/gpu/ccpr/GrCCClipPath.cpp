@@ -48,15 +48,15 @@ void GrCCClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect
     fAccessRect = accessRect;
 }
 
-void GrCCClipPath::accountForOwnPath(GrCCPerFlushResourceSpecs* resourceSpecs) const {
+void GrCCClipPath::accountForOwnPath(GrCCPerFlushResourceSpecs* specs) const {
     SkASSERT(this->isInitialized());
 
-    ++resourceSpecs->fNumClipPaths;
-    resourceSpecs->fParsingPathStats.statPath(fDeviceSpacePath);
+    ++specs->fNumClipPaths;
+    specs->fRenderedPathStats.statPath(fDeviceSpacePath);
 
     SkIRect ibounds;
     if (ibounds.intersect(fAccessRect, fPathDevIBounds)) {
-        resourceSpecs->fAtlasSpecs.accountForSpace(ibounds.width(), ibounds.height());
+        specs->fRenderedAtlasSpecs.accountForSpace(ibounds.width(), ibounds.height());
     }
 }
 

@@ -29,7 +29,7 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
     sk_sp<GrSurfaceProxy> proxy =
             proxyProvider->createProxy(tmpDesc, origin, SkBackingFit::kExact, SkBudgeted::kYes,
                                        GrInternalSurfaceFlags::kNoPendingIO);
-    if (!proxy->asRenderTargetProxy()) {
+    if (!proxy || !proxy->asRenderTargetProxy()) {
         return nullptr;
     }
 

@@ -45,14 +45,16 @@ public:
         fTail = !nextTail ? newRightHead : nextTail;
     }
 
-    struct Iter {
+    template<typename U> struct Iter {
         bool operator!=(const Iter& that) { return fCurr != that.fCurr; }
-        const T& operator*() { return *fCurr; }
+        U& operator*() { return *fCurr; }
         void operator++() { fCurr = fCurr->fNext; }
-        const T* fCurr;
+        U* fCurr;
     };
-    Iter begin() const { return Iter{&fHead}; }
-    Iter end() const { return Iter{nullptr}; }
+    Iter<const T> begin() const { return Iter<const T>{&fHead}; }
+    Iter<const T> end() const { return Iter<const T>{nullptr}; }
+    Iter<T> begin() { return Iter<T>{&fHead}; }
+    Iter<T> end() { return Iter<T>{nullptr}; }
 
 private:
     T fHead;

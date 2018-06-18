@@ -320,6 +320,8 @@ skia_gpu_sources = [
   "$_src/gpu/ccpr/GrCCDrawPathsOp.h",
   "$_src/gpu/ccpr/GrCCGeometry.cpp",
   "$_src/gpu/ccpr/GrCCGeometry.h",
+  "$_src/gpu/ccpr/GrCCPathCache.cpp",
+  "$_src/gpu/ccpr/GrCCPathCache.h",
   "$_src/gpu/ccpr/GrCCPathParser.cpp",
   "$_src/gpu/ccpr/GrCCPathParser.h",
   "$_src/gpu/ccpr/GrCCPathProcessor.cpp",

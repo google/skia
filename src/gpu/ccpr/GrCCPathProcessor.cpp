@@ -10,6 +10,7 @@
 #include "GrGpuCommandBuffer.h"
 #include "GrOnFlushResourceProvider.h"
 #include "GrTexture.h"
+#include "ccpr/GrCCPerFlushResources.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramBuilder.h"
@@ -131,9 +132,8 @@ GrGLSLPrimitiveProcessor* GrCCPathProcessor::createGLSLInstance(const GrShaderCa
 }
 
 void GrCCPathProcessor::drawPaths(GrOpFlushState* flushState, const GrPipeline& pipeline,
-                                  const GrBuffer* indexBuffer, const GrBuffer* vertexBuffer,
-                                  GrBuffer* instanceBuffer, int baseInstance, int endInstance,
-                                  const SkRect& bounds) const {
+                                  const GrCCPerFlushResources& resources, int baseInstance,
+                                  int endInstance, const SkRect& bounds) const {
     const GrCaps& caps = flushState->caps();
     GrPrimitiveType primitiveType = caps.usePrimitiveRestart()
                                             ? GrPrimitiveType::kTriangleStrip
@@ -144,9 +144,10 @@ void GrCCPathProcessor::drawPaths(GrOpFlushState* flushState, const GrPipeline& 
     GrMesh mesh(primitiveType);
     auto enablePrimitiveRestart = GrPrimitiveRestart(flushState->caps().usePrimitiveRestart());
 
-    mesh.setIndexedInstanced(indexBuffer, numIndicesPerInstance, instanceBuffer,
-                             endInstance - baseInstance, baseInstance, enablePrimitiveRestart);
-    mesh.setVertexData(vertexBuffer);
+    mesh.setIndexedInstanced(resources.indexBuffer(), numIndicesPerInstance,
+                             resources.instanceBuffer(), endInstance - baseInstance, baseInstance,
+                             enablePrimitiveRestart);
+    mesh.setVertexData(resources.vertexBuffer());
 
     flushState->rtCommandBuffer()->draw(pipeline, *this, &mesh, nullptr, 1, bounds);
 }
