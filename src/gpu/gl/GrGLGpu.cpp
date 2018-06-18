@@ -732,7 +732,8 @@ bool GrGLGpu::onTransferPixels(GrTexture* texture, int left, int top, int width,
         return false;
     }
 
-    if (width <= 0 || width > SK_MaxS32 || height <= 0 || height > SK_MaxS32) {
+    static_assert(sizeof(int) == sizeof(int32_t), "");
+    if (width <= 0 || height <= 0) {
         return false;
     }
 
