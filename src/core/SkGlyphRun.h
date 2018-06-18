@@ -24,19 +24,21 @@ template <typename T>
 class SkSpan {
 public:
     SkSpan() : fPtr{nullptr}, fSize{0} {}
+    SkSpan(T* ptr, size_t size) : fPtr{ptr}, fSize{size} {}
     SkSpan(const T* ptr, size_t size) : fPtr{ptr}, fSize{size} {}
+    explicit SkSpan(std::vector<T>& v) : fPtr{v.data()}, fSize{v.size()} {}
     explicit SkSpan(const std::vector<T>& v) : fPtr{v.data()}, fSize{v.size()} {}
-    const T& operator [] (ptrdiff_t i) const { return fPtr[i]; }
+    T& operator [] (ptrdiff_t i) const { return fPtr[i]; }
     T* begin() const { return fPtr; }
     T* end() const { return fPtr + fSize; }
     const T* cbegin() const { return fPtr; }
     const T* cend() const { return fPtr + fSize; }
-    const T* data() const { return fPtr; }
+    T* data() const { return fPtr; }
     ptrdiff_t size() const { return fSize; }
     bool empty() const { return fSize == 0; }
 
 private:
-    const T* fPtr;
+    T* fPtr;
     size_t fSize;
 };
 
@@ -46,14 +48,7 @@ public:
     SkGlyphRun(SkSpan<uint16_t>  denseIndex,
                SkSpan<SkPoint>   positions,
                SkSpan<SkGlyphID> scratchGlyphs,
-               SkSpan<SkGlyphID> uniqueGlyphIDs)
-            : fDenseIndex{denseIndex}
-            , fPositions{positions}
-            , fTemporaryShuntGlyphIDs{scratchGlyphs}
-            , fUniqueGlyphIDs{uniqueGlyphIDs} {
-        SkASSERT(denseIndex.size() == positions.size());
-        SkASSERT(denseIndex.size() == scratchGlyphs.size());
-    }
+               SkSpan<SkGlyphID> uniqueGlyphIDs);
 
     // The temporaryShunt calls are to allow inter-operating with existing code while glyph runs
     // are developed.
@@ -76,6 +71,22 @@ private:
     const SkSpan<SkGlyphID> fUniqueGlyphIDs;
 };
 
+class SkGlyphRunList {
+    const uint64_t     fUniqueID{0};
+    SkSpan<SkGlyphRun> fGlyphRuns;
+
+public:
+    SkGlyphRunList() = default;
+    SkGlyphRunList(SkSpan<SkGlyphRun> glyphRuns, uint64_t uniqueID);
+
+    uint64_t uniqueID() const { return fUniqueID; }
+
+    auto begin() -> decltype(fGlyphRuns.begin())      { return fGlyphRuns.begin(); }
+    auto end() -> decltype(fGlyphRuns.end())          { return fGlyphRuns.end();   }
+    auto size() -> decltype(fGlyphRuns.size())        { return fGlyphRuns.size();  }
+    auto operator [] (ptrdiff_t i) -> decltype(fGlyphRuns[i]) { return fGlyphRuns[i]; }
+};
+
 // A faster set implementation that does not need any initialization, and reading the set items
 // is order the number of items, and not the size of the universe.
 // This implementation is based on the paper by Briggs and Torczon, "An Efficient Representation
@@ -92,10 +103,6 @@ private:
     std::vector<SkGlyphID>*     fUniqueGlyphIDs{nullptr};
 };
 
-// Currently the old code is passing around SkGlyphRunBuilder because it facilitates working in the
-// old single glyph lookup style with the cache. When the lower level code is transitioned over to
-// the bulk glyph cache style, then the builder will only be used in the canvas, and only runs will
-// be passed around.
 class SkGlyphRunBuilder {
 public:
     SkGlyphRunBuilder() = default;
@@ -106,18 +113,34 @@ public:
             const SkScalar xpos[], SkScalar constY);
     void prepareDrawPosText(
             const SkPaint& paint, const void* bytes, size_t byteLength, const SkPoint pos[]);
+    void prepareTextBlob(const SkPaint& paint, const SkTextBlob& blob);
 
-    size_t runSize() const {return fDenseIndex.size();}
-    size_t uniqueSize() const {return fUniqueGlyphs.size();}
-
+    SkGlyphRunList* useGlyphRunList();
     SkGlyphRun* useGlyphRun();
 
 private:
-    void initializeDenseAndUnique(const SkPaint& paint, const void* bytes, size_t byteLength);
+    size_t runSize() const;
+    size_t uniqueSize() const;
+    void initialize();
+    void addDenseAndUnique(const SkPaint& paint, const void* bytes, size_t byteLength);
+    void addGlyphRunToList();
+
+    void drawText(
+            const SkPaint& paint, const void* bytes, size_t byteLength, SkPoint origin);
+    void drawPosTextH(
+            const SkPaint& paint, const void* bytes, size_t byteLength,
+            const SkScalar* xpos, SkScalar constY);
+    void drawPosText(
+            const SkPaint& paint, const void* bytes, size_t byteLength, const SkPoint* pos);
+
+    uint64_t               fUniqueID{0};
 
     std::vector<uint16_t>  fDenseIndex;
     std::vector<SkPoint>   fPositions;
     std::vector<SkGlyphID> fUniqueGlyphs;
+
+    size_t                 fLastDenseIndex{0};
+    size_t                 fLastUniqueIndex{0};
 
     // Used as a temporary for preparing using utfN text.
     std::vector<SkGlyphID> fScratchGlyphIDs;
@@ -125,13 +148,13 @@ private:
     // Used as temporary storage for calculating positions for drawText.
     std::vector<SkPoint>   fScratchAdvances;
 
-    // Used to temporarily use of a glyph run for bulk cache API calls (just an experiment at
-    // this point).
-    SkGlyphRun             fScratchGlyphRun;
+    std::vector<SkGlyphRun> fGlyphRuns;
+
+    SkGlyphRunList         fScratchGlyphRunList;
 
     // Used as an aid to shunt from glyph runs to drawPosText. It will either be fScratchIDs or
     // the bytes passed in.
-    const SkGlyphID*       fTemporaryShuntGlyphIDs{nullptr};
+    SkGlyphID*       fTemporaryShuntGlyphIDs{nullptr};
 
     // Used for collecting the set of unique glyphs.
     SkGlyphSet             fGlyphSet;
