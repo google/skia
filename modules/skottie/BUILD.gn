@@ -40,6 +40,26 @@ source_set("skottie") {
   }
 }
 
+source_set("tests") {
+  if (skia_enable_skottie) {
+    testonly = true
+
+    configs += [
+      "../..:skia_private",
+      "../..:tests_config",
+    ]
+    sources = [
+      "src/SkottieTest.cpp",
+    ]
+
+    deps = [
+      ":skottie",
+      "../..:gpu_tool_utils",
+      "../..:skia",
+    ]
+  }
+}
+
 source_set("fuzz") {
   if (skia_enable_skottie) {
     testonly = true
