@@ -13,7 +13,7 @@
 #include "SkSafeMath.h"
 #include "SkTemplates.h"
 #include "SkTo.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 
 #include <utility>
 

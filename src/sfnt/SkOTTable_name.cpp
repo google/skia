@@ -11,7 +11,7 @@
 #include "SkStringUtils.h"
 #include "SkTSearch.h"
 #include "SkTemplates.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 
 static SkUnichar SkUTF16BE_NextUnichar(const uint16_t** srcPtr) {
     SkASSERT(srcPtr && *srcPtr);

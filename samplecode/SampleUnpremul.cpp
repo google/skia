@@ -20,7 +20,7 @@
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTypes.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include "SkView.h"
 
 /**
