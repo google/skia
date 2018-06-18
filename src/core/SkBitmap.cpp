@@ -29,7 +29,8 @@
 #include "SkWriteBuffer.h"
 #include "SkWritePixelsRec.h"
 
-#include <string.h>
+#include <cstring>
+#include <utility>
 
 static bool reset_return_false(SkBitmap* bm) {
     bm->reset();
@@ -82,7 +83,8 @@ SkBitmap& SkBitmap::operator=(SkBitmap&& other) {
 }
 
 void SkBitmap::swap(SkBitmap& other) {
-    SkTSwap(*this, other);
+    using std::swap;
+    swap(*this, other);
     SkDEBUGCODE(this->validate();)
 }
 

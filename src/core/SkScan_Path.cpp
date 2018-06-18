@@ -20,6 +20,8 @@
 #include "SkTSort.h"
 #include "SkTemplates.h"
 
+#include <utility>
+
 #define kEDGE_HEAD_Y    SK_MinS32
 #define kEDGE_TAIL_Y    SK_MaxS32
 
@@ -233,7 +235,8 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
 
         if (leftE->fX > riteE->fX || (leftE->fX == riteE->fX &&
                                       leftE->fDX > riteE->fDX)) {
-            SkTSwap(leftE, riteE);
+            using std::swap;
+            swap(leftE, riteE);
         }
 
         int local_bot = SkMin32(leftE->fLastY, riteE->fLastY);

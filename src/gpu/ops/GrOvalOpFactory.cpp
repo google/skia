@@ -25,6 +25,8 @@
 #include "ops/GrMeshDrawOp.h"
 #include "ops/GrSimpleMeshDrawOpHelper.h"
 
+#include <utility>
+
 namespace {
 
 struct EllipseVertex {
@@ -995,7 +997,8 @@ public:
 
             // If the matrix included scale (on one axis) we need to swap our start and end points
             if ((viewMatrix.getScaleX() < 0) != (viewMatrix.getScaleY() < 0)) {
-                SkTSwap(startPoint, stopPoint);
+                using std::swap;
+                swap(startPoint, stopPoint);
             }
 
             fRoundCaps = style.strokeRec().getWidth() > 0 &&

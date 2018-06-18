@@ -274,9 +274,7 @@ SkString SkStringPrintf(const char* format, ...);
 /// optional.
 static inline SkString SkStringPrintf() { return SkString(); }
 
-// Specialized to take advantage of SkString's fast swap path. The unspecialized function is
-// declared in SkTypes.h and called by SkTSort.
-template <> inline void SkTSwap(SkString& a, SkString& b) {
+static inline void swap(SkString& a, SkString& b) {
     a.swap(b);
 }
 
