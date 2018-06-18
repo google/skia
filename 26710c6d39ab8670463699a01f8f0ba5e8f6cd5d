@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "afc55772_9757ed18",
+        "filename": "BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 1545,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-18T21:08:08Z",
+      "side": 1,
+      "message": "Yeah, that\u0027s probably going to be a nice improvement in some other cases.",
+      "parentUuid": "b89c915c_14fbe486",
+      "revId": "26710c6d39ab8670463699a01f8f0ba5e8f6cd5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f2e50621_dc8d2a88",
         "filename": "third_party/third_party.gni",
         "patchSetId": 6
