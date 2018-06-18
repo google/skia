@@ -152,9 +152,9 @@ private:
                                                fViewMatrix);
         }
 
-        size_t vertexStride = gp->getVertexStride();
+        static constexpr size_t kVertexStride = sizeof(GrDefaultGeoProcFactory::PositionAttr);
 
-        SkASSERT(vertexStride == sizeof(GrDefaultGeoProcFactory::PositionAttr));
+        SkASSERT(kVertexStride == gp->debugOnly_vertexStride());
 
         int vertexCount = kVertsPerHairlineRect;
         if (fStrokeWidth > 0) {
@@ -165,7 +165,7 @@ private:
         int firstVertex;
 
         void* verts =
-                target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer, &firstVertex);
+                target->makeVertexSpace(kVertexStride, vertexCount, &vertexBuffer, &firstVertex);
 
         if (!verts) {
             SkDebugf("Could not allocate vertices\n");

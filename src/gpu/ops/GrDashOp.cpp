@@ -624,7 +624,15 @@ private:
         }
 
         QuadHelper helper;
-        void* vertices = helper.init(target, gp->getVertexStride(), totalRectCount);
+        size_t vertexStride;
+        if (fullDash) {
+            vertexStride =
+                    SkPaint::kRound_Cap == fCap ? sizeof(DashCircleVertex) : sizeof(DashLineVertex);
+        } else {
+            vertexStride = sizeof(SkPoint);
+        }
+        SkASSERT(vertexStride == gp->debugOnly_vertexStride());
+        void* vertices = helper.init(target, vertexStride, totalRectCount);
         if (!vertices) {
             return;
         }
@@ -636,15 +644,13 @@ private:
 
             if (!draws[i].fLineDone) {
                 if (fullDash) {
-                    setup_dashed_rect(rects[rectIndex], vertices, curVIdx, geom.fSrcRotInv,
-                                      draws[i].fStartOffset, draws[i].fDevBloatX,
-                                      draws[i].fDevBloatY, draws[i].fLineLength,
-                                      draws[i].fHalfDevStroke, draws[i].fIntervals[0],
-                                      draws[i].fIntervals[1], draws[i].fStrokeWidth,
-                                      capType, gp->getVertexStride());
+                    setup_dashed_rect(
+                            rects[rectIndex], vertices, curVIdx, geom.fSrcRotInv,
+                            draws[i].fStartOffset, draws[i].fDevBloatX, draws[i].fDevBloatY,
+                            draws[i].fLineLength, draws[i].fHalfDevStroke, draws[i].fIntervals[0],
+                            draws[i].fIntervals[1], draws[i].fStrokeWidth, capType, vertexStride);
                 } else {
                     SkPoint* verts = reinterpret_cast<SkPoint*>(vertices);
-                    SkASSERT(gp->getVertexStride() == sizeof(SkPoint));
                     setup_dashed_rect_pos(rects[rectIndex], curVIdx, geom.fSrcRotInv, verts);
                 }
                 curVIdx += 4;
@@ -653,15 +659,13 @@ private:
 
             if (draws[i].fHasStartRect) {
                 if (fullDash) {
-                    setup_dashed_rect(rects[rectIndex], vertices, curVIdx, geom.fSrcRotInv,
-                                      draws[i].fStartOffset, draws[i].fDevBloatX,
-                                      draws[i].fDevBloatY, draws[i].fIntervals[0],
-                                      draws[i].fHalfDevStroke, draws[i].fIntervals[0],
-                                      draws[i].fIntervals[1], draws[i].fStrokeWidth, capType,
-                                      gp->getVertexStride());
+                    setup_dashed_rect(
+                            rects[rectIndex], vertices, curVIdx, geom.fSrcRotInv,
+                            draws[i].fStartOffset, draws[i].fDevBloatX, draws[i].fDevBloatY,
+                            draws[i].fIntervals[0], draws[i].fHalfDevStroke, draws[i].fIntervals[0],
+                            draws[i].fIntervals[1], draws[i].fStrokeWidth, capType, vertexStride);
                 } else {
                     SkPoint* verts = reinterpret_cast<SkPoint*>(vertices);
-                    SkASSERT(gp->getVertexStride() == sizeof(SkPoint));
                     setup_dashed_rect_pos(rects[rectIndex], curVIdx, geom.fSrcRotInv, verts);
                 }
                 curVIdx += 4;
@@ -670,15 +674,13 @@ private:
 
             if (draws[i].fHasEndRect) {
                 if (fullDash) {
-                    setup_dashed_rect(rects[rectIndex], vertices, curVIdx, geom.fSrcRotInv,
-                                      draws[i].fStartOffset, draws[i].fDevBloatX,
-                                      draws[i].fDevBloatY, draws[i].fIntervals[0],
-                                      draws[i].fHalfDevStroke, draws[i].fIntervals[0],
-                                      draws[i].fIntervals[1], draws[i].fStrokeWidth, capType,
-                                      gp->getVertexStride());
+                    setup_dashed_rect(
+                            rects[rectIndex], vertices, curVIdx, geom.fSrcRotInv,
+                            draws[i].fStartOffset, draws[i].fDevBloatX, draws[i].fDevBloatY,
+                            draws[i].fIntervals[0], draws[i].fHalfDevStroke, draws[i].fIntervals[0],
+                            draws[i].fIntervals[1], draws[i].fStrokeWidth, capType, vertexStride);
                 } else {
                     SkPoint* verts = reinterpret_cast<SkPoint*>(vertices);
-                    SkASSERT(gp->getVertexStride() == sizeof(SkPoint));
                     setup_dashed_rect_pos(rects[rectIndex], curVIdx, geom.fSrcRotInv, verts);
                 }
                 curVIdx += 4;
@@ -838,12 +840,6 @@ public:
 
     const char* name() const override { return "DashingCircleEffect"; }
 
-    const Attribute* inPosition() const { return fInPosition; }
-
-    const Attribute* inDashParams() const { return fInDashParams; }
-
-    const Attribute* inCircleParams() const { return fInCircleParams; }
-
     AAMode aaMode() const { return fAAMode; }
 
     GrColor color() const { return fColor; }
@@ -860,18 +856,27 @@ private:
     DashingCircleEffect(GrColor, AAMode aaMode, const SkMatrix& localMatrix,
                         bool usesLocalCoords);
 
+    const Attribute& onVertexAttribute(int i) const override {
+        return IthAttribute(i, kInPosition, kInDashParams, kInCircleParams);
+    }
+
     GrColor             fColor;
     SkMatrix            fLocalMatrix;
     bool                fUsesLocalCoords;
     AAMode              fAAMode;
-    const Attribute*    fInPosition;
-    const Attribute*    fInDashParams;
-    const Attribute*    fInCircleParams;
+
+    static constexpr Attribute kInPosition = {"inPosition", kFloat2_GrVertexAttribType};
+    static constexpr Attribute kInDashParams = {"inDashParams", kHalf3_GrVertexAttribType};
+    static constexpr Attribute kInCircleParams = {"inCircleParams", kHalf2_GrVertexAttribType};
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
+    friend class GLDashingCircleEffect;
     typedef GrGeometryProcessor INHERITED;
 };
+constexpr GrPrimitiveProcessor::Attribute DashingCircleEffect::kInPosition;
+constexpr GrPrimitiveProcessor::Attribute DashingCircleEffect::kInDashParams;
+constexpr GrPrimitiveProcessor::Attribute DashingCircleEffect::kInCircleParams;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -916,25 +921,25 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // XY are dashPos, Z is dashInterval
     GrGLSLVarying dashParams(kHalf3_GrSLType);
     varyingHandler->addVarying("DashParam", &dashParams);
-    vertBuilder->codeAppendf("%s = %s;", dashParams.vsOut(), dce.inDashParams()->name());
+    vertBuilder->codeAppendf("%s = %s;", dashParams.vsOut(), dce.kInDashParams.name());
 
     // x refers to circle radius - 0.5, y refers to cicle's center x coord
     GrGLSLVarying circleParams(kHalf2_GrSLType);
     varyingHandler->addVarying("CircleParams", &circleParams);
-    vertBuilder->codeAppendf("%s = %s;", circleParams.vsOut(), dce.inCircleParams()->name());
+    vertBuilder->codeAppendf("%s = %s;", circleParams.vsOut(), dce.kInCircleParams.name());
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
 
     // Setup position
-    this->writeOutputPosition(vertBuilder, gpArgs, dce.inPosition()->name());
+    this->writeOutputPosition(vertBuilder, gpArgs, dce.kInPosition.name());
 
     // emit transforms
     this->emitTransforms(vertBuilder,
                          varyingHandler,
                          uniformHandler,
-                         dce.inPosition()->asShaderVar(),
+                         dce.kInPosition.asShaderVar(),
                          dce.localMatrix(),
                          args.fFPCoordTransformHandler);
 
@@ -1007,9 +1012,7 @@ DashingCircleEffect::DashingCircleEffect(GrColor color,
     , fLocalMatrix(localMatrix)
     , fUsesLocalCoords(usesLocalCoords)
     , fAAMode(aaMode) {
-    fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
-    fInDashParams = &this->addVertexAttrib("inDashParams", kHalf3_GrVertexAttribType);
-    fInCircleParams = &this->addVertexAttrib("inCircleParams", kHalf2_GrVertexAttribType);
+    this->setVertexAttributeCnt(3);
 }
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingCircleEffect);
@@ -1047,12 +1050,6 @@ public:
 
     const char* name() const override { return "DashingEffect"; }
 
-    const Attribute* inPosition() const { return fInPosition; }
-
-    const Attribute* inDashParams() const { return fInDashParams; }
-
-    const Attribute* inRectParams() const { return fInRectParams; }
-
     AAMode aaMode() const { return fAAMode; }
 
     GrColor color() const { return fColor; }
@@ -1069,18 +1066,28 @@ private:
     DashingLineEffect(GrColor, AAMode aaMode, const SkMatrix& localMatrix,
                       bool usesLocalCoords);
 
+    const Attribute& onVertexAttribute(int i) const override {
+        return IthAttribute(i, kInPosition, kInDashParams, kInRectParams);
+    }
+
     GrColor             fColor;
     SkMatrix            fLocalMatrix;
     bool                fUsesLocalCoords;
     AAMode              fAAMode;
-    const Attribute*    fInPosition;
-    const Attribute*    fInDashParams;
-    const Attribute*    fInRectParams;
+
+    static constexpr Attribute kInPosition = {"inPosition", kFloat2_GrVertexAttribType};
+    static constexpr Attribute kInDashParams = {"inDashParams", kHalf3_GrVertexAttribType};
+    static constexpr Attribute kInRectParams = {"inRect", kHalf4_GrVertexAttribType};
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
+    friend class GLDashingLineEffect;
+
     typedef GrGeometryProcessor INHERITED;
 };
+constexpr GrPrimitiveProcessor::Attribute DashingLineEffect::kInPosition;
+constexpr GrPrimitiveProcessor::Attribute DashingLineEffect::kInDashParams;
+constexpr GrPrimitiveProcessor::Attribute DashingLineEffect::kInRectParams;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -1118,26 +1125,26 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // XY refers to dashPos, Z is the dash interval length
     GrGLSLVarying inDashParams(kFloat3_GrSLType);
     varyingHandler->addVarying("DashParams", &inDashParams);
-    vertBuilder->codeAppendf("%s = %s;", inDashParams.vsOut(), de.inDashParams()->name());
+    vertBuilder->codeAppendf("%s = %s;", inDashParams.vsOut(), de.kInDashParams.name());
 
     // The rect uniform's xyzw refer to (left + 0.5, top + 0.5, right - 0.5, bottom - 0.5),
     // respectively.
     GrGLSLVarying inRectParams(kFloat4_GrSLType);
     varyingHandler->addVarying("RectParams", &inRectParams);
-    vertBuilder->codeAppendf("%s = %s;", inRectParams.vsOut(), de.inRectParams()->name());
+    vertBuilder->codeAppendf("%s = %s;", inRectParams.vsOut(), de.kInRectParams.name());
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
 
     // Setup position
-    this->writeOutputPosition(vertBuilder, gpArgs, de.inPosition()->name());
+    this->writeOutputPosition(vertBuilder, gpArgs, de.kInPosition.name());
 
     // emit transforms
     this->emitTransforms(vertBuilder,
                          varyingHandler,
                          uniformHandler,
-                         de.inPosition()->asShaderVar(),
+                         de.kInPosition.asShaderVar(),
                          de.localMatrix(),
                          args.fFPCoordTransformHandler);
 
@@ -1228,9 +1235,7 @@ DashingLineEffect::DashingLineEffect(GrColor color,
     , fLocalMatrix(localMatrix)
     , fUsesLocalCoords(usesLocalCoords)
     , fAAMode(aaMode) {
-    fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
-    fInDashParams = &this->addVertexAttrib("inDashParams", kHalf3_GrVertexAttribType);
-    fInRectParams = &this->addVertexAttrib("inRect", kHalf4_GrVertexAttribType);
+    this->setVertexAttributeCnt(3);
 }
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingLineEffect);
@@ -1242,8 +1247,8 @@ sk_sp<GrGeometryProcessor> DashingLineEffect::TestCreate(GrProcessorTestData* d)
                                    aaMode, GrTest::TestMatrix(d->fRandom),
                                    d->fRandom->nextBool());
 }
-#endif
 
+#endif
 //////////////////////////////////////////////////////////////////////////////
 
 static sk_sp<GrGeometryProcessor> make_dash_gp(GrColor color,

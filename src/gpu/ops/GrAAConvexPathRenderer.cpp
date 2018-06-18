@@ -576,21 +576,21 @@ public:
 
             GrGLSLVarying v(kHalf4_GrSLType);
             varyingHandler->addVarying("QuadEdge", &v);
-            vertBuilder->codeAppendf("%s = %s;", v.vsOut(), qe.fInQuadEdge->name());
+            vertBuilder->codeAppendf("%s = %s;", v.vsOut(), qe.kInQuadEdge.name());
 
             // Setup pass through color
-            varyingHandler->addPassThroughAttribute(qe.fInColor, args.fOutputColor);
+            varyingHandler->addPassThroughAttribute(qe.kInColor, args.fOutputColor);
 
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
             // Setup position
-            this->writeOutputPosition(vertBuilder, gpArgs, qe.fInPosition->name());
+            this->writeOutputPosition(vertBuilder, gpArgs, qe.kInPosition.name());
 
             // emit transforms
             this->emitTransforms(vertBuilder,
                                  varyingHandler,
                                  uniformHandler,
-                                 qe.fInPosition->asShaderVar(),
+                                 qe.kInPosition.asShaderVar(),
                                  qe.fLocalMatrix,
                                  args.fFPCoordTransformHandler);
 
@@ -646,21 +646,25 @@ private:
             : INHERITED(kQuadEdgeEffect_ClassID)
             , fLocalMatrix(localMatrix)
             , fUsesLocalCoords(usesLocalCoords) {
-        fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
-        fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
-        fInQuadEdge = &this->addVertexAttrib("inQuadEdge", kHalf4_GrVertexAttribType);
+        this->setVertexAttributeCnt(3);
     }
 
-    const Attribute* fInPosition;
-    const Attribute* fInQuadEdge;
-    const Attribute* fInColor;
-    SkMatrix         fLocalMatrix;
-    bool             fUsesLocalCoords;
+    const Attribute& onVertexAttribute(int i) const override {
+        return IthAttribute(i, kInPosition, kInColor, kInQuadEdge);
+    }
+    static constexpr Attribute kInPosition = {"inPosition", kFloat2_GrVertexAttribType};
+    static constexpr Attribute kInColor = {"inColor", kUByte4_norm_GrVertexAttribType};
+    static constexpr Attribute kInQuadEdge = {"inQuadEdge", kHalf4_GrVertexAttribType};
+    SkMatrix fLocalMatrix;
+    bool fUsesLocalCoords;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
     typedef GrGeometryProcessor INHERITED;
 };
+constexpr GrPrimitiveProcessor::Attribute QuadEdgeEffect::kInPosition;
+constexpr GrPrimitiveProcessor::Attribute QuadEdgeEffect::kInColor;
+constexpr GrPrimitiveProcessor::Attribute QuadEdgeEffect::kInQuadEdge;
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(QuadEdgeEffect);
 
@@ -795,12 +799,10 @@ private:
             return;
         }
 
-        size_t vertexStride = gp->getVertexStride();
-
-        SkASSERT(fHelper.compatibleWithAlphaAsCoverage()
-                         ? vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorAttr)
-                         : vertexStride ==
-                                   sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr));
+        size_t vertexStride = fHelper.compatibleWithAlphaAsCoverage()
+                                      ? sizeof(GrDefaultGeoProcFactory::PositionColorAttr)
+                                      : sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr);
+        SkASSERT(vertexStride == gp->debugOnly_vertexStride());
 
         GrAAConvexTessellator tess;
 
@@ -901,9 +903,9 @@ private:
             const GrBuffer* vertexBuffer;
             int firstVertex;
 
-            size_t vertexStride = quadProcessor->getVertexStride();
+            SkASSERT(sizeof(QuadVertex) == quadProcessor->debugOnly_vertexStride());
             QuadVertex* verts = reinterpret_cast<QuadVertex*>(target->makeVertexSpace(
-                vertexStride, vertexCount, &vertexBuffer, &firstVertex));
+                    sizeof(QuadVertex), vertexCount, &vertexBuffer, &firstVertex));
 
             if (!verts) {
                 SkDebugf("Could not allocate vertices\n");
