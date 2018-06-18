@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "65b02d3a_f732d913",
+        "filename": "platform_tools/android/apps/arcore/CMakeLists.txt",
+        "patchSetId": 36
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-18T19:40:08Z",
+      "side": 1,
+      "message": "Got it!",
+      "parentUuid": "78463bea_fbf29b98",
+      "range": {
+        "startLine": 1,
+        "startChar": 21,
+        "endLine": 1,
+        "endChar": 27
+      },
+      "revId": "e143a646fecf1c32580effa005fef9cc3cfe8a7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3a616dcd_ee97cc6b",
         "filename": "platform_tools/android/apps/arcore/src/main/cpp/background_renderer.cc",
         "patchSetId": 36
@@ -36,6 +60,30 @@
       "writtenOn": "2018-06-18T19:15:33Z",
       "side": 1,
       "message": "do we need this file?",
+      "range": {
+        "startLine": 2,
+        "startChar": 18,
+        "endLine": 2,
+        "endChar": 24
+      },
+      "revId": "e143a646fecf1c32580effa005fef9cc3cfe8a7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1538e770_853b56c5",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/background_renderer.cc",
+        "patchSetId": 36
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-18T19:40:08Z",
+      "side": 1,
+      "message": "This is what draws the camera input (i.e the entire world)",
+      "parentUuid": "3a616dcd_ee97cc6b",
       "range": {
         "startLine": 2,
         "startChar": 18,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "6792a47b_2686961a",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/hello_ar_application.cc",
+        "patchSetId": 36
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-18T19:40:08Z",
+      "side": 1,
+      "message": "I\u0027ll do it in the next CL. It\u0027s time to slow down and refactor this anyways",
+      "parentUuid": "6475531e_00a804e6",
+      "range": {
+        "startLine": 232,
+        "startChar": 29,
+        "endLine": 232,
+        "endChar": 40
+      },
+      "revId": "e143a646fecf1c32580effa005fef9cc3cfe8a7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9755394b_c514edc8",
         "filename": "platform_tools/android/apps/arcore/src/main/cpp/obj_renderer.cc",
         "patchSetId": 36
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "03da50bd_0b890982",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/obj_renderer.cc",
+        "patchSetId": 36
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-18T19:40:08Z",
+      "side": 1,
+      "message": "You\u0027re right, not needed!",
+      "parentUuid": "9755394b_c514edc8",
+      "range": {
+        "startLine": 2,
+        "startChar": 18,
+        "endLine": 2,
+        "endChar": 24
+      },
+      "revId": "e143a646fecf1c32580effa005fef9cc3cfe8a7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d15c1147_e0bda817",
         "filename": "platform_tools/android/apps/arcore/src/main/cpp/plane_renderer.h",
         "patchSetId": 36
@@ -105,6 +201,30 @@
       "writtenOn": "2018-06-18T19:15:33Z",
       "side": 1,
       "message": "do we need this file?",
+      "range": {
+        "startLine": 2,
+        "startChar": 24,
+        "endLine": 2,
+        "endChar": 25
+      },
+      "revId": "e143a646fecf1c32580effa005fef9cc3cfe8a7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5ef72ed_4445911d",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/plane_renderer.h",
+        "patchSetId": 36
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-18T19:40:08Z",
+      "side": 1,
+      "message": "Technically no, but if we want to still see the detected planes, we do need this to exist.",
+      "parentUuid": "d15c1147_e0bda817",
       "range": {
         "startLine": 2,
         "startChar": 24,
