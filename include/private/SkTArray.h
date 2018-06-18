@@ -298,18 +298,19 @@ public:
 
     /** Swaps the contents of this array with that array. Does a pointer swap if possible,
         otherwise copies the T values. */
-    void swap(SkTArray* that) {
-        if (this == that) {
+    void swap(SkTArray& that) {
+        using std::swap;
+        if (this == &that) {
             return;
         }
-        if (fOwnMemory && that->fOwnMemory) {
-            SkTSwap(fItemArray, that->fItemArray);
-            SkTSwap(fCount, that->fCount);
-            SkTSwap(fAllocCount, that->fAllocCount);
+        if (fOwnMemory && that.fOwnMemory) {
+            swap(fItemArray, that.fItemArray);
+            swap(fCount, that.fCount);
+            swap(fAllocCount, that.fAllocCount);
         } else {
             // This could be more optimal...
-            SkTArray copy(std::move(*that));
-            *that = std::move(*this);
+            SkTArray copy(std::move(that));
+            that = std::move(*this);
             *this = std::move(copy);
         }
     }
@@ -562,6 +563,10 @@ private:
     bool fOwnMemory : 1;
     bool fReserved : 1;
 };
+
+template <typename T, bool M> static inline void swap(SkTArray<T, M>& a, SkTArray<T, M>& b) {
+    a.swap(b);
+}
 
 template<typename T, bool MEM_MOVE> constexpr int SkTArray<T, MEM_MOVE>::kMinHeapAllocCount;
 

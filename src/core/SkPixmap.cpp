@@ -26,6 +26,8 @@
 #include "SkUnPreMultiply.h"
 #include "SkUtils.h"
 
+#include <utility>
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 void SkPixmap::reset() {
@@ -499,7 +501,8 @@ static bool draw_orientation(const SkPixmap& dst, const SkPixmap& src, unsigned 
         SkMatrix s;
         s.setAll(0, 1, 0, 1, 0, 0, 0, 0, 1);
         m.postConcat(s);
-        SkTSwap(W, H);
+        using std::swap;
+        swap(W, H);
     }
     if (flags & SkPixmapPriv::kMirrorX) {
         m.postScale(-1, 1);
@@ -526,7 +529,8 @@ bool SkPixmapPriv::Orient(const SkPixmap& dst, const SkPixmap& src, OrientFlags 
     int w = src.width();
     int h = src.height();
     if (flags & kSwapXY) {
-        SkTSwap(w, h);
+        using std::swap;
+        swap(w, h);
     }
     if (dst.width() != w || dst.height() != h) {
         return false;

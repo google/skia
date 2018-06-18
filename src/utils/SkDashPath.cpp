@@ -10,6 +10,8 @@
 #include "SkPointPriv.h"
 #include "SkStrokeRec.h"
 
+#include <utility>
+
 static inline int is_even(int x) {
     return !(x & 1);
 }
@@ -108,7 +110,8 @@ static bool clip_line(SkPoint pts[2], const SkRect& bounds, SkScalar intervalLen
     SkScalar maxXY = (&pts[1].fX)[xyOffset];
     bool swapped = maxXY < minXY;
     if (swapped) {
-        SkTSwap(minXY, maxXY);
+        using std::swap;
+        swap(minXY, maxXY);
     }
 
     SkASSERT(minXY <= maxXY);
@@ -137,7 +140,8 @@ static bool clip_line(SkPoint pts[2], const SkRect& bounds, SkScalar intervalLen
 
     SkASSERT(maxXY >= minXY);
     if (swapped) {
-        SkTSwap(minXY, maxXY);
+        using std::swap;
+        swap(minXY, maxXY);
     }
     (&pts[0].fX)[xyOffset] = minXY;
     (&pts[1].fX)[xyOffset] = maxXY;
@@ -196,7 +200,8 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
     SkScalar maxX = pts[1].fX;
 
     if (dx < 0) {
-        SkTSwap(minX, maxX);
+        using std::swap;
+        swap(minX, maxX);
     }
 
     SkASSERT(minX <= maxX);
@@ -219,7 +224,8 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
 
     SkASSERT(maxX >= minX);
     if (dx < 0) {
-        SkTSwap(minX, maxX);
+        using std::swap;
+        swap(minX, maxX);
     }
     pts[0].fX = minX;
     pts[1].fX = maxX;

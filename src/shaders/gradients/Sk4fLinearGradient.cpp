@@ -10,6 +10,7 @@
 #include "SkPaint.h"
 
 #include <cmath>
+#include <utility>
 
 namespace {
 
@@ -162,7 +163,8 @@ LinearGradient4fContext::shadeSpan(int x, int y, SkPMColor dst[], int count) {
         bias1 = dither_cell[rowIndex + 1];
 
         if (x & 1) {
-            SkTSwap(bias0, bias1);
+            using std::swap;
+            swap(bias0, bias1);
         }
     }
 
@@ -262,7 +264,8 @@ LinearGradient4fContext::shadeSpanInternal(int x, int y, dstType dst[], int coun
         dst   += n;
 
         if (n & 1) {
-            SkTSwap(bias4f0, bias4f1);
+            using std::swap;
+            swap(bias4f0, bias4f1);
         }
     }
 }

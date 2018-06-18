@@ -8,6 +8,8 @@
 #include "SkQuadClipper.h"
 #include "SkGeometry.h"
 
+#include <utility>
+
 SkQuadClipper::SkQuadClipper() {
     fClip.setEmpty();
 }
@@ -108,7 +110,8 @@ bool SkQuadClipper::clipQuad(const SkPoint srcPts[3], SkPoint dst[3]) {
     }
 
     if (reverse) {
-        SkTSwap<SkPoint>(dst[0], dst[2]);
+        using std::swap;
+        swap(dst[0], dst[2]);
     }
     return true;
 }

@@ -11,6 +11,8 @@
 #include "SkEdge.h"
 #include "SkTo.h"
 
+#include <utility>
+
 struct SkAnalyticEdge {
     // Similar to SkEdge, the conic edges will be converted to quadratic edges
     enum Type {
@@ -156,8 +158,9 @@ bool SkAnalyticEdge::setLine(const SkPoint& p0, const SkPoint& p1) {
     int winding = 1;
 
     if (y0 > y1) {
-        SkTSwap(x0, x1);
-        SkTSwap(y0, y1);
+        using std::swap;
+        swap(x0, x1);
+        swap(y0, y1);
         winding = -1;
     }
 

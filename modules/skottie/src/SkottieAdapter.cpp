@@ -19,6 +19,7 @@
 #include "SkottieValue.h"
 
 #include <cmath>
+#include <utility>
 
 namespace skottie {
 
@@ -151,7 +152,8 @@ void TrimEffectAdapter::apply() {
         stopT  -= SkScalarFloorToScalar(stopT);
 
         if (startT > stopT) {
-            SkTSwap(startT, stopT);
+            using std::swap;
+            swap(startT, stopT);
             mode = SkTrimPathEffect::Mode::kInverted;
         }
     } else {

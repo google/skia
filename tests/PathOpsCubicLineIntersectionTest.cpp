@@ -11,6 +11,8 @@
 #include "SkReduceOrder.h"
 #include "Test.h"
 
+#include <utility>
+
 struct lineCubic {
     CubicPts cubic;
     SkDLine line;
@@ -106,7 +108,8 @@ static int doIntersect(SkIntersections& intersections, const SkDCubic& cubic, co
         double bottom = line[1].fY;
         flipped = top > bottom;
         if (flipped) {
-            SkTSwap<double>(top, bottom);
+            using std::swap;
+            swap(top, bottom);
         }
         result = intersections.vertical(cubic, top, bottom, line[0].fX, flipped);
     } else if (line[0].fY == line[1].fY) {
@@ -114,7 +117,8 @@ static int doIntersect(SkIntersections& intersections, const SkDCubic& cubic, co
         double right = line[1].fX;
         flipped = left > right;
         if (flipped) {
-            SkTSwap<double>(left, right);
+            using std::swap;
+            swap(left, right);
         }
         result = intersections.horizontal(cubic, left, right, line[0].fY, flipped);
     } else {

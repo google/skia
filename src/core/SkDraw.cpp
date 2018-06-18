@@ -39,6 +39,8 @@
 #include "SkTo.h"
 #include "SkUtils.h"
 
+#include <utility>
+
 static SkPaint make_paint_with_image(
     const SkPaint& origPaint, const SkBitmap& bitmap, SkMatrix* matrix = nullptr) {
     SkPaint paint(origPaint);
@@ -870,7 +872,8 @@ static SkScalar fast_len(const SkVector& vec) {
     SkScalar x = SkScalarAbs(vec.fX);
     SkScalar y = SkScalarAbs(vec.fY);
     if (x < y) {
-        SkTSwap(x, y);
+        using std::swap;
+        swap(x, y);
     }
     return x + SkScalarHalf(y);
 }

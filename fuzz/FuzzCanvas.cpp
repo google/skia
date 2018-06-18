@@ -77,6 +77,7 @@
 // MISC
 
 #include <iostream>
+#include <utility>
 
 DEFINE_bool2(gpuInfo, g, false, "Display GPU information on relevant targets.");
 
@@ -1582,7 +1583,8 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 paint.getTextWidths(text.begin(), SkToSizeT(text.count()), widths.get());
                 SkScalar x = widths[0];
                 for (int i = 0; i < glyphCount; ++i) {
-                    SkTSwap(x, widths[i]);
+                    using std::swap;
+                    swap(x, widths[i]);
                     x += widths[i];
                     SkScalar offset;
                     fuzz->nextRange(&offset, -0.125f * paint.getTextSize(),
