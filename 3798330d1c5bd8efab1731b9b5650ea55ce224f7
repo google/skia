@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c39361f6_ac10758b",
+        "filename": "src/sksl/SkSLJIT.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 972,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-18T14:50:31Z",
+      "side": 1,
+      "message": "Prolly need to resolve this :)",
+      "range": {
+        "startLine": 942,
+        "startChar": 0,
+        "endLine": 972,
+        "endChar": 0
+      },
+      "revId": "3798330d1c5bd8efab1731b9b5650ea55ce224f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
