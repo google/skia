@@ -87,7 +87,7 @@ protected:
     SkTypeface_FreeType(const SkFontStyle& style, bool isFixedPitch)
         : INHERITED(style, isFixedPitch)
     {}
-
+    std::unique_ptr<SkFontData> onMakeCloneFontData(const SkFontArguments&) const;
     virtual SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
                                                    const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
