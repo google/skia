@@ -163,16 +163,14 @@ public:
                                      args.fUniformHandler,
                                      textureGP.fTextureCoords.asShaderVar(),
                                      args.fFPCoordTransformHandler);
-                args.fVaryingHandler->addPassThroughAttribute(&textureGP.fColors,
-                                                              args.fOutputColor,
-                                                              Interpolation::kCanBeFlat);
+                args.fVaryingHandler->addPassThroughAttribute(
+                        textureGP.fColors, args.fOutputColor, Interpolation::kCanBeFlat);
                 args.fFragBuilder->codeAppend("float2 texCoord;");
-                args.fVaryingHandler->addPassThroughAttribute(&textureGP.fTextureCoords,
-                                                              "texCoord");
+                args.fVaryingHandler->addPassThroughAttribute(textureGP.fTextureCoords, "texCoord");
                 if (textureGP.fDomain.isInitialized()) {
                     args.fFragBuilder->codeAppend("float4 domain;");
                     args.fVaryingHandler->addPassThroughAttribute(
-                            &textureGP.fDomain, "domain",
+                            textureGP.fDomain, "domain",
                             GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
                     args.fFragBuilder->codeAppend(
                             "texCoord = clamp(texCoord, domain.xy, domain.zw);");
@@ -182,7 +180,7 @@ public:
                     SkASSERT(kInt_GrVertexAttribType == textureGP.fTextureIdx.type());
                     SkASSERT(args.fShaderCaps->integerSupport());
                     args.fFragBuilder->codeAppend("int texIdx;");
-                    args.fVaryingHandler->addPassThroughAttribute(&textureGP.fTextureIdx, "texIdx",
+                    args.fVaryingHandler->addPassThroughAttribute(textureGP.fTextureIdx, "texIdx",
                                                                   Interpolation::kMustBeFlat);
                     args.fFragBuilder->codeAppend("switch (texIdx) {");
                     for (int i = 0; i < textureGP.numTextureSamplers(); ++i) {
@@ -316,12 +314,13 @@ private:
         }
 
         if (perspective) {
-            fPositions = this->addVertexAttrib("position", kFloat3_GrVertexAttribType);
+            fPositions = {"position", kFloat3_GrVertexAttribType};
         } else {
-            fPositions = this->addVertexAttrib("position", kFloat2_GrVertexAttribType);
+            fPositions = {"position", kFloat2_GrVertexAttribType};
         }
-        fColors = this->addVertexAttrib("color", kUByte4_norm_GrVertexAttribType);
-        fTextureCoords = this->addVertexAttrib("textureCoords", kFloat2_GrVertexAttribType);
+        fColors = {"color", kUByte4_norm_GrVertexAttribType};
+        fTextureCoords = {"textureCoords", kFloat2_GrVertexAttribType};
+        int vertexAttributeCnt = 3;
 
         if (samplerCnt > 1) {
             // Here we initialize any extra samplers by repeating the last one samplerCnt - proxyCnt
@@ -332,17 +331,26 @@ private:
                 this->addTextureSampler(&fSamplers[i]);
             }
             SkASSERT(caps.integerSupport());
-            fTextureIdx = this->addVertexAttrib("textureIdx", kInt_GrVertexAttribType);
+            fTextureIdx = {"textureIdx", kInt_GrVertexAttribType};
+            ++vertexAttributeCnt;
         }
         if (domain == Domain::kYes) {
-            fDomain = this->addVertexAttrib("domain", kFloat4_GrVertexAttribType);
+            fDomain = {"domain", kFloat4_GrVertexAttribType};
+            ++vertexAttributeCnt;
         }
         if (coverageAA) {
-            fAAEdges[0] = this->addVertexAttrib("aaEdge0", kFloat3_GrVertexAttribType);
-            fAAEdges[1] = this->addVertexAttrib("aaEdge1", kFloat3_GrVertexAttribType);
-            fAAEdges[2] = this->addVertexAttrib("aaEdge2", kFloat3_GrVertexAttribType);
-            fAAEdges[3] = this->addVertexAttrib("aaEdge3", kFloat3_GrVertexAttribType);
+            fAAEdges[0] = {"aaEdge0", kFloat3_GrVertexAttribType};
+            fAAEdges[1] = {"aaEdge1", kFloat3_GrVertexAttribType};
+            fAAEdges[2] = {"aaEdge2", kFloat3_GrVertexAttribType};
+            fAAEdges[3] = {"aaEdge3", kFloat3_GrVertexAttribType};
+            vertexAttributeCnt += 4;
         }
+        this->setVertexAttributeCnt(vertexAttributeCnt);
+    }
+
+    const Attribute& onVertexAttribute(int i) const override {
+        return IthInitializedAttribute(i, fPositions, fColors, fTextureCoords, fTextureIdx, fDomain,
+                                       fAAEdges[0], fAAEdges[1], fAAEdges[2], fAAEdges[3]);
     }
 
     Attribute fPositions;
@@ -744,7 +752,7 @@ __attribute__((no_sanitize("float-cast-overflow")))
     template <typename Pos, MultiTexture MT, Domain D, GrAA AA>
     void tess(void* v, const float iw[], const float ih[], const GrGeometryProcessor* gp) {
         using Vertex = TextureGeometryProcessor::Vertex<Pos, MT, D, AA>;
-        SkASSERT(gp->getVertexStride() == sizeof(Vertex));
+        SkASSERT(gp->debugOnly_vertexStride() == sizeof(Vertex));
         auto vertices = static_cast<Vertex*>(v);
         auto proxies = this->proxies();
         auto filters = this->filters();
@@ -785,10 +793,47 @@ __attribute__((no_sanitize("float-cast-overflow")))
 
         const GrPipeline* pipeline = target->allocPipeline(args, GrProcessorSet::MakeEmptySet(),
                                                            target->detachAppliedClip());
+        using TessFn =
+                decltype(&TextureOp::tess<SkPoint, MultiTexture::kNo, Domain::kNo, GrAA::kNo>);
+#define TESS_FN_AND_VERTEX_SIZE(Point, MT, Domain, AA)                          \
+    {                                                                           \
+        &TextureOp::tess<Point, MT, Domain, AA>,                                \
+                sizeof(TextureGeometryProcessor::Vertex<Point, MT, Domain, AA>) \
+    }
+        static constexpr struct {
+            TessFn fTessFn;
+            size_t fVertexSize;
+        } kTessFnsAndVertexSizes[] = {
+                TESS_FN_AND_VERTEX_SIZE(SkPoint, MultiTexture::kNo, Domain::kNo, GrAA::kNo),
+                TESS_FN_AND_VERTEX_SIZE(SkPoint, MultiTexture::kNo, Domain::kNo, GrAA::kYes),
+                TESS_FN_AND_VERTEX_SIZE(SkPoint, MultiTexture::kNo, Domain::kYes, GrAA::kNo),
+                TESS_FN_AND_VERTEX_SIZE(SkPoint, MultiTexture::kNo, Domain::kYes, GrAA::kYes),
+                TESS_FN_AND_VERTEX_SIZE(SkPoint, MultiTexture::kYes, Domain::kNo, GrAA::kNo),
+                TESS_FN_AND_VERTEX_SIZE(SkPoint, MultiTexture::kYes, Domain::kNo, GrAA::kYes),
+                TESS_FN_AND_VERTEX_SIZE(SkPoint, MultiTexture::kYes, Domain::kYes, GrAA::kNo),
+                TESS_FN_AND_VERTEX_SIZE(SkPoint, MultiTexture::kYes, Domain::kYes, GrAA::kYes),
+                TESS_FN_AND_VERTEX_SIZE(SkPoint3, MultiTexture::kNo, Domain::kNo, GrAA::kNo),
+                TESS_FN_AND_VERTEX_SIZE(SkPoint3, MultiTexture::kNo, Domain::kNo, GrAA::kYes),
+                TESS_FN_AND_VERTEX_SIZE(SkPoint3, MultiTexture::kNo, Domain::kYes, GrAA::kNo),
+                TESS_FN_AND_VERTEX_SIZE(SkPoint3, MultiTexture::kNo, Domain::kYes, GrAA::kYes),
+                TESS_FN_AND_VERTEX_SIZE(SkPoint3, MultiTexture::kYes, Domain::kNo, GrAA::kNo),
+                TESS_FN_AND_VERTEX_SIZE(SkPoint3, MultiTexture::kYes, Domain::kNo, GrAA::kYes),
+                TESS_FN_AND_VERTEX_SIZE(SkPoint3, MultiTexture::kYes, Domain::kYes, GrAA::kNo),
+                TESS_FN_AND_VERTEX_SIZE(SkPoint3, MultiTexture::kYes, Domain::kYes, GrAA::kYes),
+        };
+#undef TESS_FN_AND_VERTEX_SIZE
+        int tessFnIdx = 0;
+        tessFnIdx |= coverageAA      ? 0x1 : 0x0;
+        tessFnIdx |= fDomain         ? 0x2 : 0x0;
+        tessFnIdx |= (fProxyCnt > 1) ? 0x4 : 0x0;
+        tessFnIdx |= fPerspective    ? 0x8 : 0x0;
+
+        SkASSERT(kTessFnsAndVertexSizes[tessFnIdx].fVertexSize == gp->debugOnly_vertexStride());
+
         int vstart;
         const GrBuffer* vbuffer;
-        void* vdata = target->makeVertexSpace(gp->getVertexStride(), 4 * fDraws.count(), &vbuffer,
-                                              &vstart);
+        void* vdata = target->makeVertexSpace(kTessFnsAndVertexSizes[tessFnIdx].fVertexSize,
+                                              4 * fDraws.count(), &vbuffer, &vstart);
         if (!vdata) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -802,32 +847,7 @@ __attribute__((no_sanitize("float-cast-overflow")))
             ih[t] = 1.f / texture->height();
         }
 
-        using TessFn =
-                decltype(&TextureOp::tess<SkPoint, MultiTexture::kNo, Domain::kNo, GrAA::kNo>);
-        static constexpr TessFn kTessFns[] = {
-                &TextureOp::tess<SkPoint,  MultiTexture::kNo,  Domain::kNo,  GrAA::kNo>,
-                &TextureOp::tess<SkPoint,  MultiTexture::kNo,  Domain::kNo,  GrAA::kYes>,
-                &TextureOp::tess<SkPoint,  MultiTexture::kNo,  Domain::kYes, GrAA::kNo>,
-                &TextureOp::tess<SkPoint,  MultiTexture::kNo,  Domain::kYes, GrAA::kYes>,
-                &TextureOp::tess<SkPoint,  MultiTexture::kYes, Domain::kNo,  GrAA::kNo>,
-                &TextureOp::tess<SkPoint,  MultiTexture::kYes, Domain::kNo,  GrAA::kYes>,
-                &TextureOp::tess<SkPoint,  MultiTexture::kYes, Domain::kYes, GrAA::kNo>,
-                &TextureOp::tess<SkPoint,  MultiTexture::kYes, Domain::kYes, GrAA::kYes>,
-                &TextureOp::tess<SkPoint3, MultiTexture::kNo,  Domain::kNo,  GrAA::kNo>,
-                &TextureOp::tess<SkPoint3, MultiTexture::kNo,  Domain::kNo,  GrAA::kYes>,
-                &TextureOp::tess<SkPoint3, MultiTexture::kNo,  Domain::kYes, GrAA::kNo>,
-                &TextureOp::tess<SkPoint3, MultiTexture::kNo,  Domain::kYes, GrAA::kYes>,
-                &TextureOp::tess<SkPoint3, MultiTexture::kYes, Domain::kNo,  GrAA::kNo>,
-                &TextureOp::tess<SkPoint3, MultiTexture::kYes, Domain::kNo,  GrAA::kYes>,
-                &TextureOp::tess<SkPoint3, MultiTexture::kYes, Domain::kYes, GrAA::kNo>,
-                &TextureOp::tess<SkPoint3, MultiTexture::kYes, Domain::kYes, GrAA::kYes>,
-        };
-        int tessFnIdx = 0;
-        tessFnIdx |= coverageAA      ? 0x1 : 0x0;
-        tessFnIdx |= fDomain         ? 0x2 : 0x0;
-        tessFnIdx |= (fProxyCnt > 1) ? 0x4 : 0x0;
-        tessFnIdx |= fPerspective    ? 0x8 : 0x0;
-        (this->*(kTessFns[tessFnIdx]))(vdata, iw, ih, gp.get());
+        (this->*(kTessFnsAndVertexSizes[tessFnIdx].fTessFn))(vdata, iw, ih, gp.get());
 
         GrPrimitiveType primitiveType =
                 fDraws.count() > 1 ? GrPrimitiveType::kTriangles : GrPrimitiveType::kTriangleStrip;

@@ -40,23 +40,22 @@ class GrGLSLPrimitiveProcessor;
  */
 class GrPrimitiveProcessor : public GrResourceIOProcessor, public GrProgramElement {
 public:
+    /** Describes a vertex or instance attribute. */
     class Attribute {
     public:
-        enum class InputRate : bool {
-            kPerVertex,
-            kPerInstance
-        };
-
         constexpr Attribute() = default;
-        constexpr Attribute(const char* name, GrVertexAttribType type, int offset, InputRate rate)
-                : fName(name), fType(type), fOffsetInRecord(offset), fInputRate(rate) {}
+        constexpr Attribute(const char* name, GrVertexAttribType type) : fName(name), fType(type) {}
+        constexpr Attribute(const Attribute&) = default;
 
-        bool isInitialized() const { return SkToBool(fName); }
+        Attribute& operator=(const Attribute&) = default;
 
-        const char* name() const { return fName; }
-        GrVertexAttribType type() const { return fType; }
-        int offsetInRecord() const { return fOffsetInRecord; }
-        InputRate inputRate() const { return fInputRate; }
+        constexpr bool isInitialized() const { return SkToBool(fName); }
+
+        constexpr const char* name() const { return fName; }
+        constexpr GrVertexAttribType type() const { return fType; }
+
+        constexpr size_t size() const { return GrVertexAttribTypeSize(fType); }
+        constexpr size_t sizeAlign4() const { return SkAlign4(this->size()); }
 
         GrShaderVar asShaderVar() const {
             return {fName, GrVertexAttribTypeToSLType(fType), GrShaderVar::kIn_TypeModifier};
@@ -65,35 +64,34 @@ public:
     private:
         const char* fName = nullptr;
         GrVertexAttribType fType = kFloat_GrVertexAttribType;
-        int fOffsetInRecord = 0;
-        InputRate fInputRate = InputRate::kPerVertex;
     };
 
-    GrPrimitiveProcessor(ClassID classID)
-    : GrResourceIOProcessor(classID) {}
+    GrPrimitiveProcessor(ClassID);
 
-    int numAttribs() const { return fAttribs.count(); }
-    const Attribute& getAttrib(int index) const { return fAttribs[index]; }
+    int numVertexAttributes() const { return fVertexAttributeCnt; }
+    const Attribute& vertexAttribute(int i) const;
+    int numInstanceAttributes() const { return fInstanceAttributeCnt; }
+    const Attribute& instanceAttribute(int i) const;
 
-    bool hasVertexAttribs() const { return SkToBool(fVertexStride); }
-    bool hasInstanceAttribs() const { return SkToBool(fInstanceStride); }
+    bool hasVertexAttributes() const { return SkToBool(fVertexAttributeCnt); }
+    bool hasInstanceAttributes() const { return SkToBool(fInstanceAttributeCnt); }
 
+#ifdef SK_DEBUG
     /**
-     * These return the strides of the vertex and instance buffers. Attributes are expected to be
-     * laid out interleaved in their corresponding buffer (vertex or instance). fOffsetInRecord
-     * indicates an attribute's location in bytes relative to the first attribute. (These are padded
-     * to the nearest 4 bytes for performance reasons.)
-     *
-     * A common practice is to populate the buffer's memory using an implicit array of structs. In
-     * this case, it is best to assert:
-     *
-     *     stride == sizeof(struct) and
-     *     offsetof(struct, field[i]) == attrib[i].fOffsetInRecord
-     *
-     * NOTE: for instanced draws the vertex buffer has a single record that each instance reuses.
+     * A common practice is to populate the the vertex/instance's memory using an implicit array of
+     * structs. In this case, it is best to assert that:
+     *     debugOnly_stride == sizeof(struct) and
+     *     offsetof(struct, field[i]) == debugOnly_AttributeOffset(i)
+     * In general having Op subclasses assert that attribute offsets and strides agree with their
+     * tessellation code's expectations is good practice.
+     * However, these functions walk the attributes to compute offsets and call virtual functions
+     * to access the attributes. Thus, they are only available in debug builds.
      */
-    int getVertexStride() const { return fVertexStride; }
-    int getInstanceStride() const { return fInstanceStride; }
+    size_t debugOnly_vertexStride() const;
+    size_t debugOnly_instanceStride() const;
+    size_t debugOnly_vertexAttributeOffset(int) const;
+    size_t debugOnly_instanceAttributeOffset(int) const;
+#endif
 
     // Only the GrGeometryProcessor subclass actually has a geo shader or vertex attributes, but
     // we put these calls on the base class to prevent having to cast
@@ -129,24 +127,11 @@ public:
      */
     virtual const char* getDestColorOverride() const { return nullptr; }
 
-    virtual float getSampleShading() const {
-        return 0.0;
-    }
+    virtual float getSampleShading() const { return 0.0; }
 
 protected:
-    /**
-     * Subclasses call these from their constructor to register vertex and instance attributes.
-     */
-    const Attribute& addVertexAttrib(const char* name, GrVertexAttribType type) {
-        fAttribs.push_back() = {name, type, fVertexStride, Attribute::InputRate::kPerVertex};
-        fVertexStride += static_cast<int>(SkAlign4(GrVertexAttribTypeSize(type)));
-        return fAttribs.back();
-    }
-    const Attribute& addInstanceAttrib(const char* name, GrVertexAttribType type) {
-        fAttribs.push_back() = {name, type, fInstanceStride, Attribute::InputRate::kPerInstance};
-        fInstanceStride += static_cast<int>(SkAlign4(GrVertexAttribTypeSize(type)));
-        return fAttribs.back();
-    }
+    void setVertexAttributeCnt(int cnt) { fVertexAttributeCnt = cnt; }
+    void setInstanceAttributeCnt(int cnt) { fInstanceAttributeCnt = cnt; }
 
 private:
     void addPendingIOs() const override { GrResourceIOProcessor::addPendingIOs(); }
@@ -154,10 +139,11 @@ private:
     void pendingIOComplete() const override { GrResourceIOProcessor::pendingIOComplete(); }
     void notifyRefCntIsZero() const final {}
 
-    SkSTArray<8, Attribute> fAttribs;
-    int fVertexStride = 0;
-    int fInstanceStride = 0;
+    virtual const Attribute& onVertexAttribute(int) const = 0;
+    virtual const Attribute& onInstanceAttribute(int) const = 0;
 
+    int fVertexAttributeCnt = 0;
+    int fInstanceAttributeCnt = 0;
     typedef GrProcessor INHERITED;
 };
 

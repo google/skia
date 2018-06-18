@@ -93,8 +93,8 @@ public:
 
     const char* name() const override { return "Conic"; }
 
-    inline const Attribute* inPosition() const { return fInPosition; }
-    inline const Attribute* inConicCoeffs() const { return fInConicCoeffs; }
+    inline const Attribute& inPosition() const { return kAttributes[0]; }
+    inline const Attribute& inConicCoeffs() const { return kAttributes[1]; }
     inline bool isAntiAliased() const { return GrProcessorEdgeTypeIsAA(fEdgeType); }
     inline bool isFilled() const { return GrProcessorEdgeTypeIsFill(fEdgeType); }
     inline GrClipEdgeType getEdgeType() const { return fEdgeType; }
@@ -112,14 +112,16 @@ private:
     GrConicEffect(GrColor, const SkMatrix& viewMatrix, uint8_t coverage, GrClipEdgeType,
                   const SkMatrix& localMatrix, bool usesLocalCoords);
 
+    const Attribute& onVertexAttribute(int i) const override { return kAttributes[i]; }
+
     GrColor             fColor;
     SkMatrix            fViewMatrix;
     SkMatrix            fLocalMatrix;
     bool                fUsesLocalCoords;
     uint8_t             fCoverageScale;
     GrClipEdgeType fEdgeType;
-    const Attribute*    fInPosition;
-    const Attribute*    fInConicCoeffs;
+    static constexpr Attribute kAttributes[] = {{"inPosition", kFloat2_GrVertexAttribType},
+                                                {"inConicCoeffs", kHalf4_GrVertexAttribType}};
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
@@ -175,8 +177,8 @@ public:
 
     const char* name() const override { return "Quad"; }
 
-    inline const Attribute* inPosition() const { return fInPosition; }
-    inline const Attribute* inHairQuadEdge() const { return fInHairQuadEdge; }
+    inline const Attribute& inPosition() const { return kAttributes[0]; }
+    inline const Attribute& inHairQuadEdge() const { return kAttributes[1]; }
     inline bool isAntiAliased() const { return GrProcessorEdgeTypeIsAA(fEdgeType); }
     inline bool isFilled() const { return GrProcessorEdgeTypeIsFill(fEdgeType); }
     inline GrClipEdgeType getEdgeType() const { return fEdgeType; }
@@ -194,14 +196,17 @@ private:
     GrQuadEffect(GrColor, const SkMatrix& viewMatrix, uint8_t coverage, GrClipEdgeType,
                  const SkMatrix& localMatrix, bool usesLocalCoords);
 
-    GrColor             fColor;
-    SkMatrix            fViewMatrix;
-    SkMatrix            fLocalMatrix;
-    bool                fUsesLocalCoords;
-    uint8_t             fCoverageScale;
+    const Attribute& onVertexAttribute(int i) const override { return kAttributes[i]; }
+
+    GrColor fColor;
+    SkMatrix fViewMatrix;
+    SkMatrix fLocalMatrix;
+    bool fUsesLocalCoords;
+    uint8_t fCoverageScale;
     GrClipEdgeType fEdgeType;
-    const Attribute*    fInPosition;
-    const Attribute*    fInHairQuadEdge;
+
+    static constexpr Attribute kAttributes[] = {{"inPosition", kFloat2_GrVertexAttribType},
+                                                {"inHairQuadEdge", kHalf4_GrVertexAttribType}};
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
@@ -263,7 +268,7 @@ public:
 
     const char* name() const override { return "Cubic"; }
 
-    inline const Attribute* inPosition() const { return fInPosition; }
+    inline const Attribute& inPosition() const { return kInPosition; }
     inline bool isAntiAliased() const { return GrProcessorEdgeTypeIsAA(fEdgeType); }
     inline bool isFilled() const { return GrProcessorEdgeTypeIsFill(fEdgeType); }
     inline GrClipEdgeType getEdgeType() const { return fEdgeType; }
@@ -280,11 +285,14 @@ private:
     GrCubicEffect(GrColor, const SkMatrix& viewMatrix, const SkMatrix& devKLMMatrix,
                   GrClipEdgeType);
 
-    GrColor             fColor;
-    SkMatrix            fViewMatrix;
-    SkMatrix            fDevKLMMatrix;
+    const Attribute& onVertexAttribute(int) const override { return kInPosition; }
+
+    GrColor fColor;
+    SkMatrix fViewMatrix;
+    SkMatrix fDevKLMMatrix;
     GrClipEdgeType fEdgeType;
-    const Attribute*    fInPosition;
+
+    static constexpr Attribute kInPosition = {"inPosition", kFloat2_GrVertexAttribType};
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 

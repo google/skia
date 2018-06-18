@@ -181,15 +181,16 @@ private:
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
         }
-        SkASSERT(gp->getVertexStride() ==
-                 sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr));
 
-        size_t vertexStride = gp->getVertexStride();
+        static constexpr size_t kVertexStride =
+                sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr);
+        SkASSERT(kVertexStride == gp->debugOnly_vertexStride());
+
         int rectCount = fRects.count();
 
         sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
         PatternHelper helper(GrPrimitiveType::kTriangles);
-        void* vertices = helper.init(target, vertexStride, indexBuffer.get(), kVertsPerRect,
+        void* vertices = helper.init(target, kVertexStride, indexBuffer.get(), kVertsPerRect,
                                      kIndicesPerRect, rectCount);
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
@@ -198,8 +199,8 @@ private:
 
         for (int i = 0; i < rectCount; i++) {
             intptr_t verts =
-                    reinterpret_cast<intptr_t>(vertices) + i * kVertsPerRect * vertexStride;
-            tesselate(verts, vertexStride, fRects[i].fColor, &fRects[i].fViewMatrix,
+                    reinterpret_cast<intptr_t>(vertices) + i * kVertsPerRect * kVertexStride;
+            tesselate(verts, kVertexStride, fRects[i].fColor, &fRects[i].fViewMatrix,
                       fRects[i].fRect, &fRects[i].fLocalQuad);
         }
         helper.recordDraw(target, gp.get(), fHelper.makePipeline(target));
@@ -311,13 +312,11 @@ private:
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
         }
-        SkASSERT(fHasLocalRect
-                         ? gp->getVertexStride() ==
-                                   sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr)
-                         : gp->getVertexStride() ==
-                                   sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
+        size_t vertexStride = fHasLocalRect
+                                      ? sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr)
+                                      : sizeof(GrDefaultGeoProcFactory::PositionColorAttr);
+        SkASSERT(vertexStride == gp->debugOnly_vertexStride());
 
-        size_t vertexStride = gp->getVertexStride();
         int rectCount = fRects.count();
 
         sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
