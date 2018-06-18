@@ -158,7 +158,7 @@ The SkPicture backend uses SkPictureRecorder instead of SkSurface.
         draw(recordingCanvas);
         sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();
         SkFILEWStream skpStream(path);
-        // Open SKP files with `SampleApp --picture SKP_FILE`
+        // Open SKP files with `viewer --skps PATH_TO_SKP --slide SKP_FILE`
         picture->serialize(&skpStream);
     }
 

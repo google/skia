@@ -21,7 +21,7 @@ Try It Out
 ----------
 
 The tools `lua_app` and `lua_pictures` should now be available when you compile,
-and `SampleApp` should now have a `Lua` sample.
+and `Viewer` should now have a `Lua` sample.
 
 
 To-Do
