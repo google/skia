@@ -649,6 +649,25 @@ SkScalerContext* SkTypeface_FreeType::onCreateScalerContext(const SkScalerContex
     return c.release();
 }
 
+std::unique_ptr<SkFontData> SkTypeface_FreeType::cloneFontData(
+                                                            const SkFontArguments& args) const {
+    SkString name;
+    AutoFTAccess fta(this);
+    FT_Face face = fta.face();
+    Scanner::AxisDefinitions axisDefinitions;
+
+    if (!Scanner::GetAxes(face, &axisDefinitions)) {
+        return nullptr;
+    }
+    SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
+    Scanner::computeAxisValues(axisDefinitions, args.getVariationDesignPosition(),
+                               axisValues, name);
+    int ttcIndex;
+    auto stream = std::unique_ptr<SkStreamAsset>(this->openStream(&ttcIndex));
+    return skstd::make_unique<SkFontData>(std::move(stream), ttcIndex, axisValues.get(),
+                                          axisDefinitions.count());
+}
+
 void SkTypeface_FreeType::onFilterRec(SkScalerContextRec* rec) const {
     //BOGUS: http://code.google.com/p/chromium/issues/detail?id=121119
     //Cap the requested size as larger sizes give bogus values.
@@ -1775,6 +1794,12 @@ bool SkTypeface_FreeType::Scanner::scanFont(
         *isFixedPitch = FT_IS_FIXED_WIDTH(face);
     }
 
+    bool success = GetAxes(face, axes);
+    FT_Done_Face(face);
+    return success;
+}
+
+bool SkTypeface_FreeType::Scanner::GetAxes(FT_Face face, AxisDefinitions* axes) {
     if (axes && face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS) {
         FT_MM_Var* variations = nullptr;
         FT_Error err = FT_Get_MM_Var(face, &variations);
@@ -1794,8 +1819,6 @@ bool SkTypeface_FreeType::Scanner::scanFont(
             (*axes)[i].fMaximum = ftAxis.maximum;
         }
     }
-
-    FT_Done_Face(face);
     return true;
 }
 

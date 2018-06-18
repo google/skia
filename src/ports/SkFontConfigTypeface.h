@@ -38,6 +38,17 @@ public:
         return fIdentity;
     }
 
+    sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
+        std::unique_ptr<SkFontData> data = this->cloneFontData(args);
+        if (!data) {
+            return nullptr;
+        }
+        return sk_sp<SkTypeface>(new SkTypeface_FCI(std::move(data),
+                                                    fFamilyName,
+                                                    this->fontStyle(),
+                                                    this->isFixedPitch()));
+    }
+
 protected:
     SkTypeface_FCI(sk_sp<SkFontConfigInterface> fci,
                    const SkFontConfigInterface::FontIdentity& fi,
