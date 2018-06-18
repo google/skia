@@ -8,7 +8,7 @@
 #include "gm.h"
 #include "SampleCode.h"
 #include "SkRandom.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #if SK_SUPPORT_GPU
 #include "GrRectanizer_pow2.h"
 #include "GrRectanizer_skyline.h"

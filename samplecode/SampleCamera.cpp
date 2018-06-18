@@ -18,7 +18,7 @@
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkString.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 
 class CameraView : public SampleView {
     SkTArray<sk_sp<SkShader>> fShaders;

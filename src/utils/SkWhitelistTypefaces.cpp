@@ -10,7 +10,7 @@
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTypeface.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include "../sfnt/SkOTUtils.h"
 
 #include "SkWhitelistChecksums.inc"

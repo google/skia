@@ -41,7 +41,7 @@
 #include "SkSurface.h"
 #include "SkTDArray.h"
 #include "SkTemplates.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 
 #include <utility>
 

@@ -22,7 +22,7 @@
 #include "SkTDArray.h"
 #include "SkTestTypeface.h"
 #include "SkTo.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 
 #include <utility>
 

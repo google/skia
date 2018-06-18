@@ -20,7 +20,7 @@
 #include <direct.h>
 #include <io.h>
 #include <vector>
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #endif
 
 #ifdef SK_BUILD_FOR_IOS

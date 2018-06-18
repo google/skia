@@ -26,7 +26,7 @@
 #include "SkStrikeCache.h"
 #include "SkTSearch.h"
 #include "SkTime.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 
 #include <stdlib.h>
 

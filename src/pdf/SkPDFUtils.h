@@ -13,6 +13,7 @@
 #include "SkPath.h"
 #include "SkShader.h"
 #include "SkStream.h"
+#include "SkUnicodeUtils.h"
 #include "SkUtils.h"
 
 class SkMatrix;

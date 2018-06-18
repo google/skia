@@ -15,7 +15,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkTypeface.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include "gpu/TestContext.h"
 #include "gpu/atlastext/GLTestAtlasTextRenderer.h"
 #include "gpu/atlastext/TestAtlasTextRenderer.h"
@@ -29,7 +29,7 @@ static SkScalar draw_string(SkAtlasTextTarget* target, const SkString& text, SkS
         return x;
     }
     auto font = SkAtlasTextFont::Make(typeface, size);
-    int cnt = SkUTF8_CountUnichars(text.c_str());
+    int cnt = SkUTF8_CountUnichars(text.c_str(), text.size());
     std::unique_ptr<SkGlyphID[]> glyphs(new SkGlyphID[cnt]);
     typeface->charsToGlyphs(text.c_str(), SkTypeface::Encoding::kUTF8_Encoding, glyphs.get(), cnt);
 

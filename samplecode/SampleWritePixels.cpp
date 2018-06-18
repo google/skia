@@ -13,7 +13,7 @@
 #include "SkPath.h"
 #include "SkRegion.h"
 #include "SkShader.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 
 static void create_bitmap(SkBitmap* bitmap) {
     const int W = 100;

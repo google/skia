@@ -9,7 +9,7 @@
 
 #include "WindowContextFactory_unix.h"
 
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include "Timer.h"
 #include "../GLWindowContext.h"
 #include "Window_unix.h"
