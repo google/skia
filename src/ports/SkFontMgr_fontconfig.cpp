@@ -444,6 +444,16 @@ public:
         return skstd::make_unique<SkFontData>(*fData);
     }
 
+    sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
+        if (!onMakeCloneFontData(args)) {
+            return nullptr;
+        }
+        return sk_sp<SkTypeface>(new SkTypeface_stream(onMakeCloneFontData(args),
+                                                       fFamilyName,
+                                                       this->fontStyle(),
+                                                       this->isFixedPitch()));
+    }
+
 private:
     SkString fFamilyName;
     const std::unique_ptr<const SkFontData> fData;

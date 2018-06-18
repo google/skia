@@ -136,6 +136,16 @@ public:
         return skstd::make_unique<SkFontData>(*fData);
     }
 
+    sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
+        if (!onMakeCloneFontData(args)) {
+            return nullptr;
+        }
+        return sk_sp<SkTypeface>(new SkTypeface_AndroidStream(onMakeCloneFontData(args),
+                                                              this->fontStyle(),
+                                                              this->isFixedPitch(),
+                                                              fFamilyName));
+    }
+
 private:
     const std::unique_ptr<const SkFontData> fData;
     typedef SkTypeface_Android INHERITED;
