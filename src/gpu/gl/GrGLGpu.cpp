@@ -734,9 +734,12 @@ bool GrGLGpu::onTransferPixels(GrTexture* texture, int left, int top, int width,
         return false;
     }
 
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wtautological-constant-compare"
     if (width <= 0 || width > SK_MaxS32 || height <= 0 || height > SK_MaxS32) {
         return false;
     }
+    #pragma clang diagnostic pop
 
     this->setScratchTextureUnit();
     GL_CALL(BindTexture(glTex->target(), glTex->textureID()));
