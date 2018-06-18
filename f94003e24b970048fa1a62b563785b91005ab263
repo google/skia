@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a82ac470_98b44a76",
+        "filename": "src/gpu/vk/GrVkCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-06-18T15:17:18Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 99,
+        "startChar": 15,
+        "endLine": 99,
+        "endChar": 20
+      },
+      "revId": "f94003e24b970048fa1a62b563785b91005ab263",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
