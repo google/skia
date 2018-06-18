@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "4bdc1970_5395f76d",
+        "filename": "BUILD.gn",
+        "patchSetId": 35
+      },
+      "lineNbr": 981,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-18T16:41:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "de880115_ae1089cd",
+      "range": {
+        "startLine": 978,
+        "startChar": 0,
+        "endLine": 981,
+        "endChar": 3
+      },
+      "revId": "5b694475e648cbd778e5b25ff1e1972ed8d06aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e58cd881_cbe6c896",
         "filename": "BUILD.gn",
         "patchSetId": 35
@@ -140,6 +164,30 @@
       "revId": "5b694475e648cbd778e5b25ff1e1972ed8d06aa8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "559796d1_8387a94d",
+        "filename": "BUILD.gn",
+        "patchSetId": 35
+      },
+      "lineNbr": 2007,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-18T16:41:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8c46e90c_2c70b96e",
+      "range": {
+        "startLine": 2007,
+        "startChar": 8,
+        "endLine": 2007,
+        "endChar": 21
+      },
+      "revId": "5b694475e648cbd778e5b25ff1e1972ed8d06aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -245,6 +293,24 @@
       "revId": "5b694475e648cbd778e5b25ff1e1972ed8d06aa8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da795b01_9ac94543",
+        "filename": "platform_tools/android/apps/arcore/build.gradle",
+        "patchSetId": 35
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-18T16:41:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cccea43b_c5359d84",
+      "revId": "5b694475e648cbd778e5b25ff1e1972ed8d06aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
