@@ -2478,7 +2478,7 @@ Returns storage required by pixel array, given <a href='#Image_Info'>Image Info<
 and <a href='#SkImageInfo_computeByteSize_rowBytes'>rowBytes</a>. <a href='#SkImageInfo_computeByteSize_rowBytes'>rowBytes</a> is assumed to be at least as large as <a href='#SkImageInfo_minRowBytes'>minRowBytes</a>.
 
 Returns zero if height is zero.
-Returns <a href='undocumented#SK_MaxSizeT'>SK MaxSizeT</a> if answer exceeds the range of size_t.
+Returns SIZE_MAX if answer exceeds the range of size_t.
 
 ### Parameters
 
@@ -2512,7 +2512,7 @@ Returns storage required by pixel array, given <a href='#Image_Info'>Image Info<
 <a href='#Color_Type'>Color Type</a>. Uses <a href='#SkImageInfo_minRowBytes'>minRowBytes</a> to compute bytes for pixel row.
 
 Returns zero if height is zero.
-Returns <a href='undocumented#SK_MaxSizeT'>SK MaxSizeT</a> if answer exceeds the range of size_t.
+Returns SIZE_MAX if answer exceeds the range of size_t.
 
 ### Return Value
 
@@ -2535,8 +2535,8 @@ least memory required by pixel buffer
 static bool <a href='#SkImageInfo_ByteSizeOverflowed'>ByteSizeOverflowed</a>(size_t byteSize)
 </pre>
 
-Returns true if <a href='#SkImageInfo_ByteSizeOverflowed_byteSize'>byteSize</a> equals <a href='undocumented#SK_MaxSizeT'>SK MaxSizeT</a>. <a href='#SkImageInfo_computeByteSize'>computeByteSize</a> and
-<a href='#SkImageInfo_computeMinByteSize'>computeMinByteSize</a> return <a href='undocumented#SK_MaxSizeT'>SK MaxSizeT</a> if size_t can not hold buffer size.
+Returns true if <a href='#SkImageInfo_ByteSizeOverflowed_byteSize'>byteSize</a> equals SIZE_MAX. <a href='#SkImageInfo_computeByteSize'>computeByteSize</a> and
+<a href='#SkImageInfo_computeMinByteSize'>computeMinByteSize</a> return SIZE_MAX if size_t can not hold buffer size.
 
 ### Parameters
 

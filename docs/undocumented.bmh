@@ -12,7 +12,7 @@
  RFC
  NaN NaNs
  
- C C++ 
+ C C++ SIZE_MAX
  CSS HTML
  SkUserConfig  # not external, but still thinking about how markup refers to this
  SkXXX.h        # ditto
@@ -522,9 +522,6 @@ FT_Load_Glyph
     to be written
     ##
     #Const SK_MaxS32
-    to be written
-    ##
-    #Const SK_MaxSizeT
     to be written
     ##
     #Typedef int32_t SkUnichar
