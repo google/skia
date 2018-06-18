@@ -227,12 +227,12 @@ std::unique_ptr<GrFragmentProcessor> GrNonlinearColorSpaceXformEffect::Make(SkCo
 
     uint32_t ops = 0;
 
-    // We rely on GrColorSpaceXform to build the gamut xform matrix for us (to get caching)
-    auto gamutXform = GrColorSpaceXform::MakeGamutXform(src, dst);
+    const SkMatrix44* toXYZ = src->toXYZD50();
+    const SkMatrix44* fromXYZ = dst->fromXYZD50();
     SkMatrix44 srcToDstMtx(SkMatrix44::kUninitialized_Constructor);
-    if (gamutXform) {
+    if (toXYZ && fromXYZ && src->toXYZD50Hash() != dst->toXYZD50Hash()) {
+        srcToDstMtx.setConcat(*fromXYZ, *toXYZ);
         ops |= kGamutXform_Op;
-        srcToDstMtx = gamutXform->gamutXform();
     }
 
     SkColorSpaceTransferFn srcTransferFn;

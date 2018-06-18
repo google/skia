@@ -10,71 +10,50 @@
 
 #include "GrColor.h"
 #include "GrFragmentProcessor.h"
-#include "SkColorSpace.h"
-#include "SkMatrix44.h"
+#include "SkColorSpaceXformSteps.h"
 #include "SkRefCnt.h"
+
+class SkColorSpace;
 
  /**
   * Represents a color space transformation
   */
 class GrColorSpaceXform : public SkRefCnt {
 public:
-    GrColorSpaceXform(const SkColorSpaceTransferFn&, const SkMatrix44&, uint32_t);
+    GrColorSpaceXform(const SkColorSpaceXformSteps& steps) : fSteps(steps) {}
 
     static sk_sp<GrColorSpaceXform> Make(SkColorSpace* src, SkColorSpace* dst);
-    static sk_sp<GrColorSpaceXform> MakeGamutXform(SkColorSpace* src, SkColorSpace* dst) {
-        sk_sp<SkColorSpace> linearSrc = sk_ref_sp(src);
-        if (!linearSrc) {
-            linearSrc = SkColorSpace::MakeSRGBLinear();
-        }
-        linearSrc = linearSrc->makeLinearGamma();
-        auto result = Make(linearSrc.get(), dst);
-        SkASSERT(!result || 0 == (result->fFlags & ~kApplyGamutXform_Flag));
-        return result;
-    }
 
-    const SkColorSpaceTransferFn& transferFn() const { return fSrcTransferFn; }
-    const float* transferFnCoeffs() const {
-        static_assert(0 == offsetof(SkColorSpaceTransferFn, fG), "TransferFn layout");
-        return &fSrcTransferFn.fG;
-    }
+    static sk_sp<GrColorSpaceXform> MakeUnpremulToUnpremul(SkColorSpace* src, SkColorSpace* dst);
 
-    const SkMatrix44& gamutXform() const { return fGamutXform; }
+    const SkColorSpaceXformSteps& steps() const { return fSteps; }
 
     /**
      * GrGLSLFragmentProcessor::GenKey() must call this and include the returned value in its
      * computed key.
      */
     static uint32_t XformKey(const GrColorSpaceXform* xform) {
-        // Code generation depends on which steps we apply (as encoded by fFlags)
-        return SkToBool(xform) ? xform->fFlags : 0;
+        // Code generation depends on which steps we apply
+        return xform ? xform->fSteps.flags.mask() : 0;
     }
 
     static bool Equals(const GrColorSpaceXform* a, const GrColorSpaceXform* b);
 
-    GrColor4f unclampedXform(const GrColor4f& srcColor);
-    GrColor4f clampedXform(const GrColor4f& srcColor);
+    GrColor4f apply(const GrColor4f& srcColor);
 
 private:
     friend class GrGLSLColorSpaceXformHelper;
 
-    enum Flags {
-        kApplyTransferFn_Flag = 0x1,
-        kApplyGamutXform_Flag = 0x2,
-
-        // Almost never used. This handles the case where the src data is sRGB pixel config,
-        // but the color space has a different transfer function. In that case, we first undo
-        // the HW sRGB -> Linear conversion, before applying any other steps.
-        kApplyInverseSRGB_Flag = 0x4,
-    };
-
-    SkColorSpaceTransferFn fSrcTransferFn;
-    SkMatrix44 fGamutXform;
-    uint32_t fFlags;
+    SkColorSpaceXformSteps fSteps;
 };
 
 class GrColorSpaceXformEffect : public GrFragmentProcessor {
 public:
+    /**
+     *  Returns a fragment processor that converts the input's color space from src to dst.
+     */
+    static std::unique_ptr<GrFragmentProcessor> Make(SkColorSpace* src, SkColorSpace* dst);
+
     /**
      *  Returns a fragment processor that calls the passed in fragment processor, and then converts
      *  the color space of the output from src to dst.

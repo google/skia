@@ -17,7 +17,8 @@ GrColorSpaceXform* GrColorSpaceInfo::colorSpaceXformFromSRGB() const {
     if (!fInitializedColorSpaceXformFromSRGB) {
         // sRGB sources are very common (SkColor, etc...), so we cache that transformation
         auto srgbColorSpace = SkColorSpace::MakeSRGB();
-        fColorXformFromSRGB = GrColorSpaceXform::Make(srgbColorSpace.get(), fColorSpace.get());
+        fColorXformFromSRGB = GrColorSpaceXform::MakeUnpremulToUnpremul(srgbColorSpace.get(),
+                                                                        fColorSpace.get());
         fInitializedColorSpaceXformFromSRGB = true;
     }
     // You can't be color-space aware in legacy mode
