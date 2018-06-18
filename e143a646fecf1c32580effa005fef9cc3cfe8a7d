@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "78463bea_fbf29b98",
+        "filename": "platform_tools/android/apps/arcore/CMakeLists.txt",
+        "patchSetId": 36
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-06-18T19:15:33Z",
+      "side": 1,
+      "message": "may want to update the copyright years for the new files you\u0027re adding",
+      "range": {
+        "startLine": 1,
+        "startChar": 21,
+        "endLine": 1,
+        "endChar": 27
+      },
+      "revId": "e143a646fecf1c32580effa005fef9cc3cfe8a7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a616dcd_ee97cc6b",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/background_renderer.cc",
+        "patchSetId": 36
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-06-18T19:15:33Z",
+      "side": 1,
+      "message": "do we need this file?",
+      "range": {
+        "startLine": 2,
+        "startChar": 18,
+        "endLine": 2,
+        "endChar": 24
+      },
+      "revId": "e143a646fecf1c32580effa005fef9cc3cfe8a7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6475531e_00a804e6",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/hello_ar_application.cc",
+        "patchSetId": 36
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-06-18T19:15:33Z",
+      "side": 1,
+      "message": "Will need to bring some organization to this (large) function. Perhaps not in this initial CL, but soon.",
+      "range": {
+        "startLine": 232,
+        "startChar": 29,
+        "endLine": 232,
+        "endChar": 40
+      },
+      "revId": "e143a646fecf1c32580effa005fef9cc3cfe8a7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9755394b_c514edc8",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/obj_renderer.cc",
+        "patchSetId": 36
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-06-18T19:15:33Z",
+      "side": 1,
+      "message": "do we need this file?",
+      "range": {
+        "startLine": 2,
+        "startChar": 18,
+        "endLine": 2,
+        "endChar": 24
+      },
+      "revId": "e143a646fecf1c32580effa005fef9cc3cfe8a7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d15c1147_e0bda817",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/plane_renderer.h",
+        "patchSetId": 36
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-06-18T19:15:33Z",
+      "side": 1,
+      "message": "do we need this file?",
+      "range": {
+        "startLine": 2,
+        "startChar": 24,
+        "endLine": 2,
+        "endChar": 25
+      },
+      "revId": "e143a646fecf1c32580effa005fef9cc3cfe8a7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
