@@ -22,6 +22,10 @@ struct Section : public ProgramElement {
     , fArgument(std::move(arg))
     , fText(std::move(text)) {}
 
+    std::unique_ptr<ProgramElement> clone() const override {
+        return std::unique_ptr<ProgramElement>(new Section(fOffset, fName, fArgument, fText));
+    }
+
     String description() const override {
         String result = "@" + fName;
         if (fArgument.size()) {

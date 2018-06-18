@@ -45,6 +45,10 @@ struct PrefixExpression : public Expression {
         return nullptr;
     }
 
+    std::unique_ptr<Expression> clone() const override {
+        return std::unique_ptr<Expression>(new PrefixExpression(fOperator, fOperand->clone()));
+    }
+
     String description() const override {
         return Compiler::OperatorName(fOperator) + fOperand->description();
     }

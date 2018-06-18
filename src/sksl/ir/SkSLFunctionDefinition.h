@@ -24,6 +24,11 @@ struct FunctionDefinition : public ProgramElement {
     , fDeclaration(declaration)
     , fBody(std::move(body)) {}
 
+    std::unique_ptr<ProgramElement> clone() const override {
+        return std::unique_ptr<ProgramElement>(new FunctionDefinition(fOffset, fDeclaration,
+                                                                      fBody->clone()));
+    }
+
     String description() const override {
         return fDeclaration.description() + " " + fBody->description();
     }

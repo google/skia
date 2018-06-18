@@ -36,7 +36,9 @@
 #include "SkTaskGroup.h"
 #include "SkUnPreMultiplyPriv.h"
 #include "effects/GrConfigConversionEffect.h"
+#include "effects/GrSkSLFP.h"
 #include "text/GrTextBlobCache.h"
+#include <unordered_map>
 
 #define ASSERT_OWNED_PROXY(P) \
 SkASSERT(!(P) || !((P)->priv().peekTexture()) || (P)->priv().peekTexture()->getContext() == this)
@@ -152,6 +154,9 @@ GrContext::~GrContext() {
 
     if (fDrawingManager) {
         fDrawingManager->cleanup();
+    }
+    if (fFPFactories != nullptr) {
+        delete fFPFactories;
     }
 
     fTextureStripAtlasManager = nullptr;
@@ -1022,6 +1027,20 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContext(
     renderTargetContext->discard();
 
     return renderTargetContext;
+}
+
+GrSkSLFPFactory* GrContextPriv::getFPFactory(size_t index) {
+    if (!fContext->fFPFactories) {
+        return nullptr;
+    }
+    return fContext->fFPFactories->get(index);
+}
+
+void GrContextPriv::setFPFactory(size_t index, GrSkSLFPFactory* factory) {
+    if (!fContext->fFPFactories) {
+        fContext->fFPFactories = new GrSkSLFPFactoryCache();
+    }
+    fContext->fFPFactories->set(index, std::unique_ptr<GrSkSLFPFactory>(factory));
 }
 
 bool GrContextPriv::abandoned() const {

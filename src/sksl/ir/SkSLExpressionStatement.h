@@ -21,6 +21,10 @@ struct ExpressionStatement : public Statement {
     : INHERITED(expression->fOffset, kExpression_Kind)
     , fExpression(std::move(expression)) {}
 
+    std::unique_ptr<Statement> clone() const override {
+        return std::unique_ptr<Statement>(new ExpressionStatement(fExpression->clone()));
+    }
+
     String description() const override {
         return fExpression->description() + ";";
     }

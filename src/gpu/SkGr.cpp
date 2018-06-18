@@ -37,9 +37,49 @@
 #include "SkTraceEvent.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrConstColorProcessor.h"
-#include "effects/GrDitherEffect.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
+#include "effects/GrSkSLFP.h"
+
+const char* SKSL_DITHER_SRC = R"(
+// This controls the range of values added to color channels
+layout(key) in int rangeType;
+
+void main(int x, int y, inout half4 color) {
+    half value;
+    half range;
+    @switch (rangeType) {
+        case 0:
+            range = 1.0 / 255.0;
+            break;
+        case 1:
+            range = 1.0 / 63.0;
+            break;
+        default:
+            // Experimentally this looks better than the expected value of 1/15.
+            range = 1.0 / 15.0;
+            break;
+    }
+    @if (sk_Caps.integerSupport) {
+        // This ordered-dither code is lifted from the cpu backend.
+        uint x = uint(x);
+        uint y = uint(y);
+        uint m = (y & 1) << 5 | (x & 1) << 4 |
+                 (y & 2) << 2 | (x & 2) << 1 |
+                 (y & 4) >> 1 | (x & 4) >> 2;
+        value = half(m) * 1.0 / 64.0 - 63.0 / 128.0;
+    } else {
+        // Simulate the integer effect used above using step/mod. For speed, simulates a 4x4
+        // dither pattern rather than an 8x8 one.
+        half4 modValues = mod(float4(x, y, x, y), half4(2.0, 2.0, 4.0, 4.0));
+        half4 stepValues = step(modValues, half4(1.0, 1.0, 2.0, 2.0));
+        value = dot(stepValues, half4(8.0 / 16.0, 4.0 / 16.0, 2.0 / 16.0, 1.0 / 16.0)) - 15.0 / 32.0;
+    }
+    // For each color channel, add the random offset to the channel value and then clamp
+    // between 0 and alpha to keep the color premultiplied.
+    color = half4(clamp(color.rgb + value * range, 0.0, color.a), color.a);
+}
+)";
 
 GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info) {
     GrSurfaceDesc desc;
@@ -292,6 +332,39 @@ static inline bool blend_requires_shader(const SkBlendMode mode) {
     return SkBlendMode::kDst != mode;
 }
 
+#ifndef SK_IGNORE_GPU_DITHER
+static inline int32_t dither_range_type_for_config(GrPixelConfig dstConfig) {
+    switch (dstConfig) {
+        case kGray_8_GrPixelConfig:
+        case kGray_8_as_Lum_GrPixelConfig:
+        case kGray_8_as_Red_GrPixelConfig:
+        case kRGBA_8888_GrPixelConfig:
+        case kRGB_888_GrPixelConfig:
+        case kBGRA_8888_GrPixelConfig:
+        case kSRGBA_8888_GrPixelConfig:
+        case kSBGRA_8888_GrPixelConfig:
+            return 0;
+        case kRGB_565_GrPixelConfig:
+            return 1;
+        case kRGBA_4444_GrPixelConfig:
+            return 2;
+        case kUnknown_GrPixelConfig:
+        case kRGBA_1010102_GrPixelConfig:
+        case kAlpha_half_GrPixelConfig:
+        case kAlpha_half_as_Red_GrPixelConfig:
+        case kRGBA_float_GrPixelConfig:
+        case kRG_float_GrPixelConfig:
+        case kRGBA_half_GrPixelConfig:
+        case kAlpha_8_GrPixelConfig:
+        case kAlpha_8_as_Alpha_GrPixelConfig:
+        case kAlpha_8_as_Red_GrPixelConfig:
+            return -1;
+    }
+    SkASSERT(false);
+    return 0;
+}
+#endif
+
 static inline bool skpaint_to_grpaint_impl(GrContext* context,
                                            const GrColorSpaceInfo& colorSpaceInfo,
                                            const SkPaint& skPaint,
@@ -420,9 +493,14 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     GrPixelConfigToColorType(colorSpaceInfo.config(), &ct);
     if (SkPaintPriv::ShouldDither(skPaint, ct) && grPaint->numColorFragmentProcessors() > 0 &&
         !colorSpaceInfo.isGammaCorrect()) {
-        auto ditherFP = GrDitherEffect::Make(colorSpaceInfo.config());
-        if (ditherFP) {
-            grPaint->addColorFragmentProcessor(std::move(ditherFP));
+        int32_t ditherRange = dither_range_type_for_config(colorSpaceInfo.config());
+        if (ditherRange >= 0) {
+            static int ditherIndex = GrSkSLFP::NewIndex();
+            auto ditherFP = GrSkSLFP::Make(context, ditherIndex, "Dither", SKSL_DITHER_SRC,
+                                           &ditherRange, sizeof(ditherRange));
+            if (ditherFP) {
+                grPaint->addColorFragmentProcessor(std::move(ditherFP));
+            }
         }
     }
 #endif
