@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6d12358c_fdda7e40",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 8209
+      },
+      "writtenOn": "2018-06-18T19:37:13Z",
+      "side": 1,
+      "message": "fixed!",
+      "parentUuid": "ae8c0c05_eea1f21d",
+      "revId": "26710c6d39ab8670463699a01f8f0ba5e8f6cd5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "15767313_5076cbd6",
         "filename": "BUILD.gn",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2018-06-18T19:11:36Z",
       "side": 1,
       "message": "I don\u0027t think our third_party template has any kind of optional behavior (eg enabled \u003d !is_win), although that would be nice, because then this wouldn\u0027t need an explicit check in each deps list.",
+      "revId": "26710c6d39ab8670463699a01f8f0ba5e8f6cd5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b89c915c_14fbe486",
+        "filename": "BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 1545,
+      "author": {
+        "id": 8209
+      },
+      "writtenOn": "2018-06-18T19:37:13Z",
+      "side": 1,
+      "message": "I added that to the template, and it seems like it works fine. Should I make another patchset for it?",
+      "parentUuid": "15767313_5076cbd6",
       "revId": "26710c6d39ab8670463699a01f8f0ba5e8f6cd5d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
