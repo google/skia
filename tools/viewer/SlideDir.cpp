@@ -25,6 +25,7 @@
 #include "SkTypeface.h"
 
 #include <cmath>
+#include <utility>
 
 namespace {
 
@@ -147,8 +148,9 @@ public:
     void startUnfocus() {
         SkASSERT(fTarget);
 
-        SkTSwap(fM0, fM1);
-        SkTSwap(fOpacity0, fOpacity1);
+        using std::swap;
+        swap(fM0, fM1);
+        swap(fOpacity0, fOpacity1);
 
         fTimeBase = 0;
         fState = State::kUnfocusing;

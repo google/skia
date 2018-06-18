@@ -26,6 +26,8 @@
 #include "SkUnPreMultiply.h"
 #include "SkUtils.h"
 
+#include <utility>
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 void SkPixmap::reset() {
@@ -482,6 +484,7 @@ bool SkPixmap::computeIsOpaque() const {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 static bool draw_orientation(const SkPixmap& dst, const SkPixmap& src, unsigned flags) {
+    using std::swap;
     auto surf = SkSurface::MakeRasterDirect(dst.info(), dst.writable_addr(), dst.rowBytes());
     if (!surf) {
         return false;
@@ -499,7 +502,7 @@ static bool draw_orientation(const SkPixmap& dst, const SkPixmap& src, unsigned 
         SkMatrix s;
         s.setAll(0, 1, 0, 1, 0, 0, 0, 0, 1);
         m.postConcat(s);
-        SkTSwap(W, H);
+        swap(W, H);
     }
     if (flags & SkPixmapPriv::kMirrorX) {
         m.postScale(-1, 1);
@@ -517,6 +520,7 @@ static bool draw_orientation(const SkPixmap& dst, const SkPixmap& src, unsigned 
 }
 
 bool SkPixmapPriv::Orient(const SkPixmap& dst, const SkPixmap& src, OrientFlags flags) {
+    using std::swap;
     SkASSERT((flags & ~(kMirrorX | kMirrorY | kSwapXY)) == 0);
     if (src.colorType() != dst.colorType()) {
         return false;
@@ -526,7 +530,7 @@ bool SkPixmapPriv::Orient(const SkPixmap& dst, const SkPixmap& src, OrientFlags 
     int w = src.width();
     int h = src.height();
     if (flags & kSwapXY) {
-        SkTSwap(w, h);
+        swap(w, h);
     }
     if (dst.width() != w || dst.height() != h) {
         return false;

@@ -11,6 +11,8 @@
 #include "SkMathPriv.h"
 #include "SkTo.h"
 
+#include <utility>
+
 /*
     In setLine, setQuadratic, setCubic, the first thing we do is to convert
     the points into FDot6. This is modulated by the shift parameter, which
@@ -33,6 +35,7 @@ static inline SkFixed SkFDot6ToFixedDiv2(SkFDot6 value) {
 
 int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip,
                     int shift) {
+    using std::swap;
     SkFDot6 x0, y0, x1, y1;
 
     {
@@ -53,8 +56,8 @@ int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip,
     int winding = 1;
 
     if (y0 > y1) {
-        SkTSwap(x0, x1);
-        SkTSwap(y0, y1);
+        swap(x0, x1);
+        swap(y0, y1);
         winding = -1;
     }
 
@@ -180,6 +183,7 @@ static inline int diff_to_shift(SkFDot6 dx, SkFDot6 dy, int shiftAA = 2)
 }
 
 bool SkQuadraticEdge::setQuadraticWithoutUpdate(const SkPoint pts[3], int shift) {
+    using std::swap;
     SkFDot6 x0, y0, x1, y1, x2, y2;
 
     {
@@ -204,8 +208,8 @@ bool SkQuadraticEdge::setQuadraticWithoutUpdate(const SkPoint pts[3], int shift)
     int winding = 1;
     if (y0 > y2)
     {
-        SkTSwap(x0, x2);
-        SkTSwap(y0, y2);
+        swap(x0, x2);
+        swap(y0, y2);
         winding = -1;
     }
     SkASSERT(y0 <= y1 && y1 <= y2);
@@ -349,6 +353,7 @@ static SkFDot6 cubic_delta_from_line(SkFDot6 a, SkFDot6 b, SkFDot6 c, SkFDot6 d)
 }
 
 bool SkCubicEdge::setCubicWithoutUpdate(const SkPoint pts[4], int shift, bool sortY) {
+    using std::swap;
     SkFDot6 x0, y0, x1, y1, x2, y2, x3, y3;
 
     {
@@ -377,10 +382,10 @@ bool SkCubicEdge::setCubicWithoutUpdate(const SkPoint pts[4], int shift, bool so
     int winding = 1;
     if (sortY && y0 > y3)
     {
-        SkTSwap(x0, x3);
-        SkTSwap(x1, x2);
-        SkTSwap(y0, y3);
-        SkTSwap(y1, y2);
+        swap(x0, x3);
+        swap(x1, x2);
+        swap(y0, y3);
+        swap(y1, y2);
         winding = -1;
     }
 

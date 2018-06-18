@@ -13,6 +13,8 @@
 #include "SkRect.h"
 #include "SkTo.h"
 
+#include <utility>
+
 // This correctly favors the lower-pixel when y0 is on a 1/2 pixel boundary
 #define SkEdge_Compute_DY(top, y0)  (SkLeftShift(top, 6) + 32 - (y0))
 
@@ -86,6 +88,7 @@ struct SkCubicEdge : public SkEdge {
 };
 
 int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, int shift) {
+    using std::swap;
     SkFDot6 x0, y0, x1, y1;
 
     {
@@ -106,8 +109,8 @@ int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, int shift) {
     int winding = 1;
 
     if (y0 > y1) {
-        SkTSwap(x0, x1);
-        SkTSwap(y0, y1);
+        swap(x0, x1);
+        swap(y0, y1);
         winding = -1;
     }
 

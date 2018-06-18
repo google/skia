@@ -7,6 +7,8 @@
 
 #include "GrShape.h"
 
+#include <utility>
+
 GrShape& GrShape::operator=(const GrShape& that) {
     fStyle = that.fStyle;
     this->changeType(that.fType, Type::kPath == that.fType ? &that.path() : nullptr);
@@ -674,7 +676,8 @@ void GrShape::attemptToSimplifyLine() {
     // the point order.
     SkPoint* pts = fLineData.fPts;
     if (pts[1].fY < pts[0].fY || (pts[1].fY == pts[0].fY && pts[1].fX < pts[0].fX)) {
-        SkTSwap(pts[0], pts[1]);
+        using std::swap;
+        swap(pts[0], pts[1]);
     }
 }
 

@@ -11,6 +11,8 @@
 #include "SkPoint3.h"
 #include "SkPointPriv.h"
 
+#include <utility>
+
 static SkVector to_vector(const Sk2s& x) {
     SkVector vector;
     x.store(&vector);
@@ -65,6 +67,7 @@ static int valid_unit_divide(SkScalar numer, SkScalar denom, SkScalar* ratio) {
     x2 = C / Q
 */
 int SkFindUnitQuadRoots(SkScalar A, SkScalar B, SkScalar C, SkScalar roots[2]) {
+    using std::swap;
     SkASSERT(roots);
 
     if (A == 0) {
@@ -90,7 +93,7 @@ int SkFindUnitQuadRoots(SkScalar A, SkScalar B, SkScalar C, SkScalar roots[2]) {
     r += valid_unit_divide(C, Q, r);
     if (r - roots == 2) {
         if (roots[0] > roots[1])
-            SkTSwap<SkScalar>(roots[0], roots[1]);
+            swap<SkScalar>(roots[0], roots[1]);
         else if (roots[0] == roots[1])  // nearly-equal?
             r -= 1; // skip the double root
     }

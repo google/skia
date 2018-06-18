@@ -13,6 +13,8 @@
 #include "SkPathOpsDebug.h"
 #include "SkString.h"
 
+#include <utility>
+
 #if DEBUG_DUMP_VERIFY
 bool SkPathOpsDebug::gDumpOp;  // set to true to write op to file before a crash
 bool SkPathOpsDebug::gVerifyOp;  // set to true to compare result against regions
@@ -923,8 +925,9 @@ void SkOpSegment::debugMissingCoincidence(SkPathOpsDebug::GlitchLog* log) const 
             const SkOpPtT* oppEnd = spanBase->ptT();
             bool swapped = priorPtT->fT > ptT->fT;
             if (swapped) {
-                SkTSwap(priorPtT, ptT);
-                SkTSwap(oppStart, oppEnd);
+                using std::swap;
+                swap(priorPtT, ptT);
+                swap(oppStart, oppEnd);
             }
             const SkOpCoincidence* coincidence = this->globalState()->coincidence();
             const SkOpPtT* rootPriorPtT = priorPtT->span()->ptT();
@@ -951,7 +954,8 @@ void SkOpSegment::debugMissingCoincidence(SkPathOpsDebug::GlitchLog* log) const 
             }
     swapBack:
             if (swapped) {
-                SkTSwap(priorPtT, ptT);
+                using std::swap;
+                swap(priorPtT, ptT);
             }
         }
     } while ((spanBase = spanBase->final() ? nullptr : spanBase->upCast()->next()));
@@ -1531,15 +1535,17 @@ void SkOpCoincidence::debugAddEndMovedSpans(SkPathOpsDebug::GlitchLog* log, cons
                 oppTs = oppStart->fT;
                 oppTe = testPtT->fT;
             } else {
-                SkTSwap(coinSeg, oppSeg);
+                using std::swap;
+                swap(coinSeg, oppSeg);
                 coinTs = oppStart->fT;
                 coinTe = testPtT->fT;
                 oppTs = base->t();
                 oppTe = testSpan->t();
             }
             if (coinTs > coinTe) {
-                SkTSwap(coinTs, coinTe);
-                SkTSwap(oppTs, oppTe);
+                using std::swap;
+                swap(coinTs, coinTe);
+                swap(oppTs, oppTe);
             }
             bool added;
             if (this->debugAddOrOverlap(log, coinSeg, oppSeg, coinTs, coinTe, oppTs, oppTe, &added), false) {
@@ -1743,11 +1749,11 @@ void SkOpCoincidence::debugAddIfMissing(SkPathOpsDebug::GlitchLog* log, const Sk
         return log->record(SkPathOpsDebug::kAddIfCollapsed_Glitch, oppSeg);
     }
     if (coinTs > coinTe) {
-        SkTSwap(coinTs, coinTe);
-        SkTSwap(oppTs, oppTe);
+        using std::swap;
+        swap(coinTs, coinTe);
+        swap(oppTs, oppTe);
     }
-    return this->debugAddOrOverlap(log, coinSeg, oppSeg, coinTs, coinTe, oppTs, oppTe, added
-            );
+    return this->debugAddOrOverlap(log, coinSeg, oppSeg, coinTs, coinTe, oppTs, oppTe, added);
 }
 
 /* Commented-out lines keep this in sync addOrOverlap() */
@@ -1848,8 +1854,9 @@ void SkOpCoincidence::debugAddOrOverlap(SkPathOpsDebug::GlitchLog* log,
                 log->record(SkPathOpsDebug::kAddMissingExtend_Glitch, coinSeg, coinTs, coinTe, oppSeg, oppTs, oppTe);
         } else {
             if (oppTs > oppTe) {
-                SkTSwap(coinTs, coinTe);
-                SkTSwap(oppTs, oppTe);
+                using std::swap;
+                swap(coinTs, coinTe);
+                swap(oppTs, oppTe);
             }
             log->record(SkPathOpsDebug::kAddMissingExtend_Glitch, oppSeg, oppTs, oppTe, coinSeg, coinTs, coinTe);
         }
@@ -2052,7 +2059,8 @@ void SkOpCoincidence::debugMark(SkPathOpsDebug::GlitchLog* log) const {
 //         SkASSERT(oEnd->deleted());
         bool flipped = coin->flipped();
         if (flipped) {
-            SkTSwap(oStart, oEnd);
+            using std::swap;
+            swap(oStart, oEnd);
         }
         /* coin and opp spans may not match up. Mark the ends, and then let the interior
            get marked as many times as the spans allow */
@@ -2130,7 +2138,8 @@ static void DebugCheckBetween(const SkOpSpanBase* next, const SkOpSpanBase* end,
     SkASSERT(next != end);
     SkASSERT(!next->contains(end) || log);
     if (next->t() > end->t()) {
-        SkTSwap(next, end);
+        using std::swap;
+        swap(next, end);
     }
     do {
         const SkOpPtT* ptT = next->ptT();
@@ -2187,7 +2196,8 @@ static void DebugCheckOverlap(const SkCoincidentSpans* test, const SkCoincidentS
     SkASSERT(between(0, toe, 1));
     SkASSERT(tos != toe);
     if (tos > toe) {
-        SkTSwap(tos, toe);
+        using std::swap;
+        swap(tos, toe);
     }
     do {
         double lcs, lce, los, loe;
@@ -2200,7 +2210,8 @@ static void DebugCheckOverlap(const SkCoincidentSpans* test, const SkCoincidentS
             los = list->oppPtTStart()->fT;
             loe = list->oppPtTEnd()->fT;
             if (los > loe) {
-                SkTSwap(los, loe);
+                using std::swap;
+                swap(los, loe);
             }
         } else if (coinSeg == list->oppPtTStart()->segment()) {
             if (oppSeg != list->coinPtTStart()->segment()) {
@@ -2209,7 +2220,8 @@ static void DebugCheckOverlap(const SkCoincidentSpans* test, const SkCoincidentS
             lcs = list->oppPtTStart()->fT;
             lce = list->oppPtTEnd()->fT;
             if (lcs > lce) {
-                SkTSwap(lcs, lce);
+                using std::swap;
+                swap(lcs, lce);
             }
             los = list->coinPtTStart()->fT;
             loe = list->coinPtTEnd()->fT;

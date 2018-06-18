@@ -15,6 +15,8 @@
 #include "SkPictureRecorder.h"
 #include "SkPixelRef.h"
 
+#include <utility>
+
 sk_sp<SkAnimatedImage> SkAnimatedImage::Make(std::unique_ptr<SkAndroidCodec> codec,
         SkISize scaledSize, SkIRect cropRect, sk_sp<SkPicture> postProcess) {
     if (!codec) {
@@ -98,6 +100,7 @@ SkAnimatedImage::Frame::Frame()
 {}
 
 bool SkAnimatedImage::Frame::init(const SkImageInfo& info, OnInit onInit) {
+    using std::swap;
     if (fBitmap.getPixels()) {
         if (fBitmap.pixelRef()->unique()) {
             SkAssertResult(fBitmap.setAlphaType(info.alphaType()));
@@ -114,7 +117,7 @@ bool SkAnimatedImage::Frame::init(const SkImageInfo& info, OnInit onInit) {
             }
 
             memcpy(tmp.getPixels(), fBitmap.getPixels(), fBitmap.computeByteSize());
-            SkTSwap(tmp, fBitmap);
+            swap(tmp, fBitmap);
             return true;
         }
     }
@@ -171,6 +174,7 @@ double SkAnimatedImage::finish() {
 }
 
 int SkAnimatedImage::decodeNextFrame() {
+    using std::swap;
     if (fFinished) {
         return kFinished;
     }
@@ -213,7 +217,7 @@ int SkAnimatedImage::decodeNextFrame() {
 
     for (Frame* frame : { &fRestoreFrame, &fDecodingFrame }) {
         if (frameToDecode == frame->fIndex) {
-            SkTSwap(fDisplayFrame, *frame);
+            swap(fDisplayFrame, *frame);
             if (animationEnded) {
                 return this->finish();
             }
@@ -236,7 +240,7 @@ int SkAnimatedImage::decodeNextFrame() {
             // future.
             if (fDecodingFrame.fIndex != SkCodec::kNone &&
                     !is_restore_previous(fDecodingFrame.fDisposalMethod)) {
-                SkTSwap(fDecodingFrame, fRestoreFrame);
+                swap(fDecodingFrame, fRestoreFrame);
             }
         }
     } else {
@@ -262,7 +266,7 @@ int SkAnimatedImage::decodeNextFrame() {
             options.fPriorFrame = fDecodingFrame.fIndex;
         } else if (validPriorFrame(fRestoreFrame)) {
             if (!is_restore_previous(frameInfo.fDisposalMethod)) {
-                SkTSwap(fDecodingFrame, fRestoreFrame);
+                swap(fDecodingFrame, fRestoreFrame);
             } else if (!fRestoreFrame.copyTo(&fDecodingFrame)) {
                 SkCodecPrintf("Failed to restore frame\n");
                 return this->finish();
@@ -289,7 +293,7 @@ int SkAnimatedImage::decodeNextFrame() {
     fDecodingFrame.fIndex = frameToDecode;
     fDecodingFrame.fDisposalMethod = frameInfo.fDisposalMethod;
 
-    SkTSwap(fDecodingFrame, fDisplayFrame);
+    swap(fDecodingFrame, fDisplayFrame);
     fDisplayFrame.fBitmap.notifyPixelsChanged();
 
     if (animationEnded) {

@@ -22,6 +22,7 @@
 #include "SkTo.h"
 
 #include <cmath>
+#include <utility>
 
 static float poly_eval(float A, float B, float C, float t) {
     return (A * t + B) * t + C;
@@ -200,11 +201,12 @@ bool operator==(const SkPath& a, const SkPath& b) {
 }
 
 void SkPath::swap(SkPath& that) {
+    using std::swap;
     if (this != &that) {
         fPathRef.swap(that.fPathRef);
-        SkTSwap(fLastMoveToIndex, that.fLastMoveToIndex);
-        SkTSwap(fFillType, that.fFillType);
-        SkTSwap(fIsVolatile, that.fIsVolatile);
+        swap(fLastMoveToIndex, that.fLastMoveToIndex);
+        swap(fFillType, that.fFillType);
+        swap(fIsVolatile, that.fIsVolatile);
 
         // Non-atomic swaps of atomic values.
         Convexity c = fConvexity.load();
@@ -2792,12 +2794,13 @@ static bool checkOnCurve(SkScalar x, SkScalar y, const SkPoint& start, const SkP
 }
 
 static int winding_mono_cubic(const SkPoint pts[], SkScalar x, SkScalar y, int* onCurveCount) {
+    using std::swap;
     SkScalar y0 = pts[0].fY;
     SkScalar y3 = pts[3].fY;
 
     int dir = 1;
     if (y0 > y3) {
-        SkTSwap(y0, y3);
+        swap(y0, y3);
         dir = -1;
     }
     if (y < y0 || y > y3) {
@@ -2865,13 +2868,14 @@ static double conic_eval_denominator(SkScalar w, SkScalar t) {
 }
 
 static int winding_mono_conic(const SkConic& conic, SkScalar x, SkScalar y, int* onCurveCount) {
+    using std::swap;
     const SkPoint* pts = conic.fPts;
     SkScalar y0 = pts[0].fY;
     SkScalar y2 = pts[2].fY;
 
     int dir = 1;
     if (y0 > y2) {
-        SkTSwap(y0, y2);
+        swap(y0, y2);
         dir = -1;
     }
     if (y < y0 || y > y2) {
@@ -2940,12 +2944,13 @@ static int winding_conic(const SkPoint pts[], SkScalar x, SkScalar y, SkScalar w
 }
 
 static int winding_mono_quad(const SkPoint pts[], SkScalar x, SkScalar y, int* onCurveCount) {
+    using std::swap;
     SkScalar y0 = pts[0].fY;
     SkScalar y2 = pts[2].fY;
 
     int dir = 1;
     if (y0 > y2) {
-        SkTSwap(y0, y2);
+        swap(y0, y2);
         dir = -1;
     }
     if (y < y0 || y > y2) {
@@ -3009,6 +3014,7 @@ static int winding_quad(const SkPoint pts[], SkScalar x, SkScalar y, int* onCurv
 }
 
 static int winding_line(const SkPoint pts[], SkScalar x, SkScalar y, int* onCurveCount) {
+    using std::swap;
     SkScalar x0 = pts[0].fX;
     SkScalar y0 = pts[0].fY;
     SkScalar x1 = pts[1].fX;
@@ -3018,7 +3024,7 @@ static int winding_line(const SkPoint pts[], SkScalar x, SkScalar y, int* onCurv
 
     int dir = 1;
     if (y0 > y1) {
-        SkTSwap(y0, y1);
+        swap(y0, y1);
         dir = -1;
     }
     if (y < y0 || y > y1) {

@@ -17,6 +17,8 @@
 #include "SkSurface.h"
 #include "SkClipOpPriv.h"
 
+#include <utility>
+
 uint32_t GrShape::testingOnly_getOriginalGenerationID() const {
     if (const auto* lp = this->originalPathForListeners()) {
         return lp->getGenerationID();
@@ -1932,7 +1934,8 @@ DEF_TEST(GrShape_lines, r) {
         canonicalizeAsAB = true;
     } else if (pts[1] == kA && pts[0] == kB) {
         canonicalizeAsAB = false;
-        SkTSwap(canonicalPts[0], canonicalPts[1]);
+        using std::swap;
+        swap(canonicalPts[0], canonicalPts[1]);
     } else {
         ERRORF(r, "Should return pts (a,b) or (b, a)");
         return;

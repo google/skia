@@ -11,6 +11,8 @@
 #include "SkTDArray.h"
 #include "SkTSort.h"
 
+#include <utility>
+
 /**
  * This class implements a priority queue. T is the type of the elements in the queue. LESS is a
  * function that compares two Ts and returns true if the first is higher priority than the second.
@@ -138,7 +140,8 @@ private:
             }
             int p = ParentOf(index);
             if (LESS(fArray[index], fArray[p])) {
-                SkTSwap(fArray[index], fArray[p]);
+                using std::swap;
+                swap(fArray[index], fArray[p]);
                 this->setIndex(index);
                 index = p;
                 percolated = true;
@@ -164,7 +167,8 @@ private:
             if (child + 1 >= fArray.count()) {
                 // We only have a left child.
                 if (LESS(fArray[child], fArray[index])) {
-                    SkTSwap(fArray[child], fArray[index]);
+                    using std::swap;
+                    swap(fArray[child], fArray[index]);
                     this->setIndex(child);
                     this->setIndex(index);
                     return;
@@ -176,7 +180,8 @@ private:
 
             // Check if we need to swap.
             if (LESS(fArray[child], fArray[index])) {
-                SkTSwap(fArray[child], fArray[index]);
+                using std::swap;
+                swap(fArray[child], fArray[index]);
                 this->setIndex(index);
                 index = child;
             } else {

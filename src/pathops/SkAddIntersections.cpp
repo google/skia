@@ -8,6 +8,8 @@
 #include "SkOpCoincidence.h"
 #include "SkPathOpsBounds.h"
 
+#include <utility>
+
 #if DEBUG_ADD_INTERSECTING_TS
 
 static void debugShowLineIntersection(int pts, const SkIntersectionHelper& wt,
@@ -551,8 +553,9 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next, SkOpCoincidence* coinc
                     continue;
                 }
                 if (swap) {
-                    SkTSwap(coinPtT[0], coinPtT[1]);
-                    SkTSwap(testTAt, nextTAt);
+                    using std::swap;
+                    swap(coinPtT[0], coinPtT[1]);
+                    swap(testTAt, nextTAt);
                 }
                 SkASSERT(coincidence->globalState()->debugSkipAssert()
                         || coinPtT[0]->span()->t() < testTAt->span()->t());

@@ -13,6 +13,8 @@
 #include "SkFDot6.h"
 #include "SkLineClipper.h"
 
+#include <utility>
+
 static void horiline(int x, int stopx, SkFixed fy, SkFixed dy,
                      SkBlitter* blitter) {
     SkASSERT(x < stopx);
@@ -110,8 +112,9 @@ void SkScan::HairLineRgn(const SkPoint array[], int arrayCount, const SkRegion* 
 
         if (SkAbs32(dx) > SkAbs32(dy)) { // mostly horizontal
             if (x0 > x1) {   // we want to go left-to-right
-                SkTSwap<SkFDot6>(x0, x1);
-                SkTSwap<SkFDot6>(y0, y1);
+                using std::swap;
+                swap(x0, x1);
+                swap(y0, y1);
             }
             int ix0 = SkFDot6Round(x0);
             int ix1 = SkFDot6Round(x1);
@@ -125,8 +128,9 @@ void SkScan::HairLineRgn(const SkPoint array[], int arrayCount, const SkRegion* 
             horiline(ix0, ix1, startY, slope, blitter);
         } else {              // mostly vertical
             if (y0 > y1) {   // we want to go top-to-bottom
-                SkTSwap<SkFDot6>(x0, x1);
-                SkTSwap<SkFDot6>(y0, y1);
+                using std::swap;
+                swap(x0, x1);
+                swap(y0, y1);
             }
             int iy0 = SkFDot6Round(y0);
             int iy1 = SkFDot6Round(y1);

@@ -10,6 +10,8 @@
 
 #include "SkColorData.h"
 
+#include <utility>
+
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
     #include <immintrin.h>
 #elif defined(SK_ARM_HAS_NEON)
@@ -244,13 +246,14 @@ static void premul_should_swapRB(uint32_t* dst, const void* vsrc, int count) {
 }
 
 /*not static*/ inline void RGBA_to_BGRA(uint32_t* dst, const void* vsrc, int count) {
+    using std::swap;
     auto src = (const uint32_t*)vsrc;
     while (count >= 16) {
         // Load 16 pixels.
         uint8x16x4_t rgba = vld4q_u8((const uint8_t*) src);
 
         // Swap r and b.
-        SkTSwap(rgba.val[0], rgba.val[2]);
+        swap(rgba.val[0], rgba.val[2]);
 
         // Store 16 pixels.
         vst4q_u8((uint8_t*) dst, rgba);
@@ -264,7 +267,7 @@ static void premul_should_swapRB(uint32_t* dst, const void* vsrc, int count) {
         uint8x8x4_t rgba = vld4_u8((const uint8_t*) src);
 
         // Swap r and b.
-        SkTSwap(rgba.val[0], rgba.val[2]);
+        swap(rgba.val[0], rgba.val[2]);
 
         // Store 8 pixels.
         vst4_u8((uint8_t*) dst, rgba);

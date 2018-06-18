@@ -17,6 +17,8 @@
 #include "SkTo.h"
 #include "SkUtils.h"
 
+#include <utility>
+
 class AutoAAClipValidate {
 public:
     AutoAAClipValidate(const SkAAClip& clip) : fClip(clip) {
@@ -687,11 +689,12 @@ bool operator==(const SkAAClip& a, const SkAAClip& b) {
 }
 
 void SkAAClip::swap(SkAAClip& other) {
+    using std::swap;
     AUTO_AACLIP_VALIDATE(*this);
     other.validate();
 
-    SkTSwap(fBounds, other.fBounds);
-    SkTSwap(fRunHead, other.fRunHead);
+    swap(fBounds, other.fBounds);
+    swap(fRunHead, other.fRunHead);
 }
 
 bool SkAAClip::set(const SkAAClip& src) {
@@ -1700,7 +1703,8 @@ bool SkAAClip::op(const SkAAClip& clipAOrig, const SkAAClip& clipBOrig,
     const SkAAClip* clipB = &clipBOrig;
 
     if (SkRegion::kReverseDifference_Op == op) {
-        SkTSwap(clipA, clipB);
+        using std::swap;
+        swap(clipA, clipB);
         op = SkRegion::kDifference_Op;
     }
 

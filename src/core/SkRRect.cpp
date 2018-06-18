@@ -5,13 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include <cmath>
 #include "SkRRectPriv.h"
 #include "SkScopeExit.h"
 #include "SkBuffer.h"
 #include "SkMalloc.h"
 #include "SkMatrix.h"
 #include "SkScaleToSides.h"
+
+#include <cmath>
+#include <utility>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -430,20 +432,21 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
     }
 
     // Now swap as necessary.
+    using std::swap;
     if (flipX) {
         if (flipY) {
             // Swap with opposite corners
-            SkTSwap(dst->fRadii[kUpperLeft_Corner], dst->fRadii[kLowerRight_Corner]);
-            SkTSwap(dst->fRadii[kUpperRight_Corner], dst->fRadii[kLowerLeft_Corner]);
+            swap(dst->fRadii[kUpperLeft_Corner], dst->fRadii[kLowerRight_Corner]);
+            swap(dst->fRadii[kUpperRight_Corner], dst->fRadii[kLowerLeft_Corner]);
         } else {
             // Only swap in x
-            SkTSwap(dst->fRadii[kUpperRight_Corner], dst->fRadii[kUpperLeft_Corner]);
-            SkTSwap(dst->fRadii[kLowerRight_Corner], dst->fRadii[kLowerLeft_Corner]);
+            swap(dst->fRadii[kUpperRight_Corner], dst->fRadii[kUpperLeft_Corner]);
+            swap(dst->fRadii[kLowerRight_Corner], dst->fRadii[kLowerLeft_Corner]);
         }
     } else if (flipY) {
         // Only swap in y
-        SkTSwap(dst->fRadii[kUpperLeft_Corner], dst->fRadii[kLowerLeft_Corner]);
-        SkTSwap(dst->fRadii[kUpperRight_Corner], dst->fRadii[kLowerRight_Corner]);
+        swap(dst->fRadii[kUpperLeft_Corner], dst->fRadii[kLowerLeft_Corner]);
+        swap(dst->fRadii[kUpperRight_Corner], dst->fRadii[kLowerRight_Corner]);
     }
 
     if (!AreRectAndRadiiValid(dst->fRect, dst->fRadii)) {

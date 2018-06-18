@@ -677,7 +677,7 @@ hsv[2] contains HSV_Value, a value from zero to one.
       for (int x = 0; x < 256; ++x) {
         SkScalar hsv[3];
         SkColorToHSV(source.getColor(x, y), hsv);
-        SkTSwap(hsv[1], hsv[2]);
+        std::swap(hsv[1], hsv[2]);
         SkPaint paint;
         paint.setColor(SkHSVToColor(hsv));
         canvas->drawRect(SkRect::MakeXYWH(x, y, 1, 1), paint);

@@ -10,6 +10,8 @@
 #include "SkLineClipper.h"
 #include "SkMacros.h"
 
+#include <utility>
+
 static bool quick_reject(const SkRect& bounds, const SkRect& clip) {
     return bounds.fTop >= clip.fBottom || bounds.fBottom <= clip.fTop;
 }
@@ -140,6 +142,7 @@ static void chop_quad_in_Y(SkPoint pts[3], const SkRect& clip) {
 
 // srcPts[] must be monotonic in X and Y
 void SkEdgeClipper::clipMonoQuad(const SkPoint srcPts[3], const SkRect& clip) {
+    using std::swap;
     SkPoint pts[3];
     bool reverse = sort_increasing_Y(pts, srcPts, 3);
 
@@ -152,7 +155,7 @@ void SkEdgeClipper::clipMonoQuad(const SkPoint srcPts[3], const SkRect& clip) {
     chop_quad_in_Y(pts, clip);
 
     if (pts[0].fX > pts[2].fX) {
-        SkTSwap<SkPoint>(pts[0], pts[2]);
+        swap<SkPoint>(pts[0], pts[2]);
         reverse = !reverse;
     }
     SkASSERT(pts[0].fX <= pts[1].fX);
@@ -330,6 +333,7 @@ static void chop_mono_cubic_at_x(SkPoint src[4], SkScalar x, SkPoint dst[7]) {
 
 // srcPts[] must be monotonic in X and Y
 void SkEdgeClipper::clipMonoCubic(const SkPoint src[4], const SkRect& clip) {
+    using std::swap;
     SkPoint pts[4];
     bool reverse = sort_increasing_Y(pts, src, 4);
 
@@ -342,8 +346,8 @@ void SkEdgeClipper::clipMonoCubic(const SkPoint src[4], const SkRect& clip) {
     chop_cubic_in_Y(pts, clip);
 
     if (pts[0].fX > pts[3].fX) {
-        SkTSwap<SkPoint>(pts[0], pts[3]);
-        SkTSwap<SkPoint>(pts[1], pts[2]);
+        swap<SkPoint>(pts[0], pts[3]);
+        swap<SkPoint>(pts[1], pts[2]);
         reverse = !reverse;
     }
 
@@ -455,10 +459,11 @@ void SkEdgeClipper::appendLine(SkPoint p0, SkPoint p1) {
 
 void SkEdgeClipper::appendVLine(SkScalar x, SkScalar y0, SkScalar y1,
                                 bool reverse) {
+    using std::swap;
     *fCurrVerb++ = SkPath::kLine_Verb;
 
     if (reverse) {
-        SkTSwap<SkScalar>(y0, y1);
+        swap<SkScalar>(y0, y1);
     }
     fCurrPoint[0].set(x, y0);
     fCurrPoint[1].set(x, y1);

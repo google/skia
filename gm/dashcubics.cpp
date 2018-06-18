@@ -14,6 +14,8 @@
 #include "SkTArray.h"
 #include "SkTrimPathEffect.h"
 
+#include <utility>
+
 /*
  *  Inspired by http://code.google.com/p/chromium/issues/detail?id=112145
  */
@@ -128,8 +130,9 @@ protected:
                 start -= SkScalarFloorToScalar(start);
                 stop  -= SkScalarFloorToScalar(stop);
                 if (start > stop) {
-                    SkTSwap(start, stop);
-                    SkTSwap(normalMode, invertedMode);
+                    using std::swap;
+                    swap(start, stop);
+                    swap(normalMode, invertedMode);
                 }
             }
 

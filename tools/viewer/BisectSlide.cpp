@@ -11,6 +11,8 @@
 #include "SkPicture.h"
 #include "SkStream.h"
 
+#include <utility>
+
 #ifdef SK_XML
 #include "SkDOM.h"
 #include "../experimental/svg/model/SkSVGDOM.h"
@@ -74,7 +76,8 @@ bool BisectSlide::onChar(SkUnichar c) {
     switch (c) {
         case 'X':
             if (!fTossedPaths.empty()) {
-                SkTSwap(fFoundPaths, fTossedPaths);
+                using std::swap;
+                swap(fFoundPaths, fTossedPaths);
                 if ('X' == fTrail.back()) {
                     fTrail.pop_back();
                 } else {

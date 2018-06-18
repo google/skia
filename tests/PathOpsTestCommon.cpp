@@ -14,6 +14,8 @@
 #include "SkReduceOrder.h"
 #include "SkTSort.h"
 
+#include <utility>
+
 static double calc_t_div(const SkDCubic& cubic, double precision, double start) {
     const double adjust = sqrt(3.) / 36;
     SkDCubic sub;
@@ -223,7 +225,8 @@ void CubicPathToSimple(const SkPath& cubicPath, SkPath* simplePath) {
                 double tInflects[2];
                 int inflections = cubic.findInflections(tInflects);
                 if (inflections > 1 && tInflects[0] > tInflects[1]) {
-                    SkTSwap(tInflects[0], tInflects[1]);
+                    using std::swap;
+                    swap(tInflects[0], tInflects[1]);
                 }
                 double lo = 0;
                 for (int index = 0; index <= inflections; ++index) {
