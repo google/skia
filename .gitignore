@@ -29,6 +29,7 @@ platform_tools/android/apps/build
 platform_tools/android/apps/*.properties
 platform_tools/android/apps/*/build
 platform_tools/android/apps/*/src/main/libs
+sampleapp_prefs.txt
 /skps
 third_party/externals
 tools/skp/page_sets/data/*.json
