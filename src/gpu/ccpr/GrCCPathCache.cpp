@@ -27,9 +27,19 @@ GrCCPathCache::MaskTransform::MaskTransform(const SkMatrix& m, SkIVector* shift)
 
 inline static bool fuzzy_equals(const GrCCPathCache::MaskTransform& a,
                                 const GrCCPathCache::MaskTransform& b) {
-    return (Sk4f::Load(a.fMatrix2x2) == Sk4f::Load(b.fMatrix2x2)).allTrue() &&
-           ((Sk2f::Load(a.fSubpixelTranslate) -
-             Sk2f::Load(b.fSubpixelTranslate)).abs() < 1.f/256).allTrue();
+    if ((Sk4f::Load(a.fMatrix2x2) != Sk4f::Load(b.fMatrix2x2)).anyTrue()) {
+        return false;
+    }
+    // Fractional translate does not affect caching on Android. This is done for better cache hit
+    // ratio and speed, but it is matching HWUI behavior, which doesn't consider the matrix at all
+    // when caching paths.
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    if (((Sk2f::Load(a.fSubpixelTranslate) -
+          Sk2f::Load(b.fSubpixelTranslate)).abs() > 1.f/256).anyTrue()) {
+        return false;
+    }
+#endif
+    return true;
 }
 
 inline GrCCPathCache::HashNode::HashNode(GrCCPathCache* cache, const MaskTransform& m,
