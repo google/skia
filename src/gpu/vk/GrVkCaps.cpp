@@ -22,7 +22,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fMustSubmitCommandsBeforeCopyOp = false;
     fMustSleepOnTearDown  = false;
     fNewCBOnPipelineChange = false;
-    fCanUseWholeSizeOnFlushMappedMemory = true;
+    fShouldAlwaysUseDedicatedImageMemory = false;
 
     /**************************************************************************
     * GrDrawTargetCaps fields
@@ -223,6 +223,12 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         this->applyDriverCorrectnessWorkarounds(properties);
     }
 
+    // On nexus player we disable suballocating VkImage memory since we've seen large slow downs on
+    // bot run times.
+    if (kImagination_VkVendor == properties.vendorID) {
+        fShouldAlwaysUseDedicatedImageMemory = true;
+    }
+
     this->applyOptionsOverrides(contextOptions);
     fShaderCaps->applyOptionsOverrides(contextOptions);
 }
@@ -263,10 +269,6 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     // AMD advertises support for MAX_UINT vertex input attributes, but in reality only supports 32.
     if (kAMD_VkVendor == properties.vendorID) {
         fMaxVertexAttributes = SkTMin(fMaxVertexAttributes, 32);
-    }
-
-    if (kIntel_VkVendor == properties.vendorID) {
-        fCanUseWholeSizeOnFlushMappedMemory = false;
     }
 
     ////////////////////////////////////////////////////////////////////////////
