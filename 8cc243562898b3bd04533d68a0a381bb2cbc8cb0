@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d17f379_85010223",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1071,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-06-18T18:25:14Z",
+      "side": 1,
+      "message": "SkPDFUtils::AppendScalar(position.x() - position.y() * fTextSkewX, fContent);",
+      "revId": "8cc243562898b3bd04533d68a0a381bb2cbc8cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
