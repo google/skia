@@ -10,6 +10,7 @@
 #include "SkAtomics.h"
 #include "SkSafeMath.h"
 #include "SkTo.h"
+#include "SkUnicodeUtils.h"
 #include "SkUtils.h"
 
 #include <cstdarg>

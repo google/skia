@@ -12,7 +12,7 @@
 #include "SkColorPriv.h"
 #include "SkGradientShader.h"
 #include "SkMaskFilter.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include "SkView.h"
 
 class BlurView : public SampleView {

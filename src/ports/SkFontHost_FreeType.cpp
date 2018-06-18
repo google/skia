@@ -1492,7 +1492,7 @@ void SkScalerContext_FreeType::emboldenIfNeeded(FT_Face face, FT_GlyphSlot glyph
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 
 static SkUnichar next_utf8(const void** chars) {
     return SkUTF8_NextUnichar((const char**)chars);
