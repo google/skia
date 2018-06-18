@@ -76,6 +76,7 @@ public:
             const SkFontArguments::VariationPosition position,
             SkFixed* axisValues,
             const SkString& name);
+        static bool GetAxes(FT_Face face, AxisDefinitions* axes);
 
     private:
         FT_Face openFace(SkStreamAsset* stream, int ttcIndex, FT_Stream ftStream) const;
@@ -88,6 +89,7 @@ protected:
         : INHERITED(style, isFixedPitch)
     {}
 
+    std::unique_ptr<SkFontData> cloneFontData(const SkFontArguments&) const;
     virtual SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
                                                    const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
