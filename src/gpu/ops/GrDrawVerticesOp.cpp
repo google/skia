@@ -140,10 +140,10 @@ void GrDrawVerticesOp::onPrepareDraws(Target* target) {
     bool hasColorAttribute;
     bool hasLocalCoordsAttribute;
     sk_sp<GrGeometryProcessor> gp = this->makeGP(&hasColorAttribute, &hasLocalCoordsAttribute);
-    size_t vertexStride = gp->getVertexStride();
 
-    SkASSERT(vertexStride == sizeof(SkPoint) + (hasColorAttribute ? sizeof(uint32_t) : 0) +
-                                     (hasLocalCoordsAttribute ? sizeof(SkPoint) : 0));
+    size_t vertexStride = sizeof(SkPoint) + (hasColorAttribute ? sizeof(uint32_t) : 0) +
+                          (hasLocalCoordsAttribute ? sizeof(SkPoint) : 0);
+    SkASSERT(vertexStride == gp->debugOnly_vertexStride());
 
     int instanceCount = fMeshes.count();
 

@@ -959,17 +959,15 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
         const GrBuffer* vertexBuffer;
         int firstVertex;
 
-        size_t vertexStride = lineGP->getVertexStride();
+        SkASSERT(sizeof(LineVertex) == lineGP->debugOnly_vertexStride());
         int vertexCount = kLineSegNumVertices * lineCount;
-        LineVertex* verts = reinterpret_cast<LineVertex*>(
-            target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer, &firstVertex));
+        LineVertex* verts = reinterpret_cast<LineVertex*>(target->makeVertexSpace(
+                sizeof(LineVertex), vertexCount, &vertexBuffer, &firstVertex));
 
         if (!verts|| !linesIndexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
-
-        SkASSERT(lineGP->getVertexStride() == sizeof(LineVertex));
 
         for (int i = 0; i < lineCount; ++i) {
             add_line(&lines[2*i], toSrc, this->coverage(), &verts);
@@ -1004,10 +1002,11 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
 
         sk_sp<const GrBuffer> quadsIndexBuffer = get_quads_index_buffer(target->resourceProvider());
 
-        size_t vertexStride = sizeof(BezierVertex);
+        SkASSERT(sizeof(BezierVertex) == quadGP->debugOnly_vertexStride());
+        SkASSERT(sizeof(BezierVertex) == conicGP->debugOnly_vertexStride());
         int vertexCount = kQuadNumVertices * quadAndConicCount;
-        void *vertices = target->makeVertexSpace(vertexStride, vertexCount,
-                                                 &vertexBuffer, &firstVertex);
+        void* vertices = target->makeVertexSpace(sizeof(BezierVertex), vertexCount, &vertexBuffer,
+                                                 &firstVertex);
 
         if (!vertices || !quadsIndexBuffer) {
             SkDebugf("Could not allocate vertices\n");
