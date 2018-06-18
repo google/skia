@@ -15,6 +15,7 @@
 #include "GrAHardwareBufferImageGenerator.h"
 #include "GrBitmapTextureMaker.h"
 #include "GrCaps.h"
+#include "GrColorSpaceXform.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
@@ -30,7 +31,6 @@
 #include "GrTextureProxy.h"
 #include "GrTextureProxyPriv.h"
 #include "gl/GrGLDefines.h"
-#include "effects/GrNonlinearColorSpaceXformEffect.h"
 #include "effects/GrYUVtoRGBEffect.h"
 #include "SkCanvas.h"
 #include "SkBitmapCache.h"
@@ -974,7 +974,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> target, SkColor
         srcSpace = SkColorSpace::MakeSRGB();
     }
 
-    auto xform = GrNonlinearColorSpaceXformEffect::Make(srcSpace.get(), target.get());
+    auto xform = GrColorSpaceXformEffect::Make(srcSpace.get(), target.get());
     if (!xform) {
         return sk_ref_sp(const_cast<SkImage_Gpu*>(this));
     }

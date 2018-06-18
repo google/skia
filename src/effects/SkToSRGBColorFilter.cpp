@@ -13,7 +13,7 @@
 #include "SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-    #include "effects/GrNonlinearColorSpaceXformEffect.h"
+    #include "GrColorSpaceXform.h"
 #endif
 
 void SkToSRGBColorFilter::onAppendStages(SkRasterPipeline* p,
@@ -73,7 +73,6 @@ void SkToSRGBColorFilter::flatten(SkWriteBuffer& buffer) const {
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkToSRGBColorFilter::asFragmentProcessor(
         GrContext*, const GrColorSpaceInfo&) const {
-    return GrNonlinearColorSpaceXformEffect::Make(fSrcColorSpace.get(),
-                                                  SkColorSpace::MakeSRGB().get());
+    return GrColorSpaceXformEffect::Make(fSrcColorSpace.get(), SkColorSpace::MakeSRGB().get());
 }
 #endif
