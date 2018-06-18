@@ -98,10 +98,10 @@ bool GrVkMemory::AllocAndBindImageMemory(const GrVkGpu* gpu,
     GR_VK_CALL(gpu->vkInterface(), GetImageMemoryRequirements(gpu->device(), image, &memReqs));
 
     AllocationPropertyFlags propFlags;
-    if (memReqs.size <= kMaxSmallImageSize) {
-        propFlags = AllocationPropertyFlags::kNone;
-    } else {
+    if (memReqs.size > kMaxSmallImageSize || gpu->vkCaps().shouldAlwaysUseDedicatedImageMemory()) {
         propFlags = AllocationPropertyFlags::kDedicatedAllocation;
+    } else {
+        propFlags = AllocationPropertyFlags::kNone;
     }
 
     if (!allocator->allocateMemoryForImage(image, propFlags, &memory)) {
