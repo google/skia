@@ -88,6 +88,7 @@ protected:
         : INHERITED(style, isFixedPitch)
     {}
 
+    std::unique_ptr<SkFontData> onMakeCloneFontData(const SkFontArguments&) const;
     virtual SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
                                                    const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
