@@ -13,8 +13,6 @@
 #include "GrMesh.h"
 #include "GrPendingProgramElement.h"
 
-#include "SkTLList.h"
-
 class GrAtlasManager;
 class GrCaps;
 class GrGlyphCache;

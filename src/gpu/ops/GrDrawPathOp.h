@@ -16,8 +16,6 @@
 #include "GrProcessorSet.h"
 #include "GrStencilSettings.h"
 
-#include "SkTLList.h"
-
 class GrPaint;
 
 class GrDrawPathOpBase : public GrDrawOp {
