@@ -20,7 +20,7 @@
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkString.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include "SkView.h"
 #include "Sk1DPathEffect.h"
 

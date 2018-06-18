@@ -21,7 +21,7 @@
 #include "SkTypefaceCache.h"
 #include "SkTypeface_win_dw.h"
 #include "SkTypes.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 
 #include <dwrite.h>
 #include <dwrite_2.h>

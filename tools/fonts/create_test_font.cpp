@@ -18,7 +18,7 @@
 #include "SkTArray.h"
 #include "SkTSort.h"
 #include "SkTypeface.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include <stdio.h>
 
 #define DEFAULT_FONT_NAME "sans-serif"

@@ -27,7 +27,7 @@
 #include "SkTHash.h"
 #include "SkTo.h"
 #include "SkTypeface.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include "SkXMLWriter.h"
 
 namespace {

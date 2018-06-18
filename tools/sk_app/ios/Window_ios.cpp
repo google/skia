@@ -5,7 +5,7 @@
 * found in the LICENSE file.
 */
 
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include "Timer.h"
 #include "WindowContextFactory_ios.h"
 #include "Window_ios.h"

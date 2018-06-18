@@ -33,7 +33,7 @@
 #include "SkTo.h"
 #include "SkTypefaceCache.h"
 #include "SkTypeface_win.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 
 #include <tchar.h>
 #include <usp10.h>

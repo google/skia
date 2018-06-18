@@ -11,7 +11,7 @@
 #include "SkImage.h"
 #include "SkPaint.h"
 #include "SkShaderBase.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include "SkXfermodePriv.h"
 
 static bool changes_alpha(const SkPaint& paint) {

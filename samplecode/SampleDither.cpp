@@ -11,7 +11,7 @@
 #include "SkPath.h"
 #include "SkRegion.h"
 #include "SkShader.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include "Sk1DPathEffect.h"
 #include "SkCornerPathEffect.h"
 #include "SkPathMeasure.h"

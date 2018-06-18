@@ -10,7 +10,7 @@
 #include "SkColorData.h"
 #include "SkPaint.h"
 #include "SkTo.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 
 #include <emmintrin.h>
 

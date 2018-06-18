@@ -12,7 +12,7 @@
 #include "SkPath.h"
 #include "SkRegion.h"
 #include "SkShader.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 
 class FillTypeView : public SampleView {
     SkPath fPath;

@@ -22,11 +22,17 @@
 #include "SkString.h"
 #include "SkTypeface.h"
 #include "SkTypes.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include "gm.h"
 #include "sk_tool_utils.h"
 
 namespace skiagm {
+
+static SkUnichar to_unichar(const char* text) {
+    const char* ptr = text;
+    size_t len = strlen(text);
+    return SkUTF8_NextUnicharWithError(&ptr, text + len);
+}
 
 static uint16_t gData[] = { 0xFFFF, 0xCCCF, 0xCCCF, 0xFFFF };
 
@@ -148,7 +154,7 @@ protected:
                 textP.setBlendMode(gModes[i]);
                 textP.setTextEncoding(SkPaint::kUTF32_TextEncoding);
                 const char* text = sk_tool_utils::emoji_sample_text();
-                SkUnichar unichar = SkUTF8_ToUnichar(text);
+                SkUnichar unichar = to_unichar(text);
                 canvas->drawText(&unichar, 4, x+ w/10.f, y + 7.f*h/8.f, textP);
             }
 #if 1

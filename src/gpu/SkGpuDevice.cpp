@@ -45,7 +45,7 @@
 #include "SkSurface_Gpu.h"
 #include "SkTLazy.h"
 #include "SkTo.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include "SkVertState.h"
 #include "SkVertices.h"
 #include "SkWritePixelsRec.h"

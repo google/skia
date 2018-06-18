@@ -18,7 +18,7 @@
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkTypeface.h"
-#include "SkUtils.h"
+#include "SkUnicodeUtils.h"
 #include "SkView.h"
 
 static constexpr struct {
