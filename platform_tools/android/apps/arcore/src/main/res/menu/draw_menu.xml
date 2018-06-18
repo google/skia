@@ -1,0 +1,15 @@
+<menu	xmlns:android="http://schemas.android.com/apk/res/android">
+	<item
+		android:id="@+id/draw_text"
+		android:title="Draw Text" />
+	<item
+		android:id="@+id/draw_shape"
+		android:title="Draw Shape" >
+		<menu>
+			<item android:id="@+id/draw_circle"
+				android:title="Circle" />
+			<item android:id="@+id/draw_rect"
+				android:title="Rectangle" />
+		</menu>
+	</item>
+</menu>
