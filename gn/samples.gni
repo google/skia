@@ -103,3 +103,11 @@ samples_sources = [
   "$_samplecode/SampleXfermodesBlur.cpp",
   "$_samplecode/vertexdump.cpp",
 ]
+
+if (!is_win) {
+  samples_sources += [
+    "$_samplecode/Nima.cpp",
+    "$_samplecode/Nima.h",
+    "$_samplecode/SampleNima.cpp",
+  ]
+}
