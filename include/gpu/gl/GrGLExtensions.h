@@ -12,6 +12,8 @@
 #include "GrGLFunctions.h"
 #include "SkString.h"
 
+#include <utility>
+
 struct GrGLInterface;
 class SkJSONWriter;
 
@@ -30,8 +32,9 @@ public:
     GrGLExtensions& operator=(const GrGLExtensions&);
 
     void swap(GrGLExtensions* that) {
-        fStrings.swap(&that->fStrings);
-        SkTSwap(fInitialized, that->fInitialized);
+        using std::swap;
+        swap(fStrings, that->fStrings);
+        swap(fInitialized, that->fInitialized);
     }
 
     /**

@@ -15,6 +15,8 @@
 #include "SkPath.h"
 #include "SkTo.h"
 
+#include <utility>
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_BITMAP_H
@@ -161,7 +163,8 @@ void copyFT2LCD16(const FT_Bitmap& bitmap, const SkMask& mask, int lcdIsBGR,
                 const uint8_t* srcG = srcR + bitmap.pitch;
                 const uint8_t* srcB = srcG + bitmap.pitch;
                 if (lcdIsBGR) {
-                    SkTSwap(srcR, srcB);
+                    using std::swap;
+                    swap(srcR, srcB);
                 }
                 for (int x = 0; x < width; x++) {
                     dst[x] = packTriple(sk_apply_lut_if<APPLY_PREBLEND>(*srcR++, tableR),

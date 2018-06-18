@@ -11,6 +11,8 @@
 #include "SkPoint3.h"
 #include "SkPointPriv.h"
 
+#include <utility>
+
 static SkVector to_vector(const Sk2s& x) {
     SkVector vector;
     x.store(&vector);
@@ -89,10 +91,12 @@ int SkFindUnitQuadRoots(SkScalar A, SkScalar B, SkScalar C, SkScalar roots[2]) {
     r += valid_unit_divide(Q, A, r);
     r += valid_unit_divide(C, Q, r);
     if (r - roots == 2) {
-        if (roots[0] > roots[1])
-            SkTSwap<SkScalar>(roots[0], roots[1]);
-        else if (roots[0] == roots[1])  // nearly-equal?
+        if (roots[0] > roots[1]) {
+            using std::swap;
+            swap(roots[0], roots[1]);
+        } else if (roots[0] == roots[1]) { // nearly-equal?
             r -= 1; // skip the double root
+        }
     }
     return (int)(r - roots);
 }
@@ -567,8 +571,9 @@ inline static void write_cubic_inflection_roots(double t0, double s0, double t1,
 
     // Ensure t[0]/s[0] <= t[1]/s[1] (s[1] is negative from above).
     if (copysign(s[1], s[0]) * t[0] > -fabs(s[0]) * t[1]) {
-        std::swap(t[0], t[1]);
-        std::swap(s[0], s[1]);
+        using std::swap;
+        swap(t[0], t[1]);
+        swap(s[0], s[1]);
     }
 }
 

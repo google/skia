@@ -7,6 +7,8 @@
 #include "SkIntersections.h"
 #include "SkPathOpsLine.h"
 
+#include <utility>
+
 void SkIntersections::cleanUpParallelLines(bool parallel) {
     while (fUsed > 2) {
         removeOne(1);
@@ -182,7 +184,8 @@ static int horizontal_coincident(const SkDLine& line, double y) {
     double min = line[0].fY;
     double max = line[1].fY;
     if (min > max) {
-        SkTSwap(min, max);
+        using std::swap;
+        swap(min, max);
     }
     if (min > y || max < y) {
         return 0;
@@ -258,7 +261,8 @@ static int vertical_coincident(const SkDLine& line, double x) {
     double min = line[0].fX;
     double max = line[1].fX;
     if (min > max) {
-        SkTSwap(min, max);
+        using std::swap;
+        swap(min, max);
     }
     if (!precisely_between(min, x, max)) {
         return 0;

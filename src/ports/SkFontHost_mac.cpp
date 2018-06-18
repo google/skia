@@ -49,6 +49,8 @@
 
 #include <dlfcn.h>
 
+#include <utility>
+
 // Experimental code to use a global lock whenever we access CG, to see if this reduces
 // crashes in Chrome
 #define USE_GLOBAL_MUTEX_FOR_CG_ACCESS
@@ -1170,7 +1172,8 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
         CTFontGetAdvancesForGlyphs(fCTFont.get(), kCTFontOrientationVertical,
                                    &cgGlyph, &cgAdvance, 1);
         // Vertical advances are returned as widths instead of heights.
-        SkTSwap(cgAdvance.height, cgAdvance.width);
+        using std::swap;
+        swap(cgAdvance.height, cgAdvance.width);
         cgAdvance.height = -cgAdvance.height;
     } else {
         CTFontGetAdvancesForGlyphs(fCTFont.get(), kCTFontOrientationHorizontal,

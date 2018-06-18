@@ -15,6 +15,8 @@
 #include "SkTo.h"
 #include "SkWriteBuffer.h"
 
+#include <utility>
+
 SkDashImpl::SkDashImpl(const SkScalar intervals[], int count, SkScalar phase)
         : fPhase(0)
         , fInitialDashLength(-1)
@@ -93,7 +95,8 @@ static bool cull_line(SkPoint* pts, const SkStrokeRec& rec,
         SkScalar maxX = pts[1].fX;
 
         if (dx < 0) {
-            SkTSwap(minX, maxX);
+            using std::swap;
+            swap(minX, maxX);
         }
 
         SkASSERT(minX < maxX);
@@ -114,7 +117,8 @@ static bool cull_line(SkPoint* pts, const SkStrokeRec& rec,
 
         SkASSERT(maxX > minX);
         if (dx < 0) {
-            SkTSwap(minX, maxX);
+            using std::swap;
+            swap(minX, maxX);
         }
         pts[0].fX = minX;
         pts[1].fX = maxX;
@@ -124,7 +128,8 @@ static bool cull_line(SkPoint* pts, const SkStrokeRec& rec,
         SkScalar maxY = pts[1].fY;
 
         if (dy < 0) {
-            SkTSwap(minY, maxY);
+            using std::swap;
+            swap(minY, maxY);
         }
 
         SkASSERT(minY < maxY);
@@ -145,7 +150,8 @@ static bool cull_line(SkPoint* pts, const SkStrokeRec& rec,
 
         SkASSERT(maxY > minY);
         if (dy < 0) {
-            SkTSwap(minY, maxY);
+            using std::swap;
+            swap(minY, maxY);
         }
         pts[0].fY = minY;
         pts[1].fY = maxY;

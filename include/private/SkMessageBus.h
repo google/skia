@@ -93,7 +93,7 @@ void SkMessageBus<Message>::Inbox::poll(SkTArray<Message>* messages) {
     SkASSERT(messages);
     messages->reset();
     SkAutoMutexAcquire lock(fMessagesMutex);
-    fMessages.swap(messages);
+    fMessages.swap(*messages);
 }
 
 //   ----------------------- Implementation of SkMessageBus -----------------------

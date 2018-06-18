@@ -22,6 +22,7 @@
 #include "SkTo.h"
 
 #include <cmath>
+#include <utility>
 
 static float poly_eval(float A, float B, float C, float t) {
     return (A * t + B) * t + C;
@@ -201,10 +202,11 @@ bool operator==(const SkPath& a, const SkPath& b) {
 
 void SkPath::swap(SkPath& that) {
     if (this != &that) {
+        using std::swap;
         fPathRef.swap(that.fPathRef);
-        SkTSwap(fLastMoveToIndex, that.fLastMoveToIndex);
-        SkTSwap(fFillType, that.fFillType);
-        SkTSwap(fIsVolatile, that.fIsVolatile);
+        swap(fLastMoveToIndex, that.fLastMoveToIndex);
+        swap(fFillType, that.fFillType);
+        swap(fIsVolatile, that.fIsVolatile);
 
         // Non-atomic swaps of atomic values.
         Convexity c = fConvexity.load();
@@ -2797,7 +2799,8 @@ static int winding_mono_cubic(const SkPoint pts[], SkScalar x, SkScalar y, int* 
 
     int dir = 1;
     if (y0 > y3) {
-        SkTSwap(y0, y3);
+        using std::swap;
+        swap(y0, y3);
         dir = -1;
     }
     if (y < y0 || y > y3) {
@@ -2871,7 +2874,8 @@ static int winding_mono_conic(const SkConic& conic, SkScalar x, SkScalar y, int*
 
     int dir = 1;
     if (y0 > y2) {
-        SkTSwap(y0, y2);
+        using std::swap;
+        swap(y0, y2);
         dir = -1;
     }
     if (y < y0 || y > y2) {
@@ -2945,7 +2949,8 @@ static int winding_mono_quad(const SkPoint pts[], SkScalar x, SkScalar y, int* o
 
     int dir = 1;
     if (y0 > y2) {
-        SkTSwap(y0, y2);
+        using std::swap;
+        swap(y0, y2);
         dir = -1;
     }
     if (y < y0 || y > y2) {
@@ -3018,7 +3023,8 @@ static int winding_line(const SkPoint pts[], SkScalar x, SkScalar y, int* onCurv
 
     int dir = 1;
     if (y0 > y1) {
-        SkTSwap(y0, y1);
+        using std::swap;
+        swap(y0, y1);
         dir = -1;
     }
     if (y < y0 || y > y1) {

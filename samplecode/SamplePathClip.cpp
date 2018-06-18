@@ -20,6 +20,8 @@
 #include "SkUtils.h"
 #include "SkView.h"
 
+#include <utility>
+
 class PathClipView : public SampleView {
 public:
     SkRect fOval;
@@ -81,7 +83,8 @@ static int clip_line(const SkRect& bounds, SkPoint p0, SkPoint p1, SkPoint edges
     }
 
     if (p0.fY > p1.fY) {
-        SkTSwap(p0, p1);
+        using std::swap;
+        swap(p0, p1);
     }
     // now we're monotonic in Y: p0 <= p1
     if (p1.fY <= bounds.top() || p0.fY >= bounds.bottom()) {
@@ -101,7 +104,8 @@ static int clip_line(const SkRect& bounds, SkPoint p0, SkPoint p1, SkPoint edges
     // Now p0...p1 is strictly inside bounds vertically, so we just need to clip horizontally
 
     if (p0.fX > p1.fX) {
-        SkTSwap(p0, p1);
+        using std::swap;
+        swap(p0, p1);
     }
     // now we're left-to-right: p0 .. p1
 

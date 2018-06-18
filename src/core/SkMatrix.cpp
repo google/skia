@@ -16,7 +16,9 @@
 #include "SkRSXform.h"
 #include "SkString.h"
 #include "SkTo.h"
-#include <stddef.h>
+
+#include <cstddef>
+#include <utility>
 
 static void normalize_perspective(SkScalar mat[9]) {
     // If it was interesting to never store the last element, we could divide all 8 other
@@ -1488,7 +1490,8 @@ template <MinMaxOrBoth MIN_MAX_OR_BOTH> bool get_scale_factor(SkMatrix::TypeMask
             results[0] = SkScalarAbs(m[SkMatrix::kMScaleX]);
             results[1] = SkScalarAbs(m[SkMatrix::kMScaleY]);
              if (results[0] > results[1]) {
-                 SkTSwap(results[0], results[1]);
+                 using std::swap;
+                 swap(results[0], results[1]);
              }
         }
         return true;
@@ -1518,7 +1521,8 @@ template <MinMaxOrBoth MIN_MAX_OR_BOTH> bool get_scale_factor(SkMatrix::TypeMask
             results[0] = a;
             results[1] = c;
             if (results[0] > results[1]) {
-                SkTSwap(results[0], results[1]);
+                using std::swap;
+                swap(results[0], results[1]);
             }
         }
     } else {

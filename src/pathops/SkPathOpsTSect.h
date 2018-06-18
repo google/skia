@@ -14,6 +14,8 @@
 #include "SkPathOpsRect.h"
 #include "SkTSort.h"
 
+#include <utility>
+
 #ifdef SK_DEBUG
 typedef uint8_t SkOpDebugBool;
 #else
@@ -1054,7 +1056,8 @@ void SkTSect<TCurve, OppCurve>::coincidentForce(SkTSect<OppCurve, TCurve>* sect2
     double oppStartT = first->fCoinStart.perpT() == -1 ? 0 : SkTMax(0., first->fCoinStart.perpT());
     double oppEndT = first->fCoinEnd.perpT() == -1 ? 1 : SkTMin(1., first->fCoinEnd.perpT());
     if (!oppMatched) {
-        SkTSwap(oppStartT, oppEndT);
+        using std::swap;
+        swap(oppStartT, oppEndT);
     }
     oppFirst->fStartT = oppStartT;
     oppFirst->fEndT = oppEndT;
@@ -1246,8 +1249,9 @@ bool SkTSect<TCurve, OppCurve>::extractCoincident(
     }
 #endif
     if (!oppMatched) {
-        SkTSwap(oppFirst, oppLast);
-        SkTSwap(oppStartT, oppEndT);
+        using std::swap;
+        swap(oppFirst, oppLast);
+        swap(oppStartT, oppEndT);
     }
     SkOPASSERT(oppStartT < oppEndT);
     SkASSERT(coinStart == first->fStartT);
@@ -1277,7 +1281,8 @@ bool SkTSect<TCurve, OppCurve>::extractCoincident(
     oppEndT = first->fCoinEnd.perpT();
     if (between(0, oppStartT, 1) && between(0, oppEndT, 1)) {
         if (!oppMatched) {
-            SkTSwap(oppStartT, oppEndT);
+            using std::swap;
+            swap(oppStartT, oppEndT);
         }
         oppFirst->fStartT = oppStartT;
         oppFirst->fEndT = oppEndT;
@@ -1526,7 +1531,8 @@ int SkTSect<TCurve, OppCurve>::linesIntersect(SkTSpan<TCurve, OppCurve>* span,
     double tEnd = oCoinE.perpT();
     bool swap = tStart > tEnd;
     if (swap) {
-        SkTSwap(tStart, tEnd);
+        using std::swap;
+        swap(tStart, tEnd);
     }
     tStart = SkTMax(tStart, span->fStartT);
     tEnd = SkTMin(tEnd, span->fEndT);

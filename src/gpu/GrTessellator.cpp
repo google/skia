@@ -17,7 +17,8 @@
 #include "SkTDPQueue.h"
 
 #include <algorithm>
-#include <stdio.h>
+#include <cstdio>
+#include <utility>
 
 /*
  * There are six stages to the basic algorithm:
@@ -1682,7 +1683,8 @@ void reconnect(Edge* edge, Vertex* src, Vertex* dst, Comparator& c) {
         return;
     }
     if (c.sweep_lt(edge->fBottom->fPoint, edge->fTop->fPoint)) {
-        SkTSwap(edge->fTop, edge->fBottom);
+        using std::swap;
+        swap(edge->fTop, edge->fBottom);
         edge->fWinding *= -1;
     }
     edge->recompute();

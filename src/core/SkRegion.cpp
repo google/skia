@@ -15,6 +15,8 @@
 #include "SkTo.h"
 #include "SkUtils.h"
 
+#include <utility>
+
 /* Region Layout
  *
  *  TOP
@@ -161,8 +163,9 @@ SkRegion& SkRegion::operator=(const SkRegion& src) {
 }
 
 void SkRegion::swap(SkRegion& other) {
-    SkTSwap<SkIRect>(fBounds, other.fBounds);
-    SkTSwap<RunHead*>(fRunHead, other.fRunHead);
+    using std::swap;
+    swap(fBounds, other.fBounds);
+    swap(fRunHead, other.fRunHead);
 }
 
 int SkRegion::computeRegionComplexity() const {
@@ -1046,7 +1049,8 @@ bool SkRegion::Oper(const SkRegion& rgnaOrig, const SkRegion& rgnbOrig, Op op,
 
     // collaps difference and reverse-difference into just difference
     if (kReverseDifference_Op == op) {
-        SkTSwap<const SkRegion*>(rgna, rgnb);
+        using std::swap;
+        swap(rgna, rgnb);
         op = kDifference_Op;
     }
 

@@ -102,7 +102,7 @@ bool SkTTopoSort(SkTArray<sk_sp<T>>* graph) {
     }
 
     SkASSERT(graph->count() == result.count());
-    graph->swap(&result);
+    graph->swap(result);
 
 #ifdef SK_DEBUG
     SkTTopoSort_CleanExit<T, Traits>(*graph);

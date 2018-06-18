@@ -23,6 +23,8 @@
 #include "../private/SkSafe32.h"
 #include "../private/SkTFitsIn.h"
 
+#include <utility>
+
 struct SkRect;
 
 /** \struct SkIRect
@@ -646,11 +648,12 @@ struct SK_API SkIRect {
         and width() and height() will be zero or positive.
     */
     void sort() {
+        using std::swap;
         if (fLeft > fRight) {
-            SkTSwap<int32_t>(fLeft, fRight);
+            swap(fLeft, fRight);
         }
         if (fTop > fBottom) {
-            SkTSwap<int32_t>(fTop, fBottom);
+            swap(fTop, fBottom);
         }
     }
 
@@ -1519,12 +1522,13 @@ public:
         and width() and height() will be zero or positive.
     */
     void sort() {
+        using std::swap;
         if (fLeft > fRight) {
-            SkTSwap<SkScalar>(fLeft, fRight);
+            swap(fLeft, fRight);
         }
 
         if (fTop > fBottom) {
-            SkTSwap<SkScalar>(fTop, fBottom);
+            swap(fTop, fBottom);
         }
     }
 

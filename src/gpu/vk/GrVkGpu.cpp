@@ -39,6 +39,8 @@
 #include "vk/GrVkInterface.h"
 #include "vk/GrVkTypes.h"
 
+#include <utility>
+
 #if !defined(SK_BUILD_FOR_WIN)
 #include <unistd.h>
 #endif // !defined(SK_BUILD_FOR_WIN)
@@ -1628,7 +1630,8 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     // If we have different origins, we need to flip the top and bottom of the dst rect so that we
     // get the correct origintation of the copied data.
     if (srcOrigin != dstOrigin) {
-        SkTSwap(dstRect.fTop, dstRect.fBottom);
+        using std::swap;
+        swap(dstRect.fTop, dstRect.fBottom);
     }
 
     VkImageBlit blitRegion;

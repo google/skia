@@ -8,9 +8,12 @@
 #include "SkLineClipper.h"
 #include "SkTo.h"
 
+#include <utility>
+
 template <typename T> T pin_unsorted(T value, T limit0, T limit1) {
     if (limit1 < limit0) {
-        SkTSwap(limit0, limit1);
+        using std::swap;
+        swap(limit0, limit1);
     }
     // now the limits are sorted
     SkASSERT(limit0 <= limit1);

@@ -12,9 +12,11 @@
 #include "SkTo.h"
 #include "SkUtils.h"
 
+#include <cstdarg>
 #include <cstdio>
 #include <new>
-#include <stdarg.h>
+#include <utility>
+
 
 // number of bytes (on the stack) to receive the printf result
 static const size_t kBufferSize = 1024;
@@ -574,7 +576,8 @@ void SkString::swap(SkString& other) {
     this->validate();
     other.validate();
 
-    SkTSwap(fRec, other.fRec);
+    using std::swap;
+    swap(fRec, other.fRec);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

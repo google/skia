@@ -26,6 +26,7 @@
 #include "Test.h"
 
 #include <cmath>
+#include <utility>
 
 static void set_radii(SkVector radii[4], int index, float rad) {
     sk_bzero(radii, sizeof(SkVector) * 4);
@@ -1804,10 +1805,12 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
         for (size_t q = 0; q < SK_ARRAY_COUNT(kQueries); ++q) {
             SkRect qRect = kQueries[q].fQueryRect;
             if (inv & 0x1) {
-                SkTSwap(qRect.fLeft, qRect.fRight);
+                using std::swap;
+                swap(qRect.fLeft, qRect.fRight);
             }
             if (inv & 0x2) {
-                SkTSwap(qRect.fTop, qRect.fBottom);
+                using std::swap;
+                swap(qRect.fTop, qRect.fBottom);
             }
             for (int d = 0; d < 2; ++d) {
                 SkPath::Direction dir = d ? SkPath::kCCW_Direction : SkPath::kCW_Direction;
@@ -2145,6 +2148,7 @@ static void check_simple_closed_rect(skiatest::Reporter* reporter, const SkPath&
 }
 
 static void test_is_simple_closed_rect(skiatest::Reporter* reporter) {
+    using std::swap;
     SkRect r = SkRect::MakeEmpty();
     SkPath::Direction d = SkPath::kCCW_Direction;
     unsigned s = ~0U;
@@ -2216,12 +2220,12 @@ static void test_is_simple_closed_rect(skiatest::Reporter* reporter) {
             static constexpr unsigned kXSwapStarts[] = { 1, 0, 3, 2 };
             static constexpr unsigned kYSwapStarts[] = { 3, 2, 1, 0 };
             SkRect swapRect = testRect;
-            SkTSwap(swapRect.fLeft, swapRect.fRight);
+            swap(swapRect.fLeft, swapRect.fRight);
             path2.reset();
             path2.addRect(swapRect, dir, start);
             check_simple_closed_rect(reporter, path2, testRect, swapDir, kXSwapStarts[start]);
             swapRect = testRect;
-            SkTSwap(swapRect.fTop, swapRect.fBottom);
+            swap(swapRect.fTop, swapRect.fBottom);
             path2.reset();
             path2.addRect(swapRect, dir, start);
             check_simple_closed_rect(reporter, path2, testRect, swapDir, kYSwapStarts[start]);

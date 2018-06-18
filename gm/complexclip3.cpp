@@ -9,6 +9,8 @@
 #include "SkCanvas.h"
 #include "SkPath.h"
 
+#include <utility>
+
 namespace skiagm {
 
 constexpr SkColor gPathColor = SK_ColorYELLOW;
@@ -44,7 +46,8 @@ protected:
         SkPath* secondClip = &clipComplex;
 
         if (!fDoSimpleClipFirst) {
-            SkTSwap<SkPath*>(firstClip, secondClip);
+            using std::swap;
+            swap(firstClip, secondClip);
         }
 
         SkPaint paint;

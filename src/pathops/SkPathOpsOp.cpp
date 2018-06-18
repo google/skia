@@ -10,6 +10,8 @@
 #include "SkPathOpsCommon.h"
 #include "SkPathWriter.h"
 
+#include <utility>
+
 static SkOpSegment* findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** startPtr,
         SkOpSpanBase** endPtr) {
     while (chase.count()) {
@@ -56,7 +58,8 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** 
                 return nullptr;
             }
             if (segment->operand()) {
-                SkTSwap<int>(sumMiWinding, sumSuWinding);
+                using std::swap;
+                swap(sumMiWinding, sumSuWinding);
             }
         }
         SkOpSegment* first = nullptr;
@@ -284,7 +287,8 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
         subtrahend = &two;
     }
     if (op == kReverseDifference_SkPathOp) {
-        SkTSwap(minuend, subtrahend);
+        using std::swap;
+        swap(minuend, subtrahend);
         op = kDifference_SkPathOp;
     }
 #if DEBUG_SORT

@@ -11,6 +11,8 @@
 #include "SkMathPriv.h"
 #include "SkTo.h"
 
+#include <utility>
+
 // This will become a bottleneck for small ovals rendering if we call SkFixedDiv twice here.
 // Therefore, we'll let the outter function compute the slope once and send in the value.
 // Moreover, we'll compute fDY by quickly lookup the inverse table (if possible).
@@ -24,8 +26,9 @@ bool SkAnalyticEdge::updateLine(SkFixed x0, SkFixed y0, SkFixed x1, SkFixed y1, 
     // We don't chop at y extrema for cubics so the y is not guaranteed to be increasing for them.
     // In that case, we have to swap x/y and negate the winding.
     if (y0 > y1) {
-        SkTSwap(x0, x1);
-        SkTSwap(y0, y1);
+        using std::swap;
+        swap(x0, x1);
+        swap(y0, y1);
         fWinding = -fWinding;
     }
 

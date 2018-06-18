@@ -13,6 +13,8 @@
 #include "SkTo.h"
 #include "SkTypes.h"
 
+#include <utility>
+
 template <typename T> class SkTDArray {
 public:
     SkTDArray() : fArray(nullptr), fReserve(0), fCount(0) {}
@@ -67,10 +69,11 @@ public:
         return !(a == b);
     }
 
-    void swap(SkTDArray<T>& other) {
-        SkTSwap(fArray, other.fArray);
-        SkTSwap(fReserve, other.fReserve);
-        SkTSwap(fCount, other.fCount);
+    void swap(SkTDArray<T>& that) {
+        using std::swap;
+        swap(fArray, that.fArray);
+        swap(fReserve, that.fReserve);
+        swap(fCount, that.fCount);
     }
 
     bool isEmpty() const { return fCount == 0; }
@@ -370,5 +373,9 @@ private:
         fArray = (T*)sk_realloc_throw(fArray, fReserve * sizeof(T));
     }
 };
+
+template <typename T> static inline void swap(SkTDArray<T>& a, SkTDArray<T>& b) {
+    a.swap(b);
+}
 
 #endif

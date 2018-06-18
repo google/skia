@@ -267,6 +267,7 @@ skia_core_sources = [
   "$_src/core/SkScalar.cpp",
   "$_src/core/SkScalerContext.cpp",
   "$_src/core/SkScalerContext.h",
+  "$_src/core/SkScaleToSides.h",
   "$_src/core/SkScan.cpp",
   "$_src/core/SkScan.h",
   "$_src/core/SkScanPriv.h",

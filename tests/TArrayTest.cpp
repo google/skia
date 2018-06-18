@@ -79,7 +79,7 @@ template <typename T> static void test_swap(skiatest::Reporter* reporter,
             for (int i = 0; i < sizeA; i++) { a->push_back(curr++); }
             for (int i = 0; i < sizeB; i++) { b->push_back(curr++); }
 
-            a->swap(b);
+            a->swap(*b);
             REPORTER_ASSERT(reporter, b->count() == sizeA);
             REPORTER_ASSERT(reporter, a->count() == sizeB);
 
@@ -87,7 +87,7 @@ template <typename T> static void test_swap(skiatest::Reporter* reporter,
             for (auto&& x : *b) { REPORTER_ASSERT(reporter, x == curr++); }
             for (auto&& x : *a) { REPORTER_ASSERT(reporter, x == curr++); }
 
-            a->swap(a);
+            a->swap(*a);
             curr = sizeA;
             for (auto&& x : *a) { REPORTER_ASSERT(reporter, x == curr++); }
         }}

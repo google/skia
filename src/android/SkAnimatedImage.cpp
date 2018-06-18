@@ -15,6 +15,8 @@
 #include "SkPictureRecorder.h"
 #include "SkPixelRef.h"
 
+#include <utility>
+
 sk_sp<SkAnimatedImage> SkAnimatedImage::Make(std::unique_ptr<SkAndroidCodec> codec,
         SkISize scaledSize, SkIRect cropRect, sk_sp<SkPicture> postProcess) {
     if (!codec) {
@@ -114,7 +116,8 @@ bool SkAnimatedImage::Frame::init(const SkImageInfo& info, OnInit onInit) {
             }
 
             memcpy(tmp.getPixels(), fBitmap.getPixels(), fBitmap.computeByteSize());
-            SkTSwap(tmp, fBitmap);
+            using std::swap;
+            swap(tmp, fBitmap);
             return true;
         }
     }
@@ -213,7 +216,8 @@ int SkAnimatedImage::decodeNextFrame() {
 
     for (Frame* frame : { &fRestoreFrame, &fDecodingFrame }) {
         if (frameToDecode == frame->fIndex) {
-            SkTSwap(fDisplayFrame, *frame);
+            using std::swap;
+            swap(fDisplayFrame, *frame);
             if (animationEnded) {
                 return this->finish();
             }
@@ -236,7 +240,8 @@ int SkAnimatedImage::decodeNextFrame() {
             // future.
             if (fDecodingFrame.fIndex != SkCodec::kNone &&
                     !is_restore_previous(fDecodingFrame.fDisposalMethod)) {
-                SkTSwap(fDecodingFrame, fRestoreFrame);
+                using std::swap;
+                swap(fDecodingFrame, fRestoreFrame);
             }
         }
     } else {
@@ -262,7 +267,8 @@ int SkAnimatedImage::decodeNextFrame() {
             options.fPriorFrame = fDecodingFrame.fIndex;
         } else if (validPriorFrame(fRestoreFrame)) {
             if (!is_restore_previous(frameInfo.fDisposalMethod)) {
-                SkTSwap(fDecodingFrame, fRestoreFrame);
+                using std::swap;
+                swap(fDecodingFrame, fRestoreFrame);
             } else if (!fRestoreFrame.copyTo(&fDecodingFrame)) {
                 SkCodecPrintf("Failed to restore frame\n");
                 return this->finish();
@@ -289,7 +295,8 @@ int SkAnimatedImage::decodeNextFrame() {
     fDecodingFrame.fIndex = frameToDecode;
     fDecodingFrame.fDisposalMethod = frameInfo.fDisposalMethod;
 
-    SkTSwap(fDecodingFrame, fDisplayFrame);
+    using std::swap;
+    swap(fDecodingFrame, fDisplayFrame);
     fDisplayFrame.fBitmap.notifyPixelsChanged();
 
     if (animationEnded) {
