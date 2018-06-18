@@ -97,7 +97,7 @@ void SkStrokeRec::setStrokeStyle(SkScalar width, bool strokeAndFill) {
 #include "SkStroke.h"
 
 #ifdef SK_DEBUG
-    // enables tweaking these values at runtime from SampleApp
+    // enables tweaking these values at runtime from Viewer
     bool gDebugStrokerErrorSet = false;
     SkScalar gDebugStrokerError;
 #endif
