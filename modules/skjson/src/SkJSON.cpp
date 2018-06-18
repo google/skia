@@ -109,25 +109,85 @@ ArrayValue::ArrayValue(const Value* src, size_t size, SkArenaAlloc& alloc) {
 //
 // The string data plus a null-char terminator are copied over.
 //
-StringValue::StringValue(const char* src, size_t size, SkArenaAlloc& alloc) {
+namespace {
+
+// An internal string builder with a fast 8 byte short string load path
+// (for the common case where the string is not at the end of the stream).
+class FastString final : public Value {
+public:
+    FastString(const char* src, size_t size, const char* eos, SkArenaAlloc& alloc) {
+        SkASSERT(src <= eos);
+
+        if (size > kMaxInlineStringSize) {
+            this->initLongString(src, size, alloc);
+            SkASSERT(this->getTag() == Tag::kString);
+            return;
+        }
+
+        static_assert(static_cast<uint8_t>(Tag::kShortString) == 0, "please don't break this");
+        static_assert(sizeof(Value) == 8, "");
+
+        // TODO: LIKELY
+        if (src + 7 <= eos) {
+            this->initFastShortString(src, size);
+        } else {
+            this->initShortString(src, size);
+        }
+
+        SkASSERT(this->getTag() == Tag::kShortString);
+    }
+
+private:
     static constexpr size_t kMaxInlineStringSize = sizeof(Value) - 1;
-    if (size > kMaxInlineStringSize) {
+
+    void initLongString(const char* src, size_t size, SkArenaAlloc& alloc) {
+        SkASSERT(size > kMaxInlineStringSize);
+
         this->init_tagged_pointer(Tag::kString, MakeVector<char, 1>(src, size, alloc));
 
         auto* data = this->cast<VectorValue<char, Value::Type::kString>>()->begin();
         const_cast<char*>(data)[size] = '\0';
-        SkASSERT(this->getTag() == Tag::kString);
-        return;
     }
 
-    this->init_tagged(Tag::kShortString);
-    sk_careful_memcpy(this->cast<char>(), src, size);
+    void initShortString(const char* src, size_t size) {
+        SkASSERT(size <= kMaxInlineStringSize);
 
-    // Null terminator provided by init_tagged() above (fData8 is zero-initialized).
-    // This is safe because kShortString is also 0 and can act as a terminator when size == 7.
-    static_assert(static_cast<uint8_t>(Tag::kShortString) == 0, "please don't break this");
+        this->init_tagged(Tag::kShortString);
+        sk_careful_memcpy(this->cast<char>(), src, size);
+        // Null terminator provided by init_tagged() above (fData8 is zero-initialized).
+    }
 
-    SkASSERT(this->getTag() == Tag::kShortString);
+    void initFastShortString(const char* src, size_t size) {
+        SkASSERT(size <= kMaxInlineStringSize);
+
+        // Load 8 chars and mask out the tag and \0 terminator.
+        uint64_t* s64 = this->cast<uint64_t>();
+        memcpy(s64, src, 8);
+
+#if defined(SK_CPU_LENDIAN)
+        static constexpr uint64_t g_mask_64[] = {
+            0x0000000000000000ULL,
+            0x00000000000000ffULL,
+            0x000000000000ffffULL,
+            0x0000000000ffffffULL,
+            0x00000000ffffffffULL,
+            0x000000ffffffffffULL,
+            0x0000ffffffffffffULL,
+            0x00ffffffffffffffULL,
+        };
+#else
+        static_assert(false, "Big-endian builds are not supported at this time.");
+#endif
+        static_assert(SK_ARRAY_COUNT(g_mask_64) == kMaxInlineStringSize + 1, "");
+
+        *s64 &= g_mask_64[size];
+    }
+};
+
+} // namespace
+
+StringValue::StringValue(const char* src, size_t size, SkArenaAlloc& alloc) {
+    new (this) FastString(src, size, src, alloc);
 }
 
 ObjectValue::ObjectValue(const Member* src, size_t size, SkArenaAlloc& alloc) {
@@ -269,8 +329,8 @@ public:
         p = skip_ws(p);
         if (*p != '"') return this->error(NullValue(), p, "expected object key");
 
-        p = this->matchString(p, p_stop, [this](const char* key, size_t size) {
-            this->pushObjectKey(key, size);
+        p = this->matchString(p, p_stop, [this](const char* key, size_t size, const char* eos) {
+            this->pushObjectKey(key, size, eos);
         });
         if (!p) return NullValue();
 
@@ -287,8 +347,8 @@ public:
         case '\0':
             return this->error(NullValue(), p, "unexpected input end");
         case '"':
-            p = this->matchString(p, p_stop, [this](const char* str, size_t size) {
-                this->pushString(str, size);
+            p = this->matchString(p, p_stop, [this](const char* str, size_t size, const char* eos) {
+                this->pushString(str, size, eos);
             });
             break;
         case '[':
@@ -469,11 +529,11 @@ private:
         )
     }
 
-    void pushObjectKey(const char* key, size_t size) {
+    void pushObjectKey(const char* key, size_t size, const char* eos) {
         SkASSERT(fScopeStack.back() >= 0);
         SkASSERT(fValueStack.size() >= SkTo<size_t>(fScopeStack.back()));
         SkASSERT(!((fValueStack.size() - SkTo<size_t>(fScopeStack.back())) & 1));
-        this->pushString(key, size);
+        this->pushString(key, size, eos);
     }
 
     void pushTrue() {
@@ -488,8 +548,8 @@ private:
         fValueStack.push_back(NullValue());
     }
 
-    void pushString(const char* s, size_t size) {
-        fValueStack.push_back(StringValue(s, size, fAlloc));
+    void pushString(const char* s, size_t size, const char* eos) {
+        fValueStack.push_back(FastString(s, size, eos, fAlloc));
     }
 
     void pushInt32(int32_t i) {
@@ -555,7 +615,7 @@ private:
 
             if (*p == '"') {
                 // Valid string found.
-                func(s_begin, p - s_begin);
+                func(s_begin, p - s_begin, p_stop);
                 return p + 1;
             }
 
