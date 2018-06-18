@@ -524,7 +524,15 @@ wait_for_device()
     """ % self.ADB_BINARY, args=[host, device], infra_step=True)
 
   def copy_directory_contents_to_host(self, device, host):
-    self._adb('pull %s %s' % (device, host), 'pull', device, host)
+    with self.m.tempfile.temp_dir('adb_pull') as tmp:
+      self._adb('pull %s' % device, 'pull', device, tmp)
+      paths = self.m.file.glob_paths(
+          'find isolated targets',
+          tmp,
+          '*.isolated.gen.json',
+          test_data=['%d.png' % i for i in (1, 2)])
+      for p in paths:
+        self.m.file.copy('copy %s' % p, self.m.path.basename(p), host)
 
   def read_file_on_device(self, path, **kwargs):
     rv = self._adb('read %s' % path,

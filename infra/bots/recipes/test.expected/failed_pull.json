@@ -795,7 +795,7 @@
       "/usr/bin/adb.1.0.35",
       "pull",
       "/sdcard/revenge_of_the_skiabot/dm_out",
-      "[START_DIR]/[SWARM_OUT_DIR]/dm"
+      "[TMP_BASE]/adb_pull_tmp_1"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -804,7 +804,7 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm",
+    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out",
     "~followup_annotations": [
       "step returned non-zero exit code: 1",
       "@@@STEP_EXCEPTION@@@"
@@ -822,7 +822,7 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "kill adb server after failure of 'pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm' (attempt 1)",
+    "name": "kill adb server after failure of 'pull /sdcard/revenge_of_the_skiabot/dm_out' (attempt 1)",
     "timeout": 30
   },
   {
@@ -837,7 +837,7 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "wait for device after failure of 'pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm' (attempt 1)",
+    "name": "wait for device after failure of 'pull /sdcard/revenge_of_the_skiabot/dm_out' (attempt 1)",
     "timeout": 180
   },
   {
@@ -845,7 +845,7 @@
       "/usr/bin/adb.1.0.35",
       "pull",
       "/sdcard/revenge_of_the_skiabot/dm_out",
-      "[START_DIR]/[SWARM_OUT_DIR]/dm"
+      "[TMP_BASE]/adb_pull_tmp_1"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -854,7 +854,7 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm (attempt 2)",
+    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out (attempt 2)",
     "~followup_annotations": [
       "step returned non-zero exit code: 1",
       "@@@STEP_EXCEPTION@@@"
@@ -872,7 +872,7 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "kill adb server after failure of 'pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm' (attempt 2)",
+    "name": "kill adb server after failure of 'pull /sdcard/revenge_of_the_skiabot/dm_out' (attempt 2)",
     "timeout": 30
   },
   {
@@ -887,7 +887,7 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "wait for device after failure of 'pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm' (attempt 2)",
+    "name": "wait for device after failure of 'pull /sdcard/revenge_of_the_skiabot/dm_out' (attempt 2)",
     "timeout": 180
   },
   {
@@ -895,7 +895,7 @@
       "/usr/bin/adb.1.0.35",
       "pull",
       "/sdcard/revenge_of_the_skiabot/dm_out",
-      "[START_DIR]/[SWARM_OUT_DIR]/dm"
+      "[TMP_BASE]/adb_pull_tmp_1"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -904,11 +904,24 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm (attempt 3)",
+    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out (attempt 3)",
     "~followup_annotations": [
       "step returned non-zero exit code: 1",
       "@@@STEP_EXCEPTION@@@"
     ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "rmtree",
+      "[TMP_BASE]/adb_pull_tmp_1"
+    ],
+    "infra_step": true,
+    "name": "rmtree [TMP_BASE]/adb_pull_tmp_1"
   },
   {
     "cmd": [
@@ -959,7 +972,7 @@
   },
   {
     "name": "$result",
-    "reason": "Infra Failure: Step('pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm (attempt 3)') returned 1",
+    "reason": "Infra Failure: Step('pull /sdcard/revenge_of_the_skiabot/dm_out (attempt 3)') returned 1",
     "recipe_result": null,
     "status_code": 1
   }
