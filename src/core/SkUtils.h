@@ -84,6 +84,8 @@ size_t      SkUTF8_FromUnichar(SkUnichar uni, char utf8[] = nullptr);
 int SkUTF16_CountUnichars(const uint16_t utf16[]);
 // returns the current unichar and then moves past it (*p++)
 SkUnichar SkUTF16_NextUnichar(const uint16_t**);
+SkUnichar SkUTF16_NextUnichar(const uint16_t** srcPtr, const uint16_t* end);
+
 // this guy backs up to the previus unichar value, and returns it (*--p)
 SkUnichar SkUTF16_PrevUnichar(const uint16_t**);
 size_t SkUTF16_FromUnichar(SkUnichar uni, uint16_t utf16[] = nullptr);
