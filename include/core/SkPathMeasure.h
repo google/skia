@@ -90,7 +90,9 @@ private:
     unsigned        fFirstPtIndex;      // relative to the current contour
     bool            fIsClosed;          // relative to the current contour
     bool            fForceClosed;
-
+#if defined(IS_FUZZING_WITH_LIBFUZZER)
+    int             fSubdivisionsMax;
+#endif
     struct Segment {
         SkScalar    fDistance;  // total distance up to this point
         unsigned    fPtIndex; // index into the fPts array
