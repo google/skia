@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b30ef578_38114e29",
+        "filename": "infra/bots/recipes.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-06-19T14:24:16Z",
+      "side": 1,
+      "message": "This file is auto-updated via recipe rolls, though it hasn\u0027t changed in a long time.  I would recommend not changing it.",
+      "range": {
+        "startLine": 115,
+        "startChar": 0,
+        "endLine": 116,
+        "endChar": 0
+      },
+      "revId": "56512d333311a6dfac0356314a33fecd039a9ebc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
