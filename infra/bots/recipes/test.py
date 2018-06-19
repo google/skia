@@ -115,11 +115,13 @@ def dm_flags(api, bot):
     if '-GCE-' in bot and 'x86_64' in bot:
       configs.extend(['g8'])
       configs.extend(['565'])
-      configs.extend(['f16'])
       configs.extend(['lite-8888'])              # Experimental display list.
       configs.extend(['gbr-8888'])
-      configs.extend(['srgbnl'])
+      configs.extend(['f16'])
+      configs.extend(['srgb'])
       configs.extend(['esrgb'])
+      configs.extend(['narrow'])
+      configs.extend(['enarrow'])
 
       if 'SAN' in bot:
         configs.extend(['t8888'])
