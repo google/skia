@@ -34,6 +34,24 @@
       "revId": "bdffa911a4a17b67bb12b53e149383a4d7fbe171",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "501d73ef_13ae0990",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-19T01:55:45Z",
+      "side": 1,
+      "message": "Sounds good.  Though I tend to err towards not-the-LUT when things are this close, because microbenchmarks present tables at their most favorable, while compute-based strategies are pretty much always the same cost no matter how trashed the cache is.\n\nThis may be the first time I\u0027ve wanted to use the BMI/BMI2 instructions that came in Haswell*!  I think this would be an ideal spot for BZHI?  (https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text\u003dbzhi\u0026expand\u003d579)\n\n* https://en.wikipedia.org/wiki/Bit_Manipulation_Instruction_Sets",
+      "parentUuid": "8c820d2e_725251ee",
+      "revId": "bdffa911a4a17b67bb12b53e149383a4d7fbe171",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
