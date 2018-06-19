@@ -8,9 +8,7 @@
 #ifndef GrGLSL_DEFINED
 #define GrGLSL_DEFINED
 
-#include "GrTypesPriv.h"
-
-class GrShaderCaps;
+#include "GrTypes.h"
 
 // Limited set of GLSL versions we build shaders for. Caller should round
 // down the GLSL version to one of these enums.
@@ -52,7 +50,5 @@ enum GrGLSLGeneration {
      */
     k320es_GrGLSLGeneration,
 };
-
-const char* GrGLSLTypeString(const GrShaderCaps*, GrSLType);
 
 #endif

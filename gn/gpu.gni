@@ -481,7 +481,6 @@ skia_gpu_sources = [
   "$_src/gpu/gl/builders/GrGLShaderStringBuilder.h",
 
   # GLSL
-  "$_src/gpu/glsl/GrGLSL.cpp",
   "$_src/gpu/glsl/GrGLSL.h",
   "$_src/gpu/glsl/GrGLSLBlend.cpp",
   "$_src/gpu/glsl/GrGLSLBlend.h",
