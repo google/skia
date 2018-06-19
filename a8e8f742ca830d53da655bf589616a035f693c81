@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71bd4454_dc5e84c7",
+        "filename": "gn/effects_imagefilters.gni",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-19T16:52:56Z",
+      "side": 1,
+      "message": "2018",
+      "revId": "a8e8f742ca830d53da655bf589616a035f693c81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f24485b_1b999715",
+        "filename": "src/ports/SkGlobalInitialization_default_imagefilters.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-19T16:52:56Z",
+      "side": 1,
+      "message": "2018 ?",
+      "revId": "a8e8f742ca830d53da655bf589616a035f693c81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c49be2a7_b411ace9",
+        "filename": "src/ports/SkGlobalInitialization_none_imagefilters.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-19T16:52:56Z",
+      "side": 1,
+      "message": "2018?",
+      "revId": "a8e8f742ca830d53da655bf589616a035f693c81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
