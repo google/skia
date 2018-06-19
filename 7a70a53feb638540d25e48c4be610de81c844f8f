@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e13b560d_45582ad1",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-19T15:09:56Z",
+      "side": 1,
+      "message": "~fScratchGlyphRun() before this?",
+      "range": {
+        "startLine": 149,
+        "startChar": 4,
+        "endLine": 149,
+        "endChar": 8
+      },
+      "revId": "7a70a53feb638540d25e48c4be610de81c844f8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba19bb45_d90da57f",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-19T15:09:56Z",
+      "side": 1,
+      "message": "const ? (and below)\n\nprobably need cbegin cend on SkSpan ( or a begin and end)",
+      "range": {
+        "startLine": 67,
+        "startChar": 4,
+        "endLine": 67,
+        "endChar": 10
+      },
+      "revId": "7a70a53feb638540d25e48c4be610de81c844f8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "32ac335b_32fa6d33",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-19T15:09:56Z",
+      "side": 0,
+      "message": "This can still be const?",
+      "range": {
+        "startLine": 92,
+        "startChar": 36,
+        "endLine": 92,
+        "endChar": 41
+      },
+      "revId": "b831ea22960c684b65f8ead76efe24059d119086",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
