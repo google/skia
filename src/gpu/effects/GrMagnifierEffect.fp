@@ -22,20 +22,20 @@ uniform half2 offset;
 
 void main() {
     float2 coord = sk_TransformedCoords2D[0];
-    float2 zoom_coord = offset + coord * half2(xInvZoom, yInvZoom);
+    float2 zoom_coord = offset + coord * half2(half(xInvZoom), half(yInvZoom));
     float2 delta = (coord - boundsUniform.xy) * boundsUniform.zw;
     delta = min(delta, half2(1.0, 1.0) - delta);
-    delta *= half2(xInvInset, yInvInset);
+    delta *= half2(half(xInvInset), half(yInvInset));
 
     half weight = 0.0;
     if (delta.s < 2.0 && delta.t < 2.0) {
         delta = half2(2.0, 2.0) - delta;
-        half dist = length(delta);
-        dist = max(2.0 - dist, 0.0);
-        weight = min(dist * dist, 1.0);
+        half dist = half(length(delta));
+        dist = half(max(2.0 - dist, 0.0));
+        weight = half(min(dist * dist, 1.0));
     } else {
         float2 delta_squared = delta * delta;
-        weight = min(min(delta_squared.x, delta_squared.y), 1.0);
+        weight = half(min(min(delta_squared.x, delta_squared.y), 1.0));
     }
 
     sk_OutColor = texture(src, mix(coord, zoom_coord, weight));

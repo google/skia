@@ -271,10 +271,10 @@ public:
                     if (mulByFragCoordW) {
                         args.fFragBuilder->codeAppend("mindist *= sk_FragCoord.w;");
                     }
-                    args.fFragBuilder->codeAppendf("%s = float4(clamp(mindist, 0, 1));",
+                    args.fFragBuilder->codeAppendf("%s = half4(clamp(mindist, 0, 1));",
                                                    args.fOutputCoverage);
                 } else {
-                    args.fFragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
+                    args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
                 }
             }
             GrGLSLColorSpaceXformHelper fColorSpaceXformHelper;

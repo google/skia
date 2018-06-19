@@ -86,13 +86,13 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
 
             switch (ce.mode()) {
                 case GrTextureDomain::kClamp_Mode: {
-                    fragBuilder->codeAppendf("coordSampled.%s = clamp(coord.%s, %s.x, %s.y);\n",
+                    fragBuilder->codeAppendf("coordSampled.%s = half(clamp(coord.%s, %s.x, %s.y));\n",
                                              component, component, bounds, bounds);
                     break;
                 }
                 case GrTextureDomain::kRepeat_Mode: {
                     fragBuilder->codeAppendf("coordSampled.%s = "
-                                             "mod(coord.%s - %s.x, %s.y - %s.x) + %s.x;\n",
+                                             "half(mod(coord.%s - %s.x, %s.y - %s.x) + %s.x);\n",
                                              component, component, bounds, bounds, bounds, bounds);
                     break;
                 }

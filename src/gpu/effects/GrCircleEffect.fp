@@ -53,14 +53,14 @@ void main() {
     half d;
     @if (edgeType == GrClipEdgeType::kInverseFillBW ||
          edgeType == GrClipEdgeType::kInverseFillAA) {
-        d = (length((circle.xy - sk_FragCoord.xy) * circle.w) - 1.0) * circle.z;
+        d = half((length((circle.xy - sk_FragCoord.xy) * circle.w) - 1.0) * circle.z);
     } else {
-        d = (1.0 - length((circle.xy - sk_FragCoord.xy) *  circle.w)) * circle.z;
+        d = half((1.0 - length((circle.xy - sk_FragCoord.xy) *  circle.w)) * circle.z);
     }
     @if (edgeType == GrClipEdgeType::kFillAA ||
          edgeType == GrClipEdgeType::kInverseFillAA ||
          edgeType == GrClipEdgeType::kHairlineAA) {
-        d = clamp(d, 0.0, 1.0);
+        d = half(clamp(d, 0.0, 1.0));
     } else {
         d = d > 0.5 ? 1.0 : 0.0;
     }

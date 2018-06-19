@@ -1015,30 +1015,30 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
             switch (ge.fStrategy) {
                 case GrGradientEffect::InterpolationStrategy::kThresholdClamp0:
                     // allow t > 1, in order to hit the clamp interval (1, inf)
-                    fragBuilder->codeAppendf("half tiled_t = max(%s, 0.0);", t);
+                    fragBuilder->codeAppendf("half tiled_t = half(max(%s, 0.0));", t);
                     break;
                 case GrGradientEffect::InterpolationStrategy::kThresholdClamp1:
                     // allow t < 0, in order to hit the clamp interval (-inf, 0)
-                    fragBuilder->codeAppendf("half tiled_t = min(%s, 1.0);", t);
+                    fragBuilder->codeAppendf("half tiled_t = half(min(%s, 1.0));", t);
                     break;
                 default:
                     // regular [0, 1] clamping
-                    fragBuilder->codeAppendf("half tiled_t = clamp(%s, 0.0, 1.0);", t);
+                    fragBuilder->codeAppendf("half tiled_t = half(clamp(%s, 0.0, 1.0));", t);
             }
             break;
         case GrSamplerState::WrapMode::kRepeat:
-            fragBuilder->codeAppendf("half tiled_t = fract(%s);", t);
+            fragBuilder->codeAppendf("half tiled_t = half(fract(%s));", t);
             break;
         case GrSamplerState::WrapMode::kMirrorRepeat:
-            fragBuilder->codeAppendf("half t_1 = %s - 1.0;", t);
-            fragBuilder->codeAppendf("half tiled_t = t_1 - 2.0 * floor(t_1 * 0.5) - 1.0;");
+            fragBuilder->codeAppendf("half t_1 = half(%s - 1.0);", t);
+            fragBuilder->codeAppendf("half tiled_t = half(t_1 - 2.0 * floor(t_1 * 0.5) - 1.0);");
             if (shaderCaps->mustDoOpBetweenFloorAndAbs()) {
                 // At this point the expected value of tiled_t should between -1 and 1, so this
                 // clamp has no effect other than to break up the floor and abs calls and make sure
                 // the compiler doesn't merge them back together.
-                fragBuilder->codeAppendf("tiled_t = clamp(tiled_t, -1.0, 1.0);");
+                fragBuilder->codeAppendf("tiled_t = half(clamp(tiled_t, -1.0, 1.0));");
             }
-            fragBuilder->codeAppendf("tiled_t = abs(tiled_t);");
+            fragBuilder->codeAppendf("tiled_t = half(abs(tiled_t));");
             break;
     }
 
@@ -1090,7 +1090,7 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
     // If the input colors were floats, or there was a color space xform, we may end up out of
     // range. The simplest solution is to always clamp our (premul) value here. We only need to
     // clamp RGB, but that causes hangs on the Tegra3 Nexus7. Clamping RGBA avoids the problem.
-    fragBuilder->codeAppend("colorTemp = clamp(colorTemp, 0, colorTemp.a);");
+    fragBuilder->codeAppend("colorTemp = half4(clamp(colorTemp, 0, colorTemp.a));");
 
     fragBuilder->codeAppendf("%s = %s * colorTemp;", outputColor, inputColor);
 }
@@ -1111,7 +1111,7 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
 
     const char* fsyuni = uniformHandler->getUniformCStr(fFSYUni);
 
-    fragBuilder->codeAppendf("half2 coord = half2(%s, %s);", gradientTValue, fsyuni);
+    fragBuilder->codeAppendf("half2 coord = half2(half(%s), half(%s));", gradientTValue, fsyuni);
     fragBuilder->codeAppendf("%s = ", outputColor);
     fragBuilder->appendTextureLookupAndModulate(inputColor, texSamplers[0], "coord",
                                                 kFloat2_GrSLType);

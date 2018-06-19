@@ -12,13 +12,13 @@ in float k4;
 layout(key) in bool enforcePMColor;
 in fragmentProcessor child;
 
-uniform float4 k;
+uniform half4 k;
 
 void main() {
     half4 dst = process(child);
-    sk_OutColor = clamp(k.x * sk_InColor * dst + k.y * sk_InColor + k.z * dst + k.w, 0, 1);
+    sk_OutColor = half4(clamp(k.x * sk_InColor * dst + k.y * sk_InColor + k.z * dst + k.w, 0, 1));
     if (enforcePMColor) {
-        sk_OutColor.rgb = min(sk_OutColor.rgb, sk_OutColor.a);
+        sk_OutColor.rgb = half3(min(sk_OutColor.rgb, sk_OutColor.a));
     }
 }
 

@@ -1065,7 +1065,7 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     }
 
     // Clamp values
-    fragBuilder->codeAppendf("\n\t\t%s = clamp(%s, 0.0, 1.0);", args.fOutputColor, args.fOutputColor);
+    fragBuilder->codeAppendf("\n\t\t%s = half4(clamp(%s, 0.0, 1.0));", args.fOutputColor, args.fOutputColor);
 
     // Pre-multiply the result
     fragBuilder->codeAppendf("\n\t\t%s = half4(%s.rgb * %s.aaa, %s.a);\n",
