@@ -29,6 +29,10 @@ namespace SkDrawShadowMetrics {
 
 static constexpr auto kAmbientHeightFactor = 1.0f / 128.0f;
 static constexpr auto kAmbientGeomFactor = 64.0f;
+// Assuming that we have a light height of 600 for the spot shadow,
+// the spot values will reach their maximum at a height of approximately 292.3077.
+// We'll round up to 300 to keep it simple.
+static constexpr auto kMaxAmbientRadius = 300*kAmbientHeightFactor*kAmbientGeomFactor;
 
 static inline float divide_and_pin(float numer, float denom, float min, float max) {
     float result = SkTPin(sk_ieee_float_divide(numer, denom), min, max);
@@ -38,7 +42,7 @@ static inline float divide_and_pin(float numer, float denom, float min, float ma
 }
 
 inline SkScalar AmbientBlurRadius(SkScalar height) {
-    return height*kAmbientHeightFactor*kAmbientGeomFactor;
+    return SkTMin(height*kAmbientHeightFactor*kAmbientGeomFactor, kMaxAmbientRadius);
 }
 
 inline SkScalar AmbientRecipAlpha(SkScalar height) {
