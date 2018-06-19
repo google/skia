@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "73deb17e_09169953",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-19T22:27:23Z",
+      "side": 1,
+      "message": "// Down the middle of the kernel with a stride of width.",
+      "range": {
+        "startLine": 260,
+        "startChar": 12,
+        "endLine": 260,
+        "endChar": 50
+      },
+      "revId": "2afbbedad13bfa1a185013b160a54b5f0735c3f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
