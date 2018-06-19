@@ -694,51 +694,6 @@ enum GrVertexAttribType {
 static const int kGrVertexAttribTypeCount = kLast_GrVertexAttribType + 1;
 
 /**
- * Returns the size of the attrib type in bytes.
- */
-static inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
-    switch (type) {
-        case kFloat_GrVertexAttribType:
-            return sizeof(float);
-        case kFloat2_GrVertexAttribType:
-            return 2 * sizeof(float);
-        case kFloat3_GrVertexAttribType:
-            return 3 * sizeof(float);
-        case kFloat4_GrVertexAttribType:
-            return 4 * sizeof(float);
-        case kHalf_GrVertexAttribType:
-            return sizeof(float);
-        case kHalf2_GrVertexAttribType:
-            return 2 * sizeof(float);
-        case kHalf3_GrVertexAttribType:
-            return 3 * sizeof(float);
-        case kHalf4_GrVertexAttribType:
-            return 4 * sizeof(float);
-        case kInt2_GrVertexAttribType:
-            return 2 * sizeof(int32_t);
-        case kInt3_GrVertexAttribType:
-            return 3 * sizeof(int32_t);
-        case kInt4_GrVertexAttribType:
-            return 4 * sizeof(int32_t);
-        case kUByte_norm_GrVertexAttribType:
-            return 1 * sizeof(char);
-        case kUByte4_norm_GrVertexAttribType:
-            return 4 * sizeof(char);
-        case kShort2_GrVertexAttribType:
-            return 2 * sizeof(int16_t);
-        case kUShort2_GrVertexAttribType: // fall through
-        case kUShort2_norm_GrVertexAttribType:
-            return 2 * sizeof(uint16_t);
-        case kInt_GrVertexAttribType:
-            return sizeof(int32_t);
-        case kUint_GrVertexAttribType:
-            return sizeof(uint32_t);
-    }
-    SK_ABORT("Unexpected attribute type");
-    return 0;
-}
-
-/**
  * converts a GrVertexAttribType to a GrSLType
  */
 static inline GrSLType GrVertexAttribTypeToSLType(GrVertexAttribType type) {

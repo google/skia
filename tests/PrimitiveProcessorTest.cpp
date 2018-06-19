@@ -57,15 +57,15 @@ private:
     void onPrepareDraws(Target* target) override {
         class GP : public GrGeometryProcessor {
         public:
-            GP(int numAttribs)
-            : INHERITED(kGP_ClassID) {
+            GP(int numAttribs) : INHERITED(kGP_ClassID), fNumAttribs(numAttribs) {
                 SkASSERT(numAttribs > 1);
+                fAttribNames.reset(new SkString[numAttribs]);
+                fAttributes.reset(new Attribute[numAttribs]);
                 for (auto i = 0; i < numAttribs; ++i) {
-                    fAttribNames.push_back().printf("attr%d", i);
+                    fAttribNames[i].printf("attr%d", i);
+                    fAttributes[i] = {fAttribNames[i].c_str(), kFloat2_GrVertexAttribType};
                 }
-                for (auto i = 0; i < numAttribs; ++i) {
-                    this->addVertexAttrib(fAttribNames[i].c_str(), kFloat2_GrVertexAttribType);
-                }
+                this->setVertexAttributeCnt(numAttribs);
             }
             const char* name() const override { return "Dummy GP"; }
 
@@ -76,7 +76,7 @@ private:
                         const GP& gp = args.fGP.cast<GP>();
                         args.fVaryingHandler->emitAttributes(gp);
                         this->writeOutputPosition(args.fVertBuilder, gpArgs,
-                                                  gp.getAttrib(0).name());
+                                                  gp.fAttributes[0].name());
                         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
                         fragBuilder->codeAppendf("%s = half4(1);", args.fOutputColor);
                         fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
@@ -89,17 +89,24 @@ private:
             }
             void getGLSLProcessorKey(const GrShaderCaps&,
                                      GrProcessorKeyBuilder* builder) const override {
-                builder->add32(this->numAttribs());
+                builder->add32(fNumAttribs);
             }
 
         private:
-            SkTArray<SkString> fAttribNames;
+            const GrPrimitiveProcessor::Attribute& onVertexAttribute(int i) const override {
+                return fAttributes[i];
+            }
+
+            int fNumAttribs;
+            std::unique_ptr<SkString[]> fAttribNames;
+            std::unique_ptr<Attribute[]> fAttributes;
 
             typedef GrGeometryProcessor INHERITED;
         };
         sk_sp<GrGeometryProcessor> gp(new GP(fNumAttribs));
         QuadHelper helper;
-        size_t vertexStride = gp->getVertexStride();
+        size_t vertexStride = fNumAttribs * GrVertexAttribTypeSize(kFloat2_GrVertexAttribType);
+        SkASSERT(vertexStride == gp->debugOnly_vertexStride());
         SkPoint* vertices = reinterpret_cast<SkPoint*>(helper.init(target, vertexStride, 1));
         SkPointPriv::SetRectTriStrip(vertices, 0.f, 0.f, 1.f, 1.f, vertexStride);
         helper.recordDraw(target, gp.get(),
