@@ -70,6 +70,24 @@
       "revId": "bdffa911a4a17b67bb12b53e149383a4d7fbe171",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "508dfab1_7a06b228",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-19T02:27:46Z",
+      "side": 1,
+      "message": "Oh man, why does ARM have to be backwards :)\n\nLUT:  4448us\nv#1:  4464us\nv#2:  4515us\nv#3:  4395us\n\nAnyway, v#1 is still the best alternative \u0027case v#3 is too much of a slowdown on x86_64.",
+      "parentUuid": "0939dd70_86015b8f",
+      "revId": "bdffa911a4a17b67bb12b53e149383a4d7fbe171",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
