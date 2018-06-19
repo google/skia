@@ -22,6 +22,30 @@
       "revId": "b831ea22960c684b65f8ead76efe24059d119086",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5490455f_ae0846a6",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-19T17:24:07Z",
+      "side": 0,
+      "message": "No. The compiler complains.",
+      "parentUuid": "32ac335b_32fa6d33",
+      "range": {
+        "startLine": 92,
+        "startChar": 36,
+        "endLine": 92,
+        "endChar": 41
+      },
+      "revId": "b831ea22960c684b65f8ead76efe24059d119086",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
