@@ -891,9 +891,6 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
 #define SINK(t, sink, ...) if (config->getBackend().equals(t)) { return new sink(__VA_ARGS__); }
 
     if (FLAGS_cpu) {
-        auto srgbColorSpace = SkColorSpace::MakeSRGB();
-        auto srgbLinearColorSpace = SkColorSpace::MakeSRGBLinear();
-
         SINK("g8",      RasterSink, kGray_8_SkColorType);
         SINK("565",     RasterSink, kRGB_565_SkColorType);
         SINK("4444",    RasterSink, kARGB_4444_SkColorType);
@@ -903,9 +900,6 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
         SINK("rgbx",    RasterSink, kRGB_888x_SkColorType);
         SINK("1010102", RasterSink, kRGBA_1010102_SkColorType);
         SINK("101010x", RasterSink, kRGB_101010x_SkColorType);
-        SINK("f16",     RasterSink, kRGBA_F16_SkColorType, srgbLinearColorSpace);
-        SINK("esrgb",   RasterSink, kRGBA_F16_SkColorType, srgbColorSpace);
-        SINK("srgbnl",  RasterSink, kRGBA_8888_SkColorType, srgbColorSpace);
         SINK("t8888",   ThreadedSink, kN32_SkColorType);
         SINK("pdf",     PDFSink, false, SK_ScalarDefaultRasterDPI);
         SINK("skp",     SKPSink);
@@ -916,6 +910,22 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
         SINK("pdfa",    PDFSink, true,  SK_ScalarDefaultRasterDPI);
         SINK("pdf300",  PDFSink, false, 300);
         SINK("jsdebug", DebugSink);
+
+        // Configs relevant to color management testing (and 8888 for reference).
+
+        // 'narrow' has a gamut narrower than sRGB, and different transfer function.
+        SkMatrix44 narrow_gamut(SkMatrix44::kUninitialized_Constructor);
+        narrow_gamut.set3x3RowMajorf(gNarrow_toXYZD50);
+
+        auto narrow = SkColorSpace::MakeRGB(k2Dot2Curve_SkGammaNamed, narrow_gamut),
+               srgb = SkColorSpace::MakeSRGB(),
+         srgbLinear = SkColorSpace::MakeSRGBLinear();
+
+        SINK(    "f16",  RasterSink,  kRGBA_F16_SkColorType, srgbLinear);
+        SINK(   "srgb",  RasterSink, kRGBA_8888_SkColorType, srgb      );
+        SINK(  "esrgb",  RasterSink,  kRGBA_F16_SkColorType, srgb      );
+        SINK( "narrow",  RasterSink, kRGBA_8888_SkColorType, narrow    );
+        SINK("enarrow",  RasterSink,  kRGBA_F16_SkColorType, narrow    );
     }
 #undef SINK
     return nullptr;
