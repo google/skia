@@ -43,8 +43,6 @@ struct Statement : public IRNode {
         return false;
     }
 
-    virtual std::unique_ptr<Statement> clone() const = 0;
-
     const Kind fKind;
 
     typedef IRNode INHERITED;

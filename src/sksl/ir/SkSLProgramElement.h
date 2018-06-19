@@ -32,8 +32,6 @@ struct ProgramElement : public IRNode {
 
     Kind fKind;
 
-    virtual std::unique_ptr<ProgramElement> clone() const = 0;
-
     typedef IRNode INHERITED;
 };
 

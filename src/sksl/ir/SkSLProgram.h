@@ -39,10 +39,6 @@ struct Program {
             : fKind(kInt_Kind)
             , fValue(i) {}
 
-            Value(unsigned int i)
-            : fKind(kInt_Kind)
-            , fValue(i) {}
-
             std::unique_ptr<Expression> literal(const Context& context, int offset) const {
                 switch (fKind) {
                     case Program::Settings::Value::kBool_Kind:
@@ -196,7 +192,7 @@ struct Program {
         kVertex_Kind,
         kGeometry_Kind,
         kFragmentProcessor_Kind,
-        kPipelineStage_Kind
+        kCPU_Kind
     };
 
     Program(Kind kind,
@@ -256,13 +252,10 @@ struct Program {
     // because destroying elements can modify reference counts in symbols
     std::shared_ptr<SymbolTable> fSymbols;
     Inputs fInputs;
-    bool fIsOptimized = false;
 
 private:
     std::vector<std::unique_ptr<ProgramElement>>* fInheritedElements;
     std::vector<std::unique_ptr<ProgramElement>> fElements;
-
-    friend class Compiler;
 };
 
 } // namespace
