@@ -18,7 +18,8 @@
  */
 template<typename T> class GrCCSTLList {
 public:
-    GrCCSTLList(T&& head) : fHead(std::move(head)) {}
+    template <typename ...Args>
+    GrCCSTLList(Args&&... args) : fHead(std::forward<Args>(args)...) {}
 
     ~GrCCSTLList() {
         T* draw = fHead.fNext; // fHead will be destructed automatically.
