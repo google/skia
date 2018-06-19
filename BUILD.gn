@@ -1541,6 +1541,7 @@ if (skia_enable_tools) {
         ":xml",
         "modules/sksg:samples",
         "modules/skshaper",
+        "//third_party/Nima-Cpp",
       ]
 
       if (skia_use_lua) {
@@ -1570,6 +1571,7 @@ if (skia_enable_tools) {
         ":tool_utils",
         "modules/skottie",
         "modules/sksg",
+        "//third_party/Nima-Cpp",
         "//third_party/jsoncpp",
         "//third_party/libpng",
       ]
@@ -1994,6 +1996,7 @@ if (skia_enable_tools) {
       ":views",
       "modules/skottie",
       "modules/sksg",
+      "//third_party/Nima-Cpp",
       "//third_party/imgui",
       "//third_party/jsoncpp",
     ]
