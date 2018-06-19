@@ -53,6 +53,4 @@ enum GrGLSLGeneration {
     k320es_GrGLSLGeneration,
 };
 
-const char* GrGLSLTypeString(const GrShaderCaps*, GrSLType);
-
 #endif
