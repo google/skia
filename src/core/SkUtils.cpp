@@ -289,22 +289,42 @@ int SkUTF16_CountUnichars(const void* text, size_t byteLength) {
     return count;
 }
 
-SkUnichar SkUTF16_NextUnichar(const uint16_t** srcPtr) {
-    SkASSERT(srcPtr && *srcPtr);
-
+SkUnichar SkUTF16_NextUnichar(const uint16_t** srcPtr, const uint16_t* endPtr) {
+    if (!srcPtr || !endPtr) {
+        return -1;
+    }
     const uint16_t* src = *srcPtr;
-    SkUnichar       c = *src++;
+    if (src >= endPtr) {
+        return -1;
+    }
+    SkUnichar c = *src++;
 
-    SkASSERT(!SkUTF16_IsLowSurrogate(c));
+    if (SkUTF16_IsLowSurrogate(c)) {
+        return -1; // srcPtr should never point at low surrogate.
+    }
     if (SkUTF16_IsHighSurrogate(c)) {
+        if (src == endPtr) {
+            return -1;  // Truncated string.
+        }
         unsigned c2 = *src++;
-        SkASSERT(SkUTF16_IsLowSurrogate(c2));
-
+        if (!SkUTF16_IsLowSurrogate(c2)) {
+            return -1;
+        }
         // c = ((c & 0x3FF) << 10) + (c2 & 0x3FF) + 0x10000
         // c = (((c & 0x3FF) + 64) << 10) + (c2 & 0x3FF)
         c = (c << 10) + c2 + (0x10000 - (0xD800 << 10) - 0xDC00);
     }
     *srcPtr = src;
+    return c;
+}
+
+SkUnichar SkUTF16_NextUnichar(const uint16_t** srcPtr) {
+    SkUnichar c = SkUTF16_NextUnichar(srcPtr, *srcPtr + 2);
+    if (c == -1) {
+        SkASSERT(false);
+        ++(*srcPtr);
+        return 0xFFFD;  // REPLACEMENT CHARACTER.
+    }
     return c;
 }
 
