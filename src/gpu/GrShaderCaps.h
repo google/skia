@@ -8,8 +8,10 @@
 #ifndef GrShaderCaps_DEFINED
 #define GrShaderCaps_DEFINED
 
-#include "../private/GrGLSL.h"
-#include "../private/GrSwizzle.h"
+#include "GrSwizzle.h"
+#include "GrTypesPriv.h"
+#include "SkRefCnt.h"
+#include "glsl/GrGLSL.h"
 
 namespace SkSL {
 class ShaderCapsFactory;

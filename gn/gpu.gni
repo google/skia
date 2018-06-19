@@ -35,13 +35,11 @@ skia_gpu_sources = [
   "$_include/private/GrColor.h",
   "$_include/private/GrCCClipPath.h",
   "$_include/private/GrCCPerOpListPaths.h",
-  "$_include/private/GrGLSL.h",
   "$_include/private/GrOpList.h",
   "$_include/private/GrSingleOwner.h",
   "$_include/private/GrRenderTargetProxy.h",
   "$_include/private/GrSurfaceProxy.h",
   "$_include/private/GrSurfaceProxyRef.h",
-  "$_include/private/GrSwizzle.h",
   "$_include/private/GrTextureProxy.h",
   "$_include/private/GrTypesPriv.h",
 
@@ -191,6 +189,7 @@ skia_gpu_sources = [
   "$_src/gpu/GrSurfaceContextPriv.h",
   "$_src/gpu/GrSurfaceProxyPriv.h",
   "$_src/gpu/GrSurfaceProxyRef.cpp",
+  "$_src/gpu/GrSwizzle.h",
   "$_src/gpu/GrTessellator.cpp",
   "$_src/gpu/GrTessellator.h",
   "$_src/gpu/GrTextureOpList.cpp",
@@ -483,6 +482,7 @@ skia_gpu_sources = [
 
   # GLSL
   "$_src/gpu/glsl/GrGLSL.cpp",
+  "$_src/gpu/glsl/GrGLSL.h",
   "$_src/gpu/glsl/GrGLSLBlend.cpp",
   "$_src/gpu/glsl/GrGLSLBlend.h",
   "$_src/gpu/glsl/GrGLSLColorSpaceXformHelper.h",
