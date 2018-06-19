@@ -838,7 +838,7 @@ bool SkOpCoincidence::addMissing(bool* added  DEBUG_COIN_DECLARE_PARAMS()) {
                 }
             } else if (outerCoin == innerOpp) {
                 const SkOpPtT* oce = outer->coinPtTEnd();
-                SkASSERT(!oce->deleted());
+                FAIL_IF(oce->deleted());
                 const SkOpPtT* ioe = inner->oppPtTEnd();
                 SkASSERT(!ioe->deleted());
                 if (outerOpp != innerCoin && this->overlap(ocs, oce, ios, ioe, &overS, &overE)) {
