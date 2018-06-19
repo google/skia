@@ -32,7 +32,6 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
-#include "../private/GrGLSL.h"
 
 class GrGLDiffuseLightingEffect;
 class GrGLSpecularLightingEffect;

@@ -9,10 +9,11 @@
 #ifndef GrGLContext_DEFINED
 #define GrGLContext_DEFINED
 
-#include "gl/GrGLExtensions.h"
-#include "gl/GrGLInterface.h"
 #include "GrGLCaps.h"
 #include "GrGLUtil.h"
+#include "gl/GrGLExtensions.h"
+#include "gl/GrGLInterface.h"
+#include "glsl/GrGLSL.h"
 
 struct GrContextOptions;
 namespace SkSL {

@@ -5,26 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "GrGLSL.h"
 #include "GrShaderCaps.h"
-#include "SkString.h"
-#include "../private/GrGLSL.h"
-
-bool GrGLSLSupportsNamedFragmentShaderOutputs(GrGLSLGeneration gen) {
-    switch (gen) {
-        case k110_GrGLSLGeneration:
-            return false;
-        case k130_GrGLSLGeneration:
-        case k140_GrGLSLGeneration:
-        case k150_GrGLSLGeneration:
-        case k330_GrGLSLGeneration:
-        case k400_GrGLSLGeneration:
-        case k420_GrGLSLGeneration:
-        case k310es_GrGLSLGeneration:
-        case k320es_GrGLSLGeneration:
-            return true;
-    }
-    return false;
-}
 
 const char* GrGLSLTypeString(const GrShaderCaps* shaderCaps, GrSLType t) {
     switch (t) {
@@ -110,24 +92,4 @@ const char* GrGLSLTypeString(const GrShaderCaps* shaderCaps, GrSLType t) {
     }
     SK_ABORT("Unknown shader var type.");
     return ""; // suppress warning
-}
-
-void GrGLSLAppendDefaultFloatPrecisionDeclaration(GrSLPrecision p,
-                                                  const GrShaderCaps& shaderCaps,
-                                                  SkString* out) {
-    if (shaderCaps.usesPrecisionModifiers()) {
-        switch (p) {
-            case kHigh_GrSLPrecision:
-                out->append("precision highp float;\n");
-                break;
-            case kMedium_GrSLPrecision:
-                out->append("precision mediump float;\n");
-                break;
-            case kLow_GrSLPrecision:
-                out->append("precision lowp float;\n");
-                break;
-            default:
-                SK_ABORT("Unknown precision value.");
-        }
-    }
 }
