@@ -20,8 +20,22 @@
     #include "skia.h"
 #endif
 
-#include <memory>
+#include <cmath>      // for std::signbit
+#include <functional> // for std::function
+#include <memory>     // for std::unique_ptr
 #include <sstream>
+#include <string>     // for std::to_string
+#include <utility>    // for std::move, std::swap
+#include <vector>     // for std::vector
+
+// used directly by doc fiddles
+using std::function;
+using std::move;
+using std::signbit;
+using std::swap;
+using std::to_string;
+using std::unique_ptr;
+using std::vector;
 
 extern GrBackendTexture backEndTexture;
 extern GrBackendRenderTarget backEndRenderTarget;
