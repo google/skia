@@ -107,22 +107,19 @@ def parse(repo_root, recipes_cfg_path):
     raise MalformedRecipesCfg(ex.message, recipes_cfg_path)
 
 
-GIT = 'git.bat' if sys.platform.startswith(('win', 'cygwin')) else 'git'
-
-
 def _subprocess_call(argv, **kwargs):
   logging.info('Running %r', argv)
   return subprocess.call(argv, **kwargs)
 
 
 def _git_check_call(argv, **kwargs):
-  argv = [GIT]+argv
+  argv = ['git']+argv
   logging.info('Running %r', argv)
   subprocess.check_call(argv, **kwargs)
 
 
 def _git_output(argv, **kwargs):
-  argv = [GIT]+argv
+  argv = ['git']+argv
   logging.info('Running %r', argv)
   return subprocess.check_output(argv, **kwargs)
 
