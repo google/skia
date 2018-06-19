@@ -63,6 +63,7 @@ bench_sources = [
   "$_bench/ImageFilterCollapse.cpp",
   "$_bench/ImageFilterDAGBench.cpp",
   "$_bench/InterpBench.cpp",
+  "$_bench/JSONBench.cpp",
   "$_bench/LightingBench.cpp",
   "$_bench/LineBench.cpp",
   "$_bench/MagnifierBench.cpp",
