@@ -17,19 +17,28 @@ static constexpr int kMaxCacheCount = 1 << 16;
 GrCCPathCache::MaskTransform::MaskTransform(const SkMatrix& m, SkIVector* shift)
         : fMatrix2x2{m.getScaleX(), m.getSkewX(), m.getSkewY(), m.getScaleY()} {
     SkASSERT(!m.hasPerspective());
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
     Sk2f translate = Sk2f(m.getTranslateX(), m.getTranslateY());
     Sk2f floor = translate.floor();
     (translate - floor).store(fSubpixelTranslate);
     shift->set((int)floor[0], (int)floor[1]);
     SkASSERT((float)shift->fX == floor[0]);
     SkASSERT((float)shift->fY == floor[1]);
+#endif
 }
 
 inline static bool fuzzy_equals(const GrCCPathCache::MaskTransform& a,
                                 const GrCCPathCache::MaskTransform& b) {
-    return (Sk4f::Load(a.fMatrix2x2) == Sk4f::Load(b.fMatrix2x2)).allTrue() &&
-           ((Sk2f::Load(a.fSubpixelTranslate) -
-             Sk2f::Load(b.fSubpixelTranslate)).abs() < 1.f/256).allTrue();
+    if ((Sk4f::Load(a.fMatrix2x2) != Sk4f::Load(b.fMatrix2x2)).anyTrue()) {
+        return false;
+    }
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    if (((Sk2f::Load(a.fSubpixelTranslate) -
+          Sk2f::Load(b.fSubpixelTranslate)).abs() > 1.f/256).anyTrue()) {
+        return false;
+    }
+#endif
+    return true;
 }
 
 inline GrCCPathCache::HashNode::HashNode(GrCCPathCache* cache, const MaskTransform& m,

@@ -38,7 +38,11 @@ public:
     struct MaskTransform {
         MaskTransform(const SkMatrix& m, SkIVector* shift);
         float fMatrix2x2[4];
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+        // We shave off fractional translates for cachable paths on Android. This is done to match
+        // HWUI for cache hit ratio, which doesn't consider the matrix at all when caching paths.
         float fSubpixelTranslate[2];
+#endif
     };
 
     enum class CreateIfAbsent : bool {
