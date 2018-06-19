@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "971b7568_864c0486",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-19T00:48:13Z",
+      "side": 1,
+      "message": "Boy this stinks but you can\u0027t do this yet.  This header is in include/private, which means it gets included (transitively) into files that don\u0027t yet build as C++14.  Please see the Google3 roll.  :/",
+      "revId": "19c1233c447f625c2522e7ecd0a0adecc629bb2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
