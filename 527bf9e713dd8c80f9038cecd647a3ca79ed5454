@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c2f3cc7e_4677fe80",
+        "filename": "tools/fiddle/fiddle_main.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-19T16:28:13Z",
+      "side": 1,
+      "message": "The reason people typically `using std::swap` is a little different than just convenience.  The main reason it\u0027s used is that it allows you to write `swap(x,y)` and have that pick up ::swap() if one exists for the types of x and y, or fall back to std::swap() if one doesn\u0027t exist.\n\nThe rest should all be strictly convenience, but the using idiom for std::swap is really an idiom about correctly picking up overrides.\n\nThe thing that will make Fiddle code read most orthodox is to continue to refer to things in std:: with that prefix, and when you need to use std::swap(), put a `using std::swap;` declaration as tightly scoped as reasonable.",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 16
+      },
+      "revId": "527bf9e713dd8c80f9038cecd647a3ca79ed5454",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
