@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ce3c798_9089b3ee",
+        "filename": "src/gpu/glsl/GrGLSL.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-19T17:41:41Z",
+      "side": 1,
+      "message": "Follow up change tries to remove this file entirely.",
+      "revId": "fc6041f1a736c9901c2e8efe7d5bafc685088e87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
