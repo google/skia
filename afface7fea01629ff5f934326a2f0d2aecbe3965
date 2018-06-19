@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "be2b3550_e3b935d0",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-19T15:40:00Z",
+      "side": 1,
+      "message": "fEnd , for consistency.\n\nI suppose this is fine for now, and it seems quite minor doing an extra check considering the amount of work being done here, but it seems like the utf8 should be verified as valid at the beginning or just assumed (maybe check in debug) to be valid and leave validity up to the caller. The caller may just have constant data and not want to pay for the extra check. On the other hand, maybe this is a tiny amount of extra entropy.",
+      "range": {
+        "startLine": 166,
+        "startChar": 16,
+        "endLine": 166,
+        "endChar": 29
+      },
+      "revId": "afface7fea01629ff5f934326a2f0d2aecbe3965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
