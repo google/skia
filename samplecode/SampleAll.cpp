@@ -16,7 +16,6 @@
 #include "SkCornerPathEffect.h"
 #include "SkDashPathEffect.h"
 #include "SkDiscretePathEffect.h"
-#include "SkEmbossMaskFilter.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkGradientShader.h"
@@ -174,12 +173,6 @@ protected:
             radialRadius, radialColors, radialPos, radialCount,
             radialMode);
 
-        SkEmbossMaskFilter::Light light;
-        light.fDirection[0] = SK_Scalar1/2;
-        light.fDirection[1] = SK_Scalar1/2;
-        light.fDirection[2] = SK_Scalar1/3;
-        light.fAmbient        = 0x48;
-        light.fSpecular        = 0x80;
 
         auto lightingFilter = SkColorMatrixFilter::MakeLightingFilter(
             0xff89bc45, 0xff112233);
@@ -219,8 +212,6 @@ protected:
 
         // circle w/ emboss & transparent (exercises 3dshader)
         canvas->translate(SkIntToScalar(50), 0);
-        paint.setMaskFilter(SkEmbossMaskFilter::Make(
-                                     SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(12)/5), light));
         canvas->drawOval(rect, paint);
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
 //        paint.setShader(transparentShader)->unref();

@@ -7,6 +7,8 @@
 
 #include "SkEmbossMask.h"
 
+#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
+
 #include "SkFixed.h"
 #include "SkMath.h"
 #include "SkTo.h"
@@ -111,3 +113,5 @@ void SkEmbossMask::Emboss(SkMask* mask, const SkEmbossMaskFilter::Light& light) 
         prev_row = rowBytes;
     }
 }
+#endif
+

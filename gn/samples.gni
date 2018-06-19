@@ -43,7 +43,6 @@ samples_sources = [
   "$_samplecode/SampleDegenerateTwoPtRadials.cpp",
   "$_samplecode/SampleDither.cpp",
   "$_samplecode/SampleEffects.cpp",
-  "$_samplecode/SampleEmboss.cpp",
   "$_samplecode/SampleFatBits.cpp",
   "$_samplecode/SampleFillType.cpp",
   "$_samplecode/SampleFilter2.cpp",

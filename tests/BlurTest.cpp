@@ -480,6 +480,7 @@ DEF_TEST(BlurAsABlur, reporter) {
 
     // Test asABlur for SkEmbossMaskFilter -- should never succeed
     //
+#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
     {
         SkEmbossMaskFilter::Light light = {
             { 1, 1, 1 }, 0, 127, 127
@@ -494,6 +495,7 @@ DEF_TEST(BlurAsABlur, reporter) {
             }
         }
     }
+#endif
 }
 
 // This exercises the problem discovered in crbug.com/570232. The return value from
@@ -656,6 +658,7 @@ DEF_TEST(BlurredRRectNinePatchComputation, reporter) {
 
 // https://crbugs.com/787712
 DEF_TEST(EmbossPerlinCrash, reporter) {
+#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
     SkPaint p;
 
     static constexpr SkEmbossMaskFilter::Light light = {
@@ -666,6 +669,7 @@ DEF_TEST(EmbossPerlinCrash, reporter) {
 
     sk_sp<SkSurface> surface = SkSurface::MakeRasterN32Premul(100, 100);
     surface->getCanvas()->drawPaint(p);
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
