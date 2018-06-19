@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d54023e9_038ac14e",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 652,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-19T15:22:56Z",
+      "side": 1,
+      "message": "Let\u0027s rename this method to \u0027cloneFontData\u0027.",
+      "range": {
+        "startLine": 652,
+        "startChar": 49,
+        "endLine": 652,
+        "endChar": 68
+      },
+      "revId": "faeb69f6059d926030c062b4c43daa09ee5ce36a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5791db72_fced558f",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 668,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-19T15:22:56Z",
+      "side": 1,
+      "message": "c++ doesn\u0027t guarantee the order of evaluation of parameters, so we need to call \u0027openStream(\u0026ttcIndex)\u0027 outside the parameter list since ttcIndex is also a parameter.",
+      "range": {
+        "startLine": 668,
+        "startChar": 8,
+        "endLine": 668,
+        "endChar": 67
+      },
+      "revId": "faeb69f6059d926030c062b4c43daa09ee5ce36a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "601d351f_7fa9f84c",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1800,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-19T15:22:56Z",
+      "side": 1,
+      "message": "Don\u0027t want \u0027this-\u003e\u0027 here since GetAxes is a static method now.",
+      "range": {
+        "startLine": 1800,
+        "startChar": 19,
+        "endLine": 1800,
+        "endChar": 25
+      },
+      "revId": "faeb69f6059d926030c062b4c43daa09ee5ce36a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fec1a65c_6e0a9213",
+        "filename": "src/ports/SkFontHost_FreeType_common.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-19T15:22:56Z",
+      "side": 1,
+      "message": "I don\u0027t think we want this virtual. If we ever do want it to be, we\u0027ll change it then.",
+      "range": {
+        "startLine": 92,
+        "startChar": 4,
+        "endLine": 92,
+        "endChar": 12
+      },
+      "revId": "faeb69f6059d926030c062b4c43daa09ee5ce36a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a321fa9d_8a17400a",
+        "filename": "src/ports/SkFontMgr_android.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-19T15:22:56Z",
+      "side": 1,
+      "message": "this-\u003eonMakeCloneFontData(args)\n\nin general, if we\u0027re calling an instance method use \u0027this-\u003e\u0027.",
+      "range": {
+        "startLine": 140,
+        "startChar": 43,
+        "endLine": 140,
+        "endChar": 62
+      },
+      "revId": "faeb69f6059d926030c062b4c43daa09ee5ce36a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f1ab1fb_54eb1b08",
+        "filename": "src/ports/SkFontMgr_android.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-19T15:22:56Z",
+      "side": 1,
+      "message": "I think this can be sk_make_sp\u003cSkTypeface_AndroidStream\u003e(...).",
+      "range": {
+        "startLine": 144,
+        "startChar": 15,
+        "endLine": 144,
+        "endChar": 61
+      },
+      "revId": "faeb69f6059d926030c062b4c43daa09ee5ce36a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
