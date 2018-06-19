@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f5f9dc55_98bc7a97",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5835
+      },
+      "writtenOn": "2018-06-19T01:43:46Z",
+      "side": 0,
+      "message": "there\u0027s no recipes.exe on $PATH, so this simplification would only work if the thing doing the invocation of recipes is a cmd shell (or a .bat file), which I don\u0027t think is true (I think it\u0027s swarming?)",
+      "range": {
+        "startLine": 192,
+        "startChar": 45,
+        "endLine": 192,
+        "endChar": 48
+      },
+      "revId": "3ff2b200573354c83bbb52ff2f5f760eb481596e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e8a4f50_29b25b88",
+        "filename": "infra/bots/utils.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5835
+      },
+      "writtenOn": "2018-06-19T01:43:46Z",
+      "side": 0,
+      "message": "this is probably still needed?",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 5
+      },
+      "revId": "3ff2b200573354c83bbb52ff2f5f760eb481596e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

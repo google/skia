@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d807d121_3d66c0eb",
+        "filename": "infra/bots/assets/asset_utils.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5835
+      },
+      "writtenOn": "2018-06-19T01:43:46Z",
+      "side": 1,
+      "message": "make sure you also have the git package in your task (I assume yes?)",
+      "range": {
+        "startLine": 333,
+        "startChar": 28,
+        "endLine": 333,
+        "endChar": 31
+      },
+      "revId": "b4315f3b4c67b9970f2cc95c525ca101b9d32c93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c145fa7_ec5b62e3",
+        "filename": "infra/bots/assets/win_toolchain/create.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5835
+      },
+      "writtenOn": "2018-06-19T01:43:46Z",
+      "side": 1,
+      "message": "this one not quite; gclient DOES require depot_tools to be in path (hopefully this is using the pinned version of depot_tools in chromium? I think actually the the vs toolchain is moving to a CIPD package too, so this may be vastly simplified...), and in this context will need the .bat.",
+      "range": {
+        "startLine": 62,
+        "startChar": 28,
+        "endLine": 62,
+        "endChar": 35
+      },
+      "revId": "b4315f3b4c67b9970f2cc95c525ca101b9d32c93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ec3366f_74f6a9c3",
+        "filename": "site/user/build.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5835
+      },
+      "writtenOn": "2018-06-19T01:43:46Z",
+      "side": 1,
+      "message": "note that CreateProcess uses (like subprocess.check_call([args...])) will only try .exe, regardless of %PATHEXT%. Only cmd.exe (+bat files) and specifically coded programs (like recipes) know how to respect %PATHEXT% (or a form of it).",
+      "range": {
+        "startLine": 266,
+        "startChar": 32,
+        "endLine": 266,
+        "endChar": 39
+      },
+      "revId": "b4315f3b4c67b9970f2cc95c525ca101b9d32c93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
