@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "361cb531_a991564f",
+        "filename": "infra/bots/assets/asset_utils.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-06-19T11:31:22Z",
+      "side": 1,
+      "message": "Does this work?  On Windows, Python uses CreateProcess to spawn subprocesses, and that does not respect PATHEXT (hence the numerous cases in Python code where we add .bat, .cmd, and .exe extensions explicitly for Windows).",
+      "range": {
+        "startLine": 74,
+        "startChar": 9,
+        "endLine": 74,
+        "endChar": 15
+      },
+      "revId": "b4315f3b4c67b9970f2cc95c525ca101b9d32c93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d807d121_3d66c0eb",
         "filename": "infra/bots/assets/asset_utils.py",
         "patchSetId": 3
