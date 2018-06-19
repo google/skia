@@ -19,6 +19,7 @@
 #include "GrVkImageView.h"
 #include "GrVkMemory.h"
 #include "GrVkPipeline.h"
+#include "GrVkPipelineLayout.h"
 #include "GrVkSampler.h"
 #include "GrVkTexelBuffer.h"
 #include "GrVkTexture.h"
@@ -45,7 +46,7 @@ GrVkPipelineState::GrVkPipelineState(
         std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors,
         int fragmentProcessorCnt)
         : fPipeline(pipeline)
-        , fPipelineLayout(layout)
+        , fPipelineLayout(new GrVkPipelineLayout(layout))
         , fUniformDescriptorSet(nullptr)
         , fSamplerDescriptorSet(nullptr)
         , fTexelBufferDescriptorSet(nullptr)
@@ -119,10 +120,8 @@ void GrVkPipelineState::freeGPUResources(const GrVkGpu* gpu) {
     }
 
     if (fPipelineLayout) {
-        GR_VK_CALL(gpu->vkInterface(), DestroyPipelineLayout(gpu->device(),
-                                                             fPipelineLayout,
-                                                             nullptr));
-        fPipelineLayout = VK_NULL_HANDLE;
+        fPipelineLayout->unref(gpu);
+        fPipelineLayout = nullptr;
     }
 
     if (fGeometryUniformBuffer) {
@@ -153,10 +152,15 @@ void GrVkPipelineState::freeGPUResources(const GrVkGpu* gpu) {
 }
 
 void GrVkPipelineState::abandonGPUResources() {
-    fPipeline->unrefAndAbandon();
-    fPipeline = nullptr;
+    if (fPipeline) {
+        fPipeline->unrefAndAbandon();
+        fPipeline = nullptr;
+    }
 
-    fPipelineLayout = VK_NULL_HANDLE;
+    if (fPipelineLayout) {
+        fPipelineLayout->unrefAndAbandon();
+        fPipelineLayout = nullptr;
+    }
 
     fGeometryUniformBuffer->abandon();
     fFragmentUniformBuffer->abandon();
