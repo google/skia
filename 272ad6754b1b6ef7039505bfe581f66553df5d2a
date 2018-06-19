@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "17f5af42_3c25f84b",
+        "filename": "src/core/SkUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-19T14:26:05Z",
+      "side": 1,
+      "message": "Are the comments needed? Do the explain the code below? Can you add a ref to the spec for how this is defined?\n\nIs there a way to derive the current code from definition?",
+      "range": {
+        "startLine": 313,
+        "startChar": 0,
+        "endLine": 314,
+        "endChar": 0
+      },
+      "revId": "272ad6754b1b6ef7039505bfe581f66553df5d2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
