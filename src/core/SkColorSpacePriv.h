@@ -16,7 +16,7 @@
 
 static constexpr float gSRGB_toXYZD50[] {
     0.4360747f, 0.3850649f, 0.1430804f, // Rx, Gx, Bx
-    0.2225045f, 0.7168786f, 0.0606169f, // Ry, Gy, Gz
+    0.2225045f, 0.7168786f, 0.0606169f, // Ry, Gy, By
     0.0139322f, 0.0971045f, 0.7141733f, // Rz, Gz, Bz
 };
 
@@ -26,20 +26,27 @@ static constexpr float gAdobeRGB_toXYZD50[] {
     // 0.31111, 0.62567, 0.06322,
     // 0.01947, 0.06087, 0.74457,
     SkFixedToFloat(0x9c18), SkFixedToFloat(0x348d), SkFixedToFloat(0x2631), // Rx, Gx, Bx
-    SkFixedToFloat(0x4fa5), SkFixedToFloat(0xa02c), SkFixedToFloat(0x102f), // Ry, Gy, Gz
+    SkFixedToFloat(0x4fa5), SkFixedToFloat(0xa02c), SkFixedToFloat(0x102f), // Ry, Gy, By
     SkFixedToFloat(0x04fc), SkFixedToFloat(0x0f95), SkFixedToFloat(0xbe9c), // Rz, Gz, Bz
 };
 
 static constexpr float gDCIP3_toXYZD50[] {
     0.515102f,   0.291965f,  0.157153f,  // Rx, Gx, Bx
-    0.241182f,   0.692236f,  0.0665819f, // Ry, Gy, Gz
+    0.241182f,   0.692236f,  0.0665819f, // Ry, Gy, By
    -0.00104941f, 0.0418818f, 0.784378f,  // Rz, Gz, Bz
 };
 
 static constexpr float gRec2020_toXYZD50[] {
     0.673459f,   0.165661f,  0.125100f,  // Rx, Gx, Bx
-    0.279033f,   0.675338f,  0.0456288f, // Ry, Gy, Gz
+    0.279033f,   0.675338f,  0.0456288f, // Ry, Gy, By
    -0.00193139f, 0.0299794f, 0.797162f,  // Rz, Gz, Bz
+};
+
+// A gamut narrower than sRGB, useful for testing.
+static constexpr float gNarrow_toXYZD50[] {
+    0.190974f,  0.404865f,  0.368380f,
+    0.114746f,  0.582937f,  0.302318f,
+    0.032925f,  0.153615f,  0.638669f,
 };
 
 static constexpr SkColorSpaceTransferFn gSRGB_TransferFn =

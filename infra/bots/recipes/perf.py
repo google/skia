@@ -61,7 +61,13 @@ def nanobench_flags(api, bot):
     configs.extend(['8888', 'nonrendering'])
 
     if '-GCE-' in bot:
-      configs += [ 'f16' ]
+      configs += [
+          'f16',
+          'srgb',
+          'esrgb',
+          'narrow',
+          'enarrow',
+      ]
 
   elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
     args.append('--nocpu')

@@ -27,6 +27,7 @@
 #include "SkBitmapRegionDecoder.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
+#include "SkColorSpacePriv.h"
 #include "SkCommonFlags.h"
 #include "SkCommonFlagsConfig.h"
 #include "SkCommonFlagsGpu.h"
@@ -472,15 +473,23 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
     CPU_CONFIG(nonrendering, kNonRendering_Backend,
                kUnknown_SkColorType, kUnpremul_SkAlphaType, nullptr)
 
-    CPU_CONFIG(a8, kRaster_Backend,
-               kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr)
-    CPU_CONFIG(8888, kRaster_Backend,
-               kN32_SkColorType, kPremul_SkAlphaType, nullptr)
-    CPU_CONFIG(565,  kRaster_Backend,
-               kRGB_565_SkColorType, kOpaque_SkAlphaType, nullptr)
-    auto srgbLinearColorSpace = SkColorSpace::MakeSRGBLinear();
-    CPU_CONFIG(f16,  kRaster_Backend,
-               kRGBA_F16_SkColorType, kPremul_SkAlphaType, srgbLinearColorSpace)
+    CPU_CONFIG(a8,   kRaster_Backend, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr)
+    CPU_CONFIG(8888, kRaster_Backend,     kN32_SkColorType, kPremul_SkAlphaType, nullptr)
+    CPU_CONFIG(565,  kRaster_Backend, kRGB_565_SkColorType, kOpaque_SkAlphaType, nullptr)
+
+    // 'narrow' has a gamut narrower than sRGB, and different transfer function.
+    SkMatrix44 narrow_gamut(SkMatrix44::kUninitialized_Constructor);
+    narrow_gamut.set3x3RowMajorf(gNarrow_toXYZD50);
+
+    auto narrow = SkColorSpace::MakeRGB(k2Dot2Curve_SkGammaNamed, narrow_gamut),
+           srgb = SkColorSpace::MakeSRGB(),
+     srgbLinear = SkColorSpace::MakeSRGBLinear();
+
+    CPU_CONFIG(    f16, kRaster_Backend,  kRGBA_F16_SkColorType, kPremul_SkAlphaType, srgbLinear)
+    CPU_CONFIG(   srgb, kRaster_Backend, kRGBA_8888_SkColorType, kPremul_SkAlphaType, srgb      )
+    CPU_CONFIG(  esrgb, kRaster_Backend,  kRGBA_F16_SkColorType, kPremul_SkAlphaType, srgb      )
+    CPU_CONFIG( narrow, kRaster_Backend, kRGBA_8888_SkColorType, kPremul_SkAlphaType, narrow    )
+    CPU_CONFIG(enarrow, kRaster_Backend,  kRGBA_F16_SkColorType, kPremul_SkAlphaType, narrow    )
 
     #undef CPU_CONFIG
 
