@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4ec37860_31a4b544",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-19T00:42:17Z",
+      "side": 1,
+      "message": "I take it you tried all the non-table versions of this, like\n\n  *s64 \u0026\u003d (0xffffffffffffffff) \u003e\u003e (64 - 8*size);\n\nor\n\n  *s64 \u003c\u003c\u003d (64 - 8*size);\n  *s64 \u003e\u003e\u003d (64 - 8*size);\n\nor\n\n  this-\u003ecast\u003cuint8_t\u003e()[size-1] \u003d 0;\n  this-\u003ecast\u003cuint8_t\u003e()[     7] \u003d 0;\n\n?",
+      "revId": "bdffa911a4a17b67bb12b53e149383a4d7fbe171",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
