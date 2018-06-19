@@ -1740,12 +1740,14 @@ void SkOpCoincidence::debugAddIfMissing(SkPathOpsDebug::GlitchLog* log, const Sk
     double coinTs, coinTe, oppTs, oppTe;
     coinTs = TRange(over1s, tStart, coinSeg  SkDEBUGPARAMS(over1e));
     coinTe = TRange(over1s, tEnd, coinSeg  SkDEBUGPARAMS(over1e));
-    if (coinSeg->collapsed(coinTs, coinTe)) {
+    SkOpSpanBase::Collapsed result = coinSeg->collapsed(coinTs, coinTe);
+    if (SkOpSpanBase::Collapsed::kNo != result) {
         return log->record(SkPathOpsDebug::kAddIfCollapsed_Glitch, coinSeg);
     }
     oppTs = TRange(over2s, tStart, oppSeg  SkDEBUGPARAMS(over2e));
     oppTe = TRange(over2s, tEnd, oppSeg  SkDEBUGPARAMS(over2e));
-    if (oppSeg->collapsed(oppTs, oppTe)) {
+    result = oppSeg->collapsed(oppTs, oppTe);
+    if (SkOpSpanBase::Collapsed::kNo != result) {
         return log->record(SkPathOpsDebug::kAddIfCollapsed_Glitch, oppSeg);
     }
     if (coinTs > coinTe) {
@@ -1753,7 +1755,8 @@ void SkOpCoincidence::debugAddIfMissing(SkPathOpsDebug::GlitchLog* log, const Sk
         swap(coinTs, coinTe);
         swap(oppTs, oppTe);
     }
-    return this->debugAddOrOverlap(log, coinSeg, oppSeg, coinTs, coinTe, oppTs, oppTe, added);
+    this->debugAddOrOverlap(log, coinSeg, oppSeg, coinTs, coinTe, oppTs, oppTe, added);
+    return;
 }
 
 /* Commented-out lines keep this in sync addOrOverlap() */

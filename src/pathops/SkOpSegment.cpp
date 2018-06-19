@@ -327,14 +327,15 @@ void SkOpSegment::clearOne(SkOpSpan* span) {
     this->markDone(span);
 }
 
-bool SkOpSegment::collapsed(double s, double e) const {
+SkOpSpanBase::Collapsed SkOpSegment::collapsed(double s, double e) const {
     const SkOpSpanBase* span = &fHead;
     do {
-        if (span->collapsed(s, e)) {
-            return true;
+        SkOpSpanBase::Collapsed result = span->collapsed(s, e);
+        if (SkOpSpanBase::Collapsed::kNo != result) {
+            return result;
         }
     } while (span->upCastable() && (span = span->upCast()->next()));
-    return false;
+    return SkOpSpanBase::Collapsed::kNo;
 }
 
 void SkOpSegment::ComputeOneSum(const SkOpAngle* baseAngle, SkOpAngle* nextAngle,

@@ -177,6 +177,12 @@ protected:
 
 class SkOpSpanBase {
 public:
+    enum class Collapsed {
+        kNo,
+        kYes,
+        kError,
+    };
+
     void addOpp(SkOpSpanBase* opp);
 
     void bumpSpanAdds() {
@@ -193,7 +199,7 @@ public:
         return fCoinEnd;
     }
 
-    bool collapsed(double s, double e) const;
+    Collapsed collapsed(double s, double e) const;
     bool contains(const SkOpSpanBase* ) const;
     const SkOpPtT* contains(const SkOpSegment* ) const;
 
