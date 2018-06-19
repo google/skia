@@ -263,6 +263,8 @@ You can then pass the VC and SDK paths to GN by setting your GN args:
 This toolchain is the only way we support 32-bit builds, by also setting `target_cpu="x86"`.
 There is also a corresponding 2015 toolchain, downloaded via `infra/bots/assets/win_toolchain_2015`.
 
+The Skia build assumes that the PATHEXT environment variable contains ".EXE".
+
 ### Visual Studio Solutions
 
 If you use Visual Studio, you may want to pass `--ide=vs` to `bin/gn gen` to
