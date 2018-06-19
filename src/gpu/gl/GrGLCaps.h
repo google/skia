@@ -10,14 +10,12 @@
 #define GrGLCaps_DEFINED
 
 #include <functional>
-
 #include "GrCaps.h"
 #include "GrGLStencilAttachment.h"
 #include "GrSwizzle.h"
 #include "SkChecksum.h"
 #include "SkTHash.h"
 #include "SkTArray.h"
-#include "../private/GrGLSL.h"
 
 class GrGLContextInfo;
 class GrGLRenderTarget;
