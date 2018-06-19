@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3812585c_e95dcb0b",
+        "filename": "infra/bots/assets/asset_utils.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-19T15:04:03Z",
+      "side": 1,
+      "message": "Reverted.",
+      "parentUuid": "361cb531_a991564f",
+      "range": {
+        "startLine": 74,
+        "startChar": 9,
+        "endLine": 74,
+        "endChar": 15
+      },
+      "revId": "b4315f3b4c67b9970f2cc95c525ca101b9d32c93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d807d121_3d66c0eb",
         "filename": "infra/bots/assets/asset_utils.py",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "b4315f3b4c67b9970f2cc95c525ca101b9d32c93",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12436e19_047b74cb",
+        "filename": "infra/bots/assets/asset_utils.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-19T15:04:03Z",
+      "side": 1,
+      "message": "Reverted.",
+      "parentUuid": "d807d121_3d66c0eb",
+      "range": {
+        "startLine": 333,
+        "startChar": 28,
+        "endLine": 333,
+        "endChar": 31
+      },
+      "revId": "b4315f3b4c67b9970f2cc95c525ca101b9d32c93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "a86e081f_c83a0f2c",
+        "filename": "infra/bots/assets/win_toolchain/create.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-19T15:04:03Z",
+      "side": 1,
+      "message": "Reverted.",
+      "parentUuid": "3c145fa7_ec5b62e3",
+      "range": {
+        "startLine": 62,
+        "startChar": 28,
+        "endLine": 62,
+        "endChar": 35
+      },
+      "revId": "b4315f3b4c67b9970f2cc95c525ca101b9d32c93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3ec3366f_74f6a9c3",
         "filename": "site/user/build.md",
         "patchSetId": 3
@@ -82,6 +154,30 @@
       "writtenOn": "2018-06-19T01:43:46Z",
       "side": 1,
       "message": "note that CreateProcess uses (like subprocess.check_call([args...])) will only try .exe, regardless of %PATHEXT%. Only cmd.exe (+bat files) and specifically coded programs (like recipes) know how to respect %PATHEXT% (or a form of it).",
+      "range": {
+        "startLine": 266,
+        "startChar": 32,
+        "endLine": 266,
+        "endChar": 39
+      },
+      "revId": "b4315f3b4c67b9970f2cc95c525ca101b9d32c93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22f78e4b_884e85e1",
+        "filename": "site/user/build.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-19T15:04:03Z",
+      "side": 1,
+      "message": "Changed this to only .EXE. I don\u0027t know what method ninja uses to invoke commands, but it works without the extension.",
+      "parentUuid": "3ec3366f_74f6a9c3",
       "range": {
         "startLine": 266,
         "startChar": 32,

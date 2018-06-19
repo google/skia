@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c349f429_2c0847d5",
+        "filename": "tools/build_command_buffer.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-19T15:04:03Z",
+      "side": 1,
+      "message": "Reverted, although we don\u0027t actually use this on Windows currently.",
+      "revId": "c916f0ec8fc40a970f7bfeeeb68361155550ef1b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

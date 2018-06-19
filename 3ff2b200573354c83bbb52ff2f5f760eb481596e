@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "41fff020_2e07de24",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-19T15:04:03Z",
+      "side": 0,
+      "message": "These are unused. We\u0027ve been using plain \"recipes\" for a while and haven\u0027t had any problems on Windows.",
+      "parentUuid": "f5f9dc55_98bc7a97",
+      "range": {
+        "startLine": 192,
+        "startChar": 45,
+        "endLine": 192,
+        "endChar": 48
+      },
+      "revId": "3ff2b200573354c83bbb52ff2f5f760eb481596e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0e8a4f50_29b25b88",
         "filename": "infra/bots/utils.py",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2018-06-19T01:43:46Z",
       "side": 0,
       "message": "this is probably still needed?",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 5
+      },
+      "revId": "3ff2b200573354c83bbb52ff2f5f760eb481596e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32619562_2e1c4a21",
+        "filename": "infra/bots/utils.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-19T15:04:03Z",
+      "side": 0,
+      "message": "Reverted, but it\u0027s unused, AFAICT.",
+      "parentUuid": "0e8a4f50_29b25b88",
       "range": {
         "startLine": 22,
         "startChar": 0,
