@@ -210,22 +210,10 @@ String to_string(double value) {
 #endif
 #define MAX_DOUBLE_CHARS 25
     char buffer[MAX_DOUBLE_CHARS];
-    int len = SNPRINTF(buffer, sizeof(buffer), "%.17g", value);
+    SkDEBUGCODE(int len = )SNPRINTF(buffer, sizeof(buffer), "%.17g", value);
     SkASSERT(len < MAX_DOUBLE_CHARS);
-    bool needsDotZero = true;
-    for (int i = 0; i < len; ++i) {
-        char c = buffer[i];
-        if (c == ',') {
-            buffer[i] = '.';
-            needsDotZero = false;
-            break;
-        } else if (c == '.' || c == 'e') {
-            needsDotZero = false;
-            break;
-        }
-    }
     String result(buffer);
-    if (needsDotZero) {
+    if (!strchr(buffer, '.') && !strchr(buffer, 'e')) {
         result += ".0";
     }
     return result;
