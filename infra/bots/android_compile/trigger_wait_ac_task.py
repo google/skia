@@ -25,6 +25,17 @@ GCE_WEBHOOK_SALT_METADATA_URI = (
 POLLING_FREQUENCY_SECS = 60  # 1 minute.
 DEADLINE_SECS = 60 * 60  # 60 minutes.
 
+INFRA_FAILURE_ERROR_MSG = (
+      '\n\n'
+      'Your run failed due to infra failures. '
+      'It could be due to any of the following:\n\n'
+      '* Need to rebase\n\n'
+      '* Failure when running "python -c from gn import gn_to_bp"\n\n'
+      '* Problem with syncing Android repository.\n\n'
+      'See go/skia-android-framework-compile-bot-cloud-logs-errors for the '
+      'compile server\'s logs.'
+)
+
 
 class AndroidCompileException(Exception):
   pass
@@ -116,9 +127,7 @@ def TriggerAndWait(options):
           'Did not get a JSON response from %s: %s' % (get_url, e))
 
     if ret["infra_failure"]:
-      raise AndroidCompileException(
-          'Your run failed due to infra failures. It could be due to needing '
-          'to rebase or something else.')
+      raise AndroidCompileException(INFRA_FAILURE_ERROR_MSG)
 
     if ret["done"]:
       print
