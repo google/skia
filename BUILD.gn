@@ -34,6 +34,7 @@ declare_args() {
   skia_android_serial = ""
   skia_enable_discrete_gpu = true
   skia_enable_effects = true
+  skia_enable_effects_imagefilters = true
   skia_enable_flutter_defines = false
   skia_enable_fontmgr_empty = false
   skia_enable_gpu = true
@@ -371,7 +372,15 @@ optional("effects") {
   ]
   sources =
       skia_effects_sources + [ "src/ports/SkGlobalInitialization_default.cpp" ]
-  sources_when_disabled = [ "src/ports/SkGlobalInitialization_none.cpp" ]
+  if (skia_enable_effects_imagefilters) {
+    sources += skia_effects_imagefilter_sources
+  } else {
+    sources += [ "src/ports/SkGlobalInitialization_none_imagefilters.cpp" ]
+  }
+  sources_when_disabled = [
+    "src/ports/SkGlobalInitialization_none.cpp",
+    "src/ports/SkGlobalInitialization_none_imagefilters.cpp",
+  ]
 }
 
 optional("fontmgr_android") {

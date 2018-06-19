@@ -90,6 +90,7 @@ protected:
     public:
         static void InitCore();
         static void InitEffects();
+        static void InitImageFilters();
     };
 
 private:
