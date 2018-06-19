@@ -23,10 +23,8 @@ declare_args() {
 }
 
 if (host_os == "win") {
-  python = "python.bat"
   stamp = "cmd.exe /c echo >"
 } else {
-  python = "python"
   stamp = "touch"
 }
 
@@ -180,7 +178,7 @@ toolchain("msvc") {
 
   tool("copy") {
     cp_py = rebase_path("../cp.py")
-    command = "$python $cp_py {{source}} {{output}}"
+    command = "python $cp_py {{source}} {{output}}"
     description = "copy {{source}} {{output}}"
   }
 }
@@ -247,7 +245,7 @@ template("gcc_like_toolchain") {
       rspfile = "{{output}}.rsp"
       rspfile_content = "{{inputs}}"
       ar_py = rebase_path("../ar.py")
-      command = "$python $ar_py $ar {{output}} $rspfile"
+      command = "python $ar_py $ar {{output}} $rspfile"
       outputs = [
         "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
       ]
@@ -292,13 +290,13 @@ template("gcc_like_toolchain") {
 
     tool("copy") {
       cp_py = rebase_path("../cp.py")
-      command = "$python $cp_py {{source}} {{output}}"
+      command = "python $cp_py {{source}} {{output}}"
       description = "copy {{source}} {{output}}"
     }
 
     tool("copy_bundle_data") {
       cp_py = rebase_path("../cp.py")
-      command = "$python $cp_py {{source}} {{output}}"
+      command = "python $cp_py {{source}} {{output}}"
       description = "copy_bundle_data {{source}} {{output}}"
     }
 
