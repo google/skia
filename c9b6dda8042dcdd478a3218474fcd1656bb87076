@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "af37ef08_328178f4",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-06-19T20:28:37Z",
+      "side": 1,
+      "message": "Would it be worthwhile to fuzz these functions?  I\u0027m not sure if they are fuzzed indirectly via our other fuzzers, but it may be worth considering adding a direct fuzzer.",
+      "range": {
+        "startLine": 87,
+        "startChar": 10,
+        "endLine": 87,
+        "endChar": 29
+      },
+      "revId": "c9b6dda8042dcdd478a3218474fcd1656bb87076",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
