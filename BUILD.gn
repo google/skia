@@ -1675,7 +1675,6 @@ if (skia_enable_tools) {
     deps = [
       ":flags",
       ":skia",
-      "//third_party/jsoncpp",
     ]
   }
 

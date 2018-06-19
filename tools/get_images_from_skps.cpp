@@ -10,7 +10,7 @@
 #include "SkColorSpace.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
-#include "SkJSONCPP.h"
+#include "SkJSONWriter.h"
 #include "SkMD5.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
@@ -181,33 +181,53 @@ int main(int argc, char** argv) {
        "totalSuccesses": 21,
      }
      */
-    Json::Value fRoot;
-    int totalFailures = 0;
-    for(auto it = gSkpToUnknownCount.cbegin(); it != gSkpToUnknownCount.cend(); ++it)
+
+    unsigned int totalFailures = 0,
+              totalUnsupported = 0;
+    SkDynamicMemoryWStream memStream;
+    SkJSONWriter writer(&memStream, SkJSONWriter::Mode::kPretty);
+    writer.beginObject();
     {
-        SkDebugf("%s %d\n", it->first.c_str(), it->second);
-        totalFailures += it->second;
-        fRoot["failures"][it->first.c_str()] = it->second;
-    }
-    fRoot["totalFailures"] = totalFailures;
-    int totalUnsupported = 0;
+        writer.beginObject("failures");
+        {
+            for(const auto& failure : gSkpToUnknownCount) {
+                SkDebugf("%s %d\n", failure.first.c_str(), failure.second);
+                totalFailures += failure.second;
+                writer.appendU32(failure.first.c_str(), failure.second);
+            }
+        }
+        writer.endObject();
+        writer.appendU32("totalFailures", totalFailures);
+
 #ifdef SK_DEBUG
-    for (const auto& unsupported : gSkpToUnsupportedCount) {
-        SkDebugf("%s %d\n", unsupported.first.c_str(), unsupported.second);
-        totalUnsupported += unsupported.second;
-        fRoot["unsupported"][unsupported.first] = unsupported.second;
-    }
-    fRoot["totalUnsupported"] = totalUnsupported;
+        writer.beginObject("unsupported");
+        {
+            for (const auto& unsupported : gSkpToUnsupportedCount) {
+                SkDebugf("%s %d\n", unsupported.first.c_str(), unsupported.second);
+                totalUnsupported += unsupported.second;
+                writer.appendHexU32(unsupported.first.c_str(), unsupported.second);
+            }
+
+        }
+        writer.endObject();
+        writer.appendU32("totalUnsupported", totalUnsupported);
 #endif
-    fRoot["totalSuccesses"] = gKnown;
-    SkDebugf("%d known, %d failures, %d unsupported\n", gKnown, totalFailures, totalUnsupported);
+
+        writer.appendS32("totalSuccesses", gKnown);
+        SkDebugf("%d known, %d failures, %d unsupported\n",
+                 gKnown, totalFailures, totalUnsupported);
+    }
+    writer.endObject();
+    writer.flush();
+
     if (totalFailures > 0 || totalUnsupported > 0) {
         if (!FLAGS_failuresJsonPath.isEmpty()) {
             SkDebugf("Writing failures to %s\n", FLAGS_failuresJsonPath[0]);
             SkFILEWStream stream(FLAGS_failuresJsonPath[0]);
-            stream.writeText(Json::StyledWriter().write(fRoot).c_str());
-            stream.flush();
+            auto jsonStream = memStream.detachAsStream();
+            stream.writeStream(jsonStream.get(), jsonStream->getLength());
         }
     }
+
     return 0;
 }
