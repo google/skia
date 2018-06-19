@@ -53,8 +53,10 @@ public:
                                           sk_sp<const GrCCPerFlushResources> resources,
                                           sk_sp<GrTextureProxy> copyProxy, int baseInstance,
                                           int endInstance, const SkISize& drawBounds) {
-        return std::unique_ptr<GrDrawOp>(new CopyAtlasOp(std::move(resources), std::move(copyProxy),
-                                                         baseInstance, endInstance, drawBounds));
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        return pool->allocate<CopyAtlasOp>(std::move(resources), std::move(copyProxy),
+                                           baseInstance, endInstance, drawBounds);
     }
 
     const char* name() const override { return "CopyAtlasOp (CCPR)"; }
@@ -96,8 +98,9 @@ public:
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           sk_sp<const GrCCPerFlushResources> resources,
                                           CoverageCountBatchID batchID, const SkISize& drawBounds) {
-        return std::unique_ptr<GrDrawOp>(new RenderAtlasOp(std::move(resources), batchID,
-                                                           drawBounds));
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        return pool->allocate<RenderAtlasOp>(std::move(resources), batchID, drawBounds);
     }
 
     // GrDrawOp interface.

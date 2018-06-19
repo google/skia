@@ -25,7 +25,7 @@ class GrCCPerOpListPaths : public SkRefCnt {
 public:
     ~GrCCPerOpListPaths();
 
-    SkTInternalLList<GrCCDrawPathsOp> fDrawOps;
+    SkTInternalLList<GrCCDrawPathsOp> fDrawOps; // This class does not own these ops.
     std::map<uint32_t, GrCCClipPath> fClipPaths;
     SkSTArenaAlloc<10 * 1024> fAllocator{10 * 1024 * 2};
     sk_sp<const GrCCPerFlushResources> fFlushResources;
