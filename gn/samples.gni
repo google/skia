@@ -8,6 +8,8 @@ _samplecode = get_path_info("../samplecode", "abspath")
 
 samples_sources = [
   "$_samplecode/ClockFaceView.cpp",
+  "$_samplecode/Nima.cpp",
+  "$_samplecode/Nima.h",
   "$_samplecode/PerlinPatch.cpp",
   "$_samplecode/Sample2PtRadial.cpp",
   "$_samplecode/SampleAAClip.cpp",
@@ -64,6 +66,7 @@ samples_sources = [
   "$_samplecode/SampleManyRects.cpp",
   "$_samplecode/SampleMeasure.cpp",
   "$_samplecode/SampleMegaStroke.cpp",
+  "$_samplecode/SampleNima.cpp",
   "$_samplecode/SamplePatch.cpp",
   "$_samplecode/SamplePath.cpp",
   "$_samplecode/SamplePathText.cpp",
@@ -103,3 +106,11 @@ samples_sources = [
   "$_samplecode/SampleXfermodesBlur.cpp",
   "$_samplecode/vertexdump.cpp",
 ]
+
+if (is_win && is_clang) {
+  samples_sources -= [
+    "$_samplecode/Nima.cpp",
+    "$_samplecode/Nima.h",
+    "$_samplecode/SampleNima.cpp",
+  ]
+}
