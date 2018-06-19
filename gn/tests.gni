@@ -123,6 +123,7 @@ tests_sources = [
   "$_tests/InterpolatorTest.cpp",
   "$_tests/InvalidIndexedPngTest.cpp",
   "$_tests/IsClosedSingleContourTest.cpp",
+  "$_tests/JSONTest.cpp",
   "$_tests/LayerDrawLooperTest.cpp",
   "$_tests/LazyProxyTest.cpp",
   "$_tests/LListTest.cpp",

@@ -9,7 +9,7 @@
 #include "SkJSON.h"
 #include "SkStream.h"
 
-void FuzzSkJSON(sk_sp<SkData> bytes) {
+void FuzzJSON(sk_sp<SkData> bytes) {
     skjson::DOM dom(static_cast<const char*>(bytes->data()), bytes->size());
     SkDynamicMemoryWStream wstream;
     dom.write(&wstream);
@@ -18,7 +18,7 @@ void FuzzSkJSON(sk_sp<SkData> bytes) {
 #if defined(IS_FUZZING_WITH_LIBFUZZER)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     auto bytes = SkData::MakeWithoutCopy(data, size);
-    FuzzSkJSON(bytes);
+    FuzzJSON(bytes);
     return 0;
 }
 #endif

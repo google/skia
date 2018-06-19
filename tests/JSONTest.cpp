@@ -14,7 +14,7 @@
 
 using namespace skjson;
 
-DEF_TEST(SkJSON_Parse, reporter) {
+DEF_TEST(JSON_Parse, reporter) {
     static constexpr struct {
         const char* in;
         const char* out;
@@ -155,7 +155,7 @@ static void check_string(skiatest::Reporter* reporter, const Value& v, const cha
     }
 }
 
-DEF_TEST(SkJSON_DOM_visit, reporter) {
+DEF_TEST(JSON_DOM_visit, reporter) {
     static constexpr char json[] = "{ \n\
         \"k1\": null,                \n\
         \"k2\": false,               \n\
@@ -302,7 +302,7 @@ void check_value(skiatest::Reporter* reporter, const Value& v, const char* expec
     REPORTER_ASSERT(reporter, 0 == strcmp(expected_string, vstr.c_str()));
 }
 
-DEF_TEST(SkJSON_DOM_build, reporter) {
+DEF_TEST(JSON_DOM_build, reporter) {
     SkArenaAlloc alloc(4096);
 
     const auto v0  = NullValue();
