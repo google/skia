@@ -22,9 +22,12 @@ static bool has_coord_transforms(const GrPaint& paint) {
     return false;
 }
 
-std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::Make(GrContext*, const SkIRect& clipIBounds,
-                                                       const SkMatrix& m, const GrShape& shape,
-                                                       const SkRect& devBounds, GrPaint&& paint) {
+std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::Make(GrContext* context,
+                                                       const SkIRect& clipIBounds,
+                                                       const SkMatrix& m,
+                                                       const GrShape& shape,
+                                                       const SkRect& devBounds,
+                                                       GrPaint&& paint) {
     bool canStashPathMask = true;
     SkIRect looseClippedIBounds;
     devBounds.roundOut(&looseClippedIBounds);  // GrCCPathParser might find slightly tighter bounds.
@@ -34,9 +37,11 @@ std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::Make(GrContext*, const SkIRect
             return nullptr;
         }
     }
-    return std::unique_ptr<GrCCDrawPathsOp>(new GrCCDrawPathsOp(looseClippedIBounds, m, shape,
-                                                                canStashPathMask, devBounds,
-                                                                std::move(paint)));
+
+    GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+    return pool->allocate<GrCCDrawPathsOp>(looseClippedIBounds, m, shape, canStashPathMask,
+                                           devBounds, std::move(paint));
 }
 
 GrCCDrawPathsOp::GrCCDrawPathsOp(const SkIRect& looseClippedIBounds, const SkMatrix& m,

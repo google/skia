@@ -12,6 +12,7 @@
 #include "GrContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrGpu.h"
+#include "GrMemoryPool.h"
 #include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetProxy.h"
@@ -810,6 +811,22 @@ void GrContextPriv::flushSurfaceIO(GrSurfaceProxy* proxy) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+sk_sp<GrOpMemoryPool> GrContextPriv::refOpMemoryPool() {
+    if (!fContext->fOpMemoryPool) {
+        // DDL TODO: should the size of the memory pool be decreased in DDL mode? CPU-side memory
+        // consumed in DDL mode vs. normal mode for a single skp might be a good metric of wasted
+        // memory.
+        fContext->fOpMemoryPool = sk_sp<GrOpMemoryPool>(new GrOpMemoryPool(16384, 16384));
+    }
+
+    SkASSERT(fContext->fOpMemoryPool);
+    return fContext->fOpMemoryPool;
+}
+
+GrOpMemoryPool* GrContextPriv::opMemoryPool() {
+    return this->refOpMemoryPool().get();
+}
 
 sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy> proxy,
                                                                  sk_sp<SkColorSpace> colorSpace,

@@ -80,7 +80,9 @@ public:
                                           sk_sp<GrGeometryProcessor> gp,
                                           const SkRect& rect,
                                           GrColor color) {
-        return std::unique_ptr<GrDrawOp>(new BezierCubicTestOp(std::move(gp), rect, color));
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        return pool->allocate<BezierCubicTestOp>(std::move(gp), rect, color);
     }
 
 private:
@@ -264,8 +266,9 @@ public:
                                           const SkRect& rect,
                                           GrColor color,
                                           const SkMatrix& klm) {
-        return std::unique_ptr<GrMeshDrawOp>(
-                new BezierConicTestOp(std::move(gp), rect, color, klm));
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        return pool->allocate<BezierConicTestOp>(std::move(gp), rect, color, klm);
     }
 
 private:
@@ -485,7 +488,9 @@ public:
                                           const SkRect& rect,
                                           GrColor color,
                                           const GrPathUtils::QuadUVMatrix& devToUV) {
-        return std::unique_ptr<GrDrawOp>(new BezierQuadTestOp(std::move(gp), rect, color, devToUV));
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        return pool->allocate<BezierQuadTestOp>(std::move(gp), rect, color, devToUV);
     }
 
 private:

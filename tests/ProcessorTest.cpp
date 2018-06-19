@@ -29,7 +29,9 @@ public:
     DEFINE_OP_CLASS_ID
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           std::unique_ptr<GrFragmentProcessor> fp) {
-        return std::unique_ptr<GrDrawOp>(new TestOp(std::move(fp)));
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+
+        return pool->allocate<TestOp>(std::move(fp));
     }
 
     const char* name() const override { return "TestOp"; }
