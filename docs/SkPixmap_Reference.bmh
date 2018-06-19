@@ -1387,8 +1387,8 @@ One word corresponds to one pixel.
     for (int y = 0; y < pixmap.height() / 2; ++y) {
         for (int x = 0; x < pixmap.width(); ++x) {
             if ((x & 4) == (y & 4)) {
-                std::swap(*pixmap.writable_addr32(x, y),
-                     *pixmap.writable_addr32(pixmap.width() - x, pixmap.height() - y));
+                *pixmap.writable_addr32(x, y) =
+                        *pixmap.writable_addr32(pixmap.width() - x, pixmap.height() - y);
             }
         }
     }
