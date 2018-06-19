@@ -22,6 +22,7 @@ android {
         versionName "1.0"
         signingConfig signingConfigs.debug
     }
+    flavorDimensions "base"
     sourceSets.main.jni.srcDirs = []
     sourceSets.main.jniLibs.srcDir "src/main/libs"
     productFlavors { universal{}; arm {}; arm64 {}; x86 {}; x64 {}; arm64vulkan{}; }

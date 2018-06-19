@@ -1,0 +1,92 @@
+/*
+ * Copyright 2015 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+apply plugin: 'com.android.application'
+
+/*
+The arcore aar library contains the native shared libraries.  These are
+extracted before building to a temporary directory.
+ */
+def arcore_libpath = "${buildDir}/arcore-native"
+
+// Create a configuration to mark which aars to extract .so files from
+configurations { natives }
+
+android {
+    sourceSets.main.jni.srcDirs = [] //disable automatic ndk-build call
+    sourceSets.main.jniLibs.srcDir "src/main/libs"
+    productFlavors { arm64 {} }
+
+    setupSkiaLibraryBuild(project, applicationVariants, "libarcore")
+
+    compileSdkVersion 27
+    defaultConfig {
+        applicationId "org.skia.viewer"
+        // 24 is the minimum since ARCore only works with 24 and higher.
+        minSdkVersion 24
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++11", "-Wall"
+                arguments "-DANDROID_STL=c++_static",
+                        "-DARCORE_LIBPATH=${arcore_libpath}/jni",
+                        "-DARCORE_INCLUDE=${project.rootDir}/../../libraries/include",
+                        "-DSKIA_INCLUDE_PATH=${project.rootDir}/../../../include"
+            }
+        }
+        ndk {
+            abiFilters "arm64-v8a"
+        }
+    }
+    flavorDimensions "base"
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+        }
+    }
+
+}
+
+dependencies {
+    // ARCore library
+    implementation 'com.google.ar:core:1.2.0'
+    natives 'com.google.ar:core:1.2.0'
+
+    implementation 'com.android.support:appcompat-v7:27.0.2'
+    implementation 'com.android.support:design:27.0.2'
+}
+
+// Extracts the shared libraries from aars in the natives configuration.
+// This is done so that NDK builds can access these libraries.
+task extractNativeLibraries() {
+    doFirst {
+        configurations.natives.files.each { f ->
+            copy {
+                from zipTree(f)
+                into arcore_libpath
+                include "jni/**/*"
+            }
+        }
+    }
+}
+
+
+tasks.whenTaskAdded {
+    task-> if (task.name.contains("external") && !task.name.contains("Clean")) {
+        task.dependsOn(extractNativeLibraries)
+
+        //make sure skia lib is built and copied in the correct directory before building arcore
+        tasks.whenTaskAdded {
+            t-> if (t.name.contains("CopySkiaLib")) {
+                task.dependsOn(t)
+            }
+        }
+    }
+}
+
