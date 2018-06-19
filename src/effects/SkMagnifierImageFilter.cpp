@@ -19,7 +19,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
-#include "../private/GrGLSL.h"
 #include "GrColorSpaceXform.h"
 #include "GrContext.h"
 #include "GrCoordTransform.h"
