@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7fd69d91_8342f6f8",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 654,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-19T17:50:08Z",
+      "side": 1,
+      "message": "Remove",
+      "range": {
+        "startLine": 654,
+        "startChar": 4,
+        "endLine": 654,
+        "endChar": 20
+      },
+      "revId": "cf05c0a2ca3b4bc1e6a123ed2ec9a59e3040a2ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a61811a_74abe1dc",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 660,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-19T17:50:08Z",
+      "side": 1,
+      "message": "Scanner::GetAxes",
+      "range": {
+        "startLine": 660,
+        "startChar": 9,
+        "endLine": 660,
+        "endChar": 17
+      },
+      "revId": "cf05c0a2ca3b4bc1e6a123ed2ec9a59e3040a2ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
