@@ -16,6 +16,24 @@
       "revId": "bdffa911a4a17b67bb12b53e149383a4d7fbe171",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c820d2e_725251ee",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-19T01:48:51Z",
+      "side": 1,
+      "message": "I tried #1 \u0026 #3, now #2 also (numbers for some random Lottie file):\n\nLUT (current version): 967us\nv#1:                   985us\nv#2:                   995us\nv#3:                  1159us\n\nSo pretty close, but not quite as fast on my desktop.  Possibly worth looking at the distribution on Android also.",
+      "parentUuid": "4ec37860_31a4b544",
+      "revId": "bdffa911a4a17b67bb12b53e149383a4d7fbe171",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
