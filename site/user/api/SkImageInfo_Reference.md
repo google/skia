@@ -702,7 +702,7 @@ opaque as if its <a href='SkColor_Reference#Alpha'>Color Alpha</a> was set to on
 
 <a href='#kRGBA_F16_SkColorType'>kRGBA_F16_SkColorType</a> encodes ARGB into a 64-bit word. Each component:
 blue, green, red, and alpha; use 16 bits, describing a floating point value.
-from -65500	to 65000 with 3.31 decimal digits of precision.
+from -65500 to 65000 with 3.31 decimal digits of precision.
 
 At present, <a href='SkColor_Reference#Color'>Color</a> in <a href='SkPaint_Reference#Paint'>Paint</a> does not provide enough precision or range to
 draw all colors possible to a <a href='#kRGBA_F16_SkColorType'>kRGBA_F16_SkColorType</a> <a href='SkSurface_Reference#Surface'>Surface</a>.

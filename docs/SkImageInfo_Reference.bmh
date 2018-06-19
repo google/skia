@@ -762,7 +762,7 @@ kRGBA_8888_SkColorType.
 #Line # encodes ARGB as half floats ##
     kRGBA_F16_SkColorType encodes ARGB into a 64-bit word. Each component:
     blue, green, red, and alpha; use 16 bits, describing a floating point value.
-    from -65500	to 65000 with 3.31 decimal digits of precision.
+    from -65500 to 65000 with 3.31 decimal digits of precision.
 
     At present, Color in Paint does not provide enough precision or range to
     draw all colors possible to a kRGBA_F16_SkColorType Surface.
