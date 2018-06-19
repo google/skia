@@ -41,7 +41,9 @@ static size_t format_alignment(SkMask::Format format) {
     switch (format) {
         case SkMask::kBW_Format:
         case SkMask::kA8_Format:
+#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
         case SkMask::k3D_Format:
+#endif
         case SkMask::kSDF_Format:
             return alignof(uint8_t);
         case SkMask::kARGB32_Format:
@@ -83,10 +85,10 @@ size_t SkGlyph::rowBytesUsingFormat(SkMask::Format format) const {
 
 size_t SkGlyph::computeImageSize() const {
     size_t size = this->rowBytes() * fHeight;
-
+#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
     if (fMaskFormat == SkMask::k3D_Format) {
         size *= 3;
     }
-
+#endif
     return size;
 }

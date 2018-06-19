@@ -466,16 +466,7 @@ static sk_sp<SkMaskFilter> make_mask_filter() {
         case 0:
             maskFilter = SkMaskFilter::MakeBlur(make_blur_style(), make_scalar(),
                                                 make_blur_mask_filter_respectctm());
-        case 1: {
-            SkEmbossMaskFilter::Light light;
-            for (int i = 0; i < 3; ++i) {
-                light.fDirection[i] = make_scalar();
-            }
-            light.fPad = R(65536);
-            light.fAmbient = R(256);
-            light.fSpecular = R(256);
-            maskFilter = SkEmbossMaskFilter::Make(make_scalar(), light);
-        }
+        case 1: // used to be emboss
 #if SK_SUPPORT_GPU
         case 2:
             maskFilter = GrSDFMaskFilter::Make();

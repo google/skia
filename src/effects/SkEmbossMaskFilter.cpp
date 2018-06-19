@@ -6,6 +6,9 @@
  */
 
 #include "SkEmbossMaskFilter.h"
+
+#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
+
 #include "SkBlurMaskFilter.h"
 #include "SkBlurMask.h"
 #include "SkColorPriv.h"
@@ -140,3 +143,5 @@ void SkEmbossMaskFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeByteArray(&tmpLight, sizeof(tmpLight));
     buffer.writeScalar(fBlurSigma);
 }
+#endif
+

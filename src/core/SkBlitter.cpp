@@ -880,6 +880,7 @@ sk_sp<SkFlattenable> Sk3DShader::CreateProc(SkReadBuffer& buffer) {
     return sk_make_sp<Sk3DShader>(buffer.readShader());
 }
 
+#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
 class Sk3DBlitter : public SkBlitter {
 public:
     Sk3DBlitter(SkBlitter* proxy, SkShaderBase::Context* shaderContext)
@@ -922,6 +923,7 @@ private:
     SkBlitter*              fProxy;
     SkShaderBase::Context*  fShaderContext;
 };
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -991,13 +993,14 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
     auto* shader = as_SB(origPaint.getShader());
     SkColorFilter* cf = origPaint.getColorFilter();
     SkBlendMode mode = origPaint.getBlendMode();
-    sk_sp<Sk3DShader> shader3D;
 
     // We're going to tweak the original paint in two ways:
     //  1) tweaks to `commonPaint` affect both raster pipeline and legacy pipeline
     //  2) (later) tweaks to `legacyPaint` affect only legacy pipeline
     SkTCopyOnFirstWrite<SkPaint> commonPaint(origPaint);
 
+#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
+    sk_sp<Sk3DShader> shader3D;
     if (origPaint.getMaskFilter() != nullptr &&
             as_MFB(origPaint.getMaskFilter())->getFormat() == SkMask::k3D_Format) {
         shader3D = sk_make_sp<Sk3DShader>(sk_ref_sp(shader));
@@ -1005,6 +1008,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
         commonPaint.writable()->setShader(shader3D);
         shader = as_SB(shader3D.get());
     }
+#endif
 
     if (mode != SkBlendMode::kSrcOver) {
         bool deviceIsOpaque = kRGB_565_SkColorType == device.colorType();
@@ -1132,6 +1136,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
         blitter = alloc->make<SkNullBlitter>();
     }
 
+#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
     if (shader3D) {
         SkBlitter* innerBlitter = blitter;
         // FIXME - comment about allocator
@@ -1140,6 +1145,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
         // wrapper the blitter to notify it when we see an emboss mask.
         blitter = alloc->make<Sk3DBlitter>(innerBlitter, shaderContext);
     }
+#endif
     return blitter;
 }
 

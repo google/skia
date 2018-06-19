@@ -507,8 +507,10 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         SkMask      srcM, dstM;
         SkMatrix    matrix;
 
+#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
         // the src glyph image shouldn't be 3D
         SkASSERT(SkMask::k3D_Format != glyph->fMaskFormat);
+#endif
 
         glyph->toMask(&srcM);
 
@@ -522,12 +524,12 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
 
             const uint8_t* src = (const uint8_t*)dstM.fImage;
             uint8_t* dst = (uint8_t*)origGlyph.fImage;
-
+#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
             if (SkMask::k3D_Format == dstM.fFormat) {
                 // we have to copy 3 times as much
                 height *= 3;
             }
-
+#endif
             // clean out our glyph, since it may be larger than dstM
             //sk_bzero(dst, height * dstRB);
 

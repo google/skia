@@ -11,6 +11,8 @@
 #include "SkColorFilter.h"
 #include "SkEmbossMaskFilter.h"
 
+#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
+
 static SkBitmap make_bm() {
     SkBitmap bm;
     bm.allocN32Pixels(100, 100);
@@ -78,3 +80,6 @@ private:
 };
 
 DEF_GM(return new EmbossGM;)
+
+#endif
+

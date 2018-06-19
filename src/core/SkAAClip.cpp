@@ -2128,7 +2128,9 @@ static MergeAAProc find_merge_aa_proc(SkMask::Format format) {
             SkDEBUGFAIL("unsupported");
             return nullptr;
         case SkMask::kA8_Format:
+#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
         case SkMask::k3D_Format:
+#endif
             return mergeT<uint8_t> ;
         case SkMask::kLCD16_Format:
             return mergeT<uint16_t>;
@@ -2221,7 +2223,13 @@ void SkAAClipBlitter::blitMask(const SkMask& origMask, const SkIRect& clip) {
     MergeAAProc mergeProc = find_merge_aa_proc(mask->fFormat);
 
     SkMask rowMask;
-    rowMask.fFormat = SkMask::k3D_Format == mask->fFormat ? SkMask::kA8_Format : mask->fFormat;
+    rowMask.fFormat =
+#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
+        SkMask::k3D_Format == mask->fFormat
+#else
+        false
+#endif
+        ? SkMask::kA8_Format : mask->fFormat;
     rowMask.fBounds.fLeft = clip.fLeft;
     rowMask.fBounds.fRight = clip.fRight;
     rowMask.fRowBytes = mask->fRowBytes; // doesn't matter, since our height==1

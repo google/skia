@@ -25,7 +25,9 @@ struct SkMask {
     enum Format {
         kBW_Format, //!< 1bit per pixel mask (e.g. monochrome)
         kA8_Format, //!< 8bits per pixel mask (e.g. antialiasing)
+#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
         k3D_Format, //!< 3 8bit per pixl planes: alpha, mul, add
+#endif
         kARGB32_Format,         //!< SkPMColor
         kLCD16_Format,          //!< 565 alpha for r/g/b
         kSDF_Format,            //!< 8bits representing signed distance field

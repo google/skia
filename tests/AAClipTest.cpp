@@ -42,7 +42,9 @@ static bool operator==(const SkMask& a, const SkMask& b) {
             wbytes = (wbytes + 7) >> 3;
             break;
         case SkMask::kA8_Format:
+#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
         case SkMask::k3D_Format:
+#endif
             break;
         case SkMask::kLCD16_Format:
             wbytes <<= 1;

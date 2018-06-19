@@ -11,6 +11,8 @@
 #include "SkFlattenablePriv.h"
 #include "SkMaskFilterBase.h"
 
+#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
+
 /** \class SkEmbossMaskFilter
 
     This mask filter creates a 3D emboss look, by specifying a light and blur amount.
@@ -45,5 +47,6 @@ private:
 
     typedef SkMaskFilter INHERITED;
 };
+#endif
 
 #endif

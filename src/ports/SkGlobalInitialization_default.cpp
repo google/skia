@@ -34,7 +34,9 @@
 void SkFlattenable::PrivateInitializer::InitEffects() {
     // MaskFilter
     SkMaskFilter::InitializeFlattenables();
+#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkEmbossMaskFilter)
+#endif
     SkShaderMaskFilter::InitializeFlattenables();
 
     // DrawLooper

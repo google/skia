@@ -1193,9 +1193,11 @@ static sk_sp<SkImage> image_from_mask(const SkMask& mask) {
             bm.installPixels(SkImageInfo::MakeN32Premul(bounds.width(), bounds.height()),
                              mask.fImage, mask.fRowBytes);
             return SkMakeImageFromRasterBitmap(bm, kAlways_SkCopyPixelsMode);
+#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
         case SkMask::k3D_Format:
             SkASSERT(false);
             return nullptr;
+#endif
         case SkMask::kLCD16_Format:
             SkASSERT(false);
             return nullptr;

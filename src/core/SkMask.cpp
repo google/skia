@@ -28,9 +28,11 @@ size_t SkMask::computeImageSize() const {
 
 size_t SkMask::computeTotalImageSize() const {
     size_t size = this->computeImageSize();
+#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
     if (fFormat == SkMask::k3D_Format) {
         size = safeMul32(SkToS32(size), 3);
     }
+#endif
     return size;
 }
 

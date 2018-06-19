@@ -9,7 +9,6 @@
 #include "SkCanvas.h"
 #include "SkColorMatrixFilter.h"
 #include "SkDiscretePathEffect.h"
-#include "SkEmbossMaskFilter.h"
 #include "SkGradientShader.h"
 #include "SkPaint.h"
 #include "SkView.h"
@@ -21,18 +20,6 @@
 static void paint_proc0(SkPaint*) {
 }
 
-static void paint_proc1(SkPaint* paint) {
-    paint->setMaskFilter(SkMaskFilter::MakeBlur(
-                                kNormal_SkBlurStyle,
-                                SkBlurMask::ConvertRadiusToSigma(2)));
-}
-
-static void paint_proc2(SkPaint* paint) {
-    paint->setMaskFilter(SkEmbossMaskFilter::Make(
-            SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(1)),
-            { { SK_Scalar1, SK_Scalar1, SK_Scalar1 }, 0, 64, 16 }));
-}
-
 static void paint_proc3(SkPaint* paint) {
     SkColor colors[] = { SK_ColorRED, COLOR, SK_ColorBLUE };
     SkPoint pts[] = { { 3, 0 }, { 7, 5 } };
@@ -42,14 +29,11 @@ static void paint_proc3(SkPaint* paint) {
 
 static void paint_proc5(SkPaint* paint) {
     paint_proc3(paint);
-    paint_proc2(paint);
 }
 
 typedef void (*PaintProc)(SkPaint*);
 const PaintProc gPaintProcs[] = {
     paint_proc0,
-    paint_proc1,
-    paint_proc2,
     paint_proc3,
     paint_proc5,
 };

@@ -426,8 +426,13 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
     }
 
     // We'll use the first (A8) plane of any mask and ignore the other two, just like Ganesh.
-    SkMask::Format effectiveMaskFormat = mask.fFormat == SkMask::k3D_Format ? SkMask::kA8_Format
-                                                                            : mask.fFormat;
+    SkMask::Format effectiveMaskFormat =
+#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
+        mask.fFormat == SkMask::k3D_Format
+#else
+        false
+#endif
+        ? SkMask::kA8_Format : mask.fFormat;
 
 
     // Lazily build whichever pipeline we need, specialized for each mask format.
