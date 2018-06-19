@@ -1,0 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/action_left"
+        android:icon="@android:drawable/ic_media_previous"
+        android:showAsAction="always"/>
+
+    <item android:id="@+id/action_right"
+        android:icon="@android:drawable/ic_media_next"
+        android:showAsAction="always"/>
+
+</menu>
