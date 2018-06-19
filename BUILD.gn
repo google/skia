@@ -1996,7 +1996,6 @@ if (skia_enable_tools) {
       "modules/skottie",
       "modules/sksg",
       "//third_party/imgui",
-      "//third_party/jsoncpp",
     ]
   }
 

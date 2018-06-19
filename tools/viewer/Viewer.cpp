@@ -23,6 +23,7 @@
 #include "SkFontMgrPriv.h"
 #include "SkGraphics.h"
 #include "SkImagePriv.h"
+#include "SkJSONWriter.h"
 #include "SkMakeUnique.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
@@ -532,8 +533,6 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 }
 
 void Viewer::initSlides() {
-    fAllSlideNames = Json::Value(Json::arrayValue);
-
     using SlideFactory = sk_sp<Slide>(*)(const SkString& name, const SkString& path);
     static const struct {
         const char*                            fExtension;
@@ -1849,6 +1848,24 @@ void Viewer::onIdle() {
     }
 }
 
+template <typename OptionsFunc>
+static void WriteStateObject(SkJSONWriter& writer, const char* name, const char* value,
+                             OptionsFunc&& optionsFunc) {
+    writer.beginObject();
+    {
+        writer.appendString(kName , name);
+        writer.appendString(kValue, value);
+
+        writer.beginArray(kOptions);
+        {
+            optionsFunc(writer);
+        }
+        writer.endArray();
+    }
+    writer.endObject();
+}
+
+
 void Viewer::updateUIState() {
     if (!fWindow) {
         return;
@@ -1857,85 +1874,89 @@ void Viewer::updateUIState() {
         return; // Surface hasn't been created yet.
     }
 
+    SkDynamicMemoryWStream memStream;
+    SkJSONWriter writer(&memStream);
+    writer.beginArray();
+
     // Slide state
-    Json::Value slideState(Json::objectValue);
-    slideState[kName] = kSlideStateName;
-    slideState[kValue] = fSlides[fCurrentSlide]->getName().c_str();
-    if (fAllSlideNames.size() == 0) {
-        for(auto slide : fSlides) {
-            fAllSlideNames.append(Json::Value(slide->getName().c_str()));
-        }
-    }
-    slideState[kOptions] = fAllSlideNames;
+    WriteStateObject(writer, kSlideStateName, fSlides[fCurrentSlide]->getName().c_str(),
+        [this](SkJSONWriter& writer) {
+            for(const auto& slide : fSlides) {
+                writer.appendString(slide->getName().c_str());
+            }
+        });
 
     // Backend state
-    Json::Value backendState(Json::objectValue);
-    backendState[kName] = kBackendStateName;
-    backendState[kValue] = kBackendTypeStrings[fBackendType];
-    backendState[kOptions] = Json::Value(Json::arrayValue);
-    for (auto str : kBackendTypeStrings) {
-        backendState[kOptions].append(Json::Value(str));
-    }
+    WriteStateObject(writer, kBackendStateName, kBackendTypeStrings[fBackendType],
+        [](SkJSONWriter& writer) {
+            for (const auto& str : kBackendTypeStrings) {
+                writer.appendString(str);
+            }
+        });
 
     // MSAA state
-    Json::Value msaaState(Json::objectValue);
-    msaaState[kName] = kMSAAStateName;
-    msaaState[kValue] = fWindow->sampleCount();
-    msaaState[kOptions] = Json::Value(Json::arrayValue);
-    if (sk_app::Window::kRaster_BackendType == fBackendType) {
-        msaaState[kOptions].append(Json::Value(0));
-    } else {
-        for (int msaa : {0, 4, 8, 16}) {
-            msaaState[kOptions].append(Json::Value(msaa));
-        }
-    }
+    const auto countString = SkStringPrintf("%d", fWindow->sampleCount());
+    WriteStateObject(writer, kMSAAStateName, countString.c_str(),
+        [this](SkJSONWriter& writer) {
+            writer.appendS32(0);
+
+            if (sk_app::Window::kRaster_BackendType == fBackendType) {
+                return;
+            }
+
+            for (int msaa : {4, 8, 16}) {
+                writer.appendS32(msaa);
+            }
+        });
 
     // Path renderer state
     GpuPathRenderers pr = fWindow->getRequestedDisplayParams().fGrContextOptions.fGpuPathRenderers;
-    Json::Value prState(Json::objectValue);
-    prState[kName] = kPathRendererStateName;
-    prState[kValue] = gPathRendererNames[pr];
-    prState[kOptions] = Json::Value(Json::arrayValue);
-    const GrContext* ctx = fWindow->getGrContext();
-    if (!ctx) {
-        prState[kOptions].append("Software");
-    } else if (fWindow->sampleCount() > 1) {
-        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kDefault]);
-        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kAll]);
-        if (ctx->contextPriv().caps()->shaderCaps()->pathRenderingSupport()) {
-            prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kStencilAndCover]);
-        }
-        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kTessellating]);
-        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kNone]);
-    } else {
-        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kDefault]);
-        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kAll]);
-        if (GrCoverageCountingPathRenderer::IsSupported(*ctx->contextPriv().caps())) {
-            prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kCoverageCounting]);
-        }
-        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kSmall]);
-        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kTessellating]);
-        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kNone]);
-    }
+    WriteStateObject(writer, kPathRendererStateName, gPathRendererNames[pr].c_str(),
+        [this](SkJSONWriter& writer) {
+            const GrContext* ctx = fWindow->getGrContext();
+            if (!ctx) {
+                writer.appendString("Software");
+            } else {
+                const auto* caps = ctx->contextPriv().caps();
+
+                writer.appendString(gPathRendererNames[GpuPathRenderers::kDefault].c_str());
+                writer.appendString(gPathRendererNames[GpuPathRenderers::kAll].c_str());
+                if (fWindow->sampleCount() > 1) {
+                    if (caps->shaderCaps()->pathRenderingSupport()) {
+                        writer.appendString(
+                            gPathRendererNames[GpuPathRenderers::kStencilAndCover].c_str());
+                    }
+                } else {
+                    if(GrCoverageCountingPathRenderer::IsSupported(*caps)) {
+                        writer.appendString(
+                            gPathRendererNames[GpuPathRenderers::kCoverageCounting].c_str());
+                    }
+                    writer.appendString(gPathRendererNames[GpuPathRenderers::kSmall].c_str());
+                }
+                    writer.appendString(
+                        gPathRendererNames[GpuPathRenderers::kTessellating].c_str());
+                    writer.appendString(gPathRendererNames[GpuPathRenderers::kNone].c_str());
+            }
+        });
 
     // Softkey state
-    Json::Value softkeyState(Json::objectValue);
-    softkeyState[kName] = kSoftkeyStateName;
-    softkeyState[kValue] = kSoftkeyHint;
-    softkeyState[kOptions] = Json::Value(Json::arrayValue);
-    softkeyState[kOptions].append(kSoftkeyHint);
-    for (const auto& softkey : fCommands.getCommandsAsSoftkeys()) {
-        softkeyState[kOptions].append(Json::Value(softkey.c_str()));
-    }
+    WriteStateObject(writer, kSoftkeyStateName, kSoftkeyHint,
+        [this](SkJSONWriter& writer) {
+            writer.appendString(kSoftkeyHint);
+            for (const auto& softkey : fCommands.getCommandsAsSoftkeys()) {
+                writer.appendString(softkey.c_str());
+            }
+        });
 
-    Json::Value state(Json::arrayValue);
-    state.append(slideState);
-    state.append(backendState);
-    state.append(msaaState);
-    state.append(prState);
-    state.append(softkeyState);
+    writer.endArray();
+    writer.flush();
 
-    fWindow->setUIState(state.toStyledString().c_str());
+    auto data = memStream.detachAsData();
+
+    // TODO: would be cool to avoid this copy
+    const SkString cstring(static_cast<const char*>(data->data()), data->size());
+
+    fWindow->setUIState(cstring.c_str());
 }
 
 void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateValue) {

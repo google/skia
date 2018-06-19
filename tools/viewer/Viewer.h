@@ -15,7 +15,6 @@
 #include "ImGuiLayer.h"
 #include "SkAnimTimer.h"
 #include "SkExecutor.h"
-#include "SkJSONCPP.h"
 #include "SkScan.h"
 #include "SkTouchGesture.h"
 #include "Slide.h"
@@ -169,8 +168,6 @@ private:
     SkPoint                fPerspectivePoints[4];
 
     SkTArray<std::function<void(void)>> fDeferredActions;
-
-    Json::Value            fAllSlideNames; // cache all slide names for fast updateUIState
 
     int fTileCnt;
     int fThreadCnt;
