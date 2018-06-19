@@ -81,9 +81,10 @@ private:
     GrGLUniformHandler    fUniformHandler;
 
     std::unique_ptr<GrGLProgram::Attribute[]> fAttributes;
-    int fAttributeCnt;
-    int fVertexStride;
-    int fInstanceStride;
+    int fVertexAttributeCnt;
+    int fInstanceAttributeCnt;
+    size_t fVertexStride;
+    size_t fInstanceStride;
 
     // shader pulled from cache. Data is organized as:
     // SkSL::Program::Inputs inputs
