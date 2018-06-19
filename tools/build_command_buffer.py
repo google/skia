@@ -84,12 +84,10 @@ def main():
     platform = 'win32'
 
   shared_lib_name = 'libcommand_buffer_gles2.so'
-  gclient = 'gclient'
   if platform == 'darwin':
     shared_lib_name = 'libcommand_buffer_gles2.dylib'
   elif platform == 'win32':
     shared_lib_name = 'command_buffer_gles2.dll'
-    gclient = 'gclient.bat'
 
   if not args.no_sync:
     try:
@@ -107,7 +105,7 @@ def main():
 
     try:
       os.environ['GYP_GENERATORS'] = 'ninja'
-      subprocess.check_call([gclient, 'sync', '--reset', '--force',
+      subprocess.check_call(['gclient', 'sync', '--reset', '--force',
                              '--nohooks'],
           cwd=chrome_src_dir)
     except subprocess.CalledProcessError as error:
@@ -116,7 +114,7 @@ def main():
 
   if not args.no_hooks:
     try:
-      subprocess.check_call([gclient, 'runhooks'], cwd=chrome_src_dir)
+      subprocess.check_call(['gclient', 'runhooks'], cwd=chrome_src_dir)
     except subprocess.CalledProcessError as error:
       sys.exit('Error (ret code: %s) calling "%s" in %s' % (
           error.returncode, error.cmd, chrome_src_dir))
@@ -164,4 +162,3 @@ def main():
 
 if __name__ == '__main__':
   main()
-
