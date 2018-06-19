@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27842ba9_c460ec89",
+        "filename": "infra/bots/recipe_modules/flavor/android.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 527,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-19T22:15:22Z",
+      "side": 1,
+      "message": "nit: use step.nest, since there could be 100s of copy steps. IMO put the entire method inside a \"with api.step.nest(\u0027pull %s %s\u0027 % (device, host)):\"\n\nWhen we no longer need to test Lollipop (Nexus7), we can use tar, which will probably be faster and make it easier to strip out extra components: https://stackoverflow.com/a/14934666/4170107",
+      "revId": "4bb038f886f5e412658dd96f79f3d91afb2759ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "816bd5ba_4106a806",
+        "filename": "infra/bots/recipe_modules/flavor/android.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-19T22:15:22Z",
+      "side": 1,
+      "message": "Note this won\u0027t include files beginning with \".\".",
+      "range": {
+        "startLine": 532,
+        "startChar": 59,
+        "endLine": 532,
+        "endChar": 62
+      },
+      "revId": "4bb038f886f5e412658dd96f79f3d91afb2759ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c7e55f9f_70e84e82",
+        "filename": "infra/bots/recipes/perf.expected/Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All.json",
+        "patchSetId": 7
+      },
+      "lineNbr": 806,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-19T22:15:22Z",
+      "side": 1,
+      "message": "This seems a bit odd.",
+      "range": {
+        "startLine": 792,
+        "startChar": 1,
+        "endLine": 806,
+        "endChar": 4
+      },
+      "revId": "4bb038f886f5e412658dd96f79f3d91afb2759ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
