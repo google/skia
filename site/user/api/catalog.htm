@@ -364,25 +364,11 @@
     "name": "SkCanvas::MakeRasterDirectN32",
         "stdout": "---\\n-x-\\n---\\n"
     },
-        "SkCanvas_SaveLayerRec_SaveLayerRec": {
+        "SkCanvas_SaveLayerRec_empty_constructor": {
     "code": "void draw(SkCanvas* canvas) {\n    SkCanvas::SaveLayerRec rec1;\n    rec1.fSaveLayerFlags = SkCanvas::kPreserveLCDText_SaveLayerFlag;\n    SkCanvas::SaveLayerRec rec2(nullptr, nullptr, SkCanvas::kPreserveLCDText_SaveLayerFlag);\n    SkDebugf(\"rec1 %c= rec2\\n\", rec1.fBounds == rec2.fBounds\n            && rec1.fPaint == rec2.fPaint\n            && rec1.fBackdrop == rec2.fBackdrop\n            && rec1.fSaveLayerFlags == rec2.fSaveLayerFlags ? '=' : '!');\n}",
     "hash": "b5cea1eed80a0eb04ddbab3f36dff73f",
     "file": "SkCanvas_Reference",
-    "name": "SkCanvas::SaveLayerRec::SaveLayerRec",
-        "stdout": "rec1 == rec2\\n"
-    },
-        "SkCanvas_SaveLayerRec_SaveLayerRec_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkCanvas::SaveLayerRec rec1;\n    SkCanvas::SaveLayerRec rec2(nullptr, nullptr);\n    SkDebugf(\"rec1 %c= rec2\\n\", rec1.fBounds == rec2.fBounds\n            && rec1.fPaint == rec2.fPaint\n            && rec1.fBackdrop == rec2.fBackdrop\n            && rec1.fSaveLayerFlags == rec2.fSaveLayerFlags ? '=' : '!');\n}",
-    "hash": "027f920259888fc19591ea9a90d92873",
-    "file": "SkCanvas_Reference",
-    "name": "SkCanvas::SaveLayerRec::SaveLayerRec_2",
-        "stdout": "rec1 == rec2\\n"
-    },
-        "SkCanvas_SaveLayerRec_SaveLayerRec_3": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkCanvas::SaveLayerRec rec1;\n    SkCanvas::SaveLayerRec rec2(nullptr, nullptr, nullptr, 0);\n    SkDebugf(\"rec1 %c= rec2\\n\", rec1.fBounds == rec2.fBounds\n            && rec1.fPaint == rec2.fPaint\n            && rec1.fBackdrop == rec2.fBackdrop\n            && rec1.fSaveLayerFlags == rec2.fSaveLayerFlags ? '=' : '!');\n}",
-    "hash": "9b7fa2fe855642ffff6538829db15328",
-    "file": "SkCanvas_Reference",
-    "name": "SkCanvas::SaveLayerRec::SaveLayerRec_3",
+    "name": "SkCanvas::SaveLayerRec::SaveLayerRec()",
         "stdout": "rec1 == rec2\\n"
     },
         "SkCanvas_accessTopRasterHandle": {
@@ -398,6 +384,21 @@
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)",
         "stdout": "-----\\n---x-\\n---x-\\n---x-\\n---x-\\n---x-\\n---x-\\n-----\\n---x-\\n---x-\\n-----\\n"
+    },
+        "SkCanvas_const_SkRect_star_const_SkPaint_star": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkCanvas::SaveLayerRec rec1;\n    SkCanvas::SaveLayerRec rec2(nullptr, nullptr);\n    SkDebugf(\"rec1 %c= rec2\\n\", rec1.fBounds == rec2.fBounds\n            && rec1.fPaint == rec2.fPaint\n            && rec1.fBackdrop == rec2.fBackdrop\n            && rec1.fSaveLayerFlags == rec2.fSaveLayerFlags ? '=' : '!');\n}",
+    "hash": "027f920259888fc19591ea9a90d92873",
+    "file": "SkCanvas_Reference",
+    "name": "SkCanvas::SaveLayerRec::SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0)",
+        "stdout": "rec1 == rec2\\n"
+    },
+        "SkCanvas_const_SkRect_star_const_SkPaint_star_const_SkImageFilter_star": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkCanvas::SaveLayerRec rec1;\n    SkCanvas::SaveLayerRec rec2(nullptr, nullptr, nullptr, 0);\n    SkDebugf(\"rec1 %c= rec2\\n\", rec1.fBounds == rec2.fBounds\n            && rec1.fPaint == rec2.fPaint\n            && rec1.fBackdrop == rec2.fBackdrop\n            && rec1.fSaveLayerFlags == rec2.fSaveLayerFlags ? '=' : '!');\n}",
+    "hash": "9b7fa2fe855642ffff6538829db15328",
+    "file": "SkCanvas_Reference",
+    "name": "SkCanvas::SaveLayerRec::SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
+                     SaveLayerFlags saveLayerFlags)",
+        "stdout": "rec1 == rec2\\n"
     },
         "SkCanvas_copy_const_SkBitmap": {
     "code": "void draw(SkCanvas* ) {\n    SkBitmap bitmap;\n    // create a bitmap 5 wide and 11 high\n    bitmap.allocPixels(SkImageInfo::MakeN32Premul(5, 11));\n    SkCanvas canvas(bitmap);\n    canvas.clear(SK_ColorWHITE);  // white is Unpremultiplied, in ARGB order\n    SkPixmap pixmap;  // provides guaranteed access to the drawn pixels\n    if (!canvas.peekPixels(&pixmap)) {\n        SkDebugf(\"peekPixels should never fail.\\n\");\n    }\n    const SkPMColor* pixels = pixmap.addr32();  // points to top-left of bitmap\n    SkPMColor pmWhite = pixels[0];  // the Premultiplied format may vary\n    SkPaint paint;  // by default, draws black, 12 point text\n    canvas.drawString(\"!\", 1, 10, paint);  // 1 char at baseline (1, 10)\n    for (int y = 0; y < bitmap.height(); ++y) {\n        for (int x = 0; x < bitmap.width(); ++x) {\n            SkDebugf(\"%c\", *pixels++ == pmWhite ? '-' : 'x');\n        }\n        SkDebugf(\"\\n\");\n    }\n}",
@@ -2002,26 +2003,19 @@
     "name": "SkPath::IsQuadDegenerate",
         "stdout": "quad (100,100), (100.00001,100.00001), (100.00002,100.00002) is degenerate, nearly\\nquad (1100,1100), (1100,1100), (1100,1100) is degenerate, nearly\\nquad (100,100), (100.00001,100.00001), (100.00002,100.00002) is not degenerate, exactly\\nquad (1100,1100), (1100,1100), (1100,1100) is degenerate, exactly\\n"
     },
-        "SkPath_Iter_Iter": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPath::Iter iter;\n    SkPoint points[4];\n    SkDebugf(\"iter is \" \"%s\" \"done\\n\", SkPath::kDone_Verb == iter.next(points) ? \"\" : \"not \");\n    SkPath path;\n    iter.setPath(path, false);\n    SkDebugf(\"iter is \" \"%s\" \"done\\n\", SkPath::kDone_Verb == iter.next(points) ? \"\" : \"not \");\n}\n",
-    "hash": "01648775cb9b354b2f1836dad82a25ab",
-    "file": "SkPath_Reference",
-    "name": "SkPath::Iter::Iter",
-        "stdout": "iter is done\\niter is done\\n"
-    },
-        "SkPath_Iter_Iter_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* prefix, SkPath::Iter& iter) -> void {\n        SkDebugf(\"%s:\\n\", prefix);\n        const char* verbStr[] =  { \"Move\", \"Line\", \"Quad\", \"Conic\", \"Cubic\", \"Close\", \"Done\" };\n        const int pointCount[] = {     1 ,     2 ,     3 ,      3 ,      4 ,      1 ,     0  };\n        SkPath::Verb verb;\n        do {\n           SkPoint points[4];\n           verb = iter.next(points);\n           SkDebugf(\"k%s_Verb \", verbStr[(int) verb]);\n           for (int i = 0; i < pointCount[(int) verb]; ++i) {\n                SkDebugf(\"{%g, %g}, \", points[i].fX, points[i].fY);\n           }\n           if (SkPath::kConic_Verb == verb) {\n               SkDebugf(\"weight = %g\", iter.conicWeight());\n           }\n           SkDebugf(\"\\n\");\n        } while (SkPath::kDone_Verb != verb);\n        SkDebugf(\"\\n\");\n    };\n    SkPath path;\n    path.quadTo(10, 20, 30, 40);\n    SkPath::Iter openIter(path, false);\n    debugster(\"open\", openIter);\n    SkPath::Iter closedIter(path, true);\n    debugster(\"closed\", closedIter);\n}\n",
-    "hash": "13044dbf68885c0f15322c0633b633a3",
-    "file": "SkPath_Reference",
-    "name": "SkPath::Iter::Iter_2",
-        "stdout": "open:\\nkMove_Verb {0, 0}, \\nkQuad_Verb {0, 0}, {10, 20}, {30, 40}, \\nkDone_Verb \\n\\nclosed:\\nkMove_Verb {0, 0}, \\nkQuad_Verb {0, 0}, {10, 20}, {30, 40}, \\nkLine_Verb {30, 40}, {0, 0}, \\nkClose_Verb {0, 0}, \\nkDone_Verb \\n\\n"
-    },
         "SkPath_Iter_conicWeight": {
     "code": "void draw(SkCanvas* canvas) {\n   SkPath path;\n   path.conicTo(1, 2, 3, 4, .5f);\n   SkPath::Iter iter(path, false);\n   SkPoint p[4];\n   SkDebugf(\"first verb is \" \"%s\" \"move\\n\", SkPath::kMove_Verb == iter.next(p) ? \"\" : \"not \");\n   SkDebugf(\"next verb is \" \"%s\" \"conic\\n\", SkPath::kConic_Verb == iter.next(p) ? \"\" : \"not \");\n   SkDebugf(\"conic points: {%g,%g}, {%g,%g}, {%g,%g}\\n\", p[0].fX, p[0].fY, p[1].fX, p[1].fY,\n                p[2].fX, p[2].fY);\n   SkDebugf(\"conic weight: %g\\n\", iter.conicWeight());\n}\n",
     "hash": "7cdea37741d50f0594c6244eb07fd175",
     "file": "SkPath_Reference",
     "name": "SkPath::Iter::conicWeight",
         "stdout": "first verb is move\\nnext verb is conic\\nconic points: {0,0}, {1,2}, {3,4}\\nconic weight: 0.5\\n"
+    },
+        "SkPath_Iter_empty_constructor": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPath::Iter iter;\n    SkPoint points[4];\n    SkDebugf(\"iter is \" \"%s\" \"done\\n\", SkPath::kDone_Verb == iter.next(points) ? \"\" : \"not \");\n    SkPath path;\n    iter.setPath(path, false);\n    SkDebugf(\"iter is \" \"%s\" \"done\\n\", SkPath::kDone_Verb == iter.next(points) ? \"\" : \"not \");\n}\n",
+    "hash": "01648775cb9b354b2f1836dad82a25ab",
+    "file": "SkPath_Reference",
+    "name": "SkPath::Iter::Iter()",
+        "stdout": "iter is done\\niter is done\\n"
     },
         "SkPath_Iter_isCloseLine": {
     "code": "void draw(SkCanvas* canvas) {\n   SkPath path;\n   path.moveTo(6, 7);\n   path.conicTo(1, 2, 3, 4, .5f);\n   path.close();\n   SkPath::Iter iter(path, false);\n   SkPoint p[4];\n   SkDebugf(\"1st verb is \" \"%s\" \"move\\n\", SkPath::kMove_Verb == iter.next(p) ? \"\" : \"not \");\n   SkDebugf(\"moveTo point: {%g,%g}\\n\", p[0].fX, p[0].fY);\n   SkDebugf(\"2nd verb is \" \"%s\" \"conic\\n\", SkPath::kConic_Verb == iter.next(p) ? \"\" : \"not \");\n   SkDebugf(\"3rd verb is \" \"%s\" \"line\\n\", SkPath::kLine_Verb == iter.next(p) ? \"\" : \"not \");\n   SkDebugf(\"line points: {%g,%g}, {%g,%g}\\n\", p[0].fX, p[0].fY, p[1].fX, p[1].fY);\n   SkDebugf(\"line \" \"%s\" \"generated by close\\n\", iter.isCloseLine() ? \"\" : \"not \");\n   SkDebugf(\"4th verb is \" \"%s\" \"close\\n\", SkPath::kClose_Verb == iter.next(p) ? \"\" : \"not \");\n}\n",
@@ -2106,6 +2100,13 @@
     "file": "SkPath_Reference",
     "name": "SkPath::computeTightBounds",
         "stdout": "empty bounds = 0, 0, 0, 0\\ncircle bounds = 25, 20, 75, 70\\nrotated circle bounds = 25, 20, 75, 70\\n"
+    },
+        "SkPath_const_SkPath": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* prefix, SkPath::Iter& iter) -> void {\n        SkDebugf(\"%s:\\n\", prefix);\n        const char* verbStr[] =  { \"Move\", \"Line\", \"Quad\", \"Conic\", \"Cubic\", \"Close\", \"Done\" };\n        const int pointCount[] = {     1 ,     2 ,     3 ,      3 ,      4 ,      1 ,     0  };\n        SkPath::Verb verb;\n        do {\n           SkPoint points[4];\n           verb = iter.next(points);\n           SkDebugf(\"k%s_Verb \", verbStr[(int) verb]);\n           for (int i = 0; i < pointCount[(int) verb]; ++i) {\n                SkDebugf(\"{%g, %g}, \", points[i].fX, points[i].fY);\n           }\n           if (SkPath::kConic_Verb == verb) {\n               SkDebugf(\"weight = %g\", iter.conicWeight());\n           }\n           SkDebugf(\"\\n\");\n        } while (SkPath::kDone_Verb != verb);\n        SkDebugf(\"\\n\");\n    };\n    SkPath path;\n    path.quadTo(10, 20, 30, 40);\n    SkPath::Iter openIter(path, false);\n    debugster(\"open\", openIter);\n    SkPath::Iter closedIter(path, true);\n    debugster(\"closed\", closedIter);\n}\n",
+    "hash": "13044dbf68885c0f15322c0633b633a3",
+    "file": "SkPath_Reference",
+    "name": "SkPath::Iter::Iter(const SkPath& path, bool forceClose)",
+        "stdout": "open:\\nkMove_Verb {0, 0}, \\nkQuad_Verb {0, 0}, {10, 20}, {30, 40}, \\nkDone_Verb \\n\\nclosed:\\nkMove_Verb {0, 0}, \\nkQuad_Verb {0, 0}, {10, 20}, {30, 40}, \\nkLine_Verb {30, 40}, {0, 0}, \\nkClose_Verb {0, 0}, \\nkDone_Verb \\n\\n"
     },
         "SkPath_copy_const_SkPath": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPath path;\n    path.lineTo(20, 20);\n    SkPath path2(path);\n    path2.close();\n    SkDebugf(\"path verbs: %d\\n\", path.countVerbs());\n    SkDebugf(\"path2 verbs: %d\\n\", path2.countVerbs());\n    path.reset();\n    SkDebugf(\"after reset\\n\" \"path verbs: %d\\n\", path.countVerbs());\n    SkDebugf(\"path2 verbs: %d\\n\", path2.countVerbs());\n}",
@@ -4103,6 +4104,110 @@
     "hash": "9f046f407b01b759cb737d702a994620",
     "file": "SkBitmap_Reference",
     "name": "SkBitmap::writePixels_3"
+},
+    "SkBlendMode": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkBlendMode_Reference",
+    "name": "SkBlendMode"
+},
+    "SkBlendMode_Name": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkBlendMode_Reference",
+    "name": "SkBlendMode_Name"
+},
+    "SkBlendMode_kClear": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkBlendMode_Reference",
+    "name": "SkBlendMode::kClear"
+},
+    "SkBlendMode_kDst": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkBlendMode_Reference",
+    "name": "SkBlendMode::kDst"
+},
+    "SkBlendMode_kDstATop": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkBlendMode_Reference",
+    "name": "SkBlendMode::kDstATop"
+},
+    "SkBlendMode_kDstIn": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkBlendMode_Reference",
+    "name": "SkBlendMode::kDstIn"
+},
+    "SkBlendMode_kDstOut": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkBlendMode_Reference",
+    "name": "SkBlendMode::kDstOut"
+},
+    "SkBlendMode_kDstOver": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkBlendMode_Reference",
+    "name": "SkBlendMode::kDstOver"
+},
+    "SkBlendMode_kSrc": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkBlendMode_Reference",
+    "name": "SkBlendMode::kSrc"
+},
+    "SkBlendMode_kSrcATop": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkBlendMode_Reference",
+    "name": "SkBlendMode::kSrcATop"
+},
+    "SkBlendMode_kSrcIn": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkBlendMode_Reference",
+    "name": "SkBlendMode::kSrcIn"
+},
+    "SkBlendMode_kSrcOut": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkBlendMode_Reference",
+    "name": "SkBlendMode::kSrcOut"
+},
+    "SkBlendMode_kSrcOver": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkBlendMode_Reference",
+    "name": "SkBlendMode::kSrcOver"
 },
     "SkCanvas_PointMode": {
     "code": "void draw(SkCanvas* canvas) {\n  SkPaint paint;\n  paint.setStyle(SkPaint::kStroke_Style);\n  paint.setStrokeWidth(10);\n  SkPoint points[] = {{64, 32}, {96, 96}, {32, 96}};\n  canvas->drawPoints(SkCanvas::kPoints_PointMode, 3, points, paint);\n  canvas->translate(128, 0);\n  canvas->drawPoints(SkCanvas::kLines_PointMode, 3, points, paint);\n  canvas->translate(0, 128);\n  canvas->drawPoints(SkCanvas::kPolygon_PointMode, 3, points, paint);\n  SkPath path;\n  path.addPoly(points, 3, false);\n  canvas->translate(-128, 0);\n  canvas->drawPath(path, paint);\n}\n",
@@ -6808,6 +6913,118 @@
     "file": "SkPath_Reference",
     "name": "SkPath::transform_2"
 },
+    "SkPicture_AbortCallback_abort": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkPicture_Reference",
+    "name": "SkPicture::AbortCallback::abort()"
+},
+    "SkPicture_AbortCallback_empty_constructor": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkPicture_Reference",
+    "name": "SkPicture::AbortCallback::AbortCallback()"
+},
+    "SkPicture_MakeFromData": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkPicture_Reference",
+    "name": "SkPicture::MakeFromData"
+},
+    "SkPicture_MakeFromData_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkPicture_Reference",
+    "name": "SkPicture::MakeFromData_2"
+},
+    "SkPicture_MakeFromStream": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkPicture_Reference",
+    "name": "SkPicture::MakeFromStream"
+},
+    "SkPicture_MakePlaceholder": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkPicture_Reference",
+    "name": "SkPicture::MakePlaceholder"
+},
+    "SkPicture_approximateBytesUsed": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkPicture_Reference",
+    "name": "SkPicture::approximateBytesUsed"
+},
+    "SkPicture_approximateOpCount": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkPicture_Reference",
+    "name": "SkPicture::approximateOpCount"
+},
+    "SkPicture_cullRect": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkPicture_Reference",
+    "name": "SkPicture::cullRect"
+},
+    "SkPicture_destructor": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkPicture_Reference",
+    "name": "SkPicture::AbortCallback::~AbortCallback()"
+},
+    "SkPicture_playback": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkPicture_Reference",
+    "name": "SkPicture::playback()"
+},
+    "SkPicture_serialize": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkPicture_Reference",
+    "name": "SkPicture::serialize()"
+},
+    "SkPicture_serialize_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkPicture_Reference",
+    "name": "SkPicture::serialize_2"
+},
+    "SkPicture_uniqueID": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkPicture_Reference",
+    "name": "SkPicture::uniqueID"
+},
     "SkPixmap_erase": {
     "code": "void draw(SkCanvas* canvas) {\n    uint32_t storage[2];\n    SkImageInfo info = SkImageInfo::MakeN32Premul(1, 2);\n    SkPixmap pixmap(info, storage, info.minRowBytes());\n    pixmap.erase(SK_ColorBLUE, {0, 0, 1, 1});\n    pixmap.erase(SK_ColorRED, {0, 1, 1, 2});\n    SkBitmap bitmap;\n    canvas->scale(20, 20);\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n}",
     "width": 256,
@@ -7151,6 +7368,374 @@
     "hash": "4fb2da4a3d9b14ca4ac24eefb0f5126a",
     "file": "SkColor_Reference",
     "name": "SkRGBToHSV"
+},
+    "SkRRect_Corner": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::Corner"
+},
+    "SkRRect_MakeEmpty": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::MakeEmpty"
+},
+    "SkRRect_MakeOval": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::MakeOval"
+},
+    "SkRRect_MakeRect": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::MakeRect"
+},
+    "SkRRect_MakeRectXY": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::MakeRectXY"
+},
+    "SkRRect_Type": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::Type"
+},
+    "SkRRect_contains": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::contains()"
+},
+    "SkRRect_copy_const_SkRRect": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::SkRRect(const SkRRect& rrect)"
+},
+    "SkRRect_copy_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::operator=(const SkRRect& rrect)"
+},
+    "SkRRect_dump": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::dump()"
+},
+    "SkRRect_dumpHex": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::dumpHex"
+},
+    "SkRRect_dump_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::dump_2"
+},
+    "SkRRect_empty_constructor": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::SkRRect()"
+},
+    "SkRRect_equal_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::operator==(const SkRRect& a, const SkRRect& b)"
+},
+    "SkRRect_getBounds": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::getBounds"
+},
+    "SkRRect_getSimpleRadii": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::getSimpleRadii"
+},
+    "SkRRect_getType": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::getType"
+},
+    "SkRRect_height": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::height()"
+},
+    "SkRRect_inset": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::inset()"
+},
+    "SkRRect_inset_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::inset_2"
+},
+    "SkRRect_isComplex": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::isComplex"
+},
+    "SkRRect_isEmpty": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::isEmpty"
+},
+    "SkRRect_isNinePatch": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::isNinePatch"
+},
+    "SkRRect_isOval": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::isOval"
+},
+    "SkRRect_isRect": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::isRect"
+},
+    "SkRRect_isSimple": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::isSimple"
+},
+    "SkRRect_isValid": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::isValid"
+},
+    "SkRRect_kSizeInMemory": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::kSizeInMemory"
+},
+    "SkRRect_makeOffset": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::makeOffset"
+},
+    "SkRRect_notequal_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::operator!=(const SkRRect& a, const SkRRect& b)"
+},
+    "SkRRect_offset": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::offset()"
+},
+    "SkRRect_outset": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::outset()"
+},
+    "SkRRect_outset_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::outset_2"
+},
+    "SkRRect_radii": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::radii()"
+},
+    "SkRRect_readFromMemory": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::readFromMemory"
+},
+    "SkRRect_rect": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::rect()"
+},
+    "SkRRect_setEmpty": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::setEmpty"
+},
+    "SkRRect_setNinePatch": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::setNinePatch"
+},
+    "SkRRect_setOval": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::setOval"
+},
+    "SkRRect_setRect": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::setRect"
+},
+    "SkRRect_setRectRadii": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::setRectRadii"
+},
+    "SkRRect_setRectXY": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::setRectXY"
+},
+    "SkRRect_transform": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::transform()"
+},
+    "SkRRect_type": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::type()"
+},
+    "SkRRect_width": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::width()"
+},
+    "SkRRect_writeToMemory": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::writeToMemory"
 },
     "SkSurface_MakeFromBackendTexture": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n         canvas->drawString(\"GPU only!\", 20, 40, paint);\n         return;\n    }\n    sk_sp<SkSurface> gpuSurface = SkSurface::MakeFromBackendTexture(context,\n            backEndTexture, kTopLeft_GrSurfaceOrigin, 0,\n            kRGBA_8888_SkColorType, nullptr, nullptr);\n    auto surfaceCanvas = gpuSurface->getCanvas();\n    surfaceCanvas->drawString(\"GPU rocks!\", 20, 40, paint);\n    sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());\n    canvas->drawImage(image, 0, 0);\n}",

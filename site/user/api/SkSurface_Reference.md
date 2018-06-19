@@ -1233,8 +1233,6 @@ Subsequent calls to <a href='#SkSurface_generationID'>generationID</a> return a 
 
 <a href='#SkSurface_notifyContentWillChange_mode'>mode</a> is normally passed as <a href='#SkSurface_kRetain_ContentChangeMode'>kRetain ContentChangeMode</a>.
 
-Can we deprecate this?
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkSurface_notifyContentWillChange_mode'><code><strong>mode</strong></code></a></td>
@@ -1538,7 +1536,7 @@ void <a href='#SkSurface_draw'>draw</a>(<a href='SkCanvas_Reference#SkCanvas'>Sk
 Draws <a href='#Surface'>Surface</a> contents to <a href='#SkSurface_draw_canvas'>canvas</a>, with its top-left corner at (<a href='#SkSurface_draw_x'>x</a>, <a href='#SkSurface_draw_y'>y</a>).
 
 If <a href='SkPaint_Reference#Paint'>Paint</a> <a href='#SkSurface_draw_paint'>paint</a> is not nullptr, apply <a href='undocumented#Color_Filter'>Color Filter</a>, <a href='SkColor_Reference#Alpha'>Color Alpha</a>, <a href='undocumented#Image_Filter'>Image Filter</a>,
-<a href='undocumented#Blend_Mode'>Blend Mode</a>, and <a href='undocumented#Draw_Looper'>Draw Looper</a>.
+<a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a>, and <a href='undocumented#Draw_Looper'>Draw Looper</a>.
 
 ### Parameters
 
@@ -1552,7 +1550,7 @@ If <a href='SkPaint_Reference#Paint'>Paint</a> <a href='#SkSurface_draw_paint'>p
     <td>vertical offset in <a href='SkCanvas_Reference#Canvas'>Canvas</a></td>
   </tr>
   <tr>    <td><a name='SkSurface_draw_paint'><code><strong>paint</strong></code></a></td>
-    <td><a href='SkPaint_Reference#Paint'>Paint</a> containing <a href='undocumented#Blend_Mode'>Blend Mode</a>, <a href='undocumented#Color_Filter'>Color Filter</a>, <a href='undocumented#Image_Filter'>Image Filter</a>,
+    <td><a href='SkPaint_Reference#Paint'>Paint</a> containing <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a>, <a href='undocumented#Color_Filter'>Color Filter</a>, <a href='undocumented#Image_Filter'>Image Filter</a>,
 and so on; or nullptr</td>
   </tr>
 </table>
