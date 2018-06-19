@@ -289,22 +289,52 @@ int SkUTF16_CountUnichars(const void* text, size_t byteLength) {
     return count;
 }
 
-SkUnichar SkUTF16_NextUnichar(const uint16_t** srcPtr) {
-    SkASSERT(srcPtr && *srcPtr);
-
+SkUnichar SkUTF16_NextUnichar(const uint16_t** srcPtr, const uint16_t* endPtr) {
+    if (!srcPtr || !endPtr) {
+        return -1;
+    }
     const uint16_t* src = *srcPtr;
-    SkUnichar       c = *src++;
+    if (src >= endPtr) {
+        return -1;
+    }
+    uint16_t c = *src++;
+    SkUnichar result = c;
 
-    SkASSERT(!SkUTF16_IsLowSurrogate(c));
+    if (SkUTF16_IsLowSurrogate(c)) {
+        return -1; // srcPtr should never point at low surrogate.
+    }
     if (SkUTF16_IsHighSurrogate(c)) {
-        unsigned c2 = *src++;
-        SkASSERT(SkUTF16_IsLowSurrogate(c2));
+        if (src == endPtr) {
+            return -1;  // Truncated string.
+        }
+        uint16_t low = *src++;
+        if (!SkUTF16_IsLowSurrogate(low)) {
+            return -1;
+        }
+        /*
+        [paraphrased from wikipedia]
+        Take the high surrogate and subtract 0xD800, then multiply by 0x400.
+        Take the low surrogate and subtract 0xDC00.  Add these two results
+        together, and finally add 0x10000 to get the final decoded codepoint.
 
-        // c = ((c & 0x3FF) << 10) + (c2 & 0x3FF) + 0x10000
-        // c = (((c & 0x3FF) + 64) << 10) + (c2 & 0x3FF)
-        c = (c << 10) + c2 + (0x10000 - (0xD800 << 10) - 0xDC00);
+        unicode = (high - 0xD800) * 0x400 + low - 0xDC00 + 0x10000
+        unicode = (high * 0x400) - (0xD800 * 0x400) + low - 0xDC00 + 0x10000
+        unicode = (high << 10) - (0xD800 << 10) + low - 0xDC00 + 0x10000
+        unicode = (high << 10) + low - ((0xD800 << 10) + 0xDC00 - 0x10000)
+        */
+        result = (result << 10) + (SkUnichar)low - ((0xD800 << 10) + 0xDC00 - 0x10000);
     }
     *srcPtr = src;
+    return result;
+}
+
+SkUnichar SkUTF16_NextUnichar(const uint16_t** srcPtr) {
+    SkUnichar c = SkUTF16_NextUnichar(srcPtr, *srcPtr + 2);
+    if (c == -1) {
+        SkASSERT(false);
+        ++(*srcPtr);
+        return 0xFFFD;  // REPLACEMENT CHARACTER.
+    }
     return c;
 }
 

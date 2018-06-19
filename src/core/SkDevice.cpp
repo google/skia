@@ -483,33 +483,11 @@ void SkBaseDevice::drawTextOnPath(const void* text, size_t byteLength,
 }
 
 #include "SkUtils.h"
-typedef int (*CountTextProc)(const char* text);
-static int count_utf16(const char* text) {
-    const uint16_t* prev = (uint16_t*)text;
-    (void)SkUTF16_NextUnichar(&prev);
-    return SkToInt((const char*)prev - text);
-}
-static int return_4(const char* text) { return 4; }
-static int return_2(const char* text) { return 2; }
 
 void SkBaseDevice::drawTextRSXform(const void* text, size_t len,
                                    const SkRSXform xform[], const SkPaint& paint) {
-    CountTextProc proc = nullptr;
-    switch (paint.getTextEncoding()) {
-        case SkPaint::kUTF8_TextEncoding:
-            proc = SkUTF8_CountUTF8Bytes;
-            break;
-        case SkPaint::kUTF16_TextEncoding:
-            proc = count_utf16;
-            break;
-        case SkPaint::kUTF32_TextEncoding:
-            proc = return_4;
-            break;
-        case SkPaint::kGlyphID_TextEncoding:
-            proc = return_2;
-            break;
-    }
-
+    SkPaint::TextEncoding textEncoding = paint.getTextEncoding();
+    const char* end = (const char*)text + len;
     SkPaint localPaint(paint);
     SkShader* shader = paint.getShader();
     SkScalar pos[2] = {0.0f, 0.0f};
@@ -533,8 +511,25 @@ void SkBaseDevice::drawTextRSXform(const void* text, size_t len,
                 localPaint.setShader(nullptr);  // can't handle this xform
             }
         }
-
-        int subLen = proc((const char*)text);
+        int subLen = 0;
+        switch (textEncoding) {
+            case SkPaint::kUTF8_TextEncoding:
+                subLen = SkUTF8_CountUTF8Bytes((const char*)text);
+                break;
+            case SkPaint::kUTF16_TextEncoding:
+                {
+                    const uint16_t* ptr = (const uint16_t*)text;
+                    (void)SkUTF16_NextUnichar(&ptr, (const uint16_t*)end);
+                    subLen = SkToInt((const char*)ptr - (const char*)text);
+                };
+                break;
+            case SkPaint::kUTF32_TextEncoding:
+                subLen = 4;
+                break;
+            case SkPaint::kGlyphID_TextEncoding:
+                subLen = 2;
+                break;
+        }
         this->drawPosText(text, subLen, pos, 2, origin, localPaint);
         text = (const char*)text + subLen;
     }
