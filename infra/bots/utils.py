@@ -17,11 +17,6 @@ import time
 import uuid
 
 
-GCLIENT = 'gclient.bat' if sys.platform == 'win32' else 'gclient'
-GIT = 'git.bat' if sys.platform == 'win32' else 'git'
-WHICH = 'where' if sys.platform == 'win32' else 'which'
-
-
 class print_timings(object):
   def __init__(self):
     self._start = None
@@ -74,7 +69,7 @@ class chdir(object):
 
 def git_clone(repo_url, dest_dir):
   """Clone the given repo into the given destination directory."""
-  subprocess.check_call([GIT, 'clone', repo_url, dest_dir])
+  subprocess.check_call(['git', 'clone', repo_url, dest_dir])
 
 
 class git_branch(object):
@@ -88,29 +83,29 @@ class git_branch(object):
     self._stashed = False
 
   def __enter__(self):
-    output = subprocess.check_output([GIT, 'stash'])
+    output = subprocess.check_output(['git', 'stash'])
     self._stashed = 'No local changes' not in output
 
     # Get the original branch name or commit hash.
     self._orig_branch = subprocess.check_output([
-        GIT, 'rev-parse', '--abbrev-ref', 'HEAD']).rstrip()
+        'git', 'rev-parse', '--abbrev-ref', 'HEAD']).rstrip()
     if self._orig_branch == 'HEAD':
       self._orig_branch = subprocess.check_output([
-          GIT, 'rev-parse', 'HEAD']).rstrip()
+          'git', 'rev-parse', 'HEAD']).rstrip()
 
     # Check out a new branch, based at updated origin/master.
-    subprocess.check_call([GIT, 'fetch', 'origin'])
+    subprocess.check_call(['git', 'fetch', 'origin'])
     self._branch = '_tmp_%s' % uuid.uuid4()
-    subprocess.check_call([GIT, 'checkout', '-b', self._branch,
+    subprocess.check_call(['git', 'checkout', '-b', self._branch,
                            '-t', 'origin/master'])
     return self
 
   def __exit__(self, exc_type, _value, _traceback):
-    subprocess.check_call([GIT, 'reset', '--hard', 'HEAD'])
-    subprocess.check_call([GIT, 'checkout', self._orig_branch])
+    subprocess.check_call(['git', 'reset', '--hard', 'HEAD'])
+    subprocess.check_call(['git', 'checkout', self._orig_branch])
     if self._stashed:
-      subprocess.check_call([GIT, 'stash', 'pop'])
-    subprocess.check_call([GIT, 'branch', '-D', self._branch])
+      subprocess.check_call(['git', 'stash', 'pop'])
+    subprocess.check_call(['git', 'branch', '-D', self._branch])
 
 
 def RemoveDirectory(*path):

@@ -47,9 +47,6 @@ ZIP_BLACKLIST = ['.git', '.svn', '*.pyc', '.DS_STORE']
 class CIPDStore(object):
   """Wrapper object for CIPD."""
   def __init__(self, cipd_url=DEFAULT_CIPD_SERVICE_URL):
-    self._cipd = 'cipd'
-    if sys.platform == 'win32':
-      self._cipd = 'cipd.bat'
     self._cipd_url = cipd_url
     self._check_setup()
 
@@ -62,7 +59,7 @@ class CIPDStore(object):
                       'depot_tools). You may need to update depot_tools.')
     except subprocess.CalledProcessError:
       raise Exception('CIPD not authenticated. You may need to run:\n\n'
-                      '$ %s auth-login' % self._cipd)
+                      '$ cipd auth-login')
 
   def _run(self, cmd, specify_service_url=True):
     """Run the given command."""
@@ -74,7 +71,7 @@ class CIPDStore(object):
       # https://bugs.chromium.org/p/skia/issues/detail?id=6385#c3
       cipd_args.extend(['-service-account-json', ':gce'])
     subprocess.check_call(
-        [self._cipd]
+        ['cipd']
         + cmd
         + cipd_args
     )
@@ -284,15 +281,15 @@ class Asset(object):
     def _write_version():
       with open(self.version_file, 'w') as f:
         f.write(str(version))
-      subprocess.check_call([utils.GIT, 'add', self.version_file])
+      subprocess.check_call(['git', 'add', self.version_file])
 
     with utils.chdir(SKIA_DIR):
       if commit:
         with utils.git_branch():
           _write_version()
           subprocess.check_call([
-              utils.GIT, 'commit', '-m', 'Update %s version' % self._name])
-          subprocess.check_call([utils.GIT, 'cl', 'upload', '--bypass-hooks'])
+              'git', 'commit', '-m', 'Update %s version' % self._name])
+          subprocess.check_call(['git', 'cl', 'upload', '--bypass-hooks'])
       else:
         _write_version()
 
@@ -310,7 +307,7 @@ class Asset(object):
       dst = os.path.join(asset._dir, script)
       print 'Creating %s' % dst
       shutil.copy(src, dst)
-      subprocess.check_call([utils.GIT, 'add', dst])
+      subprocess.check_call(['git', 'add', dst])
 
     for script in ('download.py', 'upload.py', 'common.py'):
       copy_script(script)
@@ -333,6 +330,6 @@ class Asset(object):
       self._store.delete_contents(self._name)
 
     # Remove the asset.
-    subprocess.check_call([utils.GIT, 'rm', '-rf', self._dir])
+    subprocess.check_call(['git', 'rm', '-rf', self._dir])
     if os.path.isdir(self._dir):
       shutil.rmtree(self._dir)

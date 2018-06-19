@@ -59,7 +59,7 @@ def get_toolchain_dir(toolchain_dir_output):
 def gen_toolchain(chrome_path, msvs_version, target_dir):
   """Update the VS toolchain and copy it to the target_dir."""
   with utils.chdir(os.path.join(chrome_path, 'src')):
-    subprocess.check_call([utils.GCLIENT, 'sync'])
+    subprocess.check_call(['gclient', 'sync'])
     depot_tools = subprocess.check_output([
         'python', os.path.join('build', 'find_depot_tools.py')]).rstrip()
     with utils.git_branch():
@@ -104,8 +104,8 @@ def create_asset(target_dir, msvs_version, chrome_path=None):
              'specify --chrome_path to save time.')
       chrome_path = os.path.join(tmp_dir.name, 'src')
     if not os.path.isdir(chrome_path):
-      subprocess.check_call([utils.GCLIENT, 'config', REPO_CHROME, '--managed'])
-      subprocess.check_call([utils.GCLIENT, 'sync'])
+      subprocess.check_call(['gclient', 'config', REPO_CHROME, '--managed'])
+      subprocess.check_call(['gclient', 'sync'])
 
     gen_toolchain(chrome_path, msvs_version, target_dir)
 
