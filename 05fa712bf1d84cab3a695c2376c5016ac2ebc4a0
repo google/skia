@@ -16,6 +16,24 @@
       "revId": "05fa712bf1d84cab3a695c2376c5016ac2ebc4a0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42da4541_f106f5fa",
+        "filename": "tools/gpu/GrTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-19T14:18:37Z",
+      "side": 1,
+      "message": "Yep - unique_ptr only has some of the semantics GrOps now needs. I would want to land that as a separate CL though.",
+      "parentUuid": "34ce2fce_4e7aabfc",
+      "revId": "05fa712bf1d84cab3a695c2376c5016ac2ebc4a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
