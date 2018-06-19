@@ -38,7 +38,7 @@ static inline float divide_and_pin(float numer, float denom, float min, float ma
 }
 
 inline SkScalar AmbientBlurRadius(SkScalar height) {
-    return height*kAmbientHeightFactor*kAmbientGeomFactor;
+    return SkTMin(height*kAmbientHeightFactor*kAmbientGeomFactor, 256.f);
 }
 
 inline SkScalar AmbientRecipAlpha(SkScalar height) {
