@@ -4977,10 +4977,10 @@
     "name": "SkColorSetRGB"
 },
     "SkColorToHSV": {
-    "code": "void draw(SkCanvas* canvas) {\n    canvas->drawBitmap(source, 0, 0);\n    for (int y = 0; y < 256; ++y) {\n       for (int x = 0; x < 256; ++x) {\n         SkScalar hsv[3];\n         SkColorToHSV(source.getColor(x, y), hsv);\n         std::swap(hsv[1], hsv[2]);\n         SkPaint paint;\n         paint.setColor(SkHSVToColor(hsv));\n         canvas->drawRect(SkRect::MakeXYWH(x, y, 1, 1), paint);\n      }\n    }\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    canvas->drawBitmap(source, 0, 0);\n    for (int y = 0; y < 256; ++y) {\n       for (int x = 0; x < 256; ++x) {\n         SkScalar hsv[3];\n         SkColorToHSV(source.getColor(x, y), hsv);\n         hsv[1] = 1 - hsv[1];\n         SkPaint paint;\n         paint.setColor(SkHSVToColor(hsv));\n         canvas->drawRect(SkRect::MakeXYWH(x, y, 1, 1), paint);\n      }\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "f0912ac97910b2fe5963d3b360795139",
+    "hash": "1e0370f12c8aab5b84f9e824074f1e5a",
     "file": "SkColor_Reference",
     "name": "SkColorToHSV"
 },
@@ -6905,10 +6905,10 @@
     "name": "SkPixmap::writable_addr16"
 },
     "SkPixmap_writable_addr32": {
-    "code": "void draw(SkCanvas* canvas) {\n    std::vector<int32_t> pixels;\n    pixels.resize(image->height() * image->width() * 4);\n    SkPixmap pixmap(SkImageInfo::Make(image->width(), image->height(), kN32_SkColorType,\n            image->alphaType()), (const void*) &pixels.front(), image->width() * 4);\n    image->readPixels(pixmap, 0, 0);\n    for (int y = 0; y < pixmap.height() / 2; ++y) {\n        for (int x = 0; x < pixmap.width(); ++x) {\n            if ((x & 4) == (y & 4)) {\n                std::swap(*pixmap.writable_addr32(x, y),\n                     *pixmap.writable_addr32(pixmap.width() - x, pixmap.height() - y));\n            }\n        }\n    }\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    std::vector<int32_t> pixels;\n    pixels.resize(image->height() * image->width() * 4);\n    SkPixmap pixmap(SkImageInfo::Make(image->width(), image->height(), kN32_SkColorType,\n            image->alphaType()), (const void*) &pixels.front(), image->width() * 4);\n    image->readPixels(pixmap, 0, 0);\n    for (int y = 0; y < pixmap.height() / 2; ++y) {\n        for (int x = 0; x < pixmap.width(); ++x) {\n            if ((x & 4) == (y & 4)) {\n                *pixmap.writable_addr32(x, y) =\n                        *pixmap.writable_addr32(pixmap.width() - x, pixmap.height() - y);\n            }\n        }\n    }\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n}",
     "width": 256,
     "height": 72,
-    "hash": "ba9a9d2d78a51adb554d75780a3bcd4d",
+    "hash": "086866243bf9e4c14c3b215a2aa69ad9",
     "file": "SkPixmap_Reference",
     "name": "SkPixmap::writable_addr32"
 },
