@@ -696,7 +696,7 @@ static const int kGrVertexAttribTypeCount = kLast_GrVertexAttribType + 1;
 /**
  * Returns the size of the attrib type in bytes.
  */
-static constexpr inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
+static inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
     switch (type) {
         case kFloat_GrVertexAttribType:
             return sizeof(float);
@@ -734,11 +734,7 @@ static constexpr inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
         case kUint_GrVertexAttribType:
             return sizeof(uint32_t);
     }
-    // GCC fails because SK_ABORT evaluates to non constexpr. clang and cl.exe think this is
-    // unreachable and don't complain.
-#if defined(__clang__) || !defined(__GNUC__)
-    SK_ABORT("Unsupported type conversion");
-#endif
+    SK_ABORT("Unexpected attribute type");
     return 0;
 }
 

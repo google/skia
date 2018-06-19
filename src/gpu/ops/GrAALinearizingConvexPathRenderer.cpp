@@ -249,10 +249,12 @@ private:
             return;
         }
 
-        size_t vertexStride = fHelper.compatibleWithAlphaAsCoverage()
-                                      ? sizeof(GrDefaultGeoProcFactory::PositionColorAttr)
-                                      : sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr);
-        SkASSERT(vertexStride == gp->debugOnly_vertexStride());
+        size_t vertexStride = gp->getVertexStride();
+
+        SkASSERT(fHelper.compatibleWithAlphaAsCoverage()
+                         ? vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorAttr)
+                         : vertexStride ==
+                                   sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr));
 
         int instanceCount = fPaths.count();
 

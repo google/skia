@@ -33,12 +33,12 @@ bool GrGpuRTCommandBuffer::draw(const GrPipeline& pipeline,
                                 int meshCount,
                                 const SkRect& bounds) {
 #ifdef SK_DEBUG
-    SkASSERT(!primProc.hasInstanceAttributes() || this->gpu()->caps()->instanceAttribSupport());
+    SkASSERT(!primProc.hasInstanceAttribs() || this->gpu()->caps()->instanceAttribSupport());
     for (int i = 0; i < meshCount; ++i) {
         SkASSERT(!GrPrimTypeRequiresGeometryShaderSupport(meshes[i].primitiveType()) ||
                  this->gpu()->caps()->shaderCaps()->geometryShaderSupport());
-        SkASSERT(primProc.hasVertexAttributes() == meshes[i].hasVertexData());
-        SkASSERT(primProc.hasInstanceAttributes() == meshes[i].isInstanced());
+        SkASSERT(primProc.hasVertexAttribs() == meshes[i].hasVertexData());
+        SkASSERT(primProc.hasInstanceAttribs() == meshes[i].isInstanced());
     }
 #endif
     auto resourceProvider = this->gpu()->getContext()->contextPriv().resourceProvider();
@@ -47,7 +47,7 @@ bool GrGpuRTCommandBuffer::draw(const GrPipeline& pipeline,
         return false;
     }
 
-    if (primProc.numVertexAttributes() > this->gpu()->caps()->maxVertexAttributes()) {
+    if (primProc.numAttribs() > this->gpu()->caps()->maxVertexAttributes()) {
         this->gpu()->stats()->incNumFailedDraws();
         return false;
     }

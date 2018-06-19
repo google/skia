@@ -237,7 +237,7 @@ private:
         return path;
     }
 
-    void draw(Target* target, const GrGeometryProcessor* gp, size_t vertexStride) {
+    void draw(Target* target, const GrGeometryProcessor* gp) {
         SkASSERT(!fAntiAlias);
         GrResourceProvider* rp = target->resourceProvider();
         bool inverseFill = fShape.inverseFilled();
@@ -274,7 +274,7 @@ private:
         vmi.mapRect(&clipBounds);
         bool isLinear;
         bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
-        StaticVertexAllocator allocator(vertexStride, rp, canMapVB);
+        StaticVertexAllocator allocator(gp->getVertexStride(), rp, canMapVB);
         int count = GrTessellator::PathToTriangles(getPath(), tol, clipBounds, &allocator,
                                                    false, GrColor(), false, &isLinear);
         if (count == 0) {
@@ -289,7 +289,7 @@ private:
         fShape.addGenIDChangeListener(sk_make_sp<PathInvalidator>(key));
     }
 
-    void drawAA(Target* target, const GrGeometryProcessor* gp, size_t vertexStride) {
+    void drawAA(Target* target, const GrGeometryProcessor* gp) {
         SkASSERT(fAntiAlias);
         SkPath path = getPath();
         if (path.isEmpty()) {
@@ -299,7 +299,7 @@ private:
         path.transform(fViewMatrix);
         SkScalar tol = GrPathUtils::kDefaultTolerance;
         bool isLinear;
-        DynamicVertexAllocator allocator(vertexStride, target);
+        DynamicVertexAllocator allocator(gp->getVertexStride(), target);
         int count =
                 GrTessellator::PathToTriangles(path, tol, clipBounds, &allocator, true, fColor,
                                                fHelper.compatibleWithAlphaAsCoverage(), &isLinear);
@@ -311,11 +311,8 @@ private:
 
     void onPrepareDraws(Target* target) override {
         sk_sp<GrGeometryProcessor> gp;
-        size_t vertexStride;
         {
             using namespace GrDefaultGeoProcFactory;
-
-            vertexStride = sizeof(SkPoint);  // position
 
             Color color(fColor);
             LocalCoords::Type localCoordsType = fHelper.usesLocalCoords()
@@ -324,12 +321,10 @@ private:
             Coverage::Type coverageType;
             if (fAntiAlias) {
                 color = Color(Color::kPremulGrColorAttribute_Type);
-                vertexStride += sizeof(uint32_t);
                 if (fHelper.compatibleWithAlphaAsCoverage()) {
                     coverageType = Coverage::kSolid_Type;
                 } else {
                     coverageType = Coverage::kAttribute_Type;
-                    vertexStride += 4;
                 }
             } else {
                 coverageType = Coverage::kSolid_Type;
@@ -345,11 +340,10 @@ private:
         if (!gp.get()) {
             return;
         }
-        SkASSERT(vertexStride == gp->debugOnly_vertexStride());
         if (fAntiAlias) {
-            this->drawAA(target, gp.get(), vertexStride);
+            this->drawAA(target, gp.get());
         } else {
-            this->draw(target, gp.get(), vertexStride);
+            this->draw(target, gp.get());
         }
     }
 

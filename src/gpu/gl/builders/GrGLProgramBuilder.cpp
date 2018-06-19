@@ -70,8 +70,7 @@ GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu,
         , fGpu(gpu)
         , fVaryingHandler(this)
         , fUniformHandler(this)
-        , fVertexAttributeCnt(0)
-        , fInstanceAttributeCnt(0)
+        , fAttributeCnt(0)
         , fVertexStride(0)
         , fInstanceStride(0) {}
 
@@ -228,30 +227,18 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         // NVPR actually requires a vertex shader to compile
         bool useNvpr = primProc.isPathRendering();
         if (!useNvpr) {
-            fVertexAttributeCnt = primProc.numVertexAttributes();
-            fInstanceAttributeCnt = primProc.numInstanceAttributes();
-            fAttributes.reset(
-                    new GrGLProgram::Attribute[fVertexAttributeCnt + fInstanceAttributeCnt]);
-            auto addAttr = [&](int i, const auto& a, size_t* stride) {
-                fAttributes[i].fType = a.type();
-                fAttributes[i].fOffset = *stride;
-                *stride += a.sizeAlign4();
+            fAttributeCnt = primProc.numAttribs();
+            fAttributes.reset(new GrGLProgram::Attribute[fAttributeCnt]);
+            fVertexStride = primProc.getVertexStride();
+            fInstanceStride = primProc.getInstanceStride();
+            for (int i = 0; i < fAttributeCnt; i++) {
+                const auto& attr = primProc.getAttrib(i);
+                fAttributes[i].fInputRate = attr.inputRate();
+                fAttributes[i].fType = attr.type();
+                fAttributes[i].fOffset = attr.offsetInRecord();
                 fAttributes[i].fLocation = i;
-                GL_CALL(BindAttribLocation(programID, i, a.name()));
-            };
-            fVertexStride = 0;
-            int i = 0;
-            for (; i < fVertexAttributeCnt; i++) {
-                addAttr(i, primProc.vertexAttribute(i), &fVertexStride);
-                SkASSERT(fAttributes[i].fOffset == primProc.debugOnly_vertexAttributeOffset(i));
+                GL_CALL(BindAttribLocation(programID, i, attr.name()));
             }
-            SkASSERT(fVertexStride == primProc.debugOnly_vertexStride());
-            fInstanceStride = 0;
-            for (int j = 0; j < fInstanceAttributeCnt; j++, ++i) {
-                addAttr(i, primProc.instanceAttribute(j), &fInstanceStride);
-                SkASSERT(fAttributes[i].fOffset == primProc.debugOnly_instanceAttributeOffset(j));
-            }
-            SkASSERT(fInstanceStride == primProc.debugOnly_instanceStride());
         }
 
         if (primProc.willUseGeoShader()) {
@@ -419,8 +406,7 @@ GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
                            std::move(fFragmentProcessors),
                            fFragmentProcessorCnt,
                            std::move(fAttributes),
-                           fVertexAttributeCnt,
-                           fInstanceAttributeCnt,
+                           fAttributeCnt,
                            fVertexStride,
                            fInstanceStride);
 }

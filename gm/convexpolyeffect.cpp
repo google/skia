@@ -81,9 +81,10 @@ private:
         sk_sp<GrGeometryProcessor> gp(GrDefaultGeoProcFactory::Make(
                 color, Coverage::kSolid_Type, LocalCoords::kUnused_Type, SkMatrix::I()));
 
-        SkASSERT(gp->debugOnly_vertexStride() == sizeof(SkPoint));
+        size_t vertexStride = gp->getVertexStride();
+        SkASSERT(vertexStride == sizeof(SkPoint));
         QuadHelper helper;
-        SkPoint* verts = reinterpret_cast<SkPoint*>(helper.init(target, sizeof(SkPoint), 1));
+        SkPoint* verts = reinterpret_cast<SkPoint*>(helper.init(target, vertexStride, 1));
         if (!verts) {
             return;
         }

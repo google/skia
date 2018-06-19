@@ -122,9 +122,9 @@ void GrDrawAtlasOp::onPrepareDraws(Target* target) {
     sk_sp<GrGeometryProcessor> gp(make_gp(this->hasColors(), this->color(), this->viewMatrix()));
 
     int instanceCount = fGeoData.count();
-    size_t vertexStride =
-            sizeof(SkPoint) + sizeof(SkPoint) + (this->hasColors() ? sizeof(GrColor) : 0);
-    SkASSERT(vertexStride == gp->debugOnly_vertexStride());
+    size_t vertexStride = gp->getVertexStride();
+    SkASSERT(vertexStride ==
+             sizeof(SkPoint) + sizeof(SkPoint) + (this->hasColors() ? sizeof(GrColor) : 0));
 
     QuadHelper helper;
     int numQuads = this->quadCount();

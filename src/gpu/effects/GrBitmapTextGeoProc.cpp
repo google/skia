@@ -40,7 +40,7 @@ public:
         GrGLSLVarying uv(kFloat2_GrSLType);
         GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
         GrGLSLVarying texIdx(texIdxType);
-        append_index_uv_varyings(args, btgp.inTextureCoords().name(), atlasSizeInvName, &uv,
+        append_index_uv_varyings(args, btgp.inTextureCoords()->name(), atlasSizeInvName, &uv,
                                  &texIdx, nullptr);
 
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -53,13 +53,13 @@ public:
         }
 
         // Setup position
-        gpArgs->fPositionVar = btgp.inPosition().asShaderVar();
+        gpArgs->fPositionVar = btgp.inPosition()->asShaderVar();
 
         // emit transforms
         this->emitTransforms(vertBuilder,
                              varyingHandler,
                              uniformHandler,
-                             btgp.inPosition().asShaderVar(),
+                             btgp.inPosition()->asShaderVar(),
                              btgp.localMatrix(),
                              args.fFPCoordTransformHandler);
 
@@ -129,36 +129,29 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color,
         , fColor(color)
         , fLocalMatrix(localMatrix)
         , fUsesW(usesW)
+        , fInColor(nullptr)
         , fMaskFormat(format) {
     SkASSERT(numActiveProxies <= kMaxTextures);
 
     if (usesW) {
-        fInPosition = {"inPosition", kFloat3_GrVertexAttribType};
+        fInPosition = &this->addVertexAttrib("inPosition", kFloat3_GrVertexAttribType);
     } else {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType};
+        fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
     }
-    fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType};
-    int cnt = 2;
 
     bool hasVertexColor = kA8_GrMaskFormat == fMaskFormat ||
                           kA565_GrMaskFormat == fMaskFormat;
     if (hasVertexColor) {
-        fInColor = {"inColor", kUByte4_norm_GrVertexAttribType};
-        ++cnt;
+        fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
     }
 
-    this->setVertexAttributeCnt(cnt);
-
+    fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kUShort2_GrVertexAttribType);
     for (int i = 0; i < numActiveProxies; ++i) {
         SkASSERT(proxies[i]);
 
         fTextureSamplers[i].reset(std::move(proxies[i]), params);
         this->addTextureSampler(&fTextureSamplers[i]);
     }
-}
-
-const GrPrimitiveProcessor::Attribute& GrBitmapTextGeoProc::onVertexAttribute(int i) const {
-    return IthInitializedAttribute(i, fInPosition, fInColor, fInTextureCoords);
 }
 
 void GrBitmapTextGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* proxies,

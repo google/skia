@@ -10,6 +10,7 @@
 #define GrGLProgram_DEFINED
 
 #include "GrGLProgramDataManager.h"
+#include "GrPrimitiveProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
 
@@ -34,18 +35,15 @@ public:
      */
     struct Attribute {
         GrVertexAttribType fType;
-        size_t fOffset;
+        int fOffset;
         GrGLint fLocation;
+        GrPrimitiveProcessor::Attribute::InputRate fInputRate;
     };
 
     using UniformHandle = GrGLSLProgramDataManager::UniformHandle;
     using UniformInfoArray = GrGLProgramDataManager::UniformInfoArray;
     using VaryingInfoArray = GrGLProgramDataManager::VaryingInfoArray;
 
-    /**
-     * The attribute array consists of vertexAttributeCnt + instanceAttributeCnt elements with
-     * the vertex attributes preceding the instance attributes.
-     */
     GrGLProgram(GrGLGpu*,
                 const GrGLSLBuiltinUniformHandles&,
                 GrGLuint programID,
@@ -58,8 +56,7 @@ public:
                 std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors,
                 int fragmentProcessorCnt,
                 std::unique_ptr<Attribute[]>,
-                int vertexAttributeCnt,
-                int instanceAttributeCnt,
+                int attributeCnt,
                 int vertexStride,
                 int instanceStride);
 
@@ -127,17 +124,8 @@ public:
     int vertexStride() const { return fVertexStride; }
     int instanceStride() const { return fInstanceStride; }
 
-    int numVertexAttributes() const { return fVertexAttributeCnt; }
-    const Attribute& vertexAttribute(int i) const {
-        SkASSERT(i >= 0 && i < fVertexAttributeCnt);
-        return fAttributes[i];
-    }
-
-    int numInstanceAttributes() const { return fInstanceAttributeCnt; }
-    const Attribute& instanceAttribute(int i) const {
-        SkASSERT(i >= 0 && i < fInstanceAttributeCnt);
-        return fAttributes[i + fVertexAttributeCnt];
-    }
+    int numAttributes() const { return fAttributeCnt; }
+    const Attribute& attribute(int i) const { return fAttributes[i]; }
 
 private:
     // A helper to loop over effects, set the transforms (via subclass) and bind textures
@@ -165,8 +153,7 @@ private:
     int fFragmentProcessorCnt;
 
     std::unique_ptr<Attribute[]> fAttributes;
-    int fVertexAttributeCnt;
-    int fInstanceAttributeCnt;
+    int fAttributeCnt;
     int fVertexStride;
     int fInstanceStride;
 
