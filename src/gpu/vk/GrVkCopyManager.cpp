@@ -17,6 +17,7 @@
 #include "GrVkDescriptorSet.h"
 #include "GrVkGpu.h"
 #include "GrVkImageView.h"
+#include "GrVkPipelineLayout.h"
 #include "GrVkRenderTarget.h"
 #include "GrVkResourceProvider.h"
 #include "GrVkSampler.h"
@@ -30,7 +31,7 @@
 GrVkCopyManager::GrVkCopyManager()
     : fVertShaderModule(VK_NULL_HANDLE)
     , fFragShaderModule(VK_NULL_HANDLE)
-    , fPipelineLayout(VK_NULL_HANDLE) {}
+    , fPipelineLayout(nullptr) {}
 
 GrVkCopyManager::~GrVkCopyManager() {}
 
@@ -114,14 +115,17 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
     layoutCreateInfo.pushConstantRangeCount = 0;
     layoutCreateInfo.pPushConstantRanges = nullptr;
 
+    VkPipelineLayout pipelineLayout;
     VkResult err = GR_VK_CALL(gpu->vkInterface(), CreatePipelineLayout(gpu->device(),
                                                                        &layoutCreateInfo,
                                                                        nullptr,
-                                                                       &fPipelineLayout));
+                                                                       &pipelineLayout));
     if (err) {
         this->destroyResources(gpu);
         return false;
     }
+
+    fPipelineLayout = new GrVkPipelineLayout(pipelineLayout);
 
     static const float vdata[] = {
         0, 0,
@@ -169,7 +173,7 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
 
     if (VK_NULL_HANDLE == fVertShaderModule) {
         SkASSERT(VK_NULL_HANDLE == fFragShaderModule &&
-                 VK_NULL_HANDLE == fPipelineLayout &&
+                 nullptr == fPipelineLayout &&
                  nullptr == fVertexBuffer.get() &&
                  nullptr == fUniformBuffer.get());
         if (!this->createCopyProgram(gpu)) {
@@ -177,12 +181,13 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
             return false;
         }
     }
+    SkASSERT(fPipelineLayout);
 
     GrVkResourceProvider& resourceProv = gpu->resourceProvider();
 
     GrVkCopyPipeline* pipeline = resourceProv.findOrCreateCopyPipeline(rt,
                                                                        fShaderStageInfo,
-                                                                       fPipelineLayout);
+                                                                       fPipelineLayout->layout());
     if (!pipeline) {
         return false;
     }
@@ -412,10 +417,9 @@ void GrVkCopyManager::destroyResources(GrVkGpu* gpu) {
         fFragShaderModule = VK_NULL_HANDLE;
     }
 
-    if (VK_NULL_HANDLE != fPipelineLayout) {
-        GR_VK_CALL(gpu->vkInterface(), DestroyPipelineLayout(gpu->device(), fPipelineLayout,
-                                                             nullptr));
-        fPipelineLayout = VK_NULL_HANDLE;
+    if (fPipelineLayout) {
+        fPipelineLayout->unref(gpu);
+        fPipelineLayout = nullptr;
     }
 
     if (fUniformBuffer) {
@@ -427,7 +431,10 @@ void GrVkCopyManager::destroyResources(GrVkGpu* gpu) {
 void GrVkCopyManager::abandonResources() {
     fVertShaderModule = VK_NULL_HANDLE;
     fFragShaderModule = VK_NULL_HANDLE;
-    fPipelineLayout = VK_NULL_HANDLE;
+    if (fPipelineLayout) {
+        fPipelineLayout->unrefAndAbandon();
+        fPipelineLayout = nullptr;
+    }
 
     if (fUniformBuffer) {
         fUniformBuffer->abandon();
