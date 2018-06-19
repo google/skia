@@ -308,7 +308,13 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
     int prevIndex = inputPolygonSize - 1;
     int currIndex = 0;
     int insetVertexCount = inputPolygonSize;
+    int iterations = 0;
     while (prevIndex != currIndex) {
+        ++iterations;
+        if (iterations > inputPolygonSize*inputPolygonSize) {
+            return false;
+        }
+
         if (!edgeData[prevIndex].fValid) {
             prevIndex = (prevIndex + inputPolygonSize - 1) % inputPolygonSize;
             continue;
