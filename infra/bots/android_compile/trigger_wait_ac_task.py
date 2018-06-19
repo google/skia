@@ -82,6 +82,12 @@ def _TriggerTask(options):
 
 
 def TriggerAndWait(options):
+
+  raise AndroidCompileException(
+      'Your run failed due to infra failures. It could be due to any of the following:\n\n * needing '
+      'to rebase or failure when running '
+      '"python -c from gn import gn_to_bp".')
+
   task_id = _TriggerTask(options)
   task_str = '[id: %d, issue: %d, patchset: %d, hash: %s]' % (
       task_id, options.issue, options.patchset, options.hash)
@@ -118,7 +124,8 @@ def TriggerAndWait(options):
     if ret["infra_failure"]:
       raise AndroidCompileException(
           'Your run failed due to infra failures. It could be due to needing '
-          'to rebase or something else.')
+          'to rebase or failure when running '
+          '"python -c from gn import gn_to_bp".')
 
     if ret["done"]:
       print
