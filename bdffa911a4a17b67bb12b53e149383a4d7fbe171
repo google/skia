@@ -52,6 +52,24 @@
       "revId": "bdffa911a4a17b67bb12b53e149383a4d7fbe171",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0939dd70_86015b8f",
+        "filename": "modules/skjson/src/SkJSON.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-19T02:03:54Z",
+      "side": 1,
+      "message": "\u003e Sounds good.  Though I tend to err towards not-the-LUT when things are this close, because microbenchmarks present tables at their most favorable, while compute-based strategies are pretty much always the same cost no matter how trashed the cache is.\n\nGood point re. cache sensitivity.  Let me check Android/32, and if nothing\u0027s too weird I\u0027ll just switch to v#1.\n\n\u003e \n\u003e This may be the first time I\u0027ve wanted to use the BMI/BMI2 instructions that came in Haswell*!  I think this would be an ideal spot for BZHI?  (https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text\u003dbzhi\u0026expand\u003d579)\n\nOh yeah, that does look perfect!",
+      "parentUuid": "501d73ef_13ae0990",
+      "revId": "bdffa911a4a17b67bb12b53e149383a4d7fbe171",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
