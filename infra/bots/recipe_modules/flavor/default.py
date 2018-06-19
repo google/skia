@@ -79,10 +79,8 @@ class DefaultFlavor(object):
     self._chrome_path = None
     self.device_dirs = DeviceDirs(
         bin_dir=self.m.vars.build_dir,
-        dm_dir=self.m.path.join(self.m.vars.swarming_out_dir, 'dm'),
-        perf_data_dir=self.m.path.join(
-            self.m.vars.swarming_out_dir,
-            'perfdata', self.m.vars.builder_name, 'data'),
+        dm_dir=self.m.vars.swarming_out_dir,
+        perf_data_dir=self.m.vars.swarming_out_dir,
         resource_dir=self.m.path['start_dir'].join('skia', 'resources'),
         images_dir=self.m.path['start_dir'].join('skimage'),
         skp_dir=self.m.path['start_dir'].join('skp'),

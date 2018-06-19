@@ -793,7 +793,7 @@
       "/usr/bin/adb.1.0.35",
       "pull",
       "/sdcard/revenge_of_the_skiabot/dm_out",
-      "[START_DIR]/[SWARM_OUT_DIR]/dm"
+      "[TMP_BASE]/adb_pull_tmp_1"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -802,7 +802,68 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm"
+    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[TMP_BASE]/adb_pull_tmp_1",
+      "dm_out/*"
+    ],
+    "infra_step": true,
+    "name": "list pulled files",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@glob@[TMP_BASE]/adb_pull_tmp_1/1.png@@@",
+      "@@@STEP_LOG_LINE@glob@[TMP_BASE]/adb_pull_tmp_1/2.png@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[TMP_BASE]/adb_pull_tmp_1/1.png",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "infra_step": true,
+    "name": "copy 1.png"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[TMP_BASE]/adb_pull_tmp_1/2.png",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "infra_step": true,
+    "name": "copy 2.png"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "rmtree",
+      "[TMP_BASE]/adb_pull_tmp_1"
+    ],
+    "infra_step": true,
+    "name": "rmtree [TMP_BASE]/adb_pull_tmp_1"
   },
   {
     "cmd": [
