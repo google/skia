@@ -70,9 +70,10 @@ void main() {
     } else {
         // Simulate the integer effect used above using step/mod. For speed, simulates a 4x4
         // dither pattern rather than an 8x8 one.
-        half4 modValues = mod(sk_FragCoord.xyxy, half4(2.0, 2.0, 4.0, 4.0));
-        half4 stepValues = step(modValues, half4(1.0, 1.0, 2.0, 2.0));
-        value = dot(stepValues, half4(8.0 / 16.0, 4.0 / 16.0, 2.0 / 16.0, 1.0 / 16.0)) - 15.0 / 32.0;
+        half4 modValues = half4(mod(sk_FragCoord.xyxy, half4(2.0, 2.0, 4.0, 4.0)));
+        half4 stepValues = half4(step(modValues, half4(1.0, 1.0, 2.0, 2.0)));
+        value = half(dot(stepValues, half4(8.0 / 16.0, 4.0 / 16.0, 2.0 / 16.0, 1.0 / 16.0)) - 
+                     15.0 / 32.0);
     }
     // For each color channel, add the random offset to the channel value and then clamp
     // between 0 and alpha to keep the color premultiplied.

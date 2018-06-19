@@ -53,7 +53,7 @@ void main() {
             color.a = outerThreshold;
         }
     } else if (color.a < innerThreshold) {
-        half scale = innerThreshold / max(0.001, color.a);
+        half scale = half(innerThreshold / max(0.001, color.a));
         color.rgb *= scale;
         color.a = innerThreshold;
     }

@@ -166,10 +166,10 @@ uniform half blurRadius;
 void main() {
     // warp the fragment position to the appropriate part of the 9patch blur texture
 
-    half2 rectCenter = (proxyRect.xy + proxyRect.zw) / 2.0;
-    half2 translatedFragPos = sk_FragCoord.xy - proxyRect.xy;
-    half threshold = cornerRadius + 2.0 * blurRadius;
-    half2 middle = proxyRect.zw - proxyRect.xy - 2.0 * threshold;
+    half2 rectCenter = half2((proxyRect.xy + proxyRect.zw) / 2.0);
+    half2 translatedFragPos = half2(sk_FragCoord.xy - proxyRect.xy);
+    half threshold = half(cornerRadius + 2.0 * blurRadius);
+    half2 middle = half2(proxyRect.zw - proxyRect.xy - 2.0 * threshold);
 
     if (translatedFragPos.x >= threshold && translatedFragPos.x < (middle.x + threshold)) {
             translatedFragPos.x = threshold;

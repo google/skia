@@ -14,6 +14,9 @@ int Type::coercionCost(const Type& other) const {
     if (*this == other) {
         return 0;
     }
+    if (this->priority() > other.priority()) {
+        return INT_MAX;
+    }
     if (this->kind() == kVector_Kind && other.kind() == kVector_Kind) {
         if (this->columns() == other.columns()) {
             return this->componentType().coercionCost(other.componentType());

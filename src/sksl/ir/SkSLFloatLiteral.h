@@ -19,7 +19,7 @@ namespace SkSL {
 struct FloatLiteral : public Expression {
     FloatLiteral(const Context& context, int offset, double value,
                  const Type* type = nullptr)
-    : INHERITED(offset, kFloatLiteral_Kind, type ? *type : *context.fFloat_Type)
+    : INHERITED(offset, kFloatLiteral_Kind, type ? *type : *context.fHalf_Type)
     , fValue(value) {}
 
     String description() const override {

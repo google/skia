@@ -152,17 +152,18 @@ layout(key) in PMConversion pmConversion;
 void main() {
     // Aggressively round to the nearest exact (N / 255) floating point value. This lets us find a
     // round-trip preserving pair on some GPUs that do odd byte to float conversion.
-    sk_OutColor = floor(sk_InColor * 255 + 0.5) / 255;
+    sk_OutColor = half4(floor(sk_InColor * 255 + 0.5) / 255);
 
     @switch (pmConversion) {
         case PMConversion::kToPremul:
-            sk_OutColor.rgb = floor(sk_OutColor.rgb * sk_OutColor.a * 255 + 0.5) / 255;
+            sk_OutColor.rgb = half3(floor(sk_OutColor.rgb * sk_OutColor.a * 255 + 0.5) / 255);
             break;
 
         case PMConversion::kToUnpremul:
-            sk_OutColor.rgb = sk_OutColor.a <= 0.0 ?
-                                          half3(0) :
-                                          floor(sk_OutColor.rgb / sk_OutColor.a * 255 + 0.5) / 255;
+            sk_OutColor.rgb = half3(sk_OutColor.a <= 0.5 ?
+                                                half3(0) :
+                                                floor(sk_OutColor.rgb /
+                                                sk_OutColor.a * 255 + 0.5) / 255);
             break;
     }
 }

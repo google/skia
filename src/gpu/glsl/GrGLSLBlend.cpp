@@ -56,7 +56,7 @@ static void color_dodge_component(GrGLSLFragmentBuilder* fsBuilder,
                            final, component, src, dst, src, component, dst, dst, component,
                            src);
     fsBuilder->codeAppend("} else {");
-    fsBuilder->codeAppendf("d = min(%s.a, %s.%c * %s.a / (d %s));",
+    fsBuilder->codeAppendf("d = half(min(%s.a, %s.%c * %s.a / (d %s)));",
                            dst, dst, component, src, divisorGuard);
     fsBuilder->codeAppendf("%s.%c = d * %s.a + %s.%c * (1.0 - %s.a) + %s.%c * (1.0 - %s.a);",
                            final, component, src, src, component, dst, dst, component, src);
@@ -84,7 +84,7 @@ static void color_burn_component(GrGLSLFragmentBuilder* fsBuilder,
     fsBuilder->codeAppendf("%s.%c = %s.%c * (1.0 - %s.a);",
                            final, component, dst, component, src);
     fsBuilder->codeAppend("} else {");
-    fsBuilder->codeAppendf("half d = max(0.0, %s.a - (%s.a - %s.%c) * %s.a / (%s.%c %s));",
+    fsBuilder->codeAppendf("half d = half(max(0.0, %s.a - (%s.a - %s.%c) * %s.a / (%s.%c %s)));",
                            dst, dst, dst, component, src, src, component, divisorGuard);
     fsBuilder->codeAppendf("%s.%c = %s.a * d + %s.%c * (1.0 - %s.a) + %s.%c * (1.0 - %s.a);",
                            final, component, src, src, component, dst, dst, component, src);
@@ -129,8 +129,8 @@ static void soft_light_component_pos_dst_alpha(GrGLSLFragmentBuilder* fsBuilder,
                            component, src, component, divisorGuard);
     fsBuilder->codeAppendf("} else {");
     // -sqrt(Da * D) (Sa-2 S)-Da S+D (Sa-2 S+1)+S
-    fsBuilder->codeAppendf("%s.%c = %s.%c*(%s.a - 2.0*%s.%c + 1.0) + %s.%c -"
-                           " sqrt(%s.a*%s.%c)*(%s.a - 2.0*%s.%c) - %s.a*%s.%c;",
+    fsBuilder->codeAppendf("%s.%c = half(%s.%c*(%s.a - 2.0*%s.%c + 1.0) + %s.%c -"
+                           " sqrt(%s.a*%s.%c)*(%s.a - 2.0*%s.%c) - %s.a*%s.%c);",
                            final, component, dst, component, src, src, component, src, component,
                            dst, dst, component, src, src, component, dst, src, component);
     fsBuilder->codeAppendf("}");
@@ -146,7 +146,7 @@ static void add_lum_function(GrGLSLFragmentBuilder* fsBuilder, SkString* setLumF
     GrShaderVar getLumArgs[] = {
         GrShaderVar("color", kHalf3_GrSLType),
     };
-    SkString getLumBody("return dot(float3(0.3, 0.59, 0.11), color);");
+    SkString getLumBody("return half(dot(float3(0.3, 0.59, 0.11), color));");
     fsBuilder->emitFunction(kHalf_GrSLType,
                             "luminance",
                             SK_ARRAY_COUNT(getLumArgs), getLumArgs,
@@ -163,8 +163,8 @@ static void add_lum_function(GrGLSLFragmentBuilder* fsBuilder, SkString* setLumF
     setLumBody.printf("half diff = %s(lumColor - hueSat);", getFunction.c_str());
     setLumBody.append("half3 outColor = hueSat + diff;");
     setLumBody.appendf("half outLum = %s(outColor);", getFunction.c_str());
-    setLumBody.append("half minComp = min(min(outColor.r, outColor.g), outColor.b);"
-                      "half maxComp = max(max(outColor.r, outColor.g), outColor.b);"
+    setLumBody.append("half minComp = half(min(min(outColor.r, outColor.g), outColor.b));"
+                      "half maxComp = half(max(max(outColor.r, outColor.g), outColor.b));"
                       "if (minComp < 0.0 && outLum != minComp) {"
                       "outColor = outLum + ((outColor - half3(outLum, outLum, outLum)) * outLum) /"
                       "(outLum - minComp);"
@@ -190,8 +190,8 @@ static void add_sat_function(GrGLSLFragmentBuilder* fsBuilder, SkString* setSatF
     SkString getFunction;
     GrShaderVar getSatArgs[] = { GrShaderVar("color", kHalf3_GrSLType) };
     SkString getSatBody;
-    getSatBody.printf("return max(max(color.r, color.g), color.b) - "
-                      "min(min(color.r, color.g), color.b);");
+    getSatBody.printf("return half(max(max(color.r, color.g), color.b) - "
+                      "min(min(color.r, color.g), color.b));");
     fsBuilder->emitFunction(kHalf_GrSLType,
                             "saturation",
                             SK_ARRAY_COUNT(getSatArgs), getSatArgs,
@@ -272,15 +272,15 @@ static void emit_advanced_xfermode_code(GrGLSLFragmentBuilder* fsBuilder, const 
             hard_light(fsBuilder, outputColor, dstColor, srcColor);
             break;
         case SkBlendMode::kDarken:
-            fsBuilder->codeAppendf("%s.rgb = min((1.0 - %s.a) * %s.rgb + %s.rgb, "
-                                   "(1.0 - %s.a) * %s.rgb + %s.rgb);",
+            fsBuilder->codeAppendf("%s.rgb = half3(min((1.0 - %s.a) * %s.rgb + %s.rgb, "
+                                   "(1.0 - %s.a) * %s.rgb + %s.rgb));",
                                    outputColor,
                                    srcColor, dstColor, srcColor,
                                    dstColor, srcColor, dstColor);
             break;
         case SkBlendMode::kLighten:
-            fsBuilder->codeAppendf("%s.rgb = max((1.0 - %s.a) * %s.rgb + %s.rgb, "
-                                   "(1.0 - %s.a) * %s.rgb + %s.rgb);",
+            fsBuilder->codeAppendf("%s.rgb = half3(max((1.0 - %s.a) * %s.rgb + %s.rgb, "
+                                   "(1.0 - %s.a) * %s.rgb + %s.rgb));",
                                    outputColor,
                                    srcColor, dstColor, srcColor,
                                    dstColor, srcColor, dstColor);
@@ -308,8 +308,8 @@ static void emit_advanced_xfermode_code(GrGLSLFragmentBuilder* fsBuilder, const 
             fsBuilder->codeAppendf("}");
             break;
         case SkBlendMode::kDifference:
-            fsBuilder->codeAppendf("%s.rgb = %s.rgb + %s.rgb -"
-                                   "2.0 * min(%s.rgb * %s.a, %s.rgb * %s.a);",
+            fsBuilder->codeAppendf("%s.rgb = half3(%s.rgb + %s.rgb -"
+                                   "2.0 * min(%s.rgb * %s.a, %s.rgb * %s.a));",
                                    outputColor, srcColor, dstColor, srcColor, dstColor,
                                    dstColor, srcColor);
             break;
@@ -446,7 +446,7 @@ void GrGLSLBlend::AppendMode(GrGLSLFragmentBuilder* fsBuilder, const char* srcCo
 
         fsBuilder->codeAppendf("%s = ", outColor);
         if (clamp) {
-            fsBuilder->codeAppend("clamp(");
+            fsBuilder->codeAppend("half4(clamp(");
         }
         // append src blend
         bool didAppend = append_porterduff_term(fsBuilder, srcCoeff, srcColor, srcColor, dstColor,
@@ -456,7 +456,7 @@ void GrGLSLBlend::AppendMode(GrGLSLFragmentBuilder* fsBuilder, const char* srcCo
             fsBuilder->codeAppend("half4(0, 0, 0, 0)");
         }
         if (clamp) {
-            fsBuilder->codeAppend(", 0, 1);");
+            fsBuilder->codeAppend(", 0, 1));");
         }
         fsBuilder->codeAppend(";");
     } else {

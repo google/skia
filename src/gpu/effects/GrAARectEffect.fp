@@ -25,13 +25,13 @@ void main() {
             // The amount of coverage removed in x and y by the edges is computed as a pair of
             // negative numbers, xSub and ySub.
             half xSub, ySub;
-            xSub = min(sk_FragCoord.x - rectUniform.x, 0.0);
-            xSub += min(rectUniform.z - sk_FragCoord.x, 0.0);
-            ySub = min(sk_FragCoord.y - rectUniform.y, 0.0);
-            ySub += min(rectUniform.w - sk_FragCoord.y, 0.0);
+            xSub = half(min(sk_FragCoord.x - rectUniform.x, 0.0));
+            xSub += half(min(rectUniform.z - sk_FragCoord.x, 0.0));
+            ySub = half(min(sk_FragCoord.y - rectUniform.y, 0.0));
+            ySub += half(min(rectUniform.w - sk_FragCoord.y, 0.0));
             // Now compute coverage in x and y and multiply them to get the fraction of the pixel
             // covered.
-            alpha = (1.0 + max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));
+            alpha = half((1.0 + max(xSub, -1.0)) * (1.0 + max(ySub, -1.0)));
     }
 
     @if (edgeType == GrClipEdgeType::kInverseFillBW || edgeType == GrClipEdgeType::kInverseFillAA) {
