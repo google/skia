@@ -23,16 +23,7 @@ struct AppendStage : public Expression {
     , fStage(stage)
     , fArguments(std::move(arguments)) {}
 
-    std::unique_ptr<Expression> clone() const override {
-        std::vector<std::unique_ptr<Expression>> cloned;
-        for (const auto& arg : fArguments) {
-            cloned.push_back(arg->clone());
-        }
-        return std::unique_ptr<Expression>(new AppendStage(fOffset, fStage, std::move(cloned),
-                                                           &fType));
-    }
-
-    String description() const override {
+    String description() const {
         String result = "append(";
         const char* separator = "";
         for (const auto& a : fArguments) {
@@ -44,7 +35,7 @@ struct AppendStage : public Expression {
         return result;
     }
 
-    bool hasSideEffects() const override {
+    bool hasSideEffects() const {
         return true;
     }
 
@@ -53,14 +44,6 @@ struct AppendStage : public Expression {
     std::vector<std::unique_ptr<Expression>> fArguments;
 
     typedef Expression INHERITED;
-
-private:
-    AppendStage(int offset, SkRasterPipeline::StockStage stage,
-                std::vector<std::unique_ptr<Expression>> arguments, const Type* type)
-    : INHERITED(offset, kAppendStage_Kind, *type)
-    , fStage(stage)
-    , fArguments(std::move(arguments)) {}
-
 };
 
 } // namespace

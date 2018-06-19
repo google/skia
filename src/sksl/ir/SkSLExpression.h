@@ -106,8 +106,6 @@ struct Expression : public IRNode {
         return fType.coercionCost(target);
     }
 
-    virtual std::unique_ptr<Expression> clone() const = 0;
-
     const Kind fKind;
     const Type& fType;
 
