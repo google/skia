@@ -30,7 +30,6 @@
 #include <GrBackendSurface.h>
 #include <SkSurface.h>
 #include <Skottie.h>
-
 #include "arcore_c_api.h"
 #include "background_renderer.h"
 #include "glm.h"
@@ -51,8 +50,11 @@ namespace hello_ar {
 
         ~HelloArApplication();
 
-        SkMatrix SkiaRenderer(const glm::mat4 &proj, const glm::mat4 &view, const glm::mat4 &model);
+        // Returns true if any planes have been detected.  Used for hiding the
+        // "searching for planes" snackbar.
+        bool HasDetectedPlanes() const { return plane_count_ > 0; }
 
+        /* Application life cycle functions */
         // OnPause is called on the UI thread from the Activity's onPause method.
         void OnPause();
 
@@ -78,57 +80,41 @@ namespace hello_ar {
         // OnDrawFrame is called on the OpenGL thread to render the next frame.
         void OnDrawFrame();
 
+        /* OnTouch functions */
+        // Handles every touch: every touch gestures goes through here first to determine if
+        // we are adding a new anchor or if we are editing an old one
         bool OnTouchedFirst(float x, float y, int drawMode);
 
+        // Handles translating a pre-existing anchor
         void OnTouchTranslate(float x, float y);
 
-        void OnEditTouched(float x, float y);
-
+        // Handles adding a new anchor & computing its model matrices
         void OnTouchedFinal(int type);
 
+        /* Anchor management */
+        // Handles all operations associated with deleting an anchor (memory & state management)
         void RemoveAnchor(ArAnchor* anchor);
 
+        // Handles all operations associated with adding an anchor (memory & state management)
         void AddAnchor(ArAnchor* anchor, ArPlane* containingPlane);
 
-        void UpdateMatrixMaps(ArAnchor* anchorKey, glm::mat4 aaMat, glm::mat4 caMat, glm::mat4 snapMat);
+        /* Model matrix computations */
+        // Updates model matrix maps with new anchor-matrix key-value pairs
+        void AddModelMatrices(ArAnchor* anchorKey, glm::mat4 aaMat, glm::mat4 caMat, glm::mat4 snapMat);
 
+        // Handles creating all model matrices for a given anchor
         void SetModelMatrices(glm::mat4& aaMat, glm::mat4& caMat, glm::mat4& snapMat, const glm::mat4& planeModel);
 
+    private:
         void SetCameraAlignedMatrix(glm::mat4& caMat, glm::vec3 hitPos, glm::mat4& planeModel, const glm::mat4& initRotation);
 
-        // Returns true if any planes have been detected.  Used for hiding the
-        // "searching for planes" snackbar.
-        bool HasDetectedPlanes() const { return plane_count_ > 0; }
-
-        glm::mat4
-        ComputeCameraAlignedMatrix(ArPlane *arPlane, glm::mat4 planeModel, glm::mat4 initRotation,
-                                   glm::vec4 anchorPos,
-                                   glm::vec3 cameraPos, glm::vec3 hitPos,
-                                   float cameraDisplayOutRaw[]);
-
-    private:
         ArSession *ar_session_ = nullptr;
         ArFrame *ar_frame_ = nullptr;
-
+        AAssetManager *const asset_manager_;
         PendingAnchor* pendingAnchor = nullptr;
 
-        //SKIA VARS
+        //Skia state
         sk_sp<GrContext> grContext;
-        sk_sp<skottie::Animation> fAnim;
-        SkScalar fAnimT = 0;
-
-        bool install_requested_ = false;
-        int width_ = 1;
-        int height_ = 1;
-        int display_rotation_ = 0;
-
-        int currentObjectRotation = 0;
-        float currentValue = 0;
-
-        std::vector<glm::vec3> begins;
-        std::vector<glm::vec3> ends;
-
-        AAssetManager *const asset_manager_;
 
         // The anchors at which we are drawing android models
         std::vector<ArAnchor *> tracked_obj_set_;
@@ -136,22 +122,32 @@ namespace hello_ar {
         // Stores the randomly-selected color each plane is drawn with
         std::unordered_map<ArPlane *, glm::vec3> plane_color_map_;
 
+        // Maps from ArAnchor to model matrix
         std::unordered_map<ArAnchor *, SkMatrix44> anchor_skmat4_axis_aligned_map_;
         std::unordered_map<ArAnchor *, SkMatrix44> anchor_skmat4_camera_aligned_map_;
         std::unordered_map<ArAnchor *, SkMatrix44> anchor_skmat4_snap_aligned_map_;
 
+        // Maps from ArPlane to set of contained ArAnchors, and from ArAnchor to containing ArPlane
         std::unordered_map<ArPlane *, std::vector<ArAnchor*>> plane_anchors_map_;
         std::unordered_map<ArAnchor *, ArPlane*> anchor_plane_map_;
-
-        // The first plane is always rendered in white, if this is true then a plane
-        // at some point has been found.
-        bool first_plane_has_been_found_ = false;
 
         PointCloudRenderer point_cloud_renderer_;
         BackgroundRenderer background_renderer_;
         PlaneRenderer plane_renderer_;
 
+        bool install_requested_ = false;
+        int width_ = 1;
+        int height_ = 1;
+        int display_rotation_ = 0;
+        // The first plane is always rendered in white, if this is true then a plane
+        // at some point has been found.
+        bool first_plane_has_been_found_ = false;
         int32_t plane_count_ = 0;
+
+        int currentObjectRotation = 0;
+        float currentValue = 0;
+        std::vector<glm::vec3> begins;
+        std::vector<glm::vec3> ends;
     };
 }  // namespace hello_ar
 

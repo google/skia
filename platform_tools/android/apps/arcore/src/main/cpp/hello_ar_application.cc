@@ -34,7 +34,7 @@
 #include "glm.h"
 #include "SkPoint3.h"
 #include "Sk3D.h"
-#include <math.h>       /* acos */
+#include <math.h>
 #include "SkShaper.h"
 #include "Skottie.h"
 #include "SkAnimTimer.h"
@@ -431,13 +431,10 @@ namespace hello_ar {
                 canvas->setMatrix(i);
                 SkMatrix44 mvpv = skViewport * skProj * skView * skModel;
 
-                //Draw XYZ axes
+                //Draw XYZ axes of Skia object
                 DrawAxes(canvas, mvpv);
-                //Drawing camera orientation
-            /*	DrawVector(canvas, vpv, begins[0], ends[0], SK_ColorMAGENTA);
-                DrawVector(canvas, vpv, begins[0], ends[1], SK_ColorYELLOW);
-                DrawVector(canvas, vpv, begins[0], ends[2], SK_ColorCYAN);*/
 
+                //Setup canvas & paint
                 canvas->concat(mvpv);
                 SkPaint paint;
 
@@ -452,7 +449,6 @@ namespace hello_ar {
                 } else {
                     paint.setTextSize(0.1);
                 }
-
                 paint.setAntiAlias(true);
                 const char text[] = "SkAR";
                 size_t byteLength = strlen(static_cast<const char *>(text));
@@ -461,13 +457,12 @@ namespace hello_ar {
                 SkPoint p = SkPoint::Make(0, 0);
                 shaper.shape(&builder, paint, text, byteLength, true, p, 10);
                 canvas->drawTextBlob(builder.make(), 0, 0, paint);
-
-                //DrawBoundingBox(canvas);
             }
             canvas->flush();
         }
     }
 
+    /************* OnTouch functions *************************************************/
 
     bool HelloArApplication::OnTouchedFirst(float x, float y, int drawMode) {
         LOGI("Entered OnTouchedFirst");
@@ -621,41 +616,6 @@ namespace hello_ar {
         }
     }
 
-    void HelloArApplication::AddAnchor(ArAnchor* anchor, ArPlane* containingPlane) {
-        //delete anchor from matrices maps
-        //releasing the anchor if it is not tracking anymore
-        ArTrackingState tracking_state = AR_TRACKING_STATE_STOPPED;
-        ArAnchor_getTrackingState(ar_session_, anchor, &tracking_state);
-        if (tracking_state != AR_TRACKING_STATE_TRACKING) {
-            RemoveAnchor(anchor);
-            return;
-        }
-
-        //releasing the first anchor if we exceeded maximum number of objects to be rendered
-        if (tracked_obj_set_.size() >= kMaxNumberOfAndroidsToRender) {
-            RemoveAnchor(tracked_obj_set_[0]);
-        }
-
-        //updating the containing plane with a new anchor
-        auto planeAnchors = plane_anchors_map_.find(containingPlane);
-        if (planeAnchors != plane_anchors_map_.end()) {
-            //other anchors existed on this plane
-            LOGI("TouchFinal: ADDING TO OLD ANCHORS");
-            std::vector<ArAnchor*> anchors = planeAnchors->second;
-            anchors.push_back(anchor);
-            plane_anchors_map_[containingPlane] = anchors;
-            anchor_plane_map_.insert({anchor, containingPlane});
-        } else {
-            LOGI("TouchFinal: NEW SET OF ANCHORS");
-            std::vector<ArAnchor*> anchors;
-            anchors.push_back(anchor);
-            plane_anchors_map_.insert({containingPlane, anchors});
-            anchor_plane_map_.insert({anchor, containingPlane});
-        }
-
-        tracked_obj_set_.push_back(anchor);
-    }
-
     void HelloArApplication::OnTouchTranslate(float x, float y) {
         LOGI("Entered On Edit Touched");
         ArAnchor *anchor = pendingAnchor->GetArAnchor();
@@ -791,6 +751,76 @@ namespace hello_ar {
         }
     }
 
+    void HelloArApplication::OnTouchedFinal(int type) {
+        LOGI("Entered OnTouchedFinal");
+        if (pendingAnchor == nullptr) {
+            LOGI("WARNING: Entered OnTouchedFinal but no pending anchor..");
+            return;
+        }
+
+        if (pendingAnchor->GetEditMode()) {
+            LOGI("WARNING: Editing old anchor in OnTouchedFinal!");
+        }
+
+        //Get necessary pending anchor info
+        ArPlane* containingPlane = pendingAnchor->GetContainingPlane();
+        glm::vec4 pendingAnchorPos = pendingAnchor->GetAnchorPos(ar_session_);
+        ArAnchor* actualAnchor = pendingAnchor->GetArAnchor();
+
+        //Plane model matrix
+        glm::mat4 planeModel(1);
+        util::GetPlaneModelMatrix(planeModel, ar_session_, containingPlane);
+
+        //Setup skia object model matrices
+        glm::mat4 matrixAxisAligned(1);
+        glm::mat4 matrixCameraAligned(1);
+        glm::mat4 matrixSnapAligned(1);
+        SetModelMatrices(matrixAxisAligned, matrixCameraAligned, matrixSnapAligned, planeModel);
+
+        //Update anchor -> model matrix datastructures
+        AddModelMatrices(actualAnchor, matrixAxisAligned, matrixCameraAligned, matrixSnapAligned);
+
+        //Add anchor to aux datastructures
+        AddAnchor(actualAnchor, containingPlane);
+    }
+
+    /******************* ANCHOR MANAGEMENT ***********************************************/
+
+    void HelloArApplication::AddAnchor(ArAnchor* anchor, ArPlane* containingPlane) {
+        //delete anchor from matrices maps
+        //releasing the anchor if it is not tracking anymore
+        ArTrackingState tracking_state = AR_TRACKING_STATE_STOPPED;
+        ArAnchor_getTrackingState(ar_session_, anchor, &tracking_state);
+        if (tracking_state != AR_TRACKING_STATE_TRACKING) {
+            RemoveAnchor(anchor);
+            return;
+        }
+
+        //releasing the first anchor if we exceeded maximum number of objects to be rendered
+        if (tracked_obj_set_.size() >= kMaxNumberOfAndroidsToRender) {
+            RemoveAnchor(tracked_obj_set_[0]);
+        }
+
+        //updating the containing plane with a new anchor
+        auto planeAnchors = plane_anchors_map_.find(containingPlane);
+        if (planeAnchors != plane_anchors_map_.end()) {
+            //other anchors existed on this plane
+            LOGI("TouchFinal: ADDING TO OLD ANCHORS");
+            std::vector<ArAnchor*> anchors = planeAnchors->second;
+            anchors.push_back(anchor);
+            plane_anchors_map_[containingPlane] = anchors;
+            anchor_plane_map_.insert({anchor, containingPlane});
+        } else {
+            LOGI("TouchFinal: NEW SET OF ANCHORS");
+            std::vector<ArAnchor*> anchors;
+            anchors.push_back(anchor);
+            plane_anchors_map_.insert({containingPlane, anchors});
+            anchor_plane_map_.insert({anchor, containingPlane});
+        }
+
+        tracked_obj_set_.push_back(anchor);
+    }
+
     void HelloArApplication::RemoveAnchor(ArAnchor* anchor) {
         //delete anchor from matrices maps
         anchor_skmat4_axis_aligned_map_.erase(anchor);
@@ -811,122 +841,17 @@ namespace hello_ar {
                 anchor_plane_map_.erase(anchor);
             }
         }
+
         //delete anchor from list of tracked objects
         tracked_obj_set_.erase(std::remove(tracked_obj_set_.begin(), tracked_obj_set_.end(), anchor), tracked_obj_set_.end());
         ArAnchor_release(anchor);
     }
 
-    void HelloArApplication::UpdateMatrixMaps(ArAnchor* anchorKey, glm::mat4 aaMat, glm::mat4 caMat, glm::mat4 snapMat) {
-        anchor_skmat4_axis_aligned_map_.insert({anchorKey, util::GlmMatToSkMat(aaMat)});
-        anchor_skmat4_camera_aligned_map_.insert({anchorKey, util::GlmMatToSkMat(caMat)});
-        anchor_skmat4_snap_aligned_map_.insert({anchorKey, util::GlmMatToSkMat(snapMat)});
-    }
-
-    void SetSkiaInitialRotation(glm::mat4& initRotation) {
-        initRotation = glm::rotate(initRotation, SK_ScalarPI / 2, glm::vec3(1, 0, 0));
-    }
-
-    void SetSkiaObjectAxes(glm::vec3& x, glm::vec3& y, glm::vec3& z, glm::mat4 transform) {
-        x = glm::normalize(glm::vec3(transform * glm::vec4(1, 0, 0, 1))); //X still X
-        y = glm::normalize(glm::vec3(transform  * glm::vec4(0, 1, 0, 1))); //Y is now Z
-        z = glm::normalize(glm::vec3(transform  * glm::vec4(0, 0, 1, 1))); //Z is now Y
-    }
-
-    void SetCameraAlignedRotation(glm::mat4& rotateTowardsCamera, float& rotationDirection, const glm::vec3& toProject, const glm::vec3& skiaY, const glm::vec3& skiaZ) {
-        glm::vec3 hitLookProj = -util::ProjectOntoPlane(toProject, skiaZ);
-        float angleRad = util::AngleRad(skiaY, hitLookProj);
-        glm::vec3 cross = glm::normalize(glm::cross(skiaY, hitLookProj));
-
-        //outs
-        rotationDirection = util::Dot(cross, skiaZ);
-        rotateTowardsCamera = glm::rotate(rotateTowardsCamera, angleRad, rotationDirection * skiaZ);
-    }
-
-    struct CameraAlignmentInfo {
-        glm::vec3& skiaY, skiaZ;
-        glm::mat4& preRot, postRot;
-
-        CameraAlignmentInfo(glm::vec3& skiaY, glm::vec3& skiaZ, glm::mat4 preRot, glm::mat4 postRot)
-                : skiaY(skiaY), skiaZ(skiaZ), preRot(preRot), postRot(postRot) {}
-    };
-
-    void SetCameraAlignedVertical(glm::mat4& caMat, const glm::mat4& camRot, const CameraAlignmentInfo& camAlignInfo) {
-        //Camera axes
-        glm::vec3 xCamera = glm::vec3(glm::vec4(1, 0, 0, 1) * camRot);
-        glm::vec3 yCamera = glm::vec3(glm::vec4(0, 1, 0, 1) * camRot);
-        glm::vec3 zCamera = glm::vec3(glm::vec4(0, 0, -1, 1) * camRot);
-
-        //Get matrix that rotates object from plane towards the wanted angle
-        glm::mat4 rotateTowardsCamera(1);
-        float rotationDirection = 1;
-        SetCameraAlignedRotation(rotateTowardsCamera, rotationDirection, yCamera, camAlignInfo.skiaY, camAlignInfo.skiaZ);
-
-        //LogOrientation(dot, angleRad, "Vertical/Wall");
-        glm::mat4 flip(1);
-        flip = glm::rotate(flip, SK_ScalarPI, rotationDirection * camAlignInfo.skiaZ);
-        caMat = camAlignInfo.postRot * flip * rotateTowardsCamera * camAlignInfo.preRot;
-    }
-
-    void SetCameraAlignedHorizontal(glm::mat4& caMat, ArPlaneType planeType, const glm::vec3 hitLook, const CameraAlignmentInfo& camAlignInfo) {
-        //Ceiling or Floor: follow hit location
-        //Get matrix that rotates object from plane towards the wanted angle
-        glm::mat4 rotateTowardsCamera(1);
-        float rotationDirection = 1;
-        SetCameraAlignedRotation(rotateTowardsCamera, rotationDirection, hitLook, camAlignInfo.skiaY, camAlignInfo.skiaZ);
-
-        if (planeType == ArPlaneType::AR_PLANE_HORIZONTAL_DOWNWARD_FACING) {
-            //ceiling
-            //LogOrientation(dot, angleRad, "Ceiling");
-            glm::mat4 flip(1);
-            flip = glm::rotate(flip, SK_ScalarPI, rotationDirection * camAlignInfo.skiaZ);
-            caMat = camAlignInfo.postRot * flip * rotateTowardsCamera * camAlignInfo.preRot;
-        } else {
-            //floor or tabletop
-            //LogOrientation(dot, angleRad, "Floor");
-            caMat = camAlignInfo.postRot * rotateTowardsCamera * camAlignInfo.preRot;
-        }
-    }
-
-
-
-    void HelloArApplication::SetCameraAlignedMatrix(glm::mat4& caMat, glm::vec3 hitPos, glm::mat4& planeModel, const glm::mat4& initRotation) {
-        //Translation matrices: from plane to origin, and from origin to plane
-        glm::mat4 backToOrigin(1);
-        backToOrigin = glm::translate(backToOrigin, -hitPos);
-        glm::mat4 backToPlane(1);
-        backToPlane = glm::translate(backToPlane, hitPos);
-
-        //Axes of Skia object: start with XYZ, totate to get X(-Z)Y, paste on plane, go back to origin --> plane orientation but on origin
-        glm::vec3 skiaX, skiaY, skiaZ;
-        SetSkiaObjectAxes(skiaX, skiaY, skiaZ, backToOrigin * planeModel * initRotation);
-
-        //Get camera position & rotation
-        glm::vec3 cameraPos;
-        glm::mat4 cameraRotationMatrix;
-        util::GetCameraInfo(ar_session_, ar_frame_, cameraPos, cameraRotationMatrix);
-
-        //Set matrix depending on type of surface
-        ArPlaneType planeType = AR_PLANE_VERTICAL;
-        ArPlane_getType(ar_session_, pendingAnchor->GetContainingPlane(), &planeType);
-
-        //Set CamerAlignmentInfo
-        CameraAlignmentInfo camAlignInfo(skiaY, skiaZ, backToOrigin * planeModel * initRotation, backToPlane);
-
-        if (planeType == ArPlaneType::AR_PLANE_VERTICAL) {
-            //Wall: follow phone orientation
-            SetCameraAlignedVertical(caMat, cameraRotationMatrix, camAlignInfo);
-        } else {
-            //Ceiling or Floor: follow hit location
-            glm::vec3 hitLook(hitPos - cameraPos);
-            SetCameraAlignedHorizontal(caMat, planeType, hitLook, camAlignInfo);
-        }
-    }
-
-
+    /************************ Model Matrix functions ***************/
     void HelloArApplication::SetModelMatrices(glm::mat4& aaMat, glm::mat4& caMat, glm::mat4& snapMat, const glm::mat4& planeModel) {
         //Brings Skia world to ARCore world
         glm::mat4 initRotation(1);
-        SetSkiaInitialRotation(initRotation);
+        util::SetSkiaInitialRotation(initRotation);
 
         //Copy plane model for editing
         glm::mat4 copyPlaneModel(planeModel);
@@ -943,45 +868,45 @@ namespace hello_ar {
         //SetCameraAlignedMatrix(caMat, glm::vec3(anchorPos), copyPlaneModel, initRotation);
     }
 
-    void GetPlaneModelMatrix(glm::mat4& planeModel, ArSession* arSession, ArPlane* arPlane) {
-        ArPose *plane_pose = nullptr;
-        ArPose_create(arSession, nullptr, &plane_pose);
-        ArPlane_getCenterPose(arSession, arPlane, plane_pose);
-        util::GetTransformMatrixFromPose(arSession, plane_pose, &planeModel);
-        ArPose_destroy(plane_pose);
+    // Inserts new key-value pair associated with an anchor & its corresponding model matrix
+    void HelloArApplication::AddModelMatrices(ArAnchor* anchorKey, glm::mat4 aaMat, glm::mat4 caMat, glm::mat4 snapMat) {
+        anchor_skmat4_axis_aligned_map_.insert({anchorKey, util::GlmMatToSkMat(aaMat)});
+        anchor_skmat4_camera_aligned_map_.insert({anchorKey, util::GlmMatToSkMat(caMat)});
+        anchor_skmat4_snap_aligned_map_.insert({anchorKey, util::GlmMatToSkMat(snapMat)});
     }
 
-    void HelloArApplication::OnTouchedFinal(int type) {
-        LOGI("Entered OnTouchedFinal");
-        if (pendingAnchor == nullptr) {
-            LOGI("WARNING: Entered OnTouchedFinal but no pending anchor..");
-            return;
+    // Constructs the model matrix associated with the camera-aligned orientation mode
+    void HelloArApplication::SetCameraAlignedMatrix(glm::mat4& caMat, glm::vec3 hitPos, glm::mat4& planeModel, const glm::mat4& initRotation) {
+        //Translation matrices: from plane to origin, and from origin to plane
+        glm::mat4 backToOrigin(1);
+        backToOrigin = glm::translate(backToOrigin, -hitPos);
+        glm::mat4 backToPlane(1);
+        backToPlane = glm::translate(backToPlane, hitPos);
+
+        //Axes of Skia object: start with XYZ, rotate to get XZY, paste on plane, go back to origin
+        glm::vec3 skiaX, skiaY, skiaZ;
+        util::SetSkiaObjectAxes(skiaX, skiaY, skiaZ, backToOrigin * planeModel * initRotation);
+
+        //Get camera position & rotation
+        glm::vec3 cameraPos;
+        glm::mat4 cameraRotationMatrix;
+        util::GetCameraInfo(ar_session_, ar_frame_, cameraPos, cameraRotationMatrix);
+
+        //Set matrix depending on type of surface
+        ArPlaneType planeType = AR_PLANE_VERTICAL;
+        ArPlane_getType(ar_session_, pendingAnchor->GetContainingPlane(), &planeType);
+
+        //Set CamerAlignmentInfo
+        util::CameraAlignmentInfo camAlignInfo(skiaY, skiaZ, backToOrigin * planeModel * initRotation, backToPlane);
+
+        if (planeType == ArPlaneType::AR_PLANE_VERTICAL) {
+            //Wall: follow phone orientation
+            SetCameraAlignedVertical(caMat, cameraRotationMatrix, camAlignInfo);
+        } else {
+            //Ceiling or Floor: follow hit location
+            glm::vec3 hitLook(hitPos - cameraPos);
+            SetCameraAlignedHorizontal(caMat, planeType, hitLook, camAlignInfo);
         }
-
-        if (pendingAnchor->GetEditMode()) {
-            LOGI("WARNING: Editing old anchor in OnTouchedFinal!");
-        }
-
-        //Get necessary pending anchor info
-        ArPlane* containingPlane = pendingAnchor->GetContainingPlane();
-        glm::vec4 pendingAnchorPos = pendingAnchor->GetAnchorPos(ar_session_);
-        ArAnchor* actualAnchor = pendingAnchor->GetArAnchor();
-
-        //Plane model matrix
-        glm::mat4 planeModel(1);
-        GetPlaneModelMatrix(planeModel, ar_session_, containingPlane);
-
-        //Setup skia object model matrices
-        glm::mat4 matrixAxisAligned(1);
-        glm::mat4 matrixCameraAligned(1);
-        glm::mat4 matrixSnapAligned(1);
-        SetModelMatrices(matrixAxisAligned, matrixCameraAligned, matrixSnapAligned, planeModel);
-
-        //Update anchor -> model matrix datastructures
-        UpdateMatrixMaps(actualAnchor, matrixAxisAligned, matrixCameraAligned, matrixSnapAligned);
-
-        //Add anchor to aux datastructures
-        AddAnchor(actualAnchor, containingPlane);
     }
 
 }  // namespace hello_ar
