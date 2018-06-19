@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7f67f166_95190725",
+        "filename": "src/core/SkUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-19T17:11:54Z",
+      "side": 1,
+      "message": "Nice! Thanks.",
+      "range": {
+        "startLine": 315,
+        "startChar": 8,
+        "endLine": 322,
+        "endChar": 25
+      },
+      "revId": "155fab98c5ef7e7d417c0c871e9aa21bc3976211",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
