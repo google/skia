@@ -12,6 +12,7 @@
 #include "SkData.h"
 #include "SkPoint.h"
 #include "SkRect.h"
+#include "SkAnimation.h"
 #include "SkRefCnt.h"
 
 /**
@@ -28,21 +29,39 @@ public:
     };
 
     /**
-     *  Create a vertices by copying the specified arrays. texs and colors may be nullptr,
+     *  Create a vertices by copying the specified arrays. texs, colors, and bones may be nullptr,
      *  and indices is ignored if indexCount == 0.
      */
     static sk_sp<SkVertices> MakeCopy(VertexMode mode, int vertexCount,
                                       const SkPoint positions[],
                                       const SkPoint texs[],
                                       const SkColor colors[],
+                                      const SkAnimation::Attachment bones[],
                                       int indexCount,
                                       const uint16_t indices[]);
 
     static sk_sp<SkVertices> MakeCopy(VertexMode mode, int vertexCount,
                                       const SkPoint positions[],
                                       const SkPoint texs[],
+                                      const SkColor colors[],
+                                      const SkAnimation::Attachment bones[]) {
+        return MakeCopy(mode, vertexCount, positions, texs, colors, bones, 0, nullptr);
+    }
+
+    static sk_sp<SkVertices> MakeCopy(VertexMode mode, int vertexCount,
+                                      const SkPoint positions[],
+                                      const SkPoint texs[],
+                                      const SkColor colors[],
+                                      int indexCount,
+                                      const uint16_t indices[]) {
+        return MakeCopy(mode, vertexCount, positions, texs, colors, nullptr, indexCount, indices);
+    }
+
+    static sk_sp<SkVertices> MakeCopy(VertexMode mode, int vertexCount,
+                                      const SkPoint positions[],
+                                      const SkPoint texs[],
                                       const SkColor colors[]) {
-        return MakeCopy(mode, vertexCount, positions, texs, colors, 0, nullptr);
+        return MakeCopy(mode, vertexCount, positions, texs, colors, nullptr);
     }
 
     struct Sizes;
@@ -50,6 +69,7 @@ public:
     enum BuilderFlags {
         kHasTexCoords_BuilderFlag   = 1 << 0,
         kHasColors_BuilderFlag      = 1 << 1,
+        kHasBones_BuilderFlag       = 1 << 2,
     };
     class Builder {
     public:
@@ -61,9 +81,10 @@ public:
         int vertexCount() const;
         int indexCount() const;
         SkPoint* positions();
-        SkPoint* texCoords();   // returns null if there are no texCoords
-        SkColor* colors();      // returns null if there are no colors
-        uint16_t* indices();    // returns null if there are no indices
+        SkPoint* texCoords();             // returns null if there are no texCoords
+        SkColor* colors();                // returns null if there are no colors
+        SkAnimation::Attachment* bones(); // returns null if there are no bones
+        uint16_t* indices();              // returns null if there are no indices
 
         // Detach the built vertices object. After the first call, this will always return null.
         sk_sp<SkVertices> detach();
@@ -88,12 +109,15 @@ public:
 
     bool hasColors() const { return SkToBool(this->colors()); }
     bool hasTexCoords() const { return SkToBool(this->texCoords()); }
+    bool hasBones() const { return SkToBool(this->bones()); }
     bool hasIndices() const { return SkToBool(this->indices()); }
 
     int vertexCount() const { return fVertexCnt; }
     const SkPoint* positions() const { return fPositions; }
     const SkPoint* texCoords() const { return fTexs; }
     const SkColor* colors() const { return fColors; }
+
+    const SkAnimation::Attachment* bones() const { return fBones; }
 
     int indexCount() const { return fIndexCnt; }
     const uint16_t* indices() const { return fIndices; }
@@ -128,10 +152,11 @@ private:
     uint32_t fUniqueID;
 
     // these point inside our allocation, so none of these can be "freed"
-    SkPoint*    fPositions;
-    SkPoint*    fTexs;
-    SkColor*    fColors;
-    uint16_t*   fIndices;
+    SkPoint*                 fPositions;
+    SkPoint*                 fTexs;
+    SkColor*                 fColors;
+    SkAnimation::Attachment* fBones;
+    uint16_t*                fIndices;
 
     SkRect  fBounds;    // computed to be the union of the fPositions[]
     int     fVertexCnt;

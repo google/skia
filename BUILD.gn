@@ -1542,6 +1542,9 @@ if (skia_enable_tools) {
         "modules/sksg:samples",
         "modules/skshaper",
       ]
+      if (!is_win) {
+        deps += [ "//third_party/Nima-Cpp" ]
+      }
 
       if (skia_use_lua) {
         sources += [ "samplecode/SampleLua.cpp" ]
@@ -1573,6 +1576,9 @@ if (skia_enable_tools) {
         "//third_party/jsoncpp",
         "//third_party/libpng",
       ]
+      if (!is_win) {
+        deps += [ "//third_party/Nima-Cpp" ]
+      }
     }
   }
 
@@ -1997,6 +2003,9 @@ if (skia_enable_tools) {
       "//third_party/imgui",
       "//third_party/jsoncpp",
     ]
+    if (!is_win) {
+      deps += [ "//third_party/Nima-Cpp" ]
+    }
   }
 
   if (!skia_use_angle && (is_linux || is_win || is_mac)) {

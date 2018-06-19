@@ -17,6 +17,7 @@ skia_core_sources = [
   "$_src/core/SkAnnotation.cpp",
   "$_src/core/SkAdvancedTypefaceMetrics.h",
   "$_src/core/SkAlphaRuns.cpp",
+  "$_src/core/SkAnimation.cpp",
   "$_src/core/SkAntiRun.h",
   "$_src/core/SkATrace.cpp",
   "$_src/core/SkATrace.h",
@@ -382,6 +383,7 @@ skia_core_sources = [
   "$_src/shaders/SkShader.cpp",
   "$_src/shaders/SkShaderBase.h",
 
+  "$_include/core/SkAnimation.h",
   "$_include/core/SkBBHFactory.h",
   "$_include/core/SkBitmap.h",
   "$_include/core/SkCanvas.h",
