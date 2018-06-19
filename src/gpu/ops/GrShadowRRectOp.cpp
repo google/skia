@@ -576,13 +576,12 @@ private:
         sk_sp<GrGeometryProcessor> gp = GrRRectShadowGeoProc::Make();
 
         int instanceCount = fGeoData.count();
-        size_t vertexStride = gp->getVertexStride();
-        SkASSERT(sizeof(CircleVertex) == vertexStride);
+        SkASSERT(sizeof(CircleVertex) == gp->debugOnly_vertexStride());
 
         const GrBuffer* vertexBuffer;
         int firstVertex;
-        CircleVertex* verts = (CircleVertex*)target->makeVertexSpace(vertexStride, fVertCount,
-                                                                     &vertexBuffer, &firstVertex);
+        CircleVertex* verts = (CircleVertex*)target->makeVertexSpace(
+                sizeof(CircleVertex), fVertCount, &vertexBuffer, &firstVertex);
         if (!verts) {
             SkDebugf("Could not allocate vertices\n");
             return;

@@ -77,16 +77,11 @@ public:
     const GrTexture* atlas() const { return fAtlasAccess.peekTexture(); }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
     const Attribute& getInstanceAttrib(InstanceAttribs attribID) const {
-        const Attribute& attrib = this->getAttrib((int)attribID);
-        SkASSERT(Attribute::InputRate::kPerInstance == attrib.inputRate());
-        return attrib;
+        int idx = static_cast<int>(attribID);
+        SkASSERT(idx >= 0 && idx < static_cast<int>(SK_ARRAY_COUNT(kInstanceAttribs)));
+        return kInstanceAttribs[idx];
     }
-    const Attribute& getEdgeNormsAttrib() const {
-        SkASSERT(1 + kNumInstanceAttribs == this->numAttribs());
-        const Attribute& attrib = this->getAttrib(kNumInstanceAttribs);
-        SkASSERT(Attribute::InputRate::kPerVertex == attrib.inputRate());
-        return attrib;
-    }
+    const Attribute& getEdgeNormsAttrib() const { return kEdgeNormsAttrib; }
 
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
@@ -95,8 +90,18 @@ public:
                    int baseInstance, int endInstance, const SkRect& bounds) const;
 
 private:
+    const Attribute& onVertexAttribute(int i) const override { return kEdgeNormsAttrib; }
+    const Attribute& onInstanceAttribute(int i) const override { return kInstanceAttribs[i]; }
+
     const TextureSampler fAtlasAccess;
     SkMatrix fLocalMatrix;
+    static constexpr Attribute kInstanceAttribs[kNumInstanceAttribs] = {
+            {"devbounds", kFloat4_GrVertexAttribType},
+            {"devbounds45", kFloat4_GrVertexAttribType},
+            {"dev_to_atlas_offset", kInt2_GrVertexAttribType},
+            {"color", kUByte4_norm_GrVertexAttribType}
+    };
+    static constexpr Attribute kEdgeNormsAttrib = {"edge_norms", kFloat4_GrVertexAttribType};
 
     typedef GrGeometryProcessor INHERITED;
 };

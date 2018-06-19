@@ -59,37 +59,58 @@ static void setup_vertex_input_state(const GrPrimitiveProcessor& primProc,
                                   VkVertexInputAttributeDescription* attributeDesc) {
     uint32_t vertexBinding = 0, instanceBinding = 0;
 
-    if (primProc.hasVertexAttribs()) {
-        vertexBinding = bindingDescs->count();
-        bindingDescs->push_back() = {
-            vertexBinding,
-            (uint32_t) primProc.getVertexStride(),
-            VK_VERTEX_INPUT_RATE_VERTEX
-        };
+    int nextBinding = bindingDescs->count();
+    if (primProc.hasVertexAttributes()) {
+        vertexBinding = nextBinding++;
     }
 
-    if (primProc.hasInstanceAttribs()) {
-        instanceBinding = bindingDescs->count();
-        bindingDescs->push_back() = {
-            instanceBinding,
-            (uint32_t) primProc.getInstanceStride(),
-            VK_VERTEX_INPUT_RATE_INSTANCE
-        };
+    if (primProc.hasInstanceAttributes()) {
+        instanceBinding = nextBinding;
     }
 
     // setup attribute descriptions
-    int vaCount = primProc.numAttribs();
-    if (vaCount > 0) {
-        for (int attribIndex = 0; attribIndex < vaCount; attribIndex++) {
-            using InputRate = GrPrimitiveProcessor::Attribute::InputRate;
-            const GrGeometryProcessor::Attribute& attrib = primProc.getAttrib(attribIndex);
-            VkVertexInputAttributeDescription& vkAttrib = attributeDesc[attribIndex];
-            vkAttrib.location = attribIndex; // for now assume location = attribIndex
-            vkAttrib.binding =
-                    InputRate::kPerInstance == attrib.inputRate() ? instanceBinding : vertexBinding;
-            vkAttrib.format = attrib_type_to_vkformat(attrib.type());
-            vkAttrib.offset = attrib.offsetInRecord();
-        }
+    int vaCount = primProc.numVertexAttributes();
+    int attribIndex = 0;
+    size_t vertexAttributeOffset = 0;
+    for (; attribIndex < vaCount; attribIndex++) {
+        const GrGeometryProcessor::Attribute& attrib = primProc.vertexAttribute(attribIndex);
+        VkVertexInputAttributeDescription& vkAttrib = attributeDesc[attribIndex];
+        vkAttrib.location = attribIndex;  // for now assume location = attribIndex
+        vkAttrib.binding = vertexBinding;
+        vkAttrib.format = attrib_type_to_vkformat(attrib.type());
+        vkAttrib.offset = vertexAttributeOffset;
+        SkASSERT(vkAttrib.offset == primProc.debugOnly_vertexAttributeOffset(attribIndex));
+        vertexAttributeOffset += attrib.sizeAlign4();
+    }
+    SkASSERT(vertexAttributeOffset == primProc.debugOnly_vertexStride());
+
+    int iaCount = primProc.numInstanceAttributes();
+    size_t instanceAttributeOffset = 0;
+    for (int iaIndex = 0; iaIndex < iaCount; ++iaIndex, ++attribIndex) {
+        const GrGeometryProcessor::Attribute& attrib = primProc.instanceAttribute(iaIndex);
+        VkVertexInputAttributeDescription& vkAttrib = attributeDesc[attribIndex];
+        vkAttrib.location = attribIndex;  // for now assume location = attribIndex
+        vkAttrib.binding = instanceBinding;
+        vkAttrib.format = attrib_type_to_vkformat(attrib.type());
+        vkAttrib.offset = instanceAttributeOffset;
+        SkASSERT(vkAttrib.offset == primProc.debugOnly_instanceAttributeOffset(iaIndex));
+        instanceAttributeOffset += attrib.sizeAlign4();
+    }
+    SkASSERT(instanceAttributeOffset == primProc.debugOnly_instanceStride());
+
+    if (primProc.hasVertexAttributes()) {
+        bindingDescs->push_back() = {
+                vertexBinding,
+                (uint32_t) vertexAttributeOffset,
+                VK_VERTEX_INPUT_RATE_VERTEX
+        };
+    }
+    if (primProc.hasInstanceAttributes()) {
+        bindingDescs->push_back() = {
+                instanceBinding,
+                (uint32_t) instanceAttributeOffset,
+                VK_VERTEX_INPUT_RATE_INSTANCE
+        };
     }
 
     memset(vertexInputInfo, 0, sizeof(VkPipelineVertexInputStateCreateInfo));
@@ -98,7 +119,7 @@ static void setup_vertex_input_state(const GrPrimitiveProcessor& primProc,
     vertexInputInfo->flags = 0;
     vertexInputInfo->vertexBindingDescriptionCount = bindingDescs->count();
     vertexInputInfo->pVertexBindingDescriptions = bindingDescs->begin();
-    vertexInputInfo->vertexAttributeDescriptionCount = vaCount;
+    vertexInputInfo->vertexAttributeDescriptionCount = vaCount + iaCount;
     vertexInputInfo->pVertexAttributeDescriptions = attributeDesc;
 }
 
@@ -432,8 +453,9 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPipeline& pipeline,
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
     SkSTArray<2, VkVertexInputBindingDescription, true> bindingDescs;
     SkSTArray<16, VkVertexInputAttributeDescription> attributeDesc;
-    SkASSERT(primProc.numAttribs() <= gpu->vkCaps().maxVertexAttributes());
-    VkVertexInputAttributeDescription* pAttribs = attributeDesc.push_back_n(primProc.numAttribs());
+    int totalAttributeCnt = primProc.numVertexAttributes() + primProc.numInstanceAttributes();
+    SkASSERT(totalAttributeCnt <= gpu->vkCaps().maxVertexAttributes());
+    VkVertexInputAttributeDescription* pAttribs = attributeDesc.push_back_n(totalAttributeCnt);
     setup_vertex_input_state(primProc, &vertexInputInfo, &bindingDescs, pAttribs);
 
     VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;

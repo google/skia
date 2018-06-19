@@ -110,11 +110,10 @@ private:
             return;
         }
 
-        size_t vertexStride = gp->getVertexStride();
-
-        SkASSERT(fHasLocalRect
-                    ? vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr)
-                    : vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
+        size_t vertexStride = fHasLocalRect
+                                      ? sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr)
+                                      : sizeof(GrDefaultGeoProcFactory::PositionColorAttr);
+        SkASSERT(vertexStride == gp->debugOnly_vertexStride());
 
         const GrBuffer* indexBuffer;
         int firstIndex;

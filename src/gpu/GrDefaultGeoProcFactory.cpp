@@ -45,17 +45,13 @@ public:
 
     const char* name() const override { return "DefaultGeometryProcessor"; }
 
-    const Attribute* inPosition() const { return fInPosition; }
-    const Attribute* inColor() const { return fInColor; }
-    const Attribute* inLocalCoords() const { return fInLocalCoords; }
-    const Attribute* inCoverage() const { return fInCoverage; }
     GrColor color() const { return fColor; }
-    bool hasVertexColor() const { return SkToBool(fInColor); }
+    bool hasVertexColor() const { return fInColor.isInitialized(); }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
     bool localCoordsWillBeRead() const { return fLocalCoordsWillBeRead; }
     uint8_t coverage() const { return fCoverage; }
-    bool hasVertexCoverage() const { return SkToBool(fInCoverage); }
+    bool hasVertexCoverage() const { return fInCoverage.isInitialized(); }
 
     class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
@@ -78,7 +74,7 @@ public:
                 varyingHandler->addVarying("color", &varying);
 
                 // There are several optional steps to process the color. Start with the attribute:
-                vertBuilder->codeAppendf("half4 color = %s;", gp.inColor()->name());
+                vertBuilder->codeAppendf("half4 color = %s;", gp.fInColor.name());
 
                 // For SkColor, do a red/blue swap, possible color space conversion, and premul
                 if (gp.fFlags & kColorAttributeIsSkColor_GPFlag) {
@@ -107,16 +103,16 @@ public:
             this->writeOutputPosition(vertBuilder,
                                       uniformHandler,
                                       gpArgs,
-                                      gp.inPosition()->name(),
+                                      gp.fInPosition.name(),
                                       gp.viewMatrix(),
                                       &fViewMatrixUniform);
 
-            if (gp.inLocalCoords()) {
+            if (gp.fInLocalCoords.isInitialized()) {
                 // emit transforms with explicit local coords
                 this->emitTransforms(vertBuilder,
                                      varyingHandler,
                                      uniformHandler,
-                                     gp.inLocalCoords()->asShaderVar(),
+                                     gp.fInLocalCoords.asShaderVar(),
                                      gp.localMatrix(),
                                      args.fFPCoordTransformHandler);
             } else {
@@ -124,7 +120,7 @@ public:
                 this->emitTransforms(vertBuilder,
                                      varyingHandler,
                                      uniformHandler,
-                                     gp.inPosition()->asShaderVar(),
+                                     gp.fInPosition.asShaderVar(),
                                      gp.localMatrix(),
                                      args.fFPCoordTransformHandler);
             }
@@ -132,7 +128,7 @@ public:
             // Setup coverage as pass through
             if (gp.hasVertexCoverage()) {
                 fragBuilder->codeAppendf("half alpha = 1.0;");
-                varyingHandler->addPassThroughAttribute(gp.inCoverage(), "alpha");
+                varyingHandler->addPassThroughAttribute(gp.fInCoverage, "alpha");
                 fragBuilder->codeAppendf("%s = half4(alpha);", args.fOutputCoverage);
             } else if (gp.coverage() == 0xff) {
                 fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
@@ -222,22 +218,31 @@ private:
             , fFlags(gpTypeFlags)
             , fLocalCoordsWillBeRead(localCoordsWillBeRead)
             , fColorSpaceXform(std::move(colorSpaceXform)) {
-        fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType};
+        int cnt = 1;
         if (fFlags & kColorAttribute_GPFlag) {
-            fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
+            fInColor = {"inColor", kUByte4_norm_GrVertexAttribType};
+            ++cnt;
         }
         if (fFlags & kLocalCoordAttribute_GPFlag) {
-            fInLocalCoords = &this->addVertexAttrib("inLocalCoord", kFloat2_GrVertexAttribType);
+            fInLocalCoords = {"inLocalCoord", kFloat2_GrVertexAttribType};
+            ++cnt;
         }
         if (fFlags & kCoverageAttribute_GPFlag) {
-            fInCoverage = &this->addVertexAttrib("inCoverage", kHalf_GrVertexAttribType);
+            fInCoverage = {"inCoverage", kHalf_GrVertexAttribType};
+            ++cnt;
         }
+        this->setVertexAttributeCnt(cnt);
     }
 
-    const Attribute* fInPosition = nullptr;
-    const Attribute* fInColor = nullptr;
-    const Attribute* fInLocalCoords = nullptr;
-    const Attribute* fInCoverage = nullptr;
+    const Attribute& onVertexAttribute(int i) const override {
+        return IthInitializedAttribute(i, fInPosition, fInColor, fInLocalCoords, fInCoverage);
+    }
+
+    Attribute fInPosition;
+    Attribute fInColor;
+    Attribute fInLocalCoords;
+    Attribute fInCoverage;
     GrColor fColor;
     SkMatrix fViewMatrix;
     SkMatrix fLocalMatrix;

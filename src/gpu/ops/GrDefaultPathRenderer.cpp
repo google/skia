@@ -404,7 +404,7 @@ private:
             gp = GrDefaultGeoProcFactory::Make(color, coverage, localCoords, this->viewMatrix());
         }
 
-        SkASSERT(gp->getVertexStride() == sizeof(SkPoint));
+        SkASSERT(gp->debugOnly_vertexStride() == sizeof(SkPoint));
 
         int instanceCount = fPaths.count();
 

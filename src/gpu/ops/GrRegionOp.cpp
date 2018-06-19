@@ -115,7 +115,8 @@ private:
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
         }
-        SkASSERT(gp->getVertexStride() == sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
+        static constexpr size_t kVertexStride = sizeof(GrDefaultGeoProcFactory::PositionColorAttr);
+        SkASSERT(kVertexStride == gp->debugOnly_vertexStride());
 
         int numRegions = fRegions.count();
         int numRects = 0;
@@ -126,12 +127,10 @@ private:
         if (!numRects) {
             return;
         }
-        size_t vertexStride = gp->getVertexStride();
         sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
         PatternHelper helper(GrPrimitiveType::kTriangles);
-        void* vertices =
-                helper.init(target, vertexStride, indexBuffer.get(), kVertsPerInstance,
-                            kIndicesPerInstance, numRects);
+        void* vertices = helper.init(target, kVertexStride, indexBuffer.get(), kVertsPerInstance,
+                                     kIndicesPerInstance, numRects);
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -139,9 +138,9 @@ private:
 
         intptr_t verts = reinterpret_cast<intptr_t>(vertices);
         for (int i = 0; i < numRegions; i++) {
-            tesselate_region(verts, vertexStride, fRegions[i].fColor, fRegions[i].fRegion);
+            tesselate_region(verts, kVertexStride, fRegions[i].fColor, fRegions[i].fRegion);
             int numRectsInRegion = fRegions[i].fRegion.computeRegionComplexity();
-            verts += numRectsInRegion * kVertsPerInstance * vertexStride;
+            verts += numRectsInRegion * kVertsPerInstance * kVertexStride;
         }
         helper.recordDraw(target, gp.get(), fHelper.makePipeline(target));
     }
