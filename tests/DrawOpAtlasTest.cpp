@@ -13,6 +13,7 @@
 #include "GrDeferredUpload.h"
 #include "GrDrawOpAtlas.h"
 #include "GrDrawingManager.h"
+#include "GrMemoryPool.h"
 #include "GrOnFlushResourceProvider.h"
 #include "GrOpFlushState.h"
 #include "GrRenderTargetContext.h"
@@ -181,6 +182,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     auto resourceProvider = context->contextPriv().resourceProvider();
     auto drawingManager = context->contextPriv().drawingManager();
     auto textContext = drawingManager->getTextContext();
+    auto opMemoryPool = context->contextPriv().opMemoryPool();
 
     auto rtc =  context->contextPriv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
                                                                        32, 32,
@@ -222,4 +224,5 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     flushState.setOpArgs(&opArgs);
     op->prepare(&flushState);
     flushState.setOpArgs(nullptr);
+    opMemoryPool->release(std::move(op));
 }

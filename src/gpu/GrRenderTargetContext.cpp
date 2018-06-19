@@ -1726,6 +1726,7 @@ static void op_bounds(SkRect* bounds, const GrOp* op) {
 uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDrawOp> op) {
     ASSERT_SINGLE_OWNER
     if (this->drawingManager()->wasAbandoned()) {
+        fContext->contextPriv().opMemoryPool()->release(std::move(op));
         return SK_InvalidUniqueID;
     }
     SkDEBUGCODE(this->validate();)
@@ -1739,6 +1740,7 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
     if (!clip.apply(fContext, this, fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA,
                     fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil, &appliedClip,
                     &bounds)) {
+        fContext->contextPriv().opMemoryPool()->release(std::move(op));
         return SK_InvalidUniqueID;
     }
 
@@ -1755,6 +1757,7 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
     if (GrDrawOp::RequiresDstTexture::kYes == op->finalize(*this->caps(), &appliedClip,
                                                            dstIsClamped)) {
         if (!this->setupDstProxy(this->asRenderTargetProxy(), clip, op->bounds(), &dstProxy)) {
+            fContext->contextPriv().opMemoryPool()->release(std::move(op));
             return SK_InvalidUniqueID;
         }
     }

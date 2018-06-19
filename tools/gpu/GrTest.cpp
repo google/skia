@@ -12,6 +12,7 @@
 #include "GrDrawingManager.h"
 #include "GrGpu.h"
 #include "GrGpuResourceCacheAccess.h"
+#include "GrMemoryPool.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrRenderTargetProxy.h"
@@ -260,6 +261,7 @@ uint32_t GrRenderTargetContextPriv::testingOnly_addDrawOp(const GrClip& clip,
                                                           std::unique_ptr<GrDrawOp> op) {
     ASSERT_SINGLE_OWNER
     if (fRenderTargetContext->drawingManager()->wasAbandoned()) {
+        fRenderTargetContext->fContext->contextPriv().opMemoryPool()->release(std::move(op));
         return SK_InvalidUniqueID;
     }
     SkDEBUGCODE(fRenderTargetContext->validate());
