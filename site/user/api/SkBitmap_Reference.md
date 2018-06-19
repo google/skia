@@ -4065,8 +4065,6 @@ true if <a href='#SkBitmap_writePixels_3_src'>src</a> pixels are copied to <a hr
 bool <a href='#SkBitmap_hasHardwareMipMap'>hasHardwareMipMap</a>() const
 </pre>
 
-Android framework only.
-
 ### Return Value
 
 true if <a href='#SkBitmap_setHasHardwareMipMap'>setHasHardwareMipMap</a> has been called with true
@@ -4083,8 +4081,6 @@ true if <a href='#SkBitmap_setHasHardwareMipMap'>setHasHardwareMipMap</a> has be
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkBitmap_setHasHardwareMipMap'>setHasHardwareMipMap</a>(bool <a href='#SkBitmap_hasHardwareMipMap'>hasHardwareMipMap</a>)
 </pre>
-
-Android framework only.
 
 ### Parameters
 

@@ -36,7 +36,7 @@ Each component is independent of the others; <a href='#SkColor4f_fA'>fA</a> <a h
 with <a href='#SkColor4f_fG'>fG</a> green, <a href='#SkColor4f_fB'>fB</a> blue, or <a href='#SkColor4f_fR'>fR</a> red.
 
 Values smaller than zero or larger than one are allowed. Values out of range
-may be used with <a href='undocumented#Blend_Mode'>Blend Mode</a> so that the final component is in range.
+may be used with <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a> so that the final component is in range.
 
 ## Overview
 
@@ -426,8 +426,6 @@ Returns <a href='#Color4f'>Color4f</a> with all components in the range from zer
 <a href='#SkPM4f'>SkPM4f</a> <a href='#SkColor4f_premul'>premul</a>() const
 </pre>
 
-Internal use only.
-
 ### Return Value
 
 <a href='undocumented#Premultiply'>Premultiplied</a> color
@@ -435,4 +433,3 @@ Internal use only.
 ---
 
 # <a name='SkPM4f'>Struct SkPM4f</a>
-Internal use only.
