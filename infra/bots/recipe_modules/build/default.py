@@ -249,10 +249,7 @@ def compile_fn(api, checkout_root, out_dir):
     args['extra_ldflags'] = repr(extra_ldflags).replace("'", '"')
 
   gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.iteritems()))
-
-  gn    = 'gn.exe'    if 'Win' in os else 'gn'
-  ninja = 'ninja.exe' if 'Win' in os else 'ninja'
-  gn = skia_dir.join('bin', gn)
+  gn = skia_dir.join('bin', 'gn')
 
   with api.context(cwd=skia_dir):
     api.run(api.python,
@@ -272,7 +269,7 @@ def compile_fn(api, checkout_root, out_dir):
     with api.env(env):
       api.run(api.step, 'gn gen',
               cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
-      api.run(api.step, 'ninja', cmd=[ninja, '-k', '0', '-C', out_dir])
+      api.run(api.step, 'ninja', cmd=['ninja', '-k', '0', '-C', out_dir])
 
 
 def copy_extra_build_products(api, src, dst):

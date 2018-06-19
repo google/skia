@@ -29,7 +29,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cache/work/skia/bin/gn.exe",
+      "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Win-Clang-arm64-Release-Android/Release",
       "--args=extra_cflags=[\"-DDUMMY_ndk_version=42\"] is_debug=false ndk=\"[START_DIR]/n\" target_cpu=\"arm64\""
@@ -43,7 +43,7 @@
   },
   {
     "cmd": [
-      "ninja.exe",
+      "ninja",
       "-k",
       "0",
       "-C",

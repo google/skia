@@ -196,9 +196,6 @@ var (
 		},
 	}
 
-	RECIPE_BUNDLE_UNIX = "recipe_bundle/recipes"
-	RECIPE_BUNDLE_WIN  = "recipe_bundle/recipes.bat"
-
 	// Flags.
 	builderNameSchemaFile = flag.String("builder_name_schema", "", "Path to the builder_name_schema.json file. If not specified, uses infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json from this repo.")
 	assetsDir             = flag.String("assets_dir", "", "Directory containing assets.")
