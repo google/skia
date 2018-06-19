@@ -53,13 +53,11 @@ static constexpr char g_type_message[] = "How to interpret --bytes, one of:\n"
                                          "image_decode\n"
                                          "image_mode\n"
                                          "image_scale\n"
+                                         "json\n"
                                          "path_deserialize\n"
                                          "pipe\n"
                                          "region_deserialize\n"
                                          "region_set_path\n"
-#if defined(SK_ENABLE_SKJSON)
-                                         "skjson\n"
-#endif
                                          "skp\n"
                                          "sksl2glsl\n"
 #if defined(SK_ENABLE_SKOTTIE)
@@ -92,9 +90,7 @@ static void print_api_names();
 static void fuzz_sksl2glsl(sk_sp<SkData>);
 #endif
 
-#if defined(SK_ENABLE_SKJSON)
-static void fuzz_skjson(sk_sp<SkData>);
-#endif
+static void fuzz_json(sk_sp<SkData>);
 
 #if defined(SK_ENABLE_SKOTTIE)
 static void fuzz_skottie_json(sk_sp<SkData>);
@@ -190,12 +186,10 @@ static int fuzz_file(SkString path, SkString type) {
         fuzz_skpipe(bytes);
         return 0;
     }
-#if defined(SK_ENABLE_SKJSON)
-    if (type.equals("skjson")) {
-        fuzz_skjson(bytes);
+    if (type.equals("json")) {
+        fuzz_json(bytes);
         return 0;
     }
-#endif
 #if defined(SK_ENABLE_SKOTTIE)
     if (type.equals("skottie_json")) {
         fuzz_skottie_json(bytes);
@@ -281,14 +275,12 @@ static SkString try_auto_detect(SkString path, SkString* name) {
     return SkString("");
 }
 
-#if defined(SK_ENABLE_SKJSON)
-void FuzzSkJSON(sk_sp<SkData> bytes);
+void FuzzJSON(sk_sp<SkData> bytes);
 
-static void fuzz_skjson(sk_sp<SkData> bytes){
-    FuzzSkJSON(bytes);
+static void fuzz_json(sk_sp<SkData> bytes){
+    FuzzJSON(bytes);
     SkDebugf("[terminated] Done parsing!\n");
 }
-#endif
 
 #if defined(SK_ENABLE_SKOTTIE)
 void FuzzSkottieJSON(sk_sp<SkData> bytes);
