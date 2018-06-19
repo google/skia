@@ -33,13 +33,13 @@ public:
         varyingHandler->addPassThroughAttribute(rsgp.inColor(), args.fOutputColor);
 
         // Setup position
-        this->writeOutputPosition(vertBuilder, gpArgs, rsgp.inPosition().name());
+        this->writeOutputPosition(vertBuilder, gpArgs, rsgp.inPosition()->name());
 
         // emit transforms
         this->emitTransforms(vertBuilder,
                              varyingHandler,
                              uniformHandler,
-                             rsgp.inPosition().asShaderVar(),
+                             rsgp.inPosition()->asShaderVar(),
                              args.fFPCoordTransformHandler);
 
         fragBuilder->codeAppend("half d = length(shadowParams.xy);");
@@ -62,8 +62,11 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrRRectShadowGeoProc::GrRRectShadowGeoProc() : INHERITED(kGrRRectShadowGeoProc_ClassID) {
-    this->setVertexAttributeCnt(3);
+GrRRectShadowGeoProc::GrRRectShadowGeoProc()
+: INHERITED(kGrRRectShadowGeoProc_ClassID) {
+    fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
+    fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
+    fInShadowParams = &this->addVertexAttrib("inShadowParams", kHalf4_GrVertexAttribType);
 }
 
 GrGLSLPrimitiveProcessor* GrRRectShadowGeoProc::createGLSLInstance(const GrShaderCaps&) const {
@@ -71,10 +74,6 @@ GrGLSLPrimitiveProcessor* GrRRectShadowGeoProc::createGLSLInstance(const GrShade
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-constexpr GrPrimitiveProcessor::Attribute GrRRectShadowGeoProc::kInPosition;
-constexpr GrPrimitiveProcessor::Attribute GrRRectShadowGeoProc::kInColor;
-constexpr GrPrimitiveProcessor::Attribute GrRRectShadowGeoProc::kInShadowParams;
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrRRectShadowGeoProc);
 

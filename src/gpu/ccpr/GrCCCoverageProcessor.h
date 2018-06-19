@@ -246,13 +246,6 @@ private:
     void initGS();
     void initVS(GrResourceProvider*);
 
-    const Attribute& onVertexAttribute(int i) const override { return fVertexAttribute; }
-
-    const Attribute& onInstanceAttribute(int i) const override {
-        SkASSERT(fImpl == Impl::kVertexShader);
-        return fInstanceAttributes[i];
-    }
-
     void appendGSMesh(GrBuffer* instanceBuffer, int instanceCount, int baseInstance,
                       SkTArray<GrMesh>* out) const;
     void appendVSMesh(GrBuffer* instanceBuffer, int instanceCount, int baseInstance,
@@ -260,8 +253,6 @@ private:
 
     GrGLSLPrimitiveProcessor* createGSImpl(std::unique_ptr<Shader>) const;
     GrGLSLPrimitiveProcessor* createVSImpl(std::unique_ptr<Shader>) const;
-    // The type and meaning of this attribute depends on whether we're using VSImpl or GSImpl.
-    Attribute fVertexAttribute;
 
     const PrimitiveType fPrimitiveType;
     const Impl fImpl;
@@ -271,7 +262,6 @@ private:
     const GSSubpass fGSSubpass = GSSubpass::kHulls;
 
     // Used by VSImpl.
-    Attribute fInstanceAttributes[2];
     sk_sp<const GrBuffer> fVSVertexBuffer;
     sk_sp<const GrBuffer> fVSIndexBuffer;
     int fVSNumIndicesPerInstance;

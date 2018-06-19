@@ -58,9 +58,9 @@ struct Vertex {
 class GrPipelineDynamicStateTestProcessor : public GrGeometryProcessor {
 public:
     GrPipelineDynamicStateTestProcessor()
-            : INHERITED(kGrPipelineDynamicStateTestProcessor_ClassID) {
-        this->setVertexAttributeCnt(2);
-    }
+        : INHERITED(kGrPipelineDynamicStateTestProcessor_ClassID)
+        , fVertex(this->addVertexAttrib("vertex", kHalf2_GrVertexAttribType))
+        , fColor(this->addVertexAttrib("color", kUByte4_norm_GrVertexAttribType)) {}
 
     const char* name() const override { return "GrPipelineDynamicStateTest Processor"; }
 
@@ -68,19 +68,13 @@ public:
 
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
-private:
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthAttribute(i, kVertex, kColor);
-    }
-
-    static constexpr Attribute kVertex = {"vertex", kHalf2_GrVertexAttribType};
-    static constexpr Attribute kColor = {"color", kUByte4_norm_GrVertexAttribType};
+protected:
+    const Attribute& fVertex;
+    const Attribute& fColor;
 
     friend class GLSLPipelineDynamicStateTestProcessor;
     typedef GrGeometryProcessor INHERITED;
 };
-constexpr GrPrimitiveProcessor::Attribute GrPipelineDynamicStateTestProcessor::kVertex;
-constexpr GrPrimitiveProcessor::Attribute GrPipelineDynamicStateTestProcessor::kColor;
 
 class GLSLPipelineDynamicStateTestProcessor : public GrGLSLGeometryProcessor {
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
@@ -92,10 +86,10 @@ class GLSLPipelineDynamicStateTestProcessor : public GrGLSLGeometryProcessor {
 
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
         varyingHandler->emitAttributes(mp);
-        varyingHandler->addPassThroughAttribute(mp.kColor, args.fOutputColor);
+        varyingHandler->addPassThroughAttribute(&mp.fColor, args.fOutputColor);
 
         GrGLSLVertexBuilder* v = args.fVertBuilder;
-        v->codeAppendf("float2 vertex = %s;", mp.kVertex.name());
+        v->codeAppendf("float2 vertex = %s;", mp.fVertex.name());
         gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertex");
 
         GrGLSLFPFragmentBuilder* f = args.fFragBuilder;

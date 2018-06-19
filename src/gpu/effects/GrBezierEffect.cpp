@@ -79,7 +79,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     GrGLSLVarying v(kFloat4_GrSLType);
     varyingHandler->addVarying("ConicCoeffs", &v);
-    vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inConicCoeffs().name());
+    vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inConicCoeffs()->name());
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
@@ -89,7 +89,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->writeOutputPosition(vertBuilder,
                               uniformHandler,
                               gpArgs,
-                              gp.inPosition().name(),
+                              gp.inPosition()->name(),
                               gp.viewMatrix(),
                               &fViewMatrixUniform);
 
@@ -97,7 +97,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->emitTransforms(vertBuilder,
                          varyingHandler,
                          uniformHandler,
-                         gp.inPosition().asShaderVar(),
+                         gp.inPosition()->asShaderVar(),
                          gp.localMatrix(),
                          args.fFPCoordTransformHandler);
 
@@ -219,8 +219,6 @@ void GrGLConicEffect::GenKey(const GrGeometryProcessor& gp,
 
 //////////////////////////////////////////////////////////////////////////////
 
-constexpr GrPrimitiveProcessor::Attribute GrConicEffect::kAttributes[];
-
 GrConicEffect::~GrConicEffect() {}
 
 void GrConicEffect::getGLSLProcessorKey(const GrShaderCaps& caps,
@@ -242,7 +240,8 @@ GrConicEffect::GrConicEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t 
     , fUsesLocalCoords(usesLocalCoords)
     , fCoverageScale(coverage)
     , fEdgeType(edgeType) {
-    this->setVertexAttributeCnt(2);
+    fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
+    fInConicCoeffs = &this->addVertexAttrib("inConicCoeffs", kHalf4_GrVertexAttribType);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -332,7 +331,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     GrGLSLVarying v(kHalf4_GrSLType);
     varyingHandler->addVarying("HairQuadEdge", &v);
-    vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inHairQuadEdge().name());
+    vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inHairQuadEdge()->name());
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
@@ -342,7 +341,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->writeOutputPosition(vertBuilder,
                               uniformHandler,
                               gpArgs,
-                              gp.inPosition().name(),
+                              gp.inPosition()->name(),
                               gp.viewMatrix(),
                               &fViewMatrixUniform);
 
@@ -350,7 +349,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->emitTransforms(vertBuilder,
                          varyingHandler,
                          uniformHandler,
-                         gp.inPosition().asShaderVar(),
+                         gp.inPosition()->asShaderVar(),
                          gp.localMatrix(),
                          args.fFPCoordTransformHandler);
 
@@ -421,8 +420,6 @@ void GrGLQuadEffect::GenKey(const GrGeometryProcessor& gp,
 
 //////////////////////////////////////////////////////////////////////////////
 
-constexpr GrPrimitiveProcessor::Attribute GrQuadEffect::kAttributes[];
-
 GrQuadEffect::~GrQuadEffect() {}
 
 void GrQuadEffect::getGLSLProcessorKey(const GrShaderCaps& caps,
@@ -444,7 +441,8 @@ GrQuadEffect::GrQuadEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t co
     , fUsesLocalCoords(usesLocalCoords)
     , fCoverageScale(coverage)
     , fEdgeType(edgeType) {
-    this->setVertexAttributeCnt(2);
+    fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
+    fInHairQuadEdge = &this->addVertexAttrib("inHairQuadEdge", kHalf4_GrVertexAttribType);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -546,7 +544,7 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->writeOutputPosition(vertBuilder,
                               uniformHandler,
                               gpArgs,
-                              gp.inPosition().name(),
+                              gp.inPosition()->name(),
                               gp.viewMatrix(),
                               &fViewMatrixUniform);
 
@@ -578,7 +576,7 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->emitTransforms(vertBuilder,
                          varyingHandler,
                          uniformHandler,
-                         gp.inPosition().asShaderVar(),
+                         gp.inPosition()->asShaderVar(),
                          args.fFPCoordTransformHandler);
 
     GrShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0);
@@ -649,8 +647,6 @@ void GrGLCubicEffect::GenKey(const GrGeometryProcessor& gp,
 
 //////////////////////////////////////////////////////////////////////////////
 
-constexpr GrPrimitiveProcessor::Attribute GrCubicEffect::kInPosition;
-
 GrCubicEffect::~GrCubicEffect() {}
 
 void GrCubicEffect::getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
@@ -668,7 +664,7 @@ GrCubicEffect::GrCubicEffect(GrColor color, const SkMatrix& viewMatrix, const Sk
     , fViewMatrix(viewMatrix)
     , fDevKLMMatrix(devKLMMatrix)
     , fEdgeType(edgeType) {
-    this->setVertexAttributeCnt(1);
+    fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
 }
 
 //////////////////////////////////////////////////////////////////////////////

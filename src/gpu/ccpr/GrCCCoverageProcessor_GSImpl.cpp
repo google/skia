@@ -31,8 +31,9 @@ protected:
         const GrCCCoverageProcessor& proc = args.fGP.cast<GrCCCoverageProcessor>();
 
         // The vertex shader simply forwards transposed x or y values to the geometry shader.
-        SkASSERT(1 == proc.numVertexAttributes());
-        gpArgs->fPositionVar = proc.fVertexAttribute.asShaderVar();
+        SkASSERT(1 == proc.numAttribs());
+        gpArgs->fPositionVar.set(GrVertexAttribTypeToSLType(proc.getAttrib(0).type()),
+                                 proc.getAttrib(0).name());
 
         // Geometry shader.
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
@@ -61,7 +62,7 @@ protected:
         Shader::CalcWind(proc, g, "pts", wind.c_str());
         if (PrimitiveType::kWeightedTriangles == proc.fPrimitiveType) {
             SkASSERT(3 == numInputPoints);
-            SkASSERT(kFloat4_GrVertexAttribType == proc.fVertexAttribute.type());
+            SkASSERT(kFloat4_GrVertexAttribType == proc.getAttrib(0).type());
             g->codeAppendf("%s *= sk_in[0].sk_Position.w;", wind.c_str());
         }
 
@@ -381,19 +382,14 @@ public:
 void GrCCCoverageProcessor::initGS() {
     SkASSERT(Impl::kGeometryShader == fImpl);
     if (4 == this->numInputPoints() || this->hasInputWeight()) {
-        fVertexAttribute = {"x_or_y_values", kFloat4_GrVertexAttribType};
-        GR_STATIC_ASSERT(sizeof(QuadPointInstance) ==
-                         2 * GrVertexAttribTypeSize(kFloat4_GrVertexAttribType));
-        GR_STATIC_ASSERT(offsetof(QuadPointInstance, fY) ==
-                         GrVertexAttribTypeSize(kFloat4_GrVertexAttribType));
+        this->addVertexAttrib("x_or_y_values", kFloat4_GrVertexAttribType);
+        SkASSERT(sizeof(QuadPointInstance) == this->getVertexStride() * 2);
+        SkASSERT(offsetof(QuadPointInstance, fY) == this->getVertexStride());
     } else {
-        fVertexAttribute = {"x_or_y_values", kFloat3_GrVertexAttribType};
-        GR_STATIC_ASSERT(sizeof(TriPointInstance) ==
-                         2 * GrVertexAttribTypeSize(kFloat3_GrVertexAttribType));
-        GR_STATIC_ASSERT(offsetof(TriPointInstance, fY) ==
-                         GrVertexAttribTypeSize(kFloat3_GrVertexAttribType));
+        this->addVertexAttrib("x_or_y_values", kFloat3_GrVertexAttribType);
+        SkASSERT(sizeof(TriPointInstance) == this->getVertexStride() * 2);
+        SkASSERT(offsetof(TriPointInstance, fY) == this->getVertexStride());
     }
-    this->setVertexAttributeCnt(1);
     this->setWillUseGeoShader();
 }
 

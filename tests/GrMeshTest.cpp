@@ -292,46 +292,35 @@ private:
 class GrMeshTestProcessor : public GrGeometryProcessor {
 public:
     GrMeshTestProcessor(bool instanced, bool hasVertexBuffer)
-            : INHERITED(kGrMeshTestProcessor_ClassID) {
+        : INHERITED(kGrMeshTestProcessor_ClassID)
+        , fInstanceLocation(nullptr)
+        , fVertex(nullptr)
+        , fColor(nullptr) {
         if (instanced) {
-            fInstanceLocation = {"location", kHalf2_GrVertexAttribType};
-            fColor = {"color", kUByte4_norm_GrVertexAttribType};
-            this->setInstanceAttributeCnt(2);
+            fInstanceLocation = &this->addInstanceAttrib("location", kHalf2_GrVertexAttribType);
             if (hasVertexBuffer) {
-                fVertex = {"vertex", kHalf2_GrVertexAttribType};
-                this->setVertexAttributeCnt(1);
+                fVertex = &this->addVertexAttrib("vertex", kHalf2_GrVertexAttribType);
             }
+            fColor = &this->addInstanceAttrib("color", kUByte4_norm_GrVertexAttribType);
         } else {
-            fVertex = {"vertex", kHalf2_GrVertexAttribType};
-            fColor = {"color", kUByte4_norm_GrVertexAttribType};
-            this->setVertexAttributeCnt(2);
+            fVertex = &this->addVertexAttrib("vertex", kHalf2_GrVertexAttribType);
+            fColor = &this->addVertexAttrib("color", kUByte4_norm_GrVertexAttribType);
         }
     }
 
     const char* name() const override { return "GrMeshTest Processor"; }
 
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {
-        b->add32(fInstanceLocation.isInitialized());
-        b->add32(fVertex.isInitialized());
+        b->add32(SkToBool(fInstanceLocation));
+        b->add32(SkToBool(fVertex));
     }
 
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
-private:
-    const Attribute& onVertexAttribute(int i) const override {
-        if (fInstanceLocation.isInitialized()) {
-            return fVertex;
-        }
-        return IthAttribute(i, fVertex, fColor);
-    }
-
-    const Attribute& onInstanceAttribute(int i) const override {
-        return IthAttribute(i, fInstanceLocation, fColor);
-    }
-
-    Attribute fInstanceLocation;
-    Attribute fVertex;
-    Attribute fColor;
+protected:
+    const Attribute* fInstanceLocation;
+    const Attribute* fVertex;
+    const Attribute* fColor;
 
     friend class GLSLMeshTestProcessor;
     typedef GrGeometryProcessor INHERITED;
@@ -349,15 +338,15 @@ class GLSLMeshTestProcessor : public GrGLSLGeometryProcessor {
         varyingHandler->addPassThroughAttribute(mp.fColor, args.fOutputColor);
 
         GrGLSLVertexBuilder* v = args.fVertBuilder;
-        if (!mp.fInstanceLocation.isInitialized()) {
-            v->codeAppendf("float2 vertex = %s;", mp.fVertex.name());
+        if (!mp.fInstanceLocation) {
+            v->codeAppendf("float2 vertex = %s;", mp.fVertex->name());
         } else {
-            if (mp.fVertex.isInitialized()) {
-                v->codeAppendf("float2 offset = %s;", mp.fVertex.name());
+            if (mp.fVertex) {
+                v->codeAppendf("float2 offset = %s;", mp.fVertex->name());
             } else {
                 v->codeAppend ("float2 offset = float2(sk_VertexID / 2, sk_VertexID % 2);");
             }
-            v->codeAppendf("float2 vertex = %s + offset * %i;", mp.fInstanceLocation.name(),
+            v->codeAppendf("float2 vertex = %s + offset * %i;", mp.fInstanceLocation->name(),
                            kBoxSize);
         }
         gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertex");

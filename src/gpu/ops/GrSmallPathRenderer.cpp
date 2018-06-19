@@ -351,9 +351,8 @@ private:
         }
 
         // allocate vertices
-        static constexpr size_t kVertexStride =
-                sizeof(SkPoint) + sizeof(GrColor) + 2 * sizeof(uint16_t);
-        SkASSERT(kVertexStride == flushInfo.fGeometryProcessor->debugOnly_vertexStride());
+        size_t vertexStride = flushInfo.fGeometryProcessor->getVertexStride();
+        SkASSERT(vertexStride == sizeof(SkPoint) + sizeof(GrColor) + 2*sizeof(uint16_t));
 
         const GrBuffer* vertexBuffer;
 
@@ -362,7 +361,7 @@ private:
         if (instanceCount > SK_MaxS32 / kVerticesPerQuad) {
             return;
         }
-        void* vertices = target->makeVertexSpace(kVertexStride,
+        void* vertices = target->makeVertexSpace(vertexStride,
                                                  kVerticesPerQuad * instanceCount,
                                                  &vertexBuffer,
                                                  &flushInfo.fVertexOffset);
@@ -477,9 +476,13 @@ private:
             auto uploadTarget = target->deferredUploadTarget();
             fAtlas->setLastUseToken(shapeData->fID, uploadTarget->tokenTracker()->nextDrawToken());
 
-            this->writePathVertices(
-                    fAtlas, offset, args.fColor, kVertexStride, args.fViewMatrix, shapeData);
-            offset += kVerticesPerQuad * kVertexStride;
+            this->writePathVertices(fAtlas,
+                                    offset,
+                                    args.fColor,
+                                    vertexStride,
+                                    args.fViewMatrix,
+                                    shapeData);
+            offset += kVerticesPerQuad * vertexStride;
             flushInfo.fInstancesToFlush++;
         }
 

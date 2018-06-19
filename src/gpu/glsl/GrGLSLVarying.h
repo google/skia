@@ -104,7 +104,7 @@ public:
      * that will be set as the output varying for all emitted vertices.
      * TODO it might be nicer behavior to have a flag to declare output inside these calls
      */
-    void addPassThroughAttribute(const GrGeometryProcessor::Attribute&, const char* output,
+    void addPassThroughAttribute(const GrGeometryProcessor::Attribute*, const char* output,
                                  Interpolation = Interpolation::kInterpolated);
 
     void emitAttributes(const GrGeometryProcessor& gp);

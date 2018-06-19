@@ -1775,29 +1775,35 @@ void GrGLGpu::setupGeometry(const GrBuffer* indexBuffer,
         attribState = fHWVertexArrayState.bindInternalVertexArray(this);
     }
 
-    int numAttribs = fHWProgram->numVertexAttributes() + fHWProgram->numInstanceAttributes();
-    attribState->enableVertexArrays(this, numAttribs, enablePrimitiveRestart);
+    struct {
+        const GrBuffer*   fBuffer;
+        int               fStride;
+        size_t            fBufferOffset;
+    } bindings[2];
 
     if (int vertexStride = fHWProgram->vertexStride()) {
         SkASSERT(vertexBuffer && !vertexBuffer->isMapped());
-        size_t bufferOffset = vertexBuffer->baseOffset() + baseVertex * vertexStride;
-        for (int i = 0; i < fHWProgram->numVertexAttributes(); ++i) {
-            const auto& attrib = fHWProgram->vertexAttribute(i);
-            static constexpr int kDivisor = 0;
-            attribState->set(this, attrib.fLocation, vertexBuffer, attrib.fType, vertexStride,
-                             bufferOffset + attrib.fOffset, kDivisor);
-        }
+        bindings[0].fBuffer = vertexBuffer;
+        bindings[0].fStride = vertexStride;
+        bindings[0].fBufferOffset = vertexBuffer->baseOffset() + baseVertex * vertexStride;
     }
     if (int instanceStride = fHWProgram->instanceStride()) {
         SkASSERT(instanceBuffer && !instanceBuffer->isMapped());
-        size_t bufferOffset = instanceBuffer->baseOffset() + baseInstance * instanceStride;
-        int attribIdx = fHWProgram->numVertexAttributes();
-        for (int i = 0; i < fHWProgram->numInstanceAttributes(); ++i, ++attribIdx) {
-            const auto& attrib = fHWProgram->instanceAttribute(i);
-            static constexpr int kDivisor = 1;
-            attribState->set(this, attrib.fLocation, instanceBuffer, attrib.fType, instanceStride,
-                             bufferOffset + attrib.fOffset, kDivisor);
-        }
+        bindings[1].fBuffer = instanceBuffer;
+        bindings[1].fStride = instanceStride;
+        bindings[1].fBufferOffset = instanceBuffer->baseOffset() + baseInstance * instanceStride;
+    }
+
+    auto numAttributes = fHWProgram->numAttributes();
+    attribState->enableVertexArrays(this, numAttributes, enablePrimitiveRestart);
+
+    for (int i = 0; i < numAttributes; ++i) {
+        using InputRate = GrPrimitiveProcessor::Attribute::InputRate;
+        const GrGLProgram::Attribute& attribute = fHWProgram->attribute(i);
+        const int divisor = InputRate::kPerInstance == attribute.fInputRate ? 1 : 0;
+        const auto& binding = bindings[divisor];
+        attribState->set(this, attribute.fLocation, binding.fBuffer, attribute.fType,
+                         binding.fStride, binding.fBufferOffset + attribute.fOffset, divisor);
     }
 }
 

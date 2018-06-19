@@ -20,8 +20,7 @@ GrGLSLVaryingHandler::VaryingHandle GrGLVaryingHandler::addPathProcessingVarying
     SkASSERT(glPB->gpu()->glCaps().shaderCaps()->pathRenderingSupport() &&
              glPB->fPrimProc.isPathRendering() &&
              !glPB->fPrimProc.willUseGeoShader() &&
-             !glPB->fPrimProc.numVertexAttributes() &&
-             !glPB->fPrimProc.numInstanceAttributes());
+             glPB->fPrimProc.numAttribs() == 0);
 #endif
     this->addVarying(name, v);
     auto varyingInfo = fPathProcVaryingInfos.push_back();
