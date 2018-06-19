@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f330e29d_e283387e",
+        "filename": "docs/SkImageInfo_Reference.bmh",
+        "patchSetId": 4
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-19T14:25:01Z",
+      "side": 0,
+      "message": "This tab seems to have been why the build failed, but this tab has been here since 682c58da482155213e8cd2834b57bc6541e510a0 (a month ago)?",
+      "range": {
+        "startLine": 765,
+        "startChar": 14,
+        "endLine": 765,
+        "endChar": 16
+      },
+      "revId": "560714336135d9bf851146ead65a6c68cf4220ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

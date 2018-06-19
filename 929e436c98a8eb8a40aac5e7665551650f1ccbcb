@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62c323fd_5d2a518b",
+        "filename": "docs/SkColor_Reference.bmh",
+        "patchSetId": 4
+      },
+      "lineNbr": 680,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-19T14:25:01Z",
+      "side": 1,
+      "message": "We should never have any code which does this. While it may not make a difference in this particular case, std::swap should never be called directly. Having this in the examples propagates poor usage patterns. Not sure why it was changed.",
+      "range": {
+        "startLine": 680,
+        "startChar": 8,
+        "endLine": 680,
+        "endChar": 17
+      },
+      "revId": "929e436c98a8eb8a40aac5e7665551650f1ccbcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b94ebdb_ae60ae79",
+        "filename": "docs/SkPixmap_Reference.bmh",
+        "patchSetId": 4
+      },
+      "lineNbr": 1390,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-19T14:25:01Z",
+      "side": 1,
+      "message": "Same here.",
+      "range": {
+        "startLine": 1390,
+        "startChar": 16,
+        "endLine": 1390,
+        "endChar": 25
+      },
+      "revId": "929e436c98a8eb8a40aac5e7665551650f1ccbcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
