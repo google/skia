@@ -28,6 +28,7 @@ protected:
     }
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) final {
+	    SkDebugf("@@@@@@@@@@@@@@@@> GSIMPL!\n");
         const GrCCCoverageProcessor& proc = args.fGP.cast<GrCCCoverageProcessor>();
 
         // The vertex shader simply forwards transposed x or y values to the geometry shader.
@@ -131,6 +132,13 @@ public:
                               const GrShaderVar& wind, const char* emitVertexFn) const override {
         fShader->emitSetupCode(g, "pts", wind.c_str());
 
+#if 1
+        g->codeAppendf("%s(pts[0], 1);", emitVertexFn);
+        g->codeAppendf("%s(pts[1], 1);", emitVertexFn);
+        g->codeAppendf("%s(pts[2], 1);", emitVertexFn);
+        g->configure(InputType::kLines, OutputType::kTriangleStrip, 3, 1);
+	return;
+#endif
         // Visualize the input triangle as upright and equilateral, with a flat base. Paying special
         // attention to wind, we can identify the points as top, bottom-left, and bottom-right.
         //
