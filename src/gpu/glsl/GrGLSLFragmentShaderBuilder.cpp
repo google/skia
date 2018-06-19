@@ -13,7 +13,6 @@
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLVarying.h"
-#include "../private/GrGLSL.h"
 
 const char* GrGLSLFragmentShaderBuilder::kDstColorName = "_dstColor";
 

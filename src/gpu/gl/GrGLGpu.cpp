@@ -6,8 +6,6 @@
  */
 
 #include "GrGLGpu.h"
-
-#include "../private/GrGLSL.h"
 #include "GrBackendSemaphore.h"
 #include "GrBackendSurface.h"
 #include "GrFixedClip.h"

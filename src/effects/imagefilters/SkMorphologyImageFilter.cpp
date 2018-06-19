@@ -19,7 +19,6 @@
 #include "SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "../private/GrGLSL.h"
 #include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "GrFixedClip.h"
