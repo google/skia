@@ -235,6 +235,14 @@ namespace hello_ar {
             ArCamera_release(ar_camera);
         }
 
+        void GetPlaneModelMatrix(glm::mat4& planeModel, ArSession* arSession, ArPlane* arPlane) {
+            ArPose *plane_pose = nullptr;
+            ArPose_create(arSession, nullptr, &plane_pose);
+            ArPlane_getCenterPose(arSession, arPlane, plane_pose);
+            util::GetTransformMatrixFromPose(arSession, plane_pose, &planeModel);
+            ArPose_destroy(plane_pose);
+        }
+
         SkMatrix44 GlmMatToSkMat(const glm::mat4 m) {
             SkMatrix44 skMat = SkMatrix44::kIdentity_Constructor;
             for (int i = 0; i < 4; i++) {
@@ -314,8 +322,7 @@ namespace hello_ar {
             float dot = util::Dot(u, v);
             float scale = (util::Magnitude(u) * util::Magnitude(v));
             float cosine = dot / scale;
-            float acosine = acos(cosine);
-            return acosine;
+            return acos(cosine);
         }
 
         glm::vec3 ProjectOntoPlane(glm::vec3 in, glm::vec3 normal) {
@@ -323,6 +330,64 @@ namespace hello_ar {
             float multiplier = dot / (util::Magnitude(normal) * util::Magnitude(normal));
             glm::vec3 out = in - multiplier * normal;
             return out;
+        }
+
+        void SetSkiaInitialRotation(glm::mat4& initRotation) {
+            // Rotates from XY plane to XZ plane
+            initRotation = glm::rotate(initRotation, SK_ScalarPI / 2, glm::vec3(1, 0, 0));
+        }
+
+        void SetSkiaObjectAxes(glm::vec3& x, glm::vec3& y, glm::vec3& z, glm::mat4 transform) {
+            x = glm::normalize(glm::vec3(transform * glm::vec4(1, 0, 0, 1)));
+            y = glm::normalize(glm::vec3(transform * glm::vec4(0, 1, 0, 1)));
+            z = glm::normalize(glm::vec3(transform * glm::vec4(0, 0, 1, 1)));
+        }
+
+        void SetCameraAlignedRotation(glm::mat4& rotateTowardsCamera, float& rotationDirection, const glm::vec3& toProject, const glm::vec3& skiaY, const glm::vec3& skiaZ) {
+            glm::vec3 hitLookProj = -util::ProjectOntoPlane(toProject, skiaZ);
+            float angleRad = util::AngleRad(skiaY, hitLookProj);
+            glm::vec3 cross = glm::normalize(glm::cross(skiaY, hitLookProj));
+
+            //outs
+            rotationDirection = util::Dot(cross, skiaZ);
+            rotateTowardsCamera = glm::rotate(rotateTowardsCamera, angleRad, rotationDirection * skiaZ);
+        }
+
+        void SetCameraAlignedVertical(glm::mat4& caMat, const glm::mat4& camRot, const CameraAlignmentInfo& camAlignInfo) {
+            //Camera axes
+            glm::vec3 xCamera = glm::vec3(glm::vec4(1, 0, 0, 1) * camRot);
+            glm::vec3 yCamera = glm::vec3(glm::vec4(0, 1, 0, 1) * camRot);
+            glm::vec3 zCamera = glm::vec3(glm::vec4(0, 0, -1, 1) * camRot);
+
+            //Get matrix that rotates object from plane towards the wanted angle
+            glm::mat4 rotateTowardsCamera(1);
+            float rotationDirection = 1;
+            util::SetCameraAlignedRotation(rotateTowardsCamera, rotationDirection, yCamera, camAlignInfo.skiaY, camAlignInfo.skiaZ);
+
+            //LogOrientation(dot, angleRad, "Vertical/Wall");
+            glm::mat4 flip(1);
+            flip = glm::rotate(flip, SK_ScalarPI, rotationDirection * camAlignInfo.skiaZ);
+            caMat = camAlignInfo.postRot * flip * rotateTowardsCamera * camAlignInfo.preRot;
+        }
+
+        void SetCameraAlignedHorizontal(glm::mat4& caMat, ArPlaneType planeType, const glm::vec3 hitLook, const CameraAlignmentInfo& camAlignInfo) {
+            //Ceiling or Floor: follow hit location
+            //Get matrix that rotates object from plane towards the wanted angle
+            glm::mat4 rotateTowardsCamera(1);
+            float rotationDirection = 1;
+            util::SetCameraAlignedRotation(rotateTowardsCamera, rotationDirection, hitLook, camAlignInfo.skiaY, camAlignInfo.skiaZ);
+
+            if (planeType == ArPlaneType::AR_PLANE_HORIZONTAL_DOWNWARD_FACING) {
+                //ceiling
+                //LogOrientation(dot, angleRad, "Ceiling");
+                glm::mat4 flip(1);
+                flip = glm::rotate(flip, SK_ScalarPI, rotationDirection * camAlignInfo.skiaZ);
+                caMat = camAlignInfo.postRot * flip * rotateTowardsCamera * camAlignInfo.preRot;
+            } else {
+                //floor or tabletop
+                //LogOrientation(dot, angleRad, "Floor");
+                caMat = camAlignInfo.postRot * rotateTowardsCamera * camAlignInfo.preRot;
+            }
         }
 
     }  // namespace util
