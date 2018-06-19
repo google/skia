@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0665af3a_a7c5858e",
+        "filename": "third_party/Nima-Cpp/BUILD.gn",
+        "patchSetId": 11
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-19T15:54:06Z",
+      "side": 1,
+      "message": "I\u0027d probably just do this with\n\nif (is_win) {\n  group(\"Nima-CPP\") {}\n} else {\n  third_party(\"Nima-Cpp\") {\n      ...\n  }\n}\n\nbut adding this feature seems fine too.",
+      "revId": "59634d813caec4822bc84ad2940abbe1781fa1e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
