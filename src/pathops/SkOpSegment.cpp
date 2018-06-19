@@ -768,6 +768,9 @@ SkOpSegment* SkOpSegment::findNextXor(SkOpSpanBase** nextStart, SkOpSpanBase** n
     SkOpSegment* nextSegment;
     int activeCount = 0;
     do {
+        if (!nextAngle) {
+            return nullptr;
+        }
         nextSegment = nextAngle->segment();
         ++activeCount;
         if (!foundAngle || (foundDone && activeCount & 1)) {
