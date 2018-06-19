@@ -38,7 +38,11 @@ public:
     struct MaskTransform {
         MaskTransform(const SkMatrix& m, SkIVector* shift);
         float fMatrix2x2[4];
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+        // Except on AOSP, cache hits must have matching subpixel portions of their view matrix.
+        // On AOSP we follow after HWUI and ignore the subpixel translate.
         float fSubpixelTranslate[2];
+#endif
     };
 
     enum class CreateIfAbsent : bool {

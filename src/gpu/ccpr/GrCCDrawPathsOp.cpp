@@ -50,8 +50,7 @@ GrCCDrawPathsOp::GrCCDrawPathsOp(const SkIRect& looseClippedIBounds, const SkMat
         : GrDrawOp(ClassID())
         , fViewMatrixIfUsingLocalCoords(has_coord_transforms(paint) ? m : SkMatrix::I())
         , fSRGBFlags(GrPipeline::SRGBFlagsFromPaint(paint))
-        , fDraws({looseClippedIBounds, m, shape, paint.getColor(), nullptr, nullptr, {0, 0},
-                  canStashPathMask, nullptr})
+        , fDraws(looseClippedIBounds, m, shape, paint.getColor(), canStashPathMask)
         , fProcessors(std::move(paint)) {  // Paint must be moved after fetching its color above.
     SkDEBUGCODE(fBaseInstance = -1);
     // FIXME: intersect with clip bounds to (hopefully) improve batching.
@@ -64,6 +63,23 @@ GrCCDrawPathsOp::~GrCCDrawPathsOp() {
         // Remove CCPR's dangling pointer to this Op before deleting it.
         fOwningPerOpListPaths->fDrawOps.remove(this);
     }
+}
+
+GrCCDrawPathsOp::SingleDraw::SingleDraw(const SkIRect& clippedDevIBounds, const SkMatrix& m,
+                                        const GrShape& shape, GrColor color, bool canStashPathMask)
+        : fLooseClippedIBounds(clippedDevIBounds)
+        , fMatrix(m)
+        , fShape(shape)
+        , fColor(color)
+        , fCanStashPathMask(canStashPathMask) {
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    if (fShape.hasUnstyledKey()) {
+        // On AOSP we round view matrix translates to integer values for cachable paths. We do this
+        // to match HWUI's cache hit ratio, which doesn't consider the matrix when caching paths.
+        fMatrix.setTranslateX(SkScalarRoundToScalar(fMatrix.getTranslateX()));
+        fMatrix.setTranslateY(SkScalarRoundToScalar(fMatrix.getTranslateY()));
+    }
+#endif
 }
 
 GrCCDrawPathsOp::SingleDraw::~SingleDraw() {

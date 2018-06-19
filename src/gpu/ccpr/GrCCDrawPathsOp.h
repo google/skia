@@ -80,21 +80,23 @@ private:
     const uint32_t fSRGBFlags;
 
     struct SingleDraw {
+        SingleDraw(const SkIRect& clippedDevIBounds, const SkMatrix&, const GrShape&, GrColor,
+                   bool canStashPathMask);
         ~SingleDraw();
 
-        SkIRect fLooseClippedIBounds;
+        const SkIRect fLooseClippedIBounds;
         SkMatrix fMatrix;
-        GrShape fShape;
+        const GrShape fShape;
         GrColor fColor;
+
+        // If we render the path, can we stash its atlas and copy to the resource cache next flush?
+        const bool fCanStashPathMask;
 
         sk_sp<GrCCPathCacheEntry> fCacheEntry;
         sk_sp<GrTextureProxy> fCachedAtlasProxy;
         SkIVector fCachedMaskShift;
 
-        // If we render the path, can we stash its atlas and copy to the resource cache next flush?
-        bool fCanStashPathMask;
-
-        SingleDraw* fNext;
+        SingleDraw* fNext = nullptr;
     };
 
     GrCCSTLList<SingleDraw> fDraws;
