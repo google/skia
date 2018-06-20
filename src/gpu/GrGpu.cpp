@@ -291,6 +291,19 @@ bool GrGpu::transferPixels(GrTexture* texture, int left, int top, int width, int
     return false;
 }
 
+bool GrGpu::regenerateMipMapLevels(GrTexture* texture) {
+    SkASSERT(texture);
+    SkASSERT(this->caps()->mipMapSupport());
+    SkASSERT(texture->texturePriv().mipMapped() == GrMipMapped::kYes);
+    SkASSERT(texture->texturePriv().mipMapsAreDirty());
+    SkASSERT(!texture->asRenderTarget() || !texture->asRenderTarget()->needsResolve());
+    if (this->onRegenerateMipMapLevels(texture)) {
+        texture->texturePriv().markMipMapsClean();
+        return true;
+    }
+    return false;
+}
+
 void GrGpu::resolveRenderTarget(GrRenderTarget* target) {
     SkASSERT(target);
     this->handleDirtyContext();
