@@ -75,6 +75,10 @@ __argparse.add_argument('--ddlTilingWidthHeight',
   type=int, default=0, help="number of tiles along one edge when in DDL mode")
 __argparse.add_argument('--ddlRecordTime',
   action='store_true', help="report just the cpu time spent recording DDLs")
+__argparse.add_argument('--gpuThreads',
+  type=int, default=2,
+  help="Create this many extra threads to assist with GPU work, including"
+       " software path rendering. Defaults to two.")
 __argparse.add_argument('skps',
   nargs='+',
   help=".skp files or directories to expand for .skp files")
@@ -129,6 +133,8 @@ class SKPBench:
     ARGV.extend(['--pr'] + re.split(r'[ ,]', FLAGS.pr))
   if FLAGS.nocache:
     ARGV.extend(['--cachePathMasks', 'false'])
+  if FLAGS.gpuThreads:
+    ARGV.extent(['--gpuThreads', str(FLAGS.gpuThreads)])
 
   # DDL parameters
   if FLAGS.ddl:
