@@ -204,6 +204,10 @@ def git_sync_deps(deps_file_path, command_line_os_requests, verbose):
         raise Exception('%r is parent of %r' % (other_dir, directory))
   list_of_arg_lists = []
   for directory in sorted(dependencies):
+    if not isinstance(dependencies[directory], basestring):
+      if verbose:
+        print 'Skipping "%s".' % directory
+      continue
     if '@' in dependencies[directory]:
       repo, checkoutable = dependencies[directory].split('@', 1)
     else:
@@ -215,10 +219,6 @@ def git_sync_deps(deps_file_path, command_line_os_requests, verbose):
       (git, repo, checkoutable, relative_directory, verbose))
 
   multithread(git_checkout_to_directory, list_of_arg_lists)
-
-  for directory in deps_file.get('recursedeps', []):
-    recursive_path = os.path.join(deps_file_directory, directory, 'DEPS')
-    git_sync_deps(recursive_path, command_line_os_requests, verbose)
 
 
 def multithread(function, list_of_arg_lists):
