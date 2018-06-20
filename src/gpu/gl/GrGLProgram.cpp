@@ -6,15 +6,15 @@
  */
 
 #include "GrGLProgram.h"
-
 #include "GrAllocator.h"
-#include "GrProcessor.h"
 #include "GrCoordTransform.h"
-#include "GrGLGpu.h"
 #include "GrGLBuffer.h"
+#include "GrGLGpu.h"
 #include "GrGLPathRendering.h"
 #include "GrPathProcessor.h"
 #include "GrPipeline.h"
+#include "GrProcessor.h"
+#include "GrTexturePriv.h"
 #include "GrXferProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
@@ -99,8 +99,7 @@ void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrPipeline
     fXferProcessor->setData(fProgramDataManager, xp, dstTexture, offset);
     if (dstTexture) {
         fGpu->bindTexture(nextTexSamplerIdx++, GrSamplerState::ClampNearest(),
-                          static_cast<GrGLTexture*>(dstTexture),
-                          pipeline.dstTextureProxy()->origin());
+                          static_cast<GrGLTexture*>(dstTexture));
     }
     SkASSERT(nextTexSamplerIdx == fNumTextureSamplers);
     SkASSERT(nextTexelBufferIdx == fNumTextureSamplers + fNumTexelBuffers);
@@ -170,8 +169,7 @@ void GrGLProgram::bindTextures(const GrResourceIOProcessor& processor,
     for (int i = 0; i < processor.numTextureSamplers(); ++i) {
         const GrResourceIOProcessor::TextureSampler& sampler = processor.textureSampler(i);
         fGpu->bindTexture((*nextTexSamplerIdx)++, sampler.samplerState(),
-                          static_cast<GrGLTexture*>(sampler.peekTexture()),
-                          sampler.proxy()->origin());
+                          static_cast<GrGLTexture*>(sampler.peekTexture()));
     }
     for (int i = 0; i < processor.numBuffers(); ++i) {
         const GrResourceIOProcessor::BufferAccess& access = processor.bufferAccess(i);
@@ -183,8 +181,12 @@ void GrGLProgram::bindTextures(const GrResourceIOProcessor& processor,
 void GrGLProgram::generateMipmaps(const GrResourceIOProcessor& processor) {
     for (int i = 0; i < processor.numTextureSamplers(); ++i) {
         const GrResourceIOProcessor::TextureSampler& sampler = processor.textureSampler(i);
-        fGpu->generateMipmaps(sampler.samplerState(),
-                              static_cast<GrGLTexture*>(sampler.peekTexture()),
-                              sampler.proxy()->origin());
+        auto* tex = sampler.peekTexture();
+        if (sampler.samplerState().filter() == GrSamplerState::Filter::kMipMap &&
+            tex->texturePriv().mipMapped() == GrMipMapped::kYes &&
+            tex->texturePriv().mipMapsAreDirty()) {
+            SkASSERT(fGpu->caps()->mipMapSupport());
+            fGpu->regenerateMipMapLevels(static_cast<GrGLTexture*>(sampler.peekTexture()));
+        }
     }
 }

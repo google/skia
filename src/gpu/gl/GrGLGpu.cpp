@@ -2716,8 +2716,7 @@ static GrGLenum filter_to_gl_min_filter(GrSamplerState::Filter filter) {
     return 0;
 }
 
-void GrGLGpu::bindTexture(int unitIdx, const GrSamplerState& samplerState, GrGLTexture* texture,
-                          GrSurfaceOrigin textureOrigin) {
+void GrGLGpu::bindTexture(int unitIdx, const GrSamplerState& samplerState, GrGLTexture* texture) {
     SkASSERT(texture);
 
 #ifdef SK_DEBUG
@@ -2856,53 +2855,6 @@ void GrGLGpu::bindTexelBuffer(int unitIdx, GrPixelConfig texelConfig, GrGLBuffer
         buffer->setHasAttachedToTexture();
         fHWMaxUsedBufferTextureUnit = SkTMax(unitIdx, fHWMaxUsedBufferTextureUnit);
     }
-}
-
-void GrGLGpu::generateMipmaps(const GrSamplerState& params, GrGLTexture* texture,
-                              GrSurfaceOrigin textureOrigin) {
-    SkASSERT(texture);
-
-    // First, figure out if we need mips for this texture at all:
-    GrSamplerState::Filter filterMode = params.filter();
-
-    if (GrSamplerState::Filter::kMipMap == filterMode) {
-        if (!this->caps()->mipMapSupport() ||
-            texture->texturePriv().mipMapped() == GrMipMapped::kNo) {
-            filterMode = GrSamplerState::Filter::kBilerp;
-        }
-    }
-
-    if (GrSamplerState::Filter::kMipMap != filterMode) {
-        return;
-    }
-
-    SkASSERT(texture->texturePriv().mipMapped() == GrMipMapped::kYes);
-
-    // If the mips aren't dirty, we're done:
-    if (!texture->texturePriv().mipMapsAreDirty()) {
-        return;
-    }
-
-    // If we created a rt/tex and rendered to it without using a texture and now we're texturing
-    // from the rt it will still be the last bound texture, but it needs resolving.
-    GrGLRenderTarget* texRT = static_cast<GrGLRenderTarget*>(texture->asRenderTarget());
-    if (texRT) {
-        this->onResolveRenderTarget(texRT);
-    }
-
-    GrGLenum target = texture->target();
-    this->setScratchTextureUnit();
-    GL_CALL(BindTexture(target, texture->textureID()));
-
-    // Either do manual mipmap generation or (if that fails), just rely on the driver:
-    if (!this->generateMipmap(texture, textureOrigin)) {
-        GL_CALL(GenerateMipmap(target));
-    }
-
-    texture->texturePriv().markMipMapsClean();
-
-    // We have potentially set lots of state on the texture. Easiest to dirty it all:
-    texture->textureParamsModified();
 }
 
 void GrGLGpu::setTextureSwizzle(int unitIdx, GrGLenum target, const GrGLenum swizzle[]) {
@@ -3664,7 +3616,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     int w = srcRect.width();
     int h = srcRect.height();
 
-    this->bindTexture(0, GrSamplerState::ClampNearest(), srcTex, srcOrigin);
+    this->bindTexture(0, GrSamplerState::ClampNearest(), srcTex);
 
     GrGLIRect dstVP;
     this->bindSurfaceFBOForPixelOps(dst, GR_GL_FRAMEBUFFER, &dstVP, kDst_TempFBOTarget);
@@ -3820,23 +3772,25 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurfaceOrigin dstOr
     return true;
 }
 
-// Manual implementation of mipmap generation, to work around driver bugs w/sRGB.
-// Uses draw calls to do a series of downsample operations to successive mips.
-// If this returns false, then the calling code falls back to using glGenerateMipmap.
-bool GrGLGpu::generateMipmap(GrGLTexture* texture, GrSurfaceOrigin textureOrigin) {
-    // Our iterative downsample requires the ability to limit which level we're sampling:
-    if (!this->glCaps().doManualMipmapping()) {
-        return false;
-    }
-
+bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
+    auto glTex = static_cast<GrGLTexture*>(texture);
     // Mipmaps are only supported on 2D textures:
-    if (GR_GL_TEXTURE_2D != texture->target()) {
+    if (GR_GL_TEXTURE_2D != glTex->target()) {
         return false;
     }
 
-    // We need to be able to render to the texture for this to work:
-    if (!this->glCaps().canConfigBeFBOColorAttachment(texture->config())) {
-        return false;
+    // Manual implementation of mipmap generation, to work around driver bugs w/sRGB.
+    // Uses draw calls to do a series of downsample operations to successive mips.
+
+    // The manual approach requires the ability to limit which level we're sampling and that the
+    // destination can be bound to a FBO:
+    if (!this->glCaps().doManualMipmapping() ||
+        !this->glCaps().canConfigBeFBOColorAttachment(texture->config())) {
+        GrGLenum target = glTex->target();
+        this->setScratchTextureUnit();
+        GL_CALL(BindTexture(target, glTex->textureID()));
+        GL_CALL(GenerateMipmap(glTex->target()));
+        return true;
     }
 
     int width = texture->width();
@@ -3854,7 +3808,7 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, GrSurfaceOrigin textureOrigin
     // Bind the texture, to get things configured for filtering.
     // We'll be changing our base level further below:
     this->setTextureUnit(0);
-    this->bindTexture(0, GrSamplerState::ClampBilerp(), texture, textureOrigin);
+    this->bindTexture(0, GrSamplerState::ClampBilerp(), glTex);
 
     // Vertex data:
     if (!fMipmapProgramArrayBuffer) {
@@ -3916,8 +3870,8 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, GrSurfaceOrigin textureOrigin
         // Only sample from previous mip
         GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_BASE_LEVEL, level - 1));
 
-        GL_CALL(FramebufferTexture2D(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0,
-                                     GR_GL_TEXTURE_2D, texture->textureID(), level));
+        GL_CALL(FramebufferTexture2D(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0, GR_GL_TEXTURE_2D,
+                                     glTex->textureID(), level));
 
         width = SkTMax(1, width / 2);
         height = SkTMax(1, height / 2);
@@ -3932,6 +3886,8 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, GrSurfaceOrigin textureOrigin
     GL_CALL(FramebufferTexture2D(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0,
                                  GR_GL_TEXTURE_2D, 0, 0));
 
+    // We modified the base level param.
+    texture->textureParamsModified();
     return true;
 }
 
