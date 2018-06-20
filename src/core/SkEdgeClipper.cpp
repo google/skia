@@ -92,9 +92,10 @@ static bool chopMonoQuadAtX(SkPoint pts[3], SkScalar x, SkScalar* t) {
 }
 
 // Modify pts[] in place so that it is clipped in Y to the clip rect
-static void chop_quad_in_Y(SkPoint pts[3], const SkRect& clip) {
+static bool chop_quad_in_Y(SkPoint pts[3], const SkRect& clip) {
     SkScalar t;
     SkPoint tmp[5]; // for SkChopQuadAt
+    bool certain = true;
 
     // are we partially above
     if (pts[0].fY < clip.fTop) {
@@ -129,6 +130,7 @@ static void chop_quad_in_Y(SkPoint pts[3], const SkRect& clip) {
             pts[1] = tmp[1];
             pts[2] = tmp[2];
         } else {
+            certain = false;
             // if chopMonoQuadAtY failed, then we may have hit inexact numerics
             // so we just clamp against the bottom
             for (int i = 0; i < 3; i++) {
@@ -138,6 +140,7 @@ static void chop_quad_in_Y(SkPoint pts[3], const SkRect& clip) {
             }
         }
     }
+    return certain;
 }
 
 // srcPts[] must be monotonic in X and Y
@@ -151,7 +154,9 @@ void SkEdgeClipper::clipMonoQuad(const SkPoint srcPts[3], const SkRect& clip) {
     }
 
     // Now chop so that pts is contained within clip in Y
-    chop_quad_in_Y(pts, clip);
+    if (!chop_quad_in_Y(pts, clip)) {
+        fCertain = false;
+    }
 
     if (pts[0].fX > pts[2].fX) {
         using std::swap;
@@ -189,6 +194,7 @@ void SkEdgeClipper::clipMonoQuad(const SkPoint srcPts[3], const SkRect& clip) {
             pts[0] = tmp[2];
             pts[1] = tmp[3];
         } else {
+            fCertain = false;
             // if chopMonoQuadAtY failed, then we may have hit inexact numerics
             // so we just clamp against the left
             this->appendVLine(clip.fLeft, pts[0].fY, pts[2].fY, reverse);
@@ -207,6 +213,7 @@ void SkEdgeClipper::clipMonoQuad(const SkPoint srcPts[3], const SkRect& clip) {
             this->appendQuad(tmp, reverse);
             this->appendVLine(clip.fRight, tmp[2].fY, tmp[4].fY, reverse);
         } else {
+            fCertain = false;
             // if chopMonoQuadAtY failed, then we may have hit inexact numerics
             // so we just clamp against the right
             this->appendVLine(clip.fRight, pts[0].fY, pts[2].fY, reverse);

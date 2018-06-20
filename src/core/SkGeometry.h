@@ -426,6 +426,7 @@ public:
     const SkPoint* computeQuads(const SkConic& conic, SkScalar tol) {
         int pow2 = conic.computeQuadPOW2(tol);
         fQuadCount = 1 << pow2;
+        fQuadCount = 2;
         SkPoint* pts = fStorage.reset(1 + 2 * fQuadCount);
         fQuadCount = conic.chopIntoQuadsPOW2(pts, pow2);
         return pts;

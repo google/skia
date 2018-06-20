@@ -160,6 +160,7 @@ unallocate_analytic_edge:
                 }
             }
             fList.push(edge);
+            SkDebugf("line %d\n", fList.count());
         } else {
 unallocate_edge:
             ;
@@ -185,6 +186,7 @@ void SkEdgeBuilder::addQuad(const SkPoint pts[]) {
         SkQuadraticEdge* edge = fAlloc.make<SkQuadraticEdge>();
         if (edge->setQuadratic(pts, fShiftUp)) {
             fList.push(edge);
+            SkDebugf("quad %d\n", fList.count());
         } else {
             // TODO: unallocate edge from storage...
         }
@@ -208,6 +210,7 @@ void SkEdgeBuilder::addCubic(const SkPoint pts[]) {
         SkCubicEdge* edge = fAlloc.make<SkCubicEdge>();
         if (edge->setCubic(pts, fShiftUp)) {
             fList.push(edge);
+            SkDebugf("cube %d\n", fList.count());
         } else {
             // TODO: unallocate edge from storage...
         }
@@ -412,6 +415,7 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, int shiftUp,
                     break;
             }
         }
+        fCertain &= clipper.isCertain();
     } else {
         while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
             switch (verb) {

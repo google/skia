@@ -505,3 +505,21 @@ int SkCubicEdge::updateCubic()
     fCurveCount = SkToS8(count);
     return success;
 }
+
+void SkEdge::dump2() const {
+    SkIPoint start = { fX, fFirstY << 16 };
+    SkIPoint end;
+    if (fCurveCount < 0) {
+        const SkCubicEdge* ce = (const SkCubicEdge*)this;
+        end.set(ce->fCLastX, ce->fCLastY);
+    } else if (fCurveCount > 0) {
+        const SkQuadraticEdge* qe = (const SkQuadraticEdge*)this;
+        end.set(qe->fQLastX, qe->fQLastY);
+    } else {
+        int dy = fLastY - fFirstY + 1;
+        end.set(fX + dy * fDX, (fLastY + 1) << 16);
+    }
+    SkDebugf("%p: { %g, %g }, { %g, %g } %d %d\n", this, fWinding, fCurveCount,
+             start.fX/65536.f, start.fY/65536.f, end.fX/65536.f, end.fY/65536.f);
+}
+
