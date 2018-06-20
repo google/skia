@@ -1470,8 +1470,6 @@ void <a href='#SkRect_toQuad'>toQuad</a>(<a href='SkPoint_Reference#SkPoint'>SkP
 Returns four points in <a href='#SkRect_toQuad_quad'>quad</a> that enclose <a href='#Rect'>Rect</a> ordered as: top-left, top-right,
 bottom-right, bottom-left.
 
-Consider adding param to control whether <a href='#SkRect_toQuad_quad'>quad</a> is clockwise or counterclockwise.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRect_toQuad_quad'><code><strong>quad</strong></code></a></td>
@@ -2462,8 +2460,8 @@ rect: 5, 1, 55, 86
 must describe area; <a href='#SkRect_fLeft'>fLeft</a> is less than <a href='#SkRect_fRight'>fRight</a>, and <a href='#SkRect_fTop'>fTop</a> is less than <a href='#SkRect_fBottom'>fBottom</a>;
 empty() returns false. The intersection of <a href='#Rect'>Rect</a> pair can be described by:
 
-(max(a.fLeft, b.fLeft), max(a.fTop, b.fTop),
-min(a.fRight, b.fRight), min(a.fBottom, b.fBottom))
+(max(a.<a href='#SkRect_fLeft'>fLeft</a>, b.<a href='#SkRect_fLeft'>fLeft</a>), max(a.<a href='#SkRect_fTop'>fTop</a>, b.<a href='#SkRect_fTop'>fTop</a>),
+min(a.<a href='#SkRect_fRight'>fRight</a>, b.<a href='#SkRect_fRight'>fRight</a>), min(a.<a href='#SkRect_fBottom'>fBottom</a>, b.<a href='#SkRect_fBottom'>fBottom</a>))
 .
 
 The intersection is only meaningful if the resulting <a href='#Rect'>Rect</a> is not empty and
