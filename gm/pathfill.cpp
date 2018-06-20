@@ -317,24 +317,24 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
 
-        for (size_t i = 0; i < N; i++) {
+        for (size_t i = 0; i < 1; i++) {
             canvas->drawPath(fPath[i], paint);
             canvas->translate(SkIntToScalar(0), fDY[i]);
         }
 
-        canvas->save();
-        canvas->scale(0.300000011920929f, 0.300000011920929f);
-        canvas->translate(50, 50);
-        canvas->drawPath(fInfoPath, paint);
-        canvas->restore();
-
-        canvas->scale(2, 2);
-        canvas->translate(5, 15);
-        canvas->drawPath(fAccessibilityPath, paint);
-
-        canvas->scale(0.5f, 0.5f);
-        canvas->translate(5, 50);
-        canvas->drawPath(fVisualizerPath, paint);
+//        canvas->save();
+//        canvas->scale(0.300000011920929f, 0.300000011920929f);
+//        canvas->translate(50, 50);
+//        canvas->drawPath(fInfoPath, paint);
+//        canvas->restore();
+//
+//        canvas->scale(2, 2);
+//        canvas->translate(5, 15);
+//        canvas->drawPath(fAccessibilityPath, paint);
+//
+//        canvas->scale(0.5f, 0.5f);
+//        canvas->translate(5, 50);
+//        canvas->drawPath(fVisualizerPath, paint);
     }
 
 private:

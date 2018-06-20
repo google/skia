@@ -252,6 +252,7 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gCurveIndexBufferKey);
 // points. The Shader takes care of everything else for now. The final curve corners get touched up
 // in a later step by VSCornerImpl.
 void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
+	    SkDebugf("@@@@@@@@@@@@@@@@> VSIMPL!\n");
     const GrCCCoverageProcessor& proc = args.fGP.cast<GrCCCoverageProcessor>();
     GrGLSLVertexBuilder* v = args.fVertBuilder;
     int numInputPoints = proc.numInputPoints();

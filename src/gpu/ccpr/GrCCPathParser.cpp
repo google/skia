@@ -539,23 +539,23 @@ void GrCCPathParser::drawCoverageCount(GrOpFlushState* flushState, CoverageCount
     }
 
     if (batchTotalCounts.fWeightedTriangles) {
-        this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kWeightedTriangles,
-                             &PrimitiveTallies::fWeightedTriangles, drawBounds);
+//        this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kWeightedTriangles,
+//                             &PrimitiveTallies::fWeightedTriangles, drawBounds);
     }
 
     if (batchTotalCounts.fQuadratics) {
-        this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kQuadratics,
-                             &PrimitiveTallies::fQuadratics, drawBounds);
+//        this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kQuadratics,
+//                             &PrimitiveTallies::fQuadratics, drawBounds);
     }
 
     if (batchTotalCounts.fCubics) {
-        this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kCubics,
-                             &PrimitiveTallies::fCubics, drawBounds);
+//        this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kCubics,
+//                             &PrimitiveTallies::fCubics, drawBounds);
     }
 
     if (batchTotalCounts.fConics) {
-        this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kConics,
-                             &PrimitiveTallies::fConics, drawBounds);
+//        this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kConics,
+//                             &PrimitiveTallies::fConics, drawBounds);
     }
 }
 
