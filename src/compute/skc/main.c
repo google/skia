@@ -1,7 +1,7 @@
 /*
  * Copyright 2017 Google Inc.
  *
- * Use of this source code is governed by a BSVG_DOC-style license that can
+ * Use of this source code is governed by a BSD-style license that can
  * be found in the LICENSE file.
  *
  */
@@ -49,7 +49,7 @@ skc_runtime_cl_12_debug(struct skc_context * const context);
 //
 //
 
-static 
+static
 void
 is_render_complete(skc_surface_t     surface,
                    skc_styling_t     styling,
@@ -67,9 +67,9 @@ int
 main(int argc, char** argv)
 {
   //
-  // 
   //
-  if (argc <= 1) 
+  //
+  if (argc <= 1)
     {
       fprintf(stderr,"-- missing filename\n");
       return EXIT_FAILURE; // no filename
@@ -110,7 +110,7 @@ main(int argc, char** argv)
       CL_WGL_HDC_KHR,      (cl_context_properties)hDC,
       0
     };
-  
+
   //
   // create context
   //
@@ -136,14 +136,14 @@ main(int argc, char** argv)
   skc_raster_builder_t raster_builder;
 
   err = skc_raster_builder_create(context,&raster_builder);
-  
+
   //
   // create a composition
   //
   skc_composition_t composition;
 
   err = skc_composition_create(context,&composition);
-  
+
   //
   // create a styling instance
   //
@@ -154,7 +154,7 @@ main(int argc, char** argv)
                            svg_doc_layer_count(svg_doc),
                            1000,
                            2 * 1024 * 1024);
-  
+
   //
   // create a surface
   //
@@ -191,7 +191,7 @@ main(int argc, char** argv)
       skc_transform_stack_restore(ts,ts_save);
 
       // decode layers -- places rasters
-      svg_doc_layers_decode(svg_doc,rasters,composition,styling,true/*is_srgb*/);    
+      svg_doc_layers_decode(svg_doc,rasters,composition,styling,true/*is_srgb*/);
 
       // seal the composition
       skc_composition_seal(composition);
@@ -244,7 +244,7 @@ main(int argc, char** argv)
       // unseal the composition
       skc_composition_unseal(composition,true);
     }
-  
+
   //
   // dispose of mundane resources
   //
