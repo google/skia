@@ -8,9 +8,10 @@
 #ifndef SkRefCnt_DEFINED
 #define SkRefCnt_DEFINED
 
-#include "../private/SkTLogic.h"
 #include "SkTypes.h"
+
 #include <atomic>
+#include <cstddef>
 #include <functional>
 #include <memory>
 #include <ostream>
@@ -262,7 +263,8 @@ public:
      *  created sk_sp both have a reference to it.
      */
     sk_sp(const sk_sp<T>& that) : fPtr(SkSafeRef(that.get())) {}
-    template <typename U, typename = skstd::enable_if_t<std::is_convertible<U*, T*>::value>>
+    template <typename U,
+              typename = typename std::enable_if<std::is_convertible<U*, T*>::value>::type>
     sk_sp(const sk_sp<U>& that) : fPtr(SkSafeRef(that.get())) {}
 
     /**
@@ -271,7 +273,8 @@ public:
      *  No call to ref() or unref() will be made.
      */
     sk_sp(sk_sp<T>&& that) : fPtr(that.release()) {}
-    template <typename U, typename = skstd::enable_if_t<std::is_convertible<U*, T*>::value>>
+    template <typename U,
+              typename = typename std::enable_if<std::is_convertible<U*, T*>::value>::type>
     sk_sp(sk_sp<U>&& that) : fPtr(that.release()) {}
 
     /**
@@ -301,7 +304,8 @@ public:
         }
         return *this;
     }
-    template <typename U, typename = skstd::enable_if_t<std::is_convertible<U*, T*>::value>>
+    template <typename U,
+              typename = typename std::enable_if<std::is_convertible<U*, T*>::value>::type>
     sk_sp<T>& operator=(const sk_sp<U>& that) {
         this->reset(SkSafeRef(that.get()));
         return *this;
@@ -316,7 +320,8 @@ public:
         this->reset(that.release());
         return *this;
     }
-    template <typename U, typename = skstd::enable_if_t<std::is_convertible<U*, T*>::value>>
+    template <typename U,
+              typename = typename std::enable_if<std::is_convertible<U*, T*>::value>::type>
     sk_sp<T>& operator=(sk_sp<U>&& that) {
         this->reset(that.release());
         return *this;
@@ -393,7 +398,7 @@ template <typename T, typename U> inline bool operator<(const sk_sp<T>& a, const
     // Provide defined total order on sk_sp.
     // http://wg21.cmeerw.net/lwg/issue1297
     // http://wg21.cmeerw.net/lwg/issue1401 .
-    return std::less<skstd::common_type_t<T*, U*>>()(a.get(), b.get());
+    return std::less<typename std::common_type<T*, U*>::type>()(a.get(), b.get());
 }
 template <typename T> inline bool operator<(const sk_sp<T>& a, std::nullptr_t) {
     return std::less<T*>()(a.get(), nullptr);
