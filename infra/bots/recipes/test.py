@@ -44,7 +44,8 @@ def dm_flags(api, bot):
   blacklisted = []
 
   def blacklist(quad):
-    config, src, options, name = quad.split(' ') if type(quad) is str else quad
+    config, src, options, name = (
+      quad.split(' ') if isinstance(quad, str) else quad)
     if (config == '_' or
         config in configs or
         (config[0] == '~' and config[1:] in configs)):
@@ -166,7 +167,9 @@ def dm_flags(api, bot):
     if 'NativeFonts' in bot:
       configs.append(gl_prefix)
     else:
-      configs.extend([gl_prefix, gl_prefix + 'dft', gl_prefix + 'srgb'])
+      configs.extend([gl_prefix,
+                      gl_prefix + 'dft',
+                      gl_prefix + 'srgb'])
       if sample_count is not '':
         configs.append(gl_prefix + 'msaa' + sample_count)
 
@@ -193,7 +196,10 @@ def dm_flags(api, bot):
     # Also do the Ganesh threading verification test (render with and without
     # worker threads, using only the SW path renderer, and compare the results).
     if 'Intel' in bot and api.vars.is_linux:
-      configs.extend(['gles', 'glesdft', 'glessrgb', 'gltestthreading'])
+      configs.extend(['gles',
+                      'glesdft',
+                      'glessrgb',
+                      'gltestthreading'])
       # skbug.com/6333, skbug.com/6419, skbug.com/6702
       blacklist('gltestthreading gm _ lcdblendmodes')
       blacklist('gltestthreading gm _ lcdoverlap')
@@ -208,17 +214,6 @@ def dm_flags(api, bot):
       blacklist('gltestthreading gm _ dftext_blob_persp')
       # skbug.com/7523 - Flaky on various GPUs
       blacklist('gltestthreading gm _ orientation')
-
-    # The following devices do not support glessrgb.
-    if 'glessrgb' in configs:
-      if ('IntelHD405'    in bot or
-          'IntelIris640'  in bot or
-          'IntelBayTrail' in bot or
-          'IntelHD2000'   in bot or
-          'AndroidOne'    in bot or
-          'Nexus7'        in bot or
-          'NexusPlayer'   in bot):
-        configs.remove('glessrgb')
 
     # Test SkColorSpaceXformCanvas on a few bots
     if 'GTX1070' in bot:
