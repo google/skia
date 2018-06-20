@@ -641,14 +641,14 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All/data"
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "rmtree data"
+    "name": "rmtree [SWARM_OUT_DIR]"
   },
   {
     "cmd": [
@@ -660,14 +660,14 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All/data"
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "makedirs data"
+    "name": "makedirs [SWARM_OUT_DIR]"
   },
   {
     "cmd": [
@@ -799,7 +799,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All"
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"
@@ -810,10 +810,10 @@
       "-u",
       "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)\n",
       "foo@127.0.0.1:/home/chronos/user/perf",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All/data"
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
-    "name": "scp -r foo@127.0.0.1:/home/chronos/user/perf [START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All/data",
+    "name": "scp -r foo@127.0.0.1:/home/chronos/user/perf [START_DIR]/[SWARM_OUT_DIR]",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",

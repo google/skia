@@ -42,7 +42,7 @@ def RunSteps(api):
   ts = int(calendar.timegm(now.utctimetuple()))
   filename = 'nanobench_%s_%d.json' % (got_revision, ts)
   dest_dir = api.flavor.host_dirs.perf_data_dir
-  dest_file = dest_dir + '/' + filename
+  dest_file = dest_dir.join(filename)
   api.file.ensure_directory('makedirs perf_dir', dest_dir)
   api.binary_size.run_analysis(skia_dir, dest_file)
 

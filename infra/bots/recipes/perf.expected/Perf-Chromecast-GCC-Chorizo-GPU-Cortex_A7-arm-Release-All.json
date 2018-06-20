@@ -401,17 +401,21 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All"
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"
+  },
+  {
+    "cmd": [],
+    "name": "adb pull"
   },
   {
     "cmd": [
       "adb",
       "pull",
       "/cache/skia/perf",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All/data"
+      "[TMP_BASE]/adb_pull_tmp_1"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -419,7 +423,81 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "pull /cache/skia/perf [START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All/data"
+    "name": "adb pull.pull /cache/skia/perf",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[TMP_BASE]/adb_pull_tmp_1",
+      "perf/*"
+    ],
+    "infra_step": true,
+    "name": "adb pull.list pulled files",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@glob@[TMP_BASE]/adb_pull_tmp_1/1.png@@@",
+      "@@@STEP_LOG_LINE@glob@[TMP_BASE]/adb_pull_tmp_1/2.png@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[TMP_BASE]/adb_pull_tmp_1/1.png",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "infra_step": true,
+    "name": "adb pull.copy 1.png",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[TMP_BASE]/adb_pull_tmp_1/2.png",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "infra_step": true,
+    "name": "adb pull.copy 2.png",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "rmtree",
+      "[TMP_BASE]/adb_pull_tmp_1"
+    ],
+    "infra_step": true,
+    "name": "adb pull.rmtree [TMP_BASE]/adb_pull_tmp_1",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [

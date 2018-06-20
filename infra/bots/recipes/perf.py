@@ -343,7 +343,7 @@ def perf_steps(api):
   if upload_perf_results(b):
     api.file.ensure_directory(
         'makedirs perf_dir',
-        api.path.dirname(api.flavor.host_dirs.perf_data_dir))
+        api.flavor.host_dirs.perf_data_dir)
     api.flavor.copy_directory_contents_to_host(
         api.flavor.device_dirs.perf_data_dir,
         api.flavor.host_dirs.perf_data_dir)
