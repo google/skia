@@ -14,6 +14,8 @@
 #include "SkRect.h"
 #include "SkRefCnt.h"
 
+#include <memory>
+
 /**
  * An immutable set of vertex data that can be used with SkCanvas::drawVertices.
  */
