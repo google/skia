@@ -142,6 +142,11 @@ public:
     void resolveRenderTarget(GrRenderTarget*);
 
     /**
+     * Uses the base of the texture to recompute the contents of the other levels.
+     */
+    bool regenerateMipMapLevels(GrTexture*);
+
+    /**
      * Reads a rectangle of pixels from a render target. No sRGB/linear conversions are performed.
      *
      * @param surface       The surface to read from
@@ -450,6 +455,9 @@ private:
 
     // overridden by backend-specific derived class to perform the resolve
     virtual void onResolveRenderTarget(GrRenderTarget* target) = 0;
+
+    // overridden by backend specific derived class to perform mip map level regeneration.
+    virtual bool onRegenerateMipMapLevels(GrTexture*) = 0;
 
     // overridden by backend specific derived class to perform the copy surface
     virtual bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
