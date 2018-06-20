@@ -409,6 +409,7 @@ void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter* blitte
     SkEdgeBuilder builder;
     int count = builder.build_edges(path, &shiftedClip, shiftEdgesUp, pathContainedInClip);
     SkEdge** list = builder.edgeList();
+    bool isConvex = path.isConvex() && builder.isCertain();
 
     if (0 == count) {
         if (path.isInverseFillType()) {
@@ -438,6 +439,12 @@ void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter* blitte
     SkEdge headEdge, tailEdge, *last;
     // this returns the first and last edge after they're sorted into a dlink list
     SkEdge* edge = sort_edges(list, count, &last);
+
+    SkASSERT(list[0]->fFirstY == list[1]->fFirstY);
+//    SkASSERT(list[0]->fFirstY < list[2]->fFirstY);
+    for (int i = 1; i < count; ++i) {
+        SkASSERT(list[i - 1]->fFirstY <= list[i]->fFirstY);
+    }
 
     headEdge.fPrev = nullptr;
     headEdge.fNext = edge;
@@ -471,7 +478,7 @@ void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter* blitte
     }
 
     // count >= 2 is required as the convex walker does not handle missing right edges
-    if (path.isConvex() && (nullptr == proc) && count >= 2) {
+    if (isConvex && (nullptr == proc) && count >= 2) {
         walk_convex_edges(&headEdge, path.getFillType(), blitter, start_y, stop_y, nullptr);
     } else {
         walk_edges(&headEdge, path.getFillType(), blitter, start_y, stop_y, proc,

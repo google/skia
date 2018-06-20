@@ -75,17 +75,15 @@ int SkFindUnitQuadRoots(SkScalar A, SkScalar B, SkScalar C, SkScalar roots[2]) {
 
     SkScalar* r = roots;
 
-    SkScalar R = B*B - 4*A*C;
-    if (R < 0 || !SkScalarIsFinite(R)) {  // complex roots
-        // if R is infinite, it's possible that it may still produce
-        // useful results if the operation was repeated in doubles
-        // the flipside is determining if the more precise answer
-        // isn't useful because surrounding machinery (e.g., subtracting
-        // the axis offset from C) already discards the extra precision
-        // more investigation and unit tests required...
+    double dr = (double)B * B - 4 * (double)A * C;
+    if (dr < 0) {
         return 0;
     }
-    R = SkScalarSqrt(R);
+    dr = sqrt(dr);
+    SkScalar R = SkDoubleToScalar(dr);
+    if (!SkScalarIsFinite(R)) {
+        return 0;
+    }
 
     SkScalar Q = (B < 0) ? -(B-R)/2 : -(B+R)/2;
     r += valid_unit_divide(Q, A, r);

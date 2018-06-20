@@ -26,10 +26,15 @@ public:
 
     bool canCullToTheRight() const { return fCanCullToTheRight; }
 
+    // If this returns false, then we hit some unstable numerics, and so we may draw wrong,
+    // and possible what started out as convex may no longer be convex.
+    bool isCertain() const { return fCertain; }
+
 private:
     SkPoint*        fCurrPoint;
     SkPath::Verb*   fCurrVerb;
     const bool      fCanCullToTheRight;
+    bool            fCertain = true;
 
     enum {
         kMaxVerbs = 18,  // max curvature in X and Y split cubic into 9 pieces, * (line + cubic)

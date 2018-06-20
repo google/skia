@@ -54,6 +54,7 @@ public:
     SkBezier** bezierList() { return (SkBezier**)fEdgeList; }
 
     bool isFinite() const { return fIsFinite; }
+    bool isCertain() const { return fCertain; }
 
 private:
     enum Combine {
@@ -83,6 +84,7 @@ private:
     int         fShiftUp;
     EdgeType    fEdgeType;
     bool        fIsFinite = true;
+    bool        fCertain = true;
 
 public:
     void addLine(const SkPoint pts[]);

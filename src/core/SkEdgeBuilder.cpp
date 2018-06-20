@@ -412,6 +412,7 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, int shiftUp,
                     break;
             }
         }
+        fCertain &= clipper.isCertain();
     } else {
         while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
             switch (verb) {
