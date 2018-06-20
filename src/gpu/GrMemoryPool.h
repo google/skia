@@ -12,6 +12,8 @@
 
 #include "SkRefCnt.h"
 
+#include <memory>
+
 #ifdef SK_DEBUG
 #include "SkTHash.h"
 #endif

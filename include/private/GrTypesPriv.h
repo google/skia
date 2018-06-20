@@ -8,13 +8,15 @@
 #ifndef GrTypesPriv_DEFINED
 #define GrTypesPriv_DEFINED
 
-#include <chrono>
 #include "GrSharedEnums.h"
 #include "GrTypes.h"
 #include "SkImageInfo.h"
 #include "SkImageInfoPriv.h"
 #include "SkRefCnt.h"
 #include "SkWeakRefCnt.h"
+
+#include <chrono>
+#include <memory>
 
 class GrCaps;
 
