@@ -448,6 +448,8 @@ skia_core_sources = [
 
   "$_src/jumper/SkJumper.cpp",
 
+  "$_include/ports/SkFontMgr.h",
+
   # private
   "$_include/private/SkArenaAlloc.h",
   "$_include/private/SkAtomics.h",
