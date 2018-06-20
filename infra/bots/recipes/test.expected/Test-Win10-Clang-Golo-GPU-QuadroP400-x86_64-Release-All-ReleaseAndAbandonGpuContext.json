@@ -255,7 +255,6 @@
       "gl",
       "gldft",
       "glsrgb",
-      "glesrgb",
       "glmsaa8",
       "--src",
       "tests",

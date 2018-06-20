@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorSpacePriv.h"
 #include "SkCommonFlagsConfig.h"
 #include "SkImageInfo.h"
 #include "SkTHash.h"
@@ -54,15 +53,11 @@ static const struct {
     { "gl1010102",             "gpu", "api=gl,color=1010102" },
     { "gles1010102",           "gpu", "api=gles,color=1010102" },
     { "glsrgb",                "gpu", "api=gl,color=srgb" },
-    { "glesrgb",               "gpu", "api=gl,color=esrgb" },
-    { "glnarrow",              "gpu", "api=gl,color=narrow" },
-    { "glenarrow",             "gpu", "api=gl,color=enarrow" },
+    { "glsrgbnl",              "gpu", "api=gl,color=srgbnl" },
     { "glf16",                 "gpu", "api=gl,color=f16" },
+    { "glf16nl",               "gpu", "api=gl,color=f16nl" },
     { "glessrgb",              "gpu", "api=gles,color=srgb" },
-    { "glesesrgb",             "gpu", "api=gles,color=esrgb" },
-    { "glesnarrow",            "gpu", "api=gles,color=narrow" },
-    { "glesenarrow",           "gpu", "api=gles,color=enarrow" },
-    { "glesf16",               "gpu", "api=gles,color=f16" },
+    { "glessrgbnl",            "gpu", "api=gles,color=srgbnl" },
     { "glnostencils",          "gpu", "api=gl,stencils=false" },
     { "gldft",                 "gpu", "api=gl,dit=true" },
     { "glesdft",               "gpu", "api=gles,dit=true" },
@@ -87,10 +82,6 @@ static const struct {
     ,{ "vknostencils",         "gpu", "api=vulkan,stencils=false" }
     ,{ "vk1010102",            "gpu", "api=vulkan,color=1010102" }
     ,{ "vksrgb",               "gpu", "api=vulkan,color=srgb" }
-    ,{ "vkesrgb",              "gpu", "api=vulkan,color=esrgb" }
-    ,{ "vknarrow",             "gpu", "api=vulkan,color=narrow" }
-    ,{ "vkenarrow",            "gpu", "api=vulkan,color=enarrow" }
-    ,{ "vkf16",                "gpu", "api=vulkan,color=f16" }
     ,{ "vkmsaa4",              "gpu", "api=vulkan,samples=4" }
     ,{ "vkmsaa8",              "gpu", "api=vulkan,samples=8" }
     ,{ "vkbetex",              "gpu", "api=vulkan,surf=betex" }
@@ -150,11 +141,10 @@ static const char configExtendedHelp[] =
     "\t\t4444\t\t\tLinear 4444.\n"
     "\t\t565\t\t\tLinear 565.\n"
     "\t\t1010102\t\t\tLinear 1010102.\n"
-    "\t\tsrgb\t\t\tsRGB 8888.\n"
-    "\t\tesrgb\t\t\tsRGB 16-bit floating point.\n"
-    "\t\tnarrow\t\t\tNarrow gamut 8888.\n"
-    "\t\tenarrow\t\t\tNarrow gamut 16-bit floating point.\n"
-    "\t\tf16\t\t\tLinearly blended 16-bit floating point.\n"
+    "\t\tsrgb\t\t\tsRGB 8888 (Linear blending).\n"
+    "\t\tsrgbnl\t\t\tsRGB 8888.\n"
+    "\t\tf16\t\t\t16-bit floating point (Linear blending).\n"
+    "\t\tf16nl\t\t\t16-bit floating point (sRGB encoded/blended).\n"
     "\tdit\ttype: bool\tdefault: false.\n"
     "\t    Use device independent text.\n"
     "\tnvpr\ttype: bool\tdefault: false.\n"
@@ -304,19 +294,18 @@ static bool parse_option_gpu_color(const SkString& value,
         *outColorType = kRGBA_1010102_SkColorType;
         *outColorSpace = nullptr;
     } else if (value.equals("srgb")) {
+        // TODO: kRGBA_sRGB_SkColorType, srgbLinearColorSpace
         *outColorType = kRGBA_8888_SkColorType;
         *outColorSpace = SkColorSpace::MakeSRGB();
-    } else if (value.equals("esrgb")) {
-        *outColorType = kRGBA_F16_SkColorType;
+    } else if (value.equals("srgbnl")) {
+        *outColorType = kRGBA_8888_SkColorType;
         *outColorSpace = SkColorSpace::MakeSRGB();
-    } else if (value.equals("narrow") || value.equals("enarrow")) {
-        SkMatrix44 narrow_gamut(SkMatrix44::kUninitialized_Constructor);
-        narrow_gamut.set3x3RowMajorf(gNarrow_toXYZD50);
-        *outColorType = value.equals("narrow") ? kRGBA_8888_SkColorType : kRGBA_F16_SkColorType;
-        *outColorSpace = SkColorSpace::MakeRGB(k2Dot2Curve_SkGammaNamed, narrow_gamut);
     } else if (value.equals("f16")) {
         *outColorType = kRGBA_F16_SkColorType;
         *outColorSpace = SkColorSpace::MakeSRGBLinear();
+    } else if (value.equals("f16nl")) {
+        *outColorType = kRGBA_F16_SkColorType;
+        *outColorSpace = SkColorSpace::MakeSRGB();
     } else {
         return false;
     }

@@ -662,7 +662,6 @@
       "gles",
       "glesdft",
       "glessrgb",
-      "glesesrgb",
       "--src",
       "tests",
       "gm",

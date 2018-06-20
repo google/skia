@@ -183,7 +183,6 @@
       "gl",
       "gldft",
       "glsrgb",
-      "glesrgb",
       "glmsaa8",
       "gl1010102",
       "--src",

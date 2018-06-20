@@ -35,9 +35,7 @@ static bool draw_path_cell(SkCanvas* canvas, SkImage* img, int expectedCaps) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
     SkAutoPixmapStorage pmap;
     pmap.alloc(info);
-    if (!img->readPixels(pmap, 0, 0)) {
-        return false;
-    }
+    SkAssertResult(img->readPixels(pmap, 0, 0));
 
     // To account for rasterization differences, we scan the middle two rows [y, y+1] of the image
     SkASSERT(h % 2 == 0);
