@@ -580,25 +580,23 @@ private:
                                  args.fFPCoordTransformHandler);
 
             // for outer curve
-            fragBuilder->codeAppendf("half2 scaledOffset = %s*%s.xy;", ellipseOffsets.fsIn(),
-                                     ellipseRadii.fsIn());
-            fragBuilder->codeAppend("half test = dot(scaledOffset, scaledOffset) - 1.0;");
-            fragBuilder->codeAppendf("half2 grad = 2.0*scaledOffset*%s.xy;", ellipseRadii.fsIn());
+            fragBuilder->codeAppendf("half2 offset = %s;", ellipseOffsets.fsIn());
+            fragBuilder->codeAppend("half test = 1.0 - dot(offset, offset);");
+            fragBuilder->codeAppendf("half2 grad = 2.0*offset*%s.xy;", ellipseRadii.fsIn());
             fragBuilder->codeAppend("half grad_dot = dot(grad, grad);");
 
             // avoid calling inversesqrt on zero.
-            fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
+            fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-5);");
             fragBuilder->codeAppend("half invlen = inversesqrt(grad_dot);");
-            fragBuilder->codeAppend("half edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);");
+            fragBuilder->codeAppend("half edgeAlpha = clamp(test*invlen, 0.0, 1.0);");
 
             // for inner curve
             if (egp.fStroke) {
-                fragBuilder->codeAppendf("scaledOffset = %s*%s.zw;", ellipseOffsets.fsIn(),
-                                         ellipseRadii.fsIn());
-                fragBuilder->codeAppend("test = dot(scaledOffset, scaledOffset) - 1.0;");
-                fragBuilder->codeAppendf("grad = 2.0*scaledOffset*%s.zw;", ellipseRadii.fsIn());
+                fragBuilder->codeAppendf("offset = %s;", ellipseOffsets.fsIn());
+                fragBuilder->codeAppend("test = dot(offset, offset) - 1.0;");
+                fragBuilder->codeAppendf("grad = 2.0*offset*%s.zw;", ellipseRadii.fsIn());
                 fragBuilder->codeAppend("invlen = inversesqrt(dot(grad, grad));");
-                fragBuilder->codeAppend("edgeAlpha *= clamp(0.5+test*invlen, 0.0, 1.0);");
+                fragBuilder->codeAppend("edgeAlpha *= clamp(test*invlen, 0.0, 1.0);");
             }
 
             fragBuilder->codeAppendf("%s = half4(edgeAlpha);", args.fOutputCoverage);
@@ -1969,37 +1967,37 @@ private:
             SkScalar yRadius = ellipse.fYRadius;
 
             // Compute the reciprocals of the radii here to save time in the shader
-            SkScalar xRadRecip = SkScalarInvert(xRadius);
-            SkScalar yRadRecip = SkScalarInvert(yRadius);
-            SkScalar xInnerRadRecip = SkScalarInvert(ellipse.fInnerXRadius);
-            SkScalar yInnerRadRecip = SkScalarInvert(ellipse.fInnerYRadius);
-
-            // fOffsets are expanded from xyRadii to include the half-pixel antialiasing width.
-            SkScalar xMaxOffset = xRadius + SK_ScalarHalf;
-            SkScalar yMaxOffset = yRadius + SK_ScalarHalf;
+            // The radii are outset to allow the shader to perform a simpler computation because
+            // the computed alpha is 0 rather than 50%, at the radius.
+            // We'll map a unit circle in the vertex attributes rather than computing an
+            // ellipse and modifying that distance.
+            SkScalar xRadRecip = SkScalarInvert(xRadius + SK_ScalarHalf);
+            SkScalar yRadRecip = SkScalarInvert(yRadius + SK_ScalarHalf);
+            SkScalar xInnerRadRecip = SkScalarInvert(ellipse.fInnerXRadius - SK_ScalarHalf);
+            SkScalar yInnerRadRecip = SkScalarInvert(ellipse.fInnerYRadius - SK_ScalarHalf);
 
             // The inner radius in the vertex data must be specified in normalized space.
             verts[0].fPos = SkPoint::Make(ellipse.fDevBounds.fLeft, ellipse.fDevBounds.fTop);
             verts[0].fColor = color;
-            verts[0].fOffset = SkPoint::Make(-xMaxOffset, -yMaxOffset);
+            verts[0].fOffset = SkPoint::Make(-1, -1);
             verts[0].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
             verts[0].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
             verts[1].fPos = SkPoint::Make(ellipse.fDevBounds.fLeft, ellipse.fDevBounds.fBottom);
             verts[1].fColor = color;
-            verts[1].fOffset = SkPoint::Make(-xMaxOffset, yMaxOffset);
+            verts[1].fOffset = SkPoint::Make(-1, 1);
             verts[1].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
             verts[1].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
             verts[2].fPos = SkPoint::Make(ellipse.fDevBounds.fRight, ellipse.fDevBounds.fTop);
             verts[2].fColor = color;
-            verts[2].fOffset = SkPoint::Make(xMaxOffset, -yMaxOffset);
+            verts[2].fOffset = SkPoint::Make(1, -1);
             verts[2].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
             verts[2].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
             verts[3].fPos = SkPoint::Make(ellipse.fDevBounds.fRight, ellipse.fDevBounds.fBottom);
             verts[3].fColor = color;
-            verts[3].fOffset = SkPoint::Make(xMaxOffset, yMaxOffset);
+            verts[3].fOffset = SkPoint::Make(1, 1);
             verts[3].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
             verts[3].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
