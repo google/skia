@@ -456,7 +456,6 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				"NexusPlayer":     {"fugu", "OPR2.170623.027"},
 				"Pixel":           {"sailfish", "OPM4.171019.016.B1"},
 				"Pixel2XL":        {"taimen", "OPM4.171019.016.B1"},
-				"PixelC":          {"dragon", "OPM4.171019.016.C1"},
 			}[parts["model"]]
 			if !ok {
 				glog.Fatalf("Entry %q not found in Android mapping.", parts["model"])

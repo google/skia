@@ -66,8 +66,7 @@ class AndroidFlavor(default.DefaultFlavor):
     self.disable_for_nanobench = {
       'Nexus5x': range(0, 4),
       'Pixel': range(0, 2),
-      'Pixel2XL': range(0, 4),
-      'PixelC': range(0, 2)
+      'Pixel2XL': range(0, 4)
     }
 
     self.gpu_scaling = {
