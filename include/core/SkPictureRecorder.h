@@ -10,7 +10,8 @@
 
 #include "SkBBHFactory.h"
 #include "SkPicture.h"
-#include "SkRefCnt.h"
+
+#include <memory>
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 namespace android {

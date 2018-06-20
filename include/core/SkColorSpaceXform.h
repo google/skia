@@ -10,6 +10,8 @@
 
 #include "SkImageInfo.h"
 
+#include <memory>
+
 class SkColorSpace;
 
 class SK_API SkColorSpaceXform : SkNoncopyable {

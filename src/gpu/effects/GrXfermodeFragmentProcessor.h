@@ -8,8 +8,9 @@
 #ifndef GrXfermodeFragmentProcessor_DEFINED
 #define GrXfermodeFragmentProcessor_DEFINED
 
-#include "SkRefCnt.h"
 #include "SkBlendMode.h"
+
+#include <memory>
 
 class GrFragmentProcessor;
 
