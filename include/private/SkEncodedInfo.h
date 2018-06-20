@@ -8,12 +8,26 @@
 #ifndef SkEncodedInfo_DEFINED
 #define SkEncodedInfo_DEFINED
 
+#include "SkData.h"
 #include "SkImageInfo.h"
+#include "../../third_party/skcms/skcms.h"
 
-class SkColorSpace;
-
-struct SkEncodedInfo {
+struct SkEncodedInfo : public SkNoncopyable {
 public:
+    // FIXME: Could be copyable, now that I'm using an SkData?
+    class ICCProfile : public SkNoncopyable {
+    public:
+        static std::unique_ptr<ICCProfile> Make(sk_sp<SkData>);
+        static std::unique_ptr<ICCProfile> MakeSRGB();
+        static std::unique_ptr<ICCProfile> Make(const skcms_ICCProfile&);
+
+        const skcms_ICCProfile* profile() const { return &fProfile; }
+    private:
+        ICCProfile(const skcms_ICCProfile&, sk_sp<SkData> = nullptr);
+
+        skcms_ICCProfile fProfile;
+        sk_sp<SkData>    fData;
+    };
 
     enum Alpha {
         kOpaque_Alpha,
@@ -38,6 +52,16 @@ public:
 
         // PNG
         kGrayAlpha_Color,
+
+        // PNG with Skia-specific sBIT
+        kAlpha_Color,
+
+        // PNG
+        // 565 images may be encoded to PNG by specifying the number of
+        // significant bits for each channel.  This is a strange 565
+        // representation because the image is still encoded with 8 bits per
+        // component.
+        k565_Color,
 
         // PNG, GIF, BMP
         kPalette_Color,
@@ -67,7 +91,18 @@ public:
         kYCCK_Color,
     };
 
-    static SkEncodedInfo Make(Color color, Alpha alpha, int bitsPerComponent) {
+    static SkEncodedInfo Make(int width, int height, Color color, Alpha alpha,
+            int bitsPerComponent) {
+        return Make(width, height, color, alpha, bitsPerComponent, nullptr);
+    }
+
+    static SkEncodedInfo MakeSRGB(int width, int height, Color color, Alpha alpha,
+            int bitsPerComponent) {
+        return Make(width, height, color, alpha, bitsPerComponent, ICCProfile::MakeSRGB());
+    }
+
+    static SkEncodedInfo Make(int width, int height, Color color, Alpha alpha,
+            int bitsPerComponent, std::unique_ptr<ICCProfile> profile) {
         SkASSERT(1 == bitsPerComponent ||
                  2 == bitsPerComponent ||
                  4 == bitsPerComponent ||
@@ -105,34 +140,59 @@ public:
                 SkASSERT(kOpaque_Alpha != alpha);
                 SkASSERT(8 == bitsPerComponent);
                 break;
+            // FIXME: I suppose I need to handle this in the
+            // swizzler as well...
+            case kAlpha_Color:
+                // I think SkImageInfo uses premul + alpha,
+                // just because premul is sort of the default/
+                // standard, but this seems more sensible?
+                SkASSERT(kUnpremul_Alpha == alpha);
+                // This just happens to be the case today.
+                SkASSERT(8 == bitsPerComponent);
+                break;
+            case k565_Color:
+                SkASSERT(kOpaque_Alpha == alpha);
+                SkASSERT(8 == bitsPerComponent);
+                break;
             default:
                 SkASSERT(false);
                 break;
         }
 
-        return SkEncodedInfo(color, alpha, bitsPerComponent);
+        return SkEncodedInfo(width, height, color, alpha, bitsPerComponent, std::move(profile));
     }
 
     /*
      * Returns an SkImageInfo with Skia color and alpha types that are the
      * closest possible match to the encoded info.
      */
-    SkImageInfo makeImageInfo(int width, int height, sk_sp<SkColorSpace> colorSpace) const {
-        auto ct = kGray_Color == fColor ? kGray_8_SkColorType   :
-                                          kN32_SkColorType      ;
+    SkImageInfo makeImageInfo() const {
+        auto ct =  kGray_Color == fColor ? kGray_8_SkColorType   :
+                  // FIXME: Add a test for this! Maybe like check_round_trip
+                  // in CodecTest? Did reed@ add a test for it initially?
+                  kAlpha_Color == fColor ? kAlpha_8_SkColorType  :
+                    k565_Color == fColor ? kRGB_565_SkColorType  :
+                                           kN32_SkColorType      ;
         auto alpha = kOpaque_Alpha == fAlpha ? kOpaque_SkAlphaType
                                              : kUnpremul_SkAlphaType;
-        return SkImageInfo::Make(width, height, ct, alpha, std::move(colorSpace));
+        // FIXME: Shouldn't we suggest SRGB if it doesn't convert?
+        sk_sp<SkColorSpace> cs = fProfile ? SkColorSpace::Make(*fProfile->profile())
+                                          : nullptr;
+        return SkImageInfo::Make(fWidth, fHeight, ct, alpha, std::move(cs));
     }
 
-    Color color() const { return fColor; }
-    Alpha alpha() const { return fAlpha; }
+    int   width() const { return fWidth;  }
+    int  height() const { return fHeight; }
+    Color color() const { return fColor;  }
+    Alpha alpha() const { return fAlpha;  }
     bool opaque() const { return fAlpha == kOpaque_Alpha; }
 
     uint8_t bitsPerComponent() const { return fBitsPerComponent; }
 
     uint8_t bitsPerPixel() const {
         switch (fColor) {
+            // FIXME: Right?
+            case kAlpha_Color:
             case kGray_Color:
                 return fBitsPerComponent;
             case kGrayAlpha_Color:
@@ -142,6 +202,7 @@ public:
             case kRGB_Color:
             case kBGR_Color:
             case kYUV_Color:
+            case k565_Color:
                 return 3 * fBitsPerComponent;
             case kRGBA_Color:
             case kBGRA_Color:
@@ -156,17 +217,26 @@ public:
         }
     }
 
-private:
+    // Need some sort of accessor for the profile; not sure whether we want the
+    // skcms object, or mine, or what...
 
-    SkEncodedInfo(Color color, Alpha alpha, uint8_t bitsPerComponent)
-        : fColor(color)
+private:
+    SkEncodedInfo(int width, int height, Color color, Alpha alpha,
+            uint8_t bitsPerComponent, std::unique_ptr<ICCProfile> profile)
+        : fWidth(width)
+        , fHeight(height)
+        , fColor(color)
         , fAlpha(alpha)
         , fBitsPerComponent(bitsPerComponent)
+        , fProfile(std::move(profile))
     {}
 
-    Color   fColor;
-    Alpha   fAlpha;
-    uint8_t fBitsPerComponent;
+    int                         fWidth;
+    int                         fHeight;
+    Color                       fColor;
+    Alpha                       fAlpha;
+    uint8_t                     fBitsPerComponent;
+    std::unique_ptr<ICCProfile> fProfile;
 };
 
 #endif

@@ -179,29 +179,23 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
             maxIndex = i;
         }
     }
-    int width = codecs->operator[](maxIndex)->getInfo().width();
-    int height = codecs->operator[](maxIndex)->getInfo().height();
-    SkEncodedInfo info = codecs->operator[](maxIndex)->getEncodedInfo();
-    SkColorSpace* colorSpace = codecs->operator[](maxIndex)->getInfo().colorSpace();
+
+    const auto& maxInfo = codecs->operator[](maxIndex)->getEncodedInfo();
+
+    // FIXME: This doesn't consider the color profile. Should it? How to make that doable?
+    auto info = SkEncodedInfo::Make(maxInfo.width(), maxInfo.height(), maxInfo.color(),
+                                    maxInfo.alpha(), maxInfo.bitsPerComponent());
 
     *result = kSuccess;
     // The original stream is no longer needed, because the embedded codecs own their
     // own streams.
-    return std::unique_ptr<SkCodec>(new SkIcoCodec(width, height, info, codecs.release(),
-                                                   sk_ref_sp(colorSpace)));
+    return std::unique_ptr<SkCodec>(new SkIcoCodec(std::move(info), codecs.release()));
 }
 
-/*
- * Creates an instance of the decoder
- * Called only by NewFromStream
- */
-SkIcoCodec::SkIcoCodec(int width, int height, const SkEncodedInfo& info,
-                       SkTArray<std::unique_ptr<SkCodec>, true>* codecs,
-                       sk_sp<SkColorSpace> colorSpace)
+SkIcoCodec::SkIcoCodec(SkEncodedInfo&& info, SkTArray<std::unique_ptr<SkCodec>, true>* codecs)
     // The source SkColorSpaceXform::ColorFormat will not be used. The embedded
     // codec's will be used instead.
-    : INHERITED(width, height, info, SkColorSpaceXform::ColorFormat(), nullptr,
-                std::move(colorSpace))
+    : INHERITED(std::move(info), SkColorSpaceXform::ColorFormat(), nullptr)
     , fEmbeddedCodecs(codecs)
     , fCurrCodec(nullptr)
 {}
