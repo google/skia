@@ -71,17 +71,7 @@ class CheckoutApi(recipe_api.RecipeApi):
     # Initial cleanup.
     gclient_cfg = self.m.gclient.make_config(**cfg_kwargs)
 
-    # Add chromium first because of skbug.com/7917.
-    if checkout_chromium:
-      chromium = gclient_cfg.solutions.add()
-      chromium.name = 'src'
-      chromium.managed = False
-      chromium.url = 'https://chromium.googlesource.com/chromium/src.git'
-      chromium.revision = 'origin/master'
-      extra_gclient_env['GYP_CHROMIUM_NO_ACTION'] = '0'
-
     main_repo = self.m.properties['repository']
-
     if checkout_flutter:
       main_repo = 'https://github.com/flutter/engine.git'
     main_name = self.m.path.basename(main_repo)
@@ -121,6 +111,10 @@ class CheckoutApi(recipe_api.RecipeApi):
       m[skia_dep_path] = 'got_revision'
       patch_repo = 'https://skia.googlesource.com/skia.git'
       patch_root = skia_dep_path
+
+    if checkout_chromium:
+      main.custom_vars['checkout_chromium'] = True
+      extra_gclient_env['GYP_CHROMIUM_NO_ACTION'] = '0'
 
     # TODO(rmistry): Remove the below block after there is a solution for
     #                crbug.com/616443

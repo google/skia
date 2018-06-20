@@ -1,5 +1,9 @@
 use_relative_paths = True
 
+vars = {
+  "checkout_chromium": False,
+}
+
 deps = {
   "buildtools"                            : "https://chromium.googlesource.com/chromium/buildtools.git@505de88083136eefd056e5ee4ca0f01fe9b33de8",
   "common"                                : "https://skia.googlesource.com/common.git@9737551d7a52c3db3262db5856e6bcd62c462b92",
@@ -30,6 +34,14 @@ deps = {
   "third_party/externals/zlib"            : "https://chromium.googlesource.com/chromium/src/third_party/zlib@e7afdfe128e01ca480a28f757b571957befdd962",
   "third_party/externals/Nima-Cpp"      : "https://github.com/2d-inc/Nima-Cpp.git@4bd02269d7d1d2e650950411325eafa15defb084",
   "third_party/externals/Nima-Math-Cpp" : "https://github.com/2d-inc/Nima-Math-Cpp.git@e0c12772093fa8860f55358274515b86885f0108",
+
+  "../src": {
+    "url": "https://chromium.googlesource.com/chromium/src.git@46931e2df7ad0925086b34329cc83479dd0fb31c",
+    "condition": "checkout_chromium",
+  },
 }
 
-recursedeps = [ "common" ]
+recursedeps = [
+  "common",
+  "../src",
+]
