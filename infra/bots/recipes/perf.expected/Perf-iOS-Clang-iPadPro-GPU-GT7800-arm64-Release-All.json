@@ -532,6 +532,7 @@
       "--config",
       "gles",
       "glessrgb",
+      "glesesrgb",
       "--match",
       "~blurroundrect",
       "~patch_grid",

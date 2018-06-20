@@ -153,6 +153,7 @@
       "--config",
       "gl",
       "glsrgb",
+      "glesrgb",
       "glmsaa8",
       "glnvpr8",
       "--loops",

@@ -253,6 +253,7 @@
       "gl",
       "gldft",
       "glsrgb",
+      "glesrgb",
       "--src",
       "tests",
       "gm",
