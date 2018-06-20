@@ -27,9 +27,12 @@ class ColorType(Enum):
     rgb_565 = 2
     argb_4444 = 3
     rgba_8888 = 4
-    bgra_8888 = 5
-    gray_8 = 6
-    rgba_F16 = 7
+    rgbx_8888 = 5
+    bgra_8888 = 6
+    rgba_1010102 = 7
+    rgb_101010x = 8
+    gray_8 = 9
+    rgba_F16 = 10
 
 class AlphaType(Enum):
     unknown = 0
@@ -49,11 +52,13 @@ class sk_bitmap(gdb.Command):
     frame = gdb.selected_frame()
     val = frame.read_var(arg)
     if str(val.type.strip_typedefs()) == 'SkBitmap':
-      pixels = val['fPixels']
-      row_bytes = val['fRowBytes']
-      info = val['fInfo']
-      width = info['fWidth']
-      height = info['fHeight']
+      pixmap = val['fPixmap']
+      pixels = pixmap['fPixels']
+      row_bytes = pixmap['fRowBytes']
+      info = pixmap['fInfo']
+      dimensions = info['fDimensions']
+      width = dimensions['fWidth']
+      height = dimensions['fHeight']
       color_type = info['fColorType']
       alpha_type = info['fAlphaType']
 
@@ -64,11 +69,11 @@ class sk_bitmap(gdb.Command):
       # See Unpack.c for the values understood after the "raw" parameter.
       if color_type == ColorType.bgra_8888.value:
         if alpha_type == AlphaType.unpremul.value:
-          image = Image.frombytes("RGBA", size, memory_data.tobytes(),
+          image = Image.frombytes("RGBA", size, memory_data,
                                   "raw", "BGRA", row_bytes, 1)
         elif alpha_type == AlphaType.premul.value:
           # RGBA instead of RGBa, because Image.show() doesn't work with RGBa.
-          image = Image.frombytes("RGBA", size, memory_data.tobytes(),
+          image = Image.frombytes("RGBA", size, memory_data,
                                   "raw", "BGRa", row_bytes, 1)
 
       if image:
