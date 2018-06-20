@@ -2162,7 +2162,7 @@ true if <a href='#Cubic'>Cubic</a> is degenerate; its length is effectively zero
 
 ### Example
 
-<div><fiddle-embed name="c79d813f0b37062cb2f7a0c83f4a09f3">
+<div><fiddle-embed name="6b97099acdae80b16df0c4241f593991">
 
 #### Example Output
 

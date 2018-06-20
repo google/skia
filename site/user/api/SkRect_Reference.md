@@ -1304,7 +1304,7 @@ left: -41 right: -20 centerX: -30.5
 </pre>
 
 Returns average of top edge and bottom edge. Result does not change if <a href='#Rect'>Rect</a>
-is sorted. Result may overflow to infinity if <a href='#Rect'>Rect</a> is far from the origin.
+is sorted.
 
 ### Return Value
 
@@ -1317,7 +1317,7 @@ midpoint in y
 #### Example Output
 
 ~~~~
-left: 2e+38 right: 3e+38 centerX: inf safe mid x: 2.5e+38
+left: 2e+38 right: 3e+38 centerX: 2.5e+38 safe mid x: 2.5e+38
 ~~~~
 
 </fiddle-embed></div>

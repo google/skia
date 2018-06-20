@@ -2484,10 +2484,10 @@ precision.
     const int w = 4;
     const int h = 4;
     SkColor colors[][w] = {
-        0x00000000, 0x2a0e002a, 0x55380055, 0x7f7f007f,
-        0x2a000e2a, 0x551c1c55, 0x7f542a7f, 0xaaaa38aa,
-        0x55003855, 0x7f2a547f, 0xaa7171aa, 0xd4d48dd4,
-        0x7f007f7f, 0xaa38aaaa, 0xd48dd4d4, 0xffffffff,
+        { 0x00000000, 0x2a0e002a, 0x55380055, 0x7f7f007f },
+        { 0x2a000e2a, 0x551c1c55, 0x7f542a7f, 0xaaaa38aa },
+        { 0x55003855, 0x7f2a547f, 0xaa7171aa, 0xd4d48dd4 },
+        { 0x7f007f7f, 0xaa38aaaa, 0xd48dd4d4, 0xffffffff }
     };
     SkDebugf("Premultiplied:\n");
     for (int y = 0; y < h; ++y) {
