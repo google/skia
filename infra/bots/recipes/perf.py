@@ -92,7 +92,7 @@ def nanobench_flags(api, bot):
     elif 'ChromeOS' in bot:
       gl_prefix = 'gles'
 
-    configs.extend([gl_prefix, gl_prefix + 'srgb'])
+    configs.extend([gl_prefix, gl_prefix + 'srgb', gl_prefix + 'esrgb'])
     if sample_count is not '':
       configs.append(gl_prefix + 'msaa' + sample_count)
       if ('TegraX1' in bot or
@@ -104,18 +104,7 @@ def nanobench_flags(api, bot):
     # We want to test both the OpenGL config and the GLES config on Linux Intel:
     # GL is used by Chrome, GLES is used by ChromeOS.
     if 'Intel' in bot and api.vars.is_linux:
-      configs.extend(['gles', 'glessrgb'])
-
-    # The following devices do not support glessrgb.
-    if 'glessrgb' in configs:
-      if ('IntelHD405'    in bot or
-          'IntelIris640'  in bot or
-          'IntelBayTrail' in bot or
-          'IntelHD2000'   in bot or
-          'AndroidOne'    in bot or
-          'Nexus7'        in bot or
-          'NexusPlayer'   in bot):
-        configs.remove('glessrgb')
+      configs.extend(['gles', 'glessrgb', 'glesesrgb'])
 
     if 'CommandBuffer' in bot:
       configs = ['commandbuffer']
