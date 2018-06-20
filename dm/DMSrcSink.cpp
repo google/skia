@@ -29,8 +29,6 @@
 #include "SkDocument.h"
 #include "SkExecutor.h"
 #include "SkImageGenerator.h"
-#include "SkImageGeneratorCG.h"
-#include "SkImageGeneratorWIC.h"
 #include "SkImageInfoPriv.h"
 #include "SkLiteDL.h"
 #include "SkLiteRecorder.h"
@@ -906,9 +904,8 @@ Name AndroidCodecSrc::name() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-ImageGenSrc::ImageGenSrc(Path path, Mode mode, SkAlphaType alphaType, bool isGpu)
+ImageGenSrc::ImageGenSrc(Path path, SkAlphaType alphaType, bool isGpu)
     : fPath(path)
-    , fMode(mode)
     , fDstAlphaType(alphaType)
     , fIsGpu(isGpu)
     , fRunSerially(serial_from_path_name(path))
@@ -934,39 +931,7 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
 
-#if defined(SK_BUILD_FOR_WIN)
-    // Initialize COM in order to test with WIC.
-    SkAutoCoInitialize com;
-    if (!com.succeeded()) {
-        return "Could not initialize COM.";
-    }
-#endif
-
-    std::unique_ptr<SkImageGenerator> gen(nullptr);
-    switch (fMode) {
-        case kCodec_Mode:
-            gen = SkCodecImageGenerator::MakeFromEncodedCodec(encoded);
-            if (!gen) {
-                return "Could not create codec image generator.";
-            }
-            break;
-        case kPlatform_Mode: {
-#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-            gen = SkImageGeneratorCG::MakeFromEncodedCG(encoded);
-#elif defined(SK_BUILD_FOR_WIN)
-            gen.reset(SkImageGeneratorWIC::NewFromEncodedWIC(encoded.get()));
-#endif
-
-            if (!gen) {
-                return "Could not create platform image generator.";
-            }
-            break;
-        }
-        default:
-            SkASSERT(false);
-            return "Invalid image generator mode";
-    }
-
+    std::unique_ptr<SkImageGenerator> gen = SkCodecImageGenerator::MakeFromEncodedCodec(encoded);
     // Test deferred decoding path on GPU
     if (fIsGpu) {
         sk_sp<SkImage> image(SkImage::MakeFromGenerator(std::move(gen), nullptr));
@@ -990,13 +955,6 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
     if (!gen->getPixels(decodeInfo, pixels.get(), rowBytes, &options)) {
         SkString err =
                 SkStringPrintf("Image generator could not getPixels() for %s\n", fPath.c_str());
-
-#if defined(SK_BUILD_FOR_WIN)
-        if (kPlatform_Mode == fMode) {
-            // Do not issue a fatal error for WIC flakiness.
-            return Error::Nonfatal(err);
-        }
-#endif
 
         return err;
     }

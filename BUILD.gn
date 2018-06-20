@@ -899,7 +899,6 @@ component("skia") {
       "src/ports/SkFontMgr_win_dw.cpp",
       "src/ports/SkFontMgr_win_dw_factory.cpp",
       "src/ports/SkImageEncoder_WIC.cpp",
-      "src/ports/SkImageGeneratorWIC.cpp",
       "src/ports/SkOSFile_win.cpp",
       "src/ports/SkOSLibrary_win.cpp",
       "src/ports/SkScalerContext_win_dw.cpp",
@@ -948,7 +947,6 @@ component("skia") {
       "src/ports/SkDebug_stdio.cpp",
       "src/ports/SkFontHost_mac.cpp",
       "src/ports/SkImageEncoder_CG.cpp",
-      "src/ports/SkImageGeneratorCG.cpp",
     ]
     libs += [
       # AppKit symbols NSFontWeightXXX may be dlsym'ed.
@@ -963,7 +961,6 @@ component("skia") {
       "src/ports/SkDebug_stdio.cpp",
       "src/ports/SkFontHost_mac.cpp",
       "src/ports/SkImageEncoder_CG.cpp",
-      "src/ports/SkImageGeneratorCG.cpp",
     ]
     libs += [
       "CoreFoundation.framework",

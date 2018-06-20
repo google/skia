@@ -193,11 +193,7 @@ private:
 
 class ImageGenSrc : public Src {
 public:
-    enum Mode {
-        kCodec_Mode,    // Use CodecImageGenerator
-        kPlatform_Mode, // Uses CG or WIC
-    };
-    ImageGenSrc(Path, Mode, SkAlphaType, bool);
+    ImageGenSrc(Path, SkAlphaType, bool);
 
     Error draw(SkCanvas*) const override;
     SkISize size() const override;
@@ -206,7 +202,6 @@ public:
     bool serial() const override { return fRunSerially; }
 private:
     Path        fPath;
-    Mode        fMode;
     SkAlphaType fDstAlphaType;
     bool        fIsGpu;
     bool        fRunSerially;
