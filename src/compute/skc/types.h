@@ -38,12 +38,6 @@
 //
 //
 
-#include <stdbool.h>
-
-//
-//
-//
-
 #define SKC_TYPE_HELPER(t)  skc_##t
 #define SKC_TYPE(t)         SKC_TYPE_HELPER(t)
 
@@ -114,16 +108,16 @@ typedef cl_float16  skc_float16;
 
 typedef cl_half     skc_half;
 
-#if defined( __CL_HALF2__)
+#if defined(__CL_HALF2__)
 typedef cl_half2    skc_half2;
 #endif
-#if defined( __CL_HALF4__)
+#if defined(__CL_HALF4__)
 typedef cl_half4    skc_half4;
 #endif
-#if defined( __CL_HALF8__)
+#if defined(__CL_HALF8__)
 typedef cl_half8    skc_half8;
 #endif
-#if defined( __CL_HALF16__)
+#if defined(__CL_HALF16__)
 typedef cl_half16   skc_half16;
 #endif
 
@@ -206,16 +200,16 @@ typedef float16     skc_float16;
 
 typedef half        skc_half;
 
-#if defined( __CL_HALF2__)
+#if defined(__CL_HALF2__)
 typedef half2       skc_half2;
 #endif
-#if defined( __CL_HALF4__)
+#if defined(__CL_HALF4__)
 typedef half4       skc_half4;
 #endif
-#if defined( __CL_HALF8__)
+#if defined(__CL_HALF8__)
 typedef half8       skc_half8;
 #endif
-#if defined( __CL_HALF16__)
+#if defined(__CL_HALF16__)
 typedef half16      skc_half16;
 #endif
 
@@ -243,12 +237,6 @@ typedef half16      skc_half16;
 //
 //
 
-#endif
-
-//
-//
-//
-
 #define SKC_UCHAR_MAX    0xFF
 
 #define SKC_SHORT_MAX    0x7FFF
@@ -260,6 +248,12 @@ typedef half16      skc_half16;
 #define SKC_UINT_MAX     0xFFFFFFFF
 
 #define SKC_ULONG_MAX    0xFFFFFFFFFFFFFFFFL
+
+//
+//
+//
+
+#endif
 
 //
 //

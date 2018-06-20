@@ -11,13 +11,15 @@
 #include <assert.h>
 
 #include "common/cl/assert_cl.h"
+
+#include "tile.h"
+#include "raster.h"
 #include "macros.h"
 
 #include "config_cl.h"
 #include "runtime_cl_12.h"
 
-#include "raster.h"
-#include "tile.h"
+#include "device_cl_12.h"
 
 #include "hs/cl/hs_cl_launcher.h"
 #include "hs/cl/gen9/hs_cl.h"
@@ -36,56 +38,50 @@
 
 #if   SKC_KERNEL_SPIRV
 
-#include "block_pool_init.pre.spv.inl"
-#include "paths_copy.pre.spv.inl"
-#include "fills_expand.pre.spv.inl"
-#include "rasterize.pre.spv.inl"
-#include "segment_ttrk.pre.spv.inl"
-#include "rasters_alloc.pre.spv.inl"
-#include "prefix.pre.spv.inl"
-#include "place.pre.spv.inl"
-#include "segment_ttck.pre.spv.inl"
-#include "render.pre.spv.inl"
-#include "paths_reclaim.pre.spv.inl"
-#include "rasters_reclaim.pre.spv.inl"
+#include "inl/block_pool_init.pre.spv.inl"
+#include "inl/paths_copy.pre.spv.inl"
+#include "inl/fills_expand.pre.spv.inl"
+#include "inl/rasterize.pre.spv.inl"
+#include "inl/segment_ttrk.pre.spv.inl"
+#include "inl/rasters_alloc.pre.spv.inl"
+#include "inl/prefix.pre.spv.inl"
+#include "inl/place.pre.spv.inl"
+#include "inl/segment_ttck.pre.spv.inl"
+#include "inl/render.pre.spv.inl"
+#include "inl/paths_reclaim.pre.spv.inl"
+#include "inl/rasters_reclaim.pre.spv.inl"
 
 #elif SKC_KERNEL_BINARY
 
-#include "block_pool_init.pre.bin.inl"
-#include "paths_copy.pre.bin.inl"
-#include "fills_expand.pre.bin.inl"
-#include "rasterize.pre.bin.inl"
-#include "segment_ttrk.pre.bin.inl"
-#include "rasters_alloc.pre.bin.inl"
-#include "prefix.pre.bin.inl"
-#include "place.pre.bin.inl"
-#include "segment_ttck.pre.bin.inl"
-#include "render.pre.bin.inl"
-#include "paths_reclaim.pre.bin.inl"
-#include "rasters_reclaim.pre.bin.inl"
+#include "inl/block_pool_init.pre.bin.inl"
+#include "inl/paths_copy.pre.bin.inl"
+#include "inl/fills_expand.pre.bin.inl"
+#include "inl/rasterize.pre.bin.inl"
+#include "inl/segment_ttrk.pre.bin.inl"
+#include "inl/rasters_alloc.pre.bin.inl"
+#include "inl/prefix.pre.bin.inl"
+#include "inl/place.pre.bin.inl"
+#include "inl/segment_ttck.pre.bin.inl"
+#include "inl/render.pre.bin.inl"
+#include "inl/paths_reclaim.pre.bin.inl"
+#include "inl/rasters_reclaim.pre.bin.inl"
 
 #elif SKC_KERNEL_SRC
 
-#include "block_pool_init.pre.src.inl"
-#include "paths_copy.pre.src.inl"
-#include "fills_expand.pre.src.inl"
-#include "rasterize.pre.src.inl"
-#include "segment_ttrk.pre.src.inl"
-#include "rasters_alloc.pre.src.inl"
-#include "prefix.pre.src.inl"
-#include "place.pre.src.inl"
-#include "segment_ttck.pre.src.inl"
-#include "render.pre.src.inl"
-#include "paths_reclaim.pre.src.inl"
-#include "rasters_reclaim.pre.src.inl"
+#include "inl/block_pool_init.pre.src.inl"
+#include "inl/paths_copy.pre.src.inl"
+#include "inl/fills_expand.pre.src.inl"
+#include "inl/rasterize.pre.src.inl"
+#include "inl/segment_ttrk.pre.src.inl"
+#include "inl/rasters_alloc.pre.src.inl"
+#include "inl/prefix.pre.src.inl"
+#include "inl/place.pre.src.inl"
+#include "inl/segment_ttck.pre.src.inl"
+#include "inl/render.pre.src.inl"
+#include "inl/paths_reclaim.pre.src.inl"
+#include "inl/rasters_reclaim.pre.src.inl"
 
 #endif
-
-//
-//
-//
-
-#include "device_cl_12_gen9.h"
 
 //
 // FIXME -- THE CONFIG INITIALIZATION IS ONLY HERE TEMPORARILY
