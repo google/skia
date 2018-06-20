@@ -272,9 +272,7 @@ class DOMParser {
 public:
     explicit DOMParser(SkArenaAlloc& alloc)
         : fAlloc(alloc) {
-
         fValueStack.reserve(kValueStackReserve);
-        fScopeStack.reserve(kScopeStackReserve);
     }
 
     const Value parse(const char* p, size_t size) {
@@ -361,15 +359,16 @@ public:
 
         // goto match_post_value;
     match_post_value:
-        SkASSERT(!fScopeStack.empty());
+        SkASSERT(!this->inTopLevelScope());
 
         p = skip_ws(p);
         switch (*p) {
         case ',':
             ++p;
-            if (fScopeStack.back() >= 0) {
+            if (this->inObjectScope()) {
                 goto match_object_key;
             } else {
+                SkASSERT(this->inArrayScope());
                 goto match_value;
             }
         case ']':
@@ -386,7 +385,7 @@ public:
     pop_object:
         SkASSERT(*p == '}');
 
-        if (fScopeStack.back() < 0) {
+        if (this->inArrayScope()) {
             return this->error(NullValue(), p, "unexpected object terminator");
         }
 
@@ -396,7 +395,7 @@ public:
     pop_common:
         SkASSERT(is_eoscope(*p));
 
-        if (fScopeStack.empty()) {
+        if (this->inTopLevelScope()) {
             SkASSERT(fValueStack.size() == 1);
 
             // Success condition: parsed the top level element and reached the stop token.
@@ -425,7 +424,7 @@ public:
     pop_array:
         SkASSERT(*p == ']');
 
-        if (fScopeStack.back() >= 0) {
+        if (this->inObjectScope()) {
             return this->error(NullValue(), p, "unexpected array terminator");
         }
 
@@ -444,13 +443,37 @@ public:
 private:
     SkArenaAlloc&         fAlloc;
 
+    // Pending values stack.
     static constexpr size_t kValueStackReserve = 256;
-    static constexpr size_t kScopeStackReserve = 128;
-    std::vector<Value   > fValueStack;
-    std::vector<intptr_t> fScopeStack;
+    std::vector<Value>    fValueStack;
 
+    // Tracks the current object/array scope, as an index into fStack:
+    //
+    //   - for objects: fScopeIndex =  (index of first value in scope)
+    //   - for arrays : fScopeIndex = -(index of first value in scope)
+    //
+    // fScopeIndex == 0 IFF we are at the top level (no current/active scope).
+    intptr_t              fScopeIndex = 0;
+
+    // Error reporting.
     const char*           fErrorToken = nullptr;
     SkString              fErrorMessage;
+
+    bool inTopLevelScope() const { return fScopeIndex == 0; }
+    bool inObjectScope()   const { return fScopeIndex >  0; }
+    bool inArrayScope()    const { return fScopeIndex <  0; }
+
+    // Helper for masquerading raw primitive types as Values (bypassing tagging, etc).
+    template <typename T>
+    class RawValue final : public Value {
+    public:
+        explicit RawValue(T v) {
+            static_assert(sizeof(T) <= sizeof(Value), "");
+            *this->cast<T>() = v;
+        }
+
+        T operator *() const { return *this->cast<T>(); }
+    };
 
     template <typename VectorT>
     void popScopeAsVec(size_t scope_start) {
@@ -468,26 +491,27 @@ private:
 
         const auto* begin = reinterpret_cast<const T*>(fValueStack.data() + scope_start);
 
-        // Instantiate the placeholder value added in onPush{Object/Array}.
-        fValueStack[scope_start - 1] = VectorT(begin, count, fAlloc);
+        // Restore the previous scope index from saved placeholder value,
+        // and instantiate as a vector of values in scope.
+        auto& placeholder = fValueStack[scope_start - 1];
+        fScopeIndex = *static_cast<RawValue<intptr_t>&>(placeholder);
+        placeholder = VectorT(begin, count, fAlloc);
 
-        // Drop the current scope.
-        fScopeStack.pop_back();
+        // Drop the (consumed) values in scope.
         fValueStack.resize(scope_start);
     }
 
     void pushObjectScope() {
-        // Object placeholder.
-        fValueStack.emplace_back();
+        // Save a scope index now, and then later we'll overwrite this value as the Object itself.
+        fValueStack.push_back(RawValue<intptr_t>(fScopeIndex));
 
-        // Object scope marker (size).
-        fScopeStack.push_back(SkTo<intptr_t>(fValueStack.size()));
+        // New object scope.
+        fScopeIndex = SkTo<intptr_t>(fValueStack.size());
     }
 
     void popObjectScope() {
-        const auto scope_start = fScopeStack.back();
-        SkASSERT(scope_start > 0);
-        this->popScopeAsVec<ObjectValue>(SkTo<size_t>(scope_start));
+        SkASSERT(this->inObjectScope());
+        this->popScopeAsVec<ObjectValue>(SkTo<size_t>(fScopeIndex));
 
         SkDEBUGCODE(
             const auto& obj = fValueStack.back().as<ObjectValue>();
@@ -499,17 +523,16 @@ private:
     }
 
     void pushArrayScope() {
-        // Array placeholder.
-        fValueStack.emplace_back();
+        // Save a scope index now, and then later we'll overwrite this value as the Array itself.
+        fValueStack.push_back(RawValue<intptr_t>(fScopeIndex));
 
-        // Array scope marker (-size).
-        fScopeStack.push_back(-SkTo<intptr_t>(fValueStack.size()));
+        // New array scope.
+        fScopeIndex = -SkTo<intptr_t>(fValueStack.size());
     }
 
     void popArrayScope() {
-        const auto scope_start = -fScopeStack.back();
-        SkASSERT(scope_start > 0);
-        this->popScopeAsVec<ArrayValue>(SkTo<size_t>(scope_start));
+        SkASSERT(this->inArrayScope());
+        this->popScopeAsVec<ArrayValue>(SkTo<size_t>(-fScopeIndex));
 
         SkDEBUGCODE(
             const auto& arr = fValueStack.back().as<ArrayValue>();
@@ -518,9 +541,9 @@ private:
     }
 
     void pushObjectKey(const char* key, size_t size, const char* eos) {
-        SkASSERT(fScopeStack.back() >= 0);
-        SkASSERT(fValueStack.size() >= SkTo<size_t>(fScopeStack.back()));
-        SkASSERT(!((fValueStack.size() - SkTo<size_t>(fScopeStack.back())) & 1));
+        SkASSERT(this->inObjectScope());
+        SkASSERT(fValueStack.size() >= SkTo<size_t>(fScopeIndex));
+        SkASSERT(!((fValueStack.size() - SkTo<size_t>(fScopeIndex)) & 1));
         this->pushString(key, size, eos);
     }
 
