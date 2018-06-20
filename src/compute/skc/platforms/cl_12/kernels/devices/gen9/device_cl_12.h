@@ -6,8 +6,8 @@
  *
  */
 
-#ifndef SKC_ONCE_DEVICE_CL_12_GEN9_H
-#define SKC_ONCE_DEVICE_CL_12_GEN9_H
+#ifndef SKC_ONCE_DEVICE_CL_12_H
+#define SKC_ONCE_DEVICE_CL_12_H
 
 //
 // FIXME -- THERE ARE SOME DUPLICATED TYPEDEFS IN THIS FILE
@@ -16,6 +16,12 @@
 //
 
 #include "block.h"
+
+//
+//
+//
+
+#include <hs/cl/gen9/hs_cl_macros.h>
 
 //
 // HOW TO SELECT A SUBBLOCK AND BLOCK SIZES:

@@ -9,6 +9,8 @@
 #ifndef SKC_COMMON_ONCE
 #define SKC_COMMON_ONCE
 
+#include "types.h"
+
 //
 // structures common to both host and device -- placeholder until
 // everything shakes out
