@@ -600,10 +600,7 @@ optional("gpu") {
     libs += [ "EGL" ]
   } else if (is_linux) {
     sources += [ "src/gpu/gl/glx/GrGLMakeNativeInterface_glx.cpp" ]
-    libs += [
-      "GL",
-      "GLU",
-    ]
+    libs += [ "GL" ]
   } else if (is_mac) {
     sources += [ "src/gpu/gl/mac/GrGLMakeNativeInterface_mac.cpp" ]
   } else if (is_ios) {
@@ -1265,7 +1262,10 @@ if (skia_enable_tools) {
       libs += [ "OpenGLES.framework" ]
     } else if (is_linux) {
       sources += [ "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp" ]
-      libs += [ "X11" ]
+      libs += [
+        "GLU",
+        "X11",
+      ]
     } else if (is_mac) {
       sources += [ "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp" ]
     } else if (is_win) {
