@@ -13,6 +13,8 @@
 #include "SkRefCnt.h"
 #include "SkTypes.h"
 
+#include <memory>
+
 class SkData;
 class SkFontData;
 class SkStreamAsset;

@@ -13,6 +13,8 @@
 #include "SkFlattenable.h"
 #include "SkRefCnt.h"
 
+#include <memory>
+
 class GrContext;
 class GrColorSpaceInfo;
 class GrFragmentProcessor;
