@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0fc55299_6d627d43",
+        "filename": "src/utils/SkJSON.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-20T17:29:45Z",
+      "side": 1,
+      "message": "I think it might be worth reframing these comments as helper functions?\n\n   bool building_object() const { return fScopedIndex  \u003c 0; }\n   bool building_array()  const { return fScopedIndex  \u003e 0; }\n   bool at_top_level()    const { return fSCopedIndex \u003d\u003d 0; }\n\nI definitely had trouble tracking what was going on with fScopedIndex checks until I hit this comment, and kind of keep having to scroll back to remind myself.",
+      "range": {
+        "startLine": 450,
+        "startChar": 4,
+        "endLine": 456,
+        "endChar": 42
+      },
+      "revId": "be9ac4022daa75d1e876bafd7d3e114d7539c77e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52af88ba_b489fab8",
+        "filename": "src/utils/SkJSON.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-20T17:29:45Z",
+      "side": 1,
+      "message": "Is it crazy to do this as\n\n   // Save a scope index now, and then later we\u0027ll overwrite this value as the Object itself.\n   this-\u003epushInt32(fScopeIndex);",
+      "revId": "be9ac4022daa75d1e876bafd7d3e114d7539c77e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
