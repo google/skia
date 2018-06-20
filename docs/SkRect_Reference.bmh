@@ -669,7 +669,7 @@ left: -41 right: -20 centerX: -30.5
 #In Property
 #Line # returns midpoint in y ##
 Returns average of top edge and bottom edge. Result does not change if Rect
-is sorted. Result may overflow to infinity if Rect is far from the origin.
+is sorted.
 
 #Return midpoint in y ##
 
@@ -678,7 +678,7 @@ is sorted. Result may overflow to infinity if Rect is far from the origin.
    SkDebugf("left: %g right: %g centerX: %g ", rect.left(), rect.right(), rect.centerX());
    SkDebugf("safe mid x: %g\n", rect.left() / 2 + rect.right() / 2);
 #StdOut
-left: 2e+38 right: 3e+38 centerX: inf safe mid x: 2.5e+38
+left: 2e+38 right: 3e+38 centerX: 2.5e+38 safe mid x: 2.5e+38
 ##
 ##
 
