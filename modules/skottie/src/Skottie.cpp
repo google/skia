@@ -777,22 +777,49 @@ sk_sp<sksg::RenderNode> AttachAssetRef(const skjson::ObjectValue& jlayer, Attach
     return asset;
 }
 
-sk_sp<sksg::RenderNode> AttachCompLayer(const skjson::ObjectValue& jlayer, AttachContext* ctx,
-                                        float* time_bias, float* time_scale) {
+sk_sp<sksg::RenderNode> AttachCompLayer(const skjson::ObjectValue& jlayer, AttachContext* ctx) {
     const auto start_time = ParseDefault<float>(jlayer["st"], 0.0f),
              stretch_time = ParseDefault<float>(jlayer["sr"], 1.0f);
+    const auto requires_time_mapping = !SkScalarNearlyEqual(start_time  , 0) ||
+                                       !SkScalarNearlyEqual(stretch_time, 1);
 
-    *time_bias = -start_time;
-    *time_scale = sk_ieee_float_divide(1, stretch_time);
-    if (SkScalarIsNaN(*time_scale)) {
-        *time_scale = 1;
+    sksg::AnimatorList local_animators;
+    AttachContext local_ctx = { ctx->fResources,
+                                ctx->fAssets,
+                                ctx->fDuration,
+                                requires_time_mapping ? local_animators : ctx->fAnimators };
+
+    auto comp_layer = AttachAssetRef(jlayer, &local_ctx, AttachComposition);
+
+    // Applies a bias/scale t-adjustment to child animators.
+    class CompTimeMapper final : public sksg::GroupAnimator {
+    public:
+        CompTimeMapper(sksg::AnimatorList&& layer_animators, float time_bias, float time_scale)
+            : INHERITED(std::move(layer_animators))
+            , fTimeBias(time_bias)
+            , fTimeScale(time_scale) {}
+
+        void onTick(float t) override {
+            this->INHERITED::onTick((t + fTimeBias) * fTimeScale);
+        }
+    private:
+        const float fTimeBias,
+                    fTimeScale;
+
+        using INHERITED = sksg::GroupAnimator;
+    };
+
+    if (requires_time_mapping) {
+        const auto t_bias  = -start_time,
+                   t_scale = sk_ieee_float_divide(1, stretch_time);
+        ctx->fAnimators.push_back(skstd::make_unique<CompTimeMapper>(std::move(local_animators),
+                                                                     t_bias, t_scale));
     }
 
-    return AttachAssetRef(jlayer, ctx, AttachComposition);
+    return comp_layer;
 }
 
-sk_sp<sksg::RenderNode> AttachSolidLayer(const skjson::ObjectValue& jlayer, AttachContext*,
-                                         float*, float*) {
+sk_sp<sksg::RenderNode> AttachSolidLayer(const skjson::ObjectValue& jlayer, AttachContext*) {
     const auto size = SkSize::Make(ParseDefault<float>(jlayer["sw"], 0.0f),
                                    ParseDefault<float>(jlayer["sh"], 0.0f));
     const auto hex = ParseDefault<SkString>(jlayer["sc"], SkString());
@@ -829,20 +856,17 @@ sk_sp<sksg::RenderNode> AttachImageAsset(const skjson::ObjectValue& jimage, Atta
         SkImage::MakeFromEncoded(SkData::MakeFromStream(resStream.get(), resStream->getLength())));
 }
 
-sk_sp<sksg::RenderNode> AttachImageLayer(const skjson::ObjectValue& jlayer, AttachContext* ctx,
-                                         float*, float*) {
+sk_sp<sksg::RenderNode> AttachImageLayer(const skjson::ObjectValue& jlayer, AttachContext* ctx) {
     return AttachAssetRef(jlayer, ctx, AttachImageAsset);
 }
 
-sk_sp<sksg::RenderNode> AttachNullLayer(const skjson::ObjectValue& layer, AttachContext*,
-                                        float*, float*) {
+sk_sp<sksg::RenderNode> AttachNullLayer(const skjson::ObjectValue& layer, AttachContext*) {
     // Null layers are used solely to drive dependent transforms,
     // but we use free-floating sksg::Matrices for that purpose.
     return nullptr;
 }
 
-sk_sp<sksg::RenderNode> AttachShapeLayer(const skjson::ObjectValue& layer, AttachContext* ctx,
-                                         float*, float*) {
+sk_sp<sksg::RenderNode> AttachShapeLayer(const skjson::ObjectValue& layer, AttachContext* ctx) {
     std::vector<sk_sp<sksg::GeometryNode>> geometryStack;
     std::vector<GeometryEffectRec> geometryEffectStack;
     AttachShapeContext shapeCtx(ctx, &geometryStack, &geometryEffectStack, ctx->fAnimators.size());
@@ -858,8 +882,7 @@ sk_sp<sksg::RenderNode> AttachShapeLayer(const skjson::ObjectValue& layer, Attac
     return shapeNode;
 }
 
-sk_sp<sksg::RenderNode> AttachTextLayer(const skjson::ObjectValue& layer, AttachContext*,
-                                        float*, float*) {
+sk_sp<sksg::RenderNode> AttachTextLayer(const skjson::ObjectValue& layer, AttachContext*) {
     LOG("?? Text layer stub\n");
     return nullptr;
 }
@@ -1007,8 +1030,7 @@ sk_sp<sksg::RenderNode> AttachLayer(const skjson::ObjectValue* jlayer,
                                     AttachLayerContext* layerCtx) {
     if (!jlayer) return nullptr;
 
-    using LayerAttacher = sk_sp<sksg::RenderNode> (*)(const skjson::ObjectValue&, AttachContext*,
-                                                      float* time_bias, float* time_scale);
+    using LayerAttacher = sk_sp<sksg::RenderNode> (*)(const skjson::ObjectValue&, AttachContext*);
     static constexpr LayerAttacher gLayerAttachers[] = {
         AttachCompLayer,  // 'ty': 0
         AttachSolidLayer, // 'ty': 1
@@ -1029,12 +1051,8 @@ sk_sp<sksg::RenderNode> AttachLayer(const skjson::ObjectValue* jlayer,
                                 layerCtx->fCtx->fDuration,
                                 layer_animators};
 
-    // Layer attachers may adjust these.
-    float time_bias  = 0,
-          time_scale = 1;
-
     // Layer content.
-    auto layer = gLayerAttachers[type](*jlayer, &local_ctx, &time_bias, &time_scale);
+    auto layer = gLayerAttachers[type](*jlayer, &local_ctx);
 
     // Clip layers with explicit dimensions.
     float w = 0, h = 0;
@@ -1062,14 +1080,11 @@ sk_sp<sksg::RenderNode> AttachLayer(const skjson::ObjectValue* jlayer,
     public:
         LayerController(sksg::AnimatorList&& layer_animators,
                         sk_sp<sksg::OpacityEffect> controlNode,
-                        float in, float out,
-                        float time_bias, float time_scale)
+                        float in, float out)
             : INHERITED(std::move(layer_animators))
             , fControlNode(std::move(controlNode))
             , fIn(in)
-            , fOut(out)
-            , fTimeBias(time_bias)
-            , fTimeScale(time_scale) {}
+            , fOut(out) {}
 
         void onTick(float t) override {
             const auto active = (t >= fIn && t <= fOut);
@@ -1079,16 +1094,13 @@ sk_sp<sksg::RenderNode> AttachLayer(const skjson::ObjectValue* jlayer,
             fControlNode->setOpacity(active ? 1 : 0);
 
             // Dispatch ticks only while active.
-            if (active)
-                this->INHERITED::onTick((t + fTimeBias) * fTimeScale);
+            if (active) this->INHERITED::onTick(t);
         }
 
     private:
         const sk_sp<sksg::OpacityEffect> fControlNode;
         const float                      fIn,
-                                         fOut,
-                                         fTimeBias,
-                                         fTimeScale;
+                                         fOut;
 
         using INHERITED = sksg::GroupAnimator;
     };
@@ -1105,12 +1117,7 @@ sk_sp<sksg::RenderNode> AttachLayer(const skjson::ObjectValue* jlayer,
         return nullptr;
 
     layerCtx->fCtx->fAnimators.push_back(
-        skstd::make_unique<LayerController>(std::move(layer_animators),
-                                            controller_node,
-                                            in,
-                                            out,
-                                            time_bias,
-                                            time_scale));
+        skstd::make_unique<LayerController>(std::move(layer_animators), controller_node, in, out));
 
     if (ParseDefault<bool>((*jlayer)["td"], false)) {
         // This layer is a matte.  We apply it as a mask to the next layer.
