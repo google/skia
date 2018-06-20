@@ -45,6 +45,7 @@ RUN cd /tmp/skia/skia \
   && python tools/git-sync-deps \
   && ./bin/fetch-gn \
   && ./bin/gn gen out/Static \
+  && git rev-parse HEAD > VERSION \
   && /tmp/depot_tools/ninja -C out/Static
 
 # Uncomment the lines below and update the ref to patch in a CL.
