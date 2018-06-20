@@ -45,3 +45,6 @@ recursedeps = [
   "common",
   "../src",
 ]
+
+gclient_gn_args_from = '../src'
+gclient_gn_args_file = '../src/build/secondary/build/config/gclient_args.gni'
