@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "38a64954_a09996f9",
+        "filename": "infra/bots/recipe_modules/flavor/android.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 527,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-06-20T17:46:47Z",
+      "side": 1,
+      "message": "Done, and added TODO.",
+      "parentUuid": "27842ba9_c460ec89",
+      "revId": "4bb038f886f5e412658dd96f79f3d91afb2759ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "816bd5ba_4106a806",
         "filename": "infra/bots/recipe_modules/flavor/android.py",
         "patchSetId": 7
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "c60031d6_e80e5399",
+        "filename": "infra/bots/recipe_modules/flavor/android.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-06-20T17:46:47Z",
+      "side": 1,
+      "message": "Is that a problem?  AFAIK we don\u0027t have any of those.",
+      "parentUuid": "816bd5ba_4106a806",
+      "range": {
+        "startLine": 532,
+        "startChar": 59,
+        "endLine": 532,
+        "endChar": 62
+      },
+      "revId": "4bb038f886f5e412658dd96f79f3d91afb2759ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c7e55f9f_70e84e82",
         "filename": "infra/bots/recipes/perf.expected/Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All.json",
         "patchSetId": 7
@@ -53,6 +95,30 @@
       "writtenOn": "2018-06-19T22:15:22Z",
       "side": 1,
       "message": "This seems a bit odd.",
+      "range": {
+        "startLine": 792,
+        "startChar": 1,
+        "endLine": 806,
+        "endChar": 4
+      },
+      "revId": "4bb038f886f5e412658dd96f79f3d91afb2759ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1539237e_876d4c01",
+        "filename": "infra/bots/recipes/perf.expected/Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All.json",
+        "patchSetId": 7
+      },
+      "lineNbr": 806,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-06-20T17:46:47Z",
+      "side": 1,
+      "message": "Good catch.",
+      "parentUuid": "c7e55f9f_70e84e82",
       "range": {
         "startLine": 792,
         "startChar": 1,
