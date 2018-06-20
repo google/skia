@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "abd5d270_276e40c6",
+        "filename": "tests/FontMgrAndroidParserTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-20T21:33:40Z",
+      "side": 1,
+      "message": "Don\u0027t need this.",
+      "range": {
+        "startLine": 250,
+        "startChar": 41,
+        "endLine": 250,
+        "endChar": 60
+      },
+      "revId": "90bc3cbebca9701c1e4c9e90243d0cedd9d9a2dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2cebfdbd_e5b4570f",
+        "filename": "tests/FontMgrAndroidParserTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-20T21:33:40Z",
+      "side": 1,
+      "message": "Don\u0027t need this.",
+      "range": {
+        "startLine": 251,
+        "startChar": 35,
+        "endLine": 251,
+        "endChar": 55
+      },
+      "revId": "90bc3cbebca9701c1e4c9e90243d0cedd9d9a2dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef33d46b_ebc5f5c3",
+        "filename": "tests/FontMgrAndroidParserTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-20T21:33:40Z",
+      "side": 1,
+      "message": "Let\u0027s just inline this function (just directly call \u0027bm-\u003eallocN32Pixels(bound.width(), bound.height())\u0027 where \u0027create\u0027 is called). Then this dosn\u0027t even need to consider making SkIRects at all.",
+      "range": {
+        "startLine": 270,
+        "startChar": 0,
+        "endLine": 272,
+        "endChar": 1
+      },
+      "revId": "90bc3cbebca9701c1e4c9e90243d0cedd9d9a2dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0733aaf8_b37a1ea6",
+        "filename": "tests/FontMgrAndroidParserTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-20T21:33:40Z",
+      "side": 1,
+      "message": "Comment this line to note that \"sans-serif\" in \"fonts/fonts.xml\" is \u0027fonts/Distortable.ttf\u0027.",
+      "range": {
+        "startLine": 292,
+        "startChar": 4,
+        "endLine": 292,
+        "endChar": 89
+      },
+      "revId": "90bc3cbebca9701c1e4c9e90243d0cedd9d9a2dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2bd9ccaa_1af45da6",
+        "filename": "tests/FontMgrAndroidParserTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-20T21:33:40Z",
+      "side": 1,
+      "message": "Can remove this variable and inline into \u0027create\u0027 call below.",
+      "range": {
+        "startLine": 294,
+        "startChar": 4,
+        "endLine": 294,
+        "endChar": 49
+      },
+      "revId": "90bc3cbebca9701c1e4c9e90243d0cedd9d9a2dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddac8640_1c54f493",
+        "filename": "tests/FontMgrAndroidParserTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-20T21:33:40Z",
+      "side": 1,
+      "message": "Move this up one line (remove the blank line before) and add the blank line after. The check here should be kept close to the creation of the thing being checked.",
+      "range": {
+        "startLine": 321,
+        "startChar": 0,
+        "endLine": 323,
+        "endChar": 5
+      },
+      "revId": "90bc3cbebca9701c1e4c9e90243d0cedd9d9a2dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
