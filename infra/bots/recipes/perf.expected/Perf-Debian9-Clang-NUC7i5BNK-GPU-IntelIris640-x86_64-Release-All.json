@@ -106,10 +106,10 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All/data"
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
-    "name": "rmtree data"
+    "name": "rmtree [SWARM_OUT_DIR]"
   },
   {
     "cmd": [
@@ -121,10 +121,10 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All/data"
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
-    "name": "makedirs data"
+    "name": "makedirs [SWARM_OUT_DIR]"
   },
   {
     "cmd": [
@@ -204,7 +204,7 @@
       "~inc1.webp",
       "--verbose",
       "--outResultsFile",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All/data/nanobench_abc123_1337000001.json",
+      "[START_DIR]/[SWARM_OUT_DIR]/nanobench_abc123_1337000001.json",
       "--properties",
       "gitHash",
       "abc123",
@@ -246,7 +246,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All"
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"
