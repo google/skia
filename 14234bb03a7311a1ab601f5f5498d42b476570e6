@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f627a8d0_2edc8fb0",
+        "filename": "DEPS",
+        "patchSetId": 5
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-06-20T17:13:51Z",
+      "side": 1,
+      "message": "Should this only happen if checkout_chromium is true?",
+      "revId": "14234bb03a7311a1ab601f5f5498d42b476570e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
