@@ -17,10 +17,6 @@
 #include <type_traits>
 #include <utility>
 
-// These two headers will be removed in a later CL:
-#include <memory>
-#include <array>
-
 /** \class SkRefCntBase
 
     SkRefCntBase is the base class for objects that may be shared by multiple

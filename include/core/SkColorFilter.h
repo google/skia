@@ -11,7 +11,6 @@
 #include "SkBlendMode.h"
 #include "SkColor.h"
 #include "SkFlattenable.h"
-#include "SkRefCnt.h"
 
 #include <memory>
 

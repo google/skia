@@ -10,7 +10,6 @@
 
 #include "../private/SkDeferredDisplayList.h"
 #include "SkImageInfo.h"
-#include "SkRefCnt.h"
 #include "SkSurfaceCharacterization.h"
 #include "SkTypes.h"
 
