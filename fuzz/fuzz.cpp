@@ -224,9 +224,11 @@ static std::map<std::string, std::string> cf_api_map = {
     {"api_raster_n32_canvas", "RasterN32Canvas"},
     {"jpeg_encoder", "JPEGEncoder"},
     {"png_encoder", "PNGEncoder"},
+    {"skia_pathop_fuzzer", "Pathop"},
     {"webp_encoder", "WEBPEncoder"}
 };
 
+// maps clusterfuzz/oss-fuzz -> Skia's name
 static std::map<std::string, std::string> cf_map = {
     {"animated_image_decode", "animated_image_decode"},
     {"image_decode", "image_decode"},
@@ -235,6 +237,7 @@ static std::map<std::string, std::string> cf_map = {
     {"path_deserialize", "path_deserialize"},
     {"region_deserialize", "region_deserialize"},
     {"region_set_path", "region_set_path"},
+    {"skjson", "json"},
     {"textblob_deserialize", "textblob"}
 };
 
@@ -245,15 +248,10 @@ static SkString try_auto_detect(SkString path, SkString* name) {
 
     if (std::regex_search(path.c_str(), m, clusterfuzz)) {
         std::string type = m.str(2);
-        if (type.find("api_") != std::string::npos || type.find("_encoder") != std::string::npos) {
-            if (cf_api_map.find(type) != cf_api_map.end()) {
-                *name = SkString(cf_api_map[type].c_str());  //probably wrong
-                return SkString("api");
-            } else {
-                SkDebugf("Unrecognized api name %s\n", type.c_str());
-                print_api_names();
-                return SkString("");
-            }
+
+        if (cf_api_map.find(type) != cf_api_map.end()) {
+            *name = SkString(cf_api_map[type].c_str());
+            return SkString("api");
         } else {
             if (cf_map.find(type) != cf_map.end()) {
                 return SkString(cf_map[type].c_str());
