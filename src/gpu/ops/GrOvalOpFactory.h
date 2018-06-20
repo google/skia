@@ -9,7 +9,8 @@
 #define GrOvalOpFactory_DEFINED
 
 #include "GrColor.h"
-#include "SkRefCnt.h"
+
+#include <memory>
 
 class GrContext;
 class GrDrawOp;

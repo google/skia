@@ -8,12 +8,13 @@
 #ifndef SkDeferredDisplayListMaker_DEFINED
 #define SkDeferredDisplayListMaker_DEFINED
 
+#include "../private/SkDeferredDisplayList.h"
 #include "SkImageInfo.h"
 #include "SkRefCnt.h"
 #include "SkSurfaceCharacterization.h"
 #include "SkTypes.h"
 
-#include "../private/SkDeferredDisplayList.h"
+#include <memory>
 
 class GrBackendFormat;
 class GrBackendTexture;
