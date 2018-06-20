@@ -600,7 +600,6 @@ optional("gpu") {
     libs += [ "EGL" ]
   } else if (is_linux) {
     sources += [ "src/gpu/gl/glx/GrGLMakeNativeInterface_glx.cpp" ]
-    libs += [ "GL" ]
   } else if (is_mac) {
     sources += [ "src/gpu/gl/mac/GrGLMakeNativeInterface_mac.cpp" ]
   } else if (is_ios) {
@@ -1263,6 +1262,7 @@ if (skia_enable_tools) {
     } else if (is_linux) {
       sources += [ "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp" ]
       libs += [
+        "GL",
         "GLU",
         "X11",
       ]
