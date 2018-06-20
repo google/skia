@@ -22,6 +22,30 @@
       "revId": "fe77c326e0ee4cce06104a9036276c304b882729",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d713211d_ebdcd801",
+        "filename": "gn/core.gni",
+        "patchSetId": 1
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-06-20T14:02:40Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "9d3a894d_03877f44",
+      "range": {
+        "startLine": 451,
+        "startChar": 14,
+        "endLine": 451,
+        "endChar": 18
+      },
+      "revId": "fe77c326e0ee4cce06104a9036276c304b882729",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
