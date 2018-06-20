@@ -34,7 +34,7 @@ def go_get_fiddlecli(api):
         'go get fiddlecli',
         5,  # Update attempts.
         cmd=[api.infra.go_exe, 'get', '-u', '-t',
-             'go.skia.org/infra/fiddle/go/fiddlecli'])
+             'go.skia.org/infra/fiddlek/go/fiddlecli'])
 
 
 def RunSteps(api):
