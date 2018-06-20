@@ -270,6 +270,9 @@ BASE_SRCS_ALL = struct(
 
         # Not time for skcms in Google3 yet.
         "src/core/SkColorSpaceXform_skcms.cpp",
+
+        # Compute backend not yet even hooked into Skia.
+	"src/compute/**/*",
     ],
 )
 
