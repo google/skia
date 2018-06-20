@@ -26,6 +26,7 @@ declare_args() {
   skia_use_libpng = true
   skia_use_libwebp = !is_fuchsia
   skia_use_lua = is_skia_dev_build && !is_ios
+  skia_use_opencl = false
   skia_use_piex = !is_win
   skia_use_zlib = true
   skia_use_metal = false
@@ -2175,6 +2176,18 @@ if (skia_enable_tools) {
       outputs = [
         "$root_out_dir/gdbserver",
       ]
+    }
+  }
+
+  if (skia_use_opencl) {
+    test_app("hello-opencl") {
+      sources = [
+        "src/compute/common/cl/assert_cl.c",
+        "src/compute/common/cl/find_cl.c",
+        "tools/hello-opencl.cpp",
+      ]
+      include_dirs = [ "src/compute/common" ]
+      libs = [ "OpenCL" ]
     }
   }
 }
