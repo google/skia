@@ -10,10 +10,9 @@
 
 #include "../private/SkTo.h"
 #include "SkData.h"
-#include "SkRefCnt.h"
 #include "SkScalar.h"
 
-#include <memory.h>
+#include <memory>
 
 class SkStream;
 class SkStreamRewindable;
