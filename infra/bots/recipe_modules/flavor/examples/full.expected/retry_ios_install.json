@@ -471,7 +471,7 @@
     "cmd": [
       "[START_DIR]/skia/platform_tools/ios/bin/ios_pull_if_needed",
       "dm",
-      "[START_DIR]/[SWARM_OUT_DIR]/dm"
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "env": {
       "CHROME_HEADLESS": "1",

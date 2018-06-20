@@ -791,11 +791,15 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "adb pull"
+  },
+  {
     "cmd": [
       "/usr/bin/adb.1.0.35",
       "pull",
       "/sdcard/revenge_of_the_skiabot/dm_out",
-      "[START_DIR]/[SWARM_OUT_DIR]/dm"
+      "[TMP_BASE]/adb_pull_tmp_1"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -804,8 +808,9 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm",
+    "name": "adb pull.pull /sdcard/revenge_of_the_skiabot/dm_out",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "step returned non-zero exit code: 1",
       "@@@STEP_EXCEPTION@@@"
     ]
@@ -822,8 +827,11 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "kill adb server after failure of 'pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm' (attempt 1)",
-    "timeout": 30
+    "name": "adb pull.kill adb server after failure of 'pull /sdcard/revenge_of_the_skiabot/dm_out' (attempt 1)",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -837,15 +845,18 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "wait for device after failure of 'pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm' (attempt 1)",
-    "timeout": 180
+    "name": "adb pull.wait for device after failure of 'pull /sdcard/revenge_of_the_skiabot/dm_out' (attempt 1)",
+    "timeout": 180,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
       "/usr/bin/adb.1.0.35",
       "pull",
       "/sdcard/revenge_of_the_skiabot/dm_out",
-      "[START_DIR]/[SWARM_OUT_DIR]/dm"
+      "[TMP_BASE]/adb_pull_tmp_1"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -854,8 +865,9 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm (attempt 2)",
+    "name": "adb pull.pull /sdcard/revenge_of_the_skiabot/dm_out (attempt 2)",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "step returned non-zero exit code: 1",
       "@@@STEP_EXCEPTION@@@"
     ]
@@ -872,8 +884,11 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "kill adb server after failure of 'pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm' (attempt 2)",
-    "timeout": 30
+    "name": "adb pull.kill adb server after failure of 'pull /sdcard/revenge_of_the_skiabot/dm_out' (attempt 2)",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -887,15 +902,18 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "wait for device after failure of 'pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm' (attempt 2)",
-    "timeout": 180
+    "name": "adb pull.wait for device after failure of 'pull /sdcard/revenge_of_the_skiabot/dm_out' (attempt 2)",
+    "timeout": 180,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
       "/usr/bin/adb.1.0.35",
       "pull",
       "/sdcard/revenge_of_the_skiabot/dm_out",
-      "[START_DIR]/[SWARM_OUT_DIR]/dm"
+      "[TMP_BASE]/adb_pull_tmp_1"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -904,10 +922,27 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm (attempt 3)",
+    "name": "adb pull.pull /sdcard/revenge_of_the_skiabot/dm_out (attempt 3)",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "step returned non-zero exit code: 1",
       "@@@STEP_EXCEPTION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "rmtree",
+      "[TMP_BASE]/adb_pull_tmp_1"
+    ],
+    "infra_step": true,
+    "name": "adb pull.rmtree [TMP_BASE]/adb_pull_tmp_1",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
@@ -959,7 +994,7 @@
   },
   {
     "name": "$result",
-    "reason": "Infra Failure: Step('pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm (attempt 3)') returned 1",
+    "reason": "Infra Failure: Step('adb pull.pull /sdcard/revenge_of_the_skiabot/dm_out (attempt 3)') returned 1",
     "recipe_result": null,
     "status_code": 1
   }

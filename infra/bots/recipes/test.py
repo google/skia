@@ -44,7 +44,8 @@ def dm_flags(api, bot):
   blacklisted = []
 
   def blacklist(quad):
-    config, src, options, name = quad.split(' ') if type(quad) is str else quad
+    config, src, options, name = (
+        quad.split(' ') if isinstance(quad, str) else quad)
     if (config == '_' or
         config in configs or
         (config[0] == '~' and config[1:] in configs)):
@@ -1184,8 +1185,7 @@ def GenTests(api):
   )
 
   builder = 'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-All-Android'
-  retry_step_name = ('pull /sdcard/revenge_of_the_skiabot/dm_out '
-                     '[START_DIR]/[SWARM_OUT_DIR]/dm')
+  retry_step_name = 'adb pull.pull /sdcard/revenge_of_the_skiabot/dm_out'
   yield (
     api.test('failed_pull') +
     api.properties(buildername=builder,
