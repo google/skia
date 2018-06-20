@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "782b0c30_a13d9aea",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-20T19:02:41Z",
+      "side": 0,
+      "message": "This was added by Brian Osman. We should check if this is still relevant, and if so, move it to a different device.\n\n(OTOH, we haven\u0027t been running regular nanobench on PixelC for a while now.)",
+      "range": {
+        "startLine": 143,
+        "startChar": 0,
+        "endLine": 146,
+        "endChar": 38
+      },
+      "revId": "b70e3b4831398aff696b9e15ad7e8f581db8aa9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
