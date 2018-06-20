@@ -170,15 +170,6 @@ static constexpr uint32_t SK_InvalidGenID = 0;
 */
 static constexpr uint32_t SK_InvalidUniqueID = 0;
 
-/** Generic swap function. Classes with efficient swaps should specialize this function to take
-    their fast path. This function is used by SkTSort.
-*/
-template <typename T> static inline void SkTSwap(T& a, T& b) {
-    T c(std::move(a));
-    a = std::move(b);
-    b = std::move(c);
-}
-
 static inline int32_t SkAbs32(int32_t value) {
     SkASSERT(value != SK_NaN32);  // The most negative int32_t can't be negated.
     if (value < 0) {
