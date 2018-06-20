@@ -114,6 +114,8 @@ public:
         return fCompiler;
     }
 
+    bool onRegenerateMipMapLevels(GrTexture* tex) override;
+
     void onResolveRenderTarget(GrRenderTarget* target) override {
         this->internalResolveRenderTarget(target, true);
     }
@@ -136,8 +138,6 @@ public:
     void waitSemaphore(sk_sp<GrSemaphore> semaphore) override;
 
     sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
-
-    void generateMipmap(GrVkTexture* tex, GrSurfaceOrigin texOrigin);
 
     void copyBuffer(GrVkBuffer* srcBuffer, GrVkBuffer* dstBuffer, VkDeviceSize srcOffset,
                     VkDeviceSize dstOffset, VkDeviceSize size);
