@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1a23d0a1_0ff5a0ff",
+        "filename": "src/utils/SkJSON.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-20T18:26:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0fc55299_6d627d43",
+      "range": {
+        "startLine": 450,
+        "startChar": 4,
+        "endLine": 456,
+        "endChar": 42
+      },
+      "revId": "be9ac4022daa75d1e876bafd7d3e114d7539c77e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "52af88ba_b489fab8",
         "filename": "src/utils/SkJSON.cpp",
         "patchSetId": 5
@@ -36,6 +60,24 @@
       "writtenOn": "2018-06-20T17:29:45Z",
       "side": 1,
       "message": "Is it crazy to do this as\n\n   // Save a scope index now, and then later we\u0027ll overwrite this value as the Object itself.\n   this-\u003epushInt32(fScopeIndex);",
+      "revId": "be9ac4022daa75d1e876bafd7d3e114d7539c77e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b9547c8_ba2307e3",
+        "filename": "src/utils/SkJSON.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-06-20T18:26:22Z",
+      "side": 1,
+      "message": "Ah, cute idea :)\n\nInterestingly, initializing the placeholder inline (as opposed to emplace_back + overwrite back) seem slightly faster on x86_64.\n\nBut extracting back the index is still ugly and I\u0027m just a tad worried about truncating to int32... how about a RawValue\u003cT\u003e helper to masquerade the index as a value?",
+      "parentUuid": "52af88ba_b489fab8",
       "revId": "be9ac4022daa75d1e876bafd7d3e114d7539c77e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
