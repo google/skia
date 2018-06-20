@@ -92,6 +92,8 @@ private:
         return true;
     }
 
+    bool onRegenerateMipMapLevels(GrTexture*) override { return true; }
+
     void onResolveRenderTarget(GrRenderTarget* target) override { return; }
 
     void onFinishFlush(bool insertedSemaphores) override {}
