@@ -1158,6 +1158,9 @@ public:
     }
 
     void indentOut() {
+        if (fIndent < 4) {  // FIXME: hack until I can debug again
+            return;
+        }
         SkASSERT(fIndent >= 4);
         SkASSERT(fIndentStack.back().fIndent == fIndent);
         fIndent -= 4;

@@ -3316,7 +3316,7 @@ pixel converted to <a href='undocumented#Unpremultiply'>Unpremultiplied</a> <a h
 
 ### Example
 
-<div><fiddle-embed name="0f05970f0ce47f462e8c0a3aa146575f">
+<div><fiddle-embed name="193d1f6d8a43b7a8e9f27ba21de38617">
 
 #### Example Output
 

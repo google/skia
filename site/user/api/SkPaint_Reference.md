@@ -4744,7 +4744,7 @@ Invalid values for <a href='#SkPaint_setTextEncoding_encoding'>encoding</a> are 
 
 ### Example
 
-<div><fiddle-embed name="329b92fbc35151dee9aa0c0e70107665">
+<div><fiddle-embed name="6d9ffdd3c5543e9f12972a06dd4a0ce5">
 
 #### Example Output
 

@@ -70,13 +70,6 @@
     "name": "SkBitmap::colorSpace",
         "stdout": "gammaCloseToSRGB: false  gammaIsLinear: true  isSRGB: false\\n"
     },
-        "SkBitmap_colorType": {
-    "code": "void draw(SkCanvas* canvas) {\n    const char* colors[] = {\"Unknown\", \"Alpha_8\", \"RGB_565\", \"ARGB_4444\", \"RGBA_8888\", \"RGB_888x\",\n                            \"BGRA_8888\", \"RGBA_1010102\", \"RGB_101010x\", \"Gray_8\", \"RGBA_F16\"};\n    SkBitmap bitmap;\n    bitmap.setInfo(SkImageInfo::MakeA8(16, 32));\n    SkDebugf(\"color type: k\" \"%s\" \"_SkColorType\\n\", colors[bitmap.colorType()]);\n}",
-    "hash": "ceb77fab7326b57822a147b04aa0960e",
-    "file": "SkBitmap_Reference",
-    "name": "SkBitmap::colorType",
-        "stdout": "color type: kAlpha_8_SkColorType\\n"
-    },
         "SkBitmap_computeByteSize": {
     "code": "void draw(SkCanvas* canvas) {\n    SkBitmap bitmap;\n    for (int width : { 1, 1000, 1000000 } ) {\n        for (int height: { 1, 1000, 1000000 } ) {\n            SkImageInfo imageInfo = SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType);\n            bitmap.setInfo(imageInfo, width * 5);\n            SkDebugf(\"width: %7d height: %7d computeByteSize: %13lld\\n\", width, height,\n                     bitmap.computeByteSize());\n        }\n    }\n}",
     "hash": "165c8f208829fc0908e8a50da60c0076",
@@ -162,8 +155,8 @@
         "stdout": "\\u0026pixels[4][2] == bitmap.getAddr8(2, 4)\\n"
     },
         "SkBitmap_getColor": {
-    "code": "void draw(SkCanvas* canvas) {\n    const int w = 4;\n    const int h = 4;\n    SkColor colors[][w] = {\n        0x00000000, 0x2a0e002a, 0x55380055, 0x7f7f007f,\n        0x2a000e2a, 0x551c1c55, 0x7f542a7f, 0xaaaa38aa,\n        0x55003855, 0x7f2a547f, 0xaa7171aa, 0xd4d48dd4,\n        0x7f007f7f, 0xaa38aaaa, 0xd48dd4d4, 0xffffffff,\n    };\n    SkDebugf(\"Premultiplied:\\n\");\n    for (int y = 0; y < h; ++y) {\n        SkDebugf(\"(0, %d) \", y);\n        for (int x = 0; x < w; ++x) {\n            SkDebugf(\"0x%08x%c\", colors[y][x], x == w - 1 ? '\\n' : ' ');\n        }\n    }\n    SkPixmap pixmap(SkImageInfo::MakeN32(w, h, kPremul_SkAlphaType), colors, w * 4);\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    SkDebugf(\"Unpremultiplied:\\n\");\n    for (int y = 0; y < h; ++y) {\n        SkDebugf(\"(0, %d) \", y);\n        for (int x = 0; x < w; ++x) {\n            SkDebugf(\"0x%08x%c\", bitmap.getColor(x, y), x == w - 1 ? '\\n' : ' ');\n        }\n    }\n}",
-    "hash": "0f05970f0ce47f462e8c0a3aa146575f",
+    "code": "void draw(SkCanvas* canvas) {\n    const int w = 4;\n    const int h = 4;\n    SkColor colors[][w] = {\n        { 0x00000000, 0x2a0e002a, 0x55380055, 0x7f7f007f },\n        { 0x2a000e2a, 0x551c1c55, 0x7f542a7f, 0xaaaa38aa },\n        { 0x55003855, 0x7f2a547f, 0xaa7171aa, 0xd4d48dd4 },\n        { 0x7f007f7f, 0xaa38aaaa, 0xd48dd4d4, 0xffffffff }\n    };\n    SkDebugf(\"Premultiplied:\\n\");\n    for (int y = 0; y < h; ++y) {\n        SkDebugf(\"(0, %d) \", y);\n        for (int x = 0; x < w; ++x) {\n            SkDebugf(\"0x%08x%c\", colors[y][x], x == w - 1 ? '\\n' : ' ');\n        }\n    }\n    SkPixmap pixmap(SkImageInfo::MakeN32(w, h, kPremul_SkAlphaType), colors, w * 4);\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    SkDebugf(\"Unpremultiplied:\\n\");\n    for (int y = 0; y < h; ++y) {\n        SkDebugf(\"(0, %d) \", y);\n        for (int x = 0; x < w; ++x) {\n            SkDebugf(\"0x%08x%c\", bitmap.getColor(x, y), x == w - 1 ? '\\n' : ' ');\n        }\n    }\n}",
+    "hash": "193d1f6d8a43b7a8e9f27ba21de38617",
     "file": "SkBitmap_Reference",
     "name": "SkBitmap::getColor",
         "stdout": "Premultiplied:\\n(0, 0) 0x00000000 0x2a0e002a 0x55380055 0x7f7f007f\\n(0, 1) 0x2a000e2a 0x551c1c55 0x7f542a7f 0xaaaa38aa\\n(0, 2) 0x55003855 0x7f2a547f 0xaa7171aa 0xd4d48dd4\\n(0, 3) 0x7f007f7f 0xaa38aaaa 0xd48dd4d4 0xffffffff\\nUnpremultiplied:\\n(0, 0) 0x00000000 0x2a5500ff 0x55a800ff 0x7fff00ff\\n(0, 1) 0x2a0055ff 0x555454ff 0x7fa954ff 0xaaff54ff\\n(0, 2) 0x5500a8ff 0x7f54a9ff 0xaaaaaaff 0xd4ffaaff\\n(0, 3) 0x7f00ffff 0xaa54ffff 0xd4aaffff 0xffffffff\\n"
@@ -195,13 +188,6 @@
     "file": "SkBitmap_Reference",
     "name": "SkBitmap::height()",
         "stdout": "bitmap height: 32  info height: 32\\n"
-    },
-        "SkBitmap_info": {
-    "code": "void draw(SkCanvas* canvas) {\n    // SkBitmap source;  // pre-populated with soccer ball by fiddle.skia.org\n    const SkImageInfo& info = source.info();\n    const char* alphas[] = {\"Unknown\", \"Opaque\", \"Premul\", \"Unpremul\"};\n    const char* colors[] = {\"Unknown\", \"Alpha_8\", \"RGB_565\", \"ARGB_4444\", \"RGBA_8888\", \"RGB_888x\",\n                            \"BGRA_8888\", \"RGBA_1010102\", \"RGB_101010x\", \"Gray_8\", \"RGBA_F16\"};\n    SkDebugf(\"width: %d height: %d color: %s alpha: %s\\n\", info.width(), info.height(),\n                colors[info.colorType()], alphas[info.alphaType()]);\n}\n",
-    "hash": "ec47c4dc23e2925ad565eaba55a91553",
-    "file": "SkBitmap_Reference",
-    "name": "SkBitmap::info()",
-        "stdout": "width: 56 height: 56 color: BGRA_8888 alpha: Opaque\\n"
     },
         "SkBitmap_installPixels": {
     "code": "static void releaseProc(void* addr, void* ) {\n    SkDebugf(\"releaseProc called\\n\");\n    delete[] (uint32_t*) addr;\n}\n\nvoid draw(SkCanvas* canvas) {\n   SkBitmap bitmap;\n   void* pixels = new uint32_t[8 * 8];\n   SkImageInfo info = SkImageInfo::MakeN32(8, 8, kOpaque_SkAlphaType);\n   SkDebugf(\"before installPixels\\n\");\n   bool installed = bitmap.installPixels(info, pixels, 16, releaseProc, nullptr);\n   SkDebugf(\"install \" \"%s\" \"successful\\n\", installed ? \"\" : \"not \");\n}\n",
@@ -1933,8 +1919,8 @@
         "stdout": "paint1 == paint2\\n"
     },
         "SkPaint_setTextEncoding": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextEncoding((SkPaint::TextEncoding) 4);\n    SkDebugf(\"4 %c= text encoding\\n\", 4 == paint.getTextEncoding() ? '=' : '!');\n}",
-    "hash": "329b92fbc35151dee9aa0c0e70107665",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextEncoding((SkPaint::TextEncoding) 4);\n    SkDebugf(\"4 %c= text encoding\\n\", (SkPaint::TextEncoding) 4 == paint.getTextEncoding() ? '=' : '!');\n}",
+    "hash": "6d9ffdd3c5543e9f12972a06dd4a0ce5",
     "file": "SkPaint_Reference",
     "name": "SkPaint::setTextEncoding",
         "stdout": "4 != text encoding\\n"
@@ -1975,8 +1961,8 @@
         "stdout": "ConvertToNonInverseFillType(kWinding_FillType) == kWinding_FillType\\nConvertToNonInverseFillType(kEvenOdd_FillType) == kEvenOdd_FillType\\nConvertToNonInverseFillType(kInverseWinding_FillType) == kWinding_FillType\\nConvertToNonInverseFillType(kInverseEvenOdd_FillType) == kEvenOdd_FillType\\n"
     },
         "SkPath_IsCubicDegenerate": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPoint points[] = {{1, 0}, {0, 0}, {0, 0}, {0, 0}};\n    SkScalar step = 1;\n    SkScalar prior, length, degenerate;\n    do {\n        prior = points[0].fX;\n        step /= 2;\n        if (SkPath::IsCubicDegenerate(points[0], points[1], points[2], points[3], false)) {\n            degenerate = prior;\n            points[0].fX += step;\n        } else {\n            length = prior;\n            points[0].fX -= step;\n        }\n    } while (prior != points[0].fX);\n    SkDebugf(\"%1.8g is degenerate\\n\", degenerate);\n    SkDebugf(\"%1.8g is length\\n\", length);\n}\n",
-    "hash": "c79d813f0b37062cb2f7a0c83f4a09f3",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPoint points[] = {{1, 0}, {0, 0}, {0, 0}, {0, 0}};\n    SkScalar step = 1;\n    SkScalar prior, length = 0, degenerate = 0;\n    do {\n        prior = points[0].fX;\n        step /= 2;\n        if (SkPath::IsCubicDegenerate(points[0], points[1], points[2], points[3], false)) {\n            degenerate = prior;\n            points[0].fX += step;\n        } else {\n            length = prior;\n            points[0].fX -= step;\n        }\n    } while (prior != points[0].fX);\n    SkDebugf(\"%1.8g is degenerate\\n\", degenerate);\n    SkDebugf(\"%1.8g is length\\n\", length);\n}\n",
+    "hash": "6b97099acdae80b16df0c4241f593991",
     "file": "SkPath_Reference",
     "name": "SkPath::IsCubicDegenerate",
         "stdout": "0.00024414062 is degenerate\\n0.00024414065 is length\\n"
@@ -2784,7 +2770,7 @@
     "hash": "ebeeafafeb8fe39d5ffc9115b02c2340",
     "file": "SkRect_Reference",
     "name": "SkRect::centerY",
-        "stdout": "left: 2e+38 right: 3e+38 centerX: inf safe mid x: 2.5e+38\\n"
+        "stdout": "left: 2e+38 right: 3e+38 centerX: 2.5e+38 safe mid x: 2.5e+38\\n"
     },
         "SkRect_contains": {
     "code": "void draw(SkCanvas* canvas) {\n    SkRect rect = { 30, 50, 40, 60 };\n    SkPoint tests[] = { { 30, 50 }, { 39, 49 }, { 29, 59 } };\n    for (auto contained : tests) {\n        SkDebugf(\"rect: (%g, %g, %g, %g) %s (%g, %g)\\n\",\n                 rect.left(), rect.top(), rect.right(), rect.bottom(),\n                 rect.contains(contained.x(), contained.y()) ? \"contains\" : \"does not contain\",\n                 contained.x(), contained.y());\n    }\n}",
@@ -3192,13 +3178,6 @@
     "name": "SkSurface::MakeNull",
         "stdout": "SkSurface::MakeNull(0, 0) == nullptr\\nsurf-\\u003emakeImageSnapshot() == nullptr\\n"
     },
-        "SkSurface_MakeRaster": {
-    "code": "void draw(SkCanvas* ) {\n    SkImageInfo info = SkImageInfo::MakeN32Premul(3, 3);\n    const size_t rowBytes = 64;\n    sk_sp<SkSurface> surface(SkSurface::MakeRaster(info, rowBytes, nullptr));\n    SkCanvas* canvas = surface->getCanvas();\n    canvas->clear(SK_ColorWHITE);\n    SkPixmap pixmap;\n    if (surface->peekPixels(&pixmap)) {\n        const uint32_t* colorPtr = pixmap.addr32();\n        SkPMColor pmWhite = colorPtr[0];\n        SkPaint paint;\n        canvas->drawPoint(1, 1, paint);\n        canvas->flush();  // ensure that point was drawn\n        for (int y = 0; y < info.height(); ++y) {\n            for (int x = 0; x < info.width(); ++x) {\n                SkDebugf(\"%c\", colorPtr[x] == pmWhite ? '-' : 'x');\n            }\n            colorPtr += rowBytes / sizeof(colorPtr[0]);\n            SkDebugf(\"\\n\");\n        }\n    }\n}\n",
-    "hash": "a803910ada4f8733f0b62456afead55f",
-    "file": "SkSurface_Reference",
-    "name": "SkSurface::MakeRaster",
-        "stdout": "---\\n-x-\\n---\\n"
-    },
         "SkSurface_MakeRasterDirect": {
     "code": "void draw(SkCanvas* ) {\n    SkImageInfo info = SkImageInfo::MakeN32Premul(3, 3);\n    const size_t size = info.computeMinByteSize();\n    SkAutoTMalloc<SkPMColor> storage(size);\n    SkPMColor* pixels = storage.get();\n    sk_sp<SkSurface> surface(SkSurface::MakeRasterDirect(info, pixels, info.minRowBytes()));\n    SkCanvas* canvas = surface->getCanvas();\n    canvas->clear(SK_ColorWHITE);\n    SkPMColor pmWhite = pixels[0];\n    SkPaint paint;\n    canvas->drawPoint(1, 1, paint);\n    canvas->flush();  // ensure that point was drawn\n    for (int y = 0; y < info.height(); ++y) {\n        for (int x = 0; x < info.width(); ++x) {\n            SkDebugf(\"%c\", *pixels++ == pmWhite ? '-' : 'x');\n        }\n        SkDebugf(\"\\n\");\n    }\n}\n",
     "hash": "3f5aeb870104187643197354a7f1d27a",
@@ -3227,26 +3206,12 @@
     "name": "SkSurface::MakeRaster_2",
         "stdout": "---\\n-x-\\n---\\n"
     },
-        "SkSurface_generationID": {
-    "code": "void draw(SkCanvas* canvas) {\n    auto surface = SkSurface::MakeRasterN32Premul(1, 1);\n    for (int i = 0; i < 3; ++i) {\n        SkDebugf(\"surface generationID: %d\\n\", surface->generationID());\n        if (0 == i) {\n            surface->getCanvas()->drawColor(SK_ColorBLACK);\n        } else {\n            surface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);\n        }\n    }\n}",
-    "hash": "be9574c4a14f891e1abb4ec2b1e51d6c",
-    "file": "SkSurface_Reference",
-    "name": "SkSurface::generationID",
-        "stdout": "surface generationID: 1\\nsurface generationID: 2\\nsurface generationID: 3\\n"
-    },
         "SkSurface_height": {
     "code": "void draw(SkCanvas* canvas) {\n    const int width = 37;\n    const int height = 1000;\n    auto surf = SkSurface::MakeNull(width, height);\n    auto nullCanvas = surf->getCanvas();\n    SkDebugf(\"surface height=%d  canvas height=%d\\n\", surf->height(),\n             nullCanvas->getBaseLayerSize().fHeight);\n}",
     "hash": "20571cc23e3146deaa09046b64cc0aef",
     "file": "SkSurface_Reference",
     "name": "SkSurface::height()",
         "stdout": "surface height=1000  canvas height=1000\\n"
-    },
-        "SkSurface_notifyContentWillChange": {
-    "code": "void draw(SkCanvas* canvas) {\n    auto surface = SkSurface::MakeRasterN32Premul(1, 1);\n    for (int i = 0; i < 3; ++i) {\n        SkDebugf(\"surface generationID: %d\\n\", surface->generationID());\n        if (0 == i) {\n            surface->getCanvas()->drawColor(SK_ColorBLACK);\n        } else {\n            surface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);\n        }\n    }\n}",
-    "hash": "be9574c4a14f891e1abb4ec2b1e51d6c",
-    "file": "SkSurface_Reference",
-    "name": "SkSurface::notifyContentWillChange",
-        "stdout": "surface generationID: 1\\nsurface generationID: 2\\nsurface generationID: 3\\n"
     },
         "SkSurface_props": {
     "code": "void draw(SkCanvas* canvas) {\n    const char* names[] = { \"Unknown\", \"RGB_H\", \"BGR_H\", \"RGB_V\", \"BGR_V\" };\n    sk_sp<SkSurface> surf(SkSurface::MakeRasterN32Premul(64, 64));\n    SkDebugf(\"surf.props(): k%s_SkPixelGeometry\\n\", names[surf->props().pixelGeometry()]);\n}",
@@ -3880,6 +3845,14 @@
     "file": "SkBitmap_Reference",
     "name": "SkBitmap::bounds()"
 },
+    "SkBitmap_colorType": {
+    "code": "void draw(SkCanvas* canvas) {\n    const char* colors[] = {\"Unknown\", \"Alpha_8\", \"RGB_565\", \"ARGB_4444\", \"RGBA_8888\", \"RGB_888x\",\n                            \"BGRA_8888\", \"RGBA_1010102\", \"RGB_101010x\", \"Gray_8\", \"RGBA_F16\"};\n    SkBitmap bitmap;\n    bitmap.setInfo(SkImageInfo::MakeA8(16, 32));\n    SkDebugf(\"color type: k\" \"%s\" \"_SkColorType\\n\", colors[bitmap.colorType()]);\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "ceb77fab7326b57822a147b04aa0960e",
+    "file": "SkBitmap_Reference",
+    "name": "SkBitmap::colorType"
+},
     "SkBitmap_erase": {
     "code": "void draw(SkCanvas* canvas) {\n    SkBitmap bitmap;\n    bitmap.allocPixels(SkImageInfo::MakeN32(2, 2, kPremul_SkAlphaType));\n    bitmap.erase(0x7fff7f3f, SkIRect::MakeWH(1, 1));\n    bitmap.erase(0x7f7f3fff, SkIRect::MakeXYWH(0, 1, 1, 1));\n    bitmap.erase(0x7f3fff7f, SkIRect::MakeXYWH(1, 0, 1, 1));\n    bitmap.erase(0x7f1fbf5f, SkIRect::MakeXYWH(1, 1, 1, 1));\n    canvas->scale(25, 25);\n    canvas->drawBitmap(bitmap, 0, 0);\n    canvas->drawBitmap(bitmap, .5f, .5f);\n}",
     "width": 256,
@@ -3943,6 +3916,14 @@
     "hash": "0c45da35172bc0a529b2faecddae62a2",
     "file": "SkBitmap_Reference",
     "name": "SkBitmap::getBounds_2"
+},
+    "SkBitmap_info": {
+    "code": "void draw(SkCanvas* canvas) {\n    // SkBitmap source;  // pre-populated with soccer ball by fiddle.skia.org\n    const SkImageInfo& info = source.info();\n    const char* alphas[] = {\"Unknown\", \"Opaque\", \"Premul\", \"Unpremul\"};\n    const char* colors[] = {\"Unknown\", \"Alpha_8\", \"RGB_565\", \"ARGB_4444\", \"RGBA_8888\", \"RGB_888x\",\n                            \"BGRA_8888\", \"RGBA_1010102\", \"RGB_101010x\", \"Gray_8\", \"RGBA_F16\"};\n    SkDebugf(\"width: %d height: %d color: %s alpha: %s\\n\", info.width(), info.height(),\n                colors[info.colorType()], alphas[info.alphaType()]);\n}\n",
+    "width": 256,
+    "height": 256,
+    "hash": "ec47c4dc23e2925ad565eaba55a91553",
+    "file": "SkBitmap_Reference",
+    "name": "SkBitmap::info()"
 },
     "SkBitmap_installPixels_2": {
     "code": "void draw(SkCanvas* canvas) {\n   SkRandom random;\n   SkBitmap bitmap;\n   const int width = 8;\n   const int height = 8;\n   uint32_t pixels[width * height];\n   for (unsigned x = 0; x < width * height; ++x) {\n       pixels[x] = random.nextU();\n   }\n   SkImageInfo info = SkImageInfo::MakeN32(width, height, kUnpremul_SkAlphaType);\n   if (bitmap.installPixels(info, pixels, info.minRowBytes())) {\n       canvas->scale(32, 32);\n       canvas->drawBitmap(bitmap, 0, 0);\n   }\n}\n",
@@ -7168,6 +7149,14 @@
     "file": "SkSurface_Reference",
     "name": "SkSurface::MakeFromBackendTextureAsRenderTarget"
 },
+    "SkSurface_MakeRaster": {
+    "code": "void draw(SkCanvas* ) {\n    SkImageInfo info = SkImageInfo::MakeN32Premul(3, 3);\n    const size_t rowBytes = 64;\n    sk_sp<SkSurface> surface(SkSurface::MakeRaster(info, rowBytes, nullptr));\n    SkCanvas* canvas = surface->getCanvas();\n    canvas->clear(SK_ColorWHITE);\n    SkPixmap pixmap;\n    if (surface->peekPixels(&pixmap)) {\n        const uint32_t* colorPtr = pixmap.addr32();\n        SkPMColor pmWhite = colorPtr[0];\n        SkPaint paint;\n        canvas->drawPoint(1, 1, paint);\n        canvas->flush();  // ensure that point was drawn\n        for (int y = 0; y < info.height(); ++y) {\n            for (int x = 0; x < info.width(); ++x) {\n                SkDebugf(\"%c\", colorPtr[x] == pmWhite ? '-' : 'x');\n            }\n            colorPtr += rowBytes / sizeof(colorPtr[0]);\n            SkDebugf(\"\\n\");\n        }\n    }\n}\n",
+    "width": 256,
+    "height": 256,
+    "hash": "a803910ada4f8733f0b62456afead55f",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::MakeRaster"
+},
     "SkSurface_MakeRenderTarget": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n         canvas->drawString(\"GPU only!\", 20, 40, paint);\n         return;\n    }\n    SkImageInfo info = SkImageInfo::MakeN32(256, 64, kOpaque_SkAlphaType);\n    for (auto surfaceOrigin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {\n        auto gpuSurface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0,\n               surfaceOrigin, nullptr));\n        auto surfaceCanvas = gpuSurface->getCanvas();\n        surfaceCanvas->clear(SK_ColorWHITE);\n        surfaceCanvas->drawString(\"GPU rocks!\", 20, 40, paint);\n        sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());\n        canvas->drawImage(image, 0, 0);\n       canvas->translate(0, 128);\n    }\n}",
     "width": 256,
@@ -7216,6 +7205,14 @@
     "file": "SkSurface_Reference",
     "name": "SkSurface::draw_2"
 },
+    "SkSurface_generationID": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto surface = SkSurface::MakeRasterN32Premul(1, 1);\n    for (int i = 0; i < 3; ++i) {\n        SkDebugf(\"surface generationID: %d\\n\", surface->generationID());\n        if (0 == i) {\n            surface->getCanvas()->drawColor(SK_ColorBLACK);\n        } else {\n            surface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);\n        }\n    }\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "be9574c4a14f891e1abb4ec2b1e51d6c",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::generationID"
+},
     "SkSurface_getCanvas": {
     "code": "void draw(SkCanvas* canvas) {\n    sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(64, 64));\n    SkCanvas* surfaceCanvas = surface->getCanvas();\n    surfaceCanvas->clear(SK_ColorBLUE);\n    SkPaint paint;\n    paint.setTextSize(40);\n    surfaceCanvas->drawString(\"\\xF0\\x9F\\x98\\x81\", 12, 45, paint);\n    surface->draw(canvas, 0, 0, nullptr);\n}",
     "width": 256,
@@ -7239,6 +7236,14 @@
     "hash": "a9889b519a26896b900da0444e423c61",
     "file": "SkSurface_Reference",
     "name": "SkSurface::makeSurface"
+},
+    "SkSurface_notifyContentWillChange": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto surface = SkSurface::MakeRasterN32Premul(1, 1);\n    for (int i = 0; i < 3; ++i) {\n        SkDebugf(\"surface generationID: %d\\n\", surface->generationID());\n        if (0 == i) {\n            surface->getCanvas()->drawColor(SK_ColorBLACK);\n        } else {\n            surface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);\n        }\n    }\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "be9574c4a14f891e1abb4ec2b1e51d6c",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::notifyContentWillChange"
 },
     "SkSurface_peekPixels": {
     "code": "void draw(SkCanvas* canvas) {\n    sk_sp<SkSurface> surf(SkSurface::MakeRasterN32Premul(64, 64));\n    auto surfCanvas = surf->getCanvas();\n    surfCanvas->clear(SK_ColorRED);\n    SkPaint paint;\n    paint.setTextSize(40);\n    surfCanvas->drawString(\"&\", 16, 48, paint);\n    SkPixmap pixmap;\n    if (surf->peekPixels(&pixmap)) {\n        SkBitmap surfBits;\n        surfBits.installPixels(pixmap);\n        canvas->drawBitmap(surfBits, 0, 0);\n    }\n}",

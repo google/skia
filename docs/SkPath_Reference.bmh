@@ -1576,7 +1576,7 @@ treated as a point.
 void draw(SkCanvas* canvas) {
     SkPoint points[] = {{1, 0}, {0, 0}, {0, 0}, {0, 0}};
     SkScalar step = 1;
-    SkScalar prior, length, degenerate;
+    SkScalar prior, length = 0, degenerate = 0;
     do {
         prior = points[0].fX;
         step /= 2;

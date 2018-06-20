@@ -3890,7 +3890,7 @@ void draw(SkCanvas* canvas) {
     #Example
         SkPaint paint;
         paint.setTextEncoding((SkPaint::TextEncoding) 4);
-        SkDebugf("4 %c= text encoding\n", 4 == paint.getTextEncoding() ? '=' : '!');
+        SkDebugf("4 %c= text encoding\n", (SkPaint::TextEncoding) 4 == paint.getTextEncoding() ? '=' : '!');
 
         #StdOut
             4 != text encoding
