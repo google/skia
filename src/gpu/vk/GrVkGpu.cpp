@@ -894,11 +894,12 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     return GrVkRenderTarget::MakeWrappedRenderTarget(this, desc, imageInfo, std::move(layout));
 }
 
-void GrVkGpu::generateMipmap(GrVkTexture* tex, GrSurfaceOrigin texOrigin) {
+bool GrVkGpu::onRegenerateMipMapLevels(GrTexture* tex) {
+    auto* vkTex = static_cast<GrVkTexture*>(tex);
     // don't do anything for linearly tiled textures (can't have mipmaps)
-    if (tex->isLinearTiled()) {
+    if (vkTex->isLinearTiled()) {
         SkDebugf("Trying to create mipmap for linear tiled texture");
-        return;
+        return false;
     }
 
     // determine if we can blit to and from this format
@@ -906,17 +907,11 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex, GrSurfaceOrigin texOrigin) {
     if (!caps.configCanBeDstofBlit(tex->config(), false) ||
         !caps.configCanBeSrcofBlit(tex->config(), false) ||
         !caps.mipMapSupport()) {
-        return;
+        return false;
     }
 
     if (this->vkCaps().mustSubmitCommandsBeforeCopyOp()) {
         this->submitCommandBuffer(kSkip_SyncQueue);
-    }
-
-    // We may need to resolve the texture first if it is also a render target
-    GrVkRenderTarget* texRT = static_cast<GrVkRenderTarget*>(tex->asRenderTarget());
-    if (texRT) {
-        this->internalResolveRenderTarget(texRT, false);
     }
 
     int width = tex->width();
@@ -926,26 +921,26 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex, GrSurfaceOrigin texOrigin) {
 
     // SkMipMap doesn't include the base level in the level count so we have to add 1
     uint32_t levelCount = SkMipMap::ComputeLevelCount(tex->width(), tex->height()) + 1;
-    SkASSERT(levelCount == tex->mipLevels());
+    SkASSERT(levelCount == vkTex->mipLevels());
 
     // change layout of the layers so we can write to them.
-    tex->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                        VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, false);
+    vkTex->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_ACCESS_TRANSFER_WRITE_BIT,
+                          VK_PIPELINE_STAGE_TRANSFER_BIT, false);
 
     // setup memory barrier
-    SkASSERT(GrVkFormatIsSupported(tex->imageFormat()));
+    SkASSERT(GrVkFormatIsSupported(vkTex->imageFormat()));
     VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
     VkImageMemoryBarrier imageMemoryBarrier = {
-        VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,          // sType
-        nullptr,                                         // pNext
-        VK_ACCESS_TRANSFER_WRITE_BIT,                    // srcAccessMask
-        VK_ACCESS_TRANSFER_READ_BIT,                     // dstAccessMask
-        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,            // oldLayout
-        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,            // newLayout
-        VK_QUEUE_FAMILY_IGNORED,                         // srcQueueFamilyIndex
-        VK_QUEUE_FAMILY_IGNORED,                         // dstQueueFamilyIndex
-        tex->image(),                                    // image
-        { aspectFlags, 0, 1, 0, 1 }                      // subresourceRange
+            VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,  // sType
+            nullptr,                                 // pNext
+            VK_ACCESS_TRANSFER_WRITE_BIT,            // srcAccessMask
+            VK_ACCESS_TRANSFER_READ_BIT,             // dstAccessMask
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,    // oldLayout
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,    // newLayout
+            VK_QUEUE_FAMILY_IGNORED,                 // srcQueueFamilyIndex
+            VK_QUEUE_FAMILY_IGNORED,                 // dstQueueFamilyIndex
+            vkTex->image(),                          // image
+            {aspectFlags, 0, 1, 0, 1}                // subresourceRange
     };
 
     // Blit the miplevels
@@ -967,11 +962,11 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex, GrSurfaceOrigin texOrigin) {
         blitRegion.dstOffsets[0] = { 0, 0, 0 };
         blitRegion.dstOffsets[1] = { width, height, 1 };
         fCurrentCmdBuffer->blitImage(this,
-                                     tex->resource(),
-                                     tex->image(),
+                                     vkTex->resource(),
+                                     vkTex->image(),
                                      VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                     tex->resource(),
-                                     tex->image(),
+                                     vkTex->resource(),
+                                     vkTex->image(),
                                      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                      1,
                                      &blitRegion,
@@ -984,7 +979,8 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex, GrSurfaceOrigin texOrigin) {
     imageMemoryBarrier.subresourceRange.baseMipLevel = mipLevel - 1;
     this->addImageMemoryBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
                                 false, &imageMemoryBarrier);
-    tex->updateImageLayout(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+    vkTex->updateImageLayout(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
