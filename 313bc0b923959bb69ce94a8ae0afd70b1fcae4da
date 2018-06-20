@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "de5a9c4a_f19ef3d8",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-20T19:09:25Z",
+      "side": 1,
+      "message": "just noticed this can now be\n\n   static SkStrikeCache* globals \u003d new SkStrikeCache;\n   return globals;",
+      "revId": "313bc0b923959bb69ce94a8ae0afd70b1fcae4da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
