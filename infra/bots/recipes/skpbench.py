@@ -136,9 +136,6 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
-  'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-Android_Skpbench',
-  ('Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-'
-   'Android_Vulkan_Skpbench'),
   ('Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-'
    'Android_CCPR_Skpbench'),
   'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan_Skpbench',
@@ -170,8 +167,8 @@ def GenTests(api):
 
     yield test
 
-  b = ('Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-'
-       'Android_Skpbench')
+  b = ('Perf-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Release-All-'
+       'Android_Vulkan_Skpbench')
   yield (
     api.test('trybot') +
     api.properties(buildername=b,
