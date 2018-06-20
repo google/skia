@@ -734,8 +734,11 @@ private:
     sk_sp<DiscardableHandleManager> fManager;
 };
 
-SkStrikeClient::SkStrikeClient(sk_sp<DiscardableHandleManager> discardableManager, bool isLogging)
+SkStrikeClient::SkStrikeClient(sk_sp<DiscardableHandleManager> discardableManager,
+                               bool isLogging,
+                               SkStrikeCache* strikeCache)
         : fDiscardableHandleManager(std::move(discardableManager))
+        , fStrikeCache{strikeCache ? strikeCache : SkStrikeCache::GetGlobalStrikeCache()}
         , fIsLogging{isLogging} {}
 
 SkStrikeClient::~SkStrikeClient() = default;
@@ -792,18 +795,19 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
         SkAutoDescriptor ad;
         auto* client_desc = auto_descriptor_from_desc(sourceAd.getDesc(), tf->uniqueID(), &ad);
 
-        auto strike = SkStrikeCache::FindStrikeExclusive(*client_desc);
+        auto strike = fStrikeCache->findStrikeExclusive(*client_desc);
         if (strike == nullptr) {
             // Note that we don't need to deserialize the effects since we won't be generating any
             // glyphs here anyway, and the desc is still correct since it includes the serialized
             // effects.
             SkScalerContextEffects effects;
             auto scaler = SkStrikeCache::CreateScalerContext(*client_desc, effects, *tf);
-            strike = SkStrikeCache::CreateStrikeExclusive(
+            strike = fStrikeCache->createStrikeExclusive(
                     *client_desc, std::move(scaler), &fontMetrics,
                     skstd::make_unique<DiscardableStrikePinner>(spec.discardableHandleId,
                                                                 fDiscardableHandleManager));
-            static_cast<SkScalerContextProxy*>(strike->getScalerContext())->initCache(strike.get());
+            auto proxyContext = static_cast<SkScalerContextProxy*>(strike->getScalerContext());
+            proxyContext->initCache(strike.get(), fStrikeCache);
         }
 
         size_t glyphImagesCount = 0u;
@@ -865,7 +869,7 @@ sk_sp<SkTypeface> SkStrikeClient::deserializeTypeface(const void* buf, size_t le
     WireTypeface wire;
     if (len != sizeof(wire)) return nullptr;
     memcpy(&wire, buf, sizeof(wire));
-    return addTypeface(wire);
+    return this->addTypeface(wire);
 }
 
 sk_sp<SkTypeface> SkStrikeClient::addTypeface(const WireTypeface& wire) {
