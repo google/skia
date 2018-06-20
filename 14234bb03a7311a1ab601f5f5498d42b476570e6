@@ -16,6 +16,24 @@
       "revId": "14234bb03a7311a1ab601f5f5498d42b476570e6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a914f04_865af487",
+        "filename": "DEPS",
+        "patchSetId": 5
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-06-20T17:15:28Z",
+      "side": 1,
+      "message": "Ideally, yes.  I have no idea how to make that happen though.",
+      "parentUuid": "f627a8d0_2edc8fb0",
+      "revId": "14234bb03a7311a1ab601f5f5498d42b476570e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
