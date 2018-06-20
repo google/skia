@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f036a25_0dfe4768",
+        "filename": "gm/path_stroke_with_zero_length.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-20T19:19:27Z",
+      "side": 1,
+      "message": "This is a workaround for readPixels not currently support F16 to anything other than F16.",
+      "revId": "679b573e39f656d5dd342aba985cb2787a0667b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
