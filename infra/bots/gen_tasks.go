@@ -174,7 +174,7 @@ var (
 		&specs.CipdPackage{
 			Name:    "infra/git/${platform}",
 			Path:    "cipd_bin_packages",
-			Version: "version:2.17.0.chromium15",
+			Version: "version:2.17.1.chromium15",
 		},
 		&specs.CipdPackage{
 			Name:    "infra/tools/git/${platform}",
