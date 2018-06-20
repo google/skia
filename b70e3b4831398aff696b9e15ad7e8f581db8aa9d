@@ -22,6 +22,30 @@
       "revId": "b70e3b4831398aff696b9e15ad7e8f581db8aa9d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1a784e8_f5286aec",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-20T19:16:22Z",
+      "side": 0,
+      "message": "We\u0027re still running some test bots with this configuration, and it does alter performance characteristics of several tests. I\u0027d like to keep this option for some set of bots.",
+      "parentUuid": "782b0c30_a13d9aea",
+      "range": {
+        "startLine": 143,
+        "startChar": 0,
+        "endLine": 146,
+        "endChar": 38
+      },
+      "revId": "b70e3b4831398aff696b9e15ad7e8f581db8aa9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
