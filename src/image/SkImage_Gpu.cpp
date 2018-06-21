@@ -762,6 +762,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
                                                     bool buildMips, SkColorSpace* dstColorSpace,
                                                     bool limitToMaxTextureSize) {
     sk_sp<SkImage> codecImage = SkImage::MakeFromEncoded(std::move(encoded));
+    SkASSERT(codecImage);
     if (!codecImage) {
         return nullptr;
     }
@@ -774,6 +775,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
     auto maxTextureSize = context->contextPriv().caps()->maxTextureSize();
     if (limitToMaxTextureSize &&
         (codecImage->width() > maxTextureSize || codecImage->height() > maxTextureSize)) {
+        SkDebugf("Limiting size\n");
         SkAutoPixmapStorage pmap;
         SkImageInfo info = as_IB(codecImage)->onImageInfo();
         if (!dstColorSpace) {
@@ -794,10 +796,12 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
     sk_sp<GrTextureProxy> proxy(
             maker.refTextureProxyForParams(samplerState, dstColorSpace, &texColorSpace, nullptr));
     if (!proxy) {
+        SkDebugf("No proxy\n");
         return codecImage;
     }
 
     if (!proxy->instantiate(context->contextPriv().resourceProvider())) {
+        SkDebugf("Instantiate failed\n");
         return codecImage;
     }
     sk_sp<GrTexture> texture = sk_ref_sp(proxy->priv().peekTexture());
@@ -813,7 +817,10 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
                                                     as_IB(codecImage)->onImageInfo().colorType(),
                                                     codecImage->alphaType(),
                                                     std::move(texColorSpace));
-    return SkImage::MakeFromGenerator(std::move(gen));
+    SkASSERT(gen);
+    auto result = SkImage::MakeFromGenerator(std::move(gen));
+    SkASSERT(result);
+    return result;
 }
 
 sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context,
