@@ -44,8 +44,10 @@ GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin o
     context->contextPriv().getResourceCache()->insertCrossContextGpuResource(texture.get());
 
     GrBackendTexture backendTexture = texture->getBackendTexture();
+    SkDebugf("Validating backend texture...\n");
     if (!context->contextPriv().caps()->validateBackendTexture(backendTexture, colorType,
                                                                &backendTexture.fConfig)) {
+        SkDebugf("Failed to validate backend texture\n");
         return nullptr;
     }
 

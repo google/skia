@@ -21,10 +21,12 @@ DEF_SIMPLE_GM(cross_context_image, canvas, 512 * 3 + 60, 512 + 128 + 30) {
     sk_sp<SkData> encodedData = GetResourceAsData("images/mandrill_512.png");
 
     sk_sp<SkImage> encodedImage = SkImage::MakeFromEncoded(encodedData);
+    SkASSERT(encodedImage);
     canvas->drawImage(encodedImage, 10, 10);
 
     sk_sp<SkImage> crossContextImage = SkImage::MakeCrossContextFromEncoded(
             context, encodedData, false, canvas->imageInfo().colorSpace());
+    SkASSERT(crossContextImage);
     canvas->drawImage(crossContextImage, 512 + 30, 10);
 
     SkBitmap bmp;

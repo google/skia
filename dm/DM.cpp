@@ -103,6 +103,16 @@ DEFINE_string(dont_write, "", "File extensions to skip writing to --writePath.")
 
 DEFINE_bool(gdi, false, "On Windows, use GDI instead of DirectWrite for font rendering.");
 
+DEFINE_string2(motch, m, "cross_context",
+               "[~][^]substring[$] [...] of name to run.\n"
+               "Multiple matches may be separated by spaces.\n"
+               "~ causes a matching name to always be skipped\n"
+               "^ requires the start of the name to match\n"
+               "$ requires the end of the name to match\n"
+               "^ and $ requires an exact match\n"
+               "If a name does not match any list entry,\n"
+               "it is skipped unless some list entry starts with ~");
+
 using namespace DM;
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::GLTestContext;
@@ -404,7 +414,7 @@ static void push_src(const char* tag, ImplicitString options, Src* s) {
     std::unique_ptr<Src> src(s);
     if (in_shard() &&
         FLAGS_src.contains(tag) &&
-        !SkCommandLineFlags::ShouldSkip(FLAGS_match, src->name().c_str())) {
+        !SkCommandLineFlags::ShouldSkip(FLAGS_motch, src->name().c_str())) {
         TaggedSrc& s = gSrcs.push_back();
         s.reset(src.release());
         s.tag = tag;
@@ -1261,7 +1271,7 @@ static void gather_tests() {
         // Despite its name, factory() is returning a reference to
         // link-time static const POD data.
         const skiatest::Test& test = r->factory();
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, test.name)) {
+        if (SkCommandLineFlags::ShouldSkip(FLAGS_motch, test.name)) {
             continue;
         }
         if (test.needsGpu && FLAGS_gpu) {

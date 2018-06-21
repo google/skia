@@ -2889,8 +2889,10 @@ bool GrGLCaps::validateBackendTexture(const GrBackendTexture& tex, SkColorType c
                                       GrPixelConfig* config) const {
     GrGLTextureInfo texInfo;
     if (!tex.getGLTextureInfo(&texInfo)) {
+        SkDebugf("Failed to get GL info\n");
         return false;
     }
+    SkDebugf("Validating format: %u %u %u %u\n", texInfo.fFormat, ct, config, fStandard);
     return validate_sized_format(texInfo.fFormat, ct, config, fStandard);
 }
 
