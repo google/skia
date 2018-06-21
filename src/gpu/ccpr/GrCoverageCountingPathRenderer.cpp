@@ -239,7 +239,7 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
     // Determine if there are enough reusable paths from last flush for it to be worth our time to
     // copy them to cached atlas(es).
     DoCopiesToCache doCopies = DoCopiesToCache(specs.fNumCopiedPaths > 100 ||
-                                               specs.fCopyAtlasSpecs.fApproxNumPixels > 512 * 256);
+                                               specs.fCopyAtlasSpecs.fApproxNumPixels > 256 * 256);
     if (specs.fNumCopiedPaths && DoCopiesToCache::kNo == doCopies) {
         specs.convertCopiesToRenders();
         SkASSERT(!specs.fNumCopiedPaths);
