@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ecd3f05_108b0142",
+        "filename": "tests/FontMgrAndroidParserTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-21T14:51:53Z",
+      "side": 1,
+      "message": "nit: This \u0027{\u0027 should go at the end of the previous line.",
+      "range": {
+        "startLine": 251,
+        "startChar": 0,
+        "endLine": 251,
+        "endChar": 1
+      },
+      "revId": "dff4cc8f687276e6c992ce359cbb288bd5ee340c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5304be7f_a35992e5",
+        "filename": "tests/FontMgrAndroidParserTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-21T14:51:53Z",
+      "side": 1,
+      "message": "For consistency let\u0027s name this \u0027typeface\u0027 (without the capital \u0027F\u0027).",
+      "range": {
+        "startLine": 283,
+        "startChar": 22,
+        "endLine": 283,
+        "endChar": 30
+      },
+      "revId": "dff4cc8f687276e6c992ce359cbb288bd5ee340c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1de438fb_1c7b88bd",
+        "filename": "tests/FontMgrAndroidParserTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-21T14:51:53Z",
+      "side": 1,
+      "message": "remove this whitespace line",
+      "revId": "dff4cc8f687276e6c992ce359cbb288bd5ee340c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
