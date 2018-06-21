@@ -100,6 +100,8 @@ class GrCCPathCacheEntry : public SkPathRef::GenIDChangeListener {
 public:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrCCPathCacheEntry);
 
+    int hitCount() const { return fHitCount; }
+
     // Does this entry reference a permanent, 8-bit atlas that resides in the resource cache?
     // (i.e. not a temporarily-stashed, fp16 coverage count atlas.)
     bool hasCachedAtlas() const { return SkToBool(fCachedAtlasInfo); }
@@ -150,6 +152,7 @@ private:
 
     GrCCPathCache* fCacheWeakPtr;  // Gets manually reset to null by the path cache upon eviction.
     const MaskTransform fMaskTransform;
+    int fHitCount = 0;
 
     GrUniqueKey fAtlasKey;
     SkIVector fAtlasOffset;
