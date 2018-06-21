@@ -10,6 +10,8 @@
 //
 //
 
+#include <inttypes.h>
+#include <limits.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -88,6 +90,25 @@ char const * hs_cpu_sort_u64(uint64_t * a, uint32_t const count);
 //
 //
 
+static double now_ns() {
+#if defined(_MSC_VER)
+    static double inv_freq = 0;
+    if (inv_freq == 0) {
+        LARGE_INTEGER freq;
+        QueryPerformanceFrequency(&freq);
+        inv_freq = 1e9 / freq;
+    }
+
+    LARGE_INTEGER t;
+    QueryPerformanceCounter(&t);
+    return t.QuadPart * inv_freq
+#else
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return ts.tv_sec * 1e9 + ts.tv_nsec;
+#endif
+}
+
 static
 char const *
 hs_cpu_sort(void                *  sorted_h,
@@ -97,20 +118,14 @@ hs_cpu_sort(void                *  sorted_h,
 {
   char const * algo;
 
-  LARGE_INTEGER t0,t1,freq;
-
-  QueryPerformanceCounter(&t0);
-
-  if (info->words == 1)
-    algo = hs_cpu_sort_u32(sorted_h,count);
-  else
-    algo = hs_cpu_sort_u64(sorted_h,count);
-
-  QueryPerformanceCounter(&t1);
-  QueryPerformanceFrequency(&freq);
-
-  // nanoseconds
-  *cpu_ns = (double)((t1.QuadPart - t0.QuadPart) * 1000 * 1000 * 1000) / (double)freq.QuadPart;
+  double t0 = now_ns();
+  {
+      if (info->words == 1)
+        algo = hs_cpu_sort_u32(sorted_h,count);
+      else
+        algo = hs_cpu_sort_u64(sorted_h,count);
+  }
+  *cpu_ns = now_ns() - t0;
 
   return algo;
 }
@@ -128,7 +143,7 @@ hs_transpose_slabs_u32(uint32_t * vout_h, const uint32_t count, struct hs_info c
 {
   uint32_t   const slab_keys  = info->keys * info->lanes;
   size_t     const slab_size  = sizeof(uint32_t) * info->words * slab_keys;
-  uint32_t * const slab       = _alloca(slab_size);
+  uint32_t * const slab       = ALLOCA(slab_size);
   uint32_t         slab_count = count / slab_keys;
 
   while (slab_count-- > 0)
@@ -149,7 +164,7 @@ hs_transpose_slabs_u64(uint64_t * vout_h, const uint32_t count, struct hs_info c
 {
   uint32_t   const slab_keys  = info->keys * info->lanes;
   size_t     const slab_size  = sizeof(uint32_t) * info->words * slab_keys;
-  uint64_t * const slab       = _alloca(slab_size);
+  uint64_t * const slab       = ALLOCA(slab_size);
   uint32_t         slab_count = count / slab_keys;
 
   while (slab_count-- > 0)
@@ -211,7 +226,7 @@ hs_debug_u64(uint64_t       const *       vout_h,
     fprintf(stderr,"%u\n",ss);
     for (uint32_t cc=0; cc<info->keys; cc++) {
       for (uint32_t rr=0; rr<info->lanes; rr++)
-        fprintf(stderr,"%16llX ",*vout_h++);
+        fprintf(stderr, "%" PRIu64 "x ",*vout_h++);
       fprintf(stderr,"\n");
     }
   }
@@ -325,7 +340,6 @@ hs_bench(cl_context                   context,
   //
   size_t const key_size    = sizeof(uint32_t)    * info->words;
 
-  size_t const size_hi     = count_hi            * key_size;
   size_t const size_hi_in  = count_hi_padded_in  * key_size;
   size_t const size_hi_out = count_hi_padded_out * key_size;
 
