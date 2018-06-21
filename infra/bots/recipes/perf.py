@@ -140,9 +140,9 @@ def nanobench_flags(api, bot):
   args.append('--config')
   args.extend(configs)
 
-  # By default, we test with GPU threading enabled. Leave PixelC devices
-  # running without threads, just to get some coverage of that code path.
-  if 'PixelC' in bot:
+  # By default, we test with GPU threading enabled, unless specifically
+  # disabled.
+  if 'NoGPUThreads' in bot:
     args.extend(['--gpuThreads', '0'])
 
   if 'Valgrind' in bot:
@@ -372,6 +372,8 @@ def RunSteps(api):
 
 TEST_BUILDERS = [
   'Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-All-Android',
+  ('Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-'
+   'Android_NoGPUThreads'),
   'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android_Vulkan',
   'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-Android_Skpbench',
   'Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All',
