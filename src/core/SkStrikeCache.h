@@ -97,16 +97,9 @@ public:
 
     // Routines to find suitable data when working in a remote cache situation. These are
     // suitable as substitutes for similar calls in SkScalerContext.
-    static bool DesperationSearchForImage(const SkDescriptor& desc,
-                                          SkGlyph* glyph,
-                                          SkGlyphCache* targetCache);
-
     bool desperationSearchForImage(const SkDescriptor& desc,
                                    SkGlyph* glyph,
                                    SkGlyphCache* targetCache);
-
-    static bool DesperationSearchForPath(
-            const SkDescriptor& desc, SkGlyphID glyphID, SkPath* path);
     bool desperationSearchForPath(const SkDescriptor& desc, SkGlyphID glyphID, SkPath* path);
 
     static ExclusiveStrikePtr FindOrCreateStrikeExclusive(
