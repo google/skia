@@ -13,13 +13,10 @@
 #include <atomic>
 #include <cstddef>
 #include <functional>
+#include <memory>
 #include <ostream>
 #include <type_traits>
 #include <utility>
-
-// These two headers will be removed in a later CL:
-#include <memory>
-#include <array>
 
 /** \class SkRefCntBase
 
