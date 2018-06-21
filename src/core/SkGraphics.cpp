@@ -26,6 +26,7 @@
 #include "SkStrikeCache.h"
 #include "SkTSearch.h"
 #include "SkTime.h"
+#include "SkTypefaceCache.h"
 #include "SkUtils.h"
 
 #include <stdlib.h>
@@ -107,4 +108,41 @@ void SkGraphics::SetFlags(const char* flags) {
         }
         flags = nextSemi + 1;
     } while (nextSemi);
+}
+
+size_t SkGraphics::GetFontCacheLimit() {
+    return SkStrikeCache::GlobalStrikeCache()->getCacheSizeLimit();
+}
+
+size_t SkGraphics::SetFontCacheLimit(size_t bytes) {
+    return SkStrikeCache::GlobalStrikeCache()->setCacheSizeLimit(bytes);
+}
+
+size_t SkGraphics::GetFontCacheUsed() {
+    return SkStrikeCache::GlobalStrikeCache()->getTotalMemoryUsed();
+}
+
+int SkGraphics::GetFontCacheCountLimit() {
+    return SkStrikeCache::GlobalStrikeCache()->getCacheCountLimit();
+}
+
+int SkGraphics::SetFontCacheCountLimit(int count) {
+    return SkStrikeCache::GlobalStrikeCache()->setCacheCountLimit(count);
+}
+
+int SkGraphics::GetFontCacheCountUsed() {
+    return SkStrikeCache::GlobalStrikeCache()->getCacheCountUsed();
+}
+
+int SkGraphics::GetFontCachePointSizeLimit() {
+    return SkStrikeCache::GlobalStrikeCache()->getCachePointSizeLimit();
+}
+
+int SkGraphics::SetFontCachePointSizeLimit(int limit) {
+    return SkStrikeCache::GlobalStrikeCache()->setCachePointSizeLimit(limit);
+}
+
+void SkGraphics::PurgeFontCache() {
+    SkStrikeCache::GlobalStrikeCache()->purgeAll();
+    SkTypefaceCache::PurgeAll();
 }

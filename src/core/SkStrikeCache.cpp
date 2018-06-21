@@ -9,23 +9,16 @@
 
 #include <cctype>
 
-#include "SkDeduper.h"
 #include "SkGlyphCache.h"
 #include "SkGraphics.h"
 #include "SkMutex.h"
-#include "SkOnce.h"
 #include "SkTraceMemoryDump.h"
 #include "SkTypeface.h"
-#include "SkTypefaceCache.h"
 #include "SkPaintPriv.h"
 
-// Returns the shared globals
-static SkStrikeCache& get_globals() {
-    static SkOnce once;
-    static SkStrikeCache* globals;
-
-    once([]{ globals = new SkStrikeCache; });
-    return *globals;
+SkStrikeCache* SkStrikeCache::GlobalStrikeCache() {
+    static auto* cache = new SkStrikeCache;
+    return cache;
 }
 
 struct SkStrikeCache::Node {
@@ -94,21 +87,21 @@ SkStrikeCache::~SkStrikeCache() {
 }
 
 void SkStrikeCache::Attach(Node* node) {
-    get_globals().attachNode(node);
+    GlobalStrikeCache()->attachNode(node);
 }
 
 SkExclusiveStrikePtr SkStrikeCache::FindStrikeExclusive(const SkDescriptor& desc) {
-    return get_globals().findStrikeExclusive(desc);
+    return GlobalStrikeCache()->findStrikeExclusive(desc);
 }
 
 bool SkStrikeCache::DesperationSearchForImage(const SkDescriptor& desc, SkGlyph* glyph,
                                               SkGlyphCache* targetCache) {
-    return get_globals().desperationSearchForImage(desc, glyph, targetCache);
+    return GlobalStrikeCache()->desperationSearchForImage(desc, glyph, targetCache);
 }
 
 bool SkStrikeCache::DesperationSearchForPath(
         const SkDescriptor& desc, SkGlyphID glyphID, SkPath* path) {
-    return get_globals().desperationSearchForPath(desc, glyphID, path);
+    return GlobalStrikeCache()->desperationSearchForPath(desc, glyphID, path);
 }
 
 std::unique_ptr<SkScalerContext> SkStrikeCache::CreateScalerContext(
@@ -162,14 +155,14 @@ SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(const SkPaint& p
 }
 
 void SkStrikeCache::PurgeAll() {
-    get_globals().purgeAll();
+    GlobalStrikeCache()->purgeAll();
 }
 
 void SkStrikeCache::Validate() {
 #ifdef SK_DEBUG
     auto visitor = [](const SkGlyphCache& cache) { cache.forceValidate(); };
 
-    get_globals().forEachStrike(visitor);
+    GlobalStrikeCache()->forEachStrike(visitor);
 #endif
 }
 
@@ -190,7 +183,7 @@ void SkStrikeCache::Dump() {
         counter += 1;
     };
 
-    get_globals().forEachStrike(visitor);
+    GlobalStrikeCache()->forEachStrike(visitor);
 }
 
 namespace {
@@ -234,7 +227,7 @@ void SkStrikeCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
         dump->setMemoryBacking(dumpName.c_str(), "malloc", nullptr);
     };
 
-    get_globals().forEachStrike(visitor);
+    GlobalStrikeCache()->forEachStrike(visitor);
 }
 
 
@@ -553,40 +546,3 @@ void SkStrikeCache::validate() const {
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-size_t SkGraphics::GetFontCacheLimit() {
-    return get_globals().getCacheSizeLimit();
-}
-
-size_t SkGraphics::SetFontCacheLimit(size_t bytes) {
-    return get_globals().setCacheSizeLimit(bytes);
-}
-
-size_t SkGraphics::GetFontCacheUsed() {
-    return get_globals().getTotalMemoryUsed();
-}
-
-int SkGraphics::GetFontCacheCountLimit() {
-    return get_globals().getCacheCountLimit();
-}
-
-int SkGraphics::SetFontCacheCountLimit(int count) {
-    return get_globals().setCacheCountLimit(count);
-}
-
-int SkGraphics::GetFontCacheCountUsed() {
-    return get_globals().getCacheCountUsed();
-}
-
-int SkGraphics::GetFontCachePointSizeLimit() {
-    return get_globals().getCachePointSizeLimit();
-}
-
-int SkGraphics::SetFontCachePointSizeLimit(int limit) {
-    return get_globals().setCachePointSizeLimit(limit);
-}
-
-void SkGraphics::PurgeFontCache() {
-    get_globals().purgeAll();
-    SkTypefaceCache::PurgeAll();
-}
