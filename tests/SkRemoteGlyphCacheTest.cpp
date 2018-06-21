@@ -287,7 +287,7 @@ DEF_TEST(SkRemoteGlyphCache_ClientMemoryAccounting, reporter) {
     // Client.
     REPORTER_ASSERT(reporter,
                     client.readStrikeData(serverStrikeData.data(), serverStrikeData.size()));
-    SkStrikeCache::Validate();
+    SkStrikeCache::ValidateGlyphCacheDataSize();
 
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
@@ -326,7 +326,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsPath, reporter, 
     SkBitmap actual = RasterBlob(clientBlob, 10, 10, paint, ctxInfo.grContext());
     COMPARE_BLOBS(expected, actual, reporter);
     REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
-    SkStrikeCache::Validate();
+    SkStrikeCache::ValidateGlyphCacheDataSize();
 
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
@@ -373,7 +373,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT, reporter, c
     SkBitmap actual = RasterBlob(clientBlob, 10, 10, paint, ctxInfo.grContext(), &matrix);
     COMPARE_BLOBS(expected, actual, reporter);
     REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
-    SkStrikeCache::Validate();
+    SkStrikeCache::ValidateGlyphCacheDataSize();
 
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
@@ -504,7 +504,7 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
             REPORTER_ASSERT(reporter, discardableManager->cacheMissCount(i) == 0);
         }
     }
-    SkStrikeCache::Validate();
+    SkStrikeCache::ValidateGlyphCacheDataSize();
 
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
@@ -605,7 +605,7 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
                         memcmp(glyph->fImage, glyphImage, glyph->computeImageSize()) == 0);
     }
 
-    SkStrikeCache::Validate();
+    SkStrikeCache::ValidateGlyphCacheDataSize();
 
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();

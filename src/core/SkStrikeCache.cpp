@@ -181,14 +181,6 @@ void SkStrikeCache::PurgeAll() {
     GlobalStrikeCache()->purgeAll();
 }
 
-void SkStrikeCache::Validate() {
-#ifdef SK_DEBUG
-    auto visitor = [](const SkGlyphCache& cache) { cache.forceValidate(); };
-
-    GlobalStrikeCache()->forEachStrike(visitor);
-#endif
-}
-
 void SkStrikeCache::Dump() {
     SkDebugf("GlyphCache [     used    budget ]\n");
     SkDebugf("    bytes  [ %8zu  %8zu ]\n",
@@ -558,6 +550,20 @@ void SkStrikeCache::internalDetachCache(Node* node) {
     }
     node->fPrev = node->fNext = nullptr;
 }
+
+void SkStrikeCache::ValidateGlyphCacheDataSize() {
+#ifdef SK_DEBUG
+    GlobalStrikeCache()->validateGlyphCacheDataSize();
+#endif
+}
+
+#ifdef SK_DEBUG
+void SkStrikeCache::validateGlyphCacheDataSize() const {
+    this->forEachStrike(
+            [](const SkGlyphCache& cache) { cache.forceValidate();
+    });
+}
+#endif
 
 #ifdef SK_DEBUG
 void SkStrikeCache::validate() const {

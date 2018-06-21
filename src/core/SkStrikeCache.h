@@ -121,7 +121,7 @@ public:
             const SkDescriptor&, const SkScalerContextEffects&, const SkTypeface&);
 
     static void PurgeAll();
-    static void Validate();
+    static void ValidateGlyphCacheDataSize();
     static void Dump();
 
     // Dump memory usage statistics of all the attaches caches in the process using the
@@ -130,9 +130,6 @@ public:
 
     // call when a glyphcache is available for caching (i.e. not in use)
     void attachNode(Node* node);
-
-
-
 
     void purgeAll(); // does not change budget
 
@@ -148,9 +145,13 @@ public:
     int  setCachePointSizeLimit(int limit);
 
 #ifdef SK_DEBUG
+    // A simple accounting of what each glyph cache reports and the strike cache total.
     void validate() const;
+    // Make sure that each glyph cache's memory tracking and actual memory used are in sync.
+    void validateGlyphCacheDataSize() const;
 #else
     void validate() const {}
+    void validateGlyphCacheDataSize() const {}
 #endif
 
 private:
