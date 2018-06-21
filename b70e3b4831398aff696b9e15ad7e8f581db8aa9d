@@ -46,6 +46,30 @@
       "revId": "b70e3b4831398aff696b9e15ad7e8f581db8aa9d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bcd8911e_04efb288",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-21T13:55:32Z",
+      "side": 0,
+      "message": "\u003e We\u0027re still running some test bots with this configuration\n\nDo you know which ones?\n\n\u003e I\u0027d like to keep this option for some set of bots.\n\nCould you file a request here? https://bugs.chromium.org/p/skia/issues/entry?template\u003dNew+Bot+Request",
+      "parentUuid": "e1a784e8_f5286aec",
+      "range": {
+        "startLine": 143,
+        "startChar": 0,
+        "endLine": 146,
+        "endChar": 38
+      },
+      "revId": "b70e3b4831398aff696b9e15ad7e8f581db8aa9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
