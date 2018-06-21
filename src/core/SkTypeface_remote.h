@@ -119,7 +119,7 @@ protected:
         return 0;
     }
     int onCountGlyphs() const override {
-        SK_ABORT("Should never be called.");
+        return this->glyphCount();
         return 0;
     }
 
