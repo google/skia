@@ -298,7 +298,8 @@ public:
         }
 
         if (split_animator->fAnimators.empty()) {
-            // Static split property, no need to hold on to the split animator.
+            // Static split property: commit the (buffered) value and discard.
+            split_animator->onTick(0);
             return nullptr;
         }
 
