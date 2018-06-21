@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d924097d_85245eae",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 564,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-21T18:22:45Z",
+      "side": 1,
+      "message": "might want to inline the lambda?",
+      "range": {
+        "startLine": 562,
+        "startChar": 4,
+        "endLine": 564,
+        "endChar": 33
+      },
+      "revId": "a0edc361a1135221e3d2e6338e69f814c96ac0fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
