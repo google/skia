@@ -401,7 +401,9 @@ void GrDrawingManager::moveOpListsToDDL(SkDeferredDisplayList* ddl) {
         fOpLists[i]->makeClosed(*fContext->contextPriv().caps());
     }
 
-    ddl->fOpLists = std::move(fOpLists);
+    SkASSERT(ddl->fOpLists.empty());
+    ddl->fOpLists.swap(fOpLists);
+
     if (fPathRendererChain) {
         if (auto ccpr = fPathRendererChain->getCoverageCountingPathRenderer()) {
             ddl->fPendingPaths = ccpr->detachPendingPaths();
