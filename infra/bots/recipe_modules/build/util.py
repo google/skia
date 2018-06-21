@@ -14,6 +14,8 @@ BUILD_PRODUCTS_ISOLATE_WHITELIST = [
   'nanobench.app',
   'get_images_from_skps',
   'get_images_from_skps.exe',
+  'hello-cl',
+  'hello-cl.exe',
   'nanobench',
   'nanobench.exe',
   'skpbench',
