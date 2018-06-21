@@ -404,9 +404,12 @@ bool skcms_Transform(const void*             src,
     }
     int n = (int)nz;
 
-    // Both profiles can be null if we're just doing format conversion, otherwise both are needed
-    if (!dstProfile != !srcProfile) {
-        return false;
+    // Null profiles default to sRGB. Passing null for both is handy when doing format conversion.
+    if (!srcProfile) {
+        srcProfile = skcms_sRGB_profile();
+    }
+    if (!dstProfile) {
+        dstProfile = skcms_sRGB_profile();
     }
 
     // We can't transform in place unless the PixelFormats are the same size.
@@ -442,7 +445,7 @@ bool skcms_Transform(const void*             src,
         *ops++ = Op_swap_rb;
     }
 
-    if (srcProfile && srcProfile->data_color_space == skcms_Signature_CMYK) {
+    if (srcProfile->data_color_space == skcms_Signature_CMYK) {
         // Photoshop creates CMYK images as inverse CMYK.
         // These happen to be the only ones we've _ever_ seen.
         *ops++ = Op_invert;
