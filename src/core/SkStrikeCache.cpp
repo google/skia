@@ -35,33 +35,52 @@ struct SkStrikeCache::Node {
     std::unique_ptr<SkStrikePinner> fPinner;
 };
 
-SkStrikeCache::ExclusiveStrikePtr::ExclusiveStrikePtr(SkStrikeCache::Node* node) : fNode{node} {}
-SkStrikeCache::ExclusiveStrikePtr::ExclusiveStrikePtr() : fNode{nullptr} {}
+SkStrikeCache::ExclusiveStrikePtr::ExclusiveStrikePtr(
+        SkStrikeCache::Node* node, SkStrikeCache* strikeCache)
+    : fNode{node}
+    , fStrikeCache{strikeCache} {}
+
+SkStrikeCache::ExclusiveStrikePtr::ExclusiveStrikePtr()
+    : fNode{nullptr}
+    , fStrikeCache{nullptr} {}
+
 SkStrikeCache::ExclusiveStrikePtr::ExclusiveStrikePtr(ExclusiveStrikePtr&& o)
-    : fNode{o.fNode} {
+    : fNode{o.fNode}
+    , fStrikeCache{o.fStrikeCache}{
     o.fNode = nullptr;
+    o.fStrikeCache = nullptr;
 }
 
 SkStrikeCache::ExclusiveStrikePtr&
 SkStrikeCache::ExclusiveStrikePtr::operator = (ExclusiveStrikePtr&& o) {
-    Attach(fNode);
+    if (fStrikeCache != nullptr) {
+        fStrikeCache->attachNode(fNode);
+    }
     fNode = o.fNode;
+    fStrikeCache = o.fStrikeCache;
     o.fNode = nullptr;
+    o.fStrikeCache = nullptr;
     return *this;
 }
 
 SkStrikeCache::ExclusiveStrikePtr::~ExclusiveStrikePtr() {
-    SkStrikeCache::Attach(fNode);
+    if (fStrikeCache != nullptr) {
+        fStrikeCache->attachNode(fNode);
+    }
 }
+
 SkGlyphCache* SkStrikeCache::ExclusiveStrikePtr::get() const {
     return &fNode->fCache;
 }
+
 SkGlyphCache* SkStrikeCache::ExclusiveStrikePtr::operator -> () const {
     return this->get();
 }
+
 SkGlyphCache& SkStrikeCache::ExclusiveStrikePtr::operator *  () const {
     return *this->get();
 }
+
 SkStrikeCache::ExclusiveStrikePtr::operator bool () const {
     return fNode != nullptr;
 }
@@ -70,9 +89,11 @@ bool operator == (const SkStrikeCache::ExclusiveStrikePtr& lhs,
                   const SkStrikeCache::ExclusiveStrikePtr& rhs) {
     return lhs.fNode == rhs.fNode;
 }
+
 bool operator == (const SkStrikeCache::ExclusiveStrikePtr& lhs, decltype(nullptr)) {
     return lhs.fNode == nullptr;
 }
+
 bool operator == (decltype(nullptr), const SkStrikeCache::ExclusiveStrikePtr& rhs) {
     return nullptr == rhs.fNode;
 }
@@ -84,10 +105,6 @@ SkStrikeCache::~SkStrikeCache() {
         delete node;
         node = next;
     }
-}
-
-void SkStrikeCache::Attach(Node* node) {
-    GlobalStrikeCache()->attachNode(node);
 }
 
 SkExclusiveStrikePtr SkStrikeCache::FindStrikeExclusive(const SkDescriptor& desc) {
@@ -124,10 +141,16 @@ std::unique_ptr<SkScalerContext> SkStrikeCache::CreateScalerContext(
 SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(
         const SkDescriptor& desc, const SkScalerContextEffects& effects, const SkTypeface& typeface)
 {
-    auto cache = FindStrikeExclusive(desc);
+    return GlobalStrikeCache()->findOrCreateStrikeExclusive(desc, effects, typeface);
+}
+
+SkExclusiveStrikePtr SkStrikeCache::findOrCreateStrikeExclusive(
+        const SkDescriptor& desc, const SkScalerContextEffects& effects, const SkTypeface& typeface)
+{
+    auto cache = this->findStrikeExclusive(desc);
     if (cache == nullptr) {
         auto scaler = CreateScalerContext(desc, effects, typeface);
-        cache = CreateStrikeExclusive(desc, std::move(scaler));
+        cache = this->createStrikeExclusive(desc, std::move(scaler));
     }
     return cache;
 }
@@ -245,17 +268,16 @@ void SkStrikeCache::attachNode(Node* node) {
 }
 
 SkExclusiveStrikePtr SkStrikeCache::findStrikeExclusive(const SkDescriptor& desc) {
-    Node*           node;
     SkAutoExclusive ac(fLock);
 
-    for (node = internalGetHead(); node != nullptr; node = node->fNext) {
+    for (Node* node = internalGetHead(); node != nullptr; node = node->fNext) {
         if (node->fCache.getDescriptor() == desc) {
             this->internalDetachCache(node);
-            return SkExclusiveStrikePtr(node);
+            return SkExclusiveStrikePtr(node, this);
         }
     }
 
-    return SkExclusiveStrikePtr(nullptr);
+    return SkExclusiveStrikePtr();
 }
 
 static bool loose_compare(const SkDescriptor& lhs, const SkDescriptor& rhs) {
@@ -347,6 +369,16 @@ SkExclusiveStrikePtr SkStrikeCache::CreateStrikeExclusive(
         SkPaint::FontMetrics* maybeMetrics,
         std::unique_ptr<SkStrikePinner> pinner)
 {
+    return GlobalStrikeCache()->createStrikeExclusive(
+            desc, std::move(scaler), maybeMetrics, std::move(pinner));
+}
+
+SkExclusiveStrikePtr SkStrikeCache::createStrikeExclusive(
+        const SkDescriptor& desc,
+        std::unique_ptr<SkScalerContext> scaler,
+        SkPaint::FontMetrics* maybeMetrics,
+        std::unique_ptr<SkStrikePinner> pinner)
+{
     SkPaint::FontMetrics fontMetrics;
     if (maybeMetrics != nullptr) {
         fontMetrics = *maybeMetrics;
@@ -354,7 +386,8 @@ SkExclusiveStrikePtr SkStrikeCache::CreateStrikeExclusive(
         scaler->getFontMetrics(&fontMetrics);
     }
 
-    return SkExclusiveStrikePtr(new Node(desc, std::move(scaler), fontMetrics, std::move(pinner)));
+    auto* node = new Node(desc, std::move(scaler), fontMetrics, std::move(pinner));
+    return SkExclusiveStrikePtr(node, this);
 }
 
 void SkStrikeCache::purgeAll() {

@@ -47,7 +47,7 @@ public:
 
     class ExclusiveStrikePtr {
     public:
-        explicit ExclusiveStrikePtr(Node*);
+        explicit ExclusiveStrikePtr(Node*, SkStrikeCache*);
         ExclusiveStrikePtr();
         ExclusiveStrikePtr(const ExclusiveStrikePtr&) = delete;
         ExclusiveStrikePtr& operator = (const ExclusiveStrikePtr&) = delete;
@@ -65,20 +65,21 @@ public:
 
     private:
         Node* fNode;
+        SkStrikeCache* fStrikeCache;
     };
 
     static SkStrikeCache* GlobalStrikeCache();
 
     static ExclusiveStrikePtr FindStrikeExclusive(const SkDescriptor&);
-
-    static bool DesperationSearchForImage(const SkDescriptor& desc,
-                                          SkGlyph* glyph,
-                                          SkGlyphCache* targetCache);
-
-    static bool DesperationSearchForPath(
-            const SkDescriptor& desc, SkGlyphID glyphID, SkPath* path);
+    ExclusiveStrikePtr findStrikeExclusive(const SkDescriptor&);
 
     static ExclusiveStrikePtr CreateStrikeExclusive(
+            const SkDescriptor& desc,
+            std::unique_ptr<SkScalerContext> scaler,
+            SkPaint::FontMetrics* maybeMetrics = nullptr,
+            std::unique_ptr<SkStrikePinner> = nullptr);
+
+    ExclusiveStrikePtr createStrikeExclusive(
             const SkDescriptor& desc,
             std::unique_ptr<SkScalerContext> scaler,
             SkPaint::FontMetrics* maybeMetrics = nullptr,
@@ -88,6 +89,25 @@ public:
             const SkDescriptor& desc,
             const SkScalerContextEffects& effects,
             const SkTypeface& typeface);
+
+    ExclusiveStrikePtr findOrCreateStrikeExclusive(
+            const SkDescriptor& desc,
+            const SkScalerContextEffects& effects,
+            const SkTypeface& typeface);
+
+    // Routines to find suitable data when working in a remote cache situation. These are
+    // suitable as substitutes for similar calls in SkScalerContext.
+    static bool DesperationSearchForImage(const SkDescriptor& desc,
+                                          SkGlyph* glyph,
+                                          SkGlyphCache* targetCache);
+
+    bool desperationSearchForImage(const SkDescriptor& desc,
+                                   SkGlyph* glyph,
+                                   SkGlyphCache* targetCache);
+
+    static bool DesperationSearchForPath(
+            const SkDescriptor& desc, SkGlyphID glyphID, SkPath* path);
+    bool desperationSearchForPath(const SkDescriptor& desc, SkGlyphID glyphID, SkPath* path);
 
     static ExclusiveStrikePtr FindOrCreateStrikeExclusive(
             const SkPaint& paint,
@@ -110,14 +130,9 @@ public:
 
     // call when a glyphcache is available for caching (i.e. not in use)
     void attachNode(Node* node);
-    ExclusiveStrikePtr findStrikeExclusive(const SkDescriptor&);
 
-    // Routines to find suitable data when working in a remote cache situation. These are
-    // suitable as substitutes for similar calls in SkScalerContext.
-    bool desperationSearchForImage(const SkDescriptor& desc,
-                                   SkGlyph* glyph,
-                                   SkGlyphCache* targetCache);
-    bool desperationSearchForPath(const SkDescriptor& desc, SkGlyphID glyphID, SkPath* path);
+
+
 
     void purgeAll(); // does not change budget
 
@@ -139,7 +154,6 @@ public:
 #endif
 
 private:
-    static void Attach(Node* node);
 
     // The following methods can only be called when mutex is already held.
     Node* internalGetHead() const { return fHead; }
