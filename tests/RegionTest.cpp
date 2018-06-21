@@ -444,3 +444,29 @@ DEF_TEST(giant_path_region, reporter) {
     rgn.setPath(path, SkRegion(ir));
 }
 
+DEF_TEST(rrect_region, reporter) {
+    SkMatrix m;
+    m.reset();
+    m[1] = 0.753662348f;
+    m[3] = 1.40079998E+20f;
+
+    const SkPoint corners[] = {
+        { 2.65876e-19f, 0.0194088f },
+        { 4896, 0.00114702f },
+        { 0, 0 },
+        { 0.00114702f, 0.00495333f },
+    };
+    SkRRect rrect;
+    rrect.setRectRadii({-8.72387e-31f, 1.29996e-38f, 4896, 1.125f}, corners);
+
+    SkPath path;
+    path.addRRect(rrect);
+    path.transform(m);
+
+    SkRegion rgn;
+    if (false) {
+        // this assserts in the debug build. see crbug.com/850350
+        rgn.setPath(path, SkRegion{SkIRect{0, 0, 24, 24}});
+    }
+}
+
