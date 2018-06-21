@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b64fc294_0a764bf8",
+        "filename": "tests/FontMgrAndroidParserTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-21T14:36:57Z",
+      "side": 1,
+      "message": "Let\u0027s simplify this a bit\n\nfor (int i \u003d 0; i \u003c 10; ++i) {",
+      "range": {
+        "startLine": 317,
+        "startChar": 0,
+        "endLine": 319,
+        "endChar": 37
+      },
+      "revId": "971da820279318465b26ebe5d05eab3ff5edcaa2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1453d1c8_2413f5e0",
+        "filename": "tests/FontMgrAndroidParserTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-21T14:36:57Z",
+      "side": 1,
+      "message": "10",
+      "range": {
+        "startLine": 322,
+        "startChar": 68,
+        "endLine": 322,
+        "endChar": 75
+      },
+      "revId": "971da820279318465b26ebe5d05eab3ff5edcaa2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77b2b777_9dd67f93",
+        "filename": "tests/FontMgrAndroidParserTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-21T14:36:57Z",
+      "side": 1,
+      "message": "i",
+      "range": {
+        "startLine": 322,
+        "startChar": 39,
+        "endLine": 322,
+        "endChar": 50
+      },
+      "revId": "971da820279318465b26ebe5d05eab3ff5edcaa2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
