@@ -971,7 +971,8 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
 
     SkSTArray<4, MaskRecord, true> mask_stack;
 
-    bool opaque_mask = true;
+    const SkScalar full_opacity = 100;
+    bool has_opacity = false;
 
     for (const skjson::ObjectValue* m : *jmask) {
         if (!m) continue;
@@ -997,11 +998,10 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
         mask_paint->setAntiAlias(true);
         mask_paint->setBlendMode(MaskBlendMode(mode.c_str()[0]));
 
-        const auto animator_count = ctx->fAnimators.size();
-        BindProperty<ScalarValue>((*m)["o"], &ctx->fAnimators,
-            [mask_paint](const ScalarValue& o) { mask_paint->setOpacity(o * 0.01f); });
-
-        opaque_mask &= (animator_count == ctx->fAnimators.size() && mask_paint->getOpacity() >= 1);
+        has_opacity |= BindProperty<ScalarValue>((*m)["o"], &ctx->fAnimators,
+            [mask_paint](const ScalarValue& o) {
+                mask_paint->setOpacity(o * 0.01f);
+        }, &full_opacity);
 
         mask_stack.push_back({mask_path, mask_paint});
     }
@@ -1009,8 +1009,8 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
     if (mask_stack.empty())
         return childNode;
 
-    if (mask_stack.count() == 1 && opaque_mask) {
-        // Single opaque mask => clip path.
+    if (mask_stack.count() == 1 && !has_opacity) {
+        // Single, fully-opaque mask => clip path.
         return sksg::ClipEffect::Make(std::move(childNode),
                                       std::move(mask_stack.front().mask_path),
                                       true);
