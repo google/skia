@@ -28,7 +28,7 @@
 //
 
 skc_err
-skc_context_create_cl(skc_context_t * context,
+skc_context_create_cl(skc_context_t * context, 
                       cl_context      context_cl,
                       cl_device_id    device_id_cl)
 {

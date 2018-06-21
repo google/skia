@@ -35,6 +35,12 @@
 
 #include "interop.h"
 #include "context.h"
+
+//
+//
+//
+
+#include "skc_cl.h"
 #include "runtime_cl_12.h"
 
 //
@@ -65,90 +71,32 @@
 //
 //
 
-struct skc_interop_fb
+struct skc_interop
 {
-  cl_context context;
+  GLFWwindow              * window;
 
-  GLuint     fbo;
-  GLuint     rbo;
+  cl_context                context;
 
-  cl_mem     mem;
+  GLuint                    fbo;
+  GLuint                    rbo;
 
-  int        width;
-  int        height;
+  struct skc_framebuffer_cl fb;
 
-  bool       is_srgb;
-  bool       is_vsync_on;
-  bool       is_fullscreen;
-  bool       is_iconified;
-  bool       is_resized;
-  bool       is_spinning;
-  bool       is_info;
+  int                       width;
+  int                       height;
 
-  skc_float  scale;
-  skc_float2 translate;
-  float      rotate_theta;
+  bool                      is_srgb;
+  bool                      is_vsync_on;
+  bool                      is_fullscreen;
+  bool                      is_iconified;
+  bool                      is_resized;
+  bool                      is_spinning;
+  bool                      is_info;
+
+  skc_float                 scale;
+  skc_float2                translate;
+  float                     rotate_theta;
 };
-
-static struct skc_interop_fb fb =
-  {
-    .mem           = NULL,
-
-    .is_srgb       = true,
-    .is_vsync_on   = false,
-    .is_fullscreen = false,
-    .is_iconified  = false,
-    .is_resized    = true,
-    .is_spinning   = false,
-    .is_info       = false,
-
-    .scale         = 1.0f,
-    .translate     = { 0.0f, 0.0f },
-    .rotate_theta  = 0.0f
-  };
-
-//
-// FPS COUNTER FROM HERE:
-//
-// http://antongerdelan.net/opengl/glcontext2.html
-//
-
-static
-void
-skc_interop_fps(GLFWwindow * window)
-{
-  if (fb.is_fullscreen)
-    return;
-
-  // static fps counters
-  static double stamp_prev  = 0.0;
-  static int    frame_count = 0;
-
-  // locals
-  double const  stamp_curr  = glfwGetTime();
-  double const  elapsed     = stamp_curr - stamp_prev;
-
-  if (elapsed >= 0.5)
-    {
-      stamp_prev = stamp_curr;
-
-      double const fps = (double)frame_count / elapsed;
-
-      char tmp[64];
-
-      sprintf_s(tmp,64,"(%d x %d) - VSync %s - sRGB %s - FPS: %.2f",
-                fb.width,fb.height,
-                fb.is_vsync_on ? "ON"      : "OFF",
-                fb.is_srgb     ? "ENABLED" : "DISABLED",
-                fps);
-
-      glfwSetWindowTitle(window,tmp);
-
-      frame_count = 0;
-    }
-
-  frame_count++;
-}
 
 //
 // INITIALIZE GLFW/GLAD
@@ -169,7 +117,9 @@ static
 void
 skc_interop_iconify_callback(GLFWwindow * window, int iconified)
 {
-  fb.is_iconified = iconified;
+  struct skc_interop * interop = glfwGetWindowUserPointer(window);
+
+  interop->is_iconified = iconified;
 }
 
 //
@@ -180,34 +130,36 @@ static
 void
 skc_interop_key_callback(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
+  struct skc_interop * interop = glfwGetWindowUserPointer(window);
+  
   if (action == GLFW_RELEASE)
     return;
 
   switch (key)
     {
     case GLFW_KEY_EQUAL:
-      fb.rotate_theta = 0.0f;
+      interop->rotate_theta = 0.0f;
       break;
 
     case GLFW_KEY_I:
-      fb.is_info = true;
+      interop->is_info = true;
       break;
 
     case GLFW_KEY_R:
-      fb.is_spinning ^= true;
+      interop->is_spinning ^= true;
       break;
 
     case GLFW_KEY_S:
-      fb.is_srgb ^= true;
-      if (fb.is_srgb)
+      interop->is_srgb ^= true;
+      if (interop->is_srgb)
         glEnable(GL_FRAMEBUFFER_SRGB);
       else
         glDisable(GL_FRAMEBUFFER_SRGB);
       break;
 
     case GLFW_KEY_V:
-      fb.is_vsync_on ^= true;
-      glfwSwapInterval(fb.is_vsync_on ? 1 : 0);
+      interop->is_vsync_on ^= true;
+      glfwSwapInterval(interop->is_vsync_on ? 1 : 0);
       break;
 
     case GLFW_KEY_W:
@@ -224,9 +176,11 @@ static
 void
 skc_interop_window_size_callback(GLFWwindow * window, int width, int height)
 {
-  fb.width      = width;
-  fb.height     = height;
-  fb.is_resized = true;
+  struct skc_interop * interop = glfwGetWindowUserPointer(window);
+  
+  interop->width      = width;
+  interop->height     = height;
+  interop->is_resized = true;
 
 #if 0
   skc_render_kernel_set_clip(0,0,width,height);
@@ -235,14 +189,15 @@ skc_interop_window_size_callback(GLFWwindow * window, int width, int height)
 
 static
 void
-skc_interop_scale(double const scale_offset)
+skc_interop_scale(struct skc_interop * interop, double const scale_offset)
 {
 #define SKC_SCALE_FACTOR 1.05
 
   static double scale_exp = 0.0;
 
   scale_exp += scale_offset;
-  fb.scale   = (float)pow(SKC_SCALE_FACTOR,scale_exp);
+
+  interop->scale = (float)pow(SKC_SCALE_FACTOR,scale_exp);
 }
 
 static
@@ -256,27 +211,30 @@ skc_interop_scroll_callback(GLFWwindow * window, double xoffset, double yoffset)
   if (!ctrl)
     return;
 
-  skc_interop_scale(yoffset);
+  struct skc_interop * interop = glfwGetWindowUserPointer(window);  
+
+  skc_interop_scale(interop,yoffset);
 }
 
 static
 void
-skc_interop_translate(float const dx, float const dy)
+skc_interop_translate(struct skc_interop * interop, float const dx, float const dy)
 {
-  float const dx_scaled = dx / fb.scale;
-  float const dy_scaled = dy / fb.scale;
+  float const dx_scaled = dx / interop->scale;
+  float const dy_scaled = dy / interop->scale;
 
-  float const cos_theta = cosf(fb.rotate_theta); // replace with cospi if available
-  float const sin_theta = sinf(fb.rotate_theta); // replace with sinpi if available
+  float const cos_theta = cosf(interop->rotate_theta); // replace with cospi if available
+  float const sin_theta = sinf(interop->rotate_theta); // replace with sinpi if available
 
-  fb.translate.x += dx_scaled*cos_theta + dy_scaled*sin_theta;
-  fb.translate.y += dy_scaled*cos_theta - dx_scaled*sin_theta;
+  interop->translate.x += dx_scaled*cos_theta + dy_scaled*sin_theta;
+  interop->translate.y += dy_scaled*cos_theta - dx_scaled*sin_theta;
 }
 
 static
 void
 skc_interop_cursor_position_callback(GLFWwindow * window, double x, double y)
 {
+  
   int const state = glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_LEFT);
 
   static bool  is_mouse_dragging = false;
@@ -287,6 +245,8 @@ skc_interop_cursor_position_callback(GLFWwindow * window, double x, double y)
 
   if (state == GLFW_PRESS)
     {
+      struct skc_interop * interop = glfwGetWindowUserPointer(window);  
+      
       if (is_mouse_dragging)
         {
           const bool ctrl =
@@ -295,8 +255,8 @@ skc_interop_cursor_position_callback(GLFWwindow * window, double x, double y)
 
           if (ctrl)
             {
-              float const cx  = 0.5f * fb.width;
-              float const cy  = 0.5f * fb.height;
+              float const cx  = 0.5f * interop->width;
+              float const cy  = 0.5f * interop->height;
 
               // find angle between mouse and center
               float const vx  = x_prev - cx;
@@ -313,16 +273,17 @@ skc_interop_cursor_position_callback(GLFWwindow * window, double x, double y)
                   float const da  = acosf(dot / len);
 
                   if (vx*wy - vy*wx >= 0.0f)
-                    fb.rotate_theta += da;
+                    interop->rotate_theta += da;
                   else
-                    fb.rotate_theta -= da;
+                    interop->rotate_theta -= da;
 
-                  fb.rotate_theta = fmodf(fb.rotate_theta,(float)(M_PI*2.0));
+                  interop->rotate_theta = fmodf(interop->rotate_theta,(float)(M_PI*2.0));
                 }
             }
           else
             {
-              skc_interop_translate(mx - x_prev,
+              skc_interop_translate(interop,
+                                    mx - x_prev,
                                     my - y_prev);
             }
         }
@@ -346,86 +307,56 @@ skc_interop_cursor_position_callback(GLFWwindow * window, double x, double y)
 
 static
 void
-skc_interop_resize()
-{
-  fb.is_resized = false;
-
-  // release the image2d
-  if (fb.mem != NULL)
-    cl(ReleaseMemObject(fb.mem));
-
-  // resize rbo
-  glNamedRenderbufferStorage(fb.rbo,
-                             SKC_IMAGE_FORMAT,
-                             fb.width,
-                             fb.height);
-
-  // attach rbo to fbo
-  glNamedFramebufferRenderbuffer(fb.fbo,
-                                 GL_COLOR_ATTACHMENT0,
-                                 GL_RENDERBUFFER,
-                                 fb.rbo);
-  //
-  //
-  //
-  cl_int cl_err;
-
-  fb.mem = clCreateFromGLRenderbuffer(fb.context,
-                                      CL_MEM_WRITE_ONLY,
-                                      fb.rbo,
-                                      &cl_err); cl_ok(cl_err);
-  //
-  // for debugging porpoises!
-  //
-  cl_image_format format;
-
-  cl(GetImageInfo(fb.mem,
-                  CL_IMAGE_FORMAT,
-                  sizeof(format),
-                  &format,
-                  NULL));
-}
-
-//
-//
-//
-
-static
-void
-skc_interop_acquire()
+skc_interop_acquire(struct skc_interop * interop)
 {
   // frame buffer object
-  glCreateFramebuffers(1,&fb.fbo);
+  glCreateFramebuffers(1,&interop->fbo);
 
   // render buffer object w/a color buffer
-  glCreateRenderbuffers(1,&fb.rbo);
+  glCreateRenderbuffers(1,&interop->rbo);
 
   // size rbo
-  glNamedRenderbufferStorage(fb.rbo,
+  glNamedRenderbufferStorage(interop->rbo,
                              SKC_IMAGE_FORMAT,
-                             fb.width,
-                             fb.height);
+                             interop->width,
+                             interop->height);
 
   // attach rbo to fbo
-  glNamedFramebufferRenderbuffer(fb.fbo,
+  glNamedFramebufferRenderbuffer(interop->fbo,
                                  GL_COLOR_ATTACHMENT0,
                                  GL_RENDERBUFFER,
-                                 fb.rbo);
-}
-
-void
-skc_interop_register(skc_context_t context)
-{
-  fb.context = context->runtime->cl.context;
+                                 interop->rbo);
 }
 
 //
 //
 //
 
-void
-skc_interop_init(GLFWwindow * * window)
+struct skc_interop *
+skc_interop_create()
 {
+  struct skc_interop * interop = malloc(sizeof(*interop));
+
+  *interop = (struct skc_interop)
+    {
+     .fb            = { .type        = SKC_FRAMEBUFFER_CL_GL_RENDERBUFFER,
+                        .mem         = NULL,
+                        .interop     = interop,
+                        .post_render = skc_interop_blit },
+
+     .is_srgb       = true,
+     .is_vsync_on   = false,
+     .is_fullscreen = false,
+     .is_iconified  = false,
+     .is_resized    = true,
+     .is_spinning   = false,
+     .is_info       = false,
+
+     .scale         = 1.0f,
+     .translate     = { 0.0f, 0.0f },
+     .rotate_theta  = 0.0f
+    };
+
   //
   // INITIALIZE GLFW/GLAD
   //
@@ -437,15 +368,15 @@ skc_interop_init(GLFWwindow * * window)
   GLFWmonitor       * const primary = glfwGetPrimaryMonitor();
   GLFWvidmode const * const mode    = glfwGetVideoMode(primary);
 
-  if (fb.is_fullscreen)
+  if (interop->is_fullscreen)
     {
-      fb.width  = mode->width;
-      fb.height = mode->height;
+      interop->width  = mode->width;
+      interop->height = mode->height;
     }
   else
     {
-      fb.width  = 1600;
-      fb.height = 1024;
+      interop->width  = 1600;
+      interop->height = 1024;
     }
 
   glfwWindowHint(GLFW_ALPHA_BITS,            0);
@@ -459,24 +390,28 @@ skc_interop_init(GLFWwindow * * window)
 
   glfwWindowHint(GLFW_OPENGL_PROFILE,        GLFW_OPENGL_CORE_PROFILE);
 
-  *window = glfwCreateWindow(fb.width,fb.height,
-                             "Skia Compute",
-                             fb.is_fullscreen ? primary : NULL,
-                             NULL);
+  interop->window = glfwCreateWindow(interop->width,
+                                     interop->height,
+                                     "Skia Compute",
+                                     interop->is_fullscreen ? primary : NULL,
+                                     NULL);
 
-  if (*window == NULL)
+  if (interop->window == NULL)
     {
       glfwTerminate();
       exit(EXIT_FAILURE);
     }
 
-  glfwMakeContextCurrent(*window);
+  // save back pointer
+  glfwSetWindowUserPointer(interop->window,interop);
+  
+  glfwMakeContextCurrent(interop->window);
 
   // set up GLAD
   gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
   // ignore vsync for now
-  glfwSwapInterval(fb.is_vsync_on ? 1 : 0);
+  glfwSwapInterval(interop->is_vsync_on ? 1 : 0);
 
   // only copy r/g/b
   glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_FALSE);
@@ -488,11 +423,11 @@ skc_interop_init(GLFWwindow * * window)
   //
   // SET USER POINTER AND CALLBACKS
   //
-  glfwSetKeyCallback            (*window,skc_interop_key_callback);
-  glfwSetFramebufferSizeCallback(*window,skc_interop_window_size_callback);
-  glfwSetScrollCallback         (*window,skc_interop_scroll_callback);
-  glfwSetCursorPosCallback      (*window,skc_interop_cursor_position_callback);
-  glfwSetWindowIconifyCallback  (*window,skc_interop_iconify_callback);
+  glfwSetKeyCallback            (interop->window,skc_interop_key_callback);
+  glfwSetFramebufferSizeCallback(interop->window,skc_interop_window_size_callback);
+  glfwSetScrollCallback         (interop->window,skc_interop_scroll_callback);
+  glfwSetCursorPosCallback      (interop->window,skc_interop_cursor_position_callback);
+  glfwSetWindowIconifyCallback  (interop->window,skc_interop_iconify_callback);
 
   //
   //
@@ -506,7 +441,49 @@ skc_interop_init(GLFWwindow * * window)
   //
   // acquire an FBO/RBO
   //
-  skc_interop_acquire();
+  skc_interop_acquire(interop);
+
+  return interop;
+}
+
+//
+//
+//
+
+void
+skc_interop_destroy(struct skc_interop * interop)
+{
+  glfwDestroyWindow(interop->window);
+  glfwTerminate();
+
+  free(interop);
+}
+
+//
+//
+//
+
+void
+skc_interop_set_cl_context(struct skc_interop * interop,
+                           cl_context           context)
+{
+  interop->context = context;
+}
+
+//
+//
+//
+
+cl_context_properties
+skc_interop_get_wgl_context()
+{
+  return (cl_context_properties)wglGetCurrentContext();
+}
+
+cl_context_properties
+skc_interop_get_wgl_dc()
+{
+  return (cl_context_properties)wglGetCurrentDC();
 }
 
 //
@@ -517,39 +494,137 @@ skc_interop_init(GLFWwindow * * window)
 
 static
 void
-skc_interop_transform(struct skc_transform_stack * ts)
+skc_interop_transform(struct skc_interop         * interop,
+                      struct skc_transform_stack * ts)
 {
   // OpenGL'ism
   skc_transform_stack_push_affine(ts,
                                   1.0f, 0.0f,0.0f,
-                                  0.0f,-1.0f,(float)fb.height);
+                                  0.0f,-1.0f,(float)interop->height);
   // multiply
   skc_transform_stack_concat(ts);
 
   // spinner...
-  if (fb.is_spinning)
-    fb.rotate_theta = fmodf(fb.rotate_theta + SKC_ROTATE_STEP,(float)(M_PI*2.0));
+  if (interop->is_spinning)
+    interop->rotate_theta = fmodf(interop->rotate_theta + SKC_ROTATE_STEP,(float)(M_PI*2.0));
   
   // always rotate and scale around surface center point
   skc_transform_stack_push_rotate_scale_xy(ts,
-                                           fb.rotate_theta,
-                                           fb.scale,fb.scale,
-                                           0.5f*fb.width,0.5f*fb.height);
+                                           interop->rotate_theta,
+                                           interop->scale,
+                                           interop->scale,
+                                           0.5f*interop->width,
+                                           0.5f*interop->height);
   skc_transform_stack_concat(ts);
 
   // where did the mouse take us?
   skc_transform_stack_push_translate(ts,
-                                     fb.translate.x,fb.translate.y);
+                                     interop->translate.x,
+                                     interop->translate.y);
   skc_transform_stack_concat(ts);
 }
 
+//
+//
+//
+
+static
+void
+skc_interop_resize(struct skc_interop * interop)
+{
+  interop->is_resized = false;
+
+  // release the image2d
+  if (interop->fb.mem != NULL)
+    cl(ReleaseMemObject(interop->fb.mem));
+
+  // resize rbo
+  glNamedRenderbufferStorage(interop->rbo,
+                             SKC_IMAGE_FORMAT,
+                             interop->width,
+                             interop->height);
+
+  // attach rbo to fbo
+  glNamedFramebufferRenderbuffer(interop->fbo,
+                                 GL_COLOR_ATTACHMENT0,
+                                 GL_RENDERBUFFER,
+                                 interop->rbo);
+  //
+  //
+  //
+  cl_int cl_err;
+
+  interop->fb.mem = clCreateFromGLRenderbuffer(interop->context,
+                                               CL_MEM_WRITE_ONLY,
+                                               interop->rbo,
+                                               &cl_err); cl_ok(cl_err);
+  //
+  // for debugging porpoises!
+  //
+#if 0
+  cl_image_format format;
+
+  cl(GetImageInfo(interop->fb.mem,
+                  CL_IMAGE_FORMAT,
+                  sizeof(format),
+                  &format,
+                  NULL));
+#endif
+}
+
+//
+// FPS COUNTER FROM HERE:
+//
+// http://antongerdelan.net/opengl/glcontext2.html
+//
+
+static
+void
+skc_interop_fps(struct skc_interop * interop)
+{
+  if (interop->is_fullscreen)
+    return;
+
+  // static fps counters
+  static double stamp_prev  = 0.0;
+  static int    frame_count = 0;
+
+  // locals
+  double const  stamp_curr  = glfwGetTime();
+  double const  elapsed     = stamp_curr - stamp_prev;
+
+  if (elapsed >= 0.5)
+    {
+      stamp_prev = stamp_curr;
+
+      double const fps = (double)frame_count / elapsed;
+
+      char tmp[64];
+
+      sprintf_s(tmp,64,"(%d x %d) - VSync %s - sRGB %s - FPS: %.2f",
+                interop->width,interop->height,
+                interop->is_vsync_on ? "ON"      : "OFF",
+                interop->is_srgb     ? "ENABLED" : "DISABLED",
+                fps);
+
+      glfwSetWindowTitle(interop->window,tmp);
+
+      frame_count = 0;
+    }
+
+  frame_count++;
+}
+
+//
+//
+//
 
 void
-skc_interop_poll(GLFWwindow                 * window,
+skc_interop_poll(struct skc_interop         * interop,
                  struct skc_transform_stack * ts)
 {
   // wait until uniconified
-  while (fb.is_iconified)
+  while (interop->is_iconified)
     {
       glfwWaitEvents();
       continue;
@@ -559,13 +634,13 @@ skc_interop_poll(GLFWwindow                 * window,
   glfwPollEvents();
 
   // resize?
-  if (fb.is_resized)
-    skc_interop_resize();
+  if (interop->is_resized)
+    skc_interop_resize(interop);
 
   // monitor fps
-  skc_interop_fps(window);
+  skc_interop_fps(interop);
 
-  skc_interop_transform(ts);
+  skc_interop_transform(interop,ts);
 }
 
 //
@@ -573,14 +648,17 @@ skc_interop_poll(GLFWwindow                 * window,
 //
 
 void
-skc_interop_blit(GLFWwindow * window)
+skc_interop_blit(struct skc_interop * interop)
 {
   // blit skc rbo
-  glBlitNamedFramebuffer(fb.fbo,0,
-                         0,0,fb.width,fb.height,
-                         0,0,fb.width,fb.height,
+  glBlitNamedFramebuffer(interop->fbo,0,
+                         0,0,interop->width,interop->height,
+                         0,0,interop->width,interop->height,
                          GL_COLOR_BUFFER_BIT,
                          GL_NEAREST);
+
+  // swap buffers
+  glfwSwapBuffers(interop->window);
 
 #if 0
   //
@@ -589,26 +667,33 @@ skc_interop_blit(GLFWwindow * window)
   // As a hack we're clearing the interop'd RBO with a
   // clEnqueueFillImage().
   //
-  float const rgba[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-  // GLenum const attachments[] = { GL_COLOR_ATTACHMENT0 };
-  // glInvalidateNamedFramebufferData(fb.fbo,1,attachments);
-  glClearNamedFramebufferfv(fb.fbo,GL_COLOR,0,rgba);
+  GLenum const attachments[] = { GL_COLOR_ATTACHMENT0 };
+  glInvalidateNamedFramebufferData(interop->fbo,1,attachments);
+  float  const rgba[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+  glClearNamedFramebufferfv(interop->fbo,GL_COLOR,0,rgba);
 #endif
-
-  // swap buffers
-  glfwSwapBuffers(window);
 }
 
 //
 //
 //
 
-void *
-skc_interop_get_fb(GLFWwindow * window)
+skc_framebuffer_t
+skc_interop_get_framebuffer(struct skc_interop * interop)
 {
   glFlush();
 
-  return fb.mem;
+  return &interop->fb;
+}
+
+//
+//
+//
+
+bool
+skc_interop_should_exit(struct skc_interop * interop)
+{
+  return glfwWindowShouldClose(interop->window);
 }
 
 //
@@ -616,10 +701,11 @@ skc_interop_get_fb(GLFWwindow * window)
 //
 
 void
-skc_interop_get_dim(uint32_t dim[2])
+skc_interop_get_dim(struct skc_interop * interop, 
+                    uint32_t             dim[2])
 {
-  dim[0] = fb.width;
-  dim[1] = fb.height;
+  dim[0] = interop->width;
+  dim[1] = interop->height;
 }
 
 //

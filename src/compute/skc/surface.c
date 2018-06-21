@@ -35,22 +35,12 @@ skc_surface_release(skc_surface_t surface)
 }
 
 skc_err
-skc_surface_clear(skc_surface_t  surface, 
-                  float    const rgba[4], 
-                  uint32_t const rect[4],
-                  void         * fb)
+skc_surface_clear(skc_surface_t     surface, 
+                  skc_framebuffer_t fb,
+                  float       const rgba[4], 
+                  uint32_t    const rect[4])
 {
-  surface->clear(surface->impl,rgba,rect,fb);
-
-  return SKC_ERR_SUCCESS;
-}
-
-skc_err
-skc_surface_blit(skc_surface_t  surface, 
-                 uint32_t const rect[4], 
-                 int32_t  const txty[2])
-{
-  surface->blit(surface->impl,rect,txty);
+  surface->clear(surface->impl,fb,rgba,rect);
 
   return SKC_ERR_SUCCESS;
 }
@@ -60,13 +50,13 @@ skc_surface_blit(skc_surface_t  surface,
 //
 
 skc_err
-skc_surface_render(skc_surface_t                 surface,
-                   uint32_t                const clip[4],
-                   skc_styling_t                 styling,
-                   skc_composition_t             composition,
-                   skc_surface_render_pfn_notify notify,
-                   void                        * data,
-                   void                        * fb)
+skc_surface_render(skc_surface_t             surface,
+                   skc_styling_t             styling,
+                   skc_composition_t         composition,
+                   skc_framebuffer_t         fb,
+                   uint32_t            const clip[4],
+                   skc_surface_render_notify notify,
+                   void                    * data)
 {
   skc_err err;
 
@@ -79,12 +69,15 @@ skc_surface_render(skc_surface_t                 surface,
     return err;
 
   //
-  // FIXME -- at some point, we will want non-overlapping clips to be
-  // rendered simultaneously. There is plenty of compute for nominal
-  // size render tasks so it might not make much a performance
-  // improvement.
+  // NOTE: there is purposefully no guard against any of the following
+  // use cases:
   //
-  surface->render(surface->impl,clip,styling,composition,notify,data,fb);
+  //   - Simultaneous renders to different frambuffers.
+  //
+  //   - Simultaneous renders with potentially overlapping clips to
+  //     the same framebuffer.
+  //
+  surface->render(surface->impl,styling,composition,fb,clip,notify,data);
 
   return SKC_ERR_SUCCESS;
 }
