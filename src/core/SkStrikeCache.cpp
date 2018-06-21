@@ -111,16 +111,6 @@ SkExclusiveStrikePtr SkStrikeCache::FindStrikeExclusive(const SkDescriptor& desc
     return GlobalStrikeCache()->findStrikeExclusive(desc);
 }
 
-bool SkStrikeCache::DesperationSearchForImage(const SkDescriptor& desc, SkGlyph* glyph,
-                                              SkGlyphCache* targetCache) {
-    return GlobalStrikeCache()->desperationSearchForImage(desc, glyph, targetCache);
-}
-
-bool SkStrikeCache::DesperationSearchForPath(
-        const SkDescriptor& desc, SkGlyphID glyphID, SkPath* path) {
-    return GlobalStrikeCache()->desperationSearchForPath(desc, glyphID, path);
-}
-
 std::unique_ptr<SkScalerContext> SkStrikeCache::CreateScalerContext(
         const SkDescriptor& desc,
         const SkScalerContextEffects& effects,

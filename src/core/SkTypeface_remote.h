@@ -18,6 +18,7 @@
 #include "SkTypeface.h"
 
 class SkTypefaceProxy;
+class SkStrikeCache;
 
 class SkScalerContextProxy : public SkScalerContext {
 public:
@@ -26,7 +27,7 @@ public:
                          const SkDescriptor* desc,
                          sk_sp<SkStrikeClient::DiscardableHandleManager> manager);
 
-    void initCache(SkGlyphCache*);
+    void initCache(SkGlyphCache*, SkStrikeCache*);
 
 protected:
     unsigned generateGlyphCount() override;
@@ -41,6 +42,7 @@ protected:
 private:
     sk_sp<SkStrikeClient::DiscardableHandleManager> fDiscardableManager;
     SkGlyphCache* fCache = nullptr;
+    SkStrikeCache* fStrikeCache = nullptr;
     typedef SkScalerContext INHERITED;
 };
 
