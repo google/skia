@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "089ac43a_7f8d2cb1",
+        "filename": "include/core/SkRefCnt.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-06-21T18:57:50Z",
+      "side": 1,
+      "message": "what about this one?",
+      "revId": "7b681ea1c359c19523be639d1889db2031f79b96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
