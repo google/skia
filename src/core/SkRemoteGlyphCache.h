@@ -20,6 +20,7 @@
 #include "SkMakeUnique.h"
 #include "SkNoDrawCanvas.h"
 #include "SkRefCnt.h"
+#include "SkRemoteGlyphCache.h"
 #include "SkSerialProcs.h"
 #include "SkTypeface.h"
 
@@ -29,7 +30,6 @@ class SkGlyphCache;
 struct SkPackedGlyphID;
 enum SkScalerContextFlags : uint32_t;
 class SkScalerContextRecDescriptor;
-class SkStrikeCache;
 class SkTextBlobRunIterator;
 class SkTypefaceProxy;
 struct WireTypeface;
@@ -212,9 +212,7 @@ public:
         virtual void notifyCacheMiss(CacheMissType) {}
     };
 
-    SkStrikeClient(sk_sp<DiscardableHandleManager>,
-                   bool isLogging = true,
-                   SkStrikeCache* strikeCache = nullptr);
+    SkStrikeClient(sk_sp<DiscardableHandleManager>, bool isLogging = true);
     ~SkStrikeClient();
 
     // Deserializes the typeface previously serialized using the SkStrikeServer. Returns null if the
@@ -225,9 +223,7 @@ public:
     // from a server when serializing the ops must be deserialized before the op
     // is rasterized.
     // Returns false if the data is invalid.
-    bool readStrikeData(
-            const volatile void* memory,
-            size_t memorySize);
+    bool readStrikeData(const volatile void* memory, size_t memorySize);
 
 private:
     class DiscardableStrikePinner;
@@ -236,7 +232,6 @@ private:
 
     SkTHashMap<SkFontID, sk_sp<SkTypeface>> fRemoteFontIdToTypeface;
     sk_sp<DiscardableHandleManager> fDiscardableHandleManager;
-    SkStrikeCache* const fStrikeCache;
     const bool fIsLogging;
 };
 
