@@ -12,7 +12,6 @@
 //
 //
 
-#include "runtime_cl.h"
 #include "block_pool_cl.h"
 
 //
@@ -52,8 +51,8 @@ struct skc_config
   union skc_block_pool_size  block_pool;
 
   struct {
-    skc_cq_type_e            type;
-    skc_uint                 size;
+    cl_command_queue_properties cq_props;
+    skc_uint                    size;
   } cq_pool;
 
   struct {

@@ -15,7 +15,7 @@
 #include "atomic_cl.h"
 #include "block_pool_cl.h"
 #include "raster_builder_cl_12.h"
-#include "device_cl_12.h"
+#include "kernel_cl_12.h"
 
 // #define SKC_ARCH_AVX2
 // #define SKC_RASTERIZE_SIMD_USES_SMEM

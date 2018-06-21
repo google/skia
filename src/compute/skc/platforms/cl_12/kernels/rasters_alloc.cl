@@ -15,7 +15,7 @@
 #include "atomic_cl.h"
 #include "block_pool_cl.h"
 #include "raster_builder_cl_12.h"
-#include "device_cl_12.h"
+#include "kernel_cl_12.h"
 
 //
 // There is a fixed-size meta table per raster cohort that we use to

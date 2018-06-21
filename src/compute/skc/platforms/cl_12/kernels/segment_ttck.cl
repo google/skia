@@ -14,7 +14,7 @@
 
 #include "tile.h"
 #include "atomic_cl.h"
-#include "device_cl_12.h"
+#include "kernel_cl_12.h"
 
 //
 //
