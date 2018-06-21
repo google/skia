@@ -14,7 +14,7 @@
 #include "block.h"
 #include "styling_types.h"
 #include "atomic_cl.h"
-#include "device_cl_12.h"
+#include "kernel_cl_12.h"
 
 //
 //

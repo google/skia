@@ -38,9 +38,9 @@
 //
 
 #if defined(_MSC_VER)
-    #define ALLOCA(n)  _alloca(n)
+#define ALLOCA(n)  _alloca(n)
 #else
-    #define ALLOCA(n) alloca(n)
+#define ALLOCA(n) alloca(n)
 #endif
 //
 //

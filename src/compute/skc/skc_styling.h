@@ -80,6 +80,13 @@ typedef enum skc_styling_gradient_type_e {
 } skc_styling_gradient_type_e;
 
 //
+// FIXME -- bury all of this once we stabilize styling
+//
+
+#define SKC_STYLING_CMDS(...) _countof(__VA_ARGS__),__VA_ARGS__
+#define SKC_GROUP_IDS(...)    _countof(__VA_ARGS__),__VA_ARGS__
+
+//
 //
 //
 
