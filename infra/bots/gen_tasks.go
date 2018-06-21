@@ -629,8 +629,10 @@ func relpath(f string) string {
 
 // bundleRecipes generates the task to bundle and isolate the recipes.
 func bundleRecipes(b *specs.TasksCfgBuilder) string {
+	pkgs := append([]*specs.CipdPackage{}, CIPD_PKGS_GIT...)
+	pkgs = append(pkgs, CIPD_PKGS_PYTHON...)
 	b.MustAddTask(BUNDLE_RECIPES_NAME, &specs.TaskSpec{
-		CipdPackages: CIPD_PKGS_GIT,
+		CipdPackages: pkgs,
 		Command: []string{
 			"/bin/bash", "skia/infra/bots/bundle_recipes.sh", specs.PLACEHOLDER_ISOLATED_OUTDIR,
 		},
