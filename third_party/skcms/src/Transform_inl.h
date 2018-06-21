@@ -576,6 +576,28 @@ static void NS(exec_ops)(const Op* ops, const void** args,
         switch (profile_next_op(*ops++)) {
             case Op_noop: break;
 
+            case Op_load_a8:{
+                U8 alpha;
+                small_memcpy(&alpha, src + i, N);
+                a = F_from_U8(alpha);
+            } break;
+
+            case Op_load_g8:{
+                U8 gray;
+                small_memcpy(&gray, src + i, N);
+                r = g = b = F_from_U8(gray);
+            } break;
+
+            case Op_load_4444:{
+                U16 abgr;
+                small_memcpy(&abgr, src + 2*i, 2*N);
+
+                r = CAST(F, (abgr >> 12) & 0xf) * (1/15.0f);
+                g = CAST(F, (abgr >>  8) & 0xf) * (1/15.0f);
+                b = CAST(F, (abgr >>  4) & 0xf) * (1/15.0f);
+                a = CAST(F, (abgr >>  0) & 0xf) * (1/15.0f);
+            } break;
+
             case Op_load_565:{
                 U16 rgb;
                 small_memcpy(&rgb, src + 2*i, 2*N);
@@ -878,6 +900,25 @@ static void NS(exec_ops)(const Op* ops, const void** args,
             } break;
 
     // Notice, from here on down the store_ ops all return, ending the loop.
+
+            case Op_store_a8: {
+                U8 alpha = CAST(U8, to_fixed(a * 255));
+                small_memcpy(dst + i, &alpha, N);
+            } return;
+
+            case Op_store_g8: {
+                // g should be holding luminance (Y) (r,g,b ~~~> X,Y,Z)
+                U8 gray = CAST(U8, to_fixed(g * 255));
+                small_memcpy(dst + i, &gray, N);
+            } return;
+
+            case Op_store_4444: {
+                U16 abgr = CAST(U16, to_fixed(r * 15) << 12)
+                         | CAST(U16, to_fixed(g * 15) <<  8)
+                         | CAST(U16, to_fixed(b * 15) <<  4)
+                         | CAST(U16, to_fixed(a * 15) <<  0);
+                small_memcpy(dst + 2*i, &abgr, 2*N);
+            } return;
 
             case Op_store_565: {
                 U16 rgb = CAST(U16, to_fixed(r * 31) <<  0 )
