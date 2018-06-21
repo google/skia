@@ -157,6 +157,8 @@ static void run_ddl_benchmark(const sk_gpu_test::FenceSync* fenceSync,
 
     tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
 
+    SkTaskGroup::Enabler enabled(FLAGS_ddlNumAdditionalThreads);
+
     clock::time_point startStopTime = clock::now();
 
     ddl_sample(context, &tiles, nullptr, nullptr, &startStopTime);
@@ -333,7 +335,6 @@ int main(int argc, char** argv) {
     }
 
     SkGraphics::Init();
-    SkTaskGroup::Enabler enabled(FLAGS_ddlNumAdditionalThreads);
 
     sk_sp<SkPicture> skp;
     SkString skpname;
