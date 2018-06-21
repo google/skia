@@ -23,6 +23,7 @@ deps = {
   "third_party/externals/libwebp"         : "https://chromium.googlesource.com/webm/libwebp.git@v0.6.1",
   "third_party/externals/lua"             : "https://skia.googlesource.com/external/github.com/lua/lua.git@v5-3-4",
   "third_party/externals/microhttpd"      : "https://android.googlesource.com/platform/external/libmicrohttpd@748945ec6f1c67b7efc934ab0808e1d32f2fb98d",
+  "third_party/externals/opencl-headers"  : "https://github.com/KhronosGroup/OpenCL-Headers@de26592167b9fdea503885e40e8755393c56523d",
   "third_party/externals/opengl-registry" : "https://skia.googlesource.com/external/github.com/KhronosGroup/OpenGL-Registry@14b80ebeab022b2c78f84a573f01028c96075553",
   "third_party/externals/piex"            : "https://android.googlesource.com/platform/external/piex.git@bb217acdca1cc0c16b704669dd6f91a1b509c406",
   "third_party/externals/sdl"             : "https://skia.googlesource.com/third_party/sdl@5d7cfcca344034aff9327f77fc181ae3754e7a90",
