@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "11873204_fa6de9e0",
+        "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-06-21T17:11:26Z",
+      "side": 1,
+      "message": "I will try to use one thread. If this becomes a singleton, it will be more convenient to move the code in the singleton SkottieRunner (which owns the one GL thread).\nSystrace revealed that GL thread is loaded back-to-back and draws into the TextureView buffer with more than 60fps. I will try to use Choreographer to sync to the display refresh rate.",
+      "parentUuid": "a29e26a2_30c08c19",
+      "revId": "090e6c7cedd85dfb892daa13eca394bdbf9af82e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8b2594cf_6879ff3d",
         "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/SkottieView.java",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "bb39d3d1_cbffbc0f",
+        "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-06-21T17:11:26Z",
+      "side": 1,
+      "message": "We have one EGLSurface per running animation. Once the animation starts, it stays in the  \"while (mIsRunning)\" block below, which is reusing EGLSurface between frames.",
+      "parentUuid": "8b2594cf_6879ff3d",
+      "revId": "090e6c7cedd85dfb892daa13eca394bdbf9af82e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "726e446e_6931114f",
         "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/SkottieView.java",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2018-06-14T16:08:23Z",
       "side": 1,
       "message": "Can we show that this will work if this is a singleton?  It would be ideal if there was only one additional thread that all animations used.  That way we don\u0027t have a bunch of GrContexts each with a single surface, but rather one GrContext with a bunch of surfaces.",
+      "revId": "090e6c7cedd85dfb892daa13eca394bdbf9af82e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82cc6d90_565f46b6",
+        "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-06-21T17:11:26Z",
+      "side": 1,
+      "message": "It will be nice to avoid starting a thread per animation - I will try to implement it.\nEven now there is only one shared GrContext for all animations, because the context is owned by SkottieRunner (which is a singleton). The GL thread is one and owned by SkottieRunner: SkottieRunner.mGLThreadLooper.",
+      "parentUuid": "726e446e_6931114f",
       "revId": "090e6c7cedd85dfb892daa13eca394bdbf9af82e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
