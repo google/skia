@@ -10,6 +10,7 @@
 //
 //
 
+#include <inttypes.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
@@ -22,6 +23,14 @@
 #include "networks.h"
 #include "macros.h"
 #include "util.h"
+
+
+#ifndef min
+    #define min(x,y) ((x)<(y) ? (x) : (y))
+#endif
+#ifndef max
+    #define max(x,y) ((x)>(y) ? (x) : (y))
+#endif
 
 //
 //
@@ -47,81 +56,77 @@ hsg_op_type_string[] =
 //
 //
 
-#define EXIT()                            (struct hsg_op){ HSG_OP_TYPE_EXIT                                     }
+#define EXIT()                            (struct hsg_op){HSG_OP_TYPE_EXIT,                  {{0,0,0}}}
+#define END()                             (struct hsg_op){HSG_OP_TYPE_END,                   {{0,0,0}}}
+#define BEGIN()                           (struct hsg_op){HSG_OP_TYPE_BEGIN,                 {{0,0,0}}}
+#define STORE_SLAB_EARLY_EXIT()           (struct hsg_op){HSG_OP_TYPE_STORE_SLAB_EARLY_EXIT, {{0,0,0}}}
+#define FILE_HEADER()                     (struct hsg_op){HSG_OP_TYPE_FILE_HEADER,           {{0,0,0}}}
+#define FILE_FOOTER()                     (struct hsg_op){HSG_OP_TYPE_FILE_FOOTER,           {{0,0,0}}}
 
-#define END()                             (struct hsg_op){ HSG_OP_TYPE_END                                      }
-#define BEGIN()                           (struct hsg_op){ HSG_OP_TYPE_BEGIN                                    }
-#define ELSE()                            (struct hsg_op){ HSG_OP_TYPE_ELSE                                     }
+#define TRANSPOSE_KERNEL_PROTO()          (struct hsg_op){HSG_OP_TYPE_TRANSPOSE_KERNEL_PROTO,    {{0,0,0}}}
+#define TRANSPOSE_KERNEL_PREAMBLE()       (struct hsg_op){HSG_OP_TYPE_TRANSPOSE_KERNEL_PREAMBLE, {{0,0,0}}}
+#define TRANSPOSE_KERNEL_BODY()           (struct hsg_op){HSG_OP_TYPE_TRANSPOSE_KERNEL_BODY,     {{0,0,0}}}
 
-#define STORE_SLAB_EARLY_EXIT()           (struct hsg_op){ HSG_OP_TYPE_STORE_SLAB_EARLY_EXIT                    }
+#define BS_KERNEL_PROTO(i)                (struct hsg_op){HSG_OP_TYPE_BS_KERNEL_PROTO,    {{i,0,0}}}
+#define BS_KERNEL_PREAMBLE(i)             (struct hsg_op){HSG_OP_TYPE_BS_KERNEL_PREAMBLE, {{i,0,0}}}
 
-#define FILE_HEADER()                     (struct hsg_op){ HSG_OP_TYPE_FILE_HEADER                              }
-#define FILE_FOOTER()                     (struct hsg_op){ HSG_OP_TYPE_FILE_FOOTER                              }
+#define BC_KERNEL_PROTO(i)                (struct hsg_op){HSG_OP_TYPE_BC_KERNEL_PROTO,    {{i,0,0}}}
+#define BC_KERNEL_PREAMBLE(i)             (struct hsg_op){HSG_OP_TYPE_BC_KERNEL_PREAMBLE, {{i,0,0}}}
 
-#define TRANSPOSE_KERNEL_PROTO()          (struct hsg_op){ HSG_OP_TYPE_TRANSPOSE_KERNEL_PROTO                   }
-#define TRANSPOSE_KERNEL_PREAMBLE()       (struct hsg_op){ HSG_OP_TYPE_TRANSPOSE_KERNEL_PREAMBLE                }
-#define TRANSPOSE_KERNEL_BODY()           (struct hsg_op){ HSG_OP_TYPE_TRANSPOSE_KERNEL_BODY                    }
+#define FM_KERNEL_PROTO(l,s)              (struct hsg_op){HSG_OP_TYPE_FM_KERNEL_PROTO,    {{l,s,0}}}
+#define FM_KERNEL_PREAMBLE(w,s)           (struct hsg_op){HSG_OP_TYPE_FM_KERNEL_PREAMBLE, {{w,s,0}}}
 
-#define BS_KERNEL_PROTO(i)                (struct hsg_op){ HSG_OP_TYPE_BS_KERNEL_PROTO,             { i       } }
-#define BS_KERNEL_PREAMBLE(i)             (struct hsg_op){ HSG_OP_TYPE_BS_KERNEL_PREAMBLE,          { i       } }
+#define HM_KERNEL_PROTO(d,w)              (struct hsg_op){HSG_OP_TYPE_HM_KERNEL_PROTO,    {{d,w,0}}}
+#define HM_KERNEL_PREAMBLE(w,s)           (struct hsg_op){HSG_OP_TYPE_HM_KERNEL_PREAMBLE, {{w,s,0}}}
 
-#define BC_KERNEL_PROTO(i)                (struct hsg_op){ HSG_OP_TYPE_BC_KERNEL_PROTO,             { i       } }
-#define BC_KERNEL_PREAMBLE(i)             (struct hsg_op){ HSG_OP_TYPE_BC_KERNEL_PREAMBLE,          { i       } }
+#define BX_REG_GLOBAL_LOAD(n,v)           (struct hsg_op){HSG_OP_TYPE_BX_REG_GLOBAL_LOAD,  {{n,v,0}}}
+#define BX_REG_GLOBAL_STORE(n)            (struct hsg_op){HSG_OP_TYPE_BX_REG_GLOBAL_STORE, {{n,0,0}}}
 
-#define FM_KERNEL_PROTO(l,s)              (struct hsg_op){ HSG_OP_TYPE_FM_KERNEL_PROTO,             { l, s    } }
-#define FM_KERNEL_PREAMBLE(w,s)           (struct hsg_op){ HSG_OP_TYPE_FM_KERNEL_PREAMBLE,          { w, s    } }
+#define FM_REG_GLOBAL_LOAD_LEFT(n,i)      (struct hsg_op){HSG_OP_TYPE_FM_REG_GLOBAL_LOAD_LEFT,   {{n,i,0}}}
+#define FM_REG_GLOBAL_STORE_LEFT(n,i)     (struct hsg_op){HSG_OP_TYPE_FM_REG_GLOBAL_STORE_LEFT,  {{n,i,0}}}
+#define FM_REG_GLOBAL_LOAD_RIGHT(n,i)     (struct hsg_op){HSG_OP_TYPE_FM_REG_GLOBAL_LOAD_RIGHT,  {{n,i,0}}}
+#define FM_REG_GLOBAL_STORE_RIGHT(n,i)    (struct hsg_op){HSG_OP_TYPE_FM_REG_GLOBAL_STORE_RIGHT, {{n,i,0}}}
 
-#define HM_KERNEL_PROTO(d,w)              (struct hsg_op){ HSG_OP_TYPE_HM_KERNEL_PROTO,             { d, w    } }
-#define HM_KERNEL_PREAMBLE(w,s)           (struct hsg_op){ HSG_OP_TYPE_HM_KERNEL_PREAMBLE,          { w, s    } }
+#define HM_REG_GLOBAL_LOAD(n,i)           (struct hsg_op){HSG_OP_TYPE_HM_REG_GLOBAL_LOAD,  {{n,i,0}}}
+#define HM_REG_GLOBAL_STORE(n,i)          (struct hsg_op){HSG_OP_TYPE_HM_REG_GLOBAL_STORE, {{n,i,0}}}
 
-#define BX_REG_GLOBAL_LOAD(n,v)           (struct hsg_op){ HSG_OP_TYPE_BX_REG_GLOBAL_LOAD,          { n, v    } }
-#define BX_REG_GLOBAL_STORE(n)            (struct hsg_op){ HSG_OP_TYPE_BX_REG_GLOBAL_STORE,         { n       } }
+#define WARP_FLIP(f)                      (struct hsg_op){HSG_OP_TYPE_WARP_FLIP, {{f,0,0}}}
+#define WARP_HALF(h)                      (struct hsg_op){HSG_OP_TYPE_WARP_HALF, {{h,0,0}}}
 
-#define FM_REG_GLOBAL_LOAD_LEFT(n,i)      (struct hsg_op){ HSG_OP_TYPE_FM_REG_GLOBAL_LOAD_LEFT,     { n, i    } }
-#define FM_REG_GLOBAL_STORE_LEFT(n,i)     (struct hsg_op){ HSG_OP_TYPE_FM_REG_GLOBAL_STORE_LEFT,    { n, i    } }
-#define FM_REG_GLOBAL_LOAD_RIGHT(n,i)     (struct hsg_op){ HSG_OP_TYPE_FM_REG_GLOBAL_LOAD_RIGHT,    { n, i    } }
-#define FM_REG_GLOBAL_STORE_RIGHT(n,i)    (struct hsg_op){ HSG_OP_TYPE_FM_REG_GLOBAL_STORE_RIGHT,   { n, i    } }
+#define CMP_FLIP(a,b,c)                   (struct hsg_op){HSG_OP_TYPE_CMP_FLIP, {{a,b,c}}}
+#define CMP_HALF(a,b)                     (struct hsg_op){HSG_OP_TYPE_CMP_HALF, {{a,b,0}}}
 
-#define HM_REG_GLOBAL_LOAD(n,i)           (struct hsg_op){ HSG_OP_TYPE_HM_REG_GLOBAL_LOAD,          { n, i    } }
-#define HM_REG_GLOBAL_STORE(n,i)          (struct hsg_op){ HSG_OP_TYPE_HM_REG_GLOBAL_STORE,         { n, i    } }
+#define CMP_XCHG(a,b,p)                   (struct hsg_op){HSG_OP_TYPE_CMP_XCHG, {{a,b,p}}}
 
-#define WARP_FLIP(f)                      (struct hsg_op){ HSG_OP_TYPE_WARP_FLIP,                   { f       } }
-#define WARP_HALF(h)                      (struct hsg_op){ HSG_OP_TYPE_WARP_HALF,                   { h       } }
+#define BS_REG_SHARED_STORE_V(m,i,r)      (struct hsg_op){HSG_OP_TYPE_BS_REG_SHARED_STORE_V, {{m,i,r}}}
+#define BS_REG_SHARED_LOAD_V(m,i,r)       (struct hsg_op){HSG_OP_TYPE_BS_REG_SHARED_LOAD_V,  {{m,i,r}}}
+#define BC_REG_SHARED_LOAD_V(m,i,r)       (struct hsg_op){HSG_OP_TYPE_BC_REG_SHARED_LOAD_V,  {{m,i,r}}}
 
-#define CMP_FLIP(a,b,c)                   (struct hsg_op){ HSG_OP_TYPE_CMP_FLIP,                    { a, b, c } }
-#define CMP_HALF(a,b)                     (struct hsg_op){ HSG_OP_TYPE_CMP_HALF,                    { a, b    } }
+#define BX_REG_SHARED_STORE_LEFT(r,i,p)   (struct hsg_op){HSG_OP_TYPE_BX_REG_SHARED_STORE_LEFT,  {{r,i,p}}}
+#define BS_REG_SHARED_STORE_RIGHT(r,i,p)  (struct hsg_op){HSG_OP_TYPE_BS_REG_SHARED_STORE_RIGHT, {{r,i,p}}}
 
-#define CMP_XCHG(a,b,p)                   (struct hsg_op){ HSG_OP_TYPE_CMP_XCHG,                    { a, b, p } }
+#define BS_REG_SHARED_LOAD_LEFT(r,i,p)    (struct hsg_op){HSG_OP_TYPE_BS_REG_SHARED_LOAD_LEFT,  {{r,i,p}}}
+#define BS_REG_SHARED_LOAD_RIGHT(r,i,p)   (struct hsg_op){HSG_OP_TYPE_BS_REG_SHARED_LOAD_RIGHT, {{r,i,p}}}
 
-#define BS_REG_SHARED_STORE_V(m,i,r)      (struct hsg_op){ HSG_OP_TYPE_BS_REG_SHARED_STORE_V,       { m, i, r } }
-#define BS_REG_SHARED_LOAD_V(m,i,r)       (struct hsg_op){ HSG_OP_TYPE_BS_REG_SHARED_LOAD_V,        { m, i, r } }
-#define BC_REG_SHARED_LOAD_V(m,i,r)       (struct hsg_op){ HSG_OP_TYPE_BC_REG_SHARED_LOAD_V,        { m, i, r } }
+#define BC_REG_GLOBAL_LOAD_LEFT(r,i,p)    (struct hsg_op){HSG_OP_TYPE_BC_REG_GLOBAL_LOAD_LEFT, {{r,i,p}}}
 
-#define BX_REG_SHARED_STORE_LEFT(r,i,p)   (struct hsg_op){ HSG_OP_TYPE_BX_REG_SHARED_STORE_LEFT,    { r, i, p } }
-#define BS_REG_SHARED_STORE_RIGHT(r,i,p)  (struct hsg_op){ HSG_OP_TYPE_BS_REG_SHARED_STORE_RIGHT,   { r, i, p } }
+#define REG_F_PREAMBLE(s)                 (struct hsg_op){HSG_OP_TYPE_REG_F_PREAMBLE,     {{s,0,0}}}
+#define REG_SHARED_STORE_F(r,i,s)         (struct hsg_op){HSG_OP_TYPE_REG_SHARED_STORE_F, {{r,i,s}}}
+#define REG_SHARED_LOAD_F(r,i,s)          (struct hsg_op){HSG_OP_TYPE_REG_SHARED_LOAD_F,  {{r,i,s}}}
+#define REG_GLOBAL_STORE_F(r,i,s)         (struct hsg_op){HSG_OP_TYPE_REG_GLOBAL_STORE_F, {{r,i,s}}}
 
-#define BS_REG_SHARED_LOAD_LEFT(r,i,p)    (struct hsg_op){ HSG_OP_TYPE_BS_REG_SHARED_LOAD_LEFT,     { r, i, p } }
-#define BS_REG_SHARED_LOAD_RIGHT(r,i,p)   (struct hsg_op){ HSG_OP_TYPE_BS_REG_SHARED_LOAD_RIGHT,    { r, i, p } }
+#define BLOCK_SYNC()                      (struct hsg_op){HSG_OP_TYPE_BLOCK_SYNC, {{0,0,0}}}
 
-#define BC_REG_GLOBAL_LOAD_LEFT(r,i,p)    (struct hsg_op){ HSG_OP_TYPE_BC_REG_GLOBAL_LOAD_LEFT,     { r, i, p } }
+#define BS_FRAC_PRED(m,w)                 (struct hsg_op){HSG_OP_TYPE_BS_FRAC_PRED, {{m,w,0}}}
 
-#define REG_F_PREAMBLE(s)                 (struct hsg_op){ HSG_OP_TYPE_REG_F_PREAMBLE,              { s       } }
-#define REG_SHARED_STORE_F(r,i,s)         (struct hsg_op){ HSG_OP_TYPE_REG_SHARED_STORE_F,          { r, i, s } }
-#define REG_SHARED_LOAD_F(r,i,s)          (struct hsg_op){ HSG_OP_TYPE_REG_SHARED_LOAD_F,           { r, i, s } }
-#define REG_GLOBAL_STORE_F(r,i,s)         (struct hsg_op){ HSG_OP_TYPE_REG_GLOBAL_STORE_F,          { r, i, s } }
+#define BS_MERGE_H_PREAMBLE(i)            (struct hsg_op){HSG_OP_TYPE_BS_MERGE_H_PREAMBLE, {{i,0,0}}}
+#define BC_MERGE_H_PREAMBLE(i)            (struct hsg_op){HSG_OP_TYPE_BC_MERGE_H_PREAMBLE, {{i,0,0}}}
 
-#define BLOCK_SYNC()                      (struct hsg_op){ HSG_OP_TYPE_BLOCK_SYNC                               }
+#define BX_MERGE_H_PRED(p)                (struct hsg_op){HSG_OP_TYPE_BX_MERGE_H_PRED, {{p,0,0}}}
 
-#define BS_FRAC_PRED(m,w)                 (struct hsg_op){ HSG_OP_TYPE_BS_FRAC_PRED,                { m, w    } }
+#define BS_ACTIVE_PRED(m,l)               (struct hsg_op){HSG_OP_TYPE_BS_ACTIVE_PRED, {{m,l,0}}}
 
-#define BS_MERGE_H_PREAMBLE(i)            (struct hsg_op){ HSG_OP_TYPE_BS_MERGE_H_PREAMBLE,         { i       } }
-#define BC_MERGE_H_PREAMBLE(i)            (struct hsg_op){ HSG_OP_TYPE_BC_MERGE_H_PREAMBLE,         { i       } }
-
-#define BX_MERGE_H_PRED(p)                (struct hsg_op){ HSG_OP_TYPE_BX_MERGE_H_PRED,             { p       } }
-
-#define BS_ACTIVE_PRED(m,l)               (struct hsg_op){ HSG_OP_TYPE_BS_ACTIVE_PRED,              { m, l    } }
-
-#define FM_MERGE_RIGHT_PRED(n,s)          (struct hsg_op){ HSG_OP_TYPE_FM_MERGE_RIGHT_PRED,         { n, s    } }
+#define FM_MERGE_RIGHT_PRED(n,s)          (struct hsg_op){HSG_OP_TYPE_FM_MERGE_RIGHT_PRED, {{n,s,0}}}
 
 //
 // DEFAULTS
@@ -371,6 +376,14 @@ hsg_merge_levels_init_1(struct hsg_merge * const merge, uint32_t const warps, ui
   hsg_merge_levels_init_1(merge,r,level+1,offset+l);
 }
 
+static unsigned popcount(uint32_t v) {
+#if defined(_MSC_VER)
+    return __popcnt(v);
+#else
+    return __builtin_popcount(v);
+#endif
+}
+
 static
 void
 hsg_merge_levels_debug(struct hsg_merge * const merge)
@@ -383,7 +396,7 @@ hsg_merge_levels_debug(struct hsg_merge * const merge)
         break;
 
       fprintf(stderr,
-              "%-4u : %016llX \n",
+              "%-4u : %016" PRIu64 "X \n",
               count,
               merge->levels[level].active.b64);
 
@@ -392,18 +405,18 @@ hsg_merge_levels_debug(struct hsg_merge * const merge)
               "%-4u : %08X (%2u)\n",
               merge->levels[level].diffs[0],
               merge->levels[level].diff_masks[0],
-              __popcnt(merge->levels[level].diff_masks[0]),
+              popcount(merge->levels[level].diff_masks[0]),
               merge->levels[level].diffs[1],
               merge->levels[level].diff_masks[1],
-              __popcnt(merge->levels[level].diff_masks[1]));
+              popcount(merge->levels[level].diff_masks[1]));
 
       fprintf(stderr,
               "EVEN : %08X (%2u)\n"
               "ODD  : %08X (%2u)\n",
               merge->levels[level].evenodd_masks[0],
-              __popcnt(merge->levels[level].evenodd_masks[0]),
+              popcount(merge->levels[level].evenodd_masks[0]),
               merge->levels[level].evenodd_masks[1],
-              __popcnt(merge->levels[level].evenodd_masks[1]));
+              popcount(merge->levels[level].evenodd_masks[1]));
 
       for (uint32_t ii=0; ii<2; ii++)
         {
@@ -512,13 +525,6 @@ struct hsg_op *
 hsg_begin(struct hsg_op * ops)
 {
   return hsg_op(ops,BEGIN());
-}
-
-static
-struct hsg_op *
-hsg_else(struct hsg_op * ops)
-{
-  return hsg_op(ops,ELSE());
 }
 
 static
@@ -836,9 +842,6 @@ hsg_bc_half_merge(struct hsg_op * ops, struct hsg_merge const * const merge)
   //
   uint32_t const warps    = max(merge->warps,hsg_config.block.warps_min);
 
-  // guaranteed to be an even network
-  uint32_t const net_even = merge->levels[0].networks[0];
-
   // set up left SMEM pointer
   ops = hsg_op(ops,BC_MERGE_H_PREAMBLE(merge->index));
 
@@ -882,7 +885,7 @@ hsg_bs_flip_merge_level(struct hsg_op          *       ops,
                         uint32_t                 const level,
                         uint32_t                 const s_pairs)
 {
-  // 
+  //
   // Note there are a number of ways to flip merge these warps.  There
   // is a magic number in the merge structure that indicates which
   // warp to activate as well as what network size to invoke.
@@ -917,7 +920,7 @@ hsg_bs_flip_merge_level(struct hsg_op          *       ops,
 
   uint32_t       s_rows = s_pairs * 2;
   uint32_t       base   = 0;
-  
+
   while (s_rows > 0)
     {
       uint32_t active = merge->warps;
@@ -934,7 +937,7 @@ hsg_bs_flip_merge_level(struct hsg_op          *       ops,
       // how many equal number of rows to merge?
       uint32_t loops = s_rows / active;
 
-      // decrement 
+      // decrement
       s_rows -= loops * active;
 
       for (uint32_t ss=0; ss<loops; ss++)
@@ -998,7 +1001,7 @@ hsg_bs_flip_merge(struct hsg_op * ops, struct hsg_merge const * const merge)
     {
       uint32_t const count = merge->levels[level].count;
 
-      if (count == 0) 
+      if (count == 0)
         continue;
 
       uint32_t const r_mid       = hsg_config.thread.regs/2 + 1;
@@ -1728,7 +1731,8 @@ main(int argc, char * argv[])
   //
   // WHICH ARCH TARGET?
   //
-  hsg_target_pfn hsg_target_pfn = (arch < HSG_TARGET_PFN_COUNT) ? hsg_target_pfns[arch] : hsg_target_debug;
+  hsg_target_pfn hsg_target_pfn = ((unsigned)arch < HSG_TARGET_PFN_COUNT) ? hsg_target_pfns[arch] \
+                                                                          : hsg_target_debug;
 
   //
   // OPEN FILES

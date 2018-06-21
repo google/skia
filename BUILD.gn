@@ -2189,5 +2189,26 @@ if (skia_enable_tools) {
       include_dirs = [ "src/compute/common" ]
       libs = [ "OpenCL" ]
     }
+
+    test_app("hs_gen") {
+      sources = [
+        "src/compute/hs/gen/main.c",
+      ]
+      include_dirs = [ "src/compute/common" ]
+    }
+
+    test_app("hs_bench") {
+      sources = [
+        "src/compute/common/cl/assert_cl.c",
+        "src/compute/hs/cl/bench/main.c",
+        "src/compute/hs/cl/hs_cl_launcher.c",
+      ]
+      include_dirs = [
+        "src/compute/common",
+        "src/compute/common/cl",
+        "src/compute/hs/cl",
+      ]
+      libs = [ "OpenCL" ]
+    }
   }
 }
