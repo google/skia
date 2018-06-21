@@ -11,6 +11,9 @@
 
 #define FOREACH_Op(M) \
     M(noop)           \
+    M(load_a8)        \
+    M(load_g8)        \
+    M(load_4444)      \
     M(load_565)       \
     M(load_888)       \
     M(load_8888)      \
@@ -46,6 +49,9 @@
     M(clut_3D_16)     \
     M(clut_4D_8)      \
     M(clut_4D_16)     \
+    M(store_a8)       \
+    M(store_g8)       \
+    M(store_4444)     \
     M(store_565)      \
     M(store_888)      \
     M(store_8888)     \

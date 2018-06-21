@@ -166,8 +166,16 @@ enum {
 };
 
 typedef enum skcms_PixelFormat {
+    skcms_PixelFormat_A_8,
+    skcms_PixelFormat_A_8_,
+    skcms_PixelFormat_G_8,
+    skcms_PixelFormat_G_8_,
+
     skcms_PixelFormat_RGB_565,
     skcms_PixelFormat_BGR_565,
+
+    skcms_PixelFormat_ABGR_4444,
+    skcms_PixelFormat_ARGB_4444,
 
     skcms_PixelFormat_RGB_888,
     skcms_PixelFormat_BGR_888,
