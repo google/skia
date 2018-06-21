@@ -9,7 +9,7 @@
 #include "Nima.h"
 #include "SkAnimTimer.h"
 #include "SkView.h"
-#include <nima/Animation/ActorAnimation.hpp>
+#include <nima/Animation/ActorAnimationInstance.hpp>
 #include <cmath>
 
 using namespace nima;
@@ -17,7 +17,8 @@ using namespace nima;
 class NimaView : public SampleView {
 public:
     NimaView()
-        : fActor(nullptr) {
+        : fActor(nullptr)
+        , fAnimation(nullptr) {
     }
 
 protected:
@@ -35,7 +36,7 @@ protected:
         fActor = std::make_unique<SampleActor>("Robot");
 
         // Get the animation.
-        fAnimation = fActor->animation("jump");
+        fAnimation = fActor->animationInstance("attack");
     }
 
     void onDrawContent(SkCanvas* canvas) override {
@@ -53,15 +54,16 @@ protected:
     bool onAnimate(const SkAnimTimer& timer) override {
         // Apply the animation.
         if (fAnimation) {
-            float time = std::fmod(timer.secs(), fAnimation->duration());
-            fAnimation->apply(time, fActor.get(), 1.0f);
+            float time = std::fmod(timer.secs(), fAnimation->max());
+            fAnimation->time(time);
+            fAnimation->apply(1.0f);
         }
         return true;
     }
 
 private:
     std::unique_ptr<SampleActor> fActor;
-    ActorAnimation*              fAnimation = nullptr;
+    ActorAnimationInstance*      fAnimation;
 
     typedef SampleView INHERITED;
 };
