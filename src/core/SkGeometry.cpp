@@ -60,6 +60,15 @@ static int valid_unit_divide(SkScalar numer, SkScalar denom, SkScalar* ratio) {
     return 1;
 }
 
+// Just returns its argument, but makes it easy to set a break-point to know when
+// SkFindUnitQuadRoots is going to return 0 (an error).
+static int return_check_zero(int value) {
+    if (value == 0) {
+        return 0;
+    }
+    return value;
+}
+
 /** From Numerical Recipes in C.
 
     Q = -1/2 (B + sign(B) sqrt[B*B - 4*A*C])
@@ -70,22 +79,21 @@ int SkFindUnitQuadRoots(SkScalar A, SkScalar B, SkScalar C, SkScalar roots[2]) {
     SkASSERT(roots);
 
     if (A == 0) {
-        return valid_unit_divide(-C, B, roots);
+        return return_check_zero(valid_unit_divide(-C, B, roots));
     }
 
     SkScalar* r = roots;
 
-    SkScalar R = B*B - 4*A*C;
-    if (R < 0 || !SkScalarIsFinite(R)) {  // complex roots
-        // if R is infinite, it's possible that it may still produce
-        // useful results if the operation was repeated in doubles
-        // the flipside is determining if the more precise answer
-        // isn't useful because surrounding machinery (e.g., subtracting
-        // the axis offset from C) already discards the extra precision
-        // more investigation and unit tests required...
-        return 0;
+    // use doubles so we don't overflow temporarily trying to compute R
+    double dr = (double)B * B - 4 * (double)A * C;
+    if (dr < 0) {
+        return return_check_zero(0);
     }
-    R = SkScalarSqrt(R);
+    dr = sqrt(dr);
+    SkScalar R = SkDoubleToScalar(dr);
+    if (!SkScalarIsFinite(R)) {
+        return return_check_zero(0);
+    }
 
     SkScalar Q = (B < 0) ? -(B-R)/2 : -(B+R)/2;
     r += valid_unit_divide(Q, A, r);
@@ -98,7 +106,7 @@ int SkFindUnitQuadRoots(SkScalar A, SkScalar B, SkScalar C, SkScalar roots[2]) {
             r -= 1; // skip the double root
         }
     }
-    return (int)(r - roots);
+    return return_check_zero((int)(r - roots));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
