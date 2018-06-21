@@ -51,6 +51,9 @@ public:
     void drawTextBlob(GrContext*, GrTextUtils::Target*, const GrClip&, const SkPaint&,
                       const SkMatrix& viewMatrix, const SkSurfaceProps&, const SkTextBlob*,
                       SkScalar x, SkScalar y, SkDrawFilter*, const SkIRect& clipBounds);
+    void drawGlyphRunList(GrContext*, GrTextUtils::Target*, const GrClip&,
+                          const SkMatrix& viewMatrix, const SkSurfaceProps&, SkGlyphRunList*,
+                          SkScalar x, SkScalar y, SkDrawFilter*, const SkIRect& clipBounds);
 
     std::unique_ptr<GrDrawOp> createOp_TestingOnly(GrContext*,
                                                    GrTextContext*,
@@ -124,6 +127,17 @@ private:
                             const SkSurfaceProps&,
                             const SkTextBlob* blob, SkScalar x, SkScalar y,
                             SkDrawFilter* drawFilter) const;
+
+    void regenerateGlyphRunList(GrTextBlob* bmp,
+                            GrGlyphCache*,
+                            const GrShaderCaps&,
+                            const GrTextUtils::Paint&,
+                            SkScalerContextFlags scalerContextFlags,
+                            const SkMatrix& viewMatrix,
+                            const SkSurfaceProps&,
+                            SkGlyphRunList* glyphRunList, SkScalar x, SkScalar y,
+                            SkDrawFilter* drawFilter) const;
+
 
     static bool HasLCD(const SkTextBlob*);
 

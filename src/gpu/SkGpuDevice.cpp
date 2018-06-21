@@ -1634,6 +1634,15 @@ void SkGpuDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                        this->devClipBounds());
 }
 
+void SkGpuDevice::drawGlyphRunList(SkGlyphRunList* list) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawGlyphRunList", fContext.get());
+    SkDEBUGCODE(this->validate();)
+
+    fRenderTargetContext->drawGlyphRunList(
+            this->clip(), this->ctm(), list, 0, 0, nullptr, this->devClipBounds());
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkGpuDevice::flush() {
