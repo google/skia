@@ -16,6 +16,24 @@
       "revId": "fe9c724ee9e7306015f55ba9a0b782fb523cafcd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c02fe693_962ff510",
+        "filename": "tools/skpbench/skpbench.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-21T14:56:37Z",
+      "side": 1,
+      "message": "I had it that way initially but it wasn\u0027t adding the argument to the actual call when I did \"--gpuThreads 0\".",
+      "parentUuid": "40a8a6b4_e17e03ab",
+      "revId": "fe9c724ee9e7306015f55ba9a0b782fb523cafcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
