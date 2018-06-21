@@ -810,6 +810,9 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 	if strings.Contains(name, "MoltenVK") {
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("moltenvk"))
 	}
+	if strings.Contains(name, "OpenCL") {
+		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("opencl-headers"))
+	}
 
 	task.MaxAttempts = 1
 	if strings.Contains(name, "Win") {
