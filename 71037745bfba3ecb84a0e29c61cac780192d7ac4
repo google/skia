@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "027f764b_c05dbd1c",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-21T18:47:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "82dbbf98_88691e89",
+      "range": {
+        "startLine": 116,
+        "startChar": 53,
+        "endLine": 116,
+        "endChar": 67
+      },
+      "revId": "71037745bfba3ecb84a0e29c61cac780192d7ac4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6137e3da_1bad88ad",
         "filename": "src/core/SkGlyphRun.cpp",
         "patchSetId": 7
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "48f5e6e3_a739e36a",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-21T18:47:04Z",
+      "side": 1,
+      "message": "glyphIDs will always be set by the time SkASSERT(glyphIDs !\u003d nullptr) is reached below. But it should go away. GlyphIDs are not very useful for the actual drawing, and are only used to talk with the glyph cache to get info.",
+      "parentUuid": "6137e3da_1bad88ad",
+      "range": {
+        "startLine": 205,
+        "startChar": 4,
+        "endLine": 205,
+        "endChar": 34
+      },
+      "revId": "71037745bfba3ecb84a0e29c61cac780192d7ac4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0c024dc9_1464fb51",
         "filename": "src/core/SkGlyphRun.h",
         "patchSetId": 7
@@ -68,6 +116,30 @@
       "revId": "71037745bfba3ecb84a0e29c61cac780192d7ac4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f61a17b5_70b8f170",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-21T18:47:04Z",
+      "side": 1,
+      "message": "Mostly.",
+      "parentUuid": "0c024dc9_1464fb51",
+      "range": {
+        "startLine": 91,
+        "startChar": 15,
+        "endLine": 91,
+        "endChar": 17
+      },
+      "revId": "71037745bfba3ecb84a0e29c61cac780192d7ac4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
