@@ -12,7 +12,7 @@
 #include <tuple>
 
 #include "SkDevice.h"
-#include "SkDraw.h"
+#include "SkDrawFilter.h"
 #include "SkGlyphCache.h"
 #include "SkMSAN.h"
 #include "SkMakeUnique.h"
@@ -33,79 +33,40 @@ static SkTypeface::Encoding convert_encoding(SkPaint::TextEncoding encoding) {
         default: return SkTypeface::kUTF32_Encoding;
     }
 }
+
+template <typename T>
+static SkSpan<T> make_span(T* ptr, ptrdiff_t size) { return SkSpan<T>{ptr, size}; }
+
+template <typename T>
+static SkSpan<const T> make_const_span(T* ptr, ptrdiff_t size) {
+    return SkSpan<const T>{ptr, size};
+}
+
 }  // namespace
 
-// -- SkGlyphSet ----------------------------------------------------------------------------------
-uint32_t SkGlyphSet::uniqueSize() {
-    // The size is how big the vector is grown since being passed into reuse.
-    return fUniqueGlyphIDs->size() - fStartOfUniqueIDs;
-}
-
-uint16_t SkGlyphSet::add(SkGlyphID glyphID) {
-    static constexpr SkGlyphID  kUndefGlyph{0};
-
-    if (glyphID >= fUniverseSize) {
-        glyphID = kUndefGlyph;
-    }
-
-    if (glyphID >= fIndices.size()) {
-        fIndices.resize(glyphID + 1);
-    }
-
-    auto index = fIndices[glyphID];
-
-    // Remember we start at the end of what ever was passed in.
-    if (index < this->uniqueSize() && (*fUniqueGlyphIDs)[fStartOfUniqueIDs + index] == glyphID) {
-        return index;
-    }
-
-    uint16_t newIndex = SkTo<uint16_t>(this->uniqueSize());
-    fUniqueGlyphIDs->push_back(glyphID);
-    fIndices[glyphID] = newIndex;
-    return newIndex;
-}
-
-void SkGlyphSet::reuse(uint32_t glyphUniverseSize, std::vector<SkGlyphID>* uniqueGlyphIDs) {
-    SkASSERT(glyphUniverseSize <= (1 << 16));
-    fUniverseSize = glyphUniverseSize;
-    fUniqueGlyphIDs = uniqueGlyphIDs;
-
-    // Capture the vector end to act as the start of a new unique id vector.
-    fStartOfUniqueIDs = uniqueGlyphIDs->size();
-
-    // If we're hanging onto these arrays for a long time, we don't want their size to drift
-    // endlessly upwards. It's unusual to see a typeface with more than 4096 possible glyphs.
-    if (glyphUniverseSize < 4096 && fIndices.size() > 4096) {
-        fIndices.resize(4096);
-        fIndices.shrink_to_fit();
-    }
-
-    // No need to clear fIndices here... SkGlyphSet's set insertion algorithm is designed to work
-    // correctly even when the fIndexes buffer is uninitialized!
-}
-
 // -- SkGlyphRun -----------------------------------------------------------------------------------
-SkGlyphRun::SkGlyphRun(const SkIndexedRunInfo& runInfo,
-                       size_t denseOffset, size_t denseSize,
-                       size_t uniqueOffset, uint16_t uniqueSize,
-                       SkSpan<SkGlyphID>  scratchGlyphs,
+SkGlyphRun::SkGlyphRun(SkPaint&& runPaint,
+                       SkSpan<const uint16_t> denseIndices,
+                       SkSpan<const SkPoint> positions,
+                       SkSpan<const SkGlyphID> glyphIDs,
+                       SkSpan<const SkGlyphID> uniqueGlyphIDs,
                        SkSpan<const char> text,
-                       SkSpan<uint32_t>   clusters)
-        : fRunInfo{runInfo}
-        , fDenseOffset{denseOffset}, fDenseSize{denseSize}
-        , fUniqueOffset{uniqueOffset}, fUniqueSize{uniqueSize}
-        , fTemporaryShuntGlyphIDs{scratchGlyphs}
+                       SkSpan<const uint32_t> clusters)
+        : fUniqueGlyphIDIndices{denseIndices}
+        , fPositions{positions}
+        , fTemporaryShuntGlyphIDs{glyphIDs}
+        , fUniqueGlyphIDs{uniqueGlyphIDs}
         , fText{text}
-        , fClusters{clusters} { }
+        , fClusters{clusters}
+        , fRunPaint{std::move(runPaint)} {}
 
-
-void SkGlyphRun::temporaryShuntToDrawPosText(const SkPaint& paint, SkBaseDevice* device) {
+void SkGlyphRun::temporaryShuntToDrawPosText(SkBaseDevice* device, SkPoint origin) {
 
     auto pos = (const SkScalar*) this->positions().data();
 
     device->drawPosText(
-            fTemporaryShuntGlyphIDs.data(), fDenseSize * sizeof(SkGlyphID),
-            pos, 2, SkPoint::Make(0, 0), paint);
+            fTemporaryShuntGlyphIDs.data(), fTemporaryShuntGlyphIDs.size() * sizeof(SkGlyphID),
+            pos, 2, origin, fRunPaint);
 }
 
 void SkGlyphRun::temporaryShuntToCallback(TemporaryShuntCallback callback) {
@@ -115,74 +76,207 @@ void SkGlyphRun::temporaryShuntToCallback(TemporaryShuntCallback callback) {
 }
 
 // -- SkGlyphRunList -------------------------------------------------------------------------------
-SkGlyphRunList::SkGlyphRunList(SkSpan<SkGlyphRun> glyphRuns, uint64_t uniqueID)
-        : fUniqueID{uniqueID}
-        , fGlyphRuns{glyphRuns} { }
+SkGlyphRunList::SkGlyphRunList(
+        SkSpan<SkGlyphRun> glyphRuns, SkPoint origin, const SkTextBlob* textBlob)
+        : fGlyphRuns{glyphRuns}
+        , fOrigin{origin}
+        , fTemporaryTextBlobShunt{textBlob} { }
+
+uint64_t SkGlyphRunList::uniqueID() const {
+    return fTemporaryTextBlobShunt != nullptr ? fTemporaryTextBlobShunt->uniqueID()
+                                              : SK_InvalidUniqueID;
+}
+
+bool SkGlyphRunList::anyRunsLCD() const {
+    for (const auto& r : fGlyphRuns) {
+        if (r.paint().isLCDRenderText()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void SkGlyphRunList::temporaryShuntBlobnotifyAddedToCache(uint32_t cacheID) const {
+    SkASSERT(fTemporaryTextBlobShunt != nullptr);
+    fTemporaryTextBlobShunt->notifyAddedToCache(cacheID);
+}
+
+// -- SkGlyphRunListIterator -----------------------------------------------------------------------
+constexpr SkPoint SkGlyphRunListIterator::fZero;
+
+// -- SkGlyphIDSet ---------------------------------------------------------------------------------
+// A faster set implementation that does not need any initialization, and reading the set items
+// is order the number of items, and not the size of the universe.
+// This implementation is based on the paper by Briggs and Torczon, "An Efficient Representation
+// for Sparse Sets"
+//
+// This implementation assumes that the unique glyphs added are appended to a vector that may
+// already have unique glyph from a previous computation. This allows the packing of multiple
+// UniqueID sequences in a single vector.
+SkSpan<const SkGlyphID> SkGlyphIDSet::uniquifyGlyphIDs(
+        uint32_t universeSize,
+        SkSpan<const SkGlyphID> glyphIDs,
+        SkGlyphID* uniqueGlyphIDs,
+        uint16_t* denseIndices) {
+    static constexpr SkGlyphID  kUndefGlyph{0};
+
+    if (universeSize > fUniverseToUniqueSize) {
+        fUniverseToUnique.reset(universeSize);
+        fUniverseToUniqueSize = universeSize;
+    }
+
+    // No need to clear fIndices here... the set insertion algorithm is designed to work
+    // correctly even when the fUniverseToUnique buffer is uninitialized!
+
+    size_t uniqueSize = 0;
+    size_t denseIndicesCursor = 0;
+    for (auto glyphID : glyphIDs) {
+
+        // If the glyphID is not in range then it is the undefined glyph.
+        if (glyphID >= universeSize) {
+            glyphID = kUndefGlyph;
+        }
+
+        // The index into the unique ID vector.
+        auto uniqueIndex = fUniverseToUnique[glyphID];
+
+        if (uniqueIndex >= uniqueSize || uniqueGlyphIDs[uniqueIndex] != glyphID) {
+            uniqueIndex = SkTo<uint16_t>(uniqueSize);
+            uniqueGlyphIDs[uniqueSize] = glyphID;
+            fUniverseToUnique[glyphID] = uniqueIndex;
+            uniqueSize += 1;
+        }
+
+        denseIndices[denseIndicesCursor++] = uniqueIndex;
+    }
+
+    // If we're hanging onto these arrays for a long time, we don't want their size to drift
+    // endlessly upwards. It's unusual to see a typeface with more than 4096 possible glyphs.
+    if (fUniverseToUniqueSize > 4096) {
+        fUniverseToUnique.reset(4096);
+        fUniverseToUniqueSize = 4096;
+   }
+
+    return make_const_span(uniqueGlyphIDs, uniqueSize);
+}
 
 // -- SkGlyphRunBuilder ----------------------------------------------------------------------------
 void SkGlyphRunBuilder::prepareDrawText(
         const SkPaint& paint, const void* bytes, size_t byteLength, SkPoint origin) {
-    this->initialize();
-    SkSpan<const char> originalText((const char*)bytes, byteLength);
-    if (paint.getTextEncoding() != SkPaint::kUTF8_TextEncoding) {
-        originalText = SkSpan<const char>();
-    }
-    this->drawText(paint, bytes, byteLength, origin, originalText, SkSpan<uint32_t>());
+
+    auto glyphIDs = textToGlyphIDs(paint, bytes, byteLength);
+
+    this->initialize(1, glyphIDs.size());
+
+    this->drawText(
+            paint, glyphIDs, origin,
+            fUniqueGlyphIDIndices.get(), fUniqueGlyphIDs.get(), fPositions.get(),
+            SkSpan<const char>(), SkSpan<const uint32_t>());
 }
 
 void SkGlyphRunBuilder::prepareDrawPosTextH(const SkPaint& paint, const void* bytes,
                                             size_t byteLength, const SkScalar* xpos,
                                             SkScalar constY) {
-    this->initialize();
+
+    auto glyphIDs = textToGlyphIDs(paint, bytes, byteLength);
+
+    this->initialize(1, glyphIDs.size());
+
     this->drawPosTextH(
-            paint, bytes, byteLength, xpos, constY, SkSpan<const char>(), SkSpan<uint32_t>());
+            paint, glyphIDs, xpos, constY,
+            fUniqueGlyphIDIndices.get(), fUniqueGlyphIDs.get(), fPositions.get(),
+            SkSpan<const char>(), SkSpan<const uint32_t>());
 }
 
 void SkGlyphRunBuilder::prepareDrawPosText(const SkPaint& paint, const void* bytes,
                                            size_t byteLength, const SkPoint* pos) {
-    this->initialize();
-    this->drawPosText(paint, bytes, byteLength, pos, SkSpan<const char>(), SkSpan<uint32_t>());
+    auto glyphIDs = textToGlyphIDs(paint, bytes, byteLength);
+
+    this->initialize(1, glyphIDs.size());
+
+    this->drawPosText(
+            std::move(paint), glyphIDs, pos,
+            fUniqueGlyphIDIndices, fUniqueGlyphIDs,
+            SkSpan<const char>(), SkSpan<const uint32_t>());
 }
 
 void SkGlyphRunBuilder::prepareTextBlob(
-        const SkPaint& paint, const SkTextBlob& blob, SkPoint origin) {
-    this->initialize();
-    fUniqueID = blob.uniqueID();
-
+        const SkPaint& paint, const SkTextBlob& blob, SkPoint origin, SkDrawFilter* drawFilter) {
     SkPaint runPaint = paint;
+
+    // Figure out all the storage needed to pre-size everything below. The sizing code assumes
+    // that the drawFilter does not change the typeface on the paint.
+    size_t runListSize = 0;
+    size_t totalGlyphs = 0;
+    for (SkTextBlobRunIterator it(&blob); !it.done(); it.next()) {
+        totalGlyphs += it.glyphCount();
+
+        runListSize += 1;
+    }
+
+    // Pre-size all the buffers so they don't move during processing.
+    this->initialize(runListSize, totalGlyphs);
+
+    fTemporaryTextBlobShunt = &blob;
+    fOrigin = origin;
+
+    uint16_t* currentDenseIndices = fUniqueGlyphIDIndices;
+    SkPoint* currentPositions = fPositions;
+    SkGlyphID* currentUniqueGlyphIDs = fUniqueGlyphIDs;
 
     for (SkTextBlobRunIterator it(&blob); !it.done(); it.next()) {
         // applyFontToPaint() always overwrites the exact same attributes,
         // so it is safe to not re-seed the paint for this reason.
         it.applyFontToPaint(&runPaint);
 
+        if (drawFilter != nullptr && !drawFilter->filter(&runPaint, SkDrawFilter::kText_Type)) {
+            // A false return from filter() means we should abort the current draw.
+            runPaint = paint;
+            continue;
+        }
+
         // These better be glyphs
         SkASSERT(runPaint.getTextEncoding() == SkPaint::kGlyphID_TextEncoding);
 
         auto text = SkSpan<const char>(it.text(), it.textSize());
-        auto clusters = SkSpan<uint32_t>(it.clusters(), it.glyphCount());
-        size_t glyphLen = it.glyphCount() * sizeof(SkGlyphID);
+        auto clusters = SkSpan<const uint32_t>(it.clusters(), SkTo<ptrdiff_t>(it.glyphCount()));
         const SkPoint& offset = it.offset();
+        auto glyphIDs = SkSpan<const SkGlyphID>{it.glyphs(), SkTo<ptrdiff_t>(it.glyphCount())};
 
+        ptrdiff_t uniqueGlyphIDsSize = 0;
         switch (it.positioning()) {
             case SkTextBlob::kDefault_Positioning: {
-                auto dtOrigin = origin + offset;
-                this->drawText(runPaint, it.glyphs(), glyphLen, dtOrigin, text, clusters);
+                uniqueGlyphIDsSize = this->drawText(
+                        runPaint, glyphIDs, offset,
+                        currentDenseIndices, currentUniqueGlyphIDs, currentPositions,
+                        text, clusters);
             }
             break;
             case SkTextBlob::kHorizontal_Positioning: {
-                auto constY = origin.y() + offset.y();
-                this->drawPosTextH(
-                        runPaint, it.glyphs(), glyphLen, it.pos(), constY, text, clusters);
+                auto constY = offset.y();
+                uniqueGlyphIDsSize = this->drawPosTextH(
+                        runPaint, glyphIDs, it.pos(), constY,
+                        currentDenseIndices, currentUniqueGlyphIDs, currentPositions,
+                        text, clusters);
             }
             break;
             case SkTextBlob::kFull_Positioning:
-                this->drawPosText(
-                        runPaint, it.glyphs(), glyphLen, (const SkPoint*)it.pos(), text, clusters);
+                uniqueGlyphIDsSize = this->drawPosText(
+                        runPaint, glyphIDs, (const SkPoint*)it.pos(),
+                        currentDenseIndices, currentUniqueGlyphIDs,
+                        text, clusters);
             break;
             default:
                 SK_ABORT("unhandled positioning mode");
         }
+
+        if (drawFilter != nullptr) {
+            // A draw filter may change the paint arbitrarily, so we must re-seed in this case.
+            runPaint = paint;
+        }
+        currentDenseIndices += it.glyphCount();
+        currentPositions += it.glyphCount();
+        currentUniqueGlyphIDs += uniqueGlyphIDsSize;
     }
 }
 
@@ -193,28 +287,44 @@ SkGlyphRun* SkGlyphRunBuilder::useGlyphRun() {
 }
 
 SkGlyphRunList* SkGlyphRunBuilder::useGlyphRunList() {
-    new ((void*)&fScratchGlyphRunList) SkGlyphRunList{SkSpan<SkGlyphRun>(fGlyphRuns), fUniqueID};
+    new ((void*)&fScratchGlyphRunList)
+        SkGlyphRunList{SkSpan<SkGlyphRun>(
+                fGlyphRuns.get(), fGlyphRunListSize), fOrigin, fTemporaryTextBlobShunt};
     return &fScratchGlyphRunList;
 }
 
-size_t SkGlyphRunBuilder::runSize() const { return fDenseIndex.size() - fLastDenseIndex; }
-
-size_t SkGlyphRunBuilder::uniqueSize() const { return fUniqueGlyphIDs.size() - fLastUniqueIndex; }
-
-void SkGlyphRunBuilder::initialize() {
-    fUniqueID = 0;
-    fDenseIndex.clear();
-    fPositions.clear();
-    fUniqueGlyphIDs.clear();
-    fGlyphRuns.clear();
-    fLastDenseIndex = 0;
-    fLastUniqueIndex = 0;
+void SkGlyphRunBuilder::draw(SkBaseDevice* device) {
+    auto glyphRunList = this->useGlyphRunList();
+    device->drawGlyphRunList(glyphRunList);
 }
 
-SkGlyphID* SkGlyphRunBuilder::addDenseAndUnique(
-        const SkPaint& paint, const void* bytes, size_t byteLength) {
+void SkGlyphRunBuilder::initialize(
+        size_t runListSize, size_t totalGlyphs) {
+    // Delete all the old runs
+    for (auto& run : fScratchGlyphRunList) {
+        run.~SkGlyphRun();
+    }
 
-    size_t runSize = 0;
+    fTemporaryTextBlobShunt = nullptr;
+    fOrigin = {0, 0};
+    fGlyphRunListSize = 0;
+
+    if (totalGlyphs > fMaxRunSize) {
+        fUniqueGlyphIDIndices.reset(totalGlyphs);
+        fPositions.reset(totalGlyphs);
+        fUniqueGlyphIDs.reset(totalGlyphs);
+        fMaxRunSize = totalGlyphs;
+    }
+
+    if (runListSize > fMaxRunListSize) {
+        fGlyphRuns.reset(runListSize);
+        fMaxRunListSize = runListSize;
+    }
+}
+
+SkSpan<const SkGlyphID> SkGlyphRunBuilder::textToGlyphIDs(
+        const SkPaint& paint, const void* bytes, size_t byteLength) {
+    ptrdiff_t runSize = 0;
     SkGlyphID* glyphIDs = nullptr;
     auto encoding = paint.getTextEncoding();
     auto typeface = SkPaintPriv::GetTypefaceOrDefault(paint);
@@ -231,97 +341,137 @@ SkGlyphID* SkGlyphRunBuilder::addDenseAndUnique(
         runSize = byteLength / 2;
         glyphIDs = (SkGlyphID*)bytes;
     }
+    return SkSpan<const SkGlyphID>{glyphIDs, runSize};
+}
 
-    SkASSERT(glyphIDs != nullptr);
+SkSpan<const SkGlyphID> SkGlyphRunBuilder::addDenseAndUnique(
+        const SkPaint& paint,
+        SkSpan<const SkGlyphID> glyphIDs,
+        uint16_t* denseIndices,
+        SkGlyphID* uniqueGlyphIDs) {
 
-    if (runSize > 0) {
-        fGlyphSet.reuse(typeface->countGlyphs(), &fUniqueGlyphIDs);
-        for (size_t i = 0; i < runSize; i++) {
-            fDenseIndex.push_back(fGlyphSet.add(glyphIDs[i]));
-        }
+    SkSpan<const SkGlyphID> uniquifiedGlyphIDs;
+    if (!glyphIDs.empty()) {
+        auto typeface = SkPaintPriv::GetTypefaceOrDefault(paint);
+        auto glyphUniverseSize = typeface->countGlyphs();
+        uniquifiedGlyphIDs = fGlyphIDSet.uniquifyGlyphIDs(
+                glyphUniverseSize, glyphIDs, uniqueGlyphIDs, denseIndices);
     }
 
-    return glyphIDs;
+    return uniquifiedGlyphIDs;
 }
 
 void SkGlyphRunBuilder::addGlyphRunToList(
-        SkGlyphID* temporaryShuntGlyphIDs, SkSpan<const char> text, SkSpan<uint32_t> clusters) {
+        const SkPaint& runPaint,
+        SkSpan<const uint16_t> denseIndices,
+        SkSpan<const SkPoint> positions,
+        SkSpan<const SkGlyphID> glyphIDs,
+        SkSpan<const SkGlyphID> uniqueGlyphIDs,
+        SkSpan<const char> text,
+        SkSpan<const uint32_t> clusters) {
 
     // Ignore empty runs.
-    if (fDenseIndex.size() != fLastDenseIndex) {
-        auto runSize = this->runSize();
-        auto uniqueSize = this->uniqueSize();
+    if (!denseIndices.empty()) {
+        SkPaint modifiedRunPaint{runPaint};
 
-        fGlyphRuns.emplace_back(
-                fIndexed,
-                fLastDenseIndex, runSize,
-                fLastUniqueIndex, SkTo<uint16_t>(uniqueSize),
-                SkSpan<SkGlyphID>(temporaryShuntGlyphIDs, runSize),
-                text,
-                clusters);
+        // TODO: remove these once the text stack has all the encoding and align code removed.
+        modifiedRunPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+        modifiedRunPaint.setTextAlign(SkPaint::kLeft_Align);
 
-        fLastDenseIndex = fDenseIndex.size();
-        fLastUniqueIndex = fUniqueGlyphIDs.size();
+        new (&fGlyphRuns[fGlyphRunListSize++]) SkGlyphRun {
+            std::move(modifiedRunPaint),
+            denseIndices,
+            positions,
+            glyphIDs,
+            uniqueGlyphIDs,
+            text,
+            clusters
+        };
     }
 }
 
-void SkGlyphRunBuilder::drawText(
-        const SkPaint& paint, const void* bytes, size_t byteLength, SkPoint origin,
-        SkSpan<const char> text, SkSpan<uint32_t> clusters) {
 
-    SkGlyphID* temporaryShuntGlyphIDs = this->addDenseAndUnique(paint, bytes, byteLength);
+ptrdiff_t SkGlyphRunBuilder::drawText(
+        const SkPaint& paint, SkSpan<const SkGlyphID> glyphIDs, SkPoint origin,
+        uint16_t* denseIndices, SkGlyphID* uniqueGlyphIDs, SkPoint* positions,
+        SkSpan<const char> text, SkSpan<const uint32_t> clusters) {
 
-    fScratchAdvances.resize(this->uniqueSize());
+    auto unqiueGlyphIDs = this->addDenseAndUnique(paint, glyphIDs, denseIndices, uniqueGlyphIDs);
+
+    fScratchAdvances.resize(unqiueGlyphIDs.size());
     {
         auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(paint);
-        cache->getAdvances(
-                fIndexed.uniqueGlyphIDs(fLastUniqueIndex, uniqueSize()), fScratchAdvances.data());
+        cache->getAdvances(unqiueGlyphIDs, fScratchAdvances.data());
     }
 
     SkPoint endOfLastGlyph = origin;
 
-    for (size_t i = 0; i < this->runSize(); i++) {
-        fPositions.push_back(endOfLastGlyph);
-        endOfLastGlyph += fScratchAdvances[fDenseIndex[fLastDenseIndex + i]];
+    auto runSize = glyphIDs.size();
+    for (ptrdiff_t i = 0; i < runSize; i++) {
+        positions[i] = endOfLastGlyph;
+        endOfLastGlyph += fScratchAdvances[denseIndices[i]];
     }
 
     if (paint.getTextAlign() != SkPaint::kLeft_Align) {
-        SkVector len = endOfLastGlyph - origin;
+        SkVector runWidth = endOfLastGlyph - origin;
         if (paint.getTextAlign() == SkPaint::kCenter_Align) {
-            len.scale(SK_ScalarHalf);
+            runWidth.scale(SK_ScalarHalf);
         }
-        for (size_t i = fLastDenseIndex; i < this->runSize(); i++) {
-            fPositions[i] -= len;
+        for (ptrdiff_t i = 0; i < runSize; i++) {
+            positions[i] -= runWidth;
         }
     }
 
-    this->addGlyphRunToList(temporaryShuntGlyphIDs, text, clusters);
+    this->addGlyphRunToList(
+            paint,
+            SkSpan<const uint16_t>{denseIndices, runSize},
+            SkSpan<const SkPoint>{positions, runSize},
+            glyphIDs,
+            unqiueGlyphIDs,
+            text, clusters);
+
+    return unqiueGlyphIDs.size();
 }
 
-void SkGlyphRunBuilder::drawPosTextH(const SkPaint& paint, const void* bytes,
-                                     size_t byteLength, const SkScalar* xpos,
-                                     SkScalar constY,
-                                     SkSpan<const char> text, SkSpan<uint32_t> clusters) {
+ptrdiff_t SkGlyphRunBuilder::drawPosTextH(
+        const SkPaint& paint, SkSpan<const SkGlyphID> glyphIDs,
+        const SkScalar* xpos, SkScalar constY,
+        uint16_t* denseIndices, SkGlyphID* uniqueGlyphIDs, SkPoint* positions,
+        SkSpan<const char> text, SkSpan<const uint32_t> clusters) {
 
-    SkGlyphID* temporaryShuntGlyphIDs = this->addDenseAndUnique(paint, bytes, byteLength);
+    auto unqiueGlyphIDs = this->addDenseAndUnique(paint, glyphIDs, denseIndices, uniqueGlyphIDs);
 
-    for (size_t i = 0; i < runSize(); i++) {
-        fPositions.push_back(SkPoint::Make(xpos[i], constY));
+    auto runSize = glyphIDs.size();
+    for (ptrdiff_t i = 0; i < runSize; i++) {
+        positions[i] = SkPoint::Make(xpos[i], constY);
     }
 
-    this->addGlyphRunToList(temporaryShuntGlyphIDs, text, clusters);
-}
+    this->addGlyphRunToList(
+            paint,
+            SkSpan<const uint16_t>{denseIndices, runSize},
+            SkSpan<const SkPoint>{positions, runSize},
+            glyphIDs,
+            unqiueGlyphIDs,
+            text, clusters);
 
-void SkGlyphRunBuilder::drawPosText(const SkPaint& paint, const void* bytes,
-                                    size_t byteLength, const SkPoint* pos,
-                                    SkSpan<const char> text, SkSpan<uint32_t> clusters) {
-    SkGlyphID* temporaryShuntGlyphIDs = this->addDenseAndUnique(paint, bytes, byteLength);
+    return unqiueGlyphIDs.size();}
 
-    for (size_t i = 0; i < runSize(); i++) {
-        fPositions.push_back(pos[i]);
-    }
+ptrdiff_t SkGlyphRunBuilder::drawPosText(
+        const SkPaint& paint, SkSpan<const SkGlyphID> glyphIDs, const SkPoint* pos,
+        uint16_t* denseIndices, SkGlyphID* uniqueGlyphIDs,
+        SkSpan<const char> text, SkSpan<const uint32_t> clusters) {
+    auto unqiueGlyphIDs = this->addDenseAndUnique(paint, glyphIDs, denseIndices, uniqueGlyphIDs);
 
-    this->addGlyphRunToList(temporaryShuntGlyphIDs, text, clusters);
+    auto runSize = glyphIDs.size();
+    this->addGlyphRunToList(
+            paint,
+            SkSpan<const uint16_t>{denseIndices, runSize},
+            SkSpan<const SkPoint>{pos, runSize},
+            glyphIDs,
+            unqiueGlyphIDs,
+            text, clusters);
+
+    return unqiueGlyphIDs.size();
 }
 
 

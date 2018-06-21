@@ -22,6 +22,7 @@
 #include "SkTextBlob.h"
 #include "SkKeyedImage.h"
 
+class SkGlyphRunList;
 class SkKeyedImage;
 class SkPath;
 class SkPDFArray;
@@ -98,8 +99,8 @@ public:
     void drawPosText(const void* text, size_t len,
                      const SkScalar pos[], int scalarsPerPos,
                      const SkPoint& offset, const SkPaint&) override;
-    void drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y,
-                      const SkPaint &, SkDrawFilter*) override;
+
+    void drawGlyphRunList(SkGlyphRunList* glyphRunList) override;
     void drawVertices(const SkVertices*, const SkMatrix* bones, int boneCount, SkBlendMode,
                       const SkPaint&) override;
     void drawDevice(SkBaseDevice*, int x, int y,
