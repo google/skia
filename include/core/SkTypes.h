@@ -16,6 +16,8 @@
 #include <stdint.h>
 // IWYU pragma: end_exports
 
+#include <utility>
+
 /** \file SkTypes.h
 */
 
