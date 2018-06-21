@@ -847,6 +847,11 @@ def key_params(api):
 def test_steps(api):
   """Run the DM test."""
   b = api.properties['buildername']
+
+  if 'OpenCL' in api.vars.extra_tokens:
+    api.run(api.flavor.step, 'hello-opencl', cmd=['hello-opencl'])
+    return
+
   use_hash_file = False
   if upload_dm_results(b):
     host_dm_dir = str(api.flavor.host_dirs.dm_dir)
@@ -1246,4 +1251,15 @@ def GenTests(api):
                                      'svg', 'VERSION'),
         api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
     )
+  )
+
+  builder = ('Test-Debian9-Clang-NUC7i5BNK-compute-'
+             'IntelIris640-x86_64-Debug-All-OpenCL')
+  yield (
+    api.test(builder) +
+    api.properties(buildername=builder,
+                   buildbucket_build_id='123454321',
+                   revision='abc123',
+                   path_config='kitchen',
+                   swarm_out_dir='[SWARM_OUT_DIR]')
   )
