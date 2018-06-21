@@ -62,12 +62,17 @@ SkMask SkMask::PrepareDestination(int radiusX, int radiusY, const SkMask& src) {
     // dstH = srcH + 2 * radiusY;
     size_t dstH = safe.add(src.fBounds.height(), safe.add(radiusY, radiusY));
 
-    dst.fBounds.set(0, 0, SkTo<int>(dstW), SkTo<int>(dstH));
-    dst.fBounds.offset(src.fBounds.x(), src.fBounds.y());
-    dst.fBounds.offset(-radiusX, -radiusY);
+    if (!SkTFitsIn<int>(dstW) || !SkTFitsIn<int>(dstH)) {
+        dst.fBounds.setEmpty();
+        dst.fRowBytes = 0;
+    } else {
+        dst.fBounds.set(0, 0, SkTo<int>(dstW), SkTo<int>(dstH));
+        dst.fBounds.offset(src.fBounds.x(), src.fBounds.y());
+        dst.fBounds.offset(-radiusX, -radiusY);
+        dst.fRowBytes = SkTo<uint32_t>(dstW);
+    }
 
     dst.fImage = nullptr;
-    dst.fRowBytes = SkTo<uint32_t>(dstW);
     dst.fFormat = SkMask::kA8_Format;
 
     size_t toAlloc = safe.mul(dstW, dstH);
