@@ -19,6 +19,7 @@
 #include "SkTypes.h"
 
 class SkBaseDevice;
+class SkDrawFilter;
 
 template <typename T>
 class SkSpan {
@@ -74,11 +75,12 @@ public:
                size_t fUniqueOffset, uint16_t fUniqueSize,
                SkSpan<SkGlyphID>  scratchGlyphs,
                SkSpan<const char> text,
-               SkSpan<uint32_t>   clusters);
+               SkSpan<uint32_t>   clusters,
+               SkPaint&&          runPaint);
 
     // The temporaryShunt calls are to allow inter-operating with existing code while glyph runs
     // are developed.
-    void temporaryShuntToDrawPosText(const SkPaint& paint, SkBaseDevice* device);
+    void temporaryShuntToDrawPosText(SkBaseDevice* device);
     using TemporaryShuntCallback = std::function<void(size_t, const char*, const SkScalar*)>;
     void temporaryShuntToCallback(TemporaryShuntCallback callback);
 
@@ -104,6 +106,8 @@ private:
     const SkSpan<const char> fText;
     // Original clusters from SkTextBlob if present. Will be empty if not present.
     const SkSpan<uint32_t>   fClusters;
+    // Paint for this run modified to have glyph encoding and left alignment.
+    const SkPaint fRunPaint;
 };
 
 class SkGlyphRunList {
@@ -154,7 +158,8 @@ public:
             const SkScalar xpos[], SkScalar constY);
     void prepareDrawPosText(
             const SkPaint& paint, const void* bytes, size_t byteLength, const SkPoint pos[]);
-    void prepareTextBlob(const SkPaint& paint, const SkTextBlob& blob, SkPoint origin);
+    void prepareTextBlob(
+            const SkPaint& paint, const SkTextBlob& blob, SkPoint origin, SkDrawFilter* filter);
 
     SkGlyphRunList* useGlyphRunList();
     SkGlyphRun* useGlyphRun();
@@ -165,7 +170,10 @@ private:
     void initialize();
     SkGlyphID* addDenseAndUnique(const SkPaint& paint, const void* bytes, size_t byteLength);
     void addGlyphRunToList(
-            SkGlyphID* temporaryShuntGlyphIDs, SkSpan<const char> text, SkSpan<uint32_t> clusters);
+            const SkPaint& runPaint,
+            SkGlyphID* temporaryShuntGlyphIDs,
+            SkSpan<const char> text,
+            SkSpan<uint32_t> clusters);
 
     void drawText(
             const SkPaint& paint, const void* bytes, size_t byteLength, SkPoint origin,
@@ -173,10 +181,10 @@ private:
     void drawPosTextH(
             const SkPaint& paint, const void* bytes, size_t byteLength,
             const SkScalar* xpos, SkScalar constY,
-            SkSpan<const char> text, SkSpan<uint32_t> clusters);
+            SkSpan<const char> text, SkSpan<uint32_t> clusters, SkPoint origin);
     void drawPosText(
             const SkPaint& paint, const void* bytes, size_t byteLength, const SkPoint* pos,
-            SkSpan<const char> text, SkSpan<uint32_t> clusters);
+            SkSpan<const char> text, SkSpan<uint32_t> clusters, SkPoint origin);
 
     uint64_t               fUniqueID{0};
 
