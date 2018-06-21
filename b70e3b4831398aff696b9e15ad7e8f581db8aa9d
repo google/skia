@@ -94,6 +94,30 @@
       "revId": "b70e3b4831398aff696b9e15ad7e8f581db8aa9d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa9fd446_8b306583",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-21T14:20:59Z",
+      "side": 0,
+      "message": "Oh, sorry, I misunderstood your comment. Are we happy with just Nexus5x having a NoGPUThreads flavor?",
+      "parentUuid": "59e115b2_97ce648f",
+      "range": {
+        "startLine": 143,
+        "startChar": 0,
+        "endLine": 146,
+        "endChar": 38
+      },
+      "revId": "b70e3b4831398aff696b9e15ad7e8f581db8aa9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
