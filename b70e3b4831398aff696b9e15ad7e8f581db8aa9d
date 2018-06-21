@@ -142,6 +142,30 @@
       "revId": "b70e3b4831398aff696b9e15ad7e8f581db8aa9d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d4505b6_5445903f",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-06-21T14:28:29Z",
+      "side": 0,
+      "message": "SGTM.",
+      "parentUuid": "59e115b2_97ce648f",
+      "range": {
+        "startLine": 143,
+        "startChar": 0,
+        "endLine": 146,
+        "endChar": 38
+      },
+      "revId": "b70e3b4831398aff696b9e15ad7e8f581db8aa9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
