@@ -18,6 +18,7 @@ class SkBitmap;
 class SkDrawFilter;
 struct SkDrawShadowRec;
 class SkGlyphRun;
+class SkGlyphRunList;
 class SkGlyphRunBuilder;
 class SkImageFilterCache;
 struct SkIRect;
@@ -224,13 +225,10 @@ protected:
      *  Does not handle text decoration.
      *  Decorations (underline and stike-thru) will be handled by SkCanvas.
      */
-    virtual void drawGlyphRun(const SkPaint& paint, SkGlyphRun* glyphRun);
+    virtual void drawGlyphRunList(SkGlyphRunList* glyphRunList);
     virtual void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) = 0;
     virtual void drawShadow(const SkPath&, const SkDrawShadowRec&);
 
-    // default implementation unrolls the blob runs.
-    virtual void drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y,
-                              const SkPaint& paint, SkDrawFilter* drawFilter);
     // default implementation calls drawVertices
     virtual void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkBlendMode, bool interpColorsLinearly,
@@ -349,6 +347,7 @@ private:
 
     // Temporarily friend the SkGlyphRunBuilder until drawPosText is gone.
     friend class SkGlyphRun;
+    friend class SkGlyphRunBuilder;
     virtual void drawPosText(const void* text, size_t len,
                              const SkScalar pos[], int scalarsPerPos,
                              const SkPoint& offset, const SkPaint& paint) = 0;

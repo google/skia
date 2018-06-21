@@ -19,6 +19,7 @@
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
 #include "SkGlyphCache.h"
+#include "SkGlyphRun.h"
 #include "SkImageFilterCache.h"
 #include "SkJpegEncoder.h"
 #include "SkMakeUnique.h"
@@ -1458,17 +1459,12 @@ void SkPDFDevice::drawPosText(const void* text, size_t len,
                            offset, paint, nullptr, 0, nullptr);
 }
 
-void SkPDFDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
-                               const SkPaint &paint, SkDrawFilter* drawFilter) {
-    for (SkTextBlobRunIterator it(blob); !it.done(); it.next()) {
-        SkPaint runPaint(paint);
+void SkPDFDevice::drawGlyphRunList(SkGlyphRunList* glyphRunList) {
+    for (SkGlyphRunListIterator it(glyphRunList); !it.done(); it.next()) {
+        SkPaint runPaint;
         it.applyFontToPaint(&runPaint);
-        if (drawFilter && !drawFilter->filter(&runPaint, SkDrawFilter::kText_Type)) {
-            continue;
-        }
-        SkPoint offset = it.offset() + SkPoint{x, y};
         this->internalDrawText(it.glyphs(), sizeof(SkGlyphID) * it.glyphCount(),
-                               it.pos(), it.positioning(), offset, runPaint,
+                               it.pos(), it.positioning(), glyphRunList->origin(), runPaint,
                                it.clusters(), it.textSize(), it.text());
     }
 }

@@ -1624,14 +1624,13 @@ void SkGpuDevice::drawPosText(const void* text, size_t byteLength,
                                       this->devClipBounds());
 }
 
-void SkGpuDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
-                               const SkPaint& paint, SkDrawFilter* drawFilter) {
+void SkGpuDevice::drawGlyphRunList(SkGlyphRunList* list) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawTextBlob", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawGlyphRunList", fContext.get());
     SkDEBUGCODE(this->validate();)
 
-    fRenderTargetContext->drawTextBlob(this->clip(), paint, this->ctm(), blob, x, y, drawFilter,
-                                       this->devClipBounds());
+    fRenderTargetContext->drawGlyphRunList(
+            this->clip(), this->ctm(), list, this->devClipBounds());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
