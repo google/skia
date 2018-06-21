@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "82dbbf98_88691e89",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-21T18:07:02Z",
+      "side": 1,
+      "message": "So if the encoding on the paint is UTF8 then this could be SkSpan\u003cchar\u003e(bytes, byteLength). Then  we could fairly easily pass along the bytes on most tests.",
+      "range": {
+        "startLine": 116,
+        "startChar": 53,
+        "endLine": 116,
+        "endChar": 67
+      },
+      "revId": "71037745bfba3ecb84a0e29c61cac780192d7ac4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6137e3da_1bad88ad",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-21T18:07:02Z",
+      "side": 1,
+      "message": "It seems complex here to follow what happens in the unlikely event glyphIDs remains nullptr. However, it seems to work, and perhaps it doesn\u0027t matter since it appears that you want this to go away in the future (when all users are using SkGlyphRun::fUniqueGlyphIDs and SkGlyphRun::fTemporaryShuntGlyphIDs goes away).",
+      "range": {
+        "startLine": 205,
+        "startChar": 4,
+        "endLine": 205,
+        "endChar": 34
+      },
+      "revId": "71037745bfba3ecb84a0e29c61cac780192d7ac4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c024dc9_1464fb51",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-21T18:07:02Z",
+      "side": 1,
+      "message": "If you\u0027re going to line up the definitions, the return types should line up too.",
+      "range": {
+        "startLine": 91,
+        "startChar": 15,
+        "endLine": 91,
+        "endChar": 17
+      },
+      "revId": "71037745bfba3ecb84a0e29c61cac780192d7ac4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
