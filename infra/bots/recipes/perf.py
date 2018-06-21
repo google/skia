@@ -140,6 +140,11 @@ def nanobench_flags(api, bot):
   args.append('--config')
   args.extend(configs)
 
+  # By default, we test with GPU threading enabled, unless specifically
+  # disabled.
+  if 'NoGPUThreads' in bot:
+    args.extend(['--gpuThreads', '0'])
+
   if 'Valgrind' in bot:
     # Don't care about Valgrind performance.
     args.extend(['--loops',   '1'])
@@ -367,6 +372,8 @@ def RunSteps(api):
 
 TEST_BUILDERS = [
   'Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-All-Android',
+  ('Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-'
+   'Android_NoGPUThreads'),
   'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android_Vulkan',
   'Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All',
   'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug-All',
