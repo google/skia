@@ -24,7 +24,6 @@
 #include "grid.h"
 #include "common/cl/assert_cl.h"
 #include "config_cl.h"
-#include "runtime_cl.h"
 #include "runtime_cl_12.h"
 #include "export_cl_12.h"
 
@@ -32,7 +31,7 @@
 //
 //
 
-static 
+static
 void
 skc_block_pool_create(struct skc_runtime * const runtime, cl_command_queue cq)
 {
@@ -42,7 +41,7 @@ skc_block_pool_create(struct skc_runtime * const runtime, cl_command_queue cq)
   // create block extent
   skc_extent_pdrw_alloc(runtime,
                         &runtime->block_pool.blocks,
-                        runtime->block_pool.size->pool_size * 
+                        runtime->block_pool.size->pool_size *
                         runtime->config->block.bytes);
 
   // allocate block pool ids
@@ -85,7 +84,7 @@ skc_block_pool_create(struct skc_runtime * const runtime, cl_command_queue cq)
   cl(ReleaseKernel(k1));
 }
 
-static 
+static
 void
 skc_block_pool_dispose(struct skc_runtime * const runtime)
 {
@@ -106,7 +105,7 @@ skc_runtime_yield(struct skc_runtime * const runtime)
 }
 
 static
-void 
+void
 skc_runtime_wait(struct skc_runtime * const runtime)
 {
   skc_scheduler_wait(runtime->scheduler);
@@ -118,18 +117,26 @@ skc_runtime_wait(struct skc_runtime * const runtime)
 
 skc_err
 skc_runtime_cl_12_create(struct skc_context * const context,
-                         char const         * const target_platform_substring,
-                         char const         * const target_device_substring,
-                         cl_context_properties      context_properties[])
+                         cl_context                 context_cl,
+                         cl_device_id               device_id_cl)
 {
   // allocate the runtime
   struct skc_runtime * const runtime = malloc(sizeof(*runtime));
 
-  // acquire OpenCL ids and context for target device
-  skc_err err = skc_runtime_cl_create(&runtime->cl,
-                                      target_platform_substring,
-                                      target_device_substring,
-                                      context_properties);
+  // save off CL objects
+  runtime->cl.context   = context_cl;
+  runtime->cl.device_id = device_id_cl;
+
+  // query device alignment
+  cl_uint align_bits;
+
+  cl(GetDeviceInfo(device_id_cl,
+                   CL_DEVICE_MEM_BASE_ADDR_ALIGN,
+                   sizeof(align_bits),
+                   &align_bits,
+                   NULL));
+
+  runtime->cl.align_bytes = align_bits / 8;
 
   // create device
   skc_device_create(runtime);
@@ -149,7 +156,7 @@ skc_runtime_cl_12_create(struct skc_context * const context,
   // initialize cq pool
   skc_cq_pool_create(runtime,
                      &runtime->cq_pool,
-                     runtime->config->cq_pool.type,
+                     runtime->config->cq_pool.cq_props,
                      runtime->config->cq_pool.size);
 
   // acquire in-order cq
@@ -176,7 +183,7 @@ skc_runtime_cl_12_create(struct skc_context * const context,
 
   context->yield          = skc_runtime_yield;
   context->wait           = skc_runtime_wait;
-  
+
   context->path_builder   = skc_path_builder_cl_12_create;
   context->path_retain    = skc_runtime_path_host_retain;
   context->path_release   = skc_runtime_path_host_release;
@@ -189,7 +196,7 @@ skc_runtime_cl_12_create(struct skc_context * const context,
 
   context->composition    = skc_composition_cl_12_create;
   context->styling        = skc_styling_cl_12_create;
-  
+
   context->surface        = skc_surface_cl_12_create;
 
   // block on pool creation
@@ -198,7 +205,7 @@ skc_runtime_cl_12_create(struct skc_context * const context,
   // dispose of in-order cq
   skc_runtime_release_cq_in_order(runtime,cq);
 
-  return err;
+  return SKC_ERR_SUCCESS;
 };
 
 //
@@ -227,7 +234,7 @@ skc_runtime_cl_12_dispose(struct skc_context * const context)
   skc_block_pool_dispose(context->runtime);
 
   // skc_handle_pool_dispose(context->runtime);
-  
+
   return SKC_ERR_SUCCESS;
 }
 
@@ -253,12 +260,12 @@ skc_runtime_cl_12_debug(struct skc_context * const context)
     return;
 
   QueryPerformanceCounter(&EndingTime);
-  
+
   LARGE_INTEGER ElapsedMicroseconds, Frequency;
 
   ElapsedMicroseconds.QuadPart = EndingTime.QuadPart - StartingTime.QuadPart;
 
-  QueryPerformanceFrequency(&Frequency);   
+  QueryPerformanceFrequency(&Frequency);
 
   double const msecs_total  = 1000.0 * ElapsedMicroseconds.QuadPart / Frequency.QuadPart;
   double const msecs_frame  = msecs_total / SKC_FRAMES;
@@ -268,7 +275,7 @@ skc_runtime_cl_12_debug(struct skc_context * const context)
 #endif
 
   struct skc_runtime * const runtime = context->runtime;
-  
+
   // acquire out-of-order cq
   cl_command_queue cq = skc_runtime_acquire_cq_in_order(runtime);
 
@@ -311,4 +318,3 @@ skc_runtime_cl_12_debug(struct skc_context * const context)
 //
 //
 //
-

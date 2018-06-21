@@ -14,7 +14,7 @@
 
 #include "tile.h"
 #include "raster_builder_cl_12.h" // need meta_in structure
-#include "device_cl_12.h"
+#include "kernel_cl_12.h"
 
 //
 //

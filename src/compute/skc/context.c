@@ -28,23 +28,20 @@
 //
 
 skc_err
-skc_context_create(skc_context_t       * context,
-                   char          const * target_platform_substring,
-                   char          const * target_device_substring,
-                   intptr_t              context_properties[])
+skc_context_create_cl(skc_context_t * context,
+                      cl_context      context_cl,
+                      cl_device_id    device_id_cl)
 {
   (*context) = malloc(sizeof(**context));
 
   //
-  // FIXME -- don't directly grab a CL runtime but for now juts create
-  // the CL_12 runtime here
+  // FIXME -- we'll clean up context creation by platform later.  For
+  // now, just create a CL_12 context.
   //
   skc_err err;
 
-  err = skc_runtime_cl_12_create(*context,
-                                 target_platform_substring,
-                                 target_device_substring,
-                                 context_properties);
+  err = skc_runtime_cl_12_create(*context,context_cl,device_id_cl);
+
   return err;
 }
 
