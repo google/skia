@@ -70,6 +70,30 @@
       "revId": "b70e3b4831398aff696b9e15ad7e8f581db8aa9d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59e115b2_97ce648f",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-21T14:04:07Z",
+      "side": 0,
+      "message": "There are test bots with \u0027NoGPUThreads\u0027 in the name (and that\u0027s how test.py sets this flag). I\u0027d like to do the same with perf bots, so it\u0027s obvious in perf.skia.org when regressions are specific to that configuration.",
+      "parentUuid": "bcd8911e_04efb288",
+      "range": {
+        "startLine": 143,
+        "startChar": 0,
+        "endLine": 146,
+        "endChar": 38
+      },
+      "revId": "b70e3b4831398aff696b9e15ad7e8f581db8aa9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
