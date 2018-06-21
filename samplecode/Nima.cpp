@@ -10,10 +10,9 @@
 #include "SkString.h"
 #include "SkVertices.h"
 #include "SkPaint.h"
+#include "SkFilterQuality.h"
 #include "Resources.h"
 #include <algorithm>
-
-#include <iostream>
 
 using namespace nima;
 
@@ -32,6 +31,7 @@ SampleActor::SampleActor(std::string baseName)
     // Create the paint.
     fPaint = std::make_unique<SkPaint>();
     fPaint->setShader(fTexture->makeShader(nullptr));
+    fPaint->setFilterQuality(SkFilterQuality::kLow_SkFilterQuality);
 
     // Load the image nodes.
     fActorImages.reserve(m_ImageNodeCount);
@@ -88,6 +88,11 @@ void SampleActorImage::render(const SampleActor* actor, SkCanvas* canvas) const 
         float* attrTex      = vertexData + j + 2;
         float* attrBoneIdx  = vertexData + j + 4;
         float* attrBoneWgt  = vertexData + j + 8;
+
+        // Get deformed positions if necessary.
+        if (fActorImage->doesAnimationVertexDeform()) {
+            attrPosition = fActorImage->animationDeformedVertices() + i * 2;
+        }
 
         // Deform the position.
         Vec2D position(attrPosition[0], attrPosition[1]);
