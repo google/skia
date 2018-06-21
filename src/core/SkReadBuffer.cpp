@@ -345,13 +345,12 @@ sk_sp<SkImage> SkReadBuffer::readImage() {
         (void)this->read32();   // originY
     }
 
-    sk_sp<SkImage> image;
     if (fProcs.fImageProc) {
-        image = fProcs.fImageProc(data->data(), data->size(), fProcs.fImageCtx);
+        // If the client wants custom deserialization, we don't try to decode this image.
+        return fProcs.fImageProc(data->data(), data->size(), fProcs.fImageCtx);
     }
-    if (!image) {
-        image = SkImage::MakeFromEncoded(std::move(data));
-    }
+
+    sk_sp<SkImage> image = SkImage::MakeFromEncoded(std::move(data));
     if (image) {
         if (bounds.x() || bounds.y() || width < image->width() || height < image->height()) {
             image = image->makeSubset(bounds);
@@ -373,6 +372,13 @@ sk_sp<SkTypeface> SkReadBuffer::readTypeface() {
     //  <0 -- custom (serial procs) : negative size in bytes
 
     int32_t index = this->read32();
+
+    if (fProcs.fTypefaceProc && index >= 0) {
+        // If the client wants custom de-serialization the typeface must have been serialized with
+        // custom data.
+        return fProcs.fTypefaceProc(nullptr, 0u, fProcs.fTypefaceCtx);
+    }
+
     if (index == 0) {
         return nullptr;
     } else if (index > 0) {

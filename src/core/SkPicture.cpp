@@ -177,6 +177,14 @@ sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, const SkDeserialPro
 
     uint8_t trailingStreamByteAfterPictInfo;
     if (!stream->readU8(&trailingStreamByteAfterPictInfo)) { return nullptr; }
+
+    // If the client wants custom de-serialization the picture must have been serialized with
+    // custom data.
+    if (procs.fPictureProc &&
+        trailingStreamByteAfterPictInfo != kCustom_TrailingStreamByteAfterPictInfo) {
+        return procs.fPictureProc(nullptr, 0u, procs.fPictureCtx);
+    }
+
     switch (trailingStreamByteAfterPictInfo) {
         case kPictureData_TrailingStreamByteAfterPictInfo: {
             std::unique_ptr<SkPictureData> data(
@@ -208,8 +216,15 @@ sk_sp<SkPicture> SkPicturePriv::MakeFromBuffer(SkReadBuffer& buffer) {
     }
     // size should be 0, 1, or negative
     int32_t ssize = buffer.read32();
+
+    // If the client wants custom de-serialization the picture must have been serialized with
+    // custom data.
+    const SkDeserialProcs& procs = buffer.fProcs;
+    if (procs.fPictureProc && ssize >= 0) {
+        return procs.fPictureProc(nullptr, 0u, procs.fPictureCtx);
+    }
+
     if (ssize < 0) {
-        const SkDeserialProcs& procs = buffer.fProcs;
         if (!procs.fPictureProc) {
             return nullptr;
         }
