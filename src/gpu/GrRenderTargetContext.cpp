@@ -251,6 +251,22 @@ void GrRenderTargetContext::drawTextBlob(const GrClip& clip, const SkPaint& pain
                                    fSurfaceProps, blob, x, y, filter, clipBounds);
 }
 
+
+
+void GrRenderTargetContext::drawGlyphRunList(
+        const GrClip& clip, const SkMatrix& viewMatrix,
+        SkGlyphRunList* blob, SkScalar x, SkScalar y, SkDrawFilter* filter,
+        const SkIRect& clipBounds) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawGlyphRunList", fContext);
+
+    GrTextContext* atlasTextContext = this->drawingManager()->getTextContext();
+    atlasTextContext->drawGlyphRunList(fContext, fTextTarget.get(), clip, viewMatrix,
+                                       fSurfaceProps, blob, x, y, filter, clipBounds);
+}
+
 void GrRenderTargetContext::discard() {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
