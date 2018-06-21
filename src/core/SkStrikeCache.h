@@ -67,6 +67,7 @@ public:
         Node* fNode;
     };
 
+    static SkStrikeCache* GlobalStrikeCache();
 
     static ExclusiveStrikePtr FindStrikeExclusive(const SkDescriptor&);
 
