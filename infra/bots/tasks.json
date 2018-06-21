@@ -14394,7 +14394,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -14531,7 +14531,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -14668,7 +14668,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -14805,7 +14805,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -14942,7 +14942,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -15079,7 +15079,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -15216,7 +15216,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -15354,7 +15354,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -15491,7 +15491,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -15628,7 +15628,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -15765,7 +15765,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -15903,7 +15903,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -16035,7 +16035,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -16167,7 +16167,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -16299,7 +16299,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -16432,7 +16432,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -16564,7 +16564,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
@@ -16697,7 +16697,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "build"
       ],
