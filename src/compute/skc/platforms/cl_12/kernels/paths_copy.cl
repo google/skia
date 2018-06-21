@@ -13,7 +13,7 @@
 #include "path.h"
 #include "block_pool_cl.h"
 #include "path_builder_cl_12.h"
-#include "device_cl_12.h"
+#include "kernel_cl_12.h"
 
 //
 //

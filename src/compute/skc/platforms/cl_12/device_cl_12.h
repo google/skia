@@ -77,6 +77,10 @@ cl_kernel
 skc_device_acquire_kernel(struct skc_device  * const device, 
                           skc_device_kernel_id const type);
 
+void
+skc_device_release_kernel(struct skc_device  * const device,
+                          cl_kernel                  kernel);
+
 //
 // grid shape can vary greatly by target platform
 //

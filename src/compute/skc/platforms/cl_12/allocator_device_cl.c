@@ -106,7 +106,7 @@ skc_allocator_device_create(struct skc_runtime * const runtime)
                           &runtime->allocator.device.temp.suballocator,
                           "DEVICE",
                           runtime->config->suballocator.device.subbufs,
-                          runtime->cl.base_align,
+                          runtime->cl.align_bytes,
                           runtime->config->suballocator.device.size);
 
 #ifndef NDEBUG

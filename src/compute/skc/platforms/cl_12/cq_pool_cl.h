@@ -20,11 +20,12 @@
 
 struct skc_cq_pool
 {
-  skc_cq_type_e      type;
-  skc_uint           size;
-  skc_uint           reads;
-  skc_uint           writes;
-  cl_command_queue * cq;
+  cl_command_queue          * cq;
+  cl_command_queue_properties cq_props;
+
+  skc_uint                    size;
+  skc_uint                    reads;
+  skc_uint                    writes;
 };
 
 //l
@@ -32,10 +33,10 @@ struct skc_cq_pool
 //
 
 void
-skc_cq_pool_create(struct skc_runtime * const runtime,
-                   struct skc_cq_pool * const pool,
-                   skc_uint             const type,
-                   skc_uint             const size);
+skc_cq_pool_create(struct skc_runtime        * const runtime,
+                   struct skc_cq_pool        * const pool,
+                   cl_command_queue_properties const cq_props,
+                   skc_uint                    const size);
 
 void
 skc_cq_pool_dispose(struct skc_runtime * const runtime,

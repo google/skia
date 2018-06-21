@@ -12,8 +12,8 @@
 //
 //
 
+#include "skc.h"
 #include "runtime.h"
-#include "runtime_cl.h"
 #include "cq_pool_cl.h"
 #include "handle_pool_cl_12.h"
 #include "block_pool_cl_12.h"
@@ -31,7 +31,11 @@ struct skc_runtime
   //
   // state visible to device
   //
-  struct skc_runtime_cl            cl;
+  struct {
+    cl_context                     context;
+    cl_device_id                   device_id;
+    cl_uint                        align_bytes;
+  } cl;
 
   struct {
     struct skc_allocator_host      host;
@@ -63,9 +67,8 @@ struct skc_runtime
 
 skc_err
 skc_runtime_cl_12_create(struct skc_context * const context,
-                         char const         * const target_platform_substring,
-                         char const         * const target_device_substring,
-                         cl_context_properties      context_properties[]);
+                         cl_context                 context_cl,
+                         cl_device_id               device_id_cl);
 
 skc_err
 skc_runtime_cl_12_dispose(struct skc_context * const context);

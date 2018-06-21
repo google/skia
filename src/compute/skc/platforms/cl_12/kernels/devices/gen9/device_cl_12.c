@@ -19,6 +19,7 @@
 #include "config_cl.h"
 #include "runtime_cl_12.h"
 
+#include "kernel_cl_12.h"
 #include "device_cl_12.h"
 
 #include "hs/cl/hs_cl_launcher.h"
@@ -124,9 +125,9 @@ struct skc_config const config =
 
     .cq_pool     = {
 #ifndef NDEBUG
-      .type         = SKC_CQ_TYPE_IN_ORDER_PROFILING,
+       .cq_props    = CL_QUEUE_PROFILING_ENABLE,
 #else
-      .type         = 0,
+       .cq_props    = 0,
 #endif
       .size         = 8
     },
@@ -839,6 +840,14 @@ skc_device_acquire_kernel(struct skc_device  * const device,
   cl(RetainKernel(kernel));
 
   return kernel;
+}
+
+
+void
+skc_device_release_kernel(struct skc_device  * const device,
+                          cl_kernel                  kernel)
+{
+  cl(ReleaseKernel(kernel));
 }
 
 //

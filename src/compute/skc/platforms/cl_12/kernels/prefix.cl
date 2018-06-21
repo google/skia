@@ -15,7 +15,7 @@
 #include "raster.h"
 #include "atomic_cl.h"
 #include "raster_builder_cl_12.h"
-#include "device_cl_12.h"
+#include "kernel_cl_12.h"
 
 //
 // INPUT:

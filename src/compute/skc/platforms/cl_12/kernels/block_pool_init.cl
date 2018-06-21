@@ -10,7 +10,7 @@
 //
 //
 
-#include "device_cl_12.h"
+#include "kernel_cl_12.h"
 
 //
 // BEST TO RUN THESE ON AN OUT-OF-ORDER CQ

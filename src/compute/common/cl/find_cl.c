@@ -20,7 +20,7 @@
 
 #include "find_cl.h"
 #include "assert_cl.h"
-#include "macros.h"
+#include "../macros.h"
 
 //
 // search platforms and devices for a match

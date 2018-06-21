@@ -10,123 +10,16 @@
 #define SKC_ONCE_SKC
 
 //
-// FIXME -- get rid of these here
-//
-
-#include <stdint.h>
-#include <stdbool.h>
-
-//
 //
 //
 
-#include "skc_styling.h" // FIXME -- skc_styling
-// #include "skc_err.h"
-
-//
-// FIXME -- move errors to an skc prefixed include
-//
-
-typedef enum skc_err {
-
-  SKC_ERR_SUCCESS                           = 0,
-
-  SKC_ERR_API_BASE                          = 10000,
-
-  SKC_ERR_NOT_IMPLEMENTED                   = SKC_ERR_API_BASE,
-
-  SKC_ERR_POOL_EMPTY,
-
-  SKC_ERR_CONDVAR_WAIT,
-
-  SKC_ERR_LAYER_ID_INVALID,
-  SKC_ERR_LAYER_NOT_EMPTY,
-
-  SKC_ERR_TRANSFORM_WEAKREF_INVALID,
-  SKC_ERR_STROKE_STYLE_WEAKREF_INVALID,
-
-  SKC_ERR_COMMAND_NOT_READY,
-  SKC_ERR_COMMAND_NOT_COMPLETED,
-  SKC_ERR_COMMAND_NOT_STARTED,
-
-  SKC_ERR_COMMAND_NOT_READY_OR_COMPLETED,
-
-  SKC_ERR_COMPOSITION_SEALED,
-  SKC_ERR_STYLING_SEALED,
-
-  SKC_ERR_HANDLE_INVALID,
-  SKC_ERR_HANDLE_OVERFLOW,
-
-  SKC_ERR_COUNT
-
-} skc_err;
-
-//
-// SPINEL TYPES
-//
-
-typedef struct skc_context          * skc_context_t;
-typedef struct skc_path_builder     * skc_path_builder_t;
-typedef struct skc_raster_builder   * skc_raster_builder_t;
-
-typedef struct skc_composition      * skc_composition_t;
-typedef struct skc_styling          * skc_styling_t;
-
-typedef struct skc_surface          * skc_surface_t;
-
-#if 0
-typedef struct skc_interop          * skc_interop_t;
-typedef        uint32_t               skc_interop_surface_t;
-#endif
-
-typedef        uint32_t               skc_path_t;
-typedef        uint32_t               skc_raster_t;
-
-typedef        uint32_t               skc_layer_id;
-typedef        uint32_t               skc_group_id;
-
-typedef        uint32_t               skc_styling_cmd_t;
-
-typedef        uint64_t               skc_weakref_t;
-typedef        skc_weakref_t          skc_transform_weakref_t;
-typedef        skc_weakref_t          skc_raster_clip_weakref_t;
-
-//
-// FIXME -- bury all of this
-//
-
-#define SKC_STYLING_CMDS(...) _countof(__VA_ARGS__),__VA_ARGS__
-#define SKC_GROUP_IDS(...)    _countof(__VA_ARGS__),__VA_ARGS__
-
-//
-//
-//
-
-#define SKC_PATH_INVALID     UINT32_MAX
-#define SKC_RASTER_INVALID   UINT32_MAX
-#define SKC_WEAKREF_INVALID  UINT64_MAX
-
-//
-// TRANSFORM LAYOUT: { sx shx tx shy sy ty w0 w1 }
-//
-
-extern float const * const skc_transform_identity_ptr; // { 1, 0, 0, 0, 1, 0, 0, 0 }
-
-//
-// RASTER CLIP LAYOUT: { x0, y0, x1, y1 }
-//
-
-extern float const * const skc_raster_clip_default_ptr;
+#include "skc_err.h"
+#include "skc_types.h"
+#include "skc_styling.h"
 
 //
 // CONTEXT
 //
-
-skc_err
-skc_context_create(skc_context_t       * context,
-                   char          const * target_platform_substring,
-                   char          const * target_device_substring,
-                   intptr_t              context_properties[]);
 
 skc_err
 skc_context_retain(skc_context_t context);
@@ -136,31 +29,6 @@ skc_context_release(skc_context_t context);
 
 skc_err
 skc_context_reset(skc_context_t context);
-
-//
-// COORDINATED EXTERNAL OPERATIONS
-//
-
-/*
-  Examples include:
-
-  - Transforming an intermediate layer with a blur, sharpen, rotation or scaling kernel.
-  - Subpixel antialiasing using neighboring pixel color and coverage data.
-  - Performing a blit from one region to another region on a surface.
-  - Blitting from one surface to another.
-  - Loading and processing from one region and storing to another region.
-  - Rendezvousing with an external pipeline.
-*/
-
-//
-//
-//
-
-bool
-skc_context_yield(skc_context_t context);
-
-void
-skc_context_wait(skc_context_t context);
 
 //
 // PATH BUILDER
@@ -484,6 +352,31 @@ skc_surface_render(skc_surface_t                 surface,
                    skc_surface_render_pfn_notify notify,
                    void                        * data,
                    void                        * fb); // FIXME FIXME
+
+//
+// COORDINATED EXTERNAL OPERATIONS
+//
+//  Examples include:
+//
+//  - Transforming an intermediate layer with a blur, sharpen, rotation or scaling kernel.
+//  - Subpixel antialiasing using neighboring pixel color and coverage data.
+//  - Performing a blit from one region to another region on a surface.
+//  - Blitting from one surface to another.
+//  - Loading and processing from one region and storing to another region.
+//  - Rendezvousing with an external pipeline.
+//
+
+// FORTHCOMING...
+
+//
+// SCHEDULER
+//
+
+bool
+skc_context_yield(skc_context_t context);
+
+void
+skc_context_wait(skc_context_t context);
 
 //
 //

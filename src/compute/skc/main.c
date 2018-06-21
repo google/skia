@@ -21,6 +21,11 @@
 #include <stdlib.h>
 #include <conio.h>
 
+#include "skc_create_cl.h"
+
+#include "common/cl/find_cl.h"
+#include "common/cl/assert_cl.h"
+
 #include "svg/svg_doc.h"
 #include "svg2skc/svg2skc.h"
 #include "svg2skc/transform_stack.h"
@@ -49,7 +54,7 @@ skc_runtime_cl_12_debug(struct skc_context * const context);
 //
 //
 
-static 
+static
 void
 is_render_complete(skc_surface_t     surface,
                    skc_styling_t     styling,
@@ -67,9 +72,9 @@ int
 main(int argc, char** argv)
 {
   //
-  // 
   //
-  if (argc <= 1) 
+  //
+  if (argc <= 1)
     {
       fprintf(stderr,"-- missing filename\n");
       return EXIT_FAILURE; // no filename
@@ -95,28 +100,49 @@ main(int argc, char** argv)
   skc_interop_init(&window);
 
   //
+  // find platform and device by name
+  //
+  cl_platform_id platform_id_cl;
+  cl_device_id   device_id_cl;
+
+  cl(FindIdsByName("Intel","Graphics",
+                   &platform_id_cl,
+                   &device_id_cl,
+                   0,NULL,NULL,
+                   true));
+
+  //
   // get GL and device contexts
   //
   HGLRC hGLRC = wglGetCurrentContext();
   HDC   hDC   = wglGetCurrentDC();
 
   //
+  // create the CL context
   //
-  //
-  cl_context_properties context_properties[] =
+  cl_context_properties context_properties_cl[] =
     {
-      CL_CONTEXT_PLATFORM, (cl_context_properties)-1,
+      CL_CONTEXT_PLATFORM, (cl_context_properties)platform_id_cl,
       CL_GL_CONTEXT_KHR,   (cl_context_properties)hGLRC,
       CL_WGL_HDC_KHR,      (cl_context_properties)hDC,
       0
     };
-  
+
+  cl_int     cl_err;
+  cl_context context_cl = clCreateContext(context_properties_cl,
+                                          1,
+                                          &device_id_cl,
+                                          NULL,
+                                          NULL,
+                                          &cl_err); cl_ok(cl_err);
   //
-  // create context
+  // create SKC context
   //
   skc_context_t context;
 
-  skc_err err = skc_context_create(&context,"Intel","Graphics",context_properties);
+  skc_err err = skc_context_create_cl(&context,
+                                      context_cl,
+                                      device_id_cl);
 
   //
   // associate
@@ -136,14 +162,14 @@ main(int argc, char** argv)
   skc_raster_builder_t raster_builder;
 
   err = skc_raster_builder_create(context,&raster_builder);
-  
+
   //
   // create a composition
   //
   skc_composition_t composition;
 
   err = skc_composition_create(context,&composition);
-  
+
   //
   // create a styling instance
   //
@@ -154,7 +180,7 @@ main(int argc, char** argv)
                            svg_doc_layer_count(svg_doc),
                            1000,
                            2 * 1024 * 1024);
-  
+
   //
   // create a surface
   //
@@ -191,7 +217,7 @@ main(int argc, char** argv)
       skc_transform_stack_restore(ts,ts_save);
 
       // decode layers -- places rasters
-      svg_doc_layers_decode(svg_doc,rasters,composition,styling,true/*is_srgb*/);    
+      svg_doc_layers_decode(svg_doc,rasters,composition,styling,true/*is_srgb*/);
 
       // seal the composition
       skc_composition_seal(composition);
@@ -244,7 +270,7 @@ main(int argc, char** argv)
       // unseal the composition
       skc_composition_unseal(composition,true);
     }
-  
+
   //
   // dispose of mundane resources
   //

@@ -69,7 +69,7 @@ float const skc_transform_identity[8] =
     0.0f, 0.0f         // w0  w1  1  <-- always 1
   };
 
-float const * const skc_transform_identity_ptr = skc_transform_identity;
+// float const * const skc_transform_identity_ptr = skc_transform_identity;
 
 //
 // DEFAULT RASTER CLIP
@@ -82,7 +82,7 @@ float const skc_raster_clip_default[4] =
     +FLT_MAX, +FLT_MAX  // upper right corner of bounding box
   };
 
-float const * const skc_raster_clip_default_ptr = skc_raster_clip_default;
+// float const * const skc_raster_clip_default_ptr = skc_raster_clip_default;
 
 #endif
 
