@@ -6,7 +6,7 @@
  */
 
 #include "SampleCode.h"
-#include "Nima.h"
+#include "SampleNimaActor.h"
 #include "SkAnimTimer.h"
 #include "SkView.h"
 #include <nima/Animation/ActorAnimationInstance.hpp>

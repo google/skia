@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef Nima_DEFINED
-#define Nima_DEFINED
+#ifndef SampleNimaActor_DEFINED
+#define SampleNimaActor_DEFINED
 
 #include <nima/Actor.hpp>
 #include <nima/ActorImage.hpp>

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "Nima.h"
+#include "SampleNimaActor.h"
 
 #include "SkString.h"
 #include "SkVertices.h"
