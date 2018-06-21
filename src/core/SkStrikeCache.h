@@ -47,7 +47,7 @@ public:
 
     class ExclusiveStrikePtr {
     public:
-        explicit ExclusiveStrikePtr(Node*, SkStrikeCache*);
+        explicit ExclusiveStrikePtr(Node*);
         ExclusiveStrikePtr();
         ExclusiveStrikePtr(const ExclusiveStrikePtr&) = delete;
         ExclusiveStrikePtr& operator = (const ExclusiveStrikePtr&) = delete;
@@ -65,10 +65,8 @@ public:
 
     private:
         Node* fNode;
-        SkStrikeCache* fStrikeCache;
     };
 
-    static SkStrikeCache* GetGlobalStrikeCache();
 
     static ExclusiveStrikePtr FindStrikeExclusive(const SkDescriptor&);
 
@@ -113,17 +111,6 @@ public:
     void attachNode(Node* node);
     ExclusiveStrikePtr findStrikeExclusive(const SkDescriptor&);
 
-    ExclusiveStrikePtr findOrCreateStrikeExclusive(
-            const SkDescriptor& desc,
-            const SkScalerContextEffects& effects,
-            const SkTypeface& typeface);
-
-    ExclusiveStrikePtr createStrikeExclusive(
-            const SkDescriptor& desc,
-            std::unique_ptr<SkScalerContext> scaler,
-            SkPaint::FontMetrics* maybeMetrics = nullptr,
-            std::unique_ptr<SkStrikePinner> = nullptr);
-
     // Routines to find suitable data when working in a remote cache situation. These are
     // suitable as substitutes for similar calls in SkScalerContext.
     bool desperationSearchForImage(const SkDescriptor& desc,
@@ -146,13 +133,13 @@ public:
 
 #ifdef SK_DEBUG
     void validate() const;
-    void internalValidate() const;
 #else
     void validate() const {}
-    void internalValidate() const {}
 #endif
 
 private:
+    static void Attach(Node* node);
+
     // The following methods can only be called when mutex is already held.
     Node* internalGetHead() const { return fHead; }
     Node* internalGetTail() const { return fTail; }

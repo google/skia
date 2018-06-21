@@ -19,12 +19,11 @@ SkScalerContextProxy::SkScalerContextProxy(sk_sp<SkTypeface> tf,
         : SkScalerContext{std::move(tf), effects, desc}
         , fDiscardableManager{std::move(manager)} {}
 
-void SkScalerContextProxy::initCache(SkGlyphCache* cache, SkStrikeCache* strikeCache) {
+void SkScalerContextProxy::initCache(SkGlyphCache* cache) {
     SkASSERT(fCache == nullptr);
     SkASSERT(cache != nullptr);
 
     fCache = cache;
-    fStrikeCache = strikeCache;
 }
 
 unsigned SkScalerContextProxy::generateGlyphCount()  {
@@ -58,7 +57,7 @@ void SkScalerContextProxy::generateMetrics(SkGlyph* glyph) {
         }
 
         // Now check other caches for a desc mismatch.
-        if (fStrikeCache->desperationSearchForImage(fCache->getDescriptor(), glyph, fCache)) {
+        if (SkStrikeCache::DesperationSearchForImage(fCache->getDescriptor(), glyph, fCache)) {
             fDiscardableManager->notifyCacheMiss(
                     SkStrikeClient::CacheMissType::kGlyphMetricsFallback);
             return;
@@ -89,7 +88,7 @@ bool SkScalerContextProxy::generatePath(SkGlyphID glyphID, SkPath* path) {
     // Since the scaler context is being called, we don't have the needed data. Try to find a
     // fallback before failing.
     auto desc = SkScalerContext::DescriptorGivenRecAndEffects(this->getRec(), this->getEffects());
-    bool foundPath = fStrikeCache->desperationSearchForPath(*desc, glyphID, path);
+    bool foundPath = SkStrikeCache::DesperationSearchForPath(*desc, glyphID, path);
     fDiscardableManager->notifyCacheMiss(foundPath
                                                  ? SkStrikeClient::CacheMissType::kGlyphPathFallback
                                                  : SkStrikeClient::CacheMissType::kGlyphPath);
