@@ -592,6 +592,7 @@ def dm_flags(api, bot):
   if 'AndroidOne' in bot:
     match.append('~WritePixels')  # skia:4711
     match.append('~PremulAlphaRoundTrip_Gpu')  # skia:7501
+    match.append('~ReimportImageTextureWithMipLevels')  # skia:8090
 
   if 'Chromecast' in bot:
     if 'GPU' in bot:
