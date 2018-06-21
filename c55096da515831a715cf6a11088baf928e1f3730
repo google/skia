@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae5721ad_46d4bd83",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-21T16:27:49Z",
+      "side": 1,
+      "message": "Some blank lines between these might help readability.",
+      "revId": "c55096da515831a715cf6a11088baf928e1f3730",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56a57fd6_ce13d2d0",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-21T16:27:49Z",
+      "side": 1,
+      "message": "Seems like maybe over time we should remove these and make their existing callers just call GlobalStrikeCache()-\u003efoo()?",
+      "range": {
+        "startLine": 358,
+        "startChar": 20,
+        "endLine": 358,
+        "endChar": 57
+      },
+      "revId": "c55096da515831a715cf6a11088baf928e1f3730",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
