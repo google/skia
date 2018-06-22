@@ -61,6 +61,8 @@ static skcms_PixelFormat get_skcms_format(SkColorSpaceXform::ColorFormat fmt) {
             return skcms_PixelFormat_RGBA_ffff;
         case SkColorSpaceXform::kBGR_565_ColorFormat:
             return skcms_PixelFormat_BGR_565;
+        case SkColorSpaceXform::kGray_8_ColorFormat:
+            return skcms_PixelFormat_G_8;
         default:
             SkDEBUGFAIL("Invalid ColorFormat");
             return skcms_PixelFormat_RGBA_8888;
