@@ -69,7 +69,10 @@ public:
         this->report();
     }
 
-    void abandon() const override { fAbandoned = true; }
+    void abandon() const override {
+        INHERITED::abandon();
+        fAbandoned = true;
+    }
 
     GrGLvoid activeTexture(GrGLenum texture) override {
         // Ganesh offsets the texture unit indices

@@ -308,6 +308,8 @@ public:
         return fCall != nullptr;
     }
 
+    void reset() { fCall = nullptr; }
+
 private:
     R (*fCall)(const void*, Args...);
     size_t fBuf[4];
