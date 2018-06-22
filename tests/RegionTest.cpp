@@ -444,7 +444,7 @@ DEF_TEST(giant_path_region, reporter) {
     rgn.setPath(path, SkRegion(ir));
 }
 
-DEF_TEST(rrect_region, reporter) {
+DEF_TEST(rrect_region_crbug_850350, reporter) {
     SkMatrix m;
     m.reset();
     m[1] = 0.753662348f;
@@ -464,9 +464,6 @@ DEF_TEST(rrect_region, reporter) {
     path.transform(m);
 
     SkRegion rgn;
-    if (false) {
-        // this assserts in the debug build. see crbug.com/850350
-        rgn.setPath(path, SkRegion{SkIRect{0, 0, 24, 24}});
-    }
+    rgn.setPath(path, SkRegion{SkIRect{0, 0, 24, 24}});
 }
 
