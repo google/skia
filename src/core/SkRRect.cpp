@@ -173,8 +173,20 @@ bool SkRRect::initializeRect(const SkRect& rect) {
     return true;
 }
 
-void SkRRect::scaleRadii(const SkRect& rect) {
+// If we can't distinguish one of the radii relative to the other, force it to zero so it
+// doesn't confuse us later. See crbug.com/850350
+//
+static void flush_to_zero(SkScalar& a, SkScalar& b) {
+    SkASSERT(a >= 0);
+    SkASSERT(b >= 0);
+    if (a + b == a) {
+        b = 0;
+    } else if (a + b == b) {
+        a = 0;
+    }
+}
 
+void SkRRect::scaleRadii(const SkRect& rect) {
     // Proportionally scale down all radii to fit. Find the minimum ratio
     // of a side and the radii on that side (for all four sides) and use
     // that to scale down _all_ the radii. This algorithm is from the
@@ -194,6 +206,11 @@ void SkRRect::scaleRadii(const SkRect& rect) {
     scale = compute_min_scale(fRadii[1].fY, fRadii[2].fY, height, scale);
     scale = compute_min_scale(fRadii[2].fX, fRadii[3].fX, width,  scale);
     scale = compute_min_scale(fRadii[3].fY, fRadii[0].fY, height, scale);
+
+    flush_to_zero(fRadii[0].fX, fRadii[1].fX);
+    flush_to_zero(fRadii[1].fY, fRadii[2].fY);
+    flush_to_zero(fRadii[2].fX, fRadii[3].fX);
+    flush_to_zero(fRadii[3].fY, fRadii[0].fY);
 
     if (scale < 1.0) {
         SkScaleToSides::AdjustRadii(width,  scale, &fRadii[0].fX, &fRadii[1].fX);
