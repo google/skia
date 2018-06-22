@@ -34,7 +34,7 @@
 #include "glm.h"
 #include "SkPoint3.h"
 #include "Sk3D.h"
-#include <math.h>       /* acos */
+#include <math.h>
 #include "SkShaper.h"
 #include "Skottie.h"
 #include "SkAnimTimer.h"
@@ -45,6 +45,7 @@ namespace hello_ar {
     namespace {
         constexpr size_t kMaxNumberOfAndroidsToRender = 1;
         constexpr int32_t kPlaneColorRgbaSize = 16;
+        const float rotationSpeed = 2.0f;
 
         const glm::vec3 kWhite = {255, 255, 255};
 
@@ -300,7 +301,7 @@ namespace hello_ar {
         //glm::mat4 model_mat(1.0f);
         for (const auto &obj_iter : tracked_obj_set_) {
             ArTrackingState tracking_state = AR_TRACKING_STATE_STOPPED;
-            ArAnchor_getTrackingState(ar_session_, obj_iter, &tracking_state);
+            ArAnchor_getTrackingState(ar_session_, obj_iter->GetArAnchor(), &tracking_state);
             if (tracking_state == AR_TRACKING_STATE_TRACKING) {
                 // Render object only if the tracking state is AR_TRACKING_STATE_TRACKING.
                 //util::GetTransformMatrixFromAnchor(ar_session_, obj_iter, &model_mat);
@@ -431,13 +432,10 @@ namespace hello_ar {
                 canvas->setMatrix(i);
                 SkMatrix44 mvpv = skViewport * skProj * skView * skModel;
 
-                //Draw XYZ axes
+                //Draw XYZ axes of Skia object
                 DrawAxes(canvas, mvpv);
-                //Drawing camera orientation
-            /*	DrawVector(canvas, vpv, begins[0], ends[0], SK_ColorMAGENTA);
-                DrawVector(canvas, vpv, begins[0], ends[1], SK_ColorYELLOW);
-                DrawVector(canvas, vpv, begins[0], ends[2], SK_ColorCYAN);*/
 
+                //Setup canvas & paint
                 canvas->concat(mvpv);
                 SkPaint paint;
 
@@ -452,7 +450,6 @@ namespace hello_ar {
                 } else {
                     paint.setTextSize(0.1);
                 }
-
                 paint.setAntiAlias(true);
                 const char text[] = "SkAR";
                 size_t byteLength = strlen(static_cast<const char *>(text));
@@ -461,494 +458,199 @@ namespace hello_ar {
                 SkPoint p = SkPoint::Make(0, 0);
                 shaper.shape(&builder, paint, text, byteLength, true, p, 10);
                 canvas->drawTextBlob(builder.make(), 0, 0, paint);
-
-                //DrawBoundingBox(canvas);
             }
             canvas->flush();
         }
     }
 
+    /************* OnTouch functions *************************************************/
 
     bool HelloArApplication::OnTouchedFirst(float x, float y, int drawMode) {
         LOGI("Entered OnTouchedFirst");
-        if (pendingAnchor != nullptr) {
-            delete pendingAnchor;
-        }
+        ReleasePendingAnchor();
         SkPoint p = SkPoint::Make(x,y);
         pendingAnchor = new PendingAnchor(p);
+        pendingAnchor->SetAnchorWrapper(nullptr);
         bool editAnchor = false;
 
         if (ar_frame_ != nullptr && ar_session_ != nullptr) {
-            ArHitResultList *hit_result_list = nullptr;
-            ArHitResultList_create(ar_session_, &hit_result_list);
-            CHECK(hit_result_list);
-            ArFrame_hitTest(ar_session_, ar_frame_, x, y, hit_result_list);
+            //Perform hit test & get # of hit objects
+            ArHitResultList* hitResultList = nullptr;
+            int32_t hitResultListSize = 0;
+            util::GetHitTestInfo(ar_session_, ar_frame_, x, y, hitResultListSize, &hitResultList);
 
-            int32_t hit_result_list_size = 0;
-            ArHitResultList_getSize(ar_session_, hit_result_list, &hit_result_list_size);
-            ArHitResult *ar_hit_result = nullptr;
-            ArPose *out_pose = nullptr;
+            //Outputs of hit test: a hit result, the pose at that location, and the concerned plane
+            ArHitResult* hitResult = nullptr;
+            ArPose* hitPose = nullptr;
             ArPlane* hitPlane = nullptr;
-            for (int32_t i = 0; i < hit_result_list_size; ++i) {
-                ArHitResult *ar_hit = nullptr;
-                ArPose *created_out_pose = nullptr;
-                ArHitResult_create(ar_session_, &ar_hit);
-                ArHitResultList_getItem(ar_session_, hit_result_list, i, ar_hit);
 
-                if (ar_hit == nullptr) {
-                    LOGE("HelloArApplication::OnTouched ArHitResultList_getItem error");
-                    return editAnchor;
-                }
-
-                ArTrackable *ar_trackable = nullptr;
-                ArHitResult_acquireTrackable(ar_session_, ar_hit, &ar_trackable);
-                ArTrackableType ar_trackable_type = AR_TRACKABLE_NOT_VALID;
-                ArTrackable_getType(ar_session_, ar_trackable, &ar_trackable_type);
-                // Creates an anchor if a plane or an oriented point was hit.
-                if (AR_TRACKABLE_PLANE == ar_trackable_type) {
-                    ArPose *hit_pose = nullptr;
-                    ArPose_create(ar_session_, nullptr, &hit_pose);
-                    ArHitResult_getHitPose(ar_session_, ar_hit, hit_pose);
-                    int32_t in_polygon = 0;
-                    ArPlane *ar_plane = ArAsPlane(ar_trackable);
-                    ArPlane_isPoseInPolygon(ar_session_, ar_plane, hit_pose, &in_polygon);
-
-                    {
-                        // Use hit pose and camera pose to check if hittest is from the
-                        // back of the plane, if it is, no need to create the anchor.
-                        ArPose *camera_pose = nullptr;
-                        ArPose_create(ar_session_, nullptr, &camera_pose);
-                        ArCamera *ar_camera;
-                        ArFrame_acquireCamera(ar_session_, ar_frame_, &ar_camera);
-                        ArCamera_getPose(ar_session_, ar_camera, camera_pose);
-                        float normal_distance_to_plane = util::CalculateDistanceToPlane(
-                                ar_session_, *hit_pose, *camera_pose);
-
-                        if (!in_polygon || normal_distance_to_plane < 0) {
-                            ArPose_destroy(camera_pose);
-                            continue;
-                        }
-                        ArPose_destroy(camera_pose);
-                        ArCamera_release(ar_camera);
-                    }
-
-                    //Raw pose of hit location
-                    float out_hit_raw[] = {0, 0, 0, 0, 0, 0, 0};
-                    ArPose_getPoseRaw(ar_session_, hit_pose, out_hit_raw);
-                    ArPose_destroy(hit_pose);
-
-                    //Position of anchor
-                    glm::vec4 pendingAnchorPos(out_hit_raw[4], out_hit_raw[5], out_hit_raw[6], 1);
-                    pendingAnchor->SetContainingPlane(ar_plane);
-
-                    //Check if plane contains approx the same anchor
-                    auto planeAnchors = plane_anchors_map_.find(ar_plane);
-                    if (planeAnchors != plane_anchors_map_.end()) {
-                        //other anchors existed on this plane
-                        std::vector<ArAnchor*> anchors = planeAnchors->second;
-                        int i = 0;
-                        LOGI("Size of anchor list: %d", (int) anchors.size());
-                        for(ArAnchor* const& anchor: anchors) {
-                            //Get anchor's pose
-                            i++;
-                            LOGI("CHECKING: Anchor #%d", i);
-                            ArPose *anchor_pose = nullptr;
-                            ArPose_create(ar_session_, nullptr, &anchor_pose);
-                            ArAnchor_getPose(ar_session_, anchor, anchor_pose);
-                            float out_anchor_raw[] = {0, 0, 0, 0, 0, 0, 0};
-                            ArPose_getPoseRaw(ar_session_, anchor_pose, out_anchor_raw);
-                            ArPose_destroy(anchor_pose);
-                            glm::vec4 oldAnchorPos(out_anchor_raw[4], out_anchor_raw[5], out_anchor_raw[6], 1);
-                            oldAnchorPos = oldAnchorPos - pendingAnchorPos;
-                            float distance = util::Magnitude(glm::vec3(oldAnchorPos));
-                            if (distance < 0.1f) {
-                                LOGI("TouchFirst: Editing old anchor!");
-                                editAnchor = true;
-                                pendingAnchor->SetArAnchor(anchor);
-                                pendingAnchor->SetEditMode(true);
-
-                                ArHitResult_destroy(ar_hit);
-                                ArHitResultList_destroy(hit_result_list);
-                                LOGI("TouchFirst: Edit %d", editAnchor);
-                                return editAnchor;
-                            }
-                        }
-                    }
-
-                    //actual hit result, and containing plane
-                    ar_hit_result = ar_hit;
-                    hitPlane = ar_plane;
-
-                    //new anchor pos
-                    float wanted_raw_pose[] = {0, 0, 0, 0, out_hit_raw[4], out_hit_raw[5], out_hit_raw[6]};
-                    ArPose_create(ar_session_, wanted_raw_pose, &created_out_pose);
-                    out_pose = created_out_pose;
+            //Traverse the list of hit results
+            for (auto i = 0; i < hitResultListSize; ++i) {
+                bool traversalResult = TraverseHitResultList(hitResultList, i, &hitPose, &hitResult, &hitPlane);
+                if (traversalResult) {
+                    //if traversal returned true --> continue traversal
+                    continue;
+                } else if (pendingAnchor->GetEditMode()) {
+                    //else, traversal returned false & editing anchor
+                    return true;
+                } else {
+                    //else, traversal returned false & added new anchor
                     break;
                 }
             }
 
+            //If something hit: a new anchor must be created
+            if (hitResult) {
+                LOGI("OnTouchedFirst: adding new anchor");
+                ArAnchor* newAnchor = nullptr;
 
-            if (ar_hit_result) {
-                LOGI("TouchFirst: Adding new anchor!");
-                ArAnchor *anchor = nullptr;
-                pendingAnchor->SetEditMode(false);
-
-                if (ArSession_acquireNewAnchor(ar_session_, out_pose, &anchor) != AR_SUCCESS) {
-                    LOGE("HelloArApplication::OnTouched ArHitResult_acquireNewAnchor error");
-                    LOGI("TouchFirst: Failed to acquire new anchor");
-                    delete hitPlane;
-                    delete pendingAnchor;
-                    pendingAnchor = nullptr;
+                if (ArSession_acquireNewAnchor(ar_session_, hitPose, &newAnchor) == AR_SUCCESS) {
+                    AnchorWrapper* newAnchorW = new AnchorWrapper(newAnchor);
+                    pendingAnchor->SetAnchorWrapper(newAnchorW);
+                    util::ReleaseHitTraversal(hitResult, hitResultList, hitPose);
                     LOGI("TouchFirst: Edit %d", editAnchor);
                     return editAnchor;
+                } else {
+                    LOGE("HelloArApplication::OnTouchedFirst ArHitResult_acquireNewAnchor error");
                 }
-                pendingAnchor->SetArAnchor(anchor);
-
-                ArHitResult_destroy(ar_hit_result);
-                ArHitResultList_destroy(hit_result_list);
-                ArPose_destroy(out_pose);
-                hit_result_list = nullptr;
-                LOGI("TouchFirst: Edit %d", editAnchor);
-                return editAnchor;
             }
 
-            LOGI("TouchFirst: didn't hit anything");
-            delete hitPlane;
-            delete pendingAnchor;
-            pendingAnchor = nullptr;
+            //Release: result, resultList, hitPose, trackable, pendingAnchor
+            util::ReleaseHitTraversal(hitResult, hitResultList, hitPose);
+            ArTrackable* arTrackable = ArAsTrackable(hitPlane);
+            ArTrackable_release(arTrackable);
+            ReleasePendingAnchor();
             LOGI("TouchFirst: Edit %d", editAnchor);
-            return editAnchor;
+            return false;
         }
-    }
-
-    void HelloArApplication::AddAnchor(ArAnchor* anchor, ArPlane* containingPlane) {
-        //delete anchor from matrices maps
-        //releasing the anchor if it is not tracking anymore
-        ArTrackingState tracking_state = AR_TRACKING_STATE_STOPPED;
-        ArAnchor_getTrackingState(ar_session_, anchor, &tracking_state);
-        if (tracking_state != AR_TRACKING_STATE_TRACKING) {
-            RemoveAnchor(anchor);
-            return;
-        }
-
-        //releasing the first anchor if we exceeded maximum number of objects to be rendered
-        if (tracked_obj_set_.size() >= kMaxNumberOfAndroidsToRender) {
-            RemoveAnchor(tracked_obj_set_[0]);
-        }
-
-        //updating the containing plane with a new anchor
-        auto planeAnchors = plane_anchors_map_.find(containingPlane);
-        if (planeAnchors != plane_anchors_map_.end()) {
-            //other anchors existed on this plane
-            LOGI("TouchFinal: ADDING TO OLD ANCHORS");
-            std::vector<ArAnchor*> anchors = planeAnchors->second;
-            anchors.push_back(anchor);
-            plane_anchors_map_[containingPlane] = anchors;
-            anchor_plane_map_.insert({anchor, containingPlane});
-        } else {
-            LOGI("TouchFinal: NEW SET OF ANCHORS");
-            std::vector<ArAnchor*> anchors;
-            anchors.push_back(anchor);
-            plane_anchors_map_.insert({containingPlane, anchors});
-            anchor_plane_map_.insert({anchor, containingPlane});
-        }
-
-        tracked_obj_set_.push_back(anchor);
+        return false; //nothing happened
     }
 
     void HelloArApplication::OnTouchTranslate(float x, float y) {
-        LOGI("Entered On Edit Touched");
-        ArAnchor *anchor = pendingAnchor->GetArAnchor();
-        glm::mat4 matrix = util::SkMatToGlmMat(
-                anchor_skmat4_axis_aligned_map_.find(anchor)->second);
+        LOGI("Entered OnTouchedTranslate");
+        if (!CheckPendingAnchorOnEdit()) {
+            return;
+        }
+
+        ArAnchor* anchor = pendingAnchor->GetArAnchor();
+        AnchorWrapper* anchorW = pendingAnchor->GetAnchorWrapper();
+        glm::mat4 aaMat = util::SkMatToGlmMat(
+                anchor_skmat4_axis_aligned_map_.find(anchorW)->second);
+        glm::mat4 caMat = util::SkMatToGlmMat(
+                anchor_skmat4_camera_aligned_map_.find(anchorW)->second);
+        glm::mat4 snapMat = util::SkMatToGlmMat(
+                anchor_skmat4_snap_aligned_map_.find(anchorW)->second);
 
         if (ar_frame_ != nullptr && ar_session_ != nullptr) {
-            ArHitResultList *hit_result_list = nullptr;
-            ArHitResultList_create(ar_session_, &hit_result_list);
-            CHECK(hit_result_list);
-            ArFrame_hitTest(ar_session_, ar_frame_, x, y, hit_result_list);
+            //Perform hit test & get # of hit objects
+            ArHitResultList* hitResultList = nullptr;
+            int32_t hitResultListSize = 0;
+            util::GetHitTestInfo(ar_session_, ar_frame_, x, y, hitResultListSize, &hitResultList);
 
-            int32_t hit_result_list_size = 0;
-            ArHitResultList_getSize(ar_session_, hit_result_list, &hit_result_list_size);
-            ArHitResult *ar_hit_result = nullptr;
-            ArPose *out_pose = nullptr;
-            ArPlane *hitPlane = nullptr;
-            for (int32_t i = 0; i < hit_result_list_size; ++i) {
-                ArHitResult *ar_hit = nullptr;
-                ArPose *created_out_pose = nullptr;
-                ArHitResult_create(ar_session_, &ar_hit);
-                ArHitResultList_getItem(ar_session_, hit_result_list, i, ar_hit);
+            //Outputs of hit test: a hit result, the pose at that location, and the concerned plane
+            ArHitResult* hitResult = nullptr;
+            ArPose* hitPose = nullptr;
+            ArPlane* hitPlane = nullptr;
 
-                if (ar_hit == nullptr) {
-                    LOGE("HelloArApplication::OnTouched ArHitResultList_getItem error");
-                    return;
-                }
-
-                ArTrackable *ar_trackable = nullptr;
-                ArHitResult_acquireTrackable(ar_session_, ar_hit, &ar_trackable);
-                ArTrackableType ar_trackable_type = AR_TRACKABLE_NOT_VALID;
-                ArTrackable_getType(ar_session_, ar_trackable, &ar_trackable_type);
-                // Creates an anchor if a plane or an oriented point was hit.
-                if (AR_TRACKABLE_PLANE == ar_trackable_type) {
-                    ArPose *hit_pose = nullptr;
-                    ArPose_create(ar_session_, nullptr, &hit_pose);
-                    ArHitResult_getHitPose(ar_session_, ar_hit, hit_pose);
-                    int32_t in_polygon = 0;
-                    ArPlane *ar_plane = ArAsPlane(ar_trackable);
-                    ArPlane_isPoseInPolygon(ar_session_, ar_plane, hit_pose, &in_polygon);
-
-                    {
-                        // Use hit pose and camera pose to check if hittest is from the
-                        // back of the plane, if it is, no need to create the anchor.
-                        ArPose *camera_pose = nullptr;
-                        ArPose_create(ar_session_, nullptr, &camera_pose);
-                        ArCamera *ar_camera;
-                        ArFrame_acquireCamera(ar_session_, ar_frame_, &ar_camera);
-                        ArCamera_getPose(ar_session_, ar_camera, camera_pose);
-                        float normal_distance_to_plane = util::CalculateDistanceToPlane(
-                                ar_session_, *hit_pose, *camera_pose);
-
-                        if (!in_polygon || normal_distance_to_plane < 0) {
-                            ArPose_destroy(camera_pose);
-                            continue;
-                        }
-                        ArPose_destroy(camera_pose);
-                        ArCamera_release(ar_camera);
-                    }
-
-                    //Raw pose of hit location
-                    float out_hit_raw[] = {0, 0, 0, 0, 0, 0, 0};
-                    ArPose_getPoseRaw(ar_session_, hit_pose, out_hit_raw);
-                    ArPose_destroy(hit_pose);
-
-                    //Translate by new amount
-                    glm::vec4 newPos(out_hit_raw[4], out_hit_raw[5], out_hit_raw[6], 1);
-                    glm::vec4 oldPos = pendingAnchor->GetAnchorPos(ar_session_);
-                    glm::vec3 movement = glm::vec3(newPos - oldPos);
-
-
-                    //CAMERA SETTINGS
-                    glm::mat4 backToOrigin(1);
-                    backToOrigin = glm::translate(backToOrigin, -glm::vec3(oldPos));
-                    glm::mat4 backToPlane(1);
-                    backToPlane = glm::translate(backToPlane, glm::vec3(oldPos));
-
-                    //Axes of Skia object: start with XYZ, totate to get X(-Z)Y, paste on plane, go back to origin --> plane orientation but on origin
-                    glm::vec3 objX = glm::normalize(glm::vec3(
-                            backToOrigin * matrix *
-                            glm::vec4(1, 0, 0, 1))); //X still X
-                    glm::vec3 objY = glm::normalize(glm::vec3(
-                            backToOrigin * matrix *
-                            glm::vec4(0, 1, 0, 1))); //Y is now Z
-                    glm::vec3 objZ = glm::normalize(glm::vec3(
-                            backToOrigin * matrix *
-                            glm::vec4(0, 0, 1, 1))); //Z is now Y
-
-
-                    glm::mat4 translate(1);
-                    translate = glm::translate(translate, movement);
-                    matrix = translate * matrix;
-                    RemoveAnchor(anchor);
-
-
-
-                    //new anchor pos
-                    float wanted_raw_pose[] = {0, 0, 0, 0, out_hit_raw[4], out_hit_raw[5],
-                                               out_hit_raw[6]};
-                    ArPose_create(ar_session_, wanted_raw_pose, &created_out_pose);
-                    out_pose = created_out_pose;
-                    ar_hit_result = ar_hit;
+            //Prepare translation matrix
+            glm::mat4 translate(1);
+            for (auto i = 0; i < hitResultListSize; ++i) {
+                bool traversalResult = TraverseHitResultListOnTranslate(hitResultList, i, &hitPose,
+                                                                        &hitResult, &hitPlane, translate);
+                if (traversalResult) {
+                    //if traversal returned true --> continue traversal
+                    continue;
+                } else {
+                    aaMat = translate * aaMat;
+                    caMat = translate * caMat;
+                    snapMat = snapMat; //untranslatable
                     break;
                 }
             }
 
-            if (ar_hit_result) {
-                LOGI("TouchFirst: Adding new anchor!");
-                ArAnchor *anchor = nullptr;
-                pendingAnchor->SetEditMode(false);
+            //Translated to new place: modify the anchor wrapper
+            if (hitResult) {
+                ArAnchor* newAnchor = nullptr;
+                if (ArSession_acquireNewAnchor(ar_session_, hitPose, &newAnchor) == AR_SUCCESS) {
+                    //Update anchor wrapper after translate
+                    AnchorWrapper* newAnchorW = new AnchorWrapper(newAnchor);
+                    ComputeAnchorWrapperPostTranslate(anchorW, newAnchorW, newAnchor);
 
-                if (ArSession_acquireNewAnchor(ar_session_, out_pose, &anchor) != AR_SUCCESS) {
-                    LOGE("HelloArApplication::OnTouched ArHitResult_acquireNewAnchor error");
-                    LOGI("TouchFirst: Failed to acquire new anchor");
-                    delete hitPlane;
-                    delete pendingAnchor;
-                    pendingAnchor = nullptr;
+                    //Update anchor -> model matrix datastructures
+                    AddModelMatrices(newAnchorW, aaMat, caMat, snapMat);
+
+                    //Add anchor to aux datastructures
+                    AddAnchorWrapper(newAnchorW, pendingAnchor->GetContainingPlane());
+
+                    util::ReleaseHitTraversal(hitResult, hitResultList, hitPose);
                     return;
+                } else {
+                    LOGE("HelloArApplication::OnTouchedTranslate ArHitResult_acquireNewAnchor error");
                 }
-                pendingAnchor->SetArAnchor(anchor);
-                anchor_skmat4_axis_aligned_map_[anchor] = util::GlmMatToSkMat(matrix);
-
-                //Add anchor
-                AddAnchor(anchor, pendingAnchor->GetContainingPlane());
-
-
-                ArHitResult_destroy(ar_hit_result);
-                ArHitResultList_destroy(hit_result_list);
-                ArPose_destroy(out_pose);
-                hit_result_list = nullptr;
-                return;
             }
+
+            //Release: result, resultList, hitPose, trackable, pendingAnchor
+            util::ReleaseHitTraversal(hitResult, hitResultList, hitPose);
+            ArTrackable* arTrackable = ArAsTrackable(hitPlane);
+            ArTrackable_release(arTrackable);
+            ReleasePendingAnchor();
+            return;
         }
+        return; //nothing happened
     }
 
-    void HelloArApplication::RemoveAnchor(ArAnchor* anchor) {
-        //delete anchor from matrices maps
-        anchor_skmat4_axis_aligned_map_.erase(anchor);
-        anchor_skmat4_camera_aligned_map_.erase(anchor);
-        anchor_skmat4_snap_aligned_map_.erase(anchor);
-
-        auto containingPlaneIter = anchor_plane_map_.find(anchor);
-        if (containingPlaneIter != anchor_plane_map_.end()) {
-            ArPlane*  containingPlane = containingPlaneIter->second;
-            auto planeAnchors = plane_anchors_map_.find(containingPlane);
-            if (planeAnchors != plane_anchors_map_.end()) {
-                //delete this anchor from the list of anchors associated with its plane
-                std::vector<ArAnchor*> anchors = planeAnchors->second;
-                anchors.erase(std::remove(anchors.begin(), anchors.end(), anchor), anchors.end());
-                plane_anchors_map_[planeAnchors->first] = anchors;
-
-                //delete anchor from map of anchor to plane
-                anchor_plane_map_.erase(anchor);
-            }
+    void HelloArApplication::OnTouchScale(float scale) {
+        if (!CheckPendingAnchorOnEdit()) {
+            return;
         }
-        //delete anchor from list of tracked objects
-        tracked_obj_set_.erase(std::remove(tracked_obj_set_.begin(), tracked_obj_set_.end(), anchor), tracked_obj_set_.end());
-        ArAnchor_release(anchor);
-    }
 
-    void HelloArApplication::UpdateMatrixMaps(ArAnchor* anchorKey, glm::mat4 aaMat, glm::mat4 caMat, glm::mat4 snapMat) {
-        anchor_skmat4_axis_aligned_map_.insert({anchorKey, util::GlmMatToSkMat(aaMat)});
-        anchor_skmat4_camera_aligned_map_.insert({anchorKey, util::GlmMatToSkMat(caMat)});
-        anchor_skmat4_snap_aligned_map_.insert({anchorKey, util::GlmMatToSkMat(snapMat)});
-    }
-
-    void SetSkiaInitialRotation(glm::mat4& initRotation) {
-        initRotation = glm::rotate(initRotation, SK_ScalarPI / 2, glm::vec3(1, 0, 0));
-    }
-
-    void SetSkiaObjectAxes(glm::vec3& x, glm::vec3& y, glm::vec3& z, glm::mat4 transform) {
-        x = glm::normalize(glm::vec3(transform * glm::vec4(1, 0, 0, 1))); //X still X
-        y = glm::normalize(glm::vec3(transform  * glm::vec4(0, 1, 0, 1))); //Y is now Z
-        z = glm::normalize(glm::vec3(transform  * glm::vec4(0, 0, 1, 1))); //Z is now Y
-    }
-
-    void SetCameraAlignedRotation(glm::mat4& rotateTowardsCamera, float& rotationDirection, const glm::vec3& toProject, const glm::vec3& skiaY, const glm::vec3& skiaZ) {
-        glm::vec3 hitLookProj = -util::ProjectOntoPlane(toProject, skiaZ);
-        float angleRad = util::AngleRad(skiaY, hitLookProj);
-        glm::vec3 cross = glm::normalize(glm::cross(skiaY, hitLookProj));
-
-        //outs
-        rotationDirection = util::Dot(cross, skiaZ);
-        rotateTowardsCamera = glm::rotate(rotateTowardsCamera, angleRad, rotationDirection * skiaZ);
-    }
-
-    struct CameraAlignmentInfo {
-        glm::vec3& skiaY, skiaZ;
-        glm::mat4& preRot, postRot;
-
-        CameraAlignmentInfo(glm::vec3& skiaY, glm::vec3& skiaZ, glm::mat4 preRot, glm::mat4 postRot)
-                : skiaY(skiaY), skiaZ(skiaZ), preRot(preRot), postRot(postRot) {}
-    };
-
-    void SetCameraAlignedVertical(glm::mat4& caMat, const glm::mat4& camRot, const CameraAlignmentInfo& camAlignInfo) {
-        //Camera axes
-        glm::vec3 xCamera = glm::vec3(glm::vec4(1, 0, 0, 1) * camRot);
-        glm::vec3 yCamera = glm::vec3(glm::vec4(0, 1, 0, 1) * camRot);
-        glm::vec3 zCamera = glm::vec3(glm::vec4(0, 0, -1, 1) * camRot);
-
-        //Get matrix that rotates object from plane towards the wanted angle
-        glm::mat4 rotateTowardsCamera(1);
-        float rotationDirection = 1;
-        SetCameraAlignedRotation(rotateTowardsCamera, rotationDirection, yCamera, camAlignInfo.skiaY, camAlignInfo.skiaZ);
-
-        //LogOrientation(dot, angleRad, "Vertical/Wall");
-        glm::mat4 flip(1);
-        flip = glm::rotate(flip, SK_ScalarPI, rotationDirection * camAlignInfo.skiaZ);
-        caMat = camAlignInfo.postRot * flip * rotateTowardsCamera * camAlignInfo.preRot;
-    }
-
-    void SetCameraAlignedHorizontal(glm::mat4& caMat, ArPlaneType planeType, const glm::vec3 hitLook, const CameraAlignmentInfo& camAlignInfo) {
-        //Ceiling or Floor: follow hit location
-        //Get matrix that rotates object from plane towards the wanted angle
-        glm::mat4 rotateTowardsCamera(1);
-        float rotationDirection = 1;
-        SetCameraAlignedRotation(rotateTowardsCamera, rotationDirection, hitLook, camAlignInfo.skiaY, camAlignInfo.skiaZ);
-
-        if (planeType == ArPlaneType::AR_PLANE_HORIZONTAL_DOWNWARD_FACING) {
-            //ceiling
-            //LogOrientation(dot, angleRad, "Ceiling");
-            glm::mat4 flip(1);
-            flip = glm::rotate(flip, SK_ScalarPI, rotationDirection * camAlignInfo.skiaZ);
-            caMat = camAlignInfo.postRot * flip * rotateTowardsCamera * camAlignInfo.preRot;
-        } else {
-            //floor or tabletop
-            //LogOrientation(dot, angleRad, "Floor");
-            caMat = camAlignInfo.postRot * rotateTowardsCamera * camAlignInfo.preRot;
-        }
-    }
-
-
-
-    void HelloArApplication::SetCameraAlignedMatrix(glm::mat4& caMat, glm::vec3 hitPos, glm::mat4& planeModel, const glm::mat4& initRotation) {
-        //Translation matrices: from plane to origin, and from origin to plane
-        glm::mat4 backToOrigin(1);
-        backToOrigin = glm::translate(backToOrigin, -hitPos);
-        glm::mat4 backToPlane(1);
-        backToPlane = glm::translate(backToPlane, hitPos);
-
-        //Axes of Skia object: start with XYZ, totate to get X(-Z)Y, paste on plane, go back to origin --> plane orientation but on origin
-        glm::vec3 skiaX, skiaY, skiaZ;
-        SetSkiaObjectAxes(skiaX, skiaY, skiaZ, backToOrigin * planeModel * initRotation);
-
-        //Get camera position & rotation
-        glm::vec3 cameraPos;
-        glm::mat4 cameraRotationMatrix;
-        util::GetCameraInfo(ar_session_, ar_frame_, cameraPos, cameraRotationMatrix);
-
-        //Set matrix depending on type of surface
-        ArPlaneType planeType = AR_PLANE_VERTICAL;
-        ArPlane_getType(ar_session_, pendingAnchor->GetContainingPlane(), &planeType);
-
-        //Set CamerAlignmentInfo
-        CameraAlignmentInfo camAlignInfo(skiaY, skiaZ, backToOrigin * planeModel * initRotation, backToPlane);
-
-        if (planeType == ArPlaneType::AR_PLANE_VERTICAL) {
-            //Wall: follow phone orientation
-            SetCameraAlignedVertical(caMat, cameraRotationMatrix, camAlignInfo);
-        } else {
-            //Ceiling or Floor: follow hit location
-            glm::vec3 hitLook(hitPos - cameraPos);
-            SetCameraAlignedHorizontal(caMat, planeType, hitLook, camAlignInfo);
-        }
-    }
-
-
-    void HelloArApplication::SetModelMatrices(glm::mat4& aaMat, glm::mat4& caMat, glm::mat4& snapMat, const glm::mat4& planeModel) {
-        //Brings Skia world to ARCore world
-        glm::mat4 initRotation(1);
-        SetSkiaInitialRotation(initRotation);
-
-        //Copy plane model for editing
-        glm::mat4 copyPlaneModel(planeModel);
-
-        //Set snap matrix
-        //snapMat = copyPlaneModel * initRotation;
-
-        //Set axis-aligned matrix
+        AnchorWrapper* anchorW = pendingAnchor->GetAnchorWrapper();
         glm::vec4 anchorPos = pendingAnchor->GetAnchorPos(ar_session_);
-        copyPlaneModel[3] = anchorPos;
-        aaMat = planeModel * initRotation;
+        glm::mat4 aaMat = util::SkMatToGlmMat(
+                anchor_skmat4_axis_aligned_map_.find(anchorW)->second);
+        glm::mat4 caMat = util::SkMatToGlmMat(
+                anchor_skmat4_camera_aligned_map_.find(anchorW)->second);
+        glm::mat4 snapMat = util::SkMatToGlmMat(
+                anchor_skmat4_snap_aligned_map_.find(anchorW)->second);
 
-        //Set camera-aligned matrix
-        //SetCameraAlignedMatrix(caMat, glm::vec3(anchorPos), copyPlaneModel, initRotation);
+        glm::mat4 backToOrigin(1);
+        backToOrigin = glm::translate(backToOrigin, -glm::vec3(anchorPos));
+        glm::mat4 backToPlane(1);
+        backToPlane = glm::translate(backToPlane, glm::vec3(anchorPos));
+
+        glm::mat4 scaleMat(1);
+        scaleMat = glm::scale(scaleMat, glm::vec3(scale, scale, scale));
+        UpdateModelMatrices(anchorW, backToPlane * scaleMat * backToOrigin * aaMat,
+                            backToPlane * scaleMat * backToOrigin * caMat,
+                            backToPlane * scaleMat * backToOrigin * snapMat);
     }
 
-    void GetPlaneModelMatrix(glm::mat4& planeModel, ArSession* arSession, ArPlane* arPlane) {
-        ArPose *plane_pose = nullptr;
-        ArPose_create(arSession, nullptr, &plane_pose);
-        ArPlane_getCenterPose(arSession, arPlane, plane_pose);
-        util::GetTransformMatrixFromPose(arSession, plane_pose, &planeModel);
-        ArPose_destroy(plane_pose);
+    void HelloArApplication::OnTouchRotate(float angle) {
+        if (!CheckPendingAnchorOnEdit()) {
+            return;
+        }
+
+        AnchorWrapper* anchorW = pendingAnchor->GetAnchorWrapper();
+        glm::vec4 anchorPos = pendingAnchor->GetAnchorPos(ar_session_);
+        glm::mat4 aaMat = util::SkMatToGlmMat(
+                anchor_skmat4_axis_aligned_map_.find(anchorW)->second);
+        glm::mat4 caMat = util::SkMatToGlmMat(
+                anchor_skmat4_camera_aligned_map_.find(anchorW)->second);
+        glm::mat4 snapMat = util::SkMatToGlmMat(
+                anchor_skmat4_snap_aligned_map_.find(anchorW)->second);
+
+        glm::mat4 backToOrigin(1);
+        backToOrigin = glm::translate(backToOrigin, -glm::vec3(anchorPos));
+        glm::mat4 backToPlane(1);
+        backToPlane = glm::translate(backToPlane, glm::vec3(anchorPos));
+
+        glm::mat4 rotate(1);
+        float angleRad = glm::radians(angle) * rotationSpeed;
+        rotate = glm::rotate(rotate, angleRad,
+                             -pendingAnchor->GetAnchorWrapper()->GetMatrixInfo()->skiaAxes[2]);
+        UpdateModelMatrices(anchorW, backToPlane * rotate * backToOrigin * aaMat,
+                            backToPlane * rotate * backToOrigin * caMat,
+                            backToPlane * rotate * backToOrigin * snapMat);
     }
 
     void HelloArApplication::OnTouchedFinal(int type) {
@@ -964,24 +666,389 @@ namespace hello_ar {
 
         //Get necessary pending anchor info
         ArPlane* containingPlane = pendingAnchor->GetContainingPlane();
-        glm::vec4 pendingAnchorPos = pendingAnchor->GetAnchorPos(ar_session_);
-        ArAnchor* actualAnchor = pendingAnchor->GetArAnchor();
+        AnchorWrapper* anchorW = pendingAnchor->GetAnchorWrapper();
 
-        //Plane model matrix
-        glm::mat4 planeModel(1);
-        GetPlaneModelMatrix(planeModel, ar_session_, containingPlane);
+        //Compute necessary information to be packaged for all matrix computations
+        util::MatrixComputationInfo* matInfo = GetMatrixComputationInfo(containingPlane);
+        anchorW->SetMatrixInfo(matInfo);
 
         //Setup skia object model matrices
         glm::mat4 matrixAxisAligned(1);
         glm::mat4 matrixCameraAligned(1);
         glm::mat4 matrixSnapAligned(1);
-        SetModelMatrices(matrixAxisAligned, matrixCameraAligned, matrixSnapAligned, planeModel);
+        SetModelMatrices(matrixAxisAligned, matrixCameraAligned, matrixSnapAligned, matInfo);
 
         //Update anchor -> model matrix datastructures
-        UpdateMatrixMaps(actualAnchor, matrixAxisAligned, matrixCameraAligned, matrixSnapAligned);
+        AddModelMatrices(anchorW, matrixAxisAligned, matrixCameraAligned, matrixSnapAligned);
 
         //Add anchor to aux datastructures
-        AddAnchor(actualAnchor, containingPlane);
+        AddAnchorWrapper(anchorW, containingPlane);
+    }
+
+    /******************* ANCHOR MANAGEMENT ***********************************************/
+
+    void HelloArApplication::AddAnchorWrapper(AnchorWrapper* anchorW, ArPlane* containingPlane) {
+        //delete anchor from matrices maps
+        //releasing the anchor if it is not tracking anymore
+        ArTrackingState tracking_state = AR_TRACKING_STATE_STOPPED;
+        ArAnchor_getTrackingState(ar_session_, anchorW->GetArAnchor(), &tracking_state);
+        if (tracking_state != AR_TRACKING_STATE_TRACKING) {
+            RemoveAnchorWrapper(anchorW);
+            return;
+        }
+
+        //releasing the first anchor if we exceeded maximum number of objects to be rendered
+        if (tracked_obj_set_.size() >= kMaxNumberOfAndroidsToRender) {
+            RemoveAnchorWrapper(tracked_obj_set_[0]);
+        }
+
+        //updating the containing plane with a new anchor
+        auto planeAnchors = plane_anchors_map_.find(containingPlane);
+        if (planeAnchors != plane_anchors_map_.end()) {
+            //other anchors existed on this plane
+            LOGI("TouchFinal: ADDING TO OLD ANCHORS");
+            std::vector<AnchorWrapper*> anchorWrappers = planeAnchors->second;
+            anchorWrappers.push_back(anchorW);
+            plane_anchors_map_[containingPlane] = anchorWrappers;
+        } else {
+            LOGI("TouchFinal: NEW SET OF ANCHORS");
+            std::vector<AnchorWrapper*> anchorWrappers;
+            anchorWrappers.push_back(anchorW);
+            plane_anchors_map_.insert({containingPlane, anchorWrappers});
+        }
+
+        auto anchorPlane = anchor_plane_map_.find(anchorW);
+        if (anchorPlane != anchor_plane_map_.end()) {
+            anchor_plane_map_[anchorW] =containingPlane;
+        } else {
+            anchor_plane_map_.insert({anchorW, containingPlane});
+        }
+
+        tracked_obj_set_.push_back(anchorW);
+    }
+
+    void HelloArApplication::RemoveAnchorWrapper(AnchorWrapper* anchorW) {
+        //delete anchor from matrices maps
+        anchor_skmat4_axis_aligned_map_.erase(anchorW);
+        anchor_skmat4_camera_aligned_map_.erase(anchorW);
+        anchor_skmat4_snap_aligned_map_.erase(anchorW);
+
+        auto containingPlaneIter = anchor_plane_map_.find(anchorW);
+        if (containingPlaneIter != anchor_plane_map_.end()) {
+            ArPlane*  containingPlane = containingPlaneIter->second;
+            auto planeAnchors = plane_anchors_map_.find(containingPlane);
+            if (planeAnchors != plane_anchors_map_.end()) {
+                //delete this anchor from the list of anchors associated with its plane
+                std::vector<AnchorWrapper*> anchorWrappers = planeAnchors->second;
+                anchorWrappers.erase(std::remove(anchorWrappers.begin(),
+                                                 anchorWrappers.end(), anchorW),
+                                                 anchorWrappers.end());
+                plane_anchors_map_[planeAnchors->first] = anchorWrappers;
+
+                //delete anchor from map of anchor to plane
+                anchor_plane_map_.erase(anchorW);
+            }
+        }
+
+        //delete anchor from list of tracked objects
+        tracked_obj_set_.erase(std::remove(tracked_obj_set_.begin(), tracked_obj_set_.end(),
+                                           anchorW), tracked_obj_set_.end());
+        ArAnchor_release(anchorW->GetArAnchor());
+    }
+
+    void HelloArApplication::ComputeAnchorWrapperPostTranslate(AnchorWrapper* oldWrapper,
+                                                               AnchorWrapper* newWrapper,
+                                                               ArAnchor* newAnchor) {
+        //Remove old wrapper from state of app
+        RemoveAnchorWrapper(oldWrapper);
+
+        //Update pending anchor
+        pendingAnchor->SetAnchorWrapper(newWrapper);
+        pendingAnchor->SetEditMode(true);
+
+        //Set new anchor fields
+        newWrapper->SetArAnchor(newAnchor);
+
+        //Prepare new matrix info
+        util::MatrixComputationInfo* oldMatInfo = oldWrapper->GetMatrixInfo();
+        glm::vec4 newAnchorPos = oldWrapper->GetAnchorPos(ar_session_);
+        glm::mat4 newBackToOrigin(1);
+        newBackToOrigin = glm::translate(newBackToOrigin, -glm::vec3(newAnchorPos));
+        glm::mat4 newBackToPlane(1);
+        newBackToPlane = glm::translate(newBackToPlane, glm::vec3(newAnchorPos));
+        glm::mat4 newHitModel(oldMatInfo->planeModel);
+        newHitModel[3] = newAnchorPos;
+        util::MatrixComputationInfo* newMatInfo =
+                new util::MatrixComputationInfo(oldMatInfo->skiaAxes, oldMatInfo->initRotation,
+                                                newBackToOrigin, newBackToPlane,
+                                                oldMatInfo->planeModel, newHitModel);
+        delete oldWrapper;
+
+        //Set new anchor fields
+        newWrapper->SetArAnchor(newAnchor);
+        newWrapper->SetMatrixInfo(newMatInfo);
+    }
+
+    bool HelloArApplication::CheckPendingAnchorOnEdit() {
+        LOGI("Editing anchor");
+
+        if (pendingAnchor == nullptr) {
+            LOGI("WARNING: Entered edit with null pending anchor!");
+            return false;
+        }
+
+        AnchorWrapper* anchorW = pendingAnchor->GetAnchorWrapper();
+        auto iter = anchor_plane_map_.find(anchorW);
+        if (iter == anchor_plane_map_.end()) {
+            LOGI("WARNING: Entered edit with no finalized anchor!");
+            return false;
+        }
+
+        if (!pendingAnchor->GetEditMode()) {
+            LOGI("WARNING: Entered edit with no edit mode!");
+            return false;
+        }
+
+        return true;
+    }
+
+    void HelloArApplication::ReleasePendingAnchor() {
+        if (pendingAnchor != nullptr) {
+            delete pendingAnchor;
+            pendingAnchor = nullptr;
+        }
+    }
+
+    /************************ Model Matrix functions ***************/
+
+    void HelloArApplication::SetModelMatrices(glm::mat4& aaMat, glm::mat4& caMat, glm::mat4& snapMat,
+                                              util::MatrixComputationInfo* info) {
+        //Set snap matrix
+        snapMat = info->planeModel * info->initRotation;
+
+        //Set axis-aligned matrix
+        aaMat = info->hitModel * info->initRotation;
+
+        //Set camera-aligned matrix
+        SetCameraAlignedMatrix(caMat, glm::vec3(info->hitModel[3]), info);
+    }
+
+    // Inserts new key-value pair associated with an anchor & its corresponding model matrix
+    void HelloArApplication::AddModelMatrices(AnchorWrapper* anchorWrapperKey, glm::mat4 aaMat,
+                                              glm::mat4 caMat, glm::mat4 snapMat) {
+        anchor_skmat4_axis_aligned_map_.insert({anchorWrapperKey, util::GlmMatToSkMat(aaMat)});
+        anchor_skmat4_camera_aligned_map_.insert({anchorWrapperKey, util::GlmMatToSkMat(caMat)});
+        anchor_skmat4_snap_aligned_map_.insert({anchorWrapperKey, util::GlmMatToSkMat(snapMat)});
+    }
+
+    // Updates a pre-existing anchor wrapper key in the model matrix maps
+    void HelloArApplication::UpdateModelMatrices(AnchorWrapper* anchorWrapperKey, glm::mat4 aaMat,
+                                                 glm::mat4 caMat, glm::mat4 snapMat) {
+        anchor_skmat4_axis_aligned_map_[anchorWrapperKey] = util::GlmMatToSkMat(aaMat);
+        anchor_skmat4_camera_aligned_map_[anchorWrapperKey] = util::GlmMatToSkMat(caMat);
+        anchor_skmat4_snap_aligned_map_[anchorWrapperKey] = util::GlmMatToSkMat(snapMat);
+    }
+
+    // Constructs the model matrix associated with the camera-aligned orientation mode
+    void HelloArApplication::SetCameraAlignedMatrix(glm::mat4& caMat, glm::vec3 hitPos,
+                                                    const util::MatrixComputationInfo* info) {
+        //Get camera position & rotation
+        glm::vec3 cameraPos;
+        glm::mat4 cameraRotationMatrix;
+        util::GetCameraInfo(ar_session_, ar_frame_, cameraPos, cameraRotationMatrix);
+
+        //Set matrix depending on type of surface
+        ArPlaneType planeType = AR_PLANE_VERTICAL;
+        ArPlane_getType(ar_session_, pendingAnchor->GetContainingPlane(), &planeType);
+
+        if (planeType == ArPlaneType::AR_PLANE_VERTICAL) {
+            //Wall: follow phone orientation
+            SetCameraAlignedVertical(caMat, cameraRotationMatrix, info);
+        } else {
+            //Ceiling or Floor: follow hit location
+            glm::vec3 hitLook(hitPos - cameraPos);
+            SetCameraAlignedHorizontal(caMat, planeType, hitLook, info);
+        }
+    }
+
+    util::MatrixComputationInfo* HelloArApplication::GetMatrixComputationInfo(ArPlane* containingPlane) {
+        //Plane model matrix
+        glm::mat4 planeModel(1);
+        util::GetPlaneModelMatrix(planeModel, ar_session_, containingPlane);
+
+        //Hit model matrix
+        glm::mat4 hitModel = planeModel;
+        glm::vec4 pendingAnchorPos = pendingAnchor->GetAnchorPos(ar_session_);
+        hitModel[3] = pendingAnchorPos;
+
+        //Brings Skia world to ARCore world
+        glm::mat4 initRotation(1);
+        util::SetSkiaInitialRotation(initRotation);
+
+        //Translation matrices: from plane to origin, and from origin to plane
+        glm::mat4 backToOrigin(1);
+        backToOrigin = glm::translate(backToOrigin, -glm::vec3(pendingAnchorPos));
+        glm::mat4 backToPlane(1);
+        backToPlane = glm::translate(backToPlane, glm::vec3(pendingAnchorPos));
+
+        //Axes of Skia object: start with XYZ, rotate to get XZY, paste on plane, go back to origin
+        glm::vec3 skiaX, skiaY, skiaZ;
+        util::SetSkiaObjectAxes(skiaX, skiaY, skiaZ, backToOrigin * hitModel * initRotation);
+        std::vector<glm::vec3> skiaAxes;
+        skiaAxes.push_back(skiaX);
+        skiaAxes.push_back(skiaY);
+        skiaAxes.push_back(skiaZ);
+
+        //Set CamerAlignmentInfo
+        util::MatrixComputationInfo* matInfo = new util::MatrixComputationInfo(skiaAxes,
+                                   initRotation, backToOrigin, backToPlane, planeModel, hitModel);
+        return matInfo;
+    }
+
+    /***************** Hit Test Helpers *******************************/
+
+    bool HelloArApplication::CheckNeighborAnchors(ArPlane* containingPlane, const glm::vec4& hitPosition) {
+        //Check if plane contains approx the same anchor
+        auto planeAnchors = plane_anchors_map_.find(containingPlane);
+        if (planeAnchors != plane_anchors_map_.end()) {
+            //other anchors existed on this plane
+            std::vector<AnchorWrapper*> anchorWrappers = planeAnchors->second;
+            int i = 0;
+            for(AnchorWrapper* a: anchorWrappers) {
+                //Get anchor's pose raw
+                ArPose* anchorPose = nullptr;
+                ArPose_create(ar_session_, nullptr, &anchorPose);
+                ArAnchor_getPose(ar_session_, a->GetArAnchor(), anchorPose);
+                float anchorPoseRaw[] = {0, 0, 0, 0, 0, 0, 0};
+                ArPose_getPoseRaw(ar_session_, anchorPose, anchorPoseRaw);
+                ArPose_destroy(anchorPose);
+
+                //Compute distance between current current anchor and old one
+                glm::vec4 oldAnchorPos(anchorPoseRaw[4], anchorPoseRaw[5], anchorPoseRaw[6], 1);
+                oldAnchorPos = oldAnchorPos - hitPosition;
+                float distance = util::Magnitude(glm::vec3(oldAnchorPos));
+                if (distance < 0.1f) {
+                    //Distance small enough: editing an old anchor
+                    LOGI("CheckNeighborAnchors: editing old anchor");
+                    pendingAnchor->SetAnchorWrapper(a);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    bool HelloArApplication::TraverseHitResultList(ArHitResultList* hitResultList, int index,
+                                                   ArPose** outHitPose, ArHitResult** outHitResult,
+                                                   ArPlane** outHitPlane) {
+        ArHitResult* currHitResult = nullptr;
+        ArTrackable* currTrackable = nullptr;
+        if (!util::GetTrackableInfo(ar_session_, hitResultList, index, currHitResult, currTrackable)) {
+            return true; //continue traversal
+        }
+
+        ArTrackableType currTrackableType = AR_TRACKABLE_NOT_VALID;
+        ArTrackable_getType(ar_session_, currTrackable, &currTrackableType);
+
+        if (currTrackableType == AR_TRACKABLE_PLANE) {
+            //Get the ArPlane
+            ArPlane* currPlane = ArAsPlane(currTrackable);
+
+            //Get the pose at the hit location
+            ArPose* currHitPose = nullptr;
+            ArPose_create(ar_session_, nullptr, &currHitPose);
+            ArHitResult_getHitPose(ar_session_, currHitResult, currHitPose);
+
+            //Check if hit location is inside of plane polygon (accuracy)
+            int32_t inPolygon = 0;
+            ArPlane_isPoseInPolygon(ar_session_, currPlane, currHitPose, &inPolygon);
+            float currHitPoseRaw[] = {0, 0, 0, 0, 0, 0, 0};
+
+            if (!util::CheckHitLocation(ar_session_, ar_frame_, currHitPose, inPolygon, currHitPoseRaw)) {
+                //Perform next traversal if hit location not in polygon or below plane
+                return true;
+            }
+
+            //Position of anchor
+            glm::vec4 pendingAnchorPos(currHitPoseRaw[4], currHitPoseRaw[5], currHitPoseRaw[6], 1);
+            pendingAnchor->SetContainingPlane(currPlane);
+
+            if (CheckNeighborAnchors(currPlane, pendingAnchorPos)) {
+                //Editing an anchor, stop traversal
+                pendingAnchor->SetEditMode(true);
+                //Clear hit result memory
+                ArHitResult_destroy(currHitResult);
+                ArHitResultList_destroy(hitResultList);
+                return false; //break traversal
+            }
+
+            //All other anchors failed: adding a new anchor
+            pendingAnchor->SetEditMode(false);
+            *outHitResult = currHitResult;
+            *outHitPlane = currPlane;
+
+            //New anchor pose
+            float hitPoseRaw[] = {0, 0, 0, 0, currHitPoseRaw[4], currHitPoseRaw[5], currHitPoseRaw[6]};
+            ArPose_create(ar_session_, hitPoseRaw, outHitPose);
+            return false; //break traversal
+        }
+
+        //Nothing happened, continue traversal
+        return true;
+    }
+
+    bool HelloArApplication::TraverseHitResultListOnTranslate(ArHitResultList* hitResultList, int index,
+                                                              ArPose** outHitPose, ArHitResult** outHitResult,
+                                                              ArPlane** outHitPlane, glm::mat4& outTranslate) {
+        ArHitResult* currHitResult = nullptr;
+        ArTrackable* currTrackable = nullptr;
+        if (!util::GetTrackableInfo(ar_session_, hitResultList, index, currHitResult, currTrackable)) {
+            return true; //continue traversal
+        }
+
+        ArTrackableType currTrackableType = AR_TRACKABLE_NOT_VALID;
+        ArTrackable_getType(ar_session_, currTrackable, &currTrackableType);
+
+        if (currTrackableType == AR_TRACKABLE_PLANE) {
+            //Get the ArPlane
+            ArPlane* currPlane = ArAsPlane(currTrackable);
+
+            //Get the pose at the hit location
+            ArPose* currHitPose = nullptr;
+            ArPose_create(ar_session_, nullptr, &currHitPose);
+            ArHitResult_getHitPose(ar_session_, currHitResult, currHitPose);
+
+            //Check if hit location is inside of plane polygon (accuracy)
+            int32_t inPolygon = 0;
+            ArPlane_isPoseInPolygon(ar_session_, currPlane, currHitPose, &inPolygon);
+            float currHitPoseRaw[] = {0, 0, 0, 0, 0, 0, 0};
+
+            if (!util::CheckHitLocation(ar_session_, ar_frame_, currHitPose, inPolygon, currHitPoseRaw)) {
+                //Perform next traversal if hit location not in polygon or below plane
+                return true;
+            }
+
+            //Position of anchor
+            pendingAnchor->SetContainingPlane(currPlane);
+
+            //Translate by new amount
+            glm::vec4 newPos(currHitPoseRaw[4], currHitPoseRaw[5], currHitPoseRaw[6], 1);
+            glm::vec4 oldPos = pendingAnchor->GetAnchorPos(ar_session_);
+            glm::vec3 movement = glm::vec3(newPos - oldPos);
+            outTranslate = glm::translate(outTranslate, movement);
+
+            //All other anchors failed: adding a new anchor
+            *outHitResult = currHitResult;
+            *outHitPlane = currPlane;
+
+            //New anchor pose
+            float hitPoseRaw[] = {0, 0, 0, 0, currHitPoseRaw[4], currHitPoseRaw[5], currHitPoseRaw[6]};
+            ArPose_create(ar_session_, hitPoseRaw, outHitPose);
+            return false;
+        }
+
+        //Nothing happened, continue traversal
+        return true;
     }
 
 }  // namespace hello_ar

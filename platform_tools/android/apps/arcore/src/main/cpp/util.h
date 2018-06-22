@@ -53,6 +53,19 @@ namespace hello_ar {
     // Utilities
     namespace util {
 
+        // Bundle of data used by SetCameraAlignedMatrix()
+        struct MatrixComputationInfo {
+            glm::mat4 initRotation, backToOrigin, backToPlane, planeModel, hitModel;
+            std::vector<glm::vec3> skiaAxes;
+
+            MatrixComputationInfo() {};
+
+            MatrixComputationInfo(std::vector<glm::vec3> skiaAxes, glm::mat4 initRotation,
+            glm::mat4 backToOrigin, glm::mat4 backToPlane, glm::mat4 planeModel, glm::mat4 hitModel)
+                    : skiaAxes(skiaAxes), initRotation(initRotation),
+                      backToOrigin(backToOrigin), backToPlane(backToPlane), planeModel(planeModel), hitModel(hitModel) {};
+        };
+
         // Provides a scoped allocated instance of Anchor.
         // Can be treated as an ArAnchor*.
         class ScopedArPose {
@@ -114,15 +127,34 @@ namespace hello_ar {
         // Computes camera position and orientation (using GetCameraRotationMatrix)
         void GetCameraInfo(ArSession* arSession, ArFrame* arFrame, glm::vec3& cameraPos, glm::mat4& cameraRotation);
 
+        // Computes a plane model matrix given an ArPlane
+        void GetPlaneModelMatrix(glm::mat4& planeModel, ArSession* arSession, ArPlane* arPlane);
+
+        // Performs a hit test at a screen location. Returns a list of hit test results + size of list
+        void GetHitTestInfo(const ArSession* arSession, const ArFrame* arFrame, float x, float y,
+                            int32_t& outListSize, ArHitResultList** outHitResultList);
+
+        // Converts a hit test result to a trackable. Requires a further use of ArTrackable_release
+        bool GetTrackableInfo(const ArSession* arSession, const ArHitResultList* list, const int index,
+                              ArHitResult*& outHitResult, ArTrackable*& outTrackable);
+
+        // Returns true if and only if the hit pose is inside the plane polygon & is from above the plane.
+        // Fills in outHitPoseRaw[] with hit pose coords if true
+        bool CheckHitLocation(const ArSession* arSession, const ArFrame* arFrame, ArPose* hitPose, int inPolygon,
+                              float outHitPoseRaw[]);
+
+        // Releases memory allocated by a hitResult traversal: hitRes, list, & corresponding pose
+        void ReleaseHitTraversal(ArHitResult* hitResult, ArHitResultList* hitResultList, ArPose* hitPose);
+
         /* Matrix conversion */
         SkMatrix44 GlmMatToSkMat(const glm::mat4 m);
         glm::mat4 SkMatToGlmMat(const SkMatrix44 m);
 
         /* Logging utils */
-        //Row major output
+        // Row major output
         void Log4x4Matrix(float raw_matrix[16]);
 
-        //Column major output
+        // Column major output
         void LogGlmMat(glm::mat4 m, char *type);
         void LogSkMat44(SkMatrix44 m, char *type);
         void LogSkMat(SkMatrix m, char *type);
@@ -133,6 +165,23 @@ namespace hello_ar {
         float Magnitude(glm::vec3 u);
         float AngleRad(glm::vec3 u, glm::vec3 v);
         glm::vec3 ProjectOntoPlane(glm::vec3 in, glm::vec3 normal);
+
+        /* Alignment mode utils */
+        // Computes an initial rotation matrix to be applied to all Skia objects (moves from XY to XZ plane)
+        void SetSkiaInitialRotation(glm::mat4& initRotation);
+
+        // Applies a transformation to Skia's axes
+        void SetSkiaObjectAxes(glm::vec3& x, glm::vec3& y, glm::vec3& z, glm::mat4 transform);
+
+        // Computes the rotation matrix used to align the model with the "camera" axis
+        void SetCameraAlignedRotation(glm::mat4& rotateTowardsCamera, float& rotationDirection,
+                                      const glm::vec3& toProject, const glm::vec3& skiaY, const glm::vec3& skiaZ);
+
+        // Branch called by SetCamerAlignedMatrix if the surface is a wall
+        void SetCameraAlignedVertical(glm::mat4& caMat, const glm::mat4& camRot, const MatrixComputationInfo* info);
+
+        // Branch called by SetCameraAlignedMatrix if the surface is a floor/ceiling
+        void SetCameraAlignedHorizontal(glm::mat4& caMat, ArPlaneType planeType, const glm::vec3 hitLook, const MatrixComputationInfo* info);
     }  // namespace util
 }  // namespace hello_ar
 

@@ -20,11 +20,31 @@
 
 namespace hello_ar {
 
-    AnchorWrapper::AnchorWrapper(ArAnchor *anchor) : anchor(anchor) {}
+    AnchorWrapper::AnchorWrapper(ArAnchor *anchor) : anchor(anchor), matrixInfo() {}
 
-    const ArAnchor* AnchorWrapper::GetArAnchor() {
+    AnchorWrapper::~AnchorWrapper() {
+        delete this->matrixInfo;
+    }
+
+    ArAnchor* AnchorWrapper::GetArAnchor() const {
         return anchor;
     }
+
+    glm::vec4 AnchorWrapper::GetAnchorPos(ArSession* arSession) {
+        float poseRaw[] = {0, 0, 0, 0, 0, 0, 0};
+        ArPose* anchorPose = nullptr;
+        ArPose_create(arSession, poseRaw, &anchorPose);
+        ArAnchor_getPose(arSession, this->GetArAnchor(), anchorPose);
+        ArPose_getPoseRaw(arSession, anchorPose, poseRaw);
+        ArPose_destroy(anchorPose);
+        glm::vec4 anchorPos = glm::vec4(poseRaw[4], poseRaw[5], poseRaw[6], 1);
+        return anchorPos;
+    }
+
+    util::MatrixComputationInfo* AnchorWrapper::GetMatrixInfo() {
+        return matrixInfo;
+    }
+
     DrawableType AnchorWrapper::GetDrawableType() {
         return drawableType;
     }
@@ -32,6 +52,11 @@ namespace hello_ar {
     void AnchorWrapper::SetArAnchor(ArAnchor* anchor) {
         this->anchor = anchor;
     }
+
+    void AnchorWrapper::SetMatrixInfo(util::MatrixComputationInfo* info) {
+        this->matrixInfo = info;
+    }
+
     void AnchorWrapper::SetDrawableType(DrawableType drawableType) {
         this->drawableType = drawableType;
     }
