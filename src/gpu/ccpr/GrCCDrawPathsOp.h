@@ -71,8 +71,15 @@ public:
 private:
     friend class GrOpMemoryPool;
 
-    GrCCDrawPathsOp(const SkIRect& clippedDevIBounds, const SkMatrix&, const GrShape&,
-                    bool canStashPathMask, const SkRect& devBounds, GrPaint&&);
+    enum class Visibility {
+        kPartial,
+        kMostlyComplete,  // (i.e., can we cache the whole path mask if we think it will be reused?)
+        kComplete
+    };
+
+    GrCCDrawPathsOp(const SkMatrix&, const GrShape&, const SkIRect& shapeDevIBounds,
+                    const SkIRect& maskDevIBounds, Visibility maskVisibility,
+                    const SkRect& devBounds, GrPaint&&);
 
     void recordInstance(const GrTextureProxy* atlasProxy, int instanceIdx);
 
@@ -80,17 +87,16 @@ private:
     const uint32_t fSRGBFlags;
 
     struct SingleDraw {
-        SingleDraw(const SkIRect& clippedDevIBounds, const SkMatrix&, const GrShape&, GrColor,
-                   bool canStashPathMask);
+        SingleDraw(const SkMatrix&, const GrShape&, const SkIRect& shapeDevIBounds,
+                   const SkIRect& maskDevIBounds, Visibility maskVisibility, GrColor);
         ~SingleDraw();
 
-        const SkIRect fLooseClippedIBounds;
         SkMatrix fMatrix;
         const GrShape fShape;
+        const SkIRect fShapeDevIBounds;
+        SkIRect fMaskDevIBounds;
+        Visibility fMaskVisibility;
         GrColor fColor;
-
-        // If we render the path, can we stash its atlas and copy to the resource cache next flush?
-        const bool fCanStashPathMask;
 
         sk_sp<GrCCPathCacheEntry> fCacheEntry;
         sk_sp<GrTextureProxy> fCachedAtlasProxy;

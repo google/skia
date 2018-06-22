@@ -93,12 +93,20 @@ private:
 };
 
 /**
- * This class stores all the data necessary to draw a specific path from its corresponding cached
- * atlas.
+ * This class stores all the data necessary to draw a specific path + matrix combination from their
+ * corresponding cached atlas.
  */
 class GrCCPathCacheEntry : public SkPathRef::GenIDChangeListener {
 public:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrCCPathCacheEntry);
+
+    // The number of times this specific entry (path + matrix combination) has been pulled from
+    // the path cache. As long as the caller does exactly one lookup per draw, this translates to
+    // the number of times the path has been drawn with a compatible matrix.
+    //
+    // If the entry did not previously exist and was created during
+    // GrCCPathCache::find(.., CreateIfAbsent::kYes), its hit count will be 1.
+    int hitCount() const { return fHitCount; }
 
     // Does this entry reference a permanent, 8-bit atlas that resides in the resource cache?
     // (i.e. not a temporarily-stashed, fp16 coverage count atlas.)
@@ -150,6 +158,7 @@ private:
 
     GrCCPathCache* fCacheWeakPtr;  // Gets manually reset to null by the path cache upon eviction.
     const MaskTransform fMaskTransform;
+    int fHitCount = 1;
 
     GrUniqueKey fAtlasKey;
     SkIVector fAtlasOffset;

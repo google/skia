@@ -22,35 +22,50 @@ static bool has_coord_transforms(const GrPaint& paint) {
     return false;
 }
 
+static int64_t area(const SkIRect& r) {
+    return sk_64_mul(r.height(), r.width());
+}
+
 std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::Make(GrContext* context,
                                                        const SkIRect& clipIBounds,
                                                        const SkMatrix& m,
                                                        const GrShape& shape,
                                                        const SkRect& devBounds,
                                                        GrPaint&& paint) {
-    bool canStashPathMask = true;
-    SkIRect looseClippedIBounds;
-    devBounds.roundOut(&looseClippedIBounds);  // GrCCPathParser might find slightly tighter bounds.
-    if (!clipIBounds.contains(looseClippedIBounds)) {
-        canStashPathMask = false;
-        if (!looseClippedIBounds.intersect(clipIBounds)) {
+    SkIRect shapeDevIBounds;
+    devBounds.roundOut(&shapeDevIBounds);  // GrCCPathParser might find slightly tighter bounds.
+
+    SkIRect maskDevIBounds;
+    Visibility maskVisibility;
+    if (clipIBounds.contains(shapeDevIBounds)) {
+        maskDevIBounds = shapeDevIBounds;
+        maskVisibility = Visibility::kComplete;
+    } else {
+        if (!maskDevIBounds.intersect(clipIBounds, shapeDevIBounds)) {
             return nullptr;
         }
+        int64_t unclippedArea = area(shapeDevIBounds);
+        int64_t clippedArea = area(maskDevIBounds);
+        maskVisibility = (clippedArea >= unclippedArea/2 || unclippedArea < 100*100)
+                ? Visibility::kMostlyComplete  // i.e., visible enough to justify rendering the
+                                               // whole thing if we think we can cache it.
+                : Visibility::kPartial;
     }
 
     GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
 
-    return pool->allocate<GrCCDrawPathsOp>(looseClippedIBounds, m, shape, canStashPathMask,
-                                           devBounds, std::move(paint));
+    return pool->allocate<GrCCDrawPathsOp>(m, shape, shapeDevIBounds, maskDevIBounds,
+                                           maskVisibility, devBounds, std::move(paint));
 }
 
-GrCCDrawPathsOp::GrCCDrawPathsOp(const SkIRect& looseClippedIBounds, const SkMatrix& m,
-                                 const GrShape& shape, bool canStashPathMask,
-                                 const SkRect& devBounds, GrPaint&& paint)
+GrCCDrawPathsOp::GrCCDrawPathsOp(const SkMatrix& m, const GrShape& shape,
+                                 const SkIRect& shapeDevIBounds, const SkIRect& maskDevIBounds,
+                                 Visibility maskVisibility, const SkRect& devBounds,
+                                 GrPaint&& paint)
         : GrDrawOp(ClassID())
         , fViewMatrixIfUsingLocalCoords(has_coord_transforms(paint) ? m : SkMatrix::I())
         , fSRGBFlags(GrPipeline::SRGBFlagsFromPaint(paint))
-        , fDraws(looseClippedIBounds, m, shape, paint.getColor(), canStashPathMask)
+        , fDraws(m, shape, shapeDevIBounds, maskDevIBounds, maskVisibility, paint.getColor())
         , fProcessors(std::move(paint)) {  // Paint must be moved after fetching its color above.
     SkDEBUGCODE(fBaseInstance = -1);
     // FIXME: intersect with clip bounds to (hopefully) improve batching.
@@ -65,13 +80,16 @@ GrCCDrawPathsOp::~GrCCDrawPathsOp() {
     }
 }
 
-GrCCDrawPathsOp::SingleDraw::SingleDraw(const SkIRect& clippedDevIBounds, const SkMatrix& m,
-                                        const GrShape& shape, GrColor color, bool canStashPathMask)
-        : fLooseClippedIBounds(clippedDevIBounds)
-        , fMatrix(m)
+GrCCDrawPathsOp::SingleDraw::SingleDraw(const SkMatrix& m, const GrShape& shape,
+                                        const SkIRect& shapeDevIBounds,
+                                        const SkIRect& maskDevIBounds, Visibility maskVisibility,
+                                        GrColor color)
+        : fMatrix(m)
         , fShape(shape)
-        , fColor(color)
-        , fCanStashPathMask(canStashPathMask) {
+        , fShapeDevIBounds(shapeDevIBounds)
+        , fMaskDevIBounds(maskDevIBounds)
+        , fMaskVisibility(maskVisibility)
+        , fColor(color) {
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     if (fShape.hasUnstyledKey()) {
         // On AOSP we round view matrix translates to integer values for cachable paths. We do this
@@ -140,9 +158,12 @@ void GrCCDrawPathsOp::accountForOwnPaths(GrCCPathCache* pathCache,
         draw.fShape.asPath(&path);
 
         MaskTransform m(draw.fMatrix, &draw.fCachedMaskShift);
-        draw.fCacheEntry = pathCache->find(draw.fShape, m, CreateIfAbsent(draw.fCanStashPathMask));
+        bool canStashPathMask = draw.fMaskVisibility >= Visibility::kMostlyComplete;
+        draw.fCacheEntry = pathCache->find(draw.fShape, m, CreateIfAbsent(canStashPathMask));
+
         if (auto cacheEntry = draw.fCacheEntry.get()) {
             SkASSERT(!cacheEntry->currFlushAtlas());  // Shouldn't be set until setupResources().
+
             if (cacheEntry->atlasKey().isValid()) {
                 // Does the path already exist in a cached atlas?
                 if (cacheEntry->hasCachedAtlas() &&
@@ -168,18 +189,20 @@ void GrCCDrawPathsOp::accountForOwnPaths(GrCCPathCache* pathCache,
                 cacheEntry->resetAtlasKeyAndInfo();
             }
 
-            if (!draw.fCanStashPathMask) {
-                // No point in keeping this cache entry around anymore if we aren't going to try and
-                // stash the the rendered path mask after flush.
-                draw.fCacheEntry = nullptr;
-                pathCache->evict(cacheEntry);
+            if (Visibility::kMostlyComplete == draw.fMaskVisibility && cacheEntry->hitCount() > 1 &&
+                SkTMax(draw.fShapeDevIBounds.height(),
+                       draw.fShapeDevIBounds.width()) <= onFlushRP->caps()->maxRenderTargetSize()) {
+                // We've seen this path before with a compatible matrix, and it's mostly visible.
+                // Just render the whole mask so we can try to cache it.
+                draw.fMaskDevIBounds = draw.fShapeDevIBounds;
+                draw.fMaskVisibility = Visibility::kComplete;
             }
         }
 
         ++specs->fNumRenderedPaths;
         specs->fRenderedPathStats.statPath(path);
-        specs->fRenderedAtlasSpecs.accountForSpace(draw.fLooseClippedIBounds.width(),
-                                                   draw.fLooseClippedIBounds.height());
+        specs->fRenderedAtlasSpecs.accountForSpace(draw.fMaskDevIBounds.width(),
+                                                   draw.fMaskDevIBounds.height());
     }
 }
 
@@ -244,21 +267,37 @@ void GrCCDrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
         SkRect devBounds, devBounds45;
         SkIRect devIBounds;
         SkIVector devToAtlasOffset;
-        if (auto atlas = resources->renderPathInAtlas(draw.fLooseClippedIBounds, draw.fMatrix, path,
+        if (auto atlas = resources->renderPathInAtlas(draw.fMaskDevIBounds, draw.fMatrix, path,
                                                       &devBounds, &devBounds45, &devIBounds,
                                                       &devToAtlasOffset)) {
             this->recordInstance(atlas->textureProxy(), resources->nextPathInstanceIdx());
             resources->appendDrawPathInstance().set(devBounds, devBounds45, devToAtlasOffset,
                                                     draw.fColor, doEvenOddFill);
-            if (draw.fCacheEntry && draw.fCanStashPathMask &&
-                resources->nextAtlasToStash() == atlas) {
+
+            // If we have a spot in the path cache, try to make a note of where this mask is so we
+            // can reuse it in the future.
+            if (auto cacheEntry = draw.fCacheEntry.get()) {
+                SkASSERT(!cacheEntry->hasCachedAtlas());
+
+                if (Visibility::kComplete != draw.fMaskVisibility || cacheEntry->hitCount() <= 1) {
+                    // Don't cache a path mask unless it's completely visible with a hit count > 1.
+                    //
+                    // NOTE: mostly-visible paths with a hit count > 1 should have been promoted to
+                    // fully visible during accountForOwnPaths().
+                    continue;
+                }
+
+                if (resources->nextAtlasToStash() != atlas) {
+                    // This mask does not belong to the atlas that will be stashed for next flush.
+                    continue;
+                }
+
                 const GrUniqueKey& atlasKey =
                         resources->nextAtlasToStash()->getOrAssignUniqueKey(onFlushRP);
-                draw.fCacheEntry->initAsStashedAtlas(atlasKey, devToAtlasOffset, devBounds,
-                                                     devBounds45, devIBounds,
-                                                     draw.fCachedMaskShift);
+                cacheEntry->initAsStashedAtlas(atlasKey, devToAtlasOffset, devBounds, devBounds45,
+                                               devIBounds, draw.fCachedMaskShift);
                 // Remember this atlas in case we encounter the path again during the same flush.
-                draw.fCacheEntry->setCurrFlushAtlas(atlas);
+                cacheEntry->setCurrFlushAtlas(atlas);
             }
             continue;
         }

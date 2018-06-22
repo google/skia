@@ -114,7 +114,9 @@ sk_sp<GrCCPathCacheEntry> GrCCPathCache::find(const GrShape& shape, const MaskTr
     if (HashNode* node = fHashTable.find({keyData.get()})) {
         entry = node->entry();
         SkASSERT(this == entry->fCacheWeakPtr);
-        if (!fuzzy_equals(m, entry->fMaskTransform)) {
+        if (fuzzy_equals(m, entry->fMaskTransform)) {
+            ++entry->fHitCount;
+        } else {
             this->evict(entry);  // The path was reused with an incompatible matrix.
             entry = nullptr;
         }
