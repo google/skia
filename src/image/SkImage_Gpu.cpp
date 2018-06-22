@@ -316,7 +316,17 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
     if (!proxy) {
         return nullptr;
     }
-
+#if 1
+    // Temporary fix for crbug.com/850617 that can be cleanly merged back to older branches. Assume
+    // any MIP levels on the incoming texture are dirty. The proper fix is to make them clean on
+    // export. See #if 0'ed out code in GrDrawingManager::prepareSurfaceForExternalIO().
+    SkASSERT(proxy->priv().isInstantiated());
+    if (auto* tex = proxy->priv().peekTexture()) {
+        if (tex->texturePriv().mipMapped() == GrMipMapped::kYes) {
+            proxy->priv().peekTexture()->texturePriv().markMipMapsDirty();
+        }
+    }
+#endif
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, at, std::move(proxy),
                                    std::move(colorSpace), SkBudgeted::kNo);
 }
