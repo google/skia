@@ -763,7 +763,7 @@ public:
     void setMaskFilter(sk_sp<SkMaskFilter> maskFilter);
 
     /** Returns SkTypeface if set, or nullptr.
-        Increments SkTypeface SkRefCnt by one.
+        Does not alter SkTypeface SkRefCnt.
 
         @return  SkTypeface if previously set, nullptr otherwise
     */
