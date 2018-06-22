@@ -10,6 +10,7 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "ImageSlide.h"
+#include "NIMASlide.h"
 #include "Resources.h"
 #include "SKPSlide.h"
 #include "SampleSlide.h"
@@ -557,6 +558,10 @@ void Viewer::initSlides() {
         { ".svg", "svg-dir", FLAGS_svgs,
             [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
                 return sk_make_sp<SvgSlide>(name, path);}
+        },
+        { ".nima", "nima-dir", FLAGS_nimas,
+            [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
+                return sk_make_sp<NIMASlide>(name, path);}
         },
     };
 

@@ -48,6 +48,7 @@ class SkRasterClip;
 class SkRegion;
 class SkRRect;
 struct SkRSXform;
+class SkSkeleton;
 class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
@@ -2149,6 +2150,58 @@ public:
     */
     void drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode, const SkPaint& paint);
 
+    /** Draw SkVertices vertices, a triangle mesh, using clip and SkMatrix. Bone data is used to
+        deform vertices with bone weights.
+        If vertices texs and vertices colors are defined in vertices, and SkPaint paint
+        contains SkShader, SkBlendMode mode combines vertices colors with SkShader.
+
+        @param vertices  triangle mesh to draw
+        @param bones     bone data
+        @param mode      combines vertices colors with SkShader, if both are present
+        @param paint     specifies the SkShader, used as SkVertices texture, may be nullptr
+    */
+    void drawVertices(const SkVertices* vertices, const SkSkeleton* bones, SkBlendMode mode,
+                      const SkPaint& paint);
+
+    /** Draw SkVertices vertices, a triangle mesh, using clip and SkMatrix. Bone data is used to
+        deform vertices with bone weights.
+        If vertices texs and vertices colors are defined in vertices, and SkPaint paint
+        contains SkShader, SkBlendMode mode combines vertices colors with SkShader.
+
+        @param vertices  triangle mesh to draw
+        @param bones     bone data
+        @param mode      combines vertices colors with SkShader, if both are present
+        @param paint     specifies the SkShader, used as SkVertices texture, may be nullptr
+    */
+    void drawVertices(const sk_sp<SkVertices> vertices, const SkSkeleton* bones, SkBlendMode mode,
+                      const SkPaint& paint);
+
+    /** Draw SkVertices vertices, a triangle mesh, using clip and SkMatrix. Bone data is used to
+        deform vertices with bone weights.
+        If vertices texs and vertices colors are defined in vertices, and SkPaint paint
+        contains SkShader, SkBlendMode mode combines vertices colors with SkShader.
+
+        @param vertices  triangle mesh to draw
+        @param bones     bone data
+        @param mode      combines vertices colors with SkShader, if both are present
+        @param paint     specifies the SkShader, used as SkVertices texture, may be nullptr
+    */
+    void drawVertices(const SkVertices* vertices, const sk_sp<SkSkeleton> bones, SkBlendMode mode,
+                      const SkPaint& paint);
+
+    /** Draw SkVertices vertices, a triangle mesh, using clip and SkMatrix. Bone data is used to
+        deform vertices with bone weights.
+        If vertices texs and vertices colors are defined in vertices, and SkPaint paint
+        contains SkShader, SkBlendMode mode combines vertices colors with SkShader.
+
+        @param vertices  triangle mesh to draw
+        @param bones     bone data
+        @param mode      combines vertices colors with SkShader, if both are present
+        @param paint     specifies the SkShader, used as SkVertices texture, may be nullptr
+    */
+    void drawVertices(const sk_sp<SkVertices> vertices, const sk_sp<SkSkeleton> bones,
+                      SkBlendMode mode, const SkPaint& paint);
+
     /** Draws a Coons patch: the interpolation of four cubics with shared corners,
         associating a color, and optionally a texture SkPoint, with each corner.
 
@@ -2472,8 +2525,8 @@ protected:
                            const SkPoint texCoords[4], SkBlendMode mode, const SkPaint& paint);
     virtual void onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
                               const SkPaint& paint);
-    virtual void onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
-                                      const SkPaint& paint);
+    virtual void onDrawVerticesObject(const SkVertices* vertices, const SkSkeleton* bones,
+                                      SkBlendMode mode, const SkPaint& paint);
 
     virtual void onDrawImage(const SkImage* image, SkScalar dx, SkScalar dy, const SkPaint* paint);
     virtual void onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
