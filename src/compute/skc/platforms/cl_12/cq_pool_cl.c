@@ -46,7 +46,7 @@ static
 cl_command_queue
 skc_runtime_cl_12_create_cq(struct skc_runtime * const runtime,
                             struct skc_cq_pool * const pool)
-
+                      
 {
   cl_command_queue cq;
 
@@ -59,7 +59,7 @@ skc_runtime_cl_12_create_cq(struct skc_runtime * const runtime,
       cq = clCreateCommandQueue(runtime->cl.context,
                                 runtime->cl.device_id,
                                 pool->cq_props,
-                                &cl_err); cl_ok(cl_err);
+                                &cl_err); cl_ok(cl_err);  
 #else
   if (runtime_cl->version.major < 2)
     {
@@ -71,7 +71,7 @@ skc_runtime_cl_12_create_cq(struct skc_runtime * const runtime,
       cq = clCreateCommandQueue(runtime_cl->context,
                                 runtime_cl->device_id,
                                 (cl_command_queue_properties)type,
-                                &cl_err); cl_ok(cl_err);
+                                &cl_err); cl_ok(cl_err);  
     }
   else
     {
@@ -135,7 +135,7 @@ skc_cq_pool_dispose(struct skc_runtime * const runtime,
 //
 //
 
-static
+static 
 void
 skc_cq_pool_write(struct skc_cq_pool * const pool,
                   cl_command_queue           cq)
@@ -174,7 +174,7 @@ skc_cq_pool_expand(struct skc_runtime * const runtime,
 //
 //
 
-static
+static 
 cl_command_queue
 skc_cq_pool_read(struct skc_runtime * const runtime,
                  struct skc_cq_pool * const pool)
@@ -199,7 +199,7 @@ skc_runtime_acquire_cq_in_order(struct skc_runtime * const runtime)
 }
 
 void
-skc_runtime_release_cq_in_order(struct skc_runtime * const runtime,
+skc_runtime_release_cq_in_order(struct skc_runtime * const runtime, 
                                 cl_command_queue           cq)
 {
   skc_cq_pool_write(&runtime->cq_pool,cq);
