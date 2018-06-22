@@ -3138,7 +3138,7 @@ implementation.
 #In Typeface_Methods
 #Line # returns Typeface, font description ##
     Returns Typeface if set, or nullptr.
-    Increments Typeface Reference_Count by one.
+    Does not alter Typeface Reference_Count.
 
     #Return  Typeface if previously set, nullptr otherwise ##
 
