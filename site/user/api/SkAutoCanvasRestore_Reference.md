@@ -41,7 +41,6 @@ SkAutoCanvasRestore can be constructed or initialized by these functions, includ
   </tr>
 </table>
 
-
 ## <a name='Member_Function'>Member Function</a>
 
 
@@ -54,7 +53,6 @@ SkAutoCanvasRestore member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>restores <a href='SkCanvas_Reference#Canvas'>Canvas</a> to saved state</td>
   </tr>
 </table>
-
 
 <a name='SkAutoCanvasRestore_SkCanvas_star'></a>
 ## SkAutoCanvasRestore
