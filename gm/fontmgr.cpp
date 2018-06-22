@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 #include "SkCanvas.h"
+#include "SkCommonFlags.h"
 #include "SkFontMgr.h"
 #include "SkPath.h"
 #include "SkGraphics.h"
@@ -265,13 +266,38 @@ public:
             }
         }
         SkGlyphID str[] = { left, right, top, bottom };
+        SkPoint location[] = {
+            {fontBounds.left(), fontBounds.centerY()},
+            {fontBounds.right(), fontBounds.centerY()},
+            {fontBounds.centerX(), fontBounds.top()},
+            {fontBounds.centerX(), fontBounds.bottom()}
+        };
+
+        SkPaint labelPaint;
+        labelPaint.setAntiAlias(true);
+        sk_tool_utils::set_portable_typeface(&labelPaint);
+        if (FLAGS_veryVerbose) {
+            SkString name;
+            paint.getTypeface()->getFamilyName(&name);
+            canvas->drawText(name.c_str(), name.size(),
+                             fontBounds.fLeft, fontBounds.fBottom, labelPaint);
+        }
         for (size_t i = 0; i < SK_ARRAY_COUNT(str); ++i) {
             SkPath path;
             glyphPaint.getTextPath(&str[i], sizeof(str[0]), x, y, &path);
             SkPaint::Style style = path.isEmpty() ? SkPaint::kFill_Style : SkPaint::kStroke_Style;
             glyphPaint.setStyle(style);
             canvas->drawText(&str[i], sizeof(str[0]), x, y, glyphPaint);
+
+            if (FLAGS_veryVerbose) {
+                SkString glyphStr;
+                glyphStr.appendS32(str[i]);
+                canvas->drawText(glyphStr.c_str(), glyphStr.size(),
+                                 location[i].fX, location[i].fY, labelPaint);
+            }
+
         }
+
     }
 
 protected:
