@@ -285,7 +285,7 @@ class GrCCPRTest_cache : public CCPRTest {
         static constexpr int kPathSize = 20;
         SkRandom rand;
 
-        SkPath paths[200];
+        SkPath paths[300];
         int primes[11] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
         for (size_t i = 0; i < SK_ARRAY_COUNT(paths); ++i) {
             int numPts = rand.nextRangeU(GrShape::kMaxKeyFromDataVerbCnt + 1,
@@ -301,20 +301,30 @@ class GrCCPRTest_cache : public CCPRTest {
 
         int firstAtlasID = -1;
 
-        for (int flushIdx = 0; flushIdx < 10; ++flushIdx) {
-            // Draw all the paths and flush.
-            for (size_t i = 0; i < SK_ARRAY_COUNT(paths); ++i) {
-                ccpr.drawPath(paths[i], matrices[i % 2], MarkVolatile::kNo);
+        for (int iterIdx = 0; iterIdx < 10; ++iterIdx) {
+            static constexpr int kNumHitsBeforeStash = 2;
+            static const GrUniqueKey gInvalidUniqueKey;
+
+            // Draw all the paths then flush. Repeat until a new stash occurs.
+            const GrUniqueKey* stashedAtlasKey = &gInvalidUniqueKey;
+            for (int j = 0; j < kNumHitsBeforeStash; ++j) {
+                // Nothing should be stashed until its hit count reaches kNumHitsBeforeStash.
+                REPORTER_ASSERT(reporter, !stashedAtlasKey->isValid());
+
+                for (size_t i = 0; i < SK_ARRAY_COUNT(paths); ++i) {
+                    ccpr.drawPath(paths[i], matrices[i % 2], MarkVolatile::kNo);
+                }
+                ccpr.flush();
+
+                stashedAtlasKey = &ccpr.ccpr()->testingOnly_getStashedAtlasKey();
             }
-            ccpr.flush();
 
             // Figure out the mock backend ID of the atlas texture stashed away by CCPR.
             GrMockTextureInfo stashedAtlasInfo;
             stashedAtlasInfo.fID = -1;
-            const GrUniqueKey& stashedAtlasKey = ccpr.ccpr()->testingOnly_getStashedAtlasKey();
-            if (stashedAtlasKey.isValid()) {
+            if (stashedAtlasKey->isValid()) {
                 GrResourceProvider* rp = ccpr.ctx()->contextPriv().resourceProvider();
-                sk_sp<GrSurface> stashedAtlas = rp->findByUniqueKey<GrSurface>(stashedAtlasKey);
+                sk_sp<GrSurface> stashedAtlas = rp->findByUniqueKey<GrSurface>(*stashedAtlasKey);
                 REPORTER_ASSERT(reporter, stashedAtlas);
                 if (stashedAtlas) {
                     const auto& backendTexture = stashedAtlas->asTexture()->getBackendTexture();
@@ -322,19 +332,19 @@ class GrCCPRTest_cache : public CCPRTest {
                 }
             }
 
-            if (0 == flushIdx) {
-                // First flush: just note the ID of the stashed atlas and continue.
-                REPORTER_ASSERT(reporter, stashedAtlasKey.isValid());
+            if (0 == iterIdx) {
+                // First iteration: just note the ID of the stashed atlas and continue.
+                REPORTER_ASSERT(reporter, stashedAtlasKey->isValid());
                 firstAtlasID = stashedAtlasInfo.fID;
                 continue;
             }
 
-            switch (flushIdx % 3) {
+            switch (iterIdx % 3) {
                 case 1:
                     // This draw should have gotten 100% cache hits; we only did integer translates
                     // last time (or none if it was the first flush). Therefore, no atlas should
                     // have been stashed away.
-                    REPORTER_ASSERT(reporter, !stashedAtlasKey.isValid());
+                    REPORTER_ASSERT(reporter, !stashedAtlasKey->isValid());
 
                     // Invalidate even path masks.
                     matrices[0].preTranslate(1.6f, 1.4f);
@@ -343,7 +353,7 @@ class GrCCPRTest_cache : public CCPRTest {
                 case 2:
                     // Even path masks were invalidated last iteration by a subpixel translate. They
                     // should have been re-rendered this time and stashed away in the CCPR atlas.
-                    REPORTER_ASSERT(reporter, stashedAtlasKey.isValid());
+                    REPORTER_ASSERT(reporter, stashedAtlasKey->isValid());
 
                     // 'firstAtlasID' should be kept as a scratch texture in the resource cache.
                     REPORTER_ASSERT(reporter, stashedAtlasInfo.fID == firstAtlasID);
@@ -355,7 +365,7 @@ class GrCCPRTest_cache : public CCPRTest {
                 case 0:
                     // Odd path masks were invalidated last iteration by a subpixel translate. They
                     // should have been re-rendered this time and stashed away in the CCPR atlas.
-                    REPORTER_ASSERT(reporter, stashedAtlasKey.isValid());
+                    REPORTER_ASSERT(reporter, stashedAtlasKey->isValid());
 
                     // 'firstAtlasID' is the same texture that got stashed away last time (assuming
                     // no assertion failures). So if it also got stashed this time, it means we
