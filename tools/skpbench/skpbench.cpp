@@ -68,6 +68,8 @@ static const char* header =
 static const char* resultFormat =
 "%8.4g  %8.4g  %8.4g  %8.4g  %6.3g%%  %7li  %9i  %-5s  %-6s  %-9s %s";
 
+static constexpr int kNumFlushesToPrimeCache = 3;
+
 struct Sample {
     using duration = std::chrono::nanoseconds;
 
@@ -190,11 +192,14 @@ static void run_benchmark(const sk_gpu_test::FenceSync* fenceSync, SkCanvas* can
     const Sample::duration sampleDuration = std::chrono::milliseconds(FLAGS_sampleMs);
     const clock::duration benchDuration = std::chrono::milliseconds(FLAGS_duration);
 
-    draw_skp_and_flush(canvas, skp); // draw1
+    draw_skp_and_flush(canvas, skp); // draw 1
     GpuSync gpuSync(fenceSync);
 
-    draw_skp_and_flush(canvas, skp); // draw2
-    gpuSync.syncToPreviousFrame();   // waits for draw1 to finish (after draw2's cpu work is done).
+    for (int i = 1; i < kNumFlushesToPrimeCache; ++i) {
+        draw_skp_and_flush(canvas, skp); // draw N
+        // Waits for draw N-1 to finish (after draw N's cpu work is done).
+        gpuSync.syncToPreviousFrame();
+    }
 
     clock::time_point now = clock::now();
     const clock::time_point endTime = now + benchDuration;
@@ -231,10 +236,13 @@ static void run_gpu_time_benchmark(sk_gpu_test::GpuTimer* gpuTimer,
     draw_skp_and_flush(canvas, skp);
     GpuSync gpuSync(fenceSync);
 
-    gpuTimer->queueStart();
-    draw_skp_and_flush(canvas, skp);
-    PlatformTimerQuery previousTime = gpuTimer->queueStop();
-    gpuSync.syncToPreviousFrame();
+    PlatformTimerQuery previousTime = 0;
+    for (int i = 1; i < kNumFlushesToPrimeCache; ++i) {
+        gpuTimer->queueStart();
+        draw_skp_and_flush(canvas, skp);
+        previousTime = gpuTimer->queueStop();
+        gpuSync.syncToPreviousFrame();
+    }
 
     clock::time_point now = clock::now();
     const clock::time_point endTime = now + benchDuration;

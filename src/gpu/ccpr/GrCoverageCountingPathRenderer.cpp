@@ -14,6 +14,7 @@
 #include "SkPathOps.h"
 #include "ccpr/GrCCClipProcessor.h"
 #include "ccpr/GrCCDrawPathsOp.h"
+#include "ccpr/GrCCPathCache.h"
 #include "ccpr/GrCCPathParser.h"
 
 using PathInstance = GrCCPathProcessor::Instance;
@@ -56,9 +57,21 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
 }
 
 sk_sp<GrCoverageCountingPathRenderer> GrCoverageCountingPathRenderer::CreateIfSupported(
-        const GrCaps& caps, bool drawCachablePaths) {
-    auto ccpr = IsSupported(caps) ? new GrCoverageCountingPathRenderer(drawCachablePaths) : nullptr;
-    return sk_sp<GrCoverageCountingPathRenderer>(ccpr);
+        const GrCaps& caps, AllowCaching allowCaching) {
+    return sk_sp<GrCoverageCountingPathRenderer>(
+            IsSupported(caps) ? new GrCoverageCountingPathRenderer(allowCaching) : nullptr);
+}
+
+GrCoverageCountingPathRenderer::GrCoverageCountingPathRenderer(AllowCaching allowCaching) {
+    if (AllowCaching::kYes == allowCaching) {
+        fPathCache = skstd::make_unique<GrCCPathCache>();
+    }
+}
+
+GrCoverageCountingPathRenderer::~GrCoverageCountingPathRenderer() {
+    // Ensure callers are actually flushing paths they record, not causing us to leak memory.
+    SkASSERT(fPendingPaths.empty());
+    SkASSERT(!fFlushing);
 }
 
 GrCCPerOpListPaths* GrCoverageCountingPathRenderer::lookupPendingPaths(uint32_t opListID) {
@@ -72,10 +85,6 @@ GrCCPerOpListPaths* GrCoverageCountingPathRenderer::lookupPendingPaths(uint32_t 
 
 GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
         const CanDrawPathArgs& args) const {
-    if (args.fShape->hasUnstyledKey() && !fDrawCachablePaths) {
-        return CanDrawPath::kNo;
-    }
-
     if (!args.fShape->style().isSimpleFill() || args.fShape->inverseFilled() ||
         args.fViewMatrix->hasPerspective() || GrAAType::kCoverage != args.fAAType) {
         return CanDrawPath::kNo;
@@ -83,17 +92,27 @@ GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
 
     SkPath path;
     args.fShape->asPath(&path);
+
     SkRect devBounds;
-    SkIRect devIBounds;
     args.fViewMatrix->mapRect(&devBounds, path.getBounds());
-    devBounds.roundOut(&devIBounds);
-    if (!devIBounds.intersect(*args.fClipConservativeBounds)) {
+
+    SkIRect clippedIBounds;
+    devBounds.roundOut(&clippedIBounds);
+    if (!clippedIBounds.intersect(*args.fClipConservativeBounds)) {
         // Path is completely clipped away. Our code will eventually notice this before doing any
         // real work.
         return CanDrawPath::kYes;
     }
 
-    if (devIBounds.height() * devIBounds.width() > 256 * 256) {
+    int64_t numPixels = sk_64_mul(clippedIBounds.height(), clippedIBounds.width());
+    if (path.countVerbs() > 1000 && path.countPoints() > numPixels) {
+        // This is a complicated path that has more vertices than pixels! Let's let the SW renderer
+        // have this one: It will probably be faster and a bitmap will require less total memory on
+        // the GPU than CCPR instance buffers would for the raw path data.
+        return CanDrawPath::kNo;
+    }
+
+    if (numPixels > 256 * 256) {
         // Large paths can blow up the atlas fast. And they are not ideal for a two-pass rendering
         // algorithm. Give the simpler direct renderers a chance before we commit to drawing it.
         return CanDrawPath::kAsBackup;
@@ -209,7 +228,7 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
     specs.fCopyAtlasSpecs.fMaxPreferredTextureSize = SkTMin(2048, maxPreferredRTSize);
     SkASSERT(0 == specs.fCopyAtlasSpecs.fMinTextureSize);
     specs.fRenderedAtlasSpecs.fMaxPreferredTextureSize = maxPreferredRTSize;
-    specs.fRenderedAtlasSpecs.fMinTextureSize = SkTMin(1024, maxPreferredRTSize);
+    specs.fRenderedAtlasSpecs.fMinTextureSize = SkTMin(512, maxPreferredRTSize);
 
     // Move the per-opList paths that are about to be flushed from fPendingPaths to fFlushingPaths,
     // and count them up so we can preallocate buffers.
@@ -224,7 +243,7 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
         fPendingPaths.erase(iter);
 
         for (GrCCDrawPathsOp* op : fFlushingPaths.back()->fDrawOps) {
-            op->accountForOwnPaths(&fPathCache, onFlushRP, fStashedAtlasKey, &specs);
+            op->accountForOwnPaths(fPathCache.get(), onFlushRP, fStashedAtlasKey, &specs);
         }
         for (const auto& clipsIter : fFlushingPaths.back()->fClipPaths) {
             clipsIter.second.accountForOwnPath(&specs);
@@ -239,7 +258,7 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
     // Determine if there are enough reusable paths from last flush for it to be worth our time to
     // copy them to cached atlas(es).
     DoCopiesToCache doCopies = DoCopiesToCache(specs.fNumCopiedPaths > 100 ||
-                                               specs.fCopyAtlasSpecs.fApproxNumPixels > 512 * 256);
+                                               specs.fCopyAtlasSpecs.fApproxNumPixels > 256 * 256);
     if (specs.fNumCopiedPaths && DoCopiesToCache::kNo == doCopies) {
         specs.convertCopiesToRenders();
         SkASSERT(!specs.fNumCopiedPaths);
