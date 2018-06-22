@@ -22,6 +22,30 @@
       "revId": "26557db19c3fc53e91deeb9881aebd6a20e3a42b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4cd98548_c3c0e5fd",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-22T18:52:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0db5dc00_b77bba09",
+      "range": {
+        "startLine": 85,
+        "startChar": 59,
+        "endLine": 85,
+        "endChar": 87
+      },
+      "revId": "26557db19c3fc53e91deeb9881aebd6a20e3a42b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
