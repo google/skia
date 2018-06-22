@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "309ecc87_782235d1",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 766,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-06-22T18:45:11Z",
+      "side": 1,
+      "message": "Looks good; perhaps docs/SkPaint_Reference.bmh could be updated instead so that both the local and online documentation are correct?",
+      "range": {
+        "startLine": 766,
+        "startChar": 17,
+        "endLine": 766,
+        "endChar": 23
+      },
+      "revId": "13a4174c19a84b4202f58eef9978606de3d1bf71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
