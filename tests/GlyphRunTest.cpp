@@ -44,7 +44,8 @@ DEF_TEST(GlyphRunBasic, reporter) {
 }
 
 DEF_TEST(GlyphRunBlob, reporter) {
-    constexpr uint16_t count = 10;
+    constexpr uint16_t count = 5;
+    constexpr int runCount = 2;
 
     auto tf = SkTypeface::MakeFromName("monospace", SkFontStyle());
 
@@ -57,14 +58,14 @@ DEF_TEST(GlyphRunBlob, reporter) {
     font.setTextSize(1u);
 
     SkTextBlobBuilder blobBuilder;
-    for (int runNum = 0; runNum < 2; runNum++) {
+    for (int runNum = 0; runNum < runCount; runNum++) {
         const auto& runBuffer = blobBuilder.allocRunPosH(font, count, runNum);
         SkASSERT(runBuffer.utf8text == nullptr);
         SkASSERT(runBuffer.clusters == nullptr);
 
         for (int i = 0; i < count; i++) {
-            runBuffer.glyphs[i] = static_cast<SkGlyphID>(i + runNum * 10);
-            runBuffer.pos[i] = SkIntToScalar(i + runNum * 10);
+            runBuffer.glyphs[i] = static_cast<SkGlyphID>(i + runNum * count);
+            runBuffer.pos[i] = SkIntToScalar(i + runNum * count);
         }
     }
 
@@ -78,9 +79,21 @@ DEF_TEST(GlyphRunBlob, reporter) {
 
     auto runList = runBuilder.useGlyphRunList();
 
-    REPORTER_ASSERT(reporter, runList->size() == 2);
+    REPORTER_ASSERT(reporter, runList->size() == runCount);
+    int runIndex = 0;
     for (auto& run : *runList) {
-        REPORTER_ASSERT(reporter, run.runSize() == 10);
-        REPORTER_ASSERT(reporter, run.uniqueSize() == 10);
+        REPORTER_ASSERT(reporter, run.runSize() == count);
+        REPORTER_ASSERT(reporter, run.uniqueSize() == count);
+
+        int index = 0;
+        for (auto p : run.positions()) {
+            if (p.x() != runIndex * count + index) {
+                ERRORF(reporter, "x: %g != k: %d", p.x(), runIndex * count + index);
+                break;
+            }
+            index += 1;
+        }
+
+        runIndex += 1;
     }
 }
