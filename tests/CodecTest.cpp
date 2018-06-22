@@ -384,6 +384,9 @@ static void check(skiatest::Reporter* r,
     // Do not attempt to decode subsets of an image of only once pixel, since there is no
     // meaningful subset.
     if (size.width() * size.height() == 1) {
+        // TODO(nigeltao): is it deliberate that this "return" skips over the
+        // "If we've just tested incomplete decodes, let's run the same test
+        // again on full decodes" at the bottom of this function??
         return;
     }
 

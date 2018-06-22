@@ -150,7 +150,11 @@ config("skia_private") {
     "src/utils",
     "src/utils/win",
     "src/xml",
-    "third_party/gif",
+    "third_party/gif",  # TODO(nigeltao): delete.
+
+    # TODO(nigeltao): this isn't the right place for configuring the Wuffs
+    # include dir, but it 'works'.
+    "third_party/externals/wuffs/release/c",
   ]
   if (skia_llvm_path != "") {
     include_dirs += [ "$skia_llvm_path/include" ]
@@ -864,7 +868,7 @@ component("skia") {
     "src/codec/SkCodec.cpp",
     "src/codec/SkCodecImageGenerator.cpp",
     "src/codec/SkColorTable.cpp",
-    "src/codec/SkGifCodec.cpp",
+    "src/codec/SkGifCodec.cpp",  # TODO(nigeltao): delete.
     "src/codec/SkMaskSwizzler.cpp",
     "src/codec/SkMasks.cpp",
     "src/codec/SkSampledCodec.cpp",
@@ -872,6 +876,7 @@ component("skia") {
     "src/codec/SkStreamBuffer.cpp",
     "src/codec/SkSwizzler.cpp",
     "src/codec/SkWbmpCodec.cpp",
+    "src/codec/SkWuffsGifCodec.cpp",
     "src/images/SkImageEncoder.cpp",
     "src/ports/SkDiscardableMemory_none.cpp",
     "src/ports/SkImageGenerator_skia.cpp",
@@ -880,7 +885,7 @@ component("skia") {
     "src/sfnt/SkOTTable_name.cpp",
     "src/sfnt/SkOTUtils.cpp",
     "src/utils/mac/SkStream_mac.cpp",
-    "third_party/gif/SkGifImageReader.cpp",
+    "third_party/gif/SkGifImageReader.cpp",  # TODO(nigeltao): delete.
   ]
 
   libs = []
@@ -1387,6 +1392,7 @@ if (skia_enable_tools) {
       ":tool_utils",
       "modules/sksg:tests",
       "//third_party/libpng",
+      "//third_party/wuffs",
       "//third_party/zlib",
     ]
     public_deps = [
