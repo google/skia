@@ -1199,7 +1199,7 @@ Vertex* create_sorted_vertex(const SkPoint& p, uint8_t alpha, VertexList* mesh,
 bool nearly_flat(Comparator& c, Edge* edge) {
     SkPoint diff = edge->fBottom->fPoint - edge->fTop->fPoint;
     float primaryDiff = c.fDirection == Comparator::Direction::kHorizontal ? diff.fX : diff.fY;
-    return fabs(primaryDiff) < std::numeric_limits<float>::epsilon();
+    return fabs(primaryDiff) < std::numeric_limits<float>::epsilon() && primaryDiff != 0.0f;
 }
 
 SkPoint clamp(SkPoint p, SkPoint min, SkPoint max, Comparator& c) {

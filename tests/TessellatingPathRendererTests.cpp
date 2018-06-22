@@ -546,6 +546,20 @@ static SkPath create_path_37() {
     return path;
 }
 
+// Reduction from crbug.com/851914.
+static SkPath create_path_38() {
+    SkPath path;
+    path.moveTo(14.400531768798828125, 17.711114883422851562);
+    path.lineTo(14.621990203857421875,   171563104293879808);
+    path.lineTo(14.027951240539550781,   872585759381520384);
+    path.lineTo( 14.0216827392578125,   872665817571917824);
+    path.lineTo(7.699314117431640625,    -3417320793833472);
+    path.moveTo(11.606547355651855469,       17.40966796875);
+    path.lineTo( 7642114886926860288, 21.08358001708984375);
+    path.lineTo(11.606547355651855469, 21.08358001708984375);
+    return path;
+}
+
 static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
 
     SkPoint pts[2] = { {0, 0}, {1, 1} };
@@ -643,4 +657,5 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_35());
     test_path(ctx, rtc.get(), create_path_36());
     test_path(ctx, rtc.get(), create_path_37());
+    test_path(ctx, rtc.get(), create_path_38(), SkMatrix(), GrAAType::kCoverage);
 }
