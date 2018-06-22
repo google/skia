@@ -317,9 +317,12 @@ void SkRecorder::onDrawPicture(const SkPicture* pic, const SkMatrix* matrix, con
     }
 }
 
-void SkRecorder::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmode,
-                                      const SkPaint& paint) {
-    this->append<SkRecords::DrawVertices>(paint, sk_ref_sp(const_cast<SkVertices*>(vertices)), bmode);
+void SkRecorder::onDrawVerticesObject(const SkVertices* vertices, const SkSkeleton* bones,
+                                      SkBlendMode bmode, const SkPaint& paint) {
+    this->append<SkRecords::DrawVertices>(paint,
+                                          sk_ref_sp(const_cast<SkVertices*>(vertices)),
+                                          sk_ref_sp(const_cast<SkSkeleton*>(bones)),
+                                          bmode);
 }
 
 void SkRecorder::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],

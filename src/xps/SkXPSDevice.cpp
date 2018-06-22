@@ -1156,9 +1156,10 @@ void SkXPSDevice::drawPoints(SkCanvas::PointMode mode,
     draw(this, &SkDraw::drawPoints, mode, count, points, paint, this);
 }
 
-void SkXPSDevice::drawVertices(const SkVertices* v, SkBlendMode blendMode, const SkPaint& paint) {
+void SkXPSDevice::drawVertices(const SkVertices* v, SkSkeleton* b, SkBlendMode blendMode,
+                               const SkPaint& paint) {
     draw(this, &SkDraw::drawVertices, v->mode(), v->vertexCount(), v->positions(), v->texCoords(),
-         v->colors(), blendMode, v->indices(), v->indexCount(), paint);
+         v->colors(), v->bones(), blendMode, v->indices(), v->indexCount(), paint, b);
 }
 
 void SkXPSDevice::drawPaint(const SkPaint& origPaint) {

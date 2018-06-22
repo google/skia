@@ -1551,8 +1551,10 @@ if (skia_enable_tools) {
         ":xml",
         "modules/sksg:samples",
         "modules/skshaper",
-        "//third_party/Nima-Cpp",
       ]
+      if (!is_win) {
+        deps += [ "//third_party/Nima-Cpp" ]
+      }
 
       if (skia_use_lua) {
         sources += [ "samplecode/SampleLua.cpp" ]
@@ -1581,10 +1583,12 @@ if (skia_enable_tools) {
         ":tool_utils",
         "modules/skottie",
         "modules/sksg",
-        "//third_party/Nima-Cpp",
         "//third_party/jsoncpp",
         "//third_party/libpng",
       ]
+      if (!is_win) {
+        deps += [ "//third_party/Nima-Cpp" ]
+      }
     }
   }
 
@@ -1982,6 +1986,7 @@ if (skia_enable_tools) {
       "tools/viewer/GMSlide.cpp",
       "tools/viewer/ImGuiLayer.cpp",
       "tools/viewer/ImageSlide.cpp",
+      "tools/viewer/NIMASlide.cpp",
       "tools/viewer/SKPSlide.cpp",
       "tools/viewer/SampleSlide.cpp",
       "tools/viewer/SkottieSlide.cpp",
@@ -2005,9 +2010,11 @@ if (skia_enable_tools) {
       ":views",
       "modules/skottie",
       "modules/sksg",
-      "//third_party/Nima-Cpp",
       "//third_party/imgui",
     ]
+    if (!is_win) {
+      deps += [ "//third_party/Nima-Cpp" ]
+    }
   }
 
   if (is_android) {
