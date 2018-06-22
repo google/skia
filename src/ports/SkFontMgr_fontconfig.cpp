@@ -525,6 +525,21 @@ public:
         return info;
     }
 
+    sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
+        std::unique_ptr<SkFontData> data = this->cloneFontData(args);
+        if (!data) {
+            return nullptr;
+        }
+
+        SkString fFamilyName;
+        this->getFamilyName(&fFamilyName);
+
+        return sk_make_sp<SkTypeface_stream>(std::move(data),
+                                             fFamilyName,
+                                             this->fontStyle(),
+                                             this->isFixedPitch());
+    }
+
     ~SkTypeface_fontconfig() override {
         // Hold the lock while unrefing the pattern.
         FCLocker lock;
