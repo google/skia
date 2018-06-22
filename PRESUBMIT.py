@@ -78,9 +78,16 @@ def _CheckChangeHasEol(input_api, output_api, source_file_filter=None):
 
 def _PythonChecks(input_api, output_api):
   """Run checks on any modified Python files."""
-  pylint_disabled_files = (
-      'infra/bots/recipes.py',
-  )
+  blacklist = [
+      r'infra[\\\/]bots[\\\/]recipes.py',
+
+      # Blacklist DEPS. Those under third_party are already covered by
+      # input_api.DEFAULT_BLACK_LIST.
+      r'common[\\\/].*',
+      r'buildtools[\\\/].*',
+  ]
+  blacklist.extend(input_api.DEFAULT_BLACK_LIST)
+
   pylint_disabled_warnings = (
       'F0401',  # Unable to import.
       'E0611',  # No name in module.
@@ -92,18 +99,10 @@ def _PythonChecks(input_api, output_api):
       'W0613',  # Unused argument.
       'W0105',  # String statement has no effect.
   )
-  # Run Pylint on only the modified python files. Unfortunately it still runs
-  # Pylint on the whole file instead of just the modified lines.
-  affected_python_files = []
-  for affected_file in input_api.AffectedSourceFiles(None):
-    affected_file_path = affected_file.LocalPath()
-    if affected_file_path.endswith('.py'):
-      if affected_file_path not in pylint_disabled_files:
-        affected_python_files.append(affected_file_path)
   return input_api.canned_checks.RunPylint(
       input_api, output_api,
       disabled_warnings=pylint_disabled_warnings,
-      white_list=affected_python_files)
+      black_list=blacklist)
 
 
 def _JsonChecks(input_api, output_api):
