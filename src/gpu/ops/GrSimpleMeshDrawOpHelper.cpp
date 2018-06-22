@@ -134,17 +134,19 @@ GrPipeline::InitArgs GrSimpleMeshDrawOpHelper::pipelineInitArgs(
     return args;
 }
 
-GrPipeline* GrSimpleMeshDrawOpHelper::internalMakePipeline(GrMeshDrawOp::Target* target,
+GrSimpleMeshDrawOpHelper::PipelineAndFixedDynamicState
+GrSimpleMeshDrawOpHelper::internalMakePipeline(GrMeshDrawOp::Target* target,
                                                            const GrPipeline::InitArgs& args) {
     // A caller really should only call this once as the processor set and applied clip get
     // moved into the GrPipeline.
     SkASSERT(!fMadePipeline);
     SkDEBUGCODE(fMadePipeline = true);
+    auto clip = target->detachAppliedClip();
+    auto* dynamicState = target->allocFixedDynamicState(clip.scissorState().rect());
     if (fProcessors) {
-        return target->allocPipeline(args, std::move(*fProcessors), target->detachAppliedClip());
+        return {target->allocPipeline(args, std::move(*fProcessors), std::move(clip)), dynamicState};
     } else {
-        return target->allocPipeline(args, GrProcessorSet::MakeEmptySet(),
-                                     target->detachAppliedClip());
+        return {target->allocPipeline(args, GrProcessorSet::MakeEmptySet(), std::move(clip)), dynamicState};
     }
 }
 
@@ -169,8 +171,7 @@ bool GrSimpleMeshDrawOpHelperWithStencil::isCompatible(
            fStencilSettings == that.fStencilSettings;
 }
 
-const GrPipeline* GrSimpleMeshDrawOpHelperWithStencil::makePipeline(
-        GrMeshDrawOp::Target* target) {
+auto GrSimpleMeshDrawOpHelperWithStencil::makePipeline( GrMeshDrawOp::Target* target) -> PipelineAndFixedDynamicState {
     auto args = INHERITED::pipelineInitArgs(target);
     args.fUserStencil = fStencilSettings;
     return this->internalMakePipeline(target, args);

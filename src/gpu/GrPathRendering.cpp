@@ -50,6 +50,7 @@ void GrPathRendering::stencilPath(const StencilPathArgs& args, const GrPath* pat
 }
 
 void GrPathRendering::drawPath(const GrPipeline& pipeline,
+                               const GrPipeline::FixedDynamicState& fixedDynamicState,
                                const GrPrimitiveProcessor& primProc,
                                // Cover pass settings in pipeline.
                                const GrStencilSettings& stencilPassSettings,
@@ -58,5 +59,5 @@ void GrPathRendering::drawPath(const GrPipeline& pipeline,
     if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*fGpu->caps())) {
         fGpu->xferBarrier(pipeline.renderTarget(), barrierType);
     }
-    this->onDrawPath(pipeline, primProc, stencilPassSettings, path);
+    this->onDrawPath(pipeline, fixedDynamicState, primProc, stencilPassSettings, path);
 }

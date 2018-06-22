@@ -147,7 +147,7 @@ void GrCCPathProcessor::drawPaths(GrOpFlushState* flushState, const GrPipeline& 
                              enablePrimitiveRestart);
     mesh.setVertexData(resources.vertexBuffer());
 
-    flushState->rtCommandBuffer()->draw(pipeline, *this, &mesh, nullptr, 1, bounds);
+    flushState->rtCommandBuffer()->draw(pipeline, nullptr, nullptr, *this, &mesh, 1, bounds);
 }
 
 void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {

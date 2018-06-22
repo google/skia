@@ -69,6 +69,7 @@ public:
         kDisabled = false
     };
 
+    // TODO Scissor state on InitArgs.
     struct InitArgs {
         uint32_t fFlags = 0;
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
@@ -79,13 +80,17 @@ public:
     };
 
     /**
-     *  Graphics state that can change dynamically without creating a new pipeline.
+     * Some state can be changed between GrMeshes without changing GrPipelines. This is a low cost
+     * way to change this state.
      **/
-    struct DynamicState {
-        // Overrides the scissor rectangle (if scissor is enabled in the pipeline).
-        // TODO: eventually this should be the only way to specify a scissor rectangle, as is the
-        // case with the simple constructor.
+    struct FixedDynamicState {
+        FixedDynamicState(const SkIRect& scissorRect) : fScissorRect(scissorRect) {}
         SkIRect fScissorRect;
+    };
+
+    struct DynamicStateArrays {
+        const SkIRect* fScissorRects = nullptr;
+        SkDEBUGCODE(bool isComplete() const { return SkToBool(fScissorRects); })
     };
 
     /**
@@ -95,6 +100,10 @@ public:
      **/
     GrPipeline(GrRenderTargetProxy*, ScissorState, SkBlendMode);
 
+    /**
+     * This reinitializes the scissor state on the passed in DynamicState basedo on the applied
+     * clip.
+     */
     GrPipeline(const InitArgs&, GrProcessorSet&&, GrAppliedClip&&);
 
     GrPipeline(const GrPipeline&) = delete;
@@ -169,7 +178,9 @@ public:
 
     const GrUserStencilSettings* getUserStencil() const { return fUserStencilSettings; }
 
-    const GrScissorState& getScissorState() const { return fScissorState; }
+    ScissorState isScissorEnabled() const {
+        return ScissorState(SkToBool(fFlags & kScissorEnabled_Flag));
+    }
 
     const GrWindowRectsState& getWindowRectsState() const { return fWindowRectsState; }
 
@@ -214,7 +225,8 @@ private:
     enum PrivateFlags {
         kHasStencilClip_Flag = 0x10,
         kStencilEnabled_Flag = 0x20,
-        kIsBad_Flag = 0x40,
+        kScissorEnabled_Flag = 0x40,
+        kIsBad_Flag = 0x80,
     };
 
     using RenderTargetProxy = GrPendingIOResource<GrRenderTargetProxy, kWrite_GrIOType>;
@@ -225,7 +237,6 @@ private:
     SkIPoint fDstTextureOffset;
     // MDB TODO: do we still need the destination proxy here?
     RenderTargetProxy fProxy;
-    GrScissorState fScissorState;
     GrWindowRectsState fWindowRectsState;
     const GrUserStencilSettings* fUserStencilSettings;
     uint16_t fFlags;

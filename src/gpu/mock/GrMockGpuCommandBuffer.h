@@ -50,8 +50,8 @@ public:
     void submit() override { fGpu->submitCommandBuffer(this); }
 
 private:
-    void onDraw(const GrPipeline&, const GrPrimitiveProcessor&, const GrMesh[],
-                const GrPipeline::DynamicState[], int meshCount, const SkRect& bounds) override {
+    void onDraw(const GrPipeline&, const GrPipeline::FixedDynamicState*, const GrPipeline::DynamicStateArrays*,
+                const GrPrimitiveProcessor&, const GrMesh[], int meshCount, const SkRect& bounds) override {
         ++fNumDraws;
     }
     void onClear(const GrFixedClip&, GrColor) override {}

@@ -9,6 +9,7 @@
 #define GrMeshDrawOp_DEFINED
 
 #include "GrDrawOp.h"
+#include "GrAppliedClip.h"
 #include "GrGeometryProcessor.h"
 #include "GrMesh.h"
 #include "GrPendingProgramElement.h"
@@ -40,7 +41,7 @@ protected:
                    int indicesPerRepetition, int repeatCount);
 
         /** Call after init() to issue draws to the GrMeshDrawOp::Target.*/
-        void recordDraw(Target*, const GrGeometryProcessor*, const GrPipeline*);
+        void recordDraw(Target*, const GrGeometryProcessor*, const GrPipeline*, const GrPipeline::FixedDynamicState*);
 
     private:
         GrMesh fMesh;
@@ -76,7 +77,7 @@ public:
     virtual ~Target() {}
 
     /** Adds a draw of a mesh. */
-    virtual void draw(const GrGeometryProcessor*, const GrPipeline*, const GrMesh&) = 0;
+    virtual void draw(const GrGeometryProcessor*, const GrPipeline*, const GrPipeline::FixedDynamicState*, const GrMesh&) = 0;
 
     /**
      * Makes space for vertex data. The returned pointer is the location where vertex data
@@ -129,11 +130,21 @@ public:
         return this->pipelineArena()->make<GrPipeline>(std::forward<Args>(args)...);
     }
 
+    template <typename... Args>
+    GrPipeline::FixedDynamicState* allocFixedDynamicState(Args&... args) {
+        return this->pipelineArena()->make<GrPipeline::FixedDynamicState>(std::forward<Args>(args)...);
+    }
+
+    struct PipelineAndFixedDynamicState {
+        const GrPipeline* fPipeline;
+        const GrPipeline::FixedDynamicState* fFixedDynamicState;
+    };
+
     /**
      * Helper that makes a pipeline targeting the op's render target that incorporates the op's
-     * GrAppliedClip.
+     * GrAppliedClip and uses a fixed dynamic state.
      */
-    GrPipeline* makePipeline(uint32_t pipelineFlags, GrProcessorSet&& processorSet,
+    PipelineAndFixedDynamicState makePipeline(uint32_t pipelineFlags, GrProcessorSet&& processorSet,
                              GrAppliedClip&& clip) {
         GrPipeline::InitArgs pipelineArgs;
         pipelineArgs.fFlags = pipelineFlags;
@@ -141,7 +152,8 @@ public:
         pipelineArgs.fDstProxy = this->dstProxy();
         pipelineArgs.fCaps = &this->caps();
         pipelineArgs.fResourceProvider = this->resourceProvider();
-        return this->allocPipeline(pipelineArgs, std::move(processorSet), std::move(clip));
+        const auto* state = this->allocFixedDynamicState(clip.scissorState().rect());
+        return {this->allocPipeline(pipelineArgs, std::move(processorSet), std::move(clip)), state};
     }
 
     virtual GrRenderTargetProxy* proxy() const = 0;

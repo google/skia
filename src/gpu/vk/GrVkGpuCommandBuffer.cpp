@@ -561,9 +561,10 @@ void GrVkGpuRTCommandBuffer::bindGeometry(const GrBuffer* indexBuffer,
 }
 
 GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(const GrPipeline& pipeline,
+                                                            const GrPipeline::FixedDynamicState* fixedDynamicState,
+                                                            const GrPipeline::DynamicStateArrays* dynamicStateArrays,
                                                             const GrPrimitiveProcessor& primProc,
-                                                            GrPrimitiveType primitiveType,
-                                                            bool hasDynamicState) {
+                                                            GrPrimitiveType primitiveType) {
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
     SkASSERT(cbInfo.fRenderPass);
 
@@ -589,14 +590,15 @@ GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(const GrPipeline& pi
 
     GrRenderTarget* rt = pipeline.renderTarget();
 
-    if (!pipeline.getScissorState().enabled()) {
+    if (!pipeline.isScissorEnabled()) {
         GrVkPipeline::SetDynamicScissorRectState(fGpu, cbInfo.currentCmdBuf(),
                                                  rt, pipeline.proxy()->origin(),
                                                  SkIRect::MakeWH(rt->width(), rt->height()));
-    } else if (!hasDynamicState) {
+    } else if (!dynamicStateArrays || !dynamicStateArrays->fScissorRects) {
+        SkASSERT(fixedDynamicState);
         GrVkPipeline::SetDynamicScissorRectState(fGpu, cbInfo.currentCmdBuf(),
                                                  rt, pipeline.proxy()->origin(),
-                                                 pipeline.getScissorState().rect());
+                                                 fixedDynamicState->fScissorRect);
     }
     GrVkPipeline::SetDynamicViewportState(fGpu, cbInfo.currentCmdBuf(), rt);
     GrVkPipeline::SetDynamicBlendConstantState(fGpu, cbInfo.currentCmdBuf(), rt->config(),
@@ -630,9 +632,10 @@ static void prepare_sampled_images(const GrResourceIOProcessor& processor,
 }
 
 void GrVkGpuRTCommandBuffer::onDraw(const GrPipeline& pipeline,
+                                    const GrPipeline::FixedDynamicState* fixedDynamicState,
+                                    const GrPipeline::DynamicStateArrays* dynamicStateArrays,
                                     const GrPrimitiveProcessor& primProc,
                                     const GrMesh meshes[],
-                                    const GrPipeline::DynamicState dynamicStates[],
                                     int meshCount,
                                     const SkRect& bounds) {
     SkASSERT(pipeline.renderTarget() == fRenderTarget);
@@ -654,12 +657,15 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPipeline& pipeline,
 
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
     GrVkPipelineState* pipelineState = this->prepareDrawState(pipeline,
+                                                              fixedDynamicState,
+                                                              dynamicStateArrays,
                                                               primProc,
-                                                              primitiveType,
-                                                              SkToBool(dynamicStates));
+                                                              primitiveType);
     if (!pipelineState) {
         return;
     }
+
+    bool dynamicScissor = pipeline.isScissorEnabled() && dynamicStateArrays && dynamicStateArrays->fScissorRects;
 
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
@@ -671,20 +677,19 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPipeline& pipeline,
             SkDEBUGCODE(pipelineState = nullptr);
             primitiveType = mesh.primitiveType();
             pipelineState = this->prepareDrawState(pipeline,
+                                                   fixedDynamicState,
+                                                   dynamicStateArrays,
                                                    primProc,
-                                                   primitiveType,
-                                                   SkToBool(dynamicStates));
+                                                   primitiveType);
             if (!pipelineState) {
                 return;
             }
         }
 
-        if (dynamicStates) {
-            if (pipeline.getScissorState().enabled()) {
-                GrVkPipeline::SetDynamicScissorRectState(fGpu, cbInfo.currentCmdBuf(),
-                                                         fRenderTarget, pipeline.proxy()->origin(),
-                                                         dynamicStates[i].fScissorRect);
-            }
+        if (dynamicScissor) {
+            GrVkPipeline::SetDynamicScissorRectState(fGpu, cbInfo.currentCmdBuf(),
+                                                     fRenderTarget, pipeline.proxy()->origin(),
+                                                     dynamicStateArrays->fScissorRects[i]);
         }
 
         SkASSERT(pipelineState);

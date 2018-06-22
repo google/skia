@@ -67,8 +67,8 @@ public:
         GrPipeline pipeline(flushState->proxy(), GrPipeline::ScissorState::kDisabled,
                             SkBlendMode::kSrc);
         GrCCPathProcessor pathProc(flushState->resourceProvider(), std::move(fStashedAtlasProxy));
-        pathProc.drawPaths(flushState, pipeline, *fResources, fBaseInstance, fEndInstance,
-                           this->bounds());
+        pathProc.drawPaths(flushState, pipeline, *fResources, fBaseInstance,
+                           fEndInstance, this->bounds());
         // Ensure we released the stashed atlas proxy. This allows its underlying texture to be
         // reused as the current flush's mainline CCPR atlas if needed.
         SkASSERT(!fStashedAtlasProxy);
