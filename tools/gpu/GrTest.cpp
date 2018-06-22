@@ -304,6 +304,14 @@ GrPixelConfig GrBackendRenderTarget::testingOnly_getPixelConfig() const {
 
 //////////////////////////////////////////////////////////////////////////////
 
+
+void GrCoverageCountingPathRenderer::testingOnly_drawPathDirectly(const DrawPathArgs& args) {
+    // Call onDrawPath() directly: We want to test paths that might fail onCanDrawPath() simply for
+    // performance reasons, and GrPathRenderer::drawPath() assert that this call returns true.
+    // The test is responsible to not draw any paths that CCPR is not actually capable of.
+    this->onDrawPath(args);
+}
+
 const GrUniqueKey& GrCoverageCountingPathRenderer::testingOnly_getStashedAtlasKey() const {
     return fStashedAtlasKey;
 }
