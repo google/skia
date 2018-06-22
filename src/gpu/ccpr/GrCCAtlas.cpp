@@ -165,12 +165,16 @@ sk_sp<GrCCAtlas::CachedAtlasInfo> GrCCAtlas::refOrMakeCachedAtlasInfo() {
 }
 
 sk_sp<GrRenderTargetContext> GrCCAtlas::makeRenderTargetContext(
-        GrOnFlushResourceProvider* onFlushRP) {
+        GrOnFlushResourceProvider* onFlushRP, sk_sp<GrTexture> backingTexture) {
     SkASSERT(!fTextureProxy->priv().isInstantiated());  // This method should only be called once.
     // Caller should have cropped any paths to the destination render target instead of asking for
     // an atlas larger than maxRenderTargetSize.
     SkASSERT(SkTMax(fHeight, fWidth) <= fMaxTextureSize);
     SkASSERT(fMaxTextureSize <= onFlushRP->caps()->maxRenderTargetSize());
+
+    if (backingTexture) {
+        fTextureProxy->priv().assign(std::move(backingTexture));
+    }
 
     sk_sp<GrRenderTargetContext> rtc =
             onFlushRP->makeRenderTargetContext(fTextureProxy, nullptr, nullptr);

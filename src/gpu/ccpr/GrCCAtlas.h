@@ -11,8 +11,7 @@
 #include "GrAllocator.h"
 #include "GrNonAtomicRef.h"
 #include "GrResourceKey.h"
-#include "GrTypes.h"
-#include "GrTypesPriv.h"
+#include "GrTexture.h"
 #include "SkRefCnt.h"
 #include "SkSize.h"
 
@@ -50,6 +49,8 @@ public:
     ~GrCCAtlas();
 
     GrTextureProxy* textureProxy() const { return fTextureProxy.get(); }
+    int currentWidth() const { return fWidth; }
+    int currentHeight() const { return fHeight; }
 
     // Attempts to add a rect to the atlas. If successful, returns the integer offset from
     // device-space pixels where the path will be drawn, to atlas pixels where its mask resides.
@@ -80,7 +81,8 @@ public:
     // Instantiates our texture proxy for the atlas and returns a pre-cleared GrRenderTargetContext
     // that the caller may use to render the content. After this call, it is no longer valid to call
     // addRect(), setUserBatchID(), or this method again.
-    sk_sp<GrRenderTargetContext> makeRenderTargetContext(GrOnFlushResourceProvider*);
+    sk_sp<GrRenderTargetContext> makeRenderTargetContext(GrOnFlushResourceProvider*,
+                                                         sk_sp<GrTexture> backingTexture = nullptr);
 
 private:
     class Node;
