@@ -279,13 +279,18 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP,
         baseCopyInstance = endCopyInstance;
     }
 
-    // Release the stashed atlas before creating new one(s). This allows us to recycle the same
-    // underlying texture with the upcoming rendered atlases.
-    stashedAtlasProxy = nullptr;
-
     // Render the coverage count atlas(es).
     for (GrCCAtlasStack::Iter atlas(fRenderedAtlasStack); atlas.next();) {
-        if (auto rtc = atlas->makeRenderTargetContext(onFlushRP)) {
+        // Copies will be finished by the time we get to this atlas. See if we can recycle the
+        // stashed atlas texture instead of creating a new one.
+        sk_sp<GrTexture> backingTexture;
+        if (stashedAtlasProxy && atlas->currentWidth() == stashedAtlasProxy->width() &&
+            atlas->currentHeight() == stashedAtlasProxy->height()) {
+            backingTexture = sk_ref_sp(stashedAtlasProxy->priv().peekTexture());
+            stashedAtlasProxy = nullptr;
+        }
+
+        if (auto rtc = atlas->makeRenderTargetContext(onFlushRP, std::move(backingTexture))) {
             auto op = RenderAtlasOp::Make(rtc->surfPriv().getContext(), sk_ref_sp(this),
                                           atlas->getUserBatchID(), atlas->drawBounds());
             rtc->addDrawOp(GrNoClip(), std::move(op));
