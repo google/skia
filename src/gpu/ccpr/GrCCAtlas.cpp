@@ -77,12 +77,15 @@ GrCCAtlas::GrCCAtlas(GrPixelConfig pixelConfig, const Specs& specs, const GrCaps
                     if (!resourceProvider) {
                         return sk_sp<GrTexture>();
                     }
-                    GrSurfaceDesc desc;
-                    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-                    desc.fWidth = fWidth;
-                    desc.fHeight = fHeight;
-                    desc.fConfig = pixelConfig;
-                    return resourceProvider->createTexture(desc, SkBudgeted::kYes);
+                    if (!fBackingTexture) {
+                        GrSurfaceDesc desc;
+                        desc.fFlags = kRenderTarget_GrSurfaceFlag;
+                        desc.fWidth = fWidth;
+                        desc.fHeight = fHeight;
+                        desc.fConfig = pixelConfig;
+                        fBackingTexture = resourceProvider->createTexture(desc, SkBudgeted::kYes);
+                    }
+                    return fBackingTexture;
             },
             GrProxyProvider::Renderable::kYes, kTextureOrigin, pixelConfig, caps);
 }
@@ -165,12 +168,19 @@ sk_sp<GrCCAtlas::CachedAtlasInfo> GrCCAtlas::refOrMakeCachedAtlasInfo() {
 }
 
 sk_sp<GrRenderTargetContext> GrCCAtlas::makeRenderTargetContext(
-        GrOnFlushResourceProvider* onFlushRP) {
+        GrOnFlushResourceProvider* onFlushRP, sk_sp<GrTexture> backingTexture) {
     SkASSERT(!fTextureProxy->priv().isInstantiated());  // This method should only be called once.
     // Caller should have cropped any paths to the destination render target instead of asking for
     // an atlas larger than maxRenderTargetSize.
     SkASSERT(SkTMax(fHeight, fWidth) <= fMaxTextureSize);
     SkASSERT(fMaxTextureSize <= onFlushRP->caps()->maxRenderTargetSize());
+
+    if (backingTexture) {
+        SkASSERT(backingTexture->config() == kAlpha_half_GrPixelConfig);
+        SkASSERT(backingTexture->width() == fWidth);
+        SkASSERT(backingTexture->height() == fHeight);
+        fBackingTexture = std::move(backingTexture);
+    }
 
     sk_sp<GrRenderTargetContext> rtc =
             onFlushRP->makeRenderTargetContext(fTextureProxy, nullptr, nullptr);
