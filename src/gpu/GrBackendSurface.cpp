@@ -9,6 +9,11 @@
 
 #include "gl/GrGLUtil.h"
 
+#ifdef SK_NXT
+#include "nxt/GrNXTTypes.h"
+#include "nxt/GrNXTUtil.h"
+#endif
+
 #ifdef SK_VULKAN
 #include "vk/GrVkImageLayout.h"
 #include "vk/GrVkTypes.h"
@@ -63,6 +68,19 @@ const GrPixelConfig* GrBackendFormat::getMockFormat() const {
     }
     return nullptr;
 }
+
+#ifdef SK_NXT
+GrBackendTexture::GrBackendTexture(int width,
+                                   int height,
+                                   const GrNXTImageInfo& nxtInfo)
+        : fIsValid(true)
+        , fWidth(width)
+        , fHeight(height)
+        , fConfig(GrNXTFormatToPixelConfig(nxtInfo.fFormat))
+        , fMipMapped(GrMipMapped(nxtInfo.fLevelCount > 1))
+        , fBackend(kNXT_GrBackend)
+        , fNXTInfo(nxtInfo) {}
+#endif
 
 #ifdef SK_VULKAN
 GrBackendTexture::GrBackendTexture(int width,
@@ -131,6 +149,7 @@ GrBackendTexture::GrBackendTexture(int width,
         , fBackend(kMock_GrBackend)
         , fMockInfo(mockInfo) {}
 
+
 GrBackendTexture::~GrBackendTexture() {
     this->cleanup();
 }
@@ -172,6 +191,11 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
         case kMetal_GrBackend:
             break;
 #endif
+#ifdef SK_NXT
+        case kNXT_GrBackend:
+            fNXTInfo = that.fNXTInfo;
+            break;
+#endif
         case kMock_GrBackend:
             fMockInfo = that.fMockInfo;
             break;
@@ -181,6 +205,16 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
     fIsValid = that.fIsValid;
     return *this;
 }
+
+#ifdef SK_NXT
+bool GrBackendTexture::getNXTImageInfo(GrNXTImageInfo* outInfo) const {
+    if (this->isValid() && kNXT_GrBackend == fBackend) {
+        *outInfo = fNXTInfo;
+        return true;
+    }
+    return false;
+}
+#endif
 
 #ifdef SK_VULKAN
 bool GrBackendTexture::getVkImageInfo(GrVkImageInfo* outInfo) const {
@@ -285,6 +319,22 @@ bool GrBackendTexture::TestingOnly_Equals(const GrBackendTexture& t0, const GrBa
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef SK_NXT
+GrBackendRenderTarget::GrBackendRenderTarget(int width,
+                                             int height,
+                                             int sampleCnt,
+                                             int stencilBits,
+                                             const GrNXTImageInfo& nxtInfo)
+        : fIsValid(true)
+        , fWidth(width)
+        , fHeight(height)
+        , fSampleCnt(sampleCnt)
+        , fStencilBits(stencilBits)
+        , fConfig(GrNXTFormatToPixelConfig(nxtInfo.fFormat))
+        , fBackend(kNXT_GrBackend)
+        , fNXTInfo(nxtInfo) {}
+#endif
 
 #ifdef SK_VULKAN
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
@@ -415,6 +465,16 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
     fIsValid = that.fIsValid;
     return *this;
 }
+
+#ifdef SK_NXT
+bool GrBackendRenderTarget::getNXTImageInfo(GrNXTImageInfo* outInfo) const {
+    if (this->isValid() && kNXT_GrBackend == fBackend) {
+        *outInfo = fNXTInfo;
+        return true;
+    }
+    return false;
+}
+#endif
 
 #ifdef SK_VULKAN
 bool GrBackendRenderTarget::getVkImageInfo(GrVkImageInfo* outInfo) const {

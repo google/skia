@@ -1,0 +1,475 @@
+nxt_thirdparty_root = "../../externals/nxt/third_party"
+
+config("spirv-headers_config") {
+  include_dirs = [ "$nxt_thirdparty_root/spirv-headers/include" ]
+}
+
+config("spirv-tools_config") {
+  include_dirs = [ "$nxt_thirdparty_root/spirv-tools/include" ]
+}
+
+grammar_script =
+    "$nxt_thirdparty_root/spirv-tools/utils/generate_grammar_tables.py"
+
+template("spirv_tools_core_tables") {
+  version = invoker.version
+
+  action(target_name) {
+    script = grammar_script
+    grammar = "$nxt_thirdparty_root/spirv-headers/include/spirv/${version}/spirv.core.grammar.json"
+    inputs = [
+      grammar_script,
+      grammar,
+    ]
+    outputs = [
+      "$target_gen_dir/spirv-tools/core.insts-${version}.inc",
+      "$target_gen_dir/spirv-tools/operand.kinds-${version}.inc",
+    ]
+    args = [
+      "--spirv-core-grammar=" + rebase_path(grammar, root_build_dir),
+      "--core-insts-output=" +
+          rebase_path("$target_gen_dir/spirv-tools/core.insts-${version}.inc",
+                      root_build_dir),
+      "--operand-kinds-output=" + rebase_path(
+              "$target_gen_dir/spirv-tools/operand.kinds-${version}.inc",
+              root_build_dir),
+    ]
+  }
+}
+
+template("spirv_tools_enum_string_mapping") {
+  version = invoker.version
+
+  action(target_name) {
+    script = grammar_script
+    grammar = "$nxt_thirdparty_root/spirv-headers/include/spirv/${version}/spirv.core.grammar.json"
+    inputs = [
+      grammar_script,
+      grammar,
+    ]
+    outputs = [
+      "$target_gen_dir/spirv-tools/extension_enum.inc",
+      "$target_gen_dir/spirv-tools/enum_string_mapping.inc",
+    ]
+    args = [
+      "--spirv-core-grammar=" + rebase_path(grammar, root_build_dir),
+      "--extension-enum-output=" +
+          rebase_path("$target_gen_dir/spirv-tools/extension_enum.inc",
+                      root_build_dir),
+      "--enum-string-mapping-output=" +
+          rebase_path("$target_gen_dir/spirv-tools/enum_string_mapping.inc",
+                      root_build_dir),
+    ]
+  }
+}
+
+template("spirv_tools_vendor_tables") {
+  vendor_table = invoker.vendor_table
+
+  action(target_name) {
+    script = grammar_script
+    grammar = "$nxt_thirdparty_root/spirv-tools/source/extinst.${vendor_table}.grammar.json"
+    inputs = [
+      grammar_script,
+      grammar,
+    ]
+    outputs = [
+      "$target_gen_dir/spirv-tools/${vendor_table}.insts.inc",
+    ]
+    args = [
+      "--extinst-vendor-grammar=" + rebase_path(grammar, root_build_dir),
+      "--vendor-insts-output=" +
+          rebase_path("$target_gen_dir/spirv-tools/${vendor_table}.insts.inc",
+                      root_build_dir),
+    ]
+  }
+}
+
+spirv_tools_core_tables("spirv_tools_core_tables_1_0") {
+  version = "1.0"
+}
+
+spirv_tools_core_tables("spirv_tools_core_tables_1_1") {
+  version = "1.1"
+}
+
+spirv_tools_core_tables("spirv_tools_core_tables_1_2") {
+  version = "1.2"
+}
+
+spirv_tools_enum_string_mapping("spirv_tools_enum_string_mapping_1_2") {
+  version = "1.2"
+}
+
+spirv_tools_vendor_tables("spirv_tools_amd_shader_explicit_vertex_parameter") {
+  vendor_table = "spv-amd-shader-explicit-vertex-parameter"
+}
+
+spirv_tools_vendor_tables("spirv_tools_amd_shader_trinary_minmax") {
+  vendor_table = "spv-amd-shader-trinary-minmax"
+}
+
+spirv_tools_vendor_tables("spirv_tools_amd_gcn_shader") {
+  vendor_table = "spv-amd-gcn-shader"
+}
+
+spirv_tools_vendor_tables("spirv_tools_amd_shader_ballot") {
+  vendor_table = "spv-amd-shader-ballot"
+}
+
+action("spirv_tools_generators_inc") {
+  script = "$nxt_thirdparty_root/spirv-tools/utils/generate_registry_tables.py"
+  inputs = [
+    script,
+    "$nxt_thirdparty_root/spirv-headers/include/spirv/spir-v.xml",
+  ]
+  outputs = [
+    "$target_gen_dir/spirv-tools/generators.inc",
+  ]
+  args = [
+    "--xml=" + rebase_path(
+            "$nxt_thirdparty_root/spirv-headers/include/spirv/spir-v.xml",
+            root_build_dir),
+    "--generator-output=" +
+        rebase_path("$target_gen_dir/spirv-tools/generators.inc",
+                    root_build_dir),
+  ]
+}
+
+action("spirv_tools_glsl_tables_1_0") {
+  script = grammar_script
+  inputs = [
+    grammar_script,
+    "$nxt_thirdparty_root/spirv-headers/include/spirv/1.0/spirv.core.grammar.json",
+    "$nxt_thirdparty_root/spirv-headers/include/spirv/1.0/extinst.glsl.std.450.grammar.json",
+  ]
+  outputs = [
+    "$target_gen_dir/spirv-tools/glsl.std.450.insts-1.0.inc",
+  ]
+  args = [
+    "--spirv-core-grammar=" + rebase_path(
+            "$nxt_thirdparty_root/spirv-headers/include/spirv/1.0/spirv.core.grammar.json",
+            root_build_dir),
+    "--extinst-glsl-grammar=" + rebase_path(
+            "$nxt_thirdparty_root/spirv-headers/include/spirv/1.0/extinst.glsl.std.450.grammar.json",
+            root_build_dir),
+    "--glsl-insts-output=" +
+        rebase_path("$target_gen_dir/spirv-tools/glsl.std.450.insts-1.0.inc",
+                    root_build_dir),
+  ]
+}
+
+action("spirv_tools_opencl_tables_1_0") {
+  script = grammar_script
+  inputs = [
+    grammar_script,
+    "$nxt_thirdparty_root/spirv-headers/include/spirv/1.0/spirv.core.grammar.json",
+    "$nxt_thirdparty_root/spirv-headers/include/spirv/1.0/extinst.opencl.std.100.grammar.json",
+  ]
+  outputs = [
+    "$target_gen_dir/spirv-tools/opencl.std.insts-1.0.inc",
+  ]
+  args = [
+    "--spirv-core-grammar=" + rebase_path(
+            "$nxt_thirdparty_root/spirv-headers/include/spirv/1.0/spirv.core.grammar.json",
+            root_build_dir),
+    "--extinst-opencl-grammar=" + rebase_path(
+            "$nxt_thirdparty_root/spirv-headers/include/spirv/1.0/extinst.glsl.std.450.grammar.json",
+            root_build_dir),
+    "--opencl-insts-output=" +
+        rebase_path("$target_gen_dir/spirv-tools/opencl.std.insts-1.0.inc",
+                    root_build_dir),
+  ]
+}
+
+action("spirv_tools_build_version_inc") {
+  script = "$nxt_thirdparty_root/spirv-tools/utils/update_build_version.py"
+  inputs = [
+    script,
+    "$nxt_thirdparty_root/spirv-tools/CHANGES",
+  ]
+  outputs = [
+    "$target_gen_dir/spirv-tools/build-version.inc",
+  ]
+  args = [
+    rebase_path("$nxt_thirdparty_root/spirv-tools/", root_build_dir),
+    rebase_path("$target_gen_dir/spirv-tools/build-version.inc",
+                root_build_dir),
+  ]
+}
+
+static_library("spirv_tools") {
+  public_configs = [ ":spirv-tools_config" ]
+
+  configs += [ ":spirv-headers_config" ]
+  configs -= [ "//gn:warnings" ]
+
+  include_dirs = [
+    "$nxt_thirdparty_root/spirv-tools/source",
+    "$target_gen_dir/spirv-tools",
+  ]
+
+  deps = [
+    ":spirv_tools_amd_gcn_shader",
+    ":spirv_tools_amd_shader_ballot",
+    ":spirv_tools_amd_shader_explicit_vertex_parameter",
+    ":spirv_tools_amd_shader_trinary_minmax",
+    ":spirv_tools_build_version_inc",
+    ":spirv_tools_core_tables_1_0",
+    ":spirv_tools_core_tables_1_1",
+    ":spirv_tools_core_tables_1_2",
+    ":spirv_tools_enum_string_mapping_1_2",
+    ":spirv_tools_generators_inc",
+    ":spirv_tools_glsl_tables_1_0",
+    ":spirv_tools_opencl_tables_1_0",
+  ]
+
+  sources = rebase_path([
+                          "spirv-tools/include/spirv-tools/libspirv.h",
+                          "spirv-tools/source/assembly_grammar.cpp",
+                          "spirv-tools/source/assembly_grammar.h",
+                          "spirv-tools/source/binary.cpp",
+                          "spirv-tools/source/binary.h",
+                          "spirv-tools/source/diagnostic.cpp",
+                          "spirv-tools/source/diagnostic.h",
+                          "spirv-tools/source/disassemble.cpp",
+                          "spirv-tools/source/enum_set.h",
+                          "spirv-tools/source/ext_inst.cpp",
+                          "spirv-tools/source/ext_inst.h",
+
+                          #    "spirv-tools/source/instruction.cpp",
+                          "spirv-tools/source/instruction.h",
+                          "spirv-tools/source/macro.h",
+                          "spirv-tools/source/name_mapper.cpp",
+                          "spirv-tools/source/name_mapper.h",
+                          "spirv-tools/source/opcode.cpp",
+                          "spirv-tools/source/opcode.h",
+                          "spirv-tools/source/operand.cpp",
+                          "spirv-tools/source/operand.h",
+                          "spirv-tools/source/print.cpp",
+                          "spirv-tools/source/print.h",
+                          "spirv-tools/source/software_version.cpp",
+                          "spirv-tools/source/spirv_constant.h",
+                          "spirv-tools/source/spirv_definition.h",
+                          "spirv-tools/source/spirv_endian.cpp",
+                          "spirv-tools/source/spirv_endian.h",
+                          "spirv-tools/source/spirv_target_env.cpp",
+                          "spirv-tools/source/spirv_target_env.h",
+                          "spirv-tools/source/table.cpp",
+                          "spirv-tools/source/table.h",
+                          "spirv-tools/source/text.cpp",
+                          "spirv-tools/source/text.h",
+                          "spirv-tools/source/text_handler.cpp",
+                          "spirv-tools/source/text_handler.h",
+                          "spirv-tools/source/util/bitutils.h",
+                          "spirv-tools/source/util/hex_float.h",
+                          "spirv-tools/source/util/parse_number.cpp",
+                          "spirv-tools/source/util/parse_number.h",
+                          "spirv-tools/source/val/basic_block.cpp",
+                          "spirv-tools/source/val/construct.cpp",
+                          "spirv-tools/source/val/function.cpp",
+                          "spirv-tools/source/val/instruction.cpp",
+                          "spirv-tools/source/val/validation_state.cpp",
+                          "spirv-tools/source/validate.cpp",
+                          "spirv-tools/source/validate.h",
+                          "spirv-tools/source/validate_cfg.cpp",
+                          "spirv-tools/source/validate_id.cpp",
+                          "spirv-tools/source/validate_instruction.cpp",
+                          "spirv-tools/source/validate_layout.cpp",
+                        ],
+                        ".",
+                        "$nxt_thirdparty_root")
+
+  cflags = []
+  if (is_win) {
+    cflags += [
+      "/wd4800",
+      "/wd4706",
+    ]
+  }
+}
+
+config("spirv_cross_config") {
+  include_dirs = [ "$nxt_thirdparty_root" ]
+  defines = [ "SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS" ]
+}
+
+static_library("spirv_cross") {
+  #  if (is_linux || is_mac) {
+  #    configs -= [ "//build/config/gcc:no_exceptions" ]
+  #  }
+
+  public_configs = [ ":spirv_cross_config" ]
+  configs -= [ "//gn:warnings" ]
+
+  cflags = []
+  if (is_win) {
+    cflags += [
+      "/wd5850",
+      "/wd4245",
+      "/wd4702",
+      "/wd4706",
+      "/wd4715",
+    ]
+  }
+
+  sources = rebase_path([
+                          "spirv-cross/GLSL.std.450.h",
+                          "spirv-cross/spirv.hpp",
+                          "spirv-cross/spirv_cfg.cpp",
+                          "spirv-cross/spirv_cfg.hpp",
+                          "spirv-cross/spirv_common.hpp",
+                          "spirv-cross/spirv_cpp.cpp",
+                          "spirv-cross/spirv_cpp.hpp",
+                          "spirv-cross/spirv_cross.cpp",
+                          "spirv-cross/spirv_cross.hpp",
+                          "spirv-cross/spirv_glsl.cpp",
+                          "spirv-cross/spirv_glsl.hpp",
+                          "spirv-cross/spirv_hlsl.cpp",
+                          "spirv-cross/spirv_hlsl.hpp",
+                          "spirv-cross/spirv_msl.cpp",
+                          "spirv-cross/spirv_msl.hpp",
+                        ],
+                        ".",
+                        "$nxt_thirdparty_root")
+}
+
+config("glad_config") {
+  include_dirs = [ "$nxt_thirdparty_root/glad/include" ]
+}
+
+static_library("glad") {
+  sources = rebase_path([
+                          "glad/include/KHR/khrplatform.h",
+                          "glad/include/glad/glad.h",
+                          "glad/src/glad.c",
+                        ],
+                        ".",
+                        "$nxt_thirdparty_root")
+
+  public_configs = [ ":glad_config" ]
+
+  cflags = []
+  if (is_win) {
+    cflags += [
+      "/wd4055",
+      "/wd4054",
+    ]  # type cast from void* to function pointer
+  } else {
+    cflags_c = [
+      "-Wno-unused-function",
+      "-Wno-strict-prototypes",
+    ]
+  }
+}
+
+config("glfw_config") {
+  include_dirs = [ "$nxt_thirdparty_root/glfw/include" ]
+
+  if (is_win) {
+    defines = [ "_GLFW_WIN32" ]
+  }
+
+  if (is_mac) {
+    defines = [ "_GLFW_COCOA" ]
+  }
+
+  if (is_linux) {  # TODO x11 only
+    defines = [
+      "_GLFW_X11",
+      #"_GLFW_HAS_XF86VM",
+    ]
+  }
+}
+
+static_library("glfw") {
+  public_configs = [ ":glfw_config" ]
+  configs -= [ "//gn:warnings" ]
+
+  sources = rebase_path([
+                          "glfw/include/GLFW/glfw3.h",
+                          "glfw/include/GLFW/glfw3native.h",
+                          "glfw/src/context.c",
+                          "glfw/src/init.c",
+                          "glfw/src/input.c",
+                          "glfw/src/internal.h",
+                          "glfw/src/monitor.c",
+                          "glfw/src/vulkan.c",
+                          "glfw/src/window.c",
+                        ],
+                        ".",
+                        "$nxt_thirdparty_root")
+
+  if (!is_win) {
+    cflags_c = [ "-Wno-sign-compare" ]
+  }
+
+  libs = []
+  cflags = []
+
+  if (is_win) {
+    cflags += [
+      "/wd4152",
+      "/wd4204",
+    ]
+
+    sources += rebase_path([
+                             "glfw/src/egl_context.c",
+                             "glfw/src/egl_context.h",
+                             "glfw/src/wgl_context.c",
+                             "glfw/src/wgl_context.h",
+                             "glfw/src/win32_init.c",
+                             "glfw/src/win32_joystick.c",
+                             "glfw/src/win32_joystick.h",
+                             "glfw/src/win32_monitor.c",
+                             "glfw/src/win32_platform.h",
+                             "glfw/src/win32_time.c",
+                             "glfw/src/win32_tls.c",
+                             "glfw/src/win32_window.c",
+                           ],
+                           ".",
+                           "$nxt_thirdparty_root")
+  }
+
+  if (is_linux) {
+    sources += rebase_path([
+                             "glfw/src/linux_joystick.c",
+                             "glfw/src/linux_joystick.h",
+                             "glfw/src/posix_time.c",
+                             "glfw/src/posix_time.h",
+                             "glfw/src/posix_tls.c",
+                             "glfw/src/posix_tls.h",
+                           ],
+                           ".",
+                           "$nxt_thirdparty_root")
+
+    libs += [
+      "rt",
+      "dl",
+    ]
+  }
+
+  if (is_linux) {  # TODO x11 only
+    sources += rebase_path([
+                             "glfw/src/egl_context.c",
+                             "glfw/src/egl_context.h",
+                             "glfw/src/glx_context.c",
+                             "glfw/src/glx_context.h",
+                             "glfw/src/x11_init.c",
+                             "glfw/src/x11_monitor.c",
+                             "glfw/src/x11_platform.h",
+                             "glfw/src/x11_window.c",
+                             "glfw/src/xkb_unicode.c",
+                             "glfw/src/xkb_unicode.h",
+                           ],
+                           ".",
+                           "$nxt_thirdparty_root")
+
+    libs += [
+      "X11",
+      "Xcursor",
+      "Xinerama",
+      "Xrandr",
+    ]
+  }
+}

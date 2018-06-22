@@ -71,22 +71,10 @@ bool Window_mac::initWindow() {
     fWindowID = SDL_GetWindowID(fWindow);
     gWindowMap.add(this);
 
-    fGLContext = SDL_GL_CreateContext(fWindow);
-    if (!fGLContext) {
-        SkDebugf("%s\n", SDL_GetError());
-        this->closeWindow();
-        return false;
-    }
-
     return true;
 }
 
 void Window_mac::closeWindow() {
-    if (fGLContext) {
-        SDL_GL_DeleteContext(fGLContext);
-        fGLContext = nullptr;
-    }
-
     if (fWindow) {
         gWindowMap.remove(fWindowID);
         SDL_DestroyWindow(fWindow);
@@ -263,11 +251,21 @@ bool Window_mac::attach(BackendType attachType) {
 
     window_context_factory::MacWindowInfo info;
     info.fWindow = fWindow;
-    info.fGLContext = fGLContext;
     switch (attachType) {
         case kRaster_BackendType:
             fWindowContext = NewRasterForMac(info, fRequestedDisplayParams);
             break;
+
+#ifdef SK_NXT
+        case kNXT_BackendType:
+#ifdef SK_NXT_METAL
+            fWindowContext = window_context_factory::NewNXTMTLForMac(info, fRequestedDisplayParams);
+#endif
+#ifdef SK_NXT_OPENGL
+            fWindowContext = window_context_factory::NewNXTGLForMac(info, fRequestedDisplayParams);
+#endif
+            break;
+#endif
 
         case kNativeGL_BackendType:
         default:
