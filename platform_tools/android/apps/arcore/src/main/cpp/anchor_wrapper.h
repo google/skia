@@ -17,6 +17,7 @@
 #ifndef C_ARCORE_HELLO_AR_ANCHOR_WRAPPER_H_
 #define C_ARCORE_HELLO_AR_ANCHOR_WRAPPER_H_
 #include "arcore_c_api.h"
+#include "util.h"
 
 namespace hello_ar {
     enum DrawableType {
@@ -26,17 +27,20 @@ namespace hello_ar {
     class AnchorWrapper {
     public:
         AnchorWrapper(ArAnchor* anchor);
+        ~AnchorWrapper();
 
-        const ArAnchor* GetArAnchor();
+        ArAnchor* GetArAnchor() const;
+        glm::vec4 GetAnchorPos(ArSession* arSession);
+        util::MatrixComputationInfo* GetMatrixInfo();
         DrawableType GetDrawableType();
-        bool GetInEditMode();
 
         void SetArAnchor(ArAnchor* anchor);
+        void SetMatrixInfo(util::MatrixComputationInfo* info);
         void SetDrawableType(DrawableType drawableType);
-        void SetInEditMode(bool inEditMode);
 
     private:
         ArAnchor* anchor;
+        util::MatrixComputationInfo* matrixInfo;
         DrawableType drawableType;
         bool inEditMode = false;
     };

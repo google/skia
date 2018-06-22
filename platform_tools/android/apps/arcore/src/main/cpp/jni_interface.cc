@@ -100,6 +100,16 @@ JNI_METHOD(void, onTouchTranslate)
     return native(native_application)->OnTouchTranslate(x, y);
 }
 
+JNI_METHOD(void, onTouchScale)
+(JNIEnv *, jclass, jlong native_application, jfloat scale) {
+    return native(native_application)->OnTouchScale(scale);
+}
+
+JNI_METHOD(void, onTouchRotate)
+(JNIEnv *, jclass, jlong native_application, jfloat angle) {
+    return native(native_application)->OnTouchRotate(angle);
+}
+
 JNI_METHOD(bool, onTouchedFirst)
 (JNIEnv *, jclass, jlong native_application, jfloat x, jfloat y, int drawMode) {
     return native(native_application)->OnTouchedFirst(x, y, drawMode);
