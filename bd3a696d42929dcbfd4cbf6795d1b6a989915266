@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "84428fea_bece0564",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-22T14:18:22Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 277,
+        "startChar": 40,
+        "endLine": 277,
+        "endChar": 45
+      },
+      "revId": "bd3a696d42929dcbfd4cbf6795d1b6a989915266",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e26e21b8_559c3bd9",
+        "filename": "src/gpu/ccpr/GrCCPathCache.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-22T14:18:22Z",
+      "side": 1,
+      "message": "// the number of times this path has been seen in ...\n\n?",
+      "revId": "bd3a696d42929dcbfd4cbf6795d1b6a989915266",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
