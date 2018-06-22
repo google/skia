@@ -56,6 +56,7 @@ SkColor uses preprocessor definitions to inline code and constants, and to abstr
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns opaque <a href='#Color'>Color</a></td>
   </tr>
 </table>
+
 <a href='#Color'>Color</a> constants can be helpful to write code, documenting the meaning of values
 the represent transparency and color values. The use of <a href='#Color'>Color</a> constants is not
 required.
@@ -125,7 +126,6 @@ SkColor related constants are defined by <code>enum</code>, <code>enum class</co
   </tr>
 </table>
 
-
 ## <a name='Function'>Function</a>
 
 
@@ -166,7 +166,6 @@ SkColor related constants are defined by <code>enum</code>, <code>enum class</co
   </tr>
 </table>
 
-
 ## <a name='Typedef'>Typedef</a>
 
 
@@ -187,7 +186,6 @@ SkColor  <code>typedef</code> define a data type.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>defines <a href='undocumented#Premultiply'>Premultiplied</a> <a href='#Color'>Color</a> as 32 bits</td>
   </tr>
 </table>
-
 
 ## <a name='Alpha'>Alpha</a>
 

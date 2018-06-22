@@ -145,7 +145,6 @@ SkImageInfo related constants are defined by <code>enum</code>, <code>enum class
   </tr>
 </table>
 
-
 ## <a name='Alpha_Type'>Alpha Type</a>
 
 ## <a name='SkAlphaType'>Enum SkAlphaType</a>
@@ -942,6 +941,7 @@ SkImageInfo related constants are defined by <code>enum</code>, <code>enum class
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
 </table>
+
 Describes pixel dimensions and encoding. <a href='SkBitmap_Reference#Bitmap'>Bitmap</a>, <a href='SkImage_Reference#Image'>Image</a>, PixMap, and <a href='SkSurface_Reference#Surface'>Surface</a>
 can be created from <a href='#Image_Info'>Image Info</a>. <a href='#Image_Info'>Image Info</a> can be retrieved from <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> and
 <a href='SkPixmap_Reference#Pixmap'>Pixmap</a>, but not from <a href='SkImage_Reference#Image'>Image</a> and <a href='SkSurface_Reference#Surface'>Surface</a>. For example, <a href='SkImage_Reference#Image'>Image</a> and <a href='SkSurface_Reference#Surface'>Surface</a>
@@ -1104,7 +1104,6 @@ SkImageInfo member functions read and modify the structure properties.
   </tr>
 </table>
 
-
 ## <a name='Related_Function'>Related Function</a>
 
 
@@ -1186,7 +1185,6 @@ SkImageInfo global, <code>struct</code>, and <code>class</code> related member f
   </tr>
 </table>
 
-
 ## <a name='Constructor'>Constructor</a>
 
 
@@ -1259,7 +1257,6 @@ SkImageInfo can be constructed or initialized by these functions, including C++ 
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets zero dimensions, <a href='#kUnknown_SkColorType'>kUnknown_SkColorType</a>, <a href='#kUnknown_SkAlphaType'>kUnknown_SkAlphaType</a></td>
   </tr>
 </table>
-
 
 <a name='SkImageInfo_empty_constructor'></a>
 ## SkImageInfo
@@ -1694,7 +1691,6 @@ created <a href='#Image_Info'>Image Info</a>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns pixel column count</td>
   </tr>
 </table>
-
 
 <a name='SkImageInfo_width'></a>
 ## width
@@ -2382,7 +2378,6 @@ SkImageInfo operators inline class member functions with arithmetic equivalents.
   </tr>
 </table>
 
-
 <a name='SkImageInfo_equal1_operator'></a>
 ## operator==
 
@@ -2672,7 +2667,6 @@ SkImageInfo() == reset copy
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>asserts if <a href='#Image_Info'>Image Info</a> is invalid (debug only)</td>
   </tr>
 </table>
-
 
 <a name='SkImageInfo_validate'></a>
 ## validate

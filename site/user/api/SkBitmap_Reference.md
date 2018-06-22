@@ -101,7 +101,6 @@ SkBitmap global, <code>struct</code>, and <code>class</code> related member func
   </tr>
 </table>
 
-
 ## <a name='Constant'>Constant</a>
 
 
@@ -119,7 +118,6 @@ SkBitmap related constants are defined by <code>enum</code>, <code>enum class</c
   </tr>
 </table>
 
-
 ## <a name='Class'>Class</a>
 
 
@@ -136,7 +134,6 @@ SkBitmap uses C++ classes to declare the public data structures and interfaces.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates pixel memory from heap</td>
   </tr>
 </table>
-
 
 ## <a name='Constructor'>Constructor</a>
 
@@ -187,7 +184,6 @@ SkBitmap can be constructed or initialized by these functions, including C++ cla
   </tr>
 </table>
 
-
 ## <a name='Operator'>Operator</a>
 
 
@@ -204,7 +200,6 @@ SkBitmap operators inline class member functions with arithmetic equivalents.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>shares ownership of pixels</td>
   </tr>
 </table>
-
 
 ## <a name='Member_Function'>Member Function</a>
 
@@ -459,7 +454,6 @@ SkBitmap member functions read and modify the structure properties.
   </tr>
 </table>
 
-
 # <a name='SkBitmap_Allocator'>Class SkBitmap::Allocator</a>
 
 ## <a name='Member_Function'>Member_Function</a>
@@ -470,7 +464,6 @@ SkBitmap member functions read and modify the structure properties.
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
 </table>
-
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     class <a href='#SkBitmap_Allocator'>Allocator</a> : public <a href='undocumented#SkRefCnt'>SkRefCnt</a> {
@@ -519,7 +512,6 @@ SkBitmap member functions read and modify the structure properties.
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
 </table>
-
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     class <a href='#SkBitmap_HeapAllocator'>HeapAllocator</a> : public <a href='#SkBitmap_Allocator'>Allocator</a> {
@@ -966,7 +958,6 @@ two width:1 height:1 colorType:kRGBA_8888_SkColorType alphaType:kOpaque_SkAlphaT
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns pixel column count</td>
   </tr>
 </table>
-
 
 <a name='SkBitmap_pixmap'></a>
 ## pixmap
@@ -2200,7 +2191,6 @@ Instructs <a href='#SkBitmap_tryAllocPixelsFlags'>tryAllocPixelsFlags</a> and <a
   </tr>
 </table>
 
-
 <a name='SkBitmap_tryAllocPixelsFlags'></a>
 ## tryAllocPixelsFlags
 
@@ -2762,7 +2752,6 @@ soon
   </tr>
 </table>
 
-
 <a name='SkBitmap_setPixels'></a>
 ## setPixels
 
@@ -3014,7 +3003,6 @@ subset origin: 32, 64
   </tr>
 </table>
 
-
 <a name='SkBitmap_setPixelRef'></a>
 ## setPixelRef
 
@@ -3155,7 +3143,6 @@ Marks that pixels in <a href='undocumented#Pixel_Ref'>Pixel Ref</a> have changed
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>writes <a href='SkColor_Reference#Color'>Color</a> to pixels</td>
   </tr>
 </table>
-
 
 <a name='SkBitmap_eraseColor'></a>
 ## eraseColor
@@ -4065,7 +4052,7 @@ true if <a href='#SkBitmap_writePixels_3_src'>src</a> pixels are copied to <a hr
 bool <a href='#SkBitmap_hasHardwareMipMap'>hasHardwareMipMap</a>() const
 </pre>
 
-Android framework only.
+For use by Android framework only.
 
 ### Return Value
 
@@ -4084,7 +4071,7 @@ true if <a href='#SkBitmap_setHasHardwareMipMap'>setHasHardwareMipMap</a> has be
 void <a href='#SkBitmap_setHasHardwareMipMap'>setHasHardwareMipMap</a>(bool <a href='#SkBitmap_hasHardwareMipMap'>hasHardwareMipMap</a>)
 </pre>
 
-Android framework only.
+For use by Android framework only.
 
 ### Parameters
 
@@ -4301,7 +4288,6 @@ x---x-
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>asserts if <a href='#Bitmap'>Bitmap</a> is invalid (debug only)</td>
   </tr>
 </table>
-
 
 <a name='SkBitmap_validate'></a>
 ## validate
