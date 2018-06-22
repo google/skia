@@ -298,7 +298,7 @@ void GLTestContext::teardown() {
 void GLTestContext::testAbandon() {
     INHERITED::testAbandon();
     if (fGL) {
-        fGL->abandon();
+        fGL->abandon1();
     }
 }
 

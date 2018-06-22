@@ -103,8 +103,9 @@ void GrContextFactory::releaseResourcesAndAbandonContexts() {
         if (!context.fAbandoned) {
             if (context.fTestContext) {
                 restore = context.fTestContext->makeCurrentAndAutoRestore();
+                context.fTestContext->testAbandon();
             }
-            context.fGrContext->releaseResourcesAndAbandonContext();
+            context.fGrContext->abandonContext();
             context.fAbandoned = true;
             if (context.fTestContext) {
                 delete context.fTestContext;
