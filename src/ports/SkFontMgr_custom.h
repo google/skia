@@ -50,6 +50,7 @@ public:
 
 protected:
     SkStreamAsset* onOpenStream(int*) const override;
+    sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override;
 
 private:
     typedef SkTypeface_Custom INHERITED;
@@ -65,6 +66,7 @@ public:
 protected:
     SkStreamAsset* onOpenStream(int* ttcIndex) const override;
     std::unique_ptr<SkFontData> onMakeFontData() const override;
+    sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override;
 
 private:
     const std::unique_ptr<const SkFontData> fData;
@@ -80,6 +82,7 @@ public:
 
 protected:
     SkStreamAsset* onOpenStream(int* ttcIndex) const override;
+    sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override;
 
 private:
     SkString fPath;

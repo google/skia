@@ -531,11 +531,11 @@ public:
             return nullptr;
         }
 
-        SkString fFamilyName;
-        this->getFamilyName(&fFamilyName);
+        SkString familyName;
+        this->getFamilyName(&familyName);
 
         return sk_make_sp<SkTypeface_stream>(std::move(data),
-                                             fFamilyName,
+                                             familyName,
                                              this->fontStyle(),
                                              this->isFixedPitch());
     }
