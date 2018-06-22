@@ -37,6 +37,7 @@
 #include "SkRRect.h"
 #include "SkRasterClip.h"
 #include "SkRasterHandleAllocator.h"
+#include "SkSkeleton.h"
 #include "SkSpecialImage.h"
 #include "SkStrikeCache.h"
 #include "SkString.h"
@@ -1702,13 +1703,41 @@ void SkCanvas::drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode,
     RETURN_ON_NULL(vertices);
     // We expect fans to be converted to triangles when building or deserializing SkVertices.
     SkASSERT(vertices->mode() != SkVertices::kTriangleFan_VertexMode);
-    this->onDrawVerticesObject(vertices.get(), mode, paint);
+    this->onDrawVerticesObject(vertices.get(), nullptr, mode, paint);
 }
 
 void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(vertices);
-    this->onDrawVerticesObject(vertices, mode, paint);
+    this->onDrawVerticesObject(vertices, nullptr, mode, paint);
+}
+
+void SkCanvas::drawVertices(const SkVertices* vertices, const SkSkeleton* bones,
+                            SkBlendMode mode, const SkPaint& paint) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+    RETURN_ON_NULL(vertices);
+    this->onDrawVerticesObject(vertices, bones, mode, paint);
+}
+
+void SkCanvas::drawVertices(const sk_sp<SkVertices> vertices, const SkSkeleton* bones,
+                            SkBlendMode mode, const SkPaint& paint) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+    RETURN_ON_NULL(vertices);
+    this->onDrawVerticesObject(vertices.get(), bones, mode, paint);
+}
+
+void SkCanvas::drawVertices(const SkVertices* vertices, const sk_sp<SkSkeleton> bones,
+                            SkBlendMode mode, const SkPaint& paint) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+    RETURN_ON_NULL(vertices);
+    this->onDrawVerticesObject(vertices, bones.get(), mode, paint);
+}
+
+void SkCanvas::drawVertices(const sk_sp<SkVertices> vertices, const sk_sp<SkSkeleton> bones,
+                            SkBlendMode mode, const SkPaint& paint) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+    RETURN_ON_NULL(vertices);
+    this->onDrawVerticesObject(vertices.get(), bones.get(), mode, paint);
 }
 
 void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
@@ -2597,13 +2626,13 @@ void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     this->onDrawTextBlob(blob, x, y, paint);
 }
 
-void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmode,
-                                    const SkPaint& paint) {
+void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, const SkSkeleton* bones,
+                                    SkBlendMode bmode, const SkPaint& paint) {
     LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type, nullptr)
 
     while (iter.next()) {
         // In the common case of one iteration we could std::move vertices here.
-        iter.fDevice->drawVertices(vertices, bmode, looper.paint());
+        iter.fDevice->drawVertices(vertices, bones, bmode, looper.paint());
     }
 
     LOOPER_END

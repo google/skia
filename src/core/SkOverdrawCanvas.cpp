@@ -219,9 +219,9 @@ void SkOverdrawCanvas::onDrawPoints(PointMode mode, size_t count, const SkPoint 
     fList[0]->onDrawPoints(mode, count, points, this->overdrawPaint(paint));
 }
 
-void SkOverdrawCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode blendMode,
-                                            const SkPaint& paint) {
-    fList[0]->onDrawVerticesObject(vertices, blendMode, this->overdrawPaint(paint));
+void SkOverdrawCanvas::onDrawVerticesObject(const SkVertices* vertices, const SkSkeleton* bones,
+                                            SkBlendMode blendMode, const SkPaint& paint) {
+    fList[0]->onDrawVerticesObject(vertices, bones, blendMode, this->overdrawPaint(paint));
 }
 
 void SkOverdrawCanvas::onDrawAtlas(const SkImage* image, const SkRSXform xform[],
