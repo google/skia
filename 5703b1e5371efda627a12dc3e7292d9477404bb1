@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47226606_040bfd74",
+        "filename": "src/gpu/ccpr/GrCCPerFlushResources.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-22T06:16:53Z",
+      "side": 1,
+      "message": "This actually doesn\u0027t seem to work when there\u0027s a copy above. The copy that reads from this texture gets messed up. Is it possible these Ops are being executed out of order? Or is there some other interaction with the proxies that I\u0027m missing?",
+      "revId": "5703b1e5371efda627a12dc3e7292d9477404bb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
