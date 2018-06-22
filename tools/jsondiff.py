@@ -130,7 +130,8 @@ class GMDiffer(object):
             if results_of_this_type:
                 for test_name in results_of_this_type.keys():
                     digest_pair = results_of_this_type[test_name]
-                    if digest_pair[0] != gm_json.JSONKEY_HASHTYPE_BITMAP_64BITMD5:
+                    if (digest_pair[0] !=
+                            gm_json.JSONKEY_HASHTYPE_BITMAP_64BITMD5):
                         raise ValueError(
                             'test %s has unsupported hashtype %s' % (
                                 test_name, digest_pair[0]))
@@ -138,7 +139,7 @@ class GMDiffer(object):
         return result_dict
 
     def _DictionaryDiff(self, old_dict, new_dict):
-        """Generate a dictionary showing the diffs between old_dict and new_dict.
+        """Generate a dictionary showing diffs between old_dict and new_dict.
         Any entries which are identical across them will be left out."""
         diff_dict = {}
         all_keys = set(old_dict.keys() + new_dict.keys())
@@ -158,8 +159,9 @@ class GMDiffer(object):
         If newfile is not specified, then 'new' is the actual results within
         oldfile.
         """
-        return self.GenerateDiffDictFromStrings(self._GetFileContentsAsString(oldfile),
-                                                self._GetFileContentsAsString(newfile))
+        return self.GenerateDiffDictFromStrings(
+            self._GetFileContentsAsString(oldfile),
+            self._GetFileContentsAsString(newfile))
 
     def GenerateDiffDictFromStrings(self, oldjson, newjson=None):
         """Generate a dictionary showing the diffs:
