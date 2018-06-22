@@ -23,7 +23,6 @@
 #include "SkImageInfo.h"
 #include "SkImageEncoder.h"
 #include "SkRefCnt.h"
-#include "SkScalar.h"
 #include "SkShader.h"
 
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26

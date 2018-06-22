@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,11 +5,12 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkMetaData_DEFINED
 #define SkMetaData_DEFINED
 
-#include "SkScalar.h"
+#include "SkTypes.h"
+
+#include <cstring>
 
 class SkRefCnt;
 

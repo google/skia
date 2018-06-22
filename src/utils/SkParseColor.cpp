@@ -8,6 +8,8 @@
 
 #include "SkParse.h"
 
+#include <cstring>
+
 static const unsigned int gColorNames[] = {
 0x85891945, 0x32a50000, 0x00f0f8ff, // aliceblue
 0x85d44c6b, 0x16e84d0a, 0x00faebd7, // antiquewhite

@@ -11,7 +11,7 @@
 #include "SkBlurTypes.h"
 #include "SkCoverageMode.h"
 #include "SkFlattenable.h"
-#include "SkScalar.h"
+#include "SkTypes.h"
 
 class SkMatrix;
 struct SkRect;

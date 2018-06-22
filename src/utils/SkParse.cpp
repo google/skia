@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkParse.h"
 
-#include <stdlib.h>
+#include <cstdlib>
+#include <cstring>
 
 static inline bool is_between(int c, int min, int max)
 {

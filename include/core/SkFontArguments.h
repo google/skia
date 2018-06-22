@@ -8,7 +8,6 @@
 #ifndef SkFontAgruments_DEFINED
 #define SkFontAgruments_DEFINED
 
-#include "SkScalar.h"
 #include "SkTypes.h"
 
 /** Represents a set of actual arguments for a font. */

@@ -18,7 +18,6 @@
 #ifndef SkColor_DEFINED
 #define SkColor_DEFINED
 
-#include "SkScalar.h"
 #include "SkTypes.h"
 
 /** \file SkColor.h

@@ -75,6 +75,8 @@ SK_API extern void sk_abort_no_print(void);
 
 ////////////////////////////////////////////////////////////////////////////////
 
+typedef float SkScalar;
+
 /** Fast type for unsigned 8 bits. Use for parameter passing and local
     variables, not for storage
 */
