@@ -23,8 +23,7 @@ static const bool c_DisplayCache{false};
 typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
 struct GrGLGpu::ProgramCache::Entry {
-    Entry(sk_sp<GrGLProgram> program)
-    : fProgram(std::move(program)) {}
+    Entry(sk_sp<GrGLProgram> program) : fProgram(std::move(program)) {}
 
     sk_sp<GrGLProgram> fProgram;
 };
@@ -62,6 +61,11 @@ void GrGLGpu::ProgramCache::abandon() {
     fCacheMisses = 0;
     fHashMisses = 0;
 #endif
+
+    fMap.foreach([](std::unique_ptr<Entry>* e) {
+        (*e)->fProgram->abandon();
+    });
+    fMap.reset();
 }
 
 GrGLProgram* GrGLGpu::ProgramCache::refProgram(const GrGLGpu* gpu,
