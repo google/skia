@@ -46,6 +46,8 @@ private:
         if (frameIndex >= (int) fFrames.size()) {
             fFrames.resize(frameIndex + 1);
         }
+        // TODO(nigeltao): why isn't fFrameInfos.size() also checked here??
+
         SkBitmap& bm = fFrames[frameIndex];
         if (!bm.getPixels()) {
             const SkImageInfo info = fCodec->getInfo().makeColorType(kN32_SkColorType);

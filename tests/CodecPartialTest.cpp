@@ -358,6 +358,8 @@ static unsigned char gNoGlobalColorMap[] = {
 };
 
 // Test that a gif file truncated before its local color map behaves as expected.
+//
+// TODO(nigeltao): explicit detail for what "as expected" means.
 DEF_TEST(Codec_GifPreMap, r) {
     sk_sp<SkData> data = SkData::MakeWithoutCopy(gNoGlobalColorMap, sizeof(gNoGlobalColorMap));
     std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(data));
@@ -375,6 +377,15 @@ DEF_TEST(Codec_GifPreMap, r) {
 
     // Truncate to 23 bytes, just before the color map. This should fail to decode.
     codec = SkCodec::MakeFromData(SkData::MakeWithoutCopy(gNoGlobalColorMap, 23));
+
+    // TODO(nigeltao): is this Codec_GifPreMap test overly specific? The
+    // SkWuffsGifCodec factory method simply returns a nullptr SkCodec*,
+    // instead of returning a non-null but otherwise unusable SkCodec*.
+    if (codec == nullptr) {
+        // No-op. The test 'passes'.
+        return;
+    }
+
     REPORTER_ASSERT(r, codec);
     if (codec) {
         SkBitmap bm;

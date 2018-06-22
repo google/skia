@@ -26,6 +26,7 @@
 #include "SkStream.h"
 #include "SkWbmpCodec.h"
 #include "SkWebpCodec.h"
+#include "SkWuffsGifCodec.h"
 
 struct DecoderProc {
     bool (*IsFormat)(const void*, size_t);
@@ -39,7 +40,7 @@ static constexpr DecoderProc gDecoderProcs[] = {
 #ifdef SK_HAS_WEBP_LIBRARY
     { SkWebpCodec::IsWebp, SkWebpCodec::MakeFromStream },
 #endif
-    { SkGifCodec::IsGif, SkGifCodec::MakeFromStream },
+    // { SkGifCodec::IsGif, SkGifCodec::MakeFromStream },  // TODO(nigeltao): delete.
 #ifdef SK_HAS_PNG_LIBRARY
     { SkIcoCodec::IsIco, SkIcoCodec::MakeFromStream },
 #endif
@@ -48,6 +49,7 @@ static constexpr DecoderProc gDecoderProcs[] = {
 #ifdef SK_HAS_HEIF_LIBRARY
     { SkHeifCodec::IsHeif, SkHeifCodec::MakeFromStream },
 #endif
+    { SkWuffsGifCodec::IsGif, SkWuffsGifCodec::MakeFromStream },
 };
 
 std::unique_ptr<SkCodec> SkCodec::MakeFromStream(std::unique_ptr<SkStream> stream,

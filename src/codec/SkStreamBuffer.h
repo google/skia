@@ -19,6 +19,12 @@
  *
  *  Used by GIFImageReader, and currently set up for that use case.
  *
+ *  TODO(nigeltao): this class is obsolete; delete it.
+ *  tests/CodecPartialTest.cpp says "FIXME... SkPngCodec needs to use
+ *  SkStreamBuffer in order to support incremental decoding", but
+ *  src/codec/SkPngCodec.cpp looks like it already supports incremental
+ *  decoding, without using a SkStreamBuffer.
+ *
  *  Buffers up to 256 * 3 bytes (256 colors, with 3 bytes each) to support GIF.
  *  FIXME (scroggo): Make this more general purpose?
  */
