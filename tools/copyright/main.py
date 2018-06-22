@@ -67,7 +67,7 @@ def GetAllFilepaths(root_directory):
     @param root_directory root directory within which to find all files
     """
     path_list = []
-    for dirpath, dirnames, filenames in os.walk(root_directory):
+    for dirpath, _, filenames in os.walk(root_directory):
         for filename in filenames:
             path_list.append(os.path.abspath(os.path.join(dirpath, filename)))
     return path_list
