@@ -85,6 +85,7 @@ def _PythonChecks(input_api, output_api):
       # input_api.DEFAULT_BLACK_LIST.
       r'common[\\\/].*',
       r'buildtools[\\\/].*',
+      r'.*[\\\/]\.recipe_deps[\\\/].*',
   ]
   blacklist.extend(input_api.DEFAULT_BLACK_LIST)
 
