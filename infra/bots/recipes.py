@@ -107,7 +107,9 @@ def parse(repo_root, recipes_cfg_path):
     raise MalformedRecipesCfg(ex.message, recipes_cfg_path)
 
 
-GIT = 'git.bat' if sys.platform.startswith(('win', 'cygwin')) else 'git'
+_BAT = '.bat' if sys.platform.startswith(('win', 'cygwin')) else ''
+GIT = 'git' + _BAT
+VPYTHON = 'vpython' + _BAT
 
 
 def _subprocess_call(argv, **kwargs):
@@ -208,7 +210,7 @@ def main():
   engine_path = checkout_engine(engine_override, repo_root, recipes_cfg_path)
 
   return _subprocess_call([
-      sys.executable, '-u',
+      VPYTHON, '-u',
       os.path.join(engine_path, 'recipes.py')] + args)
 
 
