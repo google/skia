@@ -3201,9 +3201,8 @@ pixels are treated as if they are linear, regardless of how they are encoded.
 #Method bool hasHardwareMipMap() const
 #In Property
 #Line # returns Mip_Map support present; Android only ##
-#Private
-Android framework only.
-##
+
+For use by Android framework only.
 
 #Return  true if setHasHardwareMipMap has been called with true ##
 
@@ -3219,9 +3218,8 @@ Android framework only.
 #Method void setHasHardwareMipMap(bool hasHardwareMipMap)
 #In Set
 #Line # sets Mip_Map support present; Android only ##
-#Private
-Android framework only.
-##
+
+For use by Android framework only.
 
 #Param hasHardwareMipMap  sets state ##
 

@@ -29,6 +29,7 @@ SkColor4f members may be read and written directly without using a member functi
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>red component</td>
   </tr>
 </table>
+
 Each component is stored as a 32-bit single precision floating point float value.
 All values are allowed, but only the range from zero to one is meaningful.
 
@@ -36,7 +37,7 @@ Each component is independent of the others; <a href='#SkColor4f_fA'>fA</a> <a h
 with <a href='#SkColor4f_fG'>fG</a> green, <a href='#SkColor4f_fB'>fB</a> blue, or <a href='#SkColor4f_fR'>fR</a> red.
 
 Values smaller than zero or larger than one are allowed. Values out of range
-may be used with <a href='undocumented#Blend_Mode'>Blend Mode</a> so that the final component is in range.
+may be used with <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a> so that the final component is in range.
 
 ## Overview
 
@@ -75,7 +76,6 @@ SkColor4f operators inline class member functions with arithmetic equivalents.
   </tr>
 </table>
 
-
 ## <a name='Member_Function'>Member Function</a>
 
 
@@ -108,7 +108,6 @@ SkColor4f member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns array of components</td>
   </tr>
 </table>
-
 
 ### Members
 
@@ -426,8 +425,6 @@ Returns <a href='#Color4f'>Color4f</a> with all components in the range from zer
 <a href='#SkPM4f'>SkPM4f</a> <a href='#SkColor4f_premul'>premul</a>() const
 </pre>
 
-Internal use only.
-
 ### Return Value
 
 <a href='undocumented#Premultiply'>Premultiplied</a> color
@@ -435,4 +432,3 @@ Internal use only.
 ---
 
 # <a name='SkPM4f'>Struct SkPM4f</a>
-Internal use only.
