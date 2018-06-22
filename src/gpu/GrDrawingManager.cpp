@@ -382,12 +382,16 @@ GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
     if (auto* rt = surface->asRenderTarget()) {
         gpu->resolveRenderTarget(rt);
     }
+#if 0
+    // This is temporarily is disabled. See comment in SkImage_Gpu.cpp,
+    // new_wrapped_texture_common().
     if (auto* tex = surface->asTexture()) {
         if (tex->texturePriv().mipMapped() == GrMipMapped::kYes &&
             tex->texturePriv().mipMapsAreDirty()) {
             gpu->regenerateMipMapLevels(tex);
         }
     }
+#endif
     return result;
 }
 
