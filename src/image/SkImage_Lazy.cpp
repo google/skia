@@ -297,129 +297,14 @@ struct CacheCaps {
 
 SkImageCacherator::CachedFormat SkImage_Lazy::chooseCacheFormat(SkColorSpace* dstColorSpace,
                                                                 const GrCaps* grCaps) const {
-    SkColorSpace* cs = fInfo.colorSpace();
-    if (!cs || !dstColorSpace) {
-        return kLegacy_CachedFormat;
-    }
-
-    CacheCaps caps(grCaps);
-    switch (fInfo.colorType()) {
-        case kUnknown_SkColorType:
-        case kAlpha_8_SkColorType:
-        case kRGB_565_SkColorType:
-        case kARGB_4444_SkColorType:
-        case kRGB_888x_SkColorType:
-        case kRGBA_1010102_SkColorType:
-        case kRGB_101010x_SkColorType:
-            // We don't support color space on these formats, so always decode in legacy mode:
-            // TODO: Ask the codec to decode these to something else (at least sRGB 8888)?
-            return kLegacy_CachedFormat;
-
-        case kGray_8_SkColorType:
-            // TODO: What do we do with grayscale sources that have strange color spaces attached?
-            // The codecs and color space xform don't handle this correctly (yet), so drop it on
-            // the floor. (Also, inflating by a factor of 8 is going to be unfortunate).
-            // As it is, we don't directly support sRGB grayscale, so ask the codec to convert
-            // it for us. This bypasses some really sketchy code GrUploadPixmapToTexture.
-            if (cs->gammaCloseToSRGB() && caps.supportsSRGB()) {
-                return kSRGB8888_CachedFormat;
-            } else {
-                return kLegacy_CachedFormat;
-            }
-
-        case kRGBA_8888_SkColorType:
-            if (cs->gammaCloseToSRGB()) {
-                if (caps.supportsSRGB()) {
-                    return kSRGB8888_CachedFormat;
-                } else if (caps.supportsHalfFloat()) {
-                    return kLinearF16_CachedFormat;
-                } else {
-                    return kLegacy_CachedFormat;
-                }
-            } else {
-                if (caps.supportsHalfFloat()) {
-                    return kLinearF16_CachedFormat;
-                } else if (caps.supportsSRGB()) {
-                    return kSRGB8888_CachedFormat;
-                } else {
-                    return kLegacy_CachedFormat;
-                }
-            }
-
-        case kBGRA_8888_SkColorType:
-            // Odd case. sBGRA isn't a real thing, so we may not have this texturable.
-            if (caps.supportsSBGR()) {
-                if (cs->gammaCloseToSRGB()) {
-                    return kSBGR8888_CachedFormat;
-                } else if (caps.supportsHalfFloat()) {
-                    return kLinearF16_CachedFormat;
-                } else if (caps.supportsSRGB()) {
-                    return kSRGB8888_CachedFormat;
-                } else {
-                    // sBGRA support without sRGBA is highly unlikely (impossible?) Nevertheless.
-                    return kLegacy_CachedFormat;
-                }
-            } else {
-                if (cs->gammaCloseToSRGB()) {
-                    if (caps.supportsSRGB()) {
-                        return kSRGB8888_CachedFormat;
-                    } else if (caps.supportsHalfFloat()) {
-                        return kLinearF16_CachedFormat;
-                    } else {
-                        return kLegacy_CachedFormat;
-                    }
-                } else {
-                    if (caps.supportsHalfFloat()) {
-                        return kLinearF16_CachedFormat;
-                    } else if (caps.supportsSRGB()) {
-                        return kSRGB8888_CachedFormat;
-                    } else {
-                        return kLegacy_CachedFormat;
-                    }
-                }
-            }
-
-        case kRGBA_F16_SkColorType:
-            if (caps.supportsHalfFloat()) {
-                return kLinearF16_CachedFormat;
-            } else if (caps.supportsSRGB()) {
-                return kSRGB8888_CachedFormat;
-            } else {
-                return kLegacy_CachedFormat;
-            }
-    }
-    SkDEBUGFAIL("Unreachable");
     return kLegacy_CachedFormat;
 }
 
 SkImageInfo SkImage_Lazy::buildCacheInfo(CachedFormat format) const {
-    switch (format) {
-        case kLegacy_CachedFormat:
-            return fInfo.makeColorSpace(nullptr);
-        case kLinearF16_CachedFormat:
-            return fInfo.makeColorType(kRGBA_F16_SkColorType)
-                        .makeColorSpace(fInfo.colorSpace()->makeLinearGamma());
-        case kSRGB8888_CachedFormat:
-            // If the transfer function is nearly (but not exactly) sRGB, we don't want the codec
-            // to bother trans-coding. It would be slow, and do more harm than good visually,
-            // so we make sure to leave the colorspace as-is.
-            if (fInfo.colorSpace()->gammaCloseToSRGB()) {
-                return fInfo.makeColorType(kRGBA_8888_SkColorType);
-            } else {
-                return fInfo.makeColorType(kRGBA_8888_SkColorType)
-                            .makeColorSpace(fInfo.colorSpace()->makeSRGBGamma());
-            }
-        case kSBGR8888_CachedFormat:
-            // See note above about not-quite-sRGB transfer functions.
-            if (fInfo.colorSpace()->gammaCloseToSRGB()) {
-                return fInfo.makeColorType(kBGRA_8888_SkColorType);
-            } else {
-                return fInfo.makeColorType(kBGRA_8888_SkColorType)
-                            .makeColorSpace(fInfo.colorSpace()->makeSRGBGamma());
-            }
-        default:
-            SkDEBUGFAIL("Invalid cached format");
-            return fInfo;
+    if (kGray_8_SkColorType == fInfo.colorType()) {
+        return fInfo.makeColorSpace(nullptr);
+    } else {
+        return fInfo;
     }
 }
 
@@ -601,20 +486,6 @@ bool SkImage_Lazy::onCanLazyGenerateOnGPU() const {
 }
 
 SkTransferFunctionBehavior SkImage_Lazy::getGeneratorBehaviorAndInfo(SkImageInfo* generatorImageInfo) const {
-    if (generatorImageInfo->colorSpace()) {
-        return SkTransferFunctionBehavior::kRespect;
-    }
-    // Only specify an output color space if color conversion can be done on the color type.
-    switch (generatorImageInfo->colorType()) {
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-        case kRGBA_F16_SkColorType:
-        case kRGB_565_SkColorType:
-            *generatorImageInfo = generatorImageInfo->makeColorSpace(fInfo.refColorSpace());
-            break;
-        default:
-            break;
-    }
     return SkTransferFunctionBehavior::kIgnore;
 }
 
