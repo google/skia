@@ -22,6 +22,30 @@
       "revId": "4eb3326052f1df7336c5b13f2c32f4cebdc19af3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f31fab99_68b3c783",
+        "filename": "include/gpu/vk/GrVkBackendContext.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-22T17:02:29Z",
+      "side": 1,
+      "message": "Because the previous default of true so clients were manually setting it to false. Once this lands with the change in default I can remove the setting by clients and then remove it in skia code.",
+      "parentUuid": "8b943f93_811036fb",
+      "range": {
+        "startLine": 53,
+        "startChar": 7,
+        "endLine": 53,
+        "endChar": 52
+      },
+      "revId": "4eb3326052f1df7336c5b13f2c32f4cebdc19af3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
