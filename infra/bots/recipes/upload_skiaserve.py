@@ -27,7 +27,7 @@ def RunSteps(api):
     return
 
   src = api.vars.build_dir.join('skiaserve')
-  target_arch = api.vars.builder_cfg.get('target_arch')
+  target_arch = api.properties['target_arch']
   dest = 'gs://skia-public-binaries/skiaserve/%s/%s/' % (
       target_arch, api.properties['revision'])
   api.gsutil.cp('skiaserve', src, dest)
@@ -38,20 +38,22 @@ def GenTests(api):
   yield (
     api.test('normal_bot') +
     api.properties(buildername=builder,
+                   path_config='kitchen',
                    repository='https://skia.googlesource.com/skia.git',
-                   swarm_out_dir='[SWARM_OUT_DIR]',
                    revision='abc123',
-                   path_config='kitchen')
+                   swarm_out_dir='[SWARM_OUT_DIR]',
+                   target_arch='arm')
   )
 
   yield (
     api.test('trybot') +
     api.properties(buildername=builder,
-                   repository='https://skia.googlesource.com/skia.git',
-                   swarm_out_dir='[SWARM_OUT_DIR]',
-                   revision='abc123',
                    path_config='kitchen',
-                   patch_storage='gerrit') +
+                   patch_storage='gerrit',
+                   repository='https://skia.googlesource.com/skia.git',
+                   revision='abc123',
+                   swarm_out_dir='[SWARM_OUT_DIR]',
+                   target_arch='arm') +
     api.properties.tryserver(
         buildername=builder,
         gerrit_project='skia',

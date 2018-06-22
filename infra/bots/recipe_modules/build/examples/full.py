@@ -16,10 +16,20 @@ DEPS = [
 def RunSteps(api):
   api.vars.setup()
   checkout_root = api.vars.cache_dir.join('work')
-  out_dir = checkout_root.join(
-      'skia', 'out', api.vars.builder_name, api.vars.configuration)
-  api.build(checkout_root=checkout_root, out_dir=out_dir)
-  dst = api.vars.swarming_out_dir.join('out', api.vars.configuration)
+  compiler      = api.properties['compiler']
+  configuration = api.properties['configuration']
+  extra_tokens  = api.properties['extra_tokens'].split(',')
+  os            = api.properties['os']
+  target_arch   = api.properties['target_arch']
+  if ('Win' in os and target_arch == 'x86_64'):
+      configuration += '_x64'
+
+  out_dir = checkout_root.join('skia', 'out', api.vars.builder_name,
+                               configuration)
+  api.build(checkout_root=checkout_root, out_dir=out_dir, compiler=compiler,
+            configuration=configuration, os=os, target_arch=target_arch,
+            extra_tokens=extra_tokens)
+  dst = api.vars.swarming_out_dir.join('out', configuration)
   api.build.copy_build_products(out_dir=out_dir, dst=dst)
   api.run.check_failure()
 
@@ -60,14 +70,44 @@ TEST_BUILDERS = [
 ]
 
 # Default properties used for TEST_BUILDERS.
-defaultProps = lambda buildername: dict(
-  buildername=buildername,
-  repository='https://skia.googlesource.com/skia.git',
-  revision='abc123',
-  path_config='kitchen',
-  patch_set=2,
-  swarm_out_dir='[SWARM_OUT_DIR]'
-)
+def defaultProps(buildername):
+  split = buildername.split('-')
+  if split[0] == 'Build':
+    compiler = split[2]
+    configuration = split[4]
+    os = split[1]
+    target_arch = split[3]
+
+    extra_tokens_list = []
+    if len(split) > 5:
+      extra_split = split[5].split('_')
+      for idx, tok in enumerate(extra_split):
+        if tok == 'SK':
+          extra_tokens_list.append('_'.join(extra_split[idx:]))
+          break
+        else:
+          extra_tokens_list.append(tok)
+    extra_tokens = ','.join(extra_tokens_list)
+  else:
+    compiler = ''
+    configuration = 'Release'
+    os = 'Debian9'
+    target_arch = ''
+    extra_tokens = 'CheckGeneratedFiles'
+
+  return dict(
+    buildername=buildername,
+    compiler=compiler,
+    configuration=configuration,
+    extra_tokens=extra_tokens,
+    os=os,
+    repository='https://skia.googlesource.com/skia.git',
+    revision='abc123',
+    target_arch=target_arch,
+    path_config='kitchen',
+    patch_set=2,
+    swarm_out_dir='[SWARM_OUT_DIR]'
+  )
 
 def GenTests(api):
   for buildername in TEST_BUILDERS:

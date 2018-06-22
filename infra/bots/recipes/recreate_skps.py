@@ -9,7 +9,6 @@
 DEPS = [
   'checkout',
   'depot_tools/gclient',
-  'flavor',
   'infra',
   'recipe_engine/context',
   'recipe_engine/file',
@@ -46,7 +45,6 @@ def RunSteps(api):
       extra_gclient_env=extra_gclient_env)
 
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-  api.flavor.setup()
 
   src_dir = checkout_root.join('src')
   skia_dir = checkout_root.join('skia')

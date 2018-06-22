@@ -6,13 +6,9 @@
 import re
 
 
-def compile_fn(api, checkout_root, out_dir):
+def compile_fn(api, checkout_root, out_dir, compiler, configuration, os,
+               target_arch, extra_tokens):
   skia_dir      = checkout_root.join('skia')
-  compiler      = api.vars.builder_cfg.get('compiler')
-  configuration = api.vars.builder_cfg.get('configuration')
-  extra_tokens  = api.vars.extra_tokens
-  os            = api.vars.builder_cfg.get('os')
-  target_arch   = api.vars.builder_cfg.get('target_arch')
 
   assert compiler == 'Clang'  # At this rate we might not ever support GCC.
 

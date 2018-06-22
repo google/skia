@@ -67,7 +67,8 @@ class DeviceDirs(object):
 
 
 class DefaultFlavor(object):
-  def __init__(self, module):
+  def __init__(self, module, os, compiler, model, cpu_or_gpu, cpu_or_gpu_value,
+               arch, configuration, test_filter, extra_tokens):
     # Store a pointer to the parent recipe module (SkiaFlavorApi) so that
     # FlavorUtils objects can do recipe module-like things, like run steps or
     # access module-level resources.
@@ -87,6 +88,17 @@ class DefaultFlavor(object):
         svg_dir=self.m.path['start_dir'].join('svg'),
         tmp_dir=self.m.vars.tmp_dir)
     self.host_dirs = self.device_dirs
+
+    # Store properties for this task.
+    self.os = os
+    self.compiler = compiler
+    self.model = model
+    self.cpu_or_gpu = cpu_or_gpu
+    self.cpu_or_gpu_value = cpu_or_gpu_value
+    self.arch = arch
+    self.configuration = configuration
+    self.test_filter = test_filter
+    self.extra_tokens = extra_tokens
 
   def device_path_join(self, *args):
     """Like os.path.join(), but for paths on a connected device."""
@@ -157,15 +169,14 @@ class DefaultFlavor(object):
 
     slave_dir = self.m.vars.slave_dir
     clang_linux = str(slave_dir.join('clang_linux'))
-    extra_tokens = self.m.vars.extra_tokens
+    extra_tokens = self.extra_tokens
 
     if self.m.vars.is_linux:
-      if (self.m.vars.builder_cfg.get('cpu_or_gpu', '') == 'GPU'
-          and 'Intel' in self.m.vars.builder_cfg.get('cpu_or_gpu_value', '')):
+      if (self.cpu_or_gpu == 'GPU' and 'Intel' in self.cpu_or_gpu_value):
         # The vulkan in this asset name simply means that the graphics driver
         # supports Vulkan. It is also the driver used for GL code.
         dri_path = slave_dir.join('linux_vulkan_intel_driver_release')
-        if self.m.vars.builder_cfg.get('configuration', '') == 'Debug':
+        if self.configuration == 'Debug':
           dri_path = slave_dir.join('linux_vulkan_intel_driver_debug')
         ld_library_path.append(dri_path)
         env['LIBGL_DRIVERS_PATH'] = str(dri_path)
@@ -207,7 +218,7 @@ class DefaultFlavor(object):
       cmd = [procdump, '-accepteula', '-mp', '-e', '1', '-x', dumps_dir] + cmd
 
     if 'ASAN' in extra_tokens or 'UBSAN' in extra_tokens:
-      if 'Mac' in self.m.vars.builder_cfg.get('os', ''):
+      if 'Mac' in self.os:
         env['ASAN_OPTIONS'] = 'symbolize=1'  # Mac doesn't support detect_leaks.
       else:
         env['ASAN_OPTIONS'] = 'symbolize=1 detect_leaks=1'
@@ -223,7 +234,7 @@ class DefaultFlavor(object):
       # This is the output file for the coverage data. Just running the binary
       # will produce the output. The output_file is in the swarming_out_dir and
       # thus will be an isolated output of the Test step.
-      profname = '%s.profraw' % self.m.vars.builder_cfg.get('test_filter','o')
+      profname = '%s.profraw' % self.test_filter
       env['LLVM_PROFILE_FILE'] = self.m.path.join(self.m.vars.swarming_out_dir,
                                                   profname)
 

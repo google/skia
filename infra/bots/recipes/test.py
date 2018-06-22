@@ -97,11 +97,12 @@ def dm_flags(api, bot):
       'Chromecast' in bot):
     args.append('--ignoreSigInt')
 
-  if 'SwiftShader' in api.vars.extra_tokens:
+  extra_tokens = api.properties['extra_tokens'].split(',')
+  if 'SwiftShader' in extra_tokens:
     configs.extend(['gles', 'glesdft'])
     args.append('--disableDriverCorrectnessWorkarounds')
 
-  elif api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
+  elif api.properties['cpu_or_gpu'] == 'CPU':
     args.append('--nogpu')
 
     # These are the canonical configs that we would ideally run on all bots. We
@@ -147,7 +148,7 @@ def dm_flags(api, bot):
     if 'Chromecast' in bot:
       configs = ['8888']
 
-  elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
+  elif api.properties['cpu_or_gpu'] == 'GPU':
     args.append('--nocpu')
 
     # Add in either gles or gl configs to the canonical set based on OS
@@ -284,7 +285,7 @@ def dm_flags(api, bot):
       args.extend(['--skpViewportSize', "2048"])
       args.extend(['--gpuThreads', "0"])
 
-  tf = api.vars.builder_cfg.get('test_filter')
+  tf = api.properties['test_filter']
   if 'All' != tf:
     # Expected format: shard_XX_YY
     parts = tf.split('_')
@@ -299,7 +300,7 @@ def dm_flags(api, bot):
 
   # Run tests, gms, and image decoding tests everywhere.
   args.extend('--src tests gm image colorImage svg skp'.split(' '))
-  if api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
+  if api.properties['cpu_or_gpu'] == 'GPU':
     # Don't run the 'svgparse_*' svgs on GPU.
     blacklist('_ svg _ svgparse_')
   elif bot == 'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN':
@@ -834,14 +835,18 @@ def key_params(api):
 
   E.g.  arch x86 gpu GeForce320M mode MacMini4.1 os Mac10.6
   """
-  # Don't bother to include role, which is always Test.
-  blacklist = ['role', 'test_filter']
-
+  props = ['os', 'compiler', 'model', 'cpu_or_gpu', 'cpu_or_gpu_value', 'arch',
+           'configuration', 'extra_tokens']
   flat = []
-  for k in sorted(api.vars.builder_cfg.keys()):
-    if k not in blacklist:
-      flat.append(k)
-      flat.append(api.vars.builder_cfg[k])
+  for k in sorted(props):
+    key = k
+    value = api.properties[k]
+    if key == 'extra_tokens':
+      key = 'extra_config'
+      value = '_'.join(value.split(','))
+    if key and value:
+      flat.append(key)
+      flat.append(value)
   return flat
 
 
@@ -920,7 +925,7 @@ def test_steps(api):
   properties.extend(['swarming_bot_id', api.vars.swarming_bot_id])
   properties.extend(['swarming_task_id', api.vars.swarming_task_id])
 
-  if 'Chromecast' in api.vars.builder_cfg.get('os', ''):
+  if 'Chromecast' in api.properties['os']:
     # Due to limited disk space, we only deal with skps and one image.
     args = [
       'dm',
@@ -957,11 +962,12 @@ def test_steps(api):
   args.extend(dm_flags(api, api.vars.builder_name))
 
   # See skia:2789.
-  if 'AbandonGpuContext' in api.vars.extra_tokens:
+  extra_tokens = api.properties['extra_tokens'].split(',')
+  if 'AbandonGpuContext' in extra_tokens:
     args.append('--abandonGpuContext')
-  if 'PreAbandonGpuContext' in api.vars.extra_tokens:
+  if 'PreAbandonGpuContext' in extra_tokens:
     args.append('--preAbandonGpuContext')
-  if 'ReleaseAndAbandonGpuContext' in api.vars.extra_tokens:
+  if 'ReleaseAndAbandonGpuContext' in extra_tokens:
     args.append('--releaseAndAbandonGpuContext')
 
   api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
@@ -975,7 +981,18 @@ def test_steps(api):
 def RunSteps(api):
   api.vars.setup()
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-  api.flavor.setup()
+
+  os = api.properties['os']
+  compiler = api.properties['compiler']
+  model = api.properties['model']
+  cpu_or_gpu = api.properties['cpu_or_gpu']
+  cpu_or_gpu_value = api.properties['cpu_or_gpu_value']
+  arch = api.properties['arch']
+  configuration = api.properties['configuration']
+  test_filter = api.properties['test_filter']
+  extra_tokens = api.properties.get('extra_tokens', '').split(',')
+  api.flavor.setup(os, compiler, model, cpu_or_gpu, cpu_or_gpu_value, arch,
+                   configuration, test_filter, extra_tokens)
 
   env = {}
   if 'iOS' in api.vars.builder_name:
@@ -1052,15 +1069,51 @@ TEST_BUILDERS = [
 ]
 
 
+# Default properties used for TEST_BUILDERS.
+def defaultProps(buildername):
+  split = buildername.split('-')
+  os = split[1]
+  compiler = split[2]
+  model = split[3]
+  cpu_or_gpu = split[4]
+  cpu_or_gpu_value = split[5]
+  arch = split[6]
+  configuration = split[7]
+  test_filter = split[8]
+
+  extra_tokens_list = []
+  if len(split) > 9:
+    extra_split = split[9].split('_')
+    for idx, tok in enumerate(extra_split):
+      if tok == 'SK':
+        extra_tokens_list.append('_'.join(extra_split[idx:]))
+        break
+      else:
+        extra_tokens_list.append(tok)
+  extra_tokens = ','.join(extra_tokens_list)
+
+  return dict(
+    arch=arch,
+    buildername=buildername,
+    buildbucket_build_id='123454321',
+    compiler=compiler,
+    configuration=configuration,
+    cpu_or_gpu=cpu_or_gpu,
+    cpu_or_gpu_value=cpu_or_gpu_value,
+    extra_tokens=extra_tokens,
+    model=model,
+    os=os,
+    revision='abc123',
+    path_config='kitchen',
+    swarm_out_dir='[SWARM_OUT_DIR]',
+    test_filter=test_filter,
+  )
+
 def GenTests(api):
   for builder in TEST_BUILDERS:
     test = (
       api.test(builder) +
-      api.properties(buildername=builder,
-                     buildbucket_build_id='123454321',
-                     revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.properties(**defaultProps(builder)) +
       api.path.exists(
           api.path['start_dir'].join('skia'),
           api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
@@ -1094,11 +1147,7 @@ def GenTests(api):
   builder = 'Test-Win8-Clang-Golo-CPU-AVX-x86-Debug-All'
   yield (
     api.test('trybot') +
-    api.properties(buildername=builder,
-                   buildbucket_build_id='123454321',
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+    api.properties(**defaultProps(builder)) +
     api.properties(patch_storage='gerrit') +
     api.properties.tryserver(
           buildername=builder,
@@ -1120,11 +1169,7 @@ def GenTests(api):
   builder = 'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All'
   yield (
     api.test('failed_dm') +
-    api.properties(buildername=builder,
-                   buildbucket_build_id='123454321',
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+    api.properties(**defaultProps(builder)) +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
@@ -1141,11 +1186,7 @@ def GenTests(api):
   builder = 'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-All-Android'
   yield (
     api.test('failed_get_hashes') +
-    api.properties(buildername=builder,
-                   buildbucket_build_id='123454321',
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+    api.properties(**defaultProps(builder)) +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
@@ -1163,11 +1204,7 @@ def GenTests(api):
              'Debug-All-Android')
   yield (
     api.test('failed_push') +
-    api.properties(buildername=builder,
-                   buildbucket_build_id='123454321',
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+    api.properties(**defaultProps(builder)) +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
@@ -1188,11 +1225,7 @@ def GenTests(api):
   retry_step_name = 'adb pull.pull /sdcard/revenge_of_the_skiabot/dm_out'
   yield (
     api.test('failed_pull') +
-    api.properties(buildername=builder,
-                   buildbucket_build_id='123454321',
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+    api.properties(**defaultProps(builder)) +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
@@ -1209,14 +1242,11 @@ def GenTests(api):
     api.step_data(retry_step_name + ' (attempt 3)', retcode=1)
   )
 
+  internalProps = defaultProps(builder)
+  internalProps['internal_hardware_label'] = '1'
   yield (
     api.test('internal_bot_1') +
-    api.properties(buildername=builder,
-                   buildbucket_build_id='123454321',
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]',
-                   internal_hardware_label='1') +
+    api.properties(**internalProps) +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
@@ -1229,14 +1259,10 @@ def GenTests(api):
     )
   )
 
+  internalProps['internal_hardware_label'] = '2'
   yield (
     api.test('internal_bot_2') +
-    api.properties(buildername=builder,
-                   buildbucket_build_id='123454321',
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]',
-                   internal_hardware_label='2') +
+    api.properties(**internalProps) +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',

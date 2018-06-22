@@ -13,8 +13,8 @@ from . import default
 
 
 class iOSFlavor(default.DefaultFlavor):
-  def __init__(self, m):
-    super(iOSFlavor, self).__init__(m)
+  def __init__(self, *args, **kwargs):
+    super(iOSFlavor, self).__init__(*args, **kwargs)
     self.device_dirs = default.DeviceDirs(
         bin_dir='[unused]',
         dm_dir='dm',

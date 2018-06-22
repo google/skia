@@ -34,47 +34,57 @@ VERSION_FILE_SVG = 'SVG_VERSION'
 
 VERSION_NONE = -1
 
-def is_android(vars_api):
-  return 'Android' in vars_api.extra_tokens
+def is_android(os, extra_tokens):
+  return 'Android' in os
 
-def is_chromecast(vars_api):
-  return ('Chromecast' in vars_api.extra_tokens or
-          'Chromecast' in vars_api.builder_cfg.get('os', ''))
+def is_chromecast(os, extra_tokens):
+  return 'Chromecast' in os
 
-def is_chromebook(vars_api):
-  return ('Chromebook' in vars_api.extra_tokens or
-          'ChromeOS' in vars_api.builder_cfg.get('os', ''))
+def is_chromebook(os, extra_tokens):
+  return 'ChromeOS' in os
 
-def is_ios(vars_api):
-  return ('iOS' in vars_api.extra_tokens or
-          'iOS' == vars_api.builder_cfg.get('os', ''))
+def is_ios(os, extra_tokens):
+  return 'iOS' == os
 
-def is_test_skqp(vars_api):
-  return ('SKQP' in vars_api.extra_tokens and
-          vars_api.builder_name.startswith('Test'))
-
-def is_valgrind(vars_api):
-  return 'Valgrind' in vars_api.extra_tokens
+def is_valgrind(os, extra_tokens):
+  return 'Valgrind' in extra_tokens
 
 
 class SkiaFlavorApi(recipe_api.RecipeApi):
-  def get_flavor(self, vars_api):
+  def get_flavor(self, os, compiler, model, cpu_or_gpu, cpu_or_gpu_value, arch,
+                 configuration, test_filter, extra_tokens):
     """Return a flavor utils object specific to the given builder."""
-    if is_chromecast(vars_api):
-      return chromecast.ChromecastFlavor(self)
-    if is_chromebook(vars_api):
-      return chromebook.ChromebookFlavor(self)
-    if is_android(vars_api) and not is_test_skqp(vars_api):
-      return android.AndroidFlavor(self)
-    elif is_ios(vars_api):
-      return ios.iOSFlavor(self)
-    elif is_valgrind(vars_api):
-      return valgrind.ValgrindFlavor(self)
+    if is_chromecast(os, extra_tokens):
+      return chromecast.ChromecastFlavor(self, os, compiler, model, cpu_or_gpu,
+                                         cpu_or_gpu_value, arch,
+                                         configuration, test_filter,
+                                         extra_tokens)
+    if is_chromebook(os, extra_tokens):
+      return chromebook.ChromebookFlavor(self, os, compiler, model, cpu_or_gpu,
+                                         cpu_or_gpu_value, arch,
+                                         configuration, test_filter,
+                                         extra_tokens)
+    if is_android(os, extra_tokens):# and not is_test_skqp(vars_api):
+      return android.AndroidFlavor(self, os, compiler, model, cpu_or_gpu,
+                                   cpu_or_gpu_value, arch, configuration,
+                                   test_filter, extra_tokens)
+    elif is_ios(os, extra_tokens):
+      return ios.iOSFlavor(self, os, compiler, model, cpu_or_gpu,
+                           cpu_or_gpu_value, arch, configuration, test_filter,
+                           extra_tokens)
+    elif is_valgrind(os, extra_tokens):
+      return valgrind.ValgrindFlavor(self, os, compiler, model, cpu_or_gpu,
+                                     cpu_or_gpu_value, arch, configuration,
+                                     test_filter, extra_tokens)
     else:
-      return default.DefaultFlavor(self)
+      return default.DefaultFlavor(self, os, compiler, model, cpu_or_gpu,
+                                   cpu_or_gpu_value, arch, configuration,
+                                   test_filter, extra_tokens)
 
-  def setup(self):
-    self._f = self.get_flavor(self.m.vars)
+  def setup(self, os, compiler, model, cpu_or_gpu, cpu_or_gpu_value, arch,
+            configuration, test_filter, extra_tokens):
+    self._f = self.get_flavor(os, compiler, model, cpu_or_gpu, cpu_or_gpu_value,
+                              arch, configuration, test_filter, extra_tokens)
     self.device_dirs = self._f.device_dirs
     self.host_dirs = self._f.host_dirs
     self._skia_dir = self.m.path['start_dir'].join('skia')

@@ -3,10 +3,9 @@
 # found in the LICENSE file.
 
 
-def compile_fn(api, checkout_root, out_dir):
+def compile_fn(api, checkout_root, out_dir, compiler, configuration, os,
+               target_arch, extra_tokens):
   skia_dir      = checkout_root.join('skia')
-  configuration = api.vars.builder_cfg.get('configuration')
-  target_arch   = api.vars.builder_cfg.get('target_arch')
 
   # TODO(kjlubick): can this toolchain be replaced/shared with chromebook?
   toolchain_dir = api.vars.slave_dir.join('cast_toolchain', 'armv7a')

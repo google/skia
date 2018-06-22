@@ -15,7 +15,6 @@ DEPS = [
   'recipe_engine/raw_io',
   'recipe_engine/step',
   'checkout',
-  'flavor',
   'run',
   'vars',
 ]
@@ -27,7 +26,6 @@ def RunSteps(api):
   checkout_root = api.checkout.default_checkout_root
   api.checkout.bot_update(checkout_root=checkout_root)
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-  api.flavor.setup()
 
   cwd = api.path['checkout']
 
@@ -56,8 +54,19 @@ for r, d, files in os.walk('%s'):
 """ % cwd)
 
     # Regenerate the SKSL files.
+    compiler      = api.properties['compiler']
+    configuration = api.properties['configuration']
+    extra_tokens  = api.properties['extra_tokens'].split(',')
+    os            = api.properties['os']
+    target_arch   = api.properties['target_arch']
     api.build(checkout_root=checkout_root,
-              out_dir=api.vars.build_dir.join('out', 'Release'))
+              out_dir=api.vars.build_dir.join('out', 'Release'),
+              compiler=compiler,
+              configuration=configuration,
+              os=os,
+              target_arch=target_arch,
+              extra_tokens=extra_tokens)
+
 
     # Get a second diff. If this doesn't match the first, then there have been
     # modifications to the generated files.
@@ -85,6 +94,11 @@ def GenTests(api):
   yield (
       api.test('Housekeeper-PerCommit-CheckGeneratedFiles') +
       api.properties(buildername='Housekeeper-PerCommit-CheckGeneratedFiles',
+                     compiler='',
+                     configuration='Release',
+                     extra_tokens='CheckGeneratedFiles',
+                     os='Debian9',
+                     target_arch='',
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',

@@ -14,8 +14,8 @@ import json  # TODO(borenet): No! Remove this.
 
 class ChromebookFlavor(default.DefaultFlavor):
 
-  def __init__(self, m):
-    super(ChromebookFlavor, self).__init__(m)
+  def __init__(self, *args, **kwargs):
+    super(ChromebookFlavor, self).__init__(*args, **kwargs)
     self._user_ip = ''
 
     self.chromeos_homedir = '/home/chronos/user/'

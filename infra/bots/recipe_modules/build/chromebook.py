@@ -3,10 +3,9 @@
 # found in the LICENSE file.
 
 
-def compile_fn(api, checkout_root, out_dir):
+def compile_fn(api, checkout_root, out_dir, compiler, configuration, os,
+               target_arch, extra_tokens):
   skia_dir      = checkout_root.join('skia')
-  configuration = api.vars.builder_cfg.get('configuration')
-  target_arch   = api.vars.builder_cfg.get('target_arch')
 
   clang_linux = api.vars.slave_dir.join('clang_linux')
   # This is a pretty typical arm-linux-gnueabihf sysroot

@@ -3,15 +3,14 @@
 # found in the LICENSE file.
 
 
-def compile_fn(api, checkout_root, out_dir):
-  flutter_dir   = checkout_root.join('src')
-  configuration = api.vars.builder_cfg.get('configuration').lower()
-  extra_tokens = api.vars.extra_tokens
+def compile_fn(api, checkout_root, out_dir, compiler, configuration, os,
+               target_arch, extra_tokens):
+  flutter_dir = checkout_root.join('src')
 
   with api.context(cwd=flutter_dir):
     # Setup GN args.
     gn_args = [
-        '--runtime-mode=%s' % configuration,
+        '--runtime-mode=%s' % configuration.lower(),
     ]
     if 'Android' in extra_tokens:
       gn_args.append('--android')

@@ -40,14 +40,9 @@ def compile_swiftshader(api, swiftshader_root, cc, cxx, out):
             cmd=['ninja', '-C', out, 'libEGL.so', 'libGLESv2.so'])
 
 
-def compile_fn(api, checkout_root, out_dir):
+def compile_fn(api, checkout_root, out_dir, compiler, configuration, os,
+               target_arch, extra_tokens):
   skia_dir      = checkout_root.join('skia')
-  compiler      = api.vars.builder_cfg.get('compiler',      '')
-  configuration = api.vars.builder_cfg.get('configuration', '')
-  extra_tokens  = api.vars.extra_tokens
-  os            = api.vars.builder_cfg.get('os',            '')
-  target_arch   = api.vars.builder_cfg.get('target_arch',   '')
-
   clang_linux        = str(api.vars.slave_dir.join('clang_linux'))
   emscripten_sdk     = str(api.vars.slave_dir.join('emscripten_sdk'))
   linux_vulkan_sdk   = str(api.vars.slave_dir.join('linux_vulkan_sdk'))
@@ -273,7 +268,7 @@ def compile_fn(api, checkout_root, out_dir):
 
 
 def copy_extra_build_products(api, src, dst):
-  if 'SwiftShader' in api.vars.extra_tokens:
+  if 'SwiftShader' in api.properties.get('extra_tokens', '').split(','):
     util.copy_whitelisted_build_products(api,
         src.join('swiftshader_out'),
         api.vars.swarming_out_dir.join('swiftshader_out'))

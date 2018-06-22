@@ -61,24 +61,38 @@ def RunSteps(api):
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
 
   out_dir = checkout_root.join(
-      'skia', 'out', api.vars.builder_name, api.vars.configuration)
+      'skia', 'out', api.vars.builder_name, api.properties['configuration'])
   if 'Flutter' in api.vars.builder_name:
     out_dir = checkout_root.join('src', 'out', 'android_release')
 
+  compiler      = api.properties['compiler']
+  configuration = api.properties['configuration']
+  extra_tokens  = api.properties['extra_tokens'].split(',')
+  os            = api.properties['os']
+  target_arch   = api.properties['target_arch']
+  if ('Win' in os and target_arch == 'x86_64'):
+      configuration += '_x64'
+
   try:
-    api.build(checkout_root=checkout_root, out_dir=out_dir)
+    api.build(checkout_root=checkout_root,
+              out_dir=out_dir,
+              compiler=compiler,
+              configuration=configuration,
+              os=os,
+              target_arch=target_arch,
+              extra_tokens=extra_tokens)
 
     # TODO(borenet): Move this out of the try/finally.
     dst = api.vars.swarming_out_dir
     if 'ParentRevision' in api.vars.builder_name:
       dst = api.vars.swarming_out_dir.join('ParentRevision')
     api.build.copy_build_products(out_dir=out_dir, dst=dst)
-    if 'SKQP' in api.vars.extra_tokens:
+    if 'SKQP' in api.properties.get('extra_tokens', '').split(','):
       wlist = checkout_root.join(
           'skia', 'infra','cts', 'whitelist_devices.json')
       api.file.copy('copy whitelist', wlist, dst)
   finally:
-    if 'Win' in api.vars.builder_cfg.get('os', ''):
+    if 'Win' in api.properties['os']:
       api.python.inline(
           name='cleanup',
           program='''import psutil
@@ -101,17 +115,39 @@ TEST_BUILDERS = [
   'Build-Debian9-GCC-x86_64-Release-Flutter_Android',
   'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
   'Build-Win-Clang-x86-Debug',
+  'Build-Win-Clang-x86_64-Release-Vulkan',
 ]
 
 
 def GenTests(api):
   for builder in TEST_BUILDERS:
+    split = builder.split('-')
+    os = split[1]
+    compiler = split[2]
+    target_arch = split[3]
+    configuration = split[4]
+    extra_tokens_list = []
+    if len(split) > 5:
+      extra_split = split[5].split('_')
+      for idx, tok in enumerate(extra_split):
+        if tok == 'SK':  # pragma: no cover
+          extra_tokens_list.append('_'.join(extra_split[idx:]))
+          break
+        else:
+          extra_tokens_list.append(tok)
+    extra_tokens = ','.join(extra_tokens_list)
+
     test = (
       api.test(builder) +
       api.properties(buildername=builder,
+                     compiler=compiler,
+                     configuration=configuration,
+                     extra_tokens=extra_tokens,
+                     os=os,
+                     path_config='kitchen',
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
+                     target_arch=target_arch,
                      swarm_out_dir='[SWARM_OUT_DIR]') +
       api.path.exists(
           api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')

@@ -13,13 +13,13 @@ import subprocess  # TODO(borenet): No! Remove this.
 
 
 class AndroidFlavor(default.DefaultFlavor):
-  def __init__(self, m):
-    super(AndroidFlavor, self).__init__(m)
+  def __init__(self, *args, **kwargs):
+    super(AndroidFlavor, self).__init__(*args, **kwargs)
     self._ever_ran_adb = False
     self.ADB_BINARY = '/usr/bin/adb.1.0.35'
     self.ADB_PUB_KEY = '/home/chrome-bot/.android/adbkey'
     self._golo_devices = ['Nexus5x']
-    if self.m.vars.builder_cfg.get('model') in self._golo_devices:
+    if self.model in self._golo_devices:
       self.ADB_BINARY = '/opt/infra-android/tools/adb'
       self.ADB_PUB_KEY = ('/home/chrome-bot/.android/'
                           'chrome_infrastructure_adbkey')
@@ -109,7 +109,7 @@ class AndroidFlavor(default.DefaultFlavor):
                                      **kwargs)
 
   def _scale_for_dm(self):
-    device = self.m.vars.builder_cfg.get('model')
+    device = self.model
     if (device in self.rootable_blacklist or
         self.m.vars.internal_hardware_label):
       return
@@ -133,7 +133,7 @@ class AndroidFlavor(default.DefaultFlavor):
         self._set_governor(i, 'ondemand')
 
   def _scale_for_nanobench(self):
-    device = self.m.vars.builder_cfg.get('model')
+    device = self.model
     if (device in self.rootable_blacklist or
       self.m.vars.internal_hardware_label):
       return
@@ -347,7 +347,7 @@ if actual_freq != str(freq):
   def install(self):
     self._adb('mkdir ' + self.device_dirs.resource_dir,
               'shell', 'mkdir', '-p', self.device_dirs.resource_dir)
-    if 'ASAN' in self.m.vars.extra_tokens:
+    if 'ASAN' in self.extra_tokens:
       asan_setup = self.m.vars.slave_dir.join(
             'android_ndk_linux', 'toolchains', 'llvm', 'prebuilt',
             'linux-x86_64', 'lib64', 'clang', '6.0.2', 'bin',

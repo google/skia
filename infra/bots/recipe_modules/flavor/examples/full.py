@@ -29,7 +29,17 @@ def test_exceptions(api):
 
 def RunSteps(api):
   api.vars.setup()
-  api.flavor.setup()
+  os = api.properties['os']
+  compiler = api.properties['compiler']
+  model = api.properties['model']
+  cpu_or_gpu = api.properties['cpu_or_gpu']
+  cpu_or_gpu_value = api.properties['cpu_or_gpu_value']
+  arch = api.properties['arch']
+  configuration = api.properties['configuration']
+  test_filter = api.properties['test_filter']
+  extra_tokens = api.properties.get('extra_tokens', '').split(',')
+  api.flavor.setup(os, compiler, model, cpu_or_gpu, cpu_or_gpu_value, arch,
+                   configuration, test_filter, extra_tokens)
 
   if api.properties.get('is_testing_exceptions') == 'True':
     return test_exceptions(api)
@@ -77,14 +87,45 @@ TEST_BUILDERS = [
 ]
 
 # Default properties used for TEST_BUILDERS.
-defaultProps = lambda buildername: dict(
-  buildername=buildername,
-  repository='https://skia.googlesource.com/skia.git',
-  revision='abc123',
-  path_config='kitchen',
-  patch_set=2,
-  swarm_out_dir='[SWARM_OUT_DIR]'
-)
+def defaultProps(buildername):
+  split = buildername.split('-')
+  os = split[1]
+  compiler = split[2]
+  model = split[3]
+  cpu_or_gpu = split[4]
+  cpu_or_gpu_value = split[5]
+  arch = split[6]
+  configuration = split[7]
+  test_filter = split[8]
+
+  extra_tokens_list = []
+  if len(split) > 9:
+    extra_split = split[9].split('_')
+    for idx, tok in enumerate(extra_split):
+      if tok == 'SK':
+        extra_tokens_list.append('_'.join(extra_split[idx:]))
+        break
+      else:
+        extra_tokens_list.append(tok)
+  extra_tokens = ','.join(extra_tokens_list)
+
+  return dict(
+    arch=arch,
+    buildername=buildername,
+    compiler=compiler,
+    configuration=configuration,
+    cpu_or_gpu=cpu_or_gpu,
+    cpu_or_gpu_value=cpu_or_gpu_value,
+    extra_tokens=extra_tokens,
+    model=model,
+    os=os,
+    patch_set=2,
+    path_config='kitchen',
+    repository='https://skia.googlesource.com/skia.git',
+    revision='abc123',
+    swarm_out_dir='[SWARM_OUT_DIR]',
+    test_filter=test_filter
+  )
 
 def GenTests(api):
   for buildername in TEST_BUILDERS:
@@ -105,22 +146,40 @@ def GenTests(api):
   builder = 'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-All'
   yield (
       api.test('exceptions') +
-      api.properties(buildername=builder,
+      api.properties(arch='x86_64',
+                     buildername=builder,
+                     compiler='GCC',
+                     configuration='Release',
+                     cpu_or_gpu='CPU',
+                     cpu_or_gpu_value='AVX2',
+                     extra_tokens='',
+                     model='GCE',
+                     os='Debian9',
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]',
+                     test_filter='All',
                      is_testing_exceptions='True')
   )
 
   builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android'
   yield (
       api.test('failed_infra_step') +
-      api.properties(buildername=builder,
+      api.properties(arch='x86',
+                     buildername=builder,
+                     compiler='Clang',
+                     configuration='Debug',
+                     cpu_or_gpu='GPU',
+                     cpu_or_gpu_value='PowerVR',
+                     extra_tokens='Android',
+                     model='NexusPlayer',
+                     os='Android',
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     swarm_out_dir='[SWARM_OUT_DIR]',
+                     test_filter='All') +
       api.step_data('get swarming bot id',
                     stdout=api.raw_io.output('build123-m2--device5')) +
       api.step_data('dump log', retcode=1)
@@ -129,11 +188,20 @@ def GenTests(api):
   builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android'
   yield (
       api.test('failed_read_version') +
-      api.properties(buildername=builder,
+      api.properties(arch='x86',
+                     buildername=builder,
+                     compiler='Clang',
+                     configuration='Debug',
+                     cpu_or_gpu='GPU',
+                     cpu_or_gpu_value='PowerVR',
+                     extra_tokens='Android',
+                     model='NexusPlayer',
+                     os='Android',
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     swarm_out_dir='[SWARM_OUT_DIR]',
+                     test_filter='All') +
       api.step_data('read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION',
                     retcode=1)
   )
@@ -141,11 +209,20 @@ def GenTests(api):
   builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android'
   yield (
       api.test('retry_adb_command') +
-      api.properties(buildername=builder,
+      api.properties(arch='x86',
+                     buildername=builder,
+                     compiler='Clang',
+                     configuration='Debug',
+                     cpu_or_gpu='GPU',
+                     cpu_or_gpu_value='PowerVR',
+                     extra_tokens='Android',
+                     model='NexusPlayer',
+                     os='Android',
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     swarm_out_dir='[SWARM_OUT_DIR]',
+                     test_filter='All') +
       api.step_data('mkdir /sdcard/revenge_of_the_skiabot/resources',
                     retcode=1)
   )
@@ -154,11 +231,20 @@ def GenTests(api):
   fail_step_name = 'mkdir /sdcard/revenge_of_the_skiabot/resources'
   yield (
       api.test('retry_adb_command_retries_exhausted') +
-      api.properties(buildername=builder,
+      api.properties(arch='x86',
+                     buildername=builder,
+                     compiler='Clang',
+                     configuration='Debug',
+                     cpu_or_gpu='GPU',
+                     cpu_or_gpu_value='PowerVR',
+                     extra_tokens='Android',
+                     model='NexusPlayer',
+                     os='Android',
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     swarm_out_dir='[SWARM_OUT_DIR]',
+                     test_filter='All') +
       api.step_data('get swarming bot id',
                     stdout=api.raw_io.output('build123-m2--device5')) +
       api.step_data(fail_step_name, retcode=1) +
@@ -170,21 +256,39 @@ def GenTests(api):
   fail_step_name = 'install_dm'
   yield (
       api.test('retry_ios_install') +
-      api.properties(buildername=builder,
+      api.properties(arch='arm64',
+                     buildername=builder,
+                     compiler='Clang',
+                     configuration='Release',
+                     cpu_or_gpu='GPU',
+                     cpu_or_gpu_value='GT7600',
+                     extra_tokens='',
+                     model='iPhone7',
+                     os='iOS',
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     swarm_out_dir='[SWARM_OUT_DIR]',
+                     test_filter='All') +
       api.step_data(fail_step_name, retcode=1)
   )
 
   yield (
       api.test('retry_ios_install_retries_exhausted') +
-      api.properties(buildername=builder,
+      api.properties(arch='arm64',
+                     buildername=builder,
+                     compiler='Clang',
+                     configuration='Release',
+                     cpu_or_gpu='GPU',
+                     cpu_or_gpu_value='GT7600',
+                     extra_tokens='',
+                     model='iPhone7',
+                     os='iOS',
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     swarm_out_dir='[SWARM_OUT_DIR]',
+                     test_filter='All') +
       api.step_data(fail_step_name, retcode=1) +
       api.step_data(fail_step_name + ' (attempt 2)', retcode=1)
   )
@@ -193,19 +297,37 @@ def GenTests(api):
              'Android')
   yield (
     api.test('cpu_scale_failed_once') +
-    api.properties(buildername=builder,
+    api.properties(arch='x86',
+                   buildername=builder,
+                   compiler='Clang',
+                   configuration='Debug',
+                   cpu_or_gpu='CPU',
+                   cpu_or_gpu_value='Moorefield',
+                   extra_tokens='Android',
+                   model='NexusPlayer',
+                   os='Android',
                    revision='abc123',
                    path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+                   swarm_out_dir='[SWARM_OUT_DIR]',
+                   test_filter='All') +
     api.step_data('Scale CPU 0 to 0.600000', retcode=1)
   )
 
   yield (
     api.test('cpu_scale_failed') +
-    api.properties(buildername=builder,
+    api.properties(arch='x86',
+                   buildername=builder,
+                   compiler='Clang',
+                   configuration='Debug',
+                   cpu_or_gpu='CPU',
+                   cpu_or_gpu_value='Moorefield',
+                   extra_tokens='Android',
+                   model='NexusPlayer',
+                   os='Android',
                    revision='abc123',
                    path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+                   swarm_out_dir='[SWARM_OUT_DIR]',
+                   test_filter='All') +
     api.step_data('get swarming bot id',
                   stdout=api.raw_io.output('skia-rpi-022')) +
     api.step_data('Scale CPU 0 to 0.600000', retcode=1)+
@@ -217,10 +339,19 @@ def GenTests(api):
              '-All-Android')
   yield (
     api.test('cpu_scale_failed_golo') +
-    api.properties(buildername=builder,
+    api.properties(arch='arm64',
+                   buildername=builder,
+                   compiler='Clang',
+                   configuration='Release',
+                   cpu_or_gpu='GPU',
+                   cpu_or_gpu_value='Adreno418',
+                   extra_tokens='Android',
+                   model='Nexus5x',
+                   os='Android',
                    revision='abc123',
                    path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+                   swarm_out_dir='[SWARM_OUT_DIR]',
+                   test_filter='All') +
     api.step_data('get swarming bot id',
                   stdout=api.raw_io.output('build123-m2--device5')) +
     api.step_data('Scale CPU 4 to 0.600000', retcode=1)+

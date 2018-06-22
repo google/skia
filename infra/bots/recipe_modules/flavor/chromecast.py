@@ -12,8 +12,8 @@ from . import default
 
 
 class ChromecastFlavor(android.AndroidFlavor):
-  def __init__(self, m):
-    super(ChromecastFlavor, self).__init__(m)
+  def __init__(self, *args, **kwargs):
+    super(ChromecastFlavor, self).__init__(*args, **kwargs)
     self._ever_ran_adb = False
     self._user_ip = ''
 

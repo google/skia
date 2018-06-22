@@ -13,7 +13,6 @@ DEPS = [
   'binary_size',
   'checkout',
   'doxygen',
-  'flavor',
   'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/path',
@@ -30,7 +29,6 @@ def RunSteps(api):
   checkout_root = api.checkout.default_checkout_root
   got_revision = api.checkout.bot_update(checkout_root=checkout_root)
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
-  api.flavor.setup()
 
   # TODO(borenet): Detect static initializers?
 
@@ -41,7 +39,7 @@ def RunSteps(api):
   now = api.time.utcnow()
   ts = int(calendar.timegm(now.utctimetuple()))
   filename = 'nanobench_%s_%d.json' % (got_revision, ts)
-  dest_dir = api.flavor.host_dirs.perf_data_dir
+  dest_dir = api.vars.swarming_out_dir
   dest_file = dest_dir.join(filename)
   api.file.ensure_directory('makedirs perf_dir', dest_dir)
   api.binary_size.run_analysis(skia_dir, dest_file)

@@ -36,9 +36,11 @@ class BuildApi(recipe_api.RecipeApi):
       self.copy_fn = default.copy_extra_build_products
     super(BuildApi, self).__init__(*args, **kwargs)
 
-  def __call__(self, checkout_root, out_dir):
+  def __call__(self, checkout_root, out_dir, compiler, configuration, os,
+               target_arch, extra_tokens):
     """Compile the code."""
-    self.compile_fn(self.m, checkout_root, out_dir)
+    self.compile_fn(self.m, checkout_root, out_dir, compiler, configuration, os,
+                    target_arch, extra_tokens)
 
   def copy_build_products(self, out_dir, dst):
     """Copy whitelisted build products to dst."""

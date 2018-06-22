@@ -38,26 +38,6 @@ class SkiaVarsApi(recipe_api.RecipeApi):
 
     self.tmp_dir = self.m.path['start_dir'].join('tmp')
 
-    self.builder_cfg = self.m.builder_name_schema.DictForBuilderName(
-        self.builder_name)
-    self.role = self.builder_cfg['role']
-    if self.role in [self.m.builder_name_schema.BUILDER_ROLE_HOUSEKEEPER,
-                     self.m.builder_name_schema.BUILDER_ROLE_CALMBENCH]:
-      self.configuration = CONFIG_RELEASE
-    else:
-      self.configuration = self.builder_cfg.get('configuration', CONFIG_DEBUG)
-    arch = (self.builder_cfg.get('arch') or self.builder_cfg.get('target_arch'))
-    if ('Win' in self.builder_cfg.get('os', '') and arch == 'x86_64'):
-      self.configuration += '_x64'
-
-    self.extra_tokens = []
-    if len(self.builder_cfg.get('extra_config', '')) > 0:
-      if self.builder_cfg['extra_config'].startswith('SK'):
-        assert self.builder_cfg['extra_config'].isupper()
-        self.extra_tokens = [self.builder_cfg['extra_config']]
-      else:
-        self.extra_tokens = self.builder_cfg['extra_config'].split('_')
-
     self.patch_storage = self.m.properties.get('patch_storage', 'gerrit')
     self.issue = None
     self.patchset = None
