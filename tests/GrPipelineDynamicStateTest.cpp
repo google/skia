@@ -148,7 +148,7 @@ private:
             mesh.setNonIndexedNonInstanced(4);
             mesh.setVertexData(fVertexBuffer.get(), 4 * i);
         }
-        state->rtCommandBuffer()->draw(pipeline, GrPipelineDynamicStateTestProcessor(),
+        state->rtCommandBuffer()->draw(GrPipelineDynamicStateTestProcessor(), pipeline,
                                        meshes.begin(), kDynamicStates, 4,
                                        SkRect::MakeIWH(kScreenSize, kScreenSize));
     }

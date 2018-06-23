@@ -82,12 +82,11 @@ public:
     // The GrGLGpuRTCommandBuffer does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the draw call for the corresponding passthrough function
     // on GrGLRTGpuCommandBuffer.
-    void draw(const GrPipeline&,
-              const GrPrimitiveProcessor&,
+    void draw(const GrPrimitiveProcessor&,
+              const GrPipeline&,
               const GrMesh[],
               const GrPipeline::DynamicState[],
               int meshCount);
-
 
     // GrMesh::SendToGpuImpl methods. These issue the actual GL draw calls.
     // Marked final as a hint to the compiler to not use virtual dispatch.
@@ -254,7 +253,7 @@ private:
 
     // Flushes state from GrPipeline to GL. Returns false if the state couldn't be set.
     // willDrawPoints must be true if point primitives will be rendered after setting the GL state.
-    bool flushGLState(const GrPipeline&, const GrPrimitiveProcessor&, bool willDrawPoints);
+    bool flushGLState(const GrPrimitiveProcessor&, const GrPipeline&, bool willDrawPoints);
 
     void flushProgram(sk_sp<GrGLProgram>);
 
@@ -295,7 +294,7 @@ private:
         ~ProgramCache();
 
         void abandon();
-        GrGLProgram* refProgram(const GrGLGpu*, const GrPipeline&, const GrPrimitiveProcessor&,
+        GrGLProgram* refProgram(const GrGLGpu*, const GrPrimitiveProcessor&, const GrPipeline&,
                                 bool hasPointSize);
 
     private:
