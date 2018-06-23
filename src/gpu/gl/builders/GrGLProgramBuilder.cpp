@@ -29,8 +29,8 @@
 #define GL_CALL(X) GR_GL_CALL(this->gpu()->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(this->gpu()->glInterface(), R, X)
 
-GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPipeline& pipeline,
-                                               const GrPrimitiveProcessor& primProc,
+GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPrimitiveProcessor& primProc,
+                                               const GrPipeline& pipeline,
                                                GrProgramDesc* desc,
                                                GrGLGpu* gpu) {
 #ifdef SK_DEBUG
@@ -66,7 +66,7 @@ GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu,
                                        const GrPipeline& pipeline,
                                        const GrPrimitiveProcessor& primProc,
                                        GrProgramDesc* desc)
-        : INHERITED(pipeline, primProc, desc)
+        : INHERITED(primProc, pipeline, desc)
         , fGpu(gpu)
         , fVaryingHandler(this)
         , fUniformHandler(this)

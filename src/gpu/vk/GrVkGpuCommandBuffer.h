@@ -86,13 +86,13 @@ private:
                       const GrBuffer* vertexBuffer,
                       const GrBuffer* instanceBuffer);
 
-    GrVkPipelineState* prepareDrawState(const GrPipeline&,
-                                        const GrPrimitiveProcessor&,
+    GrVkPipelineState* prepareDrawState(const GrPrimitiveProcessor&,
+                                        const GrPipeline&,
                                         GrPrimitiveType,
                                         bool hasDynamicState);
 
-    void onDraw(const GrPipeline& pipeline,
-                const GrPrimitiveProcessor& primProc,
+    void onDraw(const GrPrimitiveProcessor& primProc,
+                const GrPipeline& pipeline,
                 const GrMesh mesh[],
                 const GrPipeline::DynamicState[],
                 int meshCount,

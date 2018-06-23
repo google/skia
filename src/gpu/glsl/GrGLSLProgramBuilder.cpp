@@ -19,22 +19,21 @@
 
 const int GrGLSLProgramBuilder::kVarsPerBlock = 8;
 
-GrGLSLProgramBuilder::GrGLSLProgramBuilder(const GrPipeline& pipeline,
-                                           const GrPrimitiveProcessor& primProc,
+GrGLSLProgramBuilder::GrGLSLProgramBuilder(const GrPrimitiveProcessor& primProc,
+                                           const GrPipeline& pipeline,
                                            GrProgramDesc* desc)
-    : fVS(this)
-    , fGS(this)
-    , fFS(this)
-    , fStageIndex(-1)
-    , fPipeline(pipeline)
-    , fPrimProc(primProc)
-    , fDesc(desc)
-    , fGeometryProcessor(nullptr)
-    , fXferProcessor(nullptr)
-    , fNumVertexSamplers(0)
-    , fNumGeometrySamplers(0)
-    , fNumFragmentSamplers(0) {
-}
+        : fVS(this)
+        , fGS(this)
+        , fFS(this)
+        , fStageIndex(-1)
+        , fPipeline(pipeline)
+        , fPrimProc(primProc)
+        , fDesc(desc)
+        , fGeometryProcessor(nullptr)
+        , fXferProcessor(nullptr)
+        , fNumVertexSamplers(0)
+        , fNumGeometrySamplers(0)
+        , fNumFragmentSamplers(0) {}
 
 void GrGLSLProgramBuilder::addFeature(GrShaderFlags shaders,
                                       uint32_t featureBit,

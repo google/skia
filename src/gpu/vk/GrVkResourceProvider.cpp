@@ -57,16 +57,15 @@ void GrVkResourceProvider::init() {
     fUniformDSHandle = GrVkDescriptorSetManager::Handle(0);
 }
 
-GrVkPipeline* GrVkResourceProvider::createPipeline(const GrPipeline& pipeline,
+GrVkPipeline* GrVkResourceProvider::createPipeline(const GrPrimitiveProcessor& primProc,
+                                                   const GrPipeline& pipeline,
                                                    const GrStencilSettings& stencil,
-                                                   const GrPrimitiveProcessor& primProc,
                                                    VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                                    int shaderStageCount,
                                                    GrPrimitiveType primitiveType,
                                                    const GrVkRenderPass& renderPass,
                                                    VkPipelineLayout layout) {
-
-    return GrVkPipeline::Create(fGpu, pipeline, stencil, primProc, shaderStageInfo,
+    return GrVkPipeline::Create(fGpu, primProc, pipeline, stencil, shaderStageInfo,
                                 shaderStageCount, primitiveType, renderPass, layout,
                                 fPipelineCache);
 }
@@ -185,7 +184,7 @@ GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState(
                                                                  const GrPrimitiveProcessor& proc,
                                                                  GrPrimitiveType primitiveType,
                                                                  const GrVkRenderPass& renderPass) {
-    return fPipelineStateCache->refPipelineState(pipeline, proc, primitiveType, renderPass);
+    return fPipelineStateCache->refPipelineState(proc, pipeline, primitiveType, renderPass);
 }
 
 void GrVkResourceProvider::getSamplerDescriptorSetHandle(VkDescriptorType type,
