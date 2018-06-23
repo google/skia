@@ -58,9 +58,9 @@ public:
     * @return true if generation was successful.
     */
     static GrVkPipelineState* CreatePipelineState(GrVkGpu*,
+                                                  const GrPrimitiveProcessor&,
                                                   const GrPipeline&,
                                                   const GrStencilSettings&,
-                                                  const GrPrimitiveProcessor&,
                                                   GrPrimitiveType,
                                                   Desc*,
                                                   const GrVkRenderPass& renderPass);

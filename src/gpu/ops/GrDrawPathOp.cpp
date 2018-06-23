@@ -81,7 +81,7 @@ void GrDrawPathOp::onExecute(GrOpFlushState* state) {
 
     GrStencilSettings stencil;
     init_stencil_pass_settings(*state, this->fillType(), &stencil);
-    state->gpu()->pathRendering()->drawPath(pipeline, *pathProc, stencil, fPath.get());
+    state->gpu()->pathRendering()->drawPath(*pathProc, pipeline, stencil, fPath.get());
 }
 
 //////////////////////////////////////////////////////////////////////////////

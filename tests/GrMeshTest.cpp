@@ -394,7 +394,7 @@ void DrawMeshHelper::drawMesh(const GrMesh& mesh) {
     GrRenderTargetProxy* proxy = fState->drawOpArgs().fProxy;
     GrPipeline pipeline(proxy, GrPipeline::ScissorState::kDisabled, SkBlendMode::kSrc);
     GrMeshTestProcessor mtp(mesh.isInstanced(), mesh.hasVertexData());
-    fState->rtCommandBuffer()->draw(pipeline, mtp, &mesh, nullptr, 1,
+    fState->rtCommandBuffer()->draw(mtp, pipeline, &mesh, nullptr, 1,
                                     SkRect::MakeIWH(kImageWidth, kImageHeight));
 }
 

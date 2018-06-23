@@ -560,8 +560,8 @@ void GrVkGpuRTCommandBuffer::bindGeometry(const GrBuffer* indexBuffer,
     }
 }
 
-GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(const GrPipeline& pipeline,
-                                                            const GrPrimitiveProcessor& primProc,
+GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(const GrPrimitiveProcessor& primProc,
+                                                            const GrPipeline& pipeline,
                                                             GrPrimitiveType primitiveType,
                                                             bool hasDynamicState) {
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
@@ -629,8 +629,8 @@ static void prepare_sampled_images(const GrResourceIOProcessor& processor,
     }
 }
 
-void GrVkGpuRTCommandBuffer::onDraw(const GrPipeline& pipeline,
-                                    const GrPrimitiveProcessor& primProc,
+void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
+                                    const GrPipeline& pipeline,
                                     const GrMesh meshes[],
                                     const GrPipeline::DynamicState dynamicStates[],
                                     int meshCount,
@@ -653,10 +653,8 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPipeline& pipeline,
     }
 
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
-    GrVkPipelineState* pipelineState = this->prepareDrawState(pipeline,
-                                                              primProc,
-                                                              primitiveType,
-                                                              SkToBool(dynamicStates));
+    GrVkPipelineState* pipelineState =
+            this->prepareDrawState(primProc, pipeline, primitiveType, SkToBool(dynamicStates));
     if (!pipelineState) {
         return;
     }
@@ -670,10 +668,8 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPipeline& pipeline,
             pipelineState->freeTempResources(fGpu);
             SkDEBUGCODE(pipelineState = nullptr);
             primitiveType = mesh.primitiveType();
-            pipelineState = this->prepareDrawState(pipeline,
-                                                   primProc,
-                                                   primitiveType,
-                                                   SkToBool(dynamicStates));
+            pipelineState = this->prepareDrawState(
+                    primProc, pipeline, primitiveType, SkToBool(dynamicStates));
             if (!pipelineState) {
                 return;
             }

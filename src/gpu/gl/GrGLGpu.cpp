@@ -1683,9 +1683,9 @@ void GrGLGpu::flushMinSampleShading(float minSampleShading) {
     }
 }
 
-bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcessor& primProc,
+bool GrGLGpu::flushGLState(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
                            bool willDrawPoints) {
-    sk_sp<GrGLProgram> program(fProgramCache->refProgram(this, pipeline, primProc, willDrawPoints));
+    sk_sp<GrGLProgram> program(fProgramCache->refProgram(this, primProc, pipeline, willDrawPoints));
     if (!program) {
         GrCapsDebugf(this->caps(), "Failed to create program!\n");
         return false;
@@ -2248,8 +2248,8 @@ void GrGLGpu::flushViewport(const GrGLIRect& viewport) {
     #endif
 #endif
 
-void GrGLGpu::draw(const GrPipeline& pipeline,
-                   const GrPrimitiveProcessor& primProc,
+void GrGLGpu::draw(const GrPrimitiveProcessor& primProc,
+                   const GrPipeline& pipeline,
                    const GrMesh meshes[],
                    const GrPipeline::DynamicState dynamicStates[],
                    int meshCount) {
@@ -2262,7 +2262,7 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
             break;
         }
     }
-    if (!this->flushGLState(pipeline, primProc, hasPoints)) {
+    if (!this->flushGLState(primProc, pipeline, hasPoints)) {
         return;
     }
 

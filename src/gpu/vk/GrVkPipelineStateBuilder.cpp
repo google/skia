@@ -17,9 +17,9 @@
 
 GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         GrVkGpu* gpu,
+        const GrPrimitiveProcessor& primProc,
         const GrPipeline& pipeline,
         const GrStencilSettings& stencil,
-        const GrPrimitiveProcessor& primProc,
         GrPrimitiveType primitiveType,
         Desc* desc,
         const GrVkRenderPass& renderPass) {
@@ -38,11 +38,10 @@ GrVkPipelineStateBuilder::GrVkPipelineStateBuilder(GrVkGpu* gpu,
                                                    const GrPipeline& pipeline,
                                                    const GrPrimitiveProcessor& primProc,
                                                    GrProgramDesc* desc)
-    : INHERITED(pipeline, primProc, desc)
-    , fGpu(gpu)
-    , fVaryingHandler(this)
-    , fUniformHandler(this) {
-}
+        : INHERITED(primProc, pipeline, desc)
+        , fGpu(gpu)
+        , fVaryingHandler(this)
+        , fUniformHandler(this) {}
 
 const GrCaps* GrVkPipelineStateBuilder::caps() const {
     return fGpu->caps();
@@ -169,9 +168,9 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
         ++numShaderStages;
     }
 
-    GrVkPipeline* pipeline = resourceProvider.createPipeline(fPipeline,
+    GrVkPipeline* pipeline = resourceProvider.createPipeline(fPrimProc,
+                                                             fPipeline,
                                                              stencil,
-                                                             fPrimProc,
                                                              shaderStageInfo,
                                                              numShaderStages,
                                                              primitiveType,

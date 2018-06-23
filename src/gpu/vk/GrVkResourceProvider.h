@@ -43,9 +43,9 @@ public:
     // Set up any initial vk objects
     void init();
 
-    GrVkPipeline* createPipeline(const GrPipeline& pipeline,
+    GrVkPipeline* createPipeline(const GrPrimitiveProcessor& primProc,
+                                 const GrPipeline& pipeline,
                                  const GrStencilSettings& stencil,
-                                 const GrPrimitiveProcessor& primProc,
                                  VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                  int shaderStageCount,
                                  GrPrimitiveType primitiveType,
@@ -171,8 +171,8 @@ private:
 
         void abandon();
         void release();
-        GrVkPipelineState* refPipelineState(const GrPipeline&,
-                                            const GrPrimitiveProcessor&,
+        GrVkPipelineState* refPipelineState(const GrPrimitiveProcessor&,
+                                            const GrPipeline&,
                                             GrPrimitiveType,
                                             const GrVkRenderPass& renderPass);
 

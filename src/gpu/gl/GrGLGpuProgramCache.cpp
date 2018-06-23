@@ -69,8 +69,8 @@ void GrGLGpu::ProgramCache::abandon() {
 }
 
 GrGLProgram* GrGLGpu::ProgramCache::refProgram(const GrGLGpu* gpu,
-                                               const GrPipeline& pipeline,
                                                const GrPrimitiveProcessor& primProc,
+                                               const GrPipeline& pipeline,
                                                bool isPoints) {
 #ifdef PROGRAM_CACHE_STATS
     ++fTotalRequests;
@@ -96,7 +96,7 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(const GrGLGpu* gpu,
 #ifdef PROGRAM_CACHE_STATS
         ++fCacheMisses;
 #endif
-        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(pipeline, primProc, &desc, fGpu);
+        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(primProc, pipeline, &desc, fGpu);
         if (nullptr == program) {
             return nullptr;
         }

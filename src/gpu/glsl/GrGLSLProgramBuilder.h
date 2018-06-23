@@ -93,9 +93,7 @@ public:
     int fFragmentProcessorCnt;
 
 protected:
-    explicit GrGLSLProgramBuilder(const GrPipeline&,
-                                  const GrPrimitiveProcessor&,
-                                  GrProgramDesc*);
+    explicit GrGLSLProgramBuilder(const GrPrimitiveProcessor&, const GrPipeline&, GrProgramDesc*);
 
     void addFeature(GrShaderFlags shaders, uint32_t featureBit, const char* extensionName);
 

@@ -228,12 +228,12 @@ void GrCCCoverageProcessor::draw(GrOpFlushState* flushState, const GrPipeline& p
                                  const GrPipeline::DynamicState dynamicStates[], int meshCount,
                                  const SkRect& drawBounds) const {
     GrGpuRTCommandBuffer* cmdBuff = flushState->rtCommandBuffer();
-    cmdBuff->draw(pipeline, *this, meshes, dynamicStates, meshCount, drawBounds);
+    cmdBuff->draw(*this, pipeline, meshes, dynamicStates, meshCount, drawBounds);
 
     // Geometry shader backend draws primitives in two subpasses.
     if (Impl::kGeometryShader == fImpl) {
         SkASSERT(GSSubpass::kHulls == fGSSubpass);
         GrCCCoverageProcessor cornerProc(*this, GSSubpass::kCorners);
-        cmdBuff->draw(pipeline, cornerProc, meshes, dynamicStates, meshCount, drawBounds);
+        cmdBuff->draw(cornerProc, pipeline, meshes, dynamicStates, meshCount, drawBounds);
     }
 }
