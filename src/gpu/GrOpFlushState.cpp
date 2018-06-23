@@ -43,7 +43,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(uint32_t opID, const Sk
             ++fCurrUpload;
         }
         SkASSERT(fCurrDraw->fPipeline->proxy() == this->drawOpArgs().fProxy);
-        this->rtCommandBuffer()->draw(*fCurrDraw->fPipeline, *fCurrDraw->fGeometryProcessor,
+        this->rtCommandBuffer()->draw(*fCurrDraw->fGeometryProcessor, *fCurrDraw->fPipeline,
                                       fMeshes.begin() + fCurrMesh, nullptr, fCurrDraw->fMeshCnt,
                                       opBounds);
         fCurrMesh += fCurrDraw->fMeshCnt;

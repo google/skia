@@ -35,8 +35,8 @@ public:
      * the surface origin.
      * @return true if generation was successful.
      */
-    static GrGLProgram* CreateProgram(const GrPipeline&,
-                                      const GrPrimitiveProcessor&,
+    static GrGLProgram* CreateProgram(const GrPrimitiveProcessor&,
+                                      const GrPipeline&,
                                       GrProgramDesc*,
                                       GrGLGpu*);
 
