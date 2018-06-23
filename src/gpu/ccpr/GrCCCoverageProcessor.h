@@ -105,8 +105,8 @@ public:
         }
     }
 
-    void draw(GrOpFlushState*, const GrPipeline&, const GrMesh[], const GrPipeline::DynamicState[],
-              int meshCount, const SkRect& drawBounds) const;
+    void draw(GrOpFlushState*, const GrPipeline&, const GrMesh[],
+              const GrPipeline::DynamicStateArrays&, int meshCount, const SkRect& drawBounds) const;
 
     // The Shader provides code to calculate each pixel's coverage in a RenderPass. It also
     // provides details about shape-specific geometry.

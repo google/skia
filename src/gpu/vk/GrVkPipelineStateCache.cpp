@@ -111,8 +111,14 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
         ++fCacheMisses;
 #endif
-        GrVkPipelineState* pipelineState(GrVkPipelineStateBuilder::CreatePipelineState(
-                fGpu, primProc, pipeline, stencil, primitiveType, &desc, renderPass));
+        GrVkPipelineState* pipelineState(
+                GrVkPipelineStateBuilder::CreatePipelineState(fGpu,
+                                                              primProc,
+                                                              pipeline,
+                                                              stencil,
+                                                              primitiveType,
+                                                              &desc,
+                                                              renderPass));
         if (nullptr == pipelineState) {
             return nullptr;
         }

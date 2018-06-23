@@ -35,11 +35,13 @@ static constexpr int kNumMeshes = 4;
 static constexpr int kScreenSplitX = kScreenSize/2;
 static constexpr int kScreenSplitY = kScreenSize/2;
 
-static const GrPipeline::DynamicState kDynamicStates[kNumMeshes] = {
-    {SkIRect::MakeLTRB(0,              0,              kScreenSplitX,  kScreenSplitY)},
-    {SkIRect::MakeLTRB(0,              kScreenSplitY,  kScreenSplitX,  kScreenSize)},
-    {SkIRect::MakeLTRB(kScreenSplitX,  0,              kScreenSize,    kScreenSplitY)},
-    {SkIRect::MakeLTRB(kScreenSplitX,  kScreenSplitY,  kScreenSize,    kScreenSize)},
+static const SkIRect kDynamicScissors[kNumMeshes] = {
+    // clang-format off
+    SkIRect::MakeLTRB(0,              0,              kScreenSplitX,  kScreenSplitY),
+    SkIRect::MakeLTRB(0,              kScreenSplitY,  kScreenSplitX,  kScreenSize),
+    SkIRect::MakeLTRB(kScreenSplitX,  0,              kScreenSize,    kScreenSplitY),
+    SkIRect::MakeLTRB(kScreenSplitX,  kScreenSplitY,  kScreenSize,    kScreenSize),
+    // clang-format on
 };
 
 static const GrColor kMeshColors[kNumMeshes] {
@@ -148,8 +150,10 @@ private:
             mesh.setNonIndexedNonInstanced(4);
             mesh.setVertexData(fVertexBuffer.get(), 4 * i);
         }
-        state->rtCommandBuffer()->draw(GrPipelineDynamicStateTestProcessor(), pipeline,
-                                       meshes.begin(), kDynamicStates, 4,
+        GrPipeline::DynamicStateArrays dynamicState;
+        dynamicState.fScissorRects = kDynamicScissors;
+        state->rtCommandBuffer()->draw(GrPipelineDynamicStateTestProcessor(), pipeline, nullptr,
+                                       &dynamicState, meshes.begin(), 4,
                                        SkRect::MakeIWH(kScreenSize, kScreenSize));
     }
 
