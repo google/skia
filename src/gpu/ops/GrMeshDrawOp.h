@@ -8,6 +8,7 @@
 #ifndef GrMeshDrawOp_DEFINED
 #define GrMeshDrawOp_DEFINED
 
+#include "GrAppliedClip.h"
 #include "GrDrawOp.h"
 #include "GrGeometryProcessor.h"
 #include "GrMesh.h"
@@ -40,7 +41,8 @@ protected:
                    int indicesPerRepetition, int repeatCount);
 
         /** Call after init() to issue draws to the GrMeshDrawOp::Target.*/
-        void recordDraw(Target*, const GrGeometryProcessor*, const GrPipeline*);
+        void recordDraw(Target*, const GrGeometryProcessor*, const GrPipeline*,
+                        const GrPipeline::FixedDynamicState*);
 
     private:
         GrMesh fMesh;
@@ -76,7 +78,8 @@ public:
     virtual ~Target() {}
 
     /** Adds a draw of a mesh. */
-    virtual void draw(const GrGeometryProcessor*, const GrPipeline*, const GrMesh&) = 0;
+    virtual void draw(const GrGeometryProcessor*, const GrPipeline*,
+                      const GrPipeline::FixedDynamicState*, const GrMesh&) = 0;
 
     /**
      * Makes space for vertex data. The returned pointer is the location where vertex data
@@ -129,19 +132,39 @@ public:
         return this->pipelineArena()->make<GrPipeline>(std::forward<Args>(args)...);
     }
 
+    template <typename... Args>
+    GrPipeline::FixedDynamicState* allocFixedDynamicState(Args&... args) {
+        return this->pipelineArena()->make<GrPipeline::FixedDynamicState>(
+                std::forward<Args>(args)...);
+    }
+
+    // Making this a tuple so that we can std::tie it. It subclasses so it can have named getters
+    // rather than std::get<>. Once we have C++17 structured bindings make this just be a tuple.
+    // because then we can do auto [pipeline, fixedDynamicState] = target->makePipeline(...);
+    struct PipelineAndFixedDynamicState
+            : public std::tuple<const GrPipeline*, const GrPipeline::FixedDynamicState*> {
+        PipelineAndFixedDynamicState(const GrPipeline* p, const GrPipeline::FixedDynamicState* s)
+                : std::tuple<const GrPipeline*, const GrPipeline::FixedDynamicState*>(p, s) {}
+        const GrPipeline* pipeline() const { return std::get<0>(*this); }
+        const GrPipeline::FixedDynamicState* fixedDynamicState() const {
+            return std::get<1>(*this);
+        }
+    };
+
     /**
      * Helper that makes a pipeline targeting the op's render target that incorporates the op's
-     * GrAppliedClip.
+     * GrAppliedClip and uses a fixed dynamic state.
      */
-    GrPipeline* makePipeline(uint32_t pipelineFlags, GrProcessorSet&& processorSet,
-                             GrAppliedClip&& clip) {
+    PipelineAndFixedDynamicState makePipeline(uint32_t pipelineFlags, GrProcessorSet&& processorSet,
+                                              GrAppliedClip&& clip) {
         GrPipeline::InitArgs pipelineArgs;
         pipelineArgs.fFlags = pipelineFlags;
         pipelineArgs.fProxy = this->proxy();
         pipelineArgs.fDstProxy = this->dstProxy();
         pipelineArgs.fCaps = &this->caps();
         pipelineArgs.fResourceProvider = this->resourceProvider();
-        return this->allocPipeline(pipelineArgs, std::move(processorSet), std::move(clip));
+        const auto* state = this->allocFixedDynamicState(clip.scissorState().rect());
+        return {this->allocPipeline(pipelineArgs, std::move(processorSet), std::move(clip)), state};
     }
 
     virtual GrRenderTargetProxy* proxy() const = 0;
