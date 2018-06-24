@@ -2688,6 +2688,14 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // https://bugreport.apple.com/web/?problemID=39948888
     fUnpackRowLengthSupport = false;
 #endif
+
+#ifdef SK_BUILD_FOR_MAC
+    // Radeon MacBooks hit a crash in glReadPixels() when using CCPR.
+    // http://skbug.com/8097
+    if (kATI_GrGLVendor == ctxInfo.vendor()) {
+        fBlacklistCoverageCounting = true;
+    }
+#endif
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
