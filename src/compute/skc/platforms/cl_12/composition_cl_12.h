@@ -47,8 +47,8 @@ struct skc_composition_impl
   skc_int                         lock_count; // wip renders
 
   struct { 
-    skc_grid_t                    sort;
     skc_grid_t                    place;
+    skc_grid_t                    sort;
   } grids;
 
   cl_command_queue                cq;

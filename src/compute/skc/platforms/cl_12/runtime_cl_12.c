@@ -31,7 +31,7 @@
 //
 //
 
-static
+static 
 void
 skc_block_pool_create(struct skc_runtime * const runtime, cl_command_queue cq)
 {
@@ -41,7 +41,7 @@ skc_block_pool_create(struct skc_runtime * const runtime, cl_command_queue cq)
   // create block extent
   skc_extent_pdrw_alloc(runtime,
                         &runtime->block_pool.blocks,
-                        runtime->block_pool.size->pool_size *
+                        runtime->block_pool.size->pool_size * 
                         runtime->config->block.bytes);
 
   // allocate block pool ids
@@ -84,7 +84,7 @@ skc_block_pool_create(struct skc_runtime * const runtime, cl_command_queue cq)
   cl(ReleaseKernel(k1));
 }
 
-static
+static 
 void
 skc_block_pool_dispose(struct skc_runtime * const runtime)
 {
@@ -105,7 +105,7 @@ skc_runtime_yield(struct skc_runtime * const runtime)
 }
 
 static
-void
+void 
 skc_runtime_wait(struct skc_runtime * const runtime)
 {
   skc_scheduler_wait(runtime->scheduler);
@@ -122,7 +122,7 @@ skc_runtime_cl_12_create(struct skc_context * const context,
 {
   // allocate the runtime
   struct skc_runtime * const runtime = malloc(sizeof(*runtime));
-
+  
   // save off CL objects
   runtime->cl.context   = context_cl;
   runtime->cl.device_id = device_id_cl;
@@ -135,7 +135,7 @@ skc_runtime_cl_12_create(struct skc_context * const context,
                    sizeof(align_bits),
                    &align_bits,
                    NULL));
-
+          
   runtime->cl.align_bytes = align_bits / 8;
 
   // create device
@@ -183,7 +183,7 @@ skc_runtime_cl_12_create(struct skc_context * const context,
 
   context->yield          = skc_runtime_yield;
   context->wait           = skc_runtime_wait;
-
+  
   context->path_builder   = skc_path_builder_cl_12_create;
   context->path_retain    = skc_runtime_path_host_retain;
   context->path_release   = skc_runtime_path_host_release;
@@ -196,7 +196,7 @@ skc_runtime_cl_12_create(struct skc_context * const context,
 
   context->composition    = skc_composition_cl_12_create;
   context->styling        = skc_styling_cl_12_create;
-
+  
   context->surface        = skc_surface_cl_12_create;
 
   // block on pool creation
@@ -234,48 +234,19 @@ skc_runtime_cl_12_dispose(struct skc_context * const context)
   skc_block_pool_dispose(context->runtime);
 
   // skc_handle_pool_dispose(context->runtime);
-
+  
   return SKC_ERR_SUCCESS;
 }
 
 //
-// TEMPORARY BENCHMARK
+// REPORT BLOCK POOL ALLOCATION
 //
-
-#if 1
-
-#include <windows.h>
-
-#define SKC_FRAMES_MASK 0x7F
-#define SKC_FRAMES      (SKC_FRAMES_MASK + 1)
 
 void
 skc_runtime_cl_12_debug(struct skc_context * const context)
 {
-#ifdef NDEBUG
-  static skc_uint      frames=0;
-  static LARGE_INTEGER StartingTime={0}, EndingTime;
-
-  if ((frames++ & SKC_FRAMES_MASK) != SKC_FRAMES_MASK)
-    return;
-
-  QueryPerformanceCounter(&EndingTime);
-
-  LARGE_INTEGER ElapsedMicroseconds, Frequency;
-
-  ElapsedMicroseconds.QuadPart = EndingTime.QuadPart - StartingTime.QuadPart;
-
-  QueryPerformanceFrequency(&Frequency);
-
-  double const msecs_total  = 1000.0 * ElapsedMicroseconds.QuadPart / Frequency.QuadPart;
-  double const msecs_frame  = msecs_total / SKC_FRAMES;
-
-  printf("Frames / Total / Per : %u / %.3f / %.3f\n",
-         SKC_FRAMES,msecs_total,msecs_frame);
-#endif
-
   struct skc_runtime * const runtime = context->runtime;
-
+  
   // acquire out-of-order cq
   cl_command_queue cq = skc_runtime_acquire_cq_in_order(runtime);
 
@@ -293,28 +264,17 @@ skc_runtime_cl_12_debug(struct skc_context * const context)
   skc_uint const available = bp_atomic->writes - bp_atomic->reads;
   skc_uint const inuse     = runtime->config->block_pool.pool_size - available;
 
-  fprintf(stderr,"w/r/f/a: %9u - %9u = %9u : %6.2f MB\n",
+  fprintf(stderr,
+          "writes/reads/avail/alloc: %9u / %9u / %9u = %6.2f MB / %9u = %6.2f MB\n",
           bp_atomic->writes,
           bp_atomic->reads,
           available,
-          (inuse * runtime->config->block.bytes) / (1024.0*1024.0));
-
-  if (available >= (1<<27))
-    {
-      fprintf(stderr,"block pool corrupted!\n");
-      exit(-1);
-    }
-
-  //
-  //
-  //
-#ifdef NDEBUG
-  QueryPerformanceCounter(&StartingTime);
-#endif
+          (available * runtime->config->block.bytes) / (1024.0*1024.0),
+          inuse,
+          (inuse     * runtime->config->block.bytes) / (1024.0*1024.0));
 }
 
-#endif
+//
+//
+//
 
-//
-//
-//

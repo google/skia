@@ -63,11 +63,11 @@
 // For now and for simplicity, unify all grid ids in one set.
 //
 
-typedef skc_uchar            skc_grid_id_t;                   // 256 values
-#define SKC_GRID_ID_INVALID  SKC_UCHAR_MAX                    // 255
+typedef skc_uchar            skc_grid_id_t;  // 256 values
+#define SKC_GRID_ID_INVALID  SKC_UCHAR_MAX   // 255
 
-#define SKC_GRID_SIZE_WORDS  8                                // 256 bits
-#define SKC_GRID_SIZE_IDS    ((32 * SKC_GRID_SIZE_WORDS) - 1) // 255 ids
+#define SKC_GRID_SIZE_IDS    (SKC_GRID_ID_INVALID-1)
+#define SKC_GRID_SIZE_WORDS  ((SKC_GRID_SIZE_IDS+31)/32)
 
 //
 //
@@ -315,8 +315,13 @@ skc_grid_deps_attach(skc_grid_deps_t const deps,
                      char    const * const execute_name,
                      char    const * const dispose_name)
 {
+  //
   // FIXME -- no more ids -- either fatal or flush & wait for grids to be released
-  assert(deps->count < SKC_GRID_SIZE_IDS);
+  //
+  // assert(deps->count < SKC_GRID_SIZE_IDS);
+  //
+  while (deps->count == SKC_GRID_SIZE_IDS)
+    skc_scheduler_wait_one(deps->scheduler);
 
   // otherwise, an id exists so decrement count
   deps->count += 1;
@@ -404,7 +409,7 @@ void
 skc_grid_detach(skc_grid_t const grid)
 {
   // for now make sure grid is complete
-  // assert(*grid->state >= SKC_GRID_STATE_COMPLETE);
+  // assert(grid->state == SKC_GRID_STATE_COMPLETE);
 
   // transition state
   grid->state = SKC_GRID_STATE_DETACHED;
@@ -413,6 +418,7 @@ skc_grid_detach(skc_grid_t const grid)
   // FIXME -- save profiling info
   //
 
+  // cleanup
   if (skc_grid_words_set(grid->deps->active,grid->id)) // 1:inactive
     grid->deps->count -= 1;
 }
@@ -445,7 +451,7 @@ skc_grid_deps_force(skc_grid_deps_t      const deps,
     {
       skc_grid_id_t grid_id = handle_map[SKC_TYPED_HANDLE_TO_HANDLE(handles[ii])];
 
-      if (grid_id != SKC_GRID_ID_INVALID)
+      if (grid_id < SKC_GRID_ID_INVALID)
         {
           skc_grid_t const grid = deps->grids + grid_id;
 
@@ -483,6 +489,7 @@ void
 skc_grid_happens_after_grid(skc_grid_t const after,
                             skc_grid_t const before)
 {
+  // declarations can't be made on non-ready grids
   assert(after->state == SKC_GRID_STATE_READY);
 
   if (before->state >= SKC_GRID_STATE_COMPLETE)
@@ -502,7 +509,7 @@ skc_grid_happens_after_handle(skc_grid_t const after, skc_handle_t const before)
 
   skc_uint const id_before = after->deps->handle_map[before];
 
-  if (id_before == SKC_GRID_ID_INVALID)
+  if (id_before >= SKC_GRID_ID_INVALID)
     return;
 
   if (skc_grid_words_set(after->before.words,id_before))
@@ -668,7 +675,7 @@ skc_grid_complete(skc_grid_t const grid)
           if (idx == 32)
             {
               active  = *after_words++;
-              after  += 1;
+              after  += 32;
               continue;
             }
           else // clear active
