@@ -40,7 +40,7 @@ void GrCCClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect
 
                 return sk_ref_sp(textureProxy->priv().peekTexture());
             },
-            GrProxyProvider::Renderable::kYes, kTopLeft_GrSurfaceOrigin, kAlpha_half_GrPixelConfig,
+            GrProxyProvider::Renderable::kYes, kTopLeft_GrSurfaceOrigin, kAlpha_8_GrPixelConfig,
             caps);
 
     fDeviceSpacePath = deviceSpacePath;

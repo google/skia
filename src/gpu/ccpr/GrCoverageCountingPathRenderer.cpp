@@ -49,8 +49,8 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
     const GrShaderCaps& shaderCaps = *caps.shaderCaps();
     return shaderCaps.integerSupport() && shaderCaps.flatInterpolationSupport() &&
            caps.instanceAttribSupport() && GrCaps::kNone_MapFlags != caps.mapBufferFlags() &&
-           caps.isConfigTexturable(kAlpha_half_GrPixelConfig) &&
-           caps.isConfigRenderable(kAlpha_half_GrPixelConfig) &&
+           // caps.isConfigTexturable(kAlpha_half_GrPixelConfig) &&
+           // caps.isConfigRenderable(kAlpha_half_GrPixelConfig) &&
            caps.isConfigTexturable(kAlpha_8_GrPixelConfig) &&
            caps.isConfigRenderable(kAlpha_8_GrPixelConfig) &&
            !caps.blacklistCoverageCounting();

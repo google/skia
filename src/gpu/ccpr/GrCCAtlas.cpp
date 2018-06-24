@@ -176,7 +176,7 @@ sk_sp<GrRenderTargetContext> GrCCAtlas::makeRenderTargetContext(
     SkASSERT(fMaxTextureSize <= onFlushRP->caps()->maxRenderTargetSize());
 
     if (backingTexture) {
-        SkASSERT(backingTexture->config() == kAlpha_half_GrPixelConfig);
+        // SkASSERT(backingTexture->config() == kAlpha_half_GrPixelConfig);
         SkASSERT(backingTexture->width() == fWidth);
         SkASSERT(backingTexture->height() == fHeight);
         fBackingTexture = std::move(backingTexture);

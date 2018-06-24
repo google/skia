@@ -136,7 +136,7 @@ GrCCPerFlushResources::GrCCPerFlushResources(GrOnFlushResourceProvider* onFlushR
                                              const GrCCPerFlushResourceSpecs& specs)
         : fPathParser(specs.fNumRenderedPaths + specs.fNumClipPaths, specs.fRenderedPathStats)
         , fCopyAtlasStack(kAlpha_8_GrPixelConfig, specs.fCopyAtlasSpecs, onFlushRP->caps())
-        , fRenderedAtlasStack(kAlpha_half_GrPixelConfig, specs.fRenderedAtlasSpecs,
+        , fRenderedAtlasStack(kAlpha_8_GrPixelConfig, specs.fRenderedAtlasSpecs,
                               onFlushRP->caps())
         , fIndexBuffer(GrCCPathProcessor::FindIndexBuffer(onFlushRP))
         , fVertexBuffer(GrCCPathProcessor::FindVertexBuffer(onFlushRP))
