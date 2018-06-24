@@ -11,11 +11,11 @@
 #include "GrCCPerOpListPaths.h"
 #include "GrPathRenderer.h"
 #include "GrRenderTargetOpList.h"
-#include "ccpr/GrCCPathCache.h"
 #include "ccpr/GrCCPerFlushResources.h"
 #include <map>
 
 class GrCCDrawPathsOp;
+class GrCCPathCache;
 
 /**
  * This is a path renderer that draws antialiased paths by counting coverage in an offscreen
@@ -27,13 +27,15 @@ class GrCCDrawPathsOp;
 class GrCoverageCountingPathRenderer : public GrPathRenderer, public GrOnFlushCallbackObject {
 public:
     static bool IsSupported(const GrCaps&);
-    static sk_sp<GrCoverageCountingPathRenderer> CreateIfSupported(const GrCaps&,
-                                                                   bool drawCachablePaths);
-    ~GrCoverageCountingPathRenderer() override {
-        // Ensure callers are actually flushing paths they record, not causing us to leak memory.
-        SkASSERT(fPendingPaths.empty());
-        SkASSERT(!fFlushing);
-    }
+
+    enum class AllowCaching : bool {
+        kNo = false,
+        kYes = true
+    };
+
+    static sk_sp<GrCoverageCountingPathRenderer> CreateIfSupported(const GrCaps&, AllowCaching);
+
+    ~GrCoverageCountingPathRenderer() override;
 
     using PendingPathsMap = std::map<uint32_t, sk_sp<GrCCPerOpListPaths>>;
 
@@ -54,13 +56,6 @@ public:
         fPendingPaths.insert(paths.begin(), paths.end());
     }
 
-    // GrPathRenderer overrides.
-    StencilSupport onGetStencilSupport(const GrShape&) const override {
-        return GrPathRenderer::kNoSupport_StencilSupport;
-    }
-    CanDrawPath onCanDrawPath(const CanDrawPathArgs& args) const override;
-    bool onDrawPath(const DrawPathArgs&) override;
-
     std::unique_ptr<GrFragmentProcessor> makeClipProcessor(uint32_t oplistID,
                                                            const SkPath& deviceSpacePath,
                                                            const SkIRect& accessRect, int rtWidth,
@@ -71,11 +66,18 @@ public:
                   SkTArray<sk_sp<GrRenderTargetContext>>* out) override;
     void postFlush(GrDeferredUploadToken, const uint32_t* opListIDs, int numOpListIDs) override;
 
+    void testingOnly_drawPathDirectly(const DrawPathArgs&);
     const GrUniqueKey& testingOnly_getStashedAtlasKey() const;
 
 private:
-    GrCoverageCountingPathRenderer(bool drawCachablePaths)
-            : fDrawCachablePaths(drawCachablePaths) {}
+    GrCoverageCountingPathRenderer(AllowCaching);
+
+    // GrPathRenderer overrides.
+    StencilSupport onGetStencilSupport(const GrShape&) const override {
+        return GrPathRenderer::kNoSupport_StencilSupport;
+    }
+    CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
+    bool onDrawPath(const DrawPathArgs&) override;
 
     GrCCPerOpListPaths* lookupPendingPaths(uint32_t opListID);
     void recordOp(std::unique_ptr<GrCCDrawPathsOp>, const DrawPathArgs&);
@@ -89,12 +91,10 @@ private:
     // (It will only contain elements when fFlushing is true.)
     SkSTArray<4, sk_sp<GrCCPerOpListPaths>> fFlushingPaths;
 
-    GrCCPathCache fPathCache;
+    std::unique_ptr<GrCCPathCache> fPathCache;
     GrUniqueKey fStashedAtlasKey;
 
     SkDEBUGCODE(bool fFlushing = false);
-
-    const bool fDrawCachablePaths;
 };
 
 #endif

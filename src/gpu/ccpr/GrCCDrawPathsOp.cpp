@@ -9,6 +9,7 @@
 
 #include "GrMemoryPool.h"
 #include "GrOpFlushState.h"
+#include "ccpr/GrCCPathCache.h"
 #include "ccpr/GrCCPerFlushResources.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
 
@@ -152,14 +153,16 @@ void GrCCDrawPathsOp::accountForOwnPaths(GrCCPathCache* pathCache,
     using MaskTransform = GrCCPathCache::MaskTransform;
 
     for (SingleDraw& draw : fDraws) {
-        SkASSERT(!draw.fCacheEntry);
-
         SkPath path;
         draw.fShape.asPath(&path);
 
-        MaskTransform m(draw.fMatrix, &draw.fCachedMaskShift);
-        bool canStashPathMask = draw.fMaskVisibility >= Visibility::kMostlyComplete;
-        draw.fCacheEntry = pathCache->find(draw.fShape, m, CreateIfAbsent(canStashPathMask));
+        SkASSERT(!draw.fCacheEntry);
+
+        if (pathCache) {
+            MaskTransform m(draw.fMatrix, &draw.fCachedMaskShift);
+            bool canStashPathMask = draw.fMaskVisibility >= Visibility::kMostlyComplete;
+            draw.fCacheEntry = pathCache->find(draw.fShape, m, CreateIfAbsent(canStashPathMask));
+        }
 
         if (auto cacheEntry = draw.fCacheEntry.get()) {
             SkASSERT(!cacheEntry->currFlushAtlas());  // Shouldn't be set until setupResources().

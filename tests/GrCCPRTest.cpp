@@ -53,11 +53,6 @@ private:
     const SkPath fPath;
 };
 
-enum class MarkVolatile : bool {
-    kNo = false,
-    kYes = true
-};
-
 class CCPRPathDrawer {
 public:
     CCPRPathDrawer(GrContext* ctx, skiatest::Reporter* reporter)
@@ -82,8 +77,7 @@ public:
     void clear() const { fRTC->clear(nullptr, 0, GrRenderTargetContext::CanClearFullscreen::kYes); }
     void abandonGrContext() { fCtx = nullptr; fCCPR = nullptr; fRTC = nullptr; }
 
-    void drawPath(SkPath path, const SkMatrix& matrix = SkMatrix::I(),
-                  MarkVolatile markVolatile = MarkVolatile::kYes) const {
+    void drawPath(const SkPath& path, const SkMatrix& matrix = SkMatrix::I()) const {
         SkASSERT(this->valid());
 
         GrPaint paint;
@@ -92,13 +86,11 @@ public:
         GrNoClip noClip;
         SkIRect clipBounds = SkIRect::MakeWH(kCanvasSize, kCanvasSize);
 
-        if (MarkVolatile::kYes == markVolatile) {
-            path.setIsVolatile(true);
-        }
         GrShape shape(path);
 
-        fCCPR->drawPath({fCtx, std::move(paint), &GrUserStencilSettings::kUnused, fRTC.get(),
-                         &noClip, &clipBounds, &matrix, &shape, GrAAType::kCoverage, false});
+        fCCPR->testingOnly_drawPathDirectly({
+                fCtx, std::move(paint), &GrUserStencilSettings::kUnused, fRTC.get(), &noClip,
+                &clipBounds, &matrix, &shape, GrAAType::kCoverage, false});
     }
 
     void clipFullscreenRect(SkPath clipPath, GrColor4f color = GrColor4f(0, 1, 0, 1)) {
@@ -137,11 +129,12 @@ public:
         mockOptions.fGeometryShaderSupport = true;
         mockOptions.fIntegerSupport = true;
         mockOptions.fFlatInterpolationSupport = true;
-        this->customizeMockOptions(&mockOptions);
 
         GrContextOptions ctxOptions;
         ctxOptions.fAllowPathMaskCaching = false;
         ctxOptions.fGpuPathRenderers = GpuPathRenderers::kCoverageCounting;
+
+        this->customizeOptions(&mockOptions, &ctxOptions);
 
         fMockContext = GrContext::MakeMock(&mockOptions, ctxOptions);
         if (!fMockContext) {
@@ -166,7 +159,7 @@ public:
     virtual ~CCPRTest() {}
 
 protected:
-    virtual void customizeMockOptions(GrMockOptions*) {}
+    virtual void customizeOptions(GrMockOptions*, GrContextOptions*) {}
     virtual void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) = 0;
 
     sk_sp<GrContext> fMockContext;
@@ -213,8 +206,8 @@ class GrCCPRTest_cleanup : public CCPRTest {
 DEF_CCPR_TEST(GrCCPRTest_cleanup)
 
 class GrCCPRTest_cleanupWithTexAllocFail : public GrCCPRTest_cleanup {
-    void customizeMockOptions(GrMockOptions* options) override {
-        options->fFailTextureAllocations = true;
+    void customizeOptions(GrMockOptions* mockOptions, GrContextOptions*) override {
+        mockOptions->fFailTextureAllocations = true;
     }
 };
 DEF_CCPR_TEST(GrCCPRTest_cleanupWithTexAllocFail)
@@ -281,6 +274,10 @@ DEF_CCPR_TEST(GrCCPRTest_parseEmptyPath)
 // transformation matrices. We then vary the matrices independently by whole and partial pixels,
 // and verify the caching behaved as expected.
 class GrCCPRTest_cache : public CCPRTest {
+    void customizeOptions(GrMockOptions*, GrContextOptions* ctxOptions) override {
+        ctxOptions->fAllowPathMaskCaching = true;
+    }
+
     void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) override {
         static constexpr int kPathSize = 20;
         SkRandom rand;
@@ -312,7 +309,7 @@ class GrCCPRTest_cache : public CCPRTest {
                 REPORTER_ASSERT(reporter, !stashedAtlasKey->isValid());
 
                 for (size_t i = 0; i < SK_ARRAY_COUNT(paths); ++i) {
-                    ccpr.drawPath(paths[i], matrices[i % 2], MarkVolatile::kNo);
+                    ccpr.drawPath(paths[i], matrices[i % 2]);
                 }
                 ccpr.flush();
 
