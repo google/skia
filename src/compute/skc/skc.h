@@ -248,7 +248,7 @@ skc_err
 skc_styling_group_leave(skc_styling_t             styling,
                         skc_group_id              group_id,
                         uint32_t                  n,
-                        skc_styling_cmd_t const * cmds);                        
+                        skc_styling_cmd_t const * cmds);
 
 skc_err
 skc_styling_group_parents(skc_styling_t        styling,
@@ -271,7 +271,7 @@ skc_styling_group_layer(skc_styling_t             styling,
                         skc_group_id              group_id,
                         skc_layer_id              layer_id,
                         uint32_t                  n,
-                        skc_styling_cmd_t const * cmds);                        
+                        skc_styling_cmd_t const * cmds);
 
 //
 // STYLING ENCODERS -- FIXME -- WILL EVENTUALLY BE OPAQUE
@@ -298,13 +298,6 @@ skc_styling_layer_fill_gradient_encoder(skc_styling_cmd_t         * cmds,
 // SURFACE
 //
 
-//
-// FIXME - surface create needs to be able to specify different
-// surface targets here that are a function of the surface type and
-// rendering model: CL/global, GL/buffer, simple SRCOVER model,
-// complex group-based PDF rendering model, etc.
-//
-
 skc_err
 skc_surface_create(skc_context_t context, skc_surface_t * surface);
 
@@ -314,44 +307,24 @@ skc_surface_retain(skc_surface_t surface);
 skc_err
 skc_surface_release(skc_surface_t surface);
 
-// skc_interop_surface_t
-// skc_surface_interop_surface_get(skc_surface_t surface);
-
-//
-// NO NO NO -- SKC will always be a client of some other platform so
-// handle things like blits and clears there unless it's something
-// unique like an SKC tile-based clear/blit.
-//
-// (temporarily implement these for testing porpoises)
-//
-
-skc_err
-skc_surface_clear(skc_surface_t  surface, 
-                  float    const rgba[4], 
-                  uint32_t const rect[4],
-                  void         * fb);
-
-skc_err
-skc_surface_blit(skc_surface_t  surface, 
-                 uint32_t const rect[4], 
-                 int32_t  const txty[2]);
-
 //
 // SURFACE RENDER
 //
 
-typedef void (*skc_surface_render_pfn_notify)(skc_surface_t     surface,
-                                              skc_styling_t     styling,
-                                              skc_composition_t composition,
-                                              void            * data);
+typedef void (*skc_surface_render_notify)(skc_surface_t     surface,
+                                          skc_styling_t     styling,
+                                          skc_composition_t composition,
+                                          skc_framebuffer_t fb,
+                                          void            * data);
+
 skc_err
-skc_surface_render(skc_surface_t                 surface,
-                   uint32_t                const clip[4],
-                   skc_styling_t                 styling,
-                   skc_composition_t             composition,
-                   skc_surface_render_pfn_notify notify,
-                   void                        * data,
-                   void                        * fb); // FIXME FIXME
+skc_surface_render(skc_surface_t             surface,
+                   skc_styling_t             styling,
+                   skc_composition_t         composition,
+                   skc_framebuffer_t         fb,
+                   uint32_t            const clip[4],
+                   skc_surface_render_notify notify,
+                   void                    * data);
 
 //
 // COORDINATED EXTERNAL OPERATIONS
@@ -387,4 +360,3 @@ skc_context_wait(skc_context_t context);
 //
 //
 //
-

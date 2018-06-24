@@ -212,7 +212,12 @@ skc_styling_pfn_release(struct skc_styling_impl * const impl)
     return;
 
   //
-  // otherwise, unmap all resources by sealing and delete
+  // otherwise, unmap all resources
+  //
+
+  //
+  // FIXME -- is it pointless unmap before freeing?  The seal
+  // accomplishes the unmapping.
   //
   skc_styling_pfn_seal(impl);
 

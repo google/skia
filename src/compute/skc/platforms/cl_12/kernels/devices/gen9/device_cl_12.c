@@ -87,6 +87,8 @@
 //
 // FIXME -- THE CONFIG INITIALIZATION IS ONLY HERE TEMPORARILY
 //
+// FIXME -- move these to log2 values where appropriate
+//
 
 static 
 struct skc_config const config =
@@ -103,7 +105,7 @@ struct skc_config const config =
     }, 
 
     .scheduler = {
-      .size         = 4096 // 128 // fixme -- this is just for testing -- too big
+      .size         = 4096 // 128 // FIXME -- this is just for testing -- way too big -- schedulees should bring their own state
     },
 
     .subblock = {

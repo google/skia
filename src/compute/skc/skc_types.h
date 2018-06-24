@@ -20,31 +20,28 @@
 //
 //
 
-typedef struct skc_context          * skc_context_t;
-typedef struct skc_path_builder     * skc_path_builder_t;
-typedef struct skc_raster_builder   * skc_raster_builder_t;
+typedef struct skc_context        * skc_context_t;
+typedef struct skc_path_builder   * skc_path_builder_t;
+typedef struct skc_raster_builder * skc_raster_builder_t;
 
-typedef struct skc_composition      * skc_composition_t;
-typedef struct skc_styling          * skc_styling_t;
+typedef struct skc_composition    * skc_composition_t;
+typedef struct skc_styling        * skc_styling_t;
 
-typedef struct skc_surface          * skc_surface_t;
+typedef struct skc_surface        * skc_surface_t;
 
-typedef        uint32_t               skc_path_t;
-typedef        uint32_t               skc_raster_t;
+typedef        uint32_t             skc_path_t;
+typedef        uint32_t             skc_raster_t;
 
-typedef        uint32_t               skc_layer_id;
-typedef        uint32_t               skc_group_id;
+typedef        uint32_t             skc_layer_id;
+typedef        uint32_t             skc_group_id;
 
-typedef        uint32_t               skc_styling_cmd_t;
+typedef        uint32_t             skc_styling_cmd_t;
 
-typedef        uint64_t               skc_weakref_t;
-typedef        skc_weakref_t          skc_transform_weakref_t;
-typedef        skc_weakref_t          skc_raster_clip_weakref_t;
+typedef        uint64_t             skc_weakref_t;
+typedef        skc_weakref_t        skc_transform_weakref_t;
+typedef        skc_weakref_t        skc_raster_clip_weakref_t;
 
-#if 0
-typedef struct skc_interop          * skc_interop_t;
-typedef        uint32_t               skc_interop_surface_t;
-#endif
+typedef        void               * skc_framebuffer_t;
 
 //
 //
@@ -60,10 +57,6 @@ typedef        uint32_t               skc_interop_surface_t;
 
 //
 // RASTER CLIP LAYOUT: { x0, y0, x1, y1 }
-//
-
-//
-//
 //
 
 #endif

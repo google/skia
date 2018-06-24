@@ -12,6 +12,8 @@
 
 #include "common/cl/assert_cl.h"
 
+#include "skc_cl.h"
+#include "interop.h"
 #include "extent_cl_12.h"
 #include "runtime_cl_12.h"
 #include "styling_cl_12.h"
@@ -32,32 +34,23 @@
 
 struct skc_surface_impl
 {
-  struct skc_surface        * surface;
-  struct skc_runtime        * runtime;
+  struct skc_surface * surface;
+  struct skc_runtime * runtime;
 
   // framebuffer
   // struct skc_extent_pdrw      fb;
   // struct skc_extent_phrN_pdwN fb;
 
   // for now, a single in-order command queue
-  cl_command_queue            cq;
+  cl_command_queue     cq;
 
   struct {
-    cl_kernel                 render;
+    cl_kernel          render;
   } kernels;
 };
 
 //
-// we might want concurrent access to the same surface as long as
-// the clips don't overlap.
 //
-// this would require acquiring a cq on demand when it is determined
-// that the clipped render won't overlap
-//
-// { tile clip , cq } pair
-//
-// skc_uint4                clip;
-// cl_command_queue         cq
 //
 
 struct skc_surface_render
@@ -68,10 +61,10 @@ struct skc_surface_render
   struct skc_styling          * styling;
   struct skc_composition      * composition;
 
-  skc_surface_render_pfn_notify notify;
-  void                        * data;
+  struct skc_framebuffer_cl   * fb;
 
-  cl_mem                        fb;
+  skc_surface_render_notify     notify;
+  void                        * data;
 
   skc_grid_t                    grid;
 
@@ -79,21 +72,22 @@ struct skc_surface_render
 };
 
 //
-//
+// FIXME -- we only need this because (I think) RBO<>CL interop
+// results in glClear() on the FBO not working...
 //
 
 static
 void
-skc_surface_pfn_clear(struct skc_surface_impl * const impl,
-                      float                     const rgba[4],
-                      skc_uint                  const rect[4],
-                      void                     *      fb)
+skc_surface_debug_clear(struct skc_surface_impl * const impl,
+                        skc_framebuffer_t               fb,
+                        float                     const rgba[4], 
+                        uint32_t                  const rect[4])
 {
   size_t const origin[3] = { rect[0], rect[1], 0 };
   size_t const region[3] = { rect[2], rect[3], 1 };
 
   cl(EnqueueFillImage(impl->cq,
-                      (cl_mem)fb,
+                      ((struct skc_framebuffer_cl *)fb)->mem,
                       rgba,
                       origin,
                       region,
@@ -104,27 +98,7 @@ skc_surface_pfn_clear(struct skc_surface_impl * const impl,
 //
 //
 
-static
-void
-skc_surface_pfn_blit(struct skc_surface_impl * const impl,
-                     skc_uint                  const rect[4],
-                     skc_int                   const txty[2])
-{
-  ;
-}
-
-//
-//
-//
-
 #if 0 // #ifndef NDEBUG
-#define SKC_SURFACE_DEBUG
-#endif
-
-#ifdef SKC_SURFACE_DEBUG
-
-#define SKC_SURFACE_WIDTH  4096
-#define SKC_SURFACE_HEIGHT 4096
 
 static
 void
@@ -166,123 +140,6 @@ skc_surface_debug(struct skc_surface_impl * const impl)
 //
 //
 
-void
-skc_surface_render_complete(struct skc_surface_render * const render)
-{
-#ifdef SKC_SURFACE_DEBUG
-  // write fb out
-  skc_surface_debug(render->impl);
-#endif
-
-  // notify
-  if (render->notify != NULL) {
-    render->notify(render->impl->surface,
-                   render->styling,
-                   render->composition,
-                   render->data);
-  }
-
-  // unlock and release the styling and composition
-  skc_styling_unlock_and_release(render->styling);
-  skc_composition_unlock_and_release(render->composition);
-
-  // grid is now complete
-  skc_grid_complete(render->grid);
-}
-
-static
-void
-skc_surface_render_cb(cl_event event, cl_int status, struct skc_surface_render * const render)
-{
-  SKC_CL_CB(status);
-
-  // as quickly as possible, enqueue next stage in pipeline to context command scheduler
-  SKC_SCHEDULER_SCHEDULE(render->impl->runtime->scheduler,
-                         skc_surface_render_complete,
-                         render);
-}
-
-//
-//
-//
-
-static
-void
-skc_surface_grid_pfn_execute(skc_grid_t const grid)
-{
-  struct skc_surface_render   * const render  = skc_grid_get_data(grid);
-  struct skc_surface_impl     * const impl    = render->impl;
-  struct skc_runtime          * const runtime = impl->runtime;
-
-  // get the composition args
-  struct skc_composition_impl * const ci      = render->composition->impl;
-  struct skc_place_atomics    * const atomics = ci->atomics.hr;
-
-  if (atomics->offsets > 0)
-    {
-      // acquire the rbo
-      cl(EnqueueAcquireGLObjects(impl->cq,1,&render->fb,0,NULL,NULL));
-
-      // get the styling args
-      struct skc_styling_impl * const si = render->styling->impl;
-
-      cl(SetKernelArg(impl->kernels.render,0,SKC_CL_ARG(si->layers.drN)));
-      cl(SetKernelArg(impl->kernels.render,1,SKC_CL_ARG(si->groups.drN)));
-      cl(SetKernelArg(impl->kernels.render,2,SKC_CL_ARG(si->extras.drN)));
-
-      cl(SetKernelArg(impl->kernels.render,3,SKC_CL_ARG(ci->keys.drw)));
-      cl(SetKernelArg(impl->kernels.render,4,SKC_CL_ARG(atomics->keys)));
-      cl(SetKernelArg(impl->kernels.render,5,SKC_CL_ARG(ci->offsets.drw)));
-      cl(SetKernelArg(impl->kernels.render,6,SKC_CL_ARG(atomics->offsets)));
-
-      // block pool
-      cl(SetKernelArg(impl->kernels.render,7,SKC_CL_ARG(impl->runtime->block_pool.blocks.drw)));
-
-      // surface
-      cl(SetKernelArg(impl->kernels.render,8,SKC_CL_ARG(render->fb)));
-
-#if 1
-      // tile clip
-      cl(SetKernelArg(impl->kernels.render,9,sizeof(skc_uint4),render->clip));
-#else
-      // surface pitch (height)
-      skc_uint const surface_pitch = SKC_SURFACE_HEIGHT;
-      cl(SetKernelArg(impl->kernels.render,9,SKC_CL_ARG(surface_pitch)));
-      // tile clip
-      cl(SetKernelArg(impl->kernels.render,10,sizeof(skc_uint4),render->clip));
-#endif
-
-      // launch render kernel
-      skc_device_enqueue_kernel(runtime->device,
-                                SKC_DEVICE_KERNEL_ID_RENDER,
-                                impl->cq,
-                                impl->kernels.render,
-                                atomics->offsets,
-                                0,NULL,NULL);
-
-
-      cl_event complete;
-
-      // give the rbo back
-      cl(EnqueueReleaseGLObjects(impl->cq,1,&render->fb,0,NULL,&complete));
-
-      // notify anyone listening...
-      cl(SetEventCallback(complete,CL_COMPLETE,skc_surface_render_cb,render));
-      cl(ReleaseEvent(complete));
-
-      // flush it
-      cl(Flush(impl->cq));
-    }
-  else
-    {
-      skc_surface_render_complete(render);
-    }
-}
-
-//
-//
-//
-
 static
 void
 skc_surface_pfn_release(struct skc_surface_impl * const impl)
@@ -319,19 +176,146 @@ skc_surface_pfn_release(struct skc_surface_impl * const impl)
 //
 //
 
-static
 void
-skc_surface_grid_pfn_dispose(skc_grid_t const grid)
+skc_surface_render_complete(struct skc_surface_render * const render)
 {
-  struct skc_surface_render * const render  = skc_grid_get_data(grid);
-  struct skc_surface_impl   * const impl    = render->impl;
-  struct skc_runtime        * const runtime = impl->runtime;
+#ifdef SKC_SURFACE_DEBUG
+  // write fb out
+  skc_surface_debug(render->impl);
+#endif
 
-  // free the render object
-  skc_runtime_host_temp_free(runtime,render,render->id);
+  // notify
+  if (render->notify != NULL) {
+    render->notify(render->impl->surface,
+                   render->styling,
+                   render->composition,
+                   render->fb,
+                   render->data);
+  }
+
+  // unlock and release the styling and composition
+  skc_styling_unlock_and_release(render->styling);
+  skc_composition_unlock_and_release(render->composition);
+
+  // grid is now complete
+  skc_grid_complete(render->grid);
+
+  struct skc_surface_impl * const impl    = render->impl;  
+  struct skc_runtime      * const runtime = impl->runtime;
 
   // release the surface
   skc_surface_pfn_release(impl);
+
+  // free the render object
+  skc_runtime_host_temp_free(runtime,render,render->id);
+}
+
+static
+void
+skc_surface_render_cb(cl_event event, cl_int status, struct skc_surface_render * const render)
+{
+  SKC_CL_CB(status);
+
+  // as quickly as possible, enqueue next stage in pipeline to context command scheduler
+  SKC_SCHEDULER_SCHEDULE(render->impl->runtime->scheduler,
+                         skc_surface_render_complete,
+                         render);
+}
+
+//
+//
+//
+
+static
+void
+skc_surface_grid_pfn_execute(skc_grid_t const grid)
+{
+  struct skc_surface_render   * const render  = skc_grid_get_data(grid);
+  struct skc_surface_impl     * const impl    = render->impl;
+  struct skc_runtime          * const runtime = impl->runtime;
+
+  // get the composition args
+  struct skc_composition_impl * const ci      = render->composition->impl;
+  struct skc_place_atomics    * const atomics = ci->atomics.hr;
+
+  if (atomics->offsets > 0)
+    {
+      // acquire the rbo/tex
+      if (render->fb->type != SKC_FRAMEBUFFER_CL_IMAGE2D)
+        cl(EnqueueAcquireGLObjects(impl->cq,1,&render->fb->mem,0,NULL,NULL));
+
+      // get the styling args
+      struct skc_styling_impl * const si = render->styling->impl;
+
+      cl(SetKernelArg(impl->kernels.render,0,SKC_CL_ARG(si->layers.drN)));
+      cl(SetKernelArg(impl->kernels.render,1,SKC_CL_ARG(si->groups.drN)));
+      cl(SetKernelArg(impl->kernels.render,2,SKC_CL_ARG(si->extras.drN)));
+
+      cl(SetKernelArg(impl->kernels.render,3,SKC_CL_ARG(ci->keys.drw)));
+      cl(SetKernelArg(impl->kernels.render,4,SKC_CL_ARG(atomics->keys)));
+      cl(SetKernelArg(impl->kernels.render,5,SKC_CL_ARG(ci->offsets.drw)));
+      cl(SetKernelArg(impl->kernels.render,6,SKC_CL_ARG(atomics->offsets)));
+
+      // block pool
+      cl(SetKernelArg(impl->kernels.render,7,SKC_CL_ARG(impl->runtime->block_pool.blocks.drw)));
+
+      // surface
+      cl(SetKernelArg(impl->kernels.render,8,SKC_CL_ARG(render->fb->mem)));
+
+#if 1
+      // tile clip
+      cl(SetKernelArg(impl->kernels.render,9,sizeof(skc_uint4),render->clip));
+#else
+      // surface pitch (height)
+      skc_uint const surface_pitch = SKC_SURFACE_HEIGHT;
+      cl(SetKernelArg(impl->kernels.render,9,SKC_CL_ARG(surface_pitch)));
+      // tile clip
+      cl(SetKernelArg(impl->kernels.render,10,sizeof(skc_uint4),render->clip));
+#endif
+
+      // launch render kernel
+      skc_device_enqueue_kernel(runtime->device,
+                                SKC_DEVICE_KERNEL_ID_RENDER,
+                                impl->cq,
+                                impl->kernels.render,
+                                atomics->offsets,
+                                0,NULL,NULL);
+
+
+      cl_event complete;
+
+      // give the rbo back
+      if (render->fb->type != SKC_FRAMEBUFFER_CL_IMAGE2D)
+        {
+          cl(EnqueueReleaseGLObjects(impl->cq,1,&render->fb->mem,0,NULL,&complete));
+
+          //
+          // blit the rbo to fbo0
+          //
+          render->fb->post_render(render->fb->interop);
+
+          //
+          // clear the rbo -- FIXME -- we shouldn't have to do this here
+          //
+          float    const rgba[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+          uint32_t       rect[4] = { 0 };
+
+          skc_interop_get_size(render->fb->interop,rect+2,rect+3);
+
+          skc_surface_debug_clear(impl,render->fb,rgba,rect);
+        }
+
+      // notify anyone listening...
+      cl(SetEventCallback(complete,CL_COMPLETE,skc_surface_render_cb,render));
+      cl(ReleaseEvent(complete));
+
+      // flush it
+      cl(Flush(impl->cq));
+    }
+  else
+    {
+      skc_surface_render_complete(render);
+    }
 }
 
 //
@@ -341,12 +325,12 @@ skc_surface_grid_pfn_dispose(skc_grid_t const grid)
 static
 void
 skc_surface_pfn_render(struct skc_surface_impl * const impl,
-                       uint32_t                  const clip[4],
                        skc_styling_t                   styling,
                        skc_composition_t               composition,
-                       skc_surface_render_pfn_notify   notify,
-                       void                          * data,
-                       void                          * fb)
+                       skc_framebuffer_t               fb,
+                       uint32_t                  const clip[4],
+                       skc_surface_render_notify       notify,
+                       void                          * data)
 {
   // retain surface
   skc_surface_retain(impl->surface);
@@ -387,15 +371,21 @@ skc_surface_pfn_render(struct skc_surface_impl * const impl,
   render->grid        = SKC_GRID_DEPS_ATTACH(impl->runtime->deps,
                                              NULL, // invalidation not necessary
                                              render,
-                                             NULL, // no waiting
+                                             NULL,  // no waiting
                                              skc_surface_grid_pfn_execute,
-                                             skc_surface_grid_pfn_dispose);
-
+                                             NULL); // no disposal
+  //
   // declare happens-after relationships
-  skc_grid_happens_after_grid(render->grid,styling->impl->grid);
-  skc_grid_happens_after_grid(render->grid,composition->impl->grids.sort);
+  //
+  if (styling->impl->state != SKC_STYLING_STATE_SEALED)
+    skc_grid_happens_after_grid(render->grid,styling->impl->grid);
 
-  // wait for styling and composition
+  if (composition->impl->state != SKC_COMPOSITION_STATE_SEALED)
+    skc_grid_happens_after_grid(render->grid,composition->impl->grids.sort);
+
+  //
+  // start render but possibly wait for styling and composition
+  //
   skc_grid_start(render->grid);
 }
 
@@ -423,8 +413,6 @@ skc_surface_cl_12_create(struct skc_context   * const context,
   (*surface)->ref_count  = 1;
 
   (*surface)->release    = skc_surface_pfn_release;
-  (*surface)->clear      = skc_surface_pfn_clear;
-  (*surface)->blit       = skc_surface_pfn_blit;
   (*surface)->render     = skc_surface_pfn_render;
 
   // intialize impl

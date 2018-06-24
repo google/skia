@@ -10,18 +10,9 @@
 //
 //
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
-//
-//
-//
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
-
-#include "skc_create_cl.h"
 
 #include "common/cl/find_cl.h"
 #include "common/cl/assert_cl.h"
@@ -34,35 +25,44 @@
 //
 //
 
-#include <CL/opencl.h>
-#include "platforms/cl_12/gl/interop.h"
+#include "platforms/cl_12/skc_cl.h"
+#include "interop.h"
 
 //
 //
 //
 
-void
-skc_runtime_cl_12_debug(struct skc_context * const context);
+typedef enum skc_pipeline_start_at_e {
+  SKC_PIPELINE_START_AT_DEFINE_PATHS = '1',
+  SKC_PIPELINE_START_AT_RASTERIZE    = '2',
+  SKC_PIPELINE_START_AT_COMPOSITION  = '3',
+  SKC_PIPELINE_START_AT_RENDER       = '4'
+} skc_pipeline_start_at_e;
 
 //
-//
-//
-
-
-
-//
-//
+// Callback for explicitly waiting for render completion
 //
 
+#if 0
 static
 void
 is_render_complete(skc_surface_t     surface,
                    skc_styling_t     styling,
                    skc_composition_t composition,
-                   bool            * quit)
+                   skc_framebuffer_t fb,
+                   void            * data)
 {
-  *quit = true;
+  // exit while loop
+  *(bool*)data = true;
 }
+#endif
+
+//
+// FIXME - for debugging purposes declare this internal prototype
+//
+
+void
+skc_runtime_cl_12_debug(struct skc_context * const context);
 
 //
 //
@@ -83,8 +83,6 @@ main(int argc, char** argv)
   //
   // load test file
   //
-  // #include "test/lion.inl"
-
   struct svg_doc * svg_doc = svg_doc_parse(argv[1],false);
 
   fprintf(stderr,"p/r/l = %u / %u / %u\n",
@@ -95,9 +93,7 @@ main(int argc, char** argv)
   //
   // fire up GL
   //
-  GLFWwindow * window;
-
-  skc_interop_init(&window);
+  struct skc_interop * interop = skc_interop_create();
 
   //
   // find platform and device by name
@@ -112,21 +108,19 @@ main(int argc, char** argv)
                    true));
 
   //
-  // get GL and device contexts
+  // create the CL context with GL interop
   //
-  HGLRC hGLRC = wglGetCurrentContext();
-  HDC   hDC   = wglGetCurrentDC();
-
-  //
-  // create the CL context
-  //
+#ifdef _WIN32
   cl_context_properties context_properties_cl[] =
     {
       CL_CONTEXT_PLATFORM, (cl_context_properties)platform_id_cl,
-      CL_GL_CONTEXT_KHR,   (cl_context_properties)hGLRC,
-      CL_WGL_HDC_KHR,      (cl_context_properties)hDC,
+      CL_GL_CONTEXT_KHR,   skc_interop_get_wgl_context(),
+      CL_WGL_HDC_KHR,      skc_interop_get_wgl_dc(),
       0
     };
+#else
+#error "Missing a system-compatible context!"
+#endif
 
   cl_int     cl_err;
   cl_context context_cl = clCreateContext(context_properties_cl,
@@ -136,6 +130,11 @@ main(int argc, char** argv)
                                           NULL,
                                           &cl_err); cl_ok(cl_err);
   //
+  // register cl_context with GL interop
+  //
+  skc_interop_set_cl_context(interop,context_cl);
+
+  //
   // create SKC context
   //
   skc_context_t context;
@@ -143,11 +142,6 @@ main(int argc, char** argv)
   skc_err err = skc_context_create_cl(&context,
                                       context_cl,
                                       device_id_cl);
-
-  //
-  // associate
-  //
-  skc_interop_register(context);
 
   //
   // create path builder
@@ -199,76 +193,125 @@ main(int argc, char** argv)
   //
   // rasterize, render and reclaim svg until escape
   //
-  while (!glfwWindowShouldClose(window))
+  skc_pipeline_start_at_e pipeline_start_at_base = SKC_PIPELINE_START_AT_DEFINE_PATHS;
+  skc_pipeline_start_at_e pipeline_start_at_loop = SKC_PIPELINE_START_AT_DEFINE_PATHS;  
+  skc_path_t            * paths;
+  skc_raster_t          * rasters;
+
+  while (!skc_interop_should_exit(interop))
     {
-      // save stack
-      uint32_t const ts_save = skc_transform_stack_save(ts);
+      // redefine the paths?
+      if (pipeline_start_at_loop <= SKC_PIPELINE_START_AT_DEFINE_PATHS)
+        {
+          // decode paths
+          paths = svg_doc_paths_decode(svg_doc,path_builder);
+        }
 
-      // poll glfw
-      skc_interop_poll(window,ts);
+      // rasterize the paths?
+      if (pipeline_start_at_loop <= SKC_PIPELINE_START_AT_RASTERIZE)
+        {
+          // save stack
+          uint32_t const ts_save = skc_transform_stack_save(ts);
 
-      // decode paths
-      skc_path_t * paths = svg_doc_paths_decode(svg_doc,path_builder);
+          // update transform
+          skc_interop_transform(interop,ts);
 
-      // decode rasters
-      skc_raster_t * rasters = svg_doc_rasters_decode(svg_doc,ts,paths,raster_builder);
+          // decode rasters
+          rasters = svg_doc_rasters_decode(svg_doc,ts,paths,raster_builder);
 
-      // restore the transform stack
-      skc_transform_stack_restore(ts,ts_save);
+          // restore the transform stack
+          skc_transform_stack_restore(ts,ts_save);
+        }
 
-      // decode layers -- places rasters
-      svg_doc_layers_decode(svg_doc,rasters,composition,styling,true/*is_srgb*/);
+      // decode the styling and composition?
+      if (pipeline_start_at_loop <= SKC_PIPELINE_START_AT_COMPOSITION)
+        {
+          // reset styling
+          skc_styling_reset(styling);
 
-      // seal the composition
-      skc_composition_seal(composition);
+          // unseal and reset the composition
+          skc_composition_unseal(composition,true);
 
-      bool           quit   = false;
+          // decode layers -- places rasters
+          svg_doc_layers_decode(svg_doc,rasters,composition,styling,true/*is_srgb*/);
+
+          // seal the styling -- render will seal if not called
+          skc_styling_seal(styling);
+
+          // seal the composition -- render will seal if not called
+          skc_composition_seal(composition);
+        }
+
       uint32_t const clip[] = { 0, 0, 65535, 65535 }; // tile clip is <= 9 bits (512)
 
       // render the styled composition to the surface
-      skc_surface_render(surface,clip,styling,composition,
-                         is_render_complete,&quit,
-                         skc_interop_get_fb(window));
+      skc_surface_render(surface,
+                         styling,
+                         composition,
+                         skc_interop_get_framebuffer(interop),
+                         clip,
+                         NULL,
+                         NULL);
 
-      // release the paths
-      svg_doc_paths_release(svg_doc,paths,context);
+      //
+      // poll for events and maybe start from a different point in the
+      // pipeline
+      //
+      int key;
 
-      // rasters have been released
-      svg_doc_rasters_release(svg_doc,rasters,context);
+      // poll for window events
+      bool const transform_changed = skc_interop_poll(interop,&key);
 
-      // spin until framebuffer is rendered
+      // how many blocks are in use?
+      if (key == 'I')
+        skc_runtime_cl_12_debug(context);
+
+      // do we only want to run part of the pipeline?
+      if ((key >= SKC_PIPELINE_START_AT_DEFINE_PATHS) && (key <= SKC_PIPELINE_START_AT_RENDER))
+        pipeline_start_at_base = key;
+      
+      // valid for a loop
+      pipeline_start_at_loop = pipeline_start_at_base;
+
+      // if the transform changed then we must start at rasterize or before
+      if (transform_changed)
+        pipeline_start_at_loop = min(pipeline_start_at_loop,SKC_PIPELINE_START_AT_RASTERIZE);
+
+      if (pipeline_start_at_loop <= SKC_PIPELINE_START_AT_COMPOSITION)
+        {
+          // rewind the svg doc
+          svg_doc_rewind(svg_doc);
+
+          if (pipeline_start_at_loop <= SKC_PIPELINE_START_AT_DEFINE_PATHS)
+            {
+              // release the paths
+              svg_doc_paths_release(svg_doc,paths,context);
+            }
+
+          if (pipeline_start_at_loop <= SKC_PIPELINE_START_AT_RASTERIZE)
+            {
+              // release the rasters
+              svg_doc_rasters_release(svg_doc,rasters,context);
+            }
+        }
+
+#if 0
+      //
+      // Note that we don't need to explicitly wait for the render()
+      // to complete since SKC is fully concurrent and the styling and
+      // compsition unseal() operations will "clock" the render loop.
+      //
+
+      //
+      // explicitly spin until framebuffer is rendered
+      //
+      bool quit = false;
+
       while (!quit) {
         // fprintf(stderr,"WAITING ON: !quit\n");
         skc_context_wait(context);
       }
-
-      // blit and swap
-      skc_interop_blit(window);
-
-      // print out some useful debug info
-      skc_runtime_cl_12_debug(context);
-
-      // rewind the doc
-      svg_doc_rewind(svg_doc);
-
-      //
-      // I don't like this being here
-      //
-      float    const rgba[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-      uint32_t       rect[4] = { 0 };
-
-      skc_interop_get_dim(rect+2);
-
-      skc_surface_clear(surface,rgba,rect,
-                        skc_interop_get_fb(window));
-
-      // exit(EXIT_SUCCESS);
-
-      // reset styling
-      skc_styling_reset(styling);
-
-      // unseal the composition
-      skc_composition_unseal(composition,true);
+#endif
     }
 
   //
@@ -287,10 +330,9 @@ main(int argc, char** argv)
   err = skc_context_release(context);
 
   //
-  // GLFW CLEANUP
+  // dispose of GL interop
   //
-  glfwDestroyWindow(window);
-  glfwTerminate();
+  skc_interop_destroy(interop);
 
   //
   //
