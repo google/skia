@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
@@ -12,8 +13,6 @@
 #include "SkCornerPathEffect.h"
 #include "SkDashPathEffect.h"
 #include "SkDiscretePathEffect.h"
-
-namespace skiagm {
 
 static void compose_pe(SkPaint* paint) {
     SkPathEffect* pe = paint->getPathEffect();
@@ -100,70 +99,84 @@ static void tile_pe(SkPaint* paint) {
 
 constexpr PE_Proc gPE2[] = { fill_pe, discrete_pe, tile_pe };
 
-class PathEffectGM : public GM {
-public:
-    PathEffectGM() {}
+DEF_SIMPLE_GM(patheffect, canvas, 800, 600) {
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setStyle(SkPaint::kStroke_Style);
 
-protected:
+    SkPath path;
+    path.moveTo(20, 20);
+    path.lineTo(70, 120);
+    path.lineTo(120, 30);
+    path.lineTo(170, 80);
+    path.lineTo(240, 50);
 
-    SkString onShortName() override {
-        return SkString("patheffect");
+    size_t i;
+    canvas->save();
+    for (i = 0; i < SK_ARRAY_COUNT(gPE); i++) {
+        gPE[i](&paint);
+        canvas->drawPath(path, paint);
+        canvas->translate(0, 75);
+    }
+    canvas->restore();
+
+    path.reset();
+    SkRect r = { 0, 0, 250, 120 };
+    path.addOval(r, SkPath::kCW_Direction);
+    r.inset(50, 50);
+    path.addRect(r, SkPath::kCCW_Direction);
+
+    canvas->translate(320, 20);
+    for (i = 0; i < SK_ARRAY_COUNT(gPE2); i++) {
+        gPE2[i](&paint);
+        canvas->drawPath(path, paint);
+        canvas->translate(0, 160);
     }
 
-    SkISize onISize() override { return SkISize::Make(800, 600); }
-
-    void onDraw(SkCanvas* canvas) override {
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setStyle(SkPaint::kStroke_Style);
-
-        SkPath path;
-        path.moveTo(20, 20);
-        path.lineTo(70, 120);
-        path.lineTo(120, 30);
-        path.lineTo(170, 80);
-        path.lineTo(240, 50);
-
-        size_t i;
-        canvas->save();
-        for (i = 0; i < SK_ARRAY_COUNT(gPE); i++) {
-            gPE[i](&paint);
-            canvas->drawPath(path, paint);
-            canvas->translate(0, 75);
-        }
-        canvas->restore();
-
-        path.reset();
-        SkRect r = { 0, 0, 250, 120 };
-        path.addOval(r, SkPath::kCW_Direction);
-        r.inset(50, 50);
-        path.addRect(r, SkPath::kCCW_Direction);
-
-        canvas->translate(320, 20);
-        for (i = 0; i < SK_ARRAY_COUNT(gPE2); i++) {
-            gPE2[i](&paint);
-            canvas->drawPath(path, paint);
-            canvas->translate(0, 160);
-        }
-
-        SkIRect rect = SkIRect::MakeXYWH(20, 20, 60, 60);
-        for (i = 0; i < SK_ARRAY_COUNT(gPE); i++) {
-            SkPaint p;
-            p.setAntiAlias(true);
-            p.setStyle(SkPaint::kFill_Style);
-            gPE[i](&p);
-            canvas->drawIRect(rect, p);
-            canvas->translate(75, 0);
-        }
+    SkIRect rect = SkIRect::MakeXYWH(20, 20, 60, 60);
+    for (i = 0; i < SK_ARRAY_COUNT(gPE); i++) {
+        SkPaint p;
+        p.setAntiAlias(true);
+        p.setStyle(SkPaint::kFill_Style);
+        gPE[i](&p);
+        canvas->drawIRect(rect, p);
+        canvas->translate(75, 0);
     }
+}
 
-private:
-    typedef GM INHERITED;
-};
+static SkPath make_path() {
+    SkPath path;
+    SkPaint paint;
+    paint.setTextSize(100);
+    paint.getTextPath("Hello", 5, 20, 120, &path);
+    return path;
+}
 
-//////////////////////////////////////////////////////////////////////////////
+DEF_SIMPLE_GM(warppe, canvas, 1000, 1000) {
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    SkPath path = make_path();
 
-static GM* PathEffectFactory(void*) { return new PathEffectGM; }
-static GMRegistry regPathEffect(PathEffectFactory);
+    canvas->drawPath(path, paint);
 
+    SkRect src = path.getBounds();
+
+    SkPoint dst[4] = {
+        { src.fLeft, src.fTop },
+        { src.fRight, src.fTop },
+        { src.fRight, src.fBottom },
+        { src.fLeft, src.fBottom },
+    };
+    dst[2] += { 100, 100 };
+    dst[1] += { 60, -70 };
+
+    canvas->translate(0, 150);
+    paint.setPathEffect(SkWarpPathEffect::Make(src, dst));
+    canvas->drawPath(path, paint);
+
+    paint.setPathEffect(nullptr);
+    paint.setStyle(SkPaint::kStroke_Style);
+    path.reset();
+    path.addPoly(dst, 4, true);
+    canvas->drawPath(path, paint);
 }

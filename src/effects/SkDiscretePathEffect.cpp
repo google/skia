@@ -143,3 +143,139 @@ void SkDiscretePathEffect::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fPerterb);
     buffer.writeUInt(fSeedAssist);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#define kNumWarpPts     9
+
+class SkPathMapper {
+public:
+    virtual ~SkPathMapper() {}
+
+    void mapPts(SkPoint dst[], const SkPoint src[], int count) {
+        for (int i = 0; i < count; ++i) {
+            dst[i] = this->onMap(src[i]);
+        }
+    }
+
+    SkPoint map(SkPoint p) { return this->onMap(p); }
+
+protected:
+    virtual SkPoint onMap(SkPoint) = 0;
+};
+
+static void MapPath(SkPath* dst, SkPathMapper* mapper, const SkPath& src) {
+    SkPath::Iter    iter(src, false);
+    SkPoint         srcP[4], dstP[3];
+    SkPath::Verb    verb;
+
+    while ((verb = iter.next(srcP)) != SkPath::kDone_Verb) {
+        switch (verb) {
+            case SkPath::kMove_Verb:
+                dst->moveTo(mapper->map(srcP[0]));
+                break;
+            case SkPath::kLine_Verb:
+                // turn lines into quads to look bendy
+                srcP[0].fX = SkScalarAve(srcP[0].fX, srcP[1].fX);
+                srcP[0].fY = SkScalarAve(srcP[0].fY, srcP[1].fY);
+                mapper->mapPts(dstP, srcP, 2);
+                dst->quadTo(dstP[0], dstP[1]);
+                break;
+            case SkPath::kQuad_Verb:
+                mapper->mapPts(dstP, &srcP[1], 2);
+                dst->quadTo(dstP[0], dstP[1]);
+                break;
+            case SkPath::kConic_Verb:
+                mapper->mapPts(dstP, &srcP[1], 2);
+                dst->conicTo(dstP[0], dstP[1], iter.conicWeight());
+                break;
+            case SkPath::kCubic_Verb:
+                mapper->mapPts(dstP, &srcP[1], 3);
+                dst->cubicTo(dstP[0], dstP[1], dstP[2]);
+                break;
+            case SkPath::kClose_Verb:
+                dst->close();
+                break;
+            default:
+                SkDEBUGFAIL("unknown verb");
+                break;
+        }
+    }
+}
+
+//////////
+
+#include "SkWarpPE.h"
+
+void SkWarpPE::flatten(SkWriteBuffer& buffer) const {
+    this->INHERITED::flatten(buffer);
+    buffer.writeRect(fSrc);
+    buffer.writePad32(fDst, sizeof(fDst));
+}
+
+sk_sp<SkFlattenable> SkWarpPE::CreateProc(SkReadBuffer& buffer) {
+    SkRect src;
+    SkPoint dst[kNumWarpPts];
+    buffer.readRect(&src);
+    buffer.readPad32(dst, sizeof(dst));
+    return SkWarpPathEffect::Make(src, dst);
+}
+
+// 0,0  1,0  1,1  0,1
+const uint8_t quadrantIndices[] = {
+    0, 1, 4, 3,     1, 2, 5, 4,
+    3, 4, 7, 6,     4, 5, 8, 7,
+};
+
+class warpmapper : public SkPathMapper {
+    SkPoint  fDst[kNumWarpPts];
+    SkRect   fSrc;
+    SkScalar fInvW, fInvH;
+
+public:
+    warpmapper(const SkRect& src, const SkPoint dst[]) : fSrc(src) {
+        memcpy(fDst, dst, kNumWarpPts * sizeof(SkPoint));
+
+        fInvW = SkScalarInvert(src.width()) * 2;
+        fInvH = SkScalarInvert(src.height()) * 2;
+    }
+
+    SkPoint onMap(SkPoint p) {
+        SkScalar u = (p.fX - fSrc.fLeft) * fInvW;
+        SkASSERT(u >= 0 && u <= 2);
+        SkScalar v = (p.fY - fSrc.fTop)  * fInvH;
+        SkASSERT(v >= 0 && v <= 2);
+
+        int ix = std::min(SkScalarFloorToInt(u), 1);
+        int iy = std::min(SkScalarFloorToInt(v), 1);
+        SkASSERT(ix >= 0 && ix < 2);
+        SkASSERT(iy >= 0 && iy < 2);
+        u -= ix;
+        v -= iy;
+        SkASSERT(u >= 0 && u <= 1);
+        SkASSERT(v >= 0 && v <= 1);
+
+        const uint8_t* idx = &quadrantIndices[(ix + iy * 2) * 4];
+        SkPoint dst[4] = {
+            fDst[idx[0]], fDst[idx[1]], fDst[idx[2]], fDst[idx[3]],
+        };
+
+        SkScalar iu = 1 - u;
+        SkScalar iv = 1 - v;
+        return dst[0] * (iu * iv) + dst[1] * (u * iv) + dst[2] * (u * v) + dst[3] * (iu * v);
+    }
+};
+
+bool SkWarpPE::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const {
+    warpmapper mapper(fSrc, fDst);
+    MapPath(dst, &mapper, src);
+    return true;
+}
+
+sk_sp<SkPathEffect> SkWarpPathEffect::Make(const SkRect& src, const SkPoint dst[]) {
+    if (src.isEmpty() && !src.isFinite()) {
+        return nullptr;
+    }
+    return sk_sp<SkPathEffect>(new SkWarpPE(src, dst));
+}
+

@@ -22,6 +22,7 @@
 #include "SkTableColorFilter.h"
 #include "SkToSRGBColorFilter.h"
 #include "../../src/effects/SkTrimPE.h"
+#include "../../src/effects/SkWarpPE.h"
 
 /*
  *  None of these are strictly "required" for Skia to operate.
@@ -60,4 +61,5 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLine2DPathEffect)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPath2DPathEffect)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkTrimPE)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkWarpPE)
 }

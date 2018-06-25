@@ -771,3 +771,152 @@ private:
 };
 DEF_SAMPLE( return new CubicCurve2; )
 
+/////////////
+#include "SkDiscretePathEffect.h"
+#include "SkGeometry.h"
+
+static SkPoint SkEvalCubicAt(const SkPoint src[4], SkScalar t) {
+    SkPoint dst;
+    SkEvalCubicAt(src, t, &dst, nullptr, nullptr);
+    return dst;
+}
+
+static SkPath make_poly(const SkPath& src) {
+    SkPath dst;
+
+    SkPath::Iter    iter(src, false);
+    SkPoint         srcP[4];
+    SkPath::Verb    verb;
+    SkScalar        dt = SK_Scalar1 / 16;
+
+    while ((verb = iter.next(srcP)) != SkPath::kDone_Verb) {
+        switch (verb) {
+            case SkPath::kMove_Verb:
+                dst.moveTo(srcP[0]);
+                break;
+            case SkPath::kLine_Verb:
+                for (SkScalar t = dt; t <= 1; t += dt) {
+                    dst.lineTo(srcP[0] * (1 - t) + srcP[1] * t);
+                }
+                break;
+            case SkPath::kQuad_Verb:
+                for (SkScalar t = dt; t <= 1; t += dt) {
+                    dst.lineTo(SkEvalQuadAt(srcP, t));
+                }
+                break;
+            case SkPath::kConic_Verb: {
+                SkConic conic(srcP, iter.conicWeight());
+                for (SkScalar t = dt; t <= 1; t += dt) {
+                    dst.lineTo(conic.evalAt(t));
+                }
+            }
+                break;
+            case SkPath::kCubic_Verb:
+                for (SkScalar t = dt; t <= 1; t += dt) {
+                    dst.lineTo(SkEvalCubicAt(srcP, t));
+                }
+                break;
+            case SkPath::kClose_Verb:
+                dst.close();
+                break;
+            default:
+                SkDEBUGFAIL("unknown verb");
+                break;
+        }
+    }
+    return dst;
+}
+
+static SkPath make_path() {
+    SkPath path;
+    SkPaint paint;
+    paint.setTextSize(100);
+    paint.getTextPath("Hello", 5, 20, 120, &path);
+    return path;
+}
+
+class SampleWarpPE : public SampleView {
+    SkPath  fPath;
+    const int fN = 9;
+    SkScalar h = 0.5f;
+    SkPoint fDst[9] = {
+        { 0, 0 }, { h, 0 }, { 1, 0 },
+        { 0, h }, { h, h }, { 1, h },
+        { 0, 1 }, { h, 1 }, { 1, 1 },
+    };
+public:
+    void init() {
+        fPath = make_path();
+        SkMatrix::MakeRectToRect({0, 0, 1, 1}, fPath.getBounds().makeOffset(0, 200),
+                                 SkMatrix::kFill_ScaleToFit).mapPoints(fDst, fDst, fN);
+    }
+
+    void drawDst(SkCanvas* canvas, const SkPaint& paint) {
+        SkPath path;
+        for (int i = 0; i < 3; ++i) {
+            path.moveTo(fDst[3*i + 0]);
+            path.lineTo(fDst[3*i + 1]);
+            path.lineTo(fDst[3*i + 2]);
+
+            path.moveTo(fDst[i + 0]);
+            path.lineTo(fDst[i + 3]);
+            path.lineTo(fDst[i + 6]);
+        }
+        canvas->drawPath(path, paint);
+    }
+
+protected:
+    bool onQuery(SkEvent* evt) override {
+        if (SampleCode::TitleQ(*evt)) {
+            SampleCode::TitleR(evt, "samplewarppe");
+            return true;
+        }
+        return this->INHERITED::onQuery(evt);
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        if (fPath.isEmpty()) {
+            this->init();
+        }
+
+        SkPaint paint;
+        paint.setAntiAlias(true);
+
+        canvas->drawPath(fPath, paint);
+
+        SkPath path = fPath;
+        path.offset(0, 200);
+        path = make_poly(path);
+        paint.setPathEffect(SkWarpPathEffect::Make(path.getBounds(), fDst));
+        canvas->drawPath(path, paint);
+
+        paint.setPathEffect(nullptr);
+        paint.setStyle(SkPaint::kStroke_Style);
+        this->drawDst(canvas, paint);
+    }
+
+    bool onClick(Click* click) override {
+        int32_t index;
+        if (click->fMeta.findS32("index", &index)) {
+            SkASSERT((unsigned)index < (unsigned)fN);
+            fDst[index] = click->fCurr;
+            return true;
+        }
+        return false;
+    }
+
+    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+        for (int i = 0; i < fN; ++i) {
+            if (SkVector{SkPoint{x,y} - fDst[i]}.length() < 10) {
+                Click* click = new Click(this);
+                click->fMeta.setS32("index", i);
+                return click;
+            }
+        }
+        return this->INHERITED::onFindClickHandler(x, y, modi);
+    }
+
+private:
+    typedef SampleView INHERITED;
+};
+DEF_SAMPLE( return new SampleWarpPE; )

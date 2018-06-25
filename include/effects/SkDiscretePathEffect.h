@@ -59,4 +59,10 @@ private:
     typedef SkPathEffect INHERITED;
 };
 
+class SkWarpPathEffect {
+public:
+    // dst[] = left,top , right,top , right,bottom , left,bottom
+    static sk_sp<SkPathEffect> Make(const SkRect& src, const SkPoint dst[9]);
+};
+
 #endif
