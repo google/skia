@@ -59,16 +59,222 @@ const char* kDebugLayerNames[] = {
     "VK_LAYER_GOOGLE_threading",
     "VK_LAYER_LUNARG_parameter_validation",
     "VK_LAYER_LUNARG_object_tracker",
-    "VK_LAYER_LUNARG_image",
     "VK_LAYER_LUNARG_core_validation",
-    "VK_LAYER_LUNARG_swapchain",
     "VK_LAYER_GOOGLE_unique_objects",
     // not included in standard_validation
     //"VK_LAYER_LUNARG_api_dump",
     //"VK_LAYER_LUNARG_vktrace",
     //"VK_LAYER_LUNARG_screenshot",
 };
+
+static bool should_include_debug_layer(const VkLayerProperties& layerProps) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(kDebugLayerNames); ++i) {
+        if (!strcmp(layerProps.layerName, kDebugLayerNames[i])) {
+            return true;
+        }
+    }
+    return false;
+}
+VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
+    VkDebugReportFlagsEXT       flags,
+    VkDebugReportObjectTypeEXT  objectType,
+    uint64_t                    object,
+    size_t                      location,
+    int32_t                     messageCode,
+    const char*                 pLayerPrefix,
+    const char*                 pMessage,
+    void*                       pUserData) {
+    if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
+        SkDebugf("Vulkan error [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
+        return VK_TRUE; // skip further layers
+    } else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT) {
+        SkDebugf("Vulkan warning [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
+    } else if (flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT) {
+        SkDebugf("Vulkan perf warning [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
+    } else {
+        SkDebugf("Vulkan info/debug [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
+    }
+    return VK_FALSE;
+}
 #endif
+
+#define GET_PROC_LOCAL(F, inst, device) PFN_vk ## F F = (PFN_vk ## F) getProc("vk" #F, inst, device)
+
+#ifdef SK_ENABLE_VK_LAYERS
+static uint32_t remove_patch_version(uint32_t specVersion) {
+    return (specVersion >> 12) << 12;
+}
+#endif
+
+static bool init_instance_extensions_and_layers(GrVkInterface::GetProc getProc,
+                                                uint32_t specVersion,
+                                                SkTArray<VkExtensionProperties>* instanceExtensions,
+                                                SkTArray<VkLayerProperties>* instanceLayers) {
+    if (getProc == nullptr) {
+        return false;
+    }
+
+    GET_PROC_LOCAL(EnumerateInstanceExtensionProperties, VK_NULL_HANDLE, VK_NULL_HANDLE);
+    GET_PROC_LOCAL(EnumerateInstanceLayerProperties, VK_NULL_HANDLE, VK_NULL_HANDLE);
+
+    if (!EnumerateInstanceExtensionProperties ||
+        !EnumerateInstanceLayerProperties) {
+        return false;
+    }
+
+    VkResult res;
+    uint32_t layerCount = 0;
+#ifdef SK_ENABLE_VK_LAYERS
+    // instance layers
+    res = EnumerateInstanceLayerProperties(&layerCount, nullptr);
+    if (VK_SUCCESS != res) {
+        return false;
+    }
+    VkLayerProperties* layers = new VkLayerProperties[layerCount];
+    res = EnumerateInstanceLayerProperties(&layerCount, layers);
+    if (VK_SUCCESS != res) {
+        delete[] layers;
+        return false;
+    }
+
+    uint32_t nonPatchVersion = remove_patch_version(specVersion);
+    for (uint32_t i = 0; i < layerCount; ++i) {
+        if (nonPatchVersion <= remove_patch_version(layers[i].specVersion) &&
+            should_include_debug_layer(layers[i])) {
+            instanceLayers->push_back() = layers[i];
+        }
+    }
+    delete[] layers;
+#endif
+
+    // instance extensions
+    // via Vulkan implementation and implicitly enabled layers
+    uint32_t extensionCount = 0;
+    res = EnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+    if (VK_SUCCESS != res) {
+        return false;
+    }
+    VkExtensionProperties* extensions = new VkExtensionProperties[extensionCount];
+    res = EnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions);
+    if (VK_SUCCESS != res) {
+        delete[] extensions;
+        return false;
+    }
+    for (uint32_t i = 0; i < extensionCount; ++i) {
+        instanceExtensions->push_back() = extensions[i];
+    }
+    delete [] extensions;
+
+    // via explicitly enabled layers
+    layerCount = instanceLayers->count();
+    for (uint32_t layerIndex = 0; layerIndex < layerCount; ++layerIndex) {
+        uint32_t extensionCount = 0;
+        res = EnumerateInstanceExtensionProperties((*instanceLayers)[layerIndex].layerName,
+                                                   &extensionCount, nullptr);
+        if (VK_SUCCESS != res) {
+            return false;
+        }
+        VkExtensionProperties* extensions = new VkExtensionProperties[extensionCount];
+        res = EnumerateInstanceExtensionProperties((*instanceLayers)[layerIndex].layerName,
+                                                   &extensionCount, extensions);
+        if (VK_SUCCESS != res) {
+            delete[] extensions;
+            return false;
+        }
+        for (uint32_t i = 0; i < extensionCount; ++i) {
+            instanceExtensions->push_back() = extensions[i];
+        }
+        delete[] extensions;
+    }
+
+    return true;
+}
+
+static bool init_device_extensions_and_layers(GrVkInterface::GetProc getProc, uint32_t specVersion,
+                                              VkInstance inst, VkPhysicalDevice physDev,
+                                              SkTArray<VkExtensionProperties>* deviceExtensions,
+                                              SkTArray<VkLayerProperties>* deviceLayers) {
+    if (getProc == nullptr) {
+        return false;
+    }
+
+    GET_PROC_LOCAL(EnumerateDeviceExtensionProperties, inst, VK_NULL_HANDLE);
+    GET_PROC_LOCAL(EnumerateDeviceLayerProperties, inst, VK_NULL_HANDLE);
+
+    if (!EnumerateDeviceExtensionProperties ||
+        !EnumerateDeviceLayerProperties) {
+        return false;
+    }
+
+    VkResult res;
+    // device layers
+    uint32_t layerCount = 0;
+#ifdef SK_ENABLE_VK_LAYERS
+    res = EnumerateDeviceLayerProperties(physDev, &layerCount, nullptr);
+    if (VK_SUCCESS != res) {
+        return false;
+    }
+    VkLayerProperties* layers = new VkLayerProperties[layerCount];
+    res = EnumerateDeviceLayerProperties(physDev, &layerCount, layers);
+    if (VK_SUCCESS != res) {
+        delete[] layers;
+        return false;
+    }
+
+    uint32_t nonPatchVersion = remove_patch_version(specVersion);
+    for (uint32_t i = 0; i < layerCount; ++i) {
+        if (nonPatchVersion <= remove_patch_version(layers[i].specVersion) &&
+            should_include_debug_layer(layers[i])) {
+            deviceLayers->push_back() = layers[i];
+        }
+    }
+    delete[] layers;
+#endif
+
+    // device extensions
+    // via Vulkan implementation and implicitly enabled layers
+    uint32_t extensionCount = 0;
+    res = EnumerateDeviceExtensionProperties(physDev, nullptr, &extensionCount, nullptr);
+    if (VK_SUCCESS != res) {
+        return false;
+    }
+    VkExtensionProperties* extensions = new VkExtensionProperties[extensionCount];
+    res = EnumerateDeviceExtensionProperties(physDev, nullptr, &extensionCount, extensions);
+    if (VK_SUCCESS != res) {
+        delete[] extensions;
+        return false;
+    }
+    for (uint32_t i = 0; i < extensionCount; ++i) {
+        deviceExtensions->push_back() = extensions[i];
+    }
+    delete[] extensions;
+
+    // via explicitly enabled layers
+    layerCount = deviceLayers->count();
+    for (uint32_t layerIndex = 0; layerIndex < layerCount; ++layerIndex) {
+        uint32_t extensionCount = 0;
+        res = EnumerateDeviceExtensionProperties(physDev,
+            (*deviceLayers)[layerIndex].layerName,
+            &extensionCount, nullptr);
+        if (VK_SUCCESS != res) {
+            return false;
+        }
+        VkExtensionProperties* extensions = new VkExtensionProperties[extensionCount];
+        res = EnumerateDeviceExtensionProperties(physDev,
+            (*deviceLayers)[layerIndex].layerName,
+            &extensionCount, extensions);
+        if (VK_SUCCESS != res) {
+            delete[] extensions;
+            return false;
+        }
+        for (uint32_t i = 0; i < extensionCount; ++i) {
+            deviceExtensions->push_back() = extensions[i];
+        }
+        delete[] extensions;
+    }
+
+    return true;
+}
 
 // the minimum version of Vulkan supported
 #ifdef SK_BUILD_FOR_ANDROID
@@ -82,12 +288,36 @@ const uint32_t kGrVkMinimumVersion = VK_MAKE_VERSION(1, 0, 8);
         reinterpret_cast<PFN_vk##name>(getProc("vk" #name, instance, device)); \
     if (grVk##name == nullptr) {                                               \
         SkDebugf("Function ptr for vk%s could not be acquired\n", #name);      \
+        if (device != VK_NULL_HANDLE) {                                        \
+            destroy_instance(getProc, inst, debugCallback, hasDebugExtension); \
+        }                                                                      \
         return false;                                                          \
     }
+
+#define ACQUIRE_VK_PROC_LOCAL(name, instance, device)                          \
+    PFN_vk##name grVk##name =                                                  \
+        reinterpret_cast<PFN_vk##name>(getProc("vk" #name, instance, device)); \
+    if (grVk##name == nullptr) {                                               \
+        SkDebugf("Function ptr for vk%s could not be acquired\n", #name);      \
+        return;                                                                \
+    }
+
+static void destroy_instance(GrVkInterface::GetProc getProc, VkInstance inst,
+                             VkDebugReportCallbackEXT* debugCallback,
+                             bool hasDebugExtension) {
+    if (hasDebugExtension && *debugCallback != VK_NULL_HANDLE) {
+        ACQUIRE_VK_PROC_LOCAL(DestroyDebugReportCallbackEXT, inst, VK_NULL_HANDLE);
+        grVkDestroyDebugReportCallbackEXT(inst, *debugCallback, nullptr);
+        *debugCallback = VK_NULL_HANDLE;
+    }
+    ACQUIRE_VK_PROC_LOCAL(DestroyInstance, inst, VK_NULL_HANDLE);
+    grVkDestroyInstance(inst, nullptr);
+}
 
 bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstanceProc,
                             const GrVkInterface::GetDeviceProc& getDeviceProc,
                             GrVkBackendContext* ctx,
+                            VkDebugReportCallbackEXT* debugCallback,
                             uint32_t* presentQueueIndexPtr,
                             CanPresentFn canPresent) {
     auto getProc = [&getInstanceProc, &getDeviceProc](const char* proc_name,
@@ -113,48 +343,25 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
         kGrVkMinimumVersion,                // apiVersion
     };
 
-    GrVkExtensions extensions(getProc);
-    extensions.initInstance(kGrVkMinimumVersion);
+    SkTArray<VkLayerProperties> instanceLayers;
+    SkTArray<VkExtensionProperties> instanceExtensions;
+
+    if (!init_instance_extensions_and_layers(getProc, kGrVkMinimumVersion,
+                                             &instanceExtensions,
+                                             &instanceLayers)) {
+        return false;
+    }
 
     SkTArray<const char*> instanceLayerNames;
     SkTArray<const char*> instanceExtensionNames;
-    uint32_t extensionFlags = 0;
-#ifdef SK_ENABLE_VK_LAYERS
-    for (size_t i = 0; i < SK_ARRAY_COUNT(kDebugLayerNames); ++i) {
-        if (extensions.hasInstanceLayer(kDebugLayerNames[i])) {
-            instanceLayerNames.push_back(kDebugLayerNames[i]);
+    for (int i = 0; i < instanceLayers.count(); ++i) {
+        instanceLayerNames.push_back(instanceLayers[i].layerName);
+    }
+    for (int i = 0; i < instanceExtensions.count(); ++i) {
+        if (strncmp(instanceExtensions[i].extensionName, "VK_KHX", 6)) {
+            instanceExtensionNames.push_back(instanceExtensions[i].extensionName);
         }
     }
-    if (extensions.hasInstanceExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME)) {
-        instanceExtensionNames.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-        extensionFlags |= kEXT_debug_report_GrVkExtensionFlag;
-    }
-#endif
-
-    if (extensions.hasInstanceExtension(VK_KHR_SURFACE_EXTENSION_NAME)) {
-        instanceExtensionNames.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
-        extensionFlags |= kKHR_surface_GrVkExtensionFlag;
-    }
-    if (extensions.hasInstanceExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)) {
-        instanceExtensionNames.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-        extensionFlags |= kKHR_swapchain_GrVkExtensionFlag;
-    }
-#ifdef SK_BUILD_FOR_WIN
-    if (extensions.hasInstanceExtension(VK_KHR_WIN32_SURFACE_EXTENSION_NAME)) {
-        instanceExtensionNames.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
-        extensionFlags |= kKHR_win32_surface_GrVkExtensionFlag;
-    }
-#elif defined(SK_BUILD_FOR_ANDROID)
-    if (extensions.hasInstanceExtension(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME)) {
-        instanceExtensionNames.push_back(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
-        extensionFlags |= kKHR_android_surface_GrVkExtensionFlag;
-    }
-#elif defined(SK_BUILD_FOR_UNIX) && !defined(__Fuchsia__)
-    if (extensions.hasInstanceExtension(VK_KHR_XCB_SURFACE_EXTENSION_NAME)) {
-        instanceExtensionNames.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
-        extensionFlags |= kKHR_xcb_surface_GrVkExtensionFlag;
-    }
-#endif
 
     const VkInstanceCreateInfo instance_create = {
         VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,    // sType
@@ -167,6 +374,8 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
         instanceExtensionNames.begin(),            // ppEnabledExtensionNames
     };
 
+    bool hasDebugExtension = false;
+
     ACQUIRE_VK_PROC(CreateInstance, VK_NULL_HANDLE, VK_NULL_HANDLE);
     err = grVkCreateInstance(&instance_create, nullptr, &inst);
     if (err < 0) {
@@ -174,7 +383,32 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
         return false;
     }
 
-    ACQUIRE_VK_PROC(DestroyInstance, inst, VK_NULL_HANDLE);
+#ifdef SK_ENABLE_VK_LAYERS
+    *debugCallback = VK_NULL_HANDLE;
+    for (int i = 0; i < instanceExtensionNames.count() && !hasDebugExtension; ++i) {
+        if (!strcmp(instanceExtensionNames[i], VK_EXT_DEBUG_REPORT_EXTENSION_NAME)) {
+            hasDebugExtension = true;
+        }
+    }
+    if (hasDebugExtension) {
+        // Setup callback creation information
+        VkDebugReportCallbackCreateInfoEXT callbackCreateInfo;
+        callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
+        callbackCreateInfo.pNext = nullptr;
+        callbackCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT |
+                                   VK_DEBUG_REPORT_WARNING_BIT_EXT |
+                                   // VK_DEBUG_REPORT_INFORMATION_BIT_EXT |
+                                   // VK_DEBUG_REPORT_DEBUG_BIT_EXT |
+                                   VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
+        callbackCreateInfo.pfnCallback = &DebugReportCallback;
+        callbackCreateInfo.pUserData = nullptr;
+
+        ACQUIRE_VK_PROC(CreateDebugReportCallbackEXT, inst, VK_NULL_HANDLE);
+        // Register the callback
+        grVkCreateDebugReportCallbackEXT(inst, &callbackCreateInfo, nullptr, debugCallback);
+    }
+#endif
+
     ACQUIRE_VK_PROC(EnumeratePhysicalDevices, inst, VK_NULL_HANDLE);
     ACQUIRE_VK_PROC(GetPhysicalDeviceQueueFamilyProperties, inst, VK_NULL_HANDLE);
     ACQUIRE_VK_PROC(GetPhysicalDeviceFeatures, inst, VK_NULL_HANDLE);
@@ -187,12 +421,12 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
     err = grVkEnumeratePhysicalDevices(inst, &gpuCount, nullptr);
     if (err) {
         SkDebugf("vkEnumeratePhysicalDevices failed: %d\n", err);
-        grVkDestroyInstance(inst, nullptr);
+        destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
         return false;
     }
     if (!gpuCount) {
         SkDebugf("vkEnumeratePhysicalDevices returned no supported devices.\n");
-        grVkDestroyInstance(inst, nullptr);
+        destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
         return false;
     }
     // Just returning the first physical device instead of getting the whole array.
@@ -202,7 +436,7 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
     // VK_INCOMPLETE is returned when the count we provide is less than the total device count.
     if (err && VK_INCOMPLETE != err) {
         SkDebugf("vkEnumeratePhysicalDevices failed: %d\n", err);
-        grVkDestroyInstance(inst, nullptr);
+        destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
         return false;
     }
 
@@ -211,7 +445,7 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
     grVkGetPhysicalDeviceQueueFamilyProperties(physDev, &queueCount, nullptr);
     if (!queueCount) {
         SkDebugf("vkGetPhysicalDeviceQueueFamilyProperties returned no queues.\n");
-        grVkDestroyInstance(inst, nullptr);
+        destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
         return false;
     }
 
@@ -231,7 +465,7 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
     }
     if (graphicsQueueIndex == queueCount) {
         SkDebugf("Could not find any supported graphics queues.\n");
-        grVkDestroyInstance(inst, nullptr);
+        destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
         return false;
     }
 
@@ -246,7 +480,7 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
         }
         if (presentQueueIndex == queueCount) {
             SkDebugf("Could not find any supported present queues.\n");
-            grVkDestroyInstance(inst, nullptr);
+            destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
             return false;
         }
         *presentQueueIndexPtr = presentQueueIndex;
@@ -256,24 +490,30 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
         presentQueueIndex = graphicsQueueIndex;
     }
 
-    extensions.initDevice(kGrVkMinimumVersion, inst, physDev);
+    SkTArray<VkLayerProperties> deviceLayers;
+    SkTArray<VkExtensionProperties> deviceExtensions;
+
+    if (!init_device_extensions_and_layers(getProc, kGrVkMinimumVersion,
+                                           inst, physDev,
+                                           &deviceExtensions,
+                                           &deviceLayers)) {
+        destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
+        return false;
+    }
 
     SkTArray<const char*> deviceLayerNames;
     SkTArray<const char*> deviceExtensionNames;
-#ifdef SK_ENABLE_VK_LAYERS
-    for (size_t i = 0; i < SK_ARRAY_COUNT(kDebugLayerNames); ++i) {
-        if (extensions.hasDeviceLayer(kDebugLayerNames[i])) {
-            deviceLayerNames.push_back(kDebugLayerNames[i]);
+    for (int i = 0; i < deviceLayers.count(); ++i) {
+        deviceLayerNames.push_back(deviceLayers[i].layerName);
+    }
+    for (int i = 0; i < deviceExtensions.count(); ++i) {
+        // Don't use experimental extensions since they typically don't work with debug layers and
+        // often are missing dependecy requirements for other extensions. Additionally, these are
+        // often left behind in the driver even after they've been promoted to real extensions.
+        if (strncmp(deviceExtensions[i].extensionName, "VK_KHX", 6) &&
+            strncmp(deviceExtensions[i].extensionName, "VK_NVX", 6)) {
+            deviceExtensionNames.push_back(deviceExtensions[i].extensionName);
         }
-    }
-#endif
-    if (extensions.hasDeviceExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)) {
-        deviceExtensionNames.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-        extensionFlags |= kKHR_swapchain_GrVkExtensionFlag;
-    }
-    if (extensions.hasDeviceExtension("VK_NV_glsl_shader")) {
-        deviceExtensionNames.push_back("VK_NV_glsl_shader");
-        extensionFlags |= kNV_glsl_shader_GrVkExtensionFlag;
     }
 
     // query to get the physical device properties
@@ -333,17 +573,21 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
     err = grVkCreateDevice(physDev, &deviceInfo, nullptr, &device);
     if (err) {
         SkDebugf("CreateDevice failed: %d\n", err);
-        grVkDestroyInstance(inst, nullptr);
+        destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
         return false;
     }
 
-    auto interface =
-        sk_make_sp<GrVkInterface>(getProc, inst, device, extensionFlags);
-    if (!interface->validate(extensionFlags)) {
+    auto interface = sk_make_sp<GrVkInterface>(getProc, inst, device,
+                                               (uint32_t) instanceExtensionNames.count(),
+                                               instanceExtensionNames.begin(),
+                                               (uint32_t) deviceExtensionNames.count(),
+                                               deviceExtensionNames.begin());
+
+    if (!interface->validate()) {
         SkDebugf("Vulkan interface validation failed\n");
         grVkDeviceWaitIdle(device);
         grVkDestroyDevice(device, nullptr);
-        grVkDestroyInstance(inst, nullptr);
+        destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
         return false;
     }
 
@@ -356,14 +600,12 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
     ctx->fQueue = queue;
     ctx->fGraphicsQueueIndex = graphicsQueueIndex;
     ctx->fMinAPIVersion = kGrVkMinimumVersion;
-    ctx->fExtensions = extensionFlags;
+    ctx->fExtensions = 0;
     ctx->fFeatures = featureFlags;
     ctx->fInterface.reset(interface.release());
     ctx->fOwnsInstanceAndDevice = false;
 
     return true;
-
-
 }
 
 }

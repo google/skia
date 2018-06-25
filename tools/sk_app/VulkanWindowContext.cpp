@@ -12,6 +12,7 @@
 #include "SkSurface.h"
 #include "VulkanWindowContext.h"
 
+#include "vk/GrVkExtensions.h"
 #include "vk/GrVkImage.h"
 #include "vk/GrVkUtil.h"
 #include "vk/GrVkTypes.h"
@@ -51,12 +52,13 @@ void VulkanWindowContext::initializeContext() {
 
     GrVkBackendContext backendContext;
     if (!sk_gpu_test::CreateVkBackendContext(fGetInstanceProcAddr, fGetDeviceProcAddr,
-                                             &backendContext, &fPresentQueueIndex, fCanPresentFn)) {
+                                             &backendContext, &fDebugCallback,
+                                             &fPresentQueueIndex, fCanPresentFn)) {
         return;
     }
 
-    if (!(backendContext.fExtensions & kKHR_surface_GrVkExtensionFlag) ||
-        !(backendContext.fExtensions & kKHR_swapchain_GrVkExtensionFlag)) {
+    if (!backendContext.fInterface->fExtensions.hasExtension(VK_KHR_SURFACE_EXTENSION_NAME) ||
+        !backendContext.fInterface->fExtensions.hasExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)) {
         return;
     }
 
@@ -409,37 +411,42 @@ VulkanWindowContext::~VulkanWindowContext() {
 }
 
 void VulkanWindowContext::destroyContext() {
-    if (!this->isValid()) {
-        return;
+    if (this->isValid()) {
+        fQueueWaitIdle(fPresentQueue);
+        fDeviceWaitIdle(fDevice);
+
+        this->destroyBuffers();
+
+        if (VK_NULL_HANDLE != fCommandPool) {
+            GR_VK_CALL(fInterface, DestroyCommandPool(fDevice, fCommandPool, nullptr));
+            fCommandPool = VK_NULL_HANDLE;
+        }
+
+        if (VK_NULL_HANDLE != fSwapchain) {
+            fDestroySwapchainKHR(fDevice, fSwapchain, nullptr);
+            fSwapchain = VK_NULL_HANDLE;
+        }
+
+        if (VK_NULL_HANDLE != fSurface) {
+            fDestroySurfaceKHR(fInstance, fSurface, nullptr);
+            fSurface = VK_NULL_HANDLE;
+        }
+        if (VK_NULL_HANDLE != fDevice) {
+            fDestroyDevice(fDevice, nullptr);
+            fDevice = VK_NULL_HANDLE;
+        }
     }
 
-    fQueueWaitIdle(fPresentQueue);
-    fDeviceWaitIdle(fDevice);
-
-    this->destroyBuffers();
-
-    if (VK_NULL_HANDLE != fCommandPool) {
-        GR_VK_CALL(fInterface, DestroyCommandPool(fDevice, fCommandPool, nullptr));
-        fCommandPool = VK_NULL_HANDLE;
+#ifdef SK_ENABLE_VK_LAYERS
+    if (fDebugCallback != VK_NULL_HANDLE) {
+        GR_VK_CALL(fInterface, DestroyDebugReportCallbackEXT(fInstance, fDebugCallback,
+                                                             nullptr));
     }
-
-    if (VK_NULL_HANDLE != fSwapchain) {
-        fDestroySwapchainKHR(fDevice, fSwapchain, nullptr);
-        fSwapchain = VK_NULL_HANDLE;
-    }
-
-    if (VK_NULL_HANDLE != fSurface) {
-        fDestroySurfaceKHR(fInstance, fSurface, nullptr);
-        fSurface = VK_NULL_HANDLE;
-    }
+#endif
 
     fContext.reset();
     fInterface.reset();
 
-    if (VK_NULL_HANDLE != fDevice) {
-        fDestroyDevice(fDevice, nullptr);
-        fDevice = VK_NULL_HANDLE;
-    }
     fPhysicalDevice = VK_NULL_HANDLE;
 
     if (VK_NULL_HANDLE != fInstance) {
