@@ -30,13 +30,9 @@
  * For more information on initializing COM, please see:
  * https://msdn.microsoft.com/en-us/library/windows/desktop/ff485844.aspx
  */
-class SkImageGeneratorWIC : public SkImageGenerator {
+class SK_API SkImageGeneratorWIC : public SkImageGenerator {
 public:
-    /*
-     * Refs the data if an image generator can be returned.  Otherwise does
-     * not affect the data.
-     */
-    static SkImageGenerator* NewFromEncodedWIC(SkData* data);
+    static std::unique_ptr<SkImageGenerator> MakeFromEncodedWIC(sk_sp<SkData>);
 
 protected:
     sk_sp<SkData> onRefEncodedData() override;
@@ -48,10 +44,9 @@ private:
     /*
      * Takes ownership of the imagingFactory
      * Takes ownership of the imageSource
-     * Refs the data
      */
     SkImageGeneratorWIC(const SkImageInfo& info, IWICImagingFactory* imagingFactory,
-            IWICBitmapSource* imageSource, SkData* data);
+            IWICBitmapSource* imageSource, sk_sp<SkData>);
 
     SkTScopedComPtr<IWICImagingFactory> fImagingFactory;
     SkTScopedComPtr<IWICBitmapSource>   fImageSource;
