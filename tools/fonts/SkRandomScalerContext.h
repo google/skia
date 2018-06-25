@@ -30,6 +30,7 @@ protected:
     void getGlyphToUnicodeMap(SkUnichar*) const override;
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
     SkStreamAsset* onOpenStream(int* ttcIndex) const override;
+    sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override;
     void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const override;
 
     int onCharsToGlyphs(const void* chars, Encoding encoding,
