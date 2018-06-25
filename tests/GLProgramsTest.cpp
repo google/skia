@@ -292,9 +292,6 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         return false;
     }
 
-    // dummy scissor state
-    GrScissorState scissor;
-
     SkRandom random;
     static const int NUM_TESTS = 1024;
     for (int t = 0; t < NUM_TESTS; t++) {
