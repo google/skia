@@ -2700,7 +2700,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // "shapes_mixed_10000_32x33" bench crashes PowerVRGX6250 in Release mode with ccpr.
     // http://skbug.com/8098
     if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
-        fBlacklistCoverageCounting = true;
+        fRequiresFlushBetweenNonAndInstancedDraws = true;
     }
 }
 
