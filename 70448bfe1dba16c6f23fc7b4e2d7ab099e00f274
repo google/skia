@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4aea59ec_dd129df2",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 2176,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-25T16:26:09Z",
+      "side": 1,
+      "message": "I\u0027d omit the two versions that take mismatched pointer types (so only include sk_sp,sk_sp, or *,*).",
+      "revId": "70448bfe1dba16c6f23fc7b4e2d7ab099e00f274",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08b97f03_1ebabae1",
+        "filename": "include/core/SkCanvasVirtualEnforcer.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-25T16:26:09Z",
+      "side": 1,
+      "message": "This class is only used internally (to ensure that our SkCanvas-derived classes override all necessary virtuals). As long as you\u0027ve updated the signature in other canvas classes within Skia, I think you can un-comment this and remove the TODO.",
+      "revId": "70448bfe1dba16c6f23fc7b4e2d7ab099e00f274",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29106d23_7adc8b1d",
+        "filename": "include/core/SkSkeleton.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-25T16:26:09Z",
+      "side": 1,
+      "message": "I\u0027m on the fence about having SkSkeleton as a wrapper class for the vector, vs. just adding two arguments (const SkMatrix* bones, int numBones) to the various draw APIs. The SkSkeleton enforces that the pointer and count are kept in sync, but we can also add asserts at the top level of our API (in SkCanvas::drawVertices) to verify that as well.\n\nOn the flip side, taking pointers lets clients avoid making copies if they already store this data somewhere else, and removes the use of vector in public API.\n\nEven if we were to keep this around, the naming mismatch where it\u0027s used (SkSkeleton* bones) indicates that either the type or the variable should be renamed. Note that all the other arguments are typically named the same noun as their type - so either SkSkeleton* skeleton, or SkBones* bones.",
+      "revId": "70448bfe1dba16c6f23fc7b4e2d7ab099e00f274",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a10fa48_65466e6d",
+        "filename": "include/core/SkSkeleton.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-25T16:26:09Z",
+      "side": 1,
+      "message": "It\u0027s going to make some APIs more chatty (two arguments instead of one), but I\u0027d avoid bundling these in a struct.\n\nMost animation packages tend to store/send these as separate data (NIMA, among others). And for the GPU backend, I think we\u0027re going to want them separately, as well. So we can have two vertex attributes, something like: ubyte4 indices, and float4 weights;\n\nSo having int* boneIndices() and float* boneWeights() (directly on SkVertices, for example) will avoid the need to interleave and then de-interleave them.",
+      "revId": "70448bfe1dba16c6f23fc7b4e2d7ab099e00f274",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d00814bb_190717d8",
+        "filename": "include/core/SkVertices.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-25T16:26:09Z",
+      "side": 1,
+      "message": "Per my comments in SkSkeleton, I think having float* fBoneWeights and int* fBoneIndices (this could even be uint16_t or uint8_t) will match up better with the GPU backend\u0027s needs.\n\nOne other thing, that at least warrants some comments in the public API getters for this, is that the other attributes are one \"thing\" per vertex (one color, one position, one tex coord). Bone indices and weights are (4?) per vertex, so the stride when working with this data is different. We could make that easier (or at least, make it harder to screw up), if we had something like:\n\nclass SkVertices {\n...\nstruct BoneIndices { uint8_t indices[4]; }\nstruct BoneWeights { float weights[4]; }\n...\nBoneIndices*  fBoneIndices;\nBoneWeights*  fBoneWeights;\n}\n\nThen,in addition to a single position, color, etc... each vertex has a single \u0027BoneIndices\u0027 and a single \u0027BoneWeights\u0027.",
+      "revId": "70448bfe1dba16c6f23fc7b4e2d7ab099e00f274",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7803a41_7e4f49df",
+        "filename": "src/core/SkPicturePlayback.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 634,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-25T16:26:09Z",
+      "side": 1,
+      "message": "Here, bones will be nullptr if numBones is zero, so we can always call the four-argument version, right?",
+      "revId": "70448bfe1dba16c6f23fc7b4e2d7ab099e00f274",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
