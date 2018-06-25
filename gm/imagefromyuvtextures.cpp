@@ -94,6 +94,10 @@ protected:
     }
 
     void createYUVTextures(GrContext* context, GrBackendTexture yuvTextures[3]) {
+        if (context->contextPriv().abandoned()) {
+            return;
+        }
+
         GrGpu* gpu = context->contextPriv().getGpu();
         if (!gpu) {
             return;
@@ -111,6 +115,9 @@ protected:
     }
 
     void deleteYUVTextures(GrContext* context, GrBackendTexture yuvTextures[3]) {
+        if (context->contextPriv().abandoned()) {
+            return;
+        }
 
         GrGpu* gpu = context->contextPriv().getGpu();
         if (!gpu) {
