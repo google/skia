@@ -11,6 +11,7 @@
 #include "SkRefCnt.h"
 
 #include "vk/GrVkDefines.h"
+#include "vk/GrVkExtensions.h"
 #include "vk/GrVkInterface.h"
 #include "vk/GrVkMemoryAllocator.h"
 
@@ -45,11 +46,12 @@ struct SK_API GrVkBackendContext {
     VkQueue                    fQueue;
     uint32_t                   fGraphicsQueueIndex;
     uint32_t                   fMinAPIVersion;
+#ifdef SK_SUPPORT_LEGACY_VULKAN_INTERFACE
     uint32_t                   fExtensions;
+#endif
     uint32_t                   fFeatures;
     sk_sp<const GrVkInterface> fInterface;
     sk_sp<GrVkMemoryAllocator> fMemoryAllocator;
-
     // This is deprecated and should be set to false. The client is responsible for managing the
     // lifetime of the VkInstance and VkDevice objects.
     bool                       fOwnsInstanceAndDevice = false;
