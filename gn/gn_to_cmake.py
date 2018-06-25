@@ -637,9 +637,15 @@ def WriteProject(project):
   # If a build file has changed, this will update CMakeLists.ext if
   # gn gen out/config --ide=json --json-ide-script=../../gn/gn_to_cmake.py
   # style was used to create this config.
-  out.write('execute_process(COMMAND ninja -C "')
+  out.write('execute_process(COMMAND\n')
+  out.write('  ninja -C "')
   out.write(CMakeStringEscape(project.build_path))
-  out.write('" build.ninja)\n')
+  out.write('" build.ninja\n')
+  out.write('  RESULT_VARIABLE ninja_result)\n')
+  out.write('if (ninja_result)\n')
+  out.write('  message(WARNING ')
+  out.write('"Regeneration failed running ninja: ${ninja_result}")\n')
+  out.write('endif()\n')
 
   out.write('include("')
   out.write(CMakeStringEscape(extName))
@@ -673,8 +679,17 @@ def WriteProject(project):
   # but gn doesn't escape spaces here (it generates invalid .d files).
   out.write('string(REPLACE " " ";" "gn_deps" ${gn_deps_string})\n')
   out.write('foreach("gn_dep" ${gn_deps})\n')
-  out.write('  configure_file(${gn_dep} "CMakeLists.devnull" COPYONLY)\n')
+  out.write('  configure_file("')
+  out.write(CMakeStringEscape(project.build_path))
+  out.write('${gn_dep}" "CMakeLists.devnull" COPYONLY)\n')
   out.write('endforeach("gn_dep")\n')
+
+  out.write('list(APPEND other_deps "')
+  out.write(CMakeStringEscape(os.path.abspath(__file__)))
+  out.write('")\n')
+  out.write('foreach("other_dep" ${other_deps})\n')
+  out.write('  configure_file("${other_dep}" "CMakeLists.devnull" COPYONLY)\n')
+  out.write('endforeach("other_dep")\n')
 
   for target_name in project.targets.keys():
     out.write('\n')
