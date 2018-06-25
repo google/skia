@@ -2100,7 +2100,7 @@ depth of saved stack
 
 ### Example
 
-<div><fiddle-embed name="1a025d6018f64140af2dc36acad59008"><div>Rectangles are blurred by <a href='undocumented#Image_Filter'>Image Filter</a> when <a href='#SkCanvas_restore'>restore</a> draws <a href='#Layer'>Layer</a> to main
+<div><fiddle-embed name="42318b18d403e17e07a541652da91ee2"><div>Rectangles are blurred by <a href='undocumented#Image_Filter'>Image Filter</a> when <a href='#SkCanvas_restore'>restore</a> draws <a href='#Layer'>Layer</a> to main
 <a href='#Canvas'>Canvas</a>.
 </div></fiddle-embed></div>
 
@@ -2149,7 +2149,7 @@ depth of saved stack
 
 ### Example
 
-<div><fiddle-embed name="5b59231feae0c09cb1ab6a292229d7a4"><div>Rectangles are blurred by <a href='undocumented#Image_Filter'>Image Filter</a> when <a href='#SkCanvas_restore'>restore</a> draws <a href='#Layer'>Layer</a> to main <a href='#Canvas'>Canvas</a>.
+<div><fiddle-embed name="a17aec3aa4909527be039e26a7eda694"><div>Rectangles are blurred by <a href='undocumented#Image_Filter'>Image Filter</a> when <a href='#SkCanvas_restore'>restore</a> draws <a href='#Layer'>Layer</a> to main <a href='#Canvas'>Canvas</a>.
 The red rectangle is clipped; it does not fully fit on <a href='#Layer'>Layer</a>.
 <a href='undocumented#Image_Filter'>Image Filter</a> blurs past edge of <a href='#Layer'>Layer</a> so red rectangle is blurred on all sides.
 </div></fiddle-embed></div>
