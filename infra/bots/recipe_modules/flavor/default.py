@@ -175,6 +175,19 @@ class DefaultFlavor(object):
         path.append(slave_dir.join('linux_vulkan_sdk', 'bin'))
         ld_library_path.append(slave_dir.join('linux_vulkan_sdk', 'lib'))
 
+    if self.m.vars.is_linux and 'OpenCL' in extra_tokens:
+      opencl_linux = slave_dir.join('opencl_linux')
+      env['OPENCL_VENDOR_PATH'] = opencl_linux.join('vendors')
+      ld_library_path.append(opencl_linux)
+      if 'Intel' in self.m.vars.builder_cfg.get('cpu_or_gpu_value', ''):
+        # hack hack hack
+        beignet_root = opencl_linux.join('beignet')
+        beignet_libs = self.m.file.glob_paths(
+            'find beignet libs', beignet_root, '*.so',
+            # test_data:
+            ['libcl.so', 'libgbeinterp.so', 'libgbe.so'])
+        env['LD_PRELOAD'] = ':'.join([str(f) for f in beignet_libs])
+
     if 'SwiftShader' in extra_tokens:
       ld_library_path.append(self.host_dirs.bin_dir.join('swiftshader_out'))
 
