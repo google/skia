@@ -358,7 +358,8 @@ private:
         GrMesh mesh(TESSELLATOR_WIREFRAME ? GrPrimitiveType::kLines : GrPrimitiveType::kTriangles);
         mesh.setNonIndexedNonInstanced(count);
         mesh.setVertexData(vb, firstVertex);
-        target->draw(gp, fHelper.makePipeline(target), mesh);
+        auto pipe = fHelper.makePipeline(target);
+        target->draw(gp, pipe.pipeline(), pipe.fixedDynamicState(), mesh);
     }
 
     bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }

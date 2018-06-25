@@ -303,6 +303,7 @@ private:
         sk_sp<const GrBuffer> fIndexBuffer;
         sk_sp<GrGeometryProcessor>   fGeometryProcessor;
         const GrPipeline* fPipeline;
+        const GrPipeline::FixedDynamicState* fFixedDynamicState;
         int fVertexOffset;
         int fInstancesToFlush;
     };
@@ -311,7 +312,8 @@ private:
         int instanceCount = fShapes.count();
 
         FlushInfo flushInfo;
-        flushInfo.fPipeline = fHelper.makePipeline(target);
+        std::tie(flushInfo.fPipeline, flushInfo.fFixedDynamicState) = fHelper.makePipeline(target);
+
         // Setup GrGeometryProcessor
         const SkMatrix& ctm = fShapes[0].fViewMatrix;
         if (fUsesDistanceField) {
@@ -821,7 +823,8 @@ private:
                                      kVerticesPerQuad, flushInfo->fInstancesToFlush,
                                      maxInstancesPerDraw);
             mesh.setVertexData(flushInfo->fVertexBuffer.get(), flushInfo->fVertexOffset);
-            target->draw(flushInfo->fGeometryProcessor.get(), flushInfo->fPipeline, mesh);
+            target->draw(flushInfo->fGeometryProcessor.get(), flushInfo->fPipeline,
+                         flushInfo->fFixedDynamicState, mesh);
             flushInfo->fVertexOffset += kVerticesPerQuad * flushInfo->fInstancesToFlush;
             flushInfo->fInstancesToFlush = 0;
         }

@@ -245,7 +245,8 @@ void GrDrawVerticesOp::onPrepareDraws(Target* target) {
                         GrPrimitiveRestart::kNo);
     }
     mesh.setVertexData(vertexBuffer, firstVertex);
-    target->draw(gp.get(), fHelper.makePipeline(target), mesh);
+    auto pipe = fHelper.makePipeline(target);
+    target->draw(gp.get(), pipe.pipeline(), pipe.fixedDynamicState(), mesh);
 }
 
 bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
