@@ -14,6 +14,7 @@
 #include "SkMask.h"
 #include "SkPaint.h"
 #include "SkPixmap.h"
+#include "SkSkeleton.h"
 #include "SkStrokeRec.h"
 #include "SkVertices.h"
 #include "SkScalerContext.h"
@@ -67,9 +68,10 @@ public:
                         const SkPoint& offset, const SkPaint&, const SkSurfaceProps*) const;
     void    drawVertices(SkVertices::VertexMode mode, int count,
                          const SkPoint vertices[], const SkPoint textures[],
-                         const SkColor colors[], SkBlendMode bmode,
+                         const SkColor colors[], const SkSkeleton::Attachment bones[],
+                         SkBlendMode bmode,
                          const uint16_t indices[], int ptCount,
-                         const SkPaint& paint) const;
+                         const SkPaint& paint, const SkSkeleton* skeleton) const;
 
     /**
      *  Overwrite the target with the path's coverage (i.e. its mask).

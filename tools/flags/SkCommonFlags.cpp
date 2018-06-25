@@ -57,10 +57,12 @@ DEFINE_bool(disableDriverCorrectnessWorkarounds, false, "Disables all GPU driver
 DEFINE_string(skps, "/data/local/tmp/skps", "Directory to read skps from.");
 DEFINE_string(jpgs, "/data/local/tmp/resources", "Directory to read jpgs from.");
 DEFINE_string(jsons, "/data/local/tmp/jsons", "Directory to read (Bodymovin) jsons from.");
+DEFINE_string(nimas, "/data/local/tmp/nimas", "Directory to read NIMA animations from.");
 #else
 DEFINE_string(skps, "skps", "Directory to read skps from.");
 DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
 DEFINE_string(jsons, "jsons", "Directory to read (Bodymovin) jsons from.");
+DEFINE_string(nimas, "nimas", "Directory to read NIMA animations from.");
 #endif
 
 DEFINE_int32(skpViewportSize, 1000, "Width & height of the viewport used to crop skp rendering.");

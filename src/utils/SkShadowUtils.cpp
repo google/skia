@@ -544,7 +544,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                                 SkScalar tx, SkScalar ty) {
         SkAutoDeviceCTMRestore adr(this, SkMatrix::Concat(this->ctm(),
                                                           SkMatrix::MakeTrans(tx, ty)));
-        this->drawVertices(vertices, mode, paint);
+        this->drawVertices(vertices, nullptr, mode, paint);
     };
 
     if (!validate_rec(rec)) {
@@ -578,7 +578,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                     SkColorFilter::MakeModeFilter(rec.fAmbientColor,
                                                   SkBlendMode::kModulate)->makeComposed(
                                                                    SkGaussianColorFilter::Make()));
-                this->drawVertices(vertices.get(), SkBlendMode::kModulate, paint);
+                this->drawVertices(vertices.get(), nullptr, SkBlendMode::kModulate, paint);
                 success = true;
             }
         }
@@ -659,7 +659,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                     SkColorFilter::MakeModeFilter(rec.fSpotColor,
                                                   SkBlendMode::kModulate)->makeComposed(
                                                       SkGaussianColorFilter::Make()));
-                this->drawVertices(vertices.get(), SkBlendMode::kModulate, paint);
+                this->drawVertices(vertices.get(), nullptr, SkBlendMode::kModulate, paint);
                 success = true;
             }
         }
