@@ -1323,6 +1323,7 @@ bool BmhParser::findDefinitions() {
                 if (!this->skipSpace()) {
                     return this->reportError<bool>("unexpected end");
                 }
+                lineStart = '\n' == this->peek();
                 bool expectEnd = true;
                 vector<string> typeNameBuilder = this->typeName(markType, &expectEnd);
                 if (fCloned && MarkType::kMethod != markType && MarkType::kExample != markType
@@ -1448,9 +1449,11 @@ bool BmhParser::findDefinitions() {
             }
         }
         char nextChar = this->next();
-        lineStart = nextChar == '\n';
         if (' ' < nextChar) {
             lastChar = fChar;
+            lineStart = false;
+        } else if (nextChar == '\n') {
+            lineStart = true;
         }
     }
     if (fParent) {

@@ -4034,7 +4034,7 @@ implementation.
 </pre>
 
 Returns <a href='undocumented#Typeface'>Typeface</a> if set, or nullptr.
-Increments <a href='undocumented#Typeface'>Typeface</a> <a href='undocumented#Reference_Count'>Reference Count</a> by one.
+Does not alter <a href='undocumented#Typeface'>Typeface</a> <a href='undocumented#Reference_Count'>Reference Count</a>.
 
 ### Return Value
 
@@ -4120,7 +4120,7 @@ can operate on all channels of <a href='SkColor_Reference#Color'>Color</a>, whil
 
 ### Example
 
-<div><fiddle-embed name="250e45c5935d54eac6aca775d1fe3475"></fiddle-embed></div>
+<div><fiddle-embed name="ece04ee3d3761e3425f37c8f06f054c1"></fiddle-embed></div>
 
 <a name='SkPaint_getImageFilter'></a>
 ## getImageFilter
@@ -4138,7 +4138,7 @@ Does not alter <a href='undocumented#Image_Filter'>Image Filter</a> <a href='und
 
 ### Example
 
-<div><fiddle-embed name="7b8118ff57fcb84e6bc82380d155b62e">
+<div><fiddle-embed name="c11f8eaa1dd149bc18db21e23ce26904">
 
 #### Example Output
 
