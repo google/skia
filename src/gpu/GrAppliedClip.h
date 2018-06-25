@@ -11,9 +11,7 @@
 #include "GrFragmentProcessor.h"
 #include "GrScissorState.h"
 #include "GrWindowRectsState.h"
-
 #include "SkClipStack.h"
-
 
 /**
  * Produced by GrHardClip. It provides a set of modifications to the hardware drawing state that
