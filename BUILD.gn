@@ -1536,6 +1536,7 @@ if (skia_enable_tools) {
     }
   }
 
+
   if (target_cpu != "wasm") {
     import("gn/samples.gni")
     test_lib("samples") {
@@ -2192,5 +2193,17 @@ if (skia_enable_tools) {
       include_dirs = [ "src/compute/common" ]
       libs = [ "OpenCL" ]
     }
+  }
+}
+
+
+if (target_cpu == "wasm") {
+  executable("wasm_hello") {
+    sources = [
+      "experimental/wasm/wasm_main.cpp",
+    ]
+    configs += [ ":skia_private" ]
+    #cflags = ["-o wasm_hello.html"]
+    output_name = "wasm_hello.html"
   }
 }
