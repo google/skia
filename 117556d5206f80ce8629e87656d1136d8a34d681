@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a5d95a3b_5e45db51",
+        "filename": "src/gpu/vk/GrVkExtensions.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-25T18:00:18Z",
+      "side": 1,
+      "message": "Ugh, we don\u0027t have some kind of insertion? Does we have a find that returns the index where it would have been found had it been present?",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 81
+      },
+      "revId": "117556d5206f80ce8629e87656d1136d8a34d681",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
