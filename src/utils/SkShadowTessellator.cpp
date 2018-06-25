@@ -209,12 +209,10 @@ bool SkBaseShadowTessellator::accumulateCentroid(const SkPoint& curr, const SkPo
     fCentroid.fY += (curr.fY + next.fY) * quadArea;
     fArea += quadArea;
     // convexity check
-    if (!SkScalarNearlyZero(quadArea)) {
-        if (quadArea*fLastArea < 0) {
-            ++fAreaSignFlips;
-        }
-        fLastArea = quadArea;
+    if (quadArea*fLastArea < 0) {
+        ++fAreaSignFlips;
     }
+    fLastArea = quadArea;
 
     return true;
 }
@@ -400,9 +398,18 @@ static const SkScalar kCubicTolerance = 0.2f;
 #endif
 static const SkScalar kConicTolerance = 0.5f;
 
+// clamps the point to the nearest 16th of a pixel
+static void sanitize_point(const SkPoint& in, SkPoint* out) {
+    out->fX = SkScalarRoundToScalar(16.f*in.fX)*0.0625f;
+    out->fY = SkScalarRoundToScalar(16.f*in.fY)*0.0625f;
+}
+
 void SkBaseShadowTessellator::handleLine(const SkPoint& p) {
+    SkPoint pSanitized;
+    sanitize_point(p, &pSanitized);
+
     if (fPathPolygon.count() > 0) {
-        if (!this->accumulateCentroid(fPathPolygon[fPathPolygon.count() - 1], p)) {
+        if (!this->accumulateCentroid(fPathPolygon[fPathPolygon.count() - 1], pSanitized)) {
             // skip coincident point
             return;
         }
@@ -411,13 +418,13 @@ void SkBaseShadowTessellator::handleLine(const SkPoint& p) {
     if (fPathPolygon.count() > 1) {
         if (!checkConvexity(fPathPolygon[fPathPolygon.count() - 2],
                             fPathPolygon[fPathPolygon.count() - 1],
-                            p)) {
+                            pSanitized)) {
             // remove collinear point
             fPathPolygon.pop();
         }
     }
 
-    *fPathPolygon.push() = p;
+    *fPathPolygon.push() = pSanitized;
 }
 
 void SkBaseShadowTessellator::handleLine(const SkMatrix& m, SkPoint* p) {
@@ -676,6 +683,12 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
     fIndices.setReserve(12 * path.countPoints());
 
     this->computePathPolygon(path, ctm);
+    if (fPathPolygon.count() < 3 || SkScalarNearlyZero(fArea)) {
+        fSucceeded = true; // We don't want to try to blur these cases, so we will
+                           // return an empty SkVertices instead.
+        return;
+    }
+
     if (fIsConvex) {
         fSucceeded = this->computeConvexShadow();
     } else {
@@ -1048,7 +1061,9 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
 
     // compute rough clip bounds for umbra, plus offset polygon, plus centroid
     this->computeClipAndPathPolygons(path, ctm, shadowTransform);
-    if (fClipPolygon.count() < 3 || fPathPolygon.count() < 3) {
+    if (fClipPolygon.count() < 3 || fPathPolygon.count() < 3 || SkScalarNearlyZero(fArea)) {
+        fSucceeded = true; // We don't want to try to blur these cases, so we will
+                           // return an empty SkVertices instead.
         return;
     }
 
