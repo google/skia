@@ -501,5 +501,11 @@ config("executable") {
       "/SUBSYSTEM:CONSOLE",  # Quiet "no subsystem specified; CONSOLE assumed".
       "/INCREMENTAL:NO",  # Quiet warnings about failing to incrementally link by never trying to.
     ]
+  } else if (target_cpu == "wasm") {
+    cflags_cc = [
+      "-s", "WASM=1",
+      "-s", "NO_EXIT_RUNTIME=1",
+      "-s", "EXTRA_EXPORTED_RUNTIME_METHODS='[\"ccall\"]'"
+    ]
   }
 }
