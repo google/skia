@@ -1683,7 +1683,9 @@ void GrGLGpu::flushMinSampleShading(float minSampleShading) {
     }
 }
 
-bool GrGLGpu::flushGLState(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
+bool GrGLGpu::flushGLState(const GrPrimitiveProcessor& primProc,
+                           const GrPipeline& pipeline,
+                           const GrPipeline::FixedDynamicState* fixedDynamicState,
                            bool willDrawPoints) {
     sk_sp<GrGLProgram> program(fProgramCache->refProgram(this, primProc, pipeline, willDrawPoints));
     if (!program) {
@@ -1719,7 +1721,13 @@ bool GrGLGpu::flushGLState(const GrPrimitiveProcessor& primProc, const GrPipelin
                       glRT->renderTargetPriv().numStencilBits());
     }
     this->flushStencil(stencil);
-    this->flushScissor(pipeline.getScissorState(), glRT->getViewport(), pipeline.proxy()->origin());
+    if (pipeline.isScissorEnabled()) {
+        static constexpr SkIRect kBogusScissor{0, 0, 1, 1};
+        GrScissorState state(fixedDynamicState ? fixedDynamicState->fScissorRect : kBogusScissor);
+        this->flushScissor(state, glRT->getViewport(), pipeline.proxy()->origin());
+    } else {
+        this->disableScissor();
+    }
     this->flushWindowRectangles(pipeline.getWindowRectsState(), glRT, pipeline.proxy()->origin());
     this->flushHWAAState(glRT, pipeline.isHWAntialiasState(), !stencil.isDisabled());
 
@@ -2250,8 +2258,9 @@ void GrGLGpu::flushViewport(const GrGLIRect& viewport) {
 
 void GrGLGpu::draw(const GrPrimitiveProcessor& primProc,
                    const GrPipeline& pipeline,
+                   const GrPipeline::FixedDynamicState* fixedDynamicState,
+                   const GrPipeline::DynamicStateArrays* dynamicStateArrays,
                    const GrMesh meshes[],
-                   const GrPipeline::DynamicState dynamicStates[],
                    int meshCount) {
     this->handleDirtyContext();
 
@@ -2262,21 +2271,21 @@ void GrGLGpu::draw(const GrPrimitiveProcessor& primProc,
             break;
         }
     }
-    if (!this->flushGLState(primProc, pipeline, hasPoints)) {
+    if (!this->flushGLState(primProc, pipeline, fixedDynamicState, hasPoints)) {
         return;
     }
 
+    bool dynamicScissor =
+            pipeline.isScissorEnabled() && dynamicStateArrays && dynamicStateArrays->fScissorRects;
     for (int i = 0; i < meshCount; ++i) {
         if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*this->caps())) {
             this->xferBarrier(pipeline.renderTarget(), barrierType);
         }
 
-        if (dynamicStates) {
-            if (pipeline.getScissorState().enabled()) {
-                GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.renderTarget());
-                this->flushScissor(dynamicStates[i].fScissorRect,
-                                   glRT->getViewport(), pipeline.proxy()->origin());
-            }
+        if (dynamicScissor) {
+            GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.renderTarget());
+            this->flushScissor(GrScissorState(dynamicStateArrays->fScissorRects[i]),
+                               glRT->getViewport(), pipeline.proxy()->origin());
         }
         if (this->glCaps().requiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines() &&
             GrIsPrimTypeLines(meshes[i].primitiveType()) &&

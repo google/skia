@@ -939,7 +939,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
         return;
     }
 
-    const GrPipeline* pipeline = fHelper.makePipeline(target);
+    auto pipe = fHelper.makePipeline(target);
     // do lines first
     if (lineCount) {
         sk_sp<GrGeometryProcessor> lineGP;
@@ -977,7 +977,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
         mesh.setIndexedPatterned(linesIndexBuffer.get(), kIdxsPerLineSeg, kLineSegNumVertices,
                                  lineCount, kLineSegsNumInIdxBuffer);
         mesh.setVertexData(vertexBuffer, firstVertex);
-        target->draw(lineGP.get(), pipeline, mesh);
+        target->draw(lineGP.get(), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
     if (quadCount || conicCount) {
@@ -1032,7 +1032,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
             mesh.setIndexedPatterned(quadsIndexBuffer.get(), kIdxsPerQuad, kQuadNumVertices,
                                      quadCount, kQuadsNumInIdxBuffer);
             mesh.setVertexData(vertexBuffer, firstVertex);
-            target->draw(quadGP.get(), pipeline, mesh);
+            target->draw(quadGP.get(), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
             firstVertex += quadCount * kQuadNumVertices;
         }
 
@@ -1041,7 +1041,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
             mesh.setIndexedPatterned(quadsIndexBuffer.get(), kIdxsPerQuad, kQuadNumVertices,
                                      conicCount, kQuadsNumInIdxBuffer);
             mesh.setVertexData(vertexBuffer, firstVertex);
-            target->draw(conicGP.get(), pipeline, mesh);
+            target->draw(conicGP.get(), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
         }
     }
 }
