@@ -1291,6 +1291,9 @@ func process(b *specs.TasksCfgBuilder, name string) {
 				pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("linux_vulkan_intel_driver_debug"))
 			}
 		}
+		if strings.Contains(name, "OpenCL") {
+			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("opencl_linux"))
+		}
 	}
 	if strings.Contains(name, "ProcDump") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("procdump_win"))

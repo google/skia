@@ -175,6 +175,13 @@ class DefaultFlavor(object):
         path.append(slave_dir.join('linux_vulkan_sdk', 'bin'))
         ld_library_path.append(slave_dir.join('linux_vulkan_sdk', 'lib'))
 
+    if self.m.vars.is_linux and 'OpenCL' in extra_tokens:
+      opencl_linux = slave_dir.join('opencl_linux')
+      env['OPENCL_VENDOR_PATH'] = opencl_linux.join('vendors')
+      ld_library_path.append(opencl_linux)
+      # hack hack hack
+      env['LD_PRELOAD'] = opencl_linux.join('beignet')
+
     if 'SwiftShader' in extra_tokens:
       ld_library_path.append(self.host_dirs.bin_dir.join('swiftshader_out'))
 
