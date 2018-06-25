@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "26764fac_17d3f476",
+        "filename": "gm/beziereffects.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-25T23:29:56Z",
+      "side": 1,
+      "message": "nit: Why the switch to \"auto\"? I\u0027m not completely opposed to it, but I do feel like it can make the code harder to grok. I prefer to spell out the actual type if doesn\u0027t make the code hard to parse visually.\n\n(e.g., I just had to poke around a bit to figure out what makePipeline() returns.. I was wondering if it might be smart pointer now.)\n\nEDIT: I see the future plans now to make this a C++17 tuple.",
+      "revId": "ccf89f45387c23e8a4689e961a7f3d7b6f5c3c61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a36e569_efb46c0a",
+        "filename": "src/gpu/GrOpFlushState.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-25T23:29:56Z",
+      "side": 1,
+      "message": "Shouldn\u0027t we check if the same fixed state is enabled on both sides, and then if their fixed values are equal, rather than comparing pointers?",
+      "revId": "ccf89f45387c23e8a4689e961a7f3d7b6f5c3c61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f2dc170_61922459",
+        "filename": "src/gpu/GrPipeline.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-25T23:29:56Z",
+      "side": 1,
+      "message": "nit: Curious why this can\u0027t just exist in GrPipeline, and be ignored if a dynamic array overrides it?\n\n  \"fScissorRectIfFixed\"\n\nI\u0027m probably just out of the loop on future plans, but it would make less params to pass around.",
+      "revId": "ccf89f45387c23e8a4689e961a7f3d7b6f5c3c61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b6cee92_b7e4305f",
+        "filename": "src/gpu/ccpr/GrCCCoverageProcessor.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-25T23:29:56Z",
+      "side": 1,
+      "message": "nit: I might prefer this to just take scissor rects. I don\u0027t expect it to care about other dynamic state any time soon.",
+      "revId": "ccf89f45387c23e8a4689e961a7f3d7b6f5c3c61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b0f782f_de22016b",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1725,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-25T23:29:56Z",
+      "side": 1,
+      "message": "Can we maybe just enable the scissor, without having to set a bogus value, when using dynamic arrays?",
+      "revId": "ccf89f45387c23e8a4689e961a7f3d7b6f5c3c61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "943cb1b0_cbf73adf",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2287,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-06-25T23:29:56Z",
+      "side": 1,
+      "message": "nit: This is for a future CL, but I would love to see a simple glScissor() call here (although handling the origin complicates that).",
+      "revId": "ccf89f45387c23e8a4689e961a7f3d7b6f5c3c61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
