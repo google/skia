@@ -16,6 +16,7 @@
 #include "SkReadBuffer.h"
 #include "SkRSXform.h"
 #include "SkSafeMath.h"
+#include "SkSkeleton.h"
 #include "SkTextBlob.h"
 #include "SkTDArray.h"
 #include "SkTypes.h"
@@ -615,11 +616,26 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
         case DRAW_VERTICES_OBJECT: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             const SkVertices* vertices = fPictureData->getVertices(reader);
+
+            const int numBones = reader->readInt();
+            std::vector<SkMatrix> matrices(numBones);
+            for (int i = 0; i < numBones; i ++) {
+                reader->readMatrix(&matrices[i]);
+            }
+            sk_sp<SkSkeleton> bones = nullptr;
+            if (numBones > 0) {
+                bones = SkSkeleton::Make(matrices.data(), numBones);
+            }
+
             SkBlendMode bmode = reader->read32LE(SkBlendMode::kLastMode);
             BREAK_ON_READ_ERROR(reader);
 
             if (paint && vertices) {
-                canvas->drawVertices(vertices, bmode, *paint);
+                if (numBones > 0) {
+                    canvas->drawVertices(vertices, bones, bmode, *paint);
+                } else {
+                    canvas->drawVertices(vertices, bmode, *paint);
+                }
             }
         } break;
         case RESTORE:

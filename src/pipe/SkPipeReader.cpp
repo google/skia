@@ -16,6 +16,7 @@
 #include "SkReadBuffer.h"
 #include "SkRefSet.h"
 #include "SkRSXform.h"
+#include "SkSkeleton.h"
 #include "SkTextBlob.h"
 #include "SkTypeface.h"
 #include "SkVertices.h"
@@ -562,9 +563,18 @@ static void drawImageLattice_handler(SkPipeReader& reader, uint32_t packedVerb, 
 static void drawVertices_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
     SkASSERT(SkPipeVerb::kDrawVertices == unpack_verb(packedVerb));
     SkBlendMode bmode = (SkBlendMode)unpack_verb_extra(packedVerb);
+    sk_sp<SkSkeleton> bones = nullptr;
+    sk_sp<SkVertices> vertices = nullptr;
     if (sk_sp<SkData> data = reader.readByteArrayAsData()) {
-        canvas->drawVertices(SkVertices::Decode(data->data(), data->size()), bmode,
-                             read_paint(reader));
+        vertices = SkVertices::Decode(data->data(), data->size());
+    }
+    if (sk_sp<SkData> data = reader.readByteArrayAsData()) {
+        if (!data->isEmpty()) {
+            bones = SkSkeleton::Decode(data->data(), data->size());
+        }
+    }
+    if (vertices) {
+        canvas->drawVertices(vertices, bones, bmode, read_paint(reader));
     }
 }
 
