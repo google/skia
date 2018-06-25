@@ -73,6 +73,10 @@ protected:
         SK_ABORT("Should never be called.");
         return nullptr;
     }
+    sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
+        SK_ABORT("Should never be called.");
+        return nullptr;
+    }
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                      int coordinateCount) const override {
         SK_ABORT("Should never be called.");

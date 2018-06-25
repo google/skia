@@ -259,6 +259,7 @@ public:
 
 protected:
     SkStreamAsset* onOpenStream(int* ttcIndex) const override;
+    sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override;
     SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
                                            const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
@@ -1964,6 +1965,10 @@ SkStreamAsset* LogFontTypeface::onOpenStream(int* ttcIndex) const {
     DeleteDC(hdc);
 
     return stream;
+}
+
+sk_sp<SkTypeface> LogFontTypeface::onMakeClone(const SkFontArguments& args) const {
+    return sk_ref_sp(this);
 }
 
 static void bmpCharsToGlyphs(HDC hdc, const WCHAR* bmpChars, int count, uint16_t* glyphs,
