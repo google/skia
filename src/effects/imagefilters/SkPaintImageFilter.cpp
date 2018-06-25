@@ -63,7 +63,9 @@ sk_sp<SkSpecialImage> SkPaintImageFilter::onFilterImage(SkSpecialImage* source,
         inverse.mapRect(&rect);
     }
     canvas->setMatrix(matrix);
-    canvas->drawRect(rect, fPaint);
+    if (rect.isFinite()) {
+        canvas->drawRect(rect, fPaint);
+    }
 
     offset->fX = bounds.fLeft;
     offset->fY = bounds.fTop;
