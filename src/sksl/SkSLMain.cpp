@@ -45,8 +45,10 @@ int main(int argc, const char** argv) {
         kind = SkSL::Program::kGeometry_Kind;
     } else if (input.endsWith(".fp")) {
         kind = SkSL::Program::kFragmentProcessor_Kind;
+    } else if (input.endsWith(".stage")) {
+        kind = SkSL::Program::kPipelineStage_Kind;
     } else {
-        printf("input filename must end in '.vert', '.frag', '.geom', or '.fp'\n");
+        printf("input filename must end in '.vert', '.frag', '.geom', '.fp', or '.stage'\n");
         exit(1);
     }
 
