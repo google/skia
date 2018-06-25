@@ -172,8 +172,6 @@ bool SpellCheck::check(Definition* def) {
         } break;
         case MarkType::kDefine:
             break;
-        case MarkType::kDefinedBy:
-            break;
         case MarkType::kDeprecated:
             break;
         case MarkType::kDescription:

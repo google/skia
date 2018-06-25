@@ -117,6 +117,7 @@ SkMatrix related constants are defined by <code>enum</code>, <code>enum class</c
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>translation <a href='#Matrix'>Matrix</a></td>
   </tr>
 </table>
+
 <a href='#Matrix'>Matrix</a> holds a 3x3 matrix for transforming coordinates. This allows mapping
 <a href='SkPoint_Reference#Point'>Points</a> and <a href='SkPoint_Reference#Vector'>Vectors</a> with translation, scaling, skewing, rotation, and
 perspective.
@@ -498,7 +499,6 @@ SkMatrix member functions read and modify the structure properties.
   </tr>
 </table>
 
-
 ## <a name='Related_Function'>Related Function</a>
 
 
@@ -531,7 +531,6 @@ SkMatrix global, <code>struct</code>, and <code>class</code> related member func
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>rarely called management functions</td>
   </tr>
 </table>
-
 
 ## <a name='Constructor'>Constructor</a>
 
@@ -665,7 +664,6 @@ SkMatrix can be constructed or initialized by these functions, including C++ cla
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_setTranslate_2'>setTranslate(const SkVector& v)</a></td>
   </tr>
 </table>
-
 
 <a name='SkMatrix_MakeScale'></a>
 ## MakeScale
@@ -1026,7 +1024,6 @@ after setPolyToPoly: kTranslate_Mask kScale_Mask kAffine_Mask kPerspective_Mask
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if mapped <a href='SkRect_Reference#Rect'>Rect</a> can be represented by another <a href='SkRect_Reference#Rect'>Rect</a></td>
   </tr>
 </table>
-
 
 <a name='SkMatrix_getType'></a>
 ## getType
@@ -1688,7 +1685,6 @@ SkMatrix operators inline class member functions with arithmetic equivalents.
   </tr>
 </table>
 
-
 <a name='SkMatrix_array_operator'></a>
 ## operator[]
 
@@ -2208,7 +2204,6 @@ after dirty cache:    x = 66
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets vertical translation</td>
   </tr>
 </table>
-
 
 <a name='SkMatrix_set'></a>
 ## set
@@ -4443,7 +4438,6 @@ ScaleX: 2 SkewY: 5 SkewX: 3 ScaleY: 6 TransX: 4 TransY: 7
   </tr>
 </table>
 
-
 <a name='SkMatrix_mapPoints'></a>
 ## mapPoints
 
@@ -5338,7 +5332,6 @@ true if <a href='#Matrix'>Matrix</a> <a href='#SkMatrix_notequal_operator_a'>a</
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sends text representation using floats to standard output</td>
   </tr>
 </table>
-
 
 <a name='SkMatrix_dump'></a>
 ## dump
