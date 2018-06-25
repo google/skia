@@ -19,6 +19,13 @@
  */
 class SK_API SkVertices : public SkNVRefCnt<SkVertices> {
 public:
+    struct BoneIndices {
+        uint32_t indices[4];
+    };
+    struct BoneWeights {
+        float weights[4];
+    };
+
     enum VertexMode {
         kTriangles_VertexMode,
         kTriangleStrip_VertexMode,
@@ -28,21 +35,59 @@ public:
     };
 
     /**
-     *  Create a vertices by copying the specified arrays. texs and colors may be nullptr,
-     *  and indices is ignored if indexCount == 0.
+     *  Create a vertices by copying the specified arrays. texs, colors, boneIndices, and
+     *  boneWeights may be nullptr, and indices is ignored if indexCount == 0.
+     *
+     *  boneIndices and boneWeights must either both be nullptr or both point to valid data.
      */
     static sk_sp<SkVertices> MakeCopy(VertexMode mode, int vertexCount,
                                       const SkPoint positions[],
                                       const SkPoint texs[],
                                       const SkColor colors[],
+                                      const BoneIndices boneIndices[],
+                                      const BoneWeights boneWeights[],
                                       int indexCount,
                                       const uint16_t indices[]);
 
     static sk_sp<SkVertices> MakeCopy(VertexMode mode, int vertexCount,
                                       const SkPoint positions[],
                                       const SkPoint texs[],
+                                      const SkColor colors[],
+                                      const BoneIndices boneIndices[],
+                                      const BoneWeights boneWeights[]) {
+        return MakeCopy(mode,
+                        vertexCount,
+                        positions,
+                        texs,
+                        colors,
+                        boneIndices,
+                        boneWeights,
+                        0,
+                        nullptr);
+    }
+
+    static sk_sp<SkVertices> MakeCopy(VertexMode mode, int vertexCount,
+                                      const SkPoint positions[],
+                                      const SkPoint texs[],
+                                      const SkColor colors[],
+                                      int indexCount,
+                                      const uint16_t indices[]) {
+        return MakeCopy(mode,
+                        vertexCount,
+                        positions,
+                        texs,
+                        colors,
+                        nullptr,
+                        nullptr,
+                        indexCount,
+                        indices);
+    }
+
+    static sk_sp<SkVertices> MakeCopy(VertexMode mode, int vertexCount,
+                                      const SkPoint positions[],
+                                      const SkPoint texs[],
                                       const SkColor colors[]) {
-        return MakeCopy(mode, vertexCount, positions, texs, colors, 0, nullptr);
+        return MakeCopy(mode, vertexCount, positions, texs, colors, nullptr, nullptr);
     }
 
     struct Sizes;
@@ -50,6 +95,7 @@ public:
     enum BuilderFlags {
         kHasTexCoords_BuilderFlag   = 1 << 0,
         kHasColors_BuilderFlag      = 1 << 1,
+        kHasBones_BuilderFlag       = 1 << 2,
     };
     class Builder {
     public:
@@ -61,9 +107,11 @@ public:
         int vertexCount() const;
         int indexCount() const;
         SkPoint* positions();
-        SkPoint* texCoords();   // returns null if there are no texCoords
-        SkColor* colors();      // returns null if there are no colors
-        uint16_t* indices();    // returns null if there are no indices
+        SkPoint* texCoords();             // returns null if there are no texCoords
+        SkColor* colors();                // returns null if there are no colors
+        BoneIndices* boneIndices();       // returns null if there are no bone indices
+        BoneWeights* boneWeights();       // returns null if there are no bone weights
+        uint16_t* indices();              // returns null if there are no indices
 
         // Detach the built vertices object. After the first call, this will always return null.
         sk_sp<SkVertices> detach();
@@ -88,12 +136,16 @@ public:
 
     bool hasColors() const { return SkToBool(this->colors()); }
     bool hasTexCoords() const { return SkToBool(this->texCoords()); }
+    bool hasBones() const { return SkToBool(this->boneIndices()); }
     bool hasIndices() const { return SkToBool(this->indices()); }
 
     int vertexCount() const { return fVertexCnt; }
     const SkPoint* positions() const { return fPositions; }
     const SkPoint* texCoords() const { return fTexs; }
     const SkColor* colors() const { return fColors; }
+
+    const BoneIndices* boneIndices() const { return fBoneIndices; }
+    const BoneWeights* boneWeights() const { return fBoneWeights; }
 
     int indexCount() const { return fIndexCnt; }
     const uint16_t* indices() const { return fIndices; }
@@ -128,10 +180,12 @@ private:
     uint32_t fUniqueID;
 
     // these point inside our allocation, so none of these can be "freed"
-    SkPoint*    fPositions;
-    SkPoint*    fTexs;
-    SkColor*    fColors;
-    uint16_t*   fIndices;
+    SkPoint*     fPositions;
+    SkPoint*     fTexs;
+    SkColor*     fColors;
+    BoneIndices* fBoneIndices;
+    BoneWeights* fBoneWeights;
+    uint16_t*    fIndices;
 
     SkRect  fBounds;    // computed to be the union of the fPositions[]
     int     fVertexCnt;
