@@ -19,6 +19,7 @@ public:
     GrDDLContext(sk_sp<GrContextThreadSafeProxy> proxy)
             : INHERITED(proxy->priv().backend(), proxy->priv().contextUniqueID()) {
         fCaps = proxy->priv().refCaps();
+        fFPFactoryCache = proxy->priv().fpFactoryCache();
         fThreadSafeProxy = std::move(proxy);
     }
 

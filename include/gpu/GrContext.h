@@ -13,6 +13,7 @@
 #include "SkTypes.h"
 #include "../private/GrAuditTrail.h"
 #include "../private/GrSingleOwner.h"
+#include "../private/GrSkSLFPFactoryCache.h"
 #include "GrContextOptions.h"
 
 // We shouldn't need this but currently Android is relying on this being include transitively.
@@ -299,6 +300,7 @@ protected:
     const GrBackend                         fBackend;
     sk_sp<const GrCaps>                     fCaps;
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
+    sk_sp<GrSkSLFPFactoryCache>             fFPFactoryCache;
 
 private:
     sk_sp<GrGpu>                            fGpu;
@@ -426,10 +428,11 @@ private:
                              GrBackend backend,
                              const GrContextOptions& options);
 
-    sk_sp<const GrCaps>    fCaps;
-    const uint32_t         fContextUniqueID;
-    const GrBackend        fBackend;
-    const GrContextOptions fOptions;
+    sk_sp<const GrCaps>         fCaps;
+    const uint32_t              fContextUniqueID;
+    const GrBackend             fBackend;
+    const GrContextOptions      fOptions;
+    sk_sp<GrSkSLFPFactoryCache> fFPFactoryCache;
 
     friend class GrDirectContext; // To construct this object
     friend class GrContextThreadSafeProxyPriv;

@@ -10,6 +10,7 @@
 #include "GrContextPriv.h"
 #include "GrGpu.h"
 
+#include "effects/GrSkSLFP.h"
 #include "gl/GrGLGpu.h"
 #include "mock/GrMockGpu.h"
 #include "text/GrGlyphCache.h"

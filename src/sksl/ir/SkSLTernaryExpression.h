@@ -30,6 +30,12 @@ struct TernaryExpression : public Expression {
         return fTest->hasSideEffects() || fIfTrue->hasSideEffects() || fIfFalse->hasSideEffects();
     }
 
+    std::unique_ptr<Expression> clone() const override {
+        return std::unique_ptr<Expression>(new TernaryExpression(fOffset, fTest->clone(),
+                                                                 fIfTrue->clone(),
+                                                                 fIfFalse->clone()));
+    }
+
     String description() const override {
         return "(" + fTest->description() + " ? " + fIfTrue->description() + " : " +
                fIfFalse->description() + ")";
