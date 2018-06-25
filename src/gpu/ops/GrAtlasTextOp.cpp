@@ -297,9 +297,13 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     }
     SkASSERT(proxies[0]);
 
-    FlushInfo flushInfo;
-    flushInfo.fPipeline =
+    auto pipe =
             target->makePipeline(fSRGBFlags, std::move(fProcessors), target->detachAppliedClip());
+
+    FlushInfo flushInfo;
+    flushInfo.fPipeline = pipe.fPipeline;
+    flushInfo.fFixedDynamicState = pipe.fFixedDynamicState;
+
     bool vmPerspective = fGeoData[0].fViewMatrix.hasPerspective();
     if (this->usesDistanceFields()) {
         flushInfo.fGeometryProcessor = this->setupDfProcessor(proxies, numActiveProxies);
@@ -419,7 +423,8 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
     mesh.setIndexedPatterned(flushInfo->fIndexBuffer.get(), kIndicesPerGlyph, kVerticesPerGlyph,
                              flushInfo->fGlyphsToFlush, maxGlyphsPerDraw);
     mesh.setVertexData(flushInfo->fVertexBuffer.get(), flushInfo->fVertexOffset);
-    target->draw(flushInfo->fGeometryProcessor.get(), flushInfo->fPipeline, mesh);
+    target->draw(flushInfo->fGeometryProcessor.get(), flushInfo->fPipeline,
+                 flushInfo->fFixedDynamicState, mesh);
     flushInfo->fVertexOffset += kVerticesPerGlyph * flushInfo->fGlyphsToFlush;
     flushInfo->fGlyphsToFlush = 0;
 }

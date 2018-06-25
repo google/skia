@@ -111,9 +111,9 @@ private:
         SkASSERT(vertexStride == gp->debugOnly_vertexStride());
         SkPoint* vertices = reinterpret_cast<SkPoint*>(helper.init(target, vertexStride, 1));
         SkPointPriv::SetRectTriStrip(vertices, 0.f, 0.f, 1.f, 1.f, vertexStride);
-        helper.recordDraw(target, gp.get(),
-                          target->makePipeline(0, GrProcessorSet::MakeEmptySet(),
-                                               target->detachAppliedClip()));
+        auto pipe = target->makePipeline(0, GrProcessorSet::MakeEmptySet(),
+                                         target->detachAppliedClip());
+        helper.recordDraw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
     int fNumAttribs;

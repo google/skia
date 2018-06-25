@@ -206,9 +206,9 @@ public:
     }
 
 private:
-    void draw(GrMeshDrawOp::Target* target, const GrGeometryProcessor* gp,
-              const GrPipeline* pipeline, int vertexCount, size_t vertexStride, void* vertices,
-              int indexCount, uint16_t* indices) const {
+    void draw(Target* target, const GrGeometryProcessor* gp, const GrPipeline* pipeline,
+              const GrPipeline::FixedDynamicState* fixedDynamicState, int vertexCount,
+              size_t vertexStride, void* vertices, int indexCount, uint16_t* indices) const {
         if (vertexCount == 0 || indexCount == 0) {
             return;
         }
@@ -234,12 +234,11 @@ private:
         mesh.setIndexed(indexBuffer, indexCount, firstIndex, 0, vertexCount - 1,
                         GrPrimitiveRestart::kNo);
         mesh.setVertexData(vertexBuffer, firstVertex);
-        target->draw(gp, pipeline, mesh);
+        target->draw(gp, pipeline, fixedDynamicState, mesh);
     }
 
     void onPrepareDraws(Target* target) override {
-        const GrPipeline* pipeline = fHelper.makePipeline(target);
-
+        auto pipe = fHelper.makePipeline(target);
         // Setup GrGeometryProcessor
         sk_sp<GrGeometryProcessor> gp(create_lines_only_gp(fHelper.compatibleWithAlphaAsCoverage(),
                                                            this->viewMatrix(),
@@ -275,8 +274,8 @@ private:
             if (vertexCount + currentVertices > static_cast<int>(UINT16_MAX)) {
                 // if we added the current instance, we would overflow the indices we can store in a
                 // uint16_t. Draw what we've got so far and reset.
-                this->draw(target, gp.get(), pipeline, vertexCount, vertexStride, vertices,
-                           indexCount, indices);
+                this->draw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState, vertexCount,
+                           vertexStride, vertices, indexCount, indices);
                 vertexCount = 0;
                 indexCount = 0;
             }
@@ -307,8 +306,8 @@ private:
             indexCount += currentIndices;
         }
         if (vertexCount <= SK_MaxS32 && indexCount <= SK_MaxS32) {
-            this->draw(target, gp.get(), pipeline, vertexCount, vertexStride, vertices, indexCount,
-                       indices);
+            this->draw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState, vertexCount,
+                       vertexStride, vertices, indexCount, indices);
         }
         sk_free(vertices);
         sk_free(indices);

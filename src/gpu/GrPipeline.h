@@ -79,13 +79,23 @@ public:
     };
 
     /**
-     *  Graphics state that can change dynamically without creating a new pipeline.
+     * Some state can be changed between GrMeshes without changing GrPipelines. This is generally
+     * less expensive then using multiple pipelines. Such state is called "dynamic state". It can
+     * be specified in two ways:
+     * 1) FixedDynamicState - use this to specify state that does not vary between GrMeshes.
+     * 2) DynamicStateArrays - use this to specify per mesh values for dynamic state.
      **/
-    struct DynamicState {
-        // Overrides the scissor rectangle (if scissor is enabled in the pipeline).
-        // TODO: eventually this should be the only way to specify a scissor rectangle, as is the
-        // case with the simple constructor.
+    struct FixedDynamicState {
+        FixedDynamicState(const SkIRect& scissorRect) : fScissorRect(scissorRect) {}
         SkIRect fScissorRect;
+    };
+
+    /**
+     * Any non-null array overrides the FixedDynamicState on a mesh-by-mesh basis. Arrays must
+     * have one entry for each GrMesh.
+     */
+    struct DynamicStateArrays {
+        const SkIRect* fScissorRects = nullptr;
     };
 
     /**
@@ -169,7 +179,9 @@ public:
 
     const GrUserStencilSettings* getUserStencil() const { return fUserStencilSettings; }
 
-    const GrScissorState& getScissorState() const { return fScissorState; }
+    ScissorState isScissorEnabled() const {
+        return ScissorState(SkToBool(fFlags & kScissorEnabled_Flag));
+    }
 
     const GrWindowRectsState& getWindowRectsState() const { return fWindowRectsState; }
 
@@ -214,7 +226,8 @@ private:
     enum PrivateFlags {
         kHasStencilClip_Flag = 0x10,
         kStencilEnabled_Flag = 0x20,
-        kIsBad_Flag = 0x40,
+        kScissorEnabled_Flag = 0x40,
+        kIsBad_Flag = 0x80,
     };
 
     using RenderTargetProxy = GrPendingIOResource<GrRenderTargetProxy, kWrite_GrIOType>;
@@ -225,7 +238,6 @@ private:
     SkIPoint fDstTextureOffset;
     // MDB TODO: do we still need the destination proxy here?
     RenderTargetProxy fProxy;
-    GrScissorState fScissorState;
     GrWindowRectsState fWindowRectsState;
     const GrUserStencilSettings* fUserStencilSettings;
     uint16_t fFlags;

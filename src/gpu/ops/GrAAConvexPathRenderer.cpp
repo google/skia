@@ -807,7 +807,7 @@ private:
         GrAAConvexTessellator tess;
 
         int instanceCount = fPaths.count();
-        const GrPipeline* pipeline = fHelper.makePipeline(target);
+        auto pipe = fHelper.makePipeline(target);
         for (int i = 0; i < instanceCount; i++) {
             tess.rewind();
 
@@ -843,7 +843,7 @@ private:
             mesh.setIndexed(indexBuffer, tess.numIndices(), firstIndex, 0, tess.numPts() - 1,
                             GrPrimitiveRestart::kNo);
             mesh.setVertexData(vertexBuffer, firstVertex);
-            target->draw(gp.get(), pipeline, mesh);
+            target->draw(gp.get(), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
         }
     }
 
@@ -854,7 +854,7 @@ private:
             return;
         }
 #endif
-        const GrPipeline* pipeline = fHelper.makePipeline(target);
+        auto pipe = fHelper.makePipeline(target);
         int instanceCount = fPaths.count();
 
         SkMatrix invert;
@@ -931,7 +931,7 @@ private:
                 mesh.setIndexed(indexBuffer, draw.fIndexCnt, firstIndex, 0, draw.fVertexCnt - 1,
                                 GrPrimitiveRestart::kNo);
                 mesh.setVertexData(vertexBuffer, firstVertex);
-                target->draw(quadProcessor.get(), pipeline, mesh);
+                target->draw(quadProcessor.get(), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
                 firstIndex += draw.fIndexCnt;
                 firstVertex += draw.fVertexCnt;
             }

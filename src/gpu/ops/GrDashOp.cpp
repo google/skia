@@ -697,9 +697,9 @@ private:
         if (fDisableSRGBOutputConversion) {
             pipelineFlags |= GrPipeline::kDisableOutputConversionToSRGB_Flag;
         }
-        const GrPipeline* pipeline = target->makePipeline(pipelineFlags, std::move(fProcessorSet),
-                                                          target->detachAppliedClip());
-        helper.recordDraw(target, gp.get(), pipeline);
+        auto pipe = target->makePipeline(pipelineFlags, std::move(fProcessorSet),
+                                         target->detachAppliedClip());
+        helper.recordDraw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
