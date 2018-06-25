@@ -78,6 +78,10 @@ protected:
         return nullptr;
     }
 
+    sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
+        return sk_ref_sp(this);
+    }
+
     void onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const override;
 
     int onCharsToGlyphs(const void* chars, Encoding encoding,
