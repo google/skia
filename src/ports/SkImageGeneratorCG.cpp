@@ -29,12 +29,6 @@ static CGImageSourceRef data_to_CGImageSrc(SkData* data) {
     return imageSrc;
 }
 
-#ifdef SK_LEGACY_NEW_FROM_ENCODED_CG
-SkImageGenerator* SkImageGeneratorCG::NewFromEncodedCG(SkData* data) {
-    return MakeFromEncodedCG(sk_ref_sp(data)).release();
-}
-#endif
-
 std::unique_ptr<SkImageGenerator> SkImageGeneratorCG::MakeFromEncodedCG(sk_sp<SkData> data) {
     CGImageSourceRef imageSrc = data_to_CGImageSrc(data.get());
     if (!imageSrc) {
