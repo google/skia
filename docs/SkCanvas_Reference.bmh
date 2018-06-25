@@ -1509,6 +1509,12 @@ Rectangles are blurred by Image_Filter when restore() draws Layer to main
 Canvas.
 ##
 #Height 128
+#Function
+###$
+#include "SkBlurImageFilter.h"
+$$$#
+##
+
 void draw(SkCanvas* canvas) {
     SkPaint paint, blur;
     blur.setImageFilter(SkBlurImageFilter::Make(3, 3, nullptr));
@@ -1558,6 +1564,12 @@ The red rectangle is clipped; it does not fully fit on Layer.
 Image_Filter blurs past edge of Layer so red rectangle is blurred on all sides.
 ##
 #Height 128
+#Function
+###$
+#include "SkBlurImageFilter.h"
+$$$#
+##
+
 void draw(SkCanvas* canvas) {
     SkPaint paint, blur;
     blur.setImageFilter(SkBlurImageFilter::Make(3, 3, nullptr));
