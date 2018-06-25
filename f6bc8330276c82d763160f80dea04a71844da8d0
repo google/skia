@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dbccf759_fb8c8929",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-25T17:04:06Z",
+      "side": 1,
+      "message": "I could be convinced to leave NewFromEncoded (CG and WIC), since they were requested by Adobe (and may still be using them?), but since the API was private to begin with, I figured it\u0027d be fine to delete them?",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 32
+      },
+      "revId": "f6bc8330276c82d763160f80dea04a71844da8d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c96514a9_6e549084",
+        "filename": "include/ports/SkImageGeneratorCG.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-25T17:04:06Z",
+      "side": 1,
+      "message": "Alternatively, maybe we should keep these hidden, and have a generic Platform version. And maybe they should just be retrieved from SkImageGenerator or SkGraphics (which is where it gets used)?\n\nOne potential drawback to the Platform version, is that some platforms (*nix, Android) don\u0027t have a Platform version, but I suppose they could SkASSERT(false) when trying to retrieve?",
+      "range": {
+        "startLine": 17,
+        "startChar": 13,
+        "endLine": 17,
+        "endChar": 31
+      },
+      "revId": "f6bc8330276c82d763160f80dea04a71844da8d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
