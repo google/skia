@@ -793,8 +793,10 @@ __attribute__((no_sanitize("float-cast-overflow")))
             args.fFlags |= GrPipeline::kHWAntialias_Flag;
         }
 
-        const GrPipeline* pipeline = target->allocPipeline(args, GrProcessorSet::MakeEmptySet(),
-                                                           target->detachAppliedClip());
+        auto clip = target->detachAppliedClip();
+        const auto* fixedDynamicState = target->allocFixedDynamicState(clip.scissorState().rect());
+        const auto* pipeline =
+                target->allocPipeline(args, GrProcessorSet::MakeEmptySet(), std::move(clip));
         using TessFn =
                 decltype(&TextureOp::tess<SkPoint, MultiTexture::kNo, Domain::kNo, GrAA::kNo>);
 #define TESS_FN_AND_VERTEX_SIZE(Point, MT, Domain, AA)                          \
@@ -866,7 +868,7 @@ __attribute__((no_sanitize("float-cast-overflow")))
             mesh.setNonIndexedNonInstanced(4);
         }
         mesh.setVertexData(vbuffer, vstart);
-        target->draw(gp.get(), pipeline, mesh);
+        target->draw(gp.get(), pipeline, fixedDynamicState, mesh);
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {

@@ -111,6 +111,7 @@ public:
 
     void drawPath(const GrPrimitiveProcessor& primProc,
                   const GrPipeline& pipeline,
+                  const GrPipeline::FixedDynamicState&,
                   const GrStencilSettings& stencilPassSettings,  // Cover pass settings in pipeline.
                   const GrPath* path);
 
@@ -120,6 +121,7 @@ protected:
     virtual void onStencilPath(const StencilPathArgs&, const GrPath*) = 0;
     virtual void onDrawPath(const GrPrimitiveProcessor&,
                             const GrPipeline&,
+                            const GrPipeline::FixedDynamicState&,
                             const GrStencilSettings&,
                             const GrPath*) = 0;
 
