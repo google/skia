@@ -72,7 +72,6 @@ SkSurface related constants are defined by <code>enum</code>, <code>enum class</
   </tr>
 </table>
 
-
 ## <a name='Related_Function'>Related Function</a>
 
 
@@ -97,7 +96,6 @@ SkSurface global, <code>struct</code>, and <code>class</code> related member fun
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>rarely called management functions</td>
   </tr>
 </table>
-
 
 ## <a name='Member_Function'>Member Function</a>
 
@@ -216,7 +214,6 @@ SkSurface member functions read and modify the structure properties.
   </tr>
 </table>
 
-
 ## <a name='Constructor'>Constructor</a>
 
 
@@ -269,7 +266,6 @@ SkSurface can be constructed or initialized by these functions, including C++ cl
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates a compatible <a href='#Surface'>Surface</a></td>
   </tr>
 </table>
-
 
 <a name='SkSurface_MakeRasterDirect'></a>
 ## MakeRasterDirect
@@ -1071,7 +1067,6 @@ surf->makeImageSnapshot() == nullptr
   </tr>
 </table>
 
-
 <a name='SkSurface_width'></a>
 ## width
 
@@ -1220,7 +1215,6 @@ If a snapshot has been generated, this copies the <a href='#Surface'>Surface</a>
   </tr>
 </table>
 
-
 <a name='SkSurface_notifyContentWillChange'></a>
 ## notifyContentWillChange
 
@@ -1232,8 +1226,6 @@ Notifies that <a href='#Surface'>Surface</a> contents will be changed by code ou
 Subsequent calls to <a href='#SkSurface_generationID'>generationID</a> return a different value.
 
 <a href='#SkSurface_notifyContentWillChange_mode'>mode</a> is normally passed as <a href='#SkSurface_kRetain_ContentChangeMode'>kRetain ContentChangeMode</a>.
-
-Can we deprecate this?
 
 ### Parameters
 
@@ -1527,7 +1519,6 @@ are not captured. <a href='SkImage_Reference#Image'>Image</a> allocation is acco
   </tr>
 </table>
 
-
 <a name='SkSurface_draw'></a>
 ## draw
 
@@ -1538,7 +1529,7 @@ void <a href='#SkSurface_draw'>draw</a>(<a href='SkCanvas_Reference#SkCanvas'>Sk
 Draws <a href='#Surface'>Surface</a> contents to <a href='#SkSurface_draw_canvas'>canvas</a>, with its top-left corner at (<a href='#SkSurface_draw_x'>x</a>, <a href='#SkSurface_draw_y'>y</a>).
 
 If <a href='SkPaint_Reference#Paint'>Paint</a> <a href='#SkSurface_draw_paint'>paint</a> is not nullptr, apply <a href='undocumented#Color_Filter'>Color Filter</a>, <a href='SkColor_Reference#Alpha'>Color Alpha</a>, <a href='undocumented#Image_Filter'>Image Filter</a>,
-<a href='undocumented#Blend_Mode'>Blend Mode</a>, and <a href='undocumented#Draw_Looper'>Draw Looper</a>.
+<a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a>, and <a href='undocumented#Draw_Looper'>Draw Looper</a>.
 
 ### Parameters
 
@@ -1552,7 +1543,7 @@ If <a href='SkPaint_Reference#Paint'>Paint</a> <a href='#SkSurface_draw_paint'>p
     <td>vertical offset in <a href='SkCanvas_Reference#Canvas'>Canvas</a></td>
   </tr>
   <tr>    <td><a name='SkSurface_draw_paint'><code><strong>paint</strong></code></a></td>
-    <td><a href='SkPaint_Reference#Paint'>Paint</a> containing <a href='undocumented#Blend_Mode'>Blend Mode</a>, <a href='undocumented#Color_Filter'>Color Filter</a>, <a href='undocumented#Image_Filter'>Image Filter</a>,
+    <td><a href='SkPaint_Reference#Paint'>Paint</a> containing <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a>, <a href='undocumented#Color_Filter'>Color Filter</a>, <a href='undocumented#Image_Filter'>Image Filter</a>,
 and so on; or nullptr</td>
   </tr>
 </table>
@@ -1940,7 +1931,6 @@ soon
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>pauses commands until signaled</td>
   </tr>
 </table>
-
 
 <a name='SkSurface_flush'></a>
 ## flush
