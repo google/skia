@@ -334,6 +334,7 @@ protected:
     virtual void getGlyphToUnicodeMap(SkUnichar* dstArray) const;
 
     virtual SkStreamAsset* onOpenStream(int* ttcIndex) const = 0;
+
     // TODO: make pure virtual.
     virtual std::unique_ptr<SkFontData> onMakeFontData() const;
 
