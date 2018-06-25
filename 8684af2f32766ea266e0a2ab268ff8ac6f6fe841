@@ -1,0 +1,152 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e46c951b_06fceed8",
+        "filename": "include/core/SkVertices.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-25T20:27:52Z",
+      "side": 1,
+      "message": "Update this comment to reference boneIndices and boneWeights. (And probably include a note about both or neither being nullptr).",
+      "revId": "8684af2f32766ea266e0a2ab268ff8ac6f6fe841",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33471c93_887fc4f4",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-25T20:27:52Z",
+      "side": 1,
+      "message": "useVertices sounds like a verb - what about xformedVertices or localVertices? (I don\u0027t love either of those names - just trying to come up with something that\u0027s obviously a noun).",
+      "revId": "8684af2f32766ea266e0a2ab268ff8ac6f6fe841",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a92e24bb_d0e60f2d",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-25T20:27:52Z",
+      "side": 1,
+      "message": "I think we want to avoid std::vector in this code, for performance reasons. SkSTArenaAlloc (used below) is probably better. The template argument is a fixed size block that\u0027s stored in the object, and if the allocation fits in there, it never needs to use the heap, otherwise it does a heap allocation. Picking a default size is sort of arbitrary - if we can catch the majority of uses with the stack buffer (maybe 100 verts?), then it\u0027s a big win. Also, one ArenaAlloc can be used to make multiple allocations, and it will try to reuse blocks (it tends to over-allocate), so it might make sense to just hoist \"outerAlloc\" up here, and use that for the deformed points.\n\nSimilarly for the concatenated bone matrices, you could make another SkSTArenaAlloc that pre-allocates for some small but typical number of bones (32?)...",
+      "revId": "8684af2f32766ea266e0a2ab268ff8ac6f6fe841",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c75435f_bc2f89d7",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-25T20:27:52Z",
+      "side": 1,
+      "message": "Minor performance nit: I\u0027d hoist this \u0027if\u0027 check outside the loop. That lets you avoid the b ranch on every iteration, and simplify the else case, too:\n\nif (boneIndices \u0026\u0026 boneWeights) {\n  for (int i \u003d 0; i \u003c count; i ++) {\n    ...\n  }\n} else {\n  worldTransform.mapPoints(..., ..., count);\n}",
+      "range": {
+        "startLine": 227,
+        "startChar": 0,
+        "endLine": 229,
+        "endChar": 0
+      },
+      "revId": "8684af2f32766ea266e0a2ab268ff8ac6f6fe841",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb50eeb9_3049c04a",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-25T20:27:52Z",
+      "side": 1,
+      "message": "Is this check necessary? If index 0 always has weight 0 (does it?), then we can blindly use transformedBones[index], right?",
+      "revId": "8684af2f32766ea266e0a2ab268ff8ac6f6fe841",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c93d5e35_ed016f29",
+        "filename": "src/core/SkPictureRecord.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 687,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-25T20:27:52Z",
+      "side": 1,
+      "message": "Because the picture playback code is now assuming that we\u0027re writing the entire SkMatrix struct in a packed array, I think that this can be simplified to:\n\nsize \u003d ... + (boneCount * sizeof(SkMatrix));\n...\nthis-\u003eaddInt(boneCount);\nfWriter.write(bones, boneCount * sizeof(SkMatrix));\n\nThat also has the benefit that it continues to work (because it\u0027s the exact inverse of the playback code), even if someone changes the implementation of SkMatrixPriv::WriteToMemory. (Admittedly unlikely).",
+      "revId": "8684af2f32766ea266e0a2ab268ff8ac6f6fe841",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d01c7531_ac96337d",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-25T20:27:52Z",
+      "side": 1,
+      "message": "Update comment here? ( + BW + BI )",
+      "range": {
+        "startLine": 80,
+        "startChar": 46,
+        "endLine": 80,
+        "endChar": 61
+      },
+      "revId": "8684af2f32766ea266e0a2ab268ff8ac6f6fe841",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30179c61_ddcd8870",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-25T20:27:52Z",
+      "side": 1,
+      "message": "Minor comment update? boneIndices[] | boneWeights[] |",
+      "revId": "8684af2f32766ea266e0a2ab268ff8ac6f6fe841",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
