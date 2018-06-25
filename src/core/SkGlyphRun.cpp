@@ -255,7 +255,7 @@ void SkGlyphRunBuilder::addGlyphRunToList(
         fGlyphRuns.emplace_back(
                 fIndexed,
                 fLastDenseIndex, runSize,
-                fLastUniqueIndex, uniqueSize,
+                fLastUniqueIndex, SkTo<uint16_t>(uniqueSize),
                 SkSpan<SkGlyphID>(temporaryShuntGlyphIDs, runSize),
                 text,
                 clusters);
