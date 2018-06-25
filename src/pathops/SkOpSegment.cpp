@@ -599,7 +599,7 @@ SkOpSegment* SkOpSegment::findNextOp(SkTDArray<SkOpSpanBase*>* chase, SkOpSpanBa
             continue;
         }
         if (!activeAngle) {
-            (void) nextSegment->markAndChaseDone(nextAngle->start(), nextAngle->end());
+            (void) nextSegment->markAndChaseDone(nextAngle->start(), nextAngle->end(), nullptr);
         }
         SkOpSpanBase* last = nextAngle->lastMarked();
         if (last) {
@@ -695,7 +695,7 @@ SkOpSegment* SkOpSegment::findNextWinding(SkTDArray<SkOpSpanBase*>* chase,
             continue;
         }
         if (!activeAngle) {
-            (void) nextSegment->markAndChaseDone(nextAngle->start(), nextAngle->end());
+            (void) nextSegment->markAndChaseDone(nextAngle->start(), nextAngle->end(), nullptr);
         }
         SkOpSpanBase* last = nextAngle->lastMarked();
         if (last) {
@@ -843,7 +843,7 @@ void SkOpSegment::markAllDone() {
     } while ((span = span->next()->upCastable()));
 }
 
-SkOpSpanBase* SkOpSegment::markAndChaseDone(SkOpSpanBase* start, SkOpSpanBase* end) {
+ bool SkOpSegment::markAndChaseDone(SkOpSpanBase* start, SkOpSpanBase* end, SkOpSpanBase** found) {
     int step = start->step(end);
     SkOpSpan* minSpan = start->starter(end);
     markDone(minSpan);
@@ -851,19 +851,29 @@ SkOpSpanBase* SkOpSegment::markAndChaseDone(SkOpSpanBase* start, SkOpSpanBase* e
     SkOpSegment* other = this;
     SkOpSpan* priorDone = nullptr;
     SkOpSpan* lastDone = nullptr;
+    int safetyNet = 100000;
     while ((other = other->nextChase(&start, &step, &minSpan, &last))) {
+        if (!--safetyNet) {
+            return false;
+        }
         if (other->done()) {
             SkASSERT(!last);
             break;
         }
         if (lastDone == minSpan || priorDone == minSpan) {
-            return nullptr;
+            if (found) {
+                *found = nullptr;
+            }
+            return true;
         }
         other->markDone(minSpan);
         priorDone = lastDone;
         lastDone = minSpan;
     }
-    return last;
+    if (found) {
+        *found = last;
+    }
+    return true;
 }
 
 bool SkOpSegment::markAndChaseWinding(SkOpSpanBase* start, SkOpSpanBase* end, int winding,

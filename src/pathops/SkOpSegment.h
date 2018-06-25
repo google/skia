@@ -274,7 +274,7 @@ public:
     }
 
     void markAllDone();
-    SkOpSpanBase* markAndChaseDone(SkOpSpanBase* start, SkOpSpanBase* end);
+    bool markAndChaseDone(SkOpSpanBase* start, SkOpSpanBase* end, SkOpSpanBase** found);
     bool markAndChaseWinding(SkOpSpanBase* start, SkOpSpanBase* end, int winding,
             SkOpSpanBase** lastPtr);
     bool markAndChaseWinding(SkOpSpanBase* start, SkOpSpanBase* end, int winding,

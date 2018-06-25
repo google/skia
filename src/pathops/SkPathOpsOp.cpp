@@ -157,7 +157,10 @@ static bool bridgeOp(SkOpContourHead* contourList, const SkPathOp op,
                 }
                 simple->finishContour();
             } else {
-                SkOpSpanBase* last = current->markAndChaseDone(start, end);
+                SkOpSpanBase* last;
+                if (!current->markAndChaseDone(start, end, &last)) {
+                    return false;
+                }
                 if (last && !last->chased()) {
                     last->setChased(true);
                     SkASSERT(!SkPathOpsDebug::ChaseContains(chase, last));
