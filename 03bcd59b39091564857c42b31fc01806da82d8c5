@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1a846dfa_e1139ba0",
+        "filename": "tests/GlyphRunTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-25T15:42:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "68e5f141_b355c0e2",
+      "range": {
+        "startLine": 89,
+        "startChar": 10,
+        "endLine": 89,
+        "endChar": 12
+      },
+      "revId": "03bcd59b39091564857c42b31fc01806da82d8c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4bbda373_81b50fb3",
         "filename": "tests/GlyphRunTest.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "03bcd59b39091564857c42b31fc01806da82d8c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a1f6eb9_e3661274",
+        "filename": "tests/GlyphRunTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-25T15:42:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4bbda373_81b50fb3",
+      "range": {
+        "startLine": 91,
+        "startChar": 16,
+        "endLine": 91,
+        "endChar": 31
+      },
+      "revId": "03bcd59b39091564857c42b31fc01806da82d8c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
