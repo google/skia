@@ -3226,6 +3226,11 @@ Mask_Filter.
 
 #Example
     #ToDo explain why the two draws are so different ##
+    #Function
+    ###$
+    #include "SkBlurImageFilter.h"
+    $$$#
+    ##
     void draw(SkCanvas* canvas) {
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
@@ -3252,6 +3257,11 @@ Mask_Filter.
     #Return  Image_Filter if previously set, nullptr otherwise ##
 
     #Example
+        #Function
+        ###$
+        #include "SkBlurImageFilter.h"
+        $$$#
+        ##
         void draw(SkCanvas* canvas) {
            SkPaint paint;
            SkDebugf("nullptr %c= image filter\n", paint.getImageFilter() ? '!' : '=');
