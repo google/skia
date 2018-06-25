@@ -90,8 +90,8 @@ public:
                       const SkPaint& paint) override {
         fTarget->drawPoints(mode, count, pts, fXformer->apply(paint));
     }
-    void onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
-                              const SkPaint& paint) override {
+    void onDrawVerticesObject(const SkVertices* vertices, const SkMatrix* bones, int boneCount,
+                              SkBlendMode mode, const SkPaint& paint) override {
         sk_sp<SkVertices> copy;
         if (vertices->hasColors()) {
             int count = vertices->vertexCount();
@@ -99,11 +99,12 @@ public:
             fXformer->apply(xformed.begin(), vertices->colors(), count);
             copy = SkVertices::MakeCopy(vertices->mode(), count, vertices->positions(),
                                         vertices->texCoords(), xformed.begin(),
+                                        vertices->boneIndices(), vertices->boneWeights(),
                                         vertices->indexCount(), vertices->indices());
             vertices = copy.get();
         }
 
-        fTarget->drawVertices(vertices, mode, fXformer->apply(paint));
+        fTarget->drawVertices(vertices, bones, boneCount, mode, fXformer->apply(paint));
     }
 
     void onDrawText(const void* ptr, size_t len,

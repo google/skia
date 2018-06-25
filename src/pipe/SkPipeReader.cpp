@@ -562,9 +562,14 @@ static void drawImageLattice_handler(SkPipeReader& reader, uint32_t packedVerb, 
 static void drawVertices_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
     SkASSERT(SkPipeVerb::kDrawVertices == unpack_verb(packedVerb));
     SkBlendMode bmode = (SkBlendMode)unpack_verb_extra(packedVerb);
+    sk_sp<SkVertices> vertices = nullptr;
     if (sk_sp<SkData> data = reader.readByteArrayAsData()) {
-        canvas->drawVertices(SkVertices::Decode(data->data(), data->size()), bmode,
-                             read_paint(reader));
+        vertices = SkVertices::Decode(data->data(), data->size());
+    }
+    int boneCount = reader.read32();
+    const SkMatrix* bones = boneCount ? reader.skipT<SkMatrix>(boneCount) : nullptr;
+    if (vertices) {
+        canvas->drawVertices(vertices, bones, boneCount, bmode, read_paint(reader));
     }
 }
 

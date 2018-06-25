@@ -682,14 +682,21 @@ void SkPictureRecord::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matri
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
-                                           const SkPaint& paint) {
-    // op + paint index + vertices index + mode
-    size_t size = 4 * kUInt32Size;
+void SkPictureRecord::onDrawVerticesObject(const SkVertices* vertices, const SkMatrix* bones,
+                                           int boneCount, SkBlendMode mode, const SkPaint& paint) {
+    // op + paint index + vertices index + number of bones + bone matrices + mode
+    size_t size = 5 * kUInt32Size;
+    for (int i = 0; i < boneCount; i ++) {
+        size += SkMatrixPriv::WriteToMemory(bones[i], nullptr);
+    }
     size_t initialOffset = this->addDraw(DRAW_VERTICES_OBJECT, &size);
 
     this->addPaint(paint);
     this->addVertices(vertices);
+    this->addInt(boneCount);
+    for (int i = 0; i < boneCount; i ++) {
+        this->addMatrix(bones[i]);
+    }
     this->addInt(static_cast<uint32_t>(mode));
 
     this->validate(initialOffset, size);

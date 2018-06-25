@@ -163,9 +163,10 @@ static bool compute_is_opaque(const SkColor colors[], int count) {
 
 void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
                           const SkPoint vertices[], const SkPoint textures[],
-                          const SkColor colors[], SkBlendMode bmode,
+                          const SkColor colors[], const SkVertices::BoneIndices boneIndices[],
+                          const SkVertices::BoneWeights boneWeights[], SkBlendMode bmode,
                           const uint16_t indices[], int indexCount,
-                          const SkPaint& paint) const {
+                          const SkPaint& paint, const SkMatrix* bones, int boneCount) const {
     SkASSERT(0 == count || vertices);
 
     // abort early if there is nothing to draw
@@ -204,6 +205,62 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
         shader = nullptr;
     }
 
+    // determine the vertices to use
+    const SkPoint* useVertices = vertices;
+
+    // deform vertices using the skeleton if it is passed in
+    std::vector<SkPoint> deformed;
+    if (bones && boneCount) {
+        // allocate space for the deformed vertices
+        deformed.resize(count);
+
+        // get the bone matrices
+        std::vector<SkMatrix> transformedBones(boneCount);
+
+        // transform the bone matrices by the world transform
+        memcpy(transformedBones.data(), bones, boneCount * sizeof(SkMatrix));
+        for (int i = 1; i < boneCount; i ++) {
+            transformedBones[i].preConcat(bones[0]);
+        }
+
+        // deform the vertices
+        for (int i = 0; i < count; i ++) {
+            if (boneIndices && boneWeights) {
+                const SkVertices::BoneIndices& indices = boneIndices[i];
+                const SkVertices::BoneWeights& weights = boneWeights[i];
+
+                // apply bone deformations
+                SkPoint result = SkPoint::Make(0.0f, 0.0f);
+                SkPoint transformed;
+                for (uint32_t j = 0; j < 4; j ++) {
+                    // get the attachment data
+                    uint32_t index = indices.indices[j];
+                    float weight = weights.weights[j];
+
+                    // determine whether to use the identity matrix for 0 index
+                    const SkMatrix& influenceMatrix =
+                        index ? transformedBones[index] : SkMatrix::I();
+
+                    // transformed = M * v
+                    influenceMatrix.mapPoints(&transformed, &vertices[i], 1);
+
+                    // result += transformed * w
+                    result += transformed * weight;
+                }
+
+                // set the deformed point
+                deformed[i] = result;
+            } else {
+                // no bones, so only apply world transform
+                const SkMatrix& worldTransform = bones[0];
+                worldTransform.mapPoints(&deformed[i], &vertices[i], 1);
+            }
+        }
+
+        // change the used vertices
+        useVertices = deformed.data();
+    }
+
     constexpr size_t defCount = 16;
     constexpr size_t outerSize = sizeof(SkTriColorShader) +
                                  sizeof(SkComposeShader) +
@@ -211,7 +268,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
     SkSTArenaAlloc<outerSize> outerAlloc;
 
     SkPoint* devVerts = outerAlloc.makeArray<SkPoint>(count);
-    fMatrix->mapPoints(devVerts, vertices, count);
+    fMatrix->mapPoints(devVerts, useVertices, count);
 
     {
         SkRect bounds;
@@ -250,7 +307,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
             SkASSERT(matrix43);
             auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *fMatrix, &outerAlloc);
             while (vertProc(&state)) {
-                if (!update_tricolor_matrix(ctmInv, vertices, dstColors,
+                if (!update_tricolor_matrix(ctmInv, useVertices, dstColors,
                                             state.f0, state.f1, state.f2,
                                             matrix43)) {
                     continue;
@@ -269,14 +326,14 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
                 SkMatrix tmpCtm;
                 if (textures) {
                     SkMatrix localM;
-                    if (!texture_to_matrix(state, vertices, textures, &localM)) {
+                    if (!texture_to_matrix(state, useVertices, textures, &localM)) {
                         continue;
                     }
                     tmpCtm = SkMatrix::Concat(*fMatrix, localM);
                     ctm = &tmpCtm;
                 }
 
-                if (matrix43 && !update_tricolor_matrix(ctmInv, vertices, dstColors,
+                if (matrix43 && !update_tricolor_matrix(ctmInv, useVertices, dstColors,
                                                         state.f0, state.f1, state.f2,
                                                         matrix43)) {
                     continue;

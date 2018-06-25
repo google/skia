@@ -615,11 +615,15 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
         case DRAW_VERTICES_OBJECT: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             const SkVertices* vertices = fPictureData->getVertices(reader);
+            const int boneCount = reader->readInt();
+            const SkMatrix* bones = boneCount ?
+                                    (const SkMatrix*) reader->skip(boneCount, sizeof(SkMatrix)) :
+                                    nullptr;
             SkBlendMode bmode = reader->read32LE(SkBlendMode::kLastMode);
             BREAK_ON_READ_ERROR(reader);
 
             if (paint && vertices) {
-                canvas->drawVertices(vertices, bmode, *paint);
+                canvas->drawVertices(vertices, bones, boneCount, bmode, *paint);
             }
         } break;
         case RESTORE:
