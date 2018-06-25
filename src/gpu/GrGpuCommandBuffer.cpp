@@ -26,12 +26,10 @@ void GrGpuRTCommandBuffer::clearStencilClip(const GrFixedClip& clip, bool inside
     this->onClearStencilClip(clip, insideStencilMask);
 }
 
-bool GrGpuRTCommandBuffer::draw(const GrPrimitiveProcessor& primProc,
-                                const GrPipeline& pipeline,
-                                const GrMesh meshes[],
-                                const GrPipeline::DynamicState dynamicStates[],
-                                int meshCount,
-                                const SkRect& bounds) {
+bool GrGpuRTCommandBuffer::draw(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
+                                const GrPipeline::FixedDynamicState* fixedDynamicState,
+                                const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+                                const GrMesh meshes[], int meshCount, const SkRect& bounds) {
 #ifdef SK_DEBUG
     SkASSERT(!primProc.hasInstanceAttributes() || this->gpu()->caps()->instanceAttribSupport());
     for (int i = 0; i < meshCount; ++i) {
@@ -41,6 +39,9 @@ bool GrGpuRTCommandBuffer::draw(const GrPrimitiveProcessor& primProc,
         SkASSERT(primProc.hasInstanceAttributes() == meshes[i].isInstanced());
     }
 #endif
+    SkASSERT(!pipeline.isScissorEnabled() || fixedDynamicState ||
+             (dynamicStateArrays && dynamicStateArrays->fScissorRects));
+
     auto resourceProvider = this->gpu()->getContext()->contextPriv().resourceProvider();
 
     if (pipeline.isBad() || !primProc.instantiate(resourceProvider)) {
@@ -51,6 +52,7 @@ bool GrGpuRTCommandBuffer::draw(const GrPrimitiveProcessor& primProc,
         this->gpu()->stats()->incNumFailedDraws();
         return false;
     }
-    this->onDraw(primProc, pipeline, meshes, dynamicStates, meshCount, bounds);
+    this->onDraw(primProc, pipeline, fixedDynamicState, dynamicStateArrays, meshes, meshCount,
+                 bounds);
     return true;
 }

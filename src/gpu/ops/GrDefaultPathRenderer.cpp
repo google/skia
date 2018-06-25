@@ -63,12 +63,14 @@ namespace {
 class PathGeoBuilder {
 public:
     PathGeoBuilder(GrPrimitiveType primitiveType, GrMeshDrawOp::Target* target,
-                   GrGeometryProcessor* geometryProcessor, const GrPipeline* pipeline)
+                   GrGeometryProcessor* geometryProcessor, const GrPipeline* pipeline,
+                   const GrPipeline::FixedDynamicState* fixedDynamicState)
             : fMesh(primitiveType)
             , fTarget(target)
             , fVertexStride(sizeof(SkPoint))
             , fGeometryProcessor(geometryProcessor)
             , fPipeline(pipeline)
+            , fFixedDynamicState(fixedDynamicState)
             , fIndexBuffer(nullptr)
             , fFirstIndex(0)
             , fIndicesInChunk(0)
@@ -274,7 +276,7 @@ private:
                                  GrPrimitiveRestart::kNo);
             }
             fMesh.setVertexData(fVertexBuffer, fFirstVertex);
-            fTarget->draw(fGeometryProcessor, fPipeline, fMesh);
+            fTarget->draw(fGeometryProcessor, fPipeline, fFixedDynamicState, fMesh);
         }
 
         fTarget->putBackIndices((size_t)(fIndicesInChunk - indexCount));
@@ -312,6 +314,7 @@ private:
     size_t fVertexStride;
     GrGeometryProcessor* fGeometryProcessor;
     const GrPipeline* fPipeline;
+    const GrPipeline::FixedDynamicState* fFixedDynamicState;
 
     const GrBuffer* fVertexBuffer;
     int fFirstVertex;
@@ -419,9 +422,9 @@ private:
         } else {
             primitiveType = GrPrimitiveType::kTriangles;
         }
-
-        PathGeoBuilder pathGeoBuilder(primitiveType, target, gp.get(),
-                                      fHelper.makePipeline(target));
+        auto pipe = fHelper.makePipeline(target);
+        PathGeoBuilder pathGeoBuilder(primitiveType, target, gp.get(), pipe.fPipeline,
+                                      pipe.fFixedDynamicState);
 
         // fill buffers
         for (int i = 0; i < instanceCount; i++) {
