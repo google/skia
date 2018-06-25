@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "32dccfa0_a05e8f97",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-25T19:59:42Z",
+      "side": 1,
+      "message": "Don\u0027t we have to worry about multiple threads hitting these now?",
+      "range": {
+        "startLine": 202,
+        "startChar": 0,
+        "endLine": 216,
+        "endChar": 38
+      },
+      "revId": "92d391d795aa7d4152df3c982045ddb352870f4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
