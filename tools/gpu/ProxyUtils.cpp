@@ -18,6 +18,10 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, bool isRT, in
                                                GrColorType ct, GrSRGBEncoded srgbEncoded,
                                                GrSurfaceOrigin origin, const void* data,
                                                size_t rowBytes) {
+    if (context->contextPriv().abandoned()) {
+        return nullptr;
+    }
+
     auto config = GrColorTypeToPixelConfig(ct, srgbEncoded);
     sk_sp<GrTextureProxy> proxy;
     if (kBottomLeft_GrSurfaceOrigin == origin) {
