@@ -144,7 +144,7 @@ public:
     bool updateBuffer(GrVkBuffer* buffer, const void* src, VkDeviceSize offset, VkDeviceSize size);
 
 private:
-    GrVkGpu(GrContext*, const GrContextOptions&, const GrVkBackendContext& backendContext);
+    GrVkGpu(GrContext*, const GrContextOptions&, const GrVkBackendContext&);
 
     void onResetContext(uint32_t resetBits) override {}
 
@@ -243,11 +243,6 @@ private:
     VkPhysicalDeviceMemoryProperties       fPhysDevMemProps;
 
     GrVkCopyManager                        fCopyManager;
-
-#ifdef SK_ENABLE_VK_LAYERS
-    // For reporting validation layer errors
-    VkDebugReportCallbackEXT               fCallback;
-#endif
 
     // compiler used for compiling sksl into spirv. We only want to create the compiler once since
     // there is significant overhead to the first compile of any compiler.
