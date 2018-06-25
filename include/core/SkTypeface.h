@@ -309,8 +309,6 @@ protected:
     SkTypeface(const SkFontStyle& style, bool isFixedPitch = false);
     virtual ~SkTypeface();
 
-    virtual sk_sp<SkTypeface> onMakeClone(const SkFontArguments&) const;
-
     /** Sets the fixedPitch bit. If used, must be called in the constructor. */
     void setIsFixedPitch(bool isFixedPitch) { fIsFixedPitch = isFixedPitch; }
     /** Sets the font style. If used, must be called in the constructor. */
@@ -334,6 +332,9 @@ protected:
     virtual void getGlyphToUnicodeMap(SkUnichar* dstArray) const;
 
     virtual SkStreamAsset* onOpenStream(int* ttcIndex) const = 0;
+
+    virtual sk_sp<SkTypeface> onMakeClone(const SkFontArguments&) const = 0;
+
     // TODO: make pure virtual.
     virtual std::unique_ptr<SkFontData> onMakeFontData() const;
 
