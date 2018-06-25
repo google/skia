@@ -18,7 +18,7 @@
     #undef CLSID_WICImagingFactory
 #endif
 
-SkImageGenerator* SkImageGeneratorWIC::NewFromEncodedWIC(SkData* data) {
+std::unique_ptr<SkImageGenerator> SkImageGeneratorWIC::MakeFromEncodedWIC(sk_sp<SkData> data) {
     // Create Windows Imaging Component ImagingFactory.
     SkTScopedComPtr<IWICImagingFactory> imagingFactory;
     HRESULT hr = CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER,
@@ -31,7 +31,7 @@ SkImageGenerator* SkImageGeneratorWIC::NewFromEncodedWIC(SkData* data) {
     SkTScopedComPtr<IStream> iStream;
     // Note that iStream will take ownership of the new memory stream because
     // we set |deleteOnRelease| to true.
-    hr = SkIStream::CreateFromSkStream(new SkMemoryStream(sk_ref_sp(data)), true, &iStream);
+    hr = SkIStream::CreateFromSkStream(new SkMemoryStream(data), true, &iStream);
     if (FAILED(hr)) {
         return nullptr;
     }
@@ -121,15 +121,17 @@ SkImageGenerator* SkImageGeneratorWIC::NewFromEncodedWIC(SkData* data) {
     // FIXME: If we change the implementation to handle swizzling ourselves,
     //        we can support more output formats.
     SkImageInfo info = SkImageInfo::MakeS32(width, height, alphaType);
-    return new SkImageGeneratorWIC(info, imagingFactory.release(), imageSource.release(), data);
+    return std::unique_ptr<SkImageGenerator>(
+            new SkImageGeneratorWIC(info, imagingFactory.release(), imageSource.release(),
+                                    std::move(data)));
 }
 
 SkImageGeneratorWIC::SkImageGeneratorWIC(const SkImageInfo& info,
-        IWICImagingFactory* imagingFactory, IWICBitmapSource* imageSource, SkData* data)
+        IWICImagingFactory* imagingFactory, IWICBitmapSource* imageSource, sk_sp<SkData> data)
     : INHERITED(info)
     , fImagingFactory(imagingFactory)
     , fImageSource(imageSource)
-    , fData(SkRef(data))
+    , fData(std::move(data))
 {}
 
 sk_sp<SkData> SkImageGeneratorWIC::onRefEncodedData() {

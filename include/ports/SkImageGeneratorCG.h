@@ -14,16 +14,8 @@
 #include "SkImageGenerator.h"
 #include "SkTemplates.h"
 
-class SkImageGeneratorCG : public SkImageGenerator {
+class SK_API SkImageGeneratorCG : public SkImageGenerator {
 public:
-#ifdef SK_LEGACY_NEW_FROM_ENCODED_CG
-    /*
-     * Refs the data if an image generator can be returned.  Otherwise does
-     * not affect the data.
-     */
-    static SkImageGenerator* NewFromEncodedCG(SkData* data);
-#endif
-
     static std::unique_ptr<SkImageGenerator> MakeFromEncodedCG(sk_sp<SkData>);
 
 protected:
