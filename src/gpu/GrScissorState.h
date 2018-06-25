@@ -8,32 +8,28 @@
 #ifndef GrScissorState_DEFINED
 #define GrScissorState_DEFINED
 
-#include "SkRect.h"
-
 class GrScissorState {
 public:
-    GrScissorState() : fEnabled(false) {}
-    GrScissorState(const SkIRect& rect) : fEnabled(true), fRect(rect) {}
-    void setDisabled() { fEnabled = false; }
-    void set(const SkIRect& rect) { fRect = rect; fEnabled = true; }
+    GrScissorState() = default;
+    GrScissorState(const SkIRect& rect) : fScissorTest(GrScissorTest::kEnabled), fRect(rect) {}
+    void setDisabled() { fScissorTest = GrScissorTest::kDisabled; }
     bool SK_WARN_UNUSED_RESULT intersect(const SkIRect& rect) {
-        if (!fEnabled) {
-            this->set(rect);
+        if (!fScissorTest) {
+            *this = GrScissorState(rect);
             return true;
         }
         return fRect.intersect(rect);
     }
     bool operator==(const GrScissorState& other) const {
-        return fEnabled == other.fEnabled &&
-                (false == fEnabled || fRect == other.fRect);
+        return fScissorTest == other.fScissorTest && (!fScissorTest || fRect == other.fRect);
     }
     bool operator!=(const GrScissorState& other) const { return !(*this == other); }
 
-    bool enabled() const { return fEnabled; }
+    GrScissorTest enabled() const { return fScissorTest; }
     const SkIRect& rect() const { return fRect; }
 
 private:
-    bool    fEnabled;
+    GrScissorTest fScissorTest = GrScissorTest::kDisabled;
     SkIRect fRect;
 };
 

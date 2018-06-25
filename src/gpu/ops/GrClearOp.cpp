@@ -17,7 +17,7 @@ std::unique_ptr<GrClearOp> GrClearOp::Make(GrContext* context,
                                            GrColor color,
                                            GrSurfaceProxy* dstProxy) {
     const SkIRect rect = SkIRect::MakeWH(dstProxy->width(), dstProxy->height());
-    if (clip.scissorEnabled() && !SkIRect::Intersects(clip.scissorRect(), rect)) {
+    if (clip.scissorTest() && !SkIRect::Intersects(clip.scissorRect(), rect)) {
         return nullptr;
     }
 
@@ -42,7 +42,7 @@ GrClearOp::GrClearOp(const GrFixedClip& clip, GrColor color, GrSurfaceProxy* pro
         , fClip(clip)
         , fColor(color) {
     const SkIRect rtRect = SkIRect::MakeWH(proxy->width(), proxy->height());
-    if (fClip.scissorEnabled()) {
+    if (fClip.scissorTest()) {
         // Don't let scissors extend outside the RT. This may improve op combining.
         if (!fClip.intersect(rtRect)) {
             SkASSERT(0);  // should be caught upstream
@@ -53,7 +53,7 @@ GrClearOp::GrClearOp(const GrFixedClip& clip, GrColor color, GrSurfaceProxy* pro
             fClip.disableScissor();
         }
     }
-    this->setBounds(SkRect::Make(fClip.scissorEnabled() ? fClip.scissorRect() : rtRect),
+    this->setBounds(SkRect::Make(fClip.scissorTest() ? fClip.scissorRect() : rtRect),
                     HasAABloat::kNo, IsZeroArea::kNo);
 }
 
