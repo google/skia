@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e67a139_2d9a024b",
+        "filename": "tools/fonts/SkRandomScalerContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-25T17:48:23Z",
+      "side": 1,
+      "message": "if (fProxy-\u003emakeClone(args))\n...\n}\n\nsk_make_sp\u003cSkRandomTypeface\u003e(fProxy-\u003emakeClone(args), fPaint, fFakeIt)",
+      "range": {
+        "startLine": 180,
+        "startChar": 4,
+        "endLine": 180,
+        "endChar": 35
+      },
+      "revId": "e91ed43dcdcf05906f3386118dcc213fbdb19798",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81fd545b_58b8b080",
+        "filename": "tools/fonts/SkTestSVGTypeface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-25T17:48:23Z",
+      "side": 1,
+      "message": "sk_ref_sp(this)",
+      "range": {
+        "startLine": 88,
+        "startChar": 14,
+        "endLine": 88,
+        "endChar": 23
+      },
+      "revId": "e91ed43dcdcf05906f3386118dcc213fbdb19798",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
