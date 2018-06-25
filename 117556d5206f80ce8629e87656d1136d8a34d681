@@ -92,6 +92,30 @@
       "revId": "117556d5206f80ce8629e87656d1136d8a34d681",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6b59654_ec92c3be",
+        "filename": "src/gpu/vk/GrVkExtensions.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-06-25T18:26:22Z",
+      "side": 1,
+      "message": "Ah, I see it does for SkTSearch to work. Hm.",
+      "parentUuid": "89d82da2_2bba3596",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 81
+      },
+      "revId": "117556d5206f80ce8629e87656d1136d8a34d681",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
