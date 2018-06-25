@@ -265,7 +265,7 @@ SkScalar SkPathMeasure::compute_conic_segs(const SkConic& conic, SkScalar distan
     int halft = (mint + maxt) >> 1;
     SkPoint halfPt = conic.evalAt(tValue2Scalar(halft));
     if (!halfPt.isFinite()) {
-        return 0;
+        return distance;
     }
     if (tspan_big_enough(maxt - mint) && conic_too_curvy(minPt, halfPt, maxPt)) {
         distance = this->compute_conic_segs(conic, distance, mint, minPt, halft, halfPt, ptIndex);
@@ -620,6 +620,9 @@ bool SkPathMeasure::getPosTan(SkScalar distance, SkPoint* pos, SkVector* tangent
 
     SkScalar        t;
     const Segment*  seg = this->distanceToSegment(distance, &t);
+    if (SkScalarIsNaN(t)) {
+        return false;
+    }
 
     compute_pos_tan(&fPts[seg->fPtIndex], seg->fType, t, pos, tangent);
     return true;
