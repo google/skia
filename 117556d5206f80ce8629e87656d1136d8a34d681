@@ -116,6 +116,30 @@
       "revId": "117556d5206f80ce8629e87656d1136d8a34d681",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76647752_673a6e8a",
+        "filename": "src/gpu/vk/GrVkExtensions.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-25T19:17:54Z",
+      "side": 1,
+      "message": "I\u0027m not sure if we have such a find call or the needed insertAt call, at least on our Sk*Array objects. This code was just copied from the old spot, which I believe just copied it from GrGLExtensions. So if we do have a data structure to better support this we should probably update both locations.",
+      "parentUuid": "c6b59654_ec92c3be",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 81
+      },
+      "revId": "117556d5206f80ce8629e87656d1136d8a34d681",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
