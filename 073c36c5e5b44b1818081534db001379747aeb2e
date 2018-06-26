@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b9c24cbf_6caf5501",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-26T13:12:24Z",
+      "side": 1,
+      "message": "I think this convention is pretty common (putting the pre-bone matrix as the first entry in the bone array). However, I could see us encountering other animation packages that don\u0027t use the same structure, in which case we might want to make it optional, or do it at a higher level. I think it\u0027s okay to do this here for now, but we should at least document it in the public API. Perhaps a comment at the SkCanvas::drawVertices level, just to indicate how the first bone is special and what it\u0027s for.",
+      "revId": "073c36c5e5b44b1818081534db001379747aeb2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
