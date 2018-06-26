@@ -37,6 +37,12 @@
 #include "picture_utils.h"
 #include "sk_tool_utils.h"
 
+#ifdef SK_XML
+#include "SkDOM.h"
+#include "../experimental/svg/model/SkSVGDOM.h"
+#endif
+
+
 /**
  * This is a minimalist program whose sole purpose is to open an skp file, benchmark it on a single
  * config, and exit. It is intended to be used through skpbench.py rather than invoked directly.
@@ -57,7 +63,7 @@ DEFINE_int32(duration, 5000, "number of milliseconds to run the benchmark");
 DEFINE_int32(sampleMs, 50, "minimum duration of a sample");
 DEFINE_bool(gpuClock, false, "time on the gpu clock (gpu work only)");
 DEFINE_bool(fps, false, "use fps instead of ms");
-DEFINE_string(skp, "", "path to a single .skp file, or 'warmup' for a builtin warmup run");
+DEFINE_string(skp, "", "path to a single .skp or .svg file, or 'warmup' for a builtin warmup run");
 DEFINE_string(png, "", "if set, save a .png proof to disk at this file location");
 DEFINE_int32(verbosity, 4, "level of verbosity (0=none to 5=debug)");
 DEFINE_bool(suppressHeader, false, "don't print a header row before the results");
@@ -108,6 +114,7 @@ enum class ExitErr {
 
 static void draw_skp_and_flush(SkCanvas*, const SkPicture*);
 static sk_sp<SkPicture> create_warmup_skp();
+static sk_sp<SkPicture> create_skp_from_svg(SkStream*);
 static bool mkdir_p(const SkString& name);
 static SkString join(const SkCommandLineFlags::StringArray&);
 static void exitf(ExitErr, const char* format, ...);
@@ -338,7 +345,7 @@ int main(int argc, char** argv) {
 
     // Parse the skp.
     if (FLAGS_skp.count() != 1) {
-        exitf(ExitErr::kUsage, "invalid skp '%s': must specify a single skp file, or 'warmup'",
+        exitf(ExitErr::kUsage, "invalid skp '%s': must specify a single file, or 'warmup'",
                                join(FLAGS_skp).c_str());
     }
 
@@ -350,16 +357,20 @@ int main(int argc, char** argv) {
         skp = create_warmup_skp();
         skpname = "warmup";
     } else {
-        const char* skpfile = FLAGS_skp[0];
-        std::unique_ptr<SkStream> skpstream(SkStream::MakeFromFile(skpfile));
+        SkString skpfile(FLAGS_skp[0]);
+        std::unique_ptr<SkStream> skpstream(SkStream::MakeFromFile(skpfile.c_str()));
         if (!skpstream) {
-            exitf(ExitErr::kIO, "failed to open skp file %s", skpfile);
+            exitf(ExitErr::kIO, "failed to open file %s", skpfile.c_str());
         }
-        skp = SkPicture::MakeFromStream(skpstream.get());
+        if (skpfile.endsWith(".svg")) {
+            skp = create_skp_from_svg(skpstream.get());
+        } else {
+            skp = SkPicture::MakeFromStream(skpstream.get());
+        }
         if (!skp) {
-            exitf(ExitErr::kData, "failed to parse skp file %s", skpfile);
+            exitf(ExitErr::kData, "failed to parse file %s", skpfile.c_str());
         }
-        skpname = SkOSPath::Basename(skpfile);
+        skpname = SkOSPath::Basename(skpfile.c_str());
     }
     int width = SkTMin(SkScalarCeilToInt(skp->cullRect().width()), 2048),
         height = SkTMin(SkScalarCeilToInt(skp->cullRect().height()), 2048);
@@ -497,6 +508,29 @@ static sk_sp<SkPicture> create_warmup_skp() {
     recording->drawRect(bounds, perlin);
 
     return recorder.finishRecordingAsPicture();
+}
+
+static sk_sp<SkPicture> create_skp_from_svg(SkStream* stream) {
+#ifdef SK_XML
+    SkDOM xml;
+    if (!xml.build(*stream)) {
+        return nullptr;
+    }
+    sk_sp<SkSVGDOM> svg = SkSVGDOM::MakeFromDOM(xml);
+    if (!svg) {
+        return nullptr;
+    }
+
+    static constexpr SkRect bounds{0, 0, 1200, 1200};
+    SkPictureRecorder recorder;
+    SkCanvas* recording = recorder.beginRecording(bounds);
+
+    svg->setContainerSize(SkSize::Make(recording->getBaseLayerSize()));
+    svg->render(recording);
+
+    return recorder.finishRecordingAsPicture();
+#endif
+    return nullptr;
 }
 
 bool mkdir_p(const SkString& dirname) {
