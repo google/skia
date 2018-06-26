@@ -209,12 +209,10 @@ bool SkBaseShadowTessellator::accumulateCentroid(const SkPoint& curr, const SkPo
     fCentroid.fY += (curr.fY + next.fY) * quadArea;
     fArea += quadArea;
     // convexity check
-    if (!SkScalarNearlyZero(quadArea)) {
-        if (quadArea*fLastArea < 0) {
-            ++fAreaSignFlips;
-        }
-        fLastArea = quadArea;
+    if (quadArea*fLastArea < 0) {
+        ++fAreaSignFlips;
     }
+    fLastArea = quadArea;
 
     return true;
 }
@@ -400,9 +398,18 @@ static const SkScalar kCubicTolerance = 0.2f;
 #endif
 static const SkScalar kConicTolerance = 0.5f;
 
+// clamps the point to the nearest 16th of a pixel
+static void sanitize_point(const SkPoint& in, SkPoint* out) {
+    out->fX = SkScalarRoundToScalar(16.f*in.fX)*0.0625f;
+    out->fY = SkScalarRoundToScalar(16.f*in.fY)*0.0625f;
+}
+
 void SkBaseShadowTessellator::handleLine(const SkPoint& p) {
+    SkPoint pSanitized;
+    sanitize_point(p, &pSanitized);
+
     if (fPathPolygon.count() > 0) {
-        if (!this->accumulateCentroid(fPathPolygon[fPathPolygon.count() - 1], p)) {
+        if (!this->accumulateCentroid(fPathPolygon[fPathPolygon.count() - 1], pSanitized)) {
             // skip coincident point
             return;
         }
@@ -411,13 +418,13 @@ void SkBaseShadowTessellator::handleLine(const SkPoint& p) {
     if (fPathPolygon.count() > 1) {
         if (!checkConvexity(fPathPolygon[fPathPolygon.count() - 2],
                             fPathPolygon[fPathPolygon.count() - 1],
-                            p)) {
+                            pSanitized)) {
             // remove collinear point
             fPathPolygon.pop();
         }
     }
 
-    *fPathPolygon.push() = p;
+    *fPathPolygon.push() = pSanitized;
 }
 
 void SkBaseShadowTessellator::handleLine(const SkMatrix& m, SkPoint* p) {
@@ -618,7 +625,7 @@ public:
                                const SkPoint3& zPlaneParams, bool transparent);
 
 private:
-    void computePathPolygon(const SkPath& path, const SkMatrix& ctm);
+    bool computePathPolygon(const SkPath& path, const SkMatrix& ctm);
     bool computeConvexShadow();
     bool computeConcaveShadow();
 
@@ -675,7 +682,15 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
     // Middle ring: 0
     fIndices.setReserve(12 * path.countPoints());
 
-    this->computePathPolygon(path, ctm);
+    if (!this->computePathPolygon(path, ctm)) {
+        return;
+    }
+    if (fPathPolygon.count() < 3 || !SkScalarIsFinite(fArea)) {
+        fSucceeded = true; // We don't want to try to blur these cases, so we will
+                           // return an empty SkVertices instead.
+        return;
+    }
+
     if (fIsConvex) {
         fSucceeded = this->computeConvexShadow();
     } else {
@@ -683,7 +698,7 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
     }
 }
 
-void SkAmbientShadowTessellator::computePathPolygon(const SkPath& path, const SkMatrix& ctm) {
+bool SkAmbientShadowTessellator::computePathPolygon(const SkPath& path, const SkMatrix& ctm) {
     fPathPolygon.setReserve(path.countPoints());
 
     // walk around the path, tessellate and generate outer ring
@@ -691,28 +706,40 @@ void SkAmbientShadowTessellator::computePathPolygon(const SkPath& path, const Sk
     SkPath::Iter iter(path, true);
     SkPoint pts[4];
     SkPath::Verb verb;
+    bool verbSeen = false;
+    bool closeSeen = false;
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-        switch (verb) {
-        case SkPath::kLine_Verb:
-            this->handleLine(ctm, &pts[1]);
-            break;
-        case SkPath::kQuad_Verb:
-            this->handleQuad(ctm, pts);
-            break;
-        case SkPath::kCubic_Verb:
-            this->handleCubic(ctm, pts);
-            break;
-        case SkPath::kConic_Verb:
-            this->handleConic(ctm, pts, iter.conicWeight());
-            break;
-        case SkPath::kMove_Verb:
-        case SkPath::kClose_Verb:
-        case SkPath::kDone_Verb:
-            break;
+        if (closeSeen) {
+            return false;
         }
+        switch (verb) {
+            case SkPath::kLine_Verb:
+                this->handleLine(ctm, &pts[1]);
+                break;
+            case SkPath::kQuad_Verb:
+                this->handleQuad(ctm, pts);
+                break;
+            case SkPath::kCubic_Verb:
+                this->handleCubic(ctm, pts);
+                break;
+            case SkPath::kConic_Verb:
+                this->handleConic(ctm, pts, iter.conicWeight());
+                break;
+            case SkPath::kMove_Verb:
+                if (verbSeen) {
+                    return false;
+                }
+                break;
+            case SkPath::kClose_Verb:
+            case SkPath::kDone_Verb:
+                closeSeen = true;
+                break;
+        }
+        verbSeen = true;
     }
 
     this->finishPathPolygon();
+    return true;
 }
 
 bool SkAmbientShadowTessellator::computeConvexShadow() {
@@ -945,7 +972,7 @@ public:
                             SkScalar lightRadius, bool transparent);
 
 private:
-    void computeClipAndPathPolygons(const SkPath& path, const SkMatrix& ctm,
+    bool computeClipAndPathPolygons(const SkPath& path, const SkMatrix& ctm,
                                     const SkMatrix& shadowTransform);
     void computeClipVectorsAndTestCentroid();
     bool clipUmbraPoint(const SkPoint& umbraPoint, const SkPoint& centroid, SkPoint* clipPoint);
@@ -1047,8 +1074,12 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
     fClipPolygon.setReserve(path.countPoints());
 
     // compute rough clip bounds for umbra, plus offset polygon, plus centroid
-    this->computeClipAndPathPolygons(path, ctm, shadowTransform);
-    if (fClipPolygon.count() < 3 || fPathPolygon.count() < 3) {
+    if (!this->computeClipAndPathPolygons(path, ctm, shadowTransform)) {
+        return;
+    }
+    if (fClipPolygon.count() < 3 || fPathPolygon.count() < 3 || !SkScalarIsFinite(fArea)) {
+        fSucceeded = true; // We don't want to try to blur these cases, so we will
+                           // return an empty SkVertices instead.
         return;
     }
 
@@ -1134,7 +1165,7 @@ void SkSpotShadowTessellator::addToClip(const SkPoint& point) {
     }
 }
 
-void SkSpotShadowTessellator::computeClipAndPathPolygons(const SkPath& path, const SkMatrix& ctm,
+bool SkSpotShadowTessellator::computeClipAndPathPolygons(const SkPath& path, const SkMatrix& ctm,
                                                          const SkMatrix& shadowTransform) {
 
     fPathPolygon.setReserve(path.countPoints());
@@ -1156,7 +1187,12 @@ void SkSpotShadowTessellator::computeClipAndPathPolygons(const SkPath& path, con
 
     SkPoint curvePoint;
     SkScalar w;
+    bool closeSeen = false;
+    bool verbSeen = false;
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+        if (closeSeen) {
+            return false;
+        }
         switch (verb) {
             case SkPath::kLine_Verb:
                 ctm.mapPoints(&pts[1], 1);
@@ -1197,16 +1233,23 @@ void SkSpotShadowTessellator::computeClipAndPathPolygons(const SkPath& path, con
                 this->handleCubic(shadowTransform, pts);
                 break;
             case SkPath::kMove_Verb:
+                if (verbSeen) {
+                    return false;
+                }
+                break;
             case SkPath::kClose_Verb:
             case SkPath::kDone_Verb:
+                closeSeen = true;
                 break;
             default:
                 SkDEBUGFAIL("unknown verb");
         }
+        verbSeen = true;
     }
 
     this->finishPathPolygon();
     fCurrClipPoint = fClipPolygon.count() - 1;
+    return true;
 }
 
 void SkSpotShadowTessellator::computeClipVectorsAndTestCentroid() {
