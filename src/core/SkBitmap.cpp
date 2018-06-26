@@ -384,6 +384,9 @@ void* SkBitmap::getAddr(int x, int y) const {
     if (base) {
         base += y * this->rowBytes();
         switch (this->colorType()) {
+            case kRGBA_F32_SkColorType:
+                base += x << 4;
+                break;
             case kRGBA_F16_SkColorType:
                 base += x << 3;
                 break;
