@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3cc4d0e9_bb2c739e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-26T14:36:49Z",
+      "side": 1,
+      "message": "maybe just \"master\" or pre-2.0.0?  It\u0027s not 2.0.0 yet right?  Just will be when released?",
+      "range": {
+        "startLine": 7,
+        "startChar": 24,
+        "endLine": 7,
+        "endChar": 29
+      },
+      "revId": "75a623bbd4e46270a5dbdd4ddbd292b1abe8844a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
