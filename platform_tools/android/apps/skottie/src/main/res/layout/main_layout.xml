@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <GridLayout
+        android:id="@+id/grid_lotties"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:columnCount="1"
+        >
+        <Button
+            android:id="@+id/open_lottie"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Open lottie file" />
+    </GridLayout>
+
+</ScrollView>
