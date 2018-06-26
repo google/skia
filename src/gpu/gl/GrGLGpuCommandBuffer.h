@@ -86,12 +86,13 @@ private:
 
     void onDraw(const GrPrimitiveProcessor& primProc,
                 const GrPipeline& pipeline,
+                const GrPipeline::FixedDynamicState* fixedDynamicState,
+                const GrPipeline::DynamicStateArrays* dynamicStateArrays,
                 const GrMesh mesh[],
-                const GrPipeline::DynamicState dynamicStates[],
                 int meshCount,
                 const SkRect& bounds) override {
         SkASSERT(pipeline.renderTarget() == fRenderTarget);
-        fGpu->draw(primProc, pipeline, mesh, dynamicStates, meshCount);
+        fGpu->draw(primProc, pipeline, fixedDynamicState, dynamicStateArrays, mesh, meshCount);
     }
 
     void onClear(const GrFixedClip& clip, GrColor color) override {

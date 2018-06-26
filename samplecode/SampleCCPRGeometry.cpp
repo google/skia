@@ -359,7 +359,7 @@ void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state) {
 
     if (!mesh.empty()) {
         SkASSERT(1 == mesh.count());
-        proc.draw(state, pipeline, mesh.begin(), nullptr, 1, this->bounds());
+        proc.draw(state, pipeline, nullptr, mesh.begin(), 1, this->bounds());
     }
 
     if (glGpu) {

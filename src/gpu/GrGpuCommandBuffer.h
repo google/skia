@@ -99,8 +99,9 @@ public:
     // number of vertex attributes is too large).
     bool draw(const GrPrimitiveProcessor&,
               const GrPipeline&,
+              const GrPipeline::FixedDynamicState*,
+              const GrPipeline::DynamicStateArrays*,
               const GrMesh[],
-              const GrPipeline::DynamicState[],
               int meshCount,
               const SkRect& bounds);
 
@@ -134,8 +135,9 @@ private:
     // overridden by backend-specific derived class to perform the draw call.
     virtual void onDraw(const GrPrimitiveProcessor&,
                         const GrPipeline&,
+                        const GrPipeline::FixedDynamicState*,
+                        const GrPipeline::DynamicStateArrays*,
                         const GrMesh[],
-                        const GrPipeline::DynamicState[],
                         int meshCount,
                         const SkRect& bounds) = 0;
 

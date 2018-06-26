@@ -40,9 +40,10 @@ void* GrMeshDrawOp::PatternHelper::init(Target* target, size_t vertexStride,
     return vertices;
 }
 
-void GrMeshDrawOp::PatternHelper::recordDraw(Target* target, const GrGeometryProcessor* gp,
-                                             const GrPipeline* pipeline) {
-    target->draw(gp, pipeline, fMesh);
+void GrMeshDrawOp::PatternHelper::recordDraw(
+        Target* target, const GrGeometryProcessor* gp, const GrPipeline* pipeline,
+        const GrPipeline::FixedDynamicState* fixedDynamicState) {
+    target->draw(gp, pipeline, fixedDynamicState, fMesh);
 }
 
 void* GrMeshDrawOp::QuadHelper::init(Target* target, size_t vertexStride, int quadsToDraw) {

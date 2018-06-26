@@ -8,16 +8,16 @@
 #ifndef GrCCPathProcessor_DEFINED
 #define GrCCPathProcessor_DEFINED
 
+#include <array>
 #include "GrCaps.h"
 #include "GrGeometryProcessor.h"
+#include "GrPipeline.h"
 #include "SkPath.h"
-#include <array>
 
 class GrCCPathCacheEntry;
 class GrCCPerFlushResources;
 class GrOnFlushResourceProvider;
 class GrOpFlushState;
-class GrPipeline;
 
 /**
  * This class draws AA paths using the coverage count masks produced by GrCCCoverageProcessor.
@@ -86,8 +86,9 @@ public:
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
-    void drawPaths(GrOpFlushState*, const GrPipeline&, const GrCCPerFlushResources&,
-                   int baseInstance, int endInstance, const SkRect& bounds) const;
+    void drawPaths(GrOpFlushState*, const GrPipeline&, const GrPipeline::FixedDynamicState*,
+                   const GrCCPerFlushResources&, int baseInstance, int endInstance,
+                   const SkRect& bounds) const;
 
 private:
     const Attribute& onVertexAttribute(int i) const override { return kEdgeNormsAttrib; }

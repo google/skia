@@ -337,7 +337,9 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState) {
     initArgs.fCaps = &flushState->caps();
     initArgs.fResourceProvider = flushState->resourceProvider();
     initArgs.fDstProxy = flushState->drawOpArgs().fDstProxy;
-    GrPipeline pipeline(initArgs, std::move(fProcessors), flushState->detachAppliedClip());
+    auto clip = flushState->detachAppliedClip();
+    GrPipeline::FixedDynamicState fixedDynamicState(clip.scissorState().rect());
+    GrPipeline pipeline(initArgs, std::move(fProcessors), std::move(clip));
 
     int baseInstance = fBaseInstance;
     SkASSERT(baseInstance >= 0);  // Make sure setupResources() has been called.
@@ -347,8 +349,8 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState) {
 
         GrCCPathProcessor pathProc(flushState->resourceProvider(), sk_ref_sp(range.fAtlasProxy),
                                    fViewMatrixIfUsingLocalCoords);
-        pathProc.drawPaths(flushState, pipeline, *resources, baseInstance, range.fEndInstanceIdx,
-                           this->bounds());
+        pathProc.drawPaths(flushState, pipeline, &fixedDynamicState, *resources, baseInstance,
+                           range.fEndInstanceIdx, this->bounds());
 
         baseInstance = range.fEndInstanceIdx;
     }

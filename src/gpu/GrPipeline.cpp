@@ -16,7 +16,8 @@
 
 #include "ops/GrOp.h"
 
-GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet&& processors,
+GrPipeline::GrPipeline(const InitArgs& args,
+                       GrProcessorSet&& processors,
                        GrAppliedClip&& appliedClip) {
     SkASSERT(args.fProxy);
     SkASSERT(processors.isFinalized());
@@ -24,10 +25,13 @@ GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet&& processors,
     fProxy.reset(args.fProxy);
 
     fFlags = args.fFlags;
-    fScissorState = appliedClip.scissorState();
     if (appliedClip.hasStencilClip()) {
         fFlags |= kHasStencilClip_Flag;
     }
+    if (appliedClip.scissorState().enabled()) {
+        fFlags |= kScissorEnabled_Flag;
+    }
+
     fWindowRectsState = appliedClip.windowRectsState();
     if (!args.fUserStencil->isDisabled(fFlags & kHasStencilClip_Flag)) {
         fFlags |= kStencilEnabled_Flag;
@@ -97,7 +101,6 @@ GrXferBarrierType GrPipeline::xferBarrierType(const GrCaps& caps) const {
 
 GrPipeline::GrPipeline(GrRenderTargetProxy* proxy, ScissorState scissorState, SkBlendMode blendmode)
         : fProxy(proxy)
-        , fScissorState()
         , fWindowRectsState()
         , fUserStencilSettings(&GrUserStencilSettings::kUnused)
         , fFlags()
@@ -105,7 +108,7 @@ GrPipeline::GrPipeline(GrRenderTargetProxy* proxy, ScissorState scissorState, Sk
         , fFragmentProcessors()
         , fNumColorProcessors(0) {
     SkASSERT(proxy);
-    if (ScissorState::kEnabled == scissorState) {
-        fScissorState.set({0, 0, 0, 0}); // caller will use the DynamicState struct.
+    if (scissorState) {
+        fFlags |= kScissorEnabled_Flag;
     }
 }

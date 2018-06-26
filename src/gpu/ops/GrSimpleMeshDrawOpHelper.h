@@ -88,8 +88,9 @@ public:
 
     bool compatibleWithAlphaAsCoverage() const { return fCompatibleWithAlphaAsCoveage; }
 
+    using PipelineAndFixedDynamicState = GrOpFlushState::PipelineAndFixedDynamicState;
     /** Makes a pipeline that consumes the processor set and the op's applied clip. */
-    GrPipeline* makePipeline(GrMeshDrawOp::Target* target) {
+    PipelineAndFixedDynamicState makePipeline(GrMeshDrawOp::Target* target) {
         return this->internalMakePipeline(target, this->pipelineInitArgs(target));
     }
 
@@ -117,7 +118,8 @@ protected:
 
     GrPipeline::InitArgs pipelineInitArgs(GrMeshDrawOp::Target* target) const;
 
-    GrPipeline* internalMakePipeline(GrMeshDrawOp::Target*, const GrPipeline::InitArgs&);
+    PipelineAndFixedDynamicState internalMakePipeline(GrMeshDrawOp::Target*,
+                                                      const GrPipeline::InitArgs&);
 
 private:
     GrProcessorSet* fProcessors;
@@ -139,6 +141,8 @@ class GrSimpleMeshDrawOpHelperWithStencil : private GrSimpleMeshDrawOpHelper {
 public:
     using MakeArgs = GrSimpleMeshDrawOpHelper::MakeArgs;
     using Flags = GrSimpleMeshDrawOpHelper::Flags;
+    using PipelineAndFixedDynamicState = GrOpFlushState::PipelineAndFixedDynamicState;
+
     using GrSimpleMeshDrawOpHelper::visitProxies;
 
     // using declarations can't be templated, so this is a pass through function instead.
@@ -161,7 +165,7 @@ public:
     bool isCompatible(const GrSimpleMeshDrawOpHelperWithStencil& that, const GrCaps&,
                       const SkRect& thisBounds, const SkRect& thatBounds) const;
 
-    const GrPipeline* makePipeline(GrMeshDrawOp::Target*);
+    PipelineAndFixedDynamicState makePipeline(GrMeshDrawOp::Target*);
 
     SkString dumpInfo() const;
 

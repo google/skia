@@ -92,9 +92,8 @@ private:
 
         SkPointPriv::SetRectTriStrip(verts, fRect, sizeof(SkPoint));
 
-        helper.recordDraw(
-                target, gp.get(),
-                target->makePipeline(0, std::move(fProcessors), target->detachAppliedClip()));
+        auto pipe = target->makePipeline(0, std::move(fProcessors), target->detachAppliedClip());
+        helper.recordDraw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
     bool onCombineIfPossible(GrOp* op, const GrCaps& caps) override { return false; }

@@ -224,16 +224,18 @@ void GrCCCoverageProcessor::Shader::emitFragmentCode(const GrCCCoverageProcessor
 }
 
 void GrCCCoverageProcessor::draw(GrOpFlushState* flushState, const GrPipeline& pipeline,
-                                 const GrMesh meshes[],
-                                 const GrPipeline::DynamicState dynamicStates[], int meshCount,
+                                 const SkIRect scissorRects[], const GrMesh meshes[], int meshCount,
                                  const SkRect& drawBounds) const {
+    GrPipeline::DynamicStateArrays dynamicStateArrays;
+    dynamicStateArrays.fScissorRects = scissorRects;
     GrGpuRTCommandBuffer* cmdBuff = flushState->rtCommandBuffer();
-    cmdBuff->draw(*this, pipeline, meshes, dynamicStates, meshCount, drawBounds);
+    cmdBuff->draw(*this, pipeline, nullptr, &dynamicStateArrays, meshes, meshCount, drawBounds);
 
     // Geometry shader backend draws primitives in two subpasses.
     if (Impl::kGeometryShader == fImpl) {
         SkASSERT(GSSubpass::kHulls == fGSSubpass);
         GrCCCoverageProcessor cornerProc(*this, GSSubpass::kCorners);
-        cmdBuff->draw(cornerProc, pipeline, meshes, dynamicStates, meshCount, drawBounds);
+        cmdBuff->draw(cornerProc, pipeline, nullptr, &dynamicStateArrays, meshes, meshCount,
+                      drawBounds);
     }
 }
