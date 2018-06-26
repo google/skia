@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8dff2839_23a355f6",
+        "filename": "gm/beziereffects.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-26T13:16:52Z",
+      "side": 1,
+      "message": "I think originally did it because I kept changing the type returned by the called function between a struct, a tuple, a struct derived from a tuple with named getters before giving on using a tuple pre c++17. :) And probably a subconscious, \"eh, it\u0027s test code\" attitude. Removed the auto.",
+      "parentUuid": "26764fac_17d3f476",
+      "revId": "ccf89f45387c23e8a4689e961a7f3d7b6f5c3c61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6a36e569_efb46c0a",
         "filename": "src/gpu/GrOpFlushState.cpp",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2018-06-25T23:29:56Z",
       "side": 1,
       "message": "Shouldn\u0027t we check if the same fixed state is enabled on both sides, and then if their fixed values are equal, rather than comparing pointers?",
+      "revId": "ccf89f45387c23e8a4689e961a7f3d7b6f5c3c61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5cdb148_db2d903e",
+        "filename": "src/gpu/GrOpFlushState.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-26T13:16:52Z",
+      "side": 1,
+      "message": "We aren\u0027t doing that for the other two pointer types compared here. This catches cases where a single op makes a pipeline and gp and does several mesh draws. If doing a deep comparison of gp, pipeline, and dynamic state yielded more opportunities here I think we\u0027d be better off catching those upstack in op combining.\n\nOne example of this is AAConvexPathOp. In the lines-only case it makes a gp/pipeline and then draws a mesh for each path in the op.\n\nI\u0027m not sure how important this is to catch but changing that behavior is kind of orthogonal to this change.",
+      "parentUuid": "6a36e569_efb46c0a",
       "revId": "ccf89f45387c23e8a4689e961a7f3d7b6f5c3c61",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "d31fa975_1e4b2bde",
+        "filename": "src/gpu/GrPipeline.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-26T13:16:52Z",
+      "side": 1,
+      "message": "Most of the time the scissor is not used. As we make more rarely used things dynamic (e.g. window rects) and remove arrays with fixed storage pipelines can get slimmer at the cost of recording one extra pointer per mesh array draw. I\u0027m hoping this may give us better CPU cache performance.",
+      "parentUuid": "2f2dc170_61922459",
+      "revId": "ccf89f45387c23e8a4689e961a7f3d7b6f5c3c61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6b6cee92_b7e4305f",
         "filename": "src/gpu/ccpr/GrCCCoverageProcessor.h",
         "patchSetId": 8
@@ -67,6 +121,24 @@
       "revId": "ccf89f45387c23e8a4689e961a7f3d7b6f5c3c61",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2218d50b_b815a937",
+        "filename": "src/gpu/ccpr/GrCCCoverageProcessor.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-26T13:16:52Z",
+      "side": 1,
+      "message": "Done. That also let me remove the bogus dyn state array struct from the sample that calls this and instead just pass nullptr.",
+      "parentUuid": "6b6cee92_b7e4305f",
+      "revId": "ccf89f45387c23e8a4689e961a7f3d7b6f5c3c61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "132586f5_56972e81",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1725,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-26T13:16:52Z",
+      "side": 1,
+      "message": "This what I meant by being unhappy with how scissor stuff turned out in GrGLGpu. The next change does exactly that (and also promotes the GrPipeline::ScissorState enum class bool to global scope).",
+      "parentUuid": "5b0f782f_de22016b",
+      "revId": "ccf89f45387c23e8a4689e961a7f3d7b6f5c3c61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "943cb1b0_cbf73adf",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 8
@@ -98,6 +188,24 @@
       "writtenOn": "2018-06-25T23:29:56Z",
       "side": 1,
       "message": "nit: This is for a future CL, but I would love to see a simple glScissor() call here (although handling the origin complicates that).",
+      "revId": "ccf89f45387c23e8a4689e961a7f3d7b6f5c3c61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "451dadb1_b558e914",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2287,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-26T13:16:52Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "943cb1b0_cbf73adf",
       "revId": "ccf89f45387c23e8a4689e961a7f3d7b6f5c3c61",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
