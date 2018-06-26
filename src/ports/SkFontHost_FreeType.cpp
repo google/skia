@@ -72,6 +72,12 @@
 #    define FT_LOAD_BITMAP_METRICS_ONLY ( 1L << 22 )
 #endif
 
+// FT_VAR_AXIS_FLAG_HIDDEN was introduced in FreeType 2.8.1
+// The variation axis should not be exposed to user interfaces.
+#ifndef FT_VAR_AXIS_FLAG_HIDDEN
+#    define FT_VAR_AXIS_FLAG_HIDDEN 1
+#endif
+
 //#define ENABLE_GLYPH_SPEW     // for tracing calls
 //#define DUMP_STRIKE_CREATION
 //#define SK_FONTHOST_FREETYPE_RUNTIME_VERSION
@@ -153,6 +159,19 @@ public:
         }
 #endif
 
+#if SK_FREETYPE_MINIMUM_RUNTIME_VERSION >= 0x02080100
+        fGetVarAxisFlags = FT_Get_Var_Axis_Flags;
+#elif SK_FREETYPE_MINIMUM_RUNTIME_VERSION & SK_FREETYPE_DLOPEN
+        if (major > 2 || ((major == 2 && minor > 7) || (major == 2 && minor == 7 && patch >= 0))) {
+            //The FreeType library is already loaded, so symbols are available in process.
+            void* self = dlopen(nullptr, RTLD_LAZY);
+            if (self) {
+                *(void**)(&fGetVarAxisFlags) = dlsym(self, "FT_Get_Var_Axis_Flags");
+                dlclose(self);
+            }
+        }
+#endif
+
         // Setup LCD filtering. This reduces color fringes for LCD smoothed glyphs.
         // The default has changed over time, so this doesn't mean the same thing to all users.
         if (FT_Library_SetLcdFilter(fLibrary, FT_LCD_FILTER_DEFAULT) == 0) {
@@ -176,6 +195,9 @@ public:
     // However, this doesn't work when face_index specifies named variations as introduced in 2.6.1.
     using FT_Get_Var_Blend_CoordinatesProc = FT_Error (*)(FT_Face, FT_UInt, FT_Fixed*);
     FT_Get_Var_Blend_CoordinatesProc fGetVarDesignCoordinates;
+
+    using FT_Get_Var_Axis_Flags = FT_Error (*)(FT_MM_Var*, FT_UInt, FT_UInt*);
+    FT_Get_Var_Axis_Flags fGetVarAxisFlags;
 
 private:
     FT_Library fLibrary;
@@ -1578,6 +1600,56 @@ int SkTypeface_FreeType::onGetVariationDesignPosition(
         for (FT_UInt i = 0; i < variations->num_axis; ++i) {
             coordinates[i].axis = variations->axis[i].tag;
             coordinates[i].value = SkFixedToScalar(fta.getAxes()[i]);
+        }
+    } else if (fta.isNamedVariationSpecified()) {
+        // The font has axes, they cannot be retrieved, and some named axis was specified.
+        return -1;
+    } else {
+        // The font has axes, they cannot be retrieved, but no named instance was specified.
+        return 0;
+    }
+
+    return variations->num_axis;
+}
+
+int SkTypeface_FreeType::onGetVariationDesignParameters(
+    SkFontParameters::Variation::Axis parameters[], int parameterCount) const
+{
+    AutoFTAccess fta(this);
+    FT_Face face = fta.face();
+
+    if (!face || !(face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS)) {
+        return 0;
+    }
+
+    FT_MM_Var* variations = nullptr;
+    if (FT_Get_MM_Var(face, &variations)) {
+        return 0;
+    }
+
+    SkAutoFree autoFreeVariations(variations);
+
+    if (!parameters || parameterCount < SkToInt(variations->num_axis)) {
+        return variations->num_axis;
+    }
+
+    SkAutoSTMalloc<4, FT_Fixed> coords(variations->num_axis);
+    // FT_Get_{MM,Var}_{Blend,Design}_Coordinates were added in FreeType 2.7.1.
+    if ((gFTLibrary->fGetVarDesignCoordinates &&
+        !gFTLibrary->fGetVarDesignCoordinates(face, variations->num_axis, coords.get()))
+        || static_cast<FT_UInt>(fta.getAxesCount()) == variations->num_axis) {
+        for (FT_UInt i = 0; i < variations->num_axis; ++i) {
+            parameters[i].tag = variations->axis[i].tag;
+            parameters[i].min = variations->axis[i].minimum;
+            parameters[i].def = variations->axis[i].def;
+            parameters[i].max = variations->axis[i].maximum;
+            FT_UInt flags = 0;
+            if (gFTLibrary->fGetVarAxisFlags &&
+                !gFTLibrary->fGetVarAxisFlags(variations, i, &flags)) {
+                if (flags & FT_VAR_AXIS_FLAG_HIDDEN) {
+                    parameters[i].setHiden(true);
+                }
+            }
         }
     } else if (fta.isNamedVariationSpecified()) {
         // The font has axes, they cannot be retrieved, and some named axis was specified.
