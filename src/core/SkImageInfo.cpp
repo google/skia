@@ -27,23 +27,6 @@ int SkColorTypeBytesPerPixel(SkColorType ct) {
     return 0;
 }
 
-// These values must be constant over revisions, though they can be renamed to reflect if/when
-// they are deprecated.
-enum Stored_SkColorType {
-    kUnknown_Stored_SkColorType             = 0,
-    kAlpha_8_Stored_SkColorType             = 1,
-    kRGB_565_Stored_SkColorType             = 2,
-    kARGB_4444_Stored_SkColorType           = 3,
-    kRGBA_8888_Stored_SkColorType           = 4,
-    kBGRA_8888_Stored_SkColorType           = 5,
-    kIndex_8_Stored_SkColorType_DEPRECATED  = 6,
-    kGray_8_Stored_SkColorType              = 7,
-    kRGBA_F16_Stored_SkColorType            = 8,
-    kRGB_888x_Stored_SkColorType            = 9,
-    kRGBA_1010102_Stored_SkColorType        = 10,
-    kRGB_101010x_Stored_SkColorType         = 11,
-};
-
 bool SkColorTypeIsAlwaysOpaque(SkColorType ct) {
     return !(kAlpha_SkColorTypeComponentFlag & SkColorTypeComponentFlags(ct));
 }
