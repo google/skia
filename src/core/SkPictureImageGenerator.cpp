@@ -23,10 +23,6 @@ SkPictureImageGenerator::Make(const SkISize& size, sk_sp<SkPicture> picture, con
         return nullptr;
     }
 
-    if (colorSpace && (!colorSpace->gammaCloseToSRGB() && !colorSpace->gammaIsLinear())) {
-        return nullptr;
-    }
-
     SkColorType colorType = kN32_SkColorType;
     if (SkImage::BitDepth::kF16 == bitDepth) {
         colorType = kRGBA_F16_SkColorType;

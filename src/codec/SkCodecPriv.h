@@ -283,13 +283,10 @@ static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkColorSp
         return false;
     }
 
-    // F16 is by definition a linear space, so we always must perform a color xform.
-    bool isF16 = kRGBA_F16_SkColorType == dstInfo.colorType();
-
     // Need a color xform when dst space does not match the src.
     bool srcDstNotEqual = !SkColorSpace::Equals(srcCS, dstInfo.colorSpace());
 
-    return needsColorCorrectPremul || isF16 || srcDstNotEqual;
+    return needsColorCorrectPremul || srcDstNotEqual;
 }
 
 static inline SkAlphaType select_xform_alpha(SkAlphaType dstAlphaType, SkAlphaType srcAlphaType) {
