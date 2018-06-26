@@ -104,6 +104,9 @@ bool GrContext::initCommon(const GrContextOptions& options) {
 #if GR_TEST_UTILS
     prcOptions.fGpuPathRenderers = options.fGpuPathRenderers;
 #endif
+    if (options.fDisableCoverageCountingPaths) {
+        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kCoverageCounting;
+    }
     if (options.fDisableDistanceFieldPaths) {
         prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
     }
