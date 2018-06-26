@@ -400,8 +400,14 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
         return false;
     }
 
-    fProxy->fWidth = surface->width();
-    fProxy->fHeight = surface->height();
+    if (fProxy->fWidth <= 0 || fProxy->fHeight <= 0) {
+        // This was a fully lazy proxy. We need to fill in the width & height. For partially
+        // lazy proxies we must preserve the original width & height since that indicates
+        // the content area.
+        SkASSERT(fProxy->fWidth <= 0 && fProxy->fHeight <= 0);
+        fProxy->fWidth = surface->width();
+        fProxy->fHeight = surface->height();
+    }
 
     bool needsStencil = fProxy->asRenderTargetProxy()
                                         ? fProxy->asRenderTargetProxy()->needsStencil()
