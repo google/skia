@@ -115,6 +115,11 @@ public:
     virtual void abandonContext();
 
     /**
+     * Returns true if the context was abandoned.
+     */
+    bool abandoned() const;
+
+    /**
      * This is similar to abandonContext() however the underlying 3D context is not yet lost and
      * the GrContext will cleanup all allocated resources before returning. After returning it will
      * assume that the underlying context may no longer be valid.
