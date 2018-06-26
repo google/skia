@@ -14,64 +14,61 @@
  * limitations under the License.
  */
 
+#include <SkCanvas.h>
+#include "SkSurface.h"
 #include "point_cloud_renderer.h"
 #include "util.h"
 
 namespace hello_ar {
     namespace {
-        constexpr char kVertexShader[] = R"(
-    attribute vec4 vertex;
-    uniform mat4 mvp;
-    void main() {
-      gl_PointSize = 5.0;
-      // Pointcloud vertex's w component is confidence value.
-      // Not used in renderer.
-      gl_Position = mvp * vec4(vertex.xyz, 1.0);
-    })";
-
-        constexpr char kFragmentShader[] = R"(
-    precision lowp float;
-    void main() {
-      gl_FragColor = vec4(0.1215, 0.7372, 0.8235, 1.0);
-    })";
-    }  // namespace
-
-    void PointCloudRenderer::InitializeGlContent() {
-        shader_program_ = util::CreateProgram(kVertexShader, kFragmentShader);
-
-        CHECK(shader_program_);
-
-        attribute_vertices_ = glGetAttribLocation(shader_program_, "vertex");
-        uniform_mvp_mat_ = glGetUniformLocation(shader_program_, "mvp");
-
-        util::CheckGlError("point_cloud_renderer::InitializeGlContent()");
+        SkColor kPointColor = SkColorSetARGB(220, 20, 232, 255);
+        SkScalar kPointWidth = 0.003f;
+        SkPaint GetPointPaint() {
+            SkPaint paint;
+            paint.setStrokeCap(SkPaint::kSquare_Cap);
+            paint.setStrokeWidth(kPointWidth);
+            paint.setColor(kPointColor);
+            return paint;
+        }
     }
 
-    void PointCloudRenderer::Draw(glm::mat4 mvp_matrix, ArSession *ar_session,
-                                  ArPointCloud *ar_point_cloud) const {
-        CHECK(shader_program_);
+    void PointCloudRenderer::Draw(ArSession* arSession, ArFrame* arFrame, SkSurface* surface, SkMatrix44& vpv)  const {
+        ArPointCloud* arPointCloud = nullptr;
+        ArStatus pointCloudStatus =
+                ArFrame_acquirePointCloud(arSession, arFrame, &arPointCloud);
 
-        glUseProgram(shader_program_);
-
-        int32_t number_of_points = 0;
-        ArPointCloud_getNumberOfPoints(ar_session, ar_point_cloud, &number_of_points);
-        if (number_of_points <= 0) {
+        if (pointCloudStatus != AR_SUCCESS) {
             return;
         }
 
-        const float *point_cloud_data;
-        ArPointCloud_getData(ar_session, ar_point_cloud, &point_cloud_data);
+        //Number of points to be rendered
+        int32_t numberOfPoints = 0;
+        ArPointCloud_getNumberOfPoints(arSession, arPointCloud, &numberOfPoints);
+        if (numberOfPoints <= 0) {
+            return;
+        }
 
-        glUniformMatrix4fv(uniform_mvp_mat_, 1, GL_FALSE, glm::value_ptr(mvp_matrix));
+        //Get point data
+        const float* pointCloudData;
+        ArPointCloud_getData(arSession, arPointCloud, &pointCloudData);
 
-        glEnableVertexAttribArray(attribute_vertices_);
-        glVertexAttribPointer(attribute_vertices_, 4, GL_FLOAT, GL_FALSE, 0,
-                              point_cloud_data);
+        //Prepare model matrices for each point
+        std::vector<glm::mat4> models;
+        for (int i = 0; i < numberOfPoints; i++) {
+            glm::mat4 translate(1);
+            translate = glm::translate(translate, glm::vec3(pointCloudData[i * 4], pointCloudData[i * 4 + 1], pointCloudData[i * 4 + 2]));
+            models.push_back(util::SkMatToGlmMat(vpv) * translate);
+        }
 
-        glDrawArrays(GL_POINTS, 0, number_of_points);
-
-        glUseProgram(0);
-        util::CheckGlError("PointCloudRenderer::Draw");
+        SkCanvas* planeCanvas = surface->getCanvas();
+        planeCanvas->save();
+        for (int i = 0; i < numberOfPoints; i++) {
+            planeCanvas->setMatrix(util::GlmMatToSkMat(models[i]));
+            planeCanvas->drawPoint(0, 0, GetPointPaint());
+        }
+        planeCanvas->flush();
+        planeCanvas->restore();
+        ArPointCloud_release(arPointCloud);
     }
 
 }  // namespace hello_ar

@@ -22,6 +22,7 @@
 
 #include "arcore_c_api.h"
 #include "glm.h"
+#include "anchor_wrapper.h"
 
 namespace hello_ar {
     class PendingAnchor {
@@ -29,20 +30,21 @@ namespace hello_ar {
         PendingAnchor(SkPoint touchLocation);
         ~PendingAnchor();
 
-        SkPoint GetTouchLocation();
-        bool GetEditMode();
-        ArPlane* GetContainingPlane();
-        glm::vec4 GetAnchorPos(ArSession* arSession);
-        ArAnchor* GetArAnchor();
+        SkPoint GetTouchLocation() const;
+        bool GetEditMode() const;
+        ArPlane* GetContainingPlane() const;
+        glm::vec4 GetAnchorPos(ArSession* arSession) const;
+        AnchorWrapper* GetAnchorWrapper() const;
+        ArAnchor* GetArAnchor() const;
 
-        void SetArAnchor(ArAnchor* anchor);
+        void SetAnchorWrapper(AnchorWrapper* anchorW);
         void SetEditMode(bool editMode);
         void SetContainingPlane(ArPlane* plane);
 
     private:
         SkPoint touchLocation;
         bool editMode = false;
-        ArAnchor* anchor;
+        AnchorWrapper* anchorWrapper;
         ArPlane* containingPlane;
     };
 }  // namespace hello_ar
