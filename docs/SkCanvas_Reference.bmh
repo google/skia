@@ -1877,8 +1877,7 @@ Sets fBounds, fPaint, and fBackdrop to nullptr. Clears fSaveLayerFlags.
 
 ##
 
-#Method SaveLayerRec(const SkRect* bounds, const SkPaint* paint,
-        SaveLayerFlags saveLayerFlags = 0)
+#Method SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0)
 
 Sets fBounds, fPaint, and fSaveLayerFlags; sets fBackdrop to nullptr.
 
@@ -5918,9 +5917,12 @@ to draw, if present. For each entry in the array, Rect tex locates sprite in
 atlas, and RSXform xform transforms it into destination space.
 
 xform, text, and colors if present, must contain count entries.
-Optional colors are applied for each sprite using Blend_Mode.
+Optional colors are applied for each sprite using Blend_Mode mode, treating
+sprite as source and colors as destination.
 Optional cullRect is a conservative bounds of all transformed sprites.
 If cullRect is outside of Clip, canvas can skip drawing.
+
+
 
 #Param atlas  Image containing sprites ##
 #Param xform  RSXform mappings for sprites in atlas ##
