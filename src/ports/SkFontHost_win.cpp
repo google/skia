@@ -277,6 +277,11 @@ protected:
     {
         return -1;
     }
+    int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
+                                       int parameterCount) const override
+    {
+        return -1;
+    }
     int onGetTableTags(SkFontTableTag tags[]) const override;
     size_t onGetTableData(SkFontTableTag, size_t offset, size_t length, void* data) const override;
 };

@@ -72,6 +72,12 @@
 #    define FT_LOAD_BITMAP_METRICS_ONLY ( 1L << 22 )
 #endif
 
+// FT_VAR_AXIS_FLAG_HIDDEN was introduced in FreeType 2.8.1
+// The variation axis should not be exposed to user interfaces.
+#ifndef FT_VAR_AXIS_FLAG_HIDDEN
+#    define FT_VAR_AXIS_FLAG_HIDDEN 1
+#endif
+
 //#define ENABLE_GLYPH_SPEW     // for tracing calls
 //#define DUMP_STRIKE_CREATION
 //#define SK_FONTHOST_FREETYPE_RUNTIME_VERSION
@@ -104,6 +110,7 @@ class FreeTypeLibrary : SkNoncopyable {
 public:
     FreeTypeLibrary()
         : fGetVarDesignCoordinates(nullptr)
+        , fGetVarAxisFlags(nullptr)
         , fLibrary(nullptr)
         , fIsLCDSupported(false)
         , fLCDExtra(0)
@@ -153,6 +160,19 @@ public:
         }
 #endif
 
+#if SK_FREETYPE_MINIMUM_RUNTIME_VERSION >= 0x02080100
+        fGetVarAxisFlags = FT_Get_Var_Axis_Flags;
+#elif SK_FREETYPE_MINIMUM_RUNTIME_VERSION & SK_FREETYPE_DLOPEN
+        if (major > 2 || ((major == 2 && minor > 7) || (major == 2 && minor == 7 && patch >= 0))) {
+            //The FreeType library is already loaded, so symbols are available in process.
+            void* self = dlopen(nullptr, RTLD_LAZY);
+            if (self) {
+                *(void**)(&fGetVarAxisFlags) = dlsym(self, "FT_Get_Var_Axis_Flags");
+                dlclose(self);
+            }
+        }
+#endif
+
         // Setup LCD filtering. This reduces color fringes for LCD smoothed glyphs.
         // The default has changed over time, so this doesn't mean the same thing to all users.
         if (FT_Library_SetLcdFilter(fLibrary, FT_LCD_FILTER_DEFAULT) == 0) {
@@ -176,6 +196,12 @@ public:
     // However, this doesn't work when face_index specifies named variations as introduced in 2.6.1.
     using FT_Get_Var_Blend_CoordinatesProc = FT_Error (*)(FT_Face, FT_UInt, FT_Fixed*);
     FT_Get_Var_Blend_CoordinatesProc fGetVarDesignCoordinates;
+
+    // FT_Get_Var_Axis_Flags was introduced in FreeType 2.8.1
+    // Get the ‘flags’ field of an OpenType Variation Axis Record.
+    // Not meaningful for Adobe MM fonts (‘*flags’ is always zero).
+    using FT_Get_Var_Axis_FlagsProc = FT_Error (*)(FT_MM_Var*, FT_UInt, FT_UInt*);
+    FT_Get_Var_Axis_FlagsProc fGetVarAxisFlags;
 
 private:
     FT_Library fLibrary;
@@ -1546,18 +1572,21 @@ SkTypeface::LocalizedStrings* SkTypeface_FreeType::onCreateFamilyNameIterator() 
 }
 
 int SkTypeface_FreeType::onGetVariationDesignPosition(
-        SkFontArguments::VariationPosition::Coordinate coordinates[], int coordinateCount) const
+    SkFontArguments::VariationPosition::Coordinate coordinates[], int coordinateCount) const
 {
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
+    if (!face) {
+        return -1;
+    }
 
-    if (!face || !(face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS)) {
+    if (!(face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS)) {
         return 0;
     }
 
     FT_MM_Var* variations = nullptr;
     if (FT_Get_MM_Var(face, &variations)) {
-        return 0;
+        return -1;
     }
     SkAutoFree autoFreeVariations(variations);
 
@@ -1585,6 +1614,44 @@ int SkTypeface_FreeType::onGetVariationDesignPosition(
     } else {
         // The font has axes, they cannot be retrieved, but no named instance was specified.
         return 0;
+    }
+
+    return variations->num_axis;
+}
+
+int SkTypeface_FreeType::onGetVariationDesignParameters(
+    SkFontParameters::Variation::Axis parameters[], int parameterCount) const
+{
+    AutoFTAccess fta(this);
+    FT_Face face = fta.face();
+    if (!face) {
+        return -1;
+    }
+
+    if (!(face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS)) {
+        return 0;
+    }
+
+    FT_MM_Var* variations = nullptr;
+    if (FT_Get_MM_Var(face, &variations)) {
+        return -1;
+    }
+    SkAutoFree autoFreeVariations(variations);
+
+    if (!parameters || parameterCount < SkToInt(variations->num_axis)) {
+        return variations->num_axis;
+    }
+
+    for (FT_UInt i = 0; i < variations->num_axis; ++i) {
+        parameters[i].tag = variations->axis[i].tag;
+        parameters[i].min = SkFixedToScalar(variations->axis[i].minimum);
+        parameters[i].def = SkFixedToScalar(variations->axis[i].def);
+        parameters[i].max = SkFixedToScalar(variations->axis[i].maximum);
+        FT_UInt flags = 0;
+        bool hidden = gFTLibrary->fGetVarAxisFlags &&
+            !gFTLibrary->fGetVarAxisFlags(variations, i, &flags) &&
+            (flags & FT_VAR_AXIS_FLAG_HIDDEN);
+        parameters[i].setHidden(hidden);
     }
 
     return variations->num_axis;

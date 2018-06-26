@@ -79,6 +79,11 @@ protected:
     {
         return 0;
     }
+    int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
+                                       int parameterCount) const override
+    {
+        return 0;
+    }
     int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
     size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const override {
         return 0;
@@ -207,6 +212,12 @@ int SkTypeface::getVariationDesignPosition(
     return this->onGetVariationDesignPosition(coordinates, coordinateCount);
 }
 
+int SkTypeface::getVariationDesignParameters(
+        SkFontParameters::Variation::Axis parameters[], int parameterCount) const
+{
+    return this->onGetVariationDesignParameters(parameters, parameterCount);
+}
+
 int SkTypeface::countTables() const {
     return this->onGetTableTags(nullptr);
 }
@@ -322,6 +333,11 @@ bool SkTypeface::onGetKerningPairAdjustments(const uint16_t glyphs[], int count,
 
 sk_sp<SkTypeface> SkTypeface::onMakeClone(const SkFontArguments& args) const {
     return sk_ref_sp(this);
+}
+
+int SkTypeface::onGetVariationDesignParameters(
+        SkFontParameters::Variation::Axis parameters[], int parameterCount) const {
+    return -1;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -82,6 +82,11 @@ protected:
         SK_ABORT("Should never be called.");
         return 0;
     }
+    int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
+                                       int parameterCount) const override {
+        SK_ABORT("Should never be called.");
+        return 0;
+    }
     void onGetFamilyName(SkString* familyName) const override {
         // Used by SkStrikeCache::DumpMemoryStatistics.
         *familyName = "";
