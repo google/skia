@@ -106,6 +106,17 @@ def nanobench_flags(api, bot):
     if 'Intel' in bot and api.vars.is_linux:
       configs.extend(['gles', 'glessrgb'])
 
+    # The following devices do not support glessrgb.
+    if 'glessrgb' in configs:
+      if ('IntelHD405'    in bot or
+          'IntelIris640'  in bot or
+          'IntelBayTrail' in bot or
+          'IntelHD2000'   in bot or
+          'AndroidOne'    in bot or
+          'Nexus7'        in bot or
+          'NexusPlayer'   in bot):
+        configs.remove('glessrgb')
+
     if 'CommandBuffer' in bot:
       configs = ['commandbuffer']
     if 'Vulkan' in bot:

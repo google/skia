@@ -182,7 +182,6 @@
       "gl",
       "glsrgb",
       "gles",
-      "glessrgb",
       "--match",
       "~inc0.gif",
       "~inc1.gif",
