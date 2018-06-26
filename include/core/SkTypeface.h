@@ -11,6 +11,7 @@
 #include "../private/SkOnce.h"
 #include "../private/SkWeakRefCnt.h"
 #include "SkFontArguments.h"
+#include "SkFontParameters.h"
 #include "SkFontStyle.h"
 #include "SkRect.h"
 #include "SkString.h"
@@ -70,6 +71,20 @@ public:
      */
     int getVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                    int coordinateCount) const;
+
+    /** Copy into 'parameters' (allocated by the caller) the design variation parameters.
+     *
+     *  @param parameters the buffer into which to write the design variation parameters.
+     *  @param coordinateCount the number of entries available through 'parameters'.
+     *
+     *  @return The number of axes, or -1 if there is an error.
+     *  If 'parameters != nullptr' and 'parameterCount >= numAxes' then 'parameters' will be
+     *  filled with the variation parameters describing the position of this typeface in design
+     *  variation space. It is possible the number of axes can be retrieved but actual parameters
+     *  cannot.
+     */
+    int getVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
+                                     int parameterCount) const;
 
     /** Return a 32bit value for this typeface, unique for the underlying font
         data. Will never return 0.
@@ -340,6 +355,9 @@ protected:
     virtual int onGetVariationDesignPosition(
         SkFontArguments::VariationPosition::Coordinate coordinates[],
         int coordinateCount) const = 0;
+
+    virtual int onGetVariationDesignParameters(
+        SkFontParameters::Variation::Axis parameters[], int parameterCount) const;
 
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const = 0;
 
