@@ -62,6 +62,7 @@ bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
         case kBGRA_8888_SkColorType:
             break;
         case kRGBA_F16_SkColorType:
+        case kRGBA_F32_SkColorType:
             break;
         default:
             return false;
