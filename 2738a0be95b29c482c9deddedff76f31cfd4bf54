@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bca75a9b_2cee3927",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1244,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-26T17:18:14Z",
+      "side": 1,
+      "message": "return kRGBA_F32_SkColorType;",
+      "revId": "2738a0be95b29c482c9deddedff76f31cfd4bf54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1118998e_b3e7f496",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1263,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-26T17:18:14Z",
+      "side": 1,
+      "message": "return GrColorType::kRGBA_F32;",
+      "revId": "2738a0be95b29c482c9deddedff76f31cfd4bf54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54139c43_e6a4f408",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-26T17:18:14Z",
+      "side": 1,
+      "message": "return kRGBA_float_GrPixelConfig;",
+      "revId": "2738a0be95b29c482c9deddedff76f31cfd4bf54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d73ae513_96934c54",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2898,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-26T17:18:14Z",
+      "side": 1,
+      "message": "I can make a follow-up pass to implement this (and a few other similar things).",
+      "revId": "2738a0be95b29c482c9deddedff76f31cfd4bf54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
