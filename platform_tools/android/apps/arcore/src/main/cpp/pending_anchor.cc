@@ -22,37 +22,45 @@
 namespace hello_ar {
     PendingAnchor::PendingAnchor(SkPoint touchLocation) : touchLocation(touchLocation) {}
 
-    PendingAnchor::~PendingAnchor() {}
+    PendingAnchor::~PendingAnchor() {
+        if (!editMode && anchorWrapper) {
+            ArAnchor_release(this->anchorWrapper->GetArAnchor());
+        }
+    }
 
-    SkPoint PendingAnchor::GetTouchLocation() {
+    SkPoint PendingAnchor::GetTouchLocation() const {
         return touchLocation;
     }
 
-    bool PendingAnchor::GetEditMode() {
+    bool PendingAnchor::GetEditMode() const {
         return editMode;
     }
 
-    ArPlane* PendingAnchor::GetContainingPlane() {
+    ArPlane* PendingAnchor::GetContainingPlane() const {
         return containingPlane;
     }
 
-    glm::vec4 PendingAnchor::GetAnchorPos(ArSession* arSession) {
+    glm::vec4 PendingAnchor::GetAnchorPos(ArSession* arSession) const {
         float poseRaw[] = {0, 0, 0, 0, 0, 0, 0};
         ArPose* anchorPose = nullptr;
         ArPose_create(arSession, poseRaw, &anchorPose);
-        ArAnchor_getPose(arSession, this->anchor, anchorPose);
+        ArAnchor_getPose(arSession, this->anchorWrapper->GetArAnchor(), anchorPose);
         ArPose_getPoseRaw(arSession, anchorPose, poseRaw);
         ArPose_destroy(anchorPose);
         glm::vec4 anchorPos = glm::vec4(poseRaw[4], poseRaw[5], poseRaw[6], 1);
         return anchorPos;
     }
 
-    ArAnchor* PendingAnchor::GetArAnchor() {
-        return anchor;
+    AnchorWrapper* PendingAnchor::GetAnchorWrapper() const {
+        return this->anchorWrapper;
     }
 
-    void PendingAnchor::SetArAnchor(ArAnchor* anchor) {
-        this->anchor = anchor;
+    ArAnchor* PendingAnchor::GetArAnchor() const {
+        return this->anchorWrapper->GetArAnchor();
+    }
+
+    void PendingAnchor::SetAnchorWrapper(AnchorWrapper* anchorW) {
+        this->anchorWrapper = anchorW;
     }
 
     void PendingAnchor::SetEditMode(bool editMode) {
