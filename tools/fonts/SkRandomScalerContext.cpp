@@ -217,6 +217,12 @@ int SkRandomTypeface::onGetVariationDesignPosition(
     return fProxy->onGetVariationDesignPosition(coordinates, coordinateCount);
 }
 
+int SkRandomTypeface::onGetVariationDesignParameters(
+        SkFontParameters::Variation::Axis parameters[], int parameterCount) const
+{
+    return fProxy->onGetVariationDesignParameters(parameters, parameterCount);
+}
+
 int SkRandomTypeface::onGetTableTags(SkFontTableTag tags[]) const {
     return fProxy->getTableTags(tags);
 }
