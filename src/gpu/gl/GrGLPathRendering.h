@@ -67,6 +67,7 @@ protected:
     void onStencilPath(const StencilPathArgs&, const GrPath*) override;
     void onDrawPath(const GrPrimitiveProcessor&,
                     const GrPipeline&,
+                    const GrPipeline::FixedDynamicState&,
                     const GrStencilSettings&,
                     const GrPath*) override;
 

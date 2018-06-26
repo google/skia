@@ -157,7 +157,7 @@ private:
     sk_sp<GrBuffer> fInstanceBuffer;
     PrimitiveTallies fBaseInstances[kNumScissorModes];
     mutable SkSTArray<32, GrMesh> fMeshesScratchBuffer;
-    mutable SkSTArray<32, GrPipeline::DynamicState> fDynamicStatesScratchBuffer;
+    mutable SkSTArray<32, SkIRect> fScissorRectScratchBuffer;
 };
 
 inline void GrCCPathParser::PathStats::statPath(const SkPath& path) {

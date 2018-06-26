@@ -88,13 +88,15 @@ private:
 
     GrVkPipelineState* prepareDrawState(const GrPrimitiveProcessor&,
                                         const GrPipeline&,
-                                        GrPrimitiveType,
-                                        bool hasDynamicState);
+                                        const GrPipeline::FixedDynamicState*,
+                                        const GrPipeline::DynamicStateArrays*,
+                                        GrPrimitiveType);
 
-    void onDraw(const GrPrimitiveProcessor& primProc,
-                const GrPipeline& pipeline,
-                const GrMesh mesh[],
-                const GrPipeline::DynamicState[],
+    void onDraw(const GrPrimitiveProcessor&,
+                const GrPipeline&,
+                const GrPipeline::FixedDynamicState*,
+                const GrPipeline::DynamicStateArrays*,
+                const GrMesh[],
                 int meshCount,
                 const SkRect& bounds) override;
 

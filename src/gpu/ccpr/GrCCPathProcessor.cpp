@@ -130,6 +130,7 @@ GrGLSLPrimitiveProcessor* GrCCPathProcessor::createGLSLInstance(const GrShaderCa
 }
 
 void GrCCPathProcessor::drawPaths(GrOpFlushState* flushState, const GrPipeline& pipeline,
+                                  const GrPipeline::FixedDynamicState* fixedDynamicState,
                                   const GrCCPerFlushResources& resources, int baseInstance,
                                   int endInstance, const SkRect& bounds) const {
     const GrCaps& caps = flushState->caps();
@@ -147,7 +148,8 @@ void GrCCPathProcessor::drawPaths(GrOpFlushState* flushState, const GrPipeline& 
                              enablePrimitiveRestart);
     mesh.setVertexData(resources.vertexBuffer());
 
-    flushState->rtCommandBuffer()->draw(*this, pipeline, &mesh, nullptr, 1, bounds);
+    flushState->rtCommandBuffer()->draw(*this, pipeline, fixedDynamicState, nullptr, &mesh, 1,
+                                        bounds);
 }
 
 void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {

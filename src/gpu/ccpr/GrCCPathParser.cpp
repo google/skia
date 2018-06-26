@@ -517,7 +517,7 @@ bool GrCCPathParser::finalize(GrOnFlushResourceProvider* onFlushRP) {
     SkASSERT(instanceIndices[1].fConics == quadEndIdx);
 
     fMeshesScratchBuffer.reserve(fMaxMeshesPerDraw);
-    fDynamicStatesScratchBuffer.reserve(fMaxMeshesPerDraw);
+    fScissorRectScratchBuffer.reserve(fMaxMeshesPerDraw);
 
     return true;
 }
@@ -564,11 +564,11 @@ void GrCCPathParser::drawPrimitives(GrOpFlushState* flushState, const GrPipeline
                                     GrCCCoverageProcessor::PrimitiveType primitiveType,
                                     int PrimitiveTallies::*instanceType,
                                     const SkIRect& drawBounds) const {
-    SkASSERT(pipeline.getScissorState().enabled());
+    SkASSERT(pipeline.isScissorEnabled());
 
     // Don't call reset(), as that also resets the reserve count.
     fMeshesScratchBuffer.pop_back_n(fMeshesScratchBuffer.count());
-    fDynamicStatesScratchBuffer.pop_back_n(fDynamicStatesScratchBuffer.count());
+    fScissorRectScratchBuffer.pop_back_n(fScissorRectScratchBuffer.count());
 
     GrCCCoverageProcessor proc(flushState->resourceProvider(), primitiveType);
 
@@ -584,8 +584,8 @@ void GrCCPathParser::drawPrimitives(GrOpFlushState* flushState, const GrPipeline
         int baseInstance = fBaseInstances[(int)ScissorMode::kNonScissored].*instanceType +
                            previousBatch.fEndNonScissorIndices.*instanceType;
         proc.appendMesh(fInstanceBuffer.get(), instanceCount, baseInstance, &fMeshesScratchBuffer);
-        fDynamicStatesScratchBuffer.push_back().fScissorRect.setXYWH(0, 0, drawBounds.width(),
-                                                                     drawBounds.height());
+        fScissorRectScratchBuffer.push_back().setXYWH(0, 0, drawBounds.width(),
+                                                      drawBounds.height());
         SkDEBUGCODE(totalInstanceCount += instanceCount);
     }
 
@@ -603,17 +603,17 @@ void GrCCPathParser::drawPrimitives(GrOpFlushState* flushState, const GrPipeline
         SkASSERT(instanceCount > 0);
         proc.appendMesh(fInstanceBuffer.get(), instanceCount,
                         baseScissorInstance + startIndex, &fMeshesScratchBuffer);
-        fDynamicStatesScratchBuffer.push_back().fScissorRect = scissorSubBatch.fScissor;
+        fScissorRectScratchBuffer.push_back() = scissorSubBatch.fScissor;
         SkDEBUGCODE(totalInstanceCount += instanceCount);
     }
 
-    SkASSERT(fMeshesScratchBuffer.count() == fDynamicStatesScratchBuffer.count());
+    SkASSERT(fMeshesScratchBuffer.count() == fScissorRectScratchBuffer.count());
     SkASSERT(fMeshesScratchBuffer.count() <= fMaxMeshesPerDraw);
     SkASSERT(totalInstanceCount == batch.fTotalPrimitiveCounts.*instanceType);
 
     if (!fMeshesScratchBuffer.empty()) {
-        proc.draw(flushState, pipeline, fMeshesScratchBuffer.begin(),
-                  fDynamicStatesScratchBuffer.begin(), fMeshesScratchBuffer.count(),
+        proc.draw(flushState, pipeline, fScissorRectScratchBuffer.begin(),
+                  fMeshesScratchBuffer.begin(), fMeshesScratchBuffer.count(),
                   SkRect::Make(drawBounds));
     }
 }

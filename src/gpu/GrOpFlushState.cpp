@@ -44,8 +44,8 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(uint32_t opID, const Sk
         }
         SkASSERT(fCurrDraw->fPipeline->proxy() == this->drawOpArgs().fProxy);
         this->rtCommandBuffer()->draw(*fCurrDraw->fGeometryProcessor, *fCurrDraw->fPipeline,
-                                      fMeshes.begin() + fCurrMesh, nullptr, fCurrDraw->fMeshCnt,
-                                      opBounds);
+                                      fCurrDraw->fFixedDynamicState, fCurrDraw->fDynamicStateArrays,
+                                      fMeshes.begin() + fCurrMesh, fCurrDraw->fMeshCnt, opBounds);
         fCurrMesh += fCurrDraw->fMeshCnt;
         fTokenTracker->flushToken();
         ++fCurrDraw;
@@ -105,6 +105,7 @@ GrDeferredUploadToken GrOpFlushState::addASAPUpload(GrDeferredTextureUploadFn&& 
 }
 
 void GrOpFlushState::draw(const GrGeometryProcessor* gp, const GrPipeline* pipeline,
+                          const GrPipeline::FixedDynamicState* fixedDynamicState,
                           const GrMesh& mesh) {
     SkASSERT(fOpArgs);
     SkASSERT(fOpArgs->fOp);
@@ -114,7 +115,10 @@ void GrOpFlushState::draw(const GrGeometryProcessor* gp, const GrPipeline* pipel
         Draw& lastDraw = *fDraws.begin();
         // If the last draw shares a geometry processor and pipeline and there are no intervening
         // uploads, add this mesh to it.
-        if (lastDraw.fGeometryProcessor == gp && lastDraw.fPipeline == pipeline) {
+        // Note, we could attempt to convert fixed dynamic states into dynamic state arrays here
+        // if everything else is equal. Maybe it's better to rely on Ops to do that?
+        if (lastDraw.fGeometryProcessor == gp && lastDraw.fPipeline == pipeline &&
+            lastDraw.fFixedDynamicState == fixedDynamicState) {
             if (fInlineUploads.begin() == fInlineUploads.end() ||
                 fInlineUploads.tail()->fUploadBeforeToken != fTokenTracker->nextDrawToken()) {
                 ++lastDraw.fMeshCnt;
@@ -127,6 +131,8 @@ void GrOpFlushState::draw(const GrGeometryProcessor* gp, const GrPipeline* pipel
 
     draw.fGeometryProcessor.reset(gp);
     draw.fPipeline = pipeline;
+    draw.fFixedDynamicState = fixedDynamicState;
+    draw.fDynamicStateArrays = nullptr;
     draw.fMeshCnt = 1;
     draw.fOpID = fOpArgs->fOp->uniqueID();
     if (firstDraw) {
