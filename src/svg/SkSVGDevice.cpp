@@ -988,7 +988,8 @@ void SkSVGDevice::drawTextOnPath(const void* text, size_t len, const SkPath& pat
     }
 }
 
-void SkSVGDevice::drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) {
+void SkSVGDevice::drawVertices(const SkVertices*, const SkMatrix*, int, SkBlendMode,
+                               const SkPaint&) {
     // todo
 }
 
