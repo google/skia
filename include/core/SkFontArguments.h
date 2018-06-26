@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkFontAgruments_DEFINED
-#define SkFontAgruments_DEFINED
+#ifndef SkFontArguments_DEFINED
+#define SkFontArguments_DEFINED
 
 #include "SkScalar.h"
 #include "SkTypes.h"
