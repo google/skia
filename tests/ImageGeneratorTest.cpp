@@ -90,11 +90,13 @@ DEF_TEST(PictureImageGenerator, reporter) {
         { kRGBA_8888_SkColorType, kPremul_SkAlphaType, kRGBA_8888_SkColorType == kN32_SkColorType },
         { kBGRA_8888_SkColorType, kPremul_SkAlphaType, kBGRA_8888_SkColorType == kN32_SkColorType },
         { kRGBA_F16_SkColorType,  kPremul_SkAlphaType, true },
+        { kRGBA_F32_SkColorType,  kPremul_SkAlphaType, true },
         { kRGBA_1010102_SkColorType, kPremul_SkAlphaType, true },
 
         { kRGBA_8888_SkColorType, kUnpremul_SkAlphaType, false },
         { kBGRA_8888_SkColorType, kUnpremul_SkAlphaType, false },
         { kRGBA_F16_SkColorType,  kUnpremul_SkAlphaType, false },
+        { kRGBA_F32_SkColorType,  kUnpremul_SkAlphaType, false },
         { kRGBA_1010102_SkColorType, kUnpremul_SkAlphaType, false },
     };
 

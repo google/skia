@@ -123,6 +123,7 @@ public:
             case kRGBA_8888_SkColorType:    p.append(SkRasterPipeline::load_8888,    ctx); break;
             case kRGBA_1010102_SkColorType: p.append(SkRasterPipeline::load_1010102, ctx); break;
             case kRGBA_F16_SkColorType:     p.append(SkRasterPipeline::load_f16,     ctx); break;
+            case kRGBA_F32_SkColorType:     p.append(SkRasterPipeline::load_f32,     ctx); break;
 
             case kRGB_888x_SkColorType:     p.append(SkRasterPipeline::load_8888,    ctx);
                                             p.append(SkRasterPipeline::force_opaque     ); break;
