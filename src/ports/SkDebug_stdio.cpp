@@ -14,7 +14,11 @@
 void SkDebugf(const char format[], ...) {
     va_list args;
     va_start(args, format);
+#ifdef DEBUG_STDOUT
+    vfprintf(stdout, format, args);
+#else
     vfprintf(stderr, format, args);
+#endif
     va_end(args);
 }
 #endif//!defined(SK_BUILD_FOR_WIN) && !defined(SK_BUILD_FOR_ANDROID)
