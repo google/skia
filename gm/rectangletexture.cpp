@@ -60,7 +60,7 @@ protected:
         if (!context) {
             return nullptr;
         }
-        if (context->contextPriv().abandoned()) {
+        if (context->abandoned()) {
             return nullptr;
         }
         GrGpu* gpu = context->contextPriv().getGpu();

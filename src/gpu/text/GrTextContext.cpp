@@ -103,7 +103,7 @@ void GrTextContext::drawTextBlob(GrContext* context, GrTextUtils::Target* target
                                  const SkTextBlob* blob, SkScalar x, SkScalar y,
                                  SkDrawFilter* drawFilter, const SkIRect& clipBounds) {
     // If we have been abandoned, then don't draw
-    if (context->contextPriv().abandoned()) {
+    if (context->abandoned()) {
         return;
     }
 
@@ -316,7 +316,7 @@ void GrTextContext::drawPosText(GrContext* context, GrTextUtils::Target* target,
                                 int scalarsPerPosition, const SkPoint& offset,
                                 const SkIRect& regionClipBounds) {
     GrTextUtils::Paint paint(&skPaint, &target->colorSpaceInfo());
-    if (context->contextPriv().abandoned()) {
+    if (context->abandoned()) {
         return;
     }
 
