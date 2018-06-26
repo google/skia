@@ -241,5 +241,6 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // values were clamped at "coverage/2 = .5", this only undoes the previous multiply by .5.
     f->codeAppend ("coverage = 1 - abs(fract(coverage) * 2 - 1);");
 
-    f->codeAppendf("%s = half4(coverage);", args.fOutputCoverage);
+    f->codeAppendf("%s = half4(.5+.5*coverage);", args.fOutputCoverage);
+    f->codeAppendf("%s = half4(0,.5,0,.5);", args.fOutputColor);
 }
