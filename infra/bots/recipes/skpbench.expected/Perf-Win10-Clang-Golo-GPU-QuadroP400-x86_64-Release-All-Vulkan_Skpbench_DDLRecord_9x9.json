@@ -69,6 +69,8 @@
       "vk",
       "-v5",
       "--ddl",
+      "--gpuThreads",
+      "0",
       "--ddlRecord",
       "--ddlNumAdditionalThreads",
       "9",
