@@ -132,6 +132,10 @@ static GrBackendFormat create_backend_format(GrContext* context,
                     return GrBackendFormat::MakeGL(GR_GL_RGBA16F, GR_GL_TEXTURE_2D);
                 }
                 break;
+            case kRGBA_F32_SkColorType:
+                if (kRGBA_float_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeGL(GR_GL_RGBA32F, GR_GL_TEXTURE_2D);
+                }
         }
     }
     break;
@@ -199,6 +203,10 @@ static GrBackendFormat create_backend_format(GrContext* context,
                     return  GrBackendFormat::MakeVk(VK_FORMAT_R16G16B16A16_SFLOAT);
                 }
                 break;
+            case kRGBA_F32_SkColorType:
+                if (kRGBA_float_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeVk(VK_FORMAT_R32G32B32A32_SFLOAT);
+                }
         }
         break;
 #endif
@@ -267,6 +275,10 @@ static GrBackendFormat create_backend_format(GrContext* context,
                     return  GrBackendFormat::MakeMock(config);
                 }
                 break;
+            case kRGBA_F32_SkColorType:
+                if (kRGBA_float_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeMock(config);
+                }
         }
         break;
     default:

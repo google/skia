@@ -210,7 +210,8 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
 
     // When we're drawing a constant color in Src mode, we can sometimes just memset.
     // (The previous two optimizations help find more opportunities for this one.)
-    if (is_constant && blitter->fBlend == SkBlendMode::kSrc) {
+    if (is_constant && blitter->fBlend == SkBlendMode::kSrc
+                    && blitter->fDst.shiftPerPixel() <= 3 /*TODO: F32*/) {
         // Run our color pipeline all the way through to produce what we'd memset when we can.
         // Not all blits can memset, so we need to keep colorPipeline too.
         SkRasterPipeline_<256> p;
@@ -243,6 +244,7 @@ void SkRasterPipelineBlitter::append_load_dst(SkRasterPipeline* p) const {
         case kRGBA_8888_SkColorType:    p->append(SkRasterPipeline::load_8888_dst,    ctx); break;
         case kRGBA_1010102_SkColorType: p->append(SkRasterPipeline::load_1010102_dst, ctx); break;
         case kRGBA_F16_SkColorType:     p->append(SkRasterPipeline::load_f16_dst,     ctx); break;
+        case kRGBA_F32_SkColorType:     p->append(SkRasterPipeline::load_f32_dst,     ctx); break;
 
         case kRGB_888x_SkColorType:     p->append(SkRasterPipeline::load_8888_dst,    ctx);
                                         p->append(SkRasterPipeline::force_opaque_dst     ); break;
@@ -275,6 +277,7 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
         case kRGBA_8888_SkColorType:    p->append(SkRasterPipeline::store_8888,    ctx); break;
         case kRGBA_1010102_SkColorType: p->append(SkRasterPipeline::store_1010102, ctx); break;
         case kRGBA_F16_SkColorType:     p->append(SkRasterPipeline::store_f16,     ctx); break;
+        case kRGBA_F32_SkColorType:     p->append(SkRasterPipeline::store_f32,     ctx); break;
 
         case kRGB_888x_SkColorType:     p->append(SkRasterPipeline::force_opaque         );
                                         p->append(SkRasterPipeline::store_8888,       ctx); break;
@@ -305,7 +308,7 @@ void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
                 case 1: sk_memset16(fDst.writable_addr16(x,y), fMemsetColor, w); break;
                 case 2: sk_memset32(fDst.writable_addr32(x,y), fMemsetColor, w); break;
                 case 3: sk_memset64(fDst.writable_addr64(x,y), fMemsetColor, w); break;
-                default: break;
+                default: SkASSERT(false); break;
             }
         }
         return;
