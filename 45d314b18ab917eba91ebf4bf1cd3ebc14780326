@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "255ce383_952fd2fe",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2898,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-26T17:58:14Z",
+      "side": 1,
+      "message": "This is just like F16, but testing against GR_GL_RGBA32F",
+      "revId": "45d314b18ab917eba91ebf4bf1cd3ebc14780326",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d24ebb8_2c69b0bd",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 629,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-26T17:58:14Z",
+      "side": 1,
+      "message": "Same as above, checking against VK_FORMAT_R32G32B32A32_SFLOAT",
+      "revId": "45d314b18ab917eba91ebf4bf1cd3ebc14780326",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
