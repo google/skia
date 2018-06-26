@@ -267,6 +267,9 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
             return nullptr;
         }
     }
+
+    SkASSERT(proxy->width() == desc.fWidth);
+    SkASSERT(proxy->height() == desc.fHeight);
     return proxy;
 }
 
