@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d01994c7_bf9f295b",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-26T19:52:26Z",
+      "side": 1,
+      "message": "Is it right that we\u0027re making a new factory here rather than sharing one from the original GrContext?",
+      "range": {
+        "startLine": 174,
+        "startChar": 26,
+        "endLine": 174,
+        "endChar": 52
+      },
+      "revId": "020c82b807000917610050581d2549e9e197f9cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a8d878f_76371a36",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-26T19:52:26Z",
+      "side": 1,
+      "message": "Am I correct that this is now thread safe because we only add entries in this function, this function is called by onCreateGLSLInstance and onGetGLSLProcessorKey which in turn are only called on the GrDirectContext (rather than the DDL context)?\n\nRob, are you ok with that? Seems like that might not always be true in the future. But maybe we can cross that bridge when we come to it.",
+      "range": {
+        "startLine": 157,
+        "startChar": 0,
+        "endLine": 165,
+        "endChar": 1
+      },
+      "revId": "020c82b807000917610050581d2549e9e197f9cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "183f6031_fc9b6932",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-26T19:52:26Z",
+      "side": 1,
+      "message": "You only need to include SkTypes if you don\u0027t include any other Sk*.h",
+      "range": {
+        "startLine": 11,
+        "startChar": 9,
+        "endLine": 11,
+        "endChar": 20
+      },
+      "revId": "020c82b807000917610050581d2549e9e197f9cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4031699b_26fc3aa8",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-26T19:52:26Z",
+      "side": 1,
+      "message": "What this?",
+      "range": {
+        "startLine": 82,
+        "startChar": 4,
+        "endLine": 82,
+        "endChar": 25
+      },
+      "revId": "020c82b807000917610050581d2549e9e197f9cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
