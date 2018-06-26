@@ -49,7 +49,7 @@
     M(load_565)  M(load_565_dst)  M(store_565)  M(gather_565)      \
     M(load_4444) M(load_4444_dst) M(store_4444) M(gather_4444)     \
     M(load_f16)  M(load_f16_dst)  M(store_f16)  M(gather_f16)      \
-    M(load_f32)  M(load_f32_dst)  M(store_f32)                     \
+    M(load_f32)  M(load_f32_dst)  M(store_f32)  M(gather_f32)      \
     M(load_8888) M(load_8888_dst) M(store_8888) M(gather_8888)     \
     M(load_bgra) M(load_bgra_dst) M(store_bgra) M(gather_bgra)     \
     M(load_1010102) M(load_1010102_dst) M(store_1010102) M(gather_1010102) \

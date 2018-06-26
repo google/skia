@@ -1712,15 +1712,23 @@ STAGE(store_u16_be, const SkJumper_MemoryCtx* ctx) {
 }
 
 STAGE(load_f32, const SkJumper_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<const float>(ctx, 4*dx,dy);
+    auto ptr = ptr_at_xy<const float>(ctx, 4*dx,4*dy);
     load4(ptr,tail, &r,&g,&b,&a);
 }
 STAGE(load_f32_dst, const SkJumper_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<const float>(ctx, 4*dx,dy);
+    auto ptr = ptr_at_xy<const float>(ctx, 4*dx,4*dy);
     load4(ptr,tail, &dr,&dg,&db,&da);
 }
+STAGE(gather_f32, const SkJumper_GatherCtx* ctx) {
+    const float* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, r,g);
+    r = gather(ptr, 4*ix + 0);
+    g = gather(ptr, 4*ix + 1);
+    b = gather(ptr, 4*ix + 2);
+    a = gather(ptr, 4*ix + 3);
+}
 STAGE(store_f32, const SkJumper_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<float>(ctx, 4*dx,dy);
+    auto ptr = ptr_at_xy<float>(ctx, 4*dx,4*dy);
     store4(ptr,tail, r,g,b,a);
 }
 

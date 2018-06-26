@@ -894,7 +894,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInf
 static void test_surface_creation_and_snapshot_with_color_space(
     skiatest::Reporter* reporter,
     const char* prefix,
-    bool f16Support,
+    bool supportsF16,
+    bool supportsF32,
     bool supports1010102,
     std::function<sk_sp<SkSurface>(const SkImageInfo&)> surfaceMaker) {
 
@@ -914,17 +915,21 @@ static void test_surface_creation_and_snapshot_with_color_space(
         bool                fShouldWork;
         const char*         fDescription;
     } testConfigs[] = {
-        { kN32_SkColorType,       nullptr,          true,  "N32-nullptr" },
-        { kN32_SkColorType,       linearColorSpace, true,  "N32-linear"  },
-        { kN32_SkColorType,       srgbColorSpace,   true,  "N32-srgb"    },
-        { kN32_SkColorType,       oddColorSpace,    true,  "N32-odd"     },
-        { kRGBA_F16_SkColorType,  nullptr,          true,  "F16-nullptr" },
-        { kRGBA_F16_SkColorType,  linearColorSpace, true,  "F16-linear"  },
-        { kRGBA_F16_SkColorType,  srgbColorSpace,   true,  "F16-srgb"    },
-        { kRGBA_F16_SkColorType,  oddColorSpace,    true,  "F16-odd"     },
-        { kRGB_565_SkColorType,   srgbColorSpace,   false, "565-srgb"    },
-        { kAlpha_8_SkColorType,   srgbColorSpace,   false, "A8-srgb"     },
-        { kRGBA_1010102_SkColorType, nullptr,       true,  "1010102-nullptr" },
+        { kN32_SkColorType,       nullptr,                     true,  "N32-nullptr" },
+        { kN32_SkColorType,       linearColorSpace,            true,  "N32-linear"  },
+        { kN32_SkColorType,       srgbColorSpace,              true,  "N32-srgb"    },
+        { kN32_SkColorType,       oddColorSpace,               true,  "N32-odd"     },
+        { kRGBA_F16_SkColorType,  nullptr,              supportsF16,  "F16-nullptr" },
+        { kRGBA_F16_SkColorType,  linearColorSpace,     supportsF16,  "F16-linear"  },
+        { kRGBA_F16_SkColorType,  srgbColorSpace,       supportsF16,  "F16-srgb"    },
+        { kRGBA_F16_SkColorType,  oddColorSpace,        supportsF16,  "F16-odd"     },
+        { kRGBA_F32_SkColorType,  nullptr,              supportsF32,  "F32-nullptr" },
+        { kRGBA_F32_SkColorType,  linearColorSpace,     supportsF32,  "F32-linear"  },
+        { kRGBA_F32_SkColorType,  srgbColorSpace,       supportsF32,  "F32-srgb"    },
+        { kRGBA_F32_SkColorType,  oddColorSpace,        supportsF32,  "F32-odd"     },
+        { kRGB_565_SkColorType,   srgbColorSpace,             false,  "565-srgb"    },
+        { kAlpha_8_SkColorType,   srgbColorSpace,             false,  "A8-srgb"     },
+        { kRGBA_1010102_SkColorType, nullptr,       supports1010102,  "1010102-nullptr" },
     };
 
     for (auto& testConfig : testConfigs) {
@@ -932,16 +937,11 @@ static void test_surface_creation_and_snapshot_with_color_space(
         SkImageInfo info = SkImageInfo::Make(10, 10, testConfig.fColorType, kPremul_SkAlphaType,
                                              testConfig.fColorSpace);
 
-        // For some GPU contexts (eg ANGLE), we don't have f16 support, so we should fail to create
-        // any surface of that type:
-        bool shouldWork = testConfig.fShouldWork &&
-                          (f16Support || kRGBA_F16_SkColorType != testConfig.fColorType) &&
-                          (supports1010102 || kRGBA_1010102_SkColorType != testConfig.fColorType);
-
         auto surface(surfaceMaker(info));
-        REPORTER_ASSERT(reporter, SkToBool(surface) == shouldWork, fullTestName.c_str());
+        REPORTER_ASSERT(reporter,
+                SkToBool(surface) == testConfig.fShouldWork, fullTestName.c_str());
 
-        if (shouldWork && surface) {
+        if (testConfig.fShouldWork && surface) {
             sk_sp<SkImage> image(surface->makeImageSnapshot());
             REPORTER_ASSERT(reporter, image, testConfig.fDescription);
             SkColorSpace* imageColorSpace = as_IB(image)->onImageInfo().colorSpace();
@@ -956,22 +956,25 @@ DEF_TEST(SurfaceCreationWithColorSpace, reporter) {
         return SkSurface::MakeRaster(info);
     };
 
-    test_surface_creation_and_snapshot_with_color_space(reporter, "raster", true, true,
+    test_surface_creation_and_snapshot_with_color_space(reporter, "raster",
+                                                        true, true, true,
                                                         surfaceMaker);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCreationWithColorSpace_Gpu, reporter, ctxInfo) {
     auto context = ctxInfo.grContext();
 
-    bool f16Support = context->contextPriv().caps()->isConfigRenderable(kRGBA_half_GrPixelConfig);
-    bool supports1010102 =
-            context->contextPriv().caps()->isConfigRenderable(kRGBA_1010102_GrPixelConfig);
+    bool supportsF16 = context->contextPriv().caps()->isConfigRenderable(kRGBA_half_GrPixelConfig),
+         supportsF32 = context->contextPriv().caps()->isConfigRenderable(kRGBA_float_GrPixelConfig),
+         supports1010102 = context->contextPriv().caps()->isConfigRenderable(kRGBA_1010102_GrPixelConfig);
+
     auto surfaceMaker = [context](const SkImageInfo& info) {
         return SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
     };
 
-    test_surface_creation_and_snapshot_with_color_space(reporter, "gpu", f16Support,
-                                                        supports1010102, surfaceMaker);
+    test_surface_creation_and_snapshot_with_color_space(reporter, "gpu",
+                                                        supportsF16, supportsF32, supports1010102,
+                                                        surfaceMaker);
 
     std::vector<GrBackendTexture> backendTextures;
     auto wrappedSurfaceMaker = [ context, &backendTextures ](const SkImageInfo& info) {
@@ -996,8 +999,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCreationWithColorSpace_Gpu, reporter, 
                                                  sk_ref_sp(info.colorSpace()), nullptr);
     };
 
-    test_surface_creation_and_snapshot_with_color_space(reporter, "wrapped", f16Support,
-                                                        supports1010102, wrappedSurfaceMaker);
+    test_surface_creation_and_snapshot_with_color_space(reporter, "wrapped",
+                                                        supportsF16, supportsF32, supports1010102,
+                                                        wrappedSurfaceMaker);
 
     context->flush();
 

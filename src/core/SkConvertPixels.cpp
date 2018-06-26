@@ -231,6 +231,16 @@ static void convert_to_alpha8(uint8_t* dst, size_t dstRB, const SkImageInfo& src
             }
             break;
         }
+        case kRGBA_F32_SkColorType: {
+            auto rgba = (const float*)src;
+            for (int y = 0; y < srcInfo.height(); y++) {
+                for (int x = 0; x < srcInfo.width(); x++) {
+                    dst[x] = (uint8_t)(255.0f * rgba[4*x+3]);
+                }
+                dst  = SkTAddOffset<uint8_t>(dst, dstRB);
+                rgba = SkTAddOffset<const float>(rgba, srcRB);
+            }
+        } break;
         default:
             SkASSERT(false);
             break;
@@ -269,6 +279,9 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
             break;
         case kRGBA_F16_SkColorType:
             pipeline.append(SkRasterPipeline::load_f16, &src);
+            break;
+        case kRGBA_F32_SkColorType:
+            pipeline.append(SkRasterPipeline::load_f32, &src);
             break;
         case kGray_8_SkColorType:
             pipeline.append(SkRasterPipeline::load_g8, &src);
@@ -380,6 +393,9 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
             break;
         case kRGBA_F16_SkColorType:
             pipeline.append(SkRasterPipeline::store_f16, &dst);
+            break;
+        case kRGBA_F32_SkColorType:
+            pipeline.append(SkRasterPipeline::store_f32, &dst);
             break;
         case kARGB_4444_SkColorType:
             pipeline.append(SkRasterPipeline::store_4444, &dst);

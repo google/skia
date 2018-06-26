@@ -230,6 +230,7 @@ bool SkPixmap::erase(SkColor color, const SkIRect& inArea) const {
         }
 
         case kRGBA_F16_SkColorType:
+        case kRGBA_F32_SkColorType:
             // The colorspace is unspecified, so assume linear just like getColor().
             this->erase(SkColor4f{(1 / 255.0f) * r,
                                   (1 / 255.0f) * g,
@@ -254,15 +255,29 @@ bool SkPixmap::erase(const SkColor4f& origColor, const SkIRect* subset) const {
 
     const SkColor4f color = origColor.pin();
 
-    if (kRGBA_F16_SkColorType != pm.colorType()) {
-        return pm.erase(color.toSkColor());
+    if (pm.colorType() == kRGBA_F16_SkColorType) {
+        const uint64_t half4 = color.premul().toF16();
+        for (int y = 0; y < pm.height(); ++y) {
+            sk_memset64(pm.writable_addr64(0, y), half4, pm.width());
+        }
+        return true;
     }
 
-    const uint64_t half4 = color.premul().toF16();
-    for (int y = 0; y < pm.height(); ++y) {
-        sk_memset64(pm.writable_addr64(0, y), half4, pm.width());
+    if (pm.colorType() == kRGBA_F32_SkColorType) {
+        const SkPM4f rgba = color.premul();
+        for (int y = 0; y < pm.height(); ++y) {
+            auto row = (float*)pm.writable_addr();
+            for (int x = 0; x < pm.width(); ++x) {
+                row[4*x+0] = rgba.r();
+                row[4*x+1] = rgba.g();
+                row[4*x+2] = rgba.b();
+                row[4*x+3] = rgba.a();
+            }
+        }
+        return true;
     }
-    return true;
+
+    return pm.erase(color.toSkColor());
 }
 
 bool SkPixmap::scalePixels(const SkPixmap& actualDst, SkFilterQuality quality) const {
@@ -396,17 +411,31 @@ SkColor SkPixmap::getColor(int x, int y) const {
                  | (uint32_t)( a * 255.0f ) << 24;
         }
         case kRGBA_F16_SkColorType: {
-             const uint64_t* addr =
-                 (const uint64_t*)fPixels + y * (fRowBytes >> 3) + x;
-             Sk4f p4 = SkHalfToFloat_finite_ftz(*addr);
-             if (p4[3] && needsUnpremul) {
-                 float inva = 1 / p4[3];
-                 p4 = p4 * Sk4f(inva, inva, inva, 1);
-             }
-             SkColor c;
-             SkNx_cast<uint8_t>(p4 * Sk4f(255) + Sk4f(0.5f)).store(&c);
-             // p4 is RGBA, but we want BGRA, so we need to swap next
-             return SkSwizzle_RB(c);
+            const uint64_t* addr =
+                (const uint64_t*)fPixels + y * (fRowBytes >> 3) + x;
+            Sk4f p4 = SkHalfToFloat_finite_ftz(*addr);
+            if (p4[3] && needsUnpremul) {
+                float inva = 1 / p4[3];
+                p4 = p4 * Sk4f(inva, inva, inva, 1);
+            }
+            SkColor c;
+            SkNx_cast<uint8_t>(p4 * Sk4f(255) + Sk4f(0.5f)).store(&c);
+            // p4 is RGBA, but we want BGRA, so we need to swap next
+            return SkSwizzle_RB(c);
+        }
+        case kRGBA_F32_SkColorType: {
+            const float* rgba =
+                (const float*)fPixels + 4*y*(fRowBytes >> 4) + 4*x;
+            Sk4f p4 = Sk4f::Load(rgba);
+            // From here on, just like F16:
+            if (p4[3] && needsUnpremul) {
+                float inva = 1 / p4[3];
+                p4 = p4 * Sk4f(inva, inva, inva, 1);
+            }
+            SkColor c;
+            SkNx_cast<uint8_t>(p4 * Sk4f(255) + Sk4f(0.5f)).store(&c);
+            // p4 is RGBA, but we want BGRA, so we need to swap next
+            return SkSwizzle_RB(c);
         }
         default:
             SkDEBUGFAIL("");

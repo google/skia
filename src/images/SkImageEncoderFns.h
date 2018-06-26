@@ -410,6 +410,39 @@ static inline void transform_scanline_F16_to_premul_8888(char* SK_RESTRICT dst,
     p.run(0,0, width,1);
 }
 
+/**
+ * Transform from kRGBA_F32 to 8-bytes-per-pixel RGBA.
+ */
+static inline void transform_scanline_F32(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
+                                          int width, int, const SkPMColor*) {
+    SkJumper_MemoryCtx src_ctx = { (void*)src, 0 },
+                       dst_ctx = { (void*)dst, 0 };
+    SkRasterPipeline_<256> p;
+    p.append(SkRasterPipeline::load_f32, &src_ctx);
+    p.append(SkRasterPipeline::clamp_0);  // F32 values may be out of [0,1] range, so clamp.
+    p.append(SkRasterPipeline::clamp_1);
+    p.append(SkRasterPipeline::to_srgb);
+    p.append(SkRasterPipeline::store_u16_be, &dst_ctx);
+    p.run(0,0, width,1);
+}
+
+/**
+ * Transform from kPremul, kRGBA_F32 to 8-bytes-per-pixel RGBA.
+ */
+static inline void transform_scanline_F32_premul(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
+                                                 int width, int, const SkPMColor*) {
+    SkJumper_MemoryCtx src_ctx = { (void*)src, 0 },
+                       dst_ctx = { (void*)dst, 0 };
+    SkRasterPipeline_<256> p;
+    p.append(SkRasterPipeline::load_f32, &src_ctx);
+    p.append(SkRasterPipeline::unpremul);
+    p.append(SkRasterPipeline::clamp_0);  // F32 values may be out of [0,1] range, so clamp.
+    p.append(SkRasterPipeline::clamp_1);
+    p.append(SkRasterPipeline::to_srgb);
+    p.append(SkRasterPipeline::store_u16_be, &dst_ctx);
+    p.run(0,0, width,1);
+}
+
 static inline sk_sp<SkData> icc_from_color_space(const SkImageInfo& info) {
     SkColorSpace* cs = info.colorSpace();
     if (!cs) {
@@ -417,7 +450,8 @@ static inline sk_sp<SkData> icc_from_color_space(const SkImageInfo& info) {
     }
 
     sk_sp<SkColorSpace> owned;
-    if (kRGBA_F16_SkColorType == info.colorType()) {
+    if (kRGBA_F16_SkColorType == info.colorType() ||
+        kRGBA_F32_SkColorType == info.colorType()) {
         owned = cs->makeSRGBGamma();
         cs = owned.get();
     }

@@ -93,7 +93,8 @@ enum SkColorType {
     kRGB_101010x_SkColorType,  //!< pixel with 10 bits each for red, green, blue; in 32-bit word
     kGray_8_SkColorType,       //!< pixel with grayscale level in 8-bit byte
     kRGBA_F16_SkColorType,   //!< pixel with half floats for red, green, blue, alpha; in 64-bit word
-    kLastEnum_SkColorType     = kRGBA_F16_SkColorType,//!< last valid value
+    kRGBA_F32_SkColorType,   //!< pixel with single floats for red, green, blue, alpha
+    kLastEnum_SkColorType     = kRGBA_F32_SkColorType,//!< last valid value
 
 #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
     kN32_SkColorType          = kBGRA_8888_SkColorType,//!< native ARGB 32-bit encoding
