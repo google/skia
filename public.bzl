@@ -562,7 +562,9 @@ def DM_ARGS(asan):
   source = ["tests", "gm", "image"]
   # TODO(benjaminwagner): f16, pic-8888, serialize-8888, and tiles_rt-8888 fail.
   config = ["565", "8888", "pdf"]
-  return ["--src"] + source + ["--config"] + config + ["--nonativeFonts"]
+  match = ["~Codec_78329453"]
+  return (["--src"] + source + ["--config"] + config + ["--nonativeFonts"] +
+          ["--match"] + match)
 
 ################################################################################
 ## COPTS
