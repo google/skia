@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a87dd90b_73feb268",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-26T20:42:44Z",
+      "side": 1,
+      "message": "Can we just move the actual implementation here, remove the old method, and update callsites?",
+      "range": {
+        "startLine": 255,
+        "startChar": 36,
+        "endLine": 255,
+        "endChar": 75
+      },
+      "revId": "ba7c1c74bfecda4a5c6e673d3083cb0cf194d6f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
