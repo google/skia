@@ -252,6 +252,8 @@ void GrContext::abandonContext() {
     fTextBlobCache->freeAll();
 }
 
+bool GrContext::abandoned() const { return this->contextPriv().abandoned(); }
+
 void GrContext::releaseResourcesAndAbandonContext() {
     ASSERT_SINGLE_OWNER
 
