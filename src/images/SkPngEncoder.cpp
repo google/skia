@@ -115,6 +115,16 @@ bool SkPngEncoderMgr::setHeader(const SkImageInfo& srcInfo, const SkPngEncoder::
             pngColorType = srcInfo.isOpaque() ? PNG_COLOR_TYPE_RGB : PNG_COLOR_TYPE_RGB_ALPHA;
             fPngBytesPerPixel = 8;
             break;
+        case kRGBA_F32_SkColorType:
+            SkASSERT(srcInfo.colorSpace());
+            sigBit.red = 16;
+            sigBit.green = 16;
+            sigBit.blue = 16;
+            sigBit.alpha = 16;
+            bitDepth = 16;
+            pngColorType = srcInfo.isOpaque() ? PNG_COLOR_TYPE_RGB : PNG_COLOR_TYPE_RGB_ALPHA;
+            fPngBytesPerPixel = 8;
+            break;
         case kGray_8_SkColorType:
             sigBit.gray = 8;
             pngColorType = PNG_COLOR_TYPE_GRAY;
@@ -284,6 +294,17 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info,
                     return transform_scanline_F16;
                 case kPremul_SkAlphaType:
                     return transform_scanline_F16_premul;
+                default:
+                    SkASSERT(false);
+                    return nullptr;
+            }
+        case kRGBA_F32_SkColorType:
+            switch (info.alphaType()) {
+                case kOpaque_SkAlphaType:
+                case kUnpremul_SkAlphaType:
+                    return transform_scanline_F32;
+                case kPremul_SkAlphaType:
+                    return transform_scanline_F32_premul;
                 default:
                     SkASSERT(false);
                     return nullptr;
