@@ -36,7 +36,9 @@
 #include "SkTaskGroup.h"
 #include "SkUnPreMultiplyPriv.h"
 #include "effects/GrConfigConversionEffect.h"
+#include "effects/GrSkSLFP.h"
 #include "text/GrTextBlobCache.h"
+#include <unordered_map>
 
 #define ASSERT_OWNED_PROXY(P) \
 SkASSERT(!(P) || !((P)->priv().peekTexture()) || (P)->priv().peekTexture()->getContext() == this)
@@ -153,7 +155,6 @@ GrContext::~GrContext() {
     if (fDrawingManager) {
         fDrawingManager->cleanup();
     }
-
     fTextureStripAtlasManager = nullptr;
     delete fResourceProvider;
     delete fResourceCache;
@@ -169,7 +170,8 @@ GrContextThreadSafeProxy::GrContextThreadSafeProxy(sk_sp<const GrCaps> caps, uin
         : fCaps(std::move(caps))
         , fContextUniqueID(uniqueID)
         , fBackend(backend)
-        , fOptions(options) {}
+        , fOptions(options)
+        , fFPFactoryCache(new GrSkSLFPFactoryCache()) {}
 
 GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
 
