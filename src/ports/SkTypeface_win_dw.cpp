@@ -234,6 +234,63 @@ int DWriteFontTypeface::onGetVariationDesignPosition(SkFontArguments::VariationP
     return -1;
 }
 
+int DWriteFontTypeface::onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
+                                                       int parameterCount) const {
+
+#if defined(NTDDI_WIN10_RS3) && NTDDI_VERSION >= NTDDI_WIN10_RS3
+
+    SkTScopedComPtr<IDWriteFontFace5> fontFace5;
+    if (FAILED(fDWriteFontFace->QueryInterface(&fontFace5))) {
+        return -1;
+    }
+
+    // Return 0 if the font is not variable font.
+    if (!fontFace5->HasVariations()) {
+        return 0;
+    }
+
+    UINT32 fontAxisCount = fontFace5->GetFontAxisValueCount();
+    SkTScopedComPtr<IDWriteFontResource> fontResource;
+    HR_GENERAL(fontFace5->GetFontResource(&fontResource), nullptr, -1);
+    int variableAxisCount = 0;
+    for (UINT32 i = 0; i < fontAxisCount; ++i) {
+        if (fontResource->GetFontAxisAttributes(i) & DWRITE_FONT_AXIS_ATTRIBUTES_VARIABLE) {
+            variableAxisCount++;
+        }
+    }
+
+    if (!parameters || !parameterCount || !variableAxisCount) {
+        return variableAxisCount;
+    }
+
+    SkAutoSTMalloc<8, DWRITE_FONT_AXIS_RANGE> fontAxisRange(fontAxisCount);
+    HR_GENERAL(fontResource->GetFontAxisRanges(fontAxisRange.get(), fontAxisCount), nullptr, -1);
+    SkAutoSTMalloc<8, DWRITE_FONT_AXIS_VALUE> fontAxisDefaultValue(fontAxisCount);
+    HR_GENERAL(fontResource->GetDefaultFontAxisValues(fontAxisDefaultValue.get(), fontAxisCount), nullptr, -1);
+    UINT32 minCount = SkMin32(variableAxisCount, SkTo<UINT32>(parameterCount));
+    UINT32 coordinatesIndex = 0;
+
+    for (UINT32 axisIndex = 0; axisIndex < fontAxisCount; ++axisIndex) {
+        if (fontResource->GetFontAxisAttributes(axisIndex) & DWRITE_FONT_AXIS_ATTRIBUTES_VARIABLE) {
+            parameters[coordinatesIndex].tag = SkEndian_SwapBE32(fontAxisDefaultValue[axisIndex].axisTag);
+            parameters[coordinatesIndex].min = fontAxisRange[axisIndex].minValue;
+            parameters[coordinatesIndex].def = fontAxisDefaultValue[axisIndex].value;
+            parameters[coordinatesIndex].max = fontAxisRange[axisIndex].maxValue;
+            parameters[coordinatesIndex].flags = fontResource->GetFontAxisAttributes(axisIndex);
+            if (fontResource->GetFontAxisAttributes(axisIndex) & DWRITE_FONT_AXIS_ATTRIBUTES_HIDDEN) {
+                parameters[coordinatesIndex].isHidden = true;
+            }
+            if (++coordinatesIndex == minCount) break;
+        }
+    }
+
+    return variableAxisCount;
+
+#endif
+
+    return -1;
+}
+
 int DWriteFontTypeface::onGetTableTags(SkFontTableTag tags[]) const {
     DWRITE_FONT_FACE_TYPE type = fDWriteFontFace->GetType();
     if (type != DWRITE_FONT_FACE_TYPE_CFF &&
