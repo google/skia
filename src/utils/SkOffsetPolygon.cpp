@@ -311,6 +311,7 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
     int iterations = 0;
     while (prevIndex != currIndex) {
         ++iterations;
+        // we should check each edge against each other edge at most once
         if (iterations > inputPolygonSize*inputPolygonSize) {
             return false;
         }
@@ -698,7 +699,14 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     prevIndex = edgeDataSize - 1;
     currIndex = 0;
     int insetVertexCount = edgeDataSize;
+    int iterations = 0;
     while (prevIndex != currIndex) {
+        ++iterations;
+        // we should check each edge against each other edge at most once
+        if (iterations > edgeDataSize*edgeDataSize) {
+            return false;
+        }
+
         if (!edgeData[prevIndex].fValid) {
             prevIndex = (prevIndex + edgeDataSize - 1) % edgeDataSize;
             continue;
