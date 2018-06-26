@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7fe56ec4_88cd232d",
+        "filename": "tools/skpbench/skpbench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-26T12:04:14Z",
+      "side": 1,
+      "message": "this seems a bit odd. Rename the flag to input/-i ?",
+      "revId": "74ebc4e08cec51cac9036262bff6151cc11bfc7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c17df02_eef861bc",
+        "filename": "tools/skpbench/skpbench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-26T12:04:14Z",
+      "side": 1,
+      "message": "\"single skp or svg file\" ?",
+      "revId": "74ebc4e08cec51cac9036262bff6151cc11bfc7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9670f04b_c89174de",
+        "filename": "tools/skpbench/skpbench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-26T12:04:14Z",
+      "side": 1,
+      "message": "if (!skp) {\n   exitf(ExitErr::kData, \"failed to parse svg file %s\", skpfile.c_str());\n}\n\n?\n\nOr, maybe, move the error handling outside the if-then and just say \"failed to parse file X\"\n\n?",
+      "revId": "74ebc4e08cec51cac9036262bff6151cc11bfc7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
