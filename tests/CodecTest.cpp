@@ -1581,6 +1581,42 @@ DEF_TEST(Codec_ossfuzz6274, r) {
     }
 }
 
+DEF_TEST(Codec_78329453, r) {
+    if (GetResourcePath().isEmpty()) {
+        return;
+    }
+
+    const char* file = "images/b78329453.jpeg";
+    auto data = GetResourceAsData(file);
+    if (!data) {
+        ERRORF(r, "Missing %s", file);
+        return;
+    }
+
+    auto codec = SkAndroidCodec::MakeFromCodec(SkCodec::MakeFromData(data));
+    if (!codec) {
+        ERRORF(r, "failed to create codec from %s", file);
+        return;
+    }
+
+    // A bug in jpeg_skip_scanlines resulted in an infinite loop for this specific
+    // sample size on this image. Other sample sizes could have had the same result,
+    // but the ones tested by DM happen to not.
+    constexpr int kSampleSize = 19;
+    const auto size = codec->getSampledDimensions(kSampleSize);
+    auto info = codec->getInfo().makeWH(size.width(), size.height());
+    SkBitmap bm;
+    bm.allocPixels(info);
+    bm.eraseColor(SK_ColorTRANSPARENT);
+
+    SkAndroidCodec::AndroidOptions options;
+    options.fSampleSize = kSampleSize;
+    auto result = codec->getAndroidPixels(info, bm.getPixels(), bm.rowBytes(), &options);
+    if (result != SkCodec::kSuccess) {
+        ERRORF(r, "failed to decode with error %s", SkCodec::ResultToString(result));
+    }
+}
+
 DEF_TEST(Codec_crbug807324, r) {
     if (GetResourcePath().isEmpty()) {
         return;
