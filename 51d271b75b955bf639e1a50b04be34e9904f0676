@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5dfdd184_69ce131f",
+        "filename": "include/core/SkFontParameters.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-26T20:28:57Z",
+      "side": 1,
+      "message": "Since this is basically an API. Can you add docs for each value?",
+      "range": {
+        "startLine": 16,
+        "startChar": 15,
+        "endLine": 16,
+        "endChar": 19
+      },
+      "revId": "51d271b75b955bf639e1a50b04be34e9904f0676",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27cd1064_c60f36ed",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-26T20:28:57Z",
+      "side": 1,
+      "message": "line length. Here and below.",
+      "range": {
+        "startLine": 269,
+        "startChar": 75,
+        "endLine": 269,
+        "endChar": 78
+      },
+      "revId": "51d271b75b955bf639e1a50b04be34e9904f0676",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
