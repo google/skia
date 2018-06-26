@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5067c4af_2c0d2659",
+        "filename": "src/gpu/vk/GrVkRenderTarget.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-26T17:53:31Z",
+      "side": 1,
+      "message": "this was a bug before where we never registered Wrapped things as Wrapped (now everything is wrapped).",
+      "range": {
+        "startLine": 44,
+        "startChar": 4,
+        "endLine": 44,
+        "endChar": 37
+      },
+      "revId": "c71c8bf43ede472b18f8eb1db0e13d7cc152c66a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
