@@ -1563,7 +1563,7 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     } else if (FLAGS_releaseAndAbandonGpuContext) {
         factory.releaseResourcesAndAbandonContexts();
     }
-    if (!context->contextPriv().abandoned()) {
+    if (!context->abandoned()) {
         surface.reset();
         if (backendTexture.isValid()) {
             context->contextPriv().getGpu()->deleteTestingOnlyBackendTexture(backendTexture);

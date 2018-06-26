@@ -1041,7 +1041,7 @@ void SkGpuDevice::drawSprite(const SkBitmap& bitmap,
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawSprite", fContext.get());
 
-    if (fContext->contextPriv().abandoned()) {
+    if (fContext->abandoned()) {
         return;
     }
 

@@ -273,7 +273,7 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
                                          const SkMatrix* prePathMatrix,
                                          const SkIRect& clipBounds,
                                          bool pathIsMutable) {
-    if (context->contextPriv().abandoned()) {
+    if (context->abandoned()) {
         return;
     }
 

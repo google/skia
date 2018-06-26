@@ -1019,7 +1019,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> target, SkColor
 
 bool SkImage_Gpu::onIsValid(GrContext* context) const {
     // The base class has already checked that context isn't abandoned (if it's not nullptr)
-    if (fContext->contextPriv().abandoned()) {
+    if (fContext->abandoned()) {
         return false;
     }
 

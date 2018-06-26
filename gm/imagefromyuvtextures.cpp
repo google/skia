@@ -94,7 +94,7 @@ protected:
     }
 
     void createYUVTextures(GrContext* context, GrBackendTexture yuvTextures[3]) {
-        if (context->contextPriv().abandoned()) {
+        if (context->abandoned()) {
             return;
         }
 
@@ -115,7 +115,7 @@ protected:
     }
 
     void deleteYUVTextures(GrContext* context, GrBackendTexture yuvTextures[3]) {
-        if (context->contextPriv().abandoned()) {
+        if (context->abandoned()) {
             return;
         }
 

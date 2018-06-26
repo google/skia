@@ -255,6 +255,11 @@ void GrContext::abandonContext() {
     fTextBlobCache->freeAll();
 }
 
+bool GrContext::abandoned() const {
+    ASSERT_SINGLE_OWNER
+    return fDrawingManager->wasAbandoned();
+}
+
 void GrContext::releaseResourcesAndAbandonContext() {
     ASSERT_SINGLE_OWNER
 
@@ -1010,7 +1015,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContext(
                                                         const SkSurfaceProps* surfaceProps,
                                                         SkBudgeted budgeted) {
     SkASSERT(sampleCnt > 0);
-    if (this->abandoned()) {
+    if (fContext->abandoned()) {
         return nullptr;
     }
 
@@ -1042,11 +1047,6 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContext(
     renderTargetContext->discard();
 
     return renderTargetContext;
-}
-
-bool GrContextPriv::abandoned() const {
-    ASSERT_SINGLE_OWNER_PRIV
-    return fContext->fDrawingManager->wasAbandoned();
 }
 
 std::unique_ptr<GrFragmentProcessor> GrContext::createPMToUPMEffect(

@@ -246,8 +246,6 @@ public:
                                                  const SkSurfaceProps* surfaceProps = nullptr,
                                                  SkBudgeted budgeted = SkBudgeted::kYes);
 
-    bool abandoned() const;
-
     /** Reset GPU stats */
     void resetGpuStats() const ;
 
