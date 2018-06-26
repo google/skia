@@ -16,8 +16,6 @@
 #undef CreateSemaphore
 #endif
 
-SkMutex GrVkSemaphore::Resource::gMutex;
-
 sk_sp<GrVkSemaphore> GrVkSemaphore::Make(const GrVkGpu* gpu, bool isOwned) {
     VkSemaphoreCreateInfo createInfo;
     memset(&createInfo, 0, sizeof(VkSemaphoreCreateInfo));

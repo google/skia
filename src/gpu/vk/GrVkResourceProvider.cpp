@@ -18,7 +18,6 @@
 #include "GrVkUtil.h"
 
 #ifdef SK_TRACE_VK_RESOURCES
-GrVkResource::Trace GrVkResource::fTrace;
 uint32_t GrVkResource::fKeyCounter = 0;
 #endif
 

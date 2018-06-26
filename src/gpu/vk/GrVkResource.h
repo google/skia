@@ -59,7 +59,6 @@ public:
     private:
         SkTHashSet<const GrVkResource*, GrVkResource::Hash> fHashSet;
     };
-    static Trace  fTrace;
 
     static uint32_t fKeyCounter;
 #endif
@@ -69,7 +68,7 @@ public:
     GrVkResource() : fRefCnt(1) {
 #ifdef SK_TRACE_VK_RESOURCES
         fKey = sk_atomic_fetch_add(&fKeyCounter, 1u, sk_memory_order_relaxed);
-        fTrace.add(this);
+        GetTrace()->add(this);
 #endif
     }
 
@@ -148,6 +147,13 @@ public:
 #endif
 
 private:
+#ifdef SK_TRACE_VK_RESOURCES
+    static Trace* GetTrace() {
+        static Trace kTrace;
+        return &kTrace;
+    }
+#endif
+
     /** Must be implemented by any subclasses.
      *  Deletes any Vk data associated with this resource
      */
@@ -166,7 +172,7 @@ private:
     void internal_dispose(const GrVkGpu* gpu) const {
         this->freeGPUData(gpu);
 #ifdef SK_TRACE_VK_RESOURCES
-        fTrace.remove(this);
+        GetTrace()->remove(this);
 #endif
         SkASSERT(0 == fRefCnt);
         fRefCnt = 1;
@@ -179,7 +185,7 @@ private:
     void internal_dispose() const {
         this->abandonGPUData();
 #ifdef SK_TRACE_VK_RESOURCES
-        fTrace.remove(this);
+        GetTrace()->remove(this);
 #endif
         SkASSERT(0 == fRefCnt);
         fRefCnt = 1;
