@@ -31,9 +31,6 @@ struct GrVkImageInfo;
 
 class GrVkRenderTarget: public GrRenderTarget, public virtual GrVkImage {
 public:
-    static GrVkRenderTarget* CreateNewRenderTarget(GrVkGpu*, SkBudgeted, const GrSurfaceDesc&,
-                                                   const GrVkImage::ImageDesc&);
-
     static sk_sp<GrVkRenderTarget> MakeWrappedRenderTarget(GrVkGpu*, const GrSurfaceDesc&,
                                                            const GrVkImageInfo&,
                                                            sk_sp<GrVkImageLayout>);
@@ -119,27 +116,19 @@ protected:
 
 private:
     GrVkRenderTarget(GrVkGpu* gpu,
-                     SkBudgeted,
                      const GrSurfaceDesc& desc,
                      const GrVkImageInfo& info,
                      sk_sp<GrVkImageLayout> layout,
                      const GrVkImageInfo& msaaInfo,
                      sk_sp<GrVkImageLayout> msaaLayout,
                      const GrVkImageView* colorAttachmentView,
-                     const GrVkImageView* resolveAttachmentView,
-                     GrBackendObjectOwnership);
+                     const GrVkImageView* resolveAttachmentView);
 
     GrVkRenderTarget(GrVkGpu* gpu,
-                     SkBudgeted,
                      const GrSurfaceDesc& desc,
                      const GrVkImageInfo& info,
                      sk_sp<GrVkImageLayout> layout,
-                     const GrVkImageView* colorAttachmentView,
-                     GrBackendObjectOwnership);
-
-    static GrVkRenderTarget* Create(GrVkGpu*, SkBudgeted, const GrSurfaceDesc&,
-                                    const GrVkImageInfo&, sk_sp<GrVkImageLayout>,
-                                    GrBackendObjectOwnership);
+                     const GrVkImageView* colorAttachmentView);
 
     bool completeStencilAttachment() override;
 
