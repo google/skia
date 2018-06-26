@@ -22,6 +22,30 @@
       "revId": "75a623bbd4e46270a5dbdd4ddbd292b1abe8844a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2ba8766_5d847b56",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-26T14:55:11Z",
+      "side": 1,
+      "message": "There was a 2.0 beta1, and now the ChangeLog just says 2.0.0, but you\u0027re right; there\u0027s no official tag etc. I also haven\u0027t seen any announcement regarding the release, so I\u0027m fine with \"pre-2.0.0\"",
+      "parentUuid": "3cc4d0e9_bb2c739e",
+      "range": {
+        "startLine": 7,
+        "startChar": 24,
+        "endLine": 7,
+        "endChar": 29
+      },
+      "revId": "75a623bbd4e46270a5dbdd4ddbd292b1abe8844a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
