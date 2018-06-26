@@ -22,6 +22,30 @@
       "revId": "92d391d795aa7d4152df3c982045ddb352870f4d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dae553e1_49e6e104",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-06-26T19:36:03Z",
+      "side": 1,
+      "message": "Argh. The intent had been to delay instantiation of the Factory until we\u0027re back down to a single thread. I think I have done that properly now.",
+      "parentUuid": "32dccfa0_a05e8f97",
+      "range": {
+        "startLine": 202,
+        "startChar": 0,
+        "endLine": 216,
+        "endChar": 38
+      },
+      "revId": "92d391d795aa7d4152df3c982045ddb352870f4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
