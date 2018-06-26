@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "SkData.h"
+#include "SkImageInfo.h"
+#include "SkMalloc.h"
 #include "SkMallocPixelRef.h"
-#include "SkBitmap.h"
-#include "SkReadBuffer.h"
 #include "SkSafeMath.h"
-#include "SkWriteBuffer.h"
 
 void* sk_calloc_throw(size_t count, size_t elemSize) {
     return sk_calloc_throw(SkSafeMath::Mul(count, elemSize));

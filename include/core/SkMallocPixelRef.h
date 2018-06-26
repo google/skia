@@ -9,6 +9,10 @@
 #define SkMallocPixelRef_DEFINED
 
 #include "SkPixelRef.h"
+#include "SkRefCnt.h"
+#include "SkTypes.h"
+class SkData;
+struct SkImageInfo;
 
 /** We explicitly use the same allocator for our pixels that SkMask does,
     so that we can freely assign memory allocated by one class to the other.
