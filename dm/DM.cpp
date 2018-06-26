@@ -926,6 +926,8 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
         SINK(  "esrgb",  RasterSink,  kRGBA_F16_SkColorType, srgb      );
         SINK( "narrow",  RasterSink, kRGBA_8888_SkColorType, narrow    );
         SINK("enarrow",  RasterSink,  kRGBA_F16_SkColorType, narrow    );
+
+        SINK(    "f32",  RasterSink,  kRGBA_F32_SkColorType, srgbLinear);
     }
 #undef SINK
     return nullptr;

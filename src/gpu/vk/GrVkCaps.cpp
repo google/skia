@@ -625,6 +625,8 @@ bool validate_image_info(VkFormat format, SkColorType ct, GrPixelConfig* config)
                 *config = kRGBA_half_GrPixelConfig;
             }
             break;
+        case kRGBA_F32_SkColorType:
+            return false;
     }
 
     return kUnknown_GrPixelConfig != *config;
