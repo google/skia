@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0f59a649_736c2810",
+        "filename": "src/gpu/mtl/GrMtlTextureRenderTarget.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-27T18:08:31Z",
+      "side": 1,
+      "message": "2018",
+      "range": {
+        "startLine": 2,
+        "startChar": 14,
+        "endLine": 2,
+        "endChar": 18
+      },
+      "revId": "b850a601f7068e09c0c48310ebdb3881fb499317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2b08589_3b6b8b44",
+        "filename": "src/gpu/mtl/GrMtlTextureRenderTarget.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-27T18:08:31Z",
+      "side": 1,
+      "message": "18",
+      "range": {
+        "startLine": 2,
+        "startChar": 14,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "b850a601f7068e09c0c48310ebdb3881fb499317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22a97ac9_0adc5928",
+        "filename": "src/gpu/mtl/GrMtlTextureRenderTarget.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-27T18:08:31Z",
+      "side": 1,
+      "message": "is this implemented?",
+      "range": {
+        "startLine": 27,
+        "startChar": 48,
+        "endLine": 31,
+        "endChar": 91
+      },
+      "revId": "b850a601f7068e09c0c48310ebdb3881fb499317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80787f81_e2a16f2a",
+        "filename": "src/gpu/mtl/GrMtlTextureRenderTarget.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-27T18:08:31Z",
+      "side": 1,
+      "message": "ditto, but maybe just not even have this else clause till the change you start supporting wrapped?",
+      "range": {
+        "startLine": 32,
+        "startChar": 5,
+        "endLine": 37,
+        "endChar": 5
+      },
+      "revId": "b850a601f7068e09c0c48310ebdb3881fb499317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
