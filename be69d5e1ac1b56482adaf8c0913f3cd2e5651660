@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e472a56d_ae9f76cb",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-06-27T18:31:30Z",
+      "side": 1,
+      "message": "Does this need to be the origin on the |glyphRunList|? IIUC, the translation for that isn\u0027t applied in the glyphRunList positions.",
+      "range": {
+        "startLine": 244,
+        "startChar": 8,
+        "endLine": 244,
+        "endChar": 31
+      },
+      "revId": "be69d5e1ac1b56482adaf8c0913f3cd2e5651660",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54b0ac5e_b85c54bc",
+        "filename": "src/gpu/text/GrTextContext.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-06-27T18:31:30Z",
+      "side": 1,
+      "message": "Could this be simplified, since we don\u0027t need to deal with draw filters at this layer anymore?",
+      "range": {
+        "startLine": 189,
+        "startChar": 4,
+        "endLine": 189,
+        "endChar": 52
+      },
+      "revId": "be69d5e1ac1b56482adaf8c0913f3cd2e5651660",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
