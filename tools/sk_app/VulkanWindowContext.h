@@ -102,6 +102,7 @@ private:
     VkPtr<PFN_vkQueuePresentKHR> fQueuePresentKHR;
 
     VkPtr<PFN_vkDestroyInstance> fDestroyInstance;
+    VkPtr<PFN_vkDestroyDebugReportCallbackEXT> fDestroyDebugReportCallbackEXT;
     VkPtr<PFN_vkDeviceWaitIdle> fDeviceWaitIdle;
     VkPtr<PFN_vkQueueWaitIdle> fQueueWaitIdle;
     VkPtr<PFN_vkDestroyDevice> fDestroyDevice;
