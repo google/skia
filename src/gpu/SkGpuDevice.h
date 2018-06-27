@@ -89,8 +89,7 @@ public:
                     const SkPaint& paint) override;
     void drawPosText(const void* text, size_t len, const SkScalar pos[],
                      int scalarsPerPos, const SkPoint& offset, const SkPaint&) override;
-    void drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y,
-                      const SkPaint& paint, SkDrawFilter* drawFilter) override;
+    void drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y, const SkPaint& paint) override;
     void drawVertices(const SkVertices*, const SkMatrix bones[], int boneCount, SkBlendMode,
                       const SkPaint&) override;
     void drawShadow(const SkPath&, const SkDrawShadowRec&) override;

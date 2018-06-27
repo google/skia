@@ -240,12 +240,10 @@ public:
     }
 
 protected:
-    void drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint,
-                      SkDrawFilter* drawFilter) override {
+    void drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
+                      const SkPaint& paint) override {
         // The looper should be applied by the SkCanvas.
         SkASSERT(paint.getDrawLooper() == nullptr);
-        // We don't support SkDrawFilter.
-        SkASSERT(drawFilter == nullptr);
 
         SkPoint position{x, y};
         SkPaint runPaint{paint};

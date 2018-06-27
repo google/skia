@@ -7,7 +7,6 @@
 
 #include "GrTextUtils.h"
 #include "GrContext.h"
-#include "SkDrawFilter.h"
 #include "SkGlyphCache.h"
 #include "SkGr.h"
 #include "SkPaint.h"
@@ -27,21 +26,8 @@ bool GrTextUtils::RunPaint::modifyForRun(std::function<void(SkPaint*)> paintModF
     if (!fModifiedPaint.isValid()) {
         fModifiedPaint.init(fOriginalPaint->skPaint());
         fPaint = fModifiedPaint.get();
-    } else if (fFilter) {
-        // We have to reset before applying the run because the filter could have arbitrary
-        // changed the paint.
-        *fModifiedPaint.get() = fOriginalPaint->skPaint();
     }
     paintModFunc(fModifiedPaint.get());
-
-    if (fFilter) {
-        if (!fFilter->filter(fModifiedPaint.get(), SkDrawFilter::kText_Type)) {
-            // A false return from filter() means we should abort the current draw.
-            return false;
-        }
-        // The draw filter could have changed either the paint color or color filter.
-        this->initFilteredColor();
-    }
     return true;
 }
 

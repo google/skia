@@ -285,11 +285,6 @@ FT_Load_Glyph
 ##
 ##
 
-#Topic Draw_Filter
-#Class SkDrawFilter
-##
-##
-
 #Topic Draw_Layer
 ##
 

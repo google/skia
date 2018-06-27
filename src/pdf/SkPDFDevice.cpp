@@ -17,7 +17,6 @@
 #include "SkColor.h"
 #include "SkColorFilter.h"
 #include "SkDraw.h"
-#include "SkDrawFilter.h"
 #include "SkGlyphCache.h"
 #include "SkImageFilterCache.h"
 #include "SkJpegEncoder.h"
@@ -1459,13 +1458,10 @@ void SkPDFDevice::drawPosText(const void* text, size_t len,
 }
 
 void SkPDFDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
-                               const SkPaint &paint, SkDrawFilter* drawFilter) {
+                               const SkPaint &paint) {
     for (SkTextBlobRunIterator it(blob); !it.done(); it.next()) {
         SkPaint runPaint(paint);
         it.applyFontToPaint(&runPaint);
-        if (drawFilter && !drawFilter->filter(&runPaint, SkDrawFilter::kText_Type)) {
-            continue;
-        }
         SkPoint offset = it.offset() + SkPoint{x, y};
         this->internalDrawText(it.glyphs(), sizeof(SkGlyphID) * it.glyphCount(),
                                it.pos(), it.positioning(), offset, runPaint,

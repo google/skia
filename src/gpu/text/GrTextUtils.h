@@ -26,7 +26,6 @@ class GrGlyphCache;
 class GrPaint;
 class GrShaderCaps;
 class SkColorSpace;
-class SkDrawFilter;
 class SkGlyph;
 class SkMatrix;
 struct SkIRect;
@@ -110,8 +109,7 @@ public:
      */
     class RunPaint : public Paint {
     public:
-        RunPaint(const Paint* paint, SkDrawFilter* filter)
-                : fOriginalPaint(paint), fFilter(filter) {
+        RunPaint(const Paint* paint) : fOriginalPaint(paint) {
             // Initially we represent the original paint.
             fPaint = &fOriginalPaint->skPaint();
             fDstColorSpaceInfo = fOriginalPaint->dstColorSpaceInfo();
@@ -123,7 +121,6 @@ public:
     private:
         SkTLazy<SkPaint> fModifiedPaint;
         const Paint* fOriginalPaint;
-        SkDrawFilter* fFilter;
     };
 
     class PathTextIter : SkTextBaseIter {

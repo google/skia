@@ -9,7 +9,6 @@
 
 #include "SkColorFilter.h"
 #include "SkDraw.h"
-#include "SkDrawFilter.h"
 #include "SkGlyphRun.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
@@ -141,7 +140,7 @@ void SkBaseDevice::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
 }
 
 void SkBaseDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
-                                const SkPaint &paint, SkDrawFilter* drawFilter) {
+                                const SkPaint &paint) {
 
     SkPaint runPaint = paint;
 
@@ -152,12 +151,6 @@ void SkBaseDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
         // applyFontToPaint() always overwrites the exact same attributes,
         // so it is safe to not re-seed the paint for this reason.
         it.applyFontToPaint(&runPaint);
-
-        if (drawFilter && !drawFilter->filter(&runPaint, SkDrawFilter::kText_Type)) {
-            // A false return from filter() means we should abort the current draw.
-            runPaint = paint;
-            continue;
-        }
 
         switch (it.positioning()) {
         case SkTextBlob::kDefault_Positioning: {
@@ -178,11 +171,6 @@ void SkBaseDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
             break;
         default:
             SK_ABORT("unhandled positioning mode");
-        }
-
-        if (drawFilter) {
-            // A draw filter may change the paint arbitrarily, so we must re-seed in this case.
-            runPaint = paint;
         }
     }
 }

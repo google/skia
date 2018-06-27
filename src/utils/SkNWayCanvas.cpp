@@ -366,13 +366,3 @@ void SkNWayCanvas::onFlush() {
         iter->flush();
     }
 }
-
-#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
-SkDrawFilter* SkNWayCanvas::setDrawFilter(SkDrawFilter* filter) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->setDrawFilter(filter);
-    }
-    return this->INHERITED::setDrawFilter(filter);
-}
-#endif

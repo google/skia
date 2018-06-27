@@ -12,7 +12,6 @@
 #include "SkClipOpPriv.h"
 #include "SkColor.h"
 #include "SkCommandLineFlags.h"
-#include "SkDrawFilter.h"
 #include "SkImageInfo.h"
 #include "SkPaint.h"
 #include "SkRRect.h"
@@ -270,36 +269,6 @@ DEF_TEST(CanvasState_test_complex_clips, reporter) {
                                       bitmaps[1].getPixels(),
                                       bitmaps[0].computeByteSize()));
 }
-#endif
-
-////////////////////////////////////////////////////////////////////////////////
-
-#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
-
-class TestDrawFilter : public SkDrawFilter {
-public:
-    bool filter(SkPaint*, Type) override { return true; }
-};
-
-DEF_TEST(CanvasState_test_draw_filters, reporter) {
-    TestDrawFilter drawFilter;
-    SkBitmap bitmap;
-    bitmap.allocN32Pixels(10, 10);
-    SkCanvas canvas(bitmap);
-
-    canvas.setDrawFilter(&drawFilter);
-
-    SkCanvasState* state = SkCanvasStateUtils::CaptureCanvasState(&canvas);
-    REPORTER_ASSERT(reporter, state);
-    std::unique_ptr<SkCanvas> tmpCanvas = SkCanvasStateUtils::MakeFromCanvasState(state);
-    REPORTER_ASSERT(reporter, tmpCanvas);
-
-    REPORTER_ASSERT(reporter, canvas.getDrawFilter());
-    REPORTER_ASSERT(reporter, nullptr == tmpCanvas->getDrawFilter());
-
-    SkCanvasStateUtils::ReleaseCanvasState(state);
-}
-
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////

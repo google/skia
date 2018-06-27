@@ -7,7 +7,6 @@
 
 #include "SkCanvas.h"
 #include "SkData.h"
-#include "SkDrawFilter.h"
 #include "SkDrawShadowInfo.h"
 #include "SkImage.h"
 #include "SkImageFilter.h"
@@ -47,8 +46,8 @@ static const D* pod(const T* op, size_t offset = 0) {
 }
 
 namespace {
-#define TYPES(M)                                                               \
-    M(SetDrawFilter) M(Flush) M(Save) M(Restore) M(SaveLayer)                   \
+#define TYPES(M)                                                                \
+    M(Flush) M(Save) M(Restore) M(SaveLayer)                                    \
     M(Concat) M(SetMatrix) M(Translate)                                         \
     M(ClipPath) M(ClipRect) M(ClipRRect) M(ClipRegion)                          \
     M(DrawPaint) M(DrawPath) M(DrawRect) M(DrawRegion) M(DrawOval) M(DrawArc)   \
@@ -67,19 +66,6 @@ namespace {
         uint32_t skip : 24;
     };
     static_assert(sizeof(Op) == 4, "");
-
-    struct SetDrawFilter final : Op {
-#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
-        static const auto kType = Type::SetDrawFilter;
-        SetDrawFilter(SkDrawFilter* df) : drawFilter(sk_ref_sp(df)) {}
-        sk_sp<SkDrawFilter> drawFilter;
-#endif
-        void draw(SkCanvas* c, const SkMatrix&) const {
-#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
-            c->setDrawFilter(drawFilter.get());
-#endif
-        }
-    };
 
     struct Flush final : Op {
         static const auto kType = Type::Flush;
@@ -541,12 +527,6 @@ inline void SkLiteDL::map(const Fn fns[], Args... args) const {
         ptr += skip;
     }
 }
-
-#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
-void SkLiteDL::setDrawFilter(SkDrawFilter* df) {
-    this->push<SetDrawFilter>(0, df);
-}
-#endif
 
 void SkLiteDL::flush() { this->push<Flush>(0); }
 

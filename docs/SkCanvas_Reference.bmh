@@ -6321,14 +6321,6 @@ Document_PDF, use annotations.
 
 ##
 
-#Method SkDrawFilter* getDrawFilter() const
-#Deprecated soon
-##
-
-#Method virtual SkDrawFilter* setDrawFilter(SkDrawFilter* filter)
-#Deprecated soon
-##
-
 # ------------------------------------------------------------------------------
 
 #Method virtual bool isClipEmpty() const
