@@ -65,12 +65,12 @@ static GrGLFuncPtr glx_get(void* ctx, const char name[]) {
     return getter->getProc(reinterpret_cast<const GLubyte*>(name));
 }
 
-const GrGLInterface* GrGLCreateNativeInterface() {
+const GrGLInterface* GrGLMakeNativeInterface() {
     GLXProcGetter getter;
 
     if (nullptr == getter.getCurrentContext()) {
         return nullptr;
     }
 
-    return GrGLAssembleInterface(&getter, glx_get);
+    return GrGLMakeAssembledInterface(&getter, glx_get);
 }
