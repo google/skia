@@ -77,8 +77,8 @@ GrVkExtensions::GrVkExtensions(GetProc getProc, VkInstance instance, uint32_t ex
     this->getSpecVersions(getProc, instance, VK_NULL_HANDLE);
 }
 
-#define GET_PROC(F, inst, device)                                            \
-        PFN_vk##F grVk##F = (PFN_vk ## F) getProc("vk" #F, instance, device)
+#define GET_PROC(F, inst)                                                        \
+        PFN_vk##F grVk##F = (PFN_vk ## F) getProc("vk" #F, inst, VK_NULL_HANDLE)
 
 
 void GrVkExtensions::getSpecVersions(GetProc getProc, VkInstance instance,
@@ -91,7 +91,7 @@ void GrVkExtensions::getSpecVersions(GetProc getProc, VkInstance instance,
     if (instance == VK_NULL_HANDLE) {
         return;
     }
-    GET_PROC(EnumerateInstanceExtensionProperties, VK_NULL_HANDLE, VK_NULL_HANDLE);
+    GET_PROC(EnumerateInstanceExtensionProperties, VK_NULL_HANDLE);
     SkASSERT(grVkEnumerateInstanceExtensionProperties);
 
     VkResult res;
@@ -118,7 +118,7 @@ void GrVkExtensions::getSpecVersions(GetProc getProc, VkInstance instance,
     if (physDevice == VK_NULL_HANDLE) {
         return;
     }
-    GET_PROC(EnumerateDeviceExtensionProperties, inst, VK_NULL_HANDLE);
+    GET_PROC(EnumerateDeviceExtensionProperties, instance);
     SkASSERT(grVkEnumerateDeviceExtensionProperties);
 
     // device extensions
