@@ -159,6 +159,8 @@
       "[START_DIR]/fiddle.json",
       "--output",
       "[START_DIR]/fiddleout.json",
+      "--procs",
+      "10",
       "--logtostderr",
       "--force"
     ],

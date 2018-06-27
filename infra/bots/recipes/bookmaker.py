@@ -83,6 +83,7 @@ def RunSteps(api):
       cmd = [fiddlecli_binary,
              '--input', fiddlecli_input,
              '--output', fiddlecli_output,
+             '--procs', 10, # Number of concurrent requests.
              '--logtostderr',
              '--force',
           ]
