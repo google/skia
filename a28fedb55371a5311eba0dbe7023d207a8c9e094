@@ -189,6 +189,24 @@
       "revId": "a28fedb55371a5311eba0dbe7023d207a8c9e094",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86784ab0_cac80b68",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1714,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-27T19:32:24Z",
+      "side": 1,
+      "message": "I think he\u0027s referring to the fact that onDrawVerticesObject only takes raw pointers. If we stored a reference to the SkVertices object (by storing an sk_sp), then taking in the sk_sp would be helpful to indicate that ownership transfer. As it is, it\u0027s not strictly necessary - the client can always just call us with client_ptr.get() and get the same result.\n\nOf course, I\u0027m guessing that this is a just a copy of the two existing versions of drawVertices. It\u0027s also nice (?) for the client to be able to call without having to get their pointer in the right shape. We have similar overloads for things like drawImage, right?",
+      "parentUuid": "64f5d5b5_186fd843",
+      "revId": "a28fedb55371a5311eba0dbe7023d207a8c9e094",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
