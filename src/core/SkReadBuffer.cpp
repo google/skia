@@ -461,6 +461,9 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
         // we must skip the remaining data
         fReader.skip(sizeRecorded);
     }
+    if (!this->isValid()) {
+        return nullptr;
+    }
     return obj.release();
 }
 
