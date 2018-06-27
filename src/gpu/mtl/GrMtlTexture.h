@@ -40,7 +40,7 @@ public:
     }
 
 protected:
-    GrMtlTexture(GrMtlGpu*, const GrSurfaceDesc&);
+    GrMtlTexture(GrMtlGpu*, const GrSurfaceDesc&, id<MTLTexture>, GrMipMapsStatus);
 
     GrMtlGpu* getMtlGpu() const;
 
