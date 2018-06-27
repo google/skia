@@ -306,7 +306,7 @@ static void find_culprit() {
         previous_handler[SIGTERM] = signal(SIGTERM, term_handler);
 
         if (FLAGS_ignoreSigInt) {
-            signal(SIGINT, SIG_IGN);
+            previous_handler[SIGINT] = signal(SIGINT, crash_handler);
         }
     }
 #endif

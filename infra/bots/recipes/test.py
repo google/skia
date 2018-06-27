@@ -94,6 +94,7 @@ def dm_flags(api, bot):
   # is ignored and dm will keep attempting to proceed until we actually
   # exhaust the available resources.
   if ('NexusPlayer' in bot or
+      'GalaxyS6' in bot or
       'Chromecast' in bot):
     args.append('--ignoreSigInt')
 
