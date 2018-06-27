@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "50fc707c_000ac5ec",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-27T19:55:25Z",
+      "side": 1,
+      "message": "Economy in movement and creation.",
+      "parentUuid": "04401149_d960d945",
+      "range": {
+        "startLine": 94,
+        "startChar": 23,
+        "endLine": 94,
+        "endChar": 32
+      },
+      "revId": "be69d5e1ac1b56482adaf8c0913f3cd2e5651660",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e472a56d_ae9f76cb",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 13
@@ -45,6 +69,30 @@
       "revId": "be69d5e1ac1b56482adaf8c0913f3cd2e5651660",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e2207c1_de99d239",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-27T19:55:25Z",
+      "side": 1,
+      "message": "Right. I\u0027m trying to limit the scope of this CL. If I propagate all the simplification this CL would be massive. I have done some simplification to improve my understanding in the GPU code. But I would like to get this CL in and do simplification device by device in future CLs.",
+      "parentUuid": "e472a56d_ae9f76cb",
+      "range": {
+        "startLine": 244,
+        "startChar": 8,
+        "endLine": 244,
+        "endChar": 31
+      },
+      "revId": "be69d5e1ac1b56482adaf8c0913f3cd2e5651660",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "923409c7_19128f96",
+        "filename": "src/gpu/text/GrTextContext.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-27T19:55:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0dba7a4d_afced70d",
+      "range": {
+        "startLine": 94,
+        "startChar": 4,
+        "endLine": 94,
+        "endChar": 11
+      },
+      "revId": "be69d5e1ac1b56482adaf8c0913f3cd2e5651660",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "54b0ac5e_b85c54bc",
         "filename": "src/gpu/text/GrTextContext.cpp",
         "patchSetId": 13
@@ -91,6 +163,30 @@
       "revId": "be69d5e1ac1b56482adaf8c0913f3cd2e5651660",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a81076d_330d3461",
+        "filename": "src/gpu/text/GrTextContext.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-27T19:55:25Z",
+      "side": 1,
+      "message": "Yes. But limiting scope of this CL.",
+      "parentUuid": "54b0ac5e_b85c54bc",
+      "range": {
+        "startLine": 189,
+        "startChar": 4,
+        "endLine": 189,
+        "endChar": 52
+      },
+      "revId": "be69d5e1ac1b56482adaf8c0913f3cd2e5651660",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
