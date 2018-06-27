@@ -14,6 +14,9 @@
  
  C C++ SIZE_MAX
  CSS HTML
+
+ Sa Da Sc Dc max min # temporary until figure out what to do
+
  SkUserConfig  # not external, but still thinking about how markup refers to this
  SkXXX.h        # ditto
  SkXXX_Reference # ditto
@@ -192,16 +195,6 @@ FT_Load_Glyph
 ##
 ##
 
-#Topic Blend_Mode
-#EnumClass SkBlendMode
-    #Const kSrc 1
-    ##
-    #Const kSrcOver 3
-    ##
-    #Const kPlus 12
-    ##
-#EnumClass ##
-#Topic ##
 
 #Topic Circle
 #Alias Circles ##
@@ -277,6 +270,11 @@ FT_Load_Glyph
 #Subtopic Recorder
 #Class SkDeferredDisplayListRecorder
 ##
+##
+##
+
+#Topic Deserial_Procs
+#Struct SkDeserialProcs
 ##
 ##
 
@@ -572,19 +570,13 @@ FT_Load_Glyph
     ##
 #Topic ##
 
-#Topic Picture
-#Class SkPicture
-#Method virtual void playback(SkCanvas*, AbortCallback* = nullptr) const = 0
-##
-##
-#Subtopic Recorder
+#Topic Picture_Recorder
     #Class SkPictureRecorder
         #Method SkCanvas* beginRecording(const SkRect& bounds,
                              SkBBHFactory* bbhFactory = NULL,
                              uint32_t recordFlags = 0)
         ##
     ##
-##
 ##
 
 #Topic Pixel
@@ -670,17 +662,13 @@ FT_Load_Glyph
 #Topic Right_Side_Bearing
 ##
 
-#Topic Round_Rect
-    #Class SkRRect
-        #Method void dump() const
-        ##
-        #Method void dumpHex() const
-        ##
-    ##
-#Topic ##
-
 #Topic RSXform
 #Struct SkRSXform
+##
+##
+
+#Topic Serial_Procs
+#Struct SkSerialProcs
 ##
 ##
 
@@ -697,6 +685,9 @@ FT_Load_Glyph
     #Method static sk_sp<SkShader> MakeBitmapShader(const SkBitmap& src, TileMode tmx, TileMode tmy,
                                             const SkMatrix* localMatrix = nullptr)
     ##
+    #Method static sk_sp<SkShader> MakeCompose(sk_sp<SkShader> dst, sk_sp<SkShader> src,
+                                       SkBlendMode mode, float lerp = 1)
+    ##
 #Class ##
 #Topic ##
 
@@ -710,9 +701,9 @@ FT_Load_Glyph
 #Topic ##
 
 #Topic Stream
-#Class SkWStream
+#Class SkStream
 ##
-#Topic ##
+##
 
 #Topic String
 #Class SkString
@@ -821,8 +812,12 @@ FT_Load_Glyph
 ##
 #Topic ##
 
-# to be in Topic Read_Buffer
-    #Struct SkReadBuffer
-    #Struct ##
-# end of Topic Read_Buffer
+#Topic WStream
+#Class SkWStream
+##
+#Topic ##
 
+#Topic Xfermode_Image_Filter
+#Class SkXfermodeImageFilter
+##
+##

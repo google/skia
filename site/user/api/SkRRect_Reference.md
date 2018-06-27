@@ -1,0 +1,1674 @@
+SkRRect Reference
+===
+
+# <a name='RRect'>RRect</a>
+
+# <a name='SkRRect'>Class SkRRect</a>
+
+## <a name='Constant'>Constant</a>
+
+
+SkRRect related constants are defined by <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
+<table style='border-collapse: collapse; width: 62.5em'>
+  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_Corner'>Corner</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_Type'>Type</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kComplex_Type'>kComplex Type</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kEmpty_Type'>kEmpty Type</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kLastType'>kLastType</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kLowerLeft_Corner'>kLowerLeft Corner</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kLowerRight_Corner'>kLowerRight Corner</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kNinePatch_Type'>kNinePatch Type</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kOval_Type'>kOval Type</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kRect_Type'>kRect Type</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kSimple_Type'>kSimple Type</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kUpperLeft_Corner'>kUpperLeft Corner</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kUpperRight_Corner'>kUpperRight Corner</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+</table>
+
+The <a href='#SkRRect'>SkRRect</a> class represents a rounded rect with a potentially different
+radii for each corner. It does not have a constructor so must be
+initialized with one of the initialization functions (e.g., <a href='#SkRRect_setEmpty'>setEmpty</a>,
+<a href='#SkRRect_setRectRadii'>setRectRadii</a>, etc.)
+
+This class allows implementing CSS properties that describe rounded corners.
+A rectangle may have up to eight radii, one for each axis on each of its four
+corners.
+
+If either corner's radii are zero, the corner is square.
+Negative radii are treated as zero.
+If corner curves overlap, they are proportionally reduced to fit.
+
+## Overview
+
+<table style='border-collapse: collapse; width: 62.5em'>
+  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constant'>Constants</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>enum and enum class, and their const values</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkRRect'>SkRRect</a></td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operator'>Operators</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>operator overloading methods</td>
+  </tr>
+</table>
+
+
+## <a name='Constructor'>Constructor</a>
+
+
+SkRRect can be constructed or initialized by these functions, including C++ class constructors.
+<table style='border-collapse: collapse; width: 62.5em'>
+  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_MakeEmpty'>MakeEmpty</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_MakeOval'>MakeOval</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_MakeRect'>MakeRect</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_MakeRectXY'>MakeRectXY</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_empty_constructor'>SkRRect()</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_copy_const_SkRRect'>SkRRect(const SkRRect& rrect)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_makeOffset'>makeOffset</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+</table>
+
+## <a name='Operator'>Operator</a>
+
+
+SkRRect operators inline class member functions with arithmetic equivalents.
+<table style='border-collapse: collapse; width: 62.5em'>
+  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_notequal_operator'>operator!=(const SkRRect& a, const SkRRect& b)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_copy_operator'>operator=(const SkRRect& rrect)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_equal_operator'>operator==(const SkRRect& a, const SkRRect& b)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+</table>
+
+## <a name='Member_Function'>Member Function</a>
+
+
+SkRRect member functions read and modify the structure properties.
+<table style='border-collapse: collapse; width: 62.5em'>
+  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_MakeEmpty'>MakeEmpty</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_MakeOval'>MakeOval</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_MakeRect'>MakeRect</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_MakeRectXY'>MakeRectXY</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_contains'>contains</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_dump_2'>dump</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_dumpHex'>dumpHex</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_getBounds'>getBounds</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_getSimpleRadii'>getSimpleRadii</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns corner radii for simple types</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_getType'>getType</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_height'>height</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns span in y</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_inset'>inset</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_isComplex'>isComplex</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if not empty, rect, oval, simple, or nine-patch</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_isEmpty'>isEmpty</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if width or height are zero</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_isNinePatch'>isNinePatch</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if not empty, rect, oval or simple; and radii are axis-aligned</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_isOval'>isOval</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if not empty, axes radii are equal, radii fill bounds</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_isRect'>isRect</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if not empty, and one radius at each corner is zero</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_isSimple'>isSimple</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if not empty, rect or oval; and axes radii are equal</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_isValid'>isValid</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_makeOffset'>makeOffset</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_offset'>offset</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_outset'>outset</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_radii'>radii</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_readFromMemory'>readFromMemory</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_rect'>rect</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_setEmpty'>setEmpty</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>zeroes width, height, and corner radii</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_setNinePatch'>setNinePatch</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_setOval'>setOval</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_setRect'>setRect</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets rect bounds with zeroed corners</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_setRectRadii'>setRectRadii</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_setRectXY'>setRectXY</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_transform'>transform</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_type'>type</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_width'>width</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns span in x</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_writeToMemory'>writeToMemory</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+</table>
+
+<a name='SkRRect_empty_constructor'></a>
+## SkRRect
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+<a href='#SkRRect'>SkRRect</a>() = default
+</pre>
+
+Default initialized to a rrect at the origin with zero width and height.
+
+### Return Value
+
+incomplete
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_copy_const_SkRRect'></a>
+## SkRRect
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+<a href='#SkRRect'>SkRRect</a>(const <a href='#SkRRect'>SkRRect</a>& rrect) = default
+</pre>
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_copy_const_SkRRect_rrect'><code><strong>rrect</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+</table>
+
+### Return Value
+
+incomplete
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_copy_operator'></a>
+## operator=
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+<a href='#SkRRect'>SkRRect</a>& <a href='#SkRRect_copy_operator'>operator=(const SkRRect& rrect)</a> = default
+</pre>
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_copy_operator_rrect'><code><strong>rrect</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+</table>
+
+### Return Value
+
+incomplete
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+## <a name='SkRRect_Type'>Enum SkRRect::Type</a>
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+    enum <a href='#SkRRect_Type'>Type</a> {
+        <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>,
+        <a href='#SkRRect_kRect_Type'>kRect Type</a>,
+        <a href='#SkRRect_kOval_Type'>kOval Type</a>,
+        <a href='#SkRRect_kSimple_Type'>kSimple Type</a>,
+        <a href='#SkRRect_kNinePatch_Type'>kNinePatch Type</a>,
+        <a href='#SkRRect_kComplex_Type'>kComplex Type</a>,
+        <a href='#SkRRect_kLastType'>kLastType</a> = <a href='#SkRRect_kComplex_Type'>kComplex Type</a>,
+    };
+</pre>
+
+Enum to capture the various possible subtypes of <a href='#RRect'>Round Rect</a>. Accessed
+by <a href='#SkRRect_type'>type</a>. The subtypes become progressively less restrictive.
+
+### Constants
+
+<table style='border-collapse: collapse; width: 62.5em'>
+  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Const</th>
+<th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kEmpty_Type'><code>SkRRect::kEmpty_Type</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # incomplete ##</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+<a href='#RRect'>Round Rect</a> has zero width or height. All radii are zero.
+</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kRect_Type'><code>SkRRect::kRect_Type</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # incomplete ##</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+<a href='#RRect'>Round Rect</a> has width and height. All radii are zero.
+</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kOval_Type'><code>SkRRect::kOval_Type</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # incomplete ##</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+<a href='#RRect'>Round Rect</a> has width and height. All four x-radii are equal,
+and at least half the width. All four y-radii are equal,
+and at least half the height.
+</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kSimple_Type'><code>SkRRect::kSimple_Type</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # incomplete ##</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+<a href='#RRect'>Round Rect</a> has width and height. All four x-radii are equal and
+greater than zero, and all four y-radii are equal and greater than
+zero. Either x-radii are less than half the width, or y-radii is
+less than half the height, or both.
+</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kNinePatch_Type'><code>SkRRect::kNinePatch_Type</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # incomplete ##</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+<a href='#RRect'>Round Rect</a> has width and height. Left x-radii are equal, top
+y-radii are equal, right x-radii are equal, and bottom y-radii
+are equal. The radii do not descript a rect, oval, or simple type.
+
+The centers of the corner ellipses form an axis-aligned rectangle
+that divides the <a href='#RRect'>Round Rect</a> into nine rectangular patches; an
+interior rectangle, four edges, and four corners.
+</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kComplex_Type'><code>SkRRect::kComplex_Type</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # incomplete ##</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+both radii are non-zero.
+</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kLastType'><code>SkRRect::kLastType</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>= kComplex_Type</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+incomplete</td>
+  </tr>
+</table>
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+<a name='SkRRect_getType'></a>
+## getType
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+<a href='#SkRRect_Type'>Type</a> <a href='#SkRRect_getType'>getType</a>() const
+</pre>
+
+Returns the RR's sub type.
+
+### Return Value
+
+incomplete
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_type'></a>
+## type
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+<a href='#SkRRect_Type'>Type</a> <a href='#SkRRect_type'>type</a>() const
+</pre>
+
+### Return Value
+
+incomplete
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_isEmpty'></a>
+## isEmpty
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+inline bool <a href='#SkRRect_isEmpty'>isEmpty</a>() const
+</pre>
+
+Returns true if <a href='#SkRRect_rect'>rect</a>.fLeft is equal to <a href='#SkRRect_rect'>rect</a>.fRight, or if <a href='#SkRRect_rect'>rect</a>.fTop is equal
+to <a href='#SkRRect_rect'>rect</a>.fBottom.
+
+### Return Value
+
+true if <a href='#SkRRect_width'>width</a> or <a href='#SkRRect_height'>height</a> are zero
+
+### Example
+
+<div><fiddle-embed name="3afe4ea247923e06326aeb2b165c7485"></fiddle-embed></div>
+
+### See Also
+
+<a href='SkRect_Reference#SkRect_isEmpty'>SkRect::isEmpty</a> <a href='#SkRRect_height'>height</a> <a href='#SkRRect_width'>width</a>
+
+---
+
+<a name='SkRRect_isRect'></a>
+## isRect
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+inline bool <a href='#SkRRect_isRect'>isRect</a>() const
+</pre>
+
+Returns true if not empty, and if either x or y radius at each corner is zero.
+
+### Return Value
+
+true if not empty, and one radius at each corner is zero
+
+### Example
+
+<div><fiddle-embed name="e2dcdad0e9cb7ba3e78a9871e9229753"></fiddle-embed></div>
+
+### See Also
+
+<a href='#SkRRect_isEmpty'>isEmpty</a> <a href='#SkRRect_radii'>radii</a>
+
+---
+
+<a name='SkRRect_isOval'></a>
+## isOval
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+inline bool <a href='#SkRRect_isOval'>isOval</a>() const
+</pre>
+
+Returns true if not empty, if all x-axis radii are equal, if all y-axis radii
+are equal, x-axis radii are at least half the width, and y-axis radii are at
+least half the height.
+
+### Return Value
+
+true if has identical geometry to <a href='undocumented#Oval'>Oval</a>
+
+### Example
+
+<div><fiddle-embed name="ab9b3aef7896aee80b780789848fbba4"><div>The first radii are scaled down proportionately until both x-axis and y-axis fit
+within the bounds. After scaling, x-axis radius is smaller than half the width;
+left round rect is not an oval. The second radii are equal to half the
+dimensions; right round rect is an oval.
+</div></fiddle-embed></div>
+
+### See Also
+
+<a href='#SkRRect_isEmpty'>isEmpty</a> <a href='#SkRRect_isSimple'>isSimple</a> <a href='SkCanvas_Reference#SkCanvas_drawOval'>SkCanvas::drawOval</a>
+
+---
+
+<a name='SkRRect_isSimple'></a>
+## isSimple
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+inline bool <a href='#SkRRect_isSimple'>isSimple</a>() const
+</pre>
+
+Returns true if not empty, if all x-axis radii are equal but not zero,
+if all y-axis radii are equal but not zero; and x-axis radius is less than half
+<a href='#SkRRect_width'>width</a>, or y-axis radius is less than half <a href='#SkRRect_height'>height</a>.
+
+### Return Value
+
+true if not empty, rect or oval; and axes radii are equal
+
+### Example
+
+<div><fiddle-embed name="65bbb109483ed79edb32027cf71851eb"></fiddle-embed></div>
+
+### See Also
+
+<a href='#SkRRect_isEmpty'>isEmpty</a> <a href='#SkRRect_isRect'>isRect</a> <a href='#SkRRect_isOval'>isOval</a> <a href='#SkRRect_isNinePatch'>isNinePatch</a>
+
+---
+
+<a name='SkRRect_isNinePatch'></a>
+## isNinePatch
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+inline bool <a href='#SkRRect_isNinePatch'>isNinePatch</a>() const
+</pre>
+
+Returns true if <a href='#SkRRect_isEmpty'>isEmpty</a>, <a href='#SkRRect_isRect'>isRect</a>, <a href='#SkRRect_isOval'>isOval</a>, and <a href='#SkRRect_isSimple'>isSimple</a> return false; and if
+left x-axis radii are equal, right x-axis radii are equal, top y-axis radii are
+equal, and bottom y-axis radii are equal.
+
+### Return Value
+
+true if not empty, rect, oval or simple; and radii are axis-aligned
+
+### Example
+
+<div><fiddle-embed name="568cb730e66d0df09a7d9bd9d6142c9e"></fiddle-embed></div>
+
+### See Also
+
+<a href='#SkRRect_isEmpty'>isEmpty</a> <a href='#SkRRect_isRect'>isRect</a> <a href='#SkRRect_isOval'>isOval</a> <a href='#SkRRect_isSimple'>isSimple</a> <a href='#SkRRect_isComplex'>isComplex</a>
+
+---
+
+<a name='SkRRect_isComplex'></a>
+## isComplex
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+inline bool <a href='#SkRRect_isComplex'>isComplex</a>() const
+</pre>
+
+Returns true if <a href='#SkRRect_isEmpty'>isEmpty</a>, <a href='#SkRRect_isRect'>isRect</a>, <a href='#SkRRect_isOval'>isOval</a>, <a href='#SkRRect_isSimple'>isSimple</a>, and <a href='#SkRRect_isNinePatch'>isNinePatch</a> return false.
+If true: width and height are greater than zero, at least one corner radii are
+both greater than zero; left x-axis radii are not equal, or right x-axis radii
+are not equal, or top y-axis radii are not equal, or bottom y-axis radii are not
+equal.
+
+### Return Value
+
+true if not empty, rect, oval, simple, or nine-patch
+
+### Example
+
+<div><fiddle-embed name="75db3f4e4757478bca641bccf89b9398"></fiddle-embed></div>
+
+### See Also
+
+<a href='#SkRRect_isEmpty'>isEmpty</a> <a href='#SkRRect_isRect'>isRect</a> <a href='#SkRRect_isOval'>isOval</a> <a href='#SkRRect_isSimple'>isSimple</a> <a href='#SkRRect_isNinePatch'>isNinePatch</a>
+
+---
+
+<a name='SkRRect_width'></a>
+## width
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkRRect_width'>width</a>() const
+</pre>
+
+Returns span on the x-axis. This does not check if result fits in 32-bit float;
+result may be infinity.
+
+### Return Value
+
+bounds().fRight minus bounds().fLeft
+
+### Example
+
+<div><fiddle-embed name="c675a480b41dee157f84fa2550a2a53c"><div><a href='#SkRRect_MakeRect'>SkRRect::MakeRect</a> sorts its input, so <a href='#SkRRect_width'>width</a> is always zero or larger.
+</div>
+
+#### Example Output
+
+~~~~
+unsorted width: 5
+large width: inf
+~~~~
+
+</fiddle-embed></div>
+
+### See Also
+
+<a href='SkRect_Reference#SkRect_width'>SkRect::width</a> <a href='#SkRRect_height'>height</a> <a href='#SkRRect_getBounds'>getBounds</a>
+
+---
+
+<a name='SkRRect_height'></a>
+## height
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkRRect_height'>height</a>() const
+</pre>
+
+Returns span on the y-axis. This does not check if result fits in 32-bit float;
+result may be infinity.
+
+### Return Value
+
+bounds().fBottom minus bounds().fTop
+
+### Example
+
+<div><fiddle-embed name="5a3eb1755164a7becec33cec6e6eca31"><div><a href='#SkRRect_MakeRect'>SkRRect::MakeRect</a> sorts its input, so <a href='#SkRRect_height'>height</a> is always zero or larger.
+</div>
+
+#### Example Output
+
+~~~~
+unsorted height: 5
+large height: inf
+~~~~
+
+</fiddle-embed></div>
+
+### See Also
+
+<a href='SkRect_Reference#SkRect'>SkRect</a>.<a href='#SkRRect_height'>height</a> <a href='#SkRRect_width'>width</a> <a href='#SkRRect_getBounds'>getBounds</a>
+
+---
+
+<a name='SkRRect_getSimpleRadii'></a>
+## getSimpleRadii
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+<a href='SkPoint_Reference#SkVector'>SkVector</a> <a href='#SkRRect_getSimpleRadii'>getSimpleRadii</a>() const
+</pre>
+
+Returns top-left corner x-radii. If <a href='#SkRRect_type'>type</a> returns <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>, <a href='#SkRRect_kRect_Type'>kRect Type</a>,
+<a href='#SkRRect_kOval_Type'>kOval Type</a>, or <a href='#SkRRect_kSimple_Type'>kSimple Type</a>, returns a value representative of all corner radii.
+If <a href='#SkRRect_type'>type</a> returns <a href='#SkRRect_kNinePatch_Type'>kNinePatch Type</a> or <a href='#SkRRect_kComplex_Type'>kComplex Type</a>, at least one of the
+remaining three corners has a different value.
+
+### Return Value
+
+corner radii for simple types
+
+### Example
+
+<div><fiddle-embed name="f0e02101ecbdb5a2963ec82e7832afb1"></fiddle-embed></div>
+
+### See Also
+
+<a href='#SkRRect_radii'>radii</a> <a href='#SkRRect_getBounds'>getBounds</a> <a href='#SkRRect_getType'>getType</a> <a href='#SkRRect_isSimple'>isSimple</a>
+
+---
+
+<a name='SkRRect_setEmpty'></a>
+## setEmpty
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkRRect_setEmpty'>setEmpty</a>()
+</pre>
+
+Sets bounds to zero width and height at (0, 0), the origin. Sets
+corner radii to zero and sets type to <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>.
+
+### Example
+
+<div><fiddle-embed name="59c1025b8116ec1d3b55f4f6306d1e37"><div>Nothing blue is drawn because rrect is set to empty.
+</div></fiddle-embed></div>
+
+### See Also
+
+<a href='#SkRRect_MakeEmpty'>MakeEmpty</a> <a href='#SkRRect_setRect'>setRect</a>
+
+---
+
+<a name='SkRRect_setRect'></a>
+## setRect
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkRRect_setRect'>setRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect)
+</pre>
+
+Sets bounds to sorted rect, and sets corner radii to zero.
+If set bounds has width and height, and sets type to <a href='#SkRRect_kRect_Type'>kRect Type</a>;
+otherwise, sets type to <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_setRect_rect'><code><strong>rect</strong></code></a></td>
+    <td>bounds to set</td>
+  </tr>
+</table>
+
+### Example
+
+<div><fiddle-embed name="fc97ef7310473b9ba6dc7202efbebb3b"></fiddle-embed></div>
+
+### See Also
+
+<a href='#SkRRect_MakeRect'>MakeRect</a> <a href='#SkRRect_setRectXY'>setRectXY</a>
+
+---
+
+<a name='SkRRect_MakeEmpty'></a>
+## MakeEmpty
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+static <a href='#SkRRect'>SkRRect</a> <a href='#SkRRect_MakeEmpty'>MakeEmpty</a>()
+</pre>
+
+Makes an empty rrect at the origin with zero width and height.
+
+### Return Value
+
+incomplete
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_MakeRect'></a>
+## MakeRect
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+static <a href='#SkRRect'>SkRRect</a> <a href='#SkRRect_MakeRect'>MakeRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& r)
+</pre>
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_MakeRect_r'><code><strong>r</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+</table>
+
+### Return Value
+
+incomplete
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_MakeOval'></a>
+## MakeOval
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+static <a href='#SkRRect'>SkRRect</a> <a href='#SkRRect_MakeOval'>MakeOval</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& oval)
+</pre>
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_MakeOval_oval'><code><strong>oval</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+</table>
+
+### Return Value
+
+incomplete
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_MakeRectXY'></a>
+## MakeRectXY
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+static <a href='#SkRRect'>SkRRect</a> <a href='#SkRRect_MakeRectXY'>MakeRectXY</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, <a href='undocumented#SkScalar'>SkScalar</a> xRad, <a href='undocumented#SkScalar'>SkScalar</a> yRad)
+</pre>
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_MakeRectXY_rect'><code><strong>rect</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name='SkRRect_MakeRectXY_xRad'><code><strong>xRad</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name='SkRRect_MakeRectXY_yRad'><code><strong>yRad</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+</table>
+
+### Return Value
+
+incomplete
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_setOval'></a>
+## setOval
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkRRect_setOval'>setOval</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& oval)
+</pre>
+
+Sets <a href='#RRect'>Round Rect</a> to match the supplied <a href='#SkRRect_setOval_oval'>oval</a>. All x-radii will equal half the
+width and all y-radii will equal half the height.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_setOval_oval'><code><strong>oval</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+</table>
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_setRectXY'></a>
+## setRectXY
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkRRect_setRectXY'>setRectXY</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, <a href='undocumented#SkScalar'>SkScalar</a> xRad, <a href='undocumented#SkScalar'>SkScalar</a> yRad)
+</pre>
+
+Initializes <a href='#RRect'>Round Rect</a> with the same radii for all four corners.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_setRectXY_rect'><code><strong>rect</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name='SkRRect_setRectXY_xRad'><code><strong>xRad</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name='SkRRect_setRectXY_yRad'><code><strong>yRad</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+</table>
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_setNinePatch'></a>
+## setNinePatch
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkRRect_setNinePatch'>setNinePatch</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, <a href='undocumented#SkScalar'>SkScalar</a> leftRad, <a href='undocumented#SkScalar'>SkScalar</a> topRad, <a href='undocumented#SkScalar'>SkScalar</a> rightRad,
+                  <a href='undocumented#SkScalar'>SkScalar</a> bottomRad)
+</pre>
+
+Initializes <a href='#RRect'>Round Rect</a> with one radius per-side.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_setNinePatch_rect'><code><strong>rect</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name='SkRRect_setNinePatch_leftRad'><code><strong>leftRad</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name='SkRRect_setNinePatch_topRad'><code><strong>topRad</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name='SkRRect_setNinePatch_rightRad'><code><strong>rightRad</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name='SkRRect_setNinePatch_bottomRad'><code><strong>bottomRad</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+</table>
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_setRectRadii'></a>
+## setRectRadii
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkRRect_setRectRadii'>setRectRadii</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, const <a href='SkPoint_Reference#SkVector'>SkVector</a> radii[4])
+</pre>
+
+Initializes <a href='#RRect'>Round Rect</a> with potentially different radii for all four corners.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_setRectRadii_rect'><code><strong>rect</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name='SkRRect_setRectRadii_radii'><code><strong>radii</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+</table>
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+## <a name='SkRRect_Corner'>Enum SkRRect::Corner</a>
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+    enum <a href='#SkRRect_Corner'>Corner</a> {
+        <a href='#SkRRect_kUpperLeft_Corner'>kUpperLeft Corner</a>,
+        <a href='#SkRRect_kUpperRight_Corner'>kUpperRight Corner</a>,
+        <a href='#SkRRect_kLowerRight_Corner'>kLowerRight Corner</a>,
+        <a href='#SkRRect_kLowerLeft_Corner'>kLowerLeft Corner</a>,
+    };
+</pre>
+
+The radii are stored: top-left, top-right, bottom-right, bottom-left.
+
+### Constants
+
+<table style='border-collapse: collapse; width: 62.5em'>
+  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Const</th>
+<th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kUpperLeft_Corner'><code>SkRRect::kUpperLeft_Corner</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # incomplete ##</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kUpperRight_Corner'><code>SkRRect::kUpperRight_Corner</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # incomplete ##</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+incomplete</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kLowerRight_Corner'><code>SkRRect::kLowerRight_Corner</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # incomplete ##</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+incomplete</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kLowerLeft_Corner'><code>SkRRect::kLowerLeft_Corner</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # incomplete ##</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+incomplete</td>
+  </tr>
+</table>
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+<a name='SkRRect_rect'></a>
+## rect
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkRRect_rect'>rect</a>() const
+</pre>
+
+### Return Value
+
+incomplete
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_radii'></a>
+## radii
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+<a href='SkPoint_Reference#SkVector'>SkVector</a> <a href='#SkRRect_radii'>radii</a>(<a href='#SkRRect_Corner'>Corner</a> corner) const
+</pre>
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_radii_corner'><code><strong>corner</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+</table>
+
+### Return Value
+
+incomplete
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_getBounds'></a>
+## getBounds
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkRRect_getBounds'>getBounds</a>() const
+</pre>
+
+### Return Value
+
+incomplete
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_equal_operator'></a>
+## operator==
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+bool <a href='#SkRRect_equal_operator'>operator==(const SkRRect& a, const SkRRect& b)</a>
+</pre>
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_equal_operator_a'><code><strong>a</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name='SkRRect_equal_operator_b'><code><strong>b</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+</table>
+
+### Return Value
+
+incomplete
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_notequal_operator'></a>
+## operator!=
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+bool <a href='#SkRRect_notequal_operator'>operator!=(const SkRRect& a, const SkRRect& b)</a>
+</pre>
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_notequal_operator_a'><code><strong>a</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name='SkRRect_notequal_operator_b'><code><strong>b</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+</table>
+
+### Return Value
+
+incomplete
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_inset'></a>
+## inset
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkRRect_inset'>inset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy, <a href='#SkRRect'>SkRRect</a>* dst) const
+</pre>
+
+Calls inset on the bounds, and adjust the radii to reflect what happens.
+If the corner is sharp (no curvature), leave it alone,
+otherwise we grow/shrink the radii by the amount of the inset. If a
+given radius becomes negative, it is pinned to 0.
+If the inset amount is larger than the width/height then the rrect collapses to
+a degenerate line or point.
+If the inset is sufficiently negative to cause the bounds to become infinite then
+the result is a default initialized rrect.
+It is valid for <a href='#SkRRect_inset_dst'>dst</a> == this.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_inset_dx'><code><strong>dx</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name='SkRRect_inset_dy'><code><strong>dy</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name='SkRRect_inset_dst'><code><strong>dst</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+</table>
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_inset_2'></a>
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkRRect_inset'>inset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy)
+</pre>
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_inset_2_dx'><code><strong>dx</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name='SkRRect_inset_2_dy'><code><strong>dy</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+</table>
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_outset'></a>
+## outset
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkRRect_outset'>outset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy, <a href='#SkRRect'>SkRRect</a>* dst) const
+</pre>
+
+Call outset on the bounds, and adjust the radii to reflect what happens
+in stroking. If the corner is sharp (no curvature), leave it alone,
+otherwise we grow/shrink the radii by the amount of the inset. If a
+given radius becomes negative, it is pinned to 0.
+It is valid for <a href='#SkRRect_outset_dst'>dst</a> == this.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_outset_dx'><code><strong>dx</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name='SkRRect_outset_dy'><code><strong>dy</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name='SkRRect_outset_dst'><code><strong>dst</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+</table>
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_outset_2'></a>
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkRRect_outset'>outset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy)
+</pre>
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_outset_2_dx'><code><strong>dx</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name='SkRRect_outset_2_dy'><code><strong>dy</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+</table>
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_offset'></a>
+## offset
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkRRect_offset'>offset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy)
+</pre>
+
+Translate the rrect by (<a href='#SkRRect_offset_dx'>dx</a>, <a href='#SkRRect_offset_dy'>dy</a>).
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_offset_dx'><code><strong>dx</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name='SkRRect_offset_dy'><code><strong>dy</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+</table>
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_makeOffset'></a>
+## makeOffset
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+<a href='#SkRRect'>SkRRect</a> SK_WARN_UNUSED_RESULT <a href='#SkRRect_makeOffset'>makeOffset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy) const
+</pre>
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_makeOffset_dx'><code><strong>dx</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+  <tr>    <td><a name='SkRRect_makeOffset_dy'><code><strong>dy</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+</table>
+
+### Return Value
+
+incomplete
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_contains'></a>
+## contains
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+bool <a href='#SkRRect_contains'>contains</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect) const
+</pre>
+
+Returns true if 'rect' is wholy inside the RR, and both
+are not empty.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_contains_rect'><code><strong>rect</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+</table>
+
+### Return Value
+
+incomplete
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_isValid'></a>
+## isValid
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+bool <a href='#SkRRect_isValid'>isValid</a>() const
+</pre>
+
+### Return Value
+
+incomplete
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+### Constants
+
+<table style='border-collapse: collapse; width: 62.5em'>
+  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Const</th>
+<th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kSizeInMemory'><code>SkRRect::kSizeInMemory</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>48</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>incomplete
+
+</td>
+  </tr>
+</table>
+
+<a name='SkRRect_writeToMemory'></a>
+## writeToMemory
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+size_t <a href='#SkRRect_writeToMemory'>writeToMemory</a>(void* buffer) const
+</pre>
+
+Write the rrect into the specified <a href='#SkRRect_writeToMemory_buffer'>buffer</a>. This is guaranteed to always
+write <a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a> bytes, and that value is guaranteed to always be
+a multiple of 4. Return <a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a>.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_writeToMemory_buffer'><code><strong>buffer</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+</table>
+
+### Return Value
+
+incomplete
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_readFromMemory'></a>
+## readFromMemory
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+size_t <a href='#SkRRect_readFromMemory'>readFromMemory</a>(const void* buffer, size_t length)
+</pre>
+
+Reads the rrect from the specified <a href='#SkRRect_readFromMemory_buffer'>buffer</a>.
+If the specified <a href='#SkRRect_readFromMemory_buffer'>buffer</a> is large enough, this will read <a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a> bytes,
+and that value is guaranteed to always be a multiple of 4.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_readFromMemory_buffer'><code><strong>buffer</strong></code></a></td>
+    <td>memory to read from</td>
+  </tr>
+  <tr>    <td><a name='SkRRect_readFromMemory_length'><code><strong>length</strong></code></a></td>
+    <td>amount of memory available in the <a href='#SkRRect_readFromMemory_buffer'>buffer</a></td>
+  </tr>
+</table>
+
+### Return Value
+
+number of bytes read (must be a multiple of 4) or
+0 if there was not enough memory available
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_transform'></a>
+## transform
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+bool <a href='#SkRRect_transform'>transform</a>(const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>& matrix, <a href='#SkRRect'>SkRRect</a>* dst) const
+</pre>
+
+Transform by the specified <a href='#SkRRect_transform_matrix'>matrix</a>, and put the result in <a href='#SkRRect_transform_dst'>dst</a>.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_transform_matrix'><code><strong>matrix</strong></code></a></td>
+    <td><a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a> specifying the transform. Must only contain
+scale and/or translate, or this call will fail.
+</td>
+  </tr>
+  <tr>    <td><a name='SkRRect_transform_dst'><code><strong>dst</strong></code></a></td>
+    <td><a href='#SkRRect'>SkRRect</a> to store the result. It is an error to use this,
+which would make this function no longer const.
+</td>
+  </tr>
+</table>
+
+### Return Value
+
+true on success, false on failure.
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_dump'></a>
+## dump
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkRRect_dump'>dump</a>(bool asHex) const
+</pre>
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRRect_dump_asHex'><code><strong>asHex</strong></code></a></td>
+    <td>incomplete</td>
+  </tr>
+</table>
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_dump_2'></a>
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkRRect_dump'>dump</a>() const
+</pre>
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
+<a name='SkRRect_dumpHex'></a>
+## dumpHex
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkRRect_dumpHex'>dumpHex</a>() const
+</pre>
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+---
+
