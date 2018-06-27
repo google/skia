@@ -83,6 +83,7 @@ config("default") {
     } else {
       include_dirs = _include_dirs
     }
+
     _is_store = ""
     if (is_winrt) {
       _is_store = "/store"
