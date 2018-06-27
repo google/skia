@@ -50,6 +50,10 @@ public:
                                   const char* units,
                                   uint64_t value) = 0;
 
+    virtual void dumpStringValue(const char* /*dumpName*/,
+                                 const char* /*valueName*/,
+                                 const char* /*value*/) { }
+
     /**
      * Sets the memory backing for an existing dump.
      * backingType and backingObjectId are used by the embedder to associate the memory dumped via
@@ -72,6 +76,12 @@ public:
      * reported, but only granularity of the child entries.
      */
     virtual LevelOfDetail getRequestedDetails() const = 0;
+
+    /**
+     * Returns true if we should dump wrapped objects. Wrapped objects come from outside Skia, and
+     * may be independently tracked there.
+     */
+    virtual bool shouldDumpWrappedObjects() const { return true; }
 
 protected:
     virtual ~SkTraceMemoryDump() { }

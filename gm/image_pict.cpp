@@ -181,7 +181,6 @@ protected:
 
         // need to copy the subset into a new texture
         GrSurfaceDesc desc;
-        desc.fOrigin = fProxy->origin();
         desc.fWidth = info.width();
         desc.fHeight = info.height();
         desc.fConfig = fProxy->config();
@@ -189,10 +188,7 @@ protected:
         GrMipMapped mipMapped = willBeMipped ? GrMipMapped::kYes : GrMipMapped::kNo;
 
         sk_sp<GrSurfaceContext> dstContext(fCtx->contextPriv().makeDeferredSurfaceContext(
-                                                                            desc,
-                                                                            mipMapped,
-                                                                            SkBackingFit::kExact,
-                                                                            SkBudgeted::kYes));
+                desc, fProxy->origin(), mipMapped, SkBackingFit::kExact, SkBudgeted::kYes));
         if (!dstContext) {
             return nullptr;
         }

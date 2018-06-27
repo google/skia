@@ -71,6 +71,8 @@ struct Program {
         // if false, sk_FragCoord is exactly the same as gl_FragCoord. If true, the y coordinate
         // must be flipped.
         bool fFlipY = false;
+        // If true the destination fragment color is read sk_FragColor. It must be declared inout.
+        bool fFragColorIsInOut = false;
         // if true, Setting objects (e.g. sk_Caps.fbFetchSupport) should be replaced with their
         // constant equivalents during compilation
         bool fReplaceSettings = true;
@@ -103,13 +105,14 @@ struct Program {
         kFragment_Kind,
         kVertex_Kind,
         kGeometry_Kind,
-        kFragmentProcessor_Kind
+        kFragmentProcessor_Kind,
+        kCPU_Kind
     };
 
     Program(Kind kind,
             std::unique_ptr<String> source,
             Settings settings,
-            Context* context,
+            std::shared_ptr<Context> context,
             std::vector<std::unique_ptr<ProgramElement>> elements,
             std::shared_ptr<SymbolTable> symbols,
             Inputs inputs)
@@ -124,7 +127,7 @@ struct Program {
     Kind fKind;
     std::unique_ptr<String> fSource;
     Settings fSettings;
-    Context* fContext;
+    std::shared_ptr<Context> fContext;
     // it's important to keep fElements defined after (and thus destroyed before) fSymbols,
     // because destroying elements can modify reference counts in symbols
     std::shared_ptr<SymbolTable> fSymbols;

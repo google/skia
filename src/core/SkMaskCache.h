@@ -23,20 +23,20 @@ public:
      *
      * On failure, return nullptr.
      */
-    static SkCachedData* FindAndRef(SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
+    static SkCachedData* FindAndRef(SkScalar sigma, SkBlurStyle style,
                                     const SkRRect& rrect, SkMask* mask,
                                     SkResourceCache* localCache = nullptr);
-    static SkCachedData* FindAndRef(SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
+    static SkCachedData* FindAndRef(SkScalar sigma, SkBlurStyle style,
                                     const SkRect rects[], int count, SkMask* mask,
                                     SkResourceCache* localCache = nullptr);
 
     /**
      * Add a mask and its pixel-data to the cache.
      */
-    static void Add(SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
+    static void Add(SkScalar sigma, SkBlurStyle style,
                     const SkRRect& rrect, const SkMask& mask, SkCachedData* data,
                     SkResourceCache* localCache = nullptr);
-    static void Add(SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
+    static void Add(SkScalar sigma, SkBlurStyle style,
                     const SkRect rects[], int count, const SkMask& mask, SkCachedData* data,
                     SkResourceCache* localCache = nullptr);
 };

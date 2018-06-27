@@ -15,6 +15,7 @@
 #include "SkottieSlide.h"
 #include "SKPSlide.h"
 #include "SlideDir.h"
+#include "SvgSlide.h"
 
 #include "GrContext.h"
 #include "SkCanvas.h"
@@ -510,71 +511,66 @@ void Viewer::initSlides() {
         reg = reg->next();
     }
 
-    // SKPs
-    for (int i = 0; i < FLAGS_skps.count(); i++) {
-        if (SkStrEndsWith(FLAGS_skps[i], ".skp")) {
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, FLAGS_skps[i])) {
-                continue;
-            }
+    using SlideFactory = sk_sp<Slide>(*)(const SkString& name, const SkString& path);
+    static const struct {
+        const char*                            fExtension;
+        const char*                            fDirName;
+        const SkCommandLineFlags::StringArray& fFlags;
+        const SlideFactory                     fFactory;
+    } gExternalSlidesInfo[] = {
+        { ".skp", "skp-dir", FLAGS_skps,
+            [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
+                return sk_make_sp<SKPSlide>(name, path);}
+        },
+        { ".jpg", "jpg-dir", FLAGS_jpgs,
+            [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
+                return sk_make_sp<ImageSlide>(name, path);}
+        },
+        { ".json", "skottie-dir", FLAGS_jsons,
+            [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
+                return sk_make_sp<SkottieSlide>(name, path);}
+        },
+        { ".svg", "svg-dir", FLAGS_svgs,
+            [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
+                return sk_make_sp<SvgSlide>(name, path);}
+        },
+    };
 
-            SkString path(FLAGS_skps[i]);
-            sk_sp<SKPSlide> slide(new SKPSlide(SkOSPath::Basename(path.c_str()), path));
-            if (slide) {
-                fSlides.push_back(slide);
-            }
-        } else {
-            SkOSFile::Iter it(FLAGS_skps[i], ".skp");
-            SkString skpName;
-            while (it.next(&skpName)) {
-                if (SkCommandLineFlags::ShouldSkip(FLAGS_match, skpName.c_str())) {
-                    continue;
-                }
+    SkTArray<sk_sp<Slide>, true> dirSlides;
 
-                SkString path = SkOSPath::Join(FLAGS_skps[i], skpName.c_str());
-                sk_sp<SKPSlide> slide(new SKPSlide(skpName, path));
-                if (slide) {
-                    fSlides.push_back(slide);
-                }
-            }
+    const auto addSlide = [&](const SkString& name,
+                              const SkString& path,
+                              const SlideFactory& fact) {
+        if (SkCommandLineFlags::ShouldSkip(FLAGS_match,  name.c_str())) {
+            return;
         }
-    }
 
-    // JPGs
-    for (int i = 0; i < FLAGS_jpgs.count(); i++) {
-        SkOSFile::Iter it(FLAGS_jpgs[i], ".jpg");
-        SkString jpgName;
-        while (it.next(&jpgName)) {
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, jpgName.c_str())) {
-                continue;
-            }
-
-            SkString path = SkOSPath::Join(FLAGS_jpgs[i], jpgName.c_str());
-            sk_sp<ImageSlide> slide(new ImageSlide(jpgName, path));
-            if (slide) {
-                fSlides.push_back(slide);
-            }
-        }
-    }
-
-    // JSONs
-    for (const auto& json : FLAGS_jsons) {
-        SkTArray<sk_sp<Slide>, true> dirSlides;
-
-        SkOSFile::Iter it(json.c_str(), ".json");
-        SkString jsonName;
-        while (it.next(&jsonName)) {
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, jsonName.c_str())) {
-                continue;
-            }
-            auto slide = sk_make_sp<SkottieSlide>(jsonName, SkOSPath::Join(json.c_str(),
-                                                                           jsonName.c_str()));
+        if (auto slide = fact(name, path)) {
             dirSlides.push_back(slide);
             fSlides.push_back(std::move(slide));
         }
+    };
 
-        if (!dirSlides.empty()) {
-            fSlides.push_back(sk_make_sp<SlideDir>(SkStringPrintf("skottie-dir[%s]", json.c_str()),
-                                                   std::move(dirSlides)));
+    for (const auto& info : gExternalSlidesInfo) {
+        for (const auto& flag : info.fFlags) {
+            if (SkStrEndsWith(flag.c_str(), info.fExtension)) {
+                // single file
+                addSlide(SkOSPath::Basename(flag.c_str()), flag, info.fFactory);
+            } else {
+                // directory
+                SkOSFile::Iter it(flag.c_str(), info.fExtension);
+                SkString name;
+                while (it.next(&name)) {
+                    addSlide(name, SkOSPath::Join(flag.c_str(), name.c_str()), info.fFactory);
+                }
+            }
+
+            if (!dirSlides.empty()) {
+                fSlides.push_back(
+                    sk_make_sp<SlideDir>(SkStringPrintf("%s[%s]", info.fDirName, flag.c_str()),
+                                         std::move(dirSlides)));
+                dirSlides.reset();
+            }
         }
     }
 }
@@ -782,7 +778,7 @@ void Viewer::setupCurrentSlide() {
         }
 
         // Prevent the user from dragging content so far outside the window they can't find it again
-        fGesture.setTransLimit(slideBounds, windowRect, fDefaultMatrix);
+        fGesture.setTransLimit(slideBounds, windowRect, this->computePreTouchMatrix());
 
         this->updateTitle();
         this->updateUIState();
@@ -799,18 +795,26 @@ void Viewer::setupCurrentSlide() {
 void Viewer::changeZoomLevel(float delta) {
     fZoomLevel += delta;
     fZoomLevel = SkScalarPin(fZoomLevel, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL);
+
+    // Update the trans limit as the zoom level changes.
+    const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
+    const SkRect slideBounds = SkRect::MakeIWH(slideSize.width(), slideSize.height());
+    const SkRect windowRect = SkRect::MakeIWH(fWindow->width(), fWindow->height());
+    fGesture.setTransLimit(slideBounds, windowRect, this->computePreTouchMatrix());
+}
+
+SkMatrix Viewer::computePreTouchMatrix() {
+    SkMatrix m = fDefaultMatrix;
+    SkScalar zoomScale = (fZoomLevel < 0) ? SK_Scalar1 / (SK_Scalar1 - fZoomLevel)
+                                          : SK_Scalar1 + fZoomLevel;
+    m.preScale(zoomScale, zoomScale);
+    return m;
 }
 
 SkMatrix Viewer::computeMatrix() {
-    SkMatrix m;
-
-    SkScalar zoomScale = (fZoomLevel < 0) ? SK_Scalar1 / (SK_Scalar1 - fZoomLevel)
-                                          : SK_Scalar1 + fZoomLevel;
-    m = fGesture.localM();
+    SkMatrix m = fGesture.localM();
     m.preConcat(fGesture.globalM());
-    m.preConcat(fDefaultMatrix);
-    m.preScale(zoomScale, zoomScale);
-
+    m.preConcat(this->computePreTouchMatrix());
     return m;
 }
 
@@ -868,6 +872,9 @@ public:
         : SkPaintFilterCanvas(canvas), fPaint(paint), fPaintOverrides(fields)
     { }
     bool onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type) const override {
+        if (*paint == nullptr) {
+            return true;
+        }
         if (fPaintOverrides->fHinting) {
             paint->writable()->setHinting(fPaint->getHinting());
         }

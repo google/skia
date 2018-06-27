@@ -22,6 +22,7 @@
 #include "GrTextureProxyPriv.h"
 #include "SkMakeUnique.h"
 #include "SkRectPriv.h"
+#include "mock/GrMockGpu.h"
 #include "mock/GrMockTypes.h"
 
 // This test verifies that lazy proxy callbacks get invoked during flush, after onFlush callbacks,
@@ -70,7 +71,6 @@ public:
                     GrSurfaceDesc desc;
                     desc.fWidth = 1234;
                     desc.fHeight = 567;
-                    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
                     desc.fConfig = kRGB_565_GrPixelConfig;
                     sk_sp<GrTexture> texture = rp->createTexture(desc, SkBudgeted::kYes);
                     REPORTER_ASSERT(fTest->fReporter, texture);
@@ -188,12 +188,12 @@ DEF_GPUTEST(LazyProxyTest, reporter, /* options */) {
     for (bool nullTexture : {false, true}) {
         LazyProxyTest test(reporter);
         ctx->contextPriv().addOnFlushCallbackObject(&test);
-        sk_sp<GrRenderTargetContext> rtc =
-                ctx->makeDeferredRenderTargetContext(SkBackingFit::kExact, 100, 100,
-                                                     kRGBA_8888_GrPixelConfig, nullptr);
+        sk_sp<GrRenderTargetContext> rtc = ctx->contextPriv().makeDeferredRenderTargetContext(
+                                                             SkBackingFit::kExact, 100, 100,
+                                                             kRGBA_8888_GrPixelConfig, nullptr);
         REPORTER_ASSERT(reporter, rtc);
-        sk_sp<GrRenderTargetContext> mockAtlas =
-                ctx->makeDeferredRenderTargetContext(SkBackingFit::kExact, 10, 10,
+        sk_sp<GrRenderTargetContext> mockAtlas = ctx->contextPriv().makeDeferredRenderTargetContext(
+                                                     SkBackingFit::kExact, 10, 10,
                                                      kAlpha_half_GrPixelConfig, nullptr);
         REPORTER_ASSERT(reporter, mockAtlas);
         rtc->priv().testingOnly_addDrawOp(LazyProxyTest::Clip(&test, mockAtlas->asTextureProxy()),
@@ -217,7 +217,8 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
     using LazyInstantiationType = GrSurfaceProxy::LazyInstantiationType;
     for (bool doInstantiate : {true, false}) {
         for (auto lazyType : {LazyInstantiationType::kSingleUse,
-                              LazyInstantiationType::kMultipleUse}) {
+                              LazyInstantiationType::kMultipleUse,
+                              LazyInstantiationType::kUninstantiate}) {
             int testCount = 0;
             int* testCountPtr = &testCount;
             sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
@@ -228,9 +229,9 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
                         }
                         *testCountPtr = 1;
                         return sk_sp<GrTexture>();
-                    }, desc, GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kNo);
-
-            proxy->priv().testingOnly_setLazyInstantiationType(lazyType);
+                    },
+                    desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, GrInternalSurfaceFlags::kNone,
+                    SkBackingFit::kExact, SkBudgeted::kNo, lazyType);
 
             REPORTER_ASSERT(reporter, 0 == testCount);
 
@@ -267,7 +268,7 @@ public:
         desc.fConfig = kRGBA_8888_GrPixelConfig;
 
         fLazyProxy = proxyProvider->createLazyProxy(
-                [testExecuteValue, shouldFailInstantiation, desc] (GrResourceProvider* rp) {
+                [testExecuteValue, shouldFailInstantiation, desc](GrResourceProvider* rp) {
                     if (!rp) {
                         return sk_sp<GrTexture>();
                     }
@@ -276,7 +277,9 @@ public:
                         return sk_sp<GrTexture>();
                     }
                     return rp->createTexture(desc, SkBudgeted::kNo);
-                }, desc, GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kNo);
+                },
+                desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,
+                SkBudgeted::kNo);
 
         this->setBounds(SkRect::MakeIWH(kSize, kSize),
                         HasAABloat::kNo, IsZeroArea::kNo);
@@ -313,8 +316,8 @@ DEF_GPUTEST(LazyProxyFailedInstantiationTest, reporter, /* options */) {
     GrResourceProvider* resourceProvider = ctx->contextPriv().resourceProvider();
     GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
     for (bool failInstantiation : {false, true}) {
-        sk_sp<GrRenderTargetContext> rtc =
-                ctx->makeDeferredRenderTargetContext(SkBackingFit::kExact, 100, 100,
+        sk_sp<GrRenderTargetContext> rtc = ctx->contextPriv().makeDeferredRenderTargetContext(
+                                                     SkBackingFit::kExact, 100, 100,
                                                      kRGBA_8888_GrPixelConfig, nullptr);
         REPORTER_ASSERT(reporter, rtc);
 
@@ -338,7 +341,125 @@ DEF_GPUTEST(LazyProxyFailedInstantiationTest, reporter, /* options */) {
             REPORTER_ASSERT(reporter, 2 == executeTestValue);
         }
     }
+}
 
+class LazyUninstantiateTestOp : public GrDrawOp {
+public:
+    DEFINE_OP_CLASS_ID
+
+    LazyUninstantiateTestOp(sk_sp<GrTextureProxy> proxy)
+            : INHERITED(ClassID())
+            , fLazyProxy(std::move(proxy)) {
+
+        this->setBounds(SkRect::MakeIWH(kSize, kSize),
+                        HasAABloat::kNo, IsZeroArea::kNo);
+    }
+
+    void visitProxies(const VisitProxyFunc& func) const override {
+        func(fLazyProxy.get());
+    }
+
+private:
+    const char* name() const override { return "LazyUninstantiateTestOp"; }
+    FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
+    RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*,
+                                GrPixelConfigIsClamped) override {
+        return RequiresDstTexture::kNo;
+    }
+    bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override { return false; }
+    void onPrepare(GrOpFlushState*) override {}
+    void onExecute(GrOpFlushState* state) override {}
+
+    sk_sp<GrSurfaceProxy> fLazyProxy;
+
+    typedef GrDrawOp INHERITED;
+};
+
+static void UninstantiateReleaseProc(void* releaseValue) {
+    (*static_cast<int*>(releaseValue))++;
+}
+
+// Test that lazy proxies with the Uninstantiate LazyCallbackType are uninstantiated and released as
+// expected.
+DEF_GPUTEST(LazyProxyUninstantiateTest, reporter, /* options */) {
+    GrMockOptions mockOptions;
+    sk_sp<GrContext> ctx = GrContext::MakeMock(&mockOptions, GrContextOptions());
+    GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
+    GrGpu* gpu = ctx->contextPriv().getGpu();
+
+    using LazyType = GrSurfaceProxy::LazyInstantiationType;
+    for (auto lazyType : {LazyType::kSingleUse, LazyType::kMultipleUse, LazyType::kUninstantiate}) {
+        sk_sp<GrRenderTargetContext> rtc = ctx->contextPriv().makeDeferredRenderTargetContext(
+                SkBackingFit::kExact, 100, 100,
+                kRGBA_8888_GrPixelConfig, nullptr);
+        REPORTER_ASSERT(reporter, rtc);
+
+        rtc->clear(nullptr, 0xbaaaaaad, GrRenderTargetContext::CanClearFullscreen::kYes);
+
+        int instantiateTestValue = 0;
+        int releaseTestValue = 0;
+        int* instantiatePtr = &instantiateTestValue;
+        int* releasePtr = &releaseTestValue;
+        GrSurfaceDesc desc;
+        desc.fWidth = kSize;
+        desc.fHeight = kSize;
+        desc.fConfig = kRGBA_8888_GrPixelConfig;
+
+        GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
+                nullptr, kSize, kSize, kRGBA_8888_GrPixelConfig, false, GrMipMapped::kNo);
+
+        sk_sp<GrTextureProxy> lazyProxy = proxyProvider->createLazyProxy(
+                [instantiatePtr, releasePtr, backendTex](GrResourceProvider* rp) {
+                    if (!rp) {
+                        return sk_sp<GrTexture>();
+                    }
+
+                    sk_sp<GrTexture> texture = rp->wrapBackendTexture(backendTex);
+                    if (!texture) {
+                        return sk_sp<GrTexture>();
+                    }
+                    (*instantiatePtr)++;
+                    texture->setRelease(UninstantiateReleaseProc, releasePtr);
+                    return texture;
+                },
+                desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, GrInternalSurfaceFlags::kNone,
+                SkBackingFit::kExact, SkBudgeted::kNo, lazyType);
+
+        rtc->priv().testingOnly_addDrawOp(skstd::make_unique<LazyUninstantiateTestOp>(lazyProxy));
+
+        ctx->flush();
+
+        REPORTER_ASSERT(reporter, 1 == instantiateTestValue);
+        if (LazyType::kUninstantiate == lazyType) {
+            REPORTER_ASSERT(reporter, 1 == releaseTestValue);
+        } else {
+            REPORTER_ASSERT(reporter, 0 == releaseTestValue);
+        }
+
+        // This should cause the uninstantiate proxies to be instantiated again but have no effect
+        // on the others
+        rtc->priv().testingOnly_addDrawOp(skstd::make_unique<LazyUninstantiateTestOp>(lazyProxy));
+        // Add a second op to make sure we only instantiate once.
+        rtc->priv().testingOnly_addDrawOp(skstd::make_unique<LazyUninstantiateTestOp>(lazyProxy));
+        ctx->flush();
+
+        if (LazyType::kUninstantiate == lazyType) {
+            REPORTER_ASSERT(reporter, 2 == instantiateTestValue);
+            REPORTER_ASSERT(reporter, 2 == releaseTestValue);
+        } else {
+            REPORTER_ASSERT(reporter, 1 == instantiateTestValue);
+            REPORTER_ASSERT(reporter, 0 == releaseTestValue);
+        }
+
+        lazyProxy.reset();
+        if (LazyType::kUninstantiate == lazyType) {
+            REPORTER_ASSERT(reporter, 2 == releaseTestValue);
+        } else {
+            REPORTER_ASSERT(reporter, 1 == releaseTestValue);
+        }
+
+        gpu->deleteTestingOnlyBackendTexture(backendTex);
+    }
 }
 
 #endif

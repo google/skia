@@ -8,9 +8,9 @@
 #ifndef GrGLSemaphore_DEFINED
 #define GrGLSemaphore_DEFINED
 
-#include "GrSemaphore.h"
-
 #include "GrBackendSemaphore.h"
+#include "GrSemaphore.h"
+#include "GrTypesPriv.h"
 
 class GrGLGpu;
 

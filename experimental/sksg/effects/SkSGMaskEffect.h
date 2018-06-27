@@ -18,23 +18,30 @@ namespace sksg {
  */
 class MaskEffect final : public EffectNode {
 public:
-    static sk_sp<MaskEffect> Make(sk_sp<RenderNode> child, sk_sp<RenderNode> mask) {
+    enum class Mode {
+        kNormal,
+        kInvert
+    };
+
+    static sk_sp<MaskEffect> Make(sk_sp<RenderNode> child, sk_sp<RenderNode> mask,
+                                  Mode mode = Mode::kNormal) {
         return (child && mask)
-            ? sk_sp<MaskEffect>(new MaskEffect(std::move(child), std::move(mask)))
+            ? sk_sp<MaskEffect>(new MaskEffect(std::move(child), std::move(mask), mode))
             : nullptr;
     }
 
     ~MaskEffect() override;
 
 protected:
-    MaskEffect(sk_sp<RenderNode>, sk_sp<RenderNode> mask);
+    MaskEffect(sk_sp<RenderNode>, sk_sp<RenderNode> mask, Mode);
 
     void onRender(SkCanvas*) const override;
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 
 private:
-    sk_sp<RenderNode> fMaskNode;
+    const sk_sp<RenderNode> fMaskNode;
+    const Mode              fMaskMode;
 
     typedef EffectNode INHERITED;
 };

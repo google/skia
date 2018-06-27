@@ -56,7 +56,6 @@ enum SkAxisAlignment {
  *  than a nested struct inside SkScalerContext (where it started).
  */
 struct SkScalerContextRec {
-
     uint32_t    fFontID;
     SkScalar    fTextSize, fPreScaleX, fPreSkewX;
     SkScalar    fPost2x2[2][2];
@@ -136,6 +135,8 @@ public:
                    fPost2x2[0][1], fPost2x2[1][0], fPost2x2[1][1]);
         msg.appendf("  frame %g miter %g format %d join %d cap %d flags %#hx\n",
                    fFrameWidth, fMiterLimit, fMaskFormat, fStrokeJoin, fStrokeCap, fFlags);
+        msg.appendf("  lum bits %x, device gamma %d, paint gamma %d contrast %d\n",
+                    fLumBits, fDeviceGamma, fPaintGamma, fContrast);
         return msg;
     }
 
@@ -187,6 +188,8 @@ public:
                          SkMatrix* remainingWithoutRotation = nullptr,
                          SkMatrix* remainingRotation = nullptr,
                          SkMatrix* total = nullptr);
+
+    SkAxisAlignment computeAxisAlignmentForHText() const;
 
     inline SkPaint::Hinting getHinting() const;
     inline void setHinting(SkPaint::Hinting);
@@ -286,7 +289,7 @@ public:
     void        getAdvance(SkGlyph*);
     void        getMetrics(SkGlyph*);
     void        getImage(const SkGlyph&);
-    void        getPath(SkPackedGlyphID, SkPath*);
+    bool SK_WARN_UNUSED_RESULT getPath(SkPackedGlyphID, SkPath*);
     void        getFontMetrics(SkPaint::FontMetrics*);
 
     /** Return the size in bytes of the associated gamma lookup table
@@ -338,7 +341,7 @@ public:
     *  Return the axis (if any) that the baseline for horizontal text should land on.
     *  As an example, the identity matrix will return kX_SkAxisAlignment
     */
-    SkAxisAlignment computeAxisAlignmentForHText();
+    SkAxisAlignment computeAxisAlignmentForHText() const;
 
     static SkDescriptor* CreateDescriptorAndEffectsUsingPaint(
         const SkPaint& paint, const SkSurfaceProps* surfaceProps,
@@ -374,9 +377,9 @@ protected:
 
     /** Sets the passed path to the glyph outline.
      *  If this cannot be done the path is set to empty;
-     *  this is indistinguishable from a glyph with an empty path.
+     *  @return false if this glyph does not have any path.
      */
-    virtual void generatePath(SkGlyphID glyphId, SkPath* path) = 0;
+    virtual bool SK_WARN_UNUSED_RESULT generatePath(SkGlyphID glyphId, SkPath* path) = 0;
 
     /** Retrieves font metrics. */
     virtual void generateFontMetrics(SkPaint::FontMetrics*) = 0;

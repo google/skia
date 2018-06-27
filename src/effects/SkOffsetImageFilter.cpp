@@ -125,7 +125,6 @@ SkOffsetImageFilter::SkOffsetImageFilter(SkScalar dx, SkScalar dy,
     fOffset.set(dx, dy);
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkOffsetImageFilter::toString(SkString* str) const {
     str->appendf("SkOffsetImageFilter: (");
     str->appendf("offset: (%f, %f) ", fOffset.fX, fOffset.fY);
@@ -135,4 +134,3 @@ void SkOffsetImageFilter::toString(SkString* str) const {
     }
     str->append("))");
 }
-#endif

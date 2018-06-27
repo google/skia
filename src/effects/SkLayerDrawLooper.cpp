@@ -6,7 +6,7 @@
  */
 #include "SkArenaAlloc.h"
 #include "SkBlurDrawLooper.h"
-#include "SkBlurMaskFilter.h"
+#include "SkMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkColorSpaceXformer.h"
 #include "SkColor.h"
@@ -204,7 +204,6 @@ bool SkLayerDrawLooper::asABlurShadow(BlurShadowRec* bsRec) const {
         bsRec->fOffset = fRecs->fInfo.fOffset;
         bsRec->fColor = fRecs->fPaint.getColor();
         bsRec->fStyle = maskBlur.fStyle;
-        bsRec->fQuality = maskBlur.fQuality;
     }
     return true;
 }
@@ -277,7 +276,6 @@ sk_sp<SkFlattenable> SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer) {
     return builder.detach();
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkLayerDrawLooper::toString(SkString* str) const {
     str->appendf("SkLayerDrawLooper (%d): ", fCount);
 
@@ -333,7 +331,6 @@ void SkLayerDrawLooper::toString(SkString* str) const {
         rec = rec->fNext;
     }
 }
-#endif
 
 SkLayerDrawLooper::Builder::Builder()
         : fRecs(nullptr),
@@ -404,7 +401,7 @@ sk_sp<SkDrawLooper> SkBlurDrawLooper::Make(SkColor color, SkScalar sigma, SkScal
 {
     sk_sp<SkMaskFilter> blur = nullptr;
     if (sigma > 0.0f) {
-        blur = SkBlurMaskFilter::Make(kNormal_SkBlurStyle, sigma, SkBlurMaskFilter::kNone_BlurFlag);
+        blur = SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma, true);
     }
 
     SkLayerDrawLooper::Builder builder;

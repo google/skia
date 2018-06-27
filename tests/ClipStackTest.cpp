@@ -5,23 +5,48 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "SkCanvas.h"
+#include "SkClipOp.h"
+#include "SkClipOpPriv.h"
 #include "SkClipStack.h"
+#include "SkImageInfo.h"
+#include "SkMatrix.h"
 #include "SkPath.h"
+#include "SkPoint.h"
+#include "SkRRect.h"
 #include "SkRandom.h"
 #include "SkRect.h"
+#include "SkRefCnt.h"
 #include "SkRegion.h"
+#include "SkScalar.h"
+#include "SkSize.h"
+#include "SkString.h"
+#include "SkSurface.h"
+#include "SkTLList.h"
+#include "SkTemplates.h"
+#include "SkTypes.h"
+#include "Test.h"
 
 #if SK_SUPPORT_GPU
+#include "GrCaps.h"
+#include "GrClip.h"
 #include "GrClipStackClip.h"
+#include "GrConfig.h"
+#include "GrContext.h"
+#include "GrContextFactory.h"
+#include "GrContextPriv.h"
 #include "GrReducedClip.h"
 #include "GrResourceCache.h"
+#include "GrResourceKey.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
 typedef GrReducedClip::ElementList ElementList;
 typedef GrReducedClip::InitialState InitialState;
 #endif
+
+#include <cstring>
+#include <new>
 
 static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     SkClipStack s;
@@ -1510,7 +1535,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ClipMaskCache, reporter, ctxInfo) {
 #endif
 }
 
-#include "SkSurface.h"
 DEF_GPUTEST_FOR_ALL_CONTEXTS(canvas_private_clipRgn, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 

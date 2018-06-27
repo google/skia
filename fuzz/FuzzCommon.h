@@ -5,12 +5,15 @@
  * found in the LICENSE file.
  */
 
+#ifndef FuzzCommon_DEFINED
+#define FuzzCommon_DEFINED
+
 #include "Fuzz.h"
 #include "SkPath.h"
 #include "SkRegion.h"
 
 // We don't always want to test NaNs and infinities.
-static void fuzz_nice_float(Fuzz* fuzz, float* f) {
+static inline void fuzz_nice_float(Fuzz* fuzz, float* f) {
     float v;
     fuzz->next(&v);
     constexpr float kLimit = 1.0e35f;  // FLT_MAX?
@@ -23,66 +26,37 @@ inline void fuzz_nice_float(Fuzz* fuzz, float* f, Args... rest) {
     fuzz_nice_float(fuzz, rest...);
 }
 
-static void fuzz_path(Fuzz* fuzz, SkPath* path, int maxOps) {
-    if (maxOps < 2) {
-        maxOps = 2;
-    }
-    uint8_t fillType;
-    fuzz->nextRange(&fillType, 0, (uint8_t)SkPath::kInverseEvenOdd_FillType);
-    path->setFillType((SkPath::FillType)fillType);
-    uint8_t numOps;
-    fuzz->nextRange(&numOps, 2, maxOps);
-    for (uint8_t i = 0; i < numOps; ++i) {
-        uint8_t op;
-        fuzz->nextRange(&op, 0, 6);
-        SkScalar a, b, c, d, e, f;
-        switch (op) {
-            case 0:
-                fuzz_nice_float(fuzz, &a, &b);
-                path->moveTo(a, b);
-                break;
-            case 1:
-                fuzz_nice_float(fuzz, &a, &b);
-                path->lineTo(a, b);
-                break;
-            case 2:
-                fuzz_nice_float(fuzz, &a, &b, &c, &d);
-                path->quadTo(a, b, c, d);
-                break;
-            case 3:
-                fuzz_nice_float(fuzz, &a, &b, &c, &d, &e);
-                path->conicTo(a, b, c, d, e);
-                break;
-            case 4:
-                fuzz_nice_float(fuzz, &a, &b, &c, &d, &e, &f);
-                path->cubicTo(a, b, c, d, e, f);
-                break;
-            case 5:
-                fuzz_nice_float(fuzz, &a, &b, &c, &d, &e);
-                path->arcTo(a, b, c, d, e);
-                break;
-            case 6:
-                path->close();
-                break;
-            default:
-                SkASSERT(false);
-                break;
+template <typename T, typename Min, typename Max>
+inline void fuzz_enum_range(Fuzz* fuzz, T* value, Min rmin, Max rmax) {
+    using U = skstd::underlying_type_t<T>;
+    fuzz->nextRange((U*)value, (U)rmin, (U)rmax);
+}
+
+inline void fuzz_region(Fuzz* fuzz, SkRegion* region, int maxN) {
+    uint8_t N;
+    fuzz->nextRange(&N, 0, maxN);
+    for (uint8_t i = 0; i < N; ++i) {
+        SkIRect r;
+        SkRegion::Op op;
+        // Avoid the sentinal value used by Region.
+        fuzz->nextRange(&r.fLeft,   -2147483646, 2147483646);
+        fuzz->nextRange(&r.fTop,    -2147483646, 2147483646);
+        fuzz->nextRange(&r.fRight,  -2147483646, 2147483646);
+        fuzz->nextRange(&r.fBottom, -2147483646, 2147483646);
+        r.sort();
+        fuzz_enum_range(fuzz, &op, (SkRegion::Op)0, SkRegion::kLastOp);
+        if (!region->op(r, op)) {
+            return;
         }
     }
 }
 
 template <>
-inline void Fuzz::next(SkRegion* region) {
-    uint8_t N;
-    this->nextRange(&N, 0, 10);
-    for (uint8_t i = 0; i < N; ++i) {
-        SkIRect r;
-        uint8_t op;
-        this->next(&r);
-        r.sort();
-        this->nextRange(&op, 0, (uint8_t)SkRegion::kLastOp);
-        if (!region->op(r, (SkRegion::Op)op)) {
-            return;
-        }
-    }
-}
+inline void Fuzz::next(SkRegion* region) { fuzz_region(this, region, 10); }
+
+// allows some float values for path points
+void FuzzPath(Fuzz* fuzz, SkPath* path, int maxOps);
+// allows all float values for path points
+void BuildPath(Fuzz* fuzz, SkPath* path, int last_verb);
+
+#endif

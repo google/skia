@@ -414,7 +414,6 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
 }
 
 void GrResourceCache::didChangeGpuMemorySize(const GrGpuResource* resource, size_t oldSize) {
-    // SkASSERT(!fPurging); GrPathRange increases size during flush. :(
     SkASSERT(resource);
     SkASSERT(this->isInCache(resource));
 
@@ -513,13 +512,34 @@ void GrResourceCache::purgeAsNeeded() {
     }
 }
 
-void GrResourceCache::purgeAllUnlocked() {
-    // We could disable maintaining the heap property here, but it would add a lot of complexity.
-    // Moreover, this is rarely called.
-    while (fPurgeableQueue.count()) {
-        GrGpuResource* resource = fPurgeableQueue.peek();
-        SkASSERT(resource->isPurgeable());
-        resource->cacheAccess().release();
+void GrResourceCache::purgeUnlockedResources(bool scratchResourcesOnly) {
+    if (!scratchResourcesOnly) {
+        // We could disable maintaining the heap property here, but it would add a lot of
+        // complexity. Moreover, this is rarely called.
+        while (fPurgeableQueue.count()) {
+            GrGpuResource* resource = fPurgeableQueue.peek();
+            SkASSERT(resource->isPurgeable());
+            resource->cacheAccess().release();
+        }
+    } else {
+        // Sort the queue
+        fPurgeableQueue.sort();
+
+        // Make a list of the scratch resources to delete
+        SkTDArray<GrGpuResource*> scratchResources;
+        for (int i = 0; i < fPurgeableQueue.count(); i++) {
+            GrGpuResource* resource = fPurgeableQueue.at(i);
+            SkASSERT(resource->isPurgeable());
+            if (!resource->getUniqueKey().isValid()) {
+                *scratchResources.append() = resource;
+            }
+        }
+
+        // Delete the scratch resources. This must be done as a separate pass
+        // to avoid messing up the sorted order of the queue
+        for (int i = 0; i < scratchResources.count(); i++) {
+            scratchResources.getAt(i)->cacheAccess().release();
+        }
     }
 
     this->validate();

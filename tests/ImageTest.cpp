@@ -505,7 +505,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsImage, reporter
         img.reset();
         ctxInfo.grContext()->flush();
         if (backendTex.isValid()) {
-            gpu->deleteTestingOnlyBackendTexture(&backendTex);
+            gpu->deleteTestingOnlyBackendTexture(backendTex);
         }
     }
 }
@@ -817,17 +817,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
                                  TextureReleaseChecker::Release, &releaseChecker));
 
     GrSurfaceOrigin readBackOrigin;
-    GrBackendObject readBackHandle = refImg->getTextureHandle(false, &readBackOrigin);
-    // TODO: Make it so we can check this (see skbug.com/5019)
-#if 0
-    if (*readBackHandle != *(backendTexHandle)) {
-        ERRORF(reporter, "backend mismatch %d %d\n",
-                       (int)readBackHandle, (int)backendTexHandle);
+    GrBackendTexture readBackBackendTex = refImg->getBackendTexture(false, &readBackOrigin);
+    if (!GrBackendTexture::TestingOnly_Equals(readBackBackendTex, backendTex)) {
+        ERRORF(reporter, "backend mismatch\n");
     }
-    REPORTER_ASSERT(reporter, readBackHandle == backendTexHandle);
-#else
-    REPORTER_ASSERT(reporter, SkToBool(readBackHandle));
-#endif
+    REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(readBackBackendTex, backendTex));
     if (readBackOrigin != texOrigin) {
         ERRORF(reporter, "origin mismatch %d %d\n", readBackOrigin, texOrigin);
     }
@@ -838,10 +832,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     refImg.reset(nullptr); // force a release of the image
     REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
 
-    gpu->deleteTestingOnlyBackendTexture(&backendTex);
+    gpu->deleteTestingOnlyBackendTexture(backendTex);
 }
 
 static void test_cross_context_image(skiatest::Reporter* reporter, const GrContextOptions& options,
+                                     const char* testName,
                                      std::function<sk_sp<SkImage>(GrContext*)> imageMaker) {
     for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
         GrContextFactory testFactory(options);
@@ -875,6 +870,11 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(128, 128);
         sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
+        if (!surface) {
+            ERRORF(reporter, "SkSurface::MakeRenderTarget failed for %s.", testName);
+            continue;
+        }
+
         SkCanvas* canvas = surface->getCanvas();
 
         // Case #2: Create image, draw, flush, free image
@@ -939,13 +939,9 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             otherTestContext->makeCurrent();
             canvas->flush();
 
-            // This readPixels call is needed for Vulkan to make sure the ReleaseProc is called.
-            // Even though we flushed above, this does not guarantee the command buffer will finish
-            // which is when we call the ReleaseProc. The readPixels forces a CPU sync so we know
-            // that the command buffer has finished and we've called the ReleaseProc.
-            SkBitmap bitmap;
-            bitmap.allocPixels(info);
-            canvas->readPixels(bitmap, 0, 0);
+            // This is specifically here for vulkan to guarantee the command buffer will finish
+            // which is when we call the ReleaseProc.
+            otherCtx->contextPriv().getGpu()->testingOnly_flushGpuAndSync();
         }
 
         // Case #6: Verify that only one context can be using the image at a time
@@ -1002,7 +998,8 @@ DEF_GPUTEST(SkImage_MakeCrossContextFromEncodedRelease, reporter, options) {
     sk_sp<SkData> data = GetResourceAsData("images/mandrill_128.png");
     SkASSERT(data.get());
 
-    test_cross_context_image(reporter, options, [&data](GrContext* ctx) {
+    test_cross_context_image(reporter, options, "SkImage_MakeCrossContextFromEncodedRelease",
+                             [&data](GrContext* ctx) {
         return SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr);
     });
 }
@@ -1012,9 +1009,39 @@ DEF_GPUTEST(SkImage_MakeCrossContextFromPixmapRelease, reporter, options) {
     SkPixmap pixmap;
     SkAssertResult(GetResourceAsBitmap("images/mandrill_128.png", &bitmap) && bitmap.peekPixels(&pixmap));
 
-    test_cross_context_image(reporter, options, [&pixmap](GrContext* ctx) {
+    test_cross_context_image(reporter, options, "SkImage_MakeCrossContextFromPixmapRelease",
+                             [&pixmap](GrContext* ctx) {
         return SkImage::MakeCrossContextFromPixmap(ctx, pixmap, false, nullptr);
     });
+}
+
+DEF_GPUTEST(SkImage_CrossContextGrayAlphaConfigs, reporter, options) {
+
+    for (SkColorType ct : { kGray_8_SkColorType, kAlpha_8_SkColorType }) {
+        SkAutoPixmapStorage pixmap;
+        pixmap.alloc(SkImageInfo::Make(4, 4, ct, kPremul_SkAlphaType));
+
+        for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
+            GrContextFactory testFactory(options);
+            GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
+            ContextInfo ctxInfo = testFactory.getContextInfo(ctxType);
+            GrContext* ctx = ctxInfo.grContext();
+            if (!ctx || !ctx->caps()->crossContextTextureSupport()) {
+                continue;
+            }
+
+            sk_sp<SkImage> image = SkImage::MakeCrossContextFromPixmap(ctx, pixmap, false, nullptr);
+            REPORTER_ASSERT(reporter, image);
+
+            sk_sp<SkColorSpace> texColorSpace;
+            sk_sp<GrTextureProxy> proxy = as_IB(image)->asTextureProxyRef(
+                ctx, GrSamplerState::ClampNearest(), nullptr, &texColorSpace, nullptr);
+            REPORTER_ASSERT(reporter, proxy);
+
+            bool expectAlpha = kAlpha_8_SkColorType == ct;
+            REPORTER_ASSERT(reporter, expectAlpha == GrPixelConfigIsAlphaOnly(proxy->config()));
+        }
+    }
 }
 
 static uint32_t GetIdForBackendObject(GrContext* ctx, GrBackendObject object) {
@@ -1038,7 +1065,12 @@ static uint32_t GetIdForBackendTexture(GrBackendTexture texture) {
         return 0;
     }
 
-    return texture.getGLTextureInfo()->fID;
+    GrGLTextureInfo info;
+    if (!texture.getGLTextureInfo(&info)) {
+        return 0;
+    }
+
+    return info.fID;
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(makeBackendTexture, reporter, ctxInfo) {

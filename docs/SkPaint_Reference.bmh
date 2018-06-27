@@ -326,7 +326,7 @@ After the call, paint is undefined, and can be safely destructed.
             paint1 != paint2
         ##
     ##
-
+#SeeAlso operator!=(const SkPaint& a, const SkPaint& b)
 ##
 
 # ------------------------------------------------------------------------------
@@ -356,7 +356,7 @@ After the call, paint is undefined, and can be safely destructed.
         paint1 == paint2
     ##
 ##
-
+#SeeAlso operator==(const SkPaint& a, const SkPaint& b)
 ##
 
 # ------------------------------------------------------------------------------
@@ -390,51 +390,6 @@ The hash returned is platform and implementation specific.
         paint1.getHash() == paint2.getHash()
     ##
 ##
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method void flatten(SkWriteBuffer& buffer) const
-
-#In Management
-#Line # serializes into a buffer ##
-Serializes Paint into a buffer. A companion unflatten() call
-can reconstitute the paint at a later time.
-
-#Param buffer  Write_Buffer receiving the flattened Paint data ##
-
-# why is flatten() public? 
-#Bug 6172
-
-#NoExample
-##
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method bool unflatten(SkReadBuffer& buffer)
-
-#In Management
-#Line # populates from a serialized stream ##
-Populates Paint, typically from a serialized stream, created by calling
-flatten() at an earlier time.
-
-SkReadBuffer class is not public, so unflatten() cannot be meaningfully called
-by the client.
-
-#Param buffer  serialized data describing Paint content ##
-
-#Return false if the buffer contains invalid data ##
-
-# why is unflatten() public? 
-#Bug 6172
-
-#NoExample 
-##
-
-#SeeAlso SkReadBuffer
 
 ##
 
@@ -3111,7 +3066,7 @@ modifying the draw.
 #Example
     void draw(SkCanvas* canvas) {
         SkPaint paint;
-        paint.setMaskFilter(SkBlurMaskFilter::Make(kSolid_SkBlurStyle, 3));
+        paint.setMaskFilter(SkMaskFilter::MakeBlur(kSolid_SkBlurStyle, 3));
         canvas->drawRect(SkRect::MakeXYWH(40, 40, 175, 175), paint);
     }
 ##
@@ -3129,7 +3084,7 @@ modifying the draw.
         void draw(SkCanvas* canvas) {
            SkPaint paint;
            SkDebugf("nullptr %c= mask filter\n", paint.getMaskFilter() ? '!' : '=');
-           paint.setMaskFilter(SkBlurMaskFilter::Make(kOuter_SkBlurStyle, 3));
+           paint.setMaskFilter(SkMaskFilter::MakeBlur(kOuter_SkBlurStyle, 3));
            SkDebugf("nullptr %c= mask filter\n", paint.getMaskFilter() ? '!' : '=');
         }
 
@@ -3154,7 +3109,7 @@ modifying the draw.
     #Example
     void draw(SkCanvas* canvas) {
         SkPaint paint1, paint2;
-        paint1.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 1));
+        paint1.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 1));
         SkDebugf("mask filter unique: %s\n", paint1.getMaskFilter()->unique() ? "true" : "false");
         paint2.setMaskFilter(paint1.refMaskFilter());
         SkDebugf("mask filter unique: %s\n", paint1.getMaskFilter()->unique() ? "true" : "false");
@@ -3185,7 +3140,7 @@ Increments maskFilter Reference_Count by one.
             SkPaint paint;
             paint.setStyle(SkPaint::kStroke_Style);
             paint.setStrokeWidth(10);
-            paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 10));
+            paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 10));
             canvas->drawRect(SkRect::MakeXYWH(40, 40, 175, 175), paint);
         }
     ##
@@ -3319,7 +3274,7 @@ Mask_Filter.
         paint.setImageFilter(SkBlurImageFilter::Make(5.0f, 5.0f, nullptr));
         canvas->drawRegion(region, paint);
         paint.setImageFilter(nullptr);
-        paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 5));
+        paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 5));
         canvas->translate(100, 100);
         canvas->drawRegion(region, paint);
     }
@@ -5099,7 +5054,8 @@ Paint may draw to.
 #Method bool canComputeFastBounds() const
     
 #In Fast_Bounds
-#Line # returns true if settings allow for fast bounds computation ###Private  
+#Line # returns true if settings allow for fast bounds computation ##
+    #Private  
     (to be made private)
     ##
 
@@ -5113,7 +5069,8 @@ Paint may draw to.
 #Method const SkRect& computeFastBounds(const SkRect& orig, SkRect* storage) const
     
 #In Fast_Bounds
-#Line # returns fill bounds for quick reject tests ###Private  
+#Line # returns fill bounds for quick reject tests ##
+    #Private  
     (to be made private)
     ##
 
@@ -5179,7 +5136,7 @@ Paint may draw to.
     #Return  fast computed bounds ##
 ##
 
-#Subtopic Fast_Bounds Fast_Bounds ##
+#Subtopic Fast_Bounds ##
 
 # ------------------------------------------------------------------------------
 #Subtopic Utility
@@ -5190,15 +5147,9 @@ Paint may draw to.
 #Method void toString(SkString* str) const
 #In Utility
 #Line # converts Paint to machine readable form ##
-#DefinedBy SK_TO_STRING_NONVIRT() ##
-
-#Private
-macro expands to: void toString(SkString* str) const;
-##
 
 Creates string representation of Paint. The representation is read by
-internal debugging tools. The interface and implementation may be
-suppressed by defining SK_IGNORE_TO_STRING.
+internal debugging tools.
 
 #Param str  storage for string representation of Paint ##
 

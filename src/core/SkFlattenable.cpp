@@ -154,6 +154,16 @@ sk_sp<SkData> SkFlattenable::serialize(const SkSerialProcs* procs) const {
     return data;
 }
 
+size_t SkFlattenable::serialize(void* memory, size_t memory_size,
+                                const SkSerialProcs* procs) const {
+  SkBinaryWriteBuffer writer(memory, memory_size);
+  if (procs) {
+      writer.setSerialProcs(*procs);
+  }
+  writer.writeFlattenable(this);
+  return writer.usingInitialStorage() ? writer.bytesWritten() : 0u;
+}
+
 sk_sp<SkFlattenable> SkFlattenable::Deserialize(SkFlattenable::Type type, const void* data,
                                                 size_t size, const SkDeserialProcs* procs) {
     SkReadBuffer buffer(data, size);

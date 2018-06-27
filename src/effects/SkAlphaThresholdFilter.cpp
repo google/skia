@@ -16,13 +16,13 @@
 #include "SkRegion.h"
 
 #if SK_SUPPORT_GPU
-#include "GrAlphaThresholdFragmentProcessor.h"
 #include "GrColorSpaceXform.h"
 #include "GrContext.h"
 #include "GrFixedClip.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"
 #include "effects/GrSimpleTextureEffect.h"
+#include "effects/GrAlphaThresholdFragmentProcessor.h"
 #endif
 
 class SkAlphaThresholdFilterImpl : public SkImageFilter {
@@ -31,7 +31,7 @@ public:
                                SkScalar outerThreshold, sk_sp<SkImageFilter> input,
                                const CropRect* cropRect = nullptr);
 
-    SK_TO_STRING_OVERRIDE()
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkAlphaThresholdFilterImpl)
     friend void SkAlphaThresholdFilter::InitializeFlattenables();
 
@@ -106,8 +106,10 @@ sk_sp<GrTextureProxy> SkAlphaThresholdFilterImpl::createMaskTexture(GrContext* c
                                                                     const SkMatrix& inMatrix,
                                                                     const SkIRect& bounds) const {
 
-    sk_sp<GrRenderTargetContext> rtContext(context->makeDeferredRenderTargetContextWithFallback(
-        SkBackingFit::kApprox, bounds.width(), bounds.height(), kAlpha_8_GrPixelConfig, nullptr));
+    sk_sp<GrRenderTargetContext> rtContext(
+        context->contextPriv().makeDeferredRenderTargetContextWithFallback(
+            SkBackingFit::kApprox, bounds.width(), bounds.height(), kAlpha_8_GrPixelConfig,
+            nullptr));
     if (!rtContext) {
         return nullptr;
     }
@@ -165,7 +167,7 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
         bounds.offset(-inputOffset);
 
         SkMatrix matrix(ctx.ctm());
-        matrix.postTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
+        matrix.postTranslate(SkIntToScalar(-offset->fX), SkIntToScalar(-offset->fY));
 
         sk_sp<GrTextureProxy> maskProxy(this->createMaskTexture(context, matrix, bounds));
         if (!maskProxy) {
@@ -280,10 +282,9 @@ const {
     return this->refMe();
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkAlphaThresholdFilterImpl::toString(SkString* str) const {
     str->appendf("SkAlphaThresholdImageFilter: (");
     str->appendf("inner: %f outer: %f", fInnerThreshold, fOuterThreshold);
     str->append(")");
 }
-#endif
+

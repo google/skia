@@ -11,10 +11,9 @@
 #ifndef GrRectBlurEffect_DEFINED
 #define GrRectBlurEffect_DEFINED
 #include "SkTypes.h"
-#if SK_SUPPORT_GPU
 
 #include "GrProxyProvider.h"
-#include "../effects/SkBlurMask.h"
+#include "SkBlurMask.h"
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 class GrRectBlurEffect : public GrFragmentProcessor {
@@ -25,7 +24,7 @@ public:
 
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
         GrUniqueKey key;
-        GrUniqueKey::Builder builder(&key, kDomain, 1);
+        GrUniqueKey::Builder builder(&key, kDomain, 1, "Rect Blur Mask");
         builder[0] = profileSize;
         builder.finish();
 
@@ -47,9 +46,9 @@ public:
                 return nullptr;
             }
 
-            blurProfile = proxyProvider->createTextureProxy(std::move(image), kNone_GrSurfaceFlags,
-                                                            kTopLeft_GrSurfaceOrigin, 1,
-                                                            SkBudgeted::kYes, SkBackingFit::kExact);
+            blurProfile =
+                    proxyProvider->createTextureProxy(std::move(image), kNone_GrSurfaceFlags, 1,
+                                                      SkBudgeted::kYes, SkBackingFit::kExact);
             if (!blurProfile) {
                 return nullptr;
             }
@@ -105,5 +104,4 @@ private:
     TextureSampler fBlurProfile;
     typedef GrFragmentProcessor INHERITED;
 };
-#endif
 #endif

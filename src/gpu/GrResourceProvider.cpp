@@ -131,9 +131,8 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
     if (make_info(desc.fWidth, desc.fHeight, desc.fConfig, &srcInfo)) {
         // DDL TODO: remove this use of createInstantiatedProxy and convert it to a testing-only
         // method.
-        sk_sp<GrTextureProxy> proxy = proxyProvider->createInstantiatedProxy(desc,
-                                                                             fit,
-                                                                             budgeted);
+        sk_sp<GrTextureProxy> proxy = proxyProvider->createInstantiatedProxy(
+                desc, kTopLeft_GrSurfaceOrigin, fit, budgeted);
         if (proxy) {
             // We use an ephemeral surface context to do the write pixels. Here it isn't clear what
             // color space to tag it with. That's ok because GrSurfaceContext::writePixels doesn't
@@ -357,25 +356,6 @@ sk_sp<GrPath> GrResourceProvider::createPath(const SkPath& path, const GrStyle& 
 
     SkASSERT(this->gpu()->pathRendering());
     return this->gpu()->pathRendering()->createPath(path, style);
-}
-
-sk_sp<GrPathRange> GrResourceProvider::createPathRange(GrPathRange::PathGenerator* gen,
-                                                       const GrStyle& style) {
-    if (this->isAbandoned()) {
-        return nullptr;
-    }
-
-    SkASSERT(this->gpu()->pathRendering());
-    return this->gpu()->pathRendering()->createPathRange(gen, style);
-}
-
-sk_sp<GrPathRange> GrResourceProvider::createGlyphs(const SkTypeface* tf,
-                                                    const SkScalerContextEffects& effects,
-                                                    const SkDescriptor* desc,
-                                                    const GrStyle& style) {
-
-    SkASSERT(this->gpu()->pathRendering());
-    return this->gpu()->pathRendering()->createGlyphs(tf, effects, desc, style);
 }
 
 GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedType,

@@ -1052,8 +1052,6 @@ public:
         and half oval height. Oval begins at (oval.fRight, oval.centerY()) and continues
         clockwise if dir is kCW_Direction, counterclockwise if dir is kCCW_Direction.
 
-        This form is identical to addOval(oval, dir, 1).
-
         @param oval  bounds of ellipse added
         @param dir   SkPath::Direction to wind ellipse
     */
@@ -1278,15 +1276,15 @@ public:
     bool getLastPt(SkPoint* lastPt) const;
 
     /** Set last point to (x, y). If SkPoint array is empty, append kMove_Verb to
-        verb array and (x, y) to SkPoint array.
+        verb array and append (x, y) to SkPoint array.
 
         @param x  set x-coordinate of last point
         @param y  set y-coordinate of last point
     */
     void setLastPt(SkScalar x, SkScalar y);
 
-    /** Set the last point on the path. If no points have been added, moveTo(p)
-        is automatically called.
+    /** Set the last point on the path. If SkPoint array is empty, append kMove_Verb to
+        verb array and append p to SkPoint array.
 
         @param p  set value of last point
     */
@@ -1628,6 +1626,7 @@ private:
     mutable SkAtomic<Convexity, sk_memory_order_relaxed> fConvexity;
     mutable SkAtomic<uint8_t, sk_memory_order_relaxed>   fFirstDirection;// SkPathPriv::FirstDirection
     SkBool8                                              fIsVolatile;
+    SkBool8                                              fIsBadForDAA = false;
 
     /** Resets all fields other than fPathRef to their initial 'empty' values.
      *  Assumes the caller has already emptied fPathRef.
@@ -1676,7 +1675,7 @@ private:
     SkDEBUGCODE(void validateRef() const { fPathRef->validate(); } )
 
     bool isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts,
-                       bool* isClosed, Direction* direction) const;
+                       bool* isClosed, Direction* direction, SkRect* rect) const;
 
     // called by stroker to see if all points (in the last contour) are equal and worthy of a cap
     bool isZeroLengthSincePoint(int startPtIndex) const;

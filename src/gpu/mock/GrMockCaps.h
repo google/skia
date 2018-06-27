@@ -67,21 +67,22 @@ public:
         return 0;
     }
 
-    bool surfaceSupportsWritePixels(const GrSurface* surface) const override { return true; }
+    bool surfaceSupportsWritePixels(const GrSurface*) const override { return true; }
+    bool surfaceSupportsReadPixels(const GrSurface*) const override { return true; }
 
-    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
+    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc, GrSurfaceOrigin*,
                             bool* rectsMustMatch, bool* disallowSubrect) const override {
         return false;
     }
 
     bool validateBackendTexture(const GrBackendTexture& tex, SkColorType,
                                 GrPixelConfig* config) const override {
-        const GrMockTextureInfo* texInfo = tex.getMockTextureInfo();
-        if (!texInfo) {
+        GrMockTextureInfo texInfo;
+        if (!tex.getMockTextureInfo(&texInfo)) {
             return false;
         }
 
-        *config = texInfo->fConfig;
+        *config = texInfo.fConfig;
         return true;
     }
 

@@ -7,6 +7,7 @@
 
 #include "GrVkCopyManager.h"
 
+#include "GrRenderTargetPriv.h"
 #include "GrSamplerState.h"
 #include "GrShaderCaps.h"
 #include "GrSurface.h"
@@ -65,11 +66,10 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
 
         "layout(set = 1, binding = 0) uniform sampler2D uTextureSampler;"
         "layout(location = 1) in half2 vTexCoord;"
-        "layout(location = 0, index = 0) out half4 fsColorOut;"
 
         "// Copy Program FS\n"
         "void main() {"
-            "fsColorOut = texture(uTextureSampler, vTexCoord);"
+            "sk_FragColor = texture(uTextureSampler, vTexCoord);"
         "}"
     );
 
@@ -143,15 +143,12 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
 bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
                                         GrSurface* dst, GrSurfaceOrigin dstOrigin,
                                         GrSurface* src, GrSurfaceOrigin srcOrigin,
-                                        const SkIRect& srcRect, const SkIPoint& dstPoint) {
+                                        const SkIRect& srcRect, const SkIPoint& dstPoint,
+                                        bool canDiscardOutsideDstRect) {
     // None of our copy methods can handle a swizzle. TODO: Make copySurfaceAsDraw handle the
     // swizzle.
     if (gpu->caps()->shaderCaps()->configOutputSwizzle(src->config()) !=
         gpu->caps()->shaderCaps()->configOutputSwizzle(dst->config())) {
-        return false;
-    }
-
-    if (!gpu->vkCaps().supportsCopiesAsDraws()) {
         return false;
     }
 
@@ -313,13 +310,24 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
                            VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
                            false);
 
-    GrVkRenderPass::LoadStoreOps vkColorOps(VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-                                            VK_ATTACHMENT_STORE_OP_STORE);
+    GrStencilAttachment* stencil = rt->renderTargetPriv().getStencilAttachment();
+    if (stencil) {
+        GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)stencil;
+        vkStencil->setImageLayout(gpu,
+                                  VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                                  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+                                  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
+                                  VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                  false);
+    }
+
+    VkAttachmentLoadOp loadOp = canDiscardOutsideDstRect ? VK_ATTACHMENT_LOAD_OP_DONT_CARE
+                                                         : VK_ATTACHMENT_LOAD_OP_LOAD;
+    GrVkRenderPass::LoadStoreOps vkColorOps(loadOp, VK_ATTACHMENT_STORE_OP_STORE);
     GrVkRenderPass::LoadStoreOps vkStencilOps(VK_ATTACHMENT_LOAD_OP_LOAD,
                                               VK_ATTACHMENT_STORE_OP_STORE);
     const GrVkRenderPass* renderPass;
-    const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
-        rt->compatibleRenderPassHandle();
+    const GrVkResourceProvider::CompatibleRPHandle& rpHandle = rt->compatibleRenderPassHandle();
     if (rpHandle.isValid()) {
         renderPass = gpu->resourceProvider().findRenderPass(rpHandle,
                                                             vkColorOps,

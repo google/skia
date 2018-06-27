@@ -291,7 +291,7 @@ public:
         Pixels are readable when SkBaseDevice is raster. Pixels are not readable when SkCanvas
         is returned from GPU surface, returned by SkDocument::beginPage, returned by
         SkPictureRecorder::beginRecording, or SkCanvas is the base of a utility class
-        like SkDumpCanvas.
+        like SkDebugCanvas.
 
         pixmap is valid only while SkCanvas is in scope and unchanged. Any
         SkCanvas or SkSurface call may invalidate the pixmap values.
@@ -312,7 +312,7 @@ public:
         Pixels are readable when SkBaseDevice is raster, or backed by a GPU.
         Pixels are not readable when SkCanvas is returned by SkDocument::beginPage,
         returned by SkPictureRecorder::beginRecording, or SkCanvas is the base of a utility
-        class like SkDumpCanvas.
+        class like SkDebugCanvas.
 
         The destination pixel storage must be allocated by the caller.
 
@@ -349,7 +349,7 @@ public:
         Pixels are readable when SkBaseDevice is raster, or backed by a GPU.
         Pixels are not readable when SkCanvas is returned by SkDocument::beginPage,
         returned by SkPictureRecorder::beginRecording, or SkCanvas is the base of a utility
-        class like SkDumpCanvas.
+        class like SkDebugCanvas.
 
         Caller must allocate pixel storage in pixmap if needed.
 
@@ -384,7 +384,7 @@ public:
         Pixels are readable when SkBaseDevice is raster, or backed by a GPU.
         Pixels are not readable when SkCanvas is returned by SkDocument::beginPage,
         returned by SkPictureRecorder::beginRecording, or SkCanvas is the base of a utility
-        class like SkDumpCanvas.
+        class like SkDebugCanvas.
 
         Caller must allocate pixel storage in bitmap if needed.
 
@@ -419,7 +419,7 @@ public:
         Pixels are writable when SkBaseDevice is raster, or backed by a GPU.
         Pixels are not writable when SkCanvas is returned by SkDocument::beginPage,
         returned by SkPictureRecorder::beginRecording, or SkCanvas is the base of a utility
-        class like SkDumpCanvas.
+        class like SkDebugCanvas.
 
         Pixel values are converted only if SkColorType and SkAlphaType
         do not match. Only pixels within both source and destination rectangles
@@ -456,7 +456,7 @@ public:
         Pixels are writable when SkBaseDevice is raster, or backed by a GPU.
         Pixels are not writable when SkCanvas is returned by SkDocument::beginPage,
         returned by SkPictureRecorder::beginRecording, or SkCanvas is the base of a utility
-        class like SkDumpCanvas.
+        class like SkDebugCanvas.
 
         Pixel values are converted only if SkColorType and SkAlphaType
         do not match. Only pixels within both source and destination rectangles
@@ -1895,7 +1895,8 @@ public:
                   const SkPaint& paint);
 
     /** Draw null terminated string, with origin at (x, y), using clip, SkMatrix, and
-        SkPaint paint.
+        SkPaint paint. Note that this per-glyph xform does not affect the shader (if present)
+        on the paint, just the glyph's geometry.
 
         string meaning depends on SkPaint::TextEncoding; by default, strings are encoded
         as UTF-8. Other values of SkPaint::TextEncoding are unlikely to produce the desired
@@ -2428,12 +2429,6 @@ public:
     // don't call
     virtual GrRenderTargetContext* internal_private_accessTopLayerRenderTargetContext();
 
-    // don't call
-    static void Internal_Private_SetIgnoreSaveLayerBounds(bool);
-    static bool Internal_Private_GetIgnoreSaveLayerBounds();
-    static void Internal_Private_SetTreatSpriteAsBitmap(bool);
-    static bool Internal_Private_GetTreatSpriteAsBitmap();
-
     // TEMP helpers until we switch virtual over to const& for src-rect
     void legacy_drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                               const SkPaint* paint,
@@ -2449,6 +2444,7 @@ public:
     void temporary_internal_getRgnClip(SkRegion* region);
 
     void private_draw_shadow_rec(const SkPath&, const SkDrawShadowRec&);
+
 
 protected:
     // default impl defers to getDevice()->newSurface(info)
@@ -2482,48 +2478,41 @@ protected:
         this->didConcat(SkMatrix::MakeTrans(dx, dy));
     }
 
-    virtual void onDrawAnnotation(const SkRect& rect, const char key[], SkData* value);
+    // NOTE: If you are adding a new onDraw virtual to SkCanvas, PLEASE add an override to
+    // SkCanvasVirtualEnforcer (in SkCanvasVirtualEnforcer.h). This ensures that subclasses using
+    // that mechanism  will be required to implement the new function.
+    virtual void onDrawPaint(const SkPaint& paint);
+    virtual void onDrawRect(const SkRect& rect, const SkPaint& paint);
+    virtual void onDrawRRect(const SkRRect& rrect, const SkPaint& paint);
     virtual void onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint);
+    virtual void onDrawOval(const SkRect& rect, const SkPaint& paint);
+    virtual void onDrawArc(const SkRect& rect, SkScalar startAngle, SkScalar sweepAngle,
+                           bool useCenter, const SkPaint& paint);
+    virtual void onDrawPath(const SkPath& path, const SkPaint& paint);
+    virtual void onDrawRegion(const SkRegion& region, const SkPaint& paint);
 
     virtual void onDrawText(const void* text, size_t byteLength, SkScalar x,
                             SkScalar y, const SkPaint& paint);
-
     virtual void onDrawPosText(const void* text, size_t byteLength,
                                const SkPoint pos[], const SkPaint& paint);
-
     virtual void onDrawPosTextH(const void* text, size_t byteLength,
                                 const SkScalar xpos[], SkScalar constY,
                                 const SkPaint& paint);
-
     virtual void onDrawTextOnPath(const void* text, size_t byteLength,
                                   const SkPath& path, const SkMatrix* matrix,
                                   const SkPaint& paint);
     virtual void onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
                                    const SkRect* cullRect, const SkPaint& paint);
-
     virtual void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                 const SkPaint& paint);
 
     virtual void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkBlendMode mode, const SkPaint& paint);
-
-    virtual void onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix);
-
-    virtual void onDrawPaint(const SkPaint& paint);
-    virtual void onDrawRect(const SkRect& rect, const SkPaint& paint);
-    virtual void onDrawRegion(const SkRegion& region, const SkPaint& paint);
-    virtual void onDrawOval(const SkRect& rect, const SkPaint& paint);
-    virtual void onDrawArc(const SkRect& rect, SkScalar startAngle, SkScalar sweepAngle,
-                           bool useCenter, const SkPaint& paint);
-    virtual void onDrawRRect(const SkRRect& rrect, const SkPaint& paint);
     virtual void onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
                               const SkPaint& paint);
     virtual void onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
                                       const SkPaint& paint);
-    virtual void onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect rect[],
-                             const SkColor colors[], int count, SkBlendMode mode,
-                             const SkRect* cull, const SkPaint* paint);
-    virtual void onDrawPath(const SkPath& path, const SkPaint& paint);
+
     virtual void onDrawImage(const SkImage* image, SkScalar dx, SkScalar dy, const SkPaint* paint);
     virtual void onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                  const SkPaint* paint, SrcRectConstraint constraint);
@@ -2540,7 +2529,17 @@ protected:
                                   const SkPaint* paint);
     virtual void onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
                                      const SkRect& dst, const SkPaint* paint);
+
+    virtual void onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect rect[],
+                             const SkColor colors[], int count, SkBlendMode mode,
+                             const SkRect* cull, const SkPaint* paint);
+
+    virtual void onDrawAnnotation(const SkRect& rect, const char key[], SkData* value);
     virtual void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&);
+
+    virtual void onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix);
+    virtual void onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
+                               const SkPaint* paint);
 
     enum ClipEdgeStyle {
         kHard_ClipEdgeStyle,
@@ -2554,15 +2553,14 @@ protected:
 
     virtual void onDiscard();
 
-    virtual void onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
-                               const SkPaint* paint);
-
     // Clip rectangle bounds. Called internally by saveLayer.
     // returns false if the entire rectangle is entirely clipped out
     // If non-NULL, The imageFilter parameter will be used to expand the clip
     // and offscreen bounds for any margin required by the filter DAG.
     bool clipRectBounds(const SkRect* bounds, SaveLayerFlags flags, SkIRect* intersection,
                         const SkImageFilter* imageFilter = nullptr);
+
+    SkBaseDevice* getTopDevice() const;
 
 private:
     /** After calling saveLayer(), there can be any number of devices that make
@@ -2586,7 +2584,7 @@ private:
 
         SkBaseDevice*   device() const;
         const SkMatrix& matrix() const;
-        void clip(SkRegion*) const;
+        SkIRect clipBounds() const;
         const SkPaint&  paint() const;
         int             x() const;
         int             y() const;
@@ -2604,7 +2602,6 @@ private:
     };
 
     static bool BoundsAffectsClip(SaveLayerFlags);
-    static SaveLayerFlags LegacySaveFlagsToSaveLayerFlags(uint32_t legacySaveFlags);
 
     static void DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filter,
                                      SkBaseDevice* dst, const SkIPoint& dstOrigin,
@@ -2626,7 +2623,6 @@ private:
     }
 
     SkBaseDevice* getDevice() const;
-    SkBaseDevice* getTopDevice() const;
 
     class MCRec;
 
@@ -2664,6 +2660,7 @@ private:
     void internalSetMatrix(const SkMatrix&);
 
     friend class SkAndroidFrameworkUtils;
+    friend class SkCanvasPriv;      // needs kDontClipToLayer_PrivateSaveLayerFlag
     friend class SkDrawIter;        // needs setupDrawForLayerDevice()
     friend class AutoDrawLooper;
     friend class SkDebugCanvas;     // needs experimental fAllowSimplifyClip
@@ -2671,7 +2668,6 @@ private:
     friend class SkNoDrawCanvas;    // InitFlags
     friend class SkPictureImageFilter;  // SkCanvas(SkBaseDevice*, SkSurfaceProps*, InitFlags)
     friend class SkPictureRecord;   // predrawNotify (why does it need it? <reed>)
-    friend class SkPicturePlayback; // SaveFlagsToSaveLayerFlags
     friend class SkOverdrawCanvas;
     friend class SkRasterHandleAllocator;
 
@@ -2679,7 +2675,10 @@ private:
         kDefault_InitFlags                  = 0,
         kConservativeRasterClip_InitFlag    = 1 << 0,
     };
+protected:
+    // For use by SkNoDrawCanvas (via SkCanvasVirtualEnforcer, which can't be a friend)
     SkCanvas(const SkIRect& bounds, InitFlags);
+private:
     SkCanvas(SkBaseDevice* device, InitFlags);
     SkCanvas(const SkBitmap&, std::unique_ptr<SkRasterHandleAllocator>,
              SkRasterHandleAllocator::Handle);
@@ -2763,7 +2762,7 @@ private:
 };
 
 /** \class SkAutoCanvasRestore
-    Stack helper class calls SkCanvas::restoreToCount() when SkAutoCanvasRestore
+    Stack helper class calls SkCanvas::restoreToCount when SkAutoCanvasRestore
     goes out of scope. Use this to guarantee that the canvas is restored to a known
     state.
 */

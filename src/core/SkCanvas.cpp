@@ -28,6 +28,7 @@
 #include "SkNx.h"
 #include "SkPaintPriv.h"
 #include "SkPatchUtils.h"
+#include "SkPathEffect.h"
 #include "SkPicture.h"
 #include "SkRasterClip.h"
 #include "SkRasterHandleAllocator.h"
@@ -51,58 +52,6 @@
 
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
 #define RETURN_ON_FALSE(pred)   do { if (!(pred)) return; } while (0)
-
-class SkNoPixelsDevice : public SkBaseDevice {
-public:
-    SkNoPixelsDevice(const SkIRect& bounds, const SkSurfaceProps& props)
-        : SkBaseDevice(SkImageInfo::MakeUnknown(bounds.width(), bounds.height()), props)
-    {
-        // this fails if we enable this assert: DiscardableImageMapTest.GetDiscardableImagesInRectMaxImage
-        //SkASSERT(bounds.width() >= 0 && bounds.height() >= 0);
-    }
-
-    void resetForNextPicture(const SkIRect& bounds) {
-        //SkASSERT(bounds.width() >= 0 && bounds.height() >= 0);
-        this->privateResize(bounds.width(), bounds.height());
-    }
-
-protected:
-    // We don't track the clip at all (for performance), but we have to respond to some queries.
-    // We pretend to be wide-open. We could pretend to always be empty, but that *seems* worse.
-    void onSave() override {}
-    void onRestore() override {}
-    void onClipRect(const SkRect& rect, SkClipOp, bool aa) override {}
-    void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) override {}
-    void onClipPath(const SkPath& path, SkClipOp, bool aa) override {}
-    void onClipRegion(const SkRegion& deviceRgn, SkClipOp) override {}
-    void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) override {}
-    bool onClipIsAA() const override { return false; }
-    void onAsRgnClip(SkRegion* rgn) const override {
-        rgn->setRect(SkIRect::MakeWH(this->width(), this->height()));
-    }
-    ClipType onGetClipType() const override {
-        return kRect_ClipType;
-    }
-
-    void drawPaint(const SkPaint& paint) override {}
-    void drawPoints(SkCanvas::PointMode, size_t, const SkPoint[], const SkPaint&) override {}
-    void drawRect(const SkRect&, const SkPaint&) override {}
-    void drawOval(const SkRect&, const SkPaint&) override {}
-    void drawRRect(const SkRRect&, const SkPaint&) override {}
-    void drawPath(const SkPath&, const SkPaint&, const SkMatrix*, bool) override {}
-    void drawBitmap(const SkBitmap&, SkScalar x, SkScalar y, const SkPaint&) override {}
-    void drawSprite(const SkBitmap&, int, int, const SkPaint&) override {}
-    void drawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&, const SkPaint&,
-                        SkCanvas::SrcRectConstraint) override {}
-    void drawText(const void*, size_t, SkScalar, SkScalar, const SkPaint&) override {}
-    void drawPosText(const void*, size_t, const SkScalar[], int, const SkPoint&,
-                     const SkPaint&) override {}
-    void drawDevice(SkBaseDevice*, int, int, const SkPaint&) override {}
-    void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override {}
-
-private:
-    typedef SkBaseDevice INHERITED;
-};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -168,22 +117,6 @@ bool SkCanvas::wouldOverwriteEntireSurface(const SkRect* rect, const SkPaint* pa
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-static bool gIgnoreSaveLayerBounds;
-void SkCanvas::Internal_Private_SetIgnoreSaveLayerBounds(bool ignore) {
-    gIgnoreSaveLayerBounds = ignore;
-}
-bool SkCanvas::Internal_Private_GetIgnoreSaveLayerBounds() {
-    return gIgnoreSaveLayerBounds;
-}
-
-static bool gTreatSpriteAsBitmap;
-void SkCanvas::Internal_Private_SetTreatSpriteAsBitmap(bool spriteAsBitmap) {
-    gTreatSpriteAsBitmap = spriteAsBitmap;
-}
-bool SkCanvas::Internal_Private_GetTreatSpriteAsBitmap() {
-    return gTreatSpriteAsBitmap;
-}
 
 // experimental for faster tiled drawing...
 //#define SK_TRACE_SAVERESTORE
@@ -940,7 +873,7 @@ void SkCanvas::internalSave() {
 }
 
 bool SkCanvas::BoundsAffectsClip(SaveLayerFlags saveLayerFlags) {
-    return !(saveLayerFlags & SkCanvas::kDontClipToLayer_PrivateSaveLayerFlag);
+    return !(saveLayerFlags & SkCanvasPriv::kDontClipToLayer_SaveLayerFlag);
 }
 
 bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlags,
@@ -990,7 +923,6 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlag
     return true;
 }
 
-
 int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint) {
     return this->saveLayer(SaveLayerRec(bounds, paint, 0));
 }
@@ -999,15 +931,10 @@ int SkCanvas::saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPai
     return this->saveLayer(SaveLayerRec(bounds, paint, kPreserveLCDText_SaveLayerFlag));
 }
 
-int SkCanvas::saveLayer(const SaveLayerRec& origRec) {
-    SkTCopyOnFirstWrite<SaveLayerRec> rec(origRec);
-    if (gIgnoreSaveLayerBounds) {
-        rec.writable()->fBounds = nullptr;
-    }
-
-    SaveLayerStrategy strategy = this->getSaveLayerStrategy(*rec);
+int SkCanvas::saveLayer(const SaveLayerRec& rec) {
+    SaveLayerStrategy strategy = this->getSaveLayerStrategy(rec);
     fSaveCount += 1;
-    this->internalSaveLayer(*rec, strategy);
+    this->internalSaveLayer(rec, strategy);
     return this->getSaveCount() - 1;
 }
 
@@ -2192,7 +2119,23 @@ bool SkCanvas::canDrawBitmapAsSprite(SkScalar x, SkScalar y, int w, int h, const
     return ir.contains(fMCRec->fRasterClip.getBounds());
 }
 
+// Given storage for a real paint, and an optional paint parameter, clean-up the param (if non-null)
+// given the drawing semantics for drawImage/bitmap (skbug.com/7804) and return it, or the original
+// null.
+static const SkPaint* init_image_paint(SkPaint* real, const SkPaint* paintParam) {
+    if (paintParam) {
+        *real = *paintParam;
+        real->setStyle(SkPaint::kFill_Style);
+        real->setPathEffect(nullptr);
+        paintParam = real;
+    }
+    return paintParam;
+}
+
 void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
+    SkPaint realPaint;
+    paint = init_image_paint(&realPaint, paint);
+
     SkRect bounds = SkRect::MakeXYWH(x, y,
                                      SkIntToScalar(image->width()), SkIntToScalar(image->height()));
     if (nullptr == paint || paint->canComputeFastBounds()) {
@@ -2204,11 +2147,10 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
             return;
         }
     }
-
-    SkLazyPaint lazy;
-    if (nullptr == paint) {
-        paint = lazy.init();
-    }
+    // At this point we need a real paint object. If the caller passed null, then we should
+    // use realPaint (in its default state). If the caller did pass a paint, then we have copied
+    // (and modified) it in realPaint. Thus either way, "realPaint" is what we want to use.
+    paint = &realPaint;
 
     sk_sp<SkSpecialImage> special;
     bool drawAsSprite = this->canDrawBitmapAsSprite(x, y, image->width(), image->height(),
@@ -2241,6 +2183,9 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
 
 void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                const SkPaint* paint, SrcRectConstraint constraint) {
+    SkPaint realPaint;
+    paint = init_image_paint(&realPaint, paint);
+
     if (nullptr == paint || paint->canComputeFastBounds()) {
         SkRect storage = dst;
         if (paint) {
@@ -2250,10 +2195,7 @@ void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const Sk
             return;
         }
     }
-    SkLazyPaint lazy;
-    if (nullptr == paint) {
-        paint = lazy.init();
-    }
+    paint = &realPaint;
 
     LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(*paint, SkDrawFilter::kBitmap_Type, &dst,
                                           image->isOpaque())
@@ -2272,10 +2214,9 @@ void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, cons
         return;
     }
 
-    SkLazyPaint lazy;
-    if (nullptr == paint) {
-        paint = lazy.init();
-    }
+    SkPaint realPaint;
+    init_image_paint(&realPaint, paint);
+    paint = &realPaint;
 
     SkRect bounds;
     bitmap.getBounds(&bounds);
@@ -2355,17 +2296,16 @@ void SkCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const
 
 void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                                const SkPaint* paint) {
+    SkPaint realPaint;
+    paint = init_image_paint(&realPaint, paint);
+
     if (nullptr == paint || paint->canComputeFastBounds()) {
         SkRect storage;
         if (this->quickReject(paint ? paint->computeFastBounds(dst, &storage) : dst)) {
             return;
         }
     }
-
-    SkLazyPaint lazy;
-    if (nullptr == paint) {
-        paint = lazy.init();
-    }
+    paint = &realPaint;
 
     LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, &dst)
 
@@ -2379,6 +2319,8 @@ void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, cons
 void SkCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
                                 const SkPaint* paint) {
     SkDEBUGCODE(bitmap.validate();)
+    SkPaint realPaint;
+    paint = init_image_paint(&realPaint, paint);
 
     if (nullptr == paint || paint->canComputeFastBounds()) {
         SkRect storage;
@@ -2386,11 +2328,7 @@ void SkCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, c
             return;
         }
     }
-
-    SkLazyPaint lazy;
-    if (nullptr == paint) {
-        paint = lazy.init();
-    }
+    paint = &realPaint;
 
     LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, &dst)
 
@@ -2403,17 +2341,16 @@ void SkCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, c
 
 void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                   const SkPaint* paint) {
+    SkPaint realPaint;
+    paint = init_image_paint(&realPaint, paint);
+
     if (nullptr == paint || paint->canComputeFastBounds()) {
         SkRect storage;
         if (this->quickReject(paint ? paint->computeFastBounds(dst, &storage) : dst)) {
             return;
         }
     }
-
-    SkLazyPaint lazy;
-    if (nullptr == paint) {
-        paint = lazy.init();
-    }
+    paint = &realPaint;
 
     LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, &dst)
 
@@ -2426,17 +2363,16 @@ void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, 
 
 void SkCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
                                    const SkRect& dst, const SkPaint* paint) {
+    SkPaint realPaint;
+    paint = init_image_paint(&realPaint, paint);
+
     if (nullptr == paint || paint->canComputeFastBounds()) {
         SkRect storage;
         if (this->quickReject(paint ? paint->computeFastBounds(dst, &storage) : dst)) {
             return;
         }
     }
-
-    SkLazyPaint lazy;
-    if (nullptr == paint) {
-        paint = lazy.init();
-    }
+    paint = &realPaint;
 
     LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, &dst)
 
@@ -2871,8 +2807,8 @@ const SkPaint& SkCanvas::LayerIter::paint() const {
     return *paint;
 }
 
-void SkCanvas::LayerIter::clip(SkRegion* rgn) const {
-    return fImpl->fDevice->onAsRgnClip(rgn);
+SkIRect SkCanvas::LayerIter::clipBounds() const {
+    return fImpl->fDevice->getGlobalBounds();
 }
 
 int SkCanvas::LayerIter::x() const { return fImpl->getX(); }
@@ -2880,6 +2816,7 @@ int SkCanvas::LayerIter::y() const { return fImpl->getY(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// TODO: This still disagrees with SkSurfaceValidateRasterInfo
 static bool supported_for_raster_canvas(const SkImageInfo& info) {
     switch (info.alphaType()) {
         case kPremul_SkAlphaType:
@@ -2894,6 +2831,7 @@ static bool supported_for_raster_canvas(const SkImageInfo& info) {
         case kRGB_565_SkColorType:
         case kN32_SkColorType:
         case kRGBA_F16_SkColorType:
+        case kRGBA_1010102_SkColorType:
             break;
         default:
             return false;
@@ -2925,6 +2863,9 @@ SkNoDrawCanvas::SkNoDrawCanvas(int width, int height)
 
 SkNoDrawCanvas::SkNoDrawCanvas(const SkIRect& bounds)
     : INHERITED(bounds, kConservativeRasterClip_InitFlag) {}
+
+SkNoDrawCanvas::SkNoDrawCanvas(SkBaseDevice *device)
+    : INHERITED(device) {}
 
 SkCanvas::SaveLayerStrategy SkNoDrawCanvas::getSaveLayerStrategy(const SaveLayerRec& rec) {
     (void)this->INHERITED::getSaveLayerStrategy(rec);

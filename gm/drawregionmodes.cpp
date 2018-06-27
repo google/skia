@@ -7,10 +7,10 @@
 
 #include "gm.h"
 #include "SkBlurImageFilter.h"
-#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkDashPathEffect.h"
 #include "SkGradientShader.h"
+#include "SkMaskFilter.h"
 #include "SkRegion.h"
 
 class DrawRegionModesGM : public skiagm::GM {
@@ -50,7 +50,7 @@ protected:
         canvas->translate(-125.0f, 125.0f);
         paint.setImageFilter(nullptr);
         SkRect occluder = SkRect::MakeEmpty();
-        paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 5.0f, occluder, 0));
+        paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 5.0f, occluder));
         canvas->drawRegion(fRegion, paint);
 
         canvas->translate(-125.0f, -125.0f);

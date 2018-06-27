@@ -122,8 +122,6 @@ public:
 
     GrBackend backend() override { return kMetal_GrBackend; }
 
-    GrBackendContext backendContext() override { return 0; }
-
     void testAbandon() override {}
 
     // There is really nothing to here since we don't own any unqueued command buffers here.

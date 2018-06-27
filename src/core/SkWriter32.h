@@ -39,12 +39,18 @@ public:
     // return the current offset (will always be a multiple of 4)
     size_t bytesWritten() const { return fUsed; }
 
+    // Returns true iff all of the bytes written so far are stored in the initial storage
+    // buffer provided in the constructor or the most recent call to reset.
+    bool usingInitialStorage() const { return fData == fExternal; }
+
     SK_ATTR_DEPRECATED("use bytesWritten")
     size_t size() const { return this->bytesWritten(); }
 
     void reset(void* external = nullptr, size_t externalBytes = 0) {
+        // we cast this pointer to int* and float* at times, so assert that it is aligned.
         SkASSERT(SkIsAlign4((uintptr_t)external));
-        SkASSERT(SkIsAlign4(externalBytes));
+        // we always write multiples of 4-bytes, so truncate down the size to match that
+        externalBytes &= ~3;
 
         fData = (uint8_t*)external;
         fCapacity = externalBytes;

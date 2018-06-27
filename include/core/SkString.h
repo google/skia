@@ -186,8 +186,6 @@ public:
     void set(const SkString& src) { *this = src; }
     void set(const char text[]);
     void set(const char text[], size_t len);
-    void setUTF16(const uint16_t[]);
-    void setUTF16(const uint16_t[], size_t len);
 
     void insert(size_t offset, const SkString& src) { this->insert(offset, src.c_str(), src.size()); }
     void insert(size_t offset, const char text[]);

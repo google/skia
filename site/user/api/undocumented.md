@@ -32,7 +32,7 @@ undocumented
     <td><a name="SkBlendMode_kPlus"> <code><strong>SkBlendMode::kPlus </strong></code> </a></td><td>12</td><td></td>
   </tr>
 
-</table>
+
 
 # <a name="Circle"></a> Circle
 
@@ -50,7 +50,7 @@ undocumented
     <td><a name="SkClipOp_kIntersect"> <code><strong>SkClipOp::kIntersect </strong></code> </a></td><td>1</td><td></td>
   </tr>
 
-</table>
+
 
 # <a name="Color"></a> Color
 
@@ -126,6 +126,9 @@ SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
   <tr>
     <td><a name="SK_ColorWHITE"> <code><strong>SK_ColorWHITE </strong></code> </a></td><td>0xFFFFFFFF </td><td></td>
   </tr>
+  <tr>
+    <td><a name="SK_ColorTRANSPARENT"> <code><strong>SK_ColorTRANSPARENT </strong></code> </a></td><td>0x00000000</td><td></td>
+  </tr>
 </table>
 
 ## <a name="Alpha"></a> Alpha
@@ -172,6 +175,24 @@ static sk_sp&lt;SkColorSpace&gt; MakeSRGBLinear()
 
 ---
 
+<a name="SkColorSpace_gammaCloseToSRGB"></a>
+## gammaCloseToSRGB
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+bool gammaCloseToSRGB() const
+</pre>
+
+---
+
+<a name="SkColorSpace_Equals"></a>
+## Equals
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+static bool Equals(const SkColorSpace* src, const SkColorSpace* dst)
+</pre>
+
+---
+
 ## <a name="SkTransferFunctionBehavior"></a> Enum SkTransferFunctionBehavior
 
 ### Constants
@@ -184,7 +205,7 @@ static sk_sp&lt;SkColorSpace&gt; MakeSRGBLinear()
     <td><a name="SkTransferFunctionBehavior_kIgnore"> <code><strong>SkTransferFunctionBehavior::kIgnore </strong></code> </a></td><td>1</td><td></td>
   </tr>
 
-</table>
+
 
 # <a name="Core_Graphics"></a> Core Graphics
 
@@ -207,6 +228,10 @@ std::unique_ptr&lt;SkCanvas&gt; SK_API SkCreateColorSpaceXformCanvas(SkCanvas* t
 # <a name="Data"></a> Data
 
 # <a name="SkData"></a> Class SkData
+
+# <a name="Debug_Canvas"></a> Debug Canvas
+
+# <a name="SkDebugCanvas"></a> Class SkDebugCanvas
 
 # <a name="Debugging"></a> Debugging
 
@@ -269,10 +294,6 @@ void draw(SkCanvas*, const SkMatrix* = NULL)
 
 ---
 
-# <a name="Dump_Canvas"></a> Dump Canvas
-
-# <a name="SkDumpCanvas"></a> Class SkDumpCanvas
-
 # <a name="Encoded_Image_Format"></a> Encoded Image Format
 
 ## <a name="SkEncodedImageFormat"></a> Enum SkEncodedImageFormat
@@ -320,7 +341,7 @@ void draw(SkCanvas*, const SkMatrix* = NULL)
     <td><a name="SkEncodedImageFormat_kHEIF"> <code><strong>SkEncodedImageFormat::kHEIF </strong></code> </a></td><td>12</td><td></td>
   </tr>
 
-</table>
+
 
 # <a name="Filter_Quality"></a> Filter Quality
 
@@ -342,7 +363,7 @@ void draw(SkCanvas*, const SkMatrix* = NULL)
     <td><a name="kHigh_SkFilterQuality"> <code><strong>kHigh_SkFilterQuality </strong></code> </a></td><td>3</td><td></td>
   </tr>
 
-</table>
+
 
 ## <a name="Nearest_Neighbor"></a> Nearest Neighbor
 
@@ -607,7 +628,6 @@ template &lt;typename D, typename S&gt; inline bool SkTFitsIn(S s)
   <tr>
     <td><a name="SkPaintDefaults_MiterLimit"> <code><strong>SkPaintDefaults_MiterLimit </strong></code> </a></td><td>4</td><td></td>
   </tr>
-</table>
 
 # <a name="Patch"></a> Patch
 
@@ -775,6 +795,19 @@ static std::unique_ptr&lt;SkCanvas&gt; MakeCanvas(std::unique_ptr&lt;SkRasterHan
 
 # <a name="SkRegion"></a> Class SkRegion
 
+# <a name="RenderTarget"></a> RenderTarget
+
+# <a name="GrBackendRenderTarget"></a> Class GrBackendRenderTarget
+
+<a name="GrBackendRenderTarget_isValid"></a>
+## isValid
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+bool isValid() const
+</pre>
+
+---
+
 # <a name="Render_Target"></a> Render Target
 
 # <a name="GrRenderTarget"></a> Class GrRenderTarget
@@ -828,7 +861,7 @@ void dumpHex() const
     <td><a name="SkShader_kMirror_TileMode"> <code><strong>SkShader::kMirror_TileMode </strong></code> </a></td><td>2</td><td></td>
   </tr>
 
-</table>
+
 
 <a name="SkShader_MakeBitmapShader"></a>
 ## MakeBitmapShader
@@ -877,7 +910,8 @@ static sk_sp&lt;SkShader&gt; MakeBitmapShader(const SkBitmap& src, TileMode tmx,
     <td><a name="SkSurfaceProps_kLegacyFontHost_InitType"> <code><strong>SkSurfaceProps::kLegacyFontHost_InitType </strong></code> </a></td><td>0</td><td></td>
   </tr>
 
-</table>
+#
+Topic
 
 # <a name="Text"></a> Text
 
@@ -888,6 +922,17 @@ static sk_sp&lt;SkShader&gt; MakeBitmapShader(const SkBitmap& src, TileMode tmx,
 # <a name="Texture"></a> Texture
 
 # <a name="GrBackendTexture"></a> Class GrBackendTexture
+
+<a name="GrBackendTexture_isValid"></a>
+## isValid
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+bool isValid() const
+</pre>
+
+---
+
+# <a name="Transfer_Mode"></a> Transfer Mode
 
 # <a name="Typeface"></a> Typeface
 
@@ -907,7 +952,7 @@ static sk_sp&lt;SkShader&gt; MakeBitmapShader(const SkBitmap& src, TileMode tmx,
     <td><a name="kTopLeft_GrSurfaceOrigin"> <code><strong>kTopLeft_GrSurfaceOrigin </strong></code> </a></td><td>1</td><td></td>
   </tr>
 
-</table>
+
 
 ## <a name="Budgeted"></a> Budgeted
 
@@ -923,7 +968,7 @@ static sk_sp&lt;SkShader&gt; MakeBitmapShader(const SkBitmap& src, TileMode tmx,
     <td><a name="SkBudgeted_kYes"> <code><strong>SkBudgeted::kYes </strong></code> </a></td><td>1</td><td></td>
   </tr>
 
-</table>
+
 
 ## <a name="GrSemaphoresSubmitted"></a> Enum GrSemaphoresSubmitted
 
@@ -937,7 +982,7 @@ static sk_sp&lt;SkShader&gt; MakeBitmapShader(const SkBitmap& src, TileMode tmx,
     <td><a name="GrSemaphoresSubmitted_kYes"> <code><strong>GrSemaphoresSubmitted::kYes </strong></code> </a></td><td>1</td><td></td>
   </tr>
 
-</table>
+
 
 # <a name="Unpremultiply"></a> Unpremultiply
 

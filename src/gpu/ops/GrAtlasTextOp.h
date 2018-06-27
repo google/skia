@@ -11,6 +11,7 @@
 #include "ops/GrMeshDrawOp.h"
 #include "text/GrAtlasTextContext.h"
 #include "text/GrDistanceFieldAdjustTable.h"
+#include "text/GrGlyphCache.h"
 
 class SkAtlasTextTarget;
 
@@ -39,11 +40,11 @@ public:
         GrColor  fColor;
     };
 
-    static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrPaint&& paint, GrMaskFormat maskFormat,
-                                                     int glyphCount, GrAtlasGlyphCache* fontCache) {
+    static std::unique_ptr<GrAtlasTextOp> MakeBitmap(
+                                GrPaint&& paint, GrMaskFormat maskFormat, int glyphCount,
+                                bool hasScaledGlyphs) {
         std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(std::move(paint)));
 
-        op->fFontCache = fontCache;
         switch (maskFormat) {
             case kA8_GrMaskFormat:
                 op->fMaskType = kGrayscaleCoverageMask_MaskType;
@@ -58,18 +59,16 @@ public:
         op->fNumGlyphs = glyphCount;
         op->fGeoCount = 1;
         op->fLuminanceColor = 0;
-        op->fFontCache = fontCache;
+        op->fHasScaledGlyphs = hasScaledGlyphs;
         return op;
     }
 
     static std::unique_ptr<GrAtlasTextOp> MakeDistanceField(
-            GrPaint&& paint, int glyphCount, GrAtlasGlyphCache* fontCache,
-            const GrDistanceFieldAdjustTable* distanceAdjustTable,
+            GrPaint&& paint, int glyphCount, const GrDistanceFieldAdjustTable* distanceAdjustTable,
             bool useGammaCorrectDistanceTable, SkColor luminanceColor, bool isLCD, bool useBGR,
             bool isAntiAliased) {
         std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(std::move(paint)));
 
-        op->fFontCache = fontCache;
         op->fMaskType = !isAntiAliased ? kAliasedDistanceField_MaskType
                                        : isLCD ? (useBGR ? kLCDBGRDistanceField_MaskType
                                                          : kLCDDistanceField_MaskType)
@@ -174,22 +173,24 @@ private:
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override;
 
-    sk_sp<GrGeometryProcessor> setupDfProcessor() const;
+    sk_sp<GrGeometryProcessor> setupDfProcessor(GrAtlasManager*) const;
 
     SkAutoSTMalloc<kMinGeometryAllocated, Geometry> fGeoData;
     int fGeoDataAllocSize;
     uint32_t fSRGBFlags;
     GrProcessorSet fProcessors;
-    bool fUsesLocalCoords;
-    bool fCanCombineOnTouchOrOverlap;
+    struct {
+        uint32_t fUsesLocalCoords : 1;
+        uint32_t fCanCombineOnTouchOrOverlap : 1;
+        uint32_t fUseGammaCorrectDistanceTable : 1;
+        uint32_t fHasScaledGlyphs : 1;
+    };
     int fGeoCount;
     int fNumGlyphs;
     MaskType fMaskType;
-    GrAtlasGlyphCache* fFontCache;
     // Distance field properties
     sk_sp<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
     SkColor fLuminanceColor;
-    bool fUseGammaCorrectDistanceTable;
     uint32_t fDFGPFlags = 0;
 
     typedef GrMeshDrawOp INHERITED;

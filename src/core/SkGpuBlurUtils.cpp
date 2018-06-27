@@ -233,9 +233,10 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
     }
 
     SkASSERT(kBGRA_8888_GrPixelConfig == config || kRGBA_8888_GrPixelConfig == config ||
-             kRGBA_4444_GrPixelConfig == config || kRGB_565_GrPixelConfig == config ||
-             kSRGBA_8888_GrPixelConfig == config || kSBGRA_8888_GrPixelConfig == config ||
-             kRGBA_half_GrPixelConfig == config || kAlpha_8_GrPixelConfig == config);
+             kRGB_888_GrPixelConfig == config || kRGBA_4444_GrPixelConfig == config ||
+             kRGB_565_GrPixelConfig == config || kSRGBA_8888_GrPixelConfig == config ||
+             kSBGRA_8888_GrPixelConfig == config || kRGBA_half_GrPixelConfig == config ||
+             kAlpha_8_GrPixelConfig == config || kRGBA_1010102_GrPixelConfig == config);
 
     const int width = dstBounds.width();
     const int height = dstBounds.height();
@@ -249,8 +250,8 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         // We shouldn't be scaling because this is a small size blur
         SkASSERT((1 == scaleFactorX) && (1 == scaleFactorY));
 
-        dstRenderTargetContext = context->makeDeferredRenderTargetContext(fit, width, height,
-                                                                          config, colorSpace);
+        dstRenderTargetContext = context->contextPriv().makeDeferredRenderTargetContext(
+                fit, width, height, config, colorSpace);
         if (!dstRenderTargetContext) {
             return nullptr;
         }
@@ -271,7 +272,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         SkIRect dstRect(srcRect);
         shrink_irect_by_2(&dstRect, i < scaleFactorX, i < scaleFactorY);
 
-        dstRenderTargetContext = context->makeDeferredRenderTargetContext(
+        dstRenderTargetContext = context->contextPriv().makeDeferredRenderTargetContext(
                                                                 fit,
                                                                 SkTMin(dstRect.fRight, width),
                                                                 SkTMin(dstRect.fBottom, height),
@@ -326,7 +327,8 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         }
 
         SkASSERT(srcRect.width() <= width && srcRect.height() <= height);
-        dstRenderTargetContext = context->makeDeferredRenderTargetContext(fit, srcRect.width(),
+        dstRenderTargetContext = context->contextPriv().makeDeferredRenderTargetContext(
+                                                                          fit, srcRect.width(),
                                                                           srcRect.height(),
                                                                           config, colorSpace);
         if (!dstRenderTargetContext) {
@@ -361,7 +363,8 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         }
 
         SkASSERT(srcRect.width() <= width && srcRect.height() <= height);
-        dstRenderTargetContext = context->makeDeferredRenderTargetContext(fit, srcRect.width(),
+        dstRenderTargetContext = context->contextPriv().makeDeferredRenderTargetContext(
+                                                                          fit, srcRect.width(),
                                                                           srcRect.height(),
                                                                           config, colorSpace);
         if (!dstRenderTargetContext) {
@@ -393,7 +396,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         SkIRect dstRect(srcRect);
         scale_irect(&dstRect, scaleFactorX, scaleFactorY);
 
-        dstRenderTargetContext = context->makeDeferredRenderTargetContext(
+        dstRenderTargetContext = context->contextPriv().makeDeferredRenderTargetContext(
                                                                 fit, SkTMin(dstRect.width(), width),
                                                                 SkTMin(dstRect.height(), height),
                                                                 config, colorSpace);

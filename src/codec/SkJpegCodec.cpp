@@ -5,11 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkCodec.h"
 #include "SkJpegCodec.h"
-#include "SkJpegDecoderMgr.h"
+
+#include "SkCodec.h"
 #include "SkCodecPriv.h"
 #include "SkColorData.h"
+#include "SkJpegDecoderMgr.h"
+#include "SkJpegInfo.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
 #include "SkTypes.h"
@@ -967,4 +969,43 @@ SkCodec::Result SkJpegCodec::onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void
     }
 
     return kSuccess;
+}
+
+// This function is declared in SkJpegInfo.h, used by SkPDF.
+bool SkGetJpegInfo(const void* data, size_t len,
+                   SkISize* size,
+                   SkEncodedInfo::Color* colorType,
+                   SkEncodedOrigin* orientation) {
+    if (!SkJpegCodec::IsJpeg(data, len)) {
+        return false;
+    }
+
+    SkMemoryStream stream(data, len);
+    JpegDecoderMgr decoderMgr(&stream);
+    // libjpeg errors will be caught and reported here
+    skjpeg_error_mgr::AutoPushJmpBuf jmp(decoderMgr.errorMgr());
+    if (setjmp(jmp)) {
+        return false;
+    }
+    decoderMgr.init();
+    jpeg_decompress_struct* dinfo = decoderMgr.dinfo();
+    jpeg_save_markers(dinfo, kExifMarker, 0xFFFF);
+    jpeg_save_markers(dinfo, kICCMarker, 0xFFFF);
+    if (JPEG_HEADER_OK != jpeg_read_header(dinfo, true)) {
+        return false;
+    }
+    SkEncodedInfo::Color encodedColorType;
+    if (!decoderMgr.getEncodedColor(&encodedColorType)) {
+        return false;  // Unable to interpret the color channels as colors.
+    }
+    if (colorType) {
+        *colorType = encodedColorType;
+    }
+    if (orientation) {
+        *orientation = get_exif_orientation(dinfo);
+    }
+    if (size) {
+        *size = {SkToS32(dinfo->image_width), SkToS32(dinfo->image_height)};
+    }
+    return true;
 }

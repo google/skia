@@ -51,3 +51,4 @@ ssse3 = [
 sse41 = [ "$_src/opts/SkOpts_sse41.cpp" ]
 sse42 = [ "$_src/opts/SkOpts_sse42.cpp" ]
 avx = [ "$_src/opts/SkOpts_avx.cpp" ]
+hsw = [ "$_src/opts/SkOpts_hsw.cpp" ]

@@ -14,7 +14,9 @@
 #include "GrContextPriv.h"
 #include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
+#include "GrSurfacePriv.h"
 #include "GrTest.h"
+#include "GrTextureProxyPriv.h"
 #include "gl/GLTestContext.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLUtil.h"
@@ -22,8 +24,8 @@
 // skbug.com/5932
 static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrContext* context,
                                    sk_sp<GrTextureProxy> rectProxy, uint32_t expectedPixelValues[]) {
-    sk_sp<GrRenderTargetContext> rtContext(
-            context->makeDeferredRenderTargetContext(SkBackingFit::kExact, rectProxy->width(),
+    sk_sp<GrRenderTargetContext> rtContext(context->contextPriv().makeDeferredRenderTargetContext(
+                                                     SkBackingFit::kExact, rectProxy->width(),
                                                      rectProxy->height(), rectProxy->config(),
                                                      nullptr));
     for (auto filter : {GrSamplerState::Filter::kNearest,
@@ -127,14 +129,19 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
             }
         }
 
-        sk_sp<GrTextureProxy> rectProxy = proxyProvider->createWrappedTextureProxy(
-                                                                            rectangleTex, origin);
+        sk_sp<GrTextureProxy> rectProxy = proxyProvider->wrapBackendTexture(rectangleTex, origin);
 
         if (!rectProxy) {
             ERRORF(reporter, "Error creating proxy for rectangle texture.");
             GR_GL_CALL(glContext->gl(), DeleteTextures(1, &rectTexID));
             continue;
         }
+
+        SkASSERT(rectProxy->texPriv().doesNotSupportMipMaps());
+        SkASSERT(rectProxy->priv().peekTexture()->surfacePriv().doesNotSupportMipMaps());
+
+        SkASSERT(rectProxy->texPriv().isClampOnly());
+        SkASSERT(rectProxy->priv().peekTexture()->surfacePriv().isClampOnly());
 
         test_basic_draw_as_src(reporter, context, rectProxy, refPixels);
 

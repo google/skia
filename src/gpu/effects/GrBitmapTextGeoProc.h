@@ -21,14 +21,14 @@ class GrInvariantOutput;
  */
 class GrBitmapTextGeoProc : public GrGeometryProcessor {
 public:
-    static constexpr int kMaxTextures = 4;
 
     static sk_sp<GrGeometryProcessor> Make(GrColor color,
-                                           const sk_sp<GrTextureProxy> proxies[kMaxTextures],
+                                           const sk_sp<GrTextureProxy>* proxies,
+                                           int numProxies,
                                            const GrSamplerState& p, GrMaskFormat format,
                                            const SkMatrix& localMatrix, bool usesLocalCoords) {
         return sk_sp<GrGeometryProcessor>(
-            new GrBitmapTextGeoProc(color, proxies, p, format,
+            new GrBitmapTextGeoProc(color, proxies, numProxies, p, format,
                                     localMatrix, usesLocalCoords));
     }
 
@@ -45,14 +45,16 @@ public:
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
-    void addNewProxies(const sk_sp<GrTextureProxy> proxies[kMaxTextures], const GrSamplerState& p);
+    void addNewProxies(const sk_sp<GrTextureProxy>* proxies, int numProxies, const GrSamplerState&);
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override;
 
 private:
-    GrBitmapTextGeoProc(GrColor, const sk_sp<GrTextureProxy> proxies[kMaxTextures],
+    static constexpr int kMaxTextures = 4;
+
+    GrBitmapTextGeoProc(GrColor, const sk_sp<GrTextureProxy>* proxies, int numProxies,
                         const GrSamplerState& params, GrMaskFormat format,
                         const SkMatrix& localMatrix, bool usesLocalCoords);
 

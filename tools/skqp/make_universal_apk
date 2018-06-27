@@ -25,6 +25,9 @@ Additionally, \`python\` and \`ninja\` should be in your path.
 If SKQP_EXTRA_MODELS is non-empty, assets unneeded by the CTS tests will be
 included for experimental mode.
 
+It assumes that the source tree is in the desired state, e.g. by having
+run 'python tools/git-sync-deps' in the root of the skia checkout.
+
 EOM
     exit 1
 }
@@ -38,23 +41,18 @@ for ARCH in $*; do case $ARCH in arm|arm64|x86|x64);; *) usage;; esac; done
 set -x # Verbose
 set -e # Exit immediately
 
-cd "$(dirname "$0")/../.."
+# check if OUTPUT_DIR was set in the environment.
+if [ -z "${APK_OUTPUT_DIR}" ]; then
+    APK_OUTPUT_DIR=out/skqp
+fi
 
-(
-    cd platform_tools/android/apps
-    git clean -fxd skqp/build \
-                   skqp/src/main/assets/gmkb \
-                   skqp/src/main/assets/resources \
-                   skqp/src/main/libs \
-                   .gradle build viewer/build
-)
+cd "$(dirname "$0")/../.."
 python tools/skqp/download_model
 if [ -z "$SKQP_EXTRA_MODELS" ]; then
     python tools/skqp/remove_unneeded_assets
 fi
 
 python tools/skqp/setup_resources
-python tools/git-sync-deps
 
 APP=skqp
 LIB=libskqp_app.so
@@ -66,11 +64,10 @@ if [ $# -eq 0 ]; then
 fi
 
 for ARCH in $*; do
+    BUILD="${APK_OUTPUT_DIR}-${ARCH}"
     if [ "$SKQP_DEBUG" ]; then
-        BUILD=out/skqp-${ARCH}-debug
-        python tools/skqp/generate_gn_args $BUILD "$ANDROID_NDK" --arch "$ARCH" --debug
+        python tools/skqp/generate_gn_args $BUILD-debug "$ANDROID_NDK" --arch "$ARCH" --debug
     else
-        BUILD=out/skqp-$ARCH
         python tools/skqp/generate_gn_args $BUILD "$ANDROID_NDK" --arch "$ARCH"
     fi
     bin/gn gen $BUILD
@@ -92,6 +89,6 @@ done
     apps/gradlew -p apps/$APP -P suppressNativeBuild :$APP:assembleUniversalDebug
 )
 
-mkdir -p out/skqp
-cp platform_tools/android/apps/$APP/build/outputs/apk/$APP-universal-debug.apk out/skqp/
+mkdir -p $APK_OUTPUT_DIR
+cp platform_tools/android/apps/$APP/build/outputs/apk/$APP-universal-debug.apk "${APK_OUTPUT_DIR}/"
 

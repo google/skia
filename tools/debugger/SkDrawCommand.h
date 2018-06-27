@@ -26,6 +26,7 @@ class SkDrawCommand {
 public:
     enum OpType {
         kBeginDrawPicture_OpType,
+        kClear_OpType,
         kClipPath_OpType,
         kClipRegion_OpType,
         kClipRect_OpType,
@@ -35,12 +36,13 @@ public:
         kDrawBitmap_OpType,
         kDrawBitmapNine_OpType,
         kDrawBitmapRect_OpType,
-        kDrawClear_OpType,
         kDrawDRRect_OpType,
         kDrawImage_OpType,
         kDrawImageLattice_OpType,
+        kDrawImageNine_OpType,
         kDrawImageRect_OpType,
         kDrawOval_OpType,
+        kDrawArc_OpType,
         kDrawPaint_OpType,
         kDrawPatch_OpType,
         kDrawPath_OpType,
@@ -49,6 +51,7 @@ public:
         kDrawPosTextH_OpType,
         kDrawRect_OpType,
         kDrawRRect_OpType,
+        kDrawRegion_OpType,
         kDrawText_OpType,
         kDrawTextBlob_OpType,
         kDrawTextOnPath_OpType,
@@ -70,13 +73,7 @@ public:
 
     SkDrawCommand(OpType opType);
 
-    virtual ~SkDrawCommand();
-
-    virtual SkString toString() const;
-
-    virtual const char* toCString() const {
-        return GetCommandString(fOpType);
-    }
+    virtual ~SkDrawCommand() {}
 
     bool isVisible() const {
         return fVisible;
@@ -86,28 +83,7 @@ public:
         fVisible = toggle;
     }
 
-    const SkTDArray<SkString*>* Info() const { return &fInfo; }
     virtual void execute(SkCanvas*) const = 0;
-    virtual void vizExecute(SkCanvas*) const {}
-
-    virtual void setUserMatrix(const SkMatrix&) {}
-
-    // The next "active" system is only used by save, saveLayer, and restore.
-    // It is used to determine which saveLayers are currently active (at a
-    // given point in the rendering).
-    //      saves just return a kPushLayer action but don't track active state
-    //      restores just return a kPopLayer action
-    //      saveLayers return kPushLayer but also track the active state
-    enum Action {
-        kNone_Action,
-        kPopLayer_Action,
-        kPushLayer_Action,
-    };
-    virtual Action action() const { return kNone_Action; }
-    virtual void setActive(bool active) {}
-    virtual bool active() const { return false; }
-
-    OpType getType() const { return fOpType; }
 
     virtual bool render(SkCanvas* canvas) const { return false; }
 
@@ -142,9 +118,6 @@ public:
     static bool flatten(const SkBitmap& bitmap, Json::Value* target,
                         UrlDataManager& urlDataManager);
 
-protected:
-    SkTDArray<SkString*> fInfo;
-
 private:
     OpType fOpType;
     bool   fVisible;
@@ -154,7 +127,6 @@ class SkRestoreCommand : public SkDrawCommand {
 public:
     SkRestoreCommand();
     void execute(SkCanvas* canvas) const override;
-    Action action() const override { return kPopLayer_Action; }
     static SkRestoreCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
 
 private:
@@ -374,12 +346,33 @@ public:
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
     Json::Value toJSON(UrlDataManager& urlDataManager) const override;
+    static SkDrawImageLatticeCommand* fromJSON(Json::Value& command,
+                                               UrlDataManager& urlDataManager);
 
 private:
     sk_sp<const SkImage>        fImage;
     SkCanvas::Lattice           fLattice;
     SkRect                      fDst;
     SkTLazy<SkPaint>            fPaint;
+
+    typedef SkDrawCommand INHERITED;
+};
+
+class SkDrawImageNineCommand : public SkDrawCommand {
+public:
+    SkDrawImageNineCommand(const SkImage* image, const SkIRect& center,
+                           const SkRect& dst, const SkPaint* paint);
+    void execute(SkCanvas* canvas) const override;
+    bool render(SkCanvas* canvas) const override;
+    Json::Value toJSON(UrlDataManager& urlDataManager) const override;
+    static SkDrawImageNineCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
+
+private:
+    sk_sp<const SkImage> fImage;
+    SkIRect              fCenter;
+    SkRect               fDst;
+    SkPaint              fPaint;
+    SkPaint*             fPaintPtr;
 
     typedef SkDrawCommand INHERITED;
 };
@@ -510,6 +503,21 @@ private:
     size_t              fCount;
     SkPoint*            fPts;
     SkPaint             fPaint;
+
+    typedef SkDrawCommand INHERITED;
+};
+
+class SkDrawRegionCommand : public SkDrawCommand {
+public:
+    SkDrawRegionCommand(const SkRegion& region, const SkPaint& paint);
+    void execute(SkCanvas* canvas) const override;
+    bool render(SkCanvas* canvas) const override;
+    Json::Value toJSON(UrlDataManager& urlDataManager) const override;
+    static SkDrawRegionCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
+
+private:
+    SkRegion fRegion;
+    SkPaint  fPaint;
 
     typedef SkDrawCommand INHERITED;
 };
@@ -715,7 +723,6 @@ class SkSaveCommand : public SkDrawCommand {
 public:
     SkSaveCommand();
     void execute(SkCanvas* canvas) const override;
-    Action action() const override { return kPushLayer_Action; }
     static SkSaveCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
 
 private:
@@ -729,10 +736,6 @@ public:
     void execute(SkCanvas* canvas) const override;
     Json::Value toJSON(UrlDataManager& urlDataManager) const override;
     static SkSaveLayerCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
-    void vizExecute(SkCanvas* canvas) const override;
-    Action action() const override{ return kPushLayer_Action; }
-    void setActive(bool active) override { fActive = active; }
-    bool active() const override { return fActive; }
 
     const SkPaint* paint() const { return fPaintPtr; }
 
@@ -743,21 +746,17 @@ private:
     const SkImageFilter* fBackdrop;
     uint32_t       fSaveLayerFlags;
 
-    bool        fActive;
-
     typedef SkDrawCommand INHERITED;
 };
 
 class SkSetMatrixCommand : public SkDrawCommand {
 public:
     SkSetMatrixCommand(const SkMatrix& matrix);
-    void setUserMatrix(const SkMatrix&) override;
     void execute(SkCanvas* canvas) const override;
     Json::Value toJSON(UrlDataManager& urlDataManager) const override;
     static SkSetMatrixCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
 
 private:
-    SkMatrix fUserMatrix;
     SkMatrix fMatrix;
 
     typedef SkDrawCommand INHERITED;

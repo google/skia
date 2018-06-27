@@ -68,9 +68,7 @@ const {
     return this->refMe();
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkLocalMatrixImageFilter::toString(SkString* str) const {
     str->append("SkLocalMatrixImageFilter: (");
     str->append(")");
 }
-#endif

@@ -93,12 +93,6 @@ static bool can_ignore_bilerp_constraint(const GrTextureProducer& producer,
  */
 static bool can_use_draw_texture_affine(const SkPaint& paint, GrAA aa, const SkMatrix& ctm,
                                         SkCanvas::SrcRectConstraint constraint) {
-// This is disabled in Chrome until crbug.com/802408 and crbug.com/801783 can be sorted out.
-#ifdef SK_DISABLE_TEXTURE_OP_AA
-    if (GrAA::kYes == aa) {
-        return false;
-    }
-#endif
     return (!paint.getColorFilter() && !paint.getShader() && !paint.getMaskFilter() &&
             !paint.getImageFilter() && paint.getFilterQuality() < kMedium_SkFilterQuality &&
             paint.getBlendMode() == SkBlendMode::kSrcOver && !ctm.hasPerspective() &&

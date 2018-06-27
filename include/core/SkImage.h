@@ -160,27 +160,6 @@ public:
 
     typedef void (*TextureReleaseProc)(ReleaseContext releaseContext);
 
-    /** Deprecated.
-    */
-    static sk_sp<SkImage> MakeFromTexture(GrContext* context,
-                                          const GrBackendTexture& backendTexture,
-                                          GrSurfaceOrigin origin,
-                                          SkAlphaType alphaType,
-                                          sk_sp<SkColorSpace> colorSpace) {
-        return MakeFromTexture(context, backendTexture, origin, alphaType, colorSpace, nullptr,
-                               nullptr);
-    }
-
-    /** Deprecated.
-    */
-    static sk_sp<SkImage> MakeFromTexture(GrContext* context,
-                                          const GrBackendTexture& backendTexture,
-                                          GrSurfaceOrigin origin,
-                                          SkAlphaType alphaType,
-                                          sk_sp<SkColorSpace> colorSpace,
-                                          TextureReleaseProc textureReleaseProc,
-                                          ReleaseContext releaseContext);
-
     /** Creates SkImage from GPU texture associated with context. Caller is responsible for
         managing the lifetime of GPU texture.
 
@@ -190,12 +169,14 @@ public:
         @param context         GPU context
         @param backendTexture  texture residing on GPU
         @param origin          one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
-        @param colorType       one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
-                               kRGB_565_SkColorType, kARGB_4444_SkColorType,
-                               kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
+        @param colorType       one of:
+                               kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
+                               kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
+                               kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
                                kGray_8_SkColorType, kRGBA_F16_SkColorType
-        @param alphaType       one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-                               kPremul_SkAlphaType, kUnpremul_SkAlphaType
+        @param alphaType       one of:
+                               kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
+                               kUnpremul_SkAlphaType
         @param colorSpace      range of colors; may be nullptr
         @return                created SkImage, or nullptr
     */
@@ -219,12 +200,14 @@ public:
         @param context             GPU context
         @param backendTexture      texture residing on GPU
         @param origin              one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
-        @param colorType           one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
-                                   kRGB_565_SkColorType, kARGB_4444_SkColorType,
-                                   kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
+        @param colorType           one of:
+                                   kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
+                                   kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
+                                   kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
                                    kGray_8_SkColorType, kRGBA_F16_SkColorType
-        @param alphaType           one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-                                   kPremul_SkAlphaType, kUnpremul_SkAlphaType
+        @param alphaType           one of:
+                                   kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
+                                   kUnpremul_SkAlphaType
         @param colorSpace          range of colors; may be nullptr
         @param textureReleaseProc  function called when texture can be released
         @param releaseContext      state passed to textureReleaseProc
@@ -293,14 +276,6 @@ public:
     static sk_sp<SkImage> MakeCrossContextFromPixmap(GrContext* context, const SkPixmap& pixmap,
                                                      bool buildMips, SkColorSpace* dstColorSpace);
 
-    /** Deprecated.
-    */
-    static sk_sp<SkImage> MakeFromAdoptedTexture(GrContext* context,
-                                                 const GrBackendTexture& backendTexture,
-                                                 GrSurfaceOrigin surfaceOrigin,
-                                                 SkAlphaType alphaType = kPremul_SkAlphaType,
-                                                 sk_sp<SkColorSpace> colorSpace = nullptr);
-
     /** Creates SkImage from backendTexture associated with context. backendTexture and
         returned SkImage are managed internally, and are released when no longer needed.
 
@@ -310,12 +285,14 @@ public:
         @param context         GPU context
         @param backendTexture  texture residing on GPU
         @param surfaceOrigin   one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
-        @param colorType       one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
-                               kRGB_565_SkColorType, kARGB_4444_SkColorType,
-                               kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
+        @param colorType       one of:
+                               kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
+                               kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
+                               kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
                                kGray_8_SkColorType, kRGBA_F16_SkColorType
-        @param alphaType       one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-                               kPremul_SkAlphaType, kUnpremul_SkAlphaType
+        @param alphaType       one of:
+                               kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
+                               kUnpremul_SkAlphaType
         @param colorSpace      range of colors; may be nullptr
         @return                created SkImage, or nullptr
     */
@@ -326,93 +303,41 @@ public:
                                                  SkAlphaType alphaType = kPremul_SkAlphaType,
                                                  sk_sp<SkColorSpace> colorSpace = nullptr);
 
-    /** Creates SkImage from copy of yuvTextureHandles, an array of textures on GPU.
-        yuvTextureHandles contain pixels for YUV planes of SkImage.
-        yuvSizes contain dimensions for each pixel plane. Dimensions must be greater than
-        zero but may differ from plane to plane. Returned SkImage has the dimensions
-        yuvSizes[0]. yuvColorSpace describes how YUV colors convert to RGB colors.
+    /** Creates SkImage from copy of yuvTextures, an array of textures on GPU.
+        yuvTextures contain pixels for YUV planes of SkImage. Returned SkImage has the dimensions
+        yuvTextures[0]. yuvColorSpace describes how YUV colors convert to RGB colors.
 
-        @param context            GPU context
-        @param yuvColorSpace      one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
-                                  kRec709_SkYUVColorSpace
-        @param yuvTextureHandles  array of YUV textures on GPU
-        @param yuvSizes           dimensions of YUV textures
-        @param surfaceOrigin      one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
-        @param colorSpace         range of colors; may be nullptr
-        @return                   created SkImage, or nullptr
+        @param context        GPU context
+        @param yuvColorSpace  one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
+                              kRec709_SkYUVColorSpace
+        @param yuvTextures    array of YUV textures on GPU
+        @param surfaceOrigin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
+        @param colorSpace     range of colors; may be nullptr
+        @return               created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeFromYUVTexturesCopy(GrContext* context, SkYUVColorSpace yuvColorSpace,
-                                                  const GrBackendObject yuvTextureHandles[3],
-                                                  const SkISize yuvSizes[3],
+                                                  const GrBackendTexture yuvTextures[3],
                                                   GrSurfaceOrigin surfaceOrigin,
                                                   sk_sp<SkColorSpace> colorSpace = nullptr);
 
-    /** Creates SkImage from copy of nv12TextureHandles, an array of textures on GPU.
-        nv12TextureHandles[0] contains pixels for YUV_Component_Y plane.
-        nv12TextureHandles[1] contains pixels for YUV_Component_U plane,
+    /** Creates SkImage from copy of nv12Textures, an array of textures on GPU.
+        nv12Textures[0] contains pixels for YUV_Component_Y plane.
+        nv12Textures[1] contains pixels for YUV_Component_U plane,
         followed by pixels for YUV_Component_V plane.
-        nv12Sizes contain dimensions for each pixel plane. Dimensions must be greater than
-        zero but may differ from plane to plane. Returned SkImage has the dimensions
-        nv12Sizes[0]. yuvColorSpace describes how YUV colors convert to RGB colors.
+        Returned SkImage has the dimensions nv12Textures[2].
+        yuvColorSpace describes how YUV colors convert to RGB colors.
 
-        @param context             GPU context
-        @param yuvColorSpace       one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
-                                   kRec709_SkYUVColorSpace
-        @param nv12TextureHandles  array of YUV textures on GPU
-        @param nv12Sizes           dimensions of YUV textures
-        @param surfaceOrigin       one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
-        @param colorSpace          range of colors; may be nullptr
-        @return                    created SkImage, or nullptr
+        @param context        GPU context
+        @param yuvColorSpace  one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
+                              kRec709_SkYUVColorSpace
+        @param nv12Textures   array of YUV textures on GPU
+        @param surfaceOrigin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
+        @param colorSpace     range of colors; may be nullptr
+        @return               created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeFromNV12TexturesCopy(GrContext* context,
                                                    SkYUVColorSpace yuvColorSpace,
-                                                   const GrBackendObject nv12TextureHandles[2],
-                                                   const SkISize nv12Sizes[2],
-                                                   GrSurfaceOrigin surfaceOrigin,
-                                                   sk_sp<SkColorSpace> colorSpace = nullptr);
-
-    /** Creates SkImage from copy of yuvTextureHandles, an array of textures on GPU.
-        yuvTextureHandles contain pixels for YUV planes of SkImage.
-        yuvSizes contain dimensions for each pixel plane. Dimensions must be greater than
-        zero but may differ from plane to plane. Returned SkImage has the dimensions
-        yuvSizes[0]. yuvColorSpace describes how YUV colors convert to RGB colors.
-
-        @param context            GPU context
-        @param yuvColorSpace      one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
-                                  kRec709_SkYUVColorSpace
-        @param yuvTextureHandles  array of YUV textures on GPU
-        @param yuvSizes           dimensions of YUV textures
-        @param surfaceOrigin      one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
-        @param colorSpace         range of colors; may be nullptr
-        @return                   created SkImage, or nullptr
-    */
-    static sk_sp<SkImage> MakeFromYUVTexturesCopy(GrContext* context, SkYUVColorSpace yuvColorSpace,
-                                                  const GrBackendTexture yuvTextureHandles[3],
-                                                  const SkISize yuvSizes[3],
-                                                  GrSurfaceOrigin surfaceOrigin,
-                                                  sk_sp<SkColorSpace> colorSpace = nullptr);
-
-    /** Creates SkImage from copy of nv12TextureHandles, an array of textures on GPU.
-        nv12TextureHandles[0] contains pixels for YUV_Component_Y plane.
-        nv12TextureHandles[1] contains pixels for YUV_Component_U plane,
-        followed by pixels for YUV_Component_V plane.
-        nv12Sizes contain dimensions for each pixel plane. Dimensions must be greater than
-        zero but may differ from plane to plane. Returned SkImage has the dimensions
-        nv12Sizes[0]. yuvColorSpace describes how YUV colors convert to RGB colors.
-
-        @param context             GPU context
-        @param yuvColorSpace       one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
-                                   kRec709_SkYUVColorSpace
-        @param nv12TextureHandles  array of YUV textures on GPU
-        @param nv12Sizes           dimensions of YUV textures
-        @param surfaceOrigin       one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
-        @param colorSpace          range of colors; may be nullptr
-        @return                    created SkImage, or nullptr
-    */
-    static sk_sp<SkImage> MakeFromNV12TexturesCopy(GrContext* context,
-                                                   SkYUVColorSpace yuvColorSpace,
-                                                   const GrBackendTexture nv12TextureHandles[2],
-                                                   const SkISize nv12Sizes[2],
+                                                   const GrBackendTexture nv12Textures[2],
                                                    GrSurfaceOrigin surfaceOrigin,
                                                    sk_sp<SkColorSpace> colorSpace = nullptr);
 
@@ -448,8 +373,9 @@ public:
         Only available on Android, when __ANDROID_API__ is defined to be 26 or greater.
 
         @param hardwareBuffer  AHardwareBuffer Android hardware buffer
-        @param alphaType       one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-                               kPremul_SkAlphaType, kUnpremul_SkAlphaType
+        @param alphaType       one of:
+                               kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
+                               kUnpremul_SkAlphaType
         @param colorSpace      range of colors; may be nullptr
         @return                created SkImage, or nullptr
     */
@@ -490,8 +416,9 @@ public:
     */
     uint32_t uniqueID() const { return fUniqueID; }
 
-    /** Returns SkAlphaType, one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-        kPremul_SkAlphaType, kUnpremul_SkAlphaType.
+    /** Returns SkAlphaType, one of:
+        kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
+        kUnpremul_SkAlphaType.
 
         SkAlphaType returned was a parameter to an SkImage constructor,
         or was parsed from encoded data.
@@ -499,6 +426,12 @@ public:
         @return  SkAlphaType in SkImage
     */
     SkAlphaType alphaType() const;
+
+    /** Returns SkColorType if known; otherwise, returns kUnknown_SkColorType.
+
+        @return  SkColorType of SkImage
+    */
+    SkColorType colorType() const;
 
     /** Returns SkColorSpace, the range of colors, associated with SkImage.  The
         reference count of SkColorSpace is unchanged. The returned SkColorSpace is
@@ -600,7 +533,7 @@ public:
     /** Retrieves the back-end API handle of texture. If flushPendingGrContextIO is true,
         complete deferred I/O operations.
 
-        If origin in not nullptr, copies location of content drawn into SkImage.
+        If origin is not nullptr, copies location of content drawn into SkImage.
 
         @param flushPendingGrContextIO  flag to flush outstanding requests
         @param origin                   storage for one of: kTopLeft_GrSurfaceOrigin,
@@ -609,6 +542,22 @@ public:
     */
     GrBackendObject getTextureHandle(bool flushPendingGrContextIO,
                                      GrSurfaceOrigin* origin = nullptr) const;
+
+    /** Retrieves the backend texture. If SkImage has no backend texture, an invalid
+        object is returned. Call GrBackendTexture::isValid to determine if the result
+        is valid.
+
+        If flushPendingGrContextIO is true, completes deferred I/O operations.
+
+        If origin in not nullptr, copies location of content drawn into SkImage.
+
+        @param flushPendingGrContextIO  flag to flush outstanding requests
+        @param origin                   storage for one of: kTopLeft_GrSurfaceOrigin,
+                                        kBottomLeft_GrSurfaceOrigin; or nullptr
+        @return                         back-end API texture handle; invalid on failure
+    */
+    GrBackendTexture getBackendTexture(bool flushPendingGrContextIO,
+                                       GrSurfaceOrigin* origin = nullptr) const;
 
     /** \enum SkImage::CachingHint
         CachingHint selects whether Skia may internally cache SkBitmap generated by

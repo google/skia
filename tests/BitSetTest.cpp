@@ -6,6 +6,7 @@
  */
 
 #include "SkBitSet.h"
+#include "SkTDArray.h"
 #include "Test.h"
 
 DEF_TEST(BitSet, reporter) {

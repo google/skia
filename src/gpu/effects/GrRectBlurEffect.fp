@@ -7,7 +7,7 @@
 
 @header {
     #include "GrProxyProvider.h"
-    #include "../effects/SkBlurMask.h"
+    #include "SkBlurMask.h"
 }
 
 in uniform float4 rect;
@@ -45,7 +45,7 @@ uniform half profileSize;
 
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
         GrUniqueKey key;
-        GrUniqueKey::Builder builder(&key, kDomain, 1);
+        GrUniqueKey::Builder builder(&key, kDomain, 1, "Rect Blur Mask");
         builder[0] = profileSize;
         builder.finish();
 
@@ -68,8 +68,8 @@ uniform half profileSize;
             }
 
             blurProfile = proxyProvider->createTextureProxy(std::move(image), kNone_GrSurfaceFlags,
-                                                            kTopLeft_GrSurfaceOrigin, 1,
-                                                            SkBudgeted::kYes, SkBackingFit::kExact);
+                                                            1, SkBudgeted::kYes,
+                                                            SkBackingFit::kExact);
             if (!blurProfile) {
                 return nullptr;
             }

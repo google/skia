@@ -297,7 +297,8 @@ static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeXYWH(int32_t x, int32_t y, in
 </pre>
 
 Returns constructed <a href="#IRect">IRect</a> set to:
-(x, y, x + <a href="#SkIRect_MakeXYWH_w">w</a>, y + <a href="#SkIRect_MakeXYWH_h">h</a>).
+(x, y, x + <a href="#SkIRect_MakeXYWH_w">w</a>, y + <a href="#SkIRect_MakeXYWH_h">h</a>)
+.
 Does not validate input;
 <a href="#SkIRect_MakeXYWH_w">w</a> or <a href="#SkIRect_MakeXYWH_h">h</a> may be negative.
 
@@ -604,13 +605,17 @@ overflow in its calculation.
 
 <a href="#SkIRect_fRight">fRight</a> minus <a href="#SkIRect_fLeft">fLeft</a> cast to int64_t
 
-<a href="#SkIRect">SkIRect</a> large = { -2147483647, 1, 2147483644, 2 };
+### Example
+
+<div><fiddle-embed name="63977f97999bbd6eecfdcc7575d75492">
 
 #### Example Output
 
 ~~~~
 width: -5 width64: 4294967291
 ~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
@@ -666,13 +671,17 @@ overflow in its calculation.
 
 <a href="#SkIRect_fBottom">fBottom</a> minus <a href="#SkIRect_fTop">fTop</a> cast to int64_t
 
-<a href="#SkIRect">SkIRect</a> large = { 1, -2147483647, 2, 2147483644 };
+### Example
+
+<div><fiddle-embed name="02dd98716e54bbd8c2f0ff23b7ef98cf">
 
 #### Example Output
 
 ~~~~
 height: -5 height64: 4294967291
 ~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
@@ -722,7 +731,7 @@ int32_t centerX() const
 </pre>
 
 Returns average of left edge and right edge. Result does not change if <a href="#IRect">IRect</a>
-is sorted. Result may be incorrect if <a href="#IRect">IRect</a> is far from the origin.
+is sorted.
 
 Result is rounded down.
 
@@ -732,7 +741,8 @@ midpoint in x
 
 ### Example
 
-<div><fiddle-embed name="549b840a9ceaaf7cb4e604f9f3d7108d"><div>Dividing by two rounds towards zero. <a href="#SkIRect_centerX">centerX</a> uses a bit shift and rounds down.</div>
+<div><fiddle-embed name="549b840a9ceaaf7cb4e604f9f3d7108d"><div>Dividing by two rounds towards zero. <a href="#SkIRect_centerX">centerX</a> uses a bit shift and rounds down.
+</div>
 
 #### Example Output
 
@@ -758,7 +768,7 @@ int32_t centerY() const
 </pre>
 
 Returns average of top edge and bottom edge. Result does not change if <a href="#IRect">IRect</a>
-is sorted. Result may be incorrect if <a href="#IRect">IRect</a> is far from the origin.
+is sorted.
 
 Result is rounded down.
 
@@ -768,12 +778,12 @@ midpoint in y
 
 ### Example
 
-<div><fiddle-embed name="687d833b042fb018f8948764e73a37b1">
+<div><fiddle-embed name="6449f7156330efbb3f344c0b787330a5">
 
 #### Example Output
 
 ~~~~
-left: 1073741824 right: 1073741826 centerX: -1073741823 safe mid x: 1073741825
+left: 1073741824 right: 1073741826 centerX: 1073741825
 ~~~~
 
 </fiddle-embed></div>
@@ -833,8 +843,9 @@ to or greater than <a href="#SkIRect_fBottom">fBottom</a>. Call <a href="#SkIRec
 
 true if <a href="#SkIRect_width64">width64</a> or <a href="#SkIRect_height64">height64</a> are zero or negative
 
-<a href="#SkIRect">SkIRect</a> tests[] = {{20, 40, 10, 50}, {20, 40, 20, 50}};
-for (auto rect : tests) {
+### Example
+
+<div><fiddle-embed name="eb905faa1084ccab3ad0605df4c27ea4">
 
 #### Example Output
 
@@ -844,6 +855,8 @@ sorted: {10, 40, 20, 50} is not empty
 rect: {20, 40, 20, 50} is empty
 sorted: {20, 40, 20, 50} is empty
 ~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
@@ -1108,7 +1121,8 @@ void setXYWH(int32_t x, int32_t y, int32_t width, int32_t height)
 </pre>
 
 Sets <a href="#IRect">IRect</a> to:
-(x, y, x + width, y + height).
+(x, y, x + width, y + height)
+.
 Does not validate input;
 width or height may be negative.
 
@@ -1498,7 +1512,8 @@ must describe area; <a href="#SkIRect_fLeft">fLeft</a> is less than <a href="#Sk
 empty() returns false. The intersection of <a href="#IRect">IRect</a> pair can be described by:
 
 (max(a.fLeft, b.fLeft), max(a.fTop, b.fTop),
-min(a.fRight, b.fRight), min(a.fBottom, b.fBottom)).
+min(a.fRight, b.fRight), min(a.fBottom, b.fBottom))
+.
 
 The intersection is only meaningful if the resulting <a href="#IRect">IRect</a> is not empty and
 describes an area: <a href="#SkIRect_fLeft">fLeft</a> is less than <a href="#SkIRect_fRight">fRight</a>, and <a href="#SkIRect_fTop">fTop</a> is less than <a href="#SkIRect_fBottom">fBottom</a>.
@@ -1548,7 +1563,8 @@ true if construction and <a href="#IRect">IRect</a> have no area in common
 
 ### Example
 
-<div><fiddle-embed name="f07146508efc516559d73853e6dadc78"><div><a href="#SkIRect_quickReject">quickReject</a> is the complement of <a href="#SkIRect_Intersects">Intersects</a>.</div>
+<div><fiddle-embed name="f07146508efc516559d73853e6dadc78"><div><a href="#SkIRect_quickReject">quickReject</a> is the complement of <a href="#SkIRect_Intersects">Intersects</a>.
+</div>
 
 #### Example Output
 
@@ -1579,7 +1595,8 @@ Returns true if:
 Returns false if <a href="#IRect">IRect</a> is empty.
 
 Considers input to describe constructed <a href="#IRect">IRect</a>:
-(x, y, x + 1, y + 1)and
+(x, y, x + 1, y + 1)
+and
 returns true if constructed area is completely enclosed by <a href="#IRect">IRect</a> area.
 
 ### Parameters
@@ -1869,7 +1886,8 @@ true if <a href="#SkIRect_intersect_r">r</a> and <a href="#IRect">IRect</a> have
 
 <div><fiddle-embed name="2be1302480e54a767e25cbeed5d41b41"><div>Two <a href="undocumented#SkDebugf">SkDebugf</a> calls are required. If the calls are combined, their arguments
 may not be evaluated in left to right order: the printed intersection may
-be before or after the call to intersect.</div>
+be before or after the call to intersect.
+</div>
 
 #### Example Output
 
@@ -1954,7 +1972,7 @@ true if <a href="#SkIRect_intersectNoEmptyCheck_a">a</a> and <a href="#SkIRect_i
 
 ### Example
 
-<div><fiddle-embed name="2b3e26ccba1cba3d961645f0824621ac">
+<div><fiddle-embed name="d35fbc9fdea71df8b8a12fd3da50d11c">
 
 #### Example Output
 
@@ -2005,7 +2023,8 @@ true if construction and <a href="#IRect">IRect</a> have area in common
 
 <div><fiddle-embed name="4e6f580a3906c08a5faee524f7e72334"><div>Two <a href="undocumented#SkDebugf">SkDebugf</a> calls are required. If the calls are combined, their arguments
 may not be evaluated in left to right order: the printed intersection may
-be before or after the call to intersect.</div>
+be before or after the call to intersect.
+</div>
 
 #### Example Output
 

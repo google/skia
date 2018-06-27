@@ -8,19 +8,21 @@
 #define SkGlyphCache_DEFINED
 
 #include "SkArenaAlloc.h"
-#include "SkBitmap.h"
 #include "SkDescriptor.h"
 #include "SkGlyph.h"
+#include "SkGlyphCache_Globals.h"
 #include "SkPaint.h"
 #include "SkTHash.h"
 #include "SkScalerContext.h"
 #include "SkTemplates.h"
-#include "SkTDArray.h"
 #include <memory>
 
 class SkTraceMemoryDump;
 
-class SkGlyphCache_Globals;
+class SkGlyphCache;
+using SkExclusiveStrikePtr = std::unique_ptr<
+    SkGlyphCache,
+    SkFunctionWrapper<void, SkGlyphCache, SkGlyphCache_Globals::AttachCache>>;
 
 /** \class SkGlyphCache
 
@@ -30,10 +32,24 @@ class SkGlyphCache_Globals;
     it and then adding it to the strike.
 
     The strikes are held in a global list, available to all threads. To interact with one, call
-    either VisitCache() or DetachCache().
+    either Find{OrCreate}Exclusive().
+
+    The Find*Exclusive() method returns SkExclusiveStrikePtr, which releases exclusive ownership
+    when they go out of scope.
 */
 class SkGlyphCache {
 public:
+    /** Return true if glyph is cached. */
+    bool isGlyphCached(SkGlyphID glyphID, SkFixed x, SkFixed y) const;
+
+    /**  Return a glyph that has no information if it is not already filled out. */
+    SkGlyph* getRawGlyphByID(SkPackedGlyphID);
+
+    /** Return the Strike's SkArenaAlloc. */
+    SkArenaAlloc* getAlloc() {
+        return &fAlloc;
+    }
+
     /** Returns a glyph with valid fAdvance and fDevKern fields. The remaining fields may be
         valid, but that is not guaranteed. If you require those, call getUnicharMetrics or
         getGlyphIDMetrics instead.
@@ -110,38 +126,35 @@ public:
 
     void dump() const;
 
+    static std::unique_ptr<SkScalerContext> CreateScalerContext(
+            const SkDescriptor& desc,
+            const SkScalerContextEffects& effects,
+            const SkTypeface& typeface);
+
     SkScalerContext* getScalerContext() const { return fScalerContext.get(); }
 
-    /** Find a matching cache entry, and call proc() with it. If none is found create a new one.
-        If the proc() returns true, detach the cache and return it, otherwise leave it and return
-        nullptr.
-    */
-    static SkGlyphCache* VisitCache(SkTypeface*, const SkScalerContextEffects&, const SkDescriptor*,
-                                    bool (*proc)(const SkGlyphCache*, void*),
-                                    void* context);
+    static SkExclusiveStrikePtr FindStrikeExclusive(const SkDescriptor& desc);
 
-    /** Given a strike that was returned by either VisitCache() or DetachCache() add it back into
-        the global cache list (after which the caller should not reference it anymore.
-    */
-    static void AttachCache(SkGlyphCache*);
-    using AttachCacheFunctor = SkFunctionWrapper<void, SkGlyphCache, AttachCache>;
+    static SkExclusiveStrikePtr FindOrCreateStrikeExclusive(
+        const SkDescriptor& desc,
+        const SkScalerContextEffects& effects,
+        const SkTypeface& typeface);
 
-    /** Detach a strike from the global cache matching the specified descriptor. Once detached,
-        it can be queried/modified by the current thread, and when finished, be reattached to the
-        global cache with AttachCache(). While detached, if another request is made with the same
-        descriptor, a different strike will be generated. This is fine. It does mean we can have
-        more than 1 strike for the same descriptor, but that will eventually get purged, and the
-        win is that different thread will never block each other while a strike is being used.
-    */
-    static SkGlyphCache* DetachCache(SkTypeface* typeface, const SkScalerContextEffects& effects,
-                                     const SkDescriptor* desc) {
-        return VisitCache(typeface, effects, desc, DetachProc, nullptr);
+    static SkExclusiveStrikePtr FindOrCreateStrikeExclusive(
+        const SkPaint& paint,
+        const SkSurfaceProps* surfaceProps,
+        SkScalerContextFlags scalerContextFlags,
+        const SkMatrix* deviceMatrix);
+
+    static SkExclusiveStrikePtr FindOrCreateStrikeExclusive(const SkPaint& paint) {
+        return FindOrCreateStrikeExclusive(
+                paint, nullptr, SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
     }
 
-    static SkGlyphCache* DetachCacheUsingPaint(const SkPaint& paint,
-                                               const SkSurfaceProps* surfaceProps,
-                                               SkScalerContextFlags scalerContextFlags,
-                                               const SkMatrix* deviceMatrix);
+    static SkExclusiveStrikePtr CreateStrikeExclusive(
+        const SkDescriptor& desc,
+        std::unique_ptr<SkScalerContext> scaler,
+        SkPaint::FontMetrics* maybeMetrics = nullptr);
 
     static void Dump();
 
@@ -150,8 +163,7 @@ public:
     */
     static void DumpMemoryStatistics(SkTraceMemoryDump* dump);
 
-    typedef void (*Visitor)(const SkGlyphCache&, void* context);
-    static void VisitAll(Visitor, void* context);
+    static void ForEachStrike(std::function<void(const SkGlyphCache&)> visitor);
 
 #ifdef SK_DEBUG
     void validate() const;
@@ -182,14 +194,15 @@ private:
     friend class SkGlyphCache_Globals;
 
     enum MetricsType {
+        kNothing_MetricsType,
         kJustAdvance_MetricsType,
         kFull_MetricsType
     };
 
     enum {
-        kHashBits           = 8,
-        kHashCount          = 1 << kHashBits,
-        kHashMask           = kHashCount - 1
+        kHashBits  = 8,
+        kHashCount = 1 << kHashBits,
+        kHashMask  = kHashCount - 1
     };
 
     struct CharGlyphRec {
@@ -197,7 +210,8 @@ private:
         SkPackedGlyphID fPackedGlyphID;
     };
 
-    SkGlyphCache(const SkDescriptor*, std::unique_ptr<SkScalerContext>);
+    SkGlyphCache(const SkDescriptor& desc, std::unique_ptr<SkScalerContext> scaler,
+                 const SkPaint::FontMetrics&);
     ~SkGlyphCache();
 
     // Return the SkGlyph* associated with MakeID. The id parameter is the
@@ -211,8 +225,6 @@ private:
     // Return a new SkGlyph for the glyph ID and subpixel position id. Limit the amount
     // of work using type.
     SkGlyph* allocateNewGlyph(SkPackedGlyphID packedGlyphID, MetricsType type);
-
-    static bool DetachProc(const SkGlyphCache*, void*) { return true; }
 
     // The id arg is a combined id generated by MakeID.
     CharGlyphRec* getCharGlyphRec(SkPackedUnicharID id);
@@ -231,8 +243,8 @@ private:
     static const SkGlyph::Intercept* MatchBounds(const SkGlyph* glyph,
                                                  const SkScalar bounds[2]);
 
-    SkGlyphCache*          fNext;
-    SkGlyphCache*          fPrev;
+    SkGlyphCache*          fNext{nullptr};
+    SkGlyphCache*          fPrev{nullptr};
     const std::unique_ptr<SkDescriptor> fDesc;
     const std::unique_ptr<SkScalerContext> fScalerContext;
     SkPaint::FontMetrics   fFontMetrics;
@@ -253,45 +265,19 @@ private:
     size_t                  fMemoryUsed;
 };
 
-class SkAutoGlyphCache : public std::unique_ptr<SkGlyphCache, SkGlyphCache::AttachCacheFunctor> {
-public:
-    /** deprecated: use get() */
-    SkGlyphCache* getCache() const { return this->get(); }
-    SkAutoGlyphCache() = default;
-    SkAutoGlyphCache(SkGlyphCache* cache) : INHERITED(cache) {}
-    SkAutoGlyphCache(SkTypeface* typeface, const SkScalerContextEffects& effects,
-                     const SkDescriptor* desc)
-        : INHERITED(SkGlyphCache::DetachCache(typeface, effects, desc))
-    {}
-    /** deprecated: always enables fake gamma */
-    SkAutoGlyphCache(const SkPaint& paint,
-                     const SkSurfaceProps* surfaceProps,
-                     const SkMatrix* matrix)
-        : INHERITED(
-        SkGlyphCache::DetachCacheUsingPaint(
-            paint, surfaceProps,
-            SkScalerContextFlags::kFakeGammaAndBoostContrast, matrix))
-    {}
-    SkAutoGlyphCache(const SkPaint& paint,
-                     const SkSurfaceProps* surfaceProps,
-                     SkScalerContextFlags scalerContextFlags,
-                     const SkMatrix* matrix)
-        : INHERITED(
-            SkGlyphCache::DetachCacheUsingPaint(paint, surfaceProps, scalerContextFlags, matrix))
-    {}
-private:
-    using INHERITED = std::unique_ptr<SkGlyphCache, SkGlyphCache::AttachCacheFunctor>;
-};
-
-class SkAutoGlyphCacheNoGamma : public SkAutoGlyphCache {
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+class SkAutoGlyphCacheNoGamma : public SkExclusiveStrikePtr {
 public:
     SkAutoGlyphCacheNoGamma(const SkPaint& paint,
                             const SkSurfaceProps* surfaceProps,
                             const SkMatrix* matrix)
-        : SkAutoGlyphCache(paint, surfaceProps, SkScalerContextFlags::kNone, matrix)
-    {}
+        : INHERITED(SkGlyphCache::FindOrCreateStrikeExclusive(
+            paint, surfaceProps, SkScalerContextFlags::kNone, matrix)) {}
+
+private:
+    using INHERITED = SkExclusiveStrikePtr;
 };
-#define SkAutoGlyphCache(...) SK_REQUIRE_LOCAL_VAR(SkAutoGlyphCache)
 #define SkAutoGlyphCacheNoGamma(...) SK_REQUIRE_LOCAL_VAR(SkAutoGlyphCacheNoGamma)
+#endif
 
 #endif

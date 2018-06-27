@@ -34,7 +34,7 @@ public:
     // foo(5, 7) when compiled on GCC and foo(7, 5) when compiled on Clang.
     // By requiring params to be passed in, we avoid the temptation to call
     // next() in a way that does not consume fuzzed bytes in a single
-    // uplatform-independent order.
+    // platform-independent order.
     template <typename T>
     void next(T* t);
 
@@ -62,6 +62,7 @@ private:
 
     sk_sp<SkData> fBytes;
     size_t fNextByte;
+    friend void fuzz__MakeEncoderCorpus(Fuzz*);
 };
 
 // UBSAN reminds us that bool can only legally hold 0 or 1.

@@ -289,7 +289,6 @@ void SkAnimatedImage::onDraw(SkCanvas* canvas) {
         SkAutoCanvasRestore acr(canvas, fPostProcess);
         canvas->concat(fMatrix);
         SkPaint paint;
-        paint.setBlendMode(SkBlendMode::kSrc);
         paint.setFilterQuality(kLow_SkFilterQuality);
         canvas->drawBitmap(fActiveFrame.fBitmap, 0, 0, &paint);
     }

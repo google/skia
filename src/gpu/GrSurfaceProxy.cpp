@@ -15,6 +15,7 @@
 #include "GrOpList.h"
 #include "GrProxyProvider.h"
 #include "GrSurfaceContext.h"
+#include "GrSurfacePriv.h"
 #include "GrTexturePriv.h"
 #include "GrTextureRenderTargetProxy.h"
 
@@ -22,6 +23,9 @@
 #include "SkMipMap.h"
 
 #ifdef SK_DEBUG
+#include "GrRenderTarget.h"
+#include "GrRenderTargetPriv.h"
+
 static bool is_valid_fully_lazy(const GrSurfaceDesc& desc, SkBackingFit fit) {
     return desc.fWidth <= 0 &&
            desc.fHeight <= 0 &&
@@ -45,15 +49,15 @@ static bool is_valid_non_lazy(const GrSurfaceDesc& desc) {
 
 // Lazy-callback version
 GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyInstantiationType lazyType,
-                               const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted,
-                               uint32_t flags)
+                               const GrSurfaceDesc& desc, GrSurfaceOrigin origin, SkBackingFit fit,
+                               SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags)
         : fConfig(desc.fConfig)
         , fWidth(desc.fWidth)
         , fHeight(desc.fHeight)
-        , fOrigin(desc.fOrigin)
+        , fOrigin(origin)
         , fFit(fit)
         , fBudgeted(budgeted)
-        , fFlags(flags)
+        , fSurfaceFlags(surfaceFlags)
         , fLazyInstantiateCallback(std::move(callback))
         , fLazyInstantiationType(lazyType)
         , fNeedsClear(SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag))
@@ -76,7 +80,7 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin,
         , fOrigin(origin)
         , fFit(fit)
         , fBudgeted(fTarget->resourcePriv().isBudgeted())
-        , fFlags(0)
+        , fSurfaceFlags(fTarget->surfacePriv().flags())
         , fUniqueID(fTarget->uniqueID())  // Note: converting from unique resource ID to a proxy ID!
         , fNeedsClear(false)
         , fGpuMemorySize(kInvalidGpuMemorySize)
@@ -114,19 +118,23 @@ bool GrSurfaceProxyPriv::AttachStencilIfNeeded(GrResourceProvider* resourceProvi
 sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
                                                 GrResourceProvider* resourceProvider,
                                                 int sampleCnt, bool needsStencil,
-                                                GrSurfaceFlags flags, GrMipMapped mipMapped) const {
+                                                GrSurfaceDescFlags descFlags, GrMipMapped mipMapped) const {
     SkASSERT(GrSurfaceProxy::LazyState::kNot == this->lazyInstantiationState());
     SkASSERT(!fTarget);
     GrSurfaceDesc desc;
-    desc.fFlags = flags;
+    desc.fFlags = descFlags;
     if (fNeedsClear) {
         desc.fFlags |= kPerformInitialClear_GrSurfaceFlag;
     }
-    desc.fOrigin = fOrigin;
     desc.fWidth = fWidth;
     desc.fHeight = fHeight;
     desc.fConfig = fConfig;
     desc.fSampleCnt = sampleCnt;
+
+    GrResourceProvider::Flags resourceProviderFlags = GrResourceProvider::kNone_Flag;
+    if (fSurfaceFlags & GrInternalSurfaceFlags::kNoPendingIO) {
+        resourceProviderFlags = GrResourceProvider::kNoPendingIO_Flag;
+    }
 
     sk_sp<GrSurface> surface;
     if (GrMipMapped::kYes == mipMapped) {
@@ -153,9 +161,9 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
         }
     } else {
         if (SkBackingFit::kApprox == fFit) {
-            surface = resourceProvider->createApproxTexture(desc, fFlags);
+            surface = resourceProvider->createApproxTexture(desc, resourceProviderFlags);
         } else {
-            surface = resourceProvider->createTexture(desc, fBudgeted, fFlags);
+            surface = resourceProvider->createTexture(desc, fBudgeted, resourceProviderFlags);
         }
     }
     if (!surface) {
@@ -171,10 +179,25 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
 
 void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
     SkASSERT(!fTarget && surface);
+
+    // Check that our a priori computation matched the ultimate reality
+    // DDL TODO: re-enable this after skbug.com/7748 (Add FBO-0-ness to SkSurfaceCharacterization)
+    // is fixed.
+//    SkASSERT((fSurfaceFlags & ~GrInternalSurfaceFlags::kNoPendingIO) ==
+//             surface->surfacePriv().flags());
+
     fTarget = surface.release();
+
     this->INHERITED::transferRefs();
 
 #ifdef SK_DEBUG
+    if (this->asRenderTargetProxy()) {
+        SkASSERT(fTarget->asRenderTarget());
+        if (this->asRenderTargetProxy()->needsStencil()) {
+           SkASSERT(fTarget->asRenderTarget()->renderTargetPriv().getStencilAttachment());
+        }
+    }
+
     if (kInvalidGpuMemorySize != this->getRawGpuMemorySize_debugOnly()) {
         SkASSERT(fTarget->gpuMemorySize() <= this->getRawGpuMemorySize_debugOnly());
     }
@@ -182,8 +205,8 @@ void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
 }
 
 bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
-                                     bool needsStencil, GrSurfaceFlags flags, GrMipMapped mipMapped,
-                                     const GrUniqueKey* uniqueKey) {
+                                     bool needsStencil, GrSurfaceDescFlags descFlags,
+                                     GrMipMapped mipMapped, const GrUniqueKey* uniqueKey) {
     SkASSERT(LazyState::kNot == this->lazyInstantiationState());
     if (fTarget) {
         if (uniqueKey) {
@@ -193,7 +216,7 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
     }
 
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, sampleCnt, needsStencil,
-                                                       flags, mipMapped);
+                                                       descFlags, mipMapped);
     if (!surface) {
         return false;
     }
@@ -205,8 +228,16 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
     }
 
     this->assign(std::move(surface));
+
     return true;
 }
+
+void GrSurfaceProxy::deInstantiate() {
+    SkASSERT(this->priv().isInstantiated());
+
+    this->release();
+}
+
 
 void GrSurfaceProxy::computeScratchKey(GrScratchKey* key) const {
     SkASSERT(LazyState::kFully != this->lazyInstantiationState());
@@ -293,7 +324,6 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context,
     }
 
     GrSurfaceDesc dstDesc;
-    dstDesc.fOrigin = src->origin();
     dstDesc.fWidth = srcRect.width();
     dstDesc.fHeight = srcRect.height();
     dstDesc.fConfig = src->config();
@@ -308,7 +338,8 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context,
         colorSpace = SkColorSpace::MakeSRGB();
     }
     sk_sp<GrSurfaceContext> dstContext(context->contextPriv().makeDeferredSurfaceContext(
-            dstDesc, mipMapped, SkBackingFit::kExact, budgeted, std::move(colorSpace)));
+            dstDesc, src->origin(), mipMapped, SkBackingFit::kExact, budgeted,
+            std::move(colorSpace)));
     if (!dstContext) {
         return nullptr;
     }
@@ -327,13 +358,10 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context, GrSurfaceProxy* s
 }
 
 sk_sp<GrSurfaceContext> GrSurfaceProxy::TestCopy(GrContext* context, const GrSurfaceDesc& dstDesc,
-                                                 GrSurfaceProxy* srcProxy) {
+                                                 GrSurfaceOrigin origin, GrSurfaceProxy* srcProxy) {
     SkASSERT(LazyState::kFully != srcProxy->lazyInstantiationState());
     sk_sp<GrSurfaceContext> dstContext(context->contextPriv().makeDeferredSurfaceContext(
-                                                                            dstDesc,
-                                                                            GrMipMapped::kNo,
-                                                                            SkBackingFit::kExact,
-                                                                            SkBudgeted::kYes));
+            dstDesc, origin, GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kYes));
     if (!dstContext) {
         return nullptr;
     }
@@ -389,6 +417,12 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
 
     fProxy->fWidth = surface->width();
     fProxy->fHeight = surface->height();
+
+    bool needsStencil = fProxy->asRenderTargetProxy()
+                                        ? fProxy->asRenderTargetProxy()->needsStencil()
+                                        : false;
+
+    GrSurfaceProxyPriv::AttachStencilIfNeeded(resourceProvider, surface.get(), needsStencil);
 
     SkASSERT(surface->config() == fProxy->fConfig);
     SkDEBUGCODE(fProxy->validateLazySurface(surface.get());)

@@ -4,12 +4,27 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+#include "SkBitmap.h"
+#include "SkBlendMode.h"
+#include "SkCanvas.h"
+#include "SkColor.h"
+#include "SkFontStyle.h"
+#include "SkGradientShader.h"
+#include "SkImageInfo.h"
+#include "SkMatrix.h"
+#include "SkPaint.h"
+#include "SkRect.h"
+#include "SkRefCnt.h"
+#include "SkScalar.h"
+#include "SkShader.h"
+#include "SkSize.h"
+#include "SkString.h"
+#include "SkTypeface.h"
+#include "SkTypes.h"
+#include "SkUtils.h"
 #include "gm.h"
 #include "sk_tool_utils.h"
-#include "SkBitmap.h"
-#include "SkGradientShader.h"
-#include "SkShader.h"
-#include "SkUtils.h"
 
 namespace skiagm {
 

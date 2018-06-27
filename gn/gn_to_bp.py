@@ -107,11 +107,9 @@ cc_defaults {
     name: "skia_pgo",
     pgo: {
         instrumentation: true,
-        profile_file: "skia/skia.profdata",
+        profile_file: "hwui/hwui.profdata",
         benchmarks: ["hwui", "skia"],
-        // Bugs: http://b/73127367, http://b/73257154, http://b/73249590
-        // Turn off PGO for Skia until toolchain bug is fixed.
-        enable_profile_use: false,
+        enable_profile_use: true,
     },
 }
 
@@ -289,7 +287,8 @@ with open('Android.bp', 'w') as f:
                                defs['ssse3'] +
                                defs['sse41'] +
                                defs['sse42'] +
-                               defs['avx'  ]),
+                               defs['avx'  ] +
+                               defs['hsw'  ]),
 
     'dm_includes'       : bpfmt(8, dm_includes),
     'dm_srcs'           : bpfmt(8, dm_srcs),

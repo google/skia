@@ -70,6 +70,9 @@ public:
     SkImageInfo onImageInfo() const override {
         return fInfo;
     }
+    SkColorType onColorType() const override {
+        return kUnknown_SkColorType;
+    }
     SkAlphaType onAlphaType() const override {
         return fInfo.alphaType();
     }
@@ -676,7 +679,7 @@ void SkImage_Lazy::makeCacheKeyFromOrigKey(const GrUniqueKey& origKey, CachedFor
     SkASSERT(!cacheKey->isValid());
     if (origKey.isValid()) {
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-        GrUniqueKey::Builder builder(cacheKey, origKey, kDomain, 1);
+        GrUniqueKey::Builder builder(cacheKey, origKey, kDomain, 1, "Image");
         builder[0] = format;
     }
 }

@@ -9,6 +9,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -64,7 +65,7 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get downloaded SKP VERSION"
+    "name": "Get skp VERSION"
   },
   {
     "cmd": [
@@ -89,6 +90,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -108,6 +110,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -126,6 +129,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -144,6 +148,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -196,6 +201,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -216,7 +222,7 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get downloaded skimage VERSION"
+    "name": "Get skimage VERSION"
   },
   {
     "cmd": [
@@ -241,6 +247,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -260,6 +267,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -278,6 +286,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -296,6 +305,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -348,6 +358,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -368,7 +379,7 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get downloaded SVG VERSION"
+    "name": "Get svg VERSION"
   },
   {
     "cmd": [
@@ -393,6 +404,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -412,6 +424,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -430,6 +443,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -448,6 +462,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -500,6 +515,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -518,6 +534,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -536,6 +553,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -617,6 +635,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -662,6 +681,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -678,7 +698,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set -x; /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/dm --colorImages /sdcard/revenge_of_the_skiabot/images/colorspace --nameByHash --properties gitHash abc123 builder Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-All-Android buildbucket_build_id 123454321 swarming_bot_id \"\" swarming_task_id \"\" --svgs /sdcard/revenge_of_the_skiabot/svgs --key arch arm compiler Clang configuration Debug cpu_or_gpu GPU cpu_or_gpu_value Tegra3 extra_config Android model Nexus7 os Android --uninterestingHashesFile /sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt --writePath /sdcard/revenge_of_the_skiabot/dm_out --dont_write pdf --nocpu --config gles glesdft --src tests gm image colorImage svg --blacklist _ svg _ svgparse_ _ test _ GrShape _ test _ WritePixelsNonTexture_Gpu _ test _ WritePixelsNonTextureMSAA_Gpu _ test _ WritePixels_Gpu _ test _ WritePixelsMSAA_Gpu _ test _ GrSurfaceRenderability _ test _ ES2BlendWithNoTexture _ image _ interlaced1.png _ image _ interlaced2.png _ image _ interlaced3.png _ image _ .arw _ image _ .cr2 _ image _ .dng _ image _ .nef _ image _ .nrw _ image _ .orf _ image _ .raf _ image _ .rw2 _ image _ .pef _ image _ .srw _ image _ .ARW _ image _ .CR2 _ image _ .DNG _ image _ .NEF _ image _ .NRW _ image _ .ORF _ image _ .RAF _ image _ .RW2 _ image _ .PEF _ image _ .SRW --nonativeFonts --verbose; echo $? >/data/local/tmp/rc",
+      "set -x; /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/dm --colorImages /sdcard/revenge_of_the_skiabot/images/colorspace --nameByHash --properties gitHash abc123 builder Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-All-Android buildbucket_build_id 123454321 swarming_bot_id \"\" swarming_task_id \"\" --svgs /sdcard/revenge_of_the_skiabot/svgs --key arch arm compiler Clang configuration Debug cpu_or_gpu GPU cpu_or_gpu_value Tegra3 extra_config Android model Nexus7 os Android --uninterestingHashesFile /sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt --writePath /sdcard/revenge_of_the_skiabot/dm_out --dont_write pdf --nocpu --config gles glesdft --src tests gm image colorImage svg --blacklist _ svg _ svgparse_ _ test _ GrShape _ test _ WritePixelsNonTexture_Gpu _ test _ WritePixelsNonTextureMSAA_Gpu _ test _ WritePixels_Gpu _ test _ WritePixelsMSAA_Gpu _ test _ GrSurfaceRenderability _ test _ ES2BlendWithNoTexture _ image _ interlaced1.png _ image _ interlaced2.png _ image _ interlaced3.png _ image _ .arw _ image _ .cr2 _ image _ .dng _ image _ .nef _ image _ .nrw _ image _ .orf _ image _ .raf _ image _ .rw2 _ image _ .pef _ image _ .srw _ image _ .ARW _ image _ .CR2 _ image _ .DNG _ image _ .NEF _ image _ .NRW _ image _ .ORF _ image _ .RAF _ image _ .RW2 _ image _ .PEF _ image _ .SRW --match ~skbug6653 --nonativeFonts --verbose; echo $? >/data/local/tmp/rc",
       "[START_DIR]/tmp/dm.sh"
     ],
     "env": {
@@ -699,6 +719,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -715,6 +736,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -763,6 +785,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -813,6 +836,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",

@@ -551,7 +551,7 @@ protected:
     void generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;
-    void generatePath(SkGlyphID glyph, SkPath* path) override;
+    bool generatePath(SkGlyphID glyph, SkPath* path) override;
     void generateFontMetrics(SkPaint::FontMetrics*) override;
 
 private:
@@ -829,6 +829,13 @@ uint16_t SkScalerContext_GDI::generateCharToGlyph(SkUnichar utf32) {
         int numItems;
         HRZM(ScriptItemize(utf16, numWCHAR, maxItems, &sc, nullptr, si, &numItems),
              "Could not itemize character.");
+
+        // Disable any attempt at shaping.
+        // Without this ScriptShape may return 0x80040200 (USP_E_SCRIPT_NOT_IN_FONT)
+        // when all that is desired here is a simple cmap lookup.
+        for (SCRIPT_ITEM& item : si) {
+            item.a.eScript = SCRIPT_UNDEFINED;
+        }
 
         // Sometimes ScriptShape cannot find a glyph for a non-BMP and returns 2 space glyphs.
         static const int maxGlyphs = 2;
@@ -1607,7 +1614,7 @@ DWORD SkScalerContext_GDI::getGDIGlyphPath(SkGlyphID glyph, UINT flags,
     return total_size;
 }
 
-void SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
+bool SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
     SkASSERT(path);
     SkASSERT(fDDC);
 
@@ -1629,7 +1636,7 @@ void SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
     SkAutoSTMalloc<BUFFERSIZE, uint8_t> glyphbuf(BUFFERSIZE);
     DWORD total_size = getGDIGlyphPath(glyph, format, &glyphbuf);
     if (0 == total_size) {
-        return;
+        return false;
     }
 
     if (fRec.getHinting() != SkPaint::kSlight_Hinting) {
@@ -1641,7 +1648,7 @@ void SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
         SkAutoSTMalloc<BUFFERSIZE, uint8_t> hintedGlyphbuf(BUFFERSIZE);
         DWORD hinted_total_size = getGDIGlyphPath(glyph, format, &hintedGlyphbuf);
         if (0 == hinted_total_size) {
-            return;
+            return false;
         }
 
         if (!sk_path_from_gdi_paths(path, glyphbuf, total_size,
@@ -1651,6 +1658,7 @@ void SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
             sk_path_from_gdi_path(path, glyphbuf, total_size);
         }
     }
+    return true;
 }
 
 static void logfont_for_name(const char* familyName, LOGFONT* lf) {

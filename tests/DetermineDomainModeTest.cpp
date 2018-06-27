@@ -119,7 +119,6 @@ static sk_sp<GrTextureProxy> create_proxy(GrProxyProvider* proxyProvider,
     SkBackingFit fit = isExact ? SkBackingFit::kExact : SkBackingFit::kApprox;
 
     GrSurfaceDesc desc;
-    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = size;
     desc.fHeight = size;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -134,7 +133,7 @@ static sk_sp<GrTextureProxy> create_proxy(GrProxyProvider* proxyProvider,
               (isPowerOfTwo || isExact) ? RectInfo::kHard : RectInfo::kBad,
               name);
 
-    return proxyProvider->createProxy(desc, fit, SkBudgeted::kYes);
+    return proxyProvider->createProxy(desc, kTopLeft_GrSurfaceOrigin, fit, SkBudgeted::kYes);
 }
 
 static RectInfo::EdgeType compute_inset_edgetype(RectInfo::EdgeType previous,

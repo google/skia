@@ -26,6 +26,7 @@
 #include "GrStencilSettings.h"
 #include "GrSurfacePriv.h"
 #include "GrTexturePriv.h"
+#include "GrTextureProxyPriv.h"
 #include "GrTracing.h"
 #include "SkJSONWriter.h"
 #include "SkMathPriv.h"
@@ -44,12 +45,26 @@ void GrGpu::disconnect(DisconnectType) {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrGpu::isACopyNeededForTextureParams(int width, int height,
+bool GrGpu::IsACopyNeededForTextureParams(const GrCaps* caps, GrTextureProxy* texProxy,
+                                          int width, int height,
                                           const GrSamplerState& textureParams,
                                           GrTextureProducer::CopyParams* copyParams,
-                                          SkScalar scaleAdjust[2]) const {
-    const GrCaps& caps = *this->caps();
-    if (textureParams.isRepeated() && !caps.npotTextureTileSupport() &&
+                                          SkScalar scaleAdjust[2]) {
+
+    if (texProxy) {
+        // If the texture format itself doesn't support repeat wrap mode or mipmapping (and
+        // those capabilities are required) force a copy.
+        if ((textureParams.isRepeated() && texProxy->texPriv().isClampOnly()) ||
+            (GrSamplerState::Filter::kMipMap == textureParams.filter() &&
+                                                    texProxy->texPriv().doesNotSupportMipMaps())) {
+            copyParams->fFilter = GrSamplerState::Filter::kNearest;
+            copyParams->fWidth = texProxy->width();
+            copyParams->fHeight = texProxy->height();
+            return true;
+        }
+    }
+
+    if (textureParams.isRepeated() && !caps->npotTextureTileSupport() &&
         (!SkIsPow2(width) || !SkIsPow2(height))) {
         SkASSERT(scaleAdjust);
         copyParams->fWidth = GrNextPow2(width);
@@ -185,11 +200,13 @@ GrBuffer* GrGpu::createBuffer(size_t size, GrBufferType intendedType,
 
 bool GrGpu::copySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                         GrSurface* src, GrSurfaceOrigin srcOrigin,
-                        const SkIRect& srcRect, const SkIPoint& dstPoint) {
+                        const SkIRect& srcRect, const SkIPoint& dstPoint,
+                        bool canDiscardOutsideDstRect) {
     GR_CREATE_TRACE_MARKER_CONTEXT("GrGpu", "copySurface", fContext);
     SkASSERT(dst && src);
     this->handleDirtyContext();
-    return this->onCopySurface(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint);
+    return this->onCopySurface(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint,
+                               canDiscardOutsideDstRect);
 }
 
 bool GrGpu::getReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin, int width,
@@ -253,7 +270,6 @@ bool GrGpu::getReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin, 
     tempDrawInfo->fTempSurfaceDesc.fWidth = width;
     tempDrawInfo->fTempSurfaceDesc.fHeight = height;
     tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 1;
-    tempDrawInfo->fTempSurfaceDesc.fOrigin = kTopLeft_GrSurfaceOrigin;  // no CPU y-flip for TL.
     tempDrawInfo->fTempSurfaceDesc.fConfig = tempSurfaceConfig;
     tempDrawInfo->fTempSurfaceFit = SkBackingFit::kApprox;
     tempDrawInfo->fSwizzle = GrSwizzle::RGBA();
@@ -334,7 +350,6 @@ bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
     tempDrawInfo->fTempSurfaceDesc.fWidth = width;
     tempDrawInfo->fTempSurfaceDesc.fHeight = height;
     tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 1;
-    tempDrawInfo->fTempSurfaceDesc.fOrigin = kTopLeft_GrSurfaceOrigin;  // no CPU y-flip for TL.
     tempDrawInfo->fSwizzle = GrSwizzle::RGBA();
     tempDrawInfo->fWriteColorType = srcColorType;
 

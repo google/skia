@@ -299,7 +299,6 @@ std::unique_ptr<GrFragmentProcessor> SkColorMatrixFilterRowMajor255::asFragmentP
 
 #endif
 
-#ifndef SK_IGNORE_TO_STRING
 void SkColorMatrixFilterRowMajor255::toString(SkString* str) const {
     str->append("SkColorMatrixFilterRowMajor255: ");
 
@@ -312,7 +311,6 @@ void SkColorMatrixFilterRowMajor255::toString(SkString* str) const {
     }
     str->append(")");
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

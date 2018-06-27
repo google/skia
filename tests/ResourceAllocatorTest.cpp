@@ -20,6 +20,7 @@
 #include "GrTest.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
+#include "GrUninstantiateProxyTracker.h"
 
 struct ProxyParams {
     int             fSize;
@@ -34,13 +35,12 @@ struct ProxyParams {
 static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const ProxyParams& p) {
     GrSurfaceDesc desc;
     desc.fFlags = p.fIsRT ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
-    desc.fOrigin = p.fOrigin;
     desc.fWidth  = p.fSize;
     desc.fHeight = p.fSize;
     desc.fConfig = p.fConfig;
     desc.fSampleCnt = p.fSampleCnt;
 
-    return proxyProvider->createProxy(desc, p.fFit, SkBudgeted::kNo);
+    return proxyProvider->createProxy(desc, p.fOrigin, p.fFit, SkBudgeted::kNo);
 }
 
 static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams& p,
@@ -52,10 +52,10 @@ static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams&
                                                        p.fConfig, false,
                                                        GrMipMapped::kNo);
 
-    return proxyProvider->createWrappedTextureProxy(*backendTex, p.fOrigin);
+    return proxyProvider->wrapBackendTexture(*backendTex, p.fOrigin);
 }
 
-static void cleanup_backend(GrContext* context, GrBackendTexture* backendTex) {
+static void cleanup_backend(GrContext* context, const GrBackendTexture& backendTex) {
     context->contextPriv().getGpu()->deleteTestingOnlyBackendTexture(backendTex);
 }
 
@@ -72,7 +72,8 @@ static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resou
 
     int startIndex, stopIndex;
     GrResourceAllocator::AssignError error;
-    alloc.assign(&startIndex, &stopIndex, &error);
+    GrUninstantiateProxyTracker uninstantiateTracker;
+    alloc.assign(&startIndex, &stopIndex, &uninstantiateTracker, &error);
     REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
 
     REPORTER_ASSERT(reporter, p1->priv().peekSurface());
@@ -94,7 +95,8 @@ static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* r
 
     int startIndex, stopIndex;
     GrResourceAllocator::AssignError error;
-    alloc.assign(&startIndex, &stopIndex, &error);
+    GrUninstantiateProxyTracker uninstantiateTracker;
+    alloc.assign(&startIndex, &stopIndex, &uninstantiateTracker, &error);
     REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
 
     REPORTER_ASSERT(reporter, p1->priv().peekSurface());
@@ -208,7 +210,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
         sk_sp<GrSurfaceProxy> p2 = make_deferred(proxyProvider, t[0].fP2);
         non_overlap_test(reporter, resourceProvider,
                          std::move(p1), std::move(p2), t[0].fExpectation);
-        cleanup_backend(ctxInfo.grContext(), &backEndTex);
+        cleanup_backend(ctxInfo.grContext(), backEndTex);
     }
 
     resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(orig);

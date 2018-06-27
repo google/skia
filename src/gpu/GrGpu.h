@@ -28,7 +28,6 @@ struct GrContextOptions;
 class GrGLContext;
 class GrMesh;
 class GrPath;
-class GrPathRange;
 class GrPathRenderer;
 class GrPathRendererChain;
 class GrPathRendering;
@@ -44,15 +43,6 @@ class SkJSONWriter;
 
 class GrGpu : public SkRefCnt {
 public:
-    /**
-     * Create an instance of GrGpu that matches the specified backend. If the requested backend is
-     * not supported (at compile-time or run-time) this returns nullptr. The context will not be
-     * fully constructed and should not be used by GrGpu until after this function returns.
-     */
-    static sk_sp<GrGpu> Make(GrBackend, GrBackendContext, const GrContextOptions&, GrContext*);
-
-    ////////////////////////////////////////////////////////////////////////////
-
     GrGpu(GrContext* context);
     ~GrGpu() override;
 
@@ -93,18 +83,18 @@ public:
      * pixel configs can be used as render targets. Support for configs as textures
      * or render targets can be checked using GrCaps.
      *
-     * @param desc        describes the texture to be created.
-     * @param budgeted    does this texture count against the resource cache budget?
-     * @param texels      array of mipmap levels containing texel data to load.
-     *                    Each level begins with full-size palette data for paletted textures.
-     *                    It contains width*height texels. If there is only one
-     *                    element and it contains nullptr fPixels, texture data is
-     *                    uninitialized.
-     * @param mipLevelCount the number of levels in 'texels'
-     * @return    The texture object if successful, otherwise nullptr.
+     * @param desc           describes the texture to be created.
+     * @param budgeted       does this texture count against the resource cache budget?
+     * @param texels         array of mipmap levels containing texel data to load.
+     *                       Each level begins with full-size palette data for paletted textures.
+     *                       It contains width*height texels. If there is only one
+     *                       element and it contains nullptr fPixels, texture data is
+     *                       uninitialized.
+     * @param mipLevelCount  the number of levels in 'texels'
+     * @return  The texture object if successful, otherwise nullptr.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted,
-                                   const GrMipLevel texels[], int mipLevelCount);
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, const GrMipLevel texels[],
+                                   int mipLevelCount);
 
     /**
      * Simplified createTexture() interface for when there is no initial texel data to upload.
@@ -272,6 +262,15 @@ public:
      */
     bool readPixels(GrSurface* surface, GrSurfaceOrigin, int left, int top, int width, int height,
                     GrColorType dstColorType, void* buffer, size_t rowBytes);
+    /**
+     * This version of readPixels doesn't take an origin. TODO: Remove origin handling from
+     * GrGpu::readPixels entirely.
+     */
+    bool readPixels(GrSurface* surface, int left, int top, int width, int height,
+                    GrColorType dstColorType, void* buffer, size_t rowBytes) {
+        return this->readPixels(surface, kTopLeft_GrSurfaceOrigin, left, top, width, height,
+                                dstColorType, buffer, rowBytes);
+    }
 
     /**
      * Updates the pixels in a rectangle of a surface.  No sRGB/linear conversions are performed.
@@ -345,11 +344,13 @@ public:
     // Called to perform a surface to surface copy. Fallbacks to issuing a draw from the src to dst
     // take place at the GrOpList level and this function implement faster copy paths. The rect
     // and point are pre-clipped. The src rect and implied dst rect are guaranteed to be within the
-    // src/dst bounds and non-empty.
+    // src/dst bounds and non-empty. If canDiscardOutsideDstRect is set to true then we don't need
+    // to preserve any data on the dst surface outside of the copy.
     bool copySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                      GrSurface* src, GrSurfaceOrigin srcOrigin,
                      const SkIRect& srcRect,
-                     const SkIPoint& dstPoint);
+                     const SkIPoint& dstPoint,
+                     bool canDiscardOutsideDstRect = false);
 
     // Creates a GrGpuRTCommandBuffer which GrOpLists send draw commands to instead of directly
     // to the Gpu object.
@@ -448,25 +449,42 @@ public:
     Stats* stats() { return &fStats; }
     void dumpJSON(SkJSONWriter*) const;
 
+#if GR_TEST_UTILS
     /** Creates a texture directly in the backend API without wrapping it in a GrTexture. This is
         only to be used for testing (particularly for testing the methods that import an externally
         created texture into Skia. Must be matched with a call to deleteTestingOnlyTexture(). */
-    GrBackendTexture createTestingOnlyBackendTexture(void* pixels, int w, int h, SkColorType,
+    GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h, SkColorType,
                                                      bool isRenderTarget, GrMipMapped);
-
     /** Older version based on GrPixelConfig. Currently the preferred one above devolves to this. */
-    virtual GrBackendTexture createTestingOnlyBackendTexture(
-                                                      void* pixels, int w, int h,
-                                                      GrPixelConfig config,
-                                                      bool isRenderTarget,
-                                                      GrMipMapped mipMapped) = 0;
+    virtual GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h,
+                                                             GrPixelConfig config,
+                                                             bool isRenderTarget,
+                                                             GrMipMapped mipMapped) = 0;
     /** Check a handle represents an actual texture in the backend API that has not been freed. */
     virtual bool isTestingOnlyBackendTexture(const GrBackendTexture&) const = 0;
-    /** If ownership of the backend texture has been transferred pass true for abandonTexture. This
-        will do any necessary cleanup of the handle without freeing the texture in the backend
-        API. */
-    virtual void deleteTestingOnlyBackendTexture(GrBackendTexture*,
-                                                 bool abandonTexture = false) = 0;
+    /**
+     * Frees a texture created by createTestingOnlyBackendTexture(). If ownership of the backend
+     * texture has been transferred to a GrContext using adopt semantics this should not be called.
+     */
+    virtual void deleteTestingOnlyBackendTexture(const GrBackendTexture&) = 0;
+
+    virtual GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h, GrColorType,
+                                                                       GrSRGBEncoded) = 0;
+
+    virtual void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) = 0;
+
+    // This is only to be used in GL-specific tests.
+    virtual const GrGLContext* glContextForTesting() const { return nullptr; }
+
+    // This is only to be used by testing code
+    virtual void resetShaderCacheForTesting() const {}
+
+    /**
+     * Flushes all work to the gpu and forces the GPU to wait until all the gpu work has completed.
+     * This is for testing purposes only.
+     */
+    virtual void testingOnly_flushGpuAndSync() = 0;
+#endif
 
     // width and height may be larger than rt (if underlying API allows it).
     // Returns nullptr if compatible sb could not be created, otherwise the caller owns the ref on
@@ -478,31 +496,11 @@ public:
     virtual void clearStencil(GrRenderTarget* target, int clearValue) = 0;
 
     // Determines whether a texture will need to be rescaled in order to be used with the
-    // GrSamplerState. This variation is called when the caller will create a new texture using the
-    // resource provider from a non-texture src (cpu-backed image, ...).
-    bool isACopyNeededForTextureParams(int width, int height, const GrSamplerState&,
-                                       GrTextureProducer::CopyParams*,
-                                       SkScalar scaleAdjust[2]) const;
-
-    // Like the above but this variation should be called when the caller is not creating the
-    // original texture but rather was handed the original texture. It adds additional checks
-    // relevant to original textures that were created external to Skia via
-    // GrResourceProvider::wrap methods.
-    bool isACopyNeededForTextureParams(GrTextureProxy* proxy, const GrSamplerState& params,
-                                       GrTextureProducer::CopyParams* copyParams,
-                                       SkScalar scaleAdjust[2]) const {
-        if (this->isACopyNeededForTextureParams(proxy->width(), proxy->height(), params,
-                                                copyParams, scaleAdjust)) {
-            return true;
-        }
-        return this->onIsACopyNeededForTextureParams(proxy, params, copyParams, scaleAdjust);
-    }
-
-    // This is only to be used in GL-specific tests.
-    virtual const GrGLContext* glContextForTesting() const { return nullptr; }
-
-    // This is only to be used by testing code
-    virtual void resetShaderCacheForTesting() const {}
+    // GrSamplerState.
+    static bool IsACopyNeededForTextureParams(const GrCaps*, GrTextureProxy* texProxy,
+                                              int width, int height,
+                                              const GrSamplerState&, GrTextureProducer::CopyParams*,
+                                              SkScalar scaleAdjust[2]);
 
     void handleDirtyContext() {
         if (fResetBits) {
@@ -544,8 +542,7 @@ private:
     // Texture size and sample size will have already been validated in base class before
     // onCreateTexture is called.
     virtual sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&, SkBudgeted,
-                                             const GrMipLevel texels[],
-                                             int mipLevelCount) = 0;
+                                             const GrMipLevel texels[], int mipLevelCount) = 0;
 
     virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrWrapOwnership) = 0;
     virtual sk_sp<GrTexture> onWrapRenderableBackendTexture(const GrBackendTexture&,
@@ -556,12 +553,6 @@ private:
                                                                      int sampleCnt) = 0;
     virtual GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
                                      const void* data) = 0;
-
-    virtual bool onIsACopyNeededForTextureParams(GrTextureProxy* proxy, const GrSamplerState&,
-                                                 GrTextureProducer::CopyParams*,
-                                                 SkScalar scaleAdjust[2]) const {
-        return false;
-    }
 
     virtual bool onGetReadPixelsInfo(GrSurface*, GrSurfaceOrigin, int width, int height,
                                      size_t rowBytes, GrColorType, DrawPreference*,
@@ -589,7 +580,8 @@ private:
     // overridden by backend specific derived class to perform the copy surface
     virtual bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                                GrSurface* src, GrSurfaceOrigin srcOrigin,
-                               const SkIRect& srcRect, const SkIPoint& dstPoint) = 0;
+                               const SkIRect& srcRect, const SkIPoint& dstPoint,
+                               bool canDiscardOutsideDstRect) = 0;
 
     virtual void onFinishFlush(bool insertedSemaphores) = 0;
 

@@ -7,6 +7,7 @@
 
 #include "SkTextBlobRunIterator.h"
 
+#include "SkPaintPriv.h"
 #include "SkReadBuffer.h"
 #include "SkSafeMath.h"
 #include "SkTypeface.h"
@@ -26,7 +27,7 @@ public:
     RunFont(const SkPaint& paint)
         : fSize(paint.getTextSize())
         , fScaleX(paint.getTextScaleX())
-        , fTypeface(SkSafeRef(paint.getTypeface()))
+        , fTypeface(SkPaintPriv::RefTypefaceOrDefault(paint))
         , fSkewX(paint.getTextSkewX())
         , fAlign(paint.getTextAlign())
         , fHinting(paint.getHinting())
@@ -808,7 +809,7 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromBuffer(SkReadBuffer& reader) {
             return nullptr;
         }
         int textSize = pe.extended ? reader.read32() : 0;
-        if (textSize < 0) {
+        if (textSize < 0 || static_cast<size_t>(textSize) > reader.size()) {
             return nullptr;
         }
 
@@ -909,6 +910,13 @@ sk_sp<SkData> SkTextBlob::serialize(SkTypefaceCatalogerProc proc, void* ctx) con
     procs.fTypefaceProc = catalog_typeface_proc;
     procs.fTypefaceCtx  = &state;
     return this->serialize(procs);
+}
+
+size_t SkTextBlob::serialize(const SkSerialProcs& procs, void* memory, size_t memory_size) const {
+    SkBinaryWriteBuffer buffer(memory, memory_size);
+    buffer.setSerialProcs(procs);
+    this->flatten(buffer);
+    return buffer.usingInitialStorage() ? buffer.bytesWritten() : 0u;
 }
 
 namespace {

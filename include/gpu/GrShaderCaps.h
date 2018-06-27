@@ -76,6 +76,9 @@ public:
 
     bool vertexIDSupport() const { return fVertexIDSupport; }
 
+    // frexp, ldexp, etc.
+    bool fpManipulationSupport() const { return fFPManipulationSupport; }
+
     bool floatIs32Bits() const { return fFloatIs32Bits; }
 
     bool halfIs32Bits() const { return fHalfIs32Bits; }
@@ -118,6 +121,10 @@ public:
 
     // If true interpolated vertex shader outputs are inaccurate.
     bool interpolantsAreInaccurate() const { return fInterpolantsAreInaccurate; }
+
+    // If true, short ints can't represent every integer in the 16-bit two's complement range as
+    // required by the spec. SKSL will always emit full ints.
+    bool incompleteShortIntPrecision() const { return fIncompleteShortIntPrecision; }
 
     bool requiresLocalOutputColorForFBFetch() const { return fRequiresLocalOutputColorForFBFetch; }
 
@@ -246,6 +253,7 @@ private:
     bool fExternalTextureSupport : 1;
     bool fTexelFetchSupport : 1;
     bool fVertexIDSupport : 1;
+    bool fFPManipulationSupport : 1;
     bool fFloatIs32Bits : 1;
     bool fHalfIs32Bits : 1;
 
@@ -261,6 +269,7 @@ private:
     bool fMustGuardDivisionEvenAfterExplicitZeroCheck : 1;
     bool fCanUseFragCoord : 1;
     bool fInterpolantsAreInaccurate : 1;
+    bool fIncompleteShortIntPrecision : 1;
 
     const char* fVersionDeclString;
 

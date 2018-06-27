@@ -19,32 +19,32 @@
 // GrRenderTargetProxy) so its constructor must be explicitly called.
 GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
                                                        const GrSurfaceDesc& desc,
+                                                       GrSurfaceOrigin origin,
                                                        GrMipMapped mipMapped,
                                                        SkBackingFit fit,
                                                        SkBudgeted budgeted,
-                                                       uint32_t flags)
-        : GrSurfaceProxy(desc, fit, budgeted, flags)
+                                                       GrInternalSurfaceFlags surfaceFlags)
+        : GrSurfaceProxy(desc, origin, fit, budgeted, surfaceFlags)
         // for now textures w/ data are always wrapped
-        , GrTextureProxy(desc, mipMapped, fit, budgeted, nullptr, 0, flags)
-        , GrRenderTargetProxy(caps, desc, fit, budgeted, flags) {
-}
+        , GrTextureProxy(desc, origin, mipMapped, fit, budgeted, surfaceFlags)
+        , GrRenderTargetProxy(caps, desc, origin, fit, budgeted, surfaceFlags) {}
 
 // Lazy-callback version
 GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(LazyInstantiateCallback&& callback,
                                                        LazyInstantiationType lazyType,
                                                        const GrSurfaceDesc& desc,
+                                                       GrSurfaceOrigin origin,
                                                        GrMipMapped mipMapped,
                                                        SkBackingFit fit,
                                                        SkBudgeted budgeted,
-                                                       uint32_t flags,
-                                                       GrRenderTargetFlags renderTargetFlags)
-        : GrSurfaceProxy(std::move(callback), lazyType, desc, fit, budgeted, flags)
+                                                       GrInternalSurfaceFlags surfaceFlags)
+        : GrSurfaceProxy(std::move(callback), lazyType, desc, origin, fit, budgeted, surfaceFlags)
         // Since we have virtual inheritance, we initialize GrSurfaceProxy directly. Send null
         // callbacks to the texture and RT proxies simply to route to the appropriate constructors.
-        , GrTextureProxy(LazyInstantiateCallback(), lazyType, desc, mipMapped, fit, budgeted, flags)
-        , GrRenderTargetProxy(LazyInstantiateCallback(), lazyType, desc, fit, budgeted, flags,
-                              renderTargetFlags) {
-}
+        , GrTextureProxy(LazyInstantiateCallback(), lazyType, desc, origin, mipMapped, fit,
+                         budgeted, surfaceFlags)
+        , GrRenderTargetProxy(LazyInstantiateCallback(), lazyType, desc, origin, fit, budgeted,
+                              surfaceFlags) {}
 
 // Wrapped version
 // This class is virtually derived from GrSurfaceProxy (via both GrTextureProxy and
@@ -75,12 +75,12 @@ bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvide
     if (LazyState::kNot != this->lazyInstantiationState()) {
         return false;
     }
-    static constexpr GrSurfaceFlags kFlags = kRenderTarget_GrSurfaceFlag;
+    static constexpr GrSurfaceDescFlags kDescFlags = kRenderTarget_GrSurfaceFlag;
 
     const GrUniqueKey& key = this->getUniqueKey();
 
     if (!this->instantiateImpl(resourceProvider, this->numStencilSamples(), this->needsStencil(),
-                               kFlags, this->mipMapped(), key.isValid() ? &key : nullptr)) {
+                               kDescFlags, this->mipMapped(), key.isValid() ? &key : nullptr)) {
         return false;
     }
     if (key.isValid()) {
@@ -95,10 +95,10 @@ bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvide
 
 sk_sp<GrSurface> GrTextureRenderTargetProxy::createSurface(
                                                     GrResourceProvider* resourceProvider) const {
-    static constexpr GrSurfaceFlags kFlags = kRenderTarget_GrSurfaceFlag;
+    static constexpr GrSurfaceDescFlags kDescFlags = kRenderTarget_GrSurfaceFlag;
 
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, this->numStencilSamples(),
-                                                       this->needsStencil(), kFlags,
+                                                       this->needsStencil(), kDescFlags,
                                                        this->mipMapped());
     if (!surface) {
         return nullptr;

@@ -37,11 +37,9 @@ sk_sp<SkFlattenable> SkLumaColorFilter::CreateProc(SkReadBuffer&) {
 
 void SkLumaColorFilter::flatten(SkWriteBuffer&) const {}
 
-#ifndef SK_IGNORE_TO_STRING
 void SkLumaColorFilter::toString(SkString* str) const {
     str->append("SkLumaColorFilter ");
 }
-#endif
 
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkLumaColorFilter::asFragmentProcessor(

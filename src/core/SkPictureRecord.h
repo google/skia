@@ -9,6 +9,7 @@
 #define SkPictureRecord_DEFINED
 
 #include "SkCanvas.h"
+#include "SkCanvasVirtualEnforcer.h"
 #include "SkFlattenable.h"
 #include "SkPicture.h"
 #include "SkPictureData.h"
@@ -27,7 +28,7 @@
 #define PACK_8_24(small, large) ((small << 24) | large)
 
 
-class SkPictureRecord : public SkCanvas {
+class SkPictureRecord : public SkCanvasVirtualEnforcer<SkCanvas> {
 public:
     SkPictureRecord(const SkISize& dimensions, uint32_t recordFlags);
     ~SkPictureRecord() override;
@@ -262,7 +263,7 @@ private:
 
     friend class SkPictureData;   // for SkPictureData's SkPictureRecord-based constructor
 
-    typedef SkCanvas INHERITED;
+    typedef SkCanvasVirtualEnforcer<SkCanvas> INHERITED;
 };
 
 #endif

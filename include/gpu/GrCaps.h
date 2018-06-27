@@ -59,11 +59,6 @@ public:
     bool instanceAttribSupport() const { return fInstanceAttribSupport; }
     bool usesMixedSamples() const { return fUsesMixedSamples; }
 
-    // Returns whether mixed samples is supported for the given backend render target.
-    bool isMixedSamplesSupportedForRT(const GrBackendRenderTarget& rt) const {
-        return this->usesMixedSamples() && this->onIsMixedSamplesSupportedForRT(rt);
-    }
-
     // Primitive restart functionality is core in ES 3.0, but using it will cause slowdowns on some
     // systems. This cap is only set if primitive restart will improve performance.
     bool usePrimitiveRestart() const { return fUsePrimitiveRestart; }
@@ -191,7 +186,15 @@ public:
      * If this returns false then the caller should implement a fallback where a temporary texture
      * is created, pixels are written to it, and then that is copied or drawn into the the surface.
      */
-    virtual bool surfaceSupportsWritePixels(const GrSurface* surface) const = 0;
+    virtual bool surfaceSupportsWritePixels(const GrSurface*) const = 0;
+
+    /**
+     * Backends may have restrictions on what types of surfaces support GrGpu::readPixels().
+     * If this returns false then the caller should implement a fallback where a temporary texture
+     * is created, the surface is drawn or copied into the temporary, and pixels are read from the
+     * temporary.
+     */
+    virtual bool surfaceSupportsReadPixels(const GrSurface*) const = 0;
 
     /**
      * Given a dst pixel config and a src color type what color type must the caller coax the
@@ -199,6 +202,15 @@ public:
      */
     virtual GrColorType supportedWritePixelsColorType(GrPixelConfig config,
                                                       GrColorType /*srcColorType*/) const {
+        return GrPixelConfigToColorType(config);
+    }
+
+    /**
+     * Given a src pixel config and a dst color type what color type must the caller read to using
+     * GrGpu::readPixels() and then coax into dstColorType.
+     */
+    virtual GrColorType supportedReadPixelsColorType(GrPixelConfig config,
+                                                     GrColorType /*dstColorType*/) const {
         return GrPixelConfigToColorType(config);
     }
 
@@ -223,13 +235,14 @@ public:
     /**
      * This is can be called before allocating a texture to be a dst for copySurface. This is only
      * used for doing dst copies needed in blends, thus the src is always a GrRenderTargetProxy. It
-     * will populate the origin, config, and flags fields of the desc such that copySurface can
-     * efficiently succeed. rectsMustMatch will be set to true if the copy operation must ensure
-     * that the src and dest rects are identical. disallowSubrect will be set to true if copy rect
-     * must equal src's bounds.
+     * will populate config and flags fields of the desc such that copySurface can efficiently
+     * succeed as well as the proxy origin. rectsMustMatch will be set to true if the copy operation
+     * must ensure that the src and dest rects are identical. disallowSubrect will be set to true if
+     * copy rect must equal src's bounds.
      */
     virtual bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
-                                    bool* rectsMustMatch, bool* disallowSubrect) const = 0;
+                                    GrSurfaceOrigin* origin, bool* rectsMustMatch,
+                                    bool* disallowSubrect) const = 0;
 
     bool validateSurfaceDesc(const GrSurfaceDesc&, GrMipMapped) const;
 
@@ -311,11 +324,6 @@ private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {}
     virtual void onDumpJSON(SkJSONWriter*) const {}
 
-    // Backends should implement this if they have any extra requirements for use of mixed
-    // samples for a specific GrBackendRenderTarget outside of basic support.
-    virtual bool onIsMixedSamplesSupportedForRT(const GrBackendRenderTarget&) const {
-        return true;
-    }
     // Backends should implement this if they have any extra requirements for use of window
     // rectangles for a specific GrBackendRenderTarget outside of basic support.
     virtual bool onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget&) const {

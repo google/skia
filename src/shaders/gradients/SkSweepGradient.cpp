@@ -216,15 +216,8 @@ void GrSweepGradient::GLSLSweepProcessor::emitCode(EmitArgs& args) {
 std::unique_ptr<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(
         const GrFPArgs& args) const {
     SkMatrix matrix;
-    if (!this->getLocalMatrix().invert(&matrix)) {
+    if (!this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&matrix)) {
         return nullptr;
-    }
-    if (args.fLocalMatrix) {
-        SkMatrix inv;
-        if (!args.fLocalMatrix->invert(&inv)) {
-            return nullptr;
-        }
-        matrix.postConcat(inv);
     }
     matrix.postConcat(fPtsToUnit);
 
@@ -247,7 +240,6 @@ sk_sp<SkShader> SkSweepGradient::onMakeColorSpace(SkColorSpaceXformer* xformer) 
                                        fGradFlags, &this->getLocalMatrix());
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkSweepGradient::toString(SkString* str) const {
     str->append("SkSweepGradient: (");
 
@@ -269,4 +261,3 @@ void SkSweepGradient::appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline
                                              SkMatrix::MakeTrans(fTBias , 0)));
 }
 
-#endif

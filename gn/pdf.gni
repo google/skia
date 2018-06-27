@@ -8,6 +8,8 @@ _src = get_path_info("../src", "abspath")
 
 skia_pdf_sources = [
   "$_src/pdf/SkBitmapKey.h",
+  "$_src/pdf/SkClusterator.cpp",
+  "$_src/pdf/SkClusterator.h",
   "$_src/pdf/SkDeflate.cpp",
   "$_src/pdf/SkDeflate.h",
   "$_src/pdf/SkJpegInfo.cpp",

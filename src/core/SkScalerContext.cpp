@@ -21,44 +21,15 @@
 #include "SkMatrix22.h"
 #include "SkPaintPriv.h"
 #include "SkPathEffect.h"
+#include "SkPathPriv.h"
 #include "SkRasterClip.h"
 #include "SkReadBuffer.h"
+#include "SkRectPriv.h"
 #include "SkStroke.h"
 #include "SkStrokeRec.h"
 #include "SkSurfacePriv.h"
 #include "SkTextFormatParams.h"
 #include "SkWriteBuffer.h"
-
-void SkGlyph::toMask(SkMask* mask) const {
-    SkASSERT(mask);
-
-    mask->fImage = (uint8_t*)fImage;
-    mask->fBounds.set(fLeft, fTop, fLeft + fWidth, fTop + fHeight);
-    mask->fRowBytes = this->rowBytes();
-    mask->fFormat = static_cast<SkMask::Format>(fMaskFormat);
-}
-
-size_t SkGlyph::computeImageSize() const {
-    const size_t size = this->rowBytes() * fHeight;
-
-    switch (fMaskFormat) {
-        case SkMask::k3D_Format:
-            return 3 * size;
-        default:
-            return size;
-    }
-}
-
-void SkGlyph::zeroMetrics() {
-    fAdvanceX = 0;
-    fAdvanceY = 0;
-    fWidth    = 0;
-    fHeight   = 0;
-    fTop      = 0;
-    fLeft     = 0;
-    fRsbDelta = 0;
-    fLsbDelta = 0;
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -102,39 +73,21 @@ void SkScalerContext::getAdvance(SkGlyph* glyph) {
 }
 
 void SkScalerContext::getMetrics(SkGlyph* glyph) {
-    generateMetrics(glyph);
-
-    // for now we have separate cache entries for devkerning on and off
-    // in the future we might share caches, but make our measure/draw
-    // code make the distinction. Thus we zap the values if the caller
-    // has not asked for them.
-    if ((fRec.fFlags & SkScalerContext::kDevKernText_Flag) == 0) {
-        // no devkern, so zap the fields
-        glyph->fLsbDelta = glyph->fRsbDelta = 0;
-    }
-
-    // if either dimension is empty, zap the image bounds of the glyph
-    if (0 == glyph->fWidth || 0 == glyph->fHeight) {
-        glyph->fWidth   = 0;
-        glyph->fHeight  = 0;
-        glyph->fTop     = 0;
-        glyph->fLeft    = 0;
-        glyph->fMaskFormat = 0;
-        return;
-    }
-
     bool generatingImageFromPath = fGenerateImageFromPath;
-    if (fGenerateImageFromPath) {
+    if (!generatingImageFromPath) {
+        generateMetrics(glyph);
+    } else {
         SkPath      devPath, fillPath;
         SkMatrix    fillToDevMatrix;
-
-        if (!this->internalGetPath(glyph->getPackedID(), &fillPath, &devPath, &fillToDevMatrix)) {
-            generatingImageFromPath = false;
+        generatingImageFromPath = this->internalGetPath(glyph->getPackedID(), &fillPath, &devPath,
+                                                        &fillToDevMatrix);
+        if (!generatingImageFromPath) {
+            generateMetrics(glyph);
         } else {
-            // just use devPath
-            const SkIRect ir = devPath.getBounds().roundOut();
+            generateAdvance(glyph);
 
-            if (ir.isEmpty() || !ir.is16Bit()) {
+            const SkIRect ir = devPath.getBounds().roundOut();
+            if (ir.isEmpty() || !SkRectPriv::Is16Bit(ir)) {
                 goto SK_ERROR;
             }
             glyph->fLeft    = ir.fLeft;
@@ -155,6 +108,25 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
         }
     }
 
+    // for now we have separate cache entries for devkerning on and off
+    // in the future we might share caches, but make our measure/draw
+    // code make the distinction. Thus we zap the values if the caller
+    // has not asked for them.
+    if ((fRec.fFlags & SkScalerContext::kDevKernText_Flag) == 0) {
+        // no devkern, so zap the fields
+        glyph->fLsbDelta = glyph->fRsbDelta = 0;
+    }
+
+    // if either dimension is empty, zap the image bounds of the glyph
+    if (0 == glyph->fWidth || 0 == glyph->fHeight) {
+        glyph->fWidth   = 0;
+        glyph->fHeight  = 0;
+        glyph->fTop     = 0;
+        glyph->fLeft    = 0;
+        glyph->fMaskFormat = 0;
+        return;
+    }
+
     if (SkMask::kARGB32_Format != glyph->fMaskFormat) {
         glyph->fMaskFormat = fRec.fMaskFormat;
     }
@@ -173,7 +145,7 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
 
         src.fImage = nullptr;  // only want the bounds from the filter
         if (as_MFB(fMaskFilter)->filterMask(&dst, src, matrix, nullptr)) {
-            if (dst.fBounds.isEmpty() || !dst.fBounds.is16Bit()) {
+            if (dst.fBounds.isEmpty() || !SkRectPriv::Is16Bit(dst.fBounds)) {
                 goto SK_ERROR;
             }
             SkASSERT(dst.fImage == nullptr);
@@ -188,10 +160,12 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
 
 SK_ERROR:
     // draw nothing 'cause we failed
-    glyph->fLeft    = 0;
-    glyph->fTop     = 0;
-    glyph->fWidth   = 0;
-    glyph->fHeight  = 0;
+    glyph->fLeft     = 0;
+    glyph->fTop      = 0;
+    glyph->fWidth    = 0;
+    glyph->fHeight   = 0;
+    glyph->fLsbDelta = 0;
+    glyph->fRsbDelta = 0;
     // put a valid value here, in case it was earlier set to
     // MASK_FORMAT_JUST_ADVANCE
     glyph->fMaskFormat = fRec.fMaskFormat;
@@ -459,7 +433,9 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         glyph = &tmpGlyph;
     }
 
-    if (fGenerateImageFromPath) {
+    if (!fGenerateImageFromPath) {
+        generateImage(*glyph);
+    } else {
         SkPath      devPath, fillPath;
         SkMatrix    fillToDevMatrix;
         SkMask      mask;
@@ -470,10 +446,10 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         } else {
             SkASSERT(SkMask::kARGB32_Format != origGlyph.fMaskFormat);
             SkASSERT(SkMask::kARGB32_Format != mask.fFormat);
+            // DAA would have over coverage issues with small stroke_and_fill (crbug.com/821353)
+            SkPathPriv::SetIsBadForDAA(devPath, fRec.fFrameWidth > 0 && fRec.fFrameWidth <= 2);
             generateMask(mask, devPath, fPreBlend);
         }
-    } else {
-        generateImage(*glyph);
     }
 
     if (fMaskFilter) {
@@ -530,8 +506,8 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
     }
 }
 
-void SkScalerContext::getPath(SkPackedGlyphID glyphID, SkPath* path) {
-    this->internalGetPath(glyphID, nullptr, path, nullptr);
+bool SkScalerContext::getPath(SkPackedGlyphID glyphID, SkPath* path) {
+    return this->internalGetPath(glyphID, nullptr, path, nullptr);
 }
 
 void SkScalerContext::getFontMetrics(SkPaint::FontMetrics* fm) {
@@ -548,8 +524,7 @@ SkUnichar SkScalerContext::generateGlyphToChar(uint16_t glyph) {
 bool SkScalerContext::internalGetPath(SkPackedGlyphID glyphID, SkPath* fillPath,
                                       SkPath* devPath, SkMatrix* fillToDevMatrix) {
     SkPath  path;
-    generatePath(glyphID.code(), &path);
-    if (path.isEmpty()) {
+    if (!generatePath(glyphID.code(), &path)) {
         return false;
     }
 
@@ -705,8 +680,10 @@ bool SkScalerContextRec::computeMatrices(PreMatrixScale preMatrixScale, SkVector
     // All underlying ports have issues with zero text size, so use the matricies to zero.
     // If one of the scale factors is less than 1/256 then an EM filling square will
     // never affect any pixels.
+    // If there are any nonfinite numbers in the matrix, bail out and set the matrices to zero.
     if (SkScalarAbs(GA.get(SkMatrix::kMScaleX)) <= SK_ScalarNearlyZero ||
-        SkScalarAbs(GA.get(SkMatrix::kMScaleY)) <= SK_ScalarNearlyZero)
+        SkScalarAbs(GA.get(SkMatrix::kMScaleY)) <= SK_ScalarNearlyZero ||
+        !GA.isFinite())
     {
         s->fX = SK_Scalar1;
         s->fY = SK_Scalar1;
@@ -772,7 +749,11 @@ bool SkScalerContextRec::computeMatrices(PreMatrixScale preMatrixScale, SkVector
     return true;
 }
 
-SkAxisAlignment SkScalerContext::computeAxisAlignmentForHText() {
+SkAxisAlignment SkScalerContext::computeAxisAlignmentForHText() const {
+    return fRec.computeAxisAlignmentForHText();
+}
+
+SkAxisAlignment SkScalerContextRec::computeAxisAlignmentForHText() const {
     // Why fPost2x2 can be used here.
     // getSingleMatrix multiplies in getLocalMatrix, which consists of
     // * fTextSize (a scale, which has no effect)
@@ -781,11 +762,11 @@ SkAxisAlignment SkScalerContext::computeAxisAlignmentForHText() {
     // In other words, making the text bigger, stretching it along the
     // horizontal axis, or fake italicizing it does not move the baseline.
 
-    if (0 == fRec.fPost2x2[1][0]) {
+    if (0 == fPost2x2[1][0]) {
         // The x axis is mapped onto the x axis.
         return kX_SkAxisAlignment;
     }
-    if (0 == fRec.fPost2x2[0][0]) {
+    if (0 == fPost2x2[0][0]) {
         // The x axis is mapped onto the y axis.
         return kY_SkAxisAlignment;
     }
@@ -814,7 +795,10 @@ protected:
         glyph->zeroMetrics();
     }
     void generateImage(const SkGlyph& glyph) override {}
-    void generatePath(SkGlyphID glyph, SkPath* path) override {}
+    bool generatePath(SkGlyphID glyph, SkPath* path) override {
+        path->reset();
+        return false;
+    }
     void generateFontMetrics(SkPaint::FontMetrics* metrics) override {
         if (metrics) {
             sk_bzero(metrics, sizeof(*metrics));
@@ -832,6 +816,10 @@ std::unique_ptr<SkScalerContext> SkTypeface::createScalerContext(
         c = skstd::make_unique<SkScalerContext_Empty>(sk_ref_sp(const_cast<SkTypeface*>(this)),
                                                       effects, desc);
     }
+
+    // !allowFailure implies c != nullptr
+    SkASSERT(c || allowFailure);
+
     return c;
 }
 
@@ -899,10 +887,8 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
                                         SkScalerContextEffects* effects) {
     SkASSERT(deviceMatrix == nullptr || !deviceMatrix->hasPerspective());
 
-    SkTypeface* typeface = paint.getTypeface();
-    if (nullptr == typeface) {
-        typeface = SkTypeface::GetDefaultTypeface();
-    }
+    SkTypeface* typeface = SkPaintPriv::GetTypefaceOrDefault(paint);
+
     rec->fFontID = typeface->uniqueID();
     rec->fTextSize = paint.getTextSize();
     rec->fPreScaleX = paint.getTextScaleX();

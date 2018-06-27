@@ -11,9 +11,10 @@
 
 namespace sksg {
 
-MaskEffect::MaskEffect(sk_sp<RenderNode> child, sk_sp<RenderNode> mask)
+MaskEffect::MaskEffect(sk_sp<RenderNode> child, sk_sp<RenderNode> mask, Mode mode)
     : INHERITED(std::move(child))
-    , fMaskNode(std::move(mask)) {
+    , fMaskNode(std::move(mask))
+    , fMaskMode(mode) {
     this->observeInval(fMaskNode);
 }
 
@@ -32,7 +33,7 @@ void MaskEffect::onRender(SkCanvas* canvas) const {
 
 
     SkPaint p;
-    p.setBlendMode(SkBlendMode::kSrcIn);
+    p.setBlendMode(fMaskMode == Mode::kNormal ? SkBlendMode::kSrcIn : SkBlendMode::kSrcOut);
     canvas->saveLayer(this->bounds(), &p);
 
     this->INHERITED::onRender(canvas);
@@ -45,7 +46,9 @@ SkRect MaskEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm)
     const auto maskBounds = fMaskNode->revalidate(ic, ctm);
     auto childBounds = this->INHERITED::onRevalidate(ic, ctm);
 
-    return childBounds.intersect(maskBounds) ? childBounds : SkRect::MakeEmpty();
+    return (fMaskMode == Mode::kInvert || childBounds.intersect(maskBounds))
+        ? childBounds
+        : SkRect::MakeEmpty();
 }
 
 } // namespace sksg

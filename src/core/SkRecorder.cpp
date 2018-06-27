@@ -36,14 +36,14 @@ void SkDrawableList::append(SkDrawable* drawable) {
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 SkRecorder::SkRecorder(SkRecord* record, int width, int height, SkMiniRecorder* mr)
-    : SkNoDrawCanvas(width, height)
+    : SkCanvasVirtualEnforcer<SkNoDrawCanvas>(width, height)
     , fDrawPictureMode(Record_DrawPictureMode)
     , fApproxBytesUsedBySubPictures(0)
     , fRecord(record)
     , fMiniRecorder(mr) {}
 
 SkRecorder::SkRecorder(SkRecord* record, const SkRect& bounds, SkMiniRecorder* mr)
-    : SkNoDrawCanvas(bounds.roundOut())
+    : SkCanvasVirtualEnforcer<SkNoDrawCanvas>(bounds.roundOut())
     , fDrawPictureMode(Record_DrawPictureMode)
     , fApproxBytesUsedBySubPictures(0)
     , fRecord(record)

@@ -31,6 +31,7 @@ cc_library_shared {
     name: "libskqp_app",
     sdk_version: "26",
     stl: "libc++_static",
+    compile_multilib: "both",
     tags: ["tests", "optional"],
 
     cflags: [
@@ -112,7 +113,7 @@ cc_library_shared {
     ],
     static_libs: [
           "libjpeg_static_ndk",
-          "libjsoncpp",
+          "libjsoncpp_ndk",
           "libpng_ndk",
           "libwebp-decode",
           "libwebp-encode",

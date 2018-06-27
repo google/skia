@@ -11,7 +11,6 @@
 #ifndef GrRRectBlurEffect_DEFINED
 #define GrRRectBlurEffect_DEFINED
 #include "SkTypes.h"
-#if SK_SUPPORT_GPU
 
 #include "GrClip.h"
 #include "GrContext.h"
@@ -21,6 +20,7 @@
 #include "GrRenderTargetContext.h"
 #include "GrStyle.h"
 #include "SkBlurMaskFilter.h"
+#include "SkBlurPriv.h"
 #include "SkGpuBlurUtils.h"
 #include "SkRRectPriv.h"
 #include "GrFragmentProcessor.h"
@@ -33,7 +33,7 @@ public:
                                                                 float xformedSigma) {
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
         GrUniqueKey key;
-        GrUniqueKey::Builder builder(&key, kDomain, 9);
+        GrUniqueKey::Builder builder(&key, kDomain, 9, "RoundRect Blur Mask");
         builder[0] = SkScalarCeilToInt(xformedSigma - 1 / 6.0f);
 
         int index = 1;
@@ -52,9 +52,10 @@ public:
                 proxyProvider->findOrCreateProxyByUniqueKey(key, kBottomLeft_GrSurfaceOrigin));
         if (!mask) {
             // TODO: this could be approx but the texture coords will need to be updated
-            sk_sp<GrRenderTargetContext> rtc(context->makeDeferredRenderTargetContextWithFallback(
-                    SkBackingFit::kExact, size.fWidth, size.fHeight, kAlpha_8_GrPixelConfig,
-                    nullptr));
+            sk_sp<GrRenderTargetContext> rtc(
+                    context->contextPriv().makeDeferredRenderTargetContextWithFallback(
+                            SkBackingFit::kExact, size.fWidth, size.fHeight, kAlpha_8_GrPixelConfig,
+                            nullptr));
             if (!rtc) {
                 return nullptr;
             }
@@ -125,5 +126,4 @@ private:
     TextureSampler fNinePatchSampler;
     typedef GrFragmentProcessor INHERITED;
 };
-#endif
 #endif

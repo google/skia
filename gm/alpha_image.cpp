@@ -7,9 +7,9 @@
 
 #include "gm.h"
 
-#include "SkBlurMaskFilter.h"
 #include "SkColorFilter.h"
 #include "SkImage.h"
+#include "SkMaskFilter.h"
 #include "SkShader.h"
 
 static SkBitmap make_alpha_image(int w, int h) {
@@ -39,7 +39,7 @@ DEF_SIMPLE_GM(alpha_image, canvas, 256, 256) {
     SkPaint paint;
 
     paint.setColorFilter(make_color_filter());
-    paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 10.0f, 0));
+    paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 10.0f));
     canvas->drawImage(image.get(), 16, 16, &paint);
 
     paint.setColorFilter(nullptr);

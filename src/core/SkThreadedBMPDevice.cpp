@@ -8,7 +8,7 @@
 #include "SkThreadedBMPDevice.h"
 
 #include "SkPath.h"
-#include "SkRectPriv.h"
+#include "SkSpecialImage.h"
 #include "SkTaskGroup.h"
 #include "SkVertices.h"
 
@@ -80,15 +80,6 @@ SkThreadedBMPDevice::DrawState::DrawState(SkThreadedBMPDevice* dev) {
     fRC = dev->fRCStack.rc();
 }
 
-SkIRect SkThreadedBMPDevice::transformDrawBounds(const SkRect& drawBounds) const {
-    if (drawBounds == SkRectPriv::MakeLargest()) {
-        return SkRectPriv::MakeILarge();
-    }
-    SkRect transformedBounds;
-    this->ctm().mapRect(&transformedBounds, drawBounds);
-    return transformedBounds.roundOut();
-}
-
 SkDraw SkThreadedBMPDevice::DrawState::getDraw() const {
     SkDraw draw;
     draw.fDst = fDst;
@@ -124,9 +115,10 @@ void SkThreadedBMPDevice::drawPaint(const SkPaint& paint) {
 
 void SkThreadedBMPDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
         const SkPoint pts[], const SkPaint& paint) {
+    SkPoint* clonedPts = this->cloneArray(pts, count);
     SkRect drawBounds = SkRectPriv::MakeLargest(); // TODO tighter drawBounds
     fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
-        TileDraw(ds, tileBounds).drawPoints(mode, count, pts, paint, nullptr);
+        TileDraw(ds, tileBounds).drawPoints(mode, count, clonedPts, paint, nullptr);
     });
 }
 
@@ -169,59 +161,64 @@ void SkThreadedBMPDevice::drawPath(const SkPath& path, const SkPaint& paint,
     }
 }
 
-void SkThreadedBMPDevice::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
-        const SkPaint& paint) {
-    SkMatrix matrix = SkMatrix::MakeTrans(x, y);
-    LogDrawScaleFactor(SkMatrix::Concat(this->ctm(), matrix), paint.getFilterQuality());
-    SkRect drawBounds = SkRect::MakeWH(bitmap.width(), bitmap.height());
-    matrix.mapRect(&drawBounds);
+void SkThreadedBMPDevice::drawBitmap(const SkBitmap& bitmap, const SkMatrix& matrix,
+                                     const SkRect* dstOrNull, const SkPaint& paint) {
+    SkRect drawBounds;
+    SkRect* clonedDstOrNull = nullptr;
+    if (dstOrNull == nullptr) {
+        drawBounds = SkRect::MakeWH(bitmap.width(), bitmap.height());
+        matrix.mapRect(&drawBounds);
+    } else {
+        drawBounds = *dstOrNull;
+        clonedDstOrNull = fAlloc.make<SkRect>(*dstOrNull);
+    }
+
     fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
-        TileDraw(ds, tileBounds).drawBitmap(bitmap, matrix, nullptr, paint);
+        TileDraw(ds, tileBounds).drawBitmap(bitmap, matrix, clonedDstOrNull, paint);
     });
 }
 
 void SkThreadedBMPDevice::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& paint) {
     SkRect drawBounds = SkRect::MakeXYWH(x, y, bitmap.width(), bitmap.height());
-    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+    fQueue.push<false>(drawBounds, [=](SkArenaAlloc*, const DrawState& ds,
+                                       const SkIRect& tileBounds){
         TileDraw(ds, tileBounds).drawSprite(bitmap, x, y, paint);
     });
 }
 
 void SkThreadedBMPDevice::drawText(const void* text, size_t len, SkScalar x, SkScalar y,
         const SkPaint& paint) {
+    char* clonedText = this->cloneArray((const char*)text, len);
     SkRect drawBounds = SkRectPriv::MakeLargest(); // TODO tighter drawBounds
     fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
-        TileDraw(ds, tileBounds).drawText((const char*)text, len, x, y, paint,
+        TileDraw(ds, tileBounds).drawText(clonedText, len, x, y, paint,
                                           &this->surfaceProps());
     });
 }
 
 void SkThreadedBMPDevice::drawPosText(const void* text, size_t len, const SkScalar xpos[],
         int scalarsPerPos, const SkPoint& offset, const SkPaint& paint) {
+    char* clonedText = this->cloneArray((const char*)text, len);
     SkRect drawBounds = SkRectPriv::MakeLargest(); // TODO tighter drawBounds
     fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
-        TileDraw(ds, tileBounds).drawPosText((const char*)text, len, xpos, scalarsPerPos, offset,
+        TileDraw(ds, tileBounds).drawPosText(clonedText, len, xpos, scalarsPerPos, offset,
                                              paint, &surfaceProps());
     });
 }
 
 void SkThreadedBMPDevice::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
         const SkPaint& paint) {
+    const sk_sp<SkVertices> verts = sk_ref_sp(vertices);  // retain vertices until flush
     SkRect drawBounds = SkRectPriv::MakeLargest(); // TODO tighter drawBounds
     fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
-        TileDraw(ds, tileBounds).drawVertices(vertices->mode(), vertices->vertexCount(),
-                                              vertices->positions(), vertices->texCoords(),
-                                              vertices->colors(), bmode, vertices->indices(),
-                                              vertices->indexCount(), paint);
+        TileDraw(ds, tileBounds).drawVertices(verts->mode(), verts->vertexCount(),
+                                              verts->positions(), verts->texCoords(),
+                                              verts->colors(), bmode, verts->indices(),
+                                              verts->indexCount(), paint);
     });
 }
 
-void SkThreadedBMPDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& paint) {
-    SkASSERT(!paint.getImageFilter());
-    SkRect drawBounds = SkRect::MakeXYWH(x, y, device->width(), device->height());
-    // copy the bitmap because it may deleted after this call
-    SkBitmap* bitmap = fAlloc.make<SkBitmap>(static_cast<SkBitmapDevice*>(device)->fBitmap);
-    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
-        TileDraw(ds, tileBounds).drawSprite(*bitmap, x, y, paint);
-    });
+sk_sp<SkSpecialImage> SkThreadedBMPDevice::snapSpecial() {
+    this->flush();
+    return this->makeSpecial(fBitmap);
 }

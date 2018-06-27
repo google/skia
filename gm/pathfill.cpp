@@ -432,3 +432,70 @@ DEF_SIMPLE_GM(rotatedcubicpath, canvas, 200, 200) {
 
 DEF_GM( return new PathFillGM; )
 DEF_GM( return new PathInverseFillGM; )
+
+DEF_SIMPLE_GM(bug7792, canvas, 800, 200) {
+    // from skbug.com/7792 bug description
+    SkPaint p;
+    SkPath path;
+    path.moveTo(10, 10);
+    path.moveTo(75, 75);
+    path.lineTo(150, 75);
+    path.lineTo(150, 150);
+    path.lineTo(75, 150);
+    canvas->drawPath(path, p);
+    // from skbug.com/7792 comment 3
+    canvas->translate(200, 0);
+    path.reset();
+    path.moveTo(75, 50);
+    path.moveTo(100, 75);
+    path.lineTo(150, 75);
+    path.lineTo(150, 150);
+    path.lineTo(75, 150);
+    path.lineTo(75, 50);
+    path.close();
+    canvas->drawPath(path, p);
+    // from skbug.com/7792 comment 9
+    canvas->translate(200, 0);
+    path.reset();
+    path.moveTo(10, 10);
+    path.moveTo(75, 75);
+    path.lineTo(150, 75);
+    path.lineTo(150, 150);
+    path.lineTo(75, 150);
+    path.close();
+    canvas->drawPath(path, p);
+    // from skbug.com/7792 comment 11
+    canvas->translate(-200 * 2, 200);
+    path.reset();
+    path.moveTo(75, 150);
+    path.lineTo(75, 75);
+    path.lineTo(150, 75);
+    path.lineTo(150, 150);
+    path.lineTo(75, 150);
+    path.moveTo(75, 150);
+    canvas->drawPath(path, p);
+    // from skbug.com/7792 comment 14
+    canvas->translate(200, 0);
+    path.reset();
+    path.moveTo(250, 75);
+    path.moveTo(250, 75);
+    path.moveTo(250, 75);
+    path.moveTo(100, 75);
+    path.lineTo(150, 75);
+    path.lineTo(150, 150);
+    path.lineTo(75, 150);
+    path.lineTo(75, 75);
+    path.close();
+    path.lineTo(0, 0);
+    path.close();
+    canvas->drawPath(path, p);
+    // from skbug.com/7792 comment 15
+    canvas->translate(200, 0);
+    path.reset();
+    path.moveTo(75, 75);
+    path.lineTo(150, 75);
+    path.lineTo(150, 150);
+    path.lineTo(75, 150);
+    path.moveTo(250, 75);
+    canvas->drawPath(path, p);
+}

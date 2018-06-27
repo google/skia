@@ -298,14 +298,9 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
             void* dst = bitmap.getAddr(0, 0);
             size_t rowBytes = bitmap.rowBytes();
             uint32_t height = decodeInfo.height();
-            switch (codec->getScanlineOrder()) {
-                case SkCodec::kTopDown_SkScanlineOrder:
-                case SkCodec::kBottomUp_SkScanlineOrder:
-                    // We do not need to check the return value.  On an incomplete
-                    // image, memory will be filled with a default value.
-                    codec->getScanlines(dst, height, rowBytes);
-                    break;
-            }
+            // We do not need to check the return value.  On an incomplete
+            // image, memory will be filled with a default value.
+            codec->getScanlines(dst, height, rowBytes);
             SkDebugf("[terminated] Success!\n");
             break;
         }

@@ -107,6 +107,12 @@ static void test_identity_xform(skiatest::Reporter* r, const sk_sp<SkGammas>& ga
 
 static void test_identity_xform_A2B(skiatest::Reporter* r, SkGammaNamed gammaNamed,
                                     const sk_sp<SkGammas>& gammas, int tol=1) {
+#if defined(SK_USE_SKCMS)
+    (void)r;
+    (void)gammaNamed;
+    (void)gammas;
+    (void)tol;
+#else
     // Arbitrary set of 10 pixels
     constexpr int width = 10;
     constexpr uint32_t srcPixels[width] = {
@@ -133,6 +139,7 @@ static void test_identity_xform_A2B(skiatest::Reporter* r, SkGammaNamed gammaNam
         REPORTER_ASSERT(r, almost_equal(((srcPixels[i] >> 24) & 0xFF),
                                         SkGetPackedA32(dstPixels[i]), tol));
     }
+#endif
 }
 
 DEF_TEST(ColorSpaceXform_TableGamma, r) {
@@ -264,6 +271,7 @@ DEF_TEST(ColorSpaceXform_NonMatchingGamma, r) {
     test_identity_xform_A2B(r, kNonStandard_SkGammaNamed, gammas, tolerance);
 }
 
+#if !defined(SK_USE_SKCMS)
 DEF_TEST(ColorSpaceXform_A2BCLUT, r) {
     constexpr int inputChannels = 3;
     constexpr int gp            = 4; // # grid points
@@ -325,6 +333,7 @@ DEF_TEST(ColorSpaceXform_A2BCLUT, r) {
                                         SkColorGetR(dstPixels[i])));
     }
 }
+#endif
 
 DEF_TEST(SkColorSpaceXform_LoadTail, r) {
     std::unique_ptr<uint64_t[]> srcPixel(new uint64_t[1]);

@@ -1015,8 +1015,14 @@ const char* GLSLCodeGenerator::getTypePrecision(const Type& type) {
     if (usesPrecisionModifiers()) {
         switch (type.kind()) {
             case Type::kScalar_Kind:
-                if (type == *fContext.fHalf_Type || type == *fContext.fShort_Type ||
-                        type == *fContext.fUShort_Type) {
+                if (type == *fContext.fShort_Type || type == *fContext.fUShort_Type) {
+                    if (fProgram.fSettings.fForceHighPrecision ||
+                            fProgram.fSettings.fCaps->incompleteShortIntPrecision()) {
+                        return "highp ";
+                    }
+                    return "mediump ";
+                }
+                if (type == *fContext.fHalf_Type) {
                     return fProgram.fSettings.fForceHighPrecision ? "highp " : "mediump ";
                 }
                 if (type == *fContext.fFloat_Type || type == *fContext.fInt_Type ||
@@ -1264,7 +1270,11 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
                     this->writeLine();
                 } else if (builtin == SK_FRAGCOLOR_BUILTIN &&
                            fProgram.fSettings.fCaps->mustDeclareFragmentShaderOutput()) {
-                    this->write("out ");
+                    if (fProgram.fSettings.fFragColorIsInOut) {
+                        this->write("inout ");
+                    } else {
+                        this->write("out ");
+                    }
                     if (usesPrecisionModifiers()) {
                         this->write("mediump ");
                     }

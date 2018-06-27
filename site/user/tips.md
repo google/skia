@@ -32,13 +32,15 @@ drawBitmapNine():
 <span id="skp-capture">Capture a `.skp` file on a web page in Chromium</span>
 -----------------------------------------------------------------------------
 
+Use the script `experimental/tools/web_to_skp` , *or* do the following:
+
 1.  Launch Chrome or Chromium with `--no-sandbox --enable-gpu-benchmarking`
-2.  Open the JS console (ctrl-shift-J)
+2.  Open the JS console (Ctrl+Shift+J (Windows / Linux) or Cmd+Opt+J (MacOS))
 3.  Execute: `chrome.gpuBenchmarking.printToSkPicture('/tmp')`
     This returns "undefined" on success.
 
 Open the resulting file in the [Skia Debugger](/dev/tools/debugger), rasterize it with `dm`,
-or use Skia's `SampleApp` to view it:
+or use Skia's `viewer` to view it:
 
 <!--?prettify lang=sh?-->
 
@@ -46,7 +48,7 @@ or use Skia's `SampleApp` to view it:
         --config 8888 gpu pdf --verbose
     ls -l /tmp/*/skp/layer_0.skp.*
 
-    out/Release/SampleApp --picture /tmp/layer_0.skp
+    out/Release/viewer --skps /tmp --slide layer_0.skp
 
 * * *
 
@@ -56,8 +58,10 @@ or use Skia's `SampleApp` to view it:
 Multipage Skia Picture files capture the commands sent to produce PDFs
 and printed documents.
 
+Use the script `experimental/tools/web_to_mskp` , *or* do the following:
+
 1.  Launch Chrome or Chromium with `--no-sandbox --enable-gpu-benchmarking`
-2.  Open the JS console (ctrl-shift-J)
+2.  Open the JS console (Ctrl+Shift+J (Windows / Linux) or Cmd+Opt+J (MacOS))
 3.  Execute: `chrome.gpuBenchmarking.printPagesToSkPictures('/tmp/filename.mskp')`
     This returns "undefined" on success.
 

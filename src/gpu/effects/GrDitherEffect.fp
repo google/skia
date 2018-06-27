@@ -16,6 +16,7 @@ layout(key) in int rangeType;
             case kGray_8_as_Lum_GrPixelConfig:
             case kGray_8_as_Red_GrPixelConfig:
             case kRGBA_8888_GrPixelConfig:
+            case kRGB_888_GrPixelConfig:
             case kBGRA_8888_GrPixelConfig:
             case kSRGBA_8888_GrPixelConfig:
             case kSBGRA_8888_GrPixelConfig:
@@ -28,6 +29,7 @@ layout(key) in int rangeType;
                 rangeType = 2;
                 break;
             case kUnknown_GrPixelConfig:
+            case kRGBA_1010102_GrPixelConfig:
             case kAlpha_half_GrPixelConfig:
             case kAlpha_half_as_Red_GrPixelConfig:
             case kRGBA_float_GrPixelConfig:

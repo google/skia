@@ -117,6 +117,9 @@ skia_core_sources = [
   "$_src/core/SkBlitter_RGB565.cpp",
   "$_src/core/SkBlitter_Sprite.cpp",
   "$_src/core/SkBlurImageFilter.cpp",
+  "$_src/core/SkBlurMask.cpp",
+  "$_src/core/SkBlurMask.h",
+  "$_src/core/SkBlurMF.cpp",
   "$_src/core/SkBuffer.cpp",
   "$_src/core/SkCachedData.cpp",
   "$_src/core/SkCanvas.cpp",
@@ -214,6 +217,7 @@ skia_core_sources = [
   "$_src/core/SkGeometry.h",
   "$_src/core/SkGlobalInitialization_core.cpp",
   "$_src/core/SkGlyph.h",
+  "$_src/core/SkGlyph.cpp",
   "$_src/core/SkGlyphCache.cpp",
   "$_src/core/SkGlyphCache.h",
   "$_src/core/SkGlyphCache_Globals.h",
@@ -359,6 +363,7 @@ skia_core_sources = [
   "$_src/core/SkStrokeRec.cpp",
   "$_src/core/SkStrokerPriv.cpp",
   "$_src/core/SkStrokerPriv.h",
+  "$_src/core/SkSurfaceCharacterization.cpp",
   "$_src/core/SkSurfacePriv.h",
   "$_src/core/SkSwizzle.cpp",
   "$_src/core/SkSRGB.cpp",
@@ -374,7 +379,6 @@ skia_core_sources = [
   "$_src/core/SkTextMapStateProc.h",
   "$_src/core/SkTextToPathIter.h",
   "$_src/core/SkTime.cpp",
-  "$_src/core/SkTDPQueue.h",
 
   # The Clang's false positive thread warnings have been resolved in SkTaskGroup2D.cpp
   "$_src/core/SkThreadedBMPDevice.cpp",
@@ -490,6 +494,7 @@ skia_core_sources = [
   "$_include/core/SkString.h",
   "$_include/core/SkStrokeRec.h",
   "$_include/core/SkSurface.h",
+  "$_include/core/SkSurfaceCharacterization.h",
   "$_include/core/SkSwizzle.h",
   "$_include/core/SkTextBlob.h",
   "$_include/core/SkTime.h",
@@ -498,6 +503,8 @@ skia_core_sources = [
   "$_include/core/SkTypes.h",
   "$_include/core/SkUnPreMultiply.h",
   "$_include/core/SkVertices.h",
+
+  "$_src/jumper/SkJumper.cpp",
 
   # private
   "$_include/private/SkAtomics.h",
@@ -514,7 +521,6 @@ skia_core_sources = [
   "$_include/private/SkSemaphore.h",
   "$_include/private/SkShadowFlags.h",
   "$_include/private/SkSpinlock.h",
-  "$_include/private/SkSurfaceCharacterization.h",
   "$_include/private/SkTemplates.h",
   "$_include/private/SkTArray.h",
   "$_include/private/SkTDArray.h",
@@ -587,23 +593,4 @@ skia_core_sources = [
   "$_src/pathops/SkReduceOrder.h",
 ]
 
-skia_core_sources += [
-  "$_src/jumper/SkJumper.cpp",
-  "$_src/jumper/SkJumper_stages.cpp",
-  "$_src/jumper/SkJumper_stages_lowp.cpp",
-]
-skia_core_defines = []
-if (is_win) {
-  if (host_os == "win") {
-    skia_core_sources += [ "$_src/jumper/SkJumper_generated_win.S" ]
-  } else {
-    # TODO(thakis): Enable jumper in linux->win cross builds once the
-    # assembler situation is figured out, https://crbug.com/762167
-    skia_core_defines += [ "SK_JUMPER_USE_ASSEMBLY=0" ]
-  }
-} else if (!is_tvos && !is_watchos) {
-  # TODO(mattleibow): this may no longer be an issue and needs to be re-evaluated
-  skia_core_defines += [ "SK_JUMPER_USE_ASSEMBLY=0" ]
-} else if (target_cpu != "wasm") {
-  skia_core_sources += [ "$_src/jumper/SkJumper_generated.S" ]
-}
+skia_core_defines = []  #  Used to be used by Chromium, but no longer.

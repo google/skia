@@ -17,8 +17,6 @@
 #include <functional>
 #include <vector>
 
-struct SkJumper_Engine;
-
 /**
  * SkRasterPipeline provides a cheap way to chain together a pixel processing pipeline.
  *
@@ -124,6 +122,9 @@ public:
     };
     void append(StockStage, void* = nullptr);
     void append(StockStage stage, const void* ctx) { this->append(stage, const_cast<void*>(ctx)); }
+    // For raw functions (i.e. from a JIT).  Don't use this unless you know exactly what fn needs to
+    // be. :)
+    void append(void* fn, void* ctx);
 
     // Append all stages to this pipeline.
     void extend(const SkRasterPipeline&);
@@ -151,19 +152,19 @@ public:
         this->append_constant_color(alloc, color.vec());
     }
 
-    // Helper to append(seed_shader) with the normal {+0.5,+1.5,+2.5,...} argument it expects.
-    void append_seed_shader();
-
     bool empty() const { return fStages == nullptr; }
 
 private:
     struct StageList {
         StageList* prev;
-        StockStage stage;
+        uint64_t   stage;
         void*      ctx;
+        bool       rawFunction;
     };
 
-    const SkJumper_Engine& build_pipeline(void**) const;
+    using StartPipelineFn = void(*)(size_t,size_t,size_t,size_t, void** program);
+    StartPipelineFn build_pipeline(void**) const;
+
     void unchecked_append(StockStage, void*);
 
     SkArenaAlloc* fAlloc;

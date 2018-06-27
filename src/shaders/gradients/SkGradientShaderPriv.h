@@ -85,7 +85,7 @@ protected:
 
     SkGradientShaderBase(SkReadBuffer& );
     void flatten(SkWriteBuffer&) const override;
-    SK_TO_STRING_OVERRIDE()
+    void toString(SkString* str) const override;
 
     void commonAsAGradient(GradientInfo*) const;
 
@@ -94,7 +94,6 @@ protected:
     void initLinearBitmap(SkBitmap* bitmap, GradientBitmapType) const;
 
     bool onAppendStages(const StageRec&) const override;
-    bool onIsRasterPipelineOnly(const SkMatrix& ctm) const override;
 
     virtual void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                                       SkRasterPipeline* postPipeline) const = 0;
@@ -334,7 +333,7 @@ private:
     GrCoordTransform fCoordTransform;
     TextureSampler fTextureSampler;
     SkScalar fYCoord;
-    GrTextureStripAtlas* fAtlas;
+    sk_sp<GrTextureStripAtlas> fAtlas;
     int fRow;
     bool fIsOpaque;
 

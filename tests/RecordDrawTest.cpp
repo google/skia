@@ -249,11 +249,9 @@ DEF_TEST(RecordDraw_SaveLayerBoundsAffectsClipBounds, r) {
 
     SkAutoTMalloc<SkRect> bounds(record.count());
     SkRecordFillBounds(SkRect::MakeWH(50, 50), record, bounds);
-    if (!SkCanvas::Internal_Private_GetIgnoreSaveLayerBounds()) {
-        REPORTER_ASSERT(r, sloppy_rect_eq(bounds[0], SkRect::MakeLTRB(10, 10, 40, 40)));
-        REPORTER_ASSERT(r, sloppy_rect_eq(bounds[1], SkRect::MakeLTRB(20, 20, 30, 30)));
-        REPORTER_ASSERT(r, sloppy_rect_eq(bounds[2], SkRect::MakeLTRB(10, 10, 40, 40)));
-    }
+    REPORTER_ASSERT(r, sloppy_rect_eq(bounds[0], SkRect::MakeLTRB(10, 10, 40, 40)));
+    REPORTER_ASSERT(r, sloppy_rect_eq(bounds[1], SkRect::MakeLTRB(20, 20, 30, 30)));
+    REPORTER_ASSERT(r, sloppy_rect_eq(bounds[2], SkRect::MakeLTRB(10, 10, 40, 40)));
 }
 
 DEF_TEST(RecordDraw_drawImage, r){

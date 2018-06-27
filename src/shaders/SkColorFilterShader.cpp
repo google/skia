@@ -71,7 +71,6 @@ std::unique_ptr<GrFragmentProcessor> SkColorFilterShader::asFragmentProcessor(
 }
 #endif
 
-#ifndef SK_IGNORE_TO_STRING
 void SkColorFilterShader::toString(SkString* str) const {
     str->append("SkColorFilterShader: (");
 
@@ -84,7 +83,6 @@ void SkColorFilterShader::toString(SkString* str) const {
 
     str->append(")");
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

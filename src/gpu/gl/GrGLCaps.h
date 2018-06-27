@@ -316,7 +316,9 @@ public:
     /// Use indices or vertices in CPU arrays rather than VBOs for dynamic content.
     bool useNonVBOVertexAndIndexDynamicData() const { return fUseNonVBOVertexAndIndexDynamicData; }
 
-    bool surfaceSupportsWritePixels(const GrSurface* surface) const override;
+    bool surfaceSupportsWritePixels(const GrSurface*) const override;
+    bool surfaceSupportsReadPixels(const GrSurface*) const override;
+    GrColorType supportedReadPixelsColorType(GrPixelConfig, GrColorType) const override;
 
     /// Does ReadPixels support reading readConfig pixels from a FBO that is surfaceConfig?
     bool readPixelsSupported(GrPixelConfig surfaceConfig,
@@ -350,6 +352,8 @@ public:
     bool rgbaToBgraReadbackConversionsAreSlow() const {
         return fRGBAToBGRAReadbackConversionsAreSlow;
     }
+
+    bool useBufferDataNullHint() const { return fUseBufferDataNullHint; }
 
     // Certain Intel GPUs on Mac fail to clear if the glClearColor is made up of only 1s and 0s.
     bool clearToBoundaryValuesIsBroken() const { return fClearToBoundaryValuesIsBroken; }
@@ -397,7 +401,7 @@ public:
                                                          : pendingInstanceCount;
     }
 
-    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
+    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc, GrSurfaceOrigin*,
                             bool* rectsMustMatch, bool* disallowSubrect) const override;
 
     bool programBinarySupport() const {
@@ -412,12 +416,16 @@ public:
     bool getConfigFromBackendFormat(const GrBackendFormat&, SkColorType,
                                     GrPixelConfig*) const override;
 
+#if GR_TEST_UTILS
+    GrGLStandard standard() const { return fStandard; }
+#endif
+
 private:
     enum ExternalFormatUsage {
         kTexImage_ExternalFormatUsage,
-        kOther_ExternalFormatUsage,
+        kReadPixels_ExternalFormatUsage,
 
-        kLast_ExternalFormatUsage = kOther_ExternalFormatUsage
+        kLast_ExternalFormatUsage = kReadPixels_ExternalFormatUsage
     };
     static const int kExternalFormatUsageCnt = kLast_ExternalFormatUsage + 1;
     bool getExternalFormat(GrPixelConfig surfaceConfig, GrPixelConfig memoryConfig,
@@ -433,7 +441,6 @@ private:
 
     void onApplyOptionsOverrides(const GrContextOptions& options) override;
 
-    bool onIsMixedSamplesSupportedForRT(const GrBackendRenderTarget&) const override;
     bool onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget&) const override;
 
     void initFSAASupport(const GrContextOptions& contextOptions, const GrGLContextInfo&,
@@ -480,6 +487,7 @@ private:
     bool fTextureSwizzleSupport : 1;
     bool fMipMapLevelAndLodControlSupport : 1;
     bool fRGBAToBGRAReadbackConversionsAreSlow : 1;
+    bool fUseBufferDataNullHint                : 1;
     bool fClearTextureSupport : 1;
     bool fProgramBinarySupport : 1;
 
@@ -501,7 +509,6 @@ private:
     enum FormatType {
         kNormalizedFixedPoint_FormatType,
         kFloat_FormatType,
-        kInteger_FormatType,
     };
 
     struct ReadPixelsFormat {

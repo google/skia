@@ -21,6 +21,9 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
         case kRGBA_8888_GrPixelConfig:
             *format = MTLPixelFormatRGBA8Unorm;
             return true;
+        case kRGB_888_GrPixelConfig:
+            // TODO: MTLPixelFormatRGB8Unorm
+            return false;
         case kBGRA_8888_GrPixelConfig:
             *format = MTLPixelFormatBGRA8Unorm;
             return true;
@@ -30,9 +33,12 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
         case kSBGRA_8888_GrPixelConfig:
             *format = MTLPixelFormatBGRA8Unorm_sRGB;
             return true;
+        case kRGBA_1010102_GrPixelConfig:
+            *format = MTLPixelFormatRGB10A2Unorm;
+            return true;
         case kRGB_565_GrPixelConfig:
 #ifdef SK_BUILD_FOR_IOS
-            *format = MTLPixelFormatR5G6B5Unorm;
+            *format = MTLPixelFormatB5G6R5Unorm;
             return true;
 #else
             return false;
@@ -84,6 +90,8 @@ GrPixelConfig GrMTLFormatToPixelConfig(MTLPixelFormat format) {
             return kSRGBA_8888_GrPixelConfig;
         case MTLPixelFormatBGRA8Unorm_sRGB:
             return kSBGRA_8888_GrPixelConfig;
+        case MTLPixelFormatRGB10A2Unorm:
+            return kRGBA_1010102_GrPixelConfig;
 #ifdef SK_BUILD_FOR_IOS
         case MTLPixelFormatB5G6R5Unorm:
             return kRGB_565_GrPixelConfig;

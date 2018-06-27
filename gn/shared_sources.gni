@@ -24,7 +24,7 @@ skia_opts = {
   sse41_sources = sse41
   sse42_sources = sse42
   avx_sources = avx
-  hsw_sources = []  # remove after we update Chrome
+  hsw_sources = hsw
 }
 
 # Skia Chromium defines. These flags will be defined in chromium If these

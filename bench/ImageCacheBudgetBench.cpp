@@ -14,6 +14,7 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
+#include "GrContextPriv.h"
 
 /** These benchmarks were designed to measure changes to GrResourceCache's replacement policy */
 
@@ -46,7 +47,7 @@ void set_cache_budget(SkCanvas* canvas, int approxImagesInBudget) {
     GrContext* context =  canvas->getGrContext();
     SkASSERT(context);
     context->flush();
-    context->purgeAllUnlockedResources();
+    context->contextPriv().purgeAllUnlockedResources_ForTesting();
     sk_sp<SkImage> image;
     make_images(&image, 1);
     draw_image(canvas, image.get());
@@ -55,7 +56,7 @@ void set_cache_budget(SkCanvas* canvas, int approxImagesInBudget) {
     context->getResourceCacheUsage(&baselineCount, nullptr);
     baselineCount -= 1; // for the image's textures.
     context->setResourceCacheLimits(baselineCount + approxImagesInBudget, 1 << 30);
-    context->purgeAllUnlockedResources();
+    context->contextPriv().purgeAllUnlockedResources_ForTesting();
 }
 
 //////////////////////////////////////////////////////////////////////////////

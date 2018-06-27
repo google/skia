@@ -14,10 +14,10 @@
 #include "SkDrawLooper.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilterBase.h"
+#include "SkPaintPriv.h"
 #include "SkPath.h"
 #include "SkPathEffect.h"
 #include "SkPicture.h"
-#include "SkReadBuffer.h"
 #include "SkReader32.h"
 #include "SkRefCnt.h"
 #include "SkShaderBase.h"
@@ -77,6 +77,7 @@ public:
         kRemovePictureImageFilterLocalSpace = 59,
         kRemoveHeaderFlags_Version         = 60,
         kTwoColorDrawShadow_Version        = 61,
+        kDontNegateImageSize_Version       = 62,
     };
 
     /**
@@ -142,7 +143,7 @@ public:
     void readRegion(SkRegion* region);
 
     void readPath(SkPath* path);
-    virtual bool readPaint(SkPaint* paint) { return paint->unflatten(*this); }
+    virtual bool readPaint(SkPaint* paint) { return SkPaintPriv::Unflatten(paint, *this); }
 
     SkFlattenable* readFlattenable(SkFlattenable::Type);
     template <typename T> sk_sp<T> readFlattenable() {

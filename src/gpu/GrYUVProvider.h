@@ -13,6 +13,7 @@
 #include "SkYUVSizeInfo.h"
 
 class GrContext;
+struct GrSurfaceDesc;
 class GrTexture;
 class GrTextureProxy;
 

@@ -27,7 +27,6 @@
 #include "SkGr.h"
 #endif
 
-#ifndef SK_IGNORE_TO_STRING
 void SkImageFilter::CropRect::toString(SkString* str) const {
     if (!fFlags) {
         return;
@@ -56,7 +55,6 @@ void SkImageFilter::CropRect::toString(SkString* str) const {
     }
     str->appendf(") ");
 }
-#endif
 
 void SkImageFilter::CropRect::applyTo(const SkIRect& imageBounds,
                                       const SkMatrix& ctm,
@@ -168,6 +166,7 @@ SkImageFilter::SkImageFilter(sk_sp<SkImageFilter> const* inputs,
 }
 
 SkImageFilter::~SkImageFilter() {
+    SkAutoMutexAcquire lock(fMutex);
     SkImageFilterCache::Get()->purgeByKeys(fCacheKeys.begin(), fCacheKeys.count());
 }
 
@@ -302,8 +301,10 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
 
     sk_sp<SkColorSpace> colorSpace = sk_ref_sp(outputProperties.colorSpace());
     GrPixelConfig config = GrRenderableConfigForColorSpace(colorSpace.get());
-    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
-        SkBackingFit::kApprox, bounds.width(), bounds.height(), config, std::move(colorSpace)));
+    sk_sp<GrRenderTargetContext> renderTargetContext(
+        context->contextPriv().makeDeferredRenderTargetContext(
+                                SkBackingFit::kApprox, bounds.width(), bounds.height(),
+                                config, std::move(colorSpace)));
     if (!renderTargetContext) {
         return nullptr;
     }

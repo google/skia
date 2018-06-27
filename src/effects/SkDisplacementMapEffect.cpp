@@ -269,6 +269,11 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
     }
 
     const SkIRect colorBounds = bounds.makeOffset(-colorOffset.x(), -colorOffset.y());
+    // If the offset overflowed (saturated) then we have to abort, as we need their
+    // dimensions to be equal. See https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=7209
+    if (colorBounds.size() != bounds.size()) {
+        return nullptr;
+    }
 
     SkVector scale = SkVector::Make(fScale, fScale);
     ctx.ctm().mapVectors(&scale, 1);
@@ -306,7 +311,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
         matrix.setTranslate(-SkIntToScalar(colorBounds.x()), -SkIntToScalar(colorBounds.y()));
 
         sk_sp<GrRenderTargetContext> renderTargetContext(
-            context->makeDeferredRenderTargetContext(SkBackingFit::kApprox,
+            context->contextPriv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
                                                      bounds.width(), bounds.height(),
                                                      GrRenderableConfigForColorSpace(colorSpace),
                                                      sk_ref_sp(colorSpace)));
@@ -399,7 +404,6 @@ SkIRect SkDisplacementMapEffect::onFilterBounds(const SkIRect& src, const SkMatr
     return src;
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkDisplacementMapEffect::toString(SkString* str) const {
     str->appendf("SkDisplacementMapEffect: (");
     str->appendf("scale: %f ", fScale);
@@ -413,7 +417,6 @@ void SkDisplacementMapEffect::toString(SkString* str) const {
     }
     str->appendf("))");
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

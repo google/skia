@@ -239,7 +239,7 @@ protected:
         const char* p = coords2D.c_str();
 
         if (effect.getType() == Type::kRadial) {
-            char sign = effect.diffRadius() < 0 ? '-' : '+';
+            char sign = effect.isRadiusIncreasing() ? '+' : '-';
             fragBuilder->codeAppendf("half %s = %clength(%s) - %s;", tName, sign, p, p0.c_str());
         } else {
             // output will default to transparent black (we simply won't write anything
@@ -388,18 +388,7 @@ std::unique_ptr<GrFragmentProcessor> Gr2PtConicalGradientEffect::Make(
     const SkTwoPointConicalGradient& shader =
         *static_cast<const SkTwoPointConicalGradient*>(args.fShader);
 
-    SkMatrix matrix;
-    if (!shader.getLocalMatrix().invert(&matrix)) {
-        return nullptr;
-    }
-    if (args.fMatrix) {
-        SkMatrix inv;
-        if (!args.fMatrix->invert(&inv)) {
-            return nullptr;
-        }
-        matrix.postConcat(inv);
-    }
-
+    SkMatrix matrix = *args.fMatrix;
     GrGradientEffect::CreateArgs newArgs(args.fContext, args.fShader, &matrix, args.fWrapMode,
         args.fDstColorSpace);
     // Data and matrix has to be prepared before constructing TwoPointConicalEffect so its parent

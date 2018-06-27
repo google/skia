@@ -181,23 +181,36 @@ void GrAtlasTextOp::finalizeForTextTarget(uint32_t color, const GrCaps& caps) {
 
 void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
     FlushInfo flushInfo;
-    SkAutoGlyphCache glyphCache;
+    SkExclusiveStrikePtr autoGlyphCache;
     auto& context = target->context()->internal();
-    auto* atlasGlyphCache = context.grContext()->contextPriv().getAtlasGlyphCache();
+    auto glyphCache = context.grContext()->contextPriv().getGlyphCache();
+    auto atlasManager = context.grContext()->contextPriv().getAtlasManager();
+    auto resourceProvider = context.grContext()->contextPriv().resourceProvider();
+
+    unsigned int numProxies;
+    if (!atlasManager->getProxies(kA8_GrMaskFormat, &numProxies)) {
+        return;
+    }
+
     for (int i = 0; i < fGeoCount; ++i) {
         GrAtlasTextBlob::VertexRegenerator regenerator(
-                fGeoData[i].fBlob, fGeoData[i].fRun, fGeoData[i].fSubRun, fGeoData[i].fViewMatrix,
-                fGeoData[i].fX, fGeoData[i].fY, fGeoData[i].fColor, &context, atlasGlyphCache,
-                &glyphCache);
-        GrAtlasTextBlob::VertexRegenerator::Result result;
-        do {
-            result = regenerator.regenerate();
+                resourceProvider, fGeoData[i].fBlob, fGeoData[i].fRun, fGeoData[i].fSubRun,
+                fGeoData[i].fViewMatrix, fGeoData[i].fX, fGeoData[i].fY, fGeoData[i].fColor,
+                &context, glyphCache, atlasManager, &autoGlyphCache);
+        bool done = false;
+        while (!done) {
+            GrAtlasTextBlob::VertexRegenerator::Result result;
+            if (!regenerator.regenerate(&result)) {
+                break;
+            }
+            done = result.fFinished;
+
             context.recordDraw(result.fFirstVertex, result.fGlyphsRegenerated,
                                fGeoData[i].fViewMatrix, target->handle());
             if (!result.fFinished) {
                 // Make space in the atlas so we can continue generating vertices.
                 context.flush();
             }
-        } while (!result.fFinished);
+        }
     }
 }

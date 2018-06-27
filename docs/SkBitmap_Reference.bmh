@@ -201,11 +201,13 @@ allocated, so both bitmaps reference the same pixels.
 #Example
 void draw(SkCanvas* canvas) {
     SkBitmap original;
-    original.tryAllocPixels(SkImageInfo::Make(25, 35, kRGBA_8888_SkColorType, kOpaque_SkAlphaType));
-    SkDebugf("original has pixels before copy: %s\n", original.getPixels() ? "true" : "false");
-    SkBitmap copy(original);  
-    SkDebugf("original has pixels after copy: %s\n", original.getPixels() ? "true" : "false");
-    SkDebugf("copy has pixels: %s\n", copy.getPixels() ? "true" : "false");
+    if (original.tryAllocPixels(
+            SkImageInfo::Make(25, 35, kRGBA_8888_SkColorType, kOpaque_SkAlphaType))) {
+        SkDebugf("original has pixels before copy: %s\n", original.getPixels() ? "true" : "false");
+        SkBitmap copy(original);  
+        SkDebugf("original has pixels after copy: %s\n", original.getPixels() ? "true" : "false");
+        SkDebugf("copy has pixels: %s\n", copy.getPixels() ? "true" : "false");
+    }
 }
 #StdOut
 original has pixels before copy: true
@@ -233,11 +235,13 @@ Bitmap.
 #Example
 void draw(SkCanvas* canvas) {
     SkBitmap original;
-    original.tryAllocPixels(SkImageInfo::Make(25, 35, kRGBA_8888_SkColorType, kOpaque_SkAlphaType));
-    SkDebugf("original has pixels before move: %s\n", original.getPixels() ? "true" : "false");
-    SkBitmap copy(std::move(original));  
-    SkDebugf("original has pixels after move: %s\n", original.getPixels() ? "true" : "false");
-    SkDebugf("copy has pixels: %s\n", copy.getPixels() ? "true" : "false");
+    if (original.tryAllocPixels(
+            SkImageInfo::Make(25, 35, kRGBA_8888_SkColorType, kOpaque_SkAlphaType))) {
+        SkDebugf("original has pixels before move: %s\n", original.getPixels() ? "true" : "false");
+        SkBitmap copy(std::move(original));  
+        SkDebugf("original has pixels after move: %s\n", original.getPixels() ? "true" : "false");
+        SkDebugf("copy has pixels: %s\n", copy.getPixels() ? "true" : "false");
+    }
 }
 #StdOut
 original has pixels before move: true
@@ -279,11 +283,13 @@ allocated, so both bitmaps reference the same pixels.
 #Example
 void draw(SkCanvas* canvas) {
     SkBitmap original;
-    original.tryAllocPixels(SkImageInfo::Make(25, 35, kRGBA_8888_SkColorType, kOpaque_SkAlphaType));
-    SkDebugf("original has pixels before copy: %s\n", original.getPixels() ? "true" : "false");
-    SkBitmap copy = original;  
-    SkDebugf("original has pixels after copy: %s\n", original.getPixels() ? "true" : "false");
-    SkDebugf("copy has pixels: %s\n", copy.getPixels() ? "true" : "false");
+    if (original.tryAllocPixels(
+            SkImageInfo::Make(25, 35, kRGBA_8888_SkColorType, kOpaque_SkAlphaType))) {
+        SkDebugf("original has pixels before copy: %s\n", original.getPixels() ? "true" : "false");
+        SkBitmap copy = original;  
+        SkDebugf("original has pixels after copy: %s\n", original.getPixels() ? "true" : "false");
+        SkDebugf("copy has pixels: %s\n", copy.getPixels() ? "true" : "false");
+    }
 }
 #StdOut
 original has pixels before copy: true
@@ -311,11 +317,13 @@ Bitmap.
 #Example
 void draw(SkCanvas* canvas) {
     SkBitmap original;
-    original.tryAllocPixels(SkImageInfo::Make(25, 35, kRGBA_8888_SkColorType, kOpaque_SkAlphaType));
-    SkDebugf("original has pixels before move: %s\n", original.getPixels() ? "true" : "false");
-    SkBitmap copy = std::move(original);  
-    SkDebugf("original has pixels after move: %s\n", original.getPixels() ? "true" : "false");
-    SkDebugf("copy has pixels: %s\n", copy.getPixels() ? "true" : "false");
+    if (original.tryAllocPixels(
+            SkImageInfo::Make(25, 35, kRGBA_8888_SkColorType, kOpaque_SkAlphaType))) {
+        SkDebugf("original has pixels before move: %s\n", original.getPixels() ? "true" : "false");
+        SkBitmap copy = std::move(original);  
+        SkDebugf("original has pixels after move: %s\n", original.getPixels() ? "true" : "false");
+        SkDebugf("copy has pixels: %s\n", copy.getPixels() ? "true" : "false");
+    }
 }
 #StdOut
 original has pixels before move: true
@@ -347,8 +355,14 @@ void draw(SkCanvas* canvas) {
                  prefix, b.width(), b.height(), colors[b.colorType()], alphas[b.alphaType()]);
     };
     SkBitmap one, two;
-    one.tryAllocPixels(SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kOpaque_SkAlphaType));
-    two.tryAllocPixels(SkImageInfo::Make(2, 2, kBGRA_8888_SkColorType, kPremul_SkAlphaType));
+    if (!one.tryAllocPixels(
+            SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kOpaque_SkAlphaType))) {
+        return;
+    }
+    if (!two.tryAllocPixels(
+            SkImageInfo::Make(2, 2, kBGRA_8888_SkColorType, kPremul_SkAlphaType))) {
+        return;
+    }
     for (int index = 0; index < 2; ++index) {
        debugster("one", one);
        debugster("two", two);
@@ -509,9 +523,7 @@ bitmap height: 32  info height: 32
 #Method SkColorType colorType() const
 #In Property
 #Line # returns Image_Info Color_Type ##
-Returns Color_Type, one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
-kRGB_565_SkColorType, kARGB_4444_SkColorType, kRGBA_8888_SkColorType,
-kBGRA_8888_SkColorType, kGray_8_SkColorType, kRGBA_F16_SkColorType.
+Returns Color_Type, one of: #list_of_color_types#.
 
 #Return  Color_Type in Image_Info ##
 
@@ -535,8 +547,7 @@ color type: kAlpha_8_SkColorType
 #Method SkAlphaType alphaType() const
 #In Property
 #Line # returns Image_Info Alpha_Type ##
-Returns Alpha_Type, one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-kPremul_SkAlphaType, kUnpremul_SkAlphaType.
+Returns Alpha_Type, one of: #list_of_alpha_types#.
 
 #Return  Alpha_Type in Image_Info ##
 
@@ -591,7 +602,7 @@ gammaCloseToSRGB: false  gammaIsLinear: true  isSRGB: false
 #Method sk_sp<SkColorSpace> refColorSpace() const
 #In Property
 #Line # returns Image_Info Color_Space ##
-Returns a smart pointer to Color_Space, the range of colors, associated with
+Returns smart pointer to Color_Space, the range of colors, associated with
 Image_Info. The smart pointer tracks the number of objects sharing this
 Color_Space reference so the memory is released when the owners destruct.
 
@@ -634,11 +645,8 @@ Returns zero if colorType( is kUnknown_SkColorType.
                             "BGRA_8888", "RGBA_1010102", "RGB_101010x", "Gray_8", "RGBA_F16"};
     SkImageInfo info = SkImageInfo::MakeA8(1, 1);
     SkBitmap bitmap;
-    for (SkColorType colorType : { kUnknown_SkColorType,     kAlpha_8_SkColorType,
-                                   kRGB_565_SkColorType,     kARGB_4444_SkColorType, 
-                                   kRGBA_8888_SkColorType,
-                                   kBGRA_8888_SkColorType,   kGray_8_SkColorType,
-                                   kRGBA_F16_SkColorType } ) {
+    for (SkColorType colorType : { #list_of_color_types#
+                                 } ) {
         bitmap.setInfo(info.makeColorType(colorType));
         SkDebugf("color: k" "%s" "_SkColorType" "%*s" "bytesPerPixel: %d\n",
                 colors[colorType], 13 - strlen(colors[colorType]), " ",
@@ -650,13 +658,16 @@ color: kAlpha_8_SkColorType      bytesPerPixel: 1
 color: kRGB_565_SkColorType      bytesPerPixel: 2
 color: kARGB_4444_SkColorType    bytesPerPixel: 2
 color: kRGBA_8888_SkColorType    bytesPerPixel: 4
+color: kRGB_888x_SkColorType     bytesPerPixel: 4
 color: kBGRA_8888_SkColorType    bytesPerPixel: 4
+color: kRGBA_1010102_SkColorType bytesPerPixel: 4
+color: kRGB_101010x_SkColorType  bytesPerPixel: 4
 color: kGray_8_SkColorType       bytesPerPixel: 1
 color: kRGBA_F16_SkColorType     bytesPerPixel: 8
 ##
 ##
 
-#SeeAlso rowBytes rowBytesAsPixels width shiftPerPixel
+#SeeAlso rowBytes rowBytesAsPixels width shiftPerPixel SkImageInfo::bytesPerPixel
 
 ##
 
@@ -704,24 +715,25 @@ Returns zero for kUnknown_SkColorType.
                             "BGRA_8888", "RGBA_1010102", "RGB_101010x", "Gray_8", "RGBA_F16"};
     SkImageInfo info = SkImageInfo::MakeA8(1, 1);
     SkBitmap bitmap;
-    for (SkColorType colorType : { kUnknown_SkColorType,   kAlpha_8_SkColorType,
-                                   kRGB_565_SkColorType,   kARGB_4444_SkColorType, 
-                                   kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
-                                   kGray_8_SkColorType,    kRGBA_F16_SkColorType } ) {
+    for (SkColorType colorType : { #list_of_color_types#
+                                 } ) {
         bitmap.setInfo(info.makeColorType(colorType));
         SkDebugf("color: k" "%s" "_SkColorType" "%*s" "shiftPerPixel: %d\n",
-                colors[colorType], 10 - strlen(colors[colorType]), " ",
+                colors[colorType], 14 - strlen(colors[colorType]), " ",
                 bitmap.shiftPerPixel());
     }
 #StdOut
-color: kUnknown_SkColorType   shiftPerPixel: 0
-color: kAlpha_8_SkColorType   shiftPerPixel: 0
-color: kRGB_565_SkColorType   shiftPerPixel: 1
-color: kARGB_4444_SkColorType shiftPerPixel: 1
-color: kRGBA_8888_SkColorType shiftPerPixel: 2
-color: kBGRA_8888_SkColorType shiftPerPixel: 2
-color: kGray_8_SkColorType    shiftPerPixel: 0
-color: kRGBA_F16_SkColorType  shiftPerPixel: 3
+color: kUnknown_SkColorType       shiftPerPixel: 0
+color: kAlpha_8_SkColorType       shiftPerPixel: 0
+color: kRGB_565_SkColorType       shiftPerPixel: 1
+color: kARGB_4444_SkColorType     shiftPerPixel: 1
+color: kRGBA_8888_SkColorType     shiftPerPixel: 2
+color: kRGB_888x_SkColorType      shiftPerPixel: 2
+color: kBGRA_8888_SkColorType     shiftPerPixel: 2
+color: kRGBA_1010102_SkColorType  shiftPerPixel: 2
+color: kRGB_101010x_SkColorType   shiftPerPixel: 2
+color: kGray_8_SkColorType        shiftPerPixel: 0
+color: kRGBA_F16_SkColorType      shiftPerPixel: 3
 ##
 ##
 
@@ -885,8 +897,7 @@ kUnpremul_SkAlphaType, it is treated as kPremul_SkAlphaType.
 This changes Alpha_Type in Pixel_Ref; all bitmaps sharing Pixel_Ref
 are affected.
 
-#Param alphaType  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-                          kPremul_SkAlphaType, kUnpremul_SkAlphaType
+#Param alphaType  one of: #list_of_alpha_types#
 ##
 
 #Return  true if Alpha_Type is set ##
@@ -897,12 +908,11 @@ void draw(SkCanvas* canvas) {
                              "BGRA_8888", "RGBA_1010102", "RGB_101010x", "Gray_8", "RGBA_F16" };
     const char* alphas[] = {"Unknown ", "Opaque  ", "Premul  ", "Unpremul"}; 
     SkBitmap bitmap;
-    SkAlphaType alphaTypes[] = { kUnknown_SkAlphaType, kOpaque_SkAlphaType,
-                                 kPremul_SkAlphaType, kUnpremul_SkAlphaType };
+    SkAlphaType alphaTypes[] = { #list_of_alpha_types#
+                               };
     SkDebugf("%88s", "Canonical    Unknown           Opaque            Premul            Unpremul\n");
-    for (SkColorType colorType : { kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-                            kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kBGRA_8888_SkColorType, 
-                            kGray_8_SkColorType, kRGBA_F16_SkColorType } ) {
+    for (SkColorType colorType : { #list_of_color_types#
+                                 } ) {
         for (SkAlphaType canonicalAlphaType : alphaTypes) {
             SkColorTypeValidateAlphaType(colorType, kUnknown_SkAlphaType, &canonicalAlphaType );
             SkDebugf("%10s %10s ", colors[(int) colorType], alphas[(int) canonicalAlphaType ]);
@@ -1057,11 +1067,15 @@ Triggers assert if SK_DEBUG is true, runs fine otherwise.
 #Method bool isOpaque() const
 #In Property
 #Line # returns true if Image_Info describes opaque pixels ##
-Returns true if Alpha_Type is kOpaque_SkAlphaType.
+
+Returns true if Alpha_Type is set to hint that all pixels are opaque; their
+Color_Alpha value is implicitly or explicitly 1.0. If true, and all pixels are
+not opaque, Skia may draw incorrectly. 
+
 Does not check if Color_Type allows Alpha, or if any pixel value has
 transparency.
 
-#Return  true if Image_Info describes opaque Alpha ##
+#Return  true if Image_Info Alpha_Type is kOpaque_SkAlphaType ##
 
 #Example
 #Description
@@ -1294,7 +1308,7 @@ Returns IRect { 0, 0, width(), height() }.
 #Return  integral rectangle from origin to width() and height() ##
 
 #Example
-#Height 128
+#Height 64
 #Image 4
     canvas->scale(.5f, .5f);
     SkIRect bounds = source.bounds();
@@ -1461,8 +1475,8 @@ until the pixels are written to. The actual behavior depends on the platform
 implementation of malloc(), if flags is zero, and calloc(), if flags is
 kZeroPixels_AllocFlag.
 
-Passing kZeroPixels_AllocFlag is usually faster than separately calling
-eraseColor(SK_ColorTRANSPARENT).
+flags set to kZeroPixels_AllocFlag offers equal or better performance than
+subsequently calling eraseColor with SK_ColorTRANSPARENT.
 
 #Param info  contains width, height, Alpha_Type, Color_Type, Color_Space ##
 #Param flags  kZeroPixels_AllocFlag, or zero ##
@@ -1505,8 +1519,8 @@ until the pixels are written to. The actual behavior depends on the platform
 implementation of malloc(), if flags is zero, and calloc(), if flags is
 kZeroPixels_AllocFlag.
 
-Passing kZeroPixels_AllocFlag is usually faster than separately calling
-eraseColor(SK_ColorTRANSPARENT).
+flags set to kZeroPixels_AllocFlag offers equal or better performance than
+subsequently calling eraseColor with SK_ColorTRANSPARENT.
 
 #Param info  contains width, height, Alpha_Type, Color_Type, Color_Space ##
 #Param flags  kZeroPixels_AllocFlag, or zero ##
@@ -2402,19 +2416,7 @@ then r, g, and b are ignored.
 # ------------------------------------------------------------------------------
 
 #Method void eraseRGB(U8CPU r, U8CPU g, U8CPU b) const
-#In Draw
-#Line # deprecated ##
-Deprecated. Use eraseARGB or eraseColor.
-
-#Param r    amount of red ##
-#Param g    amount of green ##
-#Param b    amount of blue ##
-
-#NoExample
-##
-
-#SeeAlso eraseColor eraseARGB erase
-
+#Deprecated 
 ##
 
 # ------------------------------------------------------------------------------
@@ -2546,7 +2548,8 @@ one of: getAddr8, getAddr16, or getAddr32.
 #Image 3
     char* row0 = (char* ) source.getAddr(0, 0);
     char* row1 = (char* ) source.getAddr(0, 1);
-    SkDebugf("addr interval %c= rowBytes\n", row1 - row0 == source.rowBytes() ? '=' : '!');
+    SkDebugf("addr interval %c= rowBytes\n",
+             (size_t) (row1 - row0) == source.rowBytes() ? '=' : '!');
 #StdOut
 addr interval == rowBytes
 ##
@@ -3289,6 +3292,10 @@ Pixel_Ref. Sets offset to top-left position for dst for alignment with Bitmap;
 #Bug 7103
 #Example
 #Height 160
+    auto radiusToSigma = [](SkScalar radius) -> SkScalar {
+         static const SkScalar kBLUR_SIGMA_SCALE = 0.57735f;
+         return radius > 0 ? kBLUR_SIGMA_SCALE * radius + 0.5f : 0.0f;
+    };
     SkBitmap alpha, bitmap;
     bitmap.allocN32Pixels(100, 100);
     SkCanvas offscreen(bitmap);
@@ -3300,9 +3307,7 @@ Pixel_Ref. Sets offset to top-left position for dst for alignment with Bitmap;
     paint.setStrokeWidth(20);
     offscreen.drawCircle(50, 50, 39, paint);
     offscreen.flush();
-    const SkScalar kBlurSigma = SkBlurMaskFilter::ConvertRadiusToSigma(SkIntToScalar(25));
-    paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, kBlurSigma,
-                                    SkBlurMaskFilter::kHighQuality_BlurFlag));
+    paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, radiusToSigma(25)));
     SkIPoint offset;
     bitmap.extractAlpha(&alpha, &paint, &offset);
     paint.setColor(SK_ColorRED);
@@ -3349,7 +3354,7 @@ mask.
     paint.setStrokeWidth(20);
     offscreen.drawCircle(50, 50, 39, paint);
     offscreen.flush();
-    paint.setMaskFilter(SkBlurMaskFilter::Make(kOuter_SkBlurStyle, 3));
+    paint.setMaskFilter(SkMaskFilter::MakeBlur(kOuter_SkBlurStyle, 3));
     SkIPoint offset;
     bitmap.extractAlpha(&alpha, &paint, nullptr, &offset);
     paint.setColor(SK_ColorRED);
@@ -3428,7 +3433,7 @@ SK_DEBUG is defined at compile time.
 #NoExample
 ##
 
-#SeeAlso SkImageInfo::validate() 
+#SeeAlso SkImageInfo::validate
 
 ##
 
@@ -3437,15 +3442,9 @@ SK_DEBUG is defined at compile time.
 #Method void toString(SkString* str) const;
 #In Utility
 #Line # converts Bitmap to machine readable form ##
-#DefinedBy SK_TO_STRING_NONVIRT() ##
-
-#Private
-macro expands to: void toString(SkString* str) const;
-##
 
 Creates string representation of Bitmap. The representation is read by
-internal debugging tools. The interface and implementation may be
-suppressed by defining SK_IGNORE_TO_STRING.
+internal debugging tools.
 
 #Param str  storage for string representation ##
 

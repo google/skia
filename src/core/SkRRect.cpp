@@ -116,6 +116,26 @@ static double compute_min_scale(double rad1, double rad2, double limit, double c
     return curMin;
 }
 
+static bool clamp_to_zero(SkVector radii[4]) {
+    bool allCornersSquare = true;
+
+    // Clamp negative radii to zero
+    for (int i = 0; i < 4; ++i) {
+        if (radii[i].fX <= 0 || radii[i].fY <= 0) {
+            // In this case we are being a little fast & loose. Since one of
+            // the radii is 0 the corner is square. However, the other radii
+            // could still be non-zero and play in the global scale factor
+            // computation.
+            radii[i].fX = 0;
+            radii[i].fY = 0;
+        } else {
+            allCornersSquare = false;
+        }
+    }
+
+    return allCornersSquare;
+}
+
 void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
     if (!this->initializeRect(rect)) {
         return;
@@ -128,28 +148,12 @@ void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
 
     memcpy(fRadii, radii, sizeof(fRadii));
 
-    bool allCornersSquare = true;
-
-    // Clamp negative radii to zero
-    for (int i = 0; i < 4; ++i) {
-        if (fRadii[i].fX <= 0 || fRadii[i].fY <= 0) {
-            // In this case we are being a little fast & loose. Since one of
-            // the radii is 0 the corner is square. However, the other radii
-            // could still be non-zero and play in the global scale factor
-            // computation.
-            fRadii[i].fX = 0;
-            fRadii[i].fY = 0;
-        } else {
-            allCornersSquare = false;
-        }
-    }
-
-    if (allCornersSquare) {
+    if (clamp_to_zero(fRadii)) {
         this->setRect(rect);
         return;
     }
 
-    this->scaleRadii();
+    this->scaleRadii(rect);
 }
 
 bool SkRRect::initializeRect(const SkRect& rect) {
@@ -167,7 +171,7 @@ bool SkRRect::initializeRect(const SkRect& rect) {
     return true;
 }
 
-void SkRRect::scaleRadii() {
+void SkRRect::scaleRadii(const SkRect& rect) {
 
     // Proportionally scale down all radii to fit. Find the minimum ratio
     // of a side and the radii on that side (for all four sides) and use
@@ -194,6 +198,12 @@ void SkRRect::scaleRadii() {
         SkScaleToSides::AdjustRadii(height, scale, &fRadii[1].fY, &fRadii[2].fY);
         SkScaleToSides::AdjustRadii(width,  scale, &fRadii[2].fX, &fRadii[3].fX);
         SkScaleToSides::AdjustRadii(height, scale, &fRadii[3].fY, &fRadii[0].fY);
+    }
+
+    // adjust radii may set x or y to zero; set companion to zero as well
+    if (clamp_to_zero(fRadii)) {
+        this->setRect(rect);
+        return;
     }
 
     // At this point we're either oval, simple, or complex (not empty or rect).
@@ -440,7 +450,7 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
         return false;
     }
 
-    dst->scaleRadii();
+    dst->scaleRadii(dst->fRect);
     dst->isValid();
 
     return true;

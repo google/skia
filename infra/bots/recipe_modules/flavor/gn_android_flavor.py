@@ -15,9 +15,12 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     super(GNAndroidFlavorUtils, self).__init__(m)
     self._ever_ran_adb = False
     self.ADB_BINARY = '/usr/bin/adb.1.0.35'
+    self.ADB_PUB_KEY = '/home/chrome-bot/.android/adbkey'
     self._golo_devices = ['Nexus5x']
     if self.m.vars.builder_cfg.get('model') in self._golo_devices:
       self.ADB_BINARY = '/opt/infra-android/tools/adb'
+      self.ADB_PUB_KEY = ('/home/chrome-bot/.android/'
+                          'chrome_infrastructure_adbkey')
 
     self.device_dirs = default_flavor.DeviceDirs(
         dm_dir        = self.m.vars.android_data_dir + 'dm_out',
@@ -102,10 +105,11 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
                  fail_build_on_failure=False)
 
     with self.m.context(cwd=self.m.vars.skia_dir):
-      return self.m.run.with_retry(self.m.step, title, attempts,
-                                   cmd=[self.ADB_BINARY]+list(cmd),
-                                   between_attempts_fn=wait_for_device,
-                                   **kwargs)
+      with self.m.env({'ADB_VENDOR_KEYS': self.ADB_PUB_KEY}):
+        return self.m.run.with_retry(self.m.step, title, attempts,
+                                     cmd=[self.ADB_BINARY]+list(cmd),
+                                     between_attempts_fn=wait_for_device,
+                                     **kwargs)
 
   def _scale_for_dm(self):
     device = self.m.vars.builder_cfg.get('model')
@@ -357,16 +361,21 @@ if actual_freq != str(freq):
       extra_cflags.append('-O1')
 
     ndk_asset = 'android_ndk_linux'
+    ndk_path = ndk_asset
     if 'Mac' in os:
       ndk_asset = 'android_ndk_darwin'
+      ndk_path = ndk_asset
     elif 'Win' in os:
-      ndk_asset = 'n'
+      ndk_asset = 'android_ndk_windows'
+      ndk_path = 'n'
 
     quote = lambda x: '"%s"' % x
     args = {
-        'ndk': quote(self.m.vars.slave_dir.join(ndk_asset)),
+        'ndk': quote(self.m.vars.slave_dir.join(ndk_path)),
         'target_cpu': quote(target_arch),
     }
+    extra_cflags.append('-DDUMMY_ndk_version=%s' %
+                        self.m.run.asset_version(ndk_asset))
 
     if configuration != 'Debug':
       args['is_debug'] = 'false'
@@ -394,8 +403,36 @@ if actual_freq != str(freq):
     gn      = self.m.vars.skia_dir.join('bin', gn)
 
     self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
-    self._run('gn gen', gn, 'gen', self.out_dir, '--args=' + gn_args)
-    self._run('ninja', ninja, '-k', '0', '-C', self.out_dir)
+
+    # If this is the SkQP build, set up the environment and run the script
+    # to build the universal APK. This should only run the skqp branches.
+    if 'SKQP' in extra_tokens:
+      self.m.infra.update_go_deps()
+
+      output_binary = self.out_dir.join('run_testlab')
+      build_target = self.m.vars.skia_dir.join('infra', 'cts', 'run_testlab.go')
+      build_cmd = ['go', 'build', '-o', output_binary, build_target]
+      with self.m.context(env=self.m.infra.go_env):
+        self.m.run(self.m.step, 'build firebase runner', cmd=build_cmd)
+
+      # Build the APK.
+      ndk_asset = 'android_ndk_linux'
+      sdk_asset = 'android_sdk_linux'
+      android_ndk = self.m.vars.slave_dir.join(ndk_asset)
+      android_home = self.m.vars.slave_dir.join(sdk_asset, 'android-sdk')
+      env = {
+        'ANDROID_NDK': android_ndk,
+        'ANDROID_HOME': android_home,
+        'APK_OUTPUT_DIR': self.out_dir,
+      }
+
+      mk_universal = self.m.vars.skia_dir.join('tools', 'skqp',
+                                               'make_universal_apk')
+      with self.m.context(env=env):
+        self._run('make_universal', mk_universal)
+    else:
+      self._run('gn gen', gn, 'gen', self.out_dir, '--args=' + gn_args)
+      self._run('ninja', ninja, '-k', '0', '-C', self.out_dir)
 
   def install(self):
     self._adb('mkdir ' + self.device_dirs.resource_dir,
@@ -494,8 +531,10 @@ wait_for_device()
     # broken state; it was just rebooting.
     if (self.m.run.failed_steps and
         isinstance(self.m.run.failed_steps[0], recipe_api.InfraFailure)):
+      bot_id = self.m.vars.swarming_bot_id
       self.m.file.write_text('Quarantining Bot',
-                             '/home/chrome-bot/force_quarantine', ' ')
+                             '/home/chrome-bot/%s.force_quarantine' % bot_id,
+                             ' ')
 
     if self._ever_ran_adb:
       self._adb('kill adb server', 'kill-server')
@@ -571,3 +610,8 @@ wait_for_device()
   def create_clean_device_dir(self, path):
     self._adb('rm %s' % path, 'shell', 'rm', '-rf', path)
     self._adb('mkdir %s' % path, 'shell', 'mkdir', '-p', path)
+
+  def copy_extra_build_products(self, swarming_out_dir):
+    if 'SKQP' in self.m.vars.extra_tokens:
+      wlist =self.m.vars.skia_dir.join('infra','cts', 'whitelist_devices.json')
+      self.m.file.copy('copy whitelist', wlist, swarming_out_dir)

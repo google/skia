@@ -135,6 +135,8 @@ public:
     // public ways to serialize / deserialize
     //
     sk_sp<SkData> serialize(const SkSerialProcs* = nullptr) const;
+    size_t serialize(void* memory, size_t memory_size,
+                     const SkSerialProcs* = nullptr) const;
     static sk_sp<SkFlattenable> Deserialize(Type, const void* data, size_t length,
                                             const SkDeserialProcs* procs = nullptr);
 

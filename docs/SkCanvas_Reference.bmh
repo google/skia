@@ -883,7 +883,7 @@ Returns true if Canvas has direct access to its pixels.
 Pixels are readable when Device is raster. Pixels are not readable when Canvas
 is returned from GPU_Surface, returned by SkDocument::beginPage, returned by
 SkPictureRecorder::beginRecording, or Canvas is the base of a utility class
-like SkDumpCanvas.
+like SkDebugCanvas.
 
 pixmap is valid only while Canvas is in scope and unchanged. Any
 Canvas or Surface call may invalidate the pixmap values.
@@ -924,7 +924,7 @@ converting to dstInfo.colorType() and dstInfo.alphaType() if required.
 Pixels are readable when Device is raster, or backed by a GPU.
 Pixels are not readable when SkCanvas is returned by SkDocument::beginPage,
 returned by SkPictureRecorder::beginRecording, or Canvas is the base of a utility
-class like SkDumpCanvas.
+class like SkDebugCanvas.
 
 The destination pixel storage must be allocated by the caller.
 
@@ -1016,7 +1016,7 @@ converting to pixmap.colorType() and pixmap.alphaType() if required.
 Pixels are readable when Device is raster, or backed by a GPU.
 Pixels are not readable when SkCanvas is returned by SkDocument::beginPage,
 returned by SkPictureRecorder::beginRecording, or Canvas is the base of a utility
-class like SkDumpCanvas.
+class like SkDebugCanvas.
 
 Caller must allocate pixel storage in pixmap if needed.
 
@@ -1079,7 +1079,7 @@ converting to bitmap.colorType() and bitmap.alphaType() if required.
 Pixels are readable when Device is raster, or backed by a GPU.
 Pixels are not readable when SkCanvas is returned by SkDocument::beginPage,
 returned by SkPictureRecorder::beginRecording, or Canvas is the base of a utility
-class like SkDumpCanvas.
+class like SkDebugCanvas.
 
 Caller must allocate pixel storage in bitmap if needed.
 
@@ -1143,7 +1143,7 @@ converting to imageInfo().colorType() and imageInfo().alphaType() if required.
 Pixels are writable when Device is raster, or backed by a GPU.
 Pixels are not writable when SkCanvas is returned by SkDocument::beginPage,
 returned by SkPictureRecorder::beginRecording, or Canvas is the base of a utility
-class like SkDumpCanvas.
+class like SkDebugCanvas.
 
 Pixel values are converted only if Color_Type and Alpha_Type
 do not match. Only pixels within both source and destination rectangles
@@ -1201,7 +1201,7 @@ converting to imageInfo().colorType() and imageInfo().alphaType() if required.
 Pixels are writable when Device is raster, or backed by a GPU.
 Pixels are not writable when SkCanvas is returned by SkDocument::beginPage,
 returned by SkPictureRecorder::beginRecording, or Canvas is the base of a utility
-class like SkDumpCanvas.
+class like SkDebugCanvas.
 
 Pixel values are converted only if Color_Type and Alpha_Type
 do not match. Only pixels within both source and destination rectangles
@@ -4529,7 +4529,7 @@ void draw(SkCanvas* canvas) {
     bitmap.installPixels(SkImageInfo::MakeA8(8, 8), 
             (void*) pixels, sizeof(pixels[0]));
     SkPaint paint;
-    paint.setMaskFilter(SkBlurMaskFilter::Make(kSolid_SkBlurStyle, 6));
+    paint.setMaskFilter(SkMaskFilter::MakeBlur(kSolid_SkBlurStyle, 6));
     for (auto color : { SK_ColorRED, SK_ColorBLUE, 0xFF007F00} ) {
         paint.setColor(color);
         canvas->drawBitmapRect(bitmap, SkRect::MakeWH(8, 8), SkRect::MakeWH(32, 32), &paint);
@@ -4972,14 +4972,6 @@ void draw(SkCanvas* canvas) {
         }
         left = right; 
     }
-    const int xDivs[] = { center.fLeft, center.fRight };
-    const int yDivs[] = { center.fTop, center.fBottom };
-    SkCanvas::Lattice::RectType fillTypes[3][3];
-    memset(fillTypes, 0, sizeof(fillTypes));  
-    fillTypes[1][1] = SkCanvas::Lattice::kTransparent;
-    SkColor dummy[9];  // temporary pending bug fix
-    SkCanvas::Lattice lattice = { xDivs, yDivs, fillTypes[0], SK_ARRAY_COUNT(xDivs),
-         SK_ARRAY_COUNT(yDivs), nullptr, dummy };
     sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);
     SkImage* imagePtr = image.get();
     for (auto dest: { 20, 30, 40, 60, 90 } ) {
@@ -5064,7 +5056,8 @@ void draw(SkCanvas* canvas) {
 #In Draw
 #Line # draws null terminated string at (x, y) using font advance ##
 Draw null terminated string, with origin at (x, y), using Clip, Matrix, and
-Paint paint.
+Paint paint. Note that this per-glyph xform does not affect the shader (if present)
+on the paint, just the glyph's geometry.
 
 string meaning depends on Paint_Text_Encoding; by default, strings are encoded
 as UTF-8. Other values of Paint_Text_Encoding are unlikely to produce the desired
@@ -5508,7 +5501,6 @@ void draw(SkCanvas* canvas) {
         recordingCanvas->scale(1.2f, 1.4f);
     }
     sk_sp<SkPicture> playback = recorder.finishRecordingAsPicture();
-    const SkPicture* playbackPtr = playback.get();
     canvas->drawPicture(playback);
     canvas->scale(2, 2);
     canvas->translate(50, 0);

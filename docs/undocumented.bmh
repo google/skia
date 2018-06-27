@@ -28,11 +28,11 @@
  SK_BUILD_FOR_ANDROID_FRAMEWORK # ditto
  SK_BUILD_FOR_MAC # ditto
  SK_BUILD_FOR_IOS # ditto
- SK_IGNORE_TO_STRING #  ditto
  SK_SUPPORT_GPU # ditto
  SK_HAS_JPEG_LIBRARY # ditto
  SK_HAS_PNG_LIBRARY # ditto
  SK_HAS_WEBP_LIBRARY # ditto
+ SK_PMCOLOR_BYTE_ORDER # ditto
 
 # FreeType related
 FT_LOAD_TARGET_LIGHT
@@ -124,6 +124,8 @@ FT_Load_Glyph
     ##
     #Const SK_ColorWHITE 0xFFFFFFFF 
     ##
+    #Const SK_ColorTRANSPARENT 0x00000000
+    ##
     #Subtopic Alpha
         #Alias Alpha
     #Subtopic ##
@@ -167,6 +169,10 @@ FT_Load_Glyph
 #Class SkColorSpace
     #Method static sk_sp<SkColorSpace> MakeSRGBLinear()
     ##
+    #Method bool gammaCloseToSRGB() const
+    ##
+    #Method static bool Equals(const SkColorSpace* src, const SkColorSpace* dst)
+    ##
 ##
 #EnumClass SkTransferFunctionBehavior
 #Const kRespect 0
@@ -196,6 +202,11 @@ FT_Load_Glyph
 
 #Topic Data
 #Class SkData
+##
+##
+
+#Topic Debug_Canvas
+#Class SkDebugCanvas
 ##
 ##
 
@@ -247,11 +258,6 @@ FT_Load_Glyph
     ##
 ##
 ##
-
-#Topic Dump_Canvas
-#Class SkDumpCanvas
-##
-#Topic ##
 
 #Topic Encoded_Image_Format
 #EnumClass SkEncodedImageFormat
@@ -701,7 +707,19 @@ FT_Load_Glyph
 
 #Topic Texture
 #Class GrBackendTexture
+    #Method bool isValid() const
+    ##
 ##
+##
+
+#Topic RenderTarget
+#Class GrBackendRenderTarget
+    #Method bool isValid() const
+    ##
+##
+##
+
+#Topic Transfer_Mode
 ##
 
 #Topic Typeface

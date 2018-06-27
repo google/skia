@@ -150,6 +150,7 @@ bool SkPixmap::erase(SkColor color, const SkIRect& inArea) const {
             }
             break;
         }
+
         case kARGB_4444_SkColorType:
         case kRGB_565_SkColorType: {
             uint16_t* p = this->writable_addr16(area.fLeft, area.fTop);
@@ -175,8 +176,11 @@ bool SkPixmap::erase(SkColor color, const SkIRect& inArea) const {
             }
             break;
         }
-        case kBGRA_8888_SkColorType:
-        case kRGBA_8888_SkColorType: {
+
+        case kRGB_888x_SkColorType:
+            a = 255; // then fallthrough to 8888
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType: {
             uint32_t* p = this->writable_addr32(area.fLeft, area.fTop);
 
             if (255 != a && kPremul_SkAlphaType == this->alphaType()) {
@@ -184,9 +188,9 @@ bool SkPixmap::erase(SkColor color, const SkIRect& inArea) const {
                 g = SkMulDiv255Round(g, a);
                 b = SkMulDiv255Round(b, a);
             }
-            uint32_t v = kRGBA_8888_SkColorType == this->colorType()
-                             ? SkPackARGB_as_RGBA(a, r, g, b)
-                             : SkPackARGB_as_BGRA(a, r, g, b);
+            uint32_t v = kBGRA_8888_SkColorType == this->colorType()
+                             ? SkPackARGB_as_BGRA(a, r, g, b)   // bgra 8888
+                             : SkPackARGB_as_RGBA(a, r, g, b);  // rgba 8888 or rgb 888
 
             while (--height >= 0) {
                 sk_memset32(p, v, width);
@@ -194,6 +198,32 @@ bool SkPixmap::erase(SkColor color, const SkIRect& inArea) const {
             }
             break;
         }
+
+        case kRGB_101010x_SkColorType:
+            a = 255;  // then fallthrough to 1010102
+        case kRGBA_1010102_SkColorType: {
+            uint32_t* p = this->writable_addr32(area.fLeft, area.fTop);
+
+            float R = r * (1/255.0f),
+                  G = g * (1/255.0f),
+                  B = b * (1/255.0f),
+                  A = a * (1/255.0f);
+            if (a != 255 && this->alphaType() == kPremul_SkAlphaType) {
+                R *= A;
+                G *= A;
+                B *= A;
+            }
+            uint32_t v = (uint32_t)(R * 1023.0f) <<  0
+                       | (uint32_t)(G * 1023.0f) << 10
+                       | (uint32_t)(B * 1023.0f) << 20
+                       | (uint32_t)(A *    3.0f) << 30;
+            while (--height >= 0) {
+                sk_memset32(p, v, width);
+                p = (uint32_t*)((char*)p + rowBytes);
+            }
+            break;
+        }
+
         case kRGBA_F16_SkColorType:
             // The colorspace is unspecified, so assume linear just like getColor().
             this->erase(SkColor4f{(1 / 255.0f) * r,
@@ -321,6 +351,10 @@ SkColor SkPixmap::getColor(int x, int y) const {
             SkPMColor c = SkPixel4444ToPixel32(value);
             return toColor(c);
         }
+        case kRGB_888x_SkColorType: {
+            uint32_t value = *this->addr32(x, y);
+            return SkSwizzle_RB(value | 0xff000000);
+        }
         case kBGRA_8888_SkColorType: {
             uint32_t value = *this->addr32(x, y);
             SkPMColor c = SkSwizzle_BGRA_to_PMColor(value);
@@ -330,6 +364,31 @@ SkColor SkPixmap::getColor(int x, int y) const {
             uint32_t value = *this->addr32(x, y);
             SkPMColor c = SkSwizzle_RGBA_to_PMColor(value);
             return toColor(c);
+        }
+        case kRGB_101010x_SkColorType: {
+            uint32_t value = *this->addr32(x, y);
+            // Convert 10-bit rgb to 8-bit bgr, and mask in 0xff alpha at the top.
+            return (uint32_t)( ((value >>  0) & 0x3ff) * (255/1023.0f) ) << 16
+                 | (uint32_t)( ((value >> 10) & 0x3ff) * (255/1023.0f) ) <<  8
+                 | (uint32_t)( ((value >> 20) & 0x3ff) * (255/1023.0f) ) <<  0
+                 | 0xff000000;
+        }
+        case kRGBA_1010102_SkColorType: {
+            uint32_t value = *this->addr32(x, y);
+
+            float r = ((value >>  0) & 0x3ff) * (1/1023.0f),
+                  g = ((value >> 10) & 0x3ff) * (1/1023.0f),
+                  b = ((value >> 20) & 0x3ff) * (1/1023.0f),
+                  a = ((value >> 30) & 0x3  ) * (1/   3.0f);
+            if (a != 0 && needsUnpremul) {
+                r *= (1.0f/a);
+                g *= (1.0f/a);
+                b *= (1.0f/a);
+            }
+            return (uint32_t)( r * 255.0f ) << 16
+                 | (uint32_t)( g * 255.0f ) <<  8
+                 | (uint32_t)( b * 255.0f ) <<  0
+                 | (uint32_t)( a * 255.0f ) << 24;
         }
         case kRGBA_F16_SkColorType: {
              const uint64_t* addr =

@@ -156,7 +156,8 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
     // TODO: find best match for our needs
     gpuCount = 1;
     err = grVkEnumeratePhysicalDevices(inst, &gpuCount, &physDev);
-    if (err) {
+    // VK_INCOMPLETE is returned when the count we provide is less than the total device count.
+    if (err && VK_INCOMPLETE != err) {
         SkDebugf("vkEnumeratePhysicalDevices failed: %d\n", err);
         grVkDestroyInstance(inst, nullptr);
         return nullptr;

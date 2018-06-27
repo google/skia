@@ -146,11 +146,11 @@ sk_sp<GrRenderTargetContext> GrCCAtlas::finalize(GrOnFlushResourceProvider* onFl
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = fWidth;
     desc.fHeight = fHeight;
     desc.fConfig = kAlpha_half_GrPixelConfig;
-    sk_sp<GrRenderTargetContext> rtc = onFlushRP->makeRenderTargetContext(desc, nullptr, nullptr);
+    sk_sp<GrRenderTargetContext> rtc =
+            onFlushRP->makeRenderTargetContext(desc, kTopLeft_GrSurfaceOrigin, nullptr, nullptr);
     if (!rtc) {
         SkDebugf("WARNING: failed to allocate a %ix%i atlas. Some paths will not be drawn.\n",
                  fWidth, fHeight);

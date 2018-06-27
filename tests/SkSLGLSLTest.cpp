@@ -1902,4 +1902,64 @@ DEF_TEST(SkSLTernaryLValue, r) {
          "}\n");
 }
 
+DEF_TEST(SkSLIncompleteShortIntPrecision, r) {
+    test(r,
+         "uniform sampler2D tex;"
+         "in float2 texcoord;"
+         "in short2 offset;"
+         "void main() {"
+         "    short scalar = offset.y;"
+         "    sk_FragColor = texture(tex, texcoord + float2(offset * scalar));"
+         "}",
+         *SkSL::ShaderCapsFactory::UsesPrecisionModifiers(),
+         "#version 400\n"
+         "precision mediump float;\n"
+         "out mediump vec4 sk_FragColor;\n"
+         "uniform sampler2D tex;\n"
+         "in highp vec2 texcoord;\n"
+         "in mediump ivec2 offset;\n"
+         "void main() {\n"
+         "    mediump int scalar = offset.y;\n"
+         "    sk_FragColor = texture(tex, texcoord + vec2(offset * scalar));\n"
+         "}\n",
+         SkSL::Program::kFragment_Kind);
+    test(r,
+         "uniform sampler2D tex;"
+         "in float2 texcoord;"
+         "in short2 offset;"
+         "void main() {"
+         "    short scalar = offset.y;"
+         "    sk_FragColor = texture(tex, texcoord + float2(offset * scalar));"
+         "}",
+         *SkSL::ShaderCapsFactory::IncompleteShortIntPrecision(),
+         "#version 310es\n"
+         "precision mediump float;\n"
+         "out mediump vec4 sk_FragColor;\n"
+         "uniform sampler2D tex;\n"
+         "in highp vec2 texcoord;\n"
+         "in highp ivec2 offset;\n"
+         "void main() {\n"
+         "    highp int scalar = offset.y;\n"
+         "    sk_FragColor = texture(tex, texcoord + vec2(offset * scalar));\n"
+         "}\n",
+         SkSL::Program::kFragment_Kind);
+}
+
+DEF_TEST(SkSLFrExp, r) {
+    test(r,
+         "void main() {"
+         "    int exp;"
+         "    float foo = frexp(0.5, exp);"
+         "    sk_FragColor = float4(exp);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    int exp;\n"
+         "    float foo = frexp(0.5, exp);\n"
+         "    sk_FragColor = vec4(float(exp));\n"
+         "}\n");
+}
+
 #endif

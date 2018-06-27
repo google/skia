@@ -21,6 +21,7 @@ of Clang and the instrumented libc++, located in /msan.
 
 Downloading Clang binaries (Googlers Only)
 ------------------------------------------
+This requires gsutil, part of the [gcloud sdk](https://cloud.google.com/sdk/downloads).
 
     CLANGDIR="${HOME}/clang"
     python infra/bots/assets/clang_linux/download.py -t $CLANGDIR
@@ -45,6 +46,8 @@ Configure and Compile Skia with MSAN
         extra_ldflags = [ "-B${CLANGDIR}/bin", "-fuse-ld=lld", "-L${CLANGDIR}/msan" ]
         sanitize = "MSAN"
         skia_use_fontconfig = false
+        skia_use_system_freetype2 = false
+        skia_enable_gpu = false
     EOF
     python tools/git-sync-deps
     bin/gn gen out/msan

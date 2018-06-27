@@ -8,10 +8,12 @@
 
 #include "SkScanPriv.h"
 #include "SkPath.h"
+#include "SkPathPriv.h"
 #include "SkMatrix.h"
 #include "SkBlitter.h"
 #include "SkRegion.h"
 #include "SkAntiRun.h"
+#include "SkCoverageDelta.h"
 
 #define SHIFT   SK_SUPERSAMPLE_SHIFT
 #define SCALE   (1 << SHIFT)
@@ -583,15 +585,84 @@ void MaskSuperBlitter::blitH(int x, int y, int width) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static SkIRect safeRoundOut(const SkRect& src) {
+    // roundOut will pin huge floats to max/min int
+    SkIRect dst = src.roundOut();
+
+    // intersect with a smaller huge rect, so the rect will not be considered empty for being
+    // too large. e.g. { -SK_MaxS32 ... SK_MaxS32 } is considered empty because its width
+    // exceeds signed 32bit.
+    const int32_t limit = SK_MaxS32 >> SK_SUPERSAMPLE_SHIFT;
+    (void)dst.intersect({ -limit, -limit, limit, limit});
+
+    return dst;
+}
+
 static bool ShouldUseDAA(const SkPath& path) {
     if (gSkForceDeltaAA) {
         return true;
     }
-    if (!gSkUseDeltaAA) {
+    if (!gSkUseDeltaAA || SkPathPriv::IsBadForDAA(path)) {
         return false;
     }
+
+#ifdef SK_SUPPORT_LEGACY_AA_CHOICE
     const SkRect& bounds = path.getBounds();
     return !path.isConvex() && path.countPoints() >= SkTMax(bounds.width(), bounds.height()) / 8;
+#else
+    constexpr int kSampleSize = 8;
+    constexpr SkScalar kComplexityThreshold = 0.25;
+    constexpr SkScalar kSmallCubicThreshold = 16;
+
+    int n = path.countPoints();
+    if (path.isConvex() || n < kSampleSize || path.getBounds().isEmpty()) {
+        return false;
+    }
+
+    // DAA is fast with mask
+    if (SkCoverageDeltaMask::CanHandle(safeRoundOut(path.getBounds()))) {
+        return true;
+    }
+
+    SkScalar sumLength = 0;
+    SkPoint lastPoint = path.getPoint(0);
+    for(int i = 1; i < kSampleSize; ++i) {
+        SkPoint point = path.getPoint(i);
+        sumLength += SkPoint::Distance(lastPoint, point);
+        lastPoint = point;
+    }
+    SkScalar avgLength = sumLength / (kSampleSize - 1);
+
+    // DAA is much faster in small cubics (since we don't have to chop them).
+    // If there are many cubics, and the average length if small, use DAA.
+    if (avgLength < kSmallCubicThreshold) {
+        uint8_t sampleVerbs[kSampleSize];
+        int verbCount = SkTMin(kSampleSize, path.getVerbs(sampleVerbs, kSampleSize));
+        int cubicCount = 0;
+        for(int i = 0; i < verbCount; ++i) {
+            cubicCount += (sampleVerbs[i] == SkPath::kCubic_Verb);
+        }
+        if (cubicCount * 2 >= verbCount) {
+            return true;
+        }
+    }
+
+    SkScalar diagonal = SkPoint::Length(path.getBounds().width(), path.getBounds().height());
+
+    // On average, what's the distance between two consecutive points; the number is normalized
+    // to a range of [0, 1] where 1 corresponds to the maximum length of the diagonal.
+    SkScalar sampleSpan = avgLength / diagonal;
+
+
+    // If the path is consist of random line segments, the number of intersections should be
+    // proportional to (n * sampleSpan)^2
+    SkScalar intersections = (n * sampleSpan) * (n * sampleSpan);
+
+    // The number of intersections per scanline should be proportional to this number.
+    SkScalar complexity = intersections / path.getBounds().height();
+
+    return complexity >= kComplexityThreshold;
+#endif
 }
 
 static bool ShouldUseAAA(const SkPath& path) {
@@ -653,22 +724,10 @@ static int rect_overflows_short_shift(SkIRect rect, int shift) {
            overflows_short_shift(rect.fBottom, shift);
 }
 
-static SkIRect safeRoundOut(const SkRect& src) {
-    // roundOut will pin huge floats to max/min int
-    SkIRect dst = src.roundOut();
-
-    // intersect with a smaller huge rect, so the rect will not be considered empty for being
-    // too large. e.g. { -SK_MaxS32 ... SK_MaxS32 } is considered empty because its width
-    // exceeds signed 32bit.
-    const int32_t limit = SK_MaxS32 >> SK_SUPERSAMPLE_SHIFT;
-    (void)dst.intersect({ -limit, -limit, limit, limit});
-
-    return dst;
-}
-
 void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
                           SkBlitter* blitter, bool forceRLE, SkDAARecord* daaRecord) {
     if (origClip.isEmpty()) {
+        SkDAARecord::SetEmpty(daaRecord);
         return;
     }
 
@@ -678,6 +737,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
         if (isInverse) {
             blitter->blitRegion(origClip);
         }
+        SkDAARecord::SetEmpty(daaRecord);
         return;
     }
 
@@ -691,10 +751,11 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
        clippedIR = origClip.getBounds();
     } else {
        if (!clippedIR.intersect(ir, origClip.getBounds())) {
+            SkDAARecord::SetEmpty(daaRecord);
            return;
        }
     }
-    if (rect_overflows_short_shift(clippedIR, SHIFT)) {
+    if (!daaRecord && rect_overflows_short_shift(clippedIR, SHIFT)) {
         SkScan::FillPath(path, origClip, blitter);
         return;
     }
@@ -724,6 +785,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
         if (isInverse) {
             blitter->blitRegion(*clipRgn);
         }
+        SkDAARecord::SetEmpty(daaRecord);
         return;
     }
 
@@ -776,6 +838,7 @@ void SkScan::FillPath(const SkPath& path, const SkRasterClip& clip, SkBlitter* b
 void SkScan::AntiFillPath(const SkPath& path, const SkRasterClip& clip,
                           SkBlitter* blitter, SkDAARecord* daaRecord) {
     if (clip.isEmpty() || !path.isFinite()) {
+        SkDAARecord::SetEmpty(daaRecord);
         return;
     }
 

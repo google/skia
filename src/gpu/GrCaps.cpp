@@ -24,9 +24,11 @@ static const char* pixel_config_name(GrPixelConfig config) {
         case kRGB_565_GrPixelConfig: return "RGB565";
         case kRGBA_4444_GrPixelConfig: return "RGBA444";
         case kRGBA_8888_GrPixelConfig: return "RGBA8888";
+        case kRGB_888_GrPixelConfig: return "RGB888";
         case kBGRA_8888_GrPixelConfig: return "BGRA8888";
         case kSRGBA_8888_GrPixelConfig: return "SRGBA8888";
         case kSBGRA_8888_GrPixelConfig: return "SBGRA8888";
+        case kRGBA_1010102_GrPixelConfig: return "RGBA1010102";
         case kRGBA_float_GrPixelConfig: return "RGBAFloat";
         case kRG_float_GrPixelConfig: return "RGFloat";
         case kAlpha_half_GrPixelConfig: return "AlphaHalf";
@@ -172,6 +174,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Blacklist Coverage Counting Path Renderer [workaround]",
                        fBlacklistCoverageCounting);
     writer->appendBool("Prefer VRAM Use over flushes [workaround]", fPreferVRAMUseOverFlushes);
+    writer->appendBool("Avoid stencil buffers [workaround]", fAvoidStencilBuffers);
 
     if (this->advancedBlendEquationSupport()) {
         writer->appendHexU32("Advanced Blend Equation Blacklist", fAdvBlendEqBlacklist);

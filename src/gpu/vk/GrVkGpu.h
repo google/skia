@@ -9,7 +9,6 @@
 #define GrVkGpu_DEFINED
 
 #include "GrGpu.h"
-#include "GrGpuFactory.h"
 #include "vk/GrVkBackendContext.h"
 #include "GrVkCaps.h"
 #include "GrVkCopyManager.h"
@@ -38,7 +37,6 @@ namespace SkSL {
 
 class GrVkGpu : public GrGpu {
 public:
-    static sk_sp<GrGpu> Make(GrBackendContext backendContext, const GrContextOptions&, GrContext*);
     static sk_sp<GrGpu> Make(sk_sp<const GrVkBackendContext>, const GrContextOptions&, GrContext*);
 
     ~GrVkGpu() override;
@@ -69,12 +67,19 @@ public:
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
-    GrBackendTexture createTestingOnlyBackendTexture(void* pixels, int w, int h,
-                                                     GrPixelConfig config,
-                                                     bool isRenderTarget,
+#if GR_TEST_UTILS
+    GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h,
+                                                     GrPixelConfig config, bool isRenderTarget,
                                                      GrMipMapped) override;
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
-    void deleteTestingOnlyBackendTexture(GrBackendTexture*, bool abandonTexture = false) override;
+    void deleteTestingOnlyBackendTexture(const GrBackendTexture&) override;
+
+    GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h, GrColorType,
+                                                               GrSRGBEncoded) override;
+    void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) override;
+
+    void testingOnly_flushGpuAndSync() override;
+#endif
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,
@@ -164,8 +169,8 @@ private:
 
     void destroyResources();
 
-    sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                     const GrMipLevel texels[], int mipLevelCount) override;
+    sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&, SkBudgeted, const GrMipLevel[],
+                                     int mipLevelCount) override;
 
     sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrWrapOwnership) override;
     sk_sp<GrTexture> onWrapRenderableBackendTexture(const GrBackendTexture&,
@@ -197,7 +202,7 @@ private:
 
     bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin, GrSurface* src,
                        GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
-                       const SkIPoint& dstPoint) override;
+                       const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) override;
 
     void onFinishFlush(bool insertedSemaphores) override;
 
@@ -238,6 +243,12 @@ private:
 
     void resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect& srcRect,
                       const SkIPoint& dstPoint);
+
+#if GR_TEST_UTILS
+    bool createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool texturable,
+                                  bool renderable, GrMipMapped mipMapped, const void* srcData,
+                                  GrVkImageInfo* info);
+#endif
 
     sk_sp<const GrVkBackendContext> fBackendContext;
     sk_sp<GrVkCaps>                 fVkCaps;

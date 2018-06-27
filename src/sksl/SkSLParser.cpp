@@ -1449,6 +1449,7 @@ std::unique_ptr<ASTExpression> Parser::assignmentExpression() {
                 result = std::unique_ptr<ASTExpression>(new ASTBinaryExpression(std::move(result),
                                                                                 std::move(t),
                                                                                 std::move(right)));
+                return result;
             }
             default:
                 return result;

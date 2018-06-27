@@ -5,11 +5,11 @@ To work on Skia inside a Chromium checkout, run the following:
 
     cd chromium/src/third_party/skia
     python tools/git-sync-deps
+    bin/gn gen out/Debug
 
-This command does a minimal "just sync the DEPS" emulation of `gclient sync` for
-Skia into chromium/src/third_party/skia/third_party.  After that, `make dm` or
-`./gyp_skia && ninja -C out/Debug dm` in chromium/src/third_party/skia will get
-you rolling.
+The second command does a minimal "just sync the DEPS" emulation of `gclient
+sync` for Skia into chromium/src/third_party/skia/third_party.  After that,
+`ninja -C out/Debug dm` in chromium/src/third_party/skia will get you rolling.
 
 We no longer recommend the .gclient file manipulation to have Chromium DEPS also
 sync Skia's DEPS.  Most of those DEPS are for building and testing only;

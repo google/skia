@@ -8,6 +8,7 @@
 #ifndef SkSurface_Gpu_DEFINED
 #define SkSurface_Gpu_DEFINED
 
+#include "GrTypesPriv.h"
 #include "SkSurface_Base.h"
 
 #if SK_SUPPORT_GPU
@@ -24,6 +25,10 @@ public:
 
     GrBackendObject onGetTextureHandle(BackendHandleAccess) override;
     bool onGetRenderTargetHandle(GrBackendObject*, BackendHandleAccess) override;
+
+    GrBackendTexture onGetBackendTexture(BackendHandleAccess) override;
+    GrBackendRenderTarget onGetBackendRenderTarget(BackendHandleAccess) override;
+
     SkCanvas* onNewCanvas() override;
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&) override;
     sk_sp<SkImage> onNewImageSnapshot() override;
@@ -40,7 +45,7 @@ public:
     SkGpuDevice* getDevice() { return fDevice.get(); }
 
     static bool Valid(const SkImageInfo&);
-    static bool Valid(GrContext*, GrPixelConfig, SkColorSpace*);
+    static bool Valid(const GrCaps*, GrPixelConfig, SkColorSpace*);
 
 private:
     sk_sp<SkGpuDevice> fDevice;

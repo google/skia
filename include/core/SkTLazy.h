@@ -148,12 +148,27 @@ private:
 template <typename T>
 class SkTCopyOnFirstWrite {
 public:
-    SkTCopyOnFirstWrite(const T& initial) : fObj(&initial) {}
+    explicit SkTCopyOnFirstWrite(const T& initial) : fObj(&initial) {}
 
-    SkTCopyOnFirstWrite(const T* initial) : fObj(initial) {}
+    explicit SkTCopyOnFirstWrite(const T* initial) : fObj(initial) {}
 
     // Constructor for delayed initialization.
     SkTCopyOnFirstWrite() : fObj(nullptr) {}
+
+    SkTCopyOnFirstWrite(const SkTCopyOnFirstWrite&  that) { *this = that;            }
+    SkTCopyOnFirstWrite(      SkTCopyOnFirstWrite&& that) { *this = std::move(that); }
+
+    SkTCopyOnFirstWrite& operator=(const SkTCopyOnFirstWrite& that) {
+        fLazy = that.fLazy;
+        fObj  = fLazy.isValid() ? fLazy.get() : that.fObj;
+        return *this;
+    }
+
+    SkTCopyOnFirstWrite& operator=(SkTCopyOnFirstWrite&& that) {
+        fLazy = std::move(that.fLazy);
+        fObj  = fLazy.isValid() ? fLazy.get() : that.fObj;
+        return *this;
+    }
 
     // Should only be called once, and only if the default constructor was used.
     void init(const T& initial) {
@@ -173,6 +188,8 @@ public:
         }
         return const_cast<T*>(fObj);
     }
+
+    const T* get() const { return fObj; }
 
     /**
      * Operators for treating this as though it were a const pointer.

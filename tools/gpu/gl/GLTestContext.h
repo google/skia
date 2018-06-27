@@ -21,9 +21,6 @@ public:
     ~GLTestContext() override;
 
     virtual GrBackend backend() override { return kOpenGL_GrBackend; }
-    virtual GrBackendContext backendContext() override {
-        return reinterpret_cast<GrBackendContext>(fGL.get());
-    }
 
     bool isValid() const { return SkToBool(this->gl()); }
 

@@ -199,7 +199,8 @@ void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetCo
     const int padRight = (kDeviceRect.right() - kCoverRect.right()) / 2;
     const int padBottom = (kDeviceRect.bottom() - kCoverRect.bottom()) / 2;
     sk_sp<GrRenderTargetContext> maskRTC(
-        ctx->makeDeferredRenderTargetContextWithFallback(SkBackingFit::kExact,
+        ctx->contextPriv().makeDeferredRenderTargetContextWithFallback(
+                                                         SkBackingFit::kExact,
                                                          kCoverRect.width() + padRight,
                                                          kCoverRect.height() + padBottom,
                                                          kAlpha_8_GrPixelConfig, nullptr));
@@ -276,8 +277,9 @@ void WindowRectanglesMaskGM::fail(SkCanvas* canvas) {
 
     canvas->clipRect(SkRect::Make(kCoverRect));
     canvas->clear(SK_ColorWHITE);
-    canvas->drawString(errorMsg, SkIntToScalar(kCoverRect.centerX()),
-                     SkIntToScalar(kCoverRect.centerY() - 10), paint);
+
+    canvas->drawString(errorMsg, SkIntToScalar((kCoverRect.left() + kCoverRect.right())/2),
+                     SkIntToScalar((kCoverRect.top() + kCoverRect.bottom())/2 - 10), paint);
 }
 
 DEF_GM( return new WindowRectanglesMaskGM(); )

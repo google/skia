@@ -35,6 +35,7 @@ def RunSteps(api):
   api.run.readfile('myfile.txt')
   api.run.writefile('myfile.txt', 'contents')
   api.run.rmtree('mydir')
+  api.run.asset_version('my_asset')
 
   # Merge PATHs.
   with api.context(env={'PATH': 'mydir:%(PATH)s'}):

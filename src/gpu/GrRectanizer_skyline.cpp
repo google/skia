@@ -6,7 +6,7 @@
  */
 
 #include "GrRectanizer_skyline.h"
-#include "SkPoint.h"
+#include "SkIPoint16.h"
 
 bool GrRectanizerSkyline::addRect(int width, int height, SkIPoint16* loc) {
     if ((unsigned)width > (unsigned)this->width() ||

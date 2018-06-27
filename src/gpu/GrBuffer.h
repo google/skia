@@ -123,6 +123,7 @@ private:
     virtual bool onUpdateData(const void* src, size_t srcSizeInBytes);
 
     size_t onGpuMemorySize() const override { return fSizeInBytes; } // TODO: zero for cpu backed?
+    const char* getResourceType() const override { return "Buffer Object"; }
     void computeScratchKey(GrScratchKey* key) const override;
 
     size_t            fSizeInBytes;

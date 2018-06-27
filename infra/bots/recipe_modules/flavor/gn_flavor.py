@@ -22,36 +22,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
           '--output-dir', self.m.vars.skia_out.join(self.m.vars.configuration),
           '--no-sync', '--no-hooks', '--make-output-dir'])
 
-  def _get_goma_json(self):
-    json_key = 'jwt_service_account_goma-client'
-    json_filename = json_key + '.json'
-
-    # Ensure that the tmp_dir exists.
-    self.m.run.run_once(self.m.file.ensure_directory,
-                        'makedirs tmp_dir',
-                        self.m.vars.tmp_dir)
-
-    json_file = self.m.vars.tmp_dir.join(json_filename)
-    self.m.python.inline(
-        'download ' + json_filename,
-        """
-import os
-import sys
-import urllib2
-
-TOKEN_URL = (
-    'http://metadata/computeMetadata/v1/project/attributes/%s')
-
-req = urllib2.Request(TOKEN_URL, headers={'Metadata-Flavor': 'Google'})
-contents = urllib2.urlopen(req).read()
-
-with open(sys.argv[1], 'w') as f:
-  f.write(contents)
-""" % json_key,
-        args=[json_file],
-        infra_step=True)
-    return json_file
-
   def compile(self, unused_target):
     """Build Skia with GN."""
     compiler      = self.m.vars.builder_cfg.get('compiler',      '')
@@ -60,7 +30,6 @@ with open(sys.argv[1], 'w') as f:
     os            = self.m.vars.builder_cfg.get('os',            '')
     target_arch   = self.m.vars.builder_cfg.get('target_arch',   '')
 
-    goma_dir           = None
     clang_linux        = str(self.m.vars.slave_dir.join('clang_linux'))
     emscripten_sdk     = str(self.m.vars.slave_dir.join('emscripten_sdk'))
     linux_vulkan_sdk   = str(self.m.vars.slave_dir.join('linux_vulkan_sdk'))
@@ -72,6 +41,8 @@ with open(sys.argv[1], 'w') as f:
     cc, cxx = None, None
     extra_cflags = []
     extra_ldflags = []
+    args = {}
+    env = {}
 
     if compiler == 'Clang' and self.m.vars.is_linux:
       cc  = clang_linux + '/bin/clang'
@@ -79,16 +50,45 @@ with open(sys.argv[1], 'w') as f:
       extra_cflags .append('-B%s/bin' % clang_linux)
       extra_ldflags.append('-B%s/bin' % clang_linux)
       extra_ldflags.append('-fuse-ld=lld')
+      extra_cflags.append('-DDUMMY_clang_linux_version=%s' %
+                          self.m.run.asset_version('clang_linux'))
+      if os == 'Ubuntu14':
+        extra_ldflags.extend(['-static-libstdc++', '-static-libgcc'])
+
     elif compiler == 'Clang':
       cc, cxx = 'clang', 'clang++'
-    elif compiler == 'GCC' and os == "Ubuntu14":
-      cc, cxx = 'gcc-4.8', 'g++-4.8'
     elif compiler == 'GCC':
-      cc, cxx = 'gcc', 'g++'
+      if target_arch in ['mips64el', 'loongson3a']:
+        mips64el_toolchain_linux = str(self.m.vars.slave_dir.join(
+            'mips64el_toolchain_linux'))
+        cc  = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-gcc-7'
+        cxx = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-g++-7'
+        env['LD_LIBRARY_PATH'] = (
+            mips64el_toolchain_linux + '/lib/x86_64-linux-gnu/')
+        extra_ldflags.append('-L' + mips64el_toolchain_linux +
+                             '/mips64el-linux-gnuabi64/lib')
+        extra_cflags.extend([
+            '-Wno-format-truncation',
+            '-Wno-uninitialized',
+            ('-DDUMMY_mips64el_toolchain_linux_version=%s' %
+             self.m.run.asset_version('mips64el_toolchain_linux'))
+        ])
+        if configuration == 'Release':
+          # This warning is only triggered when fuzz_canvas is inlined.
+          extra_cflags.append('-Wno-strict-overflow')
+        args.update({
+          'skia_use_system_freetype2': 'false',
+          'skia_use_fontconfig':       'false',
+          'skia_enable_gpu':           'false',
+        })
+      else:
+        cc, cxx = 'gcc', 'g++'
     elif compiler == 'EMCC':
       cc   = emscripten_sdk + '/emscripten/incoming/emcc'
       cxx  = emscripten_sdk + '/emscripten/incoming/em++'
       extra_cflags.append('-Wno-unknown-warning-option')
+      extra_cflags.append('-DDUMMY_emscripten_sdk_version=%s' %
+                          self.m.run.asset_version('emscripten_sdk'))
 
     if 'Coverage' in extra_tokens:
       # See https://clang.llvm.org/docs/SourceBasedCodeCoverage.html for
@@ -107,17 +107,15 @@ with open(sys.argv[1], 'w') as f:
       extra_cflags.extend(['-march=native', '-fomit-frame-pointer', '-O3',
                            '-ffp-contract=off'])
 
-    # TODO(benjaminwagner): Same appears in compile.py to set CPPFLAGS. Are
-    # both needed?
     if len(extra_tokens) == 1 and extra_tokens[0].startswith('SK'):
       extra_cflags.append('-D' + extra_tokens[0])
+      # If we're limiting Skia at all, drop skcms to portable code.
+      if 'SK_CPU_LIMIT' in extra_tokens[0]:
+        extra_cflags.append('-DSKCMS_PORTABLE')
+
 
     if 'MSAN' in extra_tokens:
       extra_ldflags.append('-L' + clang_linux + '/msan')
-
-    args = {}
-    ninja_args = ['-k', '0', '-C', self.out_dir]
-    env = {}
 
     if configuration != 'Debug':
       args['is_debug'] = 'false'
@@ -181,6 +179,8 @@ with open(sys.argv[1], 'w') as f:
       args['skia_compile_processors'] = 'true'
     if compiler == 'Clang' and 'Win' in os:
       args['clang_win'] = '"%s"' % self.m.vars.slave_dir.join('clang_win')
+      extra_cflags.append('-DDUMMY_clang_win_version=%s' %
+                          self.m.run.asset_version('clang_win'))
     if target_arch == 'wasm':
       args.update({
         'skia_use_freetype':   'false',
@@ -189,26 +189,6 @@ with open(sys.argv[1], 'w') as f:
         'skia_use_icu':        'false',
         'skia_enable_gpu':     'false',
       })
-    if 'Goma' in extra_tokens or 'GomaNoFallback' in extra_tokens:
-      json_file = self._get_goma_json()
-      self.m.cipd.set_service_account_credentials(json_file)
-      goma_package = ('infra_internal/goma/client/%s' %
-                      self.m.cipd.platform_suffix())
-      goma_dir = self.m.path['cache'].join('goma')
-      self.m.cipd.ensure(goma_dir, {goma_package: 'release'})
-      env['GOMA_SERVICE_ACCOUNT_JSON_FILE'] = json_file
-      if 'GomaNoFallback' in extra_tokens:
-        env['GOMA_HERMETIC'] = 'error'
-        env['GOMA_USE_LOCAL'] = '0'
-        env['GOMA_FALLBACK'] = '0'
-      with self.m.context(cwd=goma_dir, env=env):
-        self._py('start goma', 'goma_ctl.py', args=['ensure_start'])
-      args['cc_wrapper'] = '"%s"' % goma_dir.join('gomacc')
-      if 'ANGLE' in extra_tokens and 'Win' in os:
-        # ANGLE uses case-insensitive include paths in D3D code. Not sure why
-        # only Goma warns about this.
-        extra_cflags.append('-Wno-nonportable-include-path')
-      ninja_args.extend(['-j', '2000'])
 
     sanitize = ''
     for t in extra_tokens:
@@ -240,38 +220,20 @@ with open(sys.argv[1], 'w') as f:
     ninja = 'ninja.exe' if 'Win' in os else 'ninja'
     gn = self.m.vars.skia_dir.join('bin', gn)
 
-    try:
-      with self.m.context(cwd=self.m.vars.skia_dir):
-        self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
-        if 'CheckGeneratedFiles' in extra_tokens:
-          env['PATH'] = '%s:%%(PATH)s' % self.m.vars.skia_dir.join('bin')
-          self._py(
-              'fetch-clang-format',
-              self.m.vars.skia_dir.join('bin', 'fetch-clang-format'))
-        if target_arch == 'wasm':
-          fastcomp = emscripten_sdk + '/clang/fastcomp/build_incoming_64/bin'
-          env['PATH'] = '%s:%%(PATH)s' % fastcomp
+    with self.m.context(cwd=self.m.vars.skia_dir):
+      self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
+      if 'CheckGeneratedFiles' in extra_tokens:
+        env['PATH'] = '%s:%%(PATH)s' % self.m.vars.skia_dir.join('bin')
+        self._py(
+            'fetch-clang-format',
+            self.m.vars.skia_dir.join('bin', 'fetch-clang-format'))
+      if target_arch == 'wasm':
+        fastcomp = emscripten_sdk + '/clang/fastcomp/build_incoming_64/bin'
+        env['PATH'] = '%s:%%(PATH)s' % fastcomp
 
-        with self.m.env(env):
-          self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
-          self._run('ninja', [ninja] + ninja_args)
-    finally:
-      if goma_dir:
-        with self.m.context(cwd=goma_dir, env=env):
-          self.m.run(self.m.python, 'print goma stats',
-                     script='goma_ctl.py', args=['stat'], infra_step=True,
-                     abort_on_failure=False, fail_build_on_failure=False)
-          self.m.run(self.m.python, 'stop goma',
-                     script='goma_ctl.py', args=['stop'], infra_step=True,
-                     abort_on_failure=False, fail_build_on_failure=False)
-          # Hack: goma_ctl stop is asynchronous, so the process often does not
-          # stop before the recipe exits, which causes Swarming to freak out.
-          # Wait a couple seconds for it to exit normally.
-          # TODO(dogben): Remove after internal b/72128121 is resolved.
-          self.m.run(self.m.python.inline, 'wait for goma_ctl stop',
-                     program="""import time; time.sleep(2)""",
-                     infra_step=True,
-                     abort_on_failure=False, fail_build_on_failure=False)
+      with self.m.env(env):
+        self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
+        self._run('ninja', [ninja, '-k', '0', '-C', self.out_dir])
 
   def step(self, name, cmd):
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
@@ -314,9 +276,25 @@ with open(sys.argv[1], 'w') as f:
       ld_library_path.append(clang_linux + '/lib')
     elif self.m.vars.is_linux:
       cmd = ['catchsegv'] + cmd
+    elif 'ProcDump' in extra_tokens:
+      self.m.file.ensure_directory('makedirs dumps', self.m.vars.dumps_dir)
+      procdump = str(self.m.vars.slave_dir.join('procdump_win',
+                                                'procdump64.exe'))
+      # Full docs for ProcDump here:
+      # https://docs.microsoft.com/en-us/sysinternals/downloads/procdump
+      # -accepteula automatically accepts the license agreement
+      # -mp saves a packed minidump to save space
+      # -e 1 tells procdump to dump once
+      # -x <dump dir> <exe> <args> launches exe and writes dumps to the
+      #   specified dir
+      cmd = [procdump, '-accepteula', '-mp', '-e', '1',
+             '-x', self.m.vars.dumps_dir] + cmd
 
     if 'ASAN' in extra_tokens or 'UBSAN' in extra_tokens:
-      env[ 'ASAN_OPTIONS'] = 'symbolize=1 detect_leaks=1'
+      if 'Mac' in self.m.vars.builder_cfg.get('os', ''):
+        env['ASAN_OPTIONS'] = 'symbolize=1'  # Mac doesn't support detect_leaks.
+      else:
+        env['ASAN_OPTIONS'] = 'symbolize=1 detect_leaks=1'
       env[ 'LSAN_OPTIONS'] = 'symbolize=1 print_suppressions=1'
       env['UBSAN_OPTIONS'] = 'symbolize=1 print_stacktrace=1'
 

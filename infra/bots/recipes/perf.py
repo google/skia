@@ -181,10 +181,15 @@ def nanobench_flags(api, bot):
   if 'IntelHD405' in bot and api.vars.is_linux and 'Vulkan' in bot:
     # skia:7322
     match.append('~desk_tiger8svg.skp_1')
+    match.append('~keymobi_sfgate.skp_1')
     match.append('~keymobi_techcrunch_com.skp_1.1')
+    match.append('~keymobi_techcrunch.skp_1.1')
+    match.append('~keymobi_techcrunch.skp_1.1_mpd')
     match.append('~tabl_gamedeksiam.skp_1.1')
     match.append('~tabl_pravda.skp_1')
     match.append('~top25desk_ebay_com.skp_1.1')
+    match.append('~top25desk_ebay.skp_1.1')
+    match.append('~top25desk_ebay.skp_1.1_mpd')
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     match.append('~blendmode_') # skia:6691
   if ('ASAN' in bot or 'UBSAN' in bot) and 'CPU' in bot:
@@ -486,6 +491,8 @@ def GenTests(api):
                                      'svg', 'VERSION'),
         api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
     ) +
+    api.step_data('get swarming bot id',
+                  stdout=api.raw_io.output('skia-rpi-022')) +
     api.step_data('Scale CPU 0 to 0.600000', retcode=1)+
     api.step_data('Scale CPU 0 to 0.600000 (attempt 2)', retcode=1)+
     api.step_data('Scale CPU 0 to 0.600000 (attempt 3)', retcode=1)
@@ -509,6 +516,8 @@ def GenTests(api):
                                      'svg', 'VERSION'),
         api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
     ) +
+    api.step_data('get swarming bot id',
+                  stdout=api.raw_io.output('build123-m2--device5')) +
     api.step_data('Scale CPU 4 to 0.600000', retcode=1)+
     api.step_data('Scale CPU 4 to 0.600000 (attempt 2)', retcode=1)+
     api.step_data('Scale CPU 4 to 0.600000 (attempt 3)', retcode=1)

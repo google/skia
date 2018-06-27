@@ -29,6 +29,7 @@
 #include "GrContext.h"
 #include "SkImage_Gpu.h"
 #endif
+#include "GrBackendSurface.h"
 
 SkImage::SkImage(int width, int height, uint32_t uniqueID)
     : fWidth(width)
@@ -73,6 +74,10 @@ bool SkImage::scalePixels(const SkPixmap& dst, SkFilterQuality quality, CachingH
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkColorType SkImage::colorType() const {
+    return as_IB(this)->onColorType();
+}
 
 SkAlphaType SkImage::alphaType() const {
     return as_IB(this)->onAlphaType();
@@ -163,8 +168,13 @@ GrBackendObject SkImage::getTextureHandle(bool flushPendingGrContextIO,
     return as_IB(this)->onGetTextureHandle(flushPendingGrContextIO, origin);
 }
 
+GrBackendTexture SkImage::getBackendTexture(bool flushPendingGrContextIO,
+                                            GrSurfaceOrigin* origin) const {
+    return as_IB(this)->onGetBackendTexture(flushPendingGrContextIO, origin);
+}
+
 bool SkImage::isValid(GrContext* context) const {
-    if (context && context->abandoned()) {
+    if (context && context->contextPriv().abandoned()) {
         return false;
     }
     return as_IB(this)->onIsValid(context);
@@ -177,6 +187,11 @@ GrTexture* SkImage::getTexture() const { return nullptr; }
 bool SkImage::isTextureBacked() const { return false; }
 
 GrBackendObject SkImage::getTextureHandle(bool, GrSurfaceOrigin*) const { return 0; }
+
+GrBackendTexture SkImage::getBackendTexture(bool flushPendingGrContextIO,
+                                            GrSurfaceOrigin* origin) const {
+    return GrBackendTexture(); // invalid
+}
 
 bool SkImage::isValid(GrContext* context) const {
     if (context) {
@@ -198,6 +213,11 @@ SkImage_Base::~SkImage_Base() {
     if (fAddedToCache.load()) {
         SkNotifyBitmapGenIDIsStale(this->uniqueID());
     }
+}
+
+GrBackendTexture SkImage_Base::onGetBackendTexture(bool flushPendingGrContextIO,
+                                                   GrSurfaceOrigin* origin) const {
+    return GrBackendTexture(); // invalid
 }
 
 bool SkImage::readPixels(const SkPixmap& pmap, int srcX, int srcY, CachingHint chint) const {
@@ -345,7 +365,7 @@ sk_sp<SkImage> SkImage::makeRasterImage() const {
 
 sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
                                         const GrBackendTexture& tex, GrSurfaceOrigin origin,
-                                        SkAlphaType at, sk_sp<SkColorSpace> cs,
+                                        SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
                                         TextureReleaseProc releaseP, ReleaseContext releaseC) {
     return nullptr;
 }
@@ -359,28 +379,20 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext*,
 
 sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
                                                const GrBackendTexture& tex, GrSurfaceOrigin origin,
-                                               SkAlphaType at, sk_sp<SkColorSpace> cs) {
-    return nullptr;
-}
-
-sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
-                                               const GrBackendTexture& tex, GrSurfaceOrigin origin,
                                                SkColorType ct, SkAlphaType at,
                                                sk_sp<SkColorSpace> cs) {
     return nullptr;
 }
 
 sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace space,
-                                                const GrBackendObject yuvTextureHandles[3],
-                                                const SkISize yuvSizes[3],
+                                                const GrBackendTexture[3],
                                                 GrSurfaceOrigin origin,
                                                 sk_sp<SkColorSpace> imageColorSpace) {
     return nullptr;
 }
 
-sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace space,
-                                                const GrBackendTexture yuvTextureHandles[3],
-                                                const SkISize yuvSizes[3],
+sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace space,
+                                                const GrBackendTexture[2],
                                                 GrSurfaceOrigin origin,
                                                 sk_sp<SkColorSpace> imageColorSpace) {
     return nullptr;

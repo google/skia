@@ -9,6 +9,7 @@
 
 #include "SkDebugCanvas.h"
 #include "SkNullCanvas.h"
+#include "SkPicture.h"
 #include "SkStream.h"
 
 #ifdef SK_BUILD_FOR_WIN

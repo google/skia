@@ -1075,8 +1075,8 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
 
     GrXferProcessor::DstProxy fakeDstProxy;
     {
-        sk_sp<GrTextureProxy> proxy = proxyProvider->createWrappedTextureProxy(
-                                                             backendTex, kTopLeft_GrSurfaceOrigin);
+        sk_sp<GrTextureProxy> proxy =
+                proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin);
         fakeDstProxy.setProxy(std::move(proxy));
     }
 
@@ -1102,7 +1102,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
             }
         }
     }
-    gpu->deleteTestingOnlyBackendTexture(&backendTex);
+    gpu->deleteTestingOnlyBackendTexture(backendTex);
 }
 
 #endif

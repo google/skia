@@ -34,6 +34,14 @@ public:
     AI static SkNx Load(const void* ptr) { return vld1_f32((const float*)ptr); }
     AI void store(void* ptr) const { vst1_f32((float*)ptr, fVec); }
 
+    AI static void Store2(void* dst, const SkNx& a, const SkNx& b) {
+        float32x2x2_t ab = {{
+            a.fVec,
+            b.fVec,
+        }};
+        vst2_f32((float*) dst, ab);
+    }
+
     AI static void Store3(void* dst, const SkNx& a, const SkNx& b, const SkNx& c) {
         float32x2x3_t abc = {{
             a.fVec,
@@ -112,12 +120,20 @@ public:
     }
 
     AI bool allTrue() const {
+    #if defined(__aarch64__)
+        return 0 != vminv_u32(vreinterpret_u32_f32(fVec));
+    #else
         auto v = vreinterpret_u32_f32(fVec);
         return vget_lane_u32(v,0) && vget_lane_u32(v,1);
+    #endif
     }
     AI bool anyTrue() const {
+    #if defined(__aarch64__)
+        return 0 != vmaxv_u32(vreinterpret_u32_f32(fVec));
+    #else
         auto v = vreinterpret_u32_f32(fVec);
         return vget_lane_u32(v,0) || vget_lane_u32(v,1);
+    #endif
     }
 
     AI SkNx thenElse(const SkNx& t, const SkNx& e) const {
@@ -229,14 +245,22 @@ public:
     }
 
     AI bool allTrue() const {
+    #if defined(__aarch64__)
+        return 0 != vminvq_u32(vreinterpretq_u32_f32(fVec));
+    #else
         auto v = vreinterpretq_u32_f32(fVec);
         return vgetq_lane_u32(v,0) && vgetq_lane_u32(v,1)
             && vgetq_lane_u32(v,2) && vgetq_lane_u32(v,3);
+    #endif
     }
     AI bool anyTrue() const {
+    #if defined(__aarch64__)
+        return 0 != vmaxvq_u32(vreinterpretq_u32_f32(fVec));
+    #else
         auto v = vreinterpretq_u32_f32(fVec);
         return vgetq_lane_u32(v,0) || vgetq_lane_u32(v,1)
             || vgetq_lane_u32(v,2) || vgetq_lane_u32(v,3);
+    #endif
     }
 
     AI SkNx thenElse(const SkNx& t, const SkNx& e) const {

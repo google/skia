@@ -203,6 +203,22 @@
   },
   {
     "cmd": [
+      "cat",
+      "[START_DIR]/fiddleout.json"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "GOPATH": "[START_DIR]/gopath",
+      "GOROOT": "[START_DIR]/go/go",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "Output fiddleout.json"
+  },
+  {
+    "cmd": [
       "gsutil",
       "cp",
       "gs://skia-buildbots/artifacts/server/.gitcookies_update-docs",

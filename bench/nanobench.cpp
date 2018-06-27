@@ -39,7 +39,6 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPictureRecorder.h"
-#include "SkSVGDOM.h"
 #include "SkScan.h"
 #include "SkString.h"
 #include "SkSurface.h"
@@ -48,6 +47,10 @@
 #include "Stats.h"
 #include "ios_utils.h"
 
+#ifdef SK_XML
+#include "SkSVGDOM.h"
+#endif  // SK_XML
+
 #include <stdlib.h>
 #include <thread>
 
@@ -55,17 +58,22 @@ extern bool gSkForceRasterPipelineBlitter;
 
 #ifndef SK_BUILD_FOR_WIN
     #include <unistd.h>
+
 #endif
 
 #if SK_SUPPORT_GPU
-    #include "gl/GrGLDefines.h"
     #include "GrCaps.h"
     #include "GrContextFactory.h"
-    #include "gl/GrGLUtil.h"
+    #include "GrContextPriv.h"
     #include "SkGr.h"
+    #include "gl/GrGLDefines.h"
+    #include "gl/GrGLGpu.h"
+    #include "gl/GrGLUtil.h"
+
     using sk_gpu_test::ContextInfo;
     using sk_gpu_test::GrContextFactory;
     using sk_gpu_test::TestContext;
+
     GrContextOptions grContextOpts;
 #endif
 
@@ -213,8 +221,9 @@ struct GPUTarget : public Target {
     void fillOptions(ResultsWriter* log) override {
         const GrGLubyte* version;
         if (this->contextInfo.backend() == kOpenGL_GrBackend) {
-            const GrGLInterface* gl = reinterpret_cast<const GrGLInterface*>(
-                    this->contextInfo.testContext()->backendContext());
+            const GrGLInterface* gl =
+                    static_cast<GrGLGpu*>(this->contextInfo.grContext()->contextPriv().getGpu())
+                            ->glInterface();
             GR_GL_CALL_RET(gl, version, GetString(GR_GL_VERSION));
             log->configOption("GL_VERSION", (const char*)(version));
 
@@ -230,8 +239,8 @@ struct GPUTarget : public Target {
     }
 
     void dumpStats() override {
-        this->contextInfo.grContext()->printCacheStats();
-        this->contextInfo.grContext()->printGpuStats();
+        this->contextInfo.grContext()->contextPriv().printCacheStats();
+        this->contextInfo.grContext()->contextPriv().printGpuStats();
     }
 };
 
@@ -423,6 +432,10 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         const auto sampleCount = gpuConfig->getSamples();
         const auto colorType = gpuConfig->getColorType();
         auto colorSpace = gpuConfig->getColorSpace();
+        if (gpuConfig->getSurfType() != SkCommandLineConfigGpu::SurfType::kDefault) {
+            SkDebugf("This tool only supports the default surface type.");
+            return;
+        }
 
         GrContextFactory factory(grContextOpts);
         if (const GrContext* ctx = factory.get(ctxType, ctxOverrides)) {
@@ -680,6 +693,7 @@ public:
             return nullptr;
         }
 
+#ifdef SK_XML
         sk_sp<SkSVGDOM> svgDom = SkSVGDOM::MakeFromStream(stream);
         if (!svgDom) {
             SkDebugf("Could not parse %s.\n", path);
@@ -696,6 +710,9 @@ public:
         svgDom->render(recorder.beginRecording(svgDom->containerSize().width(),
                                                svgDom->containerSize().height()));
         return recorder.finishRecordingAsPicture();
+#else
+        return nullptr;
+#endif  // SK_XML
     }
 
     Benchmark* next() {

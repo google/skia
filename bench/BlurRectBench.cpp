@@ -145,7 +145,7 @@ protected:
     void makeBlurryRect(const SkRect&) override {
         SkMask mask;
         if (!SkBlurMask::BoxBlur(&mask, fSrcMask, SkBlurMask::ConvertRadiusToSigma(this->radius()),
-                                 kNormal_SkBlurStyle, kHigh_SkBlurQuality)) {
+                                 kNormal_SkBlurStyle)) {
             return;
         }
         SkMask::FreeImage(mask.fImage);

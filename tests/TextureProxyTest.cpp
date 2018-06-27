@@ -27,10 +27,9 @@ int GrProxyProvider::numUniqueKeyProxies_TestOnly() const {
     return fUniquelyKeyedProxies.count();
 }
 
-static GrSurfaceDesc make_desc(GrSurfaceFlags flags) {
+static GrSurfaceDesc make_desc(GrSurfaceDescFlags descFlags) {
     GrSurfaceDesc desc;
-    desc.fFlags = flags;
-    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
+    desc.fFlags = descFlags;
     desc.fWidth = 64;
     desc.fHeight = 64;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -46,7 +45,8 @@ static sk_sp<GrTextureProxy> deferred_tex(skiatest::Reporter* reporter,
                                           GrProxyProvider* proxyProvider, SkBackingFit fit) {
     const GrSurfaceDesc desc = make_desc(kNone_GrSurfaceFlags);
 
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(desc, fit, SkBudgeted::kYes);
+    sk_sp<GrTextureProxy> proxy =
+            proxyProvider->createProxy(desc, kBottomLeft_GrSurfaceOrigin, fit, SkBudgeted::kYes);
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     return proxy;
@@ -56,7 +56,8 @@ static sk_sp<GrTextureProxy> deferred_texRT(skiatest::Reporter* reporter,
                                             GrProxyProvider* proxyProvider, SkBackingFit fit) {
     const GrSurfaceDesc desc = make_desc(kRenderTarget_GrSurfaceFlag);
 
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(desc, fit, SkBudgeted::kYes);
+    sk_sp<GrTextureProxy> proxy =
+            proxyProvider->createProxy(desc, kBottomLeft_GrSurfaceOrigin, fit, SkBudgeted::kYes);
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     return proxy;
@@ -66,8 +67,8 @@ static sk_sp<GrTextureProxy> wrapped(skiatest::Reporter* reporter,
                                      GrProxyProvider* proxyProvider, SkBackingFit fit) {
     const GrSurfaceDesc desc = make_desc(kNone_GrSurfaceFlags);
 
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createInstantiatedProxy(desc, fit,
-                                                                         SkBudgeted::kYes);
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createInstantiatedProxy(
+            desc, kBottomLeft_GrSurfaceOrigin, fit, SkBudgeted::kYes);
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     return proxy;
@@ -87,8 +88,8 @@ static sk_sp<GrTextureProxy> wrapped_with_key(skiatest::Reporter* reporter,
     const GrSurfaceDesc desc = make_desc(kNone_GrSurfaceFlags);
 
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createInstantiatedProxy(desc, fit,
-                                                                         SkBudgeted::kYes, 0);
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createInstantiatedProxy(
+            desc, kBottomLeft_GrSurfaceOrigin, fit, SkBudgeted::kYes);
     SkAssertResult(proxyProvider->assignUniqueKeyToProxy(key, proxy.get()));
     REPORTER_ASSERT(reporter, proxy->getUniqueKey().isValid());
     return proxy;
@@ -108,7 +109,7 @@ static sk_sp<GrTextureProxy> create_wrapped_backend(GrContext* context, SkBackin
 
     GrBackendTexture backendTex = (*backingSurface)->getBackendTexture();
 
-    return proxyProvider->createWrappedTextureProxy(backendTex, kBottomLeft_GrSurfaceOrigin);
+    return proxyProvider->wrapBackendTexture(backendTex, kBottomLeft_GrSurfaceOrigin);
 }
 
 
@@ -231,7 +232,7 @@ static void invalidation_test(GrContext* context, skiatest::Reporter* reporter) 
     REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
 
     textureImg = nullptr;
-    context->purgeAllUnlockedResources();
+    context->contextPriv().purgeAllUnlockedResources_ForTesting();
 
     REPORTER_ASSERT(reporter, 0 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
@@ -270,7 +271,7 @@ static void invalidation_and_instantiation_test(GrContext* context, skiatest::Re
     REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
 
     proxy = nullptr;
-    context->purgeAllUnlockedResources();
+    context->contextPriv().purgeAllUnlockedResources_ForTesting();
 
     REPORTER_ASSERT(reporter, 0 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());

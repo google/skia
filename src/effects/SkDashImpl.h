@@ -10,7 +10,7 @@
 
 #include "SkPathEffect.h"
 
-class SK_API SkDashImpl : public SkPathEffect {
+class SkDashImpl : public SkPathEffect {
 public:
     SkDashImpl(const SkScalar intervals[], int count, SkScalar phase);
 
@@ -21,7 +21,7 @@ public:
 
     DashType asADash(DashInfo* info) const override;
 
-    SK_TO_STRING_OVERRIDE()
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDashImpl)
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK

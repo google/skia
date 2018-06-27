@@ -46,7 +46,8 @@ public:
     bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                        GrSurface* src, GrSurfaceOrigin srcOrigin,
                        const SkIRect& srcRect,
-                       const SkIPoint& dstPoint) override { return false; }
+                       const SkIPoint& dstPoint,
+                       bool canDiscardOutsideDstRect) override { return false; }
 
     GrGpuRTCommandBuffer* createCommandBuffer(
                                     GrRenderTarget*, GrSurfaceOrigin,
@@ -137,13 +138,23 @@ private:
 
     void clearStencil(GrRenderTarget* target, int clearValue) override  {}
 
-    GrBackendTexture createTestingOnlyBackendTexture(void* pixels, int w, int h,
+#if GR_TEST_UTILS
+    GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h,
                                                      GrPixelConfig config, bool isRT,
                                                      GrMipMapped) override {
         return GrBackendTexture();
     }
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override { return false; }
-    void deleteTestingOnlyBackendTexture(GrBackendTexture*, bool abandon = false) override {}
+    void deleteTestingOnlyBackendTexture(const GrBackendTexture&) override {}
+
+    GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h, GrColorType,
+                                                               GrSRGBEncoded) override {
+        return {};
+    }
+    void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) override {}
+
+    void testingOnly_flushGpuAndSync() override {}
+#endif
 
     sk_sp<GrMtlCaps> fMtlCaps;
 

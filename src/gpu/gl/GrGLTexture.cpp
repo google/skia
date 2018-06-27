@@ -69,6 +69,11 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& 
 void GrGLTexture::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
     SkASSERT(0 != idDesc.fInfo.fID);
     SkASSERT(0 != idDesc.fInfo.fFormat);
+    if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_RECTANGLE ||
+        idDesc.fInfo.fTarget == GR_GL_TEXTURE_EXTERNAL) {
+        this->setDoesNotSupportMipMaps();
+        this->setIsClampOnly();
+    }
     fTexParams.invalidate();
     fTexParamsTimestamp = GrGpu::kExpiredTimestamp;
     fInfo = idDesc.fInfo;
@@ -101,14 +106,6 @@ GrBackendTexture GrGLTexture::getBackendTexture() const {
     return GrBackendTexture(this->width(), this->height(), this->texturePriv().mipMapped(), fInfo);
 }
 
-void GrGLTexture::setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
-                                   const SkString& dumpName) const {
-    SkString texture_id;
-    texture_id.appendU32(this->textureID());
-    traceMemoryDump->setMemoryBacking(dumpName.c_str(), "gl_texture",
-                                      texture_id.c_str());
-}
-
 sk_sp<GrGLTexture> GrGLTexture::MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& desc,
                                             GrMipMapsStatus mipMapsStatus, const IDDesc& idDesc) {
     return sk_sp<GrGLTexture>(new GrGLTexture(gpu, kWrapped, desc, mipMapsStatus, idDesc));
@@ -116,7 +113,8 @@ sk_sp<GrGLTexture> GrGLTexture::MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& d
 
 bool GrGLTexture::onStealBackendTexture(GrBackendTexture* backendTexture,
                                         SkImage::BackendTextureReleaseProc* releaseProc) {
-    *backendTexture = GrBackendTexture(width(), height(), config(), fInfo);
+    *backendTexture = GrBackendTexture(this->width(), this->height(),
+                                       this->texturePriv().mipMapped(), fInfo);
     // Set the release proc to a no-op function. GL doesn't require any special cleanup.
     *releaseProc = [](GrBackendTexture){};
 
@@ -125,4 +123,31 @@ bool GrGLTexture::onStealBackendTexture(GrBackendTexture* backendTexture,
     // cleaned up by us.
     this->GrGLTexture::onAbandon();
     return true;
+}
+
+void GrGLTexture::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
+    // Don't check this->fRefsWrappedObjects, as we might be the base of a GrGLTextureRenderTarget
+    // which is multiply inherited from both ourselves and a texture. In these cases, one part
+    // (texture, rt) may be wrapped, while the other is owned by Skia.
+    bool refsWrappedTextureObjects =
+            this->fTextureIDOwnership == GrBackendObjectOwnership::kBorrowed;
+    if (refsWrappedTextureObjects && !traceMemoryDump->shouldDumpWrappedObjects()) {
+        return;
+    }
+
+    // Dump as skia/gpu_resources/resource_#/texture, to avoid conflicts in the
+    // GrGLTextureRenderTarget case, where multiple things may dump to the same resource. This
+    // has no downside in the normal case.
+    SkString resourceName = this->getResourceName();
+    resourceName.append("/texture");
+
+    // As we are only dumping our texture memory (not any additional memory tracked by classes
+    // which may inherit from us), specifically call GrGLTexture::gpuMemorySize to avoid
+    // hitting an override.
+    this->dumpMemoryStatisticsPriv(traceMemoryDump, resourceName, "Texture",
+                                   GrGLTexture::gpuMemorySize());
+
+    SkString texture_id;
+    texture_id.appendU32(this->textureID());
+    traceMemoryDump->setMemoryBacking(resourceName.c_str(), "gl_texture", texture_id.c_str());
 }

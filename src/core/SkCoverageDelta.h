@@ -107,8 +107,8 @@ private:
 
 class SkCoverageDeltaMask {
 public:
-    // 1 for precision error, 1 for boundary delta (e.g., -SK_Fixed1 at fBounds.fRight + 1)
-    static constexpr int PADDING        = 2;
+    // 3 for precision error, 1 for boundary delta (e.g., -SK_Fixed1 at fBounds.fRight + 1)
+    static constexpr int PADDING        = 4;
 
     static constexpr int SIMD_WIDTH     = 8;
     static constexpr int SUITABLE_WIDTH = 32;
@@ -186,7 +186,8 @@ struct SkDAARecord {
     enum class Type {
         kToBeComputed,
         kMask,
-        kList
+        kList,
+        kEmpty
     } fType;
 
     SkMask               fMask;
@@ -194,6 +195,21 @@ struct SkDAARecord {
     SkArenaAlloc*        fAlloc;
 
     SkDAARecord(SkArenaAlloc* alloc) : fType(Type::kToBeComputed), fAlloc(alloc) {}
+
+    // When the scan converter returns early (e.g., the path is completely out of the clip), we set
+    // the type to empty to signal that the record has been computed and it's empty. This is
+    // required only for DEBUG where we check that the type must not be kToBeComputed after
+    // init-once.
+    void setEmpty() { fType = Type::kEmpty; }
+    static inline void SetEmpty(SkDAARecord* record) { // record may be nullptr
+#ifdef SK_DEBUG
+        // If type != kToBeComputed, then we're in the draw phase and we shouldn't set it to empty
+        // because being empty in one tile does not imply emptiness in other tiles.
+        if (record && record->fType == Type::kToBeComputed) {
+            record->setEmpty();
+        }
+#endif
+    }
 };
 
 template<typename T>

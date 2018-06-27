@@ -40,11 +40,13 @@ void SkPathMeasure_segTo(const SkPoint pts[], unsigned segType,
     SkASSERT(startT <= stopT);
 
     if (startT == stopT) {
-        /* if the dash as a zero-length on segment, add a corresponding zero-length line.
-           The stroke code will add end caps to zero length lines as appropriate */
-        SkPoint lastPt;
-        SkAssertResult(dst->getLastPt(&lastPt));
-        dst->lineTo(lastPt);
+        if (!dst->isEmpty()) {
+            /* if the dash as a zero-length on segment, add a corresponding zero-length line.
+               The stroke code will add end caps to zero length lines as appropriate */
+            SkPoint lastPt;
+            SkAssertResult(dst->getLastPt(&lastPt));
+            dst->lineTo(lastPt);
+        }
         return;
     }
 
@@ -228,7 +230,7 @@ static SkScalar compute_quad_len(const SkPoint pts[3]) {
 }
 
 SkScalar SkPathMeasure::compute_quad_segs(const SkPoint pts[3],
-                          SkScalar distance, int mint, int maxt, int ptIndex) {
+                          SkScalar distance, int mint, int maxt, unsigned ptIndex) {
     if (tspan_big_enough(maxt - mint) && quad_too_curvy(pts)) {
         SkPoint tmp[5];
         int     halft = (mint + maxt) >> 1;
@@ -253,7 +255,7 @@ SkScalar SkPathMeasure::compute_quad_segs(const SkPoint pts[3],
 
 SkScalar SkPathMeasure::compute_conic_segs(const SkConic& conic, SkScalar distance,
                                            int mint, const SkPoint& minPt,
-                                           int maxt, const SkPoint& maxPt, int ptIndex) {
+                                           int maxt, const SkPoint& maxPt, unsigned ptIndex) {
     int halft = (mint + maxt) >> 1;
     SkPoint halfPt = conic.evalAt(tValue2Scalar(halft));
     if (tspan_big_enough(maxt - mint) && conic_too_curvy(minPt, halfPt, maxPt)) {
@@ -275,7 +277,7 @@ SkScalar SkPathMeasure::compute_conic_segs(const SkConic& conic, SkScalar distan
 }
 
 SkScalar SkPathMeasure::compute_cubic_segs(const SkPoint pts[4],
-                           SkScalar distance, int mint, int maxt, int ptIndex) {
+                           SkScalar distance, int mint, int maxt, unsigned ptIndex) {
     if (tspan_big_enough(maxt - mint) && cubic_too_curvy(pts)) {
         SkPoint tmp[7];
         int     halft = (mint + maxt) >> 1;
@@ -300,10 +302,10 @@ SkScalar SkPathMeasure::compute_cubic_segs(const SkPoint pts[4],
 
 void SkPathMeasure::buildSegments() {
     SkPoint         pts[4];
-    int             ptIndex = fFirstPtIndex;
+    unsigned        ptIndex = fFirstPtIndex;
     SkScalar        distance = 0;
     bool            isClosed = fForceClosed;
-    bool            firstMoveTo = ptIndex < 0;
+    bool            firstMoveTo = ptIndex == (unsigned) -1;
     Segment*        seg;
 
     /*  Note:
@@ -471,7 +473,6 @@ static void compute_pos_tan(const SkPoint pts[], unsigned segType,
 ////////////////////////////////////////////////////////////////////////////////
 
 SkPathMeasure::SkPathMeasure() {
-    fPath = nullptr;
     fTolerance = CHEAP_DIST_LIMIT;
     fLength = -1;   // signal we need to compute it
     fForceClosed = false;
@@ -479,13 +480,13 @@ SkPathMeasure::SkPathMeasure() {
 }
 
 SkPathMeasure::SkPathMeasure(const SkPath& path, bool forceClosed, SkScalar resScale) {
-    fPath = &path;
+    fPath = path.isFinite() ? path : SkPath();
     fTolerance = CHEAP_DIST_LIMIT * SkScalarInvert(resScale);
     fLength = -1;   // signal we need to compute it
     fForceClosed = forceClosed;
     fFirstPtIndex = -1;
 
-    fIter.setPath(path, forceClosed);
+    fIter.setPath(fPath, forceClosed);
 }
 
 SkPathMeasure::~SkPathMeasure() {}
@@ -493,22 +494,21 @@ SkPathMeasure::~SkPathMeasure() {}
 /** Assign a new path, or null to have none.
 */
 void SkPathMeasure::setPath(const SkPath* path, bool forceClosed) {
-    fPath = path;
+    if (path && path->isFinite()) {
+        fPath = *path;
+    } else {
+        fPath.reset();
+    }
     fLength = -1;   // signal we need to compute it
     fForceClosed = forceClosed;
     fFirstPtIndex = -1;
 
-    if (path) {
-        fIter.setPath(*path, forceClosed);
-    }
+    fIter.setPath(fPath, forceClosed);
     fSegments.reset();
     fPts.reset();
 }
 
 SkScalar SkPathMeasure::getLength() {
-    if (fPath == nullptr) {
-        return 0;
-    }
     if (fLength < 0) {
         this->buildSegments();
     }
@@ -528,11 +528,11 @@ int SkTKSearch(const T base[], int count, const K& key) {
 
     SkASSERT(base != nullptr); // base may be nullptr if count is zero
 
-    int lo = 0;
-    int hi = count - 1;
+    unsigned lo = 0;
+    unsigned hi = count - 1;
 
     while (lo < hi) {
-        int mid = (hi + lo) >> 1;
+        unsigned mid = (hi + lo) >> 1;
         if (base[mid].fDistance < key) {
             lo = mid + 1;
         } else {
@@ -582,14 +582,10 @@ const SkPathMeasure::Segment* SkPathMeasure::distanceToSegment(
 }
 
 bool SkPathMeasure::getPosTan(SkScalar distance, SkPoint* pos, SkVector* tangent) {
-    if (nullptr == fPath) {
-        return false;
-    }
-
     SkScalar    length = this->getLength(); // call this to force computing it
     int         count = fSegments.count();
 
-    if (count == 0 || length == 0) {
+    if (count == 0 || length == 0 || SkScalarIsNaN(distance)) {
         return false;
     }
 
@@ -609,10 +605,6 @@ bool SkPathMeasure::getPosTan(SkScalar distance, SkPoint* pos, SkVector* tangent
 
 bool SkPathMeasure::getMatrix(SkScalar distance, SkMatrix* matrix,
                               MatrixFlags flags) {
-    if (nullptr == fPath) {
-        return false;
-    }
-
     SkPoint     position;
     SkVector    tangent;
 
@@ -644,7 +636,7 @@ bool SkPathMeasure::getSegment(SkScalar startD, SkScalar stopD, SkPath* dst,
     if (stopD > length) {
         stopD = length;
     }
-    if (startD > stopD) {
+    if (!(startD <= stopD)) {   // catch NaN values as well
         return false;
     }
     if (!fSegments.count()) {
@@ -672,11 +664,12 @@ bool SkPathMeasure::getSegment(SkScalar startD, SkScalar stopD, SkPath* dst,
         } while (seg->fPtIndex < stopSeg->fPtIndex);
         SkPathMeasure_segTo(&fPts[seg->fPtIndex], seg->fType, 0, stopT, dst);
     }
+
     return true;
 }
 
 bool SkPathMeasure::isClosed() {
-    (void)this->getLength();
+    (void)this->getLength();    // make sure we measure the current contour
     return fIsClosed;
 }
 
@@ -684,7 +677,8 @@ bool SkPathMeasure::isClosed() {
     we're done with the path.
 */
 bool SkPathMeasure::nextContour() {
-    fLength = -1;
+    (void)this->getLength();    // make sure we measure the current contour
+    fLength = -1;               // now signal that we should build the next set of segments
     return this->getLength() > 0;
 }
 

@@ -168,8 +168,7 @@ sk_sp<SkImage> SkSpecialImage::asImage(const SkIRect* subset) const {
     return as_SIB(this)->onAsImage(subset);
 }
 
-
-#ifdef SK_DEBUG
+#if defined(SK_DEBUG) || SK_SUPPORT_GPU
 static bool rect_fits(const SkIRect& rect, int width, int height) {
     if (0 == width && 0 == height) {
         SkASSERT(0 == rect.fLeft && 0 == rect.fRight && 0 == rect.fTop && 0 == rect.fBottom);
@@ -512,7 +511,10 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeDeferredFromGpu(GrContext* context,
                                                           sk_sp<SkColorSpace> colorSpace,
                                                           const SkSurfaceProps* props,
                                                           SkAlphaType at) {
-    SkASSERT(rect_fits(subset, proxy->width(), proxy->height()));
+    if (!context || context->contextPriv().abandoned() || !proxy) {
+        return nullptr;
+    }
+    SkASSERT_RELEASE(rect_fits(subset, proxy->width(), proxy->height()));
     return sk_make_sp<SkSpecialImage_Gpu>(context, subset, uniqueID, std::move(proxy), at,
                                           std::move(colorSpace), props);
 }

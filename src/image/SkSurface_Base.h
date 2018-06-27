@@ -27,6 +27,9 @@ public:
         return false;
     }
 
+    virtual GrBackendTexture onGetBackendTexture(BackendHandleAccess);
+    virtual GrBackendRenderTarget onGetBackendRenderTarget(BackendHandleAccess);
+
     /**
      *  Allocate a canvas that will draw into this surface. We will cache this
      *  canvas, to return the same object to the caller multiple times. We

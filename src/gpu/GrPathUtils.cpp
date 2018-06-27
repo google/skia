@@ -31,7 +31,14 @@ SkScalar GrPathUtils::scaleToleranceToSrc(SkScalar devTol,
             stretch = SkMaxScalar(stretch, mat.mapRadius(SK_Scalar1));
         }
     }
-    SkScalar srcTol = devTol / stretch;
+    SkScalar srcTol = 0;
+    if (stretch <= 0) {
+        // We have degenerate bounds or some degenerate matrix. Thus we set the tolerance to be the
+        // max of the path pathBounds width and height.
+        srcTol = SkTMax(pathBounds.width(), pathBounds.height());
+    } else {
+        srcTol = devTol / stretch;
+    }
     if (srcTol < gMinCurveTol) {
         srcTol = gMinCurveTol;
     }
@@ -543,6 +550,9 @@ void GrPathUtils::convertCubicToQuads(const SkPoint p[4],
     if (!p[0].isFinite() || !p[1].isFinite() || !p[2].isFinite() || !p[3].isFinite()) {
         return;
     }
+    if (!SkScalarIsFinite(tolScale)) {
+        return;
+    }
     SkPoint chopped[10];
     int count = SkChopCubicAtInflections(p, chopped);
 
@@ -561,6 +571,9 @@ void GrPathUtils::convertCubicToQuadsConstrainToTangents(const SkPoint p[4],
                                                          SkPathPriv::FirstDirection dir,
                                                          SkTArray<SkPoint, true>* quads) {
     if (!p[0].isFinite() || !p[1].isFinite() || !p[2].isFinite() || !p[3].isFinite()) {
+        return;
+    }
+    if (!SkScalarIsFinite(tolScale)) {
         return;
     }
     SkPoint chopped[10];

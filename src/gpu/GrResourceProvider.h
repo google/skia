@@ -10,7 +10,6 @@
 
 #include "GrBuffer.h"
 #include "GrContextOptions.h"
-#include "GrPathRange.h"
 #include "GrResourceCache.h"
 #include "SkImageInfoPriv.h"
 #include "SkScalerContext.h"
@@ -68,9 +67,8 @@ public:
      */
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, uint32_t flags = 0);
 
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted,
-                                   const GrMipLevel texels[], int mipLevelCount,
-                                   SkDestinationSurfaceColorMode mipColorMode);
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, const GrMipLevel texels[],
+                                   int mipLevelCount, SkDestinationSurfaceColorMode mipColorMode);
 
     // Create a potentially loose fit texture with the provided data
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, SkBackingFit,
@@ -166,16 +164,15 @@ public:
     static int QuadCountOfQuadBuffer();
 
     /**
-     * Factories for GrPath and GrPathRange objects. It's an error to call these if path rendering
+     * Factories for GrPath objects. It's an error to call these if path rendering
      * is not supported.
      */
     sk_sp<GrPath> createPath(const SkPath&, const GrStyle&);
-    sk_sp<GrPathRange> createPathRange(GrPathRange::PathGenerator*, const GrStyle&);
-    sk_sp<GrPathRange> createGlyphs(const SkTypeface*, const SkScalerContextEffects&,
-                                    const SkDescriptor*, const GrStyle&);
 
     /** These flags govern which scratch resources we are allowed to return */
     enum Flags {
+        kNone_Flag            = 0x0,
+
         /** If the caller intends to do direct reads/writes to/from the CPU then this flag must be
          *  set when accessing resources during a GrOpList flush. This includes the execution of
          *  GrOp objects. The reason is that these memory operations are done immediately and

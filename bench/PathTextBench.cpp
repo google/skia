@@ -46,11 +46,10 @@ private:
 
     void onDelayedSetup() override {
         SkPaint defaultPaint;
-        SkAutoGlyphCache agc(defaultPaint, nullptr, &SkMatrix::I());
-        SkGlyphCache* cache = agc.getCache();
+        auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(defaultPaint);
         for (int i = 0; i < kNumGlyphs; ++i) {
-            SkGlyphID id = cache->unicharToGlyph(kGlyphs[i]);
-            cache->getScalerContext()->getPath(SkPackedGlyphID(id), &fGlyphs[i]);
+            SkPackedGlyphID id(cache->unicharToGlyph(kGlyphs[i]));
+            sk_ignore_unused_variable(cache->getScalerContext()->getPath(id, &fGlyphs[i]));
             fGlyphs[i].setIsVolatile(fUncached);
         }
 

@@ -1533,28 +1533,39 @@ private:
             SkScalar offsetDx = ellipse.fGeoDx / xRadius;
             SkScalar offsetDy = ellipse.fGeoDy / yRadius;
 
-            SkScalar innerRatioX = xRadius / ellipse.fInnerXRadius;
-            SkScalar innerRatioY = yRadius / ellipse.fInnerYRadius;
-
             verts[0].fPos = SkPoint::Make(bounds.fLeft, bounds.fTop);
             verts[0].fColor = color;
             verts[0].fOuterOffset = SkPoint::Make(-1.0f - offsetDx, -1.0f - offsetDy);
-            verts[0].fInnerOffset = SkPoint::Make(-innerRatioX - offsetDx, -innerRatioY - offsetDy);
+            verts[0].fInnerOffset = SkPoint::Make(0.0f, 0.0f);
 
             verts[1].fPos = SkPoint::Make(bounds.fLeft, bounds.fBottom);
             verts[1].fColor = color;
             verts[1].fOuterOffset = SkPoint::Make(-1.0f - offsetDx, 1.0f + offsetDy);
-            verts[1].fInnerOffset = SkPoint::Make(-innerRatioX - offsetDx, innerRatioY + offsetDy);
+            verts[1].fInnerOffset = SkPoint::Make(0.0f, 0.0f);
 
             verts[2].fPos = SkPoint::Make(bounds.fRight, bounds.fTop);
             verts[2].fColor = color;
             verts[2].fOuterOffset = SkPoint::Make(1.0f + offsetDx, -1.0f - offsetDy);
-            verts[2].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx, -innerRatioY - offsetDy);
+            verts[2].fInnerOffset = SkPoint::Make(0.0f, 0.0f);
 
             verts[3].fPos = SkPoint::Make(bounds.fRight, bounds.fBottom);
             verts[3].fColor = color;
             verts[3].fOuterOffset = SkPoint::Make(1.0f + offsetDx, 1.0f + offsetDy);
-            verts[3].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx, innerRatioY + offsetDy);
+            verts[3].fInnerOffset = SkPoint::Make(0.0f, 0.0f);
+
+            if (DIEllipseStyle::kStroke == this->style()) {
+                SkScalar innerRatioX = xRadius / ellipse.fInnerXRadius;
+                SkScalar innerRatioY = yRadius / ellipse.fInnerYRadius;
+
+                verts[0].fInnerOffset = SkPoint::Make(-innerRatioX - offsetDx,
+                                                      -innerRatioY - offsetDy);
+                verts[1].fInnerOffset = SkPoint::Make(-innerRatioX - offsetDx,
+                                                      innerRatioY + offsetDy);
+                verts[2].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx,
+                                                      -innerRatioY - offsetDy);
+                verts[3].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx,
+                                                      innerRatioY + offsetDy);
+            }
 
             verts += kVerticesPerQuad;
         }

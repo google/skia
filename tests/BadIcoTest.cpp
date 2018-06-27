@@ -6,13 +6,16 @@
  */
 
 #include "Resources.h"
-#include "Test.h"
-
 #include "SkBitmap.h"
 #include "SkCodec.h"
-#include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkStream.h"
+#include "SkString.h"
+#include "SkTypes.h"
+#include "Test.h"
+
+#include <memory>
+#include <utility>
 
 DEF_TEST(BadImage, reporter) {
     const char* const badImages [] = {

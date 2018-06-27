@@ -38,7 +38,6 @@ DEF_TEST(serial_procs_image, reporter) {
     };
     const SkDeserialImageProc dprocs[] = {
         [](const void* data, size_t length, void*) -> sk_sp<SkImage> {
-            SK_ABORT("should not get called");
             return nullptr;
         },
         [](const void* data, size_t length, void*) {

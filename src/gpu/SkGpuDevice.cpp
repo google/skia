@@ -51,10 +51,8 @@
 #include "../private/SkShadowFlags.h"
 #include "text/GrTextUtils.h"
 
-#if SK_SUPPORT_GPU
-
 #define ASSERT_SINGLE_OWNER \
-    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fContext->debugSingleOwner());)
+SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fContext->contextPriv().debugSingleOwner());)
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -164,7 +162,7 @@ sk_sp<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
     }
     // This method is used to create SkGpuDevice's for SkSurface_Gpus. In this case
     // they need to be exact.
-    return context->makeDeferredRenderTargetContext(
+    return context->contextPriv().makeDeferredRenderTargetContext(
                                     SkBackingFit::kExact,
                                     origInfo.width(), origInfo.height(),
                                     config, origInfo.refColorSpace(), sampleCount,
@@ -1048,7 +1046,7 @@ void SkGpuDevice::drawSprite(const SkBitmap& bitmap,
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawSprite", fContext.get());
 
-    if (fContext->abandoned()) {
+    if (fContext->contextPriv().abandoned()) {
         return;
     }
 
@@ -1094,7 +1092,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special1, int left, int top, const
     if (tmpUnfiltered.getMaskFilter()) {
         SkMatrix ctm = this->ctm();
         ctm.postTranslate(-SkIntToScalar(left + offset.fX), -SkIntToScalar(top + offset.fY));
-        tmpUnfiltered.setMaskFilter(tmpUnfiltered.getMaskFilter()->makeWithLocalMatrix(ctm));
+        tmpUnfiltered.setMaskFilter(tmpUnfiltered.getMaskFilter()->makeWithMatrix(ctm));
     }
 
     tmpUnfiltered.setImageFilter(nullptr);
@@ -1713,9 +1711,15 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
     SkBackingFit fit = kNever_TileUsage == cinfo.fTileUsage ? SkBackingFit::kApprox
                                                             : SkBackingFit::kExact;
 
-    sk_sp<GrRenderTargetContext> rtc(fContext->makeDeferredRenderTargetContext(
-            fit, cinfo.fInfo.width(), cinfo.fInfo.height(),
-            fRenderTargetContext->colorSpaceInfo().config(),
+    GrPixelConfig config = fRenderTargetContext->colorSpaceInfo().config();
+    if (kRGBA_1010102_GrPixelConfig == config) {
+        // If the original device is 1010102, fall back to 8888 so that we have a usable alpha
+        // channel in the layer.
+        config = kRGBA_8888_GrPixelConfig;
+    }
+
+    sk_sp<GrRenderTargetContext> rtc(fContext->contextPriv().makeDeferredRenderTargetContext(
+            fit, cinfo.fInfo.width(), cinfo.fInfo.height(), config,
             fRenderTargetContext->colorSpaceInfo().refColorSpace(),
             fRenderTargetContext->numStencilSamples(), GrMipMapped::kNo,
             kBottomLeft_GrSurfaceOrigin, &props));
@@ -1746,4 +1750,3 @@ SkImageFilterCache* SkGpuDevice::getImageFilterCache() {
     return SkImageFilterCache::Create(SkImageFilterCache::kDefaultTransientSize);
 }
 
-#endif

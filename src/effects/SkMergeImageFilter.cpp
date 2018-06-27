@@ -121,7 +121,6 @@ void SkMergeImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkMergeImageFilter::toString(SkString* str) const {
     str->appendf("SkMergeImageFilter: (");
 
@@ -134,4 +133,3 @@ void SkMergeImageFilter::toString(SkString* str) const {
 
     str->append(")");
 }
-#endif

@@ -34,7 +34,6 @@ class GrSwizzle;
 
 class GrGLGpu final : public GrGpu, private GrMesh::SendToGpuImpl {
 public:
-    static sk_sp<GrGpu> Make(GrBackendContext backendContext, const GrContextOptions&, GrContext*);
     static sk_sp<GrGpu> Make(sk_sp<const GrGLInterface>, const GrContextOptions&, GrContext*);
     ~GrGLGpu() override;
 
@@ -128,10 +127,6 @@ public:
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask,
                           GrRenderTarget*, GrSurfaceOrigin);
 
-    const GrGLContext* glContextForTesting() const override {
-        return &this->glContext();
-    }
-
     void clearStencil(GrRenderTarget*, int clearValue) override;
 
     GrGpuRTCommandBuffer* createCommandBuffer(
@@ -148,15 +143,24 @@ public:
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
                                                                 int width,
                                                                 int height) override;
-
-    GrBackendTexture createTestingOnlyBackendTexture(void* pixels, int w, int h,
-                                                     GrPixelConfig config,
-                                                     bool isRenderTarget,
+#if GR_TEST_UTILS
+    GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h,
+                                                     GrPixelConfig config, bool isRenderTarget,
                                                      GrMipMapped mipMapped) override;
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
-    void deleteTestingOnlyBackendTexture(GrBackendTexture*, bool abandonTexture = false) override;
+    void deleteTestingOnlyBackendTexture(const GrBackendTexture&) override;
 
-    void resetShaderCacheForTesting() const override;
+    GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h, GrColorType,
+                                                               GrSRGBEncoded) override;
+
+    void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) override;
+
+    const GrGLContext* glContextForTesting() const override { return &this->glContext(); }
+
+    void resetShaderCacheForTesting() const override { fProgramCache->abandon(); }
+
+    void testingOnly_flushGpuAndSync() override;
+#endif
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() override;
     bool waitFence(GrFence, uint64_t timeout) override;
@@ -184,8 +188,7 @@ private:
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override;
 
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                     const GrMipLevel texels[],
-                                     int mipLevelCount) override;
+                                     const GrMipLevel texels[], int mipLevelCount) override;
 
     GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
                              const void* data) override;
@@ -207,14 +210,9 @@ private:
     // result is stored in |info|.
     // The texture is populated with |texels|, if it exists.
     // The texture parameters are cached in |initialTexParams|.
-    bool createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info,
-                           bool renderTarget, GrGLTexture::TexParams* initialTexParams,
-                           const GrMipLevel texels[], int mipLevelCount,
-                           GrMipMapsStatus* mipMapsStatus);
-
-    bool onIsACopyNeededForTextureParams(GrTextureProxy*, const GrSamplerState&,
-                                         GrTextureProducer::CopyParams*,
-                                         SkScalar scaleAdjust[2]) const override;
+    bool createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info, bool renderTarget,
+                           GrGLTexture::TexParams* initialTexParams, const GrMipLevel texels[],
+                           int mipLevelCount, GrMipMapsStatus* mipMapsStatus);
 
     // Checks whether glReadPixels can be called to get pixel values in readConfig from the
     // render target.
@@ -253,7 +251,8 @@ private:
 
     bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                        GrSurface* src, GrSurfaceOrigin srcOrigin,
-                       const SkIRect& srcRect, const SkIPoint& dstPoint) override;
+                       const SkIRect& srcRect, const SkIPoint& dstPoint,
+                       bool canDiscardOutsideDstRect) override;
 
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);

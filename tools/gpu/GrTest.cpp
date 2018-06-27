@@ -26,15 +26,14 @@
 #include "SkMathPriv.h"
 #include "SkString.h"
 #include "ops/GrMeshDrawOp.h"
-#include "text/GrAtlasGlyphCache.h"
+#include "text/GrGlyphCache.h"
 #include "text/GrTextBlobCache.h"
 
 namespace GrTest {
 
-void SetupAlwaysEvictAtlas(GrContext* context) {
+void SetupAlwaysEvictAtlas(GrContext* context, int dim) {
     // These sizes were selected because they allow each atlas to hold a single plot and will thus
     // stress the atlas
-    int dim = GrDrawOpAtlas::kGlyphMaxDim;
     GrDrawOpAtlasConfig configs[3];
     configs[kA8_GrMaskFormat].fWidth = dim;
     configs[kA8_GrMaskFormat].fHeight = dim;
@@ -51,7 +50,7 @@ void SetupAlwaysEvictAtlas(GrContext* context) {
     configs[kARGB_GrMaskFormat].fPlotWidth = dim;
     configs[kARGB_GrMaskFormat].fPlotHeight = dim;
 
-    context->setTextContextAtlasSizes_ForTesting(configs);
+    context->contextPriv().setTextContextAtlasSizes_ForTesting(configs);
 }
 
 GrBackendTexture CreateBackendTexture(GrBackend backend, int width, int height,
@@ -72,7 +71,7 @@ GrBackendTexture CreateBackendTexture(GrBackend backend, int width, int height,
         }
         case kMock_GrBackend: {
             GrMockTextureInfo* mockInfo = (GrMockTextureInfo*)(handle);
-            return GrBackendTexture(width, height, config, mipMapped, *mockInfo);
+            return GrBackendTexture(width, height, mipMapped, *mockInfo);
         }
         default:
             return GrBackendTexture();
@@ -89,75 +88,81 @@ bool GrRenderTargetContext::isWrapped_ForTesting() const {
     return fRenderTargetProxy->isWrapped_ForTesting();
 }
 
-void GrContext::setTextBlobCacheLimit_ForTesting(size_t bytes) {
-    fTextBlobCache->setBudget(bytes);
+void GrContextPriv::setTextBlobCacheLimit_ForTesting(size_t bytes) {
+    fContext->fTextBlobCache->setBudget(bytes);
 }
 
-void GrContext::setTextContextAtlasSizes_ForTesting(const GrDrawOpAtlasConfig* configs) {
-    fAtlasGlyphCache->setAtlasSizes_ForTesting(configs);
+void GrContextPriv::setTextContextAtlasSizes_ForTesting(const GrDrawOpAtlasConfig* configs) {
+    GrAtlasManager* atlasManager = this->getAtlasManager();
+    if (atlasManager) {
+        atlasManager->setAtlasSizes_ForTesting(configs);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrContext::purgeAllUnlockedResources() {
-    fResourceCache->purgeAllUnlocked();
+void GrContextPriv::purgeAllUnlockedResources_ForTesting() {
+    fContext->fResourceCache->purgeAllUnlocked();
 }
 
-void GrContext::resetGpuStats() const {
+void GrContextPriv::resetGpuStats() const {
 #if GR_GPU_STATS
-    fGpu->stats()->reset();
+    fContext->fGpu->stats()->reset();
 #endif
 }
 
-void GrContext::dumpCacheStats(SkString* out) const {
+void GrContextPriv::dumpCacheStats(SkString* out) const {
 #if GR_CACHE_STATS
-    fResourceCache->dumpStats(out);
+    fContext->fResourceCache->dumpStats(out);
 #endif
 }
 
-void GrContext::dumpCacheStatsKeyValuePairs(SkTArray<SkString>* keys,
-                                            SkTArray<double>* values) const {
+void GrContextPriv::dumpCacheStatsKeyValuePairs(SkTArray<SkString>* keys,
+                                                SkTArray<double>* values) const {
 #if GR_CACHE_STATS
-    fResourceCache->dumpStatsKeyValuePairs(keys, values);
+    fContext->fResourceCache->dumpStatsKeyValuePairs(keys, values);
 #endif
 }
 
-void GrContext::printCacheStats() const {
+void GrContextPriv::printCacheStats() const {
     SkString out;
     this->dumpCacheStats(&out);
     SkDebugf("%s", out.c_str());
 }
 
-void GrContext::dumpGpuStats(SkString* out) const {
+void GrContextPriv::dumpGpuStats(SkString* out) const {
 #if GR_GPU_STATS
-    return fGpu->stats()->dump(out);
+    return fContext->fGpu->stats()->dump(out);
 #endif
 }
 
-void GrContext::dumpGpuStatsKeyValuePairs(SkTArray<SkString>* keys,
-                                          SkTArray<double>* values) const {
+void GrContextPriv::dumpGpuStatsKeyValuePairs(SkTArray<SkString>* keys,
+                                              SkTArray<double>* values) const {
 #if GR_GPU_STATS
-    return fGpu->stats()->dumpKeyValuePairs(keys, values);
+    return fContext->fGpu->stats()->dumpKeyValuePairs(keys, values);
 #endif
 }
 
-void GrContext::printGpuStats() const {
+void GrContextPriv::printGpuStats() const {
     SkString out;
     this->dumpGpuStats(&out);
     SkDebugf("%s", out.c_str());
 }
 
-sk_sp<SkImage> GrContext::getFontAtlasImage_ForTesting(GrMaskFormat format, uint32_t index) {
-    GrAtlasGlyphCache* cache = this->contextPriv().getAtlasGlyphCache();
+sk_sp<SkImage> GrContextPriv::getFontAtlasImage_ForTesting(GrMaskFormat format, unsigned int index) {
+    auto atlasManager = this->getAtlasManager();
+    if (!atlasManager) {
+        return nullptr;
+    }
 
     unsigned int numProxies;
-    const sk_sp<GrTextureProxy>* proxies = cache->getProxies(format, &numProxies);
+    const sk_sp<GrTextureProxy>* proxies = atlasManager->getProxies(format, &numProxies);
     if (index >= numProxies || !proxies[index]) {
         return nullptr;
     }
 
     SkASSERT(proxies[index]->priv().isExact());
-    sk_sp<SkImage> image(new SkImage_Gpu(this, kNeedNewImageUniqueID, kPremul_SkAlphaType,
+    sk_sp<SkImage> image(new SkImage_Gpu(fContext, kNeedNewImageUniqueID, kPremul_SkAlphaType,
                                          proxies[index], nullptr, SkBudgeted::kNo));
     return image;
 }
@@ -183,7 +188,7 @@ void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>*
 
 #endif
 
-GrBackendTexture GrGpu::createTestingOnlyBackendTexture(void* pixels, int w, int h,
+GrBackendTexture GrGpu::createTestingOnlyBackendTexture(const void* pixels, int w, int h,
                                                         SkColorType colorType, bool isRenderTarget,
                                                         GrMipMapped mipMapped) {
     GrPixelConfig config = SkImageInfo2GrPixelConfig(colorType, nullptr, *this->caps());
@@ -289,8 +294,8 @@ uint32_t GrRenderTargetContextPriv::testingOnly_addDrawOp(const GrClip& clip,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrRenderTargetFlags GrRenderTargetProxy::testingOnly_getFlags() const {
-    return fRenderTargetFlags;
+GrInternalSurfaceFlags GrSurfaceProxy::testingOnly_getFlags() const {
+    return fSurfaceFlags;
 }
 
 //////////////////////////////////////////////////////////////////////////////

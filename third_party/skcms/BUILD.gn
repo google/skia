@@ -4,7 +4,7 @@
 # found in the LICENSE file.
 
 config("skcms_public") {
-  include_dirs = [ "../externals/skcms" ]
+  include_dirs = [ "." ]
 }
 
 source_set("skcms") {
@@ -24,6 +24,6 @@ source_set("skcms") {
 
   defines = []
   sources = [
-    "../externals/skcms/skcms.c",
+    "skcms.c",
   ]
 }

@@ -13,9 +13,9 @@
 
 #include "GrContextFactory.h"
 #include "GrContextPriv.h"
-#include "GrProxyProvider.h"
 #include "GrSurfaceProxy.h"
 #include "GrTest.h"
+#include "ProxyUtils.h"
 #include "SkGr.h"
 #include "Test.h"
 #include "vk/GrVkGpu.h"
@@ -52,10 +52,8 @@ bool does_full_buffer_contain_correct_color(GrColor* srcBuffer,
     return true;
 }
 
-void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixelConfig config,
+void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColorType ct,
                         bool renderTarget) {
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-
     const int kWidth = 16;
     const int kHeight = 16;
     SkAutoTMalloc<GrColor> srcBuffer(kWidth*kHeight);
@@ -63,24 +61,13 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
 
     fill_pixel_data(kWidth, kHeight, srcBuffer.get());
 
-    GrSurfaceDesc surfDesc;
-    surfDesc.fFlags = renderTarget ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
-    surfDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
-    surfDesc.fWidth = kWidth;
-    surfDesc.fHeight = kHeight;
-    surfDesc.fConfig = config;
-    surfDesc.fSampleCnt = 1;
-
-    SkColorType ct;
-    SkAssertResult(GrPixelConfigToColorType(config, &ct));
-
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(surfDesc, SkBudgeted::kNo,
-                                                                    srcBuffer, 0);
+    auto proxy = sk_gpu_test::MakeTextureProxyFromData(context, renderTarget, kWidth, kHeight, ct,
+                                                       kTopLeft_GrSurfaceOrigin, srcBuffer, 0);
     REPORTER_ASSERT(reporter, proxy);
     if (proxy) {
         sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(proxy);
 
-        SkImageInfo dstInfo = SkImageInfo::Make(kWidth, kHeight, ct, kOpaque_SkAlphaType);
+        SkImageInfo dstInfo = SkImageInfo::Make(kWidth, kHeight, ct, kPremul_SkAlphaType);
 
         bool result = sContext->readPixels(dstInfo, dstBuffer, 0, 0, 0);
         REPORTER_ASSERT(reporter, result);
@@ -89,7 +76,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
                                                                          kWidth,
                                                                          kHeight));
 
-        dstInfo = SkImageInfo::Make(10, 2, ct, kOpaque_SkAlphaType);
+        dstInfo = SkImageInfo::Make(10, 2, ct, kPremul_SkAlphaType);
         result = sContext->writePixels(dstInfo, srcBuffer, 0, 2, 10);
         REPORTER_ASSERT(reporter, result);
 
@@ -104,14 +91,13 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
                                                                          2));
     }
 
-    surfDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
-
-    proxy = proxyProvider->createTextureProxy(surfDesc, SkBudgeted::kNo, srcBuffer, 0);
+    proxy = sk_gpu_test::MakeTextureProxyFromData(context, renderTarget, kWidth, kHeight, ct,
+                                                  kBottomLeft_GrSurfaceOrigin, srcBuffer, 0);
     REPORTER_ASSERT(reporter, proxy);
     if (proxy) {
         sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(proxy);
 
-        SkImageInfo dstInfo = SkImageInfo::Make(kWidth, kHeight, ct, kOpaque_SkAlphaType);
+        SkImageInfo dstInfo = SkImageInfo::Make(kWidth, kHeight, ct, kPremul_SkAlphaType);
 
         bool result = sContext->readPixels(dstInfo, dstBuffer, 0, 0, 0);
         REPORTER_ASSERT(reporter, result);
@@ -120,7 +106,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
                                                                          kWidth,
                                                                          kHeight));
 
-        dstInfo = SkImageInfo::Make(4, 5, ct, kOpaque_SkAlphaType);
+        dstInfo = SkImageInfo::Make(4, 5, ct, kPremul_SkAlphaType);
         result = sContext->writePixels(dstInfo, srcBuffer, 0, 5, 4);
         REPORTER_ASSERT(reporter, result);
 
@@ -139,12 +125,12 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkUploadPixelsTests, reporter, ctxInfo) {
     // RGBA
-    basic_texture_test(reporter, ctxInfo.grContext(), kRGBA_8888_GrPixelConfig, false);
-    basic_texture_test(reporter, ctxInfo.grContext(), kRGBA_8888_GrPixelConfig, true);
+    basic_texture_test(reporter, ctxInfo.grContext(), kRGBA_8888_SkColorType, false);
+    basic_texture_test(reporter, ctxInfo.grContext(), kRGBA_8888_SkColorType, true);
 
     // BGRA
-    basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_GrPixelConfig, false);
-    basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_GrPixelConfig, true);
+    basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_SkColorType, false);
+    basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_SkColorType, true);
 }
 
 #endif

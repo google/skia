@@ -35,6 +35,7 @@ public:
     // Implementors: if you can not return the value, return an invalid ImageInfo with w=0 & h=0
     // & unknown color space.
     virtual SkImageInfo onImageInfo() const = 0;
+    virtual SkColorType onColorType() const = 0;
     virtual SkAlphaType onAlphaType() const = 0;
 
     virtual bool onPeekPixels(SkPixmap*) const { return false; }
@@ -58,8 +59,12 @@ public:
                                                GrSurfaceOrigin* origin) const {
         return 0;
     }
+
     virtual GrTexture* onGetTexture() const { return nullptr; }
 #endif
+    virtual GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
+                                                 GrSurfaceOrigin* origin) const;
+
     virtual SkImageCacherator* peekCacherator() const { return nullptr; }
 
     // return a read-only copy of the pixels. We promise to not modify them,

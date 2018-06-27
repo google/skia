@@ -11,6 +11,7 @@
 #include "SkSGGeometryNode.h"
 
 #include "SkPath.h"
+#include "SkTrimPathEffect.h"
 
 class SkCanvas;
 class SkPaint;
@@ -28,9 +29,9 @@ public:
 
     ~TrimEffect() override;
 
-    SG_ATTRIBUTE(Start , SkScalar, fStart )
-    SG_ATTRIBUTE(End   , SkScalar, fEnd   )
-    SG_ATTRIBUTE(Offset, SkScalar, fOffset)
+    SG_ATTRIBUTE(Start , SkScalar              , fStart )
+    SG_ATTRIBUTE(Stop  , SkScalar              , fStop  )
+    SG_ATTRIBUTE(Mode  , SkTrimPathEffect::Mode, fMode  )
 
 protected:
     void onClip(SkCanvas*, bool antiAlias) const override;
@@ -44,9 +45,10 @@ private:
 
     const sk_sp<GeometryNode> fChild;
 
-    SkScalar                  fStart  = 0, // starting t
-                              fEnd    = 1, // ending t
-                              fOffset = 0; // t offset
+    SkPath                    fTrimmedPath;
+    SkScalar                  fStart = 0,
+                              fStop  = 1;
+    SkTrimPathEffect::Mode    fMode  = SkTrimPathEffect::Mode::kNormal;
 
     using INHERITED = GeometryNode;
 };

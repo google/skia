@@ -5,17 +5,22 @@
  * found in the LICENSE file.
  */
 
+#include "FakeStreams.h"
+#include "Resources.h"
 #include "SkBitmap.h"
 #include "SkCodec.h"
 #include "SkData.h"
 #include "SkImageInfo.h"
 #include "SkMakeUnique.h"
-#include "SkRWBuffer.h"
-#include "SkString.h"
-
-#include "FakeStreams.h"
-#include "Resources.h"
+#include "SkRefCnt.h"
+#include "SkStream.h"
+#include "SkTypes.h"
 #include "Test.h"
+
+#include <cstring>
+#include <memory>
+#include <utility>
+#include <vector>
 
 static SkImageInfo standardize_info(SkCodec* codec) {
     SkImageInfo defaultInfo = codec->getInfo();

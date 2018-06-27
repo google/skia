@@ -155,15 +155,15 @@ static sk_sp<GrRenderTargetContext> random_render_target_context(GrContext* cont
     // Above could be 0 if msaa isn't supported.
     sampleCnt = SkTMax(1, sampleCnt);
 
-    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
-                                                                           SkBackingFit::kExact,
-                                                                           kRenderTargetWidth,
-                                                                           kRenderTargetHeight,
-                                                                           kRGBA_8888_GrPixelConfig,
-                                                                           nullptr,
-                                                                           sampleCnt,
-                                                                           GrMipMapped::kNo,
-                                                                           origin));
+    sk_sp<GrRenderTargetContext> renderTargetContext(
+        context->contextPriv().makeDeferredRenderTargetContext(SkBackingFit::kExact,
+                                                               kRenderTargetWidth,
+                                                               kRenderTargetHeight,
+                                                               kRGBA_8888_GrPixelConfig,
+                                                               nullptr,
+                                                               sampleCnt,
+                                                               GrMipMapped::kNo,
+                                                               origin));
     return renderTargetContext;
 }
 
@@ -272,20 +272,20 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
     {
         GrSurfaceDesc dummyDesc;
         dummyDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-        dummyDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
         dummyDesc.fWidth = 34;
         dummyDesc.fHeight = 18;
         dummyDesc.fConfig = kRGBA_8888_GrPixelConfig;
-        proxies[0] = proxyProvider->createProxy(dummyDesc, SkBackingFit::kExact, SkBudgeted::kNo);
+        proxies[0] = proxyProvider->createProxy(dummyDesc, kBottomLeft_GrSurfaceOrigin,
+                                                SkBackingFit::kExact, SkBudgeted::kNo);
     }
     {
         GrSurfaceDesc dummyDesc;
         dummyDesc.fFlags = kNone_GrSurfaceFlags;
-        dummyDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
         dummyDesc.fWidth = 16;
         dummyDesc.fHeight = 22;
         dummyDesc.fConfig = kAlpha_8_GrPixelConfig;
-        proxies[1] = proxyProvider->createProxy(dummyDesc, SkBackingFit::kExact, SkBudgeted::kNo);
+        proxies[1] = proxyProvider->createProxy(dummyDesc, kTopLeft_GrSurfaceOrigin,
+                                                SkBackingFit::kExact, SkBudgeted::kNo);
     }
 
     if (!proxies[0] || !proxies[1]) {
@@ -318,12 +318,12 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
     drawingManager->flush(nullptr);
 
     // Validate that GrFPs work correctly without an input.
-    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
-                                                                           SkBackingFit::kExact,
-                                                                           kRenderTargetWidth,
-                                                                           kRenderTargetHeight,
-                                                                           kRGBA_8888_GrPixelConfig,
-                                                                           nullptr));
+    sk_sp<GrRenderTargetContext> renderTargetContext(
+                 context->contextPriv().makeDeferredRenderTargetContext(SkBackingFit::kExact,
+                                                                        kRenderTargetWidth,
+                                                                        kRenderTargetHeight,
+                                                                        kRGBA_8888_GrPixelConfig,
+                                                                        nullptr));
     if (!renderTargetContext) {
         SkDebugf("Could not allocate a renderTargetContext");
         return false;

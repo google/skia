@@ -85,7 +85,6 @@ struct BitmapShaderRec : public SkResourceCache::Rec {
 
     BitmapShaderKey fKey;
     sk_sp<SkShader> fShader;
-    size_t          fBitmapBytes;
 
     const Key& getKey() const override { return fKey; }
     size_t bytesUsed() const override {
@@ -172,28 +171,15 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
     fPicture->flatten(buffer);
 }
 
-// This helper returns two artifacts:
-//
-// 1) a cached image shader, which wraps a single picture tile at the given CTM/local matrix
-//
-// 2) a "composite" local matrix, to be passed down when dispatching createContext(),
-//    appendStages() and asFragmentProcessor() in callers
-//
-// The composite local matrix includes the actual local matrix, any inherited/outer local matrix
-// and a scale component (to mape the actual tile bitmap size -> fTile size).
-//
+// Returns a cached image shader, which wraps a single picture tile at the given
+// CTM/local matrix.  Also adjusts the local matrix for tile scaling.
 sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
-                                                 const SkMatrix* outerLocalMatrix,
+                                                 SkTCopyOnFirstWrite<SkMatrix>* localMatrix,
                                                  SkColorSpace* dstColorSpace,
-                                                 SkMatrix* compositeLocalMatrix,
                                                  const int maxTextureSize) const {
     SkASSERT(fPicture && !fPicture->cullRect().isEmpty());
 
-    *compositeLocalMatrix = this->getLocalMatrix();
-    if (outerLocalMatrix) {
-        compositeLocalMatrix->preConcat(*outerLocalMatrix);
-    }
-    const SkMatrix m = SkMatrix::Concat(viewMatrix, *compositeLocalMatrix);
+    const SkMatrix m = SkMatrix::Concat(viewMatrix, **localMatrix);
 
     // Use a rotation-invariant scale
     SkPoint scale;
@@ -275,42 +261,41 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
         fAddedToCache.store(true);
     }
 
-    compositeLocalMatrix->preScale(1 / tileScale.width(), 1 / tileScale.height());
+    if (tileScale.width() != 1 || tileScale.height() != 1) {
+        localMatrix->writable()->preScale(1 / tileScale.width(), 1 / tileScale.height());
+    }
 
     return tileShader;
 }
 
-bool SkPictureShader::onIsRasterPipelineOnly(const SkMatrix& ctm) const {
-    return SkImageShader::IsRasterPipelineOnly(ctm, kN32_SkColorType, kPremul_SkAlphaType,
-                                               fTmx, fTmy, this->getLocalMatrix());
-}
-
 bool SkPictureShader::onAppendStages(const StageRec& rec) const {
+    auto lm = this->totalLocalMatrix(rec.fLocalM);
+
     // Keep bitmapShader alive by using alloc instead of stack memory
     auto& bitmapShader = *rec.fAlloc->make<sk_sp<SkShader>>();
-    SkMatrix compositeLocalMatrix;
-    bitmapShader = this->refBitmapShader(rec.fCTM, rec.fLocalM, rec.fDstCS, &compositeLocalMatrix);
+    bitmapShader = this->refBitmapShader(rec.fCTM, &lm, rec.fDstCS);
+
+    if (!bitmapShader) {
+        return false;
+    }
 
     StageRec localRec = rec;
-    localRec.fLocalM = compositeLocalMatrix.isIdentity() ? nullptr : &compositeLocalMatrix;
+    localRec.fLocalM = lm->isIdentity() ? nullptr : lm.get();
 
-    return bitmapShader && as_SB(bitmapShader)->appendStages(localRec);
+    return as_SB(bitmapShader)->appendStages(localRec);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 SkShaderBase::Context* SkPictureShader::onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc)
 const {
-    SkMatrix compositeLocalMatrix;
-    sk_sp<SkShader> bitmapShader = this->refBitmapShader(*rec.fMatrix,
-                                                         rec.fLocalMatrix,
-                                                         rec.fDstColorSpace,
-                                                         &compositeLocalMatrix);
+    auto lm = this->totalLocalMatrix(rec.fLocalMatrix);
+    sk_sp<SkShader> bitmapShader = this->refBitmapShader(*rec.fMatrix, &lm, rec.fDstColorSpace);
     if (!bitmapShader) {
         return nullptr;
     }
 
     ContextRec localRec = rec;
-    localRec.fLocalMatrix = compositeLocalMatrix.isIdentity() ? nullptr : &compositeLocalMatrix;
+    localRec.fLocalMatrix = lm->isIdentity() ? nullptr : lm.get();
 
     PictureShaderContext* ctx =
         alloc->make<PictureShaderContext>(*this, localRec, std::move(bitmapShader), alloc);
@@ -352,7 +337,6 @@ void SkPictureShader::PictureShaderContext::shadeSpan(int x, int y, SkPMColor ds
     fBitmapShaderContext->shadeSpan(x, y, dstC, count);
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkPictureShader::toString(SkString* str) const {
     static const char* gTileModeName[SkShader::kTileModeCount] = {
         "clamp", "repeat", "mirror"
@@ -368,7 +352,6 @@ void SkPictureShader::toString(SkString* str) const {
 
     this->INHERITED::toString(str);
 }
-#endif
 
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
@@ -377,20 +360,19 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
     if (args.fContext) {
         maxTextureSize = args.fContext->caps()->maxTextureSize();
     }
-    SkMatrix compositeLocalMatrix;
-    sk_sp<SkShader> bitmapShader(this->refBitmapShader(*args.fViewMatrix, args.fLocalMatrix,
+
+    auto lm = this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix);
+    sk_sp<SkShader> bitmapShader(this->refBitmapShader(*args.fViewMatrix, &lm,
                                                        args.fDstColorSpaceInfo->colorSpace(),
-                                                       &compositeLocalMatrix,
                                                        maxTextureSize));
     if (!bitmapShader) {
         return nullptr;
     }
 
-    return as_SB(bitmapShader)->asFragmentProcessor(
-        GrFPArgs(args.fContext,
-                 args.fViewMatrix,
-                 compositeLocalMatrix.isIdentity() ? nullptr : &compositeLocalMatrix,
-                 args.fFilterQuality,
-                 args.fDstColorSpaceInfo));
+    // We want to *reset* args.fPreLocalMatrix, not compose it.
+    GrFPArgs newArgs(args.fContext, args.fViewMatrix, args.fFilterQuality, args.fDstColorSpaceInfo);
+    newArgs.fPreLocalMatrix = lm.get();
+
+    return as_SB(bitmapShader)->asFragmentProcessor(newArgs);
 }
 #endif

@@ -75,8 +75,9 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxySafeForParams(const GrSa
         return nullptr;
     }
 
-    GrGpu* gpu = fContext->contextPriv().getGpu();
-    if (!gpu->isACopyNeededForTextureParams(proxy.get(), params, &copyParams, scaleAdjust)) {
+    if (!GrGpu::IsACopyNeededForTextureParams(fContext->caps(),
+                                              proxy.get(), proxy->width(), proxy->height(),
+                                              params, &copyParams, scaleAdjust)) {
         return proxy;
     }
 

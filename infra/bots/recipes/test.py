@@ -178,6 +178,8 @@ def dm_flags(api, bot):
       blacklist('gltestthreading gm _ savelayer_with_backdrop')
       blacklist('gltestthreading gm _ persp_shaders_bw')
       blacklist('gltestthreading gm _ dftext_blob_persp')
+      # skbug.com/7523 - Flaky on various GPUs
+      blacklist('gltestthreading gm _ orientation')
 
     # The following devices do not support glessrgb.
     if 'glessrgb' in configs:
@@ -212,6 +214,17 @@ def dm_flags(api, bot):
     if 'Vulkan' in bot:
       configs = ['vk']
 
+    # Test 1010102 on our Linux/NVIDIA bots
+    if 'QuadroP400' in bot and api.vars.is_linux:
+      if 'Vulkan' in bot:
+        configs.append('vk1010102')
+        # Decoding transparent images to 1010102 just looks bad
+        blacklist('vk1010102 image _ _')
+      else:
+        configs.append('gl1010102')
+        # Decoding transparent images to 1010102 just looks bad
+        blacklist('gl1010102 image _ _')
+
     if 'ChromeOS' in bot:
       # Just run GLES for now - maybe add gles_msaa4 in the future
       configs = ['gles']
@@ -223,6 +236,17 @@ def dm_flags(api, bot):
     if 'CCPR' in bot:
       configs = [c for c in configs if c == 'gl' or c == 'gles']
       args.extend(['--pr', 'ccpr', '--cachePathMasks', 'false'])
+
+    # DDL is a GPU-only feature
+    if 'DDL1' in bot:
+      # This bot generates gl and vk comparison images for the large skps
+      configs = [c for c in configs if c == 'gl' or c == 'vk']
+      args.extend(['--skpViewportSize', "2048"])
+    if 'DDL3' in bot:
+      # This bot generates the ddl-gl and ddl-vk images for the
+      # large skps and the gms
+      configs = ['ddl-' + c for c in configs if c == 'gl' or c == 'vk']
+      args.extend(['--skpViewportSize', "2048"])
 
   tf = api.vars.builder_cfg.get('test_filter')
   if 'All' != tf:
@@ -238,7 +262,7 @@ def dm_flags(api, bot):
   args.extend(configs)
 
   # Run tests, gms, and image decoding tests everywhere.
-  args.extend('--src tests gm image colorImage svg'.split(' '))
+  args.extend('--src tests gm image colorImage svg skp'.split(' '))
   if api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
     # Don't run the 'svgparse_*' svgs on GPU.
     blacklist('_ svg _ svgparse_')
@@ -256,6 +280,23 @@ def dm_flags(api, bot):
   if 'NativeFonts' in bot:  # images won't exercise native font integration :)
     args.remove('image')
     args.remove('colorImage')
+
+  if 'DDL1' in bot:
+    # The DDL1 bot just renders large skp images as a baseline for full DDL
+    args.remove('tests')
+    args.remove('gm')
+    args.remove('image')
+    args.remove('colorImage')
+    args.remove('svg')
+  elif 'DDL3' in bot:
+    # The DDL3 bot renders large skps and gms in full DDL mode
+    args.remove('tests')
+    args.remove('image')
+    args.remove('colorImage')
+    args.remove('svg')
+  else:
+    # Currently, only the DDL bots render skps
+    args.remove('skp')
 
   # TODO: ???
   blacklist('f16 _ _ dstreadshuffle')
@@ -519,26 +560,34 @@ def dm_flags(api, bot):
     match.append('~WritePixels')  # skia:4711
     match.append('~PremulAlphaRoundTrip_Gpu')  # skia:7501
 
+  if 'DDL3' in bot:
+    match.append('~shadermaskfilter_image') # skia:7751
+    match.append('~persp_shaders_bw')       # skia:7751
+    match.append('~persp_shaders_aa')       # skia:7751
+    match.append('~imagefilterscropped')    # skia:7755
+    match.append('~animated-image-blurs')   # skia:7755
+
   if 'Chromecast' in bot:
     if 'GPU' in bot:
       # skia:6687
-      match.append('~matrixconvolution')
-      match.append('~blur_image_filter')
-      match.append('~blur_0.01')
-      match.append('~lighting')
-      match.append('~imageblur2')
       match.append('~animated-image-blurs')
+      match.append('~blur_0.01')
+      match.append('~blur_image_filter')
+      match.append('~imageblur2')
+      match.append('~lighting')
+      match.append('~longpathdash')
+      match.append('~matrixconvolution')
       match.append('~textblobmixedsizes_df')
       match.append('~textblobrandomfont')
     # Blacklisted to avoid OOM (we see DM just end with "broken pipe")
-    match.append('~GM_animated-image-blurs')
-    match.append('~verylarge')
-    match.append('~ImageFilterBlurLargeImage')
-    match.append('~TextBlobCache')
     match.append('~bigbitmaprect_')
-    match.append('~savelayer_clipmask')
     match.append('~DrawBitmapRect')
     match.append('~drawbitmaprect')
+    match.append('~GM_animated-image-blurs')
+    match.append('~ImageFilterBlurLargeImage')
+    match.append('~savelayer_clipmask')
+    match.append('~TextBlobCache')
+    match.append('~verylarge')
 
   if 'GalaxyS6' in bot:
     match.append('~SpecialImage') # skia:6338
@@ -619,18 +668,11 @@ def dm_flags(api, bot):
     # skia:6398
     blacklist(['vk', 'gm', '_', 'aarectmodes'])
     blacklist(['vk', 'gm', '_', 'aaxfermodes'])
-    blacklist(['vk', 'gm', '_', 'arithmode'])
-    blacklist(['vk', 'gm', '_', 'composeshader'])
-    blacklist(['vk', 'gm', '_', 'composeshader_alpha'])
-    blacklist(['vk', 'gm', '_', 'composeshader_bitmap'])
-    blacklist(['vk', 'gm', '_', 'composeshader_bitmap2'])
     blacklist(['vk', 'gm', '_', 'dont_clip_to_layer'])
     blacklist(['vk', 'gm', '_', 'dftext'])
     blacklist(['vk', 'gm', '_', 'drawregionmodes'])
     blacklist(['vk', 'gm', '_', 'filterfastbounds'])
-    blacklist(['vk', 'gm', '_', 'fontcache'])
     blacklist(['vk', 'gm', '_', 'fontmgr_iter'])
-    blacklist(['vk', 'gm', '_', 'fontmgr_iter_factory'])
     blacklist(['vk', 'gm', '_', 'fontmgr_match'])
     blacklist(['vk', 'gm', '_', 'fontscaler'])
     blacklist(['vk', 'gm', '_', 'fontscalerdistortable'])
@@ -640,7 +682,6 @@ def dm_flags(api, bot):
     blacklist(['vk', 'gm', '_', 'hairmodes'])
     blacklist(['vk', 'gm', '_', 'imagefilters_xfermodes'])
     blacklist(['vk', 'gm', '_', 'imagefiltersclipped'])
-    blacklist(['vk', 'gm', '_', 'imagefiltersgraph'])
     blacklist(['vk', 'gm', '_', 'imagefiltersscaled'])
     blacklist(['vk', 'gm', '_', 'imagefiltersstroked'])
     blacklist(['vk', 'gm', '_', 'imagefilterstransformed'])
@@ -651,8 +692,6 @@ def dm_flags(api, bot):
     blacklist(['vk', 'gm', '_', 'lcdtextsize'])
     blacklist(['vk', 'gm', '_', 'matriximagefilter'])
     blacklist(['vk', 'gm', '_', 'mixedtextblobs'])
-    blacklist(['vk', 'gm', '_', 'mixershader'])
-    blacklist(['vk', 'gm', '_', 'pictureimagefilter'])
     blacklist(['vk', 'gm', '_', 'resizeimagefilter'])
     blacklist(['vk', 'gm', '_', 'rotate_imagefilter'])
     blacklist(['vk', 'gm', '_', 'savelayer_lcdtext'])
@@ -662,36 +701,11 @@ def dm_flags(api, bot):
     blacklist(['vk', 'gm', '_', 'textblobgeometrychange'])
     blacklist(['vk', 'gm', '_', 'textbloblooper'])
     blacklist(['vk', 'gm', '_', 'textblobmixedsizes'])
-    blacklist(['vk', 'gm', '_', 'textblobmixedsizes_df'])
     blacklist(['vk', 'gm', '_', 'textblobrandomfont'])
     blacklist(['vk', 'gm', '_', 'textfilter_color'])
     blacklist(['vk', 'gm', '_', 'textfilter_image'])
-    blacklist(['vk', 'gm', '_', 'typefacerendering'])
     blacklist(['vk', 'gm', '_', 'varied_text_clipped_lcd'])
     blacklist(['vk', 'gm', '_', 'varied_text_ignorable_clip_lcd'])
-    blacklist(['vk', 'gm', '_', 'xfermodeimagefilter'])
-    match.append('~ApplyGamma')
-    match.append('~ComposedImageFilterBounds_Gpu')
-    match.append('~GrMeshTest')
-    match.append('~ImageFilterFailAffectsTransparentBlack_Gpu')
-    match.append('~ImageFilterZeroBlurSigma_Gpu')
-    match.append('~ImageNewShader_GPU')
-    match.append('~NewTextureFromPixmap')
-    match.append('~ReadPixels_Gpu')
-    match.append('~ReadPixels_Texture')
-    match.append('~ReadWriteAlpha')
-    match.append('~skbug6653')
-    match.append('~SRGBReadWritePixels')
-    match.append('~SpecialImage_DeferredGpu')
-    match.append('~SpecialImage_Gpu')
-    match.append('~WritePixels_Gpu')
-    match.append('~WritePixelsMSAA_Gpu')
-    match.append('~WritePixelsNonTexture_Gpu')
-    match.append('~WritePixelsNonTextureMSAA_Gpu')
-    match.append('~XfermodeImageFilterCroppedInput_Gpu')
-    match.append('~GrDefaultPathRendererTest') #skia:7244
-    match.append('~GrMSAAPathRendererTest') #skia:7244
-    match.append('~SkImage_makeNonTextureImage')
 
   if (('RadeonR9M470X' in bot or 'RadeonHD7770' in bot) and 'ANGLE' in bot):
     # skia:7096
@@ -727,6 +741,9 @@ def dm_flags(api, bot):
   if 'Mac' in bot and 'IntelHD615' in bot:
     # skia:7603
     match.append('~^GrMeshTest$')
+
+  if api.vars.internal_hardware_label == 1:
+    match.append('~skbug6653') # skia:6653
 
   if blacklisted:
     args.append('--blacklist')
@@ -970,6 +987,8 @@ TEST_BUILDERS = [
    '-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41'),
+  ('Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1'),
+  ('Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3'),
   ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-Valgrind_SK_CPU_LIMIT_SSE41'),
   'Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All-ANGLE',
@@ -988,7 +1007,7 @@ TEST_BUILDERS = [
   'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA',
   'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FDAA',
   'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA',
-  'Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug-All',
+  'Test-Win8-Clang-Golo-CPU-AVX-x86-Debug-All',
   'Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All',
 ]
 
@@ -1119,6 +1138,8 @@ def GenTests(api):
                                      'svg', 'VERSION'),
         api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
     ) +
+    api.step_data('get swarming bot id',
+                  stdout=api.raw_io.output('build123-m2--device5')) +
     api.step_data('push [START_DIR]/skia/resources/* '+
                   '/sdcard/revenge_of_the_skiabot/resources', retcode=1)
   )

@@ -7,6 +7,7 @@
 
 #include "GrOpFlushState.h"
 
+#include "GrContextPriv.h"
 #include "GrDrawOpAtlas.h"
 #include "GrGpu.h"
 #include "GrResourceProvider.h"
@@ -98,7 +99,6 @@ void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload) {
         // TODO: Shouldn't we be bailing here if a draw is really required instead of a copy?
         // e.g. if (tempInfo.fSwizzle != "RGBA") fail.
         GrSurfaceDesc desc;
-        desc.fOrigin = dstProxy->origin();
         desc.fWidth = width;
         desc.fHeight = height;
         desc.fConfig = dstProxy->config();
@@ -190,4 +190,12 @@ void GrOpFlushState::putBackVertices(int vertices, size_t vertexStride) {
 
 GrAppliedClip GrOpFlushState::detachAppliedClip() {
     return fOpArgs->fAppliedClip ? std::move(*fOpArgs->fAppliedClip) : GrAppliedClip();
+}
+
+GrGlyphCache* GrOpFlushState::glyphCache() const {
+    return fGpu->getContext()->contextPriv().getGlyphCache();
+}
+
+GrAtlasManager* GrOpFlushState::atlasManager() const {
+    return fGpu->getContext()->contextPriv().getAtlasManager();
 }

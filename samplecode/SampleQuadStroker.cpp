@@ -5,18 +5,35 @@
  * found in the LICENSE file.
  */
 
-#include "sk_tool_utils.h"
 #include "SampleCode.h"
-#include "SkView.h"
+#include "SkBlendMode.h"
 #include "SkCanvas.h"
+#include "SkColor.h"
 #include "SkGeometry.h"
+#include "SkImageInfo.h"
+#include "SkMatrix.h"
+#include "SkPaint.h"
+#include "SkPath.h"
 #include "SkPathMeasure.h"
+#include "SkPoint.h"
 #include "SkPointPriv.h"
-#include "SkRandom.h"
 #include "SkRRect.h"
-#include "SkColorPriv.h"
-#include "SkStrokerPriv.h"
+#include "SkRect.h"
+#include "SkRefCnt.h"
+#include "SkScalar.h"
+#include "SkShader.h"
+#include "SkString.h"
+#include "SkStroke.h"
 #include "SkSurface.h"
+#include "SkTArray.h"
+#include "SkTemplates.h"
+#include "SkTypes.h"
+#include "SkView.h"
+#include "sk_tool_utils.h"
+
+#include <cfloat>
+
+class SkEvent;
 
 static bool hittest(const SkPoint& target, SkScalar x, SkScalar y) {
     const SkScalar TOL = 7;

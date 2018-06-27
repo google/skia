@@ -29,6 +29,8 @@ struct Symbol : public IRNode {
     , fKind(kind)
     , fName(name) {}
 
+    virtual ~Symbol() {}
+
     Kind fKind;
     StringFragment fName;
 

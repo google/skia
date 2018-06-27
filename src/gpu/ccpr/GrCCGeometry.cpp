@@ -23,26 +23,27 @@ void GrCCGeometry::beginPath() {
     fVerbs.push_back(Verb::kBeginPath);
 }
 
-void GrCCGeometry::beginContour(const SkPoint& devPt) {
+void GrCCGeometry::beginContour(const SkPoint& pt) {
     SkASSERT(!fBuildingContour);
-
-    fCurrFanPoint = fCurrAnchorPoint = devPt;
-
     // Store the current verb count in the fTriangles field for now. When we close the contour we
     // will use this value to calculate the actual number of triangles in its fan.
     fCurrContourTallies = {fVerbs.count(), 0, 0, 0};
 
-    fPoints.push_back(devPt);
+    fPoints.push_back(pt);
     fVerbs.push_back(Verb::kBeginContour);
+    fCurrAnchorPoint = pt;
 
     SkDEBUGCODE(fBuildingContour = true);
 }
 
-void GrCCGeometry::lineTo(const SkPoint& devPt) {
+void GrCCGeometry::lineTo(const SkPoint& pt) {
     SkASSERT(fBuildingContour);
-    SkASSERT(fCurrFanPoint == fPoints.back());
-    fCurrFanPoint = devPt;
-    fPoints.push_back(devPt);
+    fPoints.push_back(pt);
+    fVerbs.push_back(Verb::kLineTo);
+}
+
+void GrCCGeometry::appendLine(const Sk2f& endpt) {
+    endpt.store(&fPoints.push_back());
     fVerbs.push_back(Verb::kLineTo);
 }
 
@@ -57,28 +58,66 @@ static inline float dot(const Sk2f& a, const Sk2f& b) {
     return product[0] + product[1];
 }
 
-static inline bool are_collinear(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2) {
-    static constexpr float kFlatnessTolerance = 4; // 1/4 of a pixel.
+static inline bool are_collinear(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
+                                 float tolerance = 1/16.f) { // 1/16 of a pixel.
+    Sk2f l = p2 - p0; // Line from p0 -> p2.
 
-    // Area (times 2) of the triangle.
-    Sk2f a = (p0 - p1) * SkNx_shuffle<1,0>(p1 - p2);
-    a = (a - SkNx_shuffle<1,0>(a)).abs();
+    // lwidth = Manhattan width of l.
+    Sk2f labs = l.abs();
+    float lwidth = labs[0] + labs[1];
 
-    // Bounding box of the triangle.
-    Sk2f bbox0 = Sk2f::Min(Sk2f::Min(p0, p1), p2);
-    Sk2f bbox1 = Sk2f::Max(Sk2f::Max(p0, p1), p2);
+    // d = |p1 - p0| dot | l.y|
+    //                   |-l.x| = distance from p1 to l.
+    Sk2f dd = (p1 - p0) * SkNx_shuffle<1,0>(l);
+    float d = dd[0] - dd[1];
 
-    // The triangle is linear if its area is within a fraction of the largest bounding box
-    // dimension, or else if its area is within a fraction of a pixel.
-    return (a * (kFlatnessTolerance/2) < Sk2f::Max(bbox1 - bbox0, 1)).anyTrue();
+    // We are collinear if a box with radius "tolerance", centered on p1, touches the line l.
+    // To decide this, we check if the distance from p1 to the line is less than the distance from
+    // p1 to the far corner of this imaginary box, along that same normal vector.
+    // The far corner of the box can be found at "p1 + sign(n) * tolerance", where n is normal to l:
+    //
+    //   abs(dot(p1 - p0, n)) <= dot(sign(n) * tolerance, n)
+    //
+    // Which reduces to:
+    //
+    //   abs(d) <= (n.x * sign(n.x) + n.y * sign(n.y)) * tolerance
+    //   abs(d) <= (abs(n.x) + abs(n.y)) * tolerance
+    //
+    // Use "<=" in case l == 0.
+    return std::abs(d) <= lwidth * tolerance;
+}
+
+static inline bool are_collinear(const SkPoint P[4], float tolerance = 1/16.f) { // 1/16 of a pixel.
+    Sk4f Px, Py;               // |Px  Py|   |p0 - p3|
+    Sk4f::Load2(P, &Px, &Py);  // |.   . | = |p1 - p3|
+    Px -= Px[3];               // |.   . |   |p2 - p3|
+    Py -= Py[3];               // |.   . |   |   0   |
+
+    // Find [lx, ly] = the line from p3 to the furthest-away point from p3.
+    Sk4f Pwidth = Px.abs() + Py.abs(); // Pwidth = Manhattan width of each point.
+    int lidx = Pwidth[0] > Pwidth[1] ? 0 : 1;
+    lidx = Pwidth[lidx] > Pwidth[2] ? lidx : 2;
+    float lx = Px[lidx], ly = Py[lidx];
+    float lwidth = Pwidth[lidx]; // lwidth = Manhattan width of [lx, ly].
+
+    //     |Px  Py|
+    // d = |.   . | * | ly| = distances from each point to l (two of the distances will be zero).
+    //     |.   . |   |-lx|
+    //     |.   . |
+    Sk4f d = Px*ly - Py*lx;
+
+    // We are collinear if boxes with radius "tolerance", centered on all 4 points all touch line l.
+    // (See the rationale for this formula in the above, 3-point version of this function.)
+    // Use "<=" in case l == 0.
+    return (d.abs() <= lwidth * tolerance).allTrue();
 }
 
 // Returns whether the (convex) curve segment is monotonic with respect to [endPt - startPt].
-static inline bool is_convex_curve_monotonic(const Sk2f& startPt, const Sk2f& startTan,
-                                             const Sk2f& endPt, const Sk2f& endTan) {
+static inline bool is_convex_curve_monotonic(const Sk2f& startPt, const Sk2f& tan0,
+                                             const Sk2f& endPt, const Sk2f& tan1) {
     Sk2f v = endPt - startPt;
-    float dot0 = dot(startTan, v);
-    float dot1 = dot(endTan, v);
+    float dot0 = dot(tan0, v);
+    float dot1 = dot(tan1, v);
 
     // A small, negative tolerance handles floating-point error in the case when one tangent
     // approaches 0 length, meaning the (convex) curve segment is effectively a flat line.
@@ -90,14 +129,19 @@ static inline Sk2f lerp(const Sk2f& a, const Sk2f& b, const Sk2f& t) {
     return SkNx_fma(t, b - a, a);
 }
 
-void GrCCGeometry::quadraticTo(const SkPoint& devP0, const SkPoint& devP1) {
+void GrCCGeometry::quadraticTo(const SkPoint P[3]) {
     SkASSERT(fBuildingContour);
-    SkASSERT(fCurrFanPoint == fPoints.back());
+    SkASSERT(P[0] == fPoints.back());
+    Sk2f p0 = Sk2f::Load(P);
+    Sk2f p1 = Sk2f::Load(P+1);
+    Sk2f p2 = Sk2f::Load(P+2);
 
-    Sk2f p0 = Sk2f::Load(&fCurrFanPoint);
-    Sk2f p1 = Sk2f::Load(&devP0);
-    Sk2f p2 = Sk2f::Load(&devP1);
-    fCurrFanPoint = devP1;
+    // Don't crunch on the curve if it is nearly flat (or just very small). Flat curves can break
+    // The monotonic chopping math.
+    if (are_collinear(p0, p1, p2)) {
+        this->appendLine(p2);
+        return;
+    }
 
     this->appendMonotonicQuadratics(p0, p1, p2);
 }
@@ -114,10 +158,10 @@ inline void GrCCGeometry::appendMonotonicQuadratics(const Sk2f& p0, const Sk2f& 
     }
 
     // Chop the curve into two segments with equal curvature. To do this we find the T value whose
-    // tangent is perpendicular to the vector that bisects tan0 and -tan1.
+    // tangent angle is halfway between tan0 and tan1.
     Sk2f n = normalize(tan0) - normalize(tan1);
 
-    // This tangent can be found where (dQ(t) dot n) = 0:
+    // The midtangent can be found where (dQ(t) dot n) = 0:
     //
     //   0 = (dQ(t) dot n) = | 2*t  1 | * | p0 - 2*p1 + p2 | * | n |
     //                                    | -2*p0 + 2*p1   |   | . |
@@ -147,8 +191,7 @@ inline void GrCCGeometry::appendSingleMonotonicQuadratic(const Sk2f& p0, const S
 
     // Don't send curves to the GPU if we know they are nearly flat (or just very small).
     if (are_collinear(p0, p1, p2)) {
-        p2.store(&fPoints.push_back());
-        fVerbs.push_back(Verb::kLineTo);
+        this->appendLine(p2);
         return;
     }
 
@@ -274,51 +317,46 @@ static inline Sk2f first_unless_nearly_zero(const Sk2f& a, const Sk2f& b) {
 }
 
 static inline bool is_cubic_nearly_quadratic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
-                                             const Sk2f& p3, Sk2f& tan0, Sk2f& tan3, Sk2f& c) {
+                                             const Sk2f& p3, Sk2f& tan0, Sk2f& tan1, Sk2f& c) {
     tan0 = first_unless_nearly_zero(p1 - p0, p2 - p0);
-    tan3 = first_unless_nearly_zero(p3 - p2, p3 - p1);
+    tan1 = first_unless_nearly_zero(p3 - p2, p3 - p1);
 
     Sk2f c1 = SkNx_fma(Sk2f(1.5f), tan0, p0);
-    Sk2f c2 = SkNx_fma(Sk2f(-1.5f), tan3, p3);
+    Sk2f c2 = SkNx_fma(Sk2f(-1.5f), tan1, p3);
     c = (c1 + c2) * .5f; // Hopefully optimized out if not used?
 
     return ((c1 - c2).abs() <= 1).allTrue();
 }
 
-void GrCCGeometry::cubicTo(const SkPoint& devP1, const SkPoint& devP2, const SkPoint& devP3,
-                           float inflectPad, float loopIntersectPad) {
+void GrCCGeometry::cubicTo(const SkPoint P[4], float inflectPad, float loopIntersectPad) {
     SkASSERT(fBuildingContour);
-    SkASSERT(fCurrFanPoint == fPoints.back());
+    SkASSERT(P[0] == fPoints.back());
 
-    SkPoint devPts[4] = {fCurrFanPoint, devP1, devP2, devP3};
-    Sk2f p0 = Sk2f::Load(&fCurrFanPoint);
-    Sk2f p1 = Sk2f::Load(&devP1);
-    Sk2f p2 = Sk2f::Load(&devP2);
-    Sk2f p3 = Sk2f::Load(&devP3);
-    fCurrFanPoint = devP3;
-
-    // Don't crunch on the curve and inflate geometry if it is nearly flat (or just very small).
-    if (are_collinear(p0, p1, p2) &&
-        are_collinear(p1, p2, p3) &&
-        are_collinear(p0, (p1 + p2) * .5f, p3)) {
-        p3.store(&fPoints.push_back());
-        fVerbs.push_back(Verb::kLineTo);
+    // Don't crunch on the curve or inflate geometry if it is nearly flat (or just very small).
+    // Flat curves can break the math below.
+    if (are_collinear(P)) {
+        this->lineTo(P[3]);
         return;
     }
 
+    Sk2f p0 = Sk2f::Load(P);
+    Sk2f p1 = Sk2f::Load(P+1);
+    Sk2f p2 = Sk2f::Load(P+2);
+    Sk2f p3 = Sk2f::Load(P+3);
+
     // Also detect near-quadratics ahead of time.
-    Sk2f tan0, tan3, c;
-    if (is_cubic_nearly_quadratic(p0, p1, p2, p3, tan0, tan3, c)) {
+    Sk2f tan0, tan1, c;
+    if (is_cubic_nearly_quadratic(p0, p1, p2, p3, tan0, tan1, c)) {
         this->appendMonotonicQuadratics(p0, c, p3);
         return;
     }
 
     double tt[2], ss[2];
-    fCurrCubicType = SkClassifyCubic(devPts, tt, ss);
+    fCurrCubicType = SkClassifyCubic(P, tt, ss);
     SkASSERT(!SkCubicIsDegenerate(fCurrCubicType)); // Should have been caught above.
 
     SkMatrix CIT;
-    ExcludedTerm skipTerm = GrPathUtils::calcCubicInverseTransposePowerBasisMatrix(devPts, &CIT);
+    ExcludedTerm skipTerm = GrPathUtils::calcCubicInverseTransposePowerBasisMatrix(P, &CIT);
     SkASSERT(ExcludedTerm::kNonInvertible != skipTerm); // Should have been caught above.
     SkASSERT(0 == CIT[6]);
     SkASSERT(0 == CIT[7]);
@@ -460,9 +498,9 @@ void GrCCGeometry::cubicTo(const SkPoint& devP1, const SkPoint& devP2, const SkP
 template<GrCCGeometry::AppendCubicFn AppendLeftRight>
 inline void GrCCGeometry::chopCubicAtMidTangent(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
                                                 const Sk2f& p3, const Sk2f& tan0,
-                                                const Sk2f& tan3, int maxFutureSubdivisions) {
-    // Find the T value whose tangent is perpendicular to the vector that bisects tan0 and -tan3.
-    Sk2f n = normalize(tan0) - normalize(tan3);
+                                                const Sk2f& tan1, int maxFutureSubdivisions) {
+    // Find the T value whose tangent is perpendicular to the vector that bisects tan0 and -tan1.
+    Sk2f n = normalize(tan0) - normalize(tan1);
 
     float a = 3 * dot(p3 + (p1 - p2)*3 - p0, n);
     float b = 6 * dot(p0 - p1*2 + p2, n);
@@ -515,11 +553,11 @@ void GrCCGeometry::appendMonotonicCubics(const Sk2f& p0, const Sk2f& p1, const S
 
     if (maxSubdivisions) {
         Sk2f tan0 = first_unless_nearly_zero(p1 - p0, p2 - p0);
-        Sk2f tan3 = first_unless_nearly_zero(p3 - p2, p3 - p1);
+        Sk2f tan1 = first_unless_nearly_zero(p3 - p2, p3 - p1);
 
-        if (!is_convex_curve_monotonic(p0, tan0, p3, tan3)) {
+        if (!is_convex_curve_monotonic(p0, tan0, p3, tan1)) {
             this->chopCubicAtMidTangent<&GrCCGeometry::appendMonotonicCubics>(p0, p1, p2, p3,
-                                                                              tan0, tan3,
+                                                                              tan0, tan1,
                                                                               maxSubdivisions - 1);
             return;
         }
@@ -530,8 +568,7 @@ void GrCCGeometry::appendMonotonicCubics(const Sk2f& p0, const Sk2f& p1, const S
     // Don't send curves to the GPU if we know they are nearly flat (or just very small).
     // Since the cubic segment is known to be convex at this point, our flatness check is simple.
     if (are_collinear(p0, (p1 + p2) * .5f, p3)) {
-        p3.store(&fPoints.push_back());
-        fVerbs.push_back(Verb::kLineTo);
+        this->appendLine(p3);
         return;
     }
 
@@ -554,15 +591,14 @@ void GrCCGeometry::appendCubicApproximation(const Sk2f& p0, const Sk2f& p1, cons
         // This can cause some curves to feel slightly more flat when inspected rigorously back and
         // forth against another renderer, but for now this seems acceptable given the simplicity.
         SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
-        p3.store(&fPoints.push_back());
-        fVerbs.push_back(Verb::kLineTo);
+        this->appendLine(p3);
         return;
     }
 
-    Sk2f tan0, tan3, c;
-    if (!is_cubic_nearly_quadratic(p0, p1, p2, p3, tan0, tan3, c) && maxSubdivisions) {
+    Sk2f tan0, tan1, c;
+    if (!is_cubic_nearly_quadratic(p0, p1, p2, p3, tan0, tan1, c) && maxSubdivisions) {
         this->chopCubicAtMidTangent<&GrCCGeometry::appendCubicApproximation>(p0, p1, p2, p3,
-                                                                             tan0, tan3,
+                                                                             tan0, tan1,
                                                                              maxSubdivisions - 1);
         return;
     }
@@ -581,7 +617,7 @@ GrCCGeometry::PrimitiveTallies GrCCGeometry::endContour() {
     // The fTriangles field currently contains this contour's starting verb index. We can now
     // use it to calculate the size of the contour's fan.
     int fanSize = fVerbs.count() - fCurrContourTallies.fTriangles;
-    if (fCurrFanPoint == fCurrAnchorPoint) {
+    if (fPoints.back() == fCurrAnchorPoint) {
         --fanSize;
         fVerbs.push_back(Verb::kEndClosedContour);
     } else {

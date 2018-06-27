@@ -6,8 +6,12 @@
  */
 
 #include "SkBlitter.h"
+#include "SkColor.h"
 #include "SkMask.h"
+#include "SkRect.h"
+#include "SkTypes.h"
 #include "Test.h"
+
 #include <string.h>
 
 class TestBlitter : public SkBlitter {

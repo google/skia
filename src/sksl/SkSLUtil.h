@@ -166,6 +166,10 @@ public:
     bool canUseFragCoord() const {
         return true;
     }
+
+    bool incompleteShortIntPrecision() const {
+        return false;
+    }
 };
 
 extern StandaloneShaderCaps standaloneCaps;
@@ -297,6 +301,14 @@ public:
         sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
         result->fVersionDeclString = "#version 400";
         result->fCanUseFragCoord = false;
+        return result;
+    }
+
+    static sk_sp<GrShaderCaps> IncompleteShortIntPrecision() {
+        sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+        result->fVersionDeclString = "#version 310es";
+        result->fUsesPrecisionModifiers = true;
+        result->fIncompleteShortIntPrecision = true;
         return result;
     }
 };

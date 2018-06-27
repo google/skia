@@ -453,3 +453,259 @@ private:
     typedef SampleView INHERITED;
 };
 DEF_SAMPLE( return new FatStroke; )
+
+static int compute_parallel_to_base(const SkPoint pts[4], SkScalar t[2]) {
+    // F = At^3 + Bt^2 + Ct + D
+    SkVector A = pts[3] - pts[0] + (pts[1] - pts[2]) * 3.0f;
+    SkVector B = (pts[0] - pts[1] - pts[1] + pts[2]) * 3.0f;
+    SkVector C = (pts[1] - pts[0]) * 3.0f;
+    SkVector DA = pts[3] - pts[0];
+
+    // F' = 3At^2 + 2Bt + C
+    SkScalar a = 3 * A.cross(DA);
+    SkScalar b = 2 * B.cross(DA);
+    SkScalar c = C.cross(DA);
+
+    int n = SkFindUnitQuadRoots(a, b, c, t);
+    SkString str;
+    for (int i = 0; i < n; ++i) {
+        str.appendf(" %g", t[i]);
+    }
+    SkDebugf("roots %s\n", str.c_str());
+    return n;
+}
+
+class CubicCurve : public SampleView {
+public:
+    enum {
+        N = 4
+    };
+    SkPoint fPts[N];
+
+    CubicCurve() {
+        SkRandom rand;
+        for (int i = 0; i < N; ++i) {
+            fPts[i].fX = 20 + rand.nextUScalar1() * 640;
+            fPts[i].fY = 20 + rand.nextUScalar1() * 480;
+        }
+    }
+
+protected:
+    bool onQuery(SkEvent* evt) override {
+        if (SampleCode::TitleQ(*evt)) {
+            SampleCode::TitleR(evt, "CubicCurve");
+            return true;
+        }
+        return this->INHERITED::onQuery(evt);
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+
+        {
+            SkPath path;
+            path.moveTo(fPts[0]);
+            path.cubicTo(fPts[1], fPts[2], fPts[3]);
+            paint.setStyle(SkPaint::kStroke_Style);
+            canvas->drawPath(path, paint);
+        }
+
+        {
+            paint.setColor(SK_ColorRED);
+            SkScalar t[2];
+            int n = compute_parallel_to_base(fPts, t);
+            SkPoint loc;
+            SkVector tan;
+            for (int i = 0; i < n; ++i) {
+                SkEvalCubicAt(fPts, t[i], &loc, &tan, nullptr);
+                tan.setLength(30);
+                canvas->drawLine(loc - tan, loc + tan, paint);
+            }
+            paint.setStrokeWidth(0.5f);
+            canvas->drawLine(fPts[0], fPts[3], paint);
+
+            paint.setColor(SK_ColorBLUE);
+            paint.setStrokeWidth(6);
+            SkEvalCubicAt(fPts, 0.5f, &loc, nullptr, nullptr);
+            canvas->drawPoint(loc, paint);
+
+            paint.setColor(0xFF008800);
+            SkEvalCubicAt(fPts, 1.0f/3, &loc, nullptr, nullptr);
+            canvas->drawPoint(loc, paint);
+            SkEvalCubicAt(fPts, 2.0f/3, &loc, nullptr, nullptr);
+            canvas->drawPoint(loc, paint);
+
+       //     n = SkFindCubicInflections(fPts, t);
+       //     printf("inflections %d %g %g\n", n, t[0], t[1]);
+        }
+
+        {
+            paint.setStyle(SkPaint::kFill_Style);
+            paint.setColor(SK_ColorRED);
+            for (SkPoint p : fPts) {
+                canvas->drawCircle(p.fX, p.fY, 8, paint);
+            }
+        }
+    }
+
+    bool onClick(Click* click) override {
+        int32_t index;
+        if (click->fMeta.findS32("index", &index)) {
+            SkASSERT((unsigned)index < N);
+            fPts[index] = click->fCurr;
+            return true;
+        }
+        return false;
+    }
+
+    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+        const SkScalar tol = 8;
+        const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
+        for (int i = 0; i < N; ++i) {
+            if (r.intersects(SkRect::MakeXYWH(fPts[i].fX, fPts[i].fY, 1, 1))) {
+                Click* click = new Click(this);
+                click->fMeta.setS32("index", i);
+                return click;
+            }
+        }
+        return this->INHERITED::onFindClickHandler(x, y, modi);
+    }
+
+private:
+    typedef SampleView INHERITED;
+};
+DEF_SAMPLE( return new CubicCurve; )
+
+static SkPoint lerp(SkPoint a, SkPoint b, float t) {
+    return a * (1 - t) + b * t;
+}
+
+class CubicCurve2 : public SampleView {
+public:
+    enum {
+        N = 7
+    };
+    SkPoint fPts[N];
+    SkPoint* fQuad = fPts + 4;
+    SkScalar fT = 0.5f;
+    bool fShowSub = false;
+
+    CubicCurve2() {
+        fPts[0] = { 90, 300 };
+        fPts[1] = { 30, 60 };
+        fPts[2] = { 250, 30 };
+        fPts[3] = { 350, 200 };
+
+        fQuad[0] = fPts[0] + SkVector{ 300, 0};
+        fQuad[1] = fPts[1] + SkVector{ 300, 0};
+        fQuad[2] = fPts[2] + SkVector{ 300, 0};
+    }
+
+protected:
+    bool onQuery(SkEvent* evt) override {
+        if (SampleCode::TitleQ(*evt)) {
+            SampleCode::TitleR(evt, "CubicCurve2");
+            return true;
+        }
+        SkUnichar uni;
+        if (SampleCode::CharQ(*evt, &uni)) {
+            switch (uni) {
+                case 's': fShowSub = !fShowSub; break;
+                case '-': fT -= 1.0f / 32; break;
+                case '=': fT += 1.0f / 32; break;
+                default: goto DONE;
+            }
+            fT = std::min(1.0f, std::max(0.0f, fT));
+            return true;
+        }
+        DONE:
+        return this->INHERITED::onQuery(evt);
+    }
+
+    void showFrame(SkCanvas* canvas, const SkPoint pts[], int count, const SkPaint& p) {
+        SkPaint paint(p);
+        SkPoint storage[3 + 2 + 1];
+        SkPoint* tmp = storage;
+        const SkPoint* prev = pts;
+        int n = count;
+        for (int n = count; n > 0; --n) {
+            for (int i = 0; i < n; ++i) {
+                canvas->drawLine(prev[i], prev[i+1], paint);
+                tmp[i] = lerp(prev[i], prev[i+1], fT);
+            }
+            prev = tmp;
+            tmp += n;
+        }
+
+        paint.setColor(SK_ColorBLUE);
+        paint.setStyle(SkPaint::kFill_Style);
+        n = tmp - storage;
+        for (int i = 0; i < n; ++i) {
+            canvas->drawCircle(storage[i].fX, storage[i].fY, 4, paint);
+        }
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+
+        {
+            paint.setStyle(SkPaint::kStroke_Style);
+            SkPath path;
+            path.moveTo(fPts[0]);
+            path.cubicTo(fPts[1], fPts[2], fPts[3]);
+            path.moveTo(fQuad[0]);
+            path.quadTo(fQuad[1], fQuad[2]);
+            canvas->drawPath(path, paint);
+        }
+
+        if (fShowSub) {
+            paint.setColor(SK_ColorRED);
+            paint.setStrokeWidth(1.7f);
+            this->showFrame(canvas, fPts, 3, paint);
+            this->showFrame(canvas, fQuad, 2, paint);
+
+            SkString str;
+            str.printf("t = %g", fT);
+            paint.setColor(SK_ColorBLACK);
+            paint.setStyle(SkPaint::kFill_Style);
+            paint.setTextSize(20);
+            canvas->drawText(str.c_str(), str.size(), 20, 20, paint);
+        }
+
+        paint.setStyle(SkPaint::kFill_Style);
+        paint.setColor(SK_ColorRED);
+        for (SkPoint p : fPts) {
+            canvas->drawCircle(p.fX, p.fY, 7, paint);
+        }
+    }
+
+    bool onClick(Click* click) override {
+        int32_t index;
+        if (click->fMeta.findS32("index", &index)) {
+            SkASSERT((unsigned)index < N);
+            fPts[index] = click->fCurr;
+            return true;
+        }
+        return false;
+    }
+
+    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+        const SkScalar tol = 8;
+        const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
+        for (int i = 0; i < N; ++i) {
+            if (r.intersects(SkRect::MakeXYWH(fPts[i].fX, fPts[i].fY, 1, 1))) {
+                Click* click = new Click(this);
+                click->fMeta.setS32("index", i);
+                return click;
+            }
+        }
+        return this->INHERITED::onFindClickHandler(x, y, modi);
+    }
+
+private:
+    typedef SampleView INHERITED;
+};
+DEF_SAMPLE( return new CubicCurve2; )
+

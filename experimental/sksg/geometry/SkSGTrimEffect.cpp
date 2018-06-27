@@ -8,8 +8,8 @@
 #include "SkSGTrimEffect.h"
 
 #include "SkCanvas.h"
-#include "SkDashPathEffect.h"
-#include "SkPathMeasure.h"
+#include "SkStrokeRec.h"
+#include "SkTrimPathEffect.h"
 
 namespace sksg {
 
@@ -23,47 +23,34 @@ TrimEffect::~TrimEffect() {
 }
 
 void TrimEffect::onClip(SkCanvas* canvas, bool antiAlias) const {
-    canvas->clipPath(fChild->asPath(), SkClipOp::kIntersect, antiAlias);
+    canvas->clipPath(fTrimmedPath, SkClipOp::kIntersect, antiAlias);
 }
 
-// TODO
-//   This is a quick hack to get something on the screen.  What we really want here is to apply
-//   the geometry transformation and cache the result on revalidation. Or an SkTrimPathEffect.
 void TrimEffect::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
     SkASSERT(!paint.getPathEffect());
 
-    const auto path = fChild->asPath();
-    SkScalar pathLen = 0;
-    SkPathMeasure measure(path, false);
-    do {
-        pathLen += measure.getLength();
-    } while (measure.nextContour());
-
-    const auto start  = pathLen * fStart,
-               end    = pathLen * fEnd,
-               offset = pathLen * fOffset,
-               len    = end - start;
-
-    if (len <= 0) {
-        return;
-    }
-
-    const SkScalar dashes[] = { len, pathLen - len };
-    SkPaint dashedPaint(paint);
-    dashedPaint.setPathEffect(SkDashPathEffect::Make(dashes,
-                                                     SK_ARRAY_COUNT(dashes),
-                                                     -start - offset));
-
-    canvas->drawPath(path, dashedPaint);
+    canvas->drawPath(fTrimmedPath, paint);
 }
 
 SkPath TrimEffect::onAsPath() const {
-    return fChild->asPath();
+    return fTrimmedPath;
 }
 
 SkRect TrimEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->hasInval());
-    return fChild->revalidate(ic, ctm);
+
+    const auto childbounds = fChild->revalidate(ic, ctm);
+    const auto path        = fChild->asPath();
+
+    if (auto trim = SkTrimPathEffect::Make(fStart, fStop, fMode)) {
+        fTrimmedPath.reset();
+        SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
+        SkAssertResult(trim->filterPath(&fTrimmedPath, path, &rec, &childbounds));
+    } else {
+        fTrimmedPath = path;
+    }
+
+    return fTrimmedPath.computeTightBounds();
 }
 
 } // namespace sksg

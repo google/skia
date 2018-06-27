@@ -15,13 +15,10 @@
 #include "SkRefCnt.h"
 
 class SkAutoDescriptor;
-class SkAutoGlyphCache;
 class SkColorFilter;
 class SkData;
 class SkDescriptor;
 class SkDrawLooper;
-class SkReadBuffer;
-class SkWriteBuffer;
 class SkGlyph;
 struct SkRect;
 class SkGlyphCache;
@@ -160,24 +157,6 @@ public:
         @return  a shallow hash
     */
     uint32_t getHash() const;
-
-    /** Serializes SkPaint into a buffer. A companion unflatten() call
-        can reconstitute the paint at a later time.
-
-        @param buffer  SkWriteBuffer receiving the flattened SkPaint data
-    */
-    void flatten(SkWriteBuffer& buffer) const;
-
-    /** Populates SkPaint, typically from a serialized stream, created by calling
-        flatten() at an earlier time.
-
-        SkReadBuffer class is not public, so unflatten() cannot be meaningfully called
-        by the client.
-
-        @param buffer  serialized data describing SkPaint content
-        @return        false if the buffer contains invalid data
-    */
-    bool unflatten(SkReadBuffer& buffer);
 
     /** Sets all SkPaint contents to their initial values. This is equivalent to replacing
         SkPaint with the result of SkPaint().
@@ -1631,14 +1610,12 @@ public:
     const SkRect& doComputeFastBounds(const SkRect& orig, SkRect* storage,
                                       Style style) const;
 
-    /** macro expands to: void toString(SkString* str) const;
-        Creates string representation of SkPaint. The representation is read by
-        internal debugging tools. The interface and implementation may be
-        suppressed by defining SK_IGNORE_TO_STRING.
+    /** Creates string representation of SkPaint. The representation is read by
+        internal debugging tools.
 
         @param str  storage for string representation of SkPaint
     */
-    SK_TO_STRING_NONVIRT()
+    void toString(SkString* str) const;
 
 private:
     typedef const SkGlyph& (*GlyphCacheProc)(SkGlyphCache*, const char**);
@@ -1720,11 +1697,11 @@ private:
     friend class GrGLPathRendering;
     friend class GrPathRendering;
     friend class GrTextUtils;
-    friend class SkAutoGlyphCache;
     friend class SkAutoGlyphCacheNoGamma;
     friend class SkCanonicalizePaint;
     friend class SkCanvas;
     friend class SkDraw;
+    friend class SkPaintPriv;
     friend class SkPDFDevice;
     friend class SkScalerContext;  // for computeLuminanceColor()
     friend class SkTextBaseIter;

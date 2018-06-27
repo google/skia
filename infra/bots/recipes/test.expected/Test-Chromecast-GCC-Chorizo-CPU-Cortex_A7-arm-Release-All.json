@@ -124,7 +124,7 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get downloaded SKP VERSION"
+    "name": "Get skp VERSION"
   },
   {
     "cmd": [
@@ -495,14 +495,14 @@
       "_",
       "GrShape",
       "--match",
-      "~GM_animated-image-blurs",
-      "~verylarge",
-      "~ImageFilterBlurLargeImage",
-      "~TextBlobCache",
       "~bigbitmaprect_",
-      "~savelayer_clipmask",
       "~DrawBitmapRect",
       "~drawbitmaprect",
+      "~GM_animated-image-blurs",
+      "~ImageFilterBlurLargeImage",
+      "~savelayer_clipmask",
+      "~TextBlobCache",
+      "~verylarge",
       "--nonativeFonts",
       "--verbose"
     ],

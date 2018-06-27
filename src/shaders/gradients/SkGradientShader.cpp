@@ -289,7 +289,7 @@ bool SkGradientShaderBase::onAppendStages(const StageRec& rec) const {
 
     SkRasterPipeline_<256> postPipeline;
 
-    p->append_seed_shader();
+    p->append(SkRasterPipeline::seed_shader);
     p->append_matrix(alloc, matrix);
     this->appendGradientStages(alloc, p, &postPipeline);
 
@@ -417,13 +417,6 @@ bool SkGradientShaderBase::onAppendStages(const StageRec& rec) const {
 
 bool SkGradientShaderBase::isOpaque() const {
     return fColorsAreOpaque && (this->getTileMode() != SkShader::kDecal_TileMode);
-}
-
-bool SkGradientShaderBase::onIsRasterPipelineOnly(const SkMatrix& ctm) const {
-    if (this->getTileMode() == SkShader::kDecal_TileMode) {
-        return true;
-    }
-    return this->INHERITED::onIsRasterPipelineOnly(ctm);
 }
 
 static unsigned rounded_divide(unsigned numer, unsigned denom) {
@@ -635,7 +628,6 @@ void SkGradientShaderBase::commonAsAGradient(GradientInfo* info) const {
     }
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkGradientShaderBase::toString(SkString* str) const {
 
     str->appendf("%d colors: ", fColorCount);
@@ -667,7 +659,6 @@ void SkGradientShaderBase::toString(SkString* str) const {
 
     this->INHERITED::toString(str);
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -1291,21 +1282,21 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
         shader.getGradientTableBitmap(&bitmap, bitmapType);
         SkASSERT(1 == bitmap.height() && SkIsPow2(bitmap.width()));
 
+        auto atlasManager = args.fContext->contextPriv().textureStripAtlasManager();
 
         GrTextureStripAtlas::Desc desc;
         desc.fWidth  = bitmap.width();
         desc.fHeight = 32;
         desc.fRowHeight = bitmap.height(); // always 1 here
-        desc.fContext = args.fContext;
         desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info(), *args.fContext->caps());
-        fAtlas = GrTextureStripAtlas::GetAtlas(desc);
+        fAtlas = atlasManager->refAtlas(desc);
         SkASSERT(fAtlas);
 
         // We always filter the gradient table. Each table is one row of a texture, always
         // y-clamp.
         GrSamplerState samplerState(args.fWrapMode, GrSamplerState::Filter::kBilerp);
 
-        fRow = fAtlas->lockRow(bitmap);
+        fRow = fAtlas->lockRow(args.fContext, bitmap);
         if (-1 != fRow) {
             fYCoord = fAtlas->getYOffset(fRow)+SK_ScalarHalf*fAtlas->getNormalizedTexelHeight();
             // This is 1/2 places where auto-normalization is disabled

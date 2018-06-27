@@ -97,8 +97,6 @@ DEFINE_int32(shard,  0, "Which shard do I run?");
 DEFINE_string(mskps, "", "Directory to read mskps from, or a single mskp file.");
 DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
 
-DEFINE_bool(ddl, false, "If true, use DeferredDisplayLists for GPU SKP rendering.");
-
 DEFINE_bool(ignoreSigInt, false, "ignore SIGINT signals during test execution");
 
 DEFINE_string(dont_write, "", "File extensions to skip writing to --writePath.");  // See skia:6821
@@ -790,11 +788,7 @@ static bool gather_srcs() {
         push_src("gm", "", new GMSrc(r->factory()));
     }
 
-    if (FLAGS_ddl) {
-        gather_file_srcs<DDLSKPSrc>(FLAGS_skps, "skp");
-    } else {
-        gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
-    }
+    gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
     gather_file_srcs<MSKPSrc>(FLAGS_mskps, "mskp");
 #if !defined(SK_BUILD_FOR_GOOGLE3)
     gather_file_srcs<SkottieSrc>(FLAGS_jsons, "json");
@@ -884,21 +878,25 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
                 return nullptr;
             }
             if (gpuConfig->getTestThreading()) {
-                return new GPUThreadTestingSink(contextType, contextOverrides,
-                                                gpuConfig->getSamples(), gpuConfig->getUseDIText(),
-                                                gpuConfig->getColorType(),
-                                                gpuConfig->getAlphaType(),
-                                                sk_ref_sp(gpuConfig->getColorSpace()),
-                                                FLAGS_gpu_threading, grCtxOptions);
+                return new GPUThreadTestingSink(
+                        contextType, contextOverrides, gpuConfig->getSurfType(),
+                        gpuConfig->getSamples(), gpuConfig->getUseDIText(),
+                        gpuConfig->getColorType(), gpuConfig->getAlphaType(),
+                        sk_ref_sp(gpuConfig->getColorSpace()), FLAGS_gpu_threading, grCtxOptions);
             } else {
-                return new GPUSink(contextType, contextOverrides, gpuConfig->getSamples(),
-                                   gpuConfig->getUseDIText(), gpuConfig->getColorType(),
-                                   gpuConfig->getAlphaType(), sk_ref_sp(gpuConfig->getColorSpace()),
-                                   FLAGS_gpu_threading, grCtxOptions);
+                return new GPUSink(contextType, contextOverrides, gpuConfig->getSurfType(),
+                                   gpuConfig->getSamples(), gpuConfig->getUseDIText(),
+                                   gpuConfig->getColorType(), gpuConfig->getAlphaType(),
+                                   sk_ref_sp(gpuConfig->getColorSpace()), FLAGS_gpu_threading,
+                                   grCtxOptions);
             }
         }
     }
 #endif
+    if (const SkCommandLineConfigSvg* svgConfig = config->asConfigSvg()) {
+        int pageIndex = svgConfig->getPageIndex();
+        return new SVGSink(pageIndex);
+    }
 
 #define SINK(t, sink, ...) if (config->getBackend().equals(t)) { return new sink(__VA_ARGS__); }
 
@@ -954,6 +952,8 @@ static Sink* create_via(const SkString& tag, Sink* wrapped) {
     VIA("pic",       ViaPicture,           wrapped);
     VIA("tiles",     ViaTiles, 256, 256, nullptr,            wrapped);
     VIA("tiles_rt",  ViaTiles, 256, 256, new SkRTreeFactory, wrapped);
+
+    VIA("ddl",       ViaDDL, 3,            wrapped);
 
     if (FLAGS_matrix.count() == 4) {
         SkMatrix m;

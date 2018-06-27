@@ -140,6 +140,7 @@ SkPath::SkPath()
     : fPathRef(SkPathRef::CreateEmpty()) {
     this->resetFields();
     fIsVolatile = false;
+    fIsBadForDAA = false;
 }
 
 void SkPath::resetFields() {
@@ -179,6 +180,7 @@ void SkPath::copyFields(const SkPath& that) {
     fLastMoveToIndex = that.fLastMoveToIndex;
     fFillType        = that.fFillType;
     fIsVolatile      = that.fIsVolatile;
+    fIsBadForDAA     = that.fIsBadForDAA;
 
     // Non-atomic assignment of atomic values.
     fConvexity     .store(that.fConvexity     .load());
@@ -228,11 +230,11 @@ bool SkPath::isInterpolatable(const SkPath& compare) const {
 }
 
 bool SkPath::interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const {
-    int verbCount = fPathRef->countVerbs();
-    if (verbCount != ending.fPathRef->countVerbs()) {
+    int pointCount = fPathRef->countPoints();
+    if (pointCount != ending.fPathRef->countPoints()) {
         return false;
     }
-    if (!verbCount) {
+    if (!pointCount) {
         return true;
     }
     out->reset();
@@ -445,19 +447,22 @@ static int rect_make_dir(SkScalar dx, SkScalar dy) {
     return ((0 != dx) << 0) | ((dx > 0 || dy > 0) << 1);
 }
 bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** ptsPtr,
-        bool* isClosed, Direction* direction) const {
+        bool* isClosed, Direction* direction, SkRect* rect) const {
     int corners = 0;
-    SkPoint first, last;
+    SkPoint previous;  // used to construct line from previous point
+    const SkPoint* firstPt = nullptr; // first point in the rect (last of first moves)
+    const SkPoint* lastPt = nullptr;  // last point in the rect (last of lines or first if closed)
     const SkPoint* pts = *ptsPtr;
-    const SkPoint* savePts = nullptr;
-    first.set(0, 0);
-    last.set(0, 0);
+    const SkPoint* savePts = nullptr; // used to allow caller to iterate through a pair of rects
+    previous.set(0, 0);
     int firstDirection = 0;
     int lastDirection = 0;
     int nextDirection = 0;
     bool closedOrMoved = false;
+    bool addedLine = false;
     bool autoClose = false;
     bool insertClose = false;
+    bool accumulatingRect = false;
     int verbCnt = fPathRef->countVerbs();
     while (*currVerb < verbCnt && (!allowPartial || !autoClose)) {
         uint8_t verb = insertClose ? (uint8_t) kClose_Verb : fPathRef->atVerb(*currVerb);
@@ -467,23 +472,27 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
                 pts = *ptsPtr;
                 autoClose = true;
                 insertClose = false;
+                accumulatingRect = false;
             case kLine_Verb: {
-                SkScalar left = last.fX;
-                SkScalar top = last.fY;
+                SkScalar left = previous.fX;
+                SkScalar top = previous.fY;
                 SkScalar right = pts->fX;
                 SkScalar bottom = pts->fY;
+                if (accumulatingRect) {
+                    lastPt = pts;
+                }
                 ++pts;
                 if (left != right && top != bottom) {
                     return false; // diagonal
                 }
+                addedLine = true;
                 if (left == right && top == bottom) {
                     break; // single point on side OK
                 }
                 nextDirection = rect_make_dir(right - left, bottom - top);
                 if (0 == corners) {
                     firstDirection = nextDirection;
-                    first = last;
-                    last = pts[-1];
+                    previous = pts[-1];
                     corners = 1;
                     closedOrMoved = false;
                     break;
@@ -500,7 +509,7 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
                         return false; // too many direction changes
                     }
                 }
-                last = pts[-1];
+                previous = pts[-1];
                 if (lastDirection == nextDirection) {
                     break; // colinear segment
                 }
@@ -524,7 +533,13 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
                     *currVerb -= 1;  // try move again afterwards
                     goto addMissingClose;
                 }
-                last = *pts++;
+                if (!addedLine) {
+                    firstPt = pts;
+                    accumulatingRect = true;
+                } else {
+                    accumulatingRect = false;
+                }
+                previous = *pts++;
                 closedOrMoved = true;
                 break;
             default:
@@ -537,7 +552,12 @@ addMissingClose:
         ;
     }
     // Success if 4 corners and first point equals last
-    bool result = 4 == corners && (first == last || autoClose);
+    if (corners < 3 || corners > 4) {
+        return false;
+    }
+    SkPoint closeXY = *firstPt - *lastPt;
+    // If autoClose, check if close generates diagonal
+    bool result = 4 == corners && (closeXY.isZero() || (autoClose && (!closeXY.fX || !closeXY.fY)));
     if (!result) {
         // check if we are just an incomplete rectangle, in which case we can
         // return true, but not claim to be closed.
@@ -545,20 +565,22 @@ addMissingClose:
         //    3 sided rectangle
         //    4 sided but the last edge is not long enough to reach the start
         //
-        SkScalar closeX = first.x() - last.x();
-        SkScalar closeY = first.y() - last.y();
-        if (closeX && closeY) {
+        if (closeXY.fX && closeXY.fY) {
             return false;   // we're diagonal, abort (can we ever reach this?)
         }
-        int closeDirection = rect_make_dir(closeX, closeY);
+        int closeDirection = rect_make_dir(closeXY.fX, closeXY.fY);
         // make sure the close-segment doesn't double-back on itself
-        if (3 == corners || (4 == corners && closeDirection == lastDirection)) {
+        if (3 == corners || closeDirection == lastDirection) {
             result = true;
             autoClose = false;  // we are not closed
         }
     }
     if (savePts) {
         *ptsPtr = savePts;
+    }
+    if (result && rect) {
+        ptrdiff_t count = lastPt - firstPt + 1;
+        rect->set(firstPt, (int) count);
     }
     if (result && isClosed) {
         *isClosed = autoClose;
@@ -573,40 +595,19 @@ bool SkPath::isRect(SkRect* rect, bool* isClosed, Direction* direction) const {
     SkDEBUGCODE(this->validate();)
     int currVerb = 0;
     const SkPoint* pts = fPathRef->points();
-    const SkPoint* first = pts;
-    if (!this->isRectContour(false, &currVerb, &pts, isClosed, direction)) {
-        return false;
-    }
-    if (rect) {
-        int32_t num = SkToS32(pts - first);
-        if (num) {
-            rect->set(first, num);
-        } else {
-            // 'pts' isn't updated for open rects
-            *rect = this->getBounds();
-        }
-    }
-    return true;
+    return this->isRectContour(false, &currVerb, &pts, isClosed, direction, rect);
 }
 
 bool SkPath::isNestedFillRects(SkRect rects[2], Direction dirs[2]) const {
     SkDEBUGCODE(this->validate();)
     int currVerb = 0;
     const SkPoint* pts = fPathRef->points();
-    const SkPoint* first = pts;
     Direction testDirs[2];
-    if (!isRectContour(true, &currVerb, &pts, nullptr, &testDirs[0])) {
+    SkRect testRects[2];
+    if (!isRectContour(true, &currVerb, &pts, nullptr, &testDirs[0], &testRects[0])) {
         return false;
     }
-    const SkPoint* last = pts;
-    SkRect testRects[2];
-    bool isClosed;
-    if (isRectContour(false, &currVerb, &pts, &isClosed, &testDirs[1])) {
-        testRects[0].set(first, SkToS32(last - first));
-        if (!isClosed) {
-            pts = fPathRef->points() + fPathRef->countPoints();
-        }
-        testRects[1].set(last, SkToS32(pts - last));
+    if (isRectContour(false, &currVerb, &pts, nullptr, &testDirs[1], &testRects[1])) {
         if (testRects[0].contains(testRects[1])) {
             if (rects) {
                 rects[0] = testRects[0];

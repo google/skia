@@ -31,10 +31,6 @@ public:
 
     void setDisplayParams(const DisplayParams& params) override;
 
-    GrBackendContext getBackendContext() override {
-        return (GrBackendContext) fBackendContext.get();
-    }
-
 protected:
     GLWindowContext(const DisplayParams&);
     // This should be called by subclass constructor. It is also called when window/display

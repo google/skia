@@ -76,12 +76,6 @@
 //   SkTextBlob with Unicode
 //   SkImage: more types
 
-template <typename T, typename Min, typename Max>
-inline void fuzz_enum_range(Fuzz* fuzz, T* value, Min rmin, Max rmax) {
-    using U = skstd::underlying_type_t<T>;
-    fuzz->nextRange((U*)value, (U)rmin, (U)rmax);
-}
-
 // be careful: `foo(make_fuzz_t<T>(f), make_fuzz_t<U>(f))` is undefined.
 // In fact, all make_fuzz_foo() functions have this potential problem.
 // Use sequence points!
@@ -447,7 +441,7 @@ static sk_sp<SkPathEffect> make_fuzz_patheffect(Fuzz* fuzz, int depth) {
         }
         case 3: {
             SkPath path;
-            fuzz_path(fuzz, &path, 20);
+            FuzzPath(fuzz, &path, 20);
             SkScalar advance, phase;
             fuzz->next(&advance, &phase);
             SkPath1DPathEffect::Style style;
@@ -462,7 +456,7 @@ static sk_sp<SkPathEffect> make_fuzz_patheffect(Fuzz* fuzz, int depth) {
         }
         case 5: {
             SkPath path;
-            fuzz_path(fuzz, &path, 20);
+            FuzzPath(fuzz, &path, 20);
             SkMatrix matrix;
             fuzz->next(&matrix);
             return SkPath2DPathEffect::Make(matrix, path);
@@ -509,8 +503,9 @@ static sk_sp<SkMaskFilter> make_fuzz_maskfilter(Fuzz* fuzz) {
                 fuzz->next(&occluder);
             }
             uint32_t flags;
-            fuzz->nextRange(&flags, 0, 3);
-            return SkBlurMaskFilter::Make(blurStyle, sigma, occluder, flags);
+            fuzz->nextRange(&flags, 0, 1);
+            bool respectCTM = flags != 0;
+            return SkMaskFilter::MakeBlur(blurStyle, sigma, occluder, respectCTM);
         }
         case 2: {
             SkRRect first, second;
@@ -1244,7 +1239,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
             }
             case 21: {
                 SkPath path;
-                fuzz_path(fuzz, &path, 30);
+                FuzzPath(fuzz, &path, 30);
                 int op;
                 bool doAntiAlias;
                 fuzz->next(&doAntiAlias);
@@ -1281,6 +1276,9 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 fuzz_paint(fuzz, &paint, depth - 1);
                 SkRect r;
                 fuzz->next(&r);
+                if (!r.isFinite()) {
+                    break;
+                }
                 canvas->drawRect(r, paint);
                 break;
             }
@@ -1295,6 +1293,9 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 fuzz_paint(fuzz, &paint, depth - 1);
                 SkRect r;
                 fuzz->next(&r);
+                if (!r.isFinite()) {
+                    break;
+                }
                 canvas->drawOval(r, paint);
                 break;
             }
@@ -1327,7 +1328,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
             }
             case 32: {
                 SkPath path;
-                fuzz_path(fuzz, &path, 60);
+                FuzzPath(fuzz, &path, 60);
                 canvas->drawPath(path, paint);
                 break;
             }
@@ -1583,7 +1584,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 fuzz_paint_text_encoding(fuzz, &paint);
                 SkTDArray<uint8_t> text = make_fuzz_text(fuzz, paint);
                 SkPath path;
-                fuzz_path(fuzz, &path, 20);
+                FuzzPath(fuzz, &path, 20);
                 SkScalar hOffset, vOffset;
                 fuzz->next(&hOffset, &vOffset);
                 canvas->drawTextOnPathHV(text.begin(), SkToSizeT(text.count()), path, hOffset,
@@ -1601,7 +1602,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 fuzz_paint_text_encoding(fuzz, &paint);
                 SkTDArray<uint8_t> text = make_fuzz_text(fuzz, paint);
                 SkPath path;
-                fuzz_path(fuzz, &path, 20);
+                FuzzPath(fuzz, &path, 20);
                 canvas->drawTextOnPath(text.begin(), SkToSizeT(text.count()), path,
                                        useMatrix ? &matrix : nullptr, paint);
                 break;
@@ -1702,12 +1703,11 @@ DEF_FUZZ(NullCanvas, fuzz) {
     fuzz_canvas(fuzz, SkMakeNullCanvas().get());
 }
 
-// 8.5x11 letter paper at 72ppi.
-constexpr SkISize kCanvasSize = {612, 792};
+constexpr SkISize kCanvasSize = {128, 160};
 
 DEF_FUZZ(RasterN32Canvas, fuzz) {
     auto surface = SkSurface::MakeRasterN32Premul(kCanvasSize.width(), kCanvasSize.height());
-    SkASSERT(surface && surface->getCanvas());
+    if (!surface || !surface->getCanvas()) { fuzz->signalBug(); }
     fuzz_canvas(fuzz, surface->getCanvas());
 }
 
@@ -1813,14 +1813,23 @@ DEF_FUZZ(NativeGLCanvas, fuzz) {
     fuzz_ganesh(fuzz, context);
 }
 
+// This target is deprecated, NullGLContext is not well maintained.
+// Please use MockGPUCanvas instead.
 DEF_FUZZ(NullGLCanvas, fuzz) {
     sk_gpu_test::GrContextFactory f;
     fuzz_ganesh(fuzz, f.get(sk_gpu_test::GrContextFactory::kNullGL_ContextType));
 }
 
+// This target is deprecated, DebugGLContext is not well maintained.
+// Please use MockGPUCanvas instead.
 DEF_FUZZ(DebugGLCanvas, fuzz) {
     sk_gpu_test::GrContextFactory f;
     fuzz_ganesh(fuzz, f.get(sk_gpu_test::GrContextFactory::kDebugGL_ContextType));
+}
+
+DEF_FUZZ(MockGPUCanvas, fuzz) {
+    sk_gpu_test::GrContextFactory f;
+    fuzz_ganesh(fuzz, f.get(sk_gpu_test::GrContextFactory::kMock_ContextType));
 }
 #endif
 

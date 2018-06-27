@@ -115,10 +115,10 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     GrGpu* gpu = context->contextPriv().getGpu();
 #endif
 
-    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
-                                                                     SkBackingFit::kApprox,
-                                                                     1, 1, kRGBA_8888_GrPixelConfig,
-                                                                     nullptr));
+    sk_sp<GrRenderTargetContext> renderTargetContext(
+            context->contextPriv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
+                                                                   1, 1, kRGBA_8888_GrPixelConfig,
+                                                                   nullptr));
     if (!renderTargetContext) {
         ERRORF(reporter, "Could not create render target context.");
         return;
@@ -129,7 +129,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
         return;
     }
     context->flush();
-    context->resetGpuStats();
+    context->contextPriv().resetGpuStats();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, gpu->stats()->numDraws() == 0);
     REPORTER_ASSERT(reporter, gpu->stats()->numFailedDraws() == 0);
@@ -145,7 +145,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, gpu->stats()->numDraws() == 1);
     REPORTER_ASSERT(reporter, gpu->stats()->numFailedDraws() == 0);
 #endif
-    context->resetGpuStats();
+    context->contextPriv().resetGpuStats();
     renderTargetContext->priv().testingOnly_addDrawOp(Op::Make(attribCnt + 1));
     context->flush();
 #if GR_GPU_STATS

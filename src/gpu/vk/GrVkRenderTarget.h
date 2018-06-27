@@ -35,7 +35,8 @@ public:
                                                    const GrVkImage::ImageDesc&);
 
     static sk_sp<GrVkRenderTarget> MakeWrappedRenderTarget(GrVkGpu*, const GrSurfaceDesc&,
-                                                           const GrVkImageInfo*);
+                                                           const GrVkImageInfo&,
+                                                           sk_sp<GrVkImageLayout>);
 
     ~GrVkRenderTarget() override;
 
@@ -81,7 +82,9 @@ protected:
     GrVkRenderTarget(GrVkGpu* gpu,
                      const GrSurfaceDesc& desc,
                      const GrVkImageInfo& info,
+                     sk_sp<GrVkImageLayout> layout,
                      const GrVkImageInfo& msaaInfo,
+                     sk_sp<GrVkImageLayout> msaaLayout,
                      const GrVkImageView* colorAttachmentView,
                      const GrVkImageView* resolveAttachmentView,
                      GrBackendObjectOwnership);
@@ -89,6 +92,7 @@ protected:
     GrVkRenderTarget(GrVkGpu* gpu,
                      const GrSurfaceDesc& desc,
                      const GrVkImageInfo& info,
+                     sk_sp<GrVkImageLayout> layout,
                      const GrVkImageView* colorAttachmentView,
                      GrBackendObjectOwnership);
 
@@ -119,7 +123,9 @@ private:
                      SkBudgeted,
                      const GrSurfaceDesc& desc,
                      const GrVkImageInfo& info,
+                     sk_sp<GrVkImageLayout> layout,
                      const GrVkImageInfo& msaaInfo,
+                     sk_sp<GrVkImageLayout> msaaLayout,
                      const GrVkImageView* colorAttachmentView,
                      const GrVkImageView* resolveAttachmentView,
                      GrBackendObjectOwnership);
@@ -128,11 +134,13 @@ private:
                      SkBudgeted,
                      const GrSurfaceDesc& desc,
                      const GrVkImageInfo& info,
+                     sk_sp<GrVkImageLayout> layout,
                      const GrVkImageView* colorAttachmentView,
                      GrBackendObjectOwnership);
 
     static GrVkRenderTarget* Create(GrVkGpu*, SkBudgeted, const GrSurfaceDesc&,
-                                    const GrVkImageInfo&, GrBackendObjectOwnership);
+                                    const GrVkImageInfo&, sk_sp<GrVkImageLayout>,
+                                    GrBackendObjectOwnership);
 
     bool completeStencilAttachment() override;
 

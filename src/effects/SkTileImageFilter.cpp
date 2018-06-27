@@ -157,7 +157,6 @@ void SkTileImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeRect(fDstRect);
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkTileImageFilter::toString(SkString* str) const {
     str->appendf("SkTileImageFilter: (");
     str->appendf("src: %.2f %.2f %.2f %.2f",
@@ -171,4 +170,3 @@ void SkTileImageFilter::toString(SkString* str) const {
     }
     str->append(")");
 }
-#endif

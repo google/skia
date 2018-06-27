@@ -36,8 +36,6 @@ public:
 
     // GrPathRendering implementations.
     sk_sp<GrPath> createPath(const SkPath&, const GrStyle&) override;
-    virtual sk_sp<GrPathRange> createPathRange(GrPathRange::PathGenerator*,
-                                               const GrStyle&) override;
 
     /* Called when the 3D context state is unknown. */
     void resetContext();
@@ -71,15 +69,6 @@ protected:
                     const GrPrimitiveProcessor&,
                     const GrStencilSettings&,
                     const GrPath*) override;
-    void onDrawPaths(const GrPipeline&,
-                     const GrPrimitiveProcessor&,
-                     const GrStencilSettings&,
-                     const GrPathRange*,
-                     const void* indices,
-                     PathIndexType,
-                     const float transformValues[],
-                     PathTransformType,
-                     int count) override;
 private:
     /**
      * Mark certain functionality as not supported.

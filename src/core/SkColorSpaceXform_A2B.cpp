@@ -18,8 +18,8 @@
 #include "SkTypes.h"
 #include "../jumper/SkJumper.h"
 
-bool SkColorSpaceXform_A2B::onApply(ColorFormat dstFormat, void* dst, ColorFormat srcFormat,
-                                    const void* src, int count, SkAlphaType alphaType) const {
+bool SkColorSpaceXform_A2B::apply(ColorFormat dstFormat, void* dst, ColorFormat srcFormat,
+                                  const void* src, int count, SkAlphaType alphaType) const {
     SkRasterPipeline_<256> pipeline;
 
     SkJumper_MemoryCtx src_ctx = { (void*)src, 0 },

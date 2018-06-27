@@ -30,7 +30,8 @@ public:
         /** Color, same value for all four corners of a glyph quad. */
         uint32_t fColor;
         /** Texture coordinate (in texel units, not normalized). */
-        SkIPoint16 fTextureCoord;
+        int16_t fTextureCoordX;
+        int16_t fTextureCoordY;
     };
 
     virtual ~SkAtlasTextRenderer() = default;

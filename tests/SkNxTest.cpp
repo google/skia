@@ -424,6 +424,17 @@ DEF_TEST(Sk4f_Load2, r) {
     REPORTER_ASSERT(r, y[3] == 7);
 }
 
+DEF_TEST(Sk2f_Store2, r) {
+    Sk2f p0{0, 2};
+    Sk2f p1{1, 3};
+    float dst[4];
+    Sk2f::Store2(dst, p0, p1);
+    REPORTER_ASSERT(r, dst[0] == 0);
+    REPORTER_ASSERT(r, dst[1] == 1);
+    REPORTER_ASSERT(r, dst[2] == 2);
+    REPORTER_ASSERT(r, dst[3] == 3);
+}
+
 DEF_TEST(Sk2f_Store3, r) {
     Sk2f p0{0, 3};
     Sk2f p1{1, 4};
@@ -453,4 +464,18 @@ DEF_TEST(Sk2f_Store4, r) {
     REPORTER_ASSERT(r, dst[5] == 5);
     REPORTER_ASSERT(r, dst[6] == 6);
     REPORTER_ASSERT(r, dst[7] == 7);
+}
+
+DEF_TEST(SkNf_anyTrue_allTrue, r) {
+    REPORTER_ASSERT(r,  (Sk2f{1,2} < Sk2f{3,4}).anyTrue());
+    REPORTER_ASSERT(r,  (Sk2f{1,2} < Sk2f{3,4}).allTrue());
+    REPORTER_ASSERT(r,  (Sk2f{3,2} < Sk2f{1,4}).anyTrue());
+    REPORTER_ASSERT(r, !(Sk2f{3,2} < Sk2f{1,4}).allTrue());
+    REPORTER_ASSERT(r, !(Sk2f{3,4} < Sk2f{1,2}).anyTrue());
+
+    REPORTER_ASSERT(r,  (Sk4f{1,2,3,4} < Sk4f{3,4,5,6}).anyTrue());
+    REPORTER_ASSERT(r,  (Sk4f{1,2,3,4} < Sk4f{3,4,5,6}).allTrue());
+    REPORTER_ASSERT(r,  (Sk4f{1,2,3,4} < Sk4f{1,4,1,1}).anyTrue());
+    REPORTER_ASSERT(r, !(Sk4f{1,2,3,4} < Sk4f{1,4,1,1}).allTrue());
+    REPORTER_ASSERT(r, !(Sk4f{3,4,5,6} < Sk4f{1,2,3,4}).anyTrue());
 }

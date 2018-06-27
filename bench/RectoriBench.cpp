@@ -6,9 +6,9 @@
  */
 
 #include "Benchmark.h"
-#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkLayerDrawLooper.h"
+#include "SkMaskFilter.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRandom.h"
@@ -86,8 +86,7 @@ private:
 
         SkPaint* paint = looperBuilder.addLayer(info);
 
-        paint->setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, sigma,
-                                                    SkBlurMaskFilter::kHighQuality_BlurFlag));
+        paint->setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma));
 
         //-----------------------------------------------
         info.fPaintBits = 0;

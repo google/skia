@@ -17,6 +17,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #endif
 
 static void make_paint(SkPaint* paint, sk_sp<SkTypeface> typeface) {
@@ -173,16 +174,20 @@ protected:
             GrContext* grContext = canvas->getGrContext();
             if (grContext) {
                 sk_sp<SkImage> image =
-                grContext->getFontAtlasImage_ForTesting(GrMaskFormat::kA8_GrMaskFormat, 0);
+                grContext->contextPriv().getFontAtlasImage_ForTesting(
+                                                            GrMaskFormat::kA8_GrMaskFormat, 0);
                 canvas->drawImageRect(image,
                                       SkRect::MakeXYWH(10.0f, 10.0f, 512.0f, 512.0), &paint);
-                image = grContext->getFontAtlasImage_ForTesting(GrMaskFormat::kA8_GrMaskFormat, 1);
+                image = grContext->contextPriv().getFontAtlasImage_ForTesting(
+                                                            GrMaskFormat::kA8_GrMaskFormat, 1);
                 canvas->drawImageRect(image,
                                       SkRect::MakeXYWH(522.0f, 10.0f, 512.f, 512.0f), &paint);
-                image = grContext->getFontAtlasImage_ForTesting(GrMaskFormat::kA8_GrMaskFormat, 2);
+                image = grContext->contextPriv().getFontAtlasImage_ForTesting(
+                                                            GrMaskFormat::kA8_GrMaskFormat, 2);
                 canvas->drawImageRect(image,
                                       SkRect::MakeXYWH(10.0f, 522.0f, 512.0f, 512.0f), &paint);
-                image = grContext->getFontAtlasImage_ForTesting(GrMaskFormat::kA8_GrMaskFormat, 3);
+                image = grContext->contextPriv().getFontAtlasImage_ForTesting(
+                                                            GrMaskFormat::kA8_GrMaskFormat, 3);
                 canvas->drawImageRect(image,
                                       SkRect::MakeXYWH(522.0f, 522.0f, 512.0f, 512.0f), &paint);
             }

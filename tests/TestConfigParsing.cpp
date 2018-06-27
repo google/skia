@@ -41,13 +41,15 @@ DEF_TEST(ParseConfigs_Gpu, reporter) {
     REPORTER_ASSERT(reporter, configs[0]->getViaParts().count() == 0);
 #if SK_SUPPORT_GPU
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu());
-    REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getContextType()
-                    == GrContextFactory::kGL_ContextType);
+    REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getContextType() ==
+                                      GrContextFactory::kGL_ContextType);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getUseNVPR() == false);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getUseDIText() == false);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getSamples() == 1);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getColorType() == kRGBA_8888_SkColorType);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getColorSpace() == nullptr);
+    REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getSurfType() ==
+                                      SkCommandLineConfigGpu::SurfType::kDefault);
 #endif
 }
 
@@ -110,7 +112,9 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
         "mtl",
         "gl4444",
         "gl565",
-        "gltestthreading"
+        "gltestthreading",
+        "gl1010102",
+        "glesbert"
     });
 
     SkCommandLineConfigArray configs;
@@ -200,6 +204,12 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     REPORTER_ASSERT(reporter, configs[35]->asConfigGpu()->getAlphaType() == kOpaque_SkAlphaType);
     REPORTER_ASSERT(reporter, configs[36]->asConfigGpu());
     REPORTER_ASSERT(reporter, configs[36]->asConfigGpu()->getTestThreading());
+    REPORTER_ASSERT(reporter, configs[37]->asConfigGpu());
+    REPORTER_ASSERT(reporter, configs[37]->asConfigGpu()->getColorType() ==
+                              kRGBA_1010102_SkColorType);
+    REPORTER_ASSERT(reporter, configs[38]->asConfigGpu());
+    REPORTER_ASSERT(reporter, configs[38]->asConfigGpu()->getSurfType() ==
+                                      SkCommandLineConfigGpu::SurfType::kBackendRenderTarget);
 #endif
 }
 
@@ -214,7 +224,7 @@ DEF_TEST(ParseConfigs_ExtendedGpuConfigsCorrect, reporter) {
         "gpu[api=gl]",
         "gpu[api=vulkan]",
         "gpu[api=metal]",
-        "gpu[api=mock]",
+        "gpu[api=mock,surf=betex]",
     });
 
     SkCommandLineConfigArray configs;
@@ -264,6 +274,8 @@ DEF_TEST(ParseConfigs_ExtendedGpuConfigsCorrect, reporter) {
 #endif
     REPORTER_ASSERT(reporter, configs[9]->asConfigGpu()->getContextType() ==
                    GrContextFactory::kMock_ContextType);
+    REPORTER_ASSERT(reporter, configs[9]->asConfigGpu()->getSurfType() ==
+                                      SkCommandLineConfigGpu::SurfType::kBackendTexture);
 #endif
 }
 

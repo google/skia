@@ -112,7 +112,6 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 | <a href="#SkBitmap_erase">erase</a> | writes <a href="undocumented#Color">Color</a> to rectangle of pixels |
 | <a href="#SkBitmap_eraseARGB">eraseARGB</a> | writes <a href="undocumented#Color">Color</a> to pixels |
 | <a href="#SkBitmap_eraseColor">eraseColor</a> | writes <a href="undocumented#Color">Color</a> to pixels |
-| <a href="#SkBitmap_eraseRGB">eraseRGB</a> | deprecated |
 | <a href="#SkBitmap_extractAlpha">extractAlpha</a> | creates <a href="#Bitmap">Bitmap</a> containing <a href="undocumented#Alpha">Alpha</a> of pixels |
 | <a href="#SkBitmap_extractSubset">extractSubset</a> | creates <a href="#Bitmap">Bitmap</a>, sharing pixels if possible |
 | <a href="#SkBitmap_getAddr">getAddr</a> | returns readable pixel address as void pointer |
@@ -163,10 +162,11 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 # <a name="SkBitmap::Allocator"></a> Class SkBitmap::Allocator
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-class <a href="#SkBitmap_Allocator">Allocator</a> : public <a href="undocumented#SkRefCnt">SkRefCnt</a> {
-public:
-virtual bool <a href="#SkBitmap_Allocator_allocPixelRef">allocPixelRef(SkBitmap* bitmap)</a> = 0;
-};</pre>
+    class <a href="#SkBitmap_Allocator">Allocator</a> : public <a href="undocumented#SkRefCnt">SkRefCnt</a> {
+    public:
+        virtual bool <a href="#SkBitmap_Allocator_allocPixelRef">allocPixelRef(SkBitmap* bitmap)</a> = 0;
+    };
+</pre>
 
 Abstract subclass of <a href="#SkBitmap_HeapAllocator">HeapAllocator</a>.
 
@@ -201,10 +201,11 @@ true if <a href="undocumented#Pixel_Ref">Pixel Ref</a> was allocated
 # <a name="SkBitmap::HeapAllocator"></a> Class SkBitmap::HeapAllocator
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-class <a href="#SkBitmap_HeapAllocator">HeapAllocator</a> : public <a href="#SkBitmap_Allocator">Allocator</a> {
-public:
-bool <a href="#SkBitmap_HeapAllocator_allocPixelRef">allocPixelRef(SkBitmap* bitmap)</a> override;
-};</pre>
+    class <a href="#SkBitmap_HeapAllocator">HeapAllocator</a> : public <a href="#SkBitmap_Allocator">Allocator</a> {
+    public:
+        bool <a href="#SkBitmap_HeapAllocator_allocPixelRef">allocPixelRef(SkBitmap* bitmap)</a> override;
+    };
+</pre>
 
 Subclass of <a href="#SkBitmap_Allocator">SkBitmap::Allocator</a> that returns a <a href="undocumented#Pixel_Ref">Pixel Ref</a> that allocates its pixel
 memory from the heap. This is the default <a href="#SkBitmap_Allocator">SkBitmap::Allocator</a> invoked by
@@ -312,7 +313,7 @@ copy of <a href="#SkBitmap_copy_const_SkBitmap_src">src</a>
 
 ### Example
 
-<div><fiddle-embed name="dbf46a0b60324ec611cc18d86772e7b9">
+<div><fiddle-embed name="f12c2af14b0fffd094d632b5f766aa1d">
 
 #### Example Output
 
@@ -353,7 +354,7 @@ copy of <a href="#SkBitmap_move_SkBitmap_src">src</a>
 
 ### Example
 
-<div><fiddle-embed name="8172a14e66cb763b7133f70dc4ff601e">
+<div><fiddle-embed name="a137b2027d2ac098a21d68d93391f5bb">
 
 #### Example Output
 
@@ -409,7 +410,7 @@ copy of <a href="#SkBitmap_copy_operator_src">src</a>
 
 ### Example
 
-<div><fiddle-embed name="6366fa1b1b3df1bebbfa3ed1c5a43457">
+<div><fiddle-embed name="98d5866308756c21c8f8b639bc4e033a">
 
 #### Example Output
 
@@ -450,7 +451,7 @@ copy of <a href="#SkBitmap_move_operator_src">src</a>
 
 ### Example
 
-<div><fiddle-embed name="5066583054077df5098bb1d2aa402149">
+<div><fiddle-embed name="02836d36fa714d553c32f0d8ea11da73">
 
 #### Example Output
 
@@ -486,7 +487,7 @@ Swaps the fields of the two bitmaps.
 
 ### Example
 
-<div><fiddle-embed name="274d02e5f33866b1a9a78423c5569e22">
+<div><fiddle-embed name="de9be45255e48fae445c916a41063abc">
 
 #### Example Output
 
@@ -693,9 +694,10 @@ bitmap height: 32  info height: 32
 SkColorType colorType() const
 </pre>
 
-Returns <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>,
-<a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>, <a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>,
-<a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a>.
+Returns <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, one of: <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a>.
 
 ### Return Value
 
@@ -726,8 +728,8 @@ color type: kAlpha_8_SkColorType
 SkAlphaType alphaType() const
 </pre>
 
-Returns <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>,
-<a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>, <a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>.
+Returns <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+<a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>.
 
 ### Return Value
 
@@ -769,7 +771,8 @@ immutable.
 ### Example
 
 <div><fiddle-embed name="7ade8a1a21ea5197e565c86740b47b73"><div><a href="undocumented#SkColorSpace_MakeSRGBLinear">SkColorSpace::MakeSRGBLinear</a> creates <a href="undocumented#Color_Space">Color Space</a> with linear gamma
-and an sRGB gamut. This <a href="undocumented#Color_Space">Color Space</a> gamma is not close to sRGB gamma.</div>
+and an sRGB gamut. This <a href="undocumented#Color_Space">Color Space</a> gamma is not close to sRGB gamma.
+</div>
 
 #### Example Output
 
@@ -792,7 +795,7 @@ gammaCloseToSRGB: false  gammaIsLinear: true  isSRGB: false
 sk_sp&lt;SkColorSpace&gt; refColorSpace() const
 </pre>
 
-Returns a smart pointer to <a href="undocumented#Color_Space">Color Space</a>, the range of colors, associated with
+Returns smart pointer to <a href="undocumented#Color_Space">Color Space</a>, the range of colors, associated with
 <a href="SkImageInfo_Reference#Image_Info">Image Info</a>. The smart pointer tracks the number of objects sharing this
 <a href="undocumented#Color_Space">Color Space</a> reference so the memory is released when the owners destruct.
 
@@ -836,7 +839,10 @@ bytes in pixel
 
 ### Example
 
-<div><fiddle-embed name="4bfe28ea3f70f3bfd73d956e913c1a20">
+<div><fiddle-embed name="2a688e6f0a516c0d44a826381e9d637f"><a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a>
 
 #### Example Output
 
@@ -846,7 +852,10 @@ color: kAlpha_8_SkColorType      bytesPerPixel: 1
 color: kRGB_565_SkColorType      bytesPerPixel: 2
 color: kARGB_4444_SkColorType    bytesPerPixel: 2
 color: kRGBA_8888_SkColorType    bytesPerPixel: 4
+color: kRGB_888x_SkColorType     bytesPerPixel: 4
 color: kBGRA_8888_SkColorType    bytesPerPixel: 4
+color: kRGBA_1010102_SkColorType bytesPerPixel: 4
+color: kRGB_101010x_SkColorType  bytesPerPixel: 4
 color: kGray_8_SkColorType       bytesPerPixel: 1
 color: kRGBA_F16_SkColorType     bytesPerPixel: 8
 ~~~~
@@ -855,7 +864,7 @@ color: kRGBA_F16_SkColorType     bytesPerPixel: 8
 
 ### See Also
 
-<a href="#SkBitmap_rowBytes">rowBytes</a> <a href="#SkBitmap_rowBytesAsPixels">rowBytesAsPixels</a> <a href="#SkBitmap_width">width</a> <a href="#SkBitmap_shiftPerPixel">shiftPerPixel</a>
+<a href="#SkBitmap_rowBytes">rowBytes</a> <a href="#SkBitmap_rowBytesAsPixels">rowBytesAsPixels</a> <a href="#SkBitmap_width">width</a> <a href="#SkBitmap_shiftPerPixel">shiftPerPixel</a> <a href="SkImageInfo_Reference#SkImageInfo_bytesPerPixel">SkImageInfo::bytesPerPixel</a>
 
 ---
 
@@ -911,19 +920,25 @@ one of: 0, 1, 2, 3; left shift to convert pixels to bytes
 
 ### Example
 
-<div><fiddle-embed name="2c77d92f20b950154b9444d3b639b36c">
+<div><fiddle-embed name="56ede4b7d45c15d5936f81ac3d74f070"><a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a>
 
 #### Example Output
 
 ~~~~
-color: kUnknown_SkColorType   shiftPerPixel: 0
-color: kAlpha_8_SkColorType   shiftPerPixel: 0
-color: kRGB_565_SkColorType   shiftPerPixel: 1
-color: kARGB_4444_SkColorType shiftPerPixel: 1
-color: kRGBA_8888_SkColorType shiftPerPixel: 2
-color: kBGRA_8888_SkColorType shiftPerPixel: 2
-color: kGray_8_SkColorType    shiftPerPixel: 0
-color: kRGBA_F16_SkColorType  shiftPerPixel: 3
+color: kUnknown_SkColorType       shiftPerPixel: 0
+color: kAlpha_8_SkColorType       shiftPerPixel: 0
+color: kRGB_565_SkColorType       shiftPerPixel: 1
+color: kARGB_4444_SkColorType     shiftPerPixel: 1
+color: kRGBA_8888_SkColorType     shiftPerPixel: 2
+color: kRGB_888x_SkColorType      shiftPerPixel: 2
+color: kBGRA_8888_SkColorType     shiftPerPixel: 2
+color: kRGBA_1010102_SkColorType  shiftPerPixel: 2
+color: kRGB_101010x_SkColorType   shiftPerPixel: 2
+color: kGray_8_SkColorType        shiftPerPixel: 0
+color: kRGBA_F16_SkColorType      shiftPerPixel: 3
 ~~~~
 
 </fiddle-embed></div>
@@ -1111,8 +1126,8 @@ are affected.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkBitmap_setAlphaType_alphaType"> <code><strong>alphaType </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>,
-<a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>, <a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a></td>
+one of: <a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+<a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> </td>
   </tr>
 </table>
 
@@ -1122,7 +1137,11 @@ true if <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is set
 
 ### Example
 
-<div><fiddle-embed name="9394975fa8a13204a5cc2e94f86737e5"></fiddle-embed></div>
+<div><fiddle-embed name="be21305f5654a1d8ed765710813a1f14"><a href="SkImageInfo_Reference#kUnknown_SkAlphaType">kUnknown_SkAlphaType</a>, <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>, <a href="SkImageInfo_Reference#kPremul_SkAlphaType">kPremul_SkAlphaType</a>,
+<a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a> <a href="SkImageInfo_Reference#kUnknown_SkColorType">kUnknown_SkColorType</a>, <a href="SkImageInfo_Reference#kAlpha_8_SkColorType">kAlpha_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_565_SkColorType">kRGB_565_SkColorType</a>,
+<a href="SkImageInfo_Reference#kARGB_4444_SkColorType">kARGB_4444_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_888x_SkColorType">kRGB_888x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA_8888_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_1010102_SkColorType">kRGBA_1010102_SkColorType</a>, <a href="SkImageInfo_Reference#kRGB_101010x_SkColorType">kRGB_101010x_SkColorType</a>,
+<a href="SkImageInfo_Reference#kGray_8_SkColorType">kGray_8_SkColorType</a>, <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kRGBA_F16_SkColorType</a> </fiddle-embed></div>
 
 ### See Also
 
@@ -1254,7 +1273,8 @@ Writing to immutable <a href="#Bitmap">Bitmap</a> pixels triggers an assert on d
 
 ### Example
 
-<div><fiddle-embed name="9210060d1f4ca46e1375496237902ef3"><div>Triggers assert if SK_DEBUG is true, runs fine otherwise.</div></fiddle-embed></div>
+<div><fiddle-embed name="9210060d1f4ca46e1375496237902ef3"><div>Triggers assert if SK_DEBUG is true, runs fine otherwise.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -1269,17 +1289,21 @@ Writing to immutable <a href="#Bitmap">Bitmap</a> pixels triggers an assert on d
 bool isOpaque() const
 </pre>
 
-Returns true if <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>.
+Returns true if <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is set to hint that all pixels are opaque; their
+<a href="undocumented#Alpha">Color Alpha</a> value is implicitly or explicitly 1.0. If true, and all pixels are
+not opaque, Skia may draw incorrectly.
+
 Does not check if <a href="SkImageInfo_Reference#Color_Type">Color Type</a> allows <a href="undocumented#Alpha">Alpha</a>, or if any pixel value has
 transparency.
 
 ### Return Value
 
-true if <a href="SkImageInfo_Reference#Image_Info">Image Info</a> describes opaque <a href="undocumented#Alpha">Alpha</a>
+true if <a href="SkImageInfo_Reference#Image_Info">Image Info</a> <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is <a href="SkImageInfo_Reference#kOpaque_SkAlphaType">kOpaque_SkAlphaType</a>
 
 ### Example
 
-<div><fiddle-embed name="5e76b68bb46d54315eb0c12d83bd6949"><div><a href="#SkBitmap_isOpaque">isOpaque</a> ignores whether all pixels are opaque or not.</div>
+<div><fiddle-embed name="5e76b68bb46d54315eb0c12d83bd6949"><div><a href="#SkBitmap_isOpaque">isOpaque</a> ignores whether all pixels are opaque or not.
+</div>
 
 #### Example Output
 
@@ -1518,7 +1542,7 @@ integral rectangle from origin to <a href="#SkBitmap_width">width</a> and <a hre
 
 ### Example
 
-<div><fiddle-embed name="41a60435d6eb76cb400fe9be635e3762"></fiddle-embed></div>
+<div><fiddle-embed name="3e9126152ff1cc592aef6facbcb5fc96"></fiddle-embed></div>
 
 ### See Also
 
@@ -1641,9 +1665,10 @@ true if <a href="SkImageInfo_Reference#Image_Info">Image Info</a> set successful
 ## <a name="SkBitmap_AllocFlags"></a> Enum SkBitmap::AllocFlags
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#SkBitmap_AllocFlags">AllocFlags</a> {
-<a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a> = 1 << 0,
-};</pre>
+    enum <a href="#SkBitmap_AllocFlags">AllocFlags</a> {
+        <a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a> = 1 << 0,
+    };
+</pre>
 
 <a href="#SkBitmap_AllocFlags">AllocFlags</a> provides the option to zero pixel memory when allocated.
 
@@ -1651,7 +1676,8 @@ enum <a href="#SkBitmap_AllocFlags">AllocFlags</a> {
 
 <table>
   <tr>
-    <td><a name="SkBitmap_kZeroPixels_AllocFlag"> <code><strong>SkBitmap::kZeroPixels_AllocFlag </strong></code> </a></td><td>1</td><td>Instructs <a href="#SkBitmap_tryAllocPixelsFlags">tryAllocPixelsFlags</a> and <a href="#SkBitmap_allocPixelsFlags">allocPixelsFlags</a> to zero pixel memory.</td>
+    <td><a name="SkBitmap_kZeroPixels_AllocFlag"> <code><strong>SkBitmap::kZeroPixels_AllocFlag </strong></code> </a></td><td>1</td><td>Instructs <a href="#SkBitmap_tryAllocPixelsFlags">tryAllocPixelsFlags</a> and <a href="#SkBitmap_allocPixelsFlags">allocPixelsFlags</a> to zero pixel memory.
+</td>
   </tr>
 </table>
 
@@ -1703,7 +1729,8 @@ until the pixels are written to. The actual behavior depends on the platform
 implementation of malloc(), if <a href="#SkBitmap_tryAllocPixelsFlags_flags">flags</a> is zero, and calloc(), if <a href="#SkBitmap_tryAllocPixelsFlags_flags">flags</a> is
 <a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a>.
 
-Passing <a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a> is usually faster than separately calling
+<a href="#SkBitmap_tryAllocPixelsFlags_flags">flags</a> set to <a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a> offers equal or better performance than
+subsequently calling <a href="#SkBitmap_eraseColor">eraseColor</a> with <a href="undocumented#SK_ColorTRANSPARENT">SK ColorTRANSPARENT</a>.
 
 ### Parameters
 
@@ -1757,7 +1784,8 @@ until the pixels are written to. The actual behavior depends on the platform
 implementation of malloc(), if <a href="#SkBitmap_allocPixelsFlags_flags">flags</a> is zero, and calloc(), if <a href="#SkBitmap_allocPixelsFlags_flags">flags</a> is
 <a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a>.
 
-Passing <a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a> is usually faster than separately calling
+<a href="#SkBitmap_allocPixelsFlags_flags">flags</a> set to <a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a> offers equal or better performance than
+subsequently calling <a href="#SkBitmap_eraseColor">eraseColor</a> with <a href="undocumented#SK_ColorTRANSPARENT">SK ColorTRANSPARENT</a>.
 
 ### Parameters
 
@@ -1771,7 +1799,8 @@ contains width, height, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a
 ### Example
 
 <div><fiddle-embed name="f21b8965a88c94a32393a8890c4672af"><div><a href="undocumented#Text">Text</a> is drawn on a transparent background; drawing the bitmap a second time
-lets the first draw show through.</div></fiddle-embed></div>
+lets the first draw show through.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -2060,7 +2089,8 @@ true if <a href="SkImageInfo_Reference#Image_Info">Image Info</a> is set to info
 
 ### Example
 
-<div><fiddle-embed name="ff5b5c349efb5d929ff5dff07b7727e6"><div><a href="#SkBitmap_installPixels_releaseProc">releaseProc</a> is called immediately because <a href="#SkBitmap_rowBytes">rowBytes</a> is too small for <a href="undocumented#Pixel_Ref">Pixel Ref</a>.</div>
+<div><fiddle-embed name="ff5b5c349efb5d929ff5dff07b7727e6"><div><a href="#SkBitmap_installPixels_releaseProc">releaseProc</a> is called immediately because <a href="#SkBitmap_rowBytes">rowBytes</a> is too small for <a href="undocumented#Pixel_Ref">Pixel Ref</a>.
+</div>
 
 #### Example Output
 
@@ -2111,7 +2141,8 @@ true if <a href="SkImageInfo_Reference#Image_Info">Image Info</a> is set to info
 
 ### Example
 
-<div><fiddle-embed name="a7e04447b2081010c50d7920e80a6bb2"><div>GPU does not support <a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>, does not assert that it does not.</div></fiddle-embed></div>
+<div><fiddle-embed name="a7e04447b2081010c50d7920e80a6bb2"><div>GPU does not support <a href="SkImageInfo_Reference#kUnpremul_SkAlphaType">kUnpremul_SkAlphaType</a>, does not assert that it does not.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -2148,7 +2179,8 @@ true if <a href="SkImageInfo_Reference#Image_Info">Image Info</a> was set to pix
 
 ### Example
 
-<div><fiddle-embed name="6e2a8c9358b34aebd2ec586815fe9d3a"><div><a href="#Draw">Draw</a> a five by five bitmap, and draw it again with a center white pixel.</div></fiddle-embed></div>
+<div><fiddle-embed name="6e2a8c9358b34aebd2ec586815fe9d3a"><div><a href="#Draw">Draw</a> a five by five bitmap, and draw it again with a center white pixel.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -2236,7 +2268,8 @@ true if the allocation succeeds
 
 <div><fiddle-embed name="720e4c053fae9e929ab6518b47e49370"><div><a href="#Bitmap">Bitmap</a> hosts and draws gray values in set1. <a href="#SkBitmap_tryAllocPixels">tryAllocPixels</a> replaces <a href="undocumented#Pixel_Ref">Pixel Ref</a>
 and erases it to black, but does not alter set1. <a href="#SkBitmap_setPixels">setPixels</a> replaces black
-<a href="undocumented#Pixel_Ref">Pixel Ref</a> with set1.</div></fiddle-embed></div>
+<a href="undocumented#Pixel_Ref">Pixel Ref</a> with set1.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -2261,7 +2294,8 @@ time by defining SK_ABORT.
 
 <div><fiddle-embed name="1219b38c788bf270fb20f8cd2d78cff8"><div><a href="#Bitmap">Bitmap</a> hosts and draws gray values in set1. <a href="#SkBitmap_allocPixels">allocPixels</a> replaces <a href="undocumented#Pixel_Ref">Pixel Ref</a>
 and erases it to black, but does not alter set1. <a href="#SkBitmap_setPixels">setPixels</a> replaces black
-<a href="undocumented#Pixel_Ref">Pixel Ref</a> with set2.</div></fiddle-embed></div>
+<a href="undocumented#Pixel_Ref">Pixel Ref</a> with set2.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -2297,7 +2331,8 @@ true if custom <a href="#SkBitmap_tryAllocPixels_4_allocator">allocator</a> repo
 <div><fiddle-embed name="eb6f861ca1839146d26e40d56c2a001c"><div><a href="#SkBitmap_HeapAllocator">HeapAllocator</a> limits the maximum size of <a href="#Bitmap">Bitmap</a> to two gigabytes. Using
 a custom <a href="#SkBitmap_tryAllocPixels_4_allocator">allocator</a>, this limitation may be relaxed. This example can be
 modified to allocate an eight gigabyte <a href="#Bitmap">Bitmap</a> on a 64 bit platform with
-sufficient memory.</div></fiddle-embed></div>
+sufficient memory.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -2440,7 +2475,8 @@ row offset in <a href="undocumented#Pixel_Ref">Pixel Ref</a> for bitmap origin</
 
 ### Example
 
-<div><fiddle-embed name="13df9e5b1adcec33d11e4b0f8a91ecb8"><div>Treating 32 bit data as 8 bit data is unlikely to produce useful results.</div></fiddle-embed></div>
+<div><fiddle-embed name="13df9e5b1adcec33d11e4b0f8a91ecb8"><div>Treating 32 bit data as 8 bit data is unlikely to produce useful results.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -2536,7 +2572,6 @@ Marks that pixels in <a href="undocumented#Pixel_Ref">Pixel Ref</a> have changed
 | <a href="#SkBitmap_erase">erase</a> | writes <a href="undocumented#Color">Color</a> to rectangle of pixels |
 | <a href="#SkBitmap_eraseARGB">eraseARGB</a> | writes <a href="undocumented#Color">Color</a> to pixels |
 | <a href="#SkBitmap_eraseColor">eraseColor</a> | writes <a href="undocumented#Color">Color</a> to pixels |
-| <a href="#SkBitmap_eraseRGB">eraseRGB</a> | deprecated |
 
 <a name="SkBitmap_eraseColor"></a>
 ## eraseColor
@@ -2609,23 +2644,6 @@ amount of <a href="undocumented#RGB_Blue">Color RGB Blue</a>, from no blue (0) t
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void eraseRGB(U8CPU r, U8CPU g, U8CPU b) const
 </pre>
-
-Deprecated. Use <a href="#SkBitmap_eraseARGB">eraseARGB</a> or <a href="#SkBitmap_eraseColor">eraseColor</a>.
-
-### Parameters
-
-<table>  <tr>    <td><a name="SkBitmap_eraseRGB_r"> <code><strong>r </strong></code> </a></td> <td>
-amount of red</td>
-  </tr>  <tr>    <td><a name="SkBitmap_eraseRGB_g"> <code><strong>g </strong></code> </a></td> <td>
-amount of green</td>
-  </tr>  <tr>    <td><a name="SkBitmap_eraseRGB_b"> <code><strong>b </strong></code> </a></td> <td>
-amount of blue</td>
-  </tr>
-</table>
-
-### See Also
-
-<a href="#SkBitmap_eraseColor">eraseColor</a> <a href="#SkBitmap_eraseARGB">eraseARGB</a> <a href="#SkBitmap_erase">erase</a>
 
 ---
 
@@ -2761,7 +2779,7 @@ generic pointer to pixel
 
 ### Example
 
-<div><fiddle-embed name="bd0e0adb48b16d75129092649eab1617">
+<div><fiddle-embed name="ffcefb2344cd38c3b99f69cfe6d64a17">
 
 #### Example Output
 
@@ -3112,7 +3130,8 @@ true if pixels are copied to <a href="#SkBitmap_readPixels_2_dstPixels">dstPixel
 ### Example
 
 <div><fiddle-embed name="b2cbbbbcffb618865d8aae3bc04b2a62"><div>Transferring the gradient from 8 bits per component to 4 bits per component
-creates visible banding.</div></fiddle-embed></div>
+creates visible banding.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -3486,7 +3505,7 @@ true if <a href="undocumented#Alpha">Alpha</a> layer was constructed in <a href=
 
 ### Example
 
-<div><fiddle-embed name="e122936b119f20098aace454c2105a12"></fiddle-embed></div>
+<div><fiddle-embed name="092739b4cd5d732a27c07ced8ef45f01"></fiddle-embed></div>
 
 ### See Also
 
@@ -3528,7 +3547,7 @@ true if <a href="undocumented#Alpha">Alpha</a> layer was constructed in <a href=
 
 ### Example
 
-<div><fiddle-embed name="3563cb608791d55bb584f38e842f3003"></fiddle-embed></div>
+<div><fiddle-embed name="cd7543fa8c9f3cede46dc2d72eb8c4bd"></fiddle-embed></div>
 
 ### See Also
 
@@ -3612,7 +3631,7 @@ SK_DEBUG is defined at compile time.
 
 ### See Also
 
-<a href="SkImageInfo_Reference#SkImageInfo_validate">SkImageInfo::validate()</a>
+<a href="SkImageInfo_Reference#SkImageInfo_validate">SkImageInfo::validate</a>
 
 ---
 
@@ -3624,8 +3643,7 @@ void toString(SkString* str) const;
 </pre>
 
 Creates string representation of <a href="#Bitmap">Bitmap</a>. The representation is read by
-internal debugging tools. The interface and implementation may be
-suppressed by defining SK_IGNORE_TO_STRING.
+internal debugging tools.
 
 ### Parameters
 

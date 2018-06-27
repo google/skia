@@ -113,21 +113,17 @@ sk_sp<SkFlattenable> SkDilateImageFilter::CreateProc(SkReadBuffer& buffer) {
     return Make(width, height, common.getInput(0), &common.cropRect());
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkErodeImageFilter::toString(SkString* str) const {
     str->appendf("SkErodeImageFilter: (");
     str->appendf("radius: (%d,%d)", this->radius().fWidth, this->radius().fHeight);
     str->append(")");
 }
-#endif
 
-#ifndef SK_IGNORE_TO_STRING
 void SkDilateImageFilter::toString(SkString* str) const {
     str->appendf("SkDilateImageFilter: (");
     str->appendf("radius: (%d,%d)", this->radius().fWidth, this->radius().fHeight);
     str->append(")");
 }
-#endif
 
 #if SK_SUPPORT_GPU
 
@@ -497,8 +493,9 @@ static sk_sp<SkSpecialImage> apply_morphology(
     SkASSERT(radius.width() > 0 || radius.height() > 0);
 
     if (radius.fWidth > 0) {
-        sk_sp<GrRenderTargetContext> dstRTContext(context->makeDeferredRenderTargetContext(
-            SkBackingFit::kApprox, rect.width(), rect.height(), config, colorSpace));
+        sk_sp<GrRenderTargetContext> dstRTContext(
+            context->contextPriv().makeDeferredRenderTargetContext(
+                SkBackingFit::kApprox, rect.width(), rect.height(), config, colorSpace));
         if (!dstRTContext) {
             return nullptr;
         }
@@ -515,8 +512,9 @@ static sk_sp<SkSpecialImage> apply_morphology(
         srcRect = dstRect;
     }
     if (radius.fHeight > 0) {
-        sk_sp<GrRenderTargetContext> dstRTContext(context->makeDeferredRenderTargetContext(
-            SkBackingFit::kApprox, rect.width(), rect.height(), config, colorSpace));
+        sk_sp<GrRenderTargetContext> dstRTContext(
+            context->contextPriv().makeDeferredRenderTargetContext(
+                SkBackingFit::kApprox, rect.width(), rect.height(), config, colorSpace));
         if (!dstRTContext) {
             return nullptr;
         }

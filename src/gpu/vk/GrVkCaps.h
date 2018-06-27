@@ -40,7 +40,8 @@ public:
     int getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const override;
     int maxRenderTargetSampleCount(GrPixelConfig config) const override;
 
-    bool surfaceSupportsWritePixels(const GrSurface* surface) const override;
+    bool surfaceSupportsWritePixels(const GrSurface*) const override;
+    bool surfaceSupportsReadPixels(const GrSurface*) const override { return true; }
 
     bool isConfigTexturableLinearly(GrPixelConfig config) const {
         return SkToBool(ConfigInfo::kTextureable_Flag & fConfigTable[config].fLinearFlags);
@@ -72,11 +73,6 @@ public:
     // copyImageToBuffer. This flag says that we must do the copy starting from the origin always.
     bool mustDoCopiesFromOrigin() const {
         return fMustDoCopiesFromOrigin;
-    }
-
-    // Check whether we support using draws for copies.
-    bool supportsCopiesAsDraws() const {
-        return fSupportsCopiesAsDraws;
     }
 
     // On Nvidia there is a current bug where we must the current command buffer before copy
@@ -114,7 +110,7 @@ public:
         return fPreferedStencilFormat;
     }
 
-    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
+    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc, GrSurfaceOrigin*,
                             bool* rectsMustMatch, bool* disallowSubrect) const override;
 
     bool validateBackendTexture(const GrBackendTexture&, SkColorType,
@@ -175,8 +171,6 @@ private:
     bool fCanUseGLSLForShaderModule;
 
     bool fMustDoCopiesFromOrigin;
-
-    bool fSupportsCopiesAsDraws;
 
     bool fMustSubmitCommandsBeforeCopyOp;
 

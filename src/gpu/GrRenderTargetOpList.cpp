@@ -24,8 +24,8 @@
 static const int kMaxOpLookback = 10;
 static const int kMaxOpLookahead = 10;
 
-GrRenderTargetOpList::GrRenderTargetOpList(GrRenderTargetProxy* proxy,
-                                           GrResourceProvider* resourceProvider,
+GrRenderTargetOpList::GrRenderTargetOpList(GrResourceProvider* resourceProvider,
+                                           GrRenderTargetProxy* proxy,
                                            GrAuditTrail* auditTrail)
         : INHERITED(resourceProvider, proxy, auditTrail)
         , fLastClipStackGenID(SK_InvalidUniqueID)

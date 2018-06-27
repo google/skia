@@ -9,8 +9,8 @@
 #include "sk_tool_utils.h"
 
 #include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
+#include "SkMaskFilter.h"
 #include "SkPaint.h"
 
 // This GM tests out the SkBlurMaskFilter's kIgnoreTransform flag. That flag causes the blur mask
@@ -42,10 +42,10 @@ protected:
 
     void onOnceBeforeDraw() override {
         for (int i = 0; i < kNumBlurs; ++i) {
-            fBlurFilters[i] = SkBlurMaskFilter::Make(
+            fBlurFilters[i] = SkMaskFilter::MakeBlur(
                                     kNormal_SkBlurStyle,
                                     SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(20)),
-                                    SkBlurMaskFilter::kHighQuality_BlurFlag | kBlurFlags[i].fFlags);
+                                    kBlurFlags[i].fRespectCTM);
         }
     }
 
@@ -114,7 +114,7 @@ private:
     static constexpr int kNumBlurs = 2;
 
     static const struct BlurFlags {
-        uint32_t fFlags;
+        bool fRespectCTM;
         const char* fName;
     } kBlurFlags[kNumBlurs];
 
@@ -130,8 +130,8 @@ private:
 };
 
 const BlurIgnoreXformGM::BlurFlags BlurIgnoreXformGM::kBlurFlags[] = {
-    {0, "none"},
-    {SkBlurMaskFilter::kIgnoreTransform_BlurFlag, "IgnoreTransform"}
+    {true, "none"},
+    {false, "IgnoreTransform"}
 };
 
 const BlurIgnoreXformGM::MatrixScale BlurIgnoreXformGM::kMatrixScales[] = {
