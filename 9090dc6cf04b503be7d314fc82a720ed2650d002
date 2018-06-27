@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "293f1ca4_453d52e1",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/anchor_wrapper.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-27T18:24:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8b20e0a7_b032b244",
+      "range": {
+        "startLine": 42,
+        "startChar": 18,
+        "endLine": 42,
+        "endChar": 24
+      },
+      "revId": "9090dc6cf04b503be7d314fc82a720ed2650d002",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "493f57ca_0312d791",
         "filename": "platform_tools/android/apps/arcore/src/main/cpp/anchor_wrapper.h",
         "patchSetId": 4
@@ -59,6 +83,30 @@
       "writtenOn": "2018-06-26T14:44:35Z",
       "side": 1,
       "message": "does this get set to nullptr in the constructor?",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 0
+      },
+      "revId": "9090dc6cf04b503be7d314fc82a720ed2650d002",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d575f2f_0660341d",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/anchor_wrapper.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-27T18:24:57Z",
+      "side": 1,
+      "message": "Actually set to garbage. I will change that to nullptr. I didn\u0027t have a constructor where the MatrixInfo would be passed in because I never use that",
+      "parentUuid": "493f57ca_0312d791",
       "range": {
         "startLine": 43,
         "startChar": 0,
