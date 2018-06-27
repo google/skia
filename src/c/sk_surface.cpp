@@ -1,5 +1,7 @@
 /*
  * Copyright 2014 Google Inc.
+ * Copyright 2015 Xamarin Inc.
+ * Copyright 2017 Microsoft Corporation. All rights reserved.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -20,211 +22,23 @@
 #include "sk_image.h"
 #include "sk_paint.h"
 #include "sk_path.h"
+#include "sk_picture.h"
 #include "sk_surface.h"
+
 #include "sk_types_priv.h"
 
-const struct {
-    sk_colortype_t  fC;
-    SkColorType     fSK;
-} gColorTypeMap[] = {
-    { UNKNOWN_SK_COLORTYPE,     kUnknown_SkColorType    },
-    { RGBA_8888_SK_COLORTYPE,   kRGBA_8888_SkColorType  },
-    { BGRA_8888_SK_COLORTYPE,   kBGRA_8888_SkColorType  },
-    { ALPHA_8_SK_COLORTYPE,     kAlpha_8_SkColorType    },
-};
-
-const struct {
-    sk_alphatype_t  fC;
-    SkAlphaType     fSK;
-} gAlphaTypeMap[] = {
-    { OPAQUE_SK_ALPHATYPE,      kOpaque_SkAlphaType     },
-    { PREMUL_SK_ALPHATYPE,      kPremul_SkAlphaType     },
-    { UNPREMUL_SK_ALPHATYPE,    kUnpremul_SkAlphaType   },
-};
-
-static bool from_c_colortype(sk_colortype_t cCT, SkColorType* skCT) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gColorTypeMap); ++i) {
-        if (gColorTypeMap[i].fC == cCT) {
-            if (skCT) {
-                *skCT = gColorTypeMap[i].fSK;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
-static bool to_c_colortype(SkColorType skCT, sk_colortype_t* cCT) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gColorTypeMap); ++i) {
-        if (gColorTypeMap[i].fSK == skCT) {
-            if (cCT) {
-                *cCT = gColorTypeMap[i].fC;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
-static bool from_c_alphatype(sk_alphatype_t cAT, SkAlphaType* skAT) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gAlphaTypeMap); ++i) {
-        if (gAlphaTypeMap[i].fC == cAT) {
-            if (skAT) {
-                *skAT = gAlphaTypeMap[i].fSK;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
-static bool from_c_info(const sk_imageinfo_t& cinfo, SkImageInfo* info) {
-    SkColorType ct;
-    SkAlphaType at;
-
-    if (!from_c_colortype(cinfo.colorType, &ct)) {
-        // optionally report error to client?
-        return false;
-    }
-    if (!from_c_alphatype(cinfo.alphaType, &at)) {
-        // optionally report error to client?
-        return false;
-    }
-    if (info) {
-        *info = SkImageInfo::Make(cinfo.width, cinfo.height, ct, at);
-    }
-    return true;
-}
-
-const struct {
-    sk_pixelgeometry_t fC;
-    SkPixelGeometry    fSK;
-} gPixelGeometryMap[] = {
-    { UNKNOWN_SK_PIXELGEOMETRY, kUnknown_SkPixelGeometry },
-    { RGB_H_SK_PIXELGEOMETRY,   kRGB_H_SkPixelGeometry   },
-    { BGR_H_SK_PIXELGEOMETRY,   kBGR_H_SkPixelGeometry   },
-    { RGB_V_SK_PIXELGEOMETRY,   kRGB_V_SkPixelGeometry   },
-    { BGR_V_SK_PIXELGEOMETRY,   kBGR_V_SkPixelGeometry   },
-};
-
-
-static bool from_c_pixelgeometry(sk_pixelgeometry_t cGeom, SkPixelGeometry* skGeom) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gPixelGeometryMap); ++i) {
-        if (gPixelGeometryMap[i].fC == cGeom) {
-            if (skGeom) {
-                *skGeom = gPixelGeometryMap[i].fSK;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
-static void from_c_matrix(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
-    matrix->setAll(cmatrix->mat[0], cmatrix->mat[1], cmatrix->mat[2],
-                   cmatrix->mat[3], cmatrix->mat[4], cmatrix->mat[5],
-                   cmatrix->mat[6], cmatrix->mat[7], cmatrix->mat[8]);
-}
-
-const struct {
-    sk_path_direction_t fC;
-    SkPath::Direction   fSk;
-} gPathDirMap[] = {
-    { CW_SK_PATH_DIRECTION,  SkPath::kCW_Direction },
-    { CCW_SK_PATH_DIRECTION, SkPath::kCCW_Direction },
-};
-
-static bool from_c_path_direction(sk_path_direction_t cdir, SkPath::Direction* dir) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gPathDirMap); ++i) {
-        if (gPathDirMap[i].fC == cdir) {
-            if (dir) {
-                *dir = gPathDirMap[i].fSk;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
-static SkData* AsData(const sk_data_t* cdata) {
-    return reinterpret_cast<SkData*>(const_cast<sk_data_t*>(cdata));
-}
-
-static sk_data_t* ToData(SkData* data) {
-    return reinterpret_cast<sk_data_t*>(data);
-}
-
-static sk_rect_t ToRect(const SkRect& rect) {
-    return reinterpret_cast<const sk_rect_t&>(rect);
-}
-
-static const SkRect& AsRect(const sk_rect_t& crect) {
-    return reinterpret_cast<const SkRect&>(crect);
-}
-
-static const SkPath& AsPath(const sk_path_t& cpath) {
-    return reinterpret_cast<const SkPath&>(cpath);
-}
-
-static SkPath* as_path(sk_path_t* cpath) {
-    return reinterpret_cast<SkPath*>(cpath);
-}
-
-static const SkImage* AsImage(const sk_image_t* cimage) {
-    return reinterpret_cast<const SkImage*>(cimage);
-}
-
-static sk_image_t* ToImage(SkImage* cimage) {
-    return reinterpret_cast<sk_image_t*>(cimage);
-}
-
-static sk_canvas_t* ToCanvas(SkCanvas* canvas) {
-    return reinterpret_cast<sk_canvas_t*>(canvas);
-}
-
-static SkCanvas* AsCanvas(sk_canvas_t* ccanvas) {
-    return reinterpret_cast<SkCanvas*>(ccanvas);
-}
-
-static SkPictureRecorder* AsPictureRecorder(sk_picture_recorder_t* crec) {
-    return reinterpret_cast<SkPictureRecorder*>(crec);
-}
-
-static sk_picture_recorder_t* ToPictureRecorder(SkPictureRecorder* rec) {
-    return reinterpret_cast<sk_picture_recorder_t*>(rec);
-}
-
-static const SkPicture* AsPicture(const sk_picture_t* cpic) {
-    return reinterpret_cast<const SkPicture*>(cpic);
-}
-
-static SkPicture* AsPicture(sk_picture_t* cpic) {
-    return reinterpret_cast<SkPicture*>(cpic);
-}
-
-static sk_picture_t* ToPicture(SkPicture* pic) {
-    return reinterpret_cast<sk_picture_t*>(pic);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////
-
 sk_colortype_t sk_colortype_get_default_8888() {
-    sk_colortype_t ct;
-    if (!to_c_colortype(kN32_SkColorType, &ct)) {
-        ct = UNKNOWN_SK_COLORTYPE;
-    }
-    return ct;
+    return (sk_colortype_t)SkColorType::kN32_SkColorType;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
-
-sk_image_t* sk_image_new_raster_copy(const sk_imageinfo_t* cinfo, const void* pixels,
-                                     size_t rowBytes) {
+sk_surface_t* sk_surface_new_raster(const sk_imageinfo_t* cinfo, const sk_surfaceprops_t* props) {
     SkImageInfo info;
-    if (!from_c_info(*cinfo, &info)) {
-        return NULL;
+    from_c(*cinfo, &info);
+    SkSurfaceProps* surfProps = nullptr;
+    if (props) {
+        from_c(props, surfProps);
     }
-    return (sk_image_t*)SkImage::MakeRasterCopy(SkPixmap(info, pixels, rowBytes)).release();
+    return ToSurface(SkSurface::MakeRaster(info, surfProps).release());
 }
 
 sk_image_t* sk_image_new_from_encoded(const sk_data_t* cdata, const sk_irect_t* subset) {
@@ -440,95 +254,75 @@ sk_surface_t* sk_surface_new_raster_direct(const sk_imageinfo_t* cinfo, void* pi
                                            size_t rowBytes,
                                            const sk_surfaceprops_t* props) {
     SkImageInfo info;
-    if (!from_c_info(*cinfo, &info)) {
-        return NULL;
+    from_c(*cinfo, &info);
+    SkSurfaceProps* surfProps = nullptr;
+    if (props) {
+        from_c(props, surfProps);
     }
-    SkPixelGeometry geo = kUnknown_SkPixelGeometry;
-    if (props && !from_c_pixelgeometry(props->pixelGeometry, &geo)) {
-        return NULL;
-    }
-
-    SkSurfaceProps surfProps(0, geo);
-    return (sk_surface_t*)SkSurface::MakeRasterDirect(info, pixels, rowBytes, &surfProps).release();
+    return ToSurface(SkSurface::MakeRasterDirect(info, pixels, rowBytes, surfProps).release());
 }
 
 void sk_surface_unref(sk_surface_t* csurf) {
-    SkSafeUnref((SkSurface*)csurf);
+    SkSafeUnref(AsSurface(csurf));
 }
 
 sk_canvas_t* sk_surface_get_canvas(sk_surface_t* csurf) {
-    SkSurface* surf = (SkSurface*)csurf;
-    return (sk_canvas_t*)surf->getCanvas();
+    return ToCanvas(AsSurface(csurf)->getCanvas());
 }
 
 sk_image_t* sk_surface_new_image_snapshot(sk_surface_t* csurf) {
-    SkSurface* surf = (SkSurface*)csurf;
-    return (sk_image_t*)surf->makeImageSnapshot().release();
+    return ToImage(AsSurface(csurf)->makeImageSnapshot().release());
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
-
-sk_picture_recorder_t* sk_picture_recorder_new() {
-    return ToPictureRecorder(new SkPictureRecorder);
+sk_surface_t* sk_surface_new_backend_render_target(gr_context_t* context, const gr_backend_rendertarget_desc_t* desc, const sk_surfaceprops_t* props) {
+    SkSurfaceProps* surfProps = nullptr;
+    if (props) {
+        from_c(props, surfProps);
+    }
+    return ToSurface(SkSurface::MakeFromBackendRenderTarget(AsGrContext(context), AsGrBackendRenderTargetDesc(*desc), surfProps).release());
 }
 
-void sk_picture_recorder_delete(sk_picture_recorder_t* crec) {
-    delete AsPictureRecorder(crec);
+sk_surface_t* sk_surface_new_backend_texture(gr_context_t* context, const gr_backend_texture_desc_t* desc, const sk_surfaceprops_t* props) {
+    SkSurfaceProps* surfProps = nullptr;
+    if (props) {
+        from_c(props, surfProps);
+    }
+    return ToSurface(SkSurface::MakeFromBackendTexture(AsGrContext(context), AsGrBackendTextureDesc(*desc), surfProps).release());
 }
 
-sk_canvas_t* sk_picture_recorder_begin_recording(sk_picture_recorder_t* crec,
-                                                 const sk_rect_t* cbounds) {
-    return ToCanvas(AsPictureRecorder(crec)->beginRecording(AsRect(*cbounds)));
+sk_surface_t* sk_surface_new_backend_texture_as_render_target(gr_context_t* context, const gr_backend_texture_desc_t* desc, const sk_surfaceprops_t* props) {
+    SkSurfaceProps* surfProps = nullptr;
+    if (props) {
+        from_c(props, surfProps);
+    }
+    return ToSurface(SkSurface::MakeFromBackendTextureAsRenderTarget(AsGrContext(context), AsGrBackendTextureDesc(*desc), surfProps).release());
 }
 
-sk_picture_t* sk_picture_recorder_end_recording(sk_picture_recorder_t* crec) {
-    return ToPicture(AsPictureRecorder(crec)->finishRecordingAsPicture().release());
+sk_surface_t* sk_surface_new_render_target(gr_context_t* context, bool budgeted, const sk_imageinfo_t* cinfo, int sampleCount, const sk_surfaceprops_t* props) {
+    SkImageInfo info;
+    from_c(*cinfo, &info);
+    SkSurfaceProps* surfProps = nullptr;
+    if (props) {
+        from_c(props, surfProps);
+    }
+    return ToSurface(SkSurface::MakeRenderTarget(AsGrContext(context), (SkBudgeted)budgeted, info, sampleCount, surfProps).release());
 }
 
-void sk_picture_ref(sk_picture_t* cpic) {
-    SkSafeRef(AsPicture(cpic));
+void sk_surface_draw(sk_surface_t* surface, sk_canvas_t* canvas, float x, float y, const sk_paint_t* paint) {
+    AsSurface(surface)->draw(AsCanvas(canvas), x, y, AsPaint(paint));
 }
 
-void sk_picture_unref(sk_picture_t* cpic) {
-    SkSafeUnref(AsPicture(cpic));
+bool sk_surface_peek_pixels(sk_surface_t* surface, sk_pixmap_t* pixmap) {
+    return AsSurface(surface)->peekPixels(AsPixmap(pixmap));
 }
 
-uint32_t sk_picture_get_unique_id(sk_picture_t* cpic) {
-    return AsPicture(cpic)->uniqueID();
+bool sk_surface_read_pixels(sk_surface_t* surface, sk_imageinfo_t* dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY) {
+    SkImageInfo info;
+    from_c(*dstInfo, &info);
+    return AsSurface(surface)->readPixels(info, dstPixels, dstRowBytes, srcX, srcY);
 }
 
-sk_rect_t sk_picture_get_bounds(sk_picture_t* cpic) {
-    return ToRect(AsPicture(cpic)->cullRect());
+void sk_surface_get_props(sk_surface_t* surface, sk_surfaceprops_t* props) {
+    SkSurfaceProps skProps = AsSurface(surface)->props();
+    from_sk(&skProps, props);
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////
-
-sk_data_t* sk_data_new_with_copy(const void* src, size_t length) {
-    return ToData(SkData::MakeWithCopy(src, length).release());
-}
-
-sk_data_t* sk_data_new_from_malloc(const void* memory, size_t length) {
-    return ToData(SkData::MakeFromMalloc(memory, length).release());
-}
-
-sk_data_t* sk_data_new_subset(const sk_data_t* csrc, size_t offset, size_t length) {
-    return ToData(SkData::MakeSubset(AsData(csrc), offset, length).release());
-}
-
-void sk_data_ref(const sk_data_t* cdata) {
-    SkSafeRef(AsData(cdata));
-}
-
-void sk_data_unref(const sk_data_t* cdata) {
-    SkSafeUnref(AsData(cdata));
-}
-
-size_t sk_data_get_size(const sk_data_t* cdata) {
-    return AsData(cdata)->size();
-}
-
-const void* sk_data_get_data(const sk_data_t* cdata) {
-    return AsData(cdata)->data();
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////

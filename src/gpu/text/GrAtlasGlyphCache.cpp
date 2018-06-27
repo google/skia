@@ -11,6 +11,7 @@
 #include "GrRectanizer.h"
 #include "GrSurfacePriv.h"
 #include "SkAutoMalloc.h"
+#include "SkMathPriv.h"
 #include "SkString.h"
 
 #include "SkDistanceFieldGen.h"
@@ -38,7 +39,7 @@ bool GrAtlasGlyphCache::initAtlas(GrMaskFormat format) {
 GrAtlasGlyphCache::GrAtlasGlyphCache(GrContext* context, float maxTextureBytes)
         : fContext(context), fPreserveStrike(nullptr) {
     // Calculate RGBA size. Must be between 1024 x 512 and MaxTextureSize x MaxTextureSize / 2
-    int log2MaxTextureSize = log2(context->caps()->maxTextureSize());
+    int log2MaxTextureSize = SkPrevLog2(context->caps()->maxTextureSize());
     int log2MaxDim = 10;
     for (; log2MaxDim <= log2MaxTextureSize; ++log2MaxDim) {
         int maxDim = 1 << log2MaxDim;

@@ -3,6 +3,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+exec_script("//gn/xamarin_inject_compat.py", [ rebase_path("..") ])
+
 declare_args() {
   extra_asmflags = []
   extra_cflags = []
@@ -11,9 +13,15 @@ declare_args() {
   extra_ldflags = []
 
   malloc = ""
+
+  enable_bitcode = false
+  if (is_tvos || is_watchos) {
+    enable_bitcode = true
+  }
 }
 
-is_clang = is_android || is_ios || is_mac || (cc == "clang" && cxx == "clang++")
+is_clang = is_android || is_ios || is_mac || is_tizen || (cc == "clang" && cxx == "clang++")
+
 if (!is_clang && !is_win) {
   is_clang = exec_script("is_clang.py",
                          [
@@ -25,15 +33,16 @@ if (!is_clang && !is_win) {
 
 if (is_ios) {
   if (is_tvos) {
-    sdk = "appletvos"
-    if (target_cpu == "x86" || target_cpu == "x64") {
-      sdk = "appletvsimulator"
-    }
+    sdk = "appletv"
+  } else if (is_watchos) {
+    sdk = "watch"
   } else {
-    sdk = "iphoneos"
-    if (target_cpu == "x86" || target_cpu == "x64") {
-      sdk = "iphonesimulator"
-    }
+    sdk = "iphone"
+  }
+  if (target_cpu == "x86" || target_cpu == "x64") {
+    sdk += "simulator"
+  } else {
+    sdk += "os"
   }
   ios_sysroot = exec_script("find_ios_sysroot.py", [ sdk ], "trim string")
 }
@@ -60,81 +69,48 @@ config("default") {
       "WIN32_LEAN_AND_MEAN",
       "NOMINMAX",
     ]
-    include_dirs = [
-      #2017
-      "$windk/VC/Tools/MSVC/14.10.25017/include",
 
-      #2015
-      "$windk/VC/include",
-
-      # For local builds.
-      # 2017
-      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/shared",
-      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/ucrt",
-      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/um",
-      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/winrt",
-
-      # 2015
-      "$windk/../Windows Kits/8.1/Include/shared",
-      "$windk/../Windows Kits/10/Include/10.0.10150.0/ucrt",
-      "$windk/../Windows Kits/8.1/Include/um",
-      "$windk/../Windows Kits/8.1/Include/winrt",
-
-      # For builds using win_toolchain asset.
-      "$windk/win_sdk/Include/10.0.14393.0/shared",
-      "$windk/win_sdk/Include/10.0.14393.0/ucrt",
-      "$windk/win_sdk/Include/10.0.14393.0/um",
-      "$windk/win_sdk/Include/10.0.14393.0/winrt",
+    include_dirs = [ ]
+    lib_dirs = [ ]
+    include_dirs += [
+      "$msvc_root/include",
+      "$win_kits/10/Include/10.0.10240.0/ucrt",
+      "$win_kits/10/Include/10.0.10240.0/um",
+      "$win_kits/10/Include/10.0.10240.0/shared",
+      "$win_kits/10/Include/10.0.10240.0/winrt",
     ]
-    lib_dirs = [
-      # For local builds.
-      # 2017
-      "$windk/../../../Windows Kits/10/Lib/10.0.14393.0/ucrt/$target_cpu",
-      "$windk/../../../Windows Kits/10/Lib/10.0.14393.0/um/$target_cpu",
-
-      #2015
-      "$windk/../Windows Kits/10/Lib/10.0.10150.0/ucrt/$target_cpu",
-      "$windk/../Windows Kits/8.1/Lib/winv6.3/um/$target_cpu",
-
-      # For builds using win_toolchain asset.
-      "$windk/win_sdk/Lib/10.0.14393.0/ucrt/$target_cpu",
-      "$windk/win_sdk/Lib/10.0.14393.0/um/$target_cpu",
-    ]
-
-    #2017
-    lib_dirs += [ "$windk/VC/Tools/MSVC/14.10.25017/lib/$target_cpu" ]
-
-    #2015
-    if (target_cpu == "x86") {
-      lib_dirs += [ "$windk/VC/lib" ]
-    } else {
-      lib_dirs += [ "$windk/VC/lib/amd64" ]
+    _is_store = ""
+    if (is_winrt) {
+      _is_store = "/store"
     }
+    lib_dirs += [
+      "$msvc_root/lib/$target_cpu$_is_store",
+      "$win_kits/10/lib/10.0.10240.0/ucrt/$target_cpu",
+      "$win_kits/10/lib/10.0.10240.0/um/$target_cpu",
+    ]
   } else {
     cflags += [
       "-fstrict-aliasing",
       "-fPIC",
+      "-fvisibility=hidden",
       "-Werror",
     ]
-    cflags_cc += [ "-std=c++11" ]
-
-    # The main idea is to slim the exported API, but these flags also improve link time on Mac.
-    # These would make stack traces worse on Linux, so we don't just set them willy-nilly.
-    if (is_component_build || is_ios || is_mac) {
-      cflags += [ "-fvisibility=hidden" ]
-      cflags_cc += [ "-fvisibility-inlines-hidden" ]
-    }
+    cflags_cc += [
+      "-std=c++11",
+      "-fno-threadsafe-statics",
+      "-fvisibility-inlines-hidden",
+    ]
   }
 
-  if (current_cpu == "arm") {
+  if (current_cpu == "arm" && !is_win) {
     cflags += [
       "-march=armv7-a",
       "-mfpu=neon",
       "-mthumb",
     ]
-  } else if (current_cpu == "mipsel") {
+  } else if (current_cpu == "mipsel" && !is_win) {
     cflags += [ "-march=mips32r2" ]
-  } else if (current_cpu == "mips64el") {
+  } else if (current_cpu == "mips64el" && !is_win) {
     asmflags += [ "-integrated-as" ]
     cflags += [ "-integrated-as" ]
   } else if (current_cpu == "x86" && !is_win) {
@@ -190,6 +166,30 @@ config("default") {
     libs += [ "gnustl_static" ]
   }
 
+  if (is_tizen) {
+    asmflags += [
+      "--target=$ncli_target",
+      "-B$ncli/tools/$ncli_gccdir/$ncli_target/bin",
+    ]
+    cflags += [
+      "--sysroot=$ncli/platforms/$ncli_platform",
+      "--target=$ncli_target",
+      "-B$ncli/tools/$ncli_gccdir/$ncli_target/bin",
+    ]
+    cflags_cc += [
+      "-isystem$ncli/tools/$ncli_gccdir/$ncli_target/include/c++/6.2.1",
+      "-isystem$ncli/tools/$ncli_gccdir/$ncli_target/include/c++/6.2.1/$ncli_target",
+    ]
+    ldflags += [
+      "--sysroot=$ncli/platforms/$ncli_platform",
+      "--target=$ncli_target",
+      "-B$ncli/tools/$ncli_gccdir/$ncli_target/bin",
+    ]
+    lib_dirs = [
+      "$ncli/platforms/$ncli_platform/usr/lib",
+    ]
+  }
+
   if (is_ios) {
     _target = target_cpu
     if (target_cpu == "arm") {
@@ -198,6 +198,9 @@ config("default") {
       _target = "i386"
     } else if (target_cpu == "x64") {
       _target = "x86_64"
+    }
+    if (is_watchos && _target == "armv7") {
+      _target = "armv7k"
     }
     asmflags += [
       "-isysroot",
@@ -220,6 +223,12 @@ config("default") {
       "-stdlib=libc++",
     ]
     libs += [ "objc" ]
+  }
+
+  if (enable_bitcode) {
+    cflags += [
+      "-fembed-bitcode"
+    ]
   }
 
   if (is_linux) {
@@ -306,6 +315,7 @@ config("warnings") {
 
       cflags += [
         "-Wno-cast-align",
+        "-Wno-cast-qual",
         "-Wno-conditional-uninitialized",
         "-Wno-conversion",
         "-Wno-disabled-macro-expansion",
@@ -333,6 +343,8 @@ config("warnings") {
         "-Wno-unreachable-code-return",
         "-Wno-unused-macros",
         "-Wno-unused-member-function",
+        "-Wno-unused-template",
+        "-Wno-zero-as-null-pointer-constant",
       ]
       cflags_cc += [
         "-Wno-abstract-vbase-init",
@@ -343,7 +355,6 @@ config("warnings") {
       cflags += [
         "-Wno-covered-switch-default",
         "-Wno-deprecated",
-        "-Wno-implicit-fallthrough",
         "-Wno-missing-noreturn",
         "-Wno-old-style-cast",
         "-Wno-padded",
@@ -362,6 +373,9 @@ config("warnings") {
         "-Wno-objcc-interface-ivars",
       ]
     }
+  }
+  if (!is_win || is_clang) {
+    cflags += [ "-Wno-implicit-fallthrough" ]
   }
 }
 config("warnings_except_public_headers") {
@@ -414,10 +428,14 @@ config("release") {
     ]
   } else {
     cflags = [
-      "-O3",
-      "-fdata-sections",
-      "-ffunction-sections",
+      "-Os",
     ]
+    if (!enable_bitcode) {
+      cflags += [
+        "-fdata-sections",
+        "-ffunction-sections",
+      ]
+    }
     if (is_mac || is_ios) {
       ldflags = [ "-dead_strip" ]
     } else {

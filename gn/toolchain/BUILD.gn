@@ -13,6 +13,16 @@ declare_args() {
       target_cc = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang"
       target_cxx = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang++"
     }
+  } else if (is_tizen) {
+    if (host_os == "win") {
+      target_ar = "$ncli/tools/$ncli_gccdir/$ncli_target/bin/ar.exe"
+      target_cc = "$ncli/tools/llvm-4.0.0/bin/clang.exe"
+      target_cxx = "$ncli/tools/llvm-4.0.0/bin/clang++.exe"
+    } else {
+      target_ar = "$ncli/tools/$ncli_gccdir/$ncli_target/bin/ar"
+      target_cc = "$ncli/tools/llvm-4.0.0/bin/clang"
+      target_cxx = "$ncli/tools/llvm-4.0.0/bin/clang++"
+    }
   } else {
     target_ar = ar
     target_cc = cc
@@ -23,7 +33,7 @@ declare_args() {
 }
 
 if (host_os == "win") {
-  python = "python.bat"
+  python = "python.exe"
   stamp = "cmd.exe /c echo >"
 } else {
   python = "python"
@@ -33,29 +43,26 @@ if (host_os == "win") {
 toolchain("msvc") {
   lib_dir_switch = "/LIBPATH:"
 
-  if (msvc == 2015) {
-    bin = "$windk/VC/bin/amd64"
-    env_setup = ""
-    if (target_cpu == "x86") {
-      bin += "_x86"
-      env_setup = "cmd /c $windk/win_sdk/bin/SetEnv.cmd /x86 && "
-    }
+  if (target_cpu == "x64") {
+    _target = "amd64"
   } else {
-    bin = "$windk/VC/Tools/MSVC/14.10.25017/bin/HostX64/$target_cpu"
-    env_setup = ""
-    if (target_cpu == "x86") {
-      print("Be sure to run")
-      print("\"$windk/VC/Auxiliary/Build/vcvarsall.bat\" amd64_x86")
-      print("to set up your environment before running ninja.")
-    }
+    _target = "amd64_" + target_cpu
   }
+  if (is_winrt) {
+    _target  += " store"
+  }
+
+  _vcvarsall = "$msvc_root/../../../Auxiliary/Build/vcvarsall.bat"
+  env_setup = "cmd /c \"set __VSCMD_ARG_NO_LOGO=1 && set VSCMD_START_DIR=%CD% && \"$_vcvarsall\" $_target && "
+  env_setup_end = "\""
+  bin = "$msvc_root/bin/HostX64/$target_cpu"
 
   tool("asm") {
     _ml = "ml"
     if (target_cpu == "x64") {
       _ml += "64"
     }
-    command = "$env_setup$bin/$_ml.exe /nologo /c /Fo {{output}} {{source}}"
+    command = "$env_setup\"$bin/$_ml.exe\" /nologo /c /Fo {{output}} {{source}}$env_setup_end"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]
@@ -68,7 +75,7 @@ toolchain("msvc") {
     pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
 
     # Label names may have spaces so pdbname must be quoted.
-    command = "$env_setup$bin/cl.exe /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    command = "$env_setup\"$bin/cl.exe\" /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\"$env_setup_end"
     depsformat = "msvc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
@@ -83,7 +90,7 @@ toolchain("msvc") {
     pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
 
     # Label names may have spaces so pdbname must be quoted.
-    command = "$env_setup$bin/cl.exe /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    command = "$env_setup\"$bin/cl.exe\"/nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\"$env_setup_end"
     depsformat = "msvc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
@@ -95,7 +102,7 @@ toolchain("msvc") {
   tool("alink") {
     rspfile = "{{output}}.rsp"
 
-    command = "$env_setup$bin/lib.exe /nologo /ignore:4221 {{arflags}} /OUT:{{output}} @$rspfile"
+    command = "$env_setup\"$bin/lib.exe\" /nologo /ignore:4221 {{arflags}} /OUT:{{output}} @$rspfile$env_setup_end"
     outputs = [
       # Ignore {{output_extension}} and always use .lib, there's no reason to
       # allow targets to override this extension on Windows.
@@ -110,12 +117,14 @@ toolchain("msvc") {
   }
 
   tool("solink") {
-    dllname = "{{output_dir}}/{{target_output_name}}{{output_extension}}"
-    libname = "${dllname}.lib"
-    pdbname = "${dllname}.pdb"
-    rspfile = "${dllname}.rsp"
+    output_prefix = "lib"
+    dllname_no_ext = "{{output_dir}}/{{target_output_name}}"
+    dllname = "${dllname_no_ext}{{output_extension}}"
+    libname = "${dllname_no_ext}.lib"
+    pdbname = "${dllname_no_ext}.pdb"
+    rspfile = "${dllname_no_ext}.rsp"
 
-    command = "$env_setup$bin/link.exe /nologo /IMPLIB:$libname /DLL /OUT:$dllname /PDB:$pdbname @$rspfile"
+    command = "$env_setup\"$bin/link.exe\" /nologo /IMPLIB:$libname /DLL /OUT:$dllname /PDB:$pdbname @$rspfile$env_setup_end"
     outputs = [
       dllname,
       libname,
@@ -145,7 +154,7 @@ toolchain("msvc") {
     rspfile = "$exename.rsp"
 
     command =
-        "$env_setup$bin/link.exe /nologo /OUT:$exename /PDB:$pdbname @$rspfile"
+        "$env_setup\"$bin/link.exe\" /nologo /OUT:$exename /PDB:$pdbname @$rspfile$env_setup_end"
 
     default_output_extension = ".exe"
     default_output_dir = "{{root_out_dir}}"
@@ -243,6 +252,9 @@ template("gcc_like_toolchain") {
 
     tool("solink") {
       soname = "{{target_output_name}}{{output_extension}}"
+      if (is_linux && linux_soname_version != "") {
+        soname += ".$linux_soname_version"
+      }
 
       rpath = "-Wl,-soname,$soname"
       if (is_mac) {

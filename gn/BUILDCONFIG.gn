@@ -16,22 +16,25 @@ declare_args() {
   } else {
     ndk_api = 21
   }
+  linux_soname_version = ""
   sanitize = ""
 
   ar = "ar"
   cc = "cc"
   cxx = "c++"
 
-  msvc = 2015
+  ncli = ""
+  ncli_version = "4.0"
 }
 declare_args() {
   is_debug = !is_official_build
-
-  if (msvc == 2015) {
-    windk = "C:/Program Files (x86)/Microsoft Visual Studio 14.0"
-  } else {
-    windk = "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional"
-  }
+}
+declare_args() {
+  windk = exec_script("//gn/find_windk.py", [ ], "trim string")
+}
+declare_args() {
+  msvc_root = exec_script("//gn/find_msvc_root.py", [ windk ], "trim string")
+  win_kits = "$windk/../../../Windows Kits"
 }
 
 assert(!(is_debug && is_official_build))
@@ -49,11 +52,14 @@ if (current_os == "") {
 
 is_android = current_os == "android"
 is_fuchsia = current_os == "fuchsia"
-is_ios = current_os == "ios" || current_os == "tvos"
+is_ios = current_os == "ios" || current_os == "tvos" || current_os == "watchos"
 is_tvos = current_os == "tvos"
-is_linux = current_os == "linux"
+is_watchos = current_os == "watchos"
+is_linux = current_os == "linux" || current_os == "tizen"
 is_mac = current_os == "mac"
-is_win = current_os == "win"
+is_win = current_os == "win" || current_os == "winrt"
+is_winrt = current_os == "winrt"
+is_tizen = current_os == "tizen"
 
 if (target_cpu == "") {
   target_cpu = host_cpu
@@ -120,6 +126,22 @@ if (is_android) {
     ndk_stdlib = "x86"
     ndk_gccdir = ndk_stdlib
     ndk_gdbserver = "prebuilt/android-x86/gdbserver/gdbserver"
+  }
+}
+
+if (is_tizen) {
+  ncli_target = ""
+  ncli_platform = ""
+  ncli_gccdir = ""
+
+  if (target_cpu == "arm") {
+    ncli_target = "arm-tizen-linux-gnueabi"
+    ncli_platform = "tizen-${ncli_version}/mobile/rootstraps/mobile-${ncli_version}-device.core"
+    ncli_gccdir = "arm-linux-gnueabi-gcc-6.2"
+  } else if (target_cpu == "x86") {
+    ncli_target = "i586-tizen-linux-gnueabi"
+    ncli_platform = "tizen-${ncli_version}/mobile/rootstraps/mobile-${ncli_version}-emulator.core"
+    ncli_gccdir = "i586-linux-gnueabi-gcc-6.2"
   }
 }
 

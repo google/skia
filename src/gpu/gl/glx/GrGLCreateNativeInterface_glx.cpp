@@ -10,7 +10,47 @@
 #include "gl/GrGLAssembleInterface.h"
 #include "gl/GrGLUtil.h"
 
-#include <GL/glx.h>
+#include <dlfcn.h>
+
+typedef unsigned char GLubyte;
+
+typedef void* (*GLXGetCurrentContextProc)(void);
+typedef GrGLFuncPtr (*GLXGetProcAddressProc)(const GLubyte* name);
+
+class GLXLoader {
+public:
+    GLXLoader() {
+        fLibrary = dlopen("libGL.so.1", RTLD_LAZY);
+    }
+    ~GLXLoader() {
+        if (fLibrary) {
+            dlclose(fLibrary);
+        }
+    }
+    void* handle() const {
+        return (nullptr == fLibrary) ? RTLD_DEFAULT : fLibrary;
+    }
+private:
+    void* fLibrary;
+};
+
+class GLXProcGetter {
+public:
+    GLXProcGetter() {
+        fGetCurrentContext = (GLXGetCurrentContextProc) dlsym(fLoader.handle(), "glXGetCurrentContext");
+        fGetProcAddress = (GLXGetProcAddressProc) dlsym(fLoader.handle(), "glXGetProcAddress");
+    }
+    GrGLFuncPtr getProc(const GLubyte* name) const {
+        return fGetProcAddress(name);
+    }
+    void* getCurrentContext(void) const {
+        return fGetCurrentContext();
+    }
+private:
+    GLXLoader fLoader;
+    GLXGetCurrentContextProc fGetCurrentContext;
+    GLXGetProcAddressProc fGetProcAddress;
+};
 
 static GrGLFuncPtr glx_get(void* ctx, const char name[]) {
     // Avoid calling glXGetProcAddress() for EGL procs.
@@ -19,15 +59,18 @@ static GrGLFuncPtr glx_get(void* ctx, const char name[]) {
         return nullptr;
     }
 
-    SkASSERT(nullptr == ctx);
-    SkASSERT(glXGetCurrentContext());
-    return glXGetProcAddress(reinterpret_cast<const GLubyte*>(name));
+    SkASSERT(nullptr != ctx);
+    const GLXProcGetter* getter = (const GLXProcGetter*) ctx;
+    SkASSERT(nullptr != getter->getCurrentContext());
+    return getter->getProc(reinterpret_cast<const GLubyte*>(name));
 }
 
 const GrGLInterface* GrGLCreateNativeInterface() {
-    if (nullptr == glXGetCurrentContext()) {
+    GLXProcGetter getter;
+
+    if (nullptr == getter.getCurrentContext()) {
         return nullptr;
     }
 
-    return GrGLAssembleInterface(nullptr, glx_get);
+    return GrGLAssembleInterface(&getter, glx_get);
 }

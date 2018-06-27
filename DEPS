@@ -11,7 +11,7 @@ deps = {
   "third_party/externals/icu"           : "https://chromium.googlesource.com/chromium/deps/icu.git@ec9c1133693148470ffe2e5e53576998e3650c1d",
   "third_party/externals/imgui"         : "https://github.com/ocornut/imgui.git@6384eee34f08cb7eab8d835043e1738e4adcdf75",
   "third_party/externals/jsoncpp"       : "https://chromium.googlesource.com/external/github.com/open-source-parsers/jsoncpp.git@1.0.0",
-  "third_party/externals/libjpeg-turbo" : "https://skia.googlesource.com/third_party/libjpeg-turbo.git@6de58e0d28014caf2fc1370145f22fd6d65f63e3",
+  "third_party/externals/libjpeg-turbo" : "https://github.com/libjpeg-turbo/libjpeg-turbo.git@1.5.1",
   "third_party/externals/libwebp"       : "https://chromium.googlesource.com/webm/libwebp.git@v0.6.0",
   "third_party/externals/microhttpd"    : "https://android.googlesource.com/platform/external/libmicrohttpd@748945ec6f1c67b7efc934ab0808e1d32f2fb98d",
   "third_party/externals/piex"          : "https://android.googlesource.com/platform/external/piex.git@8f540f64b6c170a16fb7e6e52d61819705c1522a",

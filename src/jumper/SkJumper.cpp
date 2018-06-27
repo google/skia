@@ -103,7 +103,7 @@ using StartPipeline2dFn = void(size_t,size_t,size_t,size_t, void**,K*);
 
 extern "C" {
 
-#if __has_feature(memory_sanitizer)
+#if __has_feature(memory_sanitizer) || defined(SK_BUILD_FOR_TVOS) || defined(SK_BUILD_FOR_WATCHOS)
     // We'll just run portable code.
 
 #elif defined(__aarch64__)
@@ -223,7 +223,7 @@ static SkJumper_Engine gEngine = kPortable;
 static SkOnce gChooseEngineOnce;
 
 static SkJumper_Engine choose_engine() {
-#if __has_feature(memory_sanitizer)
+#if __has_feature(memory_sanitizer) || defined(SK_BUILD_FOR_TVOS) || defined(SK_BUILD_FOR_WATCHOS)
     // We'll just run portable code.
 
 #elif defined(__aarch64__)
