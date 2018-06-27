@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "04401149_d960d945",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-06-27T18:47:31Z",
+      "side": 1,
+      "message": "It\u0027s unclear to me why this is an rvalue reference -- is it to avoid ref-ing the Typeface, ColorFilter, etc.?",
+      "range": {
+        "startLine": 94,
+        "startChar": 23,
+        "endLine": 94,
+        "endChar": 32
+      },
+      "revId": "be69d5e1ac1b56482adaf8c0913f3cd2e5651660",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e472a56d_ae9f76cb",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 13
@@ -18,6 +41,29 @@
         "startChar": 8,
         "endLine": 244,
         "endChar": 31
+      },
+      "revId": "be69d5e1ac1b56482adaf8c0913f3cd2e5651660",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0dba7a4d_afced70d",
+        "filename": "src/gpu/text/GrTextContext.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-06-27T18:47:31Z",
+      "side": 1,
+      "message": "const ref?",
+      "range": {
+        "startLine": 94,
+        "startChar": 4,
+        "endLine": 94,
+        "endChar": 11
       },
       "revId": "be69d5e1ac1b56482adaf8c0913f3cd2e5651660",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
