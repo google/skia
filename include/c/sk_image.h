@@ -18,7 +18,6 @@ SK_C_API void sk_image_ref(const sk_image_t*);
 SK_C_API void sk_image_unref(const sk_image_t*);
 SK_C_API sk_image_t* sk_image_new_raster_copy(const sk_imageinfo_t*, const void* pixels, size_t rowBytes);
 SK_C_API sk_image_t* sk_image_new_raster_copy_with_pixmap(const sk_pixmap_t* pixmap);
-SK_C_API sk_image_t* sk_image_new_raster_copy_with_colortable(const sk_imageinfo_t* cinfo, const void* pixels, size_t rowBytes, sk_colortable_t* ctable);
 SK_C_API sk_image_t* sk_image_new_raster_data(const sk_imageinfo_t* cinfo, sk_data_t* pixels, size_t rowBytes);
 SK_C_API sk_image_t* sk_image_new_raster(const sk_pixmap_t* pixmap, sk_image_raster_release_proc releaseProc, void* context);
 SK_C_API sk_image_t* sk_image_new_from_bitmap(const sk_bitmap_t *cbitmap);

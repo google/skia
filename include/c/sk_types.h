@@ -59,7 +59,6 @@ typedef enum {
     ARGB_4444_SK_COLORTYPE,
     RGBA_8888_SK_COLORTYPE,
     BGRA_8888_SK_COLORTYPE,
-    Index_8_SK_COLORTYPE,
     Gray_8_SK_COLORTYPE,
     RGBA_F16_SK_COLORTYPE,
 } sk_colortype_t;
@@ -494,11 +493,13 @@ typedef enum {
 typedef enum {
     SUCCESS_SK_CODEC_RESULT,
     INCOMPLETE_INPUT_SK_CODEC_RESULT,
+    ERROR_IN_INPUT_SK_CODEC_RESULT,
     INVALID_CONVERSION_SK_CODEC_RESULT,
     INVALID_SCALE_SK_CODEC_RESULT,
     INVALID_PARAMETERS_SK_CODEC_RESULT,
     INVALID_INPUT_SK_CODEC_RESULT,
     COULD_NOT_REWIND_SK_CODEC_RESULT,
+    INTERNAL_ERROR_SK_CODEC_RESULT,
     UNIMPLEMENTED_SK_CODEC_RESULT,
 } sk_codec_result_t;
 
@@ -619,14 +620,6 @@ typedef struct sk_colortable_t sk_colortable_t;
 typedef struct sk_pixelref_factory_t sk_pixelref_factory_t;
 
 typedef enum {
-    BOX_SK_BITMAP_SCALER_RESIZE_METHOD,
-    TRIANGLE_SK_BITMAP_SCALER_RESIZE_METHOD,
-    LANCZOS3_SK_BITMAP_SCALER_RESIZE_METHOD,
-    HAMMING_SK_BITMAP_SCALER_RESIZE_METHOD,
-    MITCHELL_SK_BITMAP_SCALER_RESIZE_METHOD,
-} sk_bitmapscaler_resizemethod_t;
-
-typedef enum {
     TOP_LEFT_GR_SURFACE_ORIGIN = 1,
     BOTTOM_LEFT_GR_SURFACE_ORIGIN,
 } gr_surfaceorigin_t;
@@ -706,10 +699,11 @@ typedef enum {
     AA_CONVEX_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS         = 1 << 4,
     AA_LINEARIZING_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS    = 1 << 5,
     SMALL_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS             = 1 << 6,
-    TESSELLATING_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS      = 1 << 7,
-    DEFAULT_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS           = 1 << 8,
+    COVERAGE_COUNTING_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS = 1 << 7,
+    TESSELLATING_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS      = 1 << 8,
+    DEFAULT_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS           = 1 << 9,
 
-    ALL_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS               = DEFAULT_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS | (DEFAULT_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS - 1)
+    ALL_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS               = (DEFAULT_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS | (DEFAULT_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS - 1)) & ~COVERAGE_COUNTING_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS
 } gr_contextoptions_gpupathrenderers_t;
 
 typedef struct {
@@ -719,7 +713,6 @@ typedef struct {
     bool fSuppressDualSourceBlending;
     int  fBufferMapThreshold;
     bool fUseDrawInsteadOfPartialRenderTargetWrite;
-    bool fImmediateMode;
     bool fUseShaderSwizzling;
     bool fDoManualMipmapping;
     bool fEnableInstancedRendering;
@@ -734,8 +727,10 @@ typedef struct {
 } gr_context_options_t;
 
 typedef enum {
+    METAL_GR_BACKEND,
     OPENGL_GR_BACKEND,
     VULKAN_GR_BACKEND,
+    MOCK_GR_BACKEND,
 } gr_backend_t;
 
 typedef intptr_t gr_backendcontext_t;
@@ -862,11 +857,18 @@ typedef struct {
     uint8_t fBitsPerComponent;
 } sk_encodedinfo_t;
 
+typedef enum {
+    KEEP_SK_CODEC_ANIMATION_DISPOSAL_METHOD = 1,
+    RESTORE_BG_COLOR_SK_CODEC_ANIMATION_DISPOSAL_METHOD = 2,
+    RESTORE_PREVIOUS_SK_CODEC_ANIMATION_DISPOSAL_METHOD = 3,
+} sk_codecanimation_disposalmethod_t;
+
 typedef struct {
     int fRequiredFrame;
     int fDuration;
     bool fFullyReceived;
     sk_alphatype_t fAlphaType;
+    sk_codecanimation_disposalmethod_t fDisposalMethod;
 } sk_codec_frameinfo_t;
 
 typedef struct sk_xmlstreamwriter_t sk_xmlstreamwriter_t;

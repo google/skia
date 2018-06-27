@@ -8,7 +8,6 @@
  */
 
 #include "SkPixmap.h"
-#include "SkBitmapScaler.h"
 #include "SkImageEncoder.h"
 #include "SkSwizzle.h"
 #include "SkJpegEncoder.h"
@@ -31,12 +30,12 @@ sk_pixmap_t* sk_pixmap_new()
     return ToPixmap(new SkPixmap());
 }
 
-sk_pixmap_t* sk_pixmap_new_with_params(const sk_imageinfo_t* cinfo, const void* addr, size_t rowBytes, sk_colortable_t* ctable)
+sk_pixmap_t* sk_pixmap_new_with_params(const sk_imageinfo_t* cinfo, const void* addr, size_t rowBytes)
 {
     SkImageInfo info;
     from_c(*cinfo, &info);
 
-    return ToPixmap(new SkPixmap(info, addr, rowBytes, AsColorTable(ctable)));
+    return ToPixmap(new SkPixmap(info, addr, rowBytes));
 }
 
 void sk_pixmap_reset(sk_pixmap_t* cpixmap)
@@ -44,12 +43,12 @@ void sk_pixmap_reset(sk_pixmap_t* cpixmap)
     AsPixmap(cpixmap)->reset();
 }
 
-void sk_pixmap_reset_with_params(sk_pixmap_t* cpixmap, const sk_imageinfo_t* cinfo, const void* addr, size_t rowBytes, sk_colortable_t* ctable)
+void sk_pixmap_reset_with_params(sk_pixmap_t* cpixmap, const sk_imageinfo_t* cinfo, const void* addr, size_t rowBytes)
 {
     SkImageInfo info;
     from_c(*cinfo, &info);
 
-    AsPixmap(cpixmap)->reset(info, addr, rowBytes, AsColorTable(ctable));
+    AsPixmap(cpixmap)->reset(info, addr, rowBytes);
 }
 
 void sk_pixmap_get_info(sk_pixmap_t* cpixmap, sk_imageinfo_t* cinfo)
@@ -65,18 +64,6 @@ size_t sk_pixmap_get_row_bytes(sk_pixmap_t* cpixmap)
 const void* sk_pixmap_get_pixels(sk_pixmap_t* cpixmap)
 {
     return AsPixmap(cpixmap)->addr();
-}
-
-sk_colortable_t* sk_pixmap_get_colortable(sk_pixmap_t* cpixmap)
-{
-    return ToColorTable(AsPixmap(cpixmap)->ctable());
-}
-
-bool sk_bitmapscaler_resize(const sk_pixmap_t* cdst, const sk_pixmap_t* csrc, sk_bitmapscaler_resizemethod_t method)
-{
-    const SkPixmap& dst = AsPixmap(*cdst);
-    const SkPixmap& src = AsPixmap(*csrc);
-    return SkBitmapScaler::Resize(dst, src, (SkBitmapScaler::ResizeMethod)method);
 }
 
 sk_color_t sk_color_unpremultiply(const sk_pmcolor_t pmcolor)

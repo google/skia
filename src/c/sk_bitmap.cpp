@@ -27,17 +27,6 @@ static inline void copyAlpha8ToColor(size_t size, const uint8_t* pixels, sk_colo
     }
 }
 
-static inline void copyIndex8ToColor(sk_bitmap_t* cbitmap, size_t size, const uint8_t* pixels, sk_color_t* colors)
-{
-    SkBitmap* bmp = AsBitmap(cbitmap);
-    SkColorTable* ctable = bmp->getColorTable();
-    while (size-- != 0) {
-        const uint8_t* addr = pixels++;
-        const SkPMColor c = (*ctable)[*addr];
-        *colors++ = SkUnPreMultiply::PMColorToColor(c);
-    }
-}
-
 static inline void copyGray8ToColor(size_t size, const uint8_t* pixels, sk_color_t* colors)
 {
     while (size-- != 0) {
@@ -201,11 +190,6 @@ sk_color_t sk_bitmap_get_pixel_color(sk_bitmap_t* cbitmap, int x, int y)
     return AsBitmap(cbitmap)->getColor(x, y);
 }
 
-sk_pmcolor_t sk_bitmap_get_index8_color(sk_bitmap_t* cbitmap, int x, int y)
-{
-    return AsBitmap(cbitmap)->getIndex8Color(x, y);
-}
-
 void sk_bitmap_set_pixel_color(sk_bitmap_t* cbitmap, int x, int y, sk_color_t color)
 {
     SkBitmap* bmp = AsBitmap(cbitmap);
@@ -244,9 +228,6 @@ void sk_bitmap_get_pixel_colors(sk_bitmap_t* cbitmap, sk_color_t* colors)
     switch (bmp->colorType()) {
     case kAlpha_8_SkColorType:
         copyAlpha8ToColor(size, (const uint8_t*)pixels, colors);
-        break;
-    case kIndex_8_SkColorType:
-        copyIndex8ToColor(cbitmap, size, (const uint8_t*)pixels, colors);
         break;
     case kGray_8_SkColorType:
         copyGray8ToColor(size, (const uint8_t*)pixels, colors);
@@ -291,14 +272,14 @@ void sk_bitmap_set_pixel_colors(sk_bitmap_t* cbitmap, const sk_color_t* colors)
     }
 }
 
-bool sk_bitmap_install_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* cinfo, void* pixels, size_t rowBytes, sk_colortable_t* ctable, const sk_bitmap_release_proc releaseProc, void* context)
+bool sk_bitmap_install_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* cinfo, void* pixels, size_t rowBytes, const sk_bitmap_release_proc releaseProc, void* context)
 {
     SkBitmap* bmp = AsBitmap(cbitmap);
 
     SkImageInfo info;
     from_c(*cinfo, &info);
 
-    return bmp->installPixels(info, pixels, rowBytes, AsColorTable(ctable), releaseProc, context);
+    return bmp->installPixels(info, pixels, rowBytes, releaseProc, context);
 }
 
 bool sk_bitmap_install_pixels_with_pixmap(sk_bitmap_t* cbitmap, const sk_pixmap_t* cpixmap)
@@ -323,25 +304,20 @@ bool sk_bitmap_try_alloc_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requ
     return bmp->tryAllocPixels(info, rowBytes);
 }
 
-bool sk_bitmap_try_alloc_pixels_with_color_table(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requestedInfo, sk_colortable_t* ctable, uint32_t flags)
+bool sk_bitmap_try_alloc_pixels_with_flags(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requestedInfo, uint32_t flags)
 {
     SkBitmap* bmp = AsBitmap(cbitmap);
 
     SkImageInfo info;
     from_c(*requestedInfo, &info);
 
-    return bmp->tryAllocPixels(info, sk_ref_sp(AsColorTable(ctable)), flags);
+    return bmp->tryAllocPixels(info, flags);
 }
 
-sk_colortable_t* sk_bitmap_get_colortable(sk_bitmap_t* cbitmap)
-{
-    return ToColorTable(AsBitmap(cbitmap)->getColorTable());
-}
-
-void sk_bitmap_set_pixels(sk_bitmap_t* cbitmap, void* pixels, sk_colortable_t* ctable)
+void sk_bitmap_set_pixels(sk_bitmap_t* cbitmap, void* pixels)
 {
     SkBitmap* bmp = AsBitmap(cbitmap);
-    bmp->setPixels(pixels, AsColorTable(ctable));
+    bmp->setPixels(pixels);
 }
 
 bool sk_bitmap_peek_pixels(sk_bitmap_t* cbitmap, sk_pixmap_t* cpixmap)

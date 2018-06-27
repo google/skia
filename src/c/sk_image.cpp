@@ -23,18 +23,14 @@ void sk_image_unref(const sk_image_t* cimage) {
 }
 
 sk_image_t* sk_image_new_raster_copy(const sk_imageinfo_t* cinfo, const void* pixels, size_t rowBytes) {
-    return sk_image_new_raster_copy_with_colortable(cinfo, pixels, rowBytes, nullptr);
+    SkImageInfo info;
+    from_c(*cinfo, &info);
+    auto image = SkImage::MakeRasterCopy(SkPixmap(info, pixels, rowBytes));
+    return ToImage(image.release());
 }
 
 sk_image_t* sk_image_new_raster_copy_with_pixmap(const sk_pixmap_t* pixmap) {
     auto image = SkImage::MakeRasterCopy(AsPixmap(*pixmap));
-    return ToImage(image.release());
-}
-
-sk_image_t* sk_image_new_raster_copy_with_colortable(const sk_imageinfo_t* cinfo, const void* pixels, size_t rowBytes, sk_colortable_t* ctable) {
-    SkImageInfo info;
-    from_c(*cinfo, &info);
-    auto image = SkImage::MakeRasterCopy(SkPixmap(info, pixels, rowBytes, AsColorTable(ctable)));
     return ToImage(image.release());
 }
 
@@ -132,15 +128,15 @@ bool sk_image_scale_pixels(const sk_image_t* image, const sk_pixmap_t* dst, sk_f
 }
 
 sk_data_t* sk_image_encode(const sk_image_t* cimage) {
-    return ToData(AsImage(cimage)->encode());
+    return ToData(AsImage(cimage)->encodeToData().release());
 }
 
 sk_data_t* sk_image_encode_with_serializer(const sk_image_t* cimage, sk_pixelserializer_t* serializer) {
-    return ToData(AsImage(cimage)->encode(AsPixelSerializer(serializer)));
+    return ToData(AsImage(cimage)->encodeToData(AsPixelSerializer(serializer)).release());
 }
 
 sk_data_t* sk_image_encode_specific(const sk_image_t* cimage, sk_encoded_image_format_t encoder, int quality) {
-    return ToData(AsImage(cimage)->encode((SkEncodedImageFormat)encoder, quality));
+    return ToData(AsImage(cimage)->encodeToData((SkEncodedImageFormat)encoder, quality).release());
 }
 
 sk_image_t* sk_image_make_subset(const sk_image_t* cimage, const sk_irect_t* subset) {

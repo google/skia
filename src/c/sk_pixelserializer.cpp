@@ -25,5 +25,5 @@ bool sk_pixelserializer_use_encoded_data(sk_pixelserializer_t* cserializer, cons
 
 sk_data_t* sk_pixelserializer_encode(sk_pixelserializer_t* cserializer, const sk_pixmap_t* cpixmap)
 {
-    return ToData(AsPixelSerializer(cserializer)->encode(AsPixmap(*cpixmap)));
+    return ToData(AsPixelSerializer(cserializer)->encodeToData(AsPixmap(*cpixmap)).release());
 }
