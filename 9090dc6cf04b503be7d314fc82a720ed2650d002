@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e30fbfba_559e4efd",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/anchor_wrapper.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-27T18:28:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "16407898_a0456a4a",
+      "range": {
+        "startLine": 26,
+        "startChar": 15,
+        "endLine": 26,
+        "endChar": 21
+      },
+      "revId": "9090dc6cf04b503be7d314fc82a720ed2650d002",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8b20e0a7_b032b244",
         "filename": "platform_tools/android/apps/arcore/src/main/cpp/anchor_wrapper.h",
         "patchSetId": 4
@@ -116,6 +140,30 @@
       "revId": "9090dc6cf04b503be7d314fc82a720ed2650d002",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2052380_3a57a34b",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/anchor_wrapper.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-06-27T18:28:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8d575f2f_0660341d",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 0
+      },
+      "revId": "9090dc6cf04b503be7d314fc82a720ed2650d002",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
