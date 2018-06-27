@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c9e09385_b04f1426",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 2152,
+      "author": {
+        "id": 8209
+      },
+      "writtenOn": "2018-06-27T19:23:28Z",
+      "side": 1,
+      "message": "The raw pointer version is meant for internal use, like in NWayCanvas, which propagates the call down to other canvases.",
+      "parentUuid": "6962c823_65ab68db",
+      "revId": "a28fedb55371a5311eba0dbe7023d207a8c9e094",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8c27ceaf_9575204f",
         "filename": "include/core/SkCanvas.h",
         "patchSetId": 8
@@ -87,6 +105,24 @@
     },
     {
       "key": {
+        "uuid": "b9efa5ee_b2cb4108",
+        "filename": "include/core/SkVertices.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 8209
+      },
+      "writtenOn": "2018-06-27T19:23:28Z",
+      "side": 1,
+      "message": "That can be done. Would it be appropriate for the constant to be public and for other classes to use it as well?",
+      "parentUuid": "78f03873_79ab4058",
+      "revId": "a28fedb55371a5311eba0dbe7023d207a8c9e094",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f01abf6f_35ac099f",
         "filename": "include/core/SkVertices.h",
         "patchSetId": 8
@@ -132,6 +168,24 @@
       "writtenOn": "2018-06-27T17:16:56Z",
       "side": 1,
       "message": "Do we need this version if we never take a ref ?",
+      "revId": "a28fedb55371a5311eba0dbe7023d207a8c9e094",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64f5d5b5_186fd843",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1714,
+      "author": {
+        "id": 8209
+      },
+      "writtenOn": "2018-06-27T19:23:28Z",
+      "side": 1,
+      "message": "What do you mean by never take a ref?",
+      "parentUuid": "b7fa1bc4_af3bdbca",
       "revId": "a28fedb55371a5311eba0dbe7023d207a8c9e094",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
