@@ -1008,8 +1008,8 @@ TEST_BUILDERS = [
   'Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_Vulkan',
   ('Test-ChromeOS-Clang-AcerChromebookR13Convertible-GPU-PowerVRGX6250-'
    'arm-Debug-All'),
-  'Test-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release-All',
-  'Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All',
+  'Test-Chromecast-Clang-Chorizo-CPU-Cortex_A7-arm-Release-All',
+  'Test-Chromecast-Clang-Chorizo-GPU-Cortex_A7-arm-Release-All',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_00_10-Coverage',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN',
