@@ -333,7 +333,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
                          reducedClip.numAnalyticFPs(), &key);
 
     sk_sp<GrTextureProxy> proxy(proxyProvider->findOrCreateProxyByUniqueKey(
-                                                                key, kBottomLeft_GrSurfaceOrigin));
+                                                                key, kTopLeft_GrSurfaceOrigin));
     if (proxy) {
         return proxy;
     }
@@ -357,7 +357,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
         return nullptr;
     }
 
-    SkASSERT(result->origin() == kBottomLeft_GrSurfaceOrigin);
+    SkASSERT(result->origin() == kTopLeft_GrSurfaceOrigin);
     proxyProvider->assignUniqueKeyToProxy(key, result.get());
     add_invalidate_on_pop_message(*fStack, reducedClip.maskGenID(), key);
 
