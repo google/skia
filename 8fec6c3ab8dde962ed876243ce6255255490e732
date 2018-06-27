@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "816bd431_9510c136",
+        "filename": "include/utils/SkNWayCanvas.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-27T21:41:10Z",
+      "side": 1,
+      "message": "keep bones and boneCount names\n\nRather than retyping this everywhere, in most of the headers should should keep the bones and boneCount names since the semantics of the fields isn\u0027t obvious just from the type.",
+      "revId": "8fec6c3ab8dde962ed876243ce6255255490e732",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dceffb89_b9d0bd15",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-27T21:41:10Z",
+      "side": 1,
+      "message": "kEstVertexCount ?\nDon\u0027t we know the number of vertices (i.e., count) ?",
+      "revId": "8fec6c3ab8dde962ed876243ce6255255490e732",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b89030a4_dba1b29c",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-27T21:41:10Z",
+      "side": 1,
+      "message": "kEstBoneCount ?\n\nDon\u0027t we know the boneCount ?",
+      "revId": "8fec6c3ab8dde962ed876243ce6255255490e732",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "112c20d2_4978e11c",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-27T21:41:10Z",
+      "side": 1,
+      "message": "kOuterSize ?",
+      "revId": "8fec6c3ab8dde962ed876243ce6255255490e732",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c74ccf14_4f19f57d",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-27T21:41:10Z",
+      "side": 1,
+      "message": "Don\u0027t we only need the \u00272*\u0027 multiplier when there are bones ?",
+      "revId": "8fec6c3ab8dde962ed876243ce6255255490e732",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08a74b2d_ed071374",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-27T21:41:10Z",
+      "side": 1,
+      "message": "Rather than copy and overwrite, would it be faster to allocate and then drop the multiplied result into transformedBones ?",
+      "revId": "8fec6c3ab8dde962ed876243ce6255255490e732",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5fd234e_6b467646",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-27T21:41:10Z",
+      "side": 1,
+      "message": "Would a \u0027if (0.0f \u003d\u003d weight) { continue; }\u0027 buy you much ?",
+      "revId": "8fec6c3ab8dde962ed876243ce6255255490e732",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a16bc6b_58daf545",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-27T21:41:10Z",
+      "side": 1,
+      "message": "Can\u0027t we map these points rather than allocate more space right after this (i.e., come out of this if block w/ \u0027devVerts\u0027) ?",
+      "revId": "8fec6c3ab8dde962ed876243ce6255255490e732",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1700113c_b9660f02",
+        "filename": "src/core/SkLiteDL.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-27T21:41:10Z",
+      "side": 1,
+      "message": "So, where are the bones being stored here ?",
+      "revId": "8fec6c3ab8dde962ed876243ce6255255490e732",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
