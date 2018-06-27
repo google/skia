@@ -45,7 +45,7 @@ struct SK_API GrVkBackendContext {
     VkDevice                   fDevice;
     VkQueue                    fQueue;
     uint32_t                   fGraphicsQueueIndex;
-    uint32_t                   fMinAPIVersion;
+    uint32_t                   fMinAPIVersion; // TODO: rename to instance version
     uint32_t                   fExtensions;
     uint32_t                   fFeatures = kIgnoreAllFlags_GrVkFeatureFlag;
     VkPhysicalDeviceFeatures   fDeviceFeatures;

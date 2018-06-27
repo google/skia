@@ -74,6 +74,7 @@ static bool should_include_debug_layer(const VkLayerProperties& layerProps) {
     }
     return false;
 }
+
 VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
     VkDebugReportFlagsEXT       flags,
     VkDebugReportObjectTypeEXT  objectType,
@@ -275,12 +276,10 @@ static bool init_device_extensions_and_layers(GrVkInterface::GetProc getProc, ui
     return true;
 }
 
-// the minimum version of Vulkan supported
-#ifdef SK_BUILD_FOR_ANDROID
-const uint32_t kGrVkMinimumVersion = VK_MAKE_VERSION(1, 0, 3);
-#else
-const uint32_t kGrVkMinimumVersion = VK_MAKE_VERSION(1, 0, 8);
-#endif
+#define ACQUIRE_VK_PROC_NOCHECK(name, instance, device)                        \
+    PFN_vk##name grVk##name =                                                  \
+        reinterpret_cast<PFN_vk##name>(getProc("vk" #name, instance, device));
+
 
 #define ACQUIRE_VK_PROC(name, instance, device)                                \
     PFN_vk##name grVk##name =                                                  \
@@ -327,10 +326,24 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
         return getInstanceProc(instance, proc_name);
     };
 
+    VkResult err;
+
+    ACQUIRE_VK_PROC_NOCHECK(EnumerateInstanceVersion, VK_NULL_HANDLE, VK_NULL_HANDLE);
+    uint32_t instanceVersion = 0;
+    if (!grVkEnumerateInstanceVersion) {
+        instanceVersion = VK_MAKE_VERSION(1, 0, 0);
+    } else {
+        err = grVkEnumerateInstanceVersion(&instanceVersion);
+        if (err) {
+            SkDebugf("failed ot enumerate instance version. Err: %d\n", err);
+            return false;
+        }
+    }
+    SkASSERT(instanceVersion >= VK_MAKE_VERSION(1, 0, 0));
+
     VkPhysicalDevice physDev;
     VkDevice device;
     VkInstance inst;
-    VkResult err;
 
     const VkApplicationInfo app_info = {
         VK_STRUCTURE_TYPE_APPLICATION_INFO, // sType
@@ -339,13 +352,13 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
         0,                                  // applicationVersion
         "vktest",                           // pEngineName
         0,                                  // engineVerison
-        kGrVkMinimumVersion,                // apiVersion
+        instanceVersion,                    // apiVersion
     };
 
     SkTArray<VkLayerProperties> instanceLayers;
     SkTArray<VkExtensionProperties> instanceExtensions;
 
-    if (!init_instance_extensions_and_layers(getProc, kGrVkMinimumVersion,
+    if (!init_instance_extensions_and_layers(getProc, instanceVersion,
                                              &instanceExtensions,
                                              &instanceLayers)) {
         return false;
@@ -409,6 +422,7 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
 #endif
 
     ACQUIRE_VK_PROC(EnumeratePhysicalDevices, inst, VK_NULL_HANDLE);
+    ACQUIRE_VK_PROC(GetPhysicalDeviceProperties, inst, VK_NULL_HANDLE);
     ACQUIRE_VK_PROC(GetPhysicalDeviceQueueFamilyProperties, inst, VK_NULL_HANDLE);
     ACQUIRE_VK_PROC(GetPhysicalDeviceFeatures, inst, VK_NULL_HANDLE);
     ACQUIRE_VK_PROC(CreateDevice, inst, VK_NULL_HANDLE);
@@ -438,6 +452,10 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
         destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
         return false;
     }
+
+    VkPhysicalDeviceProperties physDeviceProperties;
+    grVkGetPhysicalDeviceProperties(physDev, &physDeviceProperties);
+    int physDeviceVersion = physDeviceProperties.apiVersion;
 
     // query to get the initial queue props size
     uint32_t queueCount;
@@ -491,7 +509,7 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
 
     SkTArray<VkLayerProperties> deviceLayers;
     SkTArray<VkExtensionProperties> deviceExtensions;
-    if (!init_device_extensions_and_layers(getProc, kGrVkMinimumVersion,
+    if (!init_device_extensions_and_layers(getProc, physDeviceVersion,
                                            inst, physDev,
                                            &deviceExtensions,
                                            &deviceLayers)) {
@@ -586,7 +604,7 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
     ctx->fDevice = device;
     ctx->fQueue = queue;
     ctx->fGraphicsQueueIndex = graphicsQueueIndex;
-    ctx->fMinAPIVersion = kGrVkMinimumVersion;
+    ctx->fMinAPIVersion = instanceVersion;
     ctx->fExtensions = 0;
     ctx->fDeviceFeatures = deviceFeatures;
     ctx->fInterface.reset(interface.release());
