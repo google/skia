@@ -71,7 +71,6 @@ SkIRect global, <code>struct</code>, and <code>class</code> related member funct
   </tr>
 </table>
 
-
 ## <a name='Member_Function'>Member Function</a>
 
 
@@ -241,7 +240,6 @@ SkIRect member functions read and modify the structure properties.
   </tr>
 </table>
 
-
 ## <a name='Member'>Member</a>
 
 
@@ -296,7 +294,6 @@ SkIRect members may be read and written directly without using a member function
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>smaller y-axis bounds</td>
   </tr>
 </table>
-
 
 ### Members
 
@@ -386,7 +383,6 @@ SkIRect can be constructed or initialized by these functions, including C++ clas
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#IRect'>IRect</a>, ordering sides from smaller to larger</td>
   </tr>
 </table>
-
 
 <a name='SkIRect_MakeEmpty'></a>
 ## MakeEmpty
@@ -667,7 +663,6 @@ rect: -10, 35, 5, 60  isEmpty: false
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns bounds top</td>
   </tr>
 </table>
-
 
 <a name='SkIRect_left'></a>
 ## left
@@ -1120,7 +1115,6 @@ SkIRect operators inline class member functions with arithmetic equivalents.
   </tr>
 </table>
 
-
 <a name='SkIRect_equal_operator'></a>
 ## operator==
 
@@ -1228,7 +1222,6 @@ test != sorted
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to (x, y, width, height)</td>
   </tr>
 </table>
-
 
 <a name='SkIRect_setEmpty'></a>
 ## setEmpty
@@ -1433,7 +1426,6 @@ rect: -10, 35, 5, 60  isEmpty: false
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>moves the sides symmetrically about the center</td>
   </tr>
 </table>
-
 
 <a name='SkIRect_makeOffset'></a>
 ## makeOffset
@@ -1785,8 +1777,8 @@ rect: 5, 1, 55, 86
 must describe area; <a href='#SkIRect_fLeft'>fLeft</a> is less than <a href='#SkIRect_fRight'>fRight</a>, and <a href='#SkIRect_fTop'>fTop</a> is less than <a href='#SkIRect_fBottom'>fBottom</a>;
 empty() returns false. The intersection of <a href='#IRect'>IRect</a> pair can be described by:
 
-(max(a.fLeft, b.fLeft), max(a.fTop, b.fTop),
-min(a.fRight, b.fRight), min(a.fBottom, b.fBottom))
+(max(a.<a href='#SkIRect_fLeft'>fLeft</a>, b.<a href='#SkIRect_fLeft'>fLeft</a>), max(a.<a href='#SkIRect_fTop'>fTop</a>, b.<a href='#SkIRect_fTop'>fTop</a>),
+min(a.<a href='#SkIRect_fRight'>fRight</a>, b.<a href='#SkIRect_fRight'>fRight</a>), min(a.<a href='#SkIRect_fBottom'>fBottom</a>, b.<a href='#SkIRect_fBottom'>fBottom</a>))
 .
 
 The intersection is only meaningful if the resulting <a href='#IRect'>IRect</a> is not empty and
@@ -1833,7 +1825,6 @@ describes an area: <a href='#SkIRect_fLeft'>fLeft</a> is less than <a href='#SkI
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to shared area; returns true if not empty skips empty check</td>
   </tr>
 </table>
-
 
 <a name='SkIRect_adjust'></a>
 ## adjust
@@ -2461,7 +2452,6 @@ intersection
   </tr>
 </table>
 
-
 <a name='SkIRect_join'></a>
 ## join
 
@@ -2557,7 +2547,6 @@ join: 10, 20, 55, 65
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>orders sides from smaller to larger</td>
   </tr>
 </table>
-
 
 <a name='SkIRect_sort'></a>
 ## sort

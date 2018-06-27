@@ -86,7 +86,6 @@ SkRect global, <code>struct</code>, and <code>class</code> related member functi
   </tr>
 </table>
 
-
 ## <a name='Member_Function'>Member Function</a>
 
 
@@ -308,7 +307,6 @@ SkRect member functions read and modify the structure properties.
   </tr>
 </table>
 
-
 ## <a name='Member'>Member</a>
 
 
@@ -363,7 +361,6 @@ SkRect members may be read and written directly without using a member function.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>smaller y-axis bounds</td>
   </tr>
 </table>
-
 
 ### Members
 
@@ -457,7 +454,6 @@ SkRect can be constructed or initialized by these functions, including C++ class
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Rect'>Rect</a>, ordering sides from smaller to larger</td>
   </tr>
 </table>
-
 
 <a name='SkRect_MakeEmpty'></a>
 ## MakeEmpty
@@ -888,7 +884,6 @@ than <a href='#SkRect_fBottom'>fBottom</a>.
   </tr>
 </table>
 
-
 <a name='SkRect_isEmpty'></a>
 ## isEmpty
 
@@ -1234,7 +1229,7 @@ large width: 4294967296
 <a href='undocumented#SkScalar'>SkScalar</a>    <a href='#SkRect_height'>height</a>() const
 </pre>
 
-Returns span on the y-axis. This does not check if <a href='SkIRect_Reference#IRect'>IRect</a> is sorted, or if
+Returns span on the y-axis. This does not check if <a href='#Rect'>Rect</a> is sorted, or if
 result fits in 32-bit float; result may be negative or infinity.
 
 ### Return Value
@@ -1344,7 +1339,6 @@ SkRect operators inline class member functions with arithmetic equivalents.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if members are equal</td>
   </tr>
 </table>
-
 
 <a name='SkRect_equal_operator'></a>
 ## operator==
@@ -1459,7 +1453,6 @@ test with NaN is not equal to itself
   </tr>
 </table>
 
-
 <a name='SkRect_toQuad'></a>
 ## toQuad
 
@@ -1469,8 +1462,6 @@ void <a href='#SkRect_toQuad'>toQuad</a>(<a href='SkPoint_Reference#SkPoint'>SkP
 
 Returns four points in <a href='#SkRect_toQuad_quad'>quad</a> that enclose <a href='#Rect'>Rect</a> ordered as: top-left, top-right,
 bottom-right, bottom-left.
-
-Consider adding param to control whether <a href='#SkRect_toQuad_quad'>quad</a> is clockwise or counterclockwise.
 
 ### Parameters
 
@@ -1628,7 +1619,6 @@ added: nan, 8 count: 4 rect: 0, 0, 0, 0 success: false
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to <a href='undocumented#SkScalar'>SkScalar</a> input (x, y, width, height)</td>
   </tr>
 </table>
-
 
 <a name='SkRect_setBoundsNoCheck'></a>
 ## setBoundsNoCheck
@@ -1995,7 +1985,6 @@ rect: -15, 0, 0, 25  isEmpty: false
   </tr>
 </table>
 
-
 <a name='SkRect_iset'></a>
 ## iset
 
@@ -2110,7 +2099,6 @@ rect2: {0, 0, 1, 2}
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>moves the sides symmetrically about the center</td>
   </tr>
 </table>
-
 
 <a name='SkRect_makeOffset'></a>
 ## makeOffset
@@ -2462,8 +2450,8 @@ rect: 5, 1, 55, 86
 must describe area; <a href='#SkRect_fLeft'>fLeft</a> is less than <a href='#SkRect_fRight'>fRight</a>, and <a href='#SkRect_fTop'>fTop</a> is less than <a href='#SkRect_fBottom'>fBottom</a>;
 empty() returns false. The intersection of <a href='#Rect'>Rect</a> pair can be described by:
 
-(max(a.fLeft, b.fLeft), max(a.fTop, b.fTop),
-min(a.fRight, b.fRight), min(a.fBottom, b.fBottom))
+(max(a.<a href='#SkRect_fLeft'>fLeft</a>, b.<a href='#SkRect_fLeft'>fLeft</a>), max(a.<a href='#SkRect_fTop'>fTop</a>, b.<a href='#SkRect_fTop'>fTop</a>),
+min(a.<a href='#SkRect_fRight'>fRight</a>, b.<a href='#SkRect_fRight'>fRight</a>), min(a.<a href='#SkRect_fBottom'>fBottom</a>, b.<a href='#SkRect_fBottom'>fBottom</a>))
 .
 
 The intersection is only meaningful if the resulting <a href='#Rect'>Rect</a> is not empty and
@@ -2502,7 +2490,6 @@ describes an area: <a href='#SkRect_fLeft'>fLeft</a> is less than <a href='#SkRe
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_intersects'>intersects(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)</a> const</td>
   </tr>
 </table>
-
 
 <a name='SkRect_contains'></a>
 ## contains
@@ -2929,7 +2916,6 @@ intersection
   </tr>
 </table>
 
-
 <a name='SkRect_join'></a>
 ## join
 
@@ -3121,7 +3107,6 @@ sorted: 10, 0, 55, 100
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_roundOut'>roundOut(SkIRect* dst)</a> const</td>
   </tr>
 </table>
-
 
 <a name='SkRect_round'></a>
 ## round
@@ -3347,7 +3332,6 @@ round: 30, 50, 41, 61
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>orders sides from smaller to larger</td>
   </tr>
 </table>
-
 
 <a name='SkRect_sort'></a>
 ## sort

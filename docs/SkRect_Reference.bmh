@@ -609,7 +609,7 @@ large width: 4294967296
 
 #In Property
 #Line # returns span in y ##
-Returns span on the y-axis. This does not check if IRect is sorted, or if
+Returns span on the y-axis. This does not check if Rect is sorted, or if
 result fits in 32-bit float; result may be negative or infinity.
 
 #Return fBottom minus fTop ##

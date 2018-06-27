@@ -53,6 +53,6 @@ enum class SkBlendMode {
 /**
  *  Return the (c-string) name of the blendmode.
  */
-SK_API const char* SkBlendMode_Name(SkBlendMode);
+SK_API const char* SkBlendMode_Name(SkBlendMode blendMode);
 
 #endif

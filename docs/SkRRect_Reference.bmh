@@ -1,0 +1,1121 @@
+#Topic RRect
+#Alias Round_Rect ##
+#Alias RRect_Reference ##
+
+#Class SkRRect
+
+#Private
+Path forward:
+   core work
+      add contains(SkRect&)  - for clip stack
+      add contains(SkRRect&) - for clip stack
+      add heart rect computation (max rect inside RR)
+      add 9patch rect computation
+      add growToInclude(SkPath&)
+   analysis
+      use growToInclude to fit skp round rects & generate stats (RRs vs. real paths)
+      check on # of rectorus's the RRs could handle
+   rendering work
+      update SkPath.addRRect() to only use quads
+      add GM and bench
+   further out
+      detect and triangulate RRectorii rather than falling back to SW in Ganesh
+##
+
+The SkRRect class represents a rounded rect with a potentially different
+radii for each corner. It does not have a constructor so must be
+initialized with one of the initialization functions (e.g., setEmpty,
+setRectRadii, etc.)
+
+This class allows implementing CSS properties that describe rounded corners.
+A rectangle may have up to eight radii, one for each axis on each of its four
+corners.
+
+If either corner's radii are zero, the corner is square.
+Negative radii are treated as zero.
+If corner curves overlap, they are proportionally reduced to fit.
+
+#Subtopic Overview
+#Populate
+##
+
+#Subtopic Constructor
+#Populate
+##
+
+#Subtopic Operator
+#Populate
+##
+
+#Subtopic Member_Function
+#Populate
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkRRect() = default
+#In Constructor
+#Line # incomplete ##
+
+Default initialized to a rrect at the origin with zero width and height.
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkRRect(const SkRRect& rrect) = default
+#In Constructor
+#Line # incomplete ##
+
+#Param rrect  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkRRect& operator=(const SkRRect& rrect) = default
+#In Operator
+#Line # incomplete ##
+
+#Param rrect  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Enum Type
+#Line # incomplete ##
+
+#Code
+    enum Type {
+        kEmpty_Type,
+        kRect_Type,
+        kOval_Type,
+        kSimple_Type,
+        kNinePatch_Type,
+        kComplex_Type,
+        kLastType = kComplex_Type,
+    };
+##
+
+Enum to capture the various possible subtypes of Round_Rect. Accessed
+by type(). The subtypes become progressively less restrictive.
+
+#Const kEmpty_Type
+#Line # incomplete ##
+Round_Rect has zero width or height. All radii are zero.
+##
+#Const kRect_Type
+#Line # incomplete ##
+Round_Rect has width and height. All radii are zero.
+##
+#Const kOval_Type
+#Line # incomplete ##
+Round_Rect has width and height. All four x-radii are equal,
+and at least half the width. All four y-radii are equal,
+and at least half the height.
+##
+#Const kSimple_Type
+#Line # incomplete ##
+Round_Rect has width and height. All four x-radii are equal and
+greater than zero, and all four y-radii are equal and greater than
+zero. Either x-radii are less than half the width, or y-radii is
+less than half the height, or both.
+##
+#Const kNinePatch_Type
+#Line # incomplete ##
+Round_Rect has width and height. Left x-radii are equal, top
+y-radii are equal, right x-radii are equal, and bottom y-radii
+are equal. The radii do not descript a rect, oval, or simple type.
+
+The centers of the corner ellipses form an axis-aligned rectangle
+that divides the Round_Rect into nine rectangular patches; an
+interior rectangle, four edges, and four corners.
+##
+#Const kComplex_Type
+#Line # incomplete ##
+both radii are non-zero.
+##
+#Const kLastType = kComplex_Type
+#Line # incomplete ##
+##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Enum ##
+
+# ------------------------------------------------------------------------------
+
+#Method Type getType() const
+#In incomplete
+#Line # incomplete ##
+
+Returns the RR's sub type.
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method Type type() const
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method inline bool isEmpty() const
+#In Property
+#Line # returns true if width or height are zero ##
+Returns true if rect().fLeft is equal to rect().fRight, or if rect().fTop is equal
+to rect().fBottom.
+
+#Return true if width() or height() are zero ##
+
+#Example
+#Height 100
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setTextAlign(SkPaint::kCenter_Align);
+    paint.setTextSize(16);
+    SkRRect rrect = SkRRect::MakeRectXY({30, 10, 100, 60}, 10, 5);
+    canvas->drawRRect(rrect, paint);
+    canvas->drawString(rrect.isEmpty() ? "empty" : "not empty", 64, 90, paint);
+    rrect.inset(40, 0);
+    canvas->translate(128, 0);
+    canvas->drawRRect(rrect, paint);
+    canvas->drawString(rrect.isEmpty() ? "empty" : "not empty", 64, 90, paint);
+##
+
+#SeeAlso SkRect::isEmpty height width
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method inline bool isRect() const
+#In Property
+#Line # returns true if not empty, and one radius at each corner is zero ##
+Returns true if not empty, and if either x or y radius at each corner is zero.
+
+#Return true if not empty, and one radius at each corner is zero ##
+
+#Example
+#Height 100
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setTextAlign(SkPaint::kCenter_Align);
+    paint.setTextSize(16);
+    SkRRect rrect = SkRRect::MakeRect({30, 10, 100, 60});
+    canvas->drawRRect(rrect, paint);
+    canvas->drawString(rrect.isRect() ? "rect" : "not rect", 64, 90, paint);
+    SkVector radii[] = {{10, 10}, {0, 0}, {0, 0}, {0, 0}};
+    rrect.setRectRadii(rrect.getBounds(), radii);
+    canvas->translate(128, 0);
+    canvas->drawRRect(rrect, paint);
+    canvas->drawString(rrect.isRect() ? "rect" : "not rect", 64, 90, paint);
+##
+
+#SeeAlso isEmpty radii
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method inline bool isOval() const
+#In Property
+#Line # returns true if not empty, axes radii are equal, radii fill bounds ##
+Returns true if not empty, if all x-axis radii are equal, if all y-axis radii
+are equal, x-axis radii are at least half the width, and y-axis radii are at
+least half the height.
+
+#Return true if has identical geometry to Oval ##
+
+#Example
+#Height 100
+#Description
+The first radii are scaled down proportionately until both x-axis and y-axis fit
+within the bounds. After scaling, x-axis radius is smaller than half the width;
+left round rect is not an oval. The second radii are equal to half the
+dimensions; right round rect is an oval.
+##
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setTextAlign(SkPaint::kCenter_Align);
+    paint.setTextSize(16);
+    SkRRect rrect = SkRRect::MakeRectXY({30, 10, 100, 60}, 40, 30);
+    canvas->drawRRect(rrect, paint);
+    canvas->drawString(rrect.isOval() ? "oval" : "not oval", 64, 90, paint);
+    rrect.setRectXY(rrect.getBounds(), 35, 25);
+    canvas->translate(128, 0);
+    canvas->drawRRect(rrect, paint);
+    canvas->drawString(rrect.isOval() ? "oval" : "not oval", 64, 90, paint);
+##
+
+#SeeAlso isEmpty isSimple SkCanvas::drawOval
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method inline bool isSimple() const
+#In Property
+#Line # returns true if not empty, rect or oval; and axes radii are equal ##
+Returns true if not empty, if all x-axis radii are equal but not zero,
+if all y-axis radii are equal but not zero; and x-axis radius is less than half
+width(), or y-axis radius is less than half height().
+
+#Return true if not empty, rect or oval; and axes radii are equal ##
+
+#Bug 8107
+#Example
+#Height 100
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setTextAlign(SkPaint::kCenter_Align);
+    paint.setTextSize(16);
+    SkVector radii[] = {{40, 30}, {40, 30}, {40, 30}, {40, 30}};
+    SkRRect rrect;
+    rrect.setRectRadii({30, 10, 100, 60}, radii);
+    canvas->drawRRect(rrect, paint);
+    canvas->drawString(rrect.isSimple() ? "simple" : "not simple", 64, 90, paint);
+    radii[0].fX = 35;
+    rrect.setRectRadii(rrect.getBounds(), radii);
+    canvas->translate(128, 0);
+    canvas->drawRRect(rrect, paint);
+    canvas->drawString(rrect.isSimple() ? "simple" : "not simple", 64, 90, paint);
+##
+
+#SeeAlso isEmpty isRect isOval isNinePatch
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method inline bool isNinePatch() const
+#In Property
+#Line # returns true if not empty, rect, oval or simple; and radii are axis-aligned ##
+Returns true if isEmpty, isRect, isOval, and isSimple return false; and if
+left x-axis radii are equal, right x-axis radii are equal, top y-axis radii are
+equal, and bottom y-axis radii are equal.
+
+#Return true if not empty, rect, oval or simple; and radii are axis-aligned ##
+
+#Bug 8107
+#Example
+#Height 100
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setTextAlign(SkPaint::kCenter_Align);
+    paint.setTextSize(16);
+    SkVector radii[] = {{20, 30}, {40, 30}, {40, 30}, {20, 30}};
+    SkRRect rrect;
+    rrect.setRectRadii({30, 10, 100, 60}, radii);
+    canvas->drawRRect(rrect, paint);
+    canvas->drawString(rrect.isNinePatch() ? "9 patch" : "not 9 patch", 64, 90, paint);
+    radii[0].fX = 35;
+    rrect.setRectRadii(rrect.getBounds(), radii);
+    canvas->translate(128, 0);
+    canvas->drawRRect(rrect, paint);
+    canvas->drawString(rrect.isNinePatch() ? "9 patch" : "not 9 patch", 64, 90, paint);
+##
+
+#SeeAlso isEmpty isRect isOval isSimple isComplex
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method inline bool isComplex() const
+#In Property
+#Line # returns true if not empty, rect, oval, simple, or nine-patch ##
+
+Returns true if isEmpty, isRect, isOval, isSimple, and isNinePatch return false.
+If true: width and height are greater than zero, at least one corner radii are
+both greater than zero; left x-axis radii are not equal, or right x-axis radii
+are not equal, or top y-axis radii are not equal, or bottom y-axis radii are not
+equal.
+
+#Return true if not empty, rect, oval, simple, or nine-patch ##
+
+#Example
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setTextAlign(SkPaint::kCenter_Align);
+    paint.setTextSize(16);
+    SkVector radii[] = {{25, 30}, {40, 30}, {40, 30}, {20, 30}};
+    SkRRect rrect;
+    rrect.setRectRadii({30, 10, 100, 60}, radii);
+    canvas->drawRRect(rrect, paint);
+    canvas->drawString(rrect.isComplex() ? "complex" : "not complex", 64, 90, paint);
+    radii[0].fX = 20;
+    rrect.setRectRadii(rrect.getBounds(), radii);
+    canvas->translate(128, 0);
+    canvas->drawRRect(rrect, paint);
+    canvas->drawString(rrect.isComplex() ? "complex" : "not complex", 64, 90, paint);
+##
+
+#SeeAlso isEmpty isRect isOval isSimple isNinePatch
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar width() const
+#In Property
+#Line # returns span in x ##
+Returns span on the x-axis. This does not check if result fits in 32-bit float;
+result may be infinity.
+
+#Return bounds().fRight minus bounds().fLeft ##
+
+#Example
+#Description
+SkRRect::MakeRect sorts its input, so width() is always zero or larger.
+##
+    SkRRect unsorted = SkRRect::MakeRect({ 15, 25, 10, 5 });
+    SkDebugf("unsorted width: %g\n", unsorted.width());
+    SkRRect large = SkRRect::MakeRect({ -FLT_MAX, 1, FLT_MAX, 2 });
+    SkDebugf("large width: %.0f\n", large.width());
+#StdOut
+unsorted width: 5
+large width: inf
+##
+##
+
+#SeeAlso SkRect::width height getBounds
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar height() const
+#In Property
+#Line # returns span in y ##
+Returns span on the y-axis. This does not check if result fits in 32-bit float;
+result may be infinity.
+
+#Return bounds().fBottom minus bounds().fTop ##
+
+#Example
+#Description
+SkRRect::MakeRect sorts its input, so height() is always zero or larger.
+##
+    SkRRect unsorted = SkRRect::MakeRect({ 15, 25, 10, 20 });
+    SkDebugf("unsorted height: %g\n", unsorted.height());
+    SkRRect large = SkRRect::MakeRect({ 1, -FLT_MAX, 2, FLT_MAX });
+    SkDebugf("large height: %.0f\n", large.height());
+#StdOut
+unsorted height: 5
+large height: inf
+##
+##
+
+#SeeAlso SkRect.height width getBounds
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkVector getSimpleRadii() const
+#In Property
+#Line # returns corner radii for simple types ##
+
+Returns top-left corner x-radii. If type() returns kEmpty_Type, kRect_Type, 
+kOval_Type, or kSimple_Type, returns a value representative of all corner radii.
+If type() returns kNinePatch_Type or kComplex_Type, at least one of the
+remaining three corners has a different value.
+
+#Return corner radii for simple types ##
+
+#Example
+    auto drawDetails = [=](const SkRRect& rrect) {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setTextAlign(SkPaint::kCenter_Align);
+        paint.setTextSize(12);
+        canvas->drawRRect(rrect, paint);
+        SkVector corner = rrect.getSimpleRadii();
+        std::string label = "corner: " + std::to_string(corner.fX).substr(0, 3) + ", " +
+                        std::to_string(corner.fY).substr(0, 3);
+        canvas->drawString(label.c_str(), 64, 90, paint);
+        canvas->translate(128, 0);
+    };
+    SkRRect rrect = SkRRect::MakeRect({30, 10, 100, 60});
+    drawDetails(rrect);
+    rrect.setRectXY(rrect.getBounds(), 5, 8);
+    drawDetails(rrect);
+##
+
+#SeeAlso radii getBounds getType isSimple
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setEmpty()
+#In Set
+#Line # zeroes width, height, and corner radii ##
+
+Sets bounds to zero width and height at (0, 0), the origin. Sets
+corner radii to zero and sets type to kEmpty_Type.
+
+#Example
+#Description
+Nothing blue is drawn because rrect is set to empty.
+##
+    SkPaint paint;
+    SkRRect rrect = SkRRect::MakeRect({30, 10, 100, 60});
+    canvas->drawRRect(rrect, paint);
+    rrect.setEmpty();
+    paint.setColor(SK_ColorBLUE);
+    canvas->drawRRect(rrect, paint);
+##
+
+#SeeAlso MakeEmpty setRect
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setRect(const SkRect& rect)
+#In Set
+#Line # sets rect bounds with zeroed corners ##
+
+Sets bounds to sorted rect, and sets corner radii to zero.
+If set bounds has width and height, and sets type to kRect_Type;
+otherwise, sets type to kEmpty_Type.
+
+#Param rect  bounds to set ##
+
+#Example
+    SkPaint paint;
+    SkRRect rrect = SkRRect::MakeRect({30, 10, 100, 60});
+    canvas->drawRRect(rrect, paint);
+    rrect.setRect({60, 30, 120, 80});
+    paint.setColor(SK_ColorBLUE);
+    canvas->drawRRect(rrect, paint);
+##
+
+#SeeAlso MakeRect setRectXY
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkRRect MakeEmpty()
+#In Constructor
+#Line # incomplete ##
+
+Makes an empty rrect at the origin with zero width and height.
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkRRect MakeRect(const SkRect& r)
+#In Constructor
+#Line # incomplete ##
+
+#Param r  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkRRect MakeOval(const SkRect& oval)
+#In incomplete
+#Line # incomplete ##
+
+#Param oval  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkRRect MakeRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad)
+#In incomplete
+#Line # incomplete ##
+
+#Param rect  incomplete ##
+#Param xRad  incomplete ##
+#Param yRad  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setOval(const SkRect& oval)
+#In incomplete
+#Line # incomplete ##
+
+Sets Round_Rect to match the supplied oval. All x-radii will equal half the
+width and all y-radii will equal half the height.
+
+#Param oval  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad)
+#In incomplete
+#Line # incomplete ##
+
+Initializes Round_Rect with the same radii for all four corners.
+
+#Param rect  incomplete ##
+#Param xRad  incomplete ##
+#Param yRad  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setNinePatch(const SkRect& rect, SkScalar leftRad, SkScalar topRad,
+                      SkScalar rightRad, SkScalar bottomRad)
+#In incomplete
+#Line # incomplete ##
+
+Initializes Round_Rect with one radius per-side.
+
+#Param rect  incomplete ##
+#Param leftRad  incomplete ##
+#Param topRad  incomplete ##
+#Param rightRad  incomplete ##
+#Param bottomRad  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setRectRadii(const SkRect& rect, const SkVector radii[4])
+#In incomplete
+#Line # incomplete ##
+
+Initializes Round_Rect with potentially different radii for all four corners.
+
+#Param rect  incomplete ##
+#Param radii  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Enum Corner
+#Line # incomplete ##
+
+#Code
+    enum Corner {
+        kUpperLeft_Corner,
+        kUpperRight_Corner,
+        kLowerRight_Corner,
+        kLowerLeft_Corner,
+    };
+##
+
+The radii are stored: top-left, top-right, bottom-right, bottom-left.
+
+#Const kUpperLeft_Corner
+#Line # incomplete ##
+##
+#Const kUpperRight_Corner
+#Line # incomplete ##
+##
+#Const kLowerRight_Corner
+#Line # incomplete ##
+##
+#Const kLowerLeft_Corner
+#Line # incomplete ##
+##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Enum ##
+
+# ------------------------------------------------------------------------------
+
+#Method const SkRect& rect() const
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkVector radii(Corner corner) const
+#In incomplete
+#Line # incomplete ##
+
+#Param corner  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method const SkRect& getBounds() const
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool operator==(const SkRRect& a, const SkRRect& b)
+#In Operator
+#Line # incomplete ##
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool operator!=(const SkRRect& a, const SkRRect& b)
+#In Operator
+#Line # incomplete ##
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void inset(SkScalar dx, SkScalar dy, SkRRect* dst) const
+#In incomplete
+#Line # incomplete ##
+
+Calls inset on the bounds, and adjust the radii to reflect what happens.
+If the corner is sharp (no curvature), leave it alone,
+otherwise we grow/shrink the radii by the amount of the inset. If a
+given radius becomes negative, it is pinned to 0.
+If the inset amount is larger than the width/height then the rrect collapses to
+a degenerate line or point.
+If the inset is sufficiently negative to cause the bounds to become infinite then
+the result is a default initialized rrect.
+It is valid for dst == this.
+
+#Param dx  incomplete ##
+#Param dy  incomplete ##
+#Param dst  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void inset(SkScalar dx, SkScalar dy)
+#In incomplete
+#Line # incomplete ##
+
+#Param dx  incomplete ##
+#Param dy  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void outset(SkScalar dx, SkScalar dy, SkRRect* dst) const
+#In incomplete
+#Line # incomplete ##
+
+Call outset on the bounds, and adjust the radii to reflect what happens
+in stroking. If the corner is sharp (no curvature), leave it alone,
+otherwise we grow/shrink the radii by the amount of the inset. If a
+given radius becomes negative, it is pinned to 0.
+It is valid for dst == this.
+
+#Param dx  incomplete ##
+#Param dy  incomplete ##
+#Param dst  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void outset(SkScalar dx, SkScalar dy)
+#In incomplete
+#Line # incomplete ##
+
+#Param dx  incomplete ##
+#Param dy  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void offset(SkScalar dx, SkScalar dy)
+#In incomplete
+#Line # incomplete ##
+
+Translate the rrect by (dx, dy).
+
+#Param dx  incomplete ##
+#Param dy  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkRRect SK_WARN_UNUSED_RESULT makeOffset(SkScalar dx, SkScalar dy) const
+#In incomplete
+#Line # incomplete ##
+
+#Param dx  incomplete ##
+#Param dy  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool contains(const SkRect& rect) const
+#In incomplete
+#Line # incomplete ##
+
+Returns true if 'rect' is wholy inside the RR, and both
+are not empty.
+
+#Param rect  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isValid() const
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Const kSizeInMemory 48
+#Line # incomplete ##
+
+#Example
+// incomplete
+##
+
+#Const ##
+
+# ------------------------------------------------------------------------------
+
+#Method size_t writeToMemory(void* buffer) const
+#In incomplete
+#Line # incomplete ##
+
+Write the rrect into the specified buffer. This is guaranteed to always
+write kSizeInMemory bytes, and that value is guaranteed to always be
+a multiple of 4. Return kSizeInMemory.
+
+#Param buffer  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method size_t readFromMemory(const void* buffer, size_t length)
+#In incomplete
+#Line # incomplete ##
+
+Reads the rrect from the specified buffer.
+If the specified buffer is large enough, this will read kSizeInMemory bytes,
+and that value is guaranteed to always be a multiple of 4.
+
+#Param buffer  memory to read from
+##
+#Param length  amount of memory available in the buffer
+##
+
+#Return  number of bytes read (must be a multiple of 4) or
+        0 if there was not enough memory available
+##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool transform(const SkMatrix& matrix, SkRRect* dst) const
+#In incomplete
+#Line # incomplete ##
+
+Transform by the specified matrix, and put the result in dst.
+
+#Param matrix  SkMatrix specifying the transform. Must only contain
+        scale and/or translate, or this call will fail.
+##
+#Param dst  SkRRect to store the result. It is an error to use this,
+        which would make this function no longer const.
+##
+
+#Return  true on success, false on failure.
+##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void dump(bool asHex) const
+#In incomplete
+#Line # incomplete ##
+
+#Param asHex  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void dump() const
+#In incomplete
+#Line # incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void dumpHex() const
+#In incomplete
+#Line # incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Class SkRRect ##
+
+#Topic RRect ##
