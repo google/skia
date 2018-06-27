@@ -8,6 +8,7 @@
 #include "GrMtlTrampoline.h"
 
 #include "GrMtlGpu.h"
+#include "GrMtlUtil.h"
 
 sk_sp<GrGpu> GrMtlTrampoline::MakeGpu(GrContext* context,
                                       const GrContextOptions& options,
@@ -19,3 +20,10 @@ sk_sp<GrGpu> GrMtlTrampoline::MakeGpu(GrContext* context,
                           (__bridge_transfer id<MTLCommandQueue>)queue);
 }
 
+GrPixelConfig GrMtlTrampoline::GrMTLFormatToPixelConfig(GrMTLPixelFormat format) {
+    return ::GrMTLFormatToPixelConfig((MTLPixelFormat)format);
+}
+
+void GrMtlTrampoline::ExtractMTLTextureInfo(const void* mtlTexture, GrMtlTextureInfo* outInfo) {
+    return ::ExtractMTLTextureInfo((__bridge id<MTLTexture>)mtlTexture, outInfo);
+}

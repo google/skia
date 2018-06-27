@@ -14,7 +14,7 @@
 #include "mock/GrMockGpu.h"
 #include "text/GrGlyphCache.h"
 #ifdef SK_METAL
-#include "mtl/GrMtlTrampoline.h"
+#include "GrMtlTrampoline.h"
 #endif
 #ifdef SK_VULKAN
 #include "vk/GrVkGpu.h"
@@ -182,6 +182,8 @@ sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContext
     if (!context->fGpu) {
         return nullptr;
     }
+
+    context->fCaps = context->fGpu->refCaps();
     if (!context->init(options)) {
         return nullptr;
     }
