@@ -210,7 +210,6 @@ static bool valid_for_bitmap_device(const SkImageInfo& info,
         case kBGRA_8888_SkColorType:
         case kRGBA_1010102_SkColorType:
         case kRGBA_F16_SkColorType:
-        case kRGBA_F32_SkColorType:
             break;
         case kGray_8_SkColorType:
         case kRGB_565_SkColorType:
