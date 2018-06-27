@@ -10,6 +10,26 @@
 #include "GrMtlGpu.h"
 #include "GrMtlUtil.h"
 
+GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
+                                     const GrSurfaceDesc& desc,
+                                     SkBudgeted budgeted,
+                                     id<MTLTexture> renderTexture)
+        : GrSurface(gpu, desc)
+        , GrRenderTarget(gpu, desc)
+        , fRenderTexture(renderTexture)
+        , fResolveTexture(nil) {
+}
+
+GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
+                  const GrSurfaceDesc& desc,
+                  id<MTLTexture> renderTexture)
+        : GrSurface(gpu, desc)
+        , GrRenderTarget(gpu, desc)
+        , fRenderTexture(renderTexture)
+        , fResolveTexture(nil) {
+    SkASSERT(1 == desc.fSampleCnt);
+}
+
 sk_sp<GrMtlRenderTarget> GrMtlRenderTarget::CreateNewRenderTarget(GrMtlGpu* gpu,
                                                                   const GrSurfaceDesc& desc,
                                                                   SkBudgeted budgeted) {
@@ -41,16 +61,6 @@ sk_sp<GrMtlRenderTarget> GrMtlRenderTarget::CreateNewRenderTarget(GrMtlGpu* gpu,
     id<MTLTexture> texture = [gpu->device() newTextureWithDescriptor:descriptor];
 
     return sk_sp<GrMtlRenderTarget>(new GrMtlRenderTarget(gpu, desc, budgeted, texture));
-}
-
-GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
-                                     const GrSurfaceDesc& desc,
-                                     SkBudgeted budgeted,
-                                     id<MTLTexture> renderTexture)
-        : GrSurface(gpu, desc)
-        , GrRenderTarget(gpu, desc)
-        , fRenderTexture(renderTexture)
-        , fResolveTexture(nil) {
 }
 
 GrMtlRenderTarget::~GrMtlRenderTarget() {
