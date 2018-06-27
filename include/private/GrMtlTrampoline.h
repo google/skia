@@ -9,11 +9,14 @@
 #define GrMtlTrampoline_DEFINED
 
 #include "GrTypes.h"
+#include "GrTypesPriv.h"
 #include "SkRefCnt.h"
 
 class GrContext;
 class GrGpu;
 struct GrContextOptions;
+struct GrMtlTextureInfo;
+typedef unsigned int GrMTLPixelFormat;
 
 /*
  * This class is used to hold functions which trampoline from the Ganesh cpp code to the GrMtl
@@ -22,6 +25,10 @@ struct GrContextOptions;
 class GrMtlTrampoline {
 public:
     static sk_sp<GrGpu> MakeGpu(GrContext*, const GrContextOptions&, void* device, void* queue);
+
+    static GrPixelConfig GrMTLFormatToPixelConfig(GrMTLPixelFormat format);
+
+    static void ExtractMTLTextureInfo(void* mtlTexture, GrMtlTextureInfo* outInfo);
 };
 
 #endif

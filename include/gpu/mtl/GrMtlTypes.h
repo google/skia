@@ -9,8 +9,29 @@
 #define GrMtlTypes_DEFINED
 
 #include "GrTypes.h"
+#include "../private/GrMtlTrampoline.h"
 
-// This is a placeholder class until we fill it out. This is needed so we can have the mtl include
-// path in our BUILD.gn
+typedef unsigned int GrMTLPixelFormat;
+
+struct GrMtlTextureInfo {
+public:
+    int fWidth = 0;
+    int fHeight = 0;
+    int fSampleCnt = 1;
+    int fLevelCount = 1;
+    GrMTLPixelFormat fFormat = 0; // MTLPixelFormatInvalid
+    void* fTexture = nullptr;
+
+    GrMtlTextureInfo(void* mtlTexture = nullptr) {
+        if (mtlTexture) {
+            GrMtlTrampoline::ExtractMTLTextureInfo(mtlTexture, this);
+        }
+    }
+
+    bool operator==(const GrMtlTextureInfo& that) const {
+        return fWidth == that.fWidth && fHeight == that.fHeight && fSampleCnt == that.fSampleCnt &&
+        fLevelCount == that.fLevelCount && fFormat == that.fFormat && fTexture == that.fTexture;
+    }
+};
 
 #endif
