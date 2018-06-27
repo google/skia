@@ -49,6 +49,52 @@
     },
     {
       "key": {
+        "uuid": "52992e83_47ad6a32",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-27T20:39:21Z",
+      "side": 1,
+      "message": "nit: these don\u0027t really line up, and it\u0027s ugly to line them up anyway.",
+      "range": {
+        "startLine": 80,
+        "startChar": 24,
+        "endLine": 80,
+        "endChar": 34
+      },
+      "revId": "be69d5e1ac1b56482adaf8c0913f3cd2e5651660",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47ab29e8_1fb594af",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-27T20:39:21Z",
+      "side": 1,
+      "message": "Do we actually need to support this? SkDrawFilter is very deprecated, maybe we can get away without it? It seems to only be used by Android at this point, maybe we can finally be rid of it? In any event, we don\u0027t want to plumb this type down into anything. On the other hand this change is pulling SkDrawFilter up to here at least.",
+      "range": {
+        "startLine": 221,
+        "startChar": 74,
+        "endLine": 221,
+        "endChar": 86
+      },
+      "revId": "be69d5e1ac1b56482adaf8c0913f3cd2e5651660",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e472a56d_ae9f76cb",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 13
