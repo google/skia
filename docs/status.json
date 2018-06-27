@@ -40,9 +40,15 @@
     "InProgress": {
         "include": {
             "core": [
+                "SkBlendMode.h",
+                "SkPicture.h",
+                "SkRRect.h"
             ]
         },
         "docs": [
+            "SkBlendMode_Reference.bmh",
+            "SkPicture_Reference.bmh",
+            "SkRRect_Reference.bmh",
             "overview.bmh",
             "usingBookmaker.bmh"
         ]

@@ -1,0 +1,312 @@
+#Topic Picture
+#Alias Pictures ##
+#Alias Picture_Reference ##
+
+#Class SkPicture
+
+An SkPicture records drawing commands made to a canvas to be played back at a later time.
+This base class handles serialization and a few other miscellany.
+
+#Subtopic Overview
+#Populate
+##
+
+#Subtopic Class
+#Populate
+##
+
+#Subtopic Member_Function
+#Populate
+##
+
+# ------------------------------------------------------------------------------
+
+#Class AbortCallback
+#Line # incomplete ##
+
+#Code
+#ToDo fill this in manually ##
+##
+
+Subclasses of this can be passed to playback(). During the playback
+of the picture, this callback will periodically be invoked. If its
+abort() returns true, then picture playback will be interrupted.
+The resulting drawing is undefined, as there is no guarantee how often the
+callback will be invoked. If the abort happens inside some level of nested
+calls to save(), restore will automatically be called to return the state
+to the same level it was before the playback call was made.
+
+# ------------------------------------------------------------------------------
+
+#Method AbortCallback()
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method virtual ~AbortCallback()
+#In Constructor
+#Line # incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method virtual bool abort() = 0
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Class AbortCallback ##
+
+# ------------------------------------------------------------------------------
+
+#Method static sk_sp<SkPicture> MakeFromStream(SkStream* stream,
+                                           const SkDeserialProcs* procs = nullptr)
+#In incomplete
+#Line # incomplete ##
+
+Recreate a picture that was serialized into a stream or data.
+
+#Param stream  incomplete ##
+#Param procs  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static sk_sp<SkPicture> MakeFromData(const SkData* data,
+                                         const SkDeserialProcs* procs = nullptr)
+#In incomplete
+#Line # incomplete ##
+
+#Param data  incomplete ##
+#Param procs  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static sk_sp<SkPicture> MakeFromData(const void* data, size_t size,
+                                         const SkDeserialProcs* procs = nullptr)
+#In incomplete
+#Line # incomplete ##
+
+#Param data  incomplete ##
+#Param size  incomplete ##
+#Param procs  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method virtual void playback(SkCanvas* canvas, AbortCallback* callback = nullptr) const = 0
+#In incomplete
+#Line # incomplete ##
+
+Replays the drawing commands on the specified canvas. Note that
+this has the effect of unfurling this picture into the destination
+canvas. Using the SkCanvas::drawPicture entry point gives the destination
+canvas the option of just taking a ref.
+
+#Param canvas  the canvas receiving the drawing commands.
+##
+#Param callback  a callback that allows interruption of playback
+##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method virtual SkRect cullRect() const = 0
+#In incomplete
+#Line # incomplete ##
+
+Return a cull rect for this picture.
+Ops recorded into this picture that attempt to draw outside the cull might not be drawn.
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method uint32_t uniqueID() const
+#In incomplete
+#Line # incomplete ##
+
+Returns a non-zero value unique among all pictures.
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method sk_sp<SkData> serialize(const SkSerialProcs* procs = nullptr) const
+#In incomplete
+#Line # incomplete ##
+
+#Param procs  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void serialize(SkWStream* stream, const SkSerialProcs* procs = nullptr) const
+#In incomplete
+#Line # incomplete ##
+
+#Param stream  incomplete ##
+#Param procs  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static sk_sp<SkPicture> MakePlaceholder(SkRect cull)
+#In incomplete
+#Line # incomplete ##
+
+Return a placeholder SkPicture.
+This placeholder does not draw anything itself.  It has a distinct uniqueID()
+(just like all Pictures) and will always be visible to SkSerialProcs.
+
+#Param cull  the placeholder's dimensions
+##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method virtual int approximateOpCount() const = 0
+#In incomplete
+#Line # incomplete ##
+
+Return the approximate number of operations in this picture.  This
+number may be greater or less than the number of SkCanvas calls
+recorded: some calls may be recorded as more than one operation, or some
+calls may be optimized away.
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method virtual size_t approximateBytesUsed() const = 0
+#In incomplete
+#Line # incomplete ##
+
+Returns the approximate byte size of this picture, not including large ref'd objects.
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Class SkPicture ##
+
+#Topic Picture ##

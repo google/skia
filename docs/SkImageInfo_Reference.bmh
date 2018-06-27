@@ -250,8 +250,8 @@ kGray_8_SkColorType, kRGBA_F16_SkColorType
         kRGB_101010x_SkColorType,
         kGray_8_SkColorType,
         kRGBA_F16_SkColorType,
-
-        kLastEnum_SkColorType = kRGBA_F16_SkColorType,
+        kRGBA_F32_SkColorType,
+        kLastEnum_SkColorType = kRGBA_F32_SkColorType,
 ###$
     #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
         kN32_SkColorType = kBGRA_8888_SkColorType,
@@ -345,10 +345,19 @@ kRGBA_8888_SkColorType.
 #Line # pixel with half floats for red, green, blue, alpha; in 64-bit word ##
 #Details RGBA_F16
     Stores 64-bit word pixel encoding that contains 16 bits of blue,
-    16 bits of green, 16 bits of red, and 16 bits of alpha.
+    16 bits of green, 16 bits of red, and 16 bits of alpha. Each component
+    is encoded as a half float.
 ##
 
-#Const kLastEnum_SkColorType 10
+#Const kRGBA_F32_SkColorType 11
+#Line # pixel using C float for red, green, blue, alpha; in 128-bit word ##
+#Details RGBA_F32
+    Stores 128-bit word pixel encoding that contains 32 bits of blue,
+    32 bits of green, 32 bits of red, and 32 bits of alpha. Each component
+    is encoded as a single precision float.
+##
+
+#Const kLastEnum_SkColorType 11
 #NoJustify
 #Line # last valid value ##
     Used by tests to iterate through all valid values.
@@ -761,7 +770,7 @@ kRGBA_8888_SkColorType.
 #Subtopic RGBA_F16
 #Line # encodes ARGB as half floats ##
     kRGBA_F16_SkColorType encodes ARGB into a 64-bit word. Each component:
-    blue, green, red, and alpha; use 16 bits, describing a floating point value.
+    blue, green, red, and alpha; use 16 bits, describing a floating point value,
     from -65500 to 65000 with 3.31 decimal digits of precision.
 
     At present, Color in Paint does not provide enough precision or range to
@@ -784,7 +793,7 @@ kRGBA_8888_SkColorType.
 
     If paired with kOpaque_SkAlphaType: all alpha component values are at the maximum;
     blue, green, and red components are fully opaque. If any alpha component is
-    less than 255, the drawn result is undefined.
+    less than one, the drawn result is undefined.
 
     #ToDo
     FloatToHalf should be replaced with SkFloatToHalf if/when that's made public
@@ -824,14 +833,14 @@ kRGBA_8888_SkColorType.
             return FloatToHalf(c);
         };
                                  //     R        G        B        A
-        uint16_t red_f16[][4] =  { { H(1.0f), H(0.0f), H(0.0f), H(1.0f) },
-                                   { H(.75f), H(0.0f), H(0.0f), H(1.0f) },
-                                   { H(.50f), H(0.0f), H(0.0f), H(1.0f) },
-                                   { H(.25f), H(0.0f), H(0.0f), H(1.0f) } };
-        uint16_t blue_f16[][4] = { { H(0.0f), H(0.0f), H(1.0f), H(1.0f) },
-                                   { H(0.0f), H(0.0f), H(.75f), H(1.0f) },
-                                   { H(0.0f), H(0.0f), H(.50f), H(1.0f) },
-                                   { H(0.0f), H(0.0f), H(.25f), H(1.0f) } };
+        uint16_t red_f16[][4] =  { { H(1.0), H(0.0), H(0.0), H(1.0) },
+                                   { H(.75), H(0.0), H(0.0), H(1.0) },
+                                   { H(.50), H(0.0), H(0.0), H(1.0) },
+                                   { H(.25), H(0.0), H(0.0), H(1.0) } };
+        uint16_t blue_f16[][4] = { { H(0.0), H(0.0), H(1.0), H(1.0) },
+                                   { H(0.0), H(0.0), H(.75), H(1.0) },
+                                   { H(0.0), H(0.0), H(.50), H(1.0) },
+                                   { H(0.0), H(0.0), H(.25), H(1.0) } };
         SkPixmap redPixmap(imageInfo, red_f16, imageInfo.minRowBytes());
         if (bitmap.writePixels(redPixmap, 0, 0)) {
             canvas->drawBitmap(bitmap, 2, 2);
@@ -844,6 +853,64 @@ kRGBA_8888_SkColorType.
     ##
     #SeeAlso SkColor4f
 ##
+
+#Subtopic RGBA_F32
+#Line # encodes ARGB as single precision floats ##
+    kRGBA_F32_SkColorType encodes ARGB into a 128-bit word. Each component:
+    blue, green, red, and alpha; use 32 bits, describing a floating point value,
+    from -3.402823e+38 to 3.402823e+38 with 7.225 decimal digits of precision.
+
+    At present, Color in Paint does not provide enough precision or range to
+    draw all colors possible to a kRGBA_F32_SkColorType Surface.
+
+    Each component encodes a floating point value using
+    #A single-precision floats # https://en.wikipedia.org/wiki/Single-precision_floating-point_format ##
+    . Meaningful colors are represented by the range 0.0 to 1.0, although smaller
+    and larger values may be useful when used in combination with Transfer_Mode.
+
+    #Illustration
+
+    If paired with kPremul_SkAlphaType: blue, green, and red components are
+    Premultiplied by the alpha value. If blue, green, or red is greater than alpha,
+    the drawn result is undefined.
+
+    If paired with kUnpremul_SkAlphaType: blue, green, red, and alpha components
+    may have any value. There may be a performance penalty with Unpremultiplied
+    pixels.
+
+    If paired with kOpaque_SkAlphaType: all alpha component values are at the maximum;
+    blue, green, and red components are fully opaque. If any alpha component is
+    less than one, the drawn result is undefined.
+
+    #NoExample
+        canvas->scale(16, 16);
+        SkBitmap bitmap;
+        SkImageInfo imageInfo = SkImageInfo::Make(2, 2, kRGBA_F32_SkColorType, kPremul_SkAlphaType);
+        bitmap.allocPixels(imageInfo);
+        SkCanvas offscreen(bitmap);
+        offscreen.clear(SK_ColorGREEN);
+        canvas->drawBitmap(bitmap, 0, 0);
+                             //    R    G    B    A
+        float red_f32[][4] =  { { 1.0, 0.0, 0.0, 1.0 },
+                                { .75, 0.0, 0.0, 1.0 },
+                                { .50, 0.0, 0.0, 1.0 },
+                                { .25, 0.0, 0.0, 1.0 } };
+        float blue_f32[][4] = { { 0.0, 0.0, 1.0, 1.0 },
+                                { 0.0, 0.0, .75, 1.0 },
+                                { 0.0, 0.0, .50, 1.0 },
+                                { 0.0, 0.0, .25, 1.0 } };
+        SkPixmap redPixmap(imageInfo, red_f32, imageInfo.minRowBytes());
+        if (bitmap.writePixels(redPixmap, 0, 0)) {
+            canvas->drawBitmap(bitmap, 2, 2);
+        }
+        SkPixmap bluePixmap(imageInfo, blue_f32, imageInfo.minRowBytes());
+        if (bitmap.writePixels(bluePixmap, 0, 0)) {
+            canvas->drawBitmap(bitmap, 4, 4);
+        }
+    ##
+    #SeeAlso SkColor4f
+##
+
 
 #Subtopic Color_Type ##
 

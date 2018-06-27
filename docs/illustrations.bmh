@@ -449,4 +449,273 @@ void draw(SkCanvas* canvas) {
 ##
 ##
 
+#Subtopic Image_Info_Color_Type_RGBA_F32
+#Example
+#Width 812
+#Height 685
+void draw(SkCanvas* canvas) {
+    canvas->scale(1.25f, 1.25f);
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setTextSize(10);
+    paint.setTextAlign(SkPaint::kCenter_Align);
+    canvas->drawString("128-bit word", 5 + 20 * 16, 20, paint);
+    canvas->drawString("little endian byte order", 5 + 20 * 4, 135, paint);
+    for (int i = 0; i < 4; ++i) {
+        canvas->drawString("(low bits)", 5 + 10 * 4, 187 + i * 100, paint);
+        canvas->drawString("(high bits)", 105 + 10 * 4, 237 + i * 100, paint);
+    }
+    auto drawBoxText = [=](SkScalar e[], const char* s[], const char* nums[] , 
+             int count, int n, SkScalar yPos) -> void {
+        SkPaint p(paint);
+        p.setColor(SK_ColorRED);
+        SkScalar xPos = 15;
+        int stringIndex = 0;
+        for (int i = n; i >= 0; --i) {
+            if (0 == i || n == i || 32 == i || 31 == i) {
+                int x = xPos;
+                if (2 == count) {
+                    x += stringIndex * 12 + (stringIndex ? 8 : 0);
+                }
+                canvas->drawString(nums[stringIndex], x, yPos - 5, p);
+                if (1 == count) {
+                    canvas->drawString(nums[stringIndex], xPos + 100, yPos - 5, p);
+                }
+                ++stringIndex;
+            }
+            xPos += 9;
+        }
+        p.setColor(SK_ColorBLACK);
+        for (int i = 0; i < count; ++i) {
+            canvas->drawString(s[i], 5 + (e[i] + e[i + 1]) * 5, yPos + 10, p);
+            if (1 == count) {
+                canvas->drawString(s[i], 105 + (e[i] + e[i + 1]) * 5, yPos + 10, p);
+            }
+        }
+        p.setStyle(SkPaint::kStroke_Style);
+        for (int i = 0; i <= count; ++i) {
+            canvas->drawLine(5 + e[i] * 10, yPos, 5 + e[i] * 10, yPos + 15, p);
+            if (1 == count) {
+                canvas->drawLine(105 + e[i] * 10, yPos, 105 + e[i] * 10, yPos + 15, p);
+            }
+        }
+        for (int i = 0; i < 2; ++i) {
+            canvas->drawLine(5 + e[0] * 10, yPos + i * 15,
+                             5 + e[count] * 10, yPos + i * 15, p);
+            if (1 == count) {
+                canvas->drawLine(105 + e[0] * 10, yPos + i * 15,
+                                 105 + e[count] * 10, yPos + i * 15, p);
+            }
+        }
+    };
+    SkScalar edges[] = { 0, 32, 64,
+                         0, 8
+                       };
+    const char* labels[] = { "alpha", "blue", "green", "red" };
+    const char* nums128[] = { "127", "96", "95", "64"};
+    const char* nums64[] = { "63", "32", "31", "0"};
+    const char* nums8[] = { "7", "0"};
+    drawBoxText(&edges[0], &labels[0], nums128, 2, 63, 45);
+    drawBoxText(&edges[0], &labels[2], nums64, 2, 63, 95);
+    drawBoxText(&edges[3], &labels[3], nums8, 1, 7, 160);
+    drawBoxText(&edges[3], &labels[3], nums8, 1, 7, 210);
+    drawBoxText(&edges[3], &labels[2], nums8, 1, 7, 260);
+    drawBoxText(&edges[3], &labels[2], nums8, 1, 7, 310);
+    drawBoxText(&edges[3], &labels[1], nums8, 1, 7, 360);
+    drawBoxText(&edges[3], &labels[1], nums8, 1, 7, 410);
+    drawBoxText(&edges[3], &labels[0], nums8, 1, 7, 460);
+    drawBoxText(&edges[3], &labels[0], nums8, 1, 7, 510);
+}
+##
+##
+
+#Subtopic Blend_Mode_Porter_Duff
+#Example
+#Width 480
+#Height 330
+    SkPaint srcPaint;
+    srcPaint.setAntiAlias(true);
+    SkPaint labelPaint = srcPaint;
+    labelPaint.setTextAlign(SkPaint::kCenter_Align);
+    labelPaint.setTextSize(16);
+    SkPaint dstPaint = labelPaint;
+    dstPaint.setTextSize(80);
+    dstPaint.setColor(0xFF606080);
+    dstPaint.setTypeface(SkTypeface::MakeFromName("Roboto", SkFontStyle::Bold()));
+
+    SkBitmap srcBits;
+    srcBits.allocN32Pixels(80, 84);
+    SkCanvas srcCanvas(srcBits);
+    srcPaint.setColor(0xFFcc6633);
+    SkPath srcPath;
+    const SkPoint points[] = {{20, 20}, {80, 45}, {45, 80}};
+    srcPath.addPoly(points, SK_ARRAY_COUNT(points), true);
+    srcBits.eraseColor(0);
+    srcCanvas.drawPath(srcPath, srcPaint);
+
+    canvas->drawColor(0, SkBlendMode::kClear);
+    for (auto blend : { SkBlendMode::kSrc, SkBlendMode::kSrcATop, SkBlendMode::kSrcOver,
+                        SkBlendMode::kSrcIn, SkBlendMode::kSrcOut,
+                        SkBlendMode::kDst, SkBlendMode::kDstATop, SkBlendMode::kDstOver,
+                        SkBlendMode::kDstIn, SkBlendMode::kDstOut,
+                        SkBlendMode::kClear, SkBlendMode::kXor } ) {
+        canvas->drawString("&", 50, 80, dstPaint);
+        srcPaint.setBlendMode(blend);
+        canvas->drawBitmap(srcBits, 0, 0, &srcPaint);
+        canvas->drawString(SkBlendMode_Name(blend), 50, 100, labelPaint);
+        canvas->translate(80, 0);
+        if (SkBlendMode::kSrcOut == blend || SkBlendMode::kDstOut == blend) {
+            canvas->translate(-80 * 5, 100);
+        }
+    }
+##
+##
+
+#Subtopic Blend_Mode_Porter_Duff_2
+#Example
+#Width 480
+#Height 330
+    SkPaint srcPaint;
+    srcPaint.setAntiAlias(true);
+    SkPaint labelPaint = srcPaint;
+    labelPaint.setTextAlign(SkPaint::kCenter_Align);
+    labelPaint.setTextSize(16);
+    SkPaint dstPaint = labelPaint;
+    dstPaint.setTextSize(80);
+    dstPaint.setColor(0xFF606080);
+    dstPaint.setTypeface(SkTypeface::MakeFromName("Roboto", SkFontStyle::Bold()));
+
+    srcPaint.setColor(0xFFcc6633);
+    SkPath srcPath;
+    const SkPoint points[] = {{20, 20}, {80, 45}, {45, 80}};
+    srcPath.addPoly(points, SK_ARRAY_COUNT(points), true);
+    canvas->drawColor(0, SkBlendMode::kClear);
+
+    SkBitmap dstBits;
+    dstBits.allocN32Pixels(80, 80);
+    SkCanvas dstCanvas(dstBits);
+    for (auto blend : { SkBlendMode::kSrc, SkBlendMode::kSrcATop, SkBlendMode::kSrcOver,
+                        SkBlendMode::kSrcIn, SkBlendMode::kSrcOut,
+                        SkBlendMode::kDst, SkBlendMode::kDstATop, SkBlendMode::kDstOver,
+                        SkBlendMode::kDstIn, SkBlendMode::kDstOut,
+                        SkBlendMode::kClear, SkBlendMode::kXor } ) {
+        canvas->drawString("&", 50, 80, dstPaint);
+        srcPaint.setBlendMode(blend);
+        canvas->drawPath(srcPath, srcPaint);
+        canvas->drawString(SkBlendMode_Name(blend), 50, 100, labelPaint);
+        canvas->translate(80, 0);
+        if (SkBlendMode::kSrcOut == blend || SkBlendMode::kDstOut == blend) {
+            canvas->translate(-80 * 5, 100);
+        }
+    }
+##
+##
+
+#Subtopic Blend_Mode_Lighten_Darken
+#Example
+#Width 480
+#Height 330
+    SkPaint srcPaint;
+    srcPaint.setAntiAlias(true);
+    SkPaint labelPaint = srcPaint;
+    labelPaint.setTextAlign(SkPaint::kCenter_Align);
+    labelPaint.setTextSize(16);
+    SkPaint dstPaint = labelPaint;
+    dstPaint.setTextSize(80);
+    dstPaint.setColor(0xFF606080);
+    dstPaint.setTypeface(SkTypeface::MakeFromName("Roboto", SkFontStyle::Bold()));
+
+    srcPaint.setColor(0xFFcc6633);
+    SkPath srcPath;
+    const SkPoint points[] = {{20, 20}, {80, 45}, {45, 80}};
+    srcPath.addPoly(points, SK_ARRAY_COUNT(points), true);
+    canvas->drawColor(0, SkBlendMode::kClear);
+    for (auto blend : { SkBlendMode::kPlus, SkBlendMode::kScreen, SkBlendMode::kOverlay,
+            SkBlendMode::kDarken, SkBlendMode::kLighten, SkBlendMode::kColorDodge,
+            SkBlendMode::kColorBurn, SkBlendMode::kHardLight, SkBlendMode::kSoftLight,
+            SkBlendMode::kDifference, SkBlendMode::kExclusion, SkBlendMode::kMultiply } ) {
+        canvas->drawString("&", 50, 80, dstPaint);
+        srcPaint.setBlendMode(blend);
+        canvas->drawPath(srcPath, srcPaint);
+        canvas->drawString(SkBlendMode_Name(blend), 50, 100, labelPaint);
+        canvas->translate(90, 0);
+        if (SkBlendMode::kLighten == blend || SkBlendMode::kDifference == blend) {
+            canvas->translate(-90 * 5, 100);
+        }
+    }
+##
+##
+
+#Subtopic Blend_Mode_Color_Blends
+#Example
+#Width 480
+#Height 110
+    SkPaint srcPaint;
+    srcPaint.setAntiAlias(true);
+    SkPaint labelPaint = srcPaint;
+    labelPaint.setTextAlign(SkPaint::kCenter_Align);
+    labelPaint.setTextSize(16);
+    SkPaint dstPaint = labelPaint;
+    dstPaint.setTextSize(80);
+    dstPaint.setColor(0xFF606080);
+    dstPaint.setTypeface(SkTypeface::MakeFromName("Roboto", SkFontStyle::Bold()));
+
+    srcPaint.setColor(0xFFcc6633);
+    SkPath srcPath;
+    const SkPoint points[] = {{20, 20}, {80, 45}, {45, 80}};
+    srcPath.addPoly(points, SK_ARRAY_COUNT(points), true);
+    canvas->drawColor(0, SkBlendMode::kClear);
+    for (auto blend : { SkBlendMode::kHue, SkBlendMode::kSaturation, SkBlendMode::kColor,
+                        SkBlendMode::kLuminosity } ) {
+        canvas->drawString("&", 50, 80, dstPaint);
+        srcPaint.setBlendMode(blend);
+        canvas->drawPath(srcPath, srcPaint);
+        canvas->drawString(SkBlendMode_Name(blend), 50, 100, labelPaint);
+        canvas->translate(90, 0);
+    }
+##
+##
+
+#Subtopic Blend_Mode_Modulate_Blend
+#Example
+#Width 480
+#Height 110
+    SkPaint srcPaint;
+    srcPaint.setAntiAlias(true);
+    SkPaint labelPaint = srcPaint;
+    labelPaint.setTextAlign(SkPaint::kCenter_Align);
+    labelPaint.setTextSize(16);
+    SkPaint dstPaint = labelPaint;
+    dstPaint.setTextSize(80);
+    dstPaint.setColor(0xFF606080);
+    dstPaint.setTypeface(SkTypeface::MakeFromName("Roboto", SkFontStyle::Bold()));
+
+    SkBitmap srcBits;
+    srcBits.allocN32Pixels(80, 84);
+    SkCanvas srcCanvas(srcBits);
+    srcPaint.setColor(0xFFcc6633);
+    SkPath srcPath;
+    const SkPoint points[] = {{20, 20}, {80, 45}, {45, 80}};
+    srcPath.addPoly(points, SK_ARRAY_COUNT(points), true);
+    srcBits.eraseColor(0);
+    srcCanvas.drawPath(srcPath, srcPaint);
+
+    canvas->drawColor(0, SkBlendMode::kClear);
+    srcPaint.setBlendMode(SkBlendMode::kModulate);
+    for (auto step: { 1, 2 } ) {
+        canvas->drawString("&", 50, 80, dstPaint);
+        if (1 == step) {
+            canvas->drawBitmap(srcBits, 0, 0, &srcPaint);
+            canvas->drawString("Bitmap", 50, 18, labelPaint);
+        } else {
+            canvas->drawPath(srcPath, srcPaint);
+            canvas->drawString("Geometry", 50, 18, labelPaint);
+        }
+        canvas->drawString(SkBlendMode_Name(SkBlendMode::kModulate), 50, 100, labelPaint);
+        canvas->translate(120, 0);
+    }
+
+##
+##
+
 #Topic Illustrations ##

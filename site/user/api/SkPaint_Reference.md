@@ -83,7 +83,7 @@ SkPaint global, <code>struct</code>, and <code>class</code> related member funct
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Methods'>Blend Mode Methods</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>get and set <a href='undocumented#Blend_Mode'>Blend Mode</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>get and set <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Filter_Methods'>Color Filter Methods</a></td>
@@ -254,7 +254,6 @@ SkPaint global, <code>struct</code>, and <code>class</code> related member funct
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>orient text from top to bottom</td>
   </tr>
 </table>
-
 
 ## <a name='Constant'>Constant</a>
 
@@ -445,7 +444,6 @@ SkPaint related constants are defined by <code>enum</code>, <code>enum class</co
   </tr>
 </table>
 
-
 ## <a name='Struct'>Struct</a>
 
 
@@ -458,7 +456,6 @@ SkPaint uses C++ structs to declare the public data structures and interfaces.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>values computed by <a href='undocumented#Font_Manager'>Font Manager</a> using <a href='undocumented#Typeface'>Typeface</a></td>
   </tr>
 </table>
-
 
 ## <a name='Constructor'>Constructor</a>
 
@@ -485,7 +482,6 @@ SkPaint can be constructed or initialized by these functions, including C++ clas
   </tr>
 </table>
 
-
 ## <a name='Operator'>Operator</a>
 
 
@@ -510,7 +506,6 @@ SkPaint operators inline class member functions with arithmetic equivalents.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>compares paints for equality</td>
   </tr>
 </table>
-
 
 ## <a name='Member_Function'>Member Function</a>
 
@@ -553,7 +548,7 @@ SkPaint member functions read and modify the structure properties.
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getBlendMode'>getBlendMode</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='undocumented#Blend_Mode'>Blend Mode</a>, how colors combine with <a href='undocumented#Device'>Device</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a>, how colors combine with <a href='undocumented#Device'>Device</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getColor'>getColor</a></td>
@@ -721,7 +716,7 @@ SkPaint member functions read and modify the structure properties.
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_isSrcOver'>isSrcOver</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='undocumented#Blend_Mode'>Blend Mode</a> is <a href='undocumented#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a> is <a href='SkBlendMode_Reference#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_isSubpixelText'>isSubpixelText</a></td>
@@ -789,7 +784,7 @@ SkPaint member functions read and modify the structure properties.
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_setBlendMode'>setBlendMode</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='undocumented#Blend_Mode'>Blend Mode</a>, how colors combine with destination</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a>, how colors combine with destination</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_setColor'>setColor</a></td>
@@ -909,7 +904,6 @@ SkPaint member functions read and modify the structure properties.
   </tr>
 </table>
 
-
 ## <a name='Initializers'>Initializers</a>
 
 <a name='SkPaint_empty_constructor'></a>
@@ -924,7 +918,7 @@ Constructs <a href='#Paint'>Paint</a> with default values.
 | attribute | default value |
 | --- | ---  |
 | <a href='#Anti_Alias'>Anti Alias</a> | false |
-| <a href='undocumented#Blend_Mode'>Blend Mode</a> | <a href='undocumented#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a> |
+| <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a> | <a href='SkBlendMode_Reference#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a> |
 | <a href='SkColor_Reference#Color'>Color</a> | <a href='SkColor_Reference#SK_ColorBLACK'>SK ColorBLACK</a> |
 | <a href='SkColor_Reference#Alpha'>Color Alpha</a> | 255 |
 | <a href='undocumented#Color_Filter'>Color Filter</a> | nullptr |
@@ -1752,7 +1746,7 @@ alternating nearby colors from pixel to pixel.
 ### Example
 
 <div><fiddle-embed name="76d4d4a7931a48495e4d5f54e073be53"><div>Dithering introduces subtle adjustments to color to smooth gradients.
-Drawing the gradient repeatedly with <a href='undocumented#SkBlendMode_kPlus'>SkBlendMode::kPlus</a> exaggerates the
+Drawing the gradient repeatedly with <a href='SkBlendMode_Reference#SkBlendMode_kPlus'>SkBlendMode::kPlus</a> exaggerates the
 dither, making it easier to see.
 </div></fiddle-embed></div>
 
@@ -2807,7 +2801,7 @@ a fill draw.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kFill_Style'><code>SkPaint::kFill_Style</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Applies to <a href='SkRect_Reference#Rect'>Rect</a>, <a href='undocumented#Region'>Region</a>, <a href='undocumented#Round_Rect'>Round Rect</a>, <a href='undocumented#Circle'>Circles</a>, <a href='undocumented#Oval'>Ovals</a>, <a href='SkPath_Reference#Path'>Path</a>, and <a href='undocumented#Text'>Text</a>.
+Applies to <a href='SkRect_Reference#Rect'>Rect</a>, <a href='undocumented#Region'>Region</a>, <a href='SkRRect_Reference#RRect'>Round Rect</a>, <a href='undocumented#Circle'>Circles</a>, <a href='undocumented#Oval'>Ovals</a>, <a href='SkPath_Reference#Path'>Path</a>, and <a href='undocumented#Text'>Text</a>.
 <a href='SkBitmap_Reference#Bitmap'>Bitmap</a>, <a href='SkImage_Reference#Image'>Image</a>, <a href='undocumented#Patch'>Patches</a>, <a href='undocumented#Region'>Region</a>, <a href='undocumented#Sprite'>Sprites</a>, and <a href='undocumented#Vertices'>Vertices</a> are painted as if
 <a href='#SkPaint_kFill_Style'>kFill Style</a> is set, and ignore the set <a href='#SkPaint_Style'>Style</a>.
 The <a href='SkPath_Reference#Fill_Type'>Path Fill Type</a> specifies additional rules to fill the area outside the path edge,
@@ -2819,7 +2813,7 @@ and to create an unfilled hole inside the shape.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kStroke_Style'><code>SkPaint::kStroke_Style</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Applies to <a href='SkRect_Reference#Rect'>Rect</a>, <a href='undocumented#Region'>Region</a>, <a href='undocumented#Round_Rect'>Round Rect</a>, <a href='undocumented#Arc'>Arcs</a>, <a href='undocumented#Circle'>Circles</a>, <a href='undocumented#Oval'>Ovals</a>, <a href='SkPath_Reference#Path'>Path</a>, and <a href='undocumented#Text'>Text</a>.
+Applies to <a href='SkRect_Reference#Rect'>Rect</a>, <a href='undocumented#Region'>Region</a>, <a href='SkRRect_Reference#RRect'>Round Rect</a>, <a href='undocumented#Arc'>Arcs</a>, <a href='undocumented#Circle'>Circles</a>, <a href='undocumented#Oval'>Ovals</a>, <a href='SkPath_Reference#Path'>Path</a>, and <a href='undocumented#Text'>Text</a>.
 <a href='undocumented#Arc'>Arcs</a>, <a href='undocumented#Line'>Lines</a>, and points, are always drawn as if <a href='#SkPaint_kStroke_Style'>kStroke Style</a> is set,
 and ignore the set <a href='#SkPaint_Style'>Style</a>.
 The stroke construction is unaffected by the <a href='SkPath_Reference#Fill_Type'>Path Fill Type</a>.
@@ -2829,7 +2823,7 @@ The stroke construction is unaffected by the <a href='SkPath_Reference#Fill_Type
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kStrokeAndFill_Style'><code>SkPaint::kStrokeAndFill_Style</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Applies to <a href='SkRect_Reference#Rect'>Rect</a>, <a href='undocumented#Region'>Region</a>, <a href='undocumented#Round_Rect'>Round Rect</a>, <a href='undocumented#Circle'>Circles</a>, <a href='undocumented#Oval'>Ovals</a>, <a href='SkPath_Reference#Path'>Path</a>, and <a href='undocumented#Text'>Text</a>.
+Applies to <a href='SkRect_Reference#Rect'>Rect</a>, <a href='undocumented#Region'>Region</a>, <a href='SkRRect_Reference#RRect'>Round Rect</a>, <a href='undocumented#Circle'>Circles</a>, <a href='undocumented#Oval'>Ovals</a>, <a href='SkPath_Reference#Path'>Path</a>, and <a href='undocumented#Text'>Text</a>.
 <a href='SkPath_Reference#Path'>Path</a> is treated as if it is set to <a href='SkPath_Reference#SkPath_kWinding_FillType'>SkPath::kWinding FillType</a>,
 and the set <a href='SkPath_Reference#Fill_Type'>Path Fill Type</a> is ignored.
 </td>
@@ -3625,7 +3619,7 @@ Increments <a href='#SkPaint_setShader_shader'>shader</a> <a href='undocumented#
 ## <a name='Color_Filter_Methods'>Color Filter Methods</a>
 
 <a href='undocumented#Color_Filter'>Color Filter</a> alters the color used when drawing a shape.
-<a href='undocumented#Color_Filter'>Color Filter</a> may apply <a href='undocumented#Blend_Mode'>Blend Mode</a>, transform the color through a matrix, or composite multiple filters.
+<a href='undocumented#Color_Filter'>Color Filter</a> may apply <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a>, transform the color through a matrix, or composite multiple filters.
 If <a href='#Paint'>Paint</a> has no <a href='undocumented#Color_Filter'>Color Filter</a>, the color is unaltered.
 
 The drawn transparency can be modified without altering <a href='undocumented#Color_Filter'>Color Filter</a>, by changing <a href='SkColor_Reference#Alpha'>Color Alpha</a>.
@@ -3719,8 +3713,8 @@ Increments filter <a href='undocumented#Reference_Count'>Reference Count</a> by 
 
 ## <a name='Blend_Mode_Methods'>Blend Mode Methods</a>
 
-<a href='undocumented#Blend_Mode'>Blend Mode</a> describes how <a href='SkColor_Reference#Color'>Color</a> combines with the destination color.
-The default setting, <a href='undocumented#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a>, draws the source color
+<a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a> describes how <a href='SkColor_Reference#Color'>Color</a> combines with the destination color.
+The default setting, <a href='SkBlendMode_Reference#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a>, draws the source color
 over the destination color.
 
 ### Example
@@ -3729,17 +3723,17 @@ over the destination color.
 
 ### See Also
 
-<a href='undocumented#Blend_Mode'>Blend Mode</a>
+<a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a>
 
 <a name='SkPaint_getBlendMode'></a>
 ## getBlendMode
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkBlendMode'>SkBlendMode</a> <a href='#SkPaint_getBlendMode'>getBlendMode</a>() const
+<a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> <a href='#SkPaint_getBlendMode'>getBlendMode</a>() const
 </pre>
 
-Returns <a href='undocumented#Blend_Mode'>Blend Mode</a>.
-By default, returns <a href='undocumented#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a>.
+Returns <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a>.
+By default, returns <a href='SkBlendMode_Reference#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a>.
 
 ### Return Value
 
@@ -3767,11 +3761,11 @@ kSrcOver != getBlendMode
 bool <a href='#SkPaint_isSrcOver'>isSrcOver</a>() const
 </pre>
 
-Returns true if <a href='undocumented#Blend_Mode'>Blend Mode</a> is <a href='undocumented#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a>, the default.
+Returns true if <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a> is <a href='SkBlendMode_Reference#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a>, the default.
 
 ### Return Value
 
-true if <a href='undocumented#Blend_Mode'>Blend Mode</a> is <a href='undocumented#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a>
+true if <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a> is <a href='SkBlendMode_Reference#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a>
 
 ### Example
 
@@ -3792,16 +3786,16 @@ isSrcOver != true
 ## setBlendMode
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPaint_setBlendMode'>setBlendMode</a>(<a href='undocumented#SkBlendMode'>SkBlendMode</a> mode)
+void <a href='#SkPaint_setBlendMode'>setBlendMode</a>(<a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> mode)
 </pre>
 
-Sets <a href='undocumented#Blend_Mode'>Blend Mode</a> to <a href='#SkPaint_setBlendMode_mode'>mode</a>.
+Sets <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a> to <a href='#SkPaint_setBlendMode_mode'>mode</a>.
 Does not check for valid input.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPaint_setBlendMode_mode'><code><strong>mode</strong></code></a></td>
-    <td><a href='undocumented#SkBlendMode'>SkBlendMode</a> used to combine source color and destination</td>
+    <td><a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> used to combine source color and destination</td>
   </tr>
 </table>
 
@@ -4110,8 +4104,8 @@ Pass nullptr to clear <a href='undocumented#Typeface'>Typeface</a> and use the d
 ## <a name='Image_Filter_Methods'>Image Filter Methods</a>
 
 <a href='undocumented#Image_Filter'>Image Filter</a> operates on the pixel representation of the shape, as modified by <a href='#Paint'>Paint</a>
-with <a href='undocumented#Blend_Mode'>Blend Mode</a> set to <a href='undocumented#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a>. <a href='undocumented#Image_Filter'>Image Filter</a> creates a new bitmap,
-which is drawn to the device using the set <a href='undocumented#Blend_Mode'>Blend Mode</a>.
+with <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a> set to <a href='SkBlendMode_Reference#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a>. <a href='undocumented#Image_Filter'>Image Filter</a> creates a new bitmap,
+which is drawn to the device using the set <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a>.
 
 <a href='undocumented#Image_Filter'>Image Filter</a> is higher level than <a href='undocumented#Mask_Filter'>Mask Filter</a>; for instance, an <a href='undocumented#Image_Filter'>Image Filter</a>
 can operate on all channels of <a href='SkColor_Reference#Color'>Color</a>, while <a href='undocumented#Mask_Filter'>Mask Filter</a> generates <a href='SkColor_Reference#Alpha'>Alpha</a> only.
@@ -4802,7 +4796,6 @@ SkPaint related constants are defined by <code>enum</code>, <code>enum class</co
   </tr>
 </table>
 
-
 ## <a name='Font_Metrics_Member_Function'>Member_Function</a>
 
 
@@ -4827,7 +4820,6 @@ SkPaint member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns underline thickness if set</td>
   </tr>
 </table>
-
 
 ## <a name='Font_Metrics_Member'>Member</a>
 
@@ -4901,7 +4893,6 @@ SkPaint members may be read and written directly without using a member function
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>minimum x</td>
   </tr>
 </table>
-
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     struct <a href='#SkPaint_FontMetrics'>FontMetrics</a> {
@@ -5997,7 +5988,7 @@ bool <a href='#SkPaint_nothingToDraw'>nothingToDraw</a>() const
 Returns true if <a href='#Paint'>Paint</a> prevents all drawing;
 otherwise, the <a href='#Paint'>Paint</a> may or may not allow drawing.
 
-Returns true if, for example, <a href='undocumented#Blend_Mode'>Blend Mode</a> combined with <a href='SkColor_Reference#Alpha'>Color Alpha</a> computes a
+Returns true if, for example, <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a> combined with <a href='SkColor_Reference#Alpha'>Color Alpha</a> computes a
 new <a href='SkColor_Reference#Alpha'>Alpha</a> of zero.
 
 ### Return Value
@@ -6023,7 +6014,6 @@ alpha 0 nothing to draw: true
 
 ## <a name='Fast_Bounds'>Fast Bounds</a>
 
-To be made private.
 <a href='#Fast_Bounds'>Fast Bounds</a> functions conservatively outset a drawing bounds by additional area
 <a href='#Paint'>Paint</a> may draw to.
 
@@ -6034,7 +6024,6 @@ To be made private.
 bool <a href='#SkPaint_canComputeFastBounds'>canComputeFastBounds</a>() const
 </pre>
 
-(    to be made private)
 Returns true if <a href='#Paint'>Paint</a> does not include elements requiring extensive computation
 to compute <a href='undocumented#Device'>Device</a> bounds of drawn geometry. For instance, <a href='#Paint'>Paint</a> with <a href='undocumented#Path_Effect'>Path Effect</a>
 always returns false.
@@ -6052,7 +6041,6 @@ true if <a href='#Paint'>Paint</a> allows for fast computation of bounds
 const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkPaint_computeFastBounds'>computeFastBounds</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& orig, <a href='SkRect_Reference#SkRect'>SkRect</a>* storage) const
 </pre>
 
-(    to be made private)
 Only call this if <a href='#SkPaint_canComputeFastBounds'>canComputeFastBounds</a> returned true. This takes a
 raw rectangle (the raw bounds of a shape), and adjusts it for stylistic
 effects in the paint (e.g. stroking). If needed, it uses the <a href='#SkPaint_computeFastBounds_storage'>storage</a>
@@ -6063,15 +6051,6 @@ The returned <a href='SkRect_Reference#Rect'>Rect</a> will either be <a href='#S
 should not rely on <a href='#SkPaint_computeFastBounds_storage'>storage</a> being set to the result, but should always
 use the returned value. It is legal for <a href='#SkPaint_computeFastBounds_orig'>orig</a> and <a href='#SkPaint_computeFastBounds_storage'>storage</a> to be the same
 <a href='SkRect_Reference#Rect'>Rect</a>.
-
-For example:
-if (!path.isInverseFillType() && paint.<a href='#SkPaint_canComputeFastBounds'>canComputeFastBounds</a>) {
-<a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPaint_computeFastBounds_storage'>storage</a>;
-if (canvas->quickReject(paint.computeFastBounds(path.getBounds(), &<a href='#SkPaint_computeFastBounds_storage'>storage</a>))) {
-return; // do not draw the path
-}
-}
-// draw the path
 
 ### Parameters
 
@@ -6096,8 +6075,6 @@ fast computed bounds
 const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkPaint_computeFastStrokeBounds'>computeFastStrokeBounds</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& orig, <a href='SkRect_Reference#SkRect'>SkRect</a>* storage) const
 </pre>
 
-(    to be made private)
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPaint_computeFastStrokeBounds_orig'><code><strong>orig</strong></code></a></td>
@@ -6121,7 +6098,6 @@ fast computed bounds
 const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkPaint_doComputeFastBounds'>doComputeFastBounds</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& orig, <a href='SkRect_Reference#SkRect'>SkRect</a>* storage, <a href='#SkPaint_Style'>Style</a> style) const
 </pre>
 
-(    to be made private)
 Computes the bounds, overriding the <a href='#Paint'>Paint</a> <a href='#SkPaint_Style'>Style</a>. This can be used to
 account for additional width required by stroking <a href='#SkPaint_doComputeFastBounds_orig'>orig</a>, without
 altering <a href='#SkPaint_Style'>Style</a> set to fill.
@@ -6172,3 +6148,4 @@ fast computed bounds
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>converts text into glyph indices</td>
   </tr>
 </table>
+

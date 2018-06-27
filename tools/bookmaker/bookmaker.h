@@ -94,7 +94,6 @@ enum class MarkType {
     kComment,
     kConst,
     kDefine,
-    kDefinedBy,
     kDeprecated,
     kDescription,
     kDetails,  // used by #Const to specify #Subtopic details with examples and so on
@@ -113,7 +112,7 @@ enum class MarkType {
 	kIn,
     kLegend,
 	kLine,
-    kLink,
+    kLink,     // used internally by #Anchor
     kList,
     kLiteral,  // don't lookup hyperlinks, do substitution, etc
     kMarkChar,
@@ -906,8 +905,7 @@ public:
     const Definition* iRootParent() const {
         const Definition* test = fParent;
         while (test) {
-            if (Type::kKeyWord == test->fType
-                    && (KeyWord::kClass == test->fKeyWord || KeyWord::kStruct == test->fKeyWord)) {
+            if (KeyWord::kClass == test->fKeyWord || KeyWord::kStruct == test->fKeyWord) {
                 return test;
             }
             test = test->fParent;
@@ -1158,9 +1156,6 @@ public:
     }
 
     void indentOut() {
-        if (fIndent < 4) {  // FIXME: hack until I can debug again
-            return;
-        }
         SkASSERT(fIndent >= 4);
         SkASSERT(fIndentStack.back().fIndent == fIndent);
         fIndent -= 4;
@@ -1569,6 +1564,7 @@ public:
     void dumpClassTokens(IClassDefinition& classDef);
     void dumpComment(const Definition& );
     void dumpCommonTail(const Definition& );
+    void dumpConst(const Definition& , string className);
     void dumpDefine(const Definition& );
     void dumpEnum(const Definition& , string name);
     bool dumpGlobals();
@@ -1580,10 +1576,12 @@ public:
     Definition* findIncludeObject(const Definition& includeDef, MarkType markType,
                                   string typeName);
     static KeyWord FindKey(const char* start, const char* end);
+    Bracket grandParentBracket() const;
     bool isClone(const Definition& token);
     bool isConstructor(const Definition& token, string className);
     bool isInternalName(const Definition& token);
     bool isOperator(const Definition& token);
+    Definition* parentBracket(Definition* parent) const;
     bool parseChar();
     bool parseComment(string filename, const char* start, const char* end, int lineCount,
             Definition* markupDef);
@@ -1611,6 +1609,10 @@ public:
     bool parseUnion();
 
     void popBracket() {
+        if (Definition::Type::kKeyWord == fParent->fType
+                && KeyWord::kTypename == fParent->fKeyWord) {
+            this->popObject();
+        }
         SkASSERT(Definition::Type::kBracket == fParent->fType);
         this->popObject();
         Bracket bracket = this->topBracket();
@@ -1657,13 +1659,7 @@ public:
         fInCharCommentString = fInChar || fInComment || fInString;
     }
 
-    Bracket topBracket() const {
-        Definition* parent = fParent;
-        while (parent && Definition::Type::kBracket != parent->fType) {
-            parent = parent->fParent;
-        }
-        return parent ? parent->fBracket : Bracket::kNone;
-    }
+    Bracket topBracket() const;
 
     template <typename T>
     string uniqueName(const unordered_map<string, T>& m, string typeName) {
@@ -1801,6 +1797,16 @@ public:
 
     void writeTag(const char* tagType, string tagID) {
         this->writeTag(tagType, tagID.c_str());
+    }
+
+    void writeTagTable(string tagType, string body) {
+        this->writeTag(tagType.c_str());
+        this->writeSpace(1);
+        this->writeString("#");
+        this->writeSpace(1);
+        this->writeString(body);
+        this->writeSpace(1);
+        this->writeString("##");
     }
 
 protected:

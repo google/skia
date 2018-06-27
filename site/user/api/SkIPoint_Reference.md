@@ -13,6 +13,7 @@ SkIPoint  <code>typedef</code> define a data type.
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
 </table>
+
 <a href='#SkIPoint'>SkIPoint</a> holds two 32-bit integer coordinates.
 
 ## Overview
@@ -64,7 +65,6 @@ SkIPoint global, <code>struct</code>, and <code>class</code> related member func
   </tr>
 </table>
 
-
 ## <a name='Member_Function'>Member Function</a>
 
 
@@ -97,7 +97,6 @@ SkIPoint member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#SkIPoint_fY'>fY</a></td>
   </tr>
 </table>
-
 
 ## <a name='Member'>Member</a>
 
@@ -136,7 +135,6 @@ SkIPoint members may be read and written directly without using a member functio
   </tr>
 </table>
 
-
 ### Members
 
 <table style='border-collapse: collapse; width: 62.5em'>
@@ -171,7 +169,6 @@ SkIPoint can be constructed or initialized by these functions, including C++ cla
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from integer inputs</td>
   </tr>
 </table>
-
 
 <a name='SkIPoint_Make'></a>
 ## Make
@@ -233,7 +230,6 @@ pt1 == pt2
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#SkIPoint_fY'>fY</a></td>
   </tr>
 </table>
-
 
 <a name='SkIPoint_x'></a>
 ## x
@@ -340,7 +336,6 @@ pt.isZero() == true
   </tr>
 </table>
 
-
 <a name='SkIPoint_set'></a>
 ## set
 
@@ -418,7 +413,6 @@ SkIPoint operators inline class member functions with arithmetic equivalents.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='#IPoint'>IPoints</a> are equal</td>
   </tr>
 </table>
-
 
 <a name='SkIPoint_minus_operator'></a>
 ## operator-

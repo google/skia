@@ -5050,7 +5050,7 @@ standard output. Set forceClose to true to get edges used to fill Path.
 Set dumpAsHex true to generate exact binary representations
 of floating point numbers used in Point_Array and Conic_Weights.
 
-#Param stream      writable Stream receiving Path text representation; may be nullptr ##
+#Param stream      writable WStream receiving Path text representation; may be nullptr ##
 #Param forceClose  true if missing kClose_Verb is output ##
 #Param dumpAsHex   true if SkScalar values are written as hexadecimal ##
 

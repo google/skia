@@ -13,6 +13,7 @@ SkPoint  <code>typedef</code> define a data type.
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
 </table>
+
 <a href='#SkPoint'>SkPoint</a> holds two 32-bit floating point coordinates.
 
 ## Overview
@@ -67,7 +68,6 @@ SkPoint global, <code>struct</code>, and <code>class</code> related member funct
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>alias for <a href='#Point'>Point</a></td>
   </tr>
 </table>
-
 
 ## <a name='Member_Function'>Member Function</a>
 
@@ -178,7 +178,6 @@ SkPoint member functions read and modify the structure properties.
   </tr>
 </table>
 
-
 ## <a name='Member'>Member</a>
 
 
@@ -216,7 +215,6 @@ SkPoint members may be read and written directly without using a member function
   </tr>
 </table>
 
-
 ### Members
 
 <table style='border-collapse: collapse; width: 62.5em'>
@@ -253,7 +251,6 @@ SkPoint can be constructed or initialized by these functions, including C++ clas
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from <a href='undocumented#SkScalar'>SkScalar</a> inputs</td>
   </tr>
 </table>
-
 
 <a name='SkPoint_Make'></a>
 ## Make
@@ -335,7 +332,6 @@ all equal
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#SkPoint_fY'>fY</a></td>
   </tr>
 </table>
-
 
 <a name='SkPoint_x'></a>
 ## x
@@ -478,7 +474,6 @@ pt.isZero() == true
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets length to one, in direction of (x, y)</td>
   </tr>
 </table>
-
 
 <a name='SkPoint_set'></a>
 ## set
@@ -664,7 +659,6 @@ pt: nan, -nan  abs: nan, nan
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPoint_scale_2'>scale(SkScalar value)</a></td>
   </tr>
 </table>
-
 
 <a name='SkPoint_Offset'></a>
 ## Offset
@@ -1016,7 +1010,6 @@ SkPoint operators inline class member functions with arithmetic equivalents.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='#Point'>Point</a> are equal</td>
   </tr>
 </table>
-
 
 <a name='SkPoint_scale'></a>
 ## scale

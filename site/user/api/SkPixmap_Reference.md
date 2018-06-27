@@ -68,7 +68,6 @@ SkPixmap global, <code>struct</code>, and <code>class</code> related member func
   </tr>
 </table>
 
-
 ## <a name='Constructor'>Constructor</a>
 
 
@@ -85,7 +84,6 @@ SkPixmap can be constructed or initialized by these functions, including C++ cla
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from <a href='SkImageInfo_Reference#Image_Info'>Image Info</a>, pixels</td>
   </tr>
 </table>
-
 
 ## <a name='Member_Function'>Member Function</a>
 
@@ -223,7 +221,6 @@ SkPixmap member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns writable pixel component address as 16-bit pointer</td>
   </tr>
 </table>
-
 
 ## <a name='Initialization'>Initialization</a>
 
@@ -1827,7 +1824,6 @@ is drawn after overwriting bottom half float color with top half float color.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>scales and converts pixels</td>
   </tr>
 </table>
-
 
 <a name='SkPixmap_readPixels'></a>
 ## readPixels

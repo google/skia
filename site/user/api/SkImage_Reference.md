@@ -13,6 +13,14 @@ SkImage related constants are defined by <code>enum</code>, <code>enum class</co
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_BitDepth_kF16'>BitDepth::kF16</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>uses 16-bit float per <a href='SkColor_Reference#Color'>Color</a> component</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_BitDepth_kU8'>BitDepth::kU8</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>uses 8-bit unsigned int per <a href='SkColor_Reference#Color'>Color</a> component</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_BitDepth'>BitDepth</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>options for <a href='#SkImage_MakeFromPicture'>MakeFromPicture</a></td>
   </tr>
@@ -29,19 +37,10 @@ SkImage related constants are defined by <code>enum</code>, <code>enum class</co
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>disallows internally caching decoded and copied pixels</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_BitDepth_kF16'>BitDepth::kF16</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>uses 16-bit float per <a href='SkColor_Reference#Color'>Color</a> component</td>
-  </tr>
-  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_kRO_LegacyBitmapMode'>kRO LegacyBitmapMode</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returned bitmap is read-only and immutable</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_BitDepth_kU8'>BitDepth::kU8</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>uses 8-bit unsigned int per <a href='SkColor_Reference#Color'>Color</a> component</td>
-  </tr>
 </table>
-
 
 ## <a name='Typedef'>Typedef</a>
 
@@ -67,8 +66,9 @@ SkImage  <code>typedef</code> define a data type.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>parameter type for <a href='#SkImage_MakeFromTexture'>MakeFromTexture</a></td>
   </tr>
 </table>
+
 <a href='#Image'>Image</a> describes a two dimensional array of pixels to draw. The pixels may be
-decoded in a <a href='undocumented#Raster_Bitmap'>Raster Bitmap</a>, encoded in a <a href='undocumented#Picture'>Picture</a> or compressed data stream,
+decoded in a <a href='undocumented#Raster_Bitmap'>Raster Bitmap</a>, encoded in a <a href='SkPicture_Reference#Picture'>Picture</a> or compressed data stream,
 or located in GPU memory as a <a href='undocumented#GPU_Texture'>GPU Texture</a>.
 
 <a href='#Image'>Image</a> cannot be modified after it is created. <a href='#Image'>Image</a> may allocate additional
@@ -77,7 +77,7 @@ storage as needed; for instance, an encoded <a href='#Image'>Image</a> may decod
 <a href='#Image'>Image</a> width and height are greater than zero. Creating an <a href='#Image'>Image</a> with zero width
 or height returns <a href='#Image'>Image</a> equal to nullptr.
 
-<a href='#Image'>Image</a> may be created from <a href='SkBitmap_Reference#Bitmap'>Bitmap</a>, <a href='SkPixmap_Reference#Pixmap'>Pixmap</a>, <a href='SkSurface_Reference#Surface'>Surface</a>, <a href='undocumented#Picture'>Picture</a>, encoded streams,
+<a href='#Image'>Image</a> may be created from <a href='SkBitmap_Reference#Bitmap'>Bitmap</a>, <a href='SkPixmap_Reference#Pixmap'>Pixmap</a>, <a href='SkSurface_Reference#Surface'>Surface</a>, <a href='SkPicture_Reference#Picture'>Picture</a>, encoded streams,
 <a href='undocumented#GPU_Texture'>GPU Texture</a>, <a href='SkImageInfo_Reference#YUV_ColorSpace'>YUV ColorSpace</a> data, or hardware buffer. Encoded streams supported
 include BMP, GIF, HEIF, ICO, JPEG, PNG, WBMP, WebP. Supported encoding details
 vary with platform.
@@ -162,7 +162,6 @@ SkImage global, <code>struct</code>, and <code>class</code> related member funct
   </tr>
 </table>
 
-
 ## <a name='Constructor'>Constructor</a>
 
 
@@ -208,7 +207,7 @@ SkImage can be constructed or initialized by these functions, including C++ clas
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_MakeFromPicture'>MakeFromPicture</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates <a href='#Image'>Image</a> from <a href='undocumented#Picture'>Picture</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates <a href='#Image'>Image</a> from <a href='SkPicture_Reference#Picture'>Picture</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_MakeFromRaster'>MakeFromRaster</a></td>
@@ -280,7 +279,6 @@ SkImage can be constructed or initialized by these functions, including C++ clas
   </tr>
 </table>
 
-
 ## <a name='Member_Function'>Member Function</a>
 
 
@@ -326,7 +324,7 @@ SkImage member functions read and modify the structure properties.
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_MakeFromPicture'>MakeFromPicture</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates <a href='#Image'>Image</a> from <a href='undocumented#Picture'>Picture</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates <a href='#Image'>Image</a> from <a href='SkPicture_Reference#Picture'>Picture</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_MakeFromRaster'>MakeFromRaster</a></td>
@@ -461,7 +459,6 @@ SkImage member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns pixel column count</td>
   </tr>
 </table>
-
 
 <a name='SkImage_MakeRasterCopy'></a>
 ## MakeRasterCopy
@@ -691,7 +688,7 @@ otherwise, <a href='#SkImage_MakeFromGenerator_subset'>subset</a> must be contai
 <a href='#Image'>Image</a> is returned if generator data is valid. Valid data parameters vary by type of data
 and platform.
 
-<a href='#SkImage_MakeFromGenerator_imageGenerator'>imageGenerator</a> may wrap <a href='undocumented#Picture'>Picture</a> data, codec data, or custom data.
+<a href='#SkImage_MakeFromGenerator_imageGenerator'>imageGenerator</a> may wrap <a href='SkPicture_Reference#Picture'>Picture</a> data, codec data, or custom data.
 
 ### Parameters
 
@@ -709,7 +706,7 @@ created <a href='#Image'>Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="c2fec0746f88ca34d7dce59dd9bdef9e"><div>The generator returning <a href='undocumented#Picture'>Picture</a> cannot be shared; std::move transfers ownership to generated <a href='#Image'>Image</a>.
+<div><fiddle-embed name="c2fec0746f88ca34d7dce59dd9bdef9e"><div>The generator returning <a href='SkPicture_Reference#Picture'>Picture</a> cannot be shared; std::move transfers ownership to generated <a href='#Image'>Image</a>.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -1194,7 +1191,7 @@ Use 16 bits per ARGB component using half-precision floating point format.
 ## MakeFromPicture
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_MakeFromPicture'>MakeFromPicture</a>(<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkPicture'>SkPicture</a>&gt; picture, const <a href='undocumented#SkISize'>SkISize</a>& dimensions,
+static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_MakeFromPicture'>MakeFromPicture</a>(<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='SkPicture_Reference#SkPicture'>SkPicture</a>&gt; picture, const <a href='undocumented#SkISize'>SkISize</a>& dimensions,
                                       const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>* matrix, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint,
                                       <a href='#SkImage_BitDepth'>BitDepth</a> bitDepth, <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; <a href='#SkImage_colorSpace'>colorSpace</a>)
 </pre>
@@ -1346,7 +1343,6 @@ created <a href='#Image'>Image</a>, or nullptr
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns pixel column count</td>
   </tr>
 </table>
-
 
 <a name='SkImage_width'></a>
 ## width
@@ -1746,7 +1742,6 @@ transforming <a href='#Image'>Image</a> before <a href='SkCanvas_Reference#Matri
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>scales and converts one <a href='#Image'>Image</a> to another</td>
   </tr>
 </table>
-
 
 <a name='SkImage_peekPixels'></a>
 ## peekPixels
@@ -2279,7 +2274,6 @@ encoded <a href='#Image'>Image</a>, or nullptr
   </tr>
 </table>
 
-
 <a name='SkImage_makeSubset'></a>
 ## makeSubset
 
@@ -2306,7 +2300,7 @@ partial or full <a href='#Image'>Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="cedd6233848198e1fca4d1e14816baaf"></fiddle-embed></div>
+<div><fiddle-embed name="93669037c9eb9d142e7776b9f936fa96"></fiddle-embed></div>
 
 ### See Also
 

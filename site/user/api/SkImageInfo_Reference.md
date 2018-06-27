@@ -112,39 +112,42 @@ SkImageInfo related constants are defined by <code>enum</code>, <code>enum class
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>pixel with half floats for red, green, blue, alpha; in 64-bit word</td>
   </tr>
   <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#kRGBA_F32_SkColorType'>kRGBA_F32_SkColorType</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>pixel using C float for red, green, blue, alpha; in 128-bit word</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#kRGB_101010x_SkColorType'>kRGB_101010x_SkColorType</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>pixel with 10 bits each for red, green, blue; in 32-bit word</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#kRGB_565_SkColorType'>kRGB_565_SkColorType</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>pixel with 5 bits red, 6 bits green, 5 bits blue, in 16-bit word</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#kRGB_888x_SkColorType'>kRGB_888x_SkColorType</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>pixel with 8 bits each for red, green, blue; in 32-bit word</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#kRec601_SkYUVColorSpace'>kRec601_SkYUVColorSpace</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>describes SDTV range</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#kRec709_SkYUVColorSpace'>kRec709_SkYUVColorSpace</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>describes HDTV range</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#kUnknown_SkAlphaType'>kUnknown_SkAlphaType</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>uninitialized</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#kUnknown_SkColorType'>kUnknown_SkColorType</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>uninitialized</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#kUnpremul_SkAlphaType'>kUnpremul_SkAlphaType</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>pixel components are independent of <a href='SkColor_Reference#Alpha'>Alpha</a></td>
   </tr>
 </table>
-
 
 ## <a name='Alpha_Type'>Alpha Type</a>
 
@@ -333,8 +336,8 @@ true if <a href='#SkAlphaTypeIsOpaque_at'>at</a> equals <a href='#kOpaque_SkAlph
         <a href='#kRGB_101010x_SkColorType'>kRGB_101010x_SkColorType</a>,
         <a href='#kGray_8_SkColorType'>kGray_8_SkColorType</a>,
         <a href='#kRGBA_F16_SkColorType'>kRGBA_F16_SkColorType</a>,
-
-        <a href='#kLastEnum_SkColorType'>kLastEnum_SkColorType</a> = <a href='#kRGBA_F16_SkColorType'>kRGBA_F16_SkColorType</a>,
+        <a href='#kRGBA_F32_SkColorType'>kRGBA_F32_SkColorType</a>,
+        <a href='#kLastEnum_SkColorType'>kLastEnum_SkColorType</a> = <a href='#kRGBA_F32_SkColorType'>kRGBA_F32_SkColorType</a>,
     #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
         <a href='#kN32_SkColorType'>kN32_SkColorType</a> = <a href='#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a>,
     #elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
@@ -456,18 +459,29 @@ blue, and green, representing colors from black to white.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_RGBA_F16'>Color&nbsp;Type&nbsp;RGBA&nbsp;F16</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Stores 64-bit word pixel encoding that contains 16 bits of blue,
-16 bits of green, 16 bits of red, and 16 bits of alpha.
+16 bits of green, 16 bits of red, and 16 bits of alpha. Each component
+is encoded as a half float.
 </td>
   </tr>
   <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kRGBA_F32_SkColorType'><code>kRGBA_F32_SkColorType</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>11</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_RGBA_F32'>Color&nbsp;Type&nbsp;RGBA&nbsp;F32</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Stores 128-bit word pixel encoding that contains 32 bits of blue,
+32 bits of green, 32 bits of red, and 32 bits of alpha. Each component
+is encoded as a single precision float.
+</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kLastEnum_SkColorType'><code>kLastEnum_SkColorType</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>10</td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>11</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Used by tests to iterate through all valid values.
 </td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kN32_SkColorType'><code>kN32_SkColorType</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>4 or 6</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
@@ -701,7 +715,7 @@ opaque as if its <a href='SkColor_Reference#Alpha'>Color Alpha</a> was set to on
 ## <a name='Color_Type_RGBA_F16'>Color Type RGBA F16</a>
 
 <a href='#kRGBA_F16_SkColorType'>kRGBA_F16_SkColorType</a> encodes ARGB into a 64-bit word. Each component:
-blue, green, red, and alpha; use 16 bits, describing a floating point value.
+blue, green, red, and alpha; use 16 bits, describing a floating point value,
 from -65500 to 65000 with 3.31 decimal digits of precision.
 
 At present, <a href='SkColor_Reference#Color'>Color</a> in <a href='SkPaint_Reference#Paint'>Paint</a> does not provide enough precision or range to
@@ -723,11 +737,42 @@ pixels.
 
 If paired with <a href='#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>: all alpha component values are at the maximum;
 blue, green, and red components are fully opaque. If any alpha component is
-less than 255, the drawn result is undefined.
+less than one, the drawn result is undefined.
 
 ### Example
 
-<div><fiddle-embed name="788ac33198103a14a5076dc3e03f2f4b"></fiddle-embed></div>
+<div><fiddle-embed name="dd81527bbdf5eaae7dd21ac04ab84f9e"></fiddle-embed></div>
+
+### See Also
+
+<a href='SkColor4f_Reference#SkColor4f'>SkColor4f</a>
+
+## <a name='Color_Type_RGBA_F32'>Color Type RGBA F32</a>
+
+<a href='#kRGBA_F32_SkColorType'>kRGBA_F32_SkColorType</a> encodes ARGB into a 128-bit word. Each component:
+blue, green, red, and alpha; use 32 bits, describing a floating point value,
+from -3.402823e+38 to 3.402823e+38 with 7.225 decimal digits of precision.
+
+At present, <a href='SkColor_Reference#Color'>Color</a> in <a href='SkPaint_Reference#Paint'>Paint</a> does not provide enough precision or range to
+draw all colors possible to a <a href='#kRGBA_F32_SkColorType'>kRGBA_F32_SkColorType</a> <a href='SkSurface_Reference#Surface'>Surface</a>.
+
+Each component encodes a floating point value using <a href='https://en.wikipedia.org/wiki/Single-precision_floating-point_format'>single-precision floats</a></a> .
+Meaningful colors are represented by the range 0.0 to 1.0, although smaller
+and larger values may be useful when used in combination with <a href='undocumented#Transfer_Mode'>Transfer Mode</a>.
+
+![Color_Type_RGBA_F32](https://fiddle.skia.org/i/b26119f9312d5f5d4011bf2dac94fafe_raster.png "")
+
+If paired with <a href='#kPremul_SkAlphaType'>kPremul_SkAlphaType</a>: blue, green, and red components are
+<a href='undocumented#Premultiply'>Premultiplied</a> by the alpha value. If blue, green, or red is greater than alpha,
+the drawn result is undefined.
+
+If paired with <a href='#kUnpremul_SkAlphaType'>kUnpremul_SkAlphaType</a>: blue, green, red, and alpha components
+may have any value. There may be a performance penalty with <a href='undocumented#Unpremultiply'>Unpremultiplied</a>
+pixels.
+
+If paired with <a href='#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>: all alpha component values are at the maximum;
+blue, green, and red components are fully opaque. If any alpha component is
+less than one, the drawn result is undefined.
 
 ### See Also
 
@@ -942,6 +987,7 @@ SkImageInfo related constants are defined by <code>enum</code>, <code>enum class
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
 </table>
+
 Describes pixel dimensions and encoding. <a href='SkBitmap_Reference#Bitmap'>Bitmap</a>, <a href='SkImage_Reference#Image'>Image</a>, PixMap, and <a href='SkSurface_Reference#Surface'>Surface</a>
 can be created from <a href='#Image_Info'>Image Info</a>. <a href='#Image_Info'>Image Info</a> can be retrieved from <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> and
 <a href='SkPixmap_Reference#Pixmap'>Pixmap</a>, but not from <a href='SkImage_Reference#Image'>Image</a> and <a href='SkSurface_Reference#Surface'>Surface</a>. For example, <a href='SkImage_Reference#Image'>Image</a> and <a href='SkSurface_Reference#Surface'>Surface</a>
@@ -1104,7 +1150,6 @@ SkImageInfo member functions read and modify the structure properties.
   </tr>
 </table>
 
-
 ## <a name='Related_Function'>Related Function</a>
 
 
@@ -1161,31 +1206,34 @@ SkImageInfo global, <code>struct</code>, and <code>class</code> related member f
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes ARGB as half floats</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_RGBA_F32'>Color Type RGBA F32</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes ARGB as single precision floats</td>
+  </tr>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_RGB_101010'>Color Type RGB 101010</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes RGB ten bits per color component</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_RGB_565'>Color Type RGB 565</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes RGB in 16 bits</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_RGB_888'>Color Type RGB 888</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>encodes RGB in 32 bits</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Property'>Property</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>metrics and attributes</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Utility'>Utility</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>rarely called management functions</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#YUV_ColorSpace'>YUV ColorSpace</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>color range of YUV pixels</td>
   </tr>
 </table>
-
 
 ## <a name='Constructor'>Constructor</a>
 
@@ -1259,7 +1307,6 @@ SkImageInfo can be constructed or initialized by these functions, including C++ 
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets zero dimensions, <a href='#kUnknown_SkColorType'>kUnknown_SkColorType</a>, <a href='#kUnknown_SkAlphaType'>kUnknown_SkAlphaType</a></td>
   </tr>
 </table>
-
 
 <a name='SkImageInfo_empty_constructor'></a>
 ## SkImageInfo
@@ -1694,7 +1741,6 @@ created <a href='#Image_Info'>Image Info</a>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns pixel column count</td>
   </tr>
 </table>
-
 
 <a name='SkImageInfo_width'></a>
 ## width
@@ -2382,7 +2428,6 @@ SkImageInfo operators inline class member functions with arithmetic equivalents.
   </tr>
 </table>
 
-
 <a name='SkImageInfo_equal1_operator'></a>
 ## operator==
 
@@ -2672,7 +2717,6 @@ SkImageInfo() == reset copy
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>asserts if <a href='#Image_Info'>Image Info</a> is invalid (debug only)</td>
   </tr>
 </table>
-
 
 <a name='SkImageInfo_validate'></a>
 ## validate
