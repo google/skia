@@ -297,6 +297,7 @@ struct CacheCaps {
 
 SkImageCacherator::CachedFormat SkImage_Lazy::chooseCacheFormat(SkColorSpace* dstColorSpace,
                                                                 const GrCaps* grCaps) const {
+#ifdef SK_SUPPORT_LEGACY_LAZY_IMAGE_DECODE_BEHAVIOR
     SkColorSpace* cs = fInfo.colorSpace();
     if (!cs || !dstColorSpace) {
         return kLegacy_CachedFormat;
@@ -390,10 +391,12 @@ SkImageCacherator::CachedFormat SkImage_Lazy::chooseCacheFormat(SkColorSpace* ds
             }
     }
     SkDEBUGFAIL("Unreachable");
+#endif
     return kLegacy_CachedFormat;
 }
 
 SkImageInfo SkImage_Lazy::buildCacheInfo(CachedFormat format) const {
+#ifdef SK_SUPPORT_LEGACY_LAZY_IMAGE_DECODE_BEHAVIOR
     switch (format) {
         case kLegacy_CachedFormat:
             return fInfo.makeColorSpace(nullptr);
@@ -422,6 +425,13 @@ SkImageInfo SkImage_Lazy::buildCacheInfo(CachedFormat format) const {
             SkDEBUGFAIL("Invalid cached format");
             return fInfo;
     }
+#else
+    if (kGray_8_SkColorType == fInfo.colorType()) {
+        return fInfo.makeColorSpace(nullptr);
+    } else {
+        return fInfo;
+    }
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -602,6 +612,7 @@ bool SkImage_Lazy::onCanLazyGenerateOnGPU() const {
 }
 
 SkTransferFunctionBehavior SkImage_Lazy::getGeneratorBehaviorAndInfo(SkImageInfo* generatorImageInfo) const {
+#ifdef SK_SUPPORT_LEGACY_LAZY_IMAGE_DECODE_BEHAVIOR
     if (generatorImageInfo->colorSpace()) {
         return SkTransferFunctionBehavior::kRespect;
     }
@@ -616,6 +627,7 @@ SkTransferFunctionBehavior SkImage_Lazy::getGeneratorBehaviorAndInfo(SkImageInfo
         default:
             break;
     }
+#endif
     return SkTransferFunctionBehavior::kIgnore;
 }
 
