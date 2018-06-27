@@ -14,6 +14,10 @@
 #include "vk/GrVkTypes.h"
 #include "vk/GrVkUtil.h"
 #endif
+#ifdef SK_METAL
+#include "mtl/GrMtlTypes.h"
+#include "../private/GrMtlTrampoline.h"
+#endif
 
 GrBackendFormat::GrBackendFormat(GrGLenum format, GrGLenum target)
         : fBackend(kOpenGL_GrBackend)
@@ -51,6 +55,21 @@ const VkFormat* GrBackendFormat::getVkFormat() const {
 }
 #endif
 
+#ifdef SK_METAL
+GrBackendFormat::GrBackendFormat(GrMTLPixelFormat mtlFormat)
+        : fBackend(kMetal_GrBackend)
+        , fValid(true)
+        , fMtlFormat(mtlFormat) {
+}
+
+const GrMTLPixelFormat* GrBackendFormat::getMtlFormat() const {
+    if (this->isValid() && kMetal_GrBackend == fBackend) {
+        return &fMtlFormat;
+    }
+    return nullptr;
+}
+#endif
+
 GrBackendFormat::GrBackendFormat(GrPixelConfig config)
         : fBackend(kMock_GrBackend)
         , fValid(true)
@@ -82,6 +101,18 @@ GrBackendTexture::GrBackendTexture(int width,
         , fMipMapped(GrMipMapped(vkInfo.fLevelCount > 1))
         , fBackend(kVulkan_GrBackend)
         , fVkInfo(vkInfo, layout.release()) {
+}
+#endif
+
+#ifdef SK_METAL
+GrBackendTexture::GrBackendTexture(const GrMtlTextureInfo& mtlInfo)
+        : fIsValid(true)
+        , fWidth(mtlInfo.fWidth)
+        , fHeight(mtlInfo.fHeight)
+        , fConfig(GrMtlTrampoline::GrMTLFormatToPixelConfig(mtlInfo.fFormat))
+        , fMipMapped(GrMipMapped(mtlInfo.fLevelCount > 1))
+        , fBackend(kMetal_GrBackend)
+        , fMtlInfo(mtlInfo) {
 }
 #endif
 
@@ -170,6 +201,7 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
 #endif
 #ifdef SK_METAL
         case kMetal_GrBackend:
+            fMtlInfo = that.fMtlInfo;
             break;
 #endif
         case kMock_GrBackend:
@@ -205,6 +237,16 @@ sk_sp<GrVkImageLayout> GrBackendTexture::getGrVkImageLayout() const {
 }
 #endif
 
+#ifdef SK_METAL
+bool GrBackendTexture::getMtlTextureInfo(GrMtlTextureInfo* outInfo) const {
+    if (this->isValid() && kVulkan_GrBackend == fBackend) {
+        *outInfo = fMtlInfo;
+        return true;
+    }
+    return false;
+}
+#endif
+
 bool GrBackendTexture::getGLTextureInfo(GrGLTextureInfo* outInfo) const {
     if (this->isValid() && kOpenGL_GrBackend == fBackend) {
         *outInfo = fGLInfo;
@@ -232,6 +274,13 @@ GrBackendFormat GrBackendTexture::format() const {
             GrVkImageInfo vkInfo;
             SkAssertResult(this->getVkImageInfo(&vkInfo));
             return GrBackendFormat::MakeVk(vkInfo.fFormat);
+        }
+#endif
+#ifdef SK_METAL
+        case kMetal_GrBackend: {
+            GrMtlTextureInfo mtlInfo;
+            SkAssertResult(this->getMtlTextureInfo(&mtlInfo));
+            return GrBackendFormat::MakeMtl(mtlInfo.fFormat);
         }
 #endif
         case kOpenGL_GrBackend: {
@@ -274,7 +323,12 @@ bool GrBackendTexture::TestingOnly_Equals(const GrBackendTexture& t0, const GrBa
 #else
         // fall through
 #endif
-    case kMetal_GrBackend: // fall through
+    case kMetal_GrBackend:
+#ifdef SK_METAL
+        return t0.fMtlInfo == t1.fMtlInfo;
+#else
+        // fall through
+#endif
     default:
         return false;
     }
@@ -317,6 +371,18 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fConfig(GrVkFormatToPixelConfig(vkInfo.fFormat))
         , fBackend(kVulkan_GrBackend)
         , fVkInfo(vkInfo, layout.release()) {}
+#endif
+
+#ifdef SK_METAL
+GrBackendRenderTarget::GrBackendRenderTarget(const GrMtlTextureInfo& mtlInfo)
+        : fIsValid(true)
+        , fWidth(mtlInfo.fWidth)
+        , fHeight(mtlInfo.fHeight)
+        , fSampleCnt(SkTMax(1, mtlInfo.fSampleCnt))
+        , fStencilBits(0)
+        , fConfig(GrMtlTrampoline::GrMTLFormatToPixelConfig(mtlInfo.fFormat))
+        , fBackend(kMetal_GrBackend)
+        , fMtlInfo(mtlInfo) {}
 #endif
 
 #if GR_TEST_UTILS
@@ -404,6 +470,7 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
 #endif
 #ifdef SK_METAL
         case kMetal_GrBackend:
+            fMtlInfo = that.fMtlInfo;
             break;
 #endif
         case kMock_GrBackend:
@@ -436,6 +503,16 @@ sk_sp<GrVkImageLayout> GrBackendRenderTarget::getGrVkImageLayout() const {
         return fVkInfo.getGrVkImageLayout();
     }
     return nullptr;
+}
+#endif
+
+#ifdef SK_METAL
+bool GrBackendRenderTarget::getMtlTextureInfo(GrMtlTextureInfo* outInfo) const {
+    if (this->isValid() && kMetal_GrBackend == fBackend) {
+        *outInfo = fMtlInfo;
+        return true;
+    }
+    return false;
 }
 #endif
 
@@ -482,7 +559,12 @@ bool GrBackendRenderTarget::TestingOnly_Equals(const GrBackendRenderTarget& r0,
 #else
         // fall through
 #endif
-    case kMetal_GrBackend: // fall through
+    case kMetal_GrBackend:
+#ifdef SK_METAL
+        return r0.fMtlInfo == r1.fMtlInfo;
+#else
+        // fall through
+#endif
     default:
         return false;
     }
