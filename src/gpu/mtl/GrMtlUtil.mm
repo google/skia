@@ -113,3 +113,22 @@ GrPixelConfig GrMTLFormatToPixelConfig(MTLPixelFormat format) {
             return kUnknown_GrPixelConfig;
     }
 }
+
+void ExtractMTLTextureInfo(const id<MTLTexture> mtlTexture, GrMtlTextureInfo* outInfo) {
+    if (nil != mtlTexture) {
+        outInfo->fWidth = mtlTexture.width;
+        outInfo->fHeight = mtlTexture.height;
+        outInfo->fSampleCnt = mtlTexture.sampleCount;
+        outInfo->fLevelCount = mtlTexture.mipmapLevelCount;
+        outInfo->fFormat = mtlTexture.pixelFormat;
+        outInfo->fTexture = (__bridge const void*)mtlTexture;
+    }
+}
+
+id<MTLTexture> TransferTexture(const void* mtlTexture, GrWrapOwnership wrapOwnership) {
+    if (GrWrapOwnership::kAdopt_GrWrapOwnership == wrapOwnership) {
+        return (__bridge_transfer const id<MTLTexture>)mtlTexture;
+    } else {
+        return (__bridge const id<MTLTexture>)mtlTexture;
+    }
+}
