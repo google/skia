@@ -10,6 +10,7 @@
 
 #import <Metal/Metal.h>
 
+#include "mtl/GrMtlTypes.h"
 #include "GrTypesPriv.h"
 
 
@@ -22,5 +23,10 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format);
 * Returns the GrPixelConfig for the given Metal texture format
 */
 GrPixelConfig GrMTLFormatToPixelConfig(MTLPixelFormat format);
+
+/**
+ * Returns id<MTLTexture> from void pointer
+ */
+id<MTLTexture> TransferTexture(const void* mtlTexture, GrWrapOwnership);
 
 #endif
