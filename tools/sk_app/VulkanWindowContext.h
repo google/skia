@@ -68,7 +68,6 @@ private:
     VkInstance fInstance = VK_NULL_HANDLE;
     VkPhysicalDevice fPhysicalDevice = VK_NULL_HANDLE;
     VkDevice fDevice = VK_NULL_HANDLE;
-    VkDebugReportCallbackEXT fDebugCallback = VK_NULL_HANDLE;
 
     // simple wrapper class that exists only to initialize a pointer to NULL
     template <typename FNPTR_TYPE> class VkPtr {
