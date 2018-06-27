@@ -624,11 +624,6 @@ bool validate_image_info(VkFormat format, SkColorType ct, GrPixelConfig* config)
                 *config = kRGBA_half_GrPixelConfig;
             }
             break;
-        case kRGBA_F32_SkColorType:
-            if (VK_FORMAT_R32G32B32A32_SFLOAT == format) {
-                *config = kRGBA_float_GrPixelConfig;
-            }
-            break;
     }
 
     return kUnknown_GrPixelConfig != *config;

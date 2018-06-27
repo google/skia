@@ -380,7 +380,6 @@ SkImageCacherator::CachedFormat SkImage_Lazy::chooseCacheFormat(SkColorSpace* ds
             }
 
         case kRGBA_F16_SkColorType:
-        case kRGBA_F32_SkColorType:
             if (caps.supportsHalfFloat()) {
                 return kLinearF16_CachedFormat;
             } else if (caps.supportsSRGB()) {
