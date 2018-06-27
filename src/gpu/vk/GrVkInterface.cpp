@@ -26,19 +26,20 @@ GrVkInterface::GrVkInterface(GetProc getProc,
                              VkInstance instance,
                              VkDevice device,
                              uint32_t extensionFlags)
-        : fExtensions(extensionFlags) {
+        : fExtensions(getProc, instance, extensionFlags) {
     this->init(getProc, instance, device);
 }
 
 GrVkInterface::GrVkInterface(GetProc getProc,
                              VkInstance instance,
+                             VkPhysicalDevice physDev,
                              VkDevice device,
                              uint32_t instanceExtensionCount,
                              const char* const* instanceExtensions,
                              uint32_t deviceExtensionCount,
                              const char* const* deviceExtensions)
-        : fExtensions(instanceExtensionCount, instanceExtensions, deviceExtensionCount,
-                      deviceExtensions) {
+        : fExtensions(getProc, instance, physDev, instanceExtensionCount, instanceExtensions,
+                      deviceExtensionCount, deviceExtensions) {
     this->init(getProc, instance, device);
 }
 
@@ -65,13 +66,6 @@ void GrVkInterface::init(GetProc getProc, VkInstance instance, VkDevice device) 
     ACQUIRE_PROC(DestroyDevice, instance, VK_NULL_HANDLE);
     ACQUIRE_PROC(EnumerateDeviceExtensionProperties, instance, VK_NULL_HANDLE);
     ACQUIRE_PROC(EnumerateDeviceLayerProperties, instance, VK_NULL_HANDLE);
-
-    if (fExtensions.hasExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME)) {
-        // Also instance Procs.
-        ACQUIRE_PROC(CreateDebugReportCallbackEXT, instance, VK_NULL_HANDLE);
-        ACQUIRE_PROC(DebugReportMessageEXT, instance, VK_NULL_HANDLE);
-        ACQUIRE_PROC(DestroyDebugReportCallbackEXT, instance, VK_NULL_HANDLE);
-    }
 
     // Device Procs.
     ACQUIRE_PROC(GetDeviceQueue, VK_NULL_HANDLE, device);
@@ -345,13 +339,6 @@ bool GrVkInterface::validate() const {
         RETURN_FALSE_INTERFACE
     }
 
-    if (fExtensions.hasExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME)) {
-        if (nullptr == fFunctions.fCreateDebugReportCallbackEXT ||
-            nullptr == fFunctions.fDebugReportMessageEXT ||
-            nullptr == fFunctions.fDestroyDebugReportCallbackEXT) {
-            RETURN_FALSE_INTERFACE
-        }
-    }
     return true;
 }
 

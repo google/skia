@@ -113,6 +113,7 @@ public:
         GrVkBackendContext backendContext;
         bool ownsContext = true;
         VkDebugReportCallbackEXT debugCallback = VK_NULL_HANDLE;
+        PFN_vkDestroyDebugReportCallbackEXT destroyCallback = nullptr;
         if (sharedContext) {
             backendContext = sharedContext->getVkBackendContext();
             // We always delete the parent context last so make sure the child does not think they
@@ -128,8 +129,12 @@ public:
                                                      &debugCallback)) {
                 return nullptr;
             }
+            if (debugCallback != VK_NULL_HANDLE) {
+                destroyCallback = (PFN_vkDestroyDebugReportCallbackEXT) instProc(
+                        backendContext.fInstance, "vkDestroyDebugReportCallbackEXT");
+            }
         }
-        return new VkTestContextImpl(backendContext, ownsContext, debugCallback);
+        return new VkTestContextImpl(backendContext, ownsContext, debugCallback, destroyCallback);
     }
 
     ~VkTestContextImpl() override { this->teardown(); }
@@ -154,8 +159,7 @@ protected:
             GR_VK_CALL(this->vk(), DestroyDevice(fVk.fDevice, nullptr));
 #ifdef SK_ENABLE_VK_LAYERS
             if (fDebugCallback != VK_NULL_HANDLE) {
-                GR_VK_CALL(this->vk(), DestroyDebugReportCallbackEXT(fVk.fInstance, fDebugCallback,
-                                                                     nullptr));
+                fDestroyDebugReportCallbackEXT(fVk.fInstance, fDebugCallback, nullptr);
             }
 #endif
             GR_VK_CALL(this->vk(), DestroyInstance(fVk.fInstance, nullptr));
@@ -164,8 +168,9 @@ protected:
 
 private:
     VkTestContextImpl(const GrVkBackendContext& backendContext, bool ownsContext,
-                      VkDebugReportCallbackEXT debugCallback)
-            : VkTestContext(backendContext, ownsContext, debugCallback) {
+                      VkDebugReportCallbackEXT debugCallback,
+                      PFN_vkDestroyDebugReportCallbackEXT destroyCallback)
+            : VkTestContext(backendContext, ownsContext, debugCallback, destroyCallback) {
         fFenceSync.reset(new VkFenceSync(fVk.fInterface, fVk.fDevice, fVk.fQueue,
                                          fVk.fGraphicsQueueIndex));
     }

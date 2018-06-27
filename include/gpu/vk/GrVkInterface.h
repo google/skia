@@ -11,7 +11,7 @@
 #include "SkRefCnt.h"
 
 #include "vk/GrVkDefines.h"
-#include "vk/GrVkExtensions.h"
+#include "../private/GrVkExtensions.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -50,6 +50,7 @@ public:
 
     GrVkInterface(GetProc getProc,
                   VkInstance instance,
+                  VkPhysicalDevice physDevice,
                   VkDevice device,
                   uint32_t instanceExtensionCount,
                   const char* const* instanceExtensions,

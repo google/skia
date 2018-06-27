@@ -11,7 +11,6 @@
 
 #include "SkAutoMalloc.h"
 #include "vk/GrVkBackendContext.h"
-#include "vk/GrVkExtensions.h"
 #include "../ports/SkOSLibrary.h"
 
 namespace sk_gpu_test {
@@ -576,7 +575,7 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
         return false;
     }
 
-    auto interface = sk_make_sp<GrVkInterface>(getProc, inst, device,
+    auto interface = sk_make_sp<GrVkInterface>(getProc, inst, physDev, device,
                                                (uint32_t) instanceExtensionNames.count(),
                                                instanceExtensionNames.begin(),
                                                (uint32_t) deviceExtensionNames.count(),
