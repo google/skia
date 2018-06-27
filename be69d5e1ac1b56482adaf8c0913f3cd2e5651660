@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "f36464a3_1d519e80",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-27T21:23:58Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "52992e83_47ad6a32",
+      "range": {
+        "startLine": 80,
+        "startChar": 24,
+        "endLine": 80,
+        "endChar": 34
+      },
+      "revId": "be69d5e1ac1b56482adaf8c0913f3cd2e5651660",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "47ab29e8_1fb594af",
         "filename": "src/core/SkGlyphRun.h",
         "patchSetId": 13
@@ -92,6 +116,30 @@
       "revId": "be69d5e1ac1b56482adaf8c0913f3cd2e5651660",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45b11c4e_187581bb",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-27T21:23:58Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "47ab29e8_1fb594af",
+      "range": {
+        "startLine": 221,
+        "startChar": 74,
+        "endLine": 221,
+        "endChar": 86
+      },
+      "revId": "be69d5e1ac1b56482adaf8c0913f3cd2e5651660",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +211,30 @@
       "revId": "be69d5e1ac1b56482adaf8c0913f3cd2e5651660",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "648d5bec_117ac885",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-06-27T21:23:58Z",
+      "side": 1,
+      "message": "Ah. Right. It used to be that all positions were absolute, but I had to change that for textBlobs. The change in origin triggers code that updates GrTextBlob in the GPU cache. Thanks for the catch.",
+      "parentUuid": "df228145_06c687bb",
+      "range": {
+        "startLine": 244,
+        "startChar": 8,
+        "endLine": 244,
+        "endChar": 31
+      },
+      "revId": "be69d5e1ac1b56482adaf8c0913f3cd2e5651660",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
