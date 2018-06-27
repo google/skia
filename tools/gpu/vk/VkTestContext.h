@@ -26,13 +26,11 @@ public:
     const GrVkInterface* vk() const { return fVk.fInterface.get(); }
 
 protected:
-    VkTestContext(const GrVkBackendContext& vk, bool ownsContext,
-                  VkDebugReportCallbackEXT debugCallback)
-            : fVk(vk), fOwnsContext(ownsContext), fDebugCallback(debugCallback) {}
+    VkTestContext(const GrVkBackendContext& vk, bool ownsContext)
+            : fVk(vk), fOwnsContext(ownsContext) {}
 
     GrVkBackendContext fVk;
     bool fOwnsContext;
-    VkDebugReportCallbackEXT fDebugCallback = VK_NULL_HANDLE;
 
 private:
     typedef TestContext INHERITED;
