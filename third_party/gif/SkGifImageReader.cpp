@@ -96,8 +96,18 @@ mailing address.
 // Get a 16-bit value stored in little-endian format.
 #define GETINT16(p)   ((p)[1]<<8|(p)[0])
 
+namespace {
+    bool is_palette_index_valid(int transparentIndex) {
+        // -1 is a signal that there is no transparent index.
+        // Otherwise, it is encoded in 8 bits, and all 256 values are considered
+        // valid since a GIF may use an index outside of the palette to be
+        // transparent.
+        return transparentIndex >= 0;
+    }
+} // anonymous namespace
+
 // Send the data to the display front-end.
-bool SkGIFLZWContext::outputRow(const unsigned char* rowBegin)
+void SkGIFLZWContext::outputRow(const unsigned char* rowBegin)
 {
     int drowStart = irow;
     int drowEnd = irow;
@@ -144,13 +154,12 @@ bool SkGIFLZWContext::outputRow(const unsigned char* rowBegin)
 
     // Protect against too much image data.
     if (drowStart >= m_frameContext->height())
-        return true;
+        return;
 
     // CALLBACK: Let the client know we have decoded a row.
     const bool writeTransparentPixels = (SkCodec::kNone == m_frameContext->getRequiredFrame());
-    if (!m_client->haveDecodedRow(m_frameContext->frameId(), rowBegin,
-        drowStart, drowEnd - drowStart + 1, writeTransparentPixels))
-        return false;
+    m_client->haveDecodedRow(m_frameContext->frameId(), rowBegin,
+            drowStart, drowEnd - drowStart + 1, writeTransparentPixels);
 
     if (!m_frameContext->interlaced())
         irow++;
@@ -194,7 +203,6 @@ bool SkGIFLZWContext::outputRow(const unsigned char* rowBegin)
             }
         } while (irow > (unsigned) (m_frameContext->height() - 1));
     }
-    return true;
 }
 
 // Perform Lempel-Ziv-Welch decoding.
@@ -287,8 +295,7 @@ bool SkGIFLZWContext::doLZW(const unsigned char* block, size_t bytesInBlock)
             // Output as many rows as possible.
             unsigned char* rowBegin = rowBuffer.begin();
             for (; rowBegin + width <= rowIter; rowBegin += width) {
-                if (!outputRow(rowBegin))
-                    return false;
+                outputRow(rowBegin);
                 rowsRemaining--;
                 if (!rowsRemaining)
                     return true;
@@ -347,7 +354,7 @@ sk_sp<SkColorTable> SkGIFColorMap::buildTable(SkStreamBuffer* streamBuffer, SkCo
 }
 
 sk_sp<SkColorTable> SkGifImageReader::getColorTable(SkColorType colorType, int index) {
-    if (index < 0 || static_cast<size_t>(index) >= m_frames.size()) {
+    if (index < 0 || index >= m_frames.count()) {
         return nullptr;
     }
 
@@ -385,8 +392,7 @@ bool SkGIFFrameContext::decode(SkStreamBuffer* streamBuffer, SkGifCodec* client,
     }
 
     // Some bad GIFs have extra blocks beyond the last row, which we don't want to decode.
-    while (static_cast<size_t>(m_currentLzwBlock) < m_lzwBlocks.size()
-           && m_lzwContext->hasRemainingRows()) {
+    while (m_currentLzwBlock < m_lzwBlocks.count() && m_lzwContext->hasRemainingRows()) {
         const auto& block = m_lzwBlocks[m_currentLzwBlock];
         const size_t len = block.blockSize;
 
@@ -420,31 +426,29 @@ bool SkGifImageReader::decode(int frameIndex, bool* frameComplete)
 }
 
 // Parse incoming GIF data stream into internal data structures.
-// Return true if parsing has progressed or there is not enough data.
-// Return false if a fatal error is encountered.
-bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
+SkCodec::Result SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
 {
     if (m_parseCompleted) {
-        return true;
+        return SkCodec::kSuccess;
     }
 
     if (SkGIFLoopCountQuery == query && m_loopCount != cLoopCountNotSeen) {
         // Loop count has already been parsed.
-        return true;
+        return SkCodec::kSuccess;
     }
 
     // SkGIFSizeQuery and SkGIFFrameCountQuery are negative, so this is only meaningful when >= 0.
     const int lastFrameToParse = (int) query;
-    if (lastFrameToParse >= 0 && (int) m_frames.size() > lastFrameToParse
+    if (lastFrameToParse >= 0 && m_frames.count() > lastFrameToParse
                 && m_frames[lastFrameToParse]->isComplete()) {
         // We have already parsed this frame.
-        return true;
+        return SkCodec::kSuccess;
     }
 
     while (true) {
         if (!m_streamBuffer.buffer(m_bytesToConsume)) {
             // The stream does not yet have enough data.
-            return true;
+            return SkCodec::kIncompleteInput;
         }
 
         switch (m_state) {
@@ -475,7 +479,7 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
             else {
                 // This prevents attempting to continue reading this invalid stream.
                 GETN(0, SkGIFDone);
-                return false;
+                return SkCodec::kInvalidInput;
             }
             GETN(7, SkGIFGlobalHeader);
             break;
@@ -616,11 +620,11 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
             case 4:
                 // Some specs say that disposal method 3 is "overwrite previous", others that setting
                 // the third bit of the field (i.e. method 4) is. We map both to the same value.
-                currentFrame->setDisposalMethod(SkCodecAnimation::RestorePrevious_DisposalMethod);
+                currentFrame->setDisposalMethod(SkCodecAnimation::DisposalMethod::kRestorePrevious);
                 break;
             default:
                 // Other values use the default.
-                currentFrame->setDisposalMethod(SkCodecAnimation::Keep_DisposalMethod);
+                currentFrame->setDisposalMethod(SkCodecAnimation::DisposalMethod::kKeep);
                 break;
             }
             currentFrame->setDuration(GETINT16(currentComponent + 1) * 10);
@@ -687,7 +691,7 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
 
                 if (SkGIFLoopCountQuery == query) {
                     m_streamBuffer.flush();
-                    return true;
+                    return SkCodec::kSuccess;
                 }
             } else if (netscapeExtension == 2) {
                 // Wait for specified # of bytes to enter buffer.
@@ -700,7 +704,7 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
                 // 0,3-7 are yet to be defined netscape extension codes
                 // This prevents attempting to continue reading this invalid stream.
                 GETN(0, SkGIFDone);
-                return false;
+                return SkCodec::kInvalidInput;
             }
             break;
         }
@@ -748,7 +752,7 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
                 if (!height || !width) {
                     // This prevents attempting to continue reading this invalid stream.
                     GETN(0, SkGIFDone);
-                    return false;
+                    return SkCodec::kInvalidInput;
                 }
             }
 
@@ -758,17 +762,13 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
             if (currentFrameIsFirstFrame()) {
                 const int transPix = m_frames.empty() ? SkGIFColorMap::kNotFound
                                                       : m_frames[0]->transparentPixel();
-                if (this->hasTransparency(transPix,
-                        isLocalColormapDefined, numColors))
-                {
+                if (is_palette_index_valid(transPix)) {
                     m_firstFrameHasAlpha = true;
-                    m_firstFrameSupportsIndex8 = true;
                 } else {
                     const bool frameIsSubset = xOffset > 0 || yOffset > 0
                             || width < fScreenWidth
                             || height < fScreenHeight;
                     m_firstFrameHasAlpha = frameIsSubset;
-                    m_firstFrameSupportsIndex8 = !frameIsSubset;
                 }
             }
 
@@ -780,7 +780,7 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
                 // The decoder needs to stop, so we return here, before
                 // flushing the buffer. Next time through, we'll be in the same
                 // state, requiring the same amount in the buffer.
-                return true;
+                return SkCodec::kSuccess;
             }
 
 
@@ -830,9 +830,9 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
                 // decode all rows but we treat it as frame complete.
                 m_frames.back()->setComplete();
                 GETN(1, SkGIFImageStart);
-                if (lastFrameToParse >= 0 && (int) m_frames.size() > lastFrameToParse) {
+                if (lastFrameToParse >= 0 && m_frames.count() > lastFrameToParse) {
                     m_streamBuffer.flush();
-                    return true;
+                    return SkCodec::kSuccess;
                 }
             }
             break;
@@ -840,52 +840,25 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
 
         case SkGIFDone: {
             m_parseCompleted = true;
-            return true;
+            return SkCodec::kSuccess;
         }
 
         default:
             // We shouldn't ever get here.
             // This prevents attempting to continue reading this invalid stream.
             GETN(0, SkGIFDone);
-            return false;
+            return SkCodec::kInvalidInput;
             break;
         }   // switch
         m_streamBuffer.flush();
     }
-
-    return true;
-}
-
-bool SkGifImageReader::hasTransparency(int transparentPixel, bool isLocalColormapDefined,
-                                       int localColors) const {
-    const int globalColors = m_globalColorMap.numColors();
-    if (!isLocalColormapDefined && globalColors == 0) {
-        // No color table for this frame, so it is completely transparent.
-        return true;
-    }
-
-    if (transparentPixel < 0) {
-        SkASSERT(SkGIFColorMap::kNotFound == transparentPixel);
-        return false;
-    }
-
-    if (isLocalColormapDefined) {
-        return transparentPixel < localColors;
-    }
-
-    // If there is a global color table, it will be parsed before reaching
-    // here. If its numColors is set, it will be defined.
-    SkASSERT(globalColors > 0);
-    SkASSERT(m_globalColorMap.isDefined());
-    return transparentPixel < globalColors;
 }
 
 void SkGifImageReader::addFrameIfNecessary()
 {
     if (m_frames.empty() || m_frames.back()->isComplete()) {
-        const size_t i = m_frames.size();
-        std::unique_ptr<SkGIFFrameContext> frame(new SkGIFFrameContext(this, static_cast<int>(i)));
-        m_frames.push_back(std::move(frame));
+        const int i = m_frames.count();
+        m_frames.emplace_back(new SkGIFFrameContext(i));
     }
 }
 
@@ -903,19 +876,19 @@ static bool independent(const SkFrame& frame) {
 }
 
 static bool restore_bg(const SkFrame& frame) {
-    return frame.getDisposalMethod() == SkCodecAnimation::RestoreBGColor_DisposalMethod;
+    return frame.getDisposalMethod() == SkCodecAnimation::DisposalMethod::kRestoreBGColor;
 }
 
-bool SkGIFFrameContext::onReportsAlpha() const {
+SkEncodedInfo::Alpha SkGIFFrameContext::onReportedAlpha() const {
     // Note: We could correct these after decoding - i.e. some frames may turn out to be
     // independent and opaque if they do not use the transparent pixel, but that would require
     // checking whether each pixel used the transparent index.
-    return m_owner->hasTransparency(this->transparentPixel(),
-            m_localColorMap.isDefined(), m_localColorMap.numColors());
+    return is_palette_index_valid(this->transparentPixel()) ? SkEncodedInfo::kBinary_Alpha
+                                                            : SkEncodedInfo::kOpaque_Alpha;
 }
 
 void SkFrameHolder::setAlphaAndRequiredFrame(SkFrame* frame) {
-    const bool reportsAlpha = frame->reportsAlpha();
+    const bool reportsAlpha = frame->reportedAlpha() != SkEncodedInfo::kOpaque_Alpha;
     const auto screenRect = SkIRect::MakeWH(fScreenWidth, fScreenHeight);
     const auto frameRect = frame_rect_on_screen(frame->frameRect(), screenRect);
 
@@ -935,7 +908,7 @@ void SkFrameHolder::setAlphaAndRequiredFrame(SkFrame* frame) {
     }
 
     const SkFrame* prevFrame = this->getFrame(i-1);
-    while (prevFrame->getDisposalMethod() == SkCodecAnimation::RestorePrevious_DisposalMethod) {
+    while (prevFrame->getDisposalMethod() == SkCodecAnimation::DisposalMethod::kRestorePrevious) {
         const int prevId = prevFrame->frameId();
         if (0 == prevId) {
             frame->setHasAlpha(true);
@@ -992,7 +965,7 @@ void SkFrameHolder::setAlphaAndRequiredFrame(SkFrame* frame) {
         return;
     }
 
-    SkASSERT(prevFrame->getDisposalMethod() == SkCodecAnimation::Keep_DisposalMethod);
+    SkASSERT(prevFrame->getDisposalMethod() == SkCodecAnimation::DisposalMethod::kKeep);
     frame->setRequiredFrame(prevFrame->frameId());
     frame->setHasAlpha(prevFrame->hasAlpha() || (reportsAlpha && !blendWithPrevFrame));
 }

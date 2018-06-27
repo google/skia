@@ -1,11 +1,11 @@
 Markdown
 ========
 
-This site can handle normal MarkDown and many common extensions. To learn
+This site can handle normal Markdown and many common extensions. To learn
 how the following is done please see the [source for this page](./markdown.md).
 Any file you put under `/site/` that has the extension `.md` will be processed
-as MarkDown. All other files will be served directly. For example, images
-can be added and they will be served correctly and referenced from within MarkDown files.
+as Markdown. All other files will be served directly. For example, images
+can be added and they will be served correctly and referenced from within Markdown files.
 
 When preparing for a code review of site docs you can get a preview of how the
 page will render by visiting the skia.org site and add a query parameter `cl`
@@ -13,12 +13,19 @@ with the value of the Reitveld issue id:
 
     https://skia.org/path/to/markdown-file?cl=REITVELD_ISSUE_NUMBER
 
-You can also run a local copy of the documentation server, which will allow
-you to preview changes much quicker. You must have [Go](https://golang.org)
-installed on your computer, which you will have if you are running on a Google
-corporate workstation. Run:
+This is the preferred method of previewing docs changes.
 
-    go get -u skia.googlesource.com/buildbot.git/doc/go/docserver
+If for some reason you can't use the method above to preview docs changes you
+can also run a local copy of the documentation server, which will allow you to
+preview changes much quicker. You must have a recent version (>=8.9) of
+[node](https://nodejs.org/) installed on your machine. You must also have
+[Go](https://golang.org) installed on your computer, which you will have if
+you are running on a Google corporate workstation. Installation also means
+that you have `$GOPATH/bin` [added to your PATH](https://golang.org/doc/code.html#GOPATH). Run:
+
+    go get -u go.skia.org/infra/doc/go/docserver
+    cd $GOPATH/src/go.skia.org/infra/doc
+    make
 
 And then **from within** the directory of your local Git checkout of Skia run:
 
@@ -55,7 +62,7 @@ to appear after the members of `dirOrder` or `fileOrder` respectively. All
 files and directories that aren't controlled by a METADATA file are sorted in
 alphabetical order by their filename.
 
-Some Example MarkDown
+Some Example Markdown
 ---------------------
 
 This is a [link](https://www.google.com). You can also create
@@ -129,7 +136,7 @@ such as 1/2 are rendered nicely.
 > ###### Deep
 
 And you can <b>always</b> use HTML, which is useful for features that can't be
-done in MarkDown, such as iframes, but try to avoid using HTML outside of
+done in Markdown, such as iframes, but try to avoid using HTML outside of
 sitations like that.
 <svg viewBox="0 0 24 24" height="24px" width="24px" style="display: inline;">
   <g>
@@ -143,14 +150,14 @@ sitations like that.
 Reference
 =========
 
-Below is a longer reference on the MarkDown that docserver accepts.
+Below is a longer reference on the Markdown that docserver accepts.
 
 Paragraphs
 ----------
 
 A paragraph is simply one or more consecutive lines of text, separated
 by one or more blank lines. (A blank line is any line that looks like a
-blank line -- a line containing nothing spaces or tabs is considered
+blank line -- a line containing nothing. Note: all spaces or tabs is considered
 blank.) Normal paragraphs should not be intended with spaces or tabs.
 
 Headers and Blockquotes
@@ -398,7 +405,8 @@ Output:
 
 
 To specify an entire block of pre-formatted code, indent every line of
-the block by 4 spaces or 1 tab. Just like with code spans, `&`, `<`,
+the block by 4 spaces or 1 tab, or add a line containing three backticks before
+and after the code block. Just like with code spans, `&`, `<`,
 and `>` characters will be escaped automatically.
 
 Markdown:
@@ -410,6 +418,17 @@ Markdown:
             <p>For example.</p>
         </blockquote>
 
+or
+
+    If you want your page to validate under XHTML 1.0 Strict,
+    you've got to put paragraph tags in your blockquotes:
+
+    ```
+    <blockquote>
+        <p>For example.</p>
+    </blockquote>
+    ```
+
 Output:
 
     <p>If you want your page to validate under XHTML 1.0 Strict,
@@ -419,6 +438,7 @@ Output:
         &lt;p&gt;For example.&lt;/p&gt;
     &lt;/blockquote&gt;
     </code></pre>
+
 
 ### Floating Menu ###
 

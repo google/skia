@@ -90,7 +90,7 @@ static void draw_45(SkCanvas* canvas, SkRRect::Corner corner,
         dir.set(-SK_ScalarRoot2Over2, SK_ScalarRoot2Over2);
         break;
     default:
-        SkFAIL("Invalid shape.");
+        SK_ABORT("Invalid shape.");
     }
 
     SkRect r = SkRect::MakeWH(kSize, kSize);
@@ -196,7 +196,7 @@ static void draw_30_60(SkCanvas* canvas, SkRRect::Corner corner, const SkVector&
         right = SkRRect::kUpperLeft_Corner;
         break;
     default:
-        SkFAIL("Invalid shape.");
+        SK_ABORT("Invalid shape.");
     }
 
     SkIRect r;

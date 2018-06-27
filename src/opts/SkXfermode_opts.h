@@ -11,7 +11,7 @@
 #include "Sk4px.h"
 #include "SkMSAN.h"
 #include "SkNx.h"
-#include "SkXfermode_proccoeff.h"
+#include "SkXfermodePriv.h"
 
 namespace {
 
@@ -215,10 +215,9 @@ template <> void mark_dst_initialized_if_safe<Clear>(void* dst, void* end) {
 }
 
 template <typename Xfermode>
-class Sk4pxXfermode : public SkProcCoeffXfermode {
+class Sk4pxXfermode : public SkXfermode {
 public:
-    Sk4pxXfermode(const ProcCoeff& rec, SkBlendMode mode)
-        : INHERITED(rec, mode) {}
+    Sk4pxXfermode() {}
 
     void xfer32(SkPMColor dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
         mark_dst_initialized_if_safe<Xfermode>(dst, dst+n);
@@ -228,61 +227,16 @@ public:
             Sk4px::MapDstSrcAlpha(n, dst, src, aa, xfer_aa<Xfermode>);
         }
     }
-
-    void xfer16(uint16_t dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
-        mark_dst_initialized_if_safe<Xfermode>(dst, dst+n);
-        SkPMColor dst32[4];
-        while (n >= 4) {
-            dst32[0] = SkPixel16ToPixel32(dst[0]);
-            dst32[1] = SkPixel16ToPixel32(dst[1]);
-            dst32[2] = SkPixel16ToPixel32(dst[2]);
-            dst32[3] = SkPixel16ToPixel32(dst[3]);
-
-            this->xfer32(dst32, src, 4, aa);
-
-            dst[0] = SkPixel32ToPixel16(dst32[0]);
-            dst[1] = SkPixel32ToPixel16(dst32[1]);
-            dst[2] = SkPixel32ToPixel16(dst32[2]);
-            dst[3] = SkPixel32ToPixel16(dst32[3]);
-
-            dst += 4;
-            src += 4;
-            aa  += aa ? 4 : 0;
-            n -= 4;
-        }
-        while (n) {
-            SkPMColor dst32 = SkPixel16ToPixel32(*dst);
-            this->xfer32(&dst32, src, 1, aa);
-            *dst = SkPixel32ToPixel16(dst32);
-
-            dst += 1;
-            src += 1;
-            aa  += aa ? 1 : 0;
-            n   -= 1;
-        }
-    }
-
-private:
-    typedef SkProcCoeffXfermode INHERITED;
 };
 
 template <typename Xfermode>
-class Sk4fXfermode : public SkProcCoeffXfermode {
+class Sk4fXfermode : public SkXfermode {
 public:
-    Sk4fXfermode(const ProcCoeff& rec, SkBlendMode mode)
-        : INHERITED(rec, mode) {}
+    Sk4fXfermode() {}
 
     void xfer32(SkPMColor dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
         for (int i = 0; i < n; i++) {
             dst[i] = Xfer32_1(dst[i], src[i], aa ? aa+i : nullptr);
-        }
-    }
-
-    void xfer16(uint16_t dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
-        for (int i = 0; i < n; i++) {
-            SkPMColor dst32 = SkPixel16ToPixel32(dst[i]);
-            dst32 = Xfer32_1(dst32, src[i], aa ? aa+i : nullptr);
-            dst[i] = SkPixel32ToPixel16(dst32);
         }
     }
 
@@ -307,18 +261,16 @@ private:
         SkNx_cast<uint8_t>(f * Sk4f(255) + Sk4f(0.5f)).store(&c);
         return c;
     }
-
-    typedef SkProcCoeffXfermode INHERITED;
 };
 
 } // namespace
 
 namespace SK_OPTS_NS {
 
-static SkXfermode* create_xfermode(const ProcCoeff& rec, SkBlendMode mode) {
+/*not static*/ inline SkXfermode* create_xfermode(SkBlendMode mode) {
     switch (mode) {
 #define CASE(Xfermode) \
-    case SkBlendMode::k##Xfermode: return new Sk4pxXfermode<Xfermode>(rec, mode)
+    case SkBlendMode::k##Xfermode: return new Sk4pxXfermode<Xfermode>()
         CASE(Clear);
         CASE(Src);
         CASE(Dst);
@@ -344,7 +296,7 @@ static SkXfermode* create_xfermode(const ProcCoeff& rec, SkBlendMode mode) {
     #undef CASE
 
 #define CASE(Xfermode) \
-    case SkBlendMode::k##Xfermode: return new Sk4fXfermode<Xfermode>(rec, mode)
+    case SkBlendMode::k##Xfermode: return new Sk4fXfermode<Xfermode>()
         CASE(ColorDodge);
         CASE(ColorBurn);
         CASE(SoftLight);

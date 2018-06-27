@@ -6,9 +6,10 @@
  */
 
 #include "SkTileImageFilter.h"
-
+#include "SkColorSpaceXformer.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
+#include "SkImageFilterPriv.h"
 #include "SkMatrix.h"
 #include "SkOffsetImageFilter.h"
 #include "SkPaint.h"
@@ -74,9 +75,6 @@ sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(SkSpecialImage* source,
     sk_sp<SkImage> subset;
     if (inputBounds.contains(srcIRect)) {
         subset = input->asImage(&srcIRect);
-        if (!subset) {
-            return nullptr;
-        }
     } else {
         sk_sp<SkSurface> surf(input->makeTightSurface(ctx.outputProperties(), srcIRect.size()));
         if (!surf) {
@@ -89,11 +87,14 @@ sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(SkSpecialImage* source,
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kSrc);
 
-        input->draw(canvas, 
+        input->draw(canvas,
                     SkIntToScalar(inputOffset.x()), SkIntToScalar(inputOffset.y()),
                     &paint);
 
         subset = surf->makeImageSnapshot();
+    }
+    if (!subset) {
+        return nullptr;
     }
     SkASSERT(subset->width() == srcIRect.width());
     SkASSERT(subset->height() == srcIRect.height());
@@ -118,12 +119,12 @@ sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(SkSpecialImage* source,
 
 sk_sp<SkImageFilter> SkTileImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
     SkASSERT(1 == this->countInputs());
-    if (!this->getInput(0)) {
-        return sk_ref_sp(const_cast<SkTileImageFilter*>(this));
-    }
 
-    sk_sp<SkImageFilter> input = this->getInput(0)->makeColorSpace(xformer);
-    return SkTileImageFilter::Make(fSrcRect, fDstRect, std::move(input));
+    auto input = xformer->apply(this->getInput(0));
+    if (input.get() != this->getInput(0)) {
+        return SkTileImageFilter::Make(fSrcRect, fDstRect, std::move(input));
+    }
+    return this->refMe();
 }
 
 SkIRect SkTileImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,

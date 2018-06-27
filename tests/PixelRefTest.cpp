@@ -23,21 +23,21 @@ static void test_dont_leak_install(skiatest::Reporter* reporter) {
 
     info = SkImageInfo::MakeN32Premul(0, 0);
     release_counter = 1;
-    success = bm.installPixels(info, nullptr, 0, nullptr, decrement_counter_proc, &release_counter);
+    success = bm.installPixels(info, nullptr, 0, decrement_counter_proc, &release_counter);
     REPORTER_ASSERT(reporter, true == success);
     bm.reset();
     REPORTER_ASSERT(reporter, 0 == release_counter);
 
     info = SkImageInfo::MakeN32Premul(10, 10);
     release_counter = 1;
-    success = bm.installPixels(info, nullptr, 0, nullptr, decrement_counter_proc, &release_counter);
+    success = bm.installPixels(info, nullptr, 0, decrement_counter_proc, &release_counter);
     REPORTER_ASSERT(reporter, true == success);
     bm.reset();
     REPORTER_ASSERT(reporter, 0 == release_counter);
 
     info = SkImageInfo::MakeN32Premul(-10, -10);
     release_counter = 1;
-    success = bm.installPixels(info, nullptr, 0, nullptr, decrement_counter_proc, &release_counter);
+    success = bm.installPixels(info, nullptr, 0, decrement_counter_proc, &release_counter);
     REPORTER_ASSERT(reporter, false == success);
     bm.reset();
     REPORTER_ASSERT(reporter, 0 == release_counter);
@@ -69,7 +69,7 @@ private:
 DEF_TEST(PixelRef_GenIDChange, r) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(10, 10);
 
-    sk_sp<SkPixelRef> pixelRef = SkMallocPixelRef::MakeAllocate(info, 0, nullptr);
+    sk_sp<SkPixelRef> pixelRef = SkMallocPixelRef::MakeAllocate(info, 0);
 
     // Register a listener.
     int count = 0;

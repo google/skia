@@ -33,7 +33,6 @@ static void test_peekpixels(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, pmap.info() == bm.info());
     REPORTER_ASSERT(reporter, pmap.addr() == bm.getPixels());
     REPORTER_ASSERT(reporter, pmap.rowBytes() == bm.rowBytes());
-    REPORTER_ASSERT(reporter, pmap.ctable() == bm.getColorTable());
 }
 
 // https://code.google.com/p/chromium/issues/detail?id=446164
@@ -45,7 +44,7 @@ static void test_bigalloc(skiatest::Reporter* reporter) {
     SkBitmap bm;
     REPORTER_ASSERT(reporter, !bm.tryAllocPixels(info));
 
-    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeAllocate(info, info.minRowBytes(), nullptr);
+    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeAllocate(info, info.minRowBytes());
     REPORTER_ASSERT(reporter, !pr);
 }
 
@@ -217,5 +216,13 @@ DEF_TEST(Bitmap_erase_f16_erase_getColor, r) {
             }
         }
     }
+}
+
+// Make sure that the bitmap remains valid when pixelref is removed.
+DEF_TEST(Bitmap_clear_pixelref_keep_info, r) {
+    SkBitmap bm;
+    bm.allocPixels(SkImageInfo::MakeN32Premul(100,100));
+    bm.setPixelRef(nullptr, 0, 0);
+    SkDEBUGCODE(bm.validate();)
 }
 

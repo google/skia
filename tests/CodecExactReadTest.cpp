@@ -11,6 +11,7 @@
 #include "SkBitmap.h"
 #include "SkCodec.h"
 #include "SkData.h"
+#include "SkMakeUnique.h"
 #include "SkStream.h"
 
 namespace {
@@ -43,13 +44,13 @@ private:
 // end of the data. Some other SkCodecs do, but some Android apps rely on not
 // doing so for PNGs. Test on other formats that work.
 DEF_TEST(Codec_end, r) {
-    for (const char* path : { "plane.png",
-                              "yellow_rose.png",
-                              "plane_interlaced.png",
-                              "google_chrome.ico",
-                              "color_wheel.ico",
-                              "mandrill.wbmp",
-                              "randPixels.bmp",
+    for (const char* path : { "images/plane.png",
+                              "images/yellow_rose.png",
+                              "images/plane_interlaced.png",
+                              "images/google_chrome.ico",
+                              "images/color_wheel.ico",
+                              "images/mandrill.wbmp",
+                              "images/randPixels.bmp",
                               }) {
         sk_sp<SkData> data = GetResourceAsData(path);
         if (!data) {
@@ -67,7 +68,8 @@ DEF_TEST(Codec_end, r) {
 
         SkMemoryStream stream(std::move(multiData));
         for (int i = 0; i < kNumImages; ++i) {
-            std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(new UnowningStream(&stream)));
+            std::unique_ptr<SkCodec> codec(SkCodec::MakeFromStream(
+                                                   skstd::make_unique<UnowningStream>(&stream)));
             if (!codec) {
                 ERRORF(r, "Failed to create a codec from %s, iteration %i", path, i);
                 continue;

@@ -16,8 +16,10 @@
 #include "SkColorFilter.h"
 #include "SkData.h"
 #include "SkDocument.h"
+#include "SkFontStyle.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
+#include "SkMakeUnique.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkPath.h"
@@ -35,6 +37,11 @@ extern "C" {
     #include "lauxlib.h"
 }
 
+struct DocHolder {
+    sk_sp<SkDocument>           fDoc;
+    std::unique_ptr<SkWStream>  fStream;
+};
+
 // return the metatable name for a given class
 template <typename T> const char* get_mtname();
 #define DEF_MTNAME(T)                           \
@@ -44,7 +51,7 @@ template <typename T> const char* get_mtname();
 
 DEF_MTNAME(SkCanvas)
 DEF_MTNAME(SkColorFilter)
-DEF_MTNAME(SkDocument)
+DEF_MTNAME(DocHolder)
 DEF_MTNAME(SkImage)
 DEF_MTNAME(SkImageFilter)
 DEF_MTNAME(SkMatrix)
@@ -58,10 +65,11 @@ DEF_MTNAME(SkShader)
 DEF_MTNAME(SkSurface)
 DEF_MTNAME(SkTextBlob)
 DEF_MTNAME(SkTypeface)
+DEF_MTNAME(SkFontStyle)
 
-template <typename T> T* push_new(lua_State* L) {
+template <typename T, typename... Args> T* push_new(lua_State* L, Args&&... args) {
     T* addr = (T*)lua_newuserdata(L, sizeof(T));
-    new (addr) T;
+    new (addr) T(std::forward<Args>(args)...);
     luaL_getmetatable(L, get_mtname<T>());
     lua_setmetatable(L, -2);
     return addr;
@@ -666,28 +674,28 @@ const struct luaL_Reg gSkCanvas_Methods[] = {
 
 static int ldocument_beginPage(lua_State* L) {
     const SkRect* contentPtr = nullptr;
-    push_ptr(L, get_ref<SkDocument>(L, 1)->beginPage(lua2scalar(L, 2),
-                                                     lua2scalar(L, 3),
-                                                     contentPtr));
+    push_ptr(L, get_obj<DocHolder>(L, 1)->fDoc->beginPage(lua2scalar(L, 2),
+                                                          lua2scalar(L, 3),
+                                                          contentPtr));
     return 1;
 }
 
 static int ldocument_endPage(lua_State* L) {
-    get_ref<SkDocument>(L, 1)->endPage();
+    get_obj<DocHolder>(L, 1)->fDoc->endPage();
     return 0;
 }
 
 static int ldocument_close(lua_State* L) {
-    get_ref<SkDocument>(L, 1)->close();
+    get_obj<DocHolder>(L, 1)->fDoc->close();
     return 0;
 }
 
 static int ldocument_gc(lua_State* L) {
-    get_ref<SkDocument>(L, 1)->unref();
+    get_obj<DocHolder>(L, 1)->~DocHolder();
     return 0;
 }
 
-static const struct luaL_Reg gSkDocument_Methods[] = {
+static const struct luaL_Reg gDocHolder_Methods[] = {
     { "beginPage", ldocument_beginPage },
     { "endPage", ldocument_endPage },
     { "close", ldocument_close },
@@ -965,7 +973,6 @@ static int lpaint_getEffects(lua_State* L) {
     lua_newtable(L);
     setfield_bool_if(L, "looper",      !!paint->getLooper());
     setfield_bool_if(L, "pathEffect",  !!paint->getPathEffect());
-    setfield_bool_if(L, "rasterizer",  !!paint->getRasterizer());
     setfield_bool_if(L, "maskFilter",  !!paint->getMaskFilter());
     setfield_bool_if(L, "shader",      !!paint->getShader());
     setfield_bool_if(L, "colorFilter", !!paint->getColorFilter());
@@ -1800,7 +1807,7 @@ static int ltypeface_getFamilyName(lua_State* L) {
 }
 
 static int ltypeface_getStyle(lua_State* L) {
-    lua_pushnumber(L, (double)get_ref<SkTypeface>(L, 1)->style());
+    push_obj(L, get_ref<SkTypeface>(L, 1)->fontStyle());
     return 1;
 }
 
@@ -1813,6 +1820,36 @@ static const struct luaL_Reg gSkTypeface_Methods[] = {
     { "getFamilyName", ltypeface_getFamilyName },
     { "getStyle", ltypeface_getStyle },
     { "__gc", ltypeface_gc },
+    { nullptr, nullptr }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+static int lfontstyle_weight(lua_State* L) {
+    lua_pushnumber(L, get_ref<SkFontStyle>(L, 1)->weight());
+    return 1;
+}
+
+static int lfontstyle_width(lua_State* L) {
+    lua_pushnumber(L, get_ref<SkFontStyle>(L, 1)->width());
+    return 1;
+}
+
+static int lfontstyle_slant(lua_State* L) {
+    lua_pushnumber(L, get_ref<SkFontStyle>(L, 1)->slant());
+    return 1;
+}
+
+static int lfontstyle_gc(lua_State* L) {
+    get_obj<SkFontStyle>(L, 1)->~SkFontStyle();
+    return 0;
+}
+
+static const struct luaL_Reg gSkFontStyle_Methods[] = {
+    { "weight", lfontstyle_weight },
+    { "width", lfontstyle_width },
+    { "slant", lfontstyle_slant },
+    { "__gc", lfontstyle_gc },
     { nullptr, nullptr }
 };
 
@@ -1847,19 +1884,23 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 static int lsk_newDocumentPDF(lua_State* L) {
-    const char* file = nullptr;
+    const char* filename = nullptr;
     if (lua_gettop(L) > 0 && lua_isstring(L, 1)) {
-        file = lua_tolstring(L, 1, nullptr);
+        filename = lua_tolstring(L, 1, nullptr);
     }
-
-    sk_sp<SkDocument> doc = SkDocument::MakePDF(file);
-    if (nullptr == doc) {
-        // do I need to push a nil on the stack and return 1?
+    if (!filename) {
         return 0;
-    } else {
-        push_ref(L, std::move(doc));
-        return 1;
     }
+    auto file = skstd::make_unique<SkFILEWStream>(filename);
+    if (!file->isValid()) {
+        return 0;
+    }
+    sk_sp<SkDocument> doc = SkDocument::MakePDF(file.get());
+    if (!doc) {
+        return 0;
+    }
+    push_ptr(L, new DocHolder{std::move(doc), std::move(file)});
+    return 1;
 }
 
 static int lsk_newBlurImageFilter(lua_State* L) {
@@ -1940,22 +1981,43 @@ static int lsk_newTextBlob(lua_State* L) {
 
 static int lsk_newTypeface(lua_State* L) {
     const char* name = nullptr;
-    int style = SkTypeface::kNormal;
+    SkFontStyle style;
 
     int count = lua_gettop(L);
     if (count > 0 && lua_isstring(L, 1)) {
         name = lua_tolstring(L, 1, nullptr);
-        if (count > 1 && lua_isnumber(L, 2)) {
-            style = lua_tointegerx(L, 2, nullptr) & SkTypeface::kBoldItalic;
+        if (count > 1) {
+            SkFontStyle* passedStyle = get_obj<SkFontStyle>(L, 2);
+            if (passedStyle) {
+                style = *passedStyle;
+            }
         }
     }
 
-    sk_sp<SkTypeface> face(SkTypeface::MakeFromName(name, SkFontStyle::FromOldStyle(style)));
+    sk_sp<SkTypeface> face(SkTypeface::MakeFromName(name, style));
 //    SkDebugf("---- name <%s> style=%d, face=%p ref=%d\n", name, style, face, face->getRefCnt());
     if (nullptr == face) {
         face = SkTypeface::MakeDefault();
     }
     push_ref(L, std::move(face));
+    return 1;
+}
+
+static int lsk_newFontStyle(lua_State* L) {
+    int count = lua_gettop(L);
+    int weight = SkFontStyle::kNormal_Weight;
+    int width = SkFontStyle::kNormal_Width;
+    SkFontStyle::Slant slant = SkFontStyle::kUpright_Slant;
+    if (count >= 1 && lua_isnumber(L, 1)) {
+        weight = lua_tointegerx(L, 1, nullptr);
+    }
+    if (count >= 2 && lua_isnumber(L, 2)) {
+        width = lua_tointegerx(L, 2, nullptr);
+    }
+    if (count >= 3 && lua_isnumber(L, 3)) {
+        slant = static_cast<SkFontStyle::Slant>(lua_tointegerx(L, 3, nullptr));
+    }
+    push_new<SkFontStyle>(L, weight, width, slant);
     return 1;
 }
 
@@ -2006,6 +2068,7 @@ static void register_Sk(lua_State* L) {
     setfield_function(L, "newRasterSurface", lsk_newRasterSurface);
     setfield_function(L, "newTextBlob", lsk_newTextBlob);
     setfield_function(L, "newTypeface", lsk_newTypeface);
+    setfield_function(L, "newFontStyle", lsk_newFontStyle);
     lua_pop(L, 1);  // pop off the Sk table
 }
 
@@ -2022,7 +2085,7 @@ void SkLua::Load(lua_State* L) {
     register_Sk(L);
     REG_CLASS(L, SkCanvas);
     REG_CLASS(L, SkColorFilter);
-    REG_CLASS(L, SkDocument);
+    REG_CLASS(L, DocHolder);
     REG_CLASS(L, SkImage);
     REG_CLASS(L, SkImageFilter);
     REG_CLASS(L, SkMatrix);
@@ -2036,6 +2099,7 @@ void SkLua::Load(lua_State* L) {
     REG_CLASS(L, SkSurface);
     REG_CLASS(L, SkTextBlob);
     REG_CLASS(L, SkTypeface);
+    REG_CLASS(L, SkFontStyle);
 }
 
 extern "C" int luaopen_skia(lua_State* L);

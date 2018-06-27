@@ -7,7 +7,6 @@
 
 #include "SkBitmapProcState_opts_SSE2.h"
 #include "SkBitmapProcState_opts_SSSE3.h"
-#include "SkBitmapScaler.h"
 #include "SkBlitMask.h"
 #include "SkBlitRow.h"
 #include "SkBlitRow_opts_SSE2.h"
@@ -48,19 +47,11 @@ void SkBitmapProcState::platformProcs() {
         } else {
             fSampleProc32 = S32_opaque_D32_filter_DX_SSE2;
         }
-    } else if (fSampleProc32 == S32_opaque_D32_filter_DXDY) {
-        if (ssse3) {
-            fSampleProc32 = S32_opaque_D32_filter_DXDY_SSSE3;
-        }
     } else if (fSampleProc32 == S32_alpha_D32_filter_DX) {
         if (ssse3) {
             fSampleProc32 = S32_alpha_D32_filter_DX_SSSE3;
         } else {
             fSampleProc32 = S32_alpha_D32_filter_DX_SSE2;
-        }
-    } else if (fSampleProc32 == S32_alpha_D32_filter_DXDY) {
-        if (ssse3) {
-            fSampleProc32 = S32_alpha_D32_filter_DXDY_SSSE3;
         }
     }
 
@@ -69,10 +60,6 @@ void SkBitmapProcState::platformProcs() {
         fMatrixProc = ClampX_ClampY_filter_scale_SSE2;
     } else if (fMatrixProc == ClampX_ClampY_nofilter_scale) {
         fMatrixProc = ClampX_ClampY_nofilter_scale_SSE2;
-    } else if (fMatrixProc == ClampX_ClampY_filter_affine) {
-        fMatrixProc = ClampX_ClampY_filter_affine_SSE2;
-    } else if (fMatrixProc == ClampX_ClampY_nofilter_affine) {
-        fMatrixProc = ClampX_ClampY_nofilter_affine_SSE2;
     }
 }
 

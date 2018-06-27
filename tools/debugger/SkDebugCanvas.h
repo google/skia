@@ -165,23 +165,8 @@ public:
 
     Json::Value toJSONOpList(int n, SkCanvas*);
 
-    ////////////////////////////////////////////////////////////////////////////////
-    // Inherited from SkCanvas
-    ////////////////////////////////////////////////////////////////////////////////
-
-    static const int kVizImageHeight = 256;
-    static const int kVizImageWidth = 256;
-
-    bool isClipEmpty() const override { return false; }
-
-    bool isClipRect() const override { return true; }
-
-    SkRect onGetLocalClipBounds() const override {
-        return SkRect::MakeIWH(this->imageInfo().width(), this->imageInfo().height());
-    }
-
-    SkIRect onGetDeviceClipBounds() const override {
-        return SkIRect::MakeWH(this->imageInfo().width(), this->imageInfo().height());
+    void detachCommands(SkTDArray<SkDrawCommand*>* dst) {
+        fCommandVector.swap(*dst);
     }
 
 protected:
@@ -266,7 +251,7 @@ private:
     SkTDArray<SkDrawCommand*> fActiveLayers;
 
     /**
-        Adds the command to the classes vector of commands.
+        Adds the command to the class' vector of commands.
         @param command  The draw command for execution
      */
     void addDrawCommand(SkDrawCommand* command);

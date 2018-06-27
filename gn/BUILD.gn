@@ -6,73 +6,18 @@
 exec_script("xamarin_inject_compat.py", [ rebase_path("..") ])
 
 declare_args() {
-  ar = "ar"
-  cc = "cc"
-  cxx = "c++"
-
-  if (is_android) {
-    if (host_os == "win") {
-      ar = "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin/ar.exe"
-      cc = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang.exe"
-      cxx = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang++.exe"
-    } else {
-      ar = "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin/ar"
-      cc = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang"
-      cxx = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang++"
-    }
-  } else if (is_tizen) {
-    if (host_os == "win") {
-      ar = "$ncli/tools/$ncli_gccdir/$ncli_target/bin/ar.exe"
-      cc = "$ncli/tools/llvm-4.0.0/bin/clang.exe"
-      cxx = "$ncli/tools/llvm-4.0.0/bin/clang++.exe"
-    } else {
-      ar = "$ncli/tools/$ncli_gccdir/$ncli_target/bin/ar"
-      cc = "$ncli/tools/llvm-4.0.0/bin/clang"
-      cxx = "$ncli/tools/llvm-4.0.0/bin/clang++"
-    }
-  }
-
-  run_vcvars = true
-
   extra_asmflags = []
   extra_cflags = []
   extra_cflags_c = []
   extra_cflags_cc = []
   extra_ldflags = []
 
-  cc_wrapper = ""
   malloc = ""
 
   enable_bitcode = false
   if (is_tvos || is_watchos) {
     enable_bitcode = true
   }
-}
-declare_args() {
-  windk = exec_script("find_windk.py", [ ], "trim string")
-}
-declare_args() {
-  msvc_root = exec_script("find_msvc_root.py", [ windk ], "trim string")
-  win_kits = "$windk/../../../Windows Kits"
-}
-
-if (host_os == "win") {
-  python = "python.exe"
-  stamp = "cmd.exe /c echo >"
-} else {
-  python = "python"
-  stamp = "touch"
-}
-
-is_clang = is_android || is_ios || is_mac || is_tizen || (cc == "clang" && cxx == "clang++")
-
-if (!is_clang && !is_win) {
-  is_clang = exec_script("is_clang.py",
-                         [
-                           cc,
-                           cxx,
-                         ],
-                         "value")
 }
 
 if (is_ios) {
@@ -102,11 +47,13 @@ config("default") {
 
   if (is_win) {
     cflags += [
-      "/FS",  # Preserve previous PDB behavior.
       "/bigobj",  # Some of our files are bigger than the regular limits.
       "/WX",  # Treat warnings as errors.
       "/utf-8",  # Set Source and Executable character sets to UTF-8.
     ]
+    if (is_clang) {
+      cflags += [ "-fms-compatibility-version=19" ]  # 2015
+    }
     defines += [
       "_CRT_SECURE_NO_WARNINGS",  # Disables warnings about sscanf().
       "_HAS_EXCEPTIONS=0",  # Disables exceptions in MSVC STL.
@@ -114,48 +61,67 @@ config("default") {
       "NOMINMAX",
     ]
 
-    include_dirs = [ ]
-    lib_dirs = [ ]
-    include_dirs += [
-      "$msvc_root/include",
-      "$win_kits/10/Include/10.0.10240.0/ucrt",
-      "$win_kits/10/Include/10.0.10240.0/um",
-      "$win_kits/10/Include/10.0.10240.0/shared",
-      "$win_kits/10/Include/10.0.10240.0/winrt",
+    if (msvc == 2015) {
+      _include_dirs = [ "$win_vc/include" ]
+    } else {  # 2017
+      _include_dirs = [ "$win_vc/Tools/MSVC/$win_toolchain_version/include" ]
+    }
+    _include_dirs += [
+      "$win_sdk/Include/$win_sdk_version/shared",
+      "$win_sdk/Include/$win_sdk_version/ucrt",
+      "$win_sdk/Include/$win_sdk_version/um",
+      "$win_sdk/Include/$win_sdk_version/winrt",
     ]
+
+    if (is_clang) {
+      foreach(dir, _include_dirs) {
+        cflags += [
+          "-imsvc",
+          dir,
+        ]
+      }
+    } else {
+      include_dirs = _include_dirs
+    }
     _is_store = ""
     if (is_winrt) {
       _is_store = "/store"
     }
-    lib_dirs += [
-      "$msvc_root/lib/$target_cpu$_is_store",
-      "$win_kits/10/lib/10.0.10240.0/ucrt/$target_cpu",
-      "$win_kits/10/lib/10.0.10240.0/um/$target_cpu",
+    lib_dirs = [
+      "$win_sdk/Lib/$win_sdk_version/ucrt/$target_cpu",
+      "$win_sdk/Lib/$win_sdk_version/um/$target_cpu",
     ]
+    if (msvc == 2015) {
+      if (target_cpu == "x86") {
+        lib_dirs += [ "$win_vc/lib" ]
+      } else {
+        lib_dirs += [ "$win_vc/lib/amd64" ]
+      }
+    } else {  # 2017
+      lib_dirs +=
+          [ "$win_vc/Tools/MSVC/$win_toolchain_version/lib/$target_cpu$_is_store" ]
+    }
   } else {
     cflags += [
       "-fstrict-aliasing",
       "-fPIC",
-      "-fvisibility=hidden",
       "-Werror",
     ]
-    cflags_cc += [
-      "-std=c++11",
-      "-fno-threadsafe-statics",
-      "-fvisibility-inlines-hidden",
-    ]
+    cflags_cc += [ "-std=c++11" ]
+
+    # The main idea is to slim the exported API, but these flags also improve link time on Mac.
+    # These would make stack traces worse on Linux, so we don't just set them willy-nilly.
+    if (is_component_build || is_ios || is_mac) {
+      cflags += [ "-fvisibility=hidden" ]
+      cflags_cc += [ "-fvisibility-inlines-hidden" ]
+    }
   }
 
-  if (current_cpu == "arm" && !is_win) {
+  if (current_cpu == "arm") {
     cflags += [
       "-march=armv7-a",
       "-mfpu=neon",
       "-mthumb",
-    ]
-  } else if (current_cpu == "mipsel" && !is_win) {
-    cflags += [
-      "-no-integrated-as",  # Clang <4.0 doesn't understand 'usw' mnemonic.
-      "-march=mips32r2",
     ]
   } else if (current_cpu == "x86" && !is_win) {
     asmflags += [ "-m32" ]
@@ -178,19 +144,17 @@ config("default") {
   }
 
   if (is_android) {
-    asmflags += [
-      "--target=$ndk_target",
-      "-B$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin",
-    ]
+    asmflags += [ "--target=$ndk_target" ]
     cflags += [
-      "--sysroot=$ndk/platforms/$ndk_platform",
+      "--sysroot=$ndk/sysroot",
+      "-isystem$ndk/sysroot/usr/include/$ndk_target",
+      "-D__ANDROID_API__=$ndk_api",
       "--target=$ndk_target",
-      "-B$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin",
     ]
     cflags_cc += [
+      "-isystem$ndk/sources/cxx-stl/llvm-libc++/include",
+      "-isystem$ndk/sources/cxx-stl/llvm-libc++abi/include",
       "-isystem$ndk/sources/android/support/include",
-      "-isystem$ndk/sources/cxx-stl/gnu-libstdc++/4.9/include",
-      "-isystem$ndk/sources/cxx-stl/gnu-libstdc++/4.9/libs/$ndk_stdlib/include",
     ]
     ldflags += [
       "--sysroot=$ndk/platforms/$ndk_platform",
@@ -198,19 +162,15 @@ config("default") {
       "-B$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin",
     ]
     lib_dirs = [
-      "$ndk/sources/cxx-stl/gnu-libstdc++/4.9/libs/$ndk_stdlib",
+      "$ndk/sources/cxx-stl/llvm-libc++/libs/$ndk_stdlib",
       "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/lib/gcc/$ndk_target/4.9.x",
     ]
 
-    if (current_cpu == "mips64el") {
-      # The r13 NDK omits /usr/lib from the MIPS64 sysroots, but Clang searches
-      # for /usr/lib64 as $PATH_TO_USR_LIB/../lib64.  If there's no /usr/lib,
-      # it can't find /usr/lib64.  We must point Clang at /usr/lib64 manually.
-      lib_dirs += [ "$ndk/platforms/$ndk_platform/usr/lib64" ]
-      ldflags += [ "-B$ndk/platforms/$ndk_platform/usr/lib64" ]
-    }
-
-    libs += [ "gnustl_static" ]
+    libs += [
+      "c++_static",
+      "c++abi",
+      "android_support",
+    ]
   }
 
   if (is_tizen) {
@@ -281,13 +241,45 @@ config("default") {
   if (is_linux) {
     libs += [ "pthread" ]
   }
+  if (is_mac) {
+    # Disable linker warnings.  They're usually just annoyances like,
+    #   ld: warning: text-based stub file
+    #     /System/Library/Frameworks/foo.framework/foo.tbd and library file
+    #     /System/Library/Frameworks/foo.framework/foo are out of sync.
+    #     Falling back to library file for linking.
+    ldflags += [ "-Wl,-w" ]
+  }
 
   if (sanitize != "") {
     # You can either pass the sanitizers directly, e.g. "address,undefined",
     # or pass one of the couple common aliases used by the bots.
     sanitizers = sanitize
-    if (sanitize == "ASAN") {
-      sanitizers = "address,bool,function,integer-divide-by-zero,nonnull-attribute,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound,vptr"
+    if (sanitize == "ASAN" || sanitize == "UBSAN") {
+      # ASAN implicitly runs all UBSAN checks also.
+      sanitizers = "bool,float-cast-overflow,integer-divide-by-zero,nonnull-attribute,null,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound"
+      if (!is_mac && !is_win) {
+        sanitizers += ",function"  # Not supported on Mac or Win.
+      }
+      if (!is_win) {
+        sanitizers += ",vptr"  # Not supported on Win.
+      }
+      if (!is_debug && !is_win) {
+        # No-op with somewhat annoying warning at -O0.
+        # Seems to be broken on Win.
+        sanitizers += ",object-size"
+      }
+      if (sanitize == "ASAN") {
+        sanitizers += ",address"
+      }
+      if (is_android) {
+        # Android only easily supports address for now
+        # UBSAN runs into linking errors
+        sanitizers = "address"
+
+        # recommended by
+        # https://github.com/google/sanitizers/wiki/AddressSanitizerOnAndroid
+        cflags += [ "-fno-omit-frame-pointer" ]
+      }
     } else if (sanitize == "TSAN") {
       sanitizers = "thread"
     } else if (sanitize == "MSAN") {
@@ -297,13 +289,17 @@ config("default") {
     cflags += [
       "-fsanitize=$sanitizers",
       "-fno-sanitize-recover=$sanitizers",
-      "-fsanitize-blacklist=" + rebase_path("../tools/xsan.blacklist"),
     ]
+    if (!is_win) {
+      cflags += [ "-fno-omit-frame-pointer" ]
+    }
+    if (is_linux) {
+      cflags_cc += [ "-stdlib=libc++" ]
+      ldflags += [ "-stdlib=libc++" ]
+    }
     ldflags += [ "-fsanitize=$sanitizers" ]
     if (sanitizers == "memory") {
       cflags += [ "-fsanitize-memory-track-origins" ]
-      cflags_cc += [ "-stdlib=libc++" ]
-      ldflags += [ "-stdlib=libc++" ]
     }
   }
 }
@@ -319,6 +315,7 @@ config("warnings") {
   cflags = []
   cflags_cc = []
   cflags_objc = []
+  cflags_objcc = []
   if (is_win) {
     cflags += [
       "/W3",  # Turn on lots of warnings.
@@ -345,83 +342,96 @@ config("warnings") {
       "-Wno-maybe-uninitialized",
     ]
     cflags_cc += [ "-Wnon-virtual-dtor" ]
+  }
 
-    if (is_clang) {
-      cflags += [
-        "-Weverything",
-        "-Wno-unknown-warning-option",  # Let older Clangs ignore newer Clangs' warnings.
-      ]
+  if (is_clang) {
+    cflags += [
+      "-Weverything",
+      "-Wno-unknown-warning-option",  # Let older Clangs ignore newer Clangs' warnings.
+    ]
 
-      if ((target_cpu == "x86" && is_android) ||
-          (target_cpu == "arm" && is_ios)) {
-        # Clang seems to think new/malloc will only be 4-byte aligned on x86 Android and 32-bit iOS.
-        # We're pretty sure it's actually 8-byte alignment.
-        cflags += [ "-Wno-over-aligned" ]
-      }
-
-      cflags += [
-        "-Wno-cast-align",
-        "-Wno-cast-qual",
-        "-Wno-conditional-uninitialized",
-        "-Wno-conversion",
-        "-Wno-disabled-macro-expansion",
-        "-Wno-documentation",
-        "-Wno-documentation-unknown-command",
-        "-Wno-double-promotion",
-        "-Wno-exit-time-destructors",  # TODO: OK outside libskia
-        "-Wno-float-conversion",
-        "-Wno-float-equal",
-        "-Wno-format-nonliteral",
-        "-Wno-global-constructors",  # TODO: OK outside libskia
-        "-Wno-gnu-zero-variadic-macro-arguments",
-        "-Wno-missing-prototypes",
-        "-Wno-missing-variable-declarations",
-        "-Wno-pedantic",
-        "-Wno-reserved-id-macro",
-        "-Wno-shadow",
-        "-Wno-shift-sign-overflow",
-        "-Wno-sign-conversion",
-        "-Wno-signed-enum-bitfield",
-        "-Wno-switch-enum",
-        "-Wno-undef",
-        "-Wno-unreachable-code",
-        "-Wno-unreachable-code-break",
-        "-Wno-unreachable-code-return",
-        "-Wno-unused-macros",
-        "-Wno-unused-member-function",
-        "-Wno-unused-template",
-        "-Wno-zero-as-null-pointer-constant",
-      ]
-      cflags_cc += [
-        "-Wno-abstract-vbase-init",
-        "-Wno-weak-vtables",
-      ]
-
-      # We are unlikely to want to fix these.
-      cflags += [
-        "-Wno-covered-switch-default",
-        "-Wno-deprecated",
-        "-Wno-missing-noreturn",
-        "-Wno-old-style-cast",
-        "-Wno-padded",
-      ]
-      cflags_cc += [
-        "-Wno-c++98-compat",
-        "-Wno-c++98-compat-pedantic",
-        "-Wno-undefined-func-template",
-      ]
-      cflags_objc += [
-        "-Wno-direct-ivar-access",
-        "-Wno-objc-interface-ivars",
-      ]
+    if (target_cpu == "arm" && is_ios) {
+      # Clang seems to think new/malloc will only be 4-byte aligned on 32-bit iOS.
+      # We're pretty sure it's actually 8-byte alignment.
+      cflags += [ "-Wno-over-aligned" ]
     }
+    if (target_cpu == "x86" && is_android) {
+      # Clang seems to think new/malloc will only be 4-byte aligned on 32-bit x86 Android builds.
+      # We're pretty sure it's actually 8-byte alignment.  See OverAlignedTest.cpp for more info.
+      cflags += [ "-Wno-over-aligned" ]
+    }
+
+    # Shouldn't be necessary for local builds. With distributed Windows builds, files may lose
+    # their case during copy, causing case-sensitivity mismatch on remote machines.
+    cflags += [
+      "-Wno-nonportable-include-path",
+      "-Wno-nonportable-system-include-path",
+    ]
+
+    # TODO: These would all be really great warnings to turn on.
+    cflags += [
+      "-Wno-cast-align",
+      "-Wno-cast-qual",
+      "-Wno-conversion",
+      "-Wno-disabled-macro-expansion",
+      "-Wno-documentation",
+      "-Wno-documentation-unknown-command",
+      "-Wno-double-promotion",
+      "-Wno-exit-time-destructors",  # TODO: OK outside libskia
+      "-Wno-float-equal",
+      "-Wno-format-nonliteral",
+      "-Wno-global-constructors",  # TODO: OK outside libskia
+      "-Wno-missing-prototypes",
+      "-Wno-missing-variable-declarations",
+      "-Wno-pedantic",
+      "-Wno-reserved-id-macro",
+      "-Wno-shadow",
+      "-Wno-shift-sign-overflow",
+      "-Wno-signed-enum-bitfield",
+      "-Wno-switch-enum",
+      "-Wno-undef",
+      "-Wno-unreachable-code",
+      "-Wno-unreachable-code-break",
+      "-Wno-unreachable-code-return",
+      "-Wno-unused-macros",
+      "-Wno-unused-member-function",
+      "-Wno-unused-template",
+      "-Wno-zero-as-null-pointer-constant",
+    ]
+    cflags_cc += [
+      "-Wno-abstract-vbase-init",
+      "-Wno-weak-vtables",
+    ]
+
+    # We are unlikely to want to fix these.
+    cflags += [
+      "-Wno-covered-switch-default",
+      "-Wno-deprecated",
+      "-Wno-missing-noreturn",
+      "-Wno-old-style-cast",
+      "-Wno-padded",
+      "-Wno-newline-eof",
+    ]
+    cflags_cc += [
+      "-Wno-c++98-compat",
+      "-Wno-c++98-compat-pedantic",
+      "-Wno-undefined-func-template",
+    ]
+    cflags_objc += [
+      "-Wno-direct-ivar-access",
+      "-Wno-objc-interface-ivars",
+    ]
+    cflags_objcc += [
+      "-Wno-direct-ivar-access",
+      "-Wno-objcc-interface-ivars",
+    ]
   }
   if (!is_win || is_clang) {
     cflags += [ "-Wno-implicit-fallthrough" ]
   }
 }
 config("warnings_except_public_headers") {
-  if (!is_win) {
+  if (!is_win || is_clang) {
     cflags = [ "-Wno-unused-parameter" ]
   }
 }
@@ -438,10 +448,13 @@ config("debug_symbols") {
   # It's annoying to wait for full debug symbols to push over
   # to Android devices.  -gline-tables-only is a lot slimmer.
   if (is_android) {
-    cflags = [ "-gline-tables-only" ]
+    cflags = [
+      "-gline-tables-only",
+      "-funwind-tables",  # Helps make in-process backtraces fuller.
+    ]
   } else if (is_win) {
-    cflags = [ "/Zi" ]
-    ldflags = [ "/DEBUG" ]
+    cflags = [ "/Z7" ]
+    ldflags = [ "/DEBUG:FASTLINK" ]
   } else {
     cflags = [ "-g" ]
   }
@@ -462,7 +475,6 @@ config("release") {
     cflags = [
       "/O2",
       "/Zc:inline",
-      "/GS-",
     ]
     ldflags = [
       "/OPT:ICF",
@@ -470,7 +482,7 @@ config("release") {
     ]
   } else {
     cflags = [
-      "-Os",
+      "-O3",
     ]
     if (!enable_bitcode) {
       cflags += [
@@ -483,13 +495,23 @@ config("release") {
     } else {
       ldflags = [ "-Wl,--gc-sections" ]
     }
+    if (target_cpu == "wasm") {
+      # The compiler asks us to add an optimization flag to both cflags
+      # and ldflags to cut down on the local variables,
+      # for performance reasons.
+      # The "linking" step is the conversion to javascript.
+      ldflags += [ "-O3" ]
+    }
   }
   defines = [ "NDEBUG" ]
 }
 
 config("executable") {
   if (is_android) {
-    ldflags = [ "-pie" ]
+    ldflags = [
+      "-pie",
+      "-rdynamic",
+    ]
   } else if (is_mac) {
     ldflags = [ "-Wl,-rpath,@loader_path/." ]
   } else if (is_linux) {
@@ -502,260 +524,5 @@ config("executable") {
       "/SUBSYSTEM:CONSOLE",  # Quiet "no subsystem specified; CONSOLE assumed".
       "/INCREMENTAL:NO",  # Quiet warnings about failing to incrementally link by never trying to.
     ]
-  }
-}
-
-toolchain("msvc") {
-  lib_dir_switch = "/LIBPATH:"
-
-  env_setup = ""
-  env_setup_end = ""
-
-  if (target_cpu == "x64") {
-    _target = "amd64"
-  } else {
-    _target = "amd64_" + target_cpu
-  }
-  if (is_winrt) {
-    _target  += " store"
-  }
-
-  _vcvarsall = "$msvc_root/../../../Auxiliary/Build/vcvarsall.bat"
-  if (run_vcvars) {
-    env_setup = "cmd /c \"set __VSCMD_ARG_NO_LOGO=1 && set VSCMD_START_DIR=%CD% && \"$_vcvarsall\" $_target && "
-    env_setup_end = "\""
-  } else {
-    print("Be sure to run")
-    print("\"$_vcvarsall\" $_target")
-    print("to set up your environment before running ninja.")
-  }
-  bin = "$msvc_root/bin/HostX64/$target_cpu"
-
-  tool("asm") {
-    _ml = "ml"
-    if (target_cpu == "x64") {
-      _ml += "64"
-    }
-    command = "$env_setup\"$bin/$_ml.exe\" /nologo /c /Fo {{output}} {{source}}$env_setup_end"
-    outputs = [
-      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
-    ]
-    description = "assemble {{source}}"
-  }
-
-  tool("cc") {
-    rspfile = "{{output}}.rsp"
-    precompiled_header_type = "msvc"
-    pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
-
-    # Label names may have spaces so pdbname must be quoted.
-    command = "$env_setup\"$bin/cl.exe\" /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\"$env_setup_end"
-    depsformat = "msvc"
-    outputs = [
-      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
-    ]
-    rspfile_content = "{{defines}} {{include_dirs}} {{cflags}} {{cflags_c}}"
-    description = "compile {{source}}"
-  }
-
-  tool("cxx") {
-    rspfile = "{{output}}.rsp"
-    precompiled_header_type = "msvc"
-    pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
-
-    # Label names may have spaces so pdbname must be quoted.
-    command = "$env_setup\"$bin/cl.exe\" /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\"$env_setup_end"
-    depsformat = "msvc"
-    outputs = [
-      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
-    ]
-    rspfile_content = "{{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}}"
-    description = "compile {{source}}"
-  }
-
-  tool("alink") {
-    rspfile = "{{output}}.rsp"
-
-    command = "$env_setup\"$bin/lib.exe\" /nologo /ignore:4221 {{arflags}} /OUT:{{output}} @$rspfile$env_setup_end"
-    outputs = [
-      # Ignore {{output_extension}} and always use .lib, there's no reason to
-      # allow targets to override this extension on Windows.
-      "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
-    ]
-    default_output_extension = ".lib"
-    default_output_dir = "{{target_out_dir}}"
-
-    # inputs_newline works around a fixed per-line buffer size in the linker.
-    rspfile_content = "{{inputs_newline}}"
-    description = "link {{output}}"
-  }
-
-  tool("solink") {
-    output_prefix = "lib"
-    dllname_no_ext = "{{output_dir}}/{{target_output_name}}"
-    dllname = "${dllname_no_ext}{{output_extension}}"
-    libname = "${dllname_no_ext}.lib"
-    pdbname = "${dllname_no_ext}.pdb"
-    rspfile = "${dllname_no_ext}.rsp"
-
-    command = "$env_setup\"$bin/link.exe\" /nologo /IMPLIB:$libname /DLL /OUT:$dllname /PDB:$pdbname @$rspfile$env_setup_end"
-    outputs = [
-      dllname,
-      libname,
-      pdbname,
-    ]
-    default_output_extension = ".dll"
-    default_output_dir = "{{root_out_dir}}"
-
-    link_output = libname
-    depend_output = libname
-    runtime_outputs = [
-      dllname,
-      pdbname,
-    ]
-
-    # I don't quite understand this.  Aping Chrome's toolchain/win/BUILD.gn.
-    restat = true
-
-    # inputs_newline works around a fixed per-line buffer size in the linker.
-    rspfile_content = "{{inputs_newline}} {{libs}} {{solibs}} {{ldflags}}"
-    description = "link {{output}}"
-  }
-
-  tool("link") {
-    exename = "{{root_out_dir}}/{{target_output_name}}{{output_extension}}"
-    pdbname = "$exename.pdb"
-    rspfile = "$exename.rsp"
-
-    command =
-        "$env_setup\"$bin/link.exe\" /nologo /OUT:$exename /PDB:$pdbname @$rspfile$env_setup_end"
-
-    default_output_extension = ".exe"
-    default_output_dir = "{{root_out_dir}}"
-    outputs = [
-      exename,
-    ]
-
-    # inputs_newline works around a fixed per-line buffer size in the linker.
-    rspfile_content = "{{inputs_newline}} {{libs}} {{solibs}} {{ldflags}}"
-    description = "link {{output}}"
-  }
-
-  tool("stamp") {
-    command = "$stamp {{output}}"
-    description = "stamp {{output}}"
-  }
-
-  tool("copy") {
-    cp_py = rebase_path("cp.py")
-    command = "$python $cp_py {{source}} {{output}}"
-    description = "copy {{source}} {{output}}"
-  }
-}
-
-toolchain("gcc_like") {
-  lib_switch = "-l"
-  lib_dir_switch = "-L"
-
-  tool("cc") {
-    depfile = "{{output}}.d"
-    command = "$cc_wrapper $cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} -c {{source}} -o {{output}}"
-    depsformat = "gcc"
-    outputs = [
-      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
-    ]
-    description = "compile {{source}}"
-  }
-
-  tool("cxx") {
-    depfile = "{{output}}.d"
-    command = "$cc_wrapper $cxx -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"
-    depsformat = "gcc"
-    outputs = [
-      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
-    ]
-    description = "compile {{source}}"
-  }
-
-  tool("objc") {
-    depfile = "{{output}}.d"
-    command = "$cc_wrapper $cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_objc}} -c {{source}} -o {{output}}"
-    depsformat = "gcc"
-    outputs = [
-      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
-    ]
-    description = "compile {{source}}"
-  }
-
-  tool("objcxx") {
-    depfile = "{{output}}.d"
-    command = "$cc_wrapper $cxx -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} {{cflags_objc}} -c {{source}} -o {{output}}"
-    depsformat = "gcc"
-    outputs = [
-      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
-    ]
-    description = "compile {{source}}"
-  }
-
-  tool("asm") {
-    depfile = "{{output}}.d"
-    command = "$cc_wrapper $cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{asmflags}} -c {{source}} -o {{output}}"
-    depsformat = "gcc"
-    outputs = [
-      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
-    ]
-    description = "assemble {{source}}"
-  }
-
-  tool("alink") {
-    rspfile = "{{output}}.rsp"
-    rspfile_content = "{{inputs}}"
-    ar_py = rebase_path("ar.py")
-    command = "$python $ar_py $ar {{output}} $rspfile"
-    outputs = [
-      "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
-    ]
-    default_output_extension = ".a"
-    output_prefix = "lib"
-    description = "link {{output}}"
-  }
-
-  tool("solink") {
-    soname = "{{target_output_name}}{{output_extension}}"
-    if (is_linux && linux_soname_version != "") {
-      soname += ".$linux_soname_version"
-    }
-
-    rpath = "-Wl,-soname,$soname"
-    if (is_mac) {
-      rpath = "-Wl,-install_name,@rpath/$soname"
-    }
-
-    command = "$cc_wrapper $cxx -shared {{ldflags}} {{inputs}} {{solibs}} {{libs}} $rpath -o {{output}}"
-    outputs = [
-      "{{root_out_dir}}/$soname",
-    ]
-    output_prefix = "lib"
-    default_output_extension = ".so"
-    description = "link {{output}}"
-  }
-
-  tool("link") {
-    command = "$cc_wrapper $cxx {{ldflags}} {{inputs}} {{solibs}} {{libs}} -o {{output}}"
-    outputs = [
-      "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
-    ]
-    description = "link {{output}}"
-  }
-
-  tool("stamp") {
-    command = "$stamp {{output}}"
-    description = "stamp {{output}}"
-  }
-
-  tool("copy") {
-    cp_py = rebase_path("cp.py")
-    command = "$python $cp_py {{source}} {{output}}"
-    description = "copy {{source}} {{output}}"
   }
 }

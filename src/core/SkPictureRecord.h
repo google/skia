@@ -61,10 +61,6 @@ public:
         return fWriter.snapshotAsData();
     }
 
-    const SkPictureContentInfo& contentInfo() const {
-        return fContentInfo;
-    }
-
     void setFlags(uint32_t recordFlags) {
         fRecordFlags = recordFlags;
     }
@@ -104,7 +100,6 @@ private:
         size_t offset = fWriter.bytesWritten();
 
         this->predrawNotify();
-        fContentInfo.addOperation();
 
         SkASSERT(0 != *size);
         SkASSERT(((uint8_t) drawType) == drawType);
@@ -156,6 +151,8 @@ protected:
 
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
     bool onPeekPixels(SkPixmap*) override { return false; }
+
+    void onFlush() override;
 
     void willSave() override;
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;
@@ -228,24 +225,22 @@ protected:
 
     // SHOULD NEVER BE CALLED
     void onDrawBitmap(const SkBitmap&, SkScalar left, SkScalar top, const SkPaint*) override {
-        sk_throw();
+        SK_ABORT("not reached");
     }
     void onDrawBitmapRect(const SkBitmap&, const SkRect* src, const SkRect& dst, const SkPaint*,
                           SrcRectConstraint) override {
-        sk_throw();
+        SK_ABORT("not reached");
     }
     void onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
                           const SkPaint*) override {
-        sk_throw();
+        SK_ABORT("not reached");
     }
     void onDrawBitmapLattice(const SkBitmap&, const SkCanvas::Lattice& lattice, const SkRect& dst,
                              const SkPaint*) override {
-        sk_throw();
+        SK_ABORT("not reached");
     }
 
 private:
-    SkPictureContentInfo fContentInfo;
-
     SkTArray<SkPaint>  fPaints;
 
     struct PathHash {

@@ -8,8 +8,9 @@
 #ifndef SkColorSpace_A2B_DEFINED
 #define SkColorSpace_A2B_DEFINED
 
-#include "SkColorSpace_Base.h"
-
+#include "SkColorLookUpTable.h"
+#include "SkColorSpace.h"
+#include "SkGammas.h"
 #include <vector>
 
 // An alternative SkColorSpace that represents all the color space data that
@@ -25,9 +26,9 @@
 // you to combine these 3 primitives (TRC, CLUT, matrix) in any order/quantity.
 // MPET tags are currently unsupported by the MakeICC parser, could be supported
 // here by the nature of the design.
-class SkColorSpace_A2B : public SkColorSpace_Base {
+class SkColorSpace_A2B : public SkColorSpace {
 public:
-    const SkMatrix44* toXYZD50() const override {
+    const SkMatrix44* onToXYZD50() const override {
         // the matrix specified in A2B0 profiles is not necessarily
         // a to-XYZ matrix, as to-Lab is supported as well so returning
         // that could be misleading. Additionally, B-curves are applied
@@ -36,36 +37,37 @@ public:
         return nullptr;
     }
 
-    uint32_t toXYZD50Hash() const override {
-        // See toXYZD50()'s comment.
+    uint32_t onToXYZD50Hash() const override {
+        // See onToXYZD50()'s comment.
         return 0;
     }
 
-    const SkMatrix44* fromXYZD50() const override {
-        // See toXYZD50()'s comment. Also, A2B0 profiles are not supported
+    const SkMatrix44* onFromXYZD50() const override {
+        // See onToXYZD50()'s comment. Also, A2B0 profiles are not supported
         // as destination color spaces, so an inverse matrix is never wanted.
         return nullptr;
     }
 
     // There is no single gamma curve in an A2B0 profile
+    SkGammaNamed onGammaNamed() const override { return kNonStandard_SkGammaNamed; }
     bool onGammaCloseToSRGB() const override { return false; }
     bool onGammaIsLinear() const override { return false; }
     bool onIsNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const override { return false; }
 
-    bool onIsCMYK() const override { return kCMYK_ICCTypeFlag == fICCType; }
+    bool onIsCMYK() const override { return SkColorSpace::kCMYK_Type == fICCType; }
 
-    sk_sp<SkColorSpace> makeLinearGamma() override {
+    const SkData* onProfileData() const override { return fProfileData.get(); }
+
+    sk_sp<SkColorSpace> makeLinearGamma() const override {
         // TODO: Analyze the extrema of our projection into XYZ and use suitable primaries?
         // For now, just fall back to a default, because we don't have a good answer.
         return SkColorSpace::MakeSRGBLinear();
     }
 
-    sk_sp<SkColorSpace> makeSRGBGamma() override {
+    sk_sp<SkColorSpace> makeSRGBGamma() const override {
         // See comment in makeLinearGamma
         return SkColorSpace::MakeSRGB();
     }
-
-    Type type() const override { return Type::kA2B; }
 
     class Element {
     public:
@@ -161,19 +163,19 @@ public:
 
     PCS pcs() const { return fPCS; }
 
-    ICCTypeFlag iccType() const { return fICCType; }
+    SkColorSpace::Type iccType() const { return fICCType; }
 
-    SkColorSpace_A2B(ICCTypeFlag iccType, std::vector<Element> elements, PCS pcs,
+    SkColorSpace_A2B(SkColorSpace::Type iccType, std::vector<Element> elements, PCS pcs,
                      sk_sp<SkData> profileData);
 
 private:
-    ICCTypeFlag          fICCType;
+    sk_sp<SkData>        fProfileData;
+
+    SkColorSpace::Type   fICCType;
     std::vector<Element> fElements;
     PCS                  fPCS;
 
-    friend class SkColorSpace_Base;
     friend class ColorSpaceXformTest;
-    typedef SkColorSpace_Base INHERITED;
 };
 
 #endif

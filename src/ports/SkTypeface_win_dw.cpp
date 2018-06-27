@@ -6,7 +6,7 @@
  */
 
 #include "SkTypes.h"
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
 
 // SkTypes will include Windows.h, which will pull in all of the GDI defines.
 // GDI #defines GetGlyphIndices to GetGlyphIndicesA or GetGlyphIndicesW, but
@@ -251,7 +251,7 @@ SkScalerContext* DWriteFontTypeface::onCreateScalerContext(const SkScalerContext
     return new SkScalerContext_DW(sk_ref_sp(const_cast<DWriteFontTypeface*>(this)), effects, desc);
 }
 
-void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {
+void DWriteFontTypeface::onFilterRec(SkScalerContextRec* rec) const {
     if (rec->fFlags & SkScalerContext::kLCD_Vertical_Flag) {
         rec->fMaskFormat = SkMask::kA8_Format;
         rec->fFlags |= SkScalerContext::kGenA8FromLCD_Flag;
@@ -372,6 +372,8 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
         return info;
     }
 
+    SkOTUtils::SetAdvancedTypefaceFlags(os2Table->version.v4.fsType, info.get());
+
     // There are versions of DirectWrite which support named instances for system variation fonts,
     // but no means to indicate that such a typeface is a variation.
     AutoTDWriteTable<SkOTTableFontVariations> fvarTable(fDWriteFontFace.get());
@@ -420,4 +422,4 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
                                     (int32_t)SkEndian_SwapBE16((uint16_t)headTable->yMin));
     return info;
 }
-#endif//defined(SK_BUILD_FOR_WIN32)
+#endif//defined(SK_BUILD_FOR_WIN)

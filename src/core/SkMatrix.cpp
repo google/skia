@@ -6,9 +6,11 @@
  */
 
 #include "SkFloatBits.h"
-#include "SkMatrix.h"
+#include "SkMathPriv.h"
+#include "SkMatrixPriv.h"
 #include "SkNx.h"
 #include "SkPaint.h"
+#include "SkPoint3.h"
 #include "SkRSXform.h"
 #include "SkString.h"
 #include <stddef.h>
@@ -339,14 +341,6 @@ void SkMatrix::setScale(SkScalar sx, SkScalar sy) {
 
         this->setTypeMask(kScale_Mask | kRectStaysRect_Mask);
     }
-}
-
-bool SkMatrix::setIDiv(int divx, int divy) {
-    if (!divx || !divy) {
-        return false;
-    }
-    this->setScale(SkScalarInvert(divx), SkScalarInvert(divy));
-    return true;
 }
 
 void SkMatrix::preScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
@@ -770,7 +764,8 @@ static double sk_inv_determinant(const float mat[9], int isPerspective) {
     // Since the determinant is on the order of the cube of the matrix members,
     // compare to the cube of the default nearly-zero constant (although an
     // estimate of the condition number would be better if it wasn't so expensive).
-    if (SkScalarNearlyZero((float)det, SK_ScalarNearlyZero * SK_ScalarNearlyZero * SK_ScalarNearlyZero)) {
+    if (SkScalarNearlyZero(sk_double_to_float(det),
+                           SK_ScalarNearlyZero * SK_ScalarNearlyZero * SK_ScalarNearlyZero)) {
         return 0;
     }
     return 1.0 / det;
@@ -1043,32 +1038,49 @@ const SkMatrix::MapPtsProc SkMatrix::gMapPtsProcs[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkMatrix::mapHomogeneousPoints(SkScalar dst[], const SkScalar src[], int count) const {
+void SkMatrixPriv::MapHomogeneousPointsWithStride(const SkMatrix& mx, SkPoint3 dst[],
+                                                  size_t dstStride, const SkPoint3 src[],
+                                                  size_t srcStride, int count) {
     SkASSERT((dst && src && count > 0) || 0 == count);
     // no partial overlap
-    SkASSERT(src == dst || &dst[3*count] <= &src[0] || &src[3*count] <= &dst[0]);
+    SkASSERT(src == dst || &dst[count] <= &src[0] || &src[count] <= &dst[0]);
 
     if (count > 0) {
-        if (this->isIdentity()) {
-            memcpy(dst, src, 3*count*sizeof(SkScalar));
+        if (mx.isIdentity()) {
+            if (src != dst) {
+                if (srcStride == sizeof(SkPoint3) && dstStride == sizeof(SkPoint3)) {
+                    memcpy(dst, src, count * sizeof(SkPoint3));
+                } else {
+                    for (int i = 0; i < count; ++i) {
+                        *dst = *src;
+                        dst = reinterpret_cast<SkPoint3*>(reinterpret_cast<char*>(dst) + dstStride);
+                        src = reinterpret_cast<const SkPoint3*>(reinterpret_cast<const char*>(src) +
+                                                                srcStride);
+                    }
+                }
+            }
             return;
         }
         do {
-            SkScalar sx = src[0];
-            SkScalar sy = src[1];
-            SkScalar sw = src[2];
-            src += 3;
+            SkScalar sx = src->fX;
+            SkScalar sy = src->fY;
+            SkScalar sw = src->fZ;
+            src = reinterpret_cast<const SkPoint3*>(reinterpret_cast<const char*>(src) + srcStride);
+            const SkScalar* mat = mx.fMat;
+            typedef SkMatrix M;
+            SkScalar x = sdot(sx, mat[M::kMScaleX], sy, mat[M::kMSkewX],  sw, mat[M::kMTransX]);
+            SkScalar y = sdot(sx, mat[M::kMSkewY],  sy, mat[M::kMScaleY], sw, mat[M::kMTransY]);
+            SkScalar w = sdot(sx, mat[M::kMPersp0], sy, mat[M::kMPersp1], sw, mat[M::kMPersp2]);
 
-            SkScalar x = sdot(sx, fMat[kMScaleX], sy, fMat[kMSkewX],  sw, fMat[kMTransX]);
-            SkScalar y = sdot(sx, fMat[kMSkewY],  sy, fMat[kMScaleY], sw, fMat[kMTransY]);
-            SkScalar w = sdot(sx, fMat[kMPersp0], sy, fMat[kMPersp1], sw, fMat[kMPersp2]);
-
-            dst[0] = x;
-            dst[1] = y;
-            dst[2] = w;
-            dst += 3;
+            dst->set(x, y, w);
+            dst = reinterpret_cast<SkPoint3*>(reinterpret_cast<char*>(dst) + dstStride);
         } while (--count);
     }
+}
+
+void SkMatrix::mapHomogeneousPoints(SkPoint3 dst[], const SkPoint3 src[], int count) const {
+    SkMatrixPriv::MapHomogeneousPointsWithStride(*this, dst, sizeof(SkPoint3), src,
+                                                 sizeof(SkPoint3), count);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1136,7 +1148,7 @@ bool SkMatrix::mapRect(SkRect* dst, const SkRect& src) const {
         src.toQuad(quad);
         this->mapPoints(quad, quad, 4);
         dst->set(quad, 4);
-        return false;
+        return this->rectStaysRect();   // might still return true if rotated by 90, etc.
     }
 }
 
@@ -1268,57 +1280,6 @@ SkVector SkMatrix::fixedStepInX(SkScalar y) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkPerspIter.h"
-
-SkPerspIter::SkPerspIter(const SkMatrix& m, SkScalar x0, SkScalar y0, int count)
-        : fMatrix(m), fSX(x0), fSY(y0), fCount(count) {
-    SkPoint pt;
-
-    SkMatrix::Persp_xy(m, x0, y0, &pt);
-    fX = SkScalarToFixed(pt.fX);
-    fY = SkScalarToFixed(pt.fY);
-}
-
-int SkPerspIter::next() {
-    int n = fCount;
-
-    if (0 == n) {
-        return 0;
-    }
-    SkPoint pt;
-    SkFixed x = fX;
-    SkFixed y = fY;
-    SkFixed dx, dy;
-
-    if (n >= kCount) {
-        n = kCount;
-        fSX += SkIntToScalar(kCount);
-        SkMatrix::Persp_xy(fMatrix, fSX, fSY, &pt);
-        fX = SkScalarToFixed(pt.fX);
-        fY = SkScalarToFixed(pt.fY);
-        dx = (fX - x) >> kShift;
-        dy = (fY - y) >> kShift;
-    } else {
-        fSX += SkIntToScalar(n);
-        SkMatrix::Persp_xy(fMatrix, fSX, fSY, &pt);
-        fX = SkScalarToFixed(pt.fX);
-        fY = SkScalarToFixed(pt.fY);
-        dx = (fX - x) / n;
-        dy = (fY - y) / n;
-    }
-
-    SkFixed* p = fStorage;
-    for (int i = 0; i < n; i++) {
-        *p++ = x; x += dx;
-        *p++ = y; y += dy;
-    }
-
-    fCount -= n;
-    return n;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 static inline bool checkForZero(float x) {
     return x*x == 0;
 }
@@ -1403,32 +1364,32 @@ bool SkMatrix::Poly4Proc(const SkPoint srcPt[], SkMatrix* dst,
 
     /* check if abs(x2) > abs(y2) */
     if ( x2 > 0 ? y2 > 0 ? x2 > y2 : x2 > -y2 : y2 > 0 ? -x2 > y2 : x2 < y2) {
-        float denom = (x1 * y2 / x2) - y1;
+        float denom = sk_ieee_float_divide(x1 * y2, x2) - y1;
         if (checkForZero(denom)) {
             return false;
         }
         a1 = (((x0 - x1) * y2 / x2) - y0 + y1) / denom;
     } else {
-        float denom = x1 - (y1 * x2 / y2);
+        float denom = x1 - sk_ieee_float_divide(y1 * x2, y2);
         if (checkForZero(denom)) {
             return false;
         }
-        a1 = (x0 - x1 - ((y0 - y1) * x2 / y2)) / denom;
+        a1 = (x0 - x1 - sk_ieee_float_divide((y0 - y1) * x2, y2)) / denom;
     }
 
     /* check if abs(x1) > abs(y1) */
     if ( x1 > 0 ? y1 > 0 ? x1 > y1 : x1 > -y1 : y1 > 0 ? -x1 > y1 : x1 < y1) {
-        float denom = y2 - (x2 * y1 / x1);
+        float denom = y2 - sk_ieee_float_divide(x2 * y1, x1);
         if (checkForZero(denom)) {
             return false;
         }
-        a2 = (y0 - y2 - ((x0 - x2) * y1 / x1)) / denom;
+        a2 = (y0 - y2 - sk_ieee_float_divide((x0 - x2) * y1, x1)) / denom;
     } else {
-        float denom = (y2 * x1 / y1) - x2;
+        float denom = sk_ieee_float_divide(y2 * x1, y1) - x2;
         if (checkForZero(denom)) {
             return false;
         }
-        a2 = (((y0 - y2) * x1 / y1) - x0 + x2) / denom;
+        a2 = (sk_ieee_float_divide((y0 - y2) * x1, y1) - x0 + x2) / denom;
     }
 
     float invScale = SkScalarInvert(scale.fX);
@@ -1695,10 +1656,8 @@ size_t SkMatrix::readFromMemory(const void* buffer, size_t length) {
     if (length < sizeInMemory) {
         return 0;
     }
-    if (buffer) {
-        memcpy(fMat, buffer, sizeInMemory);
-        this->setTypeMask(kUnknown_Mask);
-    }
+    memcpy(fMat, buffer, sizeInMemory);
+    this->setTypeMask(kUnknown_Mask);
     return sizeInMemory;
 }
 
@@ -1898,4 +1857,18 @@ void SkRSXform::toQuad(SkScalar width, SkScalar height, SkPoint quad[4]) const {
     quad[2].set(m00 * width + m01 * height + m02, m10 * width + m11 * height + m12);
     quad[3].set(m01 * height + m02, m11 * height + m12);
 #endif
+}
+
+void SkRSXform::toTriStrip(SkScalar width, SkScalar height, SkPoint strip[4]) const {
+    const SkScalar m00 = fSCos;
+    const SkScalar m01 = -fSSin;
+    const SkScalar m02 = fTx;
+    const SkScalar m10 = -m01;
+    const SkScalar m11 = m00;
+    const SkScalar m12 = fTy;
+
+    strip[0].set(m02, m12);
+    strip[1].set(m01 * height + m02, m11 * height + m12);
+    strip[2].set(m00 * width + m02, m10 * width + m12);
+    strip[3].set(m00 * width + m01 * height + m02, m10 * width + m11 * height + m12);
 }

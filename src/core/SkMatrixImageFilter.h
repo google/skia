@@ -16,7 +16,7 @@
     input transformed by the given matrix.
  */
 
-class SK_API SkMatrixImageFilter : public SkImageFilter {
+class SkMatrixImageFilter : public SkImageFilter {
 public:
     /** Construct a 2D transformation image filter.
      *  @param transform     The matrix to apply when drawing the src bitmap

@@ -13,7 +13,9 @@
 #include "SkPath.h"
 #include "SkQuadClipper.h"
 #include "SkRasterClip.h"
+#include "SkRectPriv.h"
 #include "SkRegion.h"
+#include "SkSafe32.h"
 #include "SkTemplates.h"
 #include "SkTSort.h"
 
@@ -185,24 +187,24 @@ static void walk_edges(SkEdge* prevHead, SkPath::FillType fillType,
     }
 }
 
-// return true if we're done with this edge
+// return true if we're NOT done with this edge
 static bool update_edge(SkEdge* edge, int last_y) {
     SkASSERT(edge->fLastY >= last_y);
     if (last_y == edge->fLastY) {
         if (edge->fCurveCount < 0) {
             if (((SkCubicEdge*)edge)->updateCubic()) {
                 SkASSERT(edge->fFirstY == last_y + 1);
-                return false;
+                return true;
             }
         } else if (edge->fCurveCount > 0) {
             if (((SkQuadraticEdge*)edge)->updateQuadratic()) {
                 SkASSERT(edge->fFirstY == last_y + 1);
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
-    return false;
+    return true;
 }
 
 static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
@@ -258,8 +260,12 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
                 if (L < R) {
                     blitter->blitH(L, local_top, R - L);
                 }
-                left += dLeft;
-                rite += dRite;
+                // Either/both of these might overflow, since we perform this step even if
+                // (later) we determine that we are done with the edge, and so the computed
+                // left or rite edge will not be used (see update_edge). Use this helper to
+                // silence UBSAN when we perform the add.
+                left = Sk32_can_overflow_add(left, dLeft);
+                rite = Sk32_can_overflow_add(rite, dRite);
                 local_top += 1;
             } while (--count >= 0);
         }
@@ -267,14 +273,14 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
         leftE->fX = left;
         riteE->fX = rite;
 
-        if (update_edge(leftE, local_bot)) {
+        if (!update_edge(leftE, local_bot)) {
             if (currE->fFirstY >= stop_y) {
                 break;
             }
             leftE = currE;
             currE = currE->fNext;
         }
-        if (update_edge(riteE, local_bot)) {
+        if (!update_edge(riteE, local_bot)) {
             if (currE->fFirstY >= stop_y) {
                 break;
             }
@@ -391,21 +397,14 @@ void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter* blitte
     SkASSERT(blitter);
 
     SkIRect shiftedClip = clipRect;
-    shiftedClip.fLeft <<= shiftEdgesUp;
-    shiftedClip.fRight <<= shiftEdgesUp;
-    shiftedClip.fTop <<= shiftEdgesUp;
-    shiftedClip.fBottom <<= shiftEdgesUp;
+    shiftedClip.fLeft = SkLeftShift(shiftedClip.fLeft, shiftEdgesUp);
+    shiftedClip.fRight = SkLeftShift(shiftedClip.fRight, shiftEdgesUp);
+    shiftedClip.fTop = SkLeftShift(shiftedClip.fTop, shiftEdgesUp);
+    shiftedClip.fBottom = SkLeftShift(shiftedClip.fBottom, shiftEdgesUp);
 
-    SkEdgeBuilder   builder;
-
-    // If we're convex, then we need both edges, even the right edge is past the clip
-    const bool canCullToTheRight = !path.isConvex();
-
-    SkIRect* builderClip = pathContainedInClip ? nullptr : &shiftedClip;
-    int count = builder.build(path, builderClip, shiftEdgesUp, canCullToTheRight);
-    SkASSERT(count >= 0);
-
-    SkEdge**    list = builder.edgeList();
+    SkEdgeBuilder builder;
+    int count = builder.build_edges(path, &shiftedClip, shiftEdgesUp, pathContainedInClip);
+    SkEdge** list = builder.edgeList();
 
     if (0 == count) {
         if (path.isInverseFillType()) {
@@ -467,8 +466,8 @@ void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter* blitte
         proc = PrePostInverseBlitterProc;
     }
 
-    if (path.isConvex() && (nullptr == proc)) {
-        SkASSERT(count >= 2);   // convex walker does not handle missing right edges
+    // count >= 2 is required as the convex walker does not handle missing right edges
+    if (path.isConvex() && (nullptr == proc) && count >= 2) {
         walk_convex_edges(&headEdge, path.getFillType(), blitter, start_y, stop_y, nullptr);
     } else {
         walk_edges(&headEdge, path.getFillType(), blitter, start_y, stop_y, proc,
@@ -510,7 +509,7 @@ void sk_blit_below(SkBlitter* blitter, const SkIRect& ir, const SkRegion& clip) 
  *  is outside of the clip.
  */
 SkScanClipper::SkScanClipper(SkBlitter* blitter, const SkRegion* clip,
-                             const SkIRect& ir, bool skipRejectTest) {
+                             const SkIRect& ir, bool skipRejectTest, bool irPreClipped) {
     fBlitter = nullptr;     // null means blit nothing
     fClipRect = nullptr;
 
@@ -521,7 +520,7 @@ SkScanClipper::SkScanClipper(SkBlitter* blitter, const SkRegion* clip,
         }
 
         if (clip->isRect()) {
-            if (fClipRect->contains(ir)) {
+            if (!irPreClipped && fClipRect->contains(ir)) {
 #ifdef SK_DEBUG
                 fRectClipCheckBlitter.init(blitter, *fClipRect);
                 blitter = &fRectClipCheckBlitter;
@@ -529,7 +528,8 @@ SkScanClipper::SkScanClipper(SkBlitter* blitter, const SkRegion* clip,
                 fClipRect = nullptr;
             } else {
                 // only need a wrapper blitter if we're horizontally clipped
-                if (fClipRect->fLeft > ir.fLeft || fClipRect->fRight < ir.fRight) {
+                if (irPreClipped ||
+                    fClipRect->fLeft > ir.fLeft || fClipRect->fRight < ir.fRight) {
                     fRectBlitter.init(blitter, *fClipRect);
                     blitter = &fRectBlitter;
                 } else {
@@ -561,71 +561,49 @@ static bool clip_to_limit(const SkRegion& orig, SkRegion* reduced) {
     return true;
 }
 
-/**
-  * Variants of SkScalarRoundToInt, identical to SkDScalarRoundToInt except when the input fraction
-  * is 0.5. When SK_RASTERIZE_EVEN_ROUNDING is enabled, we must bias the result before rounding to
-  * account for potential FDot6 rounding edge-cases.
-  */
-#ifdef SK_RASTERIZE_EVEN_ROUNDING
-static const double kRoundBias = 0.5 / SK_FDot6One;
-#else
-static const double kRoundBias = 0.0;
-#endif
+// Bias used for conservative rounding of float rects to int rects, to nudge the irects a little
+// larger, so we don't "think" a path's bounds are inside a clip, when (due to numeric drift in
+// the scan-converter) we might walk beyond the predicted limits.
+static const double kConservativeRoundBias = 0.5 + 0.5 / SK_FDot6One;
 
 /**
-  * Round the value down. This is used to round the top and left of a rectangle,
-  * and corresponds to the way the scan converter treats the top and left edges.
-  */
+ *  Round the value down. This is used to round the top and left of a rectangle,
+ *  and corresponds to the way the scan converter treats the top and left edges.
+ *  It has a slight bias to make the "rounded" int smaller than a normal round, to create a more
+ *  conservative int-bounds (larger) from a float rect.
+ */
 static inline int round_down_to_int(SkScalar x) {
     double xx = x;
-    xx -= 0.5 + kRoundBias;
-    return (int)ceil(xx);
+    xx -= kConservativeRoundBias;
+    return sk_double_saturate2int(ceil(xx));
 }
 
 /**
-  * Round the value up. This is used to round the bottom and right of a rectangle,
-  * and corresponds to the way the scan converter treats the bottom and right edges.
+ *  Round the value up. This is used to round the right and bottom of a rectangle.
+ *  It has a slight bias to make the "rounded" int smaller than a normal round, to create a more
+ *  conservative int-bounds (larger) from a float rect.
   */
 static inline int round_up_to_int(SkScalar x) {
     double xx = x;
-    xx += 0.5 + kRoundBias;
-    return (int)floor(xx);
+    xx += kConservativeRoundBias;
+    return sk_double_saturate2int(floor(xx));
 }
 
-/**
-  *  Variant of SkRect::round() that explicitly performs the rounding step (i.e. floor(x + 0.5))
-  *  using double instead of SkScalar (float). It does this by calling SkDScalarRoundToInt(),
-  *  which may be slower than calling SkScalarRountToInt(), but gives slightly more accurate
-  *  results. Also rounds top and left using double, flooring when the fraction is exactly 0.5f.
-  *
-  *  e.g.
-  *      SkScalar left = 0.5f;
-  *      int ileft = SkScalarRoundToInt(left);
-  *      SkASSERT(0 == ileft);  // <--- fails
-  *      int ileft = round_down_to_int(left);
-  *      SkASSERT(0 == ileft);  // <--- succeeds
-  *      SkScalar right = 0.49999997f;
-  *      int iright = SkScalarRoundToInt(right);
-  *      SkASSERT(0 == iright);  // <--- fails
-  *      iright = SkDScalarRoundToInt(right);
-  *      SkASSERT(0 == iright);  // <--- succeeds
-  *
-  *
-  *  If using SK_RASTERIZE_EVEN_ROUNDING, we need to ensure we account for edges bounded by this
-  *  rect being rounded to FDot6 format before being later rounded to an integer. For example, a
-  *  value like 0.499 can be below 0.5, but round to 0.5 as FDot6, which would finally round to
-  *  the integer 1, instead of just rounding to 0.
-  *
-  *  To handle this, a small bias of half an FDot6 increment is added before actually rounding to
-  *  an integer value. This simulates the rounding of SkScalarRoundToFDot6 without incurring the
-  *  range loss of converting to FDot6 format first, preserving the integer range for the SkIRect.
-  *  Thus, bottom and right are rounded in this manner (biased up), ensuring the rect is large
-  *  enough.
+/*
+ *  Conservative rounding function, which effectively nudges the int-rect to be slightly larger
+ *  than SkRect::round() might have produced. This is a safety-net for the scan-converter, which
+ *  inspects the returned int-rect, and may disable clipping (for speed) if it thinks all of the
+ *  edges will fit inside the clip's bounds. The scan-converter introduces slight numeric errors
+ *  due to accumulated += of the slope, so this function is used to return a conservatively large
+ *  int-bounds, and thus we will only disable clipping if we're sure the edges will stay in-bounds.
   */
-static void round_asymmetric_to_int(const SkRect& src, SkIRect* dst) {
-    SkASSERT(dst);
-    dst->set(round_down_to_int(src.fLeft), round_down_to_int(src.fTop),
-             round_up_to_int(src.fRight), round_up_to_int(src.fBottom));
+static SkIRect conservative_round_to_int(const SkRect& src) {
+    return {
+        round_down_to_int(src.fLeft),
+        round_down_to_int(src.fTop),
+        round_up_to_int(src.fRight),
+        round_up_to_int(src.fBottom),
+    };
 }
 
 void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
@@ -644,14 +622,19 @@ void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
         }
         clipPtr = &finiteClip;
     }
-        // don't reference "origClip" any more, just use clipPtr
+    // don't reference "origClip" any more, just use clipPtr
 
-    SkIRect ir;
-    // We deliberately call round_asymmetric_to_int() instead of round(), since we can't afford
-    // to generate a bounds that is tighter than the corresponding SkEdges. The edge code basically
-    // converts the floats to fixed, and then "rounds". If we called round() instead of
-    // round_asymmetric_to_int() here, we could generate the wrong ir for values like 0.4999997.
-    round_asymmetric_to_int(path.getBounds(), &ir);
+
+    SkRect bounds = path.getBounds();
+    bool irPreClipped = false;
+    if (!SkRectPriv::MakeLargeS32().contains(bounds)) {
+        if (!bounds.intersect(SkRectPriv::MakeLargeS32())) {
+            bounds.setEmpty();
+        }
+        irPreClipped = true;
+    }
+
+    SkIRect ir = conservative_round_to_int(bounds);
     if (ir.isEmpty()) {
         if (path.isInverseFillType()) {
             blitter->blitRegion(*clipPtr);
@@ -659,7 +642,7 @@ void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
         return;
     }
 
-    SkScanClipper clipper(blitter, clipPtr, ir, path.isInverseFillType());
+    SkScanClipper clipper(blitter, clipPtr, ir, path.isInverseFillType(), irPreClipped);
 
     blitter = clipper.getBlitter();
     if (blitter) {
@@ -755,9 +738,19 @@ void SkScan::FillTriangle(const SkPoint pts[], const SkRasterClip& clip,
     }
 
     SkRect  r;
-    SkIRect ir;
     r.set(pts, 3);
-    r.round(&ir);
+    // If r is too large (larger than can easily fit in SkFixed) then we need perform geometric
+    // clipping. This is a bit of work, so we just call the general FillPath() to handle it.
+    // Use FixedMax/2 as the limit so we can subtract two edges and still store that in Fixed.
+    const SkScalar limit = SK_MaxS16 >> 1;
+    if (!SkRect::MakeLTRB(-limit, -limit, limit, limit).contains(r)) {
+        SkPath path;
+        path.addPoly(pts, 3, false);
+        FillPath(path, clip, blitter);
+        return;
+    }
+
+    SkIRect ir = r.round();
     if (ir.isEmpty() || !SkIRect::Intersects(ir, clip.getBounds())) {
         return;
     }

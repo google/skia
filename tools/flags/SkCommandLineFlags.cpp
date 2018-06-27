@@ -11,12 +11,7 @@
 
 #include <stdlib.h>
 
-#if defined(GOOGLE3) && defined(SK_BUILD_FOR_IOS)
-    // This is defined by //base only for iOS (I don't know why).
-    DECLARE_bool(undefok)
-#else
-    DEFINE_bool(undefok, false, "Silently ignore unknown flags instead of crashing.");
-#endif
+DEFINE_bool(undefok, false, "Silently ignore unknown flags instead of crashing.");
 
 template <typename T> static void ignore_result(const T&) {}
 
@@ -222,7 +217,7 @@ struct CompareFlagsByName {
 };
 }  // namespace
 
-void SkCommandLineFlags::Parse(int argc, char** argv) {
+void SkCommandLineFlags::Parse(int argc, const char* const * argv) {
     // Only allow calling this function once.
     static bool gOnce;
     if (gOnce) {
@@ -233,6 +228,7 @@ void SkCommandLineFlags::Parse(int argc, char** argv) {
     gOnce = true;
 
     bool helpPrinted = false;
+    bool flagsPrinted = false;
     // Loop over argv, starting with 1, since the first is just the name of the program.
     for (int i = 1; i < argc; i++) {
         if (0 == strcmp("-h", argv[i]) || 0 == strcmp("--help", argv[i])) {
@@ -248,8 +244,10 @@ void SkCommandLineFlags::Parse(int argc, char** argv) {
                 // Only print general help message if help for specific flags is not requested.
                 SkDebugf("%s\n%s\n", argv[0], gUsage.c_str());
             }
-            SkDebugf("Flags:\n");
-
+            if (!flagsPrinted) {
+                SkDebugf("Flags:\n");
+                flagsPrinted = true;
+            }
             if (0 == helpFlags.count()) {
                 // If no flags followed --help, print them all
                 SkTDArray<SkFlagInfo*> allFlags;
@@ -397,7 +395,7 @@ bool ShouldSkipImpl(const Strings& strings, const char* name) {
                 && strncmp(name, matchName, matchLen) == 0
                 : matchEnd ? matchLen <= testLen
                 && strncmp(name + testLen - matchLen, matchName, matchLen) == 0
-                : strstr(name, matchName) != 0) {
+                : strstr(name, matchName) != nullptr) {
             return matchExclude;
         }
     }

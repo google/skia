@@ -16,6 +16,7 @@
 #include "SkDocument.h"
 #include "SkDeflate.h"
 #include "SkImageEncoder.h"
+#include "SkImageFilterPriv.h"
 #include "SkMakeUnique.h"
 #include "SkMatrix.h"
 #include "SkPDFCanon.h"
@@ -126,9 +127,9 @@ static void TestObjectNumberMap(skiatest::Reporter* reporter) {
     sk_sp<SkPDFArray> a2(new SkPDFArray);
     sk_sp<SkPDFArray> a3(new SkPDFArray);
 
-    objNumMap.addObject(a1.get());
-    objNumMap.addObject(a2.get());
-    objNumMap.addObject(a3.get());
+    objNumMap.addObjectRecursively(a1.get());
+    objNumMap.addObjectRecursively(a2.get());
+    objNumMap.addObjectRecursively(a3.get());
 
     // The objects should be numbered in the order they are added,
     // starting with 1.
@@ -146,7 +147,7 @@ static void TestObjectRef(skiatest::Reporter* reporter) {
     a2->appendObjRef(a1);
 
     SkPDFObjNumMap catalog;
-    catalog.addObject(a1.get());
+    catalog.addObjectRecursively(a1.get());
     REPORTER_ASSERT(reporter, catalog.getObjectNumber(a1.get()) == 1);
 
     SkString result = emit_to_string(*a2, &catalog);
@@ -265,7 +266,7 @@ static void TestPDFArray(skiatest::Reporter* reporter) {
 
     sk_sp<SkPDFArray> referencedArray(new SkPDFArray);
     SkPDFObjNumMap catalog;
-    catalog.addObject(referencedArray.get());
+    catalog.addObjectRecursively(referencedArray.get());
     REPORTER_ASSERT(reporter, catalog.getObjectNumber(
                             referencedArray.get()) == 1);
     array->appendObjRef(std::move(referencedArray));
@@ -329,7 +330,7 @@ static void TestPDFDict(skiatest::Reporter* reporter) {
 
     sk_sp<SkPDFArray> referencedArray(new SkPDFArray);
     SkPDFObjNumMap catalog;
-    catalog.addObject(referencedArray.get());
+    catalog.addObjectRecursively(referencedArray.get());
     REPORTER_ASSERT(reporter, catalog.getObjectNumber(
                             referencedArray.get()) == 1);
     dict->insertObjRef("n1", std::move(referencedArray));
@@ -426,7 +427,7 @@ DEF_TEST(SkPDF_FontCanEmbedTypeface, reporter) {
                         !SkPDFFont::CanEmbedTypeface(noEmbedTypeface.get(), &canon));
     }
     sk_sp<SkTypeface> portableTypeface(
-            sk_tool_utils::create_portable_typeface(NULL, SkFontStyle()));
+            sk_tool_utils::create_portable_typeface(nullptr, SkFontStyle()));
     REPORTER_ASSERT(reporter,
                     SkPDFFont::CanEmbedTypeface(portableTypeface.get(), &canon));
 }
@@ -435,8 +436,8 @@ DEF_TEST(SkPDF_FontCanEmbedTypeface, reporter) {
 // test to see that all finite scalars round trip via scanf().
 static void check_pdf_scalar_serialization(
         skiatest::Reporter* reporter, float inputFloat) {
-    char floatString[SkPDFUtils::kMaximumFloatDecimalLength];
-    size_t len = SkPDFUtils::FloatToDecimal(inputFloat, floatString);
+    char floatString[kMaximumSkFloatToDecimalLength];
+    size_t len = SkFloatToDecimal(inputFloat, floatString);
     if (len >= sizeof(floatString)) {
         ERRORF(reporter, "string too long: %u", (unsigned)len);
         return;

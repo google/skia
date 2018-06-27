@@ -109,7 +109,7 @@ DEF_SIMPLE_GM(picture_savelayer, canvas, 320, 640) {
 // restore with kPlus mode, which should show the mandrill super-bright on the outside, but
 // normal where we punched the hole.
 DEF_SIMPLE_GM(savelayer_initfromprev, canvas, 256, 256) {
-    canvas->drawImage(GetResourceAsImage("mandrill_256.png"), 0, 0, nullptr);
+    canvas->drawImage(GetResourceAsImage("images/mandrill_256.png"), 0, 0, nullptr);
 
     SkCanvas::SaveLayerRec rec;
     SkPaint paint;

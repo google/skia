@@ -45,18 +45,17 @@ enum SkAlphaType {
      */
     kUnpremul_SkAlphaType,
 
-    kLastEnum_SkAlphaType = kUnpremul_SkAlphaType
+    kLastEnum_SkAlphaType = kUnpremul_SkAlphaType,
 };
 
 static inline bool SkAlphaTypeIsOpaque(SkAlphaType at) {
     return kOpaque_SkAlphaType == at;
 }
 
-static inline bool SkAlphaTypeIsValid(unsigned value) {
-    return value <= kLastEnum_SkAlphaType;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
+
+/** Temporary macro that allows us to add new color types without breaking Chrome compile. */
+#define SK_EXTENDED_COLOR_TYPES
 
 /**
  *  Describes how to interpret the components of a pixel.
@@ -71,8 +70,10 @@ enum SkColorType {
     kRGB_565_SkColorType,
     kARGB_4444_SkColorType,
     kRGBA_8888_SkColorType,
+    kRGB_888x_SkColorType,
     kBGRA_8888_SkColorType,
-    kIndex_8_SkColorType,
+    kRGBA_1010102_SkColorType,
+    kRGB_101010x_SkColorType,
     kGray_8_SkColorType,
     kRGBA_F16_SkColorType,
 
@@ -83,71 +84,40 @@ enum SkColorType {
 #elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
     kN32_SkColorType = kRGBA_8888_SkColorType,
 #else
-    #error "SK_*32_SHFIT values must correspond to BGRA or RGBA byte order"
+    #error "SK_*32_SHIFT values must correspond to BGRA or RGBA byte order"
 #endif
 };
 
-static int SkColorTypeBytesPerPixel(SkColorType ct) {
-    static const uint8_t gSize[] = {
-        0,  // Unknown
-        1,  // Alpha_8
-        2,  // RGB_565
-        2,  // ARGB_4444
-        4,  // RGBA_8888
-        4,  // BGRA_8888
-        1,  // kIndex_8
-        1,  // kGray_8
-        8,  // kRGBA_F16
-    };
-    static_assert(SK_ARRAY_COUNT(gSize) == (size_t)(kLastEnum_SkColorType + 1),
-                  "size_mismatch_with_SkColorType_enum");
-
-    SkASSERT((size_t)ct < SK_ARRAY_COUNT(gSize));
-    return gSize[ct];
-}
-
-static int SkColorTypeShiftPerPixel(SkColorType ct) {
-    static const uint8_t gShift[] = {
-        0,  // Unknown
-        0,  // Alpha_8
-        1,  // RGB_565
-        1,  // ARGB_4444
-        2,  // RGBA_8888
-        2,  // BGRA_8888
-        0,  // kIndex_8
-        0,  // kGray_8
-        3,  // kRGBA_F16
-    };
-    static_assert(SK_ARRAY_COUNT(gShift) == (size_t)(kLastEnum_SkColorType + 1),
-                  "size_mismatch_with_SkColorType_enum");
-    
-    SkASSERT((size_t)ct < SK_ARRAY_COUNT(gShift));
-    return gShift[ct];
-}
-
-static inline size_t SkColorTypeMinRowBytes(SkColorType ct, int width) {
-    return width * SkColorTypeBytesPerPixel(ct);
-}
-
-static inline bool SkColorTypeIsValid(unsigned value) {
-    return value <= kLastEnum_SkColorType;
-}
-
-static inline size_t SkColorTypeComputeOffset(SkColorType ct, int x, int y, size_t rowBytes) {
-    if (kUnknown_SkColorType == ct) {
-        return 0;
-    }
-    return y * rowBytes + (x << SkColorTypeShiftPerPixel(ct));
-}
-
-///////////////////////////////////////////////////////////////////////////////
+/**
+ *  Returns the number of bytes-per-pixel for the specified colortype, or 0 if invalid.
+ */
+SK_API int SkColorTypeBytesPerPixel(SkColorType ct);
 
 /**
- *  Return true if alphaType is supported by colorType. If there is a canonical
- *  alphaType for this colorType, return it in canonical.
+ *  Returns true iff the colortype is always considered opaque (i.e. does not store alpha).
  */
-bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
-                                  SkAlphaType* canonical = NULL);
+SK_API bool SkColorTypeIsAlwaysOpaque(SkColorType ct);
+
+/**
+ *  Tries to validate the colortype, alphatype pair. In all cases if it returns true, it
+ *  will set canonical to the "canonical" answer if it is non-null, and ignore the parameter if
+ *  it is set to null.
+ *
+ *  If the specified colortype has only 1 valid alphatype (e.g. 565 must always be opaque) then
+ *  canonical will be set to that valid alphatype.
+ *
+ *  If the specified colortype treats more than one alphatype the same (e.g. Alpha_8 colortype
+ *  treates Premul and Unpremul the same) and the specified alphatype is one of those,
+ *  then canonical will be set to the "canonical" answer (Premul in the case of Alpha_8 colortype).
+ *
+ *  If the colortype supports multiple alphatypes, and the specified alphatype is one of them,
+ *  then canonical will be set to the specified alphatype. If the specified alphatype is not
+ *  one of them (e.g. kUnknown_SkAlphaType is not valid for any colortype except
+ *  kUnknown_SkColorType), then the function returns false, and canonical's value is undefined.
+ */
+SK_API bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
+                                         SkAlphaType* canonical = nullptr);
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -164,15 +134,10 @@ enum SkYUVColorSpace {
        range. See http://en.wikipedia.org/wiki/Rec._709 for details. */
     kRec709_SkYUVColorSpace,
 
-    kLastEnum_SkYUVColorSpace = kRec709_SkYUVColorSpace
+    kLastEnum_SkYUVColorSpace = kRec709_SkYUVColorSpace,
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
-enum class SkDestinationSurfaceColorMode {
-    kLegacy,
-    kGammaAndColorSpaceAware,
-};
 
 /**
  *  Describe an image's dimensions and pixel type.
@@ -228,7 +193,7 @@ public:
     static SkImageInfo MakeUnknown() {
         return MakeUnknown(0, 0);
     }
-    
+
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     SkColorType colorType() const { return fColorType; }
@@ -260,7 +225,7 @@ public:
     SkImageInfo makeAlphaType(SkAlphaType newAlphaType) const {
         return Make(fWidth, fHeight, fColorType, newAlphaType, fColorSpace);
     }
-    
+
     SkImageInfo makeColorType(SkColorType newColorType) const {
         return Make(fWidth, fHeight, newColorType, fAlphaType, fColorSpace);
     }
@@ -269,9 +234,8 @@ public:
         return Make(fWidth, fHeight, fColorType, fAlphaType, std::move(cs));
     }
 
-    int bytesPerPixel() const { return SkColorTypeBytesPerPixel(fColorType); }
-
-    int shiftPerPixel() const { return SkColorTypeShiftPerPixel(fColorType); }
+    int bytesPerPixel() const;
+    int shiftPerPixel() const;
 
     uint64_t minRowBytes64() const {
         return sk_64_mul(fWidth, this->bytesPerPixel());
@@ -285,11 +249,7 @@ public:
         return sk_64_asS32(minRowBytes);
     }
 
-    size_t computeOffset(int x, int y, size_t rowBytes) const {
-        SkASSERT((unsigned)x < (unsigned)fWidth);
-        SkASSERT((unsigned)y < (unsigned)fHeight);
-        return SkColorTypeComputeOffset(fColorType, x, y, rowBytes);
-    }
+    size_t computeOffset(int x, int y, size_t rowBytes) const;
 
     bool operator==(const SkImageInfo& other) const {
         return fWidth == other.fWidth && fHeight == other.fHeight &&
@@ -300,27 +260,39 @@ public:
         return !(*this == other);
     }
 
-    void unflatten(SkReadBuffer&);
-    void flatten(SkWriteBuffer&) const;
+    void unflatten(SkReadBuffer& buffer);
+    void flatten(SkWriteBuffer& buffer) const;
 
-    int64_t getSafeSize64(size_t rowBytes) const {
-        if (0 == fHeight) {
-            return 0;
-        }
-        return sk_64_mul(fHeight - 1, rowBytes) + sk_64_mul(fWidth, this->bytesPerPixel());
+    /**
+     *  Returns the size (in bytes) of the image buffer that this info needs, given the specified
+     *  rowBytes. The rowBytes must be >= this->minRowBytes().
+     *
+     *  if (height == 0) {
+     *      return 0;
+     *  } else {
+     *      return (height - 1) * rowBytes + width * bytes_per_pixel;
+     *  }
+     *
+     *  If the calculation overflows this returns SK_MaxSizeT
+     */
+    size_t computeByteSize(size_t rowBytes) const;
+
+    /**
+     *  Returns the minimum size (in bytes) of the image buffer that this info needs.
+     *  If the calculation overflows, or if the height is 0, this returns 0.
+     */
+    size_t computeMinByteSize() const {
+        return this->computeByteSize(this->minRowBytes());
     }
 
-    size_t getSafeSize(size_t rowBytes) const {
-        int64_t size = this->getSafeSize64(rowBytes);
-        if (!sk_64_isS32(size)) {
-            return 0;
-        }
-        return sk_64_asS32(size);
+    // Returns true if the result of computeByteSize (or computeMinByteSize) overflowed
+    static bool ByteSizeOverflowed(size_t byteSize) {
+        return SK_MaxSizeT == byteSize;
     }
 
     bool validRowBytes(size_t rowBytes) const {
-        uint64_t rb = sk_64_mul(fWidth, this->bytesPerPixel());
-        return rowBytes >= rb;
+        uint64_t minRB = sk_64_mul(fWidth, this->bytesPerPixel());
+        return rowBytes >= minRB;
     }
 
     void reset() {

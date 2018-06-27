@@ -11,8 +11,6 @@
 #include "../private/SkTArray.h"
 #include "SkRefCnt.h"
 
-class GrGpuResourceRef;
-
 /**
  * Note: We are converting GrProcessor from ref counting to a single owner model using move
  * semantics. This class will be removed.

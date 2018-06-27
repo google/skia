@@ -35,7 +35,7 @@ protected:
         paint.setAntiAlias(true);
         paint.setSubpixelText(true);
         paint.setLCDRenderText(true);
-        paint.setTypeface(MakeResourceAsTypeface("/fonts/HangingS.ttf"));
+        paint.setTypeface(MakeResourceAsTypeface("fonts/HangingS.ttf"));
 
         const char* text = "Skia";
 
@@ -85,11 +85,9 @@ protected:
     }
 
     SkString onShortName() override {
-        SkString name("textblobmixedsizes");
-        if (fUseDFT) {
-            name.appendf("_df");
-        }
-        return name;
+        return SkStringPrintf("textblobmixedsizes%s%s",
+                              sk_tool_utils::platform_font_manager(),
+                              fUseDFT ? "_df" : "");
     }
 
     SkISize onISize() override {

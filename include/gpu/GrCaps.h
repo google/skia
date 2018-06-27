@@ -8,15 +8,20 @@
 #ifndef GrCaps_DEFINED
 #define GrCaps_DEFINED
 
-#include "GrTypes.h"
-#include "GrTypesPriv.h"
+#include "../private/GrTypesPriv.h"
 #include "GrBlend.h"
 #include "GrShaderCaps.h"
+#include "SkImageInfo.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
 
+class GrBackendFormat;
+class GrBackendRenderTarget;
+class GrBackendTexture;
 struct GrContextOptions;
 class GrRenderTargetProxy;
+class GrSurface;
+class SkJSONWriter;
 
 /**
  * Represents the capabilities of a GrContext.
@@ -25,7 +30,8 @@ class GrCaps : public SkRefCnt {
 public:
     GrCaps(const GrContextOptions&);
 
-    virtual SkString dump() const;
+    void dumpJSON(SkJSONWriter*) const;
+
     const GrShaderCaps* shaderCaps() const { return fShaderCaps.get(); }
 
     bool npotTextureTileSupport() const { return fNPOTTextureTileSupport; }
@@ -43,40 +49,34 @@ public:
      * Is there support for enabling/disabling sRGB writes for sRGB-capable color buffers?
      */
     bool srgbWriteControl() const { return fSRGBWriteControl; }
+    bool srgbDecodeDisableSupport() const { return fSRGBDecodeDisableSupport; }
     bool discardRenderTargetSupport() const { return fDiscardRenderTargetSupport; }
     bool gpuTracingSupport() const { return fGpuTracingSupport; }
     bool oversizedStencilSupport() const { return fOversizedStencilSupport; }
     bool textureBarrierSupport() const { return fTextureBarrierSupport; }
     bool sampleLocationsSupport() const { return fSampleLocationsSupport; }
     bool multisampleDisableSupport() const { return fMultisampleDisableSupport; }
+    bool instanceAttribSupport() const { return fInstanceAttribSupport; }
     bool usesMixedSamples() const { return fUsesMixedSamples; }
+
+    // Returns whether mixed samples is supported for the given backend render target.
+    bool isMixedSamplesSupportedForRT(const GrBackendRenderTarget& rt) const {
+        return this->usesMixedSamples() && this->onIsMixedSamplesSupportedForRT(rt);
+    }
+
+    // Primitive restart functionality is core in ES 3.0, but using it will cause slowdowns on some
+    // systems. This cap is only set if primitive restart will improve performance.
+    bool usePrimitiveRestart() const { return fUsePrimitiveRestart; }
+
     bool preferClientSideDynamicBuffers() const { return fPreferClientSideDynamicBuffers; }
 
-    bool useDrawInsteadOfClear() const { return fUseDrawInsteadOfClear; }
-    bool useDrawInsteadOfPartialRenderTargetWrite() const {
-        return fUseDrawInsteadOfPartialRenderTargetWrite;
-    }
-
-    bool useDrawInsteadOfAllRenderTargetWrites() const {
-        return fUseDrawInsteadOfAllRenderTargetWrites;
-    }
+    // On tilers, an initial fullscreen clear is an OPTIMIZATION. It allows the hardware to
+    // initialize each tile with a constant value rather than loading each pixel from memory.
+    bool preferFullscreenClears() const { return fPreferFullscreenClears; }
 
     bool preferVRAMUseOverFlushes() const { return fPreferVRAMUseOverFlushes; }
 
-    /**
-     * Indicates the level of support for gr_instanced::* functionality. A higher level includes
-     * all functionality from the levels below it.
-     */
-    enum class InstancedSupport {
-        kNone,
-        kBasic,
-        kMultisampled,
-        kMixedSampled
-    };
-
-    InstancedSupport instancedSupport() const { return fInstancedSupport; }
-
-    bool avoidInstancedDrawsToFPTargets() const { return fAvoidInstancedDrawsToFPTargets; }
+    bool blacklistCoverageCounting() const { return fBlacklistCoverageCounting; }
 
     bool avoidStencilBuffers() const { return fAvoidStencilBuffers; }
 
@@ -117,7 +117,7 @@ public:
         kNone_MapFlags   = 0x0,       //<! Cannot map the resource.
 
         kCanMap_MapFlag  = 0x1,       //<! The resource can be mapped. Must be set for any of
-                                      //   the other flags to have meaning.k
+                                      //   the other flags to have meaning.
         kSubset_MapFlag  = 0x2,       //<! The resource can be partially mapped.
     };
 
@@ -134,44 +134,80 @@ public:
     int maxVertexAttributes() const { return fMaxVertexAttributes; }
 
     int maxRenderTargetSize() const { return fMaxRenderTargetSize; }
+
+    /** This is the largest render target size that can be used without incurring extra perfomance
+        cost. It is usually the max RT size, unless larger render targets are known to be slower. */
+    int maxPreferredRenderTargetSize() const { return fMaxPreferredRenderTargetSize; }
+
     int maxTextureSize() const { return fMaxTextureSize; }
+
     /** This is the maximum tile size to use by GPU devices for rendering sw-backed images/bitmaps.
         It is usually the max texture size, unless we're overriding it for testing. */
     int maxTileSize() const { SkASSERT(fMaxTileSize <= fMaxTextureSize); return fMaxTileSize; }
 
-    // Will be 0 if MSAA is not supported
-    int maxColorSampleCount() const { return fMaxColorSampleCount; }
-    // Will be 0 if MSAA is not supported
-    int maxStencilSampleCount() const { return fMaxStencilSampleCount; }
-    // Will be 0 if raster multisample is not supported. Raster multisample is a special HW mode
-    // where the rasterizer runs with more samples than are in the target framebuffer.
     int maxRasterSamples() const { return fMaxRasterSamples; }
-    // We require the sample count to be less than maxColorSampleCount and maxStencilSampleCount.
-    // If we are using mixed samples, we only care about stencil.
-    int maxSampleCount() const {
-        if (this->usesMixedSamples()) {
-            return this->maxStencilSampleCount();
-        } else {
-            return SkTMin(this->maxColorSampleCount(), this->maxStencilSampleCount());
-        }
-    }
 
     int maxWindowRectangles() const { return fMaxWindowRectangles; }
 
+    // Returns whether mixed samples is supported for the given backend render target.
+    bool isWindowRectanglesSupportedForRT(const GrBackendRenderTarget& rt) const {
+        return this->maxWindowRectangles() > 0 && this->onIsWindowRectanglesSupportedForRT(rt);
+    }
+
+    // A tuned, platform-specific value for the maximum number of analytic fragment processors we
+    // should use to implement a clip, before falling back on a mask.
+    int maxClipAnalyticFPs() const { return fMaxClipAnalyticFPs; }
+
     virtual bool isConfigTexturable(GrPixelConfig) const = 0;
-    virtual bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const = 0;
-    virtual bool canConfigBeImageStorage(GrPixelConfig config) const = 0;
+
+    // Returns whether a texture of the given config can be copied to a texture of the same config.
+    virtual bool isConfigCopyable(GrPixelConfig) const = 0;
+
+    // Returns the maximum supported sample count for a config. 0 means the config is not renderable
+    // 1 means the config is renderable but doesn't support MSAA.
+    virtual int maxRenderTargetSampleCount(GrPixelConfig) const = 0;
+
+    bool isConfigRenderable(GrPixelConfig config) const {
+        return this->maxRenderTargetSampleCount(config) > 0;
+    }
+
+    // TODO: Remove this after Flutter updated to no longer use it.
+    bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const {
+        return this->maxRenderTargetSampleCount(config) > (withMSAA ? 1 : 0);
+    }
+
+    // Find a sample count greater than or equal to the requested count which is supported for a
+    // color buffer of the given config or 0 if no such sample count is supported. If the requested
+    // sample count is 1 then 1 will be returned if non-MSAA rendering is supported, otherwise 0.
+    // For historical reasons requestedCount==0 is handled identically to requestedCount==1.
+    virtual int getRenderTargetSampleCount(int requestedCount, GrPixelConfig) const = 0;
+    // TODO: Remove. Legacy name used by Chrome.
+    int getSampleCount(int requestedCount, GrPixelConfig config) const {
+        return this->getRenderTargetSampleCount(requestedCount, config);
+    }
+
+    /**
+     * Backends may have restrictions on what types of surfaces support GrGpu::writePixels().
+     * If this returns false then the caller should implement a fallback where a temporary texture
+     * is created, pixels are written to it, and then that is copied or drawn into the the surface.
+     */
+    virtual bool surfaceSupportsWritePixels(const GrSurface* surface) const = 0;
+
+    /**
+     * Given a dst pixel config and a src color type what color type must the caller coax the
+     * the data into in order to use GrGpu::writePixels().
+     */
+    virtual GrColorType supportedWritePixelsColorType(GrPixelConfig config,
+                                                      GrColorType /*srcColorType*/) const {
+        return GrPixelConfigToColorType(config);
+    }
 
     bool suppressPrints() const { return fSuppressPrints; }
-
-    bool immediateFlush() const { return fImmediateFlush; }
 
     size_t bufferMapThreshold() const {
         SkASSERT(fBufferMapThreshold >= 0);
         return fBufferMapThreshold;
     }
-
-    bool fullClearIsFree() const { return fFullClearIsFree; }
 
     /** True in environments that will issue errors if memory uploaded to buffers
         is not initialized (even if not read by draw calls). */
@@ -195,6 +231,24 @@ public:
     virtual bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
                                     bool* rectsMustMatch, bool* disallowSubrect) const = 0;
 
+    bool validateSurfaceDesc(const GrSurfaceDesc&, GrMipMapped) const;
+
+    /**
+     * Returns true if the GrBackendTexture can be used with the supplied SkColorType. If it is
+     * compatible, the passed in GrPixelConfig will be set to a config that matches the backend
+     * format and requested SkColorType.
+     */
+    virtual bool validateBackendTexture(const GrBackendTexture& tex, SkColorType ct,
+                                        GrPixelConfig*) const = 0;
+    virtual bool validateBackendRenderTarget(const GrBackendRenderTarget&, SkColorType,
+                                             GrPixelConfig*) const = 0;
+
+    // TODO: replace validateBackendTexture and validateBackendRenderTarget with calls to
+    // getConfigFromBackendFormat?
+    // TODO: it seems like we could pass the full SkImageInfo and validate its colorSpace too
+    virtual bool getConfigFromBackendFormat(const GrBackendFormat& format, SkColorType ct,
+                                            GrPixelConfig*) const = 0;
+
 protected:
     /** Subclasses must call this at the end of their constructors in order to apply caps
         overrides requested by the client. Note that overrides will only reduce the caps never
@@ -207,6 +261,7 @@ protected:
     bool fMipMapSupport                              : 1;
     bool fSRGBSupport                                : 1;
     bool fSRGBWriteControl                           : 1;
+    bool fSRGBDecodeDisableSupport                   : 1;
     bool fDiscardRenderTargetSupport                 : 1;
     bool fReuseScratchTextures                       : 1;
     bool fReuseScratchBuffers                        : 1;
@@ -215,19 +270,18 @@ protected:
     bool fTextureBarrierSupport                      : 1;
     bool fSampleLocationsSupport                     : 1;
     bool fMultisampleDisableSupport                  : 1;
+    bool fInstanceAttribSupport                      : 1;
     bool fUsesMixedSamples                           : 1;
+    bool fUsePrimitiveRestart                        : 1;
     bool fPreferClientSideDynamicBuffers             : 1;
-    bool fFullClearIsFree                            : 1;
+    bool fPreferFullscreenClears                     : 1;
     bool fMustClearUploadedBufferData                : 1;
 
     // Driver workaround
-    bool fUseDrawInsteadOfClear                      : 1;
-    bool fUseDrawInsteadOfPartialRenderTargetWrite   : 1;
-    bool fUseDrawInsteadOfAllRenderTargetWrites      : 1;
-    bool fAvoidInstancedDrawsToFPTargets             : 1;
+    bool fBlacklistCoverageCounting                  : 1;
     bool fAvoidStencilBuffers                        : 1;
 
-    // ANGLE workaround
+    // ANGLE performance workaround
     bool fPreferVRAMUseOverFlushes                   : 1;
 
     bool fSampleShadingSupport                       : 1;
@@ -237,8 +291,6 @@ protected:
     // Vulkan doesn't support this (yet) and some drivers have issues, too
     bool fCrossContextTextureSupport                 : 1;
 
-    InstancedSupport fInstancedSupport;
-
     BlendEquationSupport fBlendEquationSupport;
     uint32_t fAdvBlendEqBlacklist;
     GR_STATIC_ASSERT(kLast_GrBlendEquation < 32);
@@ -247,19 +299,30 @@ protected:
     int fBufferMapThreshold;
 
     int fMaxRenderTargetSize;
+    int fMaxPreferredRenderTargetSize;
     int fMaxVertexAttributes;
     int fMaxTextureSize;
     int fMaxTileSize;
-    int fMaxColorSampleCount;
-    int fMaxStencilSampleCount;
     int fMaxRasterSamples;
     int fMaxWindowRectangles;
+    int fMaxClipAnalyticFPs;
 
 private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {}
+    virtual void onDumpJSON(SkJSONWriter*) const {}
+
+    // Backends should implement this if they have any extra requirements for use of mixed
+    // samples for a specific GrBackendRenderTarget outside of basic support.
+    virtual bool onIsMixedSamplesSupportedForRT(const GrBackendRenderTarget&) const {
+        return true;
+    }
+    // Backends should implement this if they have any extra requirements for use of window
+    // rectangles for a specific GrBackendRenderTarget outside of basic support.
+    virtual bool onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget&) const {
+        return true;
+    }
 
     bool fSuppressPrints : 1;
-    bool fImmediateFlush : 1;
     bool fWireframeMode  : 1;
 
     typedef SkRefCnt INHERITED;

@@ -33,7 +33,7 @@ void GrPathRange::loadPathsIfNeeded(const void* indices, PathIndexType indexType
         case kU32_PathIndexType:
             return this->loadPathsIfNeeded(reinterpret_cast<const uint32_t*>(indices), count);
         default:
-            SkFAIL("Unknown path index type");
+            SK_ABORT("Unknown path index type");
     }
 }
 
@@ -48,7 +48,7 @@ void GrPathRange::assertPathsLoaded(const void* indices, PathIndexType indexType
         case kU32_PathIndexType:
             return this->assertPathsLoaded(reinterpret_cast<const uint32_t*>(indices), count);
         default:
-            SkFAIL("Unknown path index type");
+            SK_ABORT("Unknown path index type");
     }
 }
 

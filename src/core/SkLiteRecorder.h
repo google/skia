@@ -27,6 +27,8 @@ public:
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;
     void willRestore() override;
 
+    void onFlush() override;
+
     void didConcat(const SkMatrix&) override;
     void didSetMatrix(const SkMatrix&) override;
     void didTranslate(SkScalar, SkScalar) override;

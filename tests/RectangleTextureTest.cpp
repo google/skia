@@ -12,6 +12,7 @@
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "GrTest.h"
 #include "gl/GLTestContext.h"
@@ -25,15 +26,11 @@ static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrContext* cont
             context->makeDeferredRenderTargetContext(SkBackingFit::kExact, rectProxy->width(),
                                                      rectProxy->height(), rectProxy->config(),
                                                      nullptr));
-    for (auto filter : {GrSamplerParams::kNone_FilterMode,
-                        GrSamplerParams::kBilerp_FilterMode,
-                        GrSamplerParams::kMipMap_FilterMode}) {
-        rtContext->clear(nullptr, 0xDDCCBBAA, true);
-        sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(
-                                                        context->resourceProvider(),
-                                                        rectProxy,
-                                                        nullptr,
-                                                        SkMatrix::I(), filter));
+    for (auto filter : {GrSamplerState::Filter::kNearest,
+                        GrSamplerState::Filter::kBilerp,
+                        GrSamplerState::Filter::kMipMap}) {
+        rtContext->clear(nullptr, 0xDDCCBBAA, GrRenderTargetContext::CanClearFullscreen::kYes);
+        auto fp = GrSimpleTextureEffect::Make(rectProxy, SkMatrix::I(), filter);
         GrPaint paint;
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         paint.addColorFragmentProcessor(std::move(fp));
@@ -47,7 +44,7 @@ static void test_clear(skiatest::Reporter* reporter, GrSurfaceContext* rectConte
     if (GrRenderTargetContext* rtc = rectContext->asRenderTargetContext()) {
         // Clear the whole thing.
         GrColor color0 = GrColorPackRGBA(0xA, 0xB, 0xC, 0xD);
-        rtc->clear(nullptr, color0, false);
+        rtc->clear(nullptr, color0, GrRenderTargetContext::CanClearFullscreen::kNo);
 
         int w = rtc->width();
         int h = rtc->height();
@@ -68,7 +65,7 @@ static void test_clear(skiatest::Reporter* reporter, GrSurfaceContext* rectConte
         // Clear the the top to a different color.
         GrColor color1 = GrColorPackRGBA(0x1, 0x2, 0x3, 0x4);
         SkIRect rect = SkIRect::MakeWH(w, h/2);
-        rtc->clear(&rect, color1, false);
+        rtc->clear(&rect, color1, GrRenderTargetContext::CanClearFullscreen::kNo);
 
         uint32_t expectedColor1 = 0;
         uint8_t* expectedBytes1 = SkTCast<uint8_t*>(&expectedColor1);
@@ -89,6 +86,7 @@ static void test_clear(skiatest::Reporter* reporter, GrSurfaceContext* rectConte
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     sk_gpu_test::GLTestContext* glContext = ctxInfo.glContext();
     static const int kWidth = 13;
     static const int kHeight = 13;
@@ -129,9 +127,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
             }
         }
 
-        sk_sp<GrTextureProxy> rectProxy = GrSurfaceProxy::MakeWrappedBackend(context,
-                                                                             rectangleTex,
-                                                                             origin);
+        sk_sp<GrTextureProxy> rectProxy = proxyProvider->createWrappedTextureProxy(
+                                                                            rectangleTex, origin);
+
         if (!rectProxy) {
             ERRORF(reporter, "Error creating proxy for rectangle texture.");
             GR_GL_CALL(glContext->gl(), DeleteTextures(1, &rectTexID));
@@ -145,12 +143,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
                                false, "RectangleTexture-copy-from");
 
         sk_sp<GrSurfaceContext> rectContext = context->contextPriv().makeWrappedSurfaceContext(
-                                                                    std::move(rectProxy), nullptr);
+                                                                            std::move(rectProxy));
         SkASSERT(rectContext);
 
         test_read_pixels(reporter, rectContext.get(), refPixels, "RectangleTexture-read");
 
-        test_copy_to_surface(reporter, context->resourceProvider(),
+        test_copy_to_surface(reporter, context->contextPriv().proxyProvider(),
                               rectContext.get(), "RectangleTexture-copy-to");
 
         test_write_pixels(reporter, rectContext.get(), true, "RectangleTexture-write");

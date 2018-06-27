@@ -11,7 +11,7 @@
 #include "SkData.h"
 #include "SkCanvas.h"
 #include "SkDrawable.h"
-#include "SkDrawShadowRec.h"
+#include "SkDrawShadowInfo.h"
 #include "SkImage.h"
 #include "SkImageFilter.h"
 #include "SkMatrix.h"
@@ -47,6 +47,7 @@ namespace SkRecords {
 // you keep them semantically grouped, especially the Draws.  It's also nice to leave NoOp at 0.
 #define SK_RECORD_TYPES(M)                                          \
     M(NoOp)                                                         \
+    M(Flush)                                                        \
     M(Restore)                                                      \
     M(Save)                                                         \
     M(SaveLayer)                                                    \
@@ -174,6 +175,7 @@ struct T {                              \
 };
 
 RECORD(NoOp, 0);
+RECORD(Flush, 0);
 RECORD(Restore, 0,
         SkIRect devBounds;
         TypedMatrix matrix);
@@ -254,7 +256,8 @@ RECORD(DrawImageLattice, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         int yCount;
         PODArray<int> yDivs;
         int flagCount;
-        PODArray<SkCanvas::Lattice::Flags> flags;
+        PODArray<SkCanvas::Lattice::RectType> flags;
+        PODArray<SkColor> colors;
         SkIRect src;
         SkRect dst);
 RECORD(DrawImageRect, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,

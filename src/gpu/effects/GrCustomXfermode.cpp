@@ -13,7 +13,6 @@
 #include "GrPipeline.h"
 #include "GrProcessor.h"
 #include "GrShaderCaps.h"
-#include "GrTexture.h"
 #include "glsl/GrGLSLBlend.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -73,16 +72,14 @@ static bool can_use_hw_blend_equation(GrBlendEquation equation,
 class CustomXP : public GrXferProcessor {
 public:
     CustomXP(SkBlendMode mode, GrBlendEquation hwBlendEquation)
-        : fMode(mode)
-        , fHWBlendEquation(hwBlendEquation) {
-        this->initClassID<CustomXP>();
-    }
+        : INHERITED(kCustomXP_ClassID)
+        , fMode(mode)
+        , fHWBlendEquation(hwBlendEquation) {}
 
     CustomXP(bool hasMixedSamples, SkBlendMode mode, GrProcessorAnalysisCoverage coverage)
-            : INHERITED(true, hasMixedSamples, coverage)
+            : INHERITED(kCustomXP_ClassID, true, hasMixedSamples, coverage)
             , fMode(mode)
             , fHWBlendEquation(static_cast<GrBlendEquation>(-1)) {
-        this->initClassID<CustomXP>();
     }
 
     const char* name() const override { return "Custom Xfermode"; }
@@ -203,9 +200,13 @@ void CustomXP::onGetBlendInfo(BlendInfo* blendInfo) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 // See the comment above GrXPFactory's definition about this warning suppression.
-#if defined(__GNUC__) || defined(__clang)
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
+#endif
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnon-virtual-dtor"
 #endif
 class CustomXPFactory : public GrXPFactory {
 public:
@@ -216,28 +217,34 @@ private:
     sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
                                                    GrProcessorAnalysisCoverage,
                                                    bool hasMixedSamples,
-                                                   const GrCaps&) const override;
+                                                   const GrCaps&,
+                                                   GrPixelConfigIsClamped) const override;
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,
-                                          const GrCaps&) const override;
+                                          const GrCaps&,
+                                          GrPixelConfigIsClamped) const override;
 
-    GR_DECLARE_XP_FACTORY_TEST;
+    GR_DECLARE_XP_FACTORY_TEST
 
     SkBlendMode fMode;
     GrBlendEquation fHWBlendEquation;
 
     typedef GrXPFactory INHERITED;
 };
-#if defined(__GNUC__) || defined(__clang)
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
+#endif
+#if defined(__clang__)
+#pragma clang diagnostic pop
 #endif
 
 sk_sp<const GrXferProcessor> CustomXPFactory::makeXferProcessor(
         const GrProcessorAnalysisColor&,
         GrProcessorAnalysisCoverage coverage,
         bool hasMixedSamples,
-        const GrCaps& caps) const {
+        const GrCaps& caps,
+        GrPixelConfigIsClamped dstIsClamped) const {
     SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
     if (can_use_hw_blend_equation(fHWBlendEquation, coverage, caps)) {
         return sk_sp<GrXferProcessor>(new CustomXP(fMode, fHWBlendEquation));
@@ -247,7 +254,7 @@ sk_sp<const GrXferProcessor> CustomXPFactory::makeXferProcessor(
 
 GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(
         const GrProcessorAnalysisColor&, const GrProcessorAnalysisCoverage& coverage,
-        const GrCaps& caps) const {
+        const GrCaps& caps, GrPixelConfigIsClamped dstIsClamped) const {
     /*
       The general SVG blend equation is defined in the spec as follows:
 

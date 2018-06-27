@@ -19,6 +19,7 @@
 #include "SkPathEffect.h"
 #include "SkPictureShader.h"
 #include "SkRecordedDrawable.h"
+#include "SkShaderBase.h"
 
 /*
  *  Registers all of the required effects subclasses for picture deserialization.
@@ -42,14 +43,16 @@ void SkFlattenable::PrivateInitializer::InitCore() {
 
     SkColorFilter::InitializeFlattenables();
     SkPathEffect::InitializeFlattenables();
-    SkShader::InitializeFlattenables();
-    SkXfermode::InitializeFlattenables();
+    SkShaderBase::InitializeFlattenables();
 
     // Drawable
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkRecordedDrawable)
 
     // Now initialize any optional/additional effects (implemented in src/ports)
     InitEffects();
+
+    // Finalize flattenable initialization.
+    SkFlattenable::Finalize();
 };
 
 void SkFlattenable::InitializeFlattenablesIfNeeded() {

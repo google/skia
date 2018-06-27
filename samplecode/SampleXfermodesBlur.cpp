@@ -7,6 +7,7 @@
 
 #include "SampleCode.h"
 #include "SkView.h"
+#include "SkBitmap.h"
 #include "SkBlurMask.h"
 #include "SkCanvas.h"
 #include "SkCornerPathEffect.h"

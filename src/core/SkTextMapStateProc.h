@@ -9,13 +9,13 @@
 #define SkTextMapStateProc_DEFINED
 
 #include "SkPoint.h"
-#include "SkMatrix.h"
+#include "SkMatrixPriv.h"
 
 class SkTextMapStateProc {
 public:
     SkTextMapStateProc(const SkMatrix& matrix, const SkPoint& offset, int scalarsPerPosition)
         : fMatrix(matrix)
-        , fProc(matrix.getMapXYProc())
+        , fProc(SkMatrixPriv::GetMapXYProc(matrix))
         , fOffset(offset)
         , fScaleX(fMatrix.getScaleX()) {
         SkASSERT(1 == scalarsPerPosition || 2 == scalarsPerPosition);
@@ -50,7 +50,7 @@ private:
         kOnlyTransX,
         kX
     } fMapCase;
-    const SkMatrix::MapXYProc fProc;
+    const SkMatrixPriv::MapXYProc fProc;
     SkPoint  fOffset; // In kOnly* mode, this includes the matrix translation component.
     SkScalar fScaleX; // This is only used by kOnly... cases.
 };

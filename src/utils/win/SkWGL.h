@@ -83,7 +83,8 @@ public:
      * priority are:
      *     * Choose formats with the smallest sample count that is >=
      *       desiredSampleCount (or the largest sample count if all formats have
-     *       fewer samples than desiredSampleCount.)
+     *       fewer samples than desiredSampleCount.) If desiredSampleCount is 1 then
+     *       all msaa formats are excluded from consideration.
      *     * Choose formats with the fewest color samples when coverage sampling
      *       is available.
      *     * If the above rules leave multiple formats, choose the one that
@@ -105,16 +106,16 @@ private:
     typedef int (WINAPI* ReleasePbufferDCProc)(HPBUFFER, HDC);
     typedef BOOL (WINAPI* DestroyPbufferProc)(HPBUFFER);
 
-    GetExtensionsStringProc fGetExtensionsString;
-    ChoosePixelFormatProc fChoosePixelFormat;
-    GetPixelFormatAttribfvProc fGetPixelFormatAttribfv;
-    GetPixelFormatAttribivProc fGetPixelFormatAttribiv;
-    CreateContextAttribsProc fCreateContextAttribs;
-    SwapIntervalProc fSwapInterval;
-    CreatePbufferProc fCreatePbuffer;
-    GetPbufferDCProc fGetPbufferDC;
-    ReleasePbufferDCProc fReleasePbufferDC;
-    DestroyPbufferProc fDestroyPbuffer;
+    static GetExtensionsStringProc fGetExtensionsString;
+    static ChoosePixelFormatProc fChoosePixelFormat;
+    static GetPixelFormatAttribfvProc fGetPixelFormatAttribfv;
+    static GetPixelFormatAttribivProc fGetPixelFormatAttribiv;
+    static CreateContextAttribsProc fCreateContextAttribs;
+    static SwapIntervalProc fSwapInterval;
+    static CreatePbufferProc fCreatePbuffer;
+    static GetPbufferDCProc fGetPbufferDC;
+    static ReleasePbufferDCProc fReleasePbufferDC;
+    static DestroyPbufferProc fDestroyPbuffer;
 };
 
 enum SkWGLContextRequest {
@@ -130,8 +131,9 @@ enum SkWGLContextRequest {
 /**
  * Helper to create an OpenGL context for a DC using WGL. Configs with a sample count >= to
  * msaaSampleCount are preferred but if none is available then a context with a lower sample count
- * (including non-MSAA) will be created. If preferCoreProfile is true but a core profile cannot be
- * created then a compatible profile context will be created.
+ * (including non-MSAA) will be created. If msaaSampleCount is 1 then this will fail if a non-msaa
+ * context cannot be created. If preferCoreProfile is true but a core profile cannot be created
+ * then a compatible profile context will be created.
  */
 HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, bool deepColor, SkWGLContextRequest context,
                          HGLRC shareContext = nullptr);
@@ -143,8 +145,8 @@ HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, bool deepColor, SkWGLConte
  */
 class SkWGLPbufferContext : public SkRefCnt {
 public:
-    static SkWGLPbufferContext* Create(HDC parentDC, int msaaSampleCount,
-                                       SkWGLContextRequest contextType, HGLRC shareContext);
+    static SkWGLPbufferContext* Create(HDC parentDC, SkWGLContextRequest contextType,
+                                       HGLRC shareContext);
 
     virtual ~SkWGLPbufferContext();
 

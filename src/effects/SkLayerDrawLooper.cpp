@@ -10,12 +10,14 @@
 #include "SkCanvas.h"
 #include "SkColorSpaceXformer.h"
 #include "SkColor.h"
+#include "SkMaskFilterBase.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkLayerDrawLooper.h"
 #include "SkString.h"
 #include "SkStringUtils.h"
 #include "SkUnPreMultiply.h"
+#include "SkXfermodePriv.h"
 
 SkLayerDrawLooper::LayerInfo::LayerInfo() {
     fPaintBits = 0;                     // ignore our paint fields
@@ -53,8 +55,8 @@ static SkColor xferColor(SkColor src, SkColor dst, SkBlendMode mode) {
         default: {
             SkPMColor pmS = SkPreMultiplyColor(src);
             SkPMColor pmD = SkPreMultiplyColor(dst);
-            SkPMColor result = SkXfermode::GetProc(mode)(pmS, pmD);
-            return SkUnPreMultiply::PMColorToColor(result);
+            SkXfermode::Peek(mode)->xfer32(&pmD, &pmS, 1, nullptr);
+            return SkUnPreMultiply::PMColorToColor(pmD);
         }
     }
 }
@@ -180,8 +182,8 @@ bool SkLayerDrawLooper::asABlurShadow(BlurShadowRec* bsRec) const {
     if (nullptr == mf) {
         return false;
     }
-    SkMaskFilter::BlurRec maskBlur;
-    if (!mf->asABlur(&maskBlur)) {
+    SkMaskFilterBase::BlurRec maskBlur;
+    if (!as_MFB(mf)->asABlur(&maskBlur)) {
         return false;
     }
 

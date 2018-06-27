@@ -19,7 +19,7 @@
 #ifdef SK_HAS_WEBP_LIBRARY
 
 #include "SkBitmap.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkImageEncoderFns.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
@@ -85,18 +85,6 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info,
                 default:
                     return nullptr;
             }
-        case kIndex_8_SkColorType:
-            switch (info.alphaType()) {
-                case kOpaque_SkAlphaType:
-                    return transform_scanline_index8_opaque;
-                case kUnpremul_SkAlphaType:
-                case kPremul_SkAlphaType:
-                    // If the color table is premultiplied, we'll fix it before calling the
-                    // scanline proc.
-                    return transform_scanline_index8_unpremul;
-                default:
-                    return nullptr;
-            }
         case kGray_8_SkColorType:
             return transform_scanline_gray;
         case kRGBA_F16_SkColorType:
@@ -146,21 +134,6 @@ bool SkWebpEncoder::Encode(SkWStream* stream, const SkPixmap& pixmap, const Opti
     }
 
     const SkPMColor* colors = nullptr;
-    SkPMColor storage[256];
-    if (kIndex_8_SkColorType == pixmap.colorType()) {
-        if (!pixmap.ctable()) {
-            return false;
-        }
-
-        colors = pixmap.ctable()->readColors();
-        if (kPremul_SkAlphaType == pixmap.alphaType()) {
-            // Unpremultiply the colors.
-            const SkImageInfo rgbaInfo = pixmap.info().makeColorType(kRGBA_8888_SkColorType);
-            transform_scanline_proc proc = choose_proc(rgbaInfo, opts.fUnpremulBehavior);
-            proc((char*) storage, (const char*) colors, pixmap.ctable()->count(), 4, nullptr);
-            colors = storage;
-        }
-    }
 
     WebPConfig webp_config;
     if (!WebPConfigPreset(&webp_config, WEBP_PRESET_DEFAULT, opts.fQuality)) {
@@ -193,7 +166,7 @@ bool SkWebpEncoder::Encode(SkWStream* stream, const SkPixmap& pixmap, const Opti
     // If there is no need to embed an ICC profile, we write directly to the input stream.
     // Otherwise, we will first encode to |tmp| and use a mux to add the ICC chunk.  libwebp
     // forces us to have an encoded image before we can add a profile.
-    sk_sp<SkData> icc = pixmap.colorSpace() ? icc_from_color_space(*pixmap.colorSpace()) : nullptr;
+    sk_sp<SkData> icc = icc_from_color_space(pixmap.info());
     SkDynamicMemoryWStream tmp;
     pic.custom_ptr = icc ? (void*)&tmp : (void*)stream;
 

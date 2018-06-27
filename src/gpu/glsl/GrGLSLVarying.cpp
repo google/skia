@@ -10,43 +10,47 @@
 #include "glsl/GrGLSLProgramBuilder.h"
 
 void GrGLSLVaryingHandler::addPassThroughAttribute(const GrGeometryProcessor::Attribute* input,
-                                                   const char* output, GrSLPrecision precision) {
-    GrSLType type = GrVertexAttribTypeToSLType(input->fType);
-    GrGLSLVertToFrag v(type);
-    this->addVarying(input->fName, &v, precision);
-    this->writePassThroughAttribute(input, output, v);
-}
-
-void GrGLSLVaryingHandler::addFlatPassThroughAttribute(const GrGeometryProcessor::Attribute* input,
-                                                       const char* output,
-                                                       GrSLPrecision precision) {
-    GrSLType type = GrVertexAttribTypeToSLType(input->fType);
-    GrGLSLVertToFrag v(type);
-    this->addFlatVarying(input->fName, &v, precision);
-    this->writePassThroughAttribute(input, output, v);
-}
-
-void GrGLSLVaryingHandler::writePassThroughAttribute(const GrGeometryProcessor::Attribute* input,
-                                                     const char* output, const GrGLSLVarying& v) {
+                                                   const char* output,
+                                                   Interpolation interpolation) {
     SkASSERT(!fProgramBuilder->primitiveProcessor().willUseGeoShader());
+    GrSLType type = GrVertexAttribTypeToSLType(input->fType);
+    GrGLSLVarying v(type);
+    this->addVarying(input->fName, &v, interpolation);
     fProgramBuilder->fVS.codeAppendf("%s = %s;", v.vsOut(), input->fName);
     fProgramBuilder->fFS.codeAppendf("%s = %s;", output, v.fsIn());
 }
 
-void GrGLSLVaryingHandler::internalAddVarying(const char* name,
-                                              GrGLSLVarying* varying,
-                                              GrSLPrecision precision,
-                                              bool flat) {
+static bool use_flat_interpolation(GrGLSLVaryingHandler::Interpolation interpolation,
+                                   const GrShaderCaps& shaderCaps) {
+    switch (interpolation) {
+        using Interpolation = GrGLSLVaryingHandler::Interpolation;
+        case Interpolation::kInterpolated:
+            return false;
+        case Interpolation::kCanBeFlat:
+            SkASSERT(!shaderCaps.preferFlatInterpolation() ||
+                     shaderCaps.flatInterpolationSupport());
+            return shaderCaps.preferFlatInterpolation();
+        case Interpolation::kMustBeFlat:
+            SkASSERT(shaderCaps.flatInterpolationSupport());
+            return true;
+    }
+    SK_ABORT("Invalid interpolation");
+    return false;
+}
+
+void GrGLSLVaryingHandler::addVarying(const char* name, GrGLSLVarying* varying,
+                                      Interpolation interpolation) {
+    SkASSERT(GrSLTypeIsFloatType(varying->type()) || Interpolation::kMustBeFlat == interpolation);
     bool willUseGeoShader = fProgramBuilder->primitiveProcessor().willUseGeoShader();
     VaryingInfo& v = fVaryings.push_back();
 
     SkASSERT(varying);
+    SkASSERT(kVoid_GrSLType != varying->fType);
     v.fType = varying->fType;
-    v.fPrecision = (kDefault_GrSLPrecision == precision) ? kMedium_GrSLPrecision : precision;
-    v.fIsFlat = flat;
+    v.fIsFlat = use_flat_interpolation(interpolation, *fProgramBuilder->shaderCaps());
     fProgramBuilder->nameVariable(&v.fVsOut, 'v', name);
     v.fVisibility = kNone_GrShaderFlags;
-    if (varying->vsVarying()) {
+    if (varying->isInVertexShader()) {
         varying->fVsOut = v.fVsOut.c_str();
         v.fVisibility |= kVertex_GrShaderFlag;
     }
@@ -56,7 +60,7 @@ void GrGLSLVaryingHandler::internalAddVarying(const char* name,
         varying->fGsOut = v.fGsOut.c_str();
         v.fVisibility |= kGeometry_GrShaderFlag;
     }
-    if (varying->fsVarying()) {
+    if (varying->isInFragmentShader()) {
         varying->fFsIn = (willUseGeoShader ? v.fGsOut : v.fVsOut).c_str();
         v.fVisibility |= kFragment_GrShaderFlag;
     }
@@ -69,8 +73,7 @@ void GrGLSLVaryingHandler::emitAttributes(const GrGeometryProcessor& gp) {
         this->addAttribute(GrShaderVar(attr.fName,
                                        GrVertexAttribTypeToSLType(attr.fType),
                                        GrShaderVar::kIn_TypeModifier,
-                                       GrShaderVar::kNonArray,
-                                       attr.fPrecision));
+                                       GrShaderVar::kNonArray));
     }
 }
 
@@ -108,22 +111,22 @@ void GrGLSLVaryingHandler::finalize() {
         const char* modifier = v.fIsFlat ? "flat" : fDefaultInterpolationModifier;
         if (v.fVisibility & kVertex_GrShaderFlag) {
             fVertexOutputs.push_back().set(v.fType, v.fVsOut, GrShaderVar::kOut_TypeModifier,
-                                           v.fPrecision, nullptr, modifier);
+                                           kDefault_GrSLPrecision, nullptr, modifier);
             if (v.fVisibility & kGeometry_GrShaderFlag) {
                 fGeomInputs.push_back().set(v.fType, v.fVsOut, GrShaderVar::kUnsizedArray,
-                                            GrShaderVar::kIn_TypeModifier, v.fPrecision, nullptr,
-                                            modifier);
+                                            GrShaderVar::kIn_TypeModifier, kDefault_GrSLPrecision,
+                                            nullptr, modifier);
             }
         }
         if (v.fVisibility & kFragment_GrShaderFlag) {
             const char* fsIn = v.fVsOut.c_str();
             if (v.fVisibility & kGeometry_GrShaderFlag) {
                 fGeomOutputs.push_back().set(v.fType, v.fGsOut, GrShaderVar::kOut_TypeModifier,
-                                             v.fPrecision, nullptr, modifier);
+                                             kDefault_GrSLPrecision, nullptr, modifier);
                 fsIn = v.fGsOut.c_str();
             }
-            fFragInputs.push_back().set(v.fType, fsIn, GrShaderVar::kIn_TypeModifier, v.fPrecision,
-                                        nullptr, modifier);
+            fFragInputs.push_back().set(v.fType, fsIn, GrShaderVar::kIn_TypeModifier,
+                                        kDefault_GrSLPrecision, nullptr, modifier);
         }
     }
     this->onFinalize();

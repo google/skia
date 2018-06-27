@@ -79,6 +79,9 @@ struct Target {
     /** Writes any config-specific data to the log. */
     virtual void fillOptions(ResultsWriter*) { }
 
+    /** Writes gathered stats using SkDebugf. */
+    virtual void dumpStats() {}
+
     SkCanvas* getCanvas() const {
         if (!surface.get()) {
             return nullptr;

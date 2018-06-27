@@ -13,15 +13,13 @@
 #include "SkRefCnt.h"
 #include "SkEvent.h"
 
-struct SkTagList;
-
 /** \class SkEventSink
 
     SkEventSink is the base class for all objects that receive SkEvents.
 */
 class SkEventSink : public SkRefCnt {
 public:
-    
+
 
              SkEventSink();
     virtual ~SkEventSink();
@@ -44,46 +42,6 @@ public:
     bool doQuery(SkEvent* query);
 
     /**
-     *  Add sinkID to the list of listeners, to receive events from calls to sendToListeners()
-     *  and postToListeners(). If sinkID already exists in the listener list, no change is made.
-     */
-    void addListenerID(SkEventSinkID sinkID);
-
-    /**
-     *  Copy listeners from one event sink to another, typically from parent to child.
-     *  @param from the event sink to copy the listeners from
-     */
-    void copyListeners(const SkEventSink& from);
-
-    /**
-     *  Remove sinkID from the list of listeners. If sinkID does not appear in the list,
-     *  no change is made.
-     */
-    void removeListenerID(SkEventSinkID);
-
-    /**
-     *  Returns true if there are 1 or more listeners attached to this eventsink
-     */
-    bool hasListeners() const;
-
-    /**
-     *  Posts a copy of evt to each of the eventsinks in the lisener list.
-     *  This ignores the targetID and target proc in evt.
-     */
-    void postToListeners(const SkEvent& evt, SkMSec delay = 0);
-
-    enum EventResult {
-        kHandled_EventResult,       //!< the eventsink returned true from its doEvent method
-        kNotHandled_EventResult,    //!< the eventsink returned false from its doEvent method
-        kSinkNotFound_EventResult   //!< no matching eventsink was found for the event's getSink().
-    };
-
-    /**
-     *  DoEvent handles dispatching the event to its target ID or proc.
-     */
-    static EventResult DoEvent(const SkEvent&);
-
-    /**
      *  Returns the matching eventsink, or null if not found
      */
     static SkEventSink* FindSink(SkEventSinkID);
@@ -95,13 +53,8 @@ protected:
     virtual bool onEvent(const SkEvent&);
     virtual bool onQuery(SkEvent*);
 
-    SkTagList*  findTagList(U8CPU tag) const;
-    void        addTagList(SkTagList*);
-    void        removeTagList(U8CPU tag);
-
 private:
     SkEventSinkID   fID;
-    SkTagList*      fTagHead;
 
     // for our private link-list
     SkEventSink*    fNextSink;

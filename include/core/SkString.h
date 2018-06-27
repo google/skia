@@ -12,7 +12,9 @@
 
 #include "../private/SkTArray.h"
 #include "SkScalar.h"
+#include "SkRefCnt.h"
 
+#include <atomic>
 #include <stdarg.h>
 
 /*  Some helper functions for C strings
@@ -35,13 +37,13 @@ int SkStrStartsWithOneOf(const char string[], const char prefixes[]);
 
 static int SkStrFind(const char string[], const char substring[]) {
     const char *first = strstr(string, substring);
-    if (NULL == first) return -1;
+    if (nullptr == first) return -1;
     return SkToInt(first - &string[0]);
 }
 
 static int SkStrFindLastOf(const char string[], const char subchar) {
     const char* last = strrchr(string, subchar);
-    if (NULL == last) return -1;
+    if (nullptr == last) return -1;
     return SkToInt(last - &string[0]);
 }
 
@@ -180,7 +182,7 @@ public:
 
     void reset();
     /** Destructive resize, does not preserve contents. */
-    void resize(size_t len) { this->set(NULL, len); }
+    void resize(size_t len) { this->set(nullptr, len); }
     void set(const SkString& src) { *this = src; }
     void set(const char text[]);
     void set(const char text[], size_t len);
@@ -239,14 +241,25 @@ public:
 private:
     struct Rec {
     public:
+        constexpr Rec(uint32_t len, int32_t refCnt)
+            : fLength(len), fRefCnt(refCnt), fBeginningOfData(0)
+        { }
+        static sk_sp<Rec> Make(const char text[], size_t len);
         uint32_t    fLength; // logically size_t, but we want it to stay 32bits
-        int32_t     fRefCnt;
+        mutable std::atomic<int32_t> fRefCnt;
         char        fBeginningOfData;
 
         char* data() { return &fBeginningOfData; }
         const char* data() const { return &fBeginningOfData; }
+
+        void ref() const;
+        void unref() const;
+        bool unique() const;
+    private:
+        // Ensure the unsized delete is called.
+        void operator delete(void* p) { ::operator delete(p); }
     };
-    Rec* fRec;
+    sk_sp<Rec> fRec;
 
 #ifdef SK_DEBUG
     void validate() const;
@@ -255,12 +268,13 @@ private:
 #endif
 
     static const Rec gEmptyRec;
-    static Rec* AllocRec(const char text[], size_t len);
-    static Rec* RefRec(Rec*);
 };
 
 /// Creates a new string and writes into it using a printf()-style format.
 SkString SkStringPrintf(const char* format, ...);
+/// This makes it easier to write a caller as a VAR_ARGS function where the format string is
+/// optional.
+static inline SkString SkStringPrintf() { return SkString(); }
 
 // Specialized to take advantage of SkString's fast swap path. The unspecialized function is
 // declared in SkTypes.h and called by SkTSort.

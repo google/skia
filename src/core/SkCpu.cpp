@@ -13,7 +13,7 @@
 #endif
 
 #if defined(SK_CPU_X86)
-    #if defined(SK_BUILD_FOR_WIN32)
+    #if defined(SK_BUILD_FOR_WIN)
         #include <intrin.h>
         static void cpuid (uint32_t abcd[4]) { __cpuid  ((int*)abcd, 1);    }
         static void cpuid7(uint32_t abcd[4]) { __cpuidex((int*)abcd, 7, 0); }
@@ -74,26 +74,34 @@
         return features;
     }
 
-#elif defined(SK_CPU_ARM64) && __has_include(<asm/hwcap.h>) && __has_include(<sys/auxv.h>)
-    #include <asm/hwcap.h>
+#elif defined(SK_CPU_ARM64) && __has_include(<sys/auxv.h>)
     #include <sys/auxv.h>
 
     static uint32_t read_cpu_features() {
+        const uint32_t kHWCAP_CRC32 = (1<<7);
+
         uint32_t features = 0;
         uint32_t hwcaps = getauxval(AT_HWCAP);
-        if (hwcaps & HWCAP_CRC32) { features |= SkCpu::CRC32; }
+        if (hwcaps & kHWCAP_CRC32) { features |= SkCpu::CRC32; }
         return features;
     }
 
-#elif defined(SK_CPU_ARM32) && __has_include(<asm/hwcap.h>) && __has_include(<sys/auxv.h>)
-    // asm/hwcap.h and sys/auxv.h won't be present on NDK builds before API v21.
-    #include <asm/hwcap.h>
+#elif defined(SK_CPU_ARM32) && __has_include(<sys/auxv.h>) && \
+    (!defined(__ANDROID_API__) || __ANDROID_API__ >= 18)
+    // sys/auxv.h will always be present in the Android NDK due to unified
+    //headers, but getauxval is only defined for API >= 18.
     #include <sys/auxv.h>
 
     static uint32_t read_cpu_features() {
+        const uint32_t kHWCAP_NEON  = (1<<12);
+        const uint32_t kHWCAP_VFPv4 = (1<<16);
+
         uint32_t features = 0;
         uint32_t hwcaps = getauxval(AT_HWCAP);
-        if (hwcaps & HWCAP_VFPv4) { features |= SkCpu::NEON|SkCpu::NEON_FMA|SkCpu::VFP_FP16; }
+        if (hwcaps & kHWCAP_NEON ) {
+            features |= SkCpu::NEON;
+            if (hwcaps & kHWCAP_VFPv4) { features |= SkCpu::NEON_FMA|SkCpu::VFP_FP16; }
+        }
         return features;
     }
 

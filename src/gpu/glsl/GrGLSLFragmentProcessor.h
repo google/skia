@@ -31,7 +31,6 @@ public:
     using UniformHandle      = GrGLSLUniformHandler::UniformHandle;
     using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
     using TexelBufferHandle  = GrGLSLUniformHandler::TexelBufferHandle;
-    using ImageStorageHandle = GrGLSLUniformHandler::ImageStorageHandle;
 
 private:
     /**
@@ -75,8 +74,6 @@ public:
                                                  &GrResourceIOProcessor::numTextureSamplers>;
     using TexelBuffers = BuilderInputProvider<TexelBufferHandle, GrResourceIOProcessor,
                                                 &GrResourceIOProcessor::numBuffers>;
-    using ImageStorages = BuilderInputProvider<ImageStorageHandle, GrResourceIOProcessor,
-                                               &GrResourceIOProcessor::numImageStorages>;
 
     /** Called when the program stage should insert its code into the shaders. The code in each
         shader will be in its own block ({}) and so locally scoped names will not collide across
@@ -86,9 +83,9 @@ public:
         @param fp                The processor that generated this program stage.
         @param key               The key that was computed by GenKey() from the generating
                                  GrProcessor.
-        @param outputColor       A predefined vec4 in the FS in which the stage should place its
+        @param outputColor       A predefined half4 in the FS in which the stage should place its
                                  output color (or coverage).
-        @param inputColor        A vec4 that holds the input color to the stage in the FS. This may
+        @param inputColor        A half4 that holds the input color to the stage in the FS. This may
                                  be nullptr in which case the implied input is solid white (all
                                  ones). TODO: Better system for communicating optimization info
                                  (e.g. input color is solid white, trans black, known to be opaque,
@@ -102,12 +99,6 @@ public:
         @param bufferSamplers    Contains one entry for each BufferAccess of the GrProcessor. These
                                  can be passed to the builder to emit buffer reads in the generated
                                  code.
-        @param imageStorages     Contains one entry for each ImageStorageAccess of the GrProcessor.
-                                 These can be passed to the builder to emit image loads and stores
-                                 in the generated code.
-        @param gpImplementsDistanceVector
-                                 Does the GrGeometryProcessor implement the feature where it
-                                 provides a vector to the nearest edge of the shape being rendered.
      */
     struct EmitArgs {
         EmitArgs(GrGLSLFPFragmentBuilder* fragBuilder,
@@ -118,20 +109,16 @@ public:
                  const char* inputColor,
                  const TransformedCoordVars& transformedCoordVars,
                  const TextureSamplers& textureSamplers,
-                 const TexelBuffers& texelBuffers,
-                 const ImageStorages& imageStorages,
-                 bool gpImplementsDistanceVector)
-            : fFragBuilder(fragBuilder)
-            , fUniformHandler(uniformHandler)
-            , fShaderCaps(caps)
-            , fFp(fp)
-            , fOutputColor(outputColor)
-            , fInputColor(inputColor)
-            , fTransformedCoords(transformedCoordVars)
-            , fTexSamplers(textureSamplers)
-            , fTexelBuffers(texelBuffers)
-            , fImageStorages(imageStorages)
-            , fGpImplementsDistanceVector(gpImplementsDistanceVector) {}
+                 const TexelBuffers& texelBuffers)
+                : fFragBuilder(fragBuilder)
+                , fUniformHandler(uniformHandler)
+                , fShaderCaps(caps)
+                , fFp(fp)
+                , fOutputColor(outputColor)
+                , fInputColor(inputColor)
+                , fTransformedCoords(transformedCoordVars)
+                , fTexSamplers(textureSamplers)
+                , fTexelBuffers(texelBuffers) {}
         GrGLSLFPFragmentBuilder* fFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
         const GrShaderCaps* fShaderCaps;
@@ -141,15 +128,11 @@ public:
         const TransformedCoordVars& fTransformedCoords;
         const TextureSamplers& fTexSamplers;
         const TexelBuffers& fTexelBuffers;
-        const ImageStorages& fImageStorages;
-        bool fGpImplementsDistanceVector;
     };
 
     virtual void emitCode(EmitArgs&) = 0;
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& processor);
-
-    static void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*) {}
 
     int numChildProcessors() const { return fChildProcessors.count(); }
 
@@ -158,7 +141,7 @@ public:
     }
 
     inline void emitChild(int childIndex, SkString* outputColor, EmitArgs& parentArgs) {
-        this->emitChild(childIndex, "vec4(1.0)", outputColor, parentArgs);
+        this->emitChild(childIndex, "half4(1.0)", outputColor, parentArgs);
     }
 
     /** Will emit the code of a child proc in its own scope. Pass in the parent's EmitArgs and
@@ -173,7 +156,7 @@ public:
                    EmitArgs& parentArgs);
 
     inline void emitChild(int childIndex, EmitArgs& args) {
-        this->emitChild(childIndex, "vec4(1.0)", args);
+        this->emitChild(childIndex, "half4(1.0)", args);
     }
 
     /** Variation that uses the parent's output color variable to hold the child's output.*/

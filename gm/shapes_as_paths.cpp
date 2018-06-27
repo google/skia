@@ -8,6 +8,7 @@
 #include "gm.h"
 
 #include "SkAutoPixmapStorage.h"
+#include "SkColorPriv.h"
 #include "SkImage.h"
 #include "SkPath.h"
 #include "SkSurface.h"
@@ -78,10 +79,13 @@ static void draw_diff(SkCanvas* canvas, SkImage* imgA, SkImage* imgB) {
         canvas->drawBitmap(highlight, 0, 0);
 
         // Draw zoom of largest pixel diff
-        canvas->drawImageRect(imgA, SkRect::MakeXYWH(maxDiffX - 5, maxDiffY - 5, 10, 10),
-                              SkRect::MakeXYWH(w, 0, w, h), nullptr);
-        canvas->drawImageRect(imgB, SkRect::MakeXYWH(maxDiffX - 5, maxDiffY - 5, 10, 10),
-                              SkRect::MakeXYWH(2 * w, 0, w, h), nullptr);
+        SkBitmap bmpA, bmpB;
+        SkAssertResult(bmpA.installPixels(pmapA));
+        SkAssertResult(bmpB.installPixels(pmapB));
+        canvas->drawBitmapRect(bmpA, SkRect::MakeXYWH(maxDiffX - 5, maxDiffY - 5, 10, 10),
+                               SkRect::MakeXYWH(w, 0, w, h), nullptr);
+        canvas->drawBitmapRect(bmpB, SkRect::MakeXYWH(maxDiffX - 5, maxDiffY - 5, 10, 10),
+                               SkRect::MakeXYWH(2 * w, 0, w, h), nullptr);
 
         // Add lines to separate zoom boxes
         canvas->drawLine(w, 0, w, h, outline);

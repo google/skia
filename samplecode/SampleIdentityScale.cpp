@@ -25,11 +25,10 @@
 class IdentityScaleView : public SampleView {
 public:
     IdentityScaleView(const char imageFilename[]) {
-      SkString resourcePath = GetResourcePath(imageFilename);
-      if (!decode_file(resourcePath.c_str(), &fBM)) {
-          fBM.allocN32Pixels(1, 1);
-          *(fBM.getAddr32(0,0)) = 0xFF0000FF; // red == bad
-      }
+        if (!DecodeDataToBitmap(GetResourceAsData(imageFilename), &fBM)) {
+            fBM.allocN32Pixels(1, 1);
+            *(fBM.getAddr32(0,0)) = 0xFF0000FF; // red == bad
+        }
     }
 
 protected:
@@ -72,7 +71,6 @@ protected:
         canvas->drawBitmap( fBM, 100, 100, &paint );
         canvas->restore();
         canvas->drawString(text, 100, 400, paint );
-        this->inval(nullptr);
     }
 
 private:
@@ -81,5 +79,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new IdentityScaleView("mandrill_256.png"); }
+static SkView* MyFactory() { return new IdentityScaleView("images/mandrill_256.png"); }
 static SkViewRegister reg(MyFactory);

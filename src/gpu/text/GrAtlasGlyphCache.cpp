@@ -7,16 +7,14 @@
 
 #include "GrAtlasGlyphCache.h"
 #include "GrContext.h"
+#include "GrDistanceFieldGenFromVector.h"
 #include "GrGpu.h"
 #include "GrRectanizer.h"
-#include "GrResourceProvider.h"
-#include "GrSurfacePriv.h"
+
 #include "SkAutoMalloc.h"
+#include "SkDistanceFieldGen.h"
 #include "SkMathPriv.h"
 #include "SkString.h"
-
-#include "SkDistanceFieldGen.h"
-#include "GrDistanceFieldGenFromVector.h"
 
 bool GrAtlasGlyphCache::initAtlas(GrMaskFormat format) {
     int index = MaskFormatToAtlasIndex(format);
@@ -27,9 +25,9 @@ bool GrAtlasGlyphCache::initAtlas(GrMaskFormat format) {
         int numPlotsX = fAtlasConfigs[index].numPlotsX();
         int numPlotsY = fAtlasConfigs[index].numPlotsY();
 
-        fAtlases[index] = GrDrawOpAtlas::Make(
-                fContext, config, width, height, numPlotsX, numPlotsY,
-                &GrAtlasGlyphCache::HandleEviction, (void*)this);
+        fAtlases[index] = GrDrawOpAtlas::Make(fContext, config, width, height, numPlotsX, numPlotsY,
+                                              fAllowMultitexturing,
+                                              &GrAtlasGlyphCache::HandleEviction, (void*)this);
         if (!fAtlases[index]) {
             return false;
         }
@@ -37,11 +35,12 @@ bool GrAtlasGlyphCache::initAtlas(GrMaskFormat format) {
     return true;
 }
 
-GrAtlasGlyphCache::GrAtlasGlyphCache(GrContext* context, float maxTextureBytes)
-        : fContext(context), fPreserveStrike(nullptr) {
-    // Calculate RGBA size. Must be between 1024 x 512 and MaxTextureSize x MaxTextureSize / 2
+GrAtlasGlyphCache::GrAtlasGlyphCache(GrContext* context, float maxTextureBytes,
+                                     GrDrawOpAtlas::AllowMultitexturing allowMultitexturing)
+        : fContext(context), fAllowMultitexturing(allowMultitexturing), fPreserveStrike(nullptr) {
+    // Calculate RGBA size. Must be between 512 x 256 and MaxTextureSize x MaxTextureSize / 2
     int log2MaxTextureSize = SkPrevLog2(context->caps()->maxTextureSize());
-    int log2MaxDim = 10;
+    int log2MaxDim = 9;
     for (; log2MaxDim <= log2MaxTextureSize; ++log2MaxDim) {
         int maxDim = 1 << log2MaxDim;
         int minDim = 1 << (log2MaxDim - 1);
@@ -60,25 +59,21 @@ GrAtlasGlyphCache::GrAtlasGlyphCache(GrContext* context, float maxTextureBytes)
     // format is already very compact.
     fAtlasConfigs[kA8_GrMaskFormat].fWidth = maxDim;
     fAtlasConfigs[kA8_GrMaskFormat].fHeight = maxDim;
-    fAtlasConfigs[kA8_GrMaskFormat].fLog2Width = log2MaxDim;
-    fAtlasConfigs[kA8_GrMaskFormat].fLog2Height = log2MaxDim;
     fAtlasConfigs[kA8_GrMaskFormat].fPlotWidth = maxPlot;
     fAtlasConfigs[kA8_GrMaskFormat].fPlotHeight = minPlot;
 
     // A565 and ARGB use maxDim x minDim.
     fAtlasConfigs[kA565_GrMaskFormat].fWidth = minDim;
     fAtlasConfigs[kA565_GrMaskFormat].fHeight = maxDim;
-    fAtlasConfigs[kA565_GrMaskFormat].fLog2Width = log2MinDim;
-    fAtlasConfigs[kA565_GrMaskFormat].fLog2Height = log2MaxDim;
     fAtlasConfigs[kA565_GrMaskFormat].fPlotWidth = minPlot;
     fAtlasConfigs[kA565_GrMaskFormat].fPlotHeight = minPlot;
 
     fAtlasConfigs[kARGB_GrMaskFormat].fWidth = minDim;
     fAtlasConfigs[kARGB_GrMaskFormat].fHeight = maxDim;
-    fAtlasConfigs[kARGB_GrMaskFormat].fLog2Width = log2MinDim;
-    fAtlasConfigs[kARGB_GrMaskFormat].fLog2Height = log2MaxDim;
     fAtlasConfigs[kARGB_GrMaskFormat].fPlotWidth = minPlot;
     fAtlasConfigs[kARGB_GrMaskFormat].fPlotHeight = minPlot;
+
+    fGlyphSizeLimit = minPlot;
 }
 
 GrAtlasGlyphCache::~GrAtlasGlyphCache() {
@@ -149,8 +144,7 @@ static bool save_pixels(GrContext* context, GrSurfaceProxy* sProxy, const char* 
     }
 
     sk_sp<GrSurfaceContext> sContext(context->contextPriv().makeWrappedSurfaceContext(
-                                                                            sk_ref_sp(sProxy),
-                                                                            nullptr));
+                                                                                sk_ref_sp(sProxy)));
     if (!sContext || !sContext->asTextureProxy()) {
         return false;
     }
@@ -184,16 +178,17 @@ void GrAtlasGlyphCache::dump() const {
     static int gDumpCount = 0;
     for (int i = 0; i < kMaskFormatCount; ++i) {
         if (fAtlases[i]) {
-            sk_sp<GrTextureProxy> proxy = fAtlases[i]->getProxy();
-            if (proxy) {
+            const sk_sp<GrTextureProxy>* proxies = fAtlases[i]->getProxies();
+            for (uint32_t pageIdx = 0; pageIdx < fAtlases[i]->pageCount(); ++pageIdx) {
+                SkASSERT(proxies[pageIdx]);
                 SkString filename;
 #ifdef SK_BUILD_FOR_ANDROID
-                filename.printf("/sdcard/fontcache_%d%d.png", gDumpCount, i);
+                filename.printf("/sdcard/fontcache_%d%d%d.png", gDumpCount, i, pageIdx);
 #else
-                filename.printf("fontcache_%d%d.png", gDumpCount, i);
+                filename.printf("fontcache_%d%d%d.png", gDumpCount, i, pageIdx);
 #endif
 
-                save_pixels(fContext, proxy.get(), filename.c_str());
+                save_pixels(fContext, proxies[pageIdx].get(), filename.c_str());
             }
         }
     }
@@ -219,6 +214,8 @@ static inline GrMaskFormat get_packed_glyph_mask_format(const SkGlyph& glyph) {
             // fall through to kA8 -- we store BW glyphs in our 8-bit cache
         case SkMask::kA8_Format:
             return kA8_GrMaskFormat;
+        case SkMask::k3D_Format:
+            return kA8_GrMaskFormat; // ignore the mul and add planes, just use the mask
         case SkMask::kLCD16_Format:
             return kA565_GrMaskFormat;
         case SkMask::kARGB32_Format:
@@ -319,7 +316,7 @@ static bool get_packed_glyph_image(SkGlyphCache* cache, const SkGlyph& glyph, in
                 break;
             }
             default:
-                SkFAIL("Invalid GrMaskFormat");
+                SK_ABORT("Invalid GrMaskFormat");
         }
     } else if (srcRB == dstRB) {
         memcpy(dst, src, dstRB * height);
@@ -402,10 +399,9 @@ static bool get_packed_glyph_df_image(SkGlyphCache* cache, const SkGlyph& glyph,
     atlas and a position within that texture.
  */
 
-GrAtlasTextStrike::GrAtlasTextStrike(GrAtlasGlyphCache* owner, const SkDescriptor& key)
+GrAtlasTextStrike::GrAtlasTextStrike(const SkDescriptor& key)
     : fFontScalerKey(key)
     , fPool(9/*start allocations at 512 bytes*/)
-    , fAtlasGlyphCache(owner) // no need to ref, it won't go away before we do
     , fAtlasedGlyphs(0)
     , fIsAbandoned(false) {}
 
@@ -449,7 +445,8 @@ void GrAtlasTextStrike::removeID(GrDrawOpAtlas::AtlasID id) {
     }
 }
 
-bool GrAtlasTextStrike::addGlyphToAtlas(GrDrawOp::Target* target,
+bool GrAtlasTextStrike::addGlyphToAtlas(GrDeferredUploadTarget* target,
+                                        GrAtlasGlyphCache* atlasGlyphCache,
                                         GrGlyph* glyph,
                                         SkGlyphCache* cache,
                                         GrMaskFormat expectedMaskFormat) {
@@ -476,7 +473,7 @@ bool GrAtlasTextStrike::addGlyphToAtlas(GrDrawOp::Target* target,
         }
     }
 
-    bool success = fAtlasGlyphCache->addToAtlas(this, &glyph->fID, target, expectedMaskFormat,
+    bool success = atlasGlyphCache->addToAtlas(this, &glyph->fID, target, expectedMaskFormat,
                                                glyph->width(), glyph->height(),
                                                storage.get(), &glyph->fAtlasLocation);
     if (success) {

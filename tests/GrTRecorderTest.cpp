@@ -283,7 +283,7 @@ static void test_subclasses_iters(skiatest::Reporter* reporter, Order& order,
     REPORTER_ASSERT(reporter, reverseIter.previous() == !!i);
 }
 
-DEF_GPUTEST(GrTRecorder, reporter, factory) {
+DEF_GPUTEST(GrTRecorder, reporter, /* options */) {
     test_empty_back_and_pop(reporter);
 
     test_extra_data(reporter);

@@ -75,6 +75,18 @@ protected:
         // Manually setting convexity is required. Otherwise, this path will be considered concave.
         path.setConvexity(SkPath::kConvex_Convexity);
         canvas->drawPath(path, p);
+
+        // skbug.com/7573
+        y += 200;
+        canvas->translate(0, y);
+        p.setAntiAlias(true);
+        path.reset();
+        path.moveTo(1.98009784f, 9.0162744f);
+        path.lineTo(47.843992f, 10.1922744f);
+        path.lineTo(47.804008f, 11.7597256f);
+        path.lineTo(1.93990216f, 10.5837256f);
+        canvas->drawPath(path, p);
+        canvas->restore();
     }
 
 private:
@@ -123,6 +135,22 @@ protected:
         p.setStrokeWidth(5);
         canvas->drawPath(path, p);
         canvas->restore();
+
+
+        // The following two paths test if we correctly cumulates the alpha on the middle pixel
+        // column where the left rect and the right rect abut.
+        p.setStyle(SkPaint::kFill_Style);
+        canvas->translate(0, 300);
+        path.reset();
+        path.addRect({20, 20, 100.4999f, 100});
+        path.addRect({100.5001f, 20, 200, 100});
+        canvas->drawPath(path, p);
+
+        canvas->translate(300, 0);
+        path.reset();
+        path.addRect({20, 20, 100.1f, 100});
+        path.addRect({100.9f, 20, 200, 100});
+        canvas->drawPath(path, p);
     }
 
 private:

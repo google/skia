@@ -21,8 +21,7 @@ public:
         : fUrlDataManager(urlDataManager)
         , fJson(Json::objectValue) {}
 
-    bool isCrossProcess() const override { return false; }
-
+    void writePad32(const void* buffer, size_t bytes) override;
     void writeByteArray(const void* data, size_t size) override;
     void writeBool(bool value) override;
     void writeScalar(SkScalar value) override;
@@ -45,7 +44,6 @@ public:
     void writeRegion(const SkRegion& region) override;
     void writePath(const SkPath& path) override;
     size_t writeStream(SkStream* stream, size_t length) override;
-    void writeBitmap(const SkBitmap& bitmap) override;
     void writeImage(const SkImage*) override;
     void writeTypeface(SkTypeface* typeface) override;
     void writePaint(const SkPaint& paint) override;

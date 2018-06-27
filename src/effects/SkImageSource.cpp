@@ -135,11 +135,26 @@ sk_sp<SkSpecialImage> SkImageSource::onFilterImage(SkSpecialImage* source, const
 sk_sp<SkImageFilter> SkImageSource::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
     SkASSERT(0 == this->countInputs());
 
-    return SkImageSource::Make(xformer->apply(fImage.get()), fSrcRect, fDstRect, fFilterQuality);
+    auto image = xformer->apply(fImage.get());
+    if (image != fImage) {
+        return SkImageSource::Make(image, fSrcRect, fDstRect, fFilterQuality);
+    }
+    return this->refMe();
 }
 
 SkRect SkImageSource::computeFastBounds(const SkRect& src) const {
     return fDstRect;
+}
+
+SkIRect SkImageSource::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
+                                          MapDirection direction) const {
+    if (kReverse_MapDirection == direction) {
+        return SkImageFilter::onFilterNodeBounds(src, ctm, direction);
+    }
+
+    SkRect dstRect = fDstRect;
+    ctm.mapRect(&dstRect);
+    return dstRect.roundOut();
 }
 
 #ifndef SK_IGNORE_TO_STRING

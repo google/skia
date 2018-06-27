@@ -6,7 +6,7 @@
  */
 
 #include "SkTypes.h"
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
 
 #include "SkHRESULT.h"
 
@@ -44,4 +44,4 @@ void SkTraceHR(const char* file, unsigned long line, HRESULT hr, const char* msg
     }
 }
 
-#endif//defined(SK_BUILD_FOR_WIN32)
+#endif//defined(SK_BUILD_FOR_WIN)

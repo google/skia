@@ -10,7 +10,6 @@
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
-#include "GrResourceProvider.h"
 #include "GrSurfaceContext.h"
 #include "SkCanvas.h"
 #include "SkGr.h"
@@ -113,6 +112,11 @@ static bool check_srgb_to_linear_to_srgb_conversion(uint32_t input, uint32_t out
     return check_double_conversion<srgb_to_linear, linear_to_srgb>(input, output, error);
 }
 
+static bool check_no_conversion(uint32_t input, uint32_t output, float error) {
+    // This is a bit of a hack to check identity transformations that may lose precision.
+    return check_srgb_to_linear_to_srgb_conversion(input, output, error);
+}
+
 typedef bool (*CheckFn) (uint32_t orig, uint32_t actual, float error);
 
 void read_and_check_pixels(skiatest::Reporter* reporter, GrSurfaceContext* context,
@@ -143,115 +147,231 @@ void read_and_check_pixels(skiatest::Reporter* reporter, GrSurfaceContext* conte
     }
 }
 
-// TODO: Add tests for copySurface between srgb/linear textures. Add tests for unpremul/premul
-// conversion during read/write along with srgb/linear conversions.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
-#if defined(GOOGLE3)
-    // Stack frame size is limited in GOOGLE3.
-    static const int kW = 63;
-    static const int kH = 63;
-#else
-    static const int kW = 255;
-    static const int kH = 255;
-#endif
-    uint32_t origData[kW * kH];
+namespace {
+enum class Encoding {
+    kUntagged,
+    kLinear,
+    kSRGB,
+};
+}
+
+static sk_sp<SkColorSpace> encoding_as_color_space(Encoding encoding) {
+    switch (encoding) {
+        case Encoding::kUntagged: return nullptr;
+        case Encoding::kLinear:   return SkColorSpace::MakeSRGBLinear();
+        case Encoding::kSRGB:     return SkColorSpace::MakeSRGB();
+    }
+    return nullptr;
+}
+
+static GrPixelConfig encoding_as_pixel_config(Encoding encoding) {
+    switch (encoding) {
+        case Encoding::kUntagged: return kRGBA_8888_GrPixelConfig;
+        case Encoding::kLinear:   return kRGBA_8888_GrPixelConfig;
+        case Encoding::kSRGB:     return kSRGBA_8888_GrPixelConfig;
+    }
+    return kUnknown_GrPixelConfig;
+}
+
+static const char* encoding_as_str(Encoding encoding) {
+    switch (encoding) {
+        case Encoding::kUntagged: return "untagged";
+        case Encoding::kLinear:   return "linear";
+        case Encoding::kSRGB:     return "sRGB";
+    }
+    return nullptr;
+}
+
+static constexpr int kW = 255;
+static constexpr int kH = 255;
+
+static std::unique_ptr<uint32_t[]> make_data() {
+    std::unique_ptr<uint32_t[]> data(new uint32_t[kW * kH]);
     for (int j = 0; j < kH; ++j) {
         for (int i = 0; i < kW; ++i) {
-            origData[j * kW + i] = (j << 24) | (i << 16) | (i << 8) | i;
+            data[j * kW + i] = (j << 24) | (i << 16) | (i << 8) | i;
         }
     }
+    return data;
+}
 
-    const SkImageInfo iiSRGBA = SkImageInfo::Make(kW, kH, kRGBA_8888_SkColorType,
-                                                  kPremul_SkAlphaType,
-                                                  SkColorSpace::MakeSRGB());
-    const SkImageInfo iiRGBA = SkImageInfo::Make(kW, kH, kRGBA_8888_SkColorType,
-                                                 kPremul_SkAlphaType);
+static sk_sp<GrSurfaceContext> make_surface_context(Encoding contextEncoding, GrContext* context,
+                                                    skiatest::Reporter* reporter) {
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     desc.fWidth = kW;
     desc.fHeight = kH;
-    desc.fConfig = kSRGBA_8888_GrPixelConfig;
-    if (context->caps()->isConfigRenderable(desc.fConfig, false) &&
-        context->caps()->isConfigTexturable(desc.fConfig)) {
+    desc.fConfig = encoding_as_pixel_config(contextEncoding);
 
-        sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeDeferredSurfaceContext(
-                                                                    desc, SkBackingFit::kExact,
-                                                                    SkBudgeted::kNo);
-        if (!sContext) {
-            ERRORF(reporter, "Could not create SRGBA surface context.");
-            return;
-        }
-
-        float error = context->caps()->shaderCaps()->floatPrecisionVaries() ? 1.2f  : 0.5f;
-
-        // Write srgba data and read as srgba and then as rgba
-        if (sContext->writePixels(iiSRGBA, origData, 0, 0, 0)) {
-            // For the all-srgba case, we allow a small error only for devices that have
-            // precision variation because the srgba data gets converted to linear and back in
-            // the shader.
-            float smallError = context->caps()->shaderCaps()->floatPrecisionVaries() ? 1.f : 0.0f;
-            read_and_check_pixels(reporter, sContext.get(), origData, iiSRGBA,
-                                  check_srgb_to_linear_to_srgb_conversion, smallError,
-                                  "write/read srgba to srgba texture");
-            read_and_check_pixels(reporter, sContext.get(), origData, iiRGBA,
-                                  check_srgb_to_linear_conversion, error,
-                                  "write srgba/read rgba with srgba texture");
-        } else {
-            ERRORF(reporter, "Could not write srgba data to srgba texture.");
-        }
-
-        // Now verify that we can write linear data
-        if (sContext->writePixels(iiRGBA, origData, 0, 0, 0)) {
-            // We allow more error on GPUs with lower precision shader variables.
-            read_and_check_pixels(reporter, sContext.get(), origData, iiSRGBA,
-                                  check_linear_to_srgb_conversion, error,
-                                  "write rgba/read srgba with srgba texture");
-            read_and_check_pixels(reporter, sContext.get(), origData, iiRGBA,
-                                  check_linear_to_srgb_to_linear_conversion, error,
-                                  "write/read rgba with srgba texture");
-        } else {
-            ERRORF(reporter, "Could not write rgba data to srgba texture.");
-        }
-
-        desc.fConfig = kRGBA_8888_GrPixelConfig;
-        sContext = context->contextPriv().makeDeferredSurfaceContext(desc, SkBackingFit::kExact,
-                                                                     SkBudgeted::kNo);
-        if (!sContext) {
-            ERRORF(reporter, "Could not create RGBA surface context.");
-            return;
-        }
-
-        // Write srgba data to a rgba texture and read back as srgba and rgba
-        if (sContext->writePixels(iiSRGBA, origData, 0, 0, 0)) {
-#if 0
-            // We don't support this conversion (read from untagged source into tagged destination.
-            // If we decide there is a meaningful way to implement this, restore this test.
-            read_and_check_pixels(reporter, sContext.get(), origData, iiSRGBA,
-                                  check_srgb_to_linear_to_srgb_conversion, error,
-                                  "write/read srgba to rgba texture");
-#endif
-            // We expect the sRGB -> linear write to do no sRGB conversion (to match the behavior of
-            // drawing tagged sources). skbug.com/6547. So the data we read should still contain
-            // sRGB encoded values.
-            //
-            // srgb_to_linear_to_srgb is a proxy for the expected identity transform.
-            read_and_check_pixels(reporter, sContext.get(), origData, iiRGBA,
-                                  check_srgb_to_linear_to_srgb_conversion, error,
-                                  "write srgba/read rgba to rgba texture");
-        } else {
-            ERRORF(reporter, "Could not write srgba data to rgba texture.");
-        }
-
-        // Write rgba data to a rgba texture and read back as srgba
-        if (sContext->writePixels(iiRGBA, origData, 0, 0, 0)) {
-            read_and_check_pixels(reporter, sContext.get(), origData, iiSRGBA,
-                                  check_linear_to_srgb_conversion, 1.2f,
-                                  "write rgba/read srgba to rgba texture");
-        } else {
-            ERRORF(reporter, "Could not write rgba data to rgba texture.");
-        }
+    auto surfaceContext = context->contextPriv().makeDeferredSurfaceContext(
+            desc, GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kNo,
+            encoding_as_color_space(contextEncoding));
+    if (!surfaceContext) {
+        ERRORF(reporter, "Could not create %s surface context.", encoding_as_str(contextEncoding));
     }
+    return surfaceContext;
+}
+
+#ifndef SK_LEGACY_GPU_PIXEL_OPS
+static void text_write_fails(Encoding contextEncoding, Encoding writeEncoding, GrContext* context,
+                             skiatest::Reporter* reporter) {
+    auto surfaceContext = make_surface_context(contextEncoding, context, reporter);
+    if (!surfaceContext) {
+        return;
+    }
+    auto writeII = SkImageInfo::Make(kW, kH, kRGBA_8888_SkColorType, kPremul_SkAlphaType,
+                                     encoding_as_color_space(writeEncoding));
+    auto data = make_data();
+    if (surfaceContext->writePixels(writeII, data.get(), 0, 0, 0)) {
+        ERRORF(reporter, "Expected %s write to %s surface context to fail.",
+               encoding_as_str(writeEncoding), encoding_as_str(contextEncoding));
+    }
+}
+#endif
+
+static void test_write_read(Encoding contextEncoding, Encoding writeEncoding, Encoding readEncoding,
+                            float error, CheckFn check, GrContext* context,
+                            skiatest::Reporter* reporter) {
+    auto surfaceContext = make_surface_context(contextEncoding, context, reporter);
+    if (!surfaceContext) {
+        return;
+    }
+    auto writeII = SkImageInfo::Make(kW, kH, kRGBA_8888_SkColorType, kPremul_SkAlphaType,
+                                     encoding_as_color_space(writeEncoding));
+    auto data = make_data();
+    if (!surfaceContext->writePixels(writeII, data.get(), 0, 0, 0)) {
+        ERRORF(reporter, "Could not write %s to %s surface context.",
+               encoding_as_str(writeEncoding), encoding_as_str(contextEncoding));
+        return;
+    }
+
+    auto readII = SkImageInfo::Make(kW, kH, kRGBA_8888_SkColorType, kPremul_SkAlphaType,
+                                    encoding_as_color_space(readEncoding));
+    SkString testName;
+    testName.printf("write %s data to a %s context and read as %s.", encoding_as_str(writeEncoding),
+                    encoding_as_str(contextEncoding), encoding_as_str(readEncoding));
+    read_and_check_pixels(reporter, surfaceContext.get(), data.get(), readII, check, error,
+                          testName.c_str());
+}
+
+// Test all combinations of writePixels/readPixels where the surface context/write source/read dst
+// are sRGB, linear, or untagged RGBA_8888.
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+    if (!context->caps()->isConfigRenderable(kSRGBA_8888_GrPixelConfig) &&
+        !context->caps()->isConfigTexturable(kSRGBA_8888_GrPixelConfig)) {
+        return;
+    }
+    // We allow more error on GPUs with lower precision shader variables.
+    float error = context->caps()->shaderCaps()->halfIs32Bits() ? 0.5f : 1.2f;
+    // For the all-sRGB case, we allow a small error only for devices that have
+    // precision variation because the sRGB data gets converted to linear and back in
+    // the shader.
+    float smallError = context->caps()->shaderCaps()->halfIs32Bits() ? 0.0f : 1.f;
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Write sRGB data to a sRGB context - no conversion on the write.
+
+    // back to sRGB no conversion
+    test_write_read(Encoding::kSRGB, Encoding::kSRGB, Encoding::kSRGB, smallError,
+                    check_no_conversion, context, reporter);
+    // Untagged read from sRGB is treated as a conversion back to linear. TODO: Fail or don't
+    // convert?
+    test_write_read(Encoding::kSRGB, Encoding::kSRGB, Encoding::kUntagged, error,
+                    check_srgb_to_linear_conversion, context, reporter);
+    // Converts back to linear
+    test_write_read(Encoding::kSRGB, Encoding::kSRGB, Encoding::kLinear, error,
+                    check_srgb_to_linear_conversion, context, reporter);
+
+#ifdef SK_LEGACY_GPU_PIXEL_OPS
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Write untagged data to a sRGB context - Currently this treats the untagged data as
+    // linear and converts to sRGB during the write. TODO: Fail or passthrough?
+
+    // read back to srgb, no additional conversion
+    test_write_read(Encoding::kSRGB, Encoding::kUntagged, Encoding::kSRGB, error,
+                    check_linear_to_srgb_conversion, context, reporter);
+    // read back to untagged. Currently converts back to linear. TODO: Fail or don't convert?
+    test_write_read(Encoding::kSRGB, Encoding::kUntagged, Encoding::kUntagged, error,
+                    check_linear_to_srgb_to_linear_conversion, context, reporter);
+    // Converts back to linear.
+    test_write_read(Encoding::kSRGB, Encoding::kUntagged, Encoding::kLinear, error,
+                    check_linear_to_srgb_to_linear_conversion, context, reporter);
+#else
+    // Currently writing untagged data to kSRGB fails because SkImageInfoValidConversion fails.
+    text_write_fails(Encoding::kSRGB, Encoding::kUntagged, context, reporter);
+#endif
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Write linear data to a sRGB context. It gets converted to sRGB on write. The reads
+    // are all the same as the above cases where the original data was untagged.
+    test_write_read(Encoding::kSRGB, Encoding::kLinear, Encoding::kSRGB, error,
+                    check_linear_to_srgb_conversion, context, reporter);
+    // TODO: Fail or don't convert?
+    test_write_read(Encoding::kSRGB, Encoding::kLinear, Encoding::kUntagged, error,
+                    check_linear_to_srgb_to_linear_conversion, context, reporter);
+    test_write_read(Encoding::kSRGB, Encoding::kLinear, Encoding::kLinear, error,
+                    check_linear_to_srgb_to_linear_conversion, context, reporter);
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Write data to an untagged context. The write does no conversion no matter what encoding the
+    // src data has.
+    for (auto writeEncoding : {Encoding::kSRGB, Encoding::kUntagged, Encoding::kLinear}) {
+        // The read from untagged to sRGB also does no conversion. TODO: Should it just fail?
+        test_write_read(Encoding::kUntagged, writeEncoding, Encoding::kSRGB, error,
+                        check_no_conversion, context, reporter);
+        // Reading untagged back as untagged should do no conversion.
+        test_write_read(Encoding::kUntagged, writeEncoding, Encoding::kUntagged, error,
+                        check_no_conversion, context, reporter);
+        // Reading untagged back as linear does no conversion. TODO: Should it just fail?
+        test_write_read(Encoding::kUntagged, writeEncoding, Encoding::kLinear, error,
+                        check_no_conversion, context, reporter);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Write sRGB data to a linear context - converts to sRGB on the write.
+
+    // converts back to sRGB on read.
+    test_write_read(Encoding::kLinear, Encoding::kSRGB, Encoding::kSRGB, error,
+                    check_srgb_to_linear_to_srgb_conversion, context, reporter);
+    // Reading untagged data from linear currently does no conversion. TODO: Should it fail?
+    test_write_read(Encoding::kLinear, Encoding::kSRGB, Encoding::kUntagged, error,
+                    check_srgb_to_linear_conversion, context, reporter);
+    // Stays linear when read.
+    test_write_read(Encoding::kLinear, Encoding::kSRGB, Encoding::kLinear, error,
+                    check_srgb_to_linear_conversion, context, reporter);
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Write untagged data to a linear context. Currently does no conversion. TODO: Should this
+    // fail?
+
+#ifdef SK_LEGACY_GPU_PIXEL_OPS
+    // Reading to sRGB does a conversion.
+    test_write_read(Encoding::kLinear, Encoding::kUntagged, Encoding::kSRGB, error,
+                    check_linear_to_srgb_conversion, context, reporter);
+    // Reading to untagged does no conversion. TODO: Should it fail?
+    test_write_read(Encoding::kLinear, Encoding::kUntagged, Encoding::kUntagged, error,
+                    check_no_conversion, context, reporter);
+    // Stays linear when read.
+    test_write_read(Encoding::kLinear, Encoding::kUntagged, Encoding::kLinear, error,
+                    check_no_conversion, context, reporter);
+#else
+    // Currently writing untagged data to kLinear fails because SkImageInfoValidConversion fails.
+    text_write_fails(Encoding::kSRGB, Encoding::kUntagged, context, reporter);
+#endif
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Write linear data to a linear context. Does no conversion.
+
+    // Reading to sRGB does a conversion.
+    test_write_read(Encoding::kLinear, Encoding::kLinear, Encoding::kSRGB, error,
+                    check_linear_to_srgb_conversion, context, reporter);
+    // Reading to untagged does no conversion. TODO: Should it fail?
+    test_write_read(Encoding::kLinear, Encoding::kLinear, Encoding::kUntagged, error,
+                    check_no_conversion, context, reporter);
+    // Stays linear when read.
+    test_write_read(Encoding::kLinear, Encoding::kLinear, Encoding::kLinear, error,
+                    check_no_conversion, context, reporter);
 }
 #endif

@@ -36,15 +36,15 @@ GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc,
     this->init(desc, idDesc);
 }
 
-inline GrRenderTarget::Flags GrGLRenderTarget::ComputeFlags(const GrGLCaps& glCaps,
-                                                            const IDDesc& idDesc) {
-    Flags flags = Flags::kNone;
+inline GrRenderTargetFlags GrGLRenderTarget::ComputeFlags(const GrGLCaps& glCaps,
+                                                          const IDDesc& idDesc) {
+    GrRenderTargetFlags flags = GrRenderTargetFlags::kNone;
     if (idDesc.fIsMixedSampled) {
         SkASSERT(glCaps.usesMixedSamples() && idDesc.fRTFBOID); // FBO 0 can't be mixed sampled.
-        flags |= Flags::kMixedSampled;
+        flags |= GrRenderTargetFlags::kMixedSampled;
     }
     if (glCaps.maxWindowRectangles() > 0 && idDesc.fRTFBOID) {
-        flags |= Flags::kWindowRectsSupport;
+        flags |= GrRenderTargetFlags::kWindowRectsSupport;
     }
     return flags;
 }
@@ -75,16 +75,25 @@ sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
         format.fPacked = false;
         format.fStencilBits = stencilBits;
         format.fTotalBits = stencilBits;
-        // Owndership of sb is passed to the GrRenderTarget so doesn't need to be deleted
+        // Ownership of sb is passed to the GrRenderTarget so doesn't need to be deleted
         sb = new GrGLStencilAttachment(gpu, sbDesc, desc.fWidth, desc.fHeight,
                                        desc.fSampleCnt, format);
     }
     return sk_sp<GrGLRenderTarget>(new GrGLRenderTarget(gpu, desc, idDesc, sb));
 }
 
+GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {
+    GrGLFramebufferInfo fbi;
+    fbi.fFBOID = fRTFBOID;
+    fbi.fFormat = this->getGLGpu()->glCaps().configSizedInternalFormat(this->config());
+
+    return GrBackendRenderTarget(this->width(), this->height(), this->numColorSamples(),
+                                 this->numStencilSamples(), fbi);
+}
+
 size_t GrGLRenderTarget::onGpuMemorySize() const {
     return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
-                                  fNumSamplesOwnedPerPixel, false);
+                                  fNumSamplesOwnedPerPixel, GrMipMapped::kNo);
 }
 
 bool GrGLRenderTarget::completeStencilAttachment() {
@@ -190,7 +199,7 @@ void GrGLRenderTarget::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) 
     // (have a fMSColorRenderbufferID).
     if (fMSColorRenderbufferID) {
         size_t size = GrSurface::ComputeSize(this->config(), this->width(), this->height(),
-                                             this->msaaSamples(), false);
+                                             this->msaaSamples(), GrMipMapped::kNo);
 
         // Due to this resource having both a texture and a renderbuffer component, dump as
         // skia/gpu_resources/resource_#/renderbuffer
@@ -215,7 +224,7 @@ int GrGLRenderTarget::msaaSamples() const {
     if (fTexFBOID == kUnresolvableFBOID || fTexFBOID != fRTFBOID) {
         // If the render target's FBO is external (fTexFBOID == kUnresolvableFBOID), or if we own
         // the render target's FBO (fTexFBOID == fRTFBOID) then we use the provided sample count.
-        return SkTMax(1, this->numStencilSamples());
+        return this->numStencilSamples();
     }
 
     // When fTexFBOID == fRTFBOID, we either are not using MSAA, or MSAA is auto resolving, so use

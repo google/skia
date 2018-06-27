@@ -17,18 +17,18 @@ namespace SkSL {
 /**
  * An interface block, as in:
  *
- * out gl_PerVertex {
- *   layout(builtin=0) vec4 gl_Position;
- *   layout(builtin=1) float gl_PointSize;
+ * out sk_PerVertex {
+ *   layout(builtin=0) float4 sk_Position;
+ *   layout(builtin=1) float sk_PointSize;
  * };
  *
  * At the IR level, this is represented by a single variable of struct type.
  */
 struct InterfaceBlock : public ProgramElement {
-    InterfaceBlock(Position position, const Variable* var, String typeName, String instanceName,
+    InterfaceBlock(int offset, const Variable* var, String typeName, String instanceName,
                    std::vector<std::unique_ptr<Expression>> sizes,
                    std::shared_ptr<SymbolTable> typeOwner)
-    : INHERITED(position, kInterfaceBlock_Kind)
+    : INHERITED(offset, kInterfaceBlock_Kind)
     , fVariable(*var)
     , fTypeName(std::move(typeName))
     , fInstanceName(std::move(instanceName))
@@ -61,7 +61,7 @@ struct InterfaceBlock : public ProgramElement {
     const Variable& fVariable;
     const String fTypeName;
     const String fInstanceName;
-    const std::vector<std::unique_ptr<Expression>> fSizes;
+    std::vector<std::unique_ptr<Expression>> fSizes;
     const std::shared_ptr<SymbolTable> fTypeOwner;
 
     typedef ProgramElement INHERITED;

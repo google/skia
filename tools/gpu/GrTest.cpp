@@ -12,14 +12,15 @@
 #include "GrContextPriv.h"
 #include "GrDrawOpAtlas.h"
 #include "GrDrawingManager.h"
+#include "GrGpu.h"
 #include "GrGpuResourceCacheAccess.h"
-#include "GrPipelineBuilder.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrRenderTargetProxy.h"
 #include "GrResourceCache.h"
 #include "GrSemaphore.h"
 #include "GrSurfaceContextPriv.h"
+#include "GrTexture.h"
 #include "SkGr.h"
 #include "SkImage_Gpu.h"
 #include "SkMathPriv.h"
@@ -29,6 +30,7 @@
 #include "text/GrTextBlobCache.h"
 
 namespace GrTest {
+
 void SetupAlwaysEvictAtlas(GrContext* context) {
     // These sizes were selected because they allow each atlas to hold a single plot and will thus
     // stress the atlas
@@ -36,22 +38,16 @@ void SetupAlwaysEvictAtlas(GrContext* context) {
     GrDrawOpAtlasConfig configs[3];
     configs[kA8_GrMaskFormat].fWidth = dim;
     configs[kA8_GrMaskFormat].fHeight = dim;
-    configs[kA8_GrMaskFormat].fLog2Width = SkNextLog2(dim);
-    configs[kA8_GrMaskFormat].fLog2Height = SkNextLog2(dim);
     configs[kA8_GrMaskFormat].fPlotWidth = dim;
     configs[kA8_GrMaskFormat].fPlotHeight = dim;
 
     configs[kA565_GrMaskFormat].fWidth = dim;
     configs[kA565_GrMaskFormat].fHeight = dim;
-    configs[kA565_GrMaskFormat].fLog2Width = SkNextLog2(dim);
-    configs[kA565_GrMaskFormat].fLog2Height = SkNextLog2(dim);
     configs[kA565_GrMaskFormat].fPlotWidth = dim;
     configs[kA565_GrMaskFormat].fPlotHeight = dim;
 
     configs[kARGB_GrMaskFormat].fWidth = dim;
     configs[kARGB_GrMaskFormat].fHeight = dim;
-    configs[kARGB_GrMaskFormat].fLog2Width = SkNextLog2(dim);
-    configs[kARGB_GrMaskFormat].fLog2Height = SkNextLog2(dim);
     configs[kARGB_GrMaskFormat].fPlotWidth = dim;
     configs[kARGB_GrMaskFormat].fPlotHeight = dim;
 
@@ -59,17 +55,31 @@ void SetupAlwaysEvictAtlas(GrContext* context) {
 }
 
 GrBackendTexture CreateBackendTexture(GrBackend backend, int width, int height,
-                                      GrPixelConfig config, GrBackendObject handle) {
-    if (kOpenGL_GrBackend == backend) {
-        GrGLTextureInfo* glInfo = (GrGLTextureInfo*)(handle);
-        return GrBackendTexture(width, height, config, *glInfo);
-    } else {
-        SkASSERT(kVulkan_GrBackend == backend);
-        GrVkImageInfo* vkInfo = (GrVkImageInfo*)(handle);
-        return GrBackendTexture(width, height, *vkInfo);
+                                      GrPixelConfig config, GrMipMapped mipMapped,
+                                      GrBackendObject handle) {
+    switch (backend) {
+#ifdef SK_VULKAN
+        case kVulkan_GrBackend: {
+            GrVkImageInfo* vkInfo = (GrVkImageInfo*)(handle);
+            SkASSERT((GrMipMapped::kYes == mipMapped) == (vkInfo->fLevelCount > 1));
+            return GrBackendTexture(width, height, *vkInfo);
+        }
+#endif
+        case kOpenGL_GrBackend: {
+            GrGLTextureInfo* glInfo = (GrGLTextureInfo*)(handle);
+            SkASSERT(glInfo->fFormat);
+            return GrBackendTexture(width, height, mipMapped, *glInfo);
+        }
+        case kMock_GrBackend: {
+            GrMockTextureInfo* mockInfo = (GrMockTextureInfo*)(handle);
+            return GrBackendTexture(width, height, config, mipMapped, *mockInfo);
+        }
+        default:
+            return GrBackendTexture();
     }
 }
-};
+
+}  // namespace GrTest
 
 bool GrSurfaceProxy::isWrapped_ForTesting() const {
     return SkToBool(fTarget);
@@ -137,17 +147,18 @@ void GrContext::printGpuStats() const {
     SkDebugf("%s", out.c_str());
 }
 
-sk_sp<SkImage> GrContext::getFontAtlasImage_ForTesting(GrMaskFormat format) {
-    GrAtlasGlyphCache* cache = this->getAtlasGlyphCache();
+sk_sp<SkImage> GrContext::getFontAtlasImage_ForTesting(GrMaskFormat format, uint32_t index) {
+    GrAtlasGlyphCache* cache = this->contextPriv().getAtlasGlyphCache();
 
-    sk_sp<GrTextureProxy> proxy = cache->getProxy(format);
-    if (!proxy) {
+    unsigned int numProxies;
+    const sk_sp<GrTextureProxy>* proxies = cache->getProxies(format, &numProxies);
+    if (index >= numProxies || !proxies[index]) {
         return nullptr;
     }
 
-    SkASSERT(proxy->priv().isExact());
+    SkASSERT(proxies[index]->priv().isExact());
     sk_sp<SkImage> image(new SkImage_Gpu(this, kNeedNewImageUniqueID, kPremul_SkAlphaType,
-                                         std::move(proxy), nullptr, SkBudgeted::kNo));
+                                         proxies[index], nullptr, SkBudgeted::kNo));
     return image;
 }
 
@@ -171,6 +182,16 @@ void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>*
 }
 
 #endif
+
+GrBackendTexture GrGpu::createTestingOnlyBackendTexture(void* pixels, int w, int h,
+                                                        SkColorType colorType, bool isRenderTarget,
+                                                        GrMipMapped mipMapped) {
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(colorType, nullptr, *this->caps());
+    if (kUnknown_GrPixelConfig == config) {
+        return GrBackendTexture();
+    }
+    return this->createTestingOnlyBackendTexture(pixels, w, h, config, isRenderTarget, mipMapped);
+}
 
 #if GR_CACHE_STATS
 void GrResourceCache::getStats(Stats* stats) const {
@@ -243,31 +264,17 @@ int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->singleOwner());)
 
-uint32_t GrRenderTargetContextPriv::testingOnly_addLegacyMeshDrawOp(
-        GrPaint&& paint,
-        GrAAType aaType,
-        std::unique_ptr<GrLegacyMeshDrawOp> op,
-        const GrUserStencilSettings* uss,
-        bool snapToCenters) {
-    ASSERT_SINGLE_OWNER
-    if (fRenderTargetContext->drawingManager()->wasAbandoned()) {
-        return SK_InvalidUniqueID;
-    }
-    SkDEBUGCODE(fRenderTargetContext->validate());
-    GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->fAuditTrail,
-                              "GrRenderTargetContext::testingOnly_addLegacyMeshDrawOp");
 
-    GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-    if (uss) {
-        pipelineBuilder.setUserStencil(uss);
-    }
-    pipelineBuilder.setSnapVerticesToPixelCenters(snapToCenters);
-
-    return fRenderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), GrNoClip(),
-                                                     std::move(op));
+uint32_t GrRenderTargetContextPriv::testingOnly_getOpListID() {
+    return fRenderTargetContext->getOpList()->uniqueID();
 }
 
 uint32_t GrRenderTargetContextPriv::testingOnly_addDrawOp(std::unique_ptr<GrDrawOp> op) {
+    return this->testingOnly_addDrawOp(GrNoClip(), std::move(op));
+}
+
+uint32_t GrRenderTargetContextPriv::testingOnly_addDrawOp(const GrClip& clip,
+                                                          std::unique_ptr<GrDrawOp> op) {
     ASSERT_SINGLE_OWNER
     if (fRenderTargetContext->drawingManager()->wasAbandoned()) {
         return SK_InvalidUniqueID;
@@ -275,176 +282,15 @@ uint32_t GrRenderTargetContextPriv::testingOnly_addDrawOp(std::unique_ptr<GrDraw
     SkDEBUGCODE(fRenderTargetContext->validate());
     GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->fAuditTrail,
                               "GrRenderTargetContext::testingOnly_addDrawOp");
-    return fRenderTargetContext->addDrawOp(GrNoClip(), std::move(op));
+    return fRenderTargetContext->addDrawOp(clip, std::move(op));
 }
 
 #undef ASSERT_SINGLE_OWNER
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrRenderTarget::Flags GrRenderTargetProxy::testingOnly_getFlags() const {
+GrRenderTargetFlags GrRenderTargetProxy::testingOnly_getFlags() const {
     return fRenderTargetFlags;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Code for the mock context. It's built on a mock GrGpu class that does nothing.
-////
-
-#include "GrGpu.h"
-
-class GrPipeline;
-
-class MockCaps : public GrCaps {
-public:
-    explicit MockCaps(const GrContextOptions& options) : INHERITED(options) {}
-    bool isConfigTexturable(GrPixelConfig) const override { return false; }
-    bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const override { return false; }
-    bool canConfigBeImageStorage(GrPixelConfig) const override { return false; }
-    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
-                            bool* rectsMustMatch, bool* disallowSubrect) const override {
-        return false;
-    }
-
-private:
-    typedef GrCaps INHERITED;
-};
-
-class MockGpu : public GrGpu {
-public:
-    MockGpu(GrContext* context, const GrContextOptions& options) : INHERITED(context) {
-        fCaps.reset(new MockCaps(options));
-    }
-    ~MockGpu() override {}
-
-    bool onGetReadPixelsInfo(GrSurface* srcSurface, int readWidth, int readHeight, size_t rowBytes,
-                             GrPixelConfig readConfig, DrawPreference*,
-                             ReadPixelTempDrawInfo*) override { return false; }
-
-    bool onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
-                              GrPixelConfig srcConfig, DrawPreference*,
-                              WritePixelTempDrawInfo*) override { return false; }
-
-    bool onCopySurface(GrSurface* dst,
-                       GrSurface* src,
-                       const SkIRect& srcRect,
-                       const SkIPoint& dstPoint) override { return false; }
-
-    void onQueryMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
-                                 int* effectiveSampleCnt, SamplePattern*) override {
-        *effectiveSampleCnt = rt->numStencilSamples();
-    }
-
-    GrGpuCommandBuffer* createCommandBuffer(const GrGpuCommandBuffer::LoadAndStoreInfo&,
-                                            const GrGpuCommandBuffer::LoadAndStoreInfo&) override {
-        return nullptr;
-    }
-
-    void drawDebugWireRect(GrRenderTarget*, const SkIRect&, GrColor) override {}
-
-    GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
-    bool waitFence(GrFence, uint64_t) override { return true; }
-    void deleteFence(GrFence) const override {}
-
-    sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore() override { return nullptr; }
-    void insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) override {}
-    void waitSemaphore(sk_sp<GrSemaphore> semaphore) override {}
-    sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override { return nullptr; }
-
-private:
-    void onResetContext(uint32_t resetBits) override {}
-
-    void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
-
-    GrTexture* onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                               const SkTArray<GrMipLevel>& texels) override {
-        return nullptr;
-    }
-
-    sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&,
-                                          GrSurfaceOrigin,
-                                          GrBackendTextureFlags,
-                                          int sampleCnt,
-                                          GrWrapOwnership) override {
-        return nullptr;
-    }
-
-    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&,
-                                                    GrSurfaceOrigin) override {
-        return nullptr;
-    }
-
-    sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTexture&,
-                                                             GrSurfaceOrigin,
-                                                             int sampleCnt) override {
-        return nullptr;
-    }
-
-    GrBuffer* onCreateBuffer(size_t, GrBufferType, GrAccessPattern, const void*) override {
-        return nullptr;
-    }
-
-    gr_instanced::InstancedRendering* onCreateInstancedRendering() override { return nullptr; }
-
-    bool onReadPixels(GrSurface* surface,
-                      int left, int top, int width, int height,
-                      GrPixelConfig,
-                      void* buffer,
-                      size_t rowBytes) override {
-        return false;
-    }
-
-    bool onWritePixels(GrSurface* surface,
-                       int left, int top, int width, int height,
-                       GrPixelConfig config, const SkTArray<GrMipLevel>& texels) override {
-        return false;
-    }
-
-    bool onTransferPixels(GrSurface* surface,
-                          int left, int top, int width, int height,
-                          GrPixelConfig config, GrBuffer* transferBuffer,
-                          size_t offset, size_t rowBytes) override {
-        return false;
-    }
-
-    void onResolveRenderTarget(GrRenderTarget* target) override { return; }
-
-    GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
-                                                                int width,
-                                                                int height) override {
-        return nullptr;
-    }
-
-    void clearStencil(GrRenderTarget* target) override  {}
-
-    GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h,
-                                                    GrPixelConfig config, bool isRT) override {
-        return 0;
-    }
-    bool isTestingOnlyBackendTexture(GrBackendObject ) const override { return false; }
-    void deleteTestingOnlyBackendTexture(GrBackendObject, bool abandonTexture) override {}
-
-    typedef GrGpu INHERITED;
-};
-
-GrContext* GrContext::CreateMockContext() {
-    GrContext* context = new GrContext;
-
-    context->initMockContext();
-    return context;
-}
-
-void GrContext::initMockContext() {
-    GrContextOptions options;
-    options.fBufferMapThreshold = 0;
-    SkASSERT(nullptr == fGpu);
-    fGpu = new MockGpu(this, options);
-    SkASSERT(fGpu);
-    this->initCommon(options);
-
-    // We delete these because we want to test the cache starting with zero resources. Also, none of
-    // these objects are required for any of tests that use this context. TODO: make stop allocating
-    // resources in the buffer pools.
-    fDrawingManager->abandon();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -463,84 +309,75 @@ void GrDrawingManager::testingOnly_removeOnFlushCallbackObject(GrOnFlushCallback
 
 //////////////////////////////////////////////////////////////////////////////
 
+GrPixelConfig GrBackendTexture::testingOnly_getPixelConfig() const {
+    return fConfig;
+}
+
+GrPixelConfig GrBackendRenderTarget::testingOnly_getPixelConfig() const {
+    return fConfig;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 #define DRAW_OP_TEST_EXTERN(Op) \
-    extern std::unique_ptr<GrDrawOp> Op##__Test(GrPaint&&, SkRandom*, GrContext*, GrFSAAType);
-
-#define LEGACY_MESH_DRAW_OP_TEST_EXTERN(Op) \
-    extern std::unique_ptr<GrLegacyMeshDrawOp> Op##__Test(SkRandom*, GrContext*);
-
+    extern std::unique_ptr<GrDrawOp> Op##__Test(GrPaint&&, SkRandom*, GrContext*, GrFSAAType)
 #define DRAW_OP_TEST_ENTRY(Op) Op##__Test
 
-LEGACY_MESH_DRAW_OP_TEST_EXTERN(AAConvexPathOp);
-LEGACY_MESH_DRAW_OP_TEST_EXTERN(AAFillRectOp);
-LEGACY_MESH_DRAW_OP_TEST_EXTERN(AAFillRectOpLocalMatrix);
-LEGACY_MESH_DRAW_OP_TEST_EXTERN(AAFlatteningConvexPathOp)
-LEGACY_MESH_DRAW_OP_TEST_EXTERN(AAHairlineOp);
-LEGACY_MESH_DRAW_OP_TEST_EXTERN(AAStrokeRectOp);
-LEGACY_MESH_DRAW_OP_TEST_EXTERN(AnalyticRectOp);
-LEGACY_MESH_DRAW_OP_TEST_EXTERN(DashOp);
-LEGACY_MESH_DRAW_OP_TEST_EXTERN(DefaultPathOp);
-LEGACY_MESH_DRAW_OP_TEST_EXTERN(GrDrawAtlasOp);
-LEGACY_MESH_DRAW_OP_TEST_EXTERN(NonAAStrokeRectOp);
-LEGACY_MESH_DRAW_OP_TEST_EXTERN(SmallPathOp);
-LEGACY_MESH_DRAW_OP_TEST_EXTERN(TesselatingPathOp);
-LEGACY_MESH_DRAW_OP_TEST_EXTERN(TextBlobOp);
-LEGACY_MESH_DRAW_OP_TEST_EXTERN(VerticesOp);
-
-DRAW_OP_TEST_EXTERN(CircleOp)
+DRAW_OP_TEST_EXTERN(AAConvexPathOp);
+DRAW_OP_TEST_EXTERN(AAFillRectOp);
+DRAW_OP_TEST_EXTERN(AAFlatteningConvexPathOp);
+DRAW_OP_TEST_EXTERN(AAHairlineOp);
+DRAW_OP_TEST_EXTERN(AAStrokeRectOp);
+DRAW_OP_TEST_EXTERN(CircleOp);
+DRAW_OP_TEST_EXTERN(DashOp);
+DRAW_OP_TEST_EXTERN(DefaultPathOp);
 DRAW_OP_TEST_EXTERN(DIEllipseOp);
 DRAW_OP_TEST_EXTERN(EllipseOp);
-DRAW_OP_TEST_EXTERN(NonAAFillRectOp)
+DRAW_OP_TEST_EXTERN(GrAtlasTextOp);
+DRAW_OP_TEST_EXTERN(GrDrawAtlasOp);
+DRAW_OP_TEST_EXTERN(GrDrawVerticesOp);
+DRAW_OP_TEST_EXTERN(NonAAFillRectOp);
+DRAW_OP_TEST_EXTERN(NonAALatticeOp);
+DRAW_OP_TEST_EXTERN(NonAAStrokeRectOp);
+DRAW_OP_TEST_EXTERN(ShadowRRectOp);
+DRAW_OP_TEST_EXTERN(SmallPathOp);
+DRAW_OP_TEST_EXTERN(RegionOp);
 DRAW_OP_TEST_EXTERN(RRectOp);
+DRAW_OP_TEST_EXTERN(TesselatingPathOp);
+DRAW_OP_TEST_EXTERN(TextureOp);
 
 void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext, GrPaint&& paint) {
     GrContext* context = renderTargetContext->surfPriv().getContext();
-    using MakeTestLegacyMeshDrawOpFn = std::unique_ptr<GrLegacyMeshDrawOp>(SkRandom*, GrContext*);
-    static constexpr MakeTestLegacyMeshDrawOpFn* gLegacyFactories[] = {
-        DRAW_OP_TEST_ENTRY(AAConvexPathOp),
-        DRAW_OP_TEST_ENTRY(AAFillRectOp),
-        DRAW_OP_TEST_ENTRY(AAFillRectOpLocalMatrix),
-        DRAW_OP_TEST_ENTRY(AAFlatteningConvexPathOp),
-        DRAW_OP_TEST_ENTRY(AAHairlineOp),
-        DRAW_OP_TEST_ENTRY(AAStrokeRectOp),
-        DRAW_OP_TEST_ENTRY(AnalyticRectOp),
-        DRAW_OP_TEST_ENTRY(DashOp),
-        DRAW_OP_TEST_ENTRY(DefaultPathOp),
-        DRAW_OP_TEST_ENTRY(GrDrawAtlasOp),
-        DRAW_OP_TEST_ENTRY(NonAAStrokeRectOp),
-        DRAW_OP_TEST_ENTRY(SmallPathOp),
-        DRAW_OP_TEST_ENTRY(TesselatingPathOp),
-        DRAW_OP_TEST_ENTRY(TextBlobOp),
-        DRAW_OP_TEST_ENTRY(VerticesOp)
-    };
-
     using MakeDrawOpFn = std::unique_ptr<GrDrawOp>(GrPaint&&, SkRandom*, GrContext*, GrFSAAType);
     static constexpr MakeDrawOpFn* gFactories[] = {
-        DRAW_OP_TEST_ENTRY(CircleOp),
-        DRAW_OP_TEST_ENTRY(DIEllipseOp),
-        DRAW_OP_TEST_ENTRY(EllipseOp),
-        DRAW_OP_TEST_ENTRY(NonAAFillRectOp),
-        DRAW_OP_TEST_ENTRY(RRectOp),
+            DRAW_OP_TEST_ENTRY(AAConvexPathOp),
+            DRAW_OP_TEST_ENTRY(AAFillRectOp),
+            DRAW_OP_TEST_ENTRY(AAFlatteningConvexPathOp),
+            DRAW_OP_TEST_ENTRY(AAHairlineOp),
+            DRAW_OP_TEST_ENTRY(AAStrokeRectOp),
+            DRAW_OP_TEST_ENTRY(CircleOp),
+            DRAW_OP_TEST_ENTRY(DashOp),
+            DRAW_OP_TEST_ENTRY(DefaultPathOp),
+            DRAW_OP_TEST_ENTRY(DIEllipseOp),
+            DRAW_OP_TEST_ENTRY(EllipseOp),
+            DRAW_OP_TEST_ENTRY(GrAtlasTextOp),
+            DRAW_OP_TEST_ENTRY(GrDrawAtlasOp),
+            DRAW_OP_TEST_ENTRY(GrDrawVerticesOp),
+            DRAW_OP_TEST_ENTRY(NonAAFillRectOp),
+            DRAW_OP_TEST_ENTRY(NonAALatticeOp),
+            DRAW_OP_TEST_ENTRY(NonAAStrokeRectOp),
+            DRAW_OP_TEST_ENTRY(ShadowRRectOp),
+            DRAW_OP_TEST_ENTRY(SmallPathOp),
+            DRAW_OP_TEST_ENTRY(RegionOp),
+            DRAW_OP_TEST_ENTRY(RRectOp),
+            DRAW_OP_TEST_ENTRY(TesselatingPathOp),
+            DRAW_OP_TEST_ENTRY(TextureOp),
     };
 
-    static constexpr size_t kTotal = SK_ARRAY_COUNT(gLegacyFactories) + SK_ARRAY_COUNT(gFactories);
-
+    static constexpr size_t kTotal = SK_ARRAY_COUNT(gFactories);
     uint32_t index = random->nextULessThan(static_cast<uint32_t>(kTotal));
-    if (index < SK_ARRAY_COUNT(gLegacyFactories)) {
-        const GrUserStencilSettings* uss = GrGetRandomStencil(random, context);
-        // We don't use kHW because we will hit an assertion if the render target is not
-        // multisampled
-        static constexpr GrAAType kAATypes[] = {GrAAType::kNone, GrAAType::kCoverage};
-        GrAAType aaType = kAATypes[random->nextULessThan(SK_ARRAY_COUNT(kAATypes))];
-        bool snapToCenters = random->nextBool();
-        auto op = gLegacyFactories[index](random, context);
-        SkASSERT(op);
-        renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
-                std::move(paint), aaType, std::move(op), uss, snapToCenters);
-    } else {
-        auto op = gFactories[index - SK_ARRAY_COUNT(gLegacyFactories)](
-                std::move(paint), random, context, renderTargetContext->fsaaType());
-        SkASSERT(op);
-        renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
-    }
+    auto op = gFactories[index](
+            std::move(paint), random, context, renderTargetContext->fsaaType());
+    SkASSERT(op);
+    renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
 }

@@ -10,13 +10,16 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
+#include "SkColorSpacePriv.h"
 #include "SkColorSpace_A2B.h"
 #include "SkColorSpace_XYZ.h"
-#include "SkColorSpacePriv.h"
 #include "SkCommandLineFlags.h"
+#include "SkICCPriv.h"
 #include "SkImageEncoder.h"
 #include "SkMatrix44.h"
 #include "SkOSFile.h"
+#include "SkRasterPipeline.h"
+#include "../src/jumper/SkJumper.h"
 
 #include "sk_tool_utils.h"
 
@@ -263,6 +266,27 @@ static int cut_size(const SkColorLookUpTable& clut, int dimOrder[4]) {
     return cutWidth < cutHeight ? cutWidth : cutHeight;
 }
 
+static void clut_interp(const SkColorLookUpTable& clut, float out[3], const float in[4]) {
+    // This is kind of a toy implementation.
+    // You generally wouldn't want to do this 1 pixel at a time.
+
+    SkJumper_ColorLookupTableCtx ctx;
+    ctx.table = clut.table();
+    for (int i = 0; i < clut.inputChannels(); i++) {
+        ctx.limits[i] = clut.gridPoints(i);
+    }
+
+    SkSTArenaAlloc<256> alloc;
+    SkRasterPipeline p(&alloc);
+    p.append_constant_color(&alloc, in);
+    p.append(clut.inputChannels() == 3 ? SkRasterPipeline::clut_3D
+                                       : SkRasterPipeline::clut_4D, &ctx);
+    p.append(SkRasterPipeline::clamp_0);
+    p.append(SkRasterPipeline::clamp_1);
+    p.append(SkRasterPipeline::store_f32, &out);
+    p.run(0,0, 1,1);
+}
+
 static void draw_clut(SkCanvas* canvas, const SkColorLookUpTable& clut, int dimOrder[4]) {
     dump_clut(clut);
 
@@ -290,7 +314,7 @@ static void draw_clut(SkCanvas* canvas, const SkColorLookUpTable& clut, int dimO
                     const float w = row / (rows - 1.0f);
                     const float input[4] = {x, y, z, w};
                     float output[3];
-                    clut.interp(output, input);
+                    clut_interp(clut, output, input);
                     paint.setColor(SkColorSetRGB(255*output[0], 255*output[1], 255*output[2]));
                     canvas->drawRect(SkRect::MakeLTRB(ox + cutSize * x, oy + cutSize * y,
                                                       ox + cutSize * (x + xStep),
@@ -462,13 +486,25 @@ int main(int argc, char** argv) {
     if (FLAGS_icc) {
         colorSpace = SkColorSpace::MakeICC(data->bytes(), data->size());
     } else {
-        codec.reset(SkCodec::NewFromData(data));
+        codec = SkCodec::MakeFromData(data);
         colorSpace = sk_ref_sp(codec->getInfo().colorSpace());
+        SkDebugf("SkCodec would naturally decode as colorType=%s\n",
+                 sk_tool_utils::colortype_name(codec->getInfo().colorType()));
     }
 
     if (!colorSpace) {
         SkDebugf("Cannot create codec or icc profile from input file.\n");
         return -1;
+    }
+
+    {
+        SkColorSpaceTransferFn colorSpaceTransferFn;
+        SkMatrix44 toXYZD50(SkMatrix44::kIdentity_Constructor);
+        if (colorSpace->isNumericalTransferFn(&colorSpaceTransferFn) &&
+            colorSpace->toXYZD50(&toXYZD50)) {
+            SkString description = SkICCGetColorProfileTag(colorSpaceTransferFn, toXYZD50);
+            SkDebugf("Color Profile Description: \"%s\"\n", description.c_str());
+        }
     }
 
     // TODO: command line tweaking of this order
@@ -482,12 +518,12 @@ int main(int argc, char** argv) {
         return ss.str();
     };
 
-    if (SkColorSpace_Base::Type::kXYZ == as_CSB(colorSpace)->type()) {
+    if (colorSpace->toXYZD50()) {
         SkDebugf("XYZ/TRC color space\n");
 
         // Load a graph of the CIE XYZ color gamut.
         SkBitmap gamutCanvasBitmap;
-        if (!GetResourceAsBitmap("gamut.png", &gamutCanvasBitmap)) {
+        if (!GetResourceAsBitmap("images/gamut.png", &gamutCanvasBitmap)) {
             SkDebugf("Program failure (could not load gamut.png).\n");
             return -1;
         }
@@ -495,7 +531,7 @@ int main(int argc, char** argv) {
         // Draw the sRGB gamut if requested.
         if (FLAGS_sRGB_gamut) {
             sk_sp<SkColorSpace> sRGBSpace = SkColorSpace::MakeSRGB();
-            const SkMatrix44* mat = as_CSB(sRGBSpace)->toXYZD50();
+            const SkMatrix44* mat = sRGBSpace->toXYZD50();
             SkASSERT(mat);
             draw_gamut(gamutCanvas.canvas(), *mat, "sRGB", 0xFFFF9394, false);
         }
@@ -504,11 +540,11 @@ int main(int argc, char** argv) {
         if (FLAGS_adobeRGB) {
             sk_sp<SkColorSpace> adobeRGBSpace = SkColorSpace::MakeRGB(
                     SkColorSpace::kSRGB_RenderTargetGamma, SkColorSpace::kAdobeRGB_Gamut);
-            const SkMatrix44* mat = as_CSB(adobeRGBSpace)->toXYZD50();
+            const SkMatrix44* mat = adobeRGBSpace->toXYZD50();
             SkASSERT(mat);
             draw_gamut(gamutCanvas.canvas(), *mat, "Adobe RGB", 0xFF31a9e1, false);
         }
-        const SkMatrix44* mat = as_CSB(colorSpace)->toXYZD50();
+        const SkMatrix44* mat = colorSpace->toXYZD50();
         SkASSERT(mat);
         auto xyz = static_cast<SkColorSpace_XYZ*>(colorSpace.get());
         draw_gamut(gamutCanvas.canvas(), *mat, input, 0xFF000000, true);
@@ -520,7 +556,7 @@ int main(int argc, char** argv) {
         if (FLAGS_sRGB_gamma) {
             draw_transfer_fn(gammaCanvas.canvas(), kSRGB_SkGammaNamed, nullptr, 0xFFFF9394);
         }
-        draw_transfer_fn(gammaCanvas.canvas(), xyz->gammaNamed(), xyz->gammas(), 0xFF000000);
+        draw_transfer_fn(gammaCanvas.canvas(), colorSpace->gammaNamed(), xyz->gammas(), 0xFF000000);
         if (!gammaCanvas.save(&outputFilenames, createOutputFilename("gamma", 0))) {
             return -1;
         }
@@ -529,13 +565,13 @@ int main(int argc, char** argv) {
         SkColorSpace_A2B* a2b = static_cast<SkColorSpace_A2B*>(colorSpace.get());
         SkDebugf("Conversion type: ");
         switch (a2b->iccType()) {
-            case SkColorSpace_Base::kRGB_ICCTypeFlag:
+            case SkColorSpace::kRGB_Type:
                 SkDebugf("RGB");
                 break;
-            case SkColorSpace_Base::kCMYK_ICCTypeFlag:
+            case SkColorSpace::kCMYK_Type:
                 SkDebugf("CMYK");
                 break;
-            case SkColorSpace_Base::kGray_ICCTypeFlag:
+            case SkColorSpace::kGray_Type:
                 SkDebugf("Gray");
                 break;
             default:

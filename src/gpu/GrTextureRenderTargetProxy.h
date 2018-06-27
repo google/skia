@@ -23,18 +23,28 @@
 // the uniqueID of the RenderTarget/Texture it represents!
 class GrTextureRenderTargetProxy : public GrTextureProxy, public GrRenderTargetProxy {
 private:
+    // DDL TODO: rm the GrSurfaceProxy friending
     friend class GrSurfaceProxy; // for ctors
+    friend class GrProxyProvider; // for ctors
 
     // Deferred version
-    GrTextureRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&,
+    GrTextureRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&, GrMipMapped,
                                SkBackingFit, SkBudgeted, uint32_t flags);
 
-    // Wrapped version
-    GrTextureRenderTargetProxy(sk_sp<GrSurface>);
+    // Lazy-callback version
+    GrTextureRenderTargetProxy(LazyInstantiateCallback&&, LazyInstantiationType,
+                               const GrSurfaceDesc& desc, GrMipMapped, SkBackingFit, SkBudgeted,
+                               uint32_t flags, GrRenderTargetFlags);
 
-    GrSurface* instantiate(GrResourceProvider*) override;
+    // Wrapped version
+    GrTextureRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
+
+    bool instantiate(GrResourceProvider*) override;
+    sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 
     size_t onUninstantiatedGpuMemorySize() const override;
+
+    SkDEBUGCODE(void validateLazySurface(const GrSurface*) override;)
 };
 
 #ifdef SK_BUILD_FOR_WIN

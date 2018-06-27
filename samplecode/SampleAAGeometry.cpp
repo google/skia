@@ -13,6 +13,8 @@
 #include "SkOpEdgeBuilder.h"
 // #include "SkPathOpsSimplifyAA.h"
 // #include "SkPathStroker.h"
+#include "SkPointPriv.h"
+#include "SkString.h"
 #include "SkView.h"
 
 #if 0
@@ -616,11 +618,11 @@ struct UniControl {
 struct BiControl : public UniControl {
     SkScalar fValHi;
 
-    BiControl(const char* name, SkScalar min, SkScalar max) 
+    BiControl(const char* name, SkScalar min, SkScalar max)
         : UniControl(name, min, max)
         ,  fValHi(fMax) {
     }
-    
+
     virtual ~BiControl() {}
 
     virtual void draw(SkCanvas* canvas, const ControlPaints& paints) {
@@ -683,7 +685,7 @@ public:
 
     MyClick(SkView* target, ClickType type, ControlType control)
         : Click(target)
-        , fType(type) 
+        , fType(type)
         , fControl(control)
         , fVerb((SkPath::Verb) -1)
         , fWeight(1) {
@@ -691,7 +693,7 @@ public:
 
     MyClick(SkView* target, ClickType type, int index)
         : Click(target)
-        , fType(type) 
+        , fType(type)
         , fControl((ControlType) index)
         , fVerb((SkPath::Verb) -1)
         , fWeight(1) {
@@ -699,7 +701,7 @@ public:
 
     MyClick(SkView* target, ClickType type, int index, SkPath::Verb verb, SkScalar weight)
         : Click(target)
-        , fType(type) 
+        , fType(type)
         , fControl((ControlType) index)
         , fVerb(verb)
         , fWeight(weight) {
@@ -758,7 +760,7 @@ struct Active {
     SkScalar fEnd;
 
     void reset() {
-        fNext = NULL;
+        fNext = nullptr;
         fStart = 0;
         fEnd = 1;
     }
@@ -815,11 +817,11 @@ class AAGeometryView : public SampleView {
     bool fHandlePathMove;
     bool fShowLegend;
     bool fHideAll;
-    const int kHitToleranace = 5;
+    const int kHitToleranace = 25;
 
 public:
 
-    AAGeometryView() 
+    AAGeometryView()
         : fResControl("error", 0, 10)
         , fWeightControl("weight", 0, 5)
         , fWidthControl("width", FLT_EPSILON, 100)
@@ -836,7 +838,7 @@ public:
         , fBisectButton('b')
         , fJoinButton('j')
         , fInOutButton('|')
-        , fUndo(NULL)
+        , fUndo(nullptr)
         , fActivePt(-1)
         , fActiveVerb(-1)
         , fHandlePathMove(true)
@@ -882,7 +884,6 @@ public:
 
     bool constructPath() {
         construct_path(fPath);
-        this->inval(NULL);
         return true;
     }
 
@@ -908,7 +909,6 @@ public:
         PathUndo* next = fUndo->fNext;
         delete fUndo;
         fUndo = next;
-        this->inval(NULL);
         return true;
     }
 
@@ -931,7 +931,6 @@ public:
 
     bool hideAll() {
         fHideAll ^= true;
-        this->inval(NULL);
         return true;
     }
 
@@ -942,7 +941,7 @@ public:
         SET_CONTROL(Filter);
         SET_CONTROL(Weight);
     }
-    
+
     #undef SET_CONTROL
 
     void set_buttonList(int index, Button* button, MyClick::ControlType type) {
@@ -973,7 +972,7 @@ public:
 
     // overrides from SkEventSink
     bool onQuery(SkEvent* evt) override;
-    
+
     void onSizeChange() override {
         setControlButtonsPos();
         this->INHERITED::onSizeChange();
@@ -990,7 +989,6 @@ public:
         matrix.setScale(1.f / 1.5f, 1.f / 1.5f, bounds.centerX(), bounds.centerY());
         fPath.transform(matrix);
         validatePath();
-        this->inval(NULL);
         return true;
     }
 
@@ -1006,7 +1004,6 @@ public:
         SkScalar offsetY = (this->height() - bounds.height()) / 2 - bounds.fTop;
         fPath.offset(offsetX, offsetY);
         validatePath();
-        this->inval(NULL);
         return true;
     }
 
@@ -1016,7 +1013,6 @@ public:
         matrix.setScale(1.5f, 1.5f, bounds.centerX(), bounds.centerY());
         fPath.transform(matrix);
         validatePath();
-        this->inval(NULL);
         return true;
     }
 
@@ -1037,7 +1033,6 @@ public:
 
     bool showLegend() {
         fShowLegend ^= true;
-        this->inval(NULL);
         return true;
     }
 
@@ -1161,7 +1156,7 @@ public:
                         }
                         SkPoint maxPt;
                         SkVector tangent;
-                        SkEvalCubicAt(pts, tMax[tIndex], &maxPt, &tangent, NULL);
+                        SkEvalCubicAt(pts, tMax[tIndex], &maxPt, &tangent, nullptr);
                         tangent.setLength(fWidthControl.fValLo * 2);
                         canvas->drawLine(maxPt, {maxPt.fX + tangent.fY, maxPt.fY - tangent.fX},
                                          fSkeletonPaint);
@@ -1173,7 +1168,7 @@ public:
                         foundFirst = false;
                     }
                     break;
-                default: 
+                default:
                     break;
             }
             if (SkPath::kLine_Verb <= verb && verb <= SkPath::kCubic_Verb) {
@@ -1228,7 +1223,7 @@ public:
                     canvas->drawPath(cPath, complex ? fComplexPaint : fActivePaint);
                     draw_points(canvas, pts, 4);
                     } break;
-                default: 
+                default:
                     break;
             }
             return;
@@ -1289,7 +1284,7 @@ public:
                         return counter;
                     }
                     } break;
-                default: 
+                default:
                     break;
             }
         }
@@ -1299,7 +1294,7 @@ public:
     SkScalar pt_to_line(SkPoint s, SkPoint e, int x, int y) {
         SkScalar radius = fWidthControl.fValLo;
         SkVector adjOpp = e - s;
-        SkScalar lenSq = adjOpp.lengthSqd();
+        SkScalar lenSq = SkPointPriv::LengthSqd(adjOpp);
         SkPoint rotated = {
                 (y - s.fY) * adjOpp.fY + (x - s.fX) * adjOpp.fX,
                 (y - s.fY) * adjOpp.fX - (x - s.fX) * adjOpp.fY,
@@ -1400,7 +1395,7 @@ public:
                 case SkPath::kCubic_Verb:
                     cubic_coverage(pts, distanceMap, w, h);
                     break;
-                default: 
+                default:
                     break;
             }
         }
@@ -1513,7 +1508,7 @@ public:
                 if (!outPath.getBounds().intersects(inPath.getBounds())) {
                     continue;
                 }
-                
+
             }
         }
     }
@@ -1669,7 +1664,6 @@ public:
                         SkIntToScalar(click->fICurr.fY - click->fIPrev.fY));
                 set_path_pt(fActivePt, pt, &fPath);
                 validatePath();
-                this->inval(NULL);
                 return true;
                 }
             case MyClick::kPathType:
@@ -1677,7 +1671,6 @@ public:
                 fPath.offset(SkIntToScalar(click->fICurr.fX - click->fIPrev.fX),
                         SkIntToScalar(click->fICurr.fY - click->fIPrev.fY));
                 validatePath();
-                this->inval(NULL);
                 return true;
             case MyClick::kVerbType: {
                 fActiveVerb = myClick->verbHit();
@@ -1789,7 +1782,6 @@ public:
                 break;
         }
         setControlButtonsPos();
-        this->inval(NULL);
         return true;
     }
 
@@ -1804,13 +1796,13 @@ static struct KeyCommand {
     const char* fDescriptionR;
     bool (AAGeometryView::*fFunction)();
 } kKeyCommandList[] = {
-    { ' ',  0,  "space",   "center path", &AAGeometryView::scaleToFit },   
-    { '-',  0,  "-",          "zoom out", &AAGeometryView::scaleDown },   
-    { '+', '=', "+/=",         "zoom in", &AAGeometryView::scaleUp },   
-    { 'd',  0,  "d",   "dump to console", &AAGeometryView::pathDump },
-    { 'h',  0,  "h",     "hide controls", &AAGeometryView::hideAll },
-    { 'r',  0,  "r",        "reset path", &AAGeometryView::constructPath },
-    { 'z',  0,  "z",              "undo", &AAGeometryView::undo },
+    { ' ',  0,  "space",   "center path", &AAGeometryView::scaleToFit },
+    { '-',  0,  "-",          "zoom out", &AAGeometryView::scaleDown },
+    { '+', '=', "+/=",         "zoom in", &AAGeometryView::scaleUp },
+    { 'D',  0,  "D",   "dump to console", &AAGeometryView::pathDump },
+    { 'H',  0,  "H",     "hide controls", &AAGeometryView::hideAll },
+    { 'R',  0,  "R",        "reset path", &AAGeometryView::constructPath },
+    { 'Z',  0,  "Z",              "undo", &AAGeometryView::undo },
     { '?',  0,  "?",       "show legend", &AAGeometryView::showLegend },
 };
 
@@ -1869,5 +1861,5 @@ bool AAGeometryView::onQuery(SkEvent* evt) {
     }
     return this->INHERITED::onQuery(evt);
 }
-    
+
 DEF_SAMPLE( return new AAGeometryView; )

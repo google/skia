@@ -1,0 +1,135 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/tmp_upload"
+    ],
+    "infra_step": true,
+    "name": "makedirs tmp dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/dm/dm.json",
+      "[START_DIR]/tmp_upload"
+    ],
+    "infra_step": true,
+    "name": "copy dm.json"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/dm/verbose.log",
+      "[START_DIR]/tmp_upload"
+    ],
+    "infra_step": true,
+    "name": "copy verbose.log"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "remove",
+      "[START_DIR]/dm/dm.json"
+    ],
+    "infra_step": true,
+    "name": "rm old dm.json"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "remove",
+      "[START_DIR]/dm/verbose.log"
+    ],
+    "infra_step": true,
+    "name": "rm old verbose.log"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]/dm",
+      "*.png"
+    ],
+    "infra_step": true,
+    "name": "find images",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/dm/someimage.png@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "gsutil",
+      "-m",
+      "cp",
+      "[START_DIR]/dm/*.png",
+      "gs://skia-infra-gm/dm-images-v1"
+    ],
+    "name": "upload images"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]/dm",
+      "*.pdf"
+    ],
+    "infra_step": true,
+    "name": "find images (2)",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/dm/someimage.png@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "gsutil",
+      "cp",
+      "-z",
+      "json,log",
+      "[START_DIR]/tmp_upload/*",
+      "gs://skia-infra-gm-alt/dm-json-v1/2012/05/14/12/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug/1337000001"
+    ],
+    "name": "upload JSON and logs"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

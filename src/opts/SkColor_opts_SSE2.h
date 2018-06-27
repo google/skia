@@ -42,7 +42,7 @@ static inline __m128i SkAlphaMulAlpha_SSE2(const __m128i& a,
     return prod;
 }
 
-// Portable version SkAlphaMulQ is in SkColorPriv.h.
+// Portable version SkAlphaMulQ is in SkColorData.h.
 static inline __m128i SkAlphaMulQ_SSE2(const __m128i& c, const __m128i& scale) {
     const __m128i mask = _mm_set1_epi32(0xFF00FF);
     __m128i s = _mm_or_si128(_mm_slli_epi32(scale, 16), scale);
@@ -80,7 +80,7 @@ static inline __m128i SkAlphaMulQ_SSE2(const __m128i& c, const unsigned scale) {
     return _mm_or_si128(rb, ag);
 }
 
-// Portable version SkFastFourByteInterp256 is in SkColorPriv.h.
+// Portable version SkFastFourByteInterp256 is in SkColorData.h.
 static inline __m128i SkFastFourByteInterp256_SSE2(const __m128i& src, const __m128i& dst, const unsigned src_scale) {
     // Computes dst + (((src - dst)*src_scale)>>8)
     const __m128i mask = _mm_set1_epi32(0x00FF00FF);
@@ -107,7 +107,7 @@ static inline __m128i SkFastFourByteInterp256_SSE2(const __m128i& src, const __m
     return _mm_add_epi8(dst, diff);
 }
 
-// Portable version SkPMLerp is in SkColorPriv.h
+// Portable version SkPMLerp is in SkColorData.h
 static inline __m128i SkPMLerp_SSE2(const __m128i& src, const __m128i& dst, const unsigned scale) {
     return SkFastFourByteInterp256_SSE2(src, dst, scale);
 }
@@ -238,7 +238,7 @@ static inline __m128i SkPixel32ToPixel16_ToU16_SSE2(const __m128i& src_pixel1,
     return d_pixel;
 }
 
-// Portable version is SkPMSrcOver in SkColorPriv.h.
+// Portable version is SkPMSrcOver in SkColorData.h.
 static inline __m128i SkPMSrcOver_SSE2(const __m128i& src, const __m128i& dst) {
     return _mm_add_epi32(src,
                          SkAlphaMulQ_SSE2(dst, _mm_sub_epi32(_mm_set1_epi32(256),

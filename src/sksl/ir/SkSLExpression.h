@@ -36,6 +36,7 @@ struct Expression : public IRNode {
         kIndex_Kind,
         kPrefix_Kind,
         kPostfix_Kind,
+        kSetting_Kind,
         kSwizzle_Kind,
         kVariableReference_Kind,
         kTernary_Kind,
@@ -43,8 +44,8 @@ struct Expression : public IRNode {
         kDefined_Kind
     };
 
-    Expression(Position position, Kind kind, const Type& type)
-    : INHERITED(position)
+    Expression(int offset, Kind kind, const Type& type)
+    : INHERITED(offset)
     , fKind(kind)
     , fType(std::move(type)) {}
 
@@ -66,6 +67,22 @@ struct Expression : public IRNode {
     }
 
     /**
+     * For an expression which evaluates to a constant int, returns the value. Otherwise calls
+     * ABORT.
+     */
+    virtual int64_t getConstantInt() const {
+        ABORT("not a constant int");
+    }
+
+    /**
+     * For an expression which evaluates to a constant float, returns the value. Otherwise calls
+     * ABORT.
+     */
+    virtual double getConstantFloat() const {
+        ABORT("not a constant float");
+    }
+
+    /**
      * Returns true if evaluating the expression potentially has side effects. Expressions may never
      * return false if they actually have side effects, but it is legal (though suboptimal) to
      * return true if there are not actually any side effects.
@@ -82,6 +99,10 @@ struct Expression : public IRNode {
     virtual std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                           const DefinitionMap& definitions) {
         return nullptr;
+    }
+
+    virtual int coercionCost(const Type& target) const {
+        return fType.coercionCost(target);
     }
 
     const Kind fKind;

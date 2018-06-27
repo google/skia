@@ -8,7 +8,6 @@
 #ifndef SkFontConfigInterface_DEFINED
 #define SkFontConfigInterface_DEFINED
 
-#include "SkDataTable.h"
 #include "SkFontStyle.h"
 #include "SkRefCnt.h"
 #include "SkTypeface.h"
@@ -63,7 +62,7 @@ public:
 
         // If buffer is NULL, just return the number of bytes that would have
         // been written. Will pad contents to a multiple of 4.
-        size_t writeToMemory(void* buffer = NULL) const;
+        size_t writeToMemory(void* buffer = nullptr) const;
 
         // Recreate from a flattened buffer, returning the number of bytes read.
         size_t readFromMemory(const void* buffer, size_t length);

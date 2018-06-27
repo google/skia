@@ -18,14 +18,12 @@ extern "C" {
 #include "lauxlib.h"
 }
 
-//#define LUA_FILENAME    "test.lua"
-#define LUA_FILENAME    "slides.lua"
+//#define LUA_FILENAME    "lua/test.lua"
+#define LUA_FILENAME    "lua/slides.lua"
 
 static const char gDrawName[] = "onDrawContent";
 static const char gClickName[] = "onClickHandler";
 static const char gUnicharName[] = "onCharHandler";
-
-static const char gLuaClickHandlerName[] = "lua-click-handler";
 
 static const char gMissingCode[] = ""
     "local paint = Sk.newPaint()"
@@ -41,10 +39,10 @@ class LuaView : public SampleView {
 public:
     LuaView() : fLua(nullptr) {}
 
-    virtual ~LuaView() { delete fLua; }
+    ~LuaView() override { delete fLua; }
 
     void setImageFilename(lua_State* L) {
-        SkString str = GetResourcePath("mandrill_256.png");
+        SkString str = GetResourcePath("images/mandrill_256.png");
 
         lua_getglobal(L, "setImageFilename");
         if (lua_isfunction(L, -1)) {
@@ -89,7 +87,6 @@ protected:
                     SkDebugf("lua err: %s\n", lua_tostring(L, -1));
                 } else {
                     if (lua_isboolean(L, -1) && lua_toboolean(L, -1)) {
-                        this->inval(nullptr);
                         return true;
                     }
                 }
@@ -114,10 +111,6 @@ protected:
             fLua->pushScalar(this->height());
             if (lua_pcall(L, 3, 1, 0) != LUA_OK) {
                 SkDebugf("lua err: %s\n", lua_tostring(L, -1));
-            } else {
-                if (lua_isboolean(L, -1) && lua_toboolean(L, -1)) {
-                    this->inval(nullptr);
-                }
             }
         }
     }
@@ -134,10 +127,7 @@ protected:
                 SkDebugf("lua err: %s\n", lua_tostring(L, -1));
             } else {
                 if (lua_isboolean(L, -1) && lua_toboolean(L, -1)) {
-                    this->inval(nullptr);
-                    Click* c = new Click(this);
-                    c->setType(gLuaClickHandlerName);
-                    return c;
+                    return new Click(this);
                 }
             }
         }
@@ -145,10 +135,6 @@ protected:
     }
 
     bool onClick(Click* click) override {
-        if (click->getType() != gLuaClickHandlerName) {
-            return this->INHERITED::onClick(click);
-        }
-
         const char* state = nullptr;
         switch (click->fState) {
             case Click::kMoved_State:
@@ -161,7 +147,6 @@ protected:
                 break;
         }
         if (state) {
-            this->inval(nullptr);
             lua_State* L = fLua->get();
             lua_getglobal(L, gClickName);
             fLua->pushScalar(click->fCurr.x());

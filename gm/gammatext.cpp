@@ -19,11 +19,6 @@ static sk_sp<SkShader> make_heatGradient(const SkPoint pts[2]) {
                                         SkShader::kClamp_TileMode);
 }
 
-static bool setFont(SkPaint* paint, const char name[]) {
-    paint->setTypeface(SkTypeface::MakeFromName(name, SkFontStyle()));
-    return SkToBool(paint->getTypeface());
-}
-
 /**
    Test a set of clipping problems discovered while writing blitAntiRect,
    and test all the code paths through the clipping blitters.
@@ -37,7 +32,7 @@ class GammaTextGM : public skiagm::GM {
 protected:
     SkString onShortName() override {
         SkString name("gammatext");
-        name.append(sk_tool_utils::major_platform_os_name());
+        name.append(sk_tool_utils::platform_font_manager());
         return name;
     }
 
@@ -69,7 +64,6 @@ protected:
         size_t len = strlen(text);
 
         SkPaint paint;
-        setFont(&paint, sk_tool_utils::platform_font_name("serif"));
         paint.setTextSize(SkIntToScalar(16));
         paint.setAntiAlias(true);
         paint.setLCDRenderText(true);
@@ -105,8 +99,7 @@ static sk_sp<SkShader> make_gradient(SkColor c) {
 }
 
 static void set_face(SkPaint* paint) {
-    paint->setTypeface(SkTypeface::MakeFromName("serif",
-                           SkFontStyle::FromOldStyle(SkTypeface::kItalic)));
+    paint->setTypeface(SkTypeface::MakeFromName("serif", SkFontStyle::Italic()));
 }
 
 static void draw_pair(SkCanvas* canvas, SkPaint* paint, const sk_sp<SkShader>& shader) {

@@ -17,17 +17,27 @@ public:
         kSRGBToLinear,
     };
 
+    enum class Alpha {
+        kPremul,
+        kOpaque,
+    };
+
     /**
      * Creates an effect that applies the sRGB transfer function (or its inverse)
      */
-    static sk_sp<GrFragmentProcessor> Make(Mode mode);
+    static std::unique_ptr<GrFragmentProcessor> Make(Mode mode, Alpha alpha) {
+        return std::unique_ptr<GrFragmentProcessor>(new GrSRGBEffect(mode, alpha));
+    }
 
     const char* name() const override { return "sRGB"; }
 
     Mode mode() const { return fMode; }
+    Alpha alpha() const { return fAlpha; }
+
+    std::unique_ptr<GrFragmentProcessor> clone() const override;
 
 private:
-    GrSRGBEffect(Mode mode);
+    GrSRGBEffect(Mode mode, Alpha);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
@@ -36,8 +46,9 @@ private:
     GrColor4f constantOutputForConstantInput(GrColor4f input) const override;
 
     Mode fMode;
+    Alpha fAlpha;
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef GrFragmentProcessor INHERITED;
 };

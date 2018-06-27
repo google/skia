@@ -23,7 +23,8 @@ public:
     static bool IsPng(const char*, size_t);
 
     // Assume IsPng was called and returned true.
-    static SkCodec* NewFromStream(SkStream*, SkPngChunkReader* = NULL);
+    static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*,
+                                                   SkPngChunkReader* = nullptr);
 
     // FIXME (scroggo): Temporarily needed by AutoCleanPng.
     void setIdatLength(size_t len) { fIdatLength = len; }
@@ -44,10 +45,10 @@ protected:
         void* fPtr;
     };
 
-    SkPngCodec(const SkEncodedInfo&, const SkImageInfo&, SkStream*, SkPngChunkReader*,
-            void* png_ptr, void* info_ptr, int bitDepth);
+    SkPngCodec(const SkEncodedInfo&, const SkImageInfo&, std::unique_ptr<SkStream>,
+               SkPngChunkReader*, void* png_ptr, void* info_ptr, int bitDepth);
 
-    Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*, int*)
+    Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, int*)
             override;
     SkEncodedImageFormat onGetEncodedFormat() const override { return SkEncodedImageFormat::kPNG; }
     bool onRewind() override;
@@ -70,11 +71,10 @@ protected:
      *  libpng will call any relevant callbacks installed. This will continue decoding
      *  until it reaches the end of the file, or until a callback tells libpng to stop.
      */
-    void processData();
+    bool processData();
 
     Result onStartIncrementalDecode(const SkImageInfo& dstInfo, void* pixels, size_t rowBytes,
-            const SkCodec::Options&,
-            SkPMColor* ctable, int* ctableCount) override;
+            const SkCodec::Options&) override;
     Result onIncrementalDecode(int*) override;
 
     sk_sp<SkPngChunkReader>     fPngChunkReader;
@@ -101,10 +101,9 @@ private:
         kSwizzleColor_XformMode,
     };
 
-    bool createColorTable(const SkImageInfo& dstInfo, int* ctableCount);
+    bool createColorTable(const SkImageInfo& dstInfo);
     // Helper to set up swizzler, color xforms, and color table. Also calls png_read_update_info.
-    SkCodec::Result initializeXforms(const SkImageInfo& dstInfo, const Options&,
-                                     SkPMColor* colorPtr, int* colorCount);
+    SkCodec::Result initializeXforms(const SkImageInfo& dstInfo, const Options&);
     void initializeSwizzler(const SkImageInfo& dstInfo, const Options&, bool skipFormatConversion);
     void allocateStorage(const SkImageInfo& dstInfo);
     void destroyReadStruct();
@@ -114,8 +113,6 @@ private:
     virtual Result decode(int* rowsDecoded) = 0;
 
     XformMode                      fXformMode;
-    SkColorSpaceXform::ColorFormat fXformColorFormat;
-    SkAlphaType                    fXformAlphaType;
     int                            fXformWidth;
 
     size_t                         fIdatLength;

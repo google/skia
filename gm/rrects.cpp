@@ -12,7 +12,7 @@
 #include "GrRenderTargetContextPriv.h"
 #include "effects/GrRRectEffect.h"
 #include "ops/GrDrawOp.h"
-#include "ops/GrNonAAFillRectOp.h"
+#include "ops/GrRectOpFactory.h"
 #endif
 #include "SkRRect.h"
 
@@ -83,7 +83,7 @@ protected:
 #endif
 
 #if SK_SUPPORT_GPU
-        int lastEdgeType = (kEffect_Type == fType) ? kLast_GrProcessorEdgeType: 0;
+        int lastEdgeType = (kEffect_Type == fType) ? (int) GrClipEdgeType::kLast: 0;
 #else
         int lastEdgeType = 0;
 #endif
@@ -105,8 +105,9 @@ protected:
 #if SK_SUPPORT_GPU
                         SkRRect rrect = fRRects[curRRect];
                         rrect.offset(SkIntToScalar(x), SkIntToScalar(y));
-                        GrPrimitiveEdgeType edgeType = (GrPrimitiveEdgeType) et;
-                        sk_sp<GrFragmentProcessor> fp(GrRRectEffect::Make(edgeType, rrect));
+                        GrClipEdgeType edgeType = (GrClipEdgeType) et;
+                        const auto& caps = *renderTargetContext->caps()->shaderCaps();
+                        auto fp = GrRRectEffect::Make(edgeType, rrect, caps);
                         if (fp) {
                             GrPaint grPaint;
                             grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
@@ -117,12 +118,9 @@ protected:
                             bounds.outset(2.f, 2.f);
 
                             renderTargetContext->priv().testingOnly_addDrawOp(
-                                    GrNonAAFillRectOp::Make(std::move(grPaint),
-                                                            SkMatrix::I(),
-                                                            bounds,
-                                                            nullptr,
-                                                            nullptr,
-                                                            GrAAType::kNone));
+                                    GrRectOpFactory::MakeNonAAFill(std::move(grPaint),
+                                                                   SkMatrix::I(), bounds,
+                                                                   GrAAType::kNone));
                         } else {
                             drew = false;
                         }

@@ -6,8 +6,9 @@
  */
 
 #include "gm.h"
+#include "GrColor.h"
 #include "sk_tool_utils.h"
-#include "SkBlendModePriv.h"
+#include "SkColorPriv.h"
 #include "SkPath.h"
 #include "SkShader.h"
 
@@ -259,7 +260,7 @@ protected:
                 break;
 
             default:
-                SkFAIL("Invalid shape.");
+                SK_ABORT("Invalid shape.");
         }
     }
 

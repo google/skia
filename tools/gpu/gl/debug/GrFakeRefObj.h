@@ -8,6 +8,7 @@
 #ifndef GrFakeRefObj_DEFINED
 #define GrFakeRefObj_DEFINED
 
+#include <atomic>
 #include "SkTypes.h"
 #include "gl/GrGLInterface.h"
 
@@ -26,7 +27,7 @@ public:
         , fDeleted(false) {
 
         // source for globally unique IDs - 0 is reserved!
-        static int fNextID = 0;
+        static std::atomic<int> fNextID{0};
 
         fID = ++fNextID;
     }

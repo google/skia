@@ -22,8 +22,7 @@ public:
         fPoints[3].set(x3, y3);
 
         fName = "cubic_klm_";
-        SkScalar d[4];
-        switch (SkClassifyCubic(fPoints, d)) {
+        switch (SkClassifyCubic(fPoints)) {
             case SkCubicType::kSerpentine:
                 fName.append("serp");
                 break;
@@ -31,7 +30,7 @@ public:
                 fName.append("loop");
                 break;
             default:
-                SkFAIL("Unexpected cubic type");
+                SK_ABORT("Unexpected cubic type");
                 break;
         }
     }

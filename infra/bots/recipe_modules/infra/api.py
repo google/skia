@@ -8,6 +8,7 @@ from recipe_engine import recipe_api
 
 INFRA_GO_PKG = 'go.skia.org/infra'
 UPDATE_GO_ATTEMPTS = 5
+UPLOAD_ATTEMPTS = 5
 
 
 class InfraApi(recipe_api.RecipeApi):
@@ -37,7 +38,7 @@ class InfraApi(recipe_api.RecipeApi):
 
   def go_version(self):
     """Print the Go version."""
-    env = self.m.step.get_from_context('env', {})
+    env = self.m.context.env
     env.update(self.go_env)
     with self.m.context(env=env):
       self.m.run(
@@ -55,7 +56,7 @@ class InfraApi(recipe_api.RecipeApi):
     This fails flakily sometimes, so perform multiple attempts.
     """
     self.go_version()
-    env = self.m.step.get_from_context('env', {})
+    env = self.m.context.env
     env.update(self.go_env)
     with self.m.context(env=env):
       self.m.run.with_retry(
@@ -63,6 +64,21 @@ class InfraApi(recipe_api.RecipeApi):
           'update go pkgs',
           UPDATE_GO_ATTEMPTS,
           cmd=[self.go_exe, 'get', '-u', '-t', '%s/...' % INFRA_GO_PKG])
+
+  class DownloadGitCookies(object):
+    """Class to download gitcookies from GS."""
+    def __init__(self, gs_path, local_path, api):
+      self._gs_path = gs_path
+      self._local_path = local_path
+      self._api = api
+
+    def __enter__(self):
+      cmd = ['gsutil', 'cp', self._gs_path, self._local_path]
+      self._api.step('download gitcookies', cmd=cmd, infra_step=True)
+
+    def __exit__(self, exc_type, _value, _traceback):
+      if self._api.path.exists(self._local_path):
+        self._api.file.remove('remove %s' % self._local_path, self._local_path)
 
   class MetadataFetch():
     def __init__(self, api, metadata_key, local_file, **kwargs):

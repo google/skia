@@ -17,12 +17,14 @@
 /**
  * An immutable set of vertex data that can be used with SkCanvas::drawVertices.
  */
-class SkVertices : public SkNVRefCnt<SkVertices> {
+class SK_API SkVertices : public SkNVRefCnt<SkVertices> {
 public:
     enum VertexMode {
         kTriangles_VertexMode,
         kTriangleStrip_VertexMode,
         kTriangleFan_VertexMode,
+
+        kLast_VertexMode = kTriangleFan_VertexMode,
     };
 
     /**

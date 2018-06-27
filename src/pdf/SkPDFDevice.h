@@ -20,8 +20,9 @@
 #include "SkStream.h"
 #include "SkTDArray.h"
 #include "SkTextBlob.h"
+#include "SkKeyedImage.h"
 
-class SkImageSubset;
+class SkKeyedImage;
 class SkPath;
 class SkPDFArray;
 class SkPDFCanon;
@@ -33,51 +34,42 @@ class SkPDFObject;
 class SkPDFStream;
 class SkRRect;
 
-/** \class SkPDFDevice
-
-    The drawing context for the PDF backend.
-*/
+/**
+ *  \class SkPDFDevice
+ *
+ *  An SkPDFDevice is the drawing context for a page or layer of PDF
+ *  content.
+ */
 class SkPDFDevice final : public SkClipStackDevice {
 public:
-    /** Create a PDF drawing context.  SkPDFDevice applies a
-     *  scale-and-translate transform to move the origin from the
-     *  bottom left (PDF default) to the top left (Skia default).
+    /**
      *  @param pageSize Page size in point units.
      *         1 point == 127/360 mm == 1/72 inch
-     *  @param rasterDpi the DPI at which features without native PDF
-     *         support will be rasterized (e.g. draw image with
-     *         perspective, draw text with perspective, ...).  A
-     *         larger DPI would create a PDF that reflects the
-     *         original intent with better fidelity, but it can make
-     *         for larger PDF files too, which would use more memory
-     *         while rendering, and it would be slower to be processed
-     *         or sent online or to printer.  A good choice is
-     *         SK_ScalarDefaultRasterDPI(72.0f).
-     *  @param SkPDFDocument.  A non-null pointer back to the
-     *         document.  The document is repsonsible for
+     *  @param document  A non-null pointer back to the
+     *         PDFDocument object.  The document is repsonsible for
      *         de-duplicating across pages (via the SkPDFCanon) and
      *         for early serializing of large immutable objects, such
      *         as images (via SkPDFDocument::serialize()).
      */
-    static SkPDFDevice* Create(SkISize pageSize,
-                               SkScalar rasterDpi,
-                               SkPDFDocument* doc) {
-        return new SkPDFDevice(pageSize, rasterDpi, doc, true);
-    }
+    SkPDFDevice(SkISize pageSize, SkPDFDocument* document);
 
-    /** Create a PDF drawing context without fipping the y-axis. */
-    static SkPDFDevice* CreateUnflipped(SkISize pageSize,
-                                        SkScalar rasterDpi,
-                                        SkPDFDocument* doc) {
-        return new SkPDFDevice(pageSize, rasterDpi, doc, false);
+    /**
+     *  Apply a scale-and-translate transform to move the origin from the
+     *  bottom left (PDF default) to the top left (Skia default).
+     */
+    void setFlip();
+
+    sk_sp<SkPDFDevice> makeCongruentDevice() {
+        return sk_make_sp<SkPDFDevice>(fPageSize, fDocument);
     }
 
     ~SkPDFDevice() override;
 
-    /** These are called inside the per-device-layer loop for each draw call.
-     When these are called, we have already applied any saveLayer operations,
-     and are handling any looping from the paint, and any effects from the
-     DrawFilter.
+    /**
+     *  These are called inside the per-device-layer loop for each draw call.
+     *  When these are called, we have already applied any saveLayer
+     *  operations, and are handling any looping from the paint, and any
+     *  effects from the DrawFilter.
      */
     void drawPaint(const SkPaint& paint) override;
     void drawPoints(SkCanvas::PointMode mode,
@@ -91,8 +83,7 @@ public:
                   bool pathIsMutable) override;
     void drawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
                         const SkRect& dst, const SkPaint&, SkCanvas::SrcRectConstraint) override;
-    void drawBitmap(const SkBitmap& bitmap,
-                    const SkMatrix& matrix, const SkPaint&) override;
+    void drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, const SkPaint&) override;
     void drawSprite(const SkBitmap& bitmap, int x, int y,
                     const SkPaint& paint) override;
     void drawImage(const SkImage*,
@@ -140,6 +131,8 @@ public:
     std::unique_ptr<SkStreamAsset> content() const;
 
     SkPDFCanon* getCanon() const;
+
+    SkIRect bounds() const { return this->imageInfo().bounds(); }
 
     // It is important to not confuse GraphicStateEntry with SkPDFGraphicState, the
     // later being our representation of an object in the PDF file.
@@ -211,21 +204,16 @@ private:
     };
     SkSinglyLinkedList<ContentEntry> fContentEntries;
 
-    SkScalar fRasterDpi;
-
     SkPDFDocument* fDocument;
-    ////////////////////////////////////////////////////////////////////////////
 
-    SkPDFDevice(SkISize pageSize,
-                SkScalar rasterDpi,
-                SkPDFDocument* doc,
-                bool flip);
+    ////////////////////////////////////////////////////////////////////////////
 
     SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
     void init();
     void cleanUp();
-    sk_sp<SkPDFObject> makeFormXObjectFromDevice();
+    // Set alpha to true if making a transparency group form x-objects.
+    sk_sp<SkPDFObject> makeFormXObjectFromDevice(bool alpha = false);
 
     void drawFormXObjectWithMask(int xObjectIndex,
                                  sk_sp<SkPDFObject> mask,
@@ -262,10 +250,11 @@ private:
 
     void internalDrawPaint(const SkPaint& paint, ContentEntry* contentEntry);
 
-    void internalDrawImage(const SkMatrix& origMatrix,
-                           const SkClipStack& clipStack,
-                           SkImageSubset imageSubset,
-                           const SkPaint& paint);
+    void internalDrawImageRect(SkKeyedImage,
+                               const SkRect* src,
+                               const SkRect& dst,
+                               const SkPaint&,
+                               const SkMatrix& canvasTransformationMatrix);
 
     void internalDrawPath(const SkClipStack&,
                           const SkMatrix&,
@@ -274,16 +263,20 @@ private:
                           const SkMatrix* prePathMatrix,
                           bool pathIsMutable);
 
+    void internalDrawPathWithFilter(const SkClipStack& clipStack,
+                                    const SkMatrix& ctm,
+                                    const SkPath& origPath,
+                                    const SkPaint& paint,
+                                    const SkMatrix* prePathMatrix);
+
     bool handleInversePath(const SkPath& origPath,
                            const SkPaint& paint, bool pathIsMutable,
                            const SkMatrix* prePathMatrix = nullptr);
 
-    typedef SkClipStackDevice INHERITED;
+    void addSMaskGraphicState(sk_sp<SkPDFDevice> maskDevice, SkDynamicMemoryWStream*);
+    void clearMaskOnGraphicState(SkDynamicMemoryWStream*);
 
-    // TODO(edisonn): Only SkDocument_PDF and SkPDFImageShader should be able to create
-    // an SkPDFDevice
-    //friend class SkDocument_PDF;
-    //friend class SkPDFImageShader;
+    typedef SkClipStackDevice INHERITED;
 };
 
 #endif

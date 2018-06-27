@@ -33,6 +33,8 @@ __argparse.add_argument('skpbench',
   help="path to the skpbench binary")
 __argparse.add_argument('--adb',
   action='store_true', help="execute skpbench over adb")
+__argparse.add_argument('--adb_binary', default='adb',
+  help="The name of the adb binary to use.")
 __argparse.add_argument('-s', '--device-serial',
   help="if using adb, ID of the specific device to target "
        "(only required if more than 1 device is attached)")
@@ -54,6 +56,12 @@ __argparse.add_argument('--gpu',
   help="perform timing on the gpu clock instead of cpu (gpu work only)")
 __argparse.add_argument('--fps',
   action='store_true', help="use fps instead of ms")
+__argparse.add_argument('--pr',
+  help="comma- or space-separated list of GPU path renderers, including: "
+       "[[~]all [~]default [~]dashline [~]nvpr [~]msaa [~]aaconvex "
+       "[~]aalinearizing [~]small [~]tess]")
+__argparse.add_argument('--nocache',
+  action='store_true', help="disable caching of path mask textures")
 __argparse.add_argument('-c', '--config',
   default='gl', help="comma- or space-separated list of GPU configs")
 __argparse.add_argument('-a', '--resultsfile',
@@ -65,7 +73,7 @@ __argparse.add_argument('skps',
 FLAGS = __argparse.parse_args()
 if FLAGS.adb:
   import _adb_path as _path
-  _path.init(FLAGS.device_serial)
+  _path.init(FLAGS.device_serial, FLAGS.adb_binary)
 else:
   import _os_path as _path
 
@@ -108,11 +116,15 @@ class SKPBench:
     ARGV.extend(['--gpuClock', 'true'])
   if FLAGS.fps:
     ARGV.extend(['--fps', 'true'])
+  if FLAGS.pr:
+    ARGV.extend(['--pr'] + re.split(r'[ ,]', FLAGS.pr))
+  if FLAGS.nocache:
+    ARGV.extend(['--cachePathMasks', 'false'])
   if FLAGS.adb:
     if FLAGS.device_serial is None:
-      ARGV[:0] = ['adb', 'shell']
+      ARGV[:0] = [FLAGS.adb_binary, 'shell']
     else:
-      ARGV[:0] = ['adb', '-s', FLAGS.device_serial, 'shell']
+      ARGV[:0] = [FLAGS.adb_binary, '-s', FLAGS.device_serial, 'shell']
 
   @classmethod
   def get_header(cls, outfile=sys.stdout):
@@ -231,45 +243,53 @@ def emit_result(line, resultsfile=None):
     resultsfile.flush()
 
 def run_benchmarks(configs, skps, hardware, resultsfile=None):
-  emit_result(SKPBench.get_header(), resultsfile)
+  hasheader = False
   benches = collections.deque([(skp, config, FLAGS.max_stddev)
                                for skp in skps
                                for config in configs])
   while benches:
-    benchargs = benches.popleft()
-    with SKPBench(*benchargs) as skpbench:
-      try:
-        skpbench.execute(hardware)
-        if skpbench.best_result:
-          emit_result(skpbench.best_result.format(FLAGS.suffix), resultsfile)
-        else:
-          print("WARNING: no result for %s with config %s" %
-                (skpbench.skp, skpbench.config), file=sys.stderr)
-
-      except StddevException:
-        retry_max_stddev = skpbench.max_stddev * math.sqrt(2)
-        if FLAGS.verbosity >= 1:
-          print("stddev is too high for %s/%s (%s%%, max=%.2f%%), "
-                "re-queuing with max=%.2f%%." %
-                (skpbench.best_result.config, skpbench.best_result.bench,
-                 skpbench.best_result.stddev, skpbench.max_stddev,
-                 retry_max_stddev),
-                file=sys.stderr)
-        benches.append((skpbench.skp, skpbench.config, retry_max_stddev,
-                        skpbench.best_result))
-
-      except HardwareException as exception:
-        skpbench.terminate()
-        if FLAGS.verbosity >= 4:
-          hardware.print_debug_diagnostics()
-        if FLAGS.verbosity >= 1:
-          print("%s; taking a %i second nap..." %
-                (exception.message, exception.sleeptime), file=sys.stderr)
-        benches.appendleft(benchargs) # retry the same bench next time.
-        hardware.sleep(exception.sleeptime)
-        if FLAGS.verbosity >= 4:
-          hardware.print_debug_diagnostics()
+    try:
+      with hardware:
         SKPBench.run_warmup(hardware.warmup_time, configs[0])
+        if not hasheader:
+          emit_result(SKPBench.get_header(), resultsfile)
+          hasheader = True
+        while benches:
+          benchargs = benches.popleft()
+          with SKPBench(*benchargs) as skpbench:
+            try:
+              skpbench.execute(hardware)
+              if skpbench.best_result:
+                emit_result(skpbench.best_result.format(FLAGS.suffix),
+                            resultsfile)
+              else:
+                print("WARNING: no result for %s with config %s" %
+                      (skpbench.skp, skpbench.config), file=sys.stderr)
+
+            except StddevException:
+              retry_max_stddev = skpbench.max_stddev * math.sqrt(2)
+              if FLAGS.verbosity >= 1:
+                print("stddev is too high for %s/%s (%s%%, max=%.2f%%), "
+                      "re-queuing with max=%.2f%%." %
+                      (skpbench.best_result.config, skpbench.best_result.bench,
+                       skpbench.best_result.stddev, skpbench.max_stddev,
+                       retry_max_stddev),
+                      file=sys.stderr)
+              benches.append((skpbench.skp, skpbench.config, retry_max_stddev,
+                              skpbench.best_result))
+
+            except HardwareException as exception:
+              skpbench.terminate()
+              if FLAGS.verbosity >= 4:
+                hardware.print_debug_diagnostics()
+              if FLAGS.verbosity >= 1:
+                print("%s; rebooting and taking a %i second nap..." %
+                      (exception.message, exception.sleeptime), file=sys.stderr)
+              benches.appendleft(benchargs) # retry the same bench next time.
+              raise # wake hw up from benchmarking mode before the nap.
+
+    except HardwareException as exception:
+      time.sleep(exception.sleeptime)
 
 def main():
   # Delimiter is ',' or ' ', skip if nested inside parens (e.g. gpu(a=b,c=d)).
@@ -278,11 +298,15 @@ def main():
   skps = _path.find_skps(FLAGS.skps)
 
   if FLAGS.adb:
-    adb = Adb(FLAGS.device_serial, echo=(FLAGS.verbosity >= 5))
+    adb = Adb(FLAGS.device_serial, FLAGS.adb_binary,
+              echo=(FLAGS.verbosity >= 5))
     model = adb.check('getprop ro.product.model').strip()
     if model == 'Pixel C':
       from _hardware_pixel_c import HardwarePixelC
       hardware = HardwarePixelC(adb)
+    elif model == 'Pixel':
+      from _hardware_pixel import HardwarePixel
+      hardware = HardwarePixel(adb)
     elif model == 'Nexus 6P':
       from _hardware_nexus_6p import HardwareNexus6P
       hardware = HardwareNexus6P(adb)
@@ -294,13 +318,11 @@ def main():
   else:
     hardware = Hardware()
 
-  with hardware:
-    SKPBench.run_warmup(hardware.warmup_time, configs[0])
-    if FLAGS.resultsfile:
-      with open(FLAGS.resultsfile, mode='a+') as resultsfile:
-        run_benchmarks(configs, skps, hardware, resultsfile=resultsfile)
-    else:
-      run_benchmarks(configs, skps, hardware)
+  if FLAGS.resultsfile:
+    with open(FLAGS.resultsfile, mode='a+') as resultsfile:
+      run_benchmarks(configs, skps, hardware, resultsfile=resultsfile)
+  else:
+    run_benchmarks(configs, skps, hardware)
 
 
 if __name__ == '__main__':

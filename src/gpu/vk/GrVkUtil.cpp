@@ -31,9 +31,6 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
         case kSBGRA_8888_GrPixelConfig:
             *format = VK_FORMAT_B8G8R8A8_SRGB;
             return true;
-        case kRGBA_8888_sint_GrPixelConfig:
-            *format = VK_FORMAT_R8G8B8A8_SINT;
-            return true;
         case kRGB_565_GrPixelConfig:
             *format = VK_FORMAT_R5G6B5_UNORM_PACK16;
             return true;
@@ -42,12 +39,18 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
             // store the data is if it was B4G4R4A4 and swizzle in shaders
             *format = VK_FORMAT_B4G4R4A4_UNORM_PACK16;
             return true;
-        case kAlpha_8_GrPixelConfig:
+        case kAlpha_8_GrPixelConfig: // fall through
+        case kAlpha_8_as_Red_GrPixelConfig:
             *format = VK_FORMAT_R8_UNORM;
             return true;
+        case kAlpha_8_as_Alpha_GrPixelConfig:
+            return false;
         case kGray_8_GrPixelConfig:
+        case kGray_8_as_Red_GrPixelConfig:
             *format = VK_FORMAT_R8_UNORM;
             return true;
+        case kGray_8_as_Lum_GrPixelConfig:
+            return false;
         case kRGBA_float_GrPixelConfig:
             *format = VK_FORMAT_R32G32B32A32_SFLOAT;
             return true;
@@ -57,11 +60,12 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
         case kRGBA_half_GrPixelConfig:
             *format = VK_FORMAT_R16G16B16A16_SFLOAT;
             return true;
-        case kAlpha_half_GrPixelConfig:
+        case kAlpha_half_GrPixelConfig: // fall through
+        case kAlpha_half_as_Red_GrPixelConfig:
             *format = VK_FORMAT_R16_SFLOAT;
             return true;
     }
-    SkFAIL("Unexpected config");
+    SK_ABORT("Unexpected config");
     return false;
 }
 
@@ -75,8 +79,6 @@ GrPixelConfig GrVkFormatToPixelConfig(VkFormat format) {
             return kSRGBA_8888_GrPixelConfig;
         case VK_FORMAT_B8G8R8A8_SRGB:
             return kSBGRA_8888_GrPixelConfig;
-        case VK_FORMAT_R8G8B8A8_SINT:
-            return kRGBA_8888_sint_GrPixelConfig;
         case VK_FORMAT_R5G6B5_UNORM_PACK16:
             return kRGB_565_GrPixelConfig;
             break;
@@ -96,6 +98,61 @@ GrPixelConfig GrVkFormatToPixelConfig(VkFormat format) {
             return kAlpha_half_GrPixelConfig;
         default:
             return kUnknown_GrPixelConfig;
+    }
+}
+
+bool GrVkFormatPixelConfigPairIsValid(VkFormat format, GrPixelConfig config) {
+    switch (format) {
+        case VK_FORMAT_R8G8B8A8_UNORM:
+            return kRGBA_8888_GrPixelConfig == config;
+        case VK_FORMAT_B8G8R8A8_UNORM:
+            return kBGRA_8888_GrPixelConfig == config;
+        case VK_FORMAT_R8G8B8A8_SRGB:
+            return kSRGBA_8888_GrPixelConfig == config;
+        case VK_FORMAT_B8G8R8A8_SRGB:
+            return kSBGRA_8888_GrPixelConfig == config;
+        case VK_FORMAT_R5G6B5_UNORM_PACK16:
+            return kRGB_565_GrPixelConfig == config;
+        case VK_FORMAT_B4G4R4A4_UNORM_PACK16:
+            // R4G4B4A4 is not required to be supported so we actually
+            // store RGBA_4444 data as B4G4R4A4.
+            return kRGBA_4444_GrPixelConfig == config;
+        case VK_FORMAT_R8_UNORM:
+            return kAlpha_8_GrPixelConfig == config ||
+                   kAlpha_8_as_Red_GrPixelConfig == config ||
+                   kGray_8_GrPixelConfig == config ||
+                   kGray_8_as_Red_GrPixelConfig == config;
+        case VK_FORMAT_R32G32B32A32_SFLOAT:
+            return kRGBA_float_GrPixelConfig == config;
+        case VK_FORMAT_R32G32_SFLOAT:
+            return kRG_float_GrPixelConfig == config;
+        case VK_FORMAT_R16G16B16A16_SFLOAT:
+            return kRGBA_half_GrPixelConfig == config;
+        case VK_FORMAT_R16_SFLOAT:
+            return kAlpha_half_GrPixelConfig == config ||
+                   kAlpha_half_as_Red_GrPixelConfig == config;
+        default:
+            return false;
+    }
+}
+
+bool GrVkFormatIsSupported(VkFormat format) {
+    switch (format) {
+        case VK_FORMAT_R8G8B8A8_UNORM:
+        case VK_FORMAT_B8G8R8A8_UNORM:
+        case VK_FORMAT_R8G8B8A8_SRGB:
+        case VK_FORMAT_B8G8R8A8_SRGB:
+        case VK_FORMAT_R8G8B8A8_SINT:
+        case VK_FORMAT_R5G6B5_UNORM_PACK16:
+        case VK_FORMAT_B4G4R4A4_UNORM_PACK16:
+        case VK_FORMAT_R8_UNORM:
+        case VK_FORMAT_R32G32B32A32_SFLOAT:
+        case VK_FORMAT_R32G32_SFLOAT:
+        case VK_FORMAT_R16G16B16A16_SFLOAT:
+        case VK_FORMAT_R16_SFLOAT:
+            return true;
+        default:
+            return false;
     }
 }
 
@@ -199,8 +256,8 @@ bool GrVkFormatIsSRGB(VkFormat format, VkFormat* linearFormat) {
 }
 
 bool GrSampleCountToVkSampleCount(uint32_t samples, VkSampleCountFlagBits* vkSamples) {
+    SkASSERT(samples >= 1);
     switch (samples) {
-        case 0: // fall through
         case 1:
             *vkSamples = VK_SAMPLE_COUNT_1_BIT;
             return true;
@@ -231,6 +288,9 @@ SkSL::Program::Kind vk_shader_stage_to_skiasl_kind(VkShaderStageFlagBits stage) 
     if (VK_SHADER_STAGE_VERTEX_BIT == stage) {
         return SkSL::Program::kVertex_Kind;
     }
+    if (VK_SHADER_STAGE_GEOMETRY_BIT == stage) {
+        return SkSL::Program::kGeometry_Kind;
+    }
     SkASSERT(VK_SHADER_STAGE_FRAGMENT_BIT == stage);
     return SkSL::Program::kFragment_Kind;
 }
@@ -238,6 +298,9 @@ SkSL::Program::Kind vk_shader_stage_to_skiasl_kind(VkShaderStageFlagBits stage) 
 VkShaderStageFlagBits skiasl_kind_to_vk_shader_stage(SkSL::Program::Kind kind) {
     if (SkSL::Program::kVertex_Kind == kind) {
         return VK_SHADER_STAGE_VERTEX_BIT;
+    }
+    if (SkSL::Program::kGeometry_Kind == kind) {
+        return VK_SHADER_STAGE_GEOMETRY_BIT;
     }
     SkASSERT(SkSL::Program::kFragment_Kind == kind);
     return VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -252,7 +315,7 @@ bool GrCompileVkShaderModule(const GrVkGpu* gpu,
                              SkSL::Program::Inputs* outInputs) {
     std::unique_ptr<SkSL::Program> program = gpu->shaderCompiler()->convertProgram(
                                                               vk_shader_stage_to_skiasl_kind(stage),
-                                                              SkString(shaderString),
+                                                              SkSL::String(shaderString),
                                                               settings);
     if (!program) {
         SkDebugf("SkSL error:\n%s\n", gpu->shaderCompiler()->errorText().c_str());

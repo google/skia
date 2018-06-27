@@ -61,6 +61,7 @@ public:
     SkSVGRenderContext(SkCanvas*, const SkSVGIDMapper&, const SkSVGLengthContext&,
                        const SkSVGPresentationContext&);
     SkSVGRenderContext(const SkSVGRenderContext&);
+    SkSVGRenderContext(const SkSVGRenderContext&, SkCanvas*);
     ~SkSVGRenderContext();
 
     const SkSVGLengthContext& lengthContext() const { return *fLengthContext; }
@@ -69,6 +70,7 @@ public:
     const SkSVGPresentationContext& presentationContext() const { return *fPresentationContext; }
 
     SkCanvas* canvas() const { return fCanvas; }
+    void saveOnce();
 
     enum ApplyFlags {
         kLeaf = 1 << 0, // the target node doesn't have descendants

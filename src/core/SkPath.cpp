@@ -8,11 +8,15 @@
 #include <cmath>
 #include "SkBuffer.h"
 #include "SkCubicClipper.h"
+#include "SkData.h"
 #include "SkGeometry.h"
 #include "SkMath.h"
+#include "SkMatrixPriv.h"
 #include "SkPathPriv.h"
 #include "SkPathRef.h"
+#include "SkPointPriv.h"
 #include "SkRRect.h"
+#include "SkSafeMath.h"
 
 static float poly_eval(float A, float B, float C, float t) {
     return (A * t + B) * t + C;
@@ -85,7 +89,7 @@ public:
     ~SkAutoPathBoundsUpdate() {
         fPath->setConvexity(fDegenerate ? SkPath::kConvex_Convexity
                                         : SkPath::kUnknown_Convexity);
-        if (fEmpty || fHasValidBounds) {
+        if ((fEmpty || fHasValidBounds) && fRect.isFinite()) {
             fPath->setBounds(fRect);
         }
     }
@@ -174,10 +178,11 @@ void SkPath::copyFields(const SkPath& that) {
     //fPathRef is assumed to have been set by the caller.
     fLastMoveToIndex = that.fLastMoveToIndex;
     fFillType        = that.fFillType;
-    fConvexity       = that.fConvexity;
-    // Simulate fFirstDirection  = that.fFirstDirection;
-    fFirstDirection.store(that.fFirstDirection.load());
     fIsVolatile      = that.fIsVolatile;
+
+    // Non-atomic assignment of atomic values.
+    fConvexity     .store(that.fConvexity     .load());
+    fFirstDirection.store(that.fFirstDirection.load());
 }
 
 bool operator==(const SkPath& a, const SkPath& b) {
@@ -192,12 +197,16 @@ void SkPath::swap(SkPath& that) {
         fPathRef.swap(that.fPathRef);
         SkTSwap<int>(fLastMoveToIndex, that.fLastMoveToIndex);
         SkTSwap<uint8_t>(fFillType, that.fFillType);
-        SkTSwap<uint8_t>(fConvexity, that.fConvexity);
-        // Simulate SkTSwap<uint8_t>(fFirstDirection, that.fFirstDirection);
-        uint8_t temp = fFirstDirection;
-        fFirstDirection.store(that.fFirstDirection.load());
-        that.fFirstDirection.store(temp);
         SkTSwap<SkBool8>(fIsVolatile, that.fIsVolatile);
+
+        // Non-atomic swaps of atomic values.
+        Convexity c = fConvexity.load();
+        fConvexity.store(that.fConvexity.load());
+        that.fConvexity.store(c);
+
+        uint8_t fd = fFirstDirection.load();
+        fFirstDirection.store(that.fFirstDirection.load());
+        that.fFirstDirection.store(fd);
     }
 }
 
@@ -274,8 +283,8 @@ bool SkPath::conservativelyContainsRect(const SkRect& rect) const {
     SkPath::Iter iter(*this, true);
     SkPath::Verb verb;
     SkPoint pts[4];
+    int segmentCount = 0;
     SkDEBUGCODE(int moveCnt = 0;)
-    SkDEBUGCODE(int segmentCount = 0;)
     SkDEBUGCODE(int closeCount = 0;)
 
     while ((verb = iter.next(pts, true, true)) != kDone_Verb) {
@@ -289,17 +298,17 @@ bool SkPath::conservativelyContainsRect(const SkRect& rect) const {
             case kLine_Verb:
                 nextPt = 1;
                 SkASSERT(moveCnt && !closeCount);
-                SkDEBUGCODE(++segmentCount);
+                ++segmentCount;
                 break;
             case kQuad_Verb:
             case kConic_Verb:
                 SkASSERT(moveCnt && !closeCount);
-                SkDEBUGCODE(++segmentCount);
+                ++segmentCount;
                 nextPt = 2;
                 break;
             case kCubic_Verb:
                 SkASSERT(moveCnt && !closeCount);
-                SkDEBUGCODE(++segmentCount);
+                ++segmentCount;
                 nextPt = 3;
                 break;
             case kClose_Verb:
@@ -331,14 +340,17 @@ bool SkPath::conservativelyContainsRect(const SkRect& rect) const {
         }
     }
 
-    return check_edge_against_rect(prevPt, firstPt, rect, direction);
+    if (segmentCount) {
+        return check_edge_against_rect(prevPt, firstPt, rect, direction);
+    }
+    return false;
 }
 
 uint32_t SkPath::getGenerationID() const {
     uint32_t genID = fPathRef->genID();
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    SkASSERT((unsigned)fFillType < (1 << (32 - kPathRefGenIDBitCnt)));
-    genID |= static_cast<uint32_t>(fFillType) << kPathRefGenIDBitCnt;
+    SkASSERT((unsigned)fFillType < (1 << (32 - SkPathPriv::kPathRefGenIDBitCnt)));
+    genID |= static_cast<uint32_t>(fFillType) << SkPathPriv::kPathRefGenIDBitCnt;
 #endif
     return genID;
 }
@@ -619,6 +631,14 @@ bool SkPath::isNestedFillRects(SkRect rects[2], Direction dirs[2]) const {
         }
     }
     return false;
+}
+
+bool SkPath::isOval(SkRect* bounds) const {
+    return SkPathPriv::IsOval(*this, bounds, nullptr, nullptr);
+}
+
+bool SkPath::isRRect(SkRRect* rrect) const {
+    return SkPathPriv::IsRRect(*this, rrect, nullptr, nullptr);
 }
 
 int SkPath::countPoints() const {
@@ -1116,14 +1136,10 @@ void SkPath::addRRect(const SkRRect& rrect, Direction dir) {
 void SkPath::addRRect(const SkRRect &rrect, Direction dir, unsigned startIndex) {
         assert_known_direction(dir);
 
-        if (rrect.isEmpty()) {
-            return;
-        }
-
         bool isRRect = hasOnlyMoveTos();
         const SkRect& bounds = rrect.getBounds();
 
-        if (rrect.isRect()) {
+        if (rrect.isRect() || rrect.isEmpty()) {
             // degenerate(rect) => radii points are collapsing
             this->addRect(bounds, dir, (startIndex + 1) / 2);
         } else if (rrect.isOval()) {
@@ -1192,12 +1208,12 @@ bool SkPath::hasOnlyMoveTos() const {
     return true;
 }
 
-bool SkPath::isZeroLength() const {
-    int count = fPathRef->countPoints();
+bool SkPath::isZeroLengthSincePoint(int startPtIndex) const {
+    int count = fPathRef->countPoints() - startPtIndex;
     if (count < 2) {
         return true;
     }
-    const SkPoint* pts = fPathRef.get()->points();
+    const SkPoint* pts = fPathRef.get()->points() + startPtIndex;
     const SkPoint& first = *pts;
     for (int index = 1; index < count; ++index) {
         if (first != pts[index]) {
@@ -1406,7 +1422,12 @@ void SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize arc
     pointTransform.setRotate(angle);
     pointTransform.preScale(rx, ry);
 
+#ifdef SK_SUPPORT_LEGACY_SVG_ARC_TO
     int segments = SkScalarCeilToInt(SkScalarAbs(thetaArc / (SK_ScalarPI / 2)));
+#else
+    // the arc may be slightly bigger than 1/4 circle, so allow up to 1/3rd
+    int segments = SkScalarCeilToInt(SkScalarAbs(thetaArc / (2 * SK_ScalarPI / 3)));
+#endif
     SkScalar thetaWidth = thetaArc / segments;
     SkScalar t = SkScalarTan(0.5f * thetaWidth);
     if (!SkScalarIsFinite(t)) {
@@ -1414,6 +1435,14 @@ void SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize arc
     }
     SkScalar startTheta = theta1;
     SkScalar w = SkScalarSqrt(SK_ScalarHalf + SkScalarCos(thetaWidth) * SK_ScalarHalf);
+#ifndef SK_SUPPORT_LEGACY_SVG_ARC_TO
+    auto scalar_is_integer = [](SkScalar scalar) -> bool {
+        return scalar == SkScalarFloorToScalar(scalar);
+    };
+    bool expectIntegers = SkScalarNearlyZero(SK_ScalarPI/2 - SkScalarAbs(thetaWidth)) &&
+        scalar_is_integer(rx) && scalar_is_integer(ry) &&
+        scalar_is_integer(x) && scalar_is_integer(y);
+#endif
     for (int i = 0; i < segments; ++i) {
         SkScalar endTheta = startTheta + thetaWidth;
         SkScalar cosEndTheta, sinEndTheta = SkScalarSinCos(endTheta, &cosEndTheta);
@@ -1424,6 +1453,19 @@ void SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize arc
         unitPts[0].offset(t * sinEndTheta, -t * cosEndTheta);
         SkPoint mapped[2];
         pointTransform.mapPoints(mapped, unitPts, (int) SK_ARRAY_COUNT(unitPts));
+        /*
+        Computing the arc width introduces rounding errors that cause arcs to start
+        outside their marks. A round rect may lose convexity as a result. If the input
+        values are on integers, place the conic on integers as well.
+         */
+#ifndef SK_SUPPORT_LEGACY_SVG_ARC_TO
+        if (expectIntegers) {
+            SkScalar* mappedScalars = &mapped[0].fX;
+            for (unsigned index = 0; index < sizeof(mapped) / sizeof(SkScalar); ++index) {
+                mappedScalars[index] = SkScalarRoundToScalar(mappedScalars[index]);
+            }
+        }
+#endif
         this->conicTo(mapped[0], mapped[1], w);
         startTheta = endTheta;
     }
@@ -1517,7 +1559,7 @@ void SkPath::addPath(const SkPath& path, const SkMatrix& matrix, AddPathMode mod
     SkPoint pts[4];
     Verb    verb;
 
-    SkMatrix::MapPtsProc proc = matrix.getMapPtsProc();
+    SkMatrixPriv::MapPtsProc proc = SkMatrixPriv::GetMapPtsProc(matrix);
     bool firstVerb = true;
     while ((verb = iter.next(pts)) != kDone_Verb) {
         switch (verb) {
@@ -1738,7 +1780,7 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
 
         if (this != dst) {
             dst->fFillType = fFillType;
-            dst->fConvexity = fConvexity;
+            dst->fConvexity.store(fConvexity);
             dst->fIsVolatile = fIsVolatile;
         }
 
@@ -1873,8 +1915,8 @@ const SkPoint& SkPath::Iter::cons_moveTo() {
 void SkPath::Iter::consumeDegenerateSegments(bool exact) {
     // We need to step over anything that will not move the current draw point
     // forward before the next move is seen
-    const uint8_t* lastMoveVerb = 0;
-    const SkPoint* lastMovePt = 0;
+    const uint8_t* lastMoveVerb = nullptr;
+    const SkPoint* lastMovePt = nullptr;
     const SkScalar* lastMoveWeight = nullptr;
     SkPoint lastPt = fLastPt;
     while (fVerbs != fVerbStop) {
@@ -2032,91 +2074,12 @@ SkPath::Verb SkPath::Iter::doNext(SkPoint ptsParam[4]) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/*
-    Format in compressed buffer: [ptCount, verbCount, pts[], verbs[]]
-*/
-
-size_t SkPath::writeToMemory(void* storage) const {
-    SkDEBUGCODE(this->validate();)
-
-    if (nullptr == storage) {
-        const int byteCount = sizeof(int32_t) * 2 + fPathRef->writeSize();
-        return SkAlign4(byteCount);
-    }
-
-    SkWBuffer   buffer(storage);
-
-    int32_t packed = (fConvexity << kConvexity_SerializationShift) |
-                     (fFillType << kFillType_SerializationShift) |
-                     (fFirstDirection << kDirection_SerializationShift) |
-                     (fIsVolatile << kIsVolatile_SerializationShift) |
-                     kCurrent_Version;
-
-    buffer.write32(packed);
-    buffer.write32(fLastMoveToIndex);
-
-    fPathRef->writeToBuffer(&buffer);
-
-    buffer.padToAlign4();
-    return buffer.pos();
-}
-
-size_t SkPath::readFromMemory(const void* storage, size_t length) {
-    SkRBuffer buffer(storage, length);
-
-    int32_t packed;
-    if (!buffer.readS32(&packed)) {
-        return 0;
-    }
-
-    unsigned version = packed & 0xFF;
-    if (version >= kPathPrivLastMoveToIndex_Version && !buffer.readS32(&fLastMoveToIndex)) {
-        return 0;
-    }
-
-    fConvexity = (packed >> kConvexity_SerializationShift) & 0xFF;
-    fFillType = (packed >> kFillType_SerializationShift) & 0x3;
-    uint8_t dir = (packed >> kDirection_SerializationShift) & 0x3;
-    fIsVolatile = (packed >> kIsVolatile_SerializationShift) & 0x1;
-    SkPathRef* pathRef = SkPathRef::CreateFromBuffer(&buffer);
-    if (!pathRef) {
-        return 0;
-    }
-
-    fPathRef.reset(pathRef);
-    SkDEBUGCODE(this->validate();)
-    buffer.skipToAlign4();
-
-    // compatibility check
-    if (version < kPathPrivFirstDirection_Version) {
-        switch (dir) {  // old values
-            case 0:
-                fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
-                break;
-            case 1:
-                fFirstDirection = SkPathPriv::kCW_FirstDirection;
-                break;
-            case 2:
-                fFirstDirection = SkPathPriv::kCCW_FirstDirection;
-                break;
-            default:
-                SkASSERT(false);
-        }
-    } else {
-        fFirstDirection = dir;
-    }
-
-    return buffer.pos();
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 #include "SkString.h"
 #include "SkStringUtils.h"
 #include "SkStream.h"
 
 static void append_params(SkString* str, const char label[], const SkPoint pts[],
-                          int count, SkScalarAsStringType strType, SkScalar conicWeight = -1) {
+                          int count, SkScalarAsStringType strType, SkScalar conicWeight = -12345) {
     str->append(label);
     str->append("(");
 
@@ -2129,7 +2092,7 @@ static void append_params(SkString* str, const char label[], const SkPoint pts[]
             str->append(", ");
         }
     }
-    if (conicWeight >= 0) {
+    if (conicWeight != -12345) {
         str->append(", ");
         SkAppendScalar(str, conicWeight, strType);
     }
@@ -2208,37 +2171,46 @@ void SkPath::dumpHex() const {
     this->dump(nullptr, false, true);
 }
 
-#ifdef SK_DEBUG
-void SkPath::validate() const {
-    SkASSERT((fFillType & ~3) == 0);
+
+bool SkPath::isValidImpl() const {
+    if ((fFillType & ~3) != 0) {
+        return false;
+    }
 
 #ifdef SK_DEBUG_PATH
     if (!fBoundsIsDirty) {
         SkRect bounds;
 
         bool isFinite = compute_pt_bounds(&bounds, *fPathRef.get());
-        SkASSERT(SkToBool(fIsFinite) == isFinite);
+        if (SkToBool(fIsFinite) != isFinite) {
+            return false;
+        }
 
         if (fPathRef->countPoints() <= 1) {
             // if we're empty, fBounds may be empty but translated, so we can't
             // necessarily compare to bounds directly
             // try path.addOval(2, 2, 2, 2) which is empty, but the bounds will
             // be [2, 2, 2, 2]
-            SkASSERT(bounds.isEmpty());
-            SkASSERT(fBounds.isEmpty());
+            if (!bounds.isEmpty() || !fBounds.isEmpty()) {
+                return false;
+            }
         } else {
             if (bounds.isEmpty()) {
-                SkASSERT(fBounds.isEmpty());
+                if (!fBounds.isEmpty()) {
+                    return false;
+                }
             } else {
                 if (!fBounds.isEmpty()) {
-                    SkASSERT(fBounds.contains(bounds));
+                    if (!fBounds.contains(bounds)) {
+                        return false;
+                    }
                 }
             }
         }
     }
 #endif // SK_DEBUG_PATH
+    return true;
 }
-#endif // SK_DEBUG
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -2281,7 +2253,8 @@ struct Convexicator {
     , fConvexity(SkPath::kConvex_Convexity)
     , fFirstDirection(SkPathPriv::kUnknown_FirstDirection)
     , fIsFinite(true)
-    , fIsCurve(false) {
+    , fIsCurve(false)
+    , fBackwards(false) {
         fExpectedDir = kInvalid_DirChange;
         // warnings
         fPriorPt.set(0,0);
@@ -2309,7 +2282,7 @@ struct Convexicator {
             ++fPtCount;
         } else {
             SkVector vec = pt - fCurrPt;
-            SkScalar lengthSqd = vec.lengthSqd();
+            SkScalar lengthSqd = SkPointPriv::LengthSqd(vec);
             if (!SkScalarIsFinite(lengthSqd)) {
                 fIsFinite = false;
             } else if (lengthSqd) {
@@ -2371,8 +2344,10 @@ struct Convexicator {
             }
         }
 
-        if (!SkScalarNearlyZero(fLastVec.lengthSqd(), SK_ScalarNearlyZero*SK_ScalarNearlyZero) &&
-            !SkScalarNearlyZero(curVec.lengthSqd(), SK_ScalarNearlyZero*SK_ScalarNearlyZero) &&
+        if (!SkScalarNearlyZero(SkPointPriv::LengthSqd(fLastVec),
+                                SK_ScalarNearlyZero*SK_ScalarNearlyZero) &&
+            !SkScalarNearlyZero(SkPointPriv::LengthSqd(curVec),
+                                SK_ScalarNearlyZero*SK_ScalarNearlyZero) &&
             fLastVec.dot(curVec) < 0.0f) {
             return kBackwards_DirChange;
         }
@@ -2380,6 +2355,9 @@ struct Convexicator {
         return kStraight_DirChange;
     }
 
+    bool hasBackwards() const {
+        return fBackwards;
+    }
 
     bool isFinite() const {
         return fIsFinite;
@@ -2415,9 +2393,10 @@ private:
                     fExpectedDir = dir;
                 }
                 fLastVec = vec;
+                fBackwards = true;
                 break;
             case kInvalid_DirChange:
-                SkFAIL("Use of invalid direction change flag");
+                SK_ABORT("Use of invalid direction change flag");
                 break;
         }
     }
@@ -2435,6 +2414,7 @@ private:
     int                 fDx, fDy, fSx, fSy;
     bool                fIsFinite;
     bool                fIsCurve;
+    bool                fBackwards;
 };
 
 SkPath::Convexity SkPath::internalGetConvexity() const {
@@ -2450,7 +2430,7 @@ SkPath::Convexity SkPath::internalGetConvexity() const {
     if (!isFinite()) {
         return kUnknown_Convexity;
     }
-    while ((verb = iter.next(pts, true, true)) != SkPath::kDone_Verb) {
+    while ((verb = iter.next(pts, false, false)) != SkPath::kDone_Verb) {
         switch (verb) {
             case kMove_Verb:
                 if (++contourCount > 1) {
@@ -2498,7 +2478,12 @@ SkPath::Convexity SkPath::internalGetConvexity() const {
     }
     fConvexity = state.getConvexity();
     if (kConvex_Convexity == fConvexity && SkPathPriv::kUnknown_FirstDirection == fFirstDirection) {
-        fFirstDirection = state.getFirstDirection();
+        if (SkPathPriv::kUnknown_FirstDirection == state.getFirstDirection() &&
+                !this->getBounds().isEmpty() && !state.hasBackwards()) {
+            fConvexity = Convexity::kConcave_Convexity;
+        } else {
+            fFirstDirection = state.getFirstDirection();
+        }
     }
     return static_cast<Convexity>(fConvexity);
 }
@@ -3243,7 +3228,7 @@ bool SkPath::contains(SkScalar x, SkScalar y) const {
        if (tangents.count() > oldCount) {
             int last = tangents.count() - 1;
             const SkVector& tangent = tangents[last];
-            if (SkScalarNearlyZero(tangent.lengthSqd())) {
+            if (SkScalarNearlyZero(SkPointPriv::LengthSqd(tangent))) {
                 tangents.remove(last);
             } else {
                 for (int index = 0; index < last; ++index) {
@@ -3447,7 +3432,7 @@ SkRect SkPath::computeTightBounds() const {
     if (this->getSegmentMasks() == SkPath::kLine_SegmentMask) {
         return this->getBounds();
     }
-    
+
     SkPoint extremas[5]; // big enough to hold worst-case curve type (cubic) extremas + 1
     SkPoint pts[4];
     SkPath::RawIter iter(*this);
@@ -3491,4 +3476,22 @@ DONE:
     min.store((SkPoint*)&bounds.fLeft);
     max.store((SkPoint*)&bounds.fRight);
     return bounds;
+}
+
+bool SkPath::IsLineDegenerate(const SkPoint& p1, const SkPoint& p2, bool exact) {
+    return exact ? p1 == p2 : SkPointPriv::EqualsWithinTolerance(p1, p2);
+}
+
+bool SkPath::IsQuadDegenerate(const SkPoint& p1, const SkPoint& p2,
+                                const SkPoint& p3, bool exact) {
+    return exact ? p1 == p2 && p2 == p3 : SkPointPriv::EqualsWithinTolerance(p1, p2) &&
+            SkPointPriv::EqualsWithinTolerance(p2, p3);
+}
+
+bool SkPath::IsCubicDegenerate(const SkPoint& p1, const SkPoint& p2,
+                                const SkPoint& p3, const SkPoint& p4, bool exact) {
+    return exact ? p1 == p2 && p2 == p3 && p3 == p4 :
+            SkPointPriv::EqualsWithinTolerance(p1, p2) &&
+            SkPointPriv::EqualsWithinTolerance(p2, p3) &&
+            SkPointPriv::EqualsWithinTolerance(p3, p4);
 }

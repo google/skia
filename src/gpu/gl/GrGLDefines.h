@@ -242,14 +242,6 @@
 #define GR_GL_MULTISAMPLE_COVERAGE_MODES     0x8E12
 #define GR_GL_MAX_TEXTURE_BUFFER_SIZE        0x8C2B
 
-#define GR_GL_MAX_IMAGE_UNITS                                 0x8F38
-#define GR_GL_MAX_COMBINED_IMAGE_UNITS_AND_FRAGMENT_OUTPUTS   0x8F39
-#define GR_GL_MAX_IMAGE_SAMPLES                               0x906D
-#define GR_GL_MAX_VERTEX_IMAGE_UNIFORMS                       0x90CA
-#define GR_GL_MAX_GEOMETRY_IMAGE_UNIFORMS                     0x90CD
-#define GR_GL_MAX_FRAGMENT_IMAGE_UNIFORMS                     0x90CE
-#define GR_GL_MAX_COMBINED_IMAGE_UNIFORMS                     0x90CF
-
 /* GetTextureParameter */
 /*      GL_TEXTURE_MAG_FILTER */
 /*      GL_TEXTURE_MIN_FILTER */
@@ -832,6 +824,7 @@
 #define GR_GL_T2F_N3F_V3F                        0x2A2B
 #define GR_GL_T2F_C4F_N3F_V3F                    0x2A2C
 #define GR_GL_T4F_C4F_N3F_V4F                    0x2A2D
+#define GR_GL_PRIMITIVE_RESTART_FIXED_INDEX      0x8D69
 
 /* Buffer Object */
 #define GR_GL_READ_ONLY                          0x88B8
@@ -1062,6 +1055,12 @@
 #define GR_GL_SYNC_FLUSH_COMMANDS_BIT                       0x00000001
 #define GR_GL_TIMEOUT_IGNORED                               0xFFFFFFFFFFFFFFFFull
 
+/* GL_EXT_geometry_shader */
+#define GR_GL_LINES_ADJACENCY                               0x000A
+
+/* GL_ARB_internalformat_query */
+#define GR_GL_NUM_SAMPLE_COUNTS                             0x9380
+
 /* EGL Defines */
 #define GR_EGL_NO_DISPLAY                                   ((GrEGLDisplay)0)
 #define GR_EGL_EXTENSIONS                                   0x3055
@@ -1072,5 +1071,9 @@
 #define GR_EGL_TRUE                                         0x1
 #define GR_EGL_NONE                                         0x3038
 #define GR_EGL_NO_IMAGE                                    ((GrEGLImage)0)
+
+/* Programs */
+#define GR_GL_PROGRAM_BINARY_RETRIEVABLE_HINT               0x8257
+#define GL_PROGRAM_BINARY_LENGTH                            0x8741
 
 #endif

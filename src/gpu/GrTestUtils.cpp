@@ -6,12 +6,14 @@
  */
 
 #include "GrTestUtils.h"
+#include "GrColorSpaceInfo.h"
 #include "GrProcessorUnitTest.h"
 #include "GrStyle.h"
-#include "SkColorSpace_Base.h"
 #include "SkDashPathPriv.h"
+#include "SkMakeUnique.h"
 #include "SkMatrix.h"
 #include "SkPath.h"
+#include "SkRectPriv.h"
 #include "SkRRect.h"
 
 #if GR_TEST_UTILS
@@ -106,6 +108,15 @@ const SkMatrix& TestMatrixRectStaysRect(SkRandom* random) {
 const SkMatrix& TestMatrixInvertible(SkRandom* random) { return test_matrix(random, true, false); }
 const SkMatrix& TestMatrixPerspective(SkRandom* random) { return test_matrix(random, false, true); }
 
+void TestWrapModes(SkRandom* random, GrSamplerState::WrapMode wrapModes[2]) {
+    static const GrSamplerState::WrapMode kWrapModes[] = {
+            GrSamplerState::WrapMode::kClamp,
+            GrSamplerState::WrapMode::kRepeat,
+            GrSamplerState::WrapMode::kMirrorRepeat,
+    };
+    wrapModes[0] = kWrapModes[random->nextULessThan(SK_ARRAY_COUNT(kWrapModes))];
+    wrapModes[1] = kWrapModes[random->nextULessThan(SK_ARRAY_COUNT(kWrapModes))];
+}
 const SkRect& TestRect(SkRandom* random) {
     static SkRect gRects[7];
     static bool gOnce;
@@ -114,7 +125,7 @@ const SkRect& TestRect(SkRandom* random) {
         gRects[0] = SkRect::MakeWH(1.f, 1.f);
         gRects[1] = SkRect::MakeWH(1.0f, 256.0f);
         gRects[2] = SkRect::MakeWH(256.0f, 1.0f);
-        gRects[3] = SkRect::MakeLargest();
+        gRects[3] = SkRectPriv::MakeLargest();
         gRects[4] = SkRect::MakeLTRB(-65535.0f, -65535.0f, 65535.0f, 65535.0f);
         gRects[5] = SkRect::MakeLTRB(-10.0f, -10.0f, 10.0f, 10.0f);
     }
@@ -298,9 +309,9 @@ sk_sp<SkColorSpace> TestColorSpace(SkRandom* random) {
         gOnce = true;
         // No color space (legacy mode)
         gColorSpaces[0] = nullptr;
-        // sRGB or Adobe
+        // sRGB or color-spin sRGB
         gColorSpaces[1] = SkColorSpace::MakeSRGB();
-        gColorSpaces[2] = SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named);
+        gColorSpaces[2] = SkColorSpace::MakeSRGB()->makeColorSpin();
     }
     return gColorSpaces[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gColorSpaces)))];
 }
@@ -311,27 +322,26 @@ sk_sp<GrColorSpaceXform> TestColorXform(SkRandom* random) {
     if (!gOnce) {
         gOnce = true;
         sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
-        sk_sp<SkColorSpace> adobe = SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named);
+        sk_sp<SkColorSpace> spin = SkColorSpace::MakeSRGB()->makeColorSpin();
         // No gamut change
         gXforms[0] = nullptr;
-        // To larger gamut
-        gXforms[1] = GrColorSpaceXform::Make(srgb.get(), adobe.get());
-        // To smaller gamut
-        gXforms[2] = GrColorSpaceXform::Make(adobe.get(), srgb.get());
+        // To different gamut (with automatic transfer function)
+        gXforms[1] = GrColorSpaceXform::Make(srgb.get(), kSRGBA_8888_GrPixelConfig, spin.get());
+        // To different gamut (with manual transfer function)
+        gXforms[2] = GrColorSpaceXform::Make(spin.get(), kRGBA_8888_GrPixelConfig, srgb.get());
     }
     return gXforms[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gXforms)))];
 }
 
-TestAsFPArgs::TestAsFPArgs(GrProcessorTestData* d) {
-    fViewMatrixStorage = TestMatrix(d->fRandom);
-    fColorSpaceStorage = TestColorSpace(d->fRandom);
+TestAsFPArgs::TestAsFPArgs(GrProcessorTestData* d)
+    : fViewMatrixStorage(TestMatrix(d->fRandom))
+    , fColorSpaceInfoStorage(skstd::make_unique<GrColorSpaceInfo>(TestColorSpace(d->fRandom),
+                                                                  kRGBA_8888_GrPixelConfig))
+    , fArgs(d->context(), &fViewMatrixStorage, nullptr, kNone_SkFilterQuality,
+            fColorSpaceInfoStorage.get())
+{}
 
-    fArgs.fContext = d->context();
-    fArgs.fViewMatrix = &fViewMatrixStorage;
-    fArgs.fLocalMatrix = nullptr;
-    fArgs.fFilterQuality = kNone_SkFilterQuality;
-    fArgs.fDstColorSpace = fColorSpaceStorage.get();
-}
+TestAsFPArgs::~TestAsFPArgs() {}
 
 }  // namespace GrTest
 

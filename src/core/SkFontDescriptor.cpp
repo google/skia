@@ -20,7 +20,6 @@ enum {
     // defines for names in its 'name' table.
     kFontAxes       = 0xFC,
     kFontIndex      = 0xFD,
-    kFontFileName   = 0xFE,  // Remove when MIN_PICTURE_VERSION > 41
     kSentinel       = 0xFF,
 };
 
@@ -31,14 +30,6 @@ static void read_string(SkStream* stream, SkString* string) {
     if (length > 0) {
         string->resize(length);
         stream->read(string->writable_str(), length);
-    }
-}
-
-// Remove when MIN_PICTURE_VERSION > 41
-static void skip_string(SkStream* stream) {
-    const uint32_t length = SkToU32(stream->readPackedUInt());
-    if (length > 0) {
-        stream->skip(length);
     }
 }
 
@@ -61,14 +52,9 @@ static void write_uint(SkWStream* stream, size_t n, uint32_t id) {
 
 bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
     size_t styleBits = stream->readPackedUInt();
-    if (styleBits <= 2) {
-        // Remove this branch when MIN_PICTURE_VERSION > 45
-        result->fStyle = SkFontStyle::FromOldStyle(styleBits);
-    } else {
-        result->fStyle = SkFontStyle((styleBits >> 16) & 0xFFFF,
-                                     (styleBits >> 8 ) & 0xFF,
-                                     static_cast<SkFontStyle::Slant>(styleBits & 0xFF));
-    }
+    result->fStyle = SkFontStyle((styleBits >> 16) & 0xFFFF,
+                                 (styleBits >> 8 ) & 0xFF,
+                                 static_cast<SkFontStyle::Slant>(styleBits & 0xFF));
 
     SkAutoSTMalloc<4, SkFixed> axis;
     size_t axisCount = 0;
@@ -94,9 +80,6 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
             case kFontIndex:
                 index = read_uint(stream);
                 break;
-            case kFontFileName:  // Remove when MIN_PICTURE_VERSION > 41
-                skip_string(stream);
-                break;
             default:
                 SkDEBUGFAIL("Unknown id used by a font descriptor");
                 return false;
@@ -108,7 +91,7 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
         sk_sp<SkData> data(SkData::MakeUninitialized(length));
         if (stream->read(data->writable_data(), length) == length) {
             result->fFontData = skstd::make_unique<SkFontData>(
-                skstd::make_unique<SkMemoryStream>(data), index, axis, axisCount);
+                                   SkMemoryStream::Make(std::move(data)), index, axis, axisCount);
         } else {
             SkDEBUGFAIL("Could not read font data");
             return false;

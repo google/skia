@@ -1,0 +1,61 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "LD_LIBRARY_PATH": "[START_DIR]/armhf_sysroot/lib",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm-Release-Chromebook_GLES"
+    },
+    "infra_step": true,
+    "name": "fetch-gn"
+  },
+  {
+    "cmd": [
+      "[CUSTOM_/_B_WORK]/skia/bin/gn",
+      "gen",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm-Release-Chromebook_GLES/Release",
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_asmflags=[\"--target=armv7a-linux-gnueabihf\", \"--sysroot=[START_DIR]/armhf_sysroot\", \"-march=armv7-a\", \"-mfpu=neon\", \"-mthumb\"] extra_cflags=[\"--target=armv7a-linux-gnueabihf\", \"--sysroot=[START_DIR]/armhf_sysroot\", \"-I[START_DIR]/chromebook_arm_gles/include\", \"-I[START_DIR]/armhf_sysroot/include\", \"-I[START_DIR]/armhf_sysroot/include/c++/4.8.4\", \"-I[START_DIR]/armhf_sysroot/include/c++/4.8.4/arm-linux-gnueabihf\", \"-DMESA_EGL_NO_X11_HEADERS\"] extra_ldflags=[\"--target=armv7a-linux-gnueabihf\", \"--sysroot=[START_DIR]/armhf_sysroot\", \"-B[START_DIR]/armhf_sysroot/bin\", \"-B[START_DIR]/armhf_sysroot/gcc-cross\", \"-L[START_DIR]/armhf_sysroot/gcc-cross\", \"-L[START_DIR]/armhf_sysroot/lib\", \"-L[START_DIR]/chromebook_arm_gles/lib\"] is_debug=false skia_use_egl=true skia_use_fontconfig=false skia_use_system_freetype2=false target_cpu=\"arm\""
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "LD_LIBRARY_PATH": "[START_DIR]/armhf_sysroot/lib",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm-Release-Chromebook_GLES"
+    },
+    "name": "gn gen"
+  },
+  {
+    "cmd": [
+      "ninja",
+      "-k",
+      "0",
+      "-C",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm-Release-Chromebook_GLES/Release",
+      "nanobench",
+      "dm"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "LD_LIBRARY_PATH": "[START_DIR]/armhf_sysroot/lib",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm-Release-Chromebook_GLES"
+    },
+    "name": "ninja"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

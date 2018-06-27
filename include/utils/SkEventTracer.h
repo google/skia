@@ -18,10 +18,6 @@
 
 #include "SkTypes.h"
 
-// This will mark the trace event as disabled by default. The user will need
-// to explicitly enable the event.
-#define TRACE_DISABLED_BY_DEFAULT(name) "disabled-by-default-" name
-
 class SK_API SkEventTracer {
 public:
 
@@ -56,8 +52,7 @@ public:
     };
 
     virtual const uint8_t* getCategoryGroupEnabled(const char* name) = 0;
-    virtual const char* getCategoryGroupName(
-      const uint8_t* categoryEnabledFlag) = 0;
+    virtual const char* getCategoryGroupName(const uint8_t* categoryEnabledFlag) = 0;
 
     virtual SkEventTracer::Handle
         addTraceEvent(char phase,

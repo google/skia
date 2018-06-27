@@ -48,7 +48,7 @@ bool GrGLGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation
             }
             return true;
         default:
-            SkFAIL("Unknown GL Standard");
+            SK_ABORT("Unknown GL Standard");
             return false;
     }
 }

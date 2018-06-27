@@ -121,8 +121,7 @@ void SkPathMeasure_segTo(const SkPoint pts[], unsigned segType,
             }
             break;
         default:
-            SkDEBUGFAIL("unknown segType");
-            sk_throw();
+            SK_ABORT("unknown segType");
     }
 }
 
@@ -512,6 +511,9 @@ SkScalar SkPathMeasure::getLength() {
     }
     if (fLength < 0) {
         this->buildSegments();
+    }
+    if (SkScalarIsNaN(fLength)) {
+        fLength = 0;
     }
     SkASSERT(fLength >= 0);
     return fLength;

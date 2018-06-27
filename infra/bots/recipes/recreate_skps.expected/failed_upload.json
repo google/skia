@@ -3,134 +3,123 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[CUSTOM_/_B_WORK]",
-      "511"
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[CUSTOM_/_B_WORK]"
     ],
     "infra_step": true,
-    "name": "makedirs checkout_path",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
-      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
-      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
-      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "makedirs checkout_path"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "remove",
+      "[CUSTOM_/_B_WORK]/.gclient_entries"
+    ],
+    "infra_step": true,
+    "name": "remove [CUSTOM_/_B_WORK]/.gclient_entries"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[depot_tools::git]/resources/git_setup.py",
+      "--path",
+      "[CUSTOM_/_B_WORK]/depot_tools",
+      "--url",
+      "https://chromium.googlesource.com/chromium/tools/depot_tools.git"
+    ],
+    "name": "git setup"
   },
   {
     "cmd": [
       "git",
-      "remote",
-      "set-url",
+      "retry",
+      "fetch",
       "origin",
-      "https://skia.googlesource.com/skia.git"
+      "master",
+      "--progress"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "infra_step": true,
-    "name": "git remote set-url"
-  },
-  {
-    "cmd": [
-      "git",
-      "fetch"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "cwd": "[CUSTOM_/_B_WORK]/depot_tools",
+    "env": {
+      "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:<PATH>"
+    },
     "infra_step": true,
     "name": "git fetch"
   },
   {
     "cmd": [
       "git",
-      "reset",
-      "--hard",
-      "abc123"
+      "checkout",
+      "-f",
+      "FETCH_HEAD"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "cwd": "[CUSTOM_/_B_WORK]/depot_tools",
     "infra_step": true,
-    "name": "git reset"
+    "name": "git checkout"
   },
   {
     "cmd": [
       "git",
-      "clean",
-      "-d",
-      "-f"
+      "rev-parse",
+      "HEAD"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "cwd": "[CUSTOM_/_B_WORK]/depot_tools",
     "infra_step": true,
-    "name": "git clean"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport os\nimport sys\nos.remove(sys.argv[1])\n",
-      "[CUSTOM_/_B_WORK]/.gclient_entries"
-    ],
-    "infra_step": true,
-    "name": "remove [CUSTOM_/_B_WORK]/.gclient_entries",
+    "name": "read revision",
+    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@os.remove(sys.argv[1])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
+      "@@@STEP_TEXT@<br/>checked out 'deadbeef'<br/>@@@"
     ]
   },
   {
     "cmd": [
       "git",
-      "remote",
-      "set-url",
-      "origin",
-      "https://chromium.googlesource.com/chromium/src.git"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/src",
-    "infra_step": true,
-    "name": "git remote set-url (2)"
-  },
-  {
-    "cmd": [
-      "git",
-      "fetch"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/src",
-    "infra_step": true,
-    "name": "git fetch (2)"
-  },
-  {
-    "cmd": [
-      "git",
-      "reset",
-      "--hard",
-      "origin/lkgr"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/src",
-    "infra_step": true,
-    "name": "git reset (2)"
-  },
-  {
-    "cmd": [
-      "git",
       "clean",
+      "-f",
       "-d",
-      "-f"
+      "-x"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/src",
+    "cwd": "[CUSTOM_/_B_WORK]/depot_tools",
     "infra_step": true,
-    "name": "git clean (2)"
+    "name": "git clean"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "sync"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/depot_tools",
+    "infra_step": true,
+    "name": "submodule sync"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "update",
+      "--init",
+      "--recursive"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/depot_tools",
+    "infra_step": true,
+    "name": "submodule update"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[depot_tools::bot_update]/resources/bot_update.py",
-      "--spec",
+      "[CUSTOM_/_B_WORK]/depot_tools/recipes/recipe_modules/bot_update/resources/bot_update.py",
+      "--spec-path",
       "cache_dir = '[CUSTOM_/_B_CACHE]'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}, {'deps_file': '.DEPS.git', 'managed': False, 'name': 'src', 'url': 'https://chromium.googlesource.com/chromium/src.git'}]",
       "--patch_root",
       "skia",
@@ -138,18 +127,20 @@
       "{\"got_revision\": \"skia\"}",
       "--git-cache-dir",
       "[CUSTOM_/_B_CACHE]",
+      "--cleanup-dir",
+      "[CLEANUP]/bot_update",
       "--output_json",
       "/path/to/tmp/json",
       "--revision",
       "skia@abc123",
       "--revision",
-      "src@origin/lkgr"
+      "src@origin/lkcr"
     ],
     "cwd": "[CUSTOM_/_B_WORK]",
-    "env": {
-      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
-      "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]"
+    "env_prefixes": {
+      "PATH": [
+        "RECIPE_PACKAGE_REPO[depot_tools]"
+      ]
     },
     "infra_step": true,
     "name": "bot_update",
@@ -159,7 +150,7 @@
       "@@@STEP_LOG_LINE@json.output@  \"did_run\": true, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"fixed_revisions\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"skia\": \"abc123\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"src\": \"origin/lkgr\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"src\": \"origin/lkcr\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"manifest\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"skia\": {@@@",
@@ -174,6 +165,17 @@
       "@@@STEP_LOG_LINE@json.output@    \"got_revision_cp\": \"refs/heads/master@{#164710}\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"root\": \"skia\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"source_manifest\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"directories\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"skia\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"git_checkout\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@          \"repo_url\": \"https://fake.org/skia.git\", @@@",
+      "@@@STEP_LOG_LINE@json.output@          \"revision\": \"9046e2e693bb92a76e972b694580e5d17ad10748\"@@@",
+      "@@@STEP_LOG_LINE@json.output@        }@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    }, @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"version\": 0@@@",
+      "@@@STEP_LOG_LINE@json.output@  }, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"step_text\": \"Some step text\"@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@",
@@ -183,15 +185,16 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_PACKAGE_REPO[depot_tools]/gclient.py",
+      "[CUSTOM_/_B_WORK]/depot_tools/gclient",
       "runhooks"
     ],
     "cwd": "[CUSTOM_/_B_WORK]",
     "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
       "CPPFLAGS": "-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "gclient runhooks"
   },
@@ -199,24 +202,16 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[START_DIR]/tmp",
-      "511"
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/tmp"
     ],
     "infra_step": true,
-    "name": "makedirs tmp_dir",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
-      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
-      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
-      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "makedirs tmp_dir"
   },
   {
     "cmd": [
@@ -230,7 +225,7 @@
       "CHROME_HEADLESS": "1",
       "CPPFLAGS": "-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1",
       "GYP_GENERATORS": "ninja",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "GN"
@@ -246,7 +241,7 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "Build Chrome"
@@ -255,7 +250,9 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "rmtree",
       "[START_DIR]/skp_output"
     ],
@@ -266,23 +263,16 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[START_DIR]/skp_output",
-      "511"
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/skp_output"
     ],
-    "name": "makedirs skp_output",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
-      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
-      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
-      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "infra_step": true,
+    "name": "makedirs skp_output"
   },
   {
     "cmd": [
@@ -293,14 +283,13 @@
       "--browser_executable",
       "[CUSTOM_/_B_WORK]/src/out/Release/chrome",
       "--target_dir",
-      "[START_DIR]/skp_output",
-      "--upload_to_partner_bucket"
+      "[START_DIR]/skp_output"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "Recreate SKPs"
@@ -315,7 +304,7 @@
       "CHROME_HEADLESS": "1",
       "GOPATH": "[START_DIR]/gopath",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "go version"
@@ -330,7 +319,7 @@
       "CHROME_HEADLESS": "1",
       "GOPATH": "[START_DIR]/gopath",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "env go version"
@@ -348,36 +337,20 @@
       "CHROME_HEADLESS": "1",
       "GOPATH": "[START_DIR]/gopath",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "update go pkgs"
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "\nimport os\nimport urllib2\n\nTOKEN_FILE = 'update_skps.git_cookies'\nTOKEN_URL = 'http://metadata/computeMetadata/v1/project/attributes/update_skps_git_cookies'\n\nreq = urllib2.Request(TOKEN_URL, headers={'Metadata-Flavor': 'Google'})\ncontents = urllib2.urlopen(req).read()\n\nhome = os.path.expanduser('~')\ntoken_file = os.path.join(home, TOKEN_FILE)\n\nwith open(token_file, 'w') as f:\n  f.write(contents)\n"
+      "gsutil",
+      "cp",
+      "gs://skia-buildbots/artifacts/server/.gitcookies_update-skps",
+      "[START_DIR]/update_skps.git_cookies"
     ],
-    "name": "download update_skps.git_cookies",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import urllib2@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@TOKEN_FILE = 'update_skps.git_cookies'@@@",
-      "@@@STEP_LOG_LINE@python.inline@TOKEN_URL = 'http://metadata/computeMetadata/v1/project/attributes/update_skps_git_cookies'@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@req = urllib2.Request(TOKEN_URL, headers={'Metadata-Flavor': 'Google'})@@@",
-      "@@@STEP_LOG_LINE@python.inline@contents = urllib2.urlopen(req).read()@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@home = os.path.expanduser('~')@@@",
-      "@@@STEP_LOG_LINE@python.inline@token_file = os.path.join(home, TOKEN_FILE)@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@with open(token_file, 'w') as f:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  f.write(contents)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "infra_step": true,
+    "name": "download gitcookies"
   },
   {
     "cmd": [
@@ -386,7 +359,7 @@
       "--target_dir",
       "[START_DIR]/skp_output",
       "--gitcookies",
-      "[HOME]/update_skps.git_cookies"
+      "[START_DIR]/update_skps.git_cookies"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
@@ -394,35 +367,13 @@
       "CHROME_HEADLESS": "1",
       "GOPATH": "[START_DIR]/gopath",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "Upload SKPs",
     "~followup_annotations": [
       "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport os\n\n\nTOKEN_FILE = 'update_skps.git_cookies'\n\n\nhome = os.path.expanduser('~')\ntoken_file = os.path.join(home, TOKEN_FILE)\nif os.path.isfile(token_file):\n  os.remove(token_file)\n"
-    ],
-    "name": "cleanup update_skps.git_cookies",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@TOKEN_FILE = 'update_skps.git_cookies'@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@home = os.path.expanduser('~')@@@",
-      "@@@STEP_LOG_LINE@python.inline@token_file = os.path.join(home, TOKEN_FILE)@@@",
-      "@@@STEP_LOG_LINE@python.inline@if os.path.isfile(token_file):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  os.remove(token_file)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
     ]
   },
   {

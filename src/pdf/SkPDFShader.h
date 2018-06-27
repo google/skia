@@ -18,69 +18,51 @@ class SkPDFDocument;
 class SkMatrix;
 struct SkIRect;
 
-/** \class SkPDFShader
+/** Make a PDF shader for the passed SkShader. If the SkShader is invalid in
+ *  some way, returns nullptr.
+ *
+ *  In PDF parlance, this is a pattern, used in place of a color when the
+ *  pattern color space is selected.
+ *
+ *  May cache the shader in the document for later re-use.  If this function is
+ *  called again with an equivalent shader,  a new reference to the cached pdf
+ *  shader may be returned.
+ *
+ *  @param doc         The parent document, must be non-null.
+ *  @param shader      The SkShader to emulate.
+ *  @param ctm         The current transform matrix. (PDF shaders are absolutely
+ *                     positioned, relative to where the page is drawn.)
+ *  @param surfceBBox  The bounding box of the drawing surface (with matrix
+ *                     already applied).
+ *  @param paintColor  Color+Alpha of the paint.  Color is usually ignored,
+ *                     unless it is a alpha shader.
+ */
+sk_sp<SkPDFObject> SkPDFMakeShader(SkPDFDocument* doc,
+                                  SkShader* shader,
+                                  const SkMatrix& ctm,
+                                  const SkIRect& surfaceBBox,
+                                  SkColor paintColor);
 
-    In PDF parlance, this is a pattern, used in place of a color when the
-    pattern color space is selected.
-*/
-
-class SkPDFShader {
-public:
-    /** Get the PDF shader for the passed SkShader. If the SkShader is
-     *  invalid in some way, returns nullptr. The reference count of
-     *  the object is incremented and it is the caller's responsibility to
-     *  unreference it when done.  This is needed to accommodate the weak
-     *  reference pattern used when the returned object is new and has no
-     *  other references.
-     *  @param shader      The SkShader to emulate.
-     *  @param matrix      The current transform. (PDF shaders are absolutely
-     *                     positioned, relative to where the page is drawn.)
-     *  @param surfceBBox  The bounding box of the drawing surface (with matrix
-     *                     already applied).
-     *  @param rasterScale Additional scale to be applied for early
-     *                     rasterization.
-     */
-    static sk_sp<SkPDFObject> GetPDFShader(SkPDFDocument* doc,
-                                           SkScalar dpi,
-                                           SkShader* shader,
-                                           const SkMatrix& matrix,
-                                           const SkIRect& surfaceBBox,
-                                           SkScalar rasterScale);
-
-    static sk_sp<SkPDFArray> MakeRangeObject();
-
-    class State {
-    public:
-        SkShader::GradientType fType;
-        SkShader::GradientInfo fInfo;
-        std::unique_ptr<SkColor[]> fColors;
-        std::unique_ptr<SkScalar[]> fStops;
-        SkMatrix fCanvasTransform;
-        SkMatrix fShaderTransform;
-        SkIRect fBBox;
-
-        SkBitmapKey fBitmapKey;
-        SkShader::TileMode fImageTileModes[2];
-
-        State(SkShader* shader, const SkMatrix& canvasTransform,
-              const SkIRect& bbox, SkScalar rasterScale,
-              SkBitmap* dstImage);
-
-        bool operator==(const State& b) const;
-
-        State MakeAlphaToLuminosityState() const;
-        State MakeOpaqueState() const;
-
-        bool GradientHasAlpha() const;
-
-        State(State&&) = default;
-        State& operator=(State&&) = default;
-
-    private:
-        State(const State& other);
-        State& operator=(const State& rhs);
-        void allocateGradientInfoStorage();
-    };
+SK_BEGIN_REQUIRE_DENSE
+struct SkPDFImageShaderKey {
+    SkMatrix fCanvasTransform;
+    SkMatrix fShaderTransform;
+    SkIRect fBBox;
+    SkBitmapKey fBitmapKey;
+    SkShader::TileMode fImageTileModes[2];
+    SkColor fPaintColor;
 };
+SK_END_REQUIRE_DENSE
 
+inline bool operator==(const SkPDFImageShaderKey& a, const SkPDFImageShaderKey& b) {
+    SkASSERT(a.fBitmapKey.fID != 0);
+    SkASSERT(b.fBitmapKey.fID != 0);
+    return a.fCanvasTransform   == b.fCanvasTransform
+        && a.fShaderTransform   == b.fShaderTransform
+        && a.fBBox              == b.fBBox
+        && a.fBitmapKey         == b.fBitmapKey
+        && a.fImageTileModes[0] == b.fImageTileModes[0]
+        && a.fImageTileModes[1] == b.fImageTileModes[1]
+        && a.fPaintColor        == b.fPaintColor;
+}
 #endif

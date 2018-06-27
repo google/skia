@@ -15,7 +15,6 @@
 #include "SkColorFilter.h"
 #include "SkSurface.h"
 #include "SkUtils.h"
-#include "sk_tool_utils.h"
 
 /** convert 0..1 linear value to 0..1 srgb */
 static float linear_to_srgb(float linear) {
@@ -45,10 +44,17 @@ bool check_gamma(uint32_t src, uint32_t dst, bool toSRGB, float error,
         result = false;
     }
 
+    // need to unpremul before we can perform srgb magic
+    float invScale = 0;
+    float alpha = SkGetPackedA32(src);
+    if (alpha) {
+        invScale = 255.0f / alpha;
+    }
+
     for (int c = 0; c < 3; ++c) {
-        uint8_t srcComponent = (src & (0xff << (c * 8))) >> (c * 8);
-        float lower = SkTMax(0.f, (float)srcComponent - error);
-        float upper = SkTMin(255.f, (float)srcComponent + error);
+        float srcComponent = ((src & (0xff << (c * 8))) >> (c * 8)) * invScale;
+        float lower = SkTMax(0.f, srcComponent - error);
+        float upper = SkTMin(255.f, srcComponent + error);
         if (toSRGB) {
             lower = linear_to_srgb(lower / 255.f);
             upper = linear_to_srgb(upper / 255.f);
@@ -56,14 +62,16 @@ bool check_gamma(uint32_t src, uint32_t dst, bool toSRGB, float error,
             lower = srgb_to_linear(lower / 255.f);
             upper = srgb_to_linear(upper / 255.f);
         }
+        lower *= alpha;
+        upper *= alpha;
         SkASSERT(lower >= 0.f && lower <= 255.f);
         SkASSERT(upper >= 0.f && upper <= 255.f);
         uint8_t dstComponent = (dst & (0xff << (c * 8))) >> (c * 8);
-        if (dstComponent < SkScalarFloorToInt(lower * 255.f) ||
-            dstComponent > SkScalarCeilToInt(upper * 255.f)) {
+        if (dstComponent < SkScalarFloorToInt(lower) ||
+            dstComponent > SkScalarCeilToInt(upper)) {
             result = false;
         }
-        uint8_t expectedComponent = SkScalarRoundToInt((lower + upper) * 127.5f);
+        uint8_t expectedComponent = SkScalarRoundToInt((lower + upper) * 0.5f);
         expectedColor |= expectedComponent << (c * 8);
     }
 
@@ -73,8 +81,8 @@ bool check_gamma(uint32_t src, uint32_t dst, bool toSRGB, float error,
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    static const int kW = 10;
-    static const int kH = 10;
+    static const int kW = 256;
+    static const int kH = 256;
     static const size_t kRowBytes = sizeof(uint32_t) * kW;
 
     GrSurfaceDesc baseDesc;
@@ -85,8 +93,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
     const SkImageInfo ii = SkImageInfo::MakeN32Premul(kW, kH);
 
     SkAutoTMalloc<uint32_t> srcPixels(kW * kH);
-    for (int i = 0; i < kW * kH; ++i) {
-        srcPixels.get()[i] = i;
+    for (int y = 0; y < kH; ++y) {
+        for (int x = 0; x < kW; ++x) {
+            srcPixels.get()[y*kW+x] = SkPreMultiplyARGB(x, y, x, 0xFF);
+        }
     }
 
     SkBitmap bm;
@@ -95,7 +105,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
     SkAutoTMalloc<uint32_t> read(kW * kH);
 
     // We allow more error on GPUs with lower precision shader variables.
-    float error = context->caps()->shaderCaps()->floatPrecisionVaries() ? 1.2f : 0.5f;
+    float error = context->caps()->shaderCaps()->halfIs32Bits() ? 0.5f : 1.2f;
 
     for (auto toSRGB : { false, true }) {
         sk_sp<SkSurface> dst(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii));
@@ -112,14 +122,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
 
         SkPaint gammaPaint;
         gammaPaint.setBlendMode(SkBlendMode::kSrc);
-        gammaPaint.setColorFilter(toSRGB ? sk_tool_utils::MakeLinearToSRGBColorFilter()
-                                         : sk_tool_utils::MakeSRGBToLinearColorFilter());
+        gammaPaint.setColorFilter(toSRGB ? SkColorFilter::MakeLinearToSRGBGamma()
+                                         : SkColorFilter::MakeSRGBToLinearGamma());
 
         dstCanvas->drawBitmap(bm, 0, 0, &gammaPaint);
         dstCanvas->flush();
 
         sk_memset32(read.get(), 0, kW * kH);
-        if (!dstCanvas->readPixels(ii, read.get(), kRowBytes, 0, 0)) {
+        if (!dst->readPixels(ii, read.get(), kRowBytes, 0, 0)) {
             ERRORF(reporter, "Error calling readPixels");
             continue;
         }

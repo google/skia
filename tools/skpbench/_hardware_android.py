@@ -16,10 +16,12 @@ class HardwareAndroid(Hardware):
 
     if self._adb.root():
       self._adb.remount()
-      self._initial_ASLR = \
-        self._adb.check('cat /proc/sys/kernel/randomize_va_space')
 
   def __enter__(self):
+    Hardware.__enter__(self)
+    if not self._adb.is_root() and self._adb.root():
+      self._adb.remount()
+
     self._adb.shell('\n'.join([
       # turn on airplane mode.
       '''
@@ -53,23 +55,11 @@ class HardwareAndroid(Hardware):
       print("WARNING: no adb root access; results may be unreliable.",
             file=sys.stderr)
 
-    return Hardware.__enter__(self)
+    return self
 
   def __exit__(self, exception_type, exception_value, traceback):
     Hardware.__exit__(self, exception_type, exception_value, traceback)
-
-    if self._adb.is_root():
-      self._adb.shell('\n'.join([
-        # restore ASLR.
-        '''
-        echo %s > /proc/sys/kernel/randomize_va_space''' % self._initial_ASLR,
-
-        # revive the gui.
-        '''
-        setprop ctl.start drm
-        setprop ctl.start surfaceflinger
-        setprop ctl.start zygote
-        setprop ctl.start media''']))
+    self._adb.reboot() # some devices struggle waking up; just hard reboot.
 
   def sanity_check(self):
     Hardware.sanity_check(self)
@@ -102,6 +92,3 @@ class HardwareAndroid(Hardware):
       done''')
 
     Hardware.print_debug_diagnostics(self)
-
-  def sleep(self, sleeptime):
-    Hardware.sleep(self, sleeptime)

@@ -223,7 +223,7 @@ protected:
         SkUnichar uni;
         if (SampleCode::CharQ(*evt, &uni)) {
             switch (uni) {
-                case 'C': fDrawable->toggleUseColors(); this->inval(nullptr); return true;
+                case 'C': fDrawable->toggleUseColors(); return true;
                 default: break;
             }
         }

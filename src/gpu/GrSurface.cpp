@@ -8,6 +8,8 @@
 #include "GrSurface.h"
 #include "GrContext.h"
 #include "GrOpList.h"
+#include "GrRenderTarget.h"
+#include "GrResourceProvider.h"
 #include "GrSurfacePriv.h"
 #include "GrTexture.h"
 
@@ -17,14 +19,19 @@
 size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2) {
     size_t size;
 
-    int width = useNextPow2 ? GrNextPow2(desc.fWidth) : desc.fWidth;
-    int height = useNextPow2 ? GrNextPow2(desc.fHeight) : desc.fHeight;
+    int width = useNextPow2
+                ? SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(desc.fWidth))
+                : desc.fWidth;
+    int height = useNextPow2
+                ? SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(desc.fHeight))
+                : desc.fHeight;
 
     bool isRenderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
     if (isRenderTarget) {
         // We own one color value for each MSAA sample.
-        int colorValuesPerPixel = SkTMax(1, desc.fSampleCnt);
-        if (desc.fSampleCnt) {
+        SkASSERT(desc.fSampleCnt >= 1);
+        int colorValuesPerPixel = desc.fSampleCnt;
+        if (desc.fSampleCnt > 1) {
             // Worse case, we own the resolve buffer so that is one more sample per pixel.
             colorValuesPerPixel += 1;
         }
@@ -50,10 +57,14 @@ size_t GrSurface::ComputeSize(GrPixelConfig config,
                               int width,
                               int height,
                               int colorSamplesPerPixel,
-                              bool hasMIPMaps,
+                              GrMipMapped mipMapped,
                               bool useNextPow2) {
-    width = useNextPow2 ? GrNextPow2(width) : width;
-    height = useNextPow2 ? GrNextPow2(height) : height;
+    width = useNextPow2
+            ? SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(width))
+            : width;
+    height = useNextPow2
+            ? SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(height))
+            : height;
 
     SkASSERT(kUnknown_GrPixelConfig != config);
     size_t colorSize = (size_t)width * height * GrBytesPerPixel(config);
@@ -61,7 +72,7 @@ size_t GrSurface::ComputeSize(GrPixelConfig config,
 
     size_t finalSize = colorSamplesPerPixel * colorSize;
 
-    if (hasMIPMaps) {
+    if (GrMipMapped::kYes == mipMapped) {
         // We don't have to worry about the mipmaps being a different size than
         // we'd expect because we never change fDesc.fWidth/fHeight.
         finalSize += colorSize/3;

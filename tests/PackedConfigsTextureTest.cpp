@@ -16,11 +16,10 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextPriv.h"
-#include "GrResourceProvider.h"
-#include "GrTexture.h"
+#include "GrProxyProvider.h"
+#include "GrTextureProxy.h"
 
 static const int DEV_W = 10, DEV_H = 10;
-static const SkIRect DEV_RECT = SkIRect::MakeWH(DEV_W, DEV_H);
 static const uint8_t TOL = 0x4;
 
 static void check_component(skiatest::Reporter* reporter, uint8_t control, uint8_t test) {
@@ -98,6 +97,7 @@ static void check_565(skiatest::Reporter* reporter,
 
 static void run_test(skiatest::Reporter* reporter, GrContext* context,
                      int arraySize, GrPixelConfig config) {
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     SkTDArray<uint16_t> controlPixelData;
     // We will read back into an 8888 buffer since 565/4444 read backs aren't supported
     SkTDArray<GrColor> readBuffer;
@@ -120,13 +120,12 @@ static void run_test(skiatest::Reporter* reporter, GrContext* context,
         desc.fConfig = config;
         desc.fOrigin = origin;
 
-        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                                                   desc, SkBudgeted::kNo,
-                                                                   controlPixelData.begin(), 0);
+        sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(
+                                                desc, SkBudgeted::kNo, controlPixelData.begin(), 0);
         SkASSERT(proxy);
 
         sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
-                                                                        std::move(proxy), nullptr);
+                                                                        std::move(proxy));
 
         SkAssertResult(sContext->readPixels(dstInfo, readBuffer.begin(), 0, 0, 0));
 

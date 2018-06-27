@@ -21,10 +21,10 @@
 class SkXPSDocument final : public SkDocument {
 public:
     SkXPSDocument(SkWStream*, SkScalar dpi, SkTScopedComPtr<IXpsOMObjectFactory>);
-    virtual ~SkXPSDocument();
+    ~SkXPSDocument() override;
 
 protected:
-    SkCanvas* onBeginPage(SkScalar w, SkScalar h, const SkRect&) override;
+    SkCanvas* onBeginPage(SkScalar w, SkScalar h) override;
     void onEndPage() override;
     void onClose(SkWStream*) override;
     void onAbort() override;

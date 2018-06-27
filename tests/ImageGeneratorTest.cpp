@@ -9,6 +9,7 @@
 #include "SkCanvas.h"
 #include "SkGraphics.h"
 #include "SkImageGenerator.h"
+#include "SkImageInfoPriv.h"
 #include "Test.h"
 
 static bool gMyFactoryWasCalled;
@@ -109,3 +110,4 @@ DEF_TEST(PictureImageGenerator, reporter) {
         REPORTER_ASSERT(reporter, success == rec.fExpectSuccess);
     }
 }
+

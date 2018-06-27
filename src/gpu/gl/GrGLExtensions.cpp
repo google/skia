@@ -9,6 +9,7 @@
 #include "gl/GrGLDefines.h"
 #include "gl/GrGLUtil.h"
 
+#include "SkJSONWriter.h"
 #include "SkMakeUnique.h"
 #include "SkTSearch.h"
 #include "SkTSort.h"
@@ -130,8 +131,10 @@ bool GrGLExtensions::remove(const char ext[]) {
     // This is not terribly effecient but we really only expect this function to be called at
     // most a handful of times when our test programs start.
     fStrings->removeShuffle(idx);
-    SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
-    SkTInsertionSort(&(fStrings->operator[](idx)), &fStrings->back(), cmp);
+    if (idx != fStrings->count()) {
+        SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
+        SkTInsertionSort(&(fStrings->operator[](idx)), &fStrings->back(), cmp);
+    }
     return true;
 }
 
@@ -146,12 +149,10 @@ void GrGLExtensions::add(const char ext[]) {
     }
 }
 
-void GrGLExtensions::print(const char* sep) const {
-    if (nullptr == sep) {
-        sep = " ";
+void GrGLExtensions::dumpJSON(SkJSONWriter* writer) const {
+    writer->beginArray();
+    for (int i = 0; i < fStrings->count(); ++i) {
+        writer->appendString((*fStrings)[i].c_str());
     }
-    int cnt = fStrings->count();
-    for (int i = 0; i < cnt; ++i) {
-        SkDebugf("%s%s", (*fStrings)[i].c_str(), (i < cnt - 1) ? sep : "");
-    }
+    writer->endArray();
 }

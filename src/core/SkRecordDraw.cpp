@@ -73,6 +73,7 @@ namespace SkRecords {
 template <> void Draw::draw(const NoOp&) {}
 
 #define DRAW(T, call) template <> void Draw::draw(const T& r) { fCanvas->call; }
+DRAW(Flush, flush());
 DRAW(Restore, restore());
 DRAW(Save, save());
 DRAW(SaveLayer, saveLayer(SkCanvas::SaveLayerRec(r.bounds,
@@ -100,7 +101,8 @@ template <> void Draw::draw(const DrawImageLattice& r) {
     lattice.fXDivs = r.xDivs;
     lattice.fYCount = r.yCount;
     lattice.fYDivs = r.yDivs;
-    lattice.fFlags = (0 == r.flagCount) ? nullptr : r.flags;
+    lattice.fRectTypes = (0 == r.flagCount) ? nullptr : r.flags;
+    lattice.fColors = (0 == r.flagCount) ? nullptr : r.colors;
     lattice.fBounds = &r.src;
     fCanvas->drawImageLattice(r.image.get(), lattice, r.dst, r.paint);
 }
@@ -388,6 +390,8 @@ private:
         }
     }
 
+    Bounds bounds(const Flush&) const { return fCurrentClipBounds; }
+
     // FIXME: this method could use better bounds
     Bounds bounds(const DrawText&) const { return fCurrentClipBounds; }
 
@@ -457,7 +461,9 @@ private:
     }
 
     Bounds bounds(const DrawShadowRec& op) const {
-        return this->adjustAndMap(op.path.getBounds(), nullptr);
+        SkRect bounds;
+        SkDrawShadowMetrics::GetLocalBounds(op.path, op.rec, fCTM, &bounds);
+        return this->adjustAndMap(bounds, nullptr);
     }
 
     Bounds bounds(const DrawPicture& op) const {

@@ -8,18 +8,22 @@
 #ifndef GrTextureProducer_DEFINED
 #define GrTextureProducer_DEFINED
 
-#include "GrSamplerParams.h"
 #include "GrResourceKey.h"
+#include "GrSamplerState.h"
+#include "SkImageInfo.h"
 
-class GrColorSpaceXform;
-class GrResourceProvider;
+class GrContext;
+class GrFragmentProcessor;
 class GrTexture;
 class GrTextureProxy;
+class SkColorSpace;
+class SkMatrix;
+struct SkRect;
 
 /**
  * Different GPUs and API extensions have different requirements with respect to what texture
  * sampling parameters may be used with textures of various types. This class facilitates making
- * texture compatible with a given GrSamplerParams. There are two immediate subclasses defined
+ * texture compatible with a given GrSamplerState. There are two immediate subclasses defined
  * below. One is a base class for sources that are inherently texture-backed (e.g. a texture-backed
  * SkImage). It supports subsetting the original texture. The other is for use cases where the
  * source can generate a texture that represents some content (e.g. cpu pixels, SkPicture, ...).
@@ -27,9 +31,9 @@ class GrTextureProxy;
 class GrTextureProducer : public SkNoncopyable {
 public:
     struct CopyParams {
-        GrSamplerParams::FilterMode fFilter;
-        int                         fWidth;
-        int                         fHeight;
+        GrSamplerState::Filter fFilter;
+        int fWidth;
+        int fHeight;
     };
 
     enum FilterConstraint {
@@ -57,13 +61,13 @@ public:
      * @param filterOrNullForBicubic           If non-null indicates the filter mode. If null means
      *                                         use bicubic filtering.
      **/
-    virtual sk_sp<GrFragmentProcessor> createFragmentProcessor(
-                                    const SkMatrix& textureMatrix,
-                                    const SkRect& constraintRect,
-                                    FilterConstraint filterConstraint,
-                                    bool coordsLimitedToConstraintRect,
-                                    const GrSamplerParams::FilterMode* filterOrNullForBicubic,
-                                    SkColorSpace* dstColorSpace) = 0;
+    virtual std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
+            const SkMatrix& textureMatrix,
+            const SkRect& constraintRect,
+            FilterConstraint filterConstraint,
+            bool coordsLimitedToConstraintRect,
+            const GrSamplerState::Filter* filterOrNullForBicubic,
+            SkColorSpace* dstColorSpace) = 0;
 
     virtual ~GrTextureProducer() {}
 
@@ -88,7 +92,7 @@ protected:
         if (origKey.isValid()) {
             static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
             GrUniqueKey::Builder builder(copyKey, origKey, kDomain, 3);
-            builder[0] = copyParams.fFilter;
+            builder[0] = static_cast<uint32_t>(copyParams.fFilter);
             builder[1] = copyParams.fWidth;
             builder[2] = copyParams.fHeight;
         }
@@ -120,25 +124,22 @@ protected:
     };
 
     static sk_sp<GrTextureProxy> CopyOnGpu(GrContext*, sk_sp<GrTextureProxy> inputProxy,
-                                           const SkIRect* subset, const CopyParams& copyParams);
+                                           const CopyParams& copyParams,
+                                           bool dstWillRequireMipMaps);
 
-    static DomainMode DetermineDomainMode(
-        const SkRect& constraintRect,
-        FilterConstraint filterConstraint,
-        bool coordsLimitedToConstraintRect,
-        GrTextureProxy*,
-        const SkIRect* textureContentArea,
-        const GrSamplerParams::FilterMode* filterModeOrNullForBicubic,
-        SkRect* domainRect);
+    static DomainMode DetermineDomainMode(const SkRect& constraintRect,
+                                          FilterConstraint filterConstraint,
+                                          bool coordsLimitedToConstraintRect,
+                                          GrTextureProxy*,
+                                          const GrSamplerState::Filter* filterModeOrNullForBicubic,
+                                          SkRect* domainRect);
 
-    static sk_sp<GrFragmentProcessor> CreateFragmentProcessorForDomainAndFilter(
-        GrResourceProvider*,
-        sk_sp<GrTextureProxy> proxy,
-        sk_sp<GrColorSpaceXform>,
-        const SkMatrix& textureMatrix,
-        DomainMode,
-        const SkRect& domain,
-        const GrSamplerParams::FilterMode* filterOrNullForBicubic);
+    static std::unique_ptr<GrFragmentProcessor> CreateFragmentProcessorForDomainAndFilter(
+            sk_sp<GrTextureProxy> proxy,
+            const SkMatrix& textureMatrix,
+            DomainMode,
+            const SkRect& domain,
+            const GrSamplerState::Filter* filterOrNullForBicubic);
 
 private:
     const int   fWidth;

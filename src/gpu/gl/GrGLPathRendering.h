@@ -9,6 +9,7 @@
 #define GrGLPathRendering_DEFINED
 
 #include "SkRefCnt.h"
+#include "GrGpu.h"
 #include "GrPathRendering.h"
 #include "GrStencilSettings.h"
 #include "gl/GrGLTypes.h"
@@ -34,9 +35,9 @@ public:
     ~GrGLPathRendering() override;
 
     // GrPathRendering implementations.
-    GrPath* createPath(const SkPath&, const GrStyle&) override;
-    virtual GrPathRange* createPathRange(GrPathRange::PathGenerator*,
-                                         const GrStyle&) override;
+    sk_sp<GrPath> createPath(const SkPath&, const GrStyle&) override;
+    virtual sk_sp<GrPathRange> createPathRange(GrPathRange::PathGenerator*,
+                                               const GrStyle&) override;
 
     /* Called when the 3D context state is unknown. */
     void resetContext();

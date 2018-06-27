@@ -328,6 +328,13 @@ DEF_TEST(Region_readFromMemory_bad, r) {
         REPORTER_ASSERT(r, 0 != region.readFromMemory(data, sizeof(data)));
     }
     {
+        // Example of valid data with 4 intervals
+        int32_t data[] = {19, 0, 0, 30, 30, 3, 4, 0, 10, 2, 0, 10, 20, 30,
+                          2147483647, 20, 0, 2147483647, 30, 2, 0, 10, 20, 30,
+                          2147483647, 2147483647};
+        REPORTER_ASSERT(r, 0 != region.readFromMemory(data, sizeof(data)));
+    }
+    {
         // Short count
         int32_t data[] = {8, 0, 0, 10, 10, 1, 2, 0, 10, 2, 0, 4, 6, 10,
                           2147483647, 2147483647};
@@ -363,4 +370,67 @@ DEF_TEST(Region_readFromMemory_bad, r) {
                           -1, 2147483647};
         REPORTER_ASSERT(r, 0 == region.readFromMemory(data, sizeof(data)));
     }
+    {
+        // starts with empty yspan
+        int32_t data[] = {12, 0, 0, 10, 10, 2, 2, -5, 0, 0, 2147483647, 10,
+                          2, 0, 4, 6, 10, 2147483647, 2147483647};
+        REPORTER_ASSERT(r, 0 == region.readFromMemory(data, sizeof(data)));
+    }
+    {
+        // ends with empty yspan
+        int32_t data[] = {12, 0, 0, 10, 10, 2, 2, 0, 10, 2, 0, 4, 6, 10,
+                          2147483647, 15, 0, 2147483647, 2147483647};
+        REPORTER_ASSERT(r, 0 == region.readFromMemory(data, sizeof(data)));
+    }
+    {
+        // y intervals out of order
+        int32_t data[] = {19, 0, -20, 30, 10, 3, 4, 0, 10, 2, 0, 10, 20, 30,
+                          2147483647, -20, 0, 2147483647, -10, 2, 0, 10, 20, 30,
+                          2147483647, 2147483647};
+        REPORTER_ASSERT(r, 0 == region.readFromMemory(data, sizeof(data)));
+    }
+    {
+        // x intervals out of order
+        int32_t data[] = {9, 0, 0, 10, 10, 1, 2, 0, 10, 2, 6, 10, 0, 4,
+                          2147483647, 2147483647};
+        REPORTER_ASSERT(r, 0 == region.readFromMemory(data, sizeof(data)));
+    }
 }
+
+DEF_TEST(region_toobig, reporter) {
+    const int big = 1 << 30;
+    const SkIRect neg = SkIRect::MakeXYWH(-big, -big, 10, 10);
+    const SkIRect pos = SkIRect::MakeXYWH( big,  big, 10, 10);
+
+    REPORTER_ASSERT(reporter, !neg.isEmpty());
+    REPORTER_ASSERT(reporter, !pos.isEmpty());
+
+    SkRegion negR(neg);
+    SkRegion posR(pos);
+
+    REPORTER_ASSERT(reporter, !negR.isEmpty());
+    REPORTER_ASSERT(reporter, !posR.isEmpty());
+
+    SkRegion rgn;
+    rgn.op(negR, posR, SkRegion::kUnion_Op);
+
+    // If we union those to rectangles, the resulting coordinates span more than int32_t, so
+    // we must mark the region as empty.
+    REPORTER_ASSERT(reporter, rgn.isEmpty());
+}
+
+DEF_TEST(region_inverse_union_skbug_7491, reporter) {
+    SkPath path;
+    path.setFillType(SkPath::kInverseWinding_FillType);
+    path.moveTo(10, 20); path.lineTo(10, 30); path.lineTo(10.1f, 10); path.close();
+
+    SkRegion clip;
+    clip.op(SkIRect::MakeLTRB(10, 10, 15, 20), SkRegion::kUnion_Op);
+    clip.op(SkIRect::MakeLTRB(20, 10, 25, 20), SkRegion::kUnion_Op);
+
+    SkRegion rgn;
+    rgn.setPath(path, clip);
+
+    REPORTER_ASSERT(reporter, clip == rgn);
+}
+

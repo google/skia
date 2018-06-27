@@ -17,59 +17,78 @@
 static inline VkFormat attrib_type_to_vkformat(GrVertexAttribType type) {
     switch (type) {
         case kFloat_GrVertexAttribType:
+        case kHalf_GrVertexAttribType:
             return VK_FORMAT_R32_SFLOAT;
-        case kVec2f_GrVertexAttribType:
+        case kFloat2_GrVertexAttribType:
+        case kHalf2_GrVertexAttribType:
             return VK_FORMAT_R32G32_SFLOAT;
-        case kVec3f_GrVertexAttribType:
+        case kFloat3_GrVertexAttribType:
+        case kHalf3_GrVertexAttribType:
             return VK_FORMAT_R32G32B32_SFLOAT;
-        case kVec4f_GrVertexAttribType:
+        case kFloat4_GrVertexAttribType:
+        case kHalf4_GrVertexAttribType:
             return VK_FORMAT_R32G32B32A32_SFLOAT;
-        case kVec2i_GrVertexAttribType:
+        case kInt2_GrVertexAttribType:
             return VK_FORMAT_R32G32_SINT;
-        case kVec3i_GrVertexAttribType:
+        case kInt3_GrVertexAttribType:
             return VK_FORMAT_R32G32B32_SINT;
-        case kVec4i_GrVertexAttribType:
+        case kInt4_GrVertexAttribType:
             return VK_FORMAT_R32G32B32A32_SINT;
-        case kUByte_GrVertexAttribType:
+        case kUByte_norm_GrVertexAttribType:
             return VK_FORMAT_R8_UNORM;
-        case kVec4ub_GrVertexAttribType:
+        case kUByte4_norm_GrVertexAttribType:
             return VK_FORMAT_R8G8B8A8_UNORM;
-        case kVec2us_GrVertexAttribType:
+        case kShort2_GrVertexAttribType:
+            return VK_FORMAT_R16G16_SINT;
+        case kUShort2_GrVertexAttribType:
+            return VK_FORMAT_R16G16_UINT;
+        case kUShort2_norm_GrVertexAttribType:
             return VK_FORMAT_R16G16_UNORM;
         case kInt_GrVertexAttribType:
             return VK_FORMAT_R32_SINT;
         case kUint_GrVertexAttribType:
             return VK_FORMAT_R32_UINT;
     }
-    SkFAIL("Unknown vertex attrib type");
+    SK_ABORT("Unknown vertex attrib type");
     return VK_FORMAT_UNDEFINED;
 }
 
 static void setup_vertex_input_state(const GrPrimitiveProcessor& primProc,
-                                     VkPipelineVertexInputStateCreateInfo* vertexInputInfo,
-                                     VkVertexInputBindingDescription* bindingDesc,
-                                     int maxBindingDescCount,
-                                     VkVertexInputAttributeDescription* attributeDesc) {
-    // for now we have only one vertex buffer and one binding
-    memset(bindingDesc, 0, sizeof(VkVertexInputBindingDescription));
-    bindingDesc->binding = 0;
-    bindingDesc->stride = (uint32_t)primProc.getVertexStride();
-    bindingDesc->inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+                                  VkPipelineVertexInputStateCreateInfo* vertexInputInfo,
+                                  SkSTArray<2, VkVertexInputBindingDescription, true>* bindingDescs,
+                                  VkVertexInputAttributeDescription* attributeDesc) {
+    uint32_t vertexBinding = 0, instanceBinding = 0;
+
+    if (primProc.hasVertexAttribs()) {
+        vertexBinding = bindingDescs->count();
+        bindingDescs->push_back() = {
+            vertexBinding,
+            (uint32_t) primProc.getVertexStride(),
+            VK_VERTEX_INPUT_RATE_VERTEX
+        };
+    }
+
+    if (primProc.hasInstanceAttribs()) {
+        instanceBinding = bindingDescs->count();
+        bindingDescs->push_back() = {
+            instanceBinding,
+            (uint32_t) primProc.getInstanceStride(),
+            VK_VERTEX_INPUT_RATE_INSTANCE
+        };
+    }
 
     // setup attribute descriptions
     int vaCount = primProc.numAttribs();
     if (vaCount > 0) {
-        size_t offset = 0;
         for (int attribIndex = 0; attribIndex < vaCount; attribIndex++) {
+            using InputRate = GrPrimitiveProcessor::Attribute::InputRate;
             const GrGeometryProcessor::Attribute& attrib = primProc.getAttrib(attribIndex);
-            GrVertexAttribType attribType = attrib.fType;
-
             VkVertexInputAttributeDescription& vkAttrib = attributeDesc[attribIndex];
             vkAttrib.location = attribIndex; // for now assume location = attribIndex
-            vkAttrib.binding = 0; // for now only one vertex buffer & binding
-            vkAttrib.format = attrib_type_to_vkformat(attribType);
-            vkAttrib.offset = static_cast<uint32_t>(offset);
-            offset += attrib.fOffset;
+            vkAttrib.binding = InputRate::kPerInstance == attrib.fInputRate ? instanceBinding
+                                                                            : vertexBinding;
+            vkAttrib.format = attrib_type_to_vkformat(attrib.fType);
+            vkAttrib.offset = attrib.fOffsetInRecord;
         }
     }
 
@@ -77,30 +96,41 @@ static void setup_vertex_input_state(const GrPrimitiveProcessor& primProc,
     vertexInputInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputInfo->pNext = nullptr;
     vertexInputInfo->flags = 0;
-    vertexInputInfo->vertexBindingDescriptionCount = 1;
-    vertexInputInfo->pVertexBindingDescriptions = bindingDesc;
+    vertexInputInfo->vertexBindingDescriptionCount = bindingDescs->count();
+    vertexInputInfo->pVertexBindingDescriptions = bindingDescs->begin();
     vertexInputInfo->vertexAttributeDescriptionCount = vaCount;
     vertexInputInfo->pVertexAttributeDescriptions = attributeDesc;
 }
 
+static VkPrimitiveTopology gr_primitive_type_to_vk_topology(GrPrimitiveType primitiveType) {
+    switch (primitiveType) {
+        case GrPrimitiveType::kTriangles:
+            return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        case GrPrimitiveType::kTriangleStrip:
+            return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+        case GrPrimitiveType::kTriangleFan:
+            return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
+        case GrPrimitiveType::kPoints:
+            return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+        case GrPrimitiveType::kLines:
+            return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+        case GrPrimitiveType::kLineStrip:
+            return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+        case GrPrimitiveType::kLinesAdjacency:
+            return VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY;
+    }
+    SK_ABORT("invalid GrPrimitiveType");
+    return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+}
 
 static void setup_input_assembly_state(GrPrimitiveType primitiveType,
                                        VkPipelineInputAssemblyStateCreateInfo* inputAssemblyInfo) {
-    static const VkPrimitiveTopology gPrimitiveType2VkTopology[] = {
-        VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-        VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-        VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN,
-        VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
-        VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
-        VK_PRIMITIVE_TOPOLOGY_LINE_STRIP
-    };
-
     memset(inputAssemblyInfo, 0, sizeof(VkPipelineInputAssemblyStateCreateInfo));
     inputAssemblyInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     inputAssemblyInfo->pNext = nullptr;
     inputAssemblyInfo->flags = 0;
     inputAssemblyInfo->primitiveRestartEnable = false;
-    inputAssemblyInfo->topology = gPrimitiveType2VkTopology[primitiveType];
+    inputAssemblyInfo->topology = gr_primitive_type_to_vk_topology(primitiveType);
 }
 
 
@@ -217,7 +247,7 @@ static void setup_multisample_state(const GrPipeline& pipeline,
     multisampleInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     multisampleInfo->pNext = nullptr;
     multisampleInfo->flags = 0;
-    int numSamples = pipeline.getRenderTarget()->numColorSamples();
+    int numSamples = pipeline.proxy()->numColorSamples();
     SkAssertResult(GrSampleCountToVkSampleCount(numSamples,
                    &multisampleInfo->rasterizationSamples));
     float sampleShading = primProc.getSampleShading();
@@ -402,11 +432,11 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPipeline& pipeline,
                                    VkPipelineLayout layout,
                                    VkPipelineCache cache) {
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
-    VkVertexInputBindingDescription bindingDesc;
+    SkSTArray<2, VkVertexInputBindingDescription, true> bindingDescs;
     SkSTArray<16, VkVertexInputAttributeDescription> attributeDesc;
     SkASSERT(primProc.numAttribs() <= gpu->vkCaps().maxVertexAttributes());
     VkVertexInputAttributeDescription* pAttribs = attributeDesc.push_back_n(primProc.numAttribs());
-    setup_vertex_input_state(primProc, &vertexInputInfo, &bindingDesc, 1, pAttribs);
+    setup_vertex_input_state(primProc, &vertexInputInfo, &bindingDescs, pAttribs);
 
     VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
     setup_input_assembly_state(primitiveType, &inputAssemblyInfo);
@@ -460,6 +490,7 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPipeline& pipeline,
                                                                           &pipelineCreateInfo,
                                                                           nullptr, &vkPipeline));
     if (err) {
+        SkDebugf("Failed to create pipeline. Error: %d\n", err);
         return nullptr;
     }
 
@@ -470,78 +501,61 @@ void GrVkPipeline::freeGPUData(const GrVkGpu* gpu) const {
     GR_VK_CALL(gpu->vkInterface(), DestroyPipeline(gpu->device(), fPipeline, nullptr));
 }
 
-static void set_dynamic_scissor_state(GrVkGpu* gpu,
-                                      GrVkCommandBuffer* cmdBuffer,
-                                      const GrPipeline& pipeline,
-                                      const GrRenderTarget& target) {
-    // We always use one scissor and if it is disabled we just make it the size of the RT
-    const GrScissorState& scissorState = pipeline.getScissorState();
-    VkRect2D scissor;
-    if (scissorState.enabled() &&
-        !scissorState.rect().contains(0, 0, target.width(), target.height())) {
-        // This all assumes the scissorState has previously been clipped to the device space render
-        // target.
-        scissor.offset.x = SkTMax(scissorState.rect().fLeft, 0);
-        scissor.extent.width = scissorState.rect().width();
-        if (kTopLeft_GrSurfaceOrigin == target.origin()) {
-            scissor.offset.y = scissorState.rect().fTop;
-        } else {
-            SkASSERT(kBottomLeft_GrSurfaceOrigin == target.origin());
-            scissor.offset.y = target.height() - scissorState.rect().fBottom;
-        }
-        scissor.offset.y = SkTMax(scissor.offset.y, 0);
-        scissor.extent.height = scissorState.rect().height();
-
-        SkASSERT(scissor.offset.x >= 0);
-        SkASSERT(scissor.offset.y >= 0);
-    } else {
-        scissor.extent.width = target.width();
-        scissor.extent.height = target.height();
-        scissor.offset.x = 0;
-        scissor.offset.y = 0;
+void GrVkPipeline::SetDynamicScissorRectState(GrVkGpu* gpu,
+                                              GrVkCommandBuffer* cmdBuffer,
+                                              const GrRenderTarget* renderTarget,
+                                              GrSurfaceOrigin rtOrigin,
+                                              SkIRect scissorRect) {
+    if (!scissorRect.intersect(SkIRect::MakeWH(renderTarget->width(), renderTarget->height()))) {
+        scissorRect.setEmpty();
     }
+
+    VkRect2D scissor;
+    scissor.offset.x = scissorRect.fLeft;
+    scissor.extent.width = scissorRect.width();
+    if (kTopLeft_GrSurfaceOrigin == rtOrigin) {
+        scissor.offset.y = scissorRect.fTop;
+    } else {
+        SkASSERT(kBottomLeft_GrSurfaceOrigin == rtOrigin);
+        scissor.offset.y = renderTarget->height() - scissorRect.fBottom;
+    }
+    scissor.extent.height = scissorRect.height();
+
+    SkASSERT(scissor.offset.x >= 0);
+    SkASSERT(scissor.offset.y >= 0);
     cmdBuffer->setScissor(gpu, 0, 1, &scissor);
 }
 
-static void set_dynamic_viewport_state(GrVkGpu* gpu,
-                                       GrVkCommandBuffer* cmdBuffer,
-                                       const GrRenderTarget& target) {
+void GrVkPipeline::SetDynamicViewportState(GrVkGpu* gpu,
+                                           GrVkCommandBuffer* cmdBuffer,
+                                           const GrRenderTarget* renderTarget) {
     // We always use one viewport the size of the RT
     VkViewport viewport;
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = SkIntToScalar(target.width());
-    viewport.height = SkIntToScalar(target.height());
+    viewport.width = SkIntToScalar(renderTarget->width());
+    viewport.height = SkIntToScalar(renderTarget->height());
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
     cmdBuffer->setViewport(gpu, 0, 1, &viewport);
 }
 
-static void set_dynamic_blend_constant_state(GrVkGpu* gpu,
-                                             GrVkCommandBuffer* cmdBuffer,
-                                             const GrPipeline& pipeline) {
+void GrVkPipeline::SetDynamicBlendConstantState(GrVkGpu* gpu,
+                                                GrVkCommandBuffer* cmdBuffer,
+                                                GrPixelConfig pixelConfig,
+                                                const GrXferProcessor& xferProcessor) {
     GrXferProcessor::BlendInfo blendInfo;
-    pipeline.getXferProcessor().getBlendInfo(&blendInfo);
+    xferProcessor.getBlendInfo(&blendInfo);
     GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;
     GrBlendCoeff dstCoeff = blendInfo.fDstBlend;
     float floatColors[4];
     if (blend_coeff_refs_constant(srcCoeff) || blend_coeff_refs_constant(dstCoeff)) {
         // Swizzle the blend to match what the shader will output.
-        const GrSwizzle& swizzle = gpu->caps()->shaderCaps()->configOutputSwizzle(
-                pipeline.getRenderTarget()->config());
+        const GrSwizzle& swizzle = gpu->caps()->shaderCaps()->configOutputSwizzle(pixelConfig);
         GrColor blendConst = swizzle.applyTo(blendInfo.fBlendConstant);
         GrColorToRGBAFloat(blendConst, floatColors);
     } else {
         memset(floatColors, 0, 4 * sizeof(float));
     }
     cmdBuffer->setBlendConstants(gpu, floatColors);
-}
-
-void GrVkPipeline::SetDynamicState(GrVkGpu* gpu,
-                                   GrVkCommandBuffer* cmdBuffer,
-                                   const GrPipeline& pipeline) {
-    const GrRenderTarget& target = *pipeline.getRenderTarget();
-    set_dynamic_scissor_state(gpu, cmdBuffer, pipeline, target);
-    set_dynamic_viewport_state(gpu, cmdBuffer, target);
-    set_dynamic_blend_constant_state(gpu, cmdBuffer, pipeline);
 }

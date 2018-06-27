@@ -10,6 +10,7 @@
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkPath.h"
+#include "SkPointPriv.h"
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkUtils.h"
@@ -76,6 +77,8 @@ public:
         }
     }
 
+    float fStrokeWidth = 1;
+
     bool getUseClip() const { return fUseClip; }
     void setUseClip(bool uc) { fUseClip = uc; }
 
@@ -131,7 +134,7 @@ private:
                 paint->setStrokeWidth(0);
                 break;
             case kStroke_Style:
-                paint->setStrokeWidth(SK_Scalar1);
+                paint->setStrokeWidth(fStrokeWidth);
                 break;
         }
         paint->setAntiAlias(aa);
@@ -231,7 +234,7 @@ void FatBits::drawLineSkeleton(SkCanvas* max, const SkPoint pts[]) {
     if (fStyle == kStroke_Style) {
         SkPaint p;
         p.setStyle(SkPaint::kStroke_Style);
-        p.setStrokeWidth(SK_Scalar1 * fZoom);
+        p.setStrokeWidth(fStrokeWidth * fZoom);
         p.setStrokeCap(fStrokeCap);
         SkPath dst;
         p.getFillPath(path, &dst);
@@ -376,7 +379,6 @@ public:
 
     void setStyle(FatBits::Style s) {
         fFB.setStyle(s);
-        this->inval(nullptr);
     }
 
 protected:
@@ -390,19 +392,15 @@ protected:
             switch (uni) {
                 case 'c':
                     fFB.setUseClip(!fFB.getUseClip());
-                    this->inval(nullptr);
                     return true;
                 case 'r':
                     fIsRect = !fIsRect;
-                    this->inval(nullptr);
                     return true;
                 case 'o':
                     fFB.toggleRectAsOval();
-                    this->inval(nullptr);
                     return true;
                 case 'x':
                     fFB.setGrid(!fFB.getGrid());
-                    this->inval(nullptr);
                     return true;
                 case 's':
                     if (FatBits::kStroke_Style == fFB.getStyle()) {
@@ -416,24 +414,25 @@ protected:
                         SkPaint::kButt_Cap, SkPaint::kRound_Cap, SkPaint::kSquare_Cap,
                     };
                     fFB.fStrokeCap = caps[(fFB.fStrokeCap + 1) % 3];
-                    this->inval(nullptr);
                     return true;
                 } break;
                 case 'a':
                     fFB.setAA(!fFB.getAA());
-                    this->inval(nullptr);
                     return true;
                 case 'w':
                     fFB.setShowSkeleton(!fFB.getShowSkeleton());
-                    this->inval(nullptr);
                     return true;
                 case 'g':
                     fFB.togglePixelColors();
-                    this->inval(nullptr);
                     return true;
                 case 't':
                     fFB.setTriangle(!fFB.getTriangle());
-                    this->inval(nullptr);
+                    return true;
+                case '-':
+                    fFB.fStrokeWidth -= 0.125f;
+                    return true;
+                case '=':
+                    fFB.fStrokeWidth += 0.125f;
                     return true;
             }
         }
@@ -473,7 +472,7 @@ protected:
         SkScalar tol = 12;
 
         for (int i = 0; i < count; ++i) {
-            if (fPts[i].equalsWithinTolerance(pt, tol)) {
+            if (SkPointPriv::EqualsWithinTolerance(fPts[i], pt, tol)) {
                 index = i;
                 break;
             }
@@ -492,7 +491,6 @@ protected:
             fPts[1].offset(dx, dy);
             fPts[2].offset(dx, dy);
         }
-        this->inval(nullptr);
         return true;
     }
 

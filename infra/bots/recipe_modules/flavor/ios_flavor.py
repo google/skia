@@ -19,10 +19,21 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
     for app_name in ['dm', 'nanobench']:
       app_package = self.m.vars.skia_out.join(self.m.vars.configuration,
                                               '%s.app' % app_name)
-      self.m.run(self.m.step,
-                'install_' + app_name,
-                cmd=['ideviceinstaller', '-i', app_package],
-                infra_step=True)
+
+      def uninstall_app(attempt):
+        # If app ID changes, upgrade will fail, so try uninstalling.
+        self.m.run(self.m.step,
+                   'uninstall_' + app_name,
+                   cmd=['ideviceinstaller', '-U', 'com.google.%s' % app_name],
+                   infra_step=True,
+                   # App may not be installed.
+                   abort_on_failure=False, fail_build_on_failure=False)
+
+      num_attempts = 2
+      self.m.run.with_retry(self.m.step, 'install_' + app_name, num_attempts,
+                            cmd=['ideviceinstaller', '-i', app_package],
+                            between_attempts_fn=uninstall_app,
+                            infra_step=True)
 
     self.device_dirs = default_flavor.DeviceDirs(
         dm_dir='dm',
@@ -32,17 +43,6 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
         skp_dir='skps',
         svg_dir='svgs',
         tmp_dir='tmp')
-
-  def compile(self, unused_target, **kwargs):
-    """ Build Skia with GN and sign the iOS apps"""
-    # Use the generic compile sets.
-    super(iOSFlavorUtils, self).compile(unused_target, **kwargs)
-
-    # Sign the apps.
-    for app in ['dm', 'nanobench']:
-      self._py('package ' + app,
-              self.m.vars.skia_dir.join('gn', 'package_ios.py'),
-              args=[self.out_dir.join(app)], infra_step=True)
 
   def step(self, name, cmd, env=None, **kwargs):
     bundle_id = 'com.google.%s' % cmd[0]

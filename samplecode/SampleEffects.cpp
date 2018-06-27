@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkColorMatrixFilter.h"
 #include "SkDiscretePathEffect.h"
+#include "SkEmbossMaskFilter.h"
 #include "SkGradientShader.h"
 #include "SkPaint.h"
 #include "SkView.h"
@@ -28,11 +29,9 @@ static void paint_proc1(SkPaint* paint) {
 }
 
 static void paint_proc2(SkPaint* paint) {
-#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
-    SkScalar dir[3] = { 1, 1, 1};
-    paint->setMaskFilter(
-            SkBlurMaskFilter::MakeEmboss(SkBlurMask::ConvertRadiusToSigma(1), dir, 0.1f, 0.05f));
-#endif
+    paint->setMaskFilter(SkEmbossMaskFilter::Make(
+            SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(1)),
+            { { SK_Scalar1, SK_Scalar1, SK_Scalar1 }, 0, 64, 16 }));
 }
 
 static void paint_proc3(SkPaint* paint) {

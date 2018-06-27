@@ -20,7 +20,7 @@ namespace SkSL {
  */
 struct ModifiersDeclaration : public ProgramElement {
     ModifiersDeclaration(Modifiers modifiers)
-    : INHERITED(Position(), kModifiers_Kind)
+    : INHERITED(-1, kModifiers_Kind)
     , fModifiers(modifiers) {}
 
     String description() const {

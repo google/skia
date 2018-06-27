@@ -8,6 +8,7 @@
 #ifndef SkPaintPriv_DEFINED
 #define SkPaintPriv_DEFINED
 
+#include "SkImageInfo.h"
 #include "SkPaint.h"
 #include "SkMatrix.h"
 
@@ -61,7 +62,11 @@ public:
     static void MakeTextMatrix(SkMatrix* matrix, const SkPaint& paint) {
         MakeTextMatrix(matrix, paint.getTextSize(), paint.getTextScaleX(), paint.getTextSkewX());
     }
-    
+
+    static bool ShouldDither(const SkPaint&, SkColorType);
+
+    // returns 0 if buffer is invalid for specified encoding
+    static int ValidCountText(const void* text, size_t length, SkPaint::TextEncoding);
 };
 
 #endif

@@ -15,7 +15,7 @@ import os.path
 import shutil
 import subprocess
 
-NDK_VER = "android-ndk-r14"
+NDK_VER = "android-ndk-r15b"
 NDK_URL = \
     "https://dl.google.com/android/repository/%s-linux-x86_64.zip" % NDK_VER
 

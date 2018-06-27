@@ -18,13 +18,9 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextPriv.h"
-#include "GrResourceProvider.h"
+#include "GrProxyProvider.h"
 #include "GrSurfaceContext.h"
-#include "GrSurfaceProxyPriv.h"
-#include "GrTexture.h"
-#include "GrSamplerParams.h"
 #include "GrTextureProxy.h"
-#include "SkGr.h"
 #include "SkImage_Gpu.h"
 #endif
 
@@ -91,6 +87,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrContext* context) {
         return curContext == context ? sk_sp<SkSpecialImage>(SkRef(this)) : nullptr;
     }
 
+    auto proxyProvider = context->contextPriv().proxyProvider();
     SkBitmap bmp;
     // At this point, we are definitely not texture-backed, so we must be raster or generator
     // backed. If we remove the special-wrapping-an-image subclass, we may be able to assert that
@@ -106,7 +103,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrContext* context) {
 
     // TODO: this is a tight copy of 'bmp' but it doesn't have to be (given SkSpecialImage's
     // semantics). Since this is cached though we would have to bake the fit into the cache key.
-    sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(context->resourceProvider(), bmp);
+    sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(proxyProvider, bmp);
     if (!proxy) {
         return nullptr;
     }
@@ -223,7 +220,7 @@ public:
 
     SkAlphaType alphaType() const override { return fBitmap.alphaType(); }
 
-    size_t getSize() const override { return fBitmap.getSize(); }
+    size_t getSize() const override { return fBitmap.computeByteSize(); }
 
     void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const override {
         SkRect dst = SkRect::MakeXYWH(x, y,
@@ -245,7 +242,7 @@ public:
 #if SK_SUPPORT_GPU
     sk_sp<GrTextureProxy> onAsTextureProxyRef(GrContext* context) const override {
         if (context) {
-            return GrMakeCachedBitmapProxy(context->resourceProvider(), fBitmap);
+            return GrMakeCachedBitmapProxy(context->contextPriv().proxyProvider(), fBitmap);
         }
 
         return nullptr;
@@ -342,8 +339,6 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromRaster(const SkIRect& subset,
 
 #if SK_SUPPORT_GPU
 ///////////////////////////////////////////////////////////////////////////////
-#include "GrTexture.h"
-
 static sk_sp<SkImage> wrap_proxy_in_image(GrContext* context, sk_sp<GrTextureProxy> proxy,
                                           SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace) {
     return sk_make_sp<SkImage_Gpu>(context, kNeedNewImageUniqueID, alphaType,
@@ -414,9 +409,12 @@ public:
         if (!rec) {
             return false;
         }
-
+        sk_sp<SkColorSpace> colorSpace;
+        if (GrPixelConfigIsSRGB(fTextureProxy->config())) {
+            colorSpace = SkColorSpace::MakeSRGB();
+        }
         sk_sp<GrSurfaceContext> sContext = fContext->contextPriv().makeWrappedSurfaceContext(
-                                                                          fTextureProxy, nullptr);
+                fTextureProxy, std::move(colorSpace));
         if (!sContext) {
             return false;
         }
@@ -461,7 +459,7 @@ public:
         if (subset) {
             // TODO: if this becomes a bottle neck we could base this logic on what the size
             // will be when it is finally instantiated - but that is more fraught.
-            if (GrResourceProvider::IsFunctionallyExact(fTextureProxy.get()) &&
+            if (GrProxyProvider::IsFunctionallyExact(fTextureProxy.get()) &&
                 0 == subset->fLeft && 0 == subset->fTop &&
                 fTextureProxy->width() == subset->width() &&
                 fTextureProxy->height() == subset->height()) {
@@ -470,7 +468,8 @@ public:
             }
 
             sk_sp<GrTextureProxy> subsetProxy(GrSurfaceProxy::Copy(fContext, fTextureProxy.get(),
-                                                                   *subset, SkBudgeted::kYes));
+                                                                   GrMipMapped::kNo, *subset,
+                                                                   SkBudgeted::kYes));
             if (!subsetProxy) {
                 return nullptr;
             }

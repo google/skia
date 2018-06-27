@@ -17,9 +17,9 @@ namespace SkSL {
  * A literal floating point number.
  */
 struct FloatLiteral : public Expression {
-    FloatLiteral(const Context& context, Position position, double value,
+    FloatLiteral(const Context& context, int offset, double value,
                  const Type* type = nullptr)
-    : INHERITED(position, kFloatLiteral_Kind, type ? *type : *context.fFloat_Type)
+    : INHERITED(offset, kFloatLiteral_Kind, type ? *type : *context.fFloat_Type)
     , fValue(value) {}
 
     String description() const override {
@@ -37,6 +37,10 @@ struct FloatLiteral : public Expression {
     bool compareConstant(const Context& context, const Expression& other) const override {
         FloatLiteral& f = (FloatLiteral&) other;
         return fValue == f.fValue;
+    }
+
+    double getConstantFloat() const override {
+        return fValue;
     }
 
     const double fValue;

@@ -30,12 +30,13 @@ struct Statement : public IRNode {
         kNop_Kind,
         kReturn_Kind,
         kSwitch_Kind,
+        kVarDeclaration_Kind,
         kVarDeclarations_Kind,
         kWhile_Kind
     };
 
-    Statement(Position position, Kind kind)
-    : INHERITED(position)
+    Statement(int offset, Kind kind)
+    : INHERITED(offset)
     , fKind(kind) {}
 
     virtual bool isEmpty() const {

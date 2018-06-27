@@ -95,14 +95,14 @@ protected:
         ~Builder() { this->finish(); }
 
         void finish() {
-            if (NULL == fKey) {
+            if (nullptr == fKey) {
                 return;
             }
             GR_STATIC_ASSERT(0 == kHash_MetaDataIdx);
             uint32_t* hash = &fKey->fKey[kHash_MetaDataIdx];
             *hash = GrResourceKeyHash(hash + 1, fKey->internalSize() - sizeof(uint32_t));
             fKey->validate();
-            fKey = NULL;
+            fKey = nullptr;
         }
 
         uint32_t& operator[](int dataIdx) {

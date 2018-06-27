@@ -37,14 +37,22 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.gclient_env = {}
     self.is_compile_bot = self.builder_name.startswith('Build-')
 
+    self.persistent_checkout = False
     # Compile bots keep a persistent checkout.
-    self.persistent_checkout = (self.is_compile_bot or
-                                'RecreateSKPs' in self.builder_name or
-                                'UpdateMetaConfig' in self.builder_name or
-                                '-CT_' in self.builder_name or
-                                'Presubmit' in self.builder_name or
-                                'InfraTests' in self.builder_name or
-                                self.builder_name == "Housekeeper-PerCommit")
+    if self.is_compile_bot and 'NoDEPS' not in self.builder_name:
+      self.persistent_checkout = True
+    if 'Housekeeper' in self.builder_name:
+      self.persistent_checkout = True
+    if '-CT_' in self.builder_name:
+      self.persistent_checkout = True
+    # We need the source code for the Coverage's Upload step to be in the
+    # same absolute location as when we compiled it so we can map the
+    # coverage data to actual line numbers. We ensure this by making sure
+    # we have a checkout on the Coverage's Upload step and that the Upload
+    # step runs on the same bots that Compile.
+    if 'Coverage' in self.builder_name and 'Upload' in self.builder_name:
+      self.persistent_checkout = True
+
     if self.persistent_checkout:
       if 'Win' in self.builder_name:
         self.checkout_root = self.make_path('C:\\', 'b', 'work')
@@ -83,6 +91,11 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.images_dir = self.slave_dir.join('skimage')
     self.skia_out = self.skia_dir.join('out', self.builder_name)
     self.swarming_out_dir = self.make_path(self.m.properties['swarm_out_dir'])
+    if 'ParentRevision' in self.builder_name:
+      # Tasks that depend on ParentRevision builds usually also depend on a
+      # second build task. Use a different path for build results so that the
+      # binaries end up in different directories in the isolate.
+      self.swarming_out_dir = self.swarming_out_dir.join('ParentRevision')
     self.local_skp_dir = self.slave_dir.join('skp')
     self.local_svg_dir = self.slave_dir.join('svg')
     if not self.is_compile_bot:
@@ -102,13 +115,21 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.builder_cfg = self.m.builder_name_schema.DictForBuilderName(
         self.builder_name)
     self.role = self.builder_cfg['role']
-    if self.role == self.m.builder_name_schema.BUILDER_ROLE_HOUSEKEEPER:
+    if self.role in [self.m.builder_name_schema.BUILDER_ROLE_HOUSEKEEPER,
+                     self.m.builder_name_schema.BUILDER_ROLE_CALMBENCH]:
       self.configuration = CONFIG_RELEASE
     else:
       self.configuration = self.builder_cfg.get('configuration', CONFIG_DEBUG)
     arch = (self.builder_cfg.get('arch') or self.builder_cfg.get('target_arch'))
     if ('Win' in self.builder_cfg.get('os', '') and arch == 'x86_64'):
       self.configuration += '_x64'
+    self.extra_tokens = []
+    if len(self.builder_cfg.get('extra_config', '')) > 0:
+      if self.builder_cfg['extra_config'].startswith('SK'):
+        assert self.builder_cfg['extra_config'].isupper()
+        self.extra_tokens = [self.builder_cfg['extra_config']]
+      else:
+        self.extra_tokens = self.builder_cfg['extra_config'].split('_')
 
     self.default_env.update({'SKIA_OUT': self.skia_out,
                              'BUILDTYPE': self.configuration})
@@ -141,6 +162,15 @@ class SkiaVarsApi(recipe_api.RecipeApi):
       self.android_data_dir = '/cache/skia/'
 
     self.chromeos_homedir = '/home/chronos/user/'
+
+    # Internal bot support.
+    self.internal_hardware_label = (
+        self.m.properties.get('internal_hardware_label'))
+    self.is_internal_bot = self.internal_hardware_label is not None
+
+  @property
+  def is_linux(self):
+    return 'Ubuntu' in self.builder_name or 'Debian' in self.builder_name
 
   @property
   def upload_dm_results(self):
@@ -201,4 +231,3 @@ print os.environ.get('SWARMING_TASK_ID', '')
 ''',
           stdout=self.m.raw_io.output()).stdout.rstrip()
     return self._swarming_task_id
-

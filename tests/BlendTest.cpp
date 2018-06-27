@@ -84,8 +84,8 @@ DEF_TEST(Blend_byte_multiply, r) {
 #if SK_SUPPORT_GPU
 namespace {
 static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
-        GrContext* context, int sampleCnt, int width, int height, GrPixelConfig config,
-        GrSurfaceOrigin origin,
+        GrContext* context, int sampleCnt, int width, int height, SkColorType colorType,
+        GrPixelConfig config, GrSurfaceOrigin origin,
         sk_sp<GrTexture>* backingSurface) {
     GrSurfaceDesc backingDesc;
     backingDesc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -95,20 +95,18 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
     backingDesc.fConfig = config;
     backingDesc.fSampleCnt = sampleCnt;
 
-    *backingSurface = context->resourceProvider()->createTexture(backingDesc, SkBudgeted::kNo);
+    auto resourceProvider = context->contextPriv().resourceProvider();
+
+    *backingSurface = resourceProvider->createTexture(backingDesc, SkBudgeted::kNo);
     if (!(*backingSurface)) {
         return nullptr;
     }
 
-    GrBackendTexture backendTex =
-            GrTest::CreateBackendTexture(context->contextPriv().getBackend(),
-                                         width,
-                                         height,
-                                         config,
-                                         (*backingSurface)->getTextureHandle());
+    GrBackendTexture backendTex = (*backingSurface)->getBackendTexture();
+
     sk_sp<SkSurface> surface =
             SkSurface::MakeFromBackendTextureAsRenderTarget(context, backendTex, origin,
-                                                            sampleCnt, nullptr, nullptr);
+                                                            sampleCnt, colorType, nullptr, nullptr);
 
     return surface;
 }
@@ -142,7 +140,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ES2BlendWithNoTexture, reporter, ctxInfo) 
     std::vector<TestCase> testCases;
 
     for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
-        for (int sampleCnt : {0, 4}) {
+        for (int sampleCnt : {1, 4}) {
             for (auto rectAndPoints : allRectsAndPoints) {
                 for (auto clip : {SkRect::MakeXYWH(0, 0, 10, 10), SkRect::MakeXYWH(1, 1, 8, 8)}) {
                     testCases.push_back({rectAndPoints, clip, sampleCnt, origin});
@@ -162,9 +160,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ES2BlendWithNoTexture, reporter, ctxInfo) 
         sk_sp<GrTexture> backingSurface;
         // BGRA forces a framebuffer blit on ES2.
         sk_sp<SkSurface> surface = create_gpu_surface_backend_texture_as_render_target(
-                context, sampleCnt, kWidth, kHeight, kConfig, origin, &backingSurface);
+                context, sampleCnt, kWidth, kHeight, kColorType, kConfig, origin, &backingSurface);
 
-        if (!surface && sampleCnt > 0) {
+        if (!surface && sampleCnt > 1) {
             // Some platforms don't support MSAA.
             continue;
         }

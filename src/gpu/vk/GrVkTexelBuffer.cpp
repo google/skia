@@ -17,9 +17,9 @@ GrVkTexelBuffer::GrVkTexelBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& desc,
     this->registerWithCache(SkBudgeted::kYes);
 }
 
-GrVkTexelBuffer* GrVkTexelBuffer::Create(GrVkGpu* gpu, size_t size) {
+GrVkTexelBuffer* GrVkTexelBuffer::Create(GrVkGpu* gpu, size_t size, bool dynamic) {
     GrVkBuffer::Desc desc;
-    desc.fDynamic = true;
+    desc.fDynamic = dynamic;
     desc.fType = GrVkBuffer::kTexel_Type;
     desc.fSizeInBytes = size;
 

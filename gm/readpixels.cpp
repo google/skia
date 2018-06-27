@@ -9,11 +9,11 @@
 #include "Resources.h"
 #include "SkCodec.h"
 #include "SkColorSpace.h"
-#include "SkColorSpace_Base.h"
 #include "SkColorSpaceXform.h"
 #include "SkColorSpaceXformPriv.h"
 #include "SkHalf.h"
 #include "SkImage.h"
+#include "SkImageInfoPriv.h"
 #include "SkPictureRecorder.h"
 
 static void clamp_if_necessary(const SkImageInfo& info, void* pixels) {
@@ -41,7 +41,7 @@ static void clamp_if_necessary(const SkImageInfo& info, void* pixels) {
 
 sk_sp<SkColorSpace> fix_for_colortype(SkColorSpace* colorSpace, SkColorType colorType) {
     if (kRGBA_F16_SkColorType == colorType) {
-        return as_CSB(colorSpace)->makeLinearGamma();
+        return colorSpace->makeLinearGamma();
     }
 
     return sk_ref_sp(colorSpace);
@@ -51,8 +51,8 @@ static const int kWidth = 64;
 static const int kHeight = 64;
 
 static sk_sp<SkImage> make_raster_image(SkColorType colorType) {
-    std::unique_ptr<SkStream> stream(GetResourceAsStream("google_chrome.ico"));
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+    std::unique_ptr<SkStream> stream(GetResourceAsStream("images/google_chrome.ico"));
+    std::unique_ptr<SkCodec> codec = SkCodec::MakeFromStream(std::move(stream));
 
     SkBitmap bitmap;
     SkImageInfo info = codec->getInfo().makeWH(kWidth, kHeight)
@@ -66,7 +66,7 @@ static sk_sp<SkImage> make_raster_image(SkColorType colorType) {
 }
 
 static sk_sp<SkImage> make_codec_image() {
-    sk_sp<SkData> encoded = GetResourceAsData("randPixels.png");
+    sk_sp<SkData> encoded = GetResourceAsData("images/randPixels.png");
     return SkImage::MakeFromEncoded(encoded);
 }
 

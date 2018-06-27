@@ -52,6 +52,11 @@ public:
      *      is responsible for calling unlockRow() with this row index when it's done with it.
      */
     int lockRow(const SkBitmap& data);
+    /**
+     * This is intended to be used when cloning a processor that already holds a lock. It is
+     * assumed that the row already has at least one lock.
+     */
+    void lockRow(int row);
     void unlockRow(int row);
 
     /**
@@ -60,11 +65,11 @@ public:
      *
      * If a regular texture access without using the atlas looks like:
      *
-     *      texture2D(sampler, vec2(x, y))
+     *      texture2D(sampler, float2(x, y))
      *
      * Then when using the atlas we'd replace it with:
      *
-     *       texture2D(sampler, vec2(x, yOffset + y * scaleFactor))
+     *       texture2D(sampler, float2(x, yOffset + y * scaleFactor))
      *
      * Where yOffset, returned by getYOffset(), is the offset to the start of the row within the
      * atlas and scaleFactor, returned by getNormalizedTexelHeight, is the normalized height of

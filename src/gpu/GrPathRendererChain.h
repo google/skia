@@ -10,11 +10,12 @@
 
 #include "GrPathRenderer.h"
 
-#include "GrContextOptions.h"
+#include "GrTypesPriv.h"
 #include "SkTypes.h"
 #include "SkTArray.h"
 
 class GrContext;
+class GrCoverageCountingPathRenderer;
 
 /**
  * Keeps track of an ordered list of path renderers. When a path needs to be
@@ -25,9 +26,8 @@ class GrContext;
 class GrPathRendererChain : public SkNoncopyable {
 public:
     struct Options {
-        using GpuPathRenderers = GrContextOptions::GpuPathRenderers;
         bool fAllowPathMaskCaching = false;
-        GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kAll;
+        GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kDefault;
     };
     GrPathRendererChain(GrContext* context, const Options&);
 
@@ -47,11 +47,18 @@ public:
                                     DrawType drawType,
                                     GrPathRenderer::StencilSupport* stencilSupport);
 
+    /** Returns a direct pointer to the coverage counting path renderer, or null if it is not in the
+        chain. */
+    GrCoverageCountingPathRenderer* getCoverageCountingPathRenderer() {
+        return fCoverageCountingPathRenderer;
+    }
+
 private:
     enum {
         kPreAllocCount = 8,
     };
     SkSTArray<kPreAllocCount, sk_sp<GrPathRenderer>>    fChain;
+    GrCoverageCountingPathRenderer*                     fCoverageCountingPathRenderer = nullptr;
 };
 
 #endif

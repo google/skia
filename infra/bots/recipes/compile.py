@@ -23,29 +23,32 @@ DEPS = [
 
 def build_targets_from_builder_dict(builder_dict):
   """Return a list of targets to build, depending on the builder type."""
-  if builder_dict.get('extra_config') == 'iOS':
-    return ['iOSShell']
   return ['most']
 
 
-def get_extra_env_vars(builder_dict):
+def get_extra_env_vars(vars_api):
   env = {}
-  if builder_dict.get('compiler') == 'Clang':
+  if vars_api.builder_cfg.get('compiler') == 'Clang':
     env['CC'] = '/usr/bin/clang'
     env['CXX'] = '/usr/bin/clang++'
 
   # SKNX_NO_SIMD, SK_USE_DISCARDABLE_SCALEDIMAGECACHE, etc.
-  extra_config = builder_dict.get('extra_config', '')
-  if extra_config.startswith('SK') and extra_config.isupper():
-    env['CPPFLAGS'] = '-D' + extra_config
+  # TODO(benjaminwagner): Same appears in gn_flavor.py to set extra_cflags. Are
+  # both needed?
+  if (len(vars_api.extra_tokens) == 1 and
+      vars_api.extra_tokens[0].startswith('SK')):
+    env['CPPFLAGS'] = '-D' + vars_api.extra_tokens[0]
 
   return env
 
 
 def RunSteps(api):
-  api.core.setup()
+  bot_update=True
+  if 'NoDEPS' in api.properties['buildername']:
+    bot_update = False
+  api.core.setup(bot_update=bot_update)
 
-  env = get_extra_env_vars(api.vars.builder_cfg)
+  env = get_extra_env_vars(api.vars)
   build_targets = build_targets_from_builder_dict(api.vars.builder_cfg)
 
   try:
@@ -76,41 +79,41 @@ for p in psutil.process_iter():
 
 
 TEST_BUILDERS = [
+  'Build-Debian9-Clang-arm-Release-Chromebook_GLES',
+  'Build-Debian9-Clang-arm64-Release-Android',
+  'Build-Debian9-Clang-arm64-Release-Android_Vulkan',
+  'Build-Debian9-Clang-arm64-Release-Android_ASAN',
+  'Build-Debian9-Clang-x86_64-Debug',
+  'Build-Debian9-Clang-x86_64-Debug-ASAN',
+  'Build-Debian9-Clang-x86_64-Debug-Coverage',
+  'Build-Debian9-Clang-x86_64-Debug-MSAN',
+  'Build-Debian9-Clang-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
+  'Build-Debian9-Clang-x86_64-Release-Chromebook_GLES',
+  'Build-Debian9-Clang-x86_64-Release-Fast',
+  'Build-Debian9-Clang-x86_64-Release-Mini',
+  'Build-Debian9-Clang-x86_64-Release-NoDEPS',
+  'Build-Debian9-Clang-x86_64-Release-Vulkan',
+  'Build-Debian9-Clang-x86_64-Release-Vulkan_Coverage',
+  'Build-Debian9-EMCC-wasm-Release',
+  'Build-Debian9-GCC-arm-Release-Chromecast',
+  'Build-Debian9-GCC-x86-Debug',
+  'Build-Debian9-GCC-x86_64-Debug-NoGPU',
+  'Build-Debian9-GCC-x86_64-Release-ANGLE',
+  'Build-Debian9-GCC-x86_64-Release-Flutter_Android',
+  'Build-Debian9-GCC-x86_64-Release-PDFium',
+  'Build-Debian9-GCC-x86_64-Release-PDFium_SkiaPaths',
+  'Build-Debian9-GCC-x86_64-Release-Shared',
   'Build-Mac-Clang-arm64-Debug-Android',
   'Build-Mac-Clang-arm64-Debug-iOS',
   'Build-Mac-Clang-x64-Release-iOS',
   'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
   'Build-Mac-Clang-x86_64-Release',
-  'Build-Ubuntu-Clang-arm-Release-Chromebook_C100p',
-  'Build-Ubuntu-Clang-arm64-Debug-Android_FrameworkDefs',
-  'Build-Ubuntu-Clang-arm64-Release-Android',
-  'Build-Ubuntu-Clang-arm64-Release-Android_Vulkan',
-  'Build-Ubuntu-Clang-mipsel-Debug-Android',
-  'Build-Ubuntu-Clang-x86_64-Debug',
-  'Build-Ubuntu-Clang-x86_64-Debug-ASAN',
-  'Build-Ubuntu-Clang-x86_64-Debug-MSAN',
-  'Build-Ubuntu-Clang-x86_64-Release-Mini',
-  'Build-Ubuntu-Clang-x86_64-Release-Vulkan',
-  'Build-Ubuntu-GCC-arm-Release-Chromecast',
-  'Build-Ubuntu-GCC-x86-Debug',
-  'Build-Ubuntu-GCC-x86_64-Debug-GN',
-  'Build-Ubuntu-GCC-x86_64-Debug-MSAN',
-  'Build-Ubuntu-GCC-x86_64-Debug-NoGPU',
-  'Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
-  'Build-Ubuntu-GCC-x86_64-Release-ANGLE',
-  'Build-Ubuntu-GCC-x86_64-Release-Fast',
-  'Build-Ubuntu-GCC-x86_64-Release-Flutter_Android',
-  'Build-Ubuntu-GCC-x86_64-Release-Mesa',
-  'Build-Ubuntu-GCC-x86_64-Release-PDFium',
-  'Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths',
-  'Build-Ubuntu-GCC-x86_64-Release-Shared',
   'Build-Win-Clang-arm64-Release-Android',
+  'Build-Win-Clang-x86_64-Release-Vulkan',
   'Build-Win-MSVC-x86-Debug',
   'Build-Win-MSVC-x86-Debug-ANGLE',
   'Build-Win-MSVC-x86-Debug-Exceptions',
   'Build-Win-MSVC-x86-Release-GDI',
-  'Build-Win-MSVC-x86-Release-GN',
-  'Build-Win-MSVC-x86_64-Release-Vulkan',
 ]
 
 
@@ -137,9 +140,9 @@ def GenTests(api):
     yield test
 
 
-  buildername = 'Build-Win-MSVC-x86_64-Release-Vulkan'
+  buildername = 'Build-Win-Clang-x86_64-Release-Vulkan'
   yield (
-      api.test("trybot") +
+      api.test('trybot') +
       api.properties(buildername=buildername,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
@@ -156,7 +159,6 @@ def GenTests(api):
       )
     )
 
-  buildername = 'Build-Win-MSVC-x86_64-Release-Vulkan'
   yield (
       api.test('alternate_repo') +
       api.properties(buildername=buildername,
@@ -169,7 +171,7 @@ def GenTests(api):
       )
     )
 
-  buildername = 'Build-Ubuntu-GCC-x86_64-Release-PDFium'
+  buildername = 'Build-Debian9-GCC-x86_64-Release-PDFium'
   yield (
       api.test('pdfium_trybot') +
       api.properties(
@@ -192,7 +194,7 @@ def GenTests(api):
       )
   )
 
-  buildername = 'Build-Ubuntu-GCC-x86_64-Release-Flutter_Android'
+  buildername = 'Build-Debian9-GCC-x86_64-Release-Flutter_Android'
   yield (
       api.test('flutter_trybot') +
       api.properties(

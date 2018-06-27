@@ -6,13 +6,14 @@
  */
 
 #include "SkData.h"
+#include "SkDrawable.h"
 #include "SkDumpCanvas.h"
 #include "SkImage.h"
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
 #include "SkPixelRef.h"
 #include "SkRegion.h"
-#include "SkRRect.h"
+#include "SkRRectPriv.h"
 #include "SkString.h"
 #include "SkTextBlob.h"
 #include <stdarg.h>
@@ -43,7 +44,7 @@ static void toString(const SkRRect& rrect, SkString* str) {
     if (rrect.isOval()) {
         str->append("()");
     } else if (rrect.isSimple()) {
-        const SkVector& rad = rrect.getSimpleRadii();
+        const SkVector rad = SkRRectPriv::GetSimpleRadii(rrect);
         str->appendf("(%g,%g)", rad.x(), rad.y());
     } else if (rrect.isComplex()) {
         SkVector radii[4] = {
@@ -461,9 +462,20 @@ void SkDumpCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matri
     fNestLevel += 1;
     this->INHERITED::onDrawPicture(picture, matrix, paint);
     fNestLevel -= 1;
-    this->dump(kDrawPicture_Verb, nullptr, "endPicture(%p) %f:%f:%f:%f", &picture,
+    this->dump(kDrawPicture_Verb, nullptr, "endPicture(%p) %f:%f:%f:%f", picture,
                picture->cullRect().fLeft, picture->cullRect().fTop,
                picture->cullRect().fRight, picture->cullRect().fBottom);
+}
+
+void SkDumpCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
+    const auto bounds = drawable->getBounds();
+    this->dump(kDrawPicture_Verb, nullptr, "drawDrawable(%p) %f:%f:%f:%f", drawable,
+               bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);
+    fNestLevel += 1;
+    this->INHERITED::onDrawDrawable(drawable, matrix);
+    fNestLevel -= 1;
+    this->dump(kDrawPicture_Verb, nullptr, "endDrawable(%p) %f:%f:%f:%f", drawable,
+               bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);
 }
 
 void SkDumpCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode,

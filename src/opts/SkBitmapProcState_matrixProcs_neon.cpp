@@ -5,7 +5,6 @@
  */
 
 #include "SkBitmapProcState.h"
-#include "SkPerspIter.h"
 #include "SkShader.h"
 #include "SkUtilsArm.h"
 #include "SkBitmapProcState_utils.h"

@@ -16,7 +16,7 @@ SkImageGenerator::SkImageGenerator(const SkImageInfo& info, uint32_t uniqueID)
 
 bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                  const Options* opts) {
-    if (kUnknown_SkColorType == info.colorType() || kIndex_8_SkColorType == info.colorType()) {
+    if (kUnknown_SkColorType == info.colorType()) {
         return false;
     }
     if (nullptr == pixels) {
@@ -65,16 +65,20 @@ bool SkImageGenerator::getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes
 #include "GrTextureProxy.h"
 
 sk_sp<GrTextureProxy> SkImageGenerator::generateTexture(GrContext* ctx, const SkImageInfo& info,
-                                                        const SkIPoint& origin) {
+                                                        const SkIPoint& origin,
+                                                        SkTransferFunctionBehavior behavior,
+                                                        bool willNeedMipMaps) {
     SkIRect srcRect = SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height());
     if (!SkIRect::MakeWH(fInfo.width(), fInfo.height()).contains(srcRect)) {
         return nullptr;
     }
-    return this->onGenerateTexture(ctx, info, origin);
+    return this->onGenerateTexture(ctx, info, origin, behavior, willNeedMipMaps);
 }
 
 sk_sp<GrTextureProxy> SkImageGenerator::onGenerateTexture(GrContext*, const SkImageInfo&,
-                                                          const SkIPoint&) {
+                                                          const SkIPoint&,
+                                                          SkTransferFunctionBehavior,
+                                                          bool willNeedMipMaps) {
     return nullptr;
 }
 #endif

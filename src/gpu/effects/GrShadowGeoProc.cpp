@@ -11,7 +11,7 @@
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLVarying.h"
-#include "glsl/GrGLSLVertexShaderBuilder.h"
+#include "glsl/GrGLSLVertexGeoBuilder.h"
 
 class GrGLSLRRectShadowGeoProc : public GrGLSLGeometryProcessor {
 public:
@@ -22,50 +22,38 @@ public:
         GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
         GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-        GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
+        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
         // emit attributes
         varyingHandler->emitAttributes(rsgp);
-        fragBuilder->codeAppend("vec4 shadowParams;");
+        fragBuilder->codeAppend("half4 shadowParams;");
         varyingHandler->addPassThroughAttribute(rsgp.inShadowParams(), "shadowParams");
 
         // setup pass through color
         varyingHandler->addPassThroughAttribute(rsgp.inColor(), args.fOutputColor);
 
         // Setup position
-        this->setupPosition(vertBuilder, gpArgs, rsgp.inPosition()->fName);
+        this->writeOutputPosition(vertBuilder, gpArgs, rsgp.inPosition()->fName);
 
         // emit transforms
         this->emitTransforms(vertBuilder,
                              varyingHandler,
                              uniformHandler,
-                             gpArgs->fPositionVar,
-                             rsgp.inPosition()->fName,
-                             rsgp.localMatrix(),
+                             rsgp.inPosition()->asShaderVar(),
                              args.fFPCoordTransformHandler);
 
-        fragBuilder->codeAppend("float d = length(shadowParams.xy);");
-        fragBuilder->codeAppend("float distance = shadowParams.z * (1.0 - d);");
+        fragBuilder->codeAppend("half d = length(shadowParams.xy);");
+        fragBuilder->codeAppend("half distance = shadowParams.z * (1.0 - d);");
 
-        fragBuilder->codeAppend("float factor = 1.0 - clamp(distance, 0.0, shadowParams.w);");
+        fragBuilder->codeAppend("half factor = 1.0 - clamp(distance, 0.0, shadowParams.w);");
         fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
-        fragBuilder->codeAppendf("%s = vec4(factor);",
+        fragBuilder->codeAppendf("%s = half4(factor);",
                                  args.fOutputCoverage);
     }
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc,
                  FPCoordTransformIter&& transformIter) override {
-        this->setTransformDataHelper(proc.cast<GrRRectShadowGeoProc>().localMatrix(),
-                                     pdman, &transformIter);
-    }
-
-    static inline void GenKey(const GrGeometryProcessor& gp,
-                              const GrShaderCaps&,
-                              GrProcessorKeyBuilder* b) {
-        const GrRRectShadowGeoProc& rsgp = gp.cast<GrRRectShadowGeoProc>();
-        uint16_t key;
-        key = rsgp.localMatrix().hasPerspective() ? 0x1 : 0x0;
-        b->add32(key);
+        this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
     }
 
 private:
@@ -74,19 +62,11 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrRRectShadowGeoProc::GrRRectShadowGeoProc(const SkMatrix& localMatrix)
-    : fLocalMatrix(localMatrix) {
-
-    this->initClassID<GrRRectShadowGeoProc>();
-    fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
-                                         kHigh_GrSLPrecision);
-    fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
-    fInShadowParams = &this->addVertexAttrib("inShadowParams", kVec4f_GrVertexAttribType);
-}
-
-void GrRRectShadowGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
-                                               GrProcessorKeyBuilder* b) const {
-    GrGLSLRRectShadowGeoProc::GenKey(*this, caps, b);
+GrRRectShadowGeoProc::GrRRectShadowGeoProc()
+: INHERITED(kGrRRectShadowGeoProc_ClassID) {
+    fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
+    fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
+    fInShadowParams = &this->addVertexAttrib("inShadowParams", kHalf4_GrVertexAttribType);
 }
 
 GrGLSLPrimitiveProcessor* GrRRectShadowGeoProc::createGLSLInstance(const GrShaderCaps&) const {
@@ -99,6 +79,6 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrRRectShadowGeoProc);
 
 #if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> GrRRectShadowGeoProc::TestCreate(GrProcessorTestData* d) {
-    return GrRRectShadowGeoProc::Make(GrTest::TestMatrix(d->fRandom));
+    return GrRRectShadowGeoProc::Make();
 }
 #endif

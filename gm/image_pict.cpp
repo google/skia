@@ -18,8 +18,6 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrSurfaceContext.h"
-#include "GrSurfaceProxy.h"
-#include "GrTexture.h"
 #include "GrTextureProxy.h"
 #include "../src/image/SkImage_Gpu.h"
 #endif
@@ -154,7 +152,8 @@ public:
         : SkImageGenerator(info)
         , fCtx(SkRef(ctx)) {
 
-        sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
+        sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kYes, info, 0,
+                                                             kTopLeft_GrSurfaceOrigin, nullptr));
         if (surface) {
             surface->getCanvas()->clear(0);
             surface->getCanvas()->translate(-100, -100);
@@ -165,7 +164,9 @@ public:
     }
 protected:
     sk_sp<GrTextureProxy> onGenerateTexture(GrContext* ctx, const SkImageInfo& info,
-                                            const SkIPoint& origin) override {
+                                            const SkIPoint& origin,
+                                            SkTransferFunctionBehavior,
+                                            bool willBeMipped) override {
         SkASSERT(ctx);
         SkASSERT(ctx == fCtx.get());
 
@@ -180,15 +181,18 @@ protected:
 
         // need to copy the subset into a new texture
         GrSurfaceDesc desc;
-        desc.fConfig = fProxy->config();
+        desc.fOrigin = fProxy->origin();
         desc.fWidth = info.width();
         desc.fHeight = info.height();
-        desc.fOrigin = fProxy->origin();
+        desc.fConfig = fProxy->config();
+
+        GrMipMapped mipMapped = willBeMipped ? GrMipMapped::kYes : GrMipMapped::kNo;
 
         sk_sp<GrSurfaceContext> dstContext(fCtx->contextPriv().makeDeferredSurfaceContext(
                                                                             desc,
+                                                                            mipMapped,
                                                                             SkBackingFit::kExact,
-                                                                            SkBudgeted::kNo));
+                                                                            SkBudgeted::kYes));
         if (!dstContext) {
             return nullptr;
         }
@@ -271,10 +275,9 @@ protected:
     static void draw_as_tex(SkCanvas* canvas, SkImage* image, SkScalar x, SkScalar y) {
 #if SK_SUPPORT_GPU
         sk_sp<SkColorSpace> texColorSpace;
-        sk_sp<GrTextureProxy> proxy(
-            as_IB(image)->asTextureProxyRef(canvas->getGrContext(), GrSamplerParams::ClampBilerp(),
-                                            canvas->imageInfo().colorSpace(), &texColorSpace,
-                                            nullptr));
+        sk_sp<GrTextureProxy> proxy(as_IB(image)->asTextureProxyRef(
+                canvas->getGrContext(), GrSamplerState::ClampBilerp(),
+                canvas->imageInfo().colorSpace(), &texColorSpace, nullptr));
         if (!proxy) {
             // show placeholder if we have no texture
             SkPaint paint;

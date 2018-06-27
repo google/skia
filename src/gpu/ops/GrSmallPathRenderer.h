@@ -9,6 +9,7 @@
 #define GrSmallPathRenderer_DEFINED
 
 #include "GrDrawOpAtlas.h"
+#include "GrOnFlushResourceProvider.h"
 #include "GrPathRenderer.h"
 #include "GrRect.h"
 #include "GrShape.h"
@@ -18,17 +19,40 @@
 
 class GrContext;
 
-class GrSmallPathRenderer : public GrPathRenderer {
+class GrSmallPathRenderer : public GrPathRenderer, public GrOnFlushCallbackObject {
 public:
     GrSmallPathRenderer();
     ~GrSmallPathRenderer() override;
+
+    class SmallPathOp;
+    struct PathTestStruct;
+
+    // GrOnFlushCallbackObject overrides
+    //
+    // Note: because this class is associated with a path renderer we want it to be removed from
+    // the list of active OnFlushBackkbackObjects in an freeGpuResources call (i.e., we accept the
+    // default retainOnFreeGpuResources implementation).
+
+    void preFlush(GrOnFlushResourceProvider* onFlushResourceProvider, const uint32_t*, int,
+                  SkTArray<sk_sp<GrRenderTargetContext>>*) override {
+        if (fAtlas) {
+            fAtlas->instantiate(onFlushResourceProvider);
+        }
+    }
+
+    void postFlush(GrDeferredUploadToken startTokenForNextFlush,
+                   const uint32_t* opListIDs, int numOpListIDs) override {
+        if (fAtlas) {
+            fAtlas->compact(startTokenForNextFlush);
+        }
+    }
 
 private:
     StencilSupport onGetStencilSupport(const GrShape&) const override {
         return GrPathRenderer::kNoSupport_StencilSupport;
     }
 
-    bool onCanDrawPath(const CanDrawPathArgs&) const override;
+    CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
 
     bool onDrawPath(const DrawPathArgs&) override;
 
@@ -46,6 +70,7 @@ private:
                 return *this;
             }
 
+            // for SDF paths
             void set(const GrShape& shape, uint32_t dim) {
                 // Shapes' keys are for their pre-style geometry, but by now we shouldn't have any
                 // relevant styling information.
@@ -57,13 +82,8 @@ private:
                 shape.writeUnstyledKey(&fKey[1]);
             }
 
+            // for bitmap paths
             void set(const GrShape& shape, const SkMatrix& ctm) {
-                GrUniqueKey maskKey;
-                struct KeyData {
-                    SkScalar fFractionalTranslateX;
-                    SkScalar fFractionalTranslateY;
-                };
-
                 // Shapes' keys are for their pre-style geometry, but by now we shouldn't have any
                 // relevant styling information.
                 SkASSERT(shape.style().isSimpleFill());
@@ -76,8 +96,10 @@ private:
                 SkScalar tx = ctm.get(SkMatrix::kMTransX);
                 SkScalar ty = ctm.get(SkMatrix::kMTransY);
                 // Allow 8 bits each in x and y of subpixel positioning.
-                SkFixed fracX = SkScalarToFixed(SkScalarFraction(tx)) & 0x0000FF00;
-                SkFixed fracY = SkScalarToFixed(SkScalarFraction(ty)) & 0x0000FF00;
+                tx -= SkScalarFloorToScalar(tx);
+                ty -= SkScalarFloorToScalar(ty);
+                SkFixed fracX = SkScalarToFixed(tx) & 0x0000FF00;
+                SkFixed fracY = SkScalarToFixed(ty) & 0x0000FF00;
                 int shapeKeySize = shape.unstyledKeySize();
                 fKey.reset(5 + shapeKeySize);
                 fKey[0] = SkFloat2Bits(sx);
@@ -102,11 +124,10 @@ private:
             // the matrix for the path with only fractional translation.
             SkAutoSTArray<24, uint32_t> fKey;
         };
-        Key fKey;
+        Key                    fKey;
         GrDrawOpAtlas::AtlasID fID;
-        SkRect   fBounds;
-        SkScalar fScale;
-        SkVector fTranslate;
+        SkRect                 fBounds;
+        GrIRect16              fTextureCoords;
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(ShapeData);
 
         static inline const Key& GetKey(const ShapeData& data) {
@@ -128,9 +149,6 @@ private:
     ShapeDataList fShapeList;
 
     typedef GrPathRenderer INHERITED;
-
-    friend class SmallPathOp;
-    friend struct PathTestStruct;
 };
 
 #endif

@@ -30,11 +30,9 @@ uint32_t SkNextID::ImageID() {
     static int32_t gInstCounter;
 #endif
 
-SkPixelRef::SkPixelRef(int width, int height, void* pixels, size_t rowBytes,
-                       sk_sp<SkColorTable> ctable)
+SkPixelRef::SkPixelRef(int width, int height, void* pixels, size_t rowBytes)
     : fWidth(width)
     , fHeight(height)
-    , fCTable(std::move(ctable))
     , fPixels(pixels)
     , fRowBytes(rowBytes)
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -57,22 +55,16 @@ SkPixelRef::~SkPixelRef() {
     this->callGenIDChangeListeners();
 }
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-
 // This is undefined if there are clients in-flight trying to use us
-void SkPixelRef::android_only_reset(int width, int height, size_t rowBytes,
-                                    sk_sp<SkColorTable> ctable) {
+void SkPixelRef::android_only_reset(int width, int height, size_t rowBytes) {
     fWidth = width;
     fHeight = height;
     fRowBytes = rowBytes;
-    fCTable = std::move(ctable);
     // note: we do not change fPixels
 
     // conservative, since its possible the "new" settings are the same as the old.
     this->notifyPixelsChanged();
 }
-
-#endif
 
 void SkPixelRef::needsNewGenID() {
     fTaggedGenID.store(0);

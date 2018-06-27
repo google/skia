@@ -9,8 +9,8 @@
 #include "SkCodecPriv.h"
 #include "SkWebpAdapterCodec.h"
 
-SkWebpAdapterCodec::SkWebpAdapterCodec(SkWebpCodec* codec)
-    : INHERITED(codec)
+SkWebpAdapterCodec::SkWebpAdapterCodec(SkWebpCodec* codec, ExifOrientationBehavior behavior)
+    : INHERITED(codec, behavior)
 {}
 
 SkISize SkWebpAdapterCodec::onGetSampledDimensions(int sampleSize) const {
@@ -24,23 +24,9 @@ bool SkWebpAdapterCodec::onGetSupportedSubset(SkIRect* desiredSubset) const {
 
 SkCodec::Result SkWebpAdapterCodec::onGetAndroidPixels(const SkImageInfo& info, void* pixels,
         size_t rowBytes, const AndroidOptions& options) {
-    // SkWebpCodec will support pretty much any dimensions that we provide, but we want
-    // to be stricter about the type of scaling that we allow, so we will add an extra
-    // check here.
-    SkISize supportedSize;
-    if (!options.fSubset) {
-        supportedSize = this->onGetSampledDimensions(options.fSampleSize);
-    } else {
-        supportedSize = this->getSampledSubsetDimensions(options.fSampleSize, *options.fSubset);
-    }
-    if (supportedSize != info.dimensions()) {
-        return SkCodec::kInvalidParameters;
-    }
-
     SkCodec::Options codecOptions;
     codecOptions.fZeroInitialized = options.fZeroInitialized;
     codecOptions.fSubset = options.fSubset;
     codecOptions.fPremulBehavior = SkTransferFunctionBehavior::kIgnore;
-    return this->codec()->getPixels(info, pixels, rowBytes, &codecOptions, options.fColorPtr,
-            options.fColorCount);
+    return this->codec()->getPixels(info, pixels, rowBytes, &codecOptions);
 }

@@ -9,9 +9,10 @@ while IFS= read -r line; do
     type=$(echo $line | sed -n 's/[^"]*"\([^"]*\)":.*/\1/p')
     if [ "$type" ]; then
         case "$type" in
-            Raster|Gpu) ext='.png';;
-            Pdf)        ext='.pdf';;
-            Skp)        ext='.skp';;
+            Raster|Gpu)  ext='.png';;
+            Pdf)         ext='.pdf';;
+            Skp)         ext='.skp';;
+            Text|GLInfo) ext='.txt';;
         esac
         dst="${TMPDIR:-/tmp}/fiddle_${type}${ext}"
         echo $line | sed 's/[^"]*"[^"]*": "//; s/"\(,\|\)$//' \

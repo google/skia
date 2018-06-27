@@ -19,11 +19,9 @@ class GrGLRRectShadowGeoProc;
  */
 class GrRRectShadowGeoProc : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make(const SkMatrix& localMatrix) {
-        return sk_sp<GrGeometryProcessor>(new GrRRectShadowGeoProc(localMatrix));
+    static sk_sp<GrGeometryProcessor> Make() {
+        return sk_sp<GrGeometryProcessor>(new GrRRectShadowGeoProc());
     }
-
-    ~GrRRectShadowGeoProc() override {}
 
     const char* name() const override { return "RRectShadow"; }
 
@@ -31,22 +29,20 @@ public:
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inShadowParams() const { return fInShadowParams; }
     GrColor color() const { return fColor; }
-    const SkMatrix& localMatrix() const { return fLocalMatrix; }
 
-    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {}
 
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
-    GrRRectShadowGeoProc(const SkMatrix& localMatrix);
+    GrRRectShadowGeoProc();
 
     GrColor          fColor;
-    SkMatrix         fLocalMatrix;
     const Attribute* fInPosition;
     const Attribute* fInColor;
     const Attribute* fInShadowParams;
 
-    GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
+    GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
     typedef GrGeometryProcessor INHERITED;
 };

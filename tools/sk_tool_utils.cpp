@@ -6,209 +6,48 @@
  */
 
 #include "sk_tool_utils.h"
-#include "sk_tool_utils_flags.h"
 
 #include "Resources.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkCommonFlags.h"
-#include "SkFontMgr.h"
-#include "SkFontStyle.h"
+#include "SkImage.h"
 #include "SkPixelRef.h"
+#include "SkPM4f.h"
 #include "SkPoint3.h"
 #include "SkShader.h"
+#include "SkSurface.h"
 #include "SkTestScalerContext.h"
 #include "SkTextBlob.h"
 
-DEFINE_bool(portableFonts, false, "Use portable fonts");
-
-#if SK_SUPPORT_GPU
-#include "effects/GrSRGBEffect.h"
-#include "SkColorFilter.h"
-
-// Color filter that just wraps GrSRGBEffect
-class SkSRGBColorFilter : public SkColorFilter {
-public:
-    static sk_sp<SkColorFilter> Make(GrSRGBEffect::Mode mode) {
-        return sk_sp<SkColorFilter>(new SkSRGBColorFilter(mode));
-    }
-
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*, SkColorSpace*) const override {
-        return GrSRGBEffect::Make(fMode);
-    }
-
-    void filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const override {
-        SK_ABORT("SkSRGBColorFilter is only implemented for GPU");
-    }
-    void filterSpan4f(const SkPM4f src[], int count, SkPM4f dst[]) const override {
-        SK_ABORT("SkSRGBColorFilter is only implemented for GPU");
-    }
-    Factory getFactory() const override { return nullptr; }
-
-#ifndef SK_IGNORE_TO_STRING
-    void toString(SkString* str) const override {}
-#endif
-
-private:
-    SkSRGBColorFilter(GrSRGBEffect::Mode mode) : fMode(mode) {}
-
-    GrSRGBEffect::Mode fMode;
-    typedef SkColorFilter INHERITED;
-};
-#endif
-
 namespace sk_tool_utils {
 
-/* these are the default fonts chosen by Chrome for serif, sans-serif, and monospace */
-static const char* gStandardFontNames[][3] = {
-    { "Times", "Helvetica", "Courier" }, // Mac
-    { "Times New Roman", "Helvetica", "Courier" }, // iOS
-    { "Times New Roman", "Arial", "Courier New" }, // Win
-    { "Times New Roman", "Arial", "Monospace" }, // Ubuntu
-    { "serif", "sans-serif", "monospace" }, // Android
-    { "Tinos", "Arimo", "Cousine" } // ChromeOS
-};
-
-const char* platform_font_name(const char* name) {
-    SkString platform = major_platform_os_name();
-    int index;
-    if (!strcmp(name, "serif")) {
-        index = 0;
-    } else if (!strcmp(name, "san-serif")) {
-        index = 1;
-    } else if (!strcmp(name, "monospace")) {
-        index = 2;
-    } else {
-        return name;
+const char* alphatype_name(SkAlphaType at) {
+    switch (at) {
+        case kUnknown_SkAlphaType:  return "Unknown";
+        case kOpaque_SkAlphaType:   return "Opaque";
+        case kPremul_SkAlphaType:   return "Premul";
+        case kUnpremul_SkAlphaType: return "Unpremul";
     }
-    if (platform.equals("Mac")) {
-        return gStandardFontNames[0][index];
-    }
-    if (platform.equals("iOS")) {
-        return gStandardFontNames[1][index];
-    }
-    if (platform.equals("Win")) {
-        return gStandardFontNames[2][index];
-    }
-    if (platform.equals("Ubuntu")) {
-        return gStandardFontNames[3][index];
-    }
-    if (platform.equals("Android")) {
-        return gStandardFontNames[4][index];
-    }
-    if (platform.equals("ChromeOS")) {
-        return gStandardFontNames[5][index];
-    }
-    return name;
-}
-
-const char* platform_os_emoji() {
-    const char* osName = platform_os_name();
-    if (!strcmp(osName, "Android") || !strcmp(osName, "Ubuntu")) {
-        return "CBDT";
-    }
-    if (!strncmp(osName, "Mac", 3) || !strncmp(osName, "iOS", 3)) {
-        return "SBIX";
-    }
-    if (!strncmp(osName, "Win", 3)) {
-        return "COLR";
-    }
-    return "";
-}
-
-sk_sp<SkTypeface> emoji_typeface() {
-    if (!strcmp(sk_tool_utils::platform_os_emoji(), "CBDT")) {
-        return MakeResourceAsTypeface("/fonts/Funkster.ttf");
-    }
-    if (!strcmp(sk_tool_utils::platform_os_emoji(), "SBIX")) {
-        return SkTypeface::MakeFromName("Apple Color Emoji", SkFontStyle());
-    }
-    if (!strcmp(sk_tool_utils::platform_os_emoji(), "COLR")) {
-        sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
-        const char *colorEmojiFontName = "Segoe UI Emoji";
-        sk_sp<SkTypeface> typeface(fm->matchFamilyStyle(colorEmojiFontName, SkFontStyle()));
-        if (typeface) {
-            return typeface;
-        }
-        sk_sp<SkTypeface> fallback(fm->matchFamilyStyleCharacter(
-            colorEmojiFontName, SkFontStyle(), nullptr /* bcp47 */, 0 /* bcp47Count */,
-            0x1f4b0 /* character: 💰 */));
-        if (fallback) {
-            return fallback;
-        }
-        // If we don't have Segoe UI Emoji and can't find a fallback, try Segoe UI Symbol.
-        // Windows 7 does not have Segoe UI Emoji; Segoe UI Symbol has the (non - color) emoji.
-        return SkTypeface::MakeFromName("Segoe UI Symbol", SkFontStyle());
-    }
-    return nullptr;
-}
-
-const char* emoji_sample_text() {
-    if (!strcmp(sk_tool_utils::platform_os_emoji(), "CBDT")) {
-        return "Hamburgefons";
-    }
-    if (!strcmp(sk_tool_utils::platform_os_emoji(), "SBIX") ||
-        !strcmp(sk_tool_utils::platform_os_emoji(), "COLR"))
-    {
-        return "\xF0\x9F\x92\xB0" "\xF0\x9F\x8F\xA1" "\xF0\x9F\x8E\x85"  // 💰🏡🎅
-               "\xF0\x9F\x8D\xAA" "\xF0\x9F\x8D\x95" "\xF0\x9F\x9A\x80"  // 🍪🍕🚀
-               "\xF0\x9F\x9A\xBB" "\xF0\x9F\x92\xA9" "\xF0\x9F\x93\xB7" // 🚻💩📷
-               "\xF0\x9F\x93\xA6" // 📦
-               "\xF0\x9F\x87\xBA" "\xF0\x9F\x87\xB8" "\xF0\x9F\x87\xA6"; // 🇺🇸🇦
-    }
-    return "";
-}
-
-const char* platform_os_name() {
-    for (int index = 0; index < FLAGS_key.count(); index += 2) {
-        if (!strcmp("os", FLAGS_key[index])) {
-            return FLAGS_key[index + 1];
-        }
-    }
-    // when running SampleApp or dm without a --key pair, omit the platform name
-    return "";
-}
-
-// omit version number in returned value
-SkString major_platform_os_name() {
-    SkString name;
-    for (int index = 0; index < FLAGS_key.count(); index += 2) {
-        if (!strcmp("os", FLAGS_key[index])) {
-            const char* platform = FLAGS_key[index + 1];
-            const char* end = platform;
-            while (*end && (*end < '0' || *end > '9')) {
-                ++end;
-            }
-            name.append(platform, end - platform);
-            break;
-        }
-    }
-    return name;
-}
-
-const char* platform_extra_config(const char* config) {
-    for (int index = 0; index < FLAGS_key.count(); index += 2) {
-        if (!strcmp("extra_config", FLAGS_key[index]) && !strcmp(config, FLAGS_key[index + 1])) {
-            return config;
-        }
-    }
-    return "";
+    SkASSERT(false);
+    return "unexpected alphatype";
 }
 
 const char* colortype_name(SkColorType ct) {
     switch (ct) {
         case kUnknown_SkColorType:      return "Unknown";
         case kAlpha_8_SkColorType:      return "Alpha_8";
-        case kIndex_8_SkColorType:      return "Index_8";
-        case kARGB_4444_SkColorType:    return "ARGB_4444";
         case kRGB_565_SkColorType:      return "RGB_565";
+        case kARGB_4444_SkColorType:    return "ARGB_4444";
         case kRGBA_8888_SkColorType:    return "RGBA_8888";
+        case kRGB_888x_SkColorType:     return "RGB_888x";
         case kBGRA_8888_SkColorType:    return "BGRA_8888";
+        case kRGBA_1010102_SkColorType: return "RGBA_1010102";
+        case kRGB_101010x_SkColorType:  return "RGB_101010x";
+        case kGray_8_SkColorType:       return "Gray_8";
         case kRGBA_F16_SkColorType:     return "RGBA_F16";
-        default:
-            SkASSERT(false);
-            return "unexpected colortype";
     }
+    SkASSERT(false);
+    return "unexpected colortype";
 }
 
 SkColor color_to_565(SkColor color) {
@@ -217,20 +56,18 @@ SkColor color_to_565(SkColor color) {
     return SkPixel16ToColor(color16);
 }
 
-sk_sp<SkTypeface> create_portable_typeface(const char* name, SkFontStyle style) {
-    return create_font(name, style);
-}
-
-void set_portable_typeface(SkPaint* paint, const char* name, SkFontStyle style) {
-    paint->setTypeface(create_font(name, style));
-}
-
 void write_pixels(SkCanvas* canvas, const SkBitmap& bitmap, int x, int y,
                   SkColorType colorType, SkAlphaType alphaType) {
     SkBitmap tmp(bitmap);
     const SkImageInfo info = SkImageInfo::Make(tmp.width(), tmp.height(), colorType, alphaType);
 
     canvas->writePixels(info, tmp.getPixels(), tmp.rowBytes(), x, y);
+}
+
+void write_pixels(SkSurface* surface, const SkBitmap& src, int x, int y,
+                  SkColorType colorType, SkAlphaType alphaType) {
+    const SkImageInfo info = SkImageInfo::Make(src.width(), src.height(), colorType, alphaType);
+    surface->writePixels({info, src.getPixels(), src.rowBytes()}, x, y);
 }
 
 sk_sp<SkShader> create_checkerboard_shader(SkColor c1, SkColor c2, int size) {
@@ -282,12 +119,11 @@ SkBitmap create_string_bitmap(int w, int h, SkColor c, int x, int y,
     return result;
 }
 
-void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkPaint& origPaint,
-                      SkScalar x, SkScalar y) {
+void add_to_text_blob_w_len(SkTextBlobBuilder* builder, const char* text, size_t len,
+                            const SkPaint& origPaint, SkScalar x, SkScalar y) {
     SkPaint paint(origPaint);
     SkTDArray<uint16_t> glyphs;
 
-    size_t len = strlen(text);
     glyphs.append(paint.textToGlyphs(text, len, nullptr));
     paint.textToGlyphs(text, len, glyphs.begin());
 
@@ -297,115 +133,27 @@ void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkPain
     memcpy(run.glyphs, glyphs.begin(), glyphs.count() * sizeof(uint16_t));
 }
 
-static inline void norm_to_rgb(SkBitmap* bm, int x, int y, const SkVector3& norm) {
-    SkASSERT(SkScalarNearlyEqual(norm.length(), 1.0f));
-    unsigned char r = static_cast<unsigned char>((0.5f * norm.fX + 0.5f) * 255);
-    unsigned char g = static_cast<unsigned char>((-0.5f * norm.fY + 0.5f) * 255);
-    unsigned char b = static_cast<unsigned char>((0.5f * norm.fZ + 0.5f) * 255);
-    *bm->getAddr32(x, y) = SkPackARGB32(0xFF, r, g, b);
+void add_to_text_blob(SkTextBlobBuilder* builder, const char* text,
+                      const SkPaint& origPaint, SkScalar x, SkScalar y) {
+    add_to_text_blob_w_len(builder, text, strlen(text), origPaint, x, y);
 }
 
-void create_hemi_normal_map(SkBitmap* bm, const SkIRect& dst) {
-    const SkPoint center = SkPoint::Make(dst.fLeft + (dst.width() / 2.0f),
-                                         dst.fTop + (dst.height() / 2.0f));
-    const SkPoint halfSize = SkPoint::Make(dst.width() / 2.0f, dst.height() / 2.0f);
-
-    SkVector3 norm;
-
-    for (int y = dst.fTop; y < dst.fBottom; ++y) {
-        for (int x = dst.fLeft; x < dst.fRight; ++x) {
-            norm.fX = (x + 0.5f - center.fX) / halfSize.fX;
-            norm.fY = (y + 0.5f - center.fY) / halfSize.fY;
-
-            SkScalar tmp = norm.fX * norm.fX + norm.fY * norm.fY;
-            if (tmp >= 1.0f) {
-                norm.set(0.0f, 0.0f, 1.0f);
-            } else {
-                norm.fZ = sqrtf(1.0f - tmp);
-            }
-
-            norm_to_rgb(bm, x, y, norm);
-        }
+SkPath make_star(const SkRect& bounds, int numPts, int step) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(0,-1);
+    for (int i = 1; i < numPts; ++i) {
+        int idx = i*step;
+        SkScalar theta = idx * 2*SK_ScalarPI/numPts + SK_ScalarPI/2;
+        SkScalar x = SkScalarCos(theta);
+        SkScalar y = -SkScalarSin(theta);
+        path.lineTo(x, y);
     }
+    path.transform(SkMatrix::MakeRectToRect(path.getBounds(), bounds, SkMatrix::kFill_ScaleToFit));
+    return path;
 }
 
-void create_frustum_normal_map(SkBitmap* bm, const SkIRect& dst) {
-    const SkPoint center = SkPoint::Make(dst.fLeft + (dst.width() / 2.0f),
-                                         dst.fTop + (dst.height() / 2.0f));
-
-    SkIRect inner = dst;
-    inner.inset(dst.width()/4, dst.height()/4);
-
-    SkPoint3 norm;
-    const SkPoint3 left =  SkPoint3::Make(-SK_ScalarRoot2Over2, 0.0f, SK_ScalarRoot2Over2);
-    const SkPoint3 up =    SkPoint3::Make(0.0f, -SK_ScalarRoot2Over2, SK_ScalarRoot2Over2);
-    const SkPoint3 right = SkPoint3::Make(SK_ScalarRoot2Over2,  0.0f, SK_ScalarRoot2Over2);
-    const SkPoint3 down =  SkPoint3::Make(0.0f,  SK_ScalarRoot2Over2, SK_ScalarRoot2Over2);
-
-    for (int y = dst.fTop; y < dst.fBottom; ++y) {
-        for (int x = dst.fLeft; x < dst.fRight; ++x) {
-            if (inner.contains(x, y)) {
-                norm.set(0.0f, 0.0f, 1.0f);
-            } else {
-                SkScalar locX = x + 0.5f - center.fX;
-                SkScalar locY = y + 0.5f - center.fY;
-
-                if (locX >= 0.0f) {
-                    if (locY > 0.0f) {
-                        norm = locX >= locY ? right : down;   // LR corner
-                    } else {
-                        norm = locX > -locY ? right : up;     // UR corner
-                    }
-                } else {
-                    if (locY > 0.0f) {
-                        norm = -locX > locY ? left : down;    // LL corner
-                    } else {
-                        norm = locX > locY ? up : left;       // UL corner
-                    }
-                }
-            }
-
-            norm_to_rgb(bm, x, y, norm);
-        }
-    }
-}
-
-void create_tetra_normal_map(SkBitmap* bm, const SkIRect& dst) {
-    const SkPoint center = SkPoint::Make(dst.fLeft + (dst.width() / 2.0f),
-                                         dst.fTop + (dst.height() / 2.0f));
-
-    static const SkScalar k1OverRoot3 = 0.5773502692f;
-
-    SkPoint3 norm;
-    const SkPoint3 leftUp =  SkPoint3::Make(-k1OverRoot3, -k1OverRoot3, k1OverRoot3);
-    const SkPoint3 rightUp = SkPoint3::Make(k1OverRoot3,  -k1OverRoot3, k1OverRoot3);
-    const SkPoint3 down =  SkPoint3::Make(0.0f,  SK_ScalarRoot2Over2, SK_ScalarRoot2Over2);
-
-    for (int y = dst.fTop; y < dst.fBottom; ++y) {
-        for (int x = dst.fLeft; x < dst.fRight; ++x) {
-            SkScalar locX = x + 0.5f - center.fX;
-            SkScalar locY = y + 0.5f - center.fY;
-
-            if (locX >= 0.0f) {
-                if (locY > 0.0f) {
-                    norm = locX >= locY ? rightUp : down;   // LR corner
-                } else {
-                    norm = rightUp;
-                }
-            } else {
-                if (locY > 0.0f) {
-                    norm = -locX > locY ? leftUp : down;    // LL corner
-                } else {
-                    norm = leftUp;
-                }
-            }
-
-            norm_to_rgb(bm, x, y, norm);
-        }
-    }
-}
-
-#if defined(_MSC_VER)
+#if !defined(__clang__) && defined(_MSC_VER)
     // MSVC takes ~2 minutes to compile this function with optimization.
     // We don't really care to wait that long for this function.
     #pragma optimize("", off)
@@ -601,16 +349,7 @@ bool copy_to(SkBitmap* dst, SkColorType dstColorType, const SkBitmap& src) {
         return false;
     }
 
-    // allocate colortable if srcConfig == kIndex8_Config
-    sk_sp<SkColorTable> ctable = nullptr;
-    if (dstColorType == kIndex_8_SkColorType) {
-        if (src.colorType() != kIndex_8_SkColorType) {
-            return false;
-        }
-
-        ctable = sk_ref_sp(srcPM.ctable());
-    }
-    if (!tmpDst.tryAllocPixels(ctable.get())) {
+    if (!tmpDst.tryAllocPixels()) {
         return false;
     }
 
@@ -658,14 +397,116 @@ void copy_to_g8(SkBitmap* dst, const SkBitmap& src) {
     }
 }
 
-#if SK_SUPPORT_GPU
-sk_sp<SkColorFilter> MakeLinearToSRGBColorFilter() {
-    return SkSRGBColorFilter::Make(GrSRGBEffect::Mode::kLinearToSRGB);
-}
+    //////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkColorFilter> MakeSRGBToLinearColorFilter() {
-    return SkSRGBColorFilter::Make(GrSRGBEffect::Mode::kSRGBToLinear);
-}
-#endif
+    static int scale255(float x) {
+        return sk_float_round2int(x * 255);
+    }
 
+    static unsigned diff(const SkColorType ct, const void* a, const void* b) {
+        int dr = 0,
+            dg = 0,
+            db = 0,
+            da = 0;
+        switch (ct) {
+            case kRGBA_8888_SkColorType:
+            case kBGRA_8888_SkColorType: {
+                SkPMColor c0 = *(const SkPMColor*)a;
+                SkPMColor c1 = *(const SkPMColor*)b;
+                dr = SkGetPackedR32(c0) - SkGetPackedR32(c1);
+                dg = SkGetPackedG32(c0) - SkGetPackedG32(c1);
+                db = SkGetPackedB32(c0) - SkGetPackedB32(c1);
+                da = SkGetPackedA32(c0) - SkGetPackedA32(c1);
+            } break;
+            case kRGB_565_SkColorType: {
+                uint16_t c0 = *(const uint16_t*)a;
+                uint16_t c1 = *(const uint16_t*)b;
+                dr = SkGetPackedR16(c0) - SkGetPackedR16(c1);
+                dg = SkGetPackedG16(c0) - SkGetPackedG16(c1);
+                db = SkGetPackedB16(c0) - SkGetPackedB16(c1);
+            } break;
+            case kARGB_4444_SkColorType: {
+                uint16_t c0 = *(const uint16_t*)a;
+                uint16_t c1 = *(const uint16_t*)b;
+                dr = SkGetPackedR4444(c0) - SkGetPackedR4444(c1);
+                dg = SkGetPackedG4444(c0) - SkGetPackedG4444(c1);
+                db = SkGetPackedB4444(c0) - SkGetPackedB4444(c1);
+                da = SkGetPackedA4444(c0) - SkGetPackedA4444(c1);
+            } break;
+            case kAlpha_8_SkColorType:
+            case kGray_8_SkColorType:
+                da = (const uint8_t*)a - (const uint8_t*)b;
+                break;
+            case kRGBA_F16_SkColorType: {
+                const SkPM4f* c0 = (const SkPM4f*)a;
+                const SkPM4f* c1 = (const SkPM4f*)b;
+                dr = scale255(c0->r() - c1->r());
+                dg = scale255(c0->g() - c1->g());
+                db = scale255(c0->b() - c1->b());
+                da = scale255(c0->a() - c1->a());
+            } break;
+            default:
+                return 0;
+        }
+        dr = SkAbs32(dr);
+        dg = SkAbs32(dg);
+        db = SkAbs32(db);
+        da = SkAbs32(da);
+        return SkMax32(dr, SkMax32(dg, SkMax32(db, da)));
+    }
+
+    bool equal_pixels(const SkPixmap& a, const SkPixmap& b, unsigned maxDiff,
+                      bool respectColorSpace) {
+        if (a.width() != b.width() ||
+            a.height() != b.height() ||
+            a.colorType() != b.colorType() ||
+            (respectColorSpace && (a.colorSpace() != b.colorSpace())))
+        {
+            return false;
+        }
+
+        for (int y = 0; y < a.height(); ++y) {
+            const char* aptr = (const char*)a.addr(0, y);
+            const char* bptr = (const char*)b.addr(0, y);
+            if (memcmp(aptr, bptr, a.width() * a.info().bytesPerPixel())) {
+                for (int x = 0; x < a.width(); ++x) {
+                    if (diff(a.colorType(), a.addr(x, y), b.addr(x, y)) > maxDiff) {
+                        return false;
+                    }
+                }
+            }
+            aptr += a.rowBytes();
+            bptr += b.rowBytes();
+        }
+        return true;
+    }
+
+    bool equal_pixels(const SkBitmap& bm0, const SkBitmap& bm1, unsigned maxDiff,
+                      bool respectColorSpaces) {
+        SkPixmap pm0, pm1;
+        return bm0.peekPixels(&pm0) && bm1.peekPixels(&pm1) &&
+               equal_pixels(pm0, pm1, maxDiff, respectColorSpaces);
+    }
+
+    bool equal_pixels(const SkImage* a, const SkImage* b, unsigned maxDiff,
+                      bool respectColorSpaces) {
+        // ensure that peekPixels will succeed
+        auto imga = a->makeRasterImage();
+        auto imgb = b->makeRasterImage();
+        a = imga.get();
+        b = imgb.get();
+
+        SkPixmap pm0, pm1;
+        return a->peekPixels(&pm0) && b->peekPixels(&pm1) &&
+               equal_pixels(pm0, pm1, maxDiff, respectColorSpaces);
+    }
+
+    sk_sp<SkSurface> makeSurface(SkCanvas* canvas, const SkImageInfo& info,
+                                 const SkSurfaceProps* props) {
+        auto surf = canvas->makeSurface(info, props);
+        if (!surf) {
+            surf = SkSurface::MakeRaster(info, props);
+        }
+        return surf;
+    }
 }  // namespace sk_tool_utils

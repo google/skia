@@ -16,6 +16,7 @@
 #include "ast/SkSLASTContinueStatement.h"
 #include "ast/SkSLASTDiscardStatement.h"
 #include "ast/SkSLASTDoStatement.h"
+#include "ast/SkSLASTEnum.h"
 #include "ast/SkSLASTExpression.h"
 #include "ast/SkSLASTExpressionStatement.h"
 #include "ast/SkSLASTExtension.h"
@@ -27,6 +28,7 @@
 #include "ast/SkSLASTModifiersDeclaration.h"
 #include "ast/SkSLASTPrefixExpression.h"
 #include "ast/SkSLASTReturnStatement.h"
+#include "ast/SkSLASTSection.h"
 #include "ast/SkSLASTStatement.h"
 #include "ast/SkSLASTSuffixExpression.h"
 #include "ast/SkSLASTSwitchStatement.h"
@@ -42,6 +44,7 @@
 #include "ir/SkSLModifiers.h"
 #include "ir/SkSLModifiersDeclaration.h"
 #include "ir/SkSLProgram.h"
+#include "ir/SkSLSection.h"
 #include "ir/SkSLSymbolTable.h"
 #include "ir/SkSLStatement.h"
 #include "ir/SkSLType.h"
@@ -49,28 +52,6 @@
 #include "ir/SkSLVarDeclarations.h"
 
 namespace SkSL {
-
-struct CapValue {
-    CapValue()
-    : fKind(kInt_Kind)
-    , fValue(-1) {
-        ASSERT(false);
-    }
-
-    CapValue(bool b)
-    : fKind(kBool_Kind)
-    , fValue(b) {}
-
-    CapValue(int i)
-    : fKind(kInt_Kind)
-    , fValue(i) {}
-
-    enum {
-        kBool_Kind,
-        kInt_Kind,
-    } fKind;
-    int fValue;
-};
 
 /**
  * Performs semantic analysis on an abstract syntax tree (AST) and produces the corresponding
@@ -81,13 +62,11 @@ public:
     IRGenerator(const Context* context, std::shared_ptr<SymbolTable> root,
                 ErrorReporter& errorReporter);
 
-    std::unique_ptr<VarDeclarations> convertVarDeclarations(const ASTVarDeclarations& decl,
-                                                            Variable::Storage storage);
-    std::unique_ptr<FunctionDefinition> convertFunction(const ASTFunction& f);
-    std::unique_ptr<Statement> convertStatement(const ASTStatement& statement);
-    std::unique_ptr<Expression> convertExpression(const ASTExpression& expression);
-    std::unique_ptr<ModifiersDeclaration> convertModifiersDeclaration(
-                                                                  const ASTModifiersDeclaration& m);
+    void convertProgram(Program::Kind kind,
+                        const char* text,
+                        size_t length,
+                        SymbolTable& types,
+                        std::vector<std::unique_ptr<ProgramElement>>* result);
 
     /**
      * If both operands are compile-time constants and can be folded, returns an expression
@@ -98,6 +77,7 @@ public:
                                              Token::Kind op,
                                              const Expression& right) const;
     Program::Inputs fInputs;
+    const Program::Settings* fSettings;
     const Context& fContext;
 
 private:
@@ -115,27 +95,35 @@ private:
     void pushSymbolTable();
     void popSymbolTable();
 
+    std::unique_ptr<VarDeclarations> convertVarDeclarations(const ASTVarDeclarations& decl,
+                                                            Variable::Storage storage);
+    void convertFunction(const ASTFunction& f);
+    std::unique_ptr<Statement> convertStatement(const ASTStatement& statement);
+    std::unique_ptr<Expression> convertExpression(const ASTExpression& expression);
+    std::unique_ptr<ModifiersDeclaration> convertModifiersDeclaration(
+                                                                  const ASTModifiersDeclaration& m);
+
     const Type* convertType(const ASTType& type);
-    std::unique_ptr<Expression> call(Position position,
+    std::unique_ptr<Expression> call(int offset,
                                      const FunctionDeclaration& function,
                                      std::vector<std::unique_ptr<Expression>> arguments);
-    bool determineCallCost(const FunctionDeclaration& function,
-                           const std::vector<std::unique_ptr<Expression>>& arguments,
-                           int* outCost);
-    std::unique_ptr<Expression> call(Position position, std::unique_ptr<Expression> function,
+    int callCost(const FunctionDeclaration& function,
+                 const std::vector<std::unique_ptr<Expression>>& arguments);
+    std::unique_ptr<Expression> call(int offset, std::unique_ptr<Expression> function,
                                      std::vector<std::unique_ptr<Expression>> arguments);
+    int coercionCost(const Expression& expr, const Type& type);
     std::unique_ptr<Expression> coerce(std::unique_ptr<Expression> expr, const Type& type);
     std::unique_ptr<Block> convertBlock(const ASTBlock& block);
     std::unique_ptr<Statement> convertBreak(const ASTBreakStatement& b);
     std::unique_ptr<Expression> convertNumberConstructor(
-                                                   Position position,
+                                                   int offset,
                                                    const Type& type,
                                                    std::vector<std::unique_ptr<Expression>> params);
     std::unique_ptr<Expression> convertCompoundConstructor(
-                                                   Position position,
+                                                   int offset,
                                                    const Type& type,
                                                    std::vector<std::unique_ptr<Expression>> params);
-    std::unique_ptr<Expression> convertConstructor(Position position,
+    std::unique_ptr<Expression> convertConstructor(int offset,
                                                    const Type& type,
                                                    std::vector<std::unique_ptr<Expression>> params);
     std::unique_ptr<Statement> convertContinue(const ASTContinueStatement& c);
@@ -154,27 +142,47 @@ private:
     Modifiers convertModifiers(const Modifiers& m);
     std::unique_ptr<Expression> convertPrefixExpression(const ASTPrefixExpression& expression);
     std::unique_ptr<Statement> convertReturn(const ASTReturnStatement& r);
-    std::unique_ptr<Expression> getCap(Position position, String name);
+    std::unique_ptr<Section> convertSection(const ASTSection& e);
+    std::unique_ptr<Expression> getCap(int offset, String name);
+    std::unique_ptr<Expression> getArg(int offset, String name);
     std::unique_ptr<Expression> convertSuffixExpression(const ASTSuffixExpression& expression);
+    std::unique_ptr<Expression> convertTypeField(int offset, const Type& type,
+                                                 StringFragment field);
     std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base,
-                                             const String& field);
+                                             StringFragment field);
     std::unique_ptr<Expression> convertSwizzle(std::unique_ptr<Expression> base,
-                                               const String& fields);
+                                               StringFragment fields);
     std::unique_ptr<Expression> convertTernaryExpression(const ASTTernaryExpression& expression);
     std::unique_ptr<Statement> convertVarDeclarationStatement(const ASTVarDeclarationStatement& s);
     std::unique_ptr<Statement> convertWhile(const ASTWhileStatement& w);
+    void convertEnum(const ASTEnum& e);
+    std::unique_ptr<Block> applyInvocationIDWorkaround(std::unique_ptr<Block> main);
+    // returns a statement which converts sk_Position from device to normalized coordinates
+    std::unique_ptr<Statement> getNormalizeSkPositionCode();
 
     void fixRectSampling(std::vector<std::unique_ptr<Expression>>& arguments);
     void checkValid(const Expression& expr);
     void markWrittenTo(const Expression& expr, bool readWrite);
+    void getConstantInt(const Expression& value, int64_t* out);
 
+    Program::Kind fKind;
     const FunctionDeclaration* fCurrentFunction;
-    const Program::Settings* fSettings;
-    std::unordered_map<String, CapValue> fCapsMap;
+    std::unordered_map<String, Program::Settings::Value> fCapsMap;
+    std::shared_ptr<SymbolTable> fRootSymbolTable;
     std::shared_ptr<SymbolTable> fSymbolTable;
+    // holds extra temp variable declarations needed for the current function
+    std::vector<std::unique_ptr<Statement>> fExtraVars;
     int fLoopLevel;
     int fSwitchLevel;
+    // count of temporary variables we have created
+    int fTmpCount;
     ErrorReporter& fErrors;
+    int fInvocations;
+    std::vector<std::unique_ptr<ProgramElement>>* fProgramElements;
+    Variable* fSkPerVertex;
+    Variable* fRTAdjust;
+    Variable* fRTAdjustInterfaceBlock;
+    int fRTAdjustFieldIndex;
 
     friend class AutoSymbolTable;
     friend class AutoLoopLevel;

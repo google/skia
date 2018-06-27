@@ -52,7 +52,6 @@ class SkGifCodec;
 #include "SkStreamBuffer.h"
 #include "../private/SkTArray.h"
 #include <memory>
-#include <vector>
 
 typedef SkTArray<unsigned char, true> SkGIFRow;
 
@@ -104,13 +103,13 @@ public:
         , ipass(0)
         , irow(0)
         , rowsRemaining(0)
-        , rowIter(0)
+        , rowIter(nullptr)
         , m_client(client)
         , m_frameContext(frameContext)
     { }
 
     bool prepareToDecode();
-    bool outputRow(const unsigned char* rowBegin);
+    void outputRow(const unsigned char* rowBegin);
     bool doLZW(const unsigned char* block, size_t bytesInBlock);
     bool hasRemainingRows() { return SkToBool(rowsRemaining); }
 
@@ -197,14 +196,12 @@ class SkGifImageReader;
 // LocalFrame output state machine.
 class SkGIFFrameContext : public SkFrame {
 public:
-    SkGIFFrameContext(SkGifImageReader* reader, int id)
+    SkGIFFrameContext(int id)
         : INHERITED(id)
-        , m_owner(reader)
         , m_transparentPixel(SkGIFColorMap::kNotFound)
         , m_dataSize(0)
         , m_progressiveDisplay(false)
         , m_interlaced(false)
-        , m_delayTime(0)
         , m_currentLzwBlock(0)
         , m_isComplete(false)
         , m_isHeaderDefined(false)
@@ -218,7 +215,7 @@ public:
 
     void addLzwBlock(size_t position, size_t size)
     {
-        m_lzwBlocks.push_back(SkGIFLZWBlock(position, size));
+        m_lzwBlocks.emplace_back(position, size);
     }
 
     bool decode(SkStreamBuffer*, SkGifCodec* client, bool* frameDecoded);
@@ -226,8 +223,6 @@ public:
     int transparentPixel() const { return m_transparentPixel; }
     void setTransparentPixel(int pixel) { m_transparentPixel = pixel; }
 
-    unsigned delayTime() const { return m_delayTime; }
-    void setDelayTime(unsigned delay) { m_delayTime = delay; }
     bool isComplete() const { return m_isComplete; }
     void setComplete() { m_isComplete = true; }
     bool isHeaderDefined() const { return m_isHeaderDefined; }
@@ -249,23 +244,18 @@ public:
     SkGIFColorMap& localColorMap() { return m_localColorMap; }
 
 protected:
-    bool onReportsAlpha() const override;
+    SkEncodedInfo::Alpha onReportedAlpha() const override;
 
 private:
-    // Unowned pointer to the object that owns this frame.
-    const SkGifImageReader* m_owner;
-
     int m_transparentPixel; // Index of transparent pixel. Value is kNotFound if there is no transparent pixel.
     int m_dataSize;
 
     bool m_progressiveDisplay; // If true, do Haeberli interlace hack.
     bool m_interlaced; // True, if scanlines arrive interlaced order.
 
-    unsigned m_delayTime; // Display time, in milliseconds, for this image in a multi-image GIF.
-
     std::unique_ptr<SkGIFLZWContext> m_lzwContext;
     // LZW blocks for this frame.
-    std::vector<SkGIFLZWBlock> m_lzwBlocks;
+    SkTArray<SkGIFLZWBlock> m_lzwBlocks;
 
     SkGIFColorMap m_localColorMap;
 
@@ -280,16 +270,15 @@ private:
 class SkGifImageReader final : public SkFrameHolder {
 public:
     // This takes ownership of stream.
-    SkGifImageReader(SkStream* stream)
+    SkGifImageReader(std::unique_ptr<SkStream> stream)
         : m_client(nullptr)
         , m_state(SkGIFType)
         , m_bytesToConsume(6) // Number of bytes for GIF type, either "GIF87a" or "GIF89a".
         , m_version(0)
         , m_loopCount(cLoopCountNotSeen)
-        , m_streamBuffer(stream)
+        , m_streamBuffer(std::move(stream))
         , m_parseCompleted(false)
         , m_firstFrameHasAlpha(false)
-        , m_firstFrameSupportsIndex8(false)
     {
     }
 
@@ -313,9 +302,7 @@ public:
 
     // Parse incoming GIF data stream into internal data structures.
     // Non-negative values are used to indicate to parse through that frame.
-    // Return true if parsing has progressed or there is not enough data.
-    // Return false if a fatal error is encountered.
-    bool parse(SkGIFParseQuery);
+    SkCodec::Result parse(SkGIFParseQuery);
 
     // Decode the frame indicated by frameIndex.
     // frameComplete will be set to true if the frame is completely decoded.
@@ -324,11 +311,9 @@ public:
 
     int imagesCount() const
     {
-        // Report the first frame immediately, so the parser can stop when it
-        // sees the size on a SizeQuery.
-        const size_t frames = m_frames.size();
-        if (frames <= 1) {
-            return static_cast<int>(frames);
+        const int frames = m_frames.count();
+        if (!frames) {
+            return 0;
         }
 
         // This avoids counting an empty frame when the file is truncated (or
@@ -336,7 +321,7 @@ public:
         // possibly SkGIFImageHeader) but before reading the color table. This
         // ensures that we do not count a frame before we know its required
         // frame.
-        return static_cast<int>(m_frames.back()->reachedStartOfData() ? frames : frames - 1);
+        return m_frames.back()->reachedStartOfData() ? frames : frames - 1;
     }
     int loopCount() const {
         if (cLoopCountNotSeen == m_loopCount) {
@@ -352,12 +337,12 @@ public:
 
     const SkGIFFrameContext* frameContext(int index) const
     {
-        return index >= 0 && index < static_cast<int>(m_frames.size())
-                ? m_frames[index].get() : 0;
+        return index >= 0 && index < m_frames.count()
+                ? m_frames[index].get() : nullptr;
     }
 
     void clearDecodeState() {
-        for (size_t index = 0; index < m_frames.size(); index++) {
+        for (int index = 0; index < m_frames.count(); index++) {
             m_frames[index]->clearDecodeState();
         }
     }
@@ -366,13 +351,6 @@ public:
     sk_sp<SkColorTable> getColorTable(SkColorType dstColorType, int index);
 
     bool firstFrameHasAlpha() const { return m_firstFrameHasAlpha; }
-
-    bool firstFrameSupportsIndex8() const { return m_firstFrameSupportsIndex8; }
-
-    // Helper function that returns whether an SkGIFFrameContext has transparency.
-    // This method is sometimes called before creating one/parsing its color map,
-    // so it cannot rely on SkGIFFrameContext::transparentPixel or ::localColorMap().
-    bool hasTransparency(int transPix, bool hasLocalColorMap, int localMapColors) const;
 
 protected:
     const SkFrame* onGetFrame(int i) const override {
@@ -388,7 +366,7 @@ private:
     void addFrameIfNecessary();
     bool currentFrameIsFirstFrame() const
     {
-        return m_frames.empty() || (m_frames.size() == 1u && !m_frames[0]->isComplete());
+        return m_frames.empty() || (m_frames.count() == 1 && !m_frames[0]->isComplete());
     }
 
     // Unowned pointer
@@ -405,15 +383,14 @@ private:
     static constexpr int cLoopCountNotSeen = -2;
     int m_loopCount; // Netscape specific extension block to control the number of animation loops a GIF renders.
 
-    std::vector<std::unique_ptr<SkGIFFrameContext>> m_frames;
+    SkTArray<std::unique_ptr<SkGIFFrameContext>> m_frames;
 
     SkStreamBuffer m_streamBuffer;
     bool m_parseCompleted;
 
-    // These values can be computed before we create a SkGIFFrameContext, so we
-    // store them here instead of on m_frames[0].
+    // This value can be computed before we create a SkGIFFrameContext, so we
+    // store it here instead of on m_frames[0].
     bool m_firstFrameHasAlpha;
-    bool m_firstFrameSupportsIndex8;
 };
 
 #endif

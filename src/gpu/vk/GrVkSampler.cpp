@@ -9,21 +9,22 @@
 
 #include "GrVkGpu.h"
 
-static inline VkSamplerAddressMode tile_to_vk_sampler_address(SkShader::TileMode tm) {
-    static const VkSamplerAddressMode gWrapModes[] = {
-        VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-        VK_SAMPLER_ADDRESS_MODE_REPEAT,
-        VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT
-    };
-    GR_STATIC_ASSERT(SkShader::kTileModeCount == SK_ARRAY_COUNT(gWrapModes));
-    GR_STATIC_ASSERT(0 == SkShader::kClamp_TileMode);
-    GR_STATIC_ASSERT(1 == SkShader::kRepeat_TileMode);
-    GR_STATIC_ASSERT(2 == SkShader::kMirror_TileMode);
-    return gWrapModes[tm];
+static inline VkSamplerAddressMode wrap_mode_to_vk_sampler_address(
+        GrSamplerState::WrapMode wrapMode) {
+    switch (wrapMode) {
+        case GrSamplerState::WrapMode::kClamp:
+            return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        case GrSamplerState::WrapMode::kRepeat:
+            return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        case GrSamplerState::WrapMode::kMirrorRepeat:
+            return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+    }
+    SK_ABORT("Unknown wrap mode.");
+    return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 }
 
-GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrSamplerParams& params,
-                                 uint32_t mipLevels) {
+GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrSamplerState& samplerState,
+                                 uint32_t maxMipLevel) {
     static VkFilter vkMinFilterModes[] = {
         VK_FILTER_NEAREST,
         VK_FILTER_LINEAR,
@@ -40,11 +41,11 @@ GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrSamplerParams& para
     createInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
     createInfo.pNext = 0;
     createInfo.flags = 0;
-    createInfo.magFilter = vkMagFilterModes[params.filterMode()];
-    createInfo.minFilter = vkMinFilterModes[params.filterMode()];
+    createInfo.magFilter = vkMagFilterModes[static_cast<int>(samplerState.filter())];
+    createInfo.minFilter = vkMinFilterModes[static_cast<int>(samplerState.filter())];
     createInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-    createInfo.addressModeU = tile_to_vk_sampler_address(params.getTileModeX());
-    createInfo.addressModeV = tile_to_vk_sampler_address(params.getTileModeY());
+    createInfo.addressModeU = wrap_mode_to_vk_sampler_address(samplerState.wrapModeX());
+    createInfo.addressModeV = wrap_mode_to_vk_sampler_address(samplerState.wrapModeY());
     createInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE; // Shouldn't matter
     createInfo.mipLodBias = 0.0f;
     createInfo.anisotropyEnable = VK_FALSE;
@@ -57,8 +58,8 @@ GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrSamplerParams& para
     // level mip). If the filters weren't the same we could set min = 0 and max = 0.25 to force
     // the minFilter on mip level 0.
     createInfo.minLod = 0.0f;
-    bool useMipMaps = GrSamplerParams::kMipMap_FilterMode == params.filterMode() && mipLevels > 1;
-    createInfo.maxLod = !useMipMaps ? 0.0f : (float)(mipLevels);
+    bool useMipMaps = GrSamplerState::Filter::kMipMap == samplerState.filter() && maxMipLevel > 0;
+    createInfo.maxLod = !useMipMaps ? 0.0f : (float)(maxMipLevel);
     createInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
     createInfo.unnormalizedCoordinates = VK_FALSE;
 
@@ -68,7 +69,7 @@ GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrSamplerParams& para
                                                           nullptr,
                                                           &sampler));
 
-    return new GrVkSampler(sampler, GenerateKey(params, mipLevels));
+    return new GrVkSampler(sampler, GenerateKey(samplerState, maxMipLevel));
 }
 
 void GrVkSampler::freeGPUData(const GrVkGpu* gpu) const {
@@ -76,21 +77,22 @@ void GrVkSampler::freeGPUData(const GrVkGpu* gpu) const {
     GR_VK_CALL(gpu->vkInterface(), DestroySampler(gpu->device(), fSampler, nullptr));
 }
 
-uint16_t GrVkSampler::GenerateKey(const GrSamplerParams& params, uint32_t mipLevels) {
+uint16_t GrVkSampler::GenerateKey(const GrSamplerState& samplerState, uint32_t maxMipLevel) {
     const int kTileModeXShift = 2;
     const int kTileModeYShift = 4;
     const int kMipLevelShift = 6;
 
-    uint16_t key = params.filterMode();
+    SkASSERT(static_cast<int>(samplerState.filter()) <= 3);
+    uint16_t key = static_cast<uint16_t>(samplerState.filter());
 
-    SkASSERT(params.filterMode() <= 3);
-    key |= (params.getTileModeX() << kTileModeXShift);
+    SkASSERT(static_cast<int>(samplerState.wrapModeX()) <= 4);
+    key |= (static_cast<uint16_t>(samplerState.wrapModeX()) << kTileModeXShift);
 
-    GR_STATIC_ASSERT(SkShader::kTileModeCount <= 4);
-    key |= (params.getTileModeY() << kTileModeYShift);
+    SkASSERT(static_cast<int>(samplerState.wrapModeY()) <= 4);
+    key |= (static_cast<uint16_t>(samplerState.wrapModeY()) << kTileModeYShift);
 
-    SkASSERT(mipLevels < 1024);
-    key |= (mipLevels << kMipLevelShift);
+    SkASSERT(maxMipLevel < 1024);
+    key |= (maxMipLevel << kMipLevelShift);
 
     return key;
 }

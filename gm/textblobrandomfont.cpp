@@ -11,11 +11,11 @@
 #include "Resources.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
+#include "SkRandomScalerContext.h"
 #include "SkStream.h"
 #include "SkSurface.h"
 #include "SkTextBlob.h"
 #include "SkTypeface.h"
-#include "../src/fonts/SkRandomScalerContext.h"
 
 #if SK_SUPPORT_GPU
 
@@ -41,7 +41,7 @@ protected:
 
         // Setup our random scaler context
         sk_sp<SkTypeface> orig(sk_tool_utils::create_portable_typeface(
-                                   "sans-serif", SkFontStyle::FromOldStyle(SkTypeface::kBold)));
+                                   "sans-serif", SkFontStyle::Bold()));
         if (nullptr == orig) {
             orig = SkTypeface::MakeDefault();
         }
@@ -66,14 +66,11 @@ protected:
         sk_tool_utils::add_to_text_blob(&builder, bigtext2, paint, 0, offset);
 
         // color emoji
-        sk_sp<SkTypeface> origEmoji = sk_tool_utils::emoji_typeface();
-        const char* osName = sk_tool_utils::platform_os_name();
-        // The mac emoji string will break us
-        if (origEmoji && (!strcmp(osName, "Android") || !strcmp(osName, "Ubuntu"))) {
+        if (sk_sp<SkTypeface> origEmoji = sk_tool_utils::emoji_typeface()) {
             const char* emojiText = sk_tool_utils::emoji_sample_text();
             paint.measureText(emojiText, strlen(emojiText), &bounds);
             offset += bounds.height();
-            paint.setTypeface(sk_make_sp<SkRandomTypeface>(orig, paint, false));
+            paint.setTypeface(sk_make_sp<SkRandomTypeface>(origEmoji, paint, false));
             sk_tool_utils::add_to_text_blob(&builder, emojiText, paint, 0, offset);
         }
 
@@ -102,7 +99,7 @@ protected:
                                              kPremul_SkAlphaType,
                                              canvas->imageInfo().refColorSpace());
         SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-        auto surface(canvas->makeSurface(info, &props));
+        auto surface(sk_tool_utils::makeSurface(canvas, info, &props));
         if (surface) {
             SkPaint paint;
             paint.setAntiAlias(true);

@@ -6,7 +6,7 @@
  */
 
 #include "SkTypes.h"
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
 
 #include "SkIStream.h"
 #include "SkStream.h"
@@ -153,22 +153,20 @@ HRESULT STDMETHODCALLTYPE SkIStream::Seek(LARGE_INTEGER liDistanceToMove
         if (!this->fSkStream->rewind()) {
             hr = E_FAIL;
         } else {
-            size_t skipped = this->fSkStream->skip(
-                static_cast<size_t>(liDistanceToMove.QuadPart)
-            );
+            size_t skip = static_cast<size_t>(liDistanceToMove.QuadPart);
+            size_t skipped = this->fSkStream->skip(skip);
             this->fLocation.QuadPart = skipped;
-            if (skipped != liDistanceToMove.QuadPart) {
+            if (skipped != skip) {
                 hr = E_FAIL;
             }
         }
         break;
     }
     case STREAM_SEEK_CUR: {
-        size_t skipped = this->fSkStream->skip(
-            static_cast<size_t>(liDistanceToMove.QuadPart)
-        );
+        size_t skip = static_cast<size_t>(liDistanceToMove.QuadPart);
+        size_t skipped = this->fSkStream->skip(skip);
         this->fLocation.QuadPart += skipped;
-        if (skipped != liDistanceToMove.QuadPart) {
+        if (skipped != skip) {
             hr = E_FAIL;
         }
         break;
@@ -179,9 +177,9 @@ HRESULT STDMETHODCALLTYPE SkIStream::Seek(LARGE_INTEGER liDistanceToMove
         } else {
             // FIXME: Should not depend on getLength.
             // See https://code.google.com/p/skia/issues/detail?id=1570
-            LONGLONG skip = this->fSkStream->getLength()
-                          + liDistanceToMove.QuadPart;
-            size_t skipped = this->fSkStream->skip(static_cast<size_t>(skip));
+            size_t skip = static_cast<size_t>(this->fSkStream->getLength() +
+                                              liDistanceToMove.QuadPart);
+            size_t skipped = this->fSkStream->skip(skip);
             this->fLocation.QuadPart = skipped;
             if (skipped != skip) {
                 hr = E_FAIL;
@@ -273,4 +271,4 @@ HRESULT STDMETHODCALLTYPE SkWIStream::Stat(STATSTG* pStatstg
     pStatstg->grfMode = STGM_WRITE;
     return S_OK;
 }
-#endif//defined(SK_BUILD_FOR_WIN32)
+#endif//defined(SK_BUILD_FOR_WIN)

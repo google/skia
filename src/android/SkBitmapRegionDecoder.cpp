@@ -22,17 +22,17 @@ SkBitmapRegionDecoder* SkBitmapRegionDecoder::Create(
     std::unique_ptr<SkStreamRewindable> streamDeleter(stream);
     switch (strategy) {
         case kAndroidCodec_Strategy: {
-            std::unique_ptr<SkAndroidCodec> codec(
-                    SkAndroidCodec::NewFromStream(streamDeleter.release()));
+            auto codec = SkAndroidCodec::MakeFromStream(std::move(streamDeleter));
             if (nullptr == codec) {
                 SkCodecPrintf("Error: Failed to create codec.\n");
-                return NULL;
+                return nullptr;
             }
 
             switch ((SkEncodedImageFormat)codec->getEncodedFormat()) {
                 case SkEncodedImageFormat::kJPEG:
                 case SkEncodedImageFormat::kPNG:
                 case SkEncodedImageFormat::kWEBP:
+                case SkEncodedImageFormat::kHEIF:
                     break;
                 default:
                     return nullptr;

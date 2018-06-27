@@ -24,7 +24,6 @@ public:
     virtual ~GrGLSLXferProcessor() {}
 
     using SamplerHandle = GrGLSLUniformHandler::SamplerHandle;
-    using ImageStorageHandle = GrGLSLUniformHandler::ImageStorageHandle;
 
     struct EmitArgs {
         EmitArgs(GrGLSLXPFragmentBuilder* fragBuilder,
@@ -89,7 +88,7 @@ private:
      * it can construct a GrXferProcessor that will not read the dst color.
      */
     virtual void emitOutputsForBlendState(const EmitArgs&) {
-        SkFAIL("emitOutputsForBlendState not implemented.");
+        SK_ABORT("emitOutputsForBlendState not implemented.");
     }
 
     /**
@@ -105,7 +104,7 @@ private:
                                          const char* outColor,
                                          const char* outColorSecondary,
                                          const GrXferProcessor&) {
-        SkFAIL("emitBlendCodeForDstRead not implemented.");
+        SK_ABORT("emitBlendCodeForDstRead not implemented.");
     }
 
     virtual void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) = 0;

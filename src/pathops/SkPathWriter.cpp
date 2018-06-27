@@ -237,7 +237,7 @@ void SkPathWriter::assemble() {
             double dist = dx * dx + dy * dy;
             distLookup.push_back(rRow + iIndex);
             distances.push_back(dist);  // oStart distance from iStart
-            sortedDist.push_back(dIndex++); 
+            sortedDist.push_back(dIndex++);
         }
         rRow += endCount;
     }

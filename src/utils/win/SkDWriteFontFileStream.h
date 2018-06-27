@@ -23,20 +23,28 @@
 class SkDWriteFontFileStream : public SkStreamMemory {
 public:
     explicit SkDWriteFontFileStream(IDWriteFontFileStream* fontFileStream);
-    virtual ~SkDWriteFontFileStream();
+    ~SkDWriteFontFileStream() override;
 
     size_t read(void* buffer, size_t size) override;
     bool isAtEnd() const override;
     bool rewind() override;
-    SkDWriteFontFileStream* duplicate() const override;
     size_t getPosition() const override;
     bool seek(size_t position) override;
     bool move(long offset) override;
-    SkDWriteFontFileStream* fork() const override;
     size_t getLength() const override;
     const void* getMemoryBase() override;
 
+    std::unique_ptr<SkDWriteFontFileStream> duplicate() const {
+        return std::unique_ptr<SkDWriteFontFileStream>(this->onDuplicate());
+    }
+    std::unique_ptr<SkDWriteFontFileStream> fork() const {
+        return std::unique_ptr<SkDWriteFontFileStream>(this->onFork());
+    }
+
 private:
+    SkDWriteFontFileStream* onDuplicate() const override;
+    SkDWriteFontFileStream* onFork() const override;
+
     SkTScopedComPtr<IDWriteFontFileStream> fFontFileStream;
     size_t fPos;
     const void* fLockedMemory;

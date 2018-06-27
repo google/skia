@@ -6,10 +6,8 @@
  */
 
 #include "SkMask.h"
-
 #include "SkMalloc.h"
-
-//#define TRACK_SKMASK_LIFETIME
+#include "SkSafeMath.h"
 
 /** returns the product if it is positive and fits in 31 bits. Otherwise this
     returns 0.
@@ -34,29 +32,22 @@ size_t SkMask::computeTotalImageSize() const {
     return size;
 }
 
-#ifdef TRACK_SKMASK_LIFETIME
-    static int gCounter;
-#endif
-
 /** We explicitly use this allocator for SkBimap pixels, so that we can
     freely assign memory allocated by one class to the other.
 */
-uint8_t* SkMask::AllocImage(size_t size) {
-#ifdef TRACK_SKMASK_LIFETIME
-    SkDebugf("SkMask::AllocImage %d\n", gCounter++);
-#endif
-    return (uint8_t*)sk_malloc_throw(SkAlign4(size));
+uint8_t* SkMask::AllocImage(size_t size, AllocType at) {
+    size_t aligned_size = SkSafeMath::Align4(size);
+    unsigned flags = SK_MALLOC_THROW;
+    if (at == kZeroInit_Alloc) {
+        flags |= SK_MALLOC_ZERO_INITIALIZE;
+    }
+    return static_cast<uint8_t*>(sk_malloc_flags(aligned_size, flags));
 }
 
 /** We explicitly use this allocator for SkBimap pixels, so that we can
     freely assign memory allocated by one class to the other.
 */
 void SkMask::FreeImage(void* image) {
-#ifdef TRACK_SKMASK_LIFETIME
-    if (image) {
-        SkDebugf("SkMask::FreeImage  %d\n", --gCounter);
-    }
-#endif
     sk_free(image);
 }
 

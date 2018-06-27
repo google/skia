@@ -10,6 +10,7 @@
 #include "SkDeflate.h"
 #include "SkMakeUnique.h"
 #include "SkMalloc.h"
+#include "SkTraceEvent.h"
 
 #include "zlib.h"
 
@@ -84,6 +85,7 @@ SkDeflateWStream::SkDeflateWStream(SkWStream* out,
 SkDeflateWStream::~SkDeflateWStream() { this->finalize(); }
 
 void SkDeflateWStream::finalize() {
+    TRACE_EVENT0("skia", TRACE_FUNC);
     if (!fImpl->fOut) {
         return;
     }
@@ -94,6 +96,7 @@ void SkDeflateWStream::finalize() {
 }
 
 bool SkDeflateWStream::write(const void* void_buffer, size_t len) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
     if (!fImpl->fOut) {
         return false;
     }

@@ -10,20 +10,19 @@
 #include "Test.h"
 
 DEF_TEST(ExifOrientation, r) {
-    std::unique_ptr<SkStream> stream(GetResourceAsStream("exif-orientation-2-ur.jpg"));
+    std::unique_ptr<SkStream> stream(GetResourceAsStream("images/exif-orientation-2-ur.jpg"));
     REPORTER_ASSERT(r, nullptr != stream);
     if (!stream) {
         return;
     }
 
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromStream(std::move(stream)));
     REPORTER_ASSERT(r, nullptr != codec);
-    SkCodec::Origin origin = codec->getOrigin();
-    REPORTER_ASSERT(r, SkCodec::kTopRight_Origin == origin);
+    SkEncodedOrigin origin = codec->getOrigin();
+    REPORTER_ASSERT(r, kTopRight_SkEncodedOrigin == origin);
 
-    stream.reset(GetResourceAsStream("mandrill_512_q075.jpg"));
-    codec.reset(SkCodec::NewFromStream(stream.release()));
+    codec = SkCodec::MakeFromStream(GetResourceAsStream("images/mandrill_512_q075.jpg"));
     REPORTER_ASSERT(r, nullptr != codec);
     origin = codec->getOrigin();
-    REPORTER_ASSERT(r, SkCodec::kTopLeft_Origin == origin);
+    REPORTER_ASSERT(r, kTopLeft_SkEncodedOrigin == origin);
 }

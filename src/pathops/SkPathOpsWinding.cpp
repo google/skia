@@ -244,7 +244,7 @@ bool SkOpSpan::sortableTop(SkOpContour* contourHead) {
     SkOpRayHit* hitHead = &hitBase;
     dir = static_cast<SkOpRayDir>(static_cast<int>(dir) + dirOffset);
     if (hitBase.fSpan && hitBase.fSpan->segment()->verb() > SkPath::kLine_Verb
-            && !pt_yx(hitBase.fSlope.asSkVector(), dir)) {
+            && !pt_dydx(hitBase.fSlope, dir)) {
         return false;
     }
     SkOpContour* contour = contourHead;

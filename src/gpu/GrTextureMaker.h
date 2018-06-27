@@ -16,6 +16,8 @@
  */
 class GrTextureMaker : public GrTextureProducer {
 public:
+    enum class AllowedTexGenType : bool { kCheap, kAny };
+
     /**
      *  Returns a texture that is safe for use with the params. If the size of the returned texture
      *  does not match width()/height() then the contents of the original must be scaled to fit
@@ -23,18 +25,18 @@ public:
      *  in order to correct the absolute texture coordinates.
      *  Places the color space of the texture in (*texColorSpace).
      */
-    sk_sp<GrTextureProxy> refTextureProxyForParams(const GrSamplerParams&,
+    sk_sp<GrTextureProxy> refTextureProxyForParams(const GrSamplerState&,
                                                    SkColorSpace* dstColorSpace,
                                                    sk_sp<SkColorSpace>* texColorSpace,
                                                    SkScalar scaleAdjust[2]);
 
-    sk_sp<GrFragmentProcessor> createFragmentProcessor(
-                                const SkMatrix& textureMatrix,
-                                const SkRect& constraintRect,
-                                FilterConstraint filterConstraint,
-                                bool coordsLimitedToConstraintRect,
-                                const GrSamplerParams::FilterMode* filterOrNullForBicubic,
-                                SkColorSpace* dstColorSpace) override;
+    std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
+            const SkMatrix& textureMatrix,
+            const SkRect& constraintRect,
+            FilterConstraint filterConstraint,
+            bool coordsLimitedToConstraintRect,
+            const GrSamplerState::Filter* filterOrNullForBicubic,
+            SkColorSpace* dstColorSpace) override;
 
 protected:
     GrTextureMaker(GrContext* context, int width, int height, bool isAlphaOnly)
@@ -44,9 +46,13 @@ protected:
     /**
      *  Return the maker's "original" texture. It is the responsibility of the maker to handle any
      *  caching of the original if desired.
+     *  If "genType" argument equals AllowedTexGenType::kCheap and the texture is not trivial to
+     *  construct then refOriginalTextureProxy should return nullptr (for example if texture is made
+     *  by drawing into a render target).
      */
     virtual sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
-                                                          SkColorSpace* dstColorSpace) = 0;
+                                                          SkColorSpace* dstColorSpace,
+                                                          AllowedTexGenType genType) = 0;
 
     /**
      *  Returns the color space of the maker's "original" texture, assuming it was retrieved with

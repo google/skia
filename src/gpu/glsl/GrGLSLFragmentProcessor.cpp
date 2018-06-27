@@ -29,7 +29,7 @@ void GrGLSLFragmentProcessor::emitChild(int childIndex, const char* inputColor,
     SkASSERT(outputColor);
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     outputColor->append(fragBuilder->getMangleString());
-    fragBuilder->codeAppendf("vec4 %s;", outputColor->c_str());
+    fragBuilder->codeAppendf("half4 %s;", outputColor->c_str());
     this->internalEmitChild(childIndex, inputColor, outputColor->c_str(), args);
 }
 
@@ -49,7 +49,6 @@ void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inpu
     TransformedCoordVars coordVars = args.fTransformedCoords.childInputs(childIndex);
     TextureSamplers textureSamplers = args.fTexSamplers.childInputs(childIndex);
     TexelBuffers texelBuffers = args.fTexelBuffers.childInputs(childIndex);
-    ImageStorages imageStorages = args.fImageStorages.childInputs(childIndex);
     EmitArgs childArgs(fragBuilder,
                        args.fUniformHandler,
                        args.fShaderCaps,
@@ -58,9 +57,7 @@ void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inpu
                        inputColor,
                        coordVars,
                        textureSamplers,
-                       texelBuffers,
-                       imageStorages,
-                       args.fGpImplementsDistanceVector);
+                       texelBuffers);
     this->childProcessor(childIndex)->emitCode(childArgs);
     fragBuilder->codeAppend("}\n");
 

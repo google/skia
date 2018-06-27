@@ -6,10 +6,12 @@
  */
 
 #include "SkArenaAlloc.h"
+#include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColorSpaceXformer.h"
 #include "SkDrawLooper.h"
 #include "SkLightingImageFilter.h"
+#include "SkPoint3.h"
 #include "SkTypes.h"
 #include "Test.h"
 

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkFixedAlloc_DEFINED
-#define SkFixedAlloc_DEFINED
+#ifndef SkArenaAlloc_DEFINED
+#define SkArenaAlloc_DEFINED
 
 #include "SkRefCnt.h"
 #include "SkTFitsIn.h"
@@ -137,6 +137,13 @@ public:
         return array;
     }
 
+    // Only use makeBytesAlignedTo if none of the typed variants are impractical to use.
+    void* makeBytesAlignedTo(size_t size, size_t align) {
+        auto objStart = this->allocObject(SkTo<uint32_t>(size), SkTo<uint32_t>(align));
+        fCursor = objStart + size;
+        return objStart;
+    }
+
     // Destroy all allocated objects, free any heap allocations.
     void reset();
 
@@ -156,12 +163,16 @@ private:
 
     char* allocObject(uint32_t size, uint32_t alignment) {
         uintptr_t mask = alignment - 1;
-        char* objStart = (char*)((uintptr_t)(fCursor + mask) & ~mask);
-        if ((ptrdiff_t)size > fEnd - objStart) {
-            this->ensureSpace(size, alignment);
-            objStart = (char*)((uintptr_t)(fCursor + mask) & ~mask);
+        uintptr_t alignedOffset = (~reinterpret_cast<uintptr_t>(fCursor) + 1) & mask;
+        uintptr_t totalSize = size + alignedOffset;
+        if (totalSize < size) {
+            SK_ABORT("The total size of allocation overflowed uintptr_t.");
         }
-        return objStart;
+        if (totalSize > static_cast<uintptr_t>(fEnd - fCursor)) {
+            this->ensureSpace(size, alignment);
+            alignedOffset = (~reinterpret_cast<uintptr_t>(fCursor) + 1) & mask;
+        }
+        return fCursor + alignedOffset;
     }
 
     char* allocObjectWithFooter(uint32_t sizeIncludingFooter, uint32_t alignment);
@@ -169,6 +180,7 @@ private:
     template <typename T>
     char* commonArrayAlloc(uint32_t count) {
         char* objStart;
+        SkASSERT_RELEASE(count <= std::numeric_limits<uint32_t>::max() / sizeof(T));
         uint32_t arraySize = SkTo<uint32_t>(count * sizeof(T));
         uint32_t alignment = SkTo<uint32_t>(alignof(T));
 
@@ -176,7 +188,9 @@ private:
             objStart = this->allocObject(arraySize, alignment);
             fCursor = objStart + arraySize;
         } else {
-            uint32_t totalSize = arraySize + sizeof(Footer) + sizeof(uint32_t);
+            constexpr uint32_t overhead = sizeof(Footer) + sizeof(uint32_t);
+            SkASSERT_RELEASE(arraySize <= std::numeric_limits<uint32_t>::max() - overhead);
+            uint32_t totalSize = arraySize + overhead;
             objStart = this->allocObjectWithFooter(totalSize, alignment);
 
             // Can never be UB because max value is alignof(T).
@@ -233,4 +247,4 @@ private:
     using INHERITED = SkArenaAlloc;
 };
 
-#endif//SkFixedAlloc_DEFINED
+#endif  // SkArenaAlloc_DEFINED

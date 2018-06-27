@@ -252,7 +252,7 @@ static void tiger_threaded(skiatest::Reporter* reporter, const char* filename) {
                     testlines |= 1LL << bit;
                 }
                 *testRunner.fRunnables.append() =
-                        new PathOpsThreadedRunnable(&testTiger, 
+                        new PathOpsThreadedRunnable(&testTiger,
                                                     (int) (unsigned) (testlines & 0xFFFFFFFF),
                                                     (int) (unsigned) (testlines >> 32),
                                                     ab, 0, &testRunner);
@@ -313,9 +313,9 @@ testSimplify(reporter, path, filename);
 
 
 
-static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
+static void (*skipTest)(skiatest::Reporter* , const char* filename) = nullptr;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = nullptr;
+static void (*stopTest)(skiatest::Reporter* , const char* filename) = nullptr;
 
 static TestDesc tests[] = {
     TEST(tiger8a_h_1),

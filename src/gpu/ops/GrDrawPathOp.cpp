@@ -28,7 +28,7 @@ SkString GrDrawPathOp::dumpInfo() const {
     return string;
 }
 
-void GrDrawPathOpBase::initPipeline(const GrOpFlushState& state, GrPipeline* pipeline) {
+GrPipeline::InitArgs GrDrawPathOpBase::pipelineInitArgs(const GrOpFlushState& state) {
     static constexpr GrUserStencilSettings kCoverPass{
             GrUserStencilSettings::StaticInit<
                     0x0000,
@@ -39,18 +39,16 @@ void GrDrawPathOpBase::initPipeline(const GrOpFlushState& state, GrPipeline* pip
                     0xffff>()
     };
     GrPipeline::InitArgs args;
-    args.fProcessors = &this->processors();
     args.fFlags = fPipelineSRGBFlags;
     if (GrAATypeIsHW(fAAType)) {
         args.fFlags |= GrPipeline::kHWAntialias_Flag;
     }
     args.fUserStencil = &kCoverPass;
-    args.fAppliedClip = state.drawOpArgs().fAppliedClip;
-    args.fRenderTarget = state.drawOpArgs().fRenderTarget;
+    args.fProxy = state.drawOpArgs().fProxy;
     args.fCaps = &state.caps();
-    args.fDstTexture = state.drawOpArgs().fDstTexture;
-
-    return pipeline->init(args);
+    args.fResourceProvider = state.resourceProvider();
+    args.fDstProxy = state.drawOpArgs().fDstProxy;
+    return args;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -60,14 +58,14 @@ void init_stencil_pass_settings(const GrOpFlushState& flushState,
     const GrAppliedClip* appliedClip = flushState.drawOpArgs().fAppliedClip;
     bool stencilClip = appliedClip && appliedClip->hasStencilClip();
     stencil->reset(GrPathRendering::GetStencilPassSettings(fillType), stencilClip,
-                   flushState.drawOpArgs().fRenderTarget->renderTargetPriv().numStencilBits());
+                   flushState.drawOpArgs().renderTarget()->renderTargetPriv().numStencilBits());
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void GrDrawPathOp::onExecute(GrOpFlushState* state) {
-    GrPipeline pipeline;
-    this->initPipeline(*state, &pipeline);
+    GrPipeline pipeline(this->pipelineInitArgs(*state), this->detachProcessors(),
+                        state->detachAppliedClip());
     sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(), this->viewMatrix()));
 
     GrStencilSettings stencil;
@@ -179,8 +177,8 @@ void GrDrawPathRangeOp::onExecute(GrOpFlushState* state) {
     sk_sp<GrPathProcessor> pathProc(
             GrPathProcessor::Create(this->color(), drawMatrix, localMatrix));
 
-    GrPipeline pipeline;
-    this->initPipeline(*state, &pipeline);
+    GrPipeline pipeline(this->pipelineInitArgs(*state), this->detachProcessors(),
+                        state->detachAppliedClip());
     GrStencilSettings stencil;
     init_stencil_pass_settings(*state, this->fillType(), &stencil);
     if (fDraws.count() == 1) {
@@ -234,7 +232,7 @@ inline void pre_translate_transform_values(const float* xforms,
     }
     switch (type) {
         case GrPathRendering::kNone_PathTransformType:
-            SkFAIL("Cannot pre-translate kNone_PathTransformType.");
+            SK_ABORT("Cannot pre-translate kNone_PathTransformType.");
             break;
         case GrPathRendering::kTranslateX_PathTransformType:
             SkASSERT(0 == y);
@@ -265,7 +263,7 @@ inline void pre_translate_transform_values(const float* xforms,
             }
             break;
         default:
-            SkFAIL("Unknown transform type.");
+            SK_ABORT("Unknown transform type.");
             break;
     }
 }

@@ -6,10 +6,13 @@
  */
 
 #include "SkShadowTessellator.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
+#include "SkDrawShadowInfo.h"
 #include "SkGeometry.h"
 #include "SkInsetConvexPolygon.h"
 #include "SkPath.h"
+#include "SkPoint3.h"
+#include "SkPointPriv.h"
 #include "SkVertices.h"
 
 #if SK_SUPPORT_GPU
@@ -174,6 +177,12 @@ void SkBaseShadowTessellator::handleLine(const SkMatrix& m, SkPoint* p) {
 
 void SkBaseShadowTessellator::handleQuad(const SkPoint pts[3]) {
 #if SK_SUPPORT_GPU
+    // check for degeneracy
+    SkVector v0 = pts[1] - pts[0];
+    SkVector v1 = pts[2] - pts[0];
+    if (SkScalarNearlyZero(v0.cross(v1))) {
+        return;
+    }
     // TODO: Pull PathUtils out of Ganesh?
     int maxCount = GrPathUtils::quadraticPointCount(pts, kQuadTolerance);
     fPointBuffer.setReserve(maxCount);
@@ -274,7 +283,7 @@ bool SkBaseShadowTessellator::setTransformedHeightFunc(const SkMatrix& ctm) {
         };
     } else {
         SkMatrix ctmInverse;
-        if (!ctm.invert(&ctmInverse)) {
+        if (!ctm.invert(&ctmInverse) || !ctmInverse.isFinite()) {
             return false;
         }
         // multiply by transpose
@@ -344,16 +353,14 @@ private:
     void handleLine(const SkPoint& p) override;
     void addEdge(const SkVector& nextPoint, const SkVector& nextNormal);
 
-    static constexpr auto kHeightFactor = 1.0f / 128.0f;
-    static constexpr auto kGeomFactor = 64.0f;
     static constexpr auto kMaxEdgeLenSqr = 20 * 20;
     static constexpr auto kInsetFactor = -0.5f;
 
     SkScalar offset(SkScalar z) {
-        return z * kHeightFactor * kGeomFactor;
+        return SkDrawShadowMetrics::AmbientBlurRadius(z);
     }
     SkColor umbraColor(SkScalar z) {
-        SkScalar umbraAlpha = SkScalarInvert((1.0f + SkTMax(z*kHeightFactor, 0.0f)));
+        SkScalar umbraAlpha = SkScalarInvert(SkDrawShadowMetrics::AmbientRecipAlpha(z));
         return SkColorSetARGB(umbraAlpha * 255.9999f, 0, 0, 0);
     }
 
@@ -371,9 +378,13 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
         : INHERITED(zPlaneParams, transparent)
         , fSplitFirstEdge(false)
         , fSplitPreviousEdge(false) {
+    // TODO: support some concave paths
+    if (!path.isConvex()) {
+        return;
+    }
+
     // Set base colors
-    SkScalar occluderHeight = heightFunc(0, 0);
-    SkScalar umbraAlpha = SkScalarInvert((1.0f + SkTMax(occluderHeight*kHeightFactor, 0.0f)));
+    SkScalar umbraAlpha = SkScalarInvert(SkDrawShadowMetrics::AmbientRecipAlpha(heightFunc(0, 0)));
     // umbraColor is the interior value, penumbraColor the exterior value.
     // umbraAlpha is the factor that is linearly interpolated from outside to inside, and
     // then "blurred" by the GrBlurredEdgeFP. It is then multiplied by fAmbientAlpha to get
@@ -384,7 +395,9 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
     // make sure we're not below the canvas plane
     this->setZOffset(path.getBounds(), ctm.hasPerspective());
 
-    this->setTransformedHeightFunc(ctm);
+    if (!this->setTransformedHeightFunc(ctm)) {
+        return;
+    }
 
     // Outer ring: 3*numPts
     // Middle ring: numPts
@@ -459,7 +472,7 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
 
         // make sure we don't end up with a sharp alpha edge along the quad diagonal
         if (fColors[fPrevUmbraIndex] != fColors[fFirstVertexIndex] &&
-            fFirstPoint.distanceToSqd(fPositions[fPrevUmbraIndex]) > kMaxEdgeLenSqr) {
+            SkPointPriv::DistanceToSqd(fFirstPoint, fPositions[fPrevUmbraIndex]) > kMaxEdgeLenSqr) {
             SkPoint centerPoint = fPositions[fPrevUmbraIndex] + fPositions[fFirstVertexIndex];
             centerPoint *= 0.5f;
             *fPositions.push() = centerPoint;
@@ -643,7 +656,7 @@ void SkAmbientShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVecto
 
     // Split the edge to make sure we don't end up with a sharp alpha edge along the quad diagonal
     if (fColors[fPrevUmbraIndex] != fUmbraColor &&
-        nextPoint.distanceToSqd(fPositions[fPrevUmbraIndex]) > kMaxEdgeLenSqr) {
+        SkPointPriv::DistanceToSqd(nextPoint, fPositions[fPrevUmbraIndex]) > kMaxEdgeLenSqr) {
 
         // This is lacking 1/4 of the next inset -- we'll add it the next time we call addEdge()
         SkPoint centerPoint = fPositions[fPrevUmbraIndex] + umbraPoint;
@@ -749,7 +762,7 @@ private:
     int getClosestUmbraPoint(const SkPoint& point);
 
     void handleLine(const SkPoint& p) override;
-    void handlePolyPoint(const SkPoint& p);
+    bool handlePolyPoint(const SkPoint& p);
 
     void mapPoints(SkScalar scale, const SkVector& xlate, SkPoint* pts, int count);
     bool addInnerPoint(const SkPoint& pathPoint);
@@ -793,6 +806,11 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
     , fFirstUmbraOutside(false)
     , fValidUmbra(true) {
 
+    // TODO: support some concave paths
+    if (!path.isConvex()) {
+        return;
+    }
+
     // make sure we're not below the canvas plane
     if (this->setZOffset(path.getBounds(), ctm.hasPerspective())) {
         // Adjust light height and radius
@@ -803,17 +821,17 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
     // Set radius and colors
     SkPoint center = SkPoint::Make(path.getBounds().centerX(), path.getBounds().centerY());
     SkScalar occluderHeight = this->heightFunc(center.fX, center.fY) + fZOffset;
-    float zRatio = SkTPin(occluderHeight / (fLightZ - occluderHeight), 0.0f, 0.95f);
-    SkScalar radius = lightRadius * zRatio;
-    fRadius = radius;
     fUmbraColor = SkColorSetARGB(255, 0, 0, 0);
     fPenumbraColor = SkColorSetARGB(0, 0, 0, 0);
 
-    // Compute the scale and translation for the spot shadow.
+    // Compute the blur radius, scale and translation for the spot shadow.
+    SkScalar radius;
     SkMatrix shadowTransform;
     if (!ctm.hasPerspective()) {
-        SkScalar scale = fLightZ / (fLightZ - occluderHeight);
-        SkVector translate = SkVector::Make(-zRatio * lightPos.fX, -zRatio * lightPos.fY);
+        SkScalar scale;
+        SkVector translate;
+        SkDrawShadowMetrics::GetSpotParams(occluderHeight, lightPos.fX, lightPos.fY, fLightZ,
+                                           lightRadius, &radius, &scale, &translate);
         shadowTransform.setScaleTranslate(scale, scale, translate.fX, translate.fY);
     } else {
         // For perspective, we have a scale, a z-shear, and another projective divide --
@@ -822,11 +840,15 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
         shadowTransform.reset();
         // Also can't cull the center (for now).
         fTransparent = true;
+        radius = SkDrawShadowMetrics::SpotBlurRadius(occluderHeight, lightPos.fZ, lightRadius);
     }
+    fRadius = radius;
     SkMatrix fullTransform = SkMatrix::Concat(shadowTransform, ctm);
 
     // Set up our reverse mapping
-    this->setTransformedHeightFunc(fullTransform);
+    if (!this->setTransformedHeightFunc(fullTransform)) {
+        return;
+    }
 
     // TODO: calculate these reserves better
     // Penumbra ring: 3*numPts
@@ -846,8 +868,8 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
     }
 
     // check to see if umbra collapses
-    SkScalar minDistSq = fCentroid.distanceToLineSegmentBetweenSqd(fPathPolygon[0],
-                                                                   fPathPolygon[1]);
+    SkScalar minDistSq = SkPointPriv::DistanceToLineSegmentBetweenSqd(fCentroid, fPathPolygon[0],
+                                                                      fPathPolygon[1]);
     SkRect bounds;
     bounds.setBounds(&fPathPolygon[0], fPathPolygon.count());
     for (int i = 1; i < fPathPolygon.count(); ++i) {
@@ -857,7 +879,8 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
         }
         SkPoint currPoint = fPathPolygon[i];
         SkPoint nextPoint = fPathPolygon[j];
-        SkScalar distSq = fCentroid.distanceToLineSegmentBetweenSqd(currPoint, nextPoint);
+        SkScalar distSq = SkPointPriv::DistanceToLineSegmentBetweenSqd(fCentroid, currPoint,
+                                                                       nextPoint);
         if (distSq < minDistSq) {
             minDistSq = distSq;
         }
@@ -890,7 +913,9 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
     }
     fCurrUmbraPoint = 0;
     for (int i = 0; i < fPathPolygon.count(); ++i) {
-        this->handlePolyPoint(fPathPolygon[i]);
+        if (!this->handlePolyPoint(fPathPolygon[i])) {
+            return;
+        }
     }
 
     if (!this->indexCount()) {
@@ -1150,13 +1175,13 @@ bool SkSpotShadowTessellator::clipUmbraPoint(const SkPoint& umbraPoint, const Sk
 }
 
 int SkSpotShadowTessellator::getClosestUmbraPoint(const SkPoint& p) {
-    SkScalar minDistance = p.distanceToSqd(fUmbraPolygon[fCurrUmbraPoint]);
+    SkScalar minDistance = SkPointPriv::DistanceToSqd(p, fUmbraPolygon[fCurrUmbraPoint]);
     int index = fCurrUmbraPoint;
     int dir = 1;
     int next = (index + dir) % fUmbraPolygon.count();
 
     // init travel direction
-    SkScalar distance = p.distanceToSqd(fUmbraPolygon[next]);
+    SkScalar distance = SkPointPriv::DistanceToSqd(p, fUmbraPolygon[next]);
     if (distance < minDistance) {
         index = next;
         minDistance = distance;
@@ -1166,12 +1191,12 @@ int SkSpotShadowTessellator::getClosestUmbraPoint(const SkPoint& p) {
 
     // iterate until we find a point that increases the distance
     next = (index + dir) % fUmbraPolygon.count();
-    distance = p.distanceToSqd(fUmbraPolygon[next]);
+    distance = SkPointPriv::DistanceToSqd(p, fUmbraPolygon[next]);
     while (distance < minDistance) {
         index = next;
         minDistance = distance;
         next = (index + dir) % fUmbraPolygon.count();
-        distance = p.distanceToSqd(fUmbraPolygon[next]);
+        distance = SkPointPriv::DistanceToSqd(p, fUmbraPolygon[next]);
     }
 
     fCurrUmbraPoint = index;
@@ -1191,14 +1216,18 @@ static bool duplicate_pt(const SkPoint& p0, const SkPoint& p1) {
     static constexpr SkScalar kClose = (SK_Scalar1 / 16);
     static constexpr SkScalar kCloseSqd = kClose*kClose;
 
-    SkScalar distSq = p0.distanceToSqd(p1);
+    SkScalar distSq = SkPointPriv::DistanceToSqd(p0, p1);
     return distSq < kCloseSqd;
 }
 
-static bool is_collinear(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2) {
+static SkScalar perp_dot(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2) {
     SkVector v0 = p1 - p0;
     SkVector v1 = p2 - p0;
-    return (SkScalarNearlyZero(v0.cross(v1)));
+    return v0.cross(v1);
+}
+
+static bool is_collinear(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2) {
+    return (SkScalarNearlyZero(perp_dot(p0, p1, p2)));
 }
 
 void SkSpotShadowTessellator::handleLine(const SkPoint& p) {
@@ -1224,21 +1253,19 @@ void SkSpotShadowTessellator::handleLine(const SkPoint& p) {
     }
 }
 
-void SkSpotShadowTessellator::handlePolyPoint(const SkPoint& p) {
+bool SkSpotShadowTessellator::handlePolyPoint(const SkPoint& p) {
     if (fInitPoints.count() < 2) {
         *fInitPoints.push() = p;
-        return;
+        return true;
     }
 
     if (fInitPoints.count() == 2) {
         // determine if cw or ccw
-        SkVector v0 = fInitPoints[1] - fInitPoints[0];
-        SkVector v1 = p - fInitPoints[0];
-        SkScalar perpDot = v0.cross(v1);
+        SkScalar perpDot = perp_dot(fInitPoints[0], fInitPoints[1], p);
         if (SkScalarNearlyZero(perpDot)) {
             // nearly parallel, just treat as straight line and continue
             fInitPoints[1] = p;
-            return;
+            return true;
         }
 
         // if perpDot > 0, winding is ccw
@@ -1248,7 +1275,7 @@ void SkSpotShadowTessellator::handlePolyPoint(const SkPoint& p) {
         if (!compute_normal(fInitPoints[0], fInitPoints[1], fDirection, &fFirstOutset)) {
             // first two points are incident, make the third point the second and continue
             fInitPoints[1] = p;
-            return;
+            return true;
         }
 
         fFirstOutset *= fRadius;
@@ -1263,7 +1290,8 @@ void SkSpotShadowTessellator::handlePolyPoint(const SkPoint& p) {
 
         if (!fTransparent) {
             SkPoint clipPoint;
-            bool isOutside = this->clipUmbraPoint(fPositions[fFirstVertexIndex], fCentroid, &clipPoint);
+            bool isOutside = this->clipUmbraPoint(fPositions[fFirstVertexIndex],
+                                                  fCentroid, &clipPoint);
             if (isOutside) {
                 *fPositions.push() = clipPoint;
                 *fColors.push() = fUmbraColor;
@@ -1281,12 +1309,22 @@ void SkSpotShadowTessellator::handlePolyPoint(const SkPoint& p) {
         *fInitPoints.push() = p;
     }
 
+    // if concave, abort
+    SkScalar perpDot = perp_dot(fInitPoints[1], fInitPoints[2], p);
+    if (fDirection*perpDot > 0) {
+        return false;
+    }
+
     SkVector normal;
     if (compute_normal(fPrevPoint, p, fDirection, &normal)) {
         normal *= fRadius;
         this->addArc(normal, true);
         this->addEdge(p, normal);
+        fInitPoints[1] = fInitPoints[2];
+        fInitPoints[2] = p;
     }
+
+    return true;
 }
 
 bool SkSpotShadowTessellator::addInnerPoint(const SkPoint& pathPoint) {

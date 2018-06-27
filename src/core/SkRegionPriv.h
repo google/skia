@@ -244,4 +244,14 @@ private:
     int32_t fIntervalCount;
 };
 
+#include <functional>
+
+class SkRegionPriv {
+public:
+    // Call the function with each span, in Y -> X ascending order.
+    // We pass a rect, but we will still ensure the span Y->X ordering, so often the height
+    // of the rect may be 1. It should never be empty.
+    static void VisitSpans(const SkRegion& rgn, const std::function<void(const SkIRect&)>&);
+};
+
 #endif

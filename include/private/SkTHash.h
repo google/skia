@@ -279,7 +279,7 @@ private:
     SkTHashTable<Pair, K> fTable;
 };
 
-// A set of T.  T is treated as an ordiary copyable C++ type.
+// A set of T.  T is treated as an ordinary copyable C++ type.
 template <typename T, typename HashT = SkGoodHash>
 class SkTHashSet : SkNoncopyable {
 public:

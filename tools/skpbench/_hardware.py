@@ -41,10 +41,6 @@ class Hardware:
     """Prints any info that may help improve or debug hardware monitoring."""
     pass
 
-  def sleep(self, sleeptime):
-    """Puts the hardware into a resting state for a fixed amount of time."""
-    time.sleep(sleeptime)
-
 
 class HardwareException(Exception):
   """Gets thrown when certain hardware state is not what we expect.

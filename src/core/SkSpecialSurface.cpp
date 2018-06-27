@@ -105,7 +105,7 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
         return nullptr;
     }
 
-    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeZeroed(info, 0, nullptr);
+    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeZeroed(info, 0);
     if (!pr) {
         return nullptr;
     }
@@ -147,12 +147,12 @@ public:
             return nullptr;
         }
         sk_sp<SkSpecialImage> tmp(SkSpecialImage::MakeDeferredFromGpu(
-                                                   fCanvas->getGrContext(),
-                                                   this->subset(),
-                                                   kNeedNewImageUniqueID_SpecialImage,
-                                                   fRenderTargetContext->asTextureProxyRef(),
-                                                   fRenderTargetContext->refColorSpace(),
-                                                   &this->props()));
+                fCanvas->getGrContext(),
+                this->subset(),
+                kNeedNewImageUniqueID_SpecialImage,
+                fRenderTargetContext->asTextureProxyRef(),
+                fRenderTargetContext->colorSpaceInfo().refColorSpace(),
+                &this->props()));
         fRenderTargetContext = nullptr;
         return tmp;
     }

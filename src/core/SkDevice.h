@@ -22,9 +22,8 @@ class SkMatrix;
 class SkRasterHandleAllocator;
 class SkRegion;
 class SkSpecialImage;
-class GrRenderTarget;
 
-class SK_API SkBaseDevice : public SkRefCnt {
+class SkBaseDevice : public SkRefCnt {
 public:
     SkBaseDevice(const SkImageInfo&, const SkSurfaceProps&);
 
@@ -70,7 +69,7 @@ public:
         return this->imageInfo().isOpaque();
     }
 
-    bool writePixels(const SkImageInfo&, const void*, size_t rowBytes, int x, int y);
+    bool writePixels(const SkPixmap&, int x, int y);
 
     /**
      *  Try to get write-access to the pixels behind the device. If successful, this returns true
@@ -197,10 +196,12 @@ protected:
      */
     virtual void drawPath(const SkPath& path,
                           const SkPaint& paint,
-                          const SkMatrix* prePathMatrix = NULL,
+                          const SkMatrix* prePathMatrix = nullptr,
                           bool pathIsMutable = false) = 0;
     virtual void drawBitmap(const SkBitmap& bitmap,
-                            const SkMatrix& matrix, const SkPaint& paint) = 0;
+                            SkScalar x,
+                            SkScalar y,
+                            const SkPaint& paint) = 0;
     virtual void drawSprite(const SkBitmap& bitmap,
                             int x, int y, const SkPaint& paint) = 0;
 
@@ -268,7 +269,7 @@ protected:
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkImage*);
     virtual sk_sp<SkSpecialImage> snapSpecial();
 
-    bool readPixels(const SkImageInfo&, void* dst, size_t rowBytes, int x, int y);
+    bool readPixels(const SkPixmap&, int x, int y);
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -283,7 +284,7 @@ protected:
      *
      *  This is explicitly asserted in readPixels(), the public way to call this.
      */
-    virtual bool onReadPixels(const SkImageInfo&, void*, size_t, int x, int y);
+    virtual bool onReadPixels(const SkPixmap&, int x, int y);
 
     /**
      *  The caller is responsible for "pre-clipping" the src. The impl can assume that the src
@@ -291,7 +292,7 @@ protected:
      *
      *  This is explicitly asserted in writePixelsDirect(), the public way to call this.
      */
-    virtual bool onWritePixels(const SkImageInfo&, const void*, size_t, int x, int y);
+    virtual bool onWritePixels(const SkPixmap&, int x, int y);
 
     virtual bool onAccessPixels(SkPixmap*) { return false; }
 
@@ -337,19 +338,19 @@ protected:
      *  it could not call drawDevice with it (but it could call drawSprite or drawBitmap).
      */
     virtual SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) {
-        return NULL;
+        return nullptr;
     }
 
     // A helper function used by derived classes to log the scale factor of a bitmap or image draw.
     static void LogDrawScaleFactor(const SkMatrix&, SkFilterQuality);
 
 private:
+    friend class SkAndroidFrameworkUtils;
     friend class SkCanvas;
     friend struct DeviceCM; //for setMatrixClip
     friend class SkDraw;
     friend class SkDrawIter;
     friend class SkDeviceFilteredPaint;
-    friend class SkNoPixelsBitmapDevice;
     friend class SkSurface_Raster;
     friend class DeviceTestingAccess;
 
@@ -373,7 +374,7 @@ private:
      */
     virtual void flush() {}
 
-    virtual SkImageFilterCache* getImageFilterCache() { return NULL; }
+    virtual SkImageFilterCache* getImageFilterCache() { return nullptr; }
 
     friend class SkNoPixelsDevice;
     friend class SkBitmapDevice;

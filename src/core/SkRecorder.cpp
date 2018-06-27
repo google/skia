@@ -238,12 +238,13 @@ void SkRecorder::onDrawImageNine(const SkImage* image, const SkIRect& center,
 
 void SkRecorder::onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                     const SkPaint* paint) {
-    int flagCount = lattice.fFlags ? (lattice.fXCount + 1) * (lattice.fYCount + 1) : 0;
+    int flagCount = lattice.fRectTypes ? (lattice.fXCount + 1) * (lattice.fYCount + 1) : 0;
     SkASSERT(lattice.fBounds);
     APPEND(DrawImageLattice, this->copy(paint), sk_ref_sp(image),
            lattice.fXCount, this->copy(lattice.fXDivs, lattice.fXCount),
            lattice.fYCount, this->copy(lattice.fYDivs, lattice.fYCount),
-           flagCount, this->copy(lattice.fFlags, flagCount), *lattice.fBounds, dst);
+           flagCount, this->copy(lattice.fRectTypes, flagCount),
+           this->copy(lattice.fColors, flagCount), *lattice.fBounds, dst);
 }
 
 void SkRecorder::onDrawText(const void* text, size_t byteLength,
@@ -344,6 +345,10 @@ void SkRecorder::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec)
 
 void SkRecorder::onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) {
     APPEND(DrawAnnotation, rect, SkString(key), sk_ref_sp(value));
+}
+
+void SkRecorder::onFlush() {
+    APPEND(Flush);
 }
 
 void SkRecorder::willSave() {

@@ -45,6 +45,8 @@ public:
      */
     virtual sk_sp<SkImage> onNewImageSnapshot() = 0;
 
+    virtual void onWritePixels(const SkPixmap&, int x, int y) = 0;
+
     /**
      *  Default implementation:
      *
@@ -77,8 +79,25 @@ public:
 
     /**
      * Issue any pending surface IO to the current backend 3D API and resolve any surface MSAA.
+     * Inserts the requested number of semaphores for the gpu to signal when work is complete on the
+     * gpu and inits the array of GrBackendSemaphores with the signaled semaphores.
      */
-    virtual void onPrepareForExternalIO() {}
+    virtual GrSemaphoresSubmitted onFlush(int numSemaphores,
+                                          GrBackendSemaphore signalSemaphores[]) {
+        return GrSemaphoresSubmitted::kNo;
+    }
+
+    /**
+     * Caused the current backend 3D API to wait on the passed in semaphores before executing new
+     * commands on the gpu. Any previously submitting commands will not be blocked by these
+     * semaphores.
+     */
+    virtual bool onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {
+        return false;
+    }
+
+    virtual bool onCharacterize(SkSurfaceCharacterization*) const { return false; }
+    virtual bool onDraw(const SkDeferredDisplayList*) { return false; }
 
     inline SkCanvas* getCachedCanvas();
     inline sk_sp<SkImage> refCachedImage();

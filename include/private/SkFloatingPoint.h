@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkFloatingPoint_DEFINED
 #define SkFloatingPoint_DEFINED
 
+#include "../private/SkFloatBits.h"
 #include "SkTypes.h"
 #include "SkSafe_math.h"
 #include <float.h>
@@ -24,8 +23,6 @@
 #if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 #include <unistd.h>
 #endif
-
-#include "SkFloatBits.h"
 
 // C++98 cmath std::pow seems to be the earliest portable way to get float pow.
 // However, on Linux including cmath undefines isfinite.
@@ -71,8 +68,7 @@ static inline float sk_float_pow(float base, float exp) {
     #define sk_float_isfinite(x)    _finite(x)
     #define sk_float_isnan(x)       _isnan(x)
     static inline int sk_float_isinf(float x) {
-        int32_t bits = SkFloat2Bits(x);
-        return (bits << 1) == (0xFF << 24);
+        return x && (x + x == x);
     }
 #else
     #define sk_float_isfinite(x)    isfinite(x)
@@ -82,15 +78,46 @@ static inline float sk_float_pow(float base, float exp) {
 
 #define sk_double_isnan(a)          sk_float_isnan(a)
 
-#ifdef SK_USE_FLOATBITS
-    #define sk_float_floor2int(x)   SkFloatToIntFloor(x)
-    #define sk_float_round2int(x)   SkFloatToIntRound(x)
-    #define sk_float_ceil2int(x)    SkFloatToIntCeil(x)
-#else
-    #define sk_float_floor2int(x)   (int)sk_float_floor(x)
-    #define sk_float_round2int(x)   (int)sk_float_floor((x) + 0.5f)
-    #define sk_float_ceil2int(x)    (int)sk_float_ceil(x)
-#endif
+#define SK_MaxS32FitsInFloat    2147483520
+#define SK_MinS32FitsInFloat    -SK_MaxS32FitsInFloat
+
+#define SK_MaxS64FitsInFloat    (SK_MaxS64 >> (63-24) << (63-24))   // 0x7fffff8000000000
+#define SK_MinS64FitsInFloat    -SK_MaxS64FitsInFloat
+
+/**
+ *  Return the closest int for the given float. Returns SK_MaxS32FitsInFloat for NaN.
+ */
+static inline int sk_float_saturate2int(float x) {
+    x = SkTMin<float>(x, SK_MaxS32FitsInFloat);
+    x = SkTMax<float>(x, SK_MinS32FitsInFloat);
+    return (int)x;
+}
+
+/**
+ *  Return the closest int for the given double. Returns SK_MaxS32 for NaN.
+ */
+static inline int sk_double_saturate2int(double x) {
+    x = SkTMin<double>(x, SK_MaxS32);
+    x = SkTMax<double>(x, SK_MinS32);
+    return (int)x;
+}
+
+/**
+ *  Return the closest int64_t for the given float. Returns SK_MaxS64FitsInFloat for NaN.
+ */
+static inline int64_t sk_float_saturate2int64(float x) {
+    x = SkTMin<float>(x, SK_MaxS64FitsInFloat);
+    x = SkTMax<float>(x, SK_MinS64FitsInFloat);
+    return (int64_t)x;
+}
+
+#define sk_float_floor2int(x)   sk_float_saturate2int(sk_float_floor(x))
+#define sk_float_round2int(x)   sk_float_saturate2int(sk_float_floor((x) + 0.5f))
+#define sk_float_ceil2int(x)    sk_float_saturate2int(sk_float_ceil(x))
+
+#define sk_float_floor2int_no_saturate(x)   (int)sk_float_floor(x)
+#define sk_float_round2int_no_saturate(x)   (int)sk_float_floor((x) + 0.5f)
+#define sk_float_ceil2int_no_saturate(x)    (int)sk_float_ceil(x)
 
 #define sk_double_floor(x)          floor(x)
 #define sk_double_round(x)          floor((x) + 0.5)
@@ -98,6 +125,16 @@ static inline float sk_float_pow(float base, float exp) {
 #define sk_double_floor2int(x)      (int)floor(x)
 #define sk_double_round2int(x)      (int)floor((x) + 0.5f)
 #define sk_double_ceil2int(x)       (int)ceil(x)
+
+// Cast double to float, ignoring any warning about too-large finite values being cast to float.
+// Clang thinks this is undefined, but it's actually implementation defined to return either
+// the largest float or infinity (one of the two bracketing representable floats).  Good enough!
+#if defined(__clang__) && (__clang_major__ * 1000 + __clang_minor__) >= 3007
+__attribute__((no_sanitize("float-cast-overflow")))
+#endif
+static inline float sk_double_to_float(double x) {
+    return static_cast<float>(x);
+}
 
 static const uint32_t kIEEENotANumber = 0x7fffffff;
 #define SK_FloatNaN                 (*SkTCast<const float*>(&kIEEENotANumber))
@@ -152,5 +189,15 @@ static inline float sk_float_rsqrt(float x) {
 #else
 #define SK_FLT_DECIMAL_DIG 9
 #endif
+
+// IEEE defines how float divide behaves for non-finite values and zero-denoms, but C does not
+// so we have a helper that suppresses the possible undefined-behavior warnings.
+
+#ifdef __clang__
+__attribute__((no_sanitize("float-divide-by-zero")))
+#endif
+static inline float sk_ieee_float_divide(float numer, float denom) {
+    return numer / denom;
+}
 
 #endif

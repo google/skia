@@ -10,11 +10,15 @@
 #include "SkBlurDrawLooper.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
+#include "SkColorPriv.h"
 #include "SkEmbossMaskFilter.h"
 #include "SkLayerDrawLooper.h"
+#include "SkMaskFilterBase.h"
 #include "SkMath.h"
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkPerlinNoiseShader.h"
+#include "SkSurface.h"
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
@@ -236,12 +240,14 @@ static void blur_path(SkCanvas* canvas, const SkPath& path,
 }
 
 // Readback the blurred draw results from the canvas
-static void readback(SkCanvas* canvas, int* result, int resultCount) {
+static void readback(const SkBitmap& src, int* result, int resultCount) {
     SkBitmap readback;
     readback.allocN32Pixels(resultCount, 30);
-    canvas->readPixels(readback, 0, 0);
+    SkPixmap pm;
+    readback.peekPixels(&pm);
+    src.readPixels(pm, 0, 0);
 
-    SkPMColor* pixels = (SkPMColor*) readback.getAddr32(0, 15);
+    const SkPMColor* pixels = pm.addr32(0, 15);
 
     for (int i = 0; i < resultCount; ++i) {
         result[i] = SkColorGetR(pixels[i]);
@@ -258,32 +264,8 @@ static void cpu_blur_path(const SkPath& path, SkScalar gaussianSigma,
     SkCanvas canvas(bitmap);
 
     blur_path(&canvas, path, gaussianSigma);
-    readback(&canvas, result, resultCount);
+    readback(bitmap, result, resultCount);
 }
-
-#if SK_SUPPORT_GPU
-#if 0
-// temporary disable; see below for explanation
-static bool gpu_blur_path(GrContext* context, const SkPath& path,
-                          SkScalar gaussianSigma,
-                          int* result, int resultCount) {
-    GrSurfaceDesc desc;
-    desc.fConfig = kSkia8888_GrPixelConfig;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = resultCount;
-    desc.fHeight = 30;
-    desc.fSampleCnt = 0;
-
-    sk_sp<GrTexture> texture(grContext->createTexture(desc, false, nullptr, 0));
-    sk_sp<SkGpuDevice> device(new SkGpuDevice(grContext, texture.get()));
-    SkCanvas canvas(device.get());
-
-    blur_path(&canvas, path, gaussianSigma);
-    readback(&canvas, result, resultCount);
-    return true;
-}
-#endif
-#endif
 
 #if WRITE_CSV
 static void write_as_csv(const char* label, SkScalar scale, int* data, int count) {
@@ -343,18 +325,6 @@ DEF_TEST(BlurSigmaRange, reporter) {
 
         REPORTER_ASSERT(reporter, match(rectSpecialCaseResult, bruteForce1DResult, kSize, 5));
         REPORTER_ASSERT(reporter, match(generalCaseResult, bruteForce1DResult, kSize, 15));
-#if SK_SUPPORT_GPU
-#if 0
-        int gpuResult[kSize];
-        bool haveGPUResult = gpu_blur_path(context, rectPath, sigma, gpuResult, kSize);
-        // Disabling this test for now -- I don't think it's a legit comparison.
-        // Will continue to investigate this.
-        if (haveGPUResult) {
-            // 1 works everywhere but: Ubuntu13 & Nexus4
-            REPORTER_ASSERT(reporter, match(gpuResult, bruteForce1DResult, kSize, 10));
-        }
-#endif
-#endif
         REPORTER_ASSERT(reporter, match(groundTruthResult, bruteForce1DResult, kSize, 1));
 
 #if WRITE_CSV
@@ -488,8 +458,8 @@ DEF_TEST(BlurAsABlur, reporter) {
                     REPORTER_ASSERT(reporter, sigma <= 0);
                 } else {
                     REPORTER_ASSERT(reporter, sigma > 0);
-                    SkMaskFilter::BlurRec rec;
-                    bool success = mf->asABlur(&rec);
+                    SkMaskFilterBase::BlurRec rec;
+                    bool success = as_MFB(mf)->asABlur(&rec);
                     if (flags & SkBlurMaskFilter::kIgnoreTransform_BlurFlag) {
                         REPORTER_ASSERT(reporter, !success);
                     } else {
@@ -515,8 +485,8 @@ DEF_TEST(BlurAsABlur, reporter) {
             const SkScalar sigma = sigmas[j];
             auto mf(SkEmbossMaskFilter::Make(sigma, light));
             if (mf) {
-                SkMaskFilter::BlurRec rec;
-                bool success = mf->asABlur(&rec);
+                SkMaskFilterBase::BlurRec rec;
+                bool success = as_MFB(mf)->asABlur(&rec);
                 REPORTER_ASSERT(reporter, !success);
             }
         }
@@ -568,7 +538,7 @@ DEF_TEST(BlurredRRectNinePatchComputation, reporter) {
                                                                     kBlurRad, kBlurRad,
                                                                     &rrectToDraw, &size,
                                                                     rectXs, rectYs, texXs, texYs,
-                                                                    &numX, &numY, &skipMask);   
+                                                                    &numX, &numY, &skipMask);
         REPORTER_ASSERT(reporter, !ninePatchable);
     }
 
@@ -625,8 +595,8 @@ DEF_TEST(BlurredRRectNinePatchComputation, reporter) {
         SkScalar testLocs[] = {
              -18.0f, -9.0f,
                1.0f,
-               9.0f, 18.0f, 
-              29.0f, 
+               9.0f, 18.0f,
+              29.0f,
               39.0f, 49.0f,
               91.0f,
              109.0f, 118.0f,
@@ -649,7 +619,7 @@ DEF_TEST(BlurredRRectNinePatchComputation, reporter) {
                                                                     kBlurRad, kBlurRad,
                                                                     &rrectToDraw, &size,
                                                                     rectXs, rectYs, texXs, texYs,
-                                                                    &numX, &numY, &skipMask);     
+                                                                    &numX, &numY, &skipMask);
 
                         static const SkScalar kAns = 12.0f * kBlurRad + 2.0f * kCornerRad + 1.0f;
                         REPORTER_ASSERT(reporter, ninePatchable);
@@ -685,4 +655,50 @@ DEF_TEST(BlurredRRectNinePatchComputation, reporter) {
 
 }
 
+// https://crbugs.com/787712
+DEF_TEST(EmbossPerlinCrash, reporter) {
+    SkPaint p;
+
+    static constexpr SkEmbossMaskFilter::Light light = {
+        { 1, 1, 1 }, 0, 127, 127
+    };
+    p.setMaskFilter(SkEmbossMaskFilter::Make(1, light));
+    p.setShader(SkPerlinNoiseShader::MakeFractalNoise(1.0f, 1.0f, 2, 0.0f));
+
+    sk_sp<SkSurface> surface = SkSurface::MakeRasterN32Premul(100, 100);
+    surface->getCanvas()->drawPaint(p);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////
+#include "SkSurface.h"
+#include "sk_pixel_iter.h"
+
+DEF_TEST(BlurZeroSigma, reporter) {
+    auto surf = SkSurface::MakeRasterN32Premul(20, 20);
+    SkPaint paint;
+    paint.setAntiAlias(true);
+
+    const SkIRect ir = { 5, 5, 15, 15 };
+    const SkRect r = SkRect::Make(ir);
+
+    const SkScalar sigmas[] = { 0, SkBits2Float(1) };
+    // if sigma is zero (or nearly so), we need to draw correctly (unblurred) and not crash
+    // or assert.
+    for (auto sigma : sigmas) {
+        paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, sigma));
+        surf->getCanvas()->drawRect(r, paint);
+
+        sk_tool_utils::PixelIter iter(surf.get());
+        SkIPoint  loc;
+        while (const SkPMColor* p = (const SkPMColor*)iter.next(&loc)) {
+            if (ir.contains(loc.fX, loc.fY)) {
+                // inside the rect we draw (opaque black)
+                REPORTER_ASSERT(reporter, *p == SkPackARGB32(0xFF, 0, 0, 0));
+            } else {
+                // outside the rect we didn't draw at all, no blurred edges
+                REPORTER_ASSERT(reporter, *p == 0);
+            }
+        }
+    }
+}
+

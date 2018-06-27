@@ -8,12 +8,12 @@
 #ifndef SkJumper_misc_DEFINED
 #define SkJumper_misc_DEFINED
 
-#include "SkJumper.h"  // for memcpy()
+#include <string.h>  // for memcpy()
 
-// Miscellany used by SkJumper_stages.cpp and SkJumper_vectors.h.
+// Miscellany used by SkJumper_stages.cpp and SkJumper_stages_lowp.cpp.
 
 // Every function in this file should be marked static and inline using SI.
-#if defined(JUMPER)
+#if defined(__clang__)
     #define SI __attribute__((always_inline)) static inline
 #else
     #define SI static inline
@@ -45,5 +45,39 @@ SI Dst widen_cast(const Src& src) {
     memcpy(&dst, &src, sizeof(Src));
     return dst;
 }
+
+// Our program is an array of void*, either
+//   - 1 void* per stage with no context pointer, the next stage;
+//   - 2 void* per stage with a context pointer, first the context pointer, then the next stage.
+
+// load_and_inc() steps the program forward by 1 void*, returning that pointer.
+SI void* load_and_inc(void**& program) {
+#if defined(__GNUC__) && defined(__x86_64__)
+    // If program is in %rsi (we try to make this likely) then this is a single instruction.
+    void* rax;
+    asm("lodsq" : "=a"(rax), "+S"(program));  // Write-only %rax, read-write %rsi.
+    return rax;
+#else
+    // On ARM *program++ compiles into pretty ideal code without any handholding.
+    return *program++;
+#endif
+}
+
+// Lazily resolved on first cast.  Does nothing if cast to Ctx::None.
+struct Ctx {
+    struct None {};
+
+    void*   ptr;
+    void**& program;
+
+    explicit Ctx(void**& p) : ptr(nullptr), program(p) {}
+
+    template <typename T>
+    operator T*() {
+        if (!ptr) { ptr = load_and_inc(program); }
+        return (T*)ptr;
+    }
+    operator None() { return None{}; }
+};
 
 #endif//SkJumper_misc_DEFINED

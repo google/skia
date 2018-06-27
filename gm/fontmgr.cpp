@@ -12,10 +12,6 @@
 #include "SkGraphics.h"
 #include "SkTypeface.h"
 
-#ifdef SK_BUILD_FOR_WIN
-    #include "SkTypeface_win.h"
-#endif
-
 // limit this just so we don't take too long to draw
 #define MAX_FAMILIES    30
 
@@ -46,8 +42,7 @@ static SkScalar drawCharacter(SkCanvas* canvas, uint32_t character, SkScalar x,
     // it expects to get the same glyph when following this pattern.
     SkString familyName;
     typeface->getFamilyName(&familyName);
-    paint.setTypeface(sk_sp<SkTypeface>(fm->legacyCreateTypeface(familyName.c_str(),
-                                                                 typeface->fontStyle())));
+    paint.setTypeface(fm->legacyMakeTypeface(familyName.c_str(), typeface->fontStyle()));
     return drawString(canvas, ch, x, y, paint) + 20;
 }
 
@@ -56,18 +51,12 @@ static const char* ja = "ja";
 
 class FontMgrGM : public skiagm::GM {
 public:
-    FontMgrGM(sk_sp<SkFontMgr> fontMgr = nullptr) {
+    FontMgrGM() {
         SkGraphics::SetFontCacheLimit(16 * 1024 * 1024);
 
         fName.set("fontmgr_iter");
-        if (fontMgr) {
-            fName.append("_factory");
-            fFM = std::move(fontMgr);
-        } else {
-            fFM = SkFontMgr::RefDefault();
-        }
-        fName.append(sk_tool_utils::platform_os_name());
-        fName.append(sk_tool_utils::platform_extra_config("GDI"));
+        fFM = SkFontMgr::RefDefault();
+        fName.append(sk_tool_utils::platform_font_manager());
     }
 
 protected:
@@ -135,8 +124,7 @@ public:
 protected:
     SkString onShortName() override {
         SkString name("fontmgr_match");
-        name.append(sk_tool_utils::platform_os_name());
-        name.append(sk_tool_utils::platform_extra_config("GDI"));
+        name.append(sk_tool_utils::platform_font_manager());
         return name;
     }
 
@@ -224,24 +212,60 @@ public:
         if (scale != 1 || skew != 0) {
             fName.appendf("_%g_%g", scale, skew);
         }
-        fName.append(sk_tool_utils::platform_os_name());
-        fName.append(sk_tool_utils::platform_extra_config("GDI"));
+        fName.append(sk_tool_utils::platform_font_manager());
         fFM = SkFontMgr::RefDefault();
     }
 
     static void show_bounds(SkCanvas* canvas, const SkPaint& paint, SkScalar x, SkScalar y,
-                            SkColor boundsColor) {
-        const char str[] = "jyHO[]{}@-_&%$";
+                            SkColor boundsColor)
+    {
+        SkPaint glyphPaint(paint);
+        SkRect fontBounds = glyphPaint.getFontBounds();
+        fontBounds.offset(x, y);
+        SkPaint boundsPaint(glyphPaint);
+        boundsPaint.setColor(boundsColor);
+        canvas->drawRect(fontBounds, boundsPaint);
 
-        for (int i = 0; str[i]; ++i) {
-            canvas->drawText(&str[i], 1, x, y, paint);
+        SkPaint::FontMetrics fm;
+        glyphPaint.getFontMetrics(&fm);
+        SkPaint metricsPaint(boundsPaint);
+        metricsPaint.setStyle(SkPaint::kFill_Style);
+        metricsPaint.setAlpha(0x40);
+        if ((fm.fFlags & SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag) &&
+            (fm.fFlags & SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag))
+        {
+            SkRect underline{ fontBounds.fLeft,  fm.fUnderlinePosition+y,
+                              fontBounds.fRight, fm.fUnderlinePosition+y + fm.fUnderlineThickness };
+            canvas->drawRect(underline, metricsPaint);
         }
 
-        SkRect r = paint.getFontBounds();
-        r.offset(x, y);
-        SkPaint p(paint);
-        p.setColor(boundsColor);
-        canvas->drawRect(r, p);
+        if ((fm.fFlags & SkPaint::FontMetrics::kStrikeoutPositionIsValid_Flag) &&
+            (fm.fFlags & SkPaint::FontMetrics::kStrikeoutPositionIsValid_Flag))
+        {
+            SkRect strikeout{ fontBounds.fLeft,  fm.fStrikeoutPosition+y - fm.fStrikeoutThickness,
+                              fontBounds.fRight, fm.fStrikeoutPosition+y };
+            canvas->drawRect(strikeout, metricsPaint);
+        }
+
+        SkGlyphID left = 0, right = 0, top = 0, bottom = 0;
+        {
+            int numGlyphs = glyphPaint.getTypeface()->countGlyphs();
+            SkRect min = {0, 0, 0, 0};
+            glyphPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+            for (int i = 0; i < numGlyphs; ++i) {
+                SkGlyphID glyphId = i;
+                SkRect cur;
+                glyphPaint.measureText(&glyphId, sizeof(glyphId), &cur);
+                if (cur.fLeft   < min.fLeft  ) { min.fLeft   = cur.fLeft;   left   = i; }
+                if (cur.fTop    < min.fTop   ) { min.fTop    = cur.fTop ;   top    = i; }
+                if (min.fRight  < cur.fRight ) { min.fRight  = cur.fRight;  right  = i; }
+                if (min.fBottom < cur.fBottom) { min.fBottom = cur.fBottom; bottom = i; }
+            }
+        }
+        SkGlyphID str[] = { left, right, top, bottom };
+        for (size_t i = 0; i < SK_ARRAY_COUNT(str); ++i) {
+            canvas->drawText(&str[i], sizeof(str[0]), x, y, glyphPaint);
+        }
     }
 
 protected:
@@ -270,21 +294,25 @@ protected:
         int index = 0;
         SkScalar x = 0, y = 0;
 
-        canvas->translate(80, 120);
+        canvas->translate(10, 120);
 
         for (int i = 0; i < count; ++i) {
             sk_sp<SkFontStyleSet> set(fm->createStyleSet(i));
-            for (int j = 0; j < set->count(); ++j) {
+            for (int j = 0; j < set->count() && j < 3; ++j) {
                 paint.setTypeface(sk_sp<SkTypeface>(set->createTypeface(j)));
-                if (paint.getTypeface()) {
+                // Fonts with lots of glyphs are interesting, but can take a long time to find
+                // the glyphs which make up the maximum extent.
+                if (paint.getTypeface() && paint.getTypeface()->countGlyphs() < 1000) {
+                    SkRect fontBounds = paint.getFontBounds();
+                    x -= fontBounds.fLeft;
                     show_bounds(canvas, paint, x, y, boundsColors[index & 1]);
+                    x += fontBounds.fRight + 20;
                     index += 1;
-                    x += 160;
-                    if (0 == (index % 6)) {
+                    if (x > 900) {
                         x = 0;
                         y += 160;
                     }
-                    if (index >= 30) {
+                    if (y >= 700) {
                         return;
                     }
                 }
@@ -306,7 +334,3 @@ DEF_GM(return new FontMgrMatchGM;)
 DEF_GM(return new FontMgrBoundsGM(1.0, 0);)
 DEF_GM(return new FontMgrBoundsGM(0.75, 0);)
 DEF_GM(return new FontMgrBoundsGM(1.0, -0.25);)
-
-#ifdef SK_BUILD_FOR_WIN
-DEF_GM(return new FontMgrGM(SkFontMgr_New_DirectWrite());)
-#endif

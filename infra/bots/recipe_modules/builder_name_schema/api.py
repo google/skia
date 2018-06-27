@@ -25,6 +25,7 @@ class BuilderNameSchemaApi(recipe_api.RecipeApi):
     self.BUILDER_ROLE_INFRA = builder_name_schema.BUILDER_ROLE_INFRA
     self.BUILDER_ROLE_PERF = builder_name_schema.BUILDER_ROLE_PERF
     self.BUILDER_ROLE_TEST = builder_name_schema.BUILDER_ROLE_TEST
+    self.BUILDER_ROLE_CALMBENCH = builder_name_schema.BUILDER_ROLE_CALMBENCH
     self.BUILDER_ROLES = builder_name_schema.BUILDER_ROLES
 
   def MakeBuilderName(self, *args, **kwargs):

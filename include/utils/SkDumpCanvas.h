@@ -21,7 +21,7 @@ class SkDumpCanvas : public SkCanvas {
 public:
     class Dumper;
 
-    explicit SkDumpCanvas(Dumper* = 0);
+    explicit SkDumpCanvas(Dumper* = nullptr);
     ~SkDumpCanvas() override;
 
     enum Verb {
@@ -45,6 +45,7 @@ public:
         kDrawBitmap_Verb,
         kDrawText_Verb,
         kDrawPicture_Verb,
+        kDrawDrawable_Verb,
         kDrawVertices_Verb,
         kDrawPatch_Verb,
         kDrawData_Verb, // obsolete
@@ -58,7 +59,7 @@ public:
      */
     class Dumper : public SkRefCnt {
     public:
-        
+
 
         virtual void dump(SkDumpCanvas*, SkDumpCanvas::Verb, const char str[],
                           const SkPaint*) = 0;
@@ -120,6 +121,7 @@ protected:
     void onClipRegion(const SkRegion&, SkClipOp) override;
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
+    void onDrawDrawable(SkDrawable*, const SkMatrix*) override;
     void onDrawAnnotation(const SkRect&, const char key[], SkData* value) override;
 
     static const char* EdgeStyleToAAString(ClipEdgeStyle edgeStyle);

@@ -17,46 +17,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Implementation specific tracing API definitions.
 
+// Makes it easier to add traces with a simple TRACE_EVENT0("skia", TRACE_FUNC).
+#if defined(_MSC_VER)
+    #define TRACE_FUNC __FUNCSIG__
+#else
+    #define TRACE_FUNC __PRETTY_FUNCTION__
+#endif
+
 // By default, const char* argument values are assumed to have long-lived scope
 // and will not be copied. Use this macro to force a const char* to be copied.
 #define TRACE_STR_COPY(str) \
     skia::tracing_internals::TraceStringWithCopy(str)
-
-// By default, uint64 ID argument values are not mangled with the Process ID in
-// TRACE_EVENT_ASYNC macros. Use this macro to force Process ID mangling.
-#define TRACE_ID_MANGLE(id) \
-    skia::tracing_internals::TraceID::ForceMangle(id)
-
-// By default, pointers are mangled with the Process ID in TRACE_EVENT_ASYNC
-// macros. Use this macro to prevent Process ID mangling.
-#define TRACE_ID_DONT_MANGLE(id) \
-    skia::tracing_internals::TraceID::DontMangle(id)
-
-// Sets the current sample state to the given category and name (both must be
-// constant strings). These states are intended for a sampling profiler.
-// Implementation note: we store category and name together because we don't
-// want the inconsistency/expense of storing two pointers.
-// |thread_bucket| is [0..2] and is used to statically isolate samples in one
-// thread from others.
-#define TRACE_EVENT_SET_SAMPLING_STATE_FOR_BUCKET( \
-    bucket_number, category, name)                 \
-        skia::tracing_internals::                     \
-        TraceEventSamplingStateScope<bucket_number>::Set(category "\0" name)
-
-// Returns a current sampling state of the given bucket.
-#define TRACE_EVENT_GET_SAMPLING_STATE_FOR_BUCKET(bucket_number) \
-    skia::tracing_internals::TraceEventSamplingStateScope<bucket_number>::Current()
-
-// Creates a scope of a sampling state of the given bucket.
-//
-// {  // The sampling state is set within this scope.
-//    TRACE_EVENT_SAMPLING_STATE_SCOPE_FOR_BUCKET(0, "category", "name");
-//    ...;
-// }
-#define TRACE_EVENT_SCOPED_SAMPLING_STATE_FOR_BUCKET(                   \
-    bucket_number, category, name)                                      \
-    skia::tracing_internals::TraceEventSamplingStateScope<bucket_number>   \
-        traceEventSamplingScope(category "\0" name);
 
 
 #define INTERNAL_TRACE_EVENT_CATEGORY_GROUP_ENABLED_FOR_RECORDING_MODE() \
@@ -76,12 +47,6 @@
 //     TRACE_EVENT_API_GET_CATEGORY_GROUP_ENABLED(const char* category_group)
 #define TRACE_EVENT_API_GET_CATEGORY_GROUP_ENABLED \
     SkEventTracer::GetInstance()->getCategoryGroupEnabled
-
-// Get the number of times traces have been recorded. This is used to implement
-// the TRACE_EVENT_IS_NEW_TRACE facility.
-// unsigned int TRACE_EVENT_API_GET_NUM_TRACES_RECORDED()
-#define TRACE_EVENT_API_GET_NUM_TRACES_RECORDED \
-    SkEventTracer::GetInstance()->getNumTracesRecorded
 
 // Add a trace event to the platform tracing system.
 // SkEventTracer::Handle TRACE_EVENT_API_ADD_TRACE_EVENT(
@@ -113,12 +78,9 @@
 // Defines visibility for classes in trace_event.h
 #define TRACE_EVENT_API_CLASS_EXPORT SK_API
 
-// The thread buckets for the sampling profiler.
-TRACE_EVENT_API_CLASS_EXPORT extern \
-    TRACE_EVENT_API_ATOMIC_WORD g_trace_state[3];
-
-#define TRACE_EVENT_API_THREAD_BUCKET(thread_bucket)                           \
-    g_trace_state[thread_bucket]
+// We prepend this string to all category names, so that ALL Skia trace events are
+// disabled by default when tracing in Chrome.
+#define TRACE_CATEGORY_PREFIX "disabled-by-default-"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -139,20 +101,18 @@ TRACE_EVENT_API_CLASS_EXPORT extern \
 #define INTERNAL_TRACE_EVENT_GET_CATEGORY_INFO_CUSTOM_VARIABLES( \
     category_group, atomic, category_group_enabled) \
     category_group_enabled = \
-        reinterpret_cast<const uint8_t*>(TRACE_EVENT_API_ATOMIC_LOAD( \
-            atomic)); \
+        reinterpret_cast<const uint8_t*>(TRACE_EVENT_API_ATOMIC_LOAD(atomic)); \
     if (!category_group_enabled) { \
-      category_group_enabled = \
-          TRACE_EVENT_API_GET_CATEGORY_GROUP_ENABLED(category_group); \
+      category_group_enabled = TRACE_EVENT_API_GET_CATEGORY_GROUP_ENABLED(category_group); \
       TRACE_EVENT_API_ATOMIC_STORE(atomic, \
-          reinterpret_cast<TRACE_EVENT_API_ATOMIC_WORD>( \
-              category_group_enabled)); \
+          reinterpret_cast<TRACE_EVENT_API_ATOMIC_WORD>(category_group_enabled)); \
     }
 
 #define INTERNAL_TRACE_EVENT_GET_CATEGORY_INFO(category_group) \
     static TRACE_EVENT_API_ATOMIC_WORD INTERNAL_TRACE_EVENT_UID(atomic) = 0; \
     const uint8_t* INTERNAL_TRACE_EVENT_UID(category_group_enabled); \
-    INTERNAL_TRACE_EVENT_GET_CATEGORY_INFO_CUSTOM_VARIABLES(category_group, \
+    INTERNAL_TRACE_EVENT_GET_CATEGORY_INFO_CUSTOM_VARIABLES( \
+        TRACE_CATEGORY_PREFIX category_group, \
         INTERNAL_TRACE_EVENT_UID(atomic), \
         INTERNAL_TRACE_EVENT_UID(category_group_enabled));
 
@@ -165,6 +125,23 @@ TRACE_EVENT_API_CLASS_EXPORT extern \
         skia::tracing_internals::AddTraceEvent( \
             phase, INTERNAL_TRACE_EVENT_UID(category_group_enabled), name, \
             skia::tracing_internals::kNoEventId, flags, ##__VA_ARGS__); \
+      } \
+    } while (0)
+
+// Implementation detail: internal macro to create static category and add
+// event if the category is enabled.
+#define INTERNAL_TRACE_EVENT_ADD_WITH_ID(phase, category_group, name, id, \
+                                         flags, ...) \
+    do { \
+      INTERNAL_TRACE_EVENT_GET_CATEGORY_INFO(category_group); \
+      if (INTERNAL_TRACE_EVENT_CATEGORY_GROUP_ENABLED_FOR_RECORDING_MODE()) { \
+        unsigned char trace_event_flags = flags | TRACE_EVENT_FLAG_HAS_ID; \
+        skia::tracing_internals::TraceID trace_event_trace_id( \
+            id, &trace_event_flags); \
+        skia::tracing_internals::AddTraceEvent( \
+            phase, INTERNAL_TRACE_EVENT_UID(category_group_enabled), \
+            name, trace_event_trace_id.data(), trace_event_flags, \
+            ##__VA_ARGS__); \
       } \
     } while (0)
 
@@ -184,43 +161,6 @@ TRACE_EVENT_API_CLASS_EXPORT extern \
           INTERNAL_TRACE_EVENT_UID(category_group_enabled), name, h); \
     }
 
-// Implementation detail: internal macro to create static category and add
-// event if the category is enabled.
-#define INTERNAL_TRACE_EVENT_ADD_WITH_ID(phase, category_group, name, id, \
-                                         flags, ...) \
-    do { \
-      INTERNAL_TRACE_EVENT_GET_CATEGORY_INFO(category_group); \
-      if (INTERNAL_TRACE_EVENT_CATEGORY_GROUP_ENABLED_FOR_RECORDING_MODE()) { \
-        unsigned char trace_event_flags = flags | TRACE_EVENT_FLAG_HAS_ID; \
-        skia::tracing_internals::TraceID trace_event_trace_id( \
-            id, &trace_event_flags); \
-        skia::tracing_internals::AddTraceEvent( \
-            phase, INTERNAL_TRACE_EVENT_UID(category_group_enabled), \
-            name, trace_event_trace_id.data(), trace_event_flags, \
-            ##__VA_ARGS__); \
-      } \
-    } while (0)
-
-// Implementation detail: internal macro to create static category and add
-// event if the category is enabled.
-#define INTERNAL_TRACE_EVENT_ADD_WITH_ID_TID_AND_TIMESTAMP(phase, \
-        category_group, name, id, thread_id, flags, ...) \
-    do { \
-      INTERNAL_TRACE_EVENT_GET_CATEGORY_INFO(category_group); \
-      if (INTERNAL_TRACE_EVENT_CATEGORY_GROUP_ENABLED_FOR_RECORDING_MODE()) { \
-        unsigned char trace_event_flags = flags | TRACE_EVENT_FLAG_HAS_ID; \
-        skia::tracing_internals::TraceID trace_event_trace_id( \
-            id, &trace_event_flags); \
-        skia::tracing_internals::AddTraceEventWithThreadIdAndTimestamp( \
-            phase, INTERNAL_TRACE_EVENT_UID(category_group_enabled), \
-            name, trace_event_trace_id.data(), \
-            thread_id, base::TimeTicks::FromInternalValue(timestamp), \
-            trace_event_flags, ##__VA_ARGS__); \
-      } \
-    } while (0)
-
-#define INTERNAL_TRACE_MEMORY(category, name)
-
 namespace skia {
 namespace tracing_internals {
 
@@ -233,85 +173,34 @@ const uint64_t kNoEventId = 0;
 // are by default mangled with the Process ID so that they are unlikely to
 // collide when the same pointer is used on different processes.
 class TraceID {
- public:
-  class DontMangle {
-   public:
-    explicit DontMangle(const void* id)
-        : data_(static_cast<uint64_t>(
-              reinterpret_cast<uintptr_t>(id))) {}
-    explicit DontMangle(uint64_t id) : data_(id) {}
-    explicit DontMangle(unsigned int id) : data_(id) {}
-    explicit DontMangle(unsigned short id) : data_(id) {}
-    explicit DontMangle(unsigned char id) : data_(id) {}
-    explicit DontMangle(long long id)
-        : data_(static_cast<uint64_t>(id)) {}
-    explicit DontMangle(long id)
-        : data_(static_cast<uint64_t>(id)) {}
-    explicit DontMangle(int id)
-        : data_(static_cast<uint64_t>(id)) {}
-    explicit DontMangle(short id)
-        : data_(static_cast<uint64_t>(id)) {}
-    explicit DontMangle(signed char id)
-        : data_(static_cast<uint64_t>(id)) {}
+public:
+    TraceID(const void* id, unsigned char* flags)
+            : data_(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(id))) {
+        *flags |= TRACE_EVENT_FLAG_MANGLE_ID;
+    }
+    TraceID(uint64_t id, unsigned char* flags)
+        : data_(id) { (void)flags; }
+    TraceID(unsigned int id, unsigned char* flags)
+        : data_(id) { (void)flags; }
+    TraceID(unsigned short id, unsigned char* flags)
+        : data_(id) { (void)flags; }
+    TraceID(unsigned char id, unsigned char* flags)
+        : data_(id) { (void)flags; }
+    TraceID(long long id, unsigned char* flags)
+        : data_(static_cast<uint64_t>(id)) { (void)flags; }
+    TraceID(long id, unsigned char* flags)
+        : data_(static_cast<uint64_t>(id)) { (void)flags; }
+    TraceID(int id, unsigned char* flags)
+        : data_(static_cast<uint64_t>(id)) { (void)flags; }
+    TraceID(short id, unsigned char* flags)
+        : data_(static_cast<uint64_t>(id)) { (void)flags; }
+    TraceID(signed char id, unsigned char* flags)
+        : data_(static_cast<uint64_t>(id)) { (void)flags; }
+
     uint64_t data() const { return data_; }
-   private:
+
+private:
     uint64_t data_;
-  };
-
-  class ForceMangle {
-   public:
-    explicit ForceMangle(uint64_t id) : data_(id) {}
-    explicit ForceMangle(unsigned int id) : data_(id) {}
-    explicit ForceMangle(unsigned short id) : data_(id) {}
-    explicit ForceMangle(unsigned char id) : data_(id) {}
-    explicit ForceMangle(long long id)
-        : data_(static_cast<uint64_t>(id)) {}
-    explicit ForceMangle(long id)
-        : data_(static_cast<uint64_t>(id)) {}
-    explicit ForceMangle(int id)
-        : data_(static_cast<uint64_t>(id)) {}
-    explicit ForceMangle(short id)
-        : data_(static_cast<uint64_t>(id)) {}
-    explicit ForceMangle(signed char id)
-        : data_(static_cast<uint64_t>(id)) {}
-    uint64_t data() const { return data_; }
-   private:
-    uint64_t data_;
-  };
-
-  TraceID(const void* id, unsigned char* flags)
-      : data_(static_cast<uint64_t>(
-              reinterpret_cast<uintptr_t>(id))) {
-    *flags |= TRACE_EVENT_FLAG_MANGLE_ID;
-  }
-  TraceID(ForceMangle id, unsigned char* flags) : data_(id.data()) {
-    *flags |= TRACE_EVENT_FLAG_MANGLE_ID;
-  }
-  TraceID(DontMangle id, unsigned char* flags) : data_(id.data()) {
-  }
-  TraceID(uint64_t id, unsigned char* flags)
-      : data_(id) { (void)flags; }
-  TraceID(unsigned int id, unsigned char* flags)
-      : data_(id) { (void)flags; }
-  TraceID(unsigned short id, unsigned char* flags)
-      : data_(id) { (void)flags; }
-  TraceID(unsigned char id, unsigned char* flags)
-      : data_(id) { (void)flags; }
-  TraceID(long long id, unsigned char* flags)
-      : data_(static_cast<uint64_t>(id)) { (void)flags; }
-  TraceID(long id, unsigned char* flags)
-      : data_(static_cast<uint64_t>(id)) { (void)flags; }
-  TraceID(int id, unsigned char* flags)
-      : data_(static_cast<uint64_t>(id)) { (void)flags; }
-  TraceID(short id, unsigned char* flags)
-      : data_(static_cast<uint64_t>(id)) { (void)flags; }
-  TraceID(signed char id, unsigned char* flags)
-      : data_(static_cast<uint64_t>(id)) { (void)flags; }
-
-  uint64_t data() const { return data_; }
-
- private:
-  uint64_t data_;
 };
 
 // Simple union to store various types as uint64_t.
@@ -370,10 +259,8 @@ INTERNAL_DECLARE_SET_TRACE_VALUE_INT(short, TRACE_VALUE_TYPE_INT)
 INTERNAL_DECLARE_SET_TRACE_VALUE_INT(signed char, TRACE_VALUE_TYPE_INT)
 INTERNAL_DECLARE_SET_TRACE_VALUE(bool, as_bool, TRACE_VALUE_TYPE_BOOL)
 INTERNAL_DECLARE_SET_TRACE_VALUE(double, as_double, TRACE_VALUE_TYPE_DOUBLE)
-INTERNAL_DECLARE_SET_TRACE_VALUE(const void*, as_pointer,
-                                 TRACE_VALUE_TYPE_POINTER)
-INTERNAL_DECLARE_SET_TRACE_VALUE(const char*, as_string,
-                                 TRACE_VALUE_TYPE_STRING)
+INTERNAL_DECLARE_SET_TRACE_VALUE(const void*, as_pointer, TRACE_VALUE_TYPE_POINTER)
+INTERNAL_DECLARE_SET_TRACE_VALUE(const char*, as_string, TRACE_VALUE_TYPE_STRING)
 INTERNAL_DECLARE_SET_TRACE_VALUE(const TraceStringWithCopy&, as_string,
                                  TRACE_VALUE_TYPE_COPY_STRING)
 
@@ -474,58 +361,6 @@ class TRACE_EVENT_API_CLASS_EXPORT ScopedTracer {
   };
   Data* p_data_;
   Data data_;
-};
-
-// Used by TRACE_EVENT_BINARY_EFFICIENTx macro. Do not use directly.
-class TRACE_EVENT_API_CLASS_EXPORT ScopedTraceBinaryEfficient {
- public:
-  ScopedTraceBinaryEfficient(const char* category_group, const char* name);
-  ~ScopedTraceBinaryEfficient();
-
- private:
-  const uint8_t* category_group_enabled_;
-  const char* name_;
-  SkEventTracer::Handle event_handle_;
-};
-
-// This macro generates less code then TRACE_EVENT0 but is also
-// slower to execute when tracing is off. It should generally only be
-// used with code that is seldom executed or conditionally executed
-// when debugging.
-// For now the category_group must be "gpu".
-#define TRACE_EVENT_BINARY_EFFICIENT0(category_group, name) \
-    skia::tracing_internals::ScopedTraceBinaryEfficient \
-        INTERNAL_TRACE_EVENT_UID(scoped_trace)(category_group, name);
-
-// TraceEventSamplingStateScope records the current sampling state
-// and sets a new sampling state. When the scope exists, it restores
-// the sampling state having recorded.
-template<size_t BucketNumber>
-class TraceEventSamplingStateScope {
- public:
-  TraceEventSamplingStateScope(const char* category_and_name) {
-    previous_state_ = TraceEventSamplingStateScope<BucketNumber>::Current();
-    TraceEventSamplingStateScope<BucketNumber>::Set(category_and_name);
-  }
-
-  ~TraceEventSamplingStateScope() {
-    TraceEventSamplingStateScope<BucketNumber>::Set(previous_state_);
-  }
-
-  static inline const char* Current() {
-    return reinterpret_cast<const char*>(TRACE_EVENT_API_ATOMIC_LOAD(
-      g_trace_state[BucketNumber]));
-  }
-
-  static inline void Set(const char* category_and_name) {
-    TRACE_EVENT_API_ATOMIC_STORE(
-      g_trace_state[BucketNumber],
-      reinterpret_cast<TRACE_EVENT_API_ATOMIC_WORD>(
-        const_cast<char*>(category_and_name)));
-  }
-
- private:
-  const char* previous_state_;
 };
 
 }  // namespace tracing_internals

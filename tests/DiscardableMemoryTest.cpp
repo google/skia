@@ -57,4 +57,4 @@ DEF_TEST(DiscardableMemory_nonglobal, reporter) {
     std::unique_ptr<SkDiscardableMemory> dm(pool->create(kTestStringLength));
     test_dm(reporter, dm.get(), true);
 }
-    
+

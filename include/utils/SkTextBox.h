@@ -67,7 +67,7 @@ public:
         virtual ~Visitor() {}
         virtual void operator()(const char*, size_t, SkScalar x, SkScalar y, const SkPaint&) = 0;
     };
-    
+
 private:
     SkRect      fBox;
     SkScalar    fSpacingMul, fSpacingAdd;

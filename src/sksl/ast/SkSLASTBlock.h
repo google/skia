@@ -16,8 +16,8 @@ namespace SkSL {
  * Represents a curly-braced block of statements.
  */
 struct ASTBlock : public ASTStatement {
-    ASTBlock(Position position, std::vector<std::unique_ptr<ASTStatement>> statements)
-    : INHERITED(position, kBlock_Kind)
+    ASTBlock(int offset, std::vector<std::unique_ptr<ASTStatement>> statements)
+    : INHERITED(offset, kBlock_Kind)
     , fStatements(std::move(statements)) {}
 
     String description() const override {

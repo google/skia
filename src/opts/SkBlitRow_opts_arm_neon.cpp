@@ -9,7 +9,7 @@
 
 #include "SkBlitMask.h"
 #include "SkBlitRow.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkDither.h"
 #include "SkMathPriv.h"
 #include "SkUtils.h"

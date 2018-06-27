@@ -95,26 +95,24 @@ public:
      *  or NULL if the data is not recognized. The caller must call unref() on
      *  the returned object if it is not null.
      */
-    SkTypeface* createFromData(SkData*, int ttcIndex = 0) const;
+    sk_sp<SkTypeface> makeFromData(sk_sp<SkData>, int ttcIndex = 0) const;
 
     /**
      *  Create a typeface for the specified stream and TTC index
      *  (pass 0 for none) or NULL if the stream is not recognized. The caller
      *  must call unref() on the returned object if it is not null.
      */
-    SkTypeface* createFromStream(SkStreamAsset*, int ttcIndex = 0) const;
+    sk_sp<SkTypeface> makeFromStream(std::unique_ptr<SkStreamAsset>, int ttcIndex = 0) const;
 
-    // deprecated, use SkFontArguments instead.
-    using FontParameters = SkFontArguments;
     /* Experimental, API subject to change. */
-    SkTypeface* createFromStream(SkStreamAsset*, const SkFontArguments&) const;
+    sk_sp<SkTypeface> makeFromStream(std::unique_ptr<SkStreamAsset>, const SkFontArguments&) const;
 
     /**
      *  Create a typeface from the specified font data.
      *  Will return NULL if the typeface could not be created.
      *  The caller must call unref() on the returned object if it is not null.
      */
-    SkTypeface* createFromFontData(std::unique_ptr<SkFontData>) const;
+    sk_sp<SkTypeface> makeFromFontData(std::unique_ptr<SkFontData>) const;
 
     /**
      *  Create a typeface for the specified fileName and TTC index
@@ -122,9 +120,9 @@ public:
      *  not recognized. The caller must call unref() on the returned object
      *  if it is not null.
      */
-    SkTypeface* createFromFile(const char path[], int ttcIndex = 0) const;
+    sk_sp<SkTypeface> makeFromFile(const char path[], int ttcIndex = 0) const;
 
-    SkTypeface* legacyCreateTypeface(const char familyName[], SkFontStyle style) const;
+    sk_sp<SkTypeface> legacyMakeTypeface(const char familyName[], SkFontStyle style) const;
 
     /** Return the default fontmgr. */
     static sk_sp<SkFontMgr> RefDefault();
@@ -145,14 +143,15 @@ protected:
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface*,
                                          const SkFontStyle&) const = 0;
 
-    virtual SkTypeface* onCreateFromData(SkData*, int ttcIndex) const = 0;
-    virtual SkTypeface* onCreateFromStream(SkStreamAsset*, int ttcIndex) const = 0;
-    // TODO: make pure virtual.
-    virtual SkTypeface* onCreateFromStream(SkStreamAsset*, const SkFontArguments&) const;
-    virtual SkTypeface* onCreateFromFontData(std::unique_ptr<SkFontData>) const;
-    virtual SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const = 0;
+    virtual sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int ttcIndex) const = 0;
+    virtual sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset>,
+                                                    int ttcIndex) const = 0;
+    virtual sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset>,
+                                                   const SkFontArguments&) const;
+    virtual sk_sp<SkTypeface> onMakeFromFontData(std::unique_ptr<SkFontData>) const;
+    virtual sk_sp<SkTypeface> onMakeFromFile(const char path[], int ttcIndex) const = 0;
 
-    virtual SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle) const = 0;
+    virtual sk_sp<SkTypeface> onLegacyMakeTypeface(const char familyName[], SkFontStyle) const = 0;
 
 private:
 

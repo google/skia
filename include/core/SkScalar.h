@@ -55,7 +55,7 @@ typedef float SkScalar;
 
 #define SkIntToScalar(x)        static_cast<SkScalar>(x)
 #define SkIntToFloat(x)         static_cast<float>(x)
-#define SkScalarTruncToInt(x)   static_cast<int>(x)
+#define SkScalarTruncToInt(x)   sk_float_saturate2int(x)
 
 #define SkScalarToFloat(x)      static_cast<float>(x)
 #define SkFloatToScalar(x)      static_cast<SkScalar>(x)
@@ -134,10 +134,11 @@ SkScalar SkScalarSinCos(SkScalar radians, SkScalar* cosValue);
 
 static inline SkScalar SkScalarSquare(SkScalar x) { return x * x; }
 
-#define SkScalarInvert(x)       (SK_Scalar1 / (x))
-#define SkScalarFastInvert(x)   (SK_Scalar1 / (x))
-#define SkScalarAve(a, b)       (((a) + (b)) * SK_ScalarHalf)
-#define SkScalarHalf(a)         ((a) * SK_ScalarHalf)
+#define SkScalarDiv(numer, denom)   sk_ieee_float_divide(numer, denom)
+#define SkScalarInvert(x)           sk_ieee_float_divide(SK_Scalar1, (x))
+#define SkScalarFastInvert(x)       sk_ieee_float_divide(SK_Scalar1, (x))
+#define SkScalarAve(a, b)           (((a) + (b)) * SK_ScalarHalf)
+#define SkScalarHalf(a)             ((a) * SK_ScalarHalf)
 
 #define SkDegreesToRadians(degrees) ((degrees) * (SK_ScalarPI / 180))
 #define SkRadiansToDegrees(radians) ((radians) * (180 / SK_ScalarPI))
@@ -146,7 +147,7 @@ static inline SkScalar SkMaxScalar(SkScalar a, SkScalar b) { return a > b ? a : 
 static inline SkScalar SkMinScalar(SkScalar a, SkScalar b) { return a < b ? a : b; }
 
 static inline bool SkScalarIsInt(SkScalar x) {
-    return x == (SkScalar)(int)x;
+    return x == SkScalarFloorToScalar(x);
 }
 
 /**

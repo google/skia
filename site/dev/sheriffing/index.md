@@ -29,7 +29,7 @@ Below is a brief summary of what the sheriff does for each task:
 
 <a name="skia_tree"></a>
 ### Skia tree
-* Understand the [buildbots infrastructure](https://skia.org/dev/testing/buildbot).
+* Understand the [testing infrastructure](https://skia.org/dev/testing/automated_testing).
 * Start watching the [status page](https://status.skia.org) for bot breakages.
 * Track down people responsible for breakages and revert broken changes if there is no easy fix. You can use [blamer](#blamer) to help track down such changes.
 * Close and open the [tree](http://skia-tree-status.appspot.com).
@@ -103,7 +103,7 @@ Look at all existing [BreakingTheBuildbots bugs](https://bug.skia.org/?q=label:B
 <a name="how_close_tree"></a>
 ### How to close or re-open the tree
 
-1. Go to [skia-tree-status.appspot.com](skia-tree-status.appspot.com).
+1. Go to [skia-tree-status.appspot.com](https://skia-tree-status.appspot.com).
 2. Change the status.
  *  To close the tree, include the word "closed" in the status.
  * To open the tree, include the word "open" in the status.
@@ -143,7 +143,7 @@ If a Skia CL changes layout tests, but the new images look good, the tests need 
 
 * First create a Chromium bug:
   * goto [crbug.com](https://crbug.com)
-  * Make sure you’re logged in with your Chromium credentials
+  * Make sure you're logged in with your Chromium credentials
   * Click “New Issue”
   * Summary: “Skia image rebaseline”
   * Description:

@@ -1,0 +1,154 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[depot_tools::git]/resources/git_setup.py",
+      "--path",
+      "[CUSTOM_/_B_WORK]/flutter/depot_tools",
+      "--url",
+      "https://chromium.googlesource.com/chromium/tools/depot_tools.git"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/flutter/src",
+    "name": "git setup"
+  },
+  {
+    "cmd": [
+      "git",
+      "retry",
+      "fetch",
+      "origin",
+      "master",
+      "--progress"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/flutter/depot_tools",
+    "env": {
+      "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:<PATH>"
+    },
+    "infra_step": true,
+    "name": "git fetch"
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "FETCH_HEAD"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/flutter/depot_tools",
+    "infra_step": true,
+    "name": "git checkout"
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/flutter/depot_tools",
+    "infra_step": true,
+    "name": "read revision",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_TEXT@<br/>checked out 'deadbeef'<br/>@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/flutter/depot_tools",
+    "infra_step": true,
+    "name": "git clean"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "sync"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/flutter/depot_tools",
+    "infra_step": true,
+    "name": "submodule sync"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "update",
+      "--init",
+      "--recursive"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/flutter/depot_tools",
+    "infra_step": true,
+    "name": "submodule update"
+  },
+  {
+    "cmd": [
+      "[CUSTOM_/_B_WORK]/flutter/depot_tools/gclient",
+      "runhooks"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/flutter/src",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/flutter/src/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-Flutter_Android"
+    },
+    "name": "runhook"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "rmtree",
+      "[CUSTOM_/_B_WORK]/flutter/src/out/android_release"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/flutter/src",
+    "infra_step": true,
+    "name": "rmtree android_release"
+  },
+  {
+    "cmd": [
+      "flutter/tools/gn",
+      "--runtime-mode=release",
+      "--android"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/flutter/src",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/flutter/src/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-Flutter_Android"
+    },
+    "name": "gn_gen"
+  },
+  {
+    "cmd": [
+      "ninja",
+      "-C",
+      "out/android_release",
+      "-j100"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/flutter/src",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/flutter/src/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-Flutter_Android"
+    },
+    "name": "build_flutter"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

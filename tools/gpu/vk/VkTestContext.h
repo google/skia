@@ -26,8 +26,6 @@ public:
         return fVk;
     }
 
-    bool isValid() const override { return NULL != this->vk(); }
-
     const GrVkInterface* vk() const { return fVk->fInterface.get(); }
 
 protected:

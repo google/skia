@@ -23,16 +23,13 @@ extern "C" {
     void WebPDemuxDelete(WebPDemuxer* dmux);
 }
 
-static const size_t WEBP_VP8_HEADER_SIZE = 30;
-
 class SkWebpCodec final : public SkCodec {
 public:
     // Assumes IsWebp was called and returned true.
-    static SkCodec* NewFromStream(SkStream*);
+    static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*);
     static bool IsWebp(const void*, size_t);
 protected:
-    Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*, int*)
-            override;
+    Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, int*) override;
     SkEncodedImageFormat onGetEncodedFormat() const override { return SkEncodedImageFormat::kWEBP; }
 
     SkISize onGetScaledDimensions(float desiredScale) const override;
@@ -45,9 +42,13 @@ protected:
     bool onGetFrameInfo(int, FrameInfo*) const override;
     int onGetRepetitionCount() override;
 
+    const SkFrameHolder* getFrameHolder() const override {
+        return &fFrameHolder;
+    }
+
 private:
-    SkWebpCodec(int width, int height, const SkEncodedInfo&, sk_sp<SkColorSpace>, SkStream*,
-                WebPDemuxer*, sk_sp<SkData>);
+    SkWebpCodec(int width, int height, const SkEncodedInfo&, sk_sp<SkColorSpace>,
+                std::unique_ptr<SkStream>, WebPDemuxer*, sk_sp<SkData>, SkEncodedOrigin);
 
     SkAutoTCallVProc<WebPDemuxer, WebPDemuxDelete> fDemux;
 
@@ -57,22 +58,22 @@ private:
 
     class Frame : public SkFrame {
     public:
-        Frame(int i, bool alpha)
+        Frame(int i, SkEncodedInfo::Alpha alpha)
             : INHERITED(i)
-            , fReportsAlpha(alpha)
+            , fReportedAlpha(alpha)
         {}
         Frame(Frame&& other)
             : INHERITED(other.frameId())
-            , fReportsAlpha(other.fReportsAlpha)
+            , fReportedAlpha(other.fReportedAlpha)
         {}
 
     protected:
-        bool onReportsAlpha() const override {
-            return fReportsAlpha;
+        SkEncodedInfo::Alpha onReportedAlpha() const override {
+            return fReportedAlpha;
         }
 
     private:
-        const bool fReportsAlpha;
+        const SkEncodedInfo::Alpha fReportedAlpha;
 
         typedef SkFrame INHERITED;
     };

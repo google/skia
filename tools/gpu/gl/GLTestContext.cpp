@@ -7,6 +7,7 @@
 
 #include "GLTestContext.h"
 
+#include "GrContext.h"
 #include "GpuTimer.h"
 #include "gl/GrGLUtil.h"
 
@@ -14,7 +15,7 @@ namespace {
 
 class GLFenceSync : public sk_gpu_test::FenceSync {
 public:
-    static std::unique_ptr<GLFenceSync> MakeIfSupported(const sk_gpu_test::GLTestContext*);
+    static std::unique_ptr<FenceSync> MakeIfSupported(const sk_gpu_test::GLTestContext*);
 
     sk_gpu_test::PlatformFence SK_WARN_UNUSED_RESULT insertFence() const override;
     bool waitFence(sk_gpu_test::PlatformFence fence) const override;
@@ -23,7 +24,7 @@ public:
 private:
     GLFenceSync(const sk_gpu_test::GLTestContext*, const char* ext = "");
 
-    bool validate() { return fGLFenceSync && fGLClientWaitSync && fGLDeleteSync; }
+    bool validate() const override { return fGLFenceSync && fGLClientWaitSync && fGLDeleteSync; }
 
     static constexpr GrGLenum GL_SYNC_GPU_COMMANDS_COMPLETE  = 0x9117;
     static constexpr GrGLenum GL_WAIT_FAILED                 = 0x911d;
@@ -43,8 +44,37 @@ private:
     typedef FenceSync INHERITED;
 };
 
-std::unique_ptr<GLFenceSync> GLFenceSync::MakeIfSupported(const sk_gpu_test::GLTestContext* ctx) {
-    std::unique_ptr<GLFenceSync> ret;
+class GLNVFenceSync : public sk_gpu_test::FenceSync {
+public:
+    GLNVFenceSync(const sk_gpu_test::GLTestContext*);
+
+    sk_gpu_test::PlatformFence SK_WARN_UNUSED_RESULT insertFence() const override;
+    bool waitFence(sk_gpu_test::PlatformFence fence) const override;
+    void deleteFence(sk_gpu_test::PlatformFence fence) const override;
+
+private:
+    bool validate() const override {
+        return fGLGenFencesNV && fGLDeleteFencesNV && fGLSetFenceNV && fGLFinishFenceNV;
+    }
+
+    static constexpr GrGLenum GL_ALL_COMPLETED_NV = 0x84F2;
+
+    typedef GrGLvoid(GR_GL_FUNCTION_TYPE* GLGenFencesNVProc) (GrGLsizei, GrGLuint*);
+    typedef GrGLvoid(GR_GL_FUNCTION_TYPE* GLDeleteFencesNVProc) (GrGLsizei, const GrGLuint*);
+    typedef GrGLvoid(GR_GL_FUNCTION_TYPE* GLSetFenceNVProc) (GrGLuint, GrGLenum);
+    typedef GrGLvoid(GR_GL_FUNCTION_TYPE* GLFinishFenceNVProc) (GrGLuint);
+
+    GLGenFencesNVProc    fGLGenFencesNV;
+    GLDeleteFencesNVProc fGLDeleteFencesNV;
+    GLSetFenceNVProc     fGLSetFenceNV;
+    GLFinishFenceNVProc  fGLFinishFenceNV;
+
+    typedef FenceSync INHERITED;
+};
+
+std::unique_ptr<sk_gpu_test::FenceSync> GLFenceSync::MakeIfSupported(
+        const sk_gpu_test::GLTestContext* ctx) {
+    std::unique_ptr<FenceSync> ret;
     if (kGL_GrGLStandard == ctx->gl()->fStandard) {
         if (GrGLGetVersion(ctx->gl()) < GR_GL_VER(3,2) && !ctx->gl()->hasExtension("GL_ARB_sync")) {
             return nullptr;
@@ -53,6 +83,8 @@ std::unique_ptr<GLFenceSync> GLFenceSync::MakeIfSupported(const sk_gpu_test::GLT
     } else {
         if (ctx->gl()->hasExtension("GL_APPLE_sync")) {
             ret.reset(new GLFenceSync(ctx, "APPLE"));
+        } else if (ctx->gl()->hasExtension("GL_NV_fence")) {
+            ret.reset(new GLNVFenceSync(ctx));
         } else if (GrGLGetVersion(ctx->gl()) >= GR_GL_VER(3, 0)) {
             ret.reset(new GLFenceSync(ctx));
         } else {
@@ -66,9 +98,9 @@ std::unique_ptr<GLFenceSync> GLFenceSync::MakeIfSupported(const sk_gpu_test::GLT
 }
 
 GLFenceSync::GLFenceSync(const sk_gpu_test::GLTestContext* ctx, const char* ext) {
-    ctx->getGLProcAddress(&fGLFenceSync, "glFenceSync");
-    ctx->getGLProcAddress(&fGLClientWaitSync, "glClientWaitSync");
-    ctx->getGLProcAddress(&fGLDeleteSync, "glDeleteSync");
+    ctx->getGLProcAddress(&fGLFenceSync, "glFenceSync", ext);
+    ctx->getGLProcAddress(&fGLClientWaitSync, "glClientWaitSync", ext);
+    ctx->getGLProcAddress(&fGLDeleteSync, "glDeleteSync", ext);
 }
 
 sk_gpu_test::PlatformFence GLFenceSync::insertFence() const {
@@ -84,6 +116,30 @@ bool GLFenceSync::waitFence(sk_gpu_test::PlatformFence fence) const {
 void GLFenceSync::deleteFence(sk_gpu_test::PlatformFence fence) const {
     GLsync glsync = reinterpret_cast<GLsync>(fence);
     fGLDeleteSync(glsync);
+}
+
+GLNVFenceSync::GLNVFenceSync(const sk_gpu_test::GLTestContext* ctx) {
+    ctx->getGLProcAddress(&fGLGenFencesNV, "glGenFencesNV");
+    ctx->getGLProcAddress(&fGLDeleteFencesNV, "glDeleteFencesNV");
+    ctx->getGLProcAddress(&fGLSetFenceNV, "glSetFenceNV");
+    ctx->getGLProcAddress(&fGLFinishFenceNV, "glFinishFenceNV");
+}
+
+sk_gpu_test::PlatformFence GLNVFenceSync::insertFence() const {
+    GrGLuint fence;
+    fGLGenFencesNV(1, &fence);
+    fGLSetFenceNV(fence, GL_ALL_COMPLETED_NV);
+    return fence;
+}
+
+bool GLNVFenceSync::waitFence(sk_gpu_test::PlatformFence fence) const {
+    fGLFinishFenceNV(fence);
+    return true;
+}
+
+void GLNVFenceSync::deleteFence(sk_gpu_test::PlatformFence fence) const {
+    GrGLuint glFence = static_cast<GrGLuint>(fence);
+    fGLDeleteFencesNV(1, &glFence);
 }
 
 class GLGpuTimer : public sk_gpu_test::GpuTimer {
@@ -228,9 +284,8 @@ GLTestContext::~GLTestContext() {
     SkASSERT(nullptr == fGL.get());
 }
 
-void GLTestContext::init(const GrGLInterface* gl, std::unique_ptr<FenceSync> fenceSync) {
-    SkASSERT(!fGL.get());
-    fGL.reset(gl);
+void GLTestContext::init(sk_sp<const GrGLInterface> gl, std::unique_ptr<FenceSync> fenceSync) {
+    fGL = std::move(gl);
     fFenceSync = fenceSync ? std::move(fenceSync) : GLFenceSync::MakeIfSupported(this);
     fGpuTimer = GLGpuTimer::MakeIfSupported(this);
 }
@@ -286,4 +341,9 @@ GrGLint GLTestContext::createTextureRectangle(int width, int height, GrGLenum in
                                      externalFormat, externalType, data));
     return id;
 }
+
+sk_sp<GrContext> GLTestContext::makeGrContext(const GrContextOptions& options) {
+    return GrContext::MakeGL(fGL, options);
+}
+
 }  // namespace sk_gpu_test

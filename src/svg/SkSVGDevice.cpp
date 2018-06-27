@@ -7,9 +7,11 @@
 
 #include "SkSVGDevice.h"
 
+#include "SkAnnotationKeys.h"
 #include "SkBase64.h"
 #include "SkBitmap.h"
 #include "SkChecksum.h"
+#include "SkClipOpPriv.h"
 #include "SkClipStack.h"
 #include "SkData.h"
 #include "SkDraw.h"
@@ -22,7 +24,6 @@
 #include "SkTypeface.h"
 #include "SkUtils.h"
 #include "SkXMLWriter.h"
-#include "SkClipOpPriv.h"
 
 namespace {
 
@@ -159,7 +160,7 @@ public:
             }
         } break;
         default:
-            SkFAIL("unknown text encoding");
+            SK_ABORT("unknown text encoding");
         }
 
         if (scalarsPerPos < 2) {
@@ -546,12 +547,27 @@ void SkSVGDevice::AutoElement::addTextAttributes(const SkPaint& paint) {
     sk_sp<SkTypeface> tface(paint.getTypeface() ? paint.refTypeface() : SkTypeface::MakeDefault());
 
     SkASSERT(tface);
-    SkTypeface::Style style = tface->style();
-    if (style & SkTypeface::kItalic) {
+    SkFontStyle style = tface->fontStyle();
+    if (style.slant() == SkFontStyle::kItalic_Slant) {
         this->addAttribute("font-style", "italic");
+    } else if (style.slant() == SkFontStyle::kOblique_Slant) {
+        this->addAttribute("font-style", "oblique");
     }
-    if (style & SkTypeface::kBold) {
-        this->addAttribute("font-weight", "bold");
+    int weightIndex = (SkTPin(style.weight(), 100, 900) - 50) / 100;
+    if (weightIndex != 3) {
+        static constexpr const char* weights[] = {
+            "100", "200", "300", "normal", "400", "500", "600", "bold", "800", "900"
+        };
+        this->addAttribute("font-weight", weights[weightIndex]);
+    }
+    int stretchIndex = style.width() - 1;
+    if (stretchIndex != 4) {
+        static constexpr const char* stretches[] = {
+            "ultra-condensed", "extra-condensed", "condensed", "semi-condensed",
+            "normal",
+            "semi-expanded", "expanded", "extra-expanded", "ultra-expanded"
+        };
+        this->addAttribute("font-stretch", stretches[stretchIndex]);
     }
 
     sk_sp<SkTypeface::LocalizedStrings> familyNameIter(tface->createFamilyNameIterator());
@@ -604,6 +620,32 @@ void SkSVGDevice::drawPaint(const SkPaint& paint) {
     AutoElement rect("rect", fWriter, fResourceBucket.get(), MxCp(this), paint);
     rect.addRectAttributes(SkRect::MakeWH(SkIntToScalar(this->width()),
                                           SkIntToScalar(this->height())));
+}
+
+void SkSVGDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* value) {
+    if (!value) {
+        return;
+    }
+
+    if (!strcmp(SkAnnotationKeys::URL_Key(), key) ||
+        !strcmp(SkAnnotationKeys::Link_Named_Dest_Key(), key)) {
+        this->cs().save();
+        this->cs().clipRect(rect, this->ctm(), kIntersect_SkClipOp, true);
+        SkRect transformedRect = this->cs().bounds(this->getGlobalBounds());
+        this->cs().restore();
+        if (transformedRect.isEmpty()) {
+            return;
+        }
+
+        SkString url(static_cast<const char*>(value->data()), value->size() - 1);
+        AutoElement a("a", fWriter);
+        a.addAttribute("xlink:href", url.c_str());
+        {
+            AutoElement r("rect", fWriter);
+            r.addAttribute("fill-opacity", "0.0");
+            r.addRectAttributes(transformedRect);
+        }
+    }
 }
 
 void SkSVGDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
@@ -704,11 +746,11 @@ void SkSVGDevice::drawBitmapCommon(const MxCp& mc, const SkBitmap& bm, const SkP
     }
 }
 
-void SkSVGDevice::drawBitmap(const SkBitmap& bitmap,
-                             const SkMatrix& matrix, const SkPaint& paint) {
+void SkSVGDevice::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
+                             const SkPaint& paint) {
     MxCp mc(this);
     SkMatrix adjustedMatrix = *mc.fMatrix;
-    adjustedMatrix.preConcat(matrix);
+    adjustedMatrix.preTranslate(x, y);
     mc.fMatrix = &adjustedMatrix;
 
     drawBitmapCommon(mc, bitmap, paint);

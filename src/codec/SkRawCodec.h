@@ -28,14 +28,14 @@ public:
      * Creates a RAW decoder
      * Takes ownership of the stream
      */
-    static SkCodec* NewFromStream(SkStream*);
+    static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*);
 
     ~SkRawCodec() override;
 
 protected:
 
     Result onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes, const Options&,
-            SkPMColor*, int*, int*) override;
+            int*) override;
 
     SkEncodedImageFormat onGetEncodedFormat() const override {
         return SkEncodedImageFormat::kDNG;

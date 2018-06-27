@@ -35,7 +35,7 @@ public:
 protected:
     void onOnceBeforeDraw() override {
         fRRectPath.addRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-130, -128.5, 130, 128.5), 4, 4));
-        fReferenceImage = GetResourceAsImage("shadowreference.png");
+        fReferenceImage = GetResourceAsImage("images/shadowreference.png");
     }
 
     // overrides from SkEventSink
@@ -69,7 +69,6 @@ protected:
                     break;
             }
             if (handled) {
-                this->inval(nullptr);
                 return true;
             }
         }
@@ -95,9 +94,12 @@ protected:
         if (fUseAlt) {
             flags |= SkShadowFlags::kGeometricOnly_ShadowFlag;
         }
+
+        SkColor ambientColor = SkColorSetARGB(ambientAlpha * 255, 0, 0, 0);
+        SkColor spotColor = SkColorSetARGB(spotAlpha * 255, 0, 0, 0);
         SkShadowUtils::DrawShadow(canvas, path, zPlaneParams,
                                   lightPos, lightWidth,
-                                  ambientAlpha, spotAlpha, SK_ColorBLACK, flags);
+                                  ambientColor, spotColor, flags);
 
         if (fShowObject) {
             canvas->drawPath(path, paint);

@@ -32,7 +32,7 @@ This temptation starts to break down when you notice:
 -   math written with either SSE or NEON instrinsics is still very hard to read; and
 -   sometimes we want to work with 4 floats, but sometimes 2, maybe even 8, etc.
 
-So we use a wrapper class `SkNf<N>`, parameterized on N, how many floats the vector contains, constrained at compile time to be a power of 2.  `SkNf` provides all the methods you'd expect on vector of N floats: loading and storing from float arrays, all the usual arithmetic operators, min and max, low and high precision reciprocal and sqrt, all the usual comparison operators, and a `.thenElse()` method acting as a non-branching ternary `?:` operator.  To support Skia's main graphic needs, `SkNf` can also load and store from a vector of N _bytes_, converting up to a float when loading and rounding down to [0,255] when storing.
+So we use a wrapper class `SkNf<N>`, parameterized on N, how many floats the vector contains, constrained at compile time to be a power of 2.  `SkNf` provides all the methods you'd expect on a vector of N floats: loading and storing from float arrays, all the usual arithmetic operators, min and max, low and high precision reciprocal and sqrt, all the usual comparison operators, and a `.thenElse()` method acting as a non-branching ternary `?:` operator.  To support Skia's main graphic needs, `SkNf` can also load and store from a vector of N _bytes_, converting up to a float when loading and rounding down to [0,255] when storing.
 
 As a convenience, `SkNf<N>` has two default implementations: `SkNf<1>` performs all these operations on a single float, and the generic `SkNf<N>` simply recurses onto two `SkNf<N/2>`.  This allows our different backends to inject specialiations where most natural: the portable backend does nothing, so all `SkNf<N>` recurse down to the default `SkNf<1>`;  the NEON backend specializes `SkNf<2>` with `float32x2_t` and 64-bit SIMD methods, and `SkNf<4>` with `float32x4_t` and 128-bit SIMD methods; the SSE backend specializes both `SkNf<4>` and `SkNf<2>` to use the full or lower half of an `__m128` vector, respectively.  A future AVX backend could simply drop in an `SkNf<8>` specialization.
 
@@ -41,16 +41,16 @@ Our most common float use cases are working with 2D coordinates and with 4-float
 `SkNf` in practice
 ----------------
 
-To date we have implemented several parts of Skia using Sk4f:
+To date we have implemented several parts of Skia using `Sk4f`:
 
   1. `SkColorMatrixFilter`
   2. `SkRadialGradient`
   3. `SkColorCubeFilter`
   4. Three complicated `SkXfermode` subclasses: `ColorBurn`, `ColorDodge`, and `SoftLight`.
 
-In all these cases, we have been able to write a single implementation, producing the same results cross-platform.  The first three of those sites using Sk4f are entirely newly vectorized, and run much faster than the previous portable implementations.  The 3 Sk4f transfermodes replaced portable, SSE, and NEON implementations which all produced different results, and the Sk4f versions are all faster than their predecessors.
+In all these cases, we have been able to write a single implementation, producing the same results cross-platform.  The first three of those sites using `Sk4f` are entirely newly vectorized, and run much faster than the previous portable implementations.  The 3 `Sk4f` transfermodes replaced portable, SSE, and NEON implementations which all produced different results, and the `Sk4f` versions are all faster than their predecessors.
 
-`SkColorCubeFilter` stands out as a particularly good example of how and why to use Sk4f over custom platform-specific intrinsics.  Starting from some portable code and a rather slow SSE-only sketch, a Google Chromium dev, an Intel contributor, and I worked together to write an Sk4f version that's more than twice as fast as the original, and runs fast on _both_ x86 and ARM.
+`SkColorCubeFilter` stands out as a particularly good example of how and why to use `Sk4f` over custom platform-specific intrinsics.  Starting from some portable code and a rather slow SSE-only sketch, a Google Chromium dev, an Intel contributor, and I worked together to write an `Sk4f` version that's more than twice as fast as the original, and runs fast on _both_ x86 and ARM.
 
 `SkPx` for 8- and 16-bit fixed point math
 ----------------------------------------
@@ -96,7 +96,7 @@ Building an abstraction layer over 8- and 16-bit fixed point math has proven to 
     // A faster approximation of (SkPx * Alpha).div255().
     SkPx.approxMulDiv255(Alpha) -> SkPx
 
-We allow each `SkPx` backend to choose how it physically represents `SkPx`, `SkPx::Wide`, and `SkPx::Alpha` and to choose any power of two as its `SkPx::N` sweet spot.  Code working with SkPx typically runs a loop like this:
+We allow each `SkPx` backend to choose how it physically represents `SkPx`, `SkPx::Wide`, and `SkPx::Alpha` and to choose any power of two as its `SkPx::N` sweet spot.  Code working with `SkPx` typically runs a loop like this:
 
     while (n >= SkPx::N) {
     	// Apply some_function() to SkPx::N pixels.
@@ -112,7 +112,7 @@ The portable code is of course the simplest place to start looking at implementa
 
 The most important difference between SSE and NEON when working in fixed point is that SSE works most naturally with 4 interlaced pixels at a time (argbargbargbargb), while NEON works most naturally with 8 planar pixels at a time (aaaaaaaa, rrrrrrrr, gggggggg, bbbbbbbb).  Trying to jam one of these instruction sets into the other's idiom ends up somewhere between not quite optimal (working with interlaced pixels in NEON) and ridiculously inefficient (trying to work with planar pixels in SSE).
 
-So `SkPx`'s SSE backend sets N to 4 pixels, stores them interlaced in an `__m128i`, representing `Wide` as two `__m128i` and `Alpha` as an `__m128i` with each pixel's alpha component replicated four times.  SkPx's NEON backend works with 8 planar pixels, loading them with `vld4_u8` into an `uint8x8x4_t` struct of 4 8-component `uint8x8_t` planes.  `Alpha` is just a single `uint8x8_t` 8-component plane, and `Wide` is NEON's natural choice, `uint16x8x4_t`.
+So `SkPx`'s SSE backend sets N to 4 pixels, stores them interlaced in an `__m128i`, representing `Wide` as two `__m128i` and `Alpha` as an `__m128i` with each pixel's alpha component replicated four times.  `SkPx`'s NEON backend works with 8 planar pixels, loading them with `vld4_u8` into an `uint8x8x4_t` struct of 4 8-component `uint8x8_t` planes.  `Alpha` is just a single `uint8x8_t` 8-component plane, and `Wide` is NEON's natural choice, `uint16x8x4_t`.
 
 (It's fun to speculate what an AVX2 backend might look like.  Do we make `SkPx` declare it wants to work with 8 pixels at a time, or leave it at 4?  Does `SkPx` become `__m256i`, or maybe only `SkPx::Wide` does?  What's the best way to represent `Alpha`?  And of course, what about AVX-512?)
 
@@ -126,8 +126,8 @@ These details will inevitably change over time.  The important takeaway here is,
 I am in the process of rolling out `SkPx`.  Some Skia code is already using its precursor, `Sk4px`, which is a bit like `SkPx` that forces `N=4` and restricts the layout to always use interlaced pixels: i.e. fine for SSE, not great for NEON.
 
   1. All ~20 other `SkXfermode` subclasses that are not implemented with `SkNf`.
-  2. SkBlitRow::Color32
-  3. SkBlitMask::BlitColor
+  2. `SkBlitRow::Color32`
+  3. `SkBlitMask::BlitColor`
 
 I can certainly say that the `Sk4px` and `SkPx` implementations of these methods are clearer, less buggy, and that all the `SkXfermode` implementations sped up at least 2x when porting from custom per-platform intrinsics.  `Sk4px` has lead to some pretty bad performance regressions that `SkPx` is designed to avoid.  This is an area of active experiementation and iteration.
 

@@ -35,7 +35,7 @@ protected:
                                                     0, &local));
 
         sk_sp<SkTypeface> orig(sk_tool_utils::create_portable_typeface("serif",
-                                   SkFontStyle::FromOldStyle(SkTypeface::kBold)));
+                                                                       SkFontStyle::Bold()));
         if (nullptr == orig) {
             orig = SkTypeface::MakeDefault();
         }
@@ -47,7 +47,7 @@ protected:
 
     virtual SkString onShortName() override {
         SkString name("coloremoji_blendmodes");
-        name.append(sk_tool_utils::platform_os_emoji());
+        name.append(sk_tool_utils::platform_font_manager());
         return name;
     }
 

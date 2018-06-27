@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkAtomics.h"
 #include "SkGraphics.h"
 #include "SkPaint.h"
 #include "SkTLS.h"
-#include "SkThreadUtils.h"
 #include "Test.h"
+#include <atomic>
+#include <thread>
 
-static void thread_main(void*) {
+static void thread_main() {
     SkGraphics::SetTLSFontCacheLimit(1 * 1024 * 1024);
 
     const char text[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -31,41 +31,26 @@ static void thread_main(void*) {
     }
 }
 
-static void test_threads(SkThread::entryPointProc proc) {
-    SkThread* threads[8];
-    int N = SK_ARRAY_COUNT(threads);
-    int i;
+template <typename Fn>
+static void test_threads(Fn fn) {
+    std::thread threads[8];
 
-    for (i = 0; i < N; ++i) {
-        threads[i] = new SkThread(proc);
+    for (auto& thread : threads) {
+        thread = std::thread(fn);
     }
-
-    for (i = 0; i < N; ++i) {
-        threads[i]->start();
-    }
-
-    for (i = 0; i < N; ++i) {
-        threads[i]->join();
-    }
-
-    for (i = 0; i < N; ++i) {
-        delete threads[i];
+    for (auto& thread : threads) {
+        thread.join();
     }
 }
 
-static int32_t gCounter;
+static std::atomic<int> gCounter{0};
 
-static void* FakeCreateTLS() {
-    sk_atomic_inc(&gCounter);
+static void* fake_create_TLS() {
+    gCounter++;
     return nullptr;
 }
-
-static void FakeDeleteTLS(void*) {
-    sk_atomic_dec(&gCounter);
-}
-
-static void testTLSDestructor(void*) {
-    SkTLS::Get(FakeCreateTLS, FakeDeleteTLS);
+static void fake_delete_TLS(void*) {
+    gCounter--;
 }
 
 DEF_TEST(TLS, reporter) {
@@ -76,6 +61,8 @@ DEF_TEST(TLS, reporter) {
 
     // Test to ensure that at thread destruction, TLS destructors
     // have been called.
-    test_threads(&testTLSDestructor);
-    REPORTER_ASSERT(reporter, 0 == gCounter);
+    test_threads([] {
+        SkTLS::Get(fake_create_TLS, fake_delete_TLS);
+    });
+    REPORTER_ASSERT(reporter, 0 == gCounter.load());
 }

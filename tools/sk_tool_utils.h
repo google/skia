@@ -11,8 +11,8 @@
 #include "SkColor.h"
 #include "SkImageEncoder.h"
 #include "SkImageInfo.h"
-#include "SkPixelSerializer.h"
 #include "SkRandom.h"
+#include "SkRefCnt.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
 #include "SkTypeface.h"
@@ -20,15 +20,19 @@
 class SkBitmap;
 class SkCanvas;
 class SkColorFilter;
+class SkImage;
 class SkPaint;
 class SkPath;
 class SkRRect;
 class SkShader;
+class SkSurface;
+class SkSurfaceProps;
 class SkTestFont;
 class SkTextBlobBuilder;
 
 namespace sk_tool_utils {
 
+    const char* alphatype_name(SkAlphaType);
     const char* colortype_name(SkColorType);
 
     /**
@@ -47,29 +51,9 @@ namespace sk_tool_utils {
     const char* emoji_sample_text();
 
     /**
-     * If the platform supports color emoji, return the type (i.e. "CBDT", "SBIX", "").
+     * Returns a string describing the platform font manager, if we're using one, otherwise "".
      */
-    const char* platform_os_emoji();
-
-    /**
-     * Return the platform name with the version number ("Mac10.9", "Win8", etc.) if available.
-     */
-    const char* platform_os_name();
-
-    /**
-     * Return the platform name without the version number ("Mac", "Win", etc.) if available.
-     */
-    SkString major_platform_os_name();
-
-    /**
-     * Return the platform extra config (e.g. "GDI") if available.
-     */
-    const char* platform_extra_config(const char* config);
-
-    /**
-     * Map serif, san-serif, and monospace to the platform-specific font name.
-     */
-    const char* platform_font_name(const char* name);
+    const char* platform_font_manager();
 
     /**
      * Sets the paint to use a platform-independent text renderer
@@ -86,10 +70,26 @@ namespace sk_tool_utils {
     void release_portable_typefaces();
 
     /**
-     *  Call canvas->writePixels() by using the pixels from bitmap, but with an info that claims
+     *  Call writePixels() by using the pixels from bitmap, but with an info that claims
      *  the pixels are colorType + alphaType
      */
     void write_pixels(SkCanvas*, const SkBitmap&, int x, int y, SkColorType, SkAlphaType);
+    void write_pixels(SkSurface*, const SkBitmap&, int x, int y, SkColorType, SkAlphaType);
+
+    /**
+     *  Returns true iff all of the pixels between the two images differ by <= the maxDiff value
+     *  per component.
+     *
+     *  If the configs differ, return false.
+     *
+     *  If the colorType is half-float, then maxDiff is interpreted as 0..255 --> 0..1
+     */
+    bool equal_pixels(const SkPixmap&, const SkPixmap&, unsigned maxDiff = 0,
+                      bool respectColorSpaces = false);
+    bool equal_pixels(const SkBitmap&, const SkBitmap&, unsigned maxDiff = 0,
+                      bool respectColorSpaces = false);
+    bool equal_pixels(const SkImage* a, const SkImage* b, unsigned maxDiff = 0,
+                      bool respectColorSpaces = false);
 
     // private to sk_tool_utils
     sk_sp<SkTypeface> create_font(const char* name, SkFontStyle);
@@ -117,15 +117,27 @@ namespace sk_tool_utils {
     SkBitmap create_string_bitmap(int w, int h, SkColor c, int x, int y,
                                   int textSize, const char* str);
 
+    // If the canvas does't make a surface (e.g. recording), make a raster surface
+    sk_sp<SkSurface> makeSurface(SkCanvas*, const SkImageInfo&, const SkSurfaceProps* = nullptr);
+
     // A helper for inserting a drawtext call into a SkTextBlobBuilder
-    void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkPaint& origPaint,
-                          SkScalar x, SkScalar y);
+    void add_to_text_blob_w_len(SkTextBlobBuilder* builder, const char* text, size_t len,
+                                const SkPaint& origPaint, SkScalar x, SkScalar y);
 
-    void create_hemi_normal_map(SkBitmap* bm, const SkIRect& dst);
+    void add_to_text_blob(SkTextBlobBuilder* builder, const char* text,
+                          const SkPaint& origPaint, SkScalar x, SkScalar y);
 
-    void create_frustum_normal_map(SkBitmap* bm, const SkIRect& dst);
-
-    void create_tetra_normal_map(SkBitmap* bm, const SkIRect& dst);
+    // Constructs a star by walking a 'numPts'-sided regular polygon with even/odd fill:
+    //
+    //   moveTo(pts[0]);
+    //   lineTo(pts[step % numPts]);
+    //   ...
+    //   lineTo(pts[(step * (N - 1)) % numPts]);
+    //
+    // numPts=5, step=2 will produce a classic five-point star.
+    //
+    // numPts and step must be co-prime.
+    SkPath make_star(const SkRect& bounds, int numPts = 5, int step = 2);
 
     void make_big_path(SkPath& path);
 
@@ -138,7 +150,7 @@ namespace sk_tool_utils {
     SkRect compute_tallest_occluder(const SkRRect& rr);
 
     // A helper object to test the topological sorting code (TopoSortBench.cpp & TopoSortTest.cpp)
-    class TopoTestNode {
+    class TopoTestNode : public SkRefCnt {
     public:
         TopoTestNode(int id) : fID(id), fOutputPos(-1), fTempMark(false) { }
 
@@ -185,37 +197,29 @@ namespace sk_tool_utils {
         }
 
         // Helper functions for TopoSortBench & TopoSortTest
-        static void AllocNodes(SkTDArray<TopoTestNode*>* graph, int num) {
-            graph->setReserve(num);
+        static void AllocNodes(SkTArray<sk_sp<sk_tool_utils::TopoTestNode>>* graph, int num) {
+            graph->reserve(num);
 
             for (int i = 0; i < num; ++i) {
-                *graph->append() = new TopoTestNode(i);
+                graph->push_back(sk_sp<TopoTestNode>(new TopoTestNode(i)));
             }
         }
 
-        static void DeallocNodes(SkTDArray<TopoTestNode*>* graph) {
-            for (int i = 0; i < graph->count(); ++i) {
-                delete (*graph)[i];
-            }
-        }
-
-        #ifdef SK_DEBUG
-        static void Print(const SkTDArray<TopoTestNode*>& graph) {
+#ifdef SK_DEBUG
+        static void Print(const SkTArray<TopoTestNode*>& graph) {
             for (int i = 0; i < graph.count(); ++i) {
                 SkDebugf("%d, ", graph[i]->id());
             }
             SkDebugf("\n");
         }
-        #endif
+#endif
 
         // randomize the array
-        static void Shuffle(SkTDArray<TopoTestNode*>* graph, SkRandom* rand) {
+        static void Shuffle(SkTArray<sk_sp<TopoTestNode>>* graph, SkRandom* rand) {
             for (int i = graph->count()-1; i > 0; --i) {
                 int swap = rand->nextU() % (i+1);
 
-                TopoTestNode* tmp = (*graph)[i];
-                (*graph)[i] = (*graph)[swap];
-                (*graph)[swap] = tmp;
+                (*graph)[i].swap((*graph)[swap]);
             }
         }
 
@@ -239,28 +243,8 @@ namespace sk_tool_utils {
         return SkEncodeImage(&buf, src , f, q) ? buf.detachAsData() : nullptr;
     }
 
-    /**
-     * Uses SkEncodeImage to serialize images that are not already
-     * encoded as SkEncodedImageFormat::kPNG images.
-     */
-    inline sk_sp<SkPixelSerializer> MakePixelSerializer() {
-        struct EncodeImagePixelSerializer final : SkPixelSerializer {
-            bool onUseEncodedData(const void*, size_t) override { return true; }
-            SkData* onEncode(const SkPixmap& pmap) override {
-                return EncodeImageToData(pmap, SkEncodedImageFormat::kPNG, 100).release();
-            }
-        };
-        return sk_make_sp<EncodeImagePixelSerializer>();
-    }
-
     bool copy_to(SkBitmap* dst, SkColorType dstCT, const SkBitmap& src);
     void copy_to_g8(SkBitmap* dst, const SkBitmap& src);
-
-#if SK_SUPPORT_GPU
-    sk_sp<SkColorFilter> MakeLinearToSRGBColorFilter();
-    sk_sp<SkColorFilter> MakeSRGBToLinearColorFilter();
-#endif
-
 }  // namespace sk_tool_utils
 
 #endif  // sk_tool_utils_DEFINED

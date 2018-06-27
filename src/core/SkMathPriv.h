@@ -49,6 +49,21 @@ static inline unsigned SkClampUMax(unsigned value, unsigned max) {
     return value;
 }
 
+// If a signed int holds min_int (e.g. 0x80000000) it is undefined what happens when
+// we negate it (even though we *know* we're 2's complement and we'll get the same
+// value back). So we create this helper function that casts to size_t (unsigned) first,
+// to avoid the complaint.
+static inline size_t sk_negate_to_size_t(int32_t value) {
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable : 4146)  // Thanks MSVC, we know what we're negating an unsigned
+#endif
+    return -static_cast<size_t>(value);
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 /** Return a*b/255, truncating away any fractional bits. Only valid if both
@@ -96,7 +111,7 @@ static inline float SkPinToUnitFloat(float x) {
 int SkCLZ_portable(uint32_t);
 
 #ifndef SkCLZ
-    #if defined(SK_BUILD_FOR_WIN32)
+    #if defined(SK_BUILD_FOR_WIN)
         #include <intrin.h>
 
         static inline int SkCLZ(uint32_t mask) {
@@ -200,8 +215,9 @@ static inline size_t GrNextSizePow2(size_t n) {
     return n + 1;
 }
 
-static inline int GrNextPow2(int n) {
-    SkASSERT(n >= 0); // this impl only works for non-neg.
-    return n ? (1 << (32 - SkCLZ(n - 1))) : 1;
+// conservative check. will return false for very large values that "could" fit
+template <typename T> static inline bool SkFitsInFixed(T x) {
+    return SkTAbs(x) <= 32767.0f;
 }
+
 #endif

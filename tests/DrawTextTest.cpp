@@ -8,12 +8,18 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
+#include "SkDashPathEffect.h"
+#include "SkMatrix.h"
 #include "SkPaint.h"
+#include "SkPathEffect.h"
 #include "SkPoint.h"
 #include "SkRect.h"
+#include "SkRefCnt.h"
+#include "SkScalar.h"
 #include "SkSurface.h"
 #include "SkTypes.h"
 #include "Test.h"
+
 #include <math.h>
 
 static const SkColor bgColor = SK_ColorWHITE;
@@ -111,6 +117,51 @@ DEF_TEST(DrawText, reporter) {
     }
 }
 
+/** Test that drawing glyphs with empty paths is different from drawing glyphs without paths. */
+DEF_TEST(DrawText_dashout, reporter) {
+    SkIRect size = SkIRect::MakeWH(64, 64);
+
+    SkBitmap drawTextBitmap;
+    create(&drawTextBitmap, size);
+    SkCanvas drawTextCanvas(drawTextBitmap);
+
+    SkBitmap drawDashedTextBitmap;
+    create(&drawDashedTextBitmap, size);
+    SkCanvas drawDashedTextCanvas(drawDashedTextBitmap);
+
+    SkBitmap emptyBitmap;
+    create(&emptyBitmap, size);
+    SkCanvas emptyCanvas(emptyBitmap);
+
+    SkPoint point = SkPoint::Make(25.0f, 25.0f);
+    SkPaint paint;
+    paint.setColor(SK_ColorGRAY);
+    paint.setTextSize(SkIntToScalar(20));
+    paint.setAntiAlias(true);
+    paint.setSubpixelText(true);
+    paint.setLCDRenderText(true);
+    paint.setStyle(SkPaint::kStroke_Style);
+
+    // Draw a stroked "A" without a dash which will draw something.
+    drawBG(&drawTextCanvas);
+    drawTextCanvas.drawText("A", 1, point.fX, point.fY, paint);
+
+    // Draw an "A" but with a dash which will never draw anything.
+    paint.setStrokeWidth(2);
+    constexpr SkScalar bigInterval = 10000;
+    static constexpr SkScalar intervals[] = { 1, bigInterval };
+    paint.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 2));
+
+    drawBG(&drawDashedTextCanvas);
+    drawDashedTextCanvas.drawText("A", 1, point.fX, point.fY, paint);
+
+    // Draw nothing.
+    drawBG(&emptyCanvas);
+
+    REPORTER_ASSERT(reporter, !compare(drawTextBitmap, size, emptyBitmap, size));
+    REPORTER_ASSERT(reporter, compare(drawDashedTextBitmap, size, emptyBitmap, size));
+}
+
 // Test drawing text at some unusual coordinates.
 // We measure success by not crashing or asserting.
 DEF_TEST(DrawText_weirdCoordinates, r) {
@@ -126,5 +177,43 @@ DEF_TEST(DrawText_weirdCoordinates, r) {
     for (auto y : oddballs) {
         canvas->drawString("a", 0.0f, +y, SkPaint());
         canvas->drawString("a", 0.0f, -y, SkPaint());
+    }
+}
+
+// Test drawing text with some unusual matricies.
+// We measure success by not crashing or asserting.
+DEF_TEST(DrawText_weirdMatricies, r) {
+    auto surface = SkSurface::MakeRasterN32Premul(100,100);
+    auto canvas = surface->getCanvas();
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setLCDRenderText(true);
+
+    struct {
+        SkScalar textSize;
+        SkScalar matrix[9];
+    } testCases[] = {
+        // 2x2 singular
+        {10, { 0,  0,  0,  0,  0,  0,  0,  0,  1}},
+        {10, { 0,  0,  0,  0,  1,  0,  0,  0,  1}},
+        {10, { 0,  0,  0,  1,  0,  0,  0,  0,  1}},
+        {10, { 0,  0,  0,  1,  1,  0,  0,  0,  1}},
+        {10, { 0,  1,  0,  0,  1,  0,  0,  0,  1}},
+        {10, { 1,  0,  0,  0,  0,  0,  0,  0,  1}},
+        {10, { 1,  0,  0,  1,  0,  0,  0,  0,  1}},
+        {10, { 1,  1,  0,  0,  0,  0,  0,  0,  1}},
+        {10, { 1,  1,  0,  1,  1,  0,  0,  0,  1}},
+        // See https://bugzilla.mozilla.org/show_bug.cgi?id=1305085 .
+        { 1, {10, 20,  0, 20, 40,  0,  0,  0,  1}},
+    };
+
+    for (const auto& testCase : testCases) {
+        paint.setTextSize(testCase.textSize);
+        const SkScalar(&m)[9] = testCase.matrix;
+        SkMatrix mat;
+        mat.setAll(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
+        canvas->setMatrix(mat);
+        canvas->drawString("Hamburgefons", 10, 10, paint);
     }
 }

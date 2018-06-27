@@ -160,7 +160,7 @@ public:
 
     const Key& getKey() const override { return fKey; }
     size_t bytesUsed() const override {
-        return sizeof(fKey) + fInfo.getSafeSize(fRowBytes);
+        return sizeof(fKey) + fInfo.computeByteSize(fRowBytes);
     }
     bool canBePurged() override {
         SkAutoMutexAcquire ama(fMutex);
@@ -193,7 +193,7 @@ public:
             SkASSERT(rec->fMalloc != nullptr);
         }
     }
-    
+
     bool install(SkBitmap* bitmap) {
         SkAutoMutexAcquire ama(fMutex);
 
@@ -225,8 +225,7 @@ public:
             SkASSERT(fDM->data());
         }
 
-        bitmap->installPixels(fInfo, fDM ? fDM->data() : fMalloc, fRowBytes, nullptr,
-                              ReleaseProc, this);
+        bitmap->installPixels(fInfo, fDM ? fDM->data() : fMalloc, fRowBytes, ReleaseProc, this);
         SkBitmapCache_setImmutableWithID(bitmap->pixelRef(), fPrUniqueID);
 
         REC_TRACE(" Rec: [%d] install new pr\n", fPrUniqueID);
@@ -290,8 +289,8 @@ SkBitmapCache::RecPtr SkBitmapCache::Alloc(const SkBitmapCacheDesc& desc, const 
     }
 
     const size_t rb = info.minRowBytes();
-    size_t size = info.getSafeSize(rb);
-    if (0 == size) {
+    size_t size = info.computeByteSize(rb);
+    if (SkImageInfo::ByteSizeOverflowed(size)) {
         return nullptr;
     }
 
@@ -302,7 +301,7 @@ SkBitmapCache::RecPtr SkBitmapCache::Alloc(const SkBitmapCacheDesc& desc, const 
     if (factory) {
         dm.reset(factory(size));
     } else {
-        block = sk_malloc_flags(size, 0);
+        block = sk_malloc_canfail(size);
     }
     if (!dm && !block) {
         return nullptr;

@@ -8,26 +8,41 @@
 #ifndef SkScalerContext_DEFINED
 #define SkScalerContext_DEFINED
 
+#include <memory>
+
 #include "SkGlyph.h"
 #include "SkMask.h"
+#include "SkMaskFilter.h"
 #include "SkMaskGamma.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkTypeface.h"
+#include "SkWriteBuffer.h"
 
+class SkAutoDescriptor;
 class SkDescriptor;
 class SkMaskFilter;
 class SkPathEffect;
-class SkRasterizer;
+class SkScalerContext;
+class SkScalerContext_DW;
+
+enum SkScalerContextFlags : uint32_t {
+    kNone                      = 0,
+    kFakeGamma                 = 1 << 0,
+    kBoostContrast             = 1 << 1,
+    kFakeGammaAndBoostContrast = kFakeGamma | kBoostContrast,
+};
 
 struct SkScalerContextEffects {
-    SkScalerContextEffects() : fPathEffect(nullptr), fMaskFilter(nullptr), fRasterizer(nullptr) {}
-    SkScalerContextEffects(SkPathEffect* pe, SkMaskFilter* mf, SkRasterizer* ra)
-        : fPathEffect(pe), fMaskFilter(mf), fRasterizer(ra) {}
+    SkScalerContextEffects() : fPathEffect(nullptr), fMaskFilter(nullptr) {}
+    SkScalerContextEffects(SkPathEffect* pe, SkMaskFilter* mf)
+        : fPathEffect(pe), fMaskFilter(mf) {}
+    explicit SkScalerContextEffects(const SkPaint& paint)
+        : fPathEffect(paint.getPathEffect())
+        , fMaskFilter(paint.getMaskFilter()) {}
 
     SkPathEffect*   fPathEffect;
     SkMaskFilter*   fMaskFilter;
-    SkRasterizer*   fRasterizer;
 };
 
 enum SkAxisAlignment {
@@ -41,17 +56,21 @@ enum SkAxisAlignment {
  *  than a nested struct inside SkScalerContext (where it started).
  */
 struct SkScalerContextRec {
+
     uint32_t    fFontID;
     SkScalar    fTextSize, fPreScaleX, fPreSkewX;
     SkScalar    fPost2x2[2][2];
     SkScalar    fFrameWidth, fMiterLimit;
 
+private:
     //These describe the parameters to create (uniquely identify) the pre-blend.
-    uint32_t    fLumBits;
-    uint8_t     fDeviceGamma; //2.6, (0.0, 4.0) gamma, 0.0 for sRGB
-    uint8_t     fPaintGamma;  //2.6, (0.0, 4.0) gamma, 0.0 for sRGB
-    uint8_t     fContrast;    //0.8+1, [0.0, 1.0] artificial contrast
-    uint8_t     fReservedAlign;
+    uint32_t      fLumBits;
+    uint8_t       fDeviceGamma; //2.6, (0.0, 4.0) gamma, 0.0 for sRGB
+    uint8_t       fPaintGamma;  //2.6, (0.0, 4.0) gamma, 0.0 for sRGB
+    uint8_t       fContrast;    //0.8+1, [0.0, 1.0] artificial contrast
+    const uint8_t fReservedAlign{0};
+
+public:
 
     SkScalar getDeviceGamma() const {
         return SkIntToScalar(fDeviceGamma) / (1 << 6);
@@ -97,13 +116,28 @@ struct SkScalerContextRec {
     }
 
     uint8_t     fMaskFormat;
+private:
     uint8_t     fStrokeJoin : 4;
     uint8_t     fStrokeCap : 4;
+
+public:
     uint16_t    fFlags;
+
     // Warning: when adding members note that the size of this structure
     // must be a multiple of 4. SkDescriptor requires that its arguments be
     // multiples of four and this structure is put in an SkDescriptor in
-    // SkPaint::MakeRec.
+    // SkPaint::MakeRecAndEffects.
+
+    SkString dump() const {
+        SkString msg;
+        msg.appendf("Rec\n");
+        msg.appendf("  textsize %g prescale %g preskew %g post [%g %g %g %g]\n",
+                   fTextSize, fPreScaleX, fPreSkewX, fPost2x2[0][0],
+                   fPost2x2[0][1], fPost2x2[1][0], fPost2x2[1][1]);
+        msg.appendf("  frame %g miter %g format %d join %d cap %d flags %#hx\n",
+                   fFrameWidth, fMiterLimit, fMaskFormat, fStrokeJoin, fStrokeCap, fFlags);
+        return msg;
+    }
 
     void    getMatrixFrom2x2(SkMatrix*) const;
     void    getLocalMatrix(SkMatrix*) const;
@@ -161,9 +195,15 @@ struct SkScalerContextRec {
         return static_cast<SkMask::Format>(fMaskFormat);
     }
 
+private:
+    // TODO: get rid of these bad friends.
+    friend class SkScalerContext;
+    friend class SkScalerContext_DW;
+
     SkColor getLuminanceColor() const {
         return fLumBits;
     }
+
 
     void setLuminanceColor(SkColor c) {
         fLumBits = c;
@@ -179,8 +219,6 @@ typedef SkTMaskGamma<3, 3, 3> SkMaskGamma;
 
 class SkScalerContext {
 public:
-    typedef SkScalerContextRec Rec;
-
     enum Flags {
         kFrameAndFill_Flag        = 0x0001,
         kDevKernText_Flag         = 0x0002,
@@ -257,21 +295,43 @@ public:
                                   int* width, int* height);
 
     /** Get the associated gamma lookup table. The 'data' pointer must point to pre-allocated
-        memory, with size in bytes greater than or equal to the return value of getGammaLUTSize().
+     *  memory, with size in bytes greater than or equal to the return value of getGammaLUTSize().
+     *
+     *  If the lookup table hasn't been initialized (e.g., it's linear), this will return false.
      */
-    static void   GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma,
-                                  void* data);
+    static bool   GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma,
+                                  uint8_t* data);
 
-    static void MakeRec(const SkPaint&, const SkSurfaceProps* surfaceProps,
-                        const SkMatrix*, Rec* rec);
-    static inline void PostMakeRec(const SkPaint&, Rec*);
+    static void MakeRecAndEffects(const SkPaint& paint,
+                                  const SkSurfaceProps* surfaceProps,
+                                  const SkMatrix* deviceMatrix,
+                                  SkScalerContextFlags scalerContextFlags,
+                                  SkScalerContextRec* rec,
+                                  SkScalerContextEffects* effects);
 
-    static SkMaskGamma::PreBlend GetMaskPreBlend(const Rec& rec);
+    static SkDescriptor*  MakeDescriptorForPaths(SkFontID fontID,
+                                                 SkAutoDescriptor* ad);
 
-    const Rec& getRec() const { return fRec; }
+    static SkDescriptor* AutoDescriptorGivenRecAndEffects(
+        const SkScalerContextRec& rec,
+        const SkScalerContextEffects& effects,
+        SkAutoDescriptor* ad);
+
+    static std::unique_ptr<SkDescriptor> DescriptorGivenRecAndEffects(
+        const SkScalerContextRec& rec,
+        const SkScalerContextEffects& effects);
+
+    static void DescriptorBufferGiveRec(const SkScalerContextRec& rec, void* buffer);
+    static bool CheckBufferSizeForRec(const SkScalerContextRec& rec,
+                                      const SkScalerContextEffects& effects,
+                                      size_t size);
+
+    static SkMaskGamma::PreBlend GetMaskPreBlend(const SkScalerContextRec& rec);
+
+    const SkScalerContextRec& getRec() const { return fRec; }
 
     SkScalerContextEffects getEffects() const {
-        return { fPathEffect.get(), fMaskFilter.get(), fRasterizer.get() };
+        return { fPathEffect.get(), fMaskFilter.get() };
     }
 
     /**
@@ -280,8 +340,14 @@ public:
     */
     SkAxisAlignment computeAxisAlignmentForHText();
 
+    static SkDescriptor* CreateDescriptorAndEffectsUsingPaint(
+        const SkPaint& paint, const SkSurfaceProps* surfaceProps,
+        SkScalerContextFlags scalerContextFlags,
+        const SkMatrix* deviceMatrix, SkAutoDescriptor* ad,
+        SkScalerContextEffects* effects);
+
 protected:
-    Rec         fRec;
+    SkScalerContextRec fRec;
 
     /** Generates the contents of glyph.fAdvanceX and glyph.fAdvanceY.
      *  May call getMetrics if that would be just as fast.
@@ -341,13 +407,13 @@ private:
     // optional objects, which may be null
     sk_sp<SkPathEffect> fPathEffect;
     sk_sp<SkMaskFilter> fMaskFilter;
-    sk_sp<SkRasterizer> fRasterizer;
 
     // if this is set, we draw the image from a path, rather than
     // calling generateImage.
     bool fGenerateImageFromPath;
 
-    void internalGetPath(SkPackedGlyphID id, SkPath* fillPath,
+    /** Returns false if the glyph has no path at all. */
+    bool internalGetPath(SkPackedGlyphID id, SkPath* fillPath,
                          SkPath* devPath, SkMatrix* fillToDevMatrix);
 
     // SkMaskGamma::PreBlend converts linear masks to gamma correcting masks.
@@ -363,7 +429,6 @@ private:
 #define kRec_SkDescriptorTag            SkSetFourByteTag('s', 'r', 'e', 'c')
 #define kPathEffect_SkDescriptorTag     SkSetFourByteTag('p', 't', 'h', 'e')
 #define kMaskFilter_SkDescriptorTag     SkSetFourByteTag('m', 's', 'k', 'f')
-#define kRasterizer_SkDescriptorTag     SkSetFourByteTag('r', 'a', 's', 't')
 
 ///////////////////////////////////////////////////////////////////////////////
 

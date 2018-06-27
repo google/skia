@@ -8,6 +8,8 @@
 #include "SkPaintFilterCanvas.h"
 
 #include "SkPaint.h"
+#include "SkPixmap.h"
+#include "SkSurface.h"
 #include "SkTLazy.h"
 
 class SkPaintFilterCanvas::AutoPaintFilter {
@@ -172,6 +174,16 @@ void SkPaintFilterCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix
     }
 }
 
+void SkPaintFilterCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
+    // There is no paint to filter in this case, but we can still filter on type.
+    // Subclasses need to unroll the drawable explicity (by overriding this method) in
+    // order to actually filter nested content.
+    AutoPaintFilter apf(this, kDrawable_Type, nullptr);
+    if (apf.shouldDraw()) {
+        this->INHERITED::onDrawDrawable(drawable, matrix);
+    }
+}
+
 void SkPaintFilterCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                                      const SkPaint& paint) {
     AutoPaintFilter apf(this, kText_Type, paint);
@@ -219,4 +231,34 @@ void SkPaintFilterCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkS
     if (apf.shouldDraw()) {
         this->INHERITED::onDrawTextBlob(blob, x, y, *apf.paint());
     }
+}
+
+sk_sp<SkSurface> SkPaintFilterCanvas::onNewSurface(const SkImageInfo& info,
+                                                   const SkSurfaceProps& props) {
+    return proxy()->makeSurface(info, &props);
+}
+
+bool SkPaintFilterCanvas::onPeekPixels(SkPixmap* pixmap) {
+    return proxy()->peekPixels(pixmap);
+}
+
+bool SkPaintFilterCanvas::onAccessTopLayerPixels(SkPixmap* pixmap) {
+    SkImageInfo info;
+    size_t rowBytes;
+
+    void* addr = proxy()->accessTopLayerPixels(&info, &rowBytes);
+    if (!addr) {
+        return false;
+    }
+
+    pixmap->reset(info, addr, rowBytes);
+    return true;
+}
+
+SkImageInfo SkPaintFilterCanvas::onImageInfo() const {
+    return proxy()->imageInfo();
+}
+
+bool SkPaintFilterCanvas::onGetProps(SkSurfaceProps* props) const {
+    return proxy()->getProps(props);
 }

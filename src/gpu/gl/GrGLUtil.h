@@ -54,8 +54,19 @@ enum GrGLRenderer {
     kAdreno4xx_GrGLRenderer,
     kAdreno5xx_GrGLRenderer,
     kOSMesa_GrGLRenderer,
+    kIntelIrisPro_GrGLRenderer,
+    /** Either HD 4xxx or Iris 4xxx */
+    kIntel4xxx_GrGLRenderer,
     /** Either HD 6xxx or Iris 6xxx */
     kIntel6xxx_GrGLRenderer,
+    kGalliumLLVM_GrGLRenderer,
+    /** T-6xx, T-7xx, or T-8xx */
+    kMaliT_GrGLRenderer,
+    kANGLE_GrGLRenderer,
+
+    kAMDRadeonHD7xxx_GrGLRenderer, // AMD Radeon HD 7000 Series
+    kAMDRadeonR9M4xx_GrGLRenderer, // AMD Radeon R9 M400 Series
+
     kOther_GrGLRenderer
 };
 
@@ -65,7 +76,26 @@ enum GrGLDriver {
     kNVIDIA_GrGLDriver,
     kIntel_GrGLDriver,
     kANGLE_GrGLDriver,
+    kQualcomm_GrGLDriver,
     kUnknown_GrGLDriver
+};
+
+enum class GrGLANGLEBackend {
+    kUnknown,
+    kD3D9,
+    kD3D11,
+    kOpenGL
+};
+
+enum class GrGLANGLEVendor {
+    kUnknown,
+    kIntel
+};
+
+enum class GrGLANGLERenderer {
+    kUnknown,
+    kIvyBridge,
+    kSkylake
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -84,6 +114,12 @@ enum GrGLDriver {
     do {                                                                       \
         *(p) = GR_GL_INIT_ZERO;                                                \
         GR_GL_CALL(gl, GetFramebufferAttachmentParameteriv(t, a, pname, p));   \
+    } while (0)
+
+#define GR_GL_GetInternalformativ(gl, t, f, n, s, p)                           \
+    do {                                                                       \
+        *(p) = GR_GL_INIT_ZERO;                                                \
+        GR_GL_CALL(gl, GetInternalformativ(t, f, n, s, p));                    \
     } while (0)
 
 #define GR_GL_GetNamedFramebufferAttachmentParameteriv(gl, fb, a, pname, p)          \
@@ -124,6 +160,8 @@ GrGLStandard GrGLGetStandardInUseFromString(const char* versionString);
 GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString);
 GrGLVendor GrGLGetVendorFromString(const char* vendorString);
 GrGLRenderer GrGLGetRendererFromString(const char* rendererString);
+void GrGLGetANGLEInfoFromString(const char* rendererString, GrGLANGLEBackend*,
+                                GrGLANGLEVendor*, GrGLANGLERenderer*);
 
 void GrGLGetDriverInfo(GrGLStandard standard,
                        GrGLVendor vendor,
@@ -137,7 +175,6 @@ GrGLVersion GrGLGetVersion(const GrGLInterface*);
 GrGLSLVersion GrGLGetGLSLVersion(const GrGLInterface*);
 GrGLVendor GrGLGetVendor(const GrGLInterface*);
 GrGLRenderer GrGLGetRenderer(const GrGLInterface*);
-
 
 /**
  * Helpers for glGetError()
@@ -211,5 +248,6 @@ void GrGLClearErr(const GrGLInterface* gl);
 
 GrGLenum GrToGLStencilFunc(GrStencilTest test);
 
+GrPixelConfig GrGLSizedFormatToPixelConfig(GrGLenum sizedFormat);
 
 #endif

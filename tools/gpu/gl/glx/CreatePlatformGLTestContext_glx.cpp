@@ -62,6 +62,7 @@ private:
                                         GLXContext glxSharedContext);
 
     void onPlatformMakeCurrent() const override;
+    std::function<void()> onPlatformGetAutoContextRestore() const override;
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
@@ -90,11 +91,27 @@ static Display* get_display() {
     return ad->display();
 }
 
+std::function<void()> context_restorer() {
+    auto display = glXGetCurrentDisplay();
+    auto drawable = glXGetCurrentDrawable();
+    auto context = glXGetCurrentContext();
+    // On some systems calling glXMakeCurrent with a null display crashes.
+    if (!display) {
+        display = get_display();
+    }
+    return [display, drawable, context] { glXMakeCurrent(display, drawable, context); };
+}
+
 GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* shareContext)
     : fContext(nullptr)
     , fDisplay(nullptr)
     , fPixmap(0)
     , fGlxPixmap(0) {
+    // We cross our fingers that this is the first X call in the program and that if the application
+    // is actually threaded that this succeeds.
+    static SkOnce gOnce;
+    gOnce([] { XInitThreads(); });
+
     fDisplay = get_display();
 
     GLXContext glxShareContext = shareContext ? shareContext->fContext : nullptr;
@@ -214,6 +231,7 @@ GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* 
         //SkDebugf("Direct GLX rendering context obtained.\n");
     }
 
+    SkScopeExit restorer(context_restorer());
     //SkDebugf("Making context current.\n");
     if (!glXMakeCurrent(fDisplay, fGlxPixmap, fContext)) {
       SkDebugf("Could not set the context.\n");
@@ -221,8 +239,8 @@ GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* 
         return;
     }
 
-    sk_sp<const GrGLInterface> gl(GrGLCreateNativeInterface());
-    if (nullptr == gl.get()) {
+    auto gl = GrGLMakeNativeInterface();
+    if (!gl) {
         SkDebugf("Failed to create gl interface");
         this->destroyGLContext();
         return;
@@ -234,7 +252,7 @@ GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* 
         return;
     }
 
-    this->init(gl.release());
+    this->init(std::move(gl));
 }
 
 
@@ -245,9 +263,11 @@ GLXGLTestContext::~GLXGLTestContext() {
 
 void GLXGLTestContext::destroyGLContext() {
     if (fDisplay) {
-        glXMakeCurrent(fDisplay, 0, 0);
-
         if (fContext) {
+            if (glXGetCurrentContext() == fContext) {
+                // This will ensure that the context is immediately deleted.
+                glXMakeContextCurrent(fDisplay, None, None, nullptr);
+            }
             glXDestroyContext(fDisplay, fContext);
             fContext = nullptr;
         }
@@ -332,6 +352,13 @@ void GLXGLTestContext::onPlatformMakeCurrent() const {
     if (!glXMakeCurrent(fDisplay, fGlxPixmap, fContext)) {
         SkDebugf("Could not set the context.\n");
     }
+}
+
+std::function<void()> GLXGLTestContext::onPlatformGetAutoContextRestore() const {
+    if (glXGetCurrentContext() == fContext) {
+        return nullptr;
+    }
+    return context_restorer();
 }
 
 void GLXGLTestContext::onPlatformSwapBuffers() const {

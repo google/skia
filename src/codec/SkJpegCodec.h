@@ -29,10 +29,9 @@ public:
 
     /*
      * Assumes IsJpeg was called and returned true
-     * Creates a jpeg decoder
      * Takes ownership of the stream
      */
-    static SkCodec* NewFromStream(SkStream*);
+    static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*);
 
 protected:
 
@@ -45,7 +44,7 @@ protected:
      * Initiates the jpeg decode
      */
     Result onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes, const Options&,
-            SkPMColor*, int*, int*) override;
+            int*) override;
 
     bool onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const override;
 
@@ -59,12 +58,19 @@ protected:
 
     bool onDimensionsSupported(const SkISize&) override;
 
+    bool conversionSupported(const SkImageInfo&, SkColorType, bool,
+                             const SkColorSpace*) const override {
+        // This class checks for conversion after creating colorXform.
+        return true;
+    }
+
 private:
 
     /*
      * Allows SkRawCodec to communicate the color space from the exif data.
      */
-    static SkCodec* NewFromStream(SkStream*, sk_sp<SkColorSpace> defaultColorSpace);
+    static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*,
+                                                   sk_sp<SkColorSpace> defaultColorSpace);
 
     /*
      * Read enough of the stream to initialize the SkJpegCodec.
@@ -88,7 +94,7 @@ private:
      * If the jpeg does not have an embedded color space, the image data should
      * be tagged with this color space.
      */
-    static bool ReadHeader(SkStream* stream, SkCodec** codecOut,
+    static Result ReadHeader(SkStream* stream, SkCodec** codecOut,
             JpegDecoderMgr** decoderMgrOut, sk_sp<SkColorSpace> defaultColorSpace);
 
     /*
@@ -100,8 +106,8 @@ private:
      * @param decoderMgr holds decompress struct, src manager, and error manager
      *                   takes ownership
      */
-    SkJpegCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
-            JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin);
+    SkJpegCodec(int width, int height, const SkEncodedInfo& info, std::unique_ptr<SkStream> stream,
+            JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, SkEncodedOrigin origin);
 
     /*
      * Checks if the conversion between the input image and the requested output
@@ -120,8 +126,8 @@ private:
      * Scanline decoding.
      */
     SkSampler* getSampler(bool createIfNecessary) override;
-    Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& options,
-            SkPMColor ctable[], int* ctableCount) override;
+    Result onStartScanlineDecode(const SkImageInfo& dstInfo,
+            const Options& options) override;
     int onGetScanlines(void* dst, int count, size_t rowBytes) override;
     bool onSkipScanlines(int count) override;
 

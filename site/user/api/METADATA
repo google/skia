@@ -1,3 +1,24 @@
 {
-  "fileOrder": ["skcanvas", "skpaint", "skrect", "skregion", "skmatrix", "grcontext", "canvas"]
+  "fileOrder": [
+    "SkAutoCanvasRestore_Reference",
+    "SkBitmap_Reference",
+    "SkCanvas_Reference",
+    "SkImage_Reference",
+    "SkImageInfo_Reference",
+    "SkIPoint_Reference",
+    "SkIPoint16_Reference",
+    "SkIRect_Reference",
+    "SkMatrix_Reference",
+    "SkPaint_Reference",
+    "SkPath_Reference",
+    "SkPixmap_Reference",
+    "SkPoint_Reference",
+    "SkRect_Reference",
+    "SkSurface_Reference",
+    "usingBookmaker",
+    "undocumented",
+    "skcanvas_overview",
+    "skcanvas_creation",
+    "skpaint_overview"
+  ]
 }

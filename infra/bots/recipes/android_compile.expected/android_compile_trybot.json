@@ -1,0 +1,18 @@
+[
+  {
+    "cmd": [
+      "python",
+      "[START_DIR]/skia/infra/bots/android_compile/trigger_wait_ac_task.py",
+      "--issue",
+      "1234",
+      "--patchset",
+      "1"
+    ],
+    "name": "Trigger and wait for task on android-compile.skia.org"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

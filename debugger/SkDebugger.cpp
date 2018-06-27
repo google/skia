@@ -33,7 +33,7 @@ sk_sp<SkPicture> SkDebugger::copyPicture() {
     // We can't just call clone here since we want to removed the "deleted"
     // commands. Playing back will strip those out.
     SkPictureRecorder recorder;
-    SkCanvas* canvas = recorder.beginRecording(this->pictureCull().width(), 
+    SkCanvas* canvas = recorder.beginRecording(this->pictureCull().width(),
                                                this->pictureCull().height());
 
     bool vizMode = fDebugCanvas->getMegaVizMode();

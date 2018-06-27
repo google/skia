@@ -17,10 +17,10 @@
 #include "GrClipStackClip.h"
 #include "GrRenderTargetContext.h"
 #include "GrContext.h"
-#include "GrSurfacePriv.h"
 #include "GrTypes.h"
 
 class GrAccelData;
+class GrTextureMaker;
 class GrTextureProducer;
 struct GrCachedLayer;
 
@@ -30,7 +30,7 @@ class SkSpecialImage;
  *  Subclass of SkBaseDevice, which directs all drawing to the GrGpu owned by the
  *  canvas.
  */
-class SK_API SkGpuDevice : public SkClipStackDevice {
+class SkGpuDevice : public SkClipStackDevice {
 public:
     enum InitContents {
         kClear_InitContents,
@@ -46,14 +46,15 @@ public:
 
     /**
      * New device that will create an offscreen renderTarget based on the ImageInfo and
-     * sampleCount. The Budgeted param controls whether the device's backing store counts against
-     * the resource cache budget. On failure, returns nullptr.
+     * sampleCount. The mipMapped flag tells the gpu to create the underlying render target with
+     * mips. The Budgeted param controls whether the device's backing store counts against the
+     * resource cache budget. On failure, returns nullptr.
      * This entry point creates a kExact backing store. It is used when creating SkGpuDevices
      * for SkSurfaces.
      */
     static sk_sp<SkGpuDevice> Make(GrContext*, SkBudgeted, const SkImageInfo&,
-                                   int sampleCount, GrSurfaceOrigin,
-                                   const SkSurfaceProps*, InitContents);
+                                   int sampleCount, GrSurfaceOrigin, const SkSurfaceProps*,
+                                   GrMipMapped mipMapped, InitContents);
 
     ~SkGpuDevice() override {}
 
@@ -79,7 +80,7 @@ public:
                  bool useCenter, const SkPaint& paint) override;
     void drawPath(const SkPath& path, const SkPaint& paint,
                   const SkMatrix* prePathMatrix, bool pathIsMutable) override;
-    void drawBitmap(const SkBitmap& bitmap, const SkMatrix&,
+    void drawBitmap(const SkBitmap&, SkScalar x, SkScalar y,
                     const SkPaint&) override;
     void drawBitmapRect(const SkBitmap&, const SkRect* srcOrNull, const SkRect& dst,
                         const SkPaint& paint, SkCanvas::SrcRectConstraint) override;
@@ -118,12 +119,15 @@ public:
     sk_sp<SkSpecialImage> snapSpecial() override;
 
     void flush() override;
+    GrSemaphoresSubmitted flushAndSignalSemaphores(int numSemaphores,
+                                                   GrBackendSemaphore signalSemaphores[]);
+    bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
 
     bool onAccessPixels(SkPixmap*) override;
 
 protected:
-    bool onReadPixels(const SkImageInfo&, void*, size_t, int, int) override;
-    bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) override;
+    bool onReadPixels(const SkPixmap&, int, int) override;
+    bool onWritePixels(const SkPixmap&, int, int) override;
     bool onShouldDisableLCD(const SkPaint&) const final;
 
 private:
@@ -160,10 +164,11 @@ private:
      */
 
     // The tileSize and clippedSrcRect will be valid only if true is returned.
-    bool shouldTileImageID(uint32_t imageID, const SkIRect& imageRect,
+    bool shouldTileImageID(uint32_t imageID,
+                           const SkIRect& imageRect,
                            const SkMatrix& viewMatrix,
                            const SkMatrix& srcToDstRectMatrix,
-                           const GrSamplerParams& params,
+                           const GrSamplerState& params,
                            const SkRect* srcRectPtr,
                            int maxTileSize,
                            int* tileSize,
@@ -185,7 +190,7 @@ private:
                          const SkMatrix& srcToDstMatrix,
                          const SkRect& srcRect,
                          const SkIRect& clippedSrcRect,
-                         const GrSamplerParams& params,
+                         const GrSamplerState& params,
                          const SkPaint& paint,
                          SkCanvas::SrcRectConstraint,
                          int tileSize,
@@ -196,18 +201,36 @@ private:
                         const SkMatrix& viewMatrix,
                         const SkRect& dstRect,
                         const SkRect& srcRect,
-                        const GrSamplerParams& params,
+                        const GrSamplerState& samplerState,
                         const SkPaint& paint,
                         SkCanvas::SrcRectConstraint,
                         bool bicubic,
                         bool needsTextureDomain);
+
+    void drawPinnedTextureProxy(sk_sp<GrTextureProxy>,
+                                uint32_t pinnedUniqueID,
+                                SkColorSpace*,
+                                SkAlphaType alphaType,
+                                const SkRect* srcRect,
+                                const SkRect* dstRect,
+                                SkCanvas::SrcRectConstraint,
+                                const SkMatrix& viewMatrix,
+                                const SkPaint&);
+
+    void drawTextureMaker(GrTextureMaker* maker,
+                          int imageW,
+                          int imageH,
+                          const SkRect* srcRect,
+                          const SkRect* dstRect,
+                          SkCanvas::SrcRectConstraint,
+                          const SkMatrix& viewMatrix,
+                          const SkPaint&);
 
     void drawTextureProducer(GrTextureProducer*,
                              const SkRect* srcRect,
                              const SkRect* dstRect,
                              SkCanvas::SrcRectConstraint,
                              const SkMatrix& viewMatrix,
-                             const GrClip&,
                              const SkPaint&);
 
     void drawTextureProducerImpl(GrTextureProducer*,
@@ -216,7 +239,6 @@ private:
                                  SkCanvas::SrcRectConstraint,
                                  const SkMatrix& viewMatrix,
                                  const SkMatrix& srcToDstMatrix,
-                                 const GrClip&,
                                  const SkPaint&);
 
     bool drawFilledDRRect(const SkMatrix& viewMatrix, const SkRRect& outer,
@@ -239,7 +261,8 @@ private:
                                                                 const SkImageInfo&,
                                                                 int sampleCount,
                                                                 GrSurfaceOrigin,
-                                                                const SkSurfaceProps*);
+                                                                const SkSurfaceProps*,
+                                                                GrMipMapped);
 
     friend class GrAtlasTextContext;
     friend class SkSurface_Gpu;      // for access to surfaceProps

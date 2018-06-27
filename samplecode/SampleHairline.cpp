@@ -8,6 +8,7 @@
 #include "SampleCode.h"
 #include "SkAnimTimer.h"
 #include "SkView.h"
+#include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkCornerPathEffect.h"
 #include "SkGradientShader.h"
@@ -228,7 +229,6 @@ protected:
 
     SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         fDoAA = !fDoAA;
-        this->inval(nullptr);
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 

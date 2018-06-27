@@ -33,11 +33,10 @@ The --browser_executable flag should point to the browser binary you want to use
 to capture archives and/or capture SKP files. Majority of the time it should be
 a newly built chrome binary.
 
-The --data_store flag controls where the needed artifacts, such as
-credential files, are downloaded from. It also controls where the
-generated artifacts, such as recorded webpages and resulting skp renderings,
-are uploaded to. URLs with scheme 'gs://' use Google Storage. Otherwise
-use local filesystem.
+The --data_store flag controls where the needed artifacts are downloaded from.
+It also controls where the generated artifacts, such as recorded webpages and
+resulting skp renderings, are uploaded to. URLs with scheme 'gs://' use Google
+Storage. Otherwise use local filesystem.
 
 The --upload=True flag means generated artifacts will be
 uploaded or copied to the location specified by --data_store. (default value is
@@ -76,13 +75,6 @@ LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'page_sets', 'data')
 TMP_SKP_DIR = tempfile.mkdtemp()
 
-# Location of the credentials.json file and the string that represents missing
-# passwords.
-CREDENTIALS_FILE_PATH = os.path.join(
-    os.path.abspath(os.path.dirname(__file__)), 'page_sets', 'data',
-    'credentials.json'
-)
-
 # Name of the SKP benchmark
 SKP_BENCHMARK = 'skpicture_printer'
 
@@ -99,10 +91,7 @@ DEVICE_TO_PLATFORM_PREFIX = {
 # How many times the record_wpr binary should be retried.
 RETRY_RECORD_WPR_COUNT = 5
 # How many times the run_benchmark binary should be retried.
-RETRY_RUN_MEASUREMENT_COUNT = 5
-
-# Location of the credentials.json file in Google Storage.
-CREDENTIALS_GS_PATH = 'playback/credentials/credentials.json'
+RETRY_RUN_MEASUREMENT_COUNT = 3
 
 X11_DISPLAY = os.getenv('DISPLAY', ':0')
 
@@ -113,6 +102,13 @@ CHROMIUM_PAGE_SETS_PATH = os.path.join('tools', 'perf', 'page_sets')
 CHROMIUM_PAGE_SETS_TO_PREFIX = {
     'key_mobile_sites_smooth.py': 'keymobi',
     'top_25_smooth.py': 'top25desk',
+}
+
+PAGE_SETS_TO_EXCLUSIONS = {
+    # See skbug.com/7348
+    'key_mobile_sites_smooth.py': '"(digg|worldjournal|Twitter)"',
+    # See skbug.com/7421
+    'top_25_smooth.py': '"(mail\.google\.com)"',
 }
 
 
@@ -194,26 +190,6 @@ class SkPicturePlayback(object):
   def Run(self):
     """Run the SkPicturePlayback BuildStep."""
 
-    # Download the credentials file if it was not previously downloaded.
-    if not os.path.isfile(CREDENTIALS_FILE_PATH):
-      # Download the credentials.json file from Google Storage.
-      self.gs.download_file(CREDENTIALS_GS_PATH, CREDENTIALS_FILE_PATH)
-
-    if not os.path.isfile(CREDENTIALS_FILE_PATH):
-      print """\n\nCould not locate credentials file in the storage.
-      Please create a %s file that contains:
-      {
-        "google": {
-          "username": "google_testing_account_username",
-          "password": "google_testing_account_password"
-        },
-        "facebook": {
-          "username": "facebook_testing_account_username",
-          "password": "facebook_testing_account_password"
-        }
-      }\n\n""" % CREDENTIALS_FILE_PATH
-      raw_input("Please press a key when you are ready to proceed...")
-
     # Delete any left over data files in the data directory.
     for archive_file in glob.glob(
         os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR, 'skia_*')):
@@ -230,7 +206,8 @@ class SkPicturePlayback(object):
 
       page_set_basename = os.path.basename(page_set).split('.')[0]
       page_set_json_name = page_set_basename + '.json'
-      wpr_data_file = page_set.split(os.path.sep)[-1].split('.')[0] + '_000.wpr'
+      wpr_data_file = (
+          page_set.split(os.path.sep)[-1].split('.')[0] + '_000.wprgo')
       page_set_dir = os.path.dirname(page_set)
 
       if self._IsChromiumPageSet(page_set):
@@ -245,6 +222,7 @@ class SkPicturePlayback(object):
           '--extra-browser-args="%s"' % self._browser_args,
           '--browser=exact',
           '--browser-executable=%s' % self._browser_executable,
+          '--use-wpr-go',
           '%s_page_set' % page_set_basename,
           '--page-set-base-dir=%s' % page_set_dir
         )
@@ -252,12 +230,12 @@ class SkPicturePlayback(object):
           try:
             subprocess.check_call(' '.join(record_wpr_cmd), shell=True)
 
-            # Move over the created archive into the local webpages archive
+            # Copy over the created archive into the local webpages archive
             # directory.
-            shutil.move(
+            shutil.copy(
               os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR, wpr_data_file),
               self._local_record_webpages_archive_dir)
-            shutil.move(
+            shutil.copy(
               os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR,
                            page_set_json_name),
               self._local_record_webpages_archive_dir)
@@ -276,7 +254,7 @@ class SkPicturePlayback(object):
         # Get the webpages archive so that it can be replayed.
         self._DownloadWebpagesArchive(wpr_data_file, page_set_json_name)
 
-      run_benchmark_cmd = (
+      run_benchmark_cmd = [
           'PYTHONPATH=%s:%s:$PYTHONPATH' % (page_set_dir, self._catapult_dir),
           'DISPLAY=%s' % X11_DISPLAY,
           'timeout', '1800',
@@ -288,28 +266,28 @@ class SkPicturePlayback(object):
           '--page-set-name=%s' % page_set_basename,
           '--page-set-base-dir=%s' % page_set_dir,
           '--skp-outdir=%s' % TMP_SKP_DIR,
-          '--also-run-disabled-tests'
-      )
+          '--also-run-disabled-tests',
+      ]
+
+      exclusions = PAGE_SETS_TO_EXCLUSIONS.get(os.path.basename(page_set))
+      if exclusions:
+        run_benchmark_cmd.append('--story-filter-exclude=' + exclusions)
 
       for _ in range(RETRY_RUN_MEASUREMENT_COUNT):
         try:
           print '\n\n=======Capturing SKP of %s=======\n\n' % page_set
           subprocess.check_call(' '.join(run_benchmark_cmd), shell=True)
         except subprocess.CalledProcessError:
-          # skpicture_printer sometimes fails with AssertionError but the
-          # captured SKP is still valid. This is a known issue.
-          pass
-
-        # Rename generated SKP files into more descriptive names.
-        try:
-          self._RenameSkpFiles(page_set)
-          # Break out of the retry loop since there were no errors.
-          break
-        except Exception:
           # There was a failure continue with the loop.
           traceback.print_exc()
           print '\n\n=======Retrying %s=======\n\n' % page_set
           time.sleep(10)
+          continue
+
+        # Rename generated SKP files into more descriptive names.
+        self._RenameSkpFiles(page_set)
+        # Break out of the retry loop since there were no errors.
+        break
       else:
         # If we get here then run_benchmark did not succeed and thus did not
         # break out of the loop.

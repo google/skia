@@ -20,11 +20,15 @@ DEPS = [
 
 def RunSteps(api):
   api.vars.setup()
-  api.core.checkout_steps()
+  api.core.checkout_bot_update()
   api.infra.update_go_deps()
 
   # Run the infra tests.
-  with api.context(cwd=api.vars.skia_dir, env=api.infra.go_env):
+  repo_name = api.properties['repository'].split('/')[-1]
+  if repo_name.endswith('.git'):
+    repo_name = repo_name[:-len('.git')]
+  with api.context(cwd=api.vars.checkout_root.join(repo_name),
+                   env=api.infra.go_env):
     api.step('infra_tests', cmd=['make', '-C', 'infra/bots', 'test'])
 
 

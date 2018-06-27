@@ -26,7 +26,7 @@ void SkTime::DateTime::toISO8601(SkString* dst) const {
     }
 }
 
-#ifdef SK_BUILD_FOR_WIN32
+#ifdef SK_BUILD_FOR_WIN
 
 void SkTime::GetDateTime(DateTime* dt) {
     if (dt) {
@@ -43,7 +43,7 @@ void SkTime::GetDateTime(DateTime* dt) {
     }
 }
 
-#else // SK_BUILD_FOR_WIN32
+#else // SK_BUILD_FOR_WIN
 
 #include <time.h>
 void SkTime::GetDateTime(DateTime* dt) {
@@ -62,7 +62,7 @@ void SkTime::GetDateTime(DateTime* dt) {
         dt->fSecond     = SkToU8(tstruct.tm_sec);
     }
 }
-#endif // SK_BUILD_FOR_WIN32
+#endif // SK_BUILD_FOR_WIN
 
 #if !defined(__has_feature)
     #define  __has_feature(x) 0

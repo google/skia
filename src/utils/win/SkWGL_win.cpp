@@ -6,10 +6,11 @@
  */
 
 #include "SkTypes.h"
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
 
 #include "SkWGL.h"
 
+#include "SkOnce.h"
 #include "SkTDArray.h"
 #include "SkTSearch.h"
 #include "SkTSort.h"
@@ -125,6 +126,7 @@ int SkWGLExtensions::selectFormat(const int formats[],
                                   int formatCount,
                                   HDC dc,
                                   int desiredSampleCount) const {
+    SkASSERT(desiredSampleCount >= 1);
     if (formatCount <= 0) {
         return -1;
     }
@@ -145,7 +147,7 @@ int SkWGLExtensions::selectFormat(const int formats[],
                                      &kQueryAttr,
                                      &numSamples);
         rankedFormats[i].fFormat =  formats[i];
-        rankedFormats[i].fSampleCnt = numSamples;
+        rankedFormats[i].fSampleCnt = SkTMax(1, numSamples);
         rankedFormats[i].fChoosePixelFormatRank = i;
     }
     SkTQSort(rankedFormats.begin(),
@@ -157,6 +159,10 @@ int SkWGLExtensions::selectFormat(const int formats[],
                                               sizeof(PixelFormat));
     if (idx < 0) {
         idx = ~idx;
+    }
+    // If the caller asked for non-MSAA fail if the closest format has MSAA.
+    if (desiredSampleCount == 1 && rankedFormats[idx].fSampleCnt != 1) {
+        return -1;
     }
     return rankedFormats[idx].fFormat;
 }
@@ -229,60 +235,67 @@ void destroy_dummy_window(HWND dummy) {
 }
 
 #define GET_PROC(NAME, SUFFIX) f##NAME = \
-                     (##NAME##Proc) wglGetProcAddress("wgl" #NAME #SUFFIX)
+                     (NAME##Proc) wglGetProcAddress("wgl" #NAME #SUFFIX)
 
-SkWGLExtensions::SkWGLExtensions()
-    : fGetExtensionsString(nullptr)
-    , fChoosePixelFormat(nullptr)
-    , fGetPixelFormatAttribfv(nullptr)
-    , fGetPixelFormatAttribiv(nullptr)
-    , fCreateContextAttribs(nullptr)
-    , fSwapInterval(nullptr)
-    , fCreatePbuffer(nullptr)
-    , fGetPbufferDC(nullptr)
-    , fReleasePbufferDC(nullptr)
-    , fDestroyPbuffer(nullptr)
- {
-    HDC prevDC = wglGetCurrentDC();
-    HGLRC prevGLRC = wglGetCurrentContext();
 
-    PIXELFORMATDESCRIPTOR dummyPFD;
+SkWGLExtensions::GetExtensionsStringProc SkWGLExtensions::fGetExtensionsString = nullptr;
+SkWGLExtensions::ChoosePixelFormatProc SkWGLExtensions::fChoosePixelFormat = nullptr;
+SkWGLExtensions::GetPixelFormatAttribfvProc SkWGLExtensions::fGetPixelFormatAttribfv = nullptr;
+SkWGLExtensions::GetPixelFormatAttribivProc SkWGLExtensions::fGetPixelFormatAttribiv = nullptr;
+SkWGLExtensions::CreateContextAttribsProc SkWGLExtensions::fCreateContextAttribs = nullptr;
+SkWGLExtensions::SwapIntervalProc SkWGLExtensions::fSwapInterval = nullptr;
+SkWGLExtensions::CreatePbufferProc SkWGLExtensions::fCreatePbuffer = nullptr;
+SkWGLExtensions::GetPbufferDCProc SkWGLExtensions::fGetPbufferDC = nullptr;
+SkWGLExtensions::ReleasePbufferDCProc SkWGLExtensions::fReleasePbufferDC = nullptr;
+SkWGLExtensions::DestroyPbufferProc SkWGLExtensions::fDestroyPbuffer = nullptr;
 
-    ZeroMemory(&dummyPFD, sizeof(dummyPFD));
-    dummyPFD.nSize = sizeof(dummyPFD);
-    dummyPFD.nVersion = 1;
-    dummyPFD.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
-    dummyPFD.iPixelType = PFD_TYPE_RGBA;
-    dummyPFD.cColorBits  = 32;
-    dummyPFD.cDepthBits  = 0;
-    dummyPFD.cStencilBits = 8;
-    dummyPFD.iLayerType = PFD_MAIN_PLANE;
-    HWND dummyWND = create_dummy_window();
-    if (dummyWND) {
-        HDC dummyDC = GetDC(dummyWND);
-        int dummyFormat = ChoosePixelFormat(dummyDC, &dummyPFD);
-        SetPixelFormat(dummyDC, dummyFormat, &dummyPFD);
-        HGLRC dummyGLRC = wglCreateContext(dummyDC);
-        SkASSERT(dummyGLRC);
-        wglMakeCurrent(dummyDC, dummyGLRC);
+SkWGLExtensions::SkWGLExtensions() {
+    // We cache these function pointers once, and then reuse them. That's possibly incorrect if
+    // there are multiple GPUs, or if we intend to use these for rendering contexts of different
+    // pixel formats (where wglGetProcAddress is not guaranteed to return the same pointer).
+    static SkOnce once;
+    once([] {
+        HDC prevDC = wglGetCurrentDC();
+        HGLRC prevGLRC = wglGetCurrentContext();
 
-        GET_PROC(GetExtensionsString, ARB);
-        GET_PROC(ChoosePixelFormat, ARB);
-        GET_PROC(GetPixelFormatAttribiv, ARB);
-        GET_PROC(GetPixelFormatAttribfv, ARB);
-        GET_PROC(CreateContextAttribs, ARB);
-        GET_PROC(SwapInterval, EXT);
-        GET_PROC(CreatePbuffer, ARB);
-        GET_PROC(GetPbufferDC, ARB);
-        GET_PROC(ReleasePbufferDC, ARB);
-        GET_PROC(DestroyPbuffer, ARB);
+        PIXELFORMATDESCRIPTOR dummyPFD;
 
-        wglMakeCurrent(dummyDC, nullptr);
-        wglDeleteContext(dummyGLRC);
-        destroy_dummy_window(dummyWND);
-    }
+        ZeroMemory(&dummyPFD, sizeof(dummyPFD));
+        dummyPFD.nSize = sizeof(dummyPFD);
+        dummyPFD.nVersion = 1;
+        dummyPFD.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
+        dummyPFD.iPixelType = PFD_TYPE_RGBA;
+        dummyPFD.cColorBits  = 32;
+        dummyPFD.cDepthBits  = 0;
+        dummyPFD.cStencilBits = 8;
+        dummyPFD.iLayerType = PFD_MAIN_PLANE;
+        HWND dummyWND = create_dummy_window();
+        if (dummyWND) {
+            HDC dummyDC = GetDC(dummyWND);
+            int dummyFormat = ChoosePixelFormat(dummyDC, &dummyPFD);
+            SetPixelFormat(dummyDC, dummyFormat, &dummyPFD);
+            HGLRC dummyGLRC = wglCreateContext(dummyDC);
+            SkASSERT(dummyGLRC);
+            wglMakeCurrent(dummyDC, dummyGLRC);
 
-    wglMakeCurrent(prevDC, prevGLRC);
+            GET_PROC(GetExtensionsString, ARB);
+            GET_PROC(ChoosePixelFormat, ARB);
+            GET_PROC(GetPixelFormatAttribiv, ARB);
+            GET_PROC(GetPixelFormatAttribfv, ARB);
+            GET_PROC(CreateContextAttribs, ARB);
+            GET_PROC(SwapInterval, EXT);
+            GET_PROC(CreatePbuffer, ARB);
+            GET_PROC(GetPbufferDC, ARB);
+            GET_PROC(ReleasePbufferDC, ARB);
+            GET_PROC(DestroyPbuffer, ARB);
+
+            wglMakeCurrent(dummyDC, nullptr);
+            wglDeleteContext(dummyGLRC);
+            destroy_dummy_window(dummyWND);
+        }
+
+        wglMakeCurrent(prevDC, prevGLRC);
+    });
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -334,8 +347,8 @@ static void get_pixel_formats_to_try(HDC dc, const SkWGLExtensions& extensions,
     extensions.choosePixelFormat(dc, iAttrs.begin(), fAttrs, 1, format, &num);
 }
 
-static HGLRC create_gl_context(HDC dc, SkWGLExtensions extensions, SkWGLContextRequest contextType,
-                               HGLRC shareContext) {
+static HGLRC create_gl_context(HDC dc, const SkWGLExtensions& extensions,
+                               SkWGLContextRequest contextType, HGLRC shareContext) {
     HDC prevDC = wglGetCurrentDC();
     HGLRC prevGLRC = wglGetCurrentContext();
 
@@ -373,7 +386,7 @@ static HGLRC create_gl_context(HDC dc, SkWGLExtensions extensions, SkWGLContextR
                 SK_WGL_CONTEXT_PROFILE_MASK,  SK_WGL_CONTEXT_CORE_PROFILE_BIT,
                 0,
             };
-            for (int v = 0; v < SK_ARRAY_COUNT(kCoreGLVersions) / 2; ++v) {
+            for (size_t v = 0; v < SK_ARRAY_COUNT(kCoreGLVersions) / 2; ++v) {
                 coreProfileAttribs[1] = kCoreGLVersions[2 * v];
                 coreProfileAttribs[3] = kCoreGLVersions[2 * v + 1];
                 glrc = extensions.createContextAttribs(dc, shareContext, coreProfileAttribs);
@@ -415,7 +428,7 @@ HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, bool deepColor,
 
     int pixelFormatsToTry[] = { -1, -1 };
     get_pixel_formats_to_try(dc, extensions, true, msaaSampleCount, deepColor, pixelFormatsToTry);
-    for (int f = 0;
+    for (size_t f = 0;
          !set && -1 != pixelFormatsToTry[f] && f < SK_ARRAY_COUNT(pixelFormatsToTry);
          ++f) {
         PIXELFORMATDESCRIPTOR pfd;
@@ -430,8 +443,7 @@ HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, bool deepColor,
     return create_gl_context(dc, extensions, contextType, shareContext);
 }
 
-SkWGLPbufferContext* SkWGLPbufferContext::Create(HDC parentDC, int msaaSampleCount,
-                                                 SkWGLContextRequest contextType,
+SkWGLPbufferContext* SkWGLPbufferContext::Create(HDC parentDC, SkWGLContextRequest contextType,
                                                  HGLRC shareContext) {
     SkWGLExtensions extensions;
     if (!extensions.hasExtension(parentDC, "WGL_ARB_pixel_format") ||
@@ -439,24 +451,45 @@ SkWGLPbufferContext* SkWGLPbufferContext::Create(HDC parentDC, int msaaSampleCou
         return nullptr;
     }
 
+    // We cache the pixel formats once, and then reuse them. That's possibly incorrect if
+    // there are multiple GPUs, but this function is always called with a freshly made,
+    // identically constructed HDC (see WinGLTestContext).
+    //
+    // We only store two potential pixel formats, one for single buffer, one for double buffer.
+    // We never ask for MSAA, so we don't need the second pixel format for each buffering state.
+    static int gPixelFormats[2] = { -1, -1 };
+    static SkOnce once;
+    once([=] {
+        {
+            // Single buffer
+            int pixelFormatsToTry[2] = { -1, -1 };
+            get_pixel_formats_to_try(parentDC, extensions, false, 0, false, pixelFormatsToTry);
+            gPixelFormats[0] = pixelFormatsToTry[0];
+        }
+        {
+            // Double buffer
+            int pixelFormatsToTry[2] = { -1, -1 };
+            get_pixel_formats_to_try(parentDC, extensions, true, 0, false, pixelFormatsToTry);
+            gPixelFormats[1] = pixelFormatsToTry[0];
+        }
+    });
+
     // try for single buffer first
-    for (int dblBuffer = 0; dblBuffer < 2; ++dblBuffer) {
-        int pixelFormatsToTry[] = { -1, -1 };
-        get_pixel_formats_to_try(parentDC, extensions, (0 != dblBuffer), msaaSampleCount,
-                                 false, pixelFormatsToTry);
-        for (int f = 0; -1 != pixelFormatsToTry[f] && f < SK_ARRAY_COUNT(pixelFormatsToTry); ++f) {
-            HPBUFFER pbuf = extensions.createPbuffer(parentDC, pixelFormatsToTry[f], 1, 1, nullptr);
-            if (0 != pbuf) {
-                HDC dc = extensions.getPbufferDC(pbuf);
-                if (dc) {
-                    HGLRC glrc = create_gl_context(dc, extensions, contextType, shareContext);
-                    if (glrc) {
-                        return new SkWGLPbufferContext(pbuf, dc, glrc);
-                    }
-                    extensions.releasePbufferDC(pbuf, dc);
+    for (int pixelFormat : gPixelFormats) {
+        if (-1 == pixelFormat) {
+            continue;
+        }
+        HPBUFFER pbuf = extensions.createPbuffer(parentDC, pixelFormat, 1, 1, nullptr);
+        if (0 != pbuf) {
+            HDC dc = extensions.getPbufferDC(pbuf);
+            if (dc) {
+                HGLRC glrc = create_gl_context(dc, extensions, contextType, shareContext);
+                if (glrc) {
+                    return new SkWGLPbufferContext(pbuf, dc, glrc);
                 }
-                extensions.destroyPbuffer(pbuf);
+                extensions.releasePbufferDC(pbuf, dc);
             }
+            extensions.destroyPbuffer(pbuf);
         }
     }
     return nullptr;
@@ -475,4 +508,4 @@ SkWGLPbufferContext::SkWGLPbufferContext(HPBUFFER pbuffer, HDC dc, HGLRC glrc)
     , fGLRC(glrc) {
 }
 
-#endif//defined(SK_BUILD_FOR_WIN32)
+#endif//defined(SK_BUILD_FOR_WIN)

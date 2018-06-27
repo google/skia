@@ -34,6 +34,7 @@ public:
         kOval_Type,
         kPath_Type,
         kPicture_Type,
+        kDrawable_Type,
         kText_Type,
         kTextBlob_Type,
         kVertices_Type,
@@ -41,6 +42,13 @@ public:
 
         kTypeCount
     };
+
+    // Forwarded to the wrapped canvas.
+    SkISize getBaseLayerSize() const override { return proxy()->getBaseLayerSize(); }
+    GrContext*  getGrContext() override { return proxy()->getGrContext();     }
+    GrRenderTargetContext* internal_private_accessTopLayerRenderTargetContext() override {
+        return proxy()->internal_private_accessTopLayerRenderTargetContext();
+    }
 
 protected:
     /**
@@ -79,6 +87,7 @@ protected:
                              const SkPoint texCoords[4], SkBlendMode,
                              const SkPaint& paint) override;
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
+    void onDrawDrawable(SkDrawable*, const SkMatrix*) override;
 
     void onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                     const SkPaint&) override;
@@ -93,8 +102,17 @@ protected:
     void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                         const SkPaint& paint) override;
 
+    // Forwarded to the wrapped canvas.
+    sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
+    bool onPeekPixels(SkPixmap* pixmap) override;
+    bool onAccessTopLayerPixels(SkPixmap* pixmap) override;
+    SkImageInfo onImageInfo() const override;
+    bool onGetProps(SkSurfaceProps* props) const override;
+
 private:
     class AutoPaintFilter;
+
+    SkCanvas* proxy() const { SkASSERT(fList.count() == 1); return fList[0]; }
 
     typedef SkNWayCanvas INHERITED;
 };

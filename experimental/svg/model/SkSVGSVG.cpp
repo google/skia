@@ -33,7 +33,7 @@ bool SkSVGSVG::onPrepareToRender(SkSVGRenderContext* ctx) const {
     }
 
     if (!contentMatrix.isIdentity()) {
-        ctx->canvas()->save();
+        ctx->saveOnce();
         ctx->canvas()->concat(contentMatrix);
     }
 

@@ -72,13 +72,13 @@ public:
                              kANGLE_GL_ContextType      = 0,
                              kCommandBuffer_ContextType = 0,
                              kDebugGL_ContextType       = 0,
-                             kMESA_ContextType          = 0,
                              kNVPR_ContextType          = 0,
                              kNativeGL_ContextType      = 0,
                              kGL_ContextType            = 0,
                              kGLES_ContextType          = 0,
                              kNullGL_ContextType        = 0,
-                             kVulkan_ContextType        = 0;
+                             kVulkan_ContextType        = 0,
+                             kMetal_ContextType         = 0;
     static const int kContextTypeCnt = 1;
     enum class ContextOverrides {};
     void destroyContexts() {}

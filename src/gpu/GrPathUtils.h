@@ -8,6 +8,7 @@
 #ifndef GrPathUtils_DEFINED
 #define GrPathUtils_DEFINED
 
+#include "SkGeometry.h"
 #include "SkRect.h"
 #include "SkPathPriv.h"
 #include "SkTArray.h"
@@ -123,20 +124,47 @@ namespace GrPathUtils {
                                                 SkPathPriv::FirstDirection dir,
                                                 SkTArray<SkPoint, true>* quads);
 
-    // Chops the cubic bezier passed in by src, at the double point (intersection point)
-    // if the curve is a cubic loop. If it is a loop, there will be two parametric values for
-    // the double point: t1 and t2. We chop the cubic at these values if they are between 0 and 1.
-    // Return value:
-    // Value of 3: t1 and t2 are both between (0,1), and dst will contain the three cubics,
-    //             dst[0..3], dst[3..6], and dst[6..9] if dst is not nullptr
-    // Value of 2: Only one of t1 and t2 are between (0,1), and dst will contain the two cubics,
-    //             dst[0..3] and dst[3..6] if dst is not nullptr
-    // Value of 1: Neither t1 nor t2 are between (0,1), and dst will contain the one original cubic,
-    //             dst[0..3] if dst is not nullptr
+    enum class ExcludedTerm {
+        kNonInvertible,
+        kQuadraticTerm,
+        kLinearTerm
+    };
+
+    // Computes the inverse-transpose of the cubic's power basis matrix, after removing a specific
+    // row of coefficients.
     //
-    // Optional KLM Calculation:
-    // The function can also return the KLM linear functionals for the cubic implicit form of
-    // k^3 - lm. This can be shared by all chopped cubics.
+    // E.g. if the cubic is defined in power basis form as follows:
+    //
+    //                                         | x3   y3   0 |
+    //     C(t,s) = [t^3  t^2*s  t*s^2  s^3] * | x2   y2   0 |
+    //                                         | x1   y1   0 |
+    //                                         | x0   y0   1 |
+    //
+    // And the excluded term is "kQuadraticTerm", then the resulting inverse-transpose will be:
+    //
+    //     | x3   y3   0 | -1 T
+    //     | x1   y1   0 |
+    //     | x0   y0   1 |
+    //
+    // (The term to exclude is chosen based on maximizing the resulting matrix determinant.)
+    //
+    // This can be used to find the KLM linear functionals:
+    //
+    //     | ..K.. |   | ..kcoeffs.. |
+    //     | ..L.. | = | ..lcoeffs.. | * inverse_transpose_power_basis_matrix
+    //     | ..M.. |   | ..mcoeffs.. |
+    //
+    // NOTE: the same term that was excluded here must also be removed from the corresponding column
+    // of the klmcoeffs matrix.
+    //
+    // Returns which row of coefficients was removed, or kNonInvertible if the cubic was degenerate.
+    ExcludedTerm calcCubicInverseTransposePowerBasisMatrix(const SkPoint p[4], SkMatrix* out);
+
+    // Computes the KLM linear functionals for the cubic implicit form. The "right" side of the
+    // curve (when facing in the direction of increasing parameter values) will be the area that
+    // satisfies:
+    //
+    //     k^3 < l*m
     //
     // Output:
     //
@@ -146,18 +174,39 @@ namespace GrPathUtils {
     //          | ..L.. | * | y |  ==  | l |
     //          | ..M.. |   | 1 |      | m |
     //
+    // NOTE: the KLM lines are calculated in the same space as the input control points. If you
+    // transform the points the lines will also need to be transformed. This can be done by mapping
+    // the lines with the inverse-transpose of the matrix used to map the points.
+    //
+    // t[],s[]: These are set to the two homogeneous parameter values at which points the lines L&M
+    // intersect with K (See SkClassifyCubic).
+    //
+    // Returns the cubic's classification.
+    SkCubicType getCubicKLM(const SkPoint src[4], SkMatrix* klm, double t[2], double s[2]);
+
+    // Chops the cubic bezier passed in by src, at the double point (intersection point)
+    // if the curve is a cubic loop. If it is a loop, there will be two parametric values for
+    // the double point: t1 and t2. We chop the cubic at these values if they are between 0 and 1.
+    // Return value:
+    // Value of 3: t1 and t2 are both between (0,1), and dst will contain the three cubics,
+    //             dst[0..3], dst[3..6], and dst[6..9] if dst is not nullptr
+    // Value of 2: Only one of t1 and t2 are between (0,1), and dst will contain the two cubics,
+    //             dst[0..3] and dst[3..6] if dst is not nullptr
+    // Value of 1: Neither t1 nor t2 are between (0,1), and dst will contain the one original cubic,
+    //             src[0..3]
+    //
+    // Output:
+    //
+    // klm: Holds the linear functionals K,L,M as row vectors. (See getCubicKLM().)
+    //
     // loopIndex: This value will tell the caller which of the chopped sections (if any) are the
     //            actual loop. A value of -1 means there is no loop section. The caller can then use
     //            this value to decide how/if they want to flip the orientation of this section.
     //            The flip should be done by negating the k and l values as follows:
     //
-    //                KLM.postScale(-1, -1)
-    //
-    // Notice that the KLM lines are calculated in the same space as the input control points.
-    // If you transform the points the lines will also need to be transformed. This can be done
-    // by mapping the lines with the inverse-transpose of the matrix used to map the points.
-    int chopCubicAtLoopIntersection(const SkPoint src[4], SkPoint dst[10] = nullptr,
-                                    SkMatrix* klm = nullptr, int* loopIndex = nullptr);
+    //            KLM.postScale(-1, -1)
+    int chopCubicAtLoopIntersection(const SkPoint src[4], SkPoint dst[10], SkMatrix* klm,
+                                    int* loopIndex);
 
     // When tessellating curved paths into linear segments, this defines the maximum distance
     // in screen space which a segment may deviate from the mathmatically correct value.
@@ -165,5 +214,8 @@ namespace GrPathUtils {
     // This value was chosen to approximate the supersampling accuracy of the raster path (16
     // samples, or one quarter pixel).
     static const SkScalar kDefaultTolerance = SkDoubleToScalar(0.25);
+
+    // We guarantee that no quad or cubic will ever produce more than this many points
+    static const int kMaxPointsPerCurve = 1 << 10;
 };
 #endif

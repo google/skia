@@ -332,7 +332,7 @@ protected:
         return SkString("dashing4");
     }
 
-    SkISize onISize() { return SkISize::Make(640, 950); }
+    SkISize onISize() { return SkISize::Make(640, 1100); }
 
     virtual void onDraw(SkCanvas* canvas) {
         constexpr struct {
@@ -348,7 +348,7 @@ protected:
         paint.setStyle(SkPaint::kStroke_Style);
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
-        canvas->translate(0, SK_ScalarHalf);
+        canvas->translate(SK_ScalarHalf, SK_ScalarHalf);
 
         for (int width = 0; width <= 2; ++width) {
             for (size_t data = 0; data < SK_ARRAY_COUNT(gData); ++data) {
@@ -397,6 +397,28 @@ protected:
             drawline(canvas, 32, 16, paint, 8.f, 0.f, 40.f);
             canvas->translate(0, SkIntToScalar(20));
         }
+
+        // Test overlapping circles.
+        canvas->translate(SkIntToScalar(5), SkIntToScalar(20));
+        paint.setAntiAlias(true);
+        paint.setStrokeCap(SkPaint::kRound_Cap);
+        paint.setColor(0x44000000);
+        paint.setStrokeWidth(40);
+        drawline(canvas, 0, 30, paint);
+
+        canvas->translate(0, SkIntToScalar(50));
+        paint.setStrokeCap(SkPaint::kSquare_Cap);
+        drawline(canvas, 0, 30, paint);
+
+        // Test we draw the cap when the line length is zero.
+        canvas->translate(0, SkIntToScalar(50));
+        paint.setStrokeCap(SkPaint::kRound_Cap);
+        paint.setColor(0xFF000000);
+        paint.setStrokeWidth(11);
+        drawline(canvas, 0, 30, paint, 0);
+
+        canvas->translate(SkIntToScalar(100), 0);
+        drawline(canvas, 1, 30, paint, 0);
     }
 };
 
@@ -500,7 +522,7 @@ DEF_SIMPLE_GM(longpathdash, canvas, 612, 612) {
     p.setStrokeWidth(1);
     const SkScalar intervals[] = { 1, 1 };
     p.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));
-    
+
     canvas->translate(50, 50);
     canvas->drawPath(lines, p);
 }
@@ -545,6 +567,42 @@ DEF_SIMPLE_GM(dashtextcaps, canvas, 512, 512) {
     p.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));
     canvas->drawString("Sausages", 10, 90, p);
     canvas->drawLine(8, 120, 456, 120, p);
+}
+
+DEF_SIMPLE_GM(dash_line_zero_off_interval, canvas, 160, 330) {
+    static constexpr SkScalar kIntervals[] = {5.f, 0.f, 2.f, 0.f};
+    SkPaint dashPaint;
+    dashPaint.setPathEffect(SkDashPathEffect::Make(kIntervals, SK_ARRAY_COUNT(kIntervals), 0.f));
+    SkASSERT(dashPaint.getPathEffect());
+    dashPaint.setStyle(SkPaint::kStroke_Style);
+    dashPaint.setStrokeWidth(20.f);
+    static constexpr struct {
+        SkPoint fA, fB;
+    } kLines[] = {{{0.5f, 0.5f}, {30.5f, 0.5f}},    // horizontal
+                  {{0.5f, 0.5f}, {0.5f, 30.5f}},    // vertical
+                  {{0.5f, 0.5f}, {0.5f, 0.5f}},     // point
+                  {{0.5f, 0.5f}, {25.5f, 25.5f}}};  // diagonal
+    SkScalar pad = 5.f + dashPaint.getStrokeWidth();
+    canvas->translate(pad / 2.f, pad / 2.f);
+    canvas->save();
+    SkScalar h = 0.f;
+    for (const auto& line : kLines) {
+        h = SkTMax(h, SkScalarAbs(line.fA.fY - line.fB.fY));
+    }
+    for (const auto& line : kLines) {
+        SkScalar w = SkScalarAbs(line.fA.fX - line.fB.fX);
+        for (auto cap : {SkPaint::kButt_Cap, SkPaint::kSquare_Cap, SkPaint::kRound_Cap}) {
+            dashPaint.setStrokeCap(cap);
+            for (auto aa : {false, true}) {
+                dashPaint.setAntiAlias(aa);
+                canvas->drawLine(line.fA, line.fB, dashPaint);
+                canvas->translate(0.f, pad + h);
+            }
+        }
+        canvas->restore();
+        canvas->translate(pad + w, 0.f);
+        canvas->save();
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////

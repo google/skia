@@ -54,9 +54,10 @@ class SkCommandLineConfigGpu : public SkCommandLineConfig {
     typedef sk_gpu_test::GrContextFactory::ContextType ContextType;
     typedef sk_gpu_test::GrContextFactory::ContextOverrides ContextOverrides;
     SkCommandLineConfigGpu(const SkString& tag, const SkTArray<SkString>& viaParts,
-                           ContextType contextType, bool useNVPR, bool useInstanced, bool useDIText,
-                           int samples, SkColorType colorType, sk_sp<SkColorSpace> colorSpace,
-                           bool useStencilBuffers);
+                           ContextType contextType, bool useNVPR, bool useDIText,
+                           int samples, SkColorType colorType, SkAlphaType alphaType,
+                           sk_sp<SkColorSpace> colorSpace, bool useStencilBuffers,
+                           bool testThreading);
     const SkCommandLineConfigGpu* asConfigGpu() const override { return this; }
     ContextType getContextType() const { return fContextType; }
     ContextOverrides getContextOverrides() const { return fContextOverrides; }
@@ -65,11 +66,12 @@ class SkCommandLineConfigGpu : public SkCommandLineConfig {
                  !(fContextOverrides & ContextOverrides::kDisableNVPR));
         return fContextOverrides & ContextOverrides::kRequireNVPRSupport;
     }
-    bool getUseInstanced() const { return fContextOverrides & ContextOverrides::kUseInstanced; }
     bool getUseDIText() const { return fUseDIText; }
     int getSamples() const { return fSamples; }
     SkColorType getColorType() const { return fColorType; }
+    SkAlphaType getAlphaType() const { return fAlphaType; }
     SkColorSpace* getColorSpace() const { return fColorSpace.get(); }
+    bool getTestThreading() const { return fTestThreading; }
 
   private:
     ContextType fContextType;
@@ -77,7 +79,9 @@ class SkCommandLineConfigGpu : public SkCommandLineConfig {
     bool fUseDIText;
     int fSamples;
     SkColorType fColorType;
+    SkAlphaType fAlphaType;
     sk_sp<SkColorSpace> fColorSpace;
+    bool fTestThreading;
 };
 #endif
 

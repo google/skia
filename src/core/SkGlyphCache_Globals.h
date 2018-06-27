@@ -21,6 +21,10 @@
     #define SK_DEFAULT_FONT_CACHE_LIMIT     (2 * 1024 * 1024)
 #endif
 
+#ifndef SK_DEFAULT_FONT_CACHE_POINT_SIZE_LIMIT
+    #define SK_DEFAULT_FONT_CACHE_POINT_SIZE_LIMIT  256
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class SkGlyphCache_Globals {
@@ -31,6 +35,7 @@ public:
         fCacheSizeLimit = SK_DEFAULT_FONT_CACHE_LIMIT;
         fCacheCount = 0;
         fCacheCountLimit = SK_DEFAULT_FONT_CACHE_COUNT_LIMIT;
+        fPointSizeLimit = SK_DEFAULT_FONT_CACHE_POINT_SIZE_LIMIT;
     }
 
     ~SkGlyphCache_Globals() {
@@ -62,6 +67,9 @@ public:
     size_t  getCacheSizeLimit() const;
     size_t  setCacheSizeLimit(size_t limit);
 
+    int  getCachePointSizeLimit() const;
+    int  setCachePointSizeLimit(int limit);
+
     void purgeAll(); // does not change budget
 
     // call when a glyphcache is available for caching (i.e. not in use)
@@ -77,6 +85,7 @@ private:
     size_t  fCacheSizeLimit;
     int32_t fCacheCountLimit;
     int32_t fCacheCount;
+    int32_t fPointSizeLimit;
 
     // Checkout budgets, modulated by the specified min-bytes-needed-to-purge,
     // and attempt to purge caches to match.

@@ -10,6 +10,47 @@
 
 #include "SkImageInfo.h"
 
+enum class SkDestinationSurfaceColorMode {
+    kLegacy,
+    kGammaAndColorSpaceAware,
+};
+
+static inline bool SkAlphaTypeIsValid(unsigned value) {
+    return value <= kLastEnum_SkAlphaType;
+}
+
+static int SkColorTypeShiftPerPixel(SkColorType ct) {
+    switch (ct) {
+        case kUnknown_SkColorType:      return 0;
+        case kAlpha_8_SkColorType:      return 0;
+        case kRGB_565_SkColorType:      return 1;
+        case kARGB_4444_SkColorType:    return 1;
+        case kRGBA_8888_SkColorType:    return 2;
+        case kRGB_888x_SkColorType:     return 2;
+        case kBGRA_8888_SkColorType:    return 2;
+        case kRGBA_1010102_SkColorType: return 2;
+        case kRGB_101010x_SkColorType:  return 2;
+        case kGray_8_SkColorType:       return 0;
+        case kRGBA_F16_SkColorType:     return 3;
+    }
+    return 0;
+}
+
+static inline size_t SkColorTypeMinRowBytes(SkColorType ct, int width) {
+    return width * SkColorTypeBytesPerPixel(ct);
+}
+
+static inline bool SkColorTypeIsValid(unsigned value) {
+    return value <= kLastEnum_SkColorType;
+}
+
+static inline size_t SkColorTypeComputeOffset(SkColorType ct, int x, int y, size_t rowBytes) {
+    if (kUnknown_SkColorType == ct) {
+        return 0;
+    }
+    return y * rowBytes + (x << SkColorTypeShiftPerPixel(ct));
+}
+
 /**
  *  This contains shared checks on SkImageInfo.  Depending on the desired color space behavior,
  *  the caller should choose one of the two versions below.
@@ -34,7 +75,7 @@ static inline bool SkImageInfoIsValidCommon(const SkImageInfo& info) {
     }
 
     if (kRGBA_F16_SkColorType == info.colorType() &&
-       (!info.colorSpace() || !info.colorSpace()->gammaIsLinear())) {
+       (info.colorSpace() && (!info.colorSpace()->gammaIsLinear()))) {
         return false;
     }
 
@@ -109,22 +150,6 @@ static inline bool SkImageInfoIsValid(const SkImageInfo& info,
 static inline bool SkImageInfoValidConversion(const SkImageInfo& dst, const SkImageInfo& src) {
     if (!SkImageInfoIsValidAllowNumericalCS(dst) || !SkImageInfoIsValidAllowNumericalCS(src)) {
         return false;
-    }
-
-    if (kIndex_8_SkColorType == dst.colorType()) {
-        if (kIndex_8_SkColorType != src.colorType()) {
-            return false;
-        }
-
-        if ((kPremul_SkAlphaType == dst.alphaType() && kUnpremul_SkAlphaType == src.alphaType()) ||
-            (kUnpremul_SkAlphaType == dst.alphaType() && kPremul_SkAlphaType == src.alphaType()))
-        {
-            return false;
-        }
-
-        if (dst.colorSpace() && !SkColorSpace::Equals(dst.colorSpace(), src.colorSpace())) {
-            return false;
-        }
     }
 
     if (kGray_8_SkColorType == dst.colorType()) {

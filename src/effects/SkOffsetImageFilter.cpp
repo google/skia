@@ -6,14 +6,21 @@
  */
 
 #include "SkOffsetImageFilter.h"
-
+#include "SkColorSpaceXformer.h"
 #include "SkCanvas.h"
+#include "SkImageFilterPriv.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
+#include "SkPointPriv.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
+
+static SkIPoint map_offset_vector(const SkMatrix& ctm, const SkVector& offset) {
+    SkVector vec = ctm.mapVector(offset.fX, offset.fY);
+    return SkIPoint::Make(SkScalarRoundToInt(vec.fX), SkScalarRoundToInt(vec.fY));
+}
 
 sk_sp<SkImageFilter> SkOffsetImageFilter::Make(SkScalar dx, SkScalar dy,
                                                sk_sp<SkImageFilter> input,
@@ -34,12 +41,11 @@ sk_sp<SkSpecialImage> SkOffsetImageFilter::onFilterImage(SkSpecialImage* source,
         return nullptr;
     }
 
-    SkVector vec;
-    ctx.ctm().mapVectors(&vec, &fOffset, 1);
+    SkIPoint vec = map_offset_vector(ctx.ctm(), fOffset);
 
     if (!this->cropRectIsSet()) {
-        offset->fX = srcOffset.fX + SkScalarRoundToInt(vec.fX);
-        offset->fY = srcOffset.fY + SkScalarRoundToInt(vec.fY);
+        offset->fX = Sk32_sat_add(srcOffset.fX, vec.fX);
+        offset->fY = Sk32_sat_add(srcOffset.fY, vec.fY);
         return input;
     } else {
         SkIRect bounds;
@@ -65,7 +71,7 @@ sk_sp<SkSpecialImage> SkOffsetImageFilter::onFilterImage(SkSpecialImage* source,
         canvas->translate(SkIntToScalar(srcOffset.fX - bounds.fLeft),
                           SkIntToScalar(srcOffset.fY - bounds.fTop));
 
-        input->draw(canvas, vec.x(), vec.y(), &paint);
+        input->draw(canvas, vec.fX, vec.fY, &paint);
 
         offset->fX = bounds.fLeft;
         offset->fY = bounds.fTop;
@@ -75,13 +81,13 @@ sk_sp<SkSpecialImage> SkOffsetImageFilter::onFilterImage(SkSpecialImage* source,
 
 sk_sp<SkImageFilter> SkOffsetImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
     SkASSERT(1 == this->countInputs());
-    if (!this->getInput(0)) {
-        return sk_ref_sp(const_cast<SkOffsetImageFilter*>(this));
-    }
 
-    sk_sp<SkImageFilter> input = this->getInput(0)->makeColorSpace(xformer);
-    return SkOffsetImageFilter::Make(fOffset.fX, fOffset.fY, std::move(input),
-                                     this->getCropRectIfSet());
+    auto input = xformer->apply(this->getInput(0));
+    if (input.get() != this->getInput(0)) {
+        return SkOffsetImageFilter::Make(fOffset.fX, fOffset.fY, std::move(input),
+                                         this->getCropRectIfSet());
+    }
+    return this->refMe();
 }
 
 SkRect SkOffsetImageFilter::computeFastBounds(const SkRect& src) const {
@@ -92,13 +98,12 @@ SkRect SkOffsetImageFilter::computeFastBounds(const SkRect& src) const {
 
 SkIRect SkOffsetImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
                                                 MapDirection direction) const {
-    SkVector vec;
-    ctm.mapVectors(&vec, &fOffset, 1);
+    SkIPoint vec = map_offset_vector(ctm, fOffset);
     if (kReverse_MapDirection == direction) {
-        vec.negate();
+        SkPointPriv::Negate(vec);
     }
 
-    return src.makeOffset(SkScalarCeilToInt(vec.fX), SkScalarCeilToInt(vec.fY));
+    return src.makeOffset(vec.fX, vec.fY);
 }
 
 sk_sp<SkFlattenable> SkOffsetImageFilter::CreateProc(SkReadBuffer& buffer) {

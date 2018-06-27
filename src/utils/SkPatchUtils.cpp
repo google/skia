@@ -7,8 +7,7 @@
 
 #include "SkPatchUtils.h"
 
-#include "SkColorPriv.h"
-#include "SkColorSpace_Base.h"
+#include "SkColorData.h"
 #include "SkGeometry.h"
 #include "SkPM4f.h"
 
@@ -211,7 +210,6 @@ void SkPatchUtils::GetRightCubic(const SkPoint cubics[12], SkPoint points[4]) {
 }
 
 #include "SkPM4fPriv.h"
-#include "SkColorSpace_Base.h"
 #include "SkColorSpaceXform.h"
 
 struct SkRGBAf {
@@ -253,7 +251,7 @@ static void skcolor_to_linear(SkRGBAf dst[], const SkColor src[], int count, SkC
                               bool doPremul) {
     if (cs) {
         auto srcCS = SkColorSpace::MakeSRGB();
-        auto dstCS = as_CSB(cs)->makeLinearGamma();
+        auto dstCS = cs->makeLinearGamma();
         auto op = doPremul ? SkColorSpaceXform::kPremul_AlphaOp
                            : SkColorSpaceXform::kPreserve_AlphaOp;
         SkColorSpaceXform::Apply(dstCS.get(), SkColorSpaceXform::kRGBA_F32_ColorFormat,  dst,
@@ -271,7 +269,7 @@ static void skcolor_to_linear(SkRGBAf dst[], const SkColor src[], int count, SkC
 
 static void linear_to_skcolor(SkColor dst[], const SkRGBAf src[], int count, SkColorSpace* cs) {
     if (cs) {
-        auto srcCS = as_CSB(cs)->makeLinearGamma();
+        auto srcCS = cs->makeLinearGamma();
         auto dstCS = SkColorSpace::MakeSRGB();
         SkColorSpaceXform::Apply(dstCS.get(), SkColorSpaceXform::kBGRA_8888_ColorFormat, dst,
                                  srcCS.get(), SkColorSpaceXform::kRGBA_F32_ColorFormat,  src,

@@ -10,357 +10,434 @@
 
 #include "SkMath.h"
 #include "SkScalar.h"
+#include "../private/SkSafe32.h"
 
 /** \struct SkIPoint16
-
-    SkIPoint holds two 16 bit integer coordinates
+    SkIPoint16 holds two 16 bit integer coordinates.
 */
 struct SkIPoint16 {
-    int16_t fX, fY;
+    int16_t fX; //!< x-axis value used by SkIPoint16
 
-    static SkIPoint16 Make(int x, int y) {
-        SkIPoint16 pt;
-        pt.set(x, y);
-        return pt;
+    int16_t fY; //!< y-axis value used by SkIPoint16
+
+    /** Sets fX to x, fY to y. If SK_DEBUG is defined, asserts
+        if x or y does not fit in 16 bits.
+
+        @param x  integer x-axis value of constructed SkIPoint
+        @param y  integer y-axis value of constructed SkIPoint
+        @return   SkIPoint16 (x, y)
+    */
+    static constexpr SkIPoint16 Make(int x, int y) {
+        return {SkToS16(x), SkToS16(y)};
     }
 
+    /** Returns x-axis value of SkIPoint16.
+
+        @return  fX
+    */
     int16_t x() const { return fX; }
+
+    /** Returns y-axis value of SkIPoint.
+
+        @return  fY
+    */
     int16_t y() const { return fY; }
 
+    /** Sets fX to x and fY to y.
+
+        @param x  new value for fX
+        @param y  new value for fY
+    */
     void set(int x, int y) {
         fX = SkToS16(x);
         fY = SkToS16(y);
     }
 };
 
-/** \struct SkIPoint
+struct SkIPoint;
+typedef SkIPoint SkIVector;
 
-    SkIPoint holds two 32 bit integer coordinates
+/** \struct SkIPoint
+    SkIPoint holds two 32 bit integer coordinates.
 */
 struct SkIPoint {
-    int32_t fX, fY;
+    int32_t fX; //!< x-axis value used by SkIPoint.
 
-    static SkIPoint Make(int32_t x, int32_t y) {
-        SkIPoint pt;
-        pt.set(x, y);
-        return pt;
+    int32_t fY; //!< y-axis value used by SkIPoint.
+
+    /** Sets fX to x, fY to y.
+
+        @param x  integer x-axis value of constructed SkIPoint
+        @param y  integer y-axis value of constructed SkIPoint
+        @return   SkIPoint (x, y)
+    */
+    static constexpr SkIPoint Make(int32_t x, int32_t y) {
+        return {x, y};
     }
 
-    int32_t x() const { return fX; }
-    int32_t y() const { return fY; }
-    void setX(int32_t x) { fX = x; }
-    void setY(int32_t y) { fY = y; }
+    /** Returns x-axis value of SkIPoint.
 
-    /**
-     *  Returns true iff fX and fY are both zero.
-     */
+        @return  fX
+    */
+    int32_t x() const { return fX; }
+
+    /** Returns y-axis value of SkIPoint.
+
+        @return  fY
+    */
+    int32_t y() const { return fY; }
+
+    /** Returns true if fX and fY are both zero.
+
+        @return  true if fX is zero and fY is zero
+    */
     bool isZero() const { return (fX | fY) == 0; }
 
-    /**
-     *  Set both fX and fY to zero. Same as set(0, 0)
-     */
-    void setZero() { fX = fY = 0; }
+    /** Sets fX to x and fY to y.
 
-    /** Set the x and y values of the point. */
-    void set(int32_t x, int32_t y) { fX = x; fY = y; }
-
-    /** Rotate the point clockwise, writing the new point into dst
-        It is legal for dst == this
+        @param x  new value for fX
+        @param y  new value for fY
     */
-    void rotateCW(SkIPoint* dst) const;
+    void set(int32_t x, int32_t y) {
+        fX = x;
+        fY = y;
+    }
 
-    /** Rotate the point clockwise, writing the new point back into the point
-    */
+    /** Returns SkIPoint changing the signs of fX and fY.
 
-    void rotateCW() { this->rotateCW(this); }
-
-    /** Rotate the point counter-clockwise, writing the new point into dst.
-        It is legal for dst == this
-    */
-    void rotateCCW(SkIPoint* dst) const;
-
-    /** Rotate the point counter-clockwise, writing the new point back into
-        the point
-    */
-    void rotateCCW() { this->rotateCCW(this); }
-
-    /** Negate the X and Y coordinates of the point.
-    */
-    void negate() { fX = -fX; fY = -fY; }
-
-    /** Return a new point whose X and Y coordinates are the negative of the
-        original point's
+        @return  SkIPoint as (-fX, -fY)
     */
     SkIPoint operator-() const {
-        SkIPoint neg;
-        neg.fX = -fX;
-        neg.fY = -fY;
-        return neg;
+        return {-fX, -fY};
     }
 
-    /** Add v's coordinates to this point's */
-    void operator+=(const SkIPoint& v) {
-        fX += v.fX;
-        fY += v.fY;
+    /** Offsets SkIPoint by ivector v. Sets SkIPoint to (fX + v.fX, fY + v.fY).
+
+        @param v  ivector to add
+    */
+    void operator+=(const SkIVector& v) {
+        fX = Sk32_sat_add(fX, v.fX);
+        fY = Sk32_sat_add(fY, v.fY);
     }
 
-    /** Subtract v's coordinates from this point's */
-    void operator-=(const SkIPoint& v) {
-        fX -= v.fX;
-        fY -= v.fY;
+    /** Subtracts ivector v from SkIPoint. Sets SkIPoint to: (fX - v.fX, fY - v.fY).
+
+        @param v  ivector to subtract
+    */
+    void operator-=(const SkIVector& v) {
+        fX = Sk32_sat_sub(fX, v.fX);
+        fY = Sk32_sat_sub(fY, v.fY);
     }
 
-    /** Returns true if the point's coordinates equal (x,y) */
+    /** Returns true if SkIPoint is equivalent to SkIPoint constructed from (x, y).
+
+        @param x  value compared with fX
+        @param y  value compared with fY
+        @return   true if SkIPoint equals (x, y)
+    */
     bool equals(int32_t x, int32_t y) const {
         return fX == x && fY == y;
     }
 
+    /** Returns true if a is equivalent to b.
+
+        @param a  SkIPoint to compare
+        @param b  SkIPoint to compare
+        @return   true if a.fX == b.fX and a.fY == b.fY
+    */
     friend bool operator==(const SkIPoint& a, const SkIPoint& b) {
         return a.fX == b.fX && a.fY == b.fY;
     }
 
+    /** Returns true if a is not equivalent to b.
+
+        @param a  SkIPoint to compare
+        @param b  SkIPoint to compare
+        @return   true if a.fX != b.fX or a.fY != b.fY
+    */
     friend bool operator!=(const SkIPoint& a, const SkIPoint& b) {
         return a.fX != b.fX || a.fY != b.fY;
     }
 
-    /** Returns a new point whose coordinates are the difference between
-        a and b (i.e. a - b)
+    /** Returns ivector from b to a; computed as (a.fX - b.fX, a.fY - b.fY).
+
+        Can also be used to subtract ivector from ivector, returning ivector.
+
+        @param a  SkIPoint or ivector to subtract from
+        @param b  ivector to subtract
+        @return   ivector from b to a
     */
-    friend SkIPoint operator-(const SkIPoint& a, const SkIPoint& b) {
-        SkIPoint v;
-        v.set(a.fX - b.fX, a.fY - b.fY);
-        return v;
+    friend SkIVector operator-(const SkIPoint& a, const SkIPoint& b) {
+        return { Sk32_sat_sub(a.fX, b.fX), Sk32_sat_sub(a.fY, b.fY) };
     }
 
-    /** Returns a new point whose coordinates are the sum of a and b (a + b)
-    */
-    friend SkIPoint operator+(const SkIPoint& a, const SkIPoint& b) {
-        SkIPoint v;
-        v.set(a.fX + b.fX, a.fY + b.fY);
-        return v;
-    }
+    /** Returns SkIPoint resulting from SkIPoint a offset by ivector b, computed as: (a.fX + b.fX, a.fY + b.fY).
 
-    /** Returns the dot product of a and b, treating them as 2D vectors
-    */
-    static int32_t DotProduct(const SkIPoint& a, const SkIPoint& b) {
-        return a.fX * b.fX + a.fY * b.fY;
-    }
+        Can also be used to offset SkIPoint b by ivector a, returning SkIPoint.
+        Can also be used to add ivector to ivector, returning ivector.
 
-    /** Returns the cross product of a and b, treating them as 2D vectors
+        @param a  SkIPoint or ivector to add to
+        @param b  SkIPoint or ivector to add
+        @return   SkIPoint equal to a offset by b
     */
-    static int32_t CrossProduct(const SkIPoint& a, const SkIPoint& b) {
-        return a.fX * b.fY - a.fY * b.fX;
+    friend SkIPoint operator+(const SkIPoint& a, const SkIVector& b) {
+        return { Sk32_sat_add(a.fX, b.fX), Sk32_sat_add(a.fY, b.fY) };
     }
 };
 
-struct SK_API SkPoint {
-    SkScalar    fX, fY;
+struct SkPoint;
+typedef SkPoint SkVector;
 
-    static SkPoint Make(SkScalar x, SkScalar y) {
-        SkPoint pt;
-        pt.set(x, y);
-        return pt;
+/** \struct SkPoint
+    SkPoint holds two 32 bit floating point coordinates.
+*/
+struct SK_API SkPoint {
+
+    /** x-axis value used by both SkPoint and vector. May contain any value, including
+        infinities and NaN.
+    */
+    SkScalar fX;
+
+    /** y-axis value used by both SkPoint and vector. May contain any value, including
+        infinities and NaN.
+    */
+    SkScalar fY;
+
+    /** Sets fX to x, fY to y. Used both to set SkPoint and vector.
+
+        @param x  SkScalar x-axis value of constructed SkPoint or vector
+        @param y  SkScalar y-axis value of constructed SkPoint or vector
+        @return   SkPoint (x, y)
+    */
+    static constexpr SkPoint Make(SkScalar x, SkScalar y) {
+        return {x, y};
     }
 
+    /** Returns x-axis value of SkPoint or vector.
+
+        @return  fX
+    */
     SkScalar x() const { return fX; }
+
+    /** Returns y-axis value of SkPoint or vector.
+
+        @return  fY
+    */
     SkScalar y() const { return fY; }
 
-    /**
-     *  Returns true iff fX and fY are both zero.
-     */
+    /** Returns true if fX and fY are both zero.
+
+        @return  true if fX is zero and fY is zero
+    */
     bool isZero() const { return (0 == fX) & (0 == fY); }
 
-    /** Set the point's X and Y coordinates */
-    void set(SkScalar x, SkScalar y) { fX = x; fY = y; }
+    /** Sets fX to x and fY to y.
 
-    /** Set the point's X and Y coordinates by automatically promoting (x,y) to
-        SkScalar values.
+        @param x  new value for fX
+        @param y  new value for fY
+    */
+    void set(SkScalar x, SkScalar y) {
+        fX = x;
+        fY = y;
+    }
+
+    /** Sets fX to x and fY to y, promoting integers to SkScalar values.
+
+        Assigning a large integer value directly to fX or fY may cause a compiler
+        error, triggered by narrowing conversion of int to SkScalar. This safely
+        casts x and y to avoid the error.
+
+        @param x  new value for fX
+        @param y  new value for fY
     */
     void iset(int32_t x, int32_t y) {
         fX = SkIntToScalar(x);
         fY = SkIntToScalar(y);
     }
 
-    /** Set the point's X and Y coordinates by automatically promoting p's
-        coordinates to SkScalar values.
+    /** Sets fX to p.fX and fY to p.fY, promoting integers to SkScalar values.
+
+        Assigning an SkIPoint containing a large integer value directly to fX or fY may
+        cause a compiler error, triggered by narrowing conversion of int to SkScalar.
+        This safely casts p.fX and p.fY to avoid the error.
+
+        @param p  SkIPoint members promoted to SkScalar
     */
     void iset(const SkIPoint& p) {
         fX = SkIntToScalar(p.fX);
         fY = SkIntToScalar(p.fY);
     }
 
+    /** Sets fX to absolute value of pt.fX; and fY to absolute value of pt.fY.
+
+        @param pt  members providing magnitude for fX and fY
+    */
     void setAbs(const SkPoint& pt) {
         fX = SkScalarAbs(pt.fX);
         fY = SkScalarAbs(pt.fY);
     }
 
-    // counter-clockwise fan
-    void setIRectFan(int l, int t, int r, int b) {
-        SkPoint* v = this;
-        v[0].set(SkIntToScalar(l), SkIntToScalar(t));
-        v[1].set(SkIntToScalar(l), SkIntToScalar(b));
-        v[2].set(SkIntToScalar(r), SkIntToScalar(b));
-        v[3].set(SkIntToScalar(r), SkIntToScalar(t));
-    }
-    void setIRectFan(int l, int t, int r, int b, size_t stride);
+    /** Adds offset to each SkPoint in points array with count entries.
 
-    // counter-clockwise fan
-    void setRectFan(SkScalar l, SkScalar t, SkScalar r, SkScalar b) {
-        SkPoint* v = this;
-        v[0].set(l, t);
-        v[1].set(l, b);
-        v[2].set(r, b);
-        v[3].set(r, t);
-    }
-
-    void setRectFan(SkScalar l, SkScalar t, SkScalar r, SkScalar b, size_t stride) {
-        SkASSERT(stride >= sizeof(SkPoint));
-        
-        ((SkPoint*)((intptr_t)this + 0 * stride))->set(l, t);
-        ((SkPoint*)((intptr_t)this + 1 * stride))->set(l, b);
-        ((SkPoint*)((intptr_t)this + 2 * stride))->set(r, b);
-        ((SkPoint*)((intptr_t)this + 3 * stride))->set(r, t);
-    }
-    
-
-    static void Offset(SkPoint points[], int count, const SkPoint& offset) {
+        @param points  SkPoint array
+        @param count   entries in array
+        @param offset  vector added to points
+    */
+    static void Offset(SkPoint points[], int count, const SkVector& offset) {
         Offset(points, count, offset.fX, offset.fY);
     }
 
+    /** Adds offset (dx, dy) to each SkPoint in points array of length count.
+
+        @param points  SkPoint array
+        @param count   entries in array
+        @param dx      added to fX in points
+        @param dy      added to fY in points
+    */
     static void Offset(SkPoint points[], int count, SkScalar dx, SkScalar dy) {
         for (int i = 0; i < count; ++i) {
             points[i].offset(dx, dy);
         }
     }
 
+    /** Adds offset (dx, dy) to SkPoint.
+
+        @param dx  added to fX
+        @param dy  added to fY
+    */
     void offset(SkScalar dx, SkScalar dy) {
         fX += dx;
         fY += dy;
     }
 
-    /** Return the euclidian distance from (0,0) to the point
+    /** Returns the Euclidean_Distance from origin, computed as:
+
+            sqrt(fX * fX + fY * fY)
+
+        .
+
+        @return  straight-line distance to origin
     */
     SkScalar length() const { return SkPoint::Length(fX, fY); }
+
+    /** Returns the Euclidean_Distance from origin, computed as:
+
+            sqrt(fX * fX + fY * fY)
+
+        .
+
+        @return  straight-line distance to origin
+    */
     SkScalar distanceToOrigin() const { return this->length(); }
 
-    /**
-     *  Return true if the computed length of the vector is >= the internal
-     *  tolerance (used to avoid dividing by tiny values).
-     */
-    static bool CanNormalize(SkScalar dx, SkScalar dy) {
-        // Simple enough (and performance critical sometimes) so we inline it.
-        return (dx*dx + dy*dy) > (SK_ScalarNearlyZero * SK_ScalarNearlyZero);
-    }
+    /** Scales (fX, fY) so that length() returns one, while preserving ratio of fX to fY,
+        if possible. If prior length is nearly zero, sets vector to (0, 0) and returns
+        false; otherwise returns true.
 
-    bool canNormalize() const {
-        return CanNormalize(fX, fY);
-    }
-
-    /** Set the point (vector) to be unit-length in the same direction as it
-        already points.  If the point has a degenerate length (i.e. nearly 0)
-        then set it to (0,0) and return false; otherwise return true.
+        @return  true if former length is not zero or nearly zero
     */
     bool normalize();
 
-    /** Set the point (vector) to be unit-length in the same direction as the
-        x,y params. If the vector (x,y) has a degenerate length (i.e. nearly 0)
-        then set it to (0,0) and return false, otherwise return true.
+    /** Sets vector to (x, y) scaled so length() returns one, and so that
+        (fX, fY) is proportional to (x, y).  If (x, y) length is nearly zero,
+        sets vector to (0, 0) and returns false; otherwise returns true.
+
+        @param x  proportional value for fX
+        @param y  proportional value for fY
+        @return   true if (x, y) length is not zero or nearly zero
     */
     bool setNormalize(SkScalar x, SkScalar y);
 
-    /** Scale the point (vector) to have the specified length, and return that
-        length. If the original length is degenerately small (nearly zero),
-        set it to (0,0) and return false, otherwise return true.
+    /** Scales vector so that distanceToOrigin() returns length, if possible. If former
+        length is nearly zero, sets vector to (0, 0) and return false; otherwise returns
+        true.
+
+        @param length  straight-line distance to origin
+        @return        true if former length is not zero or nearly zero
     */
     bool setLength(SkScalar length);
 
-    /** Set the point (vector) to have the specified length in the same
-     direction as (x,y). If the vector (x,y) has a degenerate length
-     (i.e. nearly 0) then set it to (0,0) and return false, otherwise return true.
+    /** Sets vector to (x, y) scaled to length, if possible. If former
+        length is nearly zero, sets vector to (0, 0) and return false; otherwise returns
+        true.
+
+        @param x       proportional value for fX
+        @param y       proportional value for fY
+        @param length  straight-line distance to origin
+        @return        true if (x, y) length is not zero or nearly zero
     */
     bool setLength(SkScalar x, SkScalar y, SkScalar length);
 
-    /** Same as setLength, but favoring speed over accuracy.
-    */
-    bool setLengthFast(SkScalar length);
+    /** Sets dst to SkPoint times scale. dst may be SkPoint to modify SkPoint in place.
 
-    /** Same as setLength, but favoring speed over accuracy.
-    */
-    bool setLengthFast(SkScalar x, SkScalar y, SkScalar length);
-
-    /** Scale the point's coordinates by scale, writing the answer into dst.
-        It is legal for dst == this.
+        @param scale  factor to multiply SkPoint by
+        @param dst    storage for scaled SkPoint
     */
     void scale(SkScalar scale, SkPoint* dst) const;
 
-    /** Scale the point's coordinates by scale, writing the answer back into
-        the point.
+    /** Scales SkPoint in place by scale.
+
+        @param value  factor to multiply SkPoint by
     */
     void scale(SkScalar value) { this->scale(value, this); }
 
-    /** Rotate the point clockwise by 90 degrees, writing the answer into dst.
-        It is legal for dst == this.
-    */
-    void rotateCW(SkPoint* dst) const;
-
-    /** Rotate the point clockwise by 90 degrees, writing the answer back into
-        the point.
-    */
-    void rotateCW() { this->rotateCW(this); }
-
-    /** Rotate the point counter-clockwise by 90 degrees, writing the answer
-        into dst. It is legal for dst == this.
-    */
-    void rotateCCW(SkPoint* dst) const;
-
-    /** Rotate the point counter-clockwise by 90 degrees, writing the answer
-        back into the point.
-    */
-    void rotateCCW() { this->rotateCCW(this); }
-
-    /** Negate the point's coordinates
+    /** Changes the sign of fX and fY.
     */
     void negate() {
         fX = -fX;
         fY = -fY;
     }
 
-    /** Returns a new point whose coordinates are the negative of the point's
+    /** Returns SkPoint changing the signs of fX and fY.
+
+        @return  SkPoint as (-fX, -fY)
     */
     SkPoint operator-() const {
-        SkPoint neg;
-        neg.fX = -fX;
-        neg.fY = -fY;
-        return neg;
+        return {-fX, -fY};
     }
 
-    /** Add v's coordinates to the point's
+    /** Adds vector v to SkPoint. Sets SkPoint to: (fX + v.fX, fY + v.fY).
+
+        @param v  vector to add
     */
-    void operator+=(const SkPoint& v) {
+    void operator+=(const SkVector& v) {
         fX += v.fX;
         fY += v.fY;
     }
 
-    /** Subtract v's coordinates from the point's
+    /** Subtracts vector v from SkPoint. Sets SkPoint to: (fX - v.fX, fY - v.fY).
+
+        @param v  vector to subtract
     */
-    void operator-=(const SkPoint& v) {
+    void operator-=(const SkVector& v) {
         fX -= v.fX;
         fY -= v.fY;
     }
 
+    /** Returns SkPoint multiplied by scale.
+
+        @param scale  scalar to multiply by
+        @return       SkPoint as (fX * scale, fY * scale)
+    */
     SkPoint operator*(SkScalar scale) const {
-        return Make(fX * scale, fY * scale);
+        return {fX * scale, fY * scale};
     }
-    
+
+    /** Multiplies SkPoint by scale. Sets SkPoint to: (fX * scale, fY * scale)
+
+        @param scale  scalar to multiply by
+        @return       reference to SkPoint
+    */
     SkPoint& operator*=(SkScalar scale) {
         fX *= scale;
         fY *= scale;
         return *this;
     }
-    
-    /**
-     *  Returns true if both X and Y are finite (not infinity or NaN)
-     */
+
+    /** Returns true if both fX and fY are measurable values.
+
+        @return  true for values other than infinities and NaN
+    */
     bool isFinite() const {
         SkScalar accum = 0;
         accum *= fX;
@@ -374,183 +451,143 @@ struct SK_API SkPoint {
         return !SkScalarIsNaN(accum);
     }
 
-    /**
-     *  Returns true if the point's coordinates equal (x,y)
-     */
+    /** Returns true if SkPoint is equivalent to SkPoint constructed from (x, y).
+
+        @param x  value compared with fX
+        @param y  value compared with fY
+        @return   true if SkPoint equals (x, y)
+    */
     bool equals(SkScalar x, SkScalar y) const {
         return fX == x && fY == y;
     }
 
+    /** Returns true if a is equivalent to b.
+
+        @param a  SkPoint to compare
+        @param b  SkPoint to compare
+        @return   true if a.fX == b.fX and a.fY == b.fY
+    */
     friend bool operator==(const SkPoint& a, const SkPoint& b) {
         return a.fX == b.fX && a.fY == b.fY;
     }
 
+    /** Returns true if a is not equivalent to b.
+
+        @param a  SkPoint to compare
+        @param b  SkPoint to compare
+        @return   true if a.fX != b.fX or a.fY != b.fY
+    */
     friend bool operator!=(const SkPoint& a, const SkPoint& b) {
         return a.fX != b.fX || a.fY != b.fY;
     }
 
-    /** Return true if this point and the given point are far enough apart
-        such that a vector between them would be non-degenerate.
+    /** Returns vector from b to a, computed as (a.fX - b.fX, a.fY - b.fY).
 
-        WARNING: Unlike the explicit tolerance version,
-        this method does not use componentwise comparison.  Instead, it
-        uses a comparison designed to match judgments elsewhere regarding
-        degeneracy ("points A and B are so close that the vector between them
-        is essentially zero").
+        Can also be used to subtract vector from SkPoint, returning SkPoint.
+        Can also be used to subtract vector from vector, returning vector.
+
+        @param a  SkPoint to subtract from
+        @param b  SkPoint to subtract
+        @return   vector from b to a
     */
-    bool equalsWithinTolerance(const SkPoint& p) const {
-        return !CanNormalize(fX - p.fX, fY - p.fY);
+    friend SkVector operator-(const SkPoint& a, const SkPoint& b) {
+        return {a.fX - b.fX, a.fY - b.fY};
     }
 
-    /** WARNING: There is no guarantee that the result will reflect judgments
-        elsewhere regarding degeneracy ("points A and B are so close that the
-        vector between them is essentially zero").
+    /** Returns SkPoint resulting from SkPoint a offset by vector b, computed as: (a.fX + b.fX, a.fY + b.fY).
+
+        Can also be used to offset SkPoint b by vector a, returning SkPoint.
+        Can also be used to add vector to vector, returning vector.
+
+        @param a  SkPoint or vector to add to
+        @param b  SkPoint or vector to add
+        @return   SkPoint equal to a offset by b
     */
-    bool equalsWithinTolerance(const SkPoint& p, SkScalar tol) const {
-        return SkScalarNearlyZero(fX - p.fX, tol)
-               && SkScalarNearlyZero(fY - p.fY, tol);
+    friend SkPoint operator+(const SkPoint& a, const SkVector& b) {
+        return {a.fX + b.fX, a.fY + b.fY};
     }
 
-    /** Returns a new point whose coordinates are the difference between
-        a's and b's (a - b)
-    */
-    friend SkPoint operator-(const SkPoint& a, const SkPoint& b) {
-        SkPoint v;
-        v.set(a.fX - b.fX, a.fY - b.fY);
-        return v;
-    }
+    /** Returns the Euclidean_Distance from origin, computed as:
 
-    /** Returns a new point whose coordinates are the sum of a's and b's (a + b)
-    */
-    friend SkPoint operator+(const SkPoint& a, const SkPoint& b) {
-        SkPoint v;
-        v.set(a.fX + b.fX, a.fY + b.fY);
-        return v;
-    }
+            sqrt(x * x + y * y)
 
-    /** Returns the euclidian distance from (0,0) to (x,y)
+        .
+
+        @param x  component of length
+        @param y  component of length
+        @return   straight-line distance to origin
     */
     static SkScalar Length(SkScalar x, SkScalar y);
 
-    /** Normalize pt, returning its previous length. If the prev length is too
-        small (degenerate), set pt to (0,0) and return 0. This uses the same
-        tolerance as CanNormalize.
+    /** Scales (vec->fX, vec->fY) so that length() returns one, while preserving ratio of vec->fX to vec->fY,
+        if possible. If original length is nearly zero, sets vec to (0, 0) and returns zero;
+        otherwise, returns length of vec before vec is scaled.
 
-        Note that this method may be significantly more expensive than
-        the non-static normalize(), because it has to return the previous length
-        of the point.  If you don't need the previous length, call the
-        non-static normalize() method instead.
-     */
-    static SkScalar Normalize(SkPoint* pt);
+        Returned prior length may be SK_ScalarInfinity if it can not be represented by SkScalar.
 
-    /** Returns the euclidian distance between a and b
+        Note that normalize() is faster if prior length is not required.
+
+        @param vec  normalized to unit length
+        @return     original vec length
+    */
+    static SkScalar Normalize(SkVector* vec);
+
+    /** Returns the Euclidean_Distance between a and b.
+
+        @param a  line end point
+        @param b  line end point
+        @return   straight-line distance from a to b
     */
     static SkScalar Distance(const SkPoint& a, const SkPoint& b) {
         return Length(a.fX - b.fX, a.fY - b.fY);
     }
 
-    /** Returns the dot product of a and b, treating them as 2D vectors
+    /** Returns the dot product of vector a and vector b.
+
+        @param a  left side of dot product
+        @param b  right side of dot product
+        @return   product of input magnitudes and cosine of the angle between them
     */
-    static SkScalar DotProduct(const SkPoint& a, const SkPoint& b) {
+    static SkScalar DotProduct(const SkVector& a, const SkVector& b) {
         return a.fX * b.fX + a.fY * b.fY;
     }
 
-    /** Returns the cross product of a and b, treating them as 2D vectors
+    /** Returns the cross product of vector a and vector b.
+
+        a and b form three-dimensional vectors with z-axis value equal to zero. The
+        cross product is a three-dimensional vector with x-axis and y-axis values equal
+        to zero. The cross product z-axis component is returned.
+
+        @param a  left side of cross product
+        @param b  right side of cross product
+        @return   area spanned by vectors signed by angle direction
     */
-    static SkScalar CrossProduct(const SkPoint& a, const SkPoint& b) {
+    static SkScalar CrossProduct(const SkVector& a, const SkVector& b) {
         return a.fX * b.fY - a.fY * b.fX;
     }
 
-    SkScalar cross(const SkPoint& vec) const {
+    /** Returns the cross product of vector and vec.
+
+        Vector and vec form three-dimensional vectors with z-axis value equal to zero.
+        The cross product is a three-dimensional vector with x-axis and y-axis values
+        equal to zero. The cross product z-axis component is returned.
+
+        @param vec  right side of cross product
+        @return     area spanned by vectors signed by angle direction
+    */
+    SkScalar cross(const SkVector& vec) const {
         return CrossProduct(*this, vec);
     }
 
-    SkScalar dot(const SkPoint& vec) const {
+    /** Returns the dot product of vector and vector vec.
+
+        @param vec  right side of dot product
+        @return     product of input magnitudes and cosine of the angle between them
+    */
+    SkScalar dot(const SkVector& vec) const {
         return DotProduct(*this, vec);
     }
 
-    SkScalar lengthSqd() const {
-        return DotProduct(*this, *this);
-    }
-
-    SkScalar distanceToSqd(const SkPoint& pt) const {
-        SkScalar dx = fX - pt.fX;
-        SkScalar dy = fY - pt.fY;
-        return dx * dx + dy * dy;
-    }
-
-    /**
-     * The side of a point relative to a line. If the line is from a to b then
-     * the values are consistent with the sign of (b-a) cross (pt-a)
-     */
-    enum Side {
-        kLeft_Side  = -1,
-        kOn_Side    =  0,
-        kRight_Side =  1
-    };
-
-    /**
-     * Returns the squared distance to the infinite line between two pts. Also
-     * optionally returns the side of the line that the pt falls on (looking
-     * along line from a to b)
-     */
-    SkScalar distanceToLineBetweenSqd(const SkPoint& a,
-                                      const SkPoint& b,
-                                      Side* side = NULL) const;
-
-    /**
-     * Returns the distance to the infinite line between two pts. Also
-     * optionally returns the side of the line that the pt falls on (looking
-     * along the line from a to b)
-     */
-    SkScalar distanceToLineBetween(const SkPoint& a,
-                                   const SkPoint& b,
-                                   Side* side = NULL) const {
-        return SkScalarSqrt(this->distanceToLineBetweenSqd(a, b, side));
-    }
-
-    /**
-     * Returns the squared distance to the line segment between pts a and b
-     */
-    SkScalar distanceToLineSegmentBetweenSqd(const SkPoint& a,
-                                             const SkPoint& b) const;
-
-    /**
-     * Returns the distance to the line segment between pts a and b.
-     */
-    SkScalar distanceToLineSegmentBetween(const SkPoint& a,
-                                          const SkPoint& b) const {
-        return SkScalarSqrt(this->distanceToLineSegmentBetweenSqd(a, b));
-    }
-
-    /**
-     * Make this vector be orthogonal to vec. Looking down vec the
-     * new vector will point in direction indicated by side (which
-     * must be kLeft_Side or kRight_Side).
-     */
-    void setOrthog(const SkPoint& vec, Side side = kLeft_Side) {
-        // vec could be this
-        SkScalar tmp = vec.fX;
-        if (kRight_Side == side) {
-            fX = -vec.fY;
-            fY = tmp;
-        } else {
-            SkASSERT(kLeft_Side == side);
-            fX = vec.fY;
-            fY = -tmp;
-        }
-    }
-
-    /**
-     *  cast-safe way to treat the point as an array of (2) SkScalars.
-     */
-    const SkScalar* asScalars() const { return &fX; }
 };
-
-typedef SkPoint SkVector;
-
-static inline bool SkPointsAreFinite(const SkPoint array[], int count) {
-    return SkScalarsAreFinite(&array[0].fX, count << 1);
-}
 
 #endif

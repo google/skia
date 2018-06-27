@@ -6,6 +6,7 @@
  */
 
 #include "SkColorMatrixFilter.h"
+#include "SkColorSpace.h"
 #include "SkColorSpaceXformer.h"
 #if SK_SUPPORT_GPU
     #include "GrFragmentProcessor.h"
@@ -40,16 +41,15 @@ public:
 
     // Overriding this method is the class' raison d'etre.
     sk_sp<SkColorFilter> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
-        return sk_make_sp<SkLightingColorFilter>(xformer->apply(fMul), xformer->apply(fAdd));
+        SkColor add = xformer->apply(fAdd);
+        if (add != fAdd) {
+            return sk_make_sp<SkLightingColorFilter>(fMul, add);
+        }
+        return this->INHERITED::onMakeColorSpace(xformer);
     }
 
     // Let fMatrixFilter handle all the other calls directly.
-    void filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const override {
-        fMatrixFilter->filterSpan(src, count, dst);
-    }
-    void filterSpan4f(const SkPM4f src[], int count, SkPM4f dst[]) const override {
-        fMatrixFilter->filterSpan4f(src, count, dst);
-    }
+
     uint32_t getFlags() const override {
         return fMatrixFilter->getFlags();
     }
@@ -66,9 +66,9 @@ public:
     Factory getFactory() const override             { return fMatrixFilter->getFactory(); }
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext* ctx,
-                                                   SkColorSpace* cs) const override {
-        return fMatrixFilter->asFragmentProcessor(ctx, cs);
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
+            GrContext* ctx, const GrColorSpaceInfo& csi) const override {
+        return fMatrixFilter->asFragmentProcessor(ctx, csi);
     }
 #endif
 
@@ -79,6 +79,8 @@ public:
 private:
     SkColor              fMul, fAdd;
     sk_sp<SkColorFilter> fMatrixFilter;
+
+    typedef SkColorFilter INHERITED;
 };
 
 sk_sp<SkColorFilter> SkColorMatrixFilter::MakeLightingFilter(SkColor mul, SkColor add) {

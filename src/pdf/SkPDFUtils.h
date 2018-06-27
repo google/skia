@@ -4,19 +4,27 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 #ifndef SkPDFUtils_DEFINED
 #define SkPDFUtils_DEFINED
 
+#include "SkFloatToDecimal.h"
+#include "SkPDFTypes.h"
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkShader.h"
 #include "SkStream.h"
 #include "SkUtils.h"
 
 class SkMatrix;
 class SkPDFArray;
 struct SkRect;
+
+template <typename T>
+bool SkPackedArrayEqual(T* u, T* v, size_t n) {
+    SkASSERT(u);
+    SkASSERT(v);
+    return 0 == memcmp(u, v, n * sizeof(T));
+}
 
 #if 0
 #define PRINT_NOT_IMPL(str) fprintf(stderr, str)
@@ -33,6 +41,8 @@ struct SkRect;
     } while (0)
 
 namespace SkPDFUtils {
+
+constexpr float kDpiForRasterScaleOne = 72.0f;
 
 sk_sp<SkPDFArray> RectToArray(const SkRect& rect);
 sk_sp<SkPDFArray> MatrixToArray(const SkMatrix& matrix);
@@ -67,32 +77,30 @@ inline void AppendColorComponent(uint8_t value, SkWStream* wStream) {
     wStream->write(buffer, len);
 }
 
-// 3 = '-', '.', and '\0' characters.
-// 9 = number of significant digits
-// abs(FLT_MIN_10_EXP) = number of zeros in FLT_MIN
-const size_t kMaximumFloatDecimalLength = 3 + 9 - FLT_MIN_10_EXP;
-// FloatToDecimal is exposed for unit tests.
-size_t FloatToDecimal(float value,
-                      char output[kMaximumFloatDecimalLength]);
-void AppendScalar(SkScalar value, SkWStream* stream);
+inline void AppendScalar(SkScalar value, SkWStream* stream) {
+    char result[kMaximumSkFloatToDecimalLength];
+    size_t len = SkFloatToDecimal(SkScalarToFloat(value), result);
+    SkASSERT(len < kMaximumSkFloatToDecimalLength);
+    stream->write(result, len);
+}
+
 void WriteString(SkWStream* wStream, const char* input, size_t len);
 
 inline void WriteUInt16BE(SkDynamicMemoryWStream* wStream, uint16_t value) {
-    static const char gHex[] = "0123456789ABCDEF";
     char result[4];
-    result[0] = gHex[       value >> 12 ];
-    result[1] = gHex[0xF & (value >> 8 )];
-    result[2] = gHex[0xF & (value >> 4 )];
-    result[3] = gHex[0xF & (value      )];
+    result[0] = SkHexadecimalDigits::gUpper[       value >> 12 ];
+    result[1] = SkHexadecimalDigits::gUpper[0xF & (value >> 8 )];
+    result[2] = SkHexadecimalDigits::gUpper[0xF & (value >> 4 )];
+    result[3] = SkHexadecimalDigits::gUpper[0xF & (value      )];
     wStream->write(result, 4);
 }
+
 inline void WriteUInt8(SkDynamicMemoryWStream* wStream, uint8_t value) {
-    static const char gHex[] = "0123456789ABCDEF";
-    char result[2];
-    result[0] = gHex[value >> 4 ];
-    result[1] = gHex[0xF & value];
+    char result[2] = { SkHexadecimalDigits::gUpper[value >> 4],
+                       SkHexadecimalDigits::gUpper[value & 0xF] };
     wStream->write(result, 2);
 }
+
 inline void WriteUTF16beHex(SkDynamicMemoryWStream* wStream, SkUnichar utf32) {
     uint16_t utf16[2] = {0, 0};
     size_t len = SkUTF16_FromUnichar(utf32, utf16);
@@ -103,14 +111,20 @@ inline void WriteUTF16beHex(SkDynamicMemoryWStream* wStream, SkUnichar utf32) {
     }
 }
 
-template <class T>
-static sk_sp<T> GetCachedT(sk_sp<T>* cachedT, sk_sp<T> (*makeNewT)()) {
-    if (*cachedT) {
-        return *cachedT;
+inline SkMatrix GetShaderLocalMatrix(const SkShader* shader) {
+    SkMatrix localMatrix;
+    if (sk_sp<SkShader> s = shader->makeAsALocalMatrixShader(&localMatrix)) {
+        return SkMatrix::Concat(s->getLocalMatrix(), localMatrix);
     }
-    *cachedT = (*makeNewT)();
-    return *cachedT;
+    return shader->getLocalMatrix();
 }
+bool InverseTransformBBox(const SkMatrix& matrix, SkRect* bbox);
+void PopulateTilingPatternDict(SkPDFDict* pattern,
+                               SkRect& bbox,
+                               sk_sp<SkPDFDict> resources,
+                               const SkMatrix& matrix);
+
+bool ToBitmap(const SkImage* img, SkBitmap* dst);
 }  // namespace SkPDFUtils
 
 #endif

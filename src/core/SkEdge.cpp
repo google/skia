@@ -347,7 +347,7 @@ static SkFDot6 cubic_delta_from_line(SkFDot6 a, SkFDot6 b, SkFDot6 c, SkFDot6 d)
     return SkMax32(SkAbs32(oneThird), SkAbs32(twoThird));
 }
 
-bool SkCubicEdge::setCubicWithoutUpdate(const SkPoint pts[4], int shift) {
+bool SkCubicEdge::setCubicWithoutUpdate(const SkPoint pts[4], int shift, bool sortY) {
     SkFDot6 x0, y0, x1, y1, x2, y2, x3, y3;
 
     {
@@ -374,7 +374,7 @@ bool SkCubicEdge::setCubicWithoutUpdate(const SkPoint pts[4], int shift) {
     }
 
     int winding = 1;
-    if (y0 > y3)
+    if (sortY && y0 > y3)
     {
         SkTSwap(x0, x3);
         SkTSwap(x1, x2);
@@ -387,7 +387,7 @@ bool SkCubicEdge::setCubicWithoutUpdate(const SkPoint pts[4], int shift) {
     int bot = SkFDot6Round(y3);
 
     // are we a zero-height cubic (line)?
-    if (top == bot)
+    if (sortY && top == bot)
         return 0;
 
     // compute number of steps needed (1 << shift)

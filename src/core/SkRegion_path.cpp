@@ -144,12 +144,7 @@ bool SkRgnBuilder::init(int maxHeight, int maxTransitions, bool pathIsInverse) {
     }
     fStorageCount = sk_64_asS32(count);
 
-    int64_t size = sk_64_mul(fStorageCount, sizeof(SkRegion::RunType));
-    if (size < 0 || !sk_64_isS32(size)) {
-        return false;
-    }
-
-    fStorage = (SkRegion::RunType*)sk_malloc_flags(sk_64_asS32(size), 0);
+    fStorage = (SkRegion::RunType*)sk_malloc_canfail(fStorageCount, sizeof(SkRegion::RunType));
     if (nullptr == fStorage) {
         return false;
     }
@@ -323,7 +318,7 @@ static bool check_inverse_on_empty_return(SkRegion* dst, const SkPath& path, con
 bool SkRegion::setPath(const SkPath& path, const SkRegion& clip) {
     SkDEBUGCODE(this->validate();)
 
-    if (clip.isEmpty()) {
+    if (clip.isEmpty() || !path.isFinite()) {
         return this->setEmpty();
     }
 

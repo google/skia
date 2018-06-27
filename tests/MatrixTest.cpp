@@ -6,8 +6,9 @@
  */
 
 #include "SkMath.h"
-#include "SkMatrix.h"
+#include "SkMatrixPriv.h"
 #include "SkMatrixUtils.h"
+#include "SkPoint3.h"
 #include "SkRandom.h"
 #include "Test.h"
 
@@ -140,20 +141,20 @@ static void test_matrix_recttorect(skiatest::Reporter* reporter) {
 
 static void test_flatten(skiatest::Reporter* reporter, const SkMatrix& m) {
     // add 100 in case we have a bug, I don't want to kill my stack in the test
-    static const size_t kBufferSize = SkMatrix::kMaxFlattenSize + 100;
+    static const size_t kBufferSize = SkMatrixPriv::kMaxFlattenSize + 100;
     char buffer[kBufferSize];
-    size_t size1 = m.writeToMemory(nullptr);
-    size_t size2 = m.writeToMemory(buffer);
+    size_t size1 = SkMatrixPriv::WriteToMemory(m, nullptr);
+    size_t size2 = SkMatrixPriv::WriteToMemory(m, buffer);
     REPORTER_ASSERT(reporter, size1 == size2);
-    REPORTER_ASSERT(reporter, size1 <= SkMatrix::kMaxFlattenSize);
+    REPORTER_ASSERT(reporter, size1 <= SkMatrixPriv::kMaxFlattenSize);
 
     SkMatrix m2;
-    size_t size3 = m2.readFromMemory(buffer, kBufferSize);
+    size_t size3 = SkMatrixPriv::ReadFromMemory(&m2, buffer, kBufferSize);
     REPORTER_ASSERT(reporter, size1 == size3);
     REPORTER_ASSERT(reporter, are_equal(reporter, m, m2));
 
     char buffer2[kBufferSize];
-    size3 = m2.writeToMemory(buffer2);
+    size3 = SkMatrixPriv::WriteToMemory(m2, buffer2);
     REPORTER_ASSERT(reporter, size1 == size3);
     REPORTER_ASSERT(reporter, memcmp(buffer, buffer2, size1) == 0);
 }
@@ -647,9 +648,15 @@ static void test_matrix_decomposition(skiatest::Reporter* reporter) {
 }
 
 // For test_matrix_homogeneous, below.
-static bool scalar_array_nearly_equal_relative(const SkScalar a[], const SkScalar b[], int count) {
+static bool point3_array_nearly_equal_relative(const SkPoint3 a[], const SkPoint3 b[], int count) {
     for (int i = 0; i < count; ++i) {
-        if (!scalar_nearly_equal_relative(a[i], b[i])) {
+        if (!scalar_nearly_equal_relative(a[i].fX, b[i].fX)) {
+            return false;
+        }
+        if (!scalar_nearly_equal_relative(a[i].fY, b[i].fY)) {
+            return false;
+        }
+        if (!scalar_nearly_equal_relative(a[i].fZ, b[i].fZ)) {
             return false;
         }
     }
@@ -658,16 +665,16 @@ static bool scalar_array_nearly_equal_relative(const SkScalar a[], const SkScala
 
 // For test_matrix_homogeneous, below.
 // Maps a single triple in src using m and compares results to those in dst
-static bool naive_homogeneous_mapping(const SkMatrix& m, const SkScalar src[3],
-                                      const SkScalar dst[3]) {
-    SkScalar res[3];
+static bool naive_homogeneous_mapping(const SkMatrix& m, const SkPoint3& src,
+                                      const SkPoint3& dst) {
+    SkPoint3 res;
     SkScalar ms[9] = {m[0], m[1], m[2],
                       m[3], m[4], m[5],
                       m[6], m[7], m[8]};
-    res[0] = src[0] * ms[0] + src[1] * ms[1] + src[2] * ms[2];
-    res[1] = src[0] * ms[3] + src[1] * ms[4] + src[2] * ms[5];
-    res[2] = src[0] * ms[6] + src[1] * ms[7] + src[2] * ms[8];
-    return scalar_array_nearly_equal_relative(res, dst, 3);
+    res.fX = src.fX * ms[0] + src.fY * ms[1] + src.fZ * ms[2];
+    res.fY = src.fX * ms[3] + src.fY * ms[4] + src.fZ * ms[5];
+    res.fZ = src.fX * ms[6] + src.fY * ms[7] + src.fZ * ms[8];
+    return point3_array_nearly_equal_relative(&res, &dst, 1);
 }
 
 static void test_matrix_homogeneous(skiatest::Reporter* reporter) {
@@ -677,8 +684,8 @@ static void test_matrix_homogeneous(skiatest::Reporter* reporter) {
     const float kRotation1 = -50.f;
     const float kScale0 = 5000.f;
 
-#if defined(GOOGLE3)
-    // Stack frame size is limited in GOOGLE3.
+#if defined(SK_BUILD_FOR_GOOGLE3)
+    // Stack frame size is limited in SK_BUILD_FOR_GOOGLE3.
     const int kTripleCount = 100;
     const int kMatrixCount = 100;
 #else
@@ -687,9 +694,11 @@ static void test_matrix_homogeneous(skiatest::Reporter* reporter) {
 #endif
     SkRandom rand;
 
-    SkScalar randTriples[3*kTripleCount];
-    for (int i = 0; i < 3*kTripleCount; ++i) {
-        randTriples[i] = rand.nextRangeF(-3000.f, 3000.f);
+    SkPoint3 randTriples[kTripleCount];
+    for (int i = 0; i < kTripleCount; ++i) {
+        randTriples[i].fX = rand.nextRangeF(-3000.f, 3000.f);
+        randTriples[i].fY = rand.nextRangeF(-3000.f, 3000.f);
+        randTriples[i].fZ = rand.nextRangeF(-3000.f, 3000.f);
     }
 
     SkMatrix mats[kMatrixCount];
@@ -702,29 +711,28 @@ static void test_matrix_homogeneous(skiatest::Reporter* reporter) {
     // identity
     {
     mat.reset();
-    SkScalar dst[3*kTripleCount];
+    SkPoint3 dst[kTripleCount];
     mat.mapHomogeneousPoints(dst, randTriples, kTripleCount);
-    REPORTER_ASSERT(reporter, scalar_array_nearly_equal_relative(randTriples, dst, kTripleCount*3));
+    REPORTER_ASSERT(reporter, point3_array_nearly_equal_relative(randTriples, dst, kTripleCount));
     }
 
+    const SkPoint3 zeros = {0.f, 0.f, 0.f};
     // zero matrix
     {
     mat.setAll(0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f);
-    SkScalar dst[3*kTripleCount];
+    SkPoint3 dst[kTripleCount];
     mat.mapHomogeneousPoints(dst, randTriples, kTripleCount);
-    SkScalar zeros[3] = {0.f, 0.f, 0.f};
     for (int i = 0; i < kTripleCount; ++i) {
-        REPORTER_ASSERT(reporter, scalar_array_nearly_equal_relative(&dst[i*3], zeros, 3));
+        REPORTER_ASSERT(reporter, point3_array_nearly_equal_relative(&dst[i], &zeros, 1));
     }
     }
 
     // zero point
     {
-    SkScalar zeros[3] = {0.f, 0.f, 0.f};
     for (int i = 0; i < kMatrixCount; ++i) {
-        SkScalar dst[3];
-        mats[i].mapHomogeneousPoints(dst, zeros, 1);
-        REPORTER_ASSERT(reporter, scalar_array_nearly_equal_relative(dst, zeros, 3));
+        SkPoint3 dst;
+        mats[i].mapHomogeneousPoints(&dst, &zeros, 1);
+        REPORTER_ASSERT(reporter, point3_array_nearly_equal_relative(&dst, &zeros, 1));
     }
     }
 
@@ -736,29 +744,29 @@ static void test_matrix_homogeneous(skiatest::Reporter* reporter) {
     // uniform scale of point
     {
     mat.setScale(kScale0, kScale0);
-    SkScalar dst[3];
-    SkScalar src[3] = {randTriples[0], randTriples[1], 1.f};
+    SkPoint3 dst;
+    SkPoint3 src = {randTriples[0].fX, randTriples[0].fY, 1.f};
     SkPoint pnt;
-    pnt.set(src[0], src[1]);
-    mat.mapHomogeneousPoints(dst, src, 1);
+    pnt.set(src.fX, src.fY);
+    mat.mapHomogeneousPoints(&dst, &src, 1);
     mat.mapPoints(&pnt, &pnt, 1);
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst[0], pnt.fX));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst[1], pnt.fY));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst[2], SK_Scalar1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fX, pnt.fX));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fY, pnt.fY));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fZ, SK_Scalar1));
     }
 
     // rotation of point
     {
     mat.setRotate(kRotation0);
-    SkScalar dst[3];
-    SkScalar src[3] = {randTriples[0], randTriples[1], 1.f};
+    SkPoint3 dst;
+    SkPoint3 src = {randTriples[0].fX, randTriples[0].fY, 1.f};
     SkPoint pnt;
-    pnt.set(src[0], src[1]);
-    mat.mapHomogeneousPoints(dst, src, 1);
+    pnt.set(src.fX, src.fY);
+    mat.mapHomogeneousPoints(&dst, &src, 1);
     mat.mapPoints(&pnt, &pnt, 1);
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst[0], pnt.fX));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst[1], pnt.fY));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst[2], SK_Scalar1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fX, pnt.fX));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fY, pnt.fY));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fZ, SK_Scalar1));
     }
 
     // rotation, scale, rotation of point
@@ -766,24 +774,24 @@ static void test_matrix_homogeneous(skiatest::Reporter* reporter) {
     mat.setRotate(kRotation1);
     mat.postScale(kScale0, kScale0);
     mat.postRotate(kRotation0);
-    SkScalar dst[3];
-    SkScalar src[3] = {randTriples[0], randTriples[1], 1.f};
+    SkPoint3 dst;
+    SkPoint3 src = {randTriples[0].fX, randTriples[0].fY, 1.f};
     SkPoint pnt;
-    pnt.set(src[0], src[1]);
-    mat.mapHomogeneousPoints(dst, src, 1);
+    pnt.set(src.fX, src.fY);
+    mat.mapHomogeneousPoints(&dst, &src, 1);
     mat.mapPoints(&pnt, &pnt, 1);
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst[0], pnt.fX));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst[1], pnt.fY));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst[2], SK_Scalar1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fX, pnt.fX));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fY, pnt.fY));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fZ, SK_Scalar1));
     }
 
     // compare with naive approach
     {
     for (int i = 0; i < kMatrixCount; ++i) {
         for (int j = 0; j < kTripleCount; ++j) {
-            SkScalar dst[3];
-            mats[i].mapHomogeneousPoints(dst, &randTriples[j*3], 1);
-            REPORTER_ASSERT(reporter, naive_homogeneous_mapping(mats[i], &randTriples[j*3], dst));
+            SkPoint3 dst;
+            mats[i].mapHomogeneousPoints(&dst, &randTriples[j], 1);
+            REPORTER_ASSERT(reporter, naive_homogeneous_mapping(mats[i], randTriples[j], dst));
         }
     }
     }
@@ -968,7 +976,7 @@ DEF_TEST(Matrix_Concat, r) {
 // Test that all variants of maprect are correct.
 DEF_TEST(Matrix_maprects, r) {
     const SkScalar scale = 1000;
-    
+
     SkMatrix mat;
     mat.setScale(2, 3);
     mat.postTranslate(1, 4);
@@ -980,7 +988,7 @@ DEF_TEST(Matrix_maprects, r) {
                                       rand.nextSScalar1() * scale,
                                       rand.nextSScalar1() * scale);
         SkRect dst[3];
-        
+
         mat.mapPoints((SkPoint*)&dst[0].fLeft, (SkPoint*)&src.fLeft, 2);
         dst[0].sort();
         mat.mapRect(&dst[1], src);

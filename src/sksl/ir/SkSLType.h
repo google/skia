@@ -13,6 +13,7 @@
 #include "../SkSLPosition.h"
 #include "../SkSLUtil.h"
 #include "../spirv.h"
+#include <climits>
 #include <vector>
 #include <memory>
 
@@ -21,14 +22,14 @@ namespace SkSL {
 class Context;
 
 /**
- * Represents a type, such as int or vec4.
+ * Represents a type, such as int or float4.
  */
 class Type : public Symbol {
 public:
     struct Field {
-        Field(Modifiers modifiers, String name, const Type* type)
+        Field(Modifiers modifiers, StringFragment name, const Type* type)
         : fModifiers(modifiers)
-        , fName(std::move(name))
+        , fName(name)
         , fType(std::move(type)) {}
 
         const String description() const {
@@ -36,55 +37,98 @@ public:
         }
 
         Modifiers fModifiers;
-        String fName;
+        StringFragment fName;
         const Type* fType;
     };
 
     enum Kind {
-        kScalar_Kind,
-        kVector_Kind,
-        kMatrix_Kind,
         kArray_Kind,
-        kStruct_Kind,
+        kEnum_Kind,
         kGeneric_Kind,
+        kMatrix_Kind,
+        kOther_Kind,
         kSampler_Kind,
-        kOther_Kind
+        kScalar_Kind,
+        kStruct_Kind,
+        kVector_Kind
+    };
+
+    enum NumberKind {
+        kFloat_NumberKind,
+        kSigned_NumberKind,
+        kUnsigned_NumberKind,
+        kNonnumeric_NumberKind
     };
 
     // Create an "other" (special) type with the given name. These types cannot be directly
     // referenced from user code.
     Type(String name)
-    : INHERITED(Position(), kType_Kind, std::move(name))
-    , fTypeKind(kOther_Kind) {}
+    : INHERITED(-1, kType_Kind, StringFragment())
+    , fNameString(std::move(name))
+    , fTypeKind(kOther_Kind)
+    , fNumberKind(kNonnumeric_NumberKind) {
+        fName.fChars = fNameString.c_str();
+        fName.fLength = fNameString.size();
+    }
+
+    // Create a simple type.
+    Type(String name, Kind kind)
+    : INHERITED(-1, kType_Kind, StringFragment())
+    , fNameString(std::move(name))
+    , fTypeKind(kind)
+    , fNumberKind(kNonnumeric_NumberKind) {
+        fName.fChars = fNameString.c_str();
+        fName.fLength = fNameString.size();
+    }
 
     // Create a generic type which maps to the listed types.
     Type(String name, std::vector<const Type*> types)
-    : INHERITED(Position(), kType_Kind, std::move(name))
+    : INHERITED(-1, kType_Kind, StringFragment())
+    , fNameString(std::move(name))
     , fTypeKind(kGeneric_Kind)
-    , fCoercibleTypes(std::move(types)) {}
+    , fNumberKind(kNonnumeric_NumberKind)
+    , fCoercibleTypes(std::move(types)) {
+        fName.fChars = fNameString.c_str();
+        fName.fLength = fNameString.size();
+    }
 
     // Create a struct type with the given fields.
-    Type(Position position, String name, std::vector<Field> fields)
-    : INHERITED(position, kType_Kind, std::move(name))
+    Type(int offset, String name, std::vector<Field> fields)
+    : INHERITED(offset, kType_Kind, StringFragment())
+    , fNameString(std::move(name))
     , fTypeKind(kStruct_Kind)
-    , fFields(std::move(fields)) {}
+    , fNumberKind(kNonnumeric_NumberKind)
+    , fFields(std::move(fields)) {
+        fName.fChars = fNameString.c_str();
+        fName.fLength = fNameString.size();
+    }
 
     // Create a scalar type.
-    Type(String name, bool isNumber)
-    : INHERITED(Position(), kType_Kind, std::move(name))
+    Type(String name, NumberKind numberKind, int priority)
+    : INHERITED(-1, kType_Kind, StringFragment())
+    , fNameString(std::move(name))
     , fTypeKind(kScalar_Kind)
-    , fIsNumber(isNumber)
+    , fNumberKind(numberKind)
+    , fPriority(priority)
     , fColumns(1)
-    , fRows(1) {}
+    , fRows(1) {
+        fName.fChars = fNameString.c_str();
+        fName.fLength = fNameString.size();
+    }
 
     // Create a scalar type which can be coerced to the listed types.
-    Type(String name, bool isNumber, std::vector<const Type*> coercibleTypes)
-    : INHERITED(Position(), kType_Kind, std::move(name))
+    Type(String name, NumberKind numberKind, int priority, std::vector<const Type*> coercibleTypes)
+    : INHERITED(-1, kType_Kind, StringFragment())
+    , fNameString(std::move(name))
     , fTypeKind(kScalar_Kind)
-    , fIsNumber(isNumber)
+    , fNumberKind(numberKind)
+    , fPriority(priority)
     , fCoercibleTypes(std::move(coercibleTypes))
     , fColumns(1)
-    , fRows(1) {}
+    , fRows(1) {
+        fName.fChars = fNameString.c_str();
+        fName.fLength = fNameString.size();
+    }
 
     // Create a vector type.
     Type(String name, const Type& componentType, int columns)
@@ -92,39 +136,54 @@ public:
 
     // Create a vector or array type.
     Type(String name, Kind kind, const Type& componentType, int columns)
-    : INHERITED(Position(), kType_Kind, std::move(name))
+    : INHERITED(-1, kType_Kind, StringFragment())
+    , fNameString(std::move(name))
     , fTypeKind(kind)
+    , fNumberKind(kNonnumeric_NumberKind)
     , fComponentType(&componentType)
     , fColumns(columns)
     , fRows(1)
-    , fDimensions(SpvDim1D) {}
+    , fDimensions(SpvDim1D) {
+        fName.fChars = fNameString.c_str();
+        fName.fLength = fNameString.size();
+    }
 
     // Create a matrix type.
     Type(String name, const Type& componentType, int columns, int rows)
-    : INHERITED(Position(), kType_Kind, std::move(name))
+    : INHERITED(-1, kType_Kind, StringFragment())
+    , fNameString(std::move(name))
     , fTypeKind(kMatrix_Kind)
+    , fNumberKind(kNonnumeric_NumberKind)
     , fComponentType(&componentType)
     , fColumns(columns)
     , fRows(rows)
-    , fDimensions(SpvDim1D) {}
+    , fDimensions(SpvDim1D) {
+        fName.fChars = fNameString.c_str();
+        fName.fLength = fNameString.size();
+    }
 
     // Create a sampler type.
     Type(String name, SpvDim_ dimensions, bool isDepth, bool isArrayed, bool isMultisampled,
          bool isSampled)
-    : INHERITED(Position(), kType_Kind, std::move(name))
+    : INHERITED(-1, kType_Kind, StringFragment())
+    , fNameString(std::move(name))
     , fTypeKind(kSampler_Kind)
+    , fNumberKind(kNonnumeric_NumberKind)
     , fDimensions(dimensions)
     , fIsDepth(isDepth)
     , fIsArrayed(isArrayed)
     , fIsMultisampled(isMultisampled)
-    , fIsSampled(isSampled) {}
+    , fIsSampled(isSampled) {
+        fName.fChars = fNameString.c_str();
+        fName.fLength = fNameString.size();
+    }
 
-    String name() const {
-        return fName;
+    const String& name() const {
+        return fNameString;
     }
 
     String description() const override {
-        return fName;
+        return fNameString;
     }
 
     bool operator==(const Type& other) const {
@@ -146,7 +205,43 @@ public:
      * Returns true if this is a numeric scalar type.
      */
     bool isNumber() const {
-        return fIsNumber;
+        return fNumberKind != kNonnumeric_NumberKind;
+    }
+
+    /**
+     * Returns true if this is a floating-point scalar type (float, half, or double).
+     */
+    bool isFloat() const {
+        return fNumberKind == kFloat_NumberKind;
+    }
+
+    /**
+     * Returns true if this is a signed scalar type (int or short).
+     */
+    bool isSigned() const {
+        return fNumberKind == kSigned_NumberKind;
+    }
+
+    /**
+     * Returns true if this is an unsigned scalar type (uint or ushort).
+     */
+    bool isUnsigned() const {
+        return fNumberKind == kUnsigned_NumberKind;
+    }
+
+    /**
+     * Returns true if this is a signed or unsigned integer.
+     */
+    bool isInteger() const {
+        return isSigned() || isUnsigned();
+    }
+
+    /**
+     * Returns the "priority" of a number type, in order of double > float > half > int > short.
+     * When operating on two number types, the result is the higher-priority type.
+     */
+    int priority() const {
+        return fPriority;
     }
 
     /**
@@ -154,17 +249,15 @@ public:
      * another type.
      */
     bool canCoerceTo(const Type& other) const {
-        int cost;
-        return determineCoercionCost(other, &cost);
+        return coercionCost(other) != INT_MAX;
     }
 
     /**
      * Determines the "cost" of coercing (implicitly converting) this type to another type. The cost
      * is a number with no particular meaning other than that lower costs are preferable to higher
-     * costs. Returns true if a conversion is possible, false otherwise. The value of the out
-     * parameter is undefined if false is returned.
+     * costs. Returns INT_MAX if the coercion is not possible.
      */
-    bool determineCoercionCost(const Type& other, int* outCost) const;
+    int coercionCost(const Type& other) const;
 
     /**
      * For matrices and vectors, returns the type of individual cells (e.g. mat2 has a component
@@ -176,7 +269,7 @@ public:
     }
 
     /**
-     * For matrices and vectors, returns the number of columns (e.g. both mat3 and vec3 return 3).
+     * For matrices and vectors, returns the number of columns (e.g. both mat3 and float3return 3).
      * For scalars, returns 1. For arrays, returns either the size of the array (if known) or -1.
      * For all other types, causes an assertion failure.
      */
@@ -243,18 +336,21 @@ public:
 private:
     typedef Symbol INHERITED;
 
-    const Kind fTypeKind;
-    const bool fIsNumber = false;
+    String fNameString;
+    Kind fTypeKind;
+    // always kNonnumeric_NumberKind for non-scalar values
+    NumberKind fNumberKind;
+    int fPriority = -1;
     const Type* fComponentType = nullptr;
-    const std::vector<const Type*> fCoercibleTypes;
-    const int fColumns = -1;
-    const int fRows = -1;
-    const std::vector<Field> fFields;
-    const SpvDim_ fDimensions = SpvDim1D;
-    const bool fIsDepth = false;
-    const bool fIsArrayed = false;
-    const bool fIsMultisampled = false;
-    const bool fIsSampled = false;
+    std::vector<const Type*> fCoercibleTypes;
+    int fColumns = -1;
+    int fRows = -1;
+    std::vector<Field> fFields;
+    SpvDim_ fDimensions = SpvDim1D;
+    bool fIsDepth = false;
+    bool fIsArrayed = false;
+    bool fIsMultisampled = false;
+    bool fIsSampled = false;
 };
 
 } // namespace

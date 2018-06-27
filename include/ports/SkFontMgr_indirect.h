@@ -50,11 +50,10 @@ protected:
     SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
                                  const SkFontStyle& fontStyle) const override;
 
-    SkTypeface* onCreateFromStream(SkStreamAsset* stream, int ttcIndex) const override;
-    SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override;
-    SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override;
-
-    SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle) const override;
+    sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset>, int ttcIndex) const override;
+    sk_sp<SkTypeface> onMakeFromFile(const char path[], int ttcIndex) const override;
+    sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int ttcIndex) const override;
+    sk_sp<SkTypeface> onLegacyMakeTypeface(const char familyName[], SkFontStyle) const override;
 
 private:
     SkTypeface* createTypefaceFromFontId(const SkFontIdentity& fontId) const;
@@ -76,7 +75,7 @@ private:
         {
             SkDEBUGCODE(that.fDataId = SkFontIdentity::kInvalidDataId;)
             SkDEBUGCODE(that.fTtcIndex = 0xbbadbeef;)
-            that.fTypeface = NULL;
+            that.fTypeface = nullptr;
         }
 
         ~DataEntry() {

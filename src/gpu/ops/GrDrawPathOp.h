@@ -9,7 +9,6 @@
 #define GrDrawPathOp_DEFINED
 
 #include "GrDrawOp.h"
-#include "GrGpu.h"
 #include "GrOpFlushState.h"
 #include "GrPath.h"
 #include "GrPathProcessor.h"
@@ -25,14 +24,21 @@ class GrDrawPathOpBase : public GrDrawOp {
 protected:
     GrDrawPathOpBase(uint32_t classID, const SkMatrix& viewMatrix, GrPaint&&,
                      GrPathRendering::FillType, GrAAType);
+
     FixedFunctionFlags fixedFunctionFlags() const override {
         if (GrAATypeIsHW(fAAType)) {
             return FixedFunctionFlags::kUsesHWAA | FixedFunctionFlags::kUsesStencil;
         }
         return FixedFunctionFlags::kUsesStencil;
     }
-    bool xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) override {
-        return this->doProcessorAnalysis(caps, clip).requiresDstTexture();
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                GrPixelConfigIsClamped dstIsClamped) override {
+        return this->doProcessorAnalysis(caps, clip, dstIsClamped).requiresDstTexture()
+                ? RequiresDstTexture::kYes : RequiresDstTexture::kNo;
+    }
+
+    void visitProxies(const VisitProxyFunc& func) const override {
+        fProcessorSet.visitProxies(func);
     }
 
 protected:
@@ -40,13 +46,15 @@ protected:
     GrColor color() const { return fInputColor; }
     GrPathRendering::FillType fillType() const { return fFillType; }
     const GrProcessorSet& processors() const { return fProcessorSet; }
+    GrProcessorSet detachProcessors() { return std::move(fProcessorSet); }
     uint32_t pipelineSRGBFlags() const { return fPipelineSRGBFlags; }
-    void initPipeline(const GrOpFlushState&, GrPipeline*);
+    inline GrPipeline::InitArgs pipelineInitArgs(const GrOpFlushState&);
     const GrProcessorSet::Analysis& doProcessorAnalysis(const GrCaps& caps,
-                                                        const GrAppliedClip* clip) {
+                                                        const GrAppliedClip* clip,
+                                                        GrPixelConfigIsClamped dstIsClamped) {
         bool isMixedSamples = GrAAType::kMixedSamples == fAAType;
         fAnalysis = fProcessorSet.finalize(fInputColor, GrProcessorAnalysisCoverage::kNone, clip,
-                                           isMixedSamples, caps, &fInputColor);
+                                           isMixedSamples, caps, dstIsClamped, &fInputColor);
         return fAnalysis;
     }
     const GrProcessorSet::Analysis& processorAnalysis() const {

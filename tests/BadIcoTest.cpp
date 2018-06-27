@@ -24,6 +24,7 @@ DEF_TEST(BadImage, reporter) {
         "ico_fuzz1.ico",
         "skbug3442.webp",
         "skbug3429.webp",
+        "b38116746.ico",
     };
 
     const char* badImagesFolder = "invalid_images";
@@ -31,7 +32,7 @@ DEF_TEST(BadImage, reporter) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(badImages); ++i) {
         SkString resourcePath = SkOSPath::Join(badImagesFolder, badImages[i]);
         std::unique_ptr<SkStream> stream(GetResourceAsStream(resourcePath.c_str()));
-        std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+        std::unique_ptr<SkCodec> codec(SkCodec::MakeFromStream(std::move(stream)));
 
         // These images are corrupt.  It's not important whether we succeed/fail in codec
         // creation or decoding.  We just want to make sure that we don't crash.

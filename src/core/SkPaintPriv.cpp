@@ -10,7 +10,8 @@
 #include "SkPaintPriv.h"
 #include "SkImage.h"
 #include "SkPaint.h"
-#include "SkShader.h"
+#include "SkShaderBase.h"
+#include "SkUtils.h"
 #include "SkXfermodePriv.h"
 
 static bool changes_alpha(const SkPaint& paint) {
@@ -62,10 +63,47 @@ void SkPaintPriv::ScaleFontMetrics(SkPaint::FontMetrics* metrics, SkScalar scale
     metrics->fBottom *= scale;
     metrics->fLeading *= scale;
     metrics->fAvgCharWidth *= scale;
+    metrics->fMaxCharWidth *= scale;
     metrics->fXMin *= scale;
     metrics->fXMax *= scale;
     metrics->fXHeight *= scale;
+    metrics->fCapHeight *= scale;
     metrics->fUnderlineThickness *= scale;
     metrics->fUnderlinePosition *= scale;
+    metrics->fStrikeoutThickness *= scale;
+    metrics->fStrikeoutPosition *= scale;
+}
+
+bool SkPaintPriv::ShouldDither(const SkPaint& p, SkColorType dstCT) {
+    // The paint dither flag can veto.
+    if (!p.isDither()) {
+        return false;
+    }
+
+    // We always dither 565 or 4444 when requested.
+    if (dstCT == kRGB_565_SkColorType || dstCT == kARGB_4444_SkColorType) {
+        return true;
+    }
+
+    // Otherwise, dither is only needed for non-const paints.
+    return p.getImageFilter() || p.getMaskFilter()
+        || !p.getShader() || !as_SB(p.getShader())->isConstant();
+}
+
+int SkPaintPriv::ValidCountText(const void* text, size_t length, SkPaint::TextEncoding encoding) {
+    if (length == 0) {
+        return 0;
+    }
+    switch (encoding) {
+        case SkPaint::kUTF8_TextEncoding: return SkUTF8_CountUnichars(text, length);
+        case SkPaint::kUTF16_TextEncoding: return SkUTF16_CountUnichars(text, length);
+        case SkPaint::kUTF32_TextEncoding: return SkUTF32_CountUnichars(text, length);
+        case SkPaint::kGlyphID_TextEncoding:
+            if (SkIsAlign2(intptr_t(text)) && SkIsAlign2(length)) {
+                return length >> 1;
+            }
+            break;
+    }
+    return 0;
 }
 

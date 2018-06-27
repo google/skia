@@ -87,14 +87,14 @@ public:
 template <typename T> class SkAutoTArray : SkNoncopyable {
 public:
     SkAutoTArray() {
-        fArray = NULL;
+        fArray = nullptr;
         SkDEBUGCODE(fCount = 0;)
     }
     /** Allocate count number of T elements
      */
     explicit SkAutoTArray(int count) {
         SkASSERT(count >= 0);
-        fArray = NULL;
+        fArray = nullptr;
         if (count) {
             fArray = new T[count];
         }
@@ -106,7 +106,7 @@ public:
     void reset(int count) {
         delete[] fArray;
         SkASSERT(count >= 0);
-        fArray = NULL;
+        fArray = nullptr;
         if (count) {
             fArray = new T[count];
         }
@@ -142,14 +142,14 @@ template <int kCountRequested, typename T> class SkAutoSTArray : SkNoncopyable {
 public:
     /** Initialize with no objects */
     SkAutoSTArray() {
-        fArray = NULL;
+        fArray = nullptr;
         fCount = 0;
     }
 
     /** Allocate count number of T elements
      */
     SkAutoSTArray(int count) {
-        fArray = NULL;
+        fArray = nullptr;
         fCount = 0;
         this->reset(count);
     }
@@ -175,16 +175,11 @@ public:
             }
 
             if (count > kCount) {
-                const uint64_t size64 = sk_64_mul(count, sizeof(T));
-                const size_t size = static_cast<size_t>(size64);
-                if (size != size64) {
-                    sk_out_of_memory();
-                }
-                fArray = (T*) sk_malloc_throw(size);
+                fArray = (T*) sk_malloc_throw(count, sizeof(T));
             } else if (count > 0) {
                 fArray = (T*) fStorage;
             } else {
-                fArray = NULL;
+                fArray = nullptr;
             }
 
             fCount = count;
@@ -221,8 +216,8 @@ public:
     }
 
 private:
-#if defined(GOOGLE3)
-    // Stack frame size is limited for GOOGLE3. 4k is less than the actual max, but some functions
+#if defined(SK_BUILD_FOR_GOOGLE3)
+    // Stack frame size is limited for SK_BUILD_FOR_GOOGLE3. 4k is less than the actual max, but some functions
     // have multiple large stack allocations.
     static const int kMaxBytes = 4 * 1024;
     static const int kCount = kCountRequested * sizeof(T) > kMaxBytes
@@ -244,13 +239,13 @@ private:
 template <typename T> class SkAutoTMalloc : SkNoncopyable {
 public:
     /** Takes ownership of the ptr. The ptr must be a value which can be passed to sk_free. */
-    explicit SkAutoTMalloc(T* ptr = NULL) {
+    explicit SkAutoTMalloc(T* ptr = nullptr) {
         fPtr = ptr;
     }
 
     /** Allocates space for 'count' Ts. */
     explicit SkAutoTMalloc(size_t count) {
-        fPtr = count ? (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW) : nullptr;
+        fPtr = count ? (T*)sk_malloc_throw(count, sizeof(T)) : nullptr;
     }
 
     SkAutoTMalloc(SkAutoTMalloc<T>&& that) : fPtr(that.release()) {}
@@ -271,7 +266,7 @@ public:
     /** Resize the memory area pointed to by the current ptr without preserving contents. */
     T* reset(size_t count = 0) {
         sk_free(fPtr);
-        fPtr = count ? (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW) : nullptr;
+        fPtr = count ? (T*)sk_malloc_throw(count, sizeof(T)) : nullptr;
         return fPtr;
     }
 
@@ -308,7 +303,7 @@ public:
      */
     T* release() {
         T* ptr = fPtr;
-        fPtr = NULL;
+        fPtr = nullptr;
         return ptr;
     }
 
@@ -322,7 +317,7 @@ public:
 
     SkAutoSTMalloc(size_t count) {
         if (count > kCount) {
-            fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW | SK_MALLOC_TEMP);
+            fPtr = (T*)sk_malloc_throw(count, sizeof(T));
         } else if (count) {
             fPtr = fTStorage;
         } else {
@@ -342,7 +337,7 @@ public:
             sk_free(fPtr);
         }
         if (count > kCount) {
-            fPtr = (T*)sk_malloc_throw(count * sizeof(T));
+            fPtr = (T*)sk_malloc_throw(count, sizeof(T));
         } else if (count) {
             fPtr = fTStorage;
         } else {
@@ -373,14 +368,14 @@ public:
     void realloc(size_t count) {
         if (count > kCount) {
             if (fPtr == fTStorage) {
-                fPtr = (T*)sk_malloc_throw(count * sizeof(T));
+                fPtr = (T*)sk_malloc_throw(count, sizeof(T));
                 memcpy(fPtr, fTStorage, kCount * sizeof(T));
             } else {
-                fPtr = (T*)sk_realloc_throw(fPtr, count * sizeof(T));
+                fPtr = (T*)sk_realloc_throw(fPtr, count, sizeof(T));
             }
         } else if (count) {
             if (fPtr != fTStorage) {
-                fPtr = (T*)sk_realloc_throw(fPtr, count * sizeof(T));
+                fPtr = (T*)sk_realloc_throw(fPtr, count, sizeof(T));
             }
         } else {
             this->reset(0);
@@ -390,8 +385,8 @@ public:
 private:
     // Since we use uint32_t storage, we might be able to get more elements for free.
     static const size_t kCountWithPadding = SkAlign4(kCountRequested*sizeof(T)) / sizeof(T);
-#if defined(GOOGLE3)
-    // Stack frame size is limited for GOOGLE3. 4k is less than the actual max, but some functions
+#if defined(SK_BUILD_FOR_GOOGLE3)
+    // Stack frame size is limited for SK_BUILD_FOR_GOOGLE3. 4k is less than the actual max, but some functions
     // have multiple large stack allocations.
     static const size_t kMaxBytes = 4 * 1024;
     static const size_t kCount = kCountRequested * sizeof(T) > kMaxBytes
@@ -482,5 +477,16 @@ private:
 };
 
 using SkAutoFree = std::unique_ptr<void, SkFunctionWrapper<void, void, sk_free>>;
+
+template<typename C, std::size_t... Is>
+constexpr auto SkMakeArrayFromIndexSequence(C c, skstd::index_sequence<Is...>)
+-> std::array<skstd::result_of_t<C(std::size_t)>, sizeof...(Is)> {
+    return {{ c(Is)... }};
+}
+
+template<size_t N, typename C> constexpr auto SkMakeArray(C c)
+-> std::array<skstd::result_of_t<C(std::size_t)>, N> {
+    return SkMakeArrayFromIndexSequence(c, skstd::make_index_sequence<N>{});
+}
 
 #endif

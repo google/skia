@@ -172,34 +172,57 @@ public:
      */
     static unsigned ComputeRowBytes(unsigned width, SkMask::Format format) {
         unsigned rb = width;
-        if (SkMask::kBW_Format == format) {
+        switch (format) {
+        case SkMask::kBW_Format:
             rb = BitsToBytes(rb);
-        } else if (SkMask::kARGB32_Format == format) {
-            rb <<= 2;
-        } else if (SkMask::kLCD16_Format == format) {
-            rb = SkAlign4(rb << 1);
-        } else {
+            break;
+        case SkMask::kA8_Format:
             rb = SkAlign4(rb);
+            break;
+        case SkMask::k3D_Format:
+            rb = SkAlign4(rb);
+            break;
+        case SkMask::kARGB32_Format:
+            rb <<= 2;
+            break;
+        case SkMask::kLCD16_Format:
+            rb = SkAlign4(rb << 1);
+            break;
+        default:
+            SK_ABORT("Unknown mask format.");
+            break;
         }
         return rb;
     }
 
     size_t allocImage(SkArenaAlloc* alloc) {
         size_t allocSize;
-        if (SkMask::kBW_Format == fMaskFormat) {
+        switch (static_cast<SkMask::Format>(fMaskFormat)) {
+        case SkMask::kBW_Format:
             allocSize = BitsToBytes(fWidth) * fHeight;
             fImage = alloc->makeArrayDefault<char>(allocSize);
-        } else if (SkMask::kARGB32_Format == fMaskFormat) {
+            break;
+        case SkMask::kA8_Format:
+            allocSize = SkAlign4(fWidth) * fHeight;
+            fImage = alloc->makeArrayDefault<char>(allocSize);
+            break;
+        case SkMask::k3D_Format:
+            allocSize = SkAlign4(fWidth) * fHeight * 3;
+            fImage = alloc->makeArrayDefault<char>(allocSize);
+            break;
+        case SkMask::kARGB32_Format:
             allocSize = fWidth * fHeight;
             fImage = alloc->makeArrayDefault<uint32_t>(fWidth * fHeight);
             allocSize *= sizeof(uint32_t);
-        } else if (SkMask::kLCD16_Format == fMaskFormat) {
+            break;
+        case SkMask::kLCD16_Format:
             allocSize = SkAlign2(fWidth) * fHeight;
             fImage = alloc->makeArrayDefault<uint16_t>(allocSize);
             allocSize *= sizeof(uint16_t);
-        } else {
-            allocSize = SkAlign4(fWidth) * fHeight;
-            fImage = alloc->makeArrayDefault<char>(allocSize);
+            break;
+        default:
+            SK_ABORT("Unknown mask format.");
+            break;
         }
         return allocSize;
     }

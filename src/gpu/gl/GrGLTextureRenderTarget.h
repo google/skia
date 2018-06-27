@@ -9,10 +9,8 @@
 #ifndef GrGLTextureRenderTarget_DEFINED
 #define GrGLTextureRenderTarget_DEFINED
 
-#include "GrGLGpu.h"
 #include "GrGLTexture.h"
 #include "GrGLRenderTarget.h"
-#include "GrTexturePriv.h"
 
 class GrGLGpu;
 
@@ -31,12 +29,7 @@ public:
                             const GrSurfaceDesc& desc,
                             const GrGLTexture::IDDesc& texIDDesc,
                             const GrGLRenderTarget::IDDesc& rtIDDesc,
-                            bool wasMipMapDataProvided)
-        : GrSurface(gpu, desc)
-        , GrGLTexture(gpu, desc, texIDDesc, wasMipMapDataProvided)
-        , GrGLRenderTarget(gpu, desc, rtIDDesc) {
-        this->registerWithCache(budgeted);
-    }
+                            GrMipMapsStatus);
 
     bool canAttemptStencilAttachment() const override;
 
@@ -44,7 +37,8 @@ public:
 
     static sk_sp<GrGLTextureRenderTarget> MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& desc,
                                                       const GrGLTexture::IDDesc& texIDDesc,
-                                                      const GrGLRenderTarget::IDDesc& rtIDDesc);
+                                                      const GrGLRenderTarget::IDDesc& rtIDDesc,
+                                                      GrMipMapsStatus);
 protected:
     void onAbandon() override {
         GrGLRenderTarget::onAbandon();
@@ -62,19 +56,9 @@ private:
                             const GrSurfaceDesc& desc,
                             const GrGLTexture::IDDesc& texIDDesc,
                             const GrGLRenderTarget::IDDesc& rtIDDesc,
-                            bool wasMipMapDataProvided)
-        : GrSurface(gpu, desc)
-        , GrGLTexture(gpu, desc, texIDDesc, wasMipMapDataProvided)
-        , GrGLRenderTarget(gpu, desc, rtIDDesc) {
-        this->registerWithCacheWrapped();
-    }
+                            GrMipMapsStatus);
 
-    size_t onGpuMemorySize() const override {
-        return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
-                                      this->numSamplesOwnedPerPixel(),
-                                      this->texturePriv().hasMipMaps());
-    }
-
+    size_t onGpuMemorySize() const override;
 };
 
 #ifdef SK_BUILD_FOR_WIN

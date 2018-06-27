@@ -20,12 +20,12 @@ namespace SkSL {
 struct ASTParameter : public ASTPositionNode {
     // 'sizes' is a list of the array sizes appearing on a parameter, in source order.
     // e.g. int x[3][1] would have sizes [3, 1].
-    ASTParameter(Position position, Modifiers modifiers, std::unique_ptr<ASTType> type,
-                 String name, std::vector<int> sizes)
-    : INHERITED(position)
+    ASTParameter(int offset, Modifiers modifiers, std::unique_ptr<ASTType> type,
+                 StringFragment name, std::vector<int> sizes)
+    : INHERITED(offset)
     , fModifiers(modifiers)
     , fType(std::move(type))
-    , fName(std::move(name))
+    , fName(name)
     , fSizes(std::move(sizes)) {}
 
     String description() const override {
@@ -38,7 +38,7 @@ struct ASTParameter : public ASTPositionNode {
 
     const Modifiers fModifiers;
     const std::unique_ptr<ASTType> fType;
-    const String fName;
+    const StringFragment fName;
     const std::vector<int> fSizes;
 
     typedef ASTPositionNode INHERITED;

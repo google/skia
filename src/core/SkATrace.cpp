@@ -14,13 +14,18 @@
 #endif
 
 SkATrace::SkATrace() : fBeginSection(nullptr), fEndSection(nullptr), fIsEnabled(nullptr) {
-#ifdef SK_BUILD_FOR_ANDROID
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+    fIsEnabled = []{ return static_cast<bool>(CC_UNLIKELY(ATRACE_ENABLED())); };
+    fBeginSection = [](const char* name){ ATRACE_BEGIN(name); };
+    fEndSection = []{ ATRACE_END(); };
+#elif defined(SK_BUILD_FOR_ANDROID)
     if (void* lib = dlopen("libandroid.so", RTLD_NOW | RTLD_LOCAL)) {
         fBeginSection = (decltype(fBeginSection))dlsym(lib, "ATrace_beginSection");
         fEndSection = (decltype(fEndSection))dlsym(lib, "ATrace_endSection");
         fIsEnabled = (decltype(fIsEnabled))dlsym(lib, "ATrace_isEnabled");
     }
 #endif
+
     if (!fIsEnabled) {
         fIsEnabled = []{ return false; };
     }
@@ -37,13 +42,11 @@ SkEventTracer::Handle SkATrace::addTraceEvent(char phase,
                                               uint8_t flags) {
     if (fIsEnabled()) {
         if (TRACE_EVENT_PHASE_COMPLETE == phase ||
-            TRACE_EVENT_PHASE_BEGIN == phase ||
             TRACE_EVENT_PHASE_INSTANT == phase) {
             fBeginSection(name);
         }
 
-        if (TRACE_EVENT_PHASE_END == phase ||
-            TRACE_EVENT_PHASE_INSTANT == phase) {
+        if (TRACE_EVENT_PHASE_INSTANT == phase) {
             fEndSection();
         }
     }

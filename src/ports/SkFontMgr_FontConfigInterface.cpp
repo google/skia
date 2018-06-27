@@ -26,7 +26,7 @@ SkStreamAsset* SkTypeface_FCI::onOpenStream(int* ttcIndex) const {
         if (!stream) {
             return nullptr;
         }
-        return stream->duplicate();
+        return stream->duplicate().release();
     }
 
     return fFCI->openStream(this->getIdentity());
@@ -176,11 +176,11 @@ protected:
     }
 
     void onGetFamilyName(int index, SkString* familyName) const override {
-        SkFAIL("Not implemented.");
+        SK_ABORT("Not implemented.");
     }
 
     SkFontStyleSet* onCreateStyleSet(int index) const override {
-        SkFAIL("Not implemented.");
+        SK_ABORT("Not implemented.");
         return nullptr;
     }
 
@@ -198,10 +198,10 @@ protected:
     SkTypeface* onMatchFaceStyle(const SkTypeface*,
                                  const SkFontStyle&) const override { return nullptr; }
 
-    SkTypeface* onCreateFromData(SkData*, int ttcIndex) const override { return nullptr; }
+    sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int ttcIndex) const override { return nullptr; }
 
-    SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const override {
-        std::unique_ptr<SkStreamAsset> stream(bareStream);
+    sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> stream,
+                                            int ttcIndex) const override {
         const size_t length = stream->getLength();
         if (!length) {
             return nullptr;
@@ -219,12 +219,13 @@ protected:
         }
 
         auto fontData = skstd::make_unique<SkFontData>(std::move(stream), ttcIndex, nullptr, 0);
-        return SkTypeface_FCI::Create(std::move(fontData), std::move(name), style, isFixedPitch);
+        return sk_sp<SkTypeface>(SkTypeface_FCI::Create(std::move(fontData), std::move(name),
+                                                        style, isFixedPitch));
     }
 
-    SkTypeface* onCreateFromStream(SkStreamAsset* s, const SkFontArguments& args) const override {
+    sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset> stream,
+                                           const SkFontArguments& args) const override {
         using Scanner = SkTypeface_FreeType::Scanner;
-        std::unique_ptr<SkStreamAsset> stream(s);
         const size_t length = stream->getLength();
         if (!length) {
             return nullptr;
@@ -251,16 +252,17 @@ protected:
                                                        args.getCollectionIndex(),
                                                        axisValues.get(),
                                                        axisDefinitions.count());
-        return SkTypeface_FCI::Create(std::move(fontData), std::move(name), style, isFixedPitch);
+        return sk_sp<SkTypeface>(SkTypeface_FCI::Create(std::move(fontData), std::move(name),
+                                                        style, isFixedPitch));
     }
 
-    SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
+    sk_sp<SkTypeface> onMakeFromFile(const char path[], int ttcIndex) const override {
         std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(path);
-        return stream.get() ? this->createFromStream(stream.release(), ttcIndex) : nullptr;
+        return stream ? this->makeFromStream(std::move(stream), ttcIndex) : nullptr;
     }
 
-    SkTypeface* onLegacyCreateTypeface(const char requestedFamilyName[],
-                                       SkFontStyle requestedStyle) const override
+    sk_sp<SkTypeface> onLegacyMakeTypeface(const char requestedFamilyName[],
+                                           SkFontStyle requestedStyle) const override
     {
         SkAutoMutexAcquire ama(fMutex);
 
@@ -269,7 +271,7 @@ protected:
         std::unique_ptr<Request> request(Request::Create(requestedFamilyName, requestedStyle));
         SkTypeface* face = fCache.findAndRef(request.get());
         if (face) {
-            return face;
+            return sk_sp<SkTypeface>(face);
         }
 
         SkFontConfigInterface::FontIdentity identity;
@@ -291,7 +293,7 @@ protected:
         // Add this request to the request cache.
         fCache.add(face, request.release());
 
-        return face;
+        return sk_sp<SkTypeface>(face);
     }
 };
 

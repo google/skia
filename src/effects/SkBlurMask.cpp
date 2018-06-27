@@ -7,6 +7,8 @@
 
 
 #include "SkBlurMask.h"
+#include "SkColorPriv.h"
+#include "SkMaskBlurFilter.h"
 #include "SkMath.h"
 #include "SkTemplates.h"
 #include "SkEndian.h"
@@ -29,392 +31,6 @@ SkScalar SkBlurMask::ConvertSigmaToRadius(SkScalar sigma) {
     return sigma > 0.5f ? (sigma - 0.5f) / kBLUR_SIGMA_SCALE : 0.0f;
 }
 
-#define UNROLL_SEPARABLE_LOOPS
-
-/**
- * This function performs a box blur in X, of the given radius.  If the
- * "transpose" parameter is true, it will transpose the pixels on write,
- * such that X and Y are swapped. Reads are always performed from contiguous
- * memory in X, for speed. The destination buffer (dst) must be at least
- * (width + leftRadius + rightRadius) * height bytes in size.
- *
- * This is what the inner loop looks like before unrolling, and with the two
- * cases broken out separately (width < diameter, width >= diameter):
- *
- *      if (width < diameter) {
- *          for (int x = 0; x < width; ++x) {
- *              sum += *right++;
- *              *dptr = (sum * scale + half) >> 24;
- *              dptr += dst_x_stride;
- *          }
- *          for (int x = width; x < diameter; ++x) {
- *              *dptr = (sum * scale + half) >> 24;
- *              dptr += dst_x_stride;
- *          }
- *          for (int x = 0; x < width; ++x) {
- *              *dptr = (sum * scale + half) >> 24;
- *              sum -= *left++;
- *              dptr += dst_x_stride;
- *          }
- *      } else {
- *          for (int x = 0; x < diameter; ++x) {
- *              sum += *right++;
- *              *dptr = (sum * scale + half) >> 24;
- *              dptr += dst_x_stride;
- *          }
- *          for (int x = diameter; x < width; ++x) {
- *              sum += *right++;
- *              *dptr = (sum * scale + half) >> 24;
- *              sum -= *left++;
- *              dptr += dst_x_stride;
- *          }
- *          for (int x = 0; x < diameter; ++x) {
- *              *dptr = (sum * scale + half) >> 24;
- *              sum -= *left++;
- *              dptr += dst_x_stride;
- *          }
- *      }
- */
-template <bool Transpose>
-static int boxBlur(const uint8_t* src, int src_y_stride, uint8_t* dst,
-                   int leftRadius, int rightRadius, int width, int height)
-{
-    int diameter = leftRadius + rightRadius;
-    int kernelSize = diameter + 1;
-    int border = SkMin32(width, diameter);
-    uint32_t scale = (1 << 24) / kernelSize;
-    int new_width = width + SkMax32(leftRadius, rightRadius) * 2;
-    int dst_x_stride = Transpose ? height : 1;
-    int dst_y_stride = Transpose ? 1 : new_width;
-    uint32_t half = 1 << 23;
-    for (int y = 0; y < height; ++y) {
-        uint32_t sum = 0;
-        uint8_t* dptr = dst + y * dst_y_stride;
-        const uint8_t* right = src + y * src_y_stride;
-        const uint8_t* left = right;
-        for (int x = 0; x < rightRadius - leftRadius; x++) {
-            *dptr = 0;
-            dptr += dst_x_stride;
-        }
-#define LEFT_BORDER_ITER \
-            sum += *right++; \
-            *dptr = (sum * scale + half) >> 24; \
-            dptr += dst_x_stride;
-
-        int x = 0;
-#ifdef UNROLL_SEPARABLE_LOOPS
-        for (; x < border - 16; x += 16) {
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-        }
-#endif
-        for (; x < border; ++x) {
-            LEFT_BORDER_ITER
-        }
-#undef LEFT_BORDER_ITER
-#define TRIVIAL_ITER \
-            *dptr = (sum * scale + half) >> 24; \
-            dptr += dst_x_stride;
-        x = width;
-#ifdef UNROLL_SEPARABLE_LOOPS
-        for (; x < diameter - 16; x += 16) {
-            TRIVIAL_ITER
-            TRIVIAL_ITER
-            TRIVIAL_ITER
-            TRIVIAL_ITER
-            TRIVIAL_ITER
-            TRIVIAL_ITER
-            TRIVIAL_ITER
-            TRIVIAL_ITER
-            TRIVIAL_ITER
-            TRIVIAL_ITER
-            TRIVIAL_ITER
-            TRIVIAL_ITER
-            TRIVIAL_ITER
-            TRIVIAL_ITER
-            TRIVIAL_ITER
-            TRIVIAL_ITER
-        }
-#endif
-        for (; x < diameter; ++x) {
-            TRIVIAL_ITER
-        }
-#undef TRIVIAL_ITER
-#define CENTER_ITER \
-            sum += *right++; \
-            *dptr = (sum * scale + half) >> 24; \
-            sum -= *left++; \
-            dptr += dst_x_stride;
-
-        x = diameter;
-#ifdef UNROLL_SEPARABLE_LOOPS
-        for (; x < width - 16; x += 16) {
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-        }
-#endif
-        for (; x < width; ++x) {
-            CENTER_ITER
-        }
-#undef CENTER_ITER
-#define RIGHT_BORDER_ITER \
-            *dptr = (sum * scale + half) >> 24; \
-            sum -= *left++; \
-            dptr += dst_x_stride;
-
-        x = 0;
-#ifdef UNROLL_SEPARABLE_LOOPS
-        for (; x < border - 16; x += 16) {
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-        }
-#endif
-        for (; x < border; ++x) {
-            RIGHT_BORDER_ITER
-        }
-#undef RIGHT_BORDER_ITER
-        for (int x = 0; x < leftRadius - rightRadius; ++x) {
-            *dptr = 0;
-            dptr += dst_x_stride;
-        }
-        SkASSERT(sum == 0);
-    }
-    return new_width;
-}
-
-/**
- * This variant of the box blur handles blurring of non-integer radii.  It
- * keeps two running sums: an outer sum for the rounded-up kernel radius, and
- * an inner sum for the rounded-down kernel radius.  For each pixel, it linearly
- * interpolates between them.  In float this would be:
- *  outer_weight * outer_sum / kernelSize +
- *  (1.0 - outer_weight) * innerSum / (kernelSize - 2)
- *
- * This is what the inner loop looks like before unrolling, and with the two
- * cases broken out separately (width < diameter, width >= diameter):
- *
- *      if (width < diameter) {
- *          for (int x = 0; x < width; x++) {
- *              inner_sum = outer_sum;
- *              outer_sum += *right++;
- *              *dptr = (outer_sum * outer_scale + inner_sum * inner_scale + half) >> 24;
- *              dptr += dst_x_stride;
- *          }
- *          for (int x = width; x < diameter; ++x) {
- *              *dptr = (outer_sum * outer_scale + inner_sum * inner_scale + half) >> 24;
- *              dptr += dst_x_stride;
- *          }
- *          for (int x = 0; x < width; x++) {
- *              inner_sum = outer_sum - *left++;
- *              *dptr = (outer_sum * outer_scale + inner_sum * inner_scale + half) >> 24;
- *              dptr += dst_x_stride;
- *              outer_sum = inner_sum;
- *          }
- *      } else {
- *          for (int x = 0; x < diameter; x++) {
- *              inner_sum = outer_sum;
- *              outer_sum += *right++;
- *              *dptr = (outer_sum * outer_scale + inner_sum * inner_scale + half) >> 24;
- *              dptr += dst_x_stride;
- *          }
- *          for (int x = diameter; x < width; ++x) {
- *              inner_sum = outer_sum - *left;
- *              outer_sum += *right++;
- *              *dptr = (outer_sum * outer_scale + inner_sum * inner_scale + half) >> 24;
- *              dptr += dst_x_stride;
- *              outer_sum -= *left++;
- *          }
- *          for (int x = 0; x < diameter; x++) {
- *              inner_sum = outer_sum - *left++;
- *              *dptr = (outer_sum * outer_scale + inner_sum * inner_scale + half) >> 24;
- *              dptr += dst_x_stride;
- *              outer_sum = inner_sum;
- *          }
- *      }
- *  }
- *  return new_width;
- */
-
-template <bool Transpose>
-static int boxBlurInterp(const uint8_t* src, int src_y_stride, uint8_t* dst,
-                         int radius, int width, int height,
-                         uint8_t outer_weight)
-{
-    int diameter = radius * 2;
-    int kernelSize = diameter + 1;
-    int border = SkMin32(width, diameter);
-    int inner_weight = 255 - outer_weight;
-    outer_weight += outer_weight >> 7;
-    inner_weight += inner_weight >> 7;
-    uint32_t outer_scale = (outer_weight << 16) / kernelSize;
-    uint32_t inner_scale = (inner_weight << 16) / (kernelSize - 2);
-    uint32_t half = 1 << 23;
-    int new_width = width + diameter;
-    int dst_x_stride = Transpose ? height : 1;
-    int dst_y_stride = Transpose ? 1 : new_width;
-    for (int y = 0; y < height; ++y) {
-        uint32_t outer_sum = 0, inner_sum = 0;
-        uint8_t* dptr = dst + y * dst_y_stride;
-        const uint8_t* right = src + y * src_y_stride;
-        const uint8_t* left = right;
-        int x = 0;
-
-#define LEFT_BORDER_ITER \
-            inner_sum = outer_sum; \
-            outer_sum += *right++; \
-            *dptr = (outer_sum * outer_scale + inner_sum * inner_scale + half) >> 24; \
-            dptr += dst_x_stride;
-
-#ifdef UNROLL_SEPARABLE_LOOPS
-        for (;x < border - 16; x += 16) {
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-            LEFT_BORDER_ITER
-        }
-#endif
-
-        for (;x < border; ++x) {
-            LEFT_BORDER_ITER
-        }
-#undef LEFT_BORDER_ITER
-        for (int x = width; x < diameter; ++x) {
-            *dptr = (outer_sum * outer_scale + inner_sum * inner_scale + half) >> 24;
-            dptr += dst_x_stride;
-        }
-        x = diameter;
-
-#define CENTER_ITER \
-            inner_sum = outer_sum - *left; \
-            outer_sum += *right++; \
-            *dptr = (outer_sum * outer_scale + inner_sum * inner_scale + half) >> 24; \
-            dptr += dst_x_stride; \
-            outer_sum -= *left++;
-
-#ifdef UNROLL_SEPARABLE_LOOPS
-        for (; x < width - 16; x += 16) {
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-            CENTER_ITER
-        }
-#endif
-        for (; x < width; ++x) {
-            CENTER_ITER
-        }
-#undef CENTER_ITER
-
-        #define RIGHT_BORDER_ITER \
-            inner_sum = outer_sum - *left++; \
-            *dptr = (outer_sum * outer_scale + inner_sum * inner_scale + half) >> 24; \
-            dptr += dst_x_stride; \
-            outer_sum = inner_sum;
-
-        x = 0;
-#ifdef UNROLL_SEPARABLE_LOOPS
-        for (; x < border - 16; x += 16) {
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-            RIGHT_BORDER_ITER
-        }
-#endif
-        for (; x < border; ++x) {
-            RIGHT_BORDER_ITER
-        }
-#undef RIGHT_BORDER_ITER
-        SkASSERT(outer_sum == 0 && inner_sum == 0);
-    }
-    return new_width;
-}
-
-static void get_adjusted_radii(SkScalar passRadius, int *loRadius, int *hiRadius)
-{
-    *loRadius = *hiRadius = SkScalarCeilToInt(passRadius);
-    if (SkIntToScalar(*hiRadius) - passRadius > 0.5f) {
-        *loRadius = *hiRadius - 1;
-    }
-}
-
-#include "SkColorPriv.h"
 
 static void merge_src_with_blur(uint8_t dst[], int dstRB,
                                 const uint8_t src[], int srcRB,
@@ -487,101 +103,19 @@ bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src,
         return false;
     }
 
-    // Force high quality off for small radii (performance)
-    if (!force_quality && sigma <= SkIntToScalar(2)) {
-        quality = kLow_SkBlurQuality;
+    SkIPoint border;
+
+    SkMaskBlurFilter blurFilter{sigma, sigma};
+    if (blurFilter.hasNoBlur()) {
+        return false;
     }
-
-    SkScalar passRadius;
-    if (kHigh_SkBlurQuality == quality) {
-        // For the high quality path the 3 pass box blur kernel width is
-        // 6*rad+1 while the full Gaussian width is 6*sigma.
-        passRadius = sigma - (1/6.0f);
-    } else {
-        // For the low quality path we only attempt to cover 3*sigma of the
-        // Gaussian blur area (1.5*sigma on each side). The single pass box
-        // blur's kernel size is 2*rad+1.
-        passRadius = 1.5f*sigma - 0.5f;
-    }
-
-    // highQuality: use three box blur passes as a cheap way
-    // to approximate a Gaussian blur
-    int passCount = (kHigh_SkBlurQuality == quality) ? 3 : 1;
-
-    int rx = SkScalarCeilToInt(passRadius);
-    int outerWeight = 255 - SkScalarRoundToInt((SkIntToScalar(rx) - passRadius) * 255);
-
-    SkASSERT(rx >= 0);
-    SkASSERT((unsigned)outerWeight <= 255);
-    if (rx <= 0) {
+    border = blurFilter.blur(src, dst);
+    // If src.fImage is null, then this call is only to calculate the border.
+    if (src.fImage != nullptr && dst->fImage == nullptr) {
         return false;
     }
 
-    int ry = rx;    // only do square blur for now
-
-    int padx = passCount * rx;
-    int pady = passCount * ry;
-
-    if (margin) {
-        margin->set(padx, pady);
-    }
-    dst->fBounds.set(src.fBounds.fLeft - padx, src.fBounds.fTop - pady,
-                     src.fBounds.fRight + padx, src.fBounds.fBottom + pady);
-
-    dst->fRowBytes = dst->fBounds.width();
-    dst->fFormat = SkMask::kA8_Format;
-    dst->fImage = nullptr;
-
-    if (src.fImage) {
-        size_t dstSize = dst->computeImageSize();
-        if (0 == dstSize) {
-            return false;   // too big to allocate, abort
-        }
-
-        int             sw = src.fBounds.width();
-        int             sh = src.fBounds.height();
-        const uint8_t*  sp = src.fImage;
-        uint8_t*        dp = SkMask::AllocImage(dstSize);
-        SkAutoTCallVProc<uint8_t, SkMask_FreeImage> autoCall(dp);
-
-        // build the blurry destination
-        SkAutoTMalloc<uint8_t>  tmpBuffer(dstSize);
-        uint8_t*                tp = tmpBuffer.get();
-        int w = sw, h = sh;
-
-        if (outerWeight == 255) {
-            int loRadius, hiRadius;
-            get_adjusted_radii(passRadius, &loRadius, &hiRadius);
-            if (kHigh_SkBlurQuality == quality) {
-                // Do three X blurs, with a transpose on the final one.
-                w = boxBlur<false>(sp, src.fRowBytes, tp, loRadius, hiRadius, w, h);
-                w = boxBlur<false>(tp, w,             dp, hiRadius, loRadius, w, h);
-                w = boxBlur<true>(dp, w,             tp, hiRadius, hiRadius, w, h);
-                // Do three Y blurs, with a transpose on the final one.
-                h = boxBlur<false>(tp, h,             dp, loRadius, hiRadius, h, w);
-                h = boxBlur<false>(dp, h,             tp, hiRadius, loRadius, h, w);
-                h = boxBlur<true>(tp, h,             dp, hiRadius, hiRadius, h, w);
-            } else {
-                w = boxBlur<true>(sp, src.fRowBytes, tp, rx, rx, w, h);
-                h = boxBlur<true>(tp, h,             dp, ry, ry, h, w);
-            }
-        } else {
-            if (kHigh_SkBlurQuality == quality) {
-                // Do three X blurs, with a transpose on the final one.
-                w = boxBlurInterp<false>(sp, src.fRowBytes, tp, rx, w, h, outerWeight);
-                w = boxBlurInterp<false>(tp, w,             dp, rx, w, h, outerWeight);
-                w = boxBlurInterp<true>(dp, w,             tp, rx, w, h, outerWeight);
-                // Do three Y blurs, with a transpose on the final one.
-                h = boxBlurInterp<false>(tp, h,             dp, ry, h, w, outerWeight);
-                h = boxBlurInterp<false>(dp, h,             tp, ry, h, w, outerWeight);
-                h = boxBlurInterp<true>(tp, h,             dp, ry, h, w, outerWeight);
-            } else {
-                w = boxBlurInterp<true>(sp, src.fRowBytes, tp, rx, w, h, outerWeight);
-                h = boxBlurInterp<true>(tp, h,             dp, ry, h, w, outerWeight);
-            }
-        }
-
-        dst->fImage = dp;
+    if (src.fImage != nullptr) {
         // if need be, alloc the "real" dst (same size as src) and copy/merge
         // the blur into it (applying the src)
         if (style == kInner_SkBlurStyle) {
@@ -590,22 +124,30 @@ bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src,
             if (0 == srcSize) {
                 return false;   // too big to allocate, abort
             }
+            auto blur = dst->fImage;
             dst->fImage = SkMask::AllocImage(srcSize);
+            auto blurStart = &blur[border.x() + border.y() * dst->fRowBytes];
             merge_src_with_blur(dst->fImage, src.fRowBytes,
-                                sp, src.fRowBytes,
-                                dp + passCount * (rx + ry * dst->fRowBytes),
-                                dst->fRowBytes, sw, sh);
-            SkMask::FreeImage(dp);
+                                src.fImage, src.fRowBytes,
+                                blurStart,
+                                dst->fRowBytes,
+                                src.fBounds.width(), src.fBounds.height());
+            SkMask::FreeImage(blur);
         } else if (style != kNormal_SkBlurStyle) {
-            clamp_with_orig(dp + passCount * (rx + ry * dst->fRowBytes),
-                            dst->fRowBytes, sp, src.fRowBytes, sw, sh, style);
+            auto dstStart = &dst->fImage[border.x() + border.y() * dst->fRowBytes];
+            clamp_with_orig(dstStart,
+                            dst->fRowBytes, src.fImage, src.fRowBytes,
+                            src.fBounds.width(), src.fBounds.height(), style);
         }
-        (void)autoCall.release();
     }
 
     if (style == kInner_SkBlurStyle) {
         dst->fBounds = src.fBounds; // restore trimmed bounds
         dst->fRowBytes = src.fRowBytes;
+    }
+
+    if (margin != nullptr) {
+        *margin = border;
     }
 
     return true;
@@ -667,22 +209,18 @@ static float gaussianIntegral(float x) {
     return 0.4375f + (-x3 / 6.0f - 3.0f * x2 * 0.25f - 1.125f * x);
 }
 
-/*  ComputeBlurProfile allocates and fills in an array of floating
+/*  ComputeBlurProfile fills in an array of floating
     point values between 0 and 255 for the profile signature of
     a blurred half-plane with the given blur radius.  Since we're
     going to be doing screened multiplications (i.e., 1 - (1-x)(1-y))
     all the time, we actually fill in the profile pre-inverted
     (already done 255-x).
-
-    It's the responsibility of the caller to delete the
-    memory returned in profile_out.
 */
 
-uint8_t* SkBlurMask::ComputeBlurProfile(SkScalar sigma) {
-    int size = SkScalarCeilToInt(6*sigma);
+void SkBlurMask::ComputeBlurProfile(uint8_t* profile, int size, SkScalar sigma) {
+    SkASSERT(SkScalarCeilToInt(6*sigma) == size);
 
     int center = size >> 1;
-    uint8_t* profile = new uint8_t[size];
 
     float invr = 1.f/(2*sigma);
 
@@ -692,8 +230,6 @@ uint8_t* SkBlurMask::ComputeBlurProfile(SkScalar sigma) {
         float gi = gaussianIntegral(scaled_x);
         profile[x] = 255 - (uint8_t) (255.f * gi);
     }
-
-    return profile;
 }
 
 // TODO MAYBE: Maintain a profile cache to avoid recomputing this for
@@ -703,8 +239,10 @@ uint8_t* SkBlurMask::ComputeBlurProfile(SkScalar sigma) {
 // Implementation adapted from Michael Herf's approach:
 // http://stereopsis.com/shadowrect/
 
-uint8_t SkBlurMask::ProfileLookup(const uint8_t *profile, int loc, int blurred_width, int sharp_width) {
-    int dx = SkAbs32(((loc << 1) + 1) - blurred_width) - sharp_width; // how far are we from the original edge?
+uint8_t SkBlurMask::ProfileLookup(const uint8_t *profile, int loc,
+                                  int blurredWidth, int sharpWidth) {
+    // how far are we from the original edge?
+    int dx = SkAbs32(((loc << 1) + 1) - blurredWidth) - sharpWidth;
     int ox = dx >> 1;
     if (ox < 0) {
         ox = 0;
@@ -740,9 +278,12 @@ void SkBlurMask::ComputeBlurredScanline(uint8_t *pixels, const uint8_t *profile,
 bool SkBlurMask::BlurRect(SkScalar sigma, SkMask *dst,
                           const SkRect &src, SkBlurStyle style,
                           SkIPoint *margin, SkMask::CreateMode createMode) {
-    int profile_size = SkScalarCeilToInt(6*sigma);
+    int profileSize = SkScalarCeilToInt(6*sigma);
+    if (profileSize <= 0) {
+        return false;   // no blur to compute
+    }
 
-    int pad = profile_size/2;
+    int pad = profileSize/2;
     if (margin) {
         margin->set( pad, pad );
     }
@@ -770,7 +311,9 @@ bool SkBlurMask::BlurRect(SkScalar sigma, SkMask *dst,
         return true;
     }
 
-    std::unique_ptr<uint8_t[]> profile(ComputeBlurProfile(sigma));
+    SkAutoTMalloc<uint8_t> profile(profileSize);
+
+    ComputeBlurProfile(profile, profileSize, sigma);
 
     size_t dstSize = dst->computeImageSize();
     if (0 == dstSize) {
@@ -789,8 +332,8 @@ bool SkBlurMask::BlurRect(SkScalar sigma, SkMask *dst,
     SkAutoTMalloc<uint8_t> horizontalScanline(dstWidth);
     SkAutoTMalloc<uint8_t> verticalScanline(dstHeight);
 
-    ComputeBlurredScanline(horizontalScanline, profile.get(), dstWidth, sigma);
-    ComputeBlurredScanline(verticalScanline, profile.get(), dstHeight, sigma);
+    ComputeBlurredScanline(horizontalScanline, profile, dstWidth, sigma);
+    ComputeBlurredScanline(verticalScanline, profile, dstHeight, sigma);
 
     for (int y = 0 ; y < dstHeight ; ++y) {
         for (int x = 0 ; x < dstWidth ; x++) {

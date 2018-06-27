@@ -159,7 +159,6 @@ protected:
         draw_sweep(canvas, fBM.width()>>2, fBM.height()>>2, fAngle);
 
         fAngle += SK_Scalar1/2;
-        this->inval(nullptr);
     }
 
 private:

@@ -8,6 +8,7 @@
 #include "SkSLString.h"
 
 #include "SkSLUtil.h"
+#include <algorithm>
 #include <errno.h>
 #include <limits.h>
 #include <locale>
@@ -24,7 +25,7 @@ String String::printf(const char* fmt, ...) {
     return result;
 }
 
-#ifdef SKSL_STANDALONE
+#ifdef SKSL_USE_STD_STRING
 void String::appendf(const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
@@ -40,15 +41,16 @@ void String::vappendf(const char* fmt, va_list args) {
 #endif
     #define BUFFER_SIZE 256
     char buffer[BUFFER_SIZE];
+    va_list reuse;
+    va_copy(reuse, args);
     size_t size = VSNPRINTF(buffer, BUFFER_SIZE, fmt, args);
     if (BUFFER_SIZE >= size) {
         this->append(buffer, size);
     } else {
-        auto newBuffer = std::unique_ptr<char[]>(new char[size]);
-        VSNPRINTF(newBuffer.get(), size, fmt, args);
+        auto newBuffer = std::unique_ptr<char[]>(new char[size + 1]);
+        VSNPRINTF(newBuffer.get(), size + 1, fmt, reuse);
         this->append(newBuffer.get(), size);
     }
-    va_end(args);
 }
 
 
@@ -74,6 +76,32 @@ String String::operator+(const String& s) const {
     String result(*this);
     result.append(s);
     return result;
+}
+
+String String::operator+(StringFragment s) const {
+    String result(*this);
+    result.append(s.fChars, s.fLength);
+    return result;
+}
+
+String& String::operator+=(char c) {
+    INHERITED::operator+=(c);
+    return *this;
+}
+
+String& String::operator+=(const char* s) {
+    INHERITED::operator+=(s);
+    return *this;
+}
+
+String& String::operator+=(const String& s) {
+    INHERITED::operator+=(s);
+    return *this;
+}
+
+String& String::operator+=(StringFragment s) {
+    this->append(s.fChars, s.fLength);
+    return *this;
 }
 
 bool String::operator==(const String& s) const {
@@ -103,6 +131,54 @@ bool operator==(const char* s1, const String& s2) {
 }
 
 bool operator!=(const char* s1, const String& s2) {
+    return s2 != s1;
+}
+
+bool StringFragment::operator==(StringFragment s) const {
+    if (fLength != s.fLength) {
+        return false;
+    }
+    return !memcmp(fChars, s.fChars, fLength);
+}
+
+bool StringFragment::operator!=(StringFragment s) const {
+    if (fLength != s.fLength) {
+        return true;
+    }
+    return memcmp(fChars, s.fChars, fLength);
+}
+
+bool StringFragment::operator==(const char* s) const {
+    for (size_t i = 0; i < fLength; ++i) {
+        if (fChars[i] != s[i]) {
+            return false;
+        }
+    }
+    return 0 == s[fLength];
+}
+
+bool StringFragment::operator!=(const char* s) const {
+    for (size_t i = 0; i < fLength; ++i) {
+        if (fChars[i] != s[i]) {
+            return true;
+        }
+    }
+    return 0 != s[fLength];
+}
+
+bool StringFragment::operator<(StringFragment other) const {
+    int comparison = strncmp(fChars, other.fChars, std::min(fLength, other.fLength));
+    if (comparison) {
+        return comparison < 0;
+    }
+    return fLength < other.fLength;
+}
+
+bool operator==(const char* s1, StringFragment s2) {
+    return s2 == s1;
+}
+
+bool operator!=(const char* s1, StringFragment s2) {
     return s2 != s1;
 }
 
@@ -145,7 +221,7 @@ String to_string(double value) {
 #undef MAX_DOUBLE_CHARS
 }
 
-int stoi(String s) {
+int stoi(const String& s) {
     char* p;
     SKSL_DEBUGCODE(errno = 0;)
     long result = strtoul(s.c_str(), &p, 0);
@@ -154,7 +230,7 @@ int stoi(String s) {
     return (int) result;
 }
 
-double stod(String s) {
+double stod(const String& s) {
     double result;
     std::string str(s.c_str(), s.size());
     std::stringstream buffer(str);
@@ -164,7 +240,7 @@ double stod(String s) {
     return result;
 }
 
-long stol(String s) {
+long stol(const String& s) {
     char* p;
     SKSL_DEBUGCODE(errno = 0;)
     long result = strtoul(s.c_str(), &p, 0);

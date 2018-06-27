@@ -65,6 +65,12 @@ public:
 
     virtual const char* name() const = 0;
 
+    typedef std::function<void(GrSurfaceProxy*)> VisitProxyFunc;
+
+    virtual void visitProxies(const VisitProxyFunc&) const {
+        // This default implementation assumes the op has no proxies
+    }
+
     bool combineIfPossible(GrOp* that, const GrCaps& caps) {
         if (this->classID() != that->classID()) {
             return false;
@@ -152,26 +158,25 @@ public:
         return string;
     }
 
-    virtual bool needsCommandBufferIsolation() const { return false; }
-
 protected:
     /**
      * Indicates that the op will produce geometry that extends beyond its bounds for the
      * purpose of ensuring that the fragment shader runs on partially covered pixels for
      * non-MSAA antialiasing.
      */
-    enum class HasAABloat {
-        kYes,
-        kNo
+    enum class HasAABloat : bool {
+        kNo = false,
+        kYes = true
     };
     /**
      * Indicates that the geometry represented by the op has zero area (e.g. it is hairline or
      * points).
      */
-    enum class IsZeroArea {
-        kYes,
-        kNo
+    enum class IsZeroArea : bool {
+        kNo = false,
+        kYes = true
     };
+
     void setBounds(const SkRect& newBounds, HasAABloat aabloat, IsZeroArea zeroArea) {
         fBounds = newBounds;
         this->setBoundsFlags(aabloat, zeroArea);
@@ -180,6 +185,10 @@ protected:
                               HasAABloat aabloat, IsZeroArea zeroArea) {
         m.mapRect(&fBounds, srcBounds);
         this->setBoundsFlags(aabloat, zeroArea);
+    }
+    void makeFullScreen(GrSurfaceProxy* proxy) {
+        this->setBounds(SkRect::MakeIWH(proxy->width(), proxy->height()),
+                        HasAABloat::kNo, IsZeroArea::kNo);
     }
 
     void joinBounds(const GrOp& that) {
@@ -210,7 +219,7 @@ private:
         // 1 to the returned value.
         uint32_t id = static_cast<uint32_t>(sk_atomic_inc(idCounter)) + 1;
         if (!id) {
-            SkFAIL("This should never wrap as it should only be called once for each GrOp "
+            SK_ABORT("This should never wrap as it should only be called once for each GrOp "
                    "subclass.");
         }
         return id;

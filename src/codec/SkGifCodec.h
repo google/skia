@@ -27,20 +27,19 @@ public:
 
     /*
      * Assumes IsGif was called and returned true
-     * Creates a gif decoder
      * Reads enough of the stream to determine the image format
      */
-    static SkCodec* NewFromStream(SkStream*);
+    static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*);
 
     // Callback for SkGifImageReader when a row is available.
-    bool haveDecodedRow(int frameIndex, const unsigned char* rowBegin,
+    void haveDecodedRow(int frameIndex, const unsigned char* rowBegin,
                         int rowNumber, int repeatCount, bool writeTransparentPixels);
 protected:
     /*
      * Performs the full gif decode
      */
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&,
-            SkPMColor*, int*, int*) override;
+            int*) override;
 
     SkEncodedImageFormat onGetEncodedFormat() const override {
         return SkEncodedImageFormat::kGIF;
@@ -55,9 +54,13 @@ protected:
     int onGetRepetitionCount() override;
 
     Result onStartIncrementalDecode(const SkImageInfo& /*dstInfo*/, void*, size_t,
-            const SkCodec::Options&, SkPMColor*, int*) override;
+            const SkCodec::Options&) override;
 
     Result onIncrementalDecode(int*) override;
+
+    const SkFrameHolder* getFrameHolder() const override {
+        return fReader.get();
+    }
 
 private:
 
@@ -70,11 +73,9 @@ private:
     void initializeColorTable(const SkImageInfo& dstInfo, int frameIndex);
 
    /*
-    * Does necessary setup, including setting up the color table and swizzler,
-    * and reports color info to the client.
+    * Does necessary setup, including setting up the color table and swizzler.
     */
-    Result prepareToDecode(const SkImageInfo& dstInfo, SkPMColor* inputColorPtr,
-            int* inputColorCount, const Options& opts);
+    Result prepareToDecode(const SkImageInfo& dstInfo, const Options& opts);
 
     /*
      * Initializes the swizzler.
@@ -151,7 +152,6 @@ private:
     // the background, in which case it is set once and left alone.
     int                                 fRowsDecoded;
     std::unique_ptr<uint32_t[]>         fXformBuffer;
-    bool                                fXformOnDecode;
 
     typedef SkCodec INHERITED;
 };

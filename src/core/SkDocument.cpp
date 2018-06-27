@@ -5,50 +5,40 @@
  * found in the LICENSE file.
  */
 
+#include "SkCanvas.h"
 #include "SkDocument.h"
 #include "SkStream.h"
 
-SkDocument::SkDocument(SkWStream* stream, void (*doneProc)(SkWStream*, bool)) {
-    fStream = stream;   // we do not own this object.
-    fDoneProc = doneProc;
-    fState = kBetweenPages_State;
-}
+SkDocument::SkDocument(SkWStream* stream) : fStream(stream), fState(kBetweenPages_State) {}
 
 SkDocument::~SkDocument() {
     this->close();
 }
 
-SkCanvas* SkDocument::beginPage(SkScalar width, SkScalar height,
-                                const SkRect* content) {
-    if (width <= 0 || height <= 0) {
-        return nullptr;
-    }
-
-    SkRect outer = SkRect::MakeWH(width, height);
-    SkRect inner;
-    if (content) {
-        inner = *content;
-        if (!inner.intersect(outer)) {
+static SkCanvas* trim(SkCanvas* canvas, SkScalar width, SkScalar height,
+                      const SkRect* content) {
+    if (content && canvas) {
+        SkRect inner = *content;
+        if (!inner.intersect({0, 0, width, height})) {
             return nullptr;
         }
-    } else {
-        inner = outer;
+        canvas->clipRect(inner);
+        canvas->translate(inner.x(), inner.y());
     }
+    return canvas;
+}
 
-    for (;;) {
-        switch (fState) {
-            case kBetweenPages_State:
-                fState = kInPage_State;
-                return this->onBeginPage(width, height, inner);
-            case kInPage_State:
-                this->endPage();
-                break;
-            case kClosed_State:
-                return nullptr;
-        }
+SkCanvas* SkDocument::beginPage(SkScalar width, SkScalar height,
+                                const SkRect* content) {
+    if (width <= 0 || height <= 0 || kClosed_State == fState) {
+        return nullptr;
     }
-    SkDEBUGFAIL("never get here");
-    return nullptr;
+    if (kInPage_State == fState) {
+        this->endPage();
+    }
+    SkASSERT(kBetweenPages_State == fState);
+    fState = kInPage_State;
+    return trim(this->onBeginPage(width, height), width, height, content);
 }
 
 void SkDocument::endPage() {
@@ -64,10 +54,6 @@ void SkDocument::close() {
             case kBetweenPages_State: {
                 fState = kClosed_State;
                 this->onClose(fStream);
-
-                if (fDoneProc) {
-                    fDoneProc(fStream, false);
-                }
                 // we don't own the stream, but we mark it nullptr since we can
                 // no longer write to it.
                 fStream = nullptr;
@@ -86,9 +72,6 @@ void SkDocument::abort() {
     this->onAbort();
 
     fState = kClosed_State;
-    if (fDoneProc) {
-        fDoneProc(fStream, true);
-    }
     // we don't own the stream, but we mark it nullptr since we can
     // no longer write to it.
     fStream = nullptr;

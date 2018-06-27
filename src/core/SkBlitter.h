@@ -11,9 +11,10 @@
 #include "SkAutoMalloc.h"
 #include "SkBitmapProcShader.h"
 #include "SkColor.h"
+#include "SkCoverageDelta.h"
 #include "SkRect.h"
 #include "SkRegion.h"
-#include "SkShader.h"
+#include "SkShaderBase.h"
 
 class SkArenaAlloc;
 class SkMatrix;
@@ -30,6 +31,13 @@ struct SkMask;
 class SkBlitter {
 public:
     virtual ~SkBlitter();
+
+    // The actual blitter may speedup the process by rewriting this in a more efficient way.
+    // For example, one may avoid some virtual blitAntiH calls by directly calling
+    // SkBlitRow::Color32.
+    virtual void blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& clip,
+                                    bool isEvenOdd, bool isInverse, bool isConvex,
+                                    SkArenaAlloc* alloc);
 
     /// Blit a horizontal run of one or more pixels.
     virtual void blitH(int x, int y, int width) = 0;
@@ -61,6 +69,9 @@ public:
     */
     virtual void blitAntiRect(int x, int y, int width, int height,
                               SkAlpha leftAlpha, SkAlpha rightAlpha);
+
+    // Blit a rect in AA with size at least 3 x 3 (small rect has too many edge cases...)
+    void blitFatAntiRect(const SkRect& rect);
 
     /// Blit a pattern of pixels defined by a rectangle-clipped mask;
     /// typically used for text.
@@ -148,9 +159,9 @@ public:
                                    SkArenaAlloc*);
     ///@}
 
-    static SkShader::ContextRec::DstType PreferredShaderDest(const SkImageInfo&);
+    static SkShaderBase::ContextRec::DstType PreferredShaderDest(const SkImageInfo&);
 
-    static bool UseRasterPipelineBlitter(const SkPixmap&, const SkPaint&);
+    static bool UseRasterPipelineBlitter(const SkPixmap&, const SkPaint&, const SkMatrix&);
 
 protected:
     SkAutoMalloc fBlitMemory;

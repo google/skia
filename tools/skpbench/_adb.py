@@ -5,12 +5,13 @@
 
 from __future__ import print_function
 import re
+import time
 import subprocess
 import sys
 
 class Adb:
-  def __init__(self, device_serial=None, echo=False):
-    self.__invocation = ['adb']
+  def __init__(self, device_serial=None, adb_binary=None, echo=False):
+    self.__invocation = [adb_binary]
     if device_serial:
       self.__invocation.extend(['-s', device_serial])
     self.__echo = echo
@@ -43,6 +44,13 @@ class Adb:
 
   def remount(self):
     self.__invoke('remount')
+
+  def reboot(self):
+    self.__is_root = None
+    self.shell('reboot')
+    self.__invoke('wait-for-device')
+    while '1' != self.check('getprop sys.boot_completed').strip():
+      time.sleep(1)
 
   def __echo_shell_cmd(self, cmd):
     escaped = [re.sub(r'([^a-zA-Z0-9])', r'\\\1', x)

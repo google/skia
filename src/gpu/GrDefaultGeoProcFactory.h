@@ -8,6 +8,7 @@
 #ifndef GrDefaultGeoProcFactory_DEFINED
 #define GrDefaultGeoProcFactory_DEFINED
 
+#include "GrColorSpaceXform.h"
 #include "GrGeometryProcessor.h"
 
 /*
@@ -66,13 +67,26 @@ namespace GrDefaultGeoProcFactory {
             kPremulGrColorAttribute_Type,
             kUnpremulSkColorAttribute_Type,
         };
-        explicit Color(GrColor color) : fType(kPremulGrColorUniform_Type), fColor(color) {}
-        Color(Type type) : fType(type), fColor(GrColor_ILLEGAL) {
+        explicit Color(GrColor color)
+                : fType(kPremulGrColorUniform_Type)
+                , fColor(color)
+                , fLinearize(false)
+                , fColorSpaceXform(nullptr) {}
+        Color(Type type)
+                : fType(type)
+                , fColor(GrColor_ILLEGAL)
+                , fLinearize(false)
+                , fColorSpaceXform(nullptr) {
             SkASSERT(type != kPremulGrColorUniform_Type);
         }
 
         Type fType;
         GrColor fColor;
+
+        // These options only apply to SkColor. Any GrColors are assumed to have been color managed
+        // during paint conversion.
+        bool fLinearize;
+        sk_sp<GrColorSpaceXform> fColorSpaceXform;
     };
 
     struct Coverage {

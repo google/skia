@@ -50,7 +50,10 @@ SkPath SkSVGNode::asPath(const SkSVGRenderContext& ctx) const {
 bool SkSVGNode::onPrepareToRender(SkSVGRenderContext* ctx) const {
     ctx->applyPresentationAttributes(fPresentationAttributes,
                                      this->hasChildren() ? 0 : SkSVGRenderContext::kLeaf);
-    return true;
+
+    // visibility:hidden disables rendering
+    const auto visibility = ctx->presentationContext().fInherited.fVisibility.get()->type();
+    return visibility != SkSVGVisibility::Type::kHidden;
 }
 
 void SkSVGNode::setAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
@@ -59,6 +62,10 @@ void SkSVGNode::setAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
 
 void SkSVGNode::setClipPath(const SkSVGClip& clip) {
     fPresentationAttributes.fClipPath.set(clip);
+}
+
+void SkSVGNode::setClipRule(const SkSVGFillRule& clipRule) {
+    fPresentationAttributes.fClipRule.set(clipRule);
 }
 
 void SkSVGNode::setFill(const SkSVGPaint& svgPaint) {
@@ -83,6 +90,14 @@ void SkSVGNode::setStroke(const SkSVGPaint& svgPaint) {
     fPresentationAttributes.fStroke.set(svgPaint);
 }
 
+void SkSVGNode::setStrokeDashArray(const SkSVGDashArray& dashArray) {
+    fPresentationAttributes.fStrokeDashArray.set(dashArray);
+}
+
+void SkSVGNode::setStrokeDashOffset(const SkSVGLength& dashOffset) {
+    fPresentationAttributes.fStrokeDashOffset.set(dashOffset);
+}
+
 void SkSVGNode::setStrokeOpacity(const SkSVGNumberType& opacity) {
     fPresentationAttributes.fStrokeOpacity.set(
         SkSVGNumberType(SkTPin<SkScalar>(opacity.value(), 0, 1)));
@@ -92,11 +107,20 @@ void SkSVGNode::setStrokeWidth(const SkSVGLength& strokeWidth) {
     fPresentationAttributes.fStrokeWidth.set(strokeWidth);
 }
 
+void SkSVGNode::setVisibility(const SkSVGVisibility& visibility) {
+    fPresentationAttributes.fVisibility.set(visibility);
+}
+
 void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     switch (attr) {
     case SkSVGAttribute::kClipPath:
         if (const SkSVGClipValue* clip = v.as<SkSVGClipValue>()) {
             this->setClipPath(*clip);
+        }
+        break;
+    case SkSVGAttribute::kClipRule:
+        if (const SkSVGFillRuleValue* clipRule = v.as<SkSVGFillRuleValue>()) {
+            this->setClipRule(*clipRule);
         }
         break;
     case SkSVGAttribute::kFill:
@@ -124,6 +148,16 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
             this->setStroke(*paint);
         }
         break;
+    case SkSVGAttribute::kStrokeDashArray:
+        if (const SkSVGDashArrayValue* dashArray = v.as<SkSVGDashArrayValue>()) {
+            this->setStrokeDashArray(*dashArray);
+        }
+        break;
+    case SkSVGAttribute::kStrokeDashOffset:
+        if (const SkSVGLengthValue* dashOffset= v.as<SkSVGLengthValue>()) {
+            this->setStrokeDashOffset(*dashOffset);
+        }
+        break;
     case SkSVGAttribute::kStrokeOpacity:
         if (const SkSVGNumberValue* opacity = v.as<SkSVGNumberValue>()) {
             this->setStrokeOpacity(*opacity);
@@ -139,13 +173,25 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
             fPresentationAttributes.fStrokeLineJoin.set(*lineJoin);
         }
         break;
+    case SkSVGAttribute::kStrokeMiterLimit:
+        if (const SkSVGNumberValue* miterLimit = v.as<SkSVGNumberValue>()) {
+            fPresentationAttributes.fStrokeMiterLimit.set(*miterLimit);
+        }
+        break;
     case SkSVGAttribute::kStrokeWidth:
         if (const SkSVGLengthValue* strokeWidth = v.as<SkSVGLengthValue>()) {
             this->setStrokeWidth(*strokeWidth);
         }
         break;
+    case SkSVGAttribute::kVisibility:
+        if (const SkSVGVisibilityValue* visibility = v.as<SkSVGVisibilityValue>()) {
+            this->setVisibility(*visibility);
+        }
+        break;
     default:
+#if defined(SK_VERBOSE_SVG_PARSING)
         SkDebugf("attribute ID <%d> ignored for node <%d>\n", attr, fTag);
+#endif
         break;
     }
 }

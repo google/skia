@@ -5,17 +5,20 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkScanPriv_DEFINED
 #define SkScanPriv_DEFINED
 
+#include "SkPath.h"
 #include "SkScan.h"
 #include "SkBlitter.h"
+
+// controls how much we super-sample (when we use that scan convertion)
+#define SK_SUPERSAMPLE_SHIFT    2
 
 class SkScanClipper {
 public:
     SkScanClipper(SkBlitter* blitter, const SkRegion* clip, const SkIRect& bounds,
-                  bool skipRejectTest = false);
+                  bool skipRejectTest = false, bool boundsPreClipped = false);
 
     SkBlitter*      getBlitter() const { return fBlitter; }
     const SkIRect*  getClipRect() const { return fClipRect; }
@@ -75,6 +78,23 @@ static EdgeType* backward_insert_start(EdgeType* prev, SkFixed x) {
         prev = prev->fPrev;
     }
     return prev;
+}
+
+// Check if the path is a rect and fat enough after clipping; if so, blit it.
+static inline bool TryBlitFatAntiRect(SkBlitter* blitter, const SkPath& path, const SkIRect& clip) {
+    SkRect rect;
+    if (!path.isRect(&rect)) {
+        return false; // not rect
+    }
+    if (!rect.intersect(SkRect::Make(clip))) {
+        return true; // The intersection is empty. Hence consider it done.
+    }
+    SkIRect bounds = rect.roundOut();
+    if (bounds.width() < 3 || bounds.height() < 3) {
+        return false; // not fat
+    }
+    blitter->blitFatAntiRect(rect);
+    return true;
 }
 
 #endif

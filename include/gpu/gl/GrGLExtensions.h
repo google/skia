@@ -13,6 +13,7 @@
 #include "SkString.h"
 
 struct GrGLInterface;
+class SkJSONWriter;
 
 /**
  * This helper queries the current GL context for its extensions, remembers them, and can be
@@ -64,7 +65,7 @@ public:
 
     void reset() { fStrings->reset(); }
 
-    void print(const char* sep = "\n") const;
+    void dumpJSON(SkJSONWriter*) const;
 
 private:
     bool                                fInitialized;

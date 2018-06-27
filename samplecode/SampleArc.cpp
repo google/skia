@@ -7,22 +7,22 @@
 
 #include "SampleCode.h"
 #include "SkAnimTimer.h"
-#include "SkView.h"
 #include "SkCanvas.h"
+#include "SkColorFilter.h"
+#include "SkColorPriv.h"
+#include "SkCornerPathEffect.h"
 #include "SkDrawable.h"
 #include "SkGradientShader.h"
 #include "SkPath.h"
-#include "SkRegion.h"
-#include "SkShader.h"
-#include "SkUtils.h"
-#include "Sk1DPathEffect.h"
-#include "SkCornerPathEffect.h"
 #include "SkPathMeasure.h"
 #include "SkPictureRecorder.h"
 #include "SkRandom.h"
-#include "SkColorPriv.h"
-#include "SkColorFilter.h"
-#include "SkLayerRasterizer.h"
+#include "SkRegion.h"
+#include "SkShader.h"
+#include "SkString.h"
+#include "SkUtils.h"
+#include "SkView.h"
+#include "Sk1DPathEffect.h"
 
 #include "SkParsePath.h"
 static void testparse() {
@@ -194,12 +194,6 @@ protected:
         SkScalar angle = SkDoubleToScalar(fmod(timer.secs() * 360 / 24, 360));
         fAnimatingDrawable->setSweep(angle);
         return true;
-    }
-
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
-     //   fSweep += SK_Scalar1;
-        this->inval(nullptr);
-        return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 
 private:

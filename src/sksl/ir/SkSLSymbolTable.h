@@ -8,8 +8,8 @@
 #ifndef SKSL_SYMBOLTABLE
 #define SKSL_SYMBOLTABLE
 
+#include <map>
 #include <memory>
-#include <unordered_map>
 #include <vector>
 #include "SkSLErrorReporter.h"
 #include "SkSLSymbol.h"
@@ -31,24 +31,32 @@ public:
     : fParent(parent)
     , fErrorReporter(*errorReporter) {}
 
-    const Symbol* operator[](const String& name);
+    const Symbol* operator[](StringFragment name);
 
-    void add(const String& name, std::unique_ptr<Symbol> symbol);
+    void add(StringFragment name, std::unique_ptr<Symbol> symbol);
 
-    void addWithoutOwnership(const String& name, const Symbol* symbol);
+    void addWithoutOwnership(StringFragment name, const Symbol* symbol);
 
     Symbol* takeOwnership(Symbol* s);
 
+    IRNode* takeOwnership(IRNode* n);
+
     void markAllFunctionsBuiltin();
+
+    std::map<StringFragment, const Symbol*>::iterator begin();
+
+    std::map<StringFragment, const Symbol*>::iterator end();
 
     const std::shared_ptr<SymbolTable> fParent;
 
 private:
     static std::vector<const FunctionDeclaration*> GetFunctions(const Symbol& s);
 
-    std::vector<std::unique_ptr<Symbol>> fOwnedPointers;
+    std::vector<std::unique_ptr<Symbol>> fOwnedSymbols;
 
-    std::unordered_map<String, const Symbol*> fSymbols;
+    std::vector<std::unique_ptr<IRNode>> fOwnedNodes;
+
+    std::map<StringFragment, const Symbol*> fSymbols;
 
     ErrorReporter& fErrorReporter;
 };

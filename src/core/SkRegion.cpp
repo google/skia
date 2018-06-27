@@ -8,6 +8,7 @@
 
 #include "SkAtomics.h"
 #include "SkRegionPriv.h"
+#include "SkSafeMath.h"
 #include "SkTemplates.h"
 #include "SkUtils.h"
 
@@ -139,19 +140,14 @@ bool SkRegion::setEmpty() {
     return false;
 }
 
-bool SkRegion::setRect(int32_t left, int32_t top,
-                       int32_t right, int32_t bottom) {
-    if (left >= right || top >= bottom) {
+bool SkRegion::setRect(const SkIRect& r) {
+    if (r.isEmpty()) {
         return this->setEmpty();
     }
     this->freeRuns();
-    fBounds.set(left, top, right, bottom);
+    fBounds = r;
     fRunHead = SkRegion_gRectRunHeadPtr;
     return true;
-}
-
-bool SkRegion::setRect(const SkIRect& r) {
-    return this->setRect(r.fLeft, r.fTop, r.fRight, r.fBottom);
 }
 
 bool SkRegion::setRegion(const SkRegion& src) {
@@ -200,7 +196,7 @@ char* SkRegion::toString() {
     iter.reset(*this);
     while (!iter.done()) {
         const SkIRect& r = iter.rect();
-        count += snprintf(result+count, max - count, 
+        count += snprintf(result+count, max - count,
                 "(%d,%d,%d,%d)", r.fLeft, r.fTop, r.fRight, r.fBottom);
         iter.next();
     }
@@ -292,6 +288,11 @@ bool SkRegion::setRuns(RunType runs[], int count) {
     fRunHead = fRunHead->ensureWritable();
     memcpy(fRunHead->writable_runs(), runs, count * sizeof(RunType));
     fRunHead->computeRunBounds(&fBounds);
+
+    // Our computed bounds might be too large, so we have to check here.
+    if (fBounds.isEmpty()) {
+        return this->setEmpty();
+    }
 
     SkDEBUGCODE(this->validate();)
 
@@ -1129,6 +1130,21 @@ size_t SkRegion::writeToMemory(void* storage) const {
     return buffer.pos();
 }
 
+static bool validate_run_count(int ySpanCount, int intervalCount, int runCount) {
+    // return 2 + 3 * ySpanCount + 2 * intervalCount;
+    if (ySpanCount < 1 || intervalCount < 2) {
+        return false;
+    }
+    SkSafeMath safeMath;
+    int sum = 2;
+    sum = safeMath.addInt(sum, ySpanCount);
+    sum = safeMath.addInt(sum, ySpanCount);
+    sum = safeMath.addInt(sum, ySpanCount);
+    sum = safeMath.addInt(sum, intervalCount);
+    sum = safeMath.addInt(sum, intervalCount);
+    return safeMath && sum == runCount;
+}
+
 // Validate that a memory sequence is a valid region.
 // Try to check all possible errors.
 // never read beyond &runs[runCount-1].
@@ -1139,7 +1155,7 @@ static bool validate_run(const int32_t* runs,
                          int32_t intervalCount) {
     // Region Layout:
     //    Top ( Bottom Span_Interval_Count ( Left Right )* Sentinel )+ Sentinel
-    if (ySpanCount < 1 || intervalCount < 2 || runCount != 2 + 3 * ySpanCount + 2 * intervalCount) {
+    if (!validate_run_count(SkToInt(ySpanCount), SkToInt(intervalCount), runCount)) {
         return false;
     }
     SkASSERT(runCount >= 7);  // 7==SkRegion::kRectRegionRuns
@@ -1155,6 +1171,9 @@ static bool validate_run(const int32_t* runs,
     if (rect.fTop == SkRegion::kRunTypeSentinel) {
         return false;  // no rect can contain SkRegion::kRunTypeSentinel
     }
+    if (rect.fTop != givenBounds.fTop) {
+        return false;  // Must not begin with empty span that does not contribute to bounds.
+    }
     do {
         --ySpanCount;
         if (ySpanCount < 0) {
@@ -1164,6 +1183,13 @@ static bool validate_run(const int32_t* runs,
         if (rect.fBottom == SkRegion::kRunTypeSentinel) {
             return false;
         }
+        if (rect.fBottom > givenBounds.fBottom) {
+            return false;  // Must not end with empty span that does not contribute to bounds.
+        }
+        if (rect.fBottom <= rect.fTop) {
+            return false;  // y-intervals must be ordered; rects must be non-empty.
+        }
+
         int32_t xIntervals = *runs++;
         SkASSERT(runs < end);
         if (xIntervals < 0 || runs + 1 + 2 * xIntervals > end) {
@@ -1173,13 +1199,19 @@ static bool validate_run(const int32_t* runs,
         if (intervalCount < 0) {
             return false;  // too many intervals
         }
+        bool firstInterval = true;
+        int32_t lastRight = 0;  // check that x-intervals are distinct and ordered.
         while (xIntervals-- > 0) {
             rect.fLeft = *runs++;
             rect.fRight = *runs++;
             if (rect.fLeft == SkRegion::kRunTypeSentinel ||
-                rect.fRight == SkRegion::kRunTypeSentinel || rect.isEmpty()) {
+                rect.fRight == SkRegion::kRunTypeSentinel ||
+                rect.fLeft >= rect.fRight ||  // check non-empty rect
+                (!firstInterval && rect.fLeft <= lastRight)) {
                 return false;
             }
+            lastRight = rect.fRight;
+            firstInterval = false;
             bounds.join(rect);
         }
         if (*runs++ != SkRegion::kRunTypeSentinel) {
@@ -1469,6 +1501,49 @@ bool SkRegion::Spanerator::next(int* left, int* right) {
     }
     fRuns = runs + 2;
     return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static void visit_pairs(int pairCount, int y, const int32_t pairs[],
+                        const std::function<void(const SkIRect&)>& visitor) {
+    for (int i = 0; i < pairCount; ++i) {
+        visitor({ pairs[0], y, pairs[1], y + 1 });
+        pairs += 2;
+    }
+}
+
+void SkRegionPriv::VisitSpans(const SkRegion& rgn,
+                              const std::function<void(const SkIRect&)>& visitor) {
+    if (rgn.isEmpty()) {
+        return;
+    }
+    if (rgn.isRect()) {
+        visitor(rgn.getBounds());
+    } else {
+        const int32_t* p = rgn.fRunHead->readonly_runs();
+        int32_t top = *p++;
+        int32_t bot = *p++;
+        do {
+            int pairCount = *p++;
+            if (pairCount == 1) {
+                visitor({ p[0], top, p[1], bot });
+                p += 2;
+            } else if (pairCount > 1) {
+                // we have to loop repeated in Y, sending each interval in Y -> X order
+                for (int y = top; y < bot; ++y) {
+                    visit_pairs(pairCount, y, p, visitor);
+                }
+                p += pairCount * 2;
+            }
+            assert_sentinel(*p, true);
+            p += 1; // skip sentinel
+
+            // read next bottom or sentinel
+            top = bot;
+            bot = *p++;
+        } while (!SkRegionValueIsSentinel(bot));
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

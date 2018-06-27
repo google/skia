@@ -6,7 +6,7 @@
  */
 
 #include "SkCodecPriv.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkHalf.h"
 #include "SkOpts.h"
 #include "SkSwizzler.h"
@@ -104,27 +104,6 @@ static void swizzle_bit_to_grayscale(
 #undef GRAYSCALE_BLACK
 #undef GRAYSCALE_WHITE
 
-// same as swizzle_bit_to_grayscale and swizzle_bit_to_n32 except for value assigned to dst[x]
-static void swizzle_bit_to_index(
-        void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int dstWidth,
-        int bpp, int deltaSrc, int offset, const SkPMColor* /*ctable*/) {
-    uint8_t* SK_RESTRICT dst = (uint8_t*) dstRow;
-
-    // increment src by byte offset and bitIndex by bit offset
-    src += offset / 8;
-    int bitIndex = offset % 8;
-    uint8_t currByte = *src;
-
-    dst[0] = ((currByte >> (7-bitIndex)) & 1);
-
-    for (int x = 1; x < dstWidth; x++) {
-        int bitOffset = bitIndex + deltaSrc;
-        bitIndex = bitOffset % 8;
-        currByte = *(src += bitOffset / 8);
-        dst[x] = ((currByte >> (7-bitIndex)) & 1);
-    }
-}
-
 // same as swizzle_bit_to_grayscale and swizzle_bit_to_index except for value assigned to dst[x]
 static void swizzle_bit_to_n32(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int dstWidth,
@@ -175,14 +154,14 @@ static void swizzle_bit_to_565(
 static void swizzle_bit_to_f16(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int dstWidth,
         int bpp, int deltaSrc, int offset, const SkPMColor* /*ctable*/) {
-    static const uint64_t kWhite = (((uint64_t) SK_Half1) <<  0) |
-                                   (((uint64_t) SK_Half1) << 16) |
-                                   (((uint64_t) SK_Half1) << 32) |
-                                   (((uint64_t) SK_Half1) << 48);
-    static const uint64_t kBlack = (((uint64_t)        0) <<  0) |
-                                   (((uint64_t)        0) << 16) |
-                                   (((uint64_t)        0) << 32) |
-                                   (((uint64_t) SK_Half1) << 48);
+    constexpr uint64_t kWhite = (((uint64_t) SK_Half1) <<  0) |
+                                (((uint64_t) SK_Half1) << 16) |
+                                (((uint64_t) SK_Half1) << 32) |
+                                (((uint64_t) SK_Half1) << 48);
+    constexpr uint64_t kBlack = (((uint64_t)        0) <<  0) |
+                                (((uint64_t)        0) << 16) |
+                                (((uint64_t)        0) << 32) |
+                                (((uint64_t) SK_Half1) << 48);
 
     uint64_t* SK_RESTRICT dst = (uint64_t*) dstRow;
 
@@ -202,27 +181,6 @@ static void swizzle_bit_to_f16(
 }
 
 // kIndex1, kIndex2, kIndex4
-
-static void swizzle_small_index_to_index(
-        void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int dstWidth,
-        int bpp, int deltaSrc, int offset, const SkPMColor ctable[]) {
-
-    uint8_t* dst = (uint8_t*) dstRow;
-    src += offset / 8;
-    int bitIndex = offset % 8;
-    uint8_t currByte = *src;
-    const uint8_t mask = (1 << bpp) - 1;
-    uint8_t index = (currByte >> (8 - bpp - bitIndex)) & mask;
-    dst[0] = index;
-
-    for (int x = 1; x < dstWidth; x++) {
-        int bitOffset = bitIndex + deltaSrc;
-        bitIndex = bitOffset % 8;
-        currByte = *(src += bitOffset / 8);
-        index = (currByte >> (8 - bpp - bitIndex)) & mask;
-        dst[x] = index;
-    }
-}
 
 static void swizzle_small_index_to_565(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int dstWidth,
@@ -397,6 +355,16 @@ static void fast_swizzle_grayalpha_to_n32_premul(
     // Note that there is no need to distinguish between rgb and bgr.
     // Each color channel will get the same value.
     SkOpts::grayA_to_rgbA((uint32_t*) dst, src + offset, width);
+}
+
+static void swizzle_grayalpha_to_a8(void* dst, const uint8_t* src, int width, int bpp,
+                                    int deltaSrc, int offset, const SkPMColor[]) {
+    src += offset;
+    uint8_t* dst8 = (uint8_t*)dst;
+    for (int x = 0; x < width; ++x) {
+        dst8[x] = src[1];   // src[0] is gray, ignored
+        src += deltaSrc;
+    }
 }
 
 // kBGR
@@ -818,7 +786,7 @@ SkSwizzler* SkSwizzler::CreateSwizzler(const SkEncodedInfo& encodedInfo,
     RowProc fastProc = nullptr;
     RowProc proc = nullptr;
     int srcBPP;
-    const int dstBPP = SkColorTypeBytesPerPixel(dstInfo.colorType());
+    const int dstBPP = dstInfo.bytesPerPixel();
     if (skipFormatConversion) {
         switch (encodedInfo.color()) {
             case SkEncodedInfo::kGray_Color:
@@ -887,9 +855,6 @@ SkSwizzler* SkSwizzler::CreateSwizzler(const SkEncodedInfo& encodedInfo,
                             case kBGRA_8888_SkColorType:
                                 proc = &swizzle_bit_to_n32;
                                 break;
-                            case kIndex_8_SkColorType:
-                                proc = &swizzle_bit_to_index;
-                                break;
                             case kRGB_565_SkColorType:
                                 proc = &swizzle_bit_to_565;
                                 break;
@@ -951,6 +916,9 @@ SkSwizzler* SkSwizzler::CreateSwizzler(const SkEncodedInfo& encodedInfo,
                             }
                         }
                         break;
+                    case kAlpha_8_SkColorType:
+                        proc = &swizzle_grayalpha_to_a8;
+                        break;
                     default:
                         return nullptr;
                 }
@@ -970,9 +938,6 @@ SkSwizzler* SkSwizzler::CreateSwizzler(const SkEncodedInfo& encodedInfo,
                             case kRGB_565_SkColorType:
                                 proc = &swizzle_small_index_to_565;
                                 break;
-                            case kIndex_8_SkColorType:
-                                proc = &swizzle_small_index_to_index;
-                                break;
                             default:
                                 return nullptr;
                         }
@@ -989,10 +954,6 @@ SkSwizzler* SkSwizzler::CreateSwizzler(const SkEncodedInfo& encodedInfo,
                                 break;
                             case kRGB_565_SkColorType:
                                 proc = &swizzle_index_to_565;
-                                break;
-                            case kIndex_8_SkColorType:
-                                proc = &sample1;
-                                fastProc = &copy;
                                 break;
                             default:
                                 return nullptr;

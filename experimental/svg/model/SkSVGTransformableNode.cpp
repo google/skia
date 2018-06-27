@@ -17,7 +17,7 @@ SkSVGTransformableNode::SkSVGTransformableNode(SkSVGTag tag)
 
 bool SkSVGTransformableNode::onPrepareToRender(SkSVGRenderContext* ctx) const {
     if (!fTransform.value().isIdentity()) {
-        ctx->canvas()->save();
+        ctx->saveOnce();
         ctx->canvas()->concat(fTransform);
     }
 
@@ -38,14 +38,6 @@ void SkSVGTransformableNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValu
 }
 
 void SkSVGTransformableNode::mapToParent(SkPath* path) const {
-    if (fTransform.value().isIdentity()) {
-        return;
-    }
-
-    SkMatrix inv;
-    if (!fTransform.value().invert(&inv)) {
-        return;
-    }
-
-    path->transform(inv);
+    // transforms the path to parent node coordinates.
+    path->transform(fTransform.value());
 }

@@ -20,7 +20,9 @@
 // memory barrier between accesses of a context on different threads. Also, there may be multiple
 // GrContexts and those contexts may be in use concurrently on different threads.
 namespace {
+#if !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
 static SkSpinlock gOpPoolSpinLock;
+#endif
 class MemoryPoolAccessor {
 public:
 

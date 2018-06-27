@@ -62,8 +62,7 @@ public:
 
     void setCanvas(SkPipeCanvas* canvas) { fPipeCanvas = canvas; }
     void setStream(SkWStream* stream) { fStream = stream; }
-    void setTypefaceSerializer(SkTypefaceSerializer* tfs) { fTFSerializer = tfs; }
-    void setImageSerializer(SkImageSerializer* ims) { fIMSerializer = ims; }
+    void setSerialProcs(const SkSerialProcs& procs) { fProcs = procs; }
 
     // returns 0 if not found
     int findImage(SkImage* image) const { return fImages.find(image->uniqueID()); }
@@ -77,9 +76,7 @@ public:
 private:
     SkPipeCanvas*           fPipeCanvas = nullptr;
     SkWStream*              fStream = nullptr;
-
-    SkTypefaceSerializer*   fTFSerializer = nullptr;
-    SkImageSerializer*      fIMSerializer = nullptr;
+    SkSerialProcs           fProcs;
 
     // All our keys (at the moment) are 32bit uniqueIDs
     SkTIndexSet<uint32_t>   fImages;
@@ -128,6 +125,7 @@ protected:
     void onDrawRegion(const SkRegion&, const SkPaint&) override;
     void onDrawRRect(const SkRRect&, const SkPaint&) override;
     void onDrawPath(const SkPath&, const SkPaint&) override;
+    void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override;
 
     void onDrawImage(const SkImage*, SkScalar left, SkScalar top, const SkPaint*) override;
     void onDrawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
@@ -154,7 +152,7 @@ protected:
                           const SkPaint*) override;
     void onDrawBitmapLattice(const SkBitmap&, const Lattice& lattice, const SkRect& dst,
                              const SkPaint*) override;
-    
+
 private:
     SkPipeDeduper*  fDeduper;
     SkWStream*      fStream;

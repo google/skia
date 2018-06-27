@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "Test.h"
 
 // our std SkAlpha255To256

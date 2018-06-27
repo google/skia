@@ -1,0 +1,56 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[CUSTOM_C:\\_B_WORK]/skia/bin/fetch-gn"
+    ],
+    "cwd": "[CUSTOM_C:\\_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release_x64",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release"
+    },
+    "infra_step": true,
+    "name": "fetch-gn"
+  },
+  {
+    "cmd": [
+      "[CUSTOM_C:\\_B_WORK]/skia/bin/gn.exe",
+      "gen",
+      "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release/Release_x64",
+      "--args=cc=\"clang\" clang_win=\"[START_DIR]/clang_win\" cxx=\"clang++\" is_debug=false target_cpu=\"x86_64\" win_sdk=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/a9e1098bba66d2acccc377d5ee81265910f29272/win_sdk\" win_vc=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/a9e1098bba66d2acccc377d5ee81265910f29272/VC\""
+    ],
+    "cwd": "[CUSTOM_C:\\_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release_x64",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release"
+    },
+    "name": "gn gen"
+  },
+  {
+    "cmd": [
+      "ninja.exe",
+      "-k",
+      "0",
+      "-C",
+      "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release/Release_x64"
+    ],
+    "cwd": "[CUSTOM_C:\\_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release_x64",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release"
+    },
+    "name": "ninja"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

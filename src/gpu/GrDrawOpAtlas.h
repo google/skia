@@ -14,6 +14,7 @@
 
 #include "ops/GrDrawOp.h"
 
+class GrOnFlushResourceProvider;
 class GrRectanizer;
 
 struct GrDrawOpAtlasConfig {
@@ -21,24 +22,43 @@ struct GrDrawOpAtlasConfig {
     int numPlotsY() const { return fHeight / fPlotWidth; }
     int fWidth;
     int fHeight;
-    int fLog2Width;
-    int fLog2Height;
     int fPlotWidth;
     int fPlotHeight;
 };
 
 /**
- * This class manages an atlas texture on behalf of GrDrawOps. The draw ops that use the atlas
- * perform texture uploads when preparing their draws during flush. The class provides facilities
- * for using GrDrawOpUploadToken to detect data hazards. Op's uploads are performed in "asap" mode
- * until it is impossible to add data without overwriting texels read by draws that have not yet
- * executed on the gpu. At that point the uploads are performed "inline" between draws. If a single
- * draw would use enough subimage space to overflow the atlas texture then the atlas will fail to
- * add a subimage. This gives the op the chance to end the draw and begin a new one. Additional
- * uploads will then succeed in inline mode.
+ * This class manages one or more atlas textures on behalf of GrDrawOps. The draw ops that use the
+ * atlas perform texture uploads when preparing their draws during flush. The class provides
+ * facilities for using GrDrawOpUploadToken to detect data hazards. Op's uploads are performed in
+ * "ASAP" mode until it is impossible to add data without overwriting texels read by draws that
+ * have not yet executed on the gpu. At that point, the atlas will attempt to allocate a new
+ * atlas texture (or "page") of the same size, up to a maximum number of textures, and upload
+ * to that texture. If that's not possible, the uploads are performed "inline" between draws. If a
+ * single draw would use enough subimage space to overflow the atlas texture then the atlas will
+ * fail to add a subimage. This gives the op the chance to end the draw and begin a new one.
+ * Additional uploads will then succeed in inline mode.
+ *
+ * When the atlas has multiple pages, new uploads are prioritized to the lower index pages, i.e.,
+ * it will try to upload to page 0 before page 1 or 2. To keep the atlas from continually using
+ * excess space, periodic garbage collection is needed to shift data from the higher index pages to
+ * the lower ones, and then eventually remove any pages that are no longer in use. "In use" is
+ * determined by using the GrDrawUploadToken system: After a flush each subarea of the page
+ * is checked to see whether it was used in that flush; if it is not, a counter is incremented.
+ * Once that counter reaches a threshold that subarea is considered to be no longer in use.
+ *
+ * Garbage collection is initiated by the GrDrawOpAtlas's client via the compact() method. One
+ * solution is to make the client a subclass of GrOnFlushCallbackObject, register it with the
+ * GrContext via addOnFlushCallbackObject(), and the client's postFlush() method calls compact()
+ * and passes in the given GrDrawUploadToken.
  */
 class GrDrawOpAtlas {
+private:
+    static constexpr auto kMaxMultitexturePages = 4;
+
 public:
+    /** Is the atlas allowed to use more than one texture? */
+    enum class AllowMultitexturing : bool { kNo, kYes };
+
     /**
      * An AtlasID is an opaque handle which callers can use to determine if the atlas contains
      * a specific piece of data.
@@ -64,15 +84,16 @@ public:
      *                          direction
      *  @param numPlotsY        The number of plots the atlas should be broken up into in the Y
      *                          direction
+     *  @param allowMultitexturing Can the atlas use more than one texture.
      *  @param func             An eviction function which will be called whenever the atlas has to
      *                          evict data
-     *  @param data             User supplied data which will be passed into func whenver an
+     *  @param data             User supplied data which will be passed into func whenever an
      *                          eviction occurs
      *  @return                 An initialized GrDrawOpAtlas, or nullptr if creation fails
      */
-    static std::unique_ptr<GrDrawOpAtlas> Make(GrContext*, GrPixelConfig,
-                                               int width, int height,
+    static std::unique_ptr<GrDrawOpAtlas> Make(GrContext*, GrPixelConfig, int width, int height,
                                                int numPlotsX, int numPlotsY,
+                                               AllowMultitexturing allowMultitexturing,
                                                GrDrawOpAtlas::EvictionFunc func, void* data);
 
     /**
@@ -87,27 +108,32 @@ public:
      * 'setUseToken' with the currentToken from the GrDrawOp::Target, otherwise the next call to
      * addToAtlas might cause the previous data to be overwritten before it has been read.
      */
-    bool addToAtlas(AtlasID*, GrDrawOp::Target*, int width, int height, const void* image,
+    bool addToAtlas(AtlasID*, GrDeferredUploadTarget*, int width, int height, const void* image,
                     SkIPoint16* loc);
 
     GrContext* context() const { return fContext; }
-    sk_sp<GrTextureProxy> getProxy() const { return fProxy; }
+    const sk_sp<GrTextureProxy>* getProxies() const { return fProxies; }
 
     uint64_t atlasGeneration() const { return fAtlasGeneration; }
 
     inline bool hasID(AtlasID id) {
-        uint32_t index = GetIndexFromID(id);
-        SkASSERT(index < fNumPlots);
-        return fPlotArray[index]->genID() == GetGenerationFromID(id);
+        uint32_t plot = GetPlotIndexFromID(id);
+        SkASSERT(plot < fNumPlots);
+        uint32_t page = GetPageIndexFromID(id);
+        SkASSERT(page < fNumPages);
+        return fPages[page].fPlotArray[plot]->genID() == GetGenerationFromID(id);
     }
 
     /** To ensure the atlas does not evict a given entry, the client must set the last use token. */
-    inline void setLastUseToken(AtlasID id, GrDrawOpUploadToken token) {
+    inline void setLastUseToken(AtlasID id, GrDeferredUploadToken token) {
         SkASSERT(this->hasID(id));
-        uint32_t index = GetIndexFromID(id);
-        SkASSERT(index < fNumPlots);
-        this->makeMRU(fPlotArray[index].get());
-        fPlotArray[index]->setLastUseToken(token);
+        uint32_t plotIdx = GetPlotIndexFromID(id);
+        SkASSERT(plotIdx < fNumPlots);
+        uint32_t pageIdx = GetPageIndexFromID(id);
+        SkASSERT(pageIdx < fNumPages);
+        Plot* plot = fPages[pageIdx].fPlotArray[plotIdx].get();
+        this->makeMRU(plot, pageIdx);
+        plot->setLastUseToken(token);
     }
 
     inline void registerEvictionCallback(EvictionFunc func, void* userData) {
@@ -116,67 +142,96 @@ public:
         data->fData = userData;
     }
 
+    uint32_t pageCount() { return fNumPages; }
+
     /**
      * A class which can be handed back to GrDrawOpAtlas for updating last use tokens in bulk.  The
-     * current max number of plots the GrDrawOpAtlas can handle is 32. If in the future this is
-     * insufficient then we can move to a 64 bit int.
+     * current max number of plots per page the GrDrawOpAtlas can handle is 32. If in the future
+     * this is insufficient then we can move to a 64 bit int.
      */
     class BulkUseTokenUpdater {
     public:
-        BulkUseTokenUpdater() : fPlotAlreadyUpdated(0) {}
+        BulkUseTokenUpdater() {
+            memset(fPlotAlreadyUpdated, 0, sizeof(fPlotAlreadyUpdated));
+        }
         BulkUseTokenUpdater(const BulkUseTokenUpdater& that)
-            : fPlotsToUpdate(that.fPlotsToUpdate)
-            , fPlotAlreadyUpdated(that.fPlotAlreadyUpdated) {
+            : fPlotsToUpdate(that.fPlotsToUpdate) {
+            memcpy(fPlotAlreadyUpdated, that.fPlotAlreadyUpdated, sizeof(fPlotAlreadyUpdated));
         }
 
         void add(AtlasID id) {
-            int index = GrDrawOpAtlas::GetIndexFromID(id);
-            if (!this->find(index)) {
-                this->set(index);
+            int index = GrDrawOpAtlas::GetPlotIndexFromID(id);
+            int pageIdx = GrDrawOpAtlas::GetPageIndexFromID(id);
+            if (!this->find(pageIdx, index)) {
+                this->set(pageIdx, index);
             }
         }
 
         void reset() {
             fPlotsToUpdate.reset();
-            fPlotAlreadyUpdated = 0;
+            memset(fPlotAlreadyUpdated, 0, sizeof(fPlotAlreadyUpdated));
         }
+
+        struct PlotData {
+            PlotData(int pageIdx, int plotIdx) : fPageIndex(pageIdx), fPlotIndex(plotIdx) {}
+            uint32_t fPageIndex;
+            uint32_t fPlotIndex;
+        };
 
     private:
-        bool find(int index) const {
+        bool find(int pageIdx, int index) const {
             SkASSERT(index < kMaxPlots);
-            return (fPlotAlreadyUpdated >> index) & 1;
+            return (fPlotAlreadyUpdated[pageIdx] >> index) & 1;
         }
 
-        void set(int index) {
-            SkASSERT(!this->find(index));
-            fPlotAlreadyUpdated = fPlotAlreadyUpdated | (1 << index);
-            fPlotsToUpdate.push_back(index);
+        void set(int pageIdx, int index) {
+            SkASSERT(!this->find(pageIdx, index));
+            fPlotAlreadyUpdated[pageIdx] |= (1 << index);
+            fPlotsToUpdate.push_back(PlotData(pageIdx, index));
         }
 
-        static const int kMinItems = 4;
-        static const int kMaxPlots = 32;
-        SkSTArray<kMinItems, int, true> fPlotsToUpdate;
-        uint32_t fPlotAlreadyUpdated;
+        static constexpr int kMinItems = 4;
+        static constexpr int kMaxPlots = 32;
+        SkSTArray<kMinItems, PlotData, true> fPlotsToUpdate;
+        uint32_t fPlotAlreadyUpdated[kMaxMultitexturePages];
 
         friend class GrDrawOpAtlas;
     };
 
-    void setLastUseTokenBulk(const BulkUseTokenUpdater& updater, GrDrawOpUploadToken token) {
+    void setLastUseTokenBulk(const BulkUseTokenUpdater& updater, GrDeferredUploadToken token) {
         int count = updater.fPlotsToUpdate.count();
         for (int i = 0; i < count; i++) {
-            Plot* plot = fPlotArray[updater.fPlotsToUpdate[i]].get();
-            this->makeMRU(plot);
-            plot->setLastUseToken(token);
+            const BulkUseTokenUpdater::PlotData& pd = updater.fPlotsToUpdate[i];
+            // it's possible we've added a plot to the updater and subsequently the plot's page
+            // was deleted -- so we check to prevent a crash
+            if (pd.fPageIndex < fNumPages) {
+                Plot* plot = fPages[pd.fPageIndex].fPlotArray[pd.fPlotIndex].get();
+                this->makeMRU(plot, pd.fPageIndex);
+                plot->setLastUseToken(token);
+            }
         }
     }
 
-    static const int kGlyphMaxDim = 256;
+    void compact(GrDeferredUploadToken startTokenForNextFlush);
+
+    static constexpr auto kGlyphMaxDim = 256;
     static bool GlyphTooLargeForAtlas(int width, int height) {
         return width > kGlyphMaxDim || height > kGlyphMaxDim;
     }
 
+    static uint32_t GetPageIndexFromID(AtlasID id) {
+        return id & 0xff;
+    }
+
+    void instantiate(GrOnFlushResourceProvider*);
+
 private:
-    GrDrawOpAtlas(GrContext*, sk_sp<GrTextureProxy>, int numPlotsX, int numPlotsY);
+    uint32_t maxPages() const {
+        return AllowMultitexturing::kYes == fAllowMultitexturing ? kMaxMultitexturePages : 1;
+    }
+
+    GrDrawOpAtlas(GrContext*, GrPixelConfig config, int width, int height, int numPlotsX,
+                  int numPlotsY, AllowMultitexturing allowMultitexturing);
 
     /**
      * The backing GrTexture for a GrDrawOpAtlas is broken into a spatial grid of Plots. The Plots
@@ -189,8 +244,8 @@ private:
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(Plot);
 
     public:
-        /** index() is a unique id for the plot relative to the owning GrAtlas. */
-        uint32_t index() const { return fIndex; }
+        /** index() is a unique id for the plot relative to the owning GrAtlas and page. */
+        uint32_t index() const { return fPlotIndex; }
         /**
          * genID() is incremented when the plot is evicted due to a atlas spill. It is used to know
          * if a particular subimage is still present in the atlas.
@@ -211,16 +266,20 @@ private:
          * use lastUse to determine when we can evict a plot from the cache, i.e. if the last use
          * has already flushed through the gpu then we can reuse the plot.
          */
-        GrDrawOpUploadToken lastUploadToken() const { return fLastUpload; }
-        GrDrawOpUploadToken lastUseToken() const { return fLastUse; }
-        void setLastUploadToken(GrDrawOpUploadToken token) { fLastUpload = token; }
-        void setLastUseToken(GrDrawOpUploadToken token) { fLastUse = token; }
+        GrDeferredUploadToken lastUploadToken() const { return fLastUpload; }
+        GrDeferredUploadToken lastUseToken() const { return fLastUse; }
+        void setLastUploadToken(GrDeferredUploadToken token) { fLastUpload = token; }
+        void setLastUseToken(GrDeferredUploadToken token) { fLastUse = token; }
 
-        void uploadToTexture(GrDrawOp::WritePixelsFn&, GrTexture* texture);
+        void uploadToTexture(GrDeferredTextureUploadWritePixelsFn&, GrTextureProxy*);
         void resetRects();
 
+        int flushesSinceLastUsed() { return fFlushesSinceLastUse; }
+        void resetFlushesSinceLastUsed() { fFlushesSinceLastUse = 0; }
+        void incFlushesSinceLastUsed() { fFlushesSinceLastUse++; }
+
     private:
-        Plot(int index, uint64_t genID, int offX, int offY, int width, int height,
+        Plot(int pageIndex, int plotIndex, uint64_t genID, int offX, int offY, int width, int height,
              GrPixelConfig config);
 
         ~Plot() override;
@@ -230,19 +289,27 @@ private:
          * the atlas
          */
         Plot* clone() const {
-            return new Plot(fIndex, fGenID + 1, fX, fY, fWidth, fHeight, fConfig);
+            return new Plot(fPageIndex, fPlotIndex, fGenID + 1, fX, fY, fWidth, fHeight, fConfig);
         }
 
-        static GrDrawOpAtlas::AtlasID CreateId(uint32_t index, uint64_t generation) {
-            SkASSERT(index < (1 << 16));
+        static GrDrawOpAtlas::AtlasID CreateId(uint32_t pageIdx, uint32_t plotIdx,
+                                               uint64_t generation) {
+            SkASSERT(pageIdx < (1 << 8));
+            SkASSERT(pageIdx < kMaxMultitexturePages);
+            SkASSERT(plotIdx < (1 << 8));
             SkASSERT(generation < ((uint64_t)1 << 48));
-            return generation << 16 | index;
+            return generation << 16 | plotIdx << 8 | pageIdx;
         }
 
-        GrDrawOpUploadToken   fLastUpload;
-        GrDrawOpUploadToken   fLastUse;
+        GrDeferredUploadToken fLastUpload;
+        GrDeferredUploadToken fLastUse;
+        // the number of flushes since this plot has been last used
+        int                   fFlushesSinceLastUse;
 
-        const uint32_t fIndex;
+        struct {
+            const uint32_t fPageIndex : 16;
+            const uint32_t fPlotIndex : 16;
+        };
         uint64_t fGenID;
         GrDrawOpAtlas::AtlasID fID;
         unsigned char* fData;
@@ -264,8 +331,8 @@ private:
 
     typedef SkTInternalLList<Plot> PlotList;
 
-    static uint32_t GetIndexFromID(AtlasID id) {
-        return id & 0xffff;
+    static uint32_t GetPlotIndexFromID(AtlasID id) {
+        return (id >> 8) & 0xff;
     }
 
     // top 48 bits are reserved for the generation ID
@@ -273,26 +340,40 @@ private:
         return (id >> 16) & 0xffffffffffff;
     }
 
-    inline bool updatePlot(GrDrawOp::Target*, AtlasID*, Plot*);
+    inline bool updatePlot(GrDeferredUploadTarget*, AtlasID*, Plot*);
 
-    inline void makeMRU(Plot* plot) {
-        if (fPlotList.head() == plot) {
+    inline void makeMRU(Plot* plot, int pageIdx) {
+        if (fPages[pageIdx].fPlotList.head() == plot) {
             return;
         }
 
-        fPlotList.remove(plot);
-        fPlotList.addToHead(plot);
+        fPages[pageIdx].fPlotList.remove(plot);
+        fPages[pageIdx].fPlotList.addToHead(plot);
+
+        // No MRU update for pages -- since we will always try to add from
+        // the front and remove from the back there is no need for MRU.
     }
 
-    inline void processEviction(AtlasID);
+    bool createNewPage();
+    void deleteLastPage();
+
+    void processEviction(AtlasID);
+    inline void processEvictionAndResetRects(Plot* plot) {
+        this->processEviction(plot->id());
+        plot->resetRects();
+    }
 
     GrContext*            fContext;
-    sk_sp<GrTextureProxy> fProxy;
+    GrPixelConfig         fPixelConfig;
+    int                   fTextureWidth;
+    int                   fTextureHeight;
     int                   fPlotWidth;
     int                   fPlotHeight;
-    SkDEBUGCODE(uint32_t  fNumPlots;)
+    unsigned int          fNumPlots;
 
     uint64_t              fAtlasGeneration;
+    // nextTokenToFlush() value at the end of the previous flush
+    GrDeferredUploadToken fPrevFlushToken;
 
     struct EvictionData {
         EvictionFunc fFunc;
@@ -300,10 +381,18 @@ private:
     };
 
     SkTDArray<EvictionData> fEvictionCallbacks;
-    // allocated array of Plots
-    std::unique_ptr<sk_sp<Plot>[]> fPlotArray;
-    // LRU list of Plots (MRU at head - LRU at tail)
-    PlotList fPlotList;
+
+    struct Page {
+        // allocated array of Plots
+        std::unique_ptr<sk_sp<Plot>[]> fPlotArray;
+        // LRU list of Plots (MRU at head - LRU at tail)
+        PlotList fPlotList;
+    };
+    // proxies kept separate to make it easier to pass them up to client
+    sk_sp<GrTextureProxy> fProxies[kMaxMultitexturePages];
+    Page fPages[kMaxMultitexturePages];
+    AllowMultitexturing fAllowMultitexturing;
+    uint32_t fNumPages;
 };
 
 #endif

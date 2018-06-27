@@ -5,32 +5,33 @@
  * found in the LICENSE file.
  */
 #include "SampleCode.h"
-#include "SkView.h"
-#include "SkCanvas.h"
-#include "SkTypeface.h"
-#include "SkPath.h"
-#include "SkRegion.h"
-#include "SkShader.h"
-#include "SkUtils.h"
 #include "Sk1DPathEffect.h"
+#include "SkCanvas.h"
+#include "SkColorFilter.h"
+#include "SkColorPriv.h"
 #include "SkCornerPathEffect.h"
+#include "SkDither.h"
+#include "SkFontStyle.h"
+#include "SkPath.h"
 #include "SkPathMeasure.h"
 #include "SkRandom.h"
-#include "SkColorPriv.h"
-#include "SkColorFilter.h"
-#include "SkDither.h"
+#include "SkRegion.h"
+#include "SkShader.h"
+#include "SkTypeface.h"
+#include "SkUtils.h"
+#include "SkView.h"
 
-static const struct {
+static constexpr struct {
     const char* fName;
-    SkTypeface::Style   fStyle;
+    SkFontStyle fStyle;
 } gFaces[] = {
-    { nullptr, SkTypeface::kNormal },
-    { nullptr, SkTypeface::kBold },
-    { "serif", SkTypeface::kNormal },
-    { "serif", SkTypeface::kBold },
-    { "serif", SkTypeface::kItalic },
-    { "serif", SkTypeface::kBoldItalic },
-    { "monospace", SkTypeface::kNormal }
+    { nullptr, SkFontStyle::Normal() },
+    { nullptr, SkFontStyle::Bold() },
+    { "serif", SkFontStyle::Normal() },
+    { "serif", SkFontStyle::Bold() },
+    { "serif", SkFontStyle::Italic() },
+    { "serif", SkFontStyle::BoldItalic() },
+    { "monospace", SkFontStyle::Normal() }
 };
 
 static const int gFaceCount = SK_ARRAY_COUNT(gFaces);
@@ -41,8 +42,7 @@ class FontScalerTestView : public SampleView {
 public:
     FontScalerTestView() {
         for (int i = 0; i < gFaceCount; i++) {
-            fFaces[i] = SkTypeface::MakeFromName(
-                gFaces[i].fName, SkFontStyle::FromOldStyle(gFaces[i].fStyle));
+            fFaces[i] = SkTypeface::MakeFromName(gFaces[i].fName, gFaces[i].fStyle);
         }
     }
 

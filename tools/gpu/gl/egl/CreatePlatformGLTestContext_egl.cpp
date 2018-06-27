@@ -39,6 +39,16 @@ private:
     typedef sk_gpu_test::FenceSync INHERITED;
 };
 
+std::function<void()> context_restorer() {
+    auto display = eglGetCurrentDisplay();
+    auto dsurface = eglGetCurrentSurface(EGL_DRAW);
+    auto rsurface = eglGetCurrentSurface(EGL_READ);
+    auto context = eglGetCurrentContext();
+    return [display, dsurface, rsurface, context] {
+        eglMakeCurrent(display, dsurface, rsurface, context);
+    };
+}
+
 class EGLGLTestContext : public sk_gpu_test::GLTestContext {
 public:
     EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* shareContext);
@@ -53,6 +63,7 @@ private:
     void destroyGLContext();
 
     void onPlatformMakeCurrent() const override;
+    std::function<void()> onPlatformGetAutoContextRestore() const override;
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
@@ -168,14 +179,15 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
             continue;
         }
 
+        SkScopeExit restorer(context_restorer());
         if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
             SkDebugf("eglMakeCurrent failed.  EGL Error: 0x%08x\n", eglGetError());
             this->destroyGLContext();
             continue;
         }
 
-        gl.reset(GrGLCreateNativeInterface());
-        if (nullptr == gl.get()) {
+        gl = GrGLMakeNativeInterface();
+        if (!gl) {
             SkDebugf("Failed to create gl interface.\n");
             this->destroyGLContext();
             continue;
@@ -187,7 +199,7 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
             continue;
         }
 
-        this->init(gl.release(), EGLFenceSync::MakeIfSupported(fDisplay));
+        this->init(std::move(gl), EGLFenceSync::MakeIfSupported(fDisplay));
         break;
     }
 }
@@ -199,9 +211,11 @@ EGLGLTestContext::~EGLGLTestContext() {
 
 void EGLGLTestContext::destroyGLContext() {
     if (fDisplay) {
-        eglMakeCurrent(fDisplay, 0, 0, 0);
-
         if (fContext) {
+            if (eglGetCurrentContext() == fContext) {
+                // This will ensure that the context is immediately deleted.
+                eglMakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+            }
             eglDestroyContext(fDisplay, fContext);
             fContext = EGL_NO_CONTEXT;
         }
@@ -237,7 +251,6 @@ GrGLuint EGLGLTestContext::eglImageToExternalTexture(GrEGLImage image) const {
     if (!this->gl()->hasExtension("GL_OES_EGL_image_external")) {
         return 0;
     }
-#ifndef EGL_NO_IMAGE_EXTERNAL
     typedef GrGLvoid (*EGLImageTargetTexture2DProc)(GrGLenum, GrGLeglImage);
 
     EGLImageTargetTexture2DProc glEGLImageTargetTexture2D =
@@ -246,24 +259,21 @@ GrGLuint EGLGLTestContext::eglImageToExternalTexture(GrEGLImage image) const {
         return 0;
     }
     GrGLuint texID;
-    glGenTextures(1, &texID);
+    GR_GL_CALL(this->gl(), GenTextures(1, &texID));
     if (!texID) {
         return 0;
     }
-    glBindTexture(GR_GL_TEXTURE_EXTERNAL, texID);
-    if (glGetError() != GR_GL_NO_ERROR) {
-        glDeleteTextures(1, &texID);
+    GR_GL_CALL_NOERRCHECK(this->gl(), BindTexture(GR_GL_TEXTURE_EXTERNAL, texID));
+    if (GR_GL_GET_ERROR(this->gl()) != GR_GL_NO_ERROR) {
+        GR_GL_CALL(this->gl(), DeleteTextures(1, &texID));
         return 0;
     }
     glEGLImageTargetTexture2D(GR_GL_TEXTURE_EXTERNAL, image);
-    if (glGetError() != GR_GL_NO_ERROR) {
-        glDeleteTextures(1, &texID);
+    if (GR_GL_GET_ERROR(this->gl()) != GR_GL_NO_ERROR) {
+        GR_GL_CALL(this->gl(), DeleteTextures(1, &texID));
         return 0;
     }
     return texID;
-#else
-    return 0;
-#endif //EGL_NO_IMAGE_EXTERNAL
 }
 
 std::unique_ptr<sk_gpu_test::GLTestContext> EGLGLTestContext::makeNew() const {
@@ -279,6 +289,13 @@ void EGLGLTestContext::onPlatformMakeCurrent() const {
     if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
         SkDebugf("Could not set the context.\n");
     }
+}
+
+std::function<void()> EGLGLTestContext::onPlatformGetAutoContextRestore() const {
+    if (eglGetCurrentContext() == fContext) {
+        return nullptr;
+    }
+    return context_restorer();
 }
 
 void EGLGLTestContext::onPlatformSwapBuffers() const {

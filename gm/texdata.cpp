@@ -12,6 +12,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextureContext.h"
 #include "GrFixedClip.h"
@@ -76,6 +77,7 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
         return;
     }
 
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     const SkImageInfo ii = SkImageInfo::Make(S, S, kBGRA_8888_SkColorType, kPremul_SkAlphaType);
 
     SkAutoTArray<SkPMColor> gTextureData((2 * S) * (2 * S));
@@ -90,16 +92,16 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
         desc.fWidth     = 2 * S;
         desc.fHeight    = 2 * S;
         desc.fConfig    = SkImageInfo2GrPixelConfig(ii, *context->caps());
+        SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
 
-        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                                                   desc, SkBudgeted::kNo,
-                                                                   gTextureData.get(), 0);
+        sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(desc, SkBudgeted::kNo,
+                                                                        gTextureData.get(), 0);
         if (!proxy) {
             return;
         }
 
         sk_sp<GrSurfaceContext> tContext = context->contextPriv().makeWrappedSurfaceContext(
-                std::move(proxy), nullptr);
+                                                                                  std::move(proxy));
 
         if (!tContext) {
             return;
@@ -117,10 +119,9 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
         } else {
             vm.reset();
         }
-        paint.addColorTextureProcessor(context->resourceProvider(), tContext->asTextureProxyRef(),
-                                       nullptr, vm);
+        paint.addColorTextureProcessor(tContext->asTextureProxyRef(), vm);
 
-        renderTargetContext->drawRect(clip, GrPaint(paint), GrAA::kNo, vm,
+        renderTargetContext->drawRect(clip, GrPaint::Clone(paint), GrAA::kNo, vm,
                                       SkRect::MakeWH(2 * S, 2 * S));
 
         // now update the lower right of the texture in first pass

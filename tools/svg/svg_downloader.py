@@ -15,11 +15,11 @@ import urllib
 PARENT_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-def downloadSVGs(svgs_file, output_dir):
+def downloadSVGs(svgs_file, output_dir, prefix):
   with open(svgs_file, 'r') as f:
     for url in f.xreadlines():
       svg_url = url.strip()
-      dest_file = os.path.join(output_dir, os.path.basename(svg_url))
+      dest_file = os.path.join(output_dir, prefix + os.path.basename(svg_url))
       print 'Downloading %s' % svg_url
       urllib.urlretrieve(svg_url, dest_file)
 
@@ -34,8 +34,12 @@ if '__main__' == __name__:
   option_parser.add_option(
       '-o', '--output_dir',
       help='The output dir where downloaded SVGs will be stored in.')
+  option_parser.add_option(
+      '-p', '--prefix',
+      help='The prefix which downloaded SVG file will begin with.',
+      default='')
   options, unused_args = option_parser.parse_args()
 
   if not options.output_dir:
     raise Exception('Must specify --output_dir')
-  sys.exit(downloadSVGs(options.svgs_file, options.output_dir))
+  sys.exit(downloadSVGs(options.svgs_file, options.output_dir, options.prefix))

@@ -31,14 +31,17 @@
  * Vulkan textures are really const GrVkImageInfo*
  */
 struct GrVkAlloc {
-    VkDeviceMemory fMemory;  // can be VK_NULL_HANDLE iff Tex is an RT and uses borrow semantics
-    VkDeviceSize   fOffset;
-    VkDeviceSize   fSize;    // this can be indeterminate iff Tex uses borrow semantics
-    uint32_t       fFlags;
+    VkDeviceMemory fMemory = VK_NULL_HANDLE;  // can be VK_NULL_HANDLE iff is an RT and is borrowed
+    VkDeviceSize   fOffset = 0;
+    VkDeviceSize   fSize = 0;    // this can be indeterminate iff Tex uses borrow semantics
+    uint32_t       fFlags= 0;
 
     enum Flag {
         kNoncoherent_Flag = 0x1,   // memory must be flushed to device after mapping
     };
+private:
+    friend class GrVkHeap; // For access to usesSystemHeap
+    bool fUsesSystemHeap = false;
 };
 
 struct GrVkImageInfo {

@@ -309,7 +309,7 @@ private:
     SkTSpan<TCurve, OppCurve>* prev(SkTSpan<TCurve, OppCurve>* ) const;
     void removeByPerpendicular(SkTSect<OppCurve, TCurve>* opp);
     void recoverCollapsed();
-    void removeCoincident(SkTSpan<TCurve, OppCurve>* span, bool isBetween);
+    bool removeCoincident(SkTSpan<TCurve, OppCurve>* span, bool isBetween);
     void removeAllBut(const SkTSpan<OppCurve, TCurve>* keep, SkTSpan<TCurve, OppCurve>* span,
                       SkTSect<OppCurve, TCurve>* opp);
     bool removeSpan(SkTSpan<TCurve, OppCurve>* span);
@@ -324,7 +324,7 @@ private:
     SkTSpan<TCurve, OppCurve>* spanAtT(double t, SkTSpan<TCurve, OppCurve>** priorSpan);
     SkTSpan<TCurve, OppCurve>* tail();
     bool trim(SkTSpan<TCurve, OppCurve>* span, SkTSect<OppCurve, TCurve>* opp);
-    void unlinkSpan(SkTSpan<TCurve, OppCurve>* span);
+    bool unlinkSpan(SkTSpan<TCurve, OppCurve>* span);
     bool updateBounded(SkTSpan<TCurve, OppCurve>* first, SkTSpan<TCurve, OppCurve>* last,
                        SkTSpan<OppCurve, TCurve>* oppFirst);
     void validate() const;
@@ -1273,8 +1273,12 @@ bool SkTSect<TCurve, OppCurve>::extractCoincident(
     this->validateBounded();
     sect2->validateBounded();
     last = first->fNext;
-    this->removeCoincident(first, false);
-    sect2->removeCoincident(oppFirst, true);
+    if (!this->removeCoincident(first, false)) {
+        return false;
+    }
+    if (!sect2->removeCoincident(oppFirst, true)) {
+        return false;
+    }
     if (deleteEmptySpans) {
         if (!this->deleteEmptySpans() || !sect2->deleteEmptySpans()) {
             *result = nullptr;
@@ -1443,7 +1447,7 @@ int SkTSect<TCurve, OppCurve>::linesIntersect(SkTSpan<TCurve, OppCurve>* span,
     if (oppRayI.used() > 1) {
         int ptMatches = 0;
         for (int oIndex = 0; oIndex < oppRayI.used(); ++oIndex) {
-            for (int lIndex = 0; lIndex < (int) SK_ARRAY_COUNT(thisLine.fPts); ++lIndex) {
+            for (int lIndex = 0; lIndex < (int) SK_ARRAY_COUNT(oppLine.fPts); ++lIndex) {
                 ptMatches += oppRayI.pt(oIndex).approximatelyEqual(oppLine.fPts[lIndex]);
             }
         }
@@ -1737,8 +1741,10 @@ void SkTSect<TCurve, OppCurve>::removeByPerpendicular(SkTSect<OppCurve, TCurve>*
 }
 
 template<typename TCurve, typename OppCurve>
-void SkTSect<TCurve, OppCurve>::removeCoincident(SkTSpan<TCurve, OppCurve>* span, bool isBetween) {
-    this->unlinkSpan(span);
+bool SkTSect<TCurve, OppCurve>::removeCoincident(SkTSpan<TCurve, OppCurve>* span, bool isBetween) {
+    if (!this->unlinkSpan(span)) {
+        return false;
+    }
     if (isBetween || between(0, span->fCoinStart.perpT(), 1)) {
         --fActiveCount;
         span->fNext = fCoincident;
@@ -1746,6 +1752,7 @@ void SkTSect<TCurve, OppCurve>::removeCoincident(SkTSpan<TCurve, OppCurve>* span
     } else {
         this->markSpanGone(span);
     }
+    return true;
 }
 
 template<typename TCurve, typename OppCurve>
@@ -1761,7 +1768,9 @@ void SkTSect<TCurve, OppCurve>::removedEndCheck(SkTSpan<TCurve, OppCurve>* span)
 template<typename TCurve, typename OppCurve>
 bool SkTSect<TCurve, OppCurve>::removeSpan(SkTSpan<TCurve, OppCurve>* span) {\
     this->removedEndCheck(span);
-    this->unlinkSpan(span);
+    if (!this->unlinkSpan(span)) {
+        return false;
+    }
     return this->markSpanGone(span);
 }
 
@@ -1864,13 +1873,16 @@ bool SkTSect<TCurve, OppCurve>::trim(SkTSpan<TCurve, OppCurve>* span,
 }
 
 template<typename TCurve, typename OppCurve>
-void SkTSect<TCurve, OppCurve>::unlinkSpan(SkTSpan<TCurve, OppCurve>* span) {
+bool SkTSect<TCurve, OppCurve>::unlinkSpan(SkTSpan<TCurve, OppCurve>* span) {
     SkTSpan<TCurve, OppCurve>* prev = span->fPrev;
     SkTSpan<TCurve, OppCurve>* next = span->fNext;
     if (prev) {
         prev->fNext = next;
         if (next) {
             next->fPrev = prev;
+            if (next->fStartT > next->fEndT) {
+                return false;
+            }
             next->validate();
         }
     } else {
@@ -1879,6 +1891,7 @@ void SkTSect<TCurve, OppCurve>::unlinkSpan(SkTSpan<TCurve, OppCurve>* span) {
             next->fPrev = nullptr;
         }
     }
+    return true;
 }
 
 template<typename TCurve, typename OppCurve>

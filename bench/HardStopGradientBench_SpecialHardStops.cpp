@@ -84,7 +84,7 @@ public:
         };
 
         SkScalar* positions = fKind == Kind::k001 ? pos_001 :
-                              fKind == Kind::k011 ? pos_011 : 
+                              fKind == Kind::k011 ? pos_011 :
                                                     pos_centered;
 
         int count = fKind == Kind::kCentered ? 4 : 3;
@@ -109,7 +109,7 @@ private:
     int      fW;
     int      fH;
     Kind     fKind;
-    SkPaint  fPaint; 
+    SkPaint  fPaint;
 };
 
 DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(100, 100, Kind::k001););

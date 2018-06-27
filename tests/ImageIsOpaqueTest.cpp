@@ -13,7 +13,6 @@
 #include "GrContext.h"
 #endif
 #include "SkCanvas.h"
-#include "SkColorSpace_Base.h"
 #include "SkImage.h"
 #include "SkSurface.h"
 #include "SkReadBuffer.h"
@@ -40,20 +39,18 @@ static void test_flatten(skiatest::Reporter* reporter, const SkImageInfo& info) 
 }
 
 DEF_TEST(ImageInfo_flattening, reporter) {
-     sk_sp<SkData> data =
-             SkData::MakeFromFileName(GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
+    sk_sp<SkData> data = GetResourceAsData("icc_profiles/HP_ZR30w.icc");
     sk_sp<SkColorSpace> space0 = SkColorSpace::MakeICC(data->data(), data->size());
-    data = SkData::MakeFromFileName( GetResourcePath("icc_profiles/HP_Z32x.icc").c_str());
+    data = GetResourceAsData("icc_profiles/HP_Z32x.icc");
     sk_sp<SkColorSpace> space1 = SkColorSpace::MakeICC(data->data(), data->size());
-    data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperLeft.icc").c_str());
+    data = GetResourceAsData("icc_profiles/upperLeft.icc");
     sk_sp<SkColorSpace> space2 = SkColorSpace::MakeICC(data->data(), data->size());
-    data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperRight.icc").c_str());
+    data = GetResourceAsData("icc_profiles/upperRight.icc");
     sk_sp<SkColorSpace> space3 = SkColorSpace::MakeICC(data->data(), data->size());
 
     sk_sp<SkColorSpace> spaces[] = {
         nullptr,
         SkColorSpace::MakeSRGB(),
-        SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named),
         space0,
         space1,
         space2,
@@ -124,8 +121,8 @@ DEF_TEST(Image_isAlphaOnly, reporter) {
     };
     for (auto& image : {
         SkImage::MakeRasterCopy(pmap),
-        GetResourceAsImage("mandrill_128.png"),
-        GetResourceAsImage("color_wheel.jpg"),
+        GetResourceAsImage("images/mandrill_128.png"),
+        GetResourceAsImage("images/color_wheel.jpg"),
         SkImage::MakeFromPicture(make_picture(), { 10, 10 }, nullptr, nullptr,
                                  SkImage::BitDepth::kU8,
                                  SkColorSpace::MakeSRGB()),

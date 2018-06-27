@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+
 #include "SkGlyphCache.h"
 #include "SkGlyphCache_Globals.h"
 #include "SkGraphics.h"
@@ -389,12 +390,10 @@ void SkGlyphCache::dump() const {
     face->getFamilyName(&name);
 
     SkString msg;
-    msg.printf("cache typeface:%x %25s:%d size:%2g [%g %g %g %g] lum:%02X devG:%d pntG:%d cntr:%d glyphs:%3d",
-               face->uniqueID(), name.c_str(), face->style(), rec.fTextSize,
-               matrix[SkMatrix::kMScaleX], matrix[SkMatrix::kMSkewX],
-               matrix[SkMatrix::kMSkewY], matrix[SkMatrix::kMScaleY],
-               rec.fLumBits & 0xFF, rec.fDeviceGamma, rec.fPaintGamma, rec.fContrast,
-               fGlyphMap.count());
+    SkFontStyle style = face->fontStyle();
+    msg.printf("cache typeface:%x %25s:(%d,%d,%d)\n %s glyphs:%3d",
+               face->uniqueID(), name.c_str(), style.weight(), style.width(), style.slant(),
+               rec.dump().c_str(), fGlyphMap.count());
     SkDebugf("%s\n", msg.c_str());
 }
 
@@ -448,6 +447,23 @@ int SkGlyphCache_Globals::setCacheCountLimit(int newCount) {
     return prevCount;
 }
 
+int SkGlyphCache_Globals::getCachePointSizeLimit() const {
+    SkAutoExclusive ac(fLock);
+    return fPointSizeLimit;
+}
+
+int SkGlyphCache_Globals::setCachePointSizeLimit(int newLimit) {
+    if (newLimit < 0) {
+        newLimit = 0;
+    }
+
+    SkAutoExclusive ac(fLock);
+
+    int prevLimit = fPointSizeLimit;
+    fPointSizeLimit = newLimit;
+    return prevLimit;
+}
+
 void SkGlyphCache_Globals::purgeAll() {
     SkAutoExclusive ac(fLock);
     this->internalPurge(fTotalMemoryUsed);
@@ -472,7 +488,7 @@ SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
     // Precondition: the typeface id must be the fFontID in the descriptor
     SkDEBUGCODE(
         uint32_t length = 0;
-        const SkScalerContext::Rec* rec = static_cast<const SkScalerContext::Rec*>(
+        const SkScalerContextRec* rec = static_cast<const SkScalerContextRec*>(
             desc->findEntry(kRec_SkDescriptorTag, &length));
         SkASSERT(rec);
         SkASSERT(length == sizeof(*rec));
@@ -537,10 +553,8 @@ static void dump_visitor(const SkGlyphCache& cache, void* context) {
 
     const SkScalerContextRec& rec = cache.getScalerContext()->getRec();
 
-    SkDebugf("[%3d] ID %3d, glyphs %3d, size %g, scale %g, skew %g, [%g %g %g %g]\n",
-             index, rec.fFontID, cache.countCachedGlyphs(),
-             rec.fTextSize, rec.fPreScaleX, rec.fPreSkewX,
-             rec.fPost2x2[0][0], rec.fPost2x2[0][1], rec.fPost2x2[1][0], rec.fPost2x2[1][1]);
+    SkDebugf("index %d\n", index);
+    SkDebugf("%s", rec.dump().c_str());
 }
 
 void SkGlyphCache::Dump() {
@@ -775,6 +789,14 @@ int SkGraphics::GetFontCacheCountUsed() {
     return get_globals().getCacheCountUsed();
 }
 
+int SkGraphics::GetFontCachePointSizeLimit() {
+    return get_globals().getCachePointSizeLimit();
+}
+
+int SkGraphics::SetFontCachePointSizeLimit(int limit) {
+    return get_globals().setCachePointSizeLimit(limit);
+}
+
 void SkGraphics::PurgeFontCache() {
     get_globals().purgeAll();
     SkTypefaceCache::PurgeAll();
@@ -783,3 +805,16 @@ void SkGraphics::PurgeFontCache() {
 // TODO(herb): clean up TLS apis.
 size_t SkGraphics::GetTLSFontCacheLimit() { return 0; }
 void SkGraphics::SetTLSFontCacheLimit(size_t bytes) { }
+
+SkGlyphCache* SkGlyphCache::DetachCacheUsingPaint(const SkPaint& paint,
+                                                  const SkSurfaceProps* surfaceProps,
+                                                  SkScalerContextFlags scalerContextFlags,
+                                                  const SkMatrix* deviceMatrix) {
+    SkAutoDescriptor ad;
+    SkScalerContextEffects effects;
+
+    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
+        paint, surfaceProps, scalerContextFlags, deviceMatrix, &ad, &effects);
+
+    return SkGlyphCache::DetachCache(paint.getTypeface(), effects, desc);
+}

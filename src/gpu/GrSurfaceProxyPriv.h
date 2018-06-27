@@ -10,18 +10,30 @@
 
 #include "GrSurfaceProxy.h"
 
+#include "GrResourceProvider.h"
+
 /** Class that adds methods to GrSurfaceProxy that are only intended for use internal to Skia.
     This class is purely a privileged window into GrSurfaceProxy. It should never have additional
     data members or virtual methods. */
 class GrSurfaceProxyPriv {
 public:
+    bool isInstantiated() const { return SkToBool(fProxy->fTarget); }
+
+    // This should only be called after a successful call to instantiate
+    GrSurface* peekSurface() const {
+        SkASSERT(fProxy->fTarget);
+        return fProxy->fTarget;
+    }
+
     // If the proxy is already instantiated, return its backing GrTexture; if not,
     // return null
     GrTexture* peekTexture() const {
         return fProxy->fTarget ? fProxy->fTarget->asTexture() : nullptr;
     }
 
+    // This should only be called after a successful call to instantiate
     GrRenderTarget* peekRenderTarget() const {
+        SkASSERT(fProxy->fTarget && fProxy->fTarget->asRenderTarget());
         return fProxy->fTarget ? fProxy->fTarget->asRenderTarget() : nullptr;
     }
 
@@ -35,11 +47,38 @@ public:
     // future when the proxy is actually used/instantiated.
     bool hasPendingWrite() const { return fProxy->hasPendingWrite(); }
 
+    void computeScratchKey(GrScratchKey* key) const { return fProxy->computeScratchKey(key); }
+
+    // Create a GrSurface-derived class that meets the requirements (i.e, desc, renderability)
+    // of the GrSurfaceProxy.
+    sk_sp<GrSurface> createSurface(GrResourceProvider* resourceProvider) const {
+        return fProxy->createSurface(resourceProvider);
+    }
+
+    // Assign this proxy the provided GrSurface as its backing surface
+    void assign(sk_sp<GrSurface> surface) { fProxy->assign(std::move(surface)); }
+
+    bool requiresNoPendingIO() const {
+        return fProxy->fFlags & GrResourceProvider::kNoPendingIO_Flag;
+    }
+
     // Don't abuse this call!!!!!!!
     bool isExact() const { return SkBackingFit::kExact == fProxy->fFit; }
 
     // Don't. Just don't.
     void exactify();
+
+    bool doLazyInstantiation(GrResourceProvider*);
+
+    GrSurfaceProxy::LazyInstantiationType lazyInstantiationType() const {
+        return fProxy->fLazyInstantiationType;
+    }
+
+    void testingOnly_setLazyInstantiationType(GrSurfaceProxy::LazyInstantiationType lazyType) {
+        fProxy->fLazyInstantiationType = lazyType;
+    }
+
+    static bool AttachStencilIfNeeded(GrResourceProvider*, GrSurface*, bool needsStencil);
 
 private:
     explicit GrSurfaceProxyPriv(GrSurfaceProxy* proxy) : fProxy(proxy) {}

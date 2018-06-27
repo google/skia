@@ -5,15 +5,16 @@
  * found in the LICENSE file.
  */
 
+#include "SkPDFUtils.h"
 
 #include "SkData.h"
 #include "SkFixed.h"
 #include "SkGeometry.h"
+#include "SkImage_Base.h"
 #include "SkPDFResourceDict.h"
-#include "SkPDFUtils.h"
+#include "SkPDFTypes.h"
 #include "SkStream.h"
 #include "SkString.h"
-#include "SkPDFTypes.h"
 
 #include <cmath>
 
@@ -119,6 +120,10 @@ void SkPDFUtils::AppendRectangle(const SkRect& rect, SkWStream* content) {
 void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
                           bool doConsumeDegerates, SkWStream* content,
                           SkScalar tolerance) {
+    if (path.isEmpty() && SkPaint::kFill_Style == paintStyle) {
+        SkPDFUtils::AppendRectangle({0, 0, 0, 0}, content);
+        return;
+    }
     // Filling a path with no area results in a drawing in PDF renderers but
     // Chrome expects to be able to draw some such entities with no visible
     // result, so we detect those cases and discard the drawing for them.
@@ -128,7 +133,9 @@ void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
     bool isClosed; // Both closure and direction need to be checked.
     SkPath::Direction direction;
     if (path.isRect(&rect, &isClosed, &direction) &&
-        isClosed && SkPath::kCW_Direction == direction)
+        isClosed &&
+        (SkPath::kCW_Direction == direction ||
+         SkPath::kEvenOdd_FillType == path.getFillType()))
     {
         SkPDFUtils::AppendRectangle(rect, content);
         return;
@@ -284,165 +291,6 @@ size_t SkPDFUtils::ColorToDecimal(uint8_t value, char result[5]) {
     return j + 1;
 }
 
-void SkPDFUtils::AppendScalar(SkScalar value, SkWStream* stream) {
-    char result[kMaximumFloatDecimalLength];
-    size_t len = SkPDFUtils::FloatToDecimal(SkScalarToFloat(value), result);
-    SkASSERT(len < kMaximumFloatDecimalLength);
-    stream->write(result, len);
-}
-
-// Return pow(10.0, e), optimized for common cases.
-inline double pow10(int e) {
-    switch (e) {
-        case 0:  return 1.0;  // common cases
-        case 1:  return 10.0;
-        case 2:  return 100.0;
-        case 3:  return 1e+03;
-        case 4:  return 1e+04;
-        case 5:  return 1e+05;
-        case 6:  return 1e+06;
-        case 7:  return 1e+07;
-        case 8:  return 1e+08;
-        case 9:  return 1e+09;
-        case 10: return 1e+10;
-        case 11: return 1e+11;
-        case 12: return 1e+12;
-        case 13: return 1e+13;
-        case 14: return 1e+14;
-        case 15: return 1e+15;
-        default:
-            if (e > 15) {
-                double value = 1e+15;
-                while (e-- > 15) { value *= 10.0; }
-                return value;
-            } else {
-                SkASSERT(e < 0);
-                double value = 1.0;
-                while (e++ < 0) { value /= 10.0; }
-                return value;
-            }
-    }
-}
-
-/** Write a string into result, includeing a terminating '\0' (for
-    unit testing).  Return strlen(result) (for SkWStream::write) The
-    resulting string will be in the form /[-]?([0-9]*.)?[0-9]+/ and
-    sscanf(result, "%f", &x) will return the original value iff the
-    value is finite. This function accepts all possible input values.
-
-    Motivation: "PDF does not support [numbers] in exponential format
-    (such as 6.02e23)."  Otherwise, this function would rely on a
-    sprintf-type function from the standard library. */
-size_t SkPDFUtils::FloatToDecimal(float value,
-                                  char result[kMaximumFloatDecimalLength]) {
-    /* The longest result is -FLT_MIN.
-       We serialize it as "-.0000000000000000000000000000000000000117549435"
-       which has 48 characters plus a terminating '\0'. */
-
-    /* section C.1 of the PDF1.4 spec (http://goo.gl/0SCswJ) says that
-       most PDF rasterizers will use fixed-point scalars that lack the
-       dynamic range of floats.  Even if this is the case, I want to
-       serialize these (uncommon) very small and very large scalar
-       values with enough precision to allow a floating-point
-       rasterizer to read them in with perfect accuracy.
-       Experimentally, rasterizers such as pdfium do seem to benefit
-       from this.  Rasterizers that rely on fixed-point scalars should
-       gracefully ignore these values that they can not parse. */
-    char* output = &result[0];
-    const char* const end = &result[kMaximumFloatDecimalLength - 1];
-    // subtract one to leave space for '\0'.
-
-    /* This function is written to accept any possible input value,
-       including non-finite values such as INF and NAN.  In that case,
-       we ignore value-correctness and and output a syntacticly-valid
-       number. */
-    if (value == SK_FloatInfinity) {
-        value = FLT_MAX;  // nearest finite float.
-    }
-    if (value == SK_FloatNegativeInfinity) {
-        value = -FLT_MAX;  // nearest finite float.
-    }
-    if (!std::isfinite(value) || value == 0.0f) {
-        // NAN is unsupported in PDF.  Always output a valid number.
-        // Also catch zero here, as a special case.
-        *output++ = '0';
-        *output = '\0';
-        return output - result;
-    }
-    if (value < 0.0) {
-        *output++ = '-';
-        value = -value;
-    }
-    SkASSERT(value >= 0.0f);
-
-    int binaryExponent;
-    (void)std::frexp(value, &binaryExponent);
-    static const double kLog2 = 0.3010299956639812;  // log10(2.0);
-    int decimalExponent = static_cast<int>(std::floor(kLog2 * binaryExponent));
-    int decimalShift = decimalExponent - 8;
-    double power = pow10(-decimalShift);
-    int32_t d = static_cast<int32_t>(value * power + 0.5);
-    // SkASSERT(value == (float)(d * pow(10.0, decimalShift)));
-    SkASSERT(d <= 999999999);
-    if (d > 167772159) {  // floor(pow(10,1+log10(1<<24)))
-       // need one fewer decimal digits for 24-bit precision.
-       decimalShift = decimalExponent - 7;
-       // SkASSERT(power * 0.1 = pow10(-decimalShift));
-       // recalculate to get rounding right.
-       d = static_cast<int32_t>(value * (power * 0.1) + 0.5);
-       SkASSERT(d <= 99999999);
-    }
-    while (d % 10 == 0) {
-        d /= 10;
-        ++decimalShift;
-    }
-    SkASSERT(d > 0);
-    // SkASSERT(value == (float)(d * pow(10.0, decimalShift)));
-    uint8_t buffer[9]; // decimal value buffer.
-    int bufferIndex = 0;
-    do {
-        buffer[bufferIndex++] = d % 10;
-        d /= 10;
-    } while (d != 0);
-    SkASSERT(bufferIndex <= (int)sizeof(buffer) && bufferIndex > 0);
-    if (decimalShift >= 0) {
-        do {
-            --bufferIndex;
-            *output++ = '0' + buffer[bufferIndex];
-        } while (bufferIndex);
-        for (int i = 0; i < decimalShift; ++i) {
-            *output++ = '0';
-        }
-    } else {
-        int placesBeforeDecimal = bufferIndex + decimalShift;
-        if (placesBeforeDecimal > 0) {
-            while (placesBeforeDecimal-- > 0) {
-                --bufferIndex;
-                *output++ = '0' + buffer[bufferIndex];
-            }
-            *output++ = '.';
-        } else {
-            *output++ = '.';
-            int placesAfterDecimal = -placesBeforeDecimal;
-            while (placesAfterDecimal-- > 0) {
-                *output++ = '0';
-            }
-        }
-        while (bufferIndex > 0) {
-            --bufferIndex;
-            *output++ = '0' + buffer[bufferIndex];
-            if (output == end) {
-                break;  // denormalized: don't need extra precision.
-                // Note: denormalized numbers will not have the same number of
-                // significantDigits, but do not need them to round-trip.
-            }
-        }
-    }
-    SkASSERT(output <= end);
-    *output = '\0';
-    return output - result;
-}
-
 void SkPDFUtils::WriteString(SkWStream* wStream, const char* cin, size_t len) {
     SkDEBUGCODE(static const size_t kMaxLen = 65535;)
     SkASSERT(len <= kMaxLen);
@@ -479,12 +327,53 @@ void SkPDFUtils::WriteString(SkWStream* wStream, const char* cin, size_t len) {
         wStream->writeText("<");
         for (size_t i = 0; i < len; i++) {
             uint8_t c = static_cast<uint8_t>(cin[i]);
-            static const char gHex[] = "0123456789ABCDEF";
-            char hexValue[2];
-            hexValue[0] = gHex[(c >> 4) & 0xF];
-            hexValue[1] = gHex[ c       & 0xF];
+            char hexValue[2] = { SkHexadecimalDigits::gUpper[c >> 4],
+                                 SkHexadecimalDigits::gUpper[c & 0xF] };
             wStream->write(hexValue, 2);
         }
         wStream->writeText(">");
     }
+}
+
+bool SkPDFUtils::InverseTransformBBox(const SkMatrix& matrix, SkRect* bbox) {
+    SkMatrix inverse;
+    if (!matrix.invert(&inverse)) {
+        return false;
+    }
+    inverse.mapRect(bbox);
+    return true;
+}
+
+void SkPDFUtils::PopulateTilingPatternDict(SkPDFDict* pattern,
+                                           SkRect& bbox,
+                                           sk_sp<SkPDFDict> resources,
+                                           const SkMatrix& matrix) {
+    const int kTiling_PatternType = 1;
+    const int kColoredTilingPattern_PaintType = 1;
+    const int kConstantSpacing_TilingType = 1;
+
+    pattern->insertName("Type", "Pattern");
+    pattern->insertInt("PatternType", kTiling_PatternType);
+    pattern->insertInt("PaintType", kColoredTilingPattern_PaintType);
+    pattern->insertInt("TilingType", kConstantSpacing_TilingType);
+    pattern->insertObject("BBox", SkPDFUtils::RectToArray(bbox));
+    pattern->insertScalar("XStep", bbox.width());
+    pattern->insertScalar("YStep", bbox.height());
+    pattern->insertObject("Resources", std::move(resources));
+    if (!matrix.isIdentity()) {
+        pattern->insertObject("Matrix", SkPDFUtils::MatrixToArray(matrix));
+    }
+}
+
+bool SkPDFUtils::ToBitmap(const SkImage* img, SkBitmap* dst) {
+    SkASSERT(img);
+    SkASSERT(dst);
+    SkBitmap bitmap;
+    if(as_IB(img)->getROPixels(&bitmap, nullptr)) {
+        SkASSERT(bitmap.dimensions() == img->dimensions());
+        SkASSERT(!bitmap.drawsNothing());
+        *dst = std::move(bitmap);
+        return true;
+    }
+    return false;
 }

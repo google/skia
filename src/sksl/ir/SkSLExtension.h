@@ -16,8 +16,8 @@ namespace SkSL {
  * An extension declaration.
  */
 struct Extension : public ProgramElement {
-    Extension(Position position, String name)
-    : INHERITED(position, kExtension_Kind)
+    Extension(int offset, String name)
+    : INHERITED(offset, kExtension_Kind)
     , fName(std::move(name)) {}
 
     String description() const override {

@@ -39,7 +39,7 @@
 class SkXPSDevice : public SkClipStackDevice {
 public:
     SK_API SkXPSDevice(SkISize);
-    SK_API virtual ~SkXPSDevice();
+    SK_API ~SkXPSDevice() override;
 
     bool beginPortfolio(SkWStream* outputStream, IXpsOMObjectFactory*);
     /**
@@ -88,7 +88,9 @@ protected:
                   const SkMatrix* prePathMatrix = NULL,
                   bool pathIsMutable = false) override;
     void drawBitmap(const SkBitmap& bitmap,
-                    const SkMatrix& matrix, const SkPaint& paint) override;
+                    SkScalar x,
+                    SkScalar y,
+                    const SkPaint& paint) override;
     void drawSprite(const SkBitmap& bitmap,
                     int x, int y, const SkPaint& paint) override;
     void drawBitmapRect(const SkBitmap&,

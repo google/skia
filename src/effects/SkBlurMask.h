@@ -29,6 +29,11 @@ public:
     // replicating the internal logic.  This permits not only simpler caching of blurred results,
     // but also being able to predict precisely at what pixels the blurred profile of e.g. a
     // rectangle will lie.
+    //
+    // Calling details:
+    // * calculate margin - if src.fImage is null, then this call only calculates the border.
+    // * failure          - if src.fImage is not null, failure is signal with dst->fImage being
+    //                      null.
 
     static bool SK_WARN_UNUSED_RESULT BoxBlur(SkMask* dst, const SkMask& src,
                                               SkScalar sigma, SkBlurStyle style, SkBlurQuality,
@@ -42,15 +47,14 @@ public:
                                                       SkBlurStyle, SkIPoint* margin = nullptr);
 
     // If radius > 0, return the corresponding sigma, else return 0
-    static SkScalar ConvertRadiusToSigma(SkScalar radius);
+    static SkScalar SK_API ConvertRadiusToSigma(SkScalar radius);
     // If sigma > 0.5, return the corresponding radius, else return 0
-    static SkScalar ConvertSigmaToRadius(SkScalar sigma);
+    static SkScalar SK_API ConvertSigmaToRadius(SkScalar sigma);
 
     /* Helper functions for analytic rectangle blurs */
 
     /** Look up the intensity of the (one dimnensional) blurred half-plane.
-        @param profile The precomputed 1D blur profile; memory allocated by and managed by
-                       ComputeBlurProfile below.
+        @param profile The precomputed 1D blur profile; initialized by ComputeBlurProfile below.
         @param loc the location to look up; The lookup will clamp invalid inputs, but
                    meaningful data are available between 0 and blurred_width
         @param blurred_width The width of the final, blurred rectangle
@@ -58,12 +62,12 @@ public:
     */
     static uint8_t ProfileLookup(const uint8_t* profile, int loc, int blurredWidth, int sharpWidth);
 
-    /** Allocate memory for and populate the profile of a 1D blurred halfplane.  The caller
-        must free the memory.  The amount of memory allocated will be exactly 6*sigma bytes.
-        @param sigma The standard deviation of the gaussian blur kernel
+    /** Populate the profile of a 1D blurred halfplane.
+        @param profile The 1D table to fill in
+        @param size    Should be 6*sigma bytes
+        @param sigma   The standard deviation of the gaussian blur kernel
     */
-
-    static uint8_t* ComputeBlurProfile(SkScalar sigma);
+    static void ComputeBlurProfile(uint8_t* profile, int size, SkScalar sigma);
 
     /** Compute an entire scanline of a blurred step function.  This is a 1D helper that
         will produce both the horizontal and vertical profiles of the blurry rectangle.

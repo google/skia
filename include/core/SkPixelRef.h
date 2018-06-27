@@ -19,7 +19,6 @@
 #include "SkSize.h"
 #include "SkString.h"
 
-class SkColorTable;
 struct SkIRect;
 
 class GrTexture;
@@ -32,15 +31,12 @@ class SkDiscardableMemory;
 */
 class SK_API SkPixelRef : public SkRefCnt {
 public:
-
-    SkPixelRef(int width, int height, void* addr, size_t rowBytes, sk_sp<SkColorTable> = nullptr);
-
+    SkPixelRef(int width, int height, void* addr, size_t rowBytes);
     ~SkPixelRef() override;
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     void* pixels() const { return fPixels; }
-    SkColorTable* colorTable() const { return fCTable.get(); }
     size_t rowBytes() const { return fRowBytes; }
 
     /** Returns a non-zero, unique value corresponding to the pixels in this
@@ -101,21 +97,17 @@ public:
         fAddedToCache.store(true);
     }
 
-    virtual SkDiscardableMemory* diagnostic_only_getDiscardable() const { return NULL; }
+    virtual SkDiscardableMemory* diagnostic_only_getDiscardable() const { return nullptr; }
 
 protected:
     // default impl does nothing.
     virtual void onNotifyPixelsChanged();
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    // This is undefined if there are clients in-flight trying to use us
-    void android_only_reset(int width, int height, size_t rowBytes, sk_sp<SkColorTable>);
-#endif
+    void android_only_reset(int width, int height, size_t rowBytes);
 
 private:
     int                 fWidth;
     int                 fHeight;
-    sk_sp<SkColorTable> fCTable;
     void*               fPixels;
     size_t              fRowBytes;
 

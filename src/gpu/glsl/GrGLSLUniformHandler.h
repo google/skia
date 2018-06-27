@@ -12,6 +12,9 @@
 #include "GrShaderVar.h"
 #include "GrSwizzle.h"
 
+// variable names beginning with this prefix will not be mangled
+#define GR_NO_MANGLE_PREFIX "sk_"
+
 class GrGLSLProgramBuilder;
 
 class GrGLSLUniformHandler {
@@ -21,7 +24,6 @@ public:
     using UniformHandle = GrGLSLProgramDataManager::UniformHandle;
     GR_DEFINE_RESOURCE_HANDLE_CLASS(SamplerHandle);
     GR_DEFINE_RESOURCE_HANDLE_CLASS(TexelBufferHandle);
-    GR_DEFINE_RESOURCE_HANDLE_CLASS(ImageStorageHandle);
 
     /** Add a uniform variable to the current program, that has visibility in one or more shaders.
         visibility is a bitfield of GrShaderFlag values indicating from which shaders the uniform
@@ -38,6 +40,13 @@ public:
         return this->addUniformArray(visibility, type, precision, name, 0, outName);
     }
 
+    UniformHandle addUniform(uint32_t visibility,
+                             GrSLType type,
+                             const char* name,
+                             const char** outName = nullptr) {
+        return this->addUniform(visibility, type, kDefault_GrSLPrecision, name, outName);
+    }
+
     UniformHandle addUniformArray(uint32_t visibility,
                                   GrSLType type,
                                   GrSLPrecision precision,
@@ -45,8 +54,20 @@ public:
                                   int arrayCount,
                                   const char** outName = nullptr) {
         SkASSERT(!GrSLTypeIsCombinedSamplerType(type));
-        return this->internalAddUniformArray(visibility, type, precision, name, true, arrayCount,
+        bool mangle = strncmp(name, GR_NO_MANGLE_PREFIX, strlen(GR_NO_MANGLE_PREFIX));
+        return this->internalAddUniformArray(visibility, type, precision, name, mangle, arrayCount,
                                              outName);
+    }
+
+    UniformHandle addUniformArray(uint32_t visibility,
+                                  GrSLType type,
+                                  const char* name,
+                                  int arrayCount,
+                                  const char** outName = nullptr) {
+        SkASSERT(!GrSLTypeIsCombinedSamplerType(type));
+        bool mangle = strncmp(name, GR_NO_MANGLE_PREFIX, strlen(GR_NO_MANGLE_PREFIX));
+        return this->internalAddUniformArray(visibility, type, kDefault_GrSLPrecision, name, mangle,
+                                             arrayCount, outName);
     }
 
     virtual const GrShaderVar& getUniformVariable(UniformHandle u) const = 0;
@@ -72,11 +93,6 @@ private:
     virtual const GrShaderVar& texelBufferVariable(TexelBufferHandle) const = 0;
     virtual TexelBufferHandle addTexelBuffer(uint32_t visibility, GrSLPrecision,
                                              const char* name) = 0;
-
-    virtual const GrShaderVar& imageStorageVariable(ImageStorageHandle) const = 0;
-    virtual ImageStorageHandle addImageStorage(uint32_t visibility, GrSLType type,
-                                               GrImageStorageFormat, GrSLMemoryModel, GrSLRestrict,
-                                               GrIOType, const char* name) = 0;
 
     virtual UniformHandle internalAddUniformArray(uint32_t visibility,
                                                   GrSLType type,

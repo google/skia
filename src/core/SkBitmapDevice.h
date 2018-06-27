@@ -33,7 +33,7 @@ class SkSurface;
 struct SkPoint;
 
 ///////////////////////////////////////////////////////////////////////////////
-class SK_API SkBitmapDevice : public SkBaseDevice {
+class SkBitmapDevice : public SkBaseDevice {
 public:
     /**
      *  Construct a new device with the specified bitmap as its backend. It is
@@ -89,7 +89,7 @@ protected:
      */
     void drawPath(const SkPath&, const SkPaint&, const SkMatrix* prePathMatrix,
                           bool pathIsMutable) override;
-    void drawBitmap(const SkBitmap&, const SkMatrix&, const SkPaint&) override;
+    void drawBitmap(const SkBitmap&, SkScalar x, SkScalar y, const SkPaint&) override;
     void drawSprite(const SkBitmap&, int x, int y, const SkPaint&) override;
 
     /**
@@ -120,8 +120,8 @@ protected:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    bool onReadPixels(const SkImageInfo&, void*, size_t, int x, int y) override;
-    bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) override;
+    bool onReadPixels(const SkPixmap&, int x, int y) override;
+    bool onWritePixels(const SkPixmap&, int, int) override;
     bool onPeekPixels(SkPixmap*) override;
     bool onAccessPixels(SkPixmap*) override;
 
@@ -142,6 +142,7 @@ private:
     friend struct DeviceCM; //for setMatrixClip
     friend class SkDraw;
     friend class SkDrawIter;
+    friend class SkDrawTiler;
     friend class SkDeviceFilteredPaint;
     friend class SkSurface_Raster;
     friend class SkThreadedBMPDevice; // to copy fRCStack

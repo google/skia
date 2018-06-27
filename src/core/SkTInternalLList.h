@@ -15,7 +15,7 @@
  */
 template <typename T> class SkPtrWrapper {
   public:
-      SkPtrWrapper() : fPtr(NULL) {}
+      SkPtrWrapper() : fPtr(nullptr) {}
       SkPtrWrapper& operator =(T* ptr) { fPtr = ptr; return *this; }
       operator T*() const { return fPtr; }
       T* operator->() { return fPtr; }
@@ -41,8 +41,13 @@ template <typename T> class SkPtrWrapper {
 template <class T> class SkTInternalLList : SkNoncopyable {
 public:
     SkTInternalLList()
-        : fHead(NULL)
-        , fTail(NULL) {
+        : fHead(nullptr)
+        , fTail(nullptr) {
+    }
+
+    void reset() {
+        fHead = nullptr;
+        fTail = nullptr;
     }
 
     void remove(T* entry) {
@@ -63,25 +68,25 @@ public:
             fTail = prev;
         }
 
-        entry->fPrev = NULL;
-        entry->fNext = NULL;
+        entry->fPrev = nullptr;
+        entry->fNext = nullptr;
 
 #ifdef SK_DEBUG
-        entry->fList = NULL;
+        entry->fList = nullptr;
 #endif
     }
 
     void addToHead(T* entry) {
-        SkASSERT(NULL == entry->fPrev && NULL == entry->fNext);
-        SkASSERT(NULL == entry->fList);
+        SkASSERT(nullptr == entry->fPrev && nullptr == entry->fNext);
+        SkASSERT(nullptr == entry->fList);
 
-        entry->fPrev = NULL;
+        entry->fPrev = nullptr;
         entry->fNext = fHead;
         if (fHead) {
             fHead->fPrev = entry;
         }
         fHead = entry;
-        if (NULL == fTail) {
+        if (nullptr == fTail) {
             fTail = entry;
         }
 
@@ -91,16 +96,16 @@ public:
     }
 
     void addToTail(T* entry) {
-        SkASSERT(NULL == entry->fPrev && NULL == entry->fNext);
-        SkASSERT(NULL == entry->fList);
+        SkASSERT(nullptr == entry->fPrev && nullptr == entry->fNext);
+        SkASSERT(nullptr == entry->fList);
 
         entry->fPrev = fTail;
-        entry->fNext = NULL;
+        entry->fNext = nullptr;
         if (fTail) {
             fTail->fNext = entry;
         }
         fTail = entry;
-        if (NULL == fHead) {
+        if (nullptr == fHead) {
             fHead = entry;
         }
 
@@ -117,7 +122,7 @@ public:
     void addBefore(T* newEntry, T* existingEntry) {
         SkASSERT(newEntry);
 
-        if (NULL == existingEntry) {
+        if (nullptr == existingEntry) {
             this->addToTail(newEntry);
             return;
         }
@@ -127,7 +132,7 @@ public:
         T* prev = existingEntry->fPrev;
         existingEntry->fPrev = newEntry;
         newEntry->fPrev = prev;
-        if (NULL == prev) {
+        if (nullptr == prev) {
             SkASSERT(fHead == existingEntry);
             fHead = newEntry;
         } else {
@@ -146,7 +151,7 @@ public:
     void addAfter(T* newEntry, T* existingEntry) {
         SkASSERT(newEntry);
 
-        if (NULL == existingEntry) {
+        if (nullptr == existingEntry) {
             this->addToHead(newEntry);
             return;
         }
@@ -156,7 +161,7 @@ public:
         T* next = existingEntry->fNext;
         existingEntry->fNext = newEntry;
         newEntry->fNext = next;
-        if (NULL == next) {
+        if (nullptr == next) {
             SkASSERT(fTail == existingEntry);
             fTail = newEntry;
         } else {
@@ -167,8 +172,34 @@ public:
 #endif
     }
 
+    void concat(SkTInternalLList&& list) {
+        if (list.isEmpty()) {
+            return;
+        }
+
+        list.fHead->fPrev = fTail;
+        if (!fHead) {
+            SkASSERT(!list.fHead->fPrev);
+            fHead = list.fHead;
+        } else {
+            SkASSERT(fTail);
+            fTail->fNext = list.fHead;
+        }
+        fTail = list.fTail;
+
+#ifdef SK_DEBUG
+        for (T* node = list.fHead; node; node = node->fNext) {
+            SkASSERT(node->fList == &list);
+            node->fList = this;
+        }
+#endif
+
+        list.fHead = list.fTail = nullptr;
+    }
+
     bool isEmpty() const {
-        return NULL == fHead && NULL == fTail;
+        SkASSERT(SkToBool(fHead) == SkToBool(fTail));
+        return !fHead;
     }
 
     T* head() { return fHead; }
@@ -181,7 +212,7 @@ public:
             kTail_IterStart
         };
 
-        Iter() : fCurr(NULL) {}
+        Iter() : fCurr(nullptr) {}
         Iter(const Iter& iter) : fCurr(iter.fCurr) {}
         Iter& operator= (const Iter& iter) { fCurr = iter.fCurr; return *this; }
 
@@ -202,8 +233,8 @@ public:
          * Return the next/previous element in the list or NULL if at the end.
          */
         T* next() {
-            if (NULL == fCurr) {
-                return NULL;
+            if (nullptr == fCurr) {
+                return nullptr;
             }
 
             fCurr = fCurr->fNext;
@@ -211,8 +242,8 @@ public:
         }
 
         T* prev() {
-            if (NULL == fCurr) {
-                return NULL;
+            if (nullptr == fCurr) {
+                return nullptr;
             }
 
             fCurr = fCurr->fPrev;
@@ -229,12 +260,12 @@ public:
         Iter iter;
         for (T* item = iter.init(*this, Iter::kHead_IterStart); item; item = iter.next()) {
             SkASSERT(this->isInList(item));
-            if (NULL == item->fPrev) {
+            if (nullptr == item->fPrev) {
                 SkASSERT(fHead == item);
             } else {
                 SkASSERT(item->fPrev->fNext == item);
             }
-            if (NULL == item->fNext) {
+            if (nullptr == item->fNext) {
                 SkASSERT(fTail == item);
             } else {
                 SkASSERT(item->fNext->fPrev == item);

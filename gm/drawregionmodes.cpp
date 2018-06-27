@@ -6,11 +6,11 @@
  */
 
 #include "gm.h"
+#include "SkBlurImageFilter.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkDashPathEffect.h"
 #include "SkGradientShader.h"
-#include "SkImageFilter.h"
 #include "SkRegion.h"
 
 class DrawRegionModesGM : public skiagm::GM {
@@ -44,7 +44,7 @@ protected:
         canvas->drawRegion(fRegion, paint);
 
         canvas->translate(125.0f, 125.0f);
-        paint.setImageFilter(SkImageFilter::MakeBlur(5.0f, 5.0f, nullptr, nullptr));
+        paint.setImageFilter(SkBlurImageFilter::Make(5.0f, 5.0f, nullptr, nullptr));
         canvas->drawRegion(fRegion, paint);
 
         canvas->translate(-125.0f, 125.0f);

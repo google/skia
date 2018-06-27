@@ -10,59 +10,175 @@
 
 #include "GrTypes.h"
 #include "gl/GrGLTypes.h"
+#include "mock/GrMockTypes.h"
+
+#ifdef SK_VULKAN
 #include "vk/GrVkTypes.h"
+#endif
 
-class GrBackendTexture {
+class SK_API GrBackendFormat {
 public:
-    GrBackendTexture(int width,
-                     int height,
-                     const GrVkImageInfo& vkInfo);
+    // Creates an invalid backend format.
+    GrBackendFormat() : fValid(false) {}
 
+    static GrBackendFormat MakeGL(GrGLenum format, GrGLenum target) {
+        return GrBackendFormat(format, target);
+    }
+
+#ifdef SK_VULKAN
+    static GrBackendFormat MakeVK(VkFormat format) {
+        return GrBackendFormat(format);
+    }
+#endif
+
+    static GrBackendFormat MakeMock(GrPixelConfig config) {
+        return GrBackendFormat(config);
+    }
+
+    GrBackend backend() const {return fBackend; }
+
+    // If the backend API is GL, these return a pointer to the format and target. Otherwise
+    // it returns nullptr.
+    const GrGLenum* getGLFormat() const;
+    const GrGLenum* getGLTarget() const;
+
+#ifdef SK_VULKAN
+    // If the backend API is Vulkan, this returns a pointer to a VkFormat. Otherwise
+    // it returns nullptr
+    const VkFormat* getVkFormat() const;
+#endif
+
+    // If the backend API is Mock, this returns a pointer to a GrPixelConfig. Otherwise
+    // it returns nullptr.
+    const GrPixelConfig* getMockFormat() const;
+
+    // Returns true if the backend format has been initialized.
+    bool isValid() const { return fValid; }
+
+private:
+    GrBackendFormat(GrGLenum format, GrGLenum target);
+
+#ifdef SK_VULKAN
+    GrBackendFormat(const VkFormat vkFormat);
+#endif
+
+    GrBackendFormat(const GrPixelConfig config);
+
+    GrBackend fBackend;
+    bool      fValid;
+
+    union {
+        struct {
+            GrGLenum fTarget; // GL_TEXTURE_2D, GL_TEXTURE_EXTERNAL or GL_TEXTURE_RECTANGLE
+            GrGLenum fFormat; // the sized, internal format of the GL resource
+        } fGL;
+#ifdef SK_VULKAN
+        VkFormat      fVkFormat;
+#endif
+        GrPixelConfig fMockFormat;
+    };
+};
+
+class SK_API GrBackendTexture {
+public:
+    // Creates an invalid backend texture.
+    GrBackendTexture() : fConfig(kUnknown_GrPixelConfig) {}
+
+    // GrGLTextureInfo::fFormat is ignored
+    // Deprecated: Should use version that does not take a GrPixelConfig instead
     GrBackendTexture(int width,
                      int height,
                      GrPixelConfig config,
                      const GrGLTextureInfo& glInfo);
 
+    // GrGLTextureInfo::fFormat is ignored
+    // Deprecated: Should use version that does not take a GrPixelConfig instead
+    GrBackendTexture(int width,
+                     int height,
+                     GrPixelConfig config,
+                     GrMipMapped,
+                     const GrGLTextureInfo& glInfo);
+
+    // The GrGLTextureInfo must have a valid fFormat.
+    GrBackendTexture(int width,
+                     int height,
+                     GrMipMapped,
+                     const GrGLTextureInfo& glInfo);
+
+#ifdef SK_VULKAN
+    GrBackendTexture(int width,
+                     int height,
+                     const GrVkImageInfo& vkInfo);
+#endif
+
+    GrBackendTexture(int width,
+                     int height,
+                     GrPixelConfig config,
+                     const GrMockTextureInfo& mockInfo);
+
+    GrBackendTexture(int width,
+                     int height,
+                     GrPixelConfig config,
+                     GrMipMapped,
+                     const GrMockTextureInfo& mockInfo);
+
     int width() const { return fWidth; }
     int height() const { return fHeight; }
-    GrPixelConfig config() const { return fConfig; }
+    bool hasMipMaps() const { return GrMipMapped::kYes == fMipMapped; }
     GrBackend backend() const {return fBackend; }
-
-    // If the backend API is Vulkan, this returns a pointer to the GrVkImageInfo struct. Otherwise
-    // it returns nullptr.
-    const GrVkImageInfo* getVkImageInfo() const;
 
     // If the backend API is GL, this returns a pointer to the GrGLTextureInfo struct. Otherwise
     // it returns nullptr.
     const GrGLTextureInfo* getGLTextureInfo() const;
 
-private:
-    // Temporary constructor which can be used to convert from a GrBackendTextureDesc.
-    GrBackendTexture(const GrBackendTextureDesc& desc, GrBackend backend);
+#ifdef SK_VULKAN
+    // If the backend API is Vulkan, this returns a pointer to the GrVkImageInfo struct. Otherwise
+    // it returns nullptr.
+    const GrVkImageInfo* getVkImageInfo() const;
+#endif
 
-    // Friending for access to above constructor taking a GrBackendTextureDesc
+    // If the backend API is Mock, this returns a pointer to the GrMockTextureInfo struct. Otherwise
+    // it returns nullptr.
+    const GrMockTextureInfo* getMockTextureInfo() const;
+
+    // Returns true if the backend texture has been initialized.
+    bool isValid() const { return fConfig != kUnknown_GrPixelConfig; }
+
+    GrPixelConfig testingOnly_getPixelConfig() const;
+
+private:
+    // Friending for access to the GrPixelConfig
     friend class SkImage;
     friend class SkSurface;
+    friend class GrBackendTextureImageGenerator;
+    friend class GrProxyProvider;
+    friend class GrGpu;
+    friend class GrGLGpu;
+    friend class GrVkGpu;
+    GrPixelConfig config() const { return fConfig; }
 
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels
     GrPixelConfig fConfig;
+    GrMipMapped fMipMapped;
     GrBackend fBackend;
 
     union {
-        GrVkImageInfo   fVkInfo;
         GrGLTextureInfo fGLInfo;
+#ifdef SK_VULKAN
+        GrVkImageInfo   fVkInfo;
+#endif
+        GrMockTextureInfo fMockInfo;
     };
 };
 
-class GrBackendRenderTarget {
+class SK_API GrBackendRenderTarget {
 public:
-    GrBackendRenderTarget(int width,
-                          int height,
-                          int sampleCnt,
-                          int stencilBits,
-                          const GrVkImageInfo& vkInfo);
+    // Creates an invalid backend texture.
+    GrBackendRenderTarget() : fConfig(kUnknown_GrPixelConfig) {}
 
+    // GrGLTextureInfo::fFormat is ignored
+    // Deprecated: Should use version that does not take a GrPixelConfig instead
     GrBackendRenderTarget(int width,
                           int height,
                           int sampleCnt,
@@ -70,27 +186,52 @@ public:
                           GrPixelConfig config,
                           const GrGLFramebufferInfo& glInfo);
 
+    // The GrGLTextureInfo must have a valid fFormat.
+    GrBackendRenderTarget(int width,
+                          int height,
+                          int sampleCnt,
+                          int stencilBits,
+                          const GrGLFramebufferInfo& glInfo);
+
+#ifdef SK_VULKAN
+    GrBackendRenderTarget(int width,
+                          int height,
+                          int sampleCnt,
+                          int stencilBits,
+                          const GrVkImageInfo& vkInfo);
+#endif
+
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     int sampleCnt() const { return fSampleCnt; }
     int stencilBits() const { return fStencilBits; }
-    GrPixelConfig config() const { return fConfig; }
     GrBackend backend() const {return fBackend; }
-
-    // If the backend API is Vulkan, this returns a pointer to the GrVkImageInfo struct. Otherwise
-    // it returns nullptr
-    const GrVkImageInfo* getVkImageInfo() const;
 
     // If the backend API is GL, this returns a pointer to the GrGLFramebufferInfo struct. Otherwise
     // it returns nullptr.
     const GrGLFramebufferInfo* getGLFramebufferInfo() const;
 
-private:
-    // Temporary constructor which can be used to convert from a GrBackendRenderTargetDesc.
-    GrBackendRenderTarget(const GrBackendRenderTargetDesc& desc, GrBackend backend);
+#ifdef SK_VULKAN
+    // If the backend API is Vulkan, this returns a pointer to the GrVkImageInfo struct. Otherwise
+    // it returns nullptr
+    const GrVkImageInfo* getVkImageInfo() const;
+#endif
 
-    // Friending for access to above constructor taking a GrBackendTextureDesc
+    // Returns true if the backend texture has been initialized.
+    bool isValid() const { return fConfig != kUnknown_GrPixelConfig; }
+
+    GrPixelConfig testingOnly_getPixelConfig() const;
+
+private:
+    // Friending for access to the GrPixelConfig
     friend class SkSurface;
+    friend class SkSurface_Gpu;
+    friend class SkImage_Gpu;
+    friend class GrGpu;
+    friend class GrGLGpu;
+    friend class GrProxyProvider;
+    friend class GrVkGpu;
+    GrPixelConfig config() const { return fConfig; }
 
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels
@@ -102,8 +243,10 @@ private:
     GrBackend fBackend;
 
     union {
-        GrVkImageInfo   fVkInfo;
         GrGLFramebufferInfo fGLInfo;
+#ifdef SK_VULKAN
+        GrVkImageInfo   fVkInfo;
+#endif
     };
 };
 

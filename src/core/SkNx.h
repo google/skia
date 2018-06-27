@@ -78,10 +78,24 @@ struct SkNx {
         *b = SkNx{bl, bh};
         *c = SkNx{cl, ch};
     }
+    AI static void Load2(const void* vptr, SkNx* a, SkNx* b) {
+        auto ptr = (const char*)vptr;
+        Half al, bl,
+             ah, bh;
+        Half::Load2(ptr                  , &al, &bl);
+        Half::Load2(ptr + 2*N/2*sizeof(T), &ah, &bh);
+        *a = SkNx{al, ah};
+        *b = SkNx{bl, bh};
+    }
     AI static void Store4(void* vptr, const SkNx& a, const SkNx& b, const SkNx& c, const SkNx& d) {
         auto ptr = (char*)vptr;
         Half::Store4(ptr,                   a.fLo, b.fLo, c.fLo, d.fLo);
         Half::Store4(ptr + 4*N/2*sizeof(T), a.fHi, b.fHi, c.fHi, d.fHi);
+    }
+    AI static void Store3(void* vptr, const SkNx& a, const SkNx& b, const SkNx& c) {
+        auto ptr = (char*)vptr;
+        Half::Store3(ptr,                   a.fLo, b.fLo, c.fLo);
+        Half::Store3(ptr + 3*N/2*sizeof(T), a.fHi, b.fHi, c.fHi);
     }
 
     AI bool anyTrue() const { return fLo.anyTrue() || fHi.anyTrue(); }
@@ -119,10 +133,13 @@ struct SkNx {
     AI SkNx saturatedAdd(const SkNx& y) const {
         return { fLo.saturatedAdd(y.fLo), fHi.saturatedAdd(y.fHi) };
     }
+
+    AI SkNx mulHi(const SkNx& m) const {
+        return { fLo.mulHi(m.fLo), fHi.mulHi(m.fHi) };
+    }
     AI SkNx thenElse(const SkNx& t, const SkNx& e) const {
         return { fLo.thenElse(t.fLo, e.fLo), fHi.thenElse(t.fHi, e.fHi) };
     }
-
     AI static SkNx Min(const SkNx& x, const SkNx& y) {
         return { Half::Min(x.fLo, y.fLo), Half::Min(x.fHi, y.fHi) };
     }
@@ -165,12 +182,23 @@ struct SkNx<1,T> {
         *b = Load(ptr + 1*sizeof(T));
         *c = Load(ptr + 2*sizeof(T));
     }
+    AI static void Load2(const void* vptr, SkNx* a, SkNx* b) {
+        auto ptr = (const char*)vptr;
+        *a = Load(ptr + 0*sizeof(T));
+        *b = Load(ptr + 1*sizeof(T));
+    }
     AI static void Store4(void* vptr, const SkNx& a, const SkNx& b, const SkNx& c, const SkNx& d) {
         auto ptr = (char*)vptr;
         a.store(ptr + 0*sizeof(T));
         b.store(ptr + 1*sizeof(T));
         c.store(ptr + 2*sizeof(T));
         d.store(ptr + 3*sizeof(T));
+    }
+    AI static void Store3(void* vptr, const SkNx& a, const SkNx& b, const SkNx& c) {
+        auto ptr = (char*)vptr;
+        a.store(ptr + 0*sizeof(T));
+        b.store(ptr + 1*sizeof(T));
+        c.store(ptr + 2*sizeof(T));
     }
 
     AI bool anyTrue() const { return fVal != 0; }
@@ -214,10 +242,18 @@ struct SkNx<1,T> {
         return sum < fVal ? std::numeric_limits<T>::max() : sum;
     }
 
+    AI SkNx mulHi(const SkNx& m) const {
+        static_assert(std::is_unsigned<T>::value, "");
+        static_assert(sizeof(T) <= 4, "");
+        return static_cast<T>((static_cast<uint64_t>(fVal) * m.fVal) >> (sizeof(T)*8));
+    }
+
     AI SkNx thenElse(const SkNx& t, const SkNx& e) const { return fVal != 0 ? t : e; }
 
 private:
     // Helper functions to choose the right float/double methods.  (In <cmath> madness lies...)
+    AI static int     Abs(int val) { return  val < 0 ? -val : val; }
+
     AI static float   Abs(float val) { return  ::fabsf(val); }
     AI static float  Sqrt(float val) { return  ::sqrtf(val); }
     AI static float Floor(float val) { return ::floorf(val); }

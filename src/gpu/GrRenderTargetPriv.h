@@ -28,18 +28,11 @@ public:
      * currently attached GrStencilAttachment will be removed if one was previously attached. This
      * function returns false if there were any failure in attaching the GrStencilAttachment.
      */
-    bool attachStencilAttachment(GrStencilAttachment* stencil);
+    bool attachStencilAttachment(sk_sp<GrStencilAttachment> stencil);
 
     int numStencilBits() const;
 
-    // Finds a render target's multisample specs. The pipeline is only needed in case the info isn't
-    // cached and we need to flush the draw state in order to query it. The pipeline is not expected
-    // to affect the multisample information itself.
-    const GrGpu::MultisampleSpecs& getMultisampleSpecs(const GrPipeline&) const;
-
-    typedef GrRenderTarget::Flags Flags;
-
-    Flags flags() const { return fRenderTarget->fFlags; }
+    GrRenderTargetFlags flags() const { return fRenderTarget->fFlags; }
 
 private:
     explicit GrRenderTargetPriv(GrRenderTarget* renderTarget) : fRenderTarget(renderTarget) {}

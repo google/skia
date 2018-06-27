@@ -108,7 +108,7 @@ static void test_mipmap_notify(skiatest::Reporter* reporter, SkResourceCache* ca
 
 #include "SkDiscardableMemoryPool.h"
 
-static SkDiscardableMemoryPool* gPool = 0;
+static SkDiscardableMemoryPool* gPool = nullptr;
 static SkDiscardableMemory* pool_factory(size_t bytes) {
     SkASSERT(gPool);
     return gPool->create(bytes);

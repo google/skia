@@ -14,6 +14,7 @@
 #include "SkImagePriv.h"
 #include "SkImage_Base.h"
 #include "SkLatticeIter.h"
+#include "SkMatrixPriv.h"
 #include "SkPatchUtils.h"
 #include "SkPathMeasure.h"
 #include "SkPathPriv.h"
@@ -31,7 +32,7 @@ SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfac
     : fInfo(info)
     , fSurfaceProps(surfaceProps)
 {
-    fOrigin.setZero();
+    fOrigin = {0, 0};
     fCTM.reset();
 }
 
@@ -169,7 +170,7 @@ void SkBaseDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                               SkPoint::Make(x, y), runPaint);
             break;
         default:
-            SkFAIL("unhandled positioning mode");
+            SK_ABORT("unhandled positioning mode");
         }
 
         if (drawFilter) {
@@ -183,7 +184,7 @@ void SkBaseDevice::drawImage(const SkImage* image, SkScalar x, SkScalar y,
                              const SkPaint& paint) {
     SkBitmap bm;
     if (as_IB(image)->getROPixels(&bm, this->imageInfo().colorSpace())) {
-        this->drawBitmap(bm, SkMatrix::MakeTrans(x, y), paint);
+        this->drawBitmap(bm, x, y, paint);
     }
 }
 
@@ -222,8 +223,24 @@ void SkBaseDevice::drawImageLattice(const SkImage* image,
     SkLatticeIter iter(lattice, dst);
 
     SkRect srcR, dstR;
-    while (iter.next(&srcR, &dstR)) {
-        this->drawImageRect(image, &srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
+    SkColor c;
+    bool isFixedColor = false;
+    const SkImageInfo info = SkImageInfo::Make(1, 1, kBGRA_8888_SkColorType, kUnpremul_SkAlphaType);
+
+    while (iter.next(&srcR, &dstR, &isFixedColor, &c)) {
+          if (isFixedColor || (srcR.width() <= 1.0f && srcR.height() <= 1.0f &&
+                               image->readPixels(info, &c, 4, srcR.fLeft, srcR.fTop))) {
+              // Fast draw with drawRect, if this is a patch containing a single color
+              // or if this is a patch containing a single pixel.
+              if (0 != c || !paint.isSrcOver()) {
+                   SkPaint paintCopy(paint);
+                   int alpha = SkAlphaMul(SkColorGetA(c), SkAlpha255To256(paint.getAlpha()));
+                   paintCopy.setColor(SkColorSetA(c, alpha));
+                   this->drawRect(dstR, paintCopy);
+              }
+        } else {
+            this->drawImageRect(image, &srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
+        }
     }
 }
 
@@ -292,20 +309,19 @@ sk_sp<SkSpecialImage> SkBaseDevice::snapSpecial() { return nullptr; }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkBaseDevice::readPixels(const SkImageInfo& info, void* dstP, size_t rowBytes, int x, int y) {
-    return this->onReadPixels(info, dstP, rowBytes, x, y);
+bool SkBaseDevice::readPixels(const SkPixmap& pm, int x, int y) {
+    return this->onReadPixels(pm, x, y);
 }
 
-bool SkBaseDevice::writePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes,
-                               int x, int y) {
-    return this->onWritePixels(info, pixels, rowBytes, x, y);
+bool SkBaseDevice::writePixels(const SkPixmap& pm, int x, int y) {
+    return this->onWritePixels(pm, x, y);
 }
 
-bool SkBaseDevice::onWritePixels(const SkImageInfo&, const void*, size_t, int, int) {
+bool SkBaseDevice::onWritePixels(const SkPixmap&, int, int) {
     return false;
 }
 
-bool SkBaseDevice::onReadPixels(const SkImageInfo&, void*, size_t, int x, int y) {
+bool SkBaseDevice::onReadPixels(const SkPixmap&, int x, int y) {
     return false;
 }
 
@@ -329,7 +345,7 @@ bool SkBaseDevice::peekPixels(SkPixmap* pmap) {
 
 static void morphpoints(SkPoint dst[], const SkPoint src[], int count,
                         SkPathMeasure& meas, const SkMatrix& matrix) {
-    SkMatrix::MapXYProc proc = matrix.getMapXYProc();
+    SkMatrixPriv::MapXYProc proc = SkMatrixPriv::GetMapXYProc(matrix);
 
     for (int i = 0; i < count; i++) {
         SkPoint pos;
@@ -386,6 +402,10 @@ static void morphpath(SkPath* dst, const SkPath& src, SkPathMeasure& meas,
             case SkPath::kQuad_Verb:
                 morphpoints(dstP, &srcP[1], 2, meas, matrix);
                 dst->quadTo(dstP[0], dstP[1]);
+                break;
+            case SkPath::kConic_Verb:
+                morphpoints(dstP, &srcP[1], 2, meas, matrix);
+                dst->conicTo(dstP[0], dstP[1], iter.conicWeight());
                 break;
             case SkPath::kCubic_Verb:
                 morphpoints(dstP, &srcP[1], 3, meas, matrix);

@@ -13,13 +13,15 @@
 #include "SkRefCnt.h"
 
 class GrFragmentProcessor;
+class GrShaderCaps;
 struct SkRect;
 
 namespace GrOvalEffect {
-    /**
-     * Creates an effect that performs clipping against an oval.
-     */
-    sk_sp<GrFragmentProcessor> Make(GrPrimitiveEdgeType, const SkRect&);
+
+/**
+ * Creates an effect that performs clipping against an oval.
+ */
+std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType, const SkRect&, const GrShaderCaps&);
 };
 
 #endif

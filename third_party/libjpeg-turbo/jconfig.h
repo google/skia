@@ -5,8 +5,13 @@
 #define JPEG_LIB_VERSION 62
 
 /* libjpeg-turbo version */
-#define LIBJPEG_TURBO_VERSION 1.5.1
+#define LIBJPEG_TURBO_VERSION 1.5.3
 
+/*
+ * Add support for arithmetic encoding (C_) and decoding (D_).
+ * This matches Android. Note that such JPEGs are likely rare, given lack of
+ * support by major browsers.
+ */
 /* Support arithmetic encoding */
 #define C_ARITH_CODING_SUPPORTED 1
 
@@ -69,10 +74,3 @@
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */
 /* #undef size_t */
-
-/*
- * Fixed a regression that prevented libjpeg-turbo from building with Android
- * NDK platforms prior to android-21 (5.0):
- * https://github.com/libjpeg-turbo/libjpeg-turbo/commit/dfefba77520ded5c5fd4864e76352a5f3eb23e74
- */
-#include <limits.h>

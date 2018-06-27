@@ -45,8 +45,8 @@ public:
     Type getType(const Node*) const;
 
     const char* getName(const Node*) const;
-    const Node* getFirstChild(const Node*, const char elem[] = NULL) const;
-    const Node* getNextSibling(const Node*, const char elem[] = NULL) const;
+    const Node* getFirstChild(const Node*, const char elem[] = nullptr) const;
+    const Node* getNextSibling(const Node*, const char elem[] = nullptr) const;
 
     const char* findAttr(const Node*, const char attrName[]) const;
     const Attr* getFirstAttr(const Node*) const;
@@ -55,7 +55,7 @@ public:
     const char* getAttrValue(const Node*, const Attr*) const;
 
     // helpers for walking children
-    int countChildren(const Node* node, const char elem[] = NULL) const;
+    int countChildren(const Node* node, const char elem[] = nullptr) const;
 
     // helpers for calling SkParse
     bool findS32(const Node*, const char name[], int32_t* value) const;

@@ -17,6 +17,12 @@
 class SkReadBuffer;
 class SkWriteBuffer;
 
+struct SkSerialProcs;
+struct SkDeserialProcs;
+
+typedef void (*SkTypefaceCatalogerProc)(SkTypeface*, void* ctx);
+typedef sk_sp<SkTypeface> (*SkTypefaceResolverProc)(uint32_t id, void* ctx);
+
 /** \class SkTextBlob
 
     SkTextBlob combines multiple text runs into an immutable, ref-counted structure.
@@ -47,15 +53,31 @@ public:
      */
     static sk_sp<SkTextBlob> MakeFromBuffer(SkReadBuffer&);
 
-    static const SkTextBlob* CreateFromBuffer(SkReadBuffer& buffer) {
-        return MakeFromBuffer(buffer).release();
-    }
-
     enum GlyphPositioning : uint8_t {
         kDefault_Positioning      = 0, // Default glyph advances -- zero scalars per glyph.
         kHorizontal_Positioning   = 1, // Horizontal positioning -- one scalar per glyph.
         kFull_Positioning         = 2  // Point positioning -- two scalars per glyph.
     };
+
+    /**
+     *  Serialize the typeface into a data blob, storing type uniqueID of each referenced typeface.
+     *  During this process, each time a typeface is encountered, it is passed to the catalog,
+     *  allowing the caller to what typeface IDs will need to be resolved in Deserialize().
+     */
+    sk_sp<SkData> serialize(SkTypefaceCatalogerProc, void* ctx) const;
+
+    /**
+     *  Re-create a text blob previously serialized. Since the serialized form records the uniqueIDs
+     *  of its typefaces, deserialization requires that the caller provide the corresponding
+     *  SkTypefaces for those IDs.
+     */
+    static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size,
+                                         SkTypefaceResolverProc, void* ctx);
+
+    sk_sp<SkData> serialize(const SkSerialProcs&) const;
+    sk_sp<SkData> serialize() const;
+    static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size, const SkDeserialProcs&);
+    static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size);
 
 private:
     friend class SkNVRefCnt<SkTextBlob>;
@@ -69,7 +91,7 @@ private:
     // be freed with sk_free.
     void operator delete(void* p) { sk_free(p); }
     void* operator new(size_t) {
-        SkFAIL("All blobs are created by placement new.");
+        SK_ABORT("All blobs are created by placement new.");
         return sk_malloc_throw(0);
     }
     void* operator new(size_t, void* p) { return p; }
@@ -78,17 +100,17 @@ private:
 
     // Call when this blob is part of the key to a cache entry. This allows the cache
     // to know automatically those entries can be purged when this SkTextBlob is deleted.
-    void notifyAddedToCache() const {
-        fAddedToCache.store(true);
+    void notifyAddedToCache(uint32_t cacheID) const {
+        fCacheID.store(cacheID);
     }
 
     friend class GrTextBlobCache;
     friend class SkTextBlobBuilder;
     friend class SkTextBlobRunIterator;
 
-    const SkRect           fBounds;
-    const uint32_t         fUniqueID;
-    mutable SkAtomic<bool> fAddedToCache;
+    const SkRect               fBounds;
+    const uint32_t             fUniqueID;
+    mutable SkAtomic<uint32_t> fCacheID;
 
     SkDEBUGCODE(size_t fStorageSize;)
 
@@ -167,9 +189,9 @@ public:
                                   SkScalar y,
                                   int textByteCount,
                                   SkString lang,
-                                  const SkRect* bounds = NULL);
+                                  const SkRect* bounds = nullptr);
     const RunBuffer& allocRun(const SkPaint& font, int count, SkScalar x, SkScalar y,
-                              const SkRect* bounds = NULL) {
+                              const SkRect* bounds = nullptr) {
         return this->allocRunText(font, count, x, y, 0, SkString(), bounds);
     }
 
@@ -192,9 +214,9 @@ public:
      */
     const RunBuffer& allocRunTextPosH(const SkPaint& font, int count, SkScalar y,
                                       int textByteCount, SkString lang,
-                                      const SkRect* bounds = NULL);
+                                      const SkRect* bounds = nullptr);
     const RunBuffer& allocRunPosH(const SkPaint& font, int count, SkScalar y,
-                                  const SkRect* bounds = NULL) {
+                                  const SkRect* bounds = nullptr) {
         return this->allocRunTextPosH(font, count, y, 0, SkString(), bounds);
     }
 
@@ -217,9 +239,9 @@ public:
      */
     const RunBuffer& allocRunTextPos(const SkPaint& font, int count,
                                      int textByteCount, SkString lang,
-                                     const SkRect* bounds = NULL);
+                                     const SkRect* bounds = nullptr);
     const RunBuffer& allocRunPos(const SkPaint& font, int count,
-                                 const SkRect* bounds = NULL) {
+                                 const SkRect* bounds = nullptr) {
         return this->allocRunTextPos(font, count, 0, SkString(), bounds);
     }
 
@@ -228,7 +250,7 @@ private:
     void allocInternal(const SkPaint& font, SkTextBlob::GlyphPositioning positioning,
                        int count, int textBytes, SkPoint offset, const SkRect* bounds);
     bool mergeRun(const SkPaint& font, SkTextBlob::GlyphPositioning positioning,
-                  int count, SkPoint offset);
+                  uint32_t count, SkPoint offset);
     void updateDeferredBounds();
 
     static SkRect ConservativeRunBounds(const SkTextBlob::RunRecord&);

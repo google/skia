@@ -12,14 +12,17 @@
 
 #if GR_TEST_UTILS
 
+#include "../private/SkTemplates.h"
 #include "GrColor.h"
-#include "GrColorSpaceXform.h"
+#include "GrFPArgs.h"
+#include "GrSamplerState.h"
 #include "SkPathEffect.h"
 #include "SkRandom.h"
-#include "SkShader.h"
+#include "SkShaderBase.h"
 #include "SkStrokeRec.h"
-#include "../private/SkTemplates.h"
 
+class GrColorSpaceInfo;
+class GrColorSpaceXform;
 struct GrProcessorTestData;
 class GrStyle;
 class SkMatrix;
@@ -36,6 +39,7 @@ const SkMatrix& TestMatrixPreservesRightAngles(SkRandom*);
 const SkMatrix& TestMatrixRectStaysRect(SkRandom*);
 const SkMatrix& TestMatrixInvertible(SkRandom*);
 const SkMatrix& TestMatrixPerspective(SkRandom*);
+void TestWrapModes(SkRandom*, GrSamplerState::WrapMode[2]);
 const SkRect& TestRect(SkRandom*);
 const SkRect& TestSquare(SkRandom*);
 const SkRRect& TestRRectSimple(SkRandom*);
@@ -50,12 +54,13 @@ sk_sp<GrColorSpaceXform> TestColorXform(SkRandom*);
 class TestAsFPArgs {
 public:
     TestAsFPArgs(GrProcessorTestData*);
-    const SkShader::AsFPArgs& args() const { return fArgs; }
+    ~TestAsFPArgs();
+    const GrFPArgs& args() const { return fArgs; }
 
 private:
-    SkShader::AsFPArgs fArgs;
     SkMatrix fViewMatrixStorage;
-    sk_sp<SkColorSpace> fColorSpaceStorage;
+    std::unique_ptr<GrColorSpaceInfo> fColorSpaceInfoStorage;
+    GrFPArgs fArgs;
 };
 
 // We have a simplified dash path effect here to avoid relying on SkDashPathEffect which

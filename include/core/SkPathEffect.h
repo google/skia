@@ -76,7 +76,7 @@ public:
     public:
         PointData()
             : fFlags(0)
-            , fPoints(NULL)
+            , fPoints(nullptr)
             , fNumPoints(0) {
             fSize.set(SK_Scalar1, SK_Scalar1);
             // 'asPoints' needs to initialize/fill-in 'fClipRect' if it sets
@@ -132,7 +132,7 @@ public:
     };
 
     struct DashInfo {
-        DashInfo() : fIntervals(NULL), fCount(0), fPhase(0) {}
+        DashInfo() : fIntervals(nullptr), fCount(0), fPhase(0) {}
         DashInfo(SkScalar* intervals, int32_t count, SkScalar phase)
             : fIntervals(intervals), fCount(count), fPhase(phase) {}
 

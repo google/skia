@@ -33,8 +33,8 @@ struct ASTStatement : public ASTPositionNode {
         kDiscard_Kind
     };
 
-    ASTStatement(Position position, Kind kind)
-    : INHERITED(position)
+    ASTStatement(int offset, Kind kind)
+    : INHERITED(offset)
     , fKind(kind) {}
 
     Kind fKind;

@@ -9,13 +9,13 @@
 #ifndef SkDither_DEFINED
 #define SkDither_DEFINED
 
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 
 #define SK_DitherValueMax4444   15
 #define SK_DitherValueMax565    7
 
 /*  need to use macros for bit-counts for each component, and then
-    move these into SkColorPriv.h
+    move these into SkColorData.h
 */
 
 #define SkDITHER_R32_FOR_565_MACRO(r, d)    (r + d - (r >> 5))
@@ -183,8 +183,8 @@ static inline SkPMColor16 SkDitherARGB32To4444(SkPMColor c, unsigned dither)
 
     #define DITHER_VALUE(x) dither_scan[(x) & 3]
 #else
-    extern const uint16_t gDitherMatrix_4Bit_16[4];
-    extern const uint16_t gDitherMatrix_3Bit_16[4];
+    extern SK_API const uint16_t gDitherMatrix_4Bit_16[4];
+    extern SK_API const uint16_t gDitherMatrix_3Bit_16[4];
 
     #define DITHER_4444_SCAN(y) const uint16_t dither_scan = gDitherMatrix_4Bit_16[(y) & 3]
     #define DITHER_565_SCAN(y)  const uint16_t dither_scan = gDitherMatrix_3Bit_16[(y) & 3]

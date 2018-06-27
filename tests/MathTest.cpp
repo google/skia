@@ -5,14 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "float.h"
-
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkEndian.h"
 #include "SkFDot6.h"
 #include "SkFixed.h"
-#include "SkFloatBits.h"
-#include "SkFloatingPoint.h"
 #include "SkHalf.h"
 #include "SkMathPriv.h"
 #include "SkPoint.h"
@@ -231,87 +227,6 @@ static void check_length(skiatest::Reporter* reporter,
     len /= SkScalarToFloat(targetLen);
 
     REPORTER_ASSERT(reporter, len > 0.999f && len < 1.001f);
-}
-
-static float nextFloat(SkRandom& rand) {
-    SkFloatIntUnion data;
-    data.fSignBitInt = rand.nextU();
-    return data.fFloat;
-}
-
-/*  returns true if a == b as resulting from (int)x. Since it is undefined
- what to do if the float exceeds 2^32-1, we check for that explicitly.
- */
-static bool equal_float_native_skia(float x, int32_t ni, int32_t si) {
-    // When the float is out of integer range (NaN, above, below),
-    // the C cast is undefined, but Skia's methods should have clamped.
-    if (!(x == x)) {    // NaN
-        return si == SK_MaxS32 || si == SK_MinS32;
-    }
-    if (x > SK_MaxS32) {
-        return si == SK_MaxS32;
-    }
-    if (x < SK_MinS32) {
-        return si == SK_MinS32;
-    }
-    return si == ni;
-}
-
-static void assert_float_equal(skiatest::Reporter* reporter, const char op[],
-                               float x, int32_t ni, int32_t si) {
-    if (!equal_float_native_skia(x, ni, si)) {
-        ERRORF(reporter, "%s float %g bits %x native %x skia %x\n",
-               op, x, SkFloat2Bits(x), ni, si);
-    }
-}
-
-static void test_float_floor(skiatest::Reporter* reporter, float x) {
-    int ix = (int)floor(x);
-    int iix = SkFloatToIntFloor(x);
-    assert_float_equal(reporter, "floor", x, ix, iix);
-}
-
-static void test_float_round(skiatest::Reporter* reporter, float x) {
-    double xx = x + 0.5;    // need intermediate double to avoid temp loss
-    int ix = (int)floor(xx);
-    int iix = SkFloatToIntRound(x);
-    assert_float_equal(reporter, "round", x, ix, iix);
-}
-
-static void test_float_ceil(skiatest::Reporter* reporter, float x) {
-    int ix = (int)ceil(x);
-    int iix = SkFloatToIntCeil(x);
-    assert_float_equal(reporter, "ceil", x, ix, iix);
-}
-
-static void test_float_conversions(skiatest::Reporter* reporter, float x) {
-    test_float_floor(reporter, x);
-    test_float_round(reporter, x);
-    test_float_ceil(reporter, x);
-}
-
-static void unittest_fastfloat(skiatest::Reporter* reporter) {
-    SkRandom rand;
-    size_t i;
-
-    static const float gFloats[] = {
-        0.f/0.f, -0.f/0.f, 1.f/0.f, -1.f/0.f,
-        0.f, 1.f, 0.5f, 0.499999f, 0.5000001f, 1.f/3,
-        0.000000001f, 1000000000.f,     // doesn't overflow
-        0.0000000001f, 10000000000.f    // does overflow
-    };
-    for (i = 0; i < SK_ARRAY_COUNT(gFloats); i++) {
-        test_float_conversions(reporter, gFloats[i]);
-        test_float_conversions(reporter, -gFloats[i]);
-    }
-
-    for (int outer = 0; outer < 100; outer++) {
-        rand.setSeed(outer);
-        for (i = 0; i < 100000; i++) {
-            float x = nextFloat(rand);
-            test_float_conversions(reporter, x);
-        }
-    }
 }
 
 static float make_zero() {
@@ -573,7 +488,6 @@ DEF_TEST(Math, reporter) {
         REPORTER_ASSERT(reporter, (SkFixedCeilToFixed(-SK_Fixed1 * 10) >> 1) == -SK_Fixed1 * 5);
     }
 
-    unittest_fastfloat(reporter);
     unittest_isfinite(reporter);
     unittest_half(reporter);
     test_rsqrt(reporter, sk_float_rsqrt);
@@ -756,4 +670,72 @@ DEF_TEST(GrNextSizePow2, reporter) {
     test_nextsizepow2(reporter, test, test);
 
     test_nextsizepow2(reporter, SIZE_MAX, SIZE_MAX);
+}
+
+DEF_TEST(FloatSaturate32, reporter) {
+    const struct {
+        float   fFloat;
+        int     fExpectedInt;
+    } recs[] = {
+        { 0, 0 },
+        { 100.5f, 100 },
+        { (float)SK_MaxS32, SK_MaxS32FitsInFloat },
+        { (float)SK_MinS32, SK_MinS32FitsInFloat },
+        { SK_MaxS32 * 100.0f, SK_MaxS32FitsInFloat },
+        { SK_MinS32 * 100.0f, SK_MinS32FitsInFloat },
+        { SK_ScalarInfinity, SK_MaxS32FitsInFloat },
+        { SK_ScalarNegativeInfinity, SK_MinS32FitsInFloat },
+        { SK_ScalarNaN, SK_MaxS32FitsInFloat },
+    };
+
+    for (auto r : recs) {
+        int i = sk_float_saturate2int(r.fFloat);
+        REPORTER_ASSERT(reporter, r.fExpectedInt == i);
+    }
+}
+
+DEF_TEST(FloatSaturate64, reporter) {
+    const struct {
+        float   fFloat;
+        int64_t fExpected64;
+    } recs[] = {
+        { 0, 0 },
+        { 100.5f, 100 },
+        { (float)SK_MaxS64, SK_MaxS64FitsInFloat },
+        { (float)SK_MinS64, SK_MinS64FitsInFloat },
+        { SK_MaxS64 * 100.0f, SK_MaxS64FitsInFloat },
+        { SK_MinS64 * 100.0f, SK_MinS64FitsInFloat },
+        { SK_ScalarInfinity, SK_MaxS64FitsInFloat },
+        { SK_ScalarNegativeInfinity, SK_MinS64FitsInFloat },
+        { SK_ScalarNaN, SK_MaxS64FitsInFloat },
+    };
+
+    for (auto r : recs) {
+        int64_t i = sk_float_saturate2int64(r.fFloat);
+        REPORTER_ASSERT(reporter, r.fExpected64 == i);
+    }
+}
+
+DEF_TEST(DoubleSaturate32, reporter) {
+    const struct {
+        double  fDouble;
+        int     fExpectedInt;
+    } recs[] = {
+        { 0, 0 },
+        { 100.5, 100 },
+        { SK_MaxS32, SK_MaxS32 },
+        { SK_MinS32, SK_MinS32 },
+        { SK_MaxS32 - 1, SK_MaxS32 - 1 },
+        { SK_MinS32 + 1, SK_MinS32 + 1 },
+        { SK_MaxS32 * 100.0, SK_MaxS32 },
+        { SK_MinS32 * 100.0, SK_MinS32 },
+        { SK_ScalarInfinity, SK_MaxS32 },
+        { SK_ScalarNegativeInfinity, SK_MinS32 },
+        { SK_ScalarNaN, SK_MaxS32 },
+    };
+
+    for (auto r : recs) {
+        int i = sk_double_saturate2int(r.fDouble);
+        REPORTER_ASSERT(reporter, r.fExpectedInt == i);
+    }
 }

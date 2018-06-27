@@ -9,11 +9,10 @@
 #include "sk_tool_utils.h"
 #include "SkAnimTimer.h"
 #include "SkBlurMaskFilter.h"
-#include "SkGaussianEdgeShader.h"
 #include "SkRRectsGaussianEdgeMaskFilter.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
-#include "SkRRect.h"
+#include "SkRRectPriv.h"
 #include "SkStroke.h"
 
 constexpr int kNumCols = 2;
@@ -29,7 +28,7 @@ constexpr int kClipOffset = 32;
 class Object {
 public:
     virtual ~Object() {}
-    // When it returns true, this call will have placed a device-space _circle, rect or 
+    // When it returns true, this call will have placed a device-space _circle, rect or
     // simple circular_ RRect in "rr"
     virtual bool asDevSpaceRRect(const SkMatrix& ctm, SkRRect* rr) const = 0;
     virtual SkPath asPath(SkScalar inset) const = 0;
@@ -62,7 +61,7 @@ public:
         SkRect devRect;
         ctm.mapRect(&devRect, fRRect.rect());
 
-        SkScalar scaledRad = scales[0] * fRRect.getSimpleRadii().fX;
+        SkScalar scaledRad = scales[0] * SkRRectPriv::GetSimpleRadii(fRRect).fX;
 
         *rr = SkRRect::MakeRectXY(devRect, scaledRad, scaledRad);
         return true;
@@ -174,7 +173,7 @@ public:
         return true;
     }
 
-    SkPath asPath(SkScalar inset) const override { 
+    SkPath asPath(SkScalar inset) const override {
         SkRRect tmp = fRRect;
         tmp.inset(inset, inset);
 
@@ -222,7 +221,7 @@ public:
         return true;
     }
 
-    SkPath asPath(SkScalar inset) const override { 
+    SkPath asPath(SkScalar inset) const override {
         SkRect tmp = fRect;
         tmp.inset(inset, inset);
 
@@ -314,7 +313,6 @@ namespace skiagm {
 class RevealGM : public GM {
 public:
     enum Mode {
-        kGaussianEdge_Mode,
         kBlurMask_Mode,
         kRRectsGaussianEdge_Mode,
 
@@ -384,22 +382,9 @@ protected:
                 std::unique_ptr<Object> clipObj((*clipMakes[x])(clipRect));
                 std::unique_ptr<Object> drawObj((*drawMakes[y])(cell));
 
-                // The goal is to replace this clipped draw (which clips the 
+                // The goal is to replace this clipped draw (which clips the
                 // shadow) with a draw using the geometric clip
-                if (kGaussianEdge_Mode == fMode) {
-                    canvas->save();
-                        clipObj->clip(canvas);
-
-                        // Draw with GaussianEdgeShader
-                        SkPaint paint;
-                        paint.setAntiAlias(true);
-                        // G channel is an F6.2 radius
-                        int iBlurRad = (int)(4.0f * fBlurRadius);
-                        paint.setColor(SkColorSetARGB(255, iBlurRad >> 8, iBlurRad & 0xFF, 0));
-                        paint.setShader(SkGaussianEdgeShader::Make());
-                        drawObj->draw(canvas, paint);
-                    canvas->restore();
-                } else if (kBlurMask_Mode == fMode) {
+                if (kBlurMask_Mode == fMode) {
                     SkPath clippedPath;
 
                     SkScalar sigma = fBlurRadius / 4.0f;
@@ -503,8 +488,8 @@ protected:
             case 'G':
                 fCoverageGeom = (CoverageGeom) ((fCoverageGeom+1) % kCoverageGeomCount);
                 return true;
-        }        
-    
+        }
+
         return false;
     }
 

@@ -12,9 +12,11 @@
 
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrProxyProvider.h"
 #include "GrResourceProvider.h"
 #include "GrSurfaceContext.h"
 #include "GrSurfaceProxy.h"
+#include "GrTextureProxy.h"
 #include "SkCanvas.h"
 #include "SkSurface.h"
 
@@ -40,6 +42,8 @@ static void validate_alpha_data(skiatest::Reporter* reporter, int w, int h, cons
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+
     unsigned char alphaData[X_SIZE * Y_SIZE];
 
     static const int kClearValue = 0x2;
@@ -49,6 +53,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
     {
         GrSurfaceDesc desc;
         desc.fFlags     = kNone_GrSurfaceFlags;
+        desc.fOrigin    = kTopLeft_GrSurfaceOrigin;
         desc.fConfig    = kAlpha_8_GrPixelConfig;    // it is a single channel texture
         desc.fWidth     = X_SIZE;
         desc.fHeight    = Y_SIZE;
@@ -56,16 +61,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         // We are initializing the texture with zeros here
         memset(alphaData, 0, X_SIZE * Y_SIZE);
 
-        sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                                                 desc,
-                                                                 SkBudgeted::kNo,
-                                                                 alphaData, 0));
+        sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(desc, SkBudgeted::kNo,
+                                                                        alphaData, 0);
         if (!proxy) {
             ERRORF(reporter, "Could not create alpha texture.");
             return;
         }
         sk_sp<GrSurfaceContext> sContext(context->contextPriv().makeWrappedSurfaceContext(
-                                                                  std::move(proxy), nullptr));
+                                                                  std::move(proxy)));
 
         const SkImageInfo ii = SkImageInfo::MakeA8(X_SIZE, Y_SIZE);
         sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii));
@@ -81,7 +84,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
             // upload the texture (do per-rowbytes iteration because we may overwrite below).
             bool result = sContext->writePixels(ii, alphaData, 0, 0, 0);
-            REPORTER_ASSERT_MESSAGE(reporter, result, "Initial A8 writePixels failed");
+            REPORTER_ASSERT(reporter, result, "Initial A8 writePixels failed");
 
             size_t nonZeroRowBytes = rowBytes ? rowBytes : X_SIZE;
             std::unique_ptr<uint8_t[]> readback(new uint8_t[nonZeroRowBytes * Y_SIZE]);
@@ -90,7 +93,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
             // read the texture back
             result = sContext->readPixels(ii, readback.get(), rowBytes, 0, 0);
-            REPORTER_ASSERT_MESSAGE(reporter, result, "Initial A8 readPixels failed");
+            REPORTER_ASSERT(reporter, result, "Initial A8 readPixels failed");
 
             // make sure the original & read back versions match
             SkString msg;
@@ -112,7 +115,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
                 memset(readback.get(), kClearValue, nonZeroRowBytes * Y_SIZE);
                 result = surf->readPixels(ii, readback.get(), nonZeroRowBytes, 0, 0);
-                REPORTER_ASSERT_MESSAGE(reporter, result, "A8 readPixels after clear failed");
+                REPORTER_ASSERT(reporter, result, "A8 readPixels after clear failed");
 
                 match = true;
                 for (int y = 0; y < Y_SIZE && match; ++y) {
@@ -152,6 +155,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         for (int rt = 0; rt < 2; ++rt) {
             GrSurfaceDesc desc;
             desc.fFlags     = rt ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
+            desc.fOrigin    = rt ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
             desc.fConfig    = config;
             desc.fWidth     = X_SIZE;
             desc.fHeight    = Y_SIZE;
@@ -163,9 +167,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                     rgbaData[y * X_SIZE + x] = GrColorPackRGBA(6, 7, 8, alphaData[y * X_SIZE + x]);
                 }
             }
-            sk_sp<GrTextureProxy> proxy =
-                GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc, SkBudgeted::kNo,
-                                             rgbaData, 0);
+
+            sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(desc, SkBudgeted::kNo,
+                                                                            rgbaData, 0);
             if (!proxy) {
                 // We always expect to be able to create a RGBA texture
                 if (!rt  && kRGBA_8888_GrPixelConfig == desc.fConfig) {
@@ -174,8 +178,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                 continue;
             }
 
+            sk_sp<SkColorSpace> colorSpace;
+            if (GrPixelConfigIsSRGB(proxy->config())) {
+                colorSpace = SkColorSpace::MakeSRGB();
+            }
             sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
-                                                                       std::move(proxy), nullptr);
+                    std::move(proxy), std::move(colorSpace));
 
             for (auto rowBytes : kRowBytes) {
                 size_t nonZeroRowBytes = rowBytes ? rowBytes : X_SIZE;
@@ -186,7 +194,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
                 // read the texture back
                 bool result = sContext->readPixels(dstInfo, readback.get(), rowBytes, 0, 0);
-                REPORTER_ASSERT_MESSAGE(reporter, result, "8888 readPixels failed");
+                REPORTER_ASSERT(reporter, result, "8888 readPixels failed");
 
                 // make sure the original & read back versions match
                 SkString msg;

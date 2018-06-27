@@ -28,11 +28,9 @@ class SK_API SkLumaColorFilter : public SkColorFilter {
 public:
     static sk_sp<SkColorFilter> Make();
 
-    void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const override;
-    void filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const override;
-
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*, SkColorSpace*) const override;
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
+            GrContext*, const GrColorSpaceInfo&) const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()

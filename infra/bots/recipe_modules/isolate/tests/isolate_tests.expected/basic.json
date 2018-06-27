@@ -3,11 +3,21 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport glob\nimport sys\nwith open(sys.argv[1], 'w') as f:\n  f.write('\\n'.join(glob.glob(sys.argv[2])))\n",
-      "/path/to/tmp/",
-      "None/out/Release/*.isolated.gen.json"
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "None/out/Release",
+      "*.isolated.gen.json"
     ],
-    "name": "find isolated targets"
+    "infra_step": true,
+    "name": "find isolated targets",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@glob@None/out/Release/dummy_target_1.isolated.gen.json@@@",
+      "@@@STEP_LOG_LINE@glob@None/out/Release/dummy_target_2.isolated.gen.json@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
   },
   {
     "cmd": [

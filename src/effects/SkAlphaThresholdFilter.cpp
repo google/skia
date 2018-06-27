@@ -8,6 +8,8 @@
 #include "SkAlphaThresholdFilter.h"
 
 #include "SkBitmap.h"
+#include "SkColorSpaceXformer.h"
+#include "SkImageFilterPriv.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
 #include "SkWriteBuffer.h"
@@ -15,13 +17,15 @@
 
 #if SK_SUPPORT_GPU
 #include "GrAlphaThresholdFragmentProcessor.h"
+#include "GrColorSpaceXform.h"
 #include "GrContext.h"
 #include "GrFixedClip.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"
+#include "effects/GrSimpleTextureEffect.h"
 #endif
 
-class SK_API SkAlphaThresholdFilterImpl : public SkImageFilter {
+class SkAlphaThresholdFilterImpl : public SkImageFilter {
 public:
     SkAlphaThresholdFilterImpl(const SkRegion& region, SkScalar innerThreshold,
                                SkScalar outerThreshold, sk_sp<SkImageFilter> input,
@@ -111,7 +115,7 @@ sk_sp<GrTextureProxy> SkAlphaThresholdFilterImpl::createMaskTexture(GrContext* c
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     SkRegion::Iterator iter(fRegion);
-    rtContext->clear(nullptr, 0x0, true);
+    rtContext->clear(nullptr, 0x0, GrRenderTargetContext::CanClearFullscreen::kYes);
 
     GrFixedClip clip(SkIRect::MakeWH(bounds.width(), bounds.height()));
     while (!iter.done()) {
@@ -169,20 +173,25 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
         }
 
         const OutputProperties& outProps = ctx.outputProperties();
-        sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(input->getColorSpace(),
-                                                                           outProps.colorSpace());
-
-        sk_sp<GrFragmentProcessor> fp(GrAlphaThresholdFragmentProcessor::Make(
-                                            context->resourceProvider(),
-                                            std::move(inputProxy),
-                                            std::move(colorSpaceXform),
-                                            std::move(maskProxy),
-                                            fInnerThreshold,
-                                            fOuterThreshold,
-                                            bounds));
-        if (!fp) {
+        GrPixelConfig inputConfig = inputProxy->config();
+        auto textureFP = GrSimpleTextureEffect::Make(std::move(inputProxy), SkMatrix::I());
+        textureFP = GrColorSpaceXformEffect::Make(std::move(textureFP), input->getColorSpace(),
+                                                  inputConfig, outProps.colorSpace());
+        if (!textureFP) {
             return nullptr;
         }
+
+        auto thresholdFP = GrAlphaThresholdFragmentProcessor::Make(std::move(maskProxy),
+                                                                   fInnerThreshold,
+                                                                   fOuterThreshold,
+                                                                   bounds);
+        if (!thresholdFP) {
+            return nullptr;
+        }
+
+        std::unique_ptr<GrFragmentProcessor> fpSeries[] = { std::move(textureFP),
+                                                            std::move(thresholdFP) };
+        auto fp = GrFragmentProcessor::RunInSeries(fpSeries, 2);
 
         return DrawWithFP(context, std::move(fp), bounds, outProps);
     }
@@ -263,13 +272,12 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
 sk_sp<SkImageFilter> SkAlphaThresholdFilterImpl::onMakeColorSpace(SkColorSpaceXformer* xformer)
 const {
     SkASSERT(1 == this->countInputs());
-    if (!this->getInput(0)) {
-        return sk_ref_sp(const_cast<SkAlphaThresholdFilterImpl*>(this));
+    sk_sp<SkImageFilter> input = xformer->apply(this->getInput(0));
+    if (input.get() != this->getInput(0)) {
+        return SkAlphaThresholdFilter::Make(fRegion, fInnerThreshold, fOuterThreshold,
+                                            std::move(input), this->getCropRectIfSet());
     }
-
-    sk_sp<SkImageFilter> input = this->getInput(0)->makeColorSpace(xformer);
-    return SkAlphaThresholdFilter::Make(fRegion, fInnerThreshold, fOuterThreshold,
-                                        std::move(input), this->getCropRectIfSet());
+    return this->refMe();
 }
 
 #ifndef SK_IGNORE_TO_STRING

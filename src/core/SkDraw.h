@@ -16,6 +16,7 @@
 #include "SkPixmap.h"
 #include "SkStrokeRec.h"
 #include "SkVertices.h"
+#include "SkScalerContext.h"
 
 class SkBitmap;
 class SkClipStack;
@@ -28,6 +29,7 @@ class SkRasterClip;
 struct SkDrawProcs;
 struct SkRect;
 class SkRRect;
+struct SkInitOnceData;
 
 class SkDraw {
 public:
@@ -39,7 +41,7 @@ public:
     void    drawRect(const SkRect& prePaintRect, const SkPaint&, const SkMatrix* paintMatrix,
                      const SkRect* postPaintRect) const;
     void    drawRect(const SkRect& rect, const SkPaint& paint) const {
-        this->drawRect(rect, paint, NULL, NULL);
+        this->drawRect(rect, paint, nullptr, nullptr);
     }
     void    drawRRect(const SkRRect&, const SkPaint&) const;
     /**
@@ -52,13 +54,8 @@ public:
      *  pre-concated with the current matrix.
      */
     void    drawPath(const SkPath& path, const SkPaint& paint,
-                     const SkMatrix* prePathMatrix, bool pathIsMutable) const {
+                     const SkMatrix* prePathMatrix = nullptr, bool pathIsMutable = false) const {
         this->drawPath(path, paint, prePathMatrix, pathIsMutable, false);
-    }
-
-    void drawPath(const SkPath& path, const SkPaint& paint,
-                  SkBlitter* customBlitter = NULL) const {
-        this->drawPath(path, paint, NULL, false, false, customBlitter);
     }
 
     /* If dstOrNull is null, computes a dst by mapping the bitmap's bounds through the matrix. */
@@ -83,8 +80,10 @@ public:
      *  Only device A8 is supported right now.
      */
     void drawPathCoverage(const SkPath& src, const SkPaint& paint,
-                          SkBlitter* customBlitter = NULL) const {
-        this->drawPath(src, paint, NULL, false, true, customBlitter);
+                          SkBlitter* customBlitter = nullptr) const {
+        bool isHairline = paint.getStyle() == SkPaint::kStroke_Style &&
+                          paint.getStrokeWidth() > 0;
+        this->drawPath(src, paint, nullptr, false, !isHairline, customBlitter);
     }
 
     /** Helper function that creates a mask from a path and an optional maskfilter.
@@ -117,7 +116,7 @@ public:
     static RectType ComputeRectType(const SkPaint&, const SkMatrix&,
                                     SkPoint* strokeSize);
 
-    static bool ShouldDrawTextAsPaths(const SkPaint&, const SkMatrix&);
+    static bool ShouldDrawTextAsPaths(const SkPaint&, const SkMatrix&, SkScalar sizeLimit = 1024);
     void        drawText_asPaths(const char text[], size_t byteLength, SkScalar x, SkScalar y,
                                  const SkPaint&) const;
     void        drawPosText_asPaths(const char text[], size_t byteLength, const SkScalar pos[],
@@ -129,11 +128,11 @@ private:
 
     void    drawPath(const SkPath&, const SkPaint&, const SkMatrix* preMatrix,
                      bool pathIsMutable, bool drawCoverage,
-                     SkBlitter* customBlitter = NULL) const;
+                     SkBlitter* customBlitter = nullptr, SkInitOnceData* iData = nullptr) const;
 
     void drawLine(const SkPoint[2], const SkPaint&) const;
     void drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawCoverage,
-                     SkBlitter* customBlitter, bool doFill) const;
+                     SkBlitter* customBlitter, bool doFill, SkInitOnceData* iData = nullptr) const;
     /**
      *  Return the current clip bounds, in local coordinates, with slop to account
      *  for antialiasing or hairlines (i.e. device-bounds outset by 1, and then
@@ -146,7 +145,7 @@ private:
     computeConservativeLocalClipBounds(SkRect* bounds) const;
 
     /** Returns the current setting for using fake gamma and contrast. */
-    uint32_t SK_WARN_UNUSED_RESULT scalerContextFlags() const;
+    SkScalerContextFlags SK_WARN_UNUSED_RESULT scalerContextFlags() const;
 
 public:
     SkPixmap        fDst;
@@ -158,6 +157,8 @@ public:
 #else
     void validate() const {}
 #endif
+
+    friend class SkThreadedBMPDevice; // to access private method drawPath
 };
 
 #endif

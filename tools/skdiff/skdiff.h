@@ -14,7 +14,7 @@
 #include "SkString.h"
 #include "../private/SkTDArray.h"
 
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
     #define PATH_DIV_STR "\\"
     #define PATH_DIV_CHAR '\\'
 #else

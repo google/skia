@@ -34,12 +34,6 @@
 // IWYU pragma: end_exports
 
 #include <string.h>
-// TODO(herb): remove after chromuim skia/ext/SkMemory_new_handler.cpp
-// has been updated to point to private/SkMalloc.h
-#include "../private/SkMalloc.h"
-
-// enable to test new device-base clipping
-//#define SK_USE_DEVICE_CLIPPING
 
 /** \file SkTypes.h
 */
@@ -57,66 +51,48 @@
 */
 SK_API extern void sk_abort_no_print(void);
 
-///////////////////////////////////////////////////////////////////////////////
-
-#ifdef override_GLOBAL_NEW
-#include <new>
-
-inline void* operator new(size_t size) {
-    return sk_malloc_throw(size);
-}
-
-inline void operator delete(void* p) {
-    sk_free(p);
-}
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
-
 #define SK_INIT_TO_AVOID_WARNING    = 0
 
 #ifndef SkDebugf
     SK_API void SkDebugf(const char format[], ...);
 #endif
 
-#define SkREQUIRE_SEMICOLON_AFTER(code) do { code } while (false)
-
+// SkASSERT, SkASSERTF and SkASSERT_RELEASE can be used as stand alone assertion expressions, e.g.
+//    uint32_t foo(int x) {
+//        SkASSERT(x > 4);
+//        return x - 4;
+//    }
+// and are also written to be compatible with constexpr functions:
+//    constexpr uint32_t foo(int x) {
+//        return SkASSERT(x > 4),
+//               x - 4;
+//    }
 #define SkASSERT_RELEASE(cond) \
-    SkREQUIRE_SEMICOLON_AFTER(if (!(cond)) { SK_ABORT(#cond); } )
+        static_cast<void>( (cond) ? (void)0 : []{ SK_ABORT("assert(" #cond ")"); }() )
 
 #ifdef SK_DEBUG
-    #define SkASSERT(cond) \
-        SkREQUIRE_SEMICOLON_AFTER(if (!(cond)) { SK_ABORT("assert(" #cond ")"); })
-    #define SkASSERTF(cond, fmt, ...) \
-        SkREQUIRE_SEMICOLON_AFTER(if (!(cond)) { \
-                                      SkDebugf(fmt"\n", __VA_ARGS__); \
-                                      SK_ABORT("assert(" #cond ")"); \
-                                  })
+    #define SkASSERT(cond) SkASSERT_RELEASE(cond)
+    #define SkASSERTF(cond, fmt, ...) static_cast<void>( (cond) ? (void)0 : [&]{ \
+                                          SkDebugf(fmt"\n", __VA_ARGS__);        \
+                                          SK_ABORT("assert(" #cond ")");         \
+                                      }() )
     #define SkDEBUGFAIL(message)        SK_ABORT(message)
     #define SkDEBUGFAILF(fmt, ...)      SkASSERTF(false, fmt, ##__VA_ARGS__)
     #define SkDEBUGCODE(...)            __VA_ARGS__
-    #define SkDECLAREPARAM(type, var)   , type var
-    #define SkPARAM(var)                , var
     #define SkDEBUGF(args       )       SkDebugf args
     #define SkAssertResult(cond)        SkASSERT(cond)
 #else
-    #define SkASSERT(cond)
-    #define SkASSERTF(cond, fmt, ...)
+    #define SkASSERT(cond)            static_cast<void>(0)
+    #define SkASSERTF(cond, fmt, ...) static_cast<void>(0)
     #define SkDEBUGFAIL(message)
     #define SkDEBUGFAILF(fmt, ...)
     #define SkDEBUGCODE(...)
     #define SkDEBUGF(args)
-    #define SkDECLAREPARAM(type, var)
-    #define SkPARAM(var)
 
     // unlike SkASSERT, this guy executes its condition in the non-debug build.
     // The if is present so that this can be used with functions marked SK_WARN_UNUSED_RESULT.
     #define SkAssertResult(cond)         if (cond) {} do {} while(false)
 #endif
-
-// Legacy macro names for SK_ABORT
-#define SkFAIL(message)                 SK_ABORT(message)
-#define sk_throw()                      SK_ABORT("sk_throw")
 
 #ifdef SK_IGNORE_TO_STRING
     #define SK_TO_STRING_NONVIRT()
@@ -208,9 +184,9 @@ typedef unsigned U16CPU;
 typedef uint8_t SkBool8;
 
 #include "../private/SkTFitsIn.h"
-template <typename D, typename S> D SkTo(S s) {
-    SkASSERT(SkTFitsIn<D>(s));
-    return static_cast<D>(s);
+template <typename D, typename S> constexpr D SkTo(S s) {
+    return SkASSERT(SkTFitsIn<D>(s)),
+           static_cast<D>(s);
 }
 #define SkToS8(x)    SkTo<int8_t>(x)
 #define SkToU8(x)    SkTo<uint8_t>(x)
@@ -235,18 +211,9 @@ template <typename D, typename S> D SkTo(S s) {
 #define SK_MaxU32   0xFFFFFFFF
 #define SK_MinU32   0
 #define SK_NaN32    ((int) (1U << 31))
-
-/** Returns true if the value can be represented with signed 16bits
- */
-static inline bool SkIsS16(long x) {
-    return (int16_t)x == x;
-}
-
-/** Returns true if the value can be represented with unsigned 16bits
- */
-static inline bool SkIsU16(long x) {
-    return (uint16_t)x == x;
-}
+#define SK_MaxSizeT SIZE_MAX
+static constexpr int64_t SK_MaxS64 = 0x7FFFFFFFFFFFFFFF;
+static constexpr int64_t SK_MinS64 = -SK_MaxS64;
 
 static inline int32_t SkLeftShift(int32_t value, int32_t shift) {
     return (int32_t) ((uint32_t) value << shift);

@@ -10,6 +10,7 @@
 #include "SkDebugCanvas.h"
 #include "SkDrawCommand.h"
 #include "SkPaintFilterCanvas.h"
+#include "SkRectPriv.h"
 #include "SkTextBlob.h"
 #include "SkClipOpPriv.h"
 
@@ -87,7 +88,7 @@ SkDebugCanvas::SkDebugCanvas(int width, int height)
     // rounded out. The following code creates a nearly maximal rect that will
     // not get collapsed by the coming conversions (Due to precision loss the
     // inset has to be surprisingly large).
-    SkIRect largeIRect = SkIRect::MakeLargest();
+    SkIRect largeIRect = SkRectPriv::MakeILarge();
     largeIRect.inset(1024, 1024);
     SkRect large = SkRect::Make(largeIRect);
 #ifdef SK_DEBUG
@@ -251,10 +252,10 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         const SkClipStack::Element* element;
         SkPath devPath;
         while ((element = iter.next())) {
-            SkClipStack::Element::Type type = element->getType();
+            SkClipStack::Element::DeviceSpaceType type = element->getDeviceSpaceType();
             SkPath operand;
-            if (type != SkClipStack::Element::kEmpty_Type) {
-               element->asPath(&operand);
+            if (type != SkClipStack::Element::DeviceSpaceType::kEmpty) {
+                element->asDeviceSpacePath(&operand);
             }
             SkClipOp elementOp = element->getOp();
             this->addClipStackData(devPath, operand, elementOp);

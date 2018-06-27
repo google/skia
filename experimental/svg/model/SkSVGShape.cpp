@@ -11,8 +11,7 @@
 SkSVGShape::SkSVGShape(SkSVGTag t) : INHERITED(t) {}
 
 void SkSVGShape::onRender(const SkSVGRenderContext& ctx) const {
-    const SkPath::FillType fillType =
-        FillRuleToFillType(*ctx.presentationContext().fInherited.fFillRule.get());
+    const auto fillType = ctx.presentationContext().fInherited.fFillRule.get()->asFillType();
 
     // TODO: this approach forces duplicate geometry resolution in onDraw(); refactor to avoid.
     if (const SkPaint* fillPaint = ctx.fillPaint()) {
@@ -26,16 +25,4 @@ void SkSVGShape::onRender(const SkSVGRenderContext& ctx) const {
 
 void SkSVGShape::appendChild(sk_sp<SkSVGNode>) {
     SkDebugf("cannot append child nodes to an SVG shape.\n");
-}
-
-SkPath::FillType SkSVGShape::FillRuleToFillType(const SkSVGFillRule& fillRule) {
-    switch (fillRule.type()) {
-    case SkSVGFillRule::Type::kNonZero:
-        return SkPath::kWinding_FillType;
-    case SkSVGFillRule::Type::kEvenOdd:
-        return SkPath::kEvenOdd_FillType;
-    default:
-        SkASSERT(false);
-        return SkPath::kWinding_FillType;
-    }
 }

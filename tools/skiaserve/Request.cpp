@@ -8,7 +8,6 @@
 #include "Request.h"
 
 #include "SkPictureRecorder.h"
-#include "SkPixelSerializer.h"
 #include "SkPM4fPriv.h"
 #include "picture_utils.h"
 #include "sk_tool_utils.h"
@@ -79,10 +78,6 @@ SkCanvas* Request::getCanvas() {
         gl = factory->getContextInfo(GrContextFactory::kGLES_ContextType,
                                      GrContextFactory::ContextOverrides::kNone).glContext();
     }
-    if (!gl) {
-        gl = factory->getContextInfo(GrContextFactory::kMESA_ContextType,
-                                     GrContextFactory::ContextOverrides::kNone).glContext();
-    }
     if (gl) {
         gl->makeCurrent();
     }
@@ -118,14 +113,7 @@ sk_sp<SkData> Request::writeOutSkp() {
 
     fDebugCanvas->draw(canvas);
 
-    sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
-
-    SkDynamicMemoryWStream outStream;
-
-    sk_sp<SkPixelSerializer> serializer = sk_tool_utils::MakePixelSerializer();
-    picture->serialize(&outStream, serializer.get());
-
-    return outStream.detachAsData();
+    return recorder.finishRecordingAsPicture()->serialize();
 }
 
 GrContext* Request::getContext() {
@@ -134,10 +122,6 @@ GrContext* Request::getContext() {
                                              GrContextFactory::ContextOverrides::kNone);
     if (!result) {
         result = fContextFactory->get(GrContextFactory::kGLES_ContextType,
-                                      GrContextFactory::ContextOverrides::kNone);
-    }
-    if (!result) {
-        result = fContextFactory->get(GrContextFactory::kMESA_ContextType,
                                       GrContextFactory::ContextOverrides::kNone);
     }
     return result;

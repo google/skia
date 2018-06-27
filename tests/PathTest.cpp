@@ -126,50 +126,46 @@ static void test_path_crbug364224() {
     canvas->drawPath(path, paint);
 }
 
+static void test_draw_AA_path(int width, int height, const SkPath& path) {
+    auto surface(SkSurface::MakeRasterN32Premul(width, height));
+    SkCanvas* canvas = surface->getCanvas();
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    canvas->drawPath(path, paint);
+}
+
 // this is a unit test instead of a GM because it doesn't draw anything
 static void test_fuzz_crbug_638223() {
-    auto surface(SkSurface::MakeRasterN32Premul(250, 250));
-    SkCanvas* canvas = surface->getCanvas();
     SkPath path;
     path.moveTo(SkBits2Float(0x47452a00), SkBits2Float(0x43211d01));  // 50474, 161.113f
     path.conicTo(SkBits2Float(0x401c0000), SkBits2Float(0x40680000),
         SkBits2Float(0x02c25a81), SkBits2Float(0x981a1fa0),
         SkBits2Float(0x6bf9abea));  // 2.4375f, 3.625f, 2.85577e-37f, -1.992e-24f, 6.03669e+26f
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    canvas->drawPath(path, paint);
+    test_draw_AA_path(250, 250, path);
 }
 
 static void test_fuzz_crbug_643933() {
-    auto surface(SkSurface::MakeRasterN32Premul(250, 250));
-    SkCanvas* canvas = surface->getCanvas();
-    SkPaint paint;
-    paint.setAntiAlias(true);
     SkPath path;
     path.moveTo(0, 0);
     path.conicTo(SkBits2Float(0x002001f2), SkBits2Float(0x4161ffff),  // 2.93943e-39f, 14.125f
             SkBits2Float(0x49f7224d), SkBits2Float(0x45eec8df), // 2.02452e+06f, 7641.11f
             SkBits2Float(0x721aee0c));  // 3.0687e+30f
-    canvas->drawPath(path, paint);
+    test_draw_AA_path(250, 250, path);
     path.reset();
     path.moveTo(0, 0);
     path.conicTo(SkBits2Float(0x00007ff2), SkBits2Float(0x4169ffff),  // 4.58981e-41f, 14.625f
         SkBits2Float(0x43ff2261), SkBits2Float(0x41eeea04),  // 510.269f, 29.8643f
         SkBits2Float(0x5d06eff8));  // 6.07704e+17f
-    canvas->drawPath(path, paint);
+    test_draw_AA_path(250, 250, path);
 }
 
 static void test_fuzz_crbug_647922() {
-    auto surface(SkSurface::MakeRasterN32Premul(250, 250));
-    SkCanvas* canvas = surface->getCanvas();
-    SkPaint paint;
-    paint.setAntiAlias(true);
     SkPath path;
     path.moveTo(0, 0);
     path.conicTo(SkBits2Float(0x00003939), SkBits2Float(0x42487fff),  // 2.05276e-41f, 50.125f
             SkBits2Float(0x48082361), SkBits2Float(0x4408e8e9),  // 139406, 547.639f
             SkBits2Float(0x4d1ade0f));  // 1.6239e+08f
-    canvas->drawPath(path, paint);
+    test_draw_AA_path(250, 250, path);
 }
 
 static void test_fuzz_crbug_662780() {
@@ -201,10 +197,6 @@ static void test_fuzz_crbug_662780() {
 }
 
 static void test_mask_overflow() {
-    auto surface(SkSurface::MakeRasterN32Premul(500, 500));
-    SkCanvas* canvas = surface->getCanvas();
-    SkPaint paint;
-    paint.setAntiAlias(true);
     SkPath path;
     path.moveTo(SkBits2Float(0x43e28000), SkBits2Float(0x43aa8000));  // 453, 341
     path.lineTo(SkBits2Float(0x43de6000), SkBits2Float(0x43aa8000));  // 444.75f, 341
@@ -215,21 +207,17 @@ static void test_mask_overflow() {
     path.lineTo(SkBits2Float(0x43da8000), SkBits2Float(0x43b18000));  // 437, 355
     path.lineTo(SkBits2Float(0x43e28000), SkBits2Float(0x43b18000));  // 453, 355
     path.lineTo(SkBits2Float(0x43e28000), SkBits2Float(0x43aa8000));  // 453, 341
-    canvas->drawPath(path, paint);
+    test_draw_AA_path(500, 500, path);
 }
 
 static void test_fuzz_crbug_668907() {
-    auto surface(SkSurface::MakeRasterN32Premul(400, 500));
-    SkCanvas* canvas = surface->getCanvas();
-    SkPaint paint;
-    paint.setAntiAlias(true);
     SkPath path;
     path.moveTo(SkBits2Float(0x46313741), SkBits2Float(0x3b00e540));  // 11341.8f, 0.00196679f
     path.quadTo(SkBits2Float(0x41410041), SkBits2Float(0xc1414141), SkBits2Float(0x41414141),
             SkBits2Float(0x414100ff));  // 12.0626f, -12.0784f, 12.0784f, 12.0627f
     path.lineTo(SkBits2Float(0x46313741), SkBits2Float(0x3b00e540));  // 11341.8f, 0.00196679f
     path.close();
-    canvas->drawPath(path, paint);
+    test_draw_AA_path(400, 500, path);
 }
 
 /**
@@ -259,16 +247,12 @@ static void test_path_crbugskia2820(skiatest::Reporter* reporter) {//GrContext* 
 }
 
 static void test_path_crbugskia5995() {
-    auto surface(SkSurface::MakeRasterN32Premul(500, 500));
-    SkCanvas* canvas = surface->getCanvas();
-    SkPaint paint;
-    paint.setAntiAlias(true);
     SkPath path;
     path.moveTo(SkBits2Float(0x40303030), SkBits2Float(0x3e303030));  // 2.75294f, 0.172059f
     path.quadTo(SkBits2Float(0x41d63030), SkBits2Float(0x30303030), SkBits2Float(0x41013030),
             SkBits2Float(0x00000000));  // 26.7735f, 6.40969e-10f, 8.07426f, 0
     path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0x00000000));  // 0, 0
-    canvas->drawPath(path, paint);
+    test_draw_AA_path(500, 500, path);
 }
 
 static void make_path0(SkPath* path) {
@@ -426,11 +410,7 @@ static void test_bad_cubic_crbug234190() {
     path.cubicTo(-2.35893e+08f, -4.21044e+08f,
                  -2.38991e+08f, -4.26573e+08f,
                  -2.41016e+08f, -4.30188e+08f);
-
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    auto surface(SkSurface::MakeRasterN32Premul(84, 88));
-    surface->getCanvas()->drawPath(path, paint);
+    test_draw_AA_path(84, 88, path);
 }
 
 static void test_bad_cubic_crbug229478() {
@@ -545,16 +525,11 @@ static void build_path_simple_170666(SkPath& path) {
 // 24 interations (instead of 16).
 static void test_crbug_170666() {
     SkPath path;
-    SkPaint paint;
-    paint.setAntiAlias(true);
-
-    auto surface(SkSurface::MakeRasterN32Premul(1000, 1000));
-
     build_path_simple_170666(path);
-    surface->getCanvas()->drawPath(path, paint);
+    test_draw_AA_path(1000, 1000, path);
 
     build_path_170666(path);
-    surface->getCanvas()->drawPath(path, paint);
+    test_draw_AA_path(1000, 1000, path);
 }
 
 
@@ -759,12 +734,7 @@ static void test_fuzz_crbug_627414(skiatest::Reporter* reporter) {
     SkPath path;
     path.moveTo(0, 0);
     path.conicTo(3.58732e-43f, 2.72084f, 3.00392f, 3.00392f, 8.46e+37f);
-
-    SkPaint paint;
-    paint.setAntiAlias(true);
-
-    auto surf = SkSurface::MakeRasterN32Premul(100, 100);
-    surf->getCanvas()->drawPath(path, paint);
+    test_draw_AA_path(100, 100, path);
 }
 
 // Inspired by http://ie.microsoft.com/testdrive/Performance/Chalkboard/
@@ -782,11 +752,7 @@ static void test_tricky_cubic() {
     SkPath path;
     path.moveTo(pts[0]);
     path.cubicTo(pts[1], pts[2], pts[3]);
-
-    SkPaint paint;
-    paint.setAntiAlias(true);
-
-    SkSurface::MakeRasterN32Premul(19, 130)->getCanvas()->drawPath(path, paint);
+    test_draw_AA_path(19, 130, path);
 }
 
 // Inspired by http://code.google.com/p/chromium/issues/detail?id=141651
@@ -1021,13 +987,13 @@ static void test_poly(skiatest::Reporter* reporter, const SkPath& path,
                 srcPts++;
                 break;
             case SkPath::kQuad_Verb:
-                REPORTER_ASSERT_MESSAGE(reporter, false, "unexpected quad verb");
+                REPORTER_ASSERT(reporter, false, "unexpected quad verb");
                 break;
             case SkPath::kConic_Verb:
-                REPORTER_ASSERT_MESSAGE(reporter, false, "unexpected conic verb");
+                REPORTER_ASSERT(reporter, false, "unexpected conic verb");
                 break;
             case SkPath::kCubic_Verb:
-                REPORTER_ASSERT_MESSAGE(reporter, false, "unexpected cubic verb");
+                REPORTER_ASSERT(reporter, false, "unexpected cubic verb");
                 break;
             case SkPath::kClose_Verb:
                 REPORTER_ASSERT(reporter, !firstTime);
@@ -1681,6 +1647,16 @@ static void test_convexity(skiatest::Reporter* reporter) {
                 : SkPath::kUnknown_Convexity);
     }
 
+    path.reset();
+    path.moveTo(SkBits2Float(0xbe9171db), SkBits2Float(0xbd7eeb5d));  // -0.284072f, -0.0622362f
+    path.lineTo(SkBits2Float(0xbe9171db), SkBits2Float(0xbd7eea38));  // -0.284072f, -0.0622351f
+    path.lineTo(SkBits2Float(0xbe9171a0), SkBits2Float(0xbd7ee5a7));  // -0.28407f, -0.0622307f
+    path.lineTo(SkBits2Float(0xbe917147), SkBits2Float(0xbd7ed886));  // -0.284067f, -0.0622182f
+    path.lineTo(SkBits2Float(0xbe917378), SkBits2Float(0xbd7ee1a9));  // -0.284084f, -0.0622269f
+    path.lineTo(SkBits2Float(0xbe9171db), SkBits2Float(0xbd7eeb5d));  // -0.284072f, -0.0622362f
+    path.close();
+    check_convexity(reporter, path, SkPath::kConcave_Convexity);
+
 }
 
 static void test_isLine(skiatest::Reporter* reporter) {
@@ -1904,15 +1880,10 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
 
 
     // Test that multiple move commands do not cause asserts.
-
-    // At the time of writing, this would not modify cached convexity. This caused an assert while
-    // checking conservative containment again. https://bug.skia.org/1460
     path.moveTo(SkIntToScalar(100), SkIntToScalar(100));
-#if 0
     REPORTER_ASSERT(reporter, path.conservativelyContainsRect(SkRect::MakeXYWH(SkIntToScalar(50), 0,
                                                                                SkIntToScalar(10),
                                                                                SkIntToScalar(10))));
-#endif
 
     // Same as above path and first test but with an extra moveTo.
     path.reset();
@@ -1920,10 +1891,12 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
     path.moveTo(0, 0);
     path.lineTo(SkIntToScalar(100), 0);
     path.lineTo(0, SkIntToScalar(100));
-
-    REPORTER_ASSERT(reporter, path.conservativelyContainsRect(SkRect::MakeXYWH(SkIntToScalar(50), 0,
-                                                                               SkIntToScalar(10),
-                                                                               SkIntToScalar(10))));
+    // Convexity logic is now more conservative, so that multiple (non-trailing) moveTos make a
+    // path non-convex.
+    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(
+        SkRect::MakeXYWH(SkIntToScalar(50), 0,
+                         SkIntToScalar(10),
+                         SkIntToScalar(10))));
 
     // Same as above path and first test but with the extra moveTo making a degenerate sub-path
     // following the non-empty sub-path. Verifies that this does not trigger assertions.
@@ -1955,6 +1928,13 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
     path.reset();
     path.lineTo(100, 100);
     REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(SkRect::MakeXYWH(0, 0, 1, 1)));
+
+    // An empty path should not contain any rectangle. It's questionable whether an empty path
+    // contains an empty rectangle. However, since it is a conservative test it is ok to
+    // return false.
+    path.reset();
+    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(SkRect::MakeWH(1,1)));
+    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(SkRect::MakeWH(0,0)));
 }
 
 static void test_isRect_open_close(skiatest::Reporter* reporter) {
@@ -2528,14 +2508,16 @@ static void write_and_read_back(skiatest::Reporter* reporter,
     SkPath::Direction dir0, dir1;
     unsigned start0, start1;
     REPORTER_ASSERT(reporter, readBack.isOval(nullptr) == p.isOval(nullptr));
-    if (p.isOval(&oval0, &dir0, &start0) && readBack.isOval(&oval1, &dir1, &start1)) {
+    if (SkPathPriv::IsOval(p, &oval0, &dir0, &start0) &&
+        SkPathPriv::IsOval(readBack, &oval1, &dir1, &start1)) {
         REPORTER_ASSERT(reporter, oval0 == oval1);
         REPORTER_ASSERT(reporter, dir0 == dir1);
         REPORTER_ASSERT(reporter, start0 == start1);
     }
     REPORTER_ASSERT(reporter, readBack.isRRect(nullptr) == p.isRRect(nullptr));
     SkRRect rrect0, rrect1;
-    if (p.isRRect(&rrect0, &dir0, &start0) && readBack.isRRect(&rrect1, &dir1, &start1)) {
+    if (SkPathPriv::IsRRect(p, &rrect0, &dir0, &start0) &&
+        SkPathPriv::IsRRect(readBack, &rrect1, &dir1, &start1)) {
         REPORTER_ASSERT(reporter, rrect0 == rrect1);
         REPORTER_ASSERT(reporter, dir0 == dir1);
         REPORTER_ASSERT(reporter, start0 == start1);
@@ -2544,69 +2526,6 @@ static void write_and_read_back(skiatest::Reporter* reporter,
     const SkRect& readBackBounds = readBack.getBounds();
 
     REPORTER_ASSERT(reporter, origBounds == readBackBounds);
-}
-
-static void test_corrupt_flattening(skiatest::Reporter* reporter) {
-    SkPath path;
-    path.moveTo(1, 2);
-    path.lineTo(1, 2);
-    path.quadTo(1, 2, 3, 4);
-    path.conicTo(1, 2, 3, 4, 0.5f);
-    path.cubicTo(1, 2, 3, 4, 5, 6);
-    uint8_t buffer[1024];
-    SkDEBUGCODE(size_t size =) path.writeToMemory(buffer);
-    SkASSERT(size <= sizeof(buffer));
-    
-    // find where the counts and verbs are stored : from the impl in SkPathRef.cpp
-    int32_t* vCount = (int32_t*)&buffer[16];
-    SkASSERT(*vCount == 5);
-    int32_t* pCount = (int32_t*)&buffer[20];
-    SkASSERT(*pCount == 9);
-    int32_t* cCount = (int32_t*)&buffer[24];
-    SkASSERT(*cCount == 1);
-    uint8_t* verbs = &buffer[28];
-    
-    REPORTER_ASSERT(reporter, path.readFromMemory(buffer, sizeof(buffer)));
-    
-    // check that we detect under/over-flow of counts
-    
-    *vCount += 1;
-    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
-    *vCount -= 1;   // restore
-    
-    *pCount += 1;
-    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
-    *pCount -= 2;
-    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
-    *pCount += 1;   // restore
-    
-    *cCount += 1;
-    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
-    *cCount -= 2;
-    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
-    *cCount += 1;   // restore
-    
-    // Check that we detect when the verbs indicate more or fewer pts/conics
-    
-    uint8_t save = verbs[0];
-    SkASSERT(save == SkPath::kCubic_Verb);
-    verbs[0] = SkPath::kQuad_Verb;
-    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
-    verbs[0] = save;
-    
-    save = verbs[1];
-    SkASSERT(save == SkPath::kConic_Verb);
-    verbs[1] = SkPath::kQuad_Verb;
-    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
-    verbs[1] = SkPath::kCubic_Verb;
-    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
-    verbs[1] = save;
-    
-    // Check that we detect invalid verbs
-    save = verbs[1];
-    verbs[1] = 17;
-    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
-    verbs[1] = save;
 }
 
 static void test_flattening(skiatest::Reporter* reporter) {
@@ -2657,8 +2576,6 @@ static void test_flattening(skiatest::Reporter* reporter) {
 
         write_and_read_back(reporter, oval);
     }
-
-    test_corrupt_flattening(reporter);
 }
 
 static void test_transform(skiatest::Reporter* reporter) {
@@ -2921,7 +2838,7 @@ static void test_iter(skiatest::Reporter* reporter) {
     static const size_t resultPtsSizes3[] = { 1, 2, 2, 2, 1, 0 };
     static const size_t resultPtsSizes4[] = { 1, 2, 1, 1, 0 };
     static const size_t resultPtsSizes5[] = { 1, 2, 1, 1, 1, 0 };
-    static const SkPoint* resultPts1 = 0;
+    static const SkPoint* resultPts1 = nullptr;
     static const SkPoint resultPts2[] = {
         { SK_Scalar1, 0 }, { SK_Scalar1, 0 }, { SK_Scalar1, SK_Scalar1 }, { SK_Scalar1, SK_Scalar1 }, { 0, SK_Scalar1 }
     };
@@ -3280,7 +3197,7 @@ static void check_for_circle(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, path.isOval(&rect) == expectedCircle);
     SkPath::Direction isOvalDir;
     unsigned isOvalStart;
-    if (path.isOval(&rect, &isOvalDir, &isOvalStart)) {
+    if (SkPathPriv::IsOval(path, &rect, &isOvalDir, &isOvalStart)) {
         REPORTER_ASSERT(reporter, rect.height() == rect.width());
         REPORTER_ASSERT(reporter, SkPathPriv::AsFirstDirection(isOvalDir) == expectedDir);
         SkPath tmpPath;
@@ -3523,7 +3440,7 @@ static void test_oval(skiatest::Reporter* reporter) {
     path.transform(m, &tmp);
     // an oval rotated 90 degrees is still an oval. The start index changes from 1 to 2. Direction
     // is unchanged.
-    REPORTER_ASSERT(reporter, tmp.isOval(nullptr, &dir, &start));
+    REPORTER_ASSERT(reporter, SkPathPriv::IsOval(tmp, nullptr, &dir, &start));
     REPORTER_ASSERT(reporter, 2 == start);
     REPORTER_ASSERT(reporter, SkPath::kCW_Direction == dir);
 
@@ -3563,7 +3480,7 @@ static void test_oval(skiatest::Reporter* reporter) {
     tmp.reset();
     tmp.addOval(rect);
     path = tmp;
-    REPORTER_ASSERT(reporter, path.isOval(nullptr, &dir, &start));
+    REPORTER_ASSERT(reporter, SkPathPriv::IsOval(path, nullptr, &dir, &start));
     REPORTER_ASSERT(reporter, SkPath::kCW_Direction == dir);
     REPORTER_ASSERT(reporter, 1 == start);
 }
@@ -3651,7 +3568,10 @@ static void test_rrect(skiatest::Reporter* reporter) {
     SkRect emptyR = {10, 20, 10, 30};
     rr.setRectRadii(emptyR, radii);
     p.addRRect(rr);
-    REPORTER_ASSERT(reporter, p.isEmpty());
+    // The round rect is "empty" in that it has no fill area. However,
+    // the path isn't "empty" in that it should have verbs and points.
+    REPORTER_ASSERT(reporter, !p.isEmpty());
+    p.reset();
     SkRect largeR = {0, 0, SK_ScalarMax, SK_ScalarMax};
     rr.setRectRadii(largeR, radii);
     p.addRRect(rr);
@@ -3725,7 +3645,7 @@ static void check_oval_arc(skiatest::Reporter* reporter, SkScalar start, SkScala
     SkRect r = SkRect::MakeEmpty();
     SkPath::Direction d = SkPath::kCCW_Direction;
     unsigned s = ~0U;
-    bool isOval = path.isOval(&r, &d, &s);
+    bool isOval = SkPathPriv::IsOval(path, &r, &d, &s);
     REPORTER_ASSERT(reporter, isOval);
     SkPath recreatedPath;
     recreatedPath.addOval(r, d, s);
@@ -4400,11 +4320,7 @@ static void test_crbug_629455(skiatest::Reporter* reporter) {
                  SkBits2Float(0x423fcdcd), SkBits2Float(0x40ed9341));
 //  AKA: cubicTo(-4.31596e+08f, -4.31602e+08f, -4.31602e+08f, -4.31602e+08f, 47.951f, 7.42423f);
     path.lineTo(0, 0);
-
-    auto surface = SkSurface::MakeRasterN32Premul(100, 100);
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    surface->getCanvas()->drawPath(path, paint);
+    test_draw_AA_path(100, 100, path);
 }
 
 static void test_fuzz_crbug_662952(skiatest::Reporter* reporter) {
@@ -4453,12 +4369,70 @@ static void test_fuzz_crbug_662730(skiatest::Reporter* reporter) {
     path.lineTo(SkBits2Float(0x37373737), SkBits2Float(0x37373737));  // 1.09205e-05f, 1.09205e-05f
     path.lineTo(SkBits2Float(0x37373745), SkBits2Float(0x0001b800));  // 1.09205e-05f, 1.57842e-40f
     path.close();
-
-    auto surface = SkSurface::MakeRasterN32Premul(100, 100);
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    surface->getCanvas()->drawPath(path, paint);
+    test_draw_AA_path(100, 100, path);
 }
+
+#if !defined(SK_SUPPORT_LEGACY_DELTA_AA)
+static void test_skbug_6947() {
+    SkPath path;
+    SkPoint points[] =
+        {{125.126022f, -0.499872506f}, {125.288895f, -0.499338806f},
+         {125.299316f, -0.499290764f}, {126.294594f, 0.505449712f},
+         {125.999992f, 62.5047531f}, {124.0f, 62.4980202f},
+         {124.122749f, 0.498142242f}, {125.126022f, -0.499872506f},
+         {125.119476f, 1.50011659f}, {125.122749f, 0.50012207f},
+         {126.122749f, 0.502101898f}, {126.0f, 62.5019798f},
+         {125.0f, 62.5f}, {124.000008f, 62.4952469f},
+         {124.294609f, 0.495946467f}, {125.294601f, 0.50069809f},
+         {125.289886f, 1.50068688f}, {125.282349f, 1.50065041f},
+         {125.119476f, 1.50011659f}};
+    constexpr SkPath::Verb kMove = SkPath::kMove_Verb;
+    constexpr SkPath::Verb kLine = SkPath::kLine_Verb;
+    constexpr SkPath::Verb kClose = SkPath::kClose_Verb;
+    SkPath::Verb verbs[] = {kMove, kLine, kLine, kLine, kLine, kLine, kLine, kLine, kClose,
+            kMove, kLine, kLine, kLine, kLine, kLine, kLine, kLine, kLine, kLine, kLine, kClose};
+    int pointIndex = 0;
+    for(auto verb : verbs) {
+        switch (verb) {
+            case kMove:
+                path.moveTo(points[pointIndex++]);
+                break;
+            case kLine:
+                path.lineTo(points[pointIndex++]);
+                break;
+            case kClose:
+            default:
+                path.close();
+                break;
+        }
+    }
+    test_draw_AA_path(250, 125, path);
+}
+
+static void test_skbug_7015() {
+    SkPath path;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(SkBits2Float(0x4388c000), SkBits2Float(0x43947c08));  // 273.5f, 296.969f
+    path.lineTo(SkBits2Float(0x4386c000), SkBits2Float(0x43947c08));  // 269.5f, 296.969f
+    // 269.297f, 292.172f, 273.695f, 292.172f, 273.5f, 296.969f
+    path.cubicTo(SkBits2Float(0x4386a604), SkBits2Float(0x43921604),
+            SkBits2Float(0x4388d8f6), SkBits2Float(0x43921604),
+            SkBits2Float(0x4388c000), SkBits2Float(0x43947c08));
+    path.close();
+    test_draw_AA_path(500, 500, path);
+}
+
+static void test_skbug_7051() {
+    SkPath path;
+    path.moveTo(10, 10);
+    path.cubicTo(10, 20, 10, 30, 30, 30);
+    path.lineTo(50, 20);
+    path.lineTo(50, 10);
+    path.close();
+    test_draw_AA_path(100, 100, path);
+}
+
+#endif
 
 static void test_interp(skiatest::Reporter* reporter) {
     SkPath p1, p2, out;
@@ -4532,6 +4506,11 @@ DEF_TEST(Paths, reporter) {
     test_mask_overflow();
     test_path_crbugskia6003();
     test_fuzz_crbug_668907();
+#if !defined(SK_SUPPORT_LEGACY_DELTA_AA)
+    test_skbug_6947();
+    test_skbug_7015();
+    test_skbug_7051();
+#endif
 
     SkSize::Make(3, 4);
 
@@ -4745,7 +4724,7 @@ DEF_TEST(path_tight_bounds, reporter) {
                 SkRect bounds = path.getBounds();
                 SkRect tight = path.computeTightBounds();
                 REPORTER_ASSERT(reporter, bounds.contains(tight));
-                
+
                 SkRect tight2;
                 TightBounds(path, &tight2);
                 REPORTER_ASSERT(reporter, nearly_equal(tight, tight2));
@@ -4775,3 +4754,148 @@ DEF_TEST(skbug_6450, r) {
     orr.setRectRadii(ro, rdo);
     SkMakeNullCanvas()->drawDRRect(orr, irr, SkPaint());
 }
+
+DEF_TEST(PathRefSerialization, reporter) {
+    SkPath path;
+    const size_t numMoves = 5;
+    const size_t numConics = 7;
+    const size_t numPoints = numMoves + 2 * numConics;
+    const size_t numVerbs = numMoves + numConics;
+    for (size_t i = 0; i < numMoves; ++i) path.moveTo(1, 2);
+    for (size_t i = 0; i < numConics; ++i) path.conicTo(1, 2, 3, 4, 5);
+    REPORTER_ASSERT(reporter, path.countPoints() == numPoints);
+    REPORTER_ASSERT(reporter, path.countVerbs() == numVerbs);
+
+    // Verify that path serializes/deserializes properly.
+    sk_sp<SkData> data = path.serialize();
+    size_t bytesWritten = data->size();
+
+    {
+        SkPath readBack;
+        REPORTER_ASSERT(reporter, readBack != path);
+        size_t bytesRead = readBack.readFromMemory(data->data(), bytesWritten);
+        REPORTER_ASSERT(reporter, bytesRead == bytesWritten);
+        REPORTER_ASSERT(reporter, readBack == path);
+    }
+
+    // One less byte (rounded down to alignment) than was written will also
+    // fail to be deserialized.
+    {
+        SkPath readBack;
+        size_t bytesRead = readBack.readFromMemory(data->data(), bytesWritten - 4);
+        REPORTER_ASSERT(reporter, !bytesRead);
+    }
+}
+
+DEF_TEST(NonFinitePathIteration, reporter) {
+    SkPath path;
+    path.moveTo(SK_ScalarInfinity, SK_ScalarInfinity);
+
+    int verbs = 0;
+
+    SkPath::RawIter iter(path);
+    SkPoint         pts[4];
+    while (iter.next(pts) != SkPath::kDone_Verb) {
+        verbs++;
+    }
+
+    REPORTER_ASSERT(reporter, verbs == 0);
+}
+
+
+#ifndef SK_SUPPORT_LEGACY_SVG_ARC_TO
+DEF_TEST(AndroidArc, reporter) {
+    const char* tests[] = {
+        "M50,0A50,50,0,0 1 100,50 L100,85 A15,15,0,0 1 85,100 L50,100 A50,50,0,0 1 50,0z",
+        "M50,0L92,0 A8,8,0,0 1 100,8 L100,92 A8,8,0,0 1 92,100 L8,100"
+            " A8,8,0,0 1 0,92 L 0,8 A8,8,0,0 1 8,0z",
+        "M50 0A50 50,0,1,1,50 100A50 50,0,1,1,50 0"
+    };
+    for (auto test : tests) {
+        SkPath aPath;
+        SkAssertResult(SkParsePath::FromSVGString(test, &aPath));
+        SkASSERT(aPath.isConvex());
+        for (SkScalar scale = 1; scale < 1000; scale *= 1.1f) {
+            SkPath scalePath = aPath;
+            SkMatrix matrix;
+            matrix.setScale(scale, scale);
+            scalePath.transform(matrix);
+            SkASSERT(scalePath.isConvex());
+        }
+        for (SkScalar scale = 1; scale < .001; scale /= 1.1f) {
+            SkPath scalePath = aPath;
+            SkMatrix matrix;
+            matrix.setScale(scale, scale);
+            scalePath.transform(matrix);
+            SkASSERT(scalePath.isConvex());
+        }
+    }
+}
+#endif
+
+/*
+ *  Try a range of crazy values, just to ensure that we don't assert/crash.
+ */
+DEF_TEST(HugeGeometry, reporter) {
+    auto surf = SkSurface::MakeRasterN32Premul(100, 100);
+    auto canvas = surf->getCanvas();
+
+    const bool aas[] = { false, true };
+    const SkPaint::Style styles[] = {
+        SkPaint::kFill_Style, SkPaint::kStroke_Style, SkPaint::kStrokeAndFill_Style
+    };
+    const SkScalar values[] = {
+        0, 1, 1000, 1000 * 1000, 1000.f * 1000 * 10000, SK_ScalarMax / 2, SK_ScalarMax,
+        SK_ScalarInfinity
+    };
+
+    SkPaint paint;
+    for (auto x : values) {
+        SkRect r = { -x, -x, x, x };
+        for (auto width : values) {
+            paint.setStrokeWidth(width);
+            for (auto aa : aas) {
+                paint.setAntiAlias(aa);
+                for (auto style : styles) {
+                    paint.setStyle(style);
+                    canvas->drawRect(r, paint);
+                    canvas->drawOval(r, paint);
+                }
+            }
+        }
+    }
+
+}
+
+// Treat nonfinite paths as "empty" or "full", depending on inverse-filltype
+DEF_TEST(ClipPath_nonfinite, reporter) {
+    auto surf = SkSurface::MakeRasterN32Premul(10, 10);
+    SkCanvas* canvas = surf->getCanvas();
+
+    REPORTER_ASSERT(reporter, !canvas->isClipEmpty());
+    for (bool aa : {false, true}) {
+        for (SkPath::FillType ft : {SkPath::kWinding_FillType, SkPath::kInverseWinding_FillType}) {
+            for (SkScalar bad : {SK_ScalarInfinity, SK_ScalarNaN}) {
+                for (int bits = 1; bits <= 15; ++bits) {
+                    SkPoint p0 = { 0, 0 };
+                    SkPoint p1 = { 0, 0 };
+                    if (bits & 1) p0.fX = -bad;
+                    if (bits & 2) p0.fY = -bad;
+                    if (bits & 4) p1.fX = bad;
+                    if (bits & 8) p1.fY = bad;
+
+                    SkPath path;
+                    path.moveTo(p0);
+                    path.lineTo(p1);
+                    path.setFillType(ft);
+                    canvas->save();
+                    canvas->clipPath(path, aa);
+                    REPORTER_ASSERT(reporter, canvas->isClipEmpty() == !path.isInverseFillType());
+                    canvas->restore();
+                }
+            }
+        }
+    }
+    REPORTER_ASSERT(reporter, !canvas->isClipEmpty());
+}
+

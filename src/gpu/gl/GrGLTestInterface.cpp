@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include <functional>
 #include "GrGLTestInterface.h"
 
 namespace {
-template<typename R, typename... A>
-std::function<R(A...)> bind_to_member(GrGLTestInterface* interface, R (GrGLTestInterface::*member)(A...)) {
-    return [interface, member] (A... a) -> R { return (interface->*member)(a...); };
-}
+    template<typename R, typename... A>
+    GrGLFunction<R(*)(A...)> bind_to_member(GrGLTestInterface* interface,
+                                            R (GrGLTestInterface::*member)(A...)) {
+        return [interface, member] (A... a) -> R { return (interface->*member)(a...); };
+    }
 }  // anonymous namespace
 
 GrGLTestInterface::GrGLTestInterface() {
@@ -204,116 +204,8 @@ GrGLTestInterface::GrGLTestInterface() {
     fFunctions.fCoverageModulation = bind_to_member(this, &GrGLTestInterface::coverageModulation);
     fFunctions.fMultiDrawArraysIndirect = bind_to_member(this, &GrGLTestInterface::multiDrawArraysIndirect);
     fFunctions.fMultiDrawElementsIndirect = bind_to_member(this, &GrGLTestInterface::multiDrawElementsIndirect);
-    fFunctions.fGetTextureHandle = bind_to_member(this, &GrGLTestInterface::getTextureHandle);
-    fFunctions.fGetTextureSamplerHandle = bind_to_member(this, &GrGLTestInterface::getTextureSamplerHandle);
-    fFunctions.fMakeTextureHandleResident = bind_to_member(this, &GrGLTestInterface::makeTextureHandleResident);
-    fFunctions.fMakeTextureHandleNonResident = bind_to_member(this, &GrGLTestInterface::makeTextureHandleNonResident);
-    fFunctions.fGetImageHandle = bind_to_member(this, &GrGLTestInterface::getImageHandle);
-    fFunctions.fMakeImageHandleResident = bind_to_member(this, &GrGLTestInterface::makeImageHandleResident);
-    fFunctions.fMakeImageHandleNonResident = bind_to_member(this, &GrGLTestInterface::makeImageHandleNonResident);
-    fFunctions.fIsTextureHandleResident = bind_to_member(this, &GrGLTestInterface::isTextureHandleResident);
-    fFunctions.fIsImageHandleResident = bind_to_member(this, &GrGLTestInterface::isImageHandleResident);
-    fFunctions.fUniformHandleui64 = bind_to_member(this, &GrGLTestInterface::uniformHandleui64);
-    fFunctions.fUniformHandleui64v = bind_to_member(this, &GrGLTestInterface::uniformHandleui64v);
-    fFunctions.fProgramUniformHandleui64 = bind_to_member(this, &GrGLTestInterface::programUniformHandleui64);
-    fFunctions.fProgramUniformHandleui64v = bind_to_member(this, &GrGLTestInterface::programUniformHandleui64v);
-    fFunctions.fTextureParameteri = bind_to_member(this, &GrGLTestInterface::textureParameteri);
-    fFunctions.fTextureParameteriv = bind_to_member(this, &GrGLTestInterface::textureParameteriv);
-    fFunctions.fTextureParameterf = bind_to_member(this, &GrGLTestInterface::textureParameterf);
-    fFunctions.fTextureParameterfv = bind_to_member(this, &GrGLTestInterface::textureParameterfv);
-    fFunctions.fTextureImage1D = bind_to_member(this, &GrGLTestInterface::textureImage1D);
-    fFunctions.fTextureImage2D = bind_to_member(this, &GrGLTestInterface::textureImage2D);
-    fFunctions.fTextureSubImage1D = bind_to_member(this, &GrGLTestInterface::textureSubImage1D);
-    fFunctions.fTextureSubImage2D = bind_to_member(this, &GrGLTestInterface::textureSubImage2D);
-    fFunctions.fCopyTextureImage1D = bind_to_member(this, &GrGLTestInterface::copyTextureImage1D);
-    fFunctions.fCopyTextureImage2D = bind_to_member(this, &GrGLTestInterface::copyTextureImage2D);
-    fFunctions.fCopyTextureSubImage1D = bind_to_member(this, &GrGLTestInterface::copyTextureSubImage1D);
-    fFunctions.fCopyTextureSubImage2D = bind_to_member(this, &GrGLTestInterface::copyTextureSubImage2D);
-    fFunctions.fGetTextureImage = bind_to_member(this, &GrGLTestInterface::getTextureImage);
-    fFunctions.fGetTextureParameterfv = bind_to_member(this, &GrGLTestInterface::getTextureParameterfv);
-    fFunctions.fGetTextureParameteriv = bind_to_member(this, &GrGLTestInterface::getTextureParameteriv);
-    fFunctions.fGetTextureLevelParameterfv = bind_to_member(this, &GrGLTestInterface::getTextureLevelParameterfv);
-    fFunctions.fGetTextureLevelParameteriv = bind_to_member(this, &GrGLTestInterface::getTextureLevelParameteriv);
-    fFunctions.fTextureImage3D = bind_to_member(this, &GrGLTestInterface::textureImage3D);
-    fFunctions.fTextureSubImage3D = bind_to_member(this, &GrGLTestInterface::textureSubImage3D);
-    fFunctions.fCopyTextureSubImage3D = bind_to_member(this, &GrGLTestInterface::copyTextureSubImage3D);
-    fFunctions.fCompressedTextureImage3D = bind_to_member(this, &GrGLTestInterface::compressedTextureImage3D);
-    fFunctions.fCompressedTextureImage2D = bind_to_member(this, &GrGLTestInterface::compressedTextureImage2D);
-    fFunctions.fCompressedTextureImage1D = bind_to_member(this, &GrGLTestInterface::compressedTextureImage1D);
-    fFunctions.fCompressedTextureSubImage3D = bind_to_member(this, &GrGLTestInterface::compressedTextureSubImage3D);
-    fFunctions.fCompressedTextureSubImage2D = bind_to_member(this, &GrGLTestInterface::compressedTextureSubImage2D);
-    fFunctions.fCompressedTextureSubImage1D = bind_to_member(this, &GrGLTestInterface::compressedTextureSubImage1D);
-    fFunctions.fGetCompressedTextureImage = bind_to_member(this, &GrGLTestInterface::getCompressedTextureImage);
-    fFunctions.fNamedBufferData = bind_to_member(this, &GrGLTestInterface::namedBufferData);
-    fFunctions.fNamedBufferSubData = bind_to_member(this, &GrGLTestInterface::namedBufferSubData);
-    fFunctions.fMapNamedBuffer = bind_to_member(this, &GrGLTestInterface::mapNamedBuffer);
-    fFunctions.fUnmapNamedBuffer = bind_to_member(this, &GrGLTestInterface::unmapNamedBuffer);
-    fFunctions.fGetNamedBufferParameteriv = bind_to_member(this, &GrGLTestInterface::getNamedBufferParameteriv);
-    fFunctions.fGetNamedBufferPointerv = bind_to_member(this, &GrGLTestInterface::getNamedBufferPointerv);
-    fFunctions.fGetNamedBufferSubData = bind_to_member(this, &GrGLTestInterface::getNamedBufferSubData);
-    fFunctions.fProgramUniform1f = bind_to_member(this, &GrGLTestInterface::programUniform1f);
-    fFunctions.fProgramUniform2f = bind_to_member(this, &GrGLTestInterface::programUniform2f);
-    fFunctions.fProgramUniform3f = bind_to_member(this, &GrGLTestInterface::programUniform3f);
-    fFunctions.fProgramUniform4f = bind_to_member(this, &GrGLTestInterface::programUniform4f);
-    fFunctions.fProgramUniform1i = bind_to_member(this, &GrGLTestInterface::programUniform1i);
-    fFunctions.fProgramUniform2i = bind_to_member(this, &GrGLTestInterface::programUniform2i);
-    fFunctions.fProgramUniform3i = bind_to_member(this, &GrGLTestInterface::programUniform3i);
-    fFunctions.fProgramUniform4i = bind_to_member(this, &GrGLTestInterface::programUniform4i);
-    fFunctions.fProgramUniform1fv = bind_to_member(this, &GrGLTestInterface::programUniform1fv);
-    fFunctions.fProgramUniform2fv = bind_to_member(this, &GrGLTestInterface::programUniform2fv);
-    fFunctions.fProgramUniform3fv = bind_to_member(this, &GrGLTestInterface::programUniform3fv);
-    fFunctions.fProgramUniform4fv = bind_to_member(this, &GrGLTestInterface::programUniform4fv);
-    fFunctions.fProgramUniform1iv = bind_to_member(this, &GrGLTestInterface::programUniform1iv);
-    fFunctions.fProgramUniform2iv = bind_to_member(this, &GrGLTestInterface::programUniform2iv);
-    fFunctions.fProgramUniform3iv = bind_to_member(this, &GrGLTestInterface::programUniform3iv);
-    fFunctions.fProgramUniform4iv = bind_to_member(this, &GrGLTestInterface::programUniform4iv);
-    fFunctions.fProgramUniformMatrix2fv = bind_to_member(this, &GrGLTestInterface::programUniformMatrix2fv);
-    fFunctions.fProgramUniformMatrix3fv = bind_to_member(this, &GrGLTestInterface::programUniformMatrix3fv);
-    fFunctions.fProgramUniformMatrix4fv = bind_to_member(this, &GrGLTestInterface::programUniformMatrix4fv);
-    fFunctions.fProgramUniformMatrix2x3fv = bind_to_member(this, &GrGLTestInterface::programUniformMatrix2x3fv);
-    fFunctions.fProgramUniformMatrix3x2fv = bind_to_member(this, &GrGLTestInterface::programUniformMatrix3x2fv);
-    fFunctions.fProgramUniformMatrix2x4fv = bind_to_member(this, &GrGLTestInterface::programUniformMatrix2x4fv);
-    fFunctions.fProgramUniformMatrix4x2fv = bind_to_member(this, &GrGLTestInterface::programUniformMatrix4x2fv);
-    fFunctions.fProgramUniformMatrix3x4fv = bind_to_member(this, &GrGLTestInterface::programUniformMatrix3x4fv);
-    fFunctions.fProgramUniformMatrix4x3fv = bind_to_member(this, &GrGLTestInterface::programUniformMatrix4x3fv);
-    fFunctions.fNamedRenderbufferStorage = bind_to_member(this, &GrGLTestInterface::namedRenderbufferStorage);
-    fFunctions.fGetNamedRenderbufferParameteriv = bind_to_member(this, &GrGLTestInterface::getNamedRenderbufferParameteriv);
-    fFunctions.fNamedRenderbufferStorageMultisample = bind_to_member(this, &GrGLTestInterface::namedRenderbufferStorageMultisample);
-    fFunctions.fCheckNamedFramebufferStatus = bind_to_member(this, &GrGLTestInterface::checkNamedFramebufferStatus);
-    fFunctions.fNamedFramebufferTexture1D = bind_to_member(this, &GrGLTestInterface::namedFramebufferTexture1D);
-    fFunctions.fNamedFramebufferTexture2D = bind_to_member(this, &GrGLTestInterface::namedFramebufferTexture2D);
-    fFunctions.fNamedFramebufferTexture3D = bind_to_member(this, &GrGLTestInterface::namedFramebufferTexture3D);
-    fFunctions.fNamedFramebufferRenderbuffer = bind_to_member(this, &GrGLTestInterface::namedFramebufferRenderbuffer);
-    fFunctions.fGetNamedFramebufferAttachmentParameteriv = bind_to_member(this, &GrGLTestInterface::getNamedFramebufferAttachmentParameteriv);
-    fFunctions.fGenerateTextureMipmap = bind_to_member(this, &GrGLTestInterface::generateTextureMipmap);
-    fFunctions.fFramebufferDrawBuffer = bind_to_member(this, &GrGLTestInterface::framebufferDrawBuffer);
-    fFunctions.fFramebufferDrawBuffers = bind_to_member(this, &GrGLTestInterface::framebufferDrawBuffers);
-    fFunctions.fFramebufferReadBuffer = bind_to_member(this, &GrGLTestInterface::framebufferReadBuffer);
-    fFunctions.fGetFramebufferParameteriv = bind_to_member(this, &GrGLTestInterface::getFramebufferParameteriv);
-    fFunctions.fNamedCopyBufferSubData = bind_to_member(this, &GrGLTestInterface::namedCopyBufferSubData);
-    fFunctions.fVertexArrayVertexOffset = bind_to_member(this, &GrGLTestInterface::vertexArrayVertexOffset);
-    fFunctions.fVertexArrayColorOffset = bind_to_member(this, &GrGLTestInterface::vertexArrayColorOffset);
-    fFunctions.fVertexArrayEdgeFlagOffset = bind_to_member(this, &GrGLTestInterface::vertexArrayEdgeFlagOffset);
-    fFunctions.fVertexArrayIndexOffset = bind_to_member(this, &GrGLTestInterface::vertexArrayIndexOffset);
-    fFunctions.fVertexArrayNormalOffset = bind_to_member(this, &GrGLTestInterface::vertexArrayNormalOffset);
-    fFunctions.fVertexArrayTexCoordOffset = bind_to_member(this, &GrGLTestInterface::vertexArrayTexCoordOffset);
-    fFunctions.fVertexArrayMultiTexCoordOffset = bind_to_member(this, &GrGLTestInterface::vertexArrayMultiTexCoordOffset);
-    fFunctions.fVertexArrayFogCoordOffset = bind_to_member(this, &GrGLTestInterface::vertexArrayFogCoordOffset);
-    fFunctions.fVertexArraySecondaryColorOffset = bind_to_member(this, &GrGLTestInterface::vertexArraySecondaryColorOffset);
-    fFunctions.fVertexArrayVertexAttribOffset = bind_to_member(this, &GrGLTestInterface::vertexArrayVertexAttribOffset);
-    fFunctions.fVertexArrayVertexAttribIOffset = bind_to_member(this, &GrGLTestInterface::vertexArrayVertexAttribIOffset);
-    fFunctions.fEnableVertexArray = bind_to_member(this, &GrGLTestInterface::enableVertexArray);
-    fFunctions.fDisableVertexArray = bind_to_member(this, &GrGLTestInterface::disableVertexArray);
-    fFunctions.fEnableVertexArrayAttrib = bind_to_member(this, &GrGLTestInterface::enableVertexArrayAttrib);
-    fFunctions.fDisableVertexArrayAttrib = bind_to_member(this, &GrGLTestInterface::disableVertexArrayAttrib);
-    fFunctions.fGetVertexArrayIntegerv = bind_to_member(this, &GrGLTestInterface::getVertexArrayIntegerv);
-    fFunctions.fGetVertexArrayPointerv = bind_to_member(this, &GrGLTestInterface::getVertexArrayPointerv);
-    fFunctions.fGetVertexArrayIntegeri_v = bind_to_member(this, &GrGLTestInterface::getVertexArrayIntegeri_v);
-    fFunctions.fGetVertexArrayPointeri_v = bind_to_member(this, &GrGLTestInterface::getVertexArrayPointeri_v);
-    fFunctions.fMapNamedBufferRange = bind_to_member(this, &GrGLTestInterface::mapNamedBufferRange);
-    fFunctions.fFlushMappedNamedBufferRange = bind_to_member(this, &GrGLTestInterface::flushMappedNamedBufferRange);
-    fFunctions.fTextureBuffer = bind_to_member(this, &GrGLTestInterface::textureBuffer);
     fFunctions.fFenceSync = bind_to_member(this, &GrGLTestInterface::fenceSync);
+    fFunctions.fIsSync = bind_to_member(this, &GrGLTestInterface::isSync);
     fFunctions.fClientWaitSync = bind_to_member(this, &GrGLTestInterface::clientWaitSync);
     fFunctions.fWaitSync = bind_to_member(this, &GrGLTestInterface::waitSync);
     fFunctions.fDeleteSync = bind_to_member(this, &GrGLTestInterface::deleteSync);
@@ -324,4 +216,8 @@ GrGLTestInterface::GrGLTestInterface() {
     fFunctions.fPushDebugGroup = bind_to_member(this, &GrGLTestInterface::pushDebugGroup);
     fFunctions.fPopDebugGroup = bind_to_member(this, &GrGLTestInterface::popDebugGroup);
     fFunctions.fObjectLabel = bind_to_member(this, &GrGLTestInterface::objectLabel);
+    fFunctions.fGetInternalformativ = bind_to_member(this, &GrGLTestInterface::getInternalformativ);
+    fFunctions.fProgramBinary = bind_to_member(this, &GrGLTestInterface::programBinary);
+    fFunctions.fGetProgramBinary = bind_to_member(this, &GrGLTestInterface::getProgramBinary);
+    fFunctions.fProgramParameteri = bind_to_member(this, &GrGLTestInterface::programParameteri);
 }

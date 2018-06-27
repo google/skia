@@ -8,14 +8,14 @@
 #include "sk_tool_utils.h"
 
 #include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkPoint.h"
-#include "SkTextBlob.h"
 #include "SkFontMgr.h"
 #include "SkGraphics.h"
+#include "SkPaint.h"
+#include "SkPoint.h"
+#include "SkRandomScalerContext.h"
 #include "SkSurface.h"
+#include "SkTextBlob.h"
 #include "SkTypeface.h"
-#include "../src/fonts/SkRandomScalerContext.h"
 
 #ifdef SK_BUILD_FOR_WIN
     #include "SkTypeface_win.h"

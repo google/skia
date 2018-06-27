@@ -28,20 +28,20 @@ constexpr size_t gLen = sizeof(gText) - sizeof(gText[0]);
 class VertTextGM : public GM {
 public:
     VertTextGM()
-        // : fFace(SkTypeface::CreateFromName("unifont", SkTypeface::kNormal))
-        // : fFace(SkTypeface::CreateFromFile("MotoyaL04Mincho_3.ttf"))
+        // : fFace(SkTypeface::MakeFromName("unifont", SkFontStyle::Normal()))
+        // : fFace(SkTypeface::MakeFromFile("MotoyaL04Mincho_3.ttf"))
 
         // Bitmap fonts on OS X.
-        // : fFace(SkTypeface::CreateFromName("GB18030 Bitmap", SkTypeface::kNormal))
-        // : fFace(SkTypeface::CreateFromName("Apple Color Emoji", SkTypeface::kNormal))
+        // : fFace(SkTypeface::MakeFromName("GB18030 Bitmap", SkFontStyle::Normal()))
+        // : fFace(SkTypeface::MakeFromName("Apple Color Emoji", SkFontStyle::Normal()))
 
         // OTF CFF fonts on OS X.
-        // : fFace(SkTypeface::CreateFromName("Hiragino Mincho ProN", SkTypeface::kNormal))
-        // : fFace(SkTypeface::CreateFromName("Hiragino Kaku Gothic Pro", SkTypeface::kNormal))
-        // : fFace(SkTypeface::CreateFromName("Hiragino Sans GB", SkTypeface::kNormal))
-        // : fFace(SkTypeface::CreateFromName("STIXGeneral", SkTypeface::kNormal))
-        // : fFace(SkTypeface::CreateFromName("Yuppy SC", SkTypeface::kNormal))
-        // : fFace(SkTypeface::CreateFromName("Yuppy TC", SkTypeface::kNormal))
+        // : fFace(SkTypeface::MakeFromName("Hiragino Mincho ProN", SkFontStyle::Normal()))
+        // : fFace(SkTypeface::MakeFromName("Hiragino Kaku Gothic Pro", SkFontStyle::Normal()))
+        // : fFace(SkTypeface::MakeFromName("Hiragino Sans GB", SkFontStyle::Normal()))
+        // : fFace(SkTypeface::MakeFromName("STIXGeneral", SkFontStyle::Normal()))
+        // : fFace(SkTypeface::MakeFromName("Yuppy SC", SkFontStyle::Normal()))
+        // : fFace(SkTypeface::MakeFromName("Yuppy TC", SkFontStyle::Normal()))
 
     {
     }

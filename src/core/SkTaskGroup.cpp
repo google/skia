@@ -29,19 +29,23 @@ void SkTaskGroup::batch(int N, std::function<void(int)> fn) {
     }
 }
 
+bool SkTaskGroup::done() const {
+    return fPending.load(std::memory_order_acquire) == 0;
+}
+
 void SkTaskGroup::wait() {
     // Actively help the executor do work until our task group is done.
     // This lets SkTaskGroups nest arbitrarily deep on a single SkExecutor:
     // no thread ever blocks waiting for others to do its work.
     // (We may end up doing work that's not part of our task group.  That's fine.)
-    while (fPending.load(std::memory_order_acquire) > 0) {
+    while (!this->done()) {
         fExecutor.borrow();
     }
 }
 
 SkTaskGroup::Enabler::Enabler(int threads) {
     if (threads) {
-        fThreadPool = SkExecutor::MakeThreadPool(threads);
+        fThreadPool = SkExecutor::MakeLIFOThreadPool(threads);
         SkExecutor::SetDefault(fThreadPool.get());
     }
 }

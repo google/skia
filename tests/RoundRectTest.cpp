@@ -6,6 +6,7 @@
  */
 
 #include "SkMatrix.h"
+#include "SkPointPriv.h"
 #include "SkRRect.h"
 #include "Test.h"
 
@@ -70,36 +71,51 @@ static void test_empty(skiatest::Reporter* reporter) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(oooRects); ++i) {
         r.setRect(oooRects[i]);
         REPORTER_ASSERT(reporter, !r.isEmpty());
+        REPORTER_ASSERT(reporter, r.rect() == oooRects[i].makeSorted());
 
         r.setOval(oooRects[i]);
         REPORTER_ASSERT(reporter, !r.isEmpty());
+        REPORTER_ASSERT(reporter, r.rect() == oooRects[i].makeSorted());
 
         r.setRectXY(oooRects[i], 1, 2);
         REPORTER_ASSERT(reporter, !r.isEmpty());
+        REPORTER_ASSERT(reporter, r.rect() == oooRects[i].makeSorted());
 
         r.setNinePatch(oooRects[i], 0, 1, 2, 3);
         REPORTER_ASSERT(reporter, !r.isEmpty());
+        REPORTER_ASSERT(reporter, r.rect() == oooRects[i].makeSorted());
 
         r.setRectRadii(oooRects[i], radii);
         REPORTER_ASSERT(reporter, !r.isEmpty());
+        REPORTER_ASSERT(reporter, r.rect() == oooRects[i].makeSorted());
     }
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(emptyRects); ++i) {
         r.setRect(emptyRects[i]);
         REPORTER_ASSERT(reporter, r.isEmpty());
+        REPORTER_ASSERT(reporter, r.rect() == emptyRects[i]);
 
         r.setOval(emptyRects[i]);
         REPORTER_ASSERT(reporter, r.isEmpty());
+        REPORTER_ASSERT(reporter, r.rect() == emptyRects[i]);
 
         r.setRectXY(emptyRects[i], 1, 2);
         REPORTER_ASSERT(reporter, r.isEmpty());
+        REPORTER_ASSERT(reporter, r.rect() == emptyRects[i]);
 
         r.setNinePatch(emptyRects[i], 0, 1, 2, 3);
         REPORTER_ASSERT(reporter, r.isEmpty());
+        REPORTER_ASSERT(reporter, r.rect() == emptyRects[i]);
 
         r.setRectRadii(emptyRects[i], radii);
         REPORTER_ASSERT(reporter, r.isEmpty());
+        REPORTER_ASSERT(reporter, r.rect() == emptyRects[i]);
     }
+
+    r.setRect({SK_ScalarNaN, 10, 10, 20});
+    REPORTER_ASSERT(reporter, r == SkRRect::MakeEmpty());
+    r.setRect({0, 10, 10, SK_ScalarInfinity});
+    REPORTER_ASSERT(reporter, r == SkRRect::MakeEmpty());
 }
 
 static const SkScalar kWidth = 100.0f;
@@ -197,7 +213,8 @@ static void test_round_rect_basic(skiatest::Reporter* reporter) {
 
     for (int i = 0; i < 4; ++i) {
         REPORTER_ASSERT(reporter,
-                        rr2.radii((SkRRect::Corner) i).equalsWithinTolerance(halfPoint));
+                        SkPointPriv::EqualsWithinTolerance(rr2.radii((SkRRect::Corner) i),
+                        halfPoint));
     }
     SkRRect rr2_2;  // construct the same RR using the most general set function
     SkVector rr2_2_radii[4] = { { halfPoint.fX, halfPoint.fY }, { halfPoint.fX, halfPoint.fY },
@@ -722,6 +739,68 @@ static void test_issue_2696(skiatest::Reporter* reporter) {
     }
 }
 
+void test_read_rrect(skiatest::Reporter* reporter, const SkRRect& rrect, bool shouldEqualSrc) {
+    // It would be cleaner to call rrect.writeToMemory into a buffer. However, writeToMemory asserts
+    // that the rrect is valid and our caller may have fiddled with the internals of rrect to make
+    // it invalid.
+    const void* buffer = reinterpret_cast<const void*>(&rrect);
+    SkRRect deserialized;
+    size_t size = deserialized.readFromMemory(buffer, sizeof(SkRRect));
+    REPORTER_ASSERT(reporter, size == SkRRect::kSizeInMemory);
+    REPORTER_ASSERT(reporter, deserialized.isValid());
+    if (shouldEqualSrc) {
+       REPORTER_ASSERT(reporter, rrect == deserialized);
+    }
+}
+
+static void test_read(skiatest::Reporter* reporter) {
+    static const SkRect kRect = {10.f, 10.f, 20.f, 20.f};
+    static const SkRect kNaNRect = {10.f, 10.f, 20.f, SK_ScalarNaN};
+    static const SkRect kInfRect = {10.f, 10.f, SK_ScalarInfinity, 20.f};
+    SkRRect rrect;
+
+    test_read_rrect(reporter, SkRRect::MakeEmpty(), true);
+    test_read_rrect(reporter, SkRRect::MakeRect(kRect), true);
+    // These get coerced to empty.
+    test_read_rrect(reporter, SkRRect::MakeRect(kInfRect), true);
+    test_read_rrect(reporter, SkRRect::MakeRect(kNaNRect), true);
+
+    rrect.setRect(kRect);
+    SkRect* innerRect = reinterpret_cast<SkRect*>(&rrect);
+    SkASSERT(*innerRect == kRect);
+    *innerRect = kInfRect;
+    test_read_rrect(reporter, rrect, false);
+    *innerRect = kNaNRect;
+    test_read_rrect(reporter, rrect, false);
+
+    test_read_rrect(reporter, SkRRect::MakeOval(kRect), true);
+    test_read_rrect(reporter, SkRRect::MakeOval(kInfRect), true);
+    test_read_rrect(reporter, SkRRect::MakeOval(kNaNRect), true);
+    rrect.setOval(kRect);
+    *innerRect = kInfRect;
+    test_read_rrect(reporter, rrect, false);
+    *innerRect = kNaNRect;
+    test_read_rrect(reporter, rrect, false);
+
+    test_read_rrect(reporter, SkRRect::MakeRectXY(kRect, 5.f, 5.f), true);
+    // rrect should scale down the radii to make this legal
+    test_read_rrect(reporter, SkRRect::MakeRectXY(kRect, 5.f, 400.f), true);
+
+    static const SkVector kRadii[4] = {{0.5f, 1.f}, {1.5f, 2.f}, {2.5f, 3.f}, {3.5f, 4.f}};
+    rrect.setRectRadii(kRect, kRadii);
+    test_read_rrect(reporter, rrect, true);
+    SkScalar* innerRadius = reinterpret_cast<SkScalar*>(&rrect) + 6;
+    SkASSERT(*innerRadius == 1.5f);
+    *innerRadius = 400.f;
+    test_read_rrect(reporter, rrect, false);
+    *innerRadius = SK_ScalarInfinity;
+    test_read_rrect(reporter, rrect, false);
+    *innerRadius = SK_ScalarNaN;
+    test_read_rrect(reporter, rrect, false);
+    *innerRadius = -10.f;
+    test_read_rrect(reporter, rrect, false);
+}
+
 DEF_TEST(RoundRect, reporter) {
     test_round_rect_basic(reporter);
     test_round_rect_rects(reporter);
@@ -735,4 +814,5 @@ DEF_TEST(RoundRect, reporter) {
     test_tricky_radii(reporter);
     test_empty_crbug_458524(reporter);
     test_empty(reporter);
+    test_read(reporter);
 }

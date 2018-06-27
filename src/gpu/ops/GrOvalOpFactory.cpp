@@ -13,7 +13,7 @@
 #include "GrResourceProvider.h"
 #include "GrShaderCaps.h"
 #include "GrStyle.h"
-#include "SkRRect.h"
+#include "SkRRectPriv.h"
 #include "SkStrokeRec.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
@@ -21,7 +21,7 @@
 #include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLUtil.h"
 #include "glsl/GrGLSLVarying.h"
-#include "glsl/GrGLSLVertexShaderBuilder.h"
+#include "glsl/GrGLSLVertexGeoBuilder.h"
 #include "ops/GrMeshDrawOp.h"
 #include "ops/GrSimpleMeshDrawOpHelper.h"
 
@@ -57,12 +57,6 @@ static inline bool circle_stays_circle(const SkMatrix& m) { return m.isSimilarit
  *             p is the position in the normalized space.
  *             outerRad is the outerRadius in device space.
  *             innerRad is the innerRadius in normalized space (ignored if not stroking).
- * If fUsesDistanceVectorField is set in fragment processors in the same program, then
- * an additional vertex attribute is available via args.fFragBuilder->distanceVectorName():
- *    vec4f : (v.xy, outerDistance, innerDistance)
- *             v is a normalized vector pointing to the outer edge
- *             outerDistance is the distance to the outer edge, < 0 if we are outside of the shape
- *             if stroking, innerDistance is the distance to the inner edge, < 0 if outside
  * Additional clip planes are supported for rendering circular arcs. The additional planes are
  * either intersected or unioned together. Up to three planes are supported (an initial plane,
  * a plane intersected with the initial plane, and a plane unioned with the first two). Only two
@@ -74,32 +68,28 @@ class CircleGeometryProcessor : public GrGeometryProcessor {
 public:
     CircleGeometryProcessor(bool stroke, bool clipPlane, bool isectPlane, bool unionPlane,
                             const SkMatrix& localMatrix)
-            : fLocalMatrix(localMatrix) {
-        this->initClassID<CircleGeometryProcessor>();
-        fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
-                                             kHigh_GrSLPrecision);
-        fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
-        fInCircleEdge = &this->addVertexAttrib("inCircleEdge", kVec4f_GrVertexAttribType,
-                                               kHigh_GrSLPrecision);
+            : INHERITED(kCircleGeometryProcessor_ClassID)
+            , fLocalMatrix(localMatrix) {
+        fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
+        fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
+        fInCircleEdge = &this->addVertexAttrib("inCircleEdge", kFloat4_GrVertexAttribType);
         if (clipPlane) {
-            fInClipPlane = &this->addVertexAttrib("inClipPlane", kVec3f_GrVertexAttribType);
+            fInClipPlane = &this->addVertexAttrib("inClipPlane", kHalf3_GrVertexAttribType);
         } else {
             fInClipPlane = nullptr;
         }
         if (isectPlane) {
-            fInIsectPlane = &this->addVertexAttrib("inIsectPlane", kVec3f_GrVertexAttribType);
+            fInIsectPlane = &this->addVertexAttrib("inIsectPlane", kHalf3_GrVertexAttribType);
         } else {
             fInIsectPlane = nullptr;
         }
         if (unionPlane) {
-            fInUnionPlane = &this->addVertexAttrib("inUnionPlane", kVec3f_GrVertexAttribType);
+            fInUnionPlane = &this->addVertexAttrib("inUnionPlane", kHalf3_GrVertexAttribType);
         } else {
             fInUnionPlane = nullptr;
         }
         fStroke = stroke;
     }
-
-    bool implementsDistanceVector() const override { return !fInClipPlane; }
 
     ~CircleGeometryProcessor() override {}
 
@@ -123,25 +113,24 @@ private:
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
             GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
             GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-            GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
+            GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
             // emit attributes
             varyingHandler->emitAttributes(cgp);
-            fragBuilder->codeAppend("highp vec4 circleEdge;");
-            varyingHandler->addPassThroughAttribute(cgp.fInCircleEdge, "circleEdge",
-                                                    kHigh_GrSLPrecision);
+            fragBuilder->codeAppend("float4 circleEdge;");
+            varyingHandler->addPassThroughAttribute(cgp.fInCircleEdge, "circleEdge");
             if (cgp.fInClipPlane) {
-                fragBuilder->codeAppend("vec3 clipPlane;");
+                fragBuilder->codeAppend("half3 clipPlane;");
                 varyingHandler->addPassThroughAttribute(cgp.fInClipPlane, "clipPlane");
             }
             if (cgp.fInIsectPlane) {
                 SkASSERT(cgp.fInClipPlane);
-                fragBuilder->codeAppend("vec3 isectPlane;");
+                fragBuilder->codeAppend("half3 isectPlane;");
                 varyingHandler->addPassThroughAttribute(cgp.fInIsectPlane, "isectPlane");
             }
             if (cgp.fInUnionPlane) {
                 SkASSERT(cgp.fInClipPlane);
-                fragBuilder->codeAppend("vec3 unionPlane;");
+                fragBuilder->codeAppend("half3 unionPlane;");
                 varyingHandler->addPassThroughAttribute(cgp.fInUnionPlane, "unionPlane");
             }
 
@@ -149,45 +138,29 @@ private:
             varyingHandler->addPassThroughAttribute(cgp.fInColor, args.fOutputColor);
 
             // Setup position
-            this->setupPosition(vertBuilder, gpArgs, cgp.fInPosition->fName);
+            this->writeOutputPosition(vertBuilder, gpArgs, cgp.fInPosition->fName);
 
             // emit transforms
             this->emitTransforms(vertBuilder,
                                  varyingHandler,
                                  uniformHandler,
-                                 gpArgs->fPositionVar,
-                                 cgp.fInPosition->fName,
+                                 cgp.fInPosition->asShaderVar(),
                                  cgp.fLocalMatrix,
                                  args.fFPCoordTransformHandler);
 
-            fragBuilder->codeAppend("highp float d = length(circleEdge.xy);");
-            fragBuilder->codeAppend("float distanceToOuterEdge = circleEdge.z * (1.0 - d);");
-            fragBuilder->codeAppend("float edgeAlpha = clamp(distanceToOuterEdge, 0.0, 1.0);");
+            fragBuilder->codeAppend("float d = length(circleEdge.xy);");
+            fragBuilder->codeAppend("half distanceToOuterEdge = circleEdge.z * (1.0 - d);");
+            fragBuilder->codeAppend("half edgeAlpha = clamp(distanceToOuterEdge, 0.0, 1.0);");
             if (cgp.fStroke) {
                 fragBuilder->codeAppend(
-                        "float distanceToInnerEdge = circleEdge.z * (d - circleEdge.w);");
-                fragBuilder->codeAppend("float innerAlpha = clamp(distanceToInnerEdge, 0.0, 1.0);");
+                        "half distanceToInnerEdge = circleEdge.z * (d - circleEdge.w);");
+                fragBuilder->codeAppend("half innerAlpha = clamp(distanceToInnerEdge, 0.0, 1.0);");
                 fragBuilder->codeAppend("edgeAlpha *= innerAlpha;");
             }
 
-            if (args.fDistanceVectorName) {
-                const char* innerEdgeDistance = cgp.fStroke ? "distanceToInnerEdge" : "0.0";
-                fragBuilder->codeAppendf(
-                        "if (d == 0.0) {"  // if on the center of the circle
-                        "    %s = vec4(1.0, 0.0, distanceToOuterEdge, "
-                        "              %s);",  // no normalize
-                        args.fDistanceVectorName,
-                        innerEdgeDistance);
-                fragBuilder->codeAppendf(
-                        "} else {"
-                        "    %s = vec4(normalize(circleEdge.xy),"
-                        "              distanceToOuterEdge, %s);"
-                        "}",
-                        args.fDistanceVectorName, innerEdgeDistance);
-            }
             if (cgp.fInClipPlane) {
                 fragBuilder->codeAppend(
-                        "float clip = clamp(circleEdge.z * dot(circleEdge.xy, clipPlane.xy) + "
+                        "half clip = clamp(circleEdge.z * dot(circleEdge.xy, clipPlane.xy) + "
                         "clipPlane.z, 0.0, 1.0);");
                 if (cgp.fInIsectPlane) {
                     fragBuilder->codeAppend(
@@ -201,7 +174,7 @@ private:
                 }
                 fragBuilder->codeAppend("edgeAlpha *= clip;");
             }
-            fragBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
+            fragBuilder->codeAppendf("%s = half4(edgeAlpha);", args.fOutputCoverage);
         }
 
         static void GenKey(const GrGeometryProcessor& gp,
@@ -236,7 +209,7 @@ private:
     const Attribute* fInUnionPlane;
     bool fStroke;
 
-    GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
+    GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
     typedef GrGeometryProcessor INHERITED;
 };
@@ -263,12 +236,13 @@ sk_sp<GrGeometryProcessor> CircleGeometryProcessor::TestCreate(GrProcessorTestDa
 
 class EllipseGeometryProcessor : public GrGeometryProcessor {
 public:
-    EllipseGeometryProcessor(bool stroke, const SkMatrix& localMatrix) : fLocalMatrix(localMatrix) {
-        this->initClassID<EllipseGeometryProcessor>();
-        fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType);
-        fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
-        fInEllipseOffset = &this->addVertexAttrib("inEllipseOffset", kVec2f_GrVertexAttribType);
-        fInEllipseRadii = &this->addVertexAttrib("inEllipseRadii", kVec4f_GrVertexAttribType);
+    EllipseGeometryProcessor(bool stroke, const SkMatrix& localMatrix)
+    : INHERITED(kEllipseGeometryProcessor_ClassID)
+    , fLocalMatrix(localMatrix) {
+        fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
+        fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
+        fInEllipseOffset = &this->addVertexAttrib("inEllipseOffset", kHalf2_GrVertexAttribType);
+        fInEllipseRadii = &this->addVertexAttrib("inEllipseRadii", kHalf4_GrVertexAttribType);
         fStroke = stroke;
     }
 
@@ -298,42 +272,41 @@ private:
             // emit attributes
             varyingHandler->emitAttributes(egp);
 
-            GrGLSLVertToFrag ellipseOffsets(kVec2f_GrSLType);
+            GrGLSLVarying ellipseOffsets(kHalf2_GrSLType);
             varyingHandler->addVarying("EllipseOffsets", &ellipseOffsets);
             vertBuilder->codeAppendf("%s = %s;", ellipseOffsets.vsOut(),
                                      egp.fInEllipseOffset->fName);
 
-            GrGLSLVertToFrag ellipseRadii(kVec4f_GrSLType);
+            GrGLSLVarying ellipseRadii(kHalf4_GrSLType);
             varyingHandler->addVarying("EllipseRadii", &ellipseRadii);
             vertBuilder->codeAppendf("%s = %s;", ellipseRadii.vsOut(), egp.fInEllipseRadii->fName);
 
-            GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
+            GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
             // setup pass through color
             varyingHandler->addPassThroughAttribute(egp.fInColor, args.fOutputColor);
 
             // Setup position
-            this->setupPosition(vertBuilder, gpArgs, egp.fInPosition->fName);
+            this->writeOutputPosition(vertBuilder, gpArgs, egp.fInPosition->fName);
 
             // emit transforms
             this->emitTransforms(vertBuilder,
                                  varyingHandler,
                                  uniformHandler,
-                                 gpArgs->fPositionVar,
-                                 egp.fInPosition->fName,
+                                 egp.fInPosition->asShaderVar(),
                                  egp.fLocalMatrix,
                                  args.fFPCoordTransformHandler);
 
             // for outer curve
-            fragBuilder->codeAppendf("vec2 scaledOffset = %s*%s.xy;", ellipseOffsets.fsIn(),
+            fragBuilder->codeAppendf("half2 scaledOffset = %s*%s.xy;", ellipseOffsets.fsIn(),
                                      ellipseRadii.fsIn());
-            fragBuilder->codeAppend("float test = dot(scaledOffset, scaledOffset) - 1.0;");
-            fragBuilder->codeAppendf("vec2 grad = 2.0*scaledOffset*%s.xy;", ellipseRadii.fsIn());
-            fragBuilder->codeAppend("float grad_dot = dot(grad, grad);");
+            fragBuilder->codeAppend("half test = dot(scaledOffset, scaledOffset) - 1.0;");
+            fragBuilder->codeAppendf("half2 grad = 2.0*scaledOffset*%s.xy;", ellipseRadii.fsIn());
+            fragBuilder->codeAppend("half grad_dot = dot(grad, grad);");
 
             // avoid calling inversesqrt on zero.
             fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
-            fragBuilder->codeAppend("float invlen = inversesqrt(grad_dot);");
-            fragBuilder->codeAppend("float edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);");
+            fragBuilder->codeAppend("half invlen = inversesqrt(grad_dot);");
+            fragBuilder->codeAppend("half edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);");
 
             // for inner curve
             if (egp.fStroke) {
@@ -345,7 +318,7 @@ private:
                 fragBuilder->codeAppend("edgeAlpha *= clamp(0.5+test*invlen, 0.0, 1.0);");
             }
 
-            fragBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
+            fragBuilder->codeAppendf("%s = half4(edgeAlpha);", args.fOutputCoverage);
         }
 
         static void GenKey(const GrGeometryProcessor& gp,
@@ -374,7 +347,7 @@ private:
     SkMatrix fLocalMatrix;
     bool fStroke;
 
-    GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
+    GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
     typedef GrGeometryProcessor INHERITED;
 };
@@ -404,13 +377,12 @@ enum class DIEllipseStyle { kStroke = 0, kHairline, kFill };
 class DIEllipseGeometryProcessor : public GrGeometryProcessor {
 public:
     DIEllipseGeometryProcessor(const SkMatrix& viewMatrix, DIEllipseStyle style)
-            : fViewMatrix(viewMatrix) {
-        this->initClassID<DIEllipseGeometryProcessor>();
-        fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
-                                             kHigh_GrSLPrecision);
-        fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
-        fInEllipseOffsets0 = &this->addVertexAttrib("inEllipseOffsets0", kVec2f_GrVertexAttribType);
-        fInEllipseOffsets1 = &this->addVertexAttrib("inEllipseOffsets1", kVec2f_GrVertexAttribType);
+            : INHERITED(kDIEllipseGeometryProcessor_ClassID)
+            , fViewMatrix(viewMatrix) {
+        fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
+        fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
+        fInEllipseOffsets0 = &this->addVertexAttrib("inEllipseOffsets0", kHalf2_GrVertexAttribType);
+        fInEllipseOffsets1 = &this->addVertexAttrib("inEllipseOffsets1", kHalf2_GrVertexAttribType);
         fStyle = style;
     }
 
@@ -440,53 +412,52 @@ private:
             // emit attributes
             varyingHandler->emitAttributes(diegp);
 
-            GrGLSLVertToFrag offsets0(kVec2f_GrSLType);
+            GrGLSLVarying offsets0(kHalf2_GrSLType);
             varyingHandler->addVarying("EllipseOffsets0", &offsets0);
             vertBuilder->codeAppendf("%s = %s;", offsets0.vsOut(), diegp.fInEllipseOffsets0->fName);
 
-            GrGLSLVertToFrag offsets1(kVec2f_GrSLType);
+            GrGLSLVarying offsets1(kHalf2_GrSLType);
             varyingHandler->addVarying("EllipseOffsets1", &offsets1);
             vertBuilder->codeAppendf("%s = %s;", offsets1.vsOut(), diegp.fInEllipseOffsets1->fName);
 
-            GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
+            GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
             varyingHandler->addPassThroughAttribute(diegp.fInColor, args.fOutputColor);
 
             // Setup position
-            this->setupPosition(vertBuilder,
-                                uniformHandler,
-                                gpArgs,
-                                diegp.fInPosition->fName,
-                                diegp.fViewMatrix,
-                                &fViewMatrixUniform);
+            this->writeOutputPosition(vertBuilder,
+                                      uniformHandler,
+                                      gpArgs,
+                                      diegp.fInPosition->fName,
+                                      diegp.fViewMatrix,
+                                      &fViewMatrixUniform);
 
             // emit transforms
             this->emitTransforms(vertBuilder,
                                  varyingHandler,
                                  uniformHandler,
-                                 gpArgs->fPositionVar,
-                                 diegp.fInPosition->fName,
+                                 diegp.fInPosition->asShaderVar(),
                                  args.fFPCoordTransformHandler);
 
             // for outer curve
-            fragBuilder->codeAppendf("vec2 scaledOffset = %s.xy;", offsets0.fsIn());
-            fragBuilder->codeAppend("float test = dot(scaledOffset, scaledOffset) - 1.0;");
-            fragBuilder->codeAppendf("vec2 duvdx = dFdx(%s);", offsets0.fsIn());
-            fragBuilder->codeAppendf("vec2 duvdy = dFdy(%s);", offsets0.fsIn());
+            fragBuilder->codeAppendf("half2 scaledOffset = %s.xy;", offsets0.fsIn());
+            fragBuilder->codeAppend("half test = dot(scaledOffset, scaledOffset) - 1.0;");
+            fragBuilder->codeAppendf("half2 duvdx = dFdx(%s);", offsets0.fsIn());
+            fragBuilder->codeAppendf("half2 duvdy = dFdy(%s);", offsets0.fsIn());
             fragBuilder->codeAppendf(
-                    "vec2 grad = vec2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,"
-                    "                 2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);",
+                    "half2 grad = half2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,"
+                    "                  2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);",
                     offsets0.fsIn(), offsets0.fsIn(), offsets0.fsIn(), offsets0.fsIn());
 
-            fragBuilder->codeAppend("float grad_dot = dot(grad, grad);");
+            fragBuilder->codeAppend("half grad_dot = dot(grad, grad);");
             // avoid calling inversesqrt on zero.
             fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
-            fragBuilder->codeAppend("float invlen = inversesqrt(grad_dot);");
+            fragBuilder->codeAppend("half invlen = inversesqrt(grad_dot);");
             if (DIEllipseStyle::kHairline == diegp.fStyle) {
                 // can probably do this with one step
-                fragBuilder->codeAppend("float edgeAlpha = clamp(1.0-test*invlen, 0.0, 1.0);");
+                fragBuilder->codeAppend("half edgeAlpha = clamp(1.0-test*invlen, 0.0, 1.0);");
                 fragBuilder->codeAppend("edgeAlpha *= clamp(1.0+test*invlen, 0.0, 1.0);");
             } else {
-                fragBuilder->codeAppend("float edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);");
+                fragBuilder->codeAppend("half edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);");
             }
 
             // for inner curve
@@ -496,14 +467,14 @@ private:
                 fragBuilder->codeAppendf("duvdx = dFdx(%s);", offsets1.fsIn());
                 fragBuilder->codeAppendf("duvdy = dFdy(%s);", offsets1.fsIn());
                 fragBuilder->codeAppendf(
-                        "grad = vec2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,"
-                        "            2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);",
+                        "grad = half2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,"
+                        "             2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);",
                         offsets1.fsIn(), offsets1.fsIn(), offsets1.fsIn(), offsets1.fsIn());
                 fragBuilder->codeAppend("invlen = inversesqrt(dot(grad, grad));");
                 fragBuilder->codeAppend("edgeAlpha *= clamp(0.5+test*invlen, 0.0, 1.0);");
             }
 
-            fragBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
+            fragBuilder->codeAppendf("%s = half4(edgeAlpha);", args.fOutputCoverage);
         }
 
         static void GenKey(const GrGeometryProcessor& gp,
@@ -542,7 +513,7 @@ private:
     SkMatrix fViewMatrix;
     DIEllipseStyle fStyle;
 
-    GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
+    GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
     typedef GrGeometryProcessor INHERITED;
 };
@@ -808,6 +779,10 @@ public:
 
     const char* name() const override { return "CircleOp"; }
 
+    void visitProxies(const VisitProxyFunc& func) const override {
+        fHelper.visitProxies(func);
+    }
+
     SkString dumpInfo() const override {
         SkString string;
         for (int i = 0; i < fCircles.count(); ++i) {
@@ -818,20 +793,22 @@ public:
                     fCircles[i].fDevBounds.fRight, fCircles[i].fDevBounds.fBottom,
                     fCircles[i].fInnerRadius, fCircles[i].fOuterRadius);
         }
-        string.append(INHERITED::dumpInfo());
+        string += fHelper.dumpInfo();
+        string += INHERITED::dumpInfo();
         return string;
     }
 
-    bool xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) override {
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                GrPixelConfigIsClamped dstIsClamped) override {
         GrColor* color = &fCircles.front().fColor;
-        return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kSingleChannel,
-                                            color);
+        return fHelper.xpRequiresDstTexture(caps, clip, dstIsClamped,
+                                            GrProcessorAnalysisCoverage::kSingleChannel, color);
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
 private:
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
         SkMatrix localMatrix;
         if (!fViewMatrixIfUsingLocalCoords.invert(&localMatrix)) {
             return;
@@ -1105,9 +1082,9 @@ private:
             vertices += circle_type_to_vert_count(circle.fStroked) * vertexStride;
         }
 
-        GrMesh mesh(kTriangles_GrPrimitiveType);
-        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex);
-        mesh.setVertices(vertexBuffer, fVertCount, firstVertex);
+        GrMesh mesh(GrPrimitiveType::kTriangles);
+        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1);
+        mesh.setVertexData(vertexBuffer, firstVertex);
         target->draw(gp.get(),  fHelper.makePipeline(target), mesh);
     }
 
@@ -1182,6 +1159,7 @@ private:
 
 public:
     DEFINE_OP_CLASS_ID
+
     static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix,
                                           const SkRect& ellipse, const SkStrokeRec& stroke) {
         DeviceSpaceParams params;
@@ -1269,6 +1247,10 @@ public:
 
     const char* name() const override { return "EllipseOp"; }
 
+    void visitProxies(const VisitProxyFunc& func) const override {
+        fHelper.visitProxies(func);
+    }
+
     SkString dumpInfo() const override {
         SkString string;
         string.appendf("Stroked: %d\n", fStroked);
@@ -1280,20 +1262,22 @@ public:
                     geo.fDevBounds.fBottom, geo.fXRadius, geo.fYRadius, geo.fInnerXRadius,
                     geo.fInnerYRadius);
         }
-        string.append(INHERITED::dumpInfo());
+        string += fHelper.dumpInfo();
+        string += INHERITED::dumpInfo();
         return string;
     }
 
-    bool xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) override {
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                GrPixelConfigIsClamped dstIsClamped) override {
         GrColor* color = &fEllipses.front().fColor;
-        return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kSingleChannel,
-                                            color);
+        return fHelper.xpRequiresDstTexture(caps, clip, dstIsClamped,
+                                            GrProcessorAnalysisCoverage::kSingleChannel, color);
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
 private:
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
         SkMatrix localMatrix;
         if (!fViewMatrixIfUsingLocalCoords.invert(&localMatrix)) {
             return;
@@ -1339,15 +1323,15 @@ private:
             verts[1].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
             verts[1].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
-            verts[2].fPos = SkPoint::Make(ellipse.fDevBounds.fRight, ellipse.fDevBounds.fBottom);
+            verts[2].fPos = SkPoint::Make(ellipse.fDevBounds.fRight, ellipse.fDevBounds.fTop);
             verts[2].fColor = color;
-            verts[2].fOffset = SkPoint::Make(xMaxOffset, yMaxOffset);
+            verts[2].fOffset = SkPoint::Make(xMaxOffset, -yMaxOffset);
             verts[2].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
             verts[2].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
-            verts[3].fPos = SkPoint::Make(ellipse.fDevBounds.fRight, ellipse.fDevBounds.fTop);
+            verts[3].fPos = SkPoint::Make(ellipse.fDevBounds.fRight, ellipse.fDevBounds.fBottom);
             verts[3].fColor = color;
-            verts[3].fOffset = SkPoint::Make(xMaxOffset, -yMaxOffset);
+            verts[3].fOffset = SkPoint::Make(xMaxOffset, yMaxOffset);
             verts[3].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
             verts[3].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
@@ -1494,6 +1478,10 @@ public:
 
     const char* name() const override { return "DIEllipseOp"; }
 
+    void visitProxies(const VisitProxyFunc& func) const override {
+        fHelper.visitProxies(func);
+    }
+
     SkString dumpInfo() const override {
         SkString string;
         for (const auto& geo : fEllipses) {
@@ -1505,20 +1493,22 @@ public:
                     geo.fBounds.fBottom, geo.fXRadius, geo.fYRadius, geo.fInnerXRadius,
                     geo.fInnerYRadius, geo.fGeoDx, geo.fGeoDy);
         }
-        string.append(INHERITED::dumpInfo());
+        string += fHelper.dumpInfo();
+        string += INHERITED::dumpInfo();
         return string;
     }
 
-    bool xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) override {
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                GrPixelConfigIsClamped dstIsClamped) override {
         GrColor* color = &fEllipses.front().fColor;
-        return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kSingleChannel,
-                                            color);
+        return fHelper.xpRequiresDstTexture(caps, clip, dstIsClamped,
+                                            GrProcessorAnalysisCoverage::kSingleChannel, color);
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
 private:
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
         // Setup geometry processor
         sk_sp<GrGeometryProcessor> gp(
                 new DIEllipseGeometryProcessor(this->viewMatrix(), this->style()));
@@ -1556,15 +1546,15 @@ private:
             verts[1].fOuterOffset = SkPoint::Make(-1.0f - offsetDx, 1.0f + offsetDy);
             verts[1].fInnerOffset = SkPoint::Make(-innerRatioX - offsetDx, innerRatioY + offsetDy);
 
-            verts[2].fPos = SkPoint::Make(bounds.fRight, bounds.fBottom);
+            verts[2].fPos = SkPoint::Make(bounds.fRight, bounds.fTop);
             verts[2].fColor = color;
-            verts[2].fOuterOffset = SkPoint::Make(1.0f + offsetDx, 1.0f + offsetDy);
-            verts[2].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx, innerRatioY + offsetDy);
+            verts[2].fOuterOffset = SkPoint::Make(1.0f + offsetDx, -1.0f - offsetDy);
+            verts[2].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx, -innerRatioY - offsetDy);
 
-            verts[3].fPos = SkPoint::Make(bounds.fRight, bounds.fTop);
+            verts[3].fPos = SkPoint::Make(bounds.fRight, bounds.fBottom);
             verts[3].fColor = color;
-            verts[3].fOuterOffset = SkPoint::Make(1.0f + offsetDx, -1.0f - offsetDy);
-            verts[3].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx, -innerRatioY - offsetDy);
+            verts[3].fOuterOffset = SkPoint::Make(1.0f + offsetDx, 1.0f + offsetDy);
+            verts[3].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx, innerRatioY + offsetDy);
 
             verts += kVerticesPerQuad;
         }
@@ -1689,7 +1679,6 @@ enum RRectType {
     kFill_RRectType,
     kStroke_RRectType,
     kOverstroke_RRectType,
-    kFillWithDist_RRectType
 };
 
 static int rrect_type_to_vert_count(RRectType type) {
@@ -1698,10 +1687,9 @@ static int rrect_type_to_vert_count(RRectType type) {
         case kStroke_RRectType:
             return kVertsPerStandardRRect;
         case kOverstroke_RRectType:
-        case kFillWithDist_RRectType:
             return kVertsPerOverstrokeRRect;
     }
-    SkFAIL("Invalid type");
+    SK_ABORT("Invalid type");
     return 0;
 }
 
@@ -1712,10 +1700,9 @@ static int rrect_type_to_index_count(RRectType type) {
         case kStroke_RRectType:
             return kIndicesPerStrokeRRect;
         case kOverstroke_RRectType:
-        case kFillWithDist_RRectType:
             return kIndicesPerOverstrokeRRect;
     }
-    SkFAIL("Invalid type");
+    SK_ABORT("Invalid type");
     return 0;
 }
 
@@ -1725,10 +1712,9 @@ static const uint16_t* rrect_type_to_indices(RRectType type) {
         case kStroke_RRectType:
             return gStandardRRectIndices;
         case kOverstroke_RRectType:
-        case kFillWithDist_RRectType:
             return gOverstrokeRRectIndices;
     }
-    SkFAIL("Invalid type");
+    SK_ABORT("Invalid type");
     return 0;
 }
 
@@ -1752,16 +1738,14 @@ public:
 
     // A devStrokeWidth <= 0 indicates a fill only. If devStrokeWidth > 0 then strokeOnly indicates
     // whether the rrect is only stroked or stroked and filled.
-    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, bool needsDistance,
-                                          const SkMatrix& viewMatrix, const SkRect& devRect,
-                                          float devRadius, float devStrokeWidth, bool strokeOnly) {
-        return Helper::FactoryHelper<CircularRRectOp>(std::move(paint), needsDistance, viewMatrix,
-                                                      devRect, devRadius, devStrokeWidth,
-                                                      strokeOnly);
+    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix,
+                                          const SkRect& devRect, float devRadius,
+                                          float devStrokeWidth, bool strokeOnly) {
+        return Helper::FactoryHelper<CircularRRectOp>(std::move(paint), viewMatrix, devRect,
+                                                      devRadius, devStrokeWidth, strokeOnly);
     }
-    CircularRRectOp(Helper::MakeArgs& helperArgs, GrColor color, bool needsDistance,
-                    const SkMatrix& viewMatrix, const SkRect& devRect, float devRadius,
-                    float devStrokeWidth, bool strokeOnly)
+    CircularRRectOp(Helper::MakeArgs& helperArgs, GrColor color, const SkMatrix& viewMatrix,
+                    const SkRect& devRect, float devRadius, float devStrokeWidth, bool strokeOnly)
             : INHERITED(ClassID())
             , fViewMatrixIfUsingLocalCoords(viewMatrix)
             , fHelper(helperArgs, GrAAType::kCoverage) {
@@ -1791,9 +1775,6 @@ public:
             outerRadius += halfWidth;
             bounds.outset(halfWidth, halfWidth);
         }
-        if (kFill_RRectType == type && needsDistance) {
-            type = kFillWithDist_RRectType;
-        }
 
         // The radii are outset for two reasons. First, it allows the shader to simply perform
         // simpler computation because the computed alpha is zero, rather than 50%, at the radius.
@@ -1816,6 +1797,10 @@ public:
 
     const char* name() const override { return "CircularRRectOp"; }
 
+    void visitProxies(const VisitProxyFunc& func) const override {
+        fHelper.visitProxies(func);
+    }
+
     SkString dumpInfo() const override {
         SkString string;
         for (int i = 0; i < fRRects.count(); ++i) {
@@ -1826,14 +1811,16 @@ public:
                     fRRects[i].fDevBounds.fRight, fRRects[i].fDevBounds.fBottom,
                     fRRects[i].fInnerRadius, fRRects[i].fOuterRadius);
         }
-        string.append(INHERITED::dumpInfo());
+        string += fHelper.dumpInfo();
+        string += INHERITED::dumpInfo();
         return string;
     }
 
-    bool xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) override {
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                GrPixelConfigIsClamped dstIsClamped) override {
         GrColor* color = &fRRects.front().fColor;
-        return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kSingleChannel,
-                                            color);
+        return fHelper.xpRequiresDstTexture(caps, clip, dstIsClamped,
+                                            GrProcessorAnalysisCoverage::kSingleChannel, color);
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
@@ -1914,7 +1901,7 @@ private:
         (*verts)++;
     }
 
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
         // Invert the view matrix as a local matrix (if any other processors require coords).
         SkMatrix localMatrix;
         if (!fViewMatrixIfUsingLocalCoords.invert(&localMatrix)) {
@@ -1958,10 +1945,9 @@ private:
             SkScalar yOuterRadii[4] = {-1, 0, 0, 1};
             // The inner radius in the vertex data must be specified in normalized space.
             // For fills, specifying -1/outerRadius guarantees an alpha of 1.0 at the inner radius.
-            SkScalar innerRadius =
-                    rrect.fType != kFill_RRectType && rrect.fType != kFillWithDist_RRectType
-                            ? rrect.fInnerRadius / rrect.fOuterRadius
-                            : -1.0f / rrect.fOuterRadius;
+            SkScalar innerRadius = rrect.fType != kFill_RRectType
+                                           ? rrect.fInnerRadius / rrect.fOuterRadius
+                                           : -1.0f / rrect.fOuterRadius;
             for (int i = 0; i < 4; ++i) {
                 verts->fPos = SkPoint::Make(bounds.fLeft, yCoords[i]);
                 verts->fColor = color;
@@ -2011,15 +1997,6 @@ private:
                                       overstrokeOuterRadius, 0.0f, rrect.fColor);
             }
 
-            if (kFillWithDist_RRectType == rrect.fType) {
-                SkScalar halfMinDim = 0.5f * SkTMin(bounds.width(), bounds.height());
-
-                SkScalar xOffset = 1.0f - outerRadius / halfMinDim;
-
-                FillInOverstrokeVerts(&verts, bounds, outerRadius, halfMinDim, xOffset, halfMinDim,
-                                      -1.0f, rrect.fColor);
-            }
-
             const uint16_t* primIndices = rrect_type_to_indices(rrect.fType);
             const int primIndexCount = rrect_type_to_index_count(rrect.fType);
             for (int i = 0; i < primIndexCount; ++i) {
@@ -2029,9 +2006,9 @@ private:
             currStartVertex += rrect_type_to_vert_count(rrect.fType);
         }
 
-        GrMesh mesh(kTriangles_GrPrimitiveType);
-        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex);
-        mesh.setVertices(vertexBuffer, fVertCount, firstVertex);
+        GrMesh mesh(GrPrimitiveType::kTriangles);
+        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1);
+        mesh.setVertexData(vertexBuffer, firstVertex);
         target->draw(gp.get(), fHelper.makePipeline(target), mesh);
     }
 
@@ -2082,8 +2059,8 @@ static const int kNumRRectsInIndexBuffer = 256;
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gStrokeRRectOnlyIndexBufferKey);
 GR_DECLARE_STATIC_UNIQUE_KEY(gRRectOnlyIndexBufferKey);
-static const GrBuffer* ref_rrect_index_buffer(RRectType type,
-                                              GrResourceProvider* resourceProvider) {
+static sk_sp<const GrBuffer> get_rrect_index_buffer(RRectType type,
+                                                    GrResourceProvider* resourceProvider) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gStrokeRRectOnlyIndexBufferKey);
     GR_DEFINE_STATIC_UNIQUE_KEY(gRRectOnlyIndexBufferKey);
     switch (type) {
@@ -2178,6 +2155,10 @@ public:
 
     const char* name() const override { return "EllipticalRRectOp"; }
 
+    void visitProxies(const VisitProxyFunc& func) const override {
+        fHelper.visitProxies(func);
+    }
+
     SkString dumpInfo() const override {
         SkString string;
         string.appendf("Stroked: %d\n", fStroked);
@@ -2189,20 +2170,22 @@ public:
                     geo.fDevBounds.fBottom, geo.fXRadius, geo.fYRadius, geo.fInnerXRadius,
                     geo.fInnerYRadius);
         }
-        string.append(INHERITED::dumpInfo());
+        string += fHelper.dumpInfo();
+        string += INHERITED::dumpInfo();
         return string;
     }
 
-    bool xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) override {
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                GrPixelConfigIsClamped dstIsClamped) override {
         GrColor* color = &fRRects.front().fColor;
-        return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kSingleChannel,
-                                            color);
+        return fHelper.xpRequiresDstTexture(caps, clip, dstIsClamped,
+                                            GrProcessorAnalysisCoverage::kSingleChannel, color);
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
 private:
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
         SkMatrix localMatrix;
         if (!fViewMatrixIfUsingLocalCoords.invert(&localMatrix)) {
             return;
@@ -2216,10 +2199,10 @@ private:
 
         // drop out the middle quad if we're stroked
         int indicesPerInstance = fStroked ? kIndicesPerStrokeRRect : kIndicesPerFillRRect;
-        sk_sp<const GrBuffer> indexBuffer(ref_rrect_index_buffer(
-                fStroked ? kStroke_RRectType : kFill_RRectType, target->resourceProvider()));
+        sk_sp<const GrBuffer> indexBuffer = get_rrect_index_buffer(
+                fStroked ? kStroke_RRectType : kFill_RRectType, target->resourceProvider());
 
-        PatternHelper helper(kTriangles_GrPrimitiveType);
+        PatternHelper helper(GrPrimitiveType::kTriangles);
         EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(
                 helper.init(target, vertexStride, indexBuffer.get(), kVertsPerStandardRRect,
                             indicesPerInstance, fRRects.count()));
@@ -2321,7 +2304,6 @@ private:
 };
 
 static std::unique_ptr<GrDrawOp> make_rrect_op(GrPaint&& paint,
-                                               bool needsDistance,
                                                const SkMatrix& viewMatrix,
                                                const SkRRect& rrect,
                                                const SkStrokeRec& stroke) {
@@ -2335,7 +2317,7 @@ static std::unique_ptr<GrDrawOp> make_rrect_op(GrPaint&& paint,
     SkRect bounds;
     viewMatrix.mapRect(&bounds, rrectBounds);
 
-    SkVector radii = rrect.getSimpleRadii();
+    SkVector radii = SkRRectPriv::GetSimpleRadii(rrect);
     SkScalar xRadius = SkScalarAbs(viewMatrix[SkMatrix::kMScaleX] * radii.fX +
                                    viewMatrix[SkMatrix::kMSkewY] * radii.fY);
     SkScalar yRadius = SkScalarAbs(viewMatrix[SkMatrix::kMSkewX] * radii.fX +
@@ -2382,8 +2364,8 @@ static std::unique_ptr<GrDrawOp> make_rrect_op(GrPaint&& paint,
 
     // if the corners are circles, use the circle renderer
     if (isCircular) {
-        return CircularRRectOp::Make(std::move(paint), needsDistance, viewMatrix, bounds, xRadius,
-                                     scaledStroke.fX, isStrokeOnly);
+        return CircularRRectOp::Make(std::move(paint), viewMatrix, bounds, xRadius, scaledStroke.fX,
+                                     isStrokeOnly);
         // otherwise we use the ellipse renderer
     } else {
         return EllipticalRRectOp::Make(std::move(paint), viewMatrix, bounds, xRadius, yRadius,
@@ -2392,7 +2374,6 @@ static std::unique_ptr<GrDrawOp> make_rrect_op(GrPaint&& paint,
 }
 
 std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeRRectOp(GrPaint&& paint,
-                                                       bool needsDistance,
                                                        const SkMatrix& viewMatrix,
                                                        const SkRRect& rrect,
                                                        const SkStrokeRec& stroke,
@@ -2405,7 +2386,7 @@ std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeRRectOp(GrPaint&& paint,
         return nullptr;
     }
 
-    return make_rrect_op(std::move(paint), needsDistance, viewMatrix, rrect, stroke);
+    return make_rrect_op(std::move(paint), viewMatrix, rrect, stroke);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2508,9 +2489,7 @@ GR_DRAW_OP_TEST_DEFINE(DIEllipseOp) {
 GR_DRAW_OP_TEST_DEFINE(RRectOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixRectStaysRect(random);
     const SkRRect& rrect = GrTest::TestRRectSimple(random);
-    bool needsDistance = random->nextBool();
-    return make_rrect_op(std::move(paint), needsDistance, viewMatrix, rrect,
-                         GrTest::TestStrokeRec(random));
+    return make_rrect_op(std::move(paint), viewMatrix, rrect, GrTest::TestStrokeRec(random));
 }
 
 #endif

@@ -247,6 +247,9 @@ public:
      */
     int size() const;
 
+    /** Preallocate space for n key-value pairs */
+    void reserve(int n);
+
     /** Add the value to the dictionary with the given key.
      *  @param key   The text of the key for this dictionary entry.
      *  @param value The value for this dictionary entry.
@@ -356,12 +359,6 @@ private:
 */
 class SkPDFObjNumMap : SkNoncopyable {
 public:
-    /** Add the passed object to the catalog.
-     *  @param obj         The object to add.
-     *  @return True iff the object was not already added to the catalog.
-     */
-    bool addObject(SkPDFObject* obj);
-
     /** Add the passed object to the catalog, as well as all its dependencies.
      *  @param obj   The object to add.  If nullptr, this is a noop.
      */

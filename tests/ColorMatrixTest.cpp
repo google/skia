@@ -99,3 +99,23 @@ static inline void test_colorMatrixCTS(skiatest::Reporter* reporter) {
 DEF_TEST(ColorMatrix, reporter) {
     test_colorMatrixCTS(reporter);
 }
+
+
+DEF_TEST(ColorMatrix_clamp_while_unpremul, r) {
+    // This matrix does green += 255/255 and alpha += 32/255.  We want to test
+    // that if we pass it opaque alpha and small red and blue values, red and
+    // blue stay unchanged, not pumped up by that ~1.12 intermediate alpha.
+    SkScalar m[] = {
+        1, 0, 0, 0, 0,
+        0, 1, 0, 0, 255,
+        0, 0, 1, 0, 0,
+        0, 0, 0, 1, 32,
+    };
+    auto filter = SkColorFilter::MakeMatrixFilterRowMajor255(m);
+
+    SkColor filtered = filter->filterColor(0xff0a0b0c);
+    REPORTER_ASSERT(r, SkColorGetA(filtered) == 0xff);
+    REPORTER_ASSERT(r, SkColorGetR(filtered) == 0x0a);
+    REPORTER_ASSERT(r, SkColorGetG(filtered) == 0xff);
+    REPORTER_ASSERT(r, SkColorGetB(filtered) == 0x0c);
+}

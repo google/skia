@@ -9,6 +9,7 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 #include "SkAutoPixmapStorage.h"
+#include "SkColorPriv.h"
 #include "SkData.h"
 #include "SkCanvas.h"
 #include "SkRandom.h"
@@ -18,23 +19,6 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #endif
-
-static void drawJpeg(SkCanvas* canvas, const SkISize& size) {
-    // TODO: Make this draw a file that is checked in, so it can
-    // be exercised on machines other than mike's. Will require a
-    // rebaseline.
-    sk_sp<SkData> data(SkData::MakeFromFileName("/Users/mike/Downloads/skia.google.jpeg"));
-    if (nullptr == data) {
-        return;
-    }
-    sk_sp<SkImage> image = SkImage::MakeFromEncoded(std::move(data));
-    if (image) {
-        SkAutoCanvasRestore acr(canvas, true);
-        canvas->scale(size.width() * 1.0f / image->width(),
-                      size.height() * 1.0f / image->height());
-        canvas->drawImage(image, 0, 0, nullptr);
-    }
-}
 
 static void drawContents(SkSurface* surface, SkColor fillC) {
     SkSize size = SkSize::Make(SkIntToScalar(surface->width()),
@@ -129,8 +113,6 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        drawJpeg(canvas, this->getISize());
-
         canvas->scale(2, 2);
 
         const char* kLabel1 = "Original Img";
@@ -253,8 +235,7 @@ static sk_sp<SkImage> make_picture(const SkImageInfo& info, GrContext*, void (*d
 
 static sk_sp<SkImage> make_codec(const SkImageInfo& info, GrContext*, void (*draw)(SkCanvas*)) {
     sk_sp<SkImage> image(make_raster(info, nullptr, draw));
-    sk_sp<SkData> data(image->encode());
-    return SkImage::MakeFromEncoded(data);
+    return SkImage::MakeFromEncoded(image->encodeToData());
 }
 
 static sk_sp<SkImage> make_gpu(const SkImageInfo& info, GrContext* ctx, void (*draw)(SkCanvas*)) {
@@ -380,5 +361,41 @@ DEF_SIMPLE_GM(new_texture_image, canvas, 280, 60) {
             }
         }
         canvas->translate(kSize + kPad, 0);
+    }
+}
+
+static void draw_pixmap(SkCanvas* canvas, const SkPixmap& pm, SkScalar x, SkScalar y) {
+    canvas->drawImage(SkImage::MakeRasterCopy(pm), x, y, nullptr);
+}
+
+static void slam_ff(const SkPixmap& pm) {
+    for (int y = 0; y < pm.height(); ++y) {
+        for (int x = 0; x < pm.width(); ++x) {
+            *pm.writable_addr32(x, y) = *pm.addr32(x, y) | SkPackARGB32(0xFF, 0, 0, 0);
+        }
+    }
+}
+
+DEF_SIMPLE_GM(scalepixels_unpremul, canvas, 1080, 280) {
+    SkImageInfo info = SkImageInfo::MakeN32(16, 16, kUnpremul_SkAlphaType);
+    SkAutoPixmapStorage pm;
+    pm.alloc(info);
+    for (int y = 0; y < 16; ++y) {
+        for (int x = 0; x < 16; ++x) {
+            *pm.writable_addr32(x, y) = SkPackARGB32NoCheck(0, (y << 4) | y, (x << 4) | x, 0xFF);
+        }
+    }
+    SkAutoPixmapStorage pm2;
+    pm2.alloc(SkImageInfo::MakeN32(256, 256, kUnpremul_SkAlphaType));
+
+    const SkFilterQuality qualities[] = {
+        kNone_SkFilterQuality, kLow_SkFilterQuality, kMedium_SkFilterQuality, kHigh_SkFilterQuality
+    };
+
+    for (auto fq : qualities) {
+        pm.scalePixels(pm2, fq);
+        slam_ff(pm2);
+        draw_pixmap(canvas, pm2, 10, 10);
+        canvas->translate(pm2.width() + 10.0f, 0);
     }
 }

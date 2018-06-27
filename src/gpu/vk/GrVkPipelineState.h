@@ -100,8 +100,8 @@ private:
                       uint32_t fragmentUniformSize,
                       uint32_t numSamplers,
                       uint32_t numTexelBuffers,
-                      GrGLSLPrimitiveProcessor* geometryProcessor,
-                      GrGLSLXferProcessor* xferProcessor,
+                      std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
+                      std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
                       const GrGLSLFragProcs& fragmentProcessors);
 
     void writeUniformBuffers(const GrVkGpu* gpu);
@@ -132,8 +132,8 @@ private:
         }
 
         /**
-        * Gets a vec4 that adjusts the position from Skia device coords to Vulkans normalized device
-        * coords. Assuming the transformed position, pos, is a homogeneous vec3, the vec, v, is
+        * Gets a float4 that adjusts the position from Skia device coords to Vulkans normalized device
+        * coords. Assuming the transformed position, pos, is a homogeneous float3, the vec, v, is
         * applied as such:
         * pos.x = dot(v.xy, pos.xz)
         * pos.y = dot(v.zw, pos.yz)
@@ -152,7 +152,7 @@ private:
     };
 
     // Helper for setData() that sets the view matrix and loads the render target height uniform
-    void setRenderTargetState(const GrRenderTarget*);
+    void setRenderTargetState(const GrRenderTargetProxy*);
 
     // GrVkResources
     GrVkPipeline* fPipeline;

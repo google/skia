@@ -30,6 +30,7 @@ public:
     class SK_API Iter {
     public:
         Iter(const SkROBuffer*);
+        Iter(const sk_sp<SkROBuffer>&);
 
         void reset(const SkROBuffer*);
 
@@ -49,7 +50,7 @@ public:
          *  block, or false if the iterator is exhausted.
          */
         bool next();
-        
+
     private:
         const SkBufferBlock* fBlock;
         size_t               fRemaining;
@@ -89,15 +90,18 @@ public:
      */
     void append(const void* buffer, size_t length, size_t reserve = 0);
 
-    SkROBuffer* newRBufferSnapshot() const;
-    SkStreamAsset* newStreamSnapshot() const;
+    sk_sp<SkROBuffer> makeROBufferSnapshot() const {
+        return sk_sp<SkROBuffer>(new SkROBuffer(fHead, fTotalUsed, fTail));
+    }
+
+    std::unique_ptr<SkStreamAsset> makeStreamSnapshot() const;
 
 #ifdef SK_DEBUG
     void validate() const;
 #else
     void validate() const {}
 #endif
-    
+
 private:
     SkBufferHead*   fHead;
     SkBufferBlock*  fTail;

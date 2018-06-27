@@ -9,16 +9,21 @@
 
 #include "SkCanvas.h"
 #include "SkCommonFlags.h"
+#include "SkKey.h"
 #include "SkOSFile.h"
 #include "SkStream.h"
 
-SampleSlide::SampleSlide(const SkViewFactory* factory) : fViewFactory(factory) {
+using namespace sk_app;
+
+SampleSlide::SampleSlide(const SkViewFactory* factory)
+    : fViewFactory(factory)
+    , fClick(nullptr) {
     SkView* view = (*factory)();
     SampleCode::RequestTitle(view, &fName);
     view->unref();
 }
 
-SampleSlide::~SampleSlide() {}
+SampleSlide::~SampleSlide() { delete fClick; }
 
 void SampleSlide::draw(SkCanvas* canvas) {
     SkASSERT(fView);
@@ -45,10 +50,43 @@ bool SampleSlide::onChar(SkUnichar c) {
     return fView->doQuery(&evt);
 }
 
-#if defined(SK_BUILD_FOR_ANDROID)
-// these are normally defined in SkOSWindow_unix, but we don't
-// want to include that
-void SkEvent::SignalNonEmptyQueue() {}
+bool SampleSlide::onMouse(SkScalar x, SkScalar y, Window::InputState state,
+                          uint32_t modifiers) {
+    // map to SkView modifiers
+    unsigned modifierKeys = 0;
+    modifierKeys |= (modifiers & Window::kShift_ModifierKey) ? kShift_SkModifierKey : 0;
+    modifierKeys |= (modifiers & Window::kControl_ModifierKey) ? kControl_SkModifierKey : 0;
+    modifierKeys |= (modifiers & Window::kOption_ModifierKey) ? kOption_SkModifierKey : 0;
+    modifierKeys |= (modifiers & Window::kCommand_ModifierKey) ? kCommand_SkModifierKey : 0;
 
-void SkEvent::SignalQueueTimer(SkMSec delay) {}
-#endif
+    bool handled = false;
+    switch (state) {
+        case Window::kDown_InputState: {
+            delete fClick;
+            fClick = fView->findClickHandler(SkIntToScalar(x), SkIntToScalar(y), modifierKeys);
+            if (fClick) {
+                SkView::DoClickDown(fClick, x, y, modifierKeys);
+                handled = true;
+            }
+            break;
+        }
+        case Window::kMove_InputState: {
+            if (fClick) {
+                SkView::DoClickMoved(fClick, x, y, modifierKeys);
+                handled = true;
+            }
+            break;
+        }
+        case Window::kUp_InputState: {
+            if (fClick) {
+                SkView::DoClickUp(fClick, x, y, modifierKeys);
+                delete fClick;
+                fClick = nullptr;
+                handled = true;
+            }
+            break;
+        }
+    }
+
+    return handled;
+}
