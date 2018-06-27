@@ -22,7 +22,6 @@
 #include "SkTime.h"
 #include "SkTypeface.h"
 #include "SkUtils.h"
-#include "SkDrawFilter.h"
 #include "SkClipOpPriv.h"
 
 static void make_paint(SkPaint* paint, const SkMatrix& localMatrix) {
@@ -96,20 +95,6 @@ static void test_fade(SkCanvas* canvas) {
 //    SkDebugf("--------- draw bot grad\n");
     canvas->drawRect(r, paint);
 }
-
-class RedFilter : public SkDrawFilter {
-public:
-    bool filter(SkPaint* p, SkDrawFilter::Type) override {
-        fColor = p->getColor();
-        if (fColor == SK_ColorRED) {
-            p->setColor(SK_ColorGREEN);
-        }
-        return true;
-    }
-
-private:
-    SkColor fColor;
-};
 
 class LayersView : public SkView {
 public:

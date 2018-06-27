@@ -14,7 +14,6 @@
 #include "GrTextBlobCache.h"
 #include "SkDistanceFieldGen.h"
 #include "SkDraw.h"
-#include "SkDrawFilter.h"
 #include "SkDrawProcs.h"
 #include "SkFindAndPlaceGlyph.h"
 #include "SkGlyphRun.h"
@@ -102,7 +101,7 @@ void GrTextContext::drawTextBlob(GrContext* context, GrTextUtils::Target* target
                                  const GrClip& clip, const SkPaint& skPaint,
                                  const SkMatrix& viewMatrix, const SkSurfaceProps& props,
                                  const SkTextBlob* blob, SkScalar x, SkScalar y,
-                                 SkDrawFilter* drawFilter, const SkIRect& clipBounds) {
+                                 const SkIRect& clipBounds) {
     // If we have been abandoned, then don't draw
     if (context->abandoned()) {
         return;
@@ -114,9 +113,7 @@ void GrTextContext::drawTextBlob(GrContext* context, GrTextUtils::Target* target
     // It might be worth caching these things, but its not clear at this time
     // TODO for animated mask filters, this will fill up our cache.  We need a safeguard here
     const SkMaskFilter* mf = skPaint.getMaskFilter();
-    bool canCache = !(skPaint.getPathEffect() ||
-                      (mf && !as_MFB(mf)->asABlur(&blurRec)) ||
-                      drawFilter);
+    bool canCache = !(skPaint.getPathEffect() || (mf && !as_MFB(mf)->asABlur(&blurRec)));
     SkScalerContextFlags scalerContextFlags = ComputeScalerContextFlags(target->colorSpaceInfo());
 
     auto glyphCache = context->contextPriv().getGlyphCache();
@@ -154,7 +151,7 @@ void GrTextContext::drawTextBlob(GrContext* context, GrTextUtils::Target* target
             cacheBlob = textBlobCache->makeCachedBlob(blob, key, blurRec, skPaint);
             this->regenerateTextBlob(cacheBlob.get(), glyphCache,
                                      *context->contextPriv().caps()->shaderCaps(), paint,
-                                     scalerContextFlags, viewMatrix, props, blob, x, y, drawFilter);
+                                     scalerContextFlags, viewMatrix, props, blob, x, y);
         } else {
             textBlobCache->makeMRU(cacheBlob.get());
 
@@ -166,7 +163,7 @@ void GrTextContext::drawTextBlob(GrContext* context, GrTextUtils::Target* target
                 sanityBlob->setupKey(key, blurRec, skPaint);
                 this->regenerateTextBlob(
                         sanityBlob.get(), glyphCache, *context->contextPriv().caps()->shaderCaps(),
-                        paint, scalerContextFlags, viewMatrix, props, blob, x, y, drawFilter);
+                        paint, scalerContextFlags, viewMatrix, props, blob, x, y);
                 GrTextBlob::AssertEqual(*sanityBlob, *cacheBlob);
             }
         }
@@ -178,7 +175,7 @@ void GrTextContext::drawTextBlob(GrContext* context, GrTextUtils::Target* target
         }
         this->regenerateTextBlob(cacheBlob.get(), glyphCache,
                                  *context->contextPriv().caps()->shaderCaps(), paint,
-                                 scalerContextFlags, viewMatrix, props, blob, x, y, drawFilter);
+                                 scalerContextFlags, viewMatrix, props, blob, x, y);
     }
 
     cacheBlob->flush(target, props, fDistanceAdjustTable.get(), paint,
@@ -192,13 +189,12 @@ void GrTextContext::regenerateTextBlob(GrTextBlob* cacheBlob,
                                        SkScalerContextFlags scalerContextFlags,
                                        const SkMatrix& viewMatrix,
                                        const SkSurfaceProps& props, const SkTextBlob* blob,
-                                       SkScalar x, SkScalar y,
-                                       SkDrawFilter* drawFilter) const {
+                                       SkScalar x, SkScalar y) const {
     cacheBlob->initReusableBlob(paint.luminanceColor(), viewMatrix, x, y);
 
     // Regenerate textblob
     SkTextBlobRunIterator it(blob);
-    GrTextUtils::RunPaint runPaint(&paint, drawFilter);
+    GrTextUtils::RunPaint runPaint(&paint);
     for (int run = 0; !it.done(); it.next(), run++) {
         int glyphCount = it.glyphCount();
         size_t textLen = glyphCount * sizeof(uint16_t);

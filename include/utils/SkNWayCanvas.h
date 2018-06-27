@@ -22,13 +22,6 @@ public:
     virtual void removeCanvas(SkCanvas*);
     virtual void removeAll();
 
-    ///////////////////////////////////////////////////////////////////////////
-    // These are forwarded to the N canvases we're referencing
-
-#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
-    SkDrawFilter* setDrawFilter(SkDrawFilter*) override;
-#endif
-
 protected:
     SkTDArray<SkCanvas*> fList;
 

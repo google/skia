@@ -50,7 +50,7 @@ public:
                      const SkPoint& offset, const SkIRect& regionClipBounds);
     void drawTextBlob(GrContext*, GrTextUtils::Target*, const GrClip&, const SkPaint&,
                       const SkMatrix& viewMatrix, const SkSurfaceProps&, const SkTextBlob*,
-                      SkScalar x, SkScalar y, SkDrawFilter*, const SkIRect& clipBounds);
+                      SkScalar x, SkScalar y, const SkIRect& clipBounds);
 
     std::unique_ptr<GrDrawOp> createOp_TestingOnly(GrContext*,
                                                    GrTextContext*,
@@ -122,8 +122,7 @@ private:
                             SkScalerContextFlags scalerContextFlags,
                             const SkMatrix& viewMatrix,
                             const SkSurfaceProps&,
-                            const SkTextBlob* blob, SkScalar x, SkScalar y,
-                            SkDrawFilter* drawFilter) const;
+                            const SkTextBlob* blob, SkScalar x, SkScalar y) const;
 
     static bool HasLCD(const SkTextBlob*);
 

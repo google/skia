@@ -241,8 +241,7 @@ void GrRenderTargetContext::drawPosText(const GrClip& clip, const SkPaint& paint
 
 void GrRenderTargetContext::drawTextBlob(const GrClip& clip, const SkPaint& paint,
                                          const SkMatrix& viewMatrix, const SkTextBlob* blob,
-                                         SkScalar x, SkScalar y, SkDrawFilter* filter,
-                                         const SkIRect& clipBounds) {
+                                         SkScalar x, SkScalar y, const SkIRect& clipBounds) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -250,7 +249,7 @@ void GrRenderTargetContext::drawTextBlob(const GrClip& clip, const SkPaint& pain
 
     GrTextContext* atlasTextContext = this->drawingManager()->getTextContext();
     atlasTextContext->drawTextBlob(fContext, fTextTarget.get(), clip, paint, viewMatrix,
-                                   fSurfaceProps, blob, x, y, filter, clipBounds);
+                                   fSurfaceProps, blob, x, y, clipBounds);
 }
 
 void GrRenderTargetContext::discard() {

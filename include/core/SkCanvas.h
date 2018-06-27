@@ -35,7 +35,6 @@ class SkClipStack;
 class SkData;
 class SkDraw;
 class SkDrawable;
-class SkDrawFilter;
 struct SkDrawShadowRec;
 class SkGlyphRunBuilder;
 class SkImage;
@@ -492,9 +491,9 @@ public:
     */
     bool writePixels(const SkBitmap& bitmap, int x, int y);
 
-    /** Saves SkMatrix, clip, and SkDrawFilter (SkDrawFilter deprecated on most platforms).
-        Calling restore() discards changes to SkMatrix, clip, and SkDrawFilter,
-        restoring the SkMatrix, clip, and SkDrawFilter to their state when save() was called.
+    /** Saves SkMatrix and clip.
+        Calling restore() discards changes to SkMatrix and clip, restoring the SkMatrix and clip to
+        their state when save() was called.
 
         SkMatrix may be changed by translate(), scale(), rotate(), skew(), concat(), setMatrix(),
         and resetMatrix(). Clip may be changed by clipRect(), clipRRect(), clipPath(), clipRegion().
@@ -508,10 +507,8 @@ public:
     */
     int save();
 
-    /** Saves SkMatrix, clip, and SkDrawFilter (SkDrawFilter deprecated on most platforms),
-        and allocates a SkBitmap for subsequent drawing.
-        Calling restore() discards changes to SkMatrix, clip, and SkDrawFilter,
-        and draws the SkBitmap.
+    /** Saves SkMatrix and clip, and allocates a SkBitmap for subsequent drawing.
+        Calling restore() discards changes to SkMatrix and clip, and draws the SkBitmap.
 
         SkMatrix may be changed by translate(), scale(), rotate(), skew(), concat(),
         setMatrix(), and resetMatrix(). Clip may be changed by clipRect(), clipRRect(),
@@ -531,10 +528,8 @@ public:
     */
     int saveLayer(const SkRect* bounds, const SkPaint* paint);
 
-    /** Saves SkMatrix, clip, and SkDrawFilter (SkDrawFilter deprecated on most platforms),
-        and allocates a SkBitmap for subsequent drawing.
-        Calling restore() discards changes to SkMatrix, clip, and SkDrawFilter,
-        and draws the SkBitmap.
+    /** Saves SkMatrix and clip, and allocates a SkBitmap for subsequent drawing.
+        Calling restore() discards changes to SkMatrix and clip, and draws the SkBitmap.
 
         SkMatrix may be changed by translate(), scale(), rotate(), skew(), concat(),
         setMatrix(), and resetMatrix(). Clip may be changed by clipRect(), clipRRect(),
@@ -556,12 +551,10 @@ public:
         return this->saveLayer(&bounds, paint);
     }
 
-    /** Saves SkMatrix, clip, and SkDrawFilter (SkDrawFilter deprecated on most platforms),
-        and allocates a SkBitmap for subsequent drawing.
+    /** Saves SkMatrix and clip, and allocates a SkBitmap for subsequent drawing.
         LCD text is preserved when the layer is drawn to the prior layer.
 
-        Calling restore() discards changes to SkMatrix, clip, and SkDrawFilter,
-        and draws layer.
+        Calling restore() discards changes to SkMatrix and clip, and draws layer.
 
         SkMatrix may be changed by translate(), scale(), rotate(), skew(), concat(),
         setMatrix(), and resetMatrix(). Clip may be changed by clipRect(), clipRRect(),
@@ -585,11 +578,10 @@ public:
     */
     int saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPaint* paint);
 
-    /** Saves SkMatrix, clip, and SkDrawFilter (SkDrawFilter deprecated on most platforms),
-        and allocates SkBitmap for subsequent drawing.
+    /** Saves SkMatrix and clip, and allocates SkBitmap for subsequent drawing.
 
-        Calling restore() discards changes to SkMatrix, clip, and SkDrawFilter,
-        and blends layer with alpha opacity onto prior layer.
+        Calling restore() discards changes to SkMatrix and clip, and blends layer with alpha opacity
+        onto prior layer.
 
         SkMatrix may be changed by translate(), scale(), rotate(), skew(), concat(),
         setMatrix(), and resetMatrix(). Clip may be changed by clipRect(), clipRRect(),
@@ -716,10 +708,9 @@ public:
         SaveLayerFlags       fSaveLayerFlags = 0;
     };
 
-    /** Saves SkMatrix, clip, and SkDrawFilter (SkDrawFilter deprecated on most platforms),
-        and allocates SkBitmap for subsequent drawing.
+    /** Saves SkMatrix and clip, and allocates SkBitmap for subsequent drawing.
 
-        Calling restore() discards changes to SkMatrix, clip, and SkDrawFilter,
+        Calling restore() discards changes to SkMatrix and clip,
         and blends SkBitmap with alpha opacity onto the prior layer.
 
         SkMatrix may be changed by translate(), scale(), rotate(), skew(), concat(),
@@ -735,14 +726,14 @@ public:
     */
     int saveLayer(const SaveLayerRec& layerRec);
 
-    /** Removes changes to SkMatrix, clip, and SkDrawFilter since SkCanvas state was
-        last saved. The state is removed from the stack.
+    /** Removes changes to SkMatrix and clip since SkCanvas state was last saved.
+        The state is removed from the stack.
 
         Does nothing if the stack is empty.
     */
     void restore();
 
-    /** Returns the number of saved states, each containing: SkMatrix, clip, and SkDrawFilter.
+    /** Returns the number of saved states, each containing: SkMatrix and clip.
         Equals the number of save() calls less the number of restore() calls plus one.
         The save count of a new canvas is one.
 
@@ -750,7 +741,7 @@ public:
     */
     int getSaveCount() const;
 
-    /** Restores state to SkMatrix, clip, and SkDrawFilter values when save(), saveLayer(),
+    /** Restores state to SkMatrix and clip values when save(), saveLayer(),
         saveLayerPreserveLCDTextRequests(), or saveLayerAlpha() returned saveCount.
 
         Does nothing if saveCount is greater than state stack count.
@@ -2387,16 +2378,6 @@ public:
     }
 
     //////////////////////////////////////////////////////////////////////////
-
-#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
-    /** To be deprecated soon.
-    */
-    SkDrawFilter* getDrawFilter() const;
-
-    /** To be deprecated soon.
-    */
-    virtual SkDrawFilter* setDrawFilter(SkDrawFilter* filter);
-#endif
 
     /** Returns true if clip is empty; that is, nothing will draw.
 

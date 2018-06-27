@@ -1638,12 +1638,12 @@ void SkGpuDevice::drawPosText(const void* text, size_t byteLength,
 }
 
 void SkGpuDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
-                               const SkPaint& paint, SkDrawFilter* drawFilter) {
+                               const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawTextBlob", fContext.get());
     SkDEBUGCODE(this->validate();)
 
-    fRenderTargetContext->drawTextBlob(this->clip(), paint, this->ctm(), blob, x, y, drawFilter,
+    fRenderTargetContext->drawTextBlob(this->clip(), paint, this->ctm(), blob, x, y,
                                        this->devClipBounds());
 }
 

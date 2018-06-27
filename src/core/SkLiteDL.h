@@ -25,10 +25,6 @@ public:
     void reset();
     bool empty() const { return fUsed == 0; }
 
-#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
-    void setDrawFilter(SkDrawFilter*);
-#endif
-
     void flush();
 
     void save();

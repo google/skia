@@ -22,13 +22,6 @@ sk_sp<SkSurface> SkLiteRecorder::onNewSurface(const SkImageInfo&, const SkSurfac
     return nullptr;
 }
 
-#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
-SkDrawFilter* SkLiteRecorder::setDrawFilter(SkDrawFilter* df) {
-    fDL->setDrawFilter(df);
-    return this->INHERITED::setDrawFilter(df);
-}
-#endif
-
 void SkLiteRecorder::onFlush() { fDL->flush(); }
 
 void SkLiteRecorder::willSave() { fDL->save(); }

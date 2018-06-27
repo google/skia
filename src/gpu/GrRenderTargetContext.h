@@ -35,7 +35,6 @@ class GrShape;
 class GrStyle;
 class GrTextureProxy;
 struct GrUserStencilSettings;
-class SkDrawFilter;
 struct SkDrawShadowRec;
 struct SkIPoint;
 struct SkIRect;
@@ -69,8 +68,7 @@ public:
                              const SkIRect& clipBounds);
     virtual void drawTextBlob(const GrClip&, const SkPaint&,
                               const SkMatrix& viewMatrix, const SkTextBlob*,
-                              SkScalar x, SkScalar y,
-                              SkDrawFilter*, const SkIRect& clipBounds);
+                              SkScalar x, SkScalar y, const SkIRect& clipBounds);
 
     /**
      * Provides a perfomance hint that the render target's contents are allowed

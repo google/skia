@@ -25,7 +25,6 @@ class GrAtlasManager;
 struct GrDistanceFieldAdjustTable;
 struct GrGlyph;
 
-class SkDrawFilter;
 class SkTextBlob;
 class SkTextBlobRunIterator;
 
