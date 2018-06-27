@@ -78,6 +78,13 @@ struct GrContextOptions {
     bool fDoManualMipmapping = false;
 
     /**
+     * Disables the coverage counting path renderer. Coverage counting can sometimes cause new
+     * rendering artifacts along shared edges if care isn't taken to ensure both contours wind in
+     * the same direction.
+     */
+    bool fDisableCoverageCountingPaths = false;
+
+    /**
      * Disables distance field rendering for paths. Distance field computation can be expensive,
      * and yields no benefit if a path is not rendered multiple times with different transforms.
      */
