@@ -5,12 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkOffsetPolygon.h"
+#include "SkPolyUtils.h"
 
 #include "SkPointPriv.h"
 #include "SkTArray.h"
 #include "SkTemplates.h"
 #include "SkTDPQueue.h"
+#include "SkTInternalLList.h"
+
+//////////////////////////////////////////////////////////////////////////////////
+// Helper data structures and functions
 
 struct OffsetSegment {
     SkPoint fP0;
@@ -33,23 +37,17 @@ static int compute_side(const SkPoint& s0, const SkPoint& s1, const SkPoint& p) 
 
 // returns 1 for ccw, -1 for cw and 0 if degenerate
 static int get_winding(const SkPoint* polygonVerts, int polygonSize) {
-    SkPoint p0 = polygonVerts[0];
-    SkPoint p1 = polygonVerts[1];
-
-    for (int i = 2; i < polygonSize; ++i) {
-        SkPoint p2 = polygonVerts[i];
-
-        // determine if cw or ccw
-        int side = compute_side(p0, p1, p2);
-        if (0 != side) {
-            return ((side > 0) ? 1 : -1);
-        }
-
-        // if nearly collinear, treat as straight line and continue
-        p1 = p2;
+    // compute area and use sign to determine winding
+    SkScalar quadArea = 0;
+    for (int curr = 0; curr < polygonSize; ++curr) {
+        int next = (curr + 1) % polygonSize;
+        quadArea += polygonVerts[curr].cross(polygonVerts[next]);
     }
-
-    return 0;
+    if (SkScalarNearlyZero(quadArea)) {
+        return 0;
+    }
+    // 1 == ccw, -1 == cw
+    return (quadArea > 0) ? 1 : -1;
 }
 
 // Helper function to compute the individual vector for non-equal offsets
@@ -261,6 +259,8 @@ struct EdgeData {
     }
 };
 
+//////////////////////////////////////////////////////////////////////////////////
+
 // The objective here is to inset all of the edges by the given distance, and then
 // remove any invalid inset edges by detecting right-hand turns. In a ccw polygon,
 // we should only be making left-hand turns (for cw polygons, we use the winding
@@ -280,6 +280,7 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
         return false;
     }
 
+    // get winding direction
     int winding = get_winding(inputPolygonVerts, inputPolygonSize);
     if (0 == winding) {
         return false;
@@ -397,9 +398,11 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
     return (insetPolygon->count() >= 3 && is_convex(*insetPolygon));
 }
 
-// compute the number of points needed for a circular join when offsetting a  reflex vertex
-static void compute_radial_steps(const SkVector& v1, const SkVector& v2, SkScalar r,
-                                 SkScalar* rotSin, SkScalar* rotCos, int* n) {
+///////////////////////////////////////////////////////////////////////////////////////////
+
+// compute the number of points needed for a circular join when offsetting a reflex vertex
+void SkComputeRadialSteps(const SkVector& v1, const SkVector& v2, SkScalar r,
+                          SkScalar* rotSin, SkScalar* rotCos, int* n) {
     const SkScalar kRecipPixelsPerArcSegment = 0.25f;
 
     SkScalar rCos = v1.dot(v2);
@@ -421,7 +424,7 @@ static inline bool nearly_lt(SkScalar a, SkScalar b, SkScalar tolerance = SK_Sca
 // a point is "left" to another if its x coordinate is less, or if equal, its y coordinate
 static bool left(const SkPoint& p0, const SkPoint& p1) {
     return nearly_lt(p0.fX, p1.fX) ||
-           (SkScalarNearlyEqual(p0.fX, p1.fX) && nearly_lt(p0.fY, p1.fY));
+    (SkScalarNearlyEqual(p0.fX, p1.fX) && nearly_lt(p0.fY, p1.fY));
 }
 
 struct Vertex {
@@ -529,10 +532,10 @@ public:
 
         // if we intersect with the edge above or below us
         // then we know this polygon is not simple, so don't remove, just fail
-        if (removeIndex > 0 && fEdges[removeIndex].intersect(fEdges[removeIndex-1])) {
+        if (removeIndex > 0 && fEdges[removeIndex].intersect(fEdges[removeIndex - 1])) {
             return false;
         }
-        if (removeIndex < fEdges.count()-1) {
+        if (removeIndex < fEdges.count() - 1) {
             if (fEdges[removeIndex].intersect(fEdges[removeIndex + 1])) {
                 return false;
             }
@@ -555,7 +558,7 @@ private:
 // Then as we pop the vertices from the queue we generate events which indicate that an edge
 // should be added or removed from an edge list. If any intersections are detected in the edge
 // list, then we know the polygon is self-intersecting and hence not simple.
-static bool is_simple_polygon(const SkPoint* polygon, int polygonSize) {
+bool SkIsSimplePolygon(const SkPoint* polygon, int polygonSize) {
     SkTDPQueue <Vertex, Vertex::Left> vertexQueue;
     EdgeList sweepLine;
 
@@ -613,7 +616,8 @@ static bool is_simple_polygon(const SkPoint* polygon, int polygonSize) {
     return (vertexQueue.count() == 0);
 }
 
-// TODO: assuming a constant offset here -- do we want to support variable offset?
+///////////////////////////////////////////////////////////////////////////////////////////
+
 bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize,
                            std::function<SkScalar(const SkPoint&)> offsetDistanceFunc,
                            SkTDArray<SkPoint>* offsetPolygon, SkTDArray<int>* polygonIndices) {
@@ -621,21 +625,11 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
         return false;
     }
 
-    if (!is_simple_polygon(inputPolygonVerts, inputPolygonSize)) {
+    // get winding direction
+    int winding = get_winding(inputPolygonVerts, inputPolygonSize);
+    if (0 == winding) {
         return false;
     }
-
-    // compute area and use sign to determine winding
-    SkScalar quadArea = 0;
-    for (int curr = 0; curr < inputPolygonSize; ++curr) {
-        int next = (curr + 1) % inputPolygonSize;
-        quadArea += inputPolygonVerts[curr].cross(inputPolygonVerts[next]);
-    }
-    if (SkScalarNearlyZero(quadArea)) {
-        return false;
-    }
-    // 1 == ccw, -1 == cw
-    int winding = (quadArea > 0) ? 1 : -1;
 
     // build normals
     SkAutoSTMalloc<64, SkVector> normal0(inputPolygonSize);
@@ -667,7 +661,7 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
             SkScalar rotSin, rotCos;
             int numSteps;
             SkVector prevNormal = normal1[currIndex];
-            compute_radial_steps(prevNormal, normal0[currIndex], SkScalarAbs(offset),
+            SkComputeRadialSteps(prevNormal, normal0[currIndex], SkScalarAbs(offset),
                                  &rotSin, &rotCos, &numSteps);
             for (int i = 0; i < numSteps - 1; ++i) {
                 SkVector currNormal = SkVector::Make(prevNormal.fX*rotCos - prevNormal.fY*rotSin,
@@ -792,14 +786,213 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
         }
     }
 
-    // compute signed area to check winding (it should be same as the original polygon)
-    quadArea = 0;
-    for (int curr = 0; curr < offsetPolygon->count(); ++curr) {
-        int next = (curr + 1) % offsetPolygon->count();
-        quadArea += (*offsetPolygon)[curr].cross((*offsetPolygon)[next]);
-    }
+    // check winding of offset polygon (it should be same as the original polygon)
+    SkScalar offsetWinding = get_winding(offsetPolygon->begin(), offsetPolygon->count());
 
-    return (winding*quadArea > 0 &&
-            is_simple_polygon(offsetPolygon->begin(), offsetPolygon->count()));
+    return (winding*offsetWinding > 0 &&
+            SkIsSimplePolygon(offsetPolygon->begin(), offsetPolygon->count()));
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
+
+struct TriangulateVertex {
+    SK_DECLARE_INTERNAL_LLIST_INTERFACE(TriangulateVertex);
+
+    enum VertexType { kConvex_VertexType, kReflex_VertexType };
+
+    SkPoint    fPosition;
+    VertexType fVertexType;
+    uint16_t   fIndex;
+    uint16_t   fPrevIndex;
+    uint16_t   fNextIndex;
+};
+
+// test to see if point p is in triangle p0p1p2.
+// for now assuming strictly inside -- if on the edge it's outside
+static bool point_in_triangle(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2,
+                              const SkPoint& p) {
+    SkVector v0 = p1 - p0;
+    SkVector v1 = p2 - p1;
+    SkScalar n = v0.cross(v1);
+
+    SkVector w0 = p - p0;
+    if (n*v0.cross(w0) < SK_ScalarNearlyZero) {
+        return false;
+    }
+
+    SkVector w1 = p - p1;
+    if (n*v1.cross(w1) < SK_ScalarNearlyZero) {
+        return false;
+    }
+
+    SkVector v2 = p0 - p2;
+    SkVector w2 = p - p2;
+    if (n*v2.cross(w2) < SK_ScalarNearlyZero) {
+        return false;
+    }
+
+    return true;
+}
+
+class ReflexHash {
+public:
+    void add(TriangulateVertex* v) {
+        fReflexList.addToTail(v);
+    }
+
+    void remove(TriangulateVertex* v) {
+        fReflexList.remove(v);
+    }
+
+    bool checkTriangle(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2) {
+        SkTInternalLList<TriangulateVertex>::Iter reflexIter;
+        reflexIter.init(fReflexList, SkTInternalLList<TriangulateVertex>::Iter::kHead_IterStart);
+        for (; TriangulateVertex* reflexVertex = reflexIter.get(); reflexIter.next()) {
+            if (point_in_triangle(p0, p1, p2, reflexVertex->fPosition)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+private:
+    //*** for now, switch to grid hash at some point
+    SkTInternalLList<TriangulateVertex> fReflexList;
+};
+
+bool SkTriangulateSimplePolygon(const SkPoint* polygonVerts, uint16_t* indexMap, int polygonSize,
+                                SkTDArray<uint16_t>* triangleIndices) {
+    if (polygonSize < 3) {
+        return false;
+    }
+    // need to be able to represent all the vertices
+    if (polygonSize >= (1 << 16)) {
+        return false;
+    }
+
+    // get winding direction
+    // TODO: we do this for all the polygon routines -- might be better to have the client
+    // compute it and pass it in
+    int winding = get_winding(polygonVerts, polygonSize);
+    if (0 == winding) {
+        return false;
+    }
+
+    // Classify initial vertices
+    SkTInternalLList<TriangulateVertex> convexList;
+    ReflexHash reflexHash;
+    SkAutoSTMalloc<64, TriangulateVertex> triangulationVertices(polygonSize);
+    int prevIndex = polygonSize - 1;
+    int currIndex = 0;
+    int nextIndex = 1;
+    SkVector v0 = polygonVerts[currIndex] - polygonVerts[prevIndex];
+    SkVector v1 = polygonVerts[nextIndex] - polygonVerts[currIndex];
+    for (int i = 0; i < polygonSize; ++i) {
+        triangulationVertices[currIndex].fPrev = nullptr;
+        triangulationVertices[currIndex].fNext = nullptr;
+        triangulationVertices[currIndex].fList = nullptr;
+        triangulationVertices[currIndex].fPosition = polygonVerts[currIndex];
+        triangulationVertices[currIndex].fIndex = currIndex;
+        triangulationVertices[currIndex].fPrevIndex = prevIndex;
+        triangulationVertices[currIndex].fNextIndex = nextIndex;
+        //**** not sure if this should be next - prev
+        //**** might be more stable?
+        if (winding*v0.cross(v1) > SK_ScalarNearlyZero) {
+            triangulationVertices[currIndex].fVertexType = TriangulateVertex::kConvex_VertexType;
+            convexList.addToTail(&triangulationVertices[currIndex]);
+        } else {
+            //**** what if nearly zero?
+            triangulationVertices[currIndex].fVertexType = TriangulateVertex::kReflex_VertexType;
+            reflexHash.add(&triangulationVertices[currIndex]);
+        }
+
+        prevIndex = currIndex;
+        currIndex = nextIndex;
+        nextIndex = (currIndex + 1) % polygonSize;
+        v0 = v1;
+        v1 = polygonVerts[nextIndex] - polygonVerts[currIndex];
+    }
+
+    //*** brain-dead unoptimized algorithm to get things going
+    triangleIndices->setReserve(triangleIndices->count() + 3 * (polygonSize - 2));
+
+    int vertexCount = polygonSize;
+    while (vertexCount > 3) {
+        SkTInternalLList<TriangulateVertex>::Iter convexIter;
+        convexIter.init(convexList, SkTInternalLList<TriangulateVertex>::Iter::kHead_IterStart);
+        bool success = false;
+        TriangulateVertex* earVertex;
+        TriangulateVertex* p0 = nullptr;
+        TriangulateVertex* p2 = nullptr;
+        // find a convex vertex to clip
+        for (; (earVertex = convexIter.get()); convexIter.next()) {
+            if (TriangulateVertex::kReflex_VertexType == earVertex->fVertexType) {
+                continue;
+            }
+
+            p0 = &triangulationVertices[earVertex->fPrevIndex];
+            p2 = &triangulationVertices[earVertex->fNextIndex];
+
+            // see if any reflex vertices are inside the ear
+            bool failed = reflexHash.checkTriangle(p0->fPosition, earVertex->fPosition,
+                                                   p2->fPosition);
+            if (failed) {
+                continue;
+            }
+
+            // found one we can clip
+            success = true;
+            break;
+        }
+        //*** not sure what to do with failure...
+        if (!success) {
+            return false;
+        }
+
+        // add indices
+        auto indices = triangleIndices->append(3);
+        indices[0] = indexMap[p0->fIndex];
+        indices[1] = indexMap[earVertex->fIndex];
+        indices[2] = indexMap[p2->fIndex];
+
+        // clip the ear
+        convexList.remove(earVertex);
+        --vertexCount;
+
+        // reclassify verts
+        //*** build static function to do this
+        p0->fNextIndex = earVertex->fNextIndex;
+        if (TriangulateVertex::kReflex_VertexType == p0->fVertexType) {
+            SkVector v0 = p0->fPosition - polygonVerts[p0->fPrevIndex];
+            SkVector v1 = polygonVerts[p0->fNextIndex] - p0->fPosition;
+            if (winding*v0.cross(v1) > SK_ScalarNearlyZero) {
+                p0->fVertexType = TriangulateVertex::kConvex_VertexType;
+                reflexHash.remove(p0);
+                p0->fPrev = p0->fNext = nullptr;
+                convexList.addToTail(p0);
+            }
+        }
+
+        p2->fPrevIndex = earVertex->fPrevIndex;
+        if (TriangulateVertex::kReflex_VertexType == p2->fVertexType) {
+            SkVector v0 = p2->fPosition - polygonVerts[p2->fPrevIndex];
+            SkVector v1 = polygonVerts[p2->fNextIndex] - p2->fPosition;
+            if (winding*v0.cross(v1) > SK_ScalarNearlyZero) {
+                p2->fVertexType = TriangulateVertex::kConvex_VertexType;
+                reflexHash.remove(p2);
+                p2->fPrev = p2->fNext = nullptr;
+                convexList.addToTail(p2);
+           }
+        }
+    }
+
+    SkTInternalLList<TriangulateVertex>::Iter vertexIter;
+    vertexIter.init(convexList, SkTInternalLList<TriangulateVertex>::Iter::kHead_IterStart);
+    while (TriangulateVertex* vertex = vertexIter.get()) {
+        *triangleIndices->push() = indexMap[vertex->fIndex];
+        vertexIter.next();
+    }
+
+    return true;
+}
