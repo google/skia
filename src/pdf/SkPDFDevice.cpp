@@ -1463,7 +1463,7 @@ void SkPDFDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     for (SkTextBlobRunIterator it(blob); !it.done(); it.next()) {
         SkPaint runPaint(paint);
         it.applyFontToPaint(&runPaint);
-        if (drawFilter && !drawFilter->filter(&runPaint, SkDrawFilter::kText_Type)) {
+        if (drawFilter && !drawFilter->filter(&runPaint)) {
             continue;
         }
         SkPoint offset = it.offset() + SkPoint{x, y};

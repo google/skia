@@ -25,26 +25,12 @@ class SkPaint;
  */
 class SK_API SkDrawFilter : public SkRefCnt {
 public:
-    enum Type {
-        kPaint_Type,
-        kPoint_Type,
-        kLine_Type,
-        kBitmap_Type,
-        kRect_Type,
-        kRRect_Type,
-        kOval_Type,
-        kPath_Type,
-        kText_Type,
-    };
-
-    static constexpr int kTypeCount = kText_Type + 1;
-
     /**
      *  Called with the paint that will be used to draw the specified type.
      *  The implementation may modify the paint as they wish. If filter()
      *  returns false, the draw will be skipped.
      */
-    virtual bool filter(SkPaint*, Type) = 0;
+    virtual bool filter(SkPaint*) = 0;
 
 private:
     typedef SkRefCnt INHERITED;
