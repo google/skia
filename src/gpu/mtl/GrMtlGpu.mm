@@ -8,6 +8,8 @@
 #include "GrMtlGpu.h"
 
 #include "GrMtlTexture.h"
+#include "GrMtlTextureRenderTarget.h"
+#include "GrMtlUtil.h"
 
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
@@ -115,18 +117,11 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
     }
 
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
-    if (renderTarget) {
-        // Current we don't have render target support
-        return nullptr;
-    }
 
     sk_sp<GrMtlTexture> tex;
     if (renderTarget) {
-        // Enable once we have render target support
-#if 0
         tex = GrMtlTextureRenderTarget::CreateNewTextureRenderTarget(this, budgeted,
-                                                                    desc, mipLevels);
-#endif
+                                                                     desc, mipLevels);
     } else {
         tex = GrMtlTexture::CreateNewTexture(this, budgeted, desc, mipLevels);
     }
@@ -143,4 +138,108 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
         // Do initial clear of the texture
     }
     return tex;
+}
+
+static bool check_backend_texture(const GrBackendTexture& backendTex) {
+    GrMtlTextureInfo info;
+    if (!backendTex.getMtlTextureInfo(&info)) {
+        return false;
+    }
+
+    if (nullptr == info.fTexture) {
+        return false;
+    }
+
+    return true;
+}
+
+sk_sp<GrTexture> GrMtlGpu::onWrapBackendTexture(const GrBackendTexture & backendTex,
+                                                GrWrapOwnership ownership) {
+    if (!check_backend_texture(backendTex)) {
+        return nullptr;
+    }
+
+    GrSurfaceDesc surfDesc;
+    surfDesc.fFlags = kNone_GrSurfaceFlags;
+    surfDesc.fWidth = backendTex.width();
+    surfDesc.fHeight = backendTex.height();
+    surfDesc.fConfig = backendTex.config();
+    surfDesc.fSampleCnt = 1;
+
+    GrMtlTextureInfo textureInfo;
+    if (!backendTex.getMtlTextureInfo(&textureInfo)) {
+        return nullptr;
+    }
+    return GrMtlTexture::MakeWrappedTexture(this, surfDesc, ownership, textureInfo);
+}
+
+sk_sp<GrTexture> GrMtlGpu::onWrapRenderableBackendTexture(const GrBackendTexture & backendTex,
+                                                          int sampleCnt,
+                                                          GrWrapOwnership ownership) {
+    if (!check_backend_texture(backendTex, backendTex.config())) {
+        return nullptr;
+    }
+
+    GrSurfaceDesc surfDesc;
+    surfDesc.fFlags = kRenderTarget_GrSurfaceFlag;
+    surfDesc.fWidth = backendTex.width();
+    surfDesc.fHeight = backendTex.height();
+    surfDesc.fConfig = backendTex.config();
+    surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, backendTex.config());
+
+    GrMtlTextureInfo textureInfo;
+    if (!backendTex.getMtlTextureInfo(&textureInfo)) {
+        return nullptr;
+    }
+    return GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(this, surfDesc, ownership,
+                                                                    textureInfo);
+}
+
+sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT) {
+    // TODO: Revisit this when the Metal backend is completed. It may support MSAA render targets.
+    if (backendRT.sampleCnt() > 1) {
+        return nullptr;
+    }
+
+    GrMtlTextureInfo textureInfo;
+    if (!backendRT.getMtlTextureInfo(&textureInfo)) {
+        return nullptr;
+    }
+
+    if (nullptr == textureInfo.fTexture) {
+        return nullptr;
+    }
+
+    GrSurfaceDesc surfDesc;
+    surfDesc.fFlags = kRenderTarget_GrSurfaceFlag;
+    surfDesc.fWidth = backendRT.width();
+    surfDesc.fHeight = backendRT.height();
+    surfDesc.fConfig = backendRT.config();
+    surfDesc.fSampleCnt = 1;
+
+    return GrMtlRenderTarget::MakeWrappedRenderTarget(this, surfDesc, textureInfo);
+}
+
+sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
+                                                                   int sampleCnt) {
+    GrMtlTextureInfo textureInfo;
+    if (!tex.getMtlTextureInfo(&textureInfo)) {
+        return nullptr;
+    }
+
+    if (nullptr == textureInfo.fTexture) {
+        return nullptr;
+    }
+
+    GrSurfaceDesc surfDesc;
+    surfDesc.fFlags = kRenderTarget_GrSurfaceFlag;
+    surfDesc.fWidth = tex.width();
+    surfDesc.fHeight = tex.height();
+    surfDesc.fConfig = tex.config();
+    surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, tex.config());
+    if (!surfDesc.fSampleCnt) {
+        return nullptr;
+    }
+
+    return GrMtlRenderTarget::MakeWrappedRenderTarget(this, surfDesc, textureInfo);
 }
