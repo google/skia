@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d71b7507_90ba8ebe",
+        "filename": "include/core/SkFontArguments.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-06-27T00:55:31Z",
+      "side": 1,
+      "message": "similar trivial nit about scalar -vs- float",
+      "range": {
+        "startLine": 19,
+        "startChar": 12,
+        "endLine": 19,
+        "endChar": 20
+      },
+      "revId": "824a6f3852896190e93c88be4f34f2114c0b819c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b61a7fdf_c7d9ab2a",
+        "filename": "include/core/SkFontParameters.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-06-27T00:55:31Z",
+      "side": 1,
+      "message": "nit: float instead of scalar?\n\nIf we *ever* change what a scalar is, I expect it will be to support extended range (e.g. maps) for coordinates. Is that generality needed here?\n\nbtw -- we explicitly use floats (most of the time) when we talk about colors",
+      "range": {
+        "startLine": 18,
+        "startChar": 12,
+        "endLine": 18,
+        "endChar": 20
+      },
+      "revId": "824a6f3852896190e93c88be4f34f2114c0b819c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
