@@ -11,6 +11,35 @@
 #include "GrMtlUtil.h"
 #include "GrTexturePriv.h"
 
+// This method parallels GrTextureProxy::highestFilterMode
+static inline GrSamplerState::Filter highest_filter_mode(GrPixelConfig config) {
+    return GrSamplerState::Filter::kMipMap;
+}
+
+GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
+                           SkBudgeted budgeted,
+                           const GrSurfaceDesc& desc,
+                           id<MTLTexture> texture,
+                           GrMipMapsStatus mipMapsStatus)
+        : GrSurface(gpu, desc)
+        , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
+                    mipMapsStatus)
+        , fTexture(texture) {
+    SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
+    this->registerWithCache(budgeted);
+}
+
+GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
+                           const GrSurfaceDesc& desc,
+                           id<MTLTexture> texture,
+                           GrMipMapsStatus mipMapsStatus)
+        : GrSurface(gpu, desc)
+        , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
+                    mipMapsStatus)
+        , fTexture(texture) {
+    SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
+}
+
 sk_sp<GrMtlTexture> GrMtlTexture::CreateNewTexture(GrMtlGpu* gpu, SkBudgeted budgeted,
                                                    const GrSurfaceDesc& desc, int mipLevels) {
     MTLPixelFormat format;
@@ -39,22 +68,6 @@ sk_sp<GrMtlTexture> GrMtlTexture::CreateNewTexture(GrMtlGpu* gpu, SkBudgeted bud
                                                   : GrMipMapsStatus::kNotAllocated;
 
     return sk_sp<GrMtlTexture>(new GrMtlTexture(gpu, budgeted, desc, texture, mipMapsStatus));
-}
-
-// This method parallels GrTextureProxy::highestFilterMode
-static inline GrSamplerState::Filter highest_filter_mode(GrPixelConfig config) {
-    return GrSamplerState::Filter::kMipMap;
-}
-
-GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
-                           SkBudgeted budgeted,
-                           const GrSurfaceDesc& desc,
-                           id<MTLTexture> texture,
-                           GrMipMapsStatus mipMapsStatus)
-        : GrSurface(gpu, desc)
-        , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
-                    mipMapsStatus)
-        , fTexture(texture) {
 }
 
 GrMtlTexture::~GrMtlTexture() {

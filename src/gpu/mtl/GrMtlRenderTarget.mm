@@ -10,6 +10,28 @@
 #include "GrMtlGpu.h"
 #include "GrMtlUtil.h"
 
+GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
+                                     const GrSurfaceDesc& desc,
+                                     SkBudgeted budgeted,
+                                     id<MTLTexture> renderTexture)
+        : GrSurface(gpu, desc)
+        , GrRenderTarget(gpu, desc)
+        , fRenderTexture(renderTexture)
+        , fResolveTexture(nil) {
+    SkASSERT(1 == desc.fSampleCnt);
+    this->registerWithCache(budgeted);
+}
+
+GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
+                                     const GrSurfaceDesc& desc,
+                                     id<MTLTexture> renderTexture)
+        : GrSurface(gpu, desc)
+        , GrRenderTarget(gpu, desc)
+        , fRenderTexture(renderTexture)
+        , fResolveTexture(nil) {
+    SkASSERT(1 == desc.fSampleCnt);
+}
+
 sk_sp<GrMtlRenderTarget> GrMtlRenderTarget::CreateNewRenderTarget(GrMtlGpu* gpu,
                                                                   const GrSurfaceDesc& desc,
                                                                   SkBudgeted budgeted) {
@@ -43,16 +65,6 @@ sk_sp<GrMtlRenderTarget> GrMtlRenderTarget::CreateNewRenderTarget(GrMtlGpu* gpu,
     return sk_sp<GrMtlRenderTarget>(new GrMtlRenderTarget(gpu, desc, budgeted, texture));
 }
 
-GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
-                                     const GrSurfaceDesc& desc,
-                                     SkBudgeted budgeted,
-                                     id<MTLTexture> renderTexture)
-        : GrSurface(gpu, desc)
-        , GrRenderTarget(gpu, desc)
-        , fRenderTexture(renderTexture)
-        , fResolveTexture(nil) {
-}
-
 GrMtlRenderTarget::~GrMtlRenderTarget() {
     SkASSERT(nil == fRenderTexture);
     SkASSERT(nil == fResolveTexture);
@@ -73,7 +85,7 @@ void GrMtlRenderTarget::onRelease() {
     fResolveTexture = nil;
 }
 
-bool completeStencilAttachment() {
+bool GrMtlRenderTarget::completeStencilAttachment() {
     // TODO: fill this out
     return true;
 }
