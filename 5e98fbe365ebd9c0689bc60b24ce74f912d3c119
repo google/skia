@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e2e1363_52d86c39",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-27T18:10:58Z",
+      "side": 1,
+      "message": "Does this one make a big difference in code size as well? This is the code for the \u0027big\u0027 blurs.",
+      "range": {
+        "startLine": 109,
+        "startChar": 17,
+        "endLine": 109,
+        "endChar": 37
+      },
+      "revId": "5e98fbe365ebd9c0689bc60b24ce74f912d3c119",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
