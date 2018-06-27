@@ -154,10 +154,8 @@ void SkBaseDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
         // so it is safe to not re-seed the paint for this reason.
         it.applyFontToPaint(&runPaint);
 
-        if (drawFilter && !drawFilter->filter(&runPaint, SkDrawFilter::kText_Type)) {
-            // A false return from filter() means we should abort the current draw.
-            runPaint = paint;
-            continue;
+        if (drawFilter) {
+            drawFilter->filter(&runPaint);
         }
 
         switch (it.positioning()) {

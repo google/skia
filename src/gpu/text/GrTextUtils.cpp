@@ -35,10 +35,7 @@ bool GrTextUtils::RunPaint::modifyForRun(std::function<void(SkPaint*)> paintModF
     paintModFunc(fModifiedPaint.get());
 
     if (fFilter) {
-        if (!fFilter->filter(fModifiedPaint.get(), SkDrawFilter::kText_Type)) {
-            // A false return from filter() means we should abort the current draw.
-            return false;
-        }
+        fFilter->filter(fModifiedPaint.get());
         // The draw filter could have changed either the paint color or color filter.
         this->initFilteredColor();
     }

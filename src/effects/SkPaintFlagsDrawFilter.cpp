@@ -16,7 +16,6 @@ SkPaintFlagsDrawFilter::SkPaintFlagsDrawFilter(uint32_t clearFlags,
     fSetFlags = SkToU16(setFlags & SkPaint::kAllFlags);
 }
 
-bool SkPaintFlagsDrawFilter::filter(SkPaint* paint, Type) {
+void SkPaintFlagsDrawFilter::filter(SkPaint* paint) {
     paint->setFlags((paint->getFlags() & ~fClearFlags) | fSetFlags);
-    return true;
 }

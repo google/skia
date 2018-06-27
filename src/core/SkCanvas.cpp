@@ -442,14 +442,14 @@ public:
         return *fPaint;
     }
 
-    bool next(SkDrawFilter::Type drawType) {
+    bool next() {
         if (fDone) {
             return false;
         } else if (fIsSimple) {
             fDone = true;
             return !fPaint->nothingToDraw();
         } else {
-            return this->doNext(drawType);
+            return this->doNext();
         }
     }
 
@@ -467,10 +467,10 @@ private:
     SkDrawLooper::Context* fLooperContext;
     SkSTArenaAlloc<48>     fAlloc;
 
-    bool doNext(SkDrawFilter::Type drawType);
+    bool doNext();
 };
 
-bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
+bool AutoDrawLooper::doNext() {
     fPaint = nullptr;
     SkASSERT(!fIsSimple);
     SkASSERT(fLooperContext || fFilter || fTempLayerForImageFilter);
@@ -490,10 +490,7 @@ bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
         return false;
     }
     if (fFilter) {
-        if (!fFilter->filter(paint, drawType)) {
-            fDone = true;
-            return false;   // can we really do this, if we haven't finished fLooperContext?
-        }
+        fFilter->filter(paint);
         if (nullptr == fLooperContext) {
             // no looper means we only draw once
             fDone = true;
@@ -513,26 +510,26 @@ bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
 #define LOOPER_BEGIN_DRAWBITMAP(paint, skipLayerForFilter, bounds)  \
     this->predrawNotify();                                          \
     AutoDrawLooper looper(this, paint, skipLayerForFilter, bounds); \
-    while (looper.next(SkDrawFilter::kBitmap_Type)) {               \
+    while (looper.next()) {                                         \
         SkDrawIter iter(this);
 
 
-#define LOOPER_BEGIN_DRAWDEVICE(paint, type)                        \
+#define LOOPER_BEGIN_DRAWDEVICE(paint)                              \
     this->predrawNotify();                                          \
     AutoDrawLooper  looper(this, paint, true);                      \
-    while (looper.next(type)) {                                     \
+    while (looper.next()) {                                         \
         SkDrawIter          iter(this);
 
-#define LOOPER_BEGIN(paint, type, bounds)                           \
+#define LOOPER_BEGIN(paint, bounds)                                 \
     this->predrawNotify();                                          \
     AutoDrawLooper  looper(this, paint, false, bounds);             \
-    while (looper.next(type)) {                                     \
+    while (looper.next()) {                                         \
         SkDrawIter          iter(this);
 
-#define LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(paint, type, bounds, auxOpaque)  \
+#define LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(paint, bounds, auxOpaque)  \
     this->predrawNotify(bounds, &paint, auxOpaque);                 \
     AutoDrawLooper  looper(this, paint, false, bounds);             \
-    while (looper.next(type)) {                                     \
+    while (looper.next()) {                                         \
         SkDrawIter          iter(this);
 
 #define LOOPER_END    }
@@ -1255,7 +1252,7 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y, const SkPa
         paint = &tmp;
     }
 
-    LOOPER_BEGIN_DRAWDEVICE(*paint, SkDrawFilter::kBitmap_Type)
+    LOOPER_BEGIN_DRAWDEVICE(*paint)
 
     while (iter.next()) {
         SkBaseDevice* dstDev = iter.fDevice;
@@ -1929,7 +1926,7 @@ void SkCanvas::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
     SkPaint paint;
     const SkRect& pathBounds = path.getBounds();
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type, &pathBounds)
+    LOOPER_BEGIN(paint, &pathBounds)
     while (iter.next()) {
         iter.fDevice->drawShadow(path, rec);
     }
@@ -1951,7 +1948,7 @@ void SkCanvas::onDrawPaint(const SkPaint& paint) {
 }
 
 void SkCanvas::internalDrawPaint(const SkPaint& paint) {
-    LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(paint, SkDrawFilter::kPaint_Type, nullptr, false)
+    LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(paint, nullptr, false)
 
     while (iter.next()) {
         iter.fDevice->drawPaint(looper.paint());
@@ -1987,7 +1984,7 @@ void SkCanvas::onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
 
     SkASSERT(pts != nullptr);
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kPoint_Type, bounds)
+    LOOPER_BEGIN(paint, bounds)
 
     while (iter.next()) {
         iter.fDevice->drawPoints(mode, count, pts, looper.paint());
@@ -2014,7 +2011,7 @@ void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
     }
 
     if (needs_autodrawlooper(this, paint)) {
-        LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(paint, SkDrawFilter::kRect_Type, &r, false)
+        LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(paint, &r, false)
 
         while (iter.next()) {
             iter.fDevice->drawRect(r, looper.paint());
@@ -2039,7 +2036,7 @@ void SkCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
         }
     }
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kRect_Type, &regionRect)
+    LOOPER_BEGIN(paint, &regionRect)
 
     while (iter.next()) {
         iter.fDevice->drawRegion(region, looper.paint());
@@ -2057,7 +2054,7 @@ void SkCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {
         }
     }
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kOval_Type, &oval)
+    LOOPER_BEGIN(paint, &oval)
 
     while (iter.next()) {
         iter.fDevice->drawOval(oval, looper.paint());
@@ -2078,7 +2075,7 @@ void SkCanvas::onDrawArc(const SkRect& oval, SkScalar startAngle,
         }
     }
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kOval_Type, &oval)
+    LOOPER_BEGIN(paint, &oval)
 
     while (iter.next()) {
         iter.fDevice->drawArc(oval, startAngle, sweepAngle, useCenter, looper.paint());
@@ -2105,7 +2102,7 @@ void SkCanvas::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
         return;
     }
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kRRect_Type, &rrect.getBounds())
+    LOOPER_BEGIN(paint, &rrect.getBounds())
 
     while (iter.next()) {
         iter.fDevice->drawRRect(rrect, looper.paint());
@@ -2122,7 +2119,7 @@ void SkCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const Sk
         }
     }
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kRRect_Type, &outer.getBounds())
+    LOOPER_BEGIN(paint, &outer.getBounds())
 
     while (iter.next()) {
         iter.fDevice->drawDRRect(outer, inner, looper.paint());
@@ -2151,7 +2148,7 @@ void SkCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
         }
     }
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type, &pathBounds)
+    LOOPER_BEGIN(paint, &pathBounds)
 
     while (iter.next()) {
         iter.fDevice->drawPath(path, looper.paint());
@@ -2259,8 +2256,7 @@ void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const Sk
     }
     paint = &realPaint;
 
-    LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(*paint, SkDrawFilter::kBitmap_Type, &dst,
-                                          image->isOpaque())
+    LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(*paint, &dst, image->isOpaque())
 
     while (iter.next()) {
         iter.fDevice->drawImageRect(image, src, dst, looper.paint(), constraint);
@@ -2340,8 +2336,7 @@ void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
         paint = lazy.init();
     }
 
-    LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(*paint, SkDrawFilter::kBitmap_Type, &dst,
-                                          bitmap.isOpaque())
+    LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(*paint, &dst, bitmap.isOpaque())
 
     while (iter.next()) {
         iter.fDevice->drawBitmapRect(bitmap, src, dst, looper.paint(), constraint);
@@ -2369,7 +2364,7 @@ void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, cons
     }
     paint = &realPaint;
 
-    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, &dst)
+    LOOPER_BEGIN(*paint, &dst)
 
     while (iter.next()) {
         iter.fDevice->drawImageNine(image, center, dst, looper.paint());
@@ -2392,7 +2387,7 @@ void SkCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, c
     }
     paint = &realPaint;
 
-    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, &dst)
+    LOOPER_BEGIN(*paint, &dst)
 
     while (iter.next()) {
         iter.fDevice->drawBitmapNine(bitmap, center, dst, looper.paint());
@@ -2414,7 +2409,7 @@ void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, 
     }
     paint = &realPaint;
 
-    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, &dst)
+    LOOPER_BEGIN(*paint, &dst)
 
     while (iter.next()) {
         iter.fDevice->drawImageLattice(image, lattice, dst, looper.paint());
@@ -2436,7 +2431,7 @@ void SkCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattic
     }
     paint = &realPaint;
 
-    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, &dst)
+    LOOPER_BEGIN(*paint, &dst)
 
     while (iter.next()) {
         iter.fDevice->drawBitmapLattice(bitmap, lattice, dst, looper.paint());
@@ -2448,7 +2443,7 @@ void SkCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattic
 void SkCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                           const SkPaint& paint) {
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, nullptr)
+    LOOPER_BEGIN(paint, nullptr)
 
     while (iter.next()) {
         fScratchGlyphRunBuilder->prepareDrawText(
@@ -2463,7 +2458,7 @@ void SkCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkSca
 void SkCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
                              const SkPaint& paint) {
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, nullptr)
+    LOOPER_BEGIN(paint, nullptr)
 
     while (iter.next()) {
         fScratchGlyphRunBuilder->prepareDrawPosText(looper.paint(), text, byteLength, pos);
@@ -2477,7 +2472,7 @@ void SkCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint 
 void SkCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
                               SkScalar constY, const SkPaint& paint) {
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, nullptr)
+    LOOPER_BEGIN(paint, nullptr)
 
     while (iter.next()) {
         fScratchGlyphRunBuilder->prepareDrawPosTextH(
@@ -2491,7 +2486,7 @@ void SkCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScala
 
 void SkCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
                                 const SkMatrix* matrix, const SkPaint& paint) {
-    LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, nullptr)
+    LOOPER_BEGIN(paint, nullptr)
 
     while (iter.next()) {
         iter.fDevice->drawTextOnPath(text, byteLength, path, matrix, looper.paint());
@@ -2506,7 +2501,7 @@ void SkCanvas::onDrawTextRSXform(const void* text, size_t byteLength, const SkRS
         return;
     }
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, nullptr)
+    LOOPER_BEGIN(paint, nullptr)
 
     while (iter.next()) {
         iter.fDevice->drawTextRSXform(text, byteLength, xform, looper.paint());
@@ -2533,7 +2528,7 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     SkDrawFilter* drawFilter = fMCRec->fFilter;
     fMCRec->fFilter = nullptr;
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, bounds)
+    LOOPER_BEGIN(paint, bounds)
 
     while (iter.next()) {
         iter.fDevice->drawTextBlob(blob, x, y, looper.paint(), drawFilter);
@@ -2599,7 +2594,7 @@ void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 
 void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmode,
                                     const SkPaint& paint) {
-    LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type, nullptr)
+    LOOPER_BEGIN(paint, nullptr)
 
     while (iter.next()) {
         // In the common case of one iteration we could std::move vertices here.
@@ -2633,7 +2628,7 @@ void SkCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
 
     const bool interpColorsLinearly = (this->imageInfo().colorSpace() != nullptr);
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type, nullptr)
+    LOOPER_BEGIN(paint, nullptr)
 
     while (iter.next()) {
         iter.fDevice->drawPatch(cubics, colors, texCoords, bmode, interpColorsLinearly, paint);
@@ -2684,7 +2679,7 @@ void SkCanvas::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const 
         pnt = *paint;
     }
 
-    LOOPER_BEGIN(pnt, SkDrawFilter::kPath_Type, nullptr)
+    LOOPER_BEGIN(pnt, nullptr)
     while (iter.next()) {
         iter.fDevice->drawAtlas(atlas, xform, tex, colors, count, bmode, pnt);
     }
@@ -2695,7 +2690,7 @@ void SkCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData* va
     SkASSERT(key);
 
     SkPaint paint;
-    LOOPER_BEGIN(paint, SkDrawFilter::kRect_Type, nullptr)
+    LOOPER_BEGIN(paint, nullptr)
     while (iter.next()) {
         iter.fDevice->drawAnnotation(rect, key, value);
     }
