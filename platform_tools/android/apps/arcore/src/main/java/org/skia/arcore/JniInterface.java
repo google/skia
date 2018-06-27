@@ -56,6 +56,10 @@ public class JniInterface {
 
     public static native void onTouchTranslate(long nativeApplication, float x, float y);
 
+    public static native void onTouchScale(long nativeApplication, float scale);
+
+    public static native void onTouchRotate(long nativeApplication, float angle);
+
     public static native boolean onTouchedFirst(long nativeApplication, float x, float y, int drawMode);
 
     public static native void onTouchedFinal(long nativeApplication, int type);
