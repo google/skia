@@ -578,25 +578,33 @@ private:
                                  egp.kInPosition.asShaderVar(),
                                  egp.fLocalMatrix,
                                  args.fFPCoordTransformHandler);
+            // For stroked ellipses, we use the full ellipse equation (x^2/a^2 + y^2/b^2 = 1)
+            // to compute both the edges because we need two separate test equations for
+            // the single offset.
+            // For filled ellipses we can use a unit circle equation (x^2 + y^2 = 1), and warp
+            // the distance by the gradient, non-uniformly scaled by the inverse of the
+            // ellipse size.
 
             // for outer curve
-            fragBuilder->codeAppendf("half2 scaledOffset = %s*%s.xy;", ellipseOffsets.fsIn(),
-                                     ellipseRadii.fsIn());
-            fragBuilder->codeAppend("half test = dot(scaledOffset, scaledOffset) - 1.0;");
-            fragBuilder->codeAppendf("half2 grad = 2.0*scaledOffset*%s.xy;", ellipseRadii.fsIn());
+            fragBuilder->codeAppendf("half2 offset = %s;", ellipseOffsets.fsIn());
+            if (egp.fStroke) {
+                fragBuilder->codeAppendf("offset *= %s.xy;", ellipseRadii.fsIn());
+            }
+            fragBuilder->codeAppend("half test = dot(offset, offset) - 1.0;");
+            fragBuilder->codeAppendf("half2 grad = 2.0*offset*%s.xy;", ellipseRadii.fsIn());
             fragBuilder->codeAppend("half grad_dot = dot(grad, grad);");
 
             // avoid calling inversesqrt on zero.
-            fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
+            fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-5);");
             fragBuilder->codeAppend("half invlen = inversesqrt(grad_dot);");
             fragBuilder->codeAppend("half edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);");
 
             // for inner curve
             if (egp.fStroke) {
-                fragBuilder->codeAppendf("scaledOffset = %s*%s.zw;", ellipseOffsets.fsIn(),
+                fragBuilder->codeAppendf("offset = %s*%s.zw;", ellipseOffsets.fsIn(),
                                          ellipseRadii.fsIn());
-                fragBuilder->codeAppend("test = dot(scaledOffset, scaledOffset) - 1.0;");
-                fragBuilder->codeAppendf("grad = 2.0*scaledOffset*%s.zw;", ellipseRadii.fsIn());
+                fragBuilder->codeAppend("test = dot(offset, offset) - 1.0;");
+                fragBuilder->codeAppendf("grad = 2.0*offset*%s.zw;", ellipseRadii.fsIn());
                 fragBuilder->codeAppend("invlen = inversesqrt(dot(grad, grad));");
                 fragBuilder->codeAppend("edgeAlpha *= clamp(0.5+test*invlen, 0.0, 1.0);");
             }
@@ -739,7 +747,7 @@ private:
 
             fragBuilder->codeAppend("half grad_dot = dot(grad, grad);");
             // avoid calling inversesqrt on zero.
-            fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
+            fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-5);");
             fragBuilder->codeAppend("half invlen = inversesqrt(grad_dot);");
             if (DIEllipseStyle::kHairline == diegp.fStyle) {
                 // can probably do this with one step
@@ -1975,10 +1983,15 @@ private:
             SkScalar yRadRecip = SkScalarInvert(yRadius);
             SkScalar xInnerRadRecip = SkScalarInvert(ellipse.fInnerXRadius);
             SkScalar yInnerRadRecip = SkScalarInvert(ellipse.fInnerYRadius);
-
-            // fOffsets are expanded from xyRadii to include the half-pixel antialiasing width.
             SkScalar xMaxOffset = xRadius + SK_ScalarHalf;
             SkScalar yMaxOffset = yRadius + SK_ScalarHalf;
+
+            if (!fStroked) {
+                // For filled ellipses we map a unit circle in the vertex attributes rather than
+                // computing an ellipse and modifying that distance, so we normalize to 1
+                xMaxOffset /= xRadius;
+                yMaxOffset /= yRadius;
+            }
 
             // The inner radius in the vertex data must be specified in normalized space.
             verts[0].fPos = SkPoint::Make(ellipse.fDevBounds.fLeft, ellipse.fDevBounds.fTop);
@@ -2919,19 +2932,28 @@ private:
             SkScalar xOuterRadius = rrect.fXRadius + SK_ScalarHalf;
             SkScalar yOuterRadius = rrect.fYRadius + SK_ScalarHalf;
 
+            SkScalar xMaxOffset = xOuterRadius;
+            SkScalar yMaxOffset = yOuterRadius;
+            if (!fStroked) {
+                // For filled rrects we map a unit circle in the vertex attributes rather than
+                // computing an ellipse and modifying that distance, so we normalize to 1.
+                xMaxOffset /= rrect.fXRadius;
+                yMaxOffset /= rrect.fYRadius;
+            }
+
             const SkRect& bounds = rrect.fDevBounds;
 
             SkScalar yCoords[4] = {bounds.fTop, bounds.fTop + yOuterRadius,
                                    bounds.fBottom - yOuterRadius, bounds.fBottom};
-            SkScalar yOuterOffsets[4] = {yOuterRadius,
+            SkScalar yOuterOffsets[4] = {yMaxOffset,
                                          SK_ScalarNearlyZero,  // we're using inversesqrt() in
                                                                // shader, so can't be exactly 0
-                                         SK_ScalarNearlyZero, yOuterRadius};
+                                         SK_ScalarNearlyZero, yMaxOffset};
 
             for (int i = 0; i < 4; ++i) {
                 verts->fPos = SkPoint::Make(bounds.fLeft, yCoords[i]);
                 verts->fColor = color;
-                verts->fOffset = SkPoint::Make(xOuterRadius, yOuterOffsets[i]);
+                verts->fOffset = SkPoint::Make(xMaxOffset, yOuterOffsets[i]);
                 verts->fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
                 verts->fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
                 verts++;
@@ -2952,7 +2974,7 @@ private:
 
                 verts->fPos = SkPoint::Make(bounds.fRight, yCoords[i]);
                 verts->fColor = color;
-                verts->fOffset = SkPoint::Make(xOuterRadius, yOuterOffsets[i]);
+                verts->fOffset = SkPoint::Make(xMaxOffset, yOuterOffsets[i]);
                 verts->fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
                 verts->fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
                 verts++;
