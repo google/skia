@@ -9,6 +9,27 @@
 #include "GrMtlGpu.h"
 #include "GrMtlUtil.h"
 
+GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
+                                                   SkBudgeted budgeted,
+                                                   const GrSurfaceDesc& desc,
+                                                   id<MTLTexture> renderTexture,
+                                                   GrMipMapsStatus mipMapsStatus)
+        : GrSurface(gpu, desc)
+        , GrMtlTexture(gpu, desc, renderTexture, mipMapsStatus)
+        , GrMtlRenderTarget(gpu, desc, renderTexture) {
+    this->registerWithCache(budgeted);
+}
+
+GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
+                                                   const GrSurfaceDesc& desc,
+                                                   id<MTLTexture> renderTexture,
+                                                   GrMipMapsStatus mipMapsStatus)
+        : GrSurface(gpu, desc)
+        , GrMtlTexture(gpu, desc, renderTexture, mipMapsStatus)
+        , GrMtlRenderTarget(gpu, desc, renderTexture) {
+    this->registerWithCacheWrapped();
+}
+
 sk_sp<GrMtlTextureRenderTarget>
 GrMtlTextureRenderTarget::Make(GrMtlGpu* gpu,
                                const GrSurfaceDesc& desc,
@@ -72,6 +93,12 @@ GrMtlTextureRenderTarget::CreateNewTextureRenderTarget(GrMtlGpu* gpu,
 sk_sp<GrMtlTextureRenderTarget>
 GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(GrMtlGpu* gpu,
                                                          const GrSurfaceDesc& desc,
-                                                         GrWrapOwnership wrapOwnership) {
-    return nullptr;
+                                                         GrWrapOwnership wrapOwnership,
+                                                         const GrMtlTextureInfo& textureInfo) {
+
+    SkASSERT(nullptr != textureInfo.fTexture);
+
+    id<MTLTexture> texture = TransferTexture(textureInfo.fTexture, wrapOwnership);
+    SkASSERT(MTLTextureUsageShaderRead & MTLTextureUsageRenderTarget & texture.usage);
+    return Make(gpu, desc, texture, texture.mipmapLevelCount, SkBudgeted::kNo, true);
 }
