@@ -1,0 +1,326 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "032e449a_51bb2bff",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1627,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-28T15:17:39Z",
+      "side": 1,
+      "message": "This still needs to return 0, just (!face) should return -1.",
+      "range": {
+        "startLine": 1627,
+        "startChar": 17,
+        "endLine": 1627,
+        "endChar": 68
+      },
+      "revId": "0eae8e52d44558535446c9f546e70506a0896bd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12674ed0_a9293473",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1651,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-28T15:17:39Z",
+      "side": 1,
+      "message": "Need to ensure this is always set. Possibly like\n\nparameters[i].setHidden(gFTLibrary-\u003efGetVarAxisFlags \u0026\u0026\n                        !gFTLibrary-\u003efGetVarAxisFlags(variations, i, \u0026flags) \u0026\u0026\n                        (flags \u0026 FT_VAR_AXIS_FLAG_HIDDEN))",
+      "range": {
+        "startLine": 1651,
+        "startChar": 16,
+        "endLine": 1651,
+        "endChar": 45
+      },
+      "revId": "0eae8e52d44558535446c9f546e70506a0896bd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "235a5652_77f40bd5",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-28T15:17:39Z",
+      "side": 1,
+      "message": "This should go back up on the previous line. This is a bitwise \u0026, not a logical \u0026\u0026. Looks like some auto formatter went crazy",
+      "range": {
+        "startLine": 211,
+        "startChar": 0,
+        "endLine": 211,
+        "endChar": 12
+      },
+      "revId": "0eae8e52d44558535446c9f546e70506a0896bd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82e44233_72820433",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-28T15:17:39Z",
+      "side": 1,
+      "message": "Not sure about all this white space, seems to all fit on one line.",
+      "range": {
+        "startLine": 222,
+        "startChar": 0,
+        "endLine": 222,
+        "endChar": 44
+      },
+      "revId": "0eae8e52d44558535446c9f546e70506a0896bd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58ba8737_45b55825",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-28T15:17:39Z",
+      "side": 1,
+      "message": "Previous line",
+      "range": {
+        "startLine": 228,
+        "startChar": 0,
+        "endLine": 228,
+        "endChar": 16
+      },
+      "revId": "0eae8e52d44558535446c9f546e70506a0896bd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b39f7c0_013e498e",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-28T15:17:39Z",
+      "side": 1,
+      "message": "Previous line",
+      "range": {
+        "startLine": 230,
+        "startChar": 0,
+        "endLine": 230,
+        "endChar": 16
+      },
+      "revId": "0eae8e52d44558535446c9f546e70506a0896bd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14a455bc_aab72cf4",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-28T15:17:39Z",
+      "side": 1,
+      "message": "We can just remove this, it\u0027s slightly confusing and doesn\u0027t add much benefit.",
+      "range": {
+        "startLine": 232,
+        "startChar": 12,
+        "endLine": 232,
+        "endChar": 57
+      },
+      "revId": "0eae8e52d44558535446c9f546e70506a0896bd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25688e57_2a697e19",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-28T15:17:39Z",
+      "side": 1,
+      "message": "Previous line",
+      "range": {
+        "startLine": 266,
+        "startChar": 0,
+        "endLine": 266,
+        "endChar": 16
+      },
+      "revId": "0eae8e52d44558535446c9f546e70506a0896bd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "744df92e_6c1a9f5f",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-28T15:17:39Z",
+      "side": 1,
+      "message": "Previous line?",
+      "range": {
+        "startLine": 277,
+        "startChar": 0,
+        "endLine": 277,
+        "endChar": 15
+      },
+      "revId": "0eae8e52d44558535446c9f546e70506a0896bd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f7af1d8_a5c35426",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-28T15:17:39Z",
+      "side": 1,
+      "message": "Previous line?",
+      "range": {
+        "startLine": 280,
+        "startChar": 0,
+        "endLine": 280,
+        "endChar": 54
+      },
+      "revId": "0eae8e52d44558535446c9f546e70506a0896bd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41ba4112_444eeb6d",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-28T15:17:39Z",
+      "side": 1,
+      "message": "Previous line",
+      "range": {
+        "startLine": 286,
+        "startChar": 0,
+        "endLine": 286,
+        "endChar": 16
+      },
+      "revId": "0eae8e52d44558535446c9f546e70506a0896bd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "575ddafe_86137837",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-28T15:17:39Z",
+      "side": 1,
+      "message": "Previous line?",
+      "range": {
+        "startLine": 288,
+        "startChar": 0,
+        "endLine": 288,
+        "endChar": 16
+      },
+      "revId": "0eae8e52d44558535446c9f546e70506a0896bd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11abb9ab_86d68ade",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-28T15:17:39Z",
+      "side": 1,
+      "message": "Previous line? If it doesn\u0027t fit we need to thing about that, this formatting is misleading.",
+      "range": {
+        "startLine": 293,
+        "startChar": 0,
+        "endLine": 293,
+        "endChar": 20
+      },
+      "revId": "0eae8e52d44558535446c9f546e70506a0896bd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f557e6e9_71af1a72",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-28T15:17:39Z",
+      "side": 1,
+      "message": "Remove.",
+      "range": {
+        "startLine": 296,
+        "startChar": 12,
+        "endLine": 296,
+        "endChar": 57
+      },
+      "revId": "0eae8e52d44558535446c9f546e70506a0896bd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
