@@ -14,7 +14,6 @@
 #include "SkString.h"
 #include "SkRefCnt.h"
 
-class SkGlyphRunList;
 class SkReadBuffer;
 class SkWriteBuffer;
 
@@ -111,7 +110,6 @@ private:
         fCacheID.store(cacheID);
     }
 
-    friend class SkGlyphRunList;
     friend class GrTextBlobCache;
     friend class SkTextBlobBuilder;
     friend class SkTextBlobRunIterator;

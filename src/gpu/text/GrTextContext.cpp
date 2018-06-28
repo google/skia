@@ -84,48 +84,58 @@ SkScalerContextFlags GrTextContext::ComputeScalerContextFlags(
     }
 }
 
-void GrTextContext::drawGlyphRunList(
-        GrContext* context, GrTextUtils::Target* target, const GrClip& clip,
-        const SkMatrix& viewMatrix, const SkSurfaceProps& props, SkGlyphRunList* glyphRunList,
-        const SkIRect& clipBounds) {
-    SkPoint origin = glyphRunList->origin();
+// TODO if this function ever shows up in profiling, then we can compute this value when the
+// textblob is being built and cache it.  However, for the time being textblobs mostly only have 1
+// run so this is not a big deal to compute here.
+bool GrTextContext::HasLCD(const SkTextBlob* blob) {
+    SkTextBlobRunIterator it(blob);
+    for (; !it.done(); it.next()) {
+        if (it.isLCD()) {
+            return true;
+        }
+    }
+    return false;
+}
 
-    // Get the first paint to use as the key paint.
-    const SkPaint& skPaint = (*glyphRunList)[0].paint();
-
+void GrTextContext::drawTextBlob(GrContext* context, GrTextUtils::Target* target,
+                                 const GrClip& clip, const SkPaint& skPaint,
+                                 const SkMatrix& viewMatrix, const SkSurfaceProps& props,
+                                 const SkTextBlob* blob, SkScalar x, SkScalar y,
+                                 SkDrawFilter* drawFilter, const SkIRect& clipBounds) {
     // If we have been abandoned, then don't draw
     if (context->abandoned()) {
         return;
     }
 
+    sk_sp<GrTextBlob> cacheBlob;
     SkMaskFilterBase::BlurRec blurRec;
+    GrTextBlob::Key key;
     // It might be worth caching these things, but its not clear at this time
     // TODO for animated mask filters, this will fill up our cache.  We need a safeguard here
     const SkMaskFilter* mf = skPaint.getMaskFilter();
-    bool canCache = glyphRunList->canCache() && !(skPaint.getPathEffect() ||
-                      (mf && !as_MFB(mf)->asABlur(&blurRec)));
+    bool canCache = !(skPaint.getPathEffect() ||
+                      (mf && !as_MFB(mf)->asABlur(&blurRec)) ||
+                      drawFilter);
     SkScalerContextFlags scalerContextFlags = ComputeScalerContextFlags(target->colorSpaceInfo());
 
     auto glyphCache = context->contextPriv().getGlyphCache();
     GrTextBlobCache* textBlobCache = context->contextPriv().getTextBlobCache();
 
-    sk_sp<GrTextBlob> cacheBlob;
-    GrTextBlob::Key key;
     if (canCache) {
-        bool hasLCD = glyphRunList->anyRunsLCD();
+        bool hasLCD = HasLCD(blob);
 
         // We canonicalize all non-lcd draws to use kUnknown_SkPixelGeometry
         SkPixelGeometry pixelGeometry = hasLCD ? props.pixelGeometry() :
-                                        kUnknown_SkPixelGeometry;
+                                                 kUnknown_SkPixelGeometry;
 
         // TODO we want to figure out a way to be able to use the canonical color on LCD text,
         // see the note on ComputeCanonicalColor above.  We pick a dummy value for LCD text to
         // ensure we always match the same key
         GrColor canonicalColor = hasLCD ? SK_ColorTRANSPARENT :
-                                 ComputeCanonicalColor(skPaint, hasLCD);
+                                          ComputeCanonicalColor(skPaint, hasLCD);
 
         key.fPixelGeometry = pixelGeometry;
-        key.fUniqueID = glyphRunList->uniqueID();
+        key.fUniqueID = blob->uniqueID();
         key.fStyle = skPaint.getStyle();
         key.fHasBlur = SkToBool(mf);
         key.fCanonicalColor = canonicalColor;
@@ -135,77 +145,135 @@ void GrTextContext::drawGlyphRunList(
 
     GrTextUtils::Paint paint(&skPaint, &target->colorSpaceInfo());
     if (cacheBlob) {
-        if (cacheBlob->mustRegenerate(paint, blurRec, viewMatrix, origin.x(), origin.y())) {
+        if (cacheBlob->mustRegenerate(paint, blurRec, viewMatrix, x, y)) {
             // We have to remake the blob because changes may invalidate our masks.
             // TODO we could probably get away reuse most of the time if the pointer is unique,
             // but we'd have to clear the subrun information
             textBlobCache->remove(cacheBlob.get());
-            cacheBlob = textBlobCache->makeCachedBlob(glyphRunList, key, blurRec, skPaint);
-            this->regenerateGlyphRunList(cacheBlob.get(), glyphCache,
+            cacheBlob = textBlobCache->makeCachedBlob(blob, key, blurRec, skPaint);
+            this->regenerateTextBlob(cacheBlob.get(), glyphCache,
                                      *context->contextPriv().caps()->shaderCaps(), paint,
-                                     scalerContextFlags, viewMatrix, props, glyphRunList);
+                                     scalerContextFlags, viewMatrix, props, blob, x, y, drawFilter);
         } else {
             textBlobCache->makeMRU(cacheBlob.get());
 
             if (CACHE_SANITY_CHECK) {
-                int glyphCount = glyphRunList->totalGlyphCount();
-                int runCount = glyphRunList->runCount();
+                int glyphCount = 0;
+                int runCount = 0;
+                GrTextBlobCache::BlobGlyphCount(&glyphCount, &runCount, blob);
                 sk_sp<GrTextBlob> sanityBlob(textBlobCache->makeBlob(glyphCount, runCount));
                 sanityBlob->setupKey(key, blurRec, skPaint);
-                this->regenerateGlyphRunList(
+                this->regenerateTextBlob(
                         sanityBlob.get(), glyphCache, *context->contextPriv().caps()->shaderCaps(),
-                        paint, scalerContextFlags, viewMatrix, props, glyphRunList);
+                        paint, scalerContextFlags, viewMatrix, props, blob, x, y, drawFilter);
                 GrTextBlob::AssertEqual(*sanityBlob, *cacheBlob);
             }
         }
     } else {
         if (canCache) {
-            cacheBlob = textBlobCache->makeCachedBlob(glyphRunList, key, blurRec, skPaint);
+            cacheBlob = textBlobCache->makeCachedBlob(blob, key, blurRec, skPaint);
         } else {
-            cacheBlob = textBlobCache->makeBlob(glyphRunList);
+            cacheBlob = textBlobCache->makeBlob(blob);
         }
-        this->regenerateGlyphRunList(cacheBlob.get(), glyphCache,
+        this->regenerateTextBlob(cacheBlob.get(), glyphCache,
                                  *context->contextPriv().caps()->shaderCaps(), paint,
-                                 scalerContextFlags, viewMatrix, props, glyphRunList);
+                                 scalerContextFlags, viewMatrix, props, blob, x, y, drawFilter);
     }
 
     cacheBlob->flush(target, props, fDistanceAdjustTable.get(), paint,
-                     clip, viewMatrix, clipBounds, origin.x(), origin.y());
+                     clip, viewMatrix, clipBounds, x, y);
 }
 
-void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
+void GrTextContext::regenerateTextBlob(GrTextBlob* cacheBlob,
                                        GrGlyphCache* glyphCache,
                                        const GrShaderCaps& shaderCaps,
                                        const GrTextUtils::Paint& paint,
                                        SkScalerContextFlags scalerContextFlags,
                                        const SkMatrix& viewMatrix,
-                                       const SkSurfaceProps& props,
-                                       SkGlyphRunList* glyphRunList) const {
-    SkPoint origin = glyphRunList->origin();
-    cacheBlob->initReusableBlob(paint.luminanceColor(), viewMatrix, origin.x(), origin.y());
+                                       const SkSurfaceProps& props, const SkTextBlob* blob,
+                                       SkScalar x, SkScalar y,
+                                       SkDrawFilter* drawFilter) const {
+    cacheBlob->initReusableBlob(paint.luminanceColor(), viewMatrix, x, y);
 
     // Regenerate textblob
-    SkGlyphRunListIterator it(glyphRunList);
-    GrTextUtils::RunPaint runPaint(&paint, nullptr);
+    SkTextBlobRunIterator it(blob);
+    GrTextUtils::RunPaint runPaint(&paint, drawFilter);
     for (int run = 0; !it.done(); it.next(), run++) {
         int glyphCount = it.glyphCount();
         size_t textLen = glyphCount * sizeof(uint16_t);
+        const SkPoint& offset = it.offset();
         cacheBlob->push_back_run(run);
         if (!runPaint.modifyForRun([it](SkPaint* p) { it.applyFontToPaint(p); })) {
             continue;
         }
         cacheBlob->setRunPaintFlags(run, runPaint.skPaint().getFlags());
 
-        SkASSERT(it.positioning() == SkTextBlob::kFull_Positioning);
         if (CanDrawAsDistanceFields(runPaint, viewMatrix, props,
                                     shaderCaps.supportsDistanceFieldText(), fOptions)) {
-            this->drawDFPosText(cacheBlob, run, glyphCache, props, runPaint,
-                                scalerContextFlags, viewMatrix, (const char*)it.glyphs(),
-                                textLen, it.pos(), 2, origin);
+            switch (it.positioning()) {
+                case SkTextBlob::kDefault_Positioning: {
+                    auto origin = SkPoint::Make(x + offset.x(), y + offset.y());
+                    SkGlyphRunBuilder builder;
+                    builder.prepareDrawText(runPaint.skPaint(),
+                                            (const char*)it.glyphs(), textLen, origin);
+
+                    auto glyphRun = builder.useGlyphRun();
+
+                    glyphRun->temporaryShuntToCallback(
+                            [&](size_t runSize, const char* glyphIDs, const SkScalar* pos) {
+                                this->drawDFPosText(
+                                    cacheBlob, run, glyphCache, props, runPaint, scalerContextFlags,
+                                    viewMatrix, glyphIDs, 2 * runSize, pos, 2,
+                                    SkPoint::Make(0,0));
+                            });
+                    break;
+                }
+
+                case SkTextBlob::kHorizontal_Positioning: {
+                    SkPoint dfOffset = SkPoint::Make(x, y + offset.y());
+                    this->drawDFPosText(cacheBlob, run, glyphCache, props, runPaint,
+                                        scalerContextFlags, viewMatrix, (const char*)it.glyphs(),
+                                        textLen, it.pos(), 1, dfOffset);
+                    break;
+                }
+                case SkTextBlob::kFull_Positioning: {
+                    SkPoint dfOffset = SkPoint::Make(x, y);
+                    this->drawDFPosText(cacheBlob, run, glyphCache, props, runPaint,
+                                        scalerContextFlags, viewMatrix, (const char*)it.glyphs(),
+                                        textLen, it.pos(), 2, dfOffset);
+                    break;
+                }
+            }
         } else {
-            DrawBmpPosText(cacheBlob, run, glyphCache, props, runPaint, scalerContextFlags,
-                           viewMatrix, (const char*)it.glyphs(), textLen, it.pos(), 2,
-                           origin);
+            switch (it.positioning()) {
+                case SkTextBlob::kDefault_Positioning: {
+                    auto origin = SkPoint::Make(x + offset.x(), y + offset.y());
+                    SkGlyphRunBuilder builder;
+                    builder.prepareDrawText(runPaint.skPaint(),
+                                            (const char*)it.glyphs(), textLen, origin);
+
+                    auto glyphRun = builder.useGlyphRun();
+
+                    glyphRun->temporaryShuntToCallback(
+                            [&](size_t runSize, const char* glyphIDs, const SkScalar* pos) {
+                                this->DrawBmpPosText(
+                                    cacheBlob, run, glyphCache, props, runPaint, scalerContextFlags,
+                                    viewMatrix, glyphIDs, 2 * runSize,
+                                    pos, 2, SkPoint::Make(0, 0));
+                            });
+                    break;
+                }
+                case SkTextBlob::kHorizontal_Positioning:
+                    DrawBmpPosText(cacheBlob, run, glyphCache, props, runPaint, scalerContextFlags,
+                                   viewMatrix, (const char*)it.glyphs(), textLen, it.pos(), 1,
+                                   SkPoint::Make(x, y + offset.y()));
+                    break;
+                case SkTextBlob::kFull_Positioning:
+                    DrawBmpPosText(cacheBlob, run, glyphCache, props, runPaint, scalerContextFlags,
+                                   viewMatrix, (const char*)it.glyphs(), textLen, it.pos(), 2,
+                                   SkPoint::Make(x, y));
+                    break;
+            }
         }
     }
 }
@@ -264,6 +332,7 @@ void GrTextContext::drawPosText(GrContext* context, GrTextUtils::Target* target,
                     clip, viewMatrix, regionClipBounds, offset.fX, offset.fY);
     }
 }
+
 
 void GrTextContext::DrawBmpPosText(GrTextBlob* blob, int runIndex,
                                    GrGlyphCache* glyphCache, const SkSurfaceProps& props,
@@ -717,7 +786,6 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrContext* context
     builder.prepareDrawText(skPaint, text, textLen, origin);
     sk_sp<GrTextBlob> blob;
 
-    // TODO - remove shunt call when removing drawPosText from device.
     auto glyphRun = builder.useGlyphRun();
     // Use the text and textLen below, because we don't want to mess with the paint.
     glyphRun->temporaryShuntToCallback(

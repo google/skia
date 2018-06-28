@@ -48,9 +48,9 @@ public:
                      const SkMatrix& viewMatrix, const SkSurfaceProps&, const char text[],
                      size_t byteLength, const SkScalar pos[], int scalarsPerPosition,
                      const SkPoint& offset, const SkIRect& regionClipBounds);
-    void drawGlyphRunList(GrContext*, GrTextUtils::Target*, const GrClip&,
-                          const SkMatrix& viewMatrix, const SkSurfaceProps&, SkGlyphRunList*,
-                          const SkIRect& clipBounds);
+    void drawTextBlob(GrContext*, GrTextUtils::Target*, const GrClip&, const SkPaint&,
+                      const SkMatrix& viewMatrix, const SkSurfaceProps&, const SkTextBlob*,
+                      SkScalar x, SkScalar y, SkDrawFilter*, const SkIRect& clipBounds);
 
     std::unique_ptr<GrDrawOp> createOp_TestingOnly(GrContext*,
                                                    GrTextContext*,
@@ -115,15 +115,17 @@ private:
     static SkColor ComputeCanonicalColor(const SkPaint&, bool lcd);
     // Determines if we need to use fake gamma (and contrast boost):
     static SkScalerContextFlags ComputeScalerContextFlags(const GrColorSpaceInfo&);
-
-    void regenerateGlyphRunList(GrTextBlob* bmp,
+    void regenerateTextBlob(GrTextBlob* bmp,
                             GrGlyphCache*,
                             const GrShaderCaps&,
                             const GrTextUtils::Paint&,
                             SkScalerContextFlags scalerContextFlags,
                             const SkMatrix& viewMatrix,
                             const SkSurfaceProps&,
-                            SkGlyphRunList* glyphRunList) const;
+                            const SkTextBlob* blob, SkScalar x, SkScalar y,
+                            SkDrawFilter* drawFilter) const;
+
+    static bool HasLCD(const SkTextBlob*);
 
     sk_sp<GrTextBlob> makeDrawPosTextBlob(GrTextBlobCache*, GrGlyphCache*,
                                                const GrShaderCaps&,
