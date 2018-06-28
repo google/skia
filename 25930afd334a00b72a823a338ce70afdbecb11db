@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a214fed_15e78eae",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-28T17:08:40Z",
+      "side": 1,
+      "message": "Looks like we lost this check in this change. Assuming we want to keep that check in there, the way we general model it is make non-virtual createFormatFromBackendTex in GrCaps. Have it do the valid check and then it calls a private virtual called onCreateFormatFromBackendText which all the backends implement",
+      "range": {
+        "startLine": 276,
+        "startChar": 68,
+        "endLine": 277,
+        "endChar": 15
+      },
+      "revId": "25930afd334a00b72a823a338ce70afdbecb11db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
