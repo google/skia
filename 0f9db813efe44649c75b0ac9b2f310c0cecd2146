@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c8cc0d5_42048116",
+        "filename": "gn/gpu.gni",
+        "patchSetId": 2
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-06-28T15:25:46Z",
+      "side": 1,
+      "message": "This file gets around...",
+      "range": {
+        "startLine": 543,
+        "startChar": 3,
+        "endLine": 543,
+        "endChar": 37
+      },
+      "revId": "0f9db813efe44649c75b0ac9b2f310c0cecd2146",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d17ecf72_6a1e4159",
+        "filename": "tools/gpu/vk/VkTestContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-06-28T15:25:46Z",
+      "side": 1,
+      "message": "indent",
+      "range": {
+        "startLine": 31,
+        "startChar": 22,
+        "endLine": 31,
+        "endChar": 58
+      },
+      "revId": "0f9db813efe44649c75b0ac9b2f310c0cecd2146",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d5d3c1e_abe29ece",
+        "filename": "tools/gpu/vk/VkTestContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-06-28T15:25:46Z",
+      "side": 1,
+      "message": "I\u0027m trying to decide if it\u0027s worth pulling the definition out of GrVkInterface so you don\u0027t have to define this twice. I guess I don\u0027t have a strong feeling about it, but it does seem a little odd.",
+      "range": {
+        "startLine": 43,
+        "startChar": 41,
+        "endLine": 43,
+        "endChar": 47
+      },
+      "revId": "0f9db813efe44649c75b0ac9b2f310c0cecd2146",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
