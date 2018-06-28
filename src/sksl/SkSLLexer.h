@@ -238,5 +238,5 @@ private:
     int fOffset;
 };
 
-}  // namespace
+}  // namespace SkSL
 #endif
