@@ -89,6 +89,10 @@ def dm_flags(api, bot):
   if 'Test-iOS' in bot:
     args.extend(['--threads', '0'])
 
+  # Unclear what's wrong with the Galaxy S6 NativeFont bot, but this may help.
+  if 'GalaxyS6' in bot and 'NativeFonts' in bot:
+    args.extend(['--threads', '0'])   # Naturally would be 8.
+
   # Android's kernel will occasionally attempt to kill our process, using
   # SIGINT, in an effort to free up resources. If requested, that signal
   # is ignored and dm will keep attempting to proceed until we actually
@@ -995,6 +999,8 @@ def RunSteps(api):
 
 TEST_BUILDERS = [
   'Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All-Android',
+  ('Test-Android-Clang-GalaxyS6-CPU-Exynos7420-arm64-Debug-All'
+   '-Android_NativeFonts'),
   'Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-All-Android',
   ('Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-All'
    '-Android_Vulkan'),
