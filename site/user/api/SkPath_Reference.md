@@ -524,7 +524,7 @@ SkPath member functions read and modify the structure properties.
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_dump_2'>dump</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sends text representation using floats to standard output</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sends text representation to stream</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_dumpHex'>dumpHex</a></td>
@@ -2525,7 +2525,7 @@ rotated circle bounds = 14.6447, 9.64466, 85.3553, 80.3553
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_dump_2'>dump</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sends text representation using floats to standard output</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sends text representation to stream</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
@@ -5433,7 +5433,7 @@ path.close();
 
 ### See Also
 
-<a href='SkRect_Reference#SkRect_dump'>SkRect::dump()</a><sup><a href='SkRect_Reference#SkRect_dump_2'>[2]</a></sup> <a href='SkRRect_Reference#SkRRect_dump'>SkRRect::dump()</a><sup><a href='SkRRect_Reference#SkRRect_dump_2'>[2]</a></sup> <a href='undocumented#SkPathMeasure_dump'>SkPathMeasure::dump()</a>
+<a href='#SkPath_dumpHex'>dumpHex</a> <a href='SkRect_Reference#SkRect_dump'>SkRect::dump()</a><sup><a href='SkRect_Reference#SkRect_dump_2'>[2]</a></sup> <a href='SkRRect_Reference#SkRRect_dump'>SkRRect::dump()</a><sup><a href='SkRRect_Reference#SkRRect_dump_2'>[2]</a></sup> <a href='undocumented#SkPathMeasure_dump'>SkPathMeasure::dump()</a>
 
 ---
 
