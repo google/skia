@@ -299,11 +299,15 @@ static void find_culprit() {
     }
 
     static void setup_crash_handler() {
-        const int kSignals[] = { SIGABRT, SIGBUS, SIGFPE, SIGILL, SIGSEGV };
-        for (int sig : kSignals) {
+        const int crashes[] = { SIGABRT, SIGBUS, SIGFPE, SIGILL, SIGSEGV };
+        for (int sig : crashes) {
             previous_handler[sig] = signal(sig, crash_handler);
         }
-        previous_handler[SIGTERM] = signal(SIGTERM, term_handler);
+
+        const int terms[] = { SIGTERM, SIGINT };
+        for (int sig : crashes) {
+            previous_handler[sig] = signal(sig, term_handler);
+        }
 
         if (FLAGS_ignoreSigInt) {
             signal(SIGINT, SIG_IGN);
