@@ -9,7 +9,7 @@
 #include "SkColorData.h"
 #include "SkDrawShadowInfo.h"
 #include "SkGeometry.h"
-#include "SkOffsetPolygon.h"
+#include "SkPolyUtils.h"
 #include "SkPath.h"
 #include "SkPoint3.h"
 #include "SkPointPriv.h"
@@ -125,21 +125,6 @@ static bool compute_normal(const SkPoint& p0, const SkPoint& p1, SkScalar dir,
     }
     *newNormal = normal;
     return true;
-}
-
-static void compute_radial_steps(const SkVector& v1, const SkVector& v2, SkScalar r,
-                                 SkScalar* rotSin, SkScalar* rotCos, int* n) {
-    const SkScalar kRecipPixelsPerArcSegment = 0.125f;
-
-    SkScalar rCos = v1.dot(v2);
-    SkScalar rSin = v1.cross(v2);
-    SkScalar theta = SkScalarATan2(rSin, rCos);
-
-    int steps = SkScalarRoundToInt(SkScalarAbs(r*theta*kRecipPixelsPerArcSegment));
-
-    SkScalar dTheta = theta / steps;
-    *rotSin = SkScalarSinCos(dTheta, rotCos);
-    *n = steps;
 }
 
 static bool duplicate_pt(const SkPoint& p0, const SkPoint& p1) {
@@ -269,6 +254,9 @@ void SkBaseShadowTessellator::stitchConcaveRings(const SkTDArray<SkPoint>& umbra
                                                  SkTDArray<int>* umbraIndices,
                                                  const SkTDArray<SkPoint>& penumbraPolygon,
                                                  SkTDArray<int>* penumbraIndices) {
+    // TODO: only create and fill indexMap when fTransparent is true?
+    SkAutoSTMalloc<64, uint16_t> indexMap(umbraPolygon.count());
+
     // find minimum indices
     int minIndex = 0;
     int min = (*penumbraIndices)[0];
@@ -311,6 +299,7 @@ void SkBaseShadowTessellator::stitchConcaveRings(const SkTDArray<SkPoint>& umbra
     *fPositions.push() = umbraPolygon[currUmbra];
     *fColors.push() = fUmbraColor;
     fPrevUmbraIndex = 1;
+    indexMap[currUmbra] = 1;
 
     int nextPenumbra = (currPenumbra + 1) % penumbraPolygon.count();
     int nextUmbra = (currUmbra + 1) % umbraPolygon.count();
@@ -326,6 +315,7 @@ void SkBaseShadowTessellator::stitchConcaveRings(const SkTDArray<SkPoint>& umbra
             *fPositions.push() = umbraPolygon[nextUmbra];
             *fColors.push() = fUmbraColor;
             int currUmbraIndex = fPositions.count() - 1;
+            indexMap[nextUmbra] = currUmbraIndex;
 
             this->appendQuad(prevPenumbraIndex, currPenumbraIndex,
                              fPrevUmbraIndex, currUmbraIndex);
@@ -363,6 +353,7 @@ void SkBaseShadowTessellator::stitchConcaveRings(const SkTDArray<SkPoint>& umbra
             *fPositions.push() = umbraPolygon[nextUmbra];
             *fColors.push() = fUmbraColor;
             int currUmbraIndex = fPositions.count() - 1;
+            indexMap[nextUmbra] = currUmbraIndex;
 
             this->appendTriangle(fPrevUmbraIndex, prevPenumbraIndex, currUmbraIndex);
 
@@ -381,12 +372,14 @@ void SkBaseShadowTessellator::stitchConcaveRings(const SkTDArray<SkPoint>& umbra
     *fPositions.push() = umbraPolygon[nextUmbra];
     *fColors.push() = fUmbraColor;
     int currUmbraIndex = fPositions.count() - 1;
+    indexMap[nextUmbra] = currUmbraIndex;
 
     this->appendQuad(prevPenumbraIndex, currPenumbraIndex,
                      fPrevUmbraIndex, currUmbraIndex);
 
     if (fTransparent) {
-        // TODO: fill penumbra
+        SkTriangulateSimplePolygon(umbraPolygon.begin(), indexMap, umbraPolygon.count(),
+                                   &fIndices);
     }
 }
 
@@ -508,7 +501,7 @@ bool SkBaseShadowTessellator::addArc(const SkVector& nextNormal, bool finishArc)
     // fill in fan from previous quad
     SkScalar rotSin, rotCos;
     int numSteps;
-    compute_radial_steps(fPrevOutset, nextNormal, fRadius, &rotSin, &rotCos, &numSteps);
+    SkComputeRadialSteps(fPrevOutset, nextNormal, fRadius, &rotSin, &rotCos, &numSteps);
     SkVector prevNormal = fPrevOutset;
     for (int i = 0; i < numSteps-1; ++i) {
         SkVector currNormal;
@@ -801,8 +794,7 @@ bool SkAmbientShadowTessellator::computeConvexShadow() {
 }
 
 bool SkAmbientShadowTessellator::computeConcaveShadow() {
-    // TODO: remove when we support filling the penumbra
-    if (fTransparent) {
+    if (!SkIsSimplePolygon(&fPathPolygon[0], fPathPolygon.count())) {
         return false;
     }
 
@@ -1418,8 +1410,7 @@ bool SkSpotShadowTessellator::computeConvexShadow(SkScalar radius) {
 }
 
 bool SkSpotShadowTessellator::computeConcaveShadow(SkScalar radius) {
-    // TODO: remove when we support filling the penumbra
-    if (fTransparent) {
+    if (!SkIsSimplePolygon(&fPathPolygon[0], fPathPolygon.count())) {
         return false;
     }
 
