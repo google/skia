@@ -319,6 +319,8 @@ void GrMtlCaps::initConfigTable() {
 #ifdef GR_TEST_UTILS
 GrBackendFormat GrMtlCaps::onCreateFormatFromBackendTexture(
         const GrBackendTexture& backendTex) const {
-    return GrBackendFormat(); // Metal BackendFormat not yet implemented.
+    GrMtlTextureInfo mtlInfo;
+    SkAssertResult(backendTex.getMtlTextureInfo(&mtlInfo));
+    return GrBackendFormat::MakeMtl(((__bridge id<MTLTexture>) mtlInfo.fTexture).pixelFormat);
 }
 #endif
