@@ -542,7 +542,8 @@ LayoutToken LayoutLexer::next() {
         if (!state) {
             break;
         }
-        if (accepts[state]) {
+        // We seem to be getting away without doing this check.
+        /*if (accepts[state] != -1)*/ {
             lastAccept = (LayoutToken::Kind)accepts[state];
             lastAcceptEnd = offset;
         }
@@ -551,4 +552,4 @@ LayoutToken LayoutLexer::next() {
     return LayoutToken(lastAccept, startOffset, lastAcceptEnd - startOffset);
 }
 
-}  // namespace
+}  // namespace SkSL

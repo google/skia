@@ -957,7 +957,8 @@ Token Lexer::next() {
         if (!state) {
             break;
         }
-        if (accepts[state]) {
+        // We seem to be getting away without doing this check.
+        /*if (accepts[state] != -1)*/ {
             lastAccept = (Token::Kind)accepts[state];
             lastAcceptEnd = offset;
         }
@@ -966,4 +967,4 @@ Token Lexer::next() {
     return Token(lastAccept, startOffset, lastAcceptEnd - startOffset);
 }
 
-}  // namespace
+}  // namespace SkSL

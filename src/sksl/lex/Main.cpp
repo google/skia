@@ -149,7 +149,8 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
     out << "        if (!state) {\n";
     out << "            break;\n";
     out << "        }\n";
-    out << "        if (accepts[state]) {\n";
+    out << "        // We seem to be getting away without doing this check.\n";
+    out << "        /*if (accepts[state] != -1)*/ {\n";
     out << "            lastAccept = (" << token << "::Kind) accepts[state];\n";
     out << "            lastAcceptEnd = offset;\n";
     out << "        }\n";
