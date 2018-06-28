@@ -27,7 +27,7 @@ public:
      * be called to fill out the caps.
      */
     GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-             VkPhysicalDevice device, uint32_t featureFlags);
+             VkPhysicalDevice device, uint32_t featureFlags, uint32_t extensionFlags);
 
     bool isConfigTexturable(GrPixelConfig config) const override {
         return SkToBool(ConfigInfo::kTextureable_Flag & fConfigTable[config].fOptimalFlags);
@@ -62,6 +62,11 @@ public:
         const uint16_t& flags = linearTiled ? fConfigTable[config].fLinearFlags :
                                               fConfigTable[config].fOptimalFlags;
         return SkToBool(ConfigInfo::kBlitSrc_Flag & flags);
+    }
+
+    // Tells of if we can pass in straight GLSL string into vkCreateShaderModule
+    bool canUseGLSLForShaderModule() const {
+        return fCanUseGLSLForShaderModule;
     }
 
     // On Adreno vulkan, they do not respect the imageOffset parameter at least in
@@ -146,7 +151,7 @@ private:
     };
 
     void init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-              VkPhysicalDevice device, uint32_t featureFlags);
+              VkPhysicalDevice device, uint32_t featureFlags, uint32_t extensionFlags);
     void initGrCaps(const VkPhysicalDeviceProperties&,
                     const VkPhysicalDeviceMemoryProperties&,
                     uint32_t featureFlags);
@@ -186,6 +191,7 @@ private:
 
     StencilFormat fPreferedStencilFormat;
 
+    bool fCanUseGLSLForShaderModule;
     bool fMustDoCopiesFromOrigin;
     bool fMustSubmitCommandsBeforeCopyOp;
     bool fMustSleepOnTearDown;
