@@ -6,13 +6,54 @@
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
+      "rmtree",
+      "results_dir"
+    ],
+    "infra_step": true,
+    "name": "rmtree results_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/tmp"
+      "results_dir"
     ],
     "infra_step": true,
-    "name": "makedirs tmp_dir"
+    "name": "makedirs results_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "rmtree",
+      "device_results_dir"
+    ],
+    "infra_step": true,
+    "name": "rmtree device_results_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "device_results_dir"
+    ],
+    "infra_step": true,
+    "name": "makedirs device_results_dir"
   },
   {
     "cmd": [
@@ -110,10 +151,6 @@
       "0777",
       "[START_DIR]/tmp/OpenCL/vendors"
     ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
-    },
     "infra_step": true,
     "name": "mkdirs OpenCL/vendors"
   },
@@ -128,25 +165,27 @@
       "[START_DIR]/opencl_linux/neo/libigdrcl.so\n",
       "[START_DIR]/tmp/OpenCL/vendors/neo.icd"
     ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
-    },
     "infra_step": true,
     "name": "write NEO OpenCL ICD"
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
+      "[START_DIR]",
       "catchsegv",
-      "[START_DIR]/build/hello-opencl"
+      "[START_DIR]/build/dm",
+      "--some-flag"
     ],
+    "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/opencl_linux:[START_DIR]/opencl_linux/neo",
       "OPENCL_VENDOR_PATH": "[START_DIR]/tmp/OpenCL/vendors",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
-    "name": "hello-opencl"
+    "name": "symbolized dm"
   },
   {
     "name": "$result",

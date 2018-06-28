@@ -158,10 +158,11 @@ class DefaultFlavor(object):
     slave_dir = self.m.vars.slave_dir
     clang_linux = str(slave_dir.join('clang_linux'))
     extra_tokens = self.m.vars.extra_tokens
+    cpu_or_gpu_value = self.m.vars.builder_cfg.get('cpu_or_gpu_value', '')
 
     if self.m.vars.is_linux:
       if (self.m.vars.builder_cfg.get('cpu_or_gpu', '') == 'GPU'
-          and 'Intel' in self.m.vars.builder_cfg.get('cpu_or_gpu_value', '')):
+          and 'Intel' in cpu_or_gpu_value):
         # The vulkan in this asset name simply means that the graphics driver
         # supports Vulkan. It is also the driver used for GL code.
         dri_path = slave_dir.join('linux_vulkan_intel_driver_release')
@@ -174,6 +175,23 @@ class DefaultFlavor(object):
       if 'Vulkan' in extra_tokens:
         path.append(slave_dir.join('linux_vulkan_sdk', 'bin'))
         ld_library_path.append(slave_dir.join('linux_vulkan_sdk', 'lib'))
+
+      if 'OpenCL' in extra_tokens:
+        opencl_linux = slave_dir.join('opencl_linux')
+        ld_library_path.append(opencl_linux)
+        # TODO(dogben): Limit to the appropriate GPUs when we start running on
+        # GPUs other than IntelIris640.
+        # Skylake and later use the NEO driver.
+        neo_path = opencl_linux.join('neo')
+        ld_library_path.append(neo_path)
+        # Generate vendors dir contaning the ICD file pointing to the NEO OpenCL
+        # library.
+        vendors_dir = self.m.vars.tmp_dir.join('OpenCL', 'vendors')
+        self.m.file.ensure_directory('mkdirs OpenCL/vendors', vendors_dir)
+        self.m.file.write_raw('write NEO OpenCL ICD',
+                              vendors_dir.join('neo.icd'),
+                              '%s\n' % neo_path.join('libigdrcl.so'))
+        env['OPENCL_VENDOR_PATH'] = vendors_dir
 
     if 'SwiftShader' in extra_tokens:
       ld_library_path.append(self.host_dirs.bin_dir.join('swiftshader_out'))
