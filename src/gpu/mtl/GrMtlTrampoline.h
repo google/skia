@@ -14,6 +14,7 @@
 class GrContext;
 class GrGpu;
 struct GrContextOptions;
+struct GrMtlTextureInfo;
 
 /*
  * This class is used to hold functions which trampoline from the Ganesh cpp code to the GrMtl
