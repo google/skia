@@ -19,6 +19,7 @@
 #define SkPath_DEFINED
 
 #include "SkMatrix.h"
+#include "SkPathSink.h"
 #include "../private/SkPathRef.h"
 #include "../private/SkTo.h"
 
@@ -1692,6 +1693,21 @@ private:
     friend class PathTest_Private; // unit test reversePathTo
     friend class ForceIsRRect_Private; // unit test isRRect
     friend class FuzzPath; // for legacy access to validateRef
+};
+
+class SkPathSinker : public SkPathSink {
+public:
+    SkPathSinker(SkPath* path) : fPath(path) {}
+
+protected:
+    void onMoveTo(SkPoint) override;
+    void onLineTo(SkPoint) override;
+    void onQuadTo(SkPoint, SkPoint) override;
+    void onConicTo(SkPoint, SkPoint, SkScalar) override;
+    void onCubicTo(SkPoint, SkPoint, SkPoint) override;
+
+private:
+    SkPath* fPath;  // we do not own this
 };
 
 #endif
