@@ -2931,4 +2931,10 @@ bool GrGLCaps::getConfigFromBackendFormat(const GrBackendFormat& format, SkColor
     return validate_sized_format(*glFormat, ct, config, fStandard);
 }
 
+GrBackendFormat GrGLCaps::createFormatFromBackendTexture(const GrBackendTexture& backendTex) const {
+    GrGLTextureInfo glInfo;
+    SkAssertResult(backendTex.getGLTextureInfo(&glInfo));
+    return GrBackendFormat::MakeGL(glInfo.fFormat, glInfo.fTarget);
+}
+
 
