@@ -26,6 +26,7 @@ namespace sk_gpu_test {
     bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstanceProc,
                                 const GrVkInterface::GetDeviceProc& getDeviceProc,
                                 GrVkBackendContext* ctx,
+                                VkDebugReportCallbackEXT* debugCallback,
                                 uint32_t* presentQueueIndexPtr = nullptr,
                                 CanPresentFn canPresent = CanPresentFn());
 }
