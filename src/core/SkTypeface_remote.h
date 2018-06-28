@@ -123,7 +123,8 @@ protected:
         return 0;
     }
     int onCountGlyphs() const override {
-        return this->glyphCount();
+        SK_ABORT("Should never be called.");
+        return 0;
     }
 
     void* onGetCTFontRef() const override {

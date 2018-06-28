@@ -16,9 +16,9 @@
 #include "SkDevice.h"
 #include "SkDraw.h"
 #include "SkFindAndPlaceGlyph.h"
-#include "SkGlyphRun.h"
 #include "SkPathEffect.h"
 #include "SkStrikeCache.h"
+#include "SkTextBlobRunIterator.h"
 #include "SkTraceEvent.h"
 #include "SkTypeface_remote.h"
 
@@ -240,20 +240,27 @@ public:
     }
 
 protected:
-    void drawGlyphRunList(SkGlyphRunList* glyphRunList) override {
-        SkPaint runPaint;
-        SkGlyphRunListIterator it(glyphRunList);
+    void drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint,
+                      SkDrawFilter* drawFilter) override {
+        // The looper should be applied by the SkCanvas.
+        SkASSERT(paint.getDrawLooper() == nullptr);
+        // We don't support SkDrawFilter.
+        SkASSERT(drawFilter == nullptr);
+
+        SkPoint position{x, y};
+        SkPaint runPaint{paint};
+        SkTextBlobRunIterator it(blob);
         for (; !it.done(); it.next()) {
             // applyFontToPaint() always overwrites the exact same attributes,
             // so it is safe to not re-seed the paint for this reason.
             it.applyFontToPaint(&runPaint);
-            this->processGlyphRun(glyphRunList->origin(), it, runPaint);
+            this->processGlyphRun(position, it, runPaint);
         }
     }
 
 private:
     void processGlyphRun(const SkPoint& position,
-                         const SkGlyphRunListIterator& it,
+                         const SkTextBlobRunIterator& it,
                          const SkPaint& runPaint) {
         TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRun");
 
@@ -337,7 +344,7 @@ private:
         }
     }
 
-    void processGlyphRunForPaths(const SkGlyphRunListIterator& it,
+    void processGlyphRunForPaths(const SkTextBlobRunIterator& it,
                                  const SkPaint& runPaint,
                                  const SkMatrix& runMatrix) {
         TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRunForPaths");
@@ -387,7 +394,7 @@ private:
     }
 
 #if SK_SUPPORT_GPU
-    bool processGlyphRunForDFT(const SkGlyphRunListIterator& it,
+    bool processGlyphRunForDFT(const SkTextBlobRunIterator& it,
                                const SkPaint& runPaint,
                                const SkMatrix& runMatrix) {
         TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRunForDFT");

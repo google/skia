@@ -75,7 +75,7 @@ DEF_TEST(GlyphRunBlob, reporter) {
     paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
     SkGlyphRunBuilder runBuilder;
-    runBuilder.prepareTextBlob(font, *blob, SkPoint::Make(0, 0), nullptr);
+    runBuilder.prepareTextBlob(font, *blob, SkPoint::Make(0, 0));
 
     auto runList = runBuilder.useGlyphRunList();
 
