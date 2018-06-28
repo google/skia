@@ -106,6 +106,15 @@ public:
         return true;
     }
 
+#ifdef GR_TEST_UTILS
+    GrBackendFormat createFormatFromBackendTexture(
+            const GrBackendTexture& backendTex) const override {
+        GrMockTextureInfo mockInfo;
+        SkAssertResult(backendTex.getMockTextureInfo(&mockInfo));
+        return GrBackendFormat::MakeMock(mockInfo.fConfig);
+    }
+#endif
+
 private:
     static const int kMaxSampleCnt = 16;
 

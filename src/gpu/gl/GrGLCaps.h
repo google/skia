@@ -437,6 +437,8 @@ public:
                                     GrPixelConfig*) const override;
 
 #if GR_TEST_UTILS
+    GrBackendFormat createFormatFromBackendTexture(const GrBackendTexture&) const override;
+
     GrGLStandard standard() const { return fStandard; }
 #endif
 

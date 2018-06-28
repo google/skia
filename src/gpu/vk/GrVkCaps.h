@@ -140,6 +140,10 @@ public:
     bool getConfigFromBackendFormat(const GrBackendFormat&, SkColorType,
                                     GrPixelConfig*) const override;
 
+#ifdef GR_TEST_UTILS
+    GrBackendFormat createFormatFromBackendTexture(const GrBackendTexture&) const override;
+#endif
+
 private:
     enum VkVendor {
         kAMD_VkVendor = 4098,

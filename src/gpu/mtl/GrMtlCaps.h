@@ -70,6 +70,10 @@ public:
         return false;
     }
 
+#ifdef GR_TEST_UTILS
+    GrBackendFormat createFormatFromBackendTexture(const GrBackendTexture&) const override;
+#endif
+
 private:
     void initFeatureSet(MTLFeatureSet featureSet);
 

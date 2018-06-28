@@ -271,6 +271,14 @@ public:
     virtual bool getConfigFromBackendFormat(const GrBackendFormat& format, SkColorType ct,
                                             GrPixelConfig*) const = 0;
 
+#ifdef GR_TEST_UTILS
+    /**
+     * Creates a GrBackendFormat which matches the backend texture. If the backend texture is
+     * invalid, the function will return the default GrBackendFormat.
+     */
+    virtual GrBackendFormat createFormatFromBackendTexture(const GrBackendTexture&) const = 0;
+#endif
+
     const GrDriverBugWorkarounds& workarounds() const { return fDriverBugWorkarounds; }
 
 protected:
