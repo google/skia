@@ -59,3 +59,21 @@ DEF_SIMPLE_GM(colorwheelnative, canvas, 128, 28) {
     paint.setColor(SK_ColorBLACK);
     canvas->drawString("K", 104.0f, 20.0f, paint);
 }
+
+DEF_SIMPLE_GM(BlackTest, canvas, 612, 792) {
+    canvas->drawRect({72, 72, 144, 144}, SkPaint());
+
+    auto img = SkImage::MakeFromEncoded(GetResourceAsData("images/mandrill_512_bw_q075.jpg"));
+    SkASSERT(img);
+    SkISize s = img->dimensions();
+    SkBitmap bm;
+    bm.allocPixels(SkImageInfo::Make(s.width(), s.height(),
+                                     kGray_8_SkColorType, kOpaque_SkAlphaType));
+    {
+        SkCanvas tmp(bm);
+        tmp.drawImage(img, 0, 0);
+
+    }
+    canvas->drawBitmapRect(bm, {72, 216, 144, 288}, nullptr);
+    canvas->drawImageRect(img, {72, 360, 144, 432}, nullptr);
+}

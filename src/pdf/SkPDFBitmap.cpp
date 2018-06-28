@@ -19,6 +19,8 @@
 #include "SkTo.h"
 #include "SkUnPreMultiply.h"
 
+#define SK_PDF_GRAY_TO_RGB
+
 bool image_compute_is_opaque(const SkImage* image) {
     if (image->isOpaque()) {
         return true;
@@ -150,8 +152,13 @@ static size_t pdf_color_component_count(SkColorType ct) {
         case kUnknown_SkColorType:
             SkDEBUGFAIL("kUnknown_SkColorType");
         case kAlpha_8_SkColorType:
-        case kGray_8_SkColorType:
             return 1;
+        case kGray_8_SkColorType:
+#ifdef SK_PDF_GRAY_TO_RGB
+            return 3;
+#else
+            return 1;
+#endif
         case kRGB_565_SkColorType:
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
@@ -221,11 +228,29 @@ static void bitmap_to_pdf_pixels(const SkBitmap& bitmap, SkWStream* out) {
             fill_stream(out, '\x00', pixel_count(bm));
             return;
         case kGray_8_SkColorType:
+#ifdef SK_PDF_GRAY_TO_RGB
+            SkASSERT(3 == pdf_color_component_count(colorType));
+            {
+                SkAutoTMalloc<uint8_t> scanline(3 * bm.width());
+                for (int y = 0; y < bm.height(); ++y) {
+                    const uint8_t* src = bm.getAddr8(0, y);
+                    uint8_t* dst = scanline.get();
+                    for (int x = 0; x < bm.width(); ++x) {
+                        uint8_t value = *src++;
+                        *dst++ = value;
+                        *dst++ = value;
+                        *dst++ = value;
+                    }
+                    out->write(scanline.get(), 3 * bm.width());
+                }
+            }
+#else
             SkASSERT(1 == pdf_color_component_count(colorType));
             // these two formats need no transformation to serialize.
             for (int y = 0; y < bm.height(); ++y) {
                 out->write(bm.getAddr8(0, y), bm.width());
             }
+#endif
             return;
         case kUnknown_SkColorType:
         case kARGB_4444_SkColorType:
