@@ -12,6 +12,7 @@
 #include "SkSurface.h"
 #include "VulkanWindowContext.h"
 
+#include "vk/GrVkExtensions.h"
 #include "vk/GrVkImage.h"
 #include "vk/GrVkUtil.h"
 #include "vk/GrVkTypes.h"
@@ -56,8 +57,8 @@ void VulkanWindowContext::initializeContext() {
         return;
     }
 
-    if (!(backendContext.fExtensions & kKHR_surface_GrVkExtensionFlag) ||
-        !(backendContext.fExtensions & kKHR_swapchain_GrVkExtensionFlag)) {
+    if (!backendContext.fInterface->fExtensions.hasExtension(VK_KHR_SURFACE_EXTENSION_NAME) ||
+        !backendContext.fInterface->fExtensions.hasExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)) {
         return;
     }
 

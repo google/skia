@@ -11,6 +11,7 @@
 #include "SkRefCnt.h"
 
 #include "vk/GrVkDefines.h"
+#include "vk/GrVkExtensions.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -50,17 +51,25 @@ public:
     GrVkInterface(GetProc getProc,
                   VkInstance instance,
                   VkDevice device,
-                  uint32_t extensionFlags);
+                  uint32_t instanceExtensionCount,
+                  const char* const* instanceExtensions,
+                  uint32_t deviceExtensionCount,
+                  const char* const* deviceExtensions);
 
-    GrVkInterface(const GetInstanceProc&,
-                  const GetDeviceProc&,
+    // TODO: This is deprecated. Remove onces clients have switch to new interface
+    GrVkInterface(GetProc getProc,
                   VkInstance instance,
                   VkDevice device,
                   uint32_t extensionFlags);
 
     // Validates that the GrVkInterface supports its advertised standard. This means the necessary
     // function pointers have been initialized for Vulkan version.
-    bool validate(uint32_t extensionFlags) const;
+    bool validate() const;
+
+    // This is deprecated since the extensions information is stored already on the GrVkInterface.
+    bool validate(uint32_t /*extensionFlags*/) const {
+        return this->validate();
+    }
 
     /**
      * The function pointers are in a struct so that we can have a compiler generated assignment
@@ -208,6 +217,10 @@ public:
         VkPtr<PFN_vkDestroyDebugReportCallbackEXT> fDestroyDebugReportCallbackEXT;
     } fFunctions;
 
+    GrVkExtensions fExtensions;
+
+private:
+    void init(GetProc getProc, VkInstance instance, VkDevice device);
 };
 
 #endif

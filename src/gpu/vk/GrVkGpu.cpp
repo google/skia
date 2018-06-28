@@ -36,6 +36,7 @@
 #include "SkMipMap.h"
 #include "SkSLCompiler.h"
 #include "SkTo.h"
+
 #include "vk/GrVkInterface.h"
 #include "vk/GrVkTypes.h"
 
@@ -58,7 +59,7 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
         return nullptr;
     }
     if (!backendContext.fInterface ||
-        !backendContext.fInterface->validate(backendContext.fExtensions)) {
+        !backendContext.fInterface->validate()) {
         return nullptr;
     }
 
@@ -88,7 +89,7 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
     fCompiler = new SkSL::Compiler();
 
     fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendContext.fPhysicalDevice,
-                               backendContext.fFeatures, backendContext.fExtensions));
+                               backendContext.fFeatures));
     fCaps.reset(SkRef(fVkCaps.get()));
 
     VK_CALL(GetPhysicalDeviceProperties(backendContext.fPhysicalDevice, &fPhysDevProps));
