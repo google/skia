@@ -36,6 +36,29 @@
     },
     {
       "key": {
+        "uuid": "5f4adda9_bb88b5bd",
+        "filename": "infra/bots/assets/opencl_headers/create.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-28T21:30:40Z",
+      "side": 1,
+      "message": "FWIW, I\u0027d say this is not the lazy way so much as a perfectly fine way to do it.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 80
+      },
+      "revId": "b03a58bdc18b19af3a25ac6ff0be2127ef31e9f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "21e27233_11c792a8",
         "filename": "infra/bots/assets/opencl_headers/create_and_upload.py",
         "patchSetId": 15
@@ -152,6 +175,23 @@
       "revId": "b03a58bdc18b19af3a25ac6ff0be2127ef31e9f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2a8249f0_6c6072a4",
+        "filename": "infra/bots/recipe_modules/build/default.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-28T21:30:40Z",
+      "side": 1,
+      "message": "I see where you\u0027re going here...  :)",
+      "revId": "b03a58bdc18b19af3a25ac6ff0be2127ef31e9f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
