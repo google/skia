@@ -1549,7 +1549,7 @@ rect: (30, 50, 40, 60) does not contain (29, 59)
 ##
 ##
 
-#SeeAlso SkIRect::contains
+#SeeAlso SkIRect::contains SkRRect::contains
 
 ##
 

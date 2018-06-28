@@ -5044,7 +5044,7 @@ for (int y = 2; y < 256; y += 9) {
 
 #Method void dump(SkWStream* stream, bool forceClose, bool dumpAsHex) const
 #In Utility
-#Line # sends text representation using floats to standard output ##
+#Line # sends text representation to stream ##
 Writes text representation of Path to stream. If stream is nullptr, writes to
 standard output. Set forceClose to true to get edges used to fill Path.
 Set dumpAsHex true to generate exact binary representations
@@ -5086,7 +5086,7 @@ path.close();
 ##
 ##
 
-#SeeAlso SkRect::dump() SkRRect::dump() SkPathMeasure::dump()
+#SeeAlso dumpHex SkRect::dump() SkRRect::dump() SkPathMeasure::dump()
 
 ##
 
