@@ -1279,13 +1279,14 @@ void sanitize_contours(VertexList* contours, int contourCnt, bool approximate) {
                 round(&v->fPoint);
             }
             Vertex* next = v->fNext;
+            Vertex* nextWrap = next ? next : contour->fHead;
             if (coincident(prev->fPoint, v->fPoint)) {
                 LOG("vertex %g,%g coincident; removing\n", v->fPoint.fX, v->fPoint.fY);
                 contour->remove(v);
             } else if (!v->fPoint.isFinite()) {
                 LOG("vertex %g,%g non-finite; removing\n", v->fPoint.fX, v->fPoint.fY);
                 contour->remove(v);
-            } else if (next && Line(prev->fPoint, next->fPoint).dist(v->fPoint) == 0.0) {
+            } else if (Line(prev->fPoint, nextWrap->fPoint).dist(v->fPoint) == 0.0) {
                 LOG("vertex %g,%g collinear; removing\n", v->fPoint.fX, v->fPoint.fY);
                 contour->remove(v);
             } else {
