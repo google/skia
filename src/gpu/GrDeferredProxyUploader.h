@@ -44,7 +44,7 @@ public:
 
     virtual ~GrDeferredProxyUploader() {
         // In normal usage (i.e., through GrTDeferredProxyUploader) this will be redundant
-        this->wait();
+        this->wait1();
     }
 
     void scheduleUpload(GrOpFlushState* flushState, GrTextureProxy* proxy) {
@@ -54,7 +54,7 @@ public:
         }
 
         auto uploadMask = [this, proxy](GrDeferredTextureUploadWritePixelsFn& writePixelsFn) {
-            this->wait();
+            this->wait1();
             GrColorType pixelColorType = SkColorTypeToGrColorType(this->fPixels.info().colorType());
             // If the worker thread was unable to allocate pixels, this check will fail, and we'll
             // end up drawing with an uninitialized mask texture, but at least we won't crash.
@@ -69,7 +69,7 @@ public:
         fScheduledUpload = true;
     }
 
-    void signalAndFreeData() {
+    void signalAndFreeData1() {
         this->freeData();
         fPixelsReady.signal();
     }
@@ -77,7 +77,7 @@ public:
     SkAutoPixmapStorage* getPixels() { return &fPixels; }
 
 protected:
-    void wait() {
+    void wait1() {
         if (!fWaited) {
             fPixelsReady.wait();
             fWaited = true;
@@ -105,7 +105,7 @@ public:
         // We need to wait here, so that we don't free fData before the worker thread is done
         // with it. (This happens if the proxy is deleted early due to a full clear or failure
         // of an op list to instantiate).
-        this->wait();
+        this->wait1();
     }
 
     T& data() { return *fData; }

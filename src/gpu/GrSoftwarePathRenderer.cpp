@@ -346,7 +346,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
                 } else {
                     SkDEBUGFAIL("Unable to allocate SW mask.");
                 }
-                uploaderRaw->signalAndFreeData();
+                uploaderRaw->signalAndFreeData1();
             };
             taskGroup->add(std::move(drawAndUploadMask));
             proxy->texPriv().setDeferredUploader(std::move(uploader));

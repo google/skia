@@ -484,7 +484,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
             } else {
                 SkDEBUGFAIL("Unable to allocate SW clip mask.");
             }
-            uploaderRaw->signalAndFreeData();
+            uploaderRaw->signalAndFreeData1();
         };
 
         taskGroup->add(std::move(drawAndUploadMask));

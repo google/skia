@@ -120,12 +120,221 @@ static bool mkdir_p(const SkString& name);
 static SkString join(const SkCommandLineFlags::StringArray&);
 static void exitf(ExitErr, const char* format, ...);
 
+#include <thread>
+
+class Foo;
+
+class Task {
+public:
+    using clock = std::chrono::high_resolution_clock;
+    using duration = std::chrono::nanoseconds;
+
+    Task(char id, int recordDuration, int renderDuration)
+            : fID(id)
+            , fRecordDuration(recordDuration)
+            , fRenderDuration(renderDuration)
+            , fRecorded(false)
+            , fRendered(false)
+            , fCleanedUp(false) {
+    }
+
+    int recordDuration() const { return fRecordDuration; }
+    int renderDuration() const { return fRenderDuration; }
+
+    void startRecording() {
+        fStartRecording = clock::now();
+    }
+
+    void stopRecording() {
+        fRecorded = true;
+        fStopRecording = clock::now();
+    }
+
+    void startRendering() {
+        fStartRendering = clock::now();
+    }
+
+    void stopRendering() {
+        fRendered = true;
+        fStopRendering = clock::now();
+    }
+
+    void startCleaningUp() {
+        fStartCleaningUp = clock::now();
+    }
+
+    void stopCleaningUp() {
+        fCleanedUp = true;
+        fStopCleaningUp = clock::now();
+    }
+
+    bool allDone() const { return fRecorded && fRendered && fCleanedUp; }
+
+    void report(const clock::time_point& start) const {
+        SkASSERT(this->allDone());
+
+        {
+            duration recordingDuration = fStopRecording - fStartRecording;
+
+            SkDebugf("%c: recording %.2g\n",
+                     fID,
+                     std::chrono::duration<double, std::milli>(recordingDuration).count());
+        }
+
+        {
+            duration renderingDuration = fStopRendering - fStartRendering;
+
+            SkDebugf("%c: rendering %.2g\n",
+                     fID,
+                     std::chrono::duration<double, std::milli>(renderingDuration).count());
+        }
+
+        {
+            duration cleaningUpDuration = fStopCleaningUp - fStartCleaningUp;
+
+            SkDebugf("%c: cleaningUp %.2g\n",
+                     fID,
+                     std::chrono::duration<double, std::milli>(cleaningUpDuration).count());
+        }
+    }
+
+private:
+    const char        fID;
+    const int         fRecordDuration;
+    const int         fRenderDuration;
+
+    bool              fRecorded;
+    clock::time_point fStartRecording;
+    clock::time_point fStopRecording;
+
+    bool              fRendered;
+    clock::time_point fStartRendering;
+    clock::time_point fStopRendering;
+
+    bool              fCleanedUp;
+    clock::time_point fStartCleaningUp;
+    clock::time_point fStopCleaningUp;
+
+};
+
+class SkImmediateExecutor final : public SkExecutor {
+    void add(std::function<void(void)> work) override {
+        work();
+    }
+};
+
+#include "SkMakeUnique.h"
+
+// How this works is we have a variable number of worker threads that record and delete
+// DDLs and one rendering thread that pushes the DDLs to the GPU.
+class Foo {
+public:
+    using clock = std::chrono::high_resolution_clock;
+    using duration = std::chrono::nanoseconds;
+
+    Foo(int numThreads) {
+        SkASSERT(numThreads >= 0);
+
+        if (false && numThreads) {
+            // TODO: we should really reserve space in the deques
+            fWorkerThreadPool = SkExecutor::MakeFIFOThreadPool(numThreads);
+            fRenderingThreadPool = SkExecutor::MakeFIFOThreadPool(1);
+
+            SkExecutor::SetDefault(nullptr); // junk
+        } else {
+            fWorkerThreadPool = skstd::make_unique<SkImmediateExecutor>();
+            fRenderingThreadPool = skstd::make_unique<SkImmediateExecutor>();
+        }
+    }
+
+    void gonnaTile(int numTiles) {
+        SkASSERT(numTiles > 0);
+
+        // We want to be able to wait until all the tile record & delete work is done.
+        fTileSemaphore.signal(-numTiles);
+    }
+
+    void startTiming() {
+        fStart = clock::now();
+    }
+
+    void addRecordingTask(Task* task) {
+        fWorkerThreadPool->add([this, task] {
+            PerformRecord(this, task);
+            this->addRenderingTask(task);
+        });
+    }
+
+    void addRenderingTask(Task* task) {
+        fRenderingThreadPool->add([this, task] {
+            PerformRender(this, task);
+            this->addCleanupTask(task);
+        });
+    }
+
+    void addCleanupTask(Task* task) {
+        fWorkerThreadPool->add([this, task] {
+            PerformCleanup(this, task);
+
+            this->signalDone();
+        });
+    }
+
+    void signalDone() {
+        fTileSemaphore.signal(1);
+    }
+
+    // Wait until all the DDLs have been generated, rendered and deleted. This does not
+    // wait until all the GPU work is done.
+    void wait() {
+        fTileSemaphore.wait();
+        fStop = clock::now();
+    }
+
+    const clock::time_point& start() const {
+        return fStart;
+    }
+
+    void report() const {
+        duration total = fStop - fStart;
+
+        SkDebugf("start 0 stop %.2g\n", std::chrono::duration<double, std::milli>(total).count());
+    }
+
+private:
+    static void PerformRecord(Foo* foo, Task* task) {
+        task->startRecording();
+        std::this_thread::sleep_for(std::chrono::seconds(task->recordDuration()));
+        task->stopRecording();
+    }
+
+    static void PerformRender(Foo* foo, Task* task) {
+        task->startRendering();
+        std::this_thread::sleep_for(std::chrono::seconds(task->renderDuration()));
+        task->stopRendering();
+    }
+
+    static void PerformCleanup(Foo* foo, Task* task) {
+        task->startCleaningUp();
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        task->stopCleaningUp();
+    }
+
+    clock::time_point           fStart;
+    clock::time_point           fStop;
+
+    std::unique_ptr<SkExecutor> fWorkerThreadPool;
+    std::unique_ptr<SkExecutor> fRenderingThreadPool;
+    SkSemaphore                 fTileSemaphore;
+};
+
 static void ddl_sample(GrContext* context, DDLTileHelper* tiles, GpuSync* gpuSync, Sample* sample,
-                       std::chrono::high_resolution_clock::time_point* startStopTime) {
+                       std::chrono::high_resolution_clock::time_point* startStopTime, Foo* foo) {
     using clock = std::chrono::high_resolution_clock;
 
     clock::time_point start = *startStopTime;
 
+#if 0
     tiles->createDDLsInParallel();
 
     if (!FLAGS_ddlRecordTime) {
@@ -134,6 +343,23 @@ static void ddl_sample(GrContext* context, DDLTileHelper* tiles, GpuSync* gpuSyn
             gpuSync->syncToPreviousFrame();
         }
     }
+#else
+
+    Task tasks[2] = {
+        Task('A', 1, 2),
+        Task('B', 2, 2)
+    };
+    foo->gonnaTile(2);
+    foo->startTiming();
+    foo->addRecordingTask(&tasks[0]);
+    foo->addRecordingTask(&tasks[1]);
+    foo->wait();
+
+    foo->report();
+
+    tasks[0].report(foo->start());
+    tasks[1].report(foo->start());
+#endif
 
     *startStopTime = clock::now();
 
@@ -167,13 +393,16 @@ static void run_ddl_benchmark(const sk_gpu_test::FenceSync* fenceSync,
 
     tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
 
-    SkTaskGroup::Enabler enabled(FLAGS_ddlNumAdditionalThreads);
+    Foo foo(FLAGS_ddlNumAdditionalThreads);
+//    SkTaskGroup::Enabler enabled(FLAGS_ddlNumAdditionalThreads);
 
     clock::time_point startStopTime = clock::now();
 
-    ddl_sample(context, &tiles, nullptr, nullptr, &startStopTime);
+    ddl_sample(context, &tiles, nullptr, nullptr, &startStopTime, &foo);
+    return;
+
     GpuSync gpuSync(fenceSync);
-    ddl_sample(context, &tiles, &gpuSync, nullptr, &startStopTime);
+    ddl_sample(context, &tiles, &gpuSync, nullptr, &startStopTime, &foo);
 
     clock::duration cumulativeDuration = std::chrono::milliseconds(0);
 
@@ -182,7 +411,7 @@ static void run_ddl_benchmark(const sk_gpu_test::FenceSync* fenceSync,
         Sample& sample = samples->back();
 
         do {
-            ddl_sample(context, &tiles, &gpuSync, &sample, &startStopTime);
+            ddl_sample(context, &tiles, &gpuSync, &sample, &startStopTime, &foo);
         } while (sample.fDuration < sampleDuration);
 
         cumulativeDuration += sample.fDuration;
