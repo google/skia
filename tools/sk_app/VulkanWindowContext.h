@@ -13,8 +13,6 @@
 #ifdef SK_VULKAN
 
 #include "vk/GrVkBackendContext.h"
-#include "vk/GrVkInterface.h"
-#include "vk/VkTestUtils.h"
 #include "WindowContext.h"
 
 class GrRenderTarget;
@@ -28,7 +26,7 @@ public:
     sk_sp<SkSurface> getBackbufferSurface() override;
     void swapBuffers() override;
 
-    bool isValid() override { return fDevice != VK_NULL_HANDLE; }
+    bool isValid() override { return SkToBool(fBackendContext.get()); }
 
     void resize(int w, int h) override {
         this->createSwapchain(w, h, fDisplayParams);
@@ -43,7 +41,7 @@ public:
     /** Platform specific function that creates a VkSurfaceKHR for a window */
     using CreateVkSurfaceFn = std::function<VkSurfaceKHR(VkInstance)>;
     /** Platform specific function that determines whether presentation will succeed. */
-    using CanPresentFn = sk_gpu_test::CanPresentFn;
+    using CanPresentFn = GrVkBackendContext::CanPresentFn;
 
     VulkanWindowContext(const DisplayParams&, CreateVkSurfaceFn, CanPresentFn,
                         PFN_vkGetInstanceProcAddr, PFN_vkGetDeviceProcAddr);
@@ -65,9 +63,7 @@ private:
     void createBuffers(VkFormat format, SkColorType colorType);
     void destroyBuffers();
 
-    VkInstance fInstance = VK_NULL_HANDLE;
-    VkPhysicalDevice fPhysicalDevice = VK_NULL_HANDLE;
-    VkDevice fDevice = VK_NULL_HANDLE;
+    sk_sp<const GrVkBackendContext> fBackendContext;
 
     // simple wrapper class that exists only to initialize a pointer to NULL
     template <typename FNPTR_TYPE> class VkPtr {
@@ -99,19 +95,10 @@ private:
     VkPtr<PFN_vkGetSwapchainImagesKHR> fGetSwapchainImagesKHR;
     VkPtr<PFN_vkAcquireNextImageKHR> fAcquireNextImageKHR;
     VkPtr<PFN_vkQueuePresentKHR> fQueuePresentKHR;
-
-    VkPtr<PFN_vkDestroyInstance> fDestroyInstance;
-    VkPtr<PFN_vkDeviceWaitIdle> fDeviceWaitIdle;
-    VkPtr<PFN_vkQueueWaitIdle> fQueueWaitIdle;
-    VkPtr<PFN_vkDestroyDevice> fDestroyDevice;
     VkPtr<PFN_vkGetDeviceQueue> fGetDeviceQueue;
-
-    sk_sp<const GrVkInterface> fInterface;
 
     VkSurfaceKHR      fSurface;
     VkSwapchainKHR    fSwapchain;
-    uint32_t          fGraphicsQueueIndex;
-    VkQueue           fGraphicsQueue;
     uint32_t          fPresentQueueIndex;
     VkQueue           fPresentQueue;
 
