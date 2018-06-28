@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "463ba4a7_de9f0071",
+        "filename": ".gitignore",
+        "patchSetId": 15
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-28T20:27:51Z",
+      "side": 1,
+      "message": "This was causing problems with files in \ninfra/bots/recipe_modules/build/.",
+      "revId": "b03a58bdc18b19af3a25ac6ff0be2127ef31e9f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8654bc0f_ed6b841e",
+        "filename": "infra/bots/assets/opencl_headers/common.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-28T20:27:51Z",
+      "side": 1,
+      "message": "Boilerplate.",
+      "revId": "b03a58bdc18b19af3a25ac6ff0be2127ef31e9f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "21e27233_11c792a8",
+        "filename": "infra/bots/assets/opencl_headers/create_and_upload.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-28T20:27:51Z",
+      "side": 1,
+      "message": "Boilerplate.",
+      "revId": "b03a58bdc18b19af3a25ac6ff0be2127ef31e9f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "511cf172_bdcf6629",
+        "filename": "infra/bots/assets/opencl_headers/download.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-28T20:27:51Z",
+      "side": 1,
+      "message": "Boilerplate.",
+      "revId": "b03a58bdc18b19af3a25ac6ff0be2127ef31e9f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bdb64379_a4b9172c",
+        "filename": "infra/bots/assets/opencl_headers/upload.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-28T20:27:51Z",
+      "side": 1,
+      "message": "Boilerplate.",
+      "revId": "b03a58bdc18b19af3a25ac6ff0be2127ef31e9f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "260fea4d_83d29943",
+        "filename": "infra/bots/assets/opencl_ocl_icd_linux/common.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-28T20:27:51Z",
+      "side": 1,
+      "message": "Boilerplate.",
+      "revId": "b03a58bdc18b19af3a25ac6ff0be2127ef31e9f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ccb75e3_3636df46",
+        "filename": "infra/bots/assets/opencl_ocl_icd_linux/create_and_upload.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-28T20:27:51Z",
+      "side": 1,
+      "message": "Boilerplate.",
+      "revId": "b03a58bdc18b19af3a25ac6ff0be2127ef31e9f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "44085eca_6feb12ec",
+        "filename": "infra/bots/assets/opencl_ocl_icd_linux/download.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-28T20:27:51Z",
+      "side": 1,
+      "message": "Boilerplate.",
+      "revId": "b03a58bdc18b19af3a25ac6ff0be2127ef31e9f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d1469086_684d2a7d",
+        "filename": "infra/bots/assets/opencl_ocl_icd_linux/upload.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-28T20:27:51Z",
+      "side": 1,
+      "message": "Boilerplate.",
+      "revId": "b03a58bdc18b19af3a25ac6ff0be2127ef31e9f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
