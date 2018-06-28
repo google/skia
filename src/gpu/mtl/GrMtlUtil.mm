@@ -121,4 +121,3 @@ id<MTLTexture> GrGetMTLTexture(const void* mtlTexture, GrWrapOwnership wrapOwner
         return (__bridge id<MTLTexture>)mtlTexture;
     }
 }
-
