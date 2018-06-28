@@ -268,7 +268,10 @@ static void find_culprit() {
     static void crash_handler(int sig) {
         SkAutoMutexAcquire lock(gMutex);
 
-        info("\nCaught signal %d [%s], was running:\n", sig, strsignal(sig));
+        info("\nCaught signal %d [%s] (%dMB RAM, peak %dMB), was running:\n",
+             sig, strsignal(sig),
+             sk_tools::getCurrResidentSetSizeMB(), sk_tools::getMaxResidentSetSizeMB());
+
         for (auto& task : gRunning) {
             task.dump();
         }
@@ -289,21 +292,11 @@ static void find_culprit() {
         raise(sig);
     }
 
-    static void term_handler(int sig) {
-        info("\nWe have been politely asked to die by %s (%d)."
-             "\nCurrently using %dMB RAM, peak %dMB.\n",
-             strsignal(sig), sig,
-             sk_tools::getCurrResidentSetSizeMB(), sk_tools::getMaxResidentSetSizeMB());
-        signal(sig, previous_handler[sig]);
-        raise(sig);
-    }
-
     static void setup_crash_handler() {
-        const int kSignals[] = { SIGABRT, SIGBUS, SIGFPE, SIGILL, SIGSEGV };
+        const int kSignals[] = { SIGABRT, SIGBUS, SIGFPE, SIGILL, SIGINT, SIGSEGV, SIGTERM };
         for (int sig : kSignals) {
             previous_handler[sig] = signal(sig, crash_handler);
         }
-        previous_handler[SIGTERM] = signal(SIGTERM, term_handler);
 
         if (FLAGS_ignoreSigInt) {
             signal(SIGINT, SIG_IGN);
