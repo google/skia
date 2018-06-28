@@ -991,6 +991,10 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	recipe := "test"
 	if strings.Contains(name, "SKQP") {
 		recipe = "skqp_test"
+	} else if strings.Contains(name, "OpenCL") {
+		// TODO(dogben): Longer term we may not want this to be called a "Test" task, but until we start
+		// running hs_bench or kx, it will be easier to fit into the current job name schema.
+		recipe = "compute_test"
 	}
 	extraProps := map[string]string{}
 	iid := internalHardwareLabel(parts)
@@ -1290,6 +1294,12 @@ func process(b *specs.TasksCfgBuilder, name string) {
 			} else {
 				pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("linux_vulkan_intel_driver_debug"))
 			}
+		}
+		if strings.Contains(name, "OpenCL") {
+			pkgs = append(pkgs,
+				b.MustGetCipdPackageFromAsset("opencl_ocl_icd_linux"),
+				b.MustGetCipdPackageFromAsset("opencl_intel_neo_linux"),
+			)
 		}
 	}
 	if strings.Contains(name, "ProcDump") {
