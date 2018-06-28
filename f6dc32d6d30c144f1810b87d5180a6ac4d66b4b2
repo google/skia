@@ -46,6 +46,57 @@
       "revId": "f6dc32d6d30c144f1810b87d5180a6ac4d66b4b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6c52541_7cfbfdb0",
+        "filename": "src/gpu/mock/GrMockCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-28T16:48:19Z",
+      "side": 1,
+      "message": "I believe we always keep the return type on the same line as the function name.",
+      "revId": "f6dc32d6d30c144f1810b87d5180a6ac4d66b4b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efa51f8e_934944d9",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-28T16:48:19Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "f6dc32d6d30c144f1810b87d5180a6ac4d66b4b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8d44fa3_f2ec8b8e",
+        "filename": "tools/DDLPromiseImageHelper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-28T16:48:19Z",
+      "side": 1,
+      "message": "You can just get the caps from the contextPriv",
+      "revId": "f6dc32d6d30c144f1810b87d5180a6ac4d66b4b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
