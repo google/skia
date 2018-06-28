@@ -9,6 +9,7 @@
 
 #include "../private/SkTArray.h"
 #include "../private/SkTDArray.h"
+#include "SkPathSink.h"
 #include "SkPreConfig.h"
 
 class SkPath;
@@ -45,6 +46,10 @@ enum SkPathOp {
   */
 bool SK_API Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result);
 
+bool SK_API Op(SkPathSourceProc proc1, void* ctx1,
+               SkPathSourceProc proc2, void* ctx2,
+               SkPathOp op, SkPathSink* result);
+
 /** Set this path to a set of non-overlapping contours that describe the
     same area as the original path.
     The curve order is reduced where possible so that cubics may
@@ -59,6 +64,8 @@ bool SK_API Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
   */
 bool SK_API Simplify(const SkPath& path, SkPath* result);
 
+bool SK_API Simplify(SkPathSourceProc, void* ctx, SkPathSink* result);
+
 /** Set the resulting rectangle to the tight bounds of the path.
 
     @param path The path measured.
@@ -66,6 +73,8 @@ bool SK_API Simplify(const SkPath& path, SkPath* result);
     @return True if the bounds could be computed.
   */
 bool SK_API TightBounds(const SkPath& path, SkRect* result);
+
+bool SK_API TightBounds(SkPathSourceProc, void* ctx, SkRect* result);
 
 /** Perform a series of path operations, optimized for unioning many paths together.
   */
