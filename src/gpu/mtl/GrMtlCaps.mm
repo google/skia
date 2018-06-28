@@ -8,6 +8,10 @@
 #include "GrMtlCaps.h"
 
 #include "GrBackendSurface.h"
+<<<<<<< HEAD
+#include "GrMtlUtil.h"
+=======
+>>>>>>> 036fdfe5aa1266dbc35f0a2c680f648b62b9c28b
 #include "GrShaderCaps.h"
 
 GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice> device,
@@ -319,7 +323,15 @@ void GrMtlCaps::initConfigTable() {
 #ifdef GR_TEST_UTILS
 GrBackendFormat GrMtlCaps::onCreateFormatFromBackendTexture(
         const GrBackendTexture& backendTex) const {
+<<<<<<< HEAD
+    GrMtlTextureInfo mtlInfo;
+    SkAssertResult(backendTex.getMtlTextureInfo(&mtlInfo));
+    id<MTLTexture> mtlTexture = GrGetMTLTexture(mtlInfo.fTexture,
+                                                GrWrapOwnership::kBorrow_GrWrapOwnership);
+    return GrBackendFormat::MakeMtl(mtlTexture.pixelFormat);
+=======
     return GrBackendFormat(); // Metal BackendFormat not yet implemented.
+>>>>>>> 036fdfe5aa1266dbc35f0a2c680f648b62b9c28b
 }
 #endif
 
