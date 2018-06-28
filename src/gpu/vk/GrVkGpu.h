@@ -38,13 +38,13 @@ namespace SkSL {
 
 class GrVkGpu : public GrGpu {
 public:
-    static sk_sp<GrGpu> Make(sk_sp<const GrVkBackendContext>, const GrContextOptions&, GrContext*);
+    static sk_sp<GrGpu> Make(const GrVkBackendContext&, const GrContextOptions&, GrContext*);
 
     ~GrVkGpu() override;
 
     void disconnect(DisconnectType) override;
 
-    const GrVkInterface* vkInterface() const { return fBackendContext->fInterface.get(); }
+    const GrVkInterface* vkInterface() const { return fInterface.get(); }
     const GrVkCaps& vkCaps() const { return *fVkCaps; }
 
     GrVkMemoryAllocator* memoryAllocator() const { return fMemoryAllocator.get(); }
@@ -144,7 +144,7 @@ public:
     bool updateBuffer(GrVkBuffer* buffer, const void* src, VkDeviceSize offset, VkDeviceSize size);
 
 private:
-    GrVkGpu(GrContext*, const GrContextOptions&, sk_sp<const GrVkBackendContext> backendContext);
+    GrVkGpu(GrContext*, const GrContextOptions&, const GrVkBackendContext& backendContext);
 
     void onResetContext(uint32_t resetBits) override {}
 
@@ -222,28 +222,27 @@ private:
                                   GrVkImageInfo* info);
 #endif
 
-    sk_sp<const GrVkBackendContext> fBackendContext;
-    sk_sp<GrVkMemoryAllocator>      fMemoryAllocator;
-    sk_sp<GrVkCaps>                 fVkCaps;
+    sk_sp<const GrVkInterface>             fInterface;
+    sk_sp<GrVkMemoryAllocator>             fMemoryAllocator;
+    sk_sp<GrVkCaps>                        fVkCaps;
 
-    // These Vulkan objects are provided by the client, and also stored in fBackendContext.
-    // They're copied here for convenient access.
-    VkDevice                                     fDevice;
-    VkQueue                                      fQueue;    // Must be Graphics queue
+    VkInstance                             fInstance;
+    VkDevice                               fDevice;
+    VkQueue                                fQueue;    // Must be Graphics queue
 
     // Created by GrVkGpu
-    GrVkResourceProvider                         fResourceProvider;
-    VkCommandPool                                fCmdPool;
+    GrVkResourceProvider                   fResourceProvider;
+    VkCommandPool                          fCmdPool;
 
-    GrVkPrimaryCommandBuffer*                    fCurrentCmdBuffer;
+    GrVkPrimaryCommandBuffer*              fCurrentCmdBuffer;
 
-    SkSTArray<1, GrVkSemaphore::Resource*>       fSemaphoresToWaitOn;
-    SkSTArray<1, GrVkSemaphore::Resource*>       fSemaphoresToSignal;
+    SkSTArray<1, GrVkSemaphore::Resource*> fSemaphoresToWaitOn;
+    SkSTArray<1, GrVkSemaphore::Resource*> fSemaphoresToSignal;
 
-    VkPhysicalDeviceProperties                   fPhysDevProps;
-    VkPhysicalDeviceMemoryProperties             fPhysDevMemProps;
+    VkPhysicalDeviceProperties             fPhysDevProps;
+    VkPhysicalDeviceMemoryProperties       fPhysDevMemProps;
 
-    GrVkCopyManager                              fCopyManager;
+    GrVkCopyManager                        fCopyManager;
 
 #ifdef SK_ENABLE_VK_LAYERS
     // For reporting validation layer errors
@@ -252,11 +251,11 @@ private:
 
     // compiler used for compiling sksl into spirv. We only want to create the compiler once since
     // there is significant overhead to the first compile of any compiler.
-    SkSL::Compiler* fCompiler;
+    SkSL::Compiler*                        fCompiler;
 
     // We need a bool to track whether or not we've already disconnected all the gpu resources from
     // vulkan context.
-    bool fDisconnected;
+    bool                                   fDisconnected;
 
     typedef GrGpu INHERITED;
 };
