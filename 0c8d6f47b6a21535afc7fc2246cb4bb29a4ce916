@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0a575a0f_1c8eed28",
+        "filename": "infra/bots/recipe_modules/build/util.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-28T18:50:11Z",
+      "side": 1,
+      "message": "This is the only real change.",
+      "revId": "0c8d6f47b6a21535afc7fc2246cb4bb29a4ce916",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
