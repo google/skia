@@ -6,7 +6,7 @@
  */
 
 #include "gm.h"
-#include "SkOffsetPolygon.h"
+#include "SkPolyUtils.h"
 #include "SkPathPriv.h"
 
 static void create_ngon(int n, SkPoint* pts, SkScalar width, SkScalar height) {

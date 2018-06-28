@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 #include "Test.h"
-#include "SkOffsetPolygon.h"
+#include "SkPolyUtils.h"
 
 static bool is_convex(const SkTDArray<SkPoint>& poly) {
     if (poly.count() < 3) {
@@ -200,10 +200,7 @@ DEF_TEST(OffsetSimplePoly, reporter) {
     *intersectingPoly.push() = SkPoint::Make(-43.30f, -25.0f);
     *intersectingPoly.push() = SkPoint::Make(-14.43f, -25.0f);
 
-    result = SkOffsetSimplePolygon(&intersectingPoly[0], intersectingPoly.count(), -100,
-                                   &offsetPoly);
+    // SkOffsetSimplePolygon now assumes that the input is simple, so we'll just check for that
+    result = SkIsSimplePolygon(&intersectingPoly[0], intersectingPoly.count());
     REPORTER_ASSERT(reporter, !result);
-
-
-
 }

@@ -542,9 +542,11 @@ static bool validate_rec(const SkDrawShadowRec& rec) {
 void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
     auto drawVertsProc = [this](const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint,
                                 SkScalar tx, SkScalar ty) {
-        SkAutoDeviceCTMRestore adr(this, SkMatrix::Concat(this->ctm(),
-                                                          SkMatrix::MakeTrans(tx, ty)));
-        this->drawVertices(vertices, mode, paint);
+        if (vertices->vertexCount()) {
+            SkAutoDeviceCTMRestore adr(this, SkMatrix::Concat(this->ctm(),
+                                                              SkMatrix::MakeTrans(tx, ty)));
+            this->drawVertices(vertices, mode, paint);
+        }
     };
 
     if (!validate_rec(rec)) {
