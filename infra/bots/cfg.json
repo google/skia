@@ -8,6 +8,7 @@
     "ASAN",
     "Coverage",
     "MSAN",
+    "OpenCL",
     "TSAN",
     "UBSAN",
     "Valgrind",
