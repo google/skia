@@ -1956,12 +1956,6 @@
         "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All-Android"
       ]
     },
-    "Test-Android-Clang-GalaxyS6-CPU-Exynos7420-arm64-Debug-All-Android_NativeFonts": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Android-Clang-GalaxyS6-CPU-Exynos7420-arm64-Debug-All-Android_NativeFonts"
-      ]
-    },
     "Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-All-Android": {
       "priority": 0.8,
       "tasks": [
@@ -2068,6 +2062,12 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Debug-All-Android"
+      ]
+    },
+    "Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Debug-All-Android_NativeFonts": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Debug-All-Android_NativeFonts"
       ]
     },
     "Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Release-All-Android": {
@@ -41005,107 +41005,6 @@
       ],
       "priority": 0.8
     },
-    "Test-Android-Clang-GalaxyS6-CPU-Exynos7420-arm64-Debug-All-Android_NativeFonts": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:ad60019cb66a75b59991d43b95a43f68e3fff81b"
-        }
-      ],
-      "command": [
-        "./kitchen${EXECUTABLE_SUFFIX}",
-        "cook",
-        "-checkout-dir",
-        "recipe_bundle",
-        "-mode",
-        "swarming",
-        "-luci-system-account",
-        "system",
-        "-cache-dir",
-        "cache",
-        "-temp-dir",
-        "tmp",
-        "-known-gerrit-host",
-        "android.googlesource.com",
-        "-known-gerrit-host",
-        "boringssl.googlesource.com",
-        "-known-gerrit-host",
-        "chromium.googlesource.com",
-        "-known-gerrit-host",
-        "dart.googlesource.com",
-        "-known-gerrit-host",
-        "fuchsia.googlesource.com",
-        "-known-gerrit-host",
-        "go.googlesource.com",
-        "-known-gerrit-host",
-        "llvm.googlesource.com",
-        "-known-gerrit-host",
-        "skia.googlesource.com",
-        "-known-gerrit-host",
-        "webrtc.googlesource.com",
-        "-output-result-json",
-        "${ISOLATED_OUTDIR}/build_result_filename",
-        "-workdir",
-        ".",
-        "-recipe",
-        "test",
-        "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Android-Clang-GalaxyS6-CPU-Exynos7420-arm64-Debug-All-Android_NativeFonts\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
-        "-logdog-annotation-url",
-        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Debian9-Clang-arm64-Debug-Android",
-        "Housekeeper-PerCommit-IsolateSKP",
-        "Housekeeper-PerCommit-IsolateSVG",
-        "Housekeeper-PerCommit-IsolateSkImage"
-      ],
-      "dimensions": [
-        "device_os:NRD90M_G920TUVU5FQK1",
-        "device_type:zerofltetmo",
-        "os:Android",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "${cache_dir}/vpython"
-        ]
-      },
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      },
-      "io_timeout_ns": 14400000000000,
-      "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 1,
-      "outputs": [
-        "test"
-      ],
-      "priority": 0.8
-    },
     "Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-All-Android": {
       "caches": [
         {
@@ -42886,6 +42785,107 @@
         "test",
         "-properties",
         "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Debug-All-Android\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Debian9-Clang-arm-Debug-Android",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR6.170623.023",
+        "device_type:bullhead",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 1,
+      "outputs": [
+        "test"
+      ],
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Debug-All-Android_NativeFonts": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:ad60019cb66a75b59991d43b95a43f68e3fff81b"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "test",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Debug-All-Android_NativeFonts\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -82203,106 +82203,6 @@
       "priority": 0.8,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Android-Clang-GalaxyS6-CPU-Exynos7420-arm64-Debug-All-Android_NativeFonts": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:ad60019cb66a75b59991d43b95a43f68e3fff81b"
-        },
-        {
-          "name": "infra/gsutil",
-          "path": "cipd_bin_packages",
-          "version": "version:4.28"
-        }
-      ],
-      "command": [
-        "./kitchen${EXECUTABLE_SUFFIX}",
-        "cook",
-        "-checkout-dir",
-        "recipe_bundle",
-        "-mode",
-        "swarming",
-        "-luci-system-account",
-        "system",
-        "-cache-dir",
-        "cache",
-        "-temp-dir",
-        "tmp",
-        "-known-gerrit-host",
-        "android.googlesource.com",
-        "-known-gerrit-host",
-        "boringssl.googlesource.com",
-        "-known-gerrit-host",
-        "chromium.googlesource.com",
-        "-known-gerrit-host",
-        "dart.googlesource.com",
-        "-known-gerrit-host",
-        "fuchsia.googlesource.com",
-        "-known-gerrit-host",
-        "go.googlesource.com",
-        "-known-gerrit-host",
-        "llvm.googlesource.com",
-        "-known-gerrit-host",
-        "skia.googlesource.com",
-        "-known-gerrit-host",
-        "webrtc.googlesource.com",
-        "-output-result-json",
-        "${ISOLATED_OUTDIR}/build_result_filename",
-        "-workdir",
-        ".",
-        "-recipe",
-        "upload_dm_results",
-        "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Android-Clang-GalaxyS6-CPU-Exynos7420-arm64-Debug-All-Android_NativeFonts\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
-        "-logdog-annotation-url",
-        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Android-Clang-GalaxyS6-CPU-Exynos7420-arm64-Debug-All-Android_NativeFonts"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "${cache_dir}/vpython"
-        ]
-      },
-      "execution_timeout_ns": 3600000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      },
-      "io_timeout_ns": 3600000000000,
-      "isolate": "swarm_recipe.isolate",
-      "priority": 0.8,
-      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
-    },
     "Upload-Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-All-Android": {
       "caches": [
         {
@@ -84077,6 +83977,106 @@
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Debug-All-Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-9.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 3600000000000,
+      "isolate": "swarm_recipe.isolate",
+      "priority": 0.8,
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Upload-Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Debug-All-Android_NativeFonts": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:ad60019cb66a75b59991d43b95a43f68e3fff81b"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "upload_dm_results",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Debug-All-Android_NativeFonts\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Debug-All-Android_NativeFonts"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
