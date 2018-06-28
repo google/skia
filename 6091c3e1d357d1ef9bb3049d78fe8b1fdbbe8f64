@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3ef85474_fa585daf",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 22
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-06-28T19:07:10Z",
+      "side": 1,
+      "message": "Just completely forgot I had it available in this cl when I wrote this part.",
+      "parentUuid": "8d1b3e5d_21674622",
+      "range": {
+        "startLine": 324,
+        "startChar": 36,
+        "endLine": 324,
+        "endChar": 79
+      },
+      "revId": "6091c3e1d357d1ef9bb3049d78fe8b1fdbbe8f64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "23756711_31ee6eb1",
         "filename": "src/gpu/mtl/GrMtlUtil.h",
         "patchSetId": 22
@@ -45,6 +69,30 @@
       "revId": "6091c3e1d357d1ef9bb3049d78fe8b1fdbbe8f64",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4cd9604_87f714b4",
+        "filename": "src/gpu/mtl/GrMtlUtil.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-06-28T19:07:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "23756711_31ee6eb1",
+      "range": {
+        "startLine": 30,
+        "startChar": 15,
+        "endLine": 30,
+        "endChar": 30
+      },
+      "revId": "6091c3e1d357d1ef9bb3049d78fe8b1fdbbe8f64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
