@@ -77,6 +77,8 @@ private:
 
         const GrBackendTexture& backendTexture() const { return fBackendTexture; }
 
+        const GrCaps* caps() const;
+
     private:
         GrContext*       fContext;
         GrBackendTexture fBackendTexture;

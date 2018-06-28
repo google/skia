@@ -7,6 +7,7 @@
 
 #include "GrMtlCaps.h"
 
+#include "GrBackendSurface.h"
 #include "GrShaderCaps.h"
 
 GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice> device,
@@ -314,3 +315,11 @@ void GrMtlCaps::initConfigTable() {
     info = &fConfigTable[kRGBA_half_GrPixelConfig];
     info->fFlags = ConfigInfo::kAllFlags;
 }
+
+#ifdef GR_TEST_UTILS
+GrBackendFormat GrMtlCaps::onCreateFormatFromBackendTexture(
+        const GrBackendTexture& backendTex) const {
+    return GrBackendFormat(); // Metal BackendFormat not yet implemented.
+}
+#endif
+
