@@ -1284,7 +1284,7 @@ SkImageInfo can be constructed or initialized by these functions, including C++ 
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImageInfo_empty_constructor'>SkImageInfo()</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates with zero dimensions, <a href='#kUnknown_SkColorType'>kUnknown_SkColorType</a>, <a href='#kUnknown_SkAlphaType'>kUnknown_SkAlphaType</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates with zeroed dimensions, <a href='#kUnknown_SkColorType'>kUnknown_SkColorType</a>, <a href='#kUnknown_SkAlphaType'>kUnknown_SkAlphaType</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImageInfo_makeAlphaType'>makeAlphaType</a></td>
