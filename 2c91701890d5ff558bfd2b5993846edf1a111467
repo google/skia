@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "909544c8_a6710302",
+        "filename": "src/utils/SkPolyUtils.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-28T19:15:54Z",
+      "side": 1,
+      "message": "// Document the smoothness criteria ?",
+      "revId": "2c91701890d5ff558bfd2b5993846edf1a111467",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

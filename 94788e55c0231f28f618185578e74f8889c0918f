@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29b6db95_39f7ee0d",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 798,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-28T19:15:54Z",
+      "side": 1,
+      "message": "TriangulationVertex ?",
+      "revId": "94788e55c0231f28f618185578e74f8889c0918f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8bfbef6_3196f2a1",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 801,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-28T19:15:54Z",
+      "side": 1,
+      "message": "All the cool kids are using enum class",
+      "revId": "94788e55c0231f28f618185578e74f8889c0918f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb2209c1_6290bf10",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-28T19:15:54Z",
+      "side": 1,
+      "message": "Chris added range-for capabilities in https://skia-review.googlesource.com/c/skia/+/127106",
+      "revId": "94788e55c0231f28f618185578e74f8889c0918f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5fb2515f_9f8cec83",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 936,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-28T19:15:54Z",
+      "side": 1,
+      "message": "triangulated ?",
+      "range": {
+        "startLine": 936,
+        "startChar": 15,
+        "endLine": 936,
+        "endChar": 27
+      },
+      "revId": "94788e55c0231f28f618185578e74f8889c0918f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38bf89a0_09c830c8",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 991,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-28T19:15:54Z",
+      "side": 1,
+      "message": "Here too w/ range-for ?",
+      "revId": "94788e55c0231f28f618185578e74f8889c0918f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
