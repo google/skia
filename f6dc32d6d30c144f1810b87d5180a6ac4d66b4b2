@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "35f8870c_bc3b7243",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-28T16:46:05Z",
+      "side": 1,
+      "message": "Lets wrap this in: \"#GPU_TEST_UTILS\", and all related functions.",
+      "range": {
+        "startLine": 274,
+        "startChar": 3,
+        "endLine": 278,
+        "endChar": 94
+      },
+      "revId": "f6dc32d6d30c144f1810b87d5180a6ac4d66b4b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
