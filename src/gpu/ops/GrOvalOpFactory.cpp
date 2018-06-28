@@ -598,7 +598,7 @@ private:
             if (args.fShaderCaps->halfIs32Bits()) {
                 fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-6);");
             } else {
-                fragBuilder->codeAppend("grad_dot = max(grad_dot, 3.1e-5);");
+                fragBuilder->codeAppend("grad_dot = max(grad_dot, 5.0e-5);");
             }
             fragBuilder->codeAppend("half invlen = inversesqrt(grad_dot);");
             fragBuilder->codeAppend("half edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);");
@@ -754,7 +754,7 @@ private:
             if (args.fShaderCaps->halfIs32Bits()) {
                 fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-6);");
             } else {
-                fragBuilder->codeAppend("grad_dot = max(grad_dot, 3.1e-5);");
+                fragBuilder->codeAppend("grad_dot = max(grad_dot, 5.0e-5);");
             }
             fragBuilder->codeAppend("half invlen = inversesqrt(grad_dot);");
             if (DIEllipseStyle::kHairline == diegp.fStyle) {
