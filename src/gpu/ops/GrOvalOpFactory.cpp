@@ -595,11 +595,7 @@ private:
             fragBuilder->codeAppend("half grad_dot = dot(grad, grad);");
 
             // avoid calling inversesqrt on zero.
-            if (args.fShaderCaps->halfIs32Bits()) {
-                fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-6);");
-            } else {
-                fragBuilder->codeAppend("grad_dot = max(grad_dot, 5.0e-5);");
-            }
+            fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
             fragBuilder->codeAppend("half invlen = inversesqrt(grad_dot);");
             fragBuilder->codeAppend("half edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);");
 
@@ -751,11 +747,7 @@ private:
 
             fragBuilder->codeAppend("half grad_dot = dot(grad, grad);");
             // avoid calling inversesqrt on zero.
-            if (args.fShaderCaps->halfIs32Bits()) {
-                fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-6);");
-            } else {
-                fragBuilder->codeAppend("grad_dot = max(grad_dot, 5.0e-5);");
-            }
+            fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
             fragBuilder->codeAppend("half invlen = inversesqrt(grad_dot);");
             if (DIEllipseStyle::kHairline == diegp.fStyle) {
                 // can probably do this with one step
