@@ -157,6 +157,10 @@ private:
                     uint32_t featureFlags);
     void initShaderCaps(const VkPhysicalDeviceProperties&, uint32_t featureFlags);
 
+#ifdef GR_TEST_UTILS
+    GrBackendFormat onCreateFormatFromBackendTexture(const GrBackendTexture&) const override;
+#endif
+
     void initConfigTable(const GrVkInterface*, VkPhysicalDevice, const VkPhysicalDeviceProperties&);
     void initStencilFormat(const GrVkInterface* iface, VkPhysicalDevice physDev);
 

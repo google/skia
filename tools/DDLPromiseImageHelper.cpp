@@ -20,6 +20,10 @@ DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext
     }
 }
 
+const GrCaps* DDLPromiseImageHelper::PromiseImageCallbackContext::caps() const {
+    return fContext->contextPriv().caps();
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkData> DDLPromiseImageHelper::deflateSKP(const SkPicture* inputPicture) {
@@ -104,7 +108,9 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
     }
     SkASSERT(curImage.fIndex == *indexPtr);
 
-    GrBackendFormat backendFormat = curImage.fCallbackContext->backendTexture().format();
+    const GrCaps* caps = curImage.fCallbackContext->caps();
+    const GrBackendTexture& backendTex = curImage.fCallbackContext->backendTexture();
+    GrBackendFormat backendFormat = caps->createFormatFromBackendTexture(backendTex);
 
     // Each DDL recorder gets its own ref on the promise callback context for the
     // promise images it creates.

@@ -271,6 +271,14 @@ public:
     virtual bool getConfigFromBackendFormat(const GrBackendFormat& format, SkColorType ct,
                                             GrPixelConfig*) const = 0;
 
+#ifdef GR_TEST_UTILS
+    /**
+     * Creates a GrBackendFormat which matches the backend texture. If the backend texture is
+     * invalid, the function will return the default GrBackendFormat.
+     */
+    GrBackendFormat createFormatFromBackendTexture(const GrBackendTexture&) const;
+#endif
+
     const GrDriverBugWorkarounds& workarounds() const { return fDriverBugWorkarounds; }
 
 protected:
@@ -278,6 +286,14 @@ protected:
         overrides requested by the client. Note that overrides will only reduce the caps never
         expand them. */
     void applyOptionsOverrides(const GrContextOptions& options);
+
+#ifdef GR_TEST_UTILS
+    /**
+     * Subclasses implement this to actually create a GrBackendFormat to match backend texture. At
+     * this point, the backend texture has already been validated.
+     */
+    virtual GrBackendFormat onCreateFormatFromBackendTexture(const GrBackendTexture&) const = 0;
+#endif
 
     sk_sp<GrShaderCaps> fShaderCaps;
 

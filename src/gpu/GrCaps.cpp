@@ -262,3 +262,10 @@ bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrMipMapped mipped) 
 
     return true;
 }
+
+GrBackendFormat GrCaps::createFormatFromBackendTexture(const GrBackendTexture& backendTex) const {
+    if (!backendTex.isValid()) {
+        return GrBackendFormat();
+    }
+    return this->onCreateFormatFromBackendTexture(backendTex);
+}

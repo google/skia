@@ -172,11 +172,6 @@ public:
     // Returns true if the backend texture has been initialized.
     bool isValid() const { return fIsValid; }
 
-    /**
-     * Create a GrBackendFormat object that matches this texture
-     */
-    GrBackendFormat format() const;
-
 #if GR_TEST_UTILS
     GrPixelConfig testingOnly_getPixelConfig() const;
     static bool TestingOnly_Equals(const GrBackendTexture& , const GrBackendTexture&);

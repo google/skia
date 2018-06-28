@@ -75,6 +75,11 @@ private:
 
     void initGrCaps(const id<MTLDevice> device);
     void initShaderCaps();
+
+#ifdef GR_TEST_UTILS
+    GrBackendFormat onCreateFormatFromBackendTexture(const GrBackendTexture&) const override;
+#endif
+
     void initConfigTable();
 
     struct ConfigInfo {

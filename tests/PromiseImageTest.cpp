@@ -105,7 +105,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
                 nullptr, kWidth, kHeight, kRGBA_8888_GrPixelConfig, true, GrMipMapped::kNo);
         REPORTER_ASSERT(reporter, backendTex.isValid());
 
-        GrBackendFormat backendFormat = backendTex.format();
+        GrBackendFormat backendFormat = gpu->caps()->createFormatFromBackendTexture(backendTex);
         REPORTER_ASSERT(reporter, backendFormat.isValid());
 
         PromiseTextureChecker promiseChecker(backendTex);
