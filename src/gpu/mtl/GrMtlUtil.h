@@ -23,4 +23,9 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format);
 */
 GrPixelConfig GrMTLFormatToPixelConfig(MTLPixelFormat format);
 
+/**
+ * Returns id<MTLTexture> from void pointer
+ */
+id<MTLTexture> TransferTexture(const void* mtlTexture, GrWrapOwnership);
+
 #endif
