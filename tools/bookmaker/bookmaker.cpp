@@ -318,6 +318,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
 //                        fRoot->fChildren.push_back(definition);
                     }
                 }
+                SkASSERT(string::npos == name.find('\n'));
                 definition->fName = name;
                 if (MarkType::kMethod == markType) {
                     if (string::npos != name.find(':', 0)) {
@@ -1837,6 +1838,9 @@ string BmhParser::methodName() {
         saveState.restore();
     }
 //    this->next();
+    if (string::npos != builder.find('\n')) {
+        builder.erase(std::remove(builder.begin(), builder.end(), '\n'), builder.end());
+    }
     return uniqueRootName(builder, MarkType::kMethod);
 }
 

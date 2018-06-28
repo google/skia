@@ -53,62 +53,96 @@ If corner curves overlap, they are proportionally reduced to fit.
 
 # ------------------------------------------------------------------------------
 
-#Method SkRRect() = default
+#Method SkRRect()
 #In Constructor
-#Line # incomplete ##
+#Line # creates with zeroed bounds and corner radii ##
 
-Default initialized to a rrect at the origin with zero width and height.
+Initializes bounds at (0, 0), the origin, with zero width and height.
+Initializes corner radii to (0, 0), and sets type of kEmpty_Type.
 
-#Return incomplete ##
+#Return empty Round_Rect ##
 
 #Example
-// incomplete
+#Height 60
+    SkRRect rrect;
+    SkPaint p;
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(10);
+    canvas->drawRRect(rrect, p);
+    rrect.setRect({10, 10, 100, 50});
+    canvas->drawRRect(rrect, p);
 ##
 
-#SeeAlso incomplete
+#SeeAlso setEmpty isEmpty
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
-#Method SkRRect(const SkRRect& rrect) = default
+#Method SkRRect(const SkRRect& rrect)
 #In Constructor
-#Line # incomplete ##
+#Line # copies bounds and corner radii ##
 
-#Param rrect  incomplete ##
+Initializes to copy of rrect bounds and corner radii.
 
-#Return incomplete ##
+#Param rrect  bounds and corner to copy ##
 
+#Return copy of rrect ##
+
+#Bug 8115
 #Example
-// incomplete
+    SkRRect rrect = SkRRect::MakeRect({10, 10, 100, 50});
+    SkRRect rrect2(rrect);
+    rrect2.inset(20, 20);
+    SkPaint p;
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(10);
+    canvas->drawRRect(rrect, p);
+    canvas->drawRRect(rrect2, p);
 ##
 
-#SeeAlso incomplete
+#SeeAlso operator=(const SkRRect& rrect) MakeRect
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
-#Method SkRRect& operator=(const SkRRect& rrect) = default
+#Method SkRRect& operator=(const SkRRect& rrect)
 #In Operator
-#Line # incomplete ##
+#Line # copies bounds and corner radii ##
 
-#Param rrect  incomplete ##
+Copies rrect bounds and corner radii.
 
-#Return incomplete ##
+#Param rrect  bounds and corner to copy ##
+
+#Return copy of rrect ##
 
 #Example
-// incomplete
+    SkRRect rrect = SkRRect::MakeRect({40, 40, 100, 70});
+    SkRRect rrect2 = rrect;
+    rrect2.inset(-20, -20);
+    SkPaint p;
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(10);
+    canvas->drawRRect(rrect, p);
+    canvas->drawRRect(rrect2, p);
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkRRect(const SkRRect& rrect) MakeRect
 
 #Method ##
 
 # ------------------------------------------------------------------------------
+#Subtopic Type
+#Line # specialization of Round_Rect geometry ##
+
+#PhraseDef list_of_rrect_types
+kEmpty_Type, kRect_Type, kOval_Type, kSimple_Type, kNinePatch_Type,
+kComplex_Type
+##
 
 #Enum Type
-#Line # incomplete ##
+#Line # specialization of Round_Rect geometry ##
 
 #Code
     enum Type {
@@ -122,89 +156,140 @@ Default initialized to a rrect at the origin with zero width and height.
     };
 ##
 
-Enum to capture the various possible subtypes of Round_Rect. Accessed
-by type(). The subtypes become progressively less restrictive.
+Type describes possible specializations of Round_Rect. Each Type is
+exclusive; a Round_Rect may only have one type. 
+
+The enum members become progressively less restrictive; larger values of
+Type have more degrees of freedom than smaller values.
 
 #Const kEmpty_Type
-#Line # incomplete ##
+#Line # zero width or height ##
 Round_Rect has zero width or height. All radii are zero.
 ##
 #Const kRect_Type
-#Line # incomplete ##
+#Line # non-zero width and height, and zeroed radii ##
 Round_Rect has width and height. All radii are zero.
 ##
 #Const kOval_Type
-#Line # incomplete ##
+#Line # non-zero width and height filled with radii ##
 Round_Rect has width and height. All four x-radii are equal,
 and at least half the width. All four y-radii are equal,
 and at least half the height.
 ##
 #Const kSimple_Type
-#Line # incomplete ##
+#Line # non-zero width and height with equal radii ##
 Round_Rect has width and height. All four x-radii are equal and
 greater than zero, and all four y-radii are equal and greater than
 zero. Either x-radii are less than half the width, or y-radii is
 less than half the height, or both.
 ##
 #Const kNinePatch_Type
-#Line # incomplete ##
+#Line # non-zero width and height with axis-aligned radii ##
 Round_Rect has width and height. Left x-radii are equal, top
 y-radii are equal, right x-radii are equal, and bottom y-radii
-are equal. The radii do not descript a rect, oval, or simple type.
+are equal. The radii do not describe a rect, oval, or simple type.
 
 The centers of the corner ellipses form an axis-aligned rectangle
 that divides the Round_Rect into nine rectangular patches; an
 interior rectangle, four edges, and four corners.
 ##
 #Const kComplex_Type
-#Line # incomplete ##
+#Line # non-zero width and height with arbitrary radii ##
 both radii are non-zero.
 ##
 #Const kLastType = kComplex_Type
-#Line # incomplete ##
+#Line # largest Type value ##
 ##
 
 #Example
-// incomplete
+#Height 128
+    struct Radii { SkVector data[4]; };
+    auto drawRRectType = [=](const SkRect& rect, const Radii& radii) {
+        SkRRect rrect;
+        rrect.setRectRadii(rect, radii.data);
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        const char* typeStr[] = { "empty", "rect", "oval", "simple", "nine patch", "complex" };
+        paint.setTextAlign(SkPaint::kCenter_Align);
+        canvas->drawString(typeStr[(int) rrect.type()], rect.centerX(), rect.bottom() + 20, paint);
+        paint.setStyle(SkPaint::kStroke_Style);       
+        canvas->drawRRect(rrect, paint);
+    };
+    drawRRectType({ 45,  30,  45,  30}, {{{ 5,  5}, { 5,  5}, { 5,  5}, { 5,  5}}});
+    drawRRectType({ 90,  10, 140,  30}, {{{ 0,  0}, { 0,  0}, { 0,  0}, { 0,  0}}});
+    drawRRectType({160,  10, 210,  30}, {{{25, 10}, {25, 10}, {25, 10}, {25, 10}}});
+    drawRRectType({ 20,  80,  70, 100}, {{{ 5,  5}, { 5,  5}, { 5,  5}, { 5,  5}}});
+    drawRRectType({ 90,  80, 140, 100}, {{{ 5,  5}, {10,  5}, {10,  5}, { 5,  5}}});
+    drawRRectType({160,  80, 210, 100}, {{{ 5,  5}, {10,  5}, { 5,  5}, { 5,  5}}});
 ##
 
-#SeeAlso incomplete
+#SeeAlso Rect Path
 
 #Enum ##
 
 # ------------------------------------------------------------------------------
 
 #Method Type getType() const
-#In incomplete
-#Line # incomplete ##
+#In Property
+#Line # returns Type ##
 
-Returns the RR's sub type.
+Returns Type, one of: #list_of_rrect_types#.
 
-#Return incomplete ##
+#Return Type ##
 
 #Example
-// incomplete
+#Description 
+rrect2 is not a Rect; inset() has made it empty.
+##
+    SkRRect rrect = SkRRect::MakeRect({10, 10, 100, 50});
+    SkRRect rrect2(rrect);
+    rrect2.inset(20, 20);
+    SkPaint p;
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(10);
+    std::string str("Type ");
+    str += SkRRect::kRect_Type == rrect2.getType() ? "=" : "!"; 
+    str += "= SkRRect::kRect_Type";
+    canvas->drawString(str.c_str(), 20, 80, SkPaint());
+    canvas->drawRRect(rrect2, p);
 ##
 
-#SeeAlso incomplete
+#SeeAlso Type type
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
 #Method Type type() const
-#In incomplete
-#Line # incomplete ##
+#In Property
+#Line # returns Type ##
 
-#Return incomplete ##
+Returns Type, one of: #list_of_rrect_types#.
+
+#Return Type ##
 
 #Example
-// incomplete
+#Description 
+inset() has made rrect2 empty.
+##
+    SkRRect rrect = SkRRect::MakeRect({10, 10, 100, 50});
+    SkRRect rrect2(rrect);
+    rrect2.inset(20, 20);
+    SkPaint p;
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(10);
+    std::string str("Type ");
+    str += SkRRect::kEmpty_Type == rrect2.type() ? "=" : "!"; 
+    str += "= SkRRect::kEmpty_Type";
+    canvas->drawString(str.c_str(), 20, 80, SkPaint());
+    canvas->drawRRect(rrect2, p);
 ##
 
-#SeeAlso incomplete
+#SeeAlso Type getType
 
 #Method ##
+
+#Subtopic Type ##
 
 # ------------------------------------------------------------------------------
 
@@ -533,6 +618,7 @@ otherwise, sets type to kEmpty_Type.
 #Param rect  bounds to set ##
 
 #Example
+#Height 90
     SkPaint paint;
     SkRRect rrect = SkRRect::MakeRect({30, 10, 100, 60});
     canvas->drawRRect(rrect, paint);
@@ -549,17 +635,29 @@ otherwise, sets type to kEmpty_Type.
 
 #Method static SkRRect MakeEmpty()
 #In Constructor
-#Line # incomplete ##
+#Line # creates with zeroed bounds and corner radii ##
 
-Makes an empty rrect at the origin with zero width and height.
+Initializes bounds at (0, 0), the origin, with zero width and height.
+Initializes corner radii to (0, 0), and sets type of kEmpty_Type.
 
-#Return incomplete ##
+#Return empty Round_Rect ##
 
 #Example
-// incomplete
+#Height 90
+    SkRRect rrect = SkRRect::MakeEmpty();
+    SkRRect rrect2(rrect);
+    rrect2.inset(-20, -20);
+    SkPaint p;
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(10);
+    std::string str("Type ");
+    str += SkRRect::kEmpty_Type == rrect2.type() ? "=" : "!"; 
+    str += "= SkRRect::kEmpty_Type";
+    canvas->drawString(str.c_str(), 20, 80, SkPaint());
+    canvas->drawRRect(rrect2, p);
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkRRect() SkRect::MakeEmpty
 
 #Method ##
 
@@ -567,94 +665,147 @@ Makes an empty rrect at the origin with zero width and height.
 
 #Method static SkRRect MakeRect(const SkRect& r)
 #In Constructor
-#Line # incomplete ##
+#Line # copies bounds and zeroes corner radii ##
 
-#Param r  incomplete ##
+Initializes to copy of r bounds and zeroes corner radii.
 
-#Return incomplete ##
+#Param r  bounds to copy ##
+
+#Return copy of r ##
 
 #Example
-// incomplete
+#Height 70
+    SkPaint paint;
+    SkRRect rrect = SkRRect::MakeRect({30, 10, 100, 60});
+    canvas->drawRRect(rrect, paint);
+    rrect.setOval(rrect.getBounds());
+    paint.setColor(SK_ColorBLUE);
+    canvas->drawRRect(rrect, paint);
 ##
 
-#SeeAlso incomplete
+#SeeAlso setRect MakeOval MakeRectXY
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
 #Method static SkRRect MakeOval(const SkRect& oval)
-#In incomplete
-#Line # incomplete ##
+#In Constructor
+#Line # creates Oval to fit bounds ##
 
-#Param oval  incomplete ##
+Sets bounds to oval, x-axis radii to half oval.width(), and all y-axis radii
+to half oval.height(). If rect is empty, sets to kEmpty_Type.
+Otherwise, sets to kOval_Type.
 
-#Return incomplete ##
+#Param oval  bounds of Oval ##
+
+#Return Oval ##
 
 #Example
-// incomplete
+#Height 70
+    SkPaint paint;
+    SkRRect rrect = SkRRect::MakeOval({30, 10, 100, 60});
+    canvas->drawRRect(rrect, paint);
+    rrect.setRect(rrect.getBounds());
+    paint.setColor(SK_ColorBLUE);
+    paint.setBlendMode(SkBlendMode::kDifference);
+    canvas->drawRRect(rrect, paint);
 ##
 
-#SeeAlso incomplete
+#SeeAlso setOval MakeRect MakeRectXY
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
 #Method static SkRRect MakeRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad)
-#In incomplete
-#Line # incomplete ##
+#In Constructor
+#Line # creates rounded rectangle ##
 
-#Param rect  incomplete ##
-#Param xRad  incomplete ##
-#Param yRad  incomplete ##
+Sets to rounded rectangle with the same radii for all four corners.
+If rect is empty, sets to kEmpty_Type.
+Otherwise, if xRad and yRad are zero, sets to kRect_Type.
+Otherwise, if xRad is at least half rect.width() and yRad is at least half
+rect.height(), sets to kOval_Type.
+Otherwise, sets to kSimple_Type.
 
-#Return incomplete ##
+#Param rect  bounds of rounded rectangle ##
+#Param xRad  x-axis radius of corners ##
+#Param yRad  y-axis radius of corners ##
+
+#Return rounded rectangle ##
 
 #Example
-// incomplete
+#Height 70
+    SkPaint paint;
+    SkRRect rrect = SkRRect::MakeRectXY({30, 10, 100, 60}, 20, 20);
+    canvas->drawRRect(rrect, paint);
+    rrect.setRect(rrect.getBounds());
+    paint.setColor(SK_ColorBLUE);
+    paint.setBlendMode(SkBlendMode::kModulate);
+    canvas->drawRRect(rrect, paint);
 ##
 
-#SeeAlso incomplete
+#SeeAlso setRectXY
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
 #Method void setOval(const SkRect& oval)
-#In incomplete
-#Line # incomplete ##
+#In Set
+#Line # replaces with Oval to fit bounds ##
 
-Sets Round_Rect to match the supplied oval. All x-radii will equal half the
-width and all y-radii will equal half the height.
+Sets bounds to oval, x-axis radii to half oval.width(), and all y-axis radii
+to half oval.height(). If rect is empty, sets to kEmpty_Type.
+Otherwise, sets to kOval_Type.
 
-#Param oval  incomplete ##
+#Param oval  bounds of Oval ##
 
 #Example
-// incomplete
+#Height 70
+    SkPaint paint;
+    SkRRect rrect = SkRRect::MakeRectXY({30, 10, 100, 60}, 20, 20);
+    canvas->drawRRect(rrect, paint);
+    rrect.setOval(rrect.getBounds());
+    paint.setColor(SK_ColorWHITE);
+    paint.setBlendMode(SkBlendMode::kExclusion);
+    canvas->drawRRect(rrect, paint);
 ##
 
-#SeeAlso incomplete
+#SeeAlso MakeOval
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
 #Method void setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad)
-#In incomplete
-#Line # incomplete ##
+#In Set
+#Line # replaces with rounded rectangle ##
 
-Initializes Round_Rect with the same radii for all four corners.
+Sets to rounded rectangle with the same radii for all four corners.
+If rect is empty, sets to kEmpty_Type.
+Otherwise, if xRad or yRad is zero, sets to kRect_Type.
+Otherwise, if xRad is at least half rect.width() and yRad is at least half
+rect.height(), sets to kOval_Type.
+Otherwise, sets to kSimple_Type.
 
-#Param rect  incomplete ##
-#Param xRad  incomplete ##
-#Param yRad  incomplete ##
+#Param rect  bounds of rounded rectangle ##
+#Param xRad  x-axis radius of corners ##
+#Param yRad  y-axis radius of corners ##
 
 #Example
-// incomplete
+#Height 70
+    SkPaint paint;
+    SkRRect rrect = SkRRect::MakeRectXY({30, 10, 100, 60}, 20, 20);
+    canvas->drawRRect(rrect, paint);
+    rrect.setRectXY(rrect.getBounds(), 5, 5);
+    paint.setColor(SK_ColorWHITE);
+    paint.setBlendMode(SkBlendMode::kExclusion);
+    canvas->drawRRect(rrect, paint);
 ##
 
-#SeeAlso incomplete
+#SeeAlso MakeRectXY SkPath::addRoundRect
 
 #Method ##
 
@@ -662,41 +813,75 @@ Initializes Round_Rect with the same radii for all four corners.
 
 #Method void setNinePatch(const SkRect& rect, SkScalar leftRad, SkScalar topRad,
                       SkScalar rightRad, SkScalar bottomRad)
-#In incomplete
-#Line # incomplete ##
+#In Set
+#Line # replaces with rounded rectangle ##
 
-Initializes Round_Rect with one radius per-side.
+Sets bounds to rect. Sets radii to (leftRad, topRad), (rightRad, topRad),
+(rightRad, bottomRad), (leftRad, bottomRad).
 
-#Param rect  incomplete ##
-#Param leftRad  incomplete ##
-#Param topRad  incomplete ##
-#Param rightRad  incomplete ##
-#Param bottomRad  incomplete ##
+If rect is empty, sets to kEmpty_Type.
+Otherwise, if leftRad and rightRad are zero, sets to kRect_Type.
+Otherwise, if topRad and bottomRad are zero, sets to kRect_Type.
+Otherwise, if leftRad and rightRad are equal and at least half rect.width(), and
+topRad and bottomRad are equal at least half rect.height(), sets to kOval_Type.
+Otherwise, if leftRad and rightRad are equal, and topRad and bottomRad are equal,
+sets to kSimple_Type. Otherwise, sets to kNinePatch_Type.
+
+Nine patch refers to the nine parts defined by the radii: one center rectangle,
+four edge patches, and four corner patches.
+
+#Param rect  bounds of rounded rectangle ##
+#Param leftRad  left-top and left-bottom x-axis radius ##
+#Param topRad  left-top and right-top y-axis radius ##
+#Param rightRad  right-top and right-bottom x-axis radius ##
+#Param bottomRad  left-bottom and right-bottom y-axis radius ##
 
 #Example
-// incomplete
+#Height 70
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    SkRRect rrect;
+    rrect.setNinePatch({30, 10, 100, 60}, 10, 20, 20, 10);
+    canvas->drawRRect(rrect, paint);
+    paint.setColor(SK_ColorWHITE);
+    const SkRect r = rrect.getBounds();
+    canvas->drawLine(r.fLeft, r.fTop + rrect.radii(SkRRect::kUpperLeft_Corner).fY,
+                     r.fRight, r.fTop + rrect.radii(SkRRect::kUpperRight_Corner).fY, paint);
+    canvas->drawLine(r.fLeft, r.fBottom - rrect.radii(SkRRect::kLowerLeft_Corner).fY,
+                     r.fRight, r.fBottom - rrect.radii(SkRRect::kLowerRight_Corner).fY, paint);
+    canvas->drawLine(r.fLeft + rrect.radii(SkRRect::kUpperLeft_Corner).fX, r.fTop,
+                     r.fLeft + rrect.radii(SkRRect::kLowerLeft_Corner).fX, r.fBottom, paint);
+    canvas->drawLine(r.fRight - rrect.radii(SkRRect::kUpperRight_Corner).fX, r.fTop,
+                     r.fRight - rrect.radii(SkRRect::kLowerRight_Corner).fX, r.fBottom, paint);
 ##
 
-#SeeAlso incomplete
+#SeeAlso setRectRadii
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
 #Method void setRectRadii(const SkRect& rect, const SkVector radii[4])
-#In incomplete
-#Line # incomplete ##
+#In Set
+#Line # replaces with rounded rectangle ##
 
-Initializes Round_Rect with potentially different radii for all four corners.
+Sets bounds to rect. Sets radii array for individual control of all for corners.
 
-#Param rect  incomplete ##
-#Param radii  incomplete ##
+If rect is empty, sets to kEmpty_Type.
+Otherwise, if one of each corner radii are zero, sets to kRect_Type.
+Otherwise, if all x-axis radii are equal and at least half rect.width(), and
+all y-axis radii are equal at least half rect.height(), sets to kOval_Type.
+Otherwise, if all x-axis radii are equal, and all y-axis radii are equal,
+sets to kSimple_Type. Otherwise, sets to kNinePatch_Type.
+
+#Param rect  bounds of rounded rectangle ##
+#Param radii  corner x-axis and y-axis radii ##
 
 #Example
 // incomplete
 ##
 
-#SeeAlso incomplete
+#SeeAlso setNinePatch SkPath::addRoundRect
 
 #Method ##
 

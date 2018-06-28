@@ -278,6 +278,10 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         string paramName = className + "::";
                         paramName += string(token.fContentStart,
                                 token.fContentEnd - token.fContentStart);
+                        if (string::npos != paramName.find('\n')) {
+                            paramName.erase(std::remove(paramName.begin(), paramName.end(), '\n'),
+                                    paramName.end());
+                        }
                         def = root->find(paramName, RootDefinition::AllowParens::kYes);
                         if (!def && 0 == token.fName.find("operator")) {
                             string operatorName = className + "::";

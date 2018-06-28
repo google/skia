@@ -1132,7 +1132,7 @@ and green; and Color_Space, the range and linearity of colors.
 #Method SkImageInfo()
 
 #In Constructor
-#Line # creates with zero dimensions, kUnknown_SkColorType, kUnknown_SkAlphaType ##
+#Line # creates with zeroed dimensions, kUnknown_SkColorType, kUnknown_SkAlphaType ##
 Creates an empty Image_Info with kUnknown_SkColorType, kUnknown_SkAlphaType,
 a width and height of zero, and no Color_Space.
 

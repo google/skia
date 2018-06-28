@@ -657,7 +657,7 @@ drawing source with destination opacity.
 
 ### Example
 
-<div><fiddle-embed name="3979c865bb482e6ef1fafc71e56bbb91"></fiddle-embed></div>
+<div><fiddle-embed name="b0833c18fe8b0eeaab9bd6d2160d272f"></fiddle-embed></div>
 
 ## <a name='Dst_In'>Dst In</a>
 

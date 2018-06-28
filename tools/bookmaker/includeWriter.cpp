@@ -1465,6 +1465,10 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                     --continueEnd;
                 }
                 methodName += string(fContinuation, continueEnd - fContinuation);
+                if (string::npos != methodName.find('\n')) {
+                    methodName.erase(std::remove(methodName.begin(), methodName.end(), '\n'),
+                                    methodName.end());
+                }
                 method = this->findMethod(methodName, root);
                 if (!method) {
                     if (fBmhStructDef && fBmhStructDef->fDeprecated) {

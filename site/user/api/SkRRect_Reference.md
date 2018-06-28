@@ -18,19 +18,19 @@ SkRRect related constants are defined by <code>enum</code>, <code>enum class</co
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_Type'>Type</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>specialization of <a href='#RRect'>Round Rect</a> geometry</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kComplex_Type'>kComplex Type</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>non-zero width and height with arbitrary radii</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kEmpty_Type'>kEmpty Type</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>zero width or height</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kLastType'>kLastType</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>largest <a href='#SkRRect_Type'>Type</a> value</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kLowerLeft_Corner'>kLowerLeft Corner</a></td>
@@ -42,19 +42,19 @@ SkRRect related constants are defined by <code>enum</code>, <code>enum class</co
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kNinePatch_Type'>kNinePatch Type</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>non-zero width and height with axis-aligned radii</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kOval_Type'>kOval Type</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>non-zero width and height filled with radii</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kRect_Type'>kRect Type</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>non-zero width and height, and zeroed radii</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kSimple_Type'>kSimple Type</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>non-zero width and height with equal radii</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a></td>
@@ -67,6 +67,19 @@ SkRRect related constants are defined by <code>enum</code>, <code>enum class</co
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kUpperRight_Corner'>kUpperRight Corner</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+  </tr>
+</table>
+
+## <a name='Related_Function'>Related_Function</a>
+
+
+SkRRect global, <code>struct</code>, and <code>class</code> related member functions share a topic.
+<table style='border-collapse: collapse; width: 62.5em'>
+  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_Type'>Type</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>specialization of <a href='#RRect'>Round Rect</a> geometry</td>
   </tr>
 </table>
 
@@ -104,6 +117,10 @@ If corner curves overlap, they are proportionally reduced to fit.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operator'>Operators</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>operator overloading methods</td>
   </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
+  </tr>
 </table>
 
 
@@ -116,27 +133,27 @@ SkRRect can be constructed or initialized by these functions, including C++ clas
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_MakeEmpty'>MakeEmpty</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates with zeroed bounds and corner radii</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_MakeOval'>MakeOval</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates <a href='undocumented#Oval'>Oval</a> to fit bounds</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_MakeRect'>MakeRect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>copies bounds and zeroes corner radii</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_MakeRectXY'>MakeRectXY</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates rounded rectangle</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_empty_constructor'>SkRRect()</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates with zeroed bounds and corner radii</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_copy_const_SkRRect'>SkRRect(const SkRRect& rrect)</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>copies bounds and corner radii</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_makeOffset'>makeOffset</a></td>
@@ -157,7 +174,7 @@ SkRRect operators inline class member functions with arithmetic equivalents.
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_copy_operator'>operator=(const SkRRect& rrect)</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>copies bounds and corner radii</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_equal_operator'>operator==(const SkRRect& a, const SkRRect& b)</a></td>
@@ -174,19 +191,19 @@ SkRRect member functions read and modify the structure properties.
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_MakeEmpty'>MakeEmpty</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates with zeroed bounds and corner radii</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_MakeOval'>MakeOval</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates <a href='undocumented#Oval'>Oval</a> to fit bounds</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_MakeRect'>MakeRect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>copies bounds and zeroes corner radii</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_MakeRectXY'>MakeRectXY</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates rounded rectangle</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_contains'>contains</a></td>
@@ -210,7 +227,7 @@ SkRRect member functions read and modify the structure properties.
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_getType'>getType</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#SkRRect_Type'>Type</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_height'>height</a></td>
@@ -278,11 +295,11 @@ SkRRect member functions read and modify the structure properties.
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_setNinePatch'>setNinePatch</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>replaces with rounded rectangle</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_setOval'>setOval</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>replaces with <a href='undocumented#Oval'>Oval</a> to fit bounds</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_setRect'>setRect</a></td>
@@ -290,11 +307,11 @@ SkRRect member functions read and modify the structure properties.
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_setRectRadii'>setRectRadii</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>replaces with rounded rectangle</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_setRectXY'>setRectXY</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>replaces with rounded rectangle</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_transform'>transform</a></td>
@@ -302,7 +319,7 @@ SkRRect member functions read and modify the structure properties.
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_type'>type</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#SkRRect_Type'>Type</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_width'>width</a></td>
@@ -318,22 +335,23 @@ SkRRect member functions read and modify the structure properties.
 ## SkRRect
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkRRect'>SkRRect</a>() = default
+<a href='#SkRRect'>SkRRect</a>()
 </pre>
 
-Default initialized to a rrect at the origin with zero width and height.
+Initializes bounds at (0, 0), the origin, with zero width and height.
+Initializes corner radii to (0, 0), and sets type of <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>.
 
 ### Return Value
 
-incomplete
+empty <a href='#RRect'>Round Rect</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="471e7aad0feaf9ec3a21757a317a64f5"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_setEmpty'>setEmpty</a> <a href='#SkRRect_isEmpty'>isEmpty</a>
 
 ---
 
@@ -341,27 +359,29 @@ incomplete
 ## SkRRect
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkRRect'>SkRRect</a>(const <a href='#SkRRect'>SkRRect</a>& rrect) = default
+<a href='#SkRRect'>SkRRect</a>(const <a href='#SkRRect'>SkRRect</a>& rrect)
 </pre>
+
+Initializes to copy of <a href='#SkRRect_copy_const_SkRRect_rrect'>rrect</a> bounds and corner radii.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_copy_const_SkRRect_rrect'><code><strong>rrect</strong></code></a></td>
-    <td>incomplete</td>
+    <td>bounds and corner to copy</td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+copy of <a href='#SkRRect_copy_const_SkRRect_rrect'>rrect</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="9be9adb06c26dac75a5a5a7c1ceca681"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_copy_operator'>operator=(const SkRRect& rrect)</a> <a href='#SkRRect_MakeRect'>MakeRect</a>
 
 ---
 
@@ -369,29 +389,33 @@ incomplete
 ## operator=
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkRRect'>SkRRect</a>& <a href='#SkRRect_copy_operator'>operator=(const SkRRect& rrect)</a> = default
+<a href='#SkRRect'>SkRRect</a>& <a href='#SkRRect_copy_operator'>operator=(const SkRRect& rrect)</a>
 </pre>
+
+Copies <a href='#SkRRect_copy_operator_rrect'>rrect</a> bounds and corner radii.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_copy_operator_rrect'><code><strong>rrect</strong></code></a></td>
-    <td>incomplete</td>
+    <td>bounds and corner to copy</td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+copy of <a href='#SkRRect_copy_operator_rrect'>rrect</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="94c298c404fff922ec53a3d7567852a2"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_copy_const_SkRRect'>SkRRect(const SkRRect& rrect)</a> <a href='#SkRRect_MakeRect'>MakeRect</a>
 
 ---
+
+## <a name='Type'>Type</a>
 
 ## <a name='SkRRect_Type'>Enum SkRRect::Type</a>
 
@@ -407,8 +431,11 @@ incomplete
     };
 </pre>
 
-Enum to capture the various possible subtypes of <a href='#RRect'>Round Rect</a>. Accessed
-by <a href='#SkRRect_type'>type</a>. The subtypes become progressively less restrictive.
+<a href='#SkRRect_Type'>Type</a> describes possible specializations of <a href='#RRect'>Round Rect</a>. Each <a href='#SkRRect_Type'>Type</a> is
+exclusive; a <a href='#RRect'>Round Rect</a> may only have one type.
+
+The enum members become progressively less restrictive; larger values of
+<a href='#SkRRect_Type'>Type</a> have more degrees of freedom than smaller values.
 
 ### Constants
 
@@ -418,21 +445,21 @@ by <a href='#SkRRect_type'>type</a>. The subtypes become progressively less rest
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kEmpty_Type'><code>SkRRect::kEmpty_Type</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # incomplete ##</td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # zero width or height ##</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 <a href='#RRect'>Round Rect</a> has zero width or height. All radii are zero.
 </td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kRect_Type'><code>SkRRect::kRect_Type</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # incomplete ##</td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # non-zero width and height, and zeroed radii ##</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 <a href='#RRect'>Round Rect</a> has width and height. All radii are zero.
 </td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kOval_Type'><code>SkRRect::kOval_Type</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # incomplete ##</td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # non-zero width and height filled with radii ##</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 <a href='#RRect'>Round Rect</a> has width and height. All four x-radii are equal,
 and at least half the width. All four y-radii are equal,
@@ -441,7 +468,7 @@ and at least half the height.
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kSimple_Type'><code>SkRRect::kSimple_Type</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # incomplete ##</td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # non-zero width and height with equal radii ##</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 <a href='#RRect'>Round Rect</a> has width and height. All four x-radii are equal and
 greater than zero, and all four y-radii are equal and greater than
@@ -451,11 +478,11 @@ less than half the height, or both.
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kNinePatch_Type'><code>SkRRect::kNinePatch_Type</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # incomplete ##</td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # non-zero width and height with axis-aligned radii ##</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 <a href='#RRect'>Round Rect</a> has width and height. Left x-radii are equal, top
 y-radii are equal, right x-radii are equal, and bottom y-radii
-are equal. The radii do not descript a rect, oval, or simple type.
+are equal. The radii do not describe a rect, oval, or simple type.
 
 The centers of the corner ellipses form an axis-aligned rectangle
 that divides the <a href='#RRect'>Round Rect</a> into nine rectangular patches; an
@@ -464,7 +491,7 @@ interior rectangle, four edges, and four corners.
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kComplex_Type'><code>SkRRect::kComplex_Type</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # incomplete ##</td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # non-zero width and height with arbitrary radii ##</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 both radii are non-zero.
 </td>
@@ -473,17 +500,17 @@ both radii are non-zero.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kLastType'><code>SkRRect::kLastType</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>= kComplex_Type</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-incomplete</td>
+largest Type value</td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="38a559936ea7c8d482098c189ee5c9b8"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='SkRect_Reference#Rect'>Rect</a> <a href='SkPath_Reference#Path'>Path</a>
 
 <a name='SkRRect_getType'></a>
 ## getType
@@ -492,19 +519,21 @@ incomplete
 <a href='#SkRRect_Type'>Type</a> <a href='#SkRRect_getType'>getType</a>() const
 </pre>
 
-Returns the RR's sub type.
+Returns <a href='#SkRRect_Type'>Type</a>, one of: <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>, <a href='#SkRRect_kRect_Type'>kRect Type</a>, <a href='#SkRRect_kOval_Type'>kOval Type</a>, <a href='#SkRRect_kSimple_Type'>kSimple Type</a>, <a href='#SkRRect_kNinePatch_Type'>kNinePatch Type</a>,
+<a href='#SkRRect_kComplex_Type'>kComplex Type</a>.
 
 ### Return Value
 
-incomplete
+<a href='#SkRRect_Type'>Type</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="53634cc0794c0fa6c0c2b3ac4cc69490"><div>rrect2 is not a <a href='SkRect_Reference#Rect'>Rect</a>; <a href='#SkRRect_inset'>inset</a> has made it empty.
+</div></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_Type'>Type</a> <a href='#SkRRect_type'>type</a>
 
 ---
 
@@ -515,17 +544,21 @@ incomplete
 <a href='#SkRRect_Type'>Type</a> <a href='#SkRRect_type'>type</a>() const
 </pre>
 
+Returns <a href='#SkRRect_Type'>Type</a>, one of: <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>, <a href='#SkRRect_kRect_Type'>kRect Type</a>, <a href='#SkRRect_kOval_Type'>kOval Type</a>, <a href='#SkRRect_kSimple_Type'>kSimple Type</a>, <a href='#SkRRect_kNinePatch_Type'>kNinePatch Type</a>,
+<a href='#SkRRect_kComplex_Type'>kComplex Type</a>.
+
 ### Return Value
 
-incomplete
+<a href='#SkRRect_Type'>Type</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="02b03d651c4b5d18018c6f75fa88b8ce"><div><a href='#SkRRect_inset'>inset</a> has made rrect2 empty.
+</div></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_Type'>Type</a> <a href='#SkRRect_getType'>getType</a>
 
 ---
 
@@ -817,7 +850,7 @@ otherwise, sets type to <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>.
 
 ### Example
 
-<div><fiddle-embed name="fc97ef7310473b9ba6dc7202efbebb3b"></fiddle-embed></div>
+<div><fiddle-embed name="3afc3ac9bebd1d7387822cc608571e82"></fiddle-embed></div>
 
 ### See Also
 
@@ -832,19 +865,20 @@ otherwise, sets type to <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>.
 static <a href='#SkRRect'>SkRRect</a> <a href='#SkRRect_MakeEmpty'>MakeEmpty</a>()
 </pre>
 
-Makes an empty rrect at the origin with zero width and height.
+Initializes bounds at (0, 0), the origin, with zero width and height.
+Initializes corner radii to (0, 0), and sets type of <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>.
 
 ### Return Value
 
-incomplete
+empty <a href='#RRect'>Round Rect</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="c6c6be3b3c137226adbb5b5af9203d27"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_empty_constructor'>SkRRect()</a> <a href='SkRect_Reference#SkRect_MakeEmpty'>SkRect::MakeEmpty</a>
 
 ---
 
@@ -855,24 +889,26 @@ incomplete
 static <a href='#SkRRect'>SkRRect</a> <a href='#SkRRect_MakeRect'>MakeRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& r)
 </pre>
 
+Initializes to copy of <a href='#SkRRect_MakeRect_r'>r</a> bounds and zeroes corner radii.
+
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_MakeRect_r'><code><strong>r</strong></code></a></td>
-    <td>incomplete</td>
+    <td>bounds to copy</td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+copy of <a href='#SkRRect_MakeRect_r'>r</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="5295b07fe4d2cdcd077979a9e19854d9"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_setRect'>setRect</a> <a href='#SkRRect_MakeOval'>MakeOval</a> <a href='#SkRRect_MakeRectXY'>MakeRectXY</a>
 
 ---
 
@@ -883,24 +919,28 @@ incomplete
 static <a href='#SkRRect'>SkRRect</a> <a href='#SkRRect_MakeOval'>MakeOval</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& oval)
 </pre>
 
+Sets bounds to <a href='#SkRRect_MakeOval_oval'>oval</a>, x-axis radii to half <a href='#SkRRect_MakeOval_oval'>oval</a>.<a href='#SkRRect_width'>width</a>, and all y-axis radii
+to half <a href='#SkRRect_MakeOval_oval'>oval</a>.<a href='#SkRRect_height'>height</a>. If rect is empty, sets to <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>.
+Otherwise, sets to <a href='#SkRRect_kOval_Type'>kOval Type</a>.
+
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_MakeOval_oval'><code><strong>oval</strong></code></a></td>
-    <td>incomplete</td>
+    <td>bounds of <a href='undocumented#Oval'>Oval</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+<a href='undocumented#Oval'>Oval</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="0b99ee38fd154f769f6031242e02fa7a"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_setOval'>setOval</a> <a href='#SkRRect_MakeRect'>MakeRect</a> <a href='#SkRRect_MakeRectXY'>MakeRectXY</a>
 
 ---
 
@@ -911,30 +951,37 @@ incomplete
 static <a href='#SkRRect'>SkRRect</a> <a href='#SkRRect_MakeRectXY'>MakeRectXY</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, <a href='undocumented#SkScalar'>SkScalar</a> xRad, <a href='undocumented#SkScalar'>SkScalar</a> yRad)
 </pre>
 
+Sets to rounded rectangle with the same radii for all four corners.
+If rect is empty, sets to <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>.
+Otherwise, if <a href='#SkRRect_MakeRectXY_xRad'>xRad</a> and <a href='#SkRRect_MakeRectXY_yRad'>yRad</a> are zero, sets to <a href='#SkRRect_kRect_Type'>kRect Type</a>.
+Otherwise, if <a href='#SkRRect_MakeRectXY_xRad'>xRad</a> is at least half rect.<a href='#SkRRect_width'>width</a> and <a href='#SkRRect_MakeRectXY_yRad'>yRad</a> is at least half
+rect.<a href='#SkRRect_height'>height</a>, sets to <a href='#SkRRect_kOval_Type'>kOval Type</a>.
+Otherwise, sets to <a href='#SkRRect_kSimple_Type'>kSimple Type</a>.
+
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_MakeRectXY_rect'><code><strong>rect</strong></code></a></td>
-    <td>incomplete</td>
+    <td>bounds of rounded rectangle</td>
   </tr>
   <tr>    <td><a name='SkRRect_MakeRectXY_xRad'><code><strong>xRad</strong></code></a></td>
-    <td>incomplete</td>
+    <td>x-axis radius of corners</td>
   </tr>
   <tr>    <td><a name='SkRRect_MakeRectXY_yRad'><code><strong>yRad</strong></code></a></td>
-    <td>incomplete</td>
+    <td>y-axis radius of corners</td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+rounded rectangle
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="2b24a1247637cbc94f8b3c77d37ed3e2"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_setRectXY'>setRectXY</a>
 
 ---
 
@@ -945,23 +992,24 @@ incomplete
 void <a href='#SkRRect_setOval'>setOval</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& oval)
 </pre>
 
-Sets <a href='#RRect'>Round Rect</a> to match the supplied <a href='#SkRRect_setOval_oval'>oval</a>. All x-radii will equal half the
-width and all y-radii will equal half the height.
+Sets bounds to <a href='#SkRRect_setOval_oval'>oval</a>, x-axis radii to half <a href='#SkRRect_setOval_oval'>oval</a>.<a href='#SkRRect_width'>width</a>, and all y-axis radii
+to half <a href='#SkRRect_setOval_oval'>oval</a>.<a href='#SkRRect_height'>height</a>. If rect is empty, sets to <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>.
+Otherwise, sets to <a href='#SkRRect_kOval_Type'>kOval Type</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_setOval_oval'><code><strong>oval</strong></code></a></td>
-    <td>incomplete</td>
+    <td>bounds of <a href='undocumented#Oval'>Oval</a></td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="cf418af29cbab6243ac16aacd1217ffe"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_MakeOval'>MakeOval</a>
 
 ---
 
@@ -972,28 +1020,33 @@ incomplete
 void <a href='#SkRRect_setRectXY'>setRectXY</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, <a href='undocumented#SkScalar'>SkScalar</a> xRad, <a href='undocumented#SkScalar'>SkScalar</a> yRad)
 </pre>
 
-Initializes <a href='#RRect'>Round Rect</a> with the same radii for all four corners.
+Sets to rounded rectangle with the same radii for all four corners.
+If rect is empty, sets to <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>.
+Otherwise, if <a href='#SkRRect_setRectXY_xRad'>xRad</a> or <a href='#SkRRect_setRectXY_yRad'>yRad</a> is zero, sets to <a href='#SkRRect_kRect_Type'>kRect Type</a>.
+Otherwise, if <a href='#SkRRect_setRectXY_xRad'>xRad</a> is at least half rect.<a href='#SkRRect_width'>width</a> and <a href='#SkRRect_setRectXY_yRad'>yRad</a> is at least half
+rect.<a href='#SkRRect_height'>height</a>, sets to <a href='#SkRRect_kOval_Type'>kOval Type</a>.
+Otherwise, sets to <a href='#SkRRect_kSimple_Type'>kSimple Type</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_setRectXY_rect'><code><strong>rect</strong></code></a></td>
-    <td>incomplete</td>
+    <td>bounds of rounded rectangle</td>
   </tr>
   <tr>    <td><a name='SkRRect_setRectXY_xRad'><code><strong>xRad</strong></code></a></td>
-    <td>incomplete</td>
+    <td>x-axis radius of corners</td>
   </tr>
   <tr>    <td><a name='SkRRect_setRectXY_yRad'><code><strong>yRad</strong></code></a></td>
-    <td>incomplete</td>
+    <td>y-axis radius of corners</td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="6ac569e40fb68c758319e85428b9ae95"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_MakeRectXY'>MakeRectXY</a> <a href='SkPath_Reference#SkPath_addRoundRect'>SkPath::addRoundRect</a><sup><a href='SkPath_Reference#SkPath_addRoundRect_2'>[2]</a></sup>
 
 ---
 
@@ -1005,34 +1058,46 @@ void <a href='#SkRRect_setNinePatch'>setNinePatch</a>(const <a href='SkRect_Refe
                   <a href='undocumented#SkScalar'>SkScalar</a> bottomRad)
 </pre>
 
-Initializes <a href='#RRect'>Round Rect</a> with one radius per-side.
+Sets bounds to rect. Sets radii to (<a href='#SkRRect_setNinePatch_leftRad'>leftRad</a>, <a href='#SkRRect_setNinePatch_topRad'>topRad</a>), (<a href='#SkRRect_setNinePatch_rightRad'>rightRad</a>, <a href='#SkRRect_setNinePatch_topRad'>topRad</a>),
+(<a href='#SkRRect_setNinePatch_rightRad'>rightRad</a>, <a href='#SkRRect_setNinePatch_bottomRad'>bottomRad</a>), (<a href='#SkRRect_setNinePatch_leftRad'>leftRad</a>, <a href='#SkRRect_setNinePatch_bottomRad'>bottomRad</a>).
+
+If rect is empty, sets to <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>.
+Otherwise, if <a href='#SkRRect_setNinePatch_leftRad'>leftRad</a> and <a href='#SkRRect_setNinePatch_rightRad'>rightRad</a> are zero, sets to <a href='#SkRRect_kRect_Type'>kRect Type</a>.
+Otherwise, if <a href='#SkRRect_setNinePatch_topRad'>topRad</a> and <a href='#SkRRect_setNinePatch_bottomRad'>bottomRad</a> are zero, sets to <a href='#SkRRect_kRect_Type'>kRect Type</a>.
+Otherwise, if <a href='#SkRRect_setNinePatch_leftRad'>leftRad</a> and <a href='#SkRRect_setNinePatch_rightRad'>rightRad</a> are equal and at least half rect.<a href='#SkRRect_width'>width</a>, and
+<a href='#SkRRect_setNinePatch_topRad'>topRad</a> and <a href='#SkRRect_setNinePatch_bottomRad'>bottomRad</a> are equal at least half rect.<a href='#SkRRect_height'>height</a>, sets to <a href='#SkRRect_kOval_Type'>kOval Type</a>.
+Otherwise, if <a href='#SkRRect_setNinePatch_leftRad'>leftRad</a> and <a href='#SkRRect_setNinePatch_rightRad'>rightRad</a> are equal, and <a href='#SkRRect_setNinePatch_topRad'>topRad</a> and <a href='#SkRRect_setNinePatch_bottomRad'>bottomRad</a> are equal,
+sets to <a href='#SkRRect_kSimple_Type'>kSimple Type</a>. Otherwise, sets to <a href='#SkRRect_kNinePatch_Type'>kNinePatch Type</a>.
+
+Nine patch refers to the nine parts defined by the radii: one center rectangle,
+four edge patches, and four corner patches.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_setNinePatch_rect'><code><strong>rect</strong></code></a></td>
-    <td>incomplete</td>
+    <td>bounds of rounded rectangle</td>
   </tr>
   <tr>    <td><a name='SkRRect_setNinePatch_leftRad'><code><strong>leftRad</strong></code></a></td>
-    <td>incomplete</td>
+    <td>left-top and left-bottom x-axis radius</td>
   </tr>
   <tr>    <td><a name='SkRRect_setNinePatch_topRad'><code><strong>topRad</strong></code></a></td>
-    <td>incomplete</td>
+    <td>left-top and right-top y-axis radius</td>
   </tr>
   <tr>    <td><a name='SkRRect_setNinePatch_rightRad'><code><strong>rightRad</strong></code></a></td>
-    <td>incomplete</td>
+    <td>right-top and right-bottom x-axis radius</td>
   </tr>
   <tr>    <td><a name='SkRRect_setNinePatch_bottomRad'><code><strong>bottomRad</strong></code></a></td>
-    <td>incomplete</td>
+    <td>left-bottom and right-bottom y-axis radius</td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="c4620df2eaba447b581688d3100053b1"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_setRectRadii'>setRectRadii</a>
 
 ---
 
@@ -1043,15 +1108,22 @@ incomplete
 void <a href='#SkRRect_setRectRadii'>setRectRadii</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, const <a href='SkPoint_Reference#SkVector'>SkVector</a> radii[4])
 </pre>
 
-Initializes <a href='#RRect'>Round Rect</a> with potentially different radii for all four corners.
+Sets bounds to rect. Sets radii array for individual control of all for corners.
+
+If rect is empty, sets to <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>.
+Otherwise, if one of each corner radii are zero, sets to <a href='#SkRRect_kRect_Type'>kRect Type</a>.
+Otherwise, if all x-axis radii are equal and at least half rect.<a href='#SkRRect_width'>width</a>, and
+all y-axis radii are equal at least half rect.<a href='#SkRRect_height'>height</a>, sets to <a href='#SkRRect_kOval_Type'>kOval Type</a>.
+Otherwise, if all x-axis radii are equal, and all y-axis radii are equal,
+sets to <a href='#SkRRect_kSimple_Type'>kSimple Type</a>. Otherwise, sets to <a href='#SkRRect_kNinePatch_Type'>kNinePatch Type</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_setRectRadii_rect'><code><strong>rect</strong></code></a></td>
-    <td>incomplete</td>
+    <td>bounds of rounded rectangle</td>
   </tr>
   <tr>    <td><a name='SkRRect_setRectRadii_radii'><code><strong>radii</strong></code></a></td>
-    <td>incomplete</td>
+    <td>corner x-axis and y-axis radii</td>
   </tr>
 </table>
 
@@ -1061,7 +1133,7 @@ Initializes <a href='#RRect'>Round Rect</a> with potentially different radii for
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_setNinePatch'>setNinePatch</a> <a href='SkPath_Reference#SkPath_addRoundRect'>SkPath::addRoundRect</a><sup><a href='SkPath_Reference#SkPath_addRoundRect_2'>[2]</a></sup>
 
 ---
 
