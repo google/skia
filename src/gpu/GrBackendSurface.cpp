@@ -221,34 +221,6 @@ bool GrBackendTexture::getMockTextureInfo(GrMockTextureInfo* outInfo) const {
     return false;
 }
 
-GrBackendFormat GrBackendTexture::format() const {
-    if (!this->isValid()) {
-        return GrBackendFormat();
-    }
-
-    switch (this->backend()) {
-#ifdef SK_VULKAN
-        case kVulkan_GrBackend: {
-            GrVkImageInfo vkInfo;
-            SkAssertResult(this->getVkImageInfo(&vkInfo));
-            return GrBackendFormat::MakeVk(vkInfo.fFormat);
-        }
-#endif
-        case kOpenGL_GrBackend: {
-            GrGLTextureInfo glInfo;
-            SkAssertResult(this->getGLTextureInfo(&glInfo));
-            return GrBackendFormat::MakeGL(glInfo.fFormat, glInfo.fTarget);
-        }
-        case kMock_GrBackend: {
-            GrMockTextureInfo mockInfo;
-            SkAssertResult(this->getMockTextureInfo(&mockInfo));
-            return GrBackendFormat::MakeMock(mockInfo.fConfig);
-        }
-        default:
-            return GrBackendFormat();
-    }
-}
-
 #if GR_TEST_UTILS
 bool GrBackendTexture::TestingOnly_Equals(const GrBackendTexture& t0, const GrBackendTexture& t1) {
     if (!t0.isValid() || !t1.isValid()) {
