@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d1b3e5d_21674622",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 22
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-28T18:55:52Z",
+      "side": 1,
+      "message": "Why not use your helper function. I like the idea of keeping all the bridge related things isolated from the main code.",
+      "range": {
+        "startLine": 324,
+        "startChar": 36,
+        "endLine": 324,
+        "endChar": 79
+      },
+      "revId": "6091c3e1d357d1ef9bb3049d78fe8b1fdbbe8f64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23756711_31ee6eb1",
+        "filename": "src/gpu/mtl/GrMtlUtil.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-06-28T18:55:52Z",
+      "side": 1,
+      "message": "Since this is not in any class or namespace we want to add Gr to the front of it. Also want something to say it is relate to metal. So maybe something like GrExtractMtlTexture? GrGetMetalTexture? Some better name? We are not always transfering the texture so probably not the best name/",
+      "range": {
+        "startLine": 30,
+        "startChar": 15,
+        "endLine": 30,
+        "endChar": 30
+      },
+      "revId": "6091c3e1d357d1ef9bb3049d78fe8b1fdbbe8f64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
