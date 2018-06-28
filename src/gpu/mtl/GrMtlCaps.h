@@ -71,6 +71,10 @@ public:
     }
 
 private:
+#ifdef GR_TEST_UTILS
+    GrBackendFormat onCreateFormatFromBackendTexture(const GrBackendTexture&) const override;
+#endif
+
     void initFeatureSet(MTLFeatureSet featureSet);
 
     void initGrCaps(const id<MTLDevice> device);

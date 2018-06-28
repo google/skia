@@ -141,6 +141,10 @@ public:
                                     GrPixelConfig*) const override;
 
 private:
+#ifdef GR_TEST_UTILS
+    GrBackendFormat onCreateFormatFromBackendTexture(const GrBackendTexture&) const override;
+#endif
+
     enum VkVendor {
         kAMD_VkVendor = 4098,
         kARM_VkVendor = 5045,

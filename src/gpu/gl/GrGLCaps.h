@@ -441,6 +441,10 @@ public:
 #endif
 
 private:
+#if GR_TEST_UTILS
+    GrBackendFormat onCreateFormatFromBackendTexture(const GrBackendTexture&) const override;
+#endif
+
     enum ExternalFormatUsage {
         kTexImage_ExternalFormatUsage,
         kReadPixels_ExternalFormatUsage,
