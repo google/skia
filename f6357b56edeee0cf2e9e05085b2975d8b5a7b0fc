@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "475c7450_f37d400c",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1622,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-28T14:14:25Z",
+      "side": 1,
+      "message": "-1",
+      "range": {
+        "startLine": 1622,
+        "startChar": 8,
+        "endLine": 1622,
+        "endChar": 13
+      },
+      "revId": "f6357b56edeee0cf2e9e05085b2975d8b5a7b0fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a59c47f_67219c52",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1628,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-28T14:14:25Z",
+      "side": 1,
+      "message": "-1",
+      "range": {
+        "startLine": 1628,
+        "startChar": 15,
+        "endLine": 1628,
+        "endChar": 16
+      },
+      "revId": "f6357b56edeee0cf2e9e05085b2975d8b5a7b0fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdd04af2_3caeb27d",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-28T14:14:25Z",
+      "side": 1,
+      "message": "should put this on the next line",
+      "range": {
+        "startLine": 237,
+        "startChar": 55,
+        "endLine": 237,
+        "endChar": 102
+      },
+      "revId": "f6357b56edeee0cf2e9e05085b2975d8b5a7b0fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d41caf55_de1cfdb5",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-28T14:14:25Z",
+      "side": 1,
+      "message": "put the \u0027{\u0027 all the way to the left on the next line",
+      "range": {
+        "startLine": 238,
+        "startChar": 30,
+        "endLine": 238,
+        "endChar": 31
+      },
+      "revId": "f6357b56edeee0cf2e9e05085b2975d8b5a7b0fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ad61e0e_2b1abd90",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-06-28T14:14:25Z",
+      "side": 1,
+      "message": "parameterCount \u003c variableAxisCount\n\nthen we can remove \u0027minCount\u0027 below. Probably should do the same in onGetVariationDesignPosition above.",
+      "range": {
+        "startLine": 262,
+        "startChar": 23,
+        "endLine": 262,
+        "endChar": 60
+      },
+      "revId": "f6357b56edeee0cf2e9e05085b2975d8b5a7b0fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
