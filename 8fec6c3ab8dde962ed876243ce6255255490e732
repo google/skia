@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "445dd691_6e4eac5e",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 8209
+      },
+      "writtenOn": "2018-06-28T14:14:05Z",
+      "side": 1,
+      "message": "SkSTArenaAlloc requires a constexpr, so we don\u0027t actually know how much space to allocate beforehand, which is why we\u0027re simply estimating. The previous version estimated 16, so I kept that number.",
+      "parentUuid": "dceffb89_b9d0bd15",
+      "revId": "8fec6c3ab8dde962ed876243ce6255255490e732",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b89030a4_dba1b29c",
         "filename": "src/core/SkDraw_vertices.cpp",
         "patchSetId": 9
@@ -47,6 +65,24 @@
       "writtenOn": "2018-06-27T21:41:10Z",
       "side": 1,
       "message": "kEstBoneCount ?\n\nDon\u0027t we know the boneCount ?",
+      "revId": "8fec6c3ab8dde962ed876243ce6255255490e732",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8d13618_59904c77",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 8209
+      },
+      "writtenOn": "2018-06-28T14:14:05Z",
+      "side": 1,
+      "message": "(see previous)",
+      "parentUuid": "b89030a4_dba1b29c",
       "revId": "8fec6c3ab8dde962ed876243ce6255255490e732",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "115e46e8_1ff38a41",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 8209
+      },
+      "writtenOn": "2018-06-28T14:14:05Z",
+      "side": 1,
+      "message": "(see previous)",
+      "parentUuid": "112c20d2_4978e11c",
+      "revId": "8fec6c3ab8dde962ed876243ce6255255490e732",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c74ccf14_4f19f57d",
         "filename": "src/core/SkDraw_vertices.cpp",
         "patchSetId": 9
@@ -81,6 +135,24 @@
       "writtenOn": "2018-06-27T21:41:10Z",
       "side": 1,
       "message": "Don\u0027t we only need the \u00272*\u0027 multiplier when there are bones ?",
+      "revId": "8fec6c3ab8dde962ed876243ce6255255490e732",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf39a05f_ee69302b",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 8209
+      },
+      "writtenOn": "2018-06-28T14:14:05Z",
+      "side": 1,
+      "message": "(see previous)",
+      "parentUuid": "c74ccf14_4f19f57d",
       "revId": "8fec6c3ab8dde962ed876243ce6255255490e732",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -138,6 +210,24 @@
     },
     {
       "key": {
+        "uuid": "de32139d_5a054f93",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 8209
+      },
+      "writtenOn": "2018-06-28T14:14:05Z",
+      "side": 1,
+      "message": "The code below requires the set of vertices both pre-viewMatrix transform and post-viewMatrix transform, so it does actually need two sets of vertices to be allocated.",
+      "parentUuid": "7a16bc6b_58daf545",
+      "revId": "8fec6c3ab8dde962ed876243ce6255255490e732",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1700113c_b9660f02",
         "filename": "src/core/SkLiteDL.cpp",
         "patchSetId": 9
@@ -149,6 +239,24 @@
       "writtenOn": "2018-06-27T21:41:10Z",
       "side": 1,
       "message": "So, where are the bones being stored here ?",
+      "revId": "8fec6c3ab8dde962ed876243ce6255255490e732",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84cba2ca_905b2357",
+        "filename": "src/core/SkLiteDL.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 8209
+      },
+      "writtenOn": "2018-06-28T14:14:05Z",
+      "side": 1,
+      "message": "They\u0027re stored in the struct itself (see line 683)",
+      "parentUuid": "1700113c_b9660f02",
       "revId": "8fec6c3ab8dde962ed876243ce6255255490e732",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
