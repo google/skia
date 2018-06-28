@@ -3612,7 +3612,7 @@ Increments <a href='#SkPaint_setShader_shader'>shader</a> <a href='undocumented#
 
 ### Example
 
-<div><fiddle-embed name="4590fbf052659d6e629fbfd827081ae5"></fiddle-embed></div>
+<div><fiddle-embed name="77e64d5bae9b1ba037fd99252bb4aa58"></fiddle-embed></div>
 
 ---
 
@@ -3707,7 +3707,7 @@ Increments filter <a href='undocumented#Reference_Count'>Reference Count</a> by 
 
 ### Example
 
-<div><fiddle-embed name="3979c865bb482e6ef1fafc71e56bbb91"></fiddle-embed></div>
+<div><fiddle-embed name="c7b786dc9b3501cd0eaba47494b6fa31"></fiddle-embed></div>
 
 ---
 
@@ -4018,7 +4018,7 @@ implementation.
 
 ### Example
 
-<div><fiddle-embed name="3979c865bb482e6ef1fafc71e56bbb91"></fiddle-embed></div>
+<div><fiddle-embed name="1a7a5062725139760962582f599f1b97"></fiddle-embed></div>
 
 <a name='SkPaint_getTypeface'></a>
 ## getTypeface
