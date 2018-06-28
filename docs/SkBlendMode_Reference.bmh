@@ -860,6 +860,7 @@ Da as destination Alpha, Dc as destination Color component
 . SkBlendMode::kDarken does not make an image darker; it replaces the destination
 component with source if source is darker. 
 #Example
+#Image 3
     canvas->drawImage(image, 0, 0);
     SkColor colors[] = { SK_ColorWHITE, SK_ColorBLACK };
     SkPoint horz[] = { { 0, 0 }, { 256, 0 } };
@@ -885,6 +886,7 @@ Da as destination Alpha, Dc as destination Color component
 . SkBlendMode::kDarken does not make an image lighter; it replaces the destination
 component with source if source is lighter. 
 #Example
+#Image 3
     canvas->drawImage(image, 0, 0);
     SkColor colors[] = { SK_ColorBLACK, SK_ColorWHITE };
     SkPoint horz[] = { { 0, 0 }, { 256, 0 } };
@@ -1065,6 +1067,7 @@ Da as destination Alpha, Dc as destination Color component
 , the product of Unpremultiplied source and destination.
 SkBlendMode::kMultiply makes the image darker.
 #Example
+#Image 5
     canvas->drawImage(image, 0, 0);
     canvas->drawImage(image, 128, 0);
     canvas->drawImage(image, 0, 128);
@@ -1094,6 +1097,7 @@ Da as destination Alpha, D as destination Color
 ##
 , source hue, leaving destination luminosity and saturation unchanged.
 #Example
+#Image 3
 canvas->drawImage(image, 0, 0);
 canvas->drawColor(0xFF00FF00, SkBlendMode::kHue);
 ##
@@ -1112,6 +1116,7 @@ Da as destination Alpha, D as destination Color
 ##
 , source hue, leaving destination luminosity and saturation unchanged.
 #Example
+#Image 3
 canvas->drawImage(image, 0, 0);
 canvas->drawColor(0xFF00FF00, SkBlendMode::kSaturation);
 ##
@@ -1130,6 +1135,7 @@ Da as destination Alpha, D as destination Color
 ##
 , source hue and saturation, leaving destination luminosity unchanged.
 #Example
+#Image 3
 canvas->drawImage(image, 0, 0);
 canvas->drawColor(0xFF00FF00, SkBlendMode::kColor);
 ##
@@ -1148,6 +1154,7 @@ Da as destination Alpha, D as destination Color
 ##
 , source luminosity, leaving destination hue and saturation unchanged.
 #Example
+#Image 3
 canvas->drawImage(image, 0, 0);
 canvas->drawColor(0xFF00FF00, SkBlendMode::kLuminosity);
 ##

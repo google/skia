@@ -2702,12 +2702,47 @@
     "name": "SkPoint::y()",
         "stdout": "pt1.fY == pt1.y()\\n"
     },
+        "SkRRect_dump": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRRect rrect = SkRRect::MakeRect({6.f / 7, 2.f / 3, 6.f / 7, 2.f / 3});\n    for (bool dumpAsHex : { false, true } ) {\n        rrect.dump(dumpAsHex);\n    }\n}",
+    "hash": "265b8d23288dc8026ff788e809360af7",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::dump()",
+        "stdout": "SkRect::MakeLTRB(0.857143f, 0.666667f, 0.857143f, 0.666667f);\\nconst SkPoint corners[] = {\\n    { 0, 0 },\\n    { 0, 0 },\\n    { 0, 0 },\\n    { 0, 0 },\\n};\\nSkRect::MakeLTRB(SkBits2Float(0x3f5b6db7), /* 0.857143 */\\n                 SkBits2Float(0x3f2aaaab), /* 0.666667 */\\n                 SkBits2Float(0x3f5b6db7), /* 0.857143 */\\n                 SkBits2Float(0x3f2aaaab)  /* 0.666667 */);\\nconst SkPoint corners[] = {\\n    { SkBits2Float(0x00000000), SkBits2Float(0x00000000) }, /* 0.000000 0.000000 */\\n    { SkBits2Float(0x00000000), SkBits2Float(0x00000000) }, /* 0.000000 0.000000 */\\n    { SkBits2Float(0x00000000), SkBits2Float(0x00000000) }, /* 0.000000 0.000000 */\\n    { SkBits2Float(0x00000000), SkBits2Float(0x00000000) }, /* 0.000000 0.000000 */\\n};\\n"
+    },
+        "SkRRect_dumpHex": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRRect rrect = SkRRect::MakeRect({6.f / 7, 2.f / 3, 6.f / 7, 2.f / 3});\n    rrect.dumpHex();\n    SkRect bounds = SkRect::MakeLTRB(SkBits2Float(0x3f5b6db7), /* 0.857143 */\n                     SkBits2Float(0x3f2aaaab), /* 0.666667 */\n                     SkBits2Float(0x3f5b6db7), /* 0.857143 */\n                     SkBits2Float(0x3f2aaaab)  /* 0.666667 */);\n    const SkPoint corners[] = {\n        { SkBits2Float(0x00000000), SkBits2Float(0x00000000) }, /* 0.000000 0.000000 */\n        { SkBits2Float(0x00000000), SkBits2Float(0x00000000) }, /* 0.000000 0.000000 */\n        { SkBits2Float(0x00000000), SkBits2Float(0x00000000) }, /* 0.000000 0.000000 */\n        { SkBits2Float(0x00000000), SkBits2Float(0x00000000) }, /* 0.000000 0.000000 */\n    };\n    SkRRect copy;\n    copy.setRectRadii(bounds, corners);\n    SkDebugf(\"rrect is \" \"%s\" \"equal to copy\\n\", rrect == copy ? \"\" : \"not \");\n}",
+    "hash": "c73f5e2644d949b859f05bd367883454",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::dumpHex",
+        "stdout": "SkRect::MakeLTRB(SkBits2Float(0x3f5b6db7), /* 0.857143 */\\n                 SkBits2Float(0x3f2aaaab), /* 0.666667 */\\n                 SkBits2Float(0x3f5b6db7), /* 0.857143 */\\n                 SkBits2Float(0x3f2aaaab)  /* 0.666667 */);\\nconst SkPoint corners[] = {\\n    { SkBits2Float(0x00000000), SkBits2Float(0x00000000) }, /* 0.000000 0.000000 */\\n    { SkBits2Float(0x00000000), SkBits2Float(0x00000000) }, /* 0.000000 0.000000 */\\n    { SkBits2Float(0x00000000), SkBits2Float(0x00000000) }, /* 0.000000 0.000000 */\\n    { SkBits2Float(0x00000000), SkBits2Float(0x00000000) }, /* 0.000000 0.000000 */\\n};\\nrrect is equal to copy\\n"
+    },
+        "SkRRect_dump_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRRect rrect = SkRRect::MakeRect({6.f / 7, 2.f / 3, 6.f / 7, 2.f / 3});\n    rrect.dump();\n    SkRect bounds = SkRect::MakeLTRB(0.857143f, 0.666667f, 0.857143f, 0.666667f);\n    const SkPoint corners[] = {\n        { 0, 0 },\n        { 0, 0 },\n        { 0, 0 },\n        { 0, 0 },\n    };\n    SkRRect copy;\n    copy.setRectRadii(bounds, corners);\n    SkDebugf(\"rrect is \" \"%s\" \"equal to copy\\n\", rrect == copy ? \"\" : \"not \");\n}",
+    "hash": "f850423c7c0c4f803d479ecd92221059",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::dump_2",
+        "stdout": "SkRect::MakeLTRB(0.857143f, 0.666667f, 0.857143f, 0.666667f);\\nconst SkPoint corners[] = {\\n    { 0, 0 },\\n    { 0, 0 },\\n    { 0, 0 },\\n    { 0, 0 },\\n};\\nrrect is not equal to copy\\n"
+    },
         "SkRRect_height": {
     "code": "void draw(SkCanvas* canvas) {\n    SkRRect unsorted = SkRRect::MakeRect({ 15, 25, 10, 20 });\n    SkDebugf(\"unsorted height: %g\\n\", unsorted.height());\n    SkRRect large = SkRRect::MakeRect({ 1, -FLT_MAX, 2, FLT_MAX });\n    SkDebugf(\"large height: %.0f\\n\", large.height());\n}",
     "hash": "5a3eb1755164a7becec33cec6e6eca31",
     "file": "SkRRect_Reference",
     "name": "SkRRect::height()",
         "stdout": "unsorted height: 5\\nlarge height: inf\\n"
+    },
+        "SkRRect_radii": {
+    "code": "void draw(SkCanvas* canvas) {\n    for (SkScalar radiusX : { SK_ScalarNaN, SK_ScalarInfinity, 100.f, 50.f, 25.f} ) {\n        SkRRect rrect1 = SkRRect::MakeRectXY({10, 20, 60, 220}, radiusX, 200);\n        SkDebugf(\"left corner: (%g) %g\\n\", radiusX, rrect1.radii(SkRRect::kUpperLeft_Corner).fX);\n    }\n}",
+    "hash": "8d5c88478528584913867ada423e0d59",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::radii()",
+        "stdout": "left corner: (nan) 0\\nleft corner: (inf) 0\\nleft corner: (100) 25\\nleft corner: (50) 25\\nleft corner: (25) 12.5\\n"
+    },
+        "SkRRect_rect": {
+    "code": "void draw(SkCanvas* canvas) {\n    for (SkScalar left : { SK_ScalarNaN, SK_ScalarInfinity, 100.f, 50.f, 25.f} ) {\n        SkRRect rrect1 = SkRRect::MakeRectXY({left, 20, 60, 220}, 50, 200);\n        SkDebugf(\"left bounds: (%g) %g\\n\", left, rrect1.rect().fLeft);\n    }\n}",
+    "hash": "6831adf4c536047f4709c686feb10c48",
+    "file": "SkRRect_Reference",
+    "name": "SkRRect::rect()",
+        "stdout": "left bounds: (nan) 0\\nleft bounds: (inf) 0\\nleft bounds: (100) 60\\nleft bounds: (50) 50\\nleft bounds: (25) 25\\n"
     },
         "SkRRect_width": {
     "code": "void draw(SkCanvas* canvas) {\n    SkRRect unsorted = SkRRect::MakeRect({ 15, 25, 10, 5 });\n    SkDebugf(\"unsorted width: %g\\n\", unsorted.width());\n    SkRRect large = SkRRect::MakeRect({ -FLT_MAX, 1, FLT_MAX, 2 });\n    SkDebugf(\"large width: %.0f\\n\", large.width());\n}",
@@ -3297,7 +3332,7 @@
     "code": "void draw(SkCanvas* canvas) {\n    canvas->drawImage(image, 0, 0);\n    canvas->drawColor(0xFF00FF00, SkBlendMode::kColor);\n}",
     "width": 256,
     "height": 256,
-    "hash": "953eb53ac00e22d098c1a1290379282e",
+    "hash": "5d7c6e23a34ca9bf3ba8cda4cdc94cc4",
     "file": "SkBlendMode_Reference",
     "name": "Color"
 },
@@ -3321,7 +3356,7 @@
     "code": "void draw(SkCanvas* canvas) {\n    canvas->drawImage(image, 0, 0);\n    SkColor colors[] = { SK_ColorWHITE, SK_ColorBLACK };\n    SkPoint horz[] = { { 0, 0 }, { 256, 0 } };\n    SkPaint paint;\n    paint.setShader(SkGradientShader::MakeLinear(horz, colors, nullptr, SK_ARRAY_COUNT(colors),\n            SkShader::kClamp_TileMode));\n    paint.setBlendMode(SkBlendMode::kDarken);\n    canvas->drawPaint(paint);\n}",
     "width": 256,
     "height": 256,
-    "hash": "8c5065ba642f815602000f6b53cefc48",
+    "hash": "23c974d2759f523ca2f4a78ae86855c3",
     "file": "SkBlendMode_Reference",
     "name": "Darken"
 },
@@ -3393,7 +3428,7 @@
     "code": "void draw(SkCanvas* canvas) {\n    canvas->drawImage(image, 0, 0);\n    canvas->drawColor(0xFF00FF00, SkBlendMode::kHue);\n}",
     "width": 256,
     "height": 256,
-    "hash": "ade7ea4d06775cb252a1d15c7a8112d3",
+    "hash": "41e45570d682397d3b8ff2f51bd9c574",
     "file": "SkBlendMode_Reference",
     "name": "Hue"
 },
@@ -3401,7 +3436,7 @@
     "code": "void draw(SkCanvas* canvas) {\n    canvas->drawImage(image, 0, 0);\n    SkColor colors[] = { SK_ColorBLACK, SK_ColorWHITE };\n    SkPoint horz[] = { { 0, 0 }, { 256, 0 } };\n    SkPaint paint;\n    paint.setShader(SkGradientShader::MakeLinear(horz, colors, nullptr, SK_ARRAY_COUNT(colors),\n            SkShader::kClamp_TileMode));\n    paint.setBlendMode(SkBlendMode::kLighten);\n    canvas->drawPaint(paint);\n}",
     "width": 256,
     "height": 256,
-    "hash": "bbbe1a7b2587e76f9b2c7996b188a054",
+    "hash": "95cb08b8c8db3af3b2c9ad56ae7d6bc1",
     "file": "SkBlendMode_Reference",
     "name": "Lighten"
 },
@@ -3409,7 +3444,7 @@
     "code": "void draw(SkCanvas* canvas) {\n    canvas->drawImage(image, 0, 0);\n    canvas->drawColor(0xFF00FF00, SkBlendMode::kLuminosity);\n}",
     "width": 256,
     "height": 256,
-    "hash": "7161fa58aa064ee229ae346cb2e165c4",
+    "hash": "7d42fe34ae20dd9e12c39dc3950e9989",
     "file": "SkBlendMode_Reference",
     "name": "Luminosity"
 },
@@ -3425,7 +3460,7 @@
     "code": "void draw(SkCanvas* canvas) {\n    canvas->drawImage(image, 0, 0);\n    canvas->drawImage(image, 128, 0);\n    canvas->drawImage(image, 0, 128);\n    canvas->drawImage(image, 128, 128);\n    SkPaint paint;\n    paint.setBlendMode(SkBlendMode::kDstATop);\n    SkColor alphas[] = { SK_ColorBLACK, SK_ColorTRANSPARENT };\n    SkPoint vert[] = { { 0, 0 }, { 0, 256 } };\n    paint.setShader(SkGradientShader::MakeLinear(vert, alphas, nullptr, SK_ARRAY_COUNT(alphas),\n            SkShader::kClamp_TileMode));\n    canvas->drawPaint(paint);\n    canvas->clipRect( { 30, 30, 226, 226 } );\n    canvas->drawColor(0x80bb9977, SkBlendMode::kMultiply);\n}",
     "width": 256,
     "height": 256,
-    "hash": "145418271d58afc4070e7df42095c750",
+    "hash": "eb29c896f008dfbef09e16b85114fc3a",
     "file": "SkBlendMode_Reference",
     "name": "Multiply"
 },
@@ -3449,7 +3484,7 @@
     "code": "void draw(SkCanvas* canvas) {\n    canvas->drawImage(image, 0, 0);\n    canvas->drawColor(0xFF00FF00, SkBlendMode::kSaturation);\n}",
     "width": 256,
     "height": 256,
-    "hash": "4a99f5f6738b18afd92a4cb2bd762bf0",
+    "hash": "a48698975d236573cef512f94a7e360b",
     "file": "SkBlendMode_Reference",
     "name": "Saturation"
 },
@@ -7566,10 +7601,10 @@
     "name": "SkRGBToHSV"
 },
     "SkRRect_Corner": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkRRect rrect;\n    SkVector corners[] = {{25, 17}, {17, 19}, {19, 15}, {15, 15}};\n    rrect.setRectRadii({30, 10, 100, 60}, corners);\n    canvas->drawRRect(rrect, paint);\n    paint.setColor(SK_ColorWHITE);\n    const SkRect r = rrect.getBounds();\n    canvas->drawLine(r.fLeft, r.fTop + rrect.radii(SkRRect::kUpperLeft_Corner).fY,\n                     r.fRight, r.fTop + rrect.radii(SkRRect::kUpperRight_Corner).fY, paint);\n    canvas->drawLine(r.fLeft, r.fBottom - rrect.radii(SkRRect::kLowerLeft_Corner).fY,\n                     r.fRight, r.fBottom - rrect.radii(SkRRect::kLowerRight_Corner).fY, paint);\n    canvas->drawLine(r.fLeft + rrect.radii(SkRRect::kUpperLeft_Corner).fX, r.fTop,\n                     r.fLeft + rrect.radii(SkRRect::kLowerLeft_Corner).fX, r.fBottom, paint);\n    canvas->drawLine(r.fRight - rrect.radii(SkRRect::kUpperRight_Corner).fX, r.fTop,\n                     r.fRight - rrect.radii(SkRRect::kLowerRight_Corner).fX, r.fBottom, paint);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 70,
+    "hash": "9205393f30b156e1507e88aa27f1dd91",
     "file": "SkRRect_Reference",
     "name": "SkRRect::Corner"
 },
@@ -7637,30 +7672,6 @@
     "file": "SkRRect_Reference",
     "name": "SkRRect::operator=(const SkRRect& rrect)"
 },
-    "SkRRect_dump": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkRRect_Reference",
-    "name": "SkRRect::dump()"
-},
-    "SkRRect_dumpHex": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkRRect_Reference",
-    "name": "SkRRect::dumpHex"
-},
-    "SkRRect_dump_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkRRect_Reference",
-    "name": "SkRRect::dump_2"
-},
     "SkRRect_empty_constructor": {
     "code": "void draw(SkCanvas* canvas) {\n    SkRRect rrect;\n    SkPaint p;\n    p.setStyle(SkPaint::kStroke_Style);\n    p.setStrokeWidth(10);\n    canvas->drawRRect(rrect, p);\n    rrect.setRect({10, 10, 100, 50});\n    canvas->drawRRect(rrect, p);\n}",
     "width": 256,
@@ -7670,18 +7681,18 @@
     "name": "SkRRect::SkRRect()"
 },
     "SkRRect_equal_operator": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkRRect rrect1 = SkRRect::MakeRectXY({10, 20, 60, 220}, 50, 200);\n    SkRRect rrect2 = SkRRect::MakeRectXY(rrect1.rect(), 25, 100);\n    SkRRect rrect3 = SkRRect::MakeOval(rrect1.rect());\n    canvas->drawRRect(rrect1, SkPaint());\n    std::string str = \"rrect1 \" + std::string(rrect1 == rrect2 ? \"=\" : \"!\") + \"= rrect2\";\n    canvas->drawString(str.c_str(), 10, 240, SkPaint());\n    canvas->translate(70, 0);\n    canvas->drawRRect(rrect2, SkPaint());\n    canvas->translate(70, 0);\n    canvas->drawRRect(rrect3, SkPaint());\n    str = \"rrect2 \" + std::string(rrect2 == rrect3 ? \"=\" : \"!\") + \"= rrect3\";\n    canvas->drawString(str.c_str(), -20, 240, SkPaint());\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "df181af37f1d2b06f0f45af73df7b47d",
     "file": "SkRRect_Reference",
     "name": "SkRRect::operator==(const SkRRect& a, const SkRRect& b)"
 },
     "SkRRect_getBounds": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkRRect rrect = SkRRect::MakeRectXY({20, 20, 220, 100}, 15, 15);\n    canvas->drawRRect(rrect, paint);\n    paint.setColor(SK_ColorWHITE);\n    rrect = SkRRect::MakeOval(rrect.getBounds());\n    canvas->drawRRect(rrect, paint);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 120,
+    "hash": "4577e2dcb086b241bb43d8b89ee0b0dd",
     "file": "SkRRect_Reference",
     "name": "SkRRect::getBounds"
 },
@@ -7702,18 +7713,18 @@
     "name": "SkRRect::getType"
 },
     "SkRRect_inset": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    SkRRect rrect = SkRRect::MakeRectXY({100, 20, 140, 220}, 50, 100);\n    for (int index = 0; index < 25; ++index) {\n       canvas->drawRRect(rrect, paint);\n       rrect.inset(-3, 3, &rrect);\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "f02f0110d5605dac6d14dcb8d1d8cb6e",
     "file": "SkRRect_Reference",
     "name": "SkRRect::inset()"
 },
     "SkRRect_inset_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    SkRRect rrect = SkRRect::MakeRectXY({10, 20, 180, 220}, 50, 100);\n    for (int index = 0; index < 25; ++index) {\n       canvas->drawRRect(rrect, paint);\n       rrect.inset(3, 3);\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "da61054322550a2d5ac15114da23bd23",
     "file": "SkRRect_Reference",
     "name": "SkRRect::inset_2"
 },
@@ -7782,52 +7793,44 @@
     "name": "SkRRect::kSizeInMemory"
 },
     "SkRRect_makeOffset": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    SkRRect rrect = SkRRect::MakeRectXY({100, 20, 140, 220}, 50, 100);\n    for (int index = 0; index < 25; ++index) {\n       canvas->drawRRect(rrect, paint);\n       rrect = rrect.makeOffset(-3, 3);\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "c433aa41eaf5e419e3349fb970a08151",
     "file": "SkRRect_Reference",
     "name": "SkRRect::makeOffset"
 },
     "SkRRect_notequal_operator": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkRRect rrect1 = SkRRect::MakeRectXY({10, 20, 60, 220}, 50, 100);\n    SkRRect rrect2 = SkRRect::MakeRectXY(rrect1.rect(), 50, 50);\n    SkRRect rrect3 = SkRRect::MakeOval(rrect1.rect());\n    canvas->drawRRect(rrect1, SkPaint());\n    std::string str = \"rrect1 \" + std::string(rrect1 == rrect2 ? \"=\" : \"!\") + \"= rrect2\";\n    canvas->drawString(str.c_str(), 10, 240, SkPaint());\n    canvas->translate(70, 0);\n    canvas->drawRRect(rrect2, SkPaint());\n    canvas->translate(70, 0);\n    canvas->drawRRect(rrect3, SkPaint());\n    str = \"rrect2 \" + std::string(rrect2 == rrect3 ? \"=\" : \"!\") + \"= rrect3\";\n    canvas->drawString(str.c_str(), -20, 240, SkPaint());\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "505e47b3e6474ebdecdc04c3c2af2c34",
     "file": "SkRRect_Reference",
     "name": "SkRRect::operator!=(const SkRRect& a, const SkRRect& b)"
 },
     "SkRRect_offset": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    SkRRect rrect = SkRRect::MakeRectXY({100, 20, 140, 220}, 50, 100);\n    for (int index = 0; index < 25; ++index) {\n       canvas->drawRRect(rrect, paint);\n       rrect.offset(3, 3);\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "a45cdd46ef2fe0df62d84d41713e82e2",
     "file": "SkRRect_Reference",
     "name": "SkRRect::offset()"
 },
     "SkRRect_outset": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    SkRRect rrect = SkRRect::MakeRectXY({100, 20, 140, 220}, 50, 100);\n    for (int index = 0; index < 25; ++index) {\n       canvas->drawRRect(rrect, paint);\n       rrect.outset(-3, 3, &rrect);\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "4d69b6d9c7726c47c42827d79fc7899c",
     "file": "SkRRect_Reference",
     "name": "SkRRect::outset()"
 },
     "SkRRect_outset_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    SkRRect rrect = SkRRect::MakeRectXY({100, 20, 140, 220}, 50, 100);\n    for (int index = 0; index < 25; ++index) {\n       canvas->drawRRect(rrect, paint);\n       rrect.outset(3, 3);\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "4391cced86653dcd0f84439a5c0bb3f2",
     "file": "SkRRect_Reference",
     "name": "SkRRect::outset_2"
-},
-    "SkRRect_radii": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkRRect_Reference",
-    "name": "SkRRect::radii()"
 },
     "SkRRect_readFromMemory": {
     "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
@@ -7836,14 +7839,6 @@
     "hash": "882e8e0103048009a25cfc20400492f7",
     "file": "SkRRect_Reference",
     "name": "SkRRect::readFromMemory"
-},
-    "SkRRect_rect": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkRRect_Reference",
-    "name": "SkRRect::rect()"
 },
     "SkRRect_setEmpty": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkRRect rrect = SkRRect::MakeRect({30, 10, 100, 60});\n    canvas->drawRRect(rrect, paint);\n    rrect.setEmpty();\n    paint.setColor(SK_ColorBLUE);\n    canvas->drawRRect(rrect, paint);\n}",
@@ -7878,10 +7873,10 @@
     "name": "SkRRect::setRect"
 },
     "SkRRect_setRectRadii": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setStrokeWidth(15);\n    paint.setStrokeCap(SkPaint::kSquare_Cap);\n    paint.setAntiAlias(true);\n    float intervals[] = { 5, 21.75f };\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));\n    SkPath path;\n    SkRRect rrect;\n    SkVector corners[] = {{15, 17}, {17, 19}, {19, 15}, {15, 15}};\n    rrect.setRectRadii({20, 20, 100, 100}, corners);\n    path.addRRect(rrect, SkPath::kCW_Direction);\n    canvas->drawPath(path, paint);\n    path.rewind();\n    path.addRRect(rrect, SkPath::kCCW_Direction, 1);\n    canvas->translate(120, 0);\n    canvas->drawPath(path, paint);\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "4589dd49da291f8cd414db96c12851c7",
     "file": "SkRRect_Reference",
     "name": "SkRRect::setRectRadii"
 },

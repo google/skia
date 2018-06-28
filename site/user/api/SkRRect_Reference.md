@@ -14,7 +14,7 @@ SkRRect related constants are defined by <code>enum</code>, <code>enum class</co
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_Corner'>Corner</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>corner radii order</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_Type'>Type</a></td>
@@ -34,11 +34,11 @@ SkRRect related constants are defined by <code>enum</code>, <code>enum class</co
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kLowerLeft_Corner'>kLowerLeft Corner</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>index of bottom-left corner radii</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kLowerRight_Corner'>kLowerRight Corner</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>index of bottom-right corner radii</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kNinePatch_Type'>kNinePatch Type</a></td>
@@ -62,11 +62,11 @@ SkRRect related constants are defined by <code>enum</code>, <code>enum class</co
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kUpperLeft_Corner'>kUpperLeft Corner</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>index of top-left corner radii</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kUpperRight_Corner'>kUpperRight Corner</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>index of top-right corner radii</td>
   </tr>
 </table>
 
@@ -157,7 +157,7 @@ SkRRect can be constructed or initialized by these functions, including C++ clas
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_makeOffset'>makeOffset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>offsets bounds and radii</td>
   </tr>
 </table>
 
@@ -170,7 +170,7 @@ SkRRect operators inline class member functions with arithmetic equivalents.
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_notequal_operator'>operator!=(const SkRRect& a, const SkRRect& b)</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if members are unequal</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_copy_operator'>operator=(const SkRRect& rrect)</a></td>
@@ -178,7 +178,7 @@ SkRRect operators inline class member functions with arithmetic equivalents.
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_equal_operator'>operator==(const SkRRect& a, const SkRRect& b)</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if members are equal</td>
   </tr>
 </table>
 
@@ -207,19 +207,19 @@ SkRRect member functions read and modify the structure properties.
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_contains'>contains</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='SkRect_Reference#Rect'>Rect</a> is inside</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_dump_2'>dump</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sends text representation to standard output</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_dumpHex'>dumpHex</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sends text representation using hexadecimal to standard output</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_getBounds'>getBounds</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns bounds</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_getSimpleRadii'>getSimpleRadii</a></td>
@@ -235,7 +235,7 @@ SkRRect member functions read and modify the structure properties.
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_inset'>inset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>insets bounds and radii</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_isComplex'>isComplex</a></td>
@@ -267,19 +267,19 @@ SkRRect member functions read and modify the structure properties.
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_makeOffset'>makeOffset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>offsets bounds and radii</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_offset'>offset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>offsets bounds and radii</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_outset'>outset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>outsets bounds and radii</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_radii'>radii</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns x-axis and y-axis radii for one corner</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_readFromMemory'>readFromMemory</a></td>
@@ -287,7 +287,7 @@ SkRRect member functions read and modify the structure properties.
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_rect'>rect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns bounds</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_setEmpty'>setEmpty</a></td>
@@ -315,7 +315,7 @@ SkRRect member functions read and modify the structure properties.
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_transform'>transform</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>scales and offsets into copy</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_type'>type</a></td>
@@ -1129,7 +1129,7 @@ sets to <a href='#SkRRect_kSimple_Type'>kSimple Type</a>. Otherwise, sets to <a 
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="4589dd49da291f8cd414db96c12851c7"></fiddle-embed></div>
 
 ### See Also
 
@@ -1158,37 +1158,37 @@ The radii are stored: top-left, top-right, bottom-right, bottom-left.
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kUpperLeft_Corner'><code>SkRRect::kUpperLeft_Corner</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # incomplete ##</td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-incomplete</td>
+index of top-left corner radii</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kUpperRight_Corner'><code>SkRRect::kUpperRight_Corner</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # incomplete ##</td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-incomplete</td>
+index of top-right corner radii</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kLowerRight_Corner'><code>SkRRect::kLowerRight_Corner</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # incomplete ##</td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-incomplete</td>
+index of bottom-right corner radii</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kLowerLeft_Corner'><code>SkRRect::kLowerLeft_Corner</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # incomplete ##</td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>3</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-incomplete</td>
+index of bottom-left corner radii</td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="9205393f30b156e1507e88aa27f1dd91"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_radii'>radii</a>
 
 <a name='SkRRect_rect'></a>
 ## rect
@@ -1197,17 +1197,33 @@ incomplete
 const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkRRect_rect'>rect</a>() const
 </pre>
 
+Returns bounds. Bounds may have zero width or zero height. Bounds right is
+greater than or equal to left; bounds bottom is greater than or equal to top.
+Result is identical to <a href='#SkRRect_getBounds'>getBounds</a>.
+
 ### Return Value
 
-incomplete
+bounding box
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="6831adf4c536047f4709c686feb10c48">
+
+#### Example Output
+
+~~~~
+left bounds: (nan) 0
+left bounds: (inf) 0
+left bounds: (100) 60
+left bounds: (50) 50
+left bounds: (25) 25
+~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_getBounds'>getBounds</a>
 
 ---
 
@@ -1218,24 +1234,44 @@ incomplete
 <a href='SkPoint_Reference#SkVector'>SkVector</a> <a href='#SkRRect_radii'>radii</a>(<a href='#SkRRect_Corner'>Corner</a> corner) const
 </pre>
 
+Returns <a href='undocumented#Scalar'>Scalar</a> pair for radius of curve on x-axis and y-axis for one <a href='#SkRRect_radii_corner'>corner</a>.
+Both radii may be zero. If not zero, both are positive and finite.
+
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_radii_corner'><code><strong>corner</strong></code></a></td>
-    <td>incomplete</td>
+    <td>one of: <a href='#SkRRect_kUpperLeft_Corner'>kUpperLeft Corner</a>, <a href='#SkRRect_kUpperRight_Corner'>kUpperRight Corner</a>,
+<a href='#SkRRect_kLowerRight_Corner'>kLowerRight Corner</a>, <a href='#SkRRect_kLowerLeft_Corner'>kLowerLeft Corner</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+x-axis and y-axis radii for one <a href='#SkRRect_radii_corner'>corner</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="8d5c88478528584913867ada423e0d59"><div>Finite values are scaled proportionately to fit; other values are set to zero.
+Scaled values cannot be larger than 25, half the bounding rect width.
+Small scaled values are halved to scale in proportion to the y-axis <a href='#SkRRect_radii_corner'>corner</a>
+radius, which is twice the bounds height.
+</div>
+
+#### Example Output
+
+~~~~
+left corner: (nan) 0
+left corner: (inf) 0
+left corner: (100) 25
+left corner: (50) 25
+left corner: (25) 12.5
+~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_Corner'>Corner</a>
 
 ---
 
@@ -1246,17 +1282,21 @@ incomplete
 const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkRRect_getBounds'>getBounds</a>() const
 </pre>
 
+Returns bounds. Bounds may have zero width or zero height. Bounds right is
+greater than or equal to left; bounds bottom is greater than or equal to top.
+Result is identical to <a href='#SkRRect_rect'>rect</a>.
+
 ### Return Value
 
-incomplete
+bounding box
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="4577e2dcb086b241bb43d8b89ee0b0dd"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_rect'>rect</a>
 
 ---
 
@@ -1267,27 +1307,32 @@ incomplete
 bool <a href='#SkRRect_equal_operator'>operator==(const SkRRect& a, const SkRRect& b)</a>
 </pre>
 
+Returns true if bounds and radii in <a href='#SkRRect_equal_operator_a'>a</a> are equal to bounds and radii in <a href='#SkRRect_equal_operator_b'>b</a>.
+
+<a href='#SkRRect_equal_operator_a'>a</a> and <a href='#SkRRect_equal_operator_b'>b</a> are not equal if either contain NaN. <a href='#SkRRect_equal_operator_a'>a</a> and <a href='#SkRRect_equal_operator_b'>b</a> are equal if members
+contain zeroes width different signs.
+
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_equal_operator_a'><code><strong>a</strong></code></a></td>
-    <td>incomplete</td>
+    <td><a href='SkRect_Reference#Rect'>Rect</a> bounds and radii to compare</td>
   </tr>
   <tr>    <td><a name='SkRRect_equal_operator_b'><code><strong>b</strong></code></a></td>
-    <td>incomplete</td>
+    <td><a href='SkRect_Reference#Rect'>Rect</a> bounds and radii to compare</td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+true if members are equal
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="df181af37f1d2b06f0f45af73df7b47d"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_notequal_operator'>operator!=(const SkRRect& a, const SkRRect& b)</a>
 
 ---
 
@@ -1298,27 +1343,32 @@ incomplete
 bool <a href='#SkRRect_notequal_operator'>operator!=(const SkRRect& a, const SkRRect& b)</a>
 </pre>
 
+Returns true if bounds and radii in <a href='#SkRRect_notequal_operator_a'>a</a> are not equal to bounds and radii in <a href='#SkRRect_notequal_operator_b'>b</a>.
+
+<a href='#SkRRect_notequal_operator_a'>a</a> and <a href='#SkRRect_notequal_operator_b'>b</a> are not equal if either contain NaN. <a href='#SkRRect_notequal_operator_a'>a</a> and <a href='#SkRRect_notequal_operator_b'>b</a> are equal if members
+contain zeroes width different signs.
+
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_notequal_operator_a'><code><strong>a</strong></code></a></td>
-    <td>incomplete</td>
+    <td><a href='SkRect_Reference#Rect'>Rect</a> bounds and radii to compare</td>
   </tr>
   <tr>    <td><a name='SkRRect_notequal_operator_b'><code><strong>b</strong></code></a></td>
-    <td>incomplete</td>
+    <td><a href='SkRect_Reference#Rect'>Rect</a> bounds and radii to compare</td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+true if members are not equal
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="505e47b3e6474ebdecdc04c3c2af2c34"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_equal_operator'>operator==(const SkRRect& a, const SkRRect& b)</a>
 
 ---
 
@@ -1342,23 +1392,23 @@ It is valid for <a href='#SkRRect_inset_dst'>dst</a> == this.
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_inset_dx'><code><strong>dx</strong></code></a></td>
-    <td>incomplete</td>
+    <td>added to <a href='#SkRRect_rect'>rect</a>.fLeft, and subtracted from <a href='#SkRRect_rect'>rect</a>.fRight</td>
   </tr>
   <tr>    <td><a name='SkRRect_inset_dy'><code><strong>dy</strong></code></a></td>
-    <td>incomplete</td>
+    <td>added to <a href='#SkRRect_rect'>rect</a>.fTop, and subtracted from <a href='#SkRRect_rect'>rect</a>.fBottom</td>
   </tr>
   <tr>    <td><a name='SkRRect_inset_dst'><code><strong>dst</strong></code></a></td>
-    <td>incomplete</td>
+    <td>insets bounds and radii</td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="f02f0110d5605dac6d14dcb8d1d8cb6e"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_outset'>outset</a><sup><a href='#SkRRect_outset_2'>[2]</a></sup> <a href='#SkRRect_offset'>offset</a> <a href='#SkRRect_makeOffset'>makeOffset</a>
 
 ---
 
@@ -1371,20 +1421,20 @@ void <a href='#SkRRect_inset'>inset</a>(<a href='undocumented#SkScalar'>SkScalar
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_inset_2_dx'><code><strong>dx</strong></code></a></td>
-    <td>incomplete</td>
+    <td>added to <a href='#SkRRect_rect'>rect</a>.fLeft, and subtracted from <a href='#SkRRect_rect'>rect</a>.fRight</td>
   </tr>
   <tr>    <td><a name='SkRRect_inset_2_dy'><code><strong>dy</strong></code></a></td>
-    <td>incomplete</td>
+    <td>added to <a href='#SkRRect_rect'>rect</a>.fTop, and subtracted from <a href='#SkRRect_rect'>rect</a>.fBottom</td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="da61054322550a2d5ac15114da23bd23"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_outset'>outset</a><sup><a href='#SkRRect_outset_2'>[2]</a></sup> <a href='#SkRRect_offset'>offset</a> <a href='#SkRRect_makeOffset'>makeOffset</a>
 
 ---
 
@@ -1404,23 +1454,23 @@ It is valid for <a href='#SkRRect_outset_dst'>dst</a> == this.
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_outset_dx'><code><strong>dx</strong></code></a></td>
-    <td>incomplete</td>
+    <td>subtracted from <a href='#SkRRect_rect'>rect</a>.fLeft, and added to <a href='#SkRRect_rect'>rect</a>.fRight</td>
   </tr>
   <tr>    <td><a name='SkRRect_outset_dy'><code><strong>dy</strong></code></a></td>
-    <td>incomplete</td>
+    <td>subtracted from <a href='#SkRRect_rect'>rect</a>.fTop, and added to <a href='#SkRRect_rect'>rect</a>.fBottom</td>
   </tr>
   <tr>    <td><a name='SkRRect_outset_dst'><code><strong>dst</strong></code></a></td>
-    <td>incomplete</td>
+    <td>outset bounds and radii</td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="4d69b6d9c7726c47c42827d79fc7899c"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_inset'>inset</a><sup><a href='#SkRRect_inset_2'>[2]</a></sup> <a href='#SkRRect_offset'>offset</a> <a href='#SkRRect_makeOffset'>makeOffset</a>
 
 ---
 
@@ -1433,20 +1483,20 @@ void <a href='#SkRRect_outset'>outset</a>(<a href='undocumented#SkScalar'>SkScal
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_outset_2_dx'><code><strong>dx</strong></code></a></td>
-    <td>incomplete</td>
+    <td>subtracted from <a href='#SkRRect_rect'>rect</a>.fLeft, and added to <a href='#SkRRect_rect'>rect</a>.fRight</td>
   </tr>
   <tr>    <td><a name='SkRRect_outset_2_dy'><code><strong>dy</strong></code></a></td>
-    <td>incomplete</td>
+    <td>subtracted from <a href='#SkRRect_rect'>rect</a>.fTop, and added to <a href='#SkRRect_rect'>rect</a>.fBottom</td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="4391cced86653dcd0f84439a5c0bb3f2"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_inset'>inset</a><sup><a href='#SkRRect_inset_2'>[2]</a></sup> <a href='#SkRRect_offset'>offset</a> <a href='#SkRRect_makeOffset'>makeOffset</a>
 
 ---
 
@@ -1457,25 +1507,25 @@ incomplete
 void <a href='#SkRRect_offset'>offset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy)
 </pre>
 
-Translate the rrect by (<a href='#SkRRect_offset_dx'>dx</a>, <a href='#SkRRect_offset_dy'>dy</a>).
+Translates the rrect by (<a href='#SkRRect_offset_dx'>dx</a>, <a href='#SkRRect_offset_dy'>dy</a>).
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_offset_dx'><code><strong>dx</strong></code></a></td>
-    <td>incomplete</td>
+    <td>offset added to <a href='#SkRRect_rect'>rect</a>.fLeft and <a href='#SkRRect_rect'>rect</a>.fRight</td>
   </tr>
   <tr>    <td><a name='SkRRect_offset_dy'><code><strong>dy</strong></code></a></td>
-    <td>incomplete</td>
+    <td>offset added to <a href='#SkRRect_rect'>rect</a>.fTop and <a href='#SkRRect_rect'>rect</a>.fBottom</td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="a45cdd46ef2fe0df62d84d41713e82e2"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_makeOffset'>makeOffset</a> <a href='#SkRRect_inset'>inset</a><sup><a href='#SkRRect_inset_2'>[2]</a></sup> <a href='#SkRRect_outset'>outset</a><sup><a href='#SkRRect_outset_2'>[2]</a></sup>
 
 ---
 
@@ -1489,24 +1539,24 @@ incomplete
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_makeOffset_dx'><code><strong>dx</strong></code></a></td>
-    <td>incomplete</td>
+    <td>offset added to <a href='#SkRRect_rect'>rect</a>.fLeft and <a href='#SkRRect_rect'>rect</a>.fRight</td>
   </tr>
   <tr>    <td><a name='SkRRect_makeOffset_dy'><code><strong>dy</strong></code></a></td>
-    <td>incomplete</td>
+    <td>offset added to <a href='#SkRRect_rect'>rect</a>.fTop and <a href='#SkRRect_rect'>rect</a>.fBottom</td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+<a href='#RRect'>Round Rect</a> bounds offset by (<a href='#SkRRect_makeOffset_dx'>dx</a>, <a href='#SkRRect_makeOffset_dy'>dy</a>), with unchanged corner radii
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="c433aa41eaf5e419e3349fb970a08151"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_offset'>offset</a> <a href='#SkRRect_inset'>inset</a><sup><a href='#SkRRect_inset_2'>[2]</a></sup> <a href='#SkRRect_outset'>outset</a><sup><a href='#SkRRect_outset_2'>[2]</a></sup>
 
 ---
 
@@ -1517,19 +1567,19 @@ incomplete
 bool <a href='#SkRRect_contains'>contains</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect) const
 </pre>
 
-Returns true if 'rect' is wholy inside the RR, and both
-are not empty.
+Returns true if rect is inside the bounds and corner radii, and if
+<a href='#RRect'>Round Rect</a> and rect are not empty.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_contains_rect'><code><strong>rect</strong></code></a></td>
-    <td>incomplete</td>
+    <td>area tested for containment</td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+true if <a href='#RRect'>Round Rect</a> contains rect
 
 ### Example
 
@@ -1537,7 +1587,7 @@ incomplete
 
 ### See Also
 
-incomplete
+<a href='SkRect_Reference#SkRect_contains'>SkRect::contains</a><sup><a href='SkRect_Reference#SkRect_contains_2'>[2]</a></sup><sup><a href='SkRect_Reference#SkRect_contains_3'>[3]</a></sup>
 
 ---
 
@@ -1657,25 +1707,25 @@ incomplete
 bool <a href='#SkRRect_transform'>transform</a>(const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>& matrix, <a href='#SkRRect'>SkRRect</a>* dst) const
 </pre>
 
-Transform by the specified <a href='#SkRRect_transform_matrix'>matrix</a>, and put the result in <a href='#SkRRect_transform_dst'>dst</a>.
+Transforms by <a href='#RRect'>Round Rect</a> by <a href='#SkRRect_transform_matrix'>matrix</a>, storing result in <a href='#SkRRect_transform_dst'>dst</a>.
+Returns true if <a href='#RRect'>Round Rect</a> transformed can be represented by another <a href='#RRect'>Round Rect</a>.
+Returns false if <a href='#SkRRect_transform_matrix'>matrix</a> contains transformations other than scale and translate.
+
+Asserts in debug builds if <a href='#RRect'>Round Rect</a> equals <a href='#SkRRect_transform_dst'>dst</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_transform_matrix'><code><strong>matrix</strong></code></a></td>
-    <td><a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a> specifying the transform. Must only contain
-scale and/or translate, or this call will fail.
-</td>
+    <td><a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a> specifying the transform</td>
   </tr>
   <tr>    <td><a name='SkRRect_transform_dst'><code><strong>dst</strong></code></a></td>
-    <td><a href='#SkRRect'>SkRRect</a> to store the result. It is an error to use this,
-which would make this function no longer const.
-</td>
+    <td><a href='#SkRRect'>SkRRect</a> to store the result</td>
   </tr>
 </table>
 
 ### Return Value
 
-true on success, false on failure.
+true if transformation succeeded.
 
 ### Example
 
@@ -1694,20 +1744,48 @@ incomplete
 void <a href='#SkRRect_dump'>dump</a>(bool asHex) const
 </pre>
 
+Writes text representation of <a href='#RRect'>Round Rect</a> to standard output.
+Set <a href='#SkRRect_dump_asHex'>asHex</a> true to generate exact binary representations
+of floating point numbers.
+
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_dump_asHex'><code><strong>asHex</strong></code></a></td>
-    <td>incomplete</td>
+    <td>true if <a href='undocumented#SkScalar'>SkScalar</a> values are written as hexadecimal</td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="265b8d23288dc8026ff788e809360af7">
+
+#### Example Output
+
+~~~~
+SkRect::MakeLTRB(0.857143f, 0.666667f, 0.857143f, 0.666667f);
+const SkPoint corners[] = {
+{ 0, 0 },
+{ 0, 0 },
+{ 0, 0 },
+{ 0, 0 },
+};
+SkRect::MakeLTRB(SkBits2Float(0x3f5b6db7), /* 0.857143 */
+SkBits2Float(0x3f2aaaab), /* 0.666667 */
+SkBits2Float(0x3f5b6db7), /* 0.857143 */
+SkBits2Float(0x3f2aaaab)  /* 0.666667 */);
+const SkPoint corners[] = {
+{ SkBits2Float(0x00000000), SkBits2Float(0x00000000) }, /* 0.000000 0.000000 */
+{ SkBits2Float(0x00000000), SkBits2Float(0x00000000) }, /* 0.000000 0.000000 */
+{ SkBits2Float(0x00000000), SkBits2Float(0x00000000) }, /* 0.000000 0.000000 */
+{ SkBits2Float(0x00000000), SkBits2Float(0x00000000) }, /* 0.000000 0.000000 */
+};
+~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_dumpHex'>dumpHex</a> <a href='SkRect_Reference#SkRect_dump'>SkRect::dump</a><sup><a href='SkRect_Reference#SkRect_dump_2'>[2]</a></sup> <a href='SkPath_Reference#SkPath_dump'>SkPath::dump</a><sup><a href='SkPath_Reference#SkPath_dump_2'>[2]</a></sup> <a href='undocumented#SkPathMeasure_dump'>SkPathMeasure::dump</a>
 
 ---
 
@@ -1717,13 +1795,33 @@ incomplete
 void <a href='#SkRRect_dump'>dump</a>() const
 </pre>
 
+Writes text representation of <a href='#RRect'>Round Rect</a> to standard output. The representation
+may be directly compiled as C++ code. Floating point values are written
+with limited precision; it may not be possible to reconstruct original
+<a href='#RRect'>Round Rect</a> from output.
+
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="f850423c7c0c4f803d479ecd92221059">
+
+#### Example Output
+
+~~~~
+SkRect::MakeLTRB(0.857143f, 0.666667f, 0.857143f, 0.666667f);
+const SkPoint corners[] = {
+{ 0, 0 },
+{ 0, 0 },
+{ 0, 0 },
+{ 0, 0 },
+};
+rrect is not equal to copy
+~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_dumpHex'>dumpHex</a> <a href='SkRect_Reference#SkRect_dump'>SkRect::dump</a><sup><a href='SkRect_Reference#SkRect_dump_2'>[2]</a></sup> <a href='SkPath_Reference#SkPath_dump'>SkPath::dump</a><sup><a href='SkPath_Reference#SkPath_dump_2'>[2]</a></sup> <a href='undocumented#SkPathMeasure_dump'>SkPathMeasure::dump</a>
 
 ---
 
@@ -1734,13 +1832,36 @@ incomplete
 void <a href='#SkRRect_dumpHex'>dumpHex</a>() const
 </pre>
 
+Writes text representation of <a href='#RRect'>Round Rect</a> to standard output. The representation
+may be directly compiled as C++ code. Floating point values are written
+in hexadecimal to preserve their exact bit pattern. The output reconstructs the
+original <a href='#RRect'>Round Rect</a>.
+
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="c73f5e2644d949b859f05bd367883454">
+
+#### Example Output
+
+~~~~
+SkRect::MakeLTRB(SkBits2Float(0x3f5b6db7), /* 0.857143 */
+SkBits2Float(0x3f2aaaab), /* 0.666667 */
+SkBits2Float(0x3f5b6db7), /* 0.857143 */
+SkBits2Float(0x3f2aaaab)  /* 0.666667 */);
+const SkPoint corners[] = {
+{ SkBits2Float(0x00000000), SkBits2Float(0x00000000) }, /* 0.000000 0.000000 */
+{ SkBits2Float(0x00000000), SkBits2Float(0x00000000) }, /* 0.000000 0.000000 */
+{ SkBits2Float(0x00000000), SkBits2Float(0x00000000) }, /* 0.000000 0.000000 */
+{ SkBits2Float(0x00000000), SkBits2Float(0x00000000) }, /* 0.000000 0.000000 */
+};
+rrect is equal to copy
+~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_dump'>dump</a><sup><a href='#SkRRect_dump_2'>[2]</a></sup> <a href='SkRect_Reference#SkRect_dumpHex'>SkRect::dumpHex</a> <a href='SkPath_Reference#SkPath_dumpHex'>SkPath::dumpHex</a>
 
 ---
 

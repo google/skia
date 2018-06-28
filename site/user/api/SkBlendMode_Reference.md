@@ -823,7 +823,7 @@ component with source if source is darker.
 
 ### Example
 
-<div><fiddle-embed name="8c5065ba642f815602000f6b53cefc48"></fiddle-embed></div>
+<div><fiddle-embed name="23c974d2759f523ca2f4a78ae86855c3"></fiddle-embed></div>
 
 ## <a name='Lighten'>Lighten</a>
 
@@ -838,7 +838,7 @@ component with source if source is lighter.
 
 ### Example
 
-<div><fiddle-embed name="bbbe1a7b2587e76f9b2c7996b188a054"></fiddle-embed></div>
+<div><fiddle-embed name="95cb08b8c8db3af3b2c9ad56ae7d6bc1"></fiddle-embed></div>
 
 ## <a name='Color_Dodge'>Color Dodge</a>
 
@@ -943,7 +943,7 @@ the product of <a href='undocumented#Unpremultiply'>Unpremultiplied</a> source a
 
 ### Example
 
-<div><fiddle-embed name="145418271d58afc4070e7df42095c750"></fiddle-embed></div>
+<div><fiddle-embed name="eb29c896f008dfbef09e16b85114fc3a"></fiddle-embed></div>
 
 ## <a name='Hue'>Hue</a>
 
@@ -957,7 +957,7 @@ source hue, leaving destination luminosity and saturation unchanged.
 
 ### Example
 
-<div><fiddle-embed name="ade7ea4d06775cb252a1d15c7a8112d3"></fiddle-embed></div>
+<div><fiddle-embed name="41e45570d682397d3b8ff2f51bd9c574"></fiddle-embed></div>
 
 ## <a name='Saturation'>Saturation</a>
 
@@ -971,7 +971,7 @@ source hue, leaving destination luminosity and saturation unchanged.
 
 ### Example
 
-<div><fiddle-embed name="4a99f5f6738b18afd92a4cb2bd762bf0"></fiddle-embed></div>
+<div><fiddle-embed name="a48698975d236573cef512f94a7e360b"></fiddle-embed></div>
 
 ## <a name='Color'>Color</a>
 
@@ -985,7 +985,7 @@ source hue and saturation, leaving destination luminosity unchanged.
 
 ### Example
 
-<div><fiddle-embed name="953eb53ac00e22d098c1a1290379282e"></fiddle-embed></div>
+<div><fiddle-embed name="5d7c6e23a34ca9bf3ba8cda4cdc94cc4"></fiddle-embed></div>
 
 ## <a name='Luminosity'>Luminosity</a>
 
@@ -999,7 +999,7 @@ source luminosity, leaving destination hue and saturation unchanged.
 
 ### Example
 
-<div><fiddle-embed name="7161fa58aa064ee229ae346cb2e165c4"></fiddle-embed></div>
+<div><fiddle-embed name="7d42fe34ae20dd9e12c39dc3950e9989"></fiddle-embed></div>
 
 <a name='SkBlendMode_Name'></a>
 ## SkBlendMode_Name
