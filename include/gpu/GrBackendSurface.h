@@ -19,6 +19,10 @@
 class GrVkImageLayout;
 #endif
 
+#ifdef SK_METAL
+#include "mtl/GrMtlTypes.h"
+#endif
+
 #if !SK_SUPPORT_GPU
 
 // SkSurface and SkImage rely on a minimal version of these always being available
@@ -52,6 +56,12 @@ public:
     }
 #endif
 
+#ifdef SK_METAL
+    static GrBackendFormat MakeMtl(GrMTLPixelFormat format) {
+        return GrBackendFormat(format);
+    }
+#endif
+
     static GrBackendFormat MakeMock(GrPixelConfig config) {
         return GrBackendFormat(config);
     }
@@ -69,6 +79,12 @@ public:
     const VkFormat* getVkFormat() const;
 #endif
 
+#ifdef SK_METAL
+    // If the backend API is Metal, this returns a pointer to a GrMTLPixelFormat. Otherwise
+    // it returns nullptr
+    const GrMTLPixelFormat* getMtlFormat() const;
+#endif
+
     // If the backend API is Mock, this returns a pointer to a GrPixelConfig. Otherwise
     // it returns nullptr.
     const GrPixelConfig* getMockFormat() const;
@@ -83,6 +99,10 @@ private:
     GrBackendFormat(const VkFormat vkFormat);
 #endif
 
+#ifdef SK_METAL
+    GrBackendFormat(const GrMTLPixelFormat mtlFormat);
+#endif
+
     GrBackendFormat(const GrPixelConfig config);
 
     GrBackend fBackend;
@@ -94,9 +114,12 @@ private:
             GrGLenum fFormat; // the sized, internal format of the GL resource
         } fGL;
 #ifdef SK_VULKAN
-        VkFormat      fVkFormat;
+        VkFormat         fVkFormat;
 #endif
-        GrPixelConfig fMockFormat;
+#ifdef SK_METAL
+        GrMTLPixelFormat fMtlFormat;
+#endif
+        GrPixelConfig    fMockFormat;
     };
 };
 
@@ -134,6 +157,13 @@ public:
                      const GrVkImageInfo& vkInfo);
 #endif
 
+#ifdef SK_METAL
+    GrBackendTexture(int width,
+                     int height,
+                     GrMipMapped,
+                     const GrMtlTextureInfo& mtlInfo);
+#endif
+
     GrBackendTexture(int width,
                      int height,
                      GrMipMapped,
@@ -165,6 +195,12 @@ public:
     void setVkImageLayout(VkImageLayout);
 #endif
 
+#ifdef SK_METAL
+    // If the backend API is Metal, copies a snapshot of the GrMtlTextureInfo struct into the passed
+    // in pointer and returns true. Otherwise returns false if the backend API is not Metal.
+    bool getMtlTextureInfo(GrMtlTextureInfo*) const;
+#endif
+
     // If the backend API is Mock, copies a snapshot of the GrMockTextureInfo struct into the passed
     // in pointer and returns true. Otherwise returns false if the backend API is not Mock.
     bool getMockTextureInfo(GrMockTextureInfo*) const;
@@ -187,6 +223,7 @@ private:
     friend class GrGpu;
     friend class GrGLGpu;
     friend class GrVkGpu;
+    friend class GrMtlGpu;
     friend class PromiseImageHelper;
 
     GrPixelConfig config() const { return fConfig; }
@@ -216,6 +253,9 @@ private:
         GrGLTextureInfo fGLInfo;
 #ifdef SK_VULKAN
         GrVkBackendSurfaceInfo fVkInfo;
+#endif
+#ifdef SK_METAL
+        GrMtlTextureInfo fMtlInfo;
 #endif
         GrMockTextureInfo fMockInfo;
     };
@@ -254,6 +294,13 @@ public:
     GrBackendRenderTarget(int width, int height, int sampleCnt, const GrVkImageInfo& vkInfo);
 #endif
 
+#ifdef SK_METAL
+    GrBackendRenderTarget(int width,
+                          int height,
+                          int sampleCnt,
+                          const GrMtlTextureInfo& mtlInfo);
+#endif
+
     GrBackendRenderTarget(int width,
                           int height,
                           int sampleCnt,
@@ -286,6 +333,12 @@ public:
     void setVkImageLayout(VkImageLayout);
 #endif
 
+#ifdef SK_METAL
+    // If the backend API is Metal, copies a snapshot of the GrMtlTextureInfo struct into the passed
+    // in pointer and returns true. Otherwise returns false if the backend API is not Metal.
+    bool getMtlTextureInfo(GrMtlTextureInfo*) const;
+#endif
+
     // If the backend API is Mock, copies a snapshot of the GrMockTextureInfo struct into the passed
     // in pointer and returns true. Otherwise returns false if the backend API is not Mock.
     bool getMockRenderTargetInfo(GrMockRenderTargetInfo*) const;
@@ -308,6 +361,7 @@ private:
     friend class GrGLGpu;
     friend class GrProxyProvider;
     friend class GrVkGpu;
+    friend class GrMtlGpu;
     GrPixelConfig config() const { return fConfig; }
 
 #ifdef SK_VULKAN
@@ -336,6 +390,9 @@ private:
         GrGLFramebufferInfo fGLInfo;
 #ifdef SK_VULKAN
         GrVkBackendSurfaceInfo fVkInfo;
+#endif
+#ifdef SK_METAL
+        GrMtlTextureInfo fMtlInfo;
 #endif
         GrMockRenderTargetInfo fMockInfo;
     };

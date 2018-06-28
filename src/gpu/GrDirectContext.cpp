@@ -218,6 +218,8 @@ sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContext
     if (!context->fGpu) {
         return nullptr;
     }
+
+    context->fCaps = context->fGpu->refCaps();
     if (!context->init(options)) {
         return nullptr;
     }

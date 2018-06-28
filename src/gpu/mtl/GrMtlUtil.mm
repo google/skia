@@ -113,3 +113,12 @@ GrPixelConfig GrMTLFormatToPixelConfig(MTLPixelFormat format) {
             return kUnknown_GrPixelConfig;
     }
 }
+
+id<MTLTexture> GrGetMTLTexture(const void* mtlTexture, GrWrapOwnership wrapOwnership) {
+    if (GrWrapOwnership::kAdopt_GrWrapOwnership == wrapOwnership) {
+        return (__bridge_transfer id<MTLTexture>)mtlTexture;
+    } else {
+        return (__bridge id<MTLTexture>)mtlTexture;
+    }
+}
+
