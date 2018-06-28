@@ -664,3 +664,9 @@ bool GrVkCaps::getConfigFromBackendFormat(const GrBackendFormat& format, SkColor
     return validate_image_info(*vkFormat, ct, config);
 }
 
+GrBackendFormat GrVkCaps::createFormatFromBackendTexture(const GrBackendTexture& backendTex) const {
+    GrVkImageInfo vkInfo;
+    SkAssertResult(backendTex.getVkImageInfo(&vkInfo));
+    return GrBackendFormat::MakeVk(vkInfo.fFormat);
+}
+

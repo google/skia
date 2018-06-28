@@ -7,6 +7,7 @@
 
 #include "GrMtlCaps.h"
 
+#include "GrBackendSurface.h"
 #include "GrShaderCaps.h"
 
 GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice> device,
@@ -313,4 +314,9 @@ void GrMtlCaps::initConfigTable() {
     // RGBA_half uses RGBA16Float
     info = &fConfigTable[kRGBA_half_GrPixelConfig];
     info->fFlags = ConfigInfo::kAllFlags;
+}
+
+GrBackendFormat
+GrMtlCaps::createFormatFromBackendTexture(const GrBackendTexture& backendTex) const {
+    return GrBackendFormat();
 }
